@@ -58,9 +58,22 @@ final biometricStatusProvider =
     });
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
+  // A fingerprint enrolled in system settings while the app was in the background changes
+  // what the menu offers.
+  late final AppLifecycleListener _lifecycle = AppLifecycleListener(
+    onResume: () => ref.invalidate(biometricStatusProvider),
+  );
+
+  @override
+  void dispose() {
+    _lifecycle.dispose();
+    super.dispose();
+  }
+
   @override
   void initState() {
     super.initState();
+    _lifecycle;
     WidgetsBinding.instance.addPostFrameCallback(
       (_) => ref.read(updateProvider.notifier).checkOnStart(),
     );

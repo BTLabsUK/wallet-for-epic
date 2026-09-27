@@ -114,15 +114,34 @@ class PlatformBiometricStore implements BiometricStore {
       return await action();
     } on PlatformException catch (error) {
       throw BiometricCancelled(error.message ?? error.code);
+    } on LocalAuthException catch (error) {
+      throw BiometricCancelled(error.description ?? error.code.name);
     }
   }
 
-  @override
-  Future<String?> read(String key) => _guard(() => _storage.read(key: key));
+  // flutter_secure_storage 11.2.0 keeps the key it unlocked for the first write of a new
+  // namespace for the rest of the process, so later reads skip the prompt despite
+  // requireBiometricsPerOperation (seen on the API 36 emulator; a cold start prompts every time).
+  // Until the process restarts, reads after a write therefore ask local_auth first.
+  bool _wroteThisProcess = false;
 
   @override
-  Future<void> write(String key, String value) =>
-      _guard(() => _storage.write(key: key, value: value));
+  Future<String?> read(String key) => _guard(() async {
+    if (_wroteThisProcess &&
+        !await _auth.authenticate(
+          localizedReason: 'Unlock wallet',
+          biometricOnly: true,
+        )) {
+      throw const BiometricCancelled('dismissed');
+    }
+    return _storage.read(key: key);
+  });
+
+  @override
+  Future<void> write(String key, String value) => _guard(() async {
+    await _storage.write(key: key, value: value);
+    _wroteThisProcess = true;
+  });
 
   @override
   Future<void> delete(String key) async {

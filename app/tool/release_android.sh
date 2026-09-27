@@ -34,7 +34,9 @@ package="" version_name="" entries=()
 for abi in arm64-v8a x86_64; do
   apk="$out/app-$abi-release.apk"
   [[ -f "$apk" ]] || { echo "missing $apk" >&2; exit 1; }
-  badging="$("$aapt2" dump badging "$apk" | head -1)"
+  # Keep only the first line in bash: `| head -1` would SIGPIPE aapt2 under pipefail.
+  badging="$("$aapt2" dump badging "$apk")"
+  badging="${badging%%$'\n'*}"
   package="$(sed -n "s/.*package: name='\([^']*\)'.*/\1/p" <<<"$badging")"
   code="$(sed -n "s/.*versionCode='\([0-9]*\)'.*/\1/p" <<<"$badging")"
   version_name="$(sed -n "s/.*versionName='\([^']*\)'.*/\1/p" <<<"$badging")"
