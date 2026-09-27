@@ -25,6 +25,9 @@ epic_wallet_util = { path = "../../playground/src/epic-wallet/util" }
 openssl = { version = "0.10", features = ["vendored"] }
 
 log = "0.4"
+# For the node's `/v1/status`, which HTTPNodeClient cannot call and whose `Client` is private in
+# epic_wallet_impls. Same version and TLS stack epic_wallet_impls already builds, so no new crates.
+reqwest = { version = "=0.12.20", default-features = false, features = ["blocking", "rustls-tls"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 thiserror = "2"

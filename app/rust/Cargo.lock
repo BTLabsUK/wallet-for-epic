@@ -1122,6 +1122,7 @@ dependencies = [
  "flutter_rust_bridge",
  "log",
  "openssl",
+ "reqwest",
  "serde",
  "serde_json",
  "tempfile",

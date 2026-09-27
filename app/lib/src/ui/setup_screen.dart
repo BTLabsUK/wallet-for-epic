@@ -59,6 +59,8 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
       _urlError = null;
       _error = null;
     });
+    // A wallet left open (e.g. after backing out of a restore) would pin its chain.
+    ref.read(sessionProvider.notifier).lock();
     try {
       final dataDir = await ref.read(walletDirProvider)(_preset.chain);
       final config = _preset.config(dataDir: dataDir, nodeUrl: url);

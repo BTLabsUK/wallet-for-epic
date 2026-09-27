@@ -52,9 +52,19 @@ class SessionNotifier extends Notifier<WalletSession?> {
   @override
   WalletSession? build() => null;
 
-  void unlocked(WalletSession session) => state = session;
+  /// Makes [session] the open wallet, disposing any other one first.
+  void unlocked(WalletSession session) {
+    final previous = state;
+    if (previous != null && !identical(previous, session)) previous.dispose();
+    state = session;
+  }
 
-  void lock() => state = null;
+  /// Disposes the open wallet, which also frees its chain for another network.
+  void lock() {
+    final previous = state;
+    state = null;
+    previous?.dispose();
+  }
 }
 
 WalletSession _requireSession(Ref ref) {
@@ -104,6 +114,9 @@ final nodeTipProvider = FutureProvider.autoDispose<NodeTip>((ref) {
   return ref.watch(walletServiceProvider).nodeTip(config: config);
 });
 
+/// Prefix of the core's final scan event when the scan failed.
+const String scanFailedPrefix = 'Scan failed:';
+
 class ScanState {
   const ScanState({
     this.running = false,
@@ -135,21 +148,32 @@ class ScanNotifier extends Notifier<ScanState> {
     final session = ref.read(sessionProvider);
     if (session == null || state.running) return false;
     state = const ScanState(running: true, message: 'Starting scan');
+    // The core ends every scan with a `finished` event; on failure its message starts with
+    // "Scan failed:" and the stream then closes with the error as well.
+    String? failure;
     try {
       await for (final progress in session.scan(startHeight: startHeight)) {
         if (!ref.mounted) return false;
+        if (progress.finished &&
+            progress.message.startsWith(scanFailedPrefix)) {
+          failure = progress.message;
+          continue;
+        }
         state = ScanState(
           running: !progress.finished,
           percent: progress.percent ?? state.percent,
           message: progress.message,
         );
       }
-      if (!ref.mounted) return false;
-      state = ScanState(message: state.message);
-      return true;
     } catch (error) {
-      if (ref.mounted) state = ScanState(error: describeError(error));
+      failure ??= describeError(error);
+    }
+    if (!ref.mounted) return false;
+    if (failure != null) {
+      state = ScanState(error: failure);
       return false;
     }
+    state = ScanState(message: state.message);
+    return true;
   }
 }

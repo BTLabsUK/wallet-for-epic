@@ -8,7 +8,7 @@
 //! Every method is blocking. epic-wallet's HTTP node client runs requests with `block_on` on its
 //! own global tokio runtime and panics if called from inside another runtime.
 
-use std::sync::atomic::AtomicBool;
+use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
 use std::sync::mpsc;
 use std::sync::Arc;
 
@@ -25,15 +25,16 @@ use epic_wallet_util::epic_util::{to_hex, Mutex, ZeroingString};
 
 use super::chain::ChainLease;
 use super::error::{CoreError, CoreResult};
+use super::node::EpicNodeClient;
 use super::{mnemonic, slate};
 use crate::api::types::{
     FeeEstimate, NodeTip, ScanProgress, Slate, TxEntry, TxKind, WalletConfig, WalletSummary,
 };
 
-type Provider = DefaultLCProvider<'static, HTTPNodeClient, ExtKeychain>;
-type Instance = dyn WalletInst<'static, Provider, HTTPNodeClient, ExtKeychain>;
+type Provider = DefaultLCProvider<'static, EpicNodeClient, ExtKeychain>;
+type Instance = dyn WalletInst<'static, Provider, EpicNodeClient, ExtKeychain>;
 type WalletHandle = Arc<Mutex<Box<Instance>>>;
-type OwnerApi = Owner<Provider, HTTPNodeClient, ExtKeychain>;
+type OwnerApi = Owner<Provider, EpicNodeClient, ExtKeychain>;
 
 /// Seed length in bytes for a wallet created without a phrase: 24 words.
 const NEW_SEED_BYTES: usize = 32;
@@ -48,23 +49,24 @@ fn node_client(config: &WalletConfig) -> CoreResult<HTTPNodeClient> {
     Ok(HTTPNodeClient::new(url, config.node_api_secret.clone())?)
 }
 
-fn wallet_handle(config: &WalletConfig) -> CoreResult<WalletHandle> {
+fn wallet_handle(config: &WalletConfig) -> CoreResult<(WalletHandle, Arc<AtomicU64>)> {
     if config.data_dir.trim().is_empty() {
         return Err(CoreError::InvalidArgument("data_dir is empty".into()));
     }
-    let client = node_client(config)?;
-    let wallet_impl = DefaultWalletImpl::<'static, HTTPNodeClient>::new(client)
+    let client = EpicNodeClient::new(node_client(config)?);
+    let highest_tip = client.highest_tip();
+    let wallet_impl = DefaultWalletImpl::<'static, EpicNodeClient>::new(client)
         .map_err(|e| LibWalletError::GenericError(e.to_string()))?;
     let mut wallet: Box<Instance> = Box::new(wallet_impl);
     wallet
         .lc_provider()?
         .set_top_level_directory(&config.data_dir)?;
-    Ok(Arc::new(Mutex::new(wallet)))
+    Ok((Arc::new(Mutex::new(wallet)), highest_tip))
 }
 
 /// True when `config.data_dir` holds a wallet seed.
 pub(crate) fn wallet_exists(config: &WalletConfig) -> CoreResult<bool> {
-    let wallet = wallet_handle(config)?;
+    let (wallet, _) = wallet_handle(config)?;
     let mut w = wallet.lock();
     Ok(w.lc_provider()?.wallet_exists(None)?)
 }
@@ -108,7 +110,7 @@ impl Session {
             }
             None => None,
         };
-        let wallet = wallet_handle(config)?;
+        let (wallet, highest_tip) = wallet_handle(config)?;
         {
             let mut w = wallet.lock();
             let lc = w.lc_provider()?;
@@ -124,34 +126,40 @@ impl Session {
                 )));
             }
         }
-        Self::open_handle(config, wallet, password, lease)
+        Self::open_handle(config, wallet, highest_tip, password, lease)
     }
 
     /// Opens the wallet in `config.data_dir`.
     pub(crate) fn open(config: &WalletConfig, password: ZeroingString) -> CoreResult<Session> {
         let lease = ChainLease::acquire(config.chain)?;
-        let wallet = wallet_handle(config)?;
+        let (wallet, highest_tip) = wallet_handle(config)?;
         {
             let mut w = wallet.lock();
             if !w.lc_provider()?.wallet_exists(None)? {
                 return Err(CoreError::WalletNotFound(config.data_dir.clone()));
             }
         }
-        Self::open_handle(config, wallet, password, lease)
+        Self::open_handle(config, wallet, highest_tip, password, lease)
     }
 
     fn open_handle(
         config: &WalletConfig,
         wallet: WalletHandle,
+        highest_tip: Arc<AtomicU64>,
         password: ZeroingString,
         lease: ChainLease,
     ) -> CoreResult<Session> {
         let mask = {
             let mut w = wallet.lock();
+            let lc = w.lc_provider()?;
             // The seed file exists (checked by the callers), so a decryption failure is the password.
-            w.lc_provider()?
+            let mask = lc
                 .open_wallet(None, password, true, false)
-                .map_err(|_| CoreError::WrongPassword)?
+                .map_err(|_| CoreError::WrongPassword)?;
+            // The node-sync fallback refuses tips below what this wallet has already confirmed.
+            let confirmed = lc.wallet_inst()?.last_confirmed_height()?;
+            highest_tip.fetch_max(confirmed, Ordering::Relaxed);
+            mask
         };
         let owner = Owner::new(wallet.clone(), None, Arc::new(AtomicBool::new(true)));
         let epicbox = EpicboxConfig {

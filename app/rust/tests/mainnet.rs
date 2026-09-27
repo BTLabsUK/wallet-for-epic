@@ -11,7 +11,8 @@ const NODE: &str = "https://node.btlabs.uk";
 
 #[test]
 #[ignore = "needs https://node.btlabs.uk"]
-fn mainnet_tip_and_fresh_wallet() {
+fn mainnet_tip_and_fresh_wallet_refresh() {
+    init_logging();
     let dir = tempfile::tempdir().expect("tempdir");
     let config = config(dir.path(), Chain::Mainnet, NODE);
     let tip = node_tip(config.clone()).expect("node tip");
@@ -19,11 +20,13 @@ fn mainnet_tip_and_fresh_wallet() {
     assert_ne!(tip.node_version, "unknown");
 
     let wallet = EpicWallet::create(config, None, PASSWORD.into()).expect("create");
-    // epic-wallet 4.0.2 refreshes outputs only after `/v2/owner get_status` reports the node
-    // synced. node.btlabs.uk's proxy answers that endpoint with 403 (checked 2026-09-27), so the
-    // refresh is reported as not validated rather than failing.
+    // node.btlabs.uk closes /v2/owner (403), so this goes through the foreign-API sync fallback.
     let summary = wallet.summary(true, 10).expect("summary");
-    assert!(!summary.validated_with_node);
+    assert!(
+        summary.validated_with_node,
+        "refresh must work without the owner API"
+    );
+    assert!(summary.last_confirmed_height >= tip.height);
     assert_eq!(summary.total, 0);
 
     let address = wallet.epicbox_address().expect("address");

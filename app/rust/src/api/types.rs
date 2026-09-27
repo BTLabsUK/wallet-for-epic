@@ -16,10 +16,9 @@ pub struct WalletConfig {
     pub chain: Chain,
     /// Node base URL, e.g. `https://node.btlabs.uk` or `http://127.0.0.1:23413`.
     pub node_url: String,
-    /// Basic-auth secret (user `epic`) sent with every node request. The foreign API needs none,
-    /// but epic-wallet 4.0.2 refreshes outputs only after the owner API's `get_status` reports the
-    /// node synced. Without owner access a refresh leaves `validated_with_node` false; `scan`
-    /// does not need it.
+    /// Basic-auth secret (user `epic`) sent with every node request. Optional: public nodes need
+    /// none. With owner access the node's own sync status gates a refresh; without it the core
+    /// judges sync from the foreign API tip (see `core/node.rs`).
     pub node_api_secret: Option<String>,
     /// Epicbox relay domain used for the wallet's address, e.g. `epicbox.epiccash.com`.
     pub epicbox_domain: String,

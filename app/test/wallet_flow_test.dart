@@ -272,6 +272,37 @@ void main() {
     expect(find.text('Spendable'), findsOneWidget);
   });
 
+  testWidgets('a failed scan shows the core message as an error', (
+    tester,
+  ) async {
+    final service = FakeWalletService(existingWallets: {_mainnetDir});
+    service.session.scanEvents = const [
+      ScanProgress(percent: 10, message: 'Scanning', finished: false),
+      ScanProgress(message: 'Scan failed: node unreachable', finished: true),
+    ];
+    await _pumpApp(tester, service);
+    await _unlockToHome(tester);
+
+    await _tap(tester, find.byTooltip('More'));
+    await _tapText(tester, 'Full rescan');
+    await _tapText(tester, 'Rescan');
+    expect(find.text('Scan failed: node unreachable'), findsOneWidget);
+    expect(find.byType(ErrorText), findsWidgets);
+  });
+
+  testWidgets('lock disposes the open wallet and returns to setup', (
+    tester,
+  ) async {
+    final service = FakeWalletService(existingWallets: {_mainnetDir});
+    await _pumpApp(tester, service);
+    await _unlockToHome(tester);
+
+    await _tap(tester, find.byTooltip('More'));
+    await _tapText(tester, 'Lock wallet');
+    expect(service.session.disposeCalls, 1);
+    expect(find.text('Continue'), findsOneWidget);
+  });
+
   testWidgets('send: amount, fee, slate, response, finalize', (tester) async {
     final session = _fundedSession();
     final service = FakeWalletService(

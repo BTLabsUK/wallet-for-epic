@@ -37,7 +37,14 @@ abstract interface class WalletService {
 }
 
 /// An open wallet. Mirrors the methods of the native `EpicWallet`.
+///
+/// Call [dispose] when done. The core allows one chain per process, so every session must be
+/// disposed before a wallet on another chain can be opened.
 abstract interface class WalletSession {
+  void dispose();
+
+  Future<String> mnemonic({required String password});
+
   Future<void> cancelTransaction({required int txId});
 
   Future<Slate> createSendSlate({
@@ -112,6 +119,15 @@ class _RustWalletSession implements WalletSession {
   _RustWalletSession(this._wallet);
 
   final rust.EpicWallet _wallet;
+
+  @override
+  void dispose() {
+    if (!_wallet.isDisposed) _wallet.dispose();
+  }
+
+  @override
+  Future<String> mnemonic({required String password}) =>
+      _wallet.mnemonic(password: password);
 
   @override
   Future<void> cancelTransaction({required int txId}) =>
@@ -284,11 +300,21 @@ class FakeWalletSession implements WalletSession {
     ScanProgress(percent: 100, message: 'Done', finished: true),
   ];
 
+  /// Number of [dispose] calls. The fake keeps working after dispose, so one instance can be
+  /// handed out again by a later [FakeWalletService.open].
+  int disposeCalls = 0;
+  String phrase = FakeWalletService._defaultPhrase;
   final List<int> cancelledTxIds = [];
   final List<BigInt> sentAmounts = [];
   final List<String> finalizedSlates = [];
   final List<String> receivedSlates = [];
   int scanCalls = 0;
+
+  @override
+  void dispose() => disposeCalls++;
+
+  @override
+  Future<String> mnemonic({required String password}) async => phrase;
 
   @override
   Future<void> cancelTransaction({required int txId}) async {

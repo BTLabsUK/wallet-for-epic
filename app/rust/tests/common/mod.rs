@@ -34,10 +34,12 @@ pub fn kind_of<T>(r: Result<T, WalletError>) -> WalletErrorKind {
 struct StderrLogger;
 impl log::Log for StderrLogger {
     fn enabled(&self, m: &log::Metadata) -> bool {
-        m.level() <= log::Level::Info
+        m.level() <= log::max_level()
     }
     fn log(&self, r: &log::Record) {
-        if self.enabled(r.metadata()) {
+        // Below info, only this crate: dependencies' debug output is noise and may name paths.
+        let ours = r.target().starts_with("epic_wallet_core");
+        if self.enabled(r.metadata()) && (ours || r.level() <= log::Level::Info) {
             eprintln!("[{}] {}: {}", r.level(), r.target(), r.args());
         }
     }
@@ -45,9 +47,14 @@ impl log::Log for StderrLogger {
 }
 static LOGGER: StderrLogger = StderrLogger;
 
-/// Routes epic-wallet's own `log` output (info and above) to stderr, which cargo captures per test.
+/// Routes `log` output to stderr, which cargo captures per test. Info and above, or the level in
+/// `WFE_TEST_LOG` (e.g. `debug`). Output is filtered to this crate below info.
 pub fn init_logging() {
+    let level = std::env::var("WFE_TEST_LOG")
+        .ok()
+        .and_then(|l| l.parse().ok())
+        .unwrap_or(log::LevelFilter::Info);
     if log::set_logger(&LOGGER).is_ok() {
-        log::set_max_level(log::LevelFilter::Info);
+        log::set_max_level(level);
     }
 }
