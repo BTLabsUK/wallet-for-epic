@@ -23,6 +23,10 @@ String describeError(Object error) {
         'Invalid input.',
         error.message,
       ),
+      WalletErrorKind.transportFailed => _withDetail(
+        'Could not reach the recipient.',
+        error.message,
+      ),
       WalletErrorKind.io => _withDetail(
         'Could not read or write wallet files.',
         error.message,

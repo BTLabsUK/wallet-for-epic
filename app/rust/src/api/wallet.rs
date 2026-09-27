@@ -38,6 +38,12 @@ pub fn wallet_exists(config: WalletConfig) -> bool {
     session::wallet_exists(&config).unwrap_or(false)
 }
 
+/// True for `<52-char address>@<relay>[:port]` whose key is valid on the current chain.
+#[frb(sync)]
+pub fn validate_epicbox_address(address: String) -> bool {
+    crate::core::epicbox::parse_address(&address).is_ok()
+}
+
 /// Current tip of the configured node, without opening a wallet.
 pub fn node_tip(config: WalletConfig) -> Result<NodeTip, WalletError> {
     session::node_tip(&config).map_err(to_api)
@@ -154,6 +160,62 @@ impl EpicWallet {
         self.inner.finalize_and_post(&slate_json).map_err(to_api)
     }
 
+    /// Sends to a wallet listening on HTTP, e.g. `http://host:3415`. Completes the whole exchange:
+    /// the recipient signs in the same request, then the transaction is finalized and posted.
+    /// A failure before the post unlocks the outputs again. Receiving over HTTP is not offered:
+    /// a phone cannot accept incoming connections.
+    pub fn send_http(
+        &self,
+        amount: u64,
+        minimum_confirmations: u64,
+        url: String,
+    ) -> Result<TxEntry, WalletError> {
+        self.inner
+            .send_http(amount, minimum_confirmations, &url)
+            .map_err(to_api)
+    }
+
+    /// Sends to `<address>@<relay>[:port]` over epicbox. Returns the new, still unfinalized
+    /// transaction; the listener finalizes and posts it when the recipient's response arrives.
+    pub fn send_epicbox(
+        &self,
+        amount: u64,
+        minimum_confirmations: u64,
+        address: String,
+    ) -> Result<TxEntry, WalletError> {
+        self.inner
+            .send_epicbox(amount, minimum_confirmations, &address)
+            .map_err(to_api)
+    }
+
+    /// Starts the epicbox listener (no-op if it already runs) and streams what it does. Incoming
+    /// sends are signed and answered, responses to our sends are finalized and posted.
+    pub fn start_listener(&self, events: StreamSink<ListenerEvent>) -> Result<(), WalletError> {
+        self.inner.start_listener(move |event| {
+            let _ = events.add(event);
+        });
+        Ok(())
+    }
+
+    /// `start_listener` with a Rust callback. For Rust callers and tests.
+    #[frb(ignore)]
+    pub fn start_listener_with<F>(&self, on_event: F)
+    where
+        F: FnMut(ListenerEvent) + Send + 'static,
+    {
+        self.inner.start_listener(on_event);
+    }
+
+    /// Stops the listener. Takes up to about a second.
+    pub fn stop_listener(&self) {
+        self.inner.stop_listener();
+    }
+
+    #[frb(sync)]
+    pub fn listener_running(&self) -> bool {
+        self.inner.listener_running()
+    }
+
     /// Cancels an unconfirmed transaction by log id and unlocks its outputs.
     pub fn cancel_transaction(&self, tx_id: u32) -> Result<(), WalletError> {
         self.inner.cancel_transaction(tx_id).map_err(to_api)
@@ -170,6 +232,7 @@ pub(crate) fn to_api(e: CoreError) -> WalletError {
             WalletErrorKind::InvalidArgument
         }
         CoreError::InvalidSlate(_) => WalletErrorKind::InvalidSlate,
+        CoreError::Relay(_) => WalletErrorKind::TransportFailed,
         CoreError::Wallet(w) => kind_of(w),
     };
     WalletError {

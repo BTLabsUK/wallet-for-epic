@@ -22,6 +22,9 @@ pub(crate) enum CoreError {
         "this process already uses {active:?} for an open wallet; close it before using {requested:?}"
     )]
     ChainInUse { active: Chain, requested: Chain },
+    /// The epicbox relay, or the recipient's HTTP listener, could not be reached or refused.
+    #[error("{0}")]
+    Relay(String),
     #[error(transparent)]
     Wallet(#[from] LibWalletError),
 }

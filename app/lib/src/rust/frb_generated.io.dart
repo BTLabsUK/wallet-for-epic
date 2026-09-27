@@ -49,6 +49,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  RustStreamSink<ListenerEvent> dco_decode_StreamSink_listener_event_Sse(
+    dynamic raw,
+  );
+
+  @protected
   RustStreamSink<ScanProgress> dco_decode_StreamSink_scan_progress_Sse(
     dynamic raw,
   );
@@ -85,6 +90,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   List<TxEntry> dco_decode_list_tx_entry(dynamic raw);
+
+  @protected
+  ListenerEvent dco_decode_listener_event(dynamic raw);
+
+  @protected
+  ListenerEventKind dco_decode_listener_event_kind(dynamic raw);
 
   @protected
   NodeTip dco_decode_node_tip(dynamic raw);
@@ -162,6 +173,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  RustStreamSink<ListenerEvent> sse_decode_StreamSink_listener_event_Sse(
+    SseDeserializer deserializer,
+  );
+
+  @protected
   RustStreamSink<ScanProgress> sse_decode_StreamSink_scan_progress_Sse(
     SseDeserializer deserializer,
   );
@@ -200,6 +216,14 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   List<TxEntry> sse_decode_list_tx_entry(SseDeserializer deserializer);
+
+  @protected
+  ListenerEvent sse_decode_listener_event(SseDeserializer deserializer);
+
+  @protected
+  ListenerEventKind sse_decode_listener_event_kind(
+    SseDeserializer deserializer,
+  );
 
   @protected
   NodeTip sse_decode_node_tip(SseDeserializer deserializer);
@@ -283,6 +307,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  void sse_encode_StreamSink_listener_event_Sse(
+    RustStreamSink<ListenerEvent> self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_StreamSink_scan_progress_Sse(
     RustStreamSink<ScanProgress> self,
     SseSerializer serializer,
@@ -326,6 +356,15 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void sse_encode_list_tx_entry(List<TxEntry> self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_listener_event(ListenerEvent self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_listener_event_kind(
+    ListenerEventKind self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_node_tip(NodeTip self, SseSerializer serializer);

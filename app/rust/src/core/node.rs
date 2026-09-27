@@ -140,6 +140,25 @@ impl EpicNodeClient {
     }
 }
 
+/// Retries a read that failed. Public nodes sit behind rate-limiting proxies (floo-node.btlabs.uk
+/// answers 429 after about ten requests in a burst), and HTTPNodeClient reports that only as an
+/// unparsable response. Reads are idempotent, so trying again after a pause is safe.
+fn retry_read<T>(what: &str, mut call: impl FnMut() -> Result<T, Error>) -> Result<T, Error> {
+    const DELAYS_MS: [u64; 3] = [500, 1500, 4000];
+    let mut attempt = 0;
+    loop {
+        match call() {
+            Ok(v) => return Ok(v),
+            Err(e) if attempt < DELAYS_MS.len() => {
+                log::debug!("{what} failed ({e}), retrying");
+                std::thread::sleep(std::time::Duration::from_millis(DELAYS_MS[attempt]));
+                attempt += 1;
+            }
+            Err(e) => return Err(e),
+        }
+    }
+}
+
 impl NodeClient for EpicNodeClient {
     fn get_node_status(&self) -> Result<NodeStatus, Error> {
         match self.inner.get_node_status() {
@@ -184,7 +203,7 @@ impl NodeClient for EpicNodeClient {
         self.inner.get_version_info()
     }
     fn get_chain_tip(&self) -> Result<(u64, String), Error> {
-        self.inner.get_chain_tip()
+        retry_read("get_tip", || self.inner.get_chain_tip())
     }
     fn get_kernel(
         &mut self,
@@ -198,7 +217,9 @@ impl NodeClient for EpicNodeClient {
         &self,
         wallet_outputs: Vec<pedersen::Commitment>,
     ) -> Result<HashMap<pedersen::Commitment, (String, u64, u64)>, Error> {
-        self.inner.get_outputs_from_node(wallet_outputs)
+        retry_read("get_outputs", || {
+            self.inner.get_outputs_from_node(wallet_outputs.clone())
+        })
     }
     #[allow(clippy::type_complexity)]
     fn get_outputs_by_pmmr_index(
@@ -214,16 +235,20 @@ impl NodeClient for EpicNodeClient {
         ),
         Error,
     > {
-        self.inner
-            .get_outputs_by_pmmr_index(start_height, end_height, max_outputs)
+        retry_read("get_unspent_outputs", || {
+            self.inner
+                .get_outputs_by_pmmr_index(start_height, end_height, max_outputs)
+        })
     }
     fn height_range_to_pmmr_indices(
         &self,
         start_height: u64,
         end_height: Option<u64>,
     ) -> Result<(u64, u64), Error> {
-        self.inner
-            .height_range_to_pmmr_indices(start_height, end_height)
+        retry_read("get_pmmr_indices", || {
+            self.inner
+                .height_range_to_pmmr_indices(start_height, end_height)
+        })
     }
     fn get_onion_addresses(&self) -> Result<Vec<String>, Error> {
         self.inner.get_onion_addresses()

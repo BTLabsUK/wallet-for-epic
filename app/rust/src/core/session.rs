@@ -14,9 +14,9 @@ use std::sync::Arc;
 
 use epic_wallet_api::{Foreign, Owner};
 use epic_wallet_config::EpicboxConfig;
-use epic_wallet_impls::{DefaultLCProvider, DefaultWalletImpl, HTTPNodeClient};
+use epic_wallet_impls::{DefaultLCProvider, DefaultWalletImpl, HTTPNodeClient, HttpSlateSender, SlateSender};
 use epic_wallet_libwallet::{
-    Error as LibWalletError, InitTxArgs, NodeClient, StatusMessage, TxLogEntry, TxLogEntryType,
+    Error as LibWalletError, Slate as LibSlate, InitTxArgs, NodeClient, StatusMessage, TxLogEntry, TxLogEntryType,
     WalletInitStatus, WalletInst,
 };
 use epic_wallet_util::epic_keychain::ExtKeychain;
@@ -24,22 +24,22 @@ use epic_wallet_util::epic_util::secp::key::SecretKey;
 use epic_wallet_util::epic_util::{to_hex, Mutex, ZeroingString};
 
 use super::chain::ChainLease;
+use super::epicbox::{self, Identity, Listener};
 use super::error::{CoreError, CoreResult};
 use super::node::EpicNodeClient;
 use super::{mnemonic, slate};
 use crate::api::types::{
-    FeeEstimate, NodeTip, ScanProgress, Slate, TxEntry, TxKind, WalletConfig, WalletSummary,
+    FeeEstimate, ListenerEvent, NodeTip, ScanProgress, Slate, TxEntry, TxKind, WalletConfig,
+    WalletSummary,
 };
 
 type Provider = DefaultLCProvider<'static, EpicNodeClient, ExtKeychain>;
 type Instance = dyn WalletInst<'static, Provider, EpicNodeClient, ExtKeychain>;
-type WalletHandle = Arc<Mutex<Box<Instance>>>;
-type OwnerApi = Owner<Provider, EpicNodeClient, ExtKeychain>;
+pub(crate) type WalletHandle = Arc<Mutex<Box<Instance>>>;
+pub(crate) type OwnerApi = Owner<Provider, EpicNodeClient, ExtKeychain>;
 
 /// Seed length in bytes for a wallet created without a phrase: 24 words.
 const NEW_SEED_BYTES: usize = 32;
-/// Index of the key epic-wallet's epicbox adapter derives the wallet address from.
-const EPICBOX_ADDRESS_INDEX: u32 = 0;
 
 fn node_client(config: &WalletConfig) -> CoreResult<HTTPNodeClient> {
     if config.node_url.trim().is_empty() {
@@ -88,7 +88,10 @@ pub(crate) fn node_tip(config: &WalletConfig) -> CoreResult<NodeTip> {
 pub(crate) struct Session {
     wallet: WalletHandle,
     mask: Option<SecretKey>,
-    owner: OwnerApi,
+    owner: Arc<OwnerApi>,
+    config: WalletConfig,
+    identity: Identity,
+    listener: std::sync::Mutex<Option<Listener>>,
     _chain: ChainLease,
 }
 
@@ -168,10 +171,14 @@ impl Session {
             ..EpicboxConfig::default()
         };
         owner.set_epicbox_config(Some(epicbox));
+        let identity = Identity::derive(&wallet, mask.as_ref(), config)?;
         Ok(Session {
             wallet,
             mask,
-            owner,
+            owner: Arc::new(owner),
+            config: config.clone(),
+            identity,
+            listener: std::sync::Mutex::new(None),
             _chain: lease,
         })
     }
@@ -299,7 +306,7 @@ impl Session {
     pub(crate) fn epicbox_address(&self) -> CoreResult<String> {
         let address = self
             .owner
-            .get_public_address(self.mask(), EPICBOX_ADDRESS_INDEX)?;
+            .get_public_address(self.mask(), epicbox::ADDRESS_INDEX)?;
         Ok(address.to_string())
     }
 
@@ -332,12 +339,13 @@ impl Session {
         Ok(FeeEstimate { amount, fee: s.fee })
     }
 
-    /// `init_send_tx` then `tx_lock_outputs`, the CLI's `send -m file` sequence.
-    pub(crate) fn create_send_slate(
+    /// `init_send_tx` then `tx_lock_outputs`, the CLI's `send` sequence up to the transport.
+    fn init_and_lock(
         &self,
         amount: u64,
         minimum_confirmations: u64,
-    ) -> CoreResult<Slate> {
+        dest: Option<String>,
+    ) -> CoreResult<LibSlate> {
         if amount == 0 {
             return Err(CoreError::InvalidArgument(
                 "amount must be above zero".into(),
@@ -348,11 +356,133 @@ impl Session {
             Self::send_args(amount, minimum_confirmations, false),
             Arc::new(AtomicBool::new(true)),
         )?;
-        self.owner.tx_lock_outputs(self.mask(), &s, 0, None)?;
+        self.owner.tx_lock_outputs(self.mask(), &s, 0, dest)?;
+        Ok(s)
+    }
+
+    /// Unlocks the outputs of a send whose transport failed, so a failed send leaves no trace.
+    fn abandon(&self, s: &LibSlate) {
+        if let Err(e) = self.owner.cancel_tx(self.mask(), None, Some(s.id)) {
+            log::warn!("cancelling failed send {}: {e}", s.id);
+        }
+    }
+
+    /// Step 1 of a manual (file/JSON) send.
+    pub(crate) fn create_send_slate(
+        &self,
+        amount: u64,
+        minimum_confirmations: u64,
+    ) -> CoreResult<Slate> {
+        let s = self.init_and_lock(amount, minimum_confirmations, None)?;
         Ok(Slate {
             slate_id: s.id.to_string(),
             json: slate::to_json(&s)?,
         })
+    }
+
+    /// Sends to a wallet listening on HTTP (`epic-wallet listen`): the recipient signs in the same
+    /// request, then we finalize and post. On any failure before the post the outputs are unlocked.
+    pub(crate) fn send_http(
+        &self,
+        amount: u64,
+        minimum_confirmations: u64,
+        url: &str,
+    ) -> CoreResult<TxEntry> {
+        let base = http_base_url(url)?;
+        let sender = HttpSlateSender::new(&base, Arc::new(AtomicBool::new(true)))
+            .map_err(|_| CoreError::InvalidArgument("the address must start with http:// or https://".into()))?;
+        let s = self.init_and_lock(amount, minimum_confirmations, Some(base.clone()))?;
+        let response = match sender.send_tx(&s) {
+            Ok(r) => r,
+            Err(e) => {
+                self.abandon(&s);
+                return Err(CoreError::Relay(format!(
+                    "the recipient at {base} did not answer: {e}"
+                )));
+            }
+        };
+        match self.finalize_slate(&response) {
+            Ok(entry) => Ok(entry),
+            Err(e) => {
+                self.abandon(&s);
+                Err(e)
+            }
+        }
+    }
+
+    /// Posts a send to an epicbox address. The transaction stays unconfirmed and locked until the
+    /// recipient's response arrives through the listener, which then finalizes and posts it.
+    pub(crate) fn send_epicbox(
+        &self,
+        amount: u64,
+        minimum_confirmations: u64,
+        address: &str,
+    ) -> CoreResult<TxEntry> {
+        let to = epicbox::parse_address(address)?;
+        if to.public_key == self.identity.address.public_key {
+            return Err(CoreError::InvalidArgument("that is this wallet's own address".into()));
+        }
+        let s = self.init_and_lock(amount, minimum_confirmations, Some(to.to_string()))?;
+        if let Err(e) = epicbox::post_once(&self.config, &self.identity, &to, &s) {
+            self.abandon(&s);
+            return Err(e);
+        }
+        self.tx_for_slate(s.id)
+    }
+
+    /// Starts the epicbox listener, or does nothing if it runs. `on_event` is called from the
+    /// listener thread.
+    pub(crate) fn start_listener<F>(&self, on_event: F)
+    where
+        F: FnMut(ListenerEvent) + Send + 'static,
+    {
+        let mut slot = self.listener.lock().unwrap_or_else(|p| p.into_inner());
+        if slot.as_ref().is_some_and(|l| l.is_running()) {
+            return;
+        }
+        *slot = Some(Listener::start(
+            self.config.clone(),
+            self.identity.clone(),
+            self.wallet.clone(),
+            self.mask.clone(),
+            self.owner.clone(),
+            on_event,
+        ));
+    }
+
+    /// Stops the listener and waits for it, at most about a second.
+    pub(crate) fn stop_listener(&self) {
+        let listener = self.listener.lock().unwrap_or_else(|p| p.into_inner()).take();
+        drop(listener);
+    }
+
+    pub(crate) fn listener_running(&self) -> bool {
+        self.listener
+            .lock()
+            .unwrap_or_else(|p| p.into_inner())
+            .as_ref()
+            .is_some_and(|l| l.is_running())
+    }
+
+    fn tx_for_slate(&self, id: uuid::Uuid) -> CoreResult<TxEntry> {
+        let res = self
+            .owner
+            .retrieve_txs(self.mask(), false, None, Some(id), None, None, None)?;
+        res.txs
+            .iter()
+            .find(|t| {
+                matches!(
+                    t.tx_type,
+                    TxLogEntryType::TxSent
+                        | TxLogEntryType::TxSentMempool
+                        | TxLogEntryType::TxSentCreated
+                )
+            })
+            .or_else(|| res.txs.first())
+            .map(tx_entry)
+            .ok_or_else(|| {
+                CoreError::InvalidSlate(format!("no transaction log entry for slate {id}"))
+            })
     }
 
     /// The CLI's `receive` sequence: verify messages, `Foreign::receive_tx`.
@@ -372,37 +502,16 @@ impl Session {
     /// The CLI's `finalize` sequence for a send: verify messages, `finalize_tx`, `post_tx`.
     /// Posts with fluff, skipping Dandelion's stem phase, as flutter_libepiccash does.
     pub(crate) fn finalize_and_post(&self, slate_json: &str) -> CoreResult<TxEntry> {
-        let response = slate::from_json(slate_json)?;
+        self.finalize_slate(&slate::from_json(slate_json)?)
+    }
+
+    fn finalize_slate(&self, response: &LibSlate) -> CoreResult<TxEntry> {
         self.owner
-            .verify_slate_messages(self.mask(), &response)
+            .verify_slate_messages(self.mask(), response)
             .map_err(|e| CoreError::InvalidSlate(e.to_string()))?;
-        let finalized = self.owner.finalize_tx(self.mask(), &response)?;
+        let finalized = self.owner.finalize_tx(self.mask(), response)?;
         self.owner.post_tx(self.mask(), &finalized.tx, true)?;
-        let res = self.owner.retrieve_txs(
-            self.mask(),
-            false,
-            None,
-            Some(finalized.id),
-            None,
-            None,
-            None,
-        )?;
-        res.txs
-            .iter()
-            .find(|t| {
-                matches!(
-                    t.tx_type,
-                    TxLogEntryType::TxSent | TxLogEntryType::TxSentMempool
-                )
-            })
-            .or_else(|| res.txs.first())
-            .map(tx_entry)
-            .ok_or_else(|| {
-                CoreError::InvalidSlate(format!(
-                    "no transaction log entry for slate {}",
-                    finalized.id
-                ))
-            })
+        self.tx_for_slate(finalized.id)
     }
 
     pub(crate) fn cancel_transaction(&self, tx_id: u32) -> CoreResult<()> {
@@ -413,6 +522,8 @@ impl Session {
 
 impl Drop for Session {
     fn drop(&mut self) {
+        // The listener uses the wallet and the mask, so it goes first.
+        self.stop_listener();
         {
             let mut w = self.wallet.lock();
             if let Ok(lc) = w.lc_provider() {
@@ -424,6 +535,22 @@ impl Drop for Session {
         // SecretKey zeroizes itself on drop; take it explicitly so it goes before anything else.
         drop(self.mask.take());
     }
+}
+
+/// The base URL `HttpSlateSender` wants: scheme and host, without the `/v2/foreign` it appends.
+fn http_base_url(url: &str) -> CoreResult<String> {
+    let url = url.trim().trim_end_matches('/');
+    let base = url.strip_suffix("/v2/foreign").unwrap_or(url);
+    let rest = base
+        .strip_prefix("http://")
+        .or_else(|| base.strip_prefix("https://"))
+        .ok_or_else(|| {
+            CoreError::InvalidArgument("the address must start with http:// or https://".into())
+        })?;
+    if rest.is_empty() || rest.contains(char::is_whitespace) {
+        return Err(CoreError::InvalidArgument("the address has no host".into()));
+    }
+    Ok(base.to_owned())
 }
 
 fn progress_from(message: StatusMessage) -> ScanProgress {
@@ -464,5 +591,21 @@ fn tx_entry(t: &TxLogEntry) -> TxEntry {
         num_inputs: u32::try_from(t.num_inputs).unwrap_or(u32::MAX),
         num_outputs: u32::try_from(t.num_outputs).unwrap_or(u32::MAX),
         kernel_excess: t.kernel_excess.map(|c| to_hex(c.0.to_vec())),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::http_base_url;
+
+    #[test]
+    fn http_base_url_strips_the_api_path() {
+        assert_eq!(http_base_url("http://1.2.3.4:3415").unwrap(), "http://1.2.3.4:3415");
+        assert_eq!(
+            http_base_url(" https://w.example/v2/foreign/ ").unwrap(),
+            "https://w.example"
+        );
+        assert!(http_base_url("1.2.3.4:3415").is_err());
+        assert!(http_base_url("http://").is_err());
     }
 }

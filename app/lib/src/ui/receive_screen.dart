@@ -6,7 +6,8 @@ import '../providers.dart';
 import '../wallet_service.dart';
 import 'common.dart';
 
-/// Manual slate receive: sign an incoming slate and hand the response back.
+/// Receiving: epicbox payments arrive by themselves through the listener; a manual slate can
+/// still be signed here. There is no HTTP receive, because a phone cannot accept connections.
 class ReceiveScreen extends ConsumerStatefulWidget {
   const ReceiveScreen({super.key});
 
@@ -59,10 +60,58 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
   @override
   Widget build(BuildContext context) {
     final response = _response;
+    final address = ref.watch(addressProvider);
+    final listener = ref.watch(listenerProvider);
+    final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(title: const Text('Receive')),
       body: ScreenBody(
         children: [
+          Text('Over epicbox', style: theme.textTheme.titleMedium),
+          const SizedBox(height: 8),
+          const Text(
+            'Give the sender this address. Payments arrive by themselves '
+            'while this wallet is open.',
+          ),
+          const SizedBox(height: 8),
+          switch (address) {
+            AsyncData(:final value) => Card(
+              child: ListTile(
+                title: SelectableText(value),
+                trailing: IconButton(
+                  tooltip: 'Copy address',
+                  icon: const Icon(Icons.copy),
+                  onPressed: () => copyText(context, value, 'Address'),
+                ),
+              ),
+            ),
+            AsyncError(:final error) => ErrorText(describeError(error)),
+            _ => const LinearProgressIndicator(),
+          },
+          Semantics(
+            liveRegion: true,
+            child: Row(
+              children: [
+                Icon(
+                  listener.connected ? Icons.wifi_tethering : Icons.sync,
+                  size: 18,
+                  semanticLabel: listener.connected ? 'Connected' : 'Waiting',
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    listener.connected
+                        ? 'Listening on the relay.'
+                        : listener.status ?? 'Connecting to the relay…',
+                    style: theme.textTheme.bodySmall,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 24),
+          Text('By slate', style: theme.textTheme.titleMedium),
+          const SizedBox(height: 8),
           const Text(
             'Paste the slate the sender gave you, then return the response '
             'slate to them so they can finalize the transaction.',

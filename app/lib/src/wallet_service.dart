@@ -18,6 +18,9 @@ abstract interface class WalletService {
 
   bool validateMnemonic({required String phrase});
 
+  /// True for `<address>@<relay>[:port]` valid on the chain of the open wallet.
+  bool validateEpicboxAddress({required String address});
+
   Future<bool> walletExists({required WalletConfig config});
 
   Future<NodeTip> nodeTip({required WalletConfig config});
@@ -66,6 +69,26 @@ abstract interface class WalletSession {
 
   Future<TxEntry> finalizeAndPost({required String slateJson});
 
+  /// Sends to a wallet listening on HTTP and posts the transaction, in one call.
+  Future<TxEntry> sendHttp({
+    required BigInt amount,
+    required BigInt minimumConfirmations,
+    required String url,
+  });
+
+  /// Posts a send over epicbox. The listener finalizes it when the recipient answers.
+  Future<TxEntry> sendEpicbox({
+    required BigInt amount,
+    required BigInt minimumConfirmations,
+    required String address,
+  });
+
+  /// Starts the epicbox listener and streams its events. It runs until [stopListener] or
+  /// [dispose].
+  Stream<ListenerEvent> startListener();
+
+  Future<void> stopListener();
+
   Future<Slate> receiveSlate({required String slateJson});
 
   Stream<ScanProgress> scan({BigInt? startHeight});
@@ -89,6 +112,10 @@ class RustWalletService implements WalletService {
   @override
   bool validateMnemonic({required String phrase}) =>
       rust.validateMnemonic(phrase: phrase);
+
+  @override
+  bool validateEpicboxAddress({required String address}) =>
+      rust.validateEpicboxAddress(address: address);
 
   @override
   Future<bool> walletExists({required WalletConfig config}) =>
@@ -174,6 +201,36 @@ class _RustWalletSession implements WalletSession {
       _wallet.receiveSlate(slateJson: slateJson);
 
   @override
+  Future<TxEntry> sendHttp({
+    required BigInt amount,
+    required BigInt minimumConfirmations,
+    required String url,
+  }) => _wallet.sendHttp(
+    amount: amount,
+    minimumConfirmations: minimumConfirmations,
+    url: url,
+  );
+
+  @override
+  Future<TxEntry> sendEpicbox({
+    required BigInt amount,
+    required BigInt minimumConfirmations,
+    required String address,
+  }) => _wallet.sendEpicbox(
+    amount: amount,
+    minimumConfirmations: minimumConfirmations,
+    address: address,
+  );
+
+  @override
+  Stream<ListenerEvent> startListener() => _wallet.startListener();
+
+  @override
+  Future<void> stopListener() async {
+    if (!_wallet.isDisposed) await _wallet.stopListener();
+  }
+
+  @override
   Stream<ScanProgress> scan({BigInt? startHeight}) =>
       _wallet.scan(startHeight: startHeight);
 
@@ -234,6 +291,10 @@ class FakeWalletService implements WalletService {
 
   @override
   bool validateMnemonic({required String phrase}) => phrase == this.phrase;
+
+  @override
+  bool validateEpicboxAddress({required String address}) =>
+      RegExp(r'^[1-9A-HJ-NP-Za-km-z]{52}@[a-z0-9.]+(:\d+)?$').hasMatch(address);
 
   @override
   Future<bool> walletExists({required WalletConfig config}) async =>
@@ -333,6 +394,17 @@ class FakeWalletSession implements WalletSession {
   final List<String> finalizedSlates = [];
   final List<String> receivedSlates = [];
   int scanCalls = 0;
+  final List<({BigInt amount, String to})> httpSends = [];
+  final List<({BigInt amount, String to})> epicboxSends = [];
+
+  /// Events the listener emits; tests add to it.
+  final StreamController<ListenerEvent> listenerEvents =
+      StreamController<ListenerEvent>.broadcast();
+  int listenerStarts = 0;
+  int listenerStops = 0;
+
+  /// When set, sends throw it.
+  WalletError? sendError;
 
   @override
   void dispose() => disposeCalls++;
@@ -395,6 +467,52 @@ class FakeWalletSession implements WalletSession {
     receivedSlates.add(slateJson);
     return responseSlate;
   }
+
+  TxEntry _pendingSend(BigInt amount, {required bool posted}) => TxEntry(
+    id: 100 + httpSends.length + epicboxSends.length,
+    slateId: 'send-${httpSends.length + epicboxSends.length}',
+    kind: TxKind.sent,
+    createdAtUnix: 1790000200,
+    confirmed: false,
+    amountCredited: BigInt.zero,
+    amountDebited: amount + fee,
+    fee: fee,
+    numInputs: 1,
+    numOutputs: posted ? 1 : 0,
+  );
+
+  @override
+  Future<TxEntry> sendHttp({
+    required BigInt amount,
+    required BigInt minimumConfirmations,
+    required String url,
+  }) async {
+    if (sendError != null) throw sendError!;
+    _checkFunds(amount);
+    httpSends.add((amount: amount, to: url));
+    return _pendingSend(amount, posted: true);
+  }
+
+  @override
+  Future<TxEntry> sendEpicbox({
+    required BigInt amount,
+    required BigInt minimumConfirmations,
+    required String address,
+  }) async {
+    if (sendError != null) throw sendError!;
+    _checkFunds(amount);
+    epicboxSends.add((amount: amount, to: address));
+    return _pendingSend(amount, posted: false);
+  }
+
+  @override
+  Stream<ListenerEvent> startListener() {
+    listenerStarts++;
+    return listenerEvents.stream;
+  }
+
+  @override
+  Future<void> stopListener() async => listenerStops++;
 
   @override
   Stream<ScanProgress> scan({BigInt? startHeight}) {

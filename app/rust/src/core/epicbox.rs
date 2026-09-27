@@ -1,0 +1,541 @@
+//! Epicbox: slates exchanged through a store-and-forward relay, protocol 3.0.0.
+//!
+//! Built on epic-wallet's own pieces (`EpicboxAddress`, `EncryptedMessage`, `TxProof`,
+//! `sign_challenge`, the protocol message types) with our own connection loop. Upstream's
+//! `EpicboxListenChannel` panics on a failed connect or post, has no way to stop, and cannot
+//! report what it did, none of which a phone app can live with.
+//!
+//! One [`Listener`] per open wallet. It keeps a websocket to the relay, subscribes with the
+//! wallet's address key, and handles every slate the relay delivers:
+//!
+//! - a new send to us: `Foreign::receive_tx`, then the signed response goes back to the sender;
+//! - the response to one of our sends: `finalize_tx` and `post_tx`.
+//!
+//! A send over epicbox therefore only completes while the listener runs, because the response
+//! arrives through it. It reconnects with backoff until stopped.
+
+use std::net::{TcpStream, ToSocketAddrs};
+use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::Arc;
+use std::thread::JoinHandle;
+use std::time::{Duration, Instant};
+
+use epic_wallet_api::Foreign;
+use epic_wallet_impls::epicbox::protocol::{ProtocolRequestV2, ProtocolResponseV2};
+use epic_wallet_libwallet::address::address_from_derivation_path;
+use epic_wallet_libwallet::crypto::{sign_challenge, Hex};
+use epic_wallet_libwallet::message::EncryptedMessage;
+use epic_wallet_libwallet::{
+    Address, Error as LibWalletError, EpicboxAddress, Slate as LibSlate, SlateVersion, TxProof, VersionedSlate,
+};
+use epic_wallet_util::epic_keychain::Keychain;
+use epic_wallet_util::epic_util::secp::key::{PublicKey, SecretKey};
+use epic_wallet_util::epic_core::core::amount_to_hr_string;
+use tungstenite::stream::MaybeTlsStream;
+use tungstenite::{Message, WebSocket};
+
+use super::error::{CoreError, CoreResult};
+use super::session::{OwnerApi, WalletHandle};
+use crate::api::types::{ListenerEvent, ListenerEventKind, WalletConfig};
+
+const PROTOCOL_VERSION: &str = "3.0.0";
+/// Index of the key the address is derived from; epic-wallet's CLI uses 0.
+pub(crate) const ADDRESS_INDEX: u32 = 0;
+/// How long a read blocks before the loop checks whether it should stop.
+const READ_TICK: Duration = Duration::from_millis(500);
+const CONNECT_TIMEOUT: Duration = Duration::from_secs(15);
+const MAX_BACKOFF: Duration = Duration::from_secs(60);
+
+type Socket = WebSocket<MaybeTlsStream<TcpStream>>;
+
+/// The wallet's epicbox identity: address and the key that signs for it.
+#[derive(Clone)]
+pub(crate) struct Identity {
+    pub(crate) address: EpicboxAddress,
+    secret_key: SecretKey,
+}
+
+impl Identity {
+    pub(crate) fn derive(
+        wallet: &WalletHandle,
+        mask: Option<&SecretKey>,
+        config: &WalletConfig,
+    ) -> CoreResult<Identity> {
+        let mut guard = wallet.lock();
+        let w = guard.lc_provider()?.wallet_inst()?;
+        let keychain = w.keychain(mask)?;
+        let parent = w.parent_key_id();
+        let secret_key = address_from_derivation_path(&keychain, &parent, ADDRESS_INDEX)?;
+        let public_key = PublicKey::from_secret_key(keychain.secp(), &secret_key)
+            .map_err(|e| CoreError::InvalidArgument(format!("address key: {e}")))?;
+        let address = EpicboxAddress::new(
+            public_key,
+            Some(config.epicbox_domain.clone()),
+            Some(config.epicbox_port),
+        );
+        Ok(Identity {
+            address,
+            secret_key,
+        })
+    }
+
+    fn sign(&self, text: &str) -> CoreResult<String> {
+        Ok(sign_challenge(text, &self.secret_key)?.to_hex())
+    }
+}
+
+/// Parses `<52-char key>@<domain>[:port]`. A bare key is refused: epicbox would route it to the
+/// default public relay, which is almost never what the user meant.
+pub(crate) fn parse_address(text: &str) -> CoreResult<EpicboxAddress> {
+    let text = text.trim();
+    if !text.contains('@') {
+        return Err(CoreError::InvalidArgument(
+            "an epicbox address needs its relay: <address>@<domain>".into(),
+        ));
+    }
+    let address = EpicboxAddress::from_str(text)
+        .map_err(|_| CoreError::InvalidArgument("not a valid epicbox address".into()))?;
+    // from_str checks the base58 checksum; the version bytes tie the key to the chain.
+    address
+        .public_key()
+        .map_err(|_| CoreError::InvalidArgument("this address is for another network".into()))?;
+    Ok(address)
+}
+
+fn relay_url(config: &WalletConfig) -> String {
+    // Plain ws only for a relay on this machine, as epic-wallet's `epicbox_protocol_unsecure`.
+    let local = matches!(config.epicbox_domain.as_str(), "127.0.0.1" | "localhost");
+    let scheme = if local { "ws" } else { "wss" };
+    format!(
+        "{scheme}://{}:{}",
+        config.epicbox_domain, config.epicbox_port
+    )
+}
+
+fn connect(config: &WalletConfig) -> CoreResult<Socket> {
+    let url = relay_url(config);
+    let addr = (config.epicbox_domain.as_str(), config.epicbox_port)
+        .to_socket_addrs()
+        .map_err(|e| CoreError::Relay(format!("cannot resolve {}: {e}", config.epicbox_domain)))?
+        .next()
+        .ok_or_else(|| CoreError::Relay(format!("no address for {}", config.epicbox_domain)))?;
+    let tcp = TcpStream::connect_timeout(&addr, CONNECT_TIMEOUT)
+        .map_err(|e| CoreError::Relay(format!("cannot connect to {url}: {e}")))?;
+    tcp.set_read_timeout(Some(CONNECT_TIMEOUT))
+        .and_then(|_| tcp.set_write_timeout(Some(CONNECT_TIMEOUT)))
+        .map_err(|e| CoreError::Relay(e.to_string()))?;
+    let (socket, _) = tungstenite::client_tls(url.as_str(), tcp)
+        .map_err(|e| CoreError::Relay(format!("websocket handshake with {url}: {e}")))?;
+    // From here reads time out quickly, so the loop can notice a stop request.
+    set_read_timeout(&socket, READ_TICK)?;
+    Ok(socket)
+}
+
+fn set_read_timeout(socket: &Socket, timeout: Duration) -> CoreResult<()> {
+    let tcp = match socket.get_ref() {
+        MaybeTlsStream::Plain(s) => s,
+        MaybeTlsStream::NativeTls(s) => s.get_ref(),
+        _ => return Ok(()),
+    };
+    tcp.set_read_timeout(Some(timeout))
+        .map_err(|e| CoreError::Relay(e.to_string()))
+}
+
+fn send_request(socket: &mut Socket, request: &ProtocolRequestV2) -> CoreResult<()> {
+    let text = serde_json::to_string(request).map_err(|e| CoreError::Relay(e.to_string()))?;
+    socket
+        .send(Message::Text(text.into()))
+        .map_err(|e| CoreError::Relay(format!("sending to the relay: {e}")))
+}
+
+/// The encrypted, signed `PostSlate` for `slate` from `from` to `to`.
+fn post_request(
+    identity: &Identity,
+    to: &EpicboxAddress,
+    slate: &VersionedSlate,
+) -> CoreResult<ProtocolRequestV2> {
+    let body = serde_json::to_string(slate).map_err(|e| CoreError::InvalidSlate(e.to_string()))?;
+    let receiver_key = to
+        .public_key()
+        .map_err(|_| CoreError::InvalidArgument("not a valid epicbox address".into()))?;
+    let message = EncryptedMessage::new(body, to, &receiver_key, &identity.secret_key)?;
+    let message =
+        serde_json::to_string(&message).map_err(|e| CoreError::InvalidSlate(e.to_string()))?;
+    Ok(ProtocolRequestV2::PostSlate {
+        from: identity.address.stripped(),
+        to: to.stripped(),
+        signature: identity.sign(&message)?,
+        str: message,
+    })
+}
+
+/// Posts one slate over a short-lived connection. Used for sends: the response comes back to
+/// the listener, not to this connection.
+pub(crate) fn post_once(
+    config: &WalletConfig,
+    identity: &Identity,
+    to: &EpicboxAddress,
+    slate: &LibSlate,
+) -> CoreResult<()> {
+    // Protocol 3.0.0 relays and the CLI send V2; V3-only fields (payment proof, TTL) are unset
+    // for our sends.
+    let versioned = VersionedSlate::into_version(slate.clone(), SlateVersion::V2);
+    let request = post_request(identity, to, &versioned)?;
+    let mut socket = connect(config)?;
+    // The relay opens with a challenge; answering it is not needed to post, but reading it
+    // confirms the relay speaks epicbox before we hand it a slate.
+    let deadline = Instant::now() + CONNECT_TIMEOUT;
+    loop {
+        match socket.read() {
+            Ok(Message::Text(text)) => {
+                if serde_json::from_str::<ProtocolResponseV2>(&text).is_ok() {
+                    break;
+                }
+            }
+            Ok(_) => {}
+            Err(e) if is_timeout(&e) => {}
+            Err(e) => return Err(CoreError::Relay(format!("reading from the relay: {e}"))),
+        }
+        if Instant::now() > deadline {
+            return Err(CoreError::Relay("the relay did not greet us".into()));
+        }
+    }
+    send_request(&mut socket, &request)?;
+    // Wait briefly for the relay's verdict on the post; an Error means it was refused.
+    let deadline = Instant::now() + Duration::from_secs(5);
+    while Instant::now() < deadline {
+        match socket.read() {
+            Ok(Message::Text(text)) => match serde_json::from_str::<ProtocolResponseV2>(&text) {
+                Ok(ProtocolResponseV2::Ok) => break,
+                Ok(ProtocolResponseV2::Error { kind, description }) => {
+                    return Err(CoreError::Relay(format!(
+                        "the relay refused the slate: {kind} {description}"
+                    )))
+                }
+                _ => {}
+            },
+            Ok(_) => {}
+            Err(e) if is_timeout(&e) => {}
+            Err(_) => break,
+        }
+    }
+    let _ = socket.close(None);
+    Ok(())
+}
+
+fn is_timeout(e: &tungstenite::Error) -> bool {
+    matches!(e, tungstenite::Error::Io(io)
+        if matches!(io.kind(), std::io::ErrorKind::WouldBlock | std::io::ErrorKind::TimedOut))
+}
+
+/// A running listener. Dropping it stops the thread and waits for it.
+pub(crate) struct Listener {
+    stop: Arc<AtomicBool>,
+    thread: Option<JoinHandle<()>>,
+}
+
+impl Listener {
+    pub(crate) fn start<F>(
+        config: WalletConfig,
+        identity: Identity,
+        wallet: WalletHandle,
+        mask: Option<SecretKey>,
+        owner: Arc<OwnerApi>,
+        on_event: F,
+    ) -> Listener
+    where
+        F: FnMut(ListenerEvent) + Send + 'static,
+    {
+        let stop = Arc::new(AtomicBool::new(false));
+        let worker = Worker {
+            config,
+            identity,
+            wallet,
+            mask,
+            owner,
+            stop: stop.clone(),
+            on_event: Box::new(on_event),
+        };
+        let thread = std::thread::Builder::new()
+            .name("epicbox-listener".into())
+            .spawn(move || worker.run())
+            .ok();
+        Listener { stop, thread }
+    }
+
+    pub(crate) fn is_running(&self) -> bool {
+        self.thread.as_ref().is_some_and(|t| !t.is_finished())
+    }
+}
+
+impl Drop for Listener {
+    fn drop(&mut self) {
+        self.stop.store(true, Ordering::SeqCst);
+        if let Some(thread) = self.thread.take() {
+            let _ = thread.join();
+        }
+    }
+}
+
+struct Worker {
+    config: WalletConfig,
+    identity: Identity,
+    wallet: WalletHandle,
+    mask: Option<SecretKey>,
+    owner: Arc<OwnerApi>,
+    stop: Arc<AtomicBool>,
+    on_event: Box<dyn FnMut(ListenerEvent) + Send>,
+}
+
+impl Worker {
+    fn emit(&mut self, kind: ListenerEventKind, slate_id: Option<String>, message: String) {
+        (self.on_event)(ListenerEvent {
+            kind,
+            slate_id,
+            message,
+        });
+    }
+
+    fn stopped(&self) -> bool {
+        self.stop.load(Ordering::SeqCst)
+    }
+
+    fn run(mut self) {
+        let mut backoff = Duration::from_secs(1);
+        while !self.stopped() {
+            match connect(&self.config) {
+                Ok(socket) => {
+                    backoff = Duration::from_secs(1);
+                    let reason = self.session(socket);
+                    if self.stopped() {
+                        break;
+                    }
+                    self.emit(ListenerEventKind::Disconnected, None, reason);
+                }
+                Err(e) => self.emit(ListenerEventKind::Disconnected, None, e.to_string()),
+            }
+            // Sleep in ticks so a stop request is honoured quickly.
+            let until = Instant::now() + backoff;
+            while Instant::now() < until && !self.stopped() {
+                std::thread::sleep(READ_TICK);
+            }
+            backoff = (backoff * 2).min(MAX_BACKOFF);
+        }
+        self.emit(ListenerEventKind::Stopped, None, "Listener stopped".into());
+    }
+
+    /// Serves one connection until it drops or a stop is requested. Returns why it ended.
+    fn session(&mut self, mut socket: Socket) -> String {
+        let mut subscribed = false;
+        loop {
+            if self.stopped() {
+                let _ = socket.close(None);
+                return "stopped".into();
+            }
+            let message = match socket.read() {
+                Ok(m) => m,
+                Err(e) if is_timeout(&e) => continue,
+                Err(e) => return format!("connection lost: {e}"),
+            };
+            let text = match message {
+                Message::Text(t) => t.to_string(),
+                Message::Close(_) => return "the relay closed the connection".into(),
+                _ => continue,
+            };
+            let Ok(response) = serde_json::from_str::<ProtocolResponseV2>(&text) else {
+                // Some relays answer pings with bare text; nothing to do with it.
+                continue;
+            };
+            match response {
+                ProtocolResponseV2::Challenge { str } => {
+                    if !subscribed {
+                        let details = ProtocolRequestV2::ClientDetails {
+                            wallet_version: env!("CARGO_PKG_VERSION").into(),
+                            wallet_mode: "listener".into(),
+                            protocol_version: PROTOCOL_VERSION.into(),
+                        };
+                        if let Err(e) = send_request(&mut socket, &details) {
+                            return e.to_string();
+                        }
+                    }
+                    if let Err(e) = self.subscribe(&mut socket, &str) {
+                        return e.to_string();
+                    }
+                    if !subscribed {
+                        subscribed = true;
+                        let address = self.identity.address.to_string();
+                        self.emit(ListenerEventKind::Connected, None, address);
+                    }
+                }
+                ProtocolResponseV2::Slate {
+                    from,
+                    str,
+                    signature,
+                    epicboxmsgid,
+                    ..
+                } => {
+                    self.on_slate(&mut socket, from, str, signature);
+                    // Acknowledge whether or not handling succeeded: a slate that failed once
+                    // fails again, and redelivery would only repeat the error. The relay answers
+                    // a Made with a fresh challenge, which re-subscribes us above. Upstream
+                    // re-subscribes with the old challenge first, which the relay rejects once
+                    // it has rotated the challenge.
+                    if let Err(e) = self.made(&mut socket, epicboxmsgid) {
+                        return e.to_string();
+                    }
+                }
+                ProtocolResponseV2::Error { kind, description } => {
+                    self.emit(
+                        ListenerEventKind::Error,
+                        None,
+                        format!("relay error: {kind} {description}"),
+                    );
+                }
+                ProtocolResponseV2::Ok | ProtocolResponseV2::GetVersion { .. } => {}
+            }
+        }
+    }
+
+    fn subscribe(&self, socket: &mut Socket, challenge: &str) -> CoreResult<()> {
+        let request = ProtocolRequestV2::Subscribe {
+            address: self.identity.address.public_key.clone(),
+            ver: PROTOCOL_VERSION.into(),
+            signature: self.identity.sign(challenge)?,
+        };
+        send_request(socket, &request)
+    }
+
+    fn made(&self, socket: &mut Socket, message_id: String) -> CoreResult<()> {
+        let request = ProtocolRequestV2::Made {
+            address: self.identity.address.public_key.clone(),
+            signature: self.identity.sign(&message_id)?,
+            epicboxmsgid: message_id,
+            ver: PROTOCOL_VERSION.into(),
+        };
+        send_request(socket, &request)
+    }
+
+    fn on_slate(&mut self, socket: &mut Socket, from: String, message: String, signature: String) {
+        let parsed = TxProof::from_response(
+            from,
+            message,
+            signature,
+            &self.identity.secret_key,
+            Some(&self.identity.address),
+        );
+        let (versioned, proof) = match parsed {
+            Ok(x) => x,
+            Err(e) => {
+                let text = format!("unreadable slate from the relay: {e}");
+                self.emit(ListenerEventKind::Error, None, text);
+                return;
+            }
+        };
+        let version = versioned.version();
+        let slate: LibSlate = versioned.into();
+        let slate_id = slate.id.to_string();
+        let sender = proof.address;
+        let result = if slate.num_participants > slate.participant_data.len() {
+            self.receive(socket, &slate, version, &sender)
+        } else {
+            self.finalize(&slate)
+        };
+        match result {
+            Ok((kind, text)) => self.emit(kind, Some(slate_id), text),
+            // The relay redelivers a slate whose acknowledgement it missed. Handling it again is
+            // refused by the wallet, and that refusal means it was already done.
+            Err(CoreError::Wallet(LibWalletError::TransactionAlreadyReceived(_))) => {
+                log::info!("slate {slate_id} was already received");
+            }
+            Err(e) => self.emit(ListenerEventKind::Error, Some(slate_id), e.to_string()),
+        }
+    }
+
+    /// A new send to us: sign it and post the response back to the sender.
+    fn receive(
+        &self,
+        socket: &mut Socket,
+        slate: &LibSlate,
+        version: SlateVersion,
+        sender: &EpicboxAddress,
+    ) -> CoreResult<(ListenerEventKind, String)> {
+        if slate.tx.inputs().is_empty() {
+            return Err(CoreError::InvalidSlate(
+                "invoices are not supported".into(),
+            ));
+        }
+        let foreign = Foreign::new(self.wallet.clone(), self.mask.clone(), None);
+        foreign
+            .verify_slate_messages(slate)
+            .map_err(|e| CoreError::InvalidSlate(e.to_string()))?;
+        let response = foreign.receive_tx(slate, None, None, Some(sender.to_string()))?;
+        let versioned = VersionedSlate::into_version(response, version);
+        let request = post_request(&self.identity, sender, &versioned)?;
+        send_request(socket, &request)?;
+        Ok((
+            ListenerEventKind::Received,
+            format!(
+                "Received {} from {}",
+                format!("{} EPIC", amount_to_hr_string(slate.amount, false)),
+                sender.stripped()
+            ),
+        ))
+    }
+
+    /// The response to one of our sends: finalize and broadcast.
+    fn finalize(&self, slate: &LibSlate) -> CoreResult<(ListenerEventKind, String)> {
+        let mask = self.mask.as_ref();
+        self.owner
+            .verify_slate_messages(mask, slate)
+            .map_err(|e| CoreError::InvalidSlate(e.to_string()))?;
+        let finalized = self.owner.finalize_tx(mask, slate)?;
+        self.owner.post_tx(mask, &finalized.tx, true)?;
+        Ok((
+            ListenerEventKind::Finalized,
+            format!(
+                "Sent {}, posted to the node",
+                format!("{} EPIC", amount_to_hr_string(finalized.amount, false))
+            ),
+        ))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    const KEY: &str = "esY8LvovTpEGYnGH1UGyWzktBv2sHaPgNE2senHw8KN4fvFFU2PV";
+
+    #[test]
+    fn parses_full_addresses_and_refuses_bare_keys() {
+        epic_wallet_util::epic_core::global::set_mining_mode(
+            epic_wallet_util::epic_core::global::ChainTypes::Mainnet,
+        );
+        let a = parse_address(&format!("{KEY}@epicbox.epiccash.com")).unwrap();
+        assert_eq!(a.domain, "epicbox.epiccash.com");
+        assert_eq!(a.port, None);
+        let b = parse_address(&format!(" {KEY}@127.0.0.1:3423 ")).unwrap();
+        assert_eq!(b.port, Some(3423));
+        assert!(parse_address(KEY).is_err(), "a bare key must be refused");
+        assert!(parse_address("nonsense@epicbox.epiccash.com").is_err());
+        let mut broken = KEY.to_string();
+        broken.replace_range(10..11, "1");
+        assert!(parse_address(&format!("{broken}@epicbox.epiccash.com")).is_err());
+    }
+
+    #[test]
+    fn relay_url_uses_tls_except_on_loopback() {
+        let mut c = WalletConfig {
+            data_dir: String::new(),
+            chain: crate::api::types::Chain::Mainnet,
+            node_url: String::new(),
+            node_api_secret: None,
+            epicbox_domain: "flooepicbox.btlabs.uk".into(),
+            epicbox_port: 443,
+        };
+        assert_eq!(relay_url(&c), "wss://flooepicbox.btlabs.uk:443");
+        c.epicbox_domain = "127.0.0.1".into();
+        c.epicbox_port = 3423;
+        assert_eq!(relay_url(&c), "ws://127.0.0.1:3423");
+    }
+}

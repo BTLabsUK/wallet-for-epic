@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../amount.dart';
@@ -9,7 +10,29 @@ import '../providers.dart';
 import '../wallet_service.dart';
 import 'common.dart';
 
-/// Manual slate send: create a slate, hand it over, then finalize the recipient's response.
+/// How a send reaches the recipient.
+enum SendMethod {
+  /// Through an epicbox relay. The listener completes it when the recipient answers.
+  epicbox,
+
+  /// To a wallet listening on HTTP. Completes in one request.
+  http,
+
+  /// By hand: copy a slate out, paste the response back.
+  slate,
+}
+
+/// Validates an HTTP recipient: scheme and host.
+String? checkHttpRecipient(String text) {
+  final uri = Uri.tryParse(text.trim());
+  if (uri == null ||
+      (uri.scheme != 'http' && uri.scheme != 'https') ||
+      uri.host.isEmpty) {
+    return 'Enter the full address, such as http://203.0.113.5:3415';
+  }
+  return null;
+}
+
 class SendScreen extends ConsumerStatefulWidget {
   const SendScreen({super.key});
 
@@ -19,14 +42,17 @@ class SendScreen extends ConsumerStatefulWidget {
 
 class _SendScreenState extends ConsumerState<SendScreen> {
   final _amount = TextEditingController();
+  final _recipient = TextEditingController();
   final _response = TextEditingController();
+  SendMethod _method = SendMethod.epicbox;
   Timer? _debounce;
   BigInt? _parsedAmount;
   String? _amountError;
+  String? _recipientError;
   FeeEstimate? _estimate;
   String? _estimateError;
   Slate? _slate;
-  TxEntry? _posted;
+  TxEntry? _done;
   String? _error;
   bool _busy = false;
 
@@ -34,6 +60,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
   void dispose() {
     _debounce?.cancel();
     _amount.dispose();
+    _recipient.dispose();
     _response.dispose();
     super.dispose();
   }
@@ -100,15 +127,48 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     }
   }
 
-  Future<void> _createSlate() async {
+  String? _checkRecipient() {
+    final text = _recipient.text.trim();
+    return switch (_method) {
+      SendMethod.epicbox =>
+        ref.read(walletServiceProvider).validateEpicboxAddress(address: text)
+            ? null
+            : 'Enter a full epicbox address: <address>@<relay>',
+      SendMethod.http => checkHttpRecipient(text),
+      SendMethod.slate => null,
+    };
+  }
+
+  Future<void> _send() async {
     final amount = _parsedAmount;
     if (amount == null) return;
+    final problem = _checkRecipient();
+    setState(() => _recipientError = problem);
+    if (problem != null) return;
+    final to = _recipient.text.trim();
     await _run((session) async {
-      final slate = await session.createSendSlate(
-        amount: amount,
-        minimumConfirmations: minimumConfirmations,
-      );
-      if (mounted) setState(() => _slate = slate);
+      switch (_method) {
+        case SendMethod.epicbox:
+          final tx = await session.sendEpicbox(
+            amount: amount,
+            minimumConfirmations: minimumConfirmations,
+            address: to,
+          );
+          if (mounted) setState(() => _done = tx);
+        case SendMethod.http:
+          final tx = await session.sendHttp(
+            amount: amount,
+            minimumConfirmations: minimumConfirmations,
+            url: to,
+          );
+          if (mounted) setState(() => _done = tx);
+        case SendMethod.slate:
+          final slate = await session.createSendSlate(
+            amount: amount,
+            minimumConfirmations: minimumConfirmations,
+          );
+          if (mounted) setState(() => _slate = slate);
+      }
     });
   }
 
@@ -120,41 +180,100 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     }
     await _run((session) async {
       final tx = await session.finalizeAndPost(slateJson: json);
-      if (mounted) setState(() => _posted = tx);
+      if (mounted) setState(() => _done = tx);
     });
   }
 
   @override
   Widget build(BuildContext context) {
     final List<Widget> children;
-    if (_posted != null) {
+    if (_done != null) {
       children = _doneStep(context);
     } else if (_slate != null) {
       children = _responseStep(context, _slate!);
     } else {
-      children = _amountStep(context);
+      children = _formStep(context);
     }
     return Scaffold(
       appBar: AppBar(title: const Text('Send')),
       body: ScreenBody(
-        children: [
-          const Text(
-            'Sending takes two steps: create a slate and give it to the '
-            'recipient, then paste the response they return to finalize and '
-            'post the transaction.',
-          ),
-          const SizedBox(height: 16),
-          ...children,
-          if (_error != null) ErrorText(_error!),
-        ],
+        children: [...children, if (_error != null) ErrorText(_error!)],
       ),
     );
   }
 
-  List<Widget> _amountStep(BuildContext context) {
+  List<Widget> _formStep(BuildContext context) {
     final spendable = ref.watch(homeProvider).value?.summary.spendable;
+    final listening = ref.watch(listenerProvider).connected;
     final estimate = _estimate;
+    final recipientLabel = switch (_method) {
+      SendMethod.epicbox => 'Recipient epicbox address',
+      SendMethod.http => 'Recipient wallet URL',
+      SendMethod.slate => '',
+    };
     return [
+      SegmentedButton<SendMethod>(
+        segments: const [
+          ButtonSegment(value: SendMethod.epicbox, label: Text('Epicbox')),
+          ButtonSegment(value: SendMethod.http, label: Text('HTTP')),
+          ButtonSegment(value: SendMethod.slate, label: Text('Slate')),
+        ],
+        selected: {_method},
+        onSelectionChanged: (selection) => setState(() {
+          _method = selection.first;
+          _recipientError = null;
+          _error = null;
+        }),
+      ),
+      const SizedBox(height: 8),
+      Text(switch (_method) {
+        SendMethod.epicbox =>
+          'Sent through the epicbox relay. It completes by itself once the '
+              'recipient\'s wallet answers, while this wallet is open.',
+        SendMethod.http =>
+          'Sent straight to a wallet that listens on HTTP, such as '
+              'epic-wallet listen. It completes at once.',
+        SendMethod.slate =>
+          'Sending takes two steps: create a slate and give it to the '
+              'recipient, then paste the response they return to finalize and '
+              'post the transaction.',
+      }),
+      if (_method == SendMethod.epicbox && !listening) ...[
+        const SizedBox(height: 8),
+        const ErrorText(
+          'Not connected to the relay yet. The send is delivered, but it '
+          'finishes only once the listener is connected.',
+        ),
+      ],
+      const SizedBox(height: 16),
+      if (_method != SendMethod.slate) ...[
+        TextField(
+          controller: _recipient,
+          autocorrect: false,
+          enableSuggestions: false,
+          keyboardType: _method == SendMethod.http
+              ? TextInputType.url
+              : TextInputType.text,
+          onChanged: (_) => setState(() => _recipientError = null),
+          decoration: InputDecoration(
+            labelText: recipientLabel,
+            errorText: _recipientError,
+            border: const OutlineInputBorder(),
+            suffixIcon: IconButton(
+              tooltip: 'Paste',
+              icon: const Icon(Icons.content_paste),
+              onPressed: () async {
+                final data = await Clipboard.getData(Clipboard.kTextPlain);
+                final text = data?.text?.trim();
+                if (text == null || text.isEmpty) return;
+                _recipient.text = text;
+                setState(() => _recipientError = null);
+              },
+            ),
+          ),
+        ),
+        const SizedBox(height: 12),
+      ],
       TextField(
         controller: _amount,
         keyboardType: const TextInputType.numberWithOptions(decimal: true),
@@ -180,11 +299,11 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       if (_estimateError != null) ErrorText(_estimateError!),
       const SizedBox(height: 16),
       BusyButton(
-        label: 'Create slate',
+        label: _method == SendMethod.slate ? 'Create slate' : 'Send',
         busy: _busy,
         onPressed: _parsedAmount == null || _estimateError != null
             ? null
-            : _createSlate,
+            : _send,
       ),
     ];
   }
@@ -212,21 +331,25 @@ class _SendScreenState extends ConsumerState<SendScreen> {
 
   List<Widget> _doneStep(BuildContext context) {
     final amount = _parsedAmount;
+    final waiting = _method == SendMethod.epicbox;
+    final what = amount == null ? 'Transaction' : epicText(amount);
     return [
       Semantics(
         liveRegion: true,
         child: Row(
           children: [
             Icon(
-              Icons.check_circle,
+              waiting ? Icons.schedule_send : Icons.check_circle,
               color: Theme.of(context).colorScheme.primary,
             ),
             const SizedBox(width: 12),
             Expanded(
               child: Text(
-                amount == null
+                waiting
+                    ? '$what sent to the relay.'
+                    : amount == null
                     ? 'Transaction posted.'
-                    : 'Transaction of ${epicText(amount)} posted.',
+                    : 'Transaction of $what posted.',
                 style: Theme.of(context).textTheme.titleMedium,
               ),
             ),
@@ -234,7 +357,13 @@ class _SendScreenState extends ConsumerState<SendScreen> {
         ),
       ),
       const SizedBox(height: 8),
-      const Text('It shows as confirmed once it is mined.'),
+      Text(
+        waiting
+            ? 'It completes by itself when the recipient\'s wallet answers. '
+                  'Keep this wallet open until then. If they never answer, '
+                  'cancel it from the home screen to unlock the funds.'
+            : 'It shows as confirmed once it is mined.',
+      ),
       const SizedBox(height: 24),
       BusyButton(label: 'Done', onPressed: () => Navigator.pop(context)),
     ];

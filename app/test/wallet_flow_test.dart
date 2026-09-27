@@ -561,6 +561,7 @@ void main() {
       await _pumpApp(tester, service, _Device(sealedMainnet: true));
       await _unlockToHome(tester);
       await _tapText(tester, 'Send');
+      await _tapText(tester, 'Slate');
 
       expect(find.textContaining('Sending takes two steps'), findsOneWidget);
 
@@ -597,12 +598,130 @@ void main() {
       expect(find.text('Spendable'), findsOneWidget);
     });
 
+    testWidgets(
+      'send over epicbox checks the address and waits for the relay',
+      (tester) async {
+        final session = _fundedSession();
+        final service = _existing(session: session);
+        await _pumpApp(tester, service, _Device(sealedMainnet: true));
+        await _unlockToHome(tester);
+        expect(session.listenerStarts, 1);
+        await _tapText(tester, 'Send');
+
+        expect(
+          find.textContaining('Not connected to the relay yet'),
+          findsOneWidget,
+        );
+        session.listenerEvents.add(
+          const ListenerEvent(
+            kind: ListenerEventKind.connected,
+            message: 'addr@epicbox.epiccash.com',
+          ),
+        );
+        await tester.pumpAndSettle();
+        expect(
+          find.textContaining('Not connected to the relay yet'),
+          findsNothing,
+        );
+
+        await _enter(tester, 'Recipient epicbox address', 'esBare');
+        await _enter(tester, 'Amount (EPIC)', '1.5');
+        await tester.pump(const Duration(milliseconds: 500));
+        await _tap(tester, find.widgetWithText(FilledButton, 'Send'));
+        expect(
+          find.textContaining('Enter a full epicbox address'),
+          findsOneWidget,
+        );
+        expect(session.epicboxSends, isEmpty);
+
+        final to = '${'a' * 52}@epicbox.epiccash.com';
+        await _enter(tester, 'Recipient epicbox address', to);
+        await _tap(tester, find.widgetWithText(FilledButton, 'Send'));
+        expect(session.epicboxSends.single.to, to);
+        expect(session.epicboxSends.single.amount, _epic(1.5));
+        expect(find.text('1.5 EPIC sent to the relay.'), findsOneWidget);
+      },
+    );
+
+    testWidgets('send over HTTP posts at once, and shows transport errors', (
+      tester,
+    ) async {
+      final session = _fundedSession();
+      final service = _existing(session: session);
+      await _pumpApp(tester, service, _Device(sealedMainnet: true));
+      await _unlockToHome(tester);
+      await _tapText(tester, 'Send');
+      await _tapText(tester, 'HTTP');
+
+      await _enter(tester, 'Recipient wallet URL', '203.0.113.5:3415');
+      await _enter(tester, 'Amount (EPIC)', '2');
+      await tester.pump(const Duration(milliseconds: 500));
+      await _tap(tester, find.widgetWithText(FilledButton, 'Send'));
+      expect(find.textContaining('Enter the full address'), findsOneWidget);
+
+      session.sendError = const WalletError(
+        kind: WalletErrorKind.transportFailed,
+        message: 'the recipient did not answer',
+      );
+      await _enter(tester, 'Recipient wallet URL', 'http://203.0.113.5:3415');
+      await _tap(tester, find.widgetWithText(FilledButton, 'Send'));
+      expect(
+        find.textContaining('Could not reach the recipient'),
+        findsOneWidget,
+      );
+
+      session.sendError = null;
+      await _tap(tester, find.widgetWithText(FilledButton, 'Send'));
+      expect(session.httpSends.single.to, 'http://203.0.113.5:3415');
+      expect(find.text('Transaction of 2 EPIC posted.'), findsOneWidget);
+    });
+
+    testWidgets('a payment arriving over epicbox refreshes home and says so', (
+      tester,
+    ) async {
+      final session = _fundedSession();
+      final service = _existing(session: session);
+      await _pumpApp(tester, service, _Device(sealedMainnet: true));
+      await _unlockToHome(tester);
+      expect(
+        find.textContaining('Epicbox address · connecting'),
+        findsOneWidget,
+      );
+
+      session.listenerEvents.add(
+        const ListenerEvent(kind: ListenerEventKind.connected, message: 'a'),
+      );
+      await tester.pumpAndSettle();
+      expect(
+        find.textContaining('Epicbox address · listening'),
+        findsOneWidget,
+      );
+
+      session.summaryValue = FakeWalletSession.emptySummary;
+      session.listenerEvents.add(
+        const ListenerEvent(
+          kind: ListenerEventKind.received,
+          slateId: 's',
+          message: 'Received 3 EPIC from zz…',
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('Received 3 EPIC from zz…'), findsOneWidget);
+      expect(find.text('0 EPIC'), findsWidgets);
+
+      await _tap(tester, find.byTooltip('More'));
+      await _tapText(tester, 'Lock wallet');
+      expect(session.disposeCalls, 1);
+    });
+
     testWidgets('receive: paste slate, show response', (tester) async {
       final session = _fundedSession();
       final service = _existing(session: session);
       await _pumpApp(tester, service, _Device(sealedMainnet: true));
       await _unlockToHome(tester);
       await _tapText(tester, 'Receive');
+      expect(find.text(session.address), findsOneWidget);
+      expect(find.textContaining('arrive by themselves'), findsOneWidget);
 
       await _tapText(tester, 'Sign slate');
       expect(find.text('Paste the slate you received.'), findsOneWidget);

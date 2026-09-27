@@ -105,8 +105,34 @@ pub enum WalletErrorKind {
     NotEnoughFunds,
     InvalidSlate,
     InvalidArgument,
+    /// The epicbox relay or the recipient's HTTP listener could not be reached, or refused.
+    TransportFailed,
     Io,
     Other,
+}
+
+/// What the epicbox listener did.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ListenerEventKind {
+    /// Subscribed at the relay; `message` is the address it listens on.
+    Connected,
+    /// The connection dropped or could not be made; it retries with backoff.
+    Disconnected,
+    /// Signed an incoming send and returned it to the sender.
+    Received,
+    /// Finalized and posted one of our sends.
+    Finalized,
+    /// A slate could not be handled, or the relay reported an error.
+    Error,
+    /// The listener ended; no more events follow.
+    Stopped,
+}
+
+#[derive(Debug, Clone)]
+pub struct ListenerEvent {
+    pub kind: ListenerEventKind,
+    pub slate_id: Option<String>,
+    pub message: String,
 }
 
 /// The single error type every API call returns. Dart receives it as a thrown exception.

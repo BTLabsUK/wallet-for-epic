@@ -10,7 +10,7 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 import 'types.dart';
 
 // These functions are ignored because they are not marked as `pub`: `kind_of`, `to_api`
-// These functions are ignored (category: IgnoreBecauseExplicitAttribute): `scan_with`
+// These functions are ignored (category: IgnoreBecauseExplicitAttribute): `scan_with`, `start_listener_with`
 
 /// Generates a new BIP-39 recovery phrase. `word_count` is 12 or 24.
 String generateMnemonic({required int wordCount}) =>
@@ -23,6 +23,10 @@ bool validateMnemonic({required String phrase}) =>
 /// True when `config.data_dir` already holds a wallet seed.
 Future<bool> walletExists({required WalletConfig config}) =>
     RustLib.instance.api.crateApiWalletWalletExists(config: config);
+
+/// True for `<52-char address>@<relay>[:port]` whose key is valid on the current chain.
+bool validateEpicboxAddress({required String address}) =>
+    RustLib.instance.api.crateApiWalletValidateEpicboxAddress(address: address);
 
 /// Current tip of the configured node, without opening a wallet.
 Future<NodeTip> nodeTip({required WalletConfig config}) =>
@@ -64,6 +68,8 @@ abstract class EpicWallet implements RustOpaqueInterface {
   /// Sender side: finalizes the recipient's response and posts the transaction to the node.
   Future<TxEntry> finalizeAndPost({required String slateJson});
 
+  bool listenerRunning();
+
   /// Recovery phrase of this wallet, re-checked against `password`.
   Future<String> mnemonic({required String password});
 
@@ -82,6 +88,31 @@ abstract class EpicWallet implements RustOpaqueInterface {
   /// Rescans the chain for this wallet's outputs from `start_height` (default: the wallet's
   /// last scanned height, or 1 for a restore), streaming progress until `finished`.
   Stream<ScanProgress> scan({BigInt? startHeight});
+
+  /// Sends to `<address>@<relay>[:port]` over epicbox. Returns the new, still unfinalized
+  /// transaction; the listener finalizes and posts it when the recipient's response arrives.
+  Future<TxEntry> sendEpicbox({
+    required BigInt amount,
+    required BigInt minimumConfirmations,
+    required String address,
+  });
+
+  /// Sends to a wallet listening on HTTP, e.g. `http://host:3415`. Completes the whole exchange:
+  /// the recipient signs in the same request, then the transaction is finalized and posted.
+  /// A failure before the post unlocks the outputs again. Receiving over HTTP is not offered:
+  /// a phone cannot accept incoming connections.
+  Future<TxEntry> sendHttp({
+    required BigInt amount,
+    required BigInt minimumConfirmations,
+    required String url,
+  });
+
+  /// Starts the epicbox listener (no-op if it already runs) and streams what it does. Incoming
+  /// sends are signed and answered, responses to our sends are finalized and posted.
+  Stream<ListenerEvent> startListener();
+
+  /// Stops the listener. Takes up to about a second.
+  Future<void> stopListener();
 
   /// Balances. With `refresh` the wallet first updates output state from the node.
   Future<WalletSummary> summary({

@@ -7,7 +7,7 @@ import '../frb_generated.dart';
 
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
-// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `eq`, `eq`, `eq`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`
+// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `eq`, `eq`, `eq`, `eq`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`
 
 /// Which Epic chain the wallet talks to. Selects consensus parameters and default ports.
 enum Chain { mainnet, floonet, usernet }
@@ -29,6 +29,51 @@ class FeeEstimate {
           runtimeType == other.runtimeType &&
           amount == other.amount &&
           fee == other.fee;
+}
+
+class ListenerEvent {
+  final ListenerEventKind kind;
+  final String? slateId;
+  final String message;
+
+  const ListenerEvent({
+    required this.kind,
+    this.slateId,
+    required this.message,
+  });
+
+  @override
+  int get hashCode => kind.hashCode ^ slateId.hashCode ^ message.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ListenerEvent &&
+          runtimeType == other.runtimeType &&
+          kind == other.kind &&
+          slateId == other.slateId &&
+          message == other.message;
+}
+
+/// What the epicbox listener did.
+enum ListenerEventKind {
+  /// Subscribed at the relay; `message` is the address it listens on.
+  connected,
+
+  /// The connection dropped or could not be made; it retries with backoff.
+  disconnected,
+
+  /// Signed an incoming send and returned it to the sender.
+  received,
+
+  /// Finalized and posted one of our sends.
+  finalized,
+
+  /// A slate could not be handled, or the relay reported an error.
+  error,
+
+  /// The listener ended; no more events follow.
+  stopped,
 }
 
 class NodeTip {
@@ -234,6 +279,9 @@ enum WalletErrorKind {
   notEnoughFunds,
   invalidSlate,
   invalidArgument,
+
+  /// The epicbox relay or the recipient's HTTP listener could not be reached, or refused.
+  transportFailed,
   io,
   other,
 }

@@ -191,6 +191,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    ref.listen(listenerProvider.select((s) => s.last), (_, event) {
+      if (event == null) return;
+      _showMessage(
+        event.kind == ListenerEventKind.error
+            ? 'Epicbox: ${event.message}'
+            : event.message,
+      );
+    });
     final config = ref.watch(walletConfigProvider);
     final home = ref.watch(homeProvider);
     final scan = ref.watch(scanProvider);
@@ -554,6 +562,7 @@ class _AddressCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final address = ref.watch(addressProvider);
+    final listening = ref.watch(listenerProvider.select((s) => s.connected));
     return Card(
       child: Padding(
         padding: const EdgeInsets.fromLTRB(16, 8, 8, 8),
@@ -564,7 +573,9 @@ class _AddressCard extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Epicbox address',
+                    listening
+                        ? 'Epicbox address · listening'
+                        : 'Epicbox address · connecting',
                     style: Theme.of(context).textTheme.labelLarge,
                   ),
                   switch (address) {

@@ -373,3 +373,65 @@ class WalletSetupNotifier extends Notifier<WalletSetup> {
     state = const WalletSetup();
   }
 }
+
+/// What the epicbox listener of the open wallet is doing.
+class ListenerState {
+  const ListenerState({this.connected = false, this.status, this.last});
+
+  /// Subscribed at the relay, so incoming payments and responses arrive.
+  final bool connected;
+
+  /// Why it is not connected, when known.
+  final String? status;
+
+  /// The latest payment event (received, finalized or failed), for a one-off notice.
+  final ListenerEvent? last;
+}
+
+/// Runs the epicbox listener while a wallet is open, and refreshes balances when it receives or
+/// finalizes a transaction. It stops with the session.
+final listenerProvider = NotifierProvider<ListenerNotifier, ListenerState>(
+  ListenerNotifier.new,
+);
+
+class ListenerNotifier extends Notifier<ListenerState> {
+  StreamSubscription<ListenerEvent>? _events;
+
+  @override
+  ListenerState build() {
+    final session = ref.watch(sessionProvider);
+    ref.onDispose(() => _events?.cancel());
+    if (session == null) return const ListenerState();
+    _events = session.startListener().listen(
+      _onEvent,
+      onError: (Object error) =>
+          state = ListenerState(status: describeError(error), last: state.last),
+    );
+    return const ListenerState(status: 'Connecting to the epicbox relay…');
+  }
+
+  void _onEvent(ListenerEvent event) {
+    switch (event.kind) {
+      case ListenerEventKind.connected:
+        state = ListenerState(connected: true, last: state.last);
+      case ListenerEventKind.disconnected:
+        state = ListenerState(
+          status: 'Reconnecting to the relay: ${event.message}',
+          last: state.last,
+        );
+      case ListenerEventKind.stopped:
+        state = ListenerState(status: 'Listener stopped', last: state.last);
+      case ListenerEventKind.received ||
+          ListenerEventKind.finalized ||
+          ListenerEventKind.error:
+        state = ListenerState(
+          connected: state.connected,
+          status: state.status,
+          last: event,
+        );
+        if (event.kind != ListenerEventKind.error) {
+          ref.invalidate(homeProvider);
+        }
+    }
+  }
+}
