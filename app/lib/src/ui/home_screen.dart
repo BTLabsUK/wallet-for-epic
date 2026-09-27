@@ -5,8 +5,11 @@ import 'package:pretty_qr_code/pretty_qr_code.dart';
 import '../errors.dart';
 import '../network.dart';
 import '../providers.dart';
+import '../updater.dart';
 import '../wallet_service.dart';
+import 'backup_screen.dart';
 import 'common.dart';
+import 'pin.dart';
 import 'receive_screen.dart';
 import 'restore_screen.dart' show ScanProgressView;
 import 'send_screen.dart';
@@ -41,9 +44,28 @@ class HomeScreen extends ConsumerStatefulWidget {
   ConsumerState<HomeScreen> createState() => _HomeScreenState();
 }
 
-enum _MenuAction { rescan, lock }
+enum _MenuAction { rescan, backup, biometrics, updates, lock }
+
+/// Whether this device offers biometric unlock, and whether the open wallet uses it.
+final biometricStatusProvider =
+    FutureProvider.autoDispose<({bool available, bool enabled})>((ref) async {
+      final config = ref.watch(walletConfigProvider);
+      final available = await ref.watch(biometricStoreProvider).isAvailable();
+      final enabled =
+          config != null &&
+          await ref.watch(vaultProvider).biometricsEnabled(config.chain);
+      return (available: available, enabled: enabled);
+    });
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) => ref.read(updateProvider.notifier).checkOnStart(),
+    );
+  }
+
   void _showMessage(String message) {
     ScaffoldMessenger.of(context)
         .showSnackBar(SnackBar(content: Text(message)));
@@ -71,6 +93,35 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         .read(scanProvider.notifier)
         .run(startHeight: BigInt.one);
     if (ok && mounted) await _refresh();
+  }
+
+  Future<void> _backup() async {
+    final done = await Navigator.of(context)
+        .push<bool>(MaterialPageRoute(builder: (_) => const BackupScreen()));
+    if (done == true && mounted) _showMessage('Recovery phrase confirmed');
+  }
+
+  Future<void> _toggleBiometrics(bool enabled) async {
+    final config = ref.read(walletConfigProvider);
+    if (config == null) return;
+    final vault = ref.read(vaultProvider);
+    if (enabled) {
+      await vault.disableBiometrics(config.chain);
+      if (mounted) _showMessage('Biometric unlock turned off');
+    } else {
+      final password = await askWalletPassword(
+        context,
+        reason: 'Enter your PIN to turn on biometric unlock.',
+      );
+      if (password == null) return;
+      final ok = await vault.enableBiometrics(config.chain, password);
+      if (mounted) {
+        _showMessage(
+          ok ? 'Biometric unlock turned on' : 'Biometric unlock was not set up',
+        );
+      }
+    }
+    ref.invalidate(biometricStatusProvider);
   }
 
   Future<void> _cancelTx(TxEntry tx) async {
@@ -131,6 +182,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final home = ref.watch(homeProvider);
     final scan = ref.watch(scanProvider);
     final data = home.value;
+    final backedUp = ref.watch(backedUpProvider).value ?? true;
+    final biometrics = ref.watch(biometricStatusProvider).value;
     final title = config == null ? 'Wallet' : chainLabel(config.chain);
 
     return Scaffold(
@@ -146,6 +199,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             tooltip: 'More',
             onSelected: (action) => switch (action) {
               _MenuAction.rescan => _rescan(),
+              _MenuAction.backup => _backup(),
+              _MenuAction.biometrics => _toggleBiometrics(
+                biometrics?.enabled ?? false,
+              ),
+              _MenuAction.updates => ref.read(updateProvider.notifier).check(),
               _MenuAction.lock => lockWallet(context, ref),
             },
             itemBuilder: (_) => [
@@ -154,6 +212,24 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 enabled: !scan.running,
                 child: const Text('Full rescan'),
               ),
+              const PopupMenuItem(
+                value: _MenuAction.backup,
+                child: Text('Show recovery phrase'),
+              ),
+              if (biometrics?.available ?? false)
+                PopupMenuItem(
+                  value: _MenuAction.biometrics,
+                  child: Text(
+                    biometrics!.enabled
+                        ? 'Turn off biometric unlock'
+                        : 'Turn on biometric unlock',
+                  ),
+                ),
+              if (ref.read(updateProvider.notifier).supported)
+                const PopupMenuItem(
+                  value: _MenuAction.updates,
+                  child: Text('Check for updates'),
+                ),
               const PopupMenuItem(
                 value: _MenuAction.lock,
                 child: Text('Lock wallet'),
@@ -179,6 +255,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         child: ScanProgressView(scan: scan),
                       ),
                     ),
+                  const _UpdateCard(),
+                  if (!backedUp) _BackupCard(onBackup: _backup),
                   if (home.hasError && !home.isLoading)
                     ErrorText(describeError(home.error!)),
                   if (data != null) BalanceCard(summary: data.summary),
@@ -233,6 +311,124 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               ),
             ),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Update availability, download progress and install errors. Hidden when there is nothing
+/// to say.
+class _UpdateCard extends ConsumerWidget {
+  const _UpdateCard();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(updateProvider);
+    final notifier = ref.read(updateProvider.notifier);
+    final update = state.update;
+    final version = update == null ? '' : ' ${update.versionName}';
+    final (String text, Widget? action) = switch (state.phase) {
+      UpdatePhase.idle => ('', null),
+      UpdatePhase.checking => ('Checking for updates…', null),
+      UpdatePhase.upToDate => ('This is the latest version.', null),
+      UpdatePhase.available => (
+        state.message ?? 'Version$version is available.',
+        FilledButton.tonal(
+          onPressed: notifier.install,
+          child: const Text('Update'),
+        ),
+      ),
+      UpdatePhase.downloading => (
+        'Downloading version$version… '
+            '${((state.progress ?? 0) * 100).floor()}%',
+        null,
+      ),
+      UpdatePhase.installing => ('Installing version$version…', null),
+      UpdatePhase.failed => (
+        state.message ?? 'The update failed.',
+        TextButton(
+          onPressed: update == null ? notifier.check : notifier.install,
+          child: const Text('Try again'),
+        ),
+      ),
+    };
+    if (text.isEmpty) return const SizedBox.shrink();
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 12, 8, 12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.system_update, semanticLabel: 'Update'),
+                const SizedBox(width: 12),
+                Expanded(child: Semantics(liveRegion: true, child: Text(text))),
+                ?action,
+              ],
+            ),
+            if (state.phase == UpdatePhase.downloading)
+              Padding(
+                padding: const EdgeInsets.only(top: 8, right: 8),
+                child: LinearProgressIndicator(
+                  value: state.progress,
+                  semanticsLabel: 'Download progress',
+                ),
+              ),
+            if (update != null &&
+                update.notes.isNotEmpty &&
+                state.phase == UpdatePhase.available)
+              Padding(
+                padding: const EdgeInsets.only(top: 8, right: 8),
+                child: Text(
+                  update.notes,
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Asks the user to write the recovery phrase down, until they have.
+class _BackupCard extends StatelessWidget {
+  const _BackupCard({required this.onBackup});
+
+  final VoidCallback onBackup;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    return Card(
+      color: colors.tertiaryContainer,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              'Back up your wallet',
+              style: Theme.of(context).textTheme.titleSmall
+                  ?.copyWith(color: colors.onTertiaryContainer),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Write down your recovery phrase. It is the only way to get your '
+              'funds back if you lose this device or forget your PIN.',
+              style: TextStyle(color: colors.onTertiaryContainer),
+            ),
+            const SizedBox(height: 8),
+            Align(
+              alignment: Alignment.centerRight,
+              child: FilledButton.tonal(
+                onPressed: onBackup,
+                child: const Text('Back up now'),
+              ),
+            ),
+          ],
         ),
       ),
     );

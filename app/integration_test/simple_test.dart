@@ -7,6 +7,9 @@ import 'package:epic_wallet/src/app.dart';
 import 'package:epic_wallet/src/network.dart';
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/rust/frb_generated.dart';
+import 'package:epic_wallet/src/secret_store.dart';
+import 'package:epic_wallet/src/updater.dart';
+import 'package:epic_wallet/src/vault.dart';
 import 'package:epic_wallet/src/ui/home_screen.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:flutter/material.dart';
@@ -56,13 +59,6 @@ Future<void> _reveal(WidgetTester tester, Finder finder) async {
     );
   }
   await tester.ensureVisible(finder);
-}
-
-Future<void> _tap(WidgetTester tester, Finder finder) async {
-  await _reveal(tester, finder);
-  await tester.pumpAndSettle();
-  await tester.tap(finder);
-  await tester.pump();
 }
 
 Future<void> _enter(WidgetTester tester, String label, String text) async {
@@ -124,9 +120,44 @@ void main() {
     expect(await wallet.transactions(refresh: false), isEmpty);
   });
 
-  testWidgets('UI create flow through the real core', (tester) async {
+  testWidgets('vault: seal and open through the real core', (tester) async {
+    const crypto = RustVaultCrypto();
+    final password = crypto.generatePassword();
+    expect(password, hasLength(64));
+    final sealed = await crypto.seal(pin: '123456', password: password);
+    expect(sealed.contains(password), isFalse);
+    expect(
+      await crypto.open(pin: '123456', sealed: sealed) == password,
+      isTrue,
+    );
+    await expectLater(
+      crypto.open(pin: '654321', sealed: sealed),
+      throwsA(
+        isA<WalletError>().having(
+          (e) => e.kind,
+          'kind',
+          WalletErrorKind.wrongPassword,
+        ),
+      ),
+    );
+  });
+
+  testWidgets('platform secure storage round-trips', (tester) async {
+    const store = PlatformSecretStore();
+    const key = 'integration-test.probe';
+    await store.write(key, 'value');
+    expect(await store.read(key), 'value');
+    await store.delete(key);
+    expect(await store.read(key), isNull);
+  });
+
+  testWidgets('first run through the real core: PIN, then home', (
+    tester,
+  ) async {
     final dir = await _tempDir('ui');
     addTearDown(() => dir.delete(recursive: true));
+    final store = MemorySecretStore();
+    await store.write('app.node.mainnet', _unreachableNode);
 
     await tester.pumpWidget(
       ProviderScope(
@@ -137,52 +168,35 @@ void main() {
             await chainDir.create(recursive: true);
             return chainDir.path;
           }),
+          secretStoreProvider.overrideWithValue(store),
+          biometricStoreProvider.overrideWithValue(
+            MemoryBiometricStore(available: false),
+          ),
+          updatePlatformProvider.overrideWithValue(null),
         ],
         child: const WalletApp(),
       ),
     );
-    await tester.pumpAndSettle();
 
-    await _enter(tester, 'Node URL', _unreachableNode);
-    await _tap(tester, find.text('Continue'));
-    await _pumpUntil(tester, find.text('Create a new wallet'));
-    await _tap(tester, find.text('Create a new wallet'));
-    await tester.pumpAndSettle();
-
-    // Read the words the screen shows, as a user would copy them to paper.
-    final words = <String>[];
-    for (var i = 1; i <= 24; i++) {
-      final label = find.textContaining(RegExp('^$i\\. '));
-      await _pumpUntil(tester, label);
-      words.add(tester.widget<Text>(label).data!.split(' ').last);
-    }
-    await _tap(tester, find.text('I have written them down'));
-    await tester.pumpAndSettle();
-
-    for (var i = 0; i < words.length; i++) {
-      final field = find.byKey(ValueKey('confirm-word-$i'));
-      if (field.evaluate().isNotEmpty) {
-        await tester.enterText(field, words[i]);
-      }
-    }
-    await _tap(tester, find.text('Confirm'));
-    await tester.pumpAndSettle();
-
-    await _enter(tester, 'Password', _password);
-    await _enter(tester, 'Repeat password', _password);
-    await _tap(tester, find.widgetWithText(FilledButton, 'Create wallet'));
+    await _pumpUntil(tester, find.widgetWithText(TextField, 'PIN'));
+    await _enter(tester, 'PIN', '123456');
+    await _pumpUntil(tester, find.widgetWithText(TextField, 'Repeat PIN'));
+    await _enter(tester, 'Repeat PIN', '123456');
 
     await _pumpUntil(tester, find.textContaining('@epicbox.epiccash.com'));
     await _pumpUntil(tester, find.text('Spendable'));
-    await _reveal(tester, find.text('No transactions yet.'));
-    expect(find.text('No transactions yet.'), findsOneWidget);
+    expect(find.text('Back up your wallet'), findsOneWidget);
+    expect(await store.read('wallet.mainnet.pending'), isNull);
 
     final container = ProviderScope.containerOf(
       tester.element(find.byType(HomeScreen)),
     );
+    final password = await container
+        .read(vaultProvider)
+        .unlockWithPin(Chain.mainnet, '123456');
     final session = container.read(sessionProvider)!;
-    final stored = await session.mnemonic(password: _password);
-    expect(stored == words.join(' '), isTrue, reason: 'stored phrase differs');
+    final phrase = await session.mnemonic(password: password);
+    expect(phrase.split(' '), hasLength(24));
 
     container.read(sessionProvider.notifier).lock();
     await tester.pumpWidget(const SizedBox.shrink());

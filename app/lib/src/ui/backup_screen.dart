@@ -7,65 +7,43 @@ import '../errors.dart';
 import '../providers.dart';
 import '../secure_screen.dart';
 import 'common.dart';
-
-/// Words in a newly generated recovery phrase.
-const int newPhraseWords = 24;
+import 'pin.dart';
 
 /// Words the user must re-enter to prove they wrote the phrase down.
 const int confirmWordCount = 3;
 
-/// Minimum password length for a new wallet.
-const int minPasswordLength = 8;
+/// Whether the open wallet's recovery phrase has been written down.
+final backedUpProvider = FutureProvider.autoDispose<bool>((ref) {
+  final config = ref.watch(walletConfigProvider);
+  if (config == null) return true;
+  return ref.watch(vaultProvider).isBackedUp(config.chain);
+});
 
-/// Returns an error sentence for a new password pair, or null when acceptable.
-String? checkNewPassword(String password, String repeat) {
-  if (password.length < minPasswordLength) {
-    return 'Use at least $minPasswordLength characters.';
-  }
-  if (password != repeat) return 'The passwords do not match.';
-  return null;
-}
+enum _Step { showPhrase, confirmPhrase }
 
-enum _Step { showPhrase, confirmPhrase, password }
-
-/// Creates a wallet: show the phrase once, confirm three words, set a password.
-class CreateScreen extends ConsumerStatefulWidget {
-  const CreateScreen({super.key});
+/// Shows the recovery phrase after the PIN, then checks three words. Pops true when done.
+class BackupScreen extends ConsumerStatefulWidget {
+  const BackupScreen({super.key});
 
   @override
-  ConsumerState<CreateScreen> createState() => _CreateScreenState();
+  ConsumerState<BackupScreen> createState() => _BackupScreenState();
 }
 
-class _CreateScreenState extends ConsumerState<CreateScreen> {
+class _BackupScreenState extends ConsumerState<BackupScreen> {
   List<String> _words = const [];
   List<int> _confirmIndexes = const [];
-  String? _generateError;
   final _confirmControllers = List.generate(
     confirmWordCount,
     (_) => TextEditingController(),
   );
-  final _password = TextEditingController();
-  final _repeat = TextEditingController();
   _Step _step = _Step.showPhrase;
   String? _error;
-  bool _busy = false;
 
   @override
   void initState() {
     super.initState();
-    try {
-      final phrase = ref
-          .read(walletServiceProvider)
-          .generateMnemonic(wordCount: newPhraseWords);
-      _words = phrase.split(' ');
-    } catch (error) {
-      _generateError = describeError(error);
-      return;
-    }
-    final indexes = List.generate(_words.length, (i) => i)
-      ..shuffle(Random.secure());
-    _confirmIndexes = indexes.take(confirmWordCount).toList()..sort();
     setSecureScreen(true);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _load());
   }
 
   @override
@@ -74,20 +52,37 @@ class _CreateScreenState extends ConsumerState<CreateScreen> {
     for (final controller in _confirmControllers) {
       controller.dispose();
     }
-    _password.dispose();
-    _repeat.dispose();
     super.dispose();
   }
 
-  void _goTo(_Step step) {
-    setSecureScreen(step != _Step.password);
-    setState(() {
-      _step = step;
-      _error = null;
-    });
+  Future<void> _load() async {
+    final password = await askWalletPassword(
+      context,
+      reason: 'Enter your PIN to show the recovery phrase.',
+    );
+    if (!mounted) return;
+    if (password == null) {
+      Navigator.pop(context, false);
+      return;
+    }
+    final session = ref.read(sessionProvider);
+    if (session == null) return;
+    try {
+      final phrase = await session.mnemonic(password: password);
+      final words = phrase.split(' ');
+      final indexes = List.generate(words.length, (i) => i)
+        ..shuffle(Random.secure());
+      if (!mounted) return;
+      setState(() {
+        _words = words;
+        _confirmIndexes = indexes.take(confirmWordCount).toList()..sort();
+      });
+    } catch (error) {
+      if (mounted) setState(() => _error = describeError(error));
+    }
   }
 
-  void _checkWords() {
+  Future<void> _checkWords() async {
     for (var i = 0; i < confirmWordCount; i++) {
       final entered = _confirmControllers[i].text.trim().toLowerCase();
       if (entered != _words[_confirmIndexes[i]]) {
@@ -98,55 +93,34 @@ class _CreateScreenState extends ConsumerState<CreateScreen> {
         return;
       }
     }
-    for (final controller in _confirmControllers) {
-      controller.clear();
+    final config = ref.read(walletConfigProvider);
+    if (config != null) {
+      await ref.read(vaultProvider).markBackedUp(config.chain);
     }
-    _goTo(_Step.password);
+    ref.invalidate(backedUpProvider);
+    if (mounted) Navigator.pop(context, true);
   }
 
-  Future<void> _create() async {
-    final problem = checkNewPassword(_password.text, _repeat.text);
-    if (problem != null) {
-      setState(() => _error = problem);
-      return;
-    }
-    final config = ref.read(walletConfigProvider);
-    if (config == null) return;
-    setState(() {
-      _busy = true;
-      _error = null;
-    });
-    try {
-      final session = await ref
-          .read(walletServiceProvider)
-          .create(
-            config: config,
-            mnemonic: _words.join(' '),
-            password: _password.text,
-          );
-      ref.read(sessionProvider.notifier).unlocked(session);
-      if (mounted) goHome(context);
-    } catch (error) {
-      if (mounted) {
-        setState(() {
-          _busy = false;
-          _error = describeError(error);
-        });
-      }
-    }
-  }
+  void _goTo(_Step step) => setState(() {
+    _step = step;
+    _error = null;
+  });
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Create wallet')),
+      appBar: AppBar(title: const Text('Recovery phrase')),
       body: ScreenBody(
-        children: _generateError != null
-            ? [ErrorText(_generateError!)]
+        children: _words.isEmpty
+            ? [
+                if (_error != null)
+                  ErrorText(_error!)
+                else
+                  const LinearProgressIndicator(),
+              ]
             : switch (_step) {
                 _Step.showPhrase => _phraseStep(context),
                 _Step.confirmPhrase => _confirmStep(context),
-                _Step.password => _passwordStep(context),
               },
       ),
     );
@@ -172,7 +146,7 @@ class _CreateScreenState extends ConsumerState<CreateScreen> {
                 child: Text(
                   'Write these ${_words.length} words on paper, in order. '
                   'Anyone who has them can take your funds, and they are the '
-                  'only way to recover this wallet. They are shown only once.',
+                  'only way to recover this wallet if this device is lost.',
                   style: TextStyle(color: theme.colorScheme.onErrorContainer),
                 ),
               ),
@@ -247,31 +221,6 @@ class _CreateScreenState extends ConsumerState<CreateScreen> {
         onPressed: () => _goTo(_Step.showPhrase),
         child: const Text('Show the phrase again'),
       ),
-    ];
-  }
-
-  List<Widget> _passwordStep(BuildContext context) {
-    return [
-      Text(
-        'Set a password. You need it to open the wallet on this device.',
-        style: Theme.of(context).textTheme.titleMedium,
-      ),
-      const SizedBox(height: 16),
-      PasswordField(
-        controller: _password,
-        label: 'Password',
-        textInputAction: TextInputAction.next,
-      ),
-      const SizedBox(height: 12),
-      PasswordField(
-        controller: _repeat,
-        label: 'Repeat password',
-        textInputAction: TextInputAction.done,
-        onSubmitted: (_) => _create(),
-      ),
-      const SizedBox(height: 16),
-      if (_error != null) ErrorText(_error!),
-      BusyButton(label: 'Create wallet', busy: _busy, onPressed: _create),
     ];
   }
 }

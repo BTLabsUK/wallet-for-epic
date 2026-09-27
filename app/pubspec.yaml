@@ -41,6 +41,9 @@ dependencies:
   flutter_riverpod: 3.4.3
   path_provider: 2.1.6
   pretty_qr_code: 3.6.0
+  flutter_secure_storage: 11.2.0
+  local_auth: 3.0.2
+  crypto: 3.0.7
 
 dev_dependencies:
   flutter_test:

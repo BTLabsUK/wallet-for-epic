@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'ui/setup_screen.dart';
+import 'ui/launch_screen.dart';
 
 const Color _seed = Color(0xFF5B3FD0);
 
@@ -19,7 +19,7 @@ class WalletApp extends StatelessWidget {
           brightness: Brightness.dark,
         ),
       ),
-      home: const SetupScreen(),
+      home: const LaunchScreen(),
     );
   }
 }

@@ -5,6 +5,7 @@
 library;
 
 import 'dart:async';
+import 'dart:io';
 
 import 'rust/api/types.dart';
 import 'rust/api/wallet.dart' as rust;
@@ -34,6 +35,10 @@ abstract interface class WalletService {
     required WalletConfig config,
     required String password,
   });
+
+  /// Deletes the wallet files in `config.dataDir`. Every session on it must be disposed first.
+  /// Only the recovery phrase can bring the wallet back.
+  Future<void> deleteWallet({required WalletConfig config});
 }
 
 /// An open wallet. Mirrors the methods of the native `EpicWallet`.
@@ -113,6 +118,12 @@ class RustWalletService implements WalletService {
   }) async => _RustWalletSession(
     await rust.EpicWallet.open(config: config, password: password),
   );
+
+  @override
+  Future<void> deleteWallet({required WalletConfig config}) async {
+    final dir = Directory(config.dataDir);
+    if (await dir.exists()) await dir.delete(recursive: true);
+  }
 }
 
 class _RustWalletSession implements WalletSession {
@@ -212,6 +223,12 @@ class FakeWalletService implements WalletService {
   WalletConfig? createdConfig;
   String? createdMnemonic;
 
+  /// When set, [create] waits for it, so tests can act while a wallet is being created.
+  Completer<void>? createGate;
+
+  /// Data directories passed to [deleteWallet].
+  final List<String> deletedWallets = [];
+
   @override
   String generateMnemonic({required int wordCount}) => phrase;
 
@@ -238,6 +255,7 @@ class FakeWalletService implements WalletService {
         message: 'wallet exists',
       );
     }
+    await createGate?.future;
     existingWallets.add(config.dataDir);
     this.password = password;
     createdConfig = config;
@@ -263,6 +281,12 @@ class FakeWalletService implements WalletService {
       );
     }
     return session;
+  }
+
+  @override
+  Future<void> deleteWallet({required WalletConfig config}) async {
+    existingWallets.remove(config.dataDir);
+    deletedWallets.add(config.dataDir);
   }
 }
 

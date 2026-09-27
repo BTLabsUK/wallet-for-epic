@@ -9,13 +9,16 @@ import '../providers.dart';
 import '../secure_screen.dart';
 import '../wallet_service.dart';
 import 'common.dart';
-import 'create_screen.dart' show checkNewPassword;
+import 'pin.dart';
 
 /// Lowercases the phrase and collapses whitespace, so pasted phrases validate.
 String normalizePhrase(String input) =>
     input.trim().toLowerCase().split(RegExp(r'\s+')).join(' ');
 
-/// Restores a wallet from its recovery phrase, then scans the chain for its outputs.
+/// Restores a wallet from its recovery phrase, protects it with a PIN, then scans the chain.
+///
+/// A wallet the first run created in the meantime is deleted first: its phrase was never
+/// shown, so it cannot hold funds.
 class RestoreScreen extends ConsumerStatefulWidget {
   const RestoreScreen({super.key});
 
@@ -23,14 +26,16 @@ class RestoreScreen extends ConsumerStatefulWidget {
   ConsumerState<RestoreScreen> createState() => _RestoreScreenState();
 }
 
+enum _RestoreStep { phrase, pin, scan }
+
 class _RestoreScreenState extends ConsumerState<RestoreScreen> {
   final _phrase = TextEditingController();
   final _startHeight = TextEditingController();
-  final _password = TextEditingController();
-  final _repeat = TextEditingController();
+  _RestoreStep _step = _RestoreStep.phrase;
+  String _validPhrase = '';
+  BigInt? _height;
   String? _error;
   bool _busy = false;
-  bool _created = false;
 
   @override
   void initState() {
@@ -43,12 +48,10 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
     setSecureScreen(false);
     _phrase.dispose();
     _startHeight.dispose();
-    _password.dispose();
-    _repeat.dispose();
     super.dispose();
   }
 
-  Future<void> _restore() async {
+  void _checkPhrase() {
     final service = ref.read(walletServiceProvider);
     final phrase = normalizePhrase(_phrase.text);
     String? problem;
@@ -56,8 +59,6 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
       problem = describeError(
         const WalletError(kind: WalletErrorKind.invalidMnemonic, message: ''),
       );
-    } else {
-      problem = checkNewPassword(_password.text, _repeat.text);
     }
     final heightText = _startHeight.text.trim();
     final startHeight = heightText.isEmpty ? null : BigInt.tryParse(heightText);
@@ -68,6 +69,16 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
       setState(() => _error = problem);
       return;
     }
+    _phrase.clear();
+    setState(() {
+      _validPhrase = phrase;
+      _height = startHeight;
+      _error = null;
+      _step = _RestoreStep.pin;
+    });
+  }
+
+  Future<void> _restore(String pin, bool useBiometrics) async {
     final config = ref.read(walletConfigProvider);
     if (config == null) return;
     setState(() {
@@ -75,19 +86,38 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
       _error = null;
     });
     try {
+      await ref.read(walletSetupProvider.notifier).discard(config);
+      final service = ref.read(walletServiceProvider);
+      // A wallet still here after discard has a PIN or a password; never replace it.
+      if (await service.walletExists(config: config)) {
+        throw const WalletError(
+          kind: WalletErrorKind.walletAlreadyExists,
+          message: 'wallet exists',
+        );
+      }
+      final vault = ref.read(vaultProvider);
+      final password = await vault.pendingPassword(config.chain);
       final session = await service.create(
         config: config,
-        mnemonic: phrase,
-        password: _password.text,
+        mnemonic: _validPhrase,
+        password: password,
       );
-      _phrase.clear();
+      _validPhrase = '';
+      await vault.seal(
+        config.chain,
+        pin: pin,
+        password: password,
+        useBiometrics: useBiometrics,
+      );
+      // The user typed the phrase in, so they have it.
+      await vault.markBackedUp(config.chain);
       ref.read(sessionProvider.notifier).unlocked(session);
       if (!mounted) return;
-      setState(() => _created = true);
+      setState(() => _step = _RestoreStep.scan);
       unawaited(setSecureScreen(false));
       final scanned = await ref
           .read(scanProvider.notifier)
-          .run(startHeight: startHeight);
+          .run(startHeight: _height);
       if (scanned && mounted) goHome(context);
     } catch (error) {
       if (mounted) setState(() => _error = describeError(error));
@@ -101,7 +131,26 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
     return Scaffold(
       appBar: AppBar(title: const Text('Restore wallet')),
       body: ScreenBody(
-        children: _created ? _scanView(context) : _form(context),
+        children: switch (_step) {
+          _RestoreStep.phrase => _form(context),
+          _RestoreStep.pin => [
+            if (_busy)
+              const LinearProgressIndicator()
+            else
+              PinSetupView(onDone: _restore),
+            if (_error != null) ...[
+              ErrorText(_error!),
+              TextButton(
+                onPressed: () => setState(() {
+                  _error = null;
+                  _step = _RestoreStep.phrase;
+                }),
+                child: const Text('Back to the phrase'),
+              ),
+            ],
+          ],
+          _RestoreStep.scan => _scanView(context),
+        },
       ),
     );
   }
@@ -135,22 +184,9 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
           border: OutlineInputBorder(),
         ),
       ),
-      const SizedBox(height: 12),
-      PasswordField(
-        controller: _password,
-        label: 'New password',
-        textInputAction: TextInputAction.next,
-      ),
-      const SizedBox(height: 12),
-      PasswordField(
-        controller: _repeat,
-        label: 'Repeat password',
-        textInputAction: TextInputAction.done,
-        onSubmitted: (_) => _restore(),
-      ),
       const SizedBox(height: 16),
       if (_error != null) ErrorText(_error!),
-      BusyButton(label: 'Restore', busy: _busy, onPressed: _restore),
+      BusyButton(label: 'Continue', onPressed: _checkPhrase),
     ];
   }
 

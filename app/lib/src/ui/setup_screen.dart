@@ -5,11 +5,9 @@ import '../errors.dart';
 import '../network.dart';
 import '../providers.dart';
 import 'common.dart';
-import 'create_screen.dart';
-import 'restore_screen.dart';
-import 'unlock_screen.dart';
+import 'launch_screen.dart';
 
-/// First screen: pick the network and node, then continue to unlock or to wallet creation.
+/// Network and node settings. Saving restarts the app flow on the chosen network.
 class SetupScreen extends ConsumerStatefulWidget {
   const SetupScreen({super.key});
 
@@ -18,11 +16,30 @@ class SetupScreen extends ConsumerStatefulWidget {
 }
 
 class _SetupScreenState extends ConsumerState<SetupScreen> {
-  NetworkPreset _preset = mainnetPreset;
-  final _nodeUrl = TextEditingController(text: mainnetPreset.nodeUrl);
+  NetworkPreset? _preset;
+  final _nodeUrl = TextEditingController();
   String? _urlError;
   String? _error;
   bool _busy = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    try {
+      final choice = await ref.read(networkChoiceProvider.future);
+      if (!mounted) return;
+      setState(() {
+        _preset = choice.preset;
+        _nodeUrl.text = choice.nodeUrl;
+      });
+    } catch (error) {
+      if (mounted) setState(() => _error = describeError(error));
+    }
+  }
 
   @override
   void dispose() {
@@ -30,13 +47,16 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
     super.dispose();
   }
 
-  void _selectPreset(NetworkPreset preset) {
+  Future<void> _selectPreset(NetworkPreset preset) async {
     setState(() {
       _preset = preset;
-      _nodeUrl.text = preset.nodeUrl;
       _urlError = null;
       _error = null;
     });
+    final url = await ref
+        .read(networkChoiceProvider.notifier)
+        .nodeUrlFor(preset);
+    if (mounted && _preset == preset) setState(() => _nodeUrl.text = url);
   }
 
   static bool _isValidUrl(String text) {
@@ -46,7 +66,9 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
         uri.host.isNotEmpty;
   }
 
-  Future<void> _continue() async {
+  Future<void> _save() async {
+    final preset = _preset;
+    if (preset == null) return;
     final url = _nodeUrl.text.trim();
     if (!_isValidUrl(url)) {
       setState(
@@ -59,113 +81,77 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
       _urlError = null;
       _error = null;
     });
-    // A wallet left open (e.g. after backing out of a restore) would pin its chain.
-    ref.read(sessionProvider.notifier).lock();
     try {
-      final dataDir = await ref.read(walletDirProvider)(_preset.chain);
-      final config = _preset.config(dataDir: dataDir, nodeUrl: url);
-      final exists = await ref
-          .read(walletServiceProvider)
-          .walletExists(config: config);
-      ref.read(walletConfigProvider.notifier).select(config);
+      await ref.read(networkChoiceProvider.notifier).save(preset, url);
       if (!mounted) return;
-      Navigator.of(context).push(
-        MaterialPageRoute<void>(
-          builder: (_) =>
-              exists ? const UnlockScreen() : const NewWalletScreen(),
-        ),
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute<void>(builder: (_) => const LaunchScreen()),
+        (_) => false,
       );
     } catch (error) {
-      if (mounted) setState(() => _error = describeError(error));
-    } finally {
-      if (mounted) setState(() => _busy = false);
+      if (mounted) {
+        setState(() {
+          _busy = false;
+          _error = describeError(error);
+        });
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final preset = _preset;
     return Scaffold(
-      appBar: AppBar(title: const Text('Epic Cash Wallet')),
+      appBar: AppBar(title: const Text('Network settings')),
       body: ScreenBody(
-        children: [
-          Text('Network', style: theme.textTheme.titleMedium),
-          const SizedBox(height: 8),
-          SegmentedButton<NetworkPreset>(
-            segments: [
-              for (final preset in networkPresets)
-                ButtonSegment(value: preset, label: Text(preset.label)),
-            ],
-            selected: {_preset},
-            onSelectionChanged: (selection) => _selectPreset(selection.first),
-          ),
-          const SizedBox(height: 8),
-          Text(_preset.description),
-          const SizedBox(height: 24),
-          TextField(
-            controller: _nodeUrl,
-            keyboardType: TextInputType.url,
-            autocorrect: false,
-            enableSuggestions: false,
-            decoration: InputDecoration(
-              labelText: 'Node URL',
-              errorText: _urlError,
-              border: const OutlineInputBorder(),
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Epicbox relay: ${_preset.epicboxDomain}:${_preset.epicboxPort}',
-            style: theme.textTheme.bodySmall,
-          ),
-          const SizedBox(height: 24),
-          if (_error != null) ErrorText(_error!),
-          BusyButton(label: 'Continue', busy: _busy, onPressed: _continue),
-        ],
-      ),
-    );
-  }
-}
-
-/// Shown when the chosen network has no wallet yet.
-class NewWalletScreen extends ConsumerWidget {
-  const NewWalletScreen({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final config = ref.watch(walletConfigProvider);
-    final network = config == null ? '' : ' on ${chainLabel(config.chain)}';
-    return Scaffold(
-      appBar: AppBar(title: const Text('New wallet')),
-      body: ScreenBody(
-        children: [
-          Text(
-            'There is no wallet$network on this device yet.',
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
-          const SizedBox(height: 24),
-          FilledButton.icon(
-            style: FilledButton.styleFrom(
-              minimumSize: const Size.fromHeight(48),
-            ),
-            icon: const Icon(Icons.add),
-            label: const Text('Create a new wallet'),
-            onPressed: () => Navigator.of(context).push(
-              MaterialPageRoute<void>(builder: (_) => const CreateScreen()),
-            ),
-          ),
-          const SizedBox(height: 12),
-          OutlinedButton.icon(
-            style: OutlinedButton.styleFrom(
-              minimumSize: const Size.fromHeight(48),
-            ),
-            icon: const Icon(Icons.restore),
-            label: const Text('Restore from recovery phrase'),
-            onPressed: () => Navigator.of(context).push(
-              MaterialPageRoute<void>(builder: (_) => const RestoreScreen()),
-            ),
-          ),
-        ],
+        children: preset == null
+            ? [
+                if (_error != null)
+                  ErrorText(_error!)
+                else
+                  const LinearProgressIndicator(),
+              ]
+            : [
+                Text('Network', style: theme.textTheme.titleMedium),
+                const SizedBox(height: 8),
+                SegmentedButton<NetworkPreset>(
+                  segments: [
+                    for (final p in networkPresets)
+                      ButtonSegment(value: p, label: Text(p.label)),
+                  ],
+                  selected: {preset},
+                  onSelectionChanged: (selection) =>
+                      _selectPreset(selection.first),
+                ),
+                const SizedBox(height: 8),
+                Text(preset.description),
+                const SizedBox(height: 24),
+                TextField(
+                  controller: _nodeUrl,
+                  keyboardType: TextInputType.url,
+                  autocorrect: false,
+                  enableSuggestions: false,
+                  decoration: InputDecoration(
+                    labelText: 'Node URL',
+                    errorText: _urlError,
+                    border: const OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Epicbox relay: ${preset.epicboxDomain}:${preset.epicboxPort}',
+                  style: theme.textTheme.bodySmall,
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  'Each network has its own wallet. A network without one gets '
+                  'a new wallet.',
+                ),
+                const SizedBox(height: 24),
+                if (_error != null) ErrorText(_error!),
+                BusyButton(label: 'Save', busy: _busy, onPressed: _save),
+              ],
       ),
     );
   }

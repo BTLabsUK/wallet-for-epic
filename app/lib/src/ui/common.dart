@@ -5,7 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../amount.dart';
 import '../providers.dart';
 import 'home_screen.dart';
-import 'setup_screen.dart';
+import 'launch_screen.dart';
 
 /// Replaces the whole navigation stack with the home screen of the open wallet.
 void goHome(BuildContext context) {
@@ -15,11 +15,11 @@ void goHome(BuildContext context) {
   );
 }
 
-/// Closes the wallet and returns to network setup.
+/// Closes the wallet and returns to the unlock screen.
 void lockWallet(BuildContext context, WidgetRef ref) {
   ref.read(sessionProvider.notifier).lock();
   Navigator.of(context).pushAndRemoveUntil(
-    MaterialPageRoute<void>(builder: (_) => const SetupScreen()),
+    MaterialPageRoute<void>(builder: (_) => const LaunchScreen()),
     (_) => false,
   );
 }
