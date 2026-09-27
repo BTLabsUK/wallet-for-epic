@@ -7,6 +7,7 @@
 // ignore_for_file: argument_type_not_assignable
 
 import 'api/types.dart';
+import 'api/vault.dart';
 import 'api/wallet.dart';
 
 import 'dart:async';

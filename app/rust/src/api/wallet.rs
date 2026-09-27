@@ -160,7 +160,7 @@ impl EpicWallet {
     }
 }
 
-fn to_api(e: CoreError) -> WalletError {
+pub(crate) fn to_api(e: CoreError) -> WalletError {
     let kind = match &e {
         CoreError::WrongPassword => WalletErrorKind::WrongPassword,
         CoreError::InvalidMnemonic => WalletErrorKind::InvalidMnemonic,
