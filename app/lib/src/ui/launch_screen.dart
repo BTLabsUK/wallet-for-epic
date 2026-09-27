@@ -45,10 +45,7 @@ class _LaunchScreenState extends ConsumerState<LaunchScreen> {
     final choice = await ref.read(networkChoiceProvider.future);
     final chain = choice.preset.chain;
     final dataDir = await ref.read(walletDirProvider)(chain);
-    final config = choice.preset.config(
-      dataDir: dataDir,
-      nodeUrl: choice.nodeUrl,
-    );
+    final config = choice.config(dataDir);
     ref.read(walletConfigProvider.notifier).select(config);
 
     final vault = ref.read(vaultProvider);

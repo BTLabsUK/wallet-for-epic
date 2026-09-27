@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:crypto/crypto.dart';
+import 'package:epic_wallet/src/network.dart';
+import 'package:epic_wallet/src/relay_directory.dart';
 import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/updater.dart';
 import 'package:epic_wallet/src/vault.dart';
@@ -281,6 +283,56 @@ void main() {
         throwsA(isA<UpdateError>()),
       );
       expect(dir.listSync(), isEmpty);
+    });
+  });
+
+  group('relays', () {
+    test('parses host and port, and refuses junk', () {
+      final a = EpicboxRelay.parse(' Epicbox.EpicNet.us ')!;
+      expect(a.host, 'epicbox.epicnet.us');
+      expect(a.port, 443);
+      expect(a.label, 'epicbox.epicnet.us');
+      final b = EpicboxRelay.parse('127.0.0.1:3423')!;
+      expect(b.label, '127.0.0.1:3423');
+      expect(EpicboxRelay.parse('wss://x'), isNull);
+      expect(EpicboxRelay.parse('x:70000'), isNull);
+    });
+
+    test('reads the monitor, healthy and official first', () {
+      final list = parseRelayStatus(
+        jsonEncode({
+          'epicbox': [
+            {
+              'endpoint': 'wss://down.example:443/',
+              'state': 'down',
+              'verified': true,
+            },
+            {
+              'endpoint': 'wss://community.example:443/',
+              'state': 'healthy',
+              'verified': false,
+              'latency_ms': 10,
+            },
+            {
+              'endpoint': 'wss://official.example:8443/',
+              'state': 'healthy',
+              'verified': true,
+              'latency_ms': 700,
+              'operator': 'Epic Cash',
+              'uptime': {'24h': 0.99},
+            },
+            {'endpoint': 'https://not-a-relay.example/', 'state': 'healthy'},
+          ],
+        }),
+      );
+      expect(list.map((r) => r.relay.label), [
+        'official.example:8443',
+        'community.example',
+        'down.example',
+      ]);
+      expect(list.first.operator, 'Epic Cash');
+      expect(list.first.uptime24h, 0.99);
+      expect(() => parseRelayStatus('[]'), throwsFormatException);
     });
   });
 }

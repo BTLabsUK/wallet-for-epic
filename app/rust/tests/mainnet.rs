@@ -38,3 +38,72 @@ fn mainnet_tip_and_fresh_wallet_refresh() {
         "base58check of a compressed key plus 2 version bytes"
     );
 }
+
+/// Every mainnet relay `status.btlabs.uk` reports healthy accepts our listener's subscription.
+/// Relays whose host this machine cannot resolve correctly are skipped and named: the ISP resolver
+/// here answers `epicbox.epiccash.com` with a filter address (81.99.162.48), not the relay.
+#[test]
+#[ignore = "needs the internet and status.btlabs.uk"]
+fn listener_subscribes_on_every_healthy_mainnet_relay() {
+    use epic_wallet_core::api::types::ListenerEventKind;
+    use std::time::Duration;
+
+    init_logging();
+    let body = reqwest::blocking::get("https://status.btlabs.uk/api/v1/status.json")
+        .and_then(|r| r.text())
+        .expect("status");
+    let status: serde_json::Value = serde_json::from_str(&body).expect("status json");
+    let relays: Vec<(String, u16)> = status["epicbox"]
+        .as_array()
+        .expect("epicbox list")
+        .iter()
+        .filter(|r| r["state"] == "healthy")
+        .filter_map(|r| {
+            let url = reqwest::Url::parse(r["endpoint"].as_str()?).ok()?;
+            Some((url.host_str()?.to_string(), url.port().unwrap_or(443)))
+        })
+        .collect();
+    assert!(!relays.is_empty(), "the monitor lists no healthy mainnet relay");
+
+    let mut connected = Vec::new();
+    let mut failed = Vec::new();
+    for (host, port) in relays {
+        let dir = tempfile::tempdir().expect("tempdir");
+        let mut cfg = config(dir.path(), Chain::Mainnet, NODE);
+        cfg.epicbox_domain = host.clone();
+        cfg.epicbox_port = port;
+        let wallet = EpicWallet::create(cfg, None, PASSWORD.into()).expect("create");
+        let address = wallet.epicbox_address().expect("address");
+        assert!(address.ends_with(&format!("@{host}")), "{address}");
+        let (tx, rx) = std::sync::mpsc::channel();
+        wallet.start_listener_with(move |e| {
+            let _ = tx.send(e);
+        });
+        let mut outcome = None;
+        while let Ok(e) = rx.recv_timeout(Duration::from_secs(30)) {
+            match e.kind {
+                ListenerEventKind::Connected => {
+                    outcome = Some(Ok(()));
+                    break;
+                }
+                ListenerEventKind::Disconnected => {
+                    outcome = Some(Err(e.message));
+                    break;
+                }
+                _ => {}
+            }
+        }
+        wallet.stop_listener();
+        match outcome {
+            Some(Ok(())) => connected.push(host),
+            Some(Err(why)) => failed.push(format!("{host}: {why}")),
+            None => failed.push(format!("{host}: no answer in 30 s")),
+        }
+    }
+    eprintln!("subscribed on: {connected:?}");
+    eprintln!("could not reach: {failed:?}");
+    assert!(
+        connected.len() >= 2,
+        "expected at least two mainnet relays to accept a subscription"
+    );
+}

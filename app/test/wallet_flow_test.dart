@@ -1,7 +1,9 @@
 import 'dart:async';
 
 import 'package:epic_wallet/src/app.dart';
+import 'package:epic_wallet/src/network.dart';
 import 'package:epic_wallet/src/providers.dart';
+import 'package:epic_wallet/src/relay_directory.dart';
 import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/ui/common.dart';
 import 'package:epic_wallet/src/updater.dart';
@@ -16,6 +18,28 @@ const _password = 'correct horse';
 const _pin = '123456';
 
 BigInt _epic(num value) => BigInt.from((value * 100000000).round());
+
+/// Relay health as status.btlabs.uk would report it.
+class _FakeRelays implements RelayDirectory {
+  @override
+  Future<List<RelayStatus>> relays(String chain) async => chain == 'mainnet'
+      ? const [
+          RelayStatus(
+            relay: EpicboxRelay(host: 'epicbox.epicnet.us'),
+            healthy: true,
+            verified: true,
+            operator: 'epicnet.us',
+            uptime24h: 1,
+          ),
+          RelayStatus(
+            relay: EpicboxRelay(host: 'epicbox.epiccash.com'),
+            healthy: true,
+            verified: true,
+            operator: 'Epic Cash',
+          ),
+        ]
+      : const [];
+}
 
 /// Everything the app keeps outside the wallet, in memory.
 class _Device {
@@ -60,6 +84,7 @@ Future<void> _pumpApp(
         biometricStoreProvider.overrideWithValue(device.bio),
         vaultCryptoProvider.overrideWithValue(device.crypto),
         updatePlatformProvider.overrideWithValue(null),
+        relayDirectoryProvider.overrideWithValue(_FakeRelays()),
       ],
       child: const WalletApp(),
     ),
@@ -297,6 +322,47 @@ void main() {
       // The mainnet wallet created first was closed, so usernet could open.
       expect(service.session.disposeCalls, greaterThanOrEqualTo(1));
     });
+  });
+
+  testWidgets('network settings pick a mainnet relay from the monitor', (
+    tester,
+  ) async {
+    final service = FakeWalletService();
+    final device = _Device();
+    await _pumpApp(tester, service, device);
+    await _tap(tester, find.byTooltip('Network settings'));
+
+    expect(find.text('epicbox.epicnet.us'), findsOneWidget);
+    expect(find.textContaining('Up · epicnet.us · official'), findsOneWidget);
+    expect(find.textContaining('changes your epicbox address'), findsNothing);
+    await _tapText(tester, 'epicbox.epicnet.us');
+    expect(find.textContaining('changes your epicbox address'), findsOneWidget);
+
+    await _enter(tester, 'Other relay (host or host:port)', 'not a host!');
+    await _tap(tester, find.byTooltip('Use this relay'));
+    expect(find.textContaining('Enter a host'), findsOneWidget);
+    await _enter(
+      tester,
+      'Other relay (host or host:port)',
+      'relay.example.org:8443',
+    );
+    await _tap(tester, find.byTooltip('Use this relay'));
+    expect(find.text('relay.example.org:8443'), findsOneWidget);
+    expect(find.text('Not monitored'), findsOneWidget);
+
+    await _tapText(tester, 'epicbox.epicnet.us');
+    await _tapText(tester, 'Save');
+    expect(device.store.values['app.relay.mainnet'], 'epicbox.epicnet.us');
+    await _enter(tester, 'PIN', _pin);
+    await _enter(tester, 'Repeat PIN', _pin);
+    // The wallet made before the change is reopened; the relay comes from the config it opens
+    // with, which is what the address and the listener use.
+    final container = ProviderScope.containerOf(
+      tester.element(find.text('Spendable')),
+    );
+    final config = container.read(walletConfigProvider)!;
+    expect(config.epicboxDomain, 'epicbox.epicnet.us');
+    expect(config.epicboxPort, 443);
   });
 
   group('unlock', () {

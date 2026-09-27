@@ -53,15 +53,23 @@ final vaultProvider = Provider<WalletVault>(
   ),
 );
 
-/// The network the app opens on, and the node it uses there.
+/// The network the app opens on, and the node and relay it uses there.
 class NetworkChoice {
-  const NetworkChoice({required this.preset, required this.nodeUrl});
+  const NetworkChoice({
+    required this.preset,
+    required this.nodeUrl,
+    required this.relay,
+  });
 
   final NetworkPreset preset;
   final String nodeUrl;
+  final EpicboxRelay relay;
+
+  WalletConfig config(String dataDir) =>
+      preset.config(dataDir: dataDir, nodeUrl: nodeUrl, relay: relay);
 }
 
-/// The saved [NetworkChoice]. Mainnet on its default node until the user picks another.
+/// The saved [NetworkChoice]. Mainnet on its default node and relay until the user picks others.
 final networkChoiceProvider =
     AsyncNotifierProvider<NetworkChoiceNotifier, NetworkChoice>(
       NetworkChoiceNotifier.new,
@@ -70,6 +78,7 @@ final networkChoiceProvider =
 class NetworkChoiceNotifier extends AsyncNotifier<NetworkChoice> {
   static const String _networkKey = 'app.network';
   static String _nodeKey(Chain chain) => 'app.node.${chain.name}';
+  static String _relayKey(Chain chain) => 'app.relay.${chain.name}';
 
   @override
   Future<NetworkChoice> build() async {
@@ -81,7 +90,8 @@ class NetworkChoiceNotifier extends AsyncNotifier<NetworkChoice> {
     );
     return NetworkChoice(
       preset: preset,
-      nodeUrl: await store.read(_nodeKey(preset.chain)) ?? preset.nodeUrl,
+      nodeUrl: await nodeUrlFor(preset),
+      relay: await relayFor(preset),
     );
   }
 
@@ -90,11 +100,28 @@ class NetworkChoiceNotifier extends AsyncNotifier<NetworkChoice> {
       await ref.read(secretStoreProvider).read(_nodeKey(preset.chain)) ??
       preset.nodeUrl;
 
-  Future<void> save(NetworkPreset preset, String nodeUrl) async {
+  /// The saved relay of [preset], or its default.
+  Future<EpicboxRelay> relayFor(NetworkPreset preset) async {
+    final saved = await ref
+        .read(secretStoreProvider)
+        .read(_relayKey(preset.chain));
+    return (saved == null ? null : EpicboxRelay.parse(saved)) ??
+        preset.defaultRelay;
+  }
+
+  Future<void> save(
+    NetworkPreset preset,
+    String nodeUrl, {
+    EpicboxRelay? relay,
+  }) async {
     final store = ref.read(secretStoreProvider);
+    final r = relay ?? await relayFor(preset);
     await store.write(_networkKey, preset.chain.name);
     await store.write(_nodeKey(preset.chain), nodeUrl);
-    state = AsyncData(NetworkChoice(preset: preset, nodeUrl: nodeUrl));
+    await store.write(_relayKey(preset.chain), r.label);
+    state = AsyncData(
+      NetworkChoice(preset: preset, nodeUrl: nodeUrl, relay: r),
+    );
   }
 }
 

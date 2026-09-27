@@ -18,14 +18,59 @@ class NetworkPreset {
   final String epicboxDomain;
   final int epicboxPort;
 
-  WalletConfig config({required String dataDir, required String nodeUrl}) =>
-      WalletConfig(
-        dataDir: dataDir,
-        chain: chain,
-        nodeUrl: nodeUrl,
-        epicboxDomain: epicboxDomain,
-        epicboxPort: epicboxPort,
-      );
+  /// The default relay of this network.
+  EpicboxRelay get defaultRelay =>
+      EpicboxRelay(host: epicboxDomain, port: epicboxPort);
+
+  /// `status.btlabs.uk` lists relays for these chains; usernet is local only.
+  String? get statusChain => switch (chain) {
+    Chain.mainnet => 'mainnet',
+    Chain.floonet => 'floonet',
+    Chain.usernet => null,
+  };
+
+  WalletConfig config({
+    required String dataDir,
+    required String nodeUrl,
+    EpicboxRelay? relay,
+  }) {
+    final r = relay ?? defaultRelay;
+    return WalletConfig(
+      dataDir: dataDir,
+      chain: chain,
+      nodeUrl: nodeUrl,
+      epicboxDomain: r.host,
+      epicboxPort: r.port,
+    );
+  }
+}
+
+/// An epicbox relay by host and port. The host is part of the wallet's address.
+class EpicboxRelay {
+  const EpicboxRelay({required this.host, this.port = 443});
+
+  final String host;
+  final int port;
+
+  /// `host` for port 443, otherwise `host:port`, as addresses write it.
+  String get label => port == 443 ? host : '$host:$port';
+
+  /// Parses `host` or `host:port`.
+  static EpicboxRelay? parse(String text) {
+    final t = text.trim();
+    final match = RegExp(r'^([a-zA-Z0-9.-]+)(?::(\d{1,5}))?$').firstMatch(t);
+    if (match == null) return null;
+    final port = int.tryParse(match.group(2) ?? '443') ?? 0;
+    if (port < 1 || port > 65535) return null;
+    return EpicboxRelay(host: match.group(1)!.toLowerCase(), port: port);
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      other is EpicboxRelay && other.host == host && other.port == port;
+
+  @override
+  int get hashCode => Object.hash(host, port);
 }
 
 const NetworkPreset mainnetPreset = NetworkPreset(
