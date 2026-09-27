@@ -1,0 +1,51 @@
+[package]
+name = "epic_wallet_core"
+version = "0.1.0"
+edition = "2021"
+license = "Apache-2.0"
+publish = false
+
+[lib]
+crate-type = ["cdylib", "staticlib", "lib"]
+
+[dependencies]
+flutter_rust_bridge = "=2.13.0"
+
+# Upstream EpicCash/epic-wallet at the release pinned in playground/versions.env, with
+# playground/patches/epic-wallet applied. `./playground/pg sync` provides this checkout, so one
+# bump updates the playground and this app together.
+epic_wallet_api = { path = "../../playground/src/epic-wallet/api" }
+epic_wallet_config = { path = "../../playground/src/epic-wallet/config" }
+epic_wallet_impls = { path = "../../playground/src/epic-wallet/impls" }
+epic_wallet_libwallet = { path = "../../playground/src/epic-wallet/libwallet" }
+epic_wallet_util = { path = "../../playground/src/epic-wallet/util" }
+
+# native-tls reaches the build through tungstenite (wallet) and hyper-tls (node crates);
+# vendoring avoids needing a prebuilt OpenSSL for every Android ABI.
+openssl = { version = "0.10", features = ["vendored"] }
+
+log = "0.4"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+thiserror = "2"
+zeroize = "1.8"
+
+[dev-dependencies]
+tempfile = "3"
+
+[patch.crates-io]
+# Upstream liblmdb-sys needs robust pthread mutexes, which Android's bionic lacks.
+liblmdb-sys = { git = "https://github.com/i1skn/lmdb-rs", rev = "54c9c0fe4e9371e8fb76593023c72150858f376f" }
+
+[patch."https://github.com/EpicCash/randomx-rust.git"]
+# Upstream randomx-rust links stdc++ on Android and mistypes c_ulong on armv7.
+# playground/patches/randomx-rust fixes both; `./playground/pg sync` applies it.
+randomx = { path = "../../playground/src/randomx-rust" }
+
+[profile.release]
+lto = "fat"
+codegen-units = 1
+strip = "symbols"
+
+[lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(frb_expand)'] }
