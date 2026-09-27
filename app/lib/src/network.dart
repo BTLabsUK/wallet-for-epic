@@ -37,6 +37,17 @@ const NetworkPreset mainnetPreset = NetworkPreset(
   epicboxPort: 443,
 );
 
+const NetworkPreset floonetPreset = NetworkPreset(
+  chain: Chain.floonet,
+  label: 'Floonet',
+  description:
+      'Public test network. Coins are worthless; get some from '
+      'floo-explorer.btlabs.uk.',
+  nodeUrl: 'https://floo-node.btlabs.uk',
+  epicboxDomain: 'flooepicbox.btlabs.uk',
+  epicboxPort: 443,
+);
+
 const NetworkPreset usernetPreset = NetworkPreset(
   chain: Chain.usernet,
   label: 'Usernet',
@@ -46,7 +57,11 @@ const NetworkPreset usernetPreset = NetworkPreset(
   epicboxPort: 3423,
 );
 
-const List<NetworkPreset> networkPresets = [mainnetPreset, usernetPreset];
+const List<NetworkPreset> networkPresets = [
+  mainnetPreset,
+  floonetPreset,
+  usernetPreset,
+];
 
 /// Human name of a chain for titles.
 String chainLabel(Chain chain) => switch (chain) {
