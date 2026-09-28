@@ -5,6 +5,7 @@ import '../errors.dart';
 import '../providers.dart';
 import '../wallet_service.dart';
 import 'common.dart';
+import 'slate_file_screen.dart';
 
 /// Receiving: epicbox payments arrive by themselves through the listener; a manual slate can
 /// still be signed here. There is no HTTP receive, because a phone cannot accept connections.
@@ -110,29 +111,40 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
             ),
           ),
           const SizedBox(height: 24),
-          Text('By slate', style: theme.textTheme.titleMedium),
+          Text('By transaction file', style: theme.textTheme.titleMedium),
           const SizedBox(height: 8),
           const Text(
-            'Paste the slate the sender gave you, then return the response '
-            'slate to them so they can finalize the transaction.',
+            'Open the .tx file the sender gave you. The wallet signs it and '
+            'shares a .response file to send back.',
           ),
           const SizedBox(height: 16),
-          if (response == null) ...[
-            SlateInput(controller: _incoming, label: 'Incoming slate'),
-            const SizedBox(height: 16),
-            if (_error != null) ErrorText(_error!),
-            BusyButton(label: 'Sign slate', busy: _busy, onPressed: _sign),
-          ] else ...[
-            SlateBox(
-              title: 'Return this response to the sender',
-              json: response.json,
-            ),
-            const SizedBox(height: 16),
-            OutlinedButton(
-              onPressed: _reset,
-              child: const Text('Receive another slate'),
-            ),
-          ],
+          BusyButton(
+            label: 'Open transaction file',
+            onPressed: () => openSlateFile(context, ref),
+          ),
+          const SizedBox(height: 16),
+          ExpansionTile(
+            tilePadding: EdgeInsets.zero,
+            title: const Text('Paste slate text instead'),
+            children: [
+              if (response == null) ...[
+                SlateInput(controller: _incoming, label: 'Incoming slate'),
+                const SizedBox(height: 16),
+                if (_error != null) ErrorText(_error!),
+                BusyButton(label: 'Sign slate', busy: _busy, onPressed: _sign),
+              ] else ...[
+                SlateBox(
+                  title: 'Return this response to the sender',
+                  json: response.json,
+                ),
+                const SizedBox(height: 16),
+                OutlinedButton(
+                  onPressed: _reset,
+                  child: const Text('Receive another slate'),
+                ),
+              ],
+            ],
+          ),
         ],
       ),
     );

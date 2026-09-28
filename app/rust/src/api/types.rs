@@ -88,6 +88,26 @@ pub struct Slate {
     pub json: String,
 }
 
+/// What a slate file asks this wallet to do.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum SlateStage {
+    /// Someone sends to us: sign it with `receive_slate` and return the response.
+    Send,
+    /// The recipient's answer to one of our sends: `finalize_and_post` it.
+    Response,
+    /// A payment request (invoice). Not supported.
+    Invoice,
+}
+
+/// A slate's header, read without touching the wallet.
+#[derive(Debug, Clone)]
+pub struct SlateInfo {
+    pub slate_id: String,
+    pub amount: u64,
+    pub fee: u64,
+    pub stage: SlateStage,
+}
+
 /// `amount` is the amount to send, as requested; `fee` comes on top of it.
 #[derive(Debug, Clone)]
 pub struct FeeEstimate {

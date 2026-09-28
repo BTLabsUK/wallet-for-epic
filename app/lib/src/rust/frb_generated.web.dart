@@ -118,6 +118,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   Slate dco_decode_slate(dynamic raw);
 
   @protected
+  SlateInfo dco_decode_slate_info(dynamic raw);
+
+  @protected
+  SlateStage dco_decode_slate_stage(dynamic raw);
+
+  @protected
   TxEntry dco_decode_tx_entry(dynamic raw);
 
   @protected
@@ -244,6 +250,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   Slate sse_decode_slate(SseDeserializer deserializer);
+
+  @protected
+  SlateInfo sse_decode_slate_info(SseDeserializer deserializer);
+
+  @protected
+  SlateStage sse_decode_slate_stage(SseDeserializer deserializer);
 
   @protected
   TxEntry sse_decode_tx_entry(SseDeserializer deserializer);
@@ -385,6 +397,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void sse_encode_slate(Slate self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_slate_info(SlateInfo self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_slate_stage(SlateStage self, SseSerializer serializer);
 
   @protected
   void sse_encode_tx_entry(TxEntry self, SseSerializer serializer);

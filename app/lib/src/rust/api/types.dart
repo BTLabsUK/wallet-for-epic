@@ -7,7 +7,7 @@ import '../frb_generated.dart';
 
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
-// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `eq`, `eq`, `eq`, `eq`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`
+// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `eq`, `eq`, `eq`, `eq`, `eq`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`
 
 /// Which Epic chain the wallet talks to. Selects consensus parameters and default ports.
 enum Chain { mainnet, floonet, usernet }
@@ -137,6 +137,47 @@ class Slate {
           runtimeType == other.runtimeType &&
           slateId == other.slateId &&
           json == other.json;
+}
+
+/// A slate's header, read without touching the wallet.
+class SlateInfo {
+  final String slateId;
+  final BigInt amount;
+  final BigInt fee;
+  final SlateStage stage;
+
+  const SlateInfo({
+    required this.slateId,
+    required this.amount,
+    required this.fee,
+    required this.stage,
+  });
+
+  @override
+  int get hashCode =>
+      slateId.hashCode ^ amount.hashCode ^ fee.hashCode ^ stage.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is SlateInfo &&
+          runtimeType == other.runtimeType &&
+          slateId == other.slateId &&
+          amount == other.amount &&
+          fee == other.fee &&
+          stage == other.stage;
+}
+
+/// What a slate file asks this wallet to do.
+enum SlateStage {
+  /// Someone sends to us: sign it with `receive_slate` and return the response.
+  send,
+
+  /// The recipient's answer to one of our sends: `finalize_and_post` it.
+  response,
+
+  /// A payment request (invoice). Not supported.
+  invoice,
 }
 
 /// One entry of the wallet's transaction log (`TxLogEntry`).

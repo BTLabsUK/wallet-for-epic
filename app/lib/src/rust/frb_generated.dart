@@ -71,7 +71,7 @@ class RustLib extends BaseEntrypoint<RustLibApi, RustLibApiImpl, RustLibWire> {
   String get codegenVersion => '2.13.0';
 
   @override
-  int get rustContentHash => -1826089912;
+  int get rustContentHash => -1060909966;
 
   static const kDefaultExternalLibraryLoaderConfig =
       ExternalLibraryLoaderConfig(
@@ -173,6 +173,8 @@ abstract class RustLibApi extends BaseApi {
   String crateApiVaultGenerateWalletPassword();
 
   Future<void> crateApiInitInitApp();
+
+  SlateInfo crateApiWalletInspectSlate({required String json});
 
   Future<NodeTip> crateApiWalletNodeTip({required WalletConfig config});
 
@@ -938,6 +940,29 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       const TaskConstMeta(debugName: "init_app", argNames: []);
 
   @override
+  SlateInfo crateApiWalletInspectSlate({required String json}) {
+    return handler.executeSync(
+      SyncTask(
+        callFfi: () {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_String(json, serializer);
+          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 21)!;
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_slate_info,
+          decodeErrorData: sse_decode_wallet_error,
+        ),
+        constMeta: kCrateApiWalletInspectSlateConstMeta,
+        argValues: [json],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiWalletInspectSlateConstMeta =>
+      const TaskConstMeta(debugName: "inspect_slate", argNames: ["json"]);
+
+  @override
   Future<NodeTip> crateApiWalletNodeTip({required WalletConfig config}) {
     return handler.executeNormal(
       NormalTask(
@@ -947,7 +972,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 21,
+            funcId: 22,
             port: port_,
           );
         },
@@ -979,7 +1004,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 22,
+            funcId: 23,
             port: port_,
           );
         },
@@ -1013,7 +1038,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 23,
+            funcId: 24,
             port: port_,
           );
         },
@@ -1040,7 +1065,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
         callFfi: () {
           final serializer = SseSerializer(generalizedFrbRustBinding);
           sse_encode_String(address, serializer);
-          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 24)!;
+          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 25)!;
         },
         codec: SseCodec(
           decodeSuccessData: sse_decode_bool,
@@ -1066,7 +1091,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
         callFfi: () {
           final serializer = SseSerializer(generalizedFrbRustBinding);
           sse_encode_String(phrase, serializer);
-          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 25)!;
+          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 26)!;
         },
         codec: SseCodec(
           decodeSuccessData: sse_decode_bool,
@@ -1092,7 +1117,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 26,
+            funcId: 27,
             port: port_,
           );
         },
@@ -1311,6 +1336,26 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       slateId: dco_decode_String(arr[0]),
       json: dco_decode_String(arr[1]),
     );
+  }
+
+  @protected
+  SlateInfo dco_decode_slate_info(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 4)
+      throw Exception('unexpected arr length: expect 4 but see ${arr.length}');
+    return SlateInfo(
+      slateId: dco_decode_String(arr[0]),
+      amount: dco_decode_u_64(arr[1]),
+      fee: dco_decode_u_64(arr[2]),
+      stage: dco_decode_slate_stage(arr[3]),
+    );
+  }
+
+  @protected
+  SlateStage dco_decode_slate_stage(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return SlateStage.values[raw as int];
   }
 
   @protected
@@ -1649,6 +1694,28 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     var var_slateId = sse_decode_String(deserializer);
     var var_json = sse_decode_String(deserializer);
     return Slate(slateId: var_slateId, json: var_json);
+  }
+
+  @protected
+  SlateInfo sse_decode_slate_info(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_slateId = sse_decode_String(deserializer);
+    var var_amount = sse_decode_u_64(deserializer);
+    var var_fee = sse_decode_u_64(deserializer);
+    var var_stage = sse_decode_slate_stage(deserializer);
+    return SlateInfo(
+      slateId: var_slateId,
+      amount: var_amount,
+      fee: var_fee,
+      stage: var_stage,
+    );
+  }
+
+  @protected
+  SlateStage sse_decode_slate_stage(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var inner = sse_decode_i_32(deserializer);
+    return SlateStage.values[inner];
   }
 
   @protected
@@ -2007,6 +2074,21 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_String(self.slateId, serializer);
     sse_encode_String(self.json, serializer);
+  }
+
+  @protected
+  void sse_encode_slate_info(SlateInfo self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_String(self.slateId, serializer);
+    sse_encode_u_64(self.amount, serializer);
+    sse_encode_u_64(self.fee, serializer);
+    sse_encode_slate_stage(self.stage, serializer);
+  }
+
+  @protected
+  void sse_encode_slate_stage(SlateStage self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.index, serializer);
   }
 
   @protected

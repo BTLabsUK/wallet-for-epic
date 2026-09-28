@@ -38,6 +38,13 @@ pub fn wallet_exists(config: WalletConfig) -> bool {
     session::wallet_exists(&config).unwrap_or(false)
 }
 
+/// Reads a slate file: its id, amount, fee, and whether it is a send to us or a response to
+/// ours. Needs no wallet, so the UI can show the amount before anything is signed.
+#[frb(sync)]
+pub fn inspect_slate(json: String) -> Result<SlateInfo, WalletError> {
+    crate::core::slate::inspect(&json).map_err(to_api)
+}
+
 /// True for `<52-char address>@<relay>[:port]` whose key is valid on the current chain.
 #[frb(sync)]
 pub fn validate_epicbox_address(address: String) -> bool {

@@ -8,7 +8,9 @@ import '../amount.dart';
 import '../errors.dart';
 import '../providers.dart';
 import '../wallet_service.dart';
+import '../slate_files.dart';
 import 'common.dart';
+import 'slate_file_screen.dart';
 
 /// How a send reaches the recipient.
 enum SendMethod {
@@ -18,8 +20,9 @@ enum SendMethod {
   /// To a wallet listening on HTTP. Completes in one request.
   http,
 
-  /// By hand: copy a slate out, paste the response back.
-  slate,
+  /// By transaction file, as epic-wallet's `send -m file`: share the file, then open the
+  /// recipient's `.response` file. Copy and paste is the fallback.
+  file,
 }
 
 /// Validates an HTTP recipient: scheme and host.
@@ -135,7 +138,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
             ? null
             : 'Enter a full epicbox address: <address>@<relay>',
       SendMethod.http => checkHttpRecipient(text),
-      SendMethod.slate => null,
+      SendMethod.file => null,
     };
   }
 
@@ -162,14 +165,35 @@ class _SendScreenState extends ConsumerState<SendScreen> {
             url: to,
           );
           if (mounted) setState(() => _done = tx);
-        case SendMethod.slate:
+        case SendMethod.file:
           final slate = await session.createSendSlate(
             amount: amount,
             minimumConfirmations: minimumConfirmations,
           );
-          if (mounted) setState(() => _slate = slate);
+          if (!mounted) return;
+          setState(() => _slate = slate);
+          await _shareSlate();
       }
     });
+  }
+
+  Future<void> _shareSlate() async {
+    final slate = _slate;
+    if (slate == null) return;
+    await ref
+        .read(slateFilesProvider)
+        .export(name: sendFileName(slate.slateId), json: slate.json);
+  }
+
+  Future<void> _openResponse() async {
+    final slate = _slate;
+    if (slate == null) return;
+    final posted = await openSlateFile(
+      context,
+      ref,
+      expectedSlateId: slate.slateId,
+    );
+    if (posted && mounted) Navigator.pop(context);
   }
 
   Future<void> _finalize() async {
@@ -209,14 +233,14 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     final recipientLabel = switch (_method) {
       SendMethod.epicbox => 'Recipient epicbox address',
       SendMethod.http => 'Recipient wallet URL',
-      SendMethod.slate => '',
+      SendMethod.file => '',
     };
     return [
       SegmentedButton<SendMethod>(
         segments: const [
           ButtonSegment(value: SendMethod.epicbox, label: Text('Epicbox')),
           ButtonSegment(value: SendMethod.http, label: Text('HTTP')),
-          ButtonSegment(value: SendMethod.slate, label: Text('Slate')),
+          ButtonSegment(value: SendMethod.file, label: Text('File')),
         ],
         selected: {_method},
         onSelectionChanged: (selection) => setState(() {
@@ -233,10 +257,10 @@ class _SendScreenState extends ConsumerState<SendScreen> {
         SendMethod.http =>
           'Sent straight to a wallet that listens on HTTP, such as '
               'epic-wallet listen. It completes at once.',
-        SendMethod.slate =>
-          'Sending takes two steps: create a slate and give it to the '
-              'recipient, then paste the response they return to finalize and '
-              'post the transaction.',
+        SendMethod.file =>
+          'Sending takes two steps: share the transaction file with the '
+              'recipient, then open the .response file they send back to '
+              'finalize and post the transaction.',
       }),
       if (_method == SendMethod.epicbox && !listening) ...[
         const SizedBox(height: 8),
@@ -246,7 +270,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
         ),
       ],
       const SizedBox(height: 16),
-      if (_method != SendMethod.slate) ...[
+      if (_method != SendMethod.file) ...[
         TextField(
           controller: _recipient,
           autocorrect: false,
@@ -299,7 +323,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       if (_estimateError != null) ErrorText(_estimateError!),
       const SizedBox(height: 16),
       BusyButton(
-        label: _method == SendMethod.slate ? 'Create slate' : 'Send',
+        label: _method == SendMethod.file ? 'Create transaction file' : 'Send',
         busy: _busy,
         onPressed: _parsedAmount == null || _estimateError != null
             ? null
@@ -309,23 +333,46 @@ class _SendScreenState extends ConsumerState<SendScreen> {
   }
 
   List<Widget> _responseStep(BuildContext context, Slate slate) {
+    final name = sendFileName(slate.slateId);
+    final theme = Theme.of(context);
     return [
-      SlateBox(
-        title: 'Step 1: give this slate to the recipient',
-        json: slate.json,
+      Text(
+        'Step 1: give $name to the recipient',
+        style: theme.textTheme.titleMedium,
       ),
+      const SizedBox(height: 8),
+      BusyButton(label: 'Share $name', onPressed: _shareSlate),
       const SizedBox(height: 8),
       const Text(
         'The funds stay locked until you finalize. If the recipient never '
         'responds, cancel the pending transaction from the home screen.',
       ),
-      const SizedBox(height: 16),
-      SlateInput(
-        controller: _response,
-        label: 'Step 2: paste the recipient\'s response',
+      const SizedBox(height: 24),
+      Text(
+        'Step 2: open the $name.response file they return',
+        style: theme.textTheme.titleMedium,
       ),
-      const SizedBox(height: 16),
-      BusyButton(label: 'Finalize and post', busy: _busy, onPressed: _finalize),
+      const SizedBox(height: 8),
+      BusyButton(label: 'Open response file', onPressed: _openResponse),
+      const SizedBox(height: 24),
+      ExpansionTile(
+        tilePadding: EdgeInsets.zero,
+        title: const Text('Copy and paste instead'),
+        children: [
+          SlateBox(title: 'Transaction slate', json: slate.json),
+          const SizedBox(height: 16),
+          SlateInput(
+            controller: _response,
+            label: 'Paste the recipient\'s response',
+          ),
+          const SizedBox(height: 16),
+          BusyButton(
+            label: 'Finalize and post',
+            busy: _busy,
+            onPressed: _finalize,
+          ),
+        ],
+      ),
     ];
   }
 

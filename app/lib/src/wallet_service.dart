@@ -18,6 +18,10 @@ abstract interface class WalletService {
 
   bool validateMnemonic({required String phrase});
 
+  /// Reads a slate's id, amount, fee and step without touching a wallet. Throws [WalletError]
+  /// with [WalletErrorKind.invalidSlate] for anything that is not a slate.
+  SlateInfo inspectSlate({required String json});
+
   /// True for `<address>@<relay>[:port]` valid on the chain of the open wallet.
   bool validateEpicboxAddress({required String address});
 
@@ -112,6 +116,10 @@ class RustWalletService implements WalletService {
   @override
   bool validateMnemonic({required String phrase}) =>
       rust.validateMnemonic(phrase: phrase);
+
+  @override
+  SlateInfo inspectSlate({required String json}) =>
+      rust.inspectSlate(json: json);
 
   @override
   bool validateEpicboxAddress({required String address}) =>
@@ -291,6 +299,21 @@ class FakeWalletService implements WalletService {
 
   @override
   bool validateMnemonic({required String phrase}) => phrase == this.phrase;
+
+  /// Slates [inspectSlate] recognises, by JSON text.
+  final Map<String, SlateInfo> slateInfos = {};
+
+  @override
+  SlateInfo inspectSlate({required String json}) {
+    final info = slateInfos[json];
+    if (info == null) {
+      throw const WalletError(
+        kind: WalletErrorKind.invalidSlate,
+        message: 'not a slate',
+      );
+    }
+    return info;
+  }
 
   @override
   bool validateEpicboxAddress({required String address}) =>

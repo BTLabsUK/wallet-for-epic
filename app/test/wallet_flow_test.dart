@@ -5,6 +5,7 @@ import 'package:epic_wallet/src/network.dart';
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/relay_directory.dart';
 import 'package:epic_wallet/src/secret_store.dart';
+import 'package:epic_wallet/src/slate_files.dart';
 import 'package:epic_wallet/src/ui/common.dart';
 import 'package:epic_wallet/src/updater.dart';
 import 'package:epic_wallet/src/vault.dart';
@@ -54,6 +55,7 @@ class _Device {
   final store = MemorySecretStore();
   final MemoryBiometricStore bio;
   final crypto = FakeVaultCrypto();
+  final files = FakeSlateFiles();
 }
 
 /// Pumps a second of frames, for screens with a spinner that never settles.
@@ -85,6 +87,7 @@ Future<void> _pumpApp(
         vaultCryptoProvider.overrideWithValue(device.crypto),
         updatePlatformProvider.overrideWithValue(null),
         relayDirectoryProvider.overrideWithValue(_FakeRelays()),
+        slateFilesProvider.overrideWithValue(device.files),
       ],
       child: const WalletApp(),
     ),
@@ -621,13 +624,16 @@ void main() {
       expect(find.text('Unlock Mainnet wallet'), findsOneWidget);
     });
 
-    testWidgets('send: amount, fee, slate, response, finalize', (tester) async {
+    testWidgets('send by file: share .tx, open .response, finalize', (
+      tester,
+    ) async {
       final session = _fundedSession();
       final service = _existing(session: session);
-      await _pumpApp(tester, service, _Device(sealedMainnet: true));
+      final device = _Device(sealedMainnet: true);
+      await _pumpApp(tester, service, device);
       await _unlockToHome(tester);
       await _tapText(tester, 'Send');
-      await _tapText(tester, 'Slate');
+      await _tapText(tester, 'File');
 
       expect(find.textContaining('Sending takes two steps'), findsOneWidget);
 
@@ -642,20 +648,48 @@ void main() {
       await tester.pump(const Duration(milliseconds: 500));
       expect(find.text('Fee: 0.008 EPIC. Total: 1.508 EPIC.'), findsOneWidget);
 
-      await _tapText(tester, 'Create slate');
+      await _tapText(tester, 'Create transaction file');
       expect(session.sentAmounts, [_epic(1.5)]);
-      expect(find.text(session.sendSlate.json), findsOneWidget);
-      expect(find.byTooltip('Copy slate'), findsOneWidget);
+      final files = device.files;
+      expect(files.exported.single.name, 'slate-1.tx');
+      expect(files.exported.single.json, session.sendSlate.json);
 
-      final responseField = find.descendant(
-        of: find.byType(SlateInput),
-        matching: find.byType(TextField),
+      // A response for another transaction is refused before anything is signed.
+      files.picks.add(
+        const SlateFile(name: 'other.tx.response', json: '{"other":1}'),
       );
-      await tester.enterText(responseField, '{"garbage":true}');
-      await _tapText(tester, 'Finalize and post');
-      expect(find.textContaining('not valid for this step'), findsOneWidget);
+      service.slateInfos['{"other":1}'] = SlateInfo(
+        slateId: 'other',
+        amount: _epic(9),
+        fee: BigInt.one,
+        stage: SlateStage.response,
+      );
+      await _tapText(tester, 'Open response file');
+      expect(
+        find.textContaining('for a different transaction'),
+        findsOneWidget,
+      );
+      expect(find.text('Finalize and post'), findsNothing);
+      await tester.pageBack();
+      await tester.pumpAndSettle();
 
-      await tester.enterText(responseField, session.responseSlate.json);
+      files.picks.add(
+        SlateFile(
+          name: 'slate-1.tx.response',
+          json: session.responseSlate.json,
+        ),
+      );
+      service.slateInfos[session.responseSlate.json] = SlateInfo(
+        slateId: 'slate-1',
+        amount: _epic(1.5),
+        fee: session.fee,
+        stage: SlateStage.response,
+      );
+      await _tapText(tester, 'Open response file');
+      expect(
+        find.textContaining("answer to your send of 1.5 EPIC"),
+        findsOneWidget,
+      );
       await _tapText(tester, 'Finalize and post');
       expect(session.finalizedSlates, [session.responseSlate.json]);
       expect(find.text('Transaction of 1.5 EPIC posted.'), findsOneWidget);
@@ -780,18 +814,56 @@ void main() {
       expect(session.disposeCalls, 1);
     });
 
-    testWidgets('receive: paste slate, show response', (tester) async {
+    testWidgets('receive by file: open .tx, sign, share .response', (
+      tester,
+    ) async {
       final session = _fundedSession();
       final service = _existing(session: session);
-      await _pumpApp(tester, service, _Device(sealedMainnet: true));
+      final device = _Device(sealedMainnet: true);
+      await _pumpApp(tester, service, device);
       await _unlockToHome(tester);
       await _tapText(tester, 'Receive');
       expect(find.text(session.address), findsOneWidget);
       expect(find.textContaining('arrive by themselves'), findsOneWidget);
 
+      device.files.picks.add(const SlateFile(name: 'photo.jpg', json: 'nope'));
+      await _tapText(tester, 'Open transaction file');
+      expect(find.text('That file is not a transaction file.'), findsOneWidget);
+      await tester.pageBack();
+      await tester.pumpAndSettle();
+
+      const incoming = '{"id":"incoming"}';
+      service.slateInfos[incoming] = SlateInfo(
+        slateId: 'incoming',
+        amount: _epic(3),
+        fee: BigInt.zero,
+        stage: SlateStage.send,
+      );
+      device.files.picks.add(
+        const SlateFile(name: 'from-bob.tx', json: incoming),
+      );
+      await _tapText(tester, 'Open transaction file');
+      expect(find.text('Someone is sending you 3 EPIC.'), findsOneWidget);
+      await _tapText(tester, 'Sign and share response');
+      expect(session.receivedSlates, [incoming]);
+      expect(device.files.exported.single.name, 'from-bob.tx.response');
+      expect(device.files.exported.single.json, session.responseSlate.json);
+      expect(
+        find.text('Signed. Return from-bob.tx.response to the sender.'),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('receive: paste slate text as a fallback', (tester) async {
+      final session = _fundedSession();
+      final service = _existing(session: session);
+      await _pumpApp(tester, service, _Device(sealedMainnet: true));
+      await _unlockToHome(tester);
+      await _tapText(tester, 'Receive');
+      await _tapText(tester, 'Paste slate text instead');
+
       await _tapText(tester, 'Sign slate');
       expect(find.text('Paste the slate you received.'), findsOneWidget);
-
       await tester.enterText(
         find.descendant(
           of: find.byType(SlateInput),
@@ -802,7 +874,30 @@ void main() {
       await _tapText(tester, 'Sign slate');
       expect(session.receivedSlates, ['{"id":"incoming"}']);
       expect(find.text(session.responseSlate.json), findsOneWidget);
-      expect(find.byTooltip('Copy slate'), findsOneWidget);
+    });
+
+    testWidgets('a file shared from another app opens after unlock', (
+      tester,
+    ) async {
+      final session = _fundedSession();
+      final service = _existing(session: session);
+      await _pumpApp(tester, service, _Device(sealedMainnet: true));
+      const incoming = '{"id":"shared"}';
+      service.slateInfos[incoming] = SlateInfo(
+        slateId: 'shared',
+        amount: _epic(2),
+        fee: BigInt.zero,
+        stage: SlateStage.send,
+      );
+      final container = ProviderScope.containerOf(
+        tester.element(find.text('Unlock Mainnet wallet')),
+      );
+      container
+          .read(incomingSlateProvider.notifier)
+          .deliver(const SlateFile(name: 'shared.tx', json: incoming));
+      await _unlockToHome(tester);
+      await tester.pumpAndSettle();
+      expect(find.text('Someone is sending you 2 EPIC.'), findsOneWidget);
     });
   });
 }

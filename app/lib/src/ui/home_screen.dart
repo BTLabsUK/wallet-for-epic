@@ -5,6 +5,7 @@ import 'package:pretty_qr_code/pretty_qr_code.dart';
 import '../errors.dart';
 import '../network.dart';
 import '../providers.dart';
+import '../slate_files.dart';
 import '../updater.dart';
 import '../wallet_service.dart';
 import 'backup_screen.dart';
@@ -13,6 +14,7 @@ import 'pin.dart';
 import 'receive_screen.dart';
 import 'restore_screen.dart' show ScanProgressView;
 import 'send_screen.dart';
+import 'slate_file_screen.dart';
 
 /// The amount a transaction moved, excluding the fee, and whether it left the wallet.
 ({BigInt amount, bool outgoing}) txAmount(TxEntry tx) {
@@ -74,9 +76,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   void initState() {
     super.initState();
     _lifecycle;
-    WidgetsBinding.instance.addPostFrameCallback(
-      (_) => ref.read(updateProvider.notifier).checkOnStart(),
-    );
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(updateProvider.notifier).checkOnStart();
+      _openIncoming();
+    });
   }
 
   void _showMessage(String message) {
@@ -106,6 +109,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         .read(scanProvider.notifier)
         .run(startHeight: BigInt.one);
     if (ok && mounted) await _refresh();
+  }
+
+  /// Opens a transaction file another app handed over, once a wallet is open to handle it.
+  void _openIncoming() {
+    final file = ref.read(incomingSlateProvider.notifier).take();
+    if (file == null || !mounted) return;
+    _open(SlateFileScreen(file: file));
   }
 
   Future<void> _backup() async {
@@ -191,6 +201,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    ref.listen(incomingSlateProvider, (_, file) {
+      if (file != null) _openIncoming();
+    });
     ref.listen(listenerProvider.select((s) => s.last), (_, event) {
       if (event == null) return;
       _showMessage(

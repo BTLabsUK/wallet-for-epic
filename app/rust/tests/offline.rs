@@ -149,6 +149,10 @@ fn error_kinds_for_bad_input() {
     let dir = tempfile::tempdir().expect("tempdir");
     let wallet = EpicWallet::create(cfg(dir.path()), None, PASSWORD.into()).expect("create");
     assert_eq!(
+        kind_of(epic_wallet_core::api::wallet::inspect_slate("{not json".into())),
+        WalletErrorKind::InvalidSlate
+    );
+    assert_eq!(
         kind_of(wallet.receive_slate("{not json".into())),
         WalletErrorKind::InvalidSlate
     );

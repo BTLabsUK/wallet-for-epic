@@ -34,6 +34,22 @@
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
+            <!-- Transaction files (.tx, .tx.response) opened or shared from other apps. Chat and
+                 mail apps label them as generic binary or JSON; the wallet checks the content. -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="content"/>
+                <data android:mimeType="application/octet-stream"/>
+                <data android:mimeType="application/json"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.SEND"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <data android:mimeType="application/octet-stream"/>
+                <data android:mimeType="application/json"/>
+            </intent-filter>
         </activity>
         <receiver
             android:name=".InstallResultReceiver"

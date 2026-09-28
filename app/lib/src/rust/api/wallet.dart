@@ -24,6 +24,11 @@ bool validateMnemonic({required String phrase}) =>
 Future<bool> walletExists({required WalletConfig config}) =>
     RustLib.instance.api.crateApiWalletWalletExists(config: config);
 
+/// Reads a slate file: its id, amount, fee, and whether it is a send to us or a response to
+/// ours. Needs no wallet, so the UI can show the amount before anything is signed.
+SlateInfo inspectSlate({required String json}) =>
+    RustLib.instance.api.crateApiWalletInspectSlate(json: json);
+
 /// True for `<52-char address>@<relay>[:port]` whose key is valid on the current chain.
 bool validateEpicboxAddress({required String address}) =>
     RustLib.instance.api.crateApiWalletValidateEpicboxAddress(address: address);

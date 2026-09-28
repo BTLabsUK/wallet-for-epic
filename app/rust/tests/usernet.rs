@@ -20,7 +20,8 @@ use std::time::{Duration, Instant};
 
 use common::*;
 use epic_wallet_core::api::types::{Chain, TxKind, WalletConfig, WalletErrorKind};
-use epic_wallet_core::api::wallet::{node_tip, EpicWallet};
+use epic_wallet_core::api::types::SlateStage;
+use epic_wallet_core::api::wallet::{inspect_slate, node_tip, EpicWallet};
 
 const NODE_URL: &str = "http://127.0.0.1:23413";
 const MIN_CONF: u64 = 3;
@@ -213,8 +214,16 @@ fn usernet_end_to_end() {
     let locked = a.summary(false, MIN_CONF).expect("summary");
     assert_eq!(locked.locked, 10 * EPIC, "A's only output is locked");
     assert_eq!(locked.spendable, 0);
+    let info = inspect_slate(send.json.clone()).expect("inspect send");
+    assert_eq!(info.stage, SlateStage::Send);
+    assert_eq!(info.amount, amount);
+    assert_eq!(info.slate_id, send.slate_id);
     let reply = b.receive_slate(send.json.clone()).expect("B receives");
     assert_eq!(reply.slate_id, send.slate_id);
+    assert_eq!(
+        inspect_slate(reply.json.clone()).expect("inspect reply").stage,
+        SlateStage::Response
+    );
     assert_eq!(
         kind_of(b.receive_slate(send.json)),
         WalletErrorKind::InvalidSlate,
