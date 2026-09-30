@@ -5,6 +5,7 @@ import 'package:epic_wallet/src/app.dart';
 import 'package:epic_wallet/src/price.dart';
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/push.dart';
+import 'package:epic_wallet/src/ui/common.dart';
 import 'package:epic_wallet/src/ui/contacts_screen.dart';
 import 'package:epic_wallet/src/relay_directory.dart';
 import 'package:epic_wallet/src/secret_store.dart';
@@ -12,6 +13,7 @@ import 'package:epic_wallet/src/settings.dart';
 import 'package:epic_wallet/src/slate_files.dart';
 import 'package:epic_wallet/src/ui/restore_screen.dart';
 import 'package:epic_wallet/src/ui/settings_history.dart';
+import 'package:epic_wallet/src/ui/settings_pin.dart';
 import 'package:epic_wallet/src/ui/settings_screen.dart';
 import 'package:epic_wallet/src/updater.dart';
 import 'package:epic_wallet/src/vault.dart';
@@ -418,7 +420,21 @@ void main() {
       await _enter(tester, 'PIN', '654321');
       await _enter(tester, 'Repeat PIN', '654321');
 
-      expect(find.text('PIN changed'), findsOneWidget);
+      // Back on settings, in the notice slot under the app bar, and gone after a while.
+      expect(find.byType(ChangePinScreen), findsNothing);
+      expect(
+        find.descendant(
+          of: find.byKey(noticeKey),
+          matching: find.text('PIN changed'),
+        ),
+        findsOneWidget,
+      );
+      final firstTile = tester.getTopLeft(find.text('Change PIN'));
+      await tester.pump(noticeDuration);
+      await tester.pumpAndSettle();
+      expect(find.text('PIN changed'), findsNothing);
+      // The content did not move when the notice left.
+      expect(tester.getTopLeft(find.text('Change PIN')), firstTile);
       expect(
         h.store.values['wallet.mainnet.sealed'],
         'sealed|654321|$_password',

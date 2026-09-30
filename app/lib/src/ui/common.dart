@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -29,12 +32,238 @@ void lockWallet(BuildContext context, WidgetRef ref) {
   );
 }
 
-/// Copies [text] and confirms with a snack bar. Never use this for the recovery phrase.
+/// Copies [text] and confirms in the notice slot. Never use this for the recovery phrase.
 Future<void> copyText(BuildContext context, String text, String what) async {
   await Clipboard.setData(ClipboardData(text: text));
   if (!context.mounted) return;
-  ScaffoldMessenger.of(context)
-      .showSnackBar(SnackBar(content: Text('$what copied')));
+  ProviderScope.containerOf(
+    context,
+    listen: false,
+  ).read(noticeProvider.notifier).show('$what copied');
+}
+
+/// How long a notice stays in the slot unless it is persistent.
+const Duration noticeDuration = Duration(seconds: 4);
+
+/// The height of the notice slot at text scale 1: one line of text beside a 48 dp button,
+/// with 4 dp above and below. It grows with larger text only.
+const double noticeSlotHeight = 56;
+
+/// The key of the notice shown in a slot, for tests.
+const Key noticeKey = ValueKey('notice');
+
+/// A button on a notice, where a snack bar had an action.
+class NoticeAction {
+  const NoticeAction(this.label, this.onPressed);
+
+  final String label;
+  final VoidCallback onPressed;
+}
+
+/// A short message for the notice slot.
+class Notice {
+  const Notice(this.id, this.text, {this.action, this.persistent = false});
+
+  /// Distinct per [NoticeNotifier.show] call, so the same text shown twice counts twice.
+  final int id;
+  final String text;
+  final NoticeAction? action;
+
+  /// Stays until replaced or closed, instead of leaving after [noticeDuration].
+  final bool persistent;
+}
+
+/// The notice every [NoticeSlot] shows: one at a time, the newest wins.
+final noticeProvider = NotifierProvider<NoticeNotifier, Notice?>(
+  NoticeNotifier.new,
+);
+
+class NoticeNotifier extends Notifier<Notice?> {
+  Timer? _timer;
+  int _next = 0;
+
+  @override
+  Notice? build() {
+    ref.onDispose(() => _timer?.cancel());
+    return null;
+  }
+
+  /// Shows [text], replacing any notice. It leaves after [noticeDuration] unless [persistent].
+  void show(String text, {NoticeAction? action, bool persistent = false}) {
+    _timer?.cancel();
+    final notice = Notice(
+      _next++,
+      text,
+      action: action,
+      persistent: persistent,
+    );
+    state = notice;
+    if (!persistent) {
+      _timer = Timer(noticeDuration, () => dismiss(notice.id));
+    }
+  }
+
+  /// Removes the notice, or only the one with [id] when given.
+  void dismiss([int? id]) {
+    if (id != null && state?.id != id) return;
+    _timer?.cancel();
+    state = null;
+  }
+}
+
+/// A fixed-height strip under the app bar for the current notice, so the content below never
+/// moves. With no notice it shows [idle] (a screen's own status, such as a progress bar), or
+/// empty space.
+class NoticeSlot extends ConsumerWidget {
+  const NoticeSlot({super.key, this.idle});
+
+  final Widget? idle;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final notice = ref.watch(noticeProvider);
+    final height = max(
+      noticeSlotHeight,
+      MediaQuery.textScalerOf(context).scale(noticeSlotHeight),
+    );
+    return SizedBox(
+      height: height,
+      child: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 150),
+        child: notice == null
+            ? (idle ?? const SizedBox.shrink())
+            : _NoticeView(key: ValueKey(notice.id), notice: notice),
+      ),
+    );
+  }
+}
+
+class _NoticeView extends ConsumerWidget {
+  const _NoticeView({super.key, required this.notice});
+
+  final Notice notice;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final colors = Theme.of(context).colorScheme;
+    final action = notice.action;
+    final notifier = ref.read(noticeProvider.notifier);
+    return Padding(
+      key: noticeKey,
+      padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
+      child: Material(
+        color: colors.secondaryContainer,
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: EdgeInsets.only(
+            left: 16,
+            right: action == null && !notice.persistent ? 16 : 4,
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: Semantics(
+                  liveRegion: true,
+                  child: Text(
+                    notice.text,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(color: colors.onSecondaryContainer),
+                  ),
+                ),
+              ),
+              if (action != null)
+                TextButton(
+                  onPressed: () {
+                    notifier.dismiss(notice.id);
+                    action.onPressed();
+                  },
+                  child: Text(action.label),
+                ),
+              if (notice.persistent)
+                IconButton(
+                  tooltip: 'Close',
+                  icon: const Icon(Icons.close),
+                  onPressed: () => notifier.dismiss(notice.id),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// A thin progress bar along the top of a [NoticeSlot], for [SlotScaffold.idle]: work that runs
+/// while the screen stays usable. Indeterminate when [value] is null.
+class SlotProgress extends StatelessWidget {
+  const SlotProgress({super.key, this.value, required this.label});
+
+  final double? value;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+      alignment: Alignment.topCenter,
+      child: LinearProgressIndicator(
+        minHeight: 2,
+        value: value,
+        semanticsLabel: label,
+      ),
+    );
+  }
+}
+
+/// A [Scaffold] with a [NoticeSlot] under the app bar. With [centered], [body] sits in the
+/// middle of the space left (and scrolls when it does not fit); otherwise it starts right
+/// below the slot. [idle] is what the slot shows when there is no notice.
+class SlotScaffold extends StatelessWidget {
+  const SlotScaffold({
+    super.key,
+    this.appBar,
+    required this.body,
+    this.centered = false,
+    this.idle,
+    this.floatingActionButton,
+    this.bottomNavigationBar,
+  });
+
+  final PreferredSizeWidget? appBar;
+  final Widget body;
+  final bool centered;
+  final Widget? idle;
+  final Widget? floatingActionButton;
+  final Widget? bottomNavigationBar;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: appBar,
+      floatingActionButton: floatingActionButton,
+      bottomNavigationBar: bottomNavigationBar,
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          NoticeSlot(idle: idle),
+          Expanded(
+            child: centered
+                ? LayoutBuilder(
+                    builder: (context, constraints) => SingleChildScrollView(
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          minHeight: constraints.maxHeight,
+                        ),
+                        child: Center(child: body),
+                      ),
+                    ),
+                  )
+                : body,
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 /// `1,234.5 EPIC`. Display only; see [formatEpic].

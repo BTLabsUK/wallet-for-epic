@@ -18,7 +18,7 @@ import 'help_screen.dart';
 import 'launch_screen.dart';
 import 'pin.dart';
 import 'restore_screen.dart'
-    show ScanProgressView, formatDay, mainnetFirstDay, mainnetHeightForDate;
+    show ScanSlotLine, formatDay, mainnetFirstDay, mainnetHeightForDate;
 import 'settings_history.dart';
 import 'settings_pin.dart';
 import 'setup_screen.dart';
@@ -97,9 +97,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   bool _busy = false;
 
   void _say(String message) {
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(content: Text(message)));
+    ref.read(noticeProvider.notifier).show(message);
   }
 
   Future<void> _push(Widget screen) =>
@@ -311,7 +309,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final updates = ref.read(updateProvider.notifier).supported;
     final chainName = config == null ? 'Unknown' : chainLabel(config.chain);
 
-    return Scaffold(
+    return SlotScaffold(
+      // A running scan shows in the slot. `_busy` shows nothing: most of its time is spent
+      // waiting on a sheet or dialog, where a progress bar would say the wrong thing.
+      idle: scan.running ? ScanSlotLine(scan: scan) : null,
       appBar: AppBar(title: const Text('Settings')),
       body: SafeArea(
         child: Center(
@@ -319,11 +320,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             constraints: const BoxConstraints(maxWidth: 600),
             child: ListView(
               children: [
-                if (_busy) const LinearProgressIndicator(),
-                if (scan.running || scan.error != null)
+                if (!scan.running && scan.error != null)
                   Padding(
                     padding: const EdgeInsets.all(16),
-                    child: ScanProgressView(scan: scan),
+                    child: ErrorText(scan.error!),
                   ),
                 const _Header('Network'),
                 ListTile(

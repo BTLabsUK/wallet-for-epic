@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
 import '../settings.dart';
+import 'common.dart';
 
 /// QR scanning needs a camera plugin that exists on Android and iOS only.
 bool get qrScanSupported => !kIsWeb && (Platform.isAndroid || Platform.isIOS);
@@ -107,7 +108,7 @@ class _ScanScreenState extends ConsumerState<ScanScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return SlotScaffold(
       appBar: AppBar(title: const Text('Scan QR code')),
       body: Stack(
         fit: StackFit.expand,

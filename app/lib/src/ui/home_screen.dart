@@ -159,11 +159,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     super.dispose();
   }
 
-  void _showMessage(String message) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(message)));
-  }
-
   Future<void> _refresh() async {
     ref.invalidate(nodeTipProvider);
     try {
@@ -196,7 +191,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   Future<void> _backup() async {
     final done = await Navigator.of(context)
         .push<bool>(MaterialPageRoute(builder: (_) => const BackupScreen()));
-    if (done == true && mounted) _showMessage('Recovery phrase backed up');
+    if (done == true && mounted) _showNotice('Recovery phrase backed up');
   }
 
   Future<void> _open(Widget screen) async {
@@ -243,27 +238,24 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     _showNotice(text, txKey: key);
   }
 
-  /// A payment notice: a few seconds long, with a way to the payment when it is known.
+  /// A notice in the slot, with a way to the payment when it is known. It leaves on its own;
+  /// the payment is always one tap away in the list too.
   void _showNotice(String text, {String? txKey}) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(text),
-        duration: const Duration(seconds: 6),
-        // A notice with "View" would otherwise stay until tapped and hold back the next one;
-        // the payment is always one tap away in the list.
-        persist: false,
-        action: txKey == null
-            ? null
-            : SnackBarAction(
-                label: 'View',
-                onPressed: () => Navigator.of(context).push(
-                  MaterialPageRoute<void>(
-                    builder: (_) => TxDetailsScreen(txKey: txKey),
+    ref
+        .read(noticeProvider.notifier)
+        .show(
+          text,
+          action: txKey == null
+              ? null
+              : NoticeAction(
+                  'View',
+                  () => Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (_) => TxDetailsScreen(txKey: txKey),
+                    ),
                   ),
                 ),
-              ),
-      ),
-    );
+        );
   }
 
   @override
@@ -292,7 +284,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final transactions = data?.transactions ?? const <TxEntry>[];
     final scanner = ref.watch(qrScannerProvider);
 
-    return Scaffold(
+    return SlotScaffold(
+      idle: const _HomeStatus(),
       appBar: AppBar(
         title: Text('Epic Cash · $title'),
         actions: [
@@ -329,7 +322,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         child: ScanProgressView(scan: scan),
                       ),
                     ),
-                  const _UpdateCard(),
                   // The recovery phrase guards the funds, so its card stays on top.
                   if (!backedUp && !backupDismissed && config != null)
                     _BackupCard(
@@ -423,10 +415,29 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 }
 
-/// Update availability, download progress and install errors. Hidden when there is nothing
-/// to say.
-class _UpdateCard extends ConsumerWidget {
-  const _UpdateCard();
+/// What home's notice slot shows when there is no notice: the update line while there is
+/// something to say about an update, else the sync bar while home syncs, else nothing.
+class _HomeStatus extends ConsumerWidget {
+  const _HomeStatus();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final updating = ref.watch(
+      updateProvider.select((s) => s.phase != UpdatePhase.idle),
+    );
+    if (updating) return const _UpdateLine();
+    if (!_syncing(ref.watch(homeProvider))) return const SizedBox.shrink();
+    final percent = ref.watch(syncProgressProvider);
+    return SlotProgress(
+      value: percent == null ? null : percent / 100,
+      label: 'Syncing',
+    );
+  }
+}
+
+/// Update availability, download progress and install errors, in one line that fits the slot.
+class _UpdateLine extends ConsumerWidget {
+  const _UpdateLine();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -440,10 +451,7 @@ class _UpdateCard extends ConsumerWidget {
       UpdatePhase.upToDate => ('This is the latest version.', null),
       UpdatePhase.available => (
         state.message ?? 'Version$version is available.',
-        FilledButton.tonal(
-          onPressed: notifier.install,
-          child: const Text('Update'),
-        ),
+        TextButton(onPressed: notifier.install, child: const Text('Update')),
       ),
       UpdatePhase.downloading => (
         'Downloading version$version… '
@@ -460,40 +468,41 @@ class _UpdateCard extends ConsumerWidget {
       ),
     };
     if (text.isEmpty) return const SizedBox.shrink();
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 12, 8, 12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Row(
-              children: [
-                const Icon(Icons.system_update, semanticLabel: 'Update'),
-                const SizedBox(width: 12),
-                Expanded(child: Semantics(liveRegion: true, child: Text(text))),
-                ?action,
-              ],
-            ),
-            if (state.phase == UpdatePhase.downloading)
-              Padding(
-                padding: const EdgeInsets.only(top: 8, right: 8),
-                child: LinearProgressIndicator(
-                  value: state.progress,
-                  semanticsLabel: 'Download progress',
-                ),
-              ),
-            if (update != null &&
-                update.notes.isNotEmpty &&
-                state.phase == UpdatePhase.available)
-              Padding(
-                padding: const EdgeInsets.only(top: 8, right: 8),
-                child: Text(
-                  update.notes,
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
-              ),
-          ],
+    final notes = update?.notes ?? '';
+    final line = Row(
+      children: [
+        const Icon(Icons.system_update, semanticLabel: 'Update'),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Semantics(
+            liveRegion: true,
+            child: Text(text, maxLines: 2, overflow: TextOverflow.ellipsis),
+          ),
         ),
+        ?action,
+      ],
+    );
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 0, 8, 0),
+      child: Stack(
+        children: [
+          Positioned.fill(
+            child: notes.isNotEmpty && state.phase == UpdatePhase.available
+                // The release notes stay one long-press away.
+                ? Tooltip(message: notes, child: line)
+                : line,
+          ),
+          if (state.phase == UpdatePhase.downloading)
+            Positioned(
+              left: 36,
+              right: 8,
+              bottom: 4,
+              child: LinearProgressIndicator(
+                value: state.progress,
+                semanticsLabel: 'Download progress',
+              ),
+            ),
+        ],
       ),
     );
   }
@@ -735,7 +744,7 @@ class _BalanceHeaderState extends ConsumerState<BalanceHeader> {
 }
 
 /// Whether the balance is current: syncing, up to date, not validated, or node unreachable, and
-/// whether epicbox is connected. A thin bar under it moves while the wallet syncs.
+/// whether epicbox is connected. The sync bar is in the notice slot ([_HomeStatus]).
 class _SyncLine extends ConsumerWidget {
   const _SyncLine({required this.summary, required this.syncing});
 
@@ -804,29 +813,10 @@ class _SyncLine extends ConsumerWidget {
         ),
       ),
     );
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        // The block height means little to most people; it stays one long-press away.
-        if (height == null || syncing)
-          line
-        else
-          Tooltip(message: height, child: line),
-        // A fixed slot, so the bar coming and going does not shift the list.
-        Padding(
-          padding: const EdgeInsets.only(top: 6),
-          child: SizedBox(
-            height: 2,
-            child: syncing
-                ? LinearProgressIndicator(
-                    value: percent == null ? null : percent / 100,
-                    semanticsLabel: 'Syncing',
-                  )
-                : null,
-          ),
-        ),
-      ],
-    );
+    // The block height means little to most people; it stays one long-press away.
+    return height == null || syncing
+        ? line
+        : Tooltip(message: height, child: line);
   }
 }
 

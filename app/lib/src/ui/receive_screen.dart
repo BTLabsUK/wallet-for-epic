@@ -7,6 +7,7 @@ import '../providers.dart';
 import '../settings.dart';
 import '../slate_files.dart';
 import '../wallet_service.dart';
+import 'centered_body.dart';
 import 'common.dart';
 import 'help_screen.dart';
 import 'slate_file_screen.dart';
@@ -70,7 +71,8 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
   @override
   Widget build(BuildContext context) {
     final address = ref.watch(addressProvider);
-    return Scaffold(
+    return SlotScaffold(
+      centered: true,
       appBar: AppBar(
         title: const Text('Receive'),
         actions: [
@@ -82,7 +84,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
           ),
         ],
       ),
-      body: ScreenBody(
+      body: CenteredBody(
         children: [
           switch (address) {
             AsyncData(:final value) => _AddressCard(address: value),

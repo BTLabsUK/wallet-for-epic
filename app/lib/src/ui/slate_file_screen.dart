@@ -171,7 +171,7 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
           ),
       ];
     }
-    return Scaffold(
+    return SlotScaffold(
       appBar: AppBar(title: const Text('Transaction file')),
       body: ScreenBody(
         children: [...body, if (_error != null) ErrorText(_error!)],
@@ -196,18 +196,15 @@ class SlateFileButtons extends ConsumerWidget {
     String? done,
   }) async {
     final files = ref.read(slateFilesProvider);
-    final messenger = ScaffoldMessenger.of(context);
+    // Read now: the notice outlives this button if the screen closes meanwhile.
+    final notice = ref.read(noticeProvider.notifier);
     try {
       final ok = await ref
           .read(autoLockHoldProvider.notifier)
           .during(() => action(files));
-      if (ok && done != null) {
-        messenger.showSnackBar(SnackBar(content: Text(done)));
-      }
+      if (ok && done != null) notice.show(done);
     } catch (_) {
-      messenger.showSnackBar(
-        SnackBar(content: Text('Could not hand over $name. Please try again.')),
-      );
+      notice.show('Could not hand over $name. Please try again.');
     }
   }
 
@@ -324,23 +321,22 @@ class _Headline extends StatelessWidget {
   }
 }
 
-/// Picks a transaction file and opens it in [SlateFileScreen]. Shows a snack bar when the file
+/// Picks a transaction file and opens it in [SlateFileScreen]. Shows a notice when the file
 /// cannot be read. Returns true when the file was signed or finalized.
 Future<bool> openSlateFile(
   BuildContext context,
   WidgetRef ref, {
   String? expectedSlateId,
 }) async {
+  // Read before the picker: the calling screen may be gone when it returns.
+  final notice = ref.read(noticeProvider.notifier);
   final SlateFile? file;
   try {
     file = await ref
         .read(autoLockHoldProvider.notifier)
         .during(() => ref.read(slateFilesProvider).pick());
   } on FormatException catch (e) {
-    if (context.mounted) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(e.message)));
-    }
+    notice.show(e.message);
     return false;
   }
   if (file == null || !context.mounted) return false;

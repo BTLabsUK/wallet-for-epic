@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../errors.dart';
 import '../providers.dart';
 import '../vault.dart';
+import 'centered_body.dart';
 import 'common.dart';
 import 'pin.dart';
 
@@ -64,8 +65,7 @@ class _ChangePinScreenState extends ConsumerState<ChangePinScreen> {
           .read(vaultProvider)
           .changePin(config.chain, currentPin: currentPin, newPin: newPin);
       if (!mounted) return;
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('PIN changed')));
+      ref.read(noticeProvider.notifier).show('PIN changed');
       Navigator.pop(context, true);
     } on PinRejected catch (rejection) {
       if (mounted) {
@@ -88,14 +88,16 @@ class _ChangePinScreenState extends ConsumerState<ChangePinScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return SlotScaffold(
+      centered: true,
       appBar: AppBar(title: const Text('Change PIN')),
-      body: ScreenBody(
+      body: CenteredBody(
         children: [
           if (_currentPin == null) ...[
             Text(
               'Enter your current PIN',
               style: Theme.of(context).textTheme.titleMedium,
+              textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),
             PinField(

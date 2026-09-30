@@ -7,6 +7,7 @@ import '../errors.dart';
 import '../network.dart';
 import '../providers.dart';
 import '../vault.dart';
+import 'centered_body.dart';
 import 'common.dart';
 import 'launch_screen.dart';
 import 'pin.dart';
@@ -163,7 +164,8 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
   Widget build(BuildContext context) {
     final config = ref.watch(walletConfigProvider);
     final locked = _lockedUntil != null;
-    return Scaffold(
+    return SlotScaffold(
+      centered: true,
       appBar: AppBar(
         title: Text(
           config == null
@@ -184,9 +186,8 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
           ),
         ],
       ),
-      body: ScreenBody(
+      body: CenteredBody(
         children: [
-          const SizedBox(height: 24),
           PinField(
             controller: _pin,
             label: 'PIN',

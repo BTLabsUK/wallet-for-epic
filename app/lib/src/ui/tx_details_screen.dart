@@ -190,10 +190,8 @@ class TxDetailsScreen extends ConsumerStatefulWidget {
 class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
   bool _busy = false;
 
-  void _showMessage(String message) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(message)));
-  }
+  void _showMessage(String message) =>
+      ref.read(noticeProvider.notifier).show(message);
 
   Future<void> _reload() async {
     ref.invalidate(nodeTipProvider);
@@ -329,18 +327,21 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
         .where((t) => t.key == widget.txKey)
         .firstOrNull;
     if (tx == null) {
-      return Scaffold(
+      return SlotScaffold(
         appBar: AppBar(title: const Text('Payment')),
-        body: ScreenBody(
-          children: [
-            if (home.isLoading)
-              const LinearProgressIndicator(semanticsLabel: 'Loading')
-            else if (home.hasError)
-              ErrorText(describeError(home.error!))
-            else
-              const Text('This payment is no longer in the wallet.'),
-          ],
-        ),
+        idle: home.isLoading ? const SlotProgress(label: 'Loading') : null,
+        centered: !home.isLoading,
+        body: home.isLoading
+            ? const SizedBox.shrink()
+            : Padding(
+                padding: const EdgeInsets.all(16),
+                child: home.hasError
+                    ? ErrorText(describeError(home.error!))
+                    : const Text(
+                        'This payment is no longer in the wallet.',
+                        textAlign: TextAlign.center,
+                      ),
+              ),
       );
     }
 
@@ -363,12 +364,13 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
     final blockTime = tx.blockTimeUnix;
     final note = tx.note;
 
-    return Scaffold(
+    return SlotScaffold(
       appBar: AppBar(title: Text(txHeading(tx, contactName: name))),
+      idle: _busy || home.isLoading
+          ? const SlotProgress(label: 'Working')
+          : null,
       body: ScreenBody(
         children: [
-          if (_busy || home.isLoading)
-            const LinearProgressIndicator(semanticsLabel: 'Working'),
           Row(
             children: [
               TxIcon(tx: tx),

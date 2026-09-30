@@ -181,7 +181,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final preset = _preset;
-    return Scaffold(
+    return SlotScaffold(
       appBar: AppBar(title: const Text('Network settings')),
       body: ScreenBody(
         children: preset == null

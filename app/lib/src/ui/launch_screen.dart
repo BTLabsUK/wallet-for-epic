@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../errors.dart';
 import '../providers.dart';
 import '../vault.dart';
+import 'centered_body.dart';
 import 'common.dart';
 import 'first_run_screen.dart';
 import 'pin_unlock_screen.dart';
@@ -67,14 +68,12 @@ class _LaunchScreenState extends ConsumerState<LaunchScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: ScreenBody(
+    return SlotScaffold(
+      centered: true,
+      body: CenteredBody(
         children: [
           if (_error == null)
-            const Padding(
-              padding: EdgeInsets.only(top: 120),
-              child: Center(child: CircularProgressIndicator()),
-            )
+            const Center(child: CircularProgressIndicator())
           else ...[
             ErrorText(_error!),
             BusyButton(label: 'Try again', onPressed: _route),

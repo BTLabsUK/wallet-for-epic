@@ -129,7 +129,7 @@ class HelpScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return SlotScaffold(
       appBar: AppBar(title: const Text('Help')),
       body: ScreenBody(
         children: [

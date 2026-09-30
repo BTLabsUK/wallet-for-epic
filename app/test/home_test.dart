@@ -996,6 +996,77 @@ void main() {
     });
   });
 
+  group('user-2', () {
+    testWidgets('a payment notice appears in the slot without moving home', (
+      tester,
+    ) async {
+      final h = _Harness();
+      await h.pump(tester);
+      final before = tester.getTopLeft(find.text('Spendable'));
+      h.session.listenerEvents.add(
+        ListenerEvent(
+          kind: ListenerEventKind.received,
+          slateId: 'from-alice',
+          message: 'raw',
+          amount: _epic(5),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.byKey(noticeKey), findsOneWidget);
+      expect(find.textContaining('5 EPIC on the way'), findsOneWidget);
+      expect(find.byType(SnackBar), findsNothing);
+      expect(tester.getTopLeft(find.text('Spendable')), before);
+
+      // "View" opens the payment and clears the notice.
+      await _tap(tester, find.text('View'));
+      expect(find.byType(TxDetailsScreen), findsOneWidget);
+      expect(find.byKey(noticeKey), findsNothing);
+    });
+
+    testWidgets('a notice leaves after a few seconds, the newest wins', (
+      tester,
+    ) async {
+      final h = _Harness();
+      await h.pump(tester);
+      final notices = ProviderScope.containerOf(
+        tester.element(find.byType(HomeScreen)),
+      ).read(noticeProvider.notifier);
+      notices.show('First');
+      await tester.pump(const Duration(seconds: 3));
+      notices.show('Second');
+      await tester.pumpAndSettle();
+      expect(find.text('First'), findsNothing);
+      expect(find.text('Second'), findsOneWidget);
+      // The first one's timer does not cut the second short.
+      await tester.pump(const Duration(seconds: 2));
+      expect(find.text('Second'), findsOneWidget);
+      await tester.pump(noticeDuration);
+      await tester.pumpAndSettle();
+      expect(find.byKey(noticeKey), findsNothing);
+
+      notices.show('Stays', persistent: true);
+      await tester.pump(noticeDuration * 2);
+      await tester.pumpAndSettle();
+      expect(find.text('Stays'), findsOneWidget);
+      await _tap(tester, find.byTooltip('Close'));
+      expect(find.text('Stays'), findsNothing);
+    });
+
+    testWidgets('the slot keeps its height and grows only with large text', (
+      tester,
+    ) async {
+      final h = _Harness();
+      await h.pump(tester);
+      expect(tester.getSize(find.byType(NoticeSlot)).height, noticeSlotHeight);
+      await tester.pumpWidget(const SizedBox());
+      await h.pump(tester, const HomeScreen(), 2);
+      expect(
+        tester.getSize(find.byType(NoticeSlot)).height,
+        noticeSlotHeight * 2,
+      );
+    });
+  });
+
   group('user-1', () {
     testWidgets('home shows the local balance at once, then the synced one', (
       tester,
@@ -1264,6 +1335,9 @@ void main() {
       // A tap on the explorer row copies it too.
       await _tap(tester, find.text('Copy explorer link'));
       expect(find.text('Link copied'), findsOneWidget);
+      // In the notice slot, not a snack bar.
+      expect(find.byKey(noticeKey), findsOneWidget);
+      expect(find.byType(SnackBar), findsNothing);
     });
 
     testWidgets(
@@ -1318,7 +1392,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text(pushNotice), findsNothing);
       expect(find.text('Transaction waiting on relay'), findsNothing);
-      expect(find.byType(SnackBar), findsOneWidget);
+      expect(find.byKey(noticeKey), findsOneWidget);
       expect(find.textContaining('5 EPIC on the way'), findsOneWidget);
     });
 
@@ -1818,7 +1892,7 @@ void main() {
       // Let the notice go, then the core retries the same payment: nothing new.
       await tester.pump(const Duration(seconds: 8));
       await tester.pumpAndSettle();
-      expect(find.byType(SnackBar), findsNothing);
+      expect(find.byKey(noticeKey), findsNothing);
       h.session.listenerEvents
         ..add(
           const ListenerEvent(kind: ListenerEventKind.connected, message: 'a'),
@@ -1832,7 +1906,7 @@ void main() {
           ),
         );
       await tester.pumpAndSettle();
-      expect(find.byType(SnackBar), findsNothing);
+      expect(find.byKey(noticeKey), findsNothing);
       // Another payment still gets its own.
       h.session.listenerEvents.add(
         const ListenerEvent(
@@ -1843,7 +1917,7 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      expect(find.byType(SnackBar), findsOneWidget);
+      expect(find.byKey(noticeKey), findsOneWidget);
     });
   });
 

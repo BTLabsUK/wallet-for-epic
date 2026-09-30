@@ -12,6 +12,7 @@ import '../providers.dart';
 import '../settings.dart';
 import '../slate_files.dart';
 import '../wallet_service.dart';
+import 'centered_body.dart';
 import 'common.dart';
 import 'contacts_screen.dart';
 import 'help_screen.dart';
@@ -532,13 +533,16 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     } else {
       children = _formStep(context);
     }
-    return Scaffold(
+    final all = [...children, if (_error != null) ErrorText(_error!)];
+    // The result is short, so it sits in the middle; the form and file steps scroll.
+    return SlotScaffold(
+      centered: sent != null,
       appBar: AppBar(
         title: Text(_fileMode && sent == null ? 'Send by file' : 'Send'),
       ),
-      body: ScreenBody(
-        children: [...children, if (_error != null) ErrorText(_error!)],
-      ),
+      body: sent != null
+          ? CenteredBody(children: all)
+          : ScreenBody(children: all),
     );
   }
 

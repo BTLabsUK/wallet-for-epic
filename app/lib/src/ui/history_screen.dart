@@ -263,11 +263,6 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
             ),
         ],
       ),
-      if (home.isLoading && all == null)
-        const Padding(
-          padding: EdgeInsets.only(top: 16),
-          child: LinearProgressIndicator(semanticsLabel: 'Loading payments'),
-        ),
       if (home.hasError && !home.isLoading)
         ErrorText(describeError(home.error!)),
       if (empty != null)
@@ -277,8 +272,11 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
         ),
     ];
 
-    return Scaffold(
+    return SlotScaffold(
       appBar: AppBar(title: const Text('History')),
+      idle: home.isLoading
+          ? SlotProgress(label: all == null ? 'Loading payments' : 'Refreshing')
+          : null,
       body: SafeArea(
         child: Center(
           child: ConstrainedBox(

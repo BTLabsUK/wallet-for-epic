@@ -71,7 +71,7 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return SlotScaffold(
       appBar: AppBar(title: const Text('Recovery phrase')),
       body: ScreenBody(
         children: _words.isEmpty

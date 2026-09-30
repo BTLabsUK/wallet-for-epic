@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../contacts.dart';
 import '../errors.dart';
 import '../providers.dart';
+import 'centered_body.dart';
 import 'common.dart';
 import 'scan_screen.dart';
 
@@ -84,7 +85,14 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
   Widget build(BuildContext context) {
     final contacts = ref.watch(contactsProvider);
     final theme = Theme.of(context);
-    return Scaffold(
+    // With no contacts at all, a search field has nothing to search: the empty state sits in
+    // the middle instead.
+    final none = switch (contacts) {
+      AsyncData(:final value) => value.isEmpty,
+      _ => false,
+    };
+    return SlotScaffold(
+      centered: none,
       appBar: AppBar(
         title: Text(widget.pick ? 'Choose a contact' : 'Contacts'),
       ),
@@ -93,36 +101,40 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
         icon: const Icon(Icons.person_add),
         label: const Text('Add contact'),
       ),
-      body: ScreenBody(
-        children: [
-          TextField(
-            controller: _search,
-            onChanged: (_) => setState(() {}),
-            decoration: const InputDecoration(
-              labelText: 'Search contacts',
-              prefixIcon: Icon(Icons.search),
-              border: OutlineInputBorder(),
+      body: none
+          ? CenteredBody(
+              children: [
+                Text(
+                  'No contacts yet. Add the people you pay often, so you do '
+                  'not have to paste their address each time.',
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.bodyLarge,
+                ),
+                // Room for the floating button.
+                const SizedBox(height: 72),
+              ],
+            )
+          : ScreenBody(
+              children: [
+                TextField(
+                  controller: _search,
+                  onChanged: (_) => setState(() {}),
+                  decoration: const InputDecoration(
+                    labelText: 'Search contacts',
+                    prefixIcon: Icon(Icons.search),
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                switch (contacts) {
+                  AsyncData(:final value) => _list(_filter(value), theme),
+                  AsyncError(:final error) => ErrorText(describeError(error)),
+                  _ => const LinearProgressIndicator(),
+                },
+                // Room for the floating button.
+                const SizedBox(height: 72),
+              ],
             ),
-          ),
-          const SizedBox(height: 8),
-          switch (contacts) {
-            AsyncData(:final value) when value.isEmpty => Padding(
-              padding: const EdgeInsets.symmetric(vertical: 32),
-              child: Text(
-                'No contacts yet. Add the people you pay often, so you do not '
-                'have to paste their address each time.',
-                textAlign: TextAlign.center,
-                style: theme.textTheme.bodyLarge,
-              ),
-            ),
-            AsyncData(:final value) => _list(_filter(value), theme),
-            AsyncError(:final error) => ErrorText(describeError(error)),
-            _ => const LinearProgressIndicator(),
-          },
-          // Room for the floating button.
-          const SizedBox(height: 72),
-        ],
-      ),
     );
   }
 
@@ -279,7 +291,7 @@ class _ContactEditScreenState extends ConsumerState<ContactEditScreen> {
     final contacts = ref.watch(contactsProvider).value ?? const <Contact>[];
     final duplicate = _duplicate(contacts);
     final scanner = ref.watch(qrScannerProvider);
-    return Scaffold(
+    return SlotScaffold(
       appBar: AppBar(
         title: Text(_editing ? 'Edit contact' : 'New contact'),
         actions: [

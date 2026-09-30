@@ -9,6 +9,7 @@ import '../errors.dart';
 import '../providers.dart';
 import '../secure_screen.dart';
 import '../wallet_service.dart';
+import 'centered_body.dart';
 import 'common.dart';
 import 'launch_screen.dart';
 import 'pin.dart';
@@ -177,7 +178,31 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    final steps = switch (_step) {
+      _RestoreStep.phrase => _form(context),
+      _RestoreStep.pin => [
+        if (_busy)
+          const LinearProgressIndicator()
+        else
+          PinSetupView(onDone: _restore),
+        if (_error != null) ...[
+          ErrorText(_error!),
+          TextButton(
+            onPressed: () => setState(() {
+              _error = null;
+              _step = _RestoreStep.phrase;
+            }),
+            child: const Text('Back to the phrase'),
+          ),
+        ],
+      ],
+      _RestoreStep.scan => _scanView(context),
+      _RestoreStep.importOffer => _importOffer(),
+    };
+    // The phrase form is long; the later steps are short and sit in the middle.
+    final form = _step == _RestoreStep.phrase;
+    return SlotScaffold(
+      centered: !form,
       appBar: AppBar(
         title: const Text('Restore wallet'),
         // Reached by replacing the first-run screen, so back means starting over there.
@@ -190,29 +215,9 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
             : null,
         automaticallyImplyLeading: false,
       ),
-      body: ScreenBody(
-        children: switch (_step) {
-          _RestoreStep.phrase => _form(context),
-          _RestoreStep.pin => [
-            if (_busy)
-              const LinearProgressIndicator()
-            else
-              PinSetupView(onDone: _restore),
-            if (_error != null) ...[
-              ErrorText(_error!),
-              TextButton(
-                onPressed: () => setState(() {
-                  _error = null;
-                  _step = _RestoreStep.phrase;
-                }),
-                child: const Text('Back to the phrase'),
-              ),
-            ],
-          ],
-          _RestoreStep.scan => _scanView(context),
-          _RestoreStep.importOffer => _importOffer(),
-        },
-      ),
+      body: form
+          ? ScreenBody(children: steps)
+          : CenteredBody(children: steps),
     );
   }
 
@@ -432,6 +437,46 @@ class ScanProgressView extends StatelessWidget {
             ),
           ),
         if (scan.error != null) ErrorText(scan.error!),
+      ],
+    );
+  }
+}
+
+/// A running scan in one line for a notice slot: a thin bar along the top and the latest
+/// message with its percentage.
+class ScanSlotLine extends StatelessWidget {
+  const ScanSlotLine({super.key, required this.scan});
+
+  final ScanState scan;
+
+  @override
+  Widget build(BuildContext context) {
+    final percent = scan.percent;
+    final message = scan.message;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        LinearProgressIndicator(
+          minHeight: 2,
+          value: percent == null ? null : percent / 100,
+          semanticsLabel: 'Scan progress',
+          semanticsValue: percent == null ? null : '$percent',
+        ),
+        if (message != null)
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  percent == null ? message : '$message ($percent%)',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+              ),
+            ),
+          ),
       ],
     );
   }

@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../errors.dart';
 import '../network.dart';
 import '../providers.dart';
+import 'centered_body.dart';
 import 'common.dart';
 import 'pin.dart';
 import 'restore_screen.dart';
@@ -46,14 +47,12 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
       ref.read(sessionProvider.notifier).unlocked(result.session);
       if (!mounted) return;
       if (useBiometrics && !result.biometrics) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
+        ref
+            .read(noticeProvider.notifier)
+            .show(
               'Biometric unlock was not set up. You can turn it on in '
               'Settings.',
-            ),
-          ),
-        );
+            );
       }
       goHome(context);
     } catch (error) {
@@ -81,7 +80,8 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
     final network = config == null ? '' : networkSuffix(config.chain);
     final waiting = _answer != null && _error == null;
 
-    return Scaffold(
+    return SlotScaffold(
+      centered: true,
       appBar: AppBar(
         title: Text('Welcome$network'),
         actions: [
@@ -92,7 +92,7 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
           ),
         ],
       ),
-      body: _CenteredBody(
+      body: CenteredBody(
         children: [
           if (_answer == null) ...[
             PinSetupView(onDone: _finish),
@@ -155,40 +155,6 @@ class _CreationStatus extends StatelessWidget {
             style: style,
           ),
         ],
-      ),
-    );
-  }
-}
-
-/// Centres its children vertically on the screen, and scrolls when they do not fit.
-class _CenteredBody extends StatelessWidget {
-  const _CenteredBody({required this.children});
-
-  final List<Widget> children;
-
-  @override
-  Widget build(BuildContext context) {
-    return SafeArea(
-      child: LayoutBuilder(
-        builder: (context, constraints) => SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
-          child: ConstrainedBox(
-            // The padding is inside the scroll view, so the column fills what is left.
-            constraints: BoxConstraints(
-              minHeight: (constraints.maxHeight - 32).clamp(0, double.infinity),
-            ),
-            child: Center(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 600),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: children,
-                ),
-              ),
-            ),
-          ),
-        ),
       ),
     );
   }

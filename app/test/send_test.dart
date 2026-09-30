@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:epic_wallet/src/app.dart';
 import 'package:epic_wallet/src/contacts.dart';
@@ -12,6 +11,7 @@ import 'package:epic_wallet/src/relay_directory.dart';
 import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/settings.dart';
 import 'package:epic_wallet/src/slate_files.dart';
+import 'package:epic_wallet/src/ui/centered_body.dart';
 import 'package:epic_wallet/src/ui/common.dart';
 import 'package:epic_wallet/src/ui/contacts_screen.dart';
 import 'package:epic_wallet/src/ui/help_screen.dart';
@@ -24,6 +24,7 @@ import 'package:epic_wallet/src/updater.dart';
 import 'package:epic_wallet/src/vault.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:share_plus/share_plus.dart';
@@ -614,6 +615,10 @@ void main() {
       expect(find.text('Payment started: 1.5 EPIC'), findsOneWidget);
       // Not "Sent": an epicbox payment has not gone anywhere yet.
       expect(find.text('Sent 1.5 EPIC'), findsNothing);
+      // The result is a short screen, centred below the notice slot.
+      expect(find.byType(CenteredBody), findsOneWidget);
+      expect(find.byType(ScreenBody), findsNothing);
+      expect(find.byType(NoticeSlot), findsOneWidget);
       expect(
         find.text(
           'It finishes when the recipient\'s wallet answers, usually within '
@@ -982,7 +987,15 @@ void main() {
       await _tap(tester, find.text('Save to device'));
       expect(h.files.saved.single.name, 'slate-1.tx');
       expect(h.files.saved.single.json, h.session.sendSlate.json);
-      expect(find.text('Saved slate-1.tx'), findsOneWidget);
+      // The confirmation is in the notice slot, not a snack bar.
+      expect(
+        find.descendant(
+          of: find.byKey(noticeKey),
+          matching: find.text('Saved slate-1.tx'),
+        ),
+        findsOneWidget,
+      );
+      expect(find.byType(SnackBar), findsNothing);
       await _tap(tester, find.text('Share'));
       expect(h.files.shared.single.name, 'slate-1.tx');
       expect(find.text('Open response file'), findsOneWidget);
@@ -1074,6 +1087,9 @@ void main() {
       final h = _Harness();
       await h.pump(tester, const ContactsScreen());
       expect(find.textContaining('No contacts yet'), findsOneWidget);
+      // Nothing to search yet: the empty state sits in the middle, without a search field.
+      expect(find.widgetWithText(TextField, 'Search contacts'), findsNothing);
+      expect(find.byType(CenteredBody), findsOneWidget);
 
       await _tap(tester, find.text('Add contact'));
       await _tap(tester, find.text('Save contact'));
@@ -1734,7 +1750,7 @@ void main() {
       final texts = tester
           .widgetList<Text>(
             find.descendant(
-              of: find.byType(ScreenBody),
+              of: find.byType(CenteredBody),
               matching: find.byType(Text),
             ),
           )
@@ -1743,6 +1759,44 @@ void main() {
       expect(texts, {'Copy', 'Share', 'Receive a transaction file'});
       expect(find.textContaining('arrive'), findsNothing);
       expect(find.textContaining('epicbox server'), findsNothing);
+
+      // The content sits in the middle of the space below the notice slot.
+      final slot = tester.getRect(find.byType(NoticeSlot));
+      final screen = tester.getRect(find.byType(Scaffold));
+      final body = tester.getRect(find.byType(CenteredBody));
+      expect(
+        body.center.dy,
+        moreOrLessEquals((slot.bottom + screen.bottom) / 2, epsilon: 1),
+      );
+
+      // Copying confirms in the slot, and the content does not move.
+      final copied = <Object?>[];
+      tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+        SystemChannels.platform,
+        (call) async {
+          if (call.method == 'Clipboard.setData') copied.add(call.arguments);
+          return null;
+        },
+      );
+      addTearDown(
+        () => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+          SystemChannels.platform,
+          null,
+        ),
+      );
+      await _tap(tester, find.text('Copy'));
+      expect(copied, [
+        {'text': h.session.address},
+      ]);
+      expect(
+        find.descendant(
+          of: find.byKey(noticeKey),
+          matching: find.text('Address copied'),
+        ),
+        findsOneWidget,
+      );
+      expect(find.byType(SnackBar), findsNothing);
+      expect(tester.getRect(find.byType(CenteredBody)), body);
 
       await _tap(tester, find.text('Share'));
       expect(h.files.sharedTexts, [h.session.address]);

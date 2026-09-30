@@ -18,6 +18,7 @@ import '../providers.dart';
 import '../settings.dart';
 import '../slate_files.dart';
 import '../wallet_service.dart';
+import 'common.dart';
 
 /// History backups are small; a file far larger is not one.
 const int maxHistoryFileBytes = 32 << 20;
@@ -124,9 +125,10 @@ String describeImport(ImportReport report) {
 }
 
 void _say(BuildContext context, String message) {
-  ScaffoldMessenger.of(context)
-    ..hideCurrentSnackBar()
-    ..showSnackBar(SnackBar(content: Text(message)));
+  ProviderScope.containerOf(
+    context,
+    listen: false,
+  ).read(noticeProvider.notifier).show(message);
 }
 
 Future<void> _tell(BuildContext context, String title, String message) =>

@@ -5,6 +5,7 @@ import '../errors.dart';
 import '../network.dart';
 import '../providers.dart';
 import '../wallet_service.dart';
+import 'centered_body.dart';
 import 'common.dart';
 import 'pin.dart';
 
@@ -100,7 +101,8 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
   @override
   Widget build(BuildContext context) {
     final config = ref.watch(walletConfigProvider);
-    return Scaffold(
+    return SlotScaffold(
+      centered: true,
       appBar: AppBar(
         title: Text(
           config == null
@@ -108,7 +110,7 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
               : 'Unlock wallet${networkSuffix(config.chain)}',
         ),
       ),
-      body: ScreenBody(
+      body: CenteredBody(
         children: _openedPassword != null
             ? [
                 const Text(
