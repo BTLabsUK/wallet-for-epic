@@ -79,7 +79,6 @@ String paymentNotice(
   String? contactName,
   bool hidden = false,
   String? ownServer,
-  BigInt? tip,
 }) {
   final counterparty = tx?.counterparty;
   final who =
@@ -99,30 +98,15 @@ String paymentNotice(
     case ListenerEventKind.finalized:
       return who == null ? 'Payment completed' : 'Payment to $who completed';
     case ListenerEventKind.expired:
-      final to = who == null ? '' : ' to $who';
-      return 'Your payment$to expired before it was finished, so nothing was '
-          'sent. The funds are unlocked.';
-    case ListenerEventKind.delayed:
-      // The core's own words; uihome owns the once-per-slate display (fix-5 L1).
+      // The core says whether the funds are unlocked yet or unlock at the next refresh.
       return event.message;
+    case ListenerEventKind.delayed:
+      // Shown once per payment by home; the core retries and the payment is unchanged.
+      return 'Could not reach the node. The payment will finish once it can.';
     case ListenerEventKind.error:
-      if (event.slateId == null) {
-        return 'The mailbox server reported a problem. Retrying.';
-      }
-      // The answer to one of our sends came at or after its 14-day limit (within the core's
-      // 60-block margin): the wallet cancelled it rather than finish it.
-      final cutoff = tx?.ttlCutoffHeight;
-      if (tx != null &&
-          tx.status == TxStatus.cancelled &&
-          txAmount(tx).outgoing &&
-          cutoff != null &&
-          tip != null &&
-          tip + BigInt.from(60) >= cutoff) {
-        final to = who == null ? '' : ' to $who';
-        return 'Your payment$to expired before it was finished, so nothing was '
-            'sent. The funds are unlocked.';
-      }
-      return 'A payment could not be completed.';
+      return event.slateId == null
+          ? 'The mailbox server reported a problem. Retrying.'
+          : 'A payment could not be completed.';
     case ListenerEventKind.connected ||
         ListenerEventKind.disconnected ||
         ListenerEventKind.stopped:
@@ -142,6 +126,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     onResume: _autoRefresh,
   );
   Timer? _timer;
+
+  /// Payments whose "could not reach the node" notice was already shown.
+  final Set<String> _delayedShown = {};
 
   @override
   void initState() {
@@ -218,6 +205,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   Future<void> _notify(ListenerEvent event) async {
     TxEntry? tx;
     final slateId = event.slateId;
+    if (event.kind == ListenerEventKind.delayed) {
+      // Once per payment for as long as home is open, however often the answer is retried.
+      if (slateId != null && !_delayedShown.add(slateId)) return;
+    }
     if (slateId != null) {
       // The listener refreshes home right after this event; wait for that list.
       await Future<void>.delayed(Duration.zero);
@@ -236,7 +227,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       contactName: contactNameFor(contacts, tx?.counterparty),
       hidden: ref.read(appSettingsProvider).value?.hideBalances ?? false,
       ownServer: ref.read(walletConfigProvider)?.epicboxDomain,
-      tip: ref.read(nodeTipProvider).value?.height,
     );
     final key = tx?.key;
     _showNotice(text, txKey: key);
@@ -248,6 +238,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       SnackBar(
         content: Text(text),
         duration: const Duration(seconds: 6),
+        // A notice with "View" would otherwise stay until tapped and hold back the next one;
+        // the payment is always one tap away in the list.
+        persist: false,
         action: txKey == null
             ? null
             : SnackBarAction(

@@ -36,6 +36,29 @@ String roughDuration(int minutes) {
   return '${(hours / 24).round()} days';
 }
 
+/// Why a cancelled send was cancelled, in the words of the details screen.
+String _cancelledBecause(TxEntry tx, CancelReason reason) => switch (reason) {
+  CancelReason.user =>
+    'Cancelled. Nothing was sent, and the funds are spendable again.',
+  CancelReason.release =>
+    'The network never took it, so its funds were released. Check the '
+        'recipient did not receive it before sending again.',
+  // A finished send that never confirmed may have left this device; an unanswered one did not.
+  CancelReason.expiry when tx.finalizedAtUnix != null =>
+    'It did not reach the network within 14 days, so the wallet cancelled '
+        'it. Check the recipient did not receive it before sending again.',
+  CancelReason.expiry =>
+    'The recipient did not answer within 14 days, so the wallet cancelled '
+        'it. Nothing was sent, and the funds are spendable again.',
+  CancelReason.lateAnswer =>
+    'The recipient answered after the 14-day limit, so the wallet cancelled '
+        'it instead of finishing it. Nothing was sent, and the funds are '
+        'spendable again.',
+  CancelReason.failed =>
+    'It could not be delivered to the recipient, so the wallet cancelled it '
+        'at once. Nothing was sent, and the funds are spendable again.',
+};
+
 /// Whether the chain has reached the send's expiry height.
 bool _expired(TxEntry tx, BigInt? tip) {
   final cutoff = tx.ttlCutoffHeight;
@@ -81,6 +104,9 @@ String txExplanation(TxEntry tx, BigInt? tip, {DateTime? now}) {
       height == null
           ? 'Completed.'
           : 'Completed in block ${groupDigits(height)}.',
+    TxPhase.cancelled when outgoing && tx.cancelReason != null =>
+      _cancelledBecause(tx, tx.cancelReason!),
+    // No recorded reason (cancelled before the wallet kept one): infer it.
     // Finalized but never confirmed, then cancelled: by the 14-day limit, or released by the
     // user after the node refused it. Either way it may have left this device once.
     TxPhase.cancelled

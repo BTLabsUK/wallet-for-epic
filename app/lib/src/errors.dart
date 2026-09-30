@@ -31,9 +31,12 @@ String describeError(Object error) {
             'again, or close and reopen the app.',
       WalletErrorKind.walletBusy =>
         'The wallet is still finishing a task. Try again in a moment.',
+      // The core's sentence says whether the funds are unlocked now or at the next refresh;
+      // the fallback claims neither.
       WalletErrorKind.paymentExpired =>
-        'The answer to this payment came too late, so the payment was '
-            'cancelled. Nothing was sent, and the funds are unlocked.',
+        _plainSentence(error.message) ??
+            'The answer to this payment came too late, so the payment was '
+                'cancelled. Nothing was sent.',
       WalletErrorKind.io => _withDetail(
         'Could not read or write wallet files.',
         error.message,

@@ -1543,36 +1543,42 @@ void main() {
       );
     });
 
-    test('a late answer to an expired send says nothing was sent', () {
-      const late = ListenerEvent(
-        kind: ListenerEventKind.error,
-        slateId: 'late',
-        message: 'payment expired',
-      );
-      expect(
-        paymentNotice(
-          late,
-          cancelledSend(cutoff: _tip + BigInt.from(30)),
-          contactName: 'Bob',
-          tip: _tip,
-        ),
-        'Your payment to Bob expired before it was finished, so nothing was '
-        'sent. The funds are unlocked.',
-      );
-      // A send the user cancelled long before its limit: the generic words.
-      expect(
-        paymentNotice(
-          late,
-          cancelledSend(cutoff: _tip + BigInt.from(10000)),
-          tip: _tip,
-        ),
-        'A payment could not be completed.',
-      );
-      expect(
-        paymentNotice(late, null, tip: _tip),
-        'A payment could not be completed.',
-      );
-    });
+    const coreExpired =
+        'The answer to this payment came too late (block 2500030, limit '
+        '2500000). The payment was cancelled: nothing was sent, and the funds '
+        'unlock at the next refresh.';
+
+    test(
+      'an expired payment uses the core\'s words; other errors stay generic',
+      () {
+        const expired = ListenerEvent(
+          kind: ListenerEventKind.expired,
+          slateId: 'late',
+          message: coreExpired,
+        );
+        // The core knows whether the funds are unlocked yet; the notice does not guess.
+        expect(
+          paymentNotice(
+            expired,
+            cancelledSend(cutoff: _tip),
+            contactName: 'Bob',
+          ),
+          coreExpired,
+        );
+        expect(paymentNotice(expired, null), coreExpired);
+        expect(
+          paymentNotice(
+            const ListenerEvent(
+              kind: ListenerEventKind.error,
+              slateId: 'late',
+              message: 'raw',
+            ),
+            cancelledSend(cutoff: _tip),
+          ),
+          'A payment could not be completed.',
+        );
+      },
+    );
 
     testWidgets('the expired notice arrives after the list refreshed', (
       tester,
@@ -1583,17 +1589,129 @@ void main() {
       h.session.transactionsValue = [cancelledSend(cutoff: _tip)];
       h.session.listenerEvents.add(
         const ListenerEvent(
-          kind: ListenerEventKind.error,
+          kind: ListenerEventKind.expired,
           slateId: 'late',
-          message: 'payment expired',
+          message: coreExpired,
         ),
       );
       await tester.pumpAndSettle();
+      expect(find.text(coreExpired), findsOneWidget);
+      expect(find.textContaining('The funds are unlocked'), findsNothing);
+      expect(find.text('View'), findsOneWidget);
+    });
+  });
+
+  group('core fix-5', () {
+    TxEntry cancelled(
+      CancelReason? reason, {
+      int? finalizedAt,
+      BigInt? cutoff,
+    }) => fakeTx(
+      slateId: 'c',
+      kind: TxKind.sentCancelled,
+      status: TxStatus.cancelled,
+      amountCredited: _epic(1),
+      amountDebited: _epic(3),
+      finalizedAtUnix: finalizedAt,
+      ttlCutoffHeight: cutoff,
+      cancelReason: reason,
+    );
+
+    test('the cancelled explanation follows the recorded reason', () {
+      String say(TxEntry tx) => txExplanation(tx, _tip);
       expect(
-        find.textContaining('expired before it was finished'),
+        say(cancelled(CancelReason.user)),
+        'Cancelled. Nothing was sent, and the funds are spendable again.',
+      );
+      // The user cancelled on day 2; from day 14 the old rule would blame the limit.
+      expect(
+        say(cancelled(CancelReason.user, cutoff: _tip - BigInt.one)),
+        'Cancelled. Nothing was sent, and the funds are spendable again.',
+      );
+      // Released after a refusal, then past the limit: still a release.
+      expect(
+        say(
+          cancelled(
+            CancelReason.release,
+            finalizedAt: _at(_now),
+            cutoff: _tip - BigInt.one,
+          ),
+        ),
+        startsWith('The network never took it'),
+      );
+      expect(
+        say(cancelled(CancelReason.expiry, finalizedAt: _at(_now))),
+        startsWith('It did not reach the network within 14 days'),
+      );
+      expect(
+        say(cancelled(CancelReason.expiry)),
+        startsWith('The recipient did not answer within 14 days'),
+      );
+      expect(
+        say(cancelled(CancelReason.lateAnswer, cutoff: _tip - BigInt.one)),
+        startsWith('The recipient answered after the 14-day limit'),
+      );
+      expect(
+        say(cancelled(CancelReason.failed)),
+        'It could not be delivered to the recipient, so the wallet cancelled '
+        'it at once. Nothing was sent, and the funds are spendable again.',
+      );
+      // No recorded reason: the old rule.
+      expect(
+        say(cancelled(null, cutoff: _tip - BigInt.one)),
+        startsWith('The recipient did not answer within 14 days'),
+      );
+      expect(say(cancelled(null)), startsWith('Cancelled. Nothing was sent'));
+    });
+
+    testWidgets('a delayed payment is announced once', (tester) async {
+      final h = _Harness();
+      await h.pump(tester);
+      final delayed = ListenerEvent(
+        kind: ListenerEventKind.delayed,
+        slateId: 'send-bob',
+        message:
+            'Could not reach the node. The payment will finish once it can.',
+        amount: _epic(2),
+      );
+      h.session.listenerEvents.add(delayed);
+      await tester.pumpAndSettle();
+      expect(
+        find.text(
+          'Could not reach the node. The payment will finish once it can.',
+        ),
         findsOneWidget,
       );
-      expect(find.text('View'), findsOneWidget);
+      expect(find.text('A payment could not be completed.'), findsNothing);
+      // Let the notice go, then the core retries the same payment: nothing new.
+      await tester.pump(const Duration(seconds: 8));
+      await tester.pumpAndSettle();
+      expect(find.byType(SnackBar), findsNothing);
+      h.session.listenerEvents
+        ..add(
+          const ListenerEvent(kind: ListenerEventKind.connected, message: 'a'),
+        )
+        // A new event object (no amount this time), so only the per-payment memory stops it.
+        ..add(
+          const ListenerEvent(
+            kind: ListenerEventKind.delayed,
+            slateId: 'send-bob',
+            message: 'Could not reach the node. The payment will finish once it can.',
+          ),
+        );
+      await tester.pumpAndSettle();
+      expect(find.byType(SnackBar), findsNothing);
+      // Another payment still gets its own.
+      h.session.listenerEvents.add(
+        const ListenerEvent(
+          kind: ListenerEventKind.delayed,
+          slateId: 'other',
+          message:
+              'Could not reach the node. The payment will finish once it can.',
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.byType(SnackBar), findsOneWidget);
     });
   });
 

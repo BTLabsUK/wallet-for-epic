@@ -1400,14 +1400,29 @@ void main() {
       expect(text, isNot(contains('network')));
     });
 
-    test('an expired payment says nothing was sent', () {
-      expect(
-        describeError(
-          const WalletError(kind: WalletErrorKind.paymentExpired, message: 'x'),
-        ),
-        'The answer to this payment came too late, so the payment was '
-        'cancelled. Nothing was sent, and the funds are unlocked.',
+    test('an expired payment uses the core\'s sentence about the funds', () {
+      String say(String message) => describeError(
+        WalletError(kind: WalletErrorKind.paymentExpired, message: message),
       );
+      for (final funds in [
+        'and the funds are unlocked',
+        'and the funds unlock at the next refresh',
+      ]) {
+        final core =
+            'The answer to this payment came too late (block 900, limit 880). '
+            'The payment was cancelled: nothing was sent, $funds.';
+        expect(say(core), core);
+      }
+      // Anything else: the fallback, which does not claim the funds are unlocked.
+      for (final message in ['', 'expired']) {
+        final text = say(message);
+        expect(
+          text,
+          'The answer to this payment came too late, so the payment was '
+          'cancelled. Nothing was sent.',
+        );
+        expect(text, isNot(contains('unlock')));
+      }
     });
 
     test('a bad transaction text does not say "slate" or "JSON"', () {
