@@ -55,21 +55,80 @@ pub enum TxKind {
     SentCancelled,
 }
 
-/// One entry of the wallet's transaction log (`TxLogEntry`).
+/// Where a transaction stands, as far as this wallet can tell.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum TxStatus {
+    /// Our send, not yet signed by the recipient (not finalized).
+    AwaitingRecipient,
+    /// Finalized send, or a receive we signed, not yet seen on chain.
+    AwaitingConfirmation,
+    Confirmed,
+    Cancelled,
+}
+
+/// Where a transaction row comes from.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum TxSource {
+    /// Made by this wallet (live in epic-wallet's log).
+    Wallet,
+    /// Rebuilt by a scan from an unspent output; details beyond amount and height are unknown.
+    Restored,
+    /// From an imported history file, with no live row in this wallet.
+    Imported,
+}
+
+/// One transaction: epic-wallet's log merged with the app's history archive.
 #[derive(Debug, Clone)]
 pub struct TxEntry {
-    /// Local log id, used for cancel.
-    pub id: u32,
+    /// Stable across restores: `s:<slate>`, else `k:<kernel>`, else `c:<commit>`, else `l:<id>`.
+    pub key: String,
+    /// Local log id, used for cancel. `None` for imported records.
+    pub id: Option<u32>,
     pub slate_id: Option<String>,
     pub kind: TxKind,
+    pub status: TxStatus,
+    pub source: TxSource,
     pub created_at_unix: i64,
+    /// Best known time: the block time for restored rows when known, else `created_at_unix`.
+    pub time_unix: i64,
     pub confirmed: bool,
+    pub block_height: Option<u64>,
+    pub block_time_unix: Option<i64>,
     pub amount_credited: u64,
     pub amount_debited: u64,
     pub fee: Option<u64>,
     pub num_inputs: u32,
     pub num_outputs: u32,
     pub kernel_excess: Option<String>,
+    /// Hex commitments of the outputs this transaction created for us (receive or change).
+    pub output_commits: Vec<String>,
+    /// Epicbox address or URL of the other side, when known.
+    pub counterparty: Option<String>,
+    pub note: Option<String>,
+    pub ttl_cutoff_height: Option<u64>,
+    /// True when `cancel_transaction(id)` is allowed.
+    pub cancellable: bool,
+}
+
+/// An address book entry. An empty `id` in `save_contact` creates a new one.
+#[derive(Debug, Clone)]
+pub struct Contact {
+    pub id: String,
+    pub name: String,
+    pub address: String,
+    pub note: Option<String>,
+}
+
+/// What `import_history` did.
+#[derive(Debug, Clone)]
+pub struct ImportReport {
+    /// Records that matched a transaction already shown and filled in its details.
+    pub merged: u32,
+    /// Records with no match, now shown as imported history.
+    pub added: u32,
+    /// Records already known from an earlier import.
+    pub skipped: u32,
+    pub contacts_added: u32,
 }
 
 /// Progress of a scan or refresh, forwarded from epic-wallet's `StatusMessage`.

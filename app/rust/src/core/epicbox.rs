@@ -26,15 +26,17 @@ use epic_wallet_libwallet::address::address_from_derivation_path;
 use epic_wallet_libwallet::crypto::{sign_challenge, Hex};
 use epic_wallet_libwallet::message::EncryptedMessage;
 use epic_wallet_libwallet::{
-    Address, Error as LibWalletError, EpicboxAddress, Slate as LibSlate, SlateVersion, TxProof, VersionedSlate,
+    Address, EpicboxAddress, Error as LibWalletError, Slate as LibSlate, SlateVersion, TxProof,
+    VersionedSlate,
 };
+use epic_wallet_util::epic_core::core::amount_to_hr_string;
 use epic_wallet_util::epic_keychain::Keychain;
 use epic_wallet_util::epic_util::secp::key::{PublicKey, SecretKey};
-use epic_wallet_util::epic_core::core::amount_to_hr_string;
 use tungstenite::stream::MaybeTlsStream;
 use tungstenite::{Message, WebSocket};
 
 use super::error::{CoreError, CoreResult};
+use super::meta::MetaStore;
 use super::session::{OwnerApi, WalletHandle};
 use crate::api::types::{ListenerEvent, ListenerEventKind, WalletConfig};
 
@@ -241,6 +243,7 @@ impl Listener {
         wallet: WalletHandle,
         mask: Option<SecretKey>,
         owner: Arc<OwnerApi>,
+        meta: Arc<MetaStore>,
         on_event: F,
     ) -> Listener
     where
@@ -253,6 +256,7 @@ impl Listener {
             wallet,
             mask,
             owner,
+            meta,
             stop: stop.clone(),
             on_event: Box::new(on_event),
         };
@@ -283,6 +287,7 @@ struct Worker {
     wallet: WalletHandle,
     mask: Option<SecretKey>,
     owner: Arc<OwnerApi>,
+    meta: Arc<MetaStore>,
     stop: Arc<AtomicBool>,
     on_event: Box<dyn FnMut(ListenerEvent) + Send>,
 }
@@ -460,15 +465,16 @@ impl Worker {
         sender: &EpicboxAddress,
     ) -> CoreResult<(ListenerEventKind, String)> {
         if slate.tx.inputs().is_empty() {
-            return Err(CoreError::InvalidSlate(
-                "invoices are not supported".into(),
-            ));
+            return Err(CoreError::InvalidSlate("invoices are not supported".into()));
         }
         let foreign = Foreign::new(self.wallet.clone(), self.mask.clone(), None);
         foreign
             .verify_slate_messages(slate)
             .map_err(|e| CoreError::InvalidSlate(e.to_string()))?;
         let response = foreign.receive_tx(slate, None, None, Some(sender.to_string()))?;
+        self.meta.annotate(&slate.id.to_string(), |a| {
+            a.counterparty = Some(sender.to_string())
+        });
         let versioned = VersionedSlate::into_version(response, version);
         let request = post_request(&self.identity, sender, &versioned)?;
         send_request(socket, &request)?;
@@ -489,6 +495,7 @@ impl Worker {
             .verify_slate_messages(mask, slate)
             .map_err(|e| CoreError::InvalidSlate(e.to_string()))?;
         let finalized = self.owner.finalize_tx(mask, slate)?;
+        super::session::record_finalized(&self.meta, &finalized);
         self.owner.post_tx(mask, &finalized.tx, true)?;
         Ok((
             ListenerEventKind::Finalized,

@@ -7,10 +7,39 @@ import '../frb_generated.dart';
 
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
-// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `eq`, `eq`, `eq`, `eq`, `eq`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`
+// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`
 
 /// Which Epic chain the wallet talks to. Selects consensus parameters and default ports.
 enum Chain { mainnet, floonet, usernet }
+
+/// An address book entry. An empty `id` in `save_contact` creates a new one.
+class Contact {
+  final String id;
+  final String name;
+  final String address;
+  final String? note;
+
+  const Contact({
+    required this.id,
+    required this.name,
+    required this.address,
+    this.note,
+  });
+
+  @override
+  int get hashCode =>
+      id.hashCode ^ name.hashCode ^ address.hashCode ^ note.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Contact &&
+          runtimeType == other.runtimeType &&
+          id == other.id &&
+          name == other.name &&
+          address == other.address &&
+          note == other.note;
+}
 
 /// `amount` is the amount to send, as requested; `fee` comes on top of it.
 class FeeEstimate {
@@ -29,6 +58,43 @@ class FeeEstimate {
           runtimeType == other.runtimeType &&
           amount == other.amount &&
           fee == other.fee;
+}
+
+/// What `import_history` did.
+class ImportReport {
+  /// Records that matched a transaction already shown and filled in its details.
+  final int merged;
+
+  /// Records with no match, now shown as imported history.
+  final int added;
+
+  /// Records already known from an earlier import.
+  final int skipped;
+  final int contactsAdded;
+
+  const ImportReport({
+    required this.merged,
+    required this.added,
+    required this.skipped,
+    required this.contactsAdded,
+  });
+
+  @override
+  int get hashCode =>
+      merged.hashCode ^
+      added.hashCode ^
+      skipped.hashCode ^
+      contactsAdded.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ImportReport &&
+          runtimeType == other.runtimeType &&
+          merged == other.merged &&
+          added == other.added &&
+          skipped == other.skipped &&
+          contactsAdded == other.contactsAdded;
 }
 
 class ListenerEvent {
@@ -180,14 +246,24 @@ enum SlateStage {
   invoice,
 }
 
-/// One entry of the wallet's transaction log (`TxLogEntry`).
+/// One transaction: epic-wallet's log merged with the app's history archive.
 class TxEntry {
-  /// Local log id, used for cancel.
-  final int id;
+  /// Stable across restores: `s:<slate>`, else `k:<kernel>`, else `c:<commit>`, else `l:<id>`.
+  final String key;
+
+  /// Local log id, used for cancel. `None` for imported records.
+  final int? id;
   final String? slateId;
   final TxKind kind;
+  final TxStatus status;
+  final TxSource source;
   final PlatformInt64 createdAtUnix;
+
+  /// Best known time: the block time for restored rows when known, else `created_at_unix`.
+  final PlatformInt64 timeUnix;
   final bool confirmed;
+  final BigInt? blockHeight;
+  final PlatformInt64? blockTimeUnix;
   final BigInt amountCredited;
   final BigInt amountDebited;
   final BigInt? fee;
@@ -195,53 +271,120 @@ class TxEntry {
   final int numOutputs;
   final String? kernelExcess;
 
+  /// Hex commitments of the outputs this transaction created for us (receive or change).
+  final List<String> outputCommits;
+
+  /// Epicbox address or URL of the other side, when known.
+  final String? counterparty;
+  final String? note;
+  final BigInt? ttlCutoffHeight;
+
+  /// True when `cancel_transaction(id)` is allowed.
+  final bool cancellable;
+
   const TxEntry({
-    required this.id,
+    required this.key,
+    this.id,
     this.slateId,
     required this.kind,
+    required this.status,
+    required this.source,
     required this.createdAtUnix,
+    required this.timeUnix,
     required this.confirmed,
+    this.blockHeight,
+    this.blockTimeUnix,
     required this.amountCredited,
     required this.amountDebited,
     this.fee,
     required this.numInputs,
     required this.numOutputs,
     this.kernelExcess,
+    required this.outputCommits,
+    this.counterparty,
+    this.note,
+    this.ttlCutoffHeight,
+    required this.cancellable,
   });
 
   @override
   int get hashCode =>
+      key.hashCode ^
       id.hashCode ^
       slateId.hashCode ^
       kind.hashCode ^
+      status.hashCode ^
+      source.hashCode ^
       createdAtUnix.hashCode ^
+      timeUnix.hashCode ^
       confirmed.hashCode ^
+      blockHeight.hashCode ^
+      blockTimeUnix.hashCode ^
       amountCredited.hashCode ^
       amountDebited.hashCode ^
       fee.hashCode ^
       numInputs.hashCode ^
       numOutputs.hashCode ^
-      kernelExcess.hashCode;
+      kernelExcess.hashCode ^
+      outputCommits.hashCode ^
+      counterparty.hashCode ^
+      note.hashCode ^
+      ttlCutoffHeight.hashCode ^
+      cancellable.hashCode;
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is TxEntry &&
           runtimeType == other.runtimeType &&
+          key == other.key &&
           id == other.id &&
           slateId == other.slateId &&
           kind == other.kind &&
+          status == other.status &&
+          source == other.source &&
           createdAtUnix == other.createdAtUnix &&
+          timeUnix == other.timeUnix &&
           confirmed == other.confirmed &&
+          blockHeight == other.blockHeight &&
+          blockTimeUnix == other.blockTimeUnix &&
           amountCredited == other.amountCredited &&
           amountDebited == other.amountDebited &&
           fee == other.fee &&
           numInputs == other.numInputs &&
           numOutputs == other.numOutputs &&
-          kernelExcess == other.kernelExcess;
+          kernelExcess == other.kernelExcess &&
+          outputCommits == other.outputCommits &&
+          counterparty == other.counterparty &&
+          note == other.note &&
+          ttlCutoffHeight == other.ttlCutoffHeight &&
+          cancellable == other.cancellable;
 }
 
 enum TxKind { coinbase, received, sent, receivedCancelled, sentCancelled }
+
+/// Where a transaction row comes from.
+enum TxSource {
+  /// Made by this wallet (live in epic-wallet's log).
+  wallet,
+
+  /// Rebuilt by a scan from an unspent output; details beyond amount and height are unknown.
+  restored,
+
+  /// From an imported history file, with no live row in this wallet.
+  imported,
+}
+
+/// Where a transaction stands, as far as this wallet can tell.
+enum TxStatus {
+  /// Our send, not yet signed by the recipient (not finalized).
+  awaitingRecipient,
+
+  /// Finalized send, or a receive we signed, not yet seen on chain.
+  awaitingConfirmation,
+  confirmed,
+  cancelled,
+}
 
 /// Everything needed to locate a wallet on disk and reach its node and epicbox relay.
 class WalletConfig {

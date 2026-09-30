@@ -5,7 +5,8 @@
 //! Two fresh wallets made by this crate, A and B. alice (the funded network wallet, driven through the
 //! network's own `bin/epic-wallet`) pays A with a file slate; then A pays B entirely through our API;
 //! then a send from A is cancelled and its outputs come back; then a restore of A's seed rescans the
-//! chain and finds the same balance.
+//! chain and finds the same balance, and importing A's history file brings back an HTTP payment to
+//! alice with its fee, counterparty, note and time.
 //!
 //! Network hygiene: `burn_reward` stays as the network has it (on), so mining confirms transactions
 //! without crediting anyone. The miner is started for the test and stopped by a guard; the node is
@@ -19,8 +20,10 @@ use std::process::{Command, Stdio};
 use std::time::{Duration, Instant};
 
 use common::*;
-use epic_wallet_core::api::types::{Chain, TxKind, WalletConfig, WalletErrorKind};
 use epic_wallet_core::api::types::SlateStage;
+use epic_wallet_core::api::types::{
+    Chain, Contact, TxKind, TxSource, TxStatus, WalletConfig, WalletErrorKind,
+};
 use epic_wallet_core::api::wallet::{inspect_slate, node_tip, EpicWallet};
 
 const NODE_URL: &str = "http://127.0.0.1:23413";
@@ -221,7 +224,9 @@ fn usernet_end_to_end() {
     let reply = b.receive_slate(send.json.clone()).expect("B receives");
     assert_eq!(reply.slate_id, send.slate_id);
     assert_eq!(
-        inspect_slate(reply.json.clone()).expect("inspect reply").stage,
+        inspect_slate(reply.json.clone())
+            .expect("inspect reply")
+            .stage,
         SlateStage::Response
     );
     assert_eq!(
@@ -270,7 +275,8 @@ fn usernet_end_to_end() {
         .into_iter()
         .find(|t| t.slate_id.as_deref() == Some(pending.slate_id.as_str()))
         .expect("log entry for the pending slate");
-    a.cancel_transaction(entry.id).expect("cancel");
+    a.cancel_transaction(entry.id.expect("live row"))
+        .expect("cancel");
     let after = a.summary(true, MIN_CONF).expect("summary");
     assert_eq!(after.locked, 0);
     assert_eq!(after.spendable, before.spendable);
@@ -282,9 +288,63 @@ fn usernet_end_to_end() {
         .expect("cancelled entry");
     assert_eq!(cancelled.kind, TxKind::SentCancelled);
     assert_eq!(
-        kind_of(a.cancel_transaction(entry.id + 100)),
+        kind_of(a.cancel_transaction(entry.id.expect("live row") + 100)),
         WalletErrorKind::InvalidArgument
     );
+
+    // 3b. A pays alice over HTTP with a note and a contact: the history a restore must bring back.
+    let alice_url = "http://127.0.0.1:23415";
+    let started_listener = std::net::TcpStream::connect(("127.0.0.1", 23415)).is_err();
+    if started_listener {
+        net_shell("listener", "bash net.sh listener", 120);
+    }
+    let before_paid = a.summary(true, MIN_CONF).expect("summary").spendable;
+    let paid = a.send_http(EPIC, MIN_CONF, alice_url.into());
+    if started_listener {
+        kill_pidfile("listener");
+    }
+    let paid = paid.expect("A pays alice over HTTP");
+    assert_eq!(paid.counterparty.as_deref(), Some(alice_url));
+    assert_eq!(
+        paid.status,
+        TxStatus::AwaitingConfirmation,
+        "finalized and posted"
+    );
+    assert!(!paid.cancellable);
+    let paid_fee = paid.fee.expect("fee");
+    a.set_tx_note(paid.key.clone(), Some("coffee for alice".into()))
+        .expect("note");
+    a.save_contact(Contact {
+        id: String::new(),
+        name: "alice".into(),
+        address: alice_url.into(),
+        note: None,
+    })
+    .expect("contact");
+    net.mine_until(
+        "the HTTP payment confirmed",
+        Duration::from_secs(600),
+        || spendable(&a) == before_paid - EPIC - paid_fee,
+    );
+    let paid_row = a
+        .transactions(true)
+        .expect("txs")
+        .into_iter()
+        .find(|t| t.key == paid.key)
+        .expect("the payment keeps its key");
+    assert_eq!(paid_row.status, TxStatus::Confirmed);
+    assert_eq!(paid_row.note.as_deref(), Some("coffee for alice"));
+    assert!(
+        paid_row.block_height.is_some(),
+        "height from the change output"
+    );
+    assert!(
+        paid_row.block_time_unix.is_some(),
+        "block time from get_header"
+    );
+    assert_eq!(paid_row.output_commits.len(), 1, "the change output");
+    let sa = a.summary(true, MIN_CONF).expect("summary A");
+    let history = a.export_history().expect("export");
     net.stop_miner();
 
     // 4. Scan streams progress and ends with `finished`; a restore finds the same balance.
@@ -313,4 +373,60 @@ fn usernet_end_to_end() {
         c.epicbox_address().expect("addr"),
         a.epicbox_address().expect("addr")
     );
+
+    // 5. The restore knows only its unspent output; the history file brings the rest back.
+    let restored = c.transactions(true).expect("C txs");
+    assert_eq!(
+        restored.len(),
+        1,
+        "one unspent output: the payment's change"
+    );
+    assert_eq!(restored[0].source, TxSource::Restored);
+    assert_eq!(restored[0].counterparty, None);
+    assert_eq!(restored[0].output_commits, paid_row.output_commits);
+    assert_eq!(restored[0].block_height, paid_row.block_height);
+    let report = c.import_history(history.clone()).expect("import");
+    assert_eq!(report.merged, 1, "the payment matched its restored change");
+    assert!(
+        report.added >= 3,
+        "alice's funding, the send to B, the cancelled send"
+    );
+    assert_eq!(report.contacts_added, 1);
+    let again = c.import_history(history).expect("import again");
+    assert_eq!((again.merged, again.added, again.contacts_added), (0, 0, 0));
+    let c_txs = c.transactions(true).expect("C txs");
+    let back = c_txs
+        .iter()
+        .find(|t| t.slate_id == paid.slate_id)
+        .expect("the HTTP payment is back");
+    assert_eq!(back.key, paid.key);
+    assert_eq!(back.kind, TxKind::Sent);
+    assert_eq!(back.source, TxSource::Imported);
+    assert_eq!(back.status, TxStatus::Confirmed);
+    assert_eq!(back.fee, Some(paid_fee));
+    assert_eq!(back.counterparty.as_deref(), Some(alice_url));
+    assert_eq!(back.note.as_deref(), Some("coffee for alice"));
+    assert_eq!(back.created_at_unix, paid.created_at_unix);
+    assert_eq!(back.time_unix, paid.created_at_unix);
+    assert_eq!(back.amount_debited - back.amount_credited, EPIC + paid_fee);
+    assert!(
+        back.id.is_some(),
+        "still the live restored row, now with details"
+    );
+    assert_eq!(
+        c_txs
+            .iter()
+            .filter(|t| t.source == TxSource::Restored)
+            .count(),
+        0,
+        "no leftover 'Received' row for the change"
+    );
+    assert!(c_txs
+        .iter()
+        .any(|t| t.slate_id.as_deref() == Some(send.slate_id.as_str())));
+    let contacts = c.contacts().expect("contacts");
+    assert_eq!(contacts.len(), 1);
+    assert_eq!(contacts[0].address, alice_url);
+    let csv = c.export_history_csv().expect("csv");
+    assert!(csv.contains("coffee for alice"));
 }

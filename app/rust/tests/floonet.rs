@@ -221,7 +221,7 @@ fn faucet_then_epicbox_then_http() {
         .send_http(EPIC / 2, MIN_CONF, format!("http://127.0.0.1:{HTTP_PORT}"))
         .expect("http send");
     assert!(tx.amount_debited > 0);
-    eprintln!("  http send posted, tx {}", tx.id);
+    eprintln!("  http send posted, tx {:?}", tx.id);
     drop(cli);
 
     wait_balance(&a, "A settled", 20, |s| {

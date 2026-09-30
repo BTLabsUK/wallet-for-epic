@@ -149,7 +149,9 @@ fn error_kinds_for_bad_input() {
     let dir = tempfile::tempdir().expect("tempdir");
     let wallet = EpicWallet::create(cfg(dir.path()), None, PASSWORD.into()).expect("create");
     assert_eq!(
-        kind_of(epic_wallet_core::api::wallet::inspect_slate("{not json".into())),
+        kind_of(epic_wallet_core::api::wallet::inspect_slate(
+            "{not json".into()
+        )),
         WalletErrorKind::InvalidSlate
     );
     assert_eq!(
@@ -178,5 +180,107 @@ fn error_kinds_for_bad_input() {
     assert_eq!(
         kind_of(EpicWallet::open(empty, PASSWORD.into())),
         WalletErrorKind::InvalidArgument
+    );
+}
+
+#[test]
+fn contacts_persist_and_history_files_open_only_in_the_same_seed() {
+    use epic_wallet_core::api::types::Contact;
+
+    let phrase = generate_mnemonic(24).expect("generate");
+    let a = tempfile::tempdir().expect("tempdir");
+    let wa =
+        EpicWallet::create(cfg(a.path()), Some(phrase.clone()), PASSWORD.into()).expect("create a");
+    let blank = Contact {
+        id: String::new(),
+        name: " ".into(),
+        address: "x".into(),
+        note: None,
+    };
+    assert_eq!(
+        kind_of(wa.save_contact(blank)),
+        WalletErrorKind::InvalidArgument
+    );
+    let bob = wa
+        .save_contact(Contact {
+            id: String::new(),
+            name: "Bob".into(),
+            address: " bob@epicbox.example ".into(),
+            note: Some("  ".into()),
+        })
+        .expect("save");
+    assert!(!bob.id.is_empty());
+    assert_eq!(bob.address, "bob@epicbox.example");
+    assert_eq!(bob.note, None);
+    let renamed = wa
+        .save_contact(Contact {
+            name: "Robert".into(),
+            ..bob.clone()
+        })
+        .expect("rename");
+    assert_eq!(renamed.id, bob.id);
+    wa.set_tx_note("s:unknown".into(), Some("kept".into()))
+        .expect("note");
+    let file = wa.export_history().expect("export");
+    assert_eq!(&file[..4], b"WFEH");
+    let csv = wa.export_history_csv().expect("csv");
+    assert_eq!(csv.lines().count(), 1, "header only: no transactions");
+    drop(wa);
+
+    // Reopening reads the archive back.
+    let wa = EpicWallet::open(cfg(a.path()), PASSWORD.into()).expect("reopen");
+    let names: Vec<_> = wa
+        .contacts()
+        .expect("contacts")
+        .into_iter()
+        .map(|c| c.name)
+        .collect();
+    assert_eq!(names, ["Robert"]);
+    drop(wa);
+
+    // A restore of the same phrase opens the file, once.
+    let b = tempfile::tempdir().expect("tempdir");
+    let wb = EpicWallet::create(cfg(b.path()), Some(phrase), "another password".into())
+        .expect("restore");
+    let first = wb.import_history(file.clone()).expect("import");
+    assert_eq!(first.contacts_added, 1);
+    let second = wb.import_history(file.clone()).expect("import again");
+    assert_eq!(
+        (second.merged, second.added, second.contacts_added),
+        (0, 0, 0)
+    );
+    assert_eq!(wb.contacts().expect("contacts").len(), 1);
+    let meta_before = std::fs::read(b.path().join("wfe_meta.json")).expect("meta");
+    let _ = wb
+        .import_history(file.clone())
+        .expect("import a third time");
+    assert_eq!(
+        std::fs::read(b.path().join("wfe_meta.json")).expect("meta"),
+        meta_before
+    );
+
+    let mut damaged = file.clone();
+    let last = damaged.len() - 1;
+    damaged[last] ^= 0x40;
+    let e = wb.import_history(damaged).err().expect("damaged file");
+    assert_eq!(e.kind, WalletErrorKind::InvalidArgument);
+    assert!(e.message.contains("damaged"), "{}", e.message);
+    drop(wb);
+
+    // Another seed is told the file is not its own.
+    let c = tempfile::tempdir().expect("tempdir");
+    let wc = EpicWallet::create(cfg(c.path()), None, PASSWORD.into()).expect("create c");
+    let e = wc.import_history(file).err().expect("wrong wallet");
+    assert_eq!(e.kind, WalletErrorKind::InvalidArgument);
+    assert!(
+        e.message.contains("belongs to a different wallet"),
+        "{}",
+        e.message
+    );
+    assert!(wc.contacts().expect("contacts").is_empty());
+    // Send-all needs the node.
+    assert_eq!(
+        kind_of(wc.estimate_max(10)),
+        WalletErrorKind::NodeUnreachable
     );
 }

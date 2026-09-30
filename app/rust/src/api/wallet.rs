@@ -124,9 +124,55 @@ impl EpicWallet {
         self.inner.scan(start_height, on_progress).map_err(to_api)
     }
 
-    /// Transaction log, newest first. With `refresh` it updates from the node first.
+    /// Transactions, newest first by `time_unix`: epic-wallet's log merged with the app's history
+    /// archive (notes, counterparties, imported records). With `refresh` it updates from the node
+    /// first.
     pub fn transactions(&self, refresh: bool) -> Result<Vec<TxEntry>, WalletError> {
         self.inner.transactions(refresh).map_err(to_api)
+    }
+
+    /// Sets the note of the transaction with `TxEntry.key`; `None` or blank clears it.
+    pub fn set_tx_note(&self, key: String, note: Option<String>) -> Result<(), WalletError> {
+        self.inner.set_tx_note(&key, note).map_err(to_api)
+    }
+
+    /// Address book, sorted by name.
+    pub fn contacts(&self) -> Result<Vec<Contact>, WalletError> {
+        Ok(self.inner.contacts())
+    }
+
+    /// Adds a contact (empty `id`) or replaces the one with that id. Returns it as stored.
+    pub fn save_contact(&self, contact: Contact) -> Result<Contact, WalletError> {
+        self.inner.save_contact(contact).map_err(to_api)
+    }
+
+    pub fn delete_contact(&self, id: String) -> Result<(), WalletError> {
+        self.inner.delete_contact(&id).map_err(to_api)
+    }
+
+    /// The whole history (transactions, notes, contacts) as an encrypted file only a wallet with
+    /// the same recovery phrase can open.
+    pub fn export_history(&self) -> Result<Vec<u8>, WalletError> {
+        self.inner.export_history().map_err(to_api)
+    }
+
+    /// The transaction list as CSV, for records. Not encrypted and not importable.
+    pub fn export_history_csv(&self) -> Result<String, WalletError> {
+        self.inner.export_history_csv().map_err(to_api)
+    }
+
+    /// Merges a file from `export_history` into this wallet's history. Importing the same file
+    /// again changes nothing. A file from another wallet fails with `InvalidArgument`.
+    pub fn import_history(&self, data: Vec<u8>) -> Result<ImportReport, WalletError> {
+        self.inner.import_history(&data).map_err(to_api)
+    }
+
+    /// The largest amount that can be sent now, and its fee. Sending `amount` spends every
+    /// spendable output with no change.
+    pub fn estimate_max(&self, minimum_confirmations: u64) -> Result<FeeEstimate, WalletError> {
+        self.inner
+            .estimate_max(minimum_confirmations)
+            .map_err(to_api)
     }
 
     /// The wallet's epicbox address, `<pubkey>@<epicbox_domain>` (port appended if not 443).
@@ -240,6 +286,7 @@ pub(crate) fn to_api(e: CoreError) -> WalletError {
         }
         CoreError::InvalidSlate(_) => WalletErrorKind::InvalidSlate,
         CoreError::Relay(_) => WalletErrorKind::TransportFailed,
+        CoreError::Io(_) => WalletErrorKind::Io,
         CoreError::Wallet(w) => kind_of(w),
     };
     WalletError {

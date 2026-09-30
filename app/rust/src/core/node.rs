@@ -140,6 +140,108 @@ impl EpicNodeClient {
     }
 }
 
+/// Why an enrichment lookup stopped: the node refused (429), failed, or could not be reached.
+/// The caller stops for this refresh and tries again on the next one.
+#[derive(Debug)]
+pub(crate) struct LookupStopped;
+
+impl EpicNodeClient {
+    /// Unix time of the block at `height`, from the foreign API's `get_header [height, null, null]`
+    /// (`BlockHeaderPrintable.timestamp`, RFC 3339). `Ok(None)` when the node has no such block.
+    pub(crate) fn block_time(&self, height: u64) -> Result<Option<i64>, LookupStopped> {
+        let http = self.http.as_ref().ok_or(LookupStopped)?;
+        let url = format!("{}/v2/foreign", self.inner.node_url().trim_end_matches('/'));
+        let body = serde_json::json!({
+            "jsonrpc": "2.0", "id": 1, "method": "get_header", "params": [height, null, null]
+        });
+        let mut req = http
+            .post(&url)
+            .header("Content-Type", "application/json")
+            .body(body.to_string());
+        if let Some(secret) = self.inner.node_api_secret() {
+            req = req.basic_auth("epic", Some(secret));
+        }
+        let resp = req.send().map_err(|e| {
+            log::debug!("get_header {height}: {e}");
+            LookupStopped
+        })?;
+        if !resp.status().is_success() {
+            log::debug!("get_header {height} answered {}", resp.status());
+            return Err(LookupStopped);
+        }
+        let text = resp.text().map_err(|_| LookupStopped)?;
+        let v: serde_json::Value = serde_json::from_str(&text).map_err(|_| LookupStopped)?;
+        let result = v.get("result").ok_or(LookupStopped)?;
+        if let Some(ts) = result
+            .get("Ok")
+            .and_then(|h| h.get("timestamp"))
+            .and_then(|t| t.as_str())
+        {
+            return Ok(rfc3339_to_unix(ts));
+        }
+        if result.get("Err").is_some() {
+            return Ok(None);
+        }
+        Err(LookupStopped)
+    }
+
+    /// Height of the block holding the kernel `excess`, searched between `min_height` (at least 1:
+    /// the node computes `min_height - 1`) and `max_height`.
+    pub(crate) fn kernel_height(
+        &self,
+        excess: &pedersen::Commitment,
+        min_height: u64,
+        max_height: u64,
+    ) -> Result<Option<u64>, LookupStopped> {
+        let mut inner = self.inner.clone();
+        match inner.get_kernel(excess, Some(min_height.max(1)), Some(max_height)) {
+            Ok(found) => Ok(found.map(|(_, height, _)| height)),
+            Err(e) => {
+                log::debug!("get_kernel: {e}");
+                Err(LookupStopped)
+            }
+        }
+    }
+}
+
+fn days_from_civil(y: i64, m: i64, d: i64) -> i64 {
+    let y = if m <= 2 { y - 1 } else { y };
+    let era = y.div_euclid(400);
+    let yoe = y.rem_euclid(400);
+    let mp = if m > 2 { m - 3 } else { m + 9 };
+    let doy = (153 * mp + 2) / 5 + d - 1;
+    let doe = yoe * 365 + yoe / 4 - yoe / 100 + doy;
+    era * 146_097 + doe - 719_468
+}
+
+/// `2026-09-07T19:38:10+00:00` (or `Z`, or fractional seconds) to unix seconds.
+pub(crate) fn rfc3339_to_unix(s: &str) -> Option<i64> {
+    let num = |r: std::ops::Range<usize>| s.get(r)?.parse::<i64>().ok();
+    let (y, mo, d) = (num(0..4)?, num(5..7)?, num(8..10)?);
+    let (h, mi, se) = (num(11..13)?, num(14..16)?, num(17..19)?);
+    if s.get(4..5)? != "-" || s.get(10..11).map(|c| c.to_ascii_uppercase())? != "T" {
+        return None;
+    }
+    let mut rest = s.get(19..)?;
+    if let Some(frac) = rest.strip_prefix('.') {
+        rest = frac.trim_start_matches(|c: char| c.is_ascii_digit());
+    }
+    let offset = match rest {
+        "Z" | "z" => 0,
+        _ => {
+            let sign = match rest.get(0..1)? {
+                "+" => 1,
+                "-" => -1,
+                _ => return None,
+            };
+            let oh = rest.get(1..3)?.parse::<i64>().ok()?;
+            let om = rest.get(4..6)?.parse::<i64>().ok()?;
+            sign * (oh * 3_600 + om * 60)
+        }
+    };
+    Some(days_from_civil(y, mo, d) * 86_400 + h * 3_600 + mi * 60 + se - offset)
+}
+
 /// Retries a read that failed. Public nodes sit behind rate-limiting proxies (floo-node.btlabs.uk
 /// answers 429 after about ten requests in a burst), and HTTPNodeClient reports that only as an
 /// unparsable response. Reads are idempotent, so trying again after a pause is safe.
@@ -278,6 +380,26 @@ mod tests {
             parse_v1_status(body),
             Some(("no_sync".to_owned(), 3_728_476))
         );
+    }
+
+    #[test]
+    fn parses_header_timestamps() {
+        use super::rfc3339_to_unix;
+        // node.btlabs.uk, get_header [3700000, null, null], 2026-09-30.
+        assert_eq!(
+            rfc3339_to_unix("2026-09-07T19:38:10+00:00"),
+            Some(1_788_809_890)
+        );
+        assert_eq!(
+            rfc3339_to_unix("2026-09-07T21:38:10+02:00"),
+            Some(1_788_809_890)
+        );
+        assert_eq!(
+            rfc3339_to_unix("2026-09-07T19:38:10.123Z"),
+            Some(1_788_809_890)
+        );
+        assert_eq!(rfc3339_to_unix("1970-01-01T00:00:00Z"), Some(0));
+        assert_eq!(rfc3339_to_unix("yesterday"), None);
     }
 
     #[test]

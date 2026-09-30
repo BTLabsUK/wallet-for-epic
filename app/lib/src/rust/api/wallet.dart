@@ -42,6 +42,9 @@ abstract class EpicWallet implements RustOpaqueInterface {
   /// Cancels an unconfirmed transaction by log id and unlocks its outputs.
   Future<void> cancelTransaction({required int txId});
 
+  /// Address book, sorted by name.
+  Future<List<Contact>> contacts();
+
   /// Creates a wallet in `config.data_dir`. With `mnemonic` it restores that seed (call
   /// `scan` afterwards); without it a fresh seed is generated. Returns the opened wallet.
   static Future<EpicWallet> create({
@@ -61,6 +64,8 @@ abstract class EpicWallet implements RustOpaqueInterface {
     required BigInt minimumConfirmations,
   });
 
+  Future<void> deleteContact({required String id});
+
   /// The wallet's epicbox address, `<pubkey>@<epicbox_domain>` (port appended if not 443).
   Future<String> epicboxAddress();
 
@@ -70,8 +75,23 @@ abstract class EpicWallet implements RustOpaqueInterface {
     required BigInt minimumConfirmations,
   });
 
+  /// The largest amount that can be sent now, and its fee. Sending `amount` spends every
+  /// spendable output with no change.
+  Future<FeeEstimate> estimateMax({required BigInt minimumConfirmations});
+
+  /// The whole history (transactions, notes, contacts) as an encrypted file only a wallet with
+  /// the same recovery phrase can open.
+  Future<Uint8List> exportHistory();
+
+  /// The transaction list as CSV, for records. Not encrypted and not importable.
+  Future<String> exportHistoryCsv();
+
   /// Sender side: finalizes the recipient's response and posts the transaction to the node.
   Future<TxEntry> finalizeAndPost({required String slateJson});
+
+  /// Merges a file from `export_history` into this wallet's history. Importing the same file
+  /// again changes nothing. A file from another wallet fails with `InvalidArgument`.
+  Future<ImportReport> importHistory({required List<int> data});
 
   bool listenerRunning();
 
@@ -89,6 +109,9 @@ abstract class EpicWallet implements RustOpaqueInterface {
 
   /// Recipient side: signs an incoming send slate and returns the response slate JSON.
   Future<Slate> receiveSlate({required String slateJson});
+
+  /// Adds a contact (empty `id`) or replaces the one with that id. Returns it as stored.
+  Future<Contact> saveContact({required Contact contact});
 
   /// Rescans the chain for this wallet's outputs from `start_height` (default: the wallet's
   /// last scanned height, or 1 for a restore), streaming progress until `finished`.
@@ -112,6 +135,9 @@ abstract class EpicWallet implements RustOpaqueInterface {
     required String url,
   });
 
+  /// Sets the note of the transaction with `TxEntry.key`; `None` or blank clears it.
+  Future<void> setTxNote({required String key, String? note});
+
   /// Starts the epicbox listener (no-op if it already runs) and streams what it does. Incoming
   /// sends are signed and answered, responses to our sends are finalized and posted.
   Stream<ListenerEvent> startListener();
@@ -125,6 +151,8 @@ abstract class EpicWallet implements RustOpaqueInterface {
     required BigInt minimumConfirmations,
   });
 
-  /// Transaction log, newest first. With `refresh` it updates from the node first.
+  /// Transactions, newest first by `time_unix`: epic-wallet's log merged with the app's history
+  /// archive (notes, counterparties, imported records). With `refresh` it updates from the node
+  /// first.
   Future<List<TxEntry>> transactions({required bool refresh});
 }

@@ -8,29 +8,37 @@
 //! Every method is blocking. epic-wallet's HTTP node client runs requests with `block_on` on its
 //! own global tokio runtime and panics if called from inside another runtime.
 
-use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::mpsc;
 use std::sync::Arc;
 
 use epic_wallet_api::{Foreign, Owner};
 use epic_wallet_config::EpicboxConfig;
-use epic_wallet_impls::{DefaultLCProvider, DefaultWalletImpl, HTTPNodeClient, HttpSlateSender, SlateSender};
-use epic_wallet_libwallet::{
-    Error as LibWalletError, Slate as LibSlate, InitTxArgs, NodeClient, StatusMessage, TxLogEntry, TxLogEntryType,
-    WalletInitStatus, WalletInst,
+use epic_wallet_impls::{
+    DefaultLCProvider, DefaultWalletImpl, HTTPNodeClient, HttpSlateSender, SlateSender,
 };
-use epic_wallet_util::epic_keychain::ExtKeychain;
+use epic_wallet_libwallet::{
+    Error as LibWalletError, InitTxArgs, NodeClient, Slate as LibSlate, StatusMessage, TxLogEntry,
+    TxLogEntryType, WalletInitStatus, WalletInst,
+};
+use epic_wallet_util::epic_core::core::amount_to_hr_string;
+use epic_wallet_util::epic_core::libtx::tx_fee;
+use epic_wallet_util::epic_keychain::{ExtKeychain, Keychain, SwitchCommitmentType};
 use epic_wallet_util::epic_util::secp::key::SecretKey;
-use epic_wallet_util::epic_util::{to_hex, Mutex, ZeroingString};
+use epic_wallet_util::epic_util::secp::pedersen;
+use epic_wallet_util::epic_util::{Mutex, ZeroingString};
+use zeroize::Zeroizing;
 
 use super::chain::ChainLease;
 use super::epicbox::{self, Identity, Listener};
 use super::error::{CoreError, CoreResult};
+use super::history::{self, LiveTx, MergedTx};
+use super::meta::{ContactRec, MetaStore};
 use super::node::EpicNodeClient;
-use super::{mnemonic, slate};
+use super::{export, mnemonic, slate};
 use crate::api::types::{
-    FeeEstimate, ListenerEvent, NodeTip, ScanProgress, Slate, TxEntry, TxKind, WalletConfig,
-    WalletSummary,
+    Contact, FeeEstimate, ImportReport, ListenerEvent, NodeTip, ScanProgress, Slate, TxEntry,
+    TxKind, TxSource, WalletConfig, WalletSummary,
 };
 
 type Provider = DefaultLCProvider<'static, EpicNodeClient, ExtKeychain>;
@@ -40,6 +48,16 @@ pub(crate) type OwnerApi = Owner<Provider, EpicNodeClient, ExtKeychain>;
 
 /// Seed length in bytes for a wallet created without a phrase: 24 words.
 const NEW_SEED_BYTES: usize = 32;
+/// Node calls one refresh may spend on block heights and times. floo-node answers 429 to bursts
+/// of about ten, so a restored wallet with many rows fills in over several refreshes.
+const LOOKUPS_PER_REFRESH: usize = 25;
+
+fn now_unix() -> i64 {
+    std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|d| d.as_secs() as i64)
+        .unwrap_or(0)
+}
 
 fn node_client(config: &WalletConfig) -> CoreResult<HTTPNodeClient> {
     if config.node_url.trim().is_empty() {
@@ -49,19 +67,20 @@ fn node_client(config: &WalletConfig) -> CoreResult<HTTPNodeClient> {
     Ok(HTTPNodeClient::new(url, config.node_api_secret.clone())?)
 }
 
-fn wallet_handle(config: &WalletConfig) -> CoreResult<(WalletHandle, Arc<AtomicU64>)> {
+/// The wallet and a clone of its node client (clones share the height floor).
+fn wallet_handle(config: &WalletConfig) -> CoreResult<(WalletHandle, EpicNodeClient)> {
     if config.data_dir.trim().is_empty() {
         return Err(CoreError::InvalidArgument("data_dir is empty".into()));
     }
     let client = EpicNodeClient::new(node_client(config)?);
-    let highest_tip = client.highest_tip();
+    let node = client.clone();
     let wallet_impl = DefaultWalletImpl::<'static, EpicNodeClient>::new(client)
         .map_err(|e| LibWalletError::GenericError(e.to_string()))?;
     let mut wallet: Box<Instance> = Box::new(wallet_impl);
     wallet
         .lc_provider()?
         .set_top_level_directory(&config.data_dir)?;
-    Ok((Arc::new(Mutex::new(wallet)), highest_tip))
+    Ok((Arc::new(Mutex::new(wallet)), node))
 }
 
 /// True when `config.data_dir` holds a wallet seed.
@@ -91,6 +110,9 @@ pub(crate) struct Session {
     owner: Arc<OwnerApi>,
     config: WalletConfig,
     identity: Identity,
+    meta: Arc<MetaStore>,
+    /// For block times and kernel heights; the wallet has its own clone.
+    node: EpicNodeClient,
     listener: std::sync::Mutex<Option<Listener>>,
     _chain: ChainLease,
 }
@@ -113,7 +135,7 @@ impl Session {
             }
             None => None,
         };
-        let (wallet, highest_tip) = wallet_handle(config)?;
+        let (wallet, node) = wallet_handle(config)?;
         {
             let mut w = wallet.lock();
             let lc = w.lc_provider()?;
@@ -129,26 +151,26 @@ impl Session {
                 )));
             }
         }
-        Self::open_handle(config, wallet, highest_tip, password, lease)
+        Self::open_handle(config, wallet, node, password, lease)
     }
 
     /// Opens the wallet in `config.data_dir`.
     pub(crate) fn open(config: &WalletConfig, password: ZeroingString) -> CoreResult<Session> {
         let lease = ChainLease::acquire(config.chain)?;
-        let (wallet, highest_tip) = wallet_handle(config)?;
+        let (wallet, node) = wallet_handle(config)?;
         {
             let mut w = wallet.lock();
             if !w.lc_provider()?.wallet_exists(None)? {
                 return Err(CoreError::WalletNotFound(config.data_dir.clone()));
             }
         }
-        Self::open_handle(config, wallet, highest_tip, password, lease)
+        Self::open_handle(config, wallet, node, password, lease)
     }
 
     fn open_handle(
         config: &WalletConfig,
         wallet: WalletHandle,
-        highest_tip: Arc<AtomicU64>,
+        node: EpicNodeClient,
         password: ZeroingString,
         lease: ChainLease,
     ) -> CoreResult<Session> {
@@ -161,7 +183,7 @@ impl Session {
                 .map_err(|_| CoreError::WrongPassword)?;
             // The node-sync fallback refuses tips below what this wallet has already confirmed.
             let confirmed = lc.wallet_inst()?.last_confirmed_height()?;
-            highest_tip.fetch_max(confirmed, Ordering::Relaxed);
+            node.highest_tip().fetch_max(confirmed, Ordering::Relaxed);
             mask
         };
         let owner = Owner::new(wallet.clone(), None, Arc::new(AtomicBool::new(true)));
@@ -172,12 +194,15 @@ impl Session {
         };
         owner.set_epicbox_config(Some(epicbox));
         let identity = Identity::derive(&wallet, mask.as_ref(), config)?;
+        let meta = Arc::new(MetaStore::open(&config.data_dir)?);
         Ok(Session {
             wallet,
             mask,
             owner: Arc::new(owner),
             config: config.clone(),
             identity,
+            meta,
+            node,
             listener: std::sync::Mutex::new(None),
             _chain: lease,
         })
@@ -288,18 +313,413 @@ impl Session {
         Ok(())
     }
 
-    /// Transaction log, newest first.
-    pub(crate) fn transactions(&self, refresh: bool) -> CoreResult<Vec<TxEntry>> {
+    /// epic-wallet's log for the current account, with what the outputs say about each row.
+    fn live_rows(&self, refresh: bool) -> CoreResult<Vec<LiveTx>> {
         let res = self
             .owner
             .retrieve_txs(self.mask(), refresh, None, None, None, None, None)?;
-        let mut txs = res.txs;
-        txs.sort_by(|a, b| {
-            b.creation_ts
-                .cmp(&a.creation_ts)
-                .then_with(|| b.id.cmp(&a.id))
+        let mut guard = self.wallet.lock();
+        let w = guard.lc_provider()?.wallet_inst()?;
+        let current: Vec<_> = w.iter().collect();
+        let mut all = current.clone();
+        all.extend(w.history_iter());
+        let rows = res
+            .txs
+            .into_iter()
+            .map(|entry| {
+                let created_commits = history::created_commits(&entry, &all);
+                let block_height = history::confirmed_height(&created_commits, &current);
+                let finalized = matches!(
+                    entry.tx_type,
+                    TxLogEntryType::TxSent | TxLogEntryType::TxSentCreated
+                ) && !entry.confirmed
+                    && stored_kernel_is_final(&**w, &entry);
+                LiveTx {
+                    entry,
+                    created_commits,
+                    block_height,
+                    finalized,
+                }
+            })
+            .collect();
+        Ok(rows)
+    }
+
+    fn merged(&self, refresh: bool) -> CoreResult<Vec<MergedTx>> {
+        let live = self.live_rows(refresh)?;
+        Ok(history::merge(&live, &self.meta.snapshot()))
+    }
+
+    /// Live log merged with the history archive, newest first. A refresh also fetches a bounded
+    /// number of missing block heights and times from the node.
+    pub(crate) fn transactions(&self, refresh: bool) -> CoreResult<Vec<TxEntry>> {
+        let live = self.live_rows(refresh)?;
+        let mut merged = history::merge(&live, &self.meta.snapshot());
+        if refresh {
+            self.enrich(&merged);
+            merged = history::merge(&live, &self.meta.snapshot());
+        }
+        Ok(merged.into_iter().map(|m| m.tx).collect())
+    }
+
+    /// Sets or clears the note of the transaction with `key`. The note replaces any note the
+    /// transaction had under another of its keys.
+    pub(crate) fn set_tx_note(&self, key: &str, note: Option<String>) -> CoreResult<()> {
+        let note = note.map(|n| n.trim().to_owned()).filter(|n| !n.is_empty());
+        let aliases = self
+            .merged(false)?
+            .into_iter()
+            .find(|m| m.tx.key == key)
+            .map(|m| m.aliases)
+            .unwrap_or_else(|| vec![key.to_owned()]);
+        self.meta.update(|m| {
+            for a in &aliases {
+                m.notes.remove(a);
+            }
+            if let Some(n) = note {
+                m.notes.insert(key.to_owned(), n);
+            }
+            Ok(())
+        })
+    }
+
+    pub(crate) fn contacts(&self) -> Vec<Contact> {
+        let mut list: Vec<Contact> = self
+            .meta
+            .snapshot()
+            .contacts
+            .into_iter()
+            .map(contact_to_api)
+            .collect();
+        list.sort_by_key(|c| c.name.to_lowercase());
+        list
+    }
+
+    /// Adds (empty `id`) or replaces a contact.
+    pub(crate) fn save_contact(&self, contact: Contact) -> CoreResult<Contact> {
+        let name = contact.name.trim().to_owned();
+        let address = contact.address.trim().to_owned();
+        if name.is_empty() {
+            return Err(CoreError::InvalidArgument(
+                "the contact needs a name".into(),
+            ));
+        }
+        if address.is_empty() {
+            return Err(CoreError::InvalidArgument(
+                "the contact needs an address".into(),
+            ));
+        }
+        let rec = ContactRec {
+            id: if contact.id.trim().is_empty() {
+                super::vault::random_hex::<16>()?
+            } else {
+                contact.id.trim().to_owned()
+            },
+            name,
+            address,
+            note: contact
+                .note
+                .map(|n| n.trim().to_owned())
+                .filter(|n| !n.is_empty()),
+        };
+        self.meta.update(|m| {
+            match m.contacts.iter_mut().find(|c| c.id == rec.id) {
+                Some(existing) => *existing = rec.clone(),
+                None if contact.id.trim().is_empty() => m.contacts.push(rec.clone()),
+                None => {
+                    return Err(CoreError::InvalidArgument(format!(
+                        "no contact with id {}",
+                        rec.id
+                    )))
+                }
+            }
+            Ok(())
+        })?;
+        Ok(contact_to_api(rec))
+    }
+
+    pub(crate) fn delete_contact(&self, id: &str) -> CoreResult<()> {
+        self.meta.update(|m| {
+            m.contacts.retain(|c| c.id != id);
+            Ok(())
+        })
+    }
+
+    /// The wallet's root secret (`derive_key(0, root_key_id)`), for the history file key. It
+    /// stays in Rust and is zeroized on drop.
+    fn root_secret(&self) -> CoreResult<Zeroizing<[u8; 32]>> {
+        let mut guard = self.wallet.lock();
+        let w = guard.lc_provider()?.wallet_inst()?;
+        let keychain = w.keychain(self.mask())?;
+        let key = keychain
+            .derive_key(
+                0,
+                &ExtKeychain::root_key_id(),
+                &SwitchCommitmentType::Regular,
+            )
+            .map_err(|e| CoreError::InvalidArgument(format!("root key: {e}")))?;
+        let mut out = Zeroizing::new([0u8; 32]);
+        out.copy_from_slice(&key.0);
+        Ok(out)
+    }
+
+    /// Public fingerprint of this wallet's seed: SHA-256 of its epicbox key, first 16 bytes.
+    fn wallet_fp(&self) -> String {
+        let digest = ring::digest::digest(
+            &ring::digest::SHA256,
+            self.identity.address.public_key.as_bytes(),
+        );
+        hex::encode(&digest.as_ref()[..16])
+    }
+
+    fn chain_name(&self) -> String {
+        format!("{:?}", self.config.chain)
+    }
+
+    /// The history as an encrypted `WFEH` file (see `core/export.rs`).
+    pub(crate) fn export_history(&self) -> CoreResult<Vec<u8>> {
+        let merged = self.merged(false)?;
+        let meta = self.meta.snapshot();
+        let last_confirmed_height = {
+            let mut guard = self.wallet.lock();
+            guard
+                .lc_provider()?
+                .wallet_inst()?
+                .last_confirmed_height()
+                .ok()
+        };
+        // A rebuilt row with nothing added by the user comes back by itself after a restore.
+        let txs = merged
+            .iter()
+            .filter(|m| !(m.tx.source == TxSource::Restored && m.tx.note.is_none()))
+            .map(history::to_record)
+            .collect();
+        let payload = export::Payload {
+            format: export::FORMAT.into(),
+            version: export::PAYLOAD_VERSION,
+            chain: self.chain_name(),
+            wallet_fp: self.wallet_fp(),
+            exported_at_unix: now_unix(),
+            app_version: env!("CARGO_PKG_VERSION").into(),
+            last_confirmed_height,
+            txs,
+            contacts: meta.contacts,
+        };
+        let plain = Zeroizing::new(
+            serde_json::to_vec(&payload)
+                .map_err(|e| CoreError::InvalidArgument(format!("encoding history: {e}")))?,
+        );
+        export::seal(&self.root_secret()?[..], &plain)
+    }
+
+    pub(crate) fn export_history_csv(&self) -> CoreResult<String> {
+        Ok(export::csv(&self.transactions(false)?))
+    }
+
+    /// Merges an export of this wallet. Writes only the app's archive, never epic.db.
+    pub(crate) fn import_history(&self, data: &[u8]) -> CoreResult<ImportReport> {
+        let plain = export::open(&self.root_secret()?[..], data)?;
+        let payload: export::Payload = serde_json::from_slice(&plain)
+            .map_err(|_| CoreError::InvalidArgument("This history file is damaged".into()))?;
+        if payload.format != export::FORMAT || payload.version > export::PAYLOAD_VERSION {
+            return Err(CoreError::InvalidArgument(
+                "This history file was made by a newer version of the app".into(),
+            ));
+        }
+        if payload.chain != self.chain_name() {
+            return Err(CoreError::InvalidArgument(format!(
+                "This history file is from {}, but this wallet is on {}",
+                payload.chain,
+                self.chain_name()
+            )));
+        }
+        if payload.wallet_fp != self.wallet_fp() {
+            return Err(CoreError::InvalidArgument(export::DIFFERENT_WALLET.into()));
+        }
+        let shown: Vec<TxEntry> = self.transactions(false)?;
+        self.meta.update(|m| {
+            let mut report = ImportReport {
+                merged: 0,
+                added: 0,
+                skipped: 0,
+                contacts_added: 0,
+            };
+            for r in payload.txs {
+                let identified = r.slate_id.is_some()
+                    || r.kernel_excess.is_some()
+                    || !r.output_commits.is_empty();
+                if !identified || m.records.iter().any(|e| e.same_tx(&r)) {
+                    report.skipped += 1;
+                    continue;
+                }
+                let live = shown
+                    .iter()
+                    .any(|t| t.id.is_some() && history::record_matches(&r, t));
+                if live {
+                    report.merged += 1;
+                } else {
+                    report.added += 1;
+                }
+                m.records.push(r);
+            }
+            for c in payload.contacts {
+                if m.contacts
+                    .iter()
+                    .any(|e| e.address.trim() == c.address.trim())
+                {
+                    continue;
+                }
+                let mut c = c;
+                if c.id.is_empty() || m.contacts.iter().any(|e| e.id == c.id) {
+                    c.id = super::vault::random_hex::<16>()?;
+                }
+                m.contacts.push(c);
+                report.contacts_added += 1;
+            }
+            Ok(report)
+        })
+    }
+
+    /// The largest amount `send_*` can send now, and its fee: every spendable output, no change.
+    ///
+    /// epic-wallet selects the smallest outputs until they cover amount plus fee, and pays the
+    /// no-change fee `tx_fee(inputs, 1, 1)` when inputs equal amount plus fee exactly
+    /// (`select_coins_and_fee`, `selection.rs:386-395`). So the maximum is the spendable total
+    /// minus that fee. The result is checked with epic-wallet's own estimate before it is returned.
+    pub(crate) fn estimate_max(&self, minimum_confirmations: u64) -> CoreResult<FeeEstimate> {
+        // Refreshes outputs from the node, as a real send would, and fails early with no funds.
+        self.owner.init_send_tx(
+            self.mask(),
+            InitTxArgs {
+                amount: 1,
+                minimum_confirmations,
+                selection_strategy_is_use_all: true,
+                estimate_only: Some(true),
+                ..InitTxArgs::default()
+            },
+            Arc::new(AtomicBool::new(true)),
+        )?;
+        let (count, total) = {
+            let mut guard = self.wallet.lock();
+            let w = guard.lc_provider()?.wallet_inst()?;
+            let height = w.last_confirmed_height()?;
+            let parent = w.parent_key_id();
+            w.iter()
+                .filter(|o| {
+                    o.root_key_id == parent && o.eligible_to_spend(height, minimum_confirmations)
+                })
+                .fold((0usize, 0u64), |(n, t), o| (n + 1, t + o.value))
+        };
+        let not_enough = |needed: u64| {
+            CoreError::Wallet(LibWalletError::NotEnoughFunds {
+                available: total,
+                available_disp: amount_to_hr_string(total, false),
+                needed,
+                needed_disp: amount_to_hr_string(needed, false),
+            })
+        };
+        let mut fee = tx_fee(count, 1, 1, None);
+        if total <= fee {
+            return Err(not_enough(fee + 1));
+        }
+        let mut amount = total - fee;
+        for _ in 0..3 {
+            let s = self.owner.init_send_tx(
+                self.mask(),
+                Self::send_args(amount, minimum_confirmations, true),
+                Arc::new(AtomicBool::new(true)),
+            )?;
+            // In estimate-only mode `s.amount` is the selected inputs' total.
+            if s.amount == amount + s.fee {
+                return Ok(FeeEstimate { amount, fee: s.fee });
+            }
+            fee = s.fee;
+            if s.amount <= fee {
+                return Err(not_enough(fee + 1));
+            }
+            amount = s.amount - fee;
+        }
+        Err(CoreError::InvalidArgument(
+            "could not settle on a send-all amount; try again after a refresh".into(),
+        ))
+    }
+
+    /// Fetches missing kernel heights and block times, at most `LOOKUPS_PER_REFRESH` node calls,
+    /// and caches them in the archive. Stops at the first refusal (429) or failure; the next
+    /// refresh carries on.
+    fn enrich(&self, rows: &[MergedTx]) {
+        let meta = self.meta.snapshot();
+        let mut budget = LOOKUPS_PER_REFRESH;
+        let mut kernel_heights = std::collections::BTreeMap::new();
+        let mut tip: Option<u64> = None;
+        for m in rows {
+            if budget == 0 {
+                break;
+            }
+            let (Some(k), Some(min)) = (&m.tx.kernel_excess, m.kernel_lookup_min_height) else {
+                continue;
+            };
+            if !m.tx.confirmed || m.tx.block_height.is_some() || meta.kernel_heights.contains_key(k)
+            {
+                continue;
+            }
+            let Ok(bytes) = hex::decode(k) else { continue };
+            let max = match tip {
+                Some(t) => t,
+                None => match self.node.get_chain_tip() {
+                    Ok((t, _)) => *tip.insert(t),
+                    Err(_) => return,
+                },
+            };
+            budget -= 1;
+            let excess = pedersen::Commitment::from_vec(bytes);
+            match self.node.kernel_height(&excess, min, max) {
+                // 0 marks "not found", so it is not asked again every refresh.
+                Ok(h) => {
+                    kernel_heights.insert(k.clone(), h.unwrap_or(0));
+                }
+                Err(_) => break,
+            }
+        }
+        let mut heights = std::collections::BTreeSet::new();
+        for m in rows {
+            let h = m.tx.block_height.or_else(|| {
+                m.tx.kernel_excess
+                    .as_ref()
+                    .and_then(|k| kernel_heights.get(k).copied())
+                    .filter(|h| *h > 0)
+            });
+            if let Some(h) = h {
+                if m.tx.block_time_unix.is_none() && !meta.block_times.contains_key(&h) {
+                    heights.insert(h);
+                }
+            }
+        }
+        let mut block_times = std::collections::BTreeMap::new();
+        for h in heights {
+            if budget == 0 {
+                break;
+            }
+            budget -= 1;
+            match self.node.block_time(h) {
+                Ok(Some(t)) => {
+                    block_times.insert(h, t);
+                }
+                Ok(None) => {}
+                Err(_) => break,
+            }
+        }
+        if kernel_heights.is_empty() && block_times.is_empty() {
+            return;
+        }
+        let r = self.meta.update(|m| {
+            m.kernel_heights.extend(kernel_heights);
+            m.block_times.extend(block_times);
+            Ok(())
         });
-        Ok(txs.iter().map(tx_entry).collect())
+        if let Err(e) = r {
+            log::warn!("caching block data: {e}");
+        }
     }
 
     /// `<pubkey>@<domain>[:port]`, from the key epic-wallet's epicbox adapter uses.
@@ -389,9 +809,13 @@ impl Session {
         url: &str,
     ) -> CoreResult<TxEntry> {
         let base = http_base_url(url)?;
-        let sender = HttpSlateSender::new(&base, Arc::new(AtomicBool::new(true)))
-            .map_err(|_| CoreError::InvalidArgument("the address must start with http:// or https://".into()))?;
+        let sender =
+            HttpSlateSender::new(&base, Arc::new(AtomicBool::new(true))).map_err(|_| {
+                CoreError::InvalidArgument("the address must start with http:// or https://".into())
+            })?;
         let s = self.init_and_lock(amount, minimum_confirmations, Some(base.clone()))?;
+        self.meta
+            .annotate(&s.id.to_string(), |a| a.counterparty = Some(base.clone()));
         let response = match sender.send_tx(&s) {
             Ok(r) => r,
             Err(e) => {
@@ -420,9 +844,13 @@ impl Session {
     ) -> CoreResult<TxEntry> {
         let to = epicbox::parse_address(address)?;
         if to.public_key == self.identity.address.public_key {
-            return Err(CoreError::InvalidArgument("that is this wallet's own address".into()));
+            return Err(CoreError::InvalidArgument(
+                "that is this wallet's own address".into(),
+            ));
         }
         let s = self.init_and_lock(amount, minimum_confirmations, Some(to.to_string()))?;
+        self.meta
+            .annotate(&s.id.to_string(), |a| a.counterparty = Some(to.to_string()));
         if let Err(e) = epicbox::post_once(&self.config, &self.identity, &to, &s) {
             self.abandon(&s);
             return Err(e);
@@ -446,13 +874,18 @@ impl Session {
             self.wallet.clone(),
             self.mask.clone(),
             self.owner.clone(),
+            self.meta.clone(),
             on_event,
         ));
     }
 
     /// Stops the listener and waits for it, at most about a second.
     pub(crate) fn stop_listener(&self) {
-        let listener = self.listener.lock().unwrap_or_else(|p| p.into_inner()).take();
+        let listener = self
+            .listener
+            .lock()
+            .unwrap_or_else(|p| p.into_inner())
+            .take();
         drop(listener);
     }
 
@@ -465,21 +898,16 @@ impl Session {
     }
 
     fn tx_for_slate(&self, id: uuid::Uuid) -> CoreResult<TxEntry> {
-        let res = self
-            .owner
-            .retrieve_txs(self.mask(), false, None, Some(id), None, None, None)?;
-        res.txs
-            .iter()
-            .find(|t| {
-                matches!(
-                    t.tx_type,
-                    TxLogEntryType::TxSent
-                        | TxLogEntryType::TxSentMempool
-                        | TxLogEntryType::TxSentCreated
-                )
-            })
-            .or_else(|| res.txs.first())
-            .map(tx_entry)
+        let slate_id = id.to_string();
+        let rows: Vec<TxEntry> = self
+            .transactions(false)?
+            .into_iter()
+            .filter(|t| t.slate_id.as_deref() == Some(slate_id.as_str()))
+            .collect();
+        rows.iter()
+            .find(|t| t.kind == TxKind::Sent)
+            .or_else(|| rows.first())
+            .cloned()
             .ok_or_else(|| {
                 CoreError::InvalidSlate(format!("no transaction log entry for slate {id}"))
             })
@@ -510,6 +938,7 @@ impl Session {
             .verify_slate_messages(self.mask(), response)
             .map_err(|e| CoreError::InvalidSlate(e.to_string()))?;
         let finalized = self.owner.finalize_tx(self.mask(), response)?;
+        record_finalized(&self.meta, &finalized);
         self.owner.post_tx(self.mask(), &finalized.tx, true)?;
         self.tx_for_slate(finalized.id)
     }
@@ -569,28 +998,40 @@ fn progress_from(message: StatusMessage) -> ScanProgress {
     }
 }
 
-fn tx_entry(t: &TxLogEntry) -> TxEntry {
-    let kind = match t.tx_type {
-        TxLogEntryType::ConfirmedCoinbase => TxKind::Coinbase,
-        TxLogEntryType::TxReceived | TxLogEntryType::TxReceivedMempool => TxKind::Received,
-        TxLogEntryType::TxSent | TxLogEntryType::TxSentMempool | TxLogEntryType::TxSentCreated => {
-            TxKind::Sent
+/// True when the send's stored transaction carries the final kernel. Before finalization the
+/// stored copy is the slate's transaction, whose kernel is still `TxKernel::empty()` (all-zero
+/// excess); `update_stored_tx` replaces it with the finalized one (`tx.rs:366`).
+fn stored_kernel_is_final(
+    w: &dyn epic_wallet_libwallet::WalletBackend<'static, EpicNodeClient, ExtKeychain>,
+    entry: &TxLogEntry,
+) -> bool {
+    match w.get_stored_tx(entry) {
+        Ok(Some(tx)) => tx
+            .kernels()
+            .first()
+            .is_some_and(|k| k.excess.0.iter().any(|b| *b != 0)),
+        _ => false,
+    }
+}
+
+/// Notes that this wallet finalized `slate`, with its final kernel. Called before the post, so a
+/// post that fails still shows the send as awaiting confirmation, as it can be reposted.
+pub(crate) fn record_finalized(meta: &MetaStore, slate: &LibSlate) {
+    let kernel = slate.tx.kernels().first().map(|k| hex::encode(k.excess.0));
+    meta.annotate(&slate.id.to_string(), |a| {
+        a.finalized = true;
+        if kernel.is_some() {
+            a.kernel_excess = kernel;
         }
-        TxLogEntryType::TxReceivedCancelled => TxKind::ReceivedCancelled,
-        TxLogEntryType::TxSentCancelled => TxKind::SentCancelled,
-    };
-    TxEntry {
-        id: t.id,
-        slate_id: t.tx_slate_id.map(|u| u.to_string()),
-        kind,
-        created_at_unix: t.creation_ts.timestamp(),
-        confirmed: t.confirmed,
-        amount_credited: t.amount_credited,
-        amount_debited: t.amount_debited,
-        fee: t.fee,
-        num_inputs: u32::try_from(t.num_inputs).unwrap_or(u32::MAX),
-        num_outputs: u32::try_from(t.num_outputs).unwrap_or(u32::MAX),
-        kernel_excess: t.kernel_excess.map(|c| to_hex(c.0.to_vec())),
+    });
+}
+
+fn contact_to_api(c: ContactRec) -> Contact {
+    Contact {
+        id: c.id,
+        name: c.name,
+        address: c.address,
+        note: c.note,
     }
 }
 
@@ -600,7 +1041,10 @@ mod tests {
 
     #[test]
     fn http_base_url_strips_the_api_path() {
-        assert_eq!(http_base_url("http://1.2.3.4:3415").unwrap(), "http://1.2.3.4:3415");
+        assert_eq!(
+            http_base_url("http://1.2.3.4:3415").unwrap(),
+            "http://1.2.3.4:3415"
+        );
         assert_eq!(
             http_base_url(" https://w.example/v2/foreign/ ").unwrap(),
             "https://w.example"

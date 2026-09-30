@@ -22,12 +22,17 @@ const SALT_LEN: usize = 16;
 const PASSWORD_BYTES: usize = 32;
 const AAD: &[u8] = b"epic-wallet-vault-v1";
 
-fn random_bytes<const N: usize>() -> CoreResult<[u8; N]> {
+pub(crate) fn random_bytes<const N: usize>() -> CoreResult<[u8; N]> {
     let mut buf = [0u8; N];
     SystemRandom::new()
         .fill(&mut buf)
         .map_err(|_| CoreError::InvalidArgument("the system random generator failed".into()))?;
     Ok(buf)
+}
+
+/// `N` random bytes from the OS generator, hex encoded.
+pub(crate) fn random_hex<const N: usize>() -> CoreResult<String> {
+    Ok(hex::encode(random_bytes::<N>()?))
 }
 
 /// A new wallet password: 32 bytes from the OS generator, hex encoded (256 bits).

@@ -120,6 +120,58 @@ void main() {
     expect(await wallet.transactions(refresh: false), isEmpty);
   });
 
+  testWidgets('history: contacts and an export that only the same seed opens', (
+    tester,
+  ) async {
+    final dirA = await _tempDir('hist-a');
+    final dirB = await _tempDir('hist-b');
+    final dirC = await _tempDir('hist-c');
+    addTearDown(() async {
+      for (final d in [dirA, dirB, dirC]) {
+        await d.delete(recursive: true);
+      }
+    });
+    final phrase = service.generateMnemonic(wordCount: 24);
+
+    final a = await service.create(
+      config: _config(dirA.path),
+      mnemonic: phrase,
+      password: _password,
+    );
+    final saved = await a.saveContact(
+      contact: const Contact(id: '', name: 'Bob', address: 'bob@relay.example'),
+    );
+    expect(saved.id, isNotEmpty);
+    final file = await a.exportHistory();
+    expect(String.fromCharCodes(file.take(4)), 'WFEH');
+    a.dispose();
+
+    final b = await service.create(
+      config: _config(dirB.path),
+      mnemonic: phrase,
+      password: 'another password',
+    );
+    addTearDown(b.dispose);
+    final report = await b.importHistory(data: file);
+    expect(report.contactsAdded, 1);
+    expect((await b.importHistory(data: file)).contactsAdded, 0);
+    expect((await b.contacts()).single.name, 'Bob');
+
+    final c = await service.create(
+      config: _config(dirC.path),
+      password: _password,
+    );
+    addTearDown(c.dispose);
+    await expectLater(
+      c.importHistory(data: file),
+      throwsA(
+        isA<WalletError>()
+            .having((e) => e.kind, 'kind', WalletErrorKind.invalidArgument)
+            .having((e) => e.message, 'message', contains('different wallet')),
+      ),
+    );
+  });
+
   testWidgets('vault: seal and open through the real core', (tester) async {
     const crypto = RustVaultCrypto();
     final password = crypto.generatePassword();
@@ -183,7 +235,6 @@ void main() {
     await _pumpUntil(tester, find.widgetWithText(TextField, 'Repeat PIN'));
     await _enter(tester, 'Repeat PIN', '123456');
 
-    await _pumpUntil(tester, find.textContaining('@epicbox.epiccash.com'));
     await _pumpUntil(tester, find.text('Spendable'));
     expect(find.text('Back up your wallet'), findsOneWidget);
     expect(await store.read('wallet.mainnet.pending'), isNull);

@@ -5,7 +5,9 @@
 library;
 
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'rust/api/types.dart';
 import 'rust/api/wallet.dart' as rust;
@@ -102,7 +104,32 @@ abstract interface class WalletSession {
     required BigInt minimumConfirmations,
   });
 
+  /// epic-wallet's log merged with the history archive, newest first by `timeUnix`.
   Future<List<TxEntry>> transactions({required bool refresh});
+
+  /// Sets the note of the transaction with [TxEntry.key]; null or blank clears it.
+  Future<void> setTxNote({required String key, String? note});
+
+  /// Address book, sorted by name.
+  Future<List<Contact>> contacts();
+
+  /// Adds a contact (empty `id`) or replaces the one with that id. Returns it as stored.
+  Future<Contact> saveContact({required Contact contact});
+
+  Future<void> deleteContact({required String id});
+
+  /// Encrypted history file that only a wallet with the same recovery phrase can import.
+  Future<Uint8List> exportHistory();
+
+  /// The transaction list as CSV. Not encrypted, not importable.
+  Future<String> exportHistoryCsv();
+
+  /// Merges a file from [exportHistory]. A second import of the same file changes nothing. A
+  /// file from another wallet throws [WalletError] with [WalletErrorKind.invalidArgument].
+  Future<ImportReport> importHistory({required Uint8List data});
+
+  /// Largest amount that can be sent now, with its fee.
+  Future<FeeEstimate> estimateMax({required BigInt minimumConfirmations});
 }
 
 /// Production implementation backed by the Rust core. Requires `RustLib.init()` first.
@@ -254,6 +281,35 @@ class _RustWalletSession implements WalletSession {
   @override
   Future<List<TxEntry>> transactions({required bool refresh}) =>
       _wallet.transactions(refresh: refresh);
+
+  @override
+  Future<void> setTxNote({required String key, String? note}) =>
+      _wallet.setTxNote(key: key, note: note);
+
+  @override
+  Future<List<Contact>> contacts() => _wallet.contacts();
+
+  @override
+  Future<Contact> saveContact({required Contact contact}) =>
+      _wallet.saveContact(contact: contact);
+
+  @override
+  Future<void> deleteContact({required String id}) =>
+      _wallet.deleteContact(id: id);
+
+  @override
+  Future<Uint8List> exportHistory() => _wallet.exportHistory();
+
+  @override
+  Future<String> exportHistoryCsv() => _wallet.exportHistoryCsv();
+
+  @override
+  Future<ImportReport> importHistory({required Uint8List data}) =>
+      _wallet.importHistory(data: data);
+
+  @override
+  Future<FeeEstimate> estimateMax({required BigInt minimumConfirmations}) =>
+      _wallet.estimateMax(minimumConfirmations: minimumConfirmations);
 }
 
 /// In-memory wallet for widget tests. Holds at most one wallet per data directory.
@@ -471,13 +527,12 @@ class FakeWalletSession implements WalletSession {
       );
     }
     finalizedSlates.add(slateJson);
-    return TxEntry(
+    return fakeTx(
       id: 99,
       slateId: responseSlate.slateId,
       kind: TxKind.sent,
+      status: TxStatus.awaitingConfirmation,
       createdAtUnix: 1790000000,
-      confirmed: false,
-      amountCredited: BigInt.zero,
       amountDebited: sentAmounts.isEmpty ? BigInt.zero : sentAmounts.last + fee,
       fee: fee,
       numInputs: 1,
@@ -491,18 +546,22 @@ class FakeWalletSession implements WalletSession {
     return responseSlate;
   }
 
-  TxEntry _pendingSend(BigInt amount, {required bool posted}) => TxEntry(
-    id: 100 + httpSends.length + epicboxSends.length,
-    slateId: 'send-${httpSends.length + epicboxSends.length}',
-    kind: TxKind.sent,
-    createdAtUnix: 1790000200,
-    confirmed: false,
-    amountCredited: BigInt.zero,
-    amountDebited: amount + fee,
-    fee: fee,
-    numInputs: 1,
-    numOutputs: posted ? 1 : 0,
-  );
+  TxEntry _pendingSend(BigInt amount, {required bool posted, String? to}) =>
+      fakeTx(
+        id: 100 + httpSends.length + epicboxSends.length,
+        slateId: 'send-${httpSends.length + epicboxSends.length}',
+        kind: TxKind.sent,
+        status: posted
+            ? TxStatus.awaitingConfirmation
+            : TxStatus.awaitingRecipient,
+        createdAtUnix: 1790000200,
+        amountDebited: amount + fee,
+        fee: fee,
+        numInputs: 1,
+        numOutputs: posted ? 1 : 0,
+        counterparty: to,
+        cancellable: !posted,
+      );
 
   @override
   Future<TxEntry> sendHttp({
@@ -513,7 +572,7 @@ class FakeWalletSession implements WalletSession {
     if (sendError != null) throw sendError!;
     _checkFunds(amount);
     httpSends.add((amount: amount, to: url));
-    return _pendingSend(amount, posted: true);
+    return _pendingSend(amount, posted: true, to: url);
   }
 
   @override
@@ -525,7 +584,7 @@ class FakeWalletSession implements WalletSession {
     if (sendError != null) throw sendError!;
     _checkFunds(amount);
     epicboxSends.add((amount: amount, to: address));
-    return _pendingSend(amount, posted: false);
+    return _pendingSend(amount, posted: false, to: address);
   }
 
   @override
@@ -550,8 +609,165 @@ class FakeWalletSession implements WalletSession {
   }) async => summaryValue;
 
   @override
-  Future<List<TxEntry>> transactions({required bool refresh}) async =>
-      transactionsValue;
+  Future<List<TxEntry>> transactions({required bool refresh}) async => [
+    for (final tx in transactionsValue) _withNote(tx),
+  ];
+
+  /// Notes by transaction key, as [setTxNote] stores them.
+  final Map<String, String> notes = {};
+
+  /// Address book, as [saveContact] stores it.
+  final List<Contact> contactsValue = [];
+  int _contactSeq = 0;
+
+  /// When set, [importHistory] throws it (for example a wrong-wallet error).
+  WalletError? importError;
+
+  TxEntry _withNote(TxEntry tx) {
+    final note = notes[tx.key];
+    if (note == null) return tx;
+    return copyTx(tx, note: note);
+  }
+
+  @override
+  Future<void> setTxNote({required String key, String? note}) async {
+    final text = note?.trim() ?? '';
+    if (text.isEmpty) {
+      notes.remove(key);
+    } else {
+      notes[key] = text;
+    }
+  }
+
+  @override
+  Future<List<Contact>> contacts() async =>
+      [...contactsValue]
+        ..sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+
+  @override
+  Future<Contact> saveContact({required Contact contact}) async {
+    if (contact.name.trim().isEmpty || contact.address.trim().isEmpty) {
+      throw const WalletError(
+        kind: WalletErrorKind.invalidArgument,
+        message: 'the contact needs a name and an address',
+      );
+    }
+    final stored = Contact(
+      id: contact.id.isEmpty ? 'contact-${++_contactSeq}' : contact.id,
+      name: contact.name.trim(),
+      address: contact.address.trim(),
+      note: (contact.note?.trim().isEmpty ?? true)
+          ? null
+          : contact.note!.trim(),
+    );
+    final index = contactsValue.indexWhere((c) => c.id == stored.id);
+    if (index >= 0) {
+      contactsValue[index] = stored;
+    } else {
+      contactsValue.add(stored);
+    }
+    return stored;
+  }
+
+  @override
+  Future<void> deleteContact({required String id}) async =>
+      contactsValue.removeWhere((c) => c.id == id);
+
+  static const _exportMagic = 'FAKE-WFEH';
+
+  /// A readable stand-in for the encrypted file: notes and contacts as JSON.
+  @override
+  Future<Uint8List> exportHistory() async => Uint8List.fromList(
+    utf8.encode(
+      '$_exportMagic${jsonEncode({
+        'notes': notes,
+        'contacts': [
+          for (final c in contactsValue) {'id': c.id, 'name': c.name, 'address': c.address, 'note': c.note},
+        ],
+      })}',
+    ),
+  );
+
+  @override
+  Future<String> exportHistoryCsv() async {
+    final rows = [
+      'date,type,status,amount_epic,fee_epic,counterparty,note,slate_id,kernel,block_height',
+      for (final tx in await transactions(refresh: false))
+        [
+          DateTime.fromMillisecondsSinceEpoch(
+            tx.timeUnix * 1000,
+            isUtc: true,
+          ).toIso8601String(),
+          tx.kind.name,
+          tx.status.name,
+          tx.amountCredited - tx.amountDebited,
+          tx.fee ?? '',
+          tx.counterparty ?? '',
+          tx.note ?? '',
+          tx.slateId ?? '',
+          tx.kernelExcess ?? '',
+          tx.blockHeight ?? '',
+        ].map((v) => '"${'$v'.replaceAll('"', '""')}"').join(','),
+    ];
+    return '${rows.join('\n')}\n';
+  }
+
+  @override
+  Future<ImportReport> importHistory({required Uint8List data}) async {
+    if (importError != null) throw importError!;
+    final text = utf8.decode(data, allowMalformed: true);
+    if (!text.startsWith(_exportMagic)) {
+      throw const WalletError(
+        kind: WalletErrorKind.invalidArgument,
+        message: 'This is not a history file',
+      );
+    }
+    final decoded =
+        jsonDecode(text.substring(_exportMagic.length)) as Map<String, dynamic>;
+    var added = 0;
+    var skipped = 0;
+    (decoded['notes'] as Map<String, dynamic>).forEach((key, value) {
+      if (notes[key] == value) {
+        skipped++;
+      } else {
+        notes[key] = value as String;
+        added++;
+      }
+    });
+    var contactsAdded = 0;
+    for (final raw in decoded['contacts'] as List<dynamic>) {
+      final c = raw as Map<String, dynamic>;
+      if (contactsValue.any((e) => e.address == c['address'])) continue;
+      contactsValue.add(
+        Contact(
+          id: c['id'] as String,
+          name: c['name'] as String,
+          address: c['address'] as String,
+          note: c['note'] as String?,
+        ),
+      );
+      contactsAdded++;
+    }
+    return ImportReport(
+      merged: 0,
+      added: added,
+      skipped: skipped,
+      contactsAdded: contactsAdded,
+    );
+  }
+
+  @override
+  Future<FeeEstimate> estimateMax({
+    required BigInt minimumConfirmations,
+  }) async {
+    if (summaryValue.spendable <= fee) {
+      throw const WalletError(
+        kind: WalletErrorKind.notEnoughFunds,
+        message: 'not enough funds',
+      );
+    }
+    return FeeEstimate(amount: summaryValue.spendable - fee, fee: fee);
+  }
 
   void _checkFunds(BigInt amount) {
     if (amount + fee > summaryValue.spendable) {
@@ -562,3 +778,92 @@ class FakeWalletSession implements WalletSession {
     }
   }
 }
+
+/// A [TxEntry] for tests, with the fields most tests do not care about filled in. [key] defaults
+/// to `s:<slateId>`, else `l:<id>`.
+TxEntry fakeTx({
+  String? key,
+  int? id,
+  String? slateId,
+  TxKind kind = TxKind.received,
+  TxStatus? status,
+  TxSource source = TxSource.wallet,
+  int createdAtUnix = 1790000000,
+  int? timeUnix,
+  bool? confirmed,
+  BigInt? blockHeight,
+  int? blockTimeUnix,
+  BigInt? amountCredited,
+  BigInt? amountDebited,
+  BigInt? fee,
+  int numInputs = 0,
+  int numOutputs = 1,
+  String? kernelExcess,
+  List<String> outputCommits = const [],
+  String? counterparty,
+  String? note,
+  BigInt? ttlCutoffHeight,
+  bool cancellable = false,
+}) {
+  final resolvedStatus =
+      status ??
+      ((confirmed ?? false)
+          ? TxStatus.confirmed
+          : TxStatus.awaitingConfirmation);
+  return TxEntry(
+    key:
+        key ??
+        (slateId != null
+            ? 's:$slateId'
+            : id != null
+            ? 'l:$id'
+            : 'x:$createdAtUnix'),
+    id: id,
+    slateId: slateId,
+    kind: kind,
+    status: resolvedStatus,
+    source: source,
+    createdAtUnix: createdAtUnix,
+    timeUnix: timeUnix ?? createdAtUnix,
+    confirmed: confirmed ?? resolvedStatus == TxStatus.confirmed,
+    blockHeight: blockHeight,
+    blockTimeUnix: blockTimeUnix,
+    amountCredited: amountCredited ?? BigInt.zero,
+    amountDebited: amountDebited ?? BigInt.zero,
+    fee: fee,
+    numInputs: numInputs,
+    numOutputs: numOutputs,
+    kernelExcess: kernelExcess,
+    outputCommits: outputCommits,
+    counterparty: counterparty,
+    note: note,
+    ttlCutoffHeight: ttlCutoffHeight,
+    cancellable: cancellable,
+  );
+}
+
+/// [tx] with [note] replaced.
+TxEntry copyTx(TxEntry tx, {String? note}) => TxEntry(
+  key: tx.key,
+  id: tx.id,
+  slateId: tx.slateId,
+  kind: tx.kind,
+  status: tx.status,
+  source: tx.source,
+  createdAtUnix: tx.createdAtUnix,
+  timeUnix: tx.timeUnix,
+  confirmed: tx.confirmed,
+  blockHeight: tx.blockHeight,
+  blockTimeUnix: tx.blockTimeUnix,
+  amountCredited: tx.amountCredited,
+  amountDebited: tx.amountDebited,
+  fee: tx.fee,
+  numInputs: tx.numInputs,
+  numOutputs: tx.numOutputs,
+  kernelExcess: tx.kernelExcess,
+  outputCommits: tx.outputCommits,
+  counterparty: tx.counterparty,
+  note: note,
+  ttlCutoffHeight: tx.ttlCutoffHeight,
+  cancellable: tx.cancellable,
+);
