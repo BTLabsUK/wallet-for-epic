@@ -1238,6 +1238,27 @@ void main() {
       );
     });
 
+    test('a busy delete does not blame the other network', () {
+      final text = describeError(
+        const WalletError(kind: WalletErrorKind.walletBusy, message: 'busy'),
+      );
+      expect(
+        text,
+        'The wallet is still finishing a task. Try again in a moment.',
+      );
+      expect(text, isNot(contains('network')));
+    });
+
+    test('an expired payment says nothing was sent', () {
+      expect(
+        describeError(
+          const WalletError(kind: WalletErrorKind.paymentExpired, message: 'x'),
+        ),
+        'The answer to this payment came too late, so the payment was '
+        'cancelled. Nothing was sent, and the funds are unlocked.',
+      );
+    });
+
     test('a bad transaction text does not say "slate" or "JSON"', () {
       final text = describeError(
         const WalletError(kind: WalletErrorKind.invalidSlate, message: 'x'),
@@ -1459,7 +1480,14 @@ void main() {
           'older versions of this app do not cancel',
         ],
       ),
-      (HelpTopic.receiving, ['waits in the mailbox for about a week']),
+      (
+        HelpTopic.receiving,
+        [
+          'waits in the mailbox for about a week',
+          // Other wallets set no time limit, so it is not promised for them.
+          'if the sender uses this app, their wallet cancels it by itself',
+        ],
+      ),
     ]) {
       testWidgets('${topic.name} explains the time limits', (tester) async {
         final h = _Harness();

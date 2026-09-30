@@ -1495,6 +1495,101 @@ void main() {
     }
   });
 
+  group('fix-4', () {
+    TxEntry cancelledSend({int? finalizedAt, BigInt? cutoff}) => fakeTx(
+      slateId: 'late',
+      kind: TxKind.sentCancelled,
+      status: TxStatus.cancelled,
+      amountCredited: _epic(1),
+      amountDebited: _epic(3),
+      counterparty: _bob,
+      finalizedAtUnix: finalizedAt,
+      ttlCutoffHeight: cutoff,
+    );
+
+    test('a finished send cancelled by the 14-day limit says to check', () {
+      expect(
+        txExplanation(
+          cancelledSend(finalizedAt: _at(_now), cutoff: _tip - BigInt.one),
+          _tip,
+        ),
+        'It did not reach the network within 14 days, so the wallet cancelled '
+        'it. Check the recipient did not receive it before sending again.',
+      );
+      // Released by the user before the limit: it may still have left the device.
+      expect(
+        txExplanation(
+          cancelledSend(finalizedAt: _at(_now), cutoff: _tip + BigInt.one),
+          _tip,
+        ),
+        startsWith('The network never took it'),
+      );
+      // Unanswered and expired: nothing left the device.
+      expect(
+        txExplanation(cancelledSend(cutoff: _tip), _tip),
+        startsWith('The recipient did not answer within 14 days'),
+      );
+      // Cancelled by the user.
+      expect(
+        txExplanation(cancelledSend(), _tip),
+        'Cancelled. Nothing was sent, and the funds are spendable again.',
+      );
+    });
+
+    test('a late answer to an expired send says nothing was sent', () {
+      const late = ListenerEvent(
+        kind: ListenerEventKind.error,
+        slateId: 'late',
+        message: 'payment expired',
+      );
+      expect(
+        paymentNotice(
+          late,
+          cancelledSend(cutoff: _tip + BigInt.from(30)),
+          contactName: 'Bob',
+          tip: _tip,
+        ),
+        'Your payment to Bob expired before it was finished, so nothing was '
+        'sent. The funds are unlocked.',
+      );
+      // A send the user cancelled long before its limit: the generic words.
+      expect(
+        paymentNotice(
+          late,
+          cancelledSend(cutoff: _tip + BigInt.from(10000)),
+          tip: _tip,
+        ),
+        'A payment could not be completed.',
+      );
+      expect(
+        paymentNotice(late, null, tip: _tip),
+        'A payment could not be completed.',
+      );
+    });
+
+    testWidgets('the expired notice arrives after the list refreshed', (
+      tester,
+    ) async {
+      final h = _Harness(transactions: []);
+      await h.pump(tester);
+      // The core cancelled the send before telling the listener's subscriber.
+      h.session.transactionsValue = [cancelledSend(cutoff: _tip)];
+      h.session.listenerEvents.add(
+        const ListenerEvent(
+          kind: ListenerEventKind.error,
+          slateId: 'late',
+          message: 'payment expired',
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(
+        find.textContaining('expired before it was finished'),
+        findsOneWidget,
+      );
+      expect(find.text('View'), findsOneWidget);
+    });
+  });
+
   group('large text', () {
     for (final (name, screen) in [
       ('home', const HomeScreen()),

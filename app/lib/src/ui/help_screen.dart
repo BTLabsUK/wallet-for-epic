@@ -55,9 +55,9 @@ final Map<HelpTopic, _Answer> _answers = {
     'Your wallet has to accept every incoming payment, and it can only do that '
         'while the app is open and connected to the mailbox. A payment sent while '
         'the app is closed waits in the mailbox for about a week and arrives the '
-        'next time you unlock. After that the mailbox deletes it; the sender\'s '
-        'wallet cancels it by itself after $sendTtlDays days, and they can send '
-        'it again. Once your wallet accepts a payment, the sender\'s wallet must '
+        'next time you unlock. After that the mailbox deletes it; if the sender '
+        'uses this app, their wallet cancels it by itself after $sendTtlDays '
+        'days, and they can send it again. Once your wallet accepts a payment, the sender\'s wallet must '
         'finish it; until then it shows as Waiting for sender.',
   ),
   HelpTopic.confirmations: _Answer(

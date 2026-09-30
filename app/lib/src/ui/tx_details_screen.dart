@@ -35,6 +35,12 @@ String roughDuration(int minutes) {
   return '${(hours / 24).round()} days';
 }
 
+/// Whether the chain has reached the send's expiry height.
+bool _expired(TxEntry tx, BigInt? tip) {
+  final cutoff = tx.ttlCutoffHeight;
+  return cutoff != null && tip != null && tip >= cutoff;
+}
+
 /// Whether [address] is someone's mailbox address rather than a wallet URL.
 bool _isMailboxAddress(String? address) =>
     address != null &&
@@ -74,6 +80,19 @@ String txExplanation(TxEntry tx, BigInt? tip, {DateTime? now}) {
       height == null
           ? 'Completed.'
           : 'Completed in block ${groupDigits(height)}.',
+    // Finalized but never confirmed, then cancelled: by the 14-day limit, or released by the
+    // user after the node refused it. Either way it may have left this device once.
+    TxPhase.cancelled
+        when outgoing && tx.finalizedAtUnix != null && _expired(tx, tip) =>
+      'It did not reach the network within 14 days, so the wallet cancelled '
+          'it. Check the recipient did not receive it before sending again.',
+    TxPhase.cancelled when outgoing && tx.finalizedAtUnix != null =>
+      'The network never took it, so its funds were released. Check the '
+          'recipient did not receive it before sending again.',
+    // Unanswered, and cancelled by the 14-day limit rather than by the user.
+    TxPhase.cancelled when outgoing && _expired(tx, tip) =>
+      'The recipient did not answer within 14 days, so the wallet cancelled '
+          'it. Nothing was sent, and the funds are spendable again.',
     TxPhase.cancelled =>
       outgoing
           ? 'Cancelled. Nothing was sent, and the funds are spendable again.'

@@ -488,6 +488,7 @@ class ListenerNotifier extends Notifier<ListenerState> {
         state = ListenerState(status: 'Listener stopped', last: state.last);
       case ListenerEventKind.received ||
           ListenerEventKind.finalized ||
+          ListenerEventKind.expired ||
           ListenerEventKind.error:
         state = ListenerState(
           connected: state.connected,
@@ -495,7 +496,8 @@ class ListenerNotifier extends Notifier<ListenerState> {
           status: state.status,
           last: event,
         );
-        if (event.kind != ListenerEventKind.error) {
+        // An error about a payment may have changed it too (an expired send is cancelled).
+        if (event.kind != ListenerEventKind.error || event.slateId != null) {
           ref.invalidate(homeProvider);
         }
     }

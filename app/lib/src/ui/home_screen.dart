@@ -42,6 +42,7 @@ String paymentNotice(
   String? contactName,
   bool hidden = false,
   String? ownServer,
+  BigInt? tip,
 }) {
   final counterparty = tx?.counterparty;
   final who =
@@ -60,10 +61,28 @@ String paymentNotice(
           : '${epicText(amount)}$from on the way. $rest';
     case ListenerEventKind.finalized:
       return who == null ? 'Payment completed' : 'Payment to $who completed';
+    case ListenerEventKind.expired:
+      final to = who == null ? '' : ' to $who';
+      return 'Your payment$to expired before it was finished, so nothing was '
+          'sent. The funds are unlocked.';
     case ListenerEventKind.error:
-      return event.slateId == null
-          ? 'The mailbox server reported a problem. Retrying.'
-          : 'A payment could not be completed.';
+      if (event.slateId == null) {
+        return 'The mailbox server reported a problem. Retrying.';
+      }
+      // The answer to one of our sends came at or after its 14-day limit (within the core's
+      // 60-block margin): the wallet cancelled it rather than finish it.
+      final cutoff = tx?.ttlCutoffHeight;
+      if (tx != null &&
+          tx.status == TxStatus.cancelled &&
+          txAmount(tx).outgoing &&
+          cutoff != null &&
+          tip != null &&
+          tip + BigInt.from(60) >= cutoff) {
+        final to = who == null ? '' : ' to $who';
+        return 'Your payment$to expired before it was finished, so nothing was '
+            'sent. The funds are unlocked.';
+      }
+      return 'A payment could not be completed.';
     case ListenerEventKind.connected ||
         ListenerEventKind.disconnected ||
         ListenerEventKind.stopped:
@@ -177,6 +196,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       contactName: contactNameFor(contacts, tx?.counterparty),
       hidden: ref.read(appSettingsProvider).value?.hideBalances ?? false,
       ownServer: ref.read(walletConfigProvider)?.epicboxDomain,
+      tip: ref.read(nodeTipProvider).value?.height,
     );
     final key = tx?.key;
     _showNotice(text, txKey: key);

@@ -30,6 +30,11 @@ String describeError(Object error) {
       WalletErrorKind.chainBusy =>
         'The wallet is still busy on the other network. Wait a moment and try '
             'again, or close and reopen the app.',
+      WalletErrorKind.walletBusy =>
+        'The wallet is still finishing a task. Try again in a moment.',
+      WalletErrorKind.paymentExpired =>
+        'The answer to this payment came too late, so the payment was '
+            'cancelled. Nothing was sent, and the funds are unlocked.',
       WalletErrorKind.io => _withDetail(
         'Could not read or write wallet files.',
         error.message,
