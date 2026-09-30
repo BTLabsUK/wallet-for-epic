@@ -1,6 +1,5 @@
 plugins {
     id("com.android.application")
-    id("com.google.gms.google-services")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
 }
@@ -47,4 +46,10 @@ kotlin {
 
 flutter {
     source = "../.."
+}
+
+// Firebase Cloud Messaging needs google-services.json, which stays out of git. A checkout
+// without it still builds; pushes are then off, and lib/src/push.dart fails quietly.
+if (file("google-services.json").exists()) {
+    apply(plugin = "com.google.gms.google-services")
 }
