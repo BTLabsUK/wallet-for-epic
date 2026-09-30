@@ -833,7 +833,7 @@ void main() {
           bob,
           ownServer: own,
         ),
-        'Payment to esBobA…567890 completed',
+        'Payment to esBobA…567890 finished. Waiting for confirmations.',
       );
     });
 
@@ -888,13 +888,16 @@ void main() {
       );
       expect(
         paymentNotice(finalized, tx),
-        'Payment to esBobA…567890@epicbox.epiccash.com completed',
+        'Payment to esBobA…567890@epicbox.epiccash.com finished. Waiting for confirmations.',
       );
       expect(
         paymentNotice(finalized, tx, contactName: 'Bob'),
-        'Payment to Bob completed',
+        'Payment to Bob finished. Waiting for confirmations.',
       );
-      expect(paymentNotice(finalized, null), 'Payment completed');
+      expect(
+        paymentNotice(finalized, null),
+        'Payment finished. Waiting for confirmations.',
+      );
       expect(
         paymentNotice(
           const ListenerEvent(
@@ -946,7 +949,10 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      expect(find.text('Payment to Bob completed'), findsOneWidget);
+      expect(
+        find.text('Payment to Bob finished. Waiting for confirmations.'),
+        findsOneWidget,
+      );
     });
 
     testWidgets('a lost relay says it retries', (tester) async {

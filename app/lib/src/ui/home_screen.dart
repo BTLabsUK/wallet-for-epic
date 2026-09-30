@@ -96,7 +96,11 @@ String paymentNotice(
           ? 'A payment$from is on the way. $rest'
           : '${epicText(amount)}$from on the way. $rest';
     case ListenerEventKind.finalized:
-      return who == null ? 'Payment completed' : 'Payment to $who completed';
+      // Finished and posted, not yet confirmed: "Completed" is kept for 10 confirmations.
+      const wait = 'Waiting for confirmations.';
+      return who == null
+          ? 'Payment finished. $wait'
+          : 'Payment to $who finished. $wait';
     case ListenerEventKind.expired:
       // The core says whether the funds are unlocked yet or unlock at the next refresh.
       return event.message;
