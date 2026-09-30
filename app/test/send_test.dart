@@ -487,6 +487,19 @@ void main() {
       await h.pump(tester, const SendScreen());
       final chips = find.byType(ActionChip);
       expect(chips, findsNWidgets(3));
+      // The label sits above the chips, and the chips start at the same left edge.
+      final label = tester.getRect(find.text('Recent:'));
+      final first = tester.getRect(chips.first);
+      expect(first.top, greaterThanOrEqualTo(label.bottom));
+      final lefts = [
+        for (final e in chips.evaluate())
+          tester.getRect(find.byWidget(e.widget)).left,
+      ];
+      expect(lefts.first, closeTo(label.left, 0.5));
+      for (final (i, chip) in chips.evaluate().indexed) {
+        final r = tester.getRect(find.byWidget(chip.widget));
+        expect(r.top, greaterThanOrEqualTo(label.bottom), reason: 'chip $i');
+      }
       final handle = tester.ensureSemantics();
       await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
       await expectLater(tester, meetsGuideline(labeledTapTargetGuideline));
@@ -605,16 +618,16 @@ void main() {
         find.text(
           'It finishes when the recipient\'s wallet answers, usually within '
           'minutes if their app is open. Keep this app open, or open it again '
-          'within a week to finish. You can find it on the home screen and in '
-          'History.',
+          'within a week: the mailbox keeps their answer for about that long. '
+          'You can find it on the home screen and in History.',
         ),
         findsOneWidget,
       );
       expect(
         find.text(
-          'If it is not completed, it cancels by itself after 14 days and the '
-          'amount unlocks. To stop it sooner, open the payment and tap Cancel '
-          'payment.',
+          'If it is still not completed after 14 days, it cancels by itself '
+          'and the amount unlocks. To stop it sooner, open the payment and tap '
+          'Cancel payment.',
         ),
         findsOneWidget,
       );

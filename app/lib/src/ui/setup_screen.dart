@@ -281,15 +281,19 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
                   autocorrect: false,
                   enableSuggestions: false,
                   onSubmitted: (_) => _useCustomRelay(),
+                  // The use button appears with text, so an empty field does not look confirmed.
+                  onChanged: (_) => setState(() {}),
                   decoration: InputDecoration(
                     labelText: 'Other mailbox server (host or host:port)',
                     errorText: _relayError,
                     border: const OutlineInputBorder(),
-                    suffixIcon: IconButton(
-                      tooltip: 'Use this server',
-                      icon: const Icon(Icons.check),
-                      onPressed: _useCustomRelay,
-                    ),
+                    suffixIcon: _customRelay.text.trim().isEmpty
+                        ? null
+                        : IconButton(
+                            tooltip: 'Use this server',
+                            icon: const Icon(Icons.check),
+                            onPressed: _useCustomRelay,
+                          ),
                   ),
                 ),
                 if (_relay != null && _relay != _savedRelay) ...[
@@ -372,7 +376,8 @@ class _RelayPicker extends ConsumerWidget {
             'Server health is unavailable from status.btlabs.uk.',
             style: small,
           ),
-          _ when preset.statusChain != null => Text(
+          // Only under servers the monitor actually measured.
+          _ when preset.statusChain != null && listed.isNotEmpty => Text(
             'Health from status.btlabs.uk, measured from its server.',
             style: small,
           ),

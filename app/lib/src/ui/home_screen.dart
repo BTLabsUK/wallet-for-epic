@@ -329,14 +329,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       ),
                     ),
                   const _UpdateCard(),
-                  // The phrase comes first; the history reminder waits until it is confirmed.
-                  if (!backedUp)
-                    _BackupCard(onBackup: _backup)
-                  else if (config != null)
-                    _HistoryBackupCard(
-                      chain: config.chain,
-                      transactions: transactions,
-                    ),
+                  // The recovery phrase guards the funds, so its card stays on top.
+                  if (!backedUp) _BackupCard(onBackup: _backup),
                   if (home.hasError && !home.isLoading)
                     ErrorText(describeError(home.error!)),
                   if (data != null) BalanceHeader(summary: data.summary),
@@ -380,6 +374,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     ],
                   ),
                   _PendingSendsCard(transactions: transactions, open: _open),
+                  // Below the actions, so the balance stays at the top. It waits until the
+                  // recovery phrase is confirmed, so the two backup cards never stack.
+                  if (backedUp && config != null)
+                    _HistoryBackupCard(
+                      chain: config.chain,
+                      transactions: transactions,
+                    ),
                   const SizedBox(height: 24),
                   Row(
                     children: [
@@ -524,34 +525,37 @@ class _HistoryBackupCard extends ConsumerWidget {
               ? '1 payment is new or changed since your last history backup.'
               : '$count payments are new or changed since your last history '
                     'backup.');
-    return Card(
-      color: colors.secondaryContainer,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(
-              '$text A restore from your recovery phrase brings back only your '
-              'balance.',
-              style: TextStyle(color: colors.onSecondaryContainer),
-            ),
-            Wrap(
-              alignment: WrapAlignment.end,
-              children: [
-                TextButton(
-                  onPressed: () => ref
-                      .read(appSettingsProvider.notifier)
-                      .dismissHistoryReminder(chain, now),
-                  child: const Text('Not now'),
-                ),
-                TextButton(
-                  onPressed: () => exportHistoryBackup(context, ref),
-                  child: const Text('Export history backup'),
-                ),
-              ],
-            ),
-          ],
+    return Padding(
+      padding: const EdgeInsets.only(top: 16),
+      child: Card(
+        color: colors.secondaryContainer,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                '$text A restore from your recovery phrase brings back only your '
+                'balance.',
+                style: TextStyle(color: colors.onSecondaryContainer),
+              ),
+              Wrap(
+                alignment: WrapAlignment.end,
+                children: [
+                  TextButton(
+                    onPressed: () => ref
+                        .read(appSettingsProvider.notifier)
+                        .dismissHistoryReminder(chain, now),
+                    child: const Text('Not now'),
+                  ),
+                  TextButton(
+                    onPressed: () => exportHistoryBackup(context, ref),
+                    child: const Text('Export history backup'),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );

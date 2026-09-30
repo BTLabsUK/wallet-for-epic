@@ -630,22 +630,27 @@ class _SendScreenState extends ConsumerState<SendScreen> {
         if (_recipient.text.trim().isEmpty && recent.isNotEmpty)
           Padding(
             padding: const EdgeInsets.only(top: 4),
-            child: Wrap(
-              spacing: 8,
-              runSpacing: 4,
-              crossAxisAlignment: WrapCrossAlignment.center,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // On its own line, so wrapped chips line up under each other.
                 Text('Recent:', style: theme.textTheme.bodyMedium),
-                for (final address in recent)
-                  ActionChip(
-                    avatar: const Icon(Icons.history, size: 18),
-                    label: Text(
-                      contactNameFor(contacts, address) ??
-                          shortAddress(address),
-                    ),
-                    tooltip: 'Send to $address',
-                    onPressed: () => _setRecipient(address),
-                  ),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 4,
+                  children: [
+                    for (final address in recent)
+                      ActionChip(
+                        avatar: const Icon(Icons.history, size: 18),
+                        label: Text(
+                          contactNameFor(contacts, address) ??
+                              shortAddress(address),
+                        ),
+                        tooltip: 'Send to $address',
+                        onPressed: () => _setRecipient(address),
+                      ),
+                  ],
+                ),
               ],
             ),
           ),
@@ -903,8 +908,9 @@ class _SendScreenState extends ConsumerState<SendScreen> {
         waiting
             ? 'It finishes when the recipient\'s wallet answers, usually '
                   'within minutes if their app is open. Keep this app open, or '
-                  'open it again within a week to finish. You can find it on '
-                  'the home screen and in History.'
+                  'open it again within a week: the mailbox keeps their answer '
+                  'for about that long. You can find it on the home screen and '
+                  'in History.'
             : 'The payment is on its way to the network. It shows as '
                   'Completed after $minimumConfirmations confirmations.',
         style: theme.textTheme.bodyLarge,
@@ -912,9 +918,9 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       if (waiting) ...[
         const SizedBox(height: 8),
         const Text(
-          'If it is not completed, it cancels by itself after $sendTtlDays '
-          'days and the amount unlocks. To stop it sooner, open the payment and '
-          'tap Cancel payment.',
+          'If it is still not completed after $sendTtlDays days, it cancels by '
+          'itself and the amount unlocks. To stop it sooner, open the payment '
+          'and tap Cancel payment.',
         ),
       ],
       if (sent.changedFee case final fee?) ...[

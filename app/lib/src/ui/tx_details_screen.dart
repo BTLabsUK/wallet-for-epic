@@ -459,21 +459,7 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
               label: outgoing ? 'Sent to' : 'Received from',
               address: counterparty,
               name: name,
-            ),
-          if (counterparty != null &&
-              outgoing &&
-              tx.status == TxStatus.confirmed)
-            Align(
-              alignment: Alignment.centerLeft,
-              child: FilledButton.tonalIcon(
-                icon: const Icon(Icons.replay),
-                label: const Text('Send again'),
-                onPressed: () => Navigator.of(context).push(
-                  MaterialPageRoute<void>(
-                    builder: (_) => SendScreen(recipient: counterparty),
-                  ),
-                ),
-              ),
+              canSendAgain: outgoing && tx.status == TxStatus.confirmed,
             ),
           if (fee != null && outgoing)
             _DetailRow(
@@ -650,11 +636,15 @@ class _CounterpartyRow extends StatelessWidget {
     required this.label,
     required this.address,
     required this.name,
+    required this.canSendAgain,
   });
 
   final String label;
   final String address;
   final String? name;
+
+  /// A completed send: offer to pay this address again.
+  final bool canSendAgain;
 
   @override
   Widget build(BuildContext context) {
@@ -678,18 +668,32 @@ class _CounterpartyRow extends StatelessWidget {
             onPressed: () => copyText(context, address, 'Address'),
           ),
         ),
-        if (name == null)
-          Align(
-            alignment: Alignment.centerLeft,
-            child: TextButton.icon(
-              icon: const Icon(Icons.person_add_alt),
-              label: const Text('Add to contacts'),
-              onPressed: () => Navigator.of(context).push(
-                MaterialPageRoute<void>(
-                  builder: (_) => ContactEditScreen(address: address),
+        // The actions for this address, on one row in one style.
+        if (name == null || canSendAgain)
+          Wrap(
+            spacing: 8,
+            children: [
+              if (name == null)
+                TextButton.icon(
+                  icon: const Icon(Icons.person_add_alt),
+                  label: const Text('Add to contacts'),
+                  onPressed: () => Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (_) => ContactEditScreen(address: address),
+                    ),
+                  ),
                 ),
-              ),
-            ),
+              if (canSendAgain)
+                TextButton.icon(
+                  icon: const Icon(Icons.replay),
+                  label: const Text('Send again'),
+                  onPressed: () => Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (_) => SendScreen(recipient: address),
+                    ),
+                  ),
+                ),
+            ],
           ),
       ],
     );

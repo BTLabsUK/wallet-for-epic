@@ -419,7 +419,8 @@ class ScanProgressView extends StatelessWidget {
           LinearProgressIndicator(
             value: percent == null ? null : percent / 100,
             semanticsLabel: 'Scan progress',
-            semanticsValue: percent == null ? null : '$percent percent',
+            // A number: Flutter asserts that a progress bar's semantic value parses as one.
+            semanticsValue: percent == null ? null : '$percent',
           ),
         if (scan.message != null)
           Padding(

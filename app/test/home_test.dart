@@ -1860,6 +1860,62 @@ void main() {
     });
   });
 
+  group('shots-4', () {
+    testWidgets(
+      'the balance stays on top; the reminder sits by the waiting card',
+      (tester) async {
+        final h = _Harness();
+        await h.pump(tester);
+        double top(Finder f) => tester.getTopLeft(f).dy;
+        final balance = top(find.text('12.5 EPIC'));
+        final send = top(find.widgetWithText(FilledButton, 'Send'));
+        final waiting = top(
+          find.text('A payment is waiting for the recipient'),
+        );
+        final reminder = top(find.textContaining('not in a history backup'));
+        expect(balance, lessThan(send));
+        expect(send, lessThan(waiting));
+        expect(waiting, lessThan(reminder));
+        expect(reminder, lessThan(top(find.text('Recent activity'))));
+      },
+    );
+
+    testWidgets('add to contacts and send again share one row and style', (
+      tester,
+    ) async {
+      final h = _Harness(
+        transactions: [
+          fakeTx(
+            slateId: 'paid',
+            kind: TxKind.sent,
+            status: TxStatus.confirmed,
+            amountCredited: _epic(1),
+            amountDebited: _epic(3),
+            fee: _epic(0.008),
+            counterparty: _bob,
+          ),
+        ],
+      );
+      // The test font is twice Roboto's width, so check the row on a wider view.
+      await h.pump(
+        tester,
+        const TxDetailsScreen(txKey: 's:paid'),
+        1,
+        const Size(1800, 7200),
+      );
+      final add = find.widgetWithText(TextButton, 'Add to contacts');
+      final again = find.widgetWithText(TextButton, 'Send again');
+      expect(add, findsOneWidget);
+      expect(again, findsOneWidget);
+      expect(tester.getCenter(add).dy, tester.getCenter(again).dy);
+      expect(find.byType(FilledButton), findsNothing);
+      // Both lie between the address and the fee.
+      final sentTo = tester.getTopLeft(find.text('Sent to')).dy;
+      final fee = tester.getTopLeft(find.text('Fee')).dy;
+      expect(tester.getCenter(add).dy, inExclusiveRange(sentTo, fee));
+    });
+  });
+
   group('large text', () {
     for (final (name, screen) in [
       ('home', const HomeScreen()),

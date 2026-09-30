@@ -765,6 +765,13 @@ void main() {
       await h.openSettings(tester);
       await _tapText(tester, 'Network and node');
       expect(find.text('Mailbox server'), findsOneWidget);
+      // An empty field offers no use button, so it does not look confirmed.
+      expect(find.byTooltip('Use this server'), findsNothing);
+      // _NoRelays lists nothing, so there is no health source line either.
+      expect(
+        find.text('Health from status.btlabs.uk, measured from its server.'),
+        findsNothing,
+      );
       await _enter(
         tester,
         'Other mailbox server (host or host:port)',
