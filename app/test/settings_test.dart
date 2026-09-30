@@ -515,9 +515,7 @@ void main() {
       await _tapText(tester, 'Import history backup');
       expect(find.text('Could not import'), findsOneWidget);
       expect(
-        find.text(
-          'Invalid input. This history file belongs to a different wallet',
-        ),
+        find.text('This history file belongs to a different wallet.'),
         findsOneWidget,
       );
     });

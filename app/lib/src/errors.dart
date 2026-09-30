@@ -19,10 +19,9 @@ String describeError(Object error) {
       WalletErrorKind.invalidSlate =>
         'This transaction text is not valid for this step. Check that you '
             'pasted all of it.',
-      WalletErrorKind.invalidArgument => _withDetail(
-        'Invalid input.',
-        error.message,
-      ),
+      WalletErrorKind.invalidArgument =>
+        _plainSentence(error.message) ??
+            _withDetail('Invalid input.', error.message),
       WalletErrorKind.transportFailed => _withDetail(
         'Could not reach the recipient.',
         error.message,
@@ -44,6 +43,25 @@ String describeError(Object error) {
   }
   if (error is FormatException) return error.message;
   return 'Unexpected error. Please try again.';
+}
+
+/// History-file messages the core writes for people, without a final full stop.
+const List<String> _historyFileMessages = [
+  'This is not a history file',
+  'This history file',
+];
+
+/// [detail]'s first line when it is already a sentence for the user, so no "Invalid input."
+/// needs to go in front: it starts with a capital and ends with a full stop, question or
+/// exclamation mark, or it is one of the core's history-file messages (given a full stop).
+String? _plainSentence(String detail) {
+  final line = detail.trim().split('\n').first.trim();
+  if (line.isEmpty) return null;
+  if (_historyFileMessages.any(line.startsWith)) {
+    return RegExp(r'[.!?]$').hasMatch(line) ? line : '$line.';
+  }
+  final capital = RegExp(r'^[A-Z]').hasMatch(line);
+  return capital && RegExp(r'[.!?]$').hasMatch(line) ? line : null;
 }
 
 String _withDetail(String summary, String detail) {

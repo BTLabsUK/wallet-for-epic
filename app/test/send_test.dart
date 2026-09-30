@@ -1309,6 +1309,50 @@ void main() {
       );
     });
 
+    group('invalid input', () {
+      String say(String message) => describeError(
+        WalletError(kind: WalletErrorKind.invalidArgument, message: message),
+      );
+
+      test('a history-file message is shown alone, as a sentence', () {
+        expect(
+          say('This is not a history file exported by this app'),
+          'This is not a history file exported by this app.',
+        );
+        expect(
+          say('This history file belongs to a different wallet'),
+          'This history file belongs to a different wallet.',
+        );
+        expect(
+          say(
+            'This history file is from floonet, but this wallet is on mainnet',
+          ),
+          'This history file is from floonet, but this wallet is on mainnet.',
+        );
+        expect(
+          say('This history file is damaged.'),
+          'This history file is damaged.',
+        );
+      });
+
+      test('any full sentence is shown alone', () {
+        expect(
+          say('Pick a date after the wallet was made.'),
+          'Pick a date after the wallet was made.',
+        );
+        expect(say('Is this right?\nmore detail'), 'Is this right?');
+      });
+
+      test('technical detail keeps the prefix', () {
+        expect(
+          say('the address has no host'),
+          'Invalid input. the address has no host',
+        );
+        expect(say('No full stop here'), 'Invalid input. No full stop here');
+        expect(say(''), 'Invalid input.');
+      });
+    });
+
     test('a busy delete does not blame the other network', () {
       final text = describeError(
         const WalletError(kind: WalletErrorKind.walletBusy, message: 'busy'),
