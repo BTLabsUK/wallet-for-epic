@@ -1,0 +1,512 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../errors.dart';
+import '../providers.dart';
+import '../wallet_service.dart';
+import 'common.dart';
+import 'contacts_screen.dart' show ContactEditScreen;
+
+/// Minutes per Epic block, for rough "about N hours" estimates.
+const int _minutesPerBlock = 1;
+
+/// A link to the transaction in a block explorer, where one exists: the kernel on floonet, the
+/// block on mainnet (no mainnet explorer shows kernels). Null otherwise.
+String? explorerUrl(Chain chain, TxEntry tx) {
+  if (tx.status == TxStatus.cancelled ||
+      tx.status == TxStatus.awaitingRecipient) {
+    return null;
+  }
+  final kernel = tx.kernelExcess;
+  final height = tx.blockHeight;
+  return switch (chain) {
+    Chain.floonet when kernel != null =>
+      'https://floo-explorer.btlabs.uk/kernel/$kernel',
+    Chain.mainnet when height != null =>
+      'https://explorer.epicmine.io/block/$height',
+    _ => null,
+  };
+}
+
+/// `45 minutes`, `5 hours`, `3 days`.
+String roughDuration(int minutes) {
+  if (minutes < 90) return minutes == 1 ? '1 minute' : '$minutes minutes';
+  final hours = (minutes / 60).round();
+  if (hours < 48) return '$hours hours';
+  return '${(hours / 24).round()} days';
+}
+
+/// What the status means for the user, in a sentence or two.
+String txExplanation(TxEntry tx, BigInt? tip) {
+  final n = txConfirmations(tx, tip);
+  final height = tx.blockHeight;
+  final outgoing = txAmount(tx).outgoing;
+  return switch (txPhase(tx, tip)) {
+    TxPhase.waitingRecipient =>
+      'Sent to the recipient\'s mailbox. It completes when their wallet comes '
+          'online. Your funds stay locked until then, or until you cancel.',
+    TxPhase.waitingSender =>
+      'You signed this payment. It completes when the sender finishes it and '
+          'publishes it to the network.',
+    TxPhase.confirming when height == null || n == null =>
+      outgoing
+          ? 'Published to the network. Waiting for the first confirmation.'
+          : 'Waiting for the network to confirm it.',
+    TxPhase.confirming =>
+      'In block ${groupDigits(height!)}. $n of $confirmationsTarget '
+          'confirmations; final in about '
+          '${roughDuration((confirmationsTarget - n!) * _minutesPerBlock)}.',
+    TxPhase.completed =>
+      height == null
+          ? 'Completed.'
+          : 'Completed in block ${groupDigits(height)}.',
+    TxPhase.cancelled =>
+      outgoing
+          ? 'Cancelled. Nothing was sent, and the funds are spendable again.'
+          : 'Cancelled. This payment will not arrive.',
+  };
+}
+
+/// When a pending transaction cancels itself, if it has an expiry.
+String? ttlLine(TxEntry tx, BigInt? tip) {
+  final cutoff = tx.ttlCutoffHeight;
+  if (cutoff == null || !isPending(tx)) return null;
+  if (tip == null) {
+    return 'Cancels automatically if not completed by block '
+        '${groupDigits(cutoff)}.';
+  }
+  final left = (cutoff - tip).toInt();
+  if (left <= 0) {
+    return 'Expired at block ${groupDigits(cutoff)}. The wallet cancels it '
+        'on the next refresh.';
+  }
+  return 'Cancels automatically if not completed by block '
+      '${groupDigits(cutoff)} (in about '
+      '${roughDuration(left * _minutesPerBlock)}).';
+}
+
+/// Everything known about one transaction, with its note, contact and cancel.
+class TxDetailsScreen extends ConsumerStatefulWidget {
+  const TxDetailsScreen({super.key, required this.txKey});
+
+  /// [TxEntry.key] of the transaction to show.
+  final String txKey;
+
+  @override
+  ConsumerState<TxDetailsScreen> createState() => _TxDetailsScreenState();
+}
+
+class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
+  bool _busy = false;
+
+  void _showMessage(String message) {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  Future<void> _reload() async {
+    ref.invalidate(nodeTipProvider);
+    try {
+      await ref.read(homeProvider.notifier).reload();
+    } catch (_) {
+      // The screen shows what it still has.
+    }
+  }
+
+  Future<void> _editNote(TxEntry tx) async {
+    final note = await showDialog<String>(
+      context: context,
+      builder: (context) => _NoteDialog(initial: tx.note ?? ''),
+    );
+    if (note == null || !mounted) return;
+    final session = ref.read(sessionProvider);
+    if (session == null) return;
+    setState(() => _busy = true);
+    try {
+      final text = note.trim();
+      await session.setTxNote(key: tx.key, note: text.isEmpty ? null : text);
+      await _reload();
+      if (mounted) _showMessage(text.isEmpty ? 'Note removed' : 'Note saved');
+    } catch (error) {
+      if (mounted) _showMessage(describeError(error));
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  Future<void> _cancel(TxEntry tx) async {
+    final id = tx.id;
+    if (id == null) return;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Cancel transaction'),
+        content: const Text(
+          'Cancel this unconfirmed send and unlock its funds? Only do this if '
+          'the recipient will not finalize it.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Keep'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Cancel transaction'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+    final session = ref.read(sessionProvider);
+    if (session == null) return;
+    setState(() => _busy = true);
+    try {
+      await session.cancelTransaction(txId: id);
+      if (!mounted) return;
+      _showMessage('Transaction cancelled');
+      await _reload();
+    } catch (error) {
+      if (mounted) _showMessage(describeError(error));
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final home = ref.watch(homeProvider);
+    final tx = home.value?.transactions
+        .where((t) => t.key == widget.txKey)
+        .firstOrNull;
+    if (tx == null) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('Transaction')),
+        body: ScreenBody(
+          children: [
+            if (home.isLoading)
+              const LinearProgressIndicator(semanticsLabel: 'Loading')
+            else if (home.hasError)
+              ErrorText(describeError(home.error!))
+            else
+              const Text('This transaction is no longer in the wallet.'),
+          ],
+        ),
+      );
+    }
+
+    final theme = Theme.of(context);
+    final display = amountDisplay(ref);
+    final hidden = display.hidden;
+    final tip = tipHeight(ref);
+    final chain = ref.watch(walletConfigProvider)?.chain;
+    final (:amount, :outgoing) = txAmount(tx);
+    final counterparty = tx.counterparty;
+    final name = contactName(ref, counterparty);
+    final fiat = approxFiat(amount, display);
+    final ttl = ttlLine(tx, tip);
+    final url = chain == null ? null : explorerUrl(chain, tx);
+    final fee = tx.fee;
+    final blockTime = tx.blockTimeUnix;
+    final note = tx.note;
+
+    return Scaffold(
+      appBar: AppBar(title: Text(txTitle(tx, contactName: name))),
+      body: ScreenBody(
+        children: [
+          if (_busy || home.isLoading)
+            const LinearProgressIndicator(semanticsLabel: 'Working'),
+          Row(
+            children: [
+              TxIcon(tx: tx),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Semantics(
+                      label: hidden ? 'Amount hidden' : null,
+                      excludeSemantics: hidden,
+                      child: Text(
+                        signedEpic(tx, hidden: hidden),
+                        style: theme.textTheme.headlineMedium,
+                      ),
+                    ),
+                    if (fiat != null)
+                      Text(
+                        fiat,
+                        style: theme.textTheme.titleSmall?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  TxStatusChip(tx: tx, tip: tip),
+                  const SizedBox(height: 8),
+                  Text(txExplanation(tx, tip)),
+                  if (ttl != null) ...[
+                    const SizedBox(height: 8),
+                    Text(ttl, style: theme.textTheme.bodySmall),
+                  ],
+                  if (tx.cancellable && tx.id != null) ...[
+                    const SizedBox(height: 8),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: OutlinedButton.icon(
+                        icon: const Icon(Icons.cancel_outlined),
+                        label: const Text('Cancel transaction'),
+                        onPressed: _busy ? null : () => _cancel(tx),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ),
+          if (tx.source != TxSource.wallet) ...[
+            const SizedBox(height: 8),
+            _SourceNote(source: tx.source),
+          ],
+          const SizedBox(height: 8),
+          _DetailRow(
+            label: 'Date',
+            value: formatDateTime(localTime(blockTime ?? tx.timeUnix)),
+          ),
+          if (blockTime != null &&
+              tx.source == TxSource.wallet &&
+              (blockTime - tx.createdAtUnix).abs() > 120)
+            _DetailRow(
+              label: 'Created',
+              value: formatDateTime(localTime(tx.createdAtUnix)),
+            ),
+          if (counterparty != null)
+            _CounterpartyRow(
+              label: outgoing ? 'Sent to' : 'Received from',
+              address: counterparty,
+              name: name,
+            ),
+          if (fee != null && outgoing)
+            _DetailRow(
+              label: 'Fee',
+              value: shownEpic(fee, hidden: hidden),
+            ),
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            title: Text('Note', style: theme.textTheme.labelLarge),
+            subtitle: Text(
+              note ?? 'No note. Add one to remember what this was for.',
+            ),
+            trailing: IconButton(
+              tooltip: note == null ? 'Add note' : 'Edit note',
+              icon: Icon(note == null ? Icons.note_add_outlined : Icons.edit),
+              onPressed: _busy ? null : () => _editNote(tx),
+            ),
+          ),
+          if (url != null)
+            _DetailRow(
+              label: 'Block explorer',
+              value: url,
+              copyLabel: 'Copy explorer link',
+              copyWhat: 'Link',
+            ),
+          ExpansionTile(
+            tilePadding: EdgeInsets.zero,
+            childrenPadding: EdgeInsets.zero,
+            title: const Text('Technical details'),
+            children: [
+              if (tx.blockHeight case final height?)
+                _DetailRow(label: 'Block height', value: '$height'),
+              if (tx.slateId case final slate?)
+                _DetailRow(label: 'Slate ID', value: slate),
+              if (tx.kernelExcess case final kernel?)
+                _DetailRow(label: 'Kernel', value: kernel),
+              for (final (i, commit) in tx.outputCommits.indexed)
+                _DetailRow(
+                  label: tx.outputCommits.length == 1
+                      ? 'Output commitment'
+                      : 'Output commitment ${i + 1}',
+                  value: commit,
+                ),
+              if (tx.ttlCutoffHeight case final cutoff?)
+                _DetailRow(label: 'Expiry height', value: '$cutoff'),
+              if (tx.id case final id?)
+                _DetailRow(label: 'Wallet log id', value: '$id', copy: false),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Asks for a note. Pops with the text, or null when cancelled.
+class _NoteDialog extends StatefulWidget {
+  const _NoteDialog({required this.initial});
+
+  final String initial;
+
+  @override
+  State<_NoteDialog> createState() => _NoteDialogState();
+}
+
+class _NoteDialogState extends State<_NoteDialog> {
+  late final _controller = TextEditingController(text: widget.initial);
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Note'),
+      content: TextField(
+        controller: _controller,
+        autofocus: true,
+        maxLines: 3,
+        maxLength: 200,
+        textCapitalization: TextCapitalization.sentences,
+        decoration: const InputDecoration(
+          labelText: 'Note',
+          helperText: 'Only on this device and in your history backups.',
+          border: OutlineInputBorder(),
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Cancel'),
+        ),
+        FilledButton(
+          onPressed: () => Navigator.pop(context, _controller.text),
+          child: const Text('Save'),
+        ),
+      ],
+    );
+  }
+}
+
+/// Why a restored or imported transaction lacks details.
+class _SourceNote extends StatelessWidget {
+  const _SourceNote({required this.source});
+
+  final TxSource source;
+
+  @override
+  Widget build(BuildContext context) {
+    final text = switch (source) {
+      TxSource.restored =>
+        'Found by scanning the chain. Details such as the sender and fee are '
+            'not stored on the chain; import a history backup to restore them.',
+      TxSource.imported =>
+        'Imported from a history backup. This wallet has no record of its own '
+            'for it, so its status may be out of date.',
+      TxSource.wallet => '',
+    };
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Icon(Icons.info_outline, size: 20),
+        const SizedBox(width: 8),
+        Expanded(child: Text(text)),
+      ],
+    );
+  }
+}
+
+/// A labelled value that can be selected and copied.
+class _DetailRow extends StatelessWidget {
+  const _DetailRow({
+    required this.label,
+    required this.value,
+    this.copy = true,
+    this.copyLabel,
+    this.copyWhat,
+  });
+
+  final String label;
+  final String value;
+  final bool copy;
+  final String? copyLabel;
+  final String? copyWhat;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      contentPadding: EdgeInsets.zero,
+      title: Text(label, style: Theme.of(context).textTheme.labelLarge),
+      subtitle: SelectableText(value),
+      trailing: copy
+          ? IconButton(
+              tooltip: copyLabel ?? 'Copy ${label.toLowerCase()}',
+              icon: const Icon(Icons.copy),
+              onPressed: () => copyText(context, value, copyWhat ?? label),
+            )
+          : null,
+    );
+  }
+}
+
+/// The other side's address, with the contact name when saved, else an offer to save it.
+class _CounterpartyRow extends StatelessWidget {
+  const _CounterpartyRow({
+    required this.label,
+    required this.address,
+    required this.name,
+  });
+
+  final String label;
+  final String address;
+  final String? name;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        ListTile(
+          contentPadding: EdgeInsets.zero,
+          title: Text(label, style: theme.textTheme.labelLarge),
+          subtitle: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (name != null) Text(name!, style: theme.textTheme.titleMedium),
+              SelectableText(address),
+            ],
+          ),
+          trailing: IconButton(
+            tooltip: 'Copy address',
+            icon: const Icon(Icons.copy),
+            onPressed: () => copyText(context, address, 'Address'),
+          ),
+        ),
+        if (name == null)
+          Align(
+            alignment: Alignment.centerLeft,
+            child: TextButton.icon(
+              icon: const Icon(Icons.person_add_alt),
+              label: const Text('Add to contacts'),
+              onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder: (_) => ContactEditScreen(address: address),
+                ),
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+}

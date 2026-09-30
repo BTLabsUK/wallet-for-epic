@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:epic_wallet/src/app.dart';
 import 'package:epic_wallet/src/network.dart';
+import 'package:epic_wallet/src/price.dart';
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/relay_directory.dart';
 import 'package:epic_wallet/src/secret_store.dart';
@@ -40,6 +41,14 @@ class _FakeRelays implements RelayDirectory {
           ),
         ]
       : const [];
+}
+
+/// No price, as when CoinGecko cannot be reached.
+class _NoPrice implements PriceSource {
+  const _NoPrice();
+
+  @override
+  Future<double?> price(String currency) async => null;
 }
 
 /// Everything the app keeps outside the wallet, in memory.
@@ -88,6 +97,7 @@ Future<void> _pumpApp(
         updatePlatformProvider.overrideWithValue(null),
         relayDirectoryProvider.overrideWithValue(_FakeRelays()),
         slateFilesProvider.overrideWithValue(device.files),
+        priceSourceProvider.overrideWithValue(const _NoPrice()),
       ],
       child: const WalletApp(),
     ),
@@ -157,10 +167,12 @@ FakeWalletSession _fundedSession() => FakeWalletSession(
     validatedWithNode: false,
   ),
   transactions: [
-    TxEntry(
+    fakeTx(
       id: 2,
       slateId: 'b',
       kind: TxKind.sent,
+      status: TxStatus.awaitingRecipient,
+      cancellable: true,
       createdAtUnix: 1790000100,
       confirmed: false,
       amountCredited: _epic(3.992),
@@ -169,7 +181,7 @@ FakeWalletSession _fundedSession() => FakeWalletSession(
       numInputs: 1,
       numOutputs: 1,
     ),
-    TxEntry(
+    fakeTx(
       id: 1,
       slateId: 'a',
       kind: TxKind.received,
@@ -287,10 +299,12 @@ void main() {
         'Recovery phrase',
         '  ${service.phrase.toUpperCase()} ',
       );
+      await _tapText(tester, 'Block height');
       await _enter(tester, 'Start height (optional)', '1000');
       await _tapText(tester, 'Continue');
       await _enter(tester, 'PIN', _pin);
       await _enter(tester, 'Repeat PIN', _pin);
+      await _tapText(tester, 'Not now');
 
       expect(service.deletedWallets, [_mainnetDir]);
       expect(service.createdMnemonic == service.phrase, isTrue);
@@ -465,7 +479,7 @@ void main() {
   });
 
   group('home', () {
-    testWidgets('renders balances, node tip, address and transactions', (
+    testWidgets('renders balances, sync state and transactions', (
       tester,
     ) async {
       final session = _fundedSession();
@@ -474,40 +488,54 @@ void main() {
       await _unlockToHome(tester);
 
       expect(find.text('12.5 EPIC'), findsOneWidget);
+      expect(find.textContaining('Not validated with node'), findsOneWidget);
+      // Total 16, spendable 12.5: the rest is behind the breakdown line.
+      expect(find.text('Awaiting confirmation'), findsNothing);
+      await _tapText(tester, '3.5 EPIC not spendable yet');
       expect(find.text('Awaiting confirmation'), findsOneWidget);
       expect(find.text('1 EPIC'), findsOneWidget);
       expect(find.text('2 EPIC'), findsOneWidget);
       expect(find.text('0.5 EPIC'), findsOneWidget);
-      expect(find.textContaining('Not validated with node'), findsOneWidget);
-      expect(find.text('Node tip height: 2500000'), findsOneWidget);
-      expect(find.text(session.address), findsOneWidget);
-      expect(find.byTooltip('Copy address'), findsOneWidget);
 
-      await _reveal(tester, find.text('Received  +5 EPIC'));
-      expect(find.text('Received  +5 EPIC'), findsOneWidget);
-      expect(find.text('Sent  -1 EPIC'), findsOneWidget);
-      expect(find.textContaining('Pending'), findsOneWidget);
-      expect(find.textContaining('Confirmed'), findsOneWidget);
-      expect(find.textContaining('Fee 0.008 EPIC'), findsOneWidget);
+      await _reveal(tester, find.text('+5 EPIC'));
+      expect(find.text('Received'), findsOneWidget);
+      expect(find.text('-1 EPIC'), findsOneWidget);
+      expect(find.text('Waiting for recipient'), findsOneWidget);
+      expect(find.text('Completed'), findsOneWidget);
+      // No actions on rows: cancel lives in the details.
+      expect(find.byTooltip('Cancel transaction'), findsNothing);
+    });
 
-      await _tap(tester, find.byTooltip('Show QR code'));
-      expect(
-        find.bySemanticsLabel('QR code of the epicbox address'),
-        findsOneWidget,
-      );
-      await _tapText(tester, 'Close');
+    testWidgets('an unconfirmed send is cancelled from its details', (
+      tester,
+    ) async {
+      final session = _fundedSession();
+      final service = _existing(session: session);
+      await _pumpApp(tester, service, _Device(sealedMainnet: true));
+      await _unlockToHome(tester);
 
-      // Only the unconfirmed send can be cancelled, after confirming.
-      expect(find.byTooltip('Cancel transaction'), findsOneWidget);
-      await _tap(tester, find.byTooltip('Cancel transaction'));
+      await _tap(tester, find.byKey(const ValueKey('tx-s:b')));
+      expect(find.textContaining("recipient's mailbox"), findsOneWidget);
+      expect(find.text('Fee'), findsOneWidget);
+      expect(find.text('0.008 EPIC'), findsOneWidget);
+      final cancel = find.widgetWithText(OutlinedButton, 'Cancel transaction');
+      await _tap(tester, cancel);
       await _tapText(tester, 'Keep');
       expect(session.cancelledTxIds, isEmpty);
-      await _tap(tester, find.byTooltip('Cancel transaction'));
+      await _tap(tester, cancel);
       await _tap(
         tester,
         find.widgetWithText(FilledButton, 'Cancel transaction'),
       );
       expect(session.cancelledTxIds, [2]);
+      expect(find.text('Transaction cancelled'), findsOneWidget);
+
+      // A confirmed receive has no cancel.
+      await tester.pageBack();
+      await tester.pumpAndSettle();
+      await _tap(tester, find.byKey(const ValueKey('tx-s:a')));
+      expect(find.text('Completed.'), findsOneWidget);
+      expect(cancel, findsNothing);
     });
 
     testWidgets('backup asks for the PIN, shows the phrase, checks words', (
@@ -559,7 +587,7 @@ void main() {
       expect(device.store.values['wallet.mainnet.backedUp'], '1');
     });
 
-    testWidgets('biometric unlock can be turned on from the menu', (
+    testWidgets('biometric unlock can be turned on from settings', (
       tester,
     ) async {
       final service = _existing();
@@ -567,8 +595,8 @@ void main() {
       await _pumpApp(tester, service, device);
       await _unlockToHome(tester);
 
-      await _tap(tester, find.byTooltip('More'));
-      await _tapText(tester, 'Turn on biometric unlock');
+      await _tap(tester, find.byTooltip('Settings'));
+      await _tapText(tester, 'Unlock with biometrics');
       await tester.enterText(
         find.descendant(
           of: find.byType(AlertDialog),
@@ -581,19 +609,22 @@ void main() {
       expect(find.text('Biometric unlock turned on'), findsOneWidget);
     });
 
-    testWidgets('full rescan streams progress', (tester) async {
+    testWidgets('a full rescan from settings streams progress', (tester) async {
       final service = _existing();
       await _pumpApp(tester, service, _Device(sealedMainnet: true));
       await _unlockToHome(tester);
 
-      await _tap(tester, find.byTooltip('More'));
-      await _tapText(tester, 'Full rescan');
+      await _tap(tester, find.byTooltip('Settings'));
+      await _tapText(tester, 'Rescan the chain');
+      await _tapText(tester, 'The whole chain');
       await _tapText(tester, 'Rescan');
       expect(service.session.scanCalls, 1);
+      await tester.pageBack();
+      await tester.pumpAndSettle();
       expect(find.text('Spendable'), findsOneWidget);
     });
 
-    testWidgets('a failed scan shows the core message as an error', (
+    testWidgets('a failed scan shows the core message on home too', (
       tester,
     ) async {
       final service = _existing();
@@ -604,9 +635,12 @@ void main() {
       await _pumpApp(tester, service, _Device(sealedMainnet: true));
       await _unlockToHome(tester);
 
-      await _tap(tester, find.byTooltip('More'));
-      await _tapText(tester, 'Full rescan');
+      await _tap(tester, find.byTooltip('Settings'));
+      await _tapText(tester, 'Rescan the chain');
+      await _tapText(tester, 'The whole chain');
       await _tapText(tester, 'Rescan');
+      await tester.pageBack();
+      await tester.pumpAndSettle();
       expect(find.text('Scan failed: node unreachable'), findsOneWidget);
       expect(find.byType(ErrorText), findsWidgets);
     });
@@ -618,162 +652,9 @@ void main() {
       await _pumpApp(tester, service, _Device(sealedMainnet: true));
       await _unlockToHome(tester);
 
-      await _tap(tester, find.byTooltip('More'));
-      await _tapText(tester, 'Lock wallet');
+      await _tap(tester, find.byTooltip('Lock wallet'));
       expect(service.session.disposeCalls, 1);
       expect(find.text('Unlock Mainnet wallet'), findsOneWidget);
-    });
-
-    testWidgets('send by file: share .tx, open .response, finalize', (
-      tester,
-    ) async {
-      final session = _fundedSession();
-      final service = _existing(session: session);
-      final device = _Device(sealedMainnet: true);
-      await _pumpApp(tester, service, device);
-      await _unlockToHome(tester);
-      await _tapText(tester, 'Send');
-      await _tapText(tester, 'File');
-
-      expect(find.textContaining('Sending takes two steps'), findsOneWidget);
-
-      await _enter(tester, 'Amount (EPIC)', '100');
-      await tester.pump(const Duration(milliseconds: 500));
-      expect(find.textContaining('Not enough spendable funds'), findsOneWidget);
-
-      await _enter(tester, 'Amount (EPIC)', '1.123456789');
-      expect(find.text('At most 8 decimal places'), findsOneWidget);
-
-      await _enter(tester, 'Amount (EPIC)', '1.5');
-      await tester.pump(const Duration(milliseconds: 500));
-      expect(find.text('Fee: 0.008 EPIC. Total: 1.508 EPIC.'), findsOneWidget);
-
-      await _tapText(tester, 'Create transaction file');
-      expect(session.sentAmounts, [_epic(1.5)]);
-      final files = device.files;
-      expect(files.exported.single.name, 'slate-1.tx');
-      expect(files.exported.single.json, session.sendSlate.json);
-
-      // A response for another transaction is refused before anything is signed.
-      files.picks.add(
-        const SlateFile(name: 'other.tx.response', json: '{"other":1}'),
-      );
-      service.slateInfos['{"other":1}'] = SlateInfo(
-        slateId: 'other',
-        amount: _epic(9),
-        fee: BigInt.one,
-        stage: SlateStage.response,
-      );
-      await _tapText(tester, 'Open response file');
-      expect(
-        find.textContaining('for a different transaction'),
-        findsOneWidget,
-      );
-      expect(find.text('Finalize and post'), findsNothing);
-      await tester.pageBack();
-      await tester.pumpAndSettle();
-
-      files.picks.add(
-        SlateFile(
-          name: 'slate-1.tx.response',
-          json: session.responseSlate.json,
-        ),
-      );
-      service.slateInfos[session.responseSlate.json] = SlateInfo(
-        slateId: 'slate-1',
-        amount: _epic(1.5),
-        fee: session.fee,
-        stage: SlateStage.response,
-      );
-      await _tapText(tester, 'Open response file');
-      expect(
-        find.textContaining("answer to your send of 1.5 EPIC"),
-        findsOneWidget,
-      );
-      await _tapText(tester, 'Finalize and post');
-      expect(session.finalizedSlates, [session.responseSlate.json]);
-      expect(find.text('Transaction of 1.5 EPIC posted.'), findsOneWidget);
-
-      await _tapText(tester, 'Done');
-      expect(find.text('Spendable'), findsOneWidget);
-    });
-
-    testWidgets(
-      'send over epicbox checks the address and waits for the relay',
-      (tester) async {
-        final session = _fundedSession();
-        final service = _existing(session: session);
-        await _pumpApp(tester, service, _Device(sealedMainnet: true));
-        await _unlockToHome(tester);
-        expect(session.listenerStarts, 1);
-        await _tapText(tester, 'Send');
-
-        expect(
-          find.textContaining('Not connected to the relay yet'),
-          findsOneWidget,
-        );
-        session.listenerEvents.add(
-          const ListenerEvent(
-            kind: ListenerEventKind.connected,
-            message: 'addr@epicbox.epiccash.com',
-          ),
-        );
-        await tester.pumpAndSettle();
-        expect(
-          find.textContaining('Not connected to the relay yet'),
-          findsNothing,
-        );
-
-        await _enter(tester, 'Recipient epicbox address', 'esBare');
-        await _enter(tester, 'Amount (EPIC)', '1.5');
-        await tester.pump(const Duration(milliseconds: 500));
-        await _tap(tester, find.widgetWithText(FilledButton, 'Send'));
-        expect(
-          find.textContaining('Enter a full epicbox address'),
-          findsOneWidget,
-        );
-        expect(session.epicboxSends, isEmpty);
-
-        final to = '${'a' * 52}@epicbox.epiccash.com';
-        await _enter(tester, 'Recipient epicbox address', to);
-        await _tap(tester, find.widgetWithText(FilledButton, 'Send'));
-        expect(session.epicboxSends.single.to, to);
-        expect(session.epicboxSends.single.amount, _epic(1.5));
-        expect(find.text('1.5 EPIC sent to the relay.'), findsOneWidget);
-      },
-    );
-
-    testWidgets('send over HTTP posts at once, and shows transport errors', (
-      tester,
-    ) async {
-      final session = _fundedSession();
-      final service = _existing(session: session);
-      await _pumpApp(tester, service, _Device(sealedMainnet: true));
-      await _unlockToHome(tester);
-      await _tapText(tester, 'Send');
-      await _tapText(tester, 'HTTP');
-
-      await _enter(tester, 'Recipient wallet URL', '203.0.113.5:3415');
-      await _enter(tester, 'Amount (EPIC)', '2');
-      await tester.pump(const Duration(milliseconds: 500));
-      await _tap(tester, find.widgetWithText(FilledButton, 'Send'));
-      expect(find.textContaining('Enter the full address'), findsOneWidget);
-
-      session.sendError = const WalletError(
-        kind: WalletErrorKind.transportFailed,
-        message: 'the recipient did not answer',
-      );
-      await _enter(tester, 'Recipient wallet URL', 'http://203.0.113.5:3415');
-      await _tap(tester, find.widgetWithText(FilledButton, 'Send'));
-      expect(
-        find.textContaining('Could not reach the recipient'),
-        findsOneWidget,
-      );
-
-      session.sendError = null;
-      await _tap(tester, find.widgetWithText(FilledButton, 'Send'));
-      expect(session.httpSends.single.to, 'http://203.0.113.5:3415');
-      expect(find.text('Transaction of 2 EPIC posted.'), findsOneWidget);
     });
 
     testWidgets('a payment arriving over epicbox refreshes home and says so', (
@@ -784,7 +665,7 @@ void main() {
       await _pumpApp(tester, service, _Device(sealedMainnet: true));
       await _unlockToHome(tester);
       expect(
-        find.textContaining('Epicbox address · connecting'),
+        find.textContaining('Connecting to the relay to receive payments'),
         findsOneWidget,
       );
 
@@ -792,10 +673,7 @@ void main() {
         const ListenerEvent(kind: ListenerEventKind.connected, message: 'a'),
       );
       await tester.pumpAndSettle();
-      expect(
-        find.textContaining('Epicbox address · listening'),
-        findsOneWidget,
-      );
+      expect(find.textContaining('Ready to receive payments.'), findsOneWidget);
 
       session.summaryValue = FakeWalletSession.emptySummary;
       session.listenerEvents.add(
@@ -809,71 +687,8 @@ void main() {
       expect(find.text('Received 3 EPIC from zz…'), findsOneWidget);
       expect(find.text('0 EPIC'), findsWidgets);
 
-      await _tap(tester, find.byTooltip('More'));
-      await _tapText(tester, 'Lock wallet');
+      await _tap(tester, find.byTooltip('Lock wallet'));
       expect(session.disposeCalls, 1);
-    });
-
-    testWidgets('receive by file: open .tx, sign, share .response', (
-      tester,
-    ) async {
-      final session = _fundedSession();
-      final service = _existing(session: session);
-      final device = _Device(sealedMainnet: true);
-      await _pumpApp(tester, service, device);
-      await _unlockToHome(tester);
-      await _tapText(tester, 'Receive');
-      expect(find.text(session.address), findsOneWidget);
-      expect(find.textContaining('arrive by themselves'), findsOneWidget);
-
-      device.files.picks.add(const SlateFile(name: 'photo.jpg', json: 'nope'));
-      await _tapText(tester, 'Open transaction file');
-      expect(find.text('That file is not a transaction file.'), findsOneWidget);
-      await tester.pageBack();
-      await tester.pumpAndSettle();
-
-      const incoming = '{"id":"incoming"}';
-      service.slateInfos[incoming] = SlateInfo(
-        slateId: 'incoming',
-        amount: _epic(3),
-        fee: BigInt.zero,
-        stage: SlateStage.send,
-      );
-      device.files.picks.add(
-        const SlateFile(name: 'from-bob.tx', json: incoming),
-      );
-      await _tapText(tester, 'Open transaction file');
-      expect(find.text('Someone is sending you 3 EPIC.'), findsOneWidget);
-      await _tapText(tester, 'Sign and share response');
-      expect(session.receivedSlates, [incoming]);
-      expect(device.files.exported.single.name, 'from-bob.tx.response');
-      expect(device.files.exported.single.json, session.responseSlate.json);
-      expect(
-        find.text('Signed. Return from-bob.tx.response to the sender.'),
-        findsOneWidget,
-      );
-    });
-
-    testWidgets('receive: paste slate text as a fallback', (tester) async {
-      final session = _fundedSession();
-      final service = _existing(session: session);
-      await _pumpApp(tester, service, _Device(sealedMainnet: true));
-      await _unlockToHome(tester);
-      await _tapText(tester, 'Receive');
-      await _tapText(tester, 'Paste slate text instead');
-
-      await _tapText(tester, 'Sign slate');
-      expect(find.text('Paste the slate you received.'), findsOneWidget);
-      await tester.enterText(
-        find.descendant(
-          of: find.byType(SlateInput),
-          matching: find.byType(TextField),
-        ),
-        '{"id":"incoming"}',
-      );
-      await _tapText(tester, 'Sign slate');
-      expect(session.receivedSlates, ['{"id":"incoming"}']);
-      expect(find.text(session.responseSlate.json), findsOneWidget);
     });
 
     testWidgets('a file shared from another app opens after unlock', (
