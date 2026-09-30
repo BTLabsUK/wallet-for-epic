@@ -20,6 +20,56 @@ import 'slate_file_screen.dart';
 
 /// Sending: pick a recipient (their address or a wallet URL), an amount, review, send. A
 /// transaction file is offered under "Other ways to send".
+/// The most EPIC that will ever exist, 21 million. Anything above is a typo.
+final BigInt maxSendAtomic = BigInt.from(21000000) * atomicPerEpic;
+
+/// Cleans a typed or pasted amount for parsing: removes spaces (also no-break and thin ones)
+/// and apostrophes, a trailing unit such as "EPIC" or "USD", and thousands separators, and turns
+/// a decimal comma into a dot.
+///
+/// Separators: when both `.` and `,` occur, the last one is the decimal separator
+/// ("1,234.56", "1.234,56"). When only one kind occurs, more than one of it means thousands
+/// ("1,234,567"); a single one is the decimal separator ("1,5", "0.25"). A single comma
+/// followed by exactly three digits ("1,234") could be either, so it is refused with a question.
+///
+/// Throws [FormatException] for a negative or ambiguous amount.
+String normalizeAmountText(String text, {required String unit}) {
+  var clean = text.replaceAll(RegExp(r"[\s\u00A0\u2009\u202F']"), '');
+  final lower = clean.toLowerCase();
+  if (lower.endsWith(unit.toLowerCase())) {
+    clean = clean.substring(0, clean.length - unit.length);
+  }
+  if (clean.startsWith('-') || clean.startsWith('\u2212')) {
+    throw const FormatException('The amount cannot be negative.');
+  }
+  final dot = clean.lastIndexOf('.');
+  final comma = clean.lastIndexOf(',');
+  if (dot >= 0 && comma >= 0) {
+    final decimal = dot > comma ? '.' : ',';
+    final thousands = decimal == '.' ? ',' : '.';
+    clean = clean.replaceAll(thousands, '').replaceAll(decimal, '.');
+  } else if (comma >= 0 || dot >= 0) {
+    final sep = comma >= 0 ? ',' : '.';
+    if (sep.allMatches(clean).length > 1) {
+      clean = clean.replaceAll(sep, '');
+    } else {
+      final whole = clean.substring(0, clean.indexOf(sep));
+      final fraction = clean.substring(clean.indexOf(sep) + 1);
+      // "1,234" is 1.234 with a decimal comma but 1234 with a thousands comma, as the app
+      // shows amounts. Guessing wrong sends 1000 times too much or too little, so ask.
+      if (sep == ',' &&
+          fraction.length == 3 &&
+          RegExp(r'^[1-9]\d{0,2}$').hasMatch(whole)) {
+        throw FormatException(
+          'Write $whole$fraction or $whole.$fraction, so the amount is clear.',
+        );
+      }
+      clean = clean.replaceAll(sep, '.');
+    }
+  }
+  return clean;
+}
+
 class SendScreen extends ConsumerStatefulWidget {
   const SendScreen({super.key, this.recipient});
 
@@ -68,6 +118,8 @@ class _SendScreenState extends ConsumerState<SendScreen> {
   final _amount = TextEditingController();
   final _note = TextEditingController();
   final _response = TextEditingController();
+  final _amountFocus = FocusNode();
+  final _noteFocus = FocusNode();
 
   /// Transaction file instead of epicbox or HTTP.
   bool _fileMode = false;
@@ -101,6 +153,8 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     _amount.dispose();
     _note.dispose();
     _response.dispose();
+    _amountFocus.dispose();
+    _noteFocus.dispose();
     super.dispose();
   }
 
@@ -111,18 +165,30 @@ class _SendScreenState extends ConsumerState<SendScreen> {
 
   /// Parses the amount field in the current unit into atomic EPIC.
   BigInt _parseAmount(String text) {
-    if (!_fiatEntry) return parseEpic(text);
-    final price = _price;
-    final value = double.tryParse(text.trim().replaceAll(',', '.'));
-    // `double.tryParse` also reads "NaN", "Infinity" and "1e400".
-    if (value == null ||
-        !value.isFinite ||
-        value < 0 ||
-        price == null ||
-        price <= 0) {
-      throw const FormatException('Enter an amount such as 10.50');
+    final clean = normalizeAmountText(
+      text,
+      unit: _fiatEntry ? _currency : 'epic',
+    );
+    final BigInt amount;
+    if (_fiatEntry) {
+      final price = _price;
+      if (price == null || price <= 0) {
+        throw const FormatException('No price right now. Enter EPIC instead.');
+      }
+      // `normalizeAmountText` leaves only digits and one dot, so no NaN, Infinity or 1e400.
+      if (!RegExp(r'^\d*\.?\d*$').hasMatch(clean) || clean == '.') {
+        throw const FormatException('Enter an amount such as 10.50');
+      }
+      amount = BigInt.from((double.parse(clean) / price * 100000000).round());
+    } else {
+      amount = parseEpic(clean);
     }
-    return BigInt.from((value / price * 100000000).round());
+    if (amount > maxSendAtomic) {
+      throw const FormatException(
+        'That is more EPIC than will ever exist. Check the amount.',
+      );
+    }
+    return amount;
   }
 
   void _onAmountChanged(String text) {
@@ -491,6 +557,9 @@ class _SendScreenState extends ConsumerState<SendScreen> {
           minLines: 1,
           maxLines: null,
           keyboardType: TextInputType.url,
+          // Next goes to the amount, not to the Paste button below the field.
+          textInputAction: TextInputAction.next,
+          onEditingComplete: _amountFocus.requestFocus,
           style: theme.textTheme.bodyMedium,
           onChanged: (_) => setState(() {
             _recipientError = null;
@@ -499,7 +568,9 @@ class _SendScreenState extends ConsumerState<SendScreen> {
           decoration: InputDecoration(
             labelText: 'To',
             hintText: 'Their address or a wallet URL',
-            errorText: _recipientError,
+            error: _recipientError == null
+                ? null
+                : LiveFieldError(_recipientError!),
             border: const OutlineInputBorder(),
           ),
         ),
@@ -577,18 +648,27 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       ],
       TextField(
         controller: _amount,
+        focusNode: _amountFocus,
         keyboardType: const TextInputType.numberWithOptions(decimal: true),
+        textInputAction: _fileMode
+            ? TextInputAction.done
+            : TextInputAction.next,
+        onEditingComplete: _fileMode
+            ? () => FocusScope.of(context).unfocus()
+            : _noteFocus.requestFocus,
         onChanged: _onAmountChanged,
         decoration: InputDecoration(
           labelText: _fiatEntry
               ? 'Amount (${currency.toUpperCase()})'
               : 'Amount (EPIC)',
           helperText: amountHelper,
-          errorText: _amountError,
+          error: _amountError == null ? null : LiveFieldError(_amountError!),
           border: const OutlineInputBorder(),
           suffixIcon: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
+              // Plain text buttons: their text is their label. A Tooltip here, inside the
+              // field's suffix, broke the semantics tree after a route pop.
               if (price != null || _fiatEntry)
                 TextButton(
                   onPressed: _toggleUnit,
@@ -627,7 +707,17 @@ class _SendScreenState extends ConsumerState<SendScreen> {
         const SizedBox(height: 12),
         TextField(
           controller: _note,
+          focusNode: _noteFocus,
           maxLength: 200,
+          textInputAction: TextInputAction.done,
+          onSubmitted: (_) {
+            if (_parsedAmount != null &&
+                _estimateError == null &&
+                !_reviewing &&
+                !_busy) {
+              _review();
+            }
+          },
           decoration: const InputDecoration(
             labelText: 'Note (optional)',
             helperText: 'Only you see this note.',

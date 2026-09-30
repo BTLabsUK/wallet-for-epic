@@ -370,6 +370,35 @@ class TxIcon extends StatelessWidget {
   }
 }
 
+/// What a screen reader says for a payment row, as one sentence:
+/// "Received 10 EPIC from Alice, completed, Today, 10:01".
+/// [who] is the contact name or short address, [date] the row's date text.
+String txSpokenLabel(
+  TxEntry tx, {
+  required String? who,
+  required String date,
+  required String status,
+  required bool hidden,
+}) {
+  final amount = hidden ? 'a hidden amount' : epicText(txAmount(tx).amount);
+  final out = _outgoingKind(tx);
+  final String what;
+  if (tx.kind == TxKind.coinbase) {
+    what = 'Mining reward of $amount';
+  } else if (tx.source == TxSource.restored) {
+    what = 'Restored funds of $amount';
+  } else {
+    final verb = switch (tx.status) {
+      TxStatus.cancelled => out ? 'Cancelled send of' : 'Cancelled receive of',
+      _ when isPending(tx) => out ? 'Sending' : 'Receiving',
+      _ => out ? 'Sent' : 'Received',
+    };
+    final side = who == null ? '' : ' ${out ? 'to' : 'from'} $who';
+    what = '$verb $amount$side';
+  }
+  return '$what, ${status.toLowerCase()}, $date';
+}
+
 /// One transaction in a list. Tapping it opens its details, where cancel lives.
 class TxTile extends ConsumerWidget {
   const TxTile({super.key, required this.tx});
@@ -387,9 +416,10 @@ class TxTile extends ConsumerWidget {
         ? null
         : approxFiat(amount, display);
     final theme = Theme.of(context);
+    final name = contactName(ref, tx.counterparty);
     final title = txTitle(
       tx,
-      contactName: contactName(ref, tx.counterparty),
+      contactName: name,
       ownServer: ownMailboxServer(ref),
     );
     final date = shortDate(localTime(tx.timeUnix), now);
@@ -397,16 +427,31 @@ class TxTile extends ConsumerWidget {
     final muted = theme.textTheme.bodyMedium?.copyWith(
       color: theme.colorScheme.onSurfaceVariant,
     );
-    // One node for screen readers: title, address, date, status and amount, then "double tap".
-    return MergeSemantics(
+    void open() => Navigator.of(context).push(
+      MaterialPageRoute<void>(builder: (_) => TxDetailsScreen(txKey: tx.key)),
+    );
+    final counterparty = tx.counterparty;
+    // One sentence for screen readers instead of the pieces (title, chip, date, amount, fiat),
+    // so the status is said once and in order.
+    return Semantics(
       key: ValueKey('tx-${tx.key}'),
+      button: true,
+      label: txSpokenLabel(
+        tx,
+        who:
+            name ??
+            (counterparty == null
+                ? null
+                : shortAddress(counterparty, ownServer: ownMailboxServer(ref))),
+        date: date,
+        status: txStatusLabel(tx, tip),
+        hidden: display.hidden,
+      ),
+      onTap: open,
+      excludeSemantics: true,
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
-        onTap: () => Navigator.of(context).push(
-          MaterialPageRoute<void>(
-            builder: (_) => TxDetailsScreen(txKey: tx.key),
-          ),
-        ),
+        onTap: open,
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 10),
           child: Row(
@@ -446,17 +491,13 @@ class TxTile extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    Semantics(
-                      label: display.hidden ? 'Amount hidden' : null,
-                      excludeSemantics: display.hidden,
-                      child: Text(
-                        signed,
-                        textAlign: TextAlign.end,
-                        style: theme.textTheme.bodyLarge?.copyWith(
-                          decoration: tx.status == TxStatus.cancelled
-                              ? TextDecoration.lineThrough
-                              : null,
-                        ),
+                    Text(
+                      signed,
+                      textAlign: TextAlign.end,
+                      style: theme.textTheme.bodyLarge?.copyWith(
+                        decoration: tx.status == TxStatus.cancelled
+                            ? TextDecoration.lineThrough
+                            : null,
                       ),
                     ),
                     if (fiat != null)

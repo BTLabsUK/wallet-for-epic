@@ -514,6 +514,7 @@ class _BalanceHeaderState extends ConsumerState<BalanceHeader> {
             children: [
               Flexible(
                 child: Semantics(
+                  container: true,
                   label: hidden ? 'Balance hidden' : null,
                   excludeSemantics: hidden,
                   child: Text(
@@ -543,22 +544,27 @@ class _BalanceHeaderState extends ConsumerState<BalanceHeader> {
               ),
             ),
           if (buckets.isNotEmpty)
-            InkWell(
-              borderRadius: BorderRadius.circular(8),
-              onTap: () => setState(() => _expanded = !_expanded),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Flexible(child: Text(summaryLine)),
-                    Icon(
-                      _expanded ? Icons.expand_less : Icons.expand_more,
-                      semanticLabel: _expanded
-                          ? 'Hide breakdown'
-                          : 'Show breakdown',
-                    ),
-                  ],
+            Semantics(
+              button: true,
+              expanded: _expanded,
+              child: InkWell(
+                borderRadius: BorderRadius.circular(8),
+                onTap: () => setState(() => _expanded = !_expanded),
+                child: ConstrainedBox(
+                  // A full-size tap target, however short the text.
+                  constraints: const BoxConstraints(minHeight: 48),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Flexible(child: Text(summaryLine)),
+                      Icon(
+                        _expanded ? Icons.expand_less : Icons.expand_more,
+                        semanticLabel: _expanded
+                            ? 'Hide breakdown'
+                            : 'Show breakdown',
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),

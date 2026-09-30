@@ -8,6 +8,28 @@ import '../providers.dart';
 import 'common.dart';
 import 'scan_screen.dart';
 
+/// A field's error that screen readers announce as soon as it appears, for
+/// `InputDecoration.error`.
+class LiveFieldError extends StatelessWidget {
+  const LiveFieldError(this.message, {super.key});
+
+  final String message;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Semantics(
+      liveRegion: true,
+      child: Text(
+        message,
+        style: theme.textTheme.bodySmall?.copyWith(
+          color: theme.colorScheme.error,
+        ),
+      ),
+    );
+  }
+}
+
 /// The address book. With [pick], tapping a contact returns it instead of opening it.
 class ContactsScreen extends ConsumerStatefulWidget {
   const ContactsScreen({super.key, this.pick = false});
@@ -277,7 +299,7 @@ class _ContactEditScreenState extends ConsumerState<ContactEditScreen> {
             onChanged: (_) => setState(() => _nameError = null),
             decoration: InputDecoration(
               labelText: 'Name',
-              errorText: _nameError,
+              error: _nameError == null ? null : LiveFieldError(_nameError!),
               border: const OutlineInputBorder(),
             ),
           ),
@@ -291,7 +313,9 @@ class _ContactEditScreenState extends ConsumerState<ContactEditScreen> {
             onChanged: (_) => setState(() => _addressError = null),
             decoration: InputDecoration(
               labelText: 'Address or wallet URL',
-              errorText: _addressError,
+              error: _addressError == null
+                  ? null
+                  : LiveFieldError(_addressError!),
               border: const OutlineInputBorder(),
               suffixIcon: Row(
                 mainAxisSize: MainAxisSize.min,

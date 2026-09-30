@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -55,6 +57,51 @@ bool matchesQuery(TxEntry tx, String query, {String? contactName}) {
 /// A heading and its transactions.
 typedef HistorySection = ({String title, List<TxEntry> transactions});
 
+/// How long typing must pause before the history list filters again.
+const Duration searchDebounce = Duration(milliseconds: 250);
+
+/// One line of the history list: a day heading, or a payment.
+sealed class HistoryItem {}
+
+class HistoryHeading extends HistoryItem {
+  HistoryHeading(this.title);
+
+  final String title;
+}
+
+class HistoryRow extends HistoryItem {
+  HistoryRow(this.tx);
+
+  final TxEntry tx;
+}
+
+/// The history list as flat items for a lazy list: the payments of [txs] that pass [filter] and
+/// [query], grouped as in [groupHistory]. [contactName] names a counterparty for the search.
+List<HistoryItem> historyItems(
+  Iterable<TxEntry> txs, {
+  required HistoryFilter filter,
+  required String query,
+  required DateTime now,
+  String? Function(String? address)? contactName,
+}) {
+  final shown = [
+    for (final tx in txs)
+      if (matchesFilter(tx, filter) &&
+          matchesQuery(
+            tx,
+            query,
+            contactName: contactName?.call(tx.counterparty),
+          ))
+        tx,
+  ];
+  return [
+    for (final section in groupHistory(shown, now)) ...[
+      HistoryHeading(section.title),
+      for (final tx in section.transactions) HistoryRow(tx),
+    ],
+  ];
+}
+
 /// Pending transactions in their own section on top, then the rest by local day, newest first.
 List<HistorySection> groupHistory(Iterable<TxEntry> txs, DateTime now) {
   final ordered = pendingFirst(txs);
@@ -89,10 +136,37 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
   final _search = TextEditingController();
   late HistoryFilter _filter = widget.filter;
 
+  /// The search text the list uses: [_search] after typing pauses for [searchDebounce].
+  String _query = '';
+  Timer? _debounce;
+
+  /// The last list built, and what it was built from. Frames that change none of that (a
+  /// scroll, the progress bar, a price tick) reuse it.
+  List<HistoryItem> _items = const [];
+  Object? _itemsKey;
+
   @override
   void dispose() {
+    _debounce?.cancel();
     _search.dispose();
     super.dispose();
+  }
+
+  void _onSearchChanged(String text) {
+    _debounce?.cancel();
+    _debounce = Timer(searchDebounce, () {
+      if (mounted) setState(() => _query = text);
+    });
+    // The clear button shows as soon as there is text.
+    setState(() {});
+  }
+
+  void _clearSearch() {
+    _debounce?.cancel();
+    setState(() {
+      _search.clear();
+      _query = '';
+    });
   }
 
   Future<void> _refresh() async {
@@ -104,26 +178,42 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
     }
   }
 
+  List<HistoryItem> _itemsFor(
+    List<TxEntry> all,
+    List<Contact>? contacts,
+    DateTime now,
+  ) {
+    final key = (
+      all,
+      contacts,
+      _filter,
+      _query,
+      DateTime(now.year, now.month, now.day),
+    );
+    if (key != _itemsKey) {
+      _itemsKey = key;
+      _items = historyItems(
+        all,
+        filter: _filter,
+        query: _query,
+        now: now,
+        contactName: contacts == null
+            ? null
+            : (address) => contactNameFor(contacts, address),
+      );
+    }
+    return _items;
+  }
+
   @override
   Widget build(BuildContext context) {
     final home = ref.watch(homeProvider);
     final contacts = ref.watch(contactsProvider).value;
     final now = ref.watch(clockProvider)();
     final all = home.value?.transactions;
-    final query = _search.text;
-    final shown = [
-      for (final tx in all ?? const <TxEntry>[])
-        if (matchesFilter(tx, _filter) &&
-            matchesQuery(
-              tx,
-              query,
-              contactName: contacts == null
-                  ? null
-                  : contactNameFor(contacts, tx.counterparty),
-            ))
-          tx,
-    ];
-    final sections = groupHistory(shown, now);
+    final items = all == null
+        ? const <HistoryItem>[]
+        : _itemsFor(all, contacts, now);
     final theme = Theme.of(context);
 
     final String? empty;
@@ -131,13 +221,61 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
       empty = null;
     } else if (all.isEmpty) {
       empty = 'Nothing yet. Payments you send or receive show up here.';
-    } else if (shown.isEmpty) {
-      empty = query.trim().isEmpty
+    } else if (items.isEmpty) {
+      empty = _query.trim().isEmpty
           ? 'No ${historyFilterLabel(_filter).toLowerCase()} payments.'
-          : 'Nothing matches "${query.trim()}".';
+          : 'Nothing matches "${_query.trim()}".';
     } else {
       empty = null;
     }
+
+    final controls = <Widget>[
+      TextField(
+        controller: _search,
+        onChanged: _onSearchChanged,
+        textInputAction: TextInputAction.search,
+        decoration: InputDecoration(
+          labelText: 'Search',
+          hintText: 'Note, contact, address or amount',
+          prefixIcon: const Icon(Icons.search),
+          border: const OutlineInputBorder(),
+          suffixIcon: _search.text.isEmpty
+              ? null
+              : IconButton(
+                  tooltip: 'Clear search',
+                  icon: const Icon(Icons.clear),
+                  onPressed: _clearSearch,
+                ),
+        ),
+      ),
+      const SizedBox(height: 12),
+      // One scrolling row, so the list starts higher on a phone.
+      FadingRow(
+        children: [
+          for (final filter in HistoryFilter.values)
+            Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: ChoiceChip(
+                label: Text(historyFilterLabel(filter)),
+                selected: _filter == filter,
+                onSelected: (_) => setState(() => _filter = filter),
+              ),
+            ),
+        ],
+      ),
+      if (home.isLoading && all == null)
+        const Padding(
+          padding: EdgeInsets.only(top: 16),
+          child: LinearProgressIndicator(semanticsLabel: 'Loading payments'),
+        ),
+      if (home.hasError && !home.isLoading)
+        ErrorText(describeError(home.error!)),
+      if (empty != null)
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 24),
+          child: Text(empty, textAlign: TextAlign.center),
+        ),
+    ];
 
     return Scaffold(
       appBar: AppBar(title: const Text('History')),
@@ -147,71 +285,37 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
             constraints: const BoxConstraints(maxWidth: 600),
             child: RefreshIndicator(
               onRefresh: _refresh,
-              child: ListView(
-                padding: const EdgeInsets.all(16),
-                children: [
-                  TextField(
-                    controller: _search,
-                    onChanged: (_) => setState(() {}),
-                    textInputAction: TextInputAction.search,
-                    decoration: InputDecoration(
-                      labelText: 'Search',
-                      hintText: 'Note, contact, address or amount',
-                      prefixIcon: const Icon(Icons.search),
-                      border: const OutlineInputBorder(),
-                      suffixIcon: query.isEmpty
-                          ? null
-                          : IconButton(
-                              tooltip: 'Clear search',
-                              icon: const Icon(Icons.clear),
-                              onPressed: () => setState(() => _search.clear()),
+              child: CustomScrollView(
+                slivers: [
+                  SliverPadding(
+                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+                    sliver: SliverList.list(children: controls),
+                  ),
+                  // Only the rows on screen are built, so 2,000 payments scroll like 20.
+                  SliverPadding(
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                    sliver: SliverList.builder(
+                      itemCount: items.length,
+                      itemBuilder: (context, i) => switch (items[i]) {
+                        HistoryHeading(:final title) => Padding(
+                          padding: const EdgeInsets.only(top: 16, bottom: 4),
+                          child: Semantics(
+                            header: true,
+                            child: Text(
+                              title,
+                              style: theme.textTheme.titleSmall?.copyWith(
+                                color: theme.colorScheme.primary,
+                              ),
                             ),
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  // One scrolling row, so the list starts higher on a phone.
-                  FadingRow(
-                    children: [
-                      for (final filter in HistoryFilter.values)
-                        Padding(
-                          padding: const EdgeInsets.only(right: 8),
-                          child: ChoiceChip(
-                            label: Text(historyFilterLabel(filter)),
-                            selected: _filter == filter,
-                            onSelected: (_) => setState(() => _filter = filter),
                           ),
                         ),
-                    ],
-                  ),
-                  if (home.isLoading && all == null)
-                    const Padding(
-                      padding: EdgeInsets.only(top: 16),
-                      child: LinearProgressIndicator(
-                        semanticsLabel: 'Loading payments',
-                      ),
-                    ),
-                  if (home.hasError && !home.isLoading)
-                    ErrorText(describeError(home.error!)),
-                  if (empty != null)
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 24),
-                      child: Text(empty, textAlign: TextAlign.center),
-                    ),
-                  for (final section in sections) ...[
-                    Padding(
-                      padding: const EdgeInsets.only(top: 16, bottom: 4),
-                      child: Semantics(
-                        header: true,
-                        child: Text(
-                          section.title,
-                          style: theme.textTheme.titleSmall?.copyWith(
-                            color: theme.colorScheme.primary,
-                          ),
+                        HistoryRow(:final tx) => TxTile(
+                          key: ValueKey('row-${tx.key}'),
+                          tx: tx,
                         ),
-                      ),
+                      },
                     ),
-                    for (final tx in section.transactions) TxTile(tx: tx),
-                  ],
+                  ),
                 ],
               ),
             ),

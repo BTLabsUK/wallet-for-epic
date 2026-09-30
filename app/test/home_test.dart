@@ -245,11 +245,12 @@ class _Harness {
     WidgetTester tester, [
     Widget home = const HomeScreen(),
     double textScale = 1,
+    Size? size,
   ]) async {
     // Tall enough that every list row is built without scrolling. At large text, a phone.
-    tester.view.physicalSize = textScale == 1
-        ? const Size(1080, 7200)
-        : const Size(1080, 2340);
+    tester.view.physicalSize =
+        size ??
+        (textScale == 1 ? const Size(1080, 7200) : const Size(1080, 2340));
     tester.view.devicePixelRatio = 3;
     addTearDown(tester.view.reset);
     await tester.pumpWidget(
@@ -487,11 +488,13 @@ void main() {
       expect(find.text('Cancelled'), findsWidgets);
 
       await tester.enterText(find.widgetWithText(TextField, 'Search'), 'rent');
+      await tester.pump(searchDebounce);
       await tester.pumpAndSettle();
       expect(find.text('+5 EPIC'), findsOneWidget);
       expect(find.text('-2 EPIC'), findsNothing);
 
       await tester.enterText(find.widgetWithText(TextField, 'Search'), 'zzz');
+      await tester.pump(searchDebounce);
       await tester.pumpAndSettle();
       expect(find.text('Nothing matches "zzz".'), findsOneWidget);
 
@@ -1342,6 +1345,154 @@ void main() {
       await h.pump(tester, const TxDetailsScreen(txKey: 's:send-bob'));
       expect(find.text('Release funds'), findsNothing);
     });
+  });
+
+  group('scale and accessibility', () {
+    List<TxEntry> many(int n) => [
+      for (var i = 0; i < n; i++)
+        fakeTx(
+          id: i,
+          slateId: 'many-$i',
+          status: TxStatus.confirmed,
+          createdAtUnix: _at(_now.subtract(Duration(hours: i))),
+          amountCredited: _epic(i + 1),
+          note: i == 1500 ? 'needle' : null,
+        ),
+    ];
+
+    testWidgets('2,000 payments: history builds only the rows on screen', (
+      tester,
+    ) async {
+      final h = _Harness(transactions: many(2000));
+      await h.pump(tester, const HistoryScreen(), 1, const Size(1080, 2340));
+      final built = find.byType(TxTile).evaluate().length;
+      expect(built, greaterThan(0));
+      expect(built, lessThan(40));
+      // Search still reaches a row far down the list.
+      await tester.enterText(
+        find.widgetWithText(TextField, 'Search'),
+        'needle',
+      );
+      await tester.pump(searchDebounce);
+      await tester.pumpAndSettle();
+      expect(find.byType(TxTile), findsOneWidget);
+      expect(find.text('+1,501 EPIC'), findsOneWidget);
+    });
+
+    testWidgets('2,000 payments: home shows five', (tester) async {
+      final h = _Harness(transactions: many(2000));
+      await h.pump(tester);
+      expect(find.byType(TxTile), findsNWidgets(recentActivityCount));
+    });
+
+    testWidgets('search waits for typing to pause', (tester) async {
+      final h = _Harness();
+      await h.pump(tester, const HistoryScreen());
+      await tester.enterText(find.widgetWithText(TextField, 'Search'), 'rent');
+      await tester.pump(const Duration(milliseconds: 100));
+      // Still the whole list: the filter has not run yet.
+      expect(find.byType(TxTile), findsNWidgets(4));
+      await tester.pump(searchDebounce);
+      await tester.pumpAndSettle();
+      expect(find.byType(TxTile), findsOneWidget);
+    });
+
+    test('a row is one sentence', () {
+      final tx = fakeTx(
+        kind: TxKind.sent,
+        status: TxStatus.awaitingRecipient,
+        amountDebited: _epic(10),
+      );
+      expect(
+        txSpokenLabel(
+          fakeTx(status: TxStatus.confirmed, amountCredited: _epic(10)),
+          who: 'Alice',
+          date: 'Today, 10:01',
+          status: 'Completed',
+          hidden: false,
+        ),
+        'Received 10 EPIC from Alice, completed, Today, 10:01',
+      );
+      expect(
+        txSpokenLabel(
+          tx,
+          who: null,
+          date: 'Today, 10:01',
+          status: 'Waiting for recipient',
+          hidden: true,
+        ),
+        'Sending a hidden amount, waiting for recipient, Today, 10:01',
+      );
+    });
+
+    testWidgets('rows read as one sentence, the chip not twice', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      final h = _Harness();
+      h.session.contactsValue.add(
+        const Contact(id: 'c1', name: 'Bob', address: _bob),
+      );
+      await h.pump(tester);
+      expect(
+        tester.getSemantics(find.byKey(const ValueKey('tx-s:send-bob'))),
+        matchesSemantics(
+          label: 'Sending 2 EPIC to Bob, waiting for recipient, Today, 09:00',
+          isButton: true,
+          hasTapAction: true,
+        ),
+      );
+      expect(
+        tester.getSemantics(find.byKey(const ValueKey('tx-s:from-alice'))),
+        matchesSemantics(
+          label: 'Received 5 EPIC, completed, Yesterday, 18:00',
+          isButton: true,
+          hasTapAction: true,
+        ),
+      );
+      // The chip text is part of the sentence only.
+      expect(find.bySemanticsLabel('Completed'), findsNothing);
+      expect(find.bySemanticsLabel('Waiting for recipient'), findsNothing);
+      handle.dispose();
+    });
+
+    testWidgets('hidden amounts: "Balance hidden" and no amount in rows', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      final h = _Harness();
+      h.store.values['app.hide_balances'] = 'true';
+      await h.pump(tester);
+      expect(find.bySemanticsLabel('Balance hidden'), findsOneWidget);
+      expect(
+        tester.getSemantics(find.byKey(const ValueKey('tx-s:from-alice'))),
+        matchesSemantics(
+          label: 'Received a hidden amount, completed, Yesterday, 18:00',
+          isButton: true,
+          hasTapAction: true,
+        ),
+      );
+      expect(find.bySemanticsLabel(RegExp('5 EPIC')), findsNothing);
+      handle.dispose();
+    });
+
+    for (final (name, screen) in [
+      ('home', const HomeScreen()),
+      ('history', const HistoryScreen()),
+      ('details of a pending send', const TxDetailsScreen(txKey: 's:send-bob')),
+      ('details of a receive', const TxDetailsScreen(txKey: 's:from-alice')),
+    ]) {
+      testWidgets('$name: labelled tap targets of at least 48 dp', (
+        tester,
+      ) async {
+        final handle = tester.ensureSemantics();
+        final h = _Harness();
+        await h.pump(tester, screen, 1, const Size(1080, 2340));
+        await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
+        await expectLater(tester, meetsGuideline(labeledTapTargetGuideline));
+        handle.dispose();
+      });
+    }
   });
 
   group('large text', () {

@@ -380,6 +380,53 @@ class _AppHarness {
 }
 
 void main() {
+  group('amount text', () {
+    String n(String text, {String unit = 'epic'}) =>
+        normalizeAmountText(text, unit: unit);
+
+    test('decimal comma, spaces, apostrophes and thousands separators', () {
+      expect(n('1,5'), '1.5');
+      expect(n('0,125'), '0.125');
+      expect(n(' 1 234,56 '), '1234.56');
+      expect(n('1\u00A0234\u202F567.5'), '1234567.5');
+      expect(n('1,234.56'), '1234.56');
+      expect(n('1.234,56'), '1234.56');
+      expect(n('1,234,567'), '1234567');
+      expect(n('1.234.567'), '1234567');
+      expect(n("1'234.5"), '1234.5');
+      expect(n('0.25'), '0.25');
+      expect(n('12.5 EPIC'), '12.5');
+      expect(n('10,50 usd', unit: 'usd'), '10.50');
+    });
+
+    test('negative and ambiguous amounts are refused in plain words', () {
+      expect(
+        () => n('-1'),
+        throwsA(
+          isA<FormatException>().having(
+            (e) => e.message,
+            'message',
+            'The amount cannot be negative.',
+          ),
+        ),
+      );
+      expect(() => n('\u22122'), throwsFormatException);
+      expect(
+        () => n('1,234'),
+        throwsA(
+          isA<FormatException>().having(
+            (e) => e.message,
+            'message',
+            'Write 1234 or 1.234, so the amount is clear.',
+          ),
+        ),
+      );
+      // Not ambiguous: no whole part, or not three digits after the comma.
+      expect(n('0,234'), '0.234');
+      expect(n('1,23'), '1.23');
+    });
+  });
+
   group('parseRecipient', () {
     test('reads bare, epicbox:// and http addresses, without whitespace', () {
       final bare = parseRecipient('  $_bob\n');
@@ -1198,6 +1245,144 @@ void main() {
       expect(text, isNot(contains('slate')));
       expect(text, isNot(contains('JSON')));
       expect(text, contains('transaction text'));
+    });
+  });
+
+  group('amount field', () {
+    testWidgets('reads what people type and paste, and explains the rest', (
+      tester,
+    ) async {
+      final h = _Harness();
+      await h.pump(tester, const SendScreen());
+      final field = tester.widget<TextField>(
+        find.widgetWithText(TextField, 'Amount (EPIC)'),
+      );
+      expect(
+        field.keyboardType,
+        const TextInputType.numberWithOptions(decimal: true),
+      );
+
+      await _enter(tester, 'Amount (EPIC)', '1,5');
+      expect(find.text('Fee: 0.008 EPIC. Total: 1.508 EPIC.'), findsOneWidget);
+      await _enter(tester, 'Amount (EPIC)', ' 12.5 EPIC ');
+      expect(find.text('Fee: 0.008 EPIC. Total: 12.508 EPIC.'), findsOneWidget);
+      for (final (text, message) in [
+        ('-2', 'The amount cannot be negative.'),
+        ('0,000000001', 'At most 8 decimal places'),
+        (
+          '30000000',
+          'That is more EPIC than will ever exist. Check the amount.',
+        ),
+        ('1,234', 'Write 1234 or 1.234, so the amount is clear.'),
+        ('abc', 'Enter an amount such as 1.5'),
+      ]) {
+        await _enter(tester, 'Amount (EPIC)', text);
+        expect(find.text(message), findsOneWidget, reason: text);
+        expect(tester.takeException(), isNull);
+      }
+    });
+
+    testWidgets('fiat entry takes a decimal comma too', (tester) async {
+      final h = _Harness(price: 0.5);
+      await h.pump(tester, const SendScreen());
+      await _tap(tester, find.text('Use USD'));
+      await _enter(tester, 'Amount (USD)', '10,50');
+      expect(find.text('≈ 21 EPIC'), findsOneWidget);
+      await _enter(tester, 'Amount (USD)', '1e5');
+      expect(find.text('Enter an amount such as 10.50'), findsOneWidget);
+    });
+
+    testWidgets('Next moves To, Amount, Note; Done on the note reviews', (
+      tester,
+    ) async {
+      final h = _Harness();
+      await h.pump(tester, const SendScreen());
+      EditableText editable(String label) => tester.widget<EditableText>(
+        find.descendant(
+          of: find.widgetWithText(TextField, label),
+          matching: find.byType(EditableText),
+        ),
+      );
+
+      await tester.tap(find.widgetWithText(TextField, 'To'));
+      await tester.enterText(find.widgetWithText(TextField, 'To'), _bob);
+      expect(editable('To').textInputAction, TextInputAction.next);
+      await tester.testTextInput.receiveAction(TextInputAction.next);
+      await tester.pumpAndSettle();
+      expect(editable('Amount (EPIC)').focusNode.hasFocus, isTrue);
+
+      await tester.enterText(
+        find.widgetWithText(TextField, 'Amount (EPIC)'),
+        '1',
+      );
+      await tester.pump(const Duration(milliseconds: 500));
+      await tester.testTextInput.receiveAction(TextInputAction.next);
+      await tester.pumpAndSettle();
+      expect(editable('Note (optional)').focusNode.hasFocus, isTrue);
+      expect(editable('Note (optional)').textInputAction, TextInputAction.done);
+
+      await tester.testTextInput.receiveAction(TextInputAction.done);
+      await tester.pumpAndSettle();
+      expect(find.text('Review your payment'), findsOneWidget);
+    });
+  });
+
+  group('accessibility', () {
+    testWidgets('field errors are live regions', (tester) async {
+      final handle = tester.ensureSemantics();
+      final h = _Harness();
+      await h.pump(tester, const SendScreen());
+      await _enter(tester, 'Amount (EPIC)', '-1');
+      await _enter(tester, 'To', 'nonsense');
+      await _tap(tester, find.text('Other ways to send'));
+      await _enter(tester, 'Amount (EPIC)', '1');
+      await _tap(tester, find.text('Review'));
+      for (final text in [
+        'This is not a valid address. It looks like es5x…@epicbox.epiccash.com',
+      ]) {
+        final live = find.ancestor(
+          of: find.text(text),
+          matching: find.byWidgetPredicate(
+            (w) => w is Semantics && (w.properties.liveRegion ?? false),
+          ),
+        );
+        expect(live, findsOneWidget, reason: text);
+      }
+      handle.dispose();
+    });
+
+    for (final (name, screen) in [
+      ('send', const SendScreen()),
+      ('receive', const ReceiveScreen()),
+      ('contacts', const ContactsScreen()),
+      ('contact edit', const ContactEditScreen()),
+      ('help', const HelpScreen(topic: HelpTopic.fees)),
+    ]) {
+      testWidgets('$name: labelled tap targets of at least 48 dp', (
+        tester,
+      ) async {
+        final handle = tester.ensureSemantics();
+        final h = _Harness();
+        await h.session.saveContact(
+          contact: Contact(id: '', name: 'Bob', address: _bob, note: null),
+        );
+        await h.pump(tester, screen);
+        await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
+        await expectLater(tester, meetsGuideline(labeledTapTargetGuideline));
+        await expectLater(tester, meetsGuideline(textContrastGuideline));
+        handle.dispose();
+      });
+    }
+
+    testWidgets('the receive QR code has a description', (tester) async {
+      final handle = tester.ensureSemantics();
+      final h = _Harness();
+      await h.pump(tester, const ReceiveScreen());
+      expect(
+        tester.getSemantics(find.bySemanticsLabel('QR code of your address')),
+        matchesSemantics(label: 'QR code of your address', isImage: true),
+      );
+      handle.dispose();
     });
   });
 
