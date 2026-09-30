@@ -5,6 +5,10 @@
          once this app installed the current version. -->
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES"/>
     <uses-permission android:name="android.permission.UPDATE_PACKAGES_WITHOUT_USER_ACTION"/>
+    <!-- QR scanning on the send screen (mobile_scanner). Asked for when the scanner opens;
+         devices without a camera can still install the app. -->
+    <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-feature android:name="android.hardware.camera" android:required="false"/>
     <!-- No auto backup: Keystore keys do not move to a new device, so restored secure storage
          would be unreadable. The recovery phrase is the backup. -->
     <application

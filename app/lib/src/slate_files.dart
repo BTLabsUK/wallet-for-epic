@@ -57,6 +57,12 @@ abstract interface class SlateFiles {
 
   /// Lets the user pick a transaction file, or returns null if they cancelled.
   Future<SlateFile?> pick();
+
+  /// Whether [shareText] opens a share sheet on this platform.
+  bool get canShareText;
+
+  /// Shares plain [text], such as the wallet's address, through the share sheet.
+  Future<void> shareText(String text);
 }
 
 class PlatformSlateFiles implements SlateFiles {
@@ -112,12 +118,28 @@ class PlatformSlateFiles implements SlateFiles {
       json: decodeSlateFile(await file.readAsBytes()),
     );
   }
+
+  @override
+  bool get canShareText =>
+      _mobile || (!kIsWeb && defaultTargetPlatform == TargetPlatform.macOS);
+
+  @override
+  Future<void> shareText(String text) async {
+    await SharePlus.instance.share(ShareParams(text: text));
+  }
 }
 
 /// Records exports and hands out queued picks, for widget tests.
 class FakeSlateFiles implements SlateFiles {
   final List<SlateFile> exported = [];
   final List<SlateFile?> picks = [];
+  final List<String> sharedTexts = [];
+
+  @override
+  bool get canShareText => true;
+
+  @override
+  Future<void> shareText(String text) async => sharedTexts.add(text);
 
   @override
   Future<bool> export({required String name, required String json}) async {
