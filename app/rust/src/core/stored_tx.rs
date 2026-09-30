@@ -21,7 +21,9 @@ const WALLET_DIR: &str = "wallet_data";
 const TX_SAVE_DIR: &str = "saved_txs";
 
 fn damaged(name: &str) -> CoreError {
-    CoreError::InvalidArgument(format!("the stored transaction {name} is damaged"))
+    CoreError::InvalidArgument(format!(
+        "the saved copy of this payment ({name}) is damaged"
+    ))
 }
 
 fn path_for(data_dir: &str, name: &str) -> CoreResult<PathBuf> {

@@ -5,8 +5,8 @@
 //! functions `async` (that would run them inside a tokio executor and can panic).
 //!
 //! Chain: epic's consensus parameters are process-global, so one process uses one `Chain` at a
-//! time. Opening or creating a wallet on a different chain fails with `InvalidArgument` while any
-//! wallet on the current chain is still open; drop every `EpicWallet` first to switch.
+//! time. Opening or creating a wallet on a different chain waits up to 20 s for every wallet on the
+//! current chain to close, then fails with `InvalidArgument`; drop every `EpicWallet` to switch.
 //!
 //! Secrets: the keychain mask never leaves Rust. Passwords and mnemonics arrive as Strings from
 //! Dart and are moved into `ZeroingString` immediately.
@@ -125,10 +125,18 @@ impl EpicWallet {
     }
 
     /// Transactions, newest first by `time_unix`: epic-wallet's log merged with the app's history
-    /// archive (notes, counterparties, imported records). With `refresh` it updates from the node
-    /// first.
+    /// archive (notes, counterparties, imported records). With `refresh` it updates outputs from
+    /// the node first. It makes no block or kernel lookups; see `enrich_history`.
     pub fn transactions(&self, refresh: bool) -> Result<Vec<TxEntry>, WalletError> {
         self.inner.transactions(refresh).map_err(to_api)
+    }
+
+    /// Fills in block heights and times, and settles imported records that were still pending,
+    /// with at most 25 node calls and without refreshing outputs. Returns how many rows changed:
+    /// reload `transactions(false)` only when it is above 0. Call it after the home screen loads;
+    /// later calls carry on where a refused or failed lookup stopped.
+    pub fn enrich_history(&self) -> Result<u32, WalletError> {
+        self.inner.enrich_history().map_err(to_api)
     }
 
     /// Sets the note of the transaction with `TxEntry.key`; `None` or blank clears it.

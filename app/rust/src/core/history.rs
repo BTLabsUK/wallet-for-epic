@@ -215,12 +215,17 @@ fn from_live(live: &LiveTx, meta: &Meta) -> MergedTx {
     let counterparty = ann
         .and_then(|a| some_str(&a.counterparty))
         .or_else(|| some_str(&t.public_addr).filter(|a| a != RESTORE_ADDR));
+    // Heights come from our own data first: a created output on chain, then a kernel height
+    // cached earlier, then the log's `confirmation_height`. epic-wallet sets that to the node's tip
+    // when it saw the confirmation (`updater.rs:356, 370`), so it can be a few blocks late, but it
+    // needs no node call. Only rows with none of these send their kernel to the node (`enrich`).
     let block_height = live.block_height.or_else(|| {
         if t.confirmed {
             kernel_excess
                 .as_ref()
                 .and_then(|k| meta.kernel_heights.get(k).copied())
                 .filter(|h| *h > 0)
+                .or(t.confirmation_height.filter(|h| *h > 0))
         } else {
             None
         }
@@ -400,6 +405,40 @@ fn matches(r: &Record, rows: &[MergedTx], hidden: &[bool]) -> Vec<usize> {
     out
 }
 
+fn is_incoming(k: TxKind) -> bool {
+    matches!(
+        k,
+        TxKind::Received | TxKind::ReceivedCancelled | TxKind::Coinbase
+    )
+}
+
+/// Short stable hash of what identifies an imported row.
+fn identity_hash(tx: &TxEntry) -> String {
+    let text = format!(
+        "{:?}|{:?}|{:?}|{}|{}|{}",
+        tx.slate_id,
+        tx.kernel_excess,
+        tx.output_commits,
+        tx.created_at_unix,
+        tx.amount_credited,
+        tx.amount_debited
+    );
+    let d = ring::digest::digest(&ring::digest::SHA256, text.as_bytes());
+    hex::encode(&d.as_ref()[..4])
+}
+
+/// Aliases that more than one row carries.
+pub(crate) fn shared_aliases(rows: &[MergedTx]) -> HashSet<String> {
+    let mut seen = HashSet::new();
+    let mut shared = HashSet::new();
+    for a in rows.iter().flat_map(|m| m.aliases.iter()) {
+        if !seen.insert(a.clone()) {
+            shared.insert(a.clone());
+        }
+    }
+    shared
+}
+
 /// Merges live rows and the archive into the list the UI shows, newest first.
 pub(crate) fn merge(live: &[LiveTx], meta: &Meta) -> Vec<MergedTx> {
     let mut rows: Vec<MergedTx> = live.iter().map(|l| from_live(l, meta)).collect();
@@ -413,11 +452,20 @@ pub(crate) fn merge(live: &[LiveTx], meta: &Meta) -> Vec<MergedTx> {
             imported.push((from_record(r), some_str(&r.note)));
             continue;
         }
-        // Prefer a row the wallet made itself over one a scan rebuilt.
+        // Prefer a row of the record's own kind (both sides of a self-send share a slate id),
+        // and among those a row the wallet made itself over one a scan rebuilt.
+        let kind = kind_from(&r.kind);
+        let same_kind = |i: &usize| {
+            let k = rows[*i].tx.kind;
+            k == kind || (rows[*i].tx.source == TxSource::Restored && is_incoming(kind))
+        };
+        let made = |i: &usize| rows[*i].tx.source != TxSource::Restored;
         let primary = found
             .iter()
             .copied()
-            .find(|i| rows[*i].tx.source != TxSource::Restored)
+            .find(|i| same_kind(i) && made(i))
+            .or_else(|| found.iter().copied().find(|i| same_kind(i)))
+            .or_else(|| found.iter().copied().find(|i| made(i)))
             .unwrap_or(found[0]);
         absorb(&mut rows[primary], r);
         if let Some(n) = some_str(&r.note) {
@@ -450,14 +498,16 @@ pub(crate) fn merge(live: &[LiveTx], meta: &Meta) -> Vec<MergedTx> {
 
     let mut used = HashSet::new();
     let mut result = Vec::with_capacity(out.len());
+    let mut record_notes_by_row = Vec::with_capacity(out.len());
     for (mut m, record_note) in out {
         let tx = &mut m.tx;
         let mut key = base_key(&tx.slate_id, &tx.kernel_excess, &tx.output_commits, tx.id);
         if !used.insert(key.clone()) {
-            // Both sides of a self-send share a slate id.
+            // Both sides of a self-send share a slate id. The suffix depends only on the row
+            // itself, so a note saved under it stays with that row when others are added.
             key = match tx.id {
                 Some(i) => format!("{key}#l{i}"),
-                None => format!("{key}#{}", used.len()),
+                None => format!("{key}#{}", identity_hash(tx)),
             };
             used.insert(key.clone());
         }
@@ -472,12 +522,21 @@ pub(crate) fn merge(live: &[LiveTx], meta: &Meta) -> Vec<MergedTx> {
             _ => tx.created_at_unix,
         };
         m.aliases = aliases_of(tx);
-        tx.note = m
-            .aliases
-            .iter()
-            .find_map(|a| meta.notes.get(a).cloned())
-            .or(record_note);
+        record_notes_by_row.push(record_note);
         result.push(m);
+    }
+    // A note belongs to a row by its key, or by an alias no other row shares (the two sides of a
+    // self-send share `s:<slate>`, and must not show each other's notes).
+    let shared = shared_aliases(&result);
+    for (m, record_note) in result.iter_mut().zip(record_notes_by_row) {
+        let own = meta.notes.get(&m.tx.key).cloned();
+        let by_alias = || {
+            m.aliases
+                .iter()
+                .filter(|a| !shared.contains(*a))
+                .find_map(|a| meta.notes.get(a).cloned())
+        };
+        m.tx.note = own.or_else(by_alias).or(record_note);
     }
     result.sort_by(|a, b| {
         b.tx.time_unix
@@ -485,6 +544,33 @@ pub(crate) fn merge(live: &[LiveTx], meta: &Meta) -> Vec<MergedTx> {
             .then_with(|| b.tx.id.cmp(&a.tx.id))
     });
     result
+}
+
+/// Rows of `after` whose height, time, status or kind differ from `before` (by key), or are new.
+pub(crate) fn changed_rows(before: &[MergedTx], after: &[MergedTx]) -> u32 {
+    let old: HashMap<&str, &TxEntry> = before.iter().map(|m| (m.tx.key.as_str(), &m.tx)).collect();
+    let n = after
+        .iter()
+        .filter(|m| match old.get(m.tx.key.as_str()) {
+            Some(o) => {
+                (
+                    o.block_height,
+                    o.block_time_unix,
+                    o.status,
+                    o.kind,
+                    &o.status_detail,
+                ) != (
+                    m.tx.block_height,
+                    m.tx.block_time_unix,
+                    m.tx.status,
+                    m.tx.kind,
+                    &m.tx.status_detail,
+                )
+            }
+            None => true,
+        })
+        .count();
+    u32::try_from(n).unwrap_or(u32::MAX)
 }
 
 /// True when the record describes the transaction shown as `tx`.
@@ -524,6 +610,8 @@ pub(crate) fn to_record(m: &MergedTx) -> Record {
         messages: m.messages.clone(),
         payment_proof: m.payment_proof.clone(),
         status_detail: tx.status_detail.clone(),
+        // The file's own `exported_at_unix` stands for every record in it.
+        exported_at_unix: None,
     }
 }
 
@@ -586,7 +674,7 @@ pub(crate) fn apply_settlement(r: &mut Record, s: Settlement) {
             }
             .into();
             r.status_detail = Some(format!(
-                "Never completed: its kernel was not on chain by block {tip}"
+                "Never completed: it had not reached the network by block {tip}"
             ));
         }
     }
@@ -904,6 +992,110 @@ pub(crate) mod tests {
             (m.status, m.confirmed, m.block_height),
             (TxStatus::Confirmed, true, Some(777))
         );
+    }
+
+    #[test]
+    fn heights_come_from_our_data_before_the_node() {
+        // A no-change send confirmed through its kernel: the log's confirmation height is used.
+        let mut e = entry(1, TxLogEntryType::TxSent);
+        e.confirmed = true;
+        e.confirmation_height = Some(77);
+        let m = &merge(&[live(e.clone(), &[], None)], &Meta::default())[0].tx;
+        assert_eq!(m.block_height, Some(77));
+        // A created output on chain wins.
+        let m = &merge(&[live(e, &["chg"], Some(75))], &Meta::default())[0].tx;
+        assert_eq!(m.block_height, Some(75));
+    }
+
+    #[test]
+    fn changed_rows_counts_height_time_and_status_changes() {
+        let mut e = entry(1, TxLogEntryType::TxReceived);
+        e.confirmed = true;
+        let rows = [live(e, &["c"], Some(5))];
+        let before = merge(&rows, &Meta::default());
+        assert_eq!(changed_rows(&before, &before), 0);
+        let mut meta = Meta::default();
+        meta.block_times.insert(5, 1_700_000_000);
+        let after = merge(&rows, &meta);
+        assert_eq!(changed_rows(&before, &after), 1);
+    }
+
+    #[test]
+    fn duplicate_imported_keys_are_stable_when_rows_are_added() {
+        let mut a = record(Some("dup"), None, &[]);
+        a.created_at_unix = 1;
+        let mut b = record(Some("dup"), None, &[]);
+        b.created_at_unix = 2;
+        b.kind = "Received".into();
+        let mut meta = Meta::default();
+        meta.records = vec![a.clone(), b.clone()];
+        let key_of_b = |rows: &[MergedTx]| {
+            rows.iter()
+                .find(|m| m.tx.created_at_unix == 2)
+                .unwrap()
+                .tx
+                .key
+                .clone()
+        };
+        let first = key_of_b(&merge(&[], &meta));
+        let mut other = record(None, Some("zzz"), &[]);
+        other.created_at_unix = 3;
+        meta.records.insert(0, other);
+        assert_eq!(key_of_b(&merge(&[], &meta)), first);
+    }
+
+    #[test]
+    fn a_restored_self_send_keeps_both_sides() {
+        // Restored from seed: the send's change and the receive's output, both unspent.
+        let mut rows = Vec::new();
+        for (i, c) in ["chg", "recv"].iter().enumerate() {
+            let mut e = entry(i as u32, TxLogEntryType::TxReceived);
+            e.public_addr = Some(RESTORE_ADDR.into());
+            e.confirmed = true;
+            rows.push(live(e, &[c], Some(3)));
+        }
+        let mut meta = Meta::default();
+        meta.records.push(record(Some("self"), None, &["chg"]));
+        let mut r = record(Some("self"), None, &["recv"]);
+        r.kind = "Received".into();
+        meta.records.push(r);
+        let merged = merge(&rows, &meta);
+        let kinds: Vec<TxKind> = merged.iter().map(|m| m.tx.kind).collect();
+        assert_eq!(merged.len(), 2, "{kinds:?}");
+        assert!(kinds.contains(&TxKind::Sent) && kinds.contains(&TxKind::Received));
+    }
+
+    #[test]
+    fn self_send_sides_do_not_share_notes() {
+        let slate = uuid::Uuid::from_u128(5);
+        let mut s = entry(1, TxLogEntryType::TxSent);
+        s.tx_slate_id = Some(slate);
+        let mut r = entry(2, TxLogEntryType::TxReceived);
+        r.tx_slate_id = Some(slate);
+        let rows = [live(s, &[], None), live(r, &[], None)];
+        let merged = merge(&rows, &Meta::default());
+        let send_key = merged
+            .iter()
+            .find(|m| m.tx.id == Some(1))
+            .unwrap()
+            .tx
+            .key
+            .clone();
+        let mut meta = Meta::default();
+        meta.notes.insert(send_key, "for the send".into());
+        let merged = merge(&rows, &meta);
+        let note = |i: u32| {
+            merged
+                .iter()
+                .find(|m| m.tx.id == Some(i))
+                .unwrap()
+                .tx
+                .note
+                .clone()
+        };
+        assert_eq!(note(1).as_deref(), Some("for the send"));
+        assert_eq!(note(2), None);
+        assert!(shared_aliases(&merged).contains(&format!("s:{slate}")));
     }
 
     #[test]

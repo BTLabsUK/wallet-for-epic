@@ -369,8 +369,18 @@ fn usernet_end_to_end() {
         Duration::from_secs(600),
         || spendable(&a) == before_paid - EPIC - paid_fee,
     );
+    a.transactions(true).expect("refresh");
+    assert!(
+        a.enrich_history().expect("enrich") >= 1,
+        "block times arrive"
+    );
+    assert_eq!(
+        a.enrich_history().expect("enrich again"),
+        0,
+        "nothing left to fetch"
+    );
     let paid_row = a
-        .transactions(true)
+        .transactions(false)
         .expect("txs")
         .into_iter()
         .find(|t| t.key == paid.key)
@@ -472,4 +482,31 @@ fn usernet_end_to_end() {
     assert_eq!(contacts[0].address, alice_url);
     let csv = c.export_history_csv().expect("csv");
     assert!(csv.contains("coffee for alice"));
+    assert!(
+        csv.contains(",Sent,Completed,") || csv.contains(",Sent,Confirming "),
+        "status words as the app shows them"
+    );
+
+    // 6. A later export with a new note merges into the records imported before.
+    let to_b = a
+        .transactions(false)
+        .expect("A txs")
+        .into_iter()
+        .find(|t| t.slate_id.as_deref() == Some(send.slate_id.as_str()))
+        .expect("the first send to B");
+    a.set_tx_note(to_b.key.clone(), Some("first payment to B".into()))
+        .expect("note");
+    std::thread::sleep(Duration::from_millis(1100)); // a newer `exported_at_unix`
+    let newer = c
+        .import_history(a.export_history().expect("export again"))
+        .expect("import the newer file");
+    assert!(newer.merged >= 1, "the new note merged: {newer:?}");
+    assert_eq!(newer.added, 0);
+    let noted = c
+        .transactions(false)
+        .expect("C txs")
+        .into_iter()
+        .find(|t| t.key == to_b.key)
+        .expect("the send to B, from the backup");
+    assert_eq!(noted.note.as_deref(), Some("first payment to B"));
 }

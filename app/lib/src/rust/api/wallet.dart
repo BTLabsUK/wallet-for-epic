@@ -66,6 +66,12 @@ abstract class EpicWallet implements RustOpaqueInterface {
 
   Future<void> deleteContact({required String id});
 
+  /// Fills in block heights and times, and settles imported records that were still pending,
+  /// with at most 25 node calls and without refreshing outputs. Returns how many rows changed:
+  /// reload `transactions(false)` only when it is above 0. Call it after the home screen loads;
+  /// later calls carry on where a refused or failed lookup stopped.
+  Future<int> enrichHistory();
+
   /// The wallet's epicbox address, `<pubkey>@<epicbox_domain>` (port appended if not 443).
   Future<String> epicboxAddress();
 
@@ -156,7 +162,7 @@ abstract class EpicWallet implements RustOpaqueInterface {
   });
 
   /// Transactions, newest first by `time_unix`: epic-wallet's log merged with the app's history
-  /// archive (notes, counterparties, imported records). With `refresh` it updates from the node
-  /// first.
+  /// archive (notes, counterparties, imported records). With `refresh` it updates outputs from
+  /// the node first. It makes no block or kernel lookups; see `enrich_history`.
   Future<List<TxEntry>> transactions({required bool refresh});
 }

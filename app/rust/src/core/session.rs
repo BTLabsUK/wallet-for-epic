@@ -48,7 +48,7 @@ pub(crate) type OwnerApi = Owner<Provider, EpicNodeClient, ExtKeychain>;
 
 /// Seed length in bytes for a wallet created without a phrase: 24 words.
 const NEW_SEED_BYTES: usize = 32;
-/// Node calls one refresh may spend on block heights and times. floo-node answers 429 to bursts
+/// Node calls one `enrich_history` may spend on block heights and times. floo-node answers 429 to bursts
 /// of about ten, so a restored wallet with many rows fills in over several refreshes.
 const LOOKUPS_PER_REFRESH: usize = 25;
 
@@ -352,28 +352,38 @@ impl Session {
         Ok(history::merge(&live, &self.meta.snapshot()))
     }
 
-    /// Live log merged with the history archive, newest first. A refresh also fetches a bounded
-    /// number of missing block heights and times from the node.
+    /// Live log merged with the history archive, newest first. With `refresh` the outputs are
+    /// updated from the node first. Block heights and times come from `enrich_history`.
     pub(crate) fn transactions(&self, refresh: bool) -> CoreResult<Vec<TxEntry>> {
-        let live = self.live_rows(refresh)?;
-        let mut merged = history::merge(&live, &self.meta.snapshot());
-        if refresh {
-            self.enrich(&merged);
-            merged = history::merge(&live, &self.meta.snapshot());
-        }
-        Ok(merged.into_iter().map(|m| m.tx).collect())
+        Ok(self.merged(refresh)?.into_iter().map(|m| m.tx).collect())
+    }
+
+    /// Fetches missing block heights, block times and verdicts for imported pending records, at
+    /// most `LOOKUPS_PER_REFRESH` node calls, without refreshing outputs. Returns how many rows
+    /// changed, so the caller reloads the list only when something did.
+    pub(crate) fn enrich_history(&self) -> CoreResult<u32> {
+        let live = self.live_rows(false)?;
+        let before = history::merge(&live, &self.meta.snapshot());
+        self.enrich(&before);
+        let after = history::merge(&live, &self.meta.snapshot());
+        Ok(history::changed_rows(&before, &after))
     }
 
     /// Sets or clears the note of the transaction with `key`. The note replaces any note the
     /// transaction had under another of its keys.
     pub(crate) fn set_tx_note(&self, key: &str, note: Option<String>) -> CoreResult<()> {
         let note = note.map(|n| n.trim().to_owned()).filter(|n| !n.is_empty());
-        let aliases = self
-            .merged(false)?
+        let rows = self.merged(false)?;
+        let shared = history::shared_aliases(&rows);
+        // Only aliases this row alone carries: the other side of a self-send keeps its note.
+        let aliases: Vec<String> = rows
             .into_iter()
             .find(|m| m.tx.key == key)
             .map(|m| m.aliases)
-            .unwrap_or_else(|| vec![key.to_owned()]);
+            .unwrap_or_else(|| vec![key.to_owned()])
+            .into_iter()
+            .filter(|a| a == key || !shared.contains(a))
+            .collect();
         self.meta.update(|m| {
             for a in &aliases {
                 m.notes.remove(a);
@@ -515,7 +525,15 @@ impl Session {
     }
 
     pub(crate) fn export_history_csv(&self) -> CoreResult<String> {
-        Ok(export::csv(&self.transactions(false)?))
+        let tip = {
+            let mut guard = self.wallet.lock();
+            guard
+                .lc_provider()?
+                .wallet_inst()?
+                .last_confirmed_height()
+                .ok()
+        };
+        Ok(export::csv(&self.transactions(false)?, tip))
     }
 
     /// Merges an export of this wallet. Writes only the app's archive, never epic.db.
@@ -546,12 +564,22 @@ impl Session {
                 skipped: 0,
                 contacts_added: 0,
             };
-            for r in payload.txs {
+            for mut r in payload.txs {
                 let identified = r.slate_id.is_some()
                     || r.kernel_excess.is_some()
                     || !r.output_commits.is_empty();
-                if !identified || m.records.iter().any(|e| e.same_tx(&r)) {
+                if !identified {
                     report.skipped += 1;
+                    continue;
+                }
+                r.exported_at_unix = Some(payload.exported_at_unix);
+                if let Some(existing) = m.records.iter_mut().find(|e| e.same_tx(&r)) {
+                    // Known from an earlier import: take what this file adds.
+                    if existing.merge_from(&r) {
+                        report.merged += 1;
+                    } else {
+                        report.skipped += 1;
+                    }
                     continue;
                 }
                 let live = shown
@@ -955,9 +983,7 @@ impl Session {
             .find(|t| t.kind == TxKind::Sent)
             .or_else(|| rows.first())
             .cloned()
-            .ok_or_else(|| {
-                CoreError::InvalidSlate(format!("no transaction log entry for slate {id}"))
-            })
+            .ok_or_else(|| CoreError::InvalidSlate(format!("no payment with id {id}")))
     }
 
     /// The CLI's `receive` sequence: verify messages, `Foreign::receive_tx`.
@@ -1008,14 +1034,13 @@ impl Session {
             .transactions(false)?
             .into_iter()
             .find(|t| t.key == key)
-            .ok_or_else(|| CoreError::InvalidArgument(format!("no transaction {key}")))?;
+            .ok_or_else(|| CoreError::InvalidArgument(format!("no payment {key}")))?;
         let id = match (row.repostable, row.id) {
             (true, Some(id)) => id,
-            _ => {
-                return Err(CoreError::InvalidArgument(
-                    "only a finalized send that is not confirmed can be posted again".into(),
-                ))
-            }
+            _ => return Err(CoreError::InvalidArgument(
+                "only a finished payment that has not reached the network can be sent to it again"
+                    .into(),
+            )),
         };
         let entry = self
             .owner
@@ -1023,11 +1048,11 @@ impl Session {
             .txs
             .into_iter()
             .next()
-            .ok_or_else(|| CoreError::InvalidArgument(format!("no transaction {key}")))?;
+            .ok_or_else(|| CoreError::InvalidArgument(format!("no payment {key}")))?;
         let tx = stored_tx::load(&self.config.data_dir, &entry)?
             .filter(stored_tx::kernel_is_final)
             .ok_or_else(|| {
-                CoreError::InvalidArgument("this send has no final transaction stored".into())
+                CoreError::InvalidArgument("this payment has no finished transaction saved".into())
             })?;
         self.owner.post_tx(self.mask(), &tx, true)?;
         Ok(())

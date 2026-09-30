@@ -24,7 +24,7 @@ use zeroize::Zeroizing;
 use super::error::{CoreError, CoreResult};
 use super::meta::{ContactRec, Record};
 use super::vault::random_bytes;
-use crate::api::types::{TxEntry, TxKind};
+use crate::api::types::{TxEntry, TxKind, TxStatus};
 
 const MAGIC: &[u8; 4] = b"WFEH";
 const VERSION: u8 = 1;
@@ -188,16 +188,58 @@ fn net_amount(tx: &TxEntry) -> i128 {
     }
 }
 
-/// One row per transaction, newest first as given.
-pub(crate) fn csv(txs: &[TxEntry]) -> String {
+/// Confirmations after which the app calls a payment completed (the UI's `minimumConfirmations`).
+pub(crate) const CONFIRMATIONS_TARGET: u64 = 10;
+
+/// The type column, in the words the app shows (`txKindLabel` in `lib/src/ui/common.dart`).
+fn type_word(kind: TxKind) -> &'static str {
+    match kind {
+        TxKind::Coinbase => "Mining reward",
+        TxKind::Received | TxKind::ReceivedCancelled => "Received",
+        TxKind::Sent | TxKind::SentCancelled => "Sent",
+    }
+}
+
+/// The status column, in the words of the app's status chip (`txStatusLabel`), with `tip` the
+/// wallet's last confirmed height when known.
+fn status_words(tx: &TxEntry, tip: Option<u64>) -> String {
+    let confirmations = match (tx.block_height, tip) {
+        (Some(h), Some(t)) => Some((t + 1).saturating_sub(h)),
+        _ => None,
+    };
+    let incoming = matches!(tx.kind, TxKind::Received | TxKind::ReceivedCancelled);
+    match tx.status {
+        TxStatus::Cancelled => "Cancelled".into(),
+        _ if tx.id.is_none() && tx.status != TxStatus::Confirmed => {
+            "From backup, status unknown".into()
+        }
+        TxStatus::AwaitingRecipient => "Waiting for recipient".into(),
+        TxStatus::AwaitingConfirmation if tx.block_height.is_none() && incoming => {
+            "Waiting for sender".into()
+        }
+        TxStatus::AwaitingConfirmation => {
+            format!(
+                "Confirming {}/{CONFIRMATIONS_TARGET}",
+                confirmations.unwrap_or(0)
+            )
+        }
+        TxStatus::Confirmed => match confirmations {
+            Some(n) if n < CONFIRMATIONS_TARGET => format!("Confirming {n}/{CONFIRMATIONS_TARGET}"),
+            _ => "Completed".into(),
+        },
+    }
+}
+
+/// One row per payment, newest first as given.
+pub(crate) fn csv(txs: &[TxEntry], tip: Option<u64>) -> String {
     let mut out = String::from(
         "date,type,status,amount_epic,fee_epic,counterparty,note,slate_id,kernel,block_height\n",
     );
     for tx in txs {
         let row = [
             field(&iso_utc(tx.time_unix), false),
-            field(super::history::kind_name(tx.kind), false),
-            field(super::history::status_name(tx.status), false),
+            field(type_word(tx.kind), false),
+            field(&status_words(tx, tip), false),
             field(&epic_decimal(net_amount(tx)), false),
             field(
                 &tx.fee.map(|f| epic_decimal(f as i128)).unwrap_or_default(),
@@ -221,7 +263,7 @@ pub(crate) fn csv(txs: &[TxEntry]) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::api::types::{TxSource, TxStatus};
+    use crate::api::types::TxSource;
 
     #[test]
     fn seal_then_open_round_trips() {
@@ -302,7 +344,10 @@ mod tests {
 
     #[test]
     fn csv_quotes_and_defuses_formulas() {
-        let out = csv(&[tx("rent, \"march\"\nsecond line", "=HYPERLINK(\"x\")")]);
+        let out = csv(
+            &[tx("rent, \"march\"\nsecond line", "=HYPERLINK(\"x\")")],
+            Some(40),
+        );
         let mut lines = out.splitn(2, '\n');
         assert_eq!(
             lines.next().unwrap(),
@@ -310,10 +355,28 @@ mod tests {
         );
         assert_eq!(
             lines.next().unwrap(),
-            "2026-09-21T14:13:20Z,Sent,Confirmed,-1.49200000,0.00800000,\
+            "2026-09-21T14:13:20Z,Sent,Completed,-1.49200000,0.00800000,\
              \"'=HYPERLINK(\"\"x\"\")\",\"rent, \"\"march\"\"\nsecond line\",1,08ab,12\n"
         );
         assert_eq!(epic_decimal(5), "0.00000005");
+
+        let mut t = tx("", "");
+        assert_eq!(status_words(&t, Some(15)), "Confirming 4/10");
+        assert_eq!(status_words(&t, Some(21)), "Completed");
+        assert_eq!(status_words(&t, None), "Completed");
+        t.status = TxStatus::AwaitingRecipient;
+        assert_eq!(status_words(&t, Some(21)), "Waiting for recipient");
+        t.status = TxStatus::AwaitingConfirmation;
+        t.block_height = None;
+        assert_eq!(status_words(&t, Some(21)), "Confirming 0/10");
+        t.kind = TxKind::Received;
+        assert_eq!(status_words(&t, Some(21)), "Waiting for sender");
+        t.id = None;
+        assert_eq!(status_words(&t, Some(21)), "From backup, status unknown");
+        t.status = TxStatus::Cancelled;
+        assert_eq!(status_words(&t, Some(21)), "Cancelled");
+        t.kind = TxKind::Coinbase;
+        assert_eq!(type_word(t.kind), "Mining reward");
         assert_eq!(iso_utc(0), "1970-01-01T00:00:00Z");
         assert_eq!(iso_utc(951_782_400), "2000-02-29T00:00:00Z");
     }

@@ -111,6 +111,11 @@ abstract interface class WalletSession {
   /// epic-wallet's log merged with the history archive, newest first by `timeUnix`.
   Future<List<TxEntry>> transactions({required bool refresh});
 
+  /// Fills in block heights and times and settles imported pending records, with at most 25
+  /// node calls and no output refresh. Returns how many rows changed; reload [transactions]
+  /// only when it is above 0.
+  Future<int> enrichHistory();
+
   /// Sets the note of the transaction with [TxEntry.key]; null or blank clears it.
   Future<void> setTxNote({required String key, String? note});
 
@@ -289,6 +294,9 @@ class _RustWalletSession implements WalletSession {
   @override
   Future<List<TxEntry>> transactions({required bool refresh}) =>
       _wallet.transactions(refresh: refresh);
+
+  @override
+  Future<int> enrichHistory() => _wallet.enrichHistory();
 
   @override
   Future<void> setTxNote({required String key, String? note}) =>
@@ -641,6 +649,20 @@ class FakeWalletSession implements WalletSession {
     for (final tx in transactionsValue) _withNote(tx),
   ];
 
+  /// Rows [enrichHistory] reports as changed on its next call (then 0 again).
+  int enrichChanges = 0;
+
+  /// Number of [enrichHistory] calls.
+  int enrichCalls = 0;
+
+  @override
+  Future<int> enrichHistory() async {
+    enrichCalls++;
+    final n = enrichChanges;
+    enrichChanges = 0;
+    return n;
+  }
+
   /// Notes by transaction key, as [setTxNote] stores them.
   final Map<String, String> notes = {};
 
@@ -726,8 +748,17 @@ class FakeWalletSession implements WalletSession {
             tx.timeUnix * 1000,
             isUtc: true,
           ).toIso8601String(),
-          tx.kind.name,
-          tx.status.name,
+          switch (tx.kind) {
+            TxKind.coinbase => 'Mining reward',
+            TxKind.received || TxKind.receivedCancelled => 'Received',
+            TxKind.sent || TxKind.sentCancelled => 'Sent',
+          },
+          switch (tx.status) {
+            TxStatus.confirmed => 'Completed',
+            TxStatus.cancelled => 'Cancelled',
+            TxStatus.awaitingRecipient => 'Waiting for recipient',
+            TxStatus.awaitingConfirmation => 'Confirming',
+          },
           tx.amountCredited - tx.amountDebited,
           tx.fee ?? '',
           tx.counterparty ?? '',

@@ -92,11 +92,11 @@ pub(crate) fn parse_address(text: &str) -> CoreResult<EpicboxAddress> {
     let text = text.trim();
     if !text.contains('@') {
         return Err(CoreError::InvalidArgument(
-            "an epicbox address needs its relay: <address>@<domain>".into(),
+            "an address needs its mailbox server: <address>@<server>".into(),
         ));
     }
     let address = EpicboxAddress::from_str(text)
-        .map_err(|_| CoreError::InvalidArgument("not a valid epicbox address".into()))?;
+        .map_err(|_| CoreError::InvalidArgument("not a valid address".into()))?;
     // from_str checks the base58 checksum; the version bytes tie the key to the chain.
     address
         .public_key()
@@ -147,7 +147,7 @@ fn send_request(socket: &mut Socket, request: &ProtocolRequestV2) -> CoreResult<
     let text = serde_json::to_string(request).map_err(|e| CoreError::Relay(e.to_string()))?;
     socket
         .send(Message::Text(text.into()))
-        .map_err(|e| CoreError::Relay(format!("sending to the relay: {e}")))
+        .map_err(|e| CoreError::Relay(format!("sending to the mailbox server: {e}")))
 }
 
 /// The encrypted, signed `PostSlate` for `slate` from `from` to `to`.
@@ -159,7 +159,7 @@ fn post_request(
     let body = serde_json::to_string(slate).map_err(|e| CoreError::InvalidSlate(e.to_string()))?;
     let receiver_key = to
         .public_key()
-        .map_err(|_| CoreError::InvalidArgument("not a valid epicbox address".into()))?;
+        .map_err(|_| CoreError::InvalidArgument("not a valid address".into()))?;
     let message = EncryptedMessage::new(body, to, &receiver_key, &identity.secret_key)?;
     let message =
         serde_json::to_string(&message).map_err(|e| CoreError::InvalidSlate(e.to_string()))?;
@@ -196,10 +196,14 @@ pub(crate) fn post_once(
             }
             Ok(_) => {}
             Err(e) if is_timeout(&e) => {}
-            Err(e) => return Err(CoreError::Relay(format!("reading from the relay: {e}"))),
+            Err(e) => {
+                return Err(CoreError::Relay(format!(
+                    "reading from the mailbox server: {e}"
+                )))
+            }
         }
         if Instant::now() > deadline {
-            return Err(CoreError::Relay("the relay did not greet us".into()));
+            return Err(CoreError::Relay("the mailbox server did not answer".into()));
         }
     }
     send_request(&mut socket, &request)?;
@@ -211,7 +215,7 @@ pub(crate) fn post_once(
                 Ok(ProtocolResponseV2::Ok) => break,
                 Ok(ProtocolResponseV2::Error { kind, description }) => {
                     return Err(CoreError::Relay(format!(
-                        "the relay refused the slate: {kind} {description}"
+                        "the mailbox server refused the payment: {kind} {description}"
                     )))
                 }
                 _ => {}
@@ -337,7 +341,7 @@ impl Worker {
             }
             backoff = (backoff * 2).min(MAX_BACKOFF);
         }
-        self.emit(ListenerEventKind::Stopped, None, "Listener stopped".into());
+        self.emit(ListenerEventKind::Stopped, None, "Offline".into());
     }
 
     /// Serves one connection until it drops or a stop is requested. Returns why it ended.
@@ -355,7 +359,7 @@ impl Worker {
             };
             let text = match message {
                 Message::Text(t) => t.to_string(),
-                Message::Close(_) => return "the relay closed the connection".into(),
+                Message::Close(_) => return "the mailbox server closed the connection".into(),
                 _ => continue,
             };
             let Ok(response) = serde_json::from_str::<ProtocolResponseV2>(&text) else {
@@ -404,7 +408,7 @@ impl Worker {
                     self.emit(
                         ListenerEventKind::Error,
                         None,
-                        format!("relay error: {kind} {description}"),
+                        format!("mailbox server error: {kind} {description}"),
                     );
                 }
                 ProtocolResponseV2::Ok | ProtocolResponseV2::GetVersion { .. } => {}
@@ -442,7 +446,7 @@ impl Worker {
         let (versioned, proof) = match parsed {
             Ok(x) => x,
             Err(e) => {
-                let text = format!("unreadable slate from the relay: {e}");
+                let text = format!("an unreadable payment arrived from the mailbox server: {e}");
                 self.emit(ListenerEventKind::Error, None, text);
                 return;
             }
@@ -477,7 +481,9 @@ impl Worker {
         sender: &EpicboxAddress,
     ) -> CoreResult<(ListenerEventKind, String)> {
         if slate.tx.inputs().is_empty() {
-            return Err(CoreError::InvalidSlate("invoices are not supported".into()));
+            return Err(CoreError::InvalidSlate(
+                "payment requests (invoices) are not supported".into(),
+            ));
         }
         let foreign = Foreign::new(self.wallet.clone(), self.mask.clone(), None);
         foreign
