@@ -26,6 +26,9 @@ aapt2="$(find "$ANDROID_HOME/build-tools" -maxdepth 2 -name aapt2 -type f | sort
 [[ -x "$aapt2" ]] || { echo "aapt2 not found under $ANDROID_HOME/build-tools" >&2; exit 1; }
 
 cd "$app_dir"
+# After `flutter test`, the plugin registrant can still list the dev-only integration_test plugin,
+# and the first release build then fails to compile it. `pub get` regenerates it first.
+flutter pub get
 flutter build apk --release --target-platform android-arm64,android-x64 --split-per-abi \
   ${WFE_UPDATE_URL:+--dart-define=WFE_UPDATE_URL="$WFE_UPDATE_URL"}
 
