@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../providers.dart' show minimumConfirmations;
 import 'common.dart';
+import 'feedback_screen.dart';
 
 /// Questions the help page answers. Other screens open it on one of these.
 enum HelpTopic {
@@ -135,6 +136,19 @@ class HelpScreen extends StatelessWidget {
         children: [
           for (final t in HelpTopic.values)
             _Question(answer: _answers[t]!, open: t == topic),
+          const SizedBox(height: 24),
+          Text('Still stuck?', style: Theme.of(context).textTheme.titleMedium),
+          const SizedBox(height: 8),
+          const Text('Tell us what happened or what is unclear.'),
+          const SizedBox(height: 8),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: OutlinedButton.icon(
+              icon: const Icon(Icons.feedback_outlined),
+              label: const Text('Send feedback'),
+              onPressed: () => openFeedback(context),
+            ),
+          ),
         ],
       ),
     );

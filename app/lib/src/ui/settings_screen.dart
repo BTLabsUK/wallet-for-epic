@@ -15,6 +15,7 @@ import '../wallet_service.dart';
 import 'backup_screen.dart';
 import 'common.dart';
 import 'contacts_screen.dart';
+import 'feedback_screen.dart';
 import 'help_screen.dart';
 import 'launch_screen.dart';
 import 'pin.dart';
@@ -494,6 +495,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   leading: const Icon(Icons.help_outline),
                   title: const Text('Help'),
                   onTap: () => openHelp(context),
+                ),
+                ListTile(
+                  leading: const Icon(Icons.feedback_outlined),
+                  title: const Text('Send feedback'),
+                  subtitle: const Text('Report a problem or suggest an idea'),
+                  onTap: () => openFeedback(context),
                 ),
                 const _LinkTile(title: 'Epic Cash', url: epicCashUrl),
                 const _LinkTile(title: 'Source code', url: projectRepoUrl),

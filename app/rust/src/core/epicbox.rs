@@ -331,7 +331,11 @@ impl Worker {
                 log::info!("listener: connected to {}", self.config.epicbox_domain)
             }
             ListenerEventKind::Error => log::warn!("listener: error{slate}: {message}"),
-            _ => log::info!("listener: {kind:?}{slate}: {message}"),
+            ListenerEventKind::Disconnected | ListenerEventKind::Stopped => {
+                log::info!("listener: {kind:?}: {message}")
+            }
+            // Payment messages name the amount, which the log leaves out.
+            _ => log::info!("listener: {kind:?}{slate}"),
         }
         (self.on_event)(ListenerEvent {
             amount,

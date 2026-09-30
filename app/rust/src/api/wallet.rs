@@ -426,7 +426,11 @@ impl EpicWallet {
 fn failed(op: &'static str) -> impl FnOnce(CoreError) -> WalletError {
     move |e| {
         let api = to_api(e);
-        log::warn!("{op} failed: {:?}: {}", api.kind, api.message);
+        match api.kind {
+            // The message states the balance, which the log leaves out.
+            WalletErrorKind::NotEnoughFunds => log::info!("{op} failed: NotEnoughFunds"),
+            kind => log::warn!("{op} failed: {kind:?}: {}", api.message),
+        }
         api
     }
 }

@@ -249,12 +249,14 @@ class IncomingSlateNotifier extends Notifier<SlateFile?> {
       _accept(call.arguments);
     });
     ref.onDispose(() => _channel.setMethodCallHandler(null));
-    _channel
-        .invokeMethod<Object?>('takePending')
-        .then(_accept)
-        .catchError(
-          (Object error) => logWarn('files', 'no pending shared file: $error'),
-        );
+    _channel.invokeMethod<Object?>('takePending').then(_accept).catchError((
+      Object error,
+    ) {
+      // No native side (desktop, tests): nothing can have been shared in.
+      if (error is! MissingPluginException) {
+        logWarn('files', 'no pending shared file: $error');
+      }
+    });
     return null;
   }
 
