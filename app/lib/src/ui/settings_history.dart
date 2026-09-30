@@ -225,6 +225,10 @@ Future<bool> exportHistoryBackup(BuildContext context, WidgetRef ref) async {
   final config = ref.read(walletConfigProvider);
   if (session == null || config == null) return false;
   try {
+    // uihome: what the file holds, for the home reminder (read just before the export).
+    final snapshot = HistoryExportSnapshot.of(
+      await session.transactions(refresh: false),
+    );
     final bytes = await session.exportHistory();
     if (!context.mounted) return false;
     final name = historyFileName(
@@ -242,11 +246,15 @@ Future<bool> exportHistoryBackup(BuildContext context, WidgetRef ref) async {
           'History backups hold payments up to now. Export again after new '
           'payments.',
     );
-    // uihome: the home reminder counts payments since this export.
+    // uihome: the home reminder counts what changed since this export.
     if (saved) {
       await ref
           .read(appSettingsProvider.notifier)
-          .setHistoryExported(config.chain, ref.read(clockProvider)());
+          .setHistoryExported(
+            config.chain,
+            ref.read(clockProvider)(),
+            snapshot: snapshot,
+          );
     }
     return saved;
   } catch (error) {

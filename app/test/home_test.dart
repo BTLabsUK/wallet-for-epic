@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:epic_wallet/src/network.dart';
 import 'package:epic_wallet/src/amount.dart';
@@ -191,6 +192,9 @@ class _FakePush implements PushPlatform {
     starts++;
     return true;
   }
+
+  @override
+  Future<bool> configured() async => true;
 
   @override
   Future<String?> token() async => 'token';
@@ -1702,6 +1706,157 @@ void main() {
       final h = _Harness();
       await h.pump(tester, const TxDetailsScreen(txKey: 's:send-bob'));
       expect(find.text('Send again'), findsNothing);
+    });
+  });
+
+  group('fix-5', () {
+    final exportedAt = _at(_now);
+    TxEntry row(String key, TxStatus status, {String? note, int? at}) => fakeTx(
+      key: key,
+      status: status,
+      createdAtUnix: at ?? _at(_now.subtract(const Duration(days: 1))),
+      amountCredited: _epic(1),
+      note: note,
+    );
+
+    test('settled and re-noted payments count, each once', () {
+      final snapshot = HistoryExportSnapshot.of([
+        row('s:was-pending', TxStatus.awaitingConfirmation),
+        row('s:still-pending', TxStatus.awaitingConfirmation),
+        row('s:noted', TxStatus.confirmed, note: 'Rent'),
+        row('s:same', TxStatus.confirmed, note: 'Gift'),
+      ]);
+      final now = [
+        row('s:was-pending', TxStatus.confirmed),
+        row('s:still-pending', TxStatus.awaitingConfirmation),
+        row('s:noted', TxStatus.confirmed, note: 'Rent for May'),
+        row('s:same', TxStatus.confirmed, note: '  Gift '),
+        // New since the export, and with a note: still one payment.
+        row('s:new', TxStatus.confirmed, note: 'New', at: exportedAt + 60),
+      ];
+      expect(
+        paymentsNotInBackup(
+          now,
+          now: _now,
+          exportedAt: exportedAt,
+          snapshot: snapshot,
+        ),
+        3,
+      );
+      // A cancelled one has settled too, and a removed note is a change.
+      expect(
+        paymentsNotInBackup(
+          [
+            row('s:was-pending', TxStatus.cancelled),
+            row('s:noted', TxStatus.confirmed),
+          ],
+          now: _now,
+          exportedAt: exportedAt,
+          snapshot: snapshot,
+        ),
+        2,
+      );
+      // Nothing changed.
+      expect(
+        paymentsNotInBackup(
+          [
+            row('s:still-pending', TxStatus.awaitingConfirmation),
+            row('s:same', TxStatus.confirmed, note: 'Gift'),
+          ],
+          now: _now,
+          exportedAt: exportedAt,
+          snapshot: snapshot,
+        ),
+        isNull,
+      );
+    });
+
+    test('the snapshot keeps keys and note hashes, not notes', () {
+      final snapshot = HistoryExportSnapshot.of([
+        row('s:a', TxStatus.awaitingRecipient),
+        row('s:b', TxStatus.confirmed, note: 'secret plans'),
+        fakeTx(key: 'c:restored', source: TxSource.restored, note: 'x'),
+      ]);
+      final json = snapshot.toJson();
+      expect(jsonEncode(json), isNot(contains('secret')));
+      final back = HistoryExportSnapshot.fromJson(
+        jsonDecode(jsonEncode(json)) as Map<String, dynamic>,
+      );
+      expect(back.pendingKeys, {'s:a'});
+      expect(back.noteHashes.keys, ['s:b']);
+      expect(
+        back.noteHashes['s:b'],
+        HistoryExportSnapshot.noteHash('secret plans'),
+      );
+    });
+
+    test(
+      'export stores the snapshot; deleting the wallet forgets it',
+      () async {
+        final store = MemorySecretStore();
+        final container = ProviderContainer(
+          overrides: [secretStoreProvider.overrideWithValue(store)],
+        );
+        addTearDown(container.dispose);
+        final settings = container.read(appSettingsProvider.notifier);
+        await container.read(appSettingsProvider.future);
+        await settings.setHistoryExported(
+          Chain.mainnet,
+          _now,
+          snapshot: HistoryExportSnapshot.of([
+            row('s:a', TxStatus.awaitingRecipient),
+          ]),
+        );
+        expect(
+          store.values['app.history_export_snapshot.mainnet'],
+          contains('s:a'),
+        );
+        // Read back as a fresh start would.
+        container.invalidate(appSettingsProvider);
+        final loaded = await container.read(appSettingsProvider.future);
+        expect(loaded.historyExportSnapshots['mainnet']?.pendingKeys, {'s:a'});
+
+        await settings.forgetHistoryBackup(Chain.mainnet);
+        expect(store.values['app.history_export_snapshot.mainnet'], isNull);
+        expect(
+          container.read(appSettingsProvider).value?.historyExportSnapshots,
+          isEmpty,
+        );
+      },
+    );
+
+    testWidgets('after an export, a payment that settled asks for a new one', (
+      tester,
+    ) async {
+      final h = _Harness();
+      await h.pump(tester);
+      await _tap(tester, find.text('Export history backup'));
+      expect(find.textContaining('history backup.'), findsNothing);
+      // The pending send to Bob is completed now; its record in the file is stale.
+      h.session.transactionsValue = [
+        for (final t in h.session.transactionsValue)
+          t.key == 's:send-bob'
+              ? fakeTx(
+                  key: t.key,
+                  slateId: t.slateId,
+                  kind: t.kind,
+                  status: TxStatus.confirmed,
+                  createdAtUnix: t.createdAtUnix,
+                  amountCredited: t.amountCredited,
+                  amountDebited: t.amountDebited,
+                  counterparty: t.counterparty,
+                )
+              : t,
+      ];
+      await tester.pump(autoRefreshInterval);
+      await tester.pumpAndSettle();
+      expect(
+        find.text(
+          '1 payment is new or changed since your last history backup. A '
+          'restore from your recovery phrase brings back only your balance.',
+        ),
+        findsOneWidget,
+      );
     });
   });
 

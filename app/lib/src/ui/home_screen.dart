@@ -34,27 +34,36 @@ const int recentActivityCount = 5;
 /// How long a dismissed history backup reminder stays away.
 const Duration historyReminderPause = Duration(days: 7);
 
-/// How many payments a history backup would keep that the last export ([exportedAt], Unix
-/// seconds) does not have, or null when the reminder should stay hidden: nothing to keep, or it
-/// was dismissed less than [historyReminderPause] ago. Restored and imported rows are left
-/// out: a restore or an import brings them back anyway.
+/// How many payments a history backup would keep that the last export does not have, or null
+/// when the reminder should stay hidden: nothing to keep, or it was dismissed less than
+/// [historyReminderPause] ago.
+///
+/// A payment counts once, when it is newer than the export ([exportedAt], Unix seconds), was
+/// pending in the export and has settled since, or has a different note than in the export
+/// ([snapshot]). Restored and imported rows are left out: a restore or an import brings them
+/// back anyway.
 int? paymentsNotInBackup(
   Iterable<TxEntry> txs, {
   required DateTime now,
   int? exportedAt,
   int? dismissedAt,
+  HistoryExportSnapshot? snapshot,
 }) {
   if (dismissedAt != null &&
       now.difference(localTime(dismissedAt)) < historyReminderPause) {
     return null;
   }
-  final n = txs
-      .where(
-        (t) =>
-            t.source == TxSource.wallet &&
-            (exportedAt == null || t.timeUnix > exportedAt),
-      )
-      .length;
+  bool changed(TxEntry t) {
+    if (exportedAt == null || t.timeUnix > exportedAt) return true;
+    if (snapshot == null) return false;
+    final settled =
+        snapshot.pendingKeys.contains(t.key) &&
+        (t.status == TxStatus.confirmed || t.status == TxStatus.cancelled);
+    return settled ||
+        snapshot.noteHashes[t.key] != HistoryExportSnapshot.noteHash(t.note);
+  }
+
+  final n = txs.where((t) => t.source == TxSource.wallet && changed(t)).length;
   return n == 0 ? null : n;
 }
 
@@ -496,17 +505,25 @@ class _HistoryBackupCard extends ConsumerWidget {
     final settings = ref.watch(appSettingsProvider).value;
     if (settings == null) return const SizedBox.shrink();
     final now = ref.watch(clockProvider)();
+    final exportedAt = settings.historyExportedAt[chain.name];
     final count = paymentsNotInBackup(
       transactions,
       now: now,
-      exportedAt: settings.historyExportedAt[chain.name],
+      exportedAt: exportedAt,
       dismissedAt: settings.historyReminderDismissedAt[chain.name],
+      snapshot: settings.historyExportSnapshots[chain.name],
     );
     if (count == null) return const SizedBox.shrink();
     final colors = Theme.of(context).colorScheme;
-    final text = count == 1
-        ? '1 payment is not in a history backup.'
-        : '$count payments are not in a history backup.';
+    // Before any export nothing is in a backup; after one, some payments may only have changed.
+    final text = exportedAt == null
+        ? (count == 1
+              ? '1 payment is not in a history backup.'
+              : '$count payments are not in a history backup.')
+        : (count == 1
+              ? '1 payment is new or changed since your last history backup.'
+              : '$count payments are new or changed since your last history '
+                    'backup.');
     return Card(
       color: colors.secondaryContainer,
       child: Padding(

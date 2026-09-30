@@ -2,11 +2,71 @@
 /// network choice so the app needs no preferences dependency.
 library;
 
+import 'dart:convert';
+
+import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'providers.dart';
-import 'wallet_service.dart' show Chain;
+import 'wallet_service.dart' show Chain, TxEntry, TxSource, TxStatus;
+
+/// What a history backup export held, beyond its time: the payments still pending then, and a
+/// short hash of every note. The home reminder compares it with today's list to find payments
+/// that settled, and notes that changed, since. (Added by uihome.)
+class HistoryExportSnapshot {
+  const HistoryExportSnapshot({
+    this.pendingKeys = const {},
+    this.noteHashes = const {},
+  });
+
+  /// Builds the snapshot of [transactions] at export time. Only this wallet's own rows count;
+  /// a restore or an import brings the others back anyway.
+  factory HistoryExportSnapshot.of(Iterable<TxEntry> transactions) {
+    final own = transactions.where((t) => t.source == TxSource.wallet);
+    return HistoryExportSnapshot(
+      pendingKeys: {
+        for (final t in own)
+          if (t.status == TxStatus.awaitingRecipient ||
+              t.status == TxStatus.awaitingConfirmation)
+            t.key,
+      },
+      noteHashes: {for (final t in own) t.key: ?noteHash(t.note)},
+    );
+  }
+
+  factory HistoryExportSnapshot.fromJson(Map<String, dynamic> json) =>
+      HistoryExportSnapshot(
+        pendingKeys: {
+          for (final k in json['pending'] as List<dynamic>? ?? const [])
+            k as String,
+        },
+        noteHashes: {
+          for (final e
+              in (json['notes'] as Map<String, dynamic>? ?? const {}).entries)
+            e.key: e.value as String,
+        },
+      );
+
+  /// Keys of the payments that were pending at export time.
+  final Set<String> pendingKeys;
+
+  /// [noteHash] of each note at export time, by payment key. Rows without a note are absent.
+  final Map<String, String> noteHashes;
+
+  Map<String, dynamic> toJson() => {
+    'pending': pendingKeys.toList(),
+    'notes': noteHashes,
+  };
+
+  /// A short, stable fingerprint of a note, or null for none. Stored instead of the note, so
+  /// notes stay out of the preferences.
+  static String? noteHash(String? note) {
+    final text = note?.trim() ?? '';
+    if (text.isEmpty) return null;
+    return sha256.convert(utf8.encode(text)).toString().substring(0, 12);
+  }
+}
 
 /// Auto-lock choices offered in settings, in minutes. Null means never.
 const List<int?> autoLockChoices = [0, 1, 5, 15, null];
@@ -45,6 +105,7 @@ class AppSettings {
     this.pushNotifications = false,
     this.historyExportedAt = const {},
     this.historyReminderDismissedAt = const {},
+    this.historyExportSnapshots = const {},
   });
 
   final ThemeMode themeMode;
@@ -72,6 +133,10 @@ class AppSettings {
   /// When the history backup reminder was last dismissed, per network, in Unix seconds.
   final Map<String, int> historyReminderDismissedAt;
 
+  /// What the last history backup export held, per network. Absent for exports made before
+  /// snapshots were kept.
+  final Map<String, HistoryExportSnapshot> historyExportSnapshots;
+
   AppSettings copyWith({
     ThemeMode? themeMode,
     String? fiatCurrency,
@@ -81,6 +146,7 @@ class AppSettings {
     bool? pushNotifications,
     Map<String, int>? historyExportedAt,
     Map<String, int>? historyReminderDismissedAt,
+    Map<String, HistoryExportSnapshot>? historyExportSnapshots,
   }) => AppSettings(
     themeMode: themeMode ?? this.themeMode,
     fiatCurrency: fiatCurrency ?? this.fiatCurrency,
@@ -93,6 +159,8 @@ class AppSettings {
     historyExportedAt: historyExportedAt ?? this.historyExportedAt,
     historyReminderDismissedAt:
         historyReminderDismissedAt ?? this.historyReminderDismissedAt,
+    historyExportSnapshots:
+        historyExportSnapshots ?? this.historyExportSnapshots,
   );
 }
 
@@ -120,6 +188,8 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
       'app.history_exported.${chain.name}';
   static String _dismissedKey(Chain chain) =>
       'app.history_reminder_dismissed.${chain.name}';
+  static String _snapshotKey(Chain chain) =>
+      'app.history_export_snapshot.${chain.name}';
   static const String _never = 'never';
 
   @override
@@ -138,6 +208,18 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
     };
     final exported = await perChain(_exportedKey);
     final dismissed = await perChain(_dismissedKey);
+    final snapshots = <String, HistoryExportSnapshot>{};
+    for (final chain in Chain.values) {
+      final raw = await store.read(_snapshotKey(chain));
+      if (raw == null) continue;
+      try {
+        snapshots[chain.name] = HistoryExportSnapshot.fromJson(
+          jsonDecode(raw) as Map<String, dynamic>,
+        );
+      } catch (_) {
+        // A damaged snapshot only makes the reminder count less; the next export rewrites it.
+      }
+    }
     return AppSettings(
       themeMode: ThemeMode.values.firstWhere(
         (m) => m.name == theme,
@@ -158,6 +240,7 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
           : push == 'true',
       historyExportedAt: exported,
       historyReminderDismissedAt: dismissed,
+      historyExportSnapshots: snapshots,
     );
   }
 
@@ -195,15 +278,46 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
   Future<void> setPushNotifications(bool on) async =>
       _put(_pushKey, '$on', (await _current()).copyWith(pushNotifications: on));
 
-  /// Records a successful history backup export on [chain] at [when].
-  Future<void> setHistoryExported(Chain chain, DateTime when) async {
+  /// Records a successful history backup export on [chain] at [when], with what it held.
+  Future<void> setHistoryExported(
+    Chain chain,
+    DateTime when, {
+    HistoryExportSnapshot snapshot = const HistoryExportSnapshot(),
+  }) async {
     final current = await _current();
     final seconds = when.millisecondsSinceEpoch ~/ 1000;
+    await ref
+        .read(secretStoreProvider)
+        .write(_snapshotKey(chain), jsonEncode(snapshot.toJson()));
     await _put(
       _exportedKey(chain),
       '$seconds',
       current.copyWith(
         historyExportedAt: {...current.historyExportedAt, chain.name: seconds},
+        historyExportSnapshots: {
+          ...current.historyExportSnapshots,
+          chain.name: snapshot,
+        },
+      ),
+    );
+  }
+
+  /// Drops [chain]'s history backup export and reminder records, so a new wallet on that
+  /// network does not inherit the deleted wallet's dates. Called by the delete flow; any key
+  /// added for the reminder belongs here too.
+  Future<void> forgetHistoryBackup(Chain chain) async {
+    final current = await _current();
+    final store = ref.read(secretStoreProvider);
+    await store.delete(_exportedKey(chain));
+    await store.delete(_dismissedKey(chain));
+    await store.delete(_snapshotKey(chain));
+    state = AsyncData(
+      current.copyWith(
+        historyExportedAt: {...current.historyExportedAt}..remove(chain.name),
+        historyReminderDismissedAt: {...current.historyReminderDismissedAt}
+          ..remove(chain.name),
+        historyExportSnapshots: {...current.historyExportSnapshots}
+          ..remove(chain.name),
       ),
     );
   }

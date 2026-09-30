@@ -29,7 +29,9 @@ final BigInt maxSendAtomic = BigInt.from(21000000) * atomicPerEpic;
 ///
 /// Separators: when both `.` and `,` occur, the last one is the decimal separator
 /// ("1,234.56", "1.234,56"). When only one kind occurs, more than one of it means thousands
-/// ("1,234,567"); a single one is the decimal separator ("1,5", "0.25"). A single comma
+/// ("1,234,567"). Thousands separators must group by exactly three after the first group, or
+/// the amount is refused with a question ("1,234,5", "12,34.5"). A single one is the decimal
+/// separator ("1,5", "0.25"). A single comma
 /// followed by exactly three digits ("1,234") could be either, so it is refused with a question.
 ///
 /// Throws [FormatException] for a negative or ambiguous amount.
@@ -47,10 +49,20 @@ String normalizeAmountText(String text, {required String unit}) {
   if (dot >= 0 && comma >= 0) {
     final decimal = dot > comma ? '.' : ',';
     final thousands = decimal == '.' ? ',' : '.';
-    clean = clean.replaceAll(thousands, '').replaceAll(decimal, '.');
+    final at = clean.lastIndexOf(decimal);
+    final whole = clean.substring(0, at);
+    // One decimal separator, and the whole part grouped properly: "1,234.5", not "12,34.5"
+    // or "1.2.3,4".
+    if (whole.contains(decimal) || !_isGrouped(whole, thousands)) {
+      throw _unclearAmount;
+    }
+    clean = '${whole.replaceAll(thousands, '')}.${clean.substring(at + 1)}';
   } else if (comma >= 0 || dot >= 0) {
     final sep = comma >= 0 ? ',' : '.';
     if (sep.allMatches(clean).length > 1) {
+      // Several of one kind can only be thousands separators, so they must group by three:
+      // "1,234,567", not "1,234,5".
+      if (!_isGrouped(clean, sep)) throw _unclearAmount;
       clean = clean.replaceAll(sep, '');
     } else {
       final whole = clean.substring(0, clean.indexOf(sep));
@@ -69,6 +81,14 @@ String normalizeAmountText(String text, {required String unit}) {
   }
   return clean;
 }
+
+const FormatException _unclearAmount = FormatException(
+  'Write the amount without separators, such as 1234.5, so the amount is clear.',
+);
+
+/// Whether [digits] is 1 to 3 digits, then groups of exactly three after each [sep].
+bool _isGrouped(String digits, String sep) =>
+    RegExp('^\\d{1,3}(${RegExp.escape(sep)}\\d{3})*\$').hasMatch(digits);
 
 class SendScreen extends ConsumerStatefulWidget {
   const SendScreen({super.key, this.recipient});

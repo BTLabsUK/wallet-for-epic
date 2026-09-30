@@ -28,10 +28,16 @@ const _pin = '123456';
 class _FakePush implements PushPlatform {
   int starts = 0;
   bool permitted = true;
+  bool configuredBuild = true;
+  Object? failure;
+
+  @override
+  Future<bool> configured() async => configuredBuild;
 
   @override
   Future<bool> start() async {
     starts++;
+    if (failure case final error?) throw error;
     return permitted;
   }
 
@@ -423,6 +429,10 @@ void main() {
       tester,
     ) async {
       final h = _Harness();
+      // History backup records of this network, and one of another network that must stay.
+      h.store.values['app.history_exported.mainnet'] = '1790000000';
+      h.store.values['app.history_reminder_dismissed.mainnet'] = '1790000001';
+      h.store.values['app.history_exported.floonet'] = '1790000002';
       await h.pump(tester);
       await h.unlock(tester);
       await h.openSettings(tester);
@@ -455,6 +465,13 @@ void main() {
       expect(h.service.deletedWallets, [_mainnetDir]);
       expect(h.cleanups, 1);
       expect(h.store.values['wallet.mainnet.sealed'], isNull);
+      // A new wallet on this network starts without the deleted one's backup dates.
+      expect(h.store.values['app.history_exported.mainnet'], isNull);
+      expect(h.store.values['app.history_reminder_dismissed.mainnet'], isNull);
+      expect(h.store.values['app.history_exported.floonet'], '1790000002');
+      final settings = h.container.read(appSettingsProvider).value!;
+      expect(settings.historyExportedAt, {'floonet': 1790000002});
+      expect(settings.historyReminderDismissedAt, isEmpty);
       expect(h.container.read(sessionProvider), isNull);
       expect(find.text('Welcome'), findsOneWidget);
     });
@@ -662,6 +679,44 @@ void main() {
       expect(h.push.starts, 2);
       expect(h.store.values['app.push'], 'true');
       expect(find.text(pushBlockedMessage), findsNothing);
+    });
+
+    testWidgets('turn back off and say so when Firebase fails to start', (
+      tester,
+    ) async {
+      final h = _Harness();
+      h.push.failure = Exception('no Firebase options');
+      await h.pump(tester);
+      await h.unlock(tester);
+      await h.openSettings(tester);
+      await _tapText(tester, 'Payment notifications');
+      expect(h.push.starts, 1);
+      expect(h.store.values['app.push'], 'false');
+      expect(find.text(pushUnavailableMessage), findsOneWidget);
+      expect(find.text(pushBlockedMessage), findsNothing);
+    });
+
+    testWidgets('turn off at launch when Firebase fails to start', (
+      tester,
+    ) async {
+      final h = _Harness();
+      h.push.failure = Exception('no Firebase options');
+      h.store.values['app.push'] = 'true';
+      await h.pump(tester);
+      expect(h.push.starts, 1);
+      expect(h.store.values['app.push'], 'false');
+    });
+
+    testWidgets('are not offered in a build without Firebase configuration', (
+      tester,
+    ) async {
+      final h = _Harness();
+      h.push.configuredBuild = false;
+      await h.pump(tester);
+      await h.unlock(tester);
+      await h.openSettings(tester);
+      expect(find.text('Payment notifications'), findsNothing);
+      expect(find.text('Notifications'), findsNothing);
     });
 
     testWidgets('start at launch when saved on', (tester) async {

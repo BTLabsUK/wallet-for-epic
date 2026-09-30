@@ -421,6 +421,29 @@ void main() {
           ),
         ),
       );
+      // Thousands separators must group by exactly three.
+      const unclear =
+          'Write the amount without separators, such as 1234.5, so the amount '
+          'is clear.';
+      for (final text in [
+        '1,234,5',
+        '12,34.5',
+        '1234,567.5',
+        '1.2.3,4',
+        '1,234.5,6',
+        '1.23.456',
+      ]) {
+        expect(
+          () => n(text),
+          throwsA(
+            isA<FormatException>().having((e) => e.message, 'message', unclear),
+          ),
+          reason: text,
+        );
+      }
+      expect(n('1,234,567.89'), '1234567.89');
+      expect(n('12,345,678'), '12345678');
+      expect(n('1.234.567,5'), '1234567.5');
       // Not ambiguous: no whole part, or not three digits after the comma.
       expect(n('0,234'), '0.234');
       expect(n('1,23'), '1.23');

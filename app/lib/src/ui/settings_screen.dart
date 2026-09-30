@@ -42,6 +42,10 @@ const String pushNotificationsHint =
 const String pushBlockedMessage =
     'Notifications are blocked in system settings';
 
+/// Under the payment notifications switch after Firebase failed to start.
+const String pushUnavailableMessage =
+    'Notifications are not available in this build';
+
 /// Said when a delete is asked for while a scan runs.
 const String deleteDuringScanMessage =
     'Wait for the scan to finish before deleting the wallet.';
@@ -260,6 +264,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         // The core waits until every call on this wallet has ended before it removes the files.
         await ref.read(walletServiceProvider).deleteWallet(config: config);
         await ref.read(vaultProvider).forget(config.chain);
+        await ref
+            .read(appSettingsProvider.notifier)
+            .forgetHistoryBackup(config.chain);
         try {
           await ref.read(sharedFilesCleanupProvider)();
         } catch (_) {
@@ -343,26 +350,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   subtitle: Text(themeLabel(s.themeMode)),
                   onTap: () => _pickTheme(s),
                 ),
-                if (ref.watch(pushPlatformProvider) != null) ...[
+                if (ref.watch(pushConfiguredProvider).value ?? false) ...[
                   const _Header('Notifications'),
                   SwitchListTile(
                     secondary: const Icon(Icons.notifications_outlined),
                     title: const Text('Payment notifications'),
-                    subtitle: ref.watch(pushProvider.select((p) => p.blocked))
-                        ? Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text(pushNotificationsHint),
-                              const SizedBox(height: 4),
-                              Text(
-                                pushBlockedMessage,
-                                style: TextStyle(
-                                  color: Theme.of(context).colorScheme.error,
-                                ),
-                              ),
-                            ],
-                          )
-                        : const Text(pushNotificationsHint),
+                    subtitle: _PushSubtitle(ref.watch(pushProvider)),
                     value: s.pushNotifications,
                     onChanged: _setPushNotifications,
                   ),
@@ -778,6 +771,34 @@ class _DeleteWalletDialogState extends State<DeleteWalletDialog> {
           style: FilledButton.styleFrom(backgroundColor: error),
           onPressed: _ready ? () => Navigator.pop(context, true) : null,
           child: const Text('Delete wallet'),
+        ),
+      ],
+    );
+  }
+}
+
+/// The payment notifications hint, plus why the switch went back off when it did.
+class _PushSubtitle extends StatelessWidget {
+  const _PushSubtitle(this.push);
+
+  final PushState push;
+
+  @override
+  Widget build(BuildContext context) {
+    final problem = push.blocked
+        ? pushBlockedMessage
+        : push.unavailable
+        ? pushUnavailableMessage
+        : null;
+    if (problem == null) return const Text(pushNotificationsHint);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(pushNotificationsHint),
+        const SizedBox(height: 4),
+        Text(
+          problem,
+          style: TextStyle(color: Theme.of(context).colorScheme.error),
         ),
       ],
     );

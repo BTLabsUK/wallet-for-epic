@@ -52,6 +52,18 @@ class MainActivity : FlutterFragmentActivity() {
             }
         }
         readIncoming(intent)?.let { pendingFile = it }
+        // The google-services Gradle plugin writes google_app_id only when google-services.json
+        // was present at build time. Dart hides the notifications switch without it.
+        MethodChannel(messenger, "epic_wallet/push")
+            .setMethodCallHandler { call, result ->
+                if (call.method == "configured") {
+                    @Suppress("DiscouragedApi")
+                    val id = resources.getIdentifier("google_app_id", "string", packageName)
+                    result.success(id != 0)
+                } else {
+                    result.notImplemented()
+                }
+            }
         val channel = MethodChannel(messenger, "epic_wallet/updater")
         updater = AppUpdater(this, channel).also { channel.setMethodCallHandler(it) }
     }
