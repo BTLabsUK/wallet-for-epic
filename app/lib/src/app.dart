@@ -38,8 +38,15 @@ class _WalletAppState extends ConsumerState<WalletApp> {
     // down in-process, so turning them off takes effect at the next start.
     ref.listenManual(
       appSettingsProvider.select((s) => s.value?.pushNotifications ?? false),
-      (_, on) {
-        if (on) ref.read(pushProvider.notifier).start();
+      (_, on) async {
+        if (!on) return;
+        final permitted = await ref.read(pushProvider.notifier).start();
+        // Denied in system settings: the switch goes back off and settings says why.
+        if (!permitted && mounted) {
+          await ref
+              .read(appSettingsProvider.notifier)
+              .setPushNotifications(false);
+        }
       },
       fireImmediately: true,
     );

@@ -5,6 +5,7 @@ import 'package:epic_wallet/src/app.dart';
 import 'package:epic_wallet/src/price.dart';
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/push.dart';
+import 'package:epic_wallet/src/ui/contacts_screen.dart';
 import 'package:epic_wallet/src/relay_directory.dart';
 import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/settings.dart';
@@ -26,11 +27,12 @@ const _pin = '123456';
 
 class _FakePush implements PushPlatform {
   int starts = 0;
+  bool permitted = true;
 
   @override
   Future<bool> start() async {
     starts++;
-    return true;
+    return permitted;
   }
 
   @override
@@ -638,12 +640,50 @@ void main() {
       expect(h.push.starts, 1);
     });
 
+    testWidgets('turn back off and say so when the system blocks them', (
+      tester,
+    ) async {
+      final h = _Harness();
+      h.push.permitted = false;
+      await h.pump(tester);
+      await h.unlock(tester);
+      await h.openSettings(tester);
+      expect(find.text(pushBlockedMessage), findsNothing);
+      await _tapText(tester, 'Payment notifications');
+      expect(h.push.starts, 1);
+      expect(h.store.values['app.push'], 'false');
+      expect(find.text(pushBlockedMessage), findsOneWidget);
+      final toggle = tester.widget<SwitchListTile>(
+        find.widgetWithText(SwitchListTile, 'Payment notifications'),
+      );
+      expect(toggle.value, isFalse);
+
+      // Allowed now: turning them on asks again and the warning goes.
+      h.push.permitted = true;
+      await _tapText(tester, 'Payment notifications');
+      expect(h.push.starts, 2);
+      expect(h.store.values['app.push'], 'true');
+      expect(find.text(pushBlockedMessage), findsNothing);
+    });
+
     testWidgets('start at launch when saved on', (tester) async {
       final h = _Harness();
       h.store.values['app.push'] = 'true';
       await h.pump(tester);
       expect(h.push.starts, 1);
     });
+  });
+
+  testWidgets('Contacts opens the contact list for editing, not the picker', (
+    tester,
+  ) async {
+    final h = _Harness();
+    await h.pump(tester);
+    await h.unlock(tester);
+    await h.openSettings(tester);
+    await _tapText(tester, 'Contacts');
+    final screen = tester.widget<ContactsScreen>(find.byType(ContactsScreen));
+    expect(screen.pick, isFalse);
   });
 
   group('wording', () {

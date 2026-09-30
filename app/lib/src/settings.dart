@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'providers.dart';
+import 'wallet_service.dart' show Chain;
 
 /// Auto-lock choices offered in settings, in minutes. Null means never.
 const List<int?> autoLockChoices = [0, 1, 5, 15, null];
@@ -42,6 +43,8 @@ class AppSettings {
     this.hideBalances = false,
     this.autoLockMinutes = 5,
     this.pushNotifications = false,
+    this.historyExportedAt = const {},
+    this.historyReminderDismissedAt = const {},
   });
 
   final ThemeMode themeMode;
@@ -62,6 +65,13 @@ class AppSettings {
   /// contacts Google and asks for notification permission.
   final bool pushNotifications;
 
+  /// When a history backup was last exported, per network: [Chain.name] to Unix seconds.
+  /// (Added by uihome for the history backup reminder.)
+  final Map<String, int> historyExportedAt;
+
+  /// When the history backup reminder was last dismissed, per network, in Unix seconds.
+  final Map<String, int> historyReminderDismissedAt;
+
   AppSettings copyWith({
     ThemeMode? themeMode,
     String? fiatCurrency,
@@ -69,6 +79,8 @@ class AppSettings {
     bool? hideBalances,
     int? Function()? autoLockMinutes,
     bool? pushNotifications,
+    Map<String, int>? historyExportedAt,
+    Map<String, int>? historyReminderDismissedAt,
   }) => AppSettings(
     themeMode: themeMode ?? this.themeMode,
     fiatCurrency: fiatCurrency ?? this.fiatCurrency,
@@ -78,6 +90,9 @@ class AppSettings {
         ? autoLockMinutes()
         : this.autoLockMinutes,
     pushNotifications: pushNotifications ?? this.pushNotifications,
+    historyExportedAt: historyExportedAt ?? this.historyExportedAt,
+    historyReminderDismissedAt:
+        historyReminderDismissedAt ?? this.historyReminderDismissedAt,
   );
 }
 
@@ -101,6 +116,10 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
   static const String _hideKey = 'app.hide_balances';
   static const String _autoLockKey = 'app.auto_lock';
   static const String _pushKey = 'app.push';
+  static String _exportedKey(Chain chain) =>
+      'app.history_exported.${chain.name}';
+  static String _dismissedKey(Chain chain) =>
+      'app.history_reminder_dismissed.${chain.name}';
   static const String _never = 'never';
 
   @override
@@ -113,6 +132,12 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
     final hide = await store.read(_hideKey);
     final autoLock = await store.read(_autoLockKey);
     final push = await store.read(_pushKey);
+    Future<Map<String, int>> perChain(String Function(Chain) key) async => {
+      for (final chain in Chain.values)
+        chain.name: ?int.tryParse(await store.read(key(chain)) ?? ''),
+    };
+    final exported = await perChain(_exportedKey);
+    final dismissed = await perChain(_dismissedKey);
     return AppSettings(
       themeMode: ThemeMode.values.firstWhere(
         (m) => m.name == theme,
@@ -131,6 +156,8 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
       pushNotifications: push == null
           ? defaults.pushNotifications
           : push == 'true',
+      historyExportedAt: exported,
+      historyReminderDismissedAt: dismissed,
     );
   }
 
@@ -167,4 +194,33 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
 
   Future<void> setPushNotifications(bool on) async =>
       _put(_pushKey, '$on', (await _current()).copyWith(pushNotifications: on));
+
+  /// Records a successful history backup export on [chain] at [when].
+  Future<void> setHistoryExported(Chain chain, DateTime when) async {
+    final current = await _current();
+    final seconds = when.millisecondsSinceEpoch ~/ 1000;
+    await _put(
+      _exportedKey(chain),
+      '$seconds',
+      current.copyWith(
+        historyExportedAt: {...current.historyExportedAt, chain.name: seconds},
+      ),
+    );
+  }
+
+  /// Records that the history backup reminder on [chain] was dismissed at [when].
+  Future<void> dismissHistoryReminder(Chain chain, DateTime when) async {
+    final current = await _current();
+    final seconds = when.millisecondsSinceEpoch ~/ 1000;
+    await _put(
+      _dismissedKey(chain),
+      '$seconds',
+      current.copyWith(
+        historyReminderDismissedAt: {
+          ...current.historyReminderDismissedAt,
+          chain.name: seconds,
+        },
+      ),
+    );
+  }
 }

@@ -531,6 +531,9 @@ class _SendScreenState extends ConsumerState<SendScreen> {
         ref.watch(appSettingsProvider).value?.fiatCurrency ?? 'usd';
     final contacts = ref.watch(contactsProvider).value ?? const <Contact>[];
     final scanner = ref.watch(qrScannerProvider);
+    final recent = recentRecipients(
+      ref.watch(homeProvider).value?.transactions ?? const <TxEntry>[],
+    );
     final to = parseRecipient(_recipient.text);
     final contact = _recipient.text.trim().isEmpty
         ? null
@@ -604,6 +607,28 @@ class _SendScreenState extends ConsumerState<SendScreen> {
             ),
           ],
         ),
+        if (_recipient.text.trim().isEmpty && recent.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.only(top: 4),
+            child: Wrap(
+              spacing: 8,
+              runSpacing: 4,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+                Text('Recent:', style: theme.textTheme.bodyMedium),
+                for (final address in recent)
+                  ActionChip(
+                    avatar: const Icon(Icons.history, size: 18),
+                    label: Text(
+                      contactNameFor(contacts, address) ??
+                          shortAddress(address),
+                    ),
+                    tooltip: 'Send to $address',
+                    onPressed: () => _setRecipient(address),
+                  ),
+              ],
+            ),
+          ),
         if (contact != null)
           Padding(
             padding: const EdgeInsets.only(top: 8),

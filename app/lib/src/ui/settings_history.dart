@@ -242,6 +242,12 @@ Future<bool> exportHistoryBackup(BuildContext context, WidgetRef ref) async {
           'History backups hold payments up to now. Export again after new '
           'payments.',
     );
+    // uihome: the home reminder counts payments since this export.
+    if (saved) {
+      await ref
+          .read(appSettingsProvider.notifier)
+          .setHistoryExported(config.chain, ref.read(clockProvider)());
+    }
     return saved;
   } catch (error) {
     if (context.mounted) _say(context, describeError(error));

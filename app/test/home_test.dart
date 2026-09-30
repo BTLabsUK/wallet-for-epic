@@ -13,6 +13,7 @@ import 'package:epic_wallet/src/ui/home_screen.dart';
 import 'package:epic_wallet/src/ui/receive_screen.dart';
 import 'package:epic_wallet/src/ui/scan_screen.dart';
 import 'package:epic_wallet/src/ui/send_screen.dart';
+import 'package:epic_wallet/src/ui/settings_history.dart';
 import 'package:epic_wallet/src/ui/tx_details_screen.dart';
 import 'package:epic_wallet/src/updater.dart';
 import 'package:epic_wallet/src/vault.dart';
@@ -224,6 +225,7 @@ class _Harness {
   final _FakePrice prices;
   final FakeQrScanner scanner;
   final push = _FakePush();
+  final files = FakeHistoryFiles()..canShare = false;
   final store = MemorySecretStore();
   late final service = FakeWalletService(session: session);
 
@@ -265,6 +267,7 @@ class _Harness {
           priceSourceProvider.overrideWithValue(prices),
           qrScannerProvider.overrideWithValue(scanner),
           pushPlatformProvider.overrideWithValue(push),
+          historyFilesProvider.overrideWithValue(files),
           clockProvider.overrideWithValue(() => _now),
           sessionProvider.overrideWith(() => _OpenSession(session)),
           walletConfigProvider.overrideWith(() => _Config(config)),
@@ -1587,6 +1590,118 @@ void main() {
         findsOneWidget,
       );
       expect(find.text('View'), findsOneWidget);
+    });
+  });
+
+  group('features-2', () {
+    test('counts payments made since the last history export', () {
+      final txs = _transactions();
+      // Three made by this wallet; the restored one comes back with a restore anyway.
+      expect(paymentsNotInBackup(txs, now: _now), 3);
+      expect(
+        paymentsNotInBackup(
+          txs,
+          now: _now,
+          exportedAt: _at(DateTime(2026, 9, 29, 12)),
+        ),
+        2,
+      );
+      expect(
+        paymentsNotInBackup(txs, now: _now, exportedAt: _at(_now)),
+        isNull,
+      );
+      expect(paymentsNotInBackup(const [], now: _now), isNull);
+      // A dismissal holds for 7 days.
+      expect(
+        paymentsNotInBackup(
+          txs,
+          now: _now,
+          dismissedAt: _at(_now.subtract(const Duration(days: 3))),
+        ),
+        isNull,
+      );
+      expect(
+        paymentsNotInBackup(
+          txs,
+          now: _now,
+          dismissedAt: _at(_now.subtract(const Duration(days: 8))),
+        ),
+        3,
+      );
+    });
+
+    const reminder =
+        '3 payments are not in a history backup. A restore from your recovery '
+        'phrase brings back only your balance.';
+
+    testWidgets('home reminds to export, and export clears it', (tester) async {
+      final h = _Harness();
+      await h.pump(tester);
+      expect(find.text(reminder), findsOneWidget);
+      await _tap(tester, find.text('Export history backup'));
+      expect(h.files.saved.single.name, 'epic-history-mainnet-20260930.wfeh');
+      expect(find.text(reminder), findsNothing);
+      expect(h.store.values['app.history_exported.mainnet'], '${_at(_now)}');
+    });
+
+    testWidgets('not now hides it for a week', (tester) async {
+      final h = _Harness();
+      await h.pump(tester);
+      await _tap(tester, find.text('Not now'));
+      expect(find.text(reminder), findsNothing);
+      expect(
+        h.store.values['app.history_reminder_dismissed.mainnet'],
+        '${_at(_now)}',
+      );
+    });
+
+    testWidgets('stored export and dismissal times are read back', (
+      tester,
+    ) async {
+      final h = _Harness();
+      h.store.values['app.history_reminder_dismissed.mainnet'] =
+          '${_at(_now.subtract(const Duration(days: 3)))}';
+      // The floonet wallet's export does not count for mainnet.
+      h.store.values['app.history_exported.floonet'] = '${_at(_now)}';
+      await h.pump(tester);
+      expect(find.text(reminder), findsNothing);
+    });
+
+    testWidgets('the phrase card comes first', (tester) async {
+      final h = _Harness();
+      h.store.values.remove('wallet.mainnet.backedUp');
+      await h.pump(tester);
+      expect(find.text('Back up your wallet'), findsOneWidget);
+      expect(find.text(reminder), findsNothing);
+    });
+
+    testWidgets('send again opens Send with the same recipient', (
+      tester,
+    ) async {
+      final h = _Harness(
+        transactions: [
+          fakeTx(
+            slateId: 'paid',
+            kind: TxKind.sent,
+            status: TxStatus.confirmed,
+            amountCredited: _epic(1),
+            amountDebited: _epic(3),
+            counterparty: _bob,
+          ),
+        ],
+      );
+      await h.pump(tester, const TxDetailsScreen(txKey: 's:paid'));
+      await _tap(tester, find.text('Send again'));
+      expect(
+        tester.widget<SendScreen>(find.byType(SendScreen)).recipient,
+        _bob,
+      );
+    });
+
+    testWidgets('no send again for pending sends or receives', (tester) async {
+      final h = _Harness();
+      await h.pump(tester, const TxDetailsScreen(txKey: 's:send-bob'));
+      expect(find.text('Send again'), findsNothing);
     });
   });
 

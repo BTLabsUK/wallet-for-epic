@@ -158,3 +158,23 @@ String? checkRecipient(WalletService service, String text) {
                 'es5x…@epicbox.epiccash.com';
   }
 }
+
+/// The last [limit] distinct addresses this wallet sent to, newest first. Only sends that name
+/// their recipient count; cancelled sends are left out, since a cancel often follows a mistyped
+/// address.
+List<String> recentRecipients(Iterable<TxEntry> transactions, {int limit = 3}) {
+  final sends =
+      transactions
+          .where((t) => t.kind == TxKind.sent && t.counterparty != null)
+          .toList()
+        ..sort((a, b) => b.timeUnix.compareTo(a.timeUnix));
+  final seen = <String>{};
+  final out = <String>[];
+  for (final tx in sends) {
+    final address = tx.counterparty!.trim();
+    if (address.isEmpty || !seen.add(address)) continue;
+    out.add(address);
+    if (out.length == limit) break;
+  }
+  return out;
+}

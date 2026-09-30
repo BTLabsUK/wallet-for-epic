@@ -14,13 +14,21 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// What the app knows about pushes on this device.
 class PushState {
-  const PushState({this.token, this.permitted = false, this.last});
+  const PushState({
+    this.token,
+    this.permitted = false,
+    this.blocked = false,
+    this.last,
+  });
 
   /// The FCM registration token, once Firebase has one.
   final String? token;
 
   /// The user allowed notifications.
   final bool permitted;
+
+  /// The last start found notification permission denied in system settings.
+  final bool blocked;
 
   /// The latest push received while the app was in the foreground.
   final RemoteMessage? last;
@@ -84,12 +92,20 @@ class PushNotifier extends Notifier<PushState> {
   }
 
   /// Starts once per process. Failures leave pushes off; the wallet works without them.
-  Future<void> start() async {
+  ///
+  /// Returns false when the system denied notification permission. A denied start does not
+  /// count, so turning notifications on again asks again.
+  Future<bool> start() async {
     final platform = ref.read(pushPlatformProvider);
-    if (platform == null || _started) return;
+    if (platform == null || _started) return true;
     _started = true;
     try {
       final permitted = await platform.start();
+      if (!permitted) {
+        _started = false;
+        state = PushState(token: state.token, blocked: true, last: state.last);
+        return false;
+      }
       final token = await platform.token();
       if (kDebugMode) debugPrint('FCM token: $token');
       state = PushState(token: token, permitted: permitted);
@@ -115,5 +131,6 @@ class PushNotifier extends Notifier<PushState> {
     } catch (error) {
       debugPrint('push setup failed: $error');
     }
+    return true;
   }
 }

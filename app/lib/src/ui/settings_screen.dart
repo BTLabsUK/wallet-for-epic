@@ -13,6 +13,7 @@ import '../updater.dart';
 import '../wallet_service.dart';
 import 'backup_screen.dart';
 import 'common.dart';
+import 'contacts_screen.dart';
 import 'help_screen.dart';
 import 'launch_screen.dart';
 import 'pin.dart';
@@ -36,6 +37,10 @@ final sharedFilesCleanupProvider = Provider<Future<void> Function()>(
 const String pushNotificationsHint =
     'Delivered by Google Firebase. No mailbox server supports it yet. You '
     'still need to open the app to accept a payment.';
+
+/// Under the payment notifications switch after the system denied notification permission.
+const String pushBlockedMessage =
+    'Notifications are blocked in system settings';
 
 /// Said when a delete is asked for while a scan runs.
 const String deleteDuringScanMessage =
@@ -343,7 +348,21 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   SwitchListTile(
                     secondary: const Icon(Icons.notifications_outlined),
                     title: const Text('Payment notifications'),
-                    subtitle: const Text(pushNotificationsHint),
+                    subtitle: ref.watch(pushProvider.select((p) => p.blocked))
+                        ? Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(pushNotificationsHint),
+                              const SizedBox(height: 4),
+                              Text(
+                                pushBlockedMessage,
+                                style: TextStyle(
+                                  color: Theme.of(context).colorScheme.error,
+                                ),
+                              ),
+                            ],
+                          )
+                        : const Text(pushNotificationsHint),
                     value: s.pushNotifications,
                     onChanged: _setPushNotifications,
                   ),
@@ -414,6 +433,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         : () => _run(() => importHistoryBackup(context, ref)),
                   ),
                   const _Header('Wallet'),
+                  ListTile(
+                    leading: const Icon(Icons.contacts_outlined),
+                    title: const Text('Contacts'),
+                    subtitle: const Text('Add, edit or delete people you pay'),
+                    onTap: () => _push(const ContactsScreen()),
+                  ),
                   ListTile(
                     leading: const Icon(Icons.sync),
                     title: const Text('Rescan the chain'),

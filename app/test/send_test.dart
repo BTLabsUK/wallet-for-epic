@@ -427,6 +427,77 @@ void main() {
     });
   });
 
+  group('recent recipients', () {
+    final alice = '${'a' * 52}@epicbox.epiccash.com';
+    final dave = '${'d' * 52}@epicbox.epiccash.com';
+    final eve = '${'e' * 52}@epicbox.epiccash.com';
+    const url = 'http://203.0.113.5:3415';
+    List<TxEntry> history() => [
+      fakeTx(
+        kind: TxKind.sentCancelled,
+        counterparty: eve,
+        timeUnix: 1790000900,
+      ),
+      fakeTx(kind: TxKind.received, counterparty: dave, timeUnix: 1790000800),
+      fakeTx(kind: TxKind.sent, counterparty: alice, timeUnix: 1790000700),
+      fakeTx(kind: TxKind.sent, counterparty: _bob, timeUnix: 1790000600),
+      fakeTx(kind: TxKind.sent, counterparty: alice, timeUnix: 1790000500),
+      fakeTx(kind: TxKind.sent, timeUnix: 1790000450),
+      fakeTx(kind: TxKind.sent, counterparty: url, timeUnix: 1790000400),
+      fakeTx(kind: TxKind.sent, counterparty: _carol, timeUnix: 1790000300),
+    ];
+
+    test('newest distinct sends, at most 3, no cancelled or received', () {
+      expect(recentRecipients(history()), [alice, _bob, url]);
+      expect(recentRecipients(history().reversed), [alice, _bob, url]);
+      expect(recentRecipients(const []), isEmpty);
+    });
+
+    testWidgets('chips show names or short addresses and fill the field', (
+      tester,
+    ) async {
+      final h = _Harness();
+      h.session.transactionsValue = history();
+      await h.session.saveContact(
+        contact: Contact(id: '', name: 'Bob', address: _bob, note: null),
+      );
+      await h.pump(tester, const SendScreen());
+      final chips = find.byType(ActionChip);
+      expect(chips, findsNWidgets(3));
+      final handle = tester.ensureSemantics();
+      await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
+      await expectLater(tester, meetsGuideline(labeledTapTargetGuideline));
+      handle.dispose();
+      expect(find.widgetWithText(ActionChip, 'Bob'), findsOneWidget);
+      expect(
+        find.widgetWithText(ActionChip, 'aaaaaa…aaaaaa@epicbox.epiccash.com'),
+        findsOneWidget,
+      );
+      expect(find.widgetWithText(ActionChip, url), findsOneWidget);
+
+      await _tap(tester, find.widgetWithText(ActionChip, 'Bob'));
+      final field = tester.widget<TextField>(
+        find.widgetWithText(TextField, 'To'),
+      );
+      expect(field.controller!.text, _bob);
+      expect(find.text('Sending to Bob'), findsOneWidget);
+      // Only while the field is empty.
+      expect(chips, findsNothing);
+      await _enter(tester, 'To', '');
+      expect(chips, findsNWidgets(3));
+    });
+
+    testWidgets('no chips without past sends', (tester) async {
+      final h = _Harness();
+      h.session.transactionsValue = [
+        fakeTx(kind: TxKind.received, counterparty: dave),
+      ];
+      await h.pump(tester, const SendScreen());
+      expect(find.byType(ActionChip), findsNothing);
+      expect(find.text('Recent:'), findsNothing);
+    });
+  });
+
   group('parseRecipient', () {
     test('reads bare, epicbox:// and http addresses, without whitespace', () {
       final bare = parseRecipient('  $_bob\n');

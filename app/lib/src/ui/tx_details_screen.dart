@@ -7,6 +7,7 @@ import '../settings.dart';
 import '../wallet_service.dart';
 import 'common.dart';
 import 'contacts_screen.dart' show ContactEditScreen;
+import 'send_screen.dart' show SendScreen;
 
 /// Minutes per Epic block, for rough "about N hours" estimates.
 const int _minutesPerBlock = 1;
@@ -458,6 +459,21 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
               label: outgoing ? 'Sent to' : 'Received from',
               address: counterparty,
               name: name,
+            ),
+          if (counterparty != null &&
+              outgoing &&
+              tx.status == TxStatus.confirmed)
+            Align(
+              alignment: Alignment.centerLeft,
+              child: FilledButton.tonalIcon(
+                icon: const Icon(Icons.replay),
+                label: const Text('Send again'),
+                onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (_) => SendScreen(recipient: counterparty),
+                  ),
+                ),
+              ),
             ),
           if (fee != null && outgoing)
             _DetailRow(

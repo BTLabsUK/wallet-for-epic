@@ -20,6 +20,7 @@ import 'receive_screen.dart';
 import 'restore_screen.dart' show ScanProgressView;
 import 'scan_screen.dart' show qrScannerProvider;
 import 'send_screen.dart';
+import 'settings_history.dart' show exportHistoryBackup;
 import 'settings_screen.dart';
 import 'slate_file_screen.dart';
 import 'tx_details_screen.dart';
@@ -29,6 +30,33 @@ const Duration autoRefreshInterval = Duration(seconds: 60);
 
 /// Transactions shown under "Recent activity".
 const int recentActivityCount = 5;
+
+/// How long a dismissed history backup reminder stays away.
+const Duration historyReminderPause = Duration(days: 7);
+
+/// How many payments a history backup would keep that the last export ([exportedAt], Unix
+/// seconds) does not have, or null when the reminder should stay hidden: nothing to keep, or it
+/// was dismissed less than [historyReminderPause] ago. Restored and imported rows are left
+/// out: a restore or an import brings them back anyway.
+int? paymentsNotInBackup(
+  Iterable<TxEntry> txs, {
+  required DateTime now,
+  int? exportedAt,
+  int? dismissedAt,
+}) {
+  if (dismissedAt != null &&
+      now.difference(localTime(dismissedAt)) < historyReminderPause) {
+    return null;
+  }
+  final n = txs
+      .where(
+        (t) =>
+            t.source == TxSource.wallet &&
+            (exportedAt == null || t.timeUnix > exportedAt),
+      )
+      .length;
+  return n == 0 ? null : n;
+}
 
 /// The notice for a push that arrives while the app is open but not connected to the mailbox.
 const String pushNotice =
@@ -292,7 +320,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       ),
                     ),
                   const _UpdateCard(),
-                  if (!backedUp) _BackupCard(onBackup: _backup),
+                  // The phrase comes first; the history reminder waits until it is confirmed.
+                  if (!backedUp)
+                    _BackupCard(onBackup: _backup)
+                  else if (config != null)
+                    _HistoryBackupCard(
+                      chain: config.chain,
+                      transactions: transactions,
+                    ),
                   if (home.hasError && !home.isLoading)
                     ErrorText(describeError(home.error!)),
                   if (data != null) BalanceHeader(summary: data.summary),
@@ -442,6 +477,63 @@ class _UpdateCard extends ConsumerWidget {
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
               ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Reminds the user to export a history backup, which a restore from the phrase cannot replace.
+class _HistoryBackupCard extends ConsumerWidget {
+  const _HistoryBackupCard({required this.chain, required this.transactions});
+
+  final Chain chain;
+  final List<TxEntry> transactions;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final settings = ref.watch(appSettingsProvider).value;
+    if (settings == null) return const SizedBox.shrink();
+    final now = ref.watch(clockProvider)();
+    final count = paymentsNotInBackup(
+      transactions,
+      now: now,
+      exportedAt: settings.historyExportedAt[chain.name],
+      dismissedAt: settings.historyReminderDismissedAt[chain.name],
+    );
+    if (count == null) return const SizedBox.shrink();
+    final colors = Theme.of(context).colorScheme;
+    final text = count == 1
+        ? '1 payment is not in a history backup.'
+        : '$count payments are not in a history backup.';
+    return Card(
+      color: colors.secondaryContainer,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              '$text A restore from your recovery phrase brings back only your '
+              'balance.',
+              style: TextStyle(color: colors.onSecondaryContainer),
+            ),
+            Wrap(
+              alignment: WrapAlignment.end,
+              children: [
+                TextButton(
+                  onPressed: () => ref
+                      .read(appSettingsProvider.notifier)
+                      .dismissHistoryReminder(chain, now),
+                  child: const Text('Not now'),
+                ),
+                TextButton(
+                  onPressed: () => exportHistoryBackup(context, ref),
+                  child: const Text('Export history backup'),
+                ),
+              ],
+            ),
           ],
         ),
       ),
