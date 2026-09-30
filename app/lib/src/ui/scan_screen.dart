@@ -118,19 +118,66 @@ class _ScanScreenState extends ConsumerState<ScanScreen> {
             errorBuilder: (context, error) =>
                 _ScanError(error: error, onRetry: _start),
           ),
-          const Align(
+          const IgnorePointer(child: _Viewfinder()),
+          Align(
             alignment: Alignment.bottomCenter,
-            child: Padding(
-              padding: EdgeInsets.all(24),
-              child: Text(
-                'Point the camera at the recipient\'s QR code.',
-                textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.white, fontSize: 16),
+            child: SafeArea(
+              child: Container(
+                margin: const EdgeInsets.all(24),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
+                // A dark scrim keeps the hint readable over a bright scene.
+                decoration: BoxDecoration(
+                  color: Colors.black.withValues(alpha: 0.6),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Text(
+                  'Point the camera at the recipient\'s QR code.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: Colors.white, fontSize: 16),
+                ),
               ),
             ),
           ),
         ],
       ),
+    );
+  }
+}
+
+/// A square frame in the middle of the camera view, showing where to hold the code. Only a
+/// guide: codes are read anywhere in the picture.
+class _Viewfinder extends StatelessWidget {
+  const _Viewfinder();
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final side = constraints.biggest.shortestSide * 0.7;
+        return Center(
+          // A faint dark ring outside the white frame, so it shows on white paper too.
+          child: Container(
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: Colors.black.withValues(alpha: 0.35),
+                width: 2,
+              ),
+              borderRadius: BorderRadius.circular(18),
+            ),
+            child: Container(
+              width: side,
+              height: side,
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.white, width: 3),
+                borderRadius: BorderRadius.circular(16),
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }

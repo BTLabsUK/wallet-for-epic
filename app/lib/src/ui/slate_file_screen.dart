@@ -42,7 +42,7 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
       final expected = widget.expectedSlateId;
       if (expected != null && info.slateId != expected) {
         _error =
-            'This response is for a different transaction. Open the file the '
+            'This response is for a different payment. Open the file the '
             'recipient returned for this send.';
       } else if (info.stage == SlateStage.invoice) {
         _error = 'Payment requests (invoices) are not supported yet.';
@@ -55,15 +55,19 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
     }
   }
 
+  /// Runs one wallet action at a time, then refreshes home, even if this screen has closed.
   Future<void> _run(Future<void> Function(WalletSession session) action) async {
+    if (_busy) return;
     final session = ref.read(sessionProvider);
     if (session == null) return;
+    final container = ProviderScope.containerOf(context, listen: false);
     setState(() {
       _busy = true;
       _error = null;
     });
     try {
       await action(session);
+      container.invalidate(homeProvider);
     } catch (error) {
       if (mounted) setState(() => _error = describeError(error));
     } finally {
@@ -73,32 +77,13 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
 
   Future<void> _sign() => _run((session) async {
     final response = await session.receiveSlate(slateJson: widget.file.json);
-    if (!mounted) return;
-    setState(() => _response = response);
-    await _shareResponse();
-    ref.invalidate(homeProvider);
+    if (mounted) setState(() => _response = response);
   });
-
-  Future<void> _shareResponse() async {
-    final response = _response;
-    if (response == null) return;
-    await ref
-        .read(autoLockHoldProvider.notifier)
-        .during(
-          () => ref
-              .read(slateFilesProvider)
-              .export(
-                name: responseFileName(widget.file.name),
-                json: response.json,
-              ),
-        );
-  }
 
   Future<void> _finalize() => _run((session) async {
     final tx = await session.finalizeAndPost(slateJson: widget.file.json);
     if (!mounted) return;
     setState(() => _posted = tx);
-    ref.invalidate(homeProvider);
   });
 
   @override
@@ -110,10 +95,12 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
       body = [
         _Headline(
           icon: Icons.check_circle,
-          text: 'Transaction of ${epicText(info!.amount)} posted.',
+          text: 'Payment of ${epicText(info!.amount)} sent to the network.',
         ),
         const SizedBox(height: 8),
-        const Text('It shows as confirmed once it is mined.'),
+        Text(
+          'It shows as Completed after $minimumConfirmations confirmations.',
+        ),
         const SizedBox(height: 24),
         BusyButton(
           label: 'Done',
@@ -125,20 +112,18 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
       body = [
         _Headline(
           icon: Icons.check_circle,
-          text: 'Signed. Return $name to the sender.',
+          text: 'Accepted. Return $name to the sender.',
         ),
         const SizedBox(height: 8),
         Text(
-          'The ${epicText(info!.amount)} arrive once the sender finalizes '
-          'this file and the transaction is mined.',
+          'The ${epicText(info!.amount)} arrive once the sender finishes '
+          'the payment and it is on the chain.',
         ),
         const SizedBox(height: 24),
-        BusyButton(label: 'Share $name again', onPressed: _shareResponse),
+        SlateFileButtons(name: name, json: _response!.json),
         const SizedBox(height: 8),
-        OutlinedButton(
-          style: OutlinedButton.styleFrom(
-            minimumSize: const Size.fromHeight(48),
-          ),
+        TextButton(
+          style: TextButton.styleFrom(minimumSize: const Size.fromHeight(48)),
           onPressed: () => Navigator.pop(context, true),
           child: const Text('Done'),
         ),
@@ -160,13 +145,13 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
         const SizedBox(height: 8),
         Text(
           receiving
-              ? 'Sign it, then return the response file to the sender.'
-              : 'Finalize it to post the transaction to the network.',
+              ? 'Accept it, then return the response file to the sender.'
+              : 'Finish it to send the payment to the network.',
         ),
         const SizedBox(height: 24),
         if (_error == null)
           BusyButton(
-            label: receiving ? 'Sign and share response' : 'Finalize and post',
+            label: receiving ? 'Accept payment' : 'Finish payment',
             busy: _busy,
             onPressed: receiving ? _sign : _finalize,
           ),
@@ -177,6 +162,71 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
       body: ScreenBody(
         children: [...body, if (_error != null) ErrorText(_error!)],
       ),
+    );
+  }
+}
+
+/// "Save to device" first, then "Share" where the platform has a share sheet for files. Many
+/// phones' share sheets have no "save to files" target, so saving must not depend on it. Both
+/// run under the auto-lock hold, since they open another app.
+class SlateFileButtons extends ConsumerWidget {
+  const SlateFileButtons({super.key, required this.name, required this.json});
+
+  final String name;
+  final String json;
+
+  Future<void> _out(
+    BuildContext context,
+    WidgetRef ref,
+    Future<bool> Function(SlateFiles files) action, {
+    String? done,
+  }) async {
+    final files = ref.read(slateFilesProvider);
+    final messenger = ScaffoldMessenger.of(context);
+    try {
+      final ok = await ref
+          .read(autoLockHoldProvider.notifier)
+          .during(() => action(files));
+      if (ok && done != null) {
+        messenger.showSnackBar(SnackBar(content: Text(done)));
+      }
+    } catch (_) {
+      messenger.showSnackBar(
+        SnackBar(content: Text('Could not hand over $name. Please try again.')),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final files = ref.watch(slateFilesProvider);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        FilledButton.icon(
+          style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+          icon: const Icon(Icons.save_alt),
+          label: const Text('Save to device'),
+          onPressed: () => _out(
+            context,
+            ref,
+            (f) => f.save(name: name, json: json),
+            done: 'Saved $name',
+          ),
+        ),
+        if (files.canShare) ...[
+          const SizedBox(height: 8),
+          OutlinedButton.icon(
+            style: OutlinedButton.styleFrom(
+              minimumSize: const Size.fromHeight(48),
+            ),
+            icon: const Icon(Icons.share),
+            label: const Text('Share'),
+            onPressed: () =>
+                _out(context, ref, (f) => f.share(name: name, json: json)),
+          ),
+        ],
+      ],
     );
   }
 }

@@ -38,6 +38,7 @@ bool matchesQuery(TxEntry tx, String query, {String? contactName}) {
   final q = query.trim().toLowerCase();
   if (q.isEmpty) return true;
   final amount = formatEpic(txAmount(tx).amount);
+  final grouped = formatEpic(txAmount(tx).amount, grouped: true);
   final fields = [
     tx.note,
     tx.counterparty,
@@ -45,6 +46,7 @@ bool matchesQuery(TxEntry tx, String query, {String? contactName}) {
     tx.slateId,
     tx.kernelExcess,
     amount,
+    grouped,
   ];
   if (fields.any((f) => f != null && f.toLowerCase().contains(q))) return true;
   return amount.contains(q.replaceAll(',', '.'));
@@ -128,10 +130,10 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
     if (all == null) {
       empty = null;
     } else if (all.isEmpty) {
-      empty = 'No transactions yet. Payments you send or receive show up here.';
+      empty = 'Nothing yet. Payments you send or receive show up here.';
     } else if (shown.isEmpty) {
       empty = query.trim().isEmpty
-          ? 'No ${historyFilterLabel(_filter).toLowerCase()} transactions.'
+          ? 'No ${historyFilterLabel(_filter).toLowerCase()} payments.'
           : 'Nothing matches "${query.trim()}".';
     } else {
       empty = null;
@@ -154,7 +156,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                     textInputAction: TextInputAction.search,
                     decoration: InputDecoration(
                       labelText: 'Search',
-                      hintText: 'Note, contact, address, amount or slate id',
+                      hintText: 'Note, contact, address or amount',
                       prefixIcon: const Icon(Icons.search),
                       border: const OutlineInputBorder(),
                       suffixIcon: query.isEmpty
@@ -167,23 +169,29 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                     ),
                   ),
                   const SizedBox(height: 12),
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 4,
-                    children: [
-                      for (final filter in HistoryFilter.values)
-                        ChoiceChip(
-                          label: Text(historyFilterLabel(filter)),
-                          selected: _filter == filter,
-                          onSelected: (_) => setState(() => _filter = filter),
-                        ),
-                    ],
+                  // One scrolling row, so the list starts higher on a phone.
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: [
+                        for (final filter in HistoryFilter.values)
+                          Padding(
+                            padding: const EdgeInsets.only(right: 8),
+                            child: ChoiceChip(
+                              label: Text(historyFilterLabel(filter)),
+                              selected: _filter == filter,
+                              onSelected: (_) =>
+                                  setState(() => _filter = filter),
+                            ),
+                          ),
+                      ],
+                    ),
                   ),
                   if (home.isLoading && all == null)
                     const Padding(
                       padding: EdgeInsets.only(top: 16),
                       child: LinearProgressIndicator(
-                        semanticsLabel: 'Loading transactions',
+                        semanticsLabel: 'Loading payments',
                       ),
                     ),
                   if (home.hasError && !home.isLoading)

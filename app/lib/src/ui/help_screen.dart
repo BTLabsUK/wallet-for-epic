@@ -13,6 +13,7 @@ enum HelpTopic {
   addressChanges,
   recoveryPhrase,
   fees,
+  node,
   otherWaysToSend,
 }
 
@@ -27,33 +28,35 @@ final Map<HelpTopic, _Answer> _answers = {
   HelpTopic.waitingForRecipient: const _Answer(
     'Why does my payment say "Waiting for recipient"?',
     'An Epic Cash payment is built by both wallets together: yours starts it, '
-        'the recipient\'s wallet signs it, then yours finishes it. Epicbox is a '
-        'mailbox service that holds your payment until the recipient\'s wallet '
-        'comes online and answers. Until then the amount stays locked in your '
-        'wallet, so you cannot spend it twice.',
+        'the recipient\'s wallet accepts it, then yours finishes it. Epic\'s '
+        'mailbox service (epicbox) holds your payment until the recipient\'s '
+        'wallet comes online and answers. Until then the amount stays locked in '
+        'your wallet, so you cannot spend it twice.',
   ),
   HelpTopic.cancelling: const _Answer(
     'Should I cancel a payment?',
     'Cancel only a payment that still says "Waiting for recipient", for example '
-        'when the recipient tells you they will never answer. Cancelling unlocks '
-        'the amount in your wallet, and the payment can no longer complete, so '
-        'you would have to send it again. A payment that is already confirming '
-        'is on its way to the network and cannot be cancelled.',
+        'when the recipient tells you they will never answer: open the payment '
+        'and tap Cancel payment. That unlocks the amount in your wallet, and the '
+        'payment can no longer complete, so you would have to send it again. A '
+        'payment that is already confirming is on its way to the network and '
+        'cannot be cancelled.',
   ),
   HelpTopic.receiving: const _Answer(
     'Why must I keep the app open to receive?',
-    'Your wallet has to sign every incoming payment, and it can only do that '
-        'while the app is open and connected to the epicbox relay. Payments sent '
-        'while the app is closed wait at the relay and complete the next time '
-        'you unlock. The sender\'s funds stay locked until then.',
+    'Your wallet has to accept every incoming payment, and it can only do that '
+        'while the app is open and connected to the mailbox. Payments sent while '
+        'the app is closed wait in the mailbox and complete the next time you '
+        'unlock. The sender\'s funds stay locked until then.',
   ),
   HelpTopic.confirmations: _Answer(
     'What are confirmations and why $minimumConfirmations?',
     'A confirmation is a new block added to the Epic Cash blockchain after the '
-        'one that holds your transaction; a block arrives about once a minute. '
-        'Each block makes it harder to undo the transaction. This wallet lets you '
-        'spend received coins after $minimumConfirmations confirmations, about '
-        '$minimumConfirmations minutes, which is the Epic wallet\'s standard.',
+        'one that holds your payment; a block arrives about once a minute. Each '
+        'block makes it harder to undo the payment. After $minimumConfirmations '
+        'confirmations, about $minimumConfirmations minutes, a payment shows as '
+        'Completed and received coins can be spent; that is the Epic wallet\'s '
+        'standard.',
   ),
   HelpTopic.historyAfterRestore: const _Answer(
     'Why is my history missing after a restore?',
@@ -65,10 +68,11 @@ final Map<HelpTopic, _Answer> _answers = {
   ),
   HelpTopic.addressChanges: const _Answer(
     'Does my address ever change?',
-    'Your address is made from your recovery phrase and the epicbox relay you '
-        'use, and it looks like <address>@<relay>. It stays the same as long as '
-        'you keep the same relay. If you pick another relay in network settings, '
-        'your address changes, so give the new one to people who pay you.',
+    'Your address is made from your recovery phrase and the mailbox server you '
+        'use, and it ends in @ and that server\'s name. It stays the same as long '
+        'as you keep the same mailbox server. If you pick another one in network '
+        'settings, your address changes, so give the new one to people who pay '
+        'you.',
   ),
   HelpTopic.recoveryPhrase: const _Answer(
     'What is the recovery phrase and who can see it?',
@@ -80,19 +84,26 @@ final Map<HelpTopic, _Answer> _answers = {
   ),
   HelpTopic.fees: const _Answer(
     'What does the fee pay for?',
-    'The fee goes to the miners who add your transaction to the blockchain. It '
-        'is usually a small fraction of an EPIC and depends on how many coins '
-        'your wallet combines to make the payment. You see the exact fee before '
-        'you send.',
+    'The fee goes to the miners who add your payment to the blockchain. It is '
+        'usually a small fraction of an EPIC and depends on how many coins your '
+        'wallet combines to make the payment. You see the exact fee before you '
+        'send.',
+  ),
+  HelpTopic.node: const _Answer(
+    'What is a node?',
+    'A node is a computer that keeps a copy of the Epic Cash blockchain. The '
+        'wallet asks a node for your balance and sends your payments to the '
+        'network through it. The node sees your IP address and which coins the '
+        'wallet asks about, so pick one you trust in network settings.',
   ),
   HelpTopic.otherWaysToSend: const _Answer(
     'Are there other ways to send?',
     'For advanced users. If the recipient runs a wallet that listens on the '
         'internet, paste its address starting with http:// or https:// as the '
-        'recipient, and the payment completes at once. Without epicbox, use '
-        '"Send by transaction file" under "Other ways to send": you share a '
-        'file, the recipient signs it and returns a .response file, and you open '
-        'that file to finish.',
+        'recipient, and the payment goes straight to it. Without the mailbox, '
+        'use "Send by transaction file" under "Other ways to send": you share a '
+        'file, the recipient accepts it and returns a .response file, and you '
+        'open that file to finish.',
   ),
 };
 

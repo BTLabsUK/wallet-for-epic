@@ -10,7 +10,9 @@ import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'amount.dart';
+import 'providers.dart';
 import 'settings.dart';
+import 'wallet_service.dart' show Chain;
 
 /// Display currencies offered in settings: lower-case CoinGecko codes and their names.
 const List<({String code, String name})> fiatCurrencies = [
@@ -95,6 +97,9 @@ class PriceNotifier extends AsyncNotifier<double?> {
 
   @override
   Future<double?> build() async {
+    // Test coins on floonet and usernet are worthless: no price, and no request.
+    final chain = ref.watch(walletConfigProvider.select((c) => c?.chain));
+    if (chain != null && chain != Chain.mainnet) return null;
     final settings = await ref.watch(appSettingsProvider.future);
     if (!settings.showFiat) return null;
     final currency = settings.fiatCurrency;

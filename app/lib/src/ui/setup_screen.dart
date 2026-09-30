@@ -261,7 +261,13 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
                   else
                     ErrorText(test.text),
                 const SizedBox(height: 24),
-                Text('Epicbox relay', style: theme.textTheme.titleMedium),
+                Text('Mailbox server', style: theme.textTheme.titleMedium),
+                const SizedBox(height: 4),
+                const Text(
+                  'Payments to and from other wallets go through Epic\'s '
+                  'mailbox service (epicbox). Your address includes the '
+                  'server you pick here.',
+                ),
                 const SizedBox(height: 8),
                 _RelayPicker(
                   preset: preset,
@@ -276,11 +282,11 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
                   enableSuggestions: false,
                   onSubmitted: (_) => _useCustomRelay(),
                   decoration: InputDecoration(
-                    labelText: 'Other relay (host or host:port)',
+                    labelText: 'Other mailbox server (host or host:port)',
                     errorText: _relayError,
                     border: const OutlineInputBorder(),
                     suffixIcon: IconButton(
-                      tooltip: 'Use this relay',
+                      tooltip: 'Use this server',
                       icon: const Icon(Icons.check),
                       onPressed: _useCustomRelay,
                     ),
@@ -289,9 +295,9 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
                 if (_relay != null && _relay != _savedRelay) ...[
                   const SizedBox(height: 8),
                   const ErrorText(
-                    'Changing the relay changes your epicbox address. Give '
+                    'Changing the mailbox server changes your address. Give '
                     'senders the new address. Payments sent to the old one '
-                    'wait on the old relay until you switch back.',
+                    'wait on the old server until you switch back.',
                   ),
                 ],
                 const SizedBox(height: 8),
@@ -363,7 +369,7 @@ class _RelayPicker extends ConsumerWidget {
         switch (status) {
           AsyncLoading() => const LinearProgressIndicator(),
           AsyncError() => Text(
-            'Relay health unavailable from status.btlabs.uk.',
+            'Server health is unavailable from status.btlabs.uk.',
             style: small,
           ),
           _ when preset.statusChain != null => Text(
@@ -383,7 +389,7 @@ class _RelayPicker extends ConsumerWidget {
       if (s.operator != null) s.operator!,
       if (s.verified) 'official',
       if (s.uptime24h != null)
-        '${(s.uptime24h! * 100).toStringAsFixed(1)}% 24h',
+        '${(s.uptime24h! * 100).toStringAsFixed(1)}% up in the last day',
     ];
     return parts.join(' · ');
   }

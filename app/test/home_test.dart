@@ -1,4 +1,5 @@
 import 'package:epic_wallet/src/network.dart';
+import 'package:epic_wallet/src/amount.dart';
 import 'package:epic_wallet/src/price.dart';
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/secret_store.dart';
@@ -14,6 +15,7 @@ import 'package:epic_wallet/src/updater.dart';
 import 'package:epic_wallet/src/vault.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -122,16 +124,71 @@ List<TxEntry> _transactions() => [
   ),
 ];
 
+/// A session whose first enrichment gives the restored row its block time (3 Aug instead of
+/// the scan day), counting balance and list queries.
+class _EnrichingSession extends FakeWalletSession {
+  _EnrichingSession()
+    : super(summary: _summary(), transactions: _transactions());
+
+  int summaryCalls = 0;
+  int transactionCalls = 0;
+  bool _dated = false;
+
+  @override
+  Future<WalletSummary> summary({
+    required bool refresh,
+    required BigInt minimumConfirmations,
+  }) {
+    summaryCalls++;
+    return super.summary(
+      refresh: refresh,
+      minimumConfirmations: minimumConfirmations,
+    );
+  }
+
+  @override
+  Future<List<TxEntry>> transactions({required bool refresh}) {
+    transactionCalls++;
+    return super.transactions(refresh: refresh);
+  }
+
+  @override
+  Future<int> enrichHistory() async {
+    await super.enrichHistory();
+    if (_dated) return 0;
+    _dated = true;
+    transactionsValue = [
+      for (final tx in transactionsValue)
+        if (tx.key == 'c:restored')
+          fakeTx(
+            key: tx.key,
+            kind: tx.kind,
+            status: tx.status,
+            source: tx.source,
+            createdAtUnix: _at(DateTime(2026, 8, 3, 8)),
+            blockHeight: tx.blockHeight,
+            amountCredited: tx.amountCredited,
+          )
+        else
+          tx,
+    ];
+    return 1;
+  }
+}
+
 class _Harness {
   _Harness({
     List<TxEntry>? transactions,
     double? price,
     bool scanSupported = false,
     this.chain = Chain.mainnet,
-  }) : session = FakeWalletSession(
-         summary: _summary(),
-         transactions: transactions ?? _transactions(),
-       ),
+    FakeWalletSession? session,
+  }) : session =
+           session ??
+           FakeWalletSession(
+             summary: _summary(),
+             transactions: transactions ?? _transactions(),
+           ),
        prices = _FakePrice(price),
        scanner = FakeQrScanner(supported: scanSupported) {
     store.values['wallet.${chain.name}.backedUp'] = '1';
@@ -239,7 +296,97 @@ void main() {
         'Restored funds',
       );
       expect(txTitle(fakeTx(kind: TxKind.sent), contactName: 'Bob'), 'Bob');
-      expect(txTitle(fakeTx(kind: TxKind.sentCancelled)), 'Sent');
+      expect(
+        txTitle(fakeTx(kind: TxKind.sentCancelled, status: TxStatus.cancelled)),
+        'Send cancelled',
+      );
+      // A cancelled receive says so, even when the sender is a contact.
+      expect(
+        txTitle(
+          fakeTx(kind: TxKind.receivedCancelled, status: TxStatus.cancelled),
+          contactName: 'Bob',
+        ),
+        'Receive cancelled',
+      );
+    });
+
+    test('details headings name the other side by its short address', () {
+      final send = fakeTx(
+        kind: TxKind.sent,
+        status: TxStatus.confirmed,
+        counterparty: _bob,
+      );
+      expect(txHeading(send), 'Sent to esBobA…567890@epicbox.epiccash.com');
+      expect(txHeading(send, contactName: 'Bob'), 'Bob');
+      expect(
+        txHeading(
+          fakeTx(
+            status: TxStatus.confirmed,
+            counterparty: 'http://203.0.113.5:3415',
+          ),
+        ),
+        'Received from http://203.0.113.5:3415',
+      );
+      expect(
+        txHeading(fakeTx(kind: TxKind.sent, status: TxStatus.confirmed)),
+        'Sent',
+      );
+    });
+
+    test(
+      'pending payments are Sending and Receiving, done ones Sent and Received',
+      () {
+        final receiving = fakeTx(
+          status: TxStatus.awaitingConfirmation,
+          counterparty: _bob,
+        );
+        expect(txTitle(receiving), 'Receiving');
+        expect(
+          txHeading(receiving),
+          'Receiving from esBobA…567890@epicbox.epiccash.com',
+        );
+        expect(
+          txTitle(
+            fakeTx(kind: TxKind.sent, status: TxStatus.awaitingRecipient),
+          ),
+          'Sending',
+        );
+        expect(txTitle(fakeTx(status: TxStatus.confirmed)), 'Received');
+        // A pending record from a backup is not known to be pending.
+        expect(
+          txTitle(
+            fakeTx(
+              kind: TxKind.sent,
+              status: TxStatus.awaitingRecipient,
+              source: TxSource.imported,
+            ),
+          ),
+          'Sent',
+        );
+      },
+    );
+
+    test('EPIC amounts group thousands for display, not for fields', () {
+      expect(epicText(_epic(1234.5678)), '1,234.5678 EPIC');
+      expect(epicText(_epic(-1234567)), '-1,234,567 EPIC');
+      expect(formatEpic(_epic(1234.5)), '1234.5');
+      expect(
+        matchesQuery(fakeTx(amountCredited: _epic(1234.5)), '1,234'),
+        isTrue,
+      );
+    });
+
+    test('a pending record from a backup is neither pending nor done', () {
+      final tx = fakeTx(
+        kind: TxKind.sent,
+        status: TxStatus.awaitingRecipient,
+        source: TxSource.imported,
+      );
+      expect(isPending(tx), isFalse);
+      expect(txStatusLabel(tx, _tip), 'From backup, status unknown');
+      expect(matchesFilter(tx, HistoryFilter.pending), isFalse);
+      expect(matchesFilter(tx, HistoryFilter.sent), isTrue);
+      expect(txExplanation(tx, _tip), contains('Nothing is locked'));
     });
 
     test('the expiry line counts down to the TTL height', () {
@@ -280,6 +427,14 @@ void main() {
       expect(explorerUrl(Chain.usernet, tx), isNull);
       expect(
         explorerUrl(Chain.mainnet, fakeTx(status: TxStatus.confirmed)),
+        isNull,
+      );
+      // Before it is on chain the kernel is not there (for a receive, only our part of it).
+      expect(
+        explorerUrl(
+          Chain.floonet,
+          fakeTx(status: TxStatus.awaitingConfirmation, kernelExcess: '09ff'),
+        ),
         isNull,
       );
     });
@@ -357,7 +512,7 @@ void main() {
     testWidgets('empty states in plain words', (tester) async {
       final h = _Harness(transactions: const []);
       await h.pump(tester, const HistoryScreen(filter: HistoryFilter.pending));
-      expect(find.textContaining('No transactions yet.'), findsOneWidget);
+      expect(find.textContaining('Nothing yet.'), findsOneWidget);
     });
   });
 
@@ -372,7 +527,7 @@ void main() {
       expect(find.text('≈ 6.25 USD'), findsOneWidget);
       expect(
         find.text(
-          'Synced at height 2,500,000. Connecting to the relay '
+          'Synced at height 2,500,000. Connecting to the mailbox '
           'to receive payments…',
         ),
         findsOneWidget,
@@ -552,17 +707,14 @@ void main() {
       expect(find.text('Waiting for recipient'), findsOneWidget);
       expect(find.textContaining('by block 2,500,120'), findsOneWidget);
 
-      final cancel = find.widgetWithText(OutlinedButton, 'Cancel transaction');
+      final cancel = find.widgetWithText(OutlinedButton, 'Cancel payment');
       await _tap(tester, cancel);
       await _tap(tester, find.text('Keep'));
       expect(h.session.cancelledTxIds, isEmpty);
       await _tap(tester, cancel);
-      await _tap(
-        tester,
-        find.widgetWithText(FilledButton, 'Cancel transaction'),
-      );
+      await _tap(tester, find.widgetWithText(FilledButton, 'Cancel payment'));
       expect(h.session.cancelledTxIds, [4]);
-      expect(find.text('Transaction cancelled'), findsOneWidget);
+      expect(find.text('Payment cancelled'), findsOneWidget);
     });
 
     testWidgets('restored funds explain what the chain does not keep', (
@@ -576,7 +728,7 @@ void main() {
         findsOneWidget,
       );
       expect(
-        find.widgetWithText(OutlinedButton, 'Cancel transaction'),
+        find.widgetWithText(OutlinedButton, 'Cancel payment'),
         findsNothing,
       );
     });
@@ -668,7 +820,11 @@ void main() {
 
     test('say what happened in words', () {
       final tx = fakeTx(amountCredited: _epic(1.5), counterparty: _bob);
-      expect(paymentNotice(received, tx), 'Received 1.5 EPIC');
+      // The listener only accepted it: the sender still has to finish.
+      expect(
+        paymentNotice(received, tx),
+        '1.5 EPIC on the way. It completes when the sender finishes.',
+      );
       expect(
         paymentNotice(
           ListenerEvent(
@@ -679,10 +835,16 @@ void main() {
           null,
           contactName: 'Alice',
         ),
-        'Received 2 EPIC from Alice',
+        '2 EPIC from Alice on the way. It completes when the sender finishes.',
       );
-      expect(paymentNotice(received, null), 'Payment received');
-      expect(paymentNotice(received, tx, hidden: true), 'Payment received');
+      expect(
+        paymentNotice(received, null),
+        'A payment is on the way. It completes when the sender finishes.',
+      );
+      expect(
+        paymentNotice(received, tx, hidden: true),
+        'A payment is on the way. It completes when the sender finishes.',
+      );
       expect(
         paymentNotice(finalized, tx),
         'Payment to esBobA…567890@epicbox.epiccash.com completed',
@@ -700,7 +862,7 @@ void main() {
           ),
           null,
         ),
-        'The relay reported a problem. Retrying.',
+        'The mailbox server reported a problem. Retrying.',
       );
     });
 
@@ -718,7 +880,10 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      expect(find.text('Received 5 EPIC'), findsOneWidget);
+      expect(
+        find.text('5 EPIC on the way. It completes when the sender finishes.'),
+        findsOneWidget,
+      );
       expect(find.textContaining('esAlice'), findsNothing);
       await tester.tap(find.text('View'));
       await tester.pumpAndSettle();
@@ -758,7 +923,7 @@ void main() {
         );
       await tester.pumpAndSettle();
       expect(
-        find.textContaining('Relay connection lost, retrying.'),
+        find.textContaining('Mailbox offline, reconnecting.'),
         findsOneWidget,
       );
       expect(find.textContaining('connection reset'), findsNothing);
@@ -773,6 +938,177 @@ void main() {
       expect(find.text('See all'), findsNothing);
       await _tap(tester, find.text('Show my address'));
       expect(find.byType(ReceiveScreen), findsOneWidget);
+    });
+  });
+
+  group('review fixes', () {
+    testWidgets('history is enriched after home loads, and on each refresh', (
+      tester,
+    ) async {
+      final session = _EnrichingSession();
+      final h = _Harness(session: session);
+      await h.pump(tester);
+      // Enrichment found the block time of the restored row: the list reloaded with it, and the
+      // balance was not asked again.
+      expect(session.enrichCalls, 1);
+      expect(session.summaryCalls, 1);
+      expect(session.transactionCalls, 2);
+      expect(find.text('3 Aug, 08:00'), findsOneWidget);
+      expect(find.text('1 Aug, 08:00'), findsNothing);
+
+      // The minute refresh asks again; nothing changed, so no extra list load.
+      final loads = session.transactionCalls;
+      await tester.pump(autoRefreshInterval);
+      await tester.pumpAndSettle();
+      expect(session.enrichCalls, 2);
+      expect(session.summaryCalls, 2);
+      expect(session.transactionCalls, loads + 1);
+    });
+
+    testWidgets('no fiat values on test networks', (tester) async {
+      final h = _Harness(price: 0.5, chain: Chain.floonet);
+      await h.pump(tester);
+      expect(find.textContaining('USD'), findsNothing);
+      expect(h.prices.calls, 0);
+    });
+    testWidgets('cancelling a receive warns that the sender may finish', (
+      tester,
+    ) async {
+      final h = _Harness(
+        transactions: [
+          fakeTx(
+            id: 7,
+            slateId: 'in',
+            kind: TxKind.received,
+            status: TxStatus.awaitingConfirmation,
+            amountCredited: _epic(4),
+            cancellable: true,
+          ),
+        ],
+      );
+      await h.pump(tester, const TxDetailsScreen(txKey: 's:in'));
+      await _tap(tester, find.widgetWithText(OutlinedButton, 'Cancel payment'));
+      expect(find.text('Cancel payment?'), findsOneWidget);
+      expect(
+        find.text(
+          'The sender may still finish this payment. If they do after you '
+          'cancel, it will not show until you rescan.',
+        ),
+        findsOneWidget,
+      );
+      await _tap(tester, find.widgetWithText(FilledButton, 'Cancel payment'));
+      expect(h.session.cancelledTxIds, [7]);
+    });
+
+    testWidgets('cancelling a send keeps the send wording', (tester) async {
+      final h = _Harness();
+      await h.pump(tester, const TxDetailsScreen(txKey: 's:send-bob'));
+      await _tap(tester, find.widgetWithText(OutlinedButton, 'Cancel payment'));
+      expect(find.textContaining('unlock its funds'), findsOneWidget);
+      expect(find.textContaining('rescan'), findsNothing);
+    });
+
+    testWidgets('a pending record from a backup is not in the pending card', (
+      tester,
+    ) async {
+      final h = _Harness(
+        transactions: [
+          fakeTx(
+            key: 'k:old',
+            kind: TxKind.sent,
+            status: TxStatus.awaitingRecipient,
+            source: TxSource.imported,
+            amountCredited: _epic(1),
+            amountDebited: _epic(3),
+          ),
+        ],
+      );
+      await h.pump(tester);
+      expect(find.text('A payment is waiting for the recipient'), findsNothing);
+      expect(find.text('From backup, status unknown'), findsOneWidget);
+    });
+
+    testWidgets('the pending card keeps both buttons on one row', (
+      tester,
+    ) async {
+      final h = _Harness();
+      await h.pump(tester);
+      // The test font draws every glyph 1 em wide, about twice Roboto's width, so check the
+      // layout on a wider view; the screenshot tour checks a phone with real fonts.
+      tester.view.physicalSize = const Size(1800, 7200);
+      await tester.pumpAndSettle();
+      final why = tester.getCenter(find.text('Why is it waiting?'));
+      final view = tester.getCenter(find.text('View payment'));
+      expect(why.dy, view.dy);
+    });
+
+    testWidgets('cancelled rows show no fiat value', (tester) async {
+      final h = _Harness(price: 0.5);
+      await h.pump(tester, const HistoryScreen());
+      // The cancelled 1 EPIC send would be 0.50 USD.
+      expect(find.text('-1 EPIC'), findsOneWidget);
+      expect(find.text('≈ 0.50 USD'), findsNothing);
+      expect(find.text('≈ 1.00 USD'), findsOneWidget);
+      expect(find.text('Send cancelled'), findsOneWidget);
+    });
+
+    testWidgets('filter chips scroll on one row', (tester) async {
+      final h = _Harness();
+      await h.pump(tester, const HistoryScreen());
+      final first = tester.getCenter(find.widgetWithText(ChoiceChip, 'All'));
+      final last = tester.getCenter(
+        find.widgetWithText(ChoiceChip, 'Cancelled'),
+      );
+      expect(first.dy, last.dy);
+    });
+
+    testWidgets('details copy only what is worth copying', (tester) async {
+      tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+        SystemChannels.platform,
+        (call) async => null,
+      );
+      addTearDown(
+        () => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+          SystemChannels.platform,
+          null,
+        ),
+      );
+      final h = _Harness();
+      await h.pump(tester, const TxDetailsScreen(txKey: 's:from-alice'));
+      expect(find.byTooltip('Copy date'), findsNothing);
+      expect(find.byTooltip('Copy explorer link'), findsOneWidget);
+      expect(find.text('Copy explorer link'), findsOneWidget);
+      expect(find.byTooltip('Copy address'), findsNothing);
+      await _tap(tester, find.text('Technical details'));
+      expect(find.byTooltip('Copy slate id'), findsOneWidget);
+      expect(find.byTooltip('Copy kernel'), findsOneWidget);
+      expect(find.byTooltip('Copy block height'), findsNothing);
+      expect(find.text('Local id'), findsOneWidget);
+      expect(find.byTooltip('Copy local id'), findsNothing);
+      expect(find.text('Wallet log id'), findsNothing);
+
+      // A tap on the explorer row copies it too.
+      await _tap(tester, find.text('Copy explorer link'));
+      expect(find.text('Link copied'), findsOneWidget);
+    });
+
+    testWidgets('a send to an unknown address is titled with it', (
+      tester,
+    ) async {
+      final h = _Harness();
+      await h.pump(tester, const TxDetailsScreen(txKey: 's:send-bob'));
+      expect(
+        find.text('Sending to esBobA…567890@epicbox.epiccash.com'),
+        findsOneWidget,
+      );
+      expect(find.byTooltip('Copy address'), findsOneWidget);
+    });
+
+    testWidgets('large balances group thousands', (tester) async {
+      final h = _Harness();
+      h.session.summaryValue = _summary(spendable: _epic(1234.5678));
+      await h.pump(tester);
+      expect(find.text('1,234.5678 EPIC'), findsOneWidget);
     });
   });
 

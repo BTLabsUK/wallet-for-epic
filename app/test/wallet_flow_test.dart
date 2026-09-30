@@ -351,19 +351,23 @@ void main() {
 
     expect(find.text('epicbox.epicnet.us'), findsOneWidget);
     expect(find.textContaining('Up · epicnet.us · official'), findsOneWidget);
-    expect(find.textContaining('changes your epicbox address'), findsNothing);
+    expect(find.textContaining('server changes your address'), findsNothing);
     await _tapText(tester, 'epicbox.epicnet.us');
-    expect(find.textContaining('changes your epicbox address'), findsOneWidget);
+    expect(find.textContaining('server changes your address'), findsOneWidget);
 
-    await _enter(tester, 'Other relay (host or host:port)', 'not a host!');
-    await _tap(tester, find.byTooltip('Use this relay'));
+    await _enter(
+      tester,
+      'Other mailbox server (host or host:port)',
+      'not a host!',
+    );
+    await _tap(tester, find.byTooltip('Use this server'));
     expect(find.textContaining('Enter a host'), findsOneWidget);
     await _enter(
       tester,
-      'Other relay (host or host:port)',
+      'Other mailbox server (host or host:port)',
       'relay.example.org:8443',
     );
-    await _tap(tester, find.byTooltip('Use this relay'));
+    await _tap(tester, find.byTooltip('Use this server'));
     expect(find.text('relay.example.org:8443'), findsOneWidget);
     expect(find.text('Not monitored'), findsOneWidget);
 
@@ -490,9 +494,9 @@ void main() {
       expect(find.text('12.5 EPIC'), findsOneWidget);
       expect(find.textContaining('Not validated with node'), findsOneWidget);
       // Total 16, spendable 12.5: the rest is behind the breakdown line.
-      expect(find.text('Awaiting confirmation'), findsNothing);
+      expect(find.text('Confirming'), findsNothing);
       await _tapText(tester, '3.5 EPIC not spendable yet');
-      expect(find.text('Awaiting confirmation'), findsOneWidget);
+      expect(find.text('Confirming'), findsOneWidget);
       expect(find.text('1 EPIC'), findsOneWidget);
       expect(find.text('2 EPIC'), findsOneWidget);
       expect(find.text('0.5 EPIC'), findsOneWidget);
@@ -503,7 +507,7 @@ void main() {
       expect(find.text('Waiting for recipient'), findsOneWidget);
       expect(find.text('Completed'), findsOneWidget);
       // No actions on rows: cancel lives in the details.
-      expect(find.byTooltip('Cancel transaction'), findsNothing);
+      expect(find.byTooltip('Cancel payment'), findsNothing);
     });
 
     testWidgets('an unconfirmed send is cancelled from its details', (
@@ -515,20 +519,18 @@ void main() {
       await _unlockToHome(tester);
 
       await _tap(tester, find.byKey(const ValueKey('tx-s:b')));
-      expect(find.textContaining("recipient's mailbox"), findsOneWidget);
+      // No address was recorded, so this is a send by transaction file.
+      expect(find.textContaining('their transaction file'), findsOneWidget);
       expect(find.text('Fee'), findsOneWidget);
       expect(find.text('0.008 EPIC'), findsOneWidget);
-      final cancel = find.widgetWithText(OutlinedButton, 'Cancel transaction');
+      final cancel = find.widgetWithText(OutlinedButton, 'Cancel payment');
       await _tap(tester, cancel);
       await _tapText(tester, 'Keep');
       expect(session.cancelledTxIds, isEmpty);
       await _tap(tester, cancel);
-      await _tap(
-        tester,
-        find.widgetWithText(FilledButton, 'Cancel transaction'),
-      );
+      await _tap(tester, find.widgetWithText(FilledButton, 'Cancel payment'));
       expect(session.cancelledTxIds, [2]);
-      expect(find.text('Transaction cancelled'), findsOneWidget);
+      expect(find.text('Payment cancelled'), findsOneWidget);
 
       // A confirmed receive has no cancel.
       await tester.pageBack();
@@ -665,7 +667,7 @@ void main() {
       await _pumpApp(tester, service, _Device(sealedMainnet: true));
       await _unlockToHome(tester);
       expect(
-        find.textContaining('Connecting to the relay to receive payments'),
+        find.textContaining('Connecting to the mailbox to receive payments'),
         findsOneWidget,
       );
 
@@ -673,7 +675,10 @@ void main() {
         const ListenerEvent(kind: ListenerEventKind.connected, message: 'a'),
       );
       await tester.pumpAndSettle();
-      expect(find.textContaining('Ready to receive payments.'), findsOneWidget);
+      expect(
+        find.textContaining('Connected. Ready to receive payments.'),
+        findsOneWidget,
+      );
 
       session.summaryValue = FakeWalletSession.emptySummary;
       session.listenerEvents.add(
@@ -686,7 +691,10 @@ void main() {
       );
       await tester.pumpAndSettle();
       // A notice in words, not the listener's raw message.
-      expect(find.text('Received 3 EPIC'), findsOneWidget);
+      expect(
+        find.text('3 EPIC on the way. It completes when the sender finishes.'),
+        findsOneWidget,
+      );
       expect(find.text('Received 3 EPIC from zz…'), findsNothing);
       expect(find.text('0 EPIC'), findsWidgets);
 

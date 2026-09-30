@@ -1,23 +1,21 @@
-/// Transaction history backup: the encrypted `.wfeh` export, the CSV export and the import.
+/// Payment history backup: the encrypted `.wfeh` export, the CSV export and the import.
 ///
-/// Files leave the app the way transaction files do (`slate_files.dart`): a save dialog on
-/// desktop, the share sheet on phones. Binary content needs its own path, because slate files
-/// are text.
+/// Files leave the app like transaction files do, through the shared helpers in
+/// `slate_files.dart`: "Save to device" (the system save dialog; the Storage Access Framework
+/// on Android) first, and "Share" as a second choice where the platform has a share sheet.
 library;
 
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:share_plus/share_plus.dart';
 
 import '../errors.dart';
 import '../providers.dart';
 import '../settings.dart';
+import '../slate_files.dart';
 import '../wallet_service.dart';
 
 /// History backups are small; a file far larger is not one.
@@ -25,12 +23,14 @@ const int maxHistoryFileBytes = 32 << 20;
 
 /// Moves history files in and out of the app.
 abstract interface class HistoryFiles {
-  /// Hands [bytes] over as a file called [name]. Returns false if the user cancelled.
-  Future<bool> save({
-    required String name,
-    required Uint8List bytes,
-    required String mimeType,
-  });
+  /// Saves [bytes] as [name] where the user chooses. Returns false if they cancelled.
+  Future<bool> save({required String name, required Uint8List bytes});
+
+  /// Whether [share] works on this platform.
+  bool get canShare;
+
+  /// Hands [bytes] to another app as a file called [name]. Returns false if dismissed.
+  Future<bool> share({required String name, required Uint8List bytes});
 
   /// Lets the user pick a file and returns its bytes, or null if they cancelled.
   Future<Uint8List?> pick();
@@ -39,41 +39,20 @@ abstract interface class HistoryFiles {
 class PlatformHistoryFiles implements HistoryFiles {
   const PlatformHistoryFiles();
 
-  static bool get _mobile =>
-      !kIsWeb &&
-      (defaultTargetPlatform == TargetPlatform.android ||
-          defaultTargetPlatform == TargetPlatform.iOS);
+  @override
+  Future<bool> save({required String name, required Uint8List bytes}) =>
+      saveBytesToDevice(
+        name: name,
+        bytes: bytes,
+        dialogTitle: 'Save payment history',
+      );
 
   @override
-  Future<bool> save({
-    required String name,
-    required Uint8List bytes,
-    required String mimeType,
-  }) async {
-    if (!_mobile) {
-      final saved = await FilePicker.saveFile(
-        fileName: name,
-        bytes: bytes,
-        dialogTitle: 'Save history file',
-      );
-      return saved != null;
-    }
-    // The share sheet needs a real file; it lives in the cache and is replaced next time.
-    final dir = Directory(
-      '${(await getTemporaryDirectory()).path}${Platform.pathSeparator}history',
-    );
-    await dir.create(recursive: true);
-    final file = File('${dir.path}${Platform.pathSeparator}$name');
-    await file.writeAsBytes(bytes, flush: true);
-    final result = await SharePlus.instance.share(
-      ShareParams(
-        files: [XFile(file.path, mimeType: mimeType)],
-        fileNameOverrides: [name],
-        subject: name,
-      ),
-    );
-    return result.status != ShareResultStatus.dismissed;
-  }
+  bool get canShare => canShareFiles;
+
+  @override
+  Future<bool> share({required String name, required Uint8List bytes}) =>
+      shareBytes(name: name, bytes: bytes);
 
   @override
   Future<Uint8List?> pick() async {
@@ -87,18 +66,24 @@ class PlatformHistoryFiles implements HistoryFiles {
   }
 }
 
-/// Records saves and hands out queued picks, for widget tests.
+/// Records saves and shares and hands out queued picks, for widget tests.
 class FakeHistoryFiles implements HistoryFiles {
-  final List<({String name, Uint8List bytes, String mimeType})> saved = [];
+  final List<({String name, Uint8List bytes})> saved = [];
+  final List<({String name, Uint8List bytes})> shared = [];
   final List<Uint8List?> picks = [];
 
   @override
-  Future<bool> save({
-    required String name,
-    required Uint8List bytes,
-    required String mimeType,
-  }) async {
-    saved.add((name: name, bytes: bytes, mimeType: mimeType));
+  bool canShare = true;
+
+  @override
+  Future<bool> save({required String name, required Uint8List bytes}) async {
+    saved.add((name: name, bytes: bytes));
+    return true;
+  }
+
+  @override
+  Future<bool> share({required String name, required Uint8List bytes}) async {
+    shared.add((name: name, bytes: bytes));
     return true;
   }
 
@@ -122,10 +107,10 @@ String describeImport(ImportReport report) {
   String count(int n, String one, String many) => '$n ${n == 1 ? one : many}';
   final parts = [
     if (report.merged > 0)
-      '${count(report.merged, 'transaction', 'transactions')} got '
+      '${count(report.merged, 'payment', 'payments')} got '
           'their details back',
     if (report.added > 0)
-      '${count(report.added, 'older transaction', 'older transactions')} '
+      '${count(report.added, 'older payment', 'older payments')} '
           'added',
     if (report.skipped > 0)
       '${count(report.skipped, 'record was', 'records were')} already here',
@@ -158,18 +143,69 @@ Future<void> _tell(BuildContext context, String title, String message) =>
       ),
     );
 
-Future<bool> _save(
+enum _Destination { device, share }
+
+/// Offers "Save to device", and "Share" where the platform can, then hands the file over.
+/// Returns true once it was saved or shared.
+Future<bool> _handOver(
+  BuildContext context,
   WidgetRef ref, {
   required String name,
   required Uint8List bytes,
-  required String mimeType,
-}) => ref
-    .read(autoLockHoldProvider.notifier)
-    .during(
-      () => ref
-          .read(historyFilesProvider)
-          .save(name: name, bytes: bytes, mimeType: mimeType),
+  required String title,
+}) async {
+  final files = ref.read(historyFilesProvider);
+  var destination = _Destination.device;
+  if (files.canShare) {
+    final chosen = await showModalBottomSheet<_Destination>(
+      context: context,
+      showDragHandle: true,
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 0, 24, 8),
+              child: Text(
+                title,
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.save_alt),
+              title: const Text('Save to device'),
+              subtitle: const Text('Choose a folder, such as Downloads'),
+              onTap: () => Navigator.pop(context, _Destination.device),
+            ),
+            ListTile(
+              leading: const Icon(Icons.share),
+              title: const Text('Share'),
+              subtitle: const Text('Send it to another app, such as email'),
+              onTap: () => Navigator.pop(context, _Destination.share),
+            ),
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
     );
+    if (chosen == null) return false;
+    destination = chosen;
+  }
+  final done = await ref
+      .read(autoLockHoldProvider.notifier)
+      .during(
+        () => switch (destination) {
+          _Destination.device => files.save(name: name, bytes: bytes),
+          _Destination.share => files.share(name: name, bytes: bytes),
+        },
+      );
+  // The share sheet is its own confirmation; a save into a folder is silent otherwise.
+  if (done && destination == _Destination.device && context.mounted) {
+    _say(context, 'Saved $name');
+  }
+  return done;
+}
 
 /// Exports the encrypted history backup. Returns true once the file was handed over.
 Future<bool> exportHistoryBackup(BuildContext context, WidgetRef ref) async {
@@ -178,13 +214,19 @@ Future<bool> exportHistoryBackup(BuildContext context, WidgetRef ref) async {
   if (session == null || config == null) return false;
   try {
     final bytes = await session.exportHistory();
-    final saved = await _save(
-      ref,
-      name: historyFileName(config.chain, ref.read(clockProvider)(), 'wfeh'),
-      bytes: bytes,
-      mimeType: 'application/octet-stream',
+    if (!context.mounted) return false;
+    final name = historyFileName(
+      config.chain,
+      ref.read(clockProvider)(),
+      'wfeh',
     );
-    if (saved && context.mounted) _say(context, 'History backup exported');
+    final saved = await _handOver(
+      context,
+      ref,
+      name: name,
+      bytes: bytes,
+      title: 'Export backup',
+    );
     return saved;
   } catch (error) {
     if (context.mounted) _say(context, describeError(error));
@@ -221,13 +263,19 @@ Future<bool> exportHistoryCsv(BuildContext context, WidgetRef ref) async {
   if (go != true || !context.mounted) return false;
   try {
     final csv = await session.exportHistoryCsv();
-    final saved = await _save(
-      ref,
-      name: historyFileName(config.chain, ref.read(clockProvider)(), 'csv'),
-      bytes: Uint8List.fromList(utf8.encode(csv)),
-      mimeType: 'text/csv',
+    if (!context.mounted) return false;
+    final name = historyFileName(
+      config.chain,
+      ref.read(clockProvider)(),
+      'csv',
     );
-    if (saved && context.mounted) _say(context, 'CSV exported');
+    final saved = await _handOver(
+      context,
+      ref,
+      name: name,
+      bytes: Uint8List.fromList(utf8.encode(csv)),
+      title: 'Export CSV',
+    );
     return saved;
   } catch (error) {
     if (context.mounted) _say(context, describeError(error));

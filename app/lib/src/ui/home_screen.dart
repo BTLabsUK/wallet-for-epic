@@ -42,15 +42,18 @@ String paymentNotice(
       contactName ?? (counterparty == null ? null : shortAddress(counterparty));
   switch (event.kind) {
     case ListenerEventKind.received:
+      // The listener only accepted it; the sender still has to finish it.
       final amount = event.amount ?? (tx == null ? null : txAmount(tx).amount);
-      if (amount == null || hidden) return 'Payment received';
       final from = contactName == null ? '' : ' from $contactName';
-      return 'Received ${epicText(amount)}$from';
+      const rest = 'It completes when the sender finishes.';
+      return amount == null || hidden
+          ? 'A payment$from is on the way. $rest'
+          : '${epicText(amount)}$from on the way. $rest';
     case ListenerEventKind.finalized:
       return who == null ? 'Payment completed' : 'Payment to $who completed';
     case ListenerEventKind.error:
       return event.slateId == null
-          ? 'The relay reported a problem. Retrying.'
+          ? 'The mailbox server reported a problem. Retrying.'
           : 'A payment could not be completed.';
     case ListenerEventKind.connected ||
         ListenerEventKind.disconnected ||
@@ -469,16 +472,16 @@ class _BalanceHeaderState extends ConsumerState<BalanceHeader> {
     final hidden = display.hidden;
     final fiat = approxFiat(summary.spendable, display);
     final buckets = [
-      ('Awaiting confirmation', summary.awaitingConfirmation),
-      ('Awaiting finalization', summary.awaitingFinalization),
+      ('Confirming', summary.awaitingConfirmation),
+      ('Waiting to finish', summary.awaitingFinalization),
       ('Locked by a payment in progress', summary.locked),
-      ('Immature mining rewards', summary.immature),
+      ('Mining rewards not spendable yet', summary.immature),
     ].where((b) => b.$2 > BigInt.zero).toList();
     final notSpendable = summary.total - summary.spendable;
     final summaryLine = notSpendable > BigInt.zero
         ? '${shownEpic(notSpendable, hidden: hidden)} not spendable yet'
         : '${shownEpic(summary.awaitingFinalization, hidden: hidden)} '
-              'awaiting finalization';
+              'waiting to finish';
 
     return Padding(
       padding: const EdgeInsets.only(top: 8),
@@ -591,10 +594,10 @@ class _SyncLine extends ConsumerWidget {
         ? theme.colorScheme.error
         : theme.colorScheme.onSurfaceVariant;
     final relay = listening
-        ? 'Ready to receive payments.'
+        ? 'Connected. Ready to receive payments.'
         : lost
-        ? 'Relay connection lost, retrying.'
-        : 'Connecting to the relay to receive payments…';
+        ? 'Mailbox offline, reconnecting.'
+        : 'Connecting to the mailbox to receive payments…';
     return Semantics(
       liveRegion: problem,
       child: Padding(
@@ -621,13 +624,20 @@ class _SyncLine extends ConsumerWidget {
 class _PendingSendsCard extends ConsumerWidget {
   const _PendingSendsCard({required this.transactions, required this.open});
 
+  static final ButtonStyle _compact = TextButton.styleFrom(
+    padding: const EdgeInsets.symmetric(horizontal: 8),
+  );
+
   final List<TxEntry> transactions;
   final Future<void> Function(Widget screen) open;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final waiting = transactions
-        .where((t) => t.status == TxStatus.awaitingRecipient)
+        .where(
+          (t) =>
+              t.status == TxStatus.awaitingRecipient && !isFromBackupUnknown(t),
+        )
         .toList();
     if (waiting.isEmpty) return const SizedBox.shrink();
     final hidden = amountDisplay(ref).hidden;
@@ -655,29 +665,32 @@ class _PendingSendsCard extends ConsumerWidget {
               ),
               const SizedBox(height: 4),
               Text(
-                '${shownEpic(total, hidden: hidden)} is in the recipient\'s '
-                'mailbox. The payment completes when their wallet comes online. '
-                'Until then the funds stay locked, or you can cancel it.',
+                '${shownEpic(total, hidden: hidden)} is on its way. A payment '
+                'completes when the recipient\'s wallet answers; until then the '
+                'funds stay locked. To cancel, open the payment and tap Cancel '
+                'payment.',
                 style: TextStyle(color: colors.onSecondaryContainer),
               ),
-              Align(
-                alignment: Alignment.centerRight,
-                child: TextButton(
-                  onPressed: () => open(
-                    one
-                        ? TxDetailsScreen(txKey: waiting.single.key)
-                        : const HistoryScreen(filter: HistoryFilter.pending),
+              // One row on a phone; wraps only at large text.
+              Wrap(
+                alignment: WrapAlignment.end,
+                children: [
+                  TextButton(
+                    style: _compact,
+                    onPressed: () =>
+                        openHelp(context, HelpTopic.waitingForRecipient),
+                    child: const Text('Why is it waiting?'),
                   ),
-                  child: Text(one ? 'View payment' : 'View payments'),
-                ),
-              ),
-              Align(
-                alignment: Alignment.centerRight,
-                child: TextButton(
-                  onPressed: () =>
-                      openHelp(context, HelpTopic.waitingForRecipient),
-                  child: const Text('Why is it waiting?'),
-                ),
+                  TextButton(
+                    style: _compact,
+                    onPressed: () => open(
+                      one
+                          ? TxDetailsScreen(txKey: waiting.single.key)
+                          : const HistoryScreen(filter: HistoryFilter.pending),
+                    ),
+                    child: Text(one ? 'View payment' : 'View payments'),
+                  ),
+                ],
               ),
             ],
           ),

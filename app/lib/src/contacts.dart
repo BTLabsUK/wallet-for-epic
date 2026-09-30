@@ -142,7 +142,7 @@ String? contactNameFor(Iterable<Contact> contacts, String? address) =>
 /// Checks that [text] is something the wallet can send to: a full epicbox address valid on the
 /// open wallet's chain, or an `http(s)` wallet URL. Returns a sentence for the user, or null.
 String? checkRecipient(WalletService service, String text) {
-  if (text.trim().isEmpty) return 'Enter an epicbox address or wallet URL.';
+  if (text.trim().isEmpty) return 'Enter their address or a wallet URL.';
   final recipient = parseRecipient(text);
   switch (recipient.kind) {
     case RecipientKind.http:
@@ -154,7 +154,7 @@ String? checkRecipient(WalletService service, String text) {
     case RecipientKind.epicbox:
       return service.validateEpicboxAddress(address: recipient.address)
           ? null
-          : 'This is not a valid epicbox address. It looks like '
-                '<address>@<relay>, such as es5x…@epicbox.epiccash.com';
+          : 'This is not a valid address. It looks like '
+                'es5x…@epicbox.epiccash.com';
   }
 }

@@ -120,8 +120,9 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
               child: Text(c.name.characters.first.toUpperCase()),
             ),
             title: Text(c.name),
+            // Start and end of the key, so contacts on the same server stay apart.
             subtitle: Text(
-              c.address,
+              shortAddress(c.address),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
@@ -227,7 +228,7 @@ class _ContactEditScreenState extends ConsumerState<ContactEditScreen> {
       builder: (context) => AlertDialog(
         title: Text('Delete ${contact.name}?'),
         content: const Text(
-          'The address is removed from your contacts. Past transactions are '
+          'The address is removed from your contacts. Past payments are '
           'not affected.',
         ),
         actions: [
@@ -286,10 +287,10 @@ class _ContactEditScreenState extends ConsumerState<ContactEditScreen> {
             autocorrect: false,
             enableSuggestions: false,
             minLines: 1,
-            maxLines: 3,
+            maxLines: null,
             onChanged: (_) => setState(() => _addressError = null),
             decoration: InputDecoration(
-              labelText: 'Epicbox address or wallet URL',
+              labelText: 'Address or wallet URL',
               errorText: _addressError,
               border: const OutlineInputBorder(),
               suffixIcon: Row(

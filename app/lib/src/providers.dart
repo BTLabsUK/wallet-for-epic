@@ -181,6 +181,8 @@ final homeProvider = AsyncNotifierProvider.autoDispose<HomeNotifier, HomeData>(
 );
 
 class HomeNotifier extends AsyncNotifier<HomeData> {
+  bool _enriching = false;
+
   @override
   Future<HomeData> build() async {
     final session = _requireSession(ref);
@@ -189,7 +191,34 @@ class HomeNotifier extends AsyncNotifier<HomeData> {
       minimumConfirmations: minimumConfirmations,
     );
     final transactions = await session.transactions(refresh: false);
+    // Heights and dates for history rows come afterwards, so they never hold up the balance.
+    Future<void>.delayed(Duration.zero, () => _enrich(session));
     return HomeData(summary: summary, transactions: transactions);
+  }
+
+  /// Asks the core to fill in heights and times it can look up, and reloads the list (only the
+  /// list) when any row changed. Failures are ignored: the next refresh tries again.
+  Future<void> _enrich(WalletSession session) async {
+    if (_enriching) return;
+    _enriching = true;
+    try {
+      final changed = await session.enrichHistory();
+      if (changed == 0 || !ref.mounted) return;
+      final transactions = await session.transactions(refresh: false);
+      final current = state;
+      // A reload that started meanwhile brings its own list and enriches again.
+      if (!ref.mounted || current.isLoading || !current.hasValue) return;
+      state = AsyncData(
+        HomeData(
+          summary: current.requireValue.summary,
+          transactions: transactions,
+        ),
+      );
+    } catch (_) {
+      // The list stays as it was.
+    } finally {
+      _enriching = false;
+    }
   }
 
   /// Refreshes against the node. Completes with an error if the refresh failed.

@@ -11,13 +11,11 @@ import 'contacts_screen.dart' show ContactEditScreen;
 /// Minutes per Epic block, for rough "about N hours" estimates.
 const int _minutesPerBlock = 1;
 
-/// A link to the transaction in a block explorer, where one exists: the kernel on floonet, the
-/// block on mainnet (no mainnet explorer shows kernels). Null otherwise.
+/// A link to the payment in a block explorer, once it is on chain: the kernel on floonet, the
+/// block on mainnet (no mainnet explorer shows kernels). Null before confirmation, when the
+/// kernel is not on chain yet (and for a receive is only our partial excess), and elsewhere.
 String? explorerUrl(Chain chain, TxEntry tx) {
-  if (tx.status == TxStatus.cancelled ||
-      tx.status == TxStatus.awaitingRecipient) {
-    return null;
-  }
+  if (tx.status != TxStatus.confirmed) return null;
   final kernel = tx.kernelExcess;
   final height = tx.blockHeight;
   return switch (chain) {
@@ -37,18 +35,27 @@ String roughDuration(int minutes) {
   return '${(hours / 24).round()} days';
 }
 
+/// Whether [address] is someone's mailbox address rather than a wallet URL.
+bool _isMailboxAddress(String? address) =>
+    address != null &&
+    address.contains('@') &&
+    !address.toLowerCase().startsWith('http');
+
 /// What the status means for the user, in a sentence or two.
 String txExplanation(TxEntry tx, BigInt? tip) {
   final n = txConfirmations(tx, tip);
   final height = tx.blockHeight;
   final outgoing = txAmount(tx).outgoing;
   return switch (txPhase(tx, tip)) {
-    TxPhase.waitingRecipient =>
+    TxPhase.waitingRecipient when _isMailboxAddress(tx.counterparty) =>
       'Sent to the recipient\'s mailbox. It completes when their wallet comes '
           'online. Your funds stay locked until then, or until you cancel.',
+    TxPhase.waitingRecipient =>
+      'Waiting for the recipient to answer with their transaction file. Your '
+          'funds stay locked until then, or until you cancel.',
     TxPhase.waitingSender =>
-      'You signed this payment. It completes when the sender finishes it and '
-          'publishes it to the network.',
+      'You accepted this payment. It completes when the sender finishes it '
+          'and publishes it to the network.',
     TxPhase.confirming when height == null || n == null =>
       outgoing
           ? 'Published to the network. Waiting for the first confirmation.'
@@ -65,6 +72,10 @@ String txExplanation(TxEntry tx, BigInt? tip) {
       outgoing
           ? 'Cancelled. Nothing was sent, and the funds are spendable again.'
           : 'Cancelled. This payment will not arrive.',
+    TxPhase.fromBackup =>
+      'This payment comes from a history backup and was not finished when '
+          'the backup was made. This wallet has no record of its own for it, '
+          'so it cannot tell whether it completed. Nothing is locked.',
   };
 }
 
@@ -164,13 +175,17 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
   Future<void> _cancel(TxEntry tx) async {
     final id = tx.id;
     if (id == null) return;
+    final receive = !txAmount(tx).outgoing;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Cancel transaction'),
-        content: const Text(
-          'Cancel this unconfirmed send and unlock its funds? Only do this if '
-          'the recipient will not finalize it.',
+        title: const Text('Cancel payment?'),
+        content: Text(
+          receive
+              ? 'The sender may still finish this payment. If they do after '
+                    'you cancel, it will not show until you rescan.'
+              : 'Cancel this payment and unlock its funds? Only do this if '
+                    'the recipient has not finished it.',
         ),
         actions: [
           TextButton(
@@ -179,7 +194,7 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
           ),
           FilledButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Cancel transaction'),
+            child: const Text('Cancel payment'),
           ),
         ],
       ),
@@ -191,7 +206,7 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
     try {
       await session.cancelTransaction(txId: id);
       if (!mounted) return;
-      _showMessage('Transaction cancelled');
+      _showMessage('Payment cancelled');
       await _reload();
     } catch (error) {
       if (mounted) _showMessage(describeError(error));
@@ -208,7 +223,7 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
         .firstOrNull;
     if (tx == null) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Transaction')),
+        appBar: AppBar(title: const Text('Payment')),
         body: ScreenBody(
           children: [
             if (home.isLoading)
@@ -216,7 +231,7 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
             else if (home.hasError)
               ErrorText(describeError(home.error!))
             else
-              const Text('This transaction is no longer in the wallet.'),
+              const Text('This payment is no longer in the wallet.'),
           ],
         ),
       );
@@ -230,7 +245,9 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
     final (:amount, :outgoing) = txAmount(tx);
     final counterparty = tx.counterparty;
     final name = contactName(ref, counterparty);
-    final fiat = approxFiat(amount, display);
+    final fiat = tx.status == TxStatus.cancelled
+        ? null
+        : approxFiat(amount, display);
     final ttl = ttlLine(tx, tip);
     final stuck = isStuck(tx, ref.watch(clockProvider)());
     final url = chain == null ? null : explorerUrl(chain, tx);
@@ -239,7 +256,7 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
     final note = tx.note;
 
     return Scaffold(
-      appBar: AppBar(title: Text(txTitle(tx, contactName: name))),
+      appBar: AppBar(title: Text(txHeading(tx, contactName: name))),
       body: ScreenBody(
         children: [
           if (_busy || home.isLoading)
@@ -314,7 +331,7 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
                       alignment: Alignment.centerRight,
                       child: OutlinedButton.icon(
                         icon: const Icon(Icons.cancel_outlined),
-                        label: const Text('Cancel transaction'),
+                        label: const Text('Cancel payment'),
                         onPressed: _busy ? null : () => _cancel(tx),
                       ),
                     ),
@@ -364,8 +381,9 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
           ),
           if (url != null)
             _DetailRow(
-              label: 'Block explorer',
+              label: 'Copy explorer link',
               value: url,
+              copy: true,
               copyLabel: 'Copy explorer link',
               copyWhat: 'Link',
             ),
@@ -375,22 +393,23 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
             title: const Text('Technical details'),
             children: [
               if (tx.blockHeight case final height?)
-                _DetailRow(label: 'Block height', value: '$height'),
+                _DetailRow(label: 'Block height', value: groupDigits(height)),
               if (tx.slateId case final slate?)
-                _DetailRow(label: 'Slate ID', value: slate),
+                _DetailRow(label: 'Slate ID', value: slate, copy: true),
               if (tx.kernelExcess case final kernel?)
-                _DetailRow(label: 'Kernel', value: kernel),
+                _DetailRow(label: 'Kernel', value: kernel, copy: true),
               for (final (i, commit) in tx.outputCommits.indexed)
                 _DetailRow(
                   label: tx.outputCommits.length == 1
                       ? 'Output commitment'
                       : 'Output commitment ${i + 1}',
                   value: commit,
+                  copy: true,
                 ),
               if (tx.ttlCutoffHeight case final cutoff?)
-                _DetailRow(label: 'Expiry height', value: '$cutoff'),
+                _DetailRow(label: 'Expiry height', value: groupDigits(cutoff)),
               if (tx.id case final id?)
-                _DetailRow(label: 'Wallet log id', value: '$id', copy: false),
+                _DetailRow(label: 'Local id', value: '$id'),
             ],
           ),
         ],
@@ -476,12 +495,13 @@ class _SourceNote extends StatelessWidget {
   }
 }
 
-/// A labelled value that can be selected and copied.
+/// A labelled value that can be selected; with [copy], also copied, by the icon or a tap on the
+/// row.
 class _DetailRow extends StatelessWidget {
   const _DetailRow({
     required this.label,
     required this.value,
-    this.copy = true,
+    this.copy = false,
     this.copyLabel,
     this.copyWhat,
   });
@@ -494,15 +514,17 @@ class _DetailRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    void doCopy() => copyText(context, value, copyWhat ?? label);
     return ListTile(
       contentPadding: EdgeInsets.zero,
       title: Text(label, style: Theme.of(context).textTheme.labelLarge),
-      subtitle: SelectableText(value),
+      subtitle: copy ? Text(value) : SelectableText(value),
+      onTap: copy ? doCopy : null,
       trailing: copy
           ? IconButton(
               tooltip: copyLabel ?? 'Copy ${label.toLowerCase()}',
               icon: const Icon(Icons.copy),
-              onPressed: () => copyText(context, value, copyWhat ?? label),
+              onPressed: doCopy,
             )
           : null,
     );

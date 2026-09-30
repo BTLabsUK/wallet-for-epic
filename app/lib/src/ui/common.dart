@@ -37,8 +37,8 @@ Future<void> copyText(BuildContext context, String text, String what) async {
       .showSnackBar(SnackBar(content: Text('$what copied')));
 }
 
-/// `1.5 EPIC`.
-String epicText(BigInt atomic) => '${formatEpic(atomic)} EPIC';
+/// `1,234.5 EPIC`. Display only; see [formatEpic].
+String epicText(BigInt atomic) => '${formatEpic(atomic, grouped: true)} EPIC';
 
 /// What an amount shows while balances are hidden.
 const String hiddenAmount = '•••••';
@@ -161,21 +161,60 @@ String signedEpic(TxEntry tx, {required bool hidden}) {
 
 String txKindLabel(TxKind kind) => switch (kind) {
   TxKind.coinbase => 'Mining reward',
-  TxKind.received || TxKind.receivedCancelled => 'Received',
-  TxKind.sent || TxKind.sentCancelled => 'Sent',
+  TxKind.received => 'Received',
+  TxKind.sent => 'Sent',
+  TxKind.receivedCancelled => 'Receive cancelled',
+  TxKind.sentCancelled => 'Send cancelled',
 };
 
-/// The row title: a mining reward, restored funds, the contact's name, else the direction.
+bool _outgoingKind(TxEntry tx) =>
+    tx.kind == TxKind.sent || tx.kind == TxKind.sentCancelled;
+
+/// The row title: a mining reward, restored funds, a cancelled send or receive, the contact's
+/// name, else the direction ("Sending"/"Receiving" while pending).
 String txTitle(TxEntry tx, {String? contactName}) {
   if (tx.kind == TxKind.coinbase) return 'Mining reward';
   if (tx.source == TxSource.restored) return 'Restored funds';
-  return contactName ?? txKindLabel(tx.kind);
+  if (tx.status == TxStatus.cancelled) {
+    return _outgoingKind(tx) ? 'Send cancelled' : 'Receive cancelled';
+  }
+  return contactName ?? _directionLabel(tx);
 }
+
+String _directionLabel(TxEntry tx) {
+  if (!isPending(tx)) return txKindLabel(tx.kind);
+  return _outgoingKind(tx) ? 'Sending' : 'Receiving';
+}
+
+/// The details title: like [txTitle], but names the other side by its short address when no
+/// contact matches (`Sent to es5xab…n48MKx@epicbox.epiccash.com`).
+String txHeading(TxEntry tx, {String? contactName}) {
+  final title = txTitle(tx, contactName: contactName);
+  final counterparty = tx.counterparty;
+  if (contactName != null ||
+      counterparty == null ||
+      title != _directionLabel(tx)) {
+    return title;
+  }
+  final out = _outgoingKind(tx);
+  final verb = isPending(tx)
+      ? (out ? 'Sending to' : 'Receiving from')
+      : (out ? 'Sent to' : 'Received from');
+  return '$verb ${shortAddress(counterparty)}';
+}
+
+/// A pending record that came only from a history backup: this wallet has nothing of its own
+/// to say how it ended, so it is neither pending nor done.
+bool isFromBackupUnknown(TxEntry tx) =>
+    tx.source == TxSource.imported &&
+    (tx.status == TxStatus.awaitingRecipient ||
+        tx.status == TxStatus.awaitingConfirmation);
 
 /// Not final yet: waiting for the other side or for the chain.
 bool isPending(TxEntry tx) =>
-    tx.status == TxStatus.awaitingRecipient ||
-    tx.status == TxStatus.awaitingConfirmation;
+    !isFromBackupUnknown(tx) &&
+    (tx.status == TxStatus.awaitingRecipient ||
+        tx.status == TxStatus.awaitingConfirmation);
 
 /// Blocks on top of the one holding [tx], counting that block, or null when either height is
 /// unknown.
@@ -196,9 +235,13 @@ enum TxPhase {
   confirming,
   completed,
   cancelled,
+
+  /// A pending record from a history backup that this wallet cannot follow up.
+  fromBackup,
 }
 
 TxPhase txPhase(TxEntry tx, BigInt? tip) {
+  if (isFromBackupUnknown(tx)) return TxPhase.fromBackup;
   final n = txConfirmations(tx, tip);
   return switch (tx.status) {
     TxStatus.cancelled => TxPhase.cancelled,
@@ -223,6 +266,7 @@ String txStatusLabel(TxEntry tx, BigInt? tip) => switch (txPhase(tx, tip)) {
     'Confirming ${txConfirmations(tx, tip) ?? 0}/$confirmationsTarget',
   TxPhase.completed => 'Completed',
   TxPhase.cancelled => 'Cancelled',
+  TxPhase.fromBackup => 'From backup, status unknown',
 };
 
 /// Pending transactions first, then the rest, each newest first.
@@ -262,7 +306,7 @@ class TxStatusChip extends StatelessWidget {
         colors.secondaryContainer,
         colors.onSecondaryContainer,
       ),
-      TxPhase.completed => (
+      TxPhase.completed || TxPhase.fromBackup => (
         colors.surfaceContainerHighest,
         colors.onSurfaceVariant,
       ),
@@ -335,7 +379,10 @@ class TxTile extends ConsumerWidget {
     final tip = tipHeight(ref);
     final now = ref.watch(clockProvider)();
     final (:amount, outgoing: _) = txAmount(tx);
-    final fiat = approxFiat(amount, display);
+    // A cancelled payment moved nothing, so it has no value to show.
+    final fiat = tx.status == TxStatus.cancelled
+        ? null
+        : approxFiat(amount, display);
     final theme = Theme.of(context);
     final title = txTitle(tx, contactName: contactName(ref, tx.counterparty));
     final date = shortDate(localTime(tx.timeUnix), now);
@@ -559,9 +606,9 @@ class SlateBox extends StatelessWidget {
               children: [
                 Expanded(child: Text(title, style: theme.textTheme.titleSmall)),
                 IconButton(
-                  tooltip: 'Copy slate',
+                  tooltip: 'Copy transaction text',
                   icon: const Icon(Icons.copy),
-                  onPressed: () => copyText(context, json, 'Slate'),
+                  onPressed: () => copyText(context, json, 'Transaction text'),
                 ),
               ],
             ),

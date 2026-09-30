@@ -18,7 +18,7 @@ import 'help_screen.dart';
 import 'scan_screen.dart';
 import 'slate_file_screen.dart';
 
-/// Sending: pick a recipient (epicbox address or wallet URL), an amount, review, send. A
+/// Sending: pick a recipient (their address or a wallet URL), an amount, review, send. A
 /// transaction file is offered under "Other ways to send".
 class SendScreen extends ConsumerStatefulWidget {
   const SendScreen({super.key, this.recipient});
@@ -36,15 +36,27 @@ class _Sent {
     required this.tx,
     required this.amount,
     this.to,
+    this.reviewedFee,
     this.noteSaved = true,
   });
 
   final TxEntry tx;
   final BigInt amount;
 
-  /// Epicbox address or URL; null for a file send.
+  /// Their address or URL; null for a file send.
   final Recipient? to;
+
+  /// The fee the review sheet showed, to compare with the one charged.
+  final BigInt? reviewedFee;
   final bool noteSaved;
+
+  /// The fee charged, when it differs from the one reviewed.
+  BigInt? get changedFee {
+    final charged = tx.fee;
+    final reviewed = reviewedFee;
+    if (charged == null || reviewed == null || charged == reviewed) return null;
+    return charged;
+  }
 }
 
 class _SendScreenState extends ConsumerState<SendScreen> {
@@ -73,6 +85,15 @@ class _SendScreenState extends ConsumerState<SendScreen> {
   String? _error;
   bool _busy = false;
 
+  /// Between a tap on Review and the sheet closing. A second tap must not open a second sheet.
+  bool _reviewing = false;
+
+  /// Review is asking the wallet for the fee; the button shows a spinner meanwhile.
+  bool _estimating = false;
+
+  /// The amount came from Max, so Review asks for the maximum again rather than a fee.
+  bool _maxUsed = false;
+
   @override
   void dispose() {
     _debounce?.cancel();
@@ -93,7 +114,12 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     if (!_fiatEntry) return parseEpic(text);
     final price = _price;
     final value = double.tryParse(text.trim().replaceAll(',', '.'));
-    if (value == null || value < 0 || price == null || price <= 0) {
+    // `double.tryParse` also reads "NaN", "Infinity" and "1e400".
+    if (value == null ||
+        !value.isFinite ||
+        value < 0 ||
+        price == null ||
+        price <= 0) {
       throw const FormatException('Enter an amount such as 10.50');
     }
     return BigInt.from((value / price * 100000000).round());
@@ -101,6 +127,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
 
   void _onAmountChanged(String text) {
     _debounce?.cancel();
+    _maxUsed = false;
     BigInt? amount;
     String? problem;
     if (text.trim().isNotEmpty) {
@@ -163,13 +190,11 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       _onAmountChanged(_amount.text);
       return;
     }
+    // Only the text changes. The exact amount (from Max, say) stays until the user edits the
+    // field; re-reading the rounded fiat text would change it.
     _amount.text = _fiatEntry
         ? (amount / atomicPerEpic * price).toStringAsFixed(2)
         : formatEpic(amount);
-    // Keep the exact amount when going back to EPIC; fiat rounding would change it.
-    if (_fiatEntry) {
-      _onAmountChanged(_amount.text);
-    }
   }
 
   Future<void> _paste() async {
@@ -201,7 +226,9 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     });
   }
 
+  /// Runs one wallet action at a time; a second tap while one runs does nothing.
   Future<void> _run(Future<void> Function(WalletSession session) action) async {
+    if (_busy) return;
     final session = ref.read(sessionProvider);
     if (session == null) return;
     setState(() {
@@ -217,67 +244,116 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     }
   }
 
-  /// Checks the form, then shows the review sheet and sends when the user confirms.
+  /// Checks the form, asks the wallet for the fee again (outputs may have changed since the
+  /// last estimate), then shows the review sheet and sends when the user confirms.
   Future<void> _review() async {
+    if (_reviewing || _busy) return;
+    final session = ref.read(sessionProvider);
     final amount = _parsedAmount;
-    if (amount == null) return;
+    if (session == null || amount == null) return;
     final problem = checkRecipient(
       ref.read(walletServiceProvider),
       _recipient.text,
     );
     setState(() => _recipientError = problem);
     if (problem != null) return;
-    final estimate = _estimate ?? await _estimateFee(amount);
-    if (estimate == null || !mounted) return;
-    final to = parseRecipient(_recipient.text);
-    final contacts = ref.read(contactsProvider).value ?? const <Contact>[];
-    final confirmed = await showModalBottomSheet<bool>(
-      context: context,
-      isScrollControlled: true,
-      showDragHandle: true,
-      builder: (_) => _ReviewSheet(
-        to: to,
-        contactName: contactNameFor(contacts, to.address),
-        estimate: estimate,
-        note: _note.text.trim(),
-        price: _price,
-        currency: _currency,
-      ),
-    );
-    if (confirmed == true && mounted) await _send(to, amount);
-  }
-
-  Future<void> _send(Recipient to, BigInt amount) => _run((session) async {
-    final tx = switch (to.kind) {
-      RecipientKind.epicbox => await session.sendEpicbox(
-        amount: amount,
-        minimumConfirmations: minimumConfirmations,
-        address: to.address,
-      ),
-      RecipientKind.http => await session.sendHttp(
-        amount: amount,
-        minimumConfirmations: minimumConfirmations,
-        url: to.address,
-      ),
-    };
-    // The payment is out; a note that fails to save must not look like a failed send.
-    var noteSaved = true;
-    final note = _note.text.trim();
-    if (note.isNotEmpty) {
+    setState(() {
+      _reviewing = true;
+      _estimating = true;
+      _error = null;
+    });
+    try {
+      final FeeEstimate estimate;
       try {
-        await session.setTxNote(key: tx.key, note: note);
-      } catch (_) {
-        noteSaved = false;
+        estimate = _maxUsed
+            ? await session.estimateMax(
+                minimumConfirmations: minimumConfirmations,
+              )
+            : await session.estimateFee(
+                amount: amount,
+                minimumConfirmations: minimumConfirmations,
+              );
+      } catch (error) {
+        if (mounted) setState(() => _estimateError = describeError(error));
+        return;
+      }
+      if (!mounted) return;
+      setState(() {
+        _estimating = false;
+        _estimate = estimate;
+        _estimateError = null;
+        if (_maxUsed && estimate.amount != amount) {
+          _parsedAmount = estimate.amount;
+          if (!_fiatEntry) _amount.text = formatEpic(estimate.amount);
+        }
+      });
+      final to = parseRecipient(_recipient.text);
+      final contacts = ref.read(contactsProvider).value ?? const <Contact>[];
+      final confirmed = await showModalBottomSheet<bool>(
+        context: context,
+        isScrollControlled: true,
+        showDragHandle: true,
+        builder: (_) => _ReviewSheet(
+          to: to,
+          contactName: contactNameFor(contacts, to.address),
+          estimate: estimate,
+          note: _note.text.trim(),
+          price: _price,
+          currency: _currency,
+        ),
+      );
+      if (confirmed == true && mounted) await _send(to, estimate);
+    } finally {
+      if (mounted) {
+        setState(() {
+          _reviewing = false;
+          _estimating = false;
+        });
       }
     }
-    ref.invalidate(homeProvider);
-    if (mounted) {
-      setState(
-        () =>
-            _sent = _Sent(tx: tx, amount: amount, to: to, noteSaved: noteSaved),
-      );
-    }
-  });
+  }
+
+  Future<void> _send(Recipient to, FeeEstimate reviewed) {
+    // Captured now: after the await the screen may be gone, and home must still refresh.
+    final container = ProviderScope.containerOf(context, listen: false);
+    final amount = reviewed.amount;
+    return _run((session) async {
+      final tx = switch (to.kind) {
+        RecipientKind.epicbox => await session.sendEpicbox(
+          amount: amount,
+          minimumConfirmations: minimumConfirmations,
+          address: to.address,
+        ),
+        RecipientKind.http => await session.sendHttp(
+          amount: amount,
+          minimumConfirmations: minimumConfirmations,
+          url: to.address,
+        ),
+      };
+      // The payment is out; a note that fails to save must not look like a failed send.
+      var noteSaved = true;
+      final note = _note.text.trim();
+      if (note.isNotEmpty) {
+        try {
+          await session.setTxNote(key: tx.key, note: note);
+        } catch (_) {
+          noteSaved = false;
+        }
+      }
+      container.invalidate(homeProvider);
+      if (mounted) {
+        setState(
+          () => _sent = _Sent(
+            tx: tx,
+            amount: amount,
+            to: to,
+            reviewedFee: reviewed.fee,
+            noteSaved: noteSaved,
+          ),
+        );
+      }
+    });
+  }
 
   /// Fills in the largest amount that can be sent now, with its fee.
   Future<void> _max() async {
@@ -296,6 +372,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       _amount.text = formatEpic(estimate.amount);
       setState(() {
         _fiatEntry = false;
+        _maxUsed = true;
         _parsedAmount = estimate.amount;
         _amountError = null;
         _estimate = estimate;
@@ -311,28 +388,15 @@ class _SendScreenState extends ConsumerState<SendScreen> {
   Future<void> _createFile() async {
     final amount = _parsedAmount;
     if (amount == null) return;
+    final container = ProviderScope.containerOf(context, listen: false);
     await _run((session) async {
       final slate = await session.createSendSlate(
         amount: amount,
         minimumConfirmations: minimumConfirmations,
       );
-      ref.invalidate(homeProvider);
-      if (!mounted) return;
-      setState(() => _slate = slate);
-      await _shareSlate();
+      container.invalidate(homeProvider);
+      if (mounted) setState(() => _slate = slate);
     });
-  }
-
-  Future<void> _shareSlate() async {
-    final slate = _slate;
-    if (slate == null) return;
-    await ref
-        .read(autoLockHoldProvider.notifier)
-        .during(
-          () => ref
-              .read(slateFilesProvider)
-              .export(name: sendFileName(slate.slateId), json: slate.json),
-        );
   }
 
   Future<void> _openResponse() async {
@@ -349,12 +413,13 @@ class _SendScreenState extends ConsumerState<SendScreen> {
   Future<void> _finalize() async {
     final json = _response.text.trim();
     if (json.isEmpty) {
-      setState(() => _error = 'Paste the response slate from the recipient.');
+      setState(() => _error = 'Paste the response text from the recipient.');
       return;
     }
+    final container = ProviderScope.containerOf(context, listen: false);
     await _run((session) async {
       final tx = await session.finalizeAndPost(slateJson: json);
-      ref.invalidate(homeProvider);
+      container.invalidate(homeProvider);
       if (mounted) {
         setState(
           () => _sent = _Sent(tx: tx, amount: _parsedAmount ?? BigInt.zero),
@@ -413,8 +478,9 @@ class _SendScreenState extends ConsumerState<SendScreen> {
           controller: _recipient,
           autocorrect: false,
           enableSuggestions: false,
+          // Grows to show the whole address, so its start can be checked.
           minLines: 1,
-          maxLines: 3,
+          maxLines: null,
           keyboardType: TextInputType.url,
           onChanged: (_) => setState(() {
             _recipientError = null;
@@ -422,7 +488,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
           }),
           decoration: InputDecoration(
             labelText: 'To',
-            hintText: 'Epicbox address or wallet URL',
+            hintText: 'Their address or a wallet URL',
             errorText: _recipientError,
             border: const OutlineInputBorder(),
             suffixIcon: Row(
@@ -459,19 +525,34 @@ class _SendScreenState extends ConsumerState<SendScreen> {
               ],
             ),
           ),
-        if (to.kind == RecipientKind.epicbox && !listening) ...[
-          const SizedBox(height: 8),
-          const ErrorText(
-            'Not connected to the relay yet. The send is delivered, but it '
-            'finishes only once the listener is connected.',
+        if (_recipient.text.trim().isNotEmpty &&
+            to.kind == RecipientKind.epicbox &&
+            !listening)
+          Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: Semantics(
+              liveRegion: true,
+              child: Row(
+                children: [
+                  const Icon(Icons.sync, size: 18),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'Still connecting. You can send now; it finishes once '
+                      'the app is connected.',
+                      style: theme.textTheme.bodyMedium,
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
-        ],
         const SizedBox(height: 16),
       ] else ...[
         const Text(
           'Sending takes two steps: share the transaction file with the '
           'recipient, then open the .response file they send back to '
-          'finalize and post the transaction.',
+          'finish the payment.',
         ),
         const SizedBox(height: 16),
       ],
@@ -538,8 +619,8 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       const SizedBox(height: 16),
       BusyButton(
         label: _fileMode ? 'Create transaction file' : 'Review',
-        busy: _busy,
-        onPressed: amount == null || _estimateError != null
+        busy: _busy || _estimating,
+        onPressed: amount == null || _estimateError != null || _reviewing
             ? null
             : _fileMode
             ? _createFile
@@ -560,8 +641,8 @@ class _SendScreenState extends ConsumerState<SendScreen> {
           title: const Text('Other ways to send'),
           children: [
             const Text(
-              'Send with a transaction file when the recipient has no '
-              'epicbox address: you share a file, they return a response file.',
+              'Send with a transaction file when the recipient does not use '
+              'the mailbox: you share a file, they return a response file.',
             ),
             const SizedBox(height: 8),
             OutlinedButton(
@@ -590,11 +671,11 @@ class _SendScreenState extends ConsumerState<SendScreen> {
         style: theme.textTheme.titleMedium,
       ),
       const SizedBox(height: 8),
-      BusyButton(label: 'Share $name', onPressed: _shareSlate),
+      SlateFileButtons(name: name, json: slate.json),
       const SizedBox(height: 8),
       const Text(
-        'The funds stay locked until you finalize. If the recipient never '
-        'responds, cancel the pending transaction from the home screen.',
+        'The funds stay locked until you finish. If the recipient never '
+        'responds, open the payment and tap Cancel payment.',
       ),
       const SizedBox(height: 24),
       Text(
@@ -608,7 +689,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
         tilePadding: EdgeInsets.zero,
         title: const Text('Copy and paste instead'),
         children: [
-          SlateBox(title: 'Transaction slate', json: slate.json),
+          SlateBox(title: 'Transaction text', json: slate.json),
           const SizedBox(height: 16),
           SlateInput(
             controller: _response,
@@ -616,7 +697,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
           ),
           const SizedBox(height: 16),
           BusyButton(
-            label: 'Finalize and post',
+            label: 'Finish payment',
             busy: _busy,
             onPressed: _finalize,
           ),
@@ -644,9 +725,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
             const SizedBox(width: 12),
             Expanded(
               child: Text(
-                waiting
-                    ? 'Sent.'
-                    : 'Sent ${epicText(sent.amount)}. The payment is complete.',
+                'Sent ${epicText(sent.amount)}',
                 style: theme.textTheme.titleLarge,
               ),
             ),
@@ -658,21 +737,30 @@ class _SendScreenState extends ConsumerState<SendScreen> {
         waiting
             ? 'The payment completes when the recipient\'s wallet is online; '
                   'keep this app open or reopen it later to finish.'
-            : 'It shows as confirmed once it is mined.',
+            : 'The payment is on its way to the network. It shows as '
+                  'Completed after $minimumConfirmations confirmations.',
         style: theme.textTheme.bodyLarge,
       ),
       if (waiting) ...[
         const SizedBox(height: 8),
         const Text(
-          'If the recipient never answers, cancel the payment from the '
-          'transaction list to unlock the funds.',
+          'If the recipient never answers, open the payment and tap Cancel '
+          'payment to unlock the funds.',
+        ),
+      ],
+      if (sent.changedFee case final fee?) ...[
+        const SizedBox(height: 8),
+        Text(
+          'The fee charged was ${epicText(fee)}, not the '
+          '${epicText(sent.reviewedFee!)} shown before, because the wallet '
+          'picked its coins again when sending.',
         ),
       ],
       if (!sent.noteSaved) ...[
         const SizedBox(height: 8),
         const Text(
-          'The note could not be saved. You can add it from the '
-          'transaction\'s details.',
+          'The note could not be saved. You can add it by opening the '
+          'payment.',
         ),
       ],
       const SizedBox(height: 24),
@@ -706,7 +794,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
 }
 
 /// Everything about the send on one sheet, with the button that sends it.
-class _ReviewSheet extends StatelessWidget {
+class _ReviewSheet extends StatefulWidget {
   const _ReviewSheet({
     required this.to,
     required this.contactName,
@@ -723,17 +811,27 @@ class _ReviewSheet extends StatelessWidget {
   final double? price;
   final String currency;
 
-  String _money(BigInt amount) {
-    final p = price;
-    return p == null
-        ? epicText(amount)
-        : '${epicText(amount)} (≈ ${fiatText(amount, p, currency)})';
+  @override
+  State<_ReviewSheet> createState() => _ReviewSheetState();
+}
+
+class _ReviewSheetState extends State<_ReviewSheet> {
+  /// Set by the first tap on Send. A second tap would pop the Send screen as well.
+  bool _closing = false;
+
+  void _close(bool send) {
+    if (_closing) return;
+    setState(() => _closing = true);
+    Navigator.pop(context, send);
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final estimate = widget.estimate;
     final total = estimate.amount + estimate.fee;
+    final price = widget.price;
+    final name = widget.contactName;
     return SafeArea(
       child: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
@@ -742,16 +840,26 @@ class _ReviewSheet extends StatelessWidget {
           children: [
             Text('Review your payment', style: theme.textTheme.titleLarge),
             const SizedBox(height: 16),
-            _Row(label: 'To', value: contactName ?? to.address),
-            if (contactName != null) _Row(label: '', value: to.address),
-            _Row(label: 'Amount', value: _money(estimate.amount)),
+            if (name != null) _Row(label: 'To', value: name),
+            _Row(
+              label: name == null ? 'To' : '',
+              value: _breakableAddress(widget.to.address),
+              style: theme.textTheme.bodyMedium,
+            ),
+            _Row(label: 'Amount', value: epicText(estimate.amount)),
             _Row(label: 'Fee', value: epicText(estimate.fee)),
-            _Row(label: 'Total', value: _money(total), strong: true),
-            if (note.isNotEmpty) _Row(label: 'Note', value: note),
+            _Row(
+              label: 'Total',
+              value: price == null
+                  ? epicText(total)
+                  : '${epicText(total)} (≈ ${fiatText(total, price, widget.currency)})',
+              style: theme.textTheme.titleMedium,
+            ),
+            if (widget.note.isNotEmpty) _Row(label: 'Note', value: widget.note),
             const SizedBox(height: 8),
             Text(
-              to.kind == RecipientKind.epicbox
-                  ? 'Delivered through the epicbox relay. It completes when '
+              widget.to.kind == RecipientKind.epicbox
+                  ? 'Sent through Epic\'s mailbox service. It completes when '
                         'the recipient\'s wallet is online.'
                   : 'Sent straight to the recipient\'s wallet.',
               style: theme.textTheme.bodySmall,
@@ -761,12 +869,12 @@ class _ReviewSheet extends StatelessWidget {
               style: FilledButton.styleFrom(
                 minimumSize: const Size.fromHeight(52),
               ),
-              onPressed: () => Navigator.pop(context, true),
+              onPressed: _closing ? null : () => _close(true),
               child: Text('Send ${epicText(estimate.amount)}'),
             ),
             const SizedBox(height: 8),
             TextButton(
-              onPressed: () => Navigator.pop(context, false),
+              onPressed: _closing ? null : () => _close(false),
               child: const Text('Edit'),
             ),
           ],
@@ -776,19 +884,21 @@ class _ReviewSheet extends StatelessWidget {
   }
 }
 
+/// [address] with a zero-width break before `@`, so a line break keeps the mailbox server
+/// whole instead of splitting it. For display only: the break character must never be copied.
+String _breakableAddress(String address) =>
+    address.replaceFirst('@', '\u200B@');
+
 class _Row extends StatelessWidget {
-  const _Row({required this.label, required this.value, this.strong = false});
+  const _Row({required this.label, required this.value, this.style});
 
   final String label;
   final String value;
-  final bool strong;
+  final TextStyle? style;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final style = strong
-        ? theme.textTheme.titleMedium
-        : theme.textTheme.bodyLarge;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
@@ -798,7 +908,10 @@ class _Row extends StatelessWidget {
             width: 72,
             child: Text(label, style: theme.textTheme.bodyMedium),
           ),
-          Expanded(child: SelectableText(value, style: style)),
+          // Plain text: the address carries a display-only break character.
+          Expanded(
+            child: Text(value, style: style ?? theme.textTheme.bodyLarge),
+          ),
         ],
       ),
     );

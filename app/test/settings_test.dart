@@ -421,15 +421,23 @@ void main() {
       await h.openSettings(tester);
 
       await _tapText(tester, 'Export backup');
+      // Save to device comes first; Share is the second choice.
+      expect(find.text('Share'), findsOneWidget);
+      await _tapText(tester, 'Save to device');
       expect(h.files.saved.single.name, 'epic-history-mainnet-20260930.wfeh');
       expect(h.files.saved.single.bytes, isNotEmpty);
+      expect(
+        find.text('Saved epic-history-mainnet-20260930.wfeh'),
+        findsOneWidget,
+      );
 
       await _tapText(tester, 'Export CSV');
       expect(find.textContaining('not encrypted'), findsWidgets);
       await tester.tap(find.widgetWithText(FilledButton, 'Export CSV'));
       await tester.pumpAndSettle();
-      expect(h.files.saved.last.name, 'epic-history-mainnet-20260930.csv');
-      expect(h.files.saved.last.mimeType, 'text/csv');
+      await _tapText(tester, 'Share');
+      expect(h.files.shared.single.name, 'epic-history-mainnet-20260930.csv');
+      expect(h.files.saved, hasLength(1));
 
       h.files.picks.add(h.files.saved.first.bytes);
       await _tapText(tester, 'Import backup');
@@ -455,13 +463,38 @@ void main() {
       );
     });
 
+    testWidgets('saves straight to the device where nothing can share', (
+      tester,
+    ) async {
+      final h = _Harness();
+      h.files.canShare = false;
+      await h.pump(tester);
+      await h.unlock(tester);
+      await h.openSettings(tester);
+      await _tapText(tester, 'Export backup');
+      expect(find.text('Share'), findsNothing);
+      expect(h.files.saved.single.name, 'epic-history-mainnet-20260930.wfeh');
+    });
+
+    testWidgets('dismissing the choice exports nothing', (tester) async {
+      final h = _Harness();
+      await h.pump(tester);
+      await h.unlock(tester);
+      await h.openSettings(tester);
+      await _tapText(tester, 'Export backup');
+      await tester.tapAt(const Offset(200, 100));
+      await tester.pumpAndSettle();
+      expect(h.files.saved, isEmpty);
+      expect(h.files.shared, isEmpty);
+    });
+
     test('describes the import counts in words', () {
       expect(
         describeImport(
           const ImportReport(merged: 2, added: 1, skipped: 0, contactsAdded: 1),
         ),
-        '2 transactions got their details back, '
-        '1 older transaction added, 1 contact added.',
+        '2 payments got their details back, '
+        '1 older payment added, 1 contact added.',
       );
       expect(
         describeImport(
@@ -498,6 +531,47 @@ void main() {
       await _tapText(tester, 'Rescan');
       expect(h.session.lastStart, BigInt.one);
       expect(h.session.scanCalls, 2);
+    });
+  });
+
+  group('wording', () {
+    testWidgets('says where prices come from and who sees the request', (
+      tester,
+    ) async {
+      final h = _Harness();
+      await h.pump(tester);
+      await h.unlock(tester);
+      await h.openSettings(tester);
+      expect(
+        find.text('Prices come from CoinGecko, which sees your IP address.'),
+        findsOneWidget,
+      );
+      await _reveal(tester, find.text('Mailbox server'));
+      expect(find.textContaining('relay'), findsNothing);
+      expect(find.textContaining('Relay'), findsNothing);
+    });
+
+    testWidgets('network settings call the relay a mailbox server', (
+      tester,
+    ) async {
+      final h = _Harness();
+      await h.pump(tester);
+      await h.unlock(tester);
+      await h.openSettings(tester);
+      await _tapText(tester, 'Network and node');
+      expect(find.text('Mailbox server'), findsOneWidget);
+      await _enter(
+        tester,
+        'Other mailbox server (host or host:port)',
+        'mail.example.com',
+      );
+      await tester.tap(find.byTooltip('Use this server'));
+      await tester.pumpAndSettle();
+      expect(
+        find.textContaining('Changing the mailbox server changes your address'),
+        findsOneWidget,
+      );
+      expect(find.textContaining('relay'), findsNothing);
     });
   });
 

@@ -281,7 +281,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 SwitchListTile(
                   secondary: const Icon(Icons.show_chart),
                   title: const Text('Show prices'),
-                  subtitle: const Text('Fetched from CoinGecko'),
+                  subtitle: const Text(
+                    'Prices come from CoinGecko, which sees your IP address.',
+                  ),
                   value: s.showFiat,
                   onChanged: _settings.setShowFiat,
                 ),
@@ -327,7 +329,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     title: const Text('Lock wallet'),
                     onTap: () => lockWallet(context, ref),
                   ),
-                  const _Header('Transaction history'),
+                  const _Header('Payment history'),
                   ListTile(
                     leading: const Icon(Icons.upload_file),
                     title: const Text('Export backup'),
@@ -399,7 +401,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 ),
                 ListTile(
                   leading: const Icon(Icons.mail_outline),
-                  title: const Text('Epicbox relay'),
+                  title: const Text('Mailbox server'),
                   subtitle: Text(
                     network?.relay.label ??
                         (config == null

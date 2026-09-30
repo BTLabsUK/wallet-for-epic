@@ -2,7 +2,7 @@
 /// (`send -m file`), the recipient answers with `<same name>.response` (`receive -i`), and the
 /// sender finalizes that (`finalize -i`). The contents are slate JSON.
 ///
-/// Phones hand files over through the share sheet; desktops through a save dialog.
+/// Files go out through the system save dialog, or on phones through the share sheet.
 library;
 
 import 'dart:convert';
@@ -51,9 +51,63 @@ String decodeSlateFile(List<int> bytes) {
   return text;
 }
 
+/// Whether this platform has a share sheet that takes files.
+bool get canShareFiles =>
+    !kIsWeb &&
+    (defaultTargetPlatform == TargetPlatform.android ||
+        defaultTargetPlatform == TargetPlatform.iOS);
+
+/// Lets the user choose where to save [bytes] as [name]: the system save dialog, which on
+/// Android is the Storage Access Framework (Downloads, Drive, a USB stick). Returns false if the
+/// user cancelled. Also used for history backups.
+Future<bool> saveBytesToDevice({
+  required String name,
+  required Uint8List bytes,
+  required String dialogTitle,
+}) async {
+  final saved = await FilePicker.saveFile(
+    fileName: name,
+    bytes: bytes,
+    dialogTitle: dialogTitle,
+  );
+  return saved != null;
+}
+
+/// Hands [bytes] to another app through the share sheet, as a file called [name]. Returns
+/// false if the user dismissed it. Only where [canShareFiles].
+Future<bool> shareBytes({
+  required String name,
+  required Uint8List bytes,
+}) async {
+  // The share sheet needs a real file; it lives in the cache and is replaced next time.
+  final dir = Directory(
+    '${(await getTemporaryDirectory()).path}${Platform.pathSeparator}shared',
+  );
+  await dir.create(recursive: true);
+  final file = File('${dir.path}${Platform.pathSeparator}$name');
+  await file.writeAsBytes(bytes, flush: true);
+  final result = await SharePlus.instance.share(
+    ShareParams(
+      files: [XFile(file.path, mimeType: 'application/octet-stream')],
+      fileNameOverrides: [name],
+      subject: name,
+    ),
+  );
+  return result.status != ShareResultStatus.dismissed;
+}
+
 abstract interface class SlateFiles {
-  /// Hands [json] over as a file called [name]. Returns false if the user cancelled.
-  Future<bool> export({required String name, required String json});
+  /// Saves [json] as a file called [name] where the user chooses. Returns false if they
+  /// cancelled.
+  Future<bool> save({required String name, required String json});
+
+  /// Whether [share] works here. Many phones' share sheets have no "save to files" target, so
+  /// [save] comes first and sharing is the second option.
+  bool get canShare;
+
+  /// Hands [json] over as a file called [name] through the share sheet. Returns false if the
+  /// user dismissed it.
+  Future<bool> share({required String name, required String json});
 
   /// Lets the user pick a transaction file, or returns null if they cancelled.
   Future<SlateFile?> pick();
@@ -68,38 +122,20 @@ abstract interface class SlateFiles {
 class PlatformSlateFiles implements SlateFiles {
   const PlatformSlateFiles();
 
-  static bool get _mobile =>
-      !kIsWeb &&
-      (defaultTargetPlatform == TargetPlatform.android ||
-          defaultTargetPlatform == TargetPlatform.iOS);
-
   @override
-  Future<bool> export({required String name, required String json}) async {
-    final bytes = Uint8List.fromList(utf8.encode(json));
-    if (!_mobile) {
-      final saved = await FilePicker.saveFile(
-        fileName: name,
-        bytes: bytes,
+  Future<bool> save({required String name, required String json}) =>
+      saveBytesToDevice(
+        name: name,
+        bytes: Uint8List.fromList(utf8.encode(json)),
         dialogTitle: 'Save transaction file',
       );
-      return saved != null;
-    }
-    // The share sheet needs a real file; it lives in the cache and is replaced next time.
-    final dir = Directory(
-      '${(await getTemporaryDirectory()).path}${Platform.pathSeparator}slates',
-    );
-    await dir.create(recursive: true);
-    final file = File('${dir.path}${Platform.pathSeparator}$name');
-    await file.writeAsBytes(bytes, flush: true);
-    final result = await SharePlus.instance.share(
-      ShareParams(
-        files: [XFile(file.path, mimeType: 'application/octet-stream')],
-        fileNameOverrides: [name],
-        subject: name,
-      ),
-    );
-    return result.status != ShareResultStatus.dismissed;
-  }
+
+  @override
+  bool get canShare => canShareFiles;
+
+  @override
+  Future<bool> share({required String name, required String json}) =>
+      shareBytes(name: name, bytes: Uint8List.fromList(utf8.encode(json)));
 
   @override
   Future<SlateFile?> pick() async {
@@ -121,7 +157,8 @@ class PlatformSlateFiles implements SlateFiles {
 
   @override
   bool get canShareText =>
-      _mobile || (!kIsWeb && defaultTargetPlatform == TargetPlatform.macOS);
+      canShareFiles ||
+      (!kIsWeb && defaultTargetPlatform == TargetPlatform.macOS);
 
   @override
   Future<void> shareText(String text) async {
@@ -129,11 +166,15 @@ class PlatformSlateFiles implements SlateFiles {
   }
 }
 
-/// Records exports and hands out queued picks, for widget tests.
+/// Records saves and shares and hands out queued picks, for widget tests.
 class FakeSlateFiles implements SlateFiles {
-  final List<SlateFile> exported = [];
+  final List<SlateFile> saved = [];
+  final List<SlateFile> shared = [];
   final List<SlateFile?> picks = [];
   final List<String> sharedTexts = [];
+
+  @override
+  bool canShare = true;
 
   @override
   bool get canShareText => true;
@@ -142,8 +183,14 @@ class FakeSlateFiles implements SlateFiles {
   Future<void> shareText(String text) async => sharedTexts.add(text);
 
   @override
-  Future<bool> export({required String name, required String json}) async {
-    exported.add(SlateFile(name: name, json: json));
+  Future<bool> save({required String name, required String json}) async {
+    saved.add(SlateFile(name: name, json: json));
+    return true;
+  }
+
+  @override
+  Future<bool> share({required String name, required String json}) async {
+    shared.add(SlateFile(name: name, json: json));
     return true;
   }
 

@@ -11,8 +11,9 @@ import 'common.dart';
 import 'help_screen.dart';
 import 'slate_file_screen.dart';
 
-/// Receiving: epicbox payments arrive by themselves through the listener; a manual slate can
-/// still be signed here. There is no HTTP receive, because a phone cannot accept connections.
+/// Receiving: mailbox (epicbox) payments arrive by themselves while connected; a transaction
+/// file or text can still be accepted by hand. There is no HTTP receive, because a phone cannot
+/// accept connections.
 class ReceiveScreen extends ConsumerStatefulWidget {
   const ReceiveScreen({super.key});
 
@@ -33,21 +34,24 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
   }
 
   Future<void> _sign() async {
+    if (_busy) return;
     final json = _incoming.text.trim();
     final session = ref.read(sessionProvider);
     if (session == null) return;
     if (json.isEmpty) {
-      setState(() => _error = 'Paste the slate you received.');
+      setState(() => _error = 'Paste the transaction text you received.');
       return;
     }
+    // Captured now: after the await the screen may be gone, and home must still refresh.
+    final container = ProviderScope.containerOf(context, listen: false);
     setState(() {
       _busy = true;
       _error = null;
     });
     try {
       final response = await session.receiveSlate(slateJson: json);
+      container.invalidate(homeProvider);
       if (mounted) setState(() => _response = response);
-      ref.invalidate(homeProvider);
     } catch (error) {
       if (mounted) setState(() => _error = describeError(error));
     } finally {
@@ -109,7 +113,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
     final response = _response;
     return [
       const Text(
-        'For senders who use files instead of epicbox. Open the .tx file the '
+        'For senders who use files instead of the mailbox. Open the .tx file the '
         'sender gave you. The wallet signs it and shares a .response file to '
         'send back.',
       ),
@@ -121,13 +125,13 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
       const SizedBox(height: 8),
       ExpansionTile(
         tilePadding: EdgeInsets.zero,
-        title: const Text('Paste slate text instead'),
+        title: const Text('Paste the transaction text instead'),
         children: [
           if (response == null) ...[
-            SlateInput(controller: _incoming, label: 'Incoming slate'),
+            SlateInput(controller: _incoming, label: 'Transaction text'),
             const SizedBox(height: 16),
             if (_error != null) ErrorText(_error!),
-            BusyButton(label: 'Sign slate', busy: _busy, onPressed: _sign),
+            BusyButton(label: 'Accept payment', busy: _busy, onPressed: _sign),
           ] else ...[
             SlateBox(
               title: 'Return this response to the sender',
@@ -136,7 +140,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
             const SizedBox(height: 16),
             OutlinedButton(
               onPressed: _reset,
-              child: const Text('Receive another slate'),
+              child: const Text('Receive another payment'),
             ),
           ],
         ],
@@ -164,7 +168,7 @@ class _AddressCard extends ConsumerWidget {
             color: Colors.white,
             padding: const EdgeInsets.all(16),
             child: Semantics(
-              label: 'QR code of your epicbox address',
+              label: 'QR code of your address',
               image: true,
               child: SizedBox.square(
                 dimension: 260,
@@ -174,9 +178,15 @@ class _AddressCard extends ConsumerWidget {
           ),
         ),
         const SizedBox(height: 16),
-        Text('Your epicbox address', style: theme.textTheme.titleSmall),
+        Text('Your address', style: theme.textTheme.titleSmall),
         const SizedBox(height: 4),
         SelectableText(address, style: theme.textTheme.bodyLarge),
+        const SizedBox(height: 4),
+        Text(
+          'Give it to people who pay you. It stays the same as long as you '
+          'keep the same mailbox server.',
+          style: theme.textTheme.bodySmall,
+        ),
         const SizedBox(height: 12),
         Row(
           children: [
@@ -212,7 +222,7 @@ class _AddressCard extends ConsumerWidget {
   }
 }
 
-/// Whether the listener is subscribed at the relay.
+/// Whether the app is connected to the mailbox server.
 class _ListenerLine extends ConsumerWidget {
   const _ListenerLine({required this.relay});
 
@@ -237,8 +247,9 @@ class _ListenerLine extends ConsumerWidget {
           Expanded(
             child: Text(
               listener.connected
-                  ? 'Listening for payments on the relay$at.'
-                  : listener.status ?? 'Connecting to the relay$at…',
+                  ? 'Connected to the mailbox server$at. Payments arrive by '
+                        'themselves.'
+                  : 'Connecting to the mailbox server$at…',
             ),
           ),
         ],
