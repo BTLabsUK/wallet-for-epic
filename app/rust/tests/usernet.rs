@@ -462,8 +462,36 @@ fn usernet_end_to_end() {
     net.stop_miner();
 
     // 4. Scan streams progress and ends with `finished`; a restore finds the same balance.
+    // A rescan from height 1 keeps notes, contacts and annotations, and adds no rows.
+    let sig = |txs: &[epic_wallet_core::api::types::TxEntry]| {
+        let mut v: Vec<(String, Option<String>, Option<String>, bool)> = txs
+            .iter()
+            .map(|t| {
+                (
+                    t.key.clone(),
+                    t.note.clone(),
+                    t.counterparty.clone(),
+                    t.confirmed,
+                )
+            })
+            .collect();
+        v.sort();
+        v
+    };
+    let before_scan = sig(&a.transactions(false).expect("txs"));
+    let contacts_before = a.contacts().expect("contacts").len();
     let mut events = Vec::new();
     a.scan_with(Some(1), |p| events.push(p)).expect("scan A");
+    assert_eq!(
+        sig(&a.transactions(false).expect("txs")),
+        before_scan,
+        "same rows, notes and counterparties after a rescan"
+    );
+    assert_eq!(a.contacts().expect("contacts").len(), contacts_before);
+    assert!(
+        before_scan.iter().any(|(_, n, _, _)| n.is_some()),
+        "a note was there to keep"
+    );
     assert!(events.len() >= 2, "progress plus the final event");
     let last = events.last().expect("final event");
     assert!(last.finished);

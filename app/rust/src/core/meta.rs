@@ -30,34 +30,34 @@ pub(crate) struct ContactRec {
     pub id: String,
     pub name: String,
     pub address: String,
-    #[serde(default)]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub note: Option<String>,
 }
 
 /// Facts about one of our transactions, recorded when the core performs a step. Keyed by slate id.
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 pub(crate) struct Annotation {
-    #[serde(default)]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub counterparty: Option<String>,
     /// This wallet finalized the send (the recipient had signed).
-    #[serde(default)]
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     pub finalized: bool,
     /// The final kernel, from the finalized slate.
-    #[serde(default)]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub kernel_excess: Option<String>,
     /// When this wallet finalized the send, and the wallet's height then.
-    #[serde(default)]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub finalized_at_unix: Option<i64>,
-    #[serde(default)]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub finalized_height: Option<u64>,
     /// The last post (or repost) error; cleared by a post the node took.
-    #[serde(default)]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub post_error: Option<String>,
     /// The node answered a post with a refusal at least once (not a transport failure).
-    #[serde(default)]
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     pub post_refused: bool,
     /// Tip height at which a lookup found the final kernel nowhere on chain.
-    #[serde(default)]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub kernel_absent_at: Option<u64>,
 }
 
@@ -65,11 +65,11 @@ pub(crate) struct Annotation {
 /// Amounts are in the smallest unit. Nothing in here is secret.
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 pub(crate) struct Record {
-    #[serde(default)]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub slate_id: Option<String>,
-    #[serde(default)]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub kernel_excess: Option<String>,
-    #[serde(default)]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub kernel_lookup_min_height: Option<u64>,
     /// `TxKind` name: Coinbase, Received, Sent, ReceivedCancelled, SentCancelled.
     pub kind: String,
@@ -77,13 +77,13 @@ pub(crate) struct Record {
     pub status: String,
     pub confirmed: bool,
     pub created_at_unix: i64,
-    #[serde(default)]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub block_height: Option<u64>,
-    #[serde(default)]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub block_time_unix: Option<i64>,
     pub amount_credited: u64,
     pub amount_debited: u64,
-    #[serde(default)]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub fee: Option<u64>,
     #[serde(default)]
     pub num_inputs: u32,
@@ -91,23 +91,23 @@ pub(crate) struct Record {
     pub num_outputs: u32,
     #[serde(default)]
     pub output_commits: Vec<String>,
-    #[serde(default)]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub counterparty: Option<String>,
-    #[serde(default)]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub note: Option<String>,
-    #[serde(default)]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub ttl_cutoff_height: Option<u64>,
     /// epic-wallet's `ParticipantMessages`, as it serialises them.
-    #[serde(default)]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub messages: Option<serde_json::Value>,
     /// epic-wallet's `StoredProofInfo` (public keys and signatures only).
-    #[serde(default)]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub payment_proof: Option<serde_json::Value>,
     /// Set when the core settled a pending record against the chain.
-    #[serde(default)]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub status_detail: Option<String>,
     /// `exported_at_unix` of the file this record's status came from. Set on import.
-    #[serde(default)]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub exported_at_unix: Option<i64>,
 }
 
@@ -309,7 +309,8 @@ impl MetaStore {
         let mut next = guard.clone();
         let out = f(&mut next)?;
         if next != *guard {
-            let bytes = serde_json::to_vec_pretty(&next)
+            // Compact: a big wallet's archive is rewritten on every listener event.
+            let bytes = serde_json::to_vec(&next)
                 .map_err(|e| CoreError::Io(format!("encoding {}: {e}", self.path.display())))?;
             write_atomic(&self.path, &bytes)?;
             *guard = next;

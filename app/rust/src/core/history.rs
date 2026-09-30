@@ -115,12 +115,69 @@ fn is_send(t: &TxLogEntryType) -> bool {
     )
 }
 
-/// Commitments of the outputs `tx` created, from every stored version of every output
-/// (`outputs` = the `o` rows followed by the output history `h` rows).
-pub(crate) fn created_commits(tx: &TxLogEntry, outputs: &[OutputData]) -> Vec<String> {
+/// epic-wallet's log rows with what the outputs say about each. `current` are the `o` rows,
+/// `history` the `h` rows; `stored_final` reads a send's stored transaction and is only called
+/// for unconfirmed sends. Outputs are indexed by the tx they point at once, so this is linear in
+/// rows plus outputs.
+pub(crate) fn live_rows(
+    txs: Vec<TxLogEntry>,
+    current: &[OutputData],
+    history: &[OutputData],
+    stored_final: impl Fn(&TxLogEntry) -> bool,
+) -> Vec<LiveTx> {
+    let mut by_tx: HashMap<u32, Vec<&OutputData>> = HashMap::new();
+    for o in current.iter().chain(history) {
+        if let Some(id) = o.tx_log_entry {
+            by_tx.entry(id).or_default().push(o);
+        }
+    }
+    let mut current_by_commit: HashMap<&str, &OutputData> = HashMap::new();
+    for o in current {
+        if let Some(c) = o.commit.as_deref() {
+            current_by_commit.insert(c, o);
+        }
+    }
+    txs.into_iter()
+        .map(|entry| {
+            let linked = by_tx.get(&entry.id).map(Vec::as_slice).unwrap_or(&[]);
+            let created_commits = created_commits_of(&entry, linked.iter().copied());
+            let block_height = created_commits
+                .iter()
+                .filter_map(|c| current_by_commit.get(c.as_str()))
+                .filter(|o| on_chain(o))
+                .map(|o| o.height)
+                .filter(|h| *h > 0)
+                .min();
+            let finalized = matches!(
+                entry.tx_type,
+                TxLogEntryType::TxSent
+                    | TxLogEntryType::TxSentCreated
+                    | TxLogEntryType::TxSentMempool
+            ) && !entry.confirmed
+                && stored_final(&entry);
+            LiveTx {
+                entry,
+                created_commits,
+                block_height,
+                finalized,
+            }
+        })
+        .collect()
+}
+
+fn on_chain(o: &OutputData) -> bool {
+    matches!(
+        o.status,
+        OutputStatus::Unspent | OutputStatus::Locked | OutputStatus::Spent
+    )
+}
+
+fn created_commits_of<'a>(
+    tx: &TxLogEntry,
+    outputs: impl Iterator<Item = &'a OutputData>,
+) -> Vec<String> {
     let send = is_send(&tx.tx_type);
     let set: BTreeSet<String> = outputs
-        .iter()
         .filter(|o| o.tx_log_entry == Some(tx.id) && o.root_key_id == tx.parent_key_id)
         .filter(|o| !send || o.status == OutputStatus::Unconfirmed)
         .filter_map(|o| o.commit.clone())
@@ -128,7 +185,15 @@ pub(crate) fn created_commits(tx: &TxLogEntry, outputs: &[OutputData]) -> Vec<St
     set.into_iter().collect()
 }
 
+/// Commitments of the outputs `tx` created, from every stored version of every output
+/// (`outputs` = the `o` rows followed by the output history `h` rows).
+#[cfg(test)]
+pub(crate) fn created_commits(tx: &TxLogEntry, outputs: &[OutputData]) -> Vec<String> {
+    created_commits_of(tx, outputs.iter())
+}
+
 /// Block height of the first of `commits` whose current row (`current` = the `o` rows) is on chain.
+#[cfg(test)]
 pub(crate) fn confirmed_height(commits: &[String], current: &[OutputData]) -> Option<u64> {
     current
         .iter()
@@ -420,36 +485,64 @@ fn absorb(m: &mut MergedTx, r: &Record) {
     }
 }
 
-/// Indices of live rows matching `r`: by slate id, then kernel, then created commitment.
-fn matches(r: &Record, rows: &[MergedTx], hidden: &[bool]) -> Vec<usize> {
-    let eq =
-        |a: &Option<String>, b: &Option<String>| matches!((a, b), (Some(x), Some(y)) if x == y);
-    let mut out = Vec::new();
-    let push = |i: usize, out: &mut Vec<usize>| {
-        if !hidden[i] && !out.contains(&i) {
-            out.push(i);
+/// Live rows by slate id, kernel and created commitment, so matching a record is a lookup
+/// instead of a walk over every row. Kept current as rows absorb records.
+#[derive(Default)]
+struct RowIndex {
+    slate: HashMap<String, Vec<usize>>,
+    kernel: HashMap<String, Vec<usize>>,
+    commit: HashMap<String, Vec<usize>>,
+}
+
+impl RowIndex {
+    fn add(&mut self, i: usize, tx: &TxEntry) {
+        fn put(map: &mut HashMap<String, Vec<usize>>, k: &str, i: usize) {
+            let v = map.entry(k.to_owned()).or_default();
+            if !v.contains(&i) {
+                v.push(i);
+            }
         }
-    };
-    for (i, m) in rows.iter().enumerate() {
-        if eq(&m.tx.slate_id, &r.slate_id) {
-            push(i, &mut out);
+        if let Some(s) = &tx.slate_id {
+            put(&mut self.slate, s, i);
+        }
+        if let Some(k) = &tx.kernel_excess {
+            put(&mut self.kernel, k, i);
+        }
+        for c in &tx.output_commits {
+            put(&mut self.commit, c, i);
         }
     }
-    for (i, m) in rows.iter().enumerate() {
-        if eq(&m.tx.kernel_excess, &r.kernel_excess) {
-            push(i, &mut out);
-        }
-    }
-    for (i, m) in rows.iter().enumerate() {
-        if m.tx
+
+    /// Rows matching `r`: by slate id, then kernel, then created commitment, each group in row
+    /// order.
+    fn matches(&self, r: &Record, hidden: &[bool]) -> Vec<usize> {
+        let mut out: Vec<usize> = Vec::new();
+        let mut group = |mut hits: Vec<usize>, out: &mut Vec<usize>| {
+            hits.sort_unstable();
+            for i in hits {
+                if !hidden[i] && !out.contains(&i) {
+                    out.push(i);
+                }
+            }
+        };
+        let lookup = |map: &HashMap<String, Vec<usize>>, k: &Option<String>| {
+            k.as_ref()
+                .and_then(|k| map.get(k))
+                .cloned()
+                .unwrap_or_default()
+        };
+        group(lookup(&self.slate, &r.slate_id), &mut out);
+        group(lookup(&self.kernel, &r.kernel_excess), &mut out);
+        let by_commit = r
             .output_commits
             .iter()
-            .any(|c| r.output_commits.contains(c))
-        {
-            push(i, &mut out);
-        }
+            .filter_map(|c| self.commit.get(c))
+            .flatten()
+            .copied()
+            .collect();
+        group(by_commit, &mut out);
+        out
     }
-    out
 }
 
 fn is_incoming(k: TxKind) -> bool {
@@ -492,9 +585,13 @@ pub(crate) fn merge(live: &[LiveTx], meta: &Meta) -> Vec<MergedTx> {
     let mut hidden = vec![false; rows.len()];
     let mut record_notes: HashMap<usize, String> = HashMap::new();
     let mut imported: Vec<(MergedTx, Option<String>)> = Vec::new();
+    let mut index = RowIndex::default();
+    for (i, m) in rows.iter().enumerate() {
+        index.add(i, &m.tx);
+    }
 
     for r in &meta.records {
-        let found = matches(r, &rows, &hidden);
+        let found = index.matches(r, &hidden);
         if found.is_empty() {
             imported.push((from_record(r), some_str(&r.note)));
             continue;
@@ -530,6 +627,8 @@ pub(crate) fn merge(live: &[LiveTx], meta: &Meta) -> Vec<MergedTx> {
                 hidden[i] = true;
             }
         }
+        // The primary row may now carry the record's slate id, kernel and commitments.
+        index.add(primary, &rows[primary].tx);
     }
 
     let mut out: Vec<(MergedTx, Option<String>)> = rows
@@ -1263,6 +1362,181 @@ pub(crate) mod tests {
         meta.block_times.insert(5, 0);
         let m = &merge(&[live(e, &["c"], Some(5))], &meta)[0].tx;
         assert_eq!(m.block_time_unix, None);
+    }
+
+    /// A wallet with `n` receives and `n` sends (each spending one receive and making change),
+    /// the output versions epic-wallet keeps for them, and an archive that annotates every send
+    /// and holds an imported record for each.
+    pub(crate) fn big_wallet(n: u32) -> (Vec<TxLogEntry>, Vec<OutputData>, Vec<OutputData>, Meta) {
+        let mut txs = Vec::new();
+        let mut current = Vec::new();
+        let mut hist = Vec::new();
+        let mut meta = Meta::default();
+        for i in 0..n {
+            let mut r = entry(i, TxLogEntryType::TxReceived);
+            r.tx_slate_id = Some(uuid::Uuid::from_u128(u128::from(i) + 1));
+            r.confirmed = true;
+            r.amount_credited = 100;
+            txs.push(r);
+            let send_id = n + i;
+            let mut s = entry(send_id, TxLogEntryType::TxSent);
+            let slate = uuid::Uuid::from_u128(u128::from(send_id) + 1);
+            s.tx_slate_id = Some(slate);
+            s.confirmed = true;
+            s.amount_debited = 100;
+            s.amount_credited = 40;
+            s.fee = Some(1);
+            s.kernel_excess = Some(kernel((i % 250) as u8));
+            txs.push(s);
+            let recv_out = format!("r{i}");
+            let change = format!("c{i}");
+            hist.push(output(i, &recv_out, OutputStatus::Unconfirmed, i, 10));
+            hist.push(output(
+                i,
+                &recv_out,
+                OutputStatus::Unspent,
+                i,
+                100 + u64::from(i),
+            ));
+            hist.push(output(
+                i,
+                &recv_out,
+                OutputStatus::Locked,
+                send_id,
+                100 + u64::from(i),
+            ));
+            current.push(output(
+                i,
+                &recv_out,
+                OutputStatus::Spent,
+                send_id,
+                100 + u64::from(i),
+            ));
+            hist.push(output(
+                2 * n + i,
+                &change,
+                OutputStatus::Unconfirmed,
+                send_id,
+                20,
+            ));
+            current.push(output(
+                2 * n + i,
+                &change,
+                OutputStatus::Unspent,
+                send_id,
+                200 + u64::from(i),
+            ));
+            meta.annotations.insert(
+                slate.to_string(),
+                crate::core::meta::Annotation {
+                    counterparty: Some(format!("es{i:050}@epicbox.epiccash.com")),
+                    finalized: true,
+                    kernel_excess: Some(format!("08{i:064}")),
+                    finalized_at_unix: Some(1_790_000_000 + i64::from(i)),
+                    finalized_height: Some(100 + u64::from(i)),
+                    ..Default::default()
+                },
+            );
+            let mut rec = record(Some(&slate.to_string()), None, &[&change]);
+            rec.note = Some(format!("payment number {i}"));
+            meta.records.push(rec);
+        }
+        for h in 0..500u64 {
+            meta.block_times
+                .insert(100 + h, 1_790_000_000 + h as i64 * 60);
+        }
+        (txs, current, hist, meta)
+    }
+
+    #[test]
+    fn two_thousand_rows_merge_quickly() {
+        let (txs, current, hist, meta) = big_wallet(1_000);
+        let mut all = current.clone();
+        all.extend(hist.iter().cloned());
+
+        // The per-row scan this replaced, for the record: every row walked every output.
+        let t = std::time::Instant::now();
+        let naive: Vec<(Vec<String>, Option<u64>)> = txs
+            .iter()
+            .map(|e| {
+                let c = created_commits(e, &all);
+                let h = confirmed_height(&c, &current);
+                (c, h)
+            })
+            .collect();
+        let naive_ms = t.elapsed().as_millis();
+
+        let t = std::time::Instant::now();
+        let live = live_rows(txs.clone(), &current, &hist, |_| false);
+        let live_ms = t.elapsed().as_millis();
+        for (l, (c, h)) in live.iter().zip(&naive) {
+            assert_eq!(&l.created_commits, c, "same result as the scan");
+            assert_eq!(&l.block_height, h);
+        }
+
+        let t = std::time::Instant::now();
+        let merged = merge(&live, &meta);
+        let merge_ms = t.elapsed().as_millis();
+        eprintln!(
+            "2000 rows, {} outputs, {} records: old output scan {naive_ms} ms, live_rows {live_ms} ms, merge {merge_ms} ms",
+            all.len(),
+            meta.records.len()
+        );
+        assert_eq!(merged.len(), 2_000);
+        assert!(merged.iter().filter(|m| m.tx.note.is_some()).count() == 1_000);
+        // Debug build, shared CI-class host: generous, but far below a frame budget in release.
+        assert!(
+            live_ms + merge_ms < 1_000,
+            "live {live_ms} ms + merge {merge_ms} ms"
+        );
+    }
+
+    #[test]
+    fn the_archive_of_a_big_wallet_stays_small_and_quick_to_write() {
+        let (_, _, _, mut meta) = big_wallet(1_000);
+        // 2,000 annotated rows: every send already is; add every receive, and a note on each.
+        for i in 0..1_000u32 {
+            let slate = uuid::Uuid::from_u128(u128::from(i) + 1).to_string();
+            meta.annotations.insert(
+                slate.clone(),
+                crate::core::meta::Annotation {
+                    counterparty: Some(format!("es{i:050}@epicbox.epiccash.com")),
+                    ..Default::default()
+                },
+            );
+        }
+        for i in 0..2_000u32 {
+            meta.notes
+                .insert(format!("s:{i}"), format!("note for payment {i}"));
+        }
+        assert_eq!(meta.annotations.len(), 2_000);
+        let pretty = serde_json::to_vec_pretty(&meta).unwrap().len();
+        let compact = serde_json::to_vec(&meta).unwrap().len();
+        let dir = tempfile::tempdir().unwrap();
+        let store = crate::core::meta::MetaStore::open(dir.path().to_str().unwrap()).unwrap();
+        let t = std::time::Instant::now();
+        store
+            .update(|m| {
+                *m = meta.clone();
+                Ok(())
+            })
+            .unwrap();
+        let first = t.elapsed().as_millis();
+        let t = std::time::Instant::now();
+        for i in 0..10 {
+            store.annotate("listener-event", |a| a.counterparty = Some(format!("x{i}")));
+        }
+        let ten = t.elapsed().as_millis();
+        let on_disk = std::fs::metadata(dir.path().join(crate::core::meta::META_FILE))
+            .unwrap()
+            .len();
+        eprintln!(
+            "archive with 2000 annotations, 2000 notes, 1000 records, 500 block times: \
+             pretty {pretty} B, compact {compact} B, on disk {on_disk} B; \
+             first write {first} ms, 10 listener annotations {ten} ms"
+        );
+        assert!(on_disk < 2_000_000, "{on_disk} bytes");
+        assert!((on_disk as usize) < pretty, "written compact");
     }
 
     #[test]

@@ -135,6 +135,20 @@ pub(crate) fn open(root: &[u8], data: &[u8]) -> CoreResult<Zeroizing<Vec<u8>>> {
     Ok(body)
 }
 
+/// Decrypts and parses a history file. Every malformed input is an `InvalidArgument` with a
+/// sentence for the user; nothing here panics on hostile bytes.
+pub(crate) fn decode_payload(root: &[u8], data: &[u8]) -> CoreResult<Payload> {
+    let plain = open(root, data)?;
+    let payload: Payload = serde_json::from_slice(&plain)
+        .map_err(|_| CoreError::InvalidArgument("This history file is damaged".into()))?;
+    if payload.format != FORMAT || payload.version > PAYLOAD_VERSION {
+        return Err(CoreError::InvalidArgument(
+            "This history file was made by a newer version of the app".into(),
+        ));
+    }
+    Ok(payload)
+}
+
 /// `amount` in EPIC with 8 decimals, e.g. `-1.50000000`.
 fn epic_decimal(amount: i128) -> String {
     let sign = if amount < 0 { "-" } else { "" };
@@ -204,7 +218,7 @@ fn type_word(kind: TxKind) -> &'static str {
 /// wallet's last confirmed height when known.
 fn status_words(tx: &TxEntry, tip: Option<u64>) -> String {
     let confirmations = match (tx.block_height, tip) {
-        (Some(h), Some(t)) => Some((t + 1).saturating_sub(h)),
+        (Some(h), Some(t)) => Some(t.saturating_add(1).saturating_sub(h)),
         _ => None,
     };
     let incoming = matches!(tx.kind, TxKind::Received | TxKind::ReceivedCancelled);
@@ -276,6 +290,118 @@ mod tests {
             seal(&root, b"x").unwrap(),
             "fresh salt and nonce"
         );
+    }
+
+    /// xorshift64*, so the "random" inputs are the same on every run.
+    struct Rng(u64);
+    impl Rng {
+        fn next(&mut self) -> u64 {
+            self.0 ^= self.0 >> 12;
+            self.0 ^= self.0 << 25;
+            self.0 ^= self.0 >> 27;
+            self.0.wrapping_mul(0x2545_F491_4F6C_DD1D)
+        }
+        fn bytes(&mut self, n: usize) -> Vec<u8> {
+            (0..n).map(|_| self.next() as u8).collect()
+        }
+    }
+
+    fn valid_payload() -> Payload {
+        Payload {
+            format: FORMAT.into(),
+            version: PAYLOAD_VERSION,
+            chain: "Mainnet".into(),
+            wallet_fp: "00".into(),
+            exported_at_unix: 1,
+            app_version: "t".into(),
+            last_confirmed_height: None,
+            txs: vec![Record {
+                slate_id: Some("s".into()),
+                kind: "Sent".into(),
+                status: "Confirmed".into(),
+                ..Record::default()
+            }],
+            contacts: vec![],
+        }
+    }
+
+    #[test]
+    fn hostile_history_files_are_errors_never_panics() {
+        let root = [3u8; 32];
+        let mut rng = Rng(0x5eed_1234_abcd_0001);
+        let good = seal(&root, &serde_json::to_vec(&valid_payload()).unwrap()).unwrap();
+        assert!(decode_payload(&root, &good).is_ok());
+
+        // Random bytes of every small length, and some with the right magic.
+        for len in 0..300 {
+            let mut data = rng.bytes(len);
+            assert!(decode_payload(&root, &data).is_err(), "random {len}");
+            if len >= 6 {
+                data[..4].copy_from_slice(MAGIC);
+                data[4] = VERSION;
+                data[5] = KDF_SEED;
+                assert!(
+                    decode_payload(&root, &data).is_err(),
+                    "magic + random {len}"
+                );
+            }
+        }
+        // Every truncation, and single-bit flips, of a valid file.
+        for cut in 0..good.len() {
+            assert!(decode_payload(&root, &good[..cut]).is_err(), "cut at {cut}");
+        }
+        for _ in 0..500 {
+            let mut data = good.clone();
+            let i = (rng.next() as usize) % data.len();
+            data[i] ^= 1 << (rng.next() % 8);
+            assert!(decode_payload(&root, &data).is_err(), "flip at {i}");
+        }
+        // A valid envelope around junk.
+        let junk: Vec<Vec<u8>> = vec![
+            vec![],
+            b"null".to_vec(),
+            b"[]".to_vec(),
+            b"{}".to_vec(),
+            b"{\"format\":\"wfe-history\",\"version\":99}".to_vec(),
+            b"{\"format\":1}".to_vec(),
+            "[".repeat(100_000).into_bytes(),
+            format!(
+                "{{\"txs\":[{}]}}",
+                "{\"amount_credited\":1e400},".repeat(10)
+            )
+            .into_bytes(),
+            rng.bytes(4096),
+        ];
+        for (n, j) in junk.iter().enumerate() {
+            let sealed = seal(&root, j).unwrap();
+            assert!(decode_payload(&root, &sealed).is_err(), "junk {n}");
+        }
+        // Valid JSON with absurd values parses, and the rest of the core copes with it.
+        let mut odd = valid_payload();
+        odd.txs.push(Record {
+            slate_id: Some("x".repeat(10_000)),
+            kind: "?".into(),
+            status: "?".into(),
+            amount_credited: u64::MAX,
+            amount_debited: u64::MAX,
+            fee: Some(u64::MAX),
+            created_at_unix: i64::MIN,
+            block_height: Some(u64::MAX),
+            output_commits: vec!["".into(); 1_000],
+            ..Record::default()
+        });
+        let sealed = seal(&root, &serde_json::to_vec(&odd).unwrap()).unwrap();
+        let p = decode_payload(&root, &sealed).unwrap();
+        let mut meta = crate::core::meta::Meta::default();
+        meta.records = p.txs;
+        let rows = super::super::history::merge(&[], &meta);
+        let txs: Vec<TxEntry> = rows.into_iter().map(|m| m.tx).collect();
+        let _ = csv(&txs, Some(u64::MAX));
+        let _ = csv(&txs, Some(0));
+
+        // A file at the UI's 32 MB cap.
+        let huge = rng.bytes(32 * 1024 * 1024);
+        assert!(decode_payload(&root, &huge).is_err());
     }
 
     #[test]

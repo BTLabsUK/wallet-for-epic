@@ -329,3 +329,47 @@ fn delete_waits_for_the_open_wallet_and_leaves_nothing_behind() {
     delete_wallet(config.clone()).expect("delete again");
     delete_wallet(config).expect("deleting a missing wallet is fine");
 }
+
+#[test]
+fn junk_history_files_are_refused_without_a_panic() {
+    let dir = tempfile::tempdir().expect("tempdir");
+    let w = EpicWallet::create(cfg(dir.path()), None, PASSWORD.into()).expect("create");
+    let mut x: u64 = 0x9e37_79b9_7f4a_7c15;
+    let mut bytes = |n: usize| -> Vec<u8> {
+        (0..n)
+            .map(|_| {
+                x ^= x << 13;
+                x ^= x >> 7;
+                x ^= x << 17;
+                x as u8
+            })
+            .collect()
+    };
+    let good = w.export_history().expect("export");
+    let mut inputs = vec![
+        Vec::new(),
+        b"WFEH".to_vec(),
+        bytes(49),
+        bytes(50),
+        bytes(4096),
+    ];
+    inputs.push(good[..good.len() / 2].to_vec());
+    inputs.push(good[..good.len() - 1].to_vec());
+    inputs.push(bytes(32 * 1024 * 1024));
+    for (n, data) in inputs.into_iter().enumerate() {
+        let e = w
+            .import_history(data)
+            .err()
+            .unwrap_or_else(|| panic!("input {n} was accepted"));
+        assert_eq!(
+            e.kind,
+            WalletErrorKind::InvalidArgument,
+            "input {n}: {}",
+            e.message
+        );
+    }
+    assert!(
+        w.import_history(good).is_ok(),
+        "the real file still imports"
+    );
+}

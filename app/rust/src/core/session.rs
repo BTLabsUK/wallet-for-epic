@@ -336,30 +336,13 @@ impl Session {
         let mut guard = self.wallet.lock();
         let w = guard.lc_provider()?.wallet_inst()?;
         let current: Vec<_> = w.iter().collect();
-        let mut all = current.clone();
-        all.extend(w.history_iter());
-        let rows = res
-            .txs
-            .into_iter()
-            .map(|entry| {
-                let created_commits = history::created_commits(&entry, &all);
-                let block_height = history::confirmed_height(&created_commits, &current);
-                let finalized = matches!(
-                    entry.tx_type,
-                    TxLogEntryType::TxSent
-                        | TxLogEntryType::TxSentCreated
-                        | TxLogEntryType::TxSentMempool
-                ) && !entry.confirmed
-                    && stored_final(&self.config.data_dir, &entry);
-                LiveTx {
-                    entry,
-                    created_commits,
-                    block_height,
-                    finalized,
-                }
-            })
-            .collect();
-        Ok(rows)
+        let history_rows: Vec<_> = w.history_iter().collect();
+        Ok(history::live_rows(
+            res.txs,
+            &current,
+            &history_rows,
+            |entry| stored_final(&self.config.data_dir, entry),
+        ))
     }
 
     fn merged(&self, refresh: bool) -> CoreResult<Vec<MergedTx>> {
@@ -553,14 +536,7 @@ impl Session {
 
     /// Merges an export of this wallet. Writes only the app's archive, never epic.db.
     pub(crate) fn import_history(&self, data: &[u8]) -> CoreResult<ImportReport> {
-        let plain = export::open(&self.root_secret()?[..], data)?;
-        let payload: export::Payload = serde_json::from_slice(&plain)
-            .map_err(|_| CoreError::InvalidArgument("This history file is damaged".into()))?;
-        if payload.format != export::FORMAT || payload.version > export::PAYLOAD_VERSION {
-            return Err(CoreError::InvalidArgument(
-                "This history file was made by a newer version of the app".into(),
-            ));
-        }
+        let payload = export::decode_payload(&self.root_secret()?[..], data)?;
         if payload.chain != self.chain_name() {
             return Err(CoreError::InvalidArgument(format!(
                 "This history file is from {}, but this wallet is on {}",
