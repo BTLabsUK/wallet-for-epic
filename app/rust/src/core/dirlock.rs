@@ -116,12 +116,25 @@ fn remove_atomically(dir: &Path) -> CoreResult<()> {
         Err(e) if e.kind() == std::io::ErrorKind::NotFound => return Ok(()),
         Err(e) => return Err(CoreError::Io(format!("deleting {}: {e}", dir.display()))),
     }
-    std::fs::remove_dir_all(&aside)
-        .map_err(|e| CoreError::Io(format!("deleting {}: {e}", aside.display())))
+    remove_tree(&aside).map_err(|e| CoreError::Io(format!("deleting {}: {e}", aside.display())))
+}
+
+/// `remove_dir_all`, where a tree that is already gone counts as removed.
+fn remove_tree(path: &Path) -> std::io::Result<()> {
+    match std::fs::remove_dir_all(path) {
+        Err(e) if e.kind() == std::io::ErrorKind::NotFound => Ok(()),
+        other => other,
+    }
 }
 
 /// Removes `<dir>.deleting-*` left by a delete that was interrupted. Errors are logged only.
+/// Holds the directory lock, so it never races a delete, and skips a directory whose delete is
+/// waiting for its last lease.
 pub(crate) fn sweep_leftovers(dir: &str) {
+    let g = lock();
+    if g.as_ref().is_some_and(|s| s.deleting.contains(&key(dir))) {
+        return;
+    }
     let dir = Path::new(dir.trim());
     let (Some(parent), Some(name)) = (dir.parent(), dir.file_name()) else {
         return;
@@ -132,11 +145,12 @@ pub(crate) fn sweep_leftovers(dir: &str) {
     };
     for e in entries.flatten() {
         if e.file_name().to_string_lossy().starts_with(&prefix) {
-            if let Err(err) = std::fs::remove_dir_all(e.path()) {
+            if let Err(err) = remove_tree(&e.path()) {
                 log::warn!("removing {}: {err}", e.path().display());
             }
         }
     }
+    drop(g);
 }
 
 /// Removes `dir` once no wallet uses it, waiting up to `max_wait`. A missing directory is fine.
@@ -199,6 +213,52 @@ mod tests {
             left,
             ["floonet.deleting-3", "mainnet"],
             "only this wallet's leftovers go"
+        );
+    }
+
+    #[test]
+    fn a_sweep_leaves_a_directory_alone_while_its_delete_waits() {
+        let tmp = tempfile::tempdir().unwrap();
+        let dir = tmp.path().join("busy");
+        std::fs::create_dir_all(&dir).unwrap();
+        std::fs::create_dir_all(tmp.path().join("busy.deleting-1")).unwrap();
+        let d = dir.to_str().unwrap().to_owned();
+
+        let lease = DirLease::acquire(&d).unwrap();
+        std::fs::create_dir_all(tmp.path().join("busy.deleting-2")).unwrap();
+        let deleter = {
+            let d = d.clone();
+            std::thread::spawn(move || delete_wallet_dir(&d, Duration::from_secs(5)))
+        };
+        // Wait until the delete has marked the directory, then sweep while it waits.
+        let start = Instant::now();
+        while !lock()
+            .as_ref()
+            .is_some_and(|s| s.deleting.contains(&key(&d)))
+        {
+            assert!(
+                start.elapsed() < Duration::from_secs(5),
+                "delete never started"
+            );
+            std::thread::sleep(Duration::from_millis(5));
+        }
+        sweep_leftovers(&d);
+        assert!(
+            tmp.path().join("busy.deleting-2").exists(),
+            "skipped while deleting"
+        );
+
+        drop(lease);
+        deleter.join().unwrap().unwrap();
+        assert!(!dir.exists());
+        sweep_leftovers(&d);
+        assert!(
+            !tmp.path().join("busy.deleting-2").exists(),
+            "swept afterwards"
+        );
+        assert!(
+            remove_tree(&tmp.path().join("never-there")).is_ok(),
+            "NotFound is removed"
         );
     }
 

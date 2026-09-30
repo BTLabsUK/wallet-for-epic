@@ -489,6 +489,7 @@ class ListenerNotifier extends Notifier<ListenerState> {
       case ListenerEventKind.received ||
           ListenerEventKind.finalized ||
           ListenerEventKind.expired ||
+          ListenerEventKind.delayed ||
           ListenerEventKind.error:
         state = ListenerState(
           connected: state.connected,

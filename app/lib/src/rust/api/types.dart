@@ -7,7 +7,27 @@ import '../frb_generated.dart';
 
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
-// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`
+// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`
+
+/// Why a payment was cancelled.
+enum CancelReason {
+  /// The user cancelled it.
+  user,
+
+  /// The user released a finished send the network refused (`release_stuck_send`).
+  release,
+
+  /// Its 14-day limit passed without an answer; epic-wallet's refresh cancelled it.
+  expiry,
+
+  /// The recipient's answer came at or too near the 14-day limit, so it was cancelled
+  /// instead of finished.
+  lateAnswer,
+
+  /// The send failed before it reached the recipient (the transport failed), and the core
+  /// cancelled it at once.
+  failed,
+}
 
 /// Which Epic chain the wallet talks to. Selects consensus parameters and default ports.
 enum Chain { mainnet, floonet, usernet }
@@ -102,8 +122,8 @@ class ListenerEvent {
   final String? slateId;
   final String message;
 
-  /// For `Received` and `Finalized`: the slate's amount (what arrived, or what we sent),
-  /// in the smallest unit. `None` for every other kind.
+  /// For `Received`, `Finalized`, `Expired` and `Delayed`: the slate's amount (what arrived,
+  /// or what we sent), in the smallest unit. `None` for every other kind.
   final BigInt? amount;
 
   const ListenerEvent({
@@ -148,6 +168,12 @@ enum ListenerEventKind {
   /// The answer to one of our sends came at or too near its 14-day limit. The send was
   /// cancelled, not finished: nothing was sent and the funds are unlocked. `amount` is set.
   expired,
+
+  /// The answer to one of our sends arrived, but the node could not be reached to check its
+  /// 14-day limit, even after retrying for about 30 s. Nothing was finished yet; the mailbox
+  /// server delivers it again and it finishes once the node answers. Sent once per slate
+  /// per listener run.
+  delayed,
 
   /// The listener ended; no more events follow.
   stopped,
@@ -308,6 +334,9 @@ class TxEntry {
   /// When this wallet finalized the send (unix seconds), if it did.
   final PlatformInt64? finalizedAtUnix;
 
+  /// For a cancelled payment: why, when known.
+  final CancelReason? cancelReason;
+
   const TxEntry({
     required this.key,
     this.id,
@@ -335,6 +364,7 @@ class TxEntry {
     this.statusDetail,
     required this.releasable,
     this.finalizedAtUnix,
+    this.cancelReason,
   });
 
   @override
@@ -364,7 +394,8 @@ class TxEntry {
       repostable.hashCode ^
       statusDetail.hashCode ^
       releasable.hashCode ^
-      finalizedAtUnix.hashCode;
+      finalizedAtUnix.hashCode ^
+      cancelReason.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -396,7 +427,8 @@ class TxEntry {
           repostable == other.repostable &&
           statusDetail == other.statusDetail &&
           releasable == other.releasable &&
-          finalizedAtUnix == other.finalizedAtUnix;
+          finalizedAtUnix == other.finalizedAtUnix &&
+          cancelReason == other.cancelReason;
 }
 
 enum TxKind { coinbase, received, sent, receivedCancelled, sentCancelled }

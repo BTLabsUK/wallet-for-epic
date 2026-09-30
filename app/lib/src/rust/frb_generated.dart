@@ -1694,6 +1694,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  CancelReason dco_decode_box_autoadd_cancel_reason(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return dco_decode_cancel_reason(raw);
+  }
+
+  @protected
   Contact dco_decode_box_autoadd_contact(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return dco_decode_contact(raw);
@@ -1727,6 +1733,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   WalletConfig dco_decode_box_autoadd_wallet_config(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return dco_decode_wallet_config(raw);
+  }
+
+  @protected
+  CancelReason dco_decode_cancel_reason(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return CancelReason.values[raw as int];
   }
 
   @protected
@@ -1856,6 +1868,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  CancelReason? dco_decode_opt_box_autoadd_cancel_reason(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw == null ? null : dco_decode_box_autoadd_cancel_reason(raw);
+  }
+
+  @protected
   PlatformInt64? dco_decode_opt_box_autoadd_i_64(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return raw == null ? null : dco_decode_box_autoadd_i_64(raw);
@@ -1928,8 +1946,8 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   TxEntry dco_decode_tx_entry(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
-    if (arr.length != 26)
-      throw Exception('unexpected arr length: expect 26 but see ${arr.length}');
+    if (arr.length != 27)
+      throw Exception('unexpected arr length: expect 27 but see ${arr.length}');
     return TxEntry(
       key: dco_decode_String(arr[0]),
       id: dco_decode_opt_box_autoadd_u_32(arr[1]),
@@ -1957,6 +1975,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       statusDetail: dco_decode_opt_String(arr[23]),
       releasable: dco_decode_bool(arr[24]),
       finalizedAtUnix: dco_decode_opt_box_autoadd_i_64(arr[25]),
+      cancelReason: dco_decode_opt_box_autoadd_cancel_reason(arr[26]),
     );
   }
 
@@ -2140,6 +2159,14 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  CancelReason sse_decode_box_autoadd_cancel_reason(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return (sse_decode_cancel_reason(deserializer));
+  }
+
+  @protected
   Contact sse_decode_box_autoadd_contact(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     return (sse_decode_contact(deserializer));
@@ -2175,6 +2202,13 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     return (sse_decode_wallet_config(deserializer));
+  }
+
+  @protected
+  CancelReason sse_decode_cancel_reason(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var inner = sse_decode_i_32(deserializer);
+    return CancelReason.values[inner];
   }
 
   @protected
@@ -2328,6 +2362,19 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  CancelReason? sse_decode_opt_box_autoadd_cancel_reason(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    if (sse_decode_bool(deserializer)) {
+      return (sse_decode_box_autoadd_cancel_reason(deserializer));
+    } else {
+      return null;
+    }
+  }
+
+  @protected
   PlatformInt64? sse_decode_opt_box_autoadd_i_64(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
 
@@ -2443,6 +2490,9 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     var var_statusDetail = sse_decode_opt_String(deserializer);
     var var_releasable = sse_decode_bool(deserializer);
     var var_finalizedAtUnix = sse_decode_opt_box_autoadd_i_64(deserializer);
+    var var_cancelReason = sse_decode_opt_box_autoadd_cancel_reason(
+      deserializer,
+    );
     return TxEntry(
       key: var_key,
       id: var_id,
@@ -2470,6 +2520,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       statusDetail: var_statusDetail,
       releasable: var_releasable,
       finalizedAtUnix: var_finalizedAtUnix,
+      cancelReason: var_cancelReason,
     );
   }
 
@@ -2683,6 +2734,15 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  void sse_encode_box_autoadd_cancel_reason(
+    CancelReason self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_cancel_reason(self, serializer);
+  }
+
+  @protected
   void sse_encode_box_autoadd_contact(Contact self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_contact(self, serializer);
@@ -2722,6 +2782,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_wallet_config(self, serializer);
+  }
+
+  @protected
+  void sse_encode_cancel_reason(CancelReason self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.index, serializer);
   }
 
   @protected
@@ -2852,6 +2918,19 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  void sse_encode_opt_box_autoadd_cancel_reason(
+    CancelReason? self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    sse_encode_bool(self != null, serializer);
+    if (self != null) {
+      sse_encode_box_autoadd_cancel_reason(self, serializer);
+    }
+  }
+
+  @protected
   void sse_encode_opt_box_autoadd_i_64(
     PlatformInt64? self,
     SseSerializer serializer,
@@ -2953,6 +3032,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     sse_encode_opt_String(self.statusDetail, serializer);
     sse_encode_bool(self.releasable, serializer);
     sse_encode_opt_box_autoadd_i_64(self.finalizedAtUnix, serializer);
+    sse_encode_opt_box_autoadd_cancel_reason(self.cancelReason, serializer);
   }
 
   @protected

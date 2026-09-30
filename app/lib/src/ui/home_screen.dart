@@ -102,6 +102,9 @@ String paymentNotice(
       final to = who == null ? '' : ' to $who';
       return 'Your payment$to expired before it was finished, so nothing was '
           'sent. The funds are unlocked.';
+    case ListenerEventKind.delayed:
+      // The core's own words; uihome owns the once-per-slate display (fix-5 L1).
+      return event.message;
     case ListenerEventKind.error:
       if (event.slateId == null) {
         return 'The mailbox server reported a problem. Retrying.';

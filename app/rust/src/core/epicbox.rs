@@ -47,6 +47,12 @@ pub(crate) const ADDRESS_INDEX: u32 = 0;
 const READ_TICK: Duration = Duration::from_millis(500);
 const CONNECT_TIMEOUT: Duration = Duration::from_secs(15);
 const MAX_BACKOFF: Duration = Duration::from_secs(60);
+/// Waits between tip reads before an answer is left for a later delivery: about 30 s in all.
+const TIP_RETRY_DELAYS: [Duration; 3] = [
+    Duration::from_secs(5),
+    Duration::from_secs(10),
+    Duration::from_secs(15),
+];
 
 type Socket = WebSocket<MaybeTlsStream<TcpStream>>;
 
@@ -263,6 +269,7 @@ impl Listener {
             meta,
             stop: stop.clone(),
             on_event: Box::new(on_event),
+            delayed: std::collections::HashSet::new(),
         };
         let thread = std::thread::Builder::new()
             .name("epicbox-listener".into())
@@ -294,6 +301,8 @@ struct Worker {
     meta: Arc<MetaStore>,
     stop: Arc<AtomicBool>,
     on_event: Box<dyn FnMut(ListenerEvent) + Send>,
+    /// Slates already reported as `Delayed` in this run, so the UI hears about each once.
+    delayed: std::collections::HashSet<String>,
 }
 
 impl Worker {
@@ -318,6 +327,18 @@ impl Worker {
 
     fn stopped(&self) -> bool {
         self.stop.load(Ordering::SeqCst)
+    }
+
+    /// Sleeps for `d` in ticks. Returns false if a stop was asked for meanwhile.
+    fn pause(&self, d: Duration) -> bool {
+        let until = Instant::now() + d;
+        while Instant::now() < until {
+            if self.stopped() {
+                return false;
+            }
+            std::thread::sleep(READ_TICK);
+        }
+        !self.stopped()
     }
 
     fn run(mut self) {
@@ -486,7 +507,15 @@ impl Worker {
                 Some(slate.amount),
             ),
             Err(CoreError::RetryLater(text)) => {
-                self.emit(ListenerEventKind::Error, Some(slate_id), text);
+                log::info!("payment {slate_id} left for a later delivery: {text}");
+                if self.delayed.insert(slate_id.clone()) {
+                    self.emit_with(
+                        ListenerEventKind::Delayed,
+                        Some(slate_id),
+                        "Could not reach the node. The payment will finish once it can.".into(),
+                        Some(slate.amount),
+                    );
+                }
                 return false;
             }
             Err(e) => self.emit(ListenerEventKind::Error, Some(slate_id), e.to_string()),
@@ -534,7 +563,24 @@ impl Worker {
         self.owner
             .verify_slate_messages(mask, slate)
             .map_err(|e| CoreError::InvalidSlate(e.to_string()))?;
-        super::session::answer_in_time(&self.owner, mask, &self.wallet, slate)?;
+        // The node may be busy (429) or briefly down: try the height a few more times, about
+        // 30 s in all, before leaving the answer for a later delivery.
+        let mut attempt = 0;
+        loop {
+            match super::session::answer_in_time(&self.owner, mask, &self.wallet, &self.meta, slate)
+            {
+                Err(CoreError::RetryLater(text)) if attempt < TIP_RETRY_DELAYS.len() => {
+                    if !self.pause(TIP_RETRY_DELAYS[attempt]) {
+                        return Err(CoreError::RetryLater(text));
+                    }
+                    attempt += 1;
+                }
+                other => {
+                    other?;
+                    break;
+                }
+            }
+        }
         let finalized = self.owner.finalize_tx(mask, slate)?;
         let height = super::session::wallet_height(&self.wallet);
         super::session::record_finalized(&self.meta, &finalized, height);

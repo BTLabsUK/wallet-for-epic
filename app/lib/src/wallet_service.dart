@@ -890,6 +890,7 @@ TxEntry fakeTx({
   String? statusDetail,
   bool releasable = false,
   int? finalizedAtUnix,
+  CancelReason? cancelReason,
 }) {
   final resolvedStatus =
       status ??
@@ -929,6 +930,7 @@ TxEntry fakeTx({
     statusDetail: statusDetail,
     releasable: releasable,
     finalizedAtUnix: finalizedAtUnix,
+    cancelReason: cancelReason,
   );
 }
 
@@ -960,4 +962,5 @@ TxEntry copyTx(TxEntry tx, {String? note}) => TxEntry(
   statusDetail: tx.statusDetail,
   releasable: tx.releasable,
   finalizedAtUnix: tx.finalizedAtUnix,
+  cancelReason: tx.cancelReason,
 );

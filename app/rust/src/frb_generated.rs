@@ -1917,6 +1917,21 @@ impl SseDecode for bool {
     }
 }
 
+impl SseDecode for crate::api::types::CancelReason {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut inner = <i32>::sse_decode(deserializer);
+        return match inner {
+            0 => crate::api::types::CancelReason::User,
+            1 => crate::api::types::CancelReason::Release,
+            2 => crate::api::types::CancelReason::Expiry,
+            3 => crate::api::types::CancelReason::LateAnswer,
+            4 => crate::api::types::CancelReason::Failed,
+            _ => unreachable!("Invalid variant for CancelReason: {}", inner),
+        };
+    }
+}
+
 impl SseDecode for crate::api::types::Chain {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -2063,7 +2078,8 @@ impl SseDecode for crate::api::types::ListenerEventKind {
             3 => crate::api::types::ListenerEventKind::Finalized,
             4 => crate::api::types::ListenerEventKind::Error,
             5 => crate::api::types::ListenerEventKind::Expired,
-            6 => crate::api::types::ListenerEventKind::Stopped,
+            6 => crate::api::types::ListenerEventKind::Delayed,
+            7 => crate::api::types::ListenerEventKind::Stopped,
             _ => unreachable!("Invalid variant for ListenerEventKind: {}", inner),
         };
     }
@@ -2086,6 +2102,17 @@ impl SseDecode for Option<String> {
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
         if (<bool>::sse_decode(deserializer)) {
             return Some(<String>::sse_decode(deserializer));
+        } else {
+            return None;
+        }
+    }
+}
+
+impl SseDecode for Option<crate::api::types::CancelReason> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        if (<bool>::sse_decode(deserializer)) {
+            return Some(<crate::api::types::CancelReason>::sse_decode(deserializer));
         } else {
             return None;
         }
@@ -2220,6 +2247,8 @@ impl SseDecode for crate::api::types::TxEntry {
         let mut var_statusDetail = <Option<String>>::sse_decode(deserializer);
         let mut var_releasable = <bool>::sse_decode(deserializer);
         let mut var_finalizedAtUnix = <Option<i64>>::sse_decode(deserializer);
+        let mut var_cancelReason =
+            <Option<crate::api::types::CancelReason>>::sse_decode(deserializer);
         return crate::api::types::TxEntry {
             key: var_key,
             id: var_id,
@@ -2247,6 +2276,7 @@ impl SseDecode for crate::api::types::TxEntry {
             status_detail: var_statusDetail,
             releasable: var_releasable,
             finalized_at_unix: var_finalizedAtUnix,
+            cancel_reason: var_cancelReason,
         };
     }
 }
@@ -2598,6 +2628,30 @@ impl flutter_rust_bridge::IntoIntoDart<FrbWrapper<EpicWallet>> for EpicWallet {
 }
 
 // Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::api::types::CancelReason {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        match self {
+            Self::User => 0.into_dart(),
+            Self::Release => 1.into_dart(),
+            Self::Expiry => 2.into_dart(),
+            Self::LateAnswer => 3.into_dart(),
+            Self::Failed => 4.into_dart(),
+            _ => unreachable!(),
+        }
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for crate::api::types::CancelReason
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::api::types::CancelReason>
+    for crate::api::types::CancelReason
+{
+    fn into_into_dart(self) -> crate::api::types::CancelReason {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
 impl flutter_rust_bridge::IntoDart for crate::api::types::Chain {
     fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
         match self {
@@ -2709,7 +2763,8 @@ impl flutter_rust_bridge::IntoDart for crate::api::types::ListenerEventKind {
             Self::Finalized => 3.into_dart(),
             Self::Error => 4.into_dart(),
             Self::Expired => 5.into_dart(),
-            Self::Stopped => 6.into_dart(),
+            Self::Delayed => 6.into_dart(),
+            Self::Stopped => 7.into_dart(),
             _ => unreachable!(),
         }
     }
@@ -2848,6 +2903,7 @@ impl flutter_rust_bridge::IntoDart for crate::api::types::TxEntry {
             self.status_detail.into_into_dart().into_dart(),
             self.releasable.into_into_dart().into_dart(),
             self.finalized_at_unix.into_into_dart().into_dart(),
+            self.cancel_reason.into_into_dart().into_dart(),
         ]
         .into_dart()
     }
@@ -3081,6 +3137,25 @@ impl SseEncode for bool {
     }
 }
 
+impl SseEncode for crate::api::types::CancelReason {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(
+            match self {
+                crate::api::types::CancelReason::User => 0,
+                crate::api::types::CancelReason::Release => 1,
+                crate::api::types::CancelReason::Expiry => 2,
+                crate::api::types::CancelReason::LateAnswer => 3,
+                crate::api::types::CancelReason::Failed => 4,
+                _ => {
+                    unimplemented!("");
+                }
+            },
+            serializer,
+        );
+    }
+}
+
 impl SseEncode for crate::api::types::Chain {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
@@ -3201,7 +3276,8 @@ impl SseEncode for crate::api::types::ListenerEventKind {
                 crate::api::types::ListenerEventKind::Finalized => 3,
                 crate::api::types::ListenerEventKind::Error => 4,
                 crate::api::types::ListenerEventKind::Expired => 5,
-                crate::api::types::ListenerEventKind::Stopped => 6,
+                crate::api::types::ListenerEventKind::Delayed => 6,
+                crate::api::types::ListenerEventKind::Stopped => 7,
                 _ => {
                     unimplemented!("");
                 }
@@ -3225,6 +3301,16 @@ impl SseEncode for Option<String> {
         <bool>::sse_encode(self.is_some(), serializer);
         if let Some(value) = self {
             <String>::sse_encode(value, serializer);
+        }
+    }
+}
+
+impl SseEncode for Option<crate::api::types::CancelReason> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <bool>::sse_encode(self.is_some(), serializer);
+        if let Some(value) = self {
+            <crate::api::types::CancelReason>::sse_encode(value, serializer);
         }
     }
 }
@@ -3342,6 +3428,7 @@ impl SseEncode for crate::api::types::TxEntry {
         <Option<String>>::sse_encode(self.status_detail, serializer);
         <bool>::sse_encode(self.releasable, serializer);
         <Option<i64>>::sse_encode(self.finalized_at_unix, serializer);
+        <Option<crate::api::types::CancelReason>>::sse_encode(self.cancel_reason, serializer);
     }
 }
 

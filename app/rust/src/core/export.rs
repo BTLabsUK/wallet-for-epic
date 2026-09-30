@@ -467,6 +467,7 @@ mod tests {
             status_detail: None,
             releasable: false,
             finalized_at_unix: None,
+            cancel_reason: None,
         }
     }
 

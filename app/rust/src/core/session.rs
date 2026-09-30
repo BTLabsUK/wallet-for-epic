@@ -38,8 +38,8 @@ use super::meta::{ContactRec, MetaStore};
 use super::node::EpicNodeClient;
 use super::{export, mnemonic, slate, stored_tx};
 use crate::api::types::{
-    Contact, FeeEstimate, ImportReport, ListenerEvent, NodeTip, ScanProgress, Slate, TxEntry,
-    TxKind, TxSource, TxStatus, WalletConfig, WalletSummary,
+    CancelReason, Contact, FeeEstimate, ImportReport, ListenerEvent, NodeTip, ScanProgress, Slate,
+    TxEntry, TxKind, TxSource, TxStatus, WalletConfig, WalletSummary,
 };
 
 type Provider = DefaultLCProvider<'static, EpicNodeClient, ExtKeychain>;
@@ -800,7 +800,7 @@ impl Session {
                 }
             }
         }
-        // A retry of an earlier miss needs the tip, to see whether it moved.
+        // A retry of an earlier miss needs the tip, to see whether a day of blocks has passed.
         if tip.is_none()
             && heights
                 .iter()
@@ -822,8 +822,11 @@ impl Session {
                 Ok(Some(t)) => {
                     block_times.insert(h, t);
                 }
-                // Recorded with the tip, and asked again only once the tip has moved.
+                // Recorded with the tip, and asked again only after a day of blocks.
                 Ok(None) => {
+                    if tip.is_none() {
+                        tip = self.node.get_chain_tip().ok().map(|(t, _)| t);
+                    }
                     misses.insert(h, tip.unwrap_or(0));
                 }
                 Err(_) => break,
@@ -941,8 +944,9 @@ impl Session {
 
     /// Unlocks the outputs of a send whose transport failed, so a failed send leaves no trace.
     fn abandon(&self, s: &LibSlate) {
-        if let Err(e) = self.owner.cancel_tx(self.mask(), None, Some(s.id)) {
-            log::warn!("cancelling failed send {}: {e}", s.id);
+        match self.owner.cancel_tx(self.mask(), None, Some(s.id)) {
+            Ok(()) => record_cancel(&self.meta, &s.id.to_string(), CancelReason::Failed),
+            Err(e) => log::warn!("cancelling failed send {}: {e}", s.id),
         }
     }
 
@@ -1111,7 +1115,7 @@ impl Session {
         self.owner
             .verify_slate_messages(self.mask(), response)
             .map_err(|e| CoreError::InvalidSlate(e.to_string()))?;
-        answer_in_time(&self.owner, self.mask(), &self.wallet, response)?;
+        answer_in_time(&self.owner, self.mask(), &self.wallet, &self.meta, response)?;
         let finalized = self.owner.finalize_tx(self.mask(), response)?;
         record_finalized(&self.meta, &finalized, wallet_height(&self.wallet));
         Ok(finalized)
@@ -1219,11 +1223,23 @@ impl Session {
             );
         }
         self.owner.cancel_tx(self.mask(), Some(id), None)?;
+        if let Some(slate) = &row.tx.slate_id {
+            record_cancel(&self.meta, slate, CancelReason::Release);
+        }
         Ok(())
     }
 
     pub(crate) fn cancel_transaction(&self, tx_id: u32) -> CoreResult<()> {
         self.owner.cancel_tx(self.mask(), Some(tx_id), None)?;
+        let slate = self
+            .owner
+            .retrieve_txs(self.mask(), false, Some(tx_id), None, None, None, None)
+            .ok()
+            .and_then(|r| r.txs.into_iter().next())
+            .and_then(|t| t.tx_slate_id);
+        if let Some(slate) = slate {
+            record_cancel(&self.meta, &slate.to_string(), CancelReason::User);
+        }
         Ok(())
     }
 
@@ -1348,6 +1364,7 @@ pub(crate) fn answer_in_time(
     owner: &OwnerApi,
     mask: Option<&SecretKey>,
     wallet: &WalletHandle,
+    meta: &MetaStore,
     slate: &LibSlate,
 ) -> CoreResult<()> {
     let entries = owner
@@ -1379,14 +1396,39 @@ pub(crate) fn answer_in_time(
     if !too_late(tip, cutoff) {
         return Ok(());
     }
-    if let Err(e) = owner.cancel_tx(mask, None, Some(slate.id)) {
-        // A refresh inside cancel_tx may already have cancelled it at the cutoff.
-        log::info!("cancelling expired payment {}: {e}", slate.id);
-    }
+    record_cancel(meta, &slate.id.to_string(), CancelReason::LateAnswer);
+    let cancelled = match owner.cancel_tx(mask, None, Some(slate.id)) {
+        Ok(()) => true,
+        Err(e) => {
+            // A refresh inside cancel_tx may already have cancelled it at the cutoff; if not,
+            // the send is still locked, and the next refresh past the cutoff cancels it.
+            log::info!("cancelling expired payment {}: {e}", slate.id);
+            owner
+                .retrieve_txs(mask, false, None, Some(slate.id), None, None, None)
+                .map(|r| {
+                    !r.txs
+                        .iter()
+                        .any(|t| t.tx_type == TxLogEntryType::TxSentCreated && !t.confirmed)
+                })
+                .unwrap_or(false)
+        }
+    };
+    let funds = if cancelled {
+        "and the funds are unlocked"
+    } else {
+        "and the funds unlock at the next refresh"
+    };
     Err(CoreError::Expired(format!(
         "The answer to this payment came too late (block {tip}, limit {cutoff}). The payment was \
-         cancelled: nothing was sent, and the funds are unlocked."
+         cancelled: nothing was sent, {funds}."
     )))
+}
+
+/// Records why this wallet cancelled the send with `slate_id`.
+pub(crate) fn record_cancel(meta: &MetaStore, slate_id: &str, reason: CancelReason) {
+    meta.annotate(slate_id, |a| {
+        a.cancelled_by = Some(history::cancel_reason_name(reason).to_owned())
+    });
 }
 
 /// Records how a post of `slate_id` went. A JSON-RPC error from the node (`BadRequest`) is a
@@ -1463,6 +1505,7 @@ fn minimal_entry(slate: &LibSlate, post_error: Option<LibWalletError>) -> TxEntr
             .map(|e| format!("The network has not taken this payment yet: {e}")),
         releasable: false,
         finalized_at_unix: Some(now),
+        cancel_reason: None,
     }
 }
 
@@ -1477,7 +1520,19 @@ fn contact_to_api(c: ContactRec) -> Contact {
 
 #[cfg(test)]
 mod tests {
-    use super::{http_base_url, record_post, LibWalletError, MetaStore};
+    use super::{http_base_url, record_cancel, record_post, LibWalletError, MetaStore};
+    use crate::api::types::CancelReason;
+
+    #[test]
+    fn a_cancel_records_its_reason_by_name() {
+        let dir = tempfile::tempdir().unwrap();
+        let meta = MetaStore::open(dir.path().to_str().unwrap()).unwrap();
+        record_cancel(&meta, "s1", CancelReason::LateAnswer);
+        assert_eq!(
+            meta.snapshot().annotations["s1"].cancelled_by.as_deref(),
+            Some("late_answer")
+        );
+    }
 
     #[test]
     fn answers_within_the_margin_of_the_cutoff_are_too_late() {

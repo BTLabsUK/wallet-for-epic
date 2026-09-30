@@ -23,7 +23,7 @@ use epic_wallet_libwallet::{OutputData, OutputStatus, TxLogEntry, TxLogEntryType
 use epic_wallet_util::epic_util::to_hex;
 
 use super::meta::{Meta, Record};
-use crate::api::types::{TxEntry, TxKind, TxSource, TxStatus};
+use crate::api::types::{CancelReason, TxEntry, TxKind, TxSource, TxStatus};
 
 /// `public_addr` epic-wallet writes on rows a scan rebuilt (`scan.rs:241`).
 pub(crate) const RESTORE_ADDR: &str = "Restore";
@@ -83,6 +83,27 @@ fn kind_from(s: &str) -> TxKind {
         "SentCancelled" => TxKind::SentCancelled,
         _ => TxKind::Received,
     }
+}
+
+pub(crate) fn cancel_reason_name(c: CancelReason) -> &'static str {
+    match c {
+        CancelReason::User => "user",
+        CancelReason::Release => "release",
+        CancelReason::Expiry => "expiry",
+        CancelReason::LateAnswer => "late_answer",
+        CancelReason::Failed => "failed",
+    }
+}
+
+pub(crate) fn cancel_reason_from(s: &str) -> Option<CancelReason> {
+    Some(match s {
+        "user" => CancelReason::User,
+        "release" => CancelReason::Release,
+        "expiry" => CancelReason::Expiry,
+        "late_answer" => CancelReason::LateAnswer,
+        "failed" => CancelReason::Failed,
+        _ => return None,
+    })
 }
 
 pub(crate) fn status_name(s: TxStatus) -> &'static str {
@@ -381,6 +402,18 @@ fn from_live(live: &LiveTx, meta: &Meta) -> MergedTx {
         status_detail,
         releasable,
         finalized_at_unix: ann.and_then(|a| a.finalized_at_unix),
+        cancel_reason: if status == TxStatus::Cancelled {
+            ann.and_then(|a| a.cancelled_by.as_deref())
+                .and_then(cancel_reason_from)
+                // Not cancelled by this core, and the send had a TTL: epic-wallet's refresh
+                // cancelled it at the cutoff. Every cancel the core makes records its reason.
+                .or_else(|| {
+                    (is_send(&t.tx_type) && t.ttl_cutoff_height.is_some())
+                        .then_some(CancelReason::Expiry)
+                })
+        } else {
+            None
+        },
     };
     MergedTx {
         release_check_after,
@@ -427,6 +460,11 @@ fn from_record(r: &Record) -> MergedTx {
         status_detail: some_str(&r.status_detail),
         releasable: false,
         finalized_at_unix: None,
+        cancel_reason: if status == TxStatus::Cancelled {
+            r.cancel_reason.as_deref().and_then(cancel_reason_from)
+        } else {
+            None
+        },
     };
     MergedTx {
         release_check_after: None,
@@ -757,6 +795,7 @@ pub(crate) fn to_record(m: &MergedTx) -> Record {
         messages: m.messages.clone(),
         payment_proof: m.payment_proof.clone(),
         status_detail: tx.status_detail.clone(),
+        cancel_reason: tx.cancel_reason.map(|c| cancel_reason_name(c).to_owned()),
         // The file's own `exported_at_unix` stands for every record in it.
         exported_at_unix: None,
     }
@@ -963,6 +1002,53 @@ pub(crate) mod tests {
         assert_eq!(m.key, "c:c1");
         assert_eq!(m.block_time_unix, Some(1_700_000_000));
         assert_eq!(m.time_unix, 1_700_000_000);
+    }
+
+    #[test]
+    fn cancel_reasons_come_from_the_annotation_or_the_ttl() {
+        let cancelled = |id: u32, ttl: Option<u64>, t: TxLogEntryType| {
+            let mut e = entry(id, t);
+            e.tx_slate_id = Some(uuid::Uuid::from_u128(id as u128));
+            e.ttl_cutoff_height = ttl;
+            live(e, &[], None)
+        };
+        let rows = vec![
+            cancelled(1, Some(500), TxLogEntryType::TxSentCancelled),
+            cancelled(2, Some(500), TxLogEntryType::TxSentCancelled),
+            cancelled(3, None, TxLogEntryType::TxSentCancelled),
+            cancelled(4, Some(500), TxLogEntryType::TxReceivedCancelled),
+            cancelled(5, None, TxLogEntryType::TxSent),
+        ];
+        let mut meta = Meta::default();
+        let slate = |id: u128| uuid::Uuid::from_u128(id).to_string();
+        for (id, why) in [(1, "late_answer"), (3, "user"), (5, "user")] {
+            meta.annotations.entry(slate(id)).or_default().cancelled_by = Some(why.into());
+        }
+        let merged = merge(&rows, &meta);
+        let row = |i: u32| merged.iter().find(|m| m.tx.id == Some(i)).unwrap();
+        let reason = |i: u32| row(i).tx.cancel_reason;
+        assert_eq!(reason(1), Some(CancelReason::LateAnswer), "recorded wins");
+        assert_eq!(
+            reason(2),
+            Some(CancelReason::Expiry),
+            "TTL, nothing recorded"
+        );
+        assert_eq!(reason(3), Some(CancelReason::User));
+        assert_eq!(reason(4), None, "a cancelled receive has no send reason");
+        assert_eq!(reason(5), None, "not cancelled");
+
+        // An export keeps the reason, and an import shows it again.
+        let back = from_record(&to_record(row(1)));
+        assert_eq!(back.tx.cancel_reason, Some(CancelReason::LateAnswer));
+        for c in [
+            CancelReason::User,
+            CancelReason::Release,
+            CancelReason::Expiry,
+            CancelReason::LateAnswer,
+            CancelReason::Failed,
+        ] {
+            assert_eq!(cancel_reason_from(cancel_reason_name(c)), Some(c));
+        }
     }
 
     fn record(slate: Option<&str>, kernel: Option<&str>, commits: &[&str]) -> Record {

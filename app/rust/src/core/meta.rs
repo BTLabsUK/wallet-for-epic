@@ -16,6 +16,8 @@ use std::sync::Mutex;
 
 use serde::{Deserialize, Serialize};
 
+use super::history::BLOCKS_PER_DAY;
+
 use super::error::{CoreError, CoreResult};
 
 pub(crate) const META_FILE: &str = "wfe_meta.json";
@@ -56,6 +58,10 @@ pub(crate) struct Annotation {
     /// The node answered a post with a refusal at least once (not a transport failure).
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     pub post_refused: bool,
+    /// Why this wallet cancelled it: `user`, `release`, `late_answer`, `failed`. None when
+    /// epic-wallet cancelled it on its own (the TTL) or before reasons were recorded.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub cancelled_by: Option<String>,
     /// Tip height at which a lookup found the final kernel nowhere on chain.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub kernel_absent_at: Option<u64>,
@@ -106,6 +112,9 @@ pub(crate) struct Record {
     /// Set when the core settled a pending record against the chain.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub status_detail: Option<String>,
+    /// `CancelReason` name, for a cancelled record.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub cancel_reason: Option<String>,
     /// `exported_at_unix` of the file this record's status came from. Set on import.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub exported_at_unix: Option<i64>,
@@ -159,6 +168,7 @@ impl Record {
             self.confirmed = other.confirmed;
             self.kind.clone_from(&other.kind);
             self.status_detail.clone_from(&other.status_detail);
+            self.cancel_reason.clone_from(&other.cancel_reason);
             self.amount_credited = other.amount_credited;
             self.amount_debited = other.amount_debited;
             self.num_inputs = other.num_inputs;
@@ -205,8 +215,8 @@ pub(crate) struct Meta {
     /// Kernel excess (hex) to the height of the block that holds it.
     #[serde(default)]
     pub kernel_heights: BTreeMap<String, u64>,
-    /// Heights the node had no header for, with the node's tip at the time. Asked again once
-    /// the tip has moved past it.
+    /// Heights the node had no header for, with the node's tip at the time. Asked again after
+    /// a day of blocks past that tip.
     #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
     pub block_time_misses: BTreeMap<u64, u64>,
     /// The node URL the caches above came from. A different node starts them afresh.
@@ -216,14 +226,16 @@ pub(crate) struct Meta {
 
 impl Meta {
     /// Whether to ask the node for the block time at `height`, with `tip` the node's tip if
-    /// known. A cached time is final. A miss is asked again only once the tip has moved past
-    /// the tip it was recorded at. A `0` from older files counts as a miss at tip 0.
+    /// known. A cached time is final. A miss is asked again only after a day of blocks past the
+    /// tip it was recorded at, so a node that lacks old headers is not asked on every refresh.
+    /// A `0` from older files counts as a miss at tip 0.
     pub(crate) fn wants_block_time(&self, height: u64, tip: Option<u64>) -> bool {
+        let retry_after = |at: u64| tip.is_some_and(|t| t >= at.saturating_add(BLOCKS_PER_DAY));
         match self.block_times.get(&height) {
             Some(t) if *t > 0 => false,
-            Some(_) => tip.is_some_and(|t| t > 0),
+            Some(_) => retry_after(0),
             None => match self.block_time_misses.get(&height) {
-                Some(at) => tip.is_some_and(|t| t > *at),
+                Some(at) => retry_after(*at),
                 None => true,
             },
         }
@@ -297,7 +309,7 @@ pub(crate) struct MetaStore {
 
 impl MetaStore {
     /// Loads `<data_dir>/wfe_meta.json`, or starts empty when there is none. A file that cannot be
-    /// parsed is moved aside to `wfe_meta.json.corrupt` rather than overwritten, so notes are
+    /// parsed is moved aside to `wfe_meta.json.corrupt-<ms>` rather than overwritten, so notes are
     /// never destroyed silently, and the wallet still opens.
     pub(crate) fn open(data_dir: &str) -> CoreResult<MetaStore> {
         let path = Path::new(data_dir).join(META_FILE);
@@ -431,7 +443,7 @@ mod tests {
     }
 
     #[test]
-    fn a_missing_block_time_is_asked_again_once_the_tip_moves() {
+    fn a_missing_block_time_is_asked_again_after_a_day_of_blocks() {
         let mut m = Meta::default();
         assert!(m.wants_block_time(5, None), "never asked");
         m.block_times.insert(5, 1_700_000_000);
@@ -442,9 +454,17 @@ mod tests {
             !m.wants_block_time(6, Some(100)),
             "same tip: the node still lacks it"
         );
-        assert!(m.wants_block_time(6, Some(101)), "the tip moved");
-        m.block_times.insert(7, 0); // an older file's miss
-        assert!(m.wants_block_time(7, Some(1)));
+        assert!(
+            !m.wants_block_time(6, Some(99 + BLOCKS_PER_DAY)),
+            "less than a day of blocks"
+        );
+        assert!(
+            m.wants_block_time(6, Some(100 + BLOCKS_PER_DAY)),
+            "a day later"
+        );
+        m.block_times.insert(7, 0); // an older file's miss, at tip 0
+        assert!(!m.wants_block_time(7, Some(1)));
+        assert!(m.wants_block_time(7, Some(BLOCKS_PER_DAY)));
     }
 
     #[test]

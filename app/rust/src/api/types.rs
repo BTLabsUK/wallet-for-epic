@@ -119,6 +119,25 @@ pub struct TxEntry {
     pub releasable: bool,
     /// When this wallet finalized the send (unix seconds), if it did.
     pub finalized_at_unix: Option<i64>,
+    /// For a cancelled payment: why, when known.
+    pub cancel_reason: Option<CancelReason>,
+}
+
+/// Why a payment was cancelled.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum CancelReason {
+    /// The user cancelled it.
+    User,
+    /// The user released a finished send the network refused (`release_stuck_send`).
+    Release,
+    /// Its 14-day limit passed without an answer; epic-wallet's refresh cancelled it.
+    Expiry,
+    /// The recipient's answer came at or too near the 14-day limit, so it was cancelled
+    /// instead of finished.
+    LateAnswer,
+    /// The send failed before it reached the recipient (the transport failed), and the core
+    /// cancelled it at once.
+    Failed,
 }
 
 /// An address book entry. An empty `id` in `save_contact` creates a new one.
@@ -226,6 +245,11 @@ pub enum ListenerEventKind {
     /// The answer to one of our sends came at or too near its 14-day limit. The send was
     /// cancelled, not finished: nothing was sent and the funds are unlocked. `amount` is set.
     Expired,
+    /// The answer to one of our sends arrived, but the node could not be reached to check its
+    /// 14-day limit, even after retrying for about 30 s. Nothing was finished yet; the mailbox
+    /// server delivers it again and it finishes once the node answers. Sent once per slate
+    /// per listener run.
+    Delayed,
     /// The listener ended; no more events follow.
     Stopped,
 }
@@ -235,8 +259,8 @@ pub struct ListenerEvent {
     pub kind: ListenerEventKind,
     pub slate_id: Option<String>,
     pub message: String,
-    /// For `Received` and `Finalized`: the slate's amount (what arrived, or what we sent),
-    /// in the smallest unit. `None` for every other kind.
+    /// For `Received`, `Finalized`, `Expired` and `Delayed`: the slate's amount (what arrived,
+    /// or what we sent), in the smallest unit. `None` for every other kind.
     pub amount: Option<u64>,
 }
 
