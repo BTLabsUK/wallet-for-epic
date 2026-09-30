@@ -78,7 +78,6 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
   Widget build(BuildContext context) {
     final setup = ref.watch(walletSetupProvider);
     final config = ref.watch(walletConfigProvider);
-    final theme = Theme.of(context);
     final network = config == null ? '' : networkSuffix(config.chain);
     final waiting = _answer != null && _error == null;
 
@@ -93,20 +92,10 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
           ),
         ],
       ),
-      body: ScreenBody(
+      body: _CenteredBody(
         children: [
           if (_answer == null) ...[
-            PinSetupView(
-              onDone: _finish,
-              intro: Padding(
-                padding: const EdgeInsets.only(bottom: 16),
-                child: Text(
-                  'Your new Epic Cash wallet is being created on this device. '
-                  'Meanwhile, protect it with a PIN.',
-                  style: theme.textTheme.bodyLarge,
-                ),
-              ),
-            ),
+            PinSetupView(onDone: _finish),
             const SizedBox(height: 16),
             _CreationStatus(setup: setup),
             const SizedBox(height: 24),
@@ -116,7 +105,6 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
               onPressed: () => _leave(const RestoreScreen()),
             ),
           ] else if (waiting) ...[
-            const SizedBox(height: 48),
             const Center(child: CircularProgressIndicator()),
             const SizedBox(height: 16),
             Text(
@@ -152,6 +140,7 @@ class _CreationStatus extends StatelessWidget {
     return Semantics(
       liveRegion: true,
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           if (setup.session == null)
             const SizedBox.square(
@@ -166,6 +155,40 @@ class _CreationStatus extends StatelessWidget {
             style: style,
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// Centres its children vertically on the screen, and scrolls when they do not fit.
+class _CenteredBody extends StatelessWidget {
+  const _CenteredBody({required this.children});
+
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: LayoutBuilder(
+        builder: (context, constraints) => SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: ConstrainedBox(
+            // The padding is inside the scroll view, so the column fills what is left.
+            constraints: BoxConstraints(
+              minHeight: (constraints.maxHeight - 32).clamp(0, double.infinity),
+            ),
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 600),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: children,
+                ),
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }

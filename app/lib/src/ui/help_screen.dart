@@ -33,7 +33,7 @@ final Map<HelpTopic, _Answer> _answers = {
     'Why does my payment say "Waiting for recipient"?',
     'An Epic Cash payment is built by both wallets together: yours starts it, '
         'the recipient\'s wallet accepts it, then yours finishes it. Epic\'s '
-        'mailbox service (epicbox) holds your payment for about a week, until '
+        'epicbox service holds your payment for about a week, until '
         'the recipient\'s wallet comes online and answers. Until then the '
         'amount stays locked in your wallet, so you cannot spend it twice. If '
         'the payment is not completed, your wallet cancels it by itself after '
@@ -53,9 +53,9 @@ final Map<HelpTopic, _Answer> _answers = {
   HelpTopic.receiving: const _Answer(
     'Why must I keep the app open to receive?',
     'Your wallet has to accept every incoming payment, and it can only do that '
-        'while the app is open and connected to the mailbox. A payment sent while '
-        'the app is closed waits in the mailbox for about a week and arrives the '
-        'next time you unlock. After that the mailbox deletes it; if the sender '
+        'while the app is open and connected to epicbox. A payment sent while '
+        'the app is closed waits in epicbox for about a week and arrives the '
+        'next time you unlock. After that epicbox deletes it; if the sender '
         'uses this app, their wallet cancels it by itself after $sendTtlDays '
         'days, and they can send it again. Once your wallet accepts a payment, the sender\'s wallet must '
         'finish it; until then it shows as Waiting for sender.',
@@ -81,9 +81,9 @@ final Map<HelpTopic, _Answer> _answers = {
   ),
   HelpTopic.addressChanges: const _Answer(
     'Does my address ever change?',
-    'Your address is made from your recovery phrase and the mailbox server you '
+    'Your address is made from your recovery phrase and the epicbox server you '
         'use, and it ends in @ and that server\'s name. It stays the same as long '
-        'as you keep the same mailbox server. If you pick another one in network '
+        'as you keep the same epicbox server. If you pick another one in network '
         'settings, your address changes, so give the new one to people who pay '
         'you.',
   ),
@@ -113,7 +113,7 @@ final Map<HelpTopic, _Answer> _answers = {
     'Are there other ways to send?',
     'For advanced users. If the recipient runs a wallet that listens on the '
         'internet, paste its address starting with http:// or https:// as the '
-        'recipient, and the payment goes straight to it. Without the mailbox, '
+        'recipient, and the payment goes straight to it. Without epicbox, '
         'use "Send by transaction file" under "Other ways to send": you share a '
         'file, the recipient accepts it and returns a .response file, and you '
         'open that file to finish.',

@@ -271,6 +271,7 @@ class WalletVault {
       'failed',
       'lockedUntil',
       'backedUp',
+      'backupCardDismissed', // home's recovery phrase card (home_screen.dart)
     ]) {
       await store.delete(_key(chain, name));
     }

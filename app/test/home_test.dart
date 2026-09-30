@@ -182,6 +182,31 @@ class _EnrichingSession extends FakeWalletSession {
   }
 }
 
+/// A session whose refresh stops at 40% until [gate] completes, then reports [refreshed].
+class _SlowRefreshSession extends FakeWalletSession {
+  _SlowRefreshSession({required this.refreshed})
+    : super(summary: _summary(), transactions: _transactions());
+
+  final WalletSummary refreshed;
+  Completer<void> gate = Completer<void>();
+
+  @override
+  Stream<RefreshProgress> refresh({
+    required BigInt minimumConfirmations,
+  }) async* {
+    refreshCalls++;
+    yield const RefreshProgress(percent: 40, message: 'Scanning the chain');
+    await gate.future;
+    final error = refreshError;
+    if (error != null) throw error;
+    yield RefreshProgress(
+      percent: 100,
+      message: 'Up to date',
+      summary: refreshed,
+    );
+  }
+}
+
 /// Pushes on demand, as FCM delivers them in the foreground.
 class _FakePush implements PushPlatform {
   final foregroundMessages = StreamController<RemoteMessage>.broadcast();
@@ -535,13 +560,7 @@ void main() {
 
       expect(find.text('12.5 EPIC'), findsOneWidget);
       expect(find.text('≈ 6.25 USD'), findsOneWidget);
-      expect(
-        find.text(
-          'Up to date. Connecting to the mailbox '
-          'to receive payments…',
-        ),
-        findsOneWidget,
-      );
+      expect(find.text('Up to date. Connecting to epicbox…'), findsOneWidget);
       expect(find.text('2 EPIC not spendable yet'), findsOneWidget);
       // The height is only in the tooltip.
       expect(find.byTooltip('Synced at block 2,500,000'), findsOneWidget);
@@ -906,7 +925,7 @@ void main() {
           ),
           null,
         ),
-        'The mailbox server reported a problem. Retrying.',
+        'The epicbox server reported a problem. Retrying.',
       );
     });
 
@@ -970,18 +989,123 @@ void main() {
         );
       await tester.pumpAndSettle();
       expect(
-        find.textContaining('Mailbox offline, reconnecting.'),
+        find.textContaining('Epicbox offline, reconnecting.'),
         findsOneWidget,
       );
       expect(find.textContaining('connection reset'), findsNothing);
     });
   });
 
+  group('user-1', () {
+    testWidgets('home shows the local balance at once, then the synced one', (
+      tester,
+    ) async {
+      final session = _SlowRefreshSession(
+        refreshed: _summary(spendable: _epic(20)),
+      );
+      final h = _Harness(session: session);
+      await h.pump(tester);
+      // Local figures while the refresh against the node runs, with its progress.
+      expect(find.text('12.5 EPIC'), findsOneWidget);
+      expect(find.textContaining('Syncing… 40%'), findsOneWidget);
+      final syncBar = find.byWidgetPredicate(
+        (w) => w is LinearProgressIndicator && w.semanticsLabel == 'Syncing',
+      );
+      expect(tester.widget<LinearProgressIndicator>(syncBar).value, 0.4);
+      expect(find.byTooltip('Refresh'), findsOneWidget);
+      expect(
+        tester
+            .widget<IconButton>(
+              find.ancestor(
+                of: find.byIcon(Icons.refresh),
+                matching: find.byType(IconButton),
+              ),
+            )
+            .onPressed,
+        isNull,
+      );
+
+      session.gate.complete();
+      await tester.pumpAndSettle();
+      expect(find.text('20 EPIC'), findsOneWidget);
+      expect(find.textContaining('Syncing'), findsNothing);
+      expect(syncBar, findsNothing);
+      expect(session.refreshCalls, 1);
+    });
+
+    testWidgets('a failed background refresh keeps the local balance', (
+      tester,
+    ) async {
+      final session = _SlowRefreshSession(refreshed: _summary())
+        ..refreshError = const WalletError(
+          kind: WalletErrorKind.nodeUnreachable,
+          message: 'node down',
+        );
+      final h = _Harness(session: session);
+      await h.pump(tester);
+      session.gate.complete();
+      await tester.pumpAndSettle();
+      expect(find.text('12.5 EPIC'), findsOneWidget);
+      expect(find.byType(ErrorText), findsOneWidget);
+      expect(find.textContaining('Syncing'), findsNothing);
+    });
+
+    testWidgets('up to date and connected is all the status line says', (
+      tester,
+    ) async {
+      final h = _Harness();
+      await h.pump(tester);
+      h.session.listenerEvents.add(
+        const ListenerEvent(kind: ListenerEventKind.connected, message: 'a'),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('Up to date.'), findsOneWidget);
+      expect(find.textContaining('receive payments'), findsNothing);
+    });
+
+    testWidgets('the phrase card closes for good on this wallet', (
+      tester,
+    ) async {
+      final h = _Harness();
+      h.store.values.remove('wallet.mainnet.backedUp');
+      await h.pump(tester);
+      expect(find.text('Back up your recovery phrase.'), findsOneWidget);
+      expect(find.text('Back up'), findsOneWidget);
+
+      await _tap(tester, find.byTooltip('Dismiss'));
+      expect(find.text('Back up your recovery phrase.'), findsNothing);
+      expect(h.store.values['wallet.mainnet.backupCardDismissed'], '1');
+      // The history reminder may show now that the phrase card is gone.
+      expect(find.textContaining('not in a history backup'), findsOneWidget);
+
+      // Still closed the next time home opens.
+      await tester.pumpWidget(const SizedBox());
+      await h.pump(tester);
+      expect(find.text('Back up your recovery phrase.'), findsNothing);
+    });
+
+    testWidgets('deleting the wallet forgets the closed phrase card', (
+      tester,
+    ) async {
+      final store = MemorySecretStore()
+        ..values['wallet.mainnet.backupCardDismissed'] = '1';
+      await WalletVault(
+        store: store,
+        biometrics: MemoryBiometricStore(),
+        crypto: FakeVaultCrypto(),
+      ).forget(Chain.mainnet);
+      expect(store.values['wallet.mainnet.backupCardDismissed'], isNull);
+    });
+  });
+
   group('first run', () {
-    testWidgets('an empty wallet explains how to receive', (tester) async {
+    testWidgets('an empty wallet has one line and the way to receive', (
+      tester,
+    ) async {
       final h = _Harness(transactions: const []);
       await h.pump(tester);
-      expect(find.text('Your wallet is ready'), findsOneWidget);
+      expect(find.text('No payments yet.'), findsOneWidget);
+      expect(find.textContaining('while this app is open'), findsNothing);
       expect(find.text('See all'), findsNothing);
       await _tap(tester, find.text('Show my address'));
       expect(find.byType(ReceiveScreen), findsOneWidget);
@@ -995,11 +1119,12 @@ void main() {
       final session = _EnrichingSession();
       final h = _Harness(session: session);
       await h.pump(tester);
-      // Enrichment found the block time of the restored row: the list reloaded with it, and the
-      // balance was not asked again.
+      // The local load, then the refresh; enrichment found the block time of the restored row,
+      // so the list reloaded with it, and the balance was not asked again.
       expect(session.enrichCalls, 1);
       expect(session.summaryCalls, 1);
-      expect(session.transactionCalls, 2);
+      expect(session.refreshCalls, 1);
+      expect(session.transactionCalls, 3);
       expect(find.text('3 Aug, 08:00'), findsOneWidget);
       expect(find.text('1 Aug, 08:00'), findsNothing);
 
@@ -1008,7 +1133,8 @@ void main() {
       await tester.pump(autoRefreshInterval);
       await tester.pumpAndSettle();
       expect(session.enrichCalls, 2);
-      expect(session.summaryCalls, 2);
+      expect(session.summaryCalls, 1);
+      expect(session.refreshCalls, 2);
       expect(session.transactionCalls, loads + 1);
     });
 
@@ -1236,7 +1362,7 @@ void main() {
   });
 
   group('fix-3', () {
-    test('an old mailbox send without an expiry says it can no longer complete', () {
+    test('an old epicbox send without an expiry says it can no longer complete', () {
       TxEntry send({required Duration age, BigInt? ttl, String? to = _bob}) =>
           fakeTx(
             kind: TxKind.sent,
@@ -1247,7 +1373,7 @@ void main() {
           );
       expect(
         txExplanation(send(age: const Duration(days: 16)), _tip, now: _now),
-        'Waiting for 16 days. The mailbox deletes payments after 7 days, so '
+        'Waiting for 16 days. The epicbox deletes payments after 7 days, so '
         'this one can no longer complete. Cancel it to unlock your funds, then '
         'send again.',
       );
@@ -1799,7 +1925,7 @@ void main() {
       final h = _Harness();
       h.store.values.remove('wallet.mainnet.backedUp');
       await h.pump(tester);
-      expect(find.text('Back up your wallet'), findsOneWidget);
+      expect(find.text('Back up your recovery phrase.'), findsOneWidget);
       expect(find.text(reminder), findsNothing);
     });
 

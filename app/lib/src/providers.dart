@@ -169,13 +169,43 @@ WalletSession _requireSession(Ref ref) {
 }
 
 class HomeData {
-  const HomeData({required this.summary, required this.transactions});
+  const HomeData({
+    required this.summary,
+    required this.transactions,
+    this.syncing = false,
+    this.session,
+  });
 
   final WalletSummary summary;
   final List<TxEntry> transactions;
+
+  /// Read from the wallet's own files; the refresh against the node is still running.
+  final bool syncing;
+
+  /// The wallet these figures belong to, so another wallet's balance is never shown as its own.
+  final WalletSession? session;
+}
+
+/// Percent done of the refresh home is running against the node, or null when none runs.
+final syncProgressProvider = NotifierProvider<SyncProgressNotifier, int?>(
+  SyncProgressNotifier.new,
+);
+
+class SyncProgressNotifier extends Notifier<int?> {
+  @override
+  int? build() {
+    ref.watch(sessionProvider);
+    return null;
+  }
+
+  void report(int? percent) => state = percent;
 }
 
 /// Balances and the transaction log of the open wallet.
+///
+/// The first load reads the wallet's own files, so the balance shows at once, then refreshes
+/// against the node in the background ([HomeData.syncing]). Later loads refresh in place,
+/// keeping the figures on screen.
 final homeProvider = AsyncNotifierProvider.autoDispose<HomeNotifier, HomeData>(
   HomeNotifier.new,
 );
@@ -186,14 +216,74 @@ class HomeNotifier extends AsyncNotifier<HomeData> {
   @override
   Future<HomeData> build() async {
     final session = _requireSession(ref);
+    final shown = state.value;
+    if (shown != null && identical(shown.session, session)) {
+      return _refreshed(session);
+    }
     final summary = await session.summary(
-      refresh: true,
+      refresh: false,
       minimumConfirmations: minimumConfirmations,
     );
     final transactions = await session.transactions(refresh: false);
+    Future<void>.delayed(Duration.zero, () => _syncInBackground(session));
+    return HomeData(
+      summary: summary,
+      transactions: transactions,
+      syncing: true,
+      session: session,
+    );
+  }
+
+  /// Refreshes against the node, publishing its progress in [syncProgressProvider], and reads
+  /// the list.
+  Future<HomeData> _refreshed(WalletSession session) async {
+    final progress = ref.read(syncProgressProvider.notifier);
+    WalletSummary? summary;
+    try {
+      await for (final step in session.refresh(
+        minimumConfirmations: minimumConfirmations,
+      )) {
+        // A reload replaced this one; it shows its own progress.
+        if (!ref.mounted) throw StateError('Refresh replaced');
+        progress.report(step.percent);
+        summary = step.summary ?? summary;
+      }
+    } finally {
+      if (ref.mounted) progress.report(null);
+    }
+    if (summary == null) throw StateError('Refresh ended without balances');
+    final transactions = await session.transactions(refresh: false);
     // Heights and dates for history rows come afterwards, so they never hold up the balance.
     Future<void>.delayed(Duration.zero, () => _enrich(session));
-    return HomeData(summary: summary, transactions: transactions);
+    return HomeData(
+      summary: summary,
+      transactions: transactions,
+      session: session,
+    );
+  }
+
+  /// The refresh after a local first load. A failure keeps the local figures and shows the
+  /// error; a reload that started meanwhile replaces this one.
+  Future<void> _syncInBackground(WalletSession session) async {
+    if (!ref.mounted) return;
+    try {
+      final data = await _refreshed(session);
+      if (ref.mounted) state = AsyncData(data);
+    } catch (error, stack) {
+      if (!ref.mounted) return;
+      // The local figures stay, no longer marked as syncing, under the error.
+      final shown = state.value;
+      if (shown != null) {
+        state = AsyncData(
+          HomeData(
+            summary: shown.summary,
+            transactions: shown.transactions,
+            session: shown.session,
+          ),
+        );
+      }
+      state = AsyncError(error, stack);
+    }
   }
 
   /// Asks the core to fill in heights and times it can look up, and reloads the list (only the
@@ -208,10 +298,13 @@ class HomeNotifier extends AsyncNotifier<HomeData> {
       final current = state;
       // A reload that started meanwhile brings its own list and enriches again.
       if (!ref.mounted || current.isLoading || !current.hasValue) return;
+      final shown = current.requireValue;
       state = AsyncData(
         HomeData(
-          summary: current.requireValue.summary,
+          summary: shown.summary,
           transactions: transactions,
+          syncing: shown.syncing,
+          session: shown.session,
         ),
       );
     } catch (_) {

@@ -591,7 +591,7 @@ void main() {
       expect(find.text('Review your payment'), findsOneWidget);
       expect(
         find.text(
-          'Goes through Epic\'s mailbox service. It completes when the '
+          'Goes through epicbox. It completes when the '
           'recipient\'s wallet answers.',
         ),
         findsOneWidget,
@@ -612,13 +612,13 @@ void main() {
       expect(h.session.epicboxSends.single.amount, _epic(1.5));
       expect(h.session.notes, {'s:send-1': 'Lunch'});
       expect(find.text('Payment started: 1.5 EPIC'), findsOneWidget);
-      // Not "Sent": a mailbox payment has not gone anywhere yet.
+      // Not "Sent": an epicbox payment has not gone anywhere yet.
       expect(find.text('Sent 1.5 EPIC'), findsNothing);
       expect(
         find.text(
           'It finishes when the recipient\'s wallet answers, usually within '
           'minutes if their app is open. Keep this app open, or open it again '
-          'within a week: the mailbox keeps their answer for about that long. '
+          'within a week: epicbox keeps their answer for about that long. '
           'You can find it on the home screen and in History.',
         ),
         findsOneWidget,
@@ -843,7 +843,7 @@ void main() {
       for (var i = 0; i < 5; i++) {
         await tester.pump(const Duration(milliseconds: 100));
       }
-      final before = h.session.summaryCalls;
+      final before = h.session.refreshCalls;
 
       await tester.pageBack();
       for (var i = 0; i < 5; i++) {
@@ -854,7 +854,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);
       expect(h.session.epicboxSends, hasLength(1));
-      expect(h.session.summaryCalls, before + 1);
+      expect(h.session.refreshCalls, before + 1);
     });
 
     testWidgets('not enough funds shows before review', (tester) async {
@@ -1590,7 +1590,7 @@ void main() {
           .map((t) => (t.title as Text).data!)
           .toList();
       expect(questions, hasLength(HelpTopic.values.length));
-      const answer = 'mailbox service (epicbox) holds';
+      const answer = 'epicbox service holds';
       expect(find.textContaining(answer), findsNothing);
       await _tap(
         tester,
@@ -1649,7 +1649,7 @@ void main() {
       (
         HelpTopic.receiving,
         [
-          'waits in the mailbox for about a week',
+          'waits in epicbox for about a week',
           // Other wallets set no time limit, so it is not promised for them.
           'if the sender uses this app, their wallet cancels it by itself',
         ],
@@ -1678,10 +1678,7 @@ void main() {
         find.textContaining('a copy you kept outside the lost phone'),
         findsOneWidget,
       );
-      expect(
-        find.textContaining('mailbox service (epicbox) holds'),
-        findsNothing,
-      );
+      expect(find.textContaining('epicbox service holds'), findsNothing);
     });
 
     testWidgets('receive links to help about receiving', (tester) async {
@@ -1705,44 +1702,47 @@ void main() {
       await _tap(tester, find.text('Review'));
       await _tap(tester, find.text('Send 1 EPIC'));
       await _tap(tester, find.widgetWithText(TextButton, 'Help'));
-      expect(
-        find.textContaining('mailbox service (epicbox) holds'),
-        findsOneWidget,
-      );
+      expect(find.textContaining('epicbox service holds'), findsOneWidget);
     });
   });
 
   group('receive', () {
-    testWidgets('QR, copy, share, listening state and the file section', (
-      tester,
-    ) async {
+    testWidgets('QR, address, copy, share, a connection dot and the file '
+        'section, with no explanations', (tester) async {
       final h = _Harness();
       await h.pump(tester, const ReceiveScreen());
       expect(find.text(h.session.address), findsOneWidget);
       expect(find.bySemanticsLabel('QR code of your address'), findsOneWidget);
-      const when =
-          'Payments arrive while the app is open; ones sent while it is '
-          'closed arrive the next time you unlock, if that is within about '
-          'a week.';
-      expect(
-        find.text(
-          'Connecting to the mailbox server epicbox.epiccash.com… $when',
-        ),
-        findsOneWidget,
-      );
-      // One sentence about when payments arrive, not a second one below it.
-      expect(
-        find.textContaining('arrive the next time you unlock'),
-        findsOneWidget,
-      );
+      expect(find.text('Copy'), findsOneWidget);
+      // The connection state is a dot, named only in its tooltip.
+      expect(find.byTooltip('Connecting to epicbox'), findsOneWidget);
       h.connectListener();
       await tester.pumpAndSettle();
-      expect(
-        find.text(
-          'Connected to the mailbox server epicbox.epiccash.com. $when',
+      expect(find.byTooltip('Epicbox connected'), findsOneWidget);
+      expect(find.byTooltip('Connecting to epicbox'), findsNothing);
+      h.session.listenerEvents.add(
+        const ListenerEvent(
+          kind: ListenerEventKind.disconnected,
+          message: 'timeout',
         ),
-        findsOneWidget,
       );
+      await tester.pumpAndSettle();
+      expect(find.byTooltip('Epicbox offline'), findsOneWidget);
+      h.connectListener();
+      await tester.pumpAndSettle();
+      // Only the address and the button labels: no sentences.
+      final texts = tester
+          .widgetList<Text>(
+            find.descendant(
+              of: find.byType(ScreenBody),
+              matching: find.byType(Text),
+            ),
+          )
+          .map((t) => t.data ?? t.textSpan?.toPlainText() ?? '')
+          .toSet();
+      expect(texts, {'Copy', 'Share', 'Receive a transaction file'});
+      expect(find.textContaining('arrive'), findsNothing);
+      expect(find.textContaining('epicbox server'), findsNothing);
 
       await _tap(tester, find.text('Share'));
       expect(h.files.sharedTexts, [h.session.address]);

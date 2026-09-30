@@ -32,11 +32,17 @@ final sharedFilesCleanupProvider = Provider<Future<void> Function()>(
   (ref) => clearSharedFiles,
 );
 
-/// Under the payment notifications switch. No mailbox server registers push tokens yet
-/// (`push.dart`), so it says so instead of naming one.
-const String pushNotificationsHint =
-    'Delivered by Google Firebase. No mailbox server supports it yet. You '
-    'still need to open the app to accept a payment.';
+/// Under the payment notifications switch.
+const String pushNotificationsHint = 'Delivered by Google Firebase.';
+
+/// Said when payment notifications are turned on. No epicbox server registers push tokens
+/// yet (`push.dart`), so a notification never arrives by itself today.
+const String pushNotificationsOnMessage =
+    'No epicbox server sends them yet. Open the app to receive a payment.';
+
+/// Said when prices are turned on.
+const String pricesOnMessage =
+    'Prices come from CoinGecko, which sees your IP address.';
 
 /// Under the payment notifications switch after the system denied notification permission.
 const String pushBlockedMessage =
@@ -92,7 +98,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
   void _say(String message) {
     ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(message)));
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text(message)));
   }
 
   Future<void> _push(Widget screen) =>
@@ -165,6 +172,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     if (mode != null) await _settings.setThemeMode(mode);
   }
 
+  Future<void> _setShowFiat(bool on) async {
+    await _settings.setShowFiat(on);
+    if (on && mounted) _say(pricesOnMessage);
+  }
+
   // Security.
 
   Future<void> _pickAutoLock(AppSettings s) async {
@@ -185,8 +197,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
   Future<void> _setPushNotifications(bool on) async {
     await _settings.setPushNotifications(on);
-    if (!on && mounted) {
+    if (!mounted) return;
+    if (!on) {
       _say('Notifications stop the next time the app starts.');
+    } else {
+      _say(pushNotificationsOnMessage);
     }
   }
 
@@ -332,11 +347,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 SwitchListTile(
                   secondary: const Icon(Icons.show_chart),
                   title: const Text('Show prices'),
-                  subtitle: const Text(
-                    'Prices come from CoinGecko, which sees your IP address.',
-                  ),
                   value: s.showFiat,
-                  onChanged: _settings.setShowFiat,
+                  onChanged: _setShowFiat,
                 ),
                 SwitchListTile(
                   secondary: const Icon(Icons.visibility_off),
@@ -383,9 +395,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   ListTile(
                     leading: const Icon(Icons.key),
                     title: const Text('Back up recovery phrase'),
-                    subtitle: const Text(
-                      'The words that restore your wallet and funds',
-                    ),
                     onTap: _showPhrase,
                   ),
                   ListTile(
@@ -397,10 +406,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   ListTile(
                     leading: const Icon(Icons.upload_file),
                     title: const Text('Export history backup'),
-                    subtitle: const Text(
-                      'Notes, recipients and fees. It does not hold your '
-                      'funds; your recovery phrase does.',
-                    ),
                     onTap: _busy
                         ? null
                         : () => _run(() => exportHistoryBackup(context, ref)),
@@ -408,9 +413,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   ListTile(
                     leading: const Icon(Icons.table_view),
                     title: const Text('Export CSV'),
-                    subtitle: const Text(
-                      'A readable spreadsheet. Not encrypted.',
-                    ),
                     onTap: _busy
                         ? null
                         : () => _run(() => exportHistoryCsv(context, ref)),
@@ -418,9 +420,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   ListTile(
                     leading: const Icon(Icons.download),
                     title: const Text('Import history backup'),
-                    subtitle: const Text(
-                      'Brings back notes, recipients, fees and dates.',
-                    ),
                     onTap: _busy
                         ? null
                         : () => _run(() => importHistoryBackup(context, ref)),
@@ -429,16 +428,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   ListTile(
                     leading: const Icon(Icons.contacts_outlined),
                     title: const Text('Contacts'),
-                    subtitle: const Text('Add, edit or delete people you pay'),
                     onTap: () => _push(const ContactsScreen()),
                   ),
                   ListTile(
                     leading: const Icon(Icons.sync),
                     title: const Text('Rescan the chain'),
-                    subtitle: const Text(
-                      'Find missing funds. From a date, a block height or '
-                      'the start.',
-                    ),
                     enabled: !scan.running,
                     onTap: _rescan,
                   ),
@@ -453,7 +447,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         color: Theme.of(context).colorScheme.error,
                       ),
                     ),
-                    subtitle: const Text('Removes it from this device'),
                     enabled: !_busy,
                     onTap: _deleteWallet,
                   ),
@@ -470,8 +463,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   subtitle: Text(chainName),
                 ),
                 ListTile(
-                  leading: const Icon(Icons.mail_outline),
-                  title: const Text('Mailbox server'),
+                  leading: const Icon(Icons.dns_outlined),
+                  title: const Text('Epicbox server'),
                   subtitle: Text(
                     network?.relay.label ??
                         (config == null

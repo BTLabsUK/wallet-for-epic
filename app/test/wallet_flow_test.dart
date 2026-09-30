@@ -227,7 +227,7 @@ void main() {
         service.createGate!.complete();
         await tester.pumpAndSettle();
         expect(find.text('Spendable'), findsOneWidget);
-        expect(find.text('Back up your wallet'), findsOneWidget);
+        expect(find.text('Back up your recovery phrase.'), findsOneWidget);
 
         expect(service.createdConfig?.chain, Chain.mainnet);
         expect(service.createdConfig?.dataDir, _mainnetDir);
@@ -312,7 +312,7 @@ void main() {
       expect(service.createdMnemonic == service.phrase, isTrue);
       expect(service.session.scanCalls, 1);
       expect(find.text('Spendable'), findsOneWidget);
-      expect(find.text('Back up your wallet'), findsNothing);
+      expect(find.text('Back up your recovery phrase.'), findsNothing);
       expect(
         device.store.values['wallet.mainnet.sealed'],
         startsWith('sealed|$_pin|'),
@@ -359,14 +359,14 @@ void main() {
 
     await _enter(
       tester,
-      'Other mailbox server (host or host:port)',
+      'Other epicbox server (host or host:port)',
       'not a host!',
     );
     await _tap(tester, find.byTooltip('Use this server'));
     expect(find.textContaining('Enter a host'), findsOneWidget);
     await _enter(
       tester,
-      'Other mailbox server (host or host:port)',
+      'Other epicbox server (host or host:port)',
       'relay.example.org:8443',
     );
     await _tap(tester, find.byTooltip('Use this server'));
@@ -542,7 +542,7 @@ void main() {
       expect(cancel, findsNothing);
     });
 
-    testWidgets('backup asks for the PIN, shows the phrase, checks words', (
+    testWidgets('backup asks for the PIN, shows the phrase, Done marks it', (
       tester,
     ) async {
       final service = _existing();
@@ -550,7 +550,7 @@ void main() {
       await _pumpApp(tester, service, device);
       await _unlockToHome(tester);
 
-      await tester.tap(find.text('Back up now'));
+      await tester.tap(find.text('Back up'));
       await _pumpFrames(tester);
       expect(find.text('Enter your PIN'), findsOneWidget);
       await tester.enterText(
@@ -564,30 +564,10 @@ void main() {
 
       final words = service.phrase.split(' ');
       expect(find.text('1. ${words.first}'), findsOneWidget);
-      await _tapText(tester, 'I have written them down');
-      final fields = <int>[
-        for (var i = 0; i < words.length; i++)
-          if (find.byKey(ValueKey('confirm-word-$i')).evaluate().isNotEmpty) i,
-      ];
-      expect(fields, hasLength(3));
-      for (final i in fields) {
-        await tester.enterText(
-          find.byKey(ValueKey('confirm-word-$i')),
-          'wrong',
-        );
-      }
-      await _tapText(tester, 'Confirm');
-      expect(find.textContaining('do not match'), findsOneWidget);
-      for (final i in fields) {
-        await tester.enterText(
-          find.byKey(ValueKey('confirm-word-$i')),
-          words[i],
-        );
-      }
-      await _tapText(tester, 'Confirm');
+      await _tapText(tester, 'Done');
 
-      expect(find.text('Recovery phrase confirmed'), findsOneWidget);
-      expect(find.text('Back up your wallet'), findsNothing);
+      expect(find.text('Recovery phrase backed up'), findsOneWidget);
+      expect(find.text('Back up your recovery phrase.'), findsNothing);
       expect(device.store.values['wallet.mainnet.backedUp'], '1');
     });
 
@@ -668,16 +648,17 @@ void main() {
       final service = _existing(session: session);
       await _pumpApp(tester, service, _Device(sealedMainnet: true));
       await _unlockToHome(tester);
-      expect(
-        find.textContaining('Connecting to the mailbox to receive payments'),
-        findsOneWidget,
-      );
+      expect(find.textContaining('Connecting to epicbox…'), findsOneWidget);
 
       session.listenerEvents.add(
         const ListenerEvent(kind: ListenerEventKind.connected, message: 'a'),
       );
       await tester.pumpAndSettle();
-      expect(find.textContaining('Ready to receive payments.'), findsOneWidget);
+      expect(find.textContaining('Connecting to epicbox'), findsNothing);
+      expect(
+        find.text('Not validated with node. Balances may be out of date.'),
+        findsOneWidget,
+      );
 
       session.summaryValue = FakeWalletSession.emptySummary;
       session.listenerEvents.add(

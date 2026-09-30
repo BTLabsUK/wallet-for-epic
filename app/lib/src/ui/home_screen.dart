@@ -67,9 +67,9 @@ int? paymentsNotInBackup(
   return n == 0 ? null : n;
 }
 
-/// The notice for a push that arrives while the app is open but not connected to the mailbox.
+/// The notice for a push that arrives while the app is open but not connected to epicbox.
 const String pushNotice =
-    'A payment is waiting in your mailbox. It arrives once the app is connected.';
+    'A payment is waiting in your epicbox. It arrives once the app is connected.';
 
 /// The notice for a listener event: what happened to which payment, never the raw message.
 /// [tx] is the transaction with the event's slate id, when the list has it.
@@ -109,13 +109,20 @@ String paymentNotice(
       return 'Could not reach the node. The payment will finish once it can.';
     case ListenerEventKind.error:
       return event.slateId == null
-          ? 'The mailbox server reported a problem. Retrying.'
+          ? 'The epicbox server reported a problem. Retrying.'
           : 'A payment could not be completed.';
     case ListenerEventKind.connected ||
         ListenerEventKind.disconnected ||
         ListenerEventKind.stopped:
       return event.message;
   }
+}
+
+/// Whether home's figures are on screen while a refresh against the node runs: the background
+/// refresh after a local first load, or a reload in place.
+bool _syncing(AsyncValue<HomeData> home) {
+  final data = home.value;
+  return data != null && (home.isLoading || data.syncing);
 }
 
 class HomeScreen extends ConsumerStatefulWidget {
@@ -173,7 +180,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final life = WidgetsBinding.instance.lifecycleState;
     if (life != null && life != AppLifecycleState.resumed) return;
     if (!(ModalRoute.of(context)?.isCurrent ?? true)) return;
-    if (ref.read(homeProvider).isLoading || ref.read(scanProvider).running) {
+    if (_syncing(ref.read(homeProvider)) || ref.read(scanProvider).running) {
       return;
     }
     _refresh();
@@ -189,7 +196,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   Future<void> _backup() async {
     final done = await Navigator.of(context)
         .push<bool>(MaterialPageRoute(builder: (_) => const BackupScreen()));
-    if (done == true && mounted) _showMessage('Recovery phrase confirmed');
+    if (done == true && mounted) _showMessage('Recovery phrase backed up');
   }
 
   Future<void> _open(Widget screen) async {
@@ -261,7 +268,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // A push only says a payment is waiting in the mailbox. While connected, the listener
+    // A push only says a payment is waiting in epicbox. While connected, the listener
     // collects it and gives the notice, so one payment gets one notice.
     ref.listen(pushProvider.select((s) => s.last), (_, message) {
       if (message == null || ref.read(listenerProvider).connected) return;
@@ -277,7 +284,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final home = ref.watch(homeProvider);
     final scan = ref.watch(scanProvider);
     final data = home.value;
+    final syncing = _syncing(home);
     final backedUp = ref.watch(backedUpProvider).value ?? true;
+    final backupDismissed =
+        ref.watch(backupCardDismissedProvider).value ?? false;
     final title = config == null ? 'Wallet' : chainLabel(config.chain);
     final transactions = data?.transactions ?? const <TxEntry>[];
     final scanner = ref.watch(qrScannerProvider);
@@ -289,7 +299,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           IconButton(
             tooltip: 'Refresh',
             icon: const Icon(Icons.refresh),
-            onPressed: home.isLoading || scan.running ? null : _refresh,
+            onPressed: syncing || scan.running ? null : _refresh,
           ),
           IconButton(
             tooltip: 'Lock wallet',
@@ -312,15 +322,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               child: ListView(
                 padding: const EdgeInsets.all(16),
                 children: [
-                  // A fixed slot, so the minute refresh does not shift the list.
-                  SizedBox(
-                    height: 4,
-                    child: home.isLoading
-                        ? const LinearProgressIndicator(
-                            semanticsLabel: 'Refreshing',
-                          )
-                        : null,
-                  ),
                   if (scan.running || scan.error != null)
                     Card(
                       child: Padding(
@@ -330,11 +331,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     ),
                   const _UpdateCard(),
                   // The recovery phrase guards the funds, so its card stays on top.
-                  if (!backedUp) _BackupCard(onBackup: _backup),
+                  if (!backedUp && !backupDismissed && config != null)
+                    _BackupCard(
+                      onBackup: _backup,
+                      onDismiss: () => dismissBackupCard(ref, config.chain),
+                    ),
                   if (home.hasError && !home.isLoading)
                     ErrorText(describeError(home.error!)),
                   if (data != null) BalanceHeader(summary: data.summary),
-                  _SyncLine(summary: data?.summary),
+                  _SyncLine(summary: data?.summary, syncing: syncing),
                   const SizedBox(height: 16),
                   Row(
                     children: [
@@ -375,8 +380,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   ),
                   _PendingSendsCard(transactions: transactions, open: _open),
                   // Below the actions, so the balance stays at the top. It waits until the
-                  // recovery phrase is confirmed, so the two backup cards never stack.
-                  if (backedUp && config != null)
+                  // phrase card is gone, so the two backup cards never stack.
+                  if ((backedUp || backupDismissed) && config != null)
                     _HistoryBackupCard(
                       chain: config.chain,
                       transactions: transactions,
@@ -562,40 +567,51 @@ class _HistoryBackupCard extends ConsumerWidget {
   }
 }
 
-/// Asks the user to write the recovery phrase down, until they have.
+/// Whether the recovery phrase card was closed on the open wallet. Stored beside the vault's
+/// entries for the chain (`wallet.<chain>.*`), so deleting the wallet forgets it too.
+final backupCardDismissedProvider = FutureProvider.autoDispose<bool>((
+  ref,
+) async {
+  final config = ref.watch(walletConfigProvider);
+  if (config == null) return false;
+  return await ref
+          .watch(secretStoreProvider)
+          .read(_backupCardKey(config.chain)) ==
+      '1';
+});
+
+String _backupCardKey(Chain chain) =>
+    'wallet.${chain.name}.backupCardDismissed';
+
+/// Hides the recovery phrase card on [chain]'s wallet for good.
+Future<void> dismissBackupCard(WidgetRef ref, Chain chain) async {
+  await ref.read(secretStoreProvider).write(_backupCardKey(chain), '1');
+  ref.invalidate(backupCardDismissedProvider);
+}
+
+/// Asks the user to write the recovery phrase down, until they have or close it.
 class _BackupCard extends StatelessWidget {
-  const _BackupCard({required this.onBackup});
+  const _BackupCard({required this.onBackup, required this.onDismiss});
 
   final VoidCallback onBackup;
+  final VoidCallback onDismiss;
 
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
-    return Card(
-      color: colors.tertiaryContainer,
+    return Card.outlined(
       child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+        padding: const EdgeInsets.only(left: 16),
+        child: Row(
           children: [
-            Text(
-              'Back up your wallet',
-              style: Theme.of(context).textTheme.titleSmall
-                  ?.copyWith(color: colors.onTertiaryContainer),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              'Write down your recovery phrase. It is the only way to get your '
-              'funds back if you lose this device or forget your PIN.',
-              style: TextStyle(color: colors.onTertiaryContainer),
-            ),
-            const SizedBox(height: 8),
-            Align(
-              alignment: Alignment.centerRight,
-              child: FilledButton.tonal(
-                onPressed: onBackup,
-                child: const Text('Back up now'),
-              ),
+            Icon(Icons.key_outlined, color: colors.primary),
+            const SizedBox(width: 12),
+            const Expanded(child: Text('Back up your recovery phrase.')),
+            TextButton(onPressed: onBackup, child: const Text('Back up')),
+            IconButton(
+              tooltip: 'Dismiss',
+              icon: const Icon(Icons.close),
+              onPressed: onDismiss,
             ),
           ],
         ),
@@ -718,12 +734,13 @@ class _BalanceHeaderState extends ConsumerState<BalanceHeader> {
   }
 }
 
-/// Whether the balance is current: synced at a height, not validated, or node unreachable, and
-/// whether payments can arrive.
+/// Whether the balance is current: syncing, up to date, not validated, or node unreachable, and
+/// whether epicbox is connected. A thin bar under it moves while the wallet syncs.
 class _SyncLine extends ConsumerWidget {
-  const _SyncLine({required this.summary});
+  const _SyncLine({required this.summary, required this.syncing});
 
   final WalletSummary? summary;
+  final bool syncing;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -731,9 +748,15 @@ class _SyncLine extends ConsumerWidget {
     final tip = ref.watch(nodeTipProvider);
     final listening = ref.watch(listenerProvider.select((s) => s.connected));
     final lost = ref.watch(listenerProvider.select((s) => s.lost));
+    final percent = syncing ? ref.watch(syncProgressProvider) : null;
     final summary = this.summary;
     String? height;
     final (IconData icon, String text, bool problem) = switch (tip) {
+      _ when syncing => (
+        Icons.sync,
+        percent == null ? 'Syncing…' : 'Syncing… $percent%',
+        false,
+      ),
       AsyncError() => (
         Icons.cloud_off,
         'Node unreachable. Balances may be out of date.',
@@ -758,10 +781,10 @@ class _SyncLine extends ConsumerWidget {
         ? theme.colorScheme.error
         : theme.colorScheme.onSurfaceVariant;
     final relay = listening
-        ? 'Ready to receive payments.'
+        ? null
         : lost
-        ? 'Mailbox offline, reconnecting.'
-        : 'Connecting to the mailbox to receive payments…';
+        ? 'Epicbox offline, reconnecting.'
+        : 'Connecting to epicbox…';
     final line = Semantics(
       liveRegion: problem,
       child: Padding(
@@ -773,7 +796,7 @@ class _SyncLine extends ConsumerWidget {
             const SizedBox(width: 8),
             Expanded(
               child: Text(
-                '$text $relay',
+                relay == null ? text : '$text $relay',
                 style: theme.textTheme.bodySmall?.copyWith(color: color),
               ),
             ),
@@ -781,8 +804,29 @@ class _SyncLine extends ConsumerWidget {
         ),
       ),
     );
-    // The block height means little to most people; it stays one long-press away.
-    return height == null ? line : Tooltip(message: height, child: line);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        // The block height means little to most people; it stays one long-press away.
+        if (height == null || syncing)
+          line
+        else
+          Tooltip(message: height, child: line),
+        // A fixed slot, so the bar coming and going does not shift the list.
+        Padding(
+          padding: const EdgeInsets.only(top: 6),
+          child: SizedBox(
+            height: 2,
+            child: syncing
+                ? LinearProgressIndicator(
+                    value: percent == null ? null : percent / 100,
+                    semanticsLabel: 'Syncing',
+                  )
+                : null,
+          ),
+        ),
+      ],
+    );
   }
 }
 
@@ -893,14 +937,8 @@ class _EmptyActivity extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             Text(
-              'Your wallet is ready',
+              'No payments yet.',
               style: theme.textTheme.titleMedium,
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 8),
-            const Text(
-              'To get EPIC, show your address or QR code to the sender. '
-              'Payments arrive while this app is open.',
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),

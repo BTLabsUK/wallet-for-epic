@@ -49,7 +49,7 @@ String shownEpic(BigInt atomic, {required bool hidden}) =>
 
 /// An epicbox address short enough for a list or a title: the first and last 6 characters of
 /// the key around an ellipsis, then `@relay`. With [ownServer] (the host of the wallet's own
-/// mailbox server), `@relay` is dropped when it is that server, since it tells the user nothing.
+/// epicbox server), `@relay` is dropped when it is that server, since it tells the user nothing.
 /// URLs, and keys already short, come back as they are. Show the full address wherever the user
 /// may need to check or copy it.
 String shortAddress(String address, {String? ownServer}) {
@@ -276,8 +276,8 @@ List<TxEntry> pendingFirst(Iterable<TxEntry> txs) {
 /// The node's tip height, when known.
 BigInt? tipHeight(WidgetRef ref) => ref.watch(nodeTipProvider).value?.height;
 
-/// The host of the open wallet's mailbox server, for [shortAddress].
-String? ownMailboxServer(WidgetRef ref) =>
+/// The host of the open wallet's epicbox server, for [shortAddress].
+String? ownEpicboxServer(WidgetRef ref) =>
     ref.watch(walletConfigProvider.select((c) => c?.epicboxDomain));
 
 /// The name saved for [address] in the address book, when there is one.
@@ -420,7 +420,7 @@ class TxTile extends ConsumerWidget {
     final title = txTitle(
       tx,
       contactName: name,
-      ownServer: ownMailboxServer(ref),
+      ownServer: ownEpicboxServer(ref),
     );
     final date = shortDate(localTime(tx.timeUnix), now);
     final signed = signedEpic(tx, hidden: display.hidden);
@@ -442,7 +442,7 @@ class TxTile extends ConsumerWidget {
             name ??
             (counterparty == null
                 ? null
-                : shortAddress(counterparty, ownServer: ownMailboxServer(ref))),
+                : shortAddress(counterparty, ownServer: ownEpicboxServer(ref))),
         date: date,
         status: txStatusLabel(tx, tip),
         hidden: display.hidden,

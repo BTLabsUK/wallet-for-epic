@@ -261,13 +261,9 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
                   else
                     ErrorText(test.text),
                 const SizedBox(height: 24),
-                Text('Mailbox server', style: theme.textTheme.titleMedium),
+                Text('Epicbox server', style: theme.textTheme.titleMedium),
                 const SizedBox(height: 4),
-                const Text(
-                  'Payments to and from other wallets go through Epic\'s '
-                  'mailbox service (epicbox). Your address includes the '
-                  'server you pick here.',
-                ),
+                const Text('Your address includes this server.'),
                 const SizedBox(height: 8),
                 _RelayPicker(
                   preset: preset,
@@ -284,7 +280,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
                   // The use button appears with text, so an empty field does not look confirmed.
                   onChanged: (_) => setState(() {}),
                   decoration: InputDecoration(
-                    labelText: 'Other mailbox server (host or host:port)',
+                    labelText: 'Other epicbox server (host or host:port)',
                     errorText: _relayError,
                     border: const OutlineInputBorder(),
                     suffixIcon: _customRelay.text.trim().isEmpty
@@ -299,7 +295,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
                 if (_relay != null && _relay != _savedRelay) ...[
                   const SizedBox(height: 8),
                   const ErrorText(
-                    'Changing the mailbox server changes your address. Give '
+                    'Changing the epicbox server changes your address. Give '
                     'senders the new address. Payments sent to the old one '
                     'wait on the old server until you switch back.',
                   ),

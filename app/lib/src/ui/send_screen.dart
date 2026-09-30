@@ -801,7 +801,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
           children: [
             const Text(
               'Send with a transaction file when the recipient does not use '
-              'the mailbox: you share a file, they return a response file.',
+              'epicbox: you share a file, they return a response file.',
             ),
             const SizedBox(height: 8),
             OutlinedButton(
@@ -892,7 +892,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
             const SizedBox(width: 12),
             Expanded(
               child: Text(
-                // A mailbox payment has not gone anywhere yet; "Sent" would let the
+                // An epicbox payment has not gone anywhere yet; "Sent" would let the
                 // user close the app, which stops it from finishing.
                 waiting
                     ? 'Payment started: ${epicText(sent.amount)}'
@@ -908,7 +908,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
         waiting
             ? 'It finishes when the recipient\'s wallet answers, usually '
                   'within minutes if their app is open. Keep this app open, or '
-                  'open it again within a week: the mailbox keeps their answer '
+                  'open it again within a week: epicbox keeps their answer '
                   'for about that long. You can find it on the home screen and '
                   'in History.'
             : 'The payment is on its way to the network. It shows as '
@@ -1034,7 +1034,7 @@ class _ReviewSheetState extends State<_ReviewSheet> {
             const SizedBox(height: 8),
             Text(
               widget.to.kind == RecipientKind.epicbox
-                  ? 'Goes through Epic\'s mailbox service. It completes when '
+                  ? 'Goes through epicbox. It completes when '
                         'the recipient\'s wallet answers.'
                   : 'Goes straight to the recipient\'s wallet.',
               style: theme.textTheme.bodySmall,
@@ -1059,7 +1059,7 @@ class _ReviewSheetState extends State<_ReviewSheet> {
   }
 }
 
-/// [address] with a zero-width break before `@`, so a line break keeps the mailbox server
+/// [address] with a zero-width break before `@`, so a line break keeps the epicbox server
 /// whole instead of splitting it. For display only: the break character must never be copied.
 String _breakableAddress(String address) =>
     address.replaceFirst('@', '\u200B@');

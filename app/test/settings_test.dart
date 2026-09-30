@@ -646,6 +646,7 @@ void main() {
       await _tapText(tester, 'Payment notifications');
       expect(h.push.starts, 1);
       expect(h.store.values['app.push'], 'true');
+      expect(find.text(pushNotificationsOnMessage), findsOneWidget);
       await _tapText(tester, 'Payment notifications');
       expect(h.store.values['app.push'], 'false');
       expect(
@@ -740,23 +741,48 @@ void main() {
   });
 
   group('wording', () {
-    testWidgets('says where prices come from and who sees the request', (
+    testWidgets('says where prices come from when they are turned on', (
       tester,
     ) async {
       final h = _Harness();
       await h.pump(tester);
       await h.unlock(tester);
       await h.openSettings(tester);
-      expect(
-        find.text('Prices come from CoinGecko, which sees your IP address.'),
-        findsOneWidget,
-      );
-      await _reveal(tester, find.text('Mailbox server'));
-      expect(find.textContaining('relay'), findsNothing);
-      expect(find.textContaining('Relay'), findsNothing);
+      expect(find.text(pricesOnMessage), findsNothing);
+      await _tapText(tester, 'Show prices');
+      expect(h.store.values['app.show_fiat'], 'false');
+      expect(find.text(pricesOnMessage), findsNothing);
+      await _tapText(tester, 'Show prices');
+      expect(find.text(pricesOnMessage), findsOneWidget);
     });
 
-    testWidgets('network settings call the relay a mailbox server', (
+    testWidgets('lists settings without explanations', (tester) async {
+      final h = _Harness();
+      await h.pump(tester);
+      await h.unlock(tester);
+      await h.openSettings(tester);
+      for (final title in [
+        'Back up recovery phrase',
+        'Export history backup',
+        'Export CSV',
+        'Import history backup',
+        'Contacts',
+        'Rescan the chain',
+        'Delete this wallet',
+      ]) {
+        await _reveal(tester, find.text(title));
+        final tile = tester.widget<ListTile>(
+          find.widgetWithText(ListTile, title),
+        );
+        expect(tile.subtitle, isNull, reason: title);
+      }
+      await _reveal(tester, find.text('Epicbox server'));
+      expect(find.textContaining('relay'), findsNothing);
+      expect(find.textContaining('Relay'), findsNothing);
+      expect(find.textContaining('ailbox'), findsNothing);
+    });
+
+    testWidgets('network settings call the relay an epicbox server', (
       tester,
     ) async {
       final h = _Harness();
@@ -764,7 +790,7 @@ void main() {
       await h.unlock(tester);
       await h.openSettings(tester);
       await _tapText(tester, 'Network and node');
-      expect(find.text('Mailbox server'), findsOneWidget);
+      expect(find.text('Epicbox server'), findsOneWidget);
       // An empty field offers no use button, so it does not look confirmed.
       expect(find.byTooltip('Use this server'), findsNothing);
       // _NoRelays lists nothing, so there is no health source line either.
@@ -774,16 +800,17 @@ void main() {
       );
       await _enter(
         tester,
-        'Other mailbox server (host or host:port)',
+        'Other epicbox server (host or host:port)',
         'mail.example.com',
       );
       await tester.tap(find.byTooltip('Use this server'));
       await tester.pumpAndSettle();
       expect(
-        find.textContaining('Changing the mailbox server changes your address'),
+        find.textContaining('Changing the epicbox server changes your address'),
         findsOneWidget,
       );
       expect(find.textContaining('relay'), findsNothing);
+      expect(find.textContaining('ailbox'), findsNothing);
     });
   });
 

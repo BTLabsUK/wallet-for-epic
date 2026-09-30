@@ -65,13 +65,13 @@ bool _expired(TxEntry tx, BigInt? tip) {
   return cutoff != null && tip != null && tip >= cutoff;
 }
 
-/// Whether [address] is someone's mailbox address rather than a wallet URL.
-bool _isMailboxAddress(String? address) =>
+/// Whether [address] is someone's epicbox address rather than a wallet URL.
+bool _isEpicboxAddress(String? address) =>
     address != null &&
     address.contains('@') &&
     !address.toLowerCase().startsWith('http');
 
-/// What the status means for the user, in a sentence or two. [now] lets an old mailbox send
+/// What the status means for the user, in a sentence or two. [now] lets an old epicbox send
 /// say that it can no longer complete.
 String txExplanation(TxEntry tx, BigInt? tip, {DateTime? now}) {
   final n = txConfirmations(tx, tip);
@@ -80,11 +80,11 @@ String txExplanation(TxEntry tx, BigInt? tip, {DateTime? now}) {
   final tooLong = now == null ? null : daysWaitingTooLong(tx, now);
   return switch (txPhase(tx, tip)) {
     TxPhase.waitingRecipient when tooLong != null =>
-      'Waiting for $tooLong days. The mailbox deletes payments after 7 days, '
+      'Waiting for $tooLong days. The epicbox deletes payments after 7 days, '
           'so this one can no longer complete. Cancel it to unlock your funds, '
           'then send again.',
-    TxPhase.waitingRecipient when _isMailboxAddress(tx.counterparty) =>
-      'Sent to the recipient\'s mailbox. It completes when their wallet comes '
+    TxPhase.waitingRecipient when _isEpicboxAddress(tx.counterparty) =>
+      'Sent to the recipient\'s epicbox. It completes when their wallet comes '
           'online. Your funds stay locked until then, or until you cancel.',
     TxPhase.waitingRecipient =>
       'Waiting for the recipient to answer with their transaction file. Your '
@@ -141,21 +141,21 @@ bool isStuck(TxEntry tx, DateTime now) =>
     tx.status == TxStatus.awaitingConfirmation &&
     now.difference(localTime(tx.finalizedAtUnix ?? tx.timeUnix)) >= stuckAfter;
 
-/// After this long an unanswered mailbox send can no longer complete: the mailbox keeps a
+/// After this long an unanswered epicbox send can no longer complete: the epicbox keeps a
 /// payment 7 days, and the answer can wait up to 7 more in ours.
-const Duration mailboxGiveUp = Duration(days: 14);
+const Duration epicboxGiveUp = Duration(days: 14);
 
-/// Whole days a send without an expiry has waited for its recipient past [mailboxGiveUp], or
+/// Whole days a send without an expiry has waited for its recipient past [epicboxGiveUp], or
 /// null when it has an expiry (the TTL line covers it) or is not that old. Sends made before
 /// the wallet set an expiry have none.
 int? daysWaitingTooLong(TxEntry tx, DateTime now) {
   if (tx.status != TxStatus.awaitingRecipient ||
       tx.ttlCutoffHeight != null ||
-      !_isMailboxAddress(tx.counterparty)) {
+      !_isEpicboxAddress(tx.counterparty)) {
     return null;
   }
   final waited = now.difference(localTime(tx.timeUnix));
-  return waited > mailboxGiveUp ? waited.inDays : null;
+  return waited > epicboxGiveUp ? waited.inDays : null;
 }
 
 /// When a pending transaction cancels itself, if it has an expiry.

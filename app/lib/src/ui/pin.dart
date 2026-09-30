@@ -139,10 +139,7 @@ class _PinSetupViewState extends ConsumerState<PinSetupView> {
           Text(
             widget.chooseTitle ?? 'Choose a $pinLength-digit PIN',
             style: theme.textTheme.titleMedium,
-          ),
-          const SizedBox(height: 8),
-          const Text(
-            'You enter it to open the wallet and to confirm important actions.',
+            textAlign: TextAlign.center,
           ),
           const SizedBox(height: 16),
           PinField(
@@ -154,7 +151,11 @@ class _PinSetupViewState extends ConsumerState<PinSetupView> {
           ),
         ],
         _PinStep.confirm => [
-          Text('Enter the PIN again', style: theme.textTheme.titleMedium),
+          Text(
+            'Enter the PIN again',
+            style: theme.textTheme.titleMedium,
+            textAlign: TextAlign.center,
+          ),
           const SizedBox(height: 16),
           PinField(
             key: const ValueKey('pin-confirm'),

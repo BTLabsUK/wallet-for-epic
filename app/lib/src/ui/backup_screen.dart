@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -9,9 +7,6 @@ import '../secure_screen.dart';
 import 'common.dart';
 import 'pin.dart';
 
-/// Words the user must re-enter to prove they wrote the phrase down.
-const int confirmWordCount = 3;
-
 /// Whether the open wallet's recovery phrase has been written down.
 final backedUpProvider = FutureProvider.autoDispose<bool>((ref) {
   final config = ref.watch(walletConfigProvider);
@@ -19,9 +14,7 @@ final backedUpProvider = FutureProvider.autoDispose<bool>((ref) {
   return ref.watch(vaultProvider).isBackedUp(config.chain);
 });
 
-enum _Step { showPhrase, confirmPhrase }
-
-/// Shows the recovery phrase after the PIN, then checks three words. Pops true when done.
+/// Shows the recovery phrase after the PIN. "Done" marks it backed up and pops true.
 class BackupScreen extends ConsumerStatefulWidget {
   const BackupScreen({super.key});
 
@@ -31,12 +24,6 @@ class BackupScreen extends ConsumerStatefulWidget {
 
 class _BackupScreenState extends ConsumerState<BackupScreen> {
   List<String> _words = const [];
-  List<int> _confirmIndexes = const [];
-  final _confirmControllers = List.generate(
-    confirmWordCount,
-    (_) => TextEditingController(),
-  );
-  _Step _step = _Step.showPhrase;
   String? _error;
 
   @override
@@ -49,9 +36,6 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
   @override
   void dispose() {
     setSecureScreen(false);
-    for (final controller in _confirmControllers) {
-      controller.dispose();
-    }
     super.dispose();
   }
 
@@ -69,30 +53,14 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
     if (session == null) return;
     try {
       final phrase = await session.mnemonic(password: password);
-      final words = phrase.split(' ');
-      final indexes = List.generate(words.length, (i) => i)
-        ..shuffle(Random.secure());
       if (!mounted) return;
-      setState(() {
-        _words = words;
-        _confirmIndexes = indexes.take(confirmWordCount).toList()..sort();
-      });
+      setState(() => _words = phrase.split(' '));
     } catch (error) {
       if (mounted) setState(() => _error = describeError(error));
     }
   }
 
-  Future<void> _checkWords() async {
-    for (var i = 0; i < confirmWordCount; i++) {
-      final entered = _confirmControllers[i].text.trim().toLowerCase();
-      if (entered != _words[_confirmIndexes[i]]) {
-        setState(
-          () => _error =
-              'One or more words do not match. Check your written copy.',
-        );
-        return;
-      }
-    }
+  Future<void> _done() async {
     final config = ref.read(walletConfigProvider);
     if (config != null) {
       await ref.read(vaultProvider).markBackedUp(config.chain);
@@ -100,11 +68,6 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
     ref.invalidate(backedUpProvider);
     if (mounted) Navigator.pop(context, true);
   }
-
-  void _goTo(_Step step) => setState(() {
-    _step = step;
-    _error = null;
-  });
 
   @override
   Widget build(BuildContext context) {
@@ -118,15 +81,12 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
                 else
                   const LinearProgressIndicator(),
               ]
-            : switch (_step) {
-                _Step.showPhrase => _phraseStep(context),
-                _Step.confirmPhrase => _confirmStep(context),
-              },
+            : _phrase(context),
       ),
     );
   }
 
-  List<Widget> _phraseStep(BuildContext context) {
+  List<Widget> _phrase(BuildContext context) {
     final theme = Theme.of(context);
     return [
       Card(
@@ -144,9 +104,9 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
-                  'Write these ${_words.length} words on paper, in order. '
-                  'Anyone who has them can take your funds, and they are the '
-                  'only way to recover this wallet if this device is lost.',
+                  'Write these ${_words.length} words on paper, in order, and '
+                  'keep them private. They are the only way to restore this '
+                  'wallet.',
                   style: TextStyle(color: theme.colorScheme.onErrorContainer),
                 ),
               ),
@@ -194,45 +154,7 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
         },
       ),
       const SizedBox(height: 24),
-      BusyButton(
-        label: 'I have written them down',
-        onPressed: () => _goTo(_Step.confirmPhrase),
-      ),
-    ];
-  }
-
-  List<Widget> _confirmStep(BuildContext context) {
-    return [
-      Text(
-        'Enter these words from your phrase to confirm you wrote it down.',
-        style: Theme.of(context).textTheme.titleMedium,
-      ),
-      const SizedBox(height: 16),
-      for (var i = 0; i < confirmWordCount; i++) ...[
-        TextField(
-          key: ValueKey('confirm-word-${_confirmIndexes[i]}'),
-          controller: _confirmControllers[i],
-          autocorrect: false,
-          enableSuggestions: false,
-          enableIMEPersonalizedLearning: false,
-          keyboardType: TextInputType.visiblePassword,
-          textInputAction: i == confirmWordCount - 1
-              ? TextInputAction.done
-              : TextInputAction.next,
-          decoration: InputDecoration(
-            labelText: 'Word ${_confirmIndexes[i] + 1}',
-            border: const OutlineInputBorder(),
-          ),
-        ),
-        const SizedBox(height: 12),
-      ],
-      if (_error != null) ErrorText(_error!),
-      BusyButton(label: 'Confirm', onPressed: _checkWords),
-      const SizedBox(height: 8),
-      TextButton(
-        onPressed: () => _goTo(_Step.showPhrase),
-        child: const Text('Show the phrase again'),
-      ),
+      BusyButton(label: 'Done', onPressed: _done),
     ];
   }
 }
