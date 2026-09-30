@@ -155,31 +155,43 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
         ),
       ),
       const SizedBox(height: 16),
-      Wrap(
-        spacing: 8,
-        runSpacing: 8,
-        children: [
-          for (var i = 0; i < _words.length; i++)
-            Semantics(
-              label: 'Word ${i + 1}: ${_words[i]}',
-              excludeSemantics: true,
-              child: Container(
-                width: 132,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 10,
+      LayoutBuilder(
+        builder: (context, constraints) {
+          // Three columns on a phone, two on narrow screens; the words fill the width.
+          final columns = constraints.maxWidth >= 330 ? 3 : 2;
+          final width = (constraints.maxWidth - 8 * (columns - 1)) / columns;
+          return Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              for (var i = 0; i < _words.length; i++)
+                Semantics(
+                  label: 'Word ${i + 1}: ${_words[i]}',
+                  excludeSemantics: true,
+                  child: Container(
+                    width: width,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 10,
+                    ),
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.surfaceContainerHighest,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    // Long words shrink instead of being cut off.
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        '${i + 1}. ${_words[i]}',
+                        style: theme.textTheme.bodyLarge,
+                      ),
+                    ),
+                  ),
                 ),
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.surfaceContainerHighest,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  '${i + 1}. ${_words[i]}',
-                  style: theme.textTheme.bodyLarge,
-                ),
-              ),
-            ),
-        ],
+            ],
+          );
+        },
       ),
       const SizedBox(height: 24),
       BusyButton(

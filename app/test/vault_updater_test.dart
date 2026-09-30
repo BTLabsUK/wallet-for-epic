@@ -122,6 +122,51 @@ void main() {
       expect(store.values, isEmpty);
       expect(bio.values, isEmpty);
     });
+
+    test('changes the PIN and keeps biometrics working', () async {
+      await vault.seal(
+        Chain.mainnet,
+        pin: '123456',
+        password: 'pw',
+        useBiometrics: true,
+      );
+      await vault.changePin(
+        Chain.mainnet,
+        currentPin: '123456',
+        newPin: '654321',
+      );
+      expect(await vault.unlockWithPin(Chain.mainnet, '654321'), 'pw');
+      await expectLater(
+        vault.unlockWithPin(Chain.mainnet, '123456'),
+        throwsA(isA<PinRejected>()),
+      );
+      expect(await vault.biometricsEnabled(Chain.mainnet), isTrue);
+      expect(await vault.unlockWithBiometrics(Chain.mainnet), 'pw');
+    });
+
+    test('a wrong current PIN changes nothing and counts as a try', () async {
+      await vault.seal(
+        Chain.mainnet,
+        pin: '123456',
+        password: 'pw',
+        useBiometrics: false,
+      );
+      try {
+        await vault.changePin(
+          Chain.mainnet,
+          currentPin: '000000',
+          newPin: '654321',
+        );
+        fail('wrong PIN accepted');
+      } on PinRejected catch (r) {
+        expect(r.attemptsLeft, freePinAttempts - 1);
+      }
+      await expectLater(
+        vault.changePin(Chain.mainnet, currentPin: '123456', newPin: '12'),
+        throwsArgumentError,
+      );
+      expect(await vault.unlockWithPin(Chain.mainnet, '123456'), 'pw');
+    });
   });
 
   group('parseUpdateManifest', () {

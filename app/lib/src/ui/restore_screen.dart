@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -9,7 +10,43 @@ import '../providers.dart';
 import '../secure_screen.dart';
 import '../wallet_service.dart';
 import 'common.dart';
+import 'launch_screen.dart';
 import 'pin.dart';
+import 'settings_history.dart';
+
+/// Mainnet block 1 was mined at 2019-09-03T02:10:08Z (`get_header` at height 1 on
+/// node.btlabs.uk, checked 2026-09-30). The genesis block is dated 2019-08-09T17:04:38Z, 24 days
+/// earlier; counting from genesis at 60 s per block overshoots real heights by up to 20,000
+/// blocks, which would skip outputs, so the estimate counts from block 1.
+const int mainnetBlockOneUnix = 1567476608;
+
+/// Target block time. Real blocks averaged 58.6 to 59.8 s from block 1, so the estimate runs
+/// behind the chain, which is the safe side: the scan starts early rather than late.
+const int blockSeconds = 60;
+
+/// Two days of blocks subtracted on top, for clock skew and the day boundary.
+const int restoreMarginBlocks = 2 * 24 * 3600 ~/ blockSeconds;
+
+/// A mainnet height at or before the first block mined on [date]. Checked against real headers
+/// from height 100,000 to 3,700,000: the estimate was 13,600 to 65,100 blocks early.
+BigInt mainnetHeightForDate(DateTime date) {
+  final seconds =
+      date.toUtc().millisecondsSinceEpoch ~/ 1000 - mainnetBlockOneUnix;
+  final estimate = 1 + seconds ~/ blockSeconds - restoreMarginBlocks;
+  return BigInt.from(max(1, estimate));
+}
+
+/// The first day a mainnet wallet can hold funds.
+final DateTime mainnetFirstDay = DateTime(2019, 9, 3);
+
+/// `1 Sep 2026`, the way the history screen writes days.
+String formatDay(DateTime day) {
+  const months = [
+    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', //
+    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+  ];
+  return '${day.day} ${months[day.month - 1]} ${day.year}';
+}
 
 /// Lowercases the phrase and collapses whitespace, so pasted phrases validate.
 String normalizePhrase(String input) =>
@@ -26,12 +63,16 @@ class RestoreScreen extends ConsumerStatefulWidget {
   ConsumerState<RestoreScreen> createState() => _RestoreScreenState();
 }
 
-enum _RestoreStep { phrase, pin, scan }
+enum _RestoreStep { phrase, pin, scan, importOffer }
+
+enum _StartBy { date, height }
 
 class _RestoreScreenState extends ConsumerState<RestoreScreen> {
   final _phrase = TextEditingController();
   final _startHeight = TextEditingController();
   _RestoreStep _step = _RestoreStep.phrase;
+  _StartBy _startBy = _StartBy.date;
+  DateTime? _startDate;
   String _validPhrase = '';
   BigInt? _height;
   String? _error;
@@ -60,8 +101,14 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
         const WalletError(kind: WalletErrorKind.invalidMnemonic, message: ''),
       );
     }
-    final heightText = _startHeight.text.trim();
-    final startHeight = heightText.isEmpty ? null : BigInt.tryParse(heightText);
+    final byDate = _startBy == _StartBy.date && _datesSupported;
+    final heightText = byDate ? '' : _startHeight.text.trim();
+    final date = byDate ? _startDate : null;
+    final startHeight = date != null
+        ? mainnetHeightForDate(date)
+        : heightText.isEmpty
+        ? null
+        : BigInt.tryParse(heightText);
     if (problem == null && heightText.isNotEmpty && startHeight == null) {
       problem = 'Start height must be a whole number.';
     }
@@ -118,7 +165,9 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
       final scanned = await ref
           .read(scanProvider.notifier)
           .run(startHeight: _height);
-      if (scanned && mounted) goHome(context);
+      if (scanned && mounted) {
+        setState(() => _step = _RestoreStep.importOffer);
+      }
     } catch (error) {
       if (mounted) setState(() => _error = describeError(error));
     } finally {
@@ -129,7 +178,18 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Restore wallet')),
+      appBar: AppBar(
+        title: const Text('Restore wallet'),
+        // Reached by replacing the first-run screen, so back means starting over there.
+        leading: _step == _RestoreStep.phrase
+            ? BackButton(
+                onPressed: () => Navigator.of(context).pushReplacement(
+                  MaterialPageRoute<void>(builder: (_) => const LaunchScreen()),
+                ),
+              )
+            : null,
+        automaticallyImplyLeading: false,
+      ),
       body: ScreenBody(
         children: switch (_step) {
           _RestoreStep.phrase => _form(context),
@@ -150,6 +210,7 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
             ],
           ],
           _RestoreStep.scan => _scanView(context),
+          _RestoreStep.importOffer => _importOffer(),
         },
       ),
     );
@@ -173,20 +234,90 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
         ),
       ),
       const SizedBox(height: 12),
-      TextField(
-        controller: _startHeight,
-        keyboardType: TextInputType.number,
-        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-        decoration: const InputDecoration(
-          labelText: 'Start height (optional)',
-          helperText:
-              'Scan from this block. Leave empty to scan the whole chain.',
-          border: OutlineInputBorder(),
+      if (_datesSupported) ...[
+        Text(
+          'Where to start scanning',
+          style: Theme.of(context).textTheme.titleSmall,
         ),
-      ),
+        const SizedBox(height: 8),
+        SegmentedButton<_StartBy>(
+          segments: const [
+            ButtonSegment(value: _StartBy.date, label: Text('Date')),
+            ButtonSegment(value: _StartBy.height, label: Text('Block height')),
+          ],
+          selected: {_startBy},
+          onSelectionChanged: (s) => setState(() => _startBy = s.first),
+        ),
+        const SizedBox(height: 12),
+      ],
+      if (_startBy == _StartBy.date && _datesSupported)
+        _DateChoice(
+          date: _startDate,
+          onChanged: (date) => setState(() => _startDate = date),
+        )
+      else
+        TextField(
+          controller: _startHeight,
+          keyboardType: TextInputType.number,
+          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+          decoration: const InputDecoration(
+            labelText: 'Start height (optional)',
+            helperText:
+                'Scan from this block. Leave empty to scan the whole chain.',
+            border: OutlineInputBorder(),
+          ),
+        ),
       const SizedBox(height: 16),
       if (_error != null) ErrorText(_error!),
       BusyButton(label: 'Continue', onPressed: _checkPhrase),
+    ];
+  }
+
+  /// Dates map to heights only on mainnet; test networks have their own history.
+  bool get _datesSupported =>
+      ref.read(walletConfigProvider)?.chain == Chain.mainnet;
+
+  List<Widget> _importOffer() {
+    final theme = Theme.of(context);
+    return [
+      Icon(
+        Icons.check_circle,
+        size: 48,
+        color: theme.colorScheme.primary,
+        semanticLabel: 'Done',
+      ),
+      const SizedBox(height: 16),
+      Text(
+        'Your wallet is restored',
+        style: theme.textTheme.titleMedium,
+        textAlign: TextAlign.center,
+      ),
+      const SizedBox(height: 8),
+      const Text(
+        'The chain holds your balance, but not who you paid, fees or notes. '
+        'If you exported a history backup from this wallet, import it now to '
+        'get them back.',
+        textAlign: TextAlign.center,
+      ),
+      const SizedBox(height: 24),
+      BusyButton(
+        label: 'Import a history backup',
+        onPressed: () async {
+          final imported = await importHistoryBackup(context, ref);
+          if (imported && mounted) goHome(context);
+        },
+      ),
+      const SizedBox(height: 8),
+      OutlinedButton(
+        style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+        onPressed: () => goHome(context),
+        child: const Text('Not now'),
+      ),
+      const SizedBox(height: 8),
+      const Text(
+        'You can import one later from Settings.',
+        textAlign: TextAlign.center,
+      ),
     ];
   }
 
@@ -204,9 +335,68 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
         const SizedBox(height: 16),
         BusyButton(label: 'Open wallet', onPressed: () => goHome(context)),
         const SizedBox(height: 8),
-        const Text('You can run a full rescan later from the wallet menu.'),
+        const Text('You can run a full rescan later from Settings.'),
       ],
     ];
+  }
+}
+
+/// An optional start date with a date picker. Null means the whole chain.
+class _DateChoice extends StatelessWidget {
+  const _DateChoice({required this.date, required this.onChanged});
+
+  final DateTime? date;
+  final ValueChanged<DateTime?> onChanged;
+
+  Future<void> _pick(BuildContext context) async {
+    final now = DateTime.now();
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: date ?? now,
+      firstDate: mainnetFirstDay,
+      lastDate: now,
+      helpText: 'When did you create the wallet?',
+    );
+    if (picked != null) onChanged(picked);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final chosen = date;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        OutlinedButton.icon(
+          style: OutlinedButton.styleFrom(
+            minimumSize: const Size.fromHeight(48),
+          ),
+          icon: const Icon(Icons.calendar_today),
+          label: Text(
+            chosen == null
+                ? 'Pick the date you created the wallet'
+                : 'From ${formatDay(chosen)}',
+          ),
+          onPressed: () => _pick(context),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          chosen == null
+              ? 'Optional. Without a date the whole chain is scanned, which '
+                    'takes longer.'
+              : 'Scanning starts two days before this date, from block '
+                    '${groupDigits(mainnetHeightForDate(chosen))}.',
+          style: Theme.of(context).textTheme.bodySmall,
+        ),
+        if (chosen != null)
+          Align(
+            alignment: Alignment.centerLeft,
+            child: TextButton(
+              onPressed: () => onChanged(null),
+              child: const Text('Scan the whole chain instead'),
+            ),
+          ),
+      ],
+    );
   }
 }
 

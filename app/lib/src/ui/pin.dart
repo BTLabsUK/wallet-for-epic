@@ -60,9 +60,21 @@ class PinField extends StatelessWidget {
 /// Picks a PIN, confirms it, then asks about biometric unlock where the device has it.
 /// Calls [onDone] once, with the PIN and the biometric answer.
 class PinSetupView extends ConsumerStatefulWidget {
-  const PinSetupView({super.key, required this.onDone, this.intro});
+  const PinSetupView({
+    super.key,
+    required this.onDone,
+    this.intro,
+    this.askBiometrics = true,
+    this.chooseTitle,
+  });
 
   final void Function(String pin, bool useBiometrics) onDone;
+
+  /// Whether to offer biometric unlock after the PIN. Off when changing an existing PIN.
+  final bool askBiometrics;
+
+  /// Replaces "Choose a 6-digit PIN".
+  final String? chooseTitle;
 
   /// Shown above the first PIN field.
   final Widget? intro;
@@ -109,7 +121,7 @@ class _PinSetupViewState extends ConsumerState<PinSetupView> {
       });
       return;
     }
-    if (await _biometricsAvailable) {
+    if (widget.askBiometrics && await _biometricsAvailable) {
       if (mounted) setState(() => _step = _PinStep.biometrics);
     } else {
       widget.onDone(pin, false);
@@ -125,7 +137,7 @@ class _PinSetupViewState extends ConsumerState<PinSetupView> {
         _PinStep.choose => [
           ?widget.intro,
           Text(
-            'Choose a $pinLength-digit PIN',
+            widget.chooseTitle ?? 'Choose a $pinLength-digit PIN',
             style: theme.textTheme.titleMedium,
           ),
           const SizedBox(height: 8),
@@ -212,19 +224,25 @@ String describePinRejection(PinRejected rejection) {
   return 'Wrong PIN. $left ${left == 1 ? 'try' : 'tries'} left before a pause.';
 }
 
-/// Asks for the PIN (or biometrics) of the current wallet and returns its password, or null if
-/// the user cancelled.
-Future<String?> askWalletPassword(BuildContext context, {String? reason}) {
+/// Asks for the PIN (or, with [allowBiometrics], biometrics) of the current wallet and returns
+/// its password, or null if the user cancelled.
+Future<String?> askWalletPassword(
+  BuildContext context, {
+  String? reason,
+  bool allowBiometrics = true,
+}) {
   return showDialog<String>(
     context: context,
-    builder: (_) => _PinPromptDialog(reason: reason),
+    builder: (_) =>
+        _PinPromptDialog(reason: reason, allowBiometrics: allowBiometrics),
   );
 }
 
 class _PinPromptDialog extends ConsumerStatefulWidget {
-  const _PinPromptDialog({this.reason});
+  const _PinPromptDialog({this.reason, required this.allowBiometrics});
 
   final String? reason;
+  final bool allowBiometrics;
 
   @override
   ConsumerState<_PinPromptDialog> createState() => _PinPromptDialogState();
@@ -250,7 +268,7 @@ class _PinPromptDialogState extends ConsumerState<_PinPromptDialog> {
 
   Future<void> _checkBiometrics() async {
     final config = ref.read(walletConfigProvider);
-    if (config == null) return;
+    if (config == null || !widget.allowBiometrics) return;
     final enabled = await ref
         .read(vaultProvider)
         .biometricsEnabled(config.chain);

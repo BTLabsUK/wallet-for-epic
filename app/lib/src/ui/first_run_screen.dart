@@ -49,8 +49,8 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text(
-              'Biometric unlock was not set up. You can turn it on from the '
-              'wallet menu.',
+              'Biometric unlock was not set up. You can turn it on in '
+              'Settings.',
             ),
           ),
         );

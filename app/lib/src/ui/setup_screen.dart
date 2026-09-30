@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -5,6 +6,7 @@ import '../errors.dart';
 import '../network.dart';
 import '../providers.dart';
 import '../relay_directory.dart';
+import '../wallet_service.dart';
 import 'common.dart';
 import 'launch_screen.dart';
 
@@ -28,6 +30,10 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
   String? _relayError;
   String? _error;
   bool _busy = false;
+  bool _testing = false;
+
+  /// The result of the last connection test, and whether it succeeded.
+  ({String text, bool ok})? _test;
 
   @override
   void initState() {
@@ -70,6 +76,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
     if (mounted && _preset == preset) {
       setState(() {
         _nodeUrl.text = url;
+        _test = null;
         _relay = relay;
         _savedRelay = relay;
       });
@@ -93,6 +100,46 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
         _relay = relay;
         _customRelay.clear();
       }
+    });
+  }
+
+  Future<void> _testConnection() async {
+    final preset = _preset;
+    if (preset == null) return;
+    final url = _nodeUrl.text.trim();
+    if (!_isValidUrl(url)) {
+      setState(
+        () => _urlError = 'Enter a full URL such as https://node.example.com',
+      );
+      return;
+    }
+    setState(() {
+      _testing = true;
+      _urlError = null;
+      _test = null;
+    });
+    ({String text, bool ok}) result;
+    try {
+      // The node call needs no wallet, so no data directory.
+      final tip = await ref
+          .read(walletServiceProvider)
+          .nodeTip(
+            config: preset.config(dataDir: '', nodeUrl: url),
+          );
+      result = (
+        text:
+            'Connected. The node is at block ${groupDigits(tip.height)}, running version '
+            '${tip.nodeVersion}.',
+        ok: true,
+      );
+    } catch (error) {
+      result = (text: 'Could not connect. ${describeError(error)}', ok: false);
+    }
+    if (!mounted) return;
+    final current = _nodeUrl.text.trim() == url && _preset == preset;
+    setState(() {
+      _testing = false;
+      if (current) _test = result;
     });
   }
 
@@ -150,7 +197,11 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
                 SegmentedButton<NetworkPreset>(
                   segments: [
                     for (final p in networkPresets)
-                      ButtonSegment(value: p, label: Text(p.label)),
+                      // Usernet is a local test network for developers.
+                      if (p.chain != Chain.usernet ||
+                          !kReleaseMode ||
+                          p == preset)
+                        ButtonSegment(value: p, label: Text(p.label)),
                   ],
                   selected: {preset},
                   onSelectionChanged: (selection) =>
@@ -169,7 +220,46 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
                     errorText: _urlError,
                     border: const OutlineInputBorder(),
                   ),
+                  onChanged: (_) {
+                    if (_test != null) setState(() => _test = null);
+                  },
                 ),
+                const SizedBox(height: 8),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: OutlinedButton.icon(
+                    icon: _testing
+                        ? const SizedBox.square(
+                            dimension: 16,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Icon(Icons.network_check),
+                    label: const Text('Test connection'),
+                    onPressed: _testing || _busy ? null : _testConnection,
+                  ),
+                ),
+                if (_test case final test?)
+                  if (test.ok)
+                    Semantics(
+                      liveRegion: true,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Icon(
+                              Icons.check_circle,
+                              color: theme.colorScheme.primary,
+                              semanticLabel: 'Connected',
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(child: Text(test.text)),
+                          ],
+                        ),
+                      ),
+                    )
+                  else
+                    ErrorText(test.text),
                 const SizedBox(height: 24),
                 Text('Epicbox relay', style: theme.textTheme.titleMedium),
                 const SizedBox(height: 8),

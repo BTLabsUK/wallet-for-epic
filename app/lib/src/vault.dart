@@ -171,6 +171,22 @@ class WalletVault {
     }
   }
 
+  /// Replaces the PIN. [currentPin] opens the password (a wrong one counts towards the lockout
+  /// and throws [PinRejected]); it is then sealed under [newPin]. The biometric copy holds the
+  /// password itself, so it keeps working.
+  Future<void> changePin(
+    Chain chain, {
+    required String currentPin,
+    required String newPin,
+  }) async {
+    if (!isValidPin(newPin)) {
+      throw ArgumentError('PIN must be $pinLength digits');
+    }
+    final password = await unlockWithPin(chain, currentPin);
+    final sealed = await crypto.seal(pin: newPin, password: password);
+    await store.write(_key(chain, 'sealed'), sealed);
+  }
+
   /// When the next PIN try is allowed, or null if it is allowed now.
   Future<DateTime?> lockedUntil(Chain chain) async {
     final value = await store.read(_key(chain, 'lockedUntil'));
