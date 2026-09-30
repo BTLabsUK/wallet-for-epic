@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../errors.dart';
 import '../providers.dart';
+import '../settings.dart';
 import '../wallet_service.dart';
 import 'common.dart';
 import 'contacts_screen.dart' show ContactEditScreen;
@@ -67,6 +68,16 @@ String txExplanation(TxEntry tx, BigInt? tip) {
   };
 }
 
+/// How long a posted send may wait for the chain before details offer to broadcast it again.
+const Duration stuckAfter = Duration(minutes: 30);
+
+/// A finalized send that the chain still has not included [stuckAfter] after [TxEntry.timeUnix],
+/// and that the core can post again.
+bool isStuck(TxEntry tx, DateTime now) =>
+    tx.repostable &&
+    tx.status == TxStatus.awaitingConfirmation &&
+    now.difference(localTime(tx.timeUnix)) >= stuckAfter;
+
 /// When a pending transaction cancels itself, if it has an expiry.
 String? ttlLine(TxEntry tx, BigInt? tip) {
   final cutoff = tx.ttlCutoffHeight;
@@ -127,6 +138,22 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
       await session.setTxNote(key: tx.key, note: text.isEmpty ? null : text);
       await _reload();
       if (mounted) _showMessage(text.isEmpty ? 'Note removed' : 'Note saved');
+    } catch (error) {
+      if (mounted) _showMessage(describeError(error));
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  Future<void> _repost(TxEntry tx) async {
+    final session = ref.read(sessionProvider);
+    if (session == null) return;
+    setState(() => _busy = true);
+    try {
+      await session.repostTransaction(key: tx.key);
+      if (!mounted) return;
+      _showMessage('Broadcast again. It should confirm within a few minutes.');
+      await _reload();
     } catch (error) {
       if (mounted) _showMessage(describeError(error));
     } finally {
@@ -205,6 +232,7 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
     final name = contactName(ref, counterparty);
     final fiat = approxFiat(amount, display);
     final ttl = ttlLine(tx, tip);
+    final stuck = isStuck(tx, ref.watch(clockProvider)());
     final url = chain == null ? null : explorerUrl(chain, tx);
     final fee = tx.fee;
     final blockTime = tx.blockTimeUnix;
@@ -257,6 +285,28 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
                   if (ttl != null) ...[
                     const SizedBox(height: 8),
                     Text(ttl, style: theme.textTheme.bodySmall),
+                  ],
+                  if (stuck) ...[
+                    const SizedBox(height: 12),
+                    Text(
+                      'Not confirmed yet',
+                      style: theme.textTheme.titleSmall,
+                    ),
+                    const SizedBox(height: 4),
+                    const Text(
+                      'The network has not taken this payment yet. Broadcasting '
+                      'it again is safe. The same payment cannot go through '
+                      'twice.',
+                    ),
+                    const SizedBox(height: 8),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: FilledButton.tonalIcon(
+                        icon: const Icon(Icons.cell_tower),
+                        label: const Text('Broadcast again'),
+                        onPressed: _busy ? null : () => _repost(tx),
+                      ),
+                    ),
                   ],
                   if (tx.cancellable && tx.id != null) ...[
                     const SizedBox(height: 8),

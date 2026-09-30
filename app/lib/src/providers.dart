@@ -403,10 +403,18 @@ class WalletSetupNotifier extends Notifier<WalletSetup> {
 
 /// What the epicbox listener of the open wallet is doing.
 class ListenerState {
-  const ListenerState({this.connected = false, this.status, this.last});
+  const ListenerState({
+    this.connected = false,
+    this.lost = false,
+    this.status,
+    this.last,
+  });
 
   /// Subscribed at the relay, so incoming payments and responses arrive.
   final bool connected;
+
+  /// Was connected, lost the connection, and is retrying.
+  final bool lost;
 
   /// Why it is not connected, when known.
   final String? status;
@@ -443,6 +451,7 @@ class ListenerNotifier extends Notifier<ListenerState> {
         state = ListenerState(connected: true, last: state.last);
       case ListenerEventKind.disconnected:
         state = ListenerState(
+          lost: true,
           status: 'Reconnecting to the relay: ${event.message}',
           last: state.last,
         );
@@ -453,6 +462,7 @@ class ListenerNotifier extends Notifier<ListenerState> {
           ListenerEventKind.error:
         state = ListenerState(
           connected: state.connected,
+          lost: state.lost,
           status: state.status,
           last: event,
         );

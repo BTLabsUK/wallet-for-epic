@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
+import '../settings.dart';
+
 /// QR scanning needs a camera plugin that exists on Android and iOS only.
 bool get qrScanSupported => !kIsWeb && (Platform.isAndroid || Platform.isIOS);
 
@@ -54,18 +56,36 @@ final qrScannerProvider = Provider<QrScanner>(
 );
 
 /// Full-screen camera view that pops with the first QR code's text.
-class ScanScreen extends StatefulWidget {
+class ScanScreen extends ConsumerStatefulWidget {
   const ScanScreen({super.key});
 
   @override
-  State<ScanScreen> createState() => _ScanScreenState();
+  ConsumerState<ScanScreen> createState() => _ScanScreenState();
 }
 
-class _ScanScreenState extends State<ScanScreen> {
+class _ScanScreenState extends ConsumerState<ScanScreen> {
+  // Started by hand, so the camera permission prompt runs under the auto-lock hold.
   final _controller = MobileScannerController(
+    autoStart: false,
     formats: const [BarcodeFormat.qrCode],
   );
   bool _done = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _start();
+  }
+
+  /// Starts the camera. The first start asks for camera permission, which on some phones
+  /// leaves the app; that trip must not count towards auto-lock.
+  Future<void> _start() async {
+    try {
+      await ref.read(autoLockHoldProvider.notifier).during(_controller.start);
+    } on MobileScannerException {
+      // Also recorded in the controller's state, which the error builder shows.
+    }
+  }
 
   @override
   void dispose() {
@@ -96,7 +116,7 @@ class _ScanScreenState extends State<ScanScreen> {
             controller: _controller,
             onDetect: _onDetect,
             errorBuilder: (context, error) =>
-                _ScanError(error: error, onRetry: _controller.start),
+                _ScanError(error: error, onRetry: _start),
           ),
           const Align(
             alignment: Alignment.bottomCenter,

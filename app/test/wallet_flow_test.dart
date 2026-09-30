@@ -677,14 +677,17 @@ void main() {
 
       session.summaryValue = FakeWalletSession.emptySummary;
       session.listenerEvents.add(
-        const ListenerEvent(
+        ListenerEvent(
           kind: ListenerEventKind.received,
           slateId: 's',
           message: 'Received 3 EPIC from zz…',
+          amount: _epic(3),
         ),
       );
       await tester.pumpAndSettle();
-      expect(find.text('Received 3 EPIC from zz…'), findsOneWidget);
+      // A notice in words, not the listener's raw message.
+      expect(find.text('Received 3 EPIC'), findsOneWidget);
+      expect(find.text('Received 3 EPIC from zz…'), findsNothing);
       expect(find.text('0 EPIC'), findsWidgets);
 
       await _tap(tester, find.byTooltip('Lock wallet'));

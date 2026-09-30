@@ -4,9 +4,11 @@ import 'package:pretty_qr_code/pretty_qr_code.dart';
 
 import '../errors.dart';
 import '../providers.dart';
+import '../settings.dart';
 import '../slate_files.dart';
 import '../wallet_service.dart';
 import 'common.dart';
+import 'help_screen.dart';
 import 'slate_file_screen.dart';
 
 /// Receiving: epicbox payments arrive by themselves through the listener; a manual slate can
@@ -66,7 +68,16 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
     final address = ref.watch(addressProvider);
     final theme = Theme.of(context);
     return Scaffold(
-      appBar: AppBar(title: const Text('Receive')),
+      appBar: AppBar(
+        title: const Text('Receive'),
+        actions: [
+          IconButton(
+            tooltip: 'Help',
+            icon: const Icon(Icons.help_outline),
+            onPressed: () => openHelp(context, HelpTopic.receiving),
+          ),
+        ],
+      ),
       body: ScreenBody(
         children: [
           switch (address) {
@@ -186,7 +197,9 @@ class _AddressCard extends ConsumerWidget {
                   style: OutlinedButton.styleFrom(
                     minimumSize: const Size.fromHeight(48),
                   ),
-                  onPressed: () => files.shareText(address),
+                  onPressed: () => ref
+                      .read(autoLockHoldProvider.notifier)
+                      .during(() => files.shareText(address)),
                   icon: const Icon(Icons.share),
                   label: const Text('Share'),
                 ),

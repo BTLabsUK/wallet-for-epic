@@ -6,6 +6,7 @@ import 'package:epic_wallet/src/settings.dart';
 import 'package:epic_wallet/src/ui/common.dart';
 import 'package:epic_wallet/src/ui/history_screen.dart';
 import 'package:epic_wallet/src/ui/home_screen.dart';
+import 'package:epic_wallet/src/ui/receive_screen.dart';
 import 'package:epic_wallet/src/ui/scan_screen.dart';
 import 'package:epic_wallet/src/ui/send_screen.dart';
 import 'package:epic_wallet/src/ui/tx_details_screen.dart';
@@ -152,9 +153,12 @@ class _Harness {
   Future<void> pump(
     WidgetTester tester, [
     Widget home = const HomeScreen(),
+    double textScale = 1,
   ]) async {
-    // Tall enough that every list row is built without scrolling.
-    tester.view.physicalSize = const Size(1080, 7200);
+    // Tall enough that every list row is built without scrolling. At large text, a phone.
+    tester.view.physicalSize = textScale == 1
+        ? const Size(1080, 7200)
+        : const Size(1080, 2340);
     tester.view.devicePixelRatio = 3;
     addTearDown(tester.view.reset);
     await tester.pumpWidget(
@@ -172,7 +176,14 @@ class _Harness {
           sessionProvider.overrideWith(() => _OpenSession(session)),
           walletConfigProvider.overrideWith(() => _Config(config)),
         ],
-        child: MaterialApp(home: home),
+        child: MaterialApp(
+          home: home,
+          builder: (context, child) => MediaQuery(
+            data: MediaQuery.of(context)
+                .copyWith(textScaler: TextScaler.linear(textScale)),
+            child: child!,
+          ),
+        ),
       ),
     );
     await tester.pumpAndSettle();
@@ -584,6 +595,227 @@ void main() {
         find.text('https://floo-explorer.btlabs.uk/kernel/09abc'),
         findsOneWidget,
       );
+    });
+
+    testWidgets('a send stuck for 30 minutes can be broadcast again', (
+      tester,
+    ) async {
+      TxEntry posted(String key, Duration age) => fakeTx(
+        key: key,
+        id: 9,
+        kind: TxKind.sent,
+        status: TxStatus.awaitingConfirmation,
+        createdAtUnix: _at(_now.subtract(age)),
+        amountCredited: _epic(1),
+        amountDebited: _epic(2.008),
+        fee: _epic(0.008),
+        repostable: true,
+      );
+      final h = _Harness(
+        transactions: [
+          posted('s:old', const Duration(minutes: 45)),
+          posted('s:new', const Duration(minutes: 10)),
+        ],
+      );
+      expect(isStuck(h.session.transactionsValue.last, _now), isFalse);
+      expect(isStuck(h.session.transactionsValue.first, _now), isTrue);
+
+      await h.pump(tester, const TxDetailsScreen(txKey: 's:old'));
+      expect(find.text('Not confirmed yet'), findsOneWidget);
+      await _tap(tester, find.text('Broadcast again'));
+      expect(h.session.repostedKeys, ['s:old']);
+      expect(find.textContaining('Broadcast again. It should'), findsOneWidget);
+    });
+  });
+
+  group('addresses', () {
+    test('lists shorten the key around an ellipsis and keep the relay', () {
+      expect(shortAddress(_bob), 'esBobA…567890@epicbox.epiccash.com');
+      expect(
+        shortAddress('http://203.0.113.5:3415'),
+        'http://203.0.113.5:3415',
+      );
+      expect(shortAddress('short@relay'), 'short@relay');
+      expect(shortAddress('${'a' * 52}@r.io:443'), 'aaaaaa…aaaaaa@r.io:443');
+    });
+
+    testWidgets('rows show the short address, details the full one', (
+      tester,
+    ) async {
+      final h = _Harness();
+      await h.pump(tester);
+      expect(
+        find.text('To esBobA…567890@epicbox.epiccash.com'),
+        findsOneWidget,
+      );
+      expect(find.text(_bob), findsNothing);
+      await _tap(tester, find.byKey(const ValueKey('tx-s:send-bob')));
+      expect(find.text(_bob), findsOneWidget);
+    });
+  });
+
+  group('payment notices', () {
+    const received = ListenerEvent(
+      kind: ListenerEventKind.received,
+      slateId: 'x',
+      message: 'raw',
+    );
+    const finalized = ListenerEvent(
+      kind: ListenerEventKind.finalized,
+      slateId: 'x',
+      message: 'raw',
+    );
+
+    test('say what happened in words', () {
+      final tx = fakeTx(amountCredited: _epic(1.5), counterparty: _bob);
+      expect(paymentNotice(received, tx), 'Received 1.5 EPIC');
+      expect(
+        paymentNotice(
+          ListenerEvent(
+            kind: ListenerEventKind.received,
+            message: 'raw',
+            amount: _epic(2),
+          ),
+          null,
+          contactName: 'Alice',
+        ),
+        'Received 2 EPIC from Alice',
+      );
+      expect(paymentNotice(received, null), 'Payment received');
+      expect(paymentNotice(received, tx, hidden: true), 'Payment received');
+      expect(
+        paymentNotice(finalized, tx),
+        'Payment to esBobA…567890@epicbox.epiccash.com completed',
+      );
+      expect(
+        paymentNotice(finalized, tx, contactName: 'Bob'),
+        'Payment to Bob completed',
+      );
+      expect(paymentNotice(finalized, null), 'Payment completed');
+      expect(
+        paymentNotice(
+          const ListenerEvent(
+            kind: ListenerEventKind.error,
+            message: 'relay error: Unauthorized x',
+          ),
+          null,
+        ),
+        'The relay reported a problem. Retrying.',
+      );
+    });
+
+    testWidgets('a received payment opens its details from the notice', (
+      tester,
+    ) async {
+      final h = _Harness();
+      await h.pump(tester);
+      h.session.listenerEvents.add(
+        ListenerEvent(
+          kind: ListenerEventKind.received,
+          slateId: 'from-alice',
+          message: 'Received 5 EPIC from esAlice…',
+          amount: _epic(5),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('Received 5 EPIC'), findsOneWidget);
+      expect(find.textContaining('esAlice'), findsNothing);
+      await tester.tap(find.text('View'));
+      await tester.pumpAndSettle();
+      expect(find.byType(TxDetailsScreen), findsOneWidget);
+      expect(find.text('Rent share'), findsOneWidget);
+    });
+
+    testWidgets('a completed send names the contact', (tester) async {
+      final h = _Harness();
+      h.session.contactsValue.add(
+        const Contact(id: 'c1', name: 'Bob', address: _bob),
+      );
+      await h.pump(tester);
+      h.session.listenerEvents.add(
+        const ListenerEvent(
+          kind: ListenerEventKind.finalized,
+          slateId: 'send-bob',
+          message: 'Sent 2 EPIC, posted to the node',
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('Payment to Bob completed'), findsOneWidget);
+    });
+
+    testWidgets('a lost relay says it retries', (tester) async {
+      final h = _Harness();
+      await h.pump(tester);
+      h.session.listenerEvents
+        ..add(
+          const ListenerEvent(kind: ListenerEventKind.connected, message: 'a'),
+        )
+        ..add(
+          const ListenerEvent(
+            kind: ListenerEventKind.disconnected,
+            message: 'io error: connection reset by peer',
+          ),
+        );
+      await tester.pumpAndSettle();
+      expect(
+        find.textContaining('Relay connection lost, retrying.'),
+        findsOneWidget,
+      );
+      expect(find.textContaining('connection reset'), findsNothing);
+    });
+  });
+
+  group('first run', () {
+    testWidgets('an empty wallet explains how to receive', (tester) async {
+      final h = _Harness(transactions: const []);
+      await h.pump(tester);
+      expect(find.text('Your wallet is ready'), findsOneWidget);
+      expect(find.text('See all'), findsNothing);
+      await _tap(tester, find.text('Show my address'));
+      expect(find.byType(ReceiveScreen), findsOneWidget);
+    });
+  });
+
+  group('large text', () {
+    for (final (name, screen) in [
+      ('home', const HomeScreen()),
+      ('history', const HistoryScreen()),
+      ('details of a pending send', const TxDetailsScreen(txKey: 's:send-bob')),
+      ('details of a receive', const TxDetailsScreen(txKey: 's:from-alice')),
+    ]) {
+      testWidgets('$name at text scale 2 has no overflow', (tester) async {
+        final h = _Harness(price: 0.5);
+        await h.pump(tester, screen, 2);
+        expect(
+          MediaQuery.textScalerOf(
+            tester.element(find.byType(screen.runtimeType)),
+          ).scale(10),
+          20,
+        );
+        expect(tester.takeException(), isNull);
+        // Every part of the list is laid out, not only the first screen.
+        await tester.fling(
+          find.byType(Scrollable).first,
+          const Offset(0, -3000),
+          3000,
+        );
+        await tester.pumpAndSettle();
+        expect(tester.takeException(), isNull);
+      });
+    }
+
+    testWidgets('an empty home at text scale 2 has no overflow', (
+      tester,
+    ) async {
+      final h = _Harness(transactions: const []);
+      await h.pump(tester, const HomeScreen(), 2);
+      await tester.fling(
+        find.byType(Scrollable).first,
+        const Offset(0, -3000),
+        3000,
+      );
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
     });
   });
 }

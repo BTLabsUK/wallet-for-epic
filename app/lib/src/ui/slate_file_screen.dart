@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../errors.dart';
 import '../providers.dart';
+import '../settings.dart';
 import '../slate_files.dart';
 import '../wallet_service.dart';
 import 'common.dart';
@@ -82,8 +83,15 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
     final response = _response;
     if (response == null) return;
     await ref
-        .read(slateFilesProvider)
-        .export(name: responseFileName(widget.file.name), json: response.json);
+        .read(autoLockHoldProvider.notifier)
+        .during(
+          () => ref
+              .read(slateFilesProvider)
+              .export(
+                name: responseFileName(widget.file.name),
+                json: response.json,
+              ),
+        );
   }
 
   Future<void> _finalize() => _run((session) async {
@@ -205,7 +213,9 @@ Future<bool> openSlateFile(
 }) async {
   final SlateFile? file;
   try {
-    file = await ref.read(slateFilesProvider).pick();
+    file = await ref
+        .read(autoLockHoldProvider.notifier)
+        .during(() => ref.read(slateFilesProvider).pick());
   } on FormatException catch (e) {
     if (context.mounted) {
       ScaffoldMessenger.of(context)

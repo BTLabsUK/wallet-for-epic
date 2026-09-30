@@ -47,6 +47,20 @@ const String hiddenAmount = '•••••';
 String shownEpic(BigInt atomic, {required bool hidden}) =>
     hidden ? hiddenAmount : epicText(atomic);
 
+/// An epicbox address short enough for a list or a title: the first and last 6 characters of
+/// the key around an ellipsis, then `@relay`. URLs, and keys already short, come back as they
+/// are. Show the full address wherever the user may need to check or copy it.
+String shortAddress(String address) {
+  final text = address.trim();
+  final lower = text.toLowerCase();
+  if (lower.startsWith('http://') || lower.startsWith('https://')) return text;
+  final at = text.indexOf('@');
+  final key = at < 0 ? text : text.substring(0, at);
+  final relay = at < 0 ? '' : text.substring(at);
+  if (key.length <= 14) return text;
+  return '${key.substring(0, 6)}…${key.substring(key.length - 6)}$relay';
+}
+
 /// `2,500,000`.
 String groupDigits(Object number) {
   final text = number.toString();
@@ -325,42 +339,97 @@ class TxTile extends ConsumerWidget {
     final theme = Theme.of(context);
     final title = txTitle(tx, contactName: contactName(ref, tx.counterparty));
     final date = shortDate(localTime(tx.timeUnix), now);
+    final counterparty = tx.counterparty;
+    final showAddress =
+        counterparty != null &&
+        contactName(ref, counterparty) == null &&
+        tx.source != TxSource.restored;
     final signed = signedEpic(tx, hidden: display.hidden);
-    return ListTile(
+    final muted = theme.textTheme.bodyMedium?.copyWith(
+      color: theme.colorScheme.onSurfaceVariant,
+    );
+    // One node for screen readers: title, address, date, status and amount, then "double tap".
+    return MergeSemantics(
       key: ValueKey('tx-${tx.key}'),
-      contentPadding: EdgeInsets.zero,
-      leading: TxIcon(tx: tx),
-      title: Text(title, maxLines: 1, overflow: TextOverflow.ellipsis),
-      subtitle: Wrap(
-        spacing: 8,
-        runSpacing: 4,
-        crossAxisAlignment: WrapCrossAlignment.center,
-        children: [
-          Text(date),
-          TxStatusChip(tx: tx, tip: tip),
-        ],
-      ),
-      trailing: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          Semantics(
-            label: display.hidden ? 'Amount hidden' : null,
-            excludeSemantics: display.hidden,
-            child: Text(
-              signed,
-              style: theme.textTheme.bodyLarge?.copyWith(
-                decoration: tx.status == TxStatus.cancelled
-                    ? TextDecoration.lineThrough
-                    : null,
-              ),
-            ),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: () => Navigator.of(context).push(
+          MaterialPageRoute<void>(
+            builder: (_) => TxDetailsScreen(txKey: tx.key),
           ),
-          if (fiat != null) Text(fiat, style: theme.textTheme.bodySmall),
-        ],
-      ),
-      onTap: () => Navigator.of(context).push(
-        MaterialPageRoute<void>(builder: (_) => TxDetailsScreen(txKey: tx.key)),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 10),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              TxIcon(tx: tx),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: theme.textTheme.bodyLarge,
+                    ),
+                    if (showAddress)
+                      Text(
+                        '${txAmount(tx).outgoing ? 'To' : 'From'} '
+                        '${shortAddress(counterparty)}',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: muted,
+                      ),
+                    const SizedBox(height: 2),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 4,
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      children: [
+                        Text(date, style: muted),
+                        TxStatusChip(tx: tx, tip: tip),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              // At most 40 % of the row, so a long title keeps some room.
+              ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxWidth: MediaQuery.sizeOf(context).width * 0.4,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Semantics(
+                      label: display.hidden ? 'Amount hidden' : null,
+                      excludeSemantics: display.hidden,
+                      child: Text(
+                        signed,
+                        textAlign: TextAlign.end,
+                        style: theme.textTheme.bodyLarge?.copyWith(
+                          decoration: tx.status == TxStatus.cancelled
+                              ? TextDecoration.lineThrough
+                              : null,
+                        ),
+                      ),
+                    ),
+                    if (fiat != null)
+                      Text(
+                        fiat,
+                        textAlign: TextAlign.end,
+                        style: theme.textTheme.bodySmall,
+                      ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

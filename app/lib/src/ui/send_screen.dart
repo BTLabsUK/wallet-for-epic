@@ -14,6 +14,7 @@ import '../slate_files.dart';
 import '../wallet_service.dart';
 import 'common.dart';
 import 'contacts_screen.dart';
+import 'help_screen.dart';
 import 'scan_screen.dart';
 import 'slate_file_screen.dart';
 
@@ -326,8 +327,12 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     final slate = _slate;
     if (slate == null) return;
     await ref
-        .read(slateFilesProvider)
-        .export(name: sendFileName(slate.slateId), json: slate.json);
+        .read(autoLockHoldProvider.notifier)
+        .during(
+          () => ref
+              .read(slateFilesProvider)
+              .export(name: sendFileName(slate.slateId), json: slate.json),
+        );
   }
 
   Future<void> _openResponse() async {
@@ -687,6 +692,15 @@ class _SendScreenState extends ConsumerState<SendScreen> {
         const SizedBox(height: 12),
       ],
       BusyButton(label: 'Done', onPressed: () => Navigator.pop(context)),
+      const SizedBox(height: 8),
+      TextButton.icon(
+        icon: const Icon(Icons.help_outline),
+        label: const Text('Help'),
+        onPressed: () => openHelp(
+          context,
+          waiting ? HelpTopic.waitingForRecipient : HelpTopic.confirmations,
+        ),
+      ),
     ];
   }
 }

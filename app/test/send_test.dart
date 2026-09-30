@@ -1,13 +1,21 @@
+import 'dart:async';
+
+import 'package:epic_wallet/src/app.dart';
 import 'package:epic_wallet/src/contacts.dart';
 import 'package:epic_wallet/src/price.dart';
 import 'package:epic_wallet/src/providers.dart';
+import 'package:epic_wallet/src/relay_directory.dart';
 import 'package:epic_wallet/src/secret_store.dart';
+import 'package:epic_wallet/src/settings.dart';
 import 'package:epic_wallet/src/slate_files.dart';
 import 'package:epic_wallet/src/ui/common.dart';
 import 'package:epic_wallet/src/ui/contacts_screen.dart';
+import 'package:epic_wallet/src/ui/help_screen.dart';
 import 'package:epic_wallet/src/ui/receive_screen.dart';
 import 'package:epic_wallet/src/ui/scan_screen.dart';
 import 'package:epic_wallet/src/ui/send_screen.dart';
+import 'package:epic_wallet/src/updater.dart';
+import 'package:epic_wallet/src/vault.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -103,6 +111,138 @@ Future<void> _enter(WidgetTester tester, String label, String text) async {
   // Past the fee estimate's debounce.
   await tester.pump(const Duration(milliseconds: 500));
   await tester.pumpAndSettle();
+}
+
+/// Slate files whose trips out of the app last until the test ends them, as a share sheet or
+/// file picker stays open while the user is in another app.
+class _GatedFiles extends FakeSlateFiles {
+  Completer<void>? gate;
+
+  Future<void> _wait() async {
+    final g = Completer<void>();
+    gate = g;
+    await g.future;
+  }
+
+  @override
+  Future<bool> export({required String name, required String json}) async {
+    await _wait();
+    return super.export(name: name, json: json);
+  }
+
+  @override
+  Future<SlateFile?> pick() async {
+    await _wait();
+    return super.pick();
+  }
+
+  @override
+  Future<void> shareText(String text) async {
+    await _wait();
+    await super.shareText(text);
+  }
+}
+
+class _NoRelays implements RelayDirectory {
+  @override
+  Future<List<RelayStatus>> relays(String chain) async => const [];
+}
+
+/// The whole app on a funded mainnet wallet with a PIN, auto-lock "Immediately", and a clock
+/// the test moves.
+class _AppHarness {
+  _AppHarness() {
+    store.values['wallet.mainnet.sealed'] = 'sealed|$_pin|$_password';
+    store.values['app.auto_lock'] = '0';
+    service = FakeWalletService(
+      existingWallets: {'/fake/wallets/mainnet'},
+      session: session,
+    );
+  }
+
+  static const _pin = '123456';
+  static const _password = 'correct horse';
+
+  final store = MemorySecretStore();
+  final session = _funded();
+  final files = _GatedFiles();
+  late final FakeWalletService service;
+  DateTime now = DateTime(2026, 9, 30, 12);
+  late ProviderContainer container;
+
+  Future<void> pumpUnlocked(WidgetTester tester) async {
+    tester.view.physicalSize = const Size(1080, 2340);
+    tester.view.devicePixelRatio = 3;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(
+      ProviderScope(
+        retry: (_, _) => null,
+        overrides: [
+          walletServiceProvider.overrideWithValue(service),
+          walletDirProvider.overrideWithValue(
+            (chain) async => '/fake/wallets/${chain.name}',
+          ),
+          secretStoreProvider.overrideWithValue(store),
+          biometricStoreProvider.overrideWithValue(
+            MemoryBiometricStore(available: false),
+          ),
+          vaultCryptoProvider.overrideWithValue(FakeVaultCrypto()),
+          updatePlatformProvider.overrideWithValue(null),
+          relayDirectoryProvider.overrideWithValue(_NoRelays()),
+          slateFilesProvider.overrideWithValue(files),
+          priceSourceProvider.overrideWithValue(const _FixedPrice(null)),
+          clockProvider.overrideWithValue(() => now),
+        ],
+        child: const WalletApp(),
+      ),
+    );
+    await tester.pumpAndSettle();
+    container = ProviderScope.containerOf(
+      tester.element(find.byType(MaterialApp)),
+    );
+    // Home keeps refresh timers; unmounting cancels them.
+    addTearDown(() => tester.pumpWidget(const SizedBox()));
+    await tester.enterText(find.widgetWithText(TextField, 'PIN'), _pin);
+    await tester.pumpAndSettle();
+    expect(container.read(sessionProvider), isNotNull);
+  }
+
+  Future<void> open(WidgetTester tester, Widget screen) async {
+    final navigator = tester.state<NavigatorState>(
+      find.byType(Navigator).first,
+    );
+    unawaited(navigator.push(MaterialPageRoute<void>(builder: (_) => screen)));
+    await tester.pumpAndSettle();
+  }
+
+  bool get locked => container.read(sessionProvider) == null;
+
+  /// Leaves the app for [away] and comes back, the way a phone moves through the states.
+  Future<void> awayAndBack(WidgetTester tester, Duration away) async {
+    for (final state in const [
+      AppLifecycleState.inactive,
+      AppLifecycleState.hidden,
+      AppLifecycleState.paused,
+    ]) {
+      tester.binding.handleAppLifecycleStateChanged(state);
+      await tester.pump();
+    }
+    now = now.add(away);
+    for (final state in const [
+      AppLifecycleState.hidden,
+      AppLifecycleState.inactive,
+      AppLifecycleState.resumed,
+    ]) {
+      tester.binding.handleAppLifecycleStateChanged(state);
+      await tester.pump();
+    }
+  }
+
+  /// Ends the trip out of the app that is waiting.
+  Future<void> finishTrip(WidgetTester tester) async {
+    files.gate!.complete();
+    await tester.pumpAndSettle();
+  }
 }
 
 void main() {
@@ -490,6 +630,148 @@ void main() {
       await _tap(tester, find.text('Delete'));
       expect(find.text('Robert'), findsNothing);
       expect(h.session.contactsValue.single.name, 'Carol');
+    });
+  });
+
+  group('auto-lock holds', () {
+    testWidgets('sharing the address does not lock; leaving without it does', (
+      tester,
+    ) async {
+      final h = _AppHarness();
+      await h.pumpUnlocked(tester);
+      await h.open(tester, const ReceiveScreen());
+
+      await _tap(tester, find.text('Share'));
+      expect(h.container.read(autoLockHoldProvider), 1);
+      await h.awayAndBack(tester, const Duration(minutes: 10));
+      expect(h.locked, isFalse);
+      await h.finishTrip(tester);
+      expect(h.container.read(autoLockHoldProvider), 0);
+      expect(h.files.sharedTexts, [h.session.address]);
+
+      // The control: "Immediately" locks an ordinary trip away.
+      await h.awayAndBack(tester, const Duration(seconds: 1));
+      await tester.pumpAndSettle();
+      expect(h.locked, isTrue);
+    });
+
+    testWidgets('picking a transaction file does not lock', (tester) async {
+      final h = _AppHarness();
+      await h.pumpUnlocked(tester);
+      await h.open(tester, const ReceiveScreen());
+      await _tap(tester, find.text('Receive a transaction file'));
+      await _tap(tester, find.text('Open transaction file'));
+      expect(h.container.read(autoLockHoldProvider), 1);
+      await h.awayAndBack(tester, const Duration(minutes: 10));
+      await h.finishTrip(tester);
+      expect(h.locked, isFalse);
+      expect(h.container.read(autoLockHoldProvider), 0);
+    });
+
+    testWidgets('sharing a send file does not lock', (tester) async {
+      final h = _AppHarness();
+      await h.pumpUnlocked(tester);
+      await h.open(tester, const SendScreen());
+      await _tap(tester, find.text('Other ways to send'));
+      await _tap(tester, find.text('Send by transaction file'));
+      await _enter(tester, 'Amount (EPIC)', '1.5');
+      await _tap(tester, find.text('Create transaction file'));
+      expect(h.container.read(autoLockHoldProvider), 1);
+      await h.awayAndBack(tester, const Duration(minutes: 10));
+      await h.finishTrip(tester);
+      expect(h.locked, isFalse);
+      expect(h.files.exported.single.name, 'slate-1.tx');
+      expect(h.container.read(autoLockHoldProvider), 0);
+    });
+  });
+
+  group('help', () {
+    testWidgets('every question expands to its answer', (tester) async {
+      final h = _Harness();
+      await h.pump(tester, const HelpScreen());
+      expect(
+        find.byType(ExpansionTile),
+        findsNWidgets(HelpTopic.values.length),
+      );
+      // All titles fit on screen while every answer is closed.
+      final questions = tester
+          .widgetList<ExpansionTile>(find.byType(ExpansionTile))
+          .map((t) => (t.title as Text).data!)
+          .toList();
+      expect(questions, hasLength(HelpTopic.values.length));
+      const answer = 'Epicbox is a mailbox service';
+      expect(find.textContaining(answer), findsNothing);
+      await _tap(
+        tester,
+        find.text('Why does my payment say "Waiting for recipient"?'),
+      );
+      expect(find.textContaining(answer), findsOneWidget);
+
+      // Each question opens to an answer, then closes again.
+      for (final q in questions.skip(1)) {
+        final title = find.text(q);
+        await tester.scrollUntilVisible(
+          title,
+          200,
+          scrollable: find.byType(Scrollable).first,
+        );
+        final tile = find.ancestor(
+          of: title,
+          matching: find.byType(ExpansionTile),
+        );
+        await _tap(tester, title);
+        expect(
+          find.descendant(of: tile, matching: find.byType(Text)),
+          findsNWidgets(2),
+          reason: q,
+        );
+        await _tap(tester, title);
+      }
+      final confirmations = find.text('What are confirmations and why 10?');
+      await tester.scrollUntilVisible(
+        confirmations,
+        -200,
+        scrollable: find.byType(Scrollable).first,
+      );
+      await _tap(tester, confirmations);
+      expect(find.textContaining('after 10 confirmations'), findsOneWidget);
+    });
+
+    testWidgets('a topic opens expanded', (tester) async {
+      final h = _Harness();
+      await h.pump(
+        tester,
+        const HelpScreen(topic: HelpTopic.historyAfterRestore),
+      );
+      expect(find.textContaining('import it in Settings'), findsOneWidget);
+      expect(find.textContaining('Epicbox is a mailbox service'), findsNothing);
+    });
+
+    testWidgets('receive links to help about receiving', (tester) async {
+      final h = _Harness();
+      await h.pump(tester, const ReceiveScreen());
+      await _tap(tester, find.byTooltip('Help'));
+      expect(find.byType(HelpScreen), findsOneWidget);
+      expect(
+        find.textContaining('it can only do that while the app is open'),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('the epicbox send result links to "Waiting for recipient"', (
+      tester,
+    ) async {
+      final h = _Harness();
+      await h.pump(tester, const SendScreen());
+      await _enter(tester, 'To', _bob);
+      await _enter(tester, 'Amount (EPIC)', '1');
+      await _tap(tester, find.text('Review'));
+      await _tap(tester, find.text('Send 1 EPIC'));
+      await _tap(tester, find.widgetWithText(TextButton, 'Help'));
+      expect(
+        find.textContaining('Epicbox is a mailbox service'),
+        findsOneWidget,
+      );
     });
   });
 

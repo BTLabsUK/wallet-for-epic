@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../contacts.dart' show contactNameFor, contactsProvider;
 import '../errors.dart';
 import '../network.dart';
 import '../providers.dart';
@@ -12,6 +13,7 @@ import '../updater.dart';
 import '../wallet_service.dart';
 import 'backup_screen.dart';
 import 'common.dart';
+import 'help_screen.dart';
 import 'history_screen.dart';
 import 'receive_screen.dart';
 import 'restore_screen.dart' show ScanProgressView;
@@ -26,6 +28,36 @@ const Duration autoRefreshInterval = Duration(seconds: 60);
 
 /// Transactions shown under "Recent activity".
 const int recentActivityCount = 5;
+
+/// The notice for a listener event: what happened to which payment, never the raw message.
+/// [tx] is the transaction with the event's slate id, when the list has it.
+String paymentNotice(
+  ListenerEvent event,
+  TxEntry? tx, {
+  String? contactName,
+  bool hidden = false,
+}) {
+  final counterparty = tx?.counterparty;
+  final who =
+      contactName ?? (counterparty == null ? null : shortAddress(counterparty));
+  switch (event.kind) {
+    case ListenerEventKind.received:
+      final amount = event.amount ?? (tx == null ? null : txAmount(tx).amount);
+      if (amount == null || hidden) return 'Payment received';
+      final from = contactName == null ? '' : ' from $contactName';
+      return 'Received ${epicText(amount)}$from';
+    case ListenerEventKind.finalized:
+      return who == null ? 'Payment completed' : 'Payment to $who completed';
+    case ListenerEventKind.error:
+      return event.slateId == null
+          ? 'The relay reported a problem. Retrying.'
+          : 'A payment could not be completed.';
+    case ListenerEventKind.connected ||
+        ListenerEventKind.disconnected ||
+        ListenerEventKind.stopped:
+      return event.message;
+  }
+}
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -111,18 +143,54 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     await _open(SendScreen(recipient: text));
   }
 
+  /// Tells the user what the listener just did, in words, with a way to the transaction.
+  Future<void> _notify(ListenerEvent event) async {
+    TxEntry? tx;
+    final slateId = event.slateId;
+    if (slateId != null) {
+      // The listener refreshes home right after this event; wait for that list.
+      await Future<void>.delayed(Duration.zero);
+      try {
+        final data = await ref.read(homeProvider.future);
+        tx = data.transactions.where((t) => t.slateId == slateId).firstOrNull;
+      } catch (_) {
+        // Word it without the transaction.
+      }
+    }
+    if (!mounted) return;
+    final contacts = ref.read(contactsProvider).value ?? const <Contact>[];
+    final text = paymentNotice(
+      event,
+      tx,
+      contactName: contactNameFor(contacts, tx?.counterparty),
+      hidden: ref.read(appSettingsProvider).value?.hideBalances ?? false,
+    );
+    final key = tx?.key;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(text),
+        duration: const Duration(seconds: 6),
+        action: key == null
+            ? null
+            : SnackBarAction(
+                label: 'View',
+                onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (_) => TxDetailsScreen(txKey: key),
+                  ),
+                ),
+              ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     ref.listen(incomingSlateProvider, (_, file) {
       if (file != null) _openIncoming();
     });
     ref.listen(listenerProvider.select((s) => s.last), (_, event) {
-      if (event == null) return;
-      _showMessage(
-        event.kind == ListenerEventKind.error
-            ? 'Epicbox: ${event.message}'
-            : event.message,
-      );
+      if (event != null) _notify(event);
     });
     final config = ref.watch(walletConfigProvider);
     final home = ref.watch(homeProvider);
@@ -244,12 +312,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     ],
                   ),
                   if (data != null && transactions.isEmpty)
-                    const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 16),
-                      child: Text(
-                        'No transactions yet. Tap Receive to see your address '
-                        'and QR code, then share it with the sender.',
-                      ),
+                    _EmptyActivity(
+                      onReceive: () => _open(const ReceiveScreen()),
                     ),
                   for (final tx in pendingFirst(
                     transactions,
@@ -503,6 +567,7 @@ class _SyncLine extends ConsumerWidget {
     final theme = Theme.of(context);
     final tip = ref.watch(nodeTipProvider);
     final listening = ref.watch(listenerProvider.select((s) => s.connected));
+    final lost = ref.watch(listenerProvider.select((s) => s.lost));
     final summary = this.summary;
     final (IconData icon, String text, bool problem) = switch (tip) {
       AsyncError() => (
@@ -527,6 +592,8 @@ class _SyncLine extends ConsumerWidget {
         : theme.colorScheme.onSurfaceVariant;
     final relay = listening
         ? 'Ready to receive payments.'
+        : lost
+        ? 'Relay connection lost, retrying.'
         : 'Connecting to the relay to receive payments…';
     return Semantics(
       liveRegion: problem,
@@ -604,8 +671,61 @@ class _PendingSendsCard extends ConsumerWidget {
                   child: Text(one ? 'View payment' : 'View payments'),
                 ),
               ),
+              Align(
+                alignment: Alignment.centerRight,
+                child: TextButton(
+                  onPressed: () =>
+                      openHelp(context, HelpTopic.waitingForRecipient),
+                  child: const Text('Why is it waiting?'),
+                ),
+              ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+/// What a brand-new wallet shows instead of an empty list: how money gets in.
+class _EmptyActivity extends StatelessWidget {
+  const _EmptyActivity({required this.onReceive});
+
+  final VoidCallback onReceive;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Card.outlined(
+      margin: const EdgeInsets.only(top: 8),
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          children: [
+            Icon(
+              Icons.account_balance_wallet_outlined,
+              size: 48,
+              color: theme.colorScheme.primary,
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'Your wallet is ready',
+              style: theme.textTheme.titleMedium,
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              'To get EPIC, show your address or QR code to the sender. '
+              'Payments arrive while this app is open.',
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 16),
+            FilledButton.icon(
+              icon: const Icon(Icons.qr_code),
+              label: const Text('Show my address'),
+              onPressed: onReceive,
+            ),
+          ],
         ),
       ),
     );
