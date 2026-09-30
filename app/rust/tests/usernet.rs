@@ -667,6 +667,180 @@ fn usernet_end_to_end() {
     assert_eq!(noted.note.as_deref(), Some("first payment to B"));
 }
 
+/// Blocks a refresh scans below the tip (`core/session.rs`, `REFRESH_SCAN_BACK`).
+const SCAN_BACK: u64 = 100;
+/// Blocks mined while a wallet is closed: more than `SCAN_BACK`, so the payment's block lies
+/// outside what the reopened wallet's refresh scans.
+const CLOSED_BLOCKS: u64 = 150;
+
+/// Mines `CLOSED_BLOCKS` past `from` and stops the miner. Returns the time it took.
+fn mine_while_closed(net: &mut Network, what: &str, from: u64) -> Duration {
+    let t = Instant::now();
+    net.mine_until(what, Duration::from_secs(1200), || {
+        height() >= from + CLOSED_BLOCKS
+    });
+    net.stop_miner();
+    t.elapsed()
+}
+
+/// A payment cannot reach a closed wallet: the wallet signs the slate first, and whatever it
+/// signs or creates is in epic.db as unconfirmed. So a refresh after days confirms it by
+/// commitment (step 1), even though it scans only the last 100 blocks and the payment's block is
+/// older. Two cases, each with the wallet closed for 150 blocks and then one `summary(true)`:
+/// A receives from alice (A signs, closes, alice finalizes and posts), and A sends to B (A
+/// finalizes and posts, closes); A's change and B's output confirm.
+#[test]
+#[ignore = "needs the local usernet stable network"]
+fn payments_made_before_closing_confirm_after_150_blocks() {
+    init_logging();
+    let started = Instant::now();
+    let mut net = Network::up();
+    let dirs = tempfile::tempdir().expect("tempdir");
+    let cfg_a = config(&dirs.path().join("a"), Chain::Usernet, NODE_URL);
+    let cfg_b = config(&dirs.path().join("b"), Chain::Usernet, NODE_URL);
+    let slates = dirs.path().join("slates");
+    fs::create_dir_all(&slates).expect("slates dir");
+
+    let a = EpicWallet::create(cfg_a.clone(), None, PASSWORD.into()).expect("create A");
+    let b = EpicWallet::create(cfg_b.clone(), None, PASSWORD.into()).expect("create B");
+    let a_seen = a.summary(true, MIN_CONF).expect("summary A");
+    assert!(a_seen.validated_with_node, "usernet node reports no_sync");
+    b.summary(true, MIN_CONF).expect("summary B");
+    let b_seen = height();
+
+    // 1. alice -> A. A signs, then closes before alice finalizes and posts.
+    let fund_file = slates.join("fund.tx");
+    net_shell(
+        "closed-alice-send",
+        &format!(
+            "w alice send -m file -d {} -c \"$MIN_CONF\" 10",
+            fund_file.display()
+        ),
+        300,
+    );
+    let request = fs::read_to_string(&fund_file).expect("alice's slate");
+    let response = a.receive_slate(request).expect("A receives alice's slate");
+    drop(a);
+    let response_file = slates.join("fund.tx.response");
+    fs::write(&response_file, &response.json).expect("write response");
+    net_shell(
+        "closed-alice-finalize",
+        &format!("w alice finalize -f -i {}", response_file.display()),
+        300,
+    );
+    let posted = height();
+    let mined = mine_while_closed(&mut net, "150 blocks with A closed", posted);
+
+    let a = EpicWallet::open(cfg_a.clone(), PASSWORD.into()).expect("reopen A");
+    let tip = height();
+    assert!(
+        tip > a_seen.last_confirmed_height + SCAN_BACK,
+        "A's last refresh ({}) is out of scan range of tip {tip}",
+        a_seen.last_confirmed_height
+    );
+    let t = Instant::now();
+    let s = a.summary(true, MIN_CONF).expect("one refresh of A");
+    let refresh_receive = t.elapsed();
+    assert!(s.validated_with_node);
+    assert!(s.last_confirmed_height >= tip);
+    assert_eq!(s.spendable, 10 * EPIC, "the payment is spendable");
+    assert_eq!(s.total, 10 * EPIC);
+    assert_eq!(s.awaiting_confirmation, 0);
+    let rows = a.transactions(false).expect("A txs, no refresh");
+    let row = rows
+        .iter()
+        .find(|t| t.slate_id.as_deref() == Some(response.slate_id.as_str()))
+        .expect("A's receive row");
+    assert_eq!(row.kind, TxKind::Received);
+    assert!(row.confirmed, "the receive row is confirmed");
+    assert_eq!(row.status, TxStatus::Confirmed);
+    assert_eq!(row.amount_credited, 10 * EPIC);
+    let at = row.block_height.expect("the receive's block height");
+    assert!(
+        at > posted && at <= posted + 10,
+        "mined right after the post at {posted}, found at {at}"
+    );
+    assert!(
+        at + SCAN_BACK < tip,
+        "block {at} is outside the refresh's scan from {}",
+        tip - SCAN_BACK
+    );
+    eprintln!(
+        "receive: posted at {posted}, in block {at}, A reopened at {tip}; mining {mined:?}, \
+         one refresh {refresh_receive:?}"
+    );
+
+    // 2. A -> B. A finalizes and posts, then A and B close.
+    let amount = 2 * EPIC;
+    let send = a.create_send_slate(amount, MIN_CONF).expect("A's slate");
+    let reply = b.receive_slate(send.json).expect("B receives");
+    drop(b);
+    let sent = a
+        .finalize_and_post(reply.json)
+        .expect("A finalizes and posts");
+    let fee = sent.fee.expect("fee");
+    let a_seen = a.summary(false, MIN_CONF).expect("local summary");
+    assert_eq!(
+        a_seen.locked,
+        10 * EPIC,
+        "A's input is locked until it confirms"
+    );
+    drop(a);
+    let posted = height();
+    let mined = mine_while_closed(&mut net, "150 blocks with A and B closed", posted);
+
+    let a = EpicWallet::open(cfg_a, PASSWORD.into()).expect("reopen A");
+    let tip = height();
+    let t = Instant::now();
+    let s = a.summary(true, MIN_CONF).expect("one refresh of A");
+    let refresh_send = t.elapsed();
+    assert!(s.validated_with_node);
+    let change = 10 * EPIC - amount - fee;
+    assert_eq!(s.spendable, change, "the change is spendable");
+    assert_eq!(s.total, change);
+    assert_eq!(s.locked, 0, "the spent input is no longer locked");
+    assert_eq!(s.awaiting_confirmation, 0);
+    let row = a
+        .transactions(false)
+        .expect("A txs, no refresh")
+        .into_iter()
+        .find(|t| t.slate_id.as_deref() == Some(send.slate_id.as_str()) && t.kind == TxKind::Sent)
+        .expect("A's send row");
+    assert!(row.confirmed, "the send row is confirmed");
+    assert_eq!(row.status, TxStatus::Confirmed);
+    assert_eq!(row.amount_debited - row.amount_credited, amount + fee);
+    let at = row.block_height.expect("the send's block height");
+    assert!(
+        at > posted && at <= posted + 10,
+        "mined right after the post at {posted}, found at {at}"
+    );
+    assert!(at + SCAN_BACK < tip);
+
+    let b = EpicWallet::open(cfg_b, PASSWORD.into()).expect("reopen B");
+    assert!(tip > b_seen + SCAN_BACK + CLOSED_BLOCKS);
+    let t = Instant::now();
+    let sb = b.summary(true, MIN_CONF).expect("one refresh of B");
+    let refresh_b = t.elapsed();
+    assert_eq!(sb.spendable, amount, "B's payment is spendable");
+    let b_row = b
+        .transactions(false)
+        .expect("B txs")
+        .into_iter()
+        .find(|t| t.slate_id.as_deref() == Some(send.slate_id.as_str()))
+        .expect("B's receive row");
+    assert!(b_row.confirmed);
+    assert_eq!(
+        b_row.block_height,
+        Some(at),
+        "B's output is in the same block"
+    );
+    eprintln!(
+        "send: posted at {posted}, in block {at}, reopened at {tip}; mining {mined:?}, one \
+         refresh A {refresh_send:?}, B {refresh_b:?}; whole test {:?}",
+        started.elapsed()
+    );
+}
+
 /// A stock epic-wallet 4.0.0 CLI, the upstream release, used as an epicbox sender.
 const STOCK_CLI: &str = "/opt/epic/user-env/bin/epic-wallet";
 const CLI_PASS: &str = "stock-cli-usernet";
