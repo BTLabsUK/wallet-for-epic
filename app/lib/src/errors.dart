@@ -17,8 +17,8 @@ String describeError(Object error) {
       WalletErrorKind.notEnoughFunds =>
         'Not enough spendable funds for this amount plus the fee.',
       WalletErrorKind.invalidSlate =>
-        'This slate is not valid for this step. Check that you pasted the '
-            'complete JSON.',
+        'This transaction text is not valid for this step. Check that you '
+            'pasted all of it.',
       WalletErrorKind.invalidArgument => _withDetail(
         'Invalid input.',
         error.message,
@@ -27,6 +27,9 @@ String describeError(Object error) {
         'Could not reach the recipient.',
         error.message,
       ),
+      WalletErrorKind.chainBusy =>
+        'The wallet is still busy on the other network. Wait a moment and try '
+            'again, or close and reopen the app.',
       WalletErrorKind.io => _withDetail(
         'Could not read or write wallet files.',
         error.message,

@@ -1,7 +1,8 @@
 /// Payment history backup: the encrypted `.wfeh` export, the CSV export and the import.
 ///
 /// Files leave the app like transaction files do, through the shared helpers in
-/// `slate_files.dart`: "Save to device" (the system save dialog; the Storage Access Framework
+/// `slate_files.dart`: "Share" first, because a backup matters only once this phone is gone,
+/// then "Save to device" (the system save dialog; the Storage Access Framework
 /// on Android) first, and "Share" as a second choice where the platform has a share sheet.
 library;
 
@@ -153,6 +154,7 @@ Future<bool> _handOver(
   required String name,
   required Uint8List bytes,
   required String title,
+  String? note,
 }) async {
   final files = ref.read(historyFilesProvider);
   var destination = _Destination.device;
@@ -172,17 +174,27 @@ Future<bool> _handOver(
                 style: Theme.of(context).textTheme.titleMedium,
               ),
             ),
-            ListTile(
-              leading: const Icon(Icons.save_alt),
-              title: const Text('Save to device'),
-              subtitle: const Text('Choose a folder, such as Downloads'),
-              onTap: () => Navigator.pop(context, _Destination.device),
-            ),
+            if (note != null)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(24, 0, 24, 8),
+                child: Text(note),
+              ),
+            // Share first: the copy that matters is the one off this phone.
             ListTile(
               leading: const Icon(Icons.share),
               title: const Text('Share'),
-              subtitle: const Text('Send it to another app, such as email'),
+              subtitle: const Text(
+                'Keep a copy off this phone, such as email or cloud storage',
+              ),
               onTap: () => Navigator.pop(context, _Destination.share),
+            ),
+            ListTile(
+              leading: const Icon(Icons.save_alt),
+              title: const Text('Save to device'),
+              subtitle: const Text(
+                'Only useful if you also copy it off this phone.',
+              ),
+              onTap: () => Navigator.pop(context, _Destination.device),
             ),
             const SizedBox(height: 8),
           ],
@@ -225,7 +237,10 @@ Future<bool> exportHistoryBackup(BuildContext context, WidgetRef ref) async {
       ref,
       name: name,
       bytes: bytes,
-      title: 'Export backup',
+      title: 'Export history backup',
+      note:
+          'History backups hold payments up to now. Export again after new '
+          'payments.',
     );
     return saved;
   } catch (error) {
@@ -246,7 +261,7 @@ Future<bool> exportHistoryCsv(BuildContext context, WidgetRef ref) async {
       content: const Text(
         'The CSV file is not encrypted. Anyone who gets it can read your '
         'amounts, dates, addresses and notes. It cannot be imported back; use '
-        'Export backup for that.',
+        'Export history backup for that.',
       ),
       actions: [
         TextButton(

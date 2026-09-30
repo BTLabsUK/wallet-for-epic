@@ -6,7 +6,9 @@ import '../errors.dart';
 import '../network.dart';
 import '../price.dart';
 import '../providers.dart';
+import '../push.dart';
 import '../settings.dart';
+import '../slate_files.dart';
 import '../updater.dart';
 import '../wallet_service.dart';
 import 'backup_screen.dart';
@@ -23,6 +25,21 @@ import 'setup_screen.dart';
 /// The project's source code.
 const String projectRepoUrl = 'https://github.com/blacktyger/wallet-for-epic';
 const String epicCashUrl = 'https://epiccash.com';
+
+/// Deletes leftover copies of shared files; uisend's `clearSharedFiles`. Tests replace it.
+final sharedFilesCleanupProvider = Provider<Future<void> Function()>(
+  (ref) => clearSharedFiles,
+);
+
+/// Under the payment notifications switch. No mailbox server registers push tokens yet
+/// (`push.dart`), so it says so instead of naming one.
+const String pushNotificationsHint =
+    'Delivered by Google Firebase. No mailbox server supports it yet. You '
+    'still need to open the app to accept a payment.';
+
+/// Said when a delete is asked for while a scan runs.
+const String deleteDuringScanMessage =
+    'Wait for the scan to finish before deleting the wallet.';
 
 /// Whether this device offers biometric unlock, and whether the open wallet uses it.
 final _biometricsProvider =
@@ -157,6 +174,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     }
   }
 
+  Future<void> _setPushNotifications(bool on) async {
+    await _settings.setPushNotifications(on);
+    if (!on && mounted) {
+      _say('Notifications stop the next time the app starts.');
+    }
+  }
+
   Future<void> _setBiometrics(bool on) async {
     final config = ref.read(walletConfigProvider);
     if (config == null) return;
@@ -205,6 +229,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   Future<void> _deleteWallet() async {
     final config = ref.read(walletConfigProvider);
     if (config == null) return;
+    // A scan writes to the wallet's files until it ends.
+    if (ref.read(scanProvider).running) {
+      _say(deleteDuringScanMessage);
+      return;
+    }
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (_) => const DeleteWalletDialog(),
@@ -216,11 +245,21 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       allowBiometrics: false,
     );
     if (password == null || !mounted) return;
+    if (ref.read(scanProvider).running) {
+      _say(deleteDuringScanMessage);
+      return;
+    }
     await _run(() async {
       try {
         ref.read(sessionProvider.notifier).lock();
+        // The core waits until every call on this wallet has ended before it removes the files.
         await ref.read(walletServiceProvider).deleteWallet(config: config);
         await ref.read(vaultProvider).forget(config.chain);
+        try {
+          await ref.read(sharedFilesCleanupProvider)();
+        } catch (_) {
+          // Leftover copies in the cache are harmless next to a deleted wallet; keep going.
+        }
         if (!mounted) return;
         Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute<void>(builder: (_) => const LaunchScreen()),
@@ -299,6 +338,16 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   subtitle: Text(themeLabel(s.themeMode)),
                   onTap: () => _pickTheme(s),
                 ),
+                if (ref.watch(pushPlatformProvider) != null) ...[
+                  const _Header('Notifications'),
+                  SwitchListTile(
+                    secondary: const Icon(Icons.notifications_outlined),
+                    title: const Text('Payment notifications'),
+                    subtitle: const Text(pushNotificationsHint),
+                    value: s.pushNotifications,
+                    onChanged: _setPushNotifications,
+                  ),
+                ],
                 if (walletOpen) ...[
                   const _Header('Security'),
                   ListTile(
@@ -321,7 +370,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   ),
                   ListTile(
                     leading: const Icon(Icons.key),
-                    title: const Text('Show recovery phrase'),
+                    title: const Text('Back up recovery phrase'),
+                    subtitle: const Text(
+                      'The words that restore your wallet and funds',
+                    ),
                     onTap: _showPhrase,
                   ),
                   ListTile(
@@ -332,10 +384,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   const _Header('Payment history'),
                   ListTile(
                     leading: const Icon(Icons.upload_file),
-                    title: const Text('Export backup'),
+                    title: const Text('Export history backup'),
                     subtitle: const Text(
-                      'Encrypted. Opens only in a wallet restored from the '
-                      'same recovery phrase.',
+                      'Notes, recipients and fees. It does not hold your '
+                      'funds; your recovery phrase does.',
                     ),
                     onTap: _busy
                         ? null
@@ -353,7 +405,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   ),
                   ListTile(
                     leading: const Icon(Icons.download),
-                    title: const Text('Import backup'),
+                    title: const Text('Import history backup'),
                     subtitle: const Text(
                       'Brings back notes, recipients, fees and dates.',
                     ),
@@ -384,7 +436,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       ),
                     ),
                     subtitle: const Text('Removes it from this device'),
-                    enabled: !scan.running && !_busy,
+                    enabled: !_busy,
                     onTap: _deleteWallet,
                   ),
                 ],

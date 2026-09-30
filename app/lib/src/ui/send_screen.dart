@@ -316,20 +316,24 @@ class _SendScreenState extends ConsumerState<SendScreen> {
   Future<void> _send(Recipient to, FeeEstimate reviewed) {
     // Captured now: after the await the screen may be gone, and home must still refresh.
     final container = ProviderScope.containerOf(context, listen: false);
+    // A slow send must not lock the wallet under the user and lose the result step.
+    final hold = ref.read(autoLockHoldProvider.notifier);
     final amount = reviewed.amount;
     return _run((session) async {
-      final tx = switch (to.kind) {
-        RecipientKind.epicbox => await session.sendEpicbox(
-          amount: amount,
-          minimumConfirmations: minimumConfirmations,
-          address: to.address,
-        ),
-        RecipientKind.http => await session.sendHttp(
-          amount: amount,
-          minimumConfirmations: minimumConfirmations,
-          url: to.address,
-        ),
-      };
+      final tx = await hold.during(
+        () => switch (to.kind) {
+          RecipientKind.epicbox => session.sendEpicbox(
+            amount: amount,
+            minimumConfirmations: minimumConfirmations,
+            address: to.address,
+          ),
+          RecipientKind.http => session.sendHttp(
+            amount: amount,
+            minimumConfirmations: minimumConfirmations,
+            url: to.address,
+          ),
+        },
+      );
       // The payment is out; a note that fails to save must not look like a failed send.
       var noteSaved = true;
       final note = _note.text.trim();
@@ -417,8 +421,11 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       return;
     }
     final container = ProviderScope.containerOf(context, listen: false);
+    final hold = ref.read(autoLockHoldProvider.notifier);
     await _run((session) async {
-      final tx = await session.finalizeAndPost(slateJson: json);
+      final tx = await hold.during(
+        () => session.finalizeAndPost(slateJson: json),
+      );
       container.invalidate(homeProvider);
       if (mounted) {
         setState(
@@ -721,6 +728,14 @@ class _SendScreenState extends ConsumerState<SendScreen> {
   List<Widget> _resultStep(BuildContext context, _Sent sent) {
     final theme = Theme.of(context);
     final to = sent.to;
+    // Finished but not taken by the network: the form stays closed, so it cannot be sent twice.
+    if (sent.tx.repostable) {
+      return [
+        NotPostedNotice(tx: sent.tx),
+        const SizedBox(height: 8),
+        BusyButton(label: 'Done', onPressed: () => Navigator.pop(context)),
+      ];
+    }
     final waiting = to?.kind == RecipientKind.epicbox;
     final contacts = ref.watch(contactsProvider).value ?? const <Contact>[];
     final known = to == null || contactFor(contacts, to.address) != null;
@@ -737,7 +752,11 @@ class _SendScreenState extends ConsumerState<SendScreen> {
             const SizedBox(width: 12),
             Expanded(
               child: Text(
-                'Sent ${epicText(sent.amount)}',
+                // A mailbox payment has not gone anywhere yet; "Sent" would let the
+                // user close the app, which stops it from finishing.
+                waiting
+                    ? 'Payment started: ${epicText(sent.amount)}'
+                    : 'Sent ${epicText(sent.amount)}',
                 style: theme.textTheme.titleLarge,
               ),
             ),
@@ -747,8 +766,10 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       const SizedBox(height: 12),
       Text(
         waiting
-            ? 'The payment completes when the recipient\'s wallet is online; '
-                  'keep this app open or reopen it later to finish.'
+            ? 'It finishes when the recipient\'s wallet answers, usually '
+                  'within minutes if their app is open. Keep this app open, or '
+                  'open it again within a week to finish. You can find it on '
+                  'the home screen and in History.'
             : 'The payment is on its way to the network. It shows as '
                   'Completed after $minimumConfirmations confirmations.',
         style: theme.textTheme.bodyLarge,
@@ -756,8 +777,9 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       if (waiting) ...[
         const SizedBox(height: 8),
         const Text(
-          'If the recipient never answers, open the payment and tap Cancel '
-          'payment to unlock the funds.',
+          'If it is not completed, it cancels by itself after $sendTtlDays '
+          'days and the amount unlocks. To stop it sooner, open the payment and '
+          'tap Cancel payment.',
         ),
       ],
       if (sent.changedFee case final fee?) ...[
@@ -871,9 +893,9 @@ class _ReviewSheetState extends State<_ReviewSheet> {
             const SizedBox(height: 8),
             Text(
               widget.to.kind == RecipientKind.epicbox
-                  ? 'Sent through Epic\'s mailbox service. It completes when '
-                        'the recipient\'s wallet is online.'
-                  : 'Sent straight to the recipient\'s wallet.',
+                  ? 'Goes through Epic\'s mailbox service. It completes when '
+                        'the recipient\'s wallet answers.'
+                  : 'Goes straight to the recipient\'s wallet.',
               style: theme.textTheme.bodySmall,
             ),
             const SizedBox(height: 16),

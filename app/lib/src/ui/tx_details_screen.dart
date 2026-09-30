@@ -41,12 +41,18 @@ bool _isMailboxAddress(String? address) =>
     address.contains('@') &&
     !address.toLowerCase().startsWith('http');
 
-/// What the status means for the user, in a sentence or two.
-String txExplanation(TxEntry tx, BigInt? tip) {
+/// What the status means for the user, in a sentence or two. [now] lets an old mailbox send
+/// say that it can no longer complete.
+String txExplanation(TxEntry tx, BigInt? tip, {DateTime? now}) {
   final n = txConfirmations(tx, tip);
   final height = tx.blockHeight;
   final outgoing = txAmount(tx).outgoing;
+  final tooLong = now == null ? null : daysWaitingTooLong(tx, now);
   return switch (txPhase(tx, tip)) {
+    TxPhase.waitingRecipient when tooLong != null =>
+      'Waiting for $tooLong days. The mailbox deletes payments after 7 days, '
+          'so this one can no longer complete. Cancel it to unlock your funds, '
+          'then send again.',
     TxPhase.waitingRecipient when _isMailboxAddress(tx.counterparty) =>
       'Sent to the recipient\'s mailbox. It completes when their wallet comes '
           'online. Your funds stay locked until then, or until you cancel.',
@@ -82,12 +88,29 @@ String txExplanation(TxEntry tx, BigInt? tip) {
 /// How long a posted send may wait for the chain before details offer to broadcast it again.
 const Duration stuckAfter = Duration(minutes: 30);
 
-/// A finalized send that the chain still has not included [stuckAfter] after [TxEntry.timeUnix],
-/// and that the core can post again.
+/// A finalized send that the chain still has not included [stuckAfter] after it was finalized
+/// ([TxEntry.finalizedAtUnix], else [TxEntry.timeUnix]), and that the core can post again.
 bool isStuck(TxEntry tx, DateTime now) =>
     tx.repostable &&
     tx.status == TxStatus.awaitingConfirmation &&
-    now.difference(localTime(tx.timeUnix)) >= stuckAfter;
+    now.difference(localTime(tx.finalizedAtUnix ?? tx.timeUnix)) >= stuckAfter;
+
+/// After this long an unanswered mailbox send can no longer complete: the mailbox keeps a
+/// payment 7 days, and the answer can wait up to 7 more in ours.
+const Duration mailboxGiveUp = Duration(days: 14);
+
+/// Whole days a send without an expiry has waited for its recipient past [mailboxGiveUp], or
+/// null when it has an expiry (the TTL line covers it) or is not that old. Sends made before
+/// the wallet set an expiry have none.
+int? daysWaitingTooLong(TxEntry tx, DateTime now) {
+  if (tx.status != TxStatus.awaitingRecipient ||
+      tx.ttlCutoffHeight != null ||
+      !_isMailboxAddress(tx.counterparty)) {
+    return null;
+  }
+  final waited = now.difference(localTime(tx.timeUnix));
+  return waited > mailboxGiveUp ? waited.inDays : null;
+}
 
 /// When a pending transaction cancels itself, if it has an expiry.
 String? ttlLine(TxEntry tx, BigInt? tip) {
@@ -164,6 +187,44 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
       await session.repostTransaction(key: tx.key);
       if (!mounted) return;
       _showMessage('Broadcast again. It should confirm within a few minutes.');
+      await _reload();
+    } catch (error) {
+      if (mounted) _showMessage(describeError(error));
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  /// Unlocks the inputs of a send the network never took, after the user confirms the risk.
+  Future<void> _release(TxEntry tx) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Release funds?'),
+        content: const Text(
+          'Use this only if the payment will never confirm. If it still does, '
+          'you may see a wrong balance until you rescan.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Keep waiting'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Release funds'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+    final session = ref.read(sessionProvider);
+    if (session == null) return;
+    setState(() => _busy = true);
+    try {
+      await session.releaseStuckSend(key: tx.key);
+      if (!mounted) return;
+      _showMessage('Funds released');
       await _reload();
     } catch (error) {
       if (mounted) _showMessage(describeError(error));
@@ -249,7 +310,8 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
         ? null
         : approxFiat(amount, display);
     final ttl = ttlLine(tx, tip);
-    final stuck = isStuck(tx, ref.watch(clockProvider)());
+    final now = ref.watch(clockProvider)();
+    final stuck = isStuck(tx, now);
     final url = chain == null ? null : explorerUrl(chain, tx);
     final fee = tx.fee;
     final blockTime = tx.blockTimeUnix;
@@ -298,7 +360,7 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
                 children: [
                   TxStatusChip(tx: tx, tip: tip),
                   const SizedBox(height: 8),
-                  Text(txExplanation(tx, tip)),
+                  Text(txExplanation(tx, tip, now: now)),
                   if (ttl != null) ...[
                     const SizedBox(height: 8),
                     Text(ttl, style: theme.textTheme.bodySmall),
@@ -322,6 +384,22 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
                         icon: const Icon(Icons.cell_tower),
                         label: const Text('Broadcast again'),
                         onPressed: _busy ? null : () => _repost(tx),
+                      ),
+                    ),
+                  ],
+                  if (tx.releasable) ...[
+                    const SizedBox(height: 12),
+                    const Text(
+                      'The network refused this payment and it never reached the '
+                      'chain. You can release the funds it locked.',
+                    ),
+                    const SizedBox(height: 8),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: OutlinedButton.icon(
+                        icon: const Icon(Icons.lock_open),
+                        label: const Text('Release funds'),
+                        onPressed: _busy ? null : () => _release(tx),
                       ),
                     ),
                   ],

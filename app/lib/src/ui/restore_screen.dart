@@ -296,7 +296,8 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
       const Text(
         'The chain holds your balance, but not who you paid, fees or notes. '
         'If you exported a history backup from this wallet, import it now to '
-        'get them back.',
+        'get them back. It is the .wfeh file you shared or saved outside your '
+        'old phone.',
         textAlign: TextAlign.center,
       ),
       const SizedBox(height: 24),
@@ -325,7 +326,8 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
     final scan = ref.watch(scanProvider);
     return [
       Text(
-        'Scanning the chain for your outputs',
+        'Looking for your funds on the blockchain. Keep the app open until '
+        'this finishes.',
         style: Theme.of(context).textTheme.titleMedium,
       ),
       const SizedBox(height: 16),
@@ -381,8 +383,9 @@ class _DateChoice extends StatelessWidget {
         const SizedBox(height: 4),
         Text(
           chosen == null
-              ? 'Optional. Without a date the whole chain is scanned, which '
-                    'takes longer.'
+              ? 'Optional. If you are not sure, pick an earlier date. A date '
+                    'after your first payment misses funds. Without a date '
+                    'the whole chain is scanned, which takes longer.'
               : 'Scanning starts two days before this date, from block '
                     '${groupDigits(mainnetHeightForDate(chosen))}.',
           style: Theme.of(context).textTheme.bodySmall,

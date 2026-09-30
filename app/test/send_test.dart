@@ -1,7 +1,11 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:epic_wallet/src/app.dart';
 import 'package:epic_wallet/src/contacts.dart';
+import 'package:epic_wallet/src/errors.dart';
 import 'package:epic_wallet/src/price.dart';
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/relay_directory.dart';
@@ -14,12 +18,15 @@ import 'package:epic_wallet/src/ui/help_screen.dart';
 import 'package:epic_wallet/src/ui/receive_screen.dart';
 import 'package:epic_wallet/src/ui/scan_screen.dart';
 import 'package:epic_wallet/src/ui/send_screen.dart';
+import 'package:epic_wallet/src/ui/slate_file_screen.dart';
+import 'package:epic_wallet/src/ui/tx_details_screen.dart';
 import 'package:epic_wallet/src/updater.dart';
 import 'package:epic_wallet/src/vault.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:share_plus/share_plus.dart';
 
 BigInt _epic(num value) => BigInt.from((value * 100000000).round());
 
@@ -95,6 +102,41 @@ class _GatedSession extends FakeWalletSession {
       minimumConfirmations: minimumConfirmations,
       address: address,
     );
+  }
+
+  /// When set, HTTP sends and finishes return a finished send the network has not taken.
+  bool notPosted = false;
+
+  TxEntry _notPosted(BigInt amount) => fakeTx(
+    id: 7,
+    slateId: 'stuck',
+    kind: TxKind.sent,
+    status: TxStatus.awaitingConfirmation,
+    amountDebited: amount + fee,
+    fee: fee,
+    numInputs: 1,
+    repostable: true,
+    statusDetail: 'The node did not answer.',
+  );
+
+  @override
+  Future<TxEntry> sendHttp({
+    required BigInt amount,
+    required BigInt minimumConfirmations,
+    required String url,
+  }) async {
+    final tx = await super.sendHttp(
+      amount: amount,
+      minimumConfirmations: minimumConfirmations,
+      url: url,
+    );
+    return notPosted ? _notPosted(amount) : tx;
+  }
+
+  @override
+  Future<TxEntry> finalizeAndPost({required String slateJson}) async {
+    final tx = await super.finalizeAndPost(slateJson: slateJson);
+    return notPosted ? _notPosted(_epic(1.5)) : tx;
   }
 
   @override
@@ -393,6 +435,13 @@ void main() {
       await _enter(tester, 'Note (optional)', 'Lunch');
       await _tap(tester, find.text('Review'));
       expect(find.text('Review your payment'), findsOneWidget);
+      expect(
+        find.text(
+          'Goes through Epic\'s mailbox service. It completes when the '
+          'recipient\'s wallet answers.',
+        ),
+        findsOneWidget,
+      );
       expect(find.text(_bob), findsWidgets);
       expect(find.text('1.5 EPIC'), findsOneWidget);
       expect(find.text('0.008 EPIC'), findsOneWidget);
@@ -408,11 +457,23 @@ void main() {
       expect(h.session.epicboxSends.single.to, _bob);
       expect(h.session.epicboxSends.single.amount, _epic(1.5));
       expect(h.session.notes, {'s:send-1': 'Lunch'});
-      expect(find.text('Sent 1.5 EPIC'), findsOneWidget);
+      expect(find.text('Payment started: 1.5 EPIC'), findsOneWidget);
+      // Not "Sent": a mailbox payment has not gone anywhere yet.
+      expect(find.text('Sent 1.5 EPIC'), findsNothing);
       expect(
         find.text(
-          'The payment completes when the recipient\'s wallet is online; '
-          'keep this app open or reopen it later to finish.',
+          'It finishes when the recipient\'s wallet answers, usually within '
+          'minutes if their app is open. Keep this app open, or open it again '
+          'within a week to finish. You can find it on the home screen and in '
+          'History.',
+        ),
+        findsOneWidget,
+      );
+      expect(
+        find.text(
+          'If it is not completed, it cancels by itself after 14 days and the '
+          'amount unlocks. To stop it sooner, open the payment and tap Cancel '
+          'payment.',
         ),
         findsOneWidget,
       );
@@ -443,7 +504,7 @@ void main() {
       );
       await _tap(tester, find.text('Review'));
       expect(
-        find.text('Sent straight to the recipient\'s wallet.'),
+        find.text('Goes straight to the recipient\'s wallet.'),
         findsOneWidget,
       );
       await _tap(tester, find.text('Send 2 EPIC'));
@@ -517,7 +578,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(h.session.epicboxSends, hasLength(1));
       // The Send screen is still there, on its result.
-      expect(find.text('Sent 1 EPIC'), findsOneWidget);
+      expect(find.text('Payment started: 1 EPIC'), findsOneWidget);
     });
 
     testWidgets('Review asks for the fee again; a changed fee is shown', (
@@ -929,6 +990,28 @@ void main() {
       expect(h.locked, isTrue);
     });
 
+    testWidgets('a slow send does not lock, and its result stays', (
+      tester,
+    ) async {
+      final h = _AppHarness();
+      await h.pumpUnlocked(tester);
+      await h.open(tester, const SendScreen());
+      await _enter(tester, 'To', _bob);
+      await _enter(tester, 'Amount (EPIC)', '1');
+      await _tap(tester, find.text('Review'));
+      h.session.sendGate = Completer<void>();
+      await tester.tap(find.text('Send 1 EPIC'));
+      await tester.pump();
+      expect(h.container.read(autoLockHoldProvider), 1);
+      await h.awayAndBack(tester, const Duration(minutes: 10));
+      expect(h.locked, isFalse);
+      h.session.sendGate!.complete();
+      await tester.pumpAndSettle();
+      expect(h.locked, isFalse);
+      expect(find.text('Payment started: 1 EPIC'), findsOneWidget);
+      expect(h.container.read(autoLockHoldProvider), 0);
+    });
+
     testWidgets('picking a transaction file does not lock', (tester) async {
       final h = _AppHarness();
       await h.pumpUnlocked(tester);
@@ -957,6 +1040,164 @@ void main() {
       expect(h.locked, isFalse);
       expect(h.files.saved.single.name, 'slate-1.tx');
       expect(h.container.read(autoLockHoldProvider), 0);
+    });
+  });
+
+  group('finished but not taken by the network', () {
+    testWidgets('HTTP: the result says so, and the form is gone', (
+      tester,
+    ) async {
+      final h = _Harness();
+      h.session.notPosted = true;
+      await h.pump(tester, const SendScreen());
+      await _enter(tester, 'To', 'http://203.0.113.5:3415');
+      await _enter(tester, 'Amount (EPIC)', '2');
+      await _tap(tester, find.text('Review'));
+      await _tap(tester, find.text('Send 2 EPIC'));
+      expect(find.text('Not on the network yet'), findsOneWidget);
+      expect(find.text(NotPostedNotice.text), findsOneWidget);
+      expect(find.text('The node did not answer.'), findsOneWidget);
+      expect(find.text('Sent 2 EPIC'), findsNothing);
+      // Nothing to send a second time with.
+      expect(find.text('Review'), findsNothing);
+      expect(find.widgetWithText(TextField, 'To'), findsNothing);
+      expect(h.session.httpSends, hasLength(1));
+
+      await _tap(tester, find.text('Open the payment'));
+      expect(find.byType(TxDetailsScreen), findsOneWidget);
+    });
+
+    testWidgets('file, pasted response: the same notice', (tester) async {
+      final h = _Harness();
+      h.session.notPosted = true;
+      await h.pump(tester, const SendScreen());
+      await _tap(tester, find.text('Other ways to send'));
+      await _tap(tester, find.text('Send by transaction file'));
+      await _enter(tester, 'Amount (EPIC)', '1.5');
+      await _tap(tester, find.text('Create transaction file'));
+      await _tap(tester, find.text('Copy and paste instead'));
+      await tester.enterText(
+        find.descendant(
+          of: find.byType(SlateInput),
+          matching: find.byType(TextField),
+        ),
+        h.session.responseSlate.json,
+      );
+      await _tap(tester, find.text('Finish payment'));
+      expect(find.text(NotPostedNotice.text), findsOneWidget);
+      expect(find.text('Finish payment'), findsNothing);
+    });
+
+    testWidgets('file screen: the same notice after Finish payment', (
+      tester,
+    ) async {
+      final h = _Harness();
+      h.session.notPosted = true;
+      h.service.slateInfos[h.session.responseSlate.json] = SlateInfo(
+        slateId: 'slate-1',
+        amount: _epic(1.5),
+        fee: h.session.fee,
+        stage: SlateStage.response,
+      );
+      await h.pump(
+        tester,
+        SlateFileScreen(
+          file: SlateFile(
+            name: 'slate-1.tx.response',
+            json: h.session.responseSlate.json,
+          ),
+        ),
+      );
+      await _tap(tester, find.text('Finish payment'));
+      expect(find.text(NotPostedNotice.text), findsOneWidget);
+      expect(find.textContaining('sent to the network'), findsNothing);
+      expect(find.text('Finish payment'), findsNothing);
+    });
+  });
+
+  group('shared temp files', () {
+    late Directory tmp;
+    setUp(() => tmp = Directory.systemTemp.createTempSync('wfe-share-'));
+    tearDown(() => tmp.deleteSync(recursive: true));
+
+    for (final status in [
+      ShareResultStatus.success,
+      ShareResultStatus.dismissed,
+    ]) {
+      test(
+        'a shared file is deleted once the sheet returns (${status.name})',
+        () async {
+          String? path;
+          final ok = await shareBytes(
+            name: 'epic-history.csv',
+            bytes: Uint8List.fromList(utf8.encode('date,amount')),
+            tempDir: tmp,
+            share: (params) async {
+              path = params.files!.single.path;
+              expect(File(path!).existsSync(), isTrue);
+              return ShareResult('x', status);
+            },
+          );
+          expect(ok, status == ShareResultStatus.success);
+          expect(File(path!).existsSync(), isFalse);
+        },
+      );
+    }
+
+    test('a failing share still deletes the file', () async {
+      String? path;
+      await expectLater(
+        shareBytes(
+          name: 'a.tx',
+          bytes: Uint8List(1),
+          tempDir: tmp,
+          share: (params) async {
+            path = params.files!.single.path;
+            throw StateError('no share sheet');
+          },
+        ),
+        throwsStateError,
+      );
+      expect(File(path!).existsSync(), isFalse);
+    });
+
+    test('clearSharedFiles removes every leftover copy', () async {
+      for (final dir in ['shared', 'share_plus', 'slates']) {
+        File('${tmp.path}/$dir/left.tx')
+          ..createSync(recursive: true)
+          ..writeAsStringSync('{}');
+      }
+      File('${tmp.path}/updates/app.apk').createSync(recursive: true);
+      await clearSharedFiles(tempDir: tmp);
+      for (final dir in ['shared', 'share_plus', 'slates']) {
+        expect(Directory('${tmp.path}/$dir').existsSync(), isFalse);
+      }
+      // Other cache folders are not ours to clear.
+      expect(File('${tmp.path}/updates/app.apk').existsSync(), isTrue);
+    });
+  });
+
+  group('errors', () {
+    test('a busy chain says what to do, in plain words', () {
+      expect(
+        describeError(
+          const WalletError(
+            kind: WalletErrorKind.chainBusy,
+            message: 'this process already uses Mainnet for an open wallet',
+          ),
+        ),
+        'The wallet is still busy on the other network. Wait a moment and '
+        'try again, or close and reopen the app.',
+      );
+    });
+
+    test('a bad transaction text does not say "slate" or "JSON"', () {
+      final text = describeError(
+        const WalletError(kind: WalletErrorKind.invalidSlate, message: 'x'),
+      );
+      expect(text, isNot(contains('slate')));
+      expect(text, isNot(contains('JSON')));
+      expect(text, contains('transaction text'));
     });
   });
 
@@ -1018,13 +1259,46 @@ void main() {
       );
     });
 
+    for (final (topic, texts) in [
+      (
+        HelpTopic.waitingForRecipient,
+        [
+          'holds your payment for about a week',
+          'cancels it by itself after 14 days',
+        ],
+      ),
+      (
+        HelpTopic.cancelling,
+        [
+          'cancels itself after 14 days',
+          'older versions of this app do not cancel',
+        ],
+      ),
+      (HelpTopic.receiving, ['waits in the mailbox for about a week']),
+    ]) {
+      testWidgets('${topic.name} explains the time limits', (tester) async {
+        final h = _Harness();
+        await h.pump(tester, HelpScreen(topic: topic));
+        for (final text in texts) {
+          expect(find.textContaining(text), findsOneWidget, reason: text);
+        }
+      });
+    }
+
     testWidgets('a topic opens expanded', (tester) async {
       final h = _Harness();
       await h.pump(
         tester,
         const HelpScreen(topic: HelpTopic.historyAfterRestore),
       );
-      expect(find.textContaining('import it in Settings'), findsOneWidget);
+      expect(
+        find.textContaining('Payment history, Import history backup'),
+        findsOneWidget,
+      );
+      expect(
+        find.textContaining('a copy you kept outside the lost phone'),
+        findsOneWidget,
+      );
       expect(
         find.textContaining('mailbox service (epicbox) holds'),
         findsNothing,
@@ -1069,7 +1343,8 @@ void main() {
       expect(find.bySemanticsLabel('QR code of your address'), findsOneWidget);
       const when =
           'Payments arrive while the app is open; ones sent while it is '
-          'closed arrive the next time you unlock.';
+          'closed arrive the next time you unlock, if that is within about '
+          'a week.';
       expect(
         find.text(
           'Connecting to the mailbox server epicbox.epiccash.com… $when',

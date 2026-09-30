@@ -104,8 +104,8 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
       appBar: AppBar(
         title: Text(
           config == null
-              ? 'Unlock'
-              : 'Unlock ${chainLabel(config.chain)} wallet',
+              ? 'Unlock wallet'
+              : 'Unlock wallet${networkSuffix(config.chain)}',
         ),
       ),
       body: ScreenBody(

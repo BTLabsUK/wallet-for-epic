@@ -41,6 +41,7 @@ class AppSettings {
     this.showFiat = true,
     this.hideBalances = false,
     this.autoLockMinutes = 5,
+    this.pushNotifications = false,
   });
 
   final ThemeMode themeMode;
@@ -57,12 +58,17 @@ class AppSettings {
   /// Lock this long after the app goes to the background; 0 locks at once, null never.
   final int? autoLockMinutes;
 
+  /// Firebase payment notifications. Off until the user turns them on, because starting them
+  /// contacts Google and asks for notification permission.
+  final bool pushNotifications;
+
   AppSettings copyWith({
     ThemeMode? themeMode,
     String? fiatCurrency,
     bool? showFiat,
     bool? hideBalances,
     int? Function()? autoLockMinutes,
+    bool? pushNotifications,
   }) => AppSettings(
     themeMode: themeMode ?? this.themeMode,
     fiatCurrency: fiatCurrency ?? this.fiatCurrency,
@@ -71,6 +77,7 @@ class AppSettings {
     autoLockMinutes: autoLockMinutes != null
         ? autoLockMinutes()
         : this.autoLockMinutes,
+    pushNotifications: pushNotifications ?? this.pushNotifications,
   );
 }
 
@@ -93,6 +100,7 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
   static const String _showFiatKey = 'app.show_fiat';
   static const String _hideKey = 'app.hide_balances';
   static const String _autoLockKey = 'app.auto_lock';
+  static const String _pushKey = 'app.push';
   static const String _never = 'never';
 
   @override
@@ -104,6 +112,7 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
     final showFiat = await store.read(_showFiatKey);
     final hide = await store.read(_hideKey);
     final autoLock = await store.read(_autoLockKey);
+    final push = await store.read(_pushKey);
     return AppSettings(
       themeMode: ThemeMode.values.firstWhere(
         (m) => m.name == theme,
@@ -119,6 +128,9 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
         _never => null,
         final m => int.tryParse(m) ?? defaults.autoLockMinutes,
       },
+      pushNotifications: push == null
+          ? defaults.pushNotifications
+          : push == 'true',
     );
   }
 
@@ -152,4 +164,7 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
     minutes?.toString() ?? _never,
     (await _current()).copyWith(autoLockMinutes: () => minutes),
   );
+
+  Future<void> setPushNotifications(bool on) async =>
+      _put(_pushKey, '$on', (await _current()).copyWith(pushNotifications: on));
 }

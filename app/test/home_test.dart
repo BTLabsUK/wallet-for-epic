@@ -183,9 +183,13 @@ class _EnrichingSession extends FakeWalletSession {
 /// Pushes on demand, as FCM delivers them in the foreground.
 class _FakePush implements PushPlatform {
   final foregroundMessages = StreamController<RemoteMessage>.broadcast();
+  int starts = 0;
 
   @override
-  Future<bool> start() async => true;
+  Future<bool> start() async {
+    starts++;
+    return true;
+  }
 
   @override
   Future<String?> token() async => 'token';
@@ -228,6 +232,14 @@ class _Harness {
         dataDir: '/fake/wallets/${chain.name}',
         nodeUrl: 'https://node',
       );
+
+  /// Turns payment notifications on, as the app does when the setting is on.
+  Future<void> startPush(WidgetTester tester) async {
+    await ProviderScope.containerOf(tester.element(find.byType(HomeScreen)))
+        .read(pushProvider.notifier)
+        .start();
+    await tester.pumpAndSettle();
+  }
 
   Future<void> pump(
     WidgetTester tester, [
@@ -515,12 +527,15 @@ void main() {
       expect(find.text('≈ 6.25 USD'), findsOneWidget);
       expect(
         find.text(
-          'Synced at height 2,500,000. Connecting to the mailbox '
+          'Up to date. Connecting to the mailbox '
           'to receive payments…',
         ),
         findsOneWidget,
       );
       expect(find.text('2 EPIC not spendable yet'), findsOneWidget);
+      // The height is only in the tooltip.
+      expect(find.byTooltip('Synced at block 2,500,000'), findsOneWidget);
+      expect(find.textContaining('2,500,000'), findsNothing);
 
       // Recent activity: the pending send to Bob first, amounts with fiat.
       final tiles = find.byType(TxTile);
@@ -777,6 +792,48 @@ void main() {
       );
       expect(shortAddress('short@relay'), 'short@relay');
       expect(shortAddress('${'a' * 52}@r.io:443'), 'aaaaaa…aaaaaa@r.io:443');
+    });
+
+    test('titles drop the server when it is the wallet\'s own', () {
+      const own = 'epicbox.epiccash.com';
+      expect(shortAddress(_bob, ownServer: own), 'esBobA…567890');
+      expect(
+        shortAddress('${'a' * 52}@EPICBOX.epiccash.com:443', ownServer: own),
+        'aaaaaa…aaaaaa',
+      );
+      // Another server stays, since it is part of where the payment went.
+      expect(
+        shortAddress('${'a' * 52}@epicbox.epicnet.us', ownServer: own),
+        'aaaaaa…aaaaaa@epicbox.epicnet.us',
+      );
+      expect(
+        shortAddress('http://203.0.113.5:3415', ownServer: own),
+        'http://203.0.113.5:3415',
+      );
+      final tx = fakeTx(kind: TxKind.sent, counterparty: _bob);
+      expect(txTitle(tx, ownServer: own), 'esBobA…567890');
+      final bob = fakeTx(counterparty: _bob);
+      expect(
+        paymentNotice(
+          const ListenerEvent(
+            kind: ListenerEventKind.finalized,
+            slateId: 'x',
+            message: 'raw',
+          ),
+          bob,
+          ownServer: own,
+        ),
+        'Payment to esBobA…567890 completed',
+      );
+    });
+
+    testWidgets('home rows on the wallet\'s own server show only the key', (
+      tester,
+    ) async {
+      final h = _Harness();
+      await h.pump(tester);
+      expect(find.text('esBobA…567890'), findsOneWidget);
+      expect(find.textContaining('esBobA…567890@'), findsNothing);
     });
   });
 
@@ -1072,7 +1129,7 @@ void main() {
       (tester) async {
         final h = _Harness();
         await h.pump(tester);
-        expect(find.text('esBobA…567890@epicbox.epiccash.com'), findsOneWidget);
+        expect(find.text('esBobA…567890'), findsOneWidget);
         await _tap(tester, find.byKey(const ValueKey('tx-s:send-bob')));
         expect(find.text('Outgoing payment'), findsOneWidget);
         expect(find.textContaining('esBobA…'), findsNothing);
@@ -1103,6 +1160,7 @@ void main() {
     ) async {
       final h = _Harness();
       await h.pump(tester);
+      await h.startPush(tester);
       h.session.listenerEvents.add(connected);
       await tester.pumpAndSettle();
       h.push.foregroundMessages.add(push);
@@ -1122,11 +1180,20 @@ void main() {
       expect(find.textContaining('5 EPIC on the way'), findsOneWidget);
     });
 
+    testWidgets('home does not start payment notifications by itself', (
+      tester,
+    ) async {
+      final h = _Harness();
+      await h.pump(tester);
+      expect(h.push.starts, 0);
+    });
+
     testWidgets('a push while offline says the payment is waiting', (
       tester,
     ) async {
       final h = _Harness();
       await h.pump(tester);
+      await h.startPush(tester);
       h.push.foregroundMessages.add(push);
       await tester.pumpAndSettle();
       expect(find.text(pushNotice), findsOneWidget);
@@ -1149,6 +1216,131 @@ void main() {
       await tester.pumpAndSettle();
       expect(row.moreRight, isFalse);
       expect(row.moreLeft, isTrue);
+    });
+  });
+
+  group('fix-3', () {
+    test('an old mailbox send without an expiry says it can no longer complete', () {
+      TxEntry send({required Duration age, BigInt? ttl, String? to = _bob}) =>
+          fakeTx(
+            kind: TxKind.sent,
+            status: TxStatus.awaitingRecipient,
+            createdAtUnix: _at(_now.subtract(age)),
+            counterparty: to,
+            ttlCutoffHeight: ttl,
+          );
+      expect(
+        txExplanation(send(age: const Duration(days: 16)), _tip, now: _now),
+        'Waiting for 16 days. The mailbox deletes payments after 7 days, so '
+        'this one can no longer complete. Cancel it to unlock your funds, then '
+        'send again.',
+      );
+      // Younger, or with an expiry (the TTL line covers it), or by file: the usual words.
+      for (final tx in [
+        send(age: const Duration(days: 10)),
+        send(age: const Duration(days: 16), ttl: _tip + BigInt.one),
+        send(age: const Duration(days: 16), to: null),
+      ]) {
+        expect(
+          txExplanation(tx, _tip, now: _now),
+          isNot(startsWith('Waiting for 16 days')),
+        );
+      }
+    });
+
+    test('broadcast again counts from when the send was finished', () {
+      TxEntry posted(Duration finalized) => fakeTx(
+        kind: TxKind.sent,
+        status: TxStatus.awaitingConfirmation,
+        createdAtUnix: _at(_now.subtract(const Duration(hours: 2))),
+        finalizedAtUnix: _at(_now.subtract(finalized)),
+        repostable: true,
+      );
+      expect(isStuck(posted(const Duration(minutes: 10)), _now), isFalse);
+      expect(isStuck(posted(const Duration(minutes: 45)), _now), isTrue);
+    });
+
+    testWidgets('the pending card says the payment waits for an answer', (
+      tester,
+    ) async {
+      final h = _Harness();
+      await h.pump(tester);
+      expect(
+        find.text(
+          '2 EPIC is waiting for the recipient\'s wallet to answer. Until then '
+          'the funds stay locked. If it never answers, open the payment and '
+          'tap Cancel payment.',
+        ),
+        findsOneWidget,
+      );
+      expect(find.textContaining('on its way'), findsNothing);
+    });
+
+    testWidgets('details of a 16-day-old send say to cancel and send again', (
+      tester,
+    ) async {
+      final h = _Harness(
+        transactions: [
+          fakeTx(
+            id: 5,
+            slateId: 'old',
+            kind: TxKind.sent,
+            status: TxStatus.awaitingRecipient,
+            createdAtUnix: _at(_now.subtract(const Duration(days: 16))),
+            amountCredited: _epic(1),
+            amountDebited: _epic(3),
+            counterparty: _bob,
+            cancellable: true,
+          ),
+        ],
+      );
+      await h.pump(tester, const TxDetailsScreen(txKey: 's:old'));
+      expect(find.textContaining('can no longer complete'), findsOneWidget);
+      expect(
+        find.widgetWithText(OutlinedButton, 'Cancel payment'),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('release funds asks first, then releases', (tester) async {
+      final h = _Harness(
+        transactions: [
+          fakeTx(
+            key: 's:refused',
+            id: 6,
+            kind: TxKind.sent,
+            status: TxStatus.awaitingConfirmation,
+            createdAtUnix: _at(_now.subtract(const Duration(days: 2))),
+            finalizedAtUnix: _at(_now.subtract(const Duration(days: 2))),
+            amountCredited: _epic(1),
+            amountDebited: _epic(3),
+            repostable: true,
+            releasable: true,
+          ),
+        ],
+      );
+      await h.pump(tester, const TxDetailsScreen(txKey: 's:refused'));
+      final release = find.widgetWithText(OutlinedButton, 'Release funds');
+      await _tap(tester, release);
+      expect(
+        find.text(
+          'Use this only if the payment will never confirm. If it still does, '
+          'you may see a wrong balance until you rescan.',
+        ),
+        findsOneWidget,
+      );
+      await _tap(tester, find.text('Keep waiting'));
+      expect(h.session.releasedKeys, isEmpty);
+      await _tap(tester, release);
+      await _tap(tester, find.widgetWithText(FilledButton, 'Release funds'));
+      expect(h.session.releasedKeys, ['s:refused']);
+      expect(find.text('Funds released'), findsOneWidget);
+    });
+
+    testWidgets('no release button unless the core allows it', (tester) async {
+      final h = _Harness();
+      await h.pump(tester, const TxDetailsScreen(txKey: 's:send-bob'));
+      expect(find.text('Release funds'), findsNothing);
     });
   });
 

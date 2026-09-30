@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:epic_wallet/src/app.dart';
 import 'package:epic_wallet/src/price.dart';
 import 'package:epic_wallet/src/providers.dart';
+import 'package:epic_wallet/src/push.dart';
 import 'package:epic_wallet/src/relay_directory.dart';
 import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/settings.dart';
@@ -14,6 +15,7 @@ import 'package:epic_wallet/src/ui/settings_screen.dart';
 import 'package:epic_wallet/src/updater.dart';
 import 'package:epic_wallet/src/vault.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -21,6 +23,25 @@ import 'package:flutter_test/flutter_test.dart';
 const _mainnetDir = '/fake/wallets/mainnet';
 const _password = 'correct horse';
 const _pin = '123456';
+
+class _FakePush implements PushPlatform {
+  int starts = 0;
+
+  @override
+  Future<bool> start() async {
+    starts++;
+    return true;
+  }
+
+  @override
+  Future<String?> token() async => 'token';
+
+  @override
+  Stream<String> get tokenRefresh => const Stream.empty();
+
+  @override
+  Stream<RemoteMessage> get foreground => const Stream.empty();
+}
 
 class _NoRelays implements RelayDirectory {
   @override
@@ -60,6 +81,8 @@ class _Harness {
   final bio = MemoryBiometricStore(available: false);
   final files = FakeHistoryFiles();
   final session = _ScanSession();
+  final push = _FakePush();
+  int cleanups = 0;
   late final FakeWalletService service;
   DateTime now = DateTime(2026, 9, 30, 12);
   late ProviderContainer container;
@@ -85,6 +108,8 @@ class _Harness {
           historyFilesProvider.overrideWithValue(files),
           priceSourceProvider.overrideWithValue(_FixedPrice()),
           clockProvider.overrideWithValue(() => now),
+          pushPlatformProvider.overrideWithValue(push),
+          sharedFilesCleanupProvider.overrideWithValue(() async => cleanups++),
         ],
         child: const WalletApp(),
       ),
@@ -98,10 +123,25 @@ class _Harness {
   }
 
   Future<void> unlock(WidgetTester tester) async {
-    expect(find.text('Unlock Mainnet wallet'), findsOneWidget);
+    expect(find.text('Unlock wallet'), findsOneWidget);
     await tester.enterText(find.widgetWithText(TextField, 'PIN'), _pin);
     await tester.pumpAndSettle();
     expect(container.read(sessionProvider), isNotNull);
+  }
+
+  /// [openSettings] for screens with endless animations, such as a running scan.
+  Future<void> openSettingsNow(WidgetTester tester) async {
+    final navigator = tester.state<NavigatorState>(
+      find.byType(Navigator).first,
+    );
+    unawaited(
+      navigator.push(
+        MaterialPageRoute<void>(builder: (_) => const SettingsScreen()),
+      ),
+    );
+    for (var i = 0; i < 10; i++) {
+      await tester.pump(const Duration(milliseconds: 100));
+    }
   }
 
   Future<void> openSettings(WidgetTester tester) async {
@@ -247,6 +287,10 @@ void main() {
       final dayStart = DateTime(2026, 9, 1);
       expect(h.session.lastStart, mainnetHeightForDate(dayStart));
       expect(find.text('Your wallet is restored'), findsOneWidget);
+      expect(
+        find.textContaining('the .wfeh file you shared or saved outside'),
+        findsOneWidget,
+      );
 
       h.files.picks.add(await h.session.exportHistory());
       await _tapText(tester, 'Import a history backup');
@@ -287,7 +331,7 @@ void main() {
       h.now = h.now.add(const Duration(minutes: 5));
       await _return(tester);
       expect(h.container.read(sessionProvider), isNull);
-      expect(find.text('Unlock Mainnet wallet'), findsOneWidget);
+      expect(find.text('Unlock wallet'), findsOneWidget);
     });
 
     testWidgets('never and immediately', (tester) async {
@@ -328,7 +372,7 @@ void main() {
       await h.session.controller!.close();
       await tester.pumpAndSettle();
       expect(h.container.read(sessionProvider), isNull);
-      expect(find.text('Unlock Mainnet wallet'), findsOneWidget);
+      expect(find.text('Unlock wallet'), findsOneWidget);
     });
 
     testWidgets('a trip to the file picker does not count', (tester) async {
@@ -407,9 +451,10 @@ void main() {
       await _enter(tester, 'PIN', _pin);
 
       expect(h.service.deletedWallets, [_mainnetDir]);
+      expect(h.cleanups, 1);
       expect(h.store.values['wallet.mainnet.sealed'], isNull);
       expect(h.container.read(sessionProvider), isNull);
-      expect(find.text('Welcome (Mainnet)'), findsOneWidget);
+      expect(find.text('Welcome'), findsOneWidget);
     });
   });
 
@@ -420,9 +465,21 @@ void main() {
       await h.unlock(tester);
       await h.openSettings(tester);
 
-      await _tapText(tester, 'Export backup');
-      // Save to device comes first; Share is the second choice.
-      expect(find.text('Share'), findsOneWidget);
+      await _reveal(tester, find.text('Back up recovery phrase'));
+      await _tapText(tester, 'Export history backup');
+      // Share comes first: the copy that matters is the one off this phone.
+      expect(
+        find.text(
+          'History backups hold payments up to now. Export again after new '
+          'payments.',
+        ),
+        findsOneWidget,
+      );
+      expect(
+        tester.getTopLeft(find.text('Share')).dy <
+            tester.getTopLeft(find.text('Save to device')).dy,
+        isTrue,
+      );
       await _tapText(tester, 'Save to device');
       expect(h.files.saved.single.name, 'epic-history-mainnet-20260930.wfeh');
       expect(h.files.saved.single.bytes, isNotEmpty);
@@ -440,12 +497,12 @@ void main() {
       expect(h.files.saved, hasLength(1));
 
       h.files.picks.add(h.files.saved.first.bytes);
-      await _tapText(tester, 'Import backup');
+      await _tapText(tester, 'Import history backup');
       expect(find.text('History imported'), findsOneWidget);
       await _tapText(tester, 'OK');
 
       // A cancelled pick does nothing.
-      await _tapText(tester, 'Import backup');
+      await _tapText(tester, 'Import history backup');
       expect(find.text('History imported'), findsNothing);
 
       h.session.importError = const WalletError(
@@ -453,7 +510,7 @@ void main() {
         message: 'This history file belongs to a different wallet',
       );
       h.files.picks.add(Uint8List.fromList([1, 2, 3]));
-      await _tapText(tester, 'Import backup');
+      await _tapText(tester, 'Import history backup');
       expect(find.text('Could not import'), findsOneWidget);
       expect(
         find.text(
@@ -471,7 +528,7 @@ void main() {
       await h.pump(tester);
       await h.unlock(tester);
       await h.openSettings(tester);
-      await _tapText(tester, 'Export backup');
+      await _tapText(tester, 'Export history backup');
       expect(find.text('Share'), findsNothing);
       expect(h.files.saved.single.name, 'epic-history-mainnet-20260930.wfeh');
     });
@@ -481,7 +538,7 @@ void main() {
       await h.pump(tester);
       await h.unlock(tester);
       await h.openSettings(tester);
-      await _tapText(tester, 'Export backup');
+      await _tapText(tester, 'Export history backup');
       await tester.tapAt(const Offset(200, 100));
       await tester.pumpAndSettle();
       expect(h.files.saved, isEmpty);
@@ -531,6 +588,61 @@ void main() {
       await _tapText(tester, 'Rescan');
       expect(h.session.lastStart, BigInt.one);
       expect(h.session.scanCalls, 2);
+    });
+  });
+
+  group('delete while scanning', () {
+    testWidgets('is refused with a plain reason', (tester) async {
+      final h = _Harness();
+      h.session.controller = StreamController<ScanProgress>();
+      await h.pump(tester);
+      await h.unlock(tester);
+      unawaited(h.container.read(scanProvider.notifier).run());
+      await tester.pump();
+      await h.openSettingsNow(tester);
+      final tile = find.text('Delete this wallet');
+      await tester.scrollUntilVisible(
+        tile,
+        300,
+        scrollable: find.byType(Scrollable).last,
+      );
+      await tester.tap(tile);
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(find.text(deleteDuringScanMessage), findsOneWidget);
+      expect(find.byType(DeleteWalletDialog), findsNothing);
+      expect(h.service.deletedWallets, isEmpty);
+      await h.session.controller!.close();
+      await tester.pumpAndSettle();
+    });
+  });
+
+  group('payment notifications', () {
+    testWidgets('are off by default and start only when turned on', (
+      tester,
+    ) async {
+      final h = _Harness();
+      await h.pump(tester);
+      await h.unlock(tester);
+      expect(h.push.starts, 0);
+      await h.openSettings(tester);
+      expect(find.text(pushNotificationsHint), findsOneWidget);
+      await _tapText(tester, 'Payment notifications');
+      expect(h.push.starts, 1);
+      expect(h.store.values['app.push'], 'true');
+      await _tapText(tester, 'Payment notifications');
+      expect(h.store.values['app.push'], 'false');
+      expect(
+        find.text('Notifications stop the next time the app starts.'),
+        findsOneWidget,
+      );
+      expect(h.push.starts, 1);
+    });
+
+    testWidgets('start at launch when saved on', (tester) async {
+      final h = _Harness();
+      h.store.values['app.push'] = 'true';
+      await h.pump(tester);
+      expect(h.push.starts, 1);
     });
   });
 

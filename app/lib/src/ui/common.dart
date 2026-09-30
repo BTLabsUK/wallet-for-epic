@@ -48,17 +48,25 @@ String shownEpic(BigInt atomic, {required bool hidden}) =>
     hidden ? hiddenAmount : epicText(atomic);
 
 /// An epicbox address short enough for a list or a title: the first and last 6 characters of
-/// the key around an ellipsis, then `@relay`. URLs, and keys already short, come back as they
-/// are. Show the full address wherever the user may need to check or copy it.
-String shortAddress(String address) {
+/// the key around an ellipsis, then `@relay`. With [ownServer] (the host of the wallet's own
+/// mailbox server), `@relay` is dropped when it is that server, since it tells the user nothing.
+/// URLs, and keys already short, come back as they are. Show the full address wherever the user
+/// may need to check or copy it.
+String shortAddress(String address, {String? ownServer}) {
   final text = address.trim();
   final lower = text.toLowerCase();
   if (lower.startsWith('http://') || lower.startsWith('https://')) return text;
   final at = text.indexOf('@');
   final key = at < 0 ? text : text.substring(0, at);
-  final relay = at < 0 ? '' : text.substring(at);
-  if (key.length <= 14) return text;
-  return '${key.substring(0, 6)}…${key.substring(key.length - 6)}$relay';
+  var relay = at < 0 ? '' : text.substring(at);
+  if (ownServer != null && relay.isNotEmpty) {
+    final host = relay.substring(1).split(':').first.toLowerCase();
+    if (host == ownServer.trim().toLowerCase()) relay = '';
+  }
+  final shortKey = key.length <= 14
+      ? key
+      : '${key.substring(0, 6)}…${key.substring(key.length - 6)}';
+  return '$shortKey$relay';
 }
 
 /// `2,500,000`.
@@ -165,12 +173,14 @@ bool _outgoingKind(TxEntry tx) =>
 /// The row title, the same style for every row: the contact's name, else the other side's
 /// short address, else what kind of payment it is. The status is never in the title, only in
 /// the chip.
-String txTitle(TxEntry tx, {String? contactName}) {
+String txTitle(TxEntry tx, {String? contactName, String? ownServer}) {
   final special = _specialTitle(tx);
   if (special != null) return special;
   final counterparty = tx.counterparty;
   return contactName ??
-      (counterparty == null ? _directionNoun(tx) : shortAddress(counterparty));
+      (counterparty == null
+          ? _directionNoun(tx)
+          : shortAddress(counterparty, ownServer: ownServer));
 }
 
 /// The details title: the contact's name, else what kind of payment it is. The address is in
@@ -265,6 +275,10 @@ List<TxEntry> pendingFirst(Iterable<TxEntry> txs) {
 
 /// The node's tip height, when known.
 BigInt? tipHeight(WidgetRef ref) => ref.watch(nodeTipProvider).value?.height;
+
+/// The host of the open wallet's mailbox server, for [shortAddress].
+String? ownMailboxServer(WidgetRef ref) =>
+    ref.watch(walletConfigProvider.select((c) => c?.epicboxDomain));
 
 /// The name saved for [address] in the address book, when there is one.
 String? contactName(WidgetRef ref, String? address) {
@@ -373,7 +387,11 @@ class TxTile extends ConsumerWidget {
         ? null
         : approxFiat(amount, display);
     final theme = Theme.of(context);
-    final title = txTitle(tx, contactName: contactName(ref, tx.counterparty));
+    final title = txTitle(
+      tx,
+      contactName: contactName(ref, tx.counterparty),
+      ownServer: ownMailboxServer(ref),
+    );
     final date = shortDate(localTime(tx.timeUnix), now);
     final signed = signedEpic(tx, hidden: display.hidden);
     final muted = theme.textTheme.bodyMedium?.copyWith(

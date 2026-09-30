@@ -167,8 +167,8 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
       appBar: AppBar(
         title: Text(
           config == null
-              ? 'Unlock'
-              : 'Unlock ${chainLabel(config.chain)} wallet',
+              ? 'Unlock wallet'
+              : 'Unlock wallet${networkSuffix(config.chain)}',
         ),
         actions: [
           IconButton(

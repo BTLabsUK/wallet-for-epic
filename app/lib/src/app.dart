@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'providers.dart';
+import 'push.dart';
 import 'settings.dart';
 import 'ui/common.dart';
 import 'ui/launch_screen.dart';
@@ -33,6 +34,15 @@ class _WalletAppState extends ConsumerState<WalletApp> {
   void initState() {
     super.initState();
     _lifecycle;
+    // Payment notifications start only once the user turned them on. Firebase cannot be shut
+    // down in-process, so turning them off takes effect at the next start.
+    ref.listenManual(
+      appSettingsProvider.select((s) => s.value?.pushNotifications ?? false),
+      (_, on) {
+        if (on) ref.read(pushProvider.notifier).start();
+      },
+      fireImmediately: true,
+    );
   }
 
   @override

@@ -41,10 +41,14 @@ String paymentNotice(
   TxEntry? tx, {
   String? contactName,
   bool hidden = false,
+  String? ownServer,
 }) {
   final counterparty = tx?.counterparty;
   final who =
-      contactName ?? (counterparty == null ? null : shortAddress(counterparty));
+      contactName ??
+      (counterparty == null
+          ? null
+          : shortAddress(counterparty, ownServer: ownServer));
   switch (event.kind) {
     case ListenerEventKind.received:
       // The listener only accepted it; the sender still has to finish it.
@@ -87,7 +91,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     _timer = Timer.periodic(autoRefreshInterval, (_) => _autoRefresh());
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(updateProvider.notifier).checkOnStart();
-      ref.read(pushProvider.notifier).start();
       _openIncoming();
     });
   }
@@ -173,6 +176,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       tx,
       contactName: contactNameFor(contacts, tx?.counterparty),
       hidden: ref.read(appSettingsProvider).value?.hideBalances ?? false,
+      ownServer: ref.read(walletConfigProvider)?.epicboxDomain,
     );
     final key = tx?.key;
     _showNotice(text, txKey: key);
@@ -589,6 +593,7 @@ class _SyncLine extends ConsumerWidget {
     final listening = ref.watch(listenerProvider.select((s) => s.connected));
     final lost = ref.watch(listenerProvider.select((s) => s.lost));
     final summary = this.summary;
+    String? height;
     final (IconData icon, String text, bool problem) = switch (tip) {
       AsyncError() => (
         Icons.cloud_off,
@@ -600,22 +605,25 @@ class _SyncLine extends ConsumerWidget {
         'Not validated with node. Balances may be out of date.',
         true,
       ),
-      AsyncData(:final value) => (
-        Icons.check_circle_outline,
-        'Synced at height ${groupDigits(summary != null && summary.lastConfirmedHeight > BigInt.zero ? summary.lastConfirmedHeight : value.height)}.',
-        false,
-      ),
+      AsyncData() => (Icons.check_circle_outline, 'Up to date.', false),
       _ => (Icons.sync, 'Contacting node…', false),
     };
+    if (tip case AsyncData(:final value)) {
+      final synced =
+          summary != null && summary.lastConfirmedHeight > BigInt.zero
+          ? summary.lastConfirmedHeight
+          : value.height;
+      height = 'Synced at block ${groupDigits(synced)}';
+    }
     final color = problem
         ? theme.colorScheme.error
         : theme.colorScheme.onSurfaceVariant;
     final relay = listening
-        ? 'Connected. Ready to receive payments.'
+        ? 'Ready to receive payments.'
         : lost
         ? 'Mailbox offline, reconnecting.'
         : 'Connecting to the mailbox to receive payments…';
-    return Semantics(
+    final line = Semantics(
       liveRegion: problem,
       child: Padding(
         padding: const EdgeInsets.only(top: 8),
@@ -634,6 +642,8 @@ class _SyncLine extends ConsumerWidget {
         ),
       ),
     );
+    // The block height means little to most people; it stays one long-press away.
+    return height == null ? line : Tooltip(message: height, child: line);
   }
 }
 
@@ -682,10 +692,15 @@ class _PendingSendsCard extends ConsumerWidget {
               ),
               const SizedBox(height: 4),
               Text(
-                '${shownEpic(total, hidden: hidden)} is on its way. A payment '
-                'completes when the recipient\'s wallet answers; until then the '
-                'funds stay locked. To cancel, open the payment and tap Cancel '
-                'payment.',
+                one
+                    ? '${shownEpic(total, hidden: hidden)} is waiting for the '
+                          'recipient\'s wallet to answer. Until then the funds '
+                          'stay locked. If it never answers, open the payment and '
+                          'tap Cancel payment.'
+                    : '${shownEpic(total, hidden: hidden)} is waiting for the '
+                          'recipients\' wallets to answer. Until then the funds '
+                          'stay locked. If one never answers, open the payment '
+                          'and tap Cancel payment.',
                 style: TextStyle(color: colors.onSecondaryContainer),
               ),
               // One row on a phone; wraps only at large text.

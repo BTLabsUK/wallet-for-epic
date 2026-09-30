@@ -75,25 +75,50 @@ Future<bool> saveBytesToDevice({
 
 /// Hands [bytes] to another app through the share sheet, as a file called [name]. Returns
 /// false if the user dismissed it. Only where [canShareFiles].
+///
+/// The share sheet needs a real file. It is written to `<tmp>/shared` and deleted as soon as the
+/// sheet returns: on Android share_plus has copied it into its own cache by then, and on iOS the
+/// receiving app has read it. [share] and [tempDir] are for tests.
 Future<bool> shareBytes({
   required String name,
   required Uint8List bytes,
+  @visibleForTesting Future<ShareResult> Function(ShareParams params)? share,
+  @visibleForTesting Directory? tempDir,
 }) async {
-  // The share sheet needs a real file; it lives in the cache and is replaced next time.
-  final dir = Directory(
-    '${(await getTemporaryDirectory()).path}${Platform.pathSeparator}shared',
-  );
+  final tmp = tempDir ?? await getTemporaryDirectory();
+  final dir = Directory('${tmp.path}${Platform.pathSeparator}$_sharedDir');
   await dir.create(recursive: true);
   final file = File('${dir.path}${Platform.pathSeparator}$name');
   await file.writeAsBytes(bytes, flush: true);
-  final result = await SharePlus.instance.share(
-    ShareParams(
-      files: [XFile(file.path, mimeType: 'application/octet-stream')],
-      fileNameOverrides: [name],
-      subject: name,
-    ),
-  );
-  return result.status != ShareResultStatus.dismissed;
+  try {
+    final result = await (share ?? SharePlus.instance.share)(
+      ShareParams(
+        files: [XFile(file.path, mimeType: 'application/octet-stream')],
+        fileNameOverrides: [name],
+        subject: name,
+      ),
+    );
+    return result.status != ShareResultStatus.dismissed;
+  } finally {
+    if (await file.exists()) await file.delete();
+  }
+}
+
+const String _sharedDir = 'shared';
+
+/// Cache folders that can hold copies of shared files: ours, share_plus's own copy on Android
+/// (`<cache>/share_plus`, cleared by the plugin only at the next share), and the folder older
+/// versions of this app used for transaction files.
+const List<String> _shareCaches = [_sharedDir, 'share_plus', 'slates'];
+
+/// Deletes every leftover copy of a shared file (transaction files, history backups, CSV). Call
+/// it when the wallet is deleted. [tempDir] is for tests.
+Future<void> clearSharedFiles({@visibleForTesting Directory? tempDir}) async {
+  final tmp = tempDir ?? await getTemporaryDirectory();
+  for (final name in _shareCaches) {
+    final dir = Directory('${tmp.path}${Platform.pathSeparator}$name');
+    if (await dir.exists()) await dir.delete(recursive: true);
+  }
 }
 
 abstract interface class SlateFiles {

@@ -108,6 +108,12 @@ const List<NetworkPreset> networkPresets = [
   usernetPreset,
 ];
 
+/// ` (Floonet, test coins)` for a test network, empty for Mainnet, which needs no label.
+String networkSuffix(Chain chain) => switch (chain) {
+  Chain.mainnet => '',
+  Chain.floonet || Chain.usernet => ' (${chainLabel(chain)}, test coins)',
+};
+
 /// Human name of a chain for titles.
 String chainLabel(Chain chain) => switch (chain) {
   Chain.mainnet => 'Mainnet',

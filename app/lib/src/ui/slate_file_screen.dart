@@ -7,6 +7,7 @@ import '../settings.dart';
 import '../slate_files.dart';
 import '../wallet_service.dart';
 import 'common.dart';
+import 'tx_details_screen.dart';
 
 /// One transaction file: shows what it is, then signs it (a send to us) or finalizes it (the
 /// answer to our send). Opened from Receive, from Send's second step, and from files other apps
@@ -80,18 +81,31 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
     if (mounted) setState(() => _response = response);
   });
 
-  Future<void> _finalize() => _run((session) async {
-    final tx = await session.finalizeAndPost(slateJson: widget.file.json);
-    if (!mounted) return;
-    setState(() => _posted = tx);
-  });
+  Future<void> _finalize() {
+    final hold = ref.read(autoLockHoldProvider.notifier);
+    return _run((session) async {
+      final tx = await hold.during(
+        () => session.finalizeAndPost(slateJson: widget.file.json),
+      );
+      if (mounted) setState(() => _posted = tx);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     final info = _info;
     final theme = Theme.of(context);
     final List<Widget> body;
-    if (_posted != null) {
+    if (_posted case final posted? when posted.repostable) {
+      body = [
+        NotPostedNotice(tx: posted),
+        const SizedBox(height: 8),
+        BusyButton(
+          label: 'Done',
+          onPressed: () => Navigator.pop(context, true),
+        ),
+      ];
+    } else if (_posted != null) {
       body = [
         _Headline(
           icon: Icons.check_circle,
@@ -226,6 +240,62 @@ class SlateFileButtons extends ConsumerWidget {
                 _out(context, ref, (f) => f.share(name: name, json: json)),
           ),
         ],
+      ],
+    );
+  }
+}
+
+/// A send that is finished (finalized) but that the network has not taken yet. The wallet will
+/// broadcast it again from the payment; sending again would pay twice.
+class NotPostedNotice extends StatelessWidget {
+  const NotPostedNotice({super.key, required this.tx});
+
+  final TxEntry tx;
+
+  static const String text =
+      'The payment is finished but the network has not taken it yet. It will '
+      'be broadcast again from the payment. Do not send it again.';
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Semantics(
+          liveRegion: true,
+          child: Row(
+            children: [
+              Icon(Icons.cloud_off, color: theme.colorScheme.error, size: 32),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  'Not on the network yet',
+                  style: theme.textTheme.titleLarge,
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 12),
+        Text(text, style: theme.textTheme.bodyLarge),
+        if (tx.statusDetail case final detail? when detail.trim().isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: Text(detail, style: theme.textTheme.bodySmall),
+          ),
+        const SizedBox(height: 16),
+        OutlinedButton(
+          style: OutlinedButton.styleFrom(
+            minimumSize: const Size.fromHeight(48),
+          ),
+          onPressed: () => Navigator.of(context).push<void>(
+            MaterialPageRoute<void>(
+              builder: (_) => TxDetailsScreen(txKey: tx.key),
+            ),
+          ),
+          child: const Text('Open the payment'),
+        ),
       ],
     );
   }

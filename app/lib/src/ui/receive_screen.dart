@@ -243,7 +243,8 @@ class _ListenerLine extends ConsumerWidget {
               // contradicting ones.
               '${listener.connected ? 'Connected to the mailbox server$at.' : 'Connecting to the mailbox server$at…'} '
               'Payments arrive while the app is open; ones sent while it is '
-              'closed arrive the next time you unlock.',
+              'closed arrive the next time you unlock, if that is within about '
+              'a week.',
             ),
           ),
         ],

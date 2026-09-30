@@ -79,7 +79,7 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
     final setup = ref.watch(walletSetupProvider);
     final config = ref.watch(walletConfigProvider);
     final theme = Theme.of(context);
-    final network = config == null ? '' : ' (${chainLabel(config.chain)})';
+    final network = config == null ? '' : networkSuffix(config.chain);
     final waiting = _answer != null && _error == null;
 
     return Scaffold(

@@ -149,7 +149,7 @@ Future<void> _enterNow(WidgetTester tester, String label, String text) async {
 
 /// Starts on a mainnet wallet with a PIN and unlocks it.
 Future<void> _unlockToHome(WidgetTester tester) async {
-  expect(find.text('Unlock Mainnet wallet'), findsOneWidget);
+  expect(find.text('Unlock wallet'), findsOneWidget);
   await _enter(tester, 'PIN', _pin);
 }
 
@@ -206,7 +206,7 @@ void main() {
         final device = _Device(biometrics: true);
         await _pumpApp(tester, service, device, settle: false);
 
-        expect(find.text('Welcome (Mainnet)'), findsOneWidget);
+        expect(find.text('Welcome'), findsOneWidget);
         expect(find.text('Creating wallet…'), findsOneWidget);
         // The password exists before the wallet does, so an interrupted run can resume.
         expect(device.store.values['wallet.mainnet.pending'], isNotNull);
@@ -332,7 +332,7 @@ void main() {
       expect(urlField.controller!.text, 'http://127.0.0.1:23413');
       await _tapText(tester, 'Save');
 
-      expect(find.text('Welcome (Usernet)'), findsOneWidget);
+      expect(find.text('Welcome (Usernet, test coins)'), findsOneWidget);
       await _enter(tester, 'PIN', _pin);
       await _enter(tester, 'Repeat PIN', _pin);
       expect(find.text('Spendable'), findsOneWidget);
@@ -446,7 +446,7 @@ void main() {
       final service = _existing();
       final device = _Device();
       await _pumpApp(tester, service, device);
-      expect(find.text('Unlock Mainnet wallet'), findsOneWidget);
+      expect(find.text('Unlock wallet'), findsOneWidget);
 
       await _enter(tester, 'Password', 'guess');
       await _tapText(tester, 'Unlock');
@@ -480,7 +480,7 @@ void main() {
       await _tap(tester, delete);
       expect(service.deletedWallets, [_mainnetDir]);
       expect(device.store.values['wallet.mainnet.sealed'], isNull);
-      expect(find.text('Welcome (Mainnet)'), findsOneWidget);
+      expect(find.text('Welcome'), findsOneWidget);
     });
   });
 
@@ -658,7 +658,7 @@ void main() {
 
       await _tap(tester, find.byTooltip('Lock wallet'));
       expect(service.session.disposeCalls, 1);
-      expect(find.text('Unlock Mainnet wallet'), findsOneWidget);
+      expect(find.text('Unlock wallet'), findsOneWidget);
     });
 
     testWidgets('a payment arriving over epicbox refreshes home and says so', (
@@ -677,10 +677,7 @@ void main() {
         const ListenerEvent(kind: ListenerEventKind.connected, message: 'a'),
       );
       await tester.pumpAndSettle();
-      expect(
-        find.textContaining('Connected. Ready to receive payments.'),
-        findsOneWidget,
-      );
+      expect(find.textContaining('Ready to receive payments.'), findsOneWidget);
 
       session.summaryValue = FakeWalletSession.emptySummary;
       session.listenerEvents.add(
@@ -718,7 +715,7 @@ void main() {
         stage: SlateStage.send,
       );
       final container = ProviderScope.containerOf(
-        tester.element(find.text('Unlock Mainnet wallet')),
+        tester.element(find.text('Unlock wallet')),
       );
       container
           .read(incomingSlateProvider.notifier)

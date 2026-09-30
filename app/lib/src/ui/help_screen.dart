@@ -17,6 +17,10 @@ enum HelpTopic {
   otherWaysToSend,
 }
 
+/// Days after which a send that was never completed cancels itself: the core sets a time to
+/// live of 20160 blocks, at one block a minute.
+const int sendTtlDays = 14;
+
 class _Answer {
   const _Answer(this.question, this.answer);
 
@@ -29,25 +33,32 @@ final Map<HelpTopic, _Answer> _answers = {
     'Why does my payment say "Waiting for recipient"?',
     'An Epic Cash payment is built by both wallets together: yours starts it, '
         'the recipient\'s wallet accepts it, then yours finishes it. Epic\'s '
-        'mailbox service (epicbox) holds your payment until the recipient\'s '
-        'wallet comes online and answers. Until then the amount stays locked in '
-        'your wallet, so you cannot spend it twice.',
+        'mailbox service (epicbox) holds your payment for about a week, until '
+        'the recipient\'s wallet comes online and answers. Until then the '
+        'amount stays locked in your wallet, so you cannot spend it twice. If '
+        'the payment is not completed, your wallet cancels it by itself after '
+        '$sendTtlDays days and unlocks the amount.',
   ),
   HelpTopic.cancelling: const _Answer(
     'Should I cancel a payment?',
-    'Cancel only a payment that still says "Waiting for recipient", for example '
-        'when the recipient tells you they will never answer: open the payment '
-        'and tap Cancel payment. That unlocks the amount in your wallet, and the '
-        'payment can no longer complete, so you would have to send it again. A '
-        'payment that is already confirming is on its way to the network and '
-        'cannot be cancelled.',
+    'Usually you do not need to: a payment that is not completed cancels '
+        'itself after $sendTtlDays days and unlocks the amount. To stop one '
+        'sooner, for example when the recipient says they will never answer, '
+        'open it while it still says "Waiting for recipient" and tap Cancel '
+        'payment; you would then have to send it again. A payment that is '
+        'already confirming cannot be cancelled. Payments made with older '
+        'versions of this app do not cancel themselves: if one has waited more '
+        'than two weeks, cancel it and send again.',
   ),
   HelpTopic.receiving: const _Answer(
     'Why must I keep the app open to receive?',
     'Your wallet has to accept every incoming payment, and it can only do that '
-        'while the app is open and connected to the mailbox. Payments sent while '
-        'the app is closed wait in the mailbox and complete the next time you '
-        'unlock. The sender\'s funds stay locked until then.',
+        'while the app is open and connected to the mailbox. A payment sent while '
+        'the app is closed waits in the mailbox for about a week and arrives the '
+        'next time you unlock. After that the mailbox deletes it; the sender\'s '
+        'wallet cancels it by itself after $sendTtlDays days, and they can send '
+        'it again. Once your wallet accepts a payment, the sender\'s wallet must '
+        'finish it; until then it shows as Waiting for sender.',
   ),
   HelpTopic.confirmations: _Answer(
     'What are confirmations and why $minimumConfirmations?',
@@ -64,7 +75,9 @@ final Map<HelpTopic, _Answer> _answers = {
         'blockchain for coins that belong to it. Who you paid, your notes and '
         'most dates are never stored on the blockchain, so a restore cannot find '
         'them. If you saved a history backup, import it in Settings, under '
-        'Transaction history, to get them back.',
+        'Payment history, Import history backup, to get them back. The backup '
+        'must be a copy you kept outside the lost phone, for example in email or '
+        'cloud storage.',
   ),
   HelpTopic.addressChanges: const _Answer(
     'Does my address ever change?',
