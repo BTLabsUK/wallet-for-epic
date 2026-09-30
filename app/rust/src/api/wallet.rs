@@ -35,7 +35,9 @@ pub fn validate_mnemonic(phrase: String) -> bool {
 
 /// True when `config.data_dir` already holds a wallet seed.
 pub fn wallet_exists(config: WalletConfig) -> bool {
-    session::wallet_exists(&config).unwrap_or(false)
+    session::wallet_exists(&config)
+        .map_err(|e| log::warn!("wallet_exists: {e}"))
+        .unwrap_or(false)
 }
 
 /// Reads a slate file: its id, amount, fee, and whether it is a send to us or a response to
@@ -58,12 +60,13 @@ pub fn validate_epicbox_address(address: String) -> bool {
 /// Only the recovery phrase can bring the wallet back.
 pub fn delete_wallet(config: WalletConfig) -> Result<(), WalletError> {
     crate::core::dirlock::delete_wallet_dir(&config.data_dir, crate::core::dirlock::DELETE_WAIT)
-        .map_err(to_api)
+        .map_err(failed("delete_wallet"))
+        .inspect(|_| log::info!("delete_wallet: done"))
 }
 
 /// Current tip of the configured node, without opening a wallet.
 pub fn node_tip(config: WalletConfig) -> Result<NodeTip, WalletError> {
-    session::node_tip(&config).map_err(to_api)
+    session::node_tip(&config).map_err(failed("node_tip"))
 }
 
 /// An open wallet. Opaque to Dart; dropping it closes the wallet and zeroizes the keychain mask.
@@ -81,9 +84,16 @@ impl EpicWallet {
         password: String,
     ) -> Result<EpicWallet, WalletError> {
         let password = ZeroingString::from(password);
+        let restore = mnemonic.is_some();
         session::Session::create(&config, mnemonic, password)
             .map(|inner| EpicWallet { inner })
-            .map_err(to_api)
+            .map_err(failed("create"))
+            .inspect(|_| {
+                log::info!(
+                    "create: {:?} wallet created, restore: {restore}",
+                    config.chain
+                )
+            })
     }
 
     /// Opens an existing wallet. Wrong password gives `WalletErrorKind::WrongPassword`.
@@ -91,14 +101,15 @@ impl EpicWallet {
         let password = ZeroingString::from(password);
         session::Session::open(&config, password)
             .map(|inner| EpicWallet { inner })
-            .map_err(to_api)
+            .map_err(failed("open"))
+            .inspect(|_| log::info!("open: {:?} wallet open", config.chain))
     }
 
     /// Recovery phrase of this wallet, re-checked against `password`.
     pub fn mnemonic(&self, password: String) -> Result<String, WalletError> {
         self.inner
             .mnemonic(ZeroingString::from(password))
-            .map_err(to_api)
+            .map_err(failed("mnemonic"))
     }
 
     /// Balances. With `refresh` the wallet first updates output state from the node, scanning
@@ -110,7 +121,7 @@ impl EpicWallet {
     ) -> Result<WalletSummary, WalletError> {
         self.inner
             .summary(refresh, minimum_confirmations)
-            .map_err(to_api)
+            .map_err(failed("summary"))
     }
 
     /// `summary(refresh: true)` with progress: updates outputs and payments from the node and
@@ -140,9 +151,17 @@ impl EpicWallet {
     where
         F: FnMut(RefreshProgress) + Send,
     {
+        let started = std::time::Instant::now();
         self.inner
             .refresh(minimum_confirmations, on_progress)
-            .map_err(to_api)
+            .map_err(failed("refresh"))
+            .inspect(|s| {
+                log::info!(
+                    "refresh: done in {} ms, validated with node: {}",
+                    started.elapsed().as_millis(),
+                    s.validated_with_node
+                )
+            })
     }
 
     /// Rescans the chain for this wallet's outputs from `start_height` (default: the wallet's
@@ -164,14 +183,19 @@ impl EpicWallet {
     where
         F: FnMut(ScanProgress) + Send,
     {
-        self.inner.scan(start_height, on_progress).map_err(to_api)
+        self.inner
+            .scan(start_height, on_progress)
+            .map_err(failed("scan_with"))
+            .inspect(|_| log::info!("scan: done"))
     }
 
     /// Transactions, newest first by `time_unix`: epic-wallet's log merged with the app's history
     /// archive (notes, counterparties, imported records). With `refresh` it updates outputs from
     /// the node first. It makes no block or kernel lookups; see `enrich_history`.
     pub fn transactions(&self, refresh: bool) -> Result<Vec<TxEntry>, WalletError> {
-        self.inner.transactions(refresh).map_err(to_api)
+        self.inner
+            .transactions(refresh)
+            .map_err(failed("transactions"))
     }
 
     /// Fills in block heights and times, and settles imported records that were still pending,
@@ -179,12 +203,16 @@ impl EpicWallet {
     /// reload `transactions(false)` only when it is above 0. Call it after the home screen loads;
     /// later calls carry on where a refused or failed lookup stopped.
     pub fn enrich_history(&self) -> Result<u32, WalletError> {
-        self.inner.enrich_history().map_err(to_api)
+        self.inner
+            .enrich_history()
+            .map_err(failed("enrich_history"))
     }
 
     /// Sets the note of the transaction with `TxEntry.key`; `None` or blank clears it.
     pub fn set_tx_note(&self, key: String, note: Option<String>) -> Result<(), WalletError> {
-        self.inner.set_tx_note(&key, note).map_err(to_api)
+        self.inner
+            .set_tx_note(&key, note)
+            .map_err(failed("set_tx_note"))
     }
 
     /// Address book, sorted by name.
@@ -194,28 +222,41 @@ impl EpicWallet {
 
     /// Adds a contact (empty `id`) or replaces the one with that id. Returns it as stored.
     pub fn save_contact(&self, contact: Contact) -> Result<Contact, WalletError> {
-        self.inner.save_contact(contact).map_err(to_api)
+        self.inner
+            .save_contact(contact)
+            .map_err(failed("save_contact"))
     }
 
     pub fn delete_contact(&self, id: String) -> Result<(), WalletError> {
-        self.inner.delete_contact(&id).map_err(to_api)
+        self.inner
+            .delete_contact(&id)
+            .map_err(failed("delete_contact"))
     }
 
     /// The whole history (transactions, notes, contacts) as an encrypted file only a wallet with
     /// the same recovery phrase can open.
     pub fn export_history(&self) -> Result<Vec<u8>, WalletError> {
-        self.inner.export_history().map_err(to_api)
+        self.inner
+            .export_history()
+            .map_err(failed("export_history"))
+            .inspect(|_| log::info!("export_history: done"))
     }
 
     /// The transaction list as CSV, for records. Not encrypted and not importable.
     pub fn export_history_csv(&self) -> Result<String, WalletError> {
-        self.inner.export_history_csv().map_err(to_api)
+        self.inner
+            .export_history_csv()
+            .map_err(failed("export_history_csv"))
+            .inspect(|_| log::info!("export_history_csv: done"))
     }
 
     /// Merges a file from `export_history` into this wallet's history. Importing the same file
     /// again changes nothing. A file from another wallet fails with `InvalidArgument`.
     pub fn import_history(&self, data: Vec<u8>) -> Result<ImportReport, WalletError> {
-        self.inner.import_history(&data).map_err(to_api)
+        self.inner
+            .import_history(&data)
+            .map_err(failed("import_history"))
+            .inspect(|r| log::info!("import_history: {r:?}"))
     }
 
     /// The largest amount that can be sent now, and its fee. Sending `amount` spends every
@@ -223,12 +264,14 @@ impl EpicWallet {
     pub fn estimate_max(&self, minimum_confirmations: u64) -> Result<FeeEstimate, WalletError> {
         self.inner
             .estimate_max(minimum_confirmations)
-            .map_err(to_api)
+            .map_err(failed("estimate_max"))
     }
 
     /// The wallet's epicbox address, `<pubkey>@<epicbox_domain>` (port appended if not 443).
     pub fn epicbox_address(&self) -> Result<String, WalletError> {
-        self.inner.epicbox_address().map_err(to_api)
+        self.inner
+            .epicbox_address()
+            .map_err(failed("epicbox_address"))
     }
 
     /// Fee the wallet would pay to send `amount` now.
@@ -239,7 +282,7 @@ impl EpicWallet {
     ) -> Result<FeeEstimate, WalletError> {
         self.inner
             .estimate_fee(amount, minimum_confirmations)
-            .map_err(to_api)
+            .map_err(failed("estimate_fee"))
     }
 
     /// Step 1 of a manual (file/JSON) send: builds the slate and locks the inputs.
@@ -251,17 +294,30 @@ impl EpicWallet {
     ) -> Result<Slate, WalletError> {
         self.inner
             .create_send_slate(amount, minimum_confirmations)
-            .map_err(to_api)
+            .map_err(failed("create_send_slate"))
+            .inspect(|_| log::info!("create_send_slate: done"))
     }
 
     /// Recipient side: signs an incoming send slate and returns the response slate JSON.
     pub fn receive_slate(&self, slate_json: String) -> Result<Slate, WalletError> {
-        self.inner.receive_slate(&slate_json).map_err(to_api)
+        self.inner
+            .receive_slate(&slate_json)
+            .map_err(failed("receive_slate"))
+            .inspect(|s| log::info!("receive_slate: signed slate {}", s.slate_id))
     }
 
     /// Sender side: finalizes the recipient's response and posts the transaction to the node.
     pub fn finalize_and_post(&self, slate_json: String) -> Result<TxEntry, WalletError> {
-        self.inner.finalize_and_post(&slate_json).map_err(to_api)
+        self.inner
+            .finalize_and_post(&slate_json)
+            .map_err(failed("finalize_and_post"))
+            .inspect(|tx| {
+                log::info!(
+                    "finalize_and_post: slate {:?} is {:?}",
+                    tx.slate_id,
+                    tx.status
+                )
+            })
     }
 
     /// Sends to a wallet listening on HTTP, e.g. `http://host:3415`. Completes the whole exchange:
@@ -276,7 +332,8 @@ impl EpicWallet {
     ) -> Result<TxEntry, WalletError> {
         self.inner
             .send_http(amount, minimum_confirmations, &url)
-            .map_err(to_api)
+            .map_err(failed("send_http"))
+            .inspect(|tx| log::info!("send_http: slate {:?} is {:?}", tx.slate_id, tx.status))
     }
 
     /// Sends to `<address>@<relay>[:port]` over epicbox. Returns the new, still unfinalized
@@ -289,7 +346,8 @@ impl EpicWallet {
     ) -> Result<TxEntry, WalletError> {
         self.inner
             .send_epicbox(amount, minimum_confirmations, &address)
-            .map_err(to_api)
+            .map_err(failed("send_epicbox"))
+            .inspect(|tx| log::info!("send_epicbox: slate {:?} is {:?}", tx.slate_id, tx.status))
     }
 
     /// Starts the epicbox listener (no-op if it already runs) and streams what it does. Incoming
@@ -339,19 +397,37 @@ impl EpicWallet {
     /// Posts a finalized send that never reached the chain to the node again (`TxEntry.repostable`).
     /// Its inputs stay locked until it confirms; there is no safe way to release them early.
     pub fn repost_transaction(&self, key: String) -> Result<(), WalletError> {
-        self.inner.repost_transaction(&key).map_err(to_api)
+        self.inner
+            .repost_transaction(&key)
+            .map_err(failed("repost_transaction"))
+            .inspect(|_| log::info!("repost_transaction: done"))
     }
 
     /// Unlocks the funds of a finalized payment the node refused and that never reached the
     /// chain (`TxEntry.releasable`). Checks the chain and the node's pool once more first and
     /// refuses with `InvalidArgument` if the payment is in either.
     pub fn release_stuck_send(&self, key: String) -> Result<(), WalletError> {
-        self.inner.release_stuck_send(&key).map_err(to_api)
+        self.inner
+            .release_stuck_send(&key)
+            .map_err(failed("release_stuck_send"))
+            .inspect(|_| log::info!("release_stuck_send: done"))
     }
 
     /// Cancels an unconfirmed transaction by log id and unlocks its outputs.
     pub fn cancel_transaction(&self, tx_id: u32) -> Result<(), WalletError> {
-        self.inner.cancel_transaction(tx_id).map_err(to_api)
+        self.inner
+            .cancel_transaction(tx_id)
+            .map_err(failed("cancel_transaction"))
+            .inspect(|_| log::info!("cancel_transaction: done"))
+    }
+}
+
+/// `to_api` for `op`, logging the failure first, so every error Dart sees is also in the log.
+fn failed(op: &'static str) -> impl FnOnce(CoreError) -> WalletError {
+    move |e| {
+        let api = to_api(e);
+        log::warn!("{op} failed: {:?}: {}", api.kind, api.message);
+        api
     }
 }
 

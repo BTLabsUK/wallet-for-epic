@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
 
+import 'app_log.dart';
 import 'errors.dart';
 import 'network.dart';
 import 'secret_store.dart';
@@ -119,6 +120,10 @@ class NetworkChoiceNotifier extends AsyncNotifier<NetworkChoice> {
     await store.write(_networkKey, preset.chain.name);
     await store.write(_nodeKey(preset.chain), nodeUrl);
     await store.write(_relayKey(preset.chain), r.label);
+    logInfo(
+      'network',
+      '${preset.chain.name}, node ${Uri.tryParse(nodeUrl)?.host ?? '?'}, relay ${r.label}',
+    );
     state = AsyncData(
       NetworkChoice(preset: preset, nodeUrl: nodeUrl, relay: r),
     );
@@ -151,6 +156,7 @@ class SessionNotifier extends Notifier<WalletSession?> {
   void unlocked(WalletSession session) {
     final previous = state;
     if (previous != null && !identical(previous, session)) previous.dispose();
+    if (!identical(previous, session)) logInfo('session', 'wallet unlocked');
     state = session;
   }
 
@@ -158,6 +164,7 @@ class SessionNotifier extends Notifier<WalletSession?> {
   void lock() {
     final previous = state;
     state = null;
+    if (previous != null) logInfo('session', 'wallet locked');
     previous?.dispose();
   }
 }
@@ -270,6 +277,7 @@ class HomeNotifier extends AsyncNotifier<HomeData> {
       final data = await _refreshed(session);
       if (ref.mounted) state = AsyncData(data);
     } catch (error, stack) {
+      logWarn('sync', 'refresh failed: ${describeError(error)}');
       if (!ref.mounted) return;
       // The local figures stay, no longer marked as syncing, under the error.
       final shown = state.value;
@@ -307,8 +315,9 @@ class HomeNotifier extends AsyncNotifier<HomeData> {
           session: shown.session,
         ),
       );
-    } catch (_) {
+    } catch (error) {
       // The list stays as it was.
+      logInfo('history', 'enrich failed: ${describeError(error)}');
     } finally {
       _enriching = false;
     }
@@ -365,6 +374,7 @@ class ScanNotifier extends Notifier<ScanState> {
     final session = ref.read(sessionProvider);
     if (session == null || state.running) return false;
     state = const ScanState(running: true, message: 'Starting scan');
+    logInfo('scan', 'started from ${startHeight ?? 'the last scanned block'}');
     // The core ends every scan with a `finished` event; on failure its message starts with
     // "Scan failed:" and the stream then closes with the error as well.
     String? failure;
@@ -443,6 +453,7 @@ class WalletSetupNotifier extends Notifier<WalletSetup> {
       }
       state = WalletSetup(config: config, session: session);
     } catch (error) {
+      logWarn('setup', 'creating the wallet failed: ${describeError(error)}');
       if (ref.mounted && state.config?.dataDir == config.dataDir) {
         state = WalletSetup(config: config, error: error);
       }
@@ -561,8 +572,10 @@ class ListenerNotifier extends Notifier<ListenerState> {
     if (session == null) return const ListenerState();
     _events = session.startListener().listen(
       _onEvent,
-      onError: (Object error) =>
-          state = ListenerState(status: describeError(error), last: state.last),
+      onError: (Object error) {
+        logWarn('listener', 'stream failed: ${describeError(error)}');
+        state = ListenerState(status: describeError(error), last: state.last);
+      },
     );
     return const ListenerState(status: 'Connecting to the epicbox relay…');
   }

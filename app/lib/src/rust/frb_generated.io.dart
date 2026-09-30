@@ -3,6 +3,7 @@
 
 // ignore_for_file: unused_import, unused_element, unnecessary_import, duplicate_ignore, invalid_use_of_internal_member, annotate_overrides, non_constant_identifier_names, curly_braces_in_flow_control_structures, prefer_const_literals_to_create_immutables, unused_field
 
+import 'api/diagnostics.dart';
 import 'api/types.dart';
 import 'api/vault.dart';
 import 'api/wallet.dart';
@@ -134,6 +135,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   ListenerEventKind dco_decode_listener_event_kind(dynamic raw);
+
+  @protected
+  LogLevel dco_decode_log_level(dynamic raw);
 
   @protected
   NodeTip dco_decode_node_tip(dynamic raw);
@@ -331,6 +335,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   ListenerEventKind sse_decode_listener_event_kind(
     SseDeserializer deserializer,
   );
+
+  @protected
+  LogLevel sse_decode_log_level(SseDeserializer deserializer);
 
   @protected
   NodeTip sse_decode_node_tip(SseDeserializer deserializer);
@@ -551,6 +558,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
     ListenerEventKind self,
     SseSerializer serializer,
   );
+
+  @protected
+  void sse_encode_log_level(LogLevel self, SseSerializer serializer);
 
   @protected
   void sse_encode_node_tip(NodeTip self, SseSerializer serializer);

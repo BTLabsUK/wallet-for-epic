@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../app_log.dart';
 import '../errors.dart';
 import '../network.dart';
 import '../providers.dart';
@@ -105,6 +106,7 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
       final until = rejection.lockedUntil;
       if (until != null) _lockOut(until);
     } catch (error) {
+      logWarn('unlock', 'PIN unlock failed: ${describeError(error)}');
       _pin.clear();
       if (mounted) setState(() => _error = describeError(error));
     } finally {

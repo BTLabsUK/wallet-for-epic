@@ -8,6 +8,7 @@ library;
 
 import 'dart:math';
 
+import 'app_log.dart';
 import 'rust/api/vault.dart' as rust;
 import 'secret_store.dart';
 import 'wallet_service.dart';
@@ -167,7 +168,14 @@ class WalletVault {
       return password;
     } on WalletError catch (error) {
       if (error.kind != WalletErrorKind.wrongPassword) rethrow;
-      throw await _recordFailure(chain);
+      final rejection = await _recordFailure(chain);
+      logInfo(
+        'unlock',
+        rejection.lockedUntil != null
+            ? 'wrong PIN, paused until ${rejection.lockedUntil!.toUtc().toIso8601String()}'
+            : 'wrong PIN, ${rejection.attemptsLeft} tries left',
+      );
+      throw rejection;
     }
   }
 

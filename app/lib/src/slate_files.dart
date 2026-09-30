@@ -15,6 +15,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
+import 'app_log.dart';
+
 /// Slate files are a few kilobytes; anything far larger is not one.
 const int maxSlateFileBytes = 1 << 20;
 
@@ -250,7 +252,9 @@ class IncomingSlateNotifier extends Notifier<SlateFile?> {
     _channel
         .invokeMethod<Object?>('takePending')
         .then(_accept)
-        .catchError((Object _) {});
+        .catchError(
+          (Object error) => logWarn('files', 'no pending shared file: $error'),
+        );
     return null;
   }
 

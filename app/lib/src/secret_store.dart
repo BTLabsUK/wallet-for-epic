@@ -11,6 +11,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:local_auth/local_auth.dart';
 
+import 'app_log.dart';
+
 abstract interface class SecretStore {
   Future<String?> read(String key);
 
@@ -113,8 +115,10 @@ class PlatformBiometricStore implements BiometricStore {
     try {
       return await action();
     } on PlatformException catch (error) {
+      logInfo('biometrics', 'not unlocked: ${error.code}');
       throw BiometricCancelled(error.message ?? error.code);
     } on LocalAuthException catch (error) {
+      logInfo('biometrics', 'not unlocked: ${error.code.name}');
       throw BiometricCancelled(error.description ?? error.code.name);
     }
   }

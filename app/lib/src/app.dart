@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'app_log.dart';
 import 'providers.dart';
 import 'push.dart';
 import 'settings.dart';
@@ -59,6 +60,10 @@ class _WalletAppState extends ConsumerState<WalletApp> {
   }
 
   void _onLifecycle(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.resumed) {
+      logInfo('app', state.name);
+    }
     switch (state) {
       case AppLifecycleState.hidden || AppLifecycleState.paused:
         if (_leftAt == null &&
@@ -104,6 +109,7 @@ class _WalletAppState extends ConsumerState<WalletApp> {
     _leftAt = null;
     final context = _navigator.currentContext;
     if (context == null || ref.read(sessionProvider) == null) return;
+    logInfo('session', 'auto-lock');
     lockWallet(context, ref);
   }
 

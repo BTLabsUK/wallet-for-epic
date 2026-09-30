@@ -9,7 +9,7 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
 import 'types.dart';
 
-// These functions are ignored because they are not marked as `pub`: `kind_of`, `to_api`
+// These functions are ignored because they are not marked as `pub`: `failed`, `kind_of`, `to_api`
 // These functions are ignored (category: IgnoreBecauseExplicitAttribute): `refresh_with`, `scan_with`, `set_last_scanned_height_for_tests`, `set_send_ttl_blocks_for_tests`, `start_listener_with`
 
 /// Generates a new BIP-39 recovery phrase. `word_count` is 12 or 24.

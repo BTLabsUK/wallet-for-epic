@@ -9,6 +9,7 @@ import 'dart:io';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'app_log.dart';
 import 'amount.dart';
 import 'providers.dart';
 import 'settings.dart';
@@ -71,8 +72,9 @@ class CoinGeckoPriceSource implements PriceSource {
       final coin = decoded['epic-cash'];
       final value = coin is Map ? coin[currency] : null;
       return value is num && value > 0 ? value.toDouble() : null;
-    } catch (_) {
+    } catch (error) {
       // Offline, blocked, rate-limited or malformed: no price this time.
+      logInfo('price', 'no price: ${error.runtimeType}');
       return null;
     } finally {
       client.close(force: true);

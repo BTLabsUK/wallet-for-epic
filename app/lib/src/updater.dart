@@ -16,6 +16,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
 
+import 'app_log.dart';
+
 /// Where releases publish `update.json`. Override with `--dart-define=WFE_UPDATE_URL=...`.
 const String updateManifestUrl = String.fromEnvironment(
   'WFE_UPDATE_URL',
@@ -376,6 +378,7 @@ class UpdateNotifier extends Notifier<UpdateState> {
           ? UpdateState(quiet ? UpdatePhase.idle : UpdatePhase.upToDate)
           : UpdateState(UpdatePhase.available, update: update);
     } catch (error) {
+      logInfo('update', 'check failed: $error');
       if (!ref.mounted) return;
       state = quiet
           ? const UpdateState(UpdatePhase.idle)
@@ -430,6 +433,7 @@ class UpdateNotifier extends Notifier<UpdateState> {
         );
       }
     } catch (error) {
+      logWarn('update', 'install failed: $error');
       if (ref.mounted) {
         state = UpdateState(
           UpdatePhase.failed,

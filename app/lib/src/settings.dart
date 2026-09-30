@@ -8,6 +8,7 @@ import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'app_log.dart';
 import 'providers.dart';
 import 'wallet_service.dart' show Chain, TxEntry, TxSource, TxStatus;
 
@@ -216,8 +217,12 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
         snapshots[chain.name] = HistoryExportSnapshot.fromJson(
           jsonDecode(raw) as Map<String, dynamic>,
         );
-      } catch (_) {
+      } catch (error) {
         // A damaged snapshot only makes the reminder count less; the next export rewrites it.
+        logWarn(
+          'settings',
+          'damaged history snapshot for ${chain.name}: $error',
+        );
       }
     }
     return AppSettings(

@@ -115,16 +115,16 @@ impl EpicNodeClient {
         }
         let resp = req
             .send()
-            .map_err(|e| log::debug!("/v1/status unreachable: {e}"))
+            .map_err(|e| log::info!("/v1/status unreachable: {e}"))
             .ok()?;
         if !resp.status().is_success() {
-            log::debug!("/v1/status answered {}", resp.status());
+            log::info!("/v1/status answered {}", resp.status());
             return None;
         }
         let body = resp.text().ok()?;
         let parsed = parse_v1_status(&body);
         if parsed.is_none() {
-            log::debug!("/v1/status body is not a node status");
+            log::info!("/v1/status body is not a node status");
         }
         parsed
     }
@@ -168,11 +168,11 @@ impl EpicNodeClient {
             req = req.basic_auth("epic", Some(secret));
         }
         let resp = req.send().map_err(|e| {
-            log::debug!("get_header {height}: {e}");
+            log::info!("get_header {height}: {e}");
             LookupStopped
         })?;
         if !resp.status().is_success() {
-            log::debug!("get_header {height} answered {}", resp.status());
+            log::info!("get_header {height} answered {}", resp.status());
             return Err(LookupStopped);
         }
         let text = resp.text().map_err(|_| LookupStopped)?;
@@ -203,7 +203,7 @@ impl EpicNodeClient {
         match inner.get_kernel(excess, Some(min_height.max(1)), Some(max_height)) {
             Ok(found) => Ok(found.map(|(_, height, _)| height)),
             Err(e) => {
-                log::debug!("get_kernel: {e}");
+                log::info!("get_kernel: {e}");
                 Err(LookupStopped)
             }
         }
@@ -258,7 +258,7 @@ fn retry_read<T>(what: &str, mut call: impl FnMut() -> Result<T, Error>) -> Resu
         match call() {
             Ok(v) => return Ok(v),
             Err(e) if attempt < DELAYS_MS.len() => {
-                log::debug!("{what} failed ({e}), retrying");
+                log::info!("{what} failed ({e}), retrying");
                 std::thread::sleep(std::time::Duration::from_millis(DELAYS_MS[attempt]));
                 attempt += 1;
             }
@@ -274,13 +274,13 @@ impl NodeClient for EpicNodeClient {
                 status.sync_status = self.judge(&status.sync_status, status.tip.height);
                 return Ok(status);
             }
-            Err(e) => log::debug!("owner get_status unavailable ({e}), trying /v1/status"),
+            Err(e) => log::info!("owner get_status unavailable ({e}), trying /v1/status"),
         }
         if let Some((sync_status, height)) = self.v1_status() {
             let judged = self.judge(&sync_status, height);
             return Ok(self.status(judged, height, String::new()));
         }
-        log::debug!("/v1/status unavailable, judging sync from the foreign API tip");
+        log::info!("/v1/status unavailable, judging sync from the foreign API tip");
         let (height, hash) = self.inner.get_chain_tip()?;
         let judged = self.judge(SYNCED, height);
         Ok(self.status(judged, height, hash))

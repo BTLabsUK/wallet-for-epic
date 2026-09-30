@@ -35,7 +35,7 @@ use super::epicbox::{self, Identity, Listener};
 use super::error::{CoreError, CoreResult};
 use super::history::{self, LiveTx, MergedTx};
 use super::meta::{ContactRec, MetaStore};
-use super::node::EpicNodeClient;
+use super::node::{EpicNodeClient, LookupStopped};
 use super::{export, mnemonic, slate, stored_tx};
 use crate::api::types::{
     CancelReason, Contact, FeeEstimate, ImportReport, ListenerEvent, NodeTip, RefreshProgress,
@@ -738,7 +738,10 @@ impl Session {
                 Some(t) => t,
                 None => match self.node.get_chain_tip() {
                     Ok((t, _)) => *tip.insert(t),
-                    Err(_) => return,
+                    Err(e) => {
+                        log::info!("enrich: no chain tip: {e}");
+                        return;
+                    }
                 },
             };
             budget -= 1;
@@ -748,7 +751,10 @@ impl Session {
                 Ok(h) => {
                     kernel_heights.insert(k.clone(), h.unwrap_or(0));
                 }
-                Err(_) => break,
+                Err(LookupStopped) => {
+                    log::info!("enrich: kernel lookup stopped");
+                    break;
+                }
             }
         }
         // Finalized sends the node refused: once a day of blocks has passed since finalize, see
@@ -776,7 +782,10 @@ impl Session {
                 Some(t) => t,
                 None => match self.node.get_chain_tip() {
                     Ok((t, _)) => *tip.insert(t),
-                    Err(_) => break,
+                    Err(e) => {
+                        log::info!("enrich: no chain tip: {e}");
+                        break;
+                    }
                 },
             };
             if max < after {
@@ -792,7 +801,10 @@ impl Session {
                 Ok(Some(h)) => {
                     kernel_heights.insert(k.clone(), h);
                 }
-                Err(_) => break,
+                Err(LookupStopped) => {
+                    log::info!("enrich: release check stopped");
+                    break;
+                }
             }
         }
         // Imported records still pending at export, with no live row: settle them by kernel.
@@ -809,7 +821,10 @@ impl Session {
                 Some(t) => t,
                 None => match self.node.get_chain_tip() {
                     Ok((t, _)) => *tip.insert(t),
-                    Err(_) => break,
+                    Err(e) => {
+                        log::info!("enrich: no chain tip: {e}");
+                        break;
+                    }
                 },
             };
             budget -= 1;
@@ -823,7 +838,10 @@ impl Session {
                         settlements.push((k.clone(), s));
                     }
                 }
-                Err(_) => break,
+                Err(LookupStopped) => {
+                    log::info!("enrich: settling stopped");
+                    break;
+                }
             }
         }
         let mut heights = std::collections::BTreeSet::new();
@@ -871,7 +889,10 @@ impl Session {
                     }
                     misses.insert(h, tip.unwrap_or(0));
                 }
-                Err(_) => break,
+                Err(LookupStopped) => {
+                    log::info!("enrich: block time lookup stopped");
+                    break;
+                }
             }
         }
         if kernel_heights.is_empty()
@@ -1265,10 +1286,11 @@ impl Session {
         match self.node.kernel_height(&excess, min, tip) {
             Ok(None) => {}
             Ok(Some(_)) => return refuse("this payment is on the chain; it cannot be released"),
-            Err(_) => {
+            Err(LookupStopped) => {
+                log::warn!("release: kernel lookup failed");
                 return Err(CoreError::Wallet(LibWalletError::ClientCallback(
                     "could not ask the node whether the payment reached the chain".into(),
-                )))
+                )));
             }
         }
         let pool = self.node.get_mempool()?;
@@ -1610,6 +1632,9 @@ pub(crate) fn post_recorded(
     slate: &LibSlate,
 ) -> Result<(), LibWalletError> {
     let posted = owner.post_tx(mask, &slate.tx, true);
+    if posted.is_ok() {
+        log::info!("posted payment {}", slate.id);
+    }
     record_post(meta, &slate.id.to_string(), &posted);
     posted
 }

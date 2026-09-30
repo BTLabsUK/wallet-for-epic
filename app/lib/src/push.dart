@@ -13,6 +13,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'app_log.dart';
+
 /// What the app knows about pushes on this device.
 class PushState {
   const PushState({
@@ -128,12 +130,17 @@ class PushNotifier extends Notifier<PushState> {
     try {
       final permitted = await platform.start();
       if (!permitted) {
+        logInfo('push', 'notification permission denied');
         _started = false;
         state = PushState(token: state.token, blocked: true, last: state.last);
         return false;
       }
       final token = await platform.token();
-      if (kDebugMode) debugPrint('FCM token: $token');
+      // Never the token itself: it addresses pushes to this device.
+      logInfo(
+        'push',
+        'started, ${token == null ? 'no token yet' : 'token received'}',
+      );
       state = PushState(token: token, permitted: permitted);
       _subscriptions
         ..add(
@@ -154,8 +161,8 @@ class PushNotifier extends Notifier<PushState> {
             );
           }),
         );
-    } catch (error) {
-      debugPrint('push setup failed: $error');
+    } catch (error, stack) {
+      logError('push', 'setup failed: $error', stack);
       _started = false;
       state = PushState(unavailable: true, last: state.last);
       return false;

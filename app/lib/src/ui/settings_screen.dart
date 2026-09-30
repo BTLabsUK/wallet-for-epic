@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../app_log.dart';
 import '../errors.dart';
 import '../network.dart';
 import '../price.dart';
@@ -75,8 +76,9 @@ final appVersionProvider = FutureProvider<String>((ref) async {
     try {
       final app = await platform.installedApp();
       return '${app.versionName} (${app.versionCode})';
-    } catch (_) {
+    } catch (error) {
       // Fall back to the build's own version.
+      logInfo('app', 'installed version unknown: $error');
     }
   }
   const name = String.fromEnvironment('FLUTTER_BUILD_NAME');
@@ -282,8 +284,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             .forgetHistoryBackup(config.chain);
         try {
           await ref.read(sharedFilesCleanupProvider)();
-        } catch (_) {
+        } catch (error) {
           // Leftover copies in the cache are harmless next to a deleted wallet; keep going.
+          logWarn('delete', 'clearing shared files failed: $error');
         }
         if (!mounted) return;
         Navigator.of(context).pushAndRemoveUntil(

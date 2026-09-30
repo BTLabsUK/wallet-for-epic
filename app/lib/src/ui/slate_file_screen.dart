@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../app_log.dart';
 import '../errors.dart';
 import '../providers.dart';
 import '../settings.dart';
@@ -203,7 +204,8 @@ class SlateFileButtons extends ConsumerWidget {
           .read(autoLockHoldProvider.notifier)
           .during(() => action(files));
       if (ok && done != null) notice.show(done);
-    } catch (_) {
+    } catch (error) {
+      logWarn('files', 'handing over a transaction file failed: $error');
       notice.show('Could not hand over $name. Please try again.');
     }
   }

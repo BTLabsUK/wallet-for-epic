@@ -228,7 +228,10 @@ pub(crate) fn post_once(
             },
             Ok(_) => {}
             Err(e) if is_timeout(&e) => {}
-            Err(_) => break,
+            Err(e) => {
+                log::info!("epicbox post: no verdict from the relay: {e}");
+                break;
+            }
         }
     }
     let _ = socket.close(None);
@@ -274,6 +277,7 @@ impl Listener {
         let thread = std::thread::Builder::new()
             .name("epicbox-listener".into())
             .spawn(move || worker.run())
+            .map_err(|e| log::warn!("listener: no thread: {e}"))
             .ok();
         Listener { stop, thread }
     }
@@ -317,6 +321,18 @@ impl Worker {
         message: String,
         amount: Option<u64>,
     ) {
+        let slate = slate_id
+            .as_deref()
+            .map(|s| format!(" {s}"))
+            .unwrap_or_default();
+        match kind {
+            // The message is our own address; the relay is enough.
+            ListenerEventKind::Connected => {
+                log::info!("listener: connected to {}", self.config.epicbox_domain)
+            }
+            ListenerEventKind::Error => log::warn!("listener: error{slate}: {message}"),
+            _ => log::info!("listener: {kind:?}{slate}: {message}"),
+        }
         (self.on_event)(ListenerEvent {
             amount,
             kind,

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../app_log.dart';
 import '../amount.dart';
 import '../contacts.dart';
 import '../errors.dart';
@@ -427,7 +428,8 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       if (note.isNotEmpty) {
         try {
           await session.setTxNote(key: tx.key, note: note);
-        } catch (_) {
+        } catch (error) {
+          logWarn('send', 'saving the note failed: ${describeError(error)}');
           noteSaved = false;
         }
       }
