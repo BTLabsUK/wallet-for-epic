@@ -5,6 +5,7 @@ import 'package:pretty_qr_code/pretty_qr_code.dart';
 import '../errors.dart';
 import '../network.dart';
 import '../providers.dart';
+import '../push.dart';
 import '../slate_files.dart';
 import '../updater.dart';
 import '../wallet_service.dart';
@@ -78,6 +79,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     _lifecycle;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(updateProvider.notifier).checkOnStart();
+      ref.read(pushProvider.notifier).start();
       _openIncoming();
     });
   }
@@ -201,6 +203,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // In the foreground the listener is connected and handles the slate itself; the push only
+    // says so.
+    ref.listen(pushProvider.select((s) => s.last), (_, message) {
+      final title = message?.notification?.title;
+      if (title != null) _showMessage(title);
+    });
     ref.listen(incomingSlateProvider, (_, file) {
       if (file != null) _openIncoming();
     });

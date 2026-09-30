@@ -1,0 +1,5 @@
+
+# Firebase: the app config ships in every APK but stays out of git; the server key is secret.
+/firebase.secret
+/firebase-service-account*.json
+/app/android/app/google-services.json
