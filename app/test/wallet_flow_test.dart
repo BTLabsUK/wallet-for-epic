@@ -4,6 +4,7 @@ import 'package:epic_wallet/src/app.dart';
 import 'package:epic_wallet/src/network.dart';
 import 'package:epic_wallet/src/price.dart';
 import 'package:epic_wallet/src/providers.dart';
+import 'package:epic_wallet/src/push.dart';
 import 'package:epic_wallet/src/relay_directory.dart';
 import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/slate_files.dart';
@@ -95,6 +96,7 @@ Future<void> _pumpApp(
         biometricStoreProvider.overrideWithValue(device.bio),
         vaultCryptoProvider.overrideWithValue(device.crypto),
         updatePlatformProvider.overrideWithValue(null),
+        pushPlatformProvider.overrideWithValue(null),
         relayDirectoryProvider.overrideWithValue(_FakeRelays()),
         slateFilesProvider.overrideWithValue(device.files),
         priceSourceProvider.overrideWithValue(const _NoPrice()),

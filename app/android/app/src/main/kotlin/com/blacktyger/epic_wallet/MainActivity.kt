@@ -1,5 +1,7 @@
 package com.blacktyger.epic_wallet
 
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
@@ -22,6 +24,7 @@ class MainActivity : FlutterFragmentActivity() {
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
+        createNotificationChannel()
         val messenger = flutterEngine.dartExecutor.binaryMessenger
         // Lets Dart set FLAG_SECURE while the recovery phrase is on screen.
         MethodChannel(messenger, "epic_wallet/secure_screen")
@@ -51,6 +54,17 @@ class MainActivity : FlutterFragmentActivity() {
         readIncoming(intent)?.let { pendingFile = it }
         val channel = MethodChannel(messenger, "epic_wallet/updater")
         updater = AppUpdater(this, channel).also { channel.setMethodCallHandler(it) }
+    }
+
+    /** The channel background pushes land in, named in AndroidManifest.xml. */
+    private fun createNotificationChannel() {
+        if (Build.VERSION.SDK_INT < 26) return
+        val channel = NotificationChannel(
+            "transactions",
+            "Transactions",
+            NotificationManager.IMPORTANCE_HIGH,
+        ).apply { description = "Incoming payments and sends waiting to be finished" }
+        getSystemService(NotificationManager::class.java).createNotificationChannel(channel)
     }
 
     override fun onNewIntent(intent: Intent) {
