@@ -205,6 +205,48 @@ pub(crate) struct Meta {
     /// Kernel excess (hex) to the height of the block that holds it.
     #[serde(default)]
     pub kernel_heights: BTreeMap<String, u64>,
+    /// Heights the node had no header for, with the node's tip at the time. Asked again once
+    /// the tip has moved past it.
+    #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
+    pub block_time_misses: BTreeMap<u64, u64>,
+    /// The node URL the caches above came from. A different node starts them afresh.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub cache_node: Option<String>,
+}
+
+impl Meta {
+    /// Whether to ask the node for the block time at `height`, with `tip` the node's tip if
+    /// known. A cached time is final. A miss is asked again only once the tip has moved past
+    /// the tip it was recorded at. A `0` from older files counts as a miss at tip 0.
+    pub(crate) fn wants_block_time(&self, height: u64, tip: Option<u64>) -> bool {
+        match self.block_times.get(&height) {
+            Some(t) if *t > 0 => false,
+            Some(_) => tip.is_some_and(|t| t > 0),
+            None => match self.block_time_misses.get(&height) {
+                Some(at) => tip.is_some_and(|t| t > *at),
+                None => true,
+            },
+        }
+    }
+
+    /// Drops the block caches when they came from another node. Returns true when it did.
+    /// The first node seen is only recorded, so upgrading keeps the caches.
+    pub(crate) fn use_node(&mut self, url: &str) -> bool {
+        match self.cache_node.as_deref() {
+            Some(n) if n == url => false,
+            None => {
+                self.cache_node = Some(url.to_owned());
+                false
+            }
+            Some(_) => {
+                self.block_times.clear();
+                self.block_time_misses.clear();
+                self.kernel_heights.clear();
+                self.cache_node = Some(url.to_owned());
+                true
+            }
+        }
+    }
 }
 
 impl Default for Meta {
@@ -217,6 +259,8 @@ impl Default for Meta {
             records: Vec::new(),
             block_times: BTreeMap::new(),
             kernel_heights: BTreeMap::new(),
+            block_time_misses: BTreeMap::new(),
+            cache_node: None,
         }
     }
 }
@@ -384,6 +428,41 @@ mod tests {
         });
         assert!(r.is_err());
         assert!(!data_dir.exists(), "the deleted directory stays deleted");
+    }
+
+    #[test]
+    fn a_missing_block_time_is_asked_again_once_the_tip_moves() {
+        let mut m = Meta::default();
+        assert!(m.wants_block_time(5, None), "never asked");
+        m.block_times.insert(5, 1_700_000_000);
+        assert!(!m.wants_block_time(5, Some(9)), "known");
+        m.block_time_misses.insert(6, 100);
+        assert!(!m.wants_block_time(6, None), "tip unknown: not yet");
+        assert!(
+            !m.wants_block_time(6, Some(100)),
+            "same tip: the node still lacks it"
+        );
+        assert!(m.wants_block_time(6, Some(101)), "the tip moved");
+        m.block_times.insert(7, 0); // an older file's miss
+        assert!(m.wants_block_time(7, Some(1)));
+    }
+
+    #[test]
+    fn another_node_starts_the_block_caches_afresh() {
+        let mut m = Meta::default();
+        m.block_times.insert(5, 1);
+        m.kernel_heights.insert("k".into(), 5);
+        assert!(!m.use_node("https://a"), "the first node is only recorded");
+        assert_eq!(m.block_times.len(), 1);
+        assert!(!m.use_node("https://a"));
+        m.block_time_misses.insert(6, 10);
+        assert!(m.use_node("https://b"));
+        assert!(
+            m.block_times.is_empty()
+                && m.kernel_heights.is_empty()
+                && m.block_time_misses.is_empty()
+        );
+        assert_eq!(m.cache_node.as_deref(), Some("https://b"));
     }
 
     #[test]

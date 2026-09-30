@@ -36,7 +36,7 @@ bool validateEpicboxAddress({required String address}) =>
 /// Deletes the wallet in `config.data_dir`: its seed, epic-wallet's database and the history
 /// archive. Waits up to 20 s for every open wallet on that directory to be dropped and for calls
 /// still running on it to return, and keeps new ones out meanwhile, so nothing writes into the
-/// directory after it is gone. Fails with `ChainBusy` if the wallet is still busy then.
+/// directory after it is gone. Fails with `WalletBusy` if the wallet is still busy then.
 /// Only the recovery phrase can bring the wallet back.
 Future<void> deleteWallet({required WalletConfig config}) =>
     RustLib.instance.api.crateApiWalletDeleteWallet(config: config);

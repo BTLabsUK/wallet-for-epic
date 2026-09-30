@@ -394,14 +394,17 @@ impl Worker {
                     epicboxmsgid,
                     ..
                 } => {
-                    self.on_slate(&mut socket, from, str, signature);
                     // Acknowledge whether or not handling succeeded: a slate that failed once
-                    // fails again, and redelivery would only repeat the error. The relay answers
-                    // a Made with a fresh challenge, which re-subscribes us above. Upstream
-                    // re-subscribes with the old challenge first, which the relay rejects once
-                    // it has rotated the challenge.
-                    if let Err(e) = self.made(&mut socket, epicboxmsgid) {
-                        return e.to_string();
+                    // fails again, and redelivery would only repeat the error. The exception is
+                    // an answer that could not be checked against the chain height: left
+                    // unacknowledged, the relay delivers it again on a later subscribe. The relay
+                    // answers a Made with a fresh challenge, which re-subscribes us above.
+                    // Upstream re-subscribes with the old challenge first, which the relay
+                    // rejects once it has rotated the challenge.
+                    if self.on_slate(&mut socket, from, str, signature) {
+                        if let Err(e) = self.made(&mut socket, epicboxmsgid) {
+                            return e.to_string();
+                        }
                     }
                 }
                 ProtocolResponseV2::Error { kind, description } => {
@@ -435,7 +438,15 @@ impl Worker {
         send_request(socket, &request)
     }
 
-    fn on_slate(&mut self, socket: &mut Socket, from: String, message: String, signature: String) {
+    /// Handles one delivered slate. Returns false when it must not be acknowledged, so the
+    /// relay delivers it again later (the chain height could not be read).
+    fn on_slate(
+        &mut self,
+        socket: &mut Socket,
+        from: String,
+        message: String,
+        signature: String,
+    ) -> bool {
         let parsed = TxProof::from_response(
             from,
             message,
@@ -448,7 +459,7 @@ impl Worker {
             Err(e) => {
                 let text = format!("an unreadable payment arrived from the mailbox server: {e}");
                 self.emit(ListenerEventKind::Error, None, text);
-                return;
+                return true;
             }
         };
         let version = versioned.version();
@@ -468,8 +479,19 @@ impl Worker {
             Err(CoreError::Wallet(LibWalletError::TransactionAlreadyReceived(_))) => {
                 log::info!("slate {slate_id} was already received");
             }
+            Err(CoreError::Expired(text)) => self.emit_with(
+                ListenerEventKind::Expired,
+                Some(slate_id),
+                text,
+                Some(slate.amount),
+            ),
+            Err(CoreError::RetryLater(text)) => {
+                self.emit(ListenerEventKind::Error, Some(slate_id), text);
+                return false;
+            }
             Err(e) => self.emit(ListenerEventKind::Error, Some(slate_id), e.to_string()),
         }
+        true
     }
 
     /// A new send to us: sign it and post the response back to the sender.
@@ -512,6 +534,7 @@ impl Worker {
         self.owner
             .verify_slate_messages(mask, slate)
             .map_err(|e| CoreError::InvalidSlate(e.to_string()))?;
+        super::session::answer_in_time(&self.owner, mask, &self.wallet, slate)?;
         let finalized = self.owner.finalize_tx(mask, slate)?;
         let height = super::session::wallet_height(&self.wallet);
         super::session::record_finalized(&self.meta, &finalized, height);

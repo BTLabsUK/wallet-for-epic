@@ -145,6 +145,10 @@ enum ListenerEventKind {
   /// A slate could not be handled, or the relay reported an error.
   error,
 
+  /// The answer to one of our sends came at or too near its 14-day limit. The send was
+  /// cancelled, not finished: nothing was sent and the funds are unlocked. `amount` is set.
+  expired,
+
   /// The listener ended; no more events follow.
   stopped,
 }
@@ -504,6 +508,14 @@ enum WalletErrorKind {
   /// A wallet is still open on another network, or a call on this wallet is still running
   /// (network switch, delete). Waiting a moment and trying again usually works.
   chainBusy,
+
+  /// A call on this wallet is still running, or the wallet is being deleted. `delete_wallet`
+  /// returns it after waiting 20 s. Trying again in a moment usually works.
+  walletBusy,
+
+  /// The recipient answered at or too near the payment's 14-day limit. The payment was
+  /// cancelled instead of finished: nothing was sent and the funds are unlocked.
+  paymentExpired,
   io,
   other,
 }

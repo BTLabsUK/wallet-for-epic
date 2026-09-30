@@ -65,6 +65,7 @@ pub(crate) struct DirLease(PathBuf);
 impl DirLease {
     /// Fails while the directory is being deleted (after waiting for the delete to finish).
     pub(crate) fn acquire(dir: &str) -> CoreResult<DirLease> {
+        sweep_leftovers(dir);
         let k = key(dir);
         let deadline = Instant::now() + DELETE_WAIT;
         let mut g = lock();
@@ -95,6 +96,49 @@ impl Drop for DirLease {
     }
 }
 
+/// Suffix of a directory being deleted: `<dir>.deleting-<ms>`.
+const DELETING: &str = ".deleting-";
+
+/// Renames `dir` out of the way first (atomic), then removes the renamed copy. A crash between
+/// the two leaves a `<dir>.deleting-<ms>` that nothing opens, instead of a wallet directory with
+/// half its files; [`sweep_leftovers`] removes it later.
+fn remove_atomically(dir: &Path) -> CoreResult<()> {
+    let Some(name) = dir.file_name().map(|n| n.to_string_lossy().into_owned()) else {
+        return Err(CoreError::InvalidArgument("data_dir has no name".into()));
+    };
+    let stamp = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|d| d.as_millis())
+        .unwrap_or(0);
+    let aside = dir.with_file_name(format!("{name}{DELETING}{stamp}"));
+    match std::fs::rename(dir, &aside) {
+        Ok(()) => {}
+        Err(e) if e.kind() == std::io::ErrorKind::NotFound => return Ok(()),
+        Err(e) => return Err(CoreError::Io(format!("deleting {}: {e}", dir.display()))),
+    }
+    std::fs::remove_dir_all(&aside)
+        .map_err(|e| CoreError::Io(format!("deleting {}: {e}", aside.display())))
+}
+
+/// Removes `<dir>.deleting-*` left by a delete that was interrupted. Errors are logged only.
+pub(crate) fn sweep_leftovers(dir: &str) {
+    let dir = Path::new(dir.trim());
+    let (Some(parent), Some(name)) = (dir.parent(), dir.file_name()) else {
+        return;
+    };
+    let prefix = format!("{}{DELETING}", name.to_string_lossy());
+    let Ok(entries) = std::fs::read_dir(parent) else {
+        return;
+    };
+    for e in entries.flatten() {
+        if e.file_name().to_string_lossy().starts_with(&prefix) {
+            if let Err(err) = std::fs::remove_dir_all(e.path()) {
+                log::warn!("removing {}: {err}", e.path().display());
+            }
+        }
+    }
+}
+
 /// Removes `dir` once no wallet uses it, waiting up to `max_wait`. A missing directory is fine.
 pub(crate) fn delete_wallet_dir(dir: &str, max_wait: Duration) -> CoreResult<()> {
     if dir.trim().is_empty() {
@@ -109,11 +153,7 @@ pub(crate) fn delete_wallet_dir(dir: &str, max_wait: Duration) -> CoreResult<()>
     let result = loop {
         let busy = g.as_ref().is_some_and(|s| s.open.contains_key(&k));
         if !busy {
-            break match std::fs::remove_dir_all(dir.trim()) {
-                Ok(()) => Ok(()),
-                Err(e) if e.kind() == std::io::ErrorKind::NotFound => Ok(()),
-                Err(e) => Err(CoreError::Io(format!("deleting {dir}: {e}"))),
-            };
+            break remove_atomically(Path::new(dir.trim()));
         }
         match wait(g, deadline) {
             Some(next) => g = next,
@@ -137,6 +177,32 @@ mod tests {
     use super::*;
 
     #[test]
+    fn leftovers_of_an_interrupted_delete_are_swept_and_others_kept() {
+        let tmp = tempfile::tempdir().unwrap();
+        let dir = tmp.path().join("mainnet");
+        for d in [
+            "mainnet.deleting-1",
+            "mainnet.deleting-2/wallet_data",
+            "floonet.deleting-3",
+            "mainnet",
+        ] {
+            std::fs::create_dir_all(tmp.path().join(d)).unwrap();
+        }
+        drop(DirLease::acquire(dir.to_str().unwrap()).unwrap());
+        let mut left: Vec<String> = std::fs::read_dir(tmp.path())
+            .unwrap()
+            .flatten()
+            .map(|e| e.file_name().to_string_lossy().into_owned())
+            .collect();
+        left.sort();
+        assert_eq!(
+            left,
+            ["floonet.deleting-3", "mainnet"],
+            "only this wallet's leftovers go"
+        );
+    }
+
+    #[test]
     fn delete_waits_for_the_last_lease_and_keeps_new_ones_out() {
         let tmp = tempfile::tempdir().unwrap();
         let dir = tmp.path().join("w");
@@ -158,6 +224,9 @@ mod tests {
         assert!(start.elapsed() >= Duration::from_millis(150), "it waited");
         assert!(!dir.exists());
         releaser.join().unwrap();
+
+        let parent: Vec<_> = std::fs::read_dir(tmp.path()).unwrap().flatten().collect();
+        assert!(parent.is_empty(), "no renamed copy left behind");
 
         // A deleted directory can be used again, and deleting a missing one is fine.
         drop(DirLease::acquire(&d).unwrap());

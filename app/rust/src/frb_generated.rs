@@ -2062,7 +2062,8 @@ impl SseDecode for crate::api::types::ListenerEventKind {
             2 => crate::api::types::ListenerEventKind::Received,
             3 => crate::api::types::ListenerEventKind::Finalized,
             4 => crate::api::types::ListenerEventKind::Error,
-            5 => crate::api::types::ListenerEventKind::Stopped,
+            5 => crate::api::types::ListenerEventKind::Expired,
+            6 => crate::api::types::ListenerEventKind::Stopped,
             _ => unreachable!("Invalid variant for ListenerEventKind: {}", inner),
         };
     }
@@ -2379,8 +2380,10 @@ impl SseDecode for crate::api::types::WalletErrorKind {
             7 => crate::api::types::WalletErrorKind::InvalidArgument,
             8 => crate::api::types::WalletErrorKind::TransportFailed,
             9 => crate::api::types::WalletErrorKind::ChainBusy,
-            10 => crate::api::types::WalletErrorKind::Io,
-            11 => crate::api::types::WalletErrorKind::Other,
+            10 => crate::api::types::WalletErrorKind::WalletBusy,
+            11 => crate::api::types::WalletErrorKind::PaymentExpired,
+            12 => crate::api::types::WalletErrorKind::Io,
+            13 => crate::api::types::WalletErrorKind::Other,
             _ => unreachable!("Invalid variant for WalletErrorKind: {}", inner),
         };
     }
@@ -2705,7 +2708,8 @@ impl flutter_rust_bridge::IntoDart for crate::api::types::ListenerEventKind {
             Self::Received => 2.into_dart(),
             Self::Finalized => 3.into_dart(),
             Self::Error => 4.into_dart(),
-            Self::Stopped => 5.into_dart(),
+            Self::Expired => 5.into_dart(),
+            Self::Stopped => 6.into_dart(),
             _ => unreachable!(),
         }
     }
@@ -2972,8 +2976,10 @@ impl flutter_rust_bridge::IntoDart for crate::api::types::WalletErrorKind {
             Self::InvalidArgument => 7.into_dart(),
             Self::TransportFailed => 8.into_dart(),
             Self::ChainBusy => 9.into_dart(),
-            Self::Io => 10.into_dart(),
-            Self::Other => 11.into_dart(),
+            Self::WalletBusy => 10.into_dart(),
+            Self::PaymentExpired => 11.into_dart(),
+            Self::Io => 12.into_dart(),
+            Self::Other => 13.into_dart(),
             _ => unreachable!(),
         }
     }
@@ -3194,7 +3200,8 @@ impl SseEncode for crate::api::types::ListenerEventKind {
                 crate::api::types::ListenerEventKind::Received => 2,
                 crate::api::types::ListenerEventKind::Finalized => 3,
                 crate::api::types::ListenerEventKind::Error => 4,
-                crate::api::types::ListenerEventKind::Stopped => 5,
+                crate::api::types::ListenerEventKind::Expired => 5,
+                crate::api::types::ListenerEventKind::Stopped => 6,
                 _ => {
                     unimplemented!("");
                 }
@@ -3470,8 +3477,10 @@ impl SseEncode for crate::api::types::WalletErrorKind {
                 crate::api::types::WalletErrorKind::InvalidArgument => 7,
                 crate::api::types::WalletErrorKind::TransportFailed => 8,
                 crate::api::types::WalletErrorKind::ChainBusy => 9,
-                crate::api::types::WalletErrorKind::Io => 10,
-                crate::api::types::WalletErrorKind::Other => 11,
+                crate::api::types::WalletErrorKind::WalletBusy => 10,
+                crate::api::types::WalletErrorKind::PaymentExpired => 11,
+                crate::api::types::WalletErrorKind::Io => 12,
+                crate::api::types::WalletErrorKind::Other => 13,
                 _ => {
                     unimplemented!("");
                 }

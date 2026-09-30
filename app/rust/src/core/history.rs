@@ -517,7 +517,7 @@ impl RowIndex {
     /// order.
     fn matches(&self, r: &Record, hidden: &[bool]) -> Vec<usize> {
         let mut out: Vec<usize> = Vec::new();
-        let mut group = |mut hits: Vec<usize>, out: &mut Vec<usize>| {
+        let group = |mut hits: Vec<usize>, out: &mut Vec<usize>| {
             hits.sort_unstable();
             for i in hits {
                 if !hidden[i] && !out.contains(&i) {

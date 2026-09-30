@@ -54,7 +54,7 @@ pub fn validate_epicbox_address(address: String) -> bool {
 /// Deletes the wallet in `config.data_dir`: its seed, epic-wallet's database and the history
 /// archive. Waits up to 20 s for every open wallet on that directory to be dropped and for calls
 /// still running on it to return, and keeps new ones out meanwhile, so nothing writes into the
-/// directory after it is gone. Fails with `ChainBusy` if the wallet is still busy then.
+/// directory after it is gone. Fails with `WalletBusy` if the wallet is still busy then.
 /// Only the recovery phrase can bring the wallet back.
 pub fn delete_wallet(config: WalletConfig) -> Result<(), WalletError> {
     crate::core::dirlock::delete_wallet_dir(&config.data_dir, crate::core::dirlock::DELETE_WAIT)
@@ -277,7 +277,8 @@ impl EpicWallet {
         self.inner.start_listener(on_event);
     }
 
-    /// Test hook, not for Dart: the TTL in blocks of sends created from now on (default 20160).
+    /// Test hook, not for Dart: the TTL in blocks of sends created from now on (default 20160;
+    /// 0 makes sends without a TTL, like those created before the TTL existed).
     #[frb(ignore)]
     #[doc(hidden)]
     pub fn set_send_ttl_blocks_for_tests(&self, blocks: u64) {
@@ -320,7 +321,10 @@ pub(crate) fn to_api(e: CoreError) -> WalletError {
         CoreError::WalletExists(_) => WalletErrorKind::WalletAlreadyExists,
         CoreError::WalletNotFound(_) => WalletErrorKind::WalletNotFound,
         CoreError::InvalidArgument(_) => WalletErrorKind::InvalidArgument,
-        CoreError::ChainInUse { .. } | CoreError::Busy(_) => WalletErrorKind::ChainBusy,
+        CoreError::ChainInUse { .. } => WalletErrorKind::ChainBusy,
+        CoreError::Busy(_) => WalletErrorKind::WalletBusy,
+        CoreError::Expired(_) => WalletErrorKind::PaymentExpired,
+        CoreError::RetryLater(_) => WalletErrorKind::NodeUnreachable,
         CoreError::InvalidSlate(_) => WalletErrorKind::InvalidSlate,
         CoreError::Relay(_) => WalletErrorKind::TransportFailed,
         CoreError::Io(_) => WalletErrorKind::Io,

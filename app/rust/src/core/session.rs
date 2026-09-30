@@ -89,6 +89,7 @@ fn wallet_handle(config: &WalletConfig) -> CoreResult<(WalletHandle, EpicNodeCli
 
 /// True when `config.data_dir` holds a wallet seed.
 pub(crate) fn wallet_exists(config: &WalletConfig) -> CoreResult<bool> {
+    super::dirlock::sweep_leftovers(&config.data_dir);
     let (wallet, _) = wallet_handle(config)?;
     let mut w = wallet.lock();
     Ok(w.lc_provider()?.wallet_exists(None)?)
@@ -208,6 +209,10 @@ impl Session {
         owner.set_epicbox_config(Some(epicbox));
         let identity = Identity::derive(&wallet, mask.as_ref(), config)?;
         let meta = Arc::new(MetaStore::open(&config.data_dir)?);
+        let node_url = config.node_url.trim().trim_end_matches('/').to_owned();
+        if let Err(e) = meta.update(|m| Ok(m.use_node(&node_url))) {
+            log::warn!("resetting block caches for {node_url}: {e}");
+        }
         Ok(Session {
             wallet,
             mask,
@@ -788,30 +793,45 @@ impl Session {
                     .filter(|h| *h > 0)
             });
             if let Some(h) = h {
-                if m.tx.block_time_unix.is_none() && !meta.block_times.contains_key(&h) {
+                if m.tx.block_time_unix.is_none()
+                    && !meta.block_times.get(&h).is_some_and(|t| *t > 0)
+                {
                     heights.insert(h);
                 }
             }
         }
+        // A retry of an earlier miss needs the tip, to see whether it moved.
+        if tip.is_none()
+            && heights
+                .iter()
+                .any(|h| meta.block_time_misses.contains_key(h) || meta.block_times.contains_key(h))
+        {
+            tip = self.node.get_chain_tip().ok().map(|(t, _)| t);
+        }
         let mut block_times = std::collections::BTreeMap::new();
+        let mut misses = std::collections::BTreeMap::new();
         for h in heights {
             if budget == 0 || stop() {
                 break;
+            }
+            if !meta.wants_block_time(h, tip) {
+                continue;
             }
             budget -= 1;
             match self.node.block_time(h) {
                 Ok(Some(t)) => {
                     block_times.insert(h, t);
                 }
-                // 0 marks "the node has no such block", so it is not asked again every minute.
+                // Recorded with the tip, and asked again only once the tip has moved.
                 Ok(None) => {
-                    block_times.insert(h, 0);
+                    misses.insert(h, tip.unwrap_or(0));
                 }
                 Err(_) => break,
             }
         }
         if kernel_heights.is_empty()
             && block_times.is_empty()
+            && misses.is_empty()
             && settlements.is_empty()
             && absent.is_empty()
         {
@@ -819,7 +839,14 @@ impl Session {
         }
         let r = self.meta.update(|m| {
             m.kernel_heights.extend(kernel_heights);
+            for h in block_times.keys() {
+                m.block_time_misses.remove(h);
+            }
+            for h in misses.keys() {
+                m.block_times.remove(h); // an older file's 0
+            }
             m.block_times.extend(block_times);
+            m.block_time_misses.extend(misses);
             for (slate, at) in absent {
                 m.annotations.entry(slate).or_default().kernel_absent_at = Some(at);
             }
@@ -861,12 +888,13 @@ impl Session {
             minimum_confirmations,
             selection_strategy_is_use_all: false,
             estimate_only: Some(estimate_only),
-            ttl_blocks: Some(self.send_ttl_blocks.load(Ordering::Relaxed)),
+            // 0 only through the test hook: a send without a TTL, like those made before 20160.
+            ttl_blocks: Some(self.send_ttl_blocks.load(Ordering::Relaxed)).filter(|b| *b > 0),
             ..InitTxArgs::default()
         }
     }
 
-    /// Test hook: the TTL, in blocks, of sends created from now on.
+    /// Test hook: the TTL, in blocks, of sends created from now on; 0 for none.
     pub(crate) fn set_send_ttl_blocks(&self, blocks: u64) {
         self.send_ttl_blocks.store(blocks, Ordering::Relaxed);
     }
@@ -991,7 +1019,18 @@ impl Session {
             self.abandon(&s);
             return Err(e);
         }
-        self.tx_for_slate(s.id)
+        // The slate is with the recipient now: a failure to read the row back is not a send
+        // error, or the form would invite a second payment.
+        Ok(self.tx_for_slate(s.id).unwrap_or_else(|e| {
+            log::warn!("reading payment {} back: {e}", s.id);
+            let mut t = minimal_entry(&s, None);
+            t.status = TxStatus::AwaitingRecipient;
+            t.kernel_excess = None;
+            t.finalized_at_unix = None;
+            t.cancellable = true;
+            t.counterparty = Some(to.to_string());
+            t
+        }))
     }
 
     /// Starts the epicbox listener, or does nothing if it runs. `on_event` is called from the
@@ -1072,6 +1111,7 @@ impl Session {
         self.owner
             .verify_slate_messages(self.mask(), response)
             .map_err(|e| CoreError::InvalidSlate(e.to_string()))?;
+        answer_in_time(&self.owner, self.mask(), &self.wallet, response)?;
         let finalized = self.owner.finalize_tx(self.mask(), response)?;
         record_finalized(&self.meta, &finalized, wallet_height(&self.wallet));
         Ok(finalized)
@@ -1287,6 +1327,68 @@ pub(crate) fn record_finalized(meta: &MetaStore, slate: &LibSlate, height: Optio
     });
 }
 
+/// An answer this close to the send's TTL cutoff is not finalized: 60 blocks, about an hour.
+/// A send posted later than that could still be waiting for its block when a refresh reaches the
+/// cutoff, and epic-wallet's refresh (`update_wallet_state`, step 5) would then cancel a payment
+/// the network is about to confirm.
+pub(crate) const TTL_FINALIZE_MARGIN: u64 = 60;
+
+/// True when an answer at `tip` is too late for a send that expires at `cutoff`.
+pub(crate) fn too_late(tip: u64, cutoff: u64) -> bool {
+    tip.saturating_add(TTL_FINALIZE_MARGIN) >= cutoff
+}
+
+/// Checks, before finalizing the answer `slate`, that its send is not at or near its TTL cutoff.
+/// epic-wallet cannot: epicbox answers travel as V2 slates, which carry no TTL, and its
+/// `check_ttl` compares with the wallet's last refresh, not the chain. The cutoff comes from the
+/// send's log entry and the height from the node.
+/// - Too late: the send is cancelled (its funds unlock) and `Expired` is returned.
+/// - Height unreadable: `RetryLater`, and nothing is finalized.
+pub(crate) fn answer_in_time(
+    owner: &OwnerApi,
+    mask: Option<&SecretKey>,
+    wallet: &WalletHandle,
+    slate: &LibSlate,
+) -> CoreResult<()> {
+    let entries = owner
+        .retrieve_txs(mask, false, None, Some(slate.id), None, None, None)?
+        .txs;
+    let cutoff = entries
+        .iter()
+        .find(|t| t.tx_type == TxLogEntryType::TxSentCreated && !t.confirmed)
+        .and_then(|t| t.ttl_cutoff_height);
+    // No TTL (sends made before 20160 was set), or not ours to finalize: epic-wallet decides.
+    let Some(cutoff) = cutoff else {
+        return Ok(());
+    };
+    let tip = {
+        let mut guard = wallet.lock();
+        guard
+            .lc_provider()?
+            .wallet_inst()?
+            .w2n_client()
+            .get_chain_tip()
+    }
+    .map_err(|e| {
+        CoreError::RetryLater(format!(
+            "could not read the chain height, so this payment was not finished yet; it is \
+             tried again with the next delivery ({e})"
+        ))
+    })?
+    .0;
+    if !too_late(tip, cutoff) {
+        return Ok(());
+    }
+    if let Err(e) = owner.cancel_tx(mask, None, Some(slate.id)) {
+        // A refresh inside cancel_tx may already have cancelled it at the cutoff.
+        log::info!("cancelling expired payment {}: {e}", slate.id);
+    }
+    Err(CoreError::Expired(format!(
+        "The answer to this payment came too late (block {tip}, limit {cutoff}). The payment was \
+         cancelled: nothing was sent, and the funds are unlocked."
+    )))
+}
+
 /// Records how a post of `slate_id` went. A JSON-RPC error from the node (`BadRequest`) is a
 /// refusal; anything else (no answer, 429, a timeout) is not, since the node may have taken it.
 pub(crate) fn record_post(meta: &MetaStore, slate_id: &str, result: &Result<(), LibWalletError>) {
@@ -1376,6 +1478,16 @@ fn contact_to_api(c: ContactRec) -> Contact {
 #[cfg(test)]
 mod tests {
     use super::{http_base_url, record_post, LibWalletError, MetaStore};
+
+    #[test]
+    fn answers_within_the_margin_of_the_cutoff_are_too_late() {
+        use super::{too_late, TTL_FINALIZE_MARGIN};
+        let cutoff = 20_160;
+        assert!(!too_late(cutoff - TTL_FINALIZE_MARGIN - 1, cutoff));
+        assert!(too_late(cutoff - TTL_FINALIZE_MARGIN, cutoff));
+        assert!(too_late(cutoff, cutoff));
+        assert!(too_late(u64::MAX, cutoff), "no overflow");
+    }
 
     #[test]
     fn a_node_refusal_is_told_apart_from_no_answer() {

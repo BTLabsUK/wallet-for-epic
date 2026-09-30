@@ -295,7 +295,38 @@ fn usernet_end_to_end() {
 
     // 3a. A finalized send whose post failed: it is repostable, not cancellable, and a repost
     // gets it on chain. A opens once against a dead node to finalize without posting.
+    // A send with a TTL is not finished while the chain height cannot be read: the answer is
+    // left for a later try, and the send still waits for its recipient.
+    let guarded = a
+        .create_send_slate(EPIC / 2, MIN_CONF)
+        .expect("slate with a TTL");
+    let guarded_reply = b.receive_slate(guarded.json).expect("B answers");
+    drop(a);
+    let offline = EpicWallet::open(config(&dir_a, Chain::Usernet, DEAD_NODE), PASSWORD.into())
+        .expect("open A offline again");
+    assert_eq!(
+        kind_of(offline.finalize_and_post(guarded_reply.json)),
+        WalletErrorKind::NodeUnreachable,
+        "no chain height, no finalize"
+    );
+    let waiting = offline
+        .transactions(false)
+        .expect("txs")
+        .into_iter()
+        .find(|t| t.slate_id.as_deref() == Some(guarded.slate_id.as_str()))
+        .expect("the guarded send");
+    assert_eq!(waiting.status, TxStatus::AwaitingRecipient, "not finalized");
+    drop(offline);
+    a = EpicWallet::open(config(&dir_a, Chain::Usernet, NODE_URL), PASSWORD.into())
+        .expect("reopen A");
+    a.cancel_transaction(waiting.id.expect("live"))
+        .expect("cancel the guarded send");
+
+    // Without a TTL: a send with one is never finalized while the chain height cannot be read
+    // (3d), so an offline finalize is only possible for sends made before TTLs existed.
+    a.set_send_ttl_blocks_for_tests(0);
     let stuck = a.create_send_slate(EPIC, MIN_CONF).expect("third slate");
+    a.set_send_ttl_blocks_for_tests(20_160);
     let stuck_reply = b.receive_slate(stuck.json).expect("B receives");
     drop(a);
     let offline = EpicWallet::open(config(&dir_a, Chain::Usernet, DEAD_NODE), PASSWORD.into())
@@ -357,13 +388,25 @@ fn usernet_end_to_end() {
 
     // 3c. Every send has a TTL (20160 blocks). Past it, a refresh cancels the send and unlocks
     // its funds, and a late answer is refused. A 3-block TTL here, through the test hook.
+    assert_eq!(stuck_row.ttl_cutoff_height, None, "made without a TTL");
+    let with_ttl = a
+        .create_send_slate(EPIC, MIN_CONF)
+        .expect("slate with the default TTL");
+    let ttl_row = a
+        .transactions(false)
+        .expect("txs")
+        .into_iter()
+        .find(|t| t.slate_id.as_deref() == Some(with_ttl.slate_id.as_str()))
+        .expect("the new send");
     assert!(
-        stuck_row
+        ttl_row
             .ttl_cutoff_height
             .is_some_and(|c| c >= height() + 20_000),
         "sends carry the 14-day TTL: {:?}",
-        stuck_row.ttl_cutoff_height
+        ttl_row.ttl_cutoff_height
     );
+    a.cancel_transaction(ttl_row.id.expect("live"))
+        .expect("cancel it again");
     a.set_send_ttl_blocks_for_tests(3);
     let before_ttl = a.summary(true, MIN_CONF).expect("summary");
     let short = a
@@ -395,6 +438,30 @@ fn usernet_end_to_end() {
         .expect("the expired send");
     assert_eq!(expired.status, TxStatus::Cancelled);
     assert_eq!(expired.kind, TxKind::SentCancelled);
+
+    // 3d. An answer at or near the TTL cutoff is not finalized: the send is cancelled instead,
+    // so a refresh can never cancel a payment the network is about to confirm. A 3-block TTL
+    // is inside the 60-block margin at once.
+    a.set_send_ttl_blocks_for_tests(3);
+    let late = a.create_send_slate(EPIC, MIN_CONF).expect("slate");
+    a.set_send_ttl_blocks_for_tests(20_160);
+    let late_reply = b.receive_slate(late.json).expect("B answers in time for B");
+    let e = a
+        .finalize_and_post(late_reply.json)
+        .err()
+        .expect("a late answer is refused");
+    assert_eq!(e.kind, WalletErrorKind::PaymentExpired, "{}", e.message);
+    assert!(e.message.contains("nothing was sent"), "{}", e.message);
+    let after_late = a.summary(true, MIN_CONF).expect("summary");
+    assert_eq!(after_late.locked, 0, "its funds are unlocked");
+    let late_row = a
+        .transactions(false)
+        .expect("txs")
+        .into_iter()
+        .find(|t| t.slate_id.as_deref() == Some(late.slate_id.as_str()))
+        .expect("the late send");
+    assert_eq!(late_row.status, TxStatus::Cancelled);
+    assert_eq!(late_row.finalized_at_unix, None, "never finalized");
 
     // 3b. A pays alice over HTTP with a note and a contact: the history a restore must bring back.
     let alice_url = "http://127.0.0.1:23415";
