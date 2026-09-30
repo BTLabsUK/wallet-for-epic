@@ -4,7 +4,8 @@
 //!
 //! Two fresh wallets made by this crate, A and B. alice (the funded network wallet, driven through the
 //! network's own `bin/epic-wallet`) pays A with a file slate; then A pays B entirely through our API;
-//! then a send from A is cancelled and its outputs come back; then a restore of A's seed rescans the
+//! then a send from A is cancelled and its outputs come back; then a send finalized while the node
+//! was unreachable is reposted and confirms; then a restore of A's seed rescans the
 //! chain and finds the same balance, and importing A's history file brings back an HTTP payment to
 //! alice with its fee, counterparty, note and time.
 //!
@@ -154,7 +155,7 @@ fn usernet_end_to_end() {
     let slates = dirs.path().join("slates");
     fs::create_dir_all(&slates).expect("slates dir");
 
-    let a = EpicWallet::create(
+    let mut a = EpicWallet::create(
         config(&dir_a, Chain::Usernet, NODE_URL),
         None,
         PASSWORD.into(),
@@ -289,6 +290,48 @@ fn usernet_end_to_end() {
     assert_eq!(cancelled.kind, TxKind::SentCancelled);
     assert_eq!(
         kind_of(a.cancel_transaction(entry.id.expect("live row") + 100)),
+        WalletErrorKind::InvalidArgument
+    );
+
+    // 3a. A finalized send whose post failed: it is repostable, not cancellable, and a repost
+    // gets it on chain. A opens once against a dead node to finalize without posting.
+    let stuck = a.create_send_slate(EPIC, MIN_CONF).expect("third slate");
+    let stuck_reply = b.receive_slate(stuck.json).expect("B receives");
+    drop(a);
+    let offline = EpicWallet::open(config(&dir_a, Chain::Usernet, DEAD_NODE), PASSWORD.into())
+        .expect("open A offline");
+    assert_eq!(
+        kind_of(offline.finalize_and_post(stuck_reply.json)),
+        WalletErrorKind::NodeUnreachable
+    );
+    drop(offline);
+    a = EpicWallet::open(config(&dir_a, Chain::Usernet, NODE_URL), PASSWORD.into())
+        .expect("reopen A");
+    let stuck_row = a
+        .transactions(false)
+        .expect("txs")
+        .into_iter()
+        .find(|t| t.slate_id.as_deref() == Some(stuck.slate_id.as_str()))
+        .expect("the stuck send");
+    assert_eq!(stuck_row.status, TxStatus::AwaitingConfirmation);
+    assert!(stuck_row.repostable);
+    assert!(!stuck_row.cancellable);
+    a.repost_transaction(stuck_row.key.clone()).expect("repost");
+    net.mine_until(
+        "the reposted send confirmed",
+        Duration::from_secs(600),
+        || spendable(&b) == amount + EPIC,
+    );
+    let settled = a
+        .transactions(true)
+        .expect("txs")
+        .into_iter()
+        .find(|t| t.key == stuck_row.key)
+        .expect("same key");
+    assert_eq!(settled.status, TxStatus::Confirmed);
+    assert!(!settled.repostable);
+    assert_eq!(
+        kind_of(a.repost_transaction(settled.key)),
         WalletErrorKind::InvalidArgument
     );
 

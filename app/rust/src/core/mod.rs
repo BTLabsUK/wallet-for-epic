@@ -9,4 +9,5 @@ pub(crate) mod mnemonic;
 pub(crate) mod node;
 pub(crate) mod session;
 pub(crate) mod slate;
+pub(crate) mod stored_tx;
 pub(crate) mod vault;

@@ -278,6 +278,10 @@ fn contacts_persist_and_history_files_open_only_in_the_same_seed() {
         e.message
     );
     assert!(wc.contacts().expect("contacts").is_empty());
+    assert_eq!(
+        kind_of(wc.repost_transaction("s:nothing".into())),
+        WalletErrorKind::InvalidArgument
+    );
     // Send-all needs the node.
     assert_eq!(
         kind_of(wc.estimate_max(10)),

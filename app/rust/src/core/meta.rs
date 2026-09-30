@@ -88,6 +88,9 @@ pub(crate) struct Record {
     /// epic-wallet's `StoredProofInfo` (public keys and signatures only).
     #[serde(default)]
     pub payment_proof: Option<serde_json::Value>,
+    /// Set when the core settled a pending record against the chain.
+    #[serde(default)]
+    pub status_detail: Option<String>,
 }
 
 impl Record {

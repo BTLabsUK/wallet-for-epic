@@ -295,6 +295,8 @@ mod tests {
             note: Some(note.into()),
             ttl_cutoff_height: None,
             cancellable: false,
+            repostable: false,
+            status_detail: None,
         }
     }
 

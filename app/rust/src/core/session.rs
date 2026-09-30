@@ -35,7 +35,7 @@ use super::error::{CoreError, CoreResult};
 use super::history::{self, LiveTx, MergedTx};
 use super::meta::{ContactRec, MetaStore};
 use super::node::EpicNodeClient;
-use super::{export, mnemonic, slate};
+use super::{export, mnemonic, slate, stored_tx};
 use crate::api::types::{
     Contact, FeeEstimate, ImportReport, ListenerEvent, NodeTip, ScanProgress, Slate, TxEntry,
     TxKind, TxSource, WalletConfig, WalletSummary,
@@ -331,9 +331,11 @@ impl Session {
                 let block_height = history::confirmed_height(&created_commits, &current);
                 let finalized = matches!(
                     entry.tx_type,
-                    TxLogEntryType::TxSent | TxLogEntryType::TxSentCreated
+                    TxLogEntryType::TxSent
+                        | TxLogEntryType::TxSentCreated
+                        | TxLogEntryType::TxSentMempool
                 ) && !entry.confirmed
-                    && stored_kernel_is_final(&**w, &entry);
+                    && stored_final(&self.config.data_dir, &entry);
                 LiveTx {
                     entry,
                     created_commits,
@@ -681,6 +683,37 @@ impl Session {
                 Err(_) => break,
             }
         }
+        // Imported records still pending at export, with no live row: settle them by kernel.
+        let mut settlements = Vec::new();
+        for m in rows.iter().filter(|m| history::needs_settling(m)) {
+            if budget == 0 {
+                break;
+            }
+            let (Some(k), Some(min)) = (&m.tx.kernel_excess, m.kernel_lookup_min_height) else {
+                continue;
+            };
+            let Ok(bytes) = hex::decode(k) else { continue };
+            let max = match tip {
+                Some(t) => t,
+                None => match self.node.get_chain_tip() {
+                    Ok((t, _)) => *tip.insert(t),
+                    Err(_) => break,
+                },
+            };
+            budget -= 1;
+            let excess = pedersen::Commitment::from_vec(bytes);
+            match self.node.kernel_height(&excess, min, max) {
+                Ok(found) => {
+                    if let Some(s) = history::settle(found, min, m.tx.ttl_cutoff_height, max) {
+                        if let history::Settlement::Confirmed(h) = s {
+                            kernel_heights.insert(k.clone(), h);
+                        }
+                        settlements.push((k.clone(), s));
+                    }
+                }
+                Err(_) => break,
+            }
+        }
         let mut heights = std::collections::BTreeSet::new();
         for m in rows {
             let h = m.tx.block_height.or_else(|| {
@@ -709,12 +742,21 @@ impl Session {
                 Err(_) => break,
             }
         }
-        if kernel_heights.is_empty() && block_times.is_empty() {
+        if kernel_heights.is_empty() && block_times.is_empty() && settlements.is_empty() {
             return;
         }
         let r = self.meta.update(|m| {
             m.kernel_heights.extend(kernel_heights);
             m.block_times.extend(block_times);
+            for (kernel, s) in settlements {
+                for r in m
+                    .records
+                    .iter_mut()
+                    .filter(|r| r.kernel_excess.as_deref() == Some(kernel.as_str()))
+                {
+                    history::apply_settlement(r, s);
+                }
+            }
             Ok(())
         });
         if let Err(e) = r {
@@ -825,13 +867,18 @@ impl Session {
                 )));
             }
         };
-        match self.finalize_slate(&response) {
-            Ok(entry) => Ok(entry),
+        let finalized = match self.finalize_only(&response) {
+            Ok(f) => f,
             Err(e) => {
                 self.abandon(&s);
-                Err(e)
+                return Err(e);
             }
-        }
+        };
+        // Past this point the recipient has signed and the transaction is final. A failed post
+        // is not cancelled: the node may have taken it despite the error, and cancelling would
+        // unlock inputs the chain can still spend. The send stays repostable instead.
+        self.owner.post_tx(self.mask(), &finalized.tx, true)?;
+        self.tx_for_slate(finalized.id)
     }
 
     /// Posts a send to an epicbox address. The transaction stays unconfirmed and locked until the
@@ -933,18 +980,56 @@ impl Session {
         self.finalize_slate(&slate::from_json(slate_json)?)
     }
 
-    fn finalize_slate(&self, response: &LibSlate) -> CoreResult<TxEntry> {
+    /// Verifies and finalizes the recipient's response. Stores the final transaction.
+    fn finalize_only(&self, response: &LibSlate) -> CoreResult<LibSlate> {
         self.owner
             .verify_slate_messages(self.mask(), response)
             .map_err(|e| CoreError::InvalidSlate(e.to_string()))?;
         let finalized = self.owner.finalize_tx(self.mask(), response)?;
         record_finalized(&self.meta, &finalized);
+        Ok(finalized)
+    }
+
+    fn finalize_slate(&self, response: &LibSlate) -> CoreResult<TxEntry> {
+        let finalized = self.finalize_only(response)?;
         self.owner.post_tx(self.mask(), &finalized.tx, true)?;
         self.tx_for_slate(finalized.id)
     }
 
     pub(crate) fn cancel_transaction(&self, tx_id: u32) -> CoreResult<()> {
         self.owner.cancel_tx(self.mask(), Some(tx_id), None)?;
+        Ok(())
+    }
+
+    /// Posts the stored final transaction of the send with `key` again, as the CLI's `repost`
+    /// does. For a send that was finalized but never reached the chain.
+    pub(crate) fn repost_transaction(&self, key: &str) -> CoreResult<()> {
+        let row = self
+            .transactions(false)?
+            .into_iter()
+            .find(|t| t.key == key)
+            .ok_or_else(|| CoreError::InvalidArgument(format!("no transaction {key}")))?;
+        let id = match (row.repostable, row.id) {
+            (true, Some(id)) => id,
+            _ => {
+                return Err(CoreError::InvalidArgument(
+                    "only a finalized send that is not confirmed can be posted again".into(),
+                ))
+            }
+        };
+        let entry = self
+            .owner
+            .retrieve_txs(self.mask(), false, Some(id), None, None, None, None)?
+            .txs
+            .into_iter()
+            .next()
+            .ok_or_else(|| CoreError::InvalidArgument(format!("no transaction {key}")))?;
+        let tx = stored_tx::load(&self.config.data_dir, &entry)?
+            .filter(stored_tx::kernel_is_final)
+            .ok_or_else(|| {
+                CoreError::InvalidArgument("this send has no final transaction stored".into())
+            })?;
+        self.owner.post_tx(self.mask(), &tx, true)?;
         Ok(())
     }
 }
@@ -998,19 +1083,16 @@ fn progress_from(message: StatusMessage) -> ScanProgress {
     }
 }
 
-/// True when the send's stored transaction carries the final kernel. Before finalization the
-/// stored copy is the slate's transaction, whose kernel is still `TxKernel::empty()` (all-zero
-/// excess); `update_stored_tx` replaces it with the finalized one (`tx.rs:366`).
-fn stored_kernel_is_final(
-    w: &dyn epic_wallet_libwallet::WalletBackend<'static, EpicNodeClient, ExtKeychain>,
-    entry: &TxLogEntry,
-) -> bool {
-    match w.get_stored_tx(entry) {
-        Ok(Some(tx)) => tx
-            .kernels()
-            .first()
-            .is_some_and(|k| k.excess.0.iter().any(|b| *b != 0)),
-        _ => false,
+/// True when the send's stored transaction parses and carries the final kernel. A damaged file
+/// is logged and counts as not final (and so not repostable).
+fn stored_final(data_dir: &str, entry: &TxLogEntry) -> bool {
+    match stored_tx::load(data_dir, entry) {
+        Ok(Some(tx)) => stored_tx::kernel_is_final(&tx),
+        Ok(None) => false,
+        Err(e) => {
+            log::warn!("transaction {}: {e}", entry.id);
+            false
+        }
     }
 }
 

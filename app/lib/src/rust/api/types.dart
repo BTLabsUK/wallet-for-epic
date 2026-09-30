@@ -102,14 +102,20 @@ class ListenerEvent {
   final String? slateId;
   final String message;
 
+  /// For `Received` and `Finalized`: the slate's amount (what arrived, or what we sent),
+  /// in the smallest unit. `None` for every other kind.
+  final BigInt? amount;
+
   const ListenerEvent({
     required this.kind,
     this.slateId,
     required this.message,
+    this.amount,
   });
 
   @override
-  int get hashCode => kind.hashCode ^ slateId.hashCode ^ message.hashCode;
+  int get hashCode =>
+      kind.hashCode ^ slateId.hashCode ^ message.hashCode ^ amount.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -118,7 +124,8 @@ class ListenerEvent {
           runtimeType == other.runtimeType &&
           kind == other.kind &&
           slateId == other.slateId &&
-          message == other.message;
+          message == other.message &&
+          amount == other.amount;
 }
 
 /// What the epicbox listener did.
@@ -282,6 +289,14 @@ class TxEntry {
   /// True when `cancel_transaction(id)` is allowed.
   final bool cancellable;
 
+  /// True for a finalized send that is not confirmed and has its final transaction stored:
+  /// `repost_transaction(key)` can post it to the node again.
+  final bool repostable;
+
+  /// Why the status is what it is, when that is not obvious, e.g. an imported send that never
+  /// reached the chain.
+  final String? statusDetail;
+
   const TxEntry({
     required this.key,
     this.id,
@@ -305,6 +320,8 @@ class TxEntry {
     this.note,
     this.ttlCutoffHeight,
     required this.cancellable,
+    required this.repostable,
+    this.statusDetail,
   });
 
   @override
@@ -330,7 +347,9 @@ class TxEntry {
       counterparty.hashCode ^
       note.hashCode ^
       ttlCutoffHeight.hashCode ^
-      cancellable.hashCode;
+      cancellable.hashCode ^
+      repostable.hashCode ^
+      statusDetail.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -358,7 +377,9 @@ class TxEntry {
           counterparty == other.counterparty &&
           note == other.note &&
           ttlCutoffHeight == other.ttlCutoffHeight &&
-          cancellable == other.cancellable;
+          cancellable == other.cancellable &&
+          repostable == other.repostable &&
+          statusDetail == other.statusDetail;
 }
 
 enum TxKind { coinbase, received, sent, receivedCancelled, sentCancelled }

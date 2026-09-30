@@ -40,7 +40,7 @@ flutter_rust_bridge::frb_generated_boilerplate!(
     default_rust_auto_opaque = RustAutoOpaqueMoi,
 );
 pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_VERSION: &str = "2.13.0";
-pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = -1837902379;
+pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = -1556043758;
 
 // Section: executor
 
@@ -836,6 +836,59 @@ fn wire__crate__api__wallet__EpicWallet_receive_slate_impl(
                     let output_ok = crate::api::wallet::EpicWallet::receive_slate(
                         &*api_that_guard,
                         api_slate_json,
+                    )?;
+                    std::result::Result::Ok(output_ok)
+                })())
+            }
+        },
+    )
+}
+fn wire__crate__api__wallet__EpicWallet_repost_transaction_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "EpicWallet_repost_transaction",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_that = <RustOpaqueMoi<
+                flutter_rust_bridge::for_generated::RustAutoOpaqueInner<EpicWallet>,
+            >>::sse_decode(&mut deserializer);
+            let api_key = <String>::sse_decode(&mut deserializer);
+            deserializer.end();
+            move |context| {
+                transform_result_sse::<_, crate::api::types::WalletError>((move || {
+                    let mut api_that_guard = None;
+                    let decode_indices_ =
+                        flutter_rust_bridge::for_generated::lockable_compute_decode_order(vec![
+                            flutter_rust_bridge::for_generated::LockableOrderInfo::new(
+                                &api_that, 0, false,
+                            ),
+                        ]);
+                    for i in decode_indices_ {
+                        match i {
+                            0 => api_that_guard = Some(api_that.lockable_decode_sync_ref()),
+                            _ => unreachable!(),
+                        }
+                    }
+                    let api_that_guard = api_that_guard.unwrap();
+                    let output_ok = crate::api::wallet::EpicWallet::repost_transaction(
+                        &*api_that_guard,
+                        api_key,
                     )?;
                     std::result::Result::Ok(output_ok)
                 })())
@@ -1853,10 +1906,12 @@ impl SseDecode for crate::api::types::ListenerEvent {
         let mut var_kind = <crate::api::types::ListenerEventKind>::sse_decode(deserializer);
         let mut var_slateId = <Option<String>>::sse_decode(deserializer);
         let mut var_message = <String>::sse_decode(deserializer);
+        let mut var_amount = <Option<u64>>::sse_decode(deserializer);
         return crate::api::types::ListenerEvent {
             kind: var_kind,
             slate_id: var_slateId,
             message: var_message,
+            amount: var_amount,
         };
     }
 }
@@ -2024,6 +2079,8 @@ impl SseDecode for crate::api::types::TxEntry {
         let mut var_note = <Option<String>>::sse_decode(deserializer);
         let mut var_ttlCutoffHeight = <Option<u64>>::sse_decode(deserializer);
         let mut var_cancellable = <bool>::sse_decode(deserializer);
+        let mut var_repostable = <bool>::sse_decode(deserializer);
+        let mut var_statusDetail = <Option<String>>::sse_decode(deserializer);
         return crate::api::types::TxEntry {
             key: var_key,
             id: var_id,
@@ -2047,6 +2104,8 @@ impl SseDecode for crate::api::types::TxEntry {
             note: var_note,
             ttl_cutoff_height: var_ttlCutoffHeight,
             cancellable: var_cancellable,
+            repostable: var_repostable,
+            status_detail: var_statusDetail,
         };
     }
 }
@@ -2291,49 +2350,55 @@ fn pde_ffi_dispatcher_primary_impl(
             rust_vec_len,
             data_len,
         ),
-        17 => wire__crate__api__wallet__EpicWallet_save_contact_impl(
+        17 => wire__crate__api__wallet__EpicWallet_repost_transaction_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        18 => wire__crate__api__wallet__EpicWallet_scan_impl(port, ptr, rust_vec_len, data_len),
-        19 => wire__crate__api__wallet__EpicWallet_send_epicbox_impl(
+        18 => wire__crate__api__wallet__EpicWallet_save_contact_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        20 => {
+        19 => wire__crate__api__wallet__EpicWallet_scan_impl(port, ptr, rust_vec_len, data_len),
+        20 => wire__crate__api__wallet__EpicWallet_send_epicbox_impl(
+            port,
+            ptr,
+            rust_vec_len,
+            data_len,
+        ),
+        21 => {
             wire__crate__api__wallet__EpicWallet_send_http_impl(port, ptr, rust_vec_len, data_len)
         }
-        21 => {
+        22 => {
             wire__crate__api__wallet__EpicWallet_set_tx_note_impl(port, ptr, rust_vec_len, data_len)
         }
-        22 => wire__crate__api__wallet__EpicWallet_start_listener_impl(
+        23 => wire__crate__api__wallet__EpicWallet_start_listener_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        23 => wire__crate__api__wallet__EpicWallet_stop_listener_impl(
+        24 => wire__crate__api__wallet__EpicWallet_stop_listener_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        24 => wire__crate__api__wallet__EpicWallet_summary_impl(port, ptr, rust_vec_len, data_len),
-        25 => wire__crate__api__wallet__EpicWallet_transactions_impl(
+        25 => wire__crate__api__wallet__EpicWallet_summary_impl(port, ptr, rust_vec_len, data_len),
+        26 => wire__crate__api__wallet__EpicWallet_transactions_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        28 => wire__crate__api__init__init_app_impl(port, ptr, rust_vec_len, data_len),
-        30 => wire__crate__api__wallet__node_tip_impl(port, ptr, rust_vec_len, data_len),
-        31 => wire__crate__api__vault__open_password_impl(port, ptr, rust_vec_len, data_len),
-        32 => wire__crate__api__vault__seal_password_impl(port, ptr, rust_vec_len, data_len),
-        35 => wire__crate__api__wallet__wallet_exists_impl(port, ptr, rust_vec_len, data_len),
+        29 => wire__crate__api__init__init_app_impl(port, ptr, rust_vec_len, data_len),
+        31 => wire__crate__api__wallet__node_tip_impl(port, ptr, rust_vec_len, data_len),
+        32 => wire__crate__api__vault__open_password_impl(port, ptr, rust_vec_len, data_len),
+        33 => wire__crate__api__vault__seal_password_impl(port, ptr, rust_vec_len, data_len),
+        36 => wire__crate__api__wallet__wallet_exists_impl(port, ptr, rust_vec_len, data_len),
         _ => unreachable!(),
     }
 }
@@ -2349,11 +2414,11 @@ fn pde_ffi_dispatcher_sync_impl(
         13 => {
             wire__crate__api__wallet__EpicWallet_listener_running_impl(ptr, rust_vec_len, data_len)
         }
-        26 => wire__crate__api__wallet__generate_mnemonic_impl(ptr, rust_vec_len, data_len),
-        27 => wire__crate__api__vault__generate_wallet_password_impl(ptr, rust_vec_len, data_len),
-        29 => wire__crate__api__wallet__inspect_slate_impl(ptr, rust_vec_len, data_len),
-        33 => wire__crate__api__wallet__validate_epicbox_address_impl(ptr, rust_vec_len, data_len),
-        34 => wire__crate__api__wallet__validate_mnemonic_impl(ptr, rust_vec_len, data_len),
+        27 => wire__crate__api__wallet__generate_mnemonic_impl(ptr, rust_vec_len, data_len),
+        28 => wire__crate__api__vault__generate_wallet_password_impl(ptr, rust_vec_len, data_len),
+        30 => wire__crate__api__wallet__inspect_slate_impl(ptr, rust_vec_len, data_len),
+        34 => wire__crate__api__wallet__validate_epicbox_address_impl(ptr, rust_vec_len, data_len),
+        35 => wire__crate__api__wallet__validate_mnemonic_impl(ptr, rust_vec_len, data_len),
         _ => unreachable!(),
     }
 }
@@ -2461,6 +2526,7 @@ impl flutter_rust_bridge::IntoDart for crate::api::types::ListenerEvent {
             self.kind.into_into_dart().into_dart(),
             self.slate_id.into_into_dart().into_dart(),
             self.message.into_into_dart().into_dart(),
+            self.amount.into_into_dart().into_dart(),
         ]
         .into_dart()
     }
@@ -2620,6 +2686,8 @@ impl flutter_rust_bridge::IntoDart for crate::api::types::TxEntry {
             self.note.into_into_dart().into_dart(),
             self.ttl_cutoff_height.into_into_dart().into_dart(),
             self.cancellable.into_into_dart().into_dart(),
+            self.repostable.into_into_dart().into_dart(),
+            self.status_detail.into_into_dart().into_dart(),
         ]
         .into_dart()
     }
@@ -2955,6 +3023,7 @@ impl SseEncode for crate::api::types::ListenerEvent {
         <crate::api::types::ListenerEventKind>::sse_encode(self.kind, serializer);
         <Option<String>>::sse_encode(self.slate_id, serializer);
         <String>::sse_encode(self.message, serializer);
+        <Option<u64>>::sse_encode(self.amount, serializer);
     }
 }
 
@@ -3105,6 +3174,8 @@ impl SseEncode for crate::api::types::TxEntry {
         <Option<String>>::sse_encode(self.note, serializer);
         <Option<u64>>::sse_encode(self.ttl_cutoff_height, serializer);
         <bool>::sse_encode(self.cancellable, serializer);
+        <bool>::sse_encode(self.repostable, serializer);
+        <Option<String>>::sse_encode(self.status_detail, serializer);
     }
 }
 

@@ -108,6 +108,12 @@ pub struct TxEntry {
     pub ttl_cutoff_height: Option<u64>,
     /// True when `cancel_transaction(id)` is allowed.
     pub cancellable: bool,
+    /// True for a finalized send that is not confirmed and has its final transaction stored:
+    /// `repost_transaction(key)` can post it to the node again.
+    pub repostable: bool,
+    /// Why the status is what it is, when that is not obvious, e.g. an imported send that never
+    /// reached the chain.
+    pub status_detail: Option<String>,
 }
 
 /// An address book entry. An empty `id` in `save_contact` creates a new one.
@@ -212,6 +218,9 @@ pub struct ListenerEvent {
     pub kind: ListenerEventKind,
     pub slate_id: Option<String>,
     pub message: String,
+    /// For `Received` and `Finalized`: the slate's amount (what arrived, or what we sent),
+    /// in the smallest unit. `None` for every other kind.
+    pub amount: Option<u64>,
 }
 
 /// The single error type every API call returns. Dart receives it as a thrown exception.

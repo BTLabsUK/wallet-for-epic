@@ -35,7 +35,7 @@ pub(crate) struct LiveTx {
     pub created_commits: Vec<String>,
     /// Block height of a created output that is on chain.
     pub block_height: Option<u64>,
-    /// The send's stored transaction holds the final kernel.
+    /// The send's stored transaction holds the final kernel (see `stored_tx::kernel_is_final`).
     pub finalized: bool,
 }
 
@@ -233,6 +233,12 @@ fn from_live(live: &LiveTx, meta: &Meta) -> MergedTx {
         TxLogEntryType::TxReceived => !t.confirmed,
         _ => false,
     };
+    let repostable = !t.confirmed
+        && live.finalized
+        && matches!(
+            t.tx_type,
+            TxLogEntryType::TxSentCreated | TxLogEntryType::TxSent | TxLogEntryType::TxSentMempool
+        );
     let tx = TxEntry {
         key: String::new(),
         id: Some(t.id),
@@ -260,6 +266,8 @@ fn from_live(live: &LiveTx, meta: &Meta) -> MergedTx {
         note: None,
         ttl_cutoff_height: t.ttl_cutoff_height,
         cancellable,
+        repostable,
+        status_detail: None,
     };
     MergedTx {
         tx,
@@ -301,6 +309,8 @@ fn from_record(r: &Record) -> MergedTx {
         note: None,
         ttl_cutoff_height: r.ttl_cutoff_height,
         cancellable: false,
+        repostable: false,
+        status_detail: some_str(&r.status_detail),
     };
     MergedTx {
         tx,
@@ -513,6 +523,72 @@ pub(crate) fn to_record(m: &MergedTx) -> Record {
         ttl_cutoff_height: tx.ttl_cutoff_height,
         messages: m.messages.clone(),
         payment_proof: m.payment_proof.clone(),
+        status_detail: tx.status_detail.clone(),
+    }
+}
+
+/// About a day of Epic blocks (one a minute): how long a pending record with no TTL may stay
+/// off chain before it counts as never completed.
+pub(crate) const BLOCKS_PER_DAY: u64 = 1_440;
+
+/// What the chain says about an imported record that was still pending when exported.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum Settlement {
+    /// Its kernel is in the block at this height.
+    Confirmed(u64),
+    /// Its kernel was not found by `tip`, past the record's TTL (or a day of blocks).
+    NeverCompleted { tip: u64 },
+}
+
+/// True for an unmatched imported record whose export said it was still pending, and which has
+/// the kernel and lower search bound a lookup needs.
+pub(crate) fn needs_settling(m: &MergedTx) -> bool {
+    m.tx.id.is_none()
+        && m.tx.source == TxSource::Imported
+        && matches!(
+            m.tx.status,
+            TxStatus::AwaitingRecipient | TxStatus::AwaitingConfirmation
+        )
+        && m.tx.kernel_excess.is_some()
+        && m.kernel_lookup_min_height.is_some()
+}
+
+/// The verdict for a pending record given a kernel lookup up to `tip`, or `None` to ask again
+/// on a later refresh.
+pub(crate) fn settle(
+    found_at: Option<u64>,
+    lookup_min_height: u64,
+    ttl_cutoff_height: Option<u64>,
+    tip: u64,
+) -> Option<Settlement> {
+    if let Some(h) = found_at {
+        return Some(Settlement::Confirmed(h));
+    }
+    let deadline = ttl_cutoff_height.unwrap_or(lookup_min_height.saturating_add(BLOCKS_PER_DAY));
+    (tip > deadline).then_some(Settlement::NeverCompleted { tip })
+}
+
+/// Writes `s` into the record, so the verdict is cached and exported with it.
+pub(crate) fn apply_settlement(r: &mut Record, s: Settlement) {
+    match s {
+        Settlement::Confirmed(h) => {
+            r.status = status_name(TxStatus::Confirmed).into();
+            r.confirmed = true;
+            r.block_height = Some(h);
+            r.status_detail = None;
+        }
+        Settlement::NeverCompleted { tip } => {
+            r.status = status_name(TxStatus::Cancelled).into();
+            r.confirmed = false;
+            r.kind = match kind_from(&r.kind) {
+                TxKind::Sent | TxKind::SentCancelled => kind_name(TxKind::SentCancelled),
+                _ => kind_name(TxKind::ReceivedCancelled),
+            }
+            .into();
+            r.status_detail = Some(format!(
+                "Never completed: its kernel was not on chain by block {tip}"
+            ));
+        }
     }
 }
 
@@ -739,6 +815,95 @@ pub(crate) mod tests {
         let merged = merge(&rows, &meta);
         assert_eq!(merged.len(), 1);
         assert_eq!(merged[0].tx.output_commits.len(), 2);
+    }
+
+    #[test]
+    fn only_a_finalized_unconfirmed_send_is_repostable() {
+        let mut posted = live(entry(1, TxLogEntryType::TxSentCreated), &[], None);
+        posted.finalized = true;
+        let waiting = live(entry(2, TxLogEntryType::TxSentCreated), &[], None);
+        let mut done = live(entry(3, TxLogEntryType::TxSent), &[], None);
+        done.entry.confirmed = true;
+        done.finalized = true;
+        let mut recv = live(entry(4, TxLogEntryType::TxReceived), &[], None);
+        recv.finalized = true;
+        let merged = merge(&[posted, waiting, done, recv], &Meta::default());
+        let r = |i: u32| {
+            merged
+                .iter()
+                .find(|m| m.tx.id == Some(i))
+                .unwrap()
+                .tx
+                .repostable
+        };
+        assert!(r(1));
+        assert!(!r(2), "not finalized: nothing to post");
+        assert!(!r(3), "already on chain");
+        assert!(!r(4), "receives are posted by the sender");
+    }
+
+    #[test]
+    fn pending_imports_settle_by_kernel_and_deadline() {
+        assert_eq!(
+            settle(Some(500), 100, None, 900),
+            Some(Settlement::Confirmed(500))
+        );
+        assert_eq!(
+            settle(None, 100, None, 100 + BLOCKS_PER_DAY),
+            None,
+            "not yet a day"
+        );
+        assert_eq!(
+            settle(None, 100, None, 101 + BLOCKS_PER_DAY),
+            Some(Settlement::NeverCompleted {
+                tip: 101 + BLOCKS_PER_DAY
+            })
+        );
+        assert_eq!(
+            settle(None, 100, Some(160), 161),
+            Some(Settlement::NeverCompleted { tip: 161 })
+        );
+        assert_eq!(
+            settle(None, 100, Some(160), 160),
+            None,
+            "TTL wins over the day"
+        );
+
+        let mut r = record(None, Some("kern"), &[]);
+        r.status = "AwaitingConfirmation".into();
+        r.confirmed = false;
+        r.kernel_lookup_min_height = Some(100);
+        let mut meta = Meta::default();
+        meta.records.push(r.clone());
+        assert!(needs_settling(&merge(&[], &meta)[0]));
+
+        let mut gone = r.clone();
+        apply_settlement(&mut gone, Settlement::NeverCompleted { tip: 2_000 });
+        meta.records = vec![gone];
+        let m = &merge(&[], &meta)[0];
+        assert!(!needs_settling(m), "a verdict is final");
+        assert_eq!(m.tx.status, TxStatus::Cancelled);
+        assert_eq!(m.tx.kind, TxKind::SentCancelled);
+        assert!(m
+            .tx
+            .status_detail
+            .as_deref()
+            .unwrap()
+            .contains("Never completed"));
+        assert_eq!(
+            to_record(m).status_detail,
+            m.tx.status_detail,
+            "exported with the record"
+        );
+
+        let mut found = r;
+        apply_settlement(&mut found, Settlement::Confirmed(777));
+        meta.records = vec![found];
+        let m = &merge(&[], &meta)[0].tx;
+        assert_eq!(
+            (m.status, m.confirmed, m.block_height),
+            (TxStatus::Confirmed, true, Some(777))
+        );
     }
 
     #[test]

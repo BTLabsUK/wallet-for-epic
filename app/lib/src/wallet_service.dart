@@ -61,6 +61,10 @@ abstract interface class WalletSession {
 
   Future<void> cancelTransaction({required int txId});
 
+  /// Posts a finalized send that never reached the chain again ([TxEntry.repostable]). Its
+  /// inputs stay locked until it confirms.
+  Future<void> repostTransaction({required String key});
+
   Future<Slate> createSendSlate({
     required BigInt amount,
     required BigInt minimumConfirmations,
@@ -205,6 +209,10 @@ class _RustWalletSession implements WalletSession {
   @override
   Future<void> cancelTransaction({required int txId}) =>
       _wallet.cancelTransaction(txId: txId);
+
+  @override
+  Future<void> repostTransaction({required String key}) =>
+      _wallet.repostTransaction(key: key);
 
   @override
   Future<Slate> createSendSlate({
@@ -494,6 +502,26 @@ class FakeWalletSession implements WalletSession {
   @override
   Future<void> cancelTransaction({required int txId}) async {
     cancelledTxIds.add(txId);
+  }
+
+  /// Keys passed to [repostTransaction].
+  final List<String> repostedKeys = [];
+
+  /// When set, [repostTransaction] throws it.
+  WalletError? repostError;
+
+  @override
+  Future<void> repostTransaction({required String key}) async {
+    if (repostError != null) throw repostError!;
+    final tx = transactionsValue.where((t) => t.key == key).firstOrNull;
+    if (tx == null || !tx.repostable) {
+      throw const WalletError(
+        kind: WalletErrorKind.invalidArgument,
+        message:
+            'only a finalized send that is not confirmed can be posted again',
+      );
+    }
+    repostedKeys.add(key);
   }
 
   @override
@@ -804,6 +832,8 @@ TxEntry fakeTx({
   String? note,
   BigInt? ttlCutoffHeight,
   bool cancellable = false,
+  bool repostable = false,
+  String? statusDetail,
 }) {
   final resolvedStatus =
       status ??
@@ -839,6 +869,8 @@ TxEntry fakeTx({
     note: note,
     ttlCutoffHeight: ttlCutoffHeight,
     cancellable: cancellable,
+    repostable: repostable,
+    statusDetail: statusDetail,
   );
 }
 
@@ -866,4 +898,6 @@ TxEntry copyTx(TxEntry tx, {String? note}) => TxEntry(
   note: note,
   ttlCutoffHeight: tx.ttlCutoffHeight,
   cancellable: tx.cancellable,
+  repostable: tx.repostable,
+  statusDetail: tx.statusDetail,
 );

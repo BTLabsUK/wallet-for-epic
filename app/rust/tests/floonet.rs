@@ -210,8 +210,10 @@ fn faucet_then_epicbox_then_http() {
     // 2. A to B over epicbox.
     let sent = a.send_epicbox(EPIC, MIN_CONF, addr_b.clone()).expect("epicbox send");
     assert!(!sent.confirmed);
-    wait_event(&events_b, ListenerEventKind::Received, 5);
-    wait_event(&events_a, ListenerEventKind::Finalized, 5);
+    let received = wait_event(&events_b, ListenerEventKind::Received, 5);
+    assert_eq!(received.amount, Some(EPIC), "the event carries the amount");
+    let finalized = wait_event(&events_a, ListenerEventKind::Finalized, 5);
+    assert_eq!(finalized.amount, Some(EPIC));
     wait_balance(&b, "B funds", 20, |s| s.spendable == EPIC);
 
     // 3. A to a stock CLI wallet over HTTP.

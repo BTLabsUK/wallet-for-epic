@@ -110,6 +110,10 @@ abstract class EpicWallet implements RustOpaqueInterface {
   /// Recipient side: signs an incoming send slate and returns the response slate JSON.
   Future<Slate> receiveSlate({required String slateJson});
 
+  /// Posts a finalized send that never reached the chain to the node again (`TxEntry.repostable`).
+  /// Its inputs stay locked until it confirms; there is no safe way to release them early.
+  Future<void> repostTransaction({required String key});
+
   /// Adds a contact (empty `id`) or replaces the one with that id. Returns it as stored.
   Future<Contact> saveContact({required Contact contact});
 

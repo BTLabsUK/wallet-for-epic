@@ -269,6 +269,12 @@ impl EpicWallet {
         self.inner.listener_running()
     }
 
+    /// Posts a finalized send that never reached the chain to the node again (`TxEntry.repostable`).
+    /// Its inputs stay locked until it confirms; there is no safe way to release them early.
+    pub fn repost_transaction(&self, key: String) -> Result<(), WalletError> {
+        self.inner.repost_transaction(&key).map_err(to_api)
+    }
+
     /// Cancels an unconfirmed transaction by log id and unlocks its outputs.
     pub fn cancel_transaction(&self, tx_id: u32) -> Result<(), WalletError> {
         self.inner.cancel_transaction(tx_id).map_err(to_api)

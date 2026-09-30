@@ -294,7 +294,18 @@ struct Worker {
 
 impl Worker {
     fn emit(&mut self, kind: ListenerEventKind, slate_id: Option<String>, message: String) {
+        self.emit_with(kind, slate_id, message, None);
+    }
+
+    fn emit_with(
+        &mut self,
+        kind: ListenerEventKind,
+        slate_id: Option<String>,
+        message: String,
+        amount: Option<u64>,
+    ) {
         (self.on_event)(ListenerEvent {
+            amount,
             kind,
             slate_id,
             message,
@@ -446,7 +457,8 @@ impl Worker {
             self.finalize(&slate)
         };
         match result {
-            Ok((kind, text)) => self.emit(kind, Some(slate_id), text),
+            // The slate carries the amount both ways: what we receive, or what we sent.
+            Ok((kind, text)) => self.emit_with(kind, Some(slate_id), text, Some(slate.amount)),
             // The relay redelivers a slate whose acknowledgement it missed. Handling it again is
             // refused by the wallet, and that refusal means it was already done.
             Err(CoreError::Wallet(LibWalletError::TransactionAlreadyReceived(_))) => {
