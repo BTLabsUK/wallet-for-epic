@@ -105,6 +105,26 @@ fn create_open_and_password_checks() {
 }
 
 #[test]
+fn refresh_without_a_node_ends_with_the_local_summary() {
+    let dir = tempfile::tempdir().expect("tempdir");
+    let wallet = EpicWallet::create(cfg(dir.path()), None, PASSWORD.into()).expect("create");
+    let mut events = Vec::new();
+    let summary = wallet
+        .refresh_with(10, |p| events.push(p))
+        .expect("an unreachable node is not an error");
+    assert!(!summary.validated_with_node);
+    assert_eq!(summary.total, 0);
+    let last = events.last().expect("events");
+    assert_eq!(last.percent, 100);
+    assert_eq!(last.message, "Could not reach the node");
+    assert!(last
+        .summary
+        .as_ref()
+        .is_some_and(|s| !s.validated_with_node));
+    assert!(events.windows(2).all(|w| w[0].percent <= w[1].percent));
+}
+
+#[test]
 fn restore_roundtrip_gives_same_seed_and_address() {
     let phrase = generate_mnemonic(24).expect("generate");
     let a = tempfile::tempdir().expect("tempdir");

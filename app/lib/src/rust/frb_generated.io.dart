@@ -54,6 +54,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  RustStreamSink<RefreshProgress> dco_decode_StreamSink_refresh_progress_Sse(
+    dynamic raw,
+  );
+
+  @protected
   RustStreamSink<ScanProgress> dco_decode_StreamSink_scan_progress_Sse(
     dynamic raw,
   );
@@ -84,6 +89,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   WalletConfig dco_decode_box_autoadd_wallet_config(dynamic raw);
+
+  @protected
+  WalletSummary dco_decode_box_autoadd_wallet_summary(dynamic raw);
 
   @protected
   CancelReason dco_decode_cancel_reason(dynamic raw);
@@ -147,6 +155,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   int? dco_decode_opt_box_autoadd_u_8(dynamic raw);
+
+  @protected
+  WalletSummary? dco_decode_opt_box_autoadd_wallet_summary(dynamic raw);
+
+  @protected
+  RefreshProgress dco_decode_refresh_progress(dynamic raw);
 
   @protected
   ScanProgress dco_decode_scan_progress(dynamic raw);
@@ -229,6 +243,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  RustStreamSink<RefreshProgress> sse_decode_StreamSink_refresh_progress_Sse(
+    SseDeserializer deserializer,
+  );
+
+  @protected
   RustStreamSink<ScanProgress> sse_decode_StreamSink_scan_progress_Sse(
     SseDeserializer deserializer,
   );
@@ -261,6 +280,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   WalletConfig sse_decode_box_autoadd_wallet_config(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  WalletSummary sse_decode_box_autoadd_wallet_summary(
     SseDeserializer deserializer,
   );
 
@@ -330,6 +354,14 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   int? sse_decode_opt_box_autoadd_u_8(SseDeserializer deserializer);
+
+  @protected
+  WalletSummary? sse_decode_opt_box_autoadd_wallet_summary(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  RefreshProgress sse_decode_refresh_progress(SseDeserializer deserializer);
 
   @protected
   ScanProgress sse_decode_scan_progress(SseDeserializer deserializer);
@@ -419,6 +451,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  void sse_encode_StreamSink_refresh_progress_Sse(
+    RustStreamSink<RefreshProgress> self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_StreamSink_scan_progress_Sse(
     RustStreamSink<ScanProgress> self,
     SseSerializer serializer,
@@ -457,6 +495,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   @protected
   void sse_encode_box_autoadd_wallet_config(
     WalletConfig self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_box_autoadd_wallet_summary(
+    WalletSummary self,
     SseSerializer serializer,
   );
 
@@ -534,6 +578,18 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void sse_encode_opt_box_autoadd_u_8(int? self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_opt_box_autoadd_wallet_summary(
+    WalletSummary? self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_refresh_progress(
+    RefreshProgress self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_scan_progress(ScanProgress self, SseSerializer serializer);

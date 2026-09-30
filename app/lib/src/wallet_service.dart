@@ -112,6 +112,10 @@ abstract interface class WalletSession {
     required BigInt minimumConfirmations,
   });
 
+  /// `summary(refresh: true)` with progress. Percentages never fall; the last event has
+  /// [RefreshProgress.summary] set and `percent` 100. A failure ends the stream with the error.
+  Stream<RefreshProgress> refresh({required BigInt minimumConfirmations});
+
   /// epic-wallet's log merged with the history archive, newest first by `timeUnix`.
   Future<List<TxEntry>> transactions({required bool refresh});
 
@@ -298,6 +302,10 @@ class _RustWalletSession implements WalletSession {
     refresh: refresh,
     minimumConfirmations: minimumConfirmations,
   );
+
+  @override
+  Stream<RefreshProgress> refresh({required BigInt minimumConfirmations}) =>
+      _wallet.refresh(minimumConfirmations: minimumConfirmations);
 
   @override
   Future<List<TxEntry>> transactions({required bool refresh}) =>
@@ -666,6 +674,34 @@ class FakeWalletSession implements WalletSession {
     required bool refresh,
     required BigInt minimumConfirmations,
   }) async => summaryValue;
+
+  /// Percentages [refresh] emits before its last event, which carries [summaryValue].
+  List<int> refreshSteps = const [5, 15, 60];
+
+  /// When set, [refresh] emits the steps, then ends with this error.
+  WalletError? refreshError;
+
+  /// Number of [refresh] calls.
+  int refreshCalls = 0;
+
+  @override
+  Stream<RefreshProgress> refresh({
+    required BigInt minimumConfirmations,
+  }) async* {
+    refreshCalls++;
+    for (final percent in refreshSteps) {
+      yield RefreshProgress(percent: percent, message: 'Checking your funds');
+    }
+    final error = refreshError;
+    if (error != null) throw error;
+    yield RefreshProgress(
+      percent: 100,
+      message: summaryValue.validatedWithNode
+          ? 'Up to date'
+          : 'Could not reach the node',
+      summary: summaryValue,
+    );
+  }
 
   @override
   Future<List<TxEntry>> transactions({required bool refresh}) async => [

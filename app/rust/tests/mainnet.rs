@@ -107,3 +107,58 @@ fn listener_subscribes_on_every_healthy_mainnet_relay() {
         "expected at least two mainnet relays to accept a subscription"
     );
 }
+
+/// A wallet opened after a week scans no more than the last 100 blocks on refresh. Before
+/// `bound_scan_back`, the same refresh scanned the whole week: on 2026-09-30 on this host, 1.3 s up
+/// to date, 3.4 s after a day, 9.3 s after a week, 11.1 s after 30 days. Prints both times: the
+/// refresh, and an explicit scan of the range the refresh used to cover.
+#[test]
+#[ignore = "needs https://node.btlabs.uk"]
+fn refresh_after_a_week_scans_only_recent_blocks() {
+    use std::time::Instant;
+    const WEEK: u64 = 10_080;
+    init_logging();
+    let dir = tempfile::tempdir().expect("tempdir");
+    let config = config(dir.path(), Chain::Mainnet, NODE);
+    let wallet = EpicWallet::create(config.clone(), None, PASSWORD.into()).expect("create");
+    wallet.summary(true, 10).expect("first refresh");
+    let t = Instant::now();
+    wallet.summary(true, 10).expect("refresh");
+    eprintln!("refresh, up to date: {:?}", t.elapsed());
+
+    let tip = node_tip(config.clone()).expect("tip").height;
+    wallet
+        .set_last_scanned_height_for_tests(tip - WEEK)
+        .expect("set height");
+    let mut events = Vec::new();
+    let t = Instant::now();
+    let summary = wallet
+        .refresh_with(10, |p| events.push(p))
+        .expect("refresh");
+    let bounded = t.elapsed();
+    eprintln!("refresh, a week behind: {bounded:?}");
+    assert!(summary.validated_with_node);
+    assert!(summary.last_confirmed_height >= tip);
+    let last = events.last().expect("progress events");
+    assert_eq!(last.percent, 100);
+    assert!(last.summary.is_some(), "the last event carries the summary");
+    assert!(
+        events.iter().rev().skip(1).all(|e| e.summary.is_none()),
+        "only the last event carries a summary"
+    );
+    assert!(
+        events.windows(2).all(|w| w[0].percent <= w[1].percent),
+        "progress never falls"
+    );
+
+    let t = Instant::now();
+    wallet
+        .scan_with(Some(tip - WEEK - 100), |_| {})
+        .expect("scan");
+    let full = t.elapsed();
+    eprintln!("scan of the week the refresh used to cover: {full:?}");
+    assert!(
+        bounded < full,
+        "the refresh ({bounded:?}) should be faster than scanning the week ({full:?})"
+    );
+}

@@ -7,7 +7,7 @@ import '../frb_generated.dart';
 
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
-// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`
+// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `assert_receiver_is_total_eq`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`
 
 /// Why a payment was cancelled.
 enum CancelReason {
@@ -170,7 +170,7 @@ enum ListenerEventKind {
   expired,
 
   /// The answer to one of our sends arrived, but the node could not be reached to check its
-  /// 14-day limit, even after retrying for about 30 s. Nothing was finished yet; the mailbox
+  /// 14-day limit, even after retrying for about 30 s. Nothing was finished yet; the epicbox
   /// server delivers it again and it finishes once the node answers. Sent once per slate
   /// per listener run.
   delayed,
@@ -195,6 +195,36 @@ class NodeTip {
           runtimeType == other.runtimeType &&
           height == other.height &&
           nodeVersion == other.nodeVersion;
+}
+
+/// Progress of `EpicWallet::refresh`. Only the last event of a successful refresh has `summary`.
+class RefreshProgress {
+  /// 0..=100, never falling.
+  final int percent;
+
+  /// Short, for the user: "Checking your funds", "Scanning the chain", "Up to date".
+  final String message;
+
+  /// The balances after the refresh; set on the last event only.
+  final WalletSummary? summary;
+
+  const RefreshProgress({
+    required this.percent,
+    required this.message,
+    this.summary,
+  });
+
+  @override
+  int get hashCode => percent.hashCode ^ message.hashCode ^ summary.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is RefreshProgress &&
+          runtimeType == other.runtimeType &&
+          percent == other.percent &&
+          message == other.message &&
+          summary == other.summary;
 }
 
 /// Progress of a scan or refresh, forwarded from epic-wallet's `StatusMessage`.

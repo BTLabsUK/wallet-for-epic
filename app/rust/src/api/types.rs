@@ -170,6 +170,17 @@ pub struct ScanProgress {
     pub finished: bool,
 }
 
+/// Progress of `EpicWallet::refresh`. Only the last event of a successful refresh has `summary`.
+#[derive(Debug, Clone)]
+pub struct RefreshProgress {
+    /// 0..=100, never falling.
+    pub percent: u8,
+    /// Short, for the user: "Checking your funds", "Scanning the chain", "Up to date".
+    pub message: String,
+    /// The balances after the refresh; set on the last event only.
+    pub summary: Option<WalletSummary>,
+}
+
 /// A transaction slate travelling between two wallets as JSON.
 #[derive(Debug, Clone)]
 pub struct Slate {
@@ -246,7 +257,7 @@ pub enum ListenerEventKind {
     /// cancelled, not finished: nothing was sent and the funds are unlocked. `amount` is set.
     Expired,
     /// The answer to one of our sends arrived, but the node could not be reached to check its
-    /// 14-day limit, even after retrying for about 30 s. Nothing was finished yet; the mailbox
+    /// 14-day limit, even after retrying for about 30 s. Nothing was finished yet; the epicbox
     /// server delivers it again and it finishes once the node answers. Sent once per slate
     /// per listener run.
     Delayed,

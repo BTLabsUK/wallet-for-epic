@@ -101,7 +101,8 @@ impl EpicWallet {
             .map_err(to_api)
     }
 
-    /// Balances. With `refresh` the wallet first updates output state from the node.
+    /// Balances. With `refresh` the wallet first updates output state from the node, scanning
+    /// only the last 100 blocks for outputs it did not make itself (see `refresh`).
     pub fn summary(
         &self,
         refresh: bool,
@@ -109,6 +110,38 @@ impl EpicWallet {
     ) -> Result<WalletSummary, WalletError> {
         self.inner
             .summary(refresh, minimum_confirmations)
+            .map_err(to_api)
+    }
+
+    /// `summary(refresh: true)` with progress: updates outputs and payments from the node and
+    /// streams each step. The last event has `summary` set and `percent` 100; a failure closes
+    /// the stream with the error instead. Like every refresh, it scans only the last 100 blocks
+    /// for outputs this wallet did not make itself (see `scan` for older ones), except on the
+    /// first open of a restored wallet whose scan never finished, which scans the whole chain.
+    pub fn refresh(
+        &self,
+        minimum_confirmations: u64,
+        progress: StreamSink<RefreshProgress>,
+    ) -> Result<(), WalletError> {
+        self.refresh_with(minimum_confirmations, move |p| {
+            // A closed Dart stream only means nobody is listening; the refresh carries on.
+            let _ = progress.add(p);
+        })
+        .map(|_| ())
+    }
+
+    /// `refresh` with a Rust callback, returning the summary. For Rust callers and tests.
+    #[frb(ignore)]
+    pub fn refresh_with<F>(
+        &self,
+        minimum_confirmations: u64,
+        on_progress: F,
+    ) -> Result<WalletSummary, WalletError>
+    where
+        F: FnMut(RefreshProgress) + Send,
+    {
+        self.inner
+            .refresh(minimum_confirmations, on_progress)
             .map_err(to_api)
     }
 
@@ -283,6 +316,14 @@ impl EpicWallet {
     #[doc(hidden)]
     pub fn set_send_ttl_blocks_for_tests(&self, blocks: u64) {
         self.inner.set_send_ttl_blocks(blocks);
+    }
+
+    /// Test hook, not for Dart: records `height` as the last block the wallet scanned, as if it
+    /// had been closed since then.
+    #[frb(ignore)]
+    #[doc(hidden)]
+    pub fn set_last_scanned_height_for_tests(&self, height: u64) -> Result<(), WalletError> {
+        self.inner.set_last_scanned_height(height).map_err(to_api)
     }
 
     /// Stops the listener. Takes up to about a second.

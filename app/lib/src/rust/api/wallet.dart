@@ -10,7 +10,7 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 import 'types.dart';
 
 // These functions are ignored because they are not marked as `pub`: `kind_of`, `to_api`
-// These functions are ignored (category: IgnoreBecauseExplicitAttribute): `scan_with`, `set_send_ttl_blocks_for_tests`, `start_listener_with`
+// These functions are ignored (category: IgnoreBecauseExplicitAttribute): `refresh_with`, `scan_with`, `set_last_scanned_height_for_tests`, `set_send_ttl_blocks_for_tests`, `start_listener_with`
 
 /// Generates a new BIP-39 recovery phrase. `word_count` is 12 or 24.
 String generateMnemonic({required int wordCount}) =>
@@ -124,6 +124,13 @@ abstract class EpicWallet implements RustOpaqueInterface {
   /// Recipient side: signs an incoming send slate and returns the response slate JSON.
   Future<Slate> receiveSlate({required String slateJson});
 
+  /// `summary(refresh: true)` with progress: updates outputs and payments from the node and
+  /// streams each step. The last event has `summary` set and `percent` 100; a failure closes
+  /// the stream with the error instead. Like every refresh, it scans only the last 100 blocks
+  /// for outputs this wallet did not make itself (see `scan` for older ones), except on the
+  /// first open of a restored wallet whose scan never finished, which scans the whole chain.
+  Stream<RefreshProgress> refresh({required BigInt minimumConfirmations});
+
   /// Unlocks the funds of a finalized payment the node refused and that never reached the
   /// chain (`TxEntry.releasable`). Checks the chain and the node's pool once more first and
   /// refuses with `InvalidArgument` if the payment is in either.
@@ -168,7 +175,8 @@ abstract class EpicWallet implements RustOpaqueInterface {
   /// Stops the listener. Takes up to about a second.
   Future<void> stopListener();
 
-  /// Balances. With `refresh` the wallet first updates output state from the node.
+  /// Balances. With `refresh` the wallet first updates output state from the node, scanning
+  /// only the last 100 blocks for outputs it did not make itself (see `refresh`).
   Future<WalletSummary> summary({
     required bool refresh,
     required BigInt minimumConfirmations,

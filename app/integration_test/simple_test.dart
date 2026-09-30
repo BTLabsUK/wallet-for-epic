@@ -118,6 +118,13 @@ void main() {
     );
     expect(summary.total, BigInt.zero);
     expect(await wallet.transactions(refresh: false), isEmpty);
+
+    // The node in _config is unreachable: the refresh still ends with the local balances.
+    final steps = await wallet
+        .refresh(minimumConfirmations: minimumConfirmations)
+        .toList();
+    expect(steps.last.percent, 100);
+    expect(steps.last.summary?.validatedWithNode, isFalse);
   });
 
   testWidgets('history: contacts and an export that only the same seed opens', (
@@ -236,7 +243,7 @@ void main() {
     await _enter(tester, 'Repeat PIN', '123456');
 
     await _pumpUntil(tester, find.text('Spendable'));
-    expect(find.text('Back up your wallet'), findsOneWidget);
+    expect(find.text('Back up your recovery phrase.'), findsOneWidget);
     expect(await store.read('wallet.mainnet.pending'), isNull);
 
     final container = ProviderScope.containerOf(

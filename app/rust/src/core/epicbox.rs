@@ -98,7 +98,7 @@ pub(crate) fn parse_address(text: &str) -> CoreResult<EpicboxAddress> {
     let text = text.trim();
     if !text.contains('@') {
         return Err(CoreError::InvalidArgument(
-            "an address needs its mailbox server: <address>@<server>".into(),
+            "an address needs its epicbox server: <address>@<server>".into(),
         ));
     }
     let address = EpicboxAddress::from_str(text)
@@ -153,7 +153,7 @@ fn send_request(socket: &mut Socket, request: &ProtocolRequestV2) -> CoreResult<
     let text = serde_json::to_string(request).map_err(|e| CoreError::Relay(e.to_string()))?;
     socket
         .send(Message::Text(text.into()))
-        .map_err(|e| CoreError::Relay(format!("sending to the mailbox server: {e}")))
+        .map_err(|e| CoreError::Relay(format!("sending to the epicbox server: {e}")))
 }
 
 /// The encrypted, signed `PostSlate` for `slate` from `from` to `to`.
@@ -204,12 +204,12 @@ pub(crate) fn post_once(
             Err(e) if is_timeout(&e) => {}
             Err(e) => {
                 return Err(CoreError::Relay(format!(
-                    "reading from the mailbox server: {e}"
+                    "reading from the epicbox server: {e}"
                 )))
             }
         }
         if Instant::now() > deadline {
-            return Err(CoreError::Relay("the mailbox server did not answer".into()));
+            return Err(CoreError::Relay("the epicbox server did not answer".into()));
         }
     }
     send_request(&mut socket, &request)?;
@@ -221,7 +221,7 @@ pub(crate) fn post_once(
                 Ok(ProtocolResponseV2::Ok) => break,
                 Ok(ProtocolResponseV2::Error { kind, description }) => {
                     return Err(CoreError::Relay(format!(
-                        "the mailbox server refused the payment: {kind} {description}"
+                        "the epicbox server refused the payment: {kind} {description}"
                     )))
                 }
                 _ => {}
@@ -380,7 +380,7 @@ impl Worker {
             };
             let text = match message {
                 Message::Text(t) => t.to_string(),
-                Message::Close(_) => return "the mailbox server closed the connection".into(),
+                Message::Close(_) => return "the epicbox server closed the connection".into(),
                 _ => continue,
             };
             let Ok(response) = serde_json::from_str::<ProtocolResponseV2>(&text) else {
@@ -432,7 +432,7 @@ impl Worker {
                     self.emit(
                         ListenerEventKind::Error,
                         None,
-                        format!("mailbox server error: {kind} {description}"),
+                        format!("epicbox server error: {kind} {description}"),
                     );
                 }
                 ProtocolResponseV2::Ok | ProtocolResponseV2::GetVersion { .. } => {}
@@ -478,7 +478,7 @@ impl Worker {
         let (versioned, proof) = match parsed {
             Ok(x) => x,
             Err(e) => {
-                let text = format!("an unreadable payment arrived from the mailbox server: {e}");
+                let text = format!("an unreadable payment arrived from the epicbox server: {e}");
                 self.emit(ListenerEventKind::Error, None, text);
                 return true;
             }

@@ -18,8 +18,8 @@ use epic_wallet_impls::{
     DefaultLCProvider, DefaultWalletImpl, HTTPNodeClient, HttpSlateSender, SlateSender,
 };
 use epic_wallet_libwallet::{
-    Error as LibWalletError, InitTxArgs, NodeClient, Slate as LibSlate, StatusMessage, TxLogEntry,
-    TxLogEntryType, WalletInitStatus, WalletInst,
+    Error as LibWalletError, InitTxArgs, NodeClient, ScannedBlockInfo, Slate as LibSlate,
+    StatusMessage, TxLogEntry, TxLogEntryType, WalletInfo, WalletInitStatus, WalletInst,
 };
 use epic_wallet_util::epic_core::core::amount_to_hr_string;
 use epic_wallet_util::epic_core::libtx::tx_fee;
@@ -38,8 +38,8 @@ use super::meta::{ContactRec, MetaStore};
 use super::node::EpicNodeClient;
 use super::{export, mnemonic, slate, stored_tx};
 use crate::api::types::{
-    CancelReason, Contact, FeeEstimate, ImportReport, ListenerEvent, NodeTip, ScanProgress, Slate,
-    TxEntry, TxKind, TxSource, TxStatus, WalletConfig, WalletSummary,
+    CancelReason, Contact, FeeEstimate, ImportReport, ListenerEvent, NodeTip, RefreshProgress,
+    ScanProgress, Slate, TxEntry, TxKind, TxSource, TxStatus, WalletConfig, WalletSummary,
 };
 
 type Provider = DefaultLCProvider<'static, EpicNodeClient, ExtKeychain>;
@@ -49,7 +49,7 @@ pub(crate) type OwnerApi = Owner<Provider, EpicNodeClient, ExtKeychain>;
 
 /// Seed length in bytes for a wallet created without a phrase: 24 words.
 const NEW_SEED_BYTES: usize = 32;
-/// TTL of every send, in blocks: 14 days of one-minute blocks. The default mailbox keeps a slate
+/// TTL of every send, in blocks: 14 days of one-minute blocks. The default epicbox server keeps a slate
 /// 7 days, and the recipient's answer can wait up to 7 more in ours.
 pub(crate) const SEND_TTL_BLOCKS: u64 = 20_160;
 /// Node calls one `enrich_history` may spend on block heights and times. floo-node answers 429 to bursts
@@ -247,20 +247,59 @@ impl Session {
         refresh: bool,
         minimum_confirmations: u64,
     ) -> CoreResult<WalletSummary> {
+        if refresh {
+            bound_scan_back(&self.wallet, self.mask());
+        }
         let (validated, info) =
             self.owner
                 .retrieve_summary_info(self.mask(), refresh, minimum_confirmations)?;
-        Ok(WalletSummary {
-            last_confirmed_height: info.last_confirmed_height,
-            minimum_confirmations: info.minimum_confirmations,
-            total: info.total,
-            spendable: info.amount_currently_spendable,
-            awaiting_confirmation: info.amount_awaiting_confirmation,
-            awaiting_finalization: info.amount_awaiting_finalization,
-            immature: info.amount_immature,
-            locked: info.amount_locked,
-            validated_with_node: validated,
-        })
+        Ok(to_summary(validated, info))
+    }
+
+    /// `summary(refresh: true)` through an `Owner` with a status channel, so every step of
+    /// epic-wallet's `update_wallet_state` reaches `on_progress`. The last event carries the
+    /// summary. On failure no final event is sent and the error is returned.
+    pub(crate) fn refresh<F>(
+        &self,
+        minimum_confirmations: u64,
+        mut on_progress: F,
+    ) -> CoreResult<WalletSummary>
+    where
+        F: FnMut(RefreshProgress) + Send,
+    {
+        bound_scan_back(&self.wallet, self.mask());
+        let (tx, rx) = mpsc::channel::<StatusMessage>();
+        let progress = &mut on_progress;
+        let (validated, info) = std::thread::scope(|scope| {
+            // Ends when the Owner below, which holds the only sender, is dropped.
+            scope.spawn(move || {
+                let mut percent = 0;
+                for message in rx {
+                    let p = refresh_step(message, percent);
+                    percent = p.percent;
+                    progress(p);
+                }
+            });
+            let owner = Owner::new(
+                self.wallet.clone(),
+                Some(tx),
+                Arc::new(AtomicBool::new(true)),
+            );
+            let result = owner.retrieve_summary_info(self.mask(), true, minimum_confirmations);
+            drop(owner);
+            result
+        })?;
+        let summary = to_summary(validated, info);
+        on_progress(RefreshProgress {
+            percent: 100,
+            message: if validated {
+                "Up to date".into()
+            } else {
+                "Could not reach the node".into()
+            },
+            summary: Some(summary.clone()),
+        });
+        Ok(summary)
     }
 
     /// Where `scan` starts when the caller gives no height: 1 for a restored wallet that was never
@@ -335,6 +374,9 @@ impl Session {
 
     /// epic-wallet's log for the current account, with what the outputs say about each row.
     fn live_rows(&self, refresh: bool) -> CoreResult<Vec<LiveTx>> {
+        if refresh {
+            bound_scan_back(&self.wallet, self.mask());
+        }
         let res = self
             .owner
             .retrieve_txs(self.mask(), refresh, None, None, None, None, None)?;
@@ -897,6 +939,22 @@ impl Session {
         }
     }
 
+    /// Test hook: records `height` as the last block this wallet scanned, as if it had been
+    /// closed since then.
+    pub(crate) fn set_last_scanned_height(&self, height: u64) -> CoreResult<()> {
+        let mut guard = self.wallet.lock();
+        let w = guard.lc_provider()?.wallet_inst()?;
+        let mut batch = w.batch(self.mask.as_ref())?;
+        batch.save_last_scanned_block(ScannedBlockInfo {
+            height,
+            hash: String::new(),
+            start_pmmr_index: 0,
+            last_pmmr_index: 0,
+        })?;
+        batch.commit()?;
+        Ok(())
+    }
+
     /// Test hook: the TTL, in blocks, of sends created from now on; 0 for none.
     pub(crate) fn set_send_ttl_blocks(&self, blocks: u64) {
         self.send_ttl_blocks.store(blocks, Ordering::Relaxed);
@@ -944,6 +1002,7 @@ impl Session {
 
     /// Unlocks the outputs of a send whose transport failed, so a failed send leaves no trace.
     fn abandon(&self, s: &LibSlate) {
+        bound_scan_back(&self.wallet, self.mask());
         match self.owner.cancel_tx(self.mask(), None, Some(s.id)) {
             Ok(()) => record_cancel(&self.meta, &s.id.to_string(), CancelReason::Failed),
             Err(e) => log::warn!("cancelling failed send {}: {e}", s.id),
@@ -1222,6 +1281,7 @@ impl Session {
                 "the node still holds this payment and may confirm it; it cannot be released",
             );
         }
+        bound_scan_back(&self.wallet, self.mask());
         self.owner.cancel_tx(self.mask(), Some(id), None)?;
         if let Some(slate) = &row.tx.slate_id {
             record_cancel(&self.meta, slate, CancelReason::Release);
@@ -1230,6 +1290,7 @@ impl Session {
     }
 
     pub(crate) fn cancel_transaction(&self, tx_id: u32) -> CoreResult<()> {
+        bound_scan_back(&self.wallet, self.mask());
         self.owner.cancel_tx(self.mask(), Some(tx_id), None)?;
         let slate = self
             .owner
@@ -1298,6 +1359,98 @@ fn http_base_url(url: &str) -> CoreResult<String> {
         return Err(CoreError::InvalidArgument("the address has no host".into()));
     }
     Ok(base.to_owned())
+}
+
+/// Blocks below the tip that epic-wallet's refresh scans for outputs it does not know
+/// (`update_wallet_state`, step 3, from `last_scanned_block - 100`). With `bound_scan_back`, also
+/// the most any refresh here scans.
+pub(crate) const REFRESH_SCAN_BACK: u64 = 100;
+
+/// Keeps the chain scan of the next refresh to the last `REFRESH_SCAN_BACK` blocks.
+///
+/// epic-wallet's refresh scans from the last scanned block, less 100, up to the tip. A wallet
+/// opened after a week scans 10,000 blocks first: 9.3 s on a desktop against node.btlabs.uk,
+/// against 1.3 s when it is up to date (`tests/mainnet.rs`). This wallet's own payments never need
+/// that scan: every output it creates or receives through a slate is in its database and is
+/// checked by commitment in step 1, and kernels in step 2. So when the mark is more than
+/// `REFRESH_SCAN_BACK` blocks behind, it is moved to the tip.
+///
+/// What is lost: an output made by something other than this wallet's slates (a coinbase, a
+/// second wallet on the same phrase) in a block between the old mark and the tip less 100 is
+/// found only by a rescan. A restored wallet whose scan never finished (`InitNeedsScanning`) is
+/// left alone, so epic-wallet's full scan still runs. A failure is logged and the refresh then
+/// runs unbounded, as upstream.
+pub(crate) fn bound_scan_back(wallet: &WalletHandle, mask: Option<&SecretKey>) {
+    if let Err(e) = try_bound_scan_back(wallet, mask) {
+        log::warn!("not bounding the refresh scan: {e}");
+    }
+}
+
+fn try_bound_scan_back(wallet: &WalletHandle, mask: Option<&SecretKey>) -> CoreResult<()> {
+    let client = {
+        let mut guard = wallet.lock();
+        let w = guard.lc_provider()?.wallet_inst()?;
+        if !matches!(w.init_status()?, WalletInitStatus::InitComplete) {
+            return Ok(());
+        }
+        w.w2n_client().clone()
+    };
+    let (tip, hash) = client.chain_tip_once()?;
+    let mut guard = wallet.lock();
+    let w = guard.lc_provider()?.wallet_inst()?;
+    let last = w.last_scanned_block()?;
+    if tip <= last.height.saturating_add(REFRESH_SCAN_BACK) {
+        return Ok(());
+    }
+    let mut batch = w.batch(mask)?;
+    batch.save_last_scanned_block(ScannedBlockInfo {
+        height: tip,
+        hash,
+        start_pmmr_index: last.start_pmmr_index,
+        last_pmmr_index: last.last_pmmr_index,
+    })?;
+    batch.commit()?;
+    log::info!(
+        "refresh scans from block {} instead of {}",
+        tip - REFRESH_SCAN_BACK,
+        last.height.saturating_sub(REFRESH_SCAN_BACK)
+    );
+    Ok(())
+}
+
+/// One step of `refresh`, from epic-wallet's status message and the percentage so far. Steps 1
+/// and 2 take the first fifth, the chain scan the rest.
+fn refresh_step(message: StatusMessage, percent: u8) -> RefreshProgress {
+    let (at, text) = match message {
+        StatusMessage::UpdatingOutputs(_) => (5, "Checking your funds"),
+        StatusMessage::UpdatingTransactions(_) => (15, "Checking payments"),
+        StatusMessage::FullScanWarn(_) => (percent, "Scanning the chain"),
+        StatusMessage::Scanning(_, pct) => {
+            let scaled = 20 + u16::from(pct.min(100)) * 79 / 100;
+            (scaled as u8, "Scanning the chain")
+        }
+        StatusMessage::ScanningComplete(_) => (99, "Scanning the chain"),
+        StatusMessage::UpdateWarning(_) => (percent, "Could not reach the node"),
+    };
+    RefreshProgress {
+        percent: at.max(percent),
+        message: text.into(),
+        summary: None,
+    }
+}
+
+fn to_summary(validated: bool, info: WalletInfo) -> WalletSummary {
+    WalletSummary {
+        last_confirmed_height: info.last_confirmed_height,
+        minimum_confirmations: info.minimum_confirmations,
+        total: info.total,
+        spendable: info.amount_currently_spendable,
+        awaiting_confirmation: info.amount_awaiting_confirmation,
+        awaiting_finalization: info.amount_awaiting_finalization,
+        immature: info.amount_immature,
+        locked: info.amount_locked,
+        validated_with_node: validated,
+    }
 }
 
 fn progress_from(message: StatusMessage) -> ScanProgress {
@@ -1397,6 +1550,7 @@ pub(crate) fn answer_in_time(
         return Ok(());
     }
     record_cancel(meta, &slate.id.to_string(), CancelReason::LateAnswer);
+    bound_scan_back(wallet, mask);
     let cancelled = match owner.cancel_tx(mask, None, Some(slate.id)) {
         Ok(()) => true,
         Err(e) => {
@@ -1522,6 +1676,34 @@ fn contact_to_api(c: ContactRec) -> Contact {
 mod tests {
     use super::{http_base_url, record_cancel, record_post, LibWalletError, MetaStore};
     use crate::api::types::CancelReason;
+
+    #[test]
+    fn refresh_progress_rises_through_the_steps() {
+        use super::{refresh_step, StatusMessage as M};
+        let steps = [
+            M::UpdatingOutputs(String::new()),
+            M::UpdatingTransactions(String::new()),
+            M::Scanning(String::new(), 0),
+            M::Scanning(String::new(), 50),
+            M::UpdateWarning(String::new()),
+            M::Scanning(String::new(), 255),
+            M::ScanningComplete(String::new()),
+        ];
+        let mut percent = 0;
+        let seen: Vec<u8> = steps
+            .into_iter()
+            .map(|m| {
+                percent = refresh_step(m, percent).percent;
+                percent
+            })
+            .collect();
+        assert_eq!(seen, [5, 15, 20, 59, 59, 99, 99]);
+        // A late step never moves the bar back.
+        assert_eq!(
+            refresh_step(M::UpdatingOutputs(String::new()), 40).percent,
+            40
+        );
+    }
 
     #[test]
     fn a_cancel_records_its_reason_by_name() {

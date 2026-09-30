@@ -85,6 +85,12 @@ impl EpicNodeClient {
         self.highest_tip.clone()
     }
 
+    /// The node's tip, asked once without the retries of `get_chain_tip`, for callers that have
+    /// a fallback and should not wait 6 s on a node that is down.
+    pub(crate) fn chain_tip_once(&self) -> Result<(u64, String), Error> {
+        self.inner.get_chain_tip()
+    }
+
     /// Applies the height floor to a node's own answer, raising the floor when it is synced.
     fn judge(&self, sync_status: &str, height: u64) -> String {
         let floor = self.highest_tip.load(Ordering::Relaxed);
