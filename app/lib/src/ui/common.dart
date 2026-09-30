@@ -159,49 +159,34 @@ String signedEpic(TxEntry tx, {required bool hidden}) {
   return '${outgoing ? '-' : '+'}${epicText(amount)}';
 }
 
-String txKindLabel(TxKind kind) => switch (kind) {
-  TxKind.coinbase => 'Mining reward',
-  TxKind.received => 'Received',
-  TxKind.sent => 'Sent',
-  TxKind.receivedCancelled => 'Receive cancelled',
-  TxKind.sentCancelled => 'Send cancelled',
-};
-
 bool _outgoingKind(TxEntry tx) =>
     tx.kind == TxKind.sent || tx.kind == TxKind.sentCancelled;
 
-/// The row title: a mining reward, restored funds, a cancelled send or receive, the contact's
-/// name, else the direction ("Sending"/"Receiving" while pending).
+/// The row title, the same style for every row: the contact's name, else the other side's
+/// short address, else what kind of payment it is. The status is never in the title, only in
+/// the chip.
 String txTitle(TxEntry tx, {String? contactName}) {
+  final special = _specialTitle(tx);
+  if (special != null) return special;
+  final counterparty = tx.counterparty;
+  return contactName ??
+      (counterparty == null ? _directionNoun(tx) : shortAddress(counterparty));
+}
+
+/// The details title: the contact's name, else what kind of payment it is. The address is in
+/// the "Sent to" / "Received from" row just below, in full.
+String txHeading(TxEntry tx, {String? contactName}) =>
+    _specialTitle(tx) ?? contactName ?? _directionNoun(tx);
+
+/// Titles that describe where a payment came from rather than who: mining and a chain scan.
+String? _specialTitle(TxEntry tx) {
   if (tx.kind == TxKind.coinbase) return 'Mining reward';
   if (tx.source == TxSource.restored) return 'Restored funds';
-  if (tx.status == TxStatus.cancelled) {
-    return _outgoingKind(tx) ? 'Send cancelled' : 'Receive cancelled';
-  }
-  return contactName ?? _directionLabel(tx);
+  return null;
 }
 
-String _directionLabel(TxEntry tx) {
-  if (!isPending(tx)) return txKindLabel(tx.kind);
-  return _outgoingKind(tx) ? 'Sending' : 'Receiving';
-}
-
-/// The details title: like [txTitle], but names the other side by its short address when no
-/// contact matches (`Sent to es5xab…n48MKx@epicbox.epiccash.com`).
-String txHeading(TxEntry tx, {String? contactName}) {
-  final title = txTitle(tx, contactName: contactName);
-  final counterparty = tx.counterparty;
-  if (contactName != null ||
-      counterparty == null ||
-      title != _directionLabel(tx)) {
-    return title;
-  }
-  final out = _outgoingKind(tx);
-  final verb = isPending(tx)
-      ? (out ? 'Sending to' : 'Receiving from')
-      : (out ? 'Sent to' : 'Received from');
-  return '$verb ${shortAddress(counterparty)}';
-}
+String _directionNoun(TxEntry tx) =>
+    _outgoingKind(tx) ? 'Outgoing payment' : 'Incoming payment';
 
 /// A pending record that came only from a history backup: this wallet has nothing of its own
 /// to say how it ended, so it is neither pending nor done.
@@ -337,32 +322,36 @@ class TxIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
-    final (IconData icon, Color bg, Color fg) = switch (tx.kind) {
+    final (IconData icon, Color bg, Color fg, String label) = switch (tx.kind) {
       _ when tx.status == TxStatus.cancelled => (
         Icons.block,
         colors.surfaceContainerHighest,
         colors.onSurfaceVariant,
+        'Cancelled',
       ),
       TxKind.coinbase => (
         Icons.bolt,
         colors.primaryContainer,
         colors.onPrimaryContainer,
+        'Mining reward',
       ),
       TxKind.received || TxKind.receivedCancelled => (
         Icons.south_west,
         colors.tertiaryContainer,
         colors.onTertiaryContainer,
+        'Incoming',
       ),
       TxKind.sent || TxKind.sentCancelled => (
         Icons.north_east,
         colors.secondaryContainer,
         colors.onSecondaryContainer,
+        'Outgoing',
       ),
     };
     return CircleAvatar(
       backgroundColor: bg,
       foregroundColor: fg,
-      child: Icon(icon),
+      child: Icon(icon, semanticLabel: label),
     );
   }
 }
@@ -386,11 +375,6 @@ class TxTile extends ConsumerWidget {
     final theme = Theme.of(context);
     final title = txTitle(tx, contactName: contactName(ref, tx.counterparty));
     final date = shortDate(localTime(tx.timeUnix), now);
-    final counterparty = tx.counterparty;
-    final showAddress =
-        counterparty != null &&
-        contactName(ref, counterparty) == null &&
-        tx.source != TxSource.restored;
     final signed = signedEpic(tx, hidden: display.hidden);
     final muted = theme.textTheme.bodyMedium?.copyWith(
       color: theme.colorScheme.onSurfaceVariant,
@@ -422,14 +406,6 @@ class TxTile extends ConsumerWidget {
                       overflow: TextOverflow.ellipsis,
                       style: theme.textTheme.bodyLarge,
                     ),
-                    if (showAddress)
-                      Text(
-                        '${txAmount(tx).outgoing ? 'To' : 'From'} '
-                        '${shortAddress(counterparty)}',
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: muted,
-                      ),
                     const SizedBox(height: 2),
                     Wrap(
                       spacing: 8,

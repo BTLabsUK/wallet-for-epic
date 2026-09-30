@@ -504,7 +504,7 @@ void main() {
       expect(find.text('0.5 EPIC'), findsOneWidget);
 
       await _reveal(tester, find.text('+5 EPIC'));
-      expect(find.text('Received'), findsOneWidget);
+      expect(find.text('Incoming payment'), findsOneWidget);
       expect(find.text('-1 EPIC'), findsOneWidget);
       expect(find.text('Waiting for recipient'), findsOneWidget);
       expect(find.text('Completed'), findsOneWidget);

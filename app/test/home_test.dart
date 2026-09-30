@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:epic_wallet/src/network.dart';
 import 'package:epic_wallet/src/amount.dart';
 import 'package:epic_wallet/src/price.dart';
+import 'package:epic_wallet/src/push.dart';
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/settings.dart';
@@ -14,6 +17,7 @@ import 'package:epic_wallet/src/ui/tx_details_screen.dart';
 import 'package:epic_wallet/src/updater.dart';
 import 'package:epic_wallet/src/vault.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -176,6 +180,23 @@ class _EnrichingSession extends FakeWalletSession {
   }
 }
 
+/// Pushes on demand, as FCM delivers them in the foreground.
+class _FakePush implements PushPlatform {
+  final foregroundMessages = StreamController<RemoteMessage>.broadcast();
+
+  @override
+  Future<bool> start() async => true;
+
+  @override
+  Future<String?> token() async => 'token';
+
+  @override
+  Stream<String> get tokenRefresh => const Stream.empty();
+
+  @override
+  Stream<RemoteMessage> get foreground => foregroundMessages.stream;
+}
+
 class _Harness {
   _Harness({
     List<TxEntry>? transactions,
@@ -198,6 +219,7 @@ class _Harness {
   final FakeWalletSession session;
   final _FakePrice prices;
   final FakeQrScanner scanner;
+  final push = _FakePush();
   final store = MemorySecretStore();
   late final service = FakeWalletService(session: session);
 
@@ -229,6 +251,7 @@ class _Harness {
           updatePlatformProvider.overrideWithValue(null),
           priceSourceProvider.overrideWithValue(prices),
           qrScannerProvider.overrideWithValue(scanner),
+          pushPlatformProvider.overrideWithValue(push),
           clockProvider.overrideWithValue(() => _now),
           sessionProvider.overrideWith(() => _OpenSession(session)),
           walletConfigProvider.overrideWith(() => _Config(config)),
@@ -289,82 +312,47 @@ void main() {
       expect(label(fakeTx(status: TxStatus.cancelled)), 'Cancelled');
     });
 
-    test('titles: mining reward, restored funds, contact, direction', () {
+    test('one title style: contact, else short address, else the kind', () {
       expect(txTitle(fakeTx(kind: TxKind.coinbase)), 'Mining reward');
       expect(
         txTitle(fakeTx(source: TxSource.restored), contactName: 'Bob'),
         'Restored funds',
       );
-      expect(txTitle(fakeTx(kind: TxKind.sent), contactName: 'Bob'), 'Bob');
+      // The status never changes the title: pending, completed and cancelled read alike.
+      for (final status in TxStatus.values) {
+        final tx = fakeTx(
+          kind: TxKind.sent,
+          status: status,
+          counterparty: _bob,
+        );
+        expect(txTitle(tx, contactName: 'Bob'), 'Bob');
+        expect(txTitle(tx), 'esBobA…567890@epicbox.epiccash.com');
+        expect(
+          txTitle(fakeTx(kind: TxKind.sent, status: status)),
+          'Outgoing payment',
+        );
+        expect(txTitle(fakeTx(status: status)), 'Incoming payment');
+      }
       expect(
-        txTitle(fakeTx(kind: TxKind.sentCancelled, status: TxStatus.cancelled)),
-        'Send cancelled',
-      );
-      // A cancelled receive says so, even when the sender is a contact.
-      expect(
-        txTitle(
-          fakeTx(kind: TxKind.receivedCancelled, status: TxStatus.cancelled),
-          contactName: 'Bob',
-        ),
-        'Receive cancelled',
+        txTitle(fakeTx(counterparty: 'http://203.0.113.5:3415')),
+        'http://203.0.113.5:3415',
       );
     });
 
-    test('details headings name the other side by its short address', () {
+    test('details headings leave the address to the row below', () {
       final send = fakeTx(
         kind: TxKind.sent,
         status: TxStatus.confirmed,
         counterparty: _bob,
       );
-      expect(txHeading(send), 'Sent to esBobA…567890@epicbox.epiccash.com');
+      expect(txHeading(send), 'Outgoing payment');
       expect(txHeading(send, contactName: 'Bob'), 'Bob');
       expect(
-        txHeading(
-          fakeTx(
-            status: TxStatus.confirmed,
-            counterparty: 'http://203.0.113.5:3415',
-          ),
-        ),
-        'Received from http://203.0.113.5:3415',
+        txHeading(fakeTx(source: TxSource.imported, counterparty: _bob)),
+        'Incoming payment',
       );
-      expect(
-        txHeading(fakeTx(kind: TxKind.sent, status: TxStatus.confirmed)),
-        'Sent',
-      );
+      expect(txHeading(fakeTx(kind: TxKind.coinbase)), 'Mining reward');
     });
-
-    test(
-      'pending payments are Sending and Receiving, done ones Sent and Received',
-      () {
-        final receiving = fakeTx(
-          status: TxStatus.awaitingConfirmation,
-          counterparty: _bob,
-        );
-        expect(txTitle(receiving), 'Receiving');
-        expect(
-          txHeading(receiving),
-          'Receiving from esBobA…567890@epicbox.epiccash.com',
-        );
-        expect(
-          txTitle(
-            fakeTx(kind: TxKind.sent, status: TxStatus.awaitingRecipient),
-          ),
-          'Sending',
-        );
-        expect(txTitle(fakeTx(status: TxStatus.confirmed)), 'Received');
-        // A pending record from a backup is not known to be pending.
-        expect(
-          txTitle(
-            fakeTx(
-              kind: TxKind.sent,
-              status: TxStatus.awaitingRecipient,
-              source: TxSource.imported,
-            ),
-          ),
-          'Sent',
-        );
-      },
-    );
 
     test('EPIC amounts group thousands for display, not for fields', () {
       expect(epicText(_epic(1234.5678)), '1,234.5678 EPIC');
@@ -790,20 +778,6 @@ void main() {
       expect(shortAddress('short@relay'), 'short@relay');
       expect(shortAddress('${'a' * 52}@r.io:443'), 'aaaaaa…aaaaaa@r.io:443');
     });
-
-    testWidgets('rows show the short address, details the full one', (
-      tester,
-    ) async {
-      final h = _Harness();
-      await h.pump(tester);
-      expect(
-        find.text('To esBobA…567890@epicbox.epiccash.com'),
-        findsOneWidget,
-      );
-      expect(find.text(_bob), findsNothing);
-      await _tap(tester, find.byKey(const ValueKey('tx-s:send-bob')));
-      expect(find.text(_bob), findsOneWidget);
-    });
   });
 
   group('payment notices', () {
@@ -1049,7 +1023,8 @@ void main() {
       expect(find.text('-1 EPIC'), findsOneWidget);
       expect(find.text('≈ 0.50 USD'), findsNothing);
       expect(find.text('≈ 1.00 USD'), findsOneWidget);
-      expect(find.text('Send cancelled'), findsOneWidget);
+      // Cancelled is said by the chip, not the title.
+      expect(find.text('Outgoing payment'), findsOneWidget);
     });
 
     testWidgets('filter chips scroll on one row', (tester) async {
@@ -1092,23 +1067,88 @@ void main() {
       expect(find.text('Link copied'), findsOneWidget);
     });
 
-    testWidgets('a send to an unknown address is titled with it', (
-      tester,
-    ) async {
-      final h = _Harness();
-      await h.pump(tester, const TxDetailsScreen(txKey: 's:send-bob'));
-      expect(
-        find.text('Sending to esBobA…567890@epicbox.epiccash.com'),
-        findsOneWidget,
-      );
-      expect(find.byTooltip('Copy address'), findsOneWidget);
-    });
+    testWidgets(
+      'an unknown address is the row title, the details show it once',
+      (tester) async {
+        final h = _Harness();
+        await h.pump(tester);
+        expect(find.text('esBobA…567890@epicbox.epiccash.com'), findsOneWidget);
+        await _tap(tester, find.byKey(const ValueKey('tx-s:send-bob')));
+        expect(find.text('Outgoing payment'), findsOneWidget);
+        expect(find.textContaining('esBobA…'), findsNothing);
+        expect(find.text(_bob), findsOneWidget);
+        expect(find.byTooltip('Copy address'), findsOneWidget);
+      },
+    );
 
     testWidgets('large balances group thousands', (tester) async {
       final h = _Harness();
       h.session.summaryValue = _summary(spendable: _epic(1234.5678));
       await h.pump(tester);
       expect(find.text('1,234.5678 EPIC'), findsOneWidget);
+    });
+  });
+
+  group('polish', () {
+    const push = RemoteMessage(
+      notification: RemoteNotification(title: 'Transaction waiting on relay'),
+    );
+    const connected = ListenerEvent(
+      kind: ListenerEventKind.connected,
+      message: 'a',
+    );
+
+    testWidgets('a push while connected gives no notice of its own', (
+      tester,
+    ) async {
+      final h = _Harness();
+      await h.pump(tester);
+      h.session.listenerEvents.add(connected);
+      await tester.pumpAndSettle();
+      h.push.foregroundMessages.add(push);
+      // The listener collects the same payment and gives the one notice.
+      h.session.listenerEvents.add(
+        ListenerEvent(
+          kind: ListenerEventKind.received,
+          slateId: 'from-alice',
+          message: 'raw',
+          amount: _epic(5),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text(pushNotice), findsNothing);
+      expect(find.text('Transaction waiting on relay'), findsNothing);
+      expect(find.byType(SnackBar), findsOneWidget);
+      expect(find.textContaining('5 EPIC on the way'), findsOneWidget);
+    });
+
+    testWidgets('a push while offline says the payment is waiting', (
+      tester,
+    ) async {
+      final h = _Harness();
+      await h.pump(tester);
+      h.push.foregroundMessages.add(push);
+      await tester.pumpAndSettle();
+      expect(find.text(pushNotice), findsOneWidget);
+      expect(find.text('Transaction waiting on relay'), findsNothing);
+    });
+
+    testWidgets('the chip row fades where more chips lie beyond the edge', (
+      tester,
+    ) async {
+      final h = _Harness();
+      await h.pump(tester, const HistoryScreen());
+      final row = tester.state<FadingRowState>(find.byType(FadingRow));
+      // The test font is wide, so the five chips do not fit 360 dp.
+      expect(row.moreRight, isTrue);
+      expect(row.moreLeft, isFalse);
+      await tester.drag(
+        find.widgetWithText(ChoiceChip, 'All'),
+        const Offset(-2000, 0),
+      );
+      await tester.pumpAndSettle();
+      expect(row.moreRight, isFalse);
+      expect(row.moreLeft, isTrue);
     });
   });
 

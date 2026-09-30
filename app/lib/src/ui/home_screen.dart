@@ -30,6 +30,10 @@ const Duration autoRefreshInterval = Duration(seconds: 60);
 /// Transactions shown under "Recent activity".
 const int recentActivityCount = 5;
 
+/// The notice for a push that arrives while the app is open but not connected to the mailbox.
+const String pushNotice =
+    'A payment is waiting in your mailbox. It arrives once the app is connected.';
+
 /// The notice for a listener event: what happened to which payment, never the raw message.
 /// [tx] is the transaction with the event's slate id, when the list has it.
 String paymentNotice(
@@ -171,17 +175,22 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       hidden: ref.read(appSettingsProvider).value?.hideBalances ?? false,
     );
     final key = tx?.key;
+    _showNotice(text, txKey: key);
+  }
+
+  /// A payment notice: a few seconds long, with a way to the payment when it is known.
+  void _showNotice(String text, {String? txKey}) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(text),
         duration: const Duration(seconds: 6),
-        action: key == null
+        action: txKey == null
             ? null
             : SnackBarAction(
                 label: 'View',
                 onPressed: () => Navigator.of(context).push(
                   MaterialPageRoute<void>(
-                    builder: (_) => TxDetailsScreen(txKey: key),
+                    builder: (_) => TxDetailsScreen(txKey: txKey),
                   ),
                 ),
               ),
@@ -191,11 +200,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // In the foreground the listener is connected and handles the slate itself; the push only
-    // says so.
+    // A push only says a payment is waiting in the mailbox. While connected, the listener
+    // collects it and gives the notice, so one payment gets one notice.
     ref.listen(pushProvider.select((s) => s.last), (_, message) {
-      final title = message?.notification?.title;
-      if (title != null) _showMessage(title);
+      if (message == null || ref.read(listenerProvider).connected) return;
+      _showNotice(pushNotice);
     });
     ref.listen(incomingSlateProvider, (_, file) {
       if (file != null) _openIncoming();

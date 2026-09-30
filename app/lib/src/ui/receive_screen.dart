@@ -70,7 +70,6 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
   @override
   Widget build(BuildContext context) {
     final address = ref.watch(addressProvider);
-    final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Receive'),
@@ -91,12 +90,6 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
           },
           const SizedBox(height: 16),
           _ListenerLine(relay: address.value?.split('@').last),
-          const SizedBox(height: 8),
-          Text(
-            'Keep the app open to receive. Payments sent while it is closed '
-            'arrive the next time you unlock.',
-            style: theme.textTheme.bodyMedium,
-          ),
           const SizedBox(height: 24),
           ExpansionTile(
             tilePadding: EdgeInsets.zero,
@@ -114,7 +107,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
     return [
       const Text(
         'For senders who use files instead of the mailbox. Open the .tx file the '
-        'sender gave you. The wallet signs it and shares a .response file to '
+        'sender gave you. The wallet accepts it and makes a .response file to '
         'send back.',
       ),
       const SizedBox(height: 16),
@@ -246,10 +239,11 @@ class _ListenerLine extends ConsumerWidget {
           const SizedBox(width: 8),
           Expanded(
             child: Text(
-              listener.connected
-                  ? 'Connected to the mailbox server$at. Payments arrive by '
-                        'themselves.'
-                  : 'Connecting to the mailbox server$at…',
+              // One sentence about when payments arrive, so it cannot read as two
+              // contradicting ones.
+              '${listener.connected ? 'Connected to the mailbox server$at.' : 'Connecting to the mailbox server$at…'} '
+              'Payments arrive while the app is open; ones sent while it is '
+              'closed arrive the next time you unlock.',
             ),
           ),
         ],

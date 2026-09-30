@@ -76,7 +76,7 @@ class EpicboxRelay {
 const NetworkPreset mainnetPreset = NetworkPreset(
   chain: Chain.mainnet,
   label: 'Mainnet',
-  description: 'Real EPIC.',
+  description: 'The real Epic Cash network.',
   nodeUrl: 'https://node.btlabs.uk',
   epicboxDomain: 'epicbox.epiccash.com',
   epicboxPort: 443,
@@ -86,8 +86,8 @@ const NetworkPreset floonetPreset = NetworkPreset(
   chain: Chain.floonet,
   label: 'Floonet',
   description:
-      'Public test network. Coins are worthless; get some from '
-      'floo-explorer.btlabs.uk.',
+      'A public test network for trying the app. Its coins have no value; '
+      'get free ones from floo-explorer.btlabs.uk.',
   nodeUrl: 'https://floo-node.btlabs.uk',
   epicboxDomain: 'flooepicbox.btlabs.uk',
   epicboxPort: 443,
@@ -96,7 +96,7 @@ const NetworkPreset floonetPreset = NetworkPreset(
 const NetworkPreset usernetPreset = NetworkPreset(
   chain: Chain.usernet,
   label: 'Usernet',
-  description: 'Local development network on this machine.',
+  description: 'A test network running on this computer, for developers.',
   nodeUrl: 'http://127.0.0.1:23413',
   epicboxDomain: '127.0.0.1',
   epicboxPort: 3423,

@@ -1067,23 +1067,25 @@ void main() {
       await h.pump(tester, const ReceiveScreen());
       expect(find.text(h.session.address), findsOneWidget);
       expect(find.bySemanticsLabel('QR code of your address'), findsOneWidget);
+      const when =
+          'Payments arrive while the app is open; ones sent while it is '
+          'closed arrive the next time you unlock.';
       expect(
         find.text(
-          'Keep the app open to receive. Payments sent while it is closed '
-          'arrive the next time you unlock.',
+          'Connecting to the mailbox server epicbox.epiccash.com… $when',
         ),
         findsOneWidget,
       );
+      // One sentence about when payments arrive, not a second one below it.
       expect(
-        find.text('Connecting to the mailbox server epicbox.epiccash.com…'),
+        find.textContaining('arrive the next time you unlock'),
         findsOneWidget,
       );
       h.connectListener();
       await tester.pumpAndSettle();
       expect(
         find.text(
-          'Connected to the mailbox server epicbox.epiccash.com. Payments '
-          'arrive by themselves.',
+          'Connected to the mailbox server epicbox.epiccash.com. $when',
         ),
         findsOneWidget,
       );

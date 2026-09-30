@@ -170,22 +170,18 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                   ),
                   const SizedBox(height: 12),
                   // One scrolling row, so the list starts higher on a phone.
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: [
-                        for (final filter in HistoryFilter.values)
-                          Padding(
-                            padding: const EdgeInsets.only(right: 8),
-                            child: ChoiceChip(
-                              label: Text(historyFilterLabel(filter)),
-                              selected: _filter == filter,
-                              onSelected: (_) =>
-                                  setState(() => _filter = filter),
-                            ),
+                  FadingRow(
+                    children: [
+                      for (final filter in HistoryFilter.values)
+                        Padding(
+                          padding: const EdgeInsets.only(right: 8),
+                          child: ChoiceChip(
+                            label: Text(historyFilterLabel(filter)),
+                            selected: _filter == filter,
+                            onSelected: (_) => setState(() => _filter = filter),
                           ),
-                      ],
-                    ),
+                        ),
+                    ],
                   ),
                   if (home.isLoading && all == null)
                     const Padding(
@@ -219,6 +215,67 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                 ],
               ),
             ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// A horizontally scrolling row whose edge fades while more lies beyond it, so a cut-off chip
+/// reads as "scroll for more".
+class FadingRow extends StatefulWidget {
+  const FadingRow({super.key, required this.children});
+
+  final List<Widget> children;
+
+  @override
+  State<FadingRow> createState() => FadingRowState();
+}
+
+class FadingRowState extends State<FadingRow> {
+  bool _moreLeft = false;
+  bool _moreRight = false;
+
+  /// Content lies beyond the left edge, which then fades.
+  bool get moreLeft => _moreLeft;
+
+  /// Content lies beyond the right edge, which then fades.
+  bool get moreRight => _moreRight;
+
+  bool _onMetrics(ScrollMetrics metrics) {
+    final left = metrics.pixels > metrics.minScrollExtent;
+    final right = metrics.pixels < metrics.maxScrollExtent;
+    if (left != _moreLeft || right != _moreRight) {
+      setState(() {
+        _moreLeft = left;
+        _moreRight = right;
+      });
+    }
+    return false;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    const edge = 0.08;
+    return NotificationListener<ScrollMetricsNotification>(
+      onNotification: (n) => _onMetrics(n.metrics),
+      child: NotificationListener<ScrollNotification>(
+        onNotification: (n) => _onMetrics(n.metrics),
+        child: ShaderMask(
+          blendMode: BlendMode.dstIn,
+          shaderCallback: (bounds) => LinearGradient(
+            colors: [
+              _moreLeft ? Colors.transparent : Colors.black,
+              Colors.black,
+              Colors.black,
+              _moreRight ? Colors.transparent : Colors.black,
+            ],
+            stops: const [0, edge, 1 - edge, 1],
+          ).createShader(bounds),
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(children: widget.children),
           ),
         ),
       ),

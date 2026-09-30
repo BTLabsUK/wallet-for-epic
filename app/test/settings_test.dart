@@ -584,6 +584,7 @@ void main() {
       await h.unlock(tester);
       await h.openSettings(tester);
       await _tapText(tester, 'Network and node');
+      expect(find.text('The real Epic Cash network.'), findsOneWidget);
       await _tapText(tester, 'Test connection');
       expect(
         find.text(

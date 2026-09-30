@@ -478,10 +478,13 @@ class _SendScreenState extends ConsumerState<SendScreen> {
           controller: _recipient,
           autocorrect: false,
           enableSuggestions: false,
-          // Grows to show the whole address, so its start can be checked.
+          // Grows to show the whole address, so its start can be checked. The full width and
+          // a smaller size fit a 52-character key on one line and its @server on the next,
+          // instead of breaking inside the server name.
           minLines: 1,
           maxLines: null,
           keyboardType: TextInputType.url,
+          style: theme.textTheme.bodyMedium,
           onChanged: (_) => setState(() {
             _recipientError = null;
             _error = null;
@@ -491,28 +494,37 @@ class _SendScreenState extends ConsumerState<SendScreen> {
             hintText: 'Their address or a wallet URL',
             errorText: _recipientError,
             border: const OutlineInputBorder(),
-            suffixIcon: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                IconButton(
-                  tooltip: 'Paste',
-                  icon: const Icon(Icons.content_paste),
-                  onPressed: _paste,
-                ),
-                if (scanner.supported)
-                  IconButton(
-                    tooltip: 'Scan QR code',
-                    icon: const Icon(Icons.qr_code_scanner),
-                    onPressed: _scan,
-                  ),
-                IconButton(
-                  tooltip: 'Choose a contact',
-                  icon: const Icon(Icons.contacts),
-                  onPressed: _pickContact,
-                ),
-              ],
-            ),
           ),
+        ),
+        Wrap(
+          spacing: 8,
+          children: [
+            Tooltip(
+              message: 'Paste',
+              child: TextButton.icon(
+                icon: const Icon(Icons.content_paste),
+                label: const Text('Paste'),
+                onPressed: _paste,
+              ),
+            ),
+            if (scanner.supported)
+              Tooltip(
+                message: 'Scan QR code',
+                child: TextButton.icon(
+                  icon: const Icon(Icons.qr_code_scanner),
+                  label: const Text('Scan'),
+                  onPressed: _scan,
+                ),
+              ),
+            Tooltip(
+              message: 'Choose a contact',
+              child: TextButton.icon(
+                icon: const Icon(Icons.contacts),
+                label: const Text('Contacts'),
+                onPressed: _pickContact,
+              ),
+            ),
+          ],
         ),
         if (contact != null)
           Padding(
