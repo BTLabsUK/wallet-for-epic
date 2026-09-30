@@ -42,8 +42,23 @@ pub(crate) struct Annotation {
     /// This wallet finalized the send (the recipient had signed).
     #[serde(default)]
     pub finalized: bool,
+    /// The final kernel, from the finalized slate.
     #[serde(default)]
     pub kernel_excess: Option<String>,
+    /// When this wallet finalized the send, and the wallet's height then.
+    #[serde(default)]
+    pub finalized_at_unix: Option<i64>,
+    #[serde(default)]
+    pub finalized_height: Option<u64>,
+    /// The last post (or repost) error; cleared by a post the node took.
+    #[serde(default)]
+    pub post_error: Option<String>,
+    /// The node answered a post with a refusal at least once (not a transport failure).
+    #[serde(default)]
+    pub post_refused: bool,
+    /// Tip height at which a lookup found the final kernel nowhere on chain.
+    #[serde(default)]
+    pub kernel_absent_at: Option<u64>,
 }
 
 /// One transaction as it travels in a history file, and as it is kept once imported.
@@ -121,6 +136,14 @@ impl Record {
         fill(&mut self.block_height, &other.block_height);
         fill(&mut self.block_time_unix, &other.block_time_unix);
         fill(&mut self.fee, &other.fee);
+        let newer = other.exported_at_unix.unwrap_or(0) > self.exported_at_unix.unwrap_or(0);
+        // A newer file's note and counterparty are the user's latest edits.
+        if newer && other.note.is_some() {
+            self.note.clone_from(&other.note);
+        }
+        if newer && other.counterparty.is_some() {
+            self.counterparty.clone_from(&other.counterparty);
+        }
         fill(&mut self.counterparty, &other.counterparty);
         fill(&mut self.note, &other.note);
         fill(&mut self.ttl_cutoff_height, &other.ttl_cutoff_height);
@@ -131,7 +154,6 @@ impl Record {
                 self.output_commits.push(c.clone());
             }
         }
-        let newer = other.exported_at_unix.unwrap_or(0) > self.exported_at_unix.unwrap_or(0);
         if newer && !(pending(&other.status) && !pending(&self.status)) {
             self.status.clone_from(&other.status);
             self.confirmed = other.confirmed;
@@ -205,8 +227,9 @@ fn io_err(what: &str, path: &Path, e: std::io::Error) -> CoreError {
 
 /// Writes `bytes` to `path` so a crash leaves either the old file or the new one.
 pub(crate) fn write_atomic(path: &Path, bytes: &[u8]) -> CoreResult<()> {
+    // The directory must exist: a wallet deleted while a call on it was still running must not
+    // come back as a directory holding only this file.
     let dir = path.parent().unwrap_or_else(|| Path::new("."));
-    fs::create_dir_all(dir).map_err(|e| io_err("creating", dir, e))?;
     let tmp = path.with_extension("tmp");
     {
         let mut f = File::create(&tmp).map_err(|e| io_err("creating", &tmp, e))?;
@@ -348,6 +371,21 @@ mod tests {
     }
 
     #[test]
+    fn a_write_never_recreates_a_deleted_wallet_directory() {
+        let dir = tempfile::tempdir().unwrap();
+        let data_dir = dir.path().join("wallet");
+        fs::create_dir_all(&data_dir).unwrap();
+        let store = MetaStore::open(data_dir.to_str().unwrap()).unwrap();
+        fs::remove_dir_all(&data_dir).unwrap();
+        let r = store.update(|m| {
+            m.notes.insert("k".into(), "v".into());
+            Ok(())
+        });
+        assert!(r.is_err());
+        assert!(!data_dir.exists(), "the deleted directory stays deleted");
+    }
+
+    #[test]
     fn failed_update_changes_nothing() {
         let dir = tempfile::tempdir().unwrap();
         let store = MetaStore::open(dir.path().to_str().unwrap()).unwrap();
@@ -443,18 +481,24 @@ mod tests {
         assert_eq!(stored.output_commits, ["c"]);
         assert_eq!(stored.exported_at_unix, Some(200));
 
+        // A newer file's edited note replaces the stored one.
+        let mut edited = rec("Confirmed", 250);
+        edited.note = Some("rent, March".into());
+        assert!(stored.merge_from(&edited));
+        assert_eq!(stored.note.as_deref(), Some("rent, March"));
+
         // An older file fills gaps but never changes the status or an existing note.
         let mut older = rec("AwaitingRecipient", 50);
         older.note = Some("old note".into());
         older.counterparty = Some("bob".into());
         assert!(stored.merge_from(&older));
         assert_eq!(stored.status, "Confirmed");
-        assert_eq!(stored.note.as_deref(), Some("rent"));
+        assert_eq!(stored.note.as_deref(), Some("rent, March"));
         assert_eq!(stored.counterparty.as_deref(), Some("bob"));
 
         // A newer file that is still pending does not undo a settled status.
         let mut stale = rec("AwaitingConfirmation", 300);
-        stale.note = Some("rent".into());
+        stale.note = Some("rent, March".into());
         assert!(!stored.merge_from(&stale));
         assert_eq!(stored.status, "Confirmed");
     }

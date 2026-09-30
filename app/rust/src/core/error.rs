@@ -25,6 +25,9 @@ pub(crate) enum CoreError {
     /// The epicbox relay, or the recipient's HTTP listener, could not be reached or refused.
     #[error("{0}")]
     Relay(String),
+    /// A wallet is still in use (a call is running on it) or being deleted.
+    #[error("{0}")]
+    Busy(String),
     /// Reading or writing one of the app's own files failed.
     #[error("{0}")]
     Io(String),

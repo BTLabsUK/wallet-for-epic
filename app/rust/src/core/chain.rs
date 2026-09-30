@@ -5,6 +5,7 @@
 //! to one chain at a time. Every open wallet holds a [`ChainLease`]; the chain can only change while
 //! no lease is alive, so a mainnet wallet can never run with usernet parameters underneath it.
 
+use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::{Condvar, Mutex, MutexGuard};
 use std::time::{Duration, Instant};
 
@@ -27,6 +28,8 @@ struct State {
 struct Registry {
     state: Mutex<State>,
     released: Condvar,
+    /// Threads waiting to switch chains. Long tasks check it and stop early.
+    waiting: AtomicUsize,
 }
 
 impl Registry {
@@ -37,6 +40,7 @@ impl Registry {
                 leases: 0,
             }),
             released: Condvar::new(),
+            waiting: AtomicUsize::new(0),
         }
     }
 
@@ -65,11 +69,13 @@ impl Registry {
                             requested: chain,
                         });
                     }
+                    self.waiting.fetch_add(1, Ordering::SeqCst);
                     s = self
                         .released
                         .wait_timeout(s, left)
                         .unwrap_or_else(|p| p.into_inner())
                         .0;
+                    self.waiting.fetch_sub(1, Ordering::SeqCst);
                 }
                 _ => break,
             }
@@ -92,6 +98,12 @@ impl Registry {
 }
 
 static REGISTRY: Registry = Registry::new();
+
+/// True while a wallet on another chain is waiting for the current chain's wallets to close.
+/// Optional work (`enrich_history`) stops early so the switch does not time out.
+pub(crate) fn switch_pending() -> bool {
+    REGISTRY.waiting.load(Ordering::SeqCst) > 0
+}
 
 fn chain_type(chain: Chain) -> ChainTypes {
     match chain {
@@ -140,6 +152,13 @@ mod tests {
                 r.release();
             })
         };
+        let watcher = {
+            let r = r.clone();
+            std::thread::spawn(move || {
+                std::thread::sleep(Duration::from_millis(100));
+                r.waiting.load(Ordering::SeqCst)
+            })
+        };
         let start = Instant::now();
         let mut selected = None;
         r.acquire(Chain::Floonet, Duration::from_secs(5), |c| {
@@ -149,6 +168,8 @@ mod tests {
         assert!(start.elapsed() >= Duration::from_millis(150), "it waited");
         assert_eq!(selected, Some(Chain::Floonet));
         releaser.join().unwrap();
+        assert_eq!(watcher.join().unwrap(), 1, "the waiting switch was visible");
+        assert_eq!(r.waiting.load(Ordering::SeqCst), 0);
     }
 
     #[test]

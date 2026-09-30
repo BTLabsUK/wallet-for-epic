@@ -6,7 +6,6 @@ library;
 
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 import 'dart:typed_data';
 
 import 'rust/api/types.dart';
@@ -64,6 +63,11 @@ abstract interface class WalletSession {
   /// Posts a finalized send that never reached the chain again ([TxEntry.repostable]). Its
   /// inputs stay locked until it confirms.
   Future<void> repostTransaction({required String key});
+
+  /// Unlocks the funds of a finished payment the network refused and that has not reached it
+  /// for a day of blocks ([TxEntry.releasable]). Refuses with [WalletErrorKind.invalidArgument]
+  /// when the node shows the payment on chain or in its pool.
+  Future<void> releaseStuckSend({required String key});
 
   Future<Slate> createSendSlate({
     required BigInt amount,
@@ -190,11 +194,11 @@ class RustWalletService implements WalletService {
     await rust.EpicWallet.open(config: config, password: password),
   );
 
+  /// In Rust: waits for calls still running on the wallet, so nothing writes into the directory
+  /// after it is gone.
   @override
-  Future<void> deleteWallet({required WalletConfig config}) async {
-    final dir = Directory(config.dataDir);
-    if (await dir.exists()) await dir.delete(recursive: true);
-  }
+  Future<void> deleteWallet({required WalletConfig config}) =>
+      rust.deleteWallet(config: config);
 }
 
 class _RustWalletSession implements WalletSession {
@@ -218,6 +222,10 @@ class _RustWalletSession implements WalletSession {
   @override
   Future<void> repostTransaction({required String key}) =>
       _wallet.repostTransaction(key: key);
+
+  @override
+  Future<void> releaseStuckSend({required String key}) =>
+      _wallet.releaseStuckSend(key: key);
 
   @override
   Future<Slate> createSendSlate({
@@ -530,6 +538,21 @@ class FakeWalletSession implements WalletSession {
       );
     }
     repostedKeys.add(key);
+  }
+
+  /// Keys passed to [releaseStuckSend].
+  final List<String> releasedKeys = [];
+
+  @override
+  Future<void> releaseStuckSend({required String key}) async {
+    final tx = transactionsValue.where((t) => t.key == key).firstOrNull;
+    if (tx == null || !tx.releasable) {
+      throw const WalletError(
+        kind: WalletErrorKind.invalidArgument,
+        message: 'only a payment the network refused can be released',
+      );
+    }
+    releasedKeys.add(key);
   }
 
   @override
@@ -865,6 +888,8 @@ TxEntry fakeTx({
   bool cancellable = false,
   bool repostable = false,
   String? statusDetail,
+  bool releasable = false,
+  int? finalizedAtUnix,
 }) {
   final resolvedStatus =
       status ??
@@ -902,6 +927,8 @@ TxEntry fakeTx({
     cancellable: cancellable,
     repostable: repostable,
     statusDetail: statusDetail,
+    releasable: releasable,
+    finalizedAtUnix: finalizedAtUnix,
   );
 }
 
@@ -931,4 +958,6 @@ TxEntry copyTx(TxEntry tx, {String? note}) => TxEntry(
   cancellable: tx.cancellable,
   repostable: tx.repostable,
   statusDetail: tx.statusDetail,
+  releasable: tx.releasable,
+  finalizedAtUnix: tx.finalizedAtUnix,
 );

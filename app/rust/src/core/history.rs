@@ -48,6 +48,9 @@ pub(crate) struct MergedTx {
     pub kernel_lookup_min_height: Option<u64>,
     pub messages: Option<serde_json::Value>,
     pub payment_proof: Option<serde_json::Value>,
+    /// For a finalized send the node refused: the height after which a kernel that is still not
+    /// on chain makes it releasable. `enrich` looks the kernel up once the tip passes it.
+    pub release_check_after: Option<u64>,
 }
 
 pub(crate) fn kind_of(t: &TxLogEntryType) -> TxKind {
@@ -207,10 +210,23 @@ fn from_live(live: &LiveTx, meta: &Meta) -> MergedTx {
     let t = &live.entry;
     let slate_id = t.tx_slate_id.map(|u| u.to_string());
     let ann = slate_id.as_ref().and_then(|s| meta.annotations.get(s));
-    let kernel_excess = t
-        .kernel_excess
-        .map(|c| to_hex(c.0.to_vec()))
-        .or_else(|| ann.and_then(|a| a.kernel_excess.clone()));
+    let finalized = live.finalized
+        || ann.is_some_and(|a| a.finalized)
+        || t.tx_type == TxLogEntryType::TxSentMempool;
+    let log_kernel = t.kernel_excess.map(|c| to_hex(c.0.to_vec()));
+    let ann_kernel = ann.and_then(|a| a.kernel_excess.clone());
+    // A send's kernel is final only once it is finalized: at lock time epic-wallet stores
+    // `calc_excess` of the slate before the recipient's output is in (`selection.rs:147-150`).
+    // That value is never shown, exported or looked up.
+    let kernel_excess = if is_send(&t.tx_type) {
+        if finalized || t.confirmed {
+            ann_kernel.or(log_kernel)
+        } else {
+            None
+        }
+    } else {
+        log_kernel.or(ann_kernel)
+    };
     let restored = t.public_addr.as_deref() == Some(RESTORE_ADDR);
     let counterparty = ann
         .and_then(|a| some_str(&a.counterparty))
@@ -244,6 +260,31 @@ fn from_live(live: &LiveTx, meta: &Meta) -> MergedTx {
             t.tx_type,
             TxLogEntryType::TxSentCreated | TxLogEntryType::TxSent | TxLogEntryType::TxSentMempool
         );
+    // Releasing (cancel after the fact) only for a send the node refused, whose kernel a lookup
+    // did not find on chain at least a day of blocks after it was finalized.
+    let refused = ann.is_some_and(|a| a.post_refused);
+    let release_check_after = if repostable && refused && t.tx_type == TxLogEntryType::TxSentCreated
+    {
+        ann.and_then(|a| a.finalized_height)
+            .or(t.kernel_lookup_min_height)
+            .map(|h| h.saturating_add(BLOCKS_PER_DAY))
+    } else {
+        None
+    };
+    let releasable = release_check_after.is_some_and(|after| {
+        ann.and_then(|a| a.kernel_absent_at)
+            .is_some_and(|tip| tip >= after)
+    });
+    let status_detail = if repostable {
+        ann.and_then(|a| a.post_error.as_deref()).map(|e| {
+            format!(
+                "The network has not taken this payment yet: {}",
+                e.lines().next().unwrap_or(e)
+            )
+        })
+    } else {
+        None
+    };
     let tx = TxEntry {
         key: String::new(),
         id: Some(t.id),
@@ -272,9 +313,12 @@ fn from_live(live: &LiveTx, meta: &Meta) -> MergedTx {
         ttl_cutoff_height: t.ttl_cutoff_height,
         cancellable,
         repostable,
-        status_detail: None,
+        status_detail,
+        releasable,
+        finalized_at_unix: ann.and_then(|a| a.finalized_at_unix),
     };
     MergedTx {
+        release_check_after,
         tx,
         aliases: Vec::new(),
         kernel_lookup_min_height: t.kernel_lookup_min_height,
@@ -316,8 +360,11 @@ fn from_record(r: &Record) -> MergedTx {
         cancellable: false,
         repostable: false,
         status_detail: some_str(&r.status_detail),
+        releasable: false,
+        finalized_at_unix: None,
     };
     MergedTx {
+        release_check_after: None,
         tx,
         aliases: Vec::new(),
         kernel_lookup_min_height: r.kernel_lookup_min_height,
@@ -515,7 +562,8 @@ pub(crate) fn merge(live: &[LiveTx], meta: &Meta) -> Vec<MergedTx> {
         if tx.block_time_unix.is_none() {
             tx.block_time_unix = tx
                 .block_height
-                .and_then(|h| meta.block_times.get(&h).copied());
+                .and_then(|h| meta.block_times.get(&h).copied())
+                .filter(|t| *t > 0);
         }
         tx.time_unix = match tx.source {
             TxSource::Restored => tx.block_time_unix.unwrap_or(tx.created_at_unix),
@@ -633,10 +681,9 @@ pub(crate) enum Settlement {
 pub(crate) fn needs_settling(m: &MergedTx) -> bool {
     m.tx.id.is_none()
         && m.tx.source == TxSource::Imported
-        && matches!(
-            m.tx.status,
-            TxStatus::AwaitingRecipient | TxStatus::AwaitingConfirmation
-        )
+        // Only a record whose kernel is final: one still awaiting the recipient was never
+        // finalized when exported, so its kernel cannot be on chain.
+        && m.tx.status == TxStatus::AwaitingConfirmation
         && m.tx.kernel_excess.is_some()
         && m.kernel_lookup_min_height.is_some()
 }
@@ -1096,6 +1143,126 @@ pub(crate) mod tests {
         assert_eq!(note(1).as_deref(), Some("for the send"));
         assert_eq!(note(2), None);
         assert!(shared_aliases(&merged).contains(&format!("s:{slate}")));
+    }
+
+    fn kernel(b: u8) -> epic_wallet_util::epic_util::secp::pedersen::Commitment {
+        epic_wallet_util::epic_util::secp::pedersen::Commitment::from_vec(vec![b; 33])
+    }
+
+    #[test]
+    fn an_unfinalized_sends_kernel_is_never_shown() {
+        let mut waiting = entry(1, TxLogEntryType::TxSentCreated);
+        waiting.tx_slate_id = Some(uuid::Uuid::from_u128(1));
+        waiting.kernel_excess = Some(kernel(8)); // calc_excess at lock time: not final
+        let mut recv = entry(2, TxLogEntryType::TxReceived);
+        recv.kernel_excess = Some(kernel(9));
+        let mut done = entry(3, TxLogEntryType::TxSent);
+        done.confirmed = true;
+        done.kernel_excess = Some(kernel(7));
+        let merged = merge(
+            &[
+                live(waiting.clone(), &[], None),
+                live(recv, &[], None),
+                live(done, &[], None),
+            ],
+            &Meta::default(),
+        );
+        let k = |i: u32| {
+            merged
+                .iter()
+                .find(|m| m.tx.id == Some(i))
+                .unwrap()
+                .tx
+                .kernel_excess
+                .clone()
+        };
+        assert_eq!(k(1), None);
+        assert!(k(2).is_some() && k(3).is_some());
+        assert!(
+            to_record(merged.iter().find(|m| m.tx.id == Some(1)).unwrap())
+                .kernel_excess
+                .is_none()
+        );
+
+        // Once finalized, the annotation's final kernel is the one shown.
+        let mut meta = Meta::default();
+        meta.annotations.insert(
+            uuid::Uuid::from_u128(1).to_string(),
+            crate::core::meta::Annotation {
+                finalized: true,
+                kernel_excess: Some("08final".into()),
+                finalized_at_unix: Some(1_800_000_000),
+                ..Default::default()
+            },
+        );
+        let m = &merge(&[live(waiting, &[], None)], &meta)[0].tx;
+        assert_eq!(m.kernel_excess.as_deref(), Some("08final"));
+        assert_eq!(m.finalized_at_unix, Some(1_800_000_000));
+    }
+
+    #[test]
+    fn only_records_awaiting_confirmation_are_settled() {
+        let mut r = record(None, Some("kern"), &[]);
+        r.status = "AwaitingRecipient".into();
+        r.confirmed = false;
+        r.kernel_lookup_min_height = Some(100);
+        let mut meta = Meta::default();
+        meta.records.push(r);
+        assert!(!needs_settling(&merge(&[], &meta)[0]));
+    }
+
+    #[test]
+    fn a_refused_send_becomes_releasable_only_after_a_day_without_its_kernel() {
+        let slate = uuid::Uuid::from_u128(4);
+        let mut e = entry(1, TxLogEntryType::TxSentCreated);
+        e.tx_slate_id = Some(slate);
+        let mut l = live(e, &[], None);
+        l.finalized = true;
+        let ann = |refused: bool, absent: Option<u64>| crate::core::meta::Annotation {
+            finalized: true,
+            kernel_excess: Some("08k".into()),
+            finalized_height: Some(1_000),
+            post_error: Some("Unable to parse response for push_transaction: refused".into()),
+            post_refused: refused,
+            kernel_absent_at: absent,
+            ..Default::default()
+        };
+        let row = |a| {
+            let mut meta = Meta::default();
+            meta.annotations.insert(slate.to_string(), a);
+            merge(&[l.clone()], &meta).remove(0)
+        };
+        let not_refused = row(ann(false, Some(5_000)));
+        assert!(!not_refused.tx.releasable, "only after the node refused it");
+        assert_eq!(not_refused.release_check_after, None);
+        assert!(not_refused.tx.repostable);
+        assert!(not_refused
+            .tx
+            .status_detail
+            .as_deref()
+            .unwrap()
+            .starts_with("The network has not taken"));
+
+        let fresh = row(ann(true, None));
+        assert_eq!(fresh.release_check_after, Some(1_000 + BLOCKS_PER_DAY));
+        assert!(!fresh.tx.releasable, "no lookup yet");
+        assert!(
+            !row(ann(true, Some(1_000 + BLOCKS_PER_DAY - 1)))
+                .tx
+                .releasable,
+            "too soon"
+        );
+        assert!(row(ann(true, Some(1_000 + BLOCKS_PER_DAY))).tx.releasable);
+    }
+
+    #[test]
+    fn a_block_time_the_node_lacks_is_cached_but_not_shown() {
+        let mut e = entry(1, TxLogEntryType::TxReceived);
+        e.confirmed = true;
+        let mut meta = Meta::default();
+        meta.block_times.insert(5, 0);
+        let m = &merge(&[live(e, &["c"], Some(5))], &meta)[0].tx;
+        assert_eq!(m.block_time_unix, None);
     }
 
     #[test]

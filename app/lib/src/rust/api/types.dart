@@ -297,6 +297,13 @@ class TxEntry {
   /// reached the chain.
   final String? statusDetail;
 
+  /// True for a finalized send the node refused and whose kernel was still not on chain a day
+  /// of blocks after it was finalized: `release_stuck_send(key)` unlocks its funds.
+  final bool releasable;
+
+  /// When this wallet finalized the send (unix seconds), if it did.
+  final PlatformInt64? finalizedAtUnix;
+
   const TxEntry({
     required this.key,
     this.id,
@@ -322,6 +329,8 @@ class TxEntry {
     required this.cancellable,
     required this.repostable,
     this.statusDetail,
+    required this.releasable,
+    this.finalizedAtUnix,
   });
 
   @override
@@ -349,7 +358,9 @@ class TxEntry {
       ttlCutoffHeight.hashCode ^
       cancellable.hashCode ^
       repostable.hashCode ^
-      statusDetail.hashCode;
+      statusDetail.hashCode ^
+      releasable.hashCode ^
+      finalizedAtUnix.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -379,7 +390,9 @@ class TxEntry {
           ttlCutoffHeight == other.ttlCutoffHeight &&
           cancellable == other.cancellable &&
           repostable == other.repostable &&
-          statusDetail == other.statusDetail;
+          statusDetail == other.statusDetail &&
+          releasable == other.releasable &&
+          finalizedAtUnix == other.finalizedAtUnix;
 }
 
 enum TxKind { coinbase, received, sent, receivedCancelled, sentCancelled }
@@ -487,6 +500,10 @@ enum WalletErrorKind {
 
   /// The epicbox relay or the recipient's HTTP listener could not be reached, or refused.
   transportFailed,
+
+  /// A wallet is still open on another network, or a call on this wallet is still running
+  /// (network switch, delete). Waiting a moment and trying again usually works.
+  chainBusy,
   io,
   other,
 }

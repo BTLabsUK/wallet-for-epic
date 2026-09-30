@@ -10,7 +10,7 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 import 'types.dart';
 
 // These functions are ignored because they are not marked as `pub`: `kind_of`, `to_api`
-// These functions are ignored (category: IgnoreBecauseExplicitAttribute): `scan_with`, `start_listener_with`
+// These functions are ignored (category: IgnoreBecauseExplicitAttribute): `scan_with`, `set_send_ttl_blocks_for_tests`, `start_listener_with`
 
 /// Generates a new BIP-39 recovery phrase. `word_count` is 12 or 24.
 String generateMnemonic({required int wordCount}) =>
@@ -32,6 +32,14 @@ SlateInfo inspectSlate({required String json}) =>
 /// True for `<52-char address>@<relay>[:port]` whose key is valid on the current chain.
 bool validateEpicboxAddress({required String address}) =>
     RustLib.instance.api.crateApiWalletValidateEpicboxAddress(address: address);
+
+/// Deletes the wallet in `config.data_dir`: its seed, epic-wallet's database and the history
+/// archive. Waits up to 20 s for every open wallet on that directory to be dropped and for calls
+/// still running on it to return, and keeps new ones out meanwhile, so nothing writes into the
+/// directory after it is gone. Fails with `ChainBusy` if the wallet is still busy then.
+/// Only the recovery phrase can bring the wallet back.
+Future<void> deleteWallet({required WalletConfig config}) =>
+    RustLib.instance.api.crateApiWalletDeleteWallet(config: config);
 
 /// Current tip of the configured node, without opening a wallet.
 Future<NodeTip> nodeTip({required WalletConfig config}) =>
@@ -115,6 +123,11 @@ abstract class EpicWallet implements RustOpaqueInterface {
 
   /// Recipient side: signs an incoming send slate and returns the response slate JSON.
   Future<Slate> receiveSlate({required String slateJson});
+
+  /// Unlocks the funds of a finalized payment the node refused and that never reached the
+  /// chain (`TxEntry.releasable`). Checks the chain and the node's pool once more first and
+  /// refuses with `InvalidArgument` if the payment is in either.
+  Future<void> releaseStuckSend({required String key});
 
   /// Posts a finalized send that never reached the chain to the node again (`TxEntry.repostable`).
   /// Its inputs stay locked until it confirms; there is no safe way to release them early.

@@ -513,8 +513,10 @@ impl Worker {
             .verify_slate_messages(mask, slate)
             .map_err(|e| CoreError::InvalidSlate(e.to_string()))?;
         let finalized = self.owner.finalize_tx(mask, slate)?;
-        super::session::record_finalized(&self.meta, &finalized);
-        self.owner.post_tx(mask, &finalized.tx, true)?;
+        let height = super::session::wallet_height(&self.wallet);
+        super::session::record_finalized(&self.meta, &finalized, height);
+        // A failed post is recorded: the payment shows as not taken yet, and repostable.
+        super::session::post_recorded(&self.owner, mask, &self.meta, &finalized)?;
         Ok((
             ListenerEventKind::Finalized,
             format!(

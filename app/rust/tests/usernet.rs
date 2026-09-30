@@ -23,7 +23,7 @@ use std::time::{Duration, Instant};
 use common::*;
 use epic_wallet_core::api::types::SlateStage;
 use epic_wallet_core::api::types::{
-    Chain, Contact, TxKind, TxSource, TxStatus, WalletConfig, WalletErrorKind,
+    Chain, Contact, ListenerEventKind, TxKind, TxSource, TxStatus, WalletConfig, WalletErrorKind,
 };
 use epic_wallet_core::api::wallet::{inspect_slate, node_tip, EpicWallet};
 
@@ -300,10 +300,22 @@ fn usernet_end_to_end() {
     drop(a);
     let offline = EpicWallet::open(config(&dir_a, Chain::Usernet, DEAD_NODE), PASSWORD.into())
         .expect("open A offline");
-    assert_eq!(
-        kind_of(offline.finalize_and_post(stuck_reply.json)),
-        WalletErrorKind::NodeUnreachable
+    // The post fails, but the payment is finished: a result, not an error, so nobody sends again.
+    let finished = offline
+        .finalize_and_post(stuck_reply.json)
+        .expect("a finished payment is a result even when the post fails");
+    assert!(finished.repostable);
+    assert!(!finished.cancellable);
+    assert!(
+        finished
+            .status_detail
+            .as_deref()
+            .is_some_and(|d| d.starts_with("The network has not taken this payment yet")),
+        "{:?}",
+        finished.status_detail
     );
+    assert!(finished.finalized_at_unix.is_some());
+    assert!(finished.kernel_excess.is_some(), "the final kernel");
     drop(offline);
     a = EpicWallet::open(config(&dir_a, Chain::Usernet, NODE_URL), PASSWORD.into())
         .expect("reopen A");
@@ -316,6 +328,10 @@ fn usernet_end_to_end() {
     assert_eq!(stuck_row.status, TxStatus::AwaitingConfirmation);
     assert!(stuck_row.repostable);
     assert!(!stuck_row.cancellable);
+    assert!(
+        !stuck_row.releasable,
+        "the node never refused it, it was only unreachable"
+    );
     a.repost_transaction(stuck_row.key.clone()).expect("repost");
     net.mine_until(
         "the reposted send confirmed",
@@ -331,9 +347,54 @@ fn usernet_end_to_end() {
     assert_eq!(settled.status, TxStatus::Confirmed);
     assert!(!settled.repostable);
     assert_eq!(
+        settled.status_detail, None,
+        "the repost cleared the post error"
+    );
+    assert_eq!(
         kind_of(a.repost_transaction(settled.key)),
         WalletErrorKind::InvalidArgument
     );
+
+    // 3c. Every send has a TTL (20160 blocks). Past it, a refresh cancels the send and unlocks
+    // its funds, and a late answer is refused. A 3-block TTL here, through the test hook.
+    assert!(
+        stuck_row
+            .ttl_cutoff_height
+            .is_some_and(|c| c >= height() + 20_000),
+        "sends carry the 14-day TTL: {:?}",
+        stuck_row.ttl_cutoff_height
+    );
+    a.set_send_ttl_blocks_for_tests(3);
+    let before_ttl = a.summary(true, MIN_CONF).expect("summary");
+    let short = a
+        .create_send_slate(EPIC, MIN_CONF)
+        .expect("short-lived slate");
+    a.set_send_ttl_blocks_for_tests(20_160);
+    assert!(a.summary(false, MIN_CONF).expect("summary").locked > 0);
+    let cutoff = height() + 3;
+    net.mine_until("past the short TTL", Duration::from_secs(300), || {
+        height() > cutoff + 1
+    });
+    b.summary(true, MIN_CONF).expect("B refresh");
+    assert_eq!(
+        kind_of(b.receive_slate(short.json)),
+        WalletErrorKind::InvalidSlate,
+        "an expired payment is refused"
+    );
+    let after_ttl = a.summary(true, MIN_CONF).expect("summary");
+    assert_eq!(
+        after_ttl.locked, 0,
+        "the refresh cancelled it and unlocked the funds"
+    );
+    assert_eq!(after_ttl.spendable, before_ttl.spendable);
+    let expired = a
+        .transactions(false)
+        .expect("txs")
+        .into_iter()
+        .find(|t| t.slate_id.as_deref() == Some(short.slate_id.as_str()))
+        .expect("the expired send");
+    assert_eq!(expired.status, TxStatus::Cancelled);
+    assert_eq!(expired.kind, TxKind::SentCancelled);
 
     // 3b. A pays alice over HTTP with a note and a contact: the history a restore must bring back.
     let alice_url = "http://127.0.0.1:23415";
@@ -509,4 +570,207 @@ fn usernet_end_to_end() {
         .find(|t| t.key == to_b.key)
         .expect("the send to B, from the backup");
     assert_eq!(noted.note.as_deref(), Some("first payment to B"));
+}
+
+/// A stock epic-wallet 4.0.0 CLI, the upstream release, used as an epicbox sender.
+const STOCK_CLI: &str = "/opt/epic/user-env/bin/epic-wallet";
+const CLI_PASS: &str = "stock-cli-usernet";
+/// The local relay: `/opt/epic/epic-relay`, run as its README documents, epicbox protocol 3.0.0.
+const RELAY_HOST: &str = "127.0.0.1";
+const RELAY_PORT: u16 = 3423;
+
+/// A throwaway stock CLI wallet on usernet whose epicbox is the local relay.
+struct StockCli {
+    dir: tempfile::TempDir,
+    listener: Option<std::process::Child>,
+}
+
+impl StockCli {
+    fn command(&self, args: &[&str], log: &str) -> Command {
+        let out = File::create(PathBuf::from(LOG_DIR).join(log)).expect("log");
+        let err = out.try_clone().expect("log");
+        let mut c = Command::new(STOCK_CLI);
+        c.args(["--usernet", "--pass", CLI_PASS])
+            .args(args)
+            .current_dir(self.dir.path())
+            .stdin(Stdio::null())
+            .stdout(out)
+            .stderr(err);
+        c
+    }
+
+    /// Runs `args` and returns its output. Never used for commands that print the phrase.
+    fn run(&self, step: &str, args: &[&str]) -> String {
+        let log = format!("core4-cli-{step}.log");
+        let status = self.command(args, &log).status().expect("cli");
+        let text = fs::read_to_string(PathBuf::from(LOG_DIR).join(&log)).unwrap_or_default();
+        assert!(status.success(), "cli {step} failed, see {LOG_DIR}/{log}");
+        text
+    }
+
+    fn create() -> StockCli {
+        let cli = StockCli {
+            dir: tempfile::tempdir().expect("tempdir"),
+            listener: None,
+        };
+        // `init` prints the recovery phrase: its output goes nowhere.
+        let status = Command::new(STOCK_CLI)
+            .args(["--usernet", "--pass", CLI_PASS, "init", "-w"])
+            .current_dir(cli.dir.path())
+            .stdin(Stdio::null())
+            .stdout(Stdio::null())
+            .stderr(Stdio::null())
+            .status()
+            .expect("cli init");
+        assert!(status.success(), "cli init failed");
+        let toml = cli.dir.path().join("epic-wallet.toml");
+        let text = fs::read_to_string(&toml).expect("toml");
+        let text = text
+            .lines()
+            .map(|l| match l.split('=').next().unwrap_or("").trim() {
+                "api_listen_port" => "api_listen_port = 23893".to_owned(),
+                "owner_api_listen_port" => "owner_api_listen_port = 23894".to_owned(),
+                "check_node_api_http_addr" => format!("check_node_api_http_addr = \"{NODE_URL}\""),
+                "node_api_secret_path" => format!("#{l}"),
+                "use_tor_listener" => "use_tor_listener = false".to_owned(),
+                "epicbox_domain" => format!("epicbox_domain = \"{RELAY_HOST}\""),
+                "epicbox_port" => format!("epicbox_port = {RELAY_PORT}"),
+                "epicbox_protocol_unsecure" => "epicbox_protocol_unsecure = true".to_owned(),
+                _ => l.to_owned(),
+            })
+            .collect::<Vec<_>>()
+            .join("\n");
+        fs::write(&toml, text).expect("write toml");
+        cli
+    }
+
+    fn spendable(&self) -> u64 {
+        let info = self.run("info", &["info", "--min_conf", &MIN_CONF.to_string()]);
+        let line = info
+            .lines()
+            .find(|l| l.contains("Currently Spendable"))
+            .expect("info has a spendable line");
+        let value = line.rsplit('|').next().unwrap_or("").trim();
+        let (whole, frac) = value.split_once('.').unwrap_or((value, "0"));
+        let frac = format!("{frac:0<8}");
+        whole.parse::<u64>().unwrap_or(0) * EPIC + frac[..8].parse::<u64>().unwrap_or(0)
+    }
+
+    fn listen(&mut self) {
+        let child = self
+            .command(&["listen", "-m", "epicbox"], "core4-cli-listen.log")
+            .spawn()
+            .expect("cli listen");
+        self.listener = Some(child);
+    }
+}
+
+impl Drop for StockCli {
+    fn drop(&mut self) {
+        if let Some(mut c) = self.listener.take() {
+            let _ = c.kill();
+            let _ = c.wait();
+        }
+    }
+}
+
+/// The question behind round 4: when an upstream wallet sends to us over epicbox, can it finalize
+/// the reply our listener sends back? The stock CLI publishes the slate before it locks its
+/// outputs (`controller/src/command.rs`, `send`, method "epicbox"), so a reply that arrives first
+/// finds no transaction to finalize. Several sends in a row, each must reach the chain.
+#[test]
+#[ignore = "needs the usernet stable network and the local epicbox relay on 127.0.0.1:3423"]
+fn stock_cli_sender_finalizes_our_epicbox_replies() {
+    init_logging();
+    assert!(
+        std::net::TcpStream::connect((RELAY_HOST, RELAY_PORT)).is_ok(),
+        "start the local relay first: cd /opt/epic/epic-relay && \
+         EPIC_RELAY_EPICBOX_DOMAIN=127.0.0.1 EPIC_RELAY_ALIASES=localhost:3423 uv run epic-relay"
+    );
+    let mut net = Network::up();
+    let dirs = tempfile::tempdir().expect("tempdir");
+    let mut cfg = config(&dirs.path().join("b"), Chain::Usernet, NODE_URL);
+    cfg.epicbox_domain = RELAY_HOST.into();
+    cfg.epicbox_port = RELAY_PORT;
+    let b = EpicWallet::create(cfg, None, PASSWORD.into()).expect("create B");
+    let (tx, events) = std::sync::mpsc::channel();
+    b.start_listener_with(move |e| {
+        eprintln!("  B listener: {:?} {}", e.kind, e.message);
+        let _ = tx.send(e);
+    });
+    let connected = events
+        .recv_timeout(Duration::from_secs(30))
+        .expect("B's listener event");
+    assert_eq!(
+        connected.kind,
+        ListenerEventKind::Connected,
+        "{}",
+        connected.message
+    );
+    let b_address = b.epicbox_address().expect("address");
+
+    // Fund the CLI from alice with a file slate, as a user would.
+    let mut cli = StockCli::create();
+    let slates = dirs.path().join("slates");
+    fs::create_dir_all(&slates).expect("slates");
+    let fund = slates.join("cli.tx");
+    net_shell(
+        "core4-alice-send",
+        &format!(
+            "w alice send -m file -d {} -c \"$MIN_CONF\" 3",
+            fund.display()
+        ),
+        300,
+    );
+    cli.run("receive", &["receive", "-i", &fund.to_string_lossy()]);
+    net_shell(
+        "core4-alice-finalize",
+        &format!("w alice finalize -f -i {}.response", fund.display()),
+        300,
+    );
+    net.mine_until(
+        "the CLI's 3 EPIC spendable",
+        Duration::from_secs(600),
+        || cli.spendable() == 3 * EPIC,
+    );
+    cli.listen();
+    std::thread::sleep(Duration::from_secs(5));
+
+    let each = EPIC / 10;
+    for round in 1..=3u64 {
+        cli.run(
+            &format!("send-{round}"),
+            &[
+                "send",
+                "-m",
+                "epicbox",
+                "-d",
+                &b_address,
+                "-c",
+                &MIN_CONF.to_string(),
+                "0.1",
+            ],
+        );
+        loop {
+            let e = events
+                .recv_timeout(Duration::from_secs(60))
+                .expect("B hears the send");
+            if e.kind == ListenerEventKind::Received {
+                assert_eq!(e.amount, Some(each));
+                break;
+            }
+            assert_ne!(e.kind, ListenerEventKind::Error, "{}", e.message);
+        }
+        net.mine_until(
+            &format!("send {round} confirmed at B"),
+            Duration::from_secs(300),
+            || spendable(&b) == round * each,
+        );
+    }
+    let log =
+        fs::read_to_string(PathBuf::from(LOG_DIR).join("core4-cli-listen.log")).unwrap_or_default();
+    assert!(
+        !log.contains("TransactionDoesntExist"),
+        "the CLI could not finalize a reply"
+    );
 }

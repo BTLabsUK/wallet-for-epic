@@ -114,6 +114,11 @@ pub struct TxEntry {
     /// Why the status is what it is, when that is not obvious, e.g. an imported send that never
     /// reached the chain.
     pub status_detail: Option<String>,
+    /// True for a finalized send the node refused and whose kernel was still not on chain a day
+    /// of blocks after it was finalized: `release_stuck_send(key)` unlocks its funds.
+    pub releasable: bool,
+    /// When this wallet finalized the send (unix seconds), if it did.
+    pub finalized_at_unix: Option<i64>,
 }
 
 /// An address book entry. An empty `id` in `save_contact` creates a new one.
@@ -192,6 +197,9 @@ pub enum WalletErrorKind {
     InvalidArgument,
     /// The epicbox relay or the recipient's HTTP listener could not be reached, or refused.
     TransportFailed,
+    /// A wallet is still open on another network, or a call on this wallet is still running
+    /// (network switch, delete). Waiting a moment and trying again usually works.
+    ChainBusy,
     Io,
     Other,
 }

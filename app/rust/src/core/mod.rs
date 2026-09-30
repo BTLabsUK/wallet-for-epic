@@ -1,5 +1,6 @@
 //! Implementation behind `api`. Nothing here is visible to Dart.
 pub(crate) mod chain;
+pub(crate) mod dirlock;
 pub(crate) mod epicbox;
 pub(crate) mod error;
 pub(crate) mod export;

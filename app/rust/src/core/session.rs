@@ -8,7 +8,7 @@
 //! Every method is blocking. epic-wallet's HTTP node client runs requests with `block_on` on its
 //! own global tokio runtime and panics if called from inside another runtime.
 
-use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
 use std::sync::mpsc;
 use std::sync::Arc;
 
@@ -30,6 +30,7 @@ use epic_wallet_util::epic_util::{Mutex, ZeroingString};
 use zeroize::Zeroizing;
 
 use super::chain::ChainLease;
+use super::dirlock::DirLease;
 use super::epicbox::{self, Identity, Listener};
 use super::error::{CoreError, CoreResult};
 use super::history::{self, LiveTx, MergedTx};
@@ -38,7 +39,7 @@ use super::node::EpicNodeClient;
 use super::{export, mnemonic, slate, stored_tx};
 use crate::api::types::{
     Contact, FeeEstimate, ImportReport, ListenerEvent, NodeTip, ScanProgress, Slate, TxEntry,
-    TxKind, TxSource, WalletConfig, WalletSummary,
+    TxKind, TxSource, TxStatus, WalletConfig, WalletSummary,
 };
 
 type Provider = DefaultLCProvider<'static, EpicNodeClient, ExtKeychain>;
@@ -48,6 +49,9 @@ pub(crate) type OwnerApi = Owner<Provider, EpicNodeClient, ExtKeychain>;
 
 /// Seed length in bytes for a wallet created without a phrase: 24 words.
 const NEW_SEED_BYTES: usize = 32;
+/// TTL of every send, in blocks: 14 days of one-minute blocks. The default mailbox keeps a slate
+/// 7 days, and the recipient's answer can wait up to 7 more in ours.
+pub(crate) const SEND_TTL_BLOCKS: u64 = 20_160;
 /// Node calls one `enrich_history` may spend on block heights and times. floo-node answers 429 to bursts
 /// of about ten, so a restored wallet with many rows fills in over several refreshes.
 const LOOKUPS_PER_REFRESH: usize = 25;
@@ -114,7 +118,10 @@ pub(crate) struct Session {
     /// For block times and kernel heights; the wallet has its own clone.
     node: EpicNodeClient,
     listener: std::sync::Mutex<Option<Listener>>,
+    send_ttl_blocks: AtomicU64,
     _chain: ChainLease,
+    /// Last field, so it is released after everything else: a delete waits for it.
+    _dir: DirLease,
 }
 
 impl Session {
@@ -124,7 +131,10 @@ impl Session {
         mnemonic: Option<String>,
         password: ZeroingString,
     ) -> CoreResult<Session> {
-        let lease = ChainLease::acquire(config.chain)?;
+        let lease = (
+            DirLease::acquire(&config.data_dir)?,
+            ChainLease::acquire(config.chain)?,
+        );
         let phrase = match mnemonic {
             Some(p) => {
                 let p = mnemonic::normalize(p);
@@ -156,7 +166,10 @@ impl Session {
 
     /// Opens the wallet in `config.data_dir`.
     pub(crate) fn open(config: &WalletConfig, password: ZeroingString) -> CoreResult<Session> {
-        let lease = ChainLease::acquire(config.chain)?;
+        let lease = (
+            DirLease::acquire(&config.data_dir)?,
+            ChainLease::acquire(config.chain)?,
+        );
         let (wallet, node) = wallet_handle(config)?;
         {
             let mut w = wallet.lock();
@@ -172,7 +185,7 @@ impl Session {
         wallet: WalletHandle,
         node: EpicNodeClient,
         password: ZeroingString,
-        lease: ChainLease,
+        (dir, lease): (DirLease, ChainLease),
     ) -> CoreResult<Session> {
         let mask = {
             let mut w = wallet.lock();
@@ -204,7 +217,9 @@ impl Session {
             meta,
             node,
             listener: std::sync::Mutex::new(None),
+            send_ttl_blocks: AtomicU64::new(SEND_TTL_BLOCKS),
             _chain: lease,
+            _dir: dir,
         })
     }
 
@@ -656,7 +671,7 @@ impl Session {
         for _ in 0..3 {
             let s = self.owner.init_send_tx(
                 self.mask(),
-                Self::send_args(amount, minimum_confirmations, true),
+                self.send_args(amount, minimum_confirmations, true),
                 Arc::new(AtomicBool::new(true)),
             )?;
             // In estimate-only mode `s.amount` is the selected inputs' total.
@@ -682,8 +697,10 @@ impl Session {
         let mut budget = LOOKUPS_PER_REFRESH;
         let mut kernel_heights = std::collections::BTreeMap::new();
         let mut tip: Option<u64> = None;
+        // A wallet waiting to switch chains waits for this session to close; stop early for it.
+        let stop = || super::chain::switch_pending();
         for m in rows {
-            if budget == 0 {
+            if budget == 0 || stop() {
                 break;
             }
             let (Some(k), Some(min)) = (&m.tx.kernel_excess, m.kernel_lookup_min_height) else {
@@ -711,10 +728,54 @@ impl Session {
                 Err(_) => break,
             }
         }
+        // Finalized sends the node refused: once a day of blocks has passed since finalize, see
+        // whether the kernel ever reached the chain. Not found makes the send releasable.
+        let mut absent = Vec::new();
+        for m in rows {
+            if budget == 0 || stop() {
+                break;
+            }
+            let (Some(after), Some(k), Some(slate)) =
+                (m.release_check_after, &m.tx.kernel_excess, &m.tx.slate_id)
+            else {
+                continue;
+            };
+            let checked = meta
+                .annotations
+                .get(slate)
+                .and_then(|a| a.kernel_absent_at)
+                .is_some_and(|t| t >= after);
+            if checked {
+                continue;
+            }
+            let Ok(bytes) = hex::decode(k) else { continue };
+            let max = match tip {
+                Some(t) => t,
+                None => match self.node.get_chain_tip() {
+                    Ok((t, _)) => *tip.insert(t),
+                    Err(_) => break,
+                },
+            };
+            if max < after {
+                continue;
+            }
+            budget -= 1;
+            let min = m.kernel_lookup_min_height.unwrap_or(1);
+            match self
+                .node
+                .kernel_height(&pedersen::Commitment::from_vec(bytes), min, max)
+            {
+                Ok(None) => absent.push((slate.clone(), max)),
+                Ok(Some(h)) => {
+                    kernel_heights.insert(k.clone(), h);
+                }
+                Err(_) => break,
+            }
+        }
         // Imported records still pending at export, with no live row: settle them by kernel.
         let mut settlements = Vec::new();
         for m in rows.iter().filter(|m| history::needs_settling(m)) {
-            if budget == 0 {
+            if budget == 0 || stop() {
                 break;
             }
             let (Some(k), Some(min)) = (&m.tx.kernel_excess, m.kernel_lookup_min_height) else {
@@ -758,7 +819,7 @@ impl Session {
         }
         let mut block_times = std::collections::BTreeMap::new();
         for h in heights {
-            if budget == 0 {
+            if budget == 0 || stop() {
                 break;
             }
             budget -= 1;
@@ -766,16 +827,26 @@ impl Session {
                 Ok(Some(t)) => {
                     block_times.insert(h, t);
                 }
-                Ok(None) => {}
+                // 0 marks "the node has no such block", so it is not asked again every minute.
+                Ok(None) => {
+                    block_times.insert(h, 0);
+                }
                 Err(_) => break,
             }
         }
-        if kernel_heights.is_empty() && block_times.is_empty() && settlements.is_empty() {
+        if kernel_heights.is_empty()
+            && block_times.is_empty()
+            && settlements.is_empty()
+            && absent.is_empty()
+        {
             return;
         }
         let r = self.meta.update(|m| {
             m.kernel_heights.extend(kernel_heights);
             m.block_times.extend(block_times);
+            for (slate, at) in absent {
+                m.annotations.entry(slate).or_default().kernel_absent_at = Some(at);
+            }
             for (kernel, s) in settlements {
                 for r in m
                     .records
@@ -800,14 +871,28 @@ impl Session {
         Ok(address.to_string())
     }
 
-    fn send_args(amount: u64, minimum_confirmations: u64, estimate_only: bool) -> InitTxArgs {
+    /// Every send gets a TTL (`ttl_blocks`): epic-wallet then cancels it on a refresh once the
+    /// chain passes `ttl_cutoff_height` and unlocks its inputs (`owner.rs` `update_wallet_state`,
+    /// step 5), and a recipient or our own finalize refuses it after that (`check_ttl`).
+    fn send_args(
+        &self,
+        amount: u64,
+        minimum_confirmations: u64,
+        estimate_only: bool,
+    ) -> InitTxArgs {
         InitTxArgs {
             amount,
             minimum_confirmations,
             selection_strategy_is_use_all: false,
             estimate_only: Some(estimate_only),
+            ttl_blocks: Some(self.send_ttl_blocks.load(Ordering::Relaxed)),
             ..InitTxArgs::default()
         }
+    }
+
+    /// Test hook: the TTL, in blocks, of sends created from now on.
+    pub(crate) fn set_send_ttl_blocks(&self, blocks: u64) {
+        self.send_ttl_blocks.store(blocks, Ordering::Relaxed);
     }
 
     pub(crate) fn estimate_fee(
@@ -822,7 +907,7 @@ impl Session {
         }
         let s = self.owner.init_send_tx(
             self.mask(),
-            Self::send_args(amount, minimum_confirmations, true),
+            self.send_args(amount, minimum_confirmations, true),
             Arc::new(AtomicBool::new(true)),
         )?;
         // In estimate-only mode epic-wallet puts the selected inputs' total in `slate.amount`.
@@ -843,7 +928,7 @@ impl Session {
         }
         let s = self.owner.init_send_tx(
             self.mask(),
-            Self::send_args(amount, minimum_confirmations, false),
+            self.send_args(amount, minimum_confirmations, false),
             Arc::new(AtomicBool::new(true)),
         )?;
         self.owner.tx_lock_outputs(self.mask(), &s, 0, dest)?;
@@ -904,9 +989,9 @@ impl Session {
         };
         // Past this point the recipient has signed and the transaction is final. A failed post
         // is not cancelled: the node may have taken it despite the error, and cancelling would
-        // unlock inputs the chain can still spend. The send stays repostable instead.
-        self.owner.post_tx(self.mask(), &finalized.tx, true)?;
-        self.tx_for_slate(finalized.id)
+        // unlock inputs the chain can still spend. The send stays repostable instead, and is
+        // returned as a result, not an error, so nobody pays a second time.
+        Ok(self.post_and_entry(&finalized))
     }
 
     /// Posts a send to an epicbox address. The transaction stays unconfirmed and locked until the
@@ -1012,14 +1097,113 @@ impl Session {
             .verify_slate_messages(self.mask(), response)
             .map_err(|e| CoreError::InvalidSlate(e.to_string()))?;
         let finalized = self.owner.finalize_tx(self.mask(), response)?;
-        record_finalized(&self.meta, &finalized);
+        record_finalized(&self.meta, &finalized, wallet_height(&self.wallet));
         Ok(finalized)
     }
 
     fn finalize_slate(&self, response: &LibSlate) -> CoreResult<TxEntry> {
         let finalized = self.finalize_only(response)?;
-        self.owner.post_tx(self.mask(), &finalized.tx, true)?;
-        self.tx_for_slate(finalized.id)
+        Ok(self.post_and_entry(&finalized))
+    }
+
+    /// Posts a finalized send and returns its row. Never fails: a post the node did not take is
+    /// recorded (`status_detail`, `repostable`), and a failure to read the row back afterwards
+    /// gives a minimal entry, because the payment itself is done either way.
+    fn post_and_entry(&self, finalized: &LibSlate) -> TxEntry {
+        let posted = post_recorded(&self.owner, self.mask(), &self.meta, finalized);
+        if let Err(e) = &posted {
+            log::warn!("the node did not take payment {}: {e}", finalized.id);
+        }
+        match self.tx_for_slate(finalized.id) {
+            Ok(t) => t,
+            Err(e) => {
+                log::warn!("reading payment {} back: {e}", finalized.id);
+                minimal_entry(finalized, posted.err())
+            }
+        }
+    }
+
+    /// epic-wallet's log entry for a send with `key`, without a full merge: `s:<slate>`,
+    /// `s:<slate>#l<id>` or `l:<id>`, else looked up in the merged list.
+    fn live_send_by_key(&self, key: &str) -> CoreResult<TxLogEntry> {
+        let missing = || CoreError::InvalidArgument(format!("no payment {key}"));
+        let (base, id_suffix) = match key.split_once("#l") {
+            Some((b, i)) => (b, i.parse::<u32>().ok()),
+            None => (key, None),
+        };
+        let (by_id, by_slate) = if let Some(s) = base.strip_prefix("s:") {
+            (
+                id_suffix,
+                Some(uuid::Uuid::parse_str(s).map_err(|_| missing())?),
+            )
+        } else if let Some(i) = base.strip_prefix("l:") {
+            (Some(i.parse::<u32>().map_err(|_| missing())?), None)
+        } else {
+            let row = self
+                .transactions(false)?
+                .into_iter()
+                .find(|t| t.key == key)
+                .ok_or_else(missing)?;
+            (Some(row.id.ok_or_else(missing)?), None)
+        };
+        self.owner
+            .retrieve_txs(self.mask(), false, by_id, by_slate, None, None, None)?
+            .txs
+            .into_iter()
+            .filter(|t| by_id.is_none_or(|i| t.id == i))
+            .find(|t| {
+                matches!(
+                    t.tx_type,
+                    TxLogEntryType::TxSentCreated
+                        | TxLogEntryType::TxSent
+                        | TxLogEntryType::TxSentMempool
+                        | TxLogEntryType::TxSentCancelled
+                )
+            })
+            .ok_or_else(missing)
+    }
+
+    /// Unlocks the funds of a finalized send the node refused and that never reached the chain
+    /// (`TxEntry.releasable`). Asks the node once more first: if the kernel is on chain or in its
+    /// pool, nothing is released. See the contract log for what it can still cost.
+    pub(crate) fn release_stuck_send(&self, key: &str) -> CoreResult<()> {
+        let row = self
+            .merged(false)?
+            .into_iter()
+            .find(|m| m.tx.key == key)
+            .ok_or_else(|| CoreError::InvalidArgument(format!("no payment {key}")))?;
+        let refuse = |why: &str| Err(CoreError::InvalidArgument(why.to_owned()));
+        let (Some(id), Some(kernel), true) =
+            (row.tx.id, row.tx.kernel_excess.clone(), row.tx.releasable)
+        else {
+            return refuse("only a payment the network refused, and that has not reached it for a day, can be released");
+        };
+        let excess = pedersen::Commitment::from_vec(
+            hex::decode(&kernel).map_err(|_| CoreError::InvalidArgument("bad kernel".into()))?,
+        );
+        let (tip, _) = self.node.get_chain_tip()?;
+        let min = row.kernel_lookup_min_height.unwrap_or(1);
+        match self.node.kernel_height(&excess, min, tip) {
+            Ok(None) => {}
+            Ok(Some(_)) => return refuse("this payment is on the chain; it cannot be released"),
+            Err(_) => {
+                return Err(CoreError::Wallet(LibWalletError::ClientCallback(
+                    "could not ask the node whether the payment reached the chain".into(),
+                )))
+            }
+        }
+        let pool = self.node.get_mempool()?;
+        if pool.iter().any(|p| {
+            p.tx.kernels()
+                .iter()
+                .any(|k| hex::encode(k.excess.0) == kernel)
+        }) {
+            return refuse(
+                "the node still holds this payment and may confirm it; it cannot be released",
+            );
+        }
+        self.owner.cancel_tx(self.mask(), Some(id), None)?;
+        Ok(())
     }
 
     pub(crate) fn cancel_transaction(&self, tx_id: u32) -> CoreResult<()> {
@@ -1030,31 +1214,23 @@ impl Session {
     /// Posts the stored final transaction of the send with `key` again, as the CLI's `repost`
     /// does. For a send that was finalized but never reached the chain.
     pub(crate) fn repost_transaction(&self, key: &str) -> CoreResult<()> {
-        let row = self
-            .transactions(false)?
-            .into_iter()
-            .find(|t| t.key == key)
-            .ok_or_else(|| CoreError::InvalidArgument(format!("no payment {key}")))?;
-        let id = match (row.repostable, row.id) {
-            (true, Some(id)) => id,
-            _ => return Err(CoreError::InvalidArgument(
+        let entry = self.live_send_by_key(key)?;
+        let refuse = || {
+            CoreError::InvalidArgument(
                 "only a finished payment that has not reached the network can be sent to it again"
                     .into(),
-            )),
+            )
         };
-        let entry = self
-            .owner
-            .retrieve_txs(self.mask(), false, Some(id), None, None, None, None)?
-            .txs
-            .into_iter()
-            .next()
-            .ok_or_else(|| CoreError::InvalidArgument(format!("no payment {key}")))?;
+        if entry.confirmed || entry.tx_type == TxLogEntryType::TxSentCancelled {
+            return Err(refuse());
+        }
         let tx = stored_tx::load(&self.config.data_dir, &entry)?
             .filter(stored_tx::kernel_is_final)
-            .ok_or_else(|| {
-                CoreError::InvalidArgument("this payment has no finished transaction saved".into())
-            })?;
-        self.owner.post_tx(self.mask(), &tx, true)?;
+            .ok_or_else(refuse)?;
+        let slate_id = entry.tx_slate_id.map(|u| u.to_string()).unwrap_or_default();
+        let posted = self.owner.post_tx(self.mask(), &tx, true);
+        record_post(&self.meta, &slate_id, &posted);
+        posted?;
         Ok(())
     }
 }
@@ -1123,14 +1299,93 @@ fn stored_final(data_dir: &str, entry: &TxLogEntry) -> bool {
 
 /// Notes that this wallet finalized `slate`, with its final kernel. Called before the post, so a
 /// post that fails still shows the send as awaiting confirmation, as it can be reposted.
-pub(crate) fn record_finalized(meta: &MetaStore, slate: &LibSlate) {
+pub(crate) fn record_finalized(meta: &MetaStore, slate: &LibSlate, height: Option<u64>) {
     let kernel = slate.tx.kernels().first().map(|k| hex::encode(k.excess.0));
     meta.annotate(&slate.id.to_string(), |a| {
         a.finalized = true;
+        a.finalized_at_unix = Some(now_unix());
+        a.finalized_height = height.or(a.finalized_height);
         if kernel.is_some() {
             a.kernel_excess = kernel;
         }
     });
+}
+
+/// Records how a post of `slate_id` went. A JSON-RPC error from the node (`BadRequest`) is a
+/// refusal; anything else (no answer, 429, a timeout) is not, since the node may have taken it.
+pub(crate) fn record_post(meta: &MetaStore, slate_id: &str, result: &Result<(), LibWalletError>) {
+    if slate_id.is_empty() {
+        return;
+    }
+    meta.annotate(slate_id, |a| match result {
+        Ok(()) => a.post_error = None,
+        Err(e) => {
+            a.post_error = Some(e.to_string());
+            if matches!(e, LibWalletError::BadRequest(_)) {
+                a.post_refused = true;
+            }
+        }
+    });
+}
+
+/// `post_tx` with fluff, recorded in the archive.
+pub(crate) fn post_recorded(
+    owner: &OwnerApi,
+    mask: Option<&SecretKey>,
+    meta: &MetaStore,
+    slate: &LibSlate,
+) -> Result<(), LibWalletError> {
+    let posted = owner.post_tx(mask, &slate.tx, true);
+    record_post(meta, &slate.id.to_string(), &posted);
+    posted
+}
+
+/// The wallet's last confirmed height, if it can be read.
+pub(crate) fn wallet_height(wallet: &WalletHandle) -> Option<u64> {
+    let mut guard = wallet.lock();
+    guard
+        .lc_provider()
+        .ok()?
+        .wallet_inst()
+        .ok()?
+        .last_confirmed_height()
+        .ok()
+}
+
+/// What `send_http` or `finalize_and_post` returns when the row cannot be read back after the
+/// post: enough for the UI to show the payment and not offer to send it again.
+fn minimal_entry(slate: &LibSlate, post_error: Option<LibWalletError>) -> TxEntry {
+    let id = slate.id.to_string();
+    let now = now_unix();
+    TxEntry {
+        key: format!("s:{id}"),
+        id: None,
+        slate_id: Some(id),
+        kind: TxKind::Sent,
+        status: TxStatus::AwaitingConfirmation,
+        source: TxSource::Wallet,
+        created_at_unix: now,
+        time_unix: now,
+        confirmed: false,
+        block_height: None,
+        block_time_unix: None,
+        amount_credited: 0,
+        amount_debited: slate.amount + slate.fee,
+        fee: Some(slate.fee),
+        num_inputs: 0,
+        num_outputs: 0,
+        kernel_excess: slate.tx.kernels().first().map(|k| hex::encode(k.excess.0)),
+        output_commits: Vec::new(),
+        counterparty: None,
+        note: None,
+        ttl_cutoff_height: slate.ttl_cutoff_height,
+        cancellable: false,
+        repostable: post_error.is_some(),
+        status_detail: post_error
+            .map(|e| format!("The network has not taken this payment yet: {e}")),
+        releasable: false,
+        finalized_at_unix: Some(now),
+    }
 }
 
 fn contact_to_api(c: ContactRec) -> Contact {
@@ -1144,7 +1399,36 @@ fn contact_to_api(c: ContactRec) -> Contact {
 
 #[cfg(test)]
 mod tests {
-    use super::http_base_url;
+    use super::{http_base_url, record_post, LibWalletError, MetaStore};
+
+    #[test]
+    fn a_node_refusal_is_told_apart_from_no_answer() {
+        let dir = tempfile::tempdir().unwrap();
+        let meta = MetaStore::open(dir.path().to_str().unwrap()).unwrap();
+        let ann = |m: &MetaStore| m.snapshot().annotations["s1"].clone();
+        record_post(
+            &meta,
+            "s1",
+            &Err(LibWalletError::ClientCallback("timed out".into())),
+        );
+        assert!(ann(&meta).post_error.is_some());
+        assert!(!ann(&meta).post_refused, "no answer is not a refusal");
+        record_post(
+            &meta,
+            "s1",
+            &Err(LibWalletError::BadRequest(
+                "Unable to parse response for push_transaction".into(),
+            )),
+        );
+        assert!(ann(&meta).post_refused);
+        record_post(&meta, "s1", &Ok(()));
+        assert_eq!(
+            ann(&meta).post_error,
+            None,
+            "a post the node took clears the error"
+        );
+        assert!(ann(&meta).post_refused, "the refusal stays on record");
+    }
 
     #[test]
     fn http_base_url_strips_the_api_path() {

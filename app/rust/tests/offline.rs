@@ -6,7 +6,7 @@ mod common;
 use common::*;
 use epic_wallet_core::api::types::{Chain, WalletErrorKind};
 use epic_wallet_core::api::wallet::{
-    generate_mnemonic, node_tip, validate_mnemonic, wallet_exists, EpicWallet,
+    delete_wallet, generate_mnemonic, node_tip, validate_mnemonic, wallet_exists, EpicWallet,
 };
 
 fn cfg(dir: &std::path::Path) -> epic_wallet_core::api::types::WalletConfig {
@@ -287,4 +287,45 @@ fn contacts_persist_and_history_files_open_only_in_the_same_seed() {
         kind_of(wc.estimate_max(10)),
         WalletErrorKind::NodeUnreachable
     );
+}
+
+#[test]
+fn delete_waits_for_the_open_wallet_and_leaves_nothing_behind() {
+    use epic_wallet_core::api::types::Contact;
+
+    let tmp = tempfile::tempdir().expect("tempdir");
+    let dir = tmp.path().join("wallet");
+    let config = cfg(&dir);
+    let w = EpicWallet::create(config.clone(), None, PASSWORD.into()).expect("create");
+    w.save_contact(Contact {
+        id: String::new(),
+        name: "Old".into(),
+        address: "old@relay.example".into(),
+        note: None,
+    })
+    .expect("contact");
+    // As when Dart drops the wallet while a call on it is still running: it goes a moment later.
+    let closer = std::thread::spawn(move || {
+        std::thread::sleep(std::time::Duration::from_millis(300));
+        // A late write on the way out must not bring the directory back.
+        let _ = w.set_tx_note("s:late".into(), Some("late".into()));
+        drop(w);
+    });
+    let start = std::time::Instant::now();
+    delete_wallet(config.clone()).expect("delete");
+    assert!(
+        start.elapsed() >= std::time::Duration::from_millis(250),
+        "it waited"
+    );
+    closer.join().expect("closer");
+    assert!(!dir.exists(), "nothing left in the data dir");
+
+    let fresh = EpicWallet::create(config.clone(), None, PASSWORD.into()).expect("new wallet");
+    assert!(
+        fresh.contacts().expect("contacts").is_empty(),
+        "no contacts from the old wallet"
+    );
+    drop(fresh);
+    delete_wallet(config.clone()).expect("delete again");
+    delete_wallet(config).expect("deleting a missing wallet is fine");
 }

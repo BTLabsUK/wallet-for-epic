@@ -339,6 +339,8 @@ mod tests {
             cancellable: false,
             repostable: false,
             status_detail: None,
+            releasable: false,
+            finalized_at_unix: None,
         }
     }
 

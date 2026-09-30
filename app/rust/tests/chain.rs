@@ -44,7 +44,7 @@ fn chain_switches_once_the_last_wallet_on_the_other_chain_closes() {
     let e = EpicWallet::open(mainnet.clone(), PASSWORD.into())
         .err()
         .expect("refused");
-    assert_eq!(e.kind, WalletErrorKind::InvalidArgument);
+    assert_eq!(e.kind, WalletErrorKind::ChainBusy);
     drop(user_wallet);
     let reopened = EpicWallet::open(mainnet, PASSWORD.into()).expect("back to mainnet");
     assert!(reopened.summary(false, 10).is_ok());

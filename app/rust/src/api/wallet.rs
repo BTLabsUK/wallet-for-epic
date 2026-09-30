@@ -6,7 +6,7 @@
 //!
 //! Chain: epic's consensus parameters are process-global, so one process uses one `Chain` at a
 //! time. Opening or creating a wallet on a different chain waits up to 20 s for every wallet on the
-//! current chain to close, then fails with `InvalidArgument`; drop every `EpicWallet` to switch.
+//! current chain to close, then fails with `ChainBusy`; drop every `EpicWallet` to switch.
 //!
 //! Secrets: the keychain mask never leaves Rust. Passwords and mnemonics arrive as Strings from
 //! Dart and are moved into `ZeroingString` immediately.
@@ -49,6 +49,16 @@ pub fn inspect_slate(json: String) -> Result<SlateInfo, WalletError> {
 #[frb(sync)]
 pub fn validate_epicbox_address(address: String) -> bool {
     crate::core::epicbox::parse_address(&address).is_ok()
+}
+
+/// Deletes the wallet in `config.data_dir`: its seed, epic-wallet's database and the history
+/// archive. Waits up to 20 s for every open wallet on that directory to be dropped and for calls
+/// still running on it to return, and keeps new ones out meanwhile, so nothing writes into the
+/// directory after it is gone. Fails with `ChainBusy` if the wallet is still busy then.
+/// Only the recovery phrase can bring the wallet back.
+pub fn delete_wallet(config: WalletConfig) -> Result<(), WalletError> {
+    crate::core::dirlock::delete_wallet_dir(&config.data_dir, crate::core::dirlock::DELETE_WAIT)
+        .map_err(to_api)
 }
 
 /// Current tip of the configured node, without opening a wallet.
@@ -267,6 +277,13 @@ impl EpicWallet {
         self.inner.start_listener(on_event);
     }
 
+    /// Test hook, not for Dart: the TTL in blocks of sends created from now on (default 20160).
+    #[frb(ignore)]
+    #[doc(hidden)]
+    pub fn set_send_ttl_blocks_for_tests(&self, blocks: u64) {
+        self.inner.set_send_ttl_blocks(blocks);
+    }
+
     /// Stops the listener. Takes up to about a second.
     pub fn stop_listener(&self) {
         self.inner.stop_listener();
@@ -283,6 +300,13 @@ impl EpicWallet {
         self.inner.repost_transaction(&key).map_err(to_api)
     }
 
+    /// Unlocks the funds of a finalized payment the node refused and that never reached the
+    /// chain (`TxEntry.releasable`). Checks the chain and the node's pool once more first and
+    /// refuses with `InvalidArgument` if the payment is in either.
+    pub fn release_stuck_send(&self, key: String) -> Result<(), WalletError> {
+        self.inner.release_stuck_send(&key).map_err(to_api)
+    }
+
     /// Cancels an unconfirmed transaction by log id and unlocks its outputs.
     pub fn cancel_transaction(&self, tx_id: u32) -> Result<(), WalletError> {
         self.inner.cancel_transaction(tx_id).map_err(to_api)
@@ -295,9 +319,8 @@ pub(crate) fn to_api(e: CoreError) -> WalletError {
         CoreError::InvalidMnemonic => WalletErrorKind::InvalidMnemonic,
         CoreError::WalletExists(_) => WalletErrorKind::WalletAlreadyExists,
         CoreError::WalletNotFound(_) => WalletErrorKind::WalletNotFound,
-        CoreError::InvalidArgument(_) | CoreError::ChainInUse { .. } => {
-            WalletErrorKind::InvalidArgument
-        }
+        CoreError::InvalidArgument(_) => WalletErrorKind::InvalidArgument,
+        CoreError::ChainInUse { .. } | CoreError::Busy(_) => WalletErrorKind::ChainBusy,
         CoreError::InvalidSlate(_) => WalletErrorKind::InvalidSlate,
         CoreError::Relay(_) => WalletErrorKind::TransportFailed,
         CoreError::Io(_) => WalletErrorKind::Io,
