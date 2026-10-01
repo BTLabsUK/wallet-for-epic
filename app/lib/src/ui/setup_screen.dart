@@ -10,6 +10,7 @@ import '../relay_directory.dart';
 import '../wallet_service.dart';
 import 'common.dart';
 import 'launch_screen.dart';
+import 'theme/tokens.dart';
 
 /// Network, node and relay settings. Saving restarts the app flow on the chosen network.
 class SetupScreen extends ConsumerStatefulWidget {
@@ -352,8 +353,8 @@ class _RelayPicker extends ConsumerWidget {
                       ? Icon(
                           s.healthy ? Icons.check_circle : Icons.error_outline,
                           color: s.healthy
-                              ? Colors.green
-                              : Theme.of(context).colorScheme.error,
+                              ? context.tokens.ok
+                              : context.tokens.risk,
                           semanticLabel: s.healthy
                               ? l.setupRelayHealthyIconLabel
                               : l.setupRelayDownIconLabel,

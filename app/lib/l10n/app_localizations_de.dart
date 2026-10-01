@@ -2737,14 +2737,14 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get helpNodeAnswer =>
-      'Ein Node ist ein Computer, der eine Kopie der Blockchain von Epic Cash vorhält. Die Wallet fragt einen Node nach Ihrem Guthaben und sendet Ihre Zahlungen über ihn ins Netzwerk. Der Node sieht Ihre IP-Adresse und nach welchen Coins die Wallet fragt; wählen Sie daher in den Netzwerkeinstellungen einen, dem Sie vertrauen.';
+      'Ein Node ist ein Computer, der eine Kopie der Blockchain von Epic Cash vorhält. Die Wallet fragt einen Node nach Ihrem Guthaben und sendet Ihre Zahlungen über ihn ins Netzwerk. Der Node sieht Ihre IP-Adresse und nach welchen Coins die Wallet fragt; wählen Sie daher in den Netzwerkeinstellungen einen, dem Sie vertrauen. Die Netzwerkeinstellungen finden Sie in den Einstellungen, sobald „Erweiterte Optionen“ eingeschaltet ist, und auf dem Entsperrbildschirm.';
 
   @override
   String get helpOtherWaysQuestion => 'Gibt es andere Möglichkeiten zu senden?';
 
   @override
   String get helpOtherWaysAnswer =>
-      'Für fortgeschrittene Nutzer. Betreibt der Empfänger eine Wallet, die im Internet erreichbar ist, fügen Sie deren Adresse mit http:// oder https:// als Empfänger ein; die Zahlung geht dann direkt dorthin. Ohne epicbox nutzen Sie „Per Transaktionsdatei senden“ unter „Weitere Sendeoptionen“: Sie teilen eine Datei, der Empfänger nimmt sie an und schickt eine .response-Datei zurück, und Sie öffnen diese Datei, um die Zahlung abzuschließen.';
+      'Für fortgeschrittene Nutzer. Betreibt der Empfänger eine Wallet, die im Internet erreichbar ist, fügen Sie deren Adresse mit http:// oder https:// als Empfänger ein; die Zahlung geht dann direkt dorthin. Ohne epicbox nutzen Sie „Per Transaktionsdatei senden“ unter „Weitere Sendeoptionen“: Sie teilen eine Datei, der Empfänger nimmt sie an und schickt eine .response-Datei zurück, und Sie öffnen diese Datei, um die Zahlung abzuschließen. „Weitere Sendeoptionen“ erscheint, sobald Sie in den Einstellungen „Erweiterte Optionen“ einschalten.';
 
   @override
   String get helpStillStuck => 'Kommen Sie nicht weiter?';

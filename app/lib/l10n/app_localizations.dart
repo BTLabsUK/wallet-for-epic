@@ -3983,7 +3983,7 @@ abstract class AppLocalizations {
   /// Answer on the help page.
   ///
   /// In en, this message translates to:
-  /// **'A node is a computer that keeps a copy of the Epic Cash blockchain. The wallet asks a node for your balance and sends your payments to the network through it. The node sees your IP address and which coins the wallet asks about, so pick one you trust in network settings.'**
+  /// **'A node is a computer that keeps a copy of the Epic Cash blockchain. The wallet asks a node for your balance and sends your payments to the network through it. The node sees your IP address and which coins the wallet asks about, so pick one you trust in network settings. Network settings are in Settings once Advanced options is on, and on the unlock screen.'**
   String get helpNodeAnswer;
 
   /// A question on the help page.
@@ -3995,7 +3995,7 @@ abstract class AppLocalizations {
   /// Answer on the help page. "Send by transaction file" and "Other ways to send" are names on the send screen: use the same words. Keep http://, https:// and .response as they are.
   ///
   /// In en, this message translates to:
-  /// **'For advanced users. If the recipient runs a wallet that listens on the internet, paste its address starting with http:// or https:// as the recipient, and the payment goes straight to it. Without epicbox, use \"Send by transaction file\" under \"Other ways to send\": you share a file, the recipient accepts it and returns a .response file, and you open that file to finish.'**
+  /// **'For advanced users. If the recipient runs a wallet that listens on the internet, paste its address starting with http:// or https:// as the recipient, and the payment goes straight to it. Without epicbox, use \"Send by transaction file\" under \"Other ways to send\": you share a file, the recipient accepts it and returns a .response file, and you open that file to finish. \"Other ways to send\" appears once Advanced options is on in Settings.'**
   String get helpOtherWaysAnswer;
 
   /// Heading at the end of the help page.

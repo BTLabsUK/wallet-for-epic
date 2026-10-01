@@ -2552,14 +2552,14 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get helpNodeAnswer =>
-      '节点是保存一份 Epic Cash 区块链副本的计算机。钱包向节点查询你的余额，并通过它将你的付款发送到网络。节点能看到你的 IP 地址以及钱包查询了哪些币，因此请在网络设置中选择你信任的节点。';
+      '节点是保存一份 Epic Cash 区块链副本的计算机。钱包向节点查询你的余额，并通过它将你的付款发送到网络。节点能看到你的 IP 地址以及钱包查询了哪些币，因此请在网络设置中选择你信任的节点。打开“高级选项”后，可在设置中找到网络设置；解锁界面上也有。';
 
   @override
   String get helpOtherWaysQuestion => '还有其他发送方式吗？';
 
   @override
   String get helpOtherWaysAnswer =>
-      '供高级用户使用。如果接收方运行着在互联网上监听的钱包，请将以 http:// 或 https:// 开头的地址粘贴为接收方，付款就会直接发送到该钱包。如果不使用 epicbox，请在“其他发送方式”中选择“通过交易文件发送”：你分享一个文件，接收方接受后返回一个 .response 文件，你再打开该文件完成付款。';
+      '供高级用户使用。如果接收方运行着在互联网上监听的钱包，请将以 http:// 或 https:// 开头的地址粘贴为接收方，付款就会直接发送到该钱包。如果不使用 epicbox，请在“其他发送方式”中选择“通过交易文件发送”：你分享一个文件，接收方接受后返回一个 .response 文件，你再打开该文件完成付款。在设置中打开“高级选项”后，才会显示“其他发送方式”。';
 
   @override
   String get helpStillStuck => '仍未解决？';
