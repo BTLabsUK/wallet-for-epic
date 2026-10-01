@@ -15,6 +15,7 @@ import '../wallet_service.dart';
 import 'home_screen.dart';
 import 'launch_screen.dart';
 import 'theme/protocol.dart';
+import 'theme/tokens.dart';
 import 'tx_details_screen.dart';
 
 /// Replaces the whole navigation stack with the home screen of the open wallet.
@@ -609,7 +610,7 @@ class TxStatusChip extends StatelessWidget {
   }
 }
 
-/// A round icon with the direction of [tx].
+/// The direction of [tx] in a hairline square: green in, plain out, gold for a reward.
 class TxIcon extends StatelessWidget {
   const TxIcon({super.key, required this.tx});
 
@@ -617,38 +618,28 @@ class TxIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
+    final t = context.tokens;
     final l = context.l10n;
-    final (IconData icon, Color bg, Color fg, String label) = switch (tx.kind) {
+    final (IconData icon, Color fg, String label) = switch (tx.kind) {
       _ when tx.status == TxStatus.cancelled => (
         Icons.block,
-        colors.surfaceContainerHighest,
-        colors.onSurfaceVariant,
+        t.dim,
         l.txIconCancelled,
       ),
-      TxKind.coinbase => (
-        Icons.bolt,
-        colors.primaryContainer,
-        colors.onPrimaryContainer,
-        l.txMiningReward,
-      ),
-      TxKind.received || TxKind.receivedCancelled => (
-        Icons.south_west,
-        colors.tertiaryContainer,
-        colors.onTertiaryContainer,
-        l.txIconIncoming,
-      ),
-      TxKind.sent || TxKind.sentCancelled => (
-        Icons.north_east,
-        colors.secondaryContainer,
-        colors.onSecondaryContainer,
-        l.txIconOutgoing,
-      ),
+      TxKind.coinbase => (Icons.bolt, t.accentText, l.txMiningReward),
+      TxKind.received ||
+      TxKind.receivedCancelled => (Icons.south_west, t.ok, l.txIconIncoming),
+      TxKind.sent ||
+      TxKind.sentCancelled => (Icons.north_east, t.text, l.txIconOutgoing),
     };
-    return CircleAvatar(
-      backgroundColor: bg,
-      foregroundColor: fg,
-      child: Icon(icon, semanticLabel: label),
+    return Container(
+      width: 40,
+      height: 40,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(t.radiusSmall),
+        border: Border.all(color: t.lineStrong),
+      ),
+      child: Icon(icon, size: 20, color: fg, semanticLabel: label),
     );
   }
 }
@@ -795,10 +786,13 @@ class TxTile extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
+                    // Amounts are data, so the mono face.
                     Text(
                       signed,
                       textAlign: TextAlign.end,
                       style: theme.textTheme.bodyLarge?.copyWith(
+                        fontFamily: context.tokens.monoFamily,
+                        fontSize: 14.5,
                         decoration: tx.status == TxStatus.cancelled
                             ? TextDecoration.lineThrough
                             : null,

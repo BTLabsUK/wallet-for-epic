@@ -23,6 +23,9 @@ import 'send_screen.dart';
 import 'settings_history.dart' show exportHistoryBackup;
 import 'settings_screen.dart';
 import 'slate_file_screen.dart';
+import 'theme/advanced.dart';
+import 'theme/protocol.dart';
+import 'theme/tokens.dart';
 import 'tx_details_screen.dart';
 
 /// How often home refreshes against the node while it is on screen and the app is in front.
@@ -332,45 +335,24 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     ),
                   if (home.hasError && !home.isLoading)
                     ErrorText(describeError(l, home.error!)),
-                  if (data != null) BalanceHeader(summary: data.summary),
-                  _SyncLine(summary: data?.summary, syncing: syncing),
+                  if (data != null)
+                    ProtocolBalancePanel(
+                      syncProgress: syncing
+                          ? (ref.watch(syncProgressProvider) ?? 0) / 100
+                          : 1,
+                      footer: _SyncLine(
+                        summary: data.summary,
+                        syncing: syncing,
+                      ),
+                      child: BalanceHeader(summary: data.summary),
+                    )
+                  else
+                    _SyncLine(summary: null, syncing: syncing),
                   const SizedBox(height: 16),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: FilledButton.icon(
-                          style: FilledButton.styleFrom(
-                            minimumSize: const Size.fromHeight(48),
-                          ),
-                          icon: const Icon(Icons.north_east),
-                          label: Text(l.homeSendButton),
-                          onPressed: () => _open(const SendScreen()),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: FilledButton.tonalIcon(
-                          style: FilledButton.styleFrom(
-                            minimumSize: const Size.fromHeight(48),
-                          ),
-                          icon: const Icon(Icons.south_west),
-                          label: Text(l.homeReceiveButton),
-                          onPressed: () => _open(const ReceiveScreen()),
-                        ),
-                      ),
-                      if (scanner.supported) ...[
-                        const SizedBox(width: 12),
-                        IconButton.filledTonal(
-                          tooltip: l.homeScanTooltip,
-                          constraints: const BoxConstraints(
-                            minWidth: 48,
-                            minHeight: 48,
-                          ),
-                          icon: const Icon(Icons.qr_code_scanner),
-                          onPressed: _scan,
-                        ),
-                      ],
-                    ],
+                  _Actions(
+                    onSend: () => _open(const SendScreen()),
+                    onReceive: () => _open(const ReceiveScreen()),
+                    onScan: scanner.supported ? _scan : null,
                   ),
                   _PendingSendsCard(transactions: transactions, open: _open),
                   // Below the actions, so the balance stays at the top. It waits until the
@@ -381,23 +363,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       transactions: transactions,
                     ),
                   const SizedBox(height: 24),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Semantics(
-                          header: true,
-                          child: Text(
-                            l.homeRecentActivity,
-                            style: Theme.of(context).textTheme.titleMedium,
+                  ProtocolSectionHead(
+                    l.homeRecentActivity,
+                    trailing: transactions.isEmpty
+                        ? null
+                        : TextButton(
+                            onPressed: () => _open(const HistoryScreen()),
+                            child: Text(l.homeSeeAll),
                           ),
-                        ),
-                      ),
-                      if (transactions.isNotEmpty)
-                        TextButton(
-                          onPressed: () => _open(const HistoryScreen()),
-                          child: Text(l.homeSeeAll),
-                        ),
-                    ],
                   ),
                   if (data != null && transactions.isEmpty)
                     _EmptyActivity(
@@ -535,7 +508,6 @@ class _HistoryBackupCard extends ConsumerWidget {
       snapshot: settings.historyExportSnapshots[chain.name],
     );
     if (count == null) return const SizedBox.shrink();
-    final colors = Theme.of(context).colorScheme;
     final l = context.l10n;
     // Before any export nothing is in a backup; after one, some payments may only have changed.
     final text = exportedAt == null
@@ -543,14 +515,14 @@ class _HistoryBackupCard extends ConsumerWidget {
         : l.homeHistoryChangedSinceBackup(count);
     return Padding(
       padding: const EdgeInsets.only(top: 16),
-      child: Card(
-        color: colors.secondaryContainer,
+      child: EdgeCard(
+        edge: context.tokens.warn,
         child: Padding(
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text(text, style: TextStyle(color: colors.onSecondaryContainer)),
+              Text(text),
               Wrap(
                 alignment: WrapAlignment.end,
                 children: [
@@ -605,14 +577,15 @@ class _BackupCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
+    final t = context.tokens;
     final l = context.l10n;
-    return Card.outlined(
+    return EdgeCard(
+      edge: t.warn,
       child: Padding(
-        padding: const EdgeInsets.only(left: 16),
+        padding: const EdgeInsets.only(left: 14),
         child: Row(
           children: [
-            Icon(Icons.key_outlined, color: colors.primary),
+            Icon(Icons.key_outlined, color: t.accentText),
             const SizedBox(width: 12),
             Expanded(child: Text(l.homeBackupCardText)),
             TextButton(
@@ -679,9 +652,15 @@ class _BalanceHeaderState extends ConsumerState<BalanceHeader> {
                   container: true,
                   label: hidden ? l.homeBalanceHiddenLabel : null,
                   excludeSemantics: hidden,
-                  child: Text(
-                    shownEpic(l, summary.spendable, hidden: hidden),
-                    style: theme.textTheme.displaySmall,
+                  // One line however long the balance: it shrinks rather than wraps.
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: AlignmentDirectional.centerStart,
+                    child: Text(
+                      shownEpic(l, summary.spendable, hidden: hidden),
+                      maxLines: 1,
+                      style: theme.textTheme.displaySmall,
+                    ),
                   ),
                 ),
               ),
@@ -814,10 +793,141 @@ class _SyncLine extends ConsumerWidget {
         ),
       ),
     );
-    // The block height means little to most people; it stays one long-press away.
-    return height == null || syncing
+    // The block height means little to most people; it stays one long-press away, or in the
+    // readout with Advanced options on.
+    final status = height == null || syncing
         ? line
         : Tooltip(message: height, child: line);
+    final config = ref.watch(walletConfigProvider);
+    if (config == null) return status;
+    final node = Uri.tryParse(config.nodeUrl)?.host ?? config.nodeUrl;
+    final listener = listening
+        ? l.receiveEpicboxConnected
+        : lost
+        ? l.receiveEpicboxOffline
+        : l.receiveEpicboxConnecting;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        status,
+        Advanced(
+          child: Padding(
+            padding: const EdgeInsets.only(top: 6, left: 26),
+            child: Readout(
+              [
+                if (height != null) '$height · $node' else node,
+                '${config.epicboxDomain}:${config.epicboxPort} · $listener',
+              ].join('\n'),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// Send, Receive and Scan as one hairline-divided strip, icons in the accent colour.
+class _Actions extends StatelessWidget {
+  const _Actions({
+    required this.onSend,
+    required this.onReceive,
+    required this.onScan,
+  });
+
+  final VoidCallback onSend;
+  final VoidCallback onReceive;
+
+  /// Null where the device has no camera scanner.
+  final VoidCallback? onScan;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    final l = context.l10n;
+    final radius = BorderRadius.circular(t.radiusSmall);
+    final cells = <(IconData, String, String?, VoidCallback)>[
+      (Icons.north_east, l.homeSendButton, null, onSend),
+      (Icons.south_west, l.homeReceiveButton, null, onReceive),
+      if (onScan case final scan?)
+        (Icons.qr_code_scanner, l.sendScanButton, l.homeScanTooltip, scan),
+    ];
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        border: Border.all(color: t.line),
+        borderRadius: radius,
+      ),
+      child: ClipRRect(
+        borderRadius: radius,
+        child: IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              for (final (i, (icon, label, tooltip, onTap))
+                  in cells.indexed) ...[
+                if (i > 0)
+                  VerticalDivider(width: 1, thickness: 1, color: t.line),
+                Expanded(
+                  child: _ActionCell(
+                    icon: icon,
+                    label: label,
+                    tooltip: tooltip,
+                    onTap: onTap,
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ActionCell extends StatelessWidget {
+  const _ActionCell({
+    required this.icon,
+    required this.label,
+    required this.tooltip,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String label;
+  final String? tooltip;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    final cell = Material(
+      type: MaterialType.transparency,
+      child: InkWell(
+        onTap: onTap,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: 72),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 12),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(icon, color: t.accentText),
+                const SizedBox(height: 6),
+                Text(
+                  label,
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.labelLarge
+                      ?.copyWith(fontWeight: FontWeight.w600),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+    return Semantics(
+      button: true,
+      child: tooltip == null ? cell : Tooltip(message: tooltip, child: cell),
+    );
   }
 }
 
@@ -846,13 +956,12 @@ class _PendingSendsCard extends ConsumerWidget {
       BigInt.zero,
       (sum, t) => sum + txAmount(t).amount,
     );
-    final colors = Theme.of(context).colorScheme;
     final l = context.l10n;
     final count = waiting.length;
     return Padding(
       padding: const EdgeInsets.only(top: 16),
-      child: Card(
-        color: colors.secondaryContainer,
+      child: EdgeCard(
+        edge: context.tokens.accent,
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
@@ -860,13 +969,11 @@ class _PendingSendsCard extends ConsumerWidget {
             children: [
               Text(
                 l.homePendingTitle(count),
-                style: Theme.of(context).textTheme.titleSmall
-                    ?.copyWith(color: colors.onSecondaryContainer),
+                style: Theme.of(context).textTheme.titleSmall,
               ),
               const SizedBox(height: 4),
               Text(
                 l.homePendingBody(count, shownEpic(l, total, hidden: hidden)),
-                style: TextStyle(color: colors.onSecondaryContainer),
               ),
               // One row on a phone; wraps only at large text.
               Wrap(

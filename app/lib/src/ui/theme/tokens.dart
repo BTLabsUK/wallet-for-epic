@@ -283,7 +283,8 @@ ThemeData buildWalletTheme(WalletTokens t, Brightness brightness) {
     borderRadius: BorderRadius.circular(t.radiusSmall),
   );
   final minSize = Size(64, t.controlHeight);
-  const buttonText = TextStyle(fontWeight: FontWeight.w600);
+  // From the text theme, so a button keeps the body font and the reader's text scale.
+  final buttonText = text.labelLarge?.copyWith(fontWeight: FontWeight.w600);
   OutlineInputBorder border(Color color, [double width = 1]) =>
       OutlineInputBorder(
         borderRadius: BorderRadius.circular(t.radiusSmall),

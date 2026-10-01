@@ -2261,7 +2261,7 @@ void main() {
         await h.pump(tester);
         double top(Finder f) => tester.getTopLeft(f).dy;
         final balance = top(find.text('12.5 EPIC'));
-        final send = top(find.widgetWithText(FilledButton, 'Send'));
+        final send = top(find.text('Send'));
         final waiting = top(
           find.text('A payment is waiting for the recipient'),
         );
