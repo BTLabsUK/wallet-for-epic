@@ -359,11 +359,12 @@ class _RealHttp extends HttpOverrides {}
 Future<void> _postsToLoopback() async {
   final server = await HttpServer.bind(InternetAddress.loopbackIPv4, 0);
   addTearDown(() => server.close(force: true));
-  final received = <({String? type, String body})>[];
+  final received = <({String? type, int length, String body})>[];
   var status = HttpStatus.noContent;
   server.listen((request) async {
     received.add((
       type: request.headers.contentType?.mimeType,
+      length: request.headers.contentLength,
       body: await utf8.decodeStream(request),
     ));
     request.response.statusCode = status;
@@ -373,6 +374,8 @@ Future<void> _postsToLoopback() async {
   const outlet = PlatformFeedbackOutlet();
   await outlet.post(url, 'Café report\n');
   expect(received.single.type, 'text/plain');
+  // Declared, not chunked: tool/feedback_receiver.py and other simple receivers need it.
+  expect(received.single.length, utf8.encode('Café report\n').length);
   expect(received.single.body, 'Café report\n');
 
   status = HttpStatus.serviceUnavailable;
