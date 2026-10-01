@@ -54,8 +54,12 @@ class _NoPrice implements PriceSource {
 
 /// Everything the app keeps outside the wallet, in memory.
 class _Device {
-  _Device({bool biometrics = false, this.sealedMainnet = false})
-    : bio = MemoryBiometricStore(available: biometrics) {
+  _Device({
+    bool biometrics = false,
+    this.sealedMainnet = false,
+    bool advanced = false,
+  }) : bio = MemoryBiometricStore(available: biometrics) {
+    if (advanced) store.values['app.advanced'] = 'true';
     if (sealedMainnet) {
       store.values['wallet.mainnet.sealed'] = 'sealed|$_pin|$_password';
     }
@@ -284,7 +288,7 @@ void main() {
       tester,
     ) async {
       final service = FakeWalletService();
-      final device = _Device();
+      final device = _Device(advanced: true);
       await _pumpApp(tester, service, device);
       await _tapText(tester, 'I already have a wallet: restore it');
       expect(service.existingWallets, contains(_mainnetDir));
@@ -323,7 +327,7 @@ void main() {
       tester,
     ) async {
       final service = FakeWalletService();
-      await _pumpApp(tester, service, _Device());
+      await _pumpApp(tester, service, _Device(advanced: true));
       await _tap(tester, find.byTooltip('Network settings'));
       await _tapText(tester, 'Usernet');
       final urlField = tester.widget<TextField>(
@@ -347,7 +351,7 @@ void main() {
     tester,
   ) async {
     final service = FakeWalletService();
-    final device = _Device();
+    final device = _Device(advanced: true);
     await _pumpApp(tester, service, device);
     await _tap(tester, find.byTooltip('Network settings'));
 
@@ -595,7 +599,11 @@ void main() {
 
     testWidgets('a full rescan from settings streams progress', (tester) async {
       final service = _existing();
-      await _pumpApp(tester, service, _Device(sealedMainnet: true));
+      await _pumpApp(
+        tester,
+        service,
+        _Device(advanced: true, sealedMainnet: true),
+      );
       await _unlockToHome(tester);
 
       await _tap(tester, find.byTooltip('Settings'));
@@ -616,7 +624,11 @@ void main() {
         ScanProgress(percent: 10, message: 'Scanning', finished: false),
         ScanProgress(message: 'Scan failed: node unreachable', finished: true),
       ];
-      await _pumpApp(tester, service, _Device(sealedMainnet: true));
+      await _pumpApp(
+        tester,
+        service,
+        _Device(advanced: true, sealedMainnet: true),
+      );
       await _unlockToHome(tester);
 
       await _tap(tester, find.byTooltip('Settings'));

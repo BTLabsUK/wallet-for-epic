@@ -78,7 +78,12 @@ class _ScanSession extends FakeWalletSession {
 }
 
 class _Harness {
-  _Harness({bool sealed = true, bool walletExists = true}) {
+  _Harness({
+    bool sealed = true,
+    bool walletExists = true,
+    bool advanced = false,
+  }) {
+    if (advanced) store.values['app.advanced'] = 'true';
     if (sealed) {
       store.values['wallet.mainnet.sealed'] = 'sealed|$_pin|$_password';
     }
@@ -281,7 +286,7 @@ void main() {
     testWidgets('scans from the date, then offers a history import', (
       tester,
     ) async {
-      final h = _Harness(sealed: false, walletExists: false);
+      final h = _Harness(advanced: true, sealed: false, walletExists: false);
       await h.pump(tester);
       await _tapText(tester, 'I already have a wallet: restore it');
       await _enter(tester, 'Recovery phrase', h.service.phrase);
@@ -633,7 +638,7 @@ void main() {
 
   group('wallet', () {
     testWidgets('rescans from a height or the whole chain', (tester) async {
-      final h = _Harness();
+      final h = _Harness(advanced: true);
       await h.pump(tester);
       await h.unlock(tester);
       await h.openSettings(tester);
@@ -807,7 +812,7 @@ void main() {
     });
 
     testWidgets('lists settings without explanations', (tester) async {
-      final h = _Harness();
+      final h = _Harness(advanced: true);
       await h.pump(tester);
       await h.unlock(tester);
       await h.openSettings(tester);
@@ -835,7 +840,7 @@ void main() {
     testWidgets('network settings call the relay an epicbox server', (
       tester,
     ) async {
-      final h = _Harness();
+      final h = _Harness(advanced: true);
       await h.pump(tester);
       await h.unlock(tester);
       await h.openSettings(tester);
@@ -868,7 +873,7 @@ void main() {
     testWidgets('test connection shows the node height and version', (
       tester,
     ) async {
-      final h = _Harness();
+      final h = _Harness(advanced: true);
       await h.pump(tester);
       await h.unlock(tester);
       await h.openSettings(tester);
@@ -884,6 +889,107 @@ void main() {
       await _enter(tester, 'Node URL', 'not a url');
       await _tapText(tester, 'Test connection');
       expect(find.textContaining('Enter a full URL'), findsOneWidget);
+    });
+  });
+
+  group('advanced options', () {
+    /// Every text in the Settings list, built by scrolling it from top to bottom.
+    Future<Set<String>> settingsTexts(WidgetTester tester) async {
+      final seen = <String>{};
+      final list = find.byType(Scrollable).last;
+      await tester.drag(list, const Offset(0, 20000));
+      await tester.pumpAndSettle();
+      for (var i = 0; i < 20; i++) {
+        seen.addAll(
+          tester.widgetList<Text>(find.byType(Text)).map((t) => t.data ?? ''),
+        );
+        await tester.drag(list, const Offset(0, -400));
+        await tester.pumpAndSettle();
+      }
+      await tester.drag(list, const Offset(0, 20000));
+      await tester.pumpAndSettle();
+      return seen;
+    }
+
+    testWidgets('the switch shows network, node, relay and rescan, and is '
+        'saved', (tester) async {
+      final h = _Harness();
+      await h.pump(tester);
+      await h.unlock(tester);
+      await h.openSettings(tester);
+
+      final off = await settingsTexts(tester);
+      for (final hidden in [
+        'Network and node',
+        'Rescan the chain',
+        'Network',
+        'Epicbox server',
+      ]) {
+        expect(off, isNot(contains(hidden)), reason: hidden);
+      }
+      // Kept: the Home backup reminder points at these, and help is for everyone.
+      for (final kept in [
+        'Export history backup',
+        'Export CSV',
+        'Import history backup',
+        'Help',
+        'Send feedback',
+        'Advanced options',
+      ]) {
+        expect(off, contains(kept), reason: kept);
+      }
+
+      await _tapText(tester, 'Advanced options');
+      expect(h.store.values['app.advanced'], 'true');
+      final on = await settingsTexts(tester);
+      for (final shown in [
+        'Network and node',
+        'Rescan the chain',
+        'Network',
+        'Epicbox server',
+      ]) {
+        expect(on, contains(shown), reason: shown);
+      }
+
+      await _tapText(tester, 'Advanced options');
+      expect(h.store.values['app.advanced'], 'false');
+      expect(await settingsTexts(tester), isNot(contains('Rescan the chain')));
+    });
+
+    testWidgets('restore scans the whole chain and offers no start without it', (
+      tester,
+    ) async {
+      final h = _Harness(sealed: false, walletExists: false);
+      await h.pump(tester);
+      // First run offers no network choice: mainnet on its default node works.
+      expect(find.byTooltip('Network settings'), findsNothing);
+      await _tapText(tester, 'I already have a wallet: restore it');
+      expect(find.text('Where to start scanning'), findsNothing);
+      expect(find.text('Pick the date you created the wallet'), findsNothing);
+      expect(find.text('Block height'), findsNothing);
+      await _enter(tester, 'Recovery phrase', h.service.phrase);
+      await _tapText(tester, 'Continue');
+      await _enter(tester, 'PIN', _pin);
+      await _enter(tester, 'Repeat PIN', _pin);
+      expect(h.session.scanCalls, 1);
+      // No start height: the core scans a restored wallet from block 1.
+      expect(h.session.lastStart, isNull);
+    });
+
+    testWidgets('restore and first run offer the choices with it', (
+      tester,
+    ) async {
+      final h = _Harness(sealed: false, walletExists: false, advanced: true);
+      await h.pump(tester);
+      expect(find.byTooltip('Network settings'), findsOneWidget);
+      await _tapText(tester, 'I already have a wallet: restore it');
+      expect(find.text('Where to start scanning'), findsOneWidget);
+      expect(find.text('Pick the date you created the wallet'), findsOneWidget);
+      await _tapText(tester, 'Block height');
+      expect(
+        find.widgetWithText(TextField, 'Start height (optional)'),
+        findsOneWidget,
+      );
     });
   });
 }

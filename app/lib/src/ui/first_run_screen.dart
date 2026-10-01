@@ -9,6 +9,7 @@ import 'common.dart';
 import 'pin.dart';
 import 'restore_screen.dart';
 import 'setup_screen.dart';
+import 'theme/advanced.dart';
 
 /// First start: the wallet is created in the background while the user picks a PIN.
 class FirstRunScreen extends ConsumerStatefulWidget {
@@ -81,12 +82,15 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
       centered: true,
       appBar: AppBar(
         title: Text('${l.firstRunTitle}$network'),
+        // Mainnet on node.btlabs.uk works without a choice; another network or node is an
+        // Advanced option, also reachable later from Settings.
         actions: [
-          IconButton(
-            tooltip: l.setupNetworkSettingsTooltip,
-            icon: const Icon(Icons.settings_ethernet),
-            onPressed: waiting ? null : () => _leave(const SetupScreen()),
-          ),
+          if (AdvancedOptions.of(context))
+            IconButton(
+              tooltip: l.setupNetworkSettingsTooltip,
+              icon: const Icon(Icons.settings_ethernet),
+              onPressed: waiting ? null : () => _leave(const SetupScreen()),
+            ),
         ],
       ),
       body: CenteredBody(

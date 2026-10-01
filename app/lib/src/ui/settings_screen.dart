@@ -24,6 +24,7 @@ import 'restore_screen.dart'
     show ScanSlotLine, mainnetFirstDay, mainnetHeightForDate;
 import 'settings_history.dart';
 import 'settings_pin.dart';
+import 'theme/advanced.dart';
 import 'setup_screen.dart';
 
 /// The project's source code.
@@ -305,6 +306,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final walletOpen = ref.watch(sessionProvider) != null;
     final updates = ref.read(updateProvider.notifier).supported;
     final chain = config == null ? l.commonUnknown : chainName(l, config.chain);
+    // Network, node, relay and rescan are technical; the Display switch shows them.
+    final advanced = AdvancedOptions.of(context);
 
     return SlotScaffold(
       // A running scan shows in the slot. `_busy` shows nothing: most of its time is spent
@@ -322,21 +325,23 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     padding: const EdgeInsets.all(16),
                     child: ErrorText(describeError(l, scan.error!)),
                   ),
-                _Header(l.settingsSectionNetwork),
-                ListTile(
-                  leading: const Icon(Icons.settings_ethernet),
-                  title: Text(l.settingsNetworkAndNode),
-                  subtitle: Text(
-                    network == null
-                        ? chain
-                        : l.settingsNetworkSubtitle(
-                            chain,
-                            Uri.tryParse(network.nodeUrl)?.host ??
-                                network.nodeUrl,
-                          ),
+                if (advanced) ...[
+                  _Header(l.settingsSectionNetwork),
+                  ListTile(
+                    leading: const Icon(Icons.settings_ethernet),
+                    title: Text(l.settingsNetworkAndNode),
+                    subtitle: Text(
+                      network == null
+                          ? chain
+                          : l.settingsNetworkSubtitle(
+                              chain,
+                              Uri.tryParse(network.nodeUrl)?.host ??
+                                  network.nodeUrl,
+                            ),
+                    ),
+                    onTap: () => _push(const SetupScreen()),
                   ),
-                  onTap: () => _push(const SetupScreen()),
-                ),
+                ],
                 _Header(l.settingsSectionDisplay),
                 ListTile(
                   leading: const Icon(Icons.attach_money),
@@ -444,12 +449,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     title: Text(l.settingsContacts),
                     onTap: () => _push(const ContactsScreen()),
                   ),
-                  ListTile(
-                    leading: const Icon(Icons.sync),
-                    title: Text(l.settingsRescan),
-                    enabled: !scan.running,
-                    onTap: _rescan,
-                  ),
+                  if (advanced)
+                    ListTile(
+                      leading: const Icon(Icons.sync),
+                      title: Text(l.settingsRescan),
+                      enabled: !scan.running,
+                      onTap: _rescan,
+                    ),
                   ListTile(
                     leading: Icon(
                       Icons.delete_forever,
@@ -473,24 +479,26 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     version.hasValue ? version.value ?? l.commonUnknown : '…',
                   ),
                 ),
-                ListTile(
-                  leading: const Icon(Icons.hub),
-                  title: Text(l.settingsAboutNetwork),
-                  subtitle: Text(chain),
-                ),
-                ListTile(
-                  leading: const Icon(Icons.dns_outlined),
-                  title: Text(l.settingsEpicboxServer),
-                  subtitle: Text(
-                    network?.relay.label ??
-                        (config == null
-                            ? l.commonUnknown
-                            : EpicboxRelay(
-                                host: config.epicboxDomain,
-                                port: config.epicboxPort,
-                              ).label),
+                if (advanced) ...[
+                  ListTile(
+                    leading: const Icon(Icons.hub),
+                    title: Text(l.settingsAboutNetwork),
+                    subtitle: Text(chain),
                   ),
-                ),
+                  ListTile(
+                    leading: const Icon(Icons.dns_outlined),
+                    title: Text(l.settingsEpicboxServer),
+                    subtitle: Text(
+                      network?.relay.label ??
+                          (config == null
+                              ? l.commonUnknown
+                              : EpicboxRelay(
+                                  host: config.epicboxDomain,
+                                  port: config.epicboxPort,
+                                ).label),
+                    ),
+                  ),
+                ],
                 if (updates)
                   ListTile(
                     leading: const Icon(Icons.system_update),

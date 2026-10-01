@@ -15,6 +15,7 @@ import 'common.dart';
 import 'launch_screen.dart';
 import 'pin.dart';
 import 'settings_history.dart';
+import 'theme/advanced.dart';
 
 /// Mainnet block 1 was mined at 2019-09-03T02:10:08Z (`get_header` at height 1 on
 /// node.btlabs.uk, checked 2026-09-30). The genesis block is dated 2019-08-09T17:04:38Z, 24 days
@@ -93,9 +94,11 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
     if (!service.validateMnemonic(phrase: phrase)) {
       problem = l.errorInvalidMnemonic;
     }
+    // Without Advanced options the choice is hidden and the scan covers the whole chain.
+    final advanced = AdvancedOptions.of(context);
     final byDate = _startBy == _StartBy.date && _datesSupported;
-    final heightText = byDate ? '' : _startHeight.text.trim();
-    final date = byDate ? _startDate : null;
+    final heightText = byDate || !advanced ? '' : _startHeight.text.trim();
+    final date = byDate && advanced ? _startDate : null;
     final startHeight = date != null
         ? mainnetHeightForDate(date)
         : heightText.isEmpty
@@ -214,6 +217,7 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
 
   List<Widget> _form(BuildContext context) {
     final l = context.l10n;
+    final advanced = AdvancedOptions.of(context);
     return [
       TextField(
         controller: _phrase,
@@ -231,7 +235,7 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
         ),
       ),
       const SizedBox(height: 12),
-      if (_datesSupported) ...[
+      if (advanced && _datesSupported) ...[
         Text(
           l.restoreStartHeading,
           style: Theme.of(context).textTheme.titleSmall,
@@ -253,22 +257,24 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
         ),
         const SizedBox(height: 12),
       ],
-      if (_startBy == _StartBy.date && _datesSupported)
-        _DateChoice(
-          date: _startDate,
-          onChanged: (date) => setState(() => _startDate = date),
-        )
-      else
-        TextField(
-          controller: _startHeight,
-          keyboardType: TextInputType.number,
-          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-          decoration: InputDecoration(
-            labelText: l.restoreStartHeightLabel,
-            helperText: l.restoreStartHeightHelper,
-            border: const OutlineInputBorder(),
+      if (advanced) ...[
+        if (_startBy == _StartBy.date && _datesSupported)
+          _DateChoice(
+            date: _startDate,
+            onChanged: (date) => setState(() => _startDate = date),
+          )
+        else
+          TextField(
+            controller: _startHeight,
+            keyboardType: TextInputType.number,
+            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+            decoration: InputDecoration(
+              labelText: l.restoreStartHeightLabel,
+              helperText: l.restoreStartHeightHelper,
+              border: const OutlineInputBorder(),
+            ),
           ),
-        ),
+      ],
       const SizedBox(height: 16),
       if (_error != null) ErrorText(_error!),
       BusyButton(label: l.commonContinue, onPressed: _checkPhrase),
