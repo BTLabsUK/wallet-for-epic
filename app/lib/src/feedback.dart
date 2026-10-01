@@ -188,7 +188,10 @@ class PlatformFeedbackOutlet implements FeedbackOutlet {
         'plain',
         charset: 'utf-8',
       );
-      request.add(utf8.encode(report));
+      // A declared length, not chunked encoding, which simple receivers cannot read.
+      final body = utf8.encode(report);
+      request.contentLength = body.length;
+      request.add(body);
       final response = await request.close().timeout(timeout);
       await response.drain<void>();
       if (response.statusCode < 200 || response.statusCode >= 300) {
