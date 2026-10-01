@@ -329,9 +329,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     ),
                   // The recovery phrase guards the funds, so its card stays on top.
                   if (!backedUp && !backupDismissed && config != null)
-                    _BackupCard(
-                      onBackup: _backup,
-                      onDismiss: () => dismissBackupCard(ref, config.chain),
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 16),
+                      child: _BackupCard(
+                        onBackup: _backup,
+                        onDismiss: () => dismissBackupCard(ref, config.chain),
+                      ),
                     ),
                   if (home.hasError && !home.isLoading)
                     ErrorText(describeError(l, home.error!)),
