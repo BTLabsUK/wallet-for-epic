@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:epic_wallet/src/app.dart';
 import 'package:epic_wallet/src/contacts.dart';
 import 'package:epic_wallet/src/errors.dart';
+import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/price.dart';
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/relay_directory.dart';
@@ -202,7 +203,11 @@ class _Harness {
           priceSourceProvider.overrideWithValue(_FixedPrice(price)),
           sessionProvider.overrideWith(() => _OpenSession(session)),
         ],
-        child: MaterialApp(home: screen),
+        child: MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: screen,
+        ),
       ),
     );
     await tester.pumpAndSettle();
@@ -254,9 +259,13 @@ class _GatedFiles extends FakeSlateFiles {
   }
 
   @override
-  Future<bool> save({required String name, required String json}) async {
+  Future<bool> save({
+    required String name,
+    required String json,
+    required String dialogTitle,
+  }) async {
     await _wait();
-    return super.save(name: name, json: json);
+    return super.save(name: name, json: json, dialogTitle: dialogTitle);
   }
 
   @override
@@ -266,9 +275,9 @@ class _GatedFiles extends FakeSlateFiles {
   }
 
   @override
-  Future<SlateFile?> pick() async {
+  Future<SlateFile?> pick({required String dialogTitle}) async {
     await _wait();
-    return super.pick();
+    return super.pick(dialogTitle: dialogTitle);
   }
 
   @override
@@ -552,11 +561,15 @@ void main() {
 
     test('checkRecipient explains what is wrong', () {
       final service = FakeWalletService();
-      expect(checkRecipient(service, ''), contains('Enter their address'));
-      expect(checkRecipient(service, 'esBare'), contains('not a valid'));
-      expect(checkRecipient(service, 'http://'), contains('full wallet URL'));
-      expect(checkRecipient(service, _bob), isNull);
-      expect(checkRecipient(service, 'http://203.0.113.5:3415'), isNull);
+      final l = englishStrings;
+      expect(checkRecipient(l, service, ''), contains('Enter their address'));
+      expect(checkRecipient(l, service, 'esBare'), contains('not a valid'));
+      expect(
+        checkRecipient(l, service, 'http://'),
+        contains('full wallet URL'),
+      );
+      expect(checkRecipient(l, service, _bob), isNull);
+      expect(checkRecipient(l, service, 'http://203.0.113.5:3415'), isNull);
     });
   });
 
@@ -1225,7 +1238,7 @@ void main() {
       await _tap(tester, find.text('Review'));
       await _tap(tester, find.text('Send 2 EPIC'));
       expect(find.text('Not on the network yet'), findsOneWidget);
-      expect(find.text(NotPostedNotice.text), findsOneWidget);
+      expect(find.text(NotPostedNotice.text(englishStrings)), findsOneWidget);
       expect(find.text('The node did not answer.'), findsOneWidget);
       expect(find.text('Sent 2 EPIC'), findsNothing);
       // Nothing to send a second time with.
@@ -1254,7 +1267,7 @@ void main() {
         h.session.responseSlate.json,
       );
       await _tap(tester, find.text('Finish payment'));
-      expect(find.text(NotPostedNotice.text), findsOneWidget);
+      expect(find.text(NotPostedNotice.text(englishStrings)), findsOneWidget);
       expect(find.text('Finish payment'), findsNothing);
     });
 
@@ -1279,7 +1292,7 @@ void main() {
         ),
       );
       await _tap(tester, find.text('Finish payment'));
-      expect(find.text(NotPostedNotice.text), findsOneWidget);
+      expect(find.text(NotPostedNotice.text(englishStrings)), findsOneWidget);
       expect(find.textContaining('sent to the network'), findsNothing);
       expect(find.text('Finish payment'), findsNothing);
     });
@@ -1351,6 +1364,7 @@ void main() {
     test('a busy chain says what to do, in plain words', () {
       expect(
         describeError(
+          englishStrings,
           const WalletError(
             kind: WalletErrorKind.chainBusy,
             message: 'this process already uses Mainnet for an open wallet',
@@ -1363,6 +1377,7 @@ void main() {
 
     group('invalid input', () {
       String say(String message) => describeError(
+        englishStrings,
         WalletError(kind: WalletErrorKind.invalidArgument, message: message),
       );
 
@@ -1407,6 +1422,7 @@ void main() {
 
     test('a busy delete does not blame the other network', () {
       final text = describeError(
+        englishStrings,
         const WalletError(kind: WalletErrorKind.walletBusy, message: 'busy'),
       );
       expect(
@@ -1418,6 +1434,7 @@ void main() {
 
     test('an expired payment uses the core\'s sentence about the funds', () {
       String say(String message) => describeError(
+        englishStrings,
         WalletError(kind: WalletErrorKind.paymentExpired, message: message),
       );
       for (final funds in [
@@ -1443,6 +1460,7 @@ void main() {
 
     test('a bad transaction text does not say "slate" or "JSON"', () {
       final text = describeError(
+        englishStrings,
         const WalletError(kind: WalletErrorKind.invalidSlate, message: 'x'),
       );
       expect(text, isNot(contains('slate')));

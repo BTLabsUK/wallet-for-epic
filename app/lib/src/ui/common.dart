@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../amount.dart';
 import '../contacts.dart' show contactNameFor, contactsProvider;
+import '../l10n.dart';
 import '../price.dart';
 import '../providers.dart';
 import '../settings.dart';
@@ -32,14 +33,16 @@ void lockWallet(BuildContext context, WidgetRef ref) {
   );
 }
 
-/// Copies [text] and confirms in the notice slot. Never use this for the recovery phrase.
-Future<void> copyText(BuildContext context, String text, String what) async {
+/// Copies [text] and confirms in the notice slot with [notice], a whole sentence such as
+/// `l.addressCopied` (never a noun with "copied" glued on: other languages inflect it).
+/// Never use this for the recovery phrase.
+Future<void> copyText(BuildContext context, String text, String notice) async {
   await Clipboard.setData(ClipboardData(text: text));
   if (!context.mounted) return;
   ProviderScope.containerOf(
     context,
     listen: false,
-  ).read(noticeProvider.notifier).show('$what copied');
+  ).read(noticeProvider.notifier).show(notice);
 }
 
 /// How long a notice stays in the slot unless it is persistent.
@@ -182,7 +185,7 @@ class _NoticeView extends ConsumerWidget {
                 ),
               if (notice.persistent)
                 IconButton(
-                  tooltip: 'Close',
+                  tooltip: context.l10n.commonClose,
                   icon: const Icon(Icons.close),
                   onPressed: () => notifier.dismiss(notice.id),
                 ),
@@ -266,15 +269,17 @@ class SlotScaffold extends StatelessWidget {
   }
 }
 
-/// `1,234.5 EPIC`. Display only; see [formatEpic].
-String epicText(BigInt atomic) => '${formatEpic(atomic, grouped: true)} EPIC';
+/// `1,234.5 EPIC`, with [l]'s separators (`1.234,5 EPIC` in German). Display only; see
+/// [formatEpic] and [localDigits].
+String epicText(AppLocalizations l, BigInt atomic) =>
+    '${localDigits(l, formatEpic(atomic, grouped: true))} EPIC';
 
 /// What an amount shows while balances are hidden.
 const String hiddenAmount = '•••••';
 
 /// [epicText], or [hiddenAmount] when [hidden].
-String shownEpic(BigInt atomic, {required bool hidden}) =>
-    hidden ? hiddenAmount : epicText(atomic);
+String shownEpic(AppLocalizations l, BigInt atomic, {required bool hidden}) =>
+    hidden ? hiddenAmount : epicText(l, atomic);
 
 /// An epicbox address short enough for a list or a title: the first and last 6 characters of
 /// the key around an ellipsis, then `@relay`. With [ownServer] (the host of the wallet's own
@@ -298,18 +303,8 @@ String shortAddress(String address, {String? ownServer}) {
   return '$shortKey$relay';
 }
 
-/// `2,500,000`.
-String groupDigits(Object number) {
-  final text = number.toString();
-  final negative = text.startsWith('-');
-  final digits = negative ? text.substring(1) : text;
-  final out = StringBuffer(negative ? '-' : '');
-  for (var i = 0; i < digits.length; i++) {
-    if (i > 0 && (digits.length - i) % 3 == 0) out.write(',');
-    out.write(digits[i]);
-  }
-  return out.toString();
-}
+/// `2,500,000`, with [l]'s thousands separator.
+String groupDigits(AppLocalizations l, Object number) => localInt(l, number);
 
 /// The display settings every amount depends on: hidden or not, and the fiat price.
 ({bool hidden, double? price, String currency}) amountDisplay(WidgetRef ref) {
@@ -323,35 +318,31 @@ String groupDigits(Object number) {
 
 /// `≈ 1.23 USD` for [atomic], or null when there is no price or amounts are hidden.
 String? approxFiat(
+  AppLocalizations l,
   BigInt atomic,
   ({bool hidden, double? price, String currency}) display,
 ) {
   final price = display.price;
   if (price == null || display.hidden) return null;
-  return '≈ ${fiatText(atomic, price, display.currency)}';
+  return '≈ ${localDigits(l, fiatText(atomic, price, display.currency))}';
 }
 
 // Dates.
-
-const List<String> _months = [
-  'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', //
-  'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
-];
 
 String _two(int v) => v.toString().padLeft(2, '0');
 
 DateTime localTime(int unixSeconds) =>
     DateTime.fromMillisecondsSinceEpoch(unixSeconds * 1000);
 
-/// Local `yyyy-MM-dd HH:mm`.
+/// Local `yyyy-MM-dd HH:mm`, the same in every language.
 String formatTimestamp(int unixSeconds) {
   final t = localTime(unixSeconds);
   return '${t.year}-${_two(t.month)}-${_two(t.day)} ${_two(t.hour)}:${_two(t.minute)}';
 }
 
 /// `21 Sep 2026, 14:05`.
-String formatDateTime(DateTime t) =>
-    '${t.day} ${_months[t.month - 1]} ${t.year}, ${_two(t.hour)}:${_two(t.minute)}';
+String formatDateTime(AppLocalizations l, DateTime t) =>
+    l.dateWithTime(localDay(l, t), localClock(l, t));
 
 /// Whole days from [t]'s local date to [now]'s: 0 for today, 1 for yesterday.
 int daysAgo(DateTime t, DateTime now) => DateTime(
@@ -361,21 +352,22 @@ int daysAgo(DateTime t, DateTime now) => DateTime(
 ).difference(DateTime(t.year, t.month, t.day)).inDays;
 
 /// A day heading: `Today`, `Yesterday`, else `21 Sep 2026`.
-String dayLabel(DateTime t, DateTime now) => switch (daysAgo(t, now)) {
-  0 => 'Today',
-  1 => 'Yesterday',
-  _ => '${t.day} ${_months[t.month - 1]} ${t.year}',
-};
+String dayLabel(AppLocalizations l, DateTime t, DateTime now) =>
+    switch (daysAgo(t, now)) {
+      0 => l.dateToday,
+      1 => l.dateYesterday,
+      _ => localDay(l, t),
+    };
 
 /// A short time for a list row: `Today, 14:05`, `Yesterday, 14:05`, `21 Sep, 14:05`, and the
 /// year added for other years.
-String shortDate(DateTime t, DateTime now) {
-  final time = '${_two(t.hour)}:${_two(t.minute)}';
+String shortDate(AppLocalizations l, DateTime t, DateTime now) {
+  final time = localClock(l, t);
   return switch (daysAgo(t, now)) {
-    0 => 'Today, $time',
-    1 => 'Yesterday, $time',
-    _ when t.year == now.year => '${t.day} ${_months[t.month - 1]}, $time',
-    _ => '${t.day} ${_months[t.month - 1]} ${t.year}',
+    0 => l.dateWithTime(l.dateToday, time),
+    1 => l.dateWithTime(l.dateYesterday, time),
+    _ when t.year == now.year => l.dateWithTime(localDayMonth(l, t), time),
+    _ => localDay(l, t),
   };
 }
 
@@ -390,10 +382,10 @@ String shortDate(DateTime t, DateTime now) {
 }
 
 /// `+5 EPIC`, `-1 EPIC`, or [hiddenAmount].
-String signedEpic(TxEntry tx, {required bool hidden}) {
+String signedEpic(AppLocalizations l, TxEntry tx, {required bool hidden}) {
   if (hidden) return hiddenAmount;
   final (:amount, :outgoing) = txAmount(tx);
-  return '${outgoing ? '-' : '+'}${epicText(amount)}';
+  return '${outgoing ? '-' : '+'}${epicText(l, amount)}';
 }
 
 bool _outgoingKind(TxEntry tx) =>
@@ -402,30 +394,35 @@ bool _outgoingKind(TxEntry tx) =>
 /// The row title, the same style for every row: the contact's name, else the other side's
 /// short address, else what kind of payment it is. The status is never in the title, only in
 /// the chip.
-String txTitle(TxEntry tx, {String? contactName, String? ownServer}) {
-  final special = _specialTitle(tx);
+String txTitle(
+  AppLocalizations l,
+  TxEntry tx, {
+  String? contactName,
+  String? ownServer,
+}) {
+  final special = _specialTitle(l, tx);
   if (special != null) return special;
   final counterparty = tx.counterparty;
   return contactName ??
       (counterparty == null
-          ? _directionNoun(tx)
+          ? _directionNoun(l, tx)
           : shortAddress(counterparty, ownServer: ownServer));
 }
 
 /// The details title: the contact's name, else what kind of payment it is. The address is in
 /// the "Sent to" / "Received from" row just below, in full.
-String txHeading(TxEntry tx, {String? contactName}) =>
-    _specialTitle(tx) ?? contactName ?? _directionNoun(tx);
+String txHeading(AppLocalizations l, TxEntry tx, {String? contactName}) =>
+    _specialTitle(l, tx) ?? contactName ?? _directionNoun(l, tx);
 
 /// Titles that describe where a payment came from rather than who: mining and a chain scan.
-String? _specialTitle(TxEntry tx) {
-  if (tx.kind == TxKind.coinbase) return 'Mining reward';
-  if (tx.source == TxSource.restored) return 'Restored funds';
+String? _specialTitle(AppLocalizations l, TxEntry tx) {
+  if (tx.kind == TxKind.coinbase) return l.txMiningReward;
+  if (tx.source == TxSource.restored) return l.txRestoredFunds;
   return null;
 }
 
-String _directionNoun(TxEntry tx) =>
-    _outgoingKind(tx) ? 'Outgoing payment' : 'Incoming payment';
+String _directionNoun(AppLocalizations l, TxEntry tx) =>
+    _outgoingKind(tx) ? l.txOutgoingPayment : l.txIncomingPayment;
 
 /// A pending record that came only from a history backup: this wallet has nothing of its own
 /// to say how it ended, so it is neither pending nor done.
@@ -483,15 +480,18 @@ TxPhase txPhase(TxEntry tx, BigInt? tip) {
 }
 
 /// `Waiting for recipient`, `Confirming 3/10`, `Completed`, …
-String txStatusLabel(TxEntry tx, BigInt? tip) => switch (txPhase(tx, tip)) {
-  TxPhase.waitingRecipient => 'Waiting for recipient',
-  TxPhase.waitingSender => 'Waiting for sender',
-  TxPhase.confirming =>
-    'Confirming ${txConfirmations(tx, tip) ?? 0}/$confirmationsTarget',
-  TxPhase.completed => 'Completed',
-  TxPhase.cancelled => 'Cancelled',
-  TxPhase.fromBackup => 'From backup, status unknown',
-};
+String txStatusLabel(AppLocalizations l, TxEntry tx, BigInt? tip) =>
+    switch (txPhase(tx, tip)) {
+      TxPhase.waitingRecipient => l.txStatusWaitingRecipient,
+      TxPhase.waitingSender => l.txStatusWaitingSender,
+      TxPhase.confirming => l.txStatusConfirming(
+        txConfirmations(tx, tip) ?? 0,
+        confirmationsTarget,
+      ),
+      TxPhase.completed => l.txStatusCompleted,
+      TxPhase.cancelled => l.txStatusCancelled,
+      TxPhase.fromBackup => l.txStatusFromBackup,
+    };
 
 /// Pending transactions first, then the rest, each newest first.
 List<TxEntry> pendingFirst(Iterable<TxEntry> txs) {
@@ -548,7 +548,7 @@ class TxStatusChip extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
         child: Text(
-          txStatusLabel(tx, tip),
+          txStatusLabel(context.l10n, tx, tip),
           style: Theme.of(context).textTheme.labelSmall?.copyWith(color: fg),
         ),
       ),
@@ -565,30 +565,31 @@ class TxIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
+    final l = context.l10n;
     final (IconData icon, Color bg, Color fg, String label) = switch (tx.kind) {
       _ when tx.status == TxStatus.cancelled => (
         Icons.block,
         colors.surfaceContainerHighest,
         colors.onSurfaceVariant,
-        'Cancelled',
+        l.txIconCancelled,
       ),
       TxKind.coinbase => (
         Icons.bolt,
         colors.primaryContainer,
         colors.onPrimaryContainer,
-        'Mining reward',
+        l.txMiningReward,
       ),
       TxKind.received || TxKind.receivedCancelled => (
         Icons.south_west,
         colors.tertiaryContainer,
         colors.onTertiaryContainer,
-        'Incoming',
+        l.txIconIncoming,
       ),
       TxKind.sent || TxKind.sentCancelled => (
         Icons.north_east,
         colors.secondaryContainer,
         colors.onSecondaryContainer,
-        'Outgoing',
+        l.txIconOutgoing,
       ),
     };
     return CircleAvatar(
@@ -603,29 +604,43 @@ class TxIcon extends StatelessWidget {
 /// "Received 10 EPIC from Alice, completed, Today, 10:01".
 /// [who] is the contact name or short address, [date] the row's date text.
 String txSpokenLabel(
+  AppLocalizations l,
   TxEntry tx, {
   required String? who,
   required String date,
   required String status,
   required bool hidden,
 }) {
-  final amount = hidden ? 'a hidden amount' : epicText(txAmount(tx).amount);
+  final amount = hidden ? l.txSpokenHiddenAmount : epicText(l, txAmount(tx).amount);
   final out = _outgoingKind(tx);
   final String what;
   if (tx.kind == TxKind.coinbase) {
-    what = 'Mining reward of $amount';
+    what = l.txSpokenMiningReward(amount);
   } else if (tx.source == TxSource.restored) {
-    what = 'Restored funds of $amount';
+    what = l.txSpokenRestoredFunds(amount);
   } else {
-    final verb = switch (tx.status) {
-      TxStatus.cancelled => out ? 'Cancelled send of' : 'Cancelled receive of',
-      _ when isPending(tx) => out ? 'Sending' : 'Receiving',
-      _ => out ? 'Sent' : 'Received',
+    final cancelled = tx.status == TxStatus.cancelled;
+    final pending = !cancelled && isPending(tx);
+    what = switch ((out, who)) {
+      (true, null) when cancelled => l.txSpokenCancelledSend(amount),
+      (true, final w?) when cancelled => l.txSpokenCancelledSendTo(amount, w),
+      (false, null) when cancelled => l.txSpokenCancelledReceive(amount),
+      (false, final w?) when cancelled =>
+        l.txSpokenCancelledReceiveFrom(amount, w),
+      (true, null) when pending => l.txSpokenSending(amount),
+      (true, final w?) when pending => l.txSpokenSendingTo(amount, w),
+      (false, null) when pending => l.txSpokenReceiving(amount),
+      (false, final w?) when pending => l.txSpokenReceivingFrom(amount, w),
+      (true, null) => l.txSpokenSent(amount),
+      (true, final w?) => l.txSpokenSentTo(amount, w),
+      (false, null) => l.txSpokenReceived(amount),
+      (false, final w?) => l.txSpokenReceivedFrom(amount, w),
     };
-    final side = who == null ? '' : ' ${out ? 'to' : 'from'} $who';
-    what = '$verb $amount$side';
   }
-  return '$what, ${status.toLowerCase()}, $date';
+  // English lower-cases the chip's word mid-sentence; other languages keep it, since German
+  // nouns stay capitalised and Chinese has no case.
+  final spokenStatus = l.localeName == 'en' ? status.toLowerCase() : status;
+  return l.txSpokenRow(what, spokenStatus, date);
 }
 
 /// One transaction in a list. Tapping it opens its details, where cancel lives.
@@ -636,6 +651,7 @@ class TxTile extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l = context.l10n;
     final display = amountDisplay(ref);
     final tip = tipHeight(ref);
     final now = ref.watch(clockProvider)();
@@ -643,16 +659,17 @@ class TxTile extends ConsumerWidget {
     // A cancelled payment moved nothing, so it has no value to show.
     final fiat = tx.status == TxStatus.cancelled
         ? null
-        : approxFiat(amount, display);
+        : approxFiat(l, amount, display);
     final theme = Theme.of(context);
     final name = contactName(ref, tx.counterparty);
     final title = txTitle(
+      l,
       tx,
       contactName: name,
       ownServer: ownEpicboxServer(ref),
     );
-    final date = shortDate(localTime(tx.timeUnix), now);
-    final signed = signedEpic(tx, hidden: display.hidden);
+    final date = shortDate(l, localTime(tx.timeUnix), now);
+    final signed = signedEpic(l, tx, hidden: display.hidden);
     final muted = theme.textTheme.bodyMedium?.copyWith(
       color: theme.colorScheme.onSurfaceVariant,
     );
@@ -666,6 +683,7 @@ class TxTile extends ConsumerWidget {
       key: ValueKey('tx-${tx.key}'),
       button: true,
       label: txSpokenLabel(
+        l,
         tx,
         who:
             name ??
@@ -673,7 +691,7 @@ class TxTile extends ConsumerWidget {
                 ? null
                 : shortAddress(counterparty, ownServer: ownEpicboxServer(ref))),
         date: date,
-        status: txStatusLabel(tx, tip),
+        status: txStatusLabel(l, tx, tip),
         hidden: display.hidden,
       ),
       onTap: open,
@@ -762,7 +780,11 @@ class ErrorText extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(Icons.error_outline, color: color, semanticLabel: 'Error'),
+            Icon(
+              Icons.error_outline,
+              color: color,
+              semanticLabel: context.l10n.commonError,
+            ),
             const SizedBox(width: 8),
             Expanded(
               child: Text(message, style: TextStyle(color: color)),
@@ -841,7 +863,9 @@ class _PasswordFieldState extends State<PasswordField> {
         errorText: widget.errorText,
         border: const OutlineInputBorder(),
         suffixIcon: IconButton(
-          tooltip: _obscure ? 'Show password' : 'Hide password',
+          tooltip: _obscure
+              ? context.l10n.passwordShow
+              : context.l10n.passwordHide,
           icon: Icon(_obscure ? Icons.visibility : Icons.visibility_off),
           onPressed: () => setState(() => _obscure = !_obscure),
         ),
@@ -870,9 +894,10 @@ class SlateBox extends StatelessWidget {
               children: [
                 Expanded(child: Text(title, style: theme.textTheme.titleSmall)),
                 IconButton(
-                  tooltip: 'Copy transaction text',
+                  tooltip: context.l10n.slateCopyTooltip,
                   icon: const Icon(Icons.copy),
-                  onPressed: () => copyText(context, json, 'Transaction text'),
+                  onPressed: () =>
+                      copyText(context, json, context.l10n.slateCopied),
                 ),
               ],
             ),
@@ -923,7 +948,7 @@ class SlateInput extends StatelessWidget {
         alignLabelWithHint: true,
         border: const OutlineInputBorder(),
         suffixIcon: IconButton(
-          tooltip: 'Paste',
+          tooltip: context.l10n.commonPaste,
           icon: const Icon(Icons.content_paste),
           onPressed: () async {
             final data = await Clipboard.getData(Clipboard.kTextPlain);

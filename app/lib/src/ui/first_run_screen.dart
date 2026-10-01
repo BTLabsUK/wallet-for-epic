@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../errors.dart';
-import '../network.dart';
+import '../l10n.dart';
 import '../providers.dart';
 import 'centered_body.dart';
 import 'common.dart';
@@ -36,6 +36,7 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
   }
 
   Future<void> _finish(String pin, bool useBiometrics) async {
+    final l = context.l10n;
     setState(() {
       _answer = (pin: pin, biometrics: useBiometrics);
       _error = null;
@@ -47,16 +48,11 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
       ref.read(sessionProvider.notifier).unlocked(result.session);
       if (!mounted) return;
       if (useBiometrics && !result.biometrics) {
-        ref
-            .read(noticeProvider.notifier)
-            .show(
-              'Biometric unlock was not set up. You can turn it on in '
-              'Settings.',
-            );
+        ref.read(noticeProvider.notifier).show(l.firstRunBiometricsNotSetUp);
       }
       goHome(context);
     } catch (error) {
-      if (mounted) setState(() => _error = describeError(error));
+      if (mounted) setState(() => _error = describeError(l, error));
     }
   }
 
@@ -75,18 +71,19 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     final setup = ref.watch(walletSetupProvider);
     final config = ref.watch(walletConfigProvider);
-    final network = config == null ? '' : networkSuffix(config.chain);
+    final network = config == null ? '' : networkSuffix(l, config.chain);
     final waiting = _answer != null && _error == null;
 
     return SlotScaffold(
       centered: true,
       appBar: AppBar(
-        title: Text('Welcome$network'),
+        title: Text('${l.firstRunTitle}$network'),
         actions: [
           IconButton(
-            tooltip: 'Network settings',
+            tooltip: l.setupNetworkSettingsTooltip,
             icon: const Icon(Icons.settings_ethernet),
             onPressed: waiting ? null : () => _leave(const SetupScreen()),
           ),
@@ -101,21 +98,19 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
             const SizedBox(height: 24),
             TextButton.icon(
               icon: const Icon(Icons.restore),
-              label: const Text('I already have a wallet: restore it'),
+              label: Text(l.firstRunRestore),
               onPressed: () => _leave(const RestoreScreen()),
             ),
           ] else if (waiting) ...[
             const Center(child: CircularProgressIndicator()),
             const SizedBox(height: 16),
             Text(
-              setup.running
-                  ? 'Finishing your wallet…'
-                  : 'Securing your wallet…',
+              setup.running ? l.firstRunFinishing : l.firstRunSecuring,
               textAlign: TextAlign.center,
             ),
           ] else ...[
             ErrorText(_error!),
-            BusyButton(label: 'Try again', onPressed: _retry),
+            BusyButton(label: l.firstRunTryAgain, onPressed: _retry),
           ],
         ],
       ),
@@ -130,12 +125,10 @@ class _CreationStatus extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     final style = Theme.of(context).textTheme.bodySmall;
     if (setup.error != null) {
-      return ErrorText(
-        'Creating the wallet failed: ${describeError(setup.error!)} '
-        'It is tried again when you finish the PIN.',
-      );
+      return ErrorText(l.firstRunCreateFailed(describeError(l, setup.error!)));
     }
     return Semantics(
       liveRegion: true,
@@ -151,7 +144,7 @@ class _CreationStatus extends StatelessWidget {
             const Icon(Icons.check_circle, size: 16),
           const SizedBox(width: 8),
           Text(
-            setup.session == null ? 'Creating wallet…' : 'Wallet created',
+            setup.session == null ? l.firstRunCreating : l.firstRunCreated,
             style: style,
           ),
         ],

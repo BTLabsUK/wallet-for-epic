@@ -14,6 +14,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../errors.dart';
+import '../l10n.dart';
 import '../providers.dart';
 import '../settings.dart';
 import '../slate_files.dart';
@@ -23,10 +24,15 @@ import 'common.dart';
 /// History backups are small; a file far larger is not one.
 const int maxHistoryFileBytes = 32 << 20;
 
-/// Moves history files in and out of the app.
+/// Moves history files in and out of the app. [dialogTitle] is the title of the system file
+/// dialog, where the platform shows one.
 abstract interface class HistoryFiles {
   /// Saves [bytes] as [name] where the user chooses. Returns false if they cancelled.
-  Future<bool> save({required String name, required Uint8List bytes});
+  Future<bool> save({
+    required String name,
+    required Uint8List bytes,
+    required String dialogTitle,
+  });
 
   /// Whether [share] works on this platform.
   bool get canShare;
@@ -35,19 +41,18 @@ abstract interface class HistoryFiles {
   Future<bool> share({required String name, required Uint8List bytes});
 
   /// Lets the user pick a file and returns its bytes, or null if they cancelled.
-  Future<Uint8List?> pick();
+  Future<Uint8List?> pick({required String dialogTitle});
 }
 
 class PlatformHistoryFiles implements HistoryFiles {
   const PlatformHistoryFiles();
 
   @override
-  Future<bool> save({required String name, required Uint8List bytes}) =>
-      saveBytesToDevice(
-        name: name,
-        bytes: bytes,
-        dialogTitle: 'Save payment history',
-      );
+  Future<bool> save({
+    required String name,
+    required Uint8List bytes,
+    required String dialogTitle,
+  }) => saveBytesToDevice(name: name, bytes: bytes, dialogTitle: dialogTitle);
 
   @override
   bool get canShare => canShareFiles;
@@ -57,12 +62,12 @@ class PlatformHistoryFiles implements HistoryFiles {
       shareBytes(name: name, bytes: bytes);
 
   @override
-  Future<Uint8List?> pick() async {
-    final file = await FilePicker.pickFile(dialogTitle: 'Open history backup');
+  Future<Uint8List?> pick({required String dialogTitle}) async {
+    final file = await FilePicker.pickFile(dialogTitle: dialogTitle);
     if (file == null) return null;
     final length = await file.length();
     if (length != null && length > maxHistoryFileBytes) {
-      throw const FormatException('That file is too large to be a backup.');
+      throw LocalizedFormatException((l) => l.historyBackupFileTooLarge);
     }
     return file.readAsBytes();
   }
@@ -78,7 +83,11 @@ class FakeHistoryFiles implements HistoryFiles {
   bool canShare = true;
 
   @override
-  Future<bool> save({required String name, required Uint8List bytes}) async {
+  Future<bool> save({
+    required String name,
+    required Uint8List bytes,
+    required String dialogTitle,
+  }) async {
     saved.add((name: name, bytes: bytes));
     return true;
   }
@@ -90,7 +99,8 @@ class FakeHistoryFiles implements HistoryFiles {
   }
 
   @override
-  Future<Uint8List?> pick() async => picks.isEmpty ? null : picks.removeAt(0);
+  Future<Uint8List?> pick({required String dialogTitle}) async =>
+      picks.isEmpty ? null : picks.removeAt(0);
 }
 
 final historyFilesProvider = Provider<HistoryFiles>(
@@ -104,24 +114,53 @@ String historyFileName(Chain chain, DateTime day, String extension) {
       '${two(day.day)}.$extension';
 }
 
-/// The import counts in plain words.
-String describeImport(ImportReport report) {
-  String count(int n, String one, String many) => '$n ${n == 1 ? one : many}';
-  final parts = [
-    if (report.merged > 0)
-      '${count(report.merged, 'payment', 'payments')} got '
-          'their details back',
-    if (report.added > 0)
-      '${count(report.added, 'older payment', 'older payments')} '
-          'added',
-    if (report.skipped > 0)
-      '${count(report.skipped, 'record was', 'records were')} already here',
-    if (report.contactsAdded > 0)
-      '${count(report.contactsAdded, 'contact', 'contacts')} added',
-  ];
-  if (parts.isEmpty) return 'The backup held nothing new.';
-  final text = parts.join(', ');
-  return '${text[0].toUpperCase()}${text.substring(1)}.';
+/// The import counts in plain words, naming only the counts above zero.
+String describeImport(AppLocalizations l, ImportReport report) {
+  final (m, a, s, c) = (
+    report.merged,
+    report.added,
+    report.skipped,
+    report.contactsAdded,
+  );
+  return switch ((m > 0, a > 0, s > 0, c > 0)) {
+    (false, false, false, false) => l.historyBackupImportNothingNew,
+    (true, false, false, false) => l.historyBackupImportMerged(m),
+    (false, true, false, false) => l.historyBackupImportAdded(a),
+    (true, true, false, false) => l.historyBackupImportMergedAdded(m, a),
+    (false, false, true, false) => l.historyBackupImportSkipped(s),
+    (true, false, true, false) => l.historyBackupImportMergedSkipped(m, s),
+    (false, true, true, false) => l.historyBackupImportAddedSkipped(a, s),
+    (true, true, true, false) => l.historyBackupImportMergedAddedSkipped(
+      m,
+      a,
+      s,
+    ),
+    (false, false, false, true) => l.historyBackupImportContacts(c),
+    (true, false, false, true) => l.historyBackupImportMergedContacts(m, c),
+    (false, true, false, true) => l.historyBackupImportAddedContacts(a, c),
+    (true, true, false, true) => l.historyBackupImportMergedAddedContacts(
+      m,
+      a,
+      c,
+    ),
+    (false, false, true, true) => l.historyBackupImportSkippedContacts(s, c),
+    (true, false, true, true) => l.historyBackupImportMergedSkippedContacts(
+      m,
+      s,
+      c,
+    ),
+    (false, true, true, true) => l.historyBackupImportAddedSkippedContacts(
+      a,
+      s,
+      c,
+    ),
+    (true, true, true, true) => l.historyBackupImportMergedAddedSkippedContacts(
+      m,
+      a,
+      s,
+      c,
+    ),
+  };
 }
 
 void _say(BuildContext context, String message) {
@@ -140,7 +179,7 @@ Future<void> _tell(BuildContext context, String title, String message) =>
         actions: [
           FilledButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('OK'),
+            child: Text(context.l10n.commonOk),
           ),
         ],
       ),
@@ -158,6 +197,7 @@ Future<bool> _handOver(
   required String title,
   String? note,
 }) async {
+  final l = context.l10n;
   final files = ref.read(historyFilesProvider);
   var destination = _Destination.device;
   if (files.canShare) {
@@ -184,18 +224,14 @@ Future<bool> _handOver(
             // Share first: the copy that matters is the one off this phone.
             ListTile(
               leading: const Icon(Icons.share),
-              title: const Text('Share'),
-              subtitle: const Text(
-                'Keep a copy off this phone, such as email or cloud storage',
-              ),
+              title: Text(l.historyBackupShare),
+              subtitle: Text(l.historyBackupShareSubtitle),
               onTap: () => Navigator.pop(context, _Destination.share),
             ),
             ListTile(
               leading: const Icon(Icons.save_alt),
-              title: const Text('Save to device'),
-              subtitle: const Text(
-                'Only useful if you also copy it off this phone.',
-              ),
+              title: Text(l.historyBackupSaveToDevice),
+              subtitle: Text(l.historyBackupSaveToDeviceSubtitle),
               onTap: () => Navigator.pop(context, _Destination.device),
             ),
             const SizedBox(height: 8),
@@ -210,13 +246,17 @@ Future<bool> _handOver(
       .read(autoLockHoldProvider.notifier)
       .during(
         () => switch (destination) {
-          _Destination.device => files.save(name: name, bytes: bytes),
+          _Destination.device => files.save(
+            name: name,
+            bytes: bytes,
+            dialogTitle: l.historyBackupSaveDialogTitle,
+          ),
           _Destination.share => files.share(name: name, bytes: bytes),
         },
       );
   // The share sheet is its own confirmation; a save into a folder is silent otherwise.
   if (done && destination == _Destination.device && context.mounted) {
-    _say(context, 'Saved $name');
+    _say(context, l.historyBackupSaved(name));
   }
   return done;
 }
@@ -226,6 +266,7 @@ Future<bool> exportHistoryBackup(BuildContext context, WidgetRef ref) async {
   final session = ref.read(sessionProvider);
   final config = ref.read(walletConfigProvider);
   if (session == null || config == null) return false;
+  final l = context.l10n;
   try {
     // uihome: what the file holds, for the home reminder (read just before the export).
     final snapshot = HistoryExportSnapshot.of(
@@ -243,10 +284,8 @@ Future<bool> exportHistoryBackup(BuildContext context, WidgetRef ref) async {
       ref,
       name: name,
       bytes: bytes,
-      title: 'Export history backup',
-      note:
-          'History backups hold payments up to now. Export again after new '
-          'payments.',
+      title: l.historyBackupExportTitle,
+      note: l.historyBackupExportNote,
     );
     // uihome: the home reminder counts what changed since this export.
     if (saved) {
@@ -260,7 +299,7 @@ Future<bool> exportHistoryBackup(BuildContext context, WidgetRef ref) async {
     }
     return saved;
   } catch (error) {
-    if (context.mounted) _say(context, describeError(error));
+    if (context.mounted) _say(context, describeError(l, error));
     return false;
   }
 }
@@ -270,26 +309,26 @@ Future<bool> exportHistoryCsv(BuildContext context, WidgetRef ref) async {
   final session = ref.read(sessionProvider);
   final config = ref.read(walletConfigProvider);
   if (session == null || config == null) return false;
+  final l = context.l10n;
   final go = await showDialog<bool>(
     context: context,
-    builder: (context) => AlertDialog(
-      title: const Text('Export CSV'),
-      content: const Text(
-        'The CSV file is not encrypted. Anyone who gets it can read your '
-        'amounts, dates, addresses and notes. It cannot be imported back; use '
-        'Export history backup for that.',
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context, false),
-          child: const Text('Cancel'),
-        ),
-        FilledButton(
-          onPressed: () => Navigator.pop(context, true),
-          child: const Text('Export CSV'),
-        ),
-      ],
-    ),
+    builder: (context) {
+      final l = context.l10n;
+      return AlertDialog(
+        title: Text(l.historyBackupCsvTitle),
+        content: Text(l.historyBackupCsvWarning),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(l.commonCancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: Text(l.historyBackupCsvConfirm),
+          ),
+        ],
+      );
+    },
   );
   if (go != true || !context.mounted) return false;
   try {
@@ -305,11 +344,11 @@ Future<bool> exportHistoryCsv(BuildContext context, WidgetRef ref) async {
       ref,
       name: name,
       bytes: Uint8List.fromList(utf8.encode(csv)),
-      title: 'Export CSV',
+      title: l.historyBackupCsvTitle,
     );
     return saved;
   } catch (error) {
-    if (context.mounted) _say(context, describeError(error));
+    if (context.mounted) _say(context, describeError(l, error));
     return false;
   }
 }
@@ -318,20 +357,33 @@ Future<bool> exportHistoryCsv(BuildContext context, WidgetRef ref) async {
 Future<bool> importHistoryBackup(BuildContext context, WidgetRef ref) async {
   final session = ref.read(sessionProvider);
   if (session == null) return false;
+  final l = context.l10n;
   try {
     final bytes = await ref
         .read(autoLockHoldProvider.notifier)
-        .during(() => ref.read(historyFilesProvider).pick());
+        .during(
+          () => ref
+              .read(historyFilesProvider)
+              .pick(dialogTitle: l.historyBackupOpenDialogTitle),
+        );
     if (bytes == null) return false;
     final report = await session.importHistory(data: bytes);
     ref.invalidate(homeProvider);
     if (context.mounted) {
-      await _tell(context, 'History imported', describeImport(report));
+      await _tell(
+        context,
+        l.historyBackupImportedTitle,
+        describeImport(l, report),
+      );
     }
     return true;
   } catch (error) {
     if (context.mounted) {
-      await _tell(context, 'Could not import', describeError(error));
+      await _tell(
+        context,
+        l.historyBackupImportFailedTitle,
+        describeError(l, error),
+      );
     }
     return false;
   }

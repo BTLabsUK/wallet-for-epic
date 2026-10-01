@@ -41,7 +41,11 @@ class _DocumentsHistoryFiles implements HistoryFiles {
   bool get canShare => false;
 
   @override
-  Future<bool> save({required String name, required Uint8List bytes}) async {
+  Future<bool> save({
+    required String name,
+    required Uint8List bytes,
+    required String dialogTitle,
+  }) async {
     await _file.writeAsBytes(bytes, flush: true);
     return true;
   }
@@ -51,7 +55,7 @@ class _DocumentsHistoryFiles implements HistoryFiles {
       false;
 
   @override
-  Future<Uint8List?> pick() async =>
+  Future<Uint8List?> pick({required String dialogTitle}) async =>
       await _file.exists() ? _file.readAsBytes() : null;
 }
 

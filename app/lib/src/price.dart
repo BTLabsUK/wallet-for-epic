@@ -15,22 +15,23 @@ import 'providers.dart';
 import 'settings.dart';
 import 'wallet_service.dart' show Chain;
 
-/// Display currencies offered in settings: lower-case CoinGecko codes and their names.
-const List<({String code, String name})> fiatCurrencies = [
-  (code: 'usd', name: 'US dollar'),
-  (code: 'eur', name: 'Euro'),
-  (code: 'gbp', name: 'British pound'),
-  (code: 'btc', name: 'Bitcoin'),
-  (code: 'jpy', name: 'Japanese yen'),
-  (code: 'cny', name: 'Chinese yuan'),
-  (code: 'cad', name: 'Canadian dollar'),
-  (code: 'aud', name: 'Australian dollar'),
-  (code: 'chf', name: 'Swiss franc'),
-  (code: 'inr', name: 'Indian rupee'),
-  (code: 'brl', name: 'Brazilian real'),
-  (code: 'krw', name: 'South Korean won'),
-  (code: 'pln', name: 'Polish złoty'),
-  (code: 'try', name: 'Turkish lira'),
+/// Display currencies offered in settings: lower-case CoinGecko codes. `currencyName`
+/// (l10n.dart) names them.
+const List<String> fiatCurrencies = [
+  'usd',
+  'eur',
+  'gbp',
+  'btc',
+  'jpy',
+  'cny',
+  'cad',
+  'aud',
+  'chf',
+  'inr',
+  'brl',
+  'krw',
+  'pln',
+  'try',
 ];
 
 /// How often [priceProvider] asks for a new price while the app runs.

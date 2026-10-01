@@ -3,6 +3,7 @@ library;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'l10n.dart';
 import 'providers.dart';
 import 'wallet_service.dart';
 
@@ -140,22 +141,22 @@ String? contactNameFor(Iterable<Contact> contacts, String? address) =>
     contactFor(contacts, address)?.name;
 
 /// Checks that [text] is something the wallet can send to: a full epicbox address valid on the
-/// open wallet's chain, or an `http(s)` wallet URL. Returns a sentence for the user, or null.
-String? checkRecipient(WalletService service, String text) {
-  if (text.trim().isEmpty) return 'Enter their address or a wallet URL.';
+/// open wallet's chain, or an `http(s)` wallet URL. Returns a sentence for the user in [l]'s
+/// language, or null.
+String? checkRecipient(AppLocalizations l, WalletService service, String text) {
+  if (text.trim().isEmpty) return l.contactsAddressMissing;
   final recipient = parseRecipient(text);
   switch (recipient.kind) {
     case RecipientKind.http:
       final uri = Uri.tryParse(recipient.address);
       if (uri == null || uri.host.isEmpty) {
-        return 'Enter the full wallet URL, such as http://203.0.113.5:3415';
+        return l.contactsUrlIncomplete('http://203.0.113.5:3415');
       }
       return null;
     case RecipientKind.epicbox:
       return service.validateEpicboxAddress(address: recipient.address)
           ? null
-          : 'This is not a valid address. It looks like '
-                'es5x…@epicbox.epiccash.com';
+          : l.contactsAddressInvalid('es5x…@epicbox.epiccash.com');
   }
 }
 

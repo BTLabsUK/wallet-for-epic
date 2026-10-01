@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
+import '../l10n.dart';
 import '../settings.dart';
 import 'common.dart';
 
@@ -108,8 +109,9 @@ class _ScanScreenState extends ConsumerState<ScanScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     return SlotScaffold(
-      appBar: AppBar(title: const Text('Scan QR code')),
+      appBar: AppBar(title: Text(l.scanQrTitle)),
       body: Stack(
         fit: StackFit.expand,
         children: [
@@ -134,10 +136,10 @@ class _ScanScreenState extends ConsumerState<ScanScreen> {
                   color: Colors.black.withValues(alpha: 0.6),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Text(
-                  'Point the camera at the recipient\'s QR code.',
+                child: Text(
+                  l.scanQrHint,
                   textAlign: TextAlign.center,
-                  style: TextStyle(color: Colors.white, fontSize: 16),
+                  style: const TextStyle(color: Colors.white, fontSize: 16),
                 ),
               ),
             ),
@@ -193,6 +195,7 @@ class _ScanError extends StatelessWidget {
   Widget build(BuildContext context) {
     final denied = error.errorCode == MobileScannerErrorCode.permissionDenied;
     final theme = Theme.of(context);
+    final l = context.l10n;
     return ColoredBox(
       color: theme.colorScheme.surface,
       child: Center(
@@ -208,20 +211,15 @@ class _ScanError extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               Text(
-                denied
-                    ? 'The wallet may not use the camera. To scan, allow camera '
-                          'access for this app in your phone\'s settings. You '
-                          'can also paste the address instead.'
-                    : 'The camera could not start. Paste the address instead, '
-                          'or try again.',
+                denied ? l.scanQrCameraDenied : l.scanQrCameraFailed,
                 textAlign: TextAlign.center,
                 style: theme.textTheme.bodyLarge,
               ),
               const SizedBox(height: 16),
-              FilledButton(onPressed: onRetry, child: const Text('Try again')),
+              FilledButton(onPressed: onRetry, child: Text(l.scanQrTryAgain)),
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: const Text('Back'),
+                child: Text(l.scanQrBack),
               ),
             ],
           ),

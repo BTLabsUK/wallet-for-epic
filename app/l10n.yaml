@@ -1,0 +1,15 @@
+# gen-l10n: lib/l10n/app_en.arb is the template; every other app_<locale>.arb translates it.
+# The generated Dart sits next to the ARB files and is committed, like the bridge code.
+arb-dir: lib/l10n
+template-arb-file: app_en.arb
+output-localization-file: app_localizations.dart
+output-class: AppLocalizations
+# AppLocalizations.of(context) is never null below MaterialApp.
+nullable-getter: false
+# Messages may contain an apostrophe without ICU escaping; braces stay placeholders.
+use-escaping: false
+required-resource-attributes: false
+# English first: Flutter falls back to the first supported locale when the system's languages
+# include none of ours (gen-l10n otherwise sorts them, which would make German the fallback).
+preferred-supported-locales: [en]
+format: true

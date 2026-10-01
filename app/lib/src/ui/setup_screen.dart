@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../errors.dart';
+import '../l10n.dart';
 import '../network.dart';
 import '../providers.dart';
 import '../relay_directory.dart';
@@ -52,7 +53,9 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
         _nodeUrl.text = choice.nodeUrl;
       });
     } catch (error) {
-      if (mounted) setState(() => _error = describeError(error));
+      if (mounted) {
+        setState(() => _error = describeError(context.l10n, error));
+      }
     }
   }
 
@@ -93,9 +96,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
   void _useCustomRelay() {
     final relay = EpicboxRelay.parse(_customRelay.text);
     setState(() {
-      _relayError = relay == null
-          ? 'Enter a host such as epicbox.example.com'
-          : null;
+      _relayError = relay == null ? context.l10n.setupCustomRelayInvalid : null;
       if (relay != null) {
         _relay = relay;
         _customRelay.clear();
@@ -106,11 +107,10 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
   Future<void> _testConnection() async {
     final preset = _preset;
     if (preset == null) return;
+    final l = context.l10n;
     final url = _nodeUrl.text.trim();
     if (!_isValidUrl(url)) {
-      setState(
-        () => _urlError = 'Enter a full URL such as https://node.example.com',
-      );
+      setState(() => _urlError = l.setupNodeUrlInvalid);
       return;
     }
     setState(() {
@@ -127,13 +127,11 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
             config: preset.config(dataDir: '', nodeUrl: url),
           );
       result = (
-        text:
-            'Connected. The node is at block ${groupDigits(tip.height)}, running version '
-            '${tip.nodeVersion}.',
+        text: l.setupTestConnected(groupDigits(l, tip.height), tip.nodeVersion),
         ok: true,
       );
     } catch (error) {
-      result = (text: 'Could not connect. ${describeError(error)}', ok: false);
+      result = (text: l.setupTestFailed(describeError(l, error)), ok: false);
     }
     if (!mounted) return;
     final current = _nodeUrl.text.trim() == url && _preset == preset;
@@ -146,11 +144,10 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
   Future<void> _save() async {
     final preset = _preset;
     if (preset == null) return;
+    final l = context.l10n;
     final url = _nodeUrl.text.trim();
     if (!_isValidUrl(url)) {
-      setState(
-        () => _urlError = 'Enter a full URL such as https://node.example.com',
-      );
+      setState(() => _urlError = l.setupNodeUrlInvalid);
       return;
     }
     setState(() {
@@ -171,7 +168,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
       if (mounted) {
         setState(() {
           _busy = false;
-          _error = describeError(error);
+          _error = describeError(l, error);
         });
       }
     }
@@ -180,9 +177,10 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l = context.l10n;
     final preset = _preset;
     return SlotScaffold(
-      appBar: AppBar(title: const Text('Network settings')),
+      appBar: AppBar(title: Text(l.setupTitle)),
       body: ScreenBody(
         children: preset == null
             ? [
@@ -192,7 +190,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
                   const LinearProgressIndicator(),
               ]
             : [
-                Text('Network', style: theme.textTheme.titleMedium),
+                Text(l.setupNetworkHeading, style: theme.textTheme.titleMedium),
                 const SizedBox(height: 8),
                 SegmentedButton<NetworkPreset>(
                   segments: [
@@ -201,14 +199,17 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
                       if (p.chain != Chain.usernet ||
                           !kReleaseMode ||
                           p == preset)
-                        ButtonSegment(value: p, label: Text(p.label)),
+                        ButtonSegment(
+                          value: p,
+                          label: Text(chainName(l, p.chain)),
+                        ),
                   ],
                   selected: {preset},
                   onSelectionChanged: (selection) =>
                       _selectPreset(selection.first),
                 ),
                 const SizedBox(height: 8),
-                Text(preset.description),
+                Text(chainDescription(l, preset.chain)),
                 const SizedBox(height: 24),
                 TextField(
                   controller: _nodeUrl,
@@ -216,7 +217,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
                   autocorrect: false,
                   enableSuggestions: false,
                   decoration: InputDecoration(
-                    labelText: 'Node URL',
+                    labelText: l.setupNodeUrlLabel,
                     errorText: _urlError,
                     border: const OutlineInputBorder(),
                   ),
@@ -234,7 +235,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
                             child: CircularProgressIndicator(strokeWidth: 2),
                           )
                         : const Icon(Icons.network_check),
-                    label: const Text('Test connection'),
+                    label: Text(l.setupTestConnection),
                     onPressed: _testing || _busy ? null : _testConnection,
                   ),
                 ),
@@ -250,7 +251,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
                             Icon(
                               Icons.check_circle,
                               color: theme.colorScheme.primary,
-                              semanticLabel: 'Connected',
+                              semanticLabel: l.setupConnectedIconLabel,
                             ),
                             const SizedBox(width: 8),
                             Expanded(child: Text(test.text)),
@@ -261,9 +262,9 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
                   else
                     ErrorText(test.text),
                 const SizedBox(height: 24),
-                Text('Epicbox server', style: theme.textTheme.titleMedium),
+                Text(l.setupRelayHeading, style: theme.textTheme.titleMedium),
                 const SizedBox(height: 4),
-                const Text('Your address includes this server.'),
+                Text(l.setupRelayHint),
                 const SizedBox(height: 8),
                 _RelayPicker(
                   preset: preset,
@@ -280,13 +281,13 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
                   // The use button appears with text, so an empty field does not look confirmed.
                   onChanged: (_) => setState(() {}),
                   decoration: InputDecoration(
-                    labelText: 'Other epicbox server (host or host:port)',
+                    labelText: l.setupCustomRelayLabel,
                     errorText: _relayError,
                     border: const OutlineInputBorder(),
                     suffixIcon: _customRelay.text.trim().isEmpty
                         ? null
                         : IconButton(
-                            tooltip: 'Use this server',
+                            tooltip: l.setupCustomRelayUse,
                             icon: const Icon(Icons.check),
                             onPressed: _useCustomRelay,
                           ),
@@ -294,20 +295,13 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
                 ),
                 if (_relay != null && _relay != _savedRelay) ...[
                   const SizedBox(height: 8),
-                  const ErrorText(
-                    'Changing the epicbox server changes your address. Give '
-                    'senders the new address. Payments sent to the old one '
-                    'wait on the old server until you switch back.',
-                  ),
+                  ErrorText(l.setupRelayChangeWarning),
                 ],
                 const SizedBox(height: 8),
-                const Text(
-                  'Each network has its own wallet. A network without one gets '
-                  'a new wallet.',
-                ),
+                Text(l.setupWalletPerNetwork),
                 const SizedBox(height: 24),
                 if (_error != null) ErrorText(_error!),
-                BusyButton(label: 'Save', busy: _busy, onPressed: _save),
+                BusyButton(label: l.commonSave, busy: _busy, onPressed: _save),
               ],
       ),
     );
@@ -329,6 +323,7 @@ class _RelayPicker extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l = context.l10n;
     final status = ref.watch(relayStatusProvider(preset));
     final listed = status.value ?? const <RelayStatus>[];
     final entries = [
@@ -352,14 +347,16 @@ class _RelayPicker extends ConsumerWidget {
                   contentPadding: EdgeInsets.zero,
                   value: s.relay,
                   title: Text(s.relay.label),
-                  subtitle: Text(_describe(s, listed.contains(s))),
+                  subtitle: Text(_describe(l, s, listed.contains(s))),
                   secondary: listed.contains(s)
                       ? Icon(
                           s.healthy ? Icons.check_circle : Icons.error_outline,
                           color: s.healthy
                               ? Colors.green
                               : Theme.of(context).colorScheme.error,
-                          semanticLabel: s.healthy ? 'Healthy' : 'Down',
+                          semanticLabel: s.healthy
+                              ? l.setupRelayHealthyIconLabel
+                              : l.setupRelayDownIconLabel,
                         )
                       : null,
                 ),
@@ -368,13 +365,10 @@ class _RelayPicker extends ConsumerWidget {
         ),
         switch (status) {
           AsyncLoading() => const LinearProgressIndicator(),
-          AsyncError() => Text(
-            'Server health is unavailable from status.btlabs.uk.',
-            style: small,
-          ),
+          AsyncError() => Text(l.setupRelayHealthUnavailable, style: small),
           // Only under servers the monitor actually measured.
           _ when preset.statusChain != null && listed.isNotEmpty => Text(
-            'Health from status.btlabs.uk, measured from its server.',
+            l.setupRelayHealthSource,
             style: small,
           ),
           _ => const SizedBox.shrink(),
@@ -383,14 +377,17 @@ class _RelayPicker extends ConsumerWidget {
     );
   }
 
-  static String _describe(RelayStatus s, bool listed) {
-    if (!listed) return 'Not monitored';
+  /// A list of separate facts, so each is its own message and the separator joins them.
+  static String _describe(AppLocalizations l, RelayStatus s, bool listed) {
+    if (!listed) return l.setupRelayNotMonitored;
     final parts = [
-      s.healthy ? 'Up' : 'Down',
+      s.healthy ? l.setupRelayUp : l.setupRelayDown,
       if (s.operator != null) s.operator!,
-      if (s.verified) 'official',
+      if (s.verified) l.setupRelayOfficial,
       if (s.uptime24h != null)
-        '${(s.uptime24h! * 100).toStringAsFixed(1)}% up in the last day',
+        l.setupRelayUptime(
+          localDigits(l, (s.uptime24h! * 100).toStringAsFixed(1)),
+        ),
     ];
     return parts.join(' · ');
   }

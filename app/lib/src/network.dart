@@ -4,16 +4,13 @@ import 'wallet_service.dart';
 class NetworkPreset {
   const NetworkPreset({
     required this.chain,
-    required this.label,
-    required this.description,
     required this.nodeUrl,
     required this.epicboxDomain,
     required this.epicboxPort,
   });
 
+  /// Its name and description on screen: `chainName` and `chainDescription` in l10n.dart.
   final Chain chain;
-  final String label;
-  final String description;
   final String nodeUrl;
   final String epicboxDomain;
   final int epicboxPort;
@@ -75,8 +72,6 @@ class EpicboxRelay {
 
 const NetworkPreset mainnetPreset = NetworkPreset(
   chain: Chain.mainnet,
-  label: 'Mainnet',
-  description: 'The real Epic Cash network.',
   nodeUrl: 'https://node.btlabs.uk',
   epicboxDomain: 'epicbox.epiccash.com',
   epicboxPort: 443,
@@ -84,10 +79,6 @@ const NetworkPreset mainnetPreset = NetworkPreset(
 
 const NetworkPreset floonetPreset = NetworkPreset(
   chain: Chain.floonet,
-  label: 'Floonet',
-  description:
-      'A public test network for trying the app. Its coins have no value; '
-      'get free ones from floo-explorer.btlabs.uk.',
   nodeUrl: 'https://floo-node.btlabs.uk',
   epicboxDomain: 'flooepicbox.btlabs.uk',
   epicboxPort: 443,
@@ -95,8 +86,6 @@ const NetworkPreset floonetPreset = NetworkPreset(
 
 const NetworkPreset usernetPreset = NetworkPreset(
   chain: Chain.usernet,
-  label: 'Usernet',
-  description: 'A test network running on this computer, for developers.',
   nodeUrl: 'http://127.0.0.1:23413',
   epicboxDomain: '127.0.0.1',
   epicboxPort: 3423,
@@ -108,13 +97,8 @@ const List<NetworkPreset> networkPresets = [
   usernetPreset,
 ];
 
-/// ` (Floonet, test coins)` for a test network, empty for Mainnet, which needs no label.
-String networkSuffix(Chain chain) => switch (chain) {
-  Chain.mainnet => '',
-  Chain.floonet || Chain.usernet => ' (${chainLabel(chain)}, test coins)',
-};
-
-/// Human name of a chain for titles.
+/// The fixed English name of a chain, for logs and the feedback report. The screen uses
+/// `chainName` in l10n.dart.
 String chainLabel(Chain chain) => switch (chain) {
   Chain.mainnet => 'Mainnet',
   Chain.floonet => 'Floonet',

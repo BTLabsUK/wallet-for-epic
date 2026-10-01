@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../contacts.dart';
 import '../errors.dart';
+import '../l10n.dart';
 import '../providers.dart';
 import 'centered_body.dart';
 import 'common.dart';
@@ -85,6 +86,7 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
   Widget build(BuildContext context) {
     final contacts = ref.watch(contactsProvider);
     final theme = Theme.of(context);
+    final l = context.l10n;
     // With no contacts at all, a search field has nothing to search: the empty state sits in
     // the middle instead.
     final none = switch (contacts) {
@@ -94,19 +96,18 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
     return SlotScaffold(
       centered: none,
       appBar: AppBar(
-        title: Text(widget.pick ? 'Choose a contact' : 'Contacts'),
+        title: Text(widget.pick ? l.contactsPickTitle : l.contactsTitle),
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _add,
         icon: const Icon(Icons.person_add),
-        label: const Text('Add contact'),
+        label: Text(l.contactsAdd),
       ),
       body: none
           ? CenteredBody(
               children: [
                 Text(
-                  'No contacts yet. Add the people you pay often, so you do '
-                  'not have to paste their address each time.',
+                  l.contactsEmpty,
                   textAlign: TextAlign.center,
                   style: theme.textTheme.bodyLarge,
                 ),
@@ -119,16 +120,18 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
                 TextField(
                   controller: _search,
                   onChanged: (_) => setState(() {}),
-                  decoration: const InputDecoration(
-                    labelText: 'Search contacts',
-                    prefixIcon: Icon(Icons.search),
-                    border: OutlineInputBorder(),
+                  decoration: InputDecoration(
+                    labelText: l.contactsSearchLabel,
+                    prefixIcon: const Icon(Icons.search),
+                    border: const OutlineInputBorder(),
                   ),
                 ),
                 const SizedBox(height: 8),
                 switch (contacts) {
                   AsyncData(:final value) => _list(_filter(value), theme),
-                  AsyncError(:final error) => ErrorText(describeError(error)),
+                  AsyncError(:final error) => ErrorText(
+                    describeError(l, error),
+                  ),
                   _ => const LinearProgressIndicator(),
                 },
                 // Room for the floating button.
@@ -140,9 +143,9 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
 
   Widget _list(List<Contact> contacts, ThemeData theme) {
     if (contacts.isEmpty) {
-      return const Padding(
-        padding: EdgeInsets.symmetric(vertical: 32),
-        child: Text('No contact matches.', textAlign: TextAlign.center),
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 32),
+        child: Text(context.l10n.contactsNoMatch, textAlign: TextAlign.center),
       );
     }
     return Column(
@@ -222,11 +225,13 @@ class _ContactEditScreenState extends ConsumerState<ContactEditScreen> {
   }
 
   Future<void> _save() async {
+    final l = context.l10n;
     final name = _name.text.trim();
     final recipient = parseRecipient(_address.text);
     setState(() {
-      _nameError = name.isEmpty ? 'Enter a name.' : null;
+      _nameError = name.isEmpty ? l.contactsNameMissing : null;
       _addressError = checkRecipient(
+        l,
         ref.read(walletServiceProvider),
         _address.text,
       );
@@ -248,7 +253,7 @@ class _ContactEditScreenState extends ConsumerState<ContactEditScreen> {
           );
       if (mounted) Navigator.pop(context, saved);
     } catch (error) {
-      if (mounted) setState(() => _error = describeError(error));
+      if (mounted) setState(() => _error = describeError(context.l10n, error));
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -259,45 +264,46 @@ class _ContactEditScreenState extends ConsumerState<ContactEditScreen> {
     if (contact == null) return;
     final sure = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Delete ${contact.name}?'),
-        content: const Text(
-          'The address is removed from your contacts. Past payments are '
-          'not affected.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Keep'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('Delete'),
-          ),
-        ],
-      ),
+      builder: (context) {
+        final l = context.l10n;
+        return AlertDialog(
+          title: Text(l.contactsDeleteTitle(contact.name)),
+          content: Text(l.contactsDeleteBody),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: Text(l.contactsKeep),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: Text(l.commonDelete),
+            ),
+          ],
+        );
+      },
     );
     if (sure != true || !mounted) return;
     try {
       await ref.read(contactsProvider.notifier).delete(contact.id);
       if (mounted) Navigator.pop(context);
     } catch (error) {
-      if (mounted) setState(() => _error = describeError(error));
+      if (mounted) setState(() => _error = describeError(context.l10n, error));
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     final contacts = ref.watch(contactsProvider).value ?? const <Contact>[];
     final duplicate = _duplicate(contacts);
     final scanner = ref.watch(qrScannerProvider);
     return SlotScaffold(
       appBar: AppBar(
-        title: Text(_editing ? 'Edit contact' : 'New contact'),
+        title: Text(_editing ? l.contactsEditTitle : l.contactsNewTitle),
         actions: [
           if (_editing)
             IconButton(
-              tooltip: 'Delete contact',
+              tooltip: l.contactsDeleteTooltip,
               icon: const Icon(Icons.delete_outline),
               onPressed: _delete,
             ),
@@ -310,7 +316,7 @@ class _ContactEditScreenState extends ConsumerState<ContactEditScreen> {
             textCapitalization: TextCapitalization.words,
             onChanged: (_) => setState(() => _nameError = null),
             decoration: InputDecoration(
-              labelText: 'Name',
+              labelText: l.contactsNameLabel,
               error: _nameError == null ? null : LiveFieldError(_nameError!),
               border: const OutlineInputBorder(),
             ),
@@ -324,7 +330,7 @@ class _ContactEditScreenState extends ConsumerState<ContactEditScreen> {
             maxLines: null,
             onChanged: (_) => setState(() => _addressError = null),
             decoration: InputDecoration(
-              labelText: 'Address or wallet URL',
+              labelText: l.contactsAddressLabel,
               error: _addressError == null
                   ? null
                   : LiveFieldError(_addressError!),
@@ -333,13 +339,13 @@ class _ContactEditScreenState extends ConsumerState<ContactEditScreen> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   IconButton(
-                    tooltip: 'Paste',
+                    tooltip: l.commonPaste,
                     icon: const Icon(Icons.content_paste),
                     onPressed: _paste,
                   ),
                   if (scanner.supported)
                     IconButton(
-                      tooltip: 'Scan QR code',
+                      tooltip: l.scanQrTooltip,
                       icon: const Icon(Icons.qr_code_scanner),
                       onPressed: _scan,
                     ),
@@ -356,11 +362,7 @@ class _ContactEditScreenState extends ConsumerState<ContactEditScreen> {
                   children: [
                     const Icon(Icons.info_outline, size: 18),
                     const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        'This address is already saved as ${duplicate.name}.',
-                      ),
-                    ),
+                    Expanded(child: Text(l.contactsDuplicate(duplicate.name))),
                   ],
                 ),
               ),
@@ -368,14 +370,14 @@ class _ContactEditScreenState extends ConsumerState<ContactEditScreen> {
           const SizedBox(height: 12),
           TextField(
             controller: _note,
-            decoration: const InputDecoration(
-              labelText: 'Note (optional)',
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              labelText: l.contactsNoteLabel,
+              border: const OutlineInputBorder(),
             ),
           ),
           const SizedBox(height: 16),
           if (_error != null) ErrorText(_error!),
-          BusyButton(label: 'Save contact', busy: _busy, onPressed: _save),
+          BusyButton(label: l.contactsSave, busy: _busy, onPressed: _save),
         ],
       ),
     );

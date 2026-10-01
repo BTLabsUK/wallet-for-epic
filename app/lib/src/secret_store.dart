@@ -66,10 +66,29 @@ class PlatformSecretStore implements SecretStore {
   Future<void> delete(String key) => _storage.delete(key: key);
 }
 
+/// The words in the system's biometric prompt.
+typedef BiometricPromptText = ({String title, String subtitle, String usePin});
+
 class PlatformBiometricStore implements BiometricStore {
   PlatformBiometricStore();
 
   final LocalAuthentication _auth = LocalAuthentication();
+
+  /// What the next prompt says. `WalletApp` sets it from the app's language; until then the
+  /// English below, the same as in [_storage].
+  BiometricPromptText prompt = (
+    title: 'Unlock wallet',
+    subtitle: 'Confirm with your fingerprint or face',
+    usePin: 'Use PIN',
+  );
+
+  /// [_storage]'s Android options with [prompt]'s words. copyWith keeps every other option, so
+  /// the namespace and the Keystore key stay the same.
+  AndroidOptions get _promptOptions => _storage.aOptions.copyWith(
+    biometricPromptTitle: prompt.title,
+    biometricPromptSubtitle: prompt.subtitle,
+    biometricPromptNegativeButton: prompt.usePin,
+  );
 
   // A separate namespace keeps this Keystore key apart from the main store. The key requires a
   // Class 3 biometric for every operation. A new enrollment invalidates it; the entry is only a
@@ -133,24 +152,24 @@ class PlatformBiometricStore implements BiometricStore {
   Future<String?> read(String key) => _guard(() async {
     if (_wroteThisProcess &&
         !await _auth.authenticate(
-          localizedReason: 'Unlock wallet',
+          localizedReason: prompt.title,
           biometricOnly: true,
         )) {
       throw const BiometricCancelled('dismissed');
     }
-    return _storage.read(key: key);
+    return _storage.read(key: key, aOptions: _promptOptions);
   });
 
   @override
   Future<void> write(String key, String value) => _guard(() async {
-    await _storage.write(key: key, value: value);
+    await _storage.write(key: key, value: value, aOptions: _promptOptions);
     _wroteThisProcess = true;
   });
 
   @override
   Future<void> delete(String key) async {
     try {
-      await _storage.delete(key: key);
+      await _storage.delete(key: key, aOptions: _promptOptions);
     } on PlatformException {
       // Deleting an entry whose key was invalidated can fail; the entry is useless either way.
     }

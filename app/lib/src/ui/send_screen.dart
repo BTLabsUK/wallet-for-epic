@@ -3,11 +3,13 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart' show NumberFormat;
 
 import '../app_log.dart';
 import '../amount.dart';
 import '../contacts.dart';
 import '../errors.dart';
+import '../l10n.dart';
 import '../price.dart';
 import '../providers.dart';
 import '../settings.dart';
@@ -33,18 +35,23 @@ final BigInt maxSendAtomic = BigInt.from(21000000) * atomicPerEpic;
 /// ("1,234.56", "1.234,56"). When only one kind occurs, more than one of it means thousands
 /// ("1,234,567"). Thousands separators must group by exactly three after the first group, or
 /// the amount is refused with a question ("1,234,5", "12,34.5"). A single one is the decimal
-/// separator ("1,5", "0.25"). A single comma
-/// followed by exactly three digits ("1,234") could be either, so it is refused with a question.
+/// separator ("1,5", "0.25"). A single [groupSeparator], the one the app shows amounts with in
+/// the reader's language (`,` in English, `.` in German), followed by exactly three digits
+/// ("1,234") could be either, so it is refused with a question.
 ///
-/// Throws [FormatException] for a negative or ambiguous amount.
-String normalizeAmountText(String text, {required String unit}) {
+/// Throws a [LocalizedFormatException] for a negative or ambiguous amount.
+String normalizeAmountText(
+  String text, {
+  required String unit,
+  String groupSeparator = ',',
+}) {
   var clean = text.replaceAll(RegExp(r"[\s\u00A0\u2009\u202F']"), '');
   final lower = clean.toLowerCase();
   if (lower.endsWith(unit.toLowerCase())) {
     clean = clean.substring(0, clean.length - unit.length);
   }
   if (clean.startsWith('-') || clean.startsWith('\u2212')) {
-    throw const FormatException('The amount cannot be negative.');
+    throw LocalizedFormatException((l) => l.sendAmountNegative, text);
   }
   final dot = clean.lastIndexOf('.');
   final comma = clean.lastIndexOf(',');
@@ -56,7 +63,7 @@ String normalizeAmountText(String text, {required String unit}) {
     // One decimal separator, and the whole part grouped properly: "1,234.5", not "12,34.5"
     // or "1.2.3,4".
     if (whole.contains(decimal) || !_isGrouped(whole, thousands)) {
-      throw _unclearAmount;
+      throw _unclearAmount(text);
     }
     clean = '${whole.replaceAll(thousands, '')}.${clean.substring(at + 1)}';
   } else if (comma >= 0 || dot >= 0) {
@@ -64,18 +71,23 @@ String normalizeAmountText(String text, {required String unit}) {
     if (sep.allMatches(clean).length > 1) {
       // Several of one kind can only be thousands separators, so they must group by three:
       // "1,234,567", not "1,234,5".
-      if (!_isGrouped(clean, sep)) throw _unclearAmount;
+      if (!_isGrouped(clean, sep)) throw _unclearAmount(text);
       clean = clean.replaceAll(sep, '');
     } else {
       final whole = clean.substring(0, clean.indexOf(sep));
       final fraction = clean.substring(clean.indexOf(sep) + 1);
       // "1,234" is 1.234 with a decimal comma but 1234 with a thousands comma, as the app
-      // shows amounts. Guessing wrong sends 1000 times too much or too little, so ask.
-      if (sep == ',' &&
+      // shows amounts in English ("1.234" in German). Guessing wrong sends 1000 times too much
+      // or too little, so ask.
+      if (sep == groupSeparator &&
           fraction.length == 3 &&
           RegExp(r'^[1-9]\d{0,2}$').hasMatch(whole)) {
-        throw FormatException(
-          'Write $whole$fraction or $whole.$fraction, so the amount is clear.',
+        throw LocalizedFormatException(
+          (l) => l.sendAmountAmbiguous(
+            '$whole$fraction',
+            localDecimal(l, '$whole.$fraction'),
+          ),
+          text,
         );
       }
       clean = clean.replaceAll(sep, '.');
@@ -84,9 +96,8 @@ String normalizeAmountText(String text, {required String unit}) {
   return clean;
 }
 
-const FormatException _unclearAmount = FormatException(
-  'Write the amount without separators, such as 1234.5, so the amount is clear.',
-);
+LocalizedFormatException _unclearAmount(String text) =>
+    LocalizedFormatException((l) => l.sendAmountUnclear, text);
 
 /// Whether [digits] is 1 to 3 digits, then groups of exactly three after each [sep].
 bool _isGrouped(String digits, String sep) =>
@@ -190,25 +201,29 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     final clean = normalizeAmountText(
       text,
       unit: _fiatEntry ? _currency : 'epic',
+      groupSeparator: NumberFormat.decimalPattern(context.l10n.localeName)
+          .symbols
+          .GROUP_SEP,
     );
     final BigInt amount;
     if (_fiatEntry) {
       final price = _price;
       if (price == null || price <= 0) {
-        throw const FormatException('No price right now. Enter EPIC instead.');
+        throw LocalizedFormatException((l) => l.sendAmountNoPrice, text);
       }
       // `normalizeAmountText` leaves only digits and one dot, so no NaN, Infinity or 1e400.
       if (!RegExp(r'^\d*\.?\d*$').hasMatch(clean) || clean == '.') {
-        throw const FormatException('Enter an amount such as 10.50');
+        throw LocalizedFormatException(
+          (l) => l.sendAmountEnterFiatExample,
+          text,
+        );
       }
       amount = BigInt.from((double.parse(clean) / price * 100000000).round());
     } else {
       amount = parseEpic(clean);
     }
     if (amount > maxSendAtomic) {
-      throw const FormatException(
-        'That is more EPIC than will ever exist. Check the amount.',
-      );
+      throw LocalizedFormatException((l) => l.sendAmountTooLarge, text);
     }
     return amount;
   }
@@ -216,14 +231,15 @@ class _SendScreenState extends ConsumerState<SendScreen> {
   void _onAmountChanged(String text) {
     _debounce?.cancel();
     _maxUsed = false;
+    final l = context.l10n;
     BigInt? amount;
     String? problem;
     if (text.trim().isNotEmpty) {
       try {
         amount = _parseAmount(text);
-        if (amount == BigInt.zero) problem = 'Enter an amount above zero.';
+        if (amount == BigInt.zero) problem = l.sendAmountZero;
       } on FormatException catch (e) {
-        problem = e.message;
+        problem = describeError(l, e);
       }
     }
     setState(() {
@@ -256,7 +272,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       return estimate;
     } catch (error) {
       if (mounted && _parsedAmount == amount) {
-        setState(() => _estimateError = describeError(error));
+        setState(() => _estimateError = describeError(context.l10n, error));
       }
       return null;
     }
@@ -280,9 +296,12 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     }
     // Only the text changes. The exact amount (from Max, say) stays until the user edits the
     // field; re-reading the rounded fiat text would change it.
-    _amount.text = _fiatEntry
-        ? (amount / atomicPerEpic * price).toStringAsFixed(2)
-        : formatEpic(amount);
+    _amount.text = localDecimal(
+      context.l10n,
+      _fiatEntry
+          ? (amount / atomicPerEpic * price).toStringAsFixed(2)
+          : formatEpic(amount),
+    );
   }
 
   Future<void> _paste() async {
@@ -326,7 +345,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     try {
       await action(session);
     } catch (error) {
-      if (mounted) setState(() => _error = describeError(error));
+      if (mounted) setState(() => _error = describeError(context.l10n, error));
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -340,6 +359,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     final amount = _parsedAmount;
     if (session == null || amount == null) return;
     final problem = checkRecipient(
+      context.l10n,
       ref.read(walletServiceProvider),
       _recipient.text,
     );
@@ -362,7 +382,9 @@ class _SendScreenState extends ConsumerState<SendScreen> {
                 minimumConfirmations: minimumConfirmations,
               );
       } catch (error) {
-        if (mounted) setState(() => _estimateError = describeError(error));
+        if (mounted) {
+          setState(() => _estimateError = describeError(context.l10n, error));
+        }
         return;
       }
       if (!mounted) return;
@@ -372,7 +394,12 @@ class _SendScreenState extends ConsumerState<SendScreen> {
         _estimateError = null;
         if (_maxUsed && estimate.amount != amount) {
           _parsedAmount = estimate.amount;
-          if (!_fiatEntry) _amount.text = formatEpic(estimate.amount);
+          if (!_fiatEntry) {
+            _amount.text = localDecimal(
+              context.l10n,
+              formatEpic(estimate.amount),
+            );
+          }
         }
       });
       final to = parseRecipient(_recipient.text);
@@ -429,7 +456,10 @@ class _SendScreenState extends ConsumerState<SendScreen> {
         try {
           await session.setTxNote(key: tx.key, note: note);
         } catch (error) {
-          logWarn('send', 'saving the note failed: ${describeError(error)}');
+          logWarn(
+            'send',
+            'saving the note failed: ${describeError(englishStrings, error)}',
+          );
           noteSaved = false;
         }
       }
@@ -462,7 +492,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
         minimumConfirmations: minimumConfirmations,
       );
       if (!mounted) return;
-      _amount.text = formatEpic(estimate.amount);
+      _amount.text = localDecimal(context.l10n, formatEpic(estimate.amount));
       setState(() {
         _fiatEntry = false;
         _maxUsed = true;
@@ -472,7 +502,9 @@ class _SendScreenState extends ConsumerState<SendScreen> {
         _estimateError = null;
       });
     } catch (error) {
-      if (mounted) setState(() => _estimateError = describeError(error));
+      if (mounted) {
+        setState(() => _estimateError = describeError(context.l10n, error));
+      }
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -506,7 +538,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
   Future<void> _finalize() async {
     final json = _response.text.trim();
     if (json.isEmpty) {
-      setState(() => _error = 'Paste the response text from the recipient.');
+      setState(() => _error = context.l10n.sendPasteResponseMissing);
       return;
     }
     final container = ProviderScope.containerOf(context, listen: false);
@@ -540,7 +572,11 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     return SlotScaffold(
       centered: sent != null,
       appBar: AppBar(
-        title: Text(_fileMode && sent == null ? 'Send by file' : 'Send'),
+        title: Text(
+          _fileMode && sent == null
+              ? context.l10n.sendByFileTitle
+              : context.l10n.sendTitle,
+        ),
       ),
       body: sent != null
           ? CenteredBody(children: all)
@@ -549,6 +585,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
   }
 
   List<Widget> _formStep(BuildContext context) {
+    final l = context.l10n;
     final theme = Theme.of(context);
     final spendable = ref.watch(homeProvider).value?.summary.spendable;
     final listening = ref.watch(listenerProvider).connected;
@@ -570,8 +607,8 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     String? amountHelper;
     if (amount != null && price != null) {
       amountHelper = _fiatEntry
-          ? '≈ ${epicText(amount)}'
-          : '≈ ${fiatText(amount, price, currency)}';
+          ? '≈ ${epicText(l, amount)}'
+          : '≈ ${localDigits(l, fiatText(amount, price, currency))}';
     }
 
     return [
@@ -595,8 +632,8 @@ class _SendScreenState extends ConsumerState<SendScreen> {
             _error = null;
           }),
           decoration: InputDecoration(
-            labelText: 'To',
-            hintText: 'Their address or a wallet URL',
+            labelText: l.sendRecipientLabel,
+            hintText: l.sendRecipientHint,
             error: _recipientError == null
                 ? null
                 : LiveFieldError(_recipientError!),
@@ -607,27 +644,27 @@ class _SendScreenState extends ConsumerState<SendScreen> {
           spacing: 8,
           children: [
             Tooltip(
-              message: 'Paste',
+              message: l.commonPaste,
               child: TextButton.icon(
                 icon: const Icon(Icons.content_paste),
-                label: const Text('Paste'),
+                label: Text(l.commonPaste),
                 onPressed: _paste,
               ),
             ),
             if (scanner.supported)
               Tooltip(
-                message: 'Scan QR code',
+                message: l.scanQrTooltip,
                 child: TextButton.icon(
                   icon: const Icon(Icons.qr_code_scanner),
-                  label: const Text('Scan'),
+                  label: Text(l.sendScanButton),
                   onPressed: _scan,
                 ),
               ),
             Tooltip(
-              message: 'Choose a contact',
+              message: l.sendChooseContactTooltip,
               child: TextButton.icon(
                 icon: const Icon(Icons.contacts),
-                label: const Text('Contacts'),
+                label: Text(l.sendContactsButton),
                 onPressed: _pickContact,
               ),
             ),
@@ -640,7 +677,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // On its own line, so wrapped chips line up under each other.
-                Text('Recent:', style: theme.textTheme.bodyMedium),
+                Text(l.sendRecentLabel, style: theme.textTheme.bodyMedium),
                 Wrap(
                   spacing: 8,
                   runSpacing: 4,
@@ -652,7 +689,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
                           contactNameFor(contacts, address) ??
                               shortAddress(address),
                         ),
-                        tooltip: 'Send to $address',
+                        tooltip: l.sendRecentTooltip(address),
                         onPressed: () => _setRecipient(address),
                       ),
                   ],
@@ -667,7 +704,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
               children: [
                 const Icon(Icons.person, size: 18),
                 const SizedBox(width: 8),
-                Expanded(child: Text('Sending to ${contact.name}')),
+                Expanded(child: Text(l.sendSendingToContact(contact.name))),
               ],
             ),
           ),
@@ -684,8 +721,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      'Still connecting. You can send now; it finishes once '
-                      'the app is connected.',
+                      l.sendStillConnecting,
                       style: theme.textTheme.bodyMedium,
                     ),
                   ),
@@ -695,11 +731,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
           ),
         const SizedBox(height: 16),
       ] else ...[
-        const Text(
-          'Sending takes two steps: share the transaction file with the '
-          'recipient, then open the .response file they send back to '
-          'finish the payment.',
-        ),
+        Text(l.sendFileIntro),
         const SizedBox(height: 16),
       ],
       TextField(
@@ -714,9 +746,9 @@ class _SendScreenState extends ConsumerState<SendScreen> {
             : _noteFocus.requestFocus,
         onChanged: _onAmountChanged,
         decoration: InputDecoration(
-          labelText: _fiatEntry
-              ? 'Amount (${currency.toUpperCase()})'
-              : 'Amount (EPIC)',
+          labelText: l.sendAmountLabel(
+            _fiatEntry ? currency.toUpperCase() : 'EPIC',
+          ),
           helperText: amountHelper,
           error: _amountError == null ? null : LiveFieldError(_amountError!),
           border: const OutlineInputBorder(),
@@ -729,12 +761,12 @@ class _SendScreenState extends ConsumerState<SendScreen> {
                 TextButton(
                   onPressed: _toggleUnit,
                   child: Text(
-                    _fiatEntry ? 'Use EPIC' : 'Use ${currency.toUpperCase()}',
+                    l.sendUseUnit(_fiatEntry ? 'EPIC' : currency.toUpperCase()),
                   ),
                 ),
               TextButton(
                 onPressed: _busy ? null : _max,
-                child: const Text('Max'),
+                child: Text(l.sendMax),
               ),
             ],
           ),
@@ -744,8 +776,12 @@ class _SendScreenState extends ConsumerState<SendScreen> {
         Padding(
           padding: const EdgeInsets.only(top: 8),
           child: Text(
-            'Spendable: ${epicText(spendable)}'
-            '${price == null ? '' : ' (≈ ${fiatText(spendable, price, currency)})'}',
+            price == null
+                ? l.sendSpendable(epicText(l, spendable))
+                : l.sendSpendableWithFiat(
+                    epicText(l, spendable),
+                    localDigits(l, fiatText(spendable, price, currency)),
+                  ),
             style: theme.textTheme.bodyMedium,
           ),
         ),
@@ -754,8 +790,10 @@ class _SendScreenState extends ConsumerState<SendScreen> {
         Semantics(
           liveRegion: true,
           child: Text(
-            'Fee: ${epicText(estimate.fee)}. '
-            'Total: ${epicText(estimate.amount + estimate.fee)}.',
+            l.sendFeeAndTotal(
+              epicText(l, estimate.fee),
+              epicText(l, estimate.amount + estimate.fee),
+            ),
           ),
         ),
       if (_estimateError != null) ErrorText(_estimateError!),
@@ -774,16 +812,16 @@ class _SendScreenState extends ConsumerState<SendScreen> {
               _review();
             }
           },
-          decoration: const InputDecoration(
-            labelText: 'Note (optional)',
-            helperText: 'Only you see this note.',
-            border: OutlineInputBorder(),
+          decoration: InputDecoration(
+            labelText: l.sendNoteLabel,
+            helperText: l.sendNoteHelper,
+            border: const OutlineInputBorder(),
           ),
         ),
       ],
       const SizedBox(height: 16),
       BusyButton(
-        label: _fileMode ? 'Create transaction file' : 'Review',
+        label: _fileMode ? l.sendCreateFile : l.sendReview,
         busy: _busy || _estimating,
         onPressed: amount == null || _estimateError != null || _reviewing
             ? null
@@ -798,17 +836,14 @@ class _SendScreenState extends ConsumerState<SendScreen> {
             _fileMode = false;
             _error = null;
           }),
-          child: const Text('Send to an address instead'),
+          child: Text(l.sendToAddressInstead),
         )
       else
         ExpansionTile(
           tilePadding: EdgeInsets.zero,
-          title: const Text('Other ways to send'),
+          title: Text(l.sendOtherWays),
           children: [
-            const Text(
-              'Send with a transaction file when the recipient does not use '
-              'epicbox: you share a file, they return a response file.',
-            ),
+            Text(l.sendOtherWaysExplanation),
             const SizedBox(height: 8),
             OutlinedButton(
               style: OutlinedButton.styleFrom(
@@ -819,7 +854,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
                 _recipientError = null;
                 _error = null;
               }),
-              child: const Text('Send by transaction file'),
+              child: Text(l.sendByFileButton),
             ),
             const SizedBox(height: 8),
           ],
@@ -828,41 +863,33 @@ class _SendScreenState extends ConsumerState<SendScreen> {
   }
 
   List<Widget> _responseStep(BuildContext context, Slate slate) {
+    final l = context.l10n;
     final name = sendFileName(slate.slateId);
     final theme = Theme.of(context);
     return [
-      Text(
-        'Step 1: give $name to the recipient',
-        style: theme.textTheme.titleMedium,
-      ),
+      Text(l.sendFileStep1(name), style: theme.textTheme.titleMedium),
       const SizedBox(height: 8),
       SlateFileButtons(name: name, json: slate.json),
       const SizedBox(height: 8),
-      const Text(
-        'The funds stay locked until you finish. If the recipient never '
-        'responds, open the payment and tap Cancel payment.',
-      ),
+      Text(l.sendFileLockedNote),
       const SizedBox(height: 24),
       Text(
-        'Step 2: open the $name.response file they return',
+        l.sendFileStep2(responseFileName(name)),
         style: theme.textTheme.titleMedium,
       ),
       const SizedBox(height: 8),
-      BusyButton(label: 'Open response file', onPressed: _openResponse),
+      BusyButton(label: l.sendOpenResponseFile, onPressed: _openResponse),
       const SizedBox(height: 24),
       ExpansionTile(
         tilePadding: EdgeInsets.zero,
-        title: const Text('Copy and paste instead'),
+        title: Text(l.sendCopyPasteInstead),
         children: [
-          SlateBox(title: 'Transaction text', json: slate.json),
+          SlateBox(title: l.sendSlateBoxTitle, json: slate.json),
           const SizedBox(height: 16),
-          SlateInput(
-            controller: _response,
-            label: 'Paste the recipient\'s response',
-          ),
+          SlateInput(controller: _response, label: l.sendPasteResponseLabel),
           const SizedBox(height: 16),
           BusyButton(
-            label: 'Finish payment',
+            label: l.slateFinishPayment,
             busy: _busy,
             onPressed: _finalize,
           ),
@@ -872,6 +899,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
   }
 
   List<Widget> _resultStep(BuildContext context, _Sent sent) {
+    final l = context.l10n;
     final theme = Theme.of(context);
     final to = sent.to;
     // Finished but not taken by the network: the form stays closed, so it cannot be sent twice.
@@ -879,7 +907,10 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       return [
         NotPostedNotice(tx: sent.tx),
         const SizedBox(height: 8),
-        BusyButton(label: 'Done', onPressed: () => Navigator.pop(context)),
+        BusyButton(
+          label: l.commonDone,
+          onPressed: () => Navigator.pop(context),
+        ),
       ];
     }
     final waiting = to?.kind == RecipientKind.epicbox;
@@ -901,8 +932,8 @@ class _SendScreenState extends ConsumerState<SendScreen> {
                 // An epicbox payment has not gone anywhere yet; "Sent" would let the
                 // user close the app, which stops it from finishing.
                 waiting
-                    ? 'Payment started: ${epicText(sent.amount)}'
-                    : 'Sent ${epicText(sent.amount)}',
+                    ? l.sendResultStarted(epicText(l, sent.amount))
+                    : l.sendResultSent(epicText(l, sent.amount)),
                 style: theme.textTheme.titleLarge,
               ),
             ),
@@ -912,37 +943,26 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       const SizedBox(height: 12),
       Text(
         waiting
-            ? 'It finishes when the recipient\'s wallet answers, usually '
-                  'within minutes if their app is open. Keep this app open, or '
-                  'open it again within a week: epicbox keeps their answer '
-                  'for about that long. You can find it on the home screen and '
-                  'in History.'
-            : 'The payment is on its way to the network. It shows as '
-                  'Completed after $minimumConfirmations confirmations.',
+            ? l.sendResultWaitingBody
+            : l.sendResultOnItsWay(confirmationsTarget),
         style: theme.textTheme.bodyLarge,
       ),
       if (waiting) ...[
         const SizedBox(height: 8),
-        const Text(
-          'If it is still not completed after $sendTtlDays days, it cancels by '
-          'itself and the amount unlocks. To stop it sooner, open the payment '
-          'and tap Cancel payment.',
-        ),
+        Text(l.sendResultAutoCancel(sendTtlDays)),
       ],
       if (sent.changedFee case final fee?) ...[
         const SizedBox(height: 8),
         Text(
-          'The fee charged was ${epicText(fee)}, not the '
-          '${epicText(sent.reviewedFee!)} shown before, because the wallet '
-          'picked its coins again when sending.',
+          l.sendResultFeeChanged(
+            epicText(l, fee),
+            epicText(l, sent.reviewedFee!),
+          ),
         ),
       ],
       if (!sent.noteSaved) ...[
         const SizedBox(height: 8),
-        const Text(
-          'The note could not be saved. You can add it by opening the '
-          'payment.',
-        ),
+        Text(l.sendResultNoteNotSaved),
       ],
       const SizedBox(height: 24),
       if (!known) ...[
@@ -951,7 +971,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
             minimumSize: const Size.fromHeight(48),
           ),
           icon: const Icon(Icons.person_add),
-          label: const Text('Save to contacts'),
+          label: Text(l.sendSaveToContacts),
           onPressed: () => Navigator.of(context).push<Contact>(
             MaterialPageRoute<Contact>(
               builder: (_) => ContactEditScreen(address: to.address),
@@ -960,11 +980,11 @@ class _SendScreenState extends ConsumerState<SendScreen> {
         ),
         const SizedBox(height: 12),
       ],
-      BusyButton(label: 'Done', onPressed: () => Navigator.pop(context)),
+      BusyButton(label: l.commonDone, onPressed: () => Navigator.pop(context)),
       const SizedBox(height: 8),
       TextButton.icon(
         icon: const Icon(Icons.help_outline),
-        label: const Text('Help'),
+        label: Text(l.sendHelp),
         onPressed: () => openHelp(
           context,
           waiting ? HelpTopic.waitingForRecipient : HelpTopic.confirmations,
@@ -1008,6 +1028,7 @@ class _ReviewSheetState extends State<_ReviewSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     final theme = Theme.of(context);
     final estimate = widget.estimate;
     final total = estimate.amount + estimate.fee;
@@ -1019,30 +1040,36 @@ class _ReviewSheetState extends State<_ReviewSheet> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text('Review your payment', style: theme.textTheme.titleLarge),
+            Text(l.sendReviewTitle, style: theme.textTheme.titleLarge),
             const SizedBox(height: 16),
-            if (name != null) _Row(label: 'To', value: name),
+            if (name != null) _Row(label: l.sendReviewTo, value: name),
             _Row(
-              label: name == null ? 'To' : '',
+              label: name == null ? l.sendReviewTo : '',
               value: _breakableAddress(widget.to.address),
               style: theme.textTheme.bodyMedium,
             ),
-            _Row(label: 'Amount', value: epicText(estimate.amount)),
-            _Row(label: 'Fee', value: epicText(estimate.fee)),
             _Row(
-              label: 'Total',
+              label: l.sendReviewAmount,
+              value: epicText(l, estimate.amount),
+            ),
+            _Row(label: l.sendReviewFee, value: epicText(l, estimate.fee)),
+            _Row(
+              label: l.sendReviewTotal,
               value: price == null
-                  ? epicText(total)
-                  : '${epicText(total)} (≈ ${fiatText(total, price, widget.currency)})',
+                  ? epicText(l, total)
+                  : l.sendReviewTotalWithFiat(
+                      epicText(l, total),
+                      localDigits(l, fiatText(total, price, widget.currency)),
+                    ),
               style: theme.textTheme.titleMedium,
             ),
-            if (widget.note.isNotEmpty) _Row(label: 'Note', value: widget.note),
+            if (widget.note.isNotEmpty)
+              _Row(label: l.sendReviewNote, value: widget.note),
             const SizedBox(height: 8),
             Text(
               widget.to.kind == RecipientKind.epicbox
-                  ? 'Goes through epicbox. It completes when '
-                        'the recipient\'s wallet answers.'
-                  : 'Goes straight to the recipient\'s wallet.',
+                  ? l.sendReviewViaEpicbox
+                  : l.sendReviewViaHttp,
               style: theme.textTheme.bodySmall,
             ),
             const SizedBox(height: 16),
@@ -1051,12 +1078,12 @@ class _ReviewSheetState extends State<_ReviewSheet> {
                 minimumSize: const Size.fromHeight(52),
               ),
               onPressed: _closing ? null : () => _close(true),
-              child: Text('Send ${epicText(estimate.amount)}'),
+              child: Text(l.sendReviewSendButton(epicText(l, estimate.amount))),
             ),
             const SizedBox(height: 8),
             TextButton(
               onPressed: _closing ? null : () => _close(false),
-              child: const Text('Edit'),
+              child: Text(l.sendReviewEdit),
             ),
           ],
         ),

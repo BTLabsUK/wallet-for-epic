@@ -1,0 +1,3298 @@
+{
+  "@@locale": "en",
+  "appTitle": "Epic Cash Wallet",
+  "@appTitle": {
+    "description": "The app's name in the task switcher and window title."
+  },
+  "commonCancel": "Cancel",
+  "commonClose": "Close",
+  "commonContinue": "Continue",
+  "commonCopy": "Copy",
+  "commonDelete": "Delete",
+  "commonDone": "Done",
+  "commonError": "Error",
+  "@commonError": {
+    "description": "Screen-reader label of the icon in front of an error message."
+  },
+  "commonOk": "OK",
+  "commonPaste": "Paste",
+  "commonRetry": "Retry",
+  "commonSave": "Save",
+  "commonShare": "Share",
+  "commonUnknown": "Unknown",
+  "@commonUnknown": {
+    "description": "Shown where a value (network, relay, version) is not known."
+  },
+  "passwordShow": "Show password",
+  "passwordHide": "Hide password",
+  "slateCopyTooltip": "Copy transaction text",
+  "@slateCopyTooltip": {
+    "description": "Tooltip on the copy button of a box holding a transaction's text (an Epic Cash slate, JSON) that the user passes to the other side."
+  },
+  "slateCopied": "Transaction text copied",
+  "biometricPromptTitle": "Unlock wallet",
+  "@biometricPromptTitle": {
+    "description": "Title of the system fingerprint/face prompt."
+  },
+  "biometricPromptSubtitle": "Confirm with your fingerprint or face",
+  "biometricPromptUsePin": "Use PIN",
+  "@biometricPromptUsePin": {
+    "description": "Button in the system biometric prompt that falls back to the 6-digit PIN."
+  },
+  "amountEnterExample": "Enter an amount such as 1.5",
+  "@amountEnterExample": {
+    "description": "Amount field error. Write the example number with this language's decimal separator."
+  },
+  "amountTooManyDecimals": "{count, plural, =1{At most 1 decimal place} other{At most {count} decimal places}}",
+  "@amountTooManyDecimals": {
+    "description": "Amount field error: EPIC has 8 decimal places.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "dateWithTime": "{date}, {time}",
+  "@dateWithTime": {
+    "description": "A date or day word followed by a clock time, e.g. '21 Sep 2026, 14:05' or 'Today, 14:05'.",
+    "placeholders": {
+      "date": {
+        "type": "String",
+        "example": "21 Sep 2026"
+      },
+      "time": {
+        "type": "String",
+        "example": "14:05"
+      }
+    }
+  },
+  "dateToday": "Today",
+  "dateYesterday": "Yesterday",
+  "txMiningReward": "Mining reward",
+  "@txMiningReward": {
+    "description": "A payment created by mining a block (coinbase)."
+  },
+  "txRestoredFunds": "Restored funds",
+  "@txRestoredFunds": {
+    "description": "Funds the wallet found by scanning the chain after a restore, with no record of who sent them."
+  },
+  "txOutgoingPayment": "Outgoing payment",
+  "txIncomingPayment": "Incoming payment",
+  "txStatusWaitingRecipient": "Waiting for recipient",
+  "@txStatusWaitingRecipient": {
+    "description": "Status chip: the payment was sent, the recipient has not answered yet. Keep it short."
+  },
+  "txStatusWaitingSender": "Waiting for sender",
+  "@txStatusWaitingSender": {
+    "description": "Status chip: we answered a payment, the sender has not finished it yet. Keep it short."
+  },
+  "txStatusConfirming": "Confirming {count}/{target}",
+  "@txStatusConfirming": {
+    "description": "Status chip: the payment is on the chain with count of target confirmations.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "target": {
+        "type": "int"
+      }
+    }
+  },
+  "txStatusCompleted": "Completed",
+  "@txStatusCompleted": {
+    "description": "Status chip of a finished payment."
+  },
+  "txStatusCancelled": "Cancelled",
+  "@txStatusCancelled": {
+    "description": "Status chip of a cancelled payment."
+  },
+  "txStatusFromBackup": "From backup, status unknown",
+  "@txStatusFromBackup": {
+    "description": "Status chip of a pending payment imported from a history backup, which this wallet cannot follow up."
+  },
+  "txIconCancelled": "Cancelled",
+  "@txIconCancelled": {
+    "description": "Screen-reader label of a cancelled payment's icon."
+  },
+  "txIconIncoming": "Incoming",
+  "@txIconIncoming": {
+    "description": "Screen-reader label of an incoming payment's icon."
+  },
+  "txIconOutgoing": "Outgoing",
+  "@txIconOutgoing": {
+    "description": "Screen-reader label of an outgoing payment's icon."
+  },
+  "txSpokenHiddenAmount": "a hidden amount",
+  "@txSpokenHiddenAmount": {
+    "description": "Read by the screen reader in place of the amount when balances are hidden; goes into the {amount} of the txSpoken messages."
+  },
+  "txSpokenMiningReward": "Mining reward of {amount}",
+  "@txSpokenMiningReward": {
+    "description": "Screen-reader text of a payment row.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "10 EPIC"
+      }
+    }
+  },
+  "txSpokenRestoredFunds": "Restored funds of {amount}",
+  "@txSpokenRestoredFunds": {
+    "description": "Screen-reader text of a payment row.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "10 EPIC"
+      }
+    }
+  },
+  "txSpokenCancelledSend": "Cancelled send of {amount}",
+  "@txSpokenCancelledSend": {
+    "description": "Screen-reader text of a payment row.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "10 EPIC"
+      }
+    }
+  },
+  "txSpokenCancelledSendTo": "Cancelled send of {amount} to {who}",
+  "@txSpokenCancelledSendTo": {
+    "description": "Screen-reader text of a payment row. who is a contact name or a short address.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "10 EPIC"
+      },
+      "who": {
+        "type": "String",
+        "example": "Alice"
+      }
+    }
+  },
+  "txSpokenCancelledReceive": "Cancelled receive of {amount}",
+  "@txSpokenCancelledReceive": {
+    "description": "Screen-reader text of a payment row.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "10 EPIC"
+      }
+    }
+  },
+  "txSpokenCancelledReceiveFrom": "Cancelled receive of {amount} from {who}",
+  "@txSpokenCancelledReceiveFrom": {
+    "description": "Screen-reader text of a payment row.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "10 EPIC"
+      },
+      "who": {
+        "type": "String",
+        "example": "Alice"
+      }
+    }
+  },
+  "txSpokenSending": "Sending {amount}",
+  "@txSpokenSending": {
+    "description": "Screen-reader text of a pending outgoing payment row.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "10 EPIC"
+      }
+    }
+  },
+  "txSpokenSendingTo": "Sending {amount} to {who}",
+  "@txSpokenSendingTo": {
+    "description": "Screen-reader text of a pending outgoing payment row.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "10 EPIC"
+      },
+      "who": {
+        "type": "String",
+        "example": "Alice"
+      }
+    }
+  },
+  "txSpokenReceiving": "Receiving {amount}",
+  "@txSpokenReceiving": {
+    "description": "Screen-reader text of a pending incoming payment row.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "10 EPIC"
+      }
+    }
+  },
+  "txSpokenReceivingFrom": "Receiving {amount} from {who}",
+  "@txSpokenReceivingFrom": {
+    "description": "Screen-reader text of a pending incoming payment row.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "10 EPIC"
+      },
+      "who": {
+        "type": "String",
+        "example": "Alice"
+      }
+    }
+  },
+  "txSpokenSent": "Sent {amount}",
+  "@txSpokenSent": {
+    "description": "Screen-reader text of a finished outgoing payment row.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "10 EPIC"
+      }
+    }
+  },
+  "txSpokenSentTo": "Sent {amount} to {who}",
+  "@txSpokenSentTo": {
+    "description": "Screen-reader text of a finished outgoing payment row.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "10 EPIC"
+      },
+      "who": {
+        "type": "String",
+        "example": "Alice"
+      }
+    }
+  },
+  "txSpokenReceived": "Received {amount}",
+  "@txSpokenReceived": {
+    "description": "Screen-reader text of a finished incoming payment row.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "10 EPIC"
+      }
+    }
+  },
+  "txSpokenReceivedFrom": "Received {amount} from {who}",
+  "@txSpokenReceivedFrom": {
+    "description": "Screen-reader text of a finished incoming payment row.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "10 EPIC"
+      },
+      "who": {
+        "type": "String",
+        "example": "Alice"
+      }
+    }
+  },
+  "txSpokenRow": "{what}, {status}, {date}",
+  "@txSpokenRow": {
+    "description": "Whole screen-reader sentence for a payment row: what happened, its status word, its date.",
+    "placeholders": {
+      "what": {
+        "type": "String",
+        "example": "Received 10 EPIC from Alice"
+      },
+      "status": {
+        "type": "String",
+        "example": "completed"
+      },
+      "date": {
+        "type": "String",
+        "example": "Today, 10:01"
+      }
+    }
+  },
+  "errorInvalidMnemonic": "The recovery phrase is not valid. Check each word and the word order.",
+  "errorWrongPassword": "Wrong password.",
+  "errorWalletAlreadyExists": "A wallet already exists for this network.",
+  "errorWalletNotFound": "No wallet found for this network.",
+  "errorNodeUnreachable": "Cannot reach the node. Check the node URL and your connection.",
+  "@errorNodeUnreachable": {
+    "description": "The node is the Epic Cash server the wallet reads the chain from."
+  },
+  "errorNotEnoughFunds": "Not enough spendable funds for this amount plus the fee.",
+  "errorInvalidSlate": "This transaction text is not valid for this step. Check that you pasted all of it.",
+  "errorInvalidInput": "Invalid input.",
+  "@errorInvalidInput": {
+    "description": "Summary in front of a technical detail the wallet core wrote in English."
+  },
+  "errorTransportFailed": "Could not reach the recipient.",
+  "@errorTransportFailed": {
+    "description": "Summary in front of a technical detail in English."
+  },
+  "errorChainBusy": "The wallet is still busy on the other network. Wait a moment and try again, or close and reopen the app.",
+  "errorWalletBusy": "The wallet is still finishing a task. Try again in a moment.",
+  "errorPaymentExpired": "The answer to this payment came too late, so the payment was cancelled. Nothing was sent.",
+  "errorIo": "Could not read or write wallet files.",
+  "@errorIo": {
+    "description": "Summary in front of a technical detail in English."
+  },
+  "errorOther": "Wallet error.",
+  "@errorOther": {
+    "description": "Summary in front of a technical detail in English."
+  },
+  "errorScanFailed": "The scan failed.",
+  "@errorScanFailed": {
+    "description": "A scan of the blockchain for the wallet's funds failed. Summary in front of a technical detail in English."
+  },
+  "errorUnexpected": "Unexpected error. Please try again.",
+  "errorHistoryNotOurs": "This is not a history file exported by this app.",
+  "@errorHistoryNotOurs": {
+    "description": "Importing a payment-history backup file (.wfeh) failed."
+  },
+  "errorHistoryNewer": "This history file was made by a newer version of the app.",
+  "errorHistoryDamaged": "This history file is damaged.",
+  "errorHistoryOtherWallet": "This history file belongs to a different wallet.",
+  "errorHistoryOtherNetwork": "This history file is from {fileNetwork}, but this wallet is on {walletNetwork}.",
+  "@errorHistoryOtherNetwork": {
+    "description": "Network names stay as given (Mainnet, Floonet, Usernet).",
+    "placeholders": {
+      "fileNetwork": {
+        "type": "String",
+        "example": "Floonet"
+      },
+      "walletNetwork": {
+        "type": "String",
+        "example": "Mainnet"
+      }
+    }
+  },
+  "networkMainnet": "Mainnet",
+  "@networkMainnet": {
+    "description": "The real Epic Cash network, where coins have value. Short; used as a screen title."
+  },
+  "networkFloonet": "Floonet",
+  "@networkFloonet": {
+    "description": "Name of Epic Cash's public test network. A proper name: do not translate."
+  },
+  "networkUsernet": "Usernet",
+  "@networkUsernet": {
+    "description": "Name of a local developer test network. A proper name: do not translate."
+  },
+  "networkMainnetDescription": "The real Epic Cash network.",
+  "networkFloonetDescription": "A public test network for trying the app. Its coins have no value; get free ones from floo-explorer.btlabs.uk.",
+  "networkUsernetDescription": "A test network running on this computer, for developers.",
+  "networkTestSuffix": " ({network}, test coins)",
+  "@networkTestSuffix": {
+    "description": "Appended to a title on a test network, e.g. 'Unlock wallet (Floonet, test coins)'. Keep the leading space if this language puts one before parentheses.",
+    "placeholders": {
+      "network": {
+        "type": "String",
+        "example": "Floonet"
+      }
+    }
+  },
+  "autoLockNever": "Never",
+  "@autoLockNever": {
+    "description": "Auto-lock choice: the wallet never locks by itself."
+  },
+  "autoLockImmediately": "Immediately",
+  "@autoLockImmediately": {
+    "description": "Auto-lock choice: lock as soon as the app goes to the background."
+  },
+  "autoLockAfterMinutes": "{minutes, plural, =1{After 1 minute} other{After {minutes} minutes}}",
+  "@autoLockAfterMinutes": {
+    "description": "Auto-lock choice: lock this long after the app went to the background.",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "scanStarting": "Starting scan",
+  "@scanStarting": {
+    "description": "Progress line when a scan of the blockchain for the wallet's funds begins."
+  },
+  "scanProgress": "Scanning the chain ({percent}%)",
+  "@scanProgress": {
+    "description": "Progress line of a scan of the blockchain for the wallet's funds.",
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "scanComplete": "Scan complete",
+  "languageSetting": "Language",
+  "@languageSetting": {
+    "description": "Settings row that picks the app's language."
+  },
+  "languageSystem": "System default",
+  "@languageSystem": {
+    "description": "Language choice that follows the phone's language."
+  },
+  "currencyUsd": "US dollar",
+  "currencyEur": "Euro",
+  "currencyGbp": "British pound",
+  "currencyBtc": "Bitcoin",
+  "currencyJpy": "Japanese yen",
+  "currencyCny": "Chinese yuan",
+  "currencyCad": "Canadian dollar",
+  "currencyAud": "Australian dollar",
+  "currencyChf": "Swiss franc",
+  "currencyInr": "Indian rupee",
+  "currencyBrl": "Brazilian real",
+  "currencyKrw": "South Korean won",
+  "currencyPln": "Polish złoty",
+  "currencyTry": "Turkish lira",
+  "txDetailsWaitingTooLong": "{days, plural, =1{Waiting for 1 day. The epicbox deletes payments after 7 days, so this one can no longer complete. Cancel it to unlock your funds, then send again.} other{Waiting for {days} days. The epicbox deletes payments after 7 days, so this one can no longer complete. Cancel it to unlock your funds, then send again.}}",
+  "@txDetailsWaitingTooLong": {
+    "description": "Payment details, status explanation of a send that has waited days for an answer. epicbox is the relay service that carries payments (a proper name).",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "txDetailsWaitingEpicbox": "Sent to the recipient's epicbox. It completes when their wallet comes online. Your funds stay locked until then, or until you cancel.",
+  "@txDetailsWaitingEpicbox": {
+    "description": "Payment details, status explanation of a send waiting for its recipient. epicbox is the relay service that carries payments (a proper name)."
+  },
+  "txDetailsWaitingRecipient": "Waiting for the recipient to answer with their transaction file. Your funds stay locked until then, or until you cancel.",
+  "@txDetailsWaitingRecipient": {
+    "description": "Payment details, status explanation of a send passed by file or copy and paste. The transaction file holds the slate, the JSON a payment passes between sender and recipient."
+  },
+  "txDetailsWaitingSender": "You accepted this payment. It completes when the sender finishes it and publishes it to the network.",
+  "@txDetailsWaitingSender": {
+    "description": "Payment details, status explanation of a receive the sender has not finished yet."
+  },
+  "txDetailsPublished": "Published to the network. Waiting for the first confirmation.",
+  "@txDetailsPublished": {
+    "description": "Payment details, status explanation of a finished send that is not in a block yet."
+  },
+  "txDetailsWaitingConfirmation": "Waiting for the network to confirm it.",
+  "@txDetailsWaitingConfirmation": {
+    "description": "Payment details, status explanation of a receive that is not in a block yet."
+  },
+  "txDetailsConfirmingMinutes": "In block {height}. {count} of {target, plural, =1{1 confirmation} other{{target} confirmations}}; final in about {minutes, plural, =1{1 minute} other{{minutes} minutes}}.",
+  "@txDetailsConfirmingMinutes": {
+    "description": "Payment details, status explanation of a payment on the chain that is still gaining confirmations (blocks on top of it). The wallet calls it final at target confirmations; minutes is a rough estimate of the time left.",
+    "placeholders": {
+      "height": {
+        "type": "String",
+        "example": "2,500,120"
+      },
+      "count": {
+        "type": "int"
+      },
+      "target": {
+        "type": "int"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "txDetailsConfirmingHours": "In block {height}. {count} of {target, plural, =1{1 confirmation} other{{target} confirmations}}; final in about {hours, plural, =1{1 hour} other{{hours} hours}}.",
+  "@txDetailsConfirmingHours": {
+    "description": "As txDetailsConfirmingMinutes, with the time left in hours.",
+    "placeholders": {
+      "height": {
+        "type": "String",
+        "example": "2,500,120"
+      },
+      "count": {
+        "type": "int"
+      },
+      "target": {
+        "type": "int"
+      },
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "txDetailsConfirmingDays": "In block {height}. {count} of {target, plural, =1{1 confirmation} other{{target} confirmations}}; final in about {days, plural, =1{1 day} other{{days} days}}.",
+  "@txDetailsConfirmingDays": {
+    "description": "As txDetailsConfirmingMinutes, with the time left in days.",
+    "placeholders": {
+      "height": {
+        "type": "String",
+        "example": "2,500,120"
+      },
+      "count": {
+        "type": "int"
+      },
+      "target": {
+        "type": "int"
+      },
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "txDetailsCompleted": "Completed.",
+  "@txDetailsCompleted": {
+    "description": "Payment details, status explanation of a finished payment whose block is not known."
+  },
+  "txDetailsCompletedInBlock": "Completed in block {height}.",
+  "@txDetailsCompletedInBlock": {
+    "description": "Payment details, status explanation of a finished payment.",
+    "placeholders": {
+      "height": {
+        "type": "String",
+        "example": "2,500,120"
+      }
+    }
+  },
+  "txDetailsCancelledByUser": "Cancelled. Nothing was sent, and the funds are spendable again.",
+  "@txDetailsCancelledByUser": {
+    "description": "Payment details, why a send is cancelled: the user cancelled it before it was sent."
+  },
+  "txDetailsCancelledReleased": "The network never took it, so its funds were released. Check the recipient did not receive it before sending again.",
+  "@txDetailsCancelledReleased": {
+    "description": "Payment details, why a send is cancelled: the user released the funds of a send the network refused."
+  },
+  "txDetailsCancelledNotOnChain": "It did not reach the network within 14 days, so the wallet cancelled it. Check the recipient did not receive it before sending again.",
+  "@txDetailsCancelledNotOnChain": {
+    "description": "Payment details, why a send is cancelled: it was finished but never confirmed within its 14-day limit."
+  },
+  "txDetailsCancelledUnanswered": "The recipient did not answer within 14 days, so the wallet cancelled it. Nothing was sent, and the funds are spendable again.",
+  "@txDetailsCancelledUnanswered": {
+    "description": "Payment details, why a send is cancelled: the recipient never answered within its 14-day limit."
+  },
+  "txDetailsCancelledLateAnswer": "The recipient answered after the 14-day limit, so the wallet cancelled it instead of finishing it. Nothing was sent, and the funds are spendable again.",
+  "@txDetailsCancelledLateAnswer": {
+    "description": "Payment details, why a send is cancelled: the answer came too late."
+  },
+  "txDetailsCancelledUndelivered": "It could not be delivered to the recipient, so the wallet cancelled it at once. Nothing was sent, and the funds are spendable again.",
+  "@txDetailsCancelledUndelivered": {
+    "description": "Payment details, why a send is cancelled: it never reached the recipient."
+  },
+  "txDetailsCancelledIncoming": "Cancelled. This payment will not arrive.",
+  "@txDetailsCancelledIncoming": {
+    "description": "Payment details, status explanation of a cancelled receive."
+  },
+  "txDetailsFromBackup": "This payment comes from a history backup and was not finished when the backup was made. This wallet has no record of its own for it, so it cannot tell whether it completed. Nothing is locked.",
+  "@txDetailsFromBackup": {
+    "description": "Payment details, status explanation of an unfinished payment imported from a history backup file."
+  },
+  "txDetailsCancelsAtBlock": "Cancels automatically if not completed by block {height}.",
+  "@txDetailsCancelsAtBlock": {
+    "description": "Payment details, small line under the status of a pending payment, shown when the current block height is not known.",
+    "placeholders": {
+      "height": {
+        "type": "String",
+        "example": "2,520,000"
+      }
+    }
+  },
+  "txDetailsCancelsAtBlockInMinutes": "Cancels automatically if not completed by block {height} (in about {minutes, plural, =1{1 minute} other{{minutes} minutes}}).",
+  "@txDetailsCancelsAtBlockInMinutes": {
+    "description": "Payment details, small line under the status of a pending payment; minutes is a rough estimate of the time until that block.",
+    "placeholders": {
+      "height": {
+        "type": "String",
+        "example": "2,520,000"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "txDetailsCancelsAtBlockInHours": "Cancels automatically if not completed by block {height} (in about {hours, plural, =1{1 hour} other{{hours} hours}}).",
+  "@txDetailsCancelsAtBlockInHours": {
+    "description": "As txDetailsCancelsAtBlockInMinutes, in hours.",
+    "placeholders": {
+      "height": {
+        "type": "String",
+        "example": "2,520,000"
+      },
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "txDetailsCancelsAtBlockInDays": "Cancels automatically if not completed by block {height} (in about {days, plural, =1{1 day} other{{days} days}}).",
+  "@txDetailsCancelsAtBlockInDays": {
+    "description": "As txDetailsCancelsAtBlockInMinutes, in days.",
+    "placeholders": {
+      "height": {
+        "type": "String",
+        "example": "2,520,000"
+      },
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "txDetailsExpiredAtBlock": "Expired at block {height}. The wallet cancels it on the next refresh.",
+  "@txDetailsExpiredAtBlock": {
+    "description": "Payment details, small line under the status of a pending payment whose limit has passed.",
+    "placeholders": {
+      "height": {
+        "type": "String",
+        "example": "2,520,000"
+      }
+    }
+  },
+  "txDetailsTitle": "Payment",
+  "@txDetailsTitle": {
+    "description": "Title of the payment details screen while the payment is loading or gone."
+  },
+  "txDetailsLoading": "Loading",
+  "@txDetailsLoading": {
+    "description": "Screen-reader label of the progress bar while the payment details load."
+  },
+  "txDetailsGone": "This payment is no longer in the wallet.",
+  "txDetailsWorking": "Working",
+  "@txDetailsWorking": {
+    "description": "Screen-reader label of the progress bar while an action on the payment runs."
+  },
+  "txDetailsAmountHidden": "Amount hidden",
+  "@txDetailsAmountHidden": {
+    "description": "Screen-reader label of the amount while balances are hidden."
+  },
+  "txDetailsNotConfirmedYet": "Not confirmed yet",
+  "@txDetailsNotConfirmedYet": {
+    "description": "Small heading above txDetailsStuckBody, for a send the network has not included for a while."
+  },
+  "txDetailsStuckBody": "The network has not taken this payment yet. Broadcasting it again is safe. The same payment cannot go through twice.",
+  "txDetailsBroadcastAgain": "Broadcast again",
+  "@txDetailsBroadcastAgain": {
+    "description": "Button: send the finished payment to the network again."
+  },
+  "txDetailsBroadcastAgainDone": "Broadcast again. It should confirm within a few minutes.",
+  "@txDetailsBroadcastAgainDone": {
+    "description": "Notice after the payment was sent to the network again."
+  },
+  "txDetailsRefusedBody": "The network refused this payment and it never reached the chain. You can release the funds it locked.",
+  "txDetailsReleaseFunds": "Release funds",
+  "@txDetailsReleaseFunds": {
+    "description": "Button on the details card and in the confirmation dialog: unlock the funds of a send the network refused."
+  },
+  "txDetailsReleaseTitle": "Release funds?",
+  "@txDetailsReleaseTitle": {
+    "description": "Title of the dialog that confirms releasing the funds of a refused send."
+  },
+  "txDetailsReleaseBody": "Use this only if the payment will never confirm. If it still does, you may see a wrong balance until you rescan.",
+  "@txDetailsReleaseBody": {
+    "description": "Release dialog text. Rescan means scanning the blockchain for the wallet's funds again."
+  },
+  "txDetailsReleaseKeepWaiting": "Keep waiting",
+  "@txDetailsReleaseKeepWaiting": {
+    "description": "Release dialog button that closes it without releasing."
+  },
+  "txDetailsFundsReleased": "Funds released",
+  "@txDetailsFundsReleased": {
+    "description": "Notice after the funds of a refused send were unlocked."
+  },
+  "txDetailsCancelPayment": "Cancel payment",
+  "@txDetailsCancelPayment": {
+    "description": "Button on the details card and in the confirmation dialog that cancels a pending payment. Other screens tell the user to tap it by this name."
+  },
+  "txDetailsCancelTitle": "Cancel payment?",
+  "@txDetailsCancelTitle": {
+    "description": "Title of the dialog that confirms cancelling a pending payment."
+  },
+  "txDetailsCancelReceiveBody": "The sender may still finish this payment. If they do after you cancel, it will not show until you rescan.",
+  "@txDetailsCancelReceiveBody": {
+    "description": "Cancel dialog text for a pending receive. Rescan means scanning the blockchain for the wallet's funds again."
+  },
+  "txDetailsCancelSendBody": "Cancel this payment and unlock its funds? Only do this if the recipient has not finished it.",
+  "@txDetailsCancelSendBody": {
+    "description": "Cancel dialog text for a pending send."
+  },
+  "txDetailsCancelKeep": "Keep",
+  "@txDetailsCancelKeep": {
+    "description": "Cancel dialog button that keeps the payment pending."
+  },
+  "txDetailsPaymentCancelled": "Payment cancelled",
+  "@txDetailsPaymentCancelled": {
+    "description": "Notice after a payment was cancelled."
+  },
+  "txDetailsDate": "Date",
+  "@txDetailsDate": {
+    "description": "Label of a details row: when the payment happened."
+  },
+  "txDetailsCreated": "Created",
+  "@txDetailsCreated": {
+    "description": "Label of a details row: when the payment was started, shown when it differs from the date it reached the chain."
+  },
+  "txDetailsSentTo": "Sent to",
+  "@txDetailsSentTo": {
+    "description": "Label of the row with the recipient's address."
+  },
+  "txDetailsReceivedFrom": "Received from",
+  "@txDetailsReceivedFrom": {
+    "description": "Label of the row with the sender's address."
+  },
+  "txDetailsCopyAddress": "Copy address",
+  "@txDetailsCopyAddress": {
+    "description": "Tooltip of the copy button beside the other side's address."
+  },
+  "txDetailsAddressCopied": "Address copied",
+  "@txDetailsAddressCopied": {
+    "description": "Notice after the other side's address was copied."
+  },
+  "txDetailsAddToContacts": "Add to contacts",
+  "@txDetailsAddToContacts": {
+    "description": "Button: save the other side's address in the address book."
+  },
+  "txDetailsSendAgain": "Send again",
+  "@txDetailsSendAgain": {
+    "description": "Button: start a new payment to the same address."
+  },
+  "txDetailsFee": "Fee",
+  "@txDetailsFee": {
+    "description": "Label of a details row: the network fee of a send."
+  },
+  "txDetailsNoteLabel": "Note",
+  "@txDetailsNoteLabel": {
+    "description": "Label of the payment's note, in the details row and in the note field. The note is the user's own text about the payment."
+  },
+  "txDetailsNoNote": "No note. Add one to remember what this was for.",
+  "txDetailsAddNote": "Add note",
+  "@txDetailsAddNote": {
+    "description": "Tooltip of the button that adds a note to the payment."
+  },
+  "txDetailsEditNote": "Edit note",
+  "@txDetailsEditNote": {
+    "description": "Tooltip of the button that changes the payment's note."
+  },
+  "txDetailsNoteDialogTitle": "Note",
+  "@txDetailsNoteDialogTitle": {
+    "description": "Title of the dialog that edits the payment's note."
+  },
+  "txDetailsNoteHelper": "Only on this device and in your history backups.",
+  "@txDetailsNoteHelper": {
+    "description": "Helper text under the note field: where the note is stored."
+  },
+  "txDetailsNoteSaved": "Note saved",
+  "@txDetailsNoteSaved": {
+    "description": "Notice after the note was saved."
+  },
+  "txDetailsNoteRemoved": "Note removed",
+  "@txDetailsNoteRemoved": {
+    "description": "Notice after the note was cleared."
+  },
+  "txDetailsExplorerLink": "Copy explorer link",
+  "@txDetailsExplorerLink": {
+    "description": "Label of the row with the payment's link in a block explorer (a website that shows the blockchain); tapping the row copies it."
+  },
+  "txDetailsExplorerLinkCopy": "Copy explorer link",
+  "@txDetailsExplorerLinkCopy": {
+    "description": "Tooltip of the copy button on the block explorer link row."
+  },
+  "txDetailsLinkCopied": "Link copied",
+  "@txDetailsLinkCopied": {
+    "description": "Notice after the block explorer link was copied."
+  },
+  "txDetailsTechnical": "Technical details",
+  "@txDetailsTechnical": {
+    "description": "Heading of a collapsed section with the payment's block height, IDs and commitments."
+  },
+  "txDetailsBlockHeight": "Block height",
+  "@txDetailsBlockHeight": {
+    "description": "Label: number of the block that holds the payment."
+  },
+  "txDetailsSlateId": "Slate ID",
+  "@txDetailsSlateId": {
+    "description": "Label: the payment's ID. A slate is the JSON a payment passes between sender and recipient."
+  },
+  "txDetailsSlateIdCopy": "Copy slate id",
+  "@txDetailsSlateIdCopy": {
+    "description": "Tooltip of the copy button on the Slate ID row."
+  },
+  "txDetailsSlateIdCopied": "Slate ID copied",
+  "txDetailsKernel": "Kernel",
+  "@txDetailsKernel": {
+    "description": "Label: the payment's kernel, the part of a transaction that stays on the blockchain and proves it."
+  },
+  "txDetailsKernelCopy": "Copy kernel",
+  "@txDetailsKernelCopy": {
+    "description": "Tooltip of the copy button on the Kernel row."
+  },
+  "txDetailsKernelCopied": "Kernel copied",
+  "txDetailsOutputCommitment": "Output commitment",
+  "@txDetailsOutputCommitment": {
+    "description": "Label: the on-chain commitment of the payment's only output (a coin the payment created)."
+  },
+  "txDetailsOutputCommitmentCopy": "Copy output commitment",
+  "@txDetailsOutputCommitmentCopy": {
+    "description": "Tooltip of the copy button on the Output commitment row."
+  },
+  "txDetailsOutputCommitmentCopied": "Output commitment copied",
+  "txDetailsOutputCommitmentNumbered": "Output commitment {number}",
+  "@txDetailsOutputCommitmentNumbered": {
+    "description": "Label: the on-chain commitment of one of the payment's outputs, numbered from 1.",
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "txDetailsOutputCommitmentNumberedCopy": "Copy output commitment {number}",
+  "@txDetailsOutputCommitmentNumberedCopy": {
+    "description": "Tooltip of the copy button on a numbered Output commitment row.",
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "txDetailsOutputCommitmentNumberedCopied": "Output commitment {number} copied",
+  "@txDetailsOutputCommitmentNumberedCopied": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "txDetailsExpiryHeight": "Expiry height",
+  "@txDetailsExpiryHeight": {
+    "description": "Label: the block number by which a pending payment cancels itself."
+  },
+  "txDetailsLocalId": "Local id",
+  "@txDetailsLocalId": {
+    "description": "Label: the payment's number in this wallet's own records."
+  },
+  "txDetailsSourceRestored": "Found by scanning the chain. Details such as the sender and fee are not stored on the chain; import a history backup to restore them.",
+  "@txDetailsSourceRestored": {
+    "description": "Note on a payment the wallet found by scanning the blockchain after a restore."
+  },
+  "txDetailsSourceImported": "Imported from a history backup. This wallet has no record of its own for it, so its status may be out of date.",
+  "@txDetailsSourceImported": {
+    "description": "Note on a payment that came from a history backup file."
+  },
+  "historyTitle": "History",
+  "@historyTitle": {
+    "description": "Title of the screen with every payment."
+  },
+  "historyLoading": "Loading payments",
+  "@historyLoading": {
+    "description": "Screen-reader label of the progress bar while the payment list loads."
+  },
+  "historyRefreshing": "Refreshing",
+  "@historyRefreshing": {
+    "description": "Screen-reader label of the progress bar while the payment list refreshes."
+  },
+  "historySearchLabel": "Search",
+  "@historySearchLabel": {
+    "description": "Label of the search field on the history screen."
+  },
+  "historySearchHint": "Note, contact, address or amount",
+  "@historySearchHint": {
+    "description": "Hint in the history search field: what it searches."
+  },
+  "historyClearSearch": "Clear search",
+  "@historyClearSearch": {
+    "description": "Tooltip of the button that empties the search field."
+  },
+  "historyFilterAll": "All",
+  "@historyFilterAll": {
+    "description": "Filter chip: show every payment. Keep it short."
+  },
+  "historyFilterSent": "Sent",
+  "@historyFilterSent": {
+    "description": "Filter chip: show outgoing payments. Keep it short."
+  },
+  "historyFilterReceived": "Received",
+  "@historyFilterReceived": {
+    "description": "Filter chip: show incoming payments. Keep it short."
+  },
+  "historyFilterPending": "Pending",
+  "@historyFilterPending": {
+    "description": "Filter chip: show unfinished payments. Keep it short."
+  },
+  "historyFilterCancelled": "Cancelled",
+  "@historyFilterCancelled": {
+    "description": "Filter chip: show cancelled payments. Keep it short."
+  },
+  "historySectionPending": "Pending",
+  "@historySectionPending": {
+    "description": "Heading of the section with unfinished payments, above the sections by day."
+  },
+  "historyEmpty": "Nothing yet. Payments you send or receive show up here.",
+  "@historyEmpty": {
+    "description": "History screen when the wallet has no payments."
+  },
+  "historyNoSent": "No sent payments.",
+  "@historyNoSent": {
+    "description": "History screen when the Sent filter matches nothing."
+  },
+  "historyNoReceived": "No received payments.",
+  "@historyNoReceived": {
+    "description": "History screen when the Received filter matches nothing."
+  },
+  "historyNoPending": "No pending payments.",
+  "@historyNoPending": {
+    "description": "History screen when the Pending filter matches nothing."
+  },
+  "historyNoCancelled": "No cancelled payments.",
+  "@historyNoCancelled": {
+    "description": "History screen when the Cancelled filter matches nothing."
+  },
+  "historyNoMatch": "Nothing matches \"{query}\".",
+  "@historyNoMatch": {
+    "description": "History screen when the search finds nothing; query is what the user typed. Use this language's quotation marks.",
+    "placeholders": {
+      "query": {
+        "type": "String",
+        "example": "alice"
+      }
+    }
+  },
+  "historyBackupSaveDialogTitle": "Save payment history",
+  "@historyBackupSaveDialogTitle": {
+    "description": "Title of the system save dialog for a payment-history file (desktop only)."
+  },
+  "historyBackupOpenDialogTitle": "Open history backup",
+  "@historyBackupOpenDialogTitle": {
+    "description": "Title of the system file picker for a payment-history backup (desktop only)."
+  },
+  "historyBackupFileTooLarge": "That file is too large to be a backup.",
+  "@historyBackupFileTooLarge": {
+    "description": "Import error: the picked file is far larger than a history backup."
+  },
+  "historyBackupShare": "Share",
+  "@historyBackupShare": {
+    "description": "Choice in a sheet: hand the history file to another app through the share sheet."
+  },
+  "historyBackupShareSubtitle": "Keep a copy off this phone, such as email or cloud storage",
+  "@historyBackupShareSubtitle": {
+    "description": "Second line of the Share choice."
+  },
+  "historyBackupSaveToDevice": "Save to device",
+  "@historyBackupSaveToDevice": {
+    "description": "Choice in a sheet: save the history file in a folder on this device."
+  },
+  "historyBackupSaveToDeviceSubtitle": "Only useful if you also copy it off this phone.",
+  "@historyBackupSaveToDeviceSubtitle": {
+    "description": "Second line of the Save to device choice."
+  },
+  "historyBackupSaved": "Saved {fileName}",
+  "@historyBackupSaved": {
+    "description": "Notice after a history file was saved on the device.",
+    "placeholders": {
+      "fileName": {
+        "type": "String",
+        "example": "epic-history-mainnet-20260930.wfeh"
+      }
+    }
+  },
+  "historyBackupExportTitle": "Export history backup",
+  "@historyBackupExportTitle": {
+    "description": "Title of the sheet that hands over the encrypted payment-history backup file."
+  },
+  "historyBackupExportNote": "History backups hold payments up to now. Export again after new payments.",
+  "@historyBackupExportNote": {
+    "description": "Text in the export sheet under its title."
+  },
+  "historyBackupCsvTitle": "Export CSV",
+  "@historyBackupCsvTitle": {
+    "description": "Title of the warning dialog and of the sheet that hands over the payment list as a CSV spreadsheet file."
+  },
+  "historyBackupCsvWarning": "The CSV file is not encrypted. Anyone who gets it can read your amounts, dates, addresses and notes. It cannot be imported back; use Export history backup for that.",
+  "@historyBackupCsvWarning": {
+    "description": "Warning before a CSV export. Export history backup is the name of the settings row that makes the encrypted backup: use the same words as there."
+  },
+  "historyBackupCsvConfirm": "Export CSV",
+  "@historyBackupCsvConfirm": {
+    "description": "Button in the CSV warning dialog that goes ahead with the export."
+  },
+  "historyBackupImportedTitle": "History imported",
+  "@historyBackupImportedTitle": {
+    "description": "Title of the dialog with the result of a history backup import."
+  },
+  "historyBackupImportFailedTitle": "Could not import",
+  "@historyBackupImportFailedTitle": {
+    "description": "Title of the dialog shown when a history backup import failed."
+  },
+  "historyBackupImportNothingNew": "The backup held nothing new.",
+  "@historyBackupImportNothingNew": {
+    "description": "Import result when the backup added nothing."
+  },
+  "historyBackupImportMerged": "{merged, plural, =1{1 payment got their details back} other{{merged} payments got their details back}}.",
+  "@historyBackupImportMerged": {
+    "description": "Import result. The historyBackupImport… messages are one sentence per combination of counts, each count shown only when above zero: merged payments already in the list got their note, address and fee back from the backup; added older payments were not in the list; skipped records were imported before; contacts went into the address book.",
+    "placeholders": {
+      "merged": {
+        "type": "int"
+      }
+    }
+  },
+  "historyBackupImportAdded": "{added, plural, =1{1 older payment added} other{{added} older payments added}}.",
+  "@historyBackupImportAdded": {
+    "description": "Import result; see historyBackupImportMerged.",
+    "placeholders": {
+      "added": {
+        "type": "int"
+      }
+    }
+  },
+  "historyBackupImportMergedAdded": "{merged, plural, =1{1 payment got their details back} other{{merged} payments got their details back}}, {added, plural, =1{1 older payment added} other{{added} older payments added}}.",
+  "@historyBackupImportMergedAdded": {
+    "description": "Import result; see historyBackupImportMerged.",
+    "placeholders": {
+      "merged": {
+        "type": "int"
+      },
+      "added": {
+        "type": "int"
+      }
+    }
+  },
+  "historyBackupImportSkipped": "{skipped, plural, =1{1 record was already here} other{{skipped} records were already here}}.",
+  "@historyBackupImportSkipped": {
+    "description": "Import result; see historyBackupImportMerged.",
+    "placeholders": {
+      "skipped": {
+        "type": "int"
+      }
+    }
+  },
+  "historyBackupImportMergedSkipped": "{merged, plural, =1{1 payment got their details back} other{{merged} payments got their details back}}, {skipped, plural, =1{1 record was already here} other{{skipped} records were already here}}.",
+  "@historyBackupImportMergedSkipped": {
+    "description": "Import result; see historyBackupImportMerged.",
+    "placeholders": {
+      "merged": {
+        "type": "int"
+      },
+      "skipped": {
+        "type": "int"
+      }
+    }
+  },
+  "historyBackupImportAddedSkipped": "{added, plural, =1{1 older payment added} other{{added} older payments added}}, {skipped, plural, =1{1 record was already here} other{{skipped} records were already here}}.",
+  "@historyBackupImportAddedSkipped": {
+    "description": "Import result; see historyBackupImportMerged.",
+    "placeholders": {
+      "added": {
+        "type": "int"
+      },
+      "skipped": {
+        "type": "int"
+      }
+    }
+  },
+  "historyBackupImportMergedAddedSkipped": "{merged, plural, =1{1 payment got their details back} other{{merged} payments got their details back}}, {added, plural, =1{1 older payment added} other{{added} older payments added}}, {skipped, plural, =1{1 record was already here} other{{skipped} records were already here}}.",
+  "@historyBackupImportMergedAddedSkipped": {
+    "description": "Import result; see historyBackupImportMerged.",
+    "placeholders": {
+      "merged": {
+        "type": "int"
+      },
+      "added": {
+        "type": "int"
+      },
+      "skipped": {
+        "type": "int"
+      }
+    }
+  },
+  "historyBackupImportContacts": "{contacts, plural, =1{1 contact added} other{{contacts} contacts added}}.",
+  "@historyBackupImportContacts": {
+    "description": "Import result; see historyBackupImportMerged.",
+    "placeholders": {
+      "contacts": {
+        "type": "int"
+      }
+    }
+  },
+  "historyBackupImportMergedContacts": "{merged, plural, =1{1 payment got their details back} other{{merged} payments got their details back}}, {contacts, plural, =1{1 contact added} other{{contacts} contacts added}}.",
+  "@historyBackupImportMergedContacts": {
+    "description": "Import result; see historyBackupImportMerged.",
+    "placeholders": {
+      "merged": {
+        "type": "int"
+      },
+      "contacts": {
+        "type": "int"
+      }
+    }
+  },
+  "historyBackupImportAddedContacts": "{added, plural, =1{1 older payment added} other{{added} older payments added}}, {contacts, plural, =1{1 contact added} other{{contacts} contacts added}}.",
+  "@historyBackupImportAddedContacts": {
+    "description": "Import result; see historyBackupImportMerged.",
+    "placeholders": {
+      "added": {
+        "type": "int"
+      },
+      "contacts": {
+        "type": "int"
+      }
+    }
+  },
+  "historyBackupImportMergedAddedContacts": "{merged, plural, =1{1 payment got their details back} other{{merged} payments got their details back}}, {added, plural, =1{1 older payment added} other{{added} older payments added}}, {contacts, plural, =1{1 contact added} other{{contacts} contacts added}}.",
+  "@historyBackupImportMergedAddedContacts": {
+    "description": "Import result; see historyBackupImportMerged.",
+    "placeholders": {
+      "merged": {
+        "type": "int"
+      },
+      "added": {
+        "type": "int"
+      },
+      "contacts": {
+        "type": "int"
+      }
+    }
+  },
+  "historyBackupImportSkippedContacts": "{skipped, plural, =1{1 record was already here} other{{skipped} records were already here}}, {contacts, plural, =1{1 contact added} other{{contacts} contacts added}}.",
+  "@historyBackupImportSkippedContacts": {
+    "description": "Import result; see historyBackupImportMerged.",
+    "placeholders": {
+      "skipped": {
+        "type": "int"
+      },
+      "contacts": {
+        "type": "int"
+      }
+    }
+  },
+  "historyBackupImportMergedSkippedContacts": "{merged, plural, =1{1 payment got their details back} other{{merged} payments got their details back}}, {skipped, plural, =1{1 record was already here} other{{skipped} records were already here}}, {contacts, plural, =1{1 contact added} other{{contacts} contacts added}}.",
+  "@historyBackupImportMergedSkippedContacts": {
+    "description": "Import result; see historyBackupImportMerged.",
+    "placeholders": {
+      "merged": {
+        "type": "int"
+      },
+      "skipped": {
+        "type": "int"
+      },
+      "contacts": {
+        "type": "int"
+      }
+    }
+  },
+  "historyBackupImportAddedSkippedContacts": "{added, plural, =1{1 older payment added} other{{added} older payments added}}, {skipped, plural, =1{1 record was already here} other{{skipped} records were already here}}, {contacts, plural, =1{1 contact added} other{{contacts} contacts added}}.",
+  "@historyBackupImportAddedSkippedContacts": {
+    "description": "Import result; see historyBackupImportMerged.",
+    "placeholders": {
+      "added": {
+        "type": "int"
+      },
+      "skipped": {
+        "type": "int"
+      },
+      "contacts": {
+        "type": "int"
+      }
+    }
+  },
+  "historyBackupImportMergedAddedSkippedContacts": "{merged, plural, =1{1 payment got their details back} other{{merged} payments got their details back}}, {added, plural, =1{1 older payment added} other{{added} older payments added}}, {skipped, plural, =1{1 record was already here} other{{skipped} records were already here}}, {contacts, plural, =1{1 contact added} other{{contacts} contacts added}}.",
+  "@historyBackupImportMergedAddedSkippedContacts": {
+    "description": "Import result; see historyBackupImportMerged.",
+    "placeholders": {
+      "merged": {
+        "type": "int"
+      },
+      "added": {
+        "type": "int"
+      },
+      "skipped": {
+        "type": "int"
+      },
+      "contacts": {
+        "type": "int"
+      }
+    }
+  },
+  "homeTitle": "Epic Cash · {network}",
+  "@homeTitle": {
+    "description": "Home screen title. Epic Cash is the coin's name; network is the network's name (Mainnet, Floonet, Usernet).",
+    "placeholders": {
+      "network": {
+        "type": "String",
+        "example": "Mainnet"
+      }
+    }
+  },
+  "homeTitleNoNetwork": "Epic Cash · Wallet",
+  "@homeTitleNoNetwork": {
+    "description": "Home screen title for the moment before the network is known. Epic Cash is the coin's name."
+  },
+  "homeRefreshTooltip": "Refresh",
+  "@homeRefreshTooltip": {
+    "description": "Tooltip of the app-bar button that reloads balances and payments from the node (the Epic Cash server the wallet reads the chain from)."
+  },
+  "homeLockTooltip": "Lock wallet",
+  "@homeLockTooltip": {
+    "description": "Tooltip of the app-bar button that closes the wallet and returns to the PIN screen."
+  },
+  "homeSettingsTooltip": "Settings",
+  "@homeSettingsTooltip": {
+    "description": "Tooltip of the app-bar button that opens settings."
+  },
+  "homeSendButton": "Send",
+  "@homeSendButton": {
+    "description": "Main button on home that starts a payment. Short: it shares a row with the Receive button."
+  },
+  "homeReceiveButton": "Receive",
+  "@homeReceiveButton": {
+    "description": "Main button on home that shows the wallet's address. Short: it shares a row with the Send button."
+  },
+  "homeScanTooltip": "Scan a QR code to send",
+  "@homeScanTooltip": {
+    "description": "Tooltip of the button beside Send and Receive that scans a recipient's QR code."
+  },
+  "homeRecentActivity": "Recent activity",
+  "@homeRecentActivity": {
+    "description": "Heading above the latest payments on home."
+  },
+  "homeSeeAll": "See all",
+  "@homeSeeAll": {
+    "description": "Button beside the Recent activity heading that opens the full payment history."
+  },
+  "homeSyncingLabel": "Syncing",
+  "@homeSyncingLabel": {
+    "description": "Screen-reader label of the thin progress bar while the wallet syncs with the node."
+  },
+  "homeBackedUpNotice": "Recovery phrase backed up",
+  "@homeBackedUpNotice": {
+    "description": "Short notice after the user wrote down the recovery phrase (the 12 or 24 words)."
+  },
+  "homeNoticeView": "View",
+  "@homeNoticeView": {
+    "description": "Button on a payment notice that opens the payment's details. Short."
+  },
+  "homePushNotice": "A payment is waiting in your epicbox. It arrives once the app is connected.",
+  "@homePushNotice": {
+    "description": "Notice when a push message says a payment is waiting. epicbox is the relay service that carries payments (a proper name)."
+  },
+  "homeNoticeReceived": "A payment is on the way. It completes when the sender finishes.",
+  "@homeNoticeReceived": {
+    "description": "Notice: the wallet accepted an incoming payment; the sender still has to finish it."
+  },
+  "homeNoticeReceivedFrom": "A payment from {who} is on the way. It completes when the sender finishes.",
+  "@homeNoticeReceivedFrom": {
+    "description": "Notice: the wallet accepted an incoming payment from a saved contact; the sender still has to finish it.",
+    "placeholders": {
+      "who": {
+        "type": "String",
+        "example": "Alice"
+      }
+    }
+  },
+  "homeNoticeReceivedAmount": "{amount} on the way. It completes when the sender finishes.",
+  "@homeNoticeReceivedAmount": {
+    "description": "Notice: the wallet accepted an incoming payment of this amount; the sender still has to finish it.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "1.5 EPIC"
+      }
+    }
+  },
+  "homeNoticeReceivedAmountFrom": "{amount} from {who} on the way. It completes when the sender finishes.",
+  "@homeNoticeReceivedAmountFrom": {
+    "description": "Notice: the wallet accepted an incoming payment of this amount from a saved contact; the sender still has to finish it.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "2 EPIC"
+      },
+      "who": {
+        "type": "String",
+        "example": "Alice"
+      }
+    }
+  },
+  "homeNoticeFinished": "Payment finished. Waiting for confirmations.",
+  "@homeNoticeFinished": {
+    "description": "Notice: an outgoing payment was finished and posted to the chain, not yet confirmed."
+  },
+  "homeNoticeFinishedTo": "Payment to {who} finished. Waiting for confirmations.",
+  "@homeNoticeFinishedTo": {
+    "description": "Notice: an outgoing payment was finished and posted to the chain, not yet confirmed. who is a contact name or a short address.",
+    "placeholders": {
+      "who": {
+        "type": "String",
+        "example": "Bob"
+      }
+    }
+  },
+  "homeNoticeDelayed": "Could not reach the node. The payment will finish once it can.",
+  "@homeNoticeDelayed": {
+    "description": "Notice: the answer to a payment arrived but the node (the Epic Cash server the wallet reads the chain from) could not be reached; the wallet retries."
+  },
+  "homeNoticeRelayProblem": "The epicbox server reported a problem. Retrying.",
+  "@homeNoticeRelayProblem": {
+    "description": "Notice: the epicbox relay (a proper name; it carries payments) reported an error not tied to a payment."
+  },
+  "homeNoticePaymentFailed": "A payment could not be completed.",
+  "@homeNoticePaymentFailed": {
+    "description": "Notice: something went wrong with one payment."
+  },
+  "homeBackupCardText": "Back up your recovery phrase.",
+  "@homeBackupCardText": {
+    "description": "Card on home until the user writes down the recovery phrase (the 12 or 24 words)."
+  },
+  "homeBackupCardButton": "Back up",
+  "@homeBackupCardButton": {
+    "description": "Button on the recovery phrase card. Short: it shares a row with the card's text."
+  },
+  "homeBackupCardDismiss": "Dismiss",
+  "@homeBackupCardDismiss": {
+    "description": "Tooltip of the close button that hides the recovery phrase card for good."
+  },
+  "homeHistoryNotBackedUp": "{count, plural, =1{1 payment is not in a history backup. A restore from your recovery phrase brings back only your balance.} other{{count} payments are not in a history backup. A restore from your recovery phrase brings back only your balance.}}",
+  "@homeHistoryNotBackedUp": {
+    "description": "Card on home before the first history backup. A history backup is a file with the payment list, notes and contacts; a restore from the recovery phrase (the 12 or 24 words) finds the funds but not that list.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "homeHistoryChangedSinceBackup": "{count, plural, =1{1 payment is new or changed since your last history backup. A restore from your recovery phrase brings back only your balance.} other{{count} payments are new or changed since your last history backup. A restore from your recovery phrase brings back only your balance.}}",
+  "@homeHistoryChangedSinceBackup": {
+    "description": "Card on home when payments changed after the last history backup (a file with the payment list, notes and contacts).",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "homeHistoryReminderNotNow": "Not now",
+  "@homeHistoryReminderNotNow": {
+    "description": "Button that hides the history backup card for a week."
+  },
+  "homeHistoryExportButton": "Export history backup",
+  "@homeHistoryExportButton": {
+    "description": "Button on the history backup card that saves the backup file."
+  },
+  "homeBalanceSpendable": "Spendable",
+  "@homeBalanceSpendable": {
+    "description": "Label above the large balance on home: the funds that can be sent now."
+  },
+  "homeBalanceHiddenLabel": "Balance hidden",
+  "@homeBalanceHiddenLabel": {
+    "description": "Screen-reader label of the balance while amounts are hidden."
+  },
+  "homeShowBalances": "Show balances",
+  "@homeShowBalances": {
+    "description": "Tooltip of the eye button while amounts are hidden."
+  },
+  "homeHideBalances": "Hide balances",
+  "@homeHideBalances": {
+    "description": "Tooltip of the eye button that hides all amounts."
+  },
+  "homeBalanceNotSpendable": "{amount} not spendable yet",
+  "@homeBalanceNotSpendable": {
+    "description": "Line under the balance; tapping it shows why. No full stop.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "2 EPIC"
+      }
+    }
+  },
+  "homeBalanceAmountWaitingToFinish": "{amount} waiting to finish",
+  "@homeBalanceAmountWaitingToFinish": {
+    "description": "Line under the balance: received payments the sender has not finished yet. No full stop.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "2 EPIC"
+      }
+    }
+  },
+  "homeShowBreakdown": "Show breakdown",
+  "@homeShowBreakdown": {
+    "description": "Screen-reader label of the arrow that lists the parts of the balance that are not spendable yet."
+  },
+  "homeHideBreakdown": "Hide breakdown",
+  "@homeHideBreakdown": {
+    "description": "Screen-reader label of the arrow that hides that list."
+  },
+  "homeBalanceConfirming": "Confirming",
+  "@homeBalanceConfirming": {
+    "description": "Row of the balance breakdown: payments on the chain still collecting confirmations."
+  },
+  "homeBalanceWaitingToFinish": "Waiting to finish",
+  "@homeBalanceWaitingToFinish": {
+    "description": "Row of the balance breakdown: received payments the sender has not finished yet."
+  },
+  "homeBalanceLocked": "Locked by a payment in progress",
+  "@homeBalanceLocked": {
+    "description": "Row of the balance breakdown: funds held by an outgoing payment until it finishes or is cancelled."
+  },
+  "homeBalanceImmature": "Mining rewards not spendable yet",
+  "@homeBalanceImmature": {
+    "description": "Row of the balance breakdown: mined coins that need more blocks before they can be spent."
+  },
+  "homeSyncSyncing": "Syncing…",
+  "@homeSyncSyncing": {
+    "description": "Status line under the balance while the wallet syncs with the node."
+  },
+  "homeSyncSyncingPercent": "Syncing… {percent}%",
+  "@homeSyncSyncingPercent": {
+    "description": "Status line under the balance while the wallet syncs with the node.",
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "homeSyncNodeUnreachable": "Node unreachable. Balances may be out of date.",
+  "@homeSyncNodeUnreachable": {
+    "description": "Status line under the balance. The node is the Epic Cash server the wallet reads the chain from."
+  },
+  "homeSyncNotValidated": "Not validated with node. Balances may be out of date.",
+  "@homeSyncNotValidated": {
+    "description": "Status line under the balance: the node (the Epic Cash server the wallet reads the chain from) has not confirmed the figures."
+  },
+  "homeSyncUpToDate": "Up to date.",
+  "@homeSyncUpToDate": {
+    "description": "Status line under the balance when it matches the chain."
+  },
+  "homeSyncContactingNode": "Contacting node…",
+  "@homeSyncContactingNode": {
+    "description": "Status line under the balance before the node (the Epic Cash server the wallet reads the chain from) answered."
+  },
+  "homeEpicboxOffline": "Epicbox offline, reconnecting.",
+  "@homeEpicboxOffline": {
+    "description": "Second sentence of the status line: the connection to epicbox (the relay service that carries payments, a proper name) was lost."
+  },
+  "homeEpicboxConnecting": "Connecting to epicbox…",
+  "@homeEpicboxConnecting": {
+    "description": "Second sentence of the status line while the app connects to epicbox (the relay service that carries payments, a proper name)."
+  },
+  "homeSyncLineWithRelay": "{status} {relay}",
+  "@homeSyncLineWithRelay": {
+    "description": "The status line when both the sync state and the epicbox state have something to say: two whole sentences, in the order and with the spacing this language uses between sentences.",
+    "placeholders": {
+      "status": {
+        "type": "String",
+        "example": "Up to date."
+      },
+      "relay": {
+        "type": "String",
+        "example": "Connecting to epicbox…"
+      }
+    }
+  },
+  "homeSyncedAtBlock": "Synced at block {height}",
+  "@homeSyncedAtBlock": {
+    "description": "Tooltip of the status line: the chain height the balance was last checked at.",
+    "placeholders": {
+      "height": {
+        "type": "String",
+        "example": "2,500,000"
+      }
+    }
+  },
+  "homePendingTitle": "{count, plural, =1{A payment is waiting for the recipient} other{{count} payments are waiting for their recipients}}",
+  "@homePendingTitle": {
+    "description": "Title of the card on home about sent payments the recipient has not answered yet. No full stop.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "homePendingBody": "{count, plural, =1{{amount} is waiting for the recipient's wallet to answer. Until then the funds stay locked. If it never answers, open the payment and tap Cancel payment.} other{{amount} is waiting for the recipients' wallets to answer. Until then the funds stay locked. If one never answers, open the payment and tap Cancel payment.}}",
+  "@homePendingBody": {
+    "description": "Text of the card about sent payments the recipient has not answered yet. amount is the total of those payments. 'Cancel payment' is the button on a payment's details screen: use the same words as that button.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "amount": {
+        "type": "String",
+        "example": "2 EPIC"
+      }
+    }
+  },
+  "homePendingWhy": "Why is it waiting?",
+  "@homePendingWhy": {
+    "description": "Button on the waiting-payments card that opens help. Short: it shares a row with the View button."
+  },
+  "homePendingView": "{count, plural, =1{View payment} other{View payments}}",
+  "@homePendingView": {
+    "description": "Button on the waiting-payments card that opens the payment, or the list of waiting payments. Short.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "homeNoPayments": "No payments yet.",
+  "@homeNoPayments": {
+    "description": "Shown on home in place of the payment list in a new wallet."
+  },
+  "homeShowMyAddress": "Show my address",
+  "@homeShowMyAddress": {
+    "description": "Button under 'No payments yet.' that opens the receive screen with the wallet's address."
+  },
+  "receiveTitle": "Receive",
+  "@receiveTitle": {
+    "description": "Title of the screen that shows the wallet's address."
+  },
+  "receiveHelpTooltip": "Help",
+  "@receiveHelpTooltip": {
+    "description": "Tooltip of the app-bar button that opens help about receiving."
+  },
+  "receiveEpicboxConnected": "Epicbox connected",
+  "@receiveEpicboxConnected": {
+    "description": "Tooltip and screen-reader label of the connection dot. epicbox is the relay service that carries payments (a proper name)."
+  },
+  "receiveEpicboxOffline": "Epicbox offline",
+  "@receiveEpicboxOffline": {
+    "description": "Tooltip and screen-reader label of the connection dot when the epicbox connection was lost."
+  },
+  "receiveEpicboxConnecting": "Connecting to epicbox",
+  "@receiveEpicboxConnecting": {
+    "description": "Tooltip and screen-reader label of the connection dot while the app connects to epicbox."
+  },
+  "receiveQrLabel": "QR code of your address",
+  "@receiveQrLabel": {
+    "description": "Screen-reader label of the QR code image."
+  },
+  "receiveAddressCopied": "Address copied",
+  "@receiveAddressCopied": {
+    "description": "Notice after the wallet's address was copied."
+  },
+  "receiveFileSection": "Receive a transaction file",
+  "@receiveFileSection": {
+    "description": "Heading of the folded section for receiving a payment by file. A transaction file holds the slate, the JSON a payment passes between sender and recipient."
+  },
+  "receiveOpenFile": "Open transaction file",
+  "@receiveOpenFile": {
+    "description": "Button that picks a transaction file (a slate, the JSON a payment passes between sender and recipient)."
+  },
+  "receivePasteSection": "Paste the transaction text instead",
+  "@receivePasteSection": {
+    "description": "Heading of the folded section for pasting the transaction text (the slate JSON) by hand."
+  },
+  "receiveSlateLabel": "Transaction text",
+  "@receiveSlateLabel": {
+    "description": "Label of the field for the transaction text (the slate JSON the sender passed on)."
+  },
+  "receivePasteFirst": "Paste the transaction text you received.",
+  "@receivePasteFirst": {
+    "description": "Error when Accept payment is tapped with an empty transaction text field."
+  },
+  "receiveAccept": "Accept payment",
+  "@receiveAccept": {
+    "description": "Button that signs the pasted transaction text as the recipient."
+  },
+  "receiveResponseTitle": "Return this response to the sender",
+  "@receiveResponseTitle": {
+    "description": "Title of the box with the signed transaction text (slate JSON) the user passes back to the sender."
+  },
+  "receiveAnother": "Receive another payment",
+  "@receiveAnother": {
+    "description": "Button that clears the screen for another transaction text."
+  },
+  "updateChecking": "Checking for updates…",
+  "@updateChecking": {
+    "description": "Line under the home app bar while the app checks for a new version."
+  },
+  "updateUpToDate": "This is the latest version.",
+  "@updateUpToDate": {
+    "description": "Line under the home app bar after a check found no new version."
+  },
+  "updateAvailable": "Version {version} is available.",
+  "@updateAvailable": {
+    "description": "Line under the home app bar; beside it is the Update button.",
+    "placeholders": {
+      "version": {
+        "type": "String",
+        "example": "1.0.1"
+      }
+    }
+  },
+  "updateDownloading": "Downloading version {version}… {percent}%",
+  "@updateDownloading": {
+    "description": "Line under the home app bar while the new version downloads.",
+    "placeholders": {
+      "version": {
+        "type": "String",
+        "example": "1.0.1"
+      },
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "updateInstalling": "Installing version {version}…",
+  "@updateInstalling": {
+    "description": "Line under the home app bar while Android installs the new version.",
+    "placeholders": {
+      "version": {
+        "type": "String",
+        "example": "1.0.1"
+      }
+    }
+  },
+  "updateFailed": "The update failed.",
+  "@updateFailed": {
+    "description": "Line under the home app bar when an update failed for no known reason."
+  },
+  "updateInstallButton": "Update",
+  "@updateInstallButton": {
+    "description": "Button that downloads and installs the new version. Short."
+  },
+  "updateTryAgain": "Try again",
+  "@updateTryAgain": {
+    "description": "Button after a failed update check or install. Short."
+  },
+  "updateIconLabel": "Update",
+  "@updateIconLabel": {
+    "description": "Screen-reader label of the icon in front of the update line (a noun: about an app update)."
+  },
+  "updateDownloadProgressLabel": "Download progress",
+  "@updateDownloadProgressLabel": {
+    "description": "Screen-reader label of the progress bar while the new version downloads."
+  },
+  "updateNeedsPermission": "Allow this app to install updates in the screen that opened, then tap Update again.",
+  "@updateNeedsPermission": {
+    "description": "Android opened its settings screen for installing apps from this source. 'Update' is the updateInstallButton label: use the same word."
+  },
+  "updateNotInstalled": "The update was not installed: {detail}",
+  "@updateNotInstalled": {
+    "description": "Android's installer refused the update. detail is the installer's own message, in English.",
+    "placeholders": {
+      "detail": {
+        "type": "String",
+        "example": "INSTALL_FAILED_UPDATE_INCOMPATIBLE"
+      }
+    }
+  },
+  "updateCannotInstall": "Cannot install the update: {detail}.",
+  "@updateCannotInstall": {
+    "description": "Handing the update to Android's installer failed. detail is the system's own message, in English.",
+    "placeholders": {
+      "detail": {
+        "type": "String",
+        "example": "Permission denied"
+      }
+    }
+  },
+  "updateCannotInstallUnknown": "Cannot install the update: unknown error.",
+  "@updateCannotInstallUnknown": {
+    "description": "Handing the update to Android's installer failed and the system gave no reason."
+  },
+  "updateManifestNotJson": "The update information is not valid JSON.",
+  "@updateManifestNotJson": {
+    "description": "The file that describes the new version could not be read."
+  },
+  "updateManifestWrongShape": "The update information has the wrong shape.",
+  "@updateManifestWrongShape": {
+    "description": "The file that describes the new version is not laid out as expected."
+  },
+  "updateManifestOtherApp": "The update information is for another app.",
+  "@updateManifestOtherApp": {
+    "description": "The file that describes the new version names a different app."
+  },
+  "updateManifestNoApks": "The update information lists no APKs.",
+  "@updateManifestNoApks": {
+    "description": "The file that describes the new version lists no install files (APK is Android's app file format)."
+  },
+  "updateDownloadHttpFailed": "The download failed (HTTP {status}).",
+  "@updateDownloadHttpFailed": {
+    "description": "The server answered the download with an HTTP error code.",
+    "placeholders": {
+      "status": {
+        "type": "int"
+      }
+    }
+  },
+  "updateDownloadTooLarge": "The download is larger than announced.",
+  "updateDownloadIncomplete": "The download is incomplete.",
+  "updateDownloadDamaged": "The download is damaged (checksum mismatch).",
+  "@updateDownloadDamaged": {
+    "description": "The downloaded file's SHA-256 checksum does not match the one announced, so it is not installed."
+  },
+  "updateDownloadInterrupted": "The download was interrupted.",
+  "updateServerUnreachable": "Cannot reach the update server.",
+  "updateServerHttpStatus": "The update server answered HTTP {status}.",
+  "@updateServerHttpStatus": {
+    "description": "Checking for updates got an HTTP error code.",
+    "placeholders": {
+      "status": {
+        "type": "int"
+      }
+    }
+  },
+  "updateServerTimeout": "The update server did not answer in time.",
+  "updateConnectionFailed": "The connection to the update server failed.",
+  "updateCheckFailed": "Checking for updates failed.",
+  "@updateCheckFailed": {
+    "description": "An update check or install failed for a reason the app does not know."
+  },
+  "setupTitle": "Network settings",
+  "@setupTitle": {
+    "description": "Title of the screen that picks the network, the node and the epicbox server."
+  },
+  "setupNetworkSettingsTooltip": "Network settings",
+  "@setupNetworkSettingsTooltip": {
+    "description": "Tooltip of the icon button on the welcome and unlock screens that opens the network settings."
+  },
+  "setupNetworkHeading": "Network",
+  "@setupNetworkHeading": {
+    "description": "Heading above the choice of Mainnet, Floonet or Usernet."
+  },
+  "setupNodeUrlLabel": "Node URL",
+  "@setupNodeUrlLabel": {
+    "description": "Field label: the web address of the node, the Epic Cash server the wallet reads the chain from."
+  },
+  "setupNodeUrlInvalid": "Enter a full URL such as https://node.example.com",
+  "@setupNodeUrlInvalid": {
+    "description": "Error under the node URL field. Keep the example URL as it is."
+  },
+  "setupTestConnection": "Test connection",
+  "@setupTestConnection": {
+    "description": "Button that checks the node URL works."
+  },
+  "setupTestConnected": "Connected. The node is at block {height}, running version {version}.",
+  "@setupTestConnected": {
+    "description": "Result of a successful connection test. The node is the Epic Cash server the wallet reads the chain from.",
+    "placeholders": {
+      "height": {
+        "type": "String",
+        "example": "3,712,345"
+      },
+      "version": {
+        "type": "String",
+        "example": "3.6.0"
+      }
+    }
+  },
+  "setupTestFailed": "Could not connect. {error}",
+  "@setupTestFailed": {
+    "description": "Result of a failed connection test, followed by the reason as one or more sentences.",
+    "placeholders": {
+      "error": {
+        "type": "String",
+        "example": "Cannot reach the node. Check the node URL and your connection."
+      }
+    }
+  },
+  "setupConnectedIconLabel": "Connected",
+  "@setupConnectedIconLabel": {
+    "description": "Screen-reader label of the check icon in front of a successful connection test."
+  },
+  "setupRelayHeading": "Epicbox server",
+  "@setupRelayHeading": {
+    "description": "Heading above the list of epicbox servers. Epicbox is the relay service that carries payments, a proper name."
+  },
+  "setupRelayHint": "Your address includes this server.",
+  "@setupRelayHint": {
+    "description": "Under the epicbox server heading: the wallet's address ends with the server's host."
+  },
+  "setupCustomRelayLabel": "Other epicbox server (host or host:port)",
+  "@setupCustomRelayLabel": {
+    "description": "Field label for typing an epicbox server that is not in the list. Keep host:port as it is."
+  },
+  "setupCustomRelayUse": "Use this server",
+  "@setupCustomRelayUse": {
+    "description": "Tooltip of the check button that selects the typed epicbox server."
+  },
+  "setupCustomRelayInvalid": "Enter a host such as epicbox.example.com",
+  "@setupCustomRelayInvalid": {
+    "description": "Error under the epicbox server field. Keep the example host as it is."
+  },
+  "setupRelayChangeWarning": "Changing the epicbox server changes your address. Give senders the new address. Payments sent to the old one wait on the old server until you switch back.",
+  "@setupRelayChangeWarning": {
+    "description": "Warning shown once a different epicbox server is selected."
+  },
+  "setupWalletPerNetwork": "Each network has its own wallet. A network without one gets a new wallet.",
+  "setupRelayHealthyIconLabel": "Healthy",
+  "@setupRelayHealthyIconLabel": {
+    "description": "Screen-reader label of the icon of an epicbox server that is working."
+  },
+  "setupRelayDownIconLabel": "Down",
+  "@setupRelayDownIconLabel": {
+    "description": "Screen-reader label of the icon of an epicbox server that is not working."
+  },
+  "setupRelayHealthUnavailable": "Server health is unavailable from status.btlabs.uk.",
+  "@setupRelayHealthUnavailable": {
+    "description": "Under the epicbox server list when the monitoring site could not be read. Keep status.btlabs.uk as it is."
+  },
+  "setupRelayHealthSource": "Health from status.btlabs.uk, measured from its server.",
+  "@setupRelayHealthSource": {
+    "description": "Under the epicbox server list: where the up/down information comes from. Keep status.btlabs.uk as it is."
+  },
+  "setupRelayNotMonitored": "Not monitored",
+  "@setupRelayNotMonitored": {
+    "description": "Subtitle of an epicbox server the monitoring site does not list."
+  },
+  "setupRelayUp": "Up",
+  "@setupRelayUp": {
+    "description": "First item of an epicbox server's subtitle, a list separated by ' · ' such as 'Up · epicnet.us · official · 99.5% up in the last day': the server is working."
+  },
+  "setupRelayDown": "Down",
+  "@setupRelayDown": {
+    "description": "First item of an epicbox server's subtitle, a list separated by ' · ': the server is not working."
+  },
+  "setupRelayOfficial": "official",
+  "@setupRelayOfficial": {
+    "description": "Item in an epicbox server's subtitle, a list separated by ' · ' such as 'Up · epicnet.us · official': the server is run by a known operator. Lower case in English because it follows other items."
+  },
+  "setupRelayUptime": "{percent}% up in the last day",
+  "@setupRelayUptime": {
+    "description": "Last item in an epicbox server's subtitle, a list separated by ' · ': how much of the last 24 hours the server was working.",
+    "placeholders": {
+      "percent": {
+        "type": "String",
+        "example": "99.5"
+      }
+    }
+  },
+  "restoreTitle": "Restore wallet",
+  "@restoreTitle": {
+    "description": "Title of the screen that restores a wallet from its recovery phrase (the 12 or 24 words)."
+  },
+  "restorePhraseLabel": "Recovery phrase",
+  "@restorePhraseLabel": {
+    "description": "Label of the field where the user types the 12 or 24 words."
+  },
+  "restorePhraseHelper": "The 12 or 24 words, separated by spaces.",
+  "@restorePhraseHelper": {
+    "description": "Help under the recovery phrase field. The words themselves are always English."
+  },
+  "restoreStartHeading": "Where to start scanning",
+  "@restoreStartHeading": {
+    "description": "Heading above the choice of a start date or a start block for the scan of the blockchain for the wallet's funds."
+  },
+  "restoreStartByDate": "Date",
+  "@restoreStartByDate": {
+    "description": "Segment button: give the scan's start as a date. Short."
+  },
+  "restoreStartByHeight": "Block height",
+  "@restoreStartByHeight": {
+    "description": "Segment button: give the scan's start as a block number. Short."
+  },
+  "restoreStartHeightLabel": "Start height (optional)",
+  "@restoreStartHeightLabel": {
+    "description": "Field label: the block number the scan starts from."
+  },
+  "restoreStartHeightHelper": "Scan from this block. Leave empty to scan the whole chain.",
+  "restoreStartHeightInvalid": "Start height must be a whole number.",
+  "restoreBackToPhrase": "Back to the phrase",
+  "@restoreBackToPhrase": {
+    "description": "Button after a failed restore that returns to the recovery phrase field."
+  },
+  "restoreDatePickerTitle": "When did you create the wallet?",
+  "@restoreDatePickerTitle": {
+    "description": "Heading of the date picker for the scan's start."
+  },
+  "restorePickDate": "Pick the date you created the wallet",
+  "@restorePickDate": {
+    "description": "Button that opens the date picker."
+  },
+  "restoreFromDate": "From {date}",
+  "@restoreFromDate": {
+    "description": "Button showing the chosen start date of the scan.",
+    "placeholders": {
+      "date": {
+        "type": "String",
+        "example": "1 Sep 2026"
+      }
+    }
+  },
+  "restoreDateHint": "Optional. If you are not sure, pick an earlier date. A date after your first payment misses funds. Without a date the whole chain is scanned, which takes longer.",
+  "restoreDateStart": "Scanning starts two days before this date, from block {height}.",
+  "@restoreDateStart": {
+    "description": "Under the chosen start date: the block number the scan starts from.",
+    "placeholders": {
+      "height": {
+        "type": "String",
+        "example": "3,712,345"
+      }
+    }
+  },
+  "restoreWholeChain": "Scan the whole chain instead",
+  "@restoreWholeChain": {
+    "description": "Button that clears the start date."
+  },
+  "restoreScanIntro": "Looking for your funds on the blockchain. Keep the app open until this finishes.",
+  "restoreOpenWallet": "Open wallet",
+  "@restoreOpenWallet": {
+    "description": "Button after the scan that goes to the wallet's home screen."
+  },
+  "restoreRescanLater": "You can run a full rescan later from Settings.",
+  "restoreDoneIconLabel": "Done",
+  "@restoreDoneIconLabel": {
+    "description": "Screen-reader label of the check icon above 'Your wallet is restored'."
+  },
+  "restoreDoneTitle": "Your wallet is restored",
+  "restoreImportExplanation": "The chain holds your balance, but not who you paid, fees or notes. If you exported a history backup from this wallet, import it now to get them back. It is the .wfeh file you shared or saved outside your old phone.",
+  "@restoreImportExplanation": {
+    "description": "Offer to import a payment-history backup after a restore. Keep .wfeh, the backup file's extension, as it is."
+  },
+  "restoreImportButton": "Import a history backup",
+  "restoreImportNotNow": "Not now",
+  "@restoreImportNotNow": {
+    "description": "Button that skips the history import and opens the wallet."
+  },
+  "restoreImportLater": "You can import one later from Settings.",
+  "restoreScanProgressLabel": "Scan progress",
+  "@restoreScanProgressLabel": {
+    "description": "Screen-reader label of the progress bar of a scan of the blockchain for the wallet's funds."
+  },
+  "firstRunTitle": "Welcome",
+  "@firstRunTitle": {
+    "description": "Title of the first screen after installing, where the user picks a PIN while the wallet is made."
+  },
+  "firstRunRestore": "I already have a wallet: restore it",
+  "@firstRunRestore": {
+    "description": "Button that opens the restore from a recovery phrase instead of making a new wallet."
+  },
+  "firstRunFinishing": "Finishing your wallet…",
+  "@firstRunFinishing": {
+    "description": "Shown after the PIN while the new wallet is still being made."
+  },
+  "firstRunSecuring": "Securing your wallet…",
+  "@firstRunSecuring": {
+    "description": "Shown after the PIN while the wallet is locked under it."
+  },
+  "firstRunTryAgain": "Try again",
+  "@firstRunTryAgain": {
+    "description": "Button after making the wallet failed."
+  },
+  "firstRunCreating": "Creating wallet…",
+  "@firstRunCreating": {
+    "description": "Status line under the PIN field while the wallet is made in the background."
+  },
+  "firstRunCreated": "Wallet created",
+  "@firstRunCreated": {
+    "description": "Status line under the PIN field once the wallet is made."
+  },
+  "firstRunCreateFailed": "Creating the wallet failed: {error} It is tried again when you finish the PIN.",
+  "@firstRunCreateFailed": {
+    "description": "Error under the PIN field.",
+    "placeholders": {
+      "error": {
+        "type": "String",
+        "example": "Could not read or write wallet files."
+      }
+    }
+  },
+  "firstRunBiometricsNotSetUp": "Biometric unlock was not set up. You can turn it on in Settings.",
+  "@firstRunBiometricsNotSetUp": {
+    "description": "Notice after the first run when the fingerprint or face unlock the user asked for could not be enabled."
+  },
+  "backupTitle": "Recovery phrase",
+  "@backupTitle": {
+    "description": "Title of the screen that shows the 12 or 24 words that restore the wallet."
+  },
+  "backupPinReason": "Enter your PIN to show the recovery phrase.",
+  "@backupPinReason": {
+    "description": "Shown in the PIN prompt before the recovery phrase appears."
+  },
+  "backupWarningIconLabel": "Warning",
+  "@backupWarningIconLabel": {
+    "description": "Screen-reader label of the warning icon above the recovery phrase."
+  },
+  "backupWriteDown": "{count, plural, other{Write these {count} words on paper, in order, and keep them private. They are the only way to restore this wallet.}}",
+  "@backupWriteDown": {
+    "description": "Warning above the recovery phrase. count is 12 or 24.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "backupWordSpoken": "Word {number}: {word}",
+  "@backupWordSpoken": {
+    "description": "Screen-reader label of one word of the recovery phrase. The word is always English; number is its position.",
+    "placeholders": {
+      "number": {
+        "type": "int"
+      },
+      "word": {
+        "type": "String",
+        "example": "apple"
+      }
+    }
+  },
+  "unlockTitle": "Unlock wallet",
+  "@unlockTitle": {
+    "description": "Title of the screen that opens the wallet with the PIN or the password."
+  },
+  "unlockPasswordLabel": "Password",
+  "@unlockPasswordLabel": {
+    "description": "Field label on the unlock screen of a wallet made before PINs existed."
+  },
+  "unlockPasswordEmpty": "Enter your password.",
+  "@unlockPasswordEmpty": {
+    "description": "Error under the empty password field."
+  },
+  "unlockButton": "Unlock",
+  "@unlockButton": {
+    "description": "Button that opens the wallet with the typed password."
+  },
+  "unlockMovedToPin": "This wallet now opens with a PIN instead of its password.",
+  "@unlockMovedToPin": {
+    "description": "Shown above the PIN setup after a wallet made before PINs existed was opened with its password."
+  },
+  "pinLabel": "PIN",
+  "@pinLabel": {
+    "description": "Label of the 6-digit PIN field."
+  },
+  "pinRepeatLabel": "Repeat PIN",
+  "@pinRepeatLabel": {
+    "description": "Label of the field that confirms a new 6-digit PIN."
+  },
+  "pinChooseTitle": "{digits, plural, other{Choose a {digits}-digit PIN}}",
+  "@pinChooseTitle": {
+    "description": "Heading above the field for a new PIN. digits is 6.",
+    "placeholders": {
+      "digits": {
+        "type": "int"
+      }
+    }
+  },
+  "pinConfirmTitle": "Enter the PIN again",
+  "@pinConfirmTitle": {
+    "description": "Heading above the field that confirms a new PIN."
+  },
+  "pinChooseDifferent": "Choose a different PIN",
+  "@pinChooseDifferent": {
+    "description": "Button that goes back from confirming a new PIN to choosing one."
+  },
+  "pinMismatch": "The PINs do not match. Choose a PIN again.",
+  "pinBiometricsIconLabel": "Biometrics",
+  "@pinBiometricsIconLabel": {
+    "description": "Screen-reader label of the fingerprint icon above the question about fingerprint or face unlock."
+  },
+  "pinBiometricsQuestion": "Unlock with fingerprint or face?",
+  "@pinBiometricsQuestion": {
+    "description": "Asked after a new PIN, on devices with fingerprint or face recognition."
+  },
+  "pinBiometricsPinStillWorks": "You can still use your PIN at any time.",
+  "pinBiometricsEnable": "Use biometrics",
+  "@pinBiometricsEnable": {
+    "description": "Button answering yes to 'Unlock with fingerprint or face?': turns fingerprint or face unlock on."
+  },
+  "pinBiometricsNotNow": "Not now",
+  "@pinBiometricsNotNow": {
+    "description": "Button answering no to 'Unlock with fingerprint or face?'."
+  },
+  "pinWrong": "{count, plural, =1{Wrong PIN. 1 try left before a pause.} other{Wrong PIN. {count} tries left before a pause.}}",
+  "@pinWrong": {
+    "description": "Error under the PIN field. After the last try the PIN is refused for a while.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "pinLockedSeconds": "{count, plural, =1{Too many wrong PINs. Try again in 1 second.} other{Too many wrong PINs. Try again in {count} seconds.}}",
+  "@pinLockedSeconds": {
+    "description": "Error under the PIN field while PIN entry is paused.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "pinLockedMinutes": "{count, plural, =1{Too many wrong PINs. Try again in 1 minute.} other{Too many wrong PINs. Try again in {count} minutes.}}",
+  "@pinLockedMinutes": {
+    "description": "Error under the PIN field while PIN entry is paused.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "pinPromptTitle": "Enter your PIN",
+  "@pinPromptTitle": {
+    "description": "Title of the dialog that asks for the PIN before a protected action."
+  },
+  "pinUseBiometrics": "Use biometrics",
+  "@pinUseBiometrics": {
+    "description": "Button that unlocks now with fingerprint or face instead of the PIN."
+  },
+  "pinForgot": "Forgot PIN?",
+  "@pinForgot": {
+    "description": "Button on the unlock screen that explains how to start over."
+  },
+  "pinResetTitle": "Forgot PIN",
+  "@pinResetTitle": {
+    "description": "Title of the dialog that deletes the wallet when the PIN is forgotten."
+  },
+  "pinResetBody": "The PIN cannot be recovered. You can delete this wallet from the device and restore it from its recovery phrase. Without the phrase, its funds are lost for good.",
+  "pinResetConfirm": "I have my recovery phrase",
+  "@pinResetConfirm": {
+    "description": "Checkbox the user must tick before the wallet can be deleted."
+  },
+  "pinResetKeep": "Keep wallet",
+  "@pinResetKeep": {
+    "description": "Dialog button that closes without deleting."
+  },
+  "pinResetDelete": "Delete wallet",
+  "@pinResetDelete": {
+    "description": "Dialog button that deletes the wallet from this device."
+  },
+  "launchTryAgain": "Try again",
+  "@launchTryAgain": {
+    "description": "Button on the start screen after the wallet could not be found or opened."
+  },
+  "sendTitle": "Send",
+  "@sendTitle": {
+    "description": "Title of the screen that sends a payment."
+  },
+  "sendByFileTitle": "Send by file",
+  "@sendByFileTitle": {
+    "description": "Title of the send screen while sending with a transaction file (a file holding the payment's slate, the JSON passed between sender and recipient)."
+  },
+  "sendAmountNegative": "The amount cannot be negative.",
+  "@sendAmountNegative": {
+    "description": "Amount field error."
+  },
+  "sendAmountAmbiguous": "Write {asWhole} or {asDecimal}, so the amount is clear.",
+  "@sendAmountAmbiguous": {
+    "description": "Amount field error when a typed amount such as '1,234' could be a whole number with a thousands separator or a decimal. asWhole is the whole-number reading, asDecimal the decimal reading in this language's decimal separator.",
+    "placeholders": {
+      "asWhole": {
+        "type": "String",
+        "example": "1234"
+      },
+      "asDecimal": {
+        "type": "String",
+        "example": "1.234"
+      }
+    }
+  },
+  "sendAmountUnclear": "Write the amount without separators, such as 1234.5, so the amount is clear.",
+  "@sendAmountUnclear": {
+    "description": "Amount field error when the thousands separators in a typed amount are misplaced. Write the example number with this language's decimal separator and no thousands separator."
+  },
+  "sendAmountNoPrice": "No price right now. Enter EPIC instead.",
+  "@sendAmountNoPrice": {
+    "description": "Amount field error while entering the amount in a fiat currency and no exchange rate is known. EPIC is the coin's ticker."
+  },
+  "sendAmountEnterFiatExample": "Enter an amount such as 10.50",
+  "@sendAmountEnterFiatExample": {
+    "description": "Amount field error while entering the amount in a fiat currency. Write the example number with this language's decimal separator."
+  },
+  "sendAmountTooLarge": "That is more EPIC than will ever exist. Check the amount.",
+  "@sendAmountTooLarge": {
+    "description": "Amount field error: more than the 21 million EPIC that will ever exist."
+  },
+  "sendAmountZero": "Enter an amount above zero.",
+  "@sendAmountZero": {
+    "description": "Amount field error."
+  },
+  "sendRecipientLabel": "To",
+  "@sendRecipientLabel": {
+    "description": "Label of the field for the recipient's epicbox address or wallet URL."
+  },
+  "sendRecipientHint": "Their address or a wallet URL",
+  "@sendRecipientHint": {
+    "description": "Hint inside the empty recipient field."
+  },
+  "scanQrTooltip": "Scan QR code",
+  "@scanQrTooltip": {
+    "description": "Tooltip of a button that opens the camera to read an address from a QR code."
+  },
+  "sendScanButton": "Scan",
+  "@sendScanButton": {
+    "description": "Short button label under the recipient field; opens the camera to read a QR code."
+  },
+  "sendChooseContactTooltip": "Choose a contact",
+  "@sendChooseContactTooltip": {
+    "description": "Tooltip of the button that picks the recipient from the address book."
+  },
+  "sendContactsButton": "Contacts",
+  "@sendContactsButton": {
+    "description": "Short button label under the recipient field; opens the address book."
+  },
+  "sendRecentLabel": "Recent:",
+  "@sendRecentLabel": {
+    "description": "Label above chips holding the last addresses this wallet sent to."
+  },
+  "sendRecentTooltip": "Send to {address}",
+  "@sendRecentTooltip": {
+    "description": "Tooltip of a chip that fills in a recent recipient.",
+    "placeholders": {
+      "address": {
+        "type": "String",
+        "example": "es5x…@epicbox.epiccash.com"
+      }
+    }
+  },
+  "sendSendingToContact": "Sending to {name}",
+  "@sendSendingToContact": {
+    "description": "Shown under the recipient field when the address belongs to a saved contact.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Alice"
+      }
+    }
+  },
+  "sendStillConnecting": "Still connecting. You can send now; it finishes once the app is connected.",
+  "@sendStillConnecting": {
+    "description": "Shown while the app is not yet connected to epicbox, the relay service that carries payments."
+  },
+  "sendFileIntro": "Sending takes two steps: share the transaction file with the recipient, then open the .response file they send back to finish the payment.",
+  "@sendFileIntro": {
+    "description": "Explains sending with a transaction file. '.response' is a file-name ending: keep it as it is."
+  },
+  "sendAmountLabel": "Amount ({unit})",
+  "@sendAmountLabel": {
+    "description": "Label of the amount field. unit is EPIC or a currency code.",
+    "placeholders": {
+      "unit": {
+        "type": "String",
+        "example": "EPIC"
+      }
+    }
+  },
+  "sendUseUnit": "Use {unit}",
+  "@sendUseUnit": {
+    "description": "Small button inside the amount field that switches the amount between EPIC and a fiat currency. Space is tight.",
+    "placeholders": {
+      "unit": {
+        "type": "String",
+        "example": "USD"
+      }
+    }
+  },
+  "sendMax": "Max",
+  "@sendMax": {
+    "description": "Small button inside the amount field that fills in the most that can be sent. Space is tight."
+  },
+  "sendSpendable": "Spendable: {amount}",
+  "@sendSpendable": {
+    "description": "Under the amount field: how much the wallet can send now.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "1,234.5 EPIC"
+      }
+    }
+  },
+  "sendSpendableWithFiat": "Spendable: {amount} (≈ {fiat})",
+  "@sendSpendableWithFiat": {
+    "description": "Under the amount field: how much the wallet can send now, with its value in a fiat currency.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "1,234.5 EPIC"
+      },
+      "fiat": {
+        "type": "String",
+        "example": "12.34 USD"
+      }
+    }
+  },
+  "sendFeeAndTotal": "Fee: {fee}. Total: {total}.",
+  "@sendFeeAndTotal": {
+    "description": "Under the amount field: the network fee and the amount plus fee.",
+    "placeholders": {
+      "fee": {
+        "type": "String",
+        "example": "0.008 EPIC"
+      },
+      "total": {
+        "type": "String",
+        "example": "1.008 EPIC"
+      }
+    }
+  },
+  "sendNoteLabel": "Note (optional)",
+  "@sendNoteLabel": {
+    "description": "Label of the field for a private note on the payment."
+  },
+  "sendNoteHelper": "Only you see this note.",
+  "@sendNoteHelper": {
+    "description": "Helper text under the payment note field: the note is not sent to the recipient."
+  },
+  "sendCreateFile": "Create transaction file",
+  "@sendCreateFile": {
+    "description": "Button that creates the file to give to the recipient."
+  },
+  "sendReview": "Review",
+  "@sendReview": {
+    "description": "Button that shows the payment for a last check before sending."
+  },
+  "sendToAddressInstead": "Send to an address instead",
+  "@sendToAddressInstead": {
+    "description": "Button that leaves file mode for the normal send form."
+  },
+  "sendOtherWays": "Other ways to send",
+  "@sendOtherWays": {
+    "description": "Heading of a section that expands to show sending by file."
+  },
+  "sendOtherWaysExplanation": "Send with a transaction file when the recipient does not use epicbox: you share a file, they return a response file.",
+  "@sendOtherWaysExplanation": {
+    "description": "epicbox is the relay service that carries payments (a proper name)."
+  },
+  "sendByFileButton": "Send by transaction file",
+  "@sendByFileButton": {
+    "description": "Button that switches the send screen to file mode."
+  },
+  "sendFileStep1": "Step 1: give {file} to the recipient",
+  "@sendFileStep1": {
+    "description": "Heading of the first step of a send by file.",
+    "placeholders": {
+      "file": {
+        "type": "String",
+        "example": "0f3c…e1.tx"
+      }
+    }
+  },
+  "sendFileLockedNote": "The funds stay locked until you finish. If the recipient never responds, open the payment and tap Cancel payment.",
+  "@sendFileLockedNote": {
+    "description": "'Cancel payment' is the button on the payment's details screen; use the same words."
+  },
+  "sendFileStep2": "Step 2: open the {file} file they return",
+  "@sendFileStep2": {
+    "description": "Heading of the second step of a send by file.",
+    "placeholders": {
+      "file": {
+        "type": "String",
+        "example": "0f3c…e1.tx.response"
+      }
+    }
+  },
+  "sendOpenResponseFile": "Open response file",
+  "@sendOpenResponseFile": {
+    "description": "Button that picks the file the recipient sent back."
+  },
+  "sendCopyPasteInstead": "Copy and paste instead",
+  "@sendCopyPasteInstead": {
+    "description": "Heading of a section that expands to exchange the transaction as text instead of a file."
+  },
+  "sendSlateBoxTitle": "Transaction text",
+  "@sendSlateBoxTitle": {
+    "description": "Title of a box with the payment's text (the slate, JSON) to copy to the recipient."
+  },
+  "sendPasteResponseLabel": "Paste the recipient's response",
+  "@sendPasteResponseLabel": {
+    "description": "Label of the field for the text the recipient sent back."
+  },
+  "sendPasteResponseMissing": "Paste the response text from the recipient.",
+  "@sendPasteResponseMissing": {
+    "description": "Error when finishing a payment with the response field empty."
+  },
+  "slateFinishPayment": "Finish payment",
+  "@slateFinishPayment": {
+    "description": "Button that completes a payment with the recipient's answer and sends it to the network."
+  },
+  "sendResultStarted": "Payment started: {amount}",
+  "@sendResultStarted": {
+    "description": "Headline after an epicbox send: the payment is under way but not finished.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "1.5 EPIC"
+      }
+    }
+  },
+  "sendResultSent": "Sent {amount}",
+  "@sendResultSent": {
+    "description": "Headline after a send straight to the recipient's wallet.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "1.5 EPIC"
+      }
+    }
+  },
+  "sendResultWaitingBody": "It finishes when the recipient's wallet answers, usually within minutes if their app is open. Keep this app open, or open it again within a week: epicbox keeps their answer for about that long. You can find it on the home screen and in History.",
+  "@sendResultWaitingBody": {
+    "description": "After an epicbox send. epicbox is the relay service that carries payments (a proper name). 'History' is the name of the payment history screen."
+  },
+  "sendResultOnItsWay": "{count, plural, =1{The payment is on its way to the network. It shows as Completed after 1 confirmation.} other{The payment is on its way to the network. It shows as Completed after {count} confirmations.}}",
+  "@sendResultOnItsWay": {
+    "description": "After a send straight to the recipient's wallet. 'Completed' is the payment's status chip (txStatusCompleted); use the same word.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "sendResultAutoCancel": "{days, plural, =1{If it is still not completed after 1 day, it cancels by itself and the amount unlocks. To stop it sooner, open the payment and tap Cancel payment.} other{If it is still not completed after {days} days, it cancels by itself and the amount unlocks. To stop it sooner, open the payment and tap Cancel payment.}}",
+  "@sendResultAutoCancel": {
+    "description": "After an epicbox send. 'Cancel payment' is the button on the payment's details screen; use the same words.",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "sendResultFeeChanged": "The fee charged was {charged}, not the {reviewed} shown before, because the wallet picked its coins again when sending.",
+  "@sendResultFeeChanged": {
+    "description": "After a send whose fee differs from the one shown in the review.",
+    "placeholders": {
+      "charged": {
+        "type": "String",
+        "example": "0.012 EPIC"
+      },
+      "reviewed": {
+        "type": "String",
+        "example": "0.008 EPIC"
+      }
+    }
+  },
+  "sendResultNoteNotSaved": "The note could not be saved. You can add it by opening the payment.",
+  "sendSaveToContacts": "Save to contacts",
+  "@sendSaveToContacts": {
+    "description": "Button after a send that saves the recipient's address in the address book."
+  },
+  "sendHelp": "Help",
+  "@sendHelp": {
+    "description": "Button after a send that opens the matching help answer."
+  },
+  "sendReviewTitle": "Review your payment",
+  "@sendReviewTitle": {
+    "description": "Title of the sheet that shows a payment before it is sent."
+  },
+  "sendReviewTo": "To",
+  "@sendReviewTo": {
+    "description": "Row label in the payment review: the recipient. Space is tight (about 9 characters)."
+  },
+  "sendReviewAmount": "Amount",
+  "@sendReviewAmount": {
+    "description": "Row label in the payment review. Space is tight (about 9 characters)."
+  },
+  "sendReviewFee": "Fee",
+  "@sendReviewFee": {
+    "description": "Row label in the payment review: the network fee. Space is tight (about 9 characters)."
+  },
+  "sendReviewTotal": "Total",
+  "@sendReviewTotal": {
+    "description": "Row label in the payment review: amount plus fee. Space is tight (about 9 characters)."
+  },
+  "sendReviewTotalWithFiat": "{amount} (≈ {fiat})",
+  "@sendReviewTotalWithFiat": {
+    "description": "The total in the payment review with its value in a fiat currency.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "1.508 EPIC"
+      },
+      "fiat": {
+        "type": "String",
+        "example": "0.12 USD"
+      }
+    }
+  },
+  "sendReviewNote": "Note",
+  "@sendReviewNote": {
+    "description": "Row label in the payment review: the user's private note. Space is tight (about 9 characters)."
+  },
+  "sendReviewViaEpicbox": "Goes through epicbox. It completes when the recipient's wallet answers.",
+  "@sendReviewViaEpicbox": {
+    "description": "In the payment review. epicbox is the relay service that carries payments (a proper name)."
+  },
+  "sendReviewViaHttp": "Goes straight to the recipient's wallet.",
+  "@sendReviewViaHttp": {
+    "description": "In the payment review, for a send to a wallet URL."
+  },
+  "sendReviewSendButton": "Send {amount}",
+  "@sendReviewSendButton": {
+    "description": "Button in the payment review that sends the payment.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "1.5 EPIC"
+      }
+    }
+  },
+  "sendReviewEdit": "Edit",
+  "@sendReviewEdit": {
+    "description": "Button in the payment review that goes back to change the payment."
+  },
+  "slateFileTitle": "Transaction file",
+  "@slateFileTitle": {
+    "description": "Title of the screen that opens a transaction file (a file holding a payment's slate, JSON) to accept or finish it."
+  },
+  "slateWrongPayment": "This response is for a different payment. Open the file the recipient returned for this send.",
+  "slateInvoiceUnsupported": "Payment requests (invoices) are not supported yet.",
+  "slateNotTransactionFile": "That file is not a transaction file.",
+  "slateFileTooLarge": "That file is too large to be a transaction file.",
+  "slatePostedHeadline": "Payment of {amount} sent to the network.",
+  "@slatePostedHeadline": {
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "1.5 EPIC"
+      }
+    }
+  },
+  "slatePostedBody": "{count, plural, =1{It shows as Completed after 1 confirmation.} other{It shows as Completed after {count} confirmations.}}",
+  "@slatePostedBody": {
+    "description": "'Completed' is the payment's status chip (txStatusCompleted); use the same word.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "slateAcceptedHeadline": "Accepted. Return {file} to the sender.",
+  "@slateAcceptedHeadline": {
+    "description": "After accepting a payment from a file: the answer file to give back.",
+    "placeholders": {
+      "file": {
+        "type": "String",
+        "example": "0f3c…e1.tx.response"
+      }
+    }
+  },
+  "slateAcceptedBody": "The {amount} arrive once the sender finishes the payment and it is on the chain.",
+  "@slateAcceptedBody": {
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "1.5 EPIC"
+      }
+    }
+  },
+  "slateIncomingSend": "Someone is sending you {amount}.",
+  "@slateIncomingSend": {
+    "description": "A transaction file that pays this wallet.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "1.5 EPIC"
+      }
+    }
+  },
+  "slateIncomingResponse": "The recipient's answer to your send of {amount} (fee {fee}).",
+  "@slateIncomingResponse": {
+    "description": "A transaction file that answers a payment this wallet started.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "1.5 EPIC"
+      },
+      "fee": {
+        "type": "String",
+        "example": "0.008 EPIC"
+      }
+    }
+  },
+  "slateIncomingSendHint": "Accept it, then return the response file to the sender.",
+  "slateIncomingResponseHint": "Finish it to send the payment to the network.",
+  "slateAcceptPayment": "Accept payment",
+  "@slateAcceptPayment": {
+    "description": "Button that signs a payment received in a file."
+  },
+  "slateHandOverFailed": "Could not hand over {file}. Please try again.",
+  "@slateHandOverFailed": {
+    "description": "Notice when saving or sharing a transaction file failed.",
+    "placeholders": {
+      "file": {
+        "type": "String",
+        "example": "0f3c…e1.tx"
+      }
+    }
+  },
+  "slateSaveToDevice": "Save to device",
+  "@slateSaveToDevice": {
+    "description": "Button that saves a transaction file where the user picks (Downloads, Drive, a USB stick)."
+  },
+  "slateSaved": "Saved {file}",
+  "@slateSaved": {
+    "description": "Notice after a transaction file was saved.",
+    "placeholders": {
+      "file": {
+        "type": "String",
+        "example": "0f3c…e1.tx"
+      }
+    }
+  },
+  "slateSaveDialogTitle": "Save transaction file",
+  "@slateSaveDialogTitle": {
+    "description": "Title of the system dialog that saves a transaction file."
+  },
+  "slateOpenDialogTitle": "Open transaction file",
+  "@slateOpenDialogTitle": {
+    "description": "Title of the system dialog that picks a transaction file."
+  },
+  "slateNotPostedTitle": "Not on the network yet",
+  "@slateNotPostedTitle": {
+    "description": "Headline when a finished payment was not accepted by the network yet."
+  },
+  "slateNotPostedBody": "The payment is finished but the network has not taken it yet. It will be broadcast again from the payment. Do not send it again.",
+  "slateOpenPayment": "Open the payment",
+  "@slateOpenPayment": {
+    "description": "Button that opens the payment's details screen."
+  },
+  "scanQrTitle": "Scan QR code",
+  "@scanQrTitle": {
+    "description": "Title of the camera screen that reads a QR code."
+  },
+  "scanQrHint": "Point the camera at the recipient's QR code.",
+  "@scanQrHint": {
+    "description": "Shown over the camera picture."
+  },
+  "scanQrCameraDenied": "The wallet may not use the camera. To scan, allow camera access for this app in your phone's settings. You can also paste the address instead.",
+  "scanQrCameraFailed": "The camera could not start. Paste the address instead, or try again.",
+  "scanQrTryAgain": "Try again",
+  "@scanQrTryAgain": {
+    "description": "Button that starts the camera again."
+  },
+  "scanQrBack": "Back",
+  "@scanQrBack": {
+    "description": "Button that leaves the camera screen."
+  },
+  "contactsTitle": "Contacts",
+  "@contactsTitle": {
+    "description": "Title of the address book screen."
+  },
+  "contactsPickTitle": "Choose a contact",
+  "@contactsPickTitle": {
+    "description": "Title of the address book when it was opened to pick a recipient."
+  },
+  "contactsAdd": "Add contact",
+  "@contactsAdd": {
+    "description": "Floating button on the address book."
+  },
+  "contactsEmpty": "No contacts yet. Add the people you pay often, so you do not have to paste their address each time.",
+  "contactsSearchLabel": "Search contacts",
+  "@contactsSearchLabel": {
+    "description": "Label of the search field on the address book."
+  },
+  "contactsNoMatch": "No contact matches.",
+  "@contactsNoMatch": {
+    "description": "The address book search found nothing."
+  },
+  "contactsNameMissing": "Enter a name.",
+  "@contactsNameMissing": {
+    "description": "Error under the contact's name field."
+  },
+  "contactsDeleteTitle": "Delete {name}?",
+  "@contactsDeleteTitle": {
+    "description": "Title of the dialog that confirms deleting a contact.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Alice"
+      }
+    }
+  },
+  "contactsDeleteBody": "The address is removed from your contacts. Past payments are not affected.",
+  "contactsKeep": "Keep",
+  "@contactsKeep": {
+    "description": "Dialog button that does not delete the contact."
+  },
+  "contactsEditTitle": "Edit contact",
+  "@contactsEditTitle": {
+    "description": "Screen title."
+  },
+  "contactsNewTitle": "New contact",
+  "@contactsNewTitle": {
+    "description": "Screen title."
+  },
+  "contactsDeleteTooltip": "Delete contact",
+  "@contactsDeleteTooltip": {
+    "description": "Tooltip of the delete icon on the contact screen."
+  },
+  "contactsNameLabel": "Name",
+  "@contactsNameLabel": {
+    "description": "Label of the contact's name field."
+  },
+  "contactsAddressLabel": "Address or wallet URL",
+  "@contactsAddressLabel": {
+    "description": "Label of the contact's address field: an epicbox address or the URL of a wallet."
+  },
+  "contactsDuplicate": "This address is already saved as {name}.",
+  "@contactsDuplicate": {
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Alice"
+      }
+    }
+  },
+  "contactsNoteLabel": "Note (optional)",
+  "@contactsNoteLabel": {
+    "description": "Label of the field for a note on the contact."
+  },
+  "contactsSave": "Save contact",
+  "@contactsSave": {
+    "description": "Button that saves the contact."
+  },
+  "contactsAddressMissing": "Enter their address or a wallet URL.",
+  "@contactsAddressMissing": {
+    "description": "Error under a recipient or contact address field left empty."
+  },
+  "contactsUrlIncomplete": "Enter the full wallet URL, such as {example}",
+  "@contactsUrlIncomplete": {
+    "description": "Error under an address field holding an incomplete web address.",
+    "placeholders": {
+      "example": {
+        "type": "String",
+        "example": "http://203.0.113.5:3415"
+      }
+    }
+  },
+  "contactsAddressInvalid": "This is not a valid address. It looks like {example}",
+  "@contactsAddressInvalid": {
+    "description": "Error under an address field. example shows the shape of an epicbox address.",
+    "placeholders": {
+      "example": {
+        "type": "String",
+        "example": "es5x…@epicbox.epiccash.com"
+      }
+    }
+  },
+  "settingsTitle": "Settings",
+  "@settingsTitle": {
+    "description": "Title of the settings screen."
+  },
+  "settingsSectionNetwork": "Network",
+  "@settingsSectionNetwork": {
+    "description": "Section heading in settings."
+  },
+  "settingsNetworkAndNode": "Network and node",
+  "@settingsNetworkAndNode": {
+    "description": "Settings row that opens the network setup. The node is the Epic Cash server the wallet reads the chain from."
+  },
+  "settingsNetworkSubtitle": "{network} · {node}",
+  "@settingsNetworkSubtitle": {
+    "description": "Under the Network and node row: the network's name and the node's host name.",
+    "placeholders": {
+      "network": {
+        "type": "String",
+        "example": "Mainnet"
+      },
+      "node": {
+        "type": "String",
+        "example": "node.btlabs.uk"
+      }
+    }
+  },
+  "settingsSectionDisplay": "Display",
+  "@settingsSectionDisplay": {
+    "description": "Section heading in settings."
+  },
+  "settingsCurrency": "Currency",
+  "@settingsCurrency": {
+    "description": "Settings row, and the title of its dialog, that picks the currency prices are shown in."
+  },
+  "settingsCurrencyWithCode": "{name} ({code})",
+  "@settingsCurrencyWithCode": {
+    "description": "A display currency: its name and its code.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Euro"
+      },
+      "code": {
+        "type": "String",
+        "example": "EUR"
+      }
+    }
+  },
+  "settingsShowPrices": "Show prices",
+  "@settingsShowPrices": {
+    "description": "Settings switch that turns fiat prices of EPIC on and off."
+  },
+  "settingsHideBalances": "Hide balances",
+  "@settingsHideBalances": {
+    "description": "Settings switch that shows amounts as dots."
+  },
+  "settingsTheme": "Theme",
+  "@settingsTheme": {
+    "description": "Settings row, and the title of its dialog, that picks light or dark colours."
+  },
+  "settingsThemeSystem": "Same as the device",
+  "@settingsThemeSystem": {
+    "description": "Theme choice that follows the phone's light or dark setting."
+  },
+  "settingsThemeLight": "Light",
+  "@settingsThemeLight": {
+    "description": "Theme choice."
+  },
+  "settingsThemeDark": "Dark",
+  "@settingsThemeDark": {
+    "description": "Theme choice."
+  },
+  "settingsPricesOnNotice": "Prices come from CoinGecko, which sees your IP address.",
+  "@settingsPricesOnNotice": {
+    "description": "Short notice after prices are turned on. CoinGecko is a price service (a proper name)."
+  },
+  "settingsSectionNotifications": "Notifications",
+  "@settingsSectionNotifications": {
+    "description": "Section heading in settings."
+  },
+  "settingsPaymentNotifications": "Payment notifications",
+  "@settingsPaymentNotifications": {
+    "description": "Settings switch for push notifications about incoming payments."
+  },
+  "settingsPushHint": "Delivered by Google Firebase.",
+  "@settingsPushHint": {
+    "description": "Under the payment notifications switch. Google Firebase is a proper name."
+  },
+  "settingsPushOnNotice": "No epicbox server sends them yet. Open the app to receive a payment.",
+  "@settingsPushOnNotice": {
+    "description": "Notice after payment notifications are turned on. epicbox is the relay service that carries payments (a proper name)."
+  },
+  "settingsPushOffNotice": "Notifications stop the next time the app starts.",
+  "@settingsPushOffNotice": {
+    "description": "Notice after payment notifications are turned off."
+  },
+  "settingsPushBlocked": "Notifications are blocked in system settings",
+  "@settingsPushBlocked": {
+    "description": "Under the payment notifications switch, in red, after the phone denied notification permission. No full stop, like the original."
+  },
+  "settingsPushUnavailable": "Notifications are not available in this build",
+  "@settingsPushUnavailable": {
+    "description": "Under the payment notifications switch, in red, after the notification service failed to start. No full stop, like the original."
+  },
+  "settingsSectionSecurity": "Security",
+  "@settingsSectionSecurity": {
+    "description": "Section heading in settings."
+  },
+  "settingsChangePin": "Change PIN",
+  "@settingsChangePin": {
+    "description": "Settings row that opens the screen for a new 6-digit PIN."
+  },
+  "settingsBiometrics": "Unlock with biometrics",
+  "@settingsBiometrics": {
+    "description": "Settings switch: unlock with fingerprint or face instead of the PIN."
+  },
+  "settingsBiometricsOn": "Biometric unlock turned on",
+  "@settingsBiometricsOn": {
+    "description": "Short notice."
+  },
+  "settingsBiometricsOff": "Biometric unlock turned off",
+  "@settingsBiometricsOff": {
+    "description": "Short notice."
+  },
+  "settingsBiometricsFailed": "Biometric unlock was not set up",
+  "@settingsBiometricsFailed": {
+    "description": "Short notice after turning on biometric unlock failed or was cancelled."
+  },
+  "settingsBiometricsPinReason": "Enter your PIN to turn on biometric unlock.",
+  "@settingsBiometricsPinReason": {
+    "description": "In the PIN dialog shown before biometric unlock is turned on."
+  },
+  "settingsAutoLock": "Auto-lock",
+  "@settingsAutoLock": {
+    "description": "Settings row, and the title of its dialog, that picks when the wallet locks by itself after the app goes to the background."
+  },
+  "settingsBackupPhrase": "Back up recovery phrase",
+  "@settingsBackupPhrase": {
+    "description": "Settings row that shows the 12 or 24 recovery words to write down."
+  },
+  "settingsPhraseConfirmed": "Recovery phrase confirmed",
+  "@settingsPhraseConfirmed": {
+    "description": "Notice after the user proved they wrote down the recovery words."
+  },
+  "settingsLockWallet": "Lock wallet",
+  "@settingsLockWallet": {
+    "description": "Settings row that closes the wallet until the PIN is entered again."
+  },
+  "settingsSectionHistory": "Payment history",
+  "@settingsSectionHistory": {
+    "description": "Section heading in settings. The help page refers to it by this name."
+  },
+  "settingsExportHistory": "Export history backup",
+  "@settingsExportHistory": {
+    "description": "Settings row: save an encrypted copy of payment notes, contacts and dates."
+  },
+  "settingsExportCsv": "Export CSV",
+  "@settingsExportCsv": {
+    "description": "Settings row: save the payment history as a spreadsheet (CSV) file."
+  },
+  "settingsImportHistory": "Import history backup",
+  "@settingsImportHistory": {
+    "description": "Settings row: open a history backup file. The help page refers to it by this name."
+  },
+  "settingsSectionWallet": "Wallet",
+  "@settingsSectionWallet": {
+    "description": "Section heading in settings."
+  },
+  "settingsContacts": "Contacts",
+  "@settingsContacts": {
+    "description": "Settings row that opens the address book."
+  },
+  "settingsRescan": "Rescan the chain",
+  "@settingsRescan": {
+    "description": "Settings row: search the blockchain for the wallet's funds again."
+  },
+  "settingsRescanFinished": "Rescan finished",
+  "@settingsRescanFinished": {
+    "description": "Short notice."
+  },
+  "settingsRescanTitle": "Rescan the chain",
+  "@settingsRescanTitle": {
+    "description": "Title of the dialog that starts a new search of the blockchain for the wallet's funds."
+  },
+  "settingsRescanBody": "The wallet looks for its funds again. An earlier start finds more but takes longer; the whole chain can take a long time.",
+  "settingsRescanFromDate": "From a date",
+  "@settingsRescanFromDate": {
+    "description": "Choice in the rescan dialog: start at the block of a picked day."
+  },
+  "settingsRescanFromHeight": "From a block height",
+  "@settingsRescanFromHeight": {
+    "description": "Choice in the rescan dialog: start at a block number."
+  },
+  "settingsRescanWholeChain": "The whole chain",
+  "@settingsRescanWholeChain": {
+    "description": "Choice in the rescan dialog: start at the first block."
+  },
+  "settingsRescanPickDate": "Pick a date",
+  "@settingsRescanPickDate": {
+    "description": "Button in the rescan dialog that opens a calendar."
+  },
+  "settingsRescanPickDateFirst": "Pick a date first.",
+  "@settingsRescanPickDateFirst": {
+    "description": "Error in the rescan dialog."
+  },
+  "settingsRescanStartHeight": "Start height",
+  "@settingsRescanStartHeight": {
+    "description": "Label of the block number field in the rescan dialog."
+  },
+  "settingsRescanHeightInvalid": "Enter a block height of 1 or more.",
+  "@settingsRescanHeightInvalid": {
+    "description": "Error in the rescan dialog."
+  },
+  "settingsRescanButton": "Rescan",
+  "@settingsRescanButton": {
+    "description": "Button that starts the rescan."
+  },
+  "settingsDeleteWallet": "Delete this wallet",
+  "@settingsDeleteWallet": {
+    "description": "Settings row, in red."
+  },
+  "settingsDeleteDuringScan": "Wait for the scan to finish before deleting the wallet.",
+  "@settingsDeleteDuringScan": {
+    "description": "Notice when delete is tapped while a search of the blockchain runs."
+  },
+  "settingsDeletePinReason": "Enter your PIN to delete this wallet.",
+  "@settingsDeletePinReason": {
+    "description": "In the PIN dialog shown before the wallet is deleted."
+  },
+  "settingsDeleteWarningIcon": "Warning",
+  "@settingsDeleteWarningIcon": {
+    "description": "Screen-reader label of the warning icon in the delete dialog."
+  },
+  "settingsDeleteTitle": "Delete this wallet?",
+  "@settingsDeleteTitle": {
+    "description": "Title of the delete dialog."
+  },
+  "settingsDeleteBody": "This removes the wallet, its history and its PIN from this device. Only the recovery phrase can bring the funds back. Without it, they are lost for good.",
+  "settingsDeleteHavePhrase": "I have written down my recovery phrase",
+  "@settingsDeleteHavePhrase": {
+    "description": "Checkbox in the delete dialog."
+  },
+  "settingsDeleteConfirmWord": "delete",
+  "@settingsDeleteConfirmWord": {
+    "description": "The word the user must type to confirm deleting the wallet. One word, easy to type on a phone keyboard; case does not matter."
+  },
+  "settingsDeleteTypeToConfirm": "Type \"{word}\" to confirm",
+  "@settingsDeleteTypeToConfirm": {
+    "description": "Label of the field in the delete dialog.",
+    "placeholders": {
+      "word": {
+        "type": "String",
+        "example": "delete"
+      }
+    }
+  },
+  "settingsDeleteKeep": "Keep wallet",
+  "@settingsDeleteKeep": {
+    "description": "Button that closes the delete dialog without deleting."
+  },
+  "settingsDeleteConfirm": "Delete wallet",
+  "@settingsDeleteConfirm": {
+    "description": "Red button that deletes the wallet."
+  },
+  "settingsSectionAbout": "About",
+  "@settingsSectionAbout": {
+    "description": "Section heading in settings."
+  },
+  "settingsVersion": "Version",
+  "@settingsVersion": {
+    "description": "Settings row showing the app's version."
+  },
+  "settingsAboutNetwork": "Network",
+  "@settingsAboutNetwork": {
+    "description": "Settings row in About showing which network the wallet is on (Mainnet, Floonet, Usernet)."
+  },
+  "settingsEpicboxServer": "Epicbox server",
+  "@settingsEpicboxServer": {
+    "description": "Settings row showing the epicbox server's host. epicbox is the relay service that carries payments (a proper name)."
+  },
+  "settingsCheckUpdates": "Check for updates",
+  "@settingsCheckUpdates": {
+    "description": "Settings row."
+  },
+  "settingsCheckingUpdates": "Checking for updates. The result shows on the home screen.",
+  "@settingsCheckingUpdates": {
+    "description": "Notice after Check for updates is tapped."
+  },
+  "settingsHelp": "Help",
+  "@settingsHelp": {
+    "description": "Settings row that opens the help page."
+  },
+  "settingsSendFeedback": "Send feedback",
+  "@settingsSendFeedback": {
+    "description": "Settings row that opens the feedback form."
+  },
+  "settingsSendFeedbackHint": "Report a problem or suggest an idea",
+  "@settingsSendFeedbackHint": {
+    "description": "Under the Send feedback row."
+  },
+  "settingsSourceCode": "Source code",
+  "@settingsSourceCode": {
+    "description": "Settings row with the link to the app's source code."
+  },
+  "settingsCopyLink": "Copy link",
+  "@settingsCopyLink": {
+    "description": "Screen-reader label of the copy icon on a link row."
+  },
+  "settingsLinkCopied": "Link copied",
+  "@settingsLinkCopied": {
+    "description": "Notice after a web link was copied."
+  },
+  "settingsPinTitle": "Change PIN",
+  "@settingsPinTitle": {
+    "description": "Title of the screen that sets a new 6-digit PIN."
+  },
+  "settingsPinEnterCurrent": "Enter your current PIN",
+  "@settingsPinEnterCurrent": {
+    "description": "Heading above the PIN field."
+  },
+  "settingsPinCurrentLabel": "Current PIN",
+  "@settingsPinCurrentLabel": {
+    "description": "Label of the PIN field."
+  },
+  "settingsPinChooseNew": "{digits, plural, other{Choose a new {digits}-digit PIN}}",
+  "@settingsPinChooseNew": {
+    "description": "Heading above the field for the new PIN.",
+    "placeholders": {
+      "digits": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsPinChanged": "PIN changed",
+  "@settingsPinChanged": {
+    "description": "Short notice."
+  },
+  "helpTitle": "Help",
+  "@helpTitle": {
+    "description": "Title of the help page."
+  },
+  "helpWaitingQuestion": "Why does my payment say \"Waiting for recipient\"?",
+  "@helpWaitingQuestion": {
+    "description": "A question on the help page. Quote the status chip's text exactly as txStatusWaitingRecipient translates it."
+  },
+  "helpWaitingAnswer": "An Epic Cash payment is built by both wallets together: yours starts it, the recipient's wallet accepts it, then yours finishes it. Epic's epicbox service holds your payment for about a week, until the recipient's wallet comes online and answers. Until then the amount stays locked in your wallet, so you cannot spend it twice. If the payment is not completed, your wallet cancels it by itself after {days, plural, =1{1 day} other{{days} days}} and unlocks the amount.",
+  "@helpWaitingAnswer": {
+    "description": "Answer on the help page. epicbox is the relay service that carries payments (a proper name).",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "helpCancellingQuestion": "Should I cancel a payment?",
+  "@helpCancellingQuestion": {
+    "description": "A question on the help page."
+  },
+  "helpCancellingAnswer": "Usually you do not need to: a payment that is not completed cancels itself after {days, plural, =1{1 day} other{{days} days}} and unlocks the amount. To stop one sooner, for example when the recipient says they will never answer, open it while it still says \"Waiting for recipient\" and tap Cancel payment; you would then have to send it again. A payment that is already confirming cannot be cancelled. Payments made with older versions of this app do not cancel themselves: if one has waited more than two weeks, cancel it and send again.",
+  "@helpCancellingAnswer": {
+    "description": "Answer on the help page. \"Waiting for recipient\" is the status chip (txStatusWaitingRecipient) and Cancel payment the button on the payment's details screen: use the same words as those.",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "helpReceivingQuestion": "Why must I keep the app open to receive?",
+  "@helpReceivingQuestion": {
+    "description": "A question on the help page."
+  },
+  "helpReceivingAnswer": "Your wallet has to accept every incoming payment, and it can only do that while the app is open and connected to epicbox. A payment sent while the app is closed waits in epicbox for about a week and arrives the next time you unlock. After that epicbox deletes it; if the sender uses this app, their wallet cancels it by itself after {days, plural, =1{1 day} other{{days} days}}, and they can send it again. Once your wallet accepts a payment, the sender's wallet must finish it; until then it shows as Waiting for sender.",
+  "@helpReceivingAnswer": {
+    "description": "Answer on the help page. epicbox is the relay service that carries payments (a proper name). Waiting for sender is the status chip (txStatusWaitingSender): use the same words.",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "helpConfirmationsQuestion": "What are confirmations and why {count}?",
+  "@helpConfirmationsQuestion": {
+    "description": "A question on the help page: why the wallet waits for this many blocks.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "helpConfirmationsAnswer": "A confirmation is a new block added to the Epic Cash blockchain after the one that holds your payment; a block arrives about once a minute. Each block makes it harder to undo the payment. After {count, plural, =1{1 confirmation, about 1 minute} other{{count} confirmations, about {count} minutes}}, a payment shows as Completed and received coins can be spent; that is the Epic wallet's standard.",
+  "@helpConfirmationsAnswer": {
+    "description": "Answer on the help page. Completed is the status chip (txStatusCompleted): use the same word.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "helpHistoryQuestion": "Why is my history missing after a restore?",
+  "@helpHistoryQuestion": {
+    "description": "A question on the help page."
+  },
+  "helpHistoryAnswer": "The recovery phrase brings back your balance: the wallet scans the blockchain for coins that belong to it. Who you paid, your notes and most dates are never stored on the blockchain, so a restore cannot find them. If you saved a history backup, import it in Settings, under Payment history, Import history backup, to get them back. The backup must be a copy you kept outside the lost phone, for example in email or cloud storage.",
+  "@helpHistoryAnswer": {
+    "description": "Answer on the help page. Settings, Payment history and Import history backup are the names on the settings screen (settingsTitle, settingsSectionHistory, settingsImportHistory): use the same words."
+  },
+  "helpAddressQuestion": "Does my address ever change?",
+  "@helpAddressQuestion": {
+    "description": "A question on the help page."
+  },
+  "helpAddressAnswer": "Your address is made from your recovery phrase and the epicbox server you use, and it ends in @ and that server's name. It stays the same as long as you keep the same epicbox server. If you pick another one in network settings, your address changes, so give the new one to people who pay you.",
+  "@helpAddressAnswer": {
+    "description": "Answer on the help page. epicbox is the relay service that carries payments (a proper name)."
+  },
+  "helpPhraseQuestion": "What is the recovery phrase and who can see it?",
+  "@helpPhraseQuestion": {
+    "description": "A question on the help page."
+  },
+  "helpPhraseAnswer": "The recovery phrase is a list of words that is the key to your money: anyone who has it can take your coins, and with it you can restore your wallet on a new phone. The app shows it only after you enter your PIN, and it never sends it anywhere. Write it on paper, keep it somewhere safe, and never share it or type it into a website.",
+  "@helpPhraseAnswer": {
+    "description": "Answer on the help page."
+  },
+  "helpFeesQuestion": "What does the fee pay for?",
+  "@helpFeesQuestion": {
+    "description": "A question on the help page."
+  },
+  "helpFeesAnswer": "The fee goes to the miners who add your payment to the blockchain. It is usually a small fraction of an EPIC and depends on how many coins your wallet combines to make the payment. You see the exact fee before you send.",
+  "@helpFeesAnswer": {
+    "description": "Answer on the help page. EPIC is the coin's ticker: keep it."
+  },
+  "helpNodeQuestion": "What is a node?",
+  "@helpNodeQuestion": {
+    "description": "A question on the help page."
+  },
+  "helpNodeAnswer": "A node is a computer that keeps a copy of the Epic Cash blockchain. The wallet asks a node for your balance and sends your payments to the network through it. The node sees your IP address and which coins the wallet asks about, so pick one you trust in network settings.",
+  "@helpNodeAnswer": {
+    "description": "Answer on the help page."
+  },
+  "helpOtherWaysQuestion": "Are there other ways to send?",
+  "@helpOtherWaysQuestion": {
+    "description": "A question on the help page."
+  },
+  "helpOtherWaysAnswer": "For advanced users. If the recipient runs a wallet that listens on the internet, paste its address starting with http:// or https:// as the recipient, and the payment goes straight to it. Without epicbox, use \"Send by transaction file\" under \"Other ways to send\": you share a file, the recipient accepts it and returns a .response file, and you open that file to finish.",
+  "@helpOtherWaysAnswer": {
+    "description": "Answer on the help page. \"Send by transaction file\" and \"Other ways to send\" are names on the send screen: use the same words. Keep http://, https:// and .response as they are."
+  },
+  "helpStillStuck": "Still stuck?",
+  "@helpStillStuck": {
+    "description": "Heading at the end of the help page."
+  },
+  "helpTellUs": "Tell us what happened or what is unclear.",
+  "@helpTellUs": {
+    "description": "Under the Still stuck? heading."
+  },
+  "helpSendFeedback": "Send feedback",
+  "@helpSendFeedback": {
+    "description": "Button at the end of the help page that opens the feedback form."
+  },
+  "feedbackTitle": "Send feedback",
+  "@feedbackTitle": {
+    "description": "Title of the feedback form."
+  },
+  "feedbackIntro": "Tell us what went wrong or what could be better.",
+  "@feedbackIntro": {
+    "description": "First line of the feedback form."
+  },
+  "feedbackMessageLabel": "Your message",
+  "@feedbackMessageLabel": {
+    "description": "Label of the message field."
+  },
+  "feedbackMessageMissing": "Write a few words about what happened.",
+  "@feedbackMessageMissing": {
+    "description": "Error under an empty message field."
+  },
+  "feedbackEmailLabel": "Email for a reply (optional)",
+  "@feedbackEmailLabel": {
+    "description": "Label of the email field."
+  },
+  "feedbackEmailInvalid": "This does not look like an email address.",
+  "@feedbackEmailInvalid": {
+    "description": "Error under the email field."
+  },
+  "feedbackAttachLogs": "Attach diagnostic logs",
+  "@feedbackAttachLogs": {
+    "description": "Switch: add the app's log to the report."
+  },
+  "feedbackAttachLogsHint": "Helps us find the problem. Your recovery phrase, PIN and other secrets are removed first.",
+  "@feedbackAttachLogsHint": {
+    "description": "Under the Attach diagnostic logs switch."
+  },
+  "feedbackPreviewButton": "Preview what is sent",
+  "@feedbackPreviewButton": {
+    "description": "Button that shows the report's full text. The report itself stays in English."
+  },
+  "feedbackSend": "Send",
+  "@feedbackSend": {
+    "description": "Button that sends the report to the feedback server."
+  },
+  "feedbackShareOrSaveInstead": "Share or save instead",
+  "@feedbackShareOrSaveInstead": {
+    "description": "Button under Send: hand the report over as a file instead."
+  },
+  "feedbackFileExplanation": "Your feedback becomes a text file you can send by email or chat, or save.",
+  "@feedbackFileExplanation": {
+    "description": "Shown above the Share or save button in builds without a feedback server."
+  },
+  "feedbackShareOrSave": "Share or save",
+  "@feedbackShareOrSave": {
+    "description": "Button that hands the report over as a text file."
+  },
+  "feedbackShareHint": "Send it by email or a chat app",
+  "@feedbackShareHint": {
+    "description": "Under Share in the sheet that picks where the report file goes."
+  },
+  "feedbackSaveToDevice": "Save to device",
+  "@feedbackSaveToDevice": {
+    "description": "Choice in the sheet that picks where the report file goes."
+  },
+  "feedbackSaveDialogTitle": "Save feedback",
+  "@feedbackSaveDialogTitle": {
+    "description": "Title of the system dialog that picks where to save the report file (desktop)."
+  },
+  "feedbackSavedFile": "Saved {name}",
+  "@feedbackSavedFile": {
+    "description": "Notice after the report file was saved.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "epic-wallet-feedback-20261001-0905.txt"
+      }
+    }
+  },
+  "feedbackSent": "Thank you. Your feedback was sent.",
+  "@feedbackSent": {
+    "description": "Notice after the report reached the feedback server."
+  },
+  "feedbackThanks": "Thank you for your feedback.",
+  "@feedbackThanks": {
+    "description": "Notice after the report file was handed to another app."
+  },
+  "feedbackServerAnswered": "The feedback server answered {status}.",
+  "@feedbackServerAnswered": {
+    "description": "Error: the feedback server refused the report. status is an HTTP status code such as 503.",
+    "placeholders": {
+      "status": {
+        "type": "int"
+      }
+    }
+  },
+  "feedbackServerNoAnswer": "The feedback server did not answer.",
+  "@feedbackServerNoAnswer": {
+    "description": "Error: the feedback server timed out."
+  },
+  "feedbackServerUnreachable": "Could not reach the feedback server.",
+  "@feedbackServerUnreachable": {
+    "description": "Error: no connection to the feedback server."
+  },
+  "feedbackPreviewTitle": "What is sent",
+  "@feedbackPreviewTitle": {
+    "description": "Title of the screen that shows the report's full text, which stays in English."
+  }
+}

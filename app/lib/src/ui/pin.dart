@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../errors.dart';
+import '../l10n.dart';
 import '../providers.dart';
 import '../vault.dart';
 import 'common.dart';
@@ -92,7 +93,7 @@ class _PinSetupViewState extends ConsumerState<PinSetupView> {
       .read(biometricStoreProvider)
       .isAvailable();
   _PinStep _step = _PinStep.choose;
-  String? _error;
+  bool _mismatch = false;
   String _chosen = '';
 
   @override
@@ -105,7 +106,7 @@ class _PinSetupViewState extends ConsumerState<PinSetupView> {
   void _chosenPin(String pin) {
     setState(() {
       _chosen = pin;
-      _error = null;
+      _mismatch = false;
       _step = _PinStep.confirm;
     });
   }
@@ -116,7 +117,7 @@ class _PinSetupViewState extends ConsumerState<PinSetupView> {
       _pin.clear();
       setState(() {
         _chosen = '';
-        _error = 'The PINs do not match. Choose a PIN again.';
+        _mismatch = true;
         _step = _PinStep.choose;
       });
       return;
@@ -131,13 +132,14 @@ class _PinSetupViewState extends ConsumerState<PinSetupView> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l = context.l10n;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: switch (_step) {
         _PinStep.choose => [
           ?widget.intro,
           Text(
-            widget.chooseTitle ?? 'Choose a $pinLength-digit PIN',
+            widget.chooseTitle ?? l.pinChooseTitle(pinLength),
             style: theme.textTheme.titleMedium,
             textAlign: TextAlign.center,
           ),
@@ -145,14 +147,14 @@ class _PinSetupViewState extends ConsumerState<PinSetupView> {
           PinField(
             key: const ValueKey('pin-choose'),
             controller: _pin,
-            label: 'PIN',
-            errorText: _error,
+            label: l.pinLabel,
+            errorText: _mismatch ? l.pinMismatch : null,
             onCompleted: _chosenPin,
           ),
         ],
         _PinStep.confirm => [
           Text(
-            'Enter the PIN again',
+            l.pinConfirmTitle,
             style: theme.textTheme.titleMedium,
             textAlign: TextAlign.center,
           ),
@@ -160,7 +162,7 @@ class _PinSetupViewState extends ConsumerState<PinSetupView> {
           PinField(
             key: const ValueKey('pin-confirm'),
             controller: _confirm,
-            label: 'Repeat PIN',
+            label: l.pinRepeatLabel,
             onCompleted: _confirmed,
           ),
           const SizedBox(height: 8),
@@ -170,7 +172,7 @@ class _PinSetupViewState extends ConsumerState<PinSetupView> {
               _confirm.clear();
               setState(() => _step = _PinStep.choose);
             },
-            child: const Text('Choose a different PIN'),
+            child: Text(l.pinChooseDifferent),
           ),
         ],
         _PinStep.biometrics => [
@@ -178,22 +180,19 @@ class _PinSetupViewState extends ConsumerState<PinSetupView> {
             Icons.fingerprint,
             size: 64,
             color: theme.colorScheme.primary,
-            semanticLabel: 'Biometrics',
+            semanticLabel: l.pinBiometricsIconLabel,
           ),
           const SizedBox(height: 16),
           Text(
-            'Unlock with fingerprint or face?',
+            l.pinBiometricsQuestion,
             style: theme.textTheme.titleMedium,
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 8),
-          const Text(
-            'You can still use your PIN at any time.',
-            textAlign: TextAlign.center,
-          ),
+          Text(l.pinBiometricsPinStillWorks, textAlign: TextAlign.center),
           const SizedBox(height: 24),
           BusyButton(
-            label: 'Use biometrics',
+            label: l.pinBiometricsEnable,
             onPressed: () => widget.onDone(_chosen, true),
           ),
           const SizedBox(height: 8),
@@ -202,7 +201,7 @@ class _PinSetupViewState extends ConsumerState<PinSetupView> {
               minimumSize: const Size.fromHeight(48),
             ),
             onPressed: () => widget.onDone(_chosen, false),
-            child: const Text('Not now'),
+            child: Text(l.pinBiometricsNotNow),
           ),
         ],
       },
@@ -211,18 +210,16 @@ class _PinSetupViewState extends ConsumerState<PinSetupView> {
 }
 
 /// A sentence for a rejected PIN.
-String describePinRejection(PinRejected rejection) {
+String describePinRejection(AppLocalizations l, PinRejected rejection) {
   final until = rejection.lockedUntil;
   if (until != null) {
     final wait = until.difference(DateTime.now());
     final seconds = wait.inSeconds < 1 ? 1 : wait.inSeconds;
-    final text = seconds < 120
-        ? '$seconds seconds'
-        : '${(seconds / 60).ceil()} minutes';
-    return 'Too many wrong PINs. Try again in $text.';
+    return seconds < 120
+        ? l.pinLockedSeconds(seconds)
+        : l.pinLockedMinutes((seconds / 60).ceil());
   }
-  final left = rejection.attemptsLeft ?? 0;
-  return 'Wrong PIN. $left ${left == 1 ? 'try' : 'tries'} left before a pause.';
+  return l.pinWrong(rejection.attemptsLeft ?? 0);
 }
 
 /// Asks for the PIN (or, with [allowBiometrics], biometrics) of the current wallet and returns
@@ -288,6 +285,7 @@ class _PinPromptDialogState extends ConsumerState<_PinPromptDialog> {
   Future<void> _submit(String pin) async {
     final config = ref.read(walletConfigProvider);
     if (config == null) return;
+    final l = context.l10n;
     setState(() {
       _busy = true;
       _error = null;
@@ -299,9 +297,11 @@ class _PinPromptDialogState extends ConsumerState<_PinPromptDialog> {
       if (mounted) Navigator.pop(context, password);
     } on PinRejected catch (rejection) {
       _pin.clear();
-      if (mounted) setState(() => _error = describePinRejection(rejection));
+      if (mounted) {
+        setState(() => _error = describePinRejection(l, rejection));
+      }
     } catch (error) {
-      if (mounted) setState(() => _error = describeError(error));
+      if (mounted) setState(() => _error = describeError(l, error));
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -309,8 +309,9 @@ class _PinPromptDialogState extends ConsumerState<_PinPromptDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     return AlertDialog(
-      title: const Text('Enter your PIN'),
+      title: Text(l.pinPromptTitle),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -321,7 +322,7 @@ class _PinPromptDialogState extends ConsumerState<_PinPromptDialog> {
           ],
           PinField(
             controller: _pin,
-            label: 'PIN',
+            label: l.pinLabel,
             enabled: !_busy,
             errorText: _error,
             onCompleted: _submit,
@@ -329,7 +330,7 @@ class _PinPromptDialogState extends ConsumerState<_PinPromptDialog> {
           if (_biometrics)
             TextButton.icon(
               icon: const Icon(Icons.fingerprint),
-              label: const Text('Use biometrics'),
+              label: Text(l.pinUseBiometrics),
               onPressed: _busy ? null : _useBiometrics,
             ),
         ],
@@ -337,7 +338,7 @@ class _PinPromptDialogState extends ConsumerState<_PinPromptDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Cancel'),
+          child: Text(l.commonCancel),
         ),
       ],
     );

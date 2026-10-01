@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'app_log.dart';
+import 'l10n.dart' show appLanguages;
 import 'providers.dart';
 import 'wallet_service.dart' show Chain, TxEntry, TxSource, TxStatus;
 
@@ -107,9 +108,16 @@ class AppSettings {
     this.historyExportedAt = const {},
     this.historyReminderDismissedAt = const {},
     this.historyExportSnapshots = const {},
+    this.language,
   });
 
   final ThemeMode themeMode;
+
+  /// The app's language as a code from `appLanguages` (`de`), or null to follow the system.
+  final String? language;
+
+  /// [language] as a [Locale] for `MaterialApp.locale`; null follows the system.
+  Locale? get locale => language == null ? null : Locale(language!);
 
   /// Lower-case CoinGecko currency code, for example `usd`.
   final String fiatCurrency;
@@ -148,6 +156,7 @@ class AppSettings {
     Map<String, int>? historyExportedAt,
     Map<String, int>? historyReminderDismissedAt,
     Map<String, HistoryExportSnapshot>? historyExportSnapshots,
+    String? Function()? language,
   }) => AppSettings(
     themeMode: themeMode ?? this.themeMode,
     fiatCurrency: fiatCurrency ?? this.fiatCurrency,
@@ -162,16 +171,9 @@ class AppSettings {
         historyReminderDismissedAt ?? this.historyReminderDismissedAt,
     historyExportSnapshots:
         historyExportSnapshots ?? this.historyExportSnapshots,
+    language: language != null ? language() : this.language,
   );
 }
-
-/// Plain words for an auto-lock choice.
-String autoLockLabel(int? minutes) => switch (minutes) {
-  null => 'Never',
-  0 => 'Immediately',
-  1 => 'After 1 minute',
-  _ => 'After $minutes minutes',
-};
 
 final appSettingsProvider =
     AsyncNotifierProvider<AppSettingsNotifier, AppSettings>(
@@ -185,6 +187,7 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
   static const String _hideKey = 'app.hide_balances';
   static const String _autoLockKey = 'app.auto_lock';
   static const String _pushKey = 'app.push';
+  static const String _languageKey = 'app.language';
   static String _exportedKey(Chain chain) =>
       'app.history_exported.${chain.name}';
   static String _dismissedKey(Chain chain) =>
@@ -203,6 +206,7 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
     final hide = await store.read(_hideKey);
     final autoLock = await store.read(_autoLockKey);
     final push = await store.read(_pushKey);
+    final language = await store.read(_languageKey);
     Future<Map<String, int>> perChain(String Function(Chain) key) async => {
       for (final chain in Chain.values)
         chain.name: ?int.tryParse(await store.read(key(chain)) ?? ''),
@@ -246,6 +250,8 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
       historyExportedAt: exported,
       historyReminderDismissedAt: dismissed,
       historyExportSnapshots: snapshots,
+      // A code no translation has any more (a language removed) falls back to the system.
+      language: appLanguages.any((a) => a.code == language) ? language : null,
     );
   }
 
@@ -279,6 +285,18 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
     minutes?.toString() ?? _never,
     (await _current()).copyWith(autoLockMinutes: () => minutes),
   );
+
+  /// Sets the app's language to [code] from `appLanguages`, or back to the system's for null.
+  Future<void> setLanguage(String? code) async {
+    assert(code == null || appLanguages.any((a) => a.code == code));
+    final store = ref.read(secretStoreProvider);
+    if (code == null) {
+      await store.delete(_languageKey);
+    } else {
+      await store.write(_languageKey, code);
+    }
+    state = AsyncData((await _current()).copyWith(language: () => code));
+  }
 
   Future<void> setPushNotifications(bool on) async =>
       _put(_pushKey, '$on', (await _current()).copyWith(pushNotifications: on));

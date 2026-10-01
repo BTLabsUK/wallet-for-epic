@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../errors.dart';
+import '../l10n.dart';
 import '../providers.dart';
 import '../secure_screen.dart';
 import '../wallet_service.dart';
@@ -39,15 +40,6 @@ BigInt mainnetHeightForDate(DateTime date) {
 
 /// The first day a mainnet wallet can hold funds.
 final DateTime mainnetFirstDay = DateTime(2019, 9, 3);
-
-/// `1 Sep 2026`, the way the history screen writes days.
-String formatDay(DateTime day) {
-  const months = [
-    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', //
-    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
-  ];
-  return '${day.day} ${months[day.month - 1]} ${day.year}';
-}
 
 /// Lowercases the phrase and collapses whitespace, so pasted phrases validate.
 String normalizePhrase(String input) =>
@@ -94,13 +86,12 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
   }
 
   void _checkPhrase() {
+    final l = context.l10n;
     final service = ref.read(walletServiceProvider);
     final phrase = normalizePhrase(_phrase.text);
     String? problem;
     if (!service.validateMnemonic(phrase: phrase)) {
-      problem = describeError(
-        const WalletError(kind: WalletErrorKind.invalidMnemonic, message: ''),
-      );
+      problem = l.errorInvalidMnemonic;
     }
     final byDate = _startBy == _StartBy.date && _datesSupported;
     final heightText = byDate ? '' : _startHeight.text.trim();
@@ -111,7 +102,7 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
         ? null
         : BigInt.tryParse(heightText);
     if (problem == null && heightText.isNotEmpty && startHeight == null) {
-      problem = 'Start height must be a whole number.';
+      problem = l.restoreStartHeightInvalid;
     }
     if (problem != null) {
       setState(() => _error = problem);
@@ -129,6 +120,7 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
   Future<void> _restore(String pin, bool useBiometrics) async {
     final config = ref.read(walletConfigProvider);
     if (config == null) return;
+    final l = context.l10n;
     setState(() {
       _busy = true;
       _error = null;
@@ -170,7 +162,7 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
         setState(() => _step = _RestoreStep.importOffer);
       }
     } catch (error) {
-      if (mounted) setState(() => _error = describeError(error));
+      if (mounted) setState(() => _error = describeError(l, error));
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -178,6 +170,7 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     final steps = switch (_step) {
       _RestoreStep.phrase => _form(context),
       _RestoreStep.pin => [
@@ -192,7 +185,7 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
               _error = null;
               _step = _RestoreStep.phrase;
             }),
-            child: const Text('Back to the phrase'),
+            child: Text(l.restoreBackToPhrase),
           ),
         ],
       ],
@@ -204,7 +197,7 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
     return SlotScaffold(
       centered: !form,
       appBar: AppBar(
-        title: const Text('Restore wallet'),
+        title: Text(l.restoreTitle),
         // Reached by replacing the first-run screen, so back means starting over there.
         leading: _step == _RestoreStep.phrase
             ? BackButton(
@@ -215,13 +208,12 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
             : null,
         automaticallyImplyLeading: false,
       ),
-      body: form
-          ? ScreenBody(children: steps)
-          : CenteredBody(children: steps),
+      body: form ? ScreenBody(children: steps) : CenteredBody(children: steps),
     );
   }
 
   List<Widget> _form(BuildContext context) {
+    final l = context.l10n;
     return [
       TextField(
         controller: _phrase,
@@ -231,24 +223,30 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
         enableSuggestions: false,
         enableIMEPersonalizedLearning: false,
         keyboardType: TextInputType.visiblePassword,
-        decoration: const InputDecoration(
-          labelText: 'Recovery phrase',
-          helperText: 'The 12 or 24 words, separated by spaces.',
+        decoration: InputDecoration(
+          labelText: l.restorePhraseLabel,
+          helperText: l.restorePhraseHelper,
           alignLabelWithHint: true,
-          border: OutlineInputBorder(),
+          border: const OutlineInputBorder(),
         ),
       ),
       const SizedBox(height: 12),
       if (_datesSupported) ...[
         Text(
-          'Where to start scanning',
+          l.restoreStartHeading,
           style: Theme.of(context).textTheme.titleSmall,
         ),
         const SizedBox(height: 8),
         SegmentedButton<_StartBy>(
-          segments: const [
-            ButtonSegment(value: _StartBy.date, label: Text('Date')),
-            ButtonSegment(value: _StartBy.height, label: Text('Block height')),
+          segments: [
+            ButtonSegment(
+              value: _StartBy.date,
+              label: Text(l.restoreStartByDate),
+            ),
+            ButtonSegment(
+              value: _StartBy.height,
+              label: Text(l.restoreStartByHeight),
+            ),
           ],
           selected: {_startBy},
           onSelectionChanged: (s) => setState(() => _startBy = s.first),
@@ -265,16 +263,15 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
           controller: _startHeight,
           keyboardType: TextInputType.number,
           inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-          decoration: const InputDecoration(
-            labelText: 'Start height (optional)',
-            helperText:
-                'Scan from this block. Leave empty to scan the whole chain.',
-            border: OutlineInputBorder(),
+          decoration: InputDecoration(
+            labelText: l.restoreStartHeightLabel,
+            helperText: l.restoreStartHeightHelper,
+            border: const OutlineInputBorder(),
           ),
         ),
       const SizedBox(height: 16),
       if (_error != null) ErrorText(_error!),
-      BusyButton(label: 'Continue', onPressed: _checkPhrase),
+      BusyButton(label: l.commonContinue, onPressed: _checkPhrase),
     ];
   }
 
@@ -284,30 +281,25 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
 
   List<Widget> _importOffer() {
     final theme = Theme.of(context);
+    final l = context.l10n;
     return [
       Icon(
         Icons.check_circle,
         size: 48,
         color: theme.colorScheme.primary,
-        semanticLabel: 'Done',
+        semanticLabel: l.restoreDoneIconLabel,
       ),
       const SizedBox(height: 16),
       Text(
-        'Your wallet is restored',
+        l.restoreDoneTitle,
         style: theme.textTheme.titleMedium,
         textAlign: TextAlign.center,
       ),
       const SizedBox(height: 8),
-      const Text(
-        'The chain holds your balance, but not who you paid, fees or notes. '
-        'If you exported a history backup from this wallet, import it now to '
-        'get them back. It is the .wfeh file you shared or saved outside your '
-        'old phone.',
-        textAlign: TextAlign.center,
-      ),
+      Text(l.restoreImportExplanation, textAlign: TextAlign.center),
       const SizedBox(height: 24),
       BusyButton(
-        label: 'Import a history backup',
+        label: l.restoreImportButton,
         onPressed: () async {
           final imported = await importHistoryBackup(context, ref);
           if (imported && mounted) goHome(context);
@@ -317,32 +309,29 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
       OutlinedButton(
         style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
         onPressed: () => goHome(context),
-        child: const Text('Not now'),
+        child: Text(l.restoreImportNotNow),
       ),
       const SizedBox(height: 8),
-      const Text(
-        'You can import one later from Settings.',
-        textAlign: TextAlign.center,
-      ),
+      Text(l.restoreImportLater, textAlign: TextAlign.center),
     ];
   }
 
   List<Widget> _scanView(BuildContext context) {
+    final l = context.l10n;
     final scan = ref.watch(scanProvider);
     return [
-      Text(
-        'Looking for your funds on the blockchain. Keep the app open until '
-        'this finishes.',
-        style: Theme.of(context).textTheme.titleMedium,
-      ),
+      Text(l.restoreScanIntro, style: Theme.of(context).textTheme.titleMedium),
       const SizedBox(height: 16),
       ScanProgressView(scan: scan),
       if (_error != null) ErrorText(_error!),
       if (!scan.running) ...[
         const SizedBox(height: 16),
-        BusyButton(label: 'Open wallet', onPressed: () => goHome(context)),
+        BusyButton(
+          label: l.restoreOpenWallet,
+          onPressed: () => goHome(context),
+        ),
         const SizedBox(height: 8),
-        const Text('You can run a full rescan later from Settings.'),
+        Text(l.restoreRescanLater),
       ],
     ];
   }
@@ -362,13 +351,14 @@ class _DateChoice extends StatelessWidget {
       initialDate: date ?? now,
       firstDate: mainnetFirstDay,
       lastDate: now,
-      helpText: 'When did you create the wallet?',
+      helpText: context.l10n.restoreDatePickerTitle,
     );
     if (picked != null) onChanged(picked);
   }
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     final chosen = date;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -380,19 +370,18 @@ class _DateChoice extends StatelessWidget {
           icon: const Icon(Icons.calendar_today),
           label: Text(
             chosen == null
-                ? 'Pick the date you created the wallet'
-                : 'From ${formatDay(chosen)}',
+                ? l.restorePickDate
+                : l.restoreFromDate(localDay(l, chosen)),
           ),
           onPressed: () => _pick(context),
         ),
         const SizedBox(height: 4),
         Text(
           chosen == null
-              ? 'Optional. If you are not sure, pick an earlier date. A date '
-                    'after your first payment misses funds. Without a date '
-                    'the whole chain is scanned, which takes longer.'
-              : 'Scanning starts two days before this date, from block '
-                    '${groupDigits(mainnetHeightForDate(chosen))}.',
+              ? l.restoreDateHint
+              : l.restoreDateStart(
+                  groupDigits(l, mainnetHeightForDate(chosen)),
+                ),
           style: Theme.of(context).textTheme.bodySmall,
         ),
         if (chosen != null)
@@ -400,7 +389,7 @@ class _DateChoice extends StatelessWidget {
             alignment: Alignment.centerLeft,
             child: TextButton(
               onPressed: () => onChanged(null),
-              child: const Text('Scan the whole chain instead'),
+              child: Text(l.restoreWholeChain),
             ),
           ),
       ],
@@ -408,7 +397,17 @@ class _DateChoice extends StatelessWidget {
   }
 }
 
-/// Progress bar and latest message of a scan, or its error.
+/// The words for a scan's progress: starting, a percentage, or complete. Null when no scan
+/// has run, or the last one failed (the error says so instead).
+String? _scanLine(AppLocalizations l, ScanState scan) {
+  final percent = scan.percent;
+  if (scan.running) {
+    return percent == null ? l.scanStarting : l.scanProgress(percent);
+  }
+  return scan.done ? l.scanComplete : null;
+}
+
+/// Progress bar and progress line of a scan, or its error.
 class ScanProgressView extends StatelessWidget {
   const ScanProgressView({super.key, required this.scan});
 
@@ -416,34 +415,29 @@ class ScanProgressView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     final percent = scan.percent;
+    final line = _scanLine(l, scan);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         if (scan.running)
           LinearProgressIndicator(
             value: percent == null ? null : percent / 100,
-            semanticsLabel: 'Scan progress',
+            semanticsLabel: l.restoreScanProgressLabel,
             // A number: Flutter asserts that a progress bar's semantic value parses as one.
             semanticsValue: percent == null ? null : '$percent',
           ),
-        if (scan.message != null)
-          Padding(
-            padding: const EdgeInsets.only(top: 8),
-            child: Text(
-              percent == null || !scan.running
-                  ? scan.message!
-                  : '${scan.message} ($percent%)',
-            ),
-          ),
-        if (scan.error != null) ErrorText(scan.error!),
+        if (line != null)
+          Padding(padding: const EdgeInsets.only(top: 8), child: Text(line)),
+        if (scan.error != null) ErrorText(describeError(l, scan.error!)),
       ],
     );
   }
 }
 
-/// A running scan in one line for a notice slot: a thin bar along the top and the latest
-/// message with its percentage.
+/// A running scan in one line for a notice slot: a thin bar along the top and the progress
+/// line with its percentage.
 class ScanSlotLine extends StatelessWidget {
   const ScanSlotLine({super.key, required this.scan});
 
@@ -451,25 +445,26 @@ class ScanSlotLine extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     final percent = scan.percent;
-    final message = scan.message;
+    final line = _scanLine(l, scan);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         LinearProgressIndicator(
           minHeight: 2,
           value: percent == null ? null : percent / 100,
-          semanticsLabel: 'Scan progress',
+          semanticsLabel: l.restoreScanProgressLabel,
           semanticsValue: percent == null ? null : '$percent',
         ),
-        if (message != null)
+        if (line != null)
           Expanded(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
-                  percent == null ? message : '$message ($percent%)',
+                  line,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: Theme.of(context).textTheme.bodySmall,

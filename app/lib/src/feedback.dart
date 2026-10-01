@@ -14,6 +14,7 @@ import 'dart:typed_data';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'app_log.dart';
+import 'l10n.dart';
 import 'redact.dart';
 import 'slate_files.dart';
 
@@ -133,10 +134,12 @@ String feedbackFileName(DateTime at) {
       '-${two(at.hour)}${two(at.minute)}.txt';
 }
 
-/// A report the server did not take.
+/// A report the server did not take. [text] words the reason for the screen; [message] is the
+/// English, for logs.
 class FeedbackSendError implements Exception {
-  const FeedbackSendError(this.message);
+  FeedbackSendError(this.text) : message = text(englishStrings);
 
+  final String Function(AppLocalizations l) text;
   final String message;
 
   @override
@@ -148,8 +151,13 @@ abstract interface class FeedbackOutlet {
   /// Whether [share] works here.
   bool get canShare;
 
-  /// Saves the report where the user picks. False if they cancelled.
-  Future<bool> save({required String name, required String report});
+  /// Saves the report where the user picks, in a dialog titled [dialogTitle] where the
+  /// platform shows one. False if they cancelled.
+  Future<bool> save({
+    required String name,
+    required String report,
+    required String dialogTitle,
+  });
 
   /// Hands the report to another app as a file. False if dismissed.
   Future<bool> share({required String name, required String report});
@@ -167,12 +175,15 @@ class PlatformFeedbackOutlet implements FeedbackOutlet {
   bool get canShare => canShareFiles;
 
   @override
-  Future<bool> save({required String name, required String report}) =>
-      saveBytesToDevice(
-        name: name,
-        bytes: Uint8List.fromList(utf8.encode(report)),
-        dialogTitle: 'Save feedback',
-      );
+  Future<bool> save({
+    required String name,
+    required String report,
+    required String dialogTitle,
+  }) => saveBytesToDevice(
+    name: name,
+    bytes: Uint8List.fromList(utf8.encode(report)),
+    dialogTitle: dialogTitle,
+  );
 
   @override
   Future<bool> share({required String name, required String report}) =>
@@ -192,16 +203,15 @@ class PlatformFeedbackOutlet implements FeedbackOutlet {
       final response = await request.close().timeout(timeout);
       await response.drain<void>();
       if (response.statusCode < 200 || response.statusCode >= 300) {
-        throw FeedbackSendError(
-          'The feedback server answered ${response.statusCode}.',
-        );
+        final status = response.statusCode;
+        throw FeedbackSendError((l) => l.feedbackServerAnswered(status));
       }
     } on FeedbackSendError {
       rethrow;
     } on TimeoutException {
-      throw const FeedbackSendError('The feedback server did not answer.');
+      throw FeedbackSendError((l) => l.feedbackServerNoAnswer);
     } on IOException {
-      throw const FeedbackSendError('Could not reach the feedback server.');
+      throw FeedbackSendError((l) => l.feedbackServerUnreachable);
     } finally {
       client.close(force: true);
     }
@@ -221,7 +231,11 @@ class FakeFeedbackOutlet implements FeedbackOutlet {
   bool canShare = true;
 
   @override
-  Future<bool> save({required String name, required String report}) async {
+  Future<bool> save({
+    required String name,
+    required String report,
+    required String dialogTitle,
+  }) async {
     saved.add((name: name, report: report));
     return true;
   }

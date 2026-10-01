@@ -625,7 +625,7 @@ void main() {
       await _tapText(tester, 'Rescan');
       await tester.pageBack();
       await tester.pumpAndSettle();
-      expect(find.text('Scan failed: node unreachable'), findsOneWidget);
+      expect(find.text('The scan failed. node unreachable'), findsOneWidget);
       expect(find.byType(ErrorText), findsWidgets);
     });
 

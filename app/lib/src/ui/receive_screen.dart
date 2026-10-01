@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pretty_qr_code/pretty_qr_code.dart';
 
 import '../errors.dart';
+import '../l10n.dart';
 import '../providers.dart';
 import '../settings.dart';
 import '../slate_files.dart';
@@ -40,7 +41,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
     final session = ref.read(sessionProvider);
     if (session == null) return;
     if (json.isEmpty) {
-      setState(() => _error = 'Paste the transaction text you received.');
+      setState(() => _error = context.l10n.receivePasteFirst);
       return;
     }
     // Captured now: after the await the screen may be gone, and home must still refresh.
@@ -54,7 +55,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
       container.invalidate(homeProvider);
       if (mounted) setState(() => _response = response);
     } catch (error) {
-      if (mounted) setState(() => _error = describeError(error));
+      if (mounted) setState(() => _error = describeError(context.l10n, error));
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -70,15 +71,16 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     final address = ref.watch(addressProvider);
     return SlotScaffold(
       centered: true,
       appBar: AppBar(
-        title: const Text('Receive'),
+        title: Text(l.receiveTitle),
         actions: [
           const _ConnectionDot(),
           IconButton(
-            tooltip: 'Help',
+            tooltip: l.receiveHelpTooltip,
             icon: const Icon(Icons.help_outline),
             onPressed: () => openHelp(context, HelpTopic.receiving),
           ),
@@ -88,48 +90,42 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
         children: [
           switch (address) {
             AsyncData(:final value) => _AddressCard(address: value),
-            AsyncError(:final error) => ErrorText(describeError(error)),
+            AsyncError(:final error) => ErrorText(describeError(l, error)),
             _ => const LinearProgressIndicator(),
           },
           const SizedBox(height: 24),
           ExpansionTile(
             tilePadding: EdgeInsets.zero,
-            title: const Text('Receive a transaction file'),
+            title: Text(l.receiveFileSection),
             childrenPadding: const EdgeInsets.only(bottom: 16),
-            children: _fileSection(),
+            children: _fileSection(l),
           ),
         ],
       ),
     );
   }
 
-  List<Widget> _fileSection() {
+  List<Widget> _fileSection(AppLocalizations l) {
     final response = _response;
     return [
       BusyButton(
-        label: 'Open transaction file',
+        label: l.receiveOpenFile,
         onPressed: () => openSlateFile(context, ref),
       ),
       const SizedBox(height: 8),
       ExpansionTile(
         tilePadding: EdgeInsets.zero,
-        title: const Text('Paste the transaction text instead'),
+        title: Text(l.receivePasteSection),
         children: [
           if (response == null) ...[
-            SlateInput(controller: _incoming, label: 'Transaction text'),
+            SlateInput(controller: _incoming, label: l.receiveSlateLabel),
             const SizedBox(height: 16),
             if (_error != null) ErrorText(_error!),
-            BusyButton(label: 'Accept payment', busy: _busy, onPressed: _sign),
+            BusyButton(label: l.receiveAccept, busy: _busy, onPressed: _sign),
           ] else ...[
-            SlateBox(
-              title: 'Return this response to the sender',
-              json: response.json,
-            ),
+            SlateBox(title: l.receiveResponseTitle, json: response.json),
             const SizedBox(height: 16),
-            OutlinedButton(
-              onPressed: _reset,
-              child: const Text('Receive another payment'),
-            ),
+            OutlinedButton(onPressed: _reset, child: Text(l.receiveAnother)),
           ],
         ],
       ),
@@ -147,6 +143,7 @@ class _AddressCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final files = ref.watch(slateFilesProvider);
     final theme = Theme.of(context);
+    final l = context.l10n;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -156,7 +153,7 @@ class _AddressCard extends ConsumerWidget {
             color: Colors.white,
             padding: const EdgeInsets.all(16),
             child: Semantics(
-              label: 'QR code of your address',
+              label: l.receiveQrLabel,
               image: true,
               child: SizedBox.square(
                 dimension: 260,
@@ -179,9 +176,10 @@ class _AddressCard extends ConsumerWidget {
                 style: FilledButton.styleFrom(
                   minimumSize: const Size.fromHeight(48),
                 ),
-                onPressed: () => copyText(context, address, 'Address'),
+                onPressed: () =>
+                    copyText(context, address, l.receiveAddressCopied),
                 icon: const Icon(Icons.copy),
-                label: const Text('Copy'),
+                label: Text(l.commonCopy),
               ),
             ),
             if (files.canShareText) ...[
@@ -195,7 +193,7 @@ class _AddressCard extends ConsumerWidget {
                       .read(autoLockHoldProvider.notifier)
                       .during(() => files.shareText(address)),
                   icon: const Icon(Icons.share),
-                  label: const Text('Share'),
+                  label: Text(l.commonShare),
                 ),
               ),
             ],
@@ -215,11 +213,12 @@ class _ConnectionDot extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final listener = ref.watch(listenerProvider);
     final colors = Theme.of(context).colorScheme;
+    final l = context.l10n;
     final (label, color, filled) = listener.connected
-        ? ('Epicbox connected', colors.primary, true)
+        ? (l.receiveEpicboxConnected, colors.primary, true)
         : listener.lost
-        ? ('Epicbox offline', colors.error, true)
-        : ('Connecting to epicbox', colors.outline, false);
+        ? (l.receiveEpicboxOffline, colors.error, true)
+        : (l.receiveEpicboxConnecting, colors.outline, false);
     return Tooltip(
       message: label,
       child: Semantics(

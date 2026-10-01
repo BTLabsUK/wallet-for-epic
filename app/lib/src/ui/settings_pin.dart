@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../errors.dart';
+import '../l10n.dart';
 import '../providers.dart';
 import '../vault.dart';
 import 'centered_body.dart';
@@ -43,9 +44,13 @@ class _ChangePinScreenState extends ConsumerState<ChangePinScreen> {
       await ref.read(vaultProvider).unlockWithPin(config.chain, pin);
       if (mounted) setState(() => _currentPin = pin);
     } on PinRejected catch (rejection) {
-      if (mounted) setState(() => _pinError = describePinRejection(rejection));
+      if (mounted) {
+        setState(
+          () => _pinError = describePinRejection(context.l10n, rejection),
+        );
+      }
     } catch (error) {
-      if (mounted) setState(() => _error = describeError(error));
+      if (mounted) setState(() => _error = describeError(context.l10n, error));
     } finally {
       _current.clear();
       if (mounted) setState(() => _busy = false);
@@ -65,20 +70,20 @@ class _ChangePinScreenState extends ConsumerState<ChangePinScreen> {
           .read(vaultProvider)
           .changePin(config.chain, currentPin: currentPin, newPin: newPin);
       if (!mounted) return;
-      ref.read(noticeProvider.notifier).show('PIN changed');
+      ref.read(noticeProvider.notifier).show(context.l10n.settingsPinChanged);
       Navigator.pop(context, true);
     } on PinRejected catch (rejection) {
       if (mounted) {
         setState(() {
           _currentPin = null;
-          _pinError = describePinRejection(rejection);
+          _pinError = describePinRejection(context.l10n, rejection);
         });
       }
     } catch (error) {
       if (mounted) {
         setState(() {
           _currentPin = null;
-          _error = describeError(error);
+          _error = describeError(context.l10n, error);
         });
       }
     } finally {
@@ -88,21 +93,22 @@ class _ChangePinScreenState extends ConsumerState<ChangePinScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     return SlotScaffold(
       centered: true,
-      appBar: AppBar(title: const Text('Change PIN')),
+      appBar: AppBar(title: Text(l.settingsPinTitle)),
       body: CenteredBody(
         children: [
           if (_currentPin == null) ...[
             Text(
-              'Enter your current PIN',
+              l.settingsPinEnterCurrent,
               style: Theme.of(context).textTheme.titleMedium,
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),
             PinField(
               controller: _current,
-              label: 'Current PIN',
+              label: l.settingsPinCurrentLabel,
               enabled: !_busy,
               errorText: _pinError,
               onCompleted: _checkCurrent,
@@ -112,7 +118,7 @@ class _ChangePinScreenState extends ConsumerState<ChangePinScreen> {
           else
             PinSetupView(
               askBiometrics: false,
-              chooseTitle: 'Choose a new $pinLength-digit PIN',
+              chooseTitle: l.settingsPinChooseNew(pinLength),
               onDone: _change,
             ),
           if (_busy && _currentPin == null) const LinearProgressIndicator(),

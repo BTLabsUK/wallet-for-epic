@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../errors.dart';
+import '../l10n.dart';
 import '../providers.dart';
 import '../secure_screen.dart';
 import 'common.dart';
@@ -40,9 +41,10 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
   }
 
   Future<void> _load() async {
+    final l = context.l10n;
     final password = await askWalletPassword(
       context,
-      reason: 'Enter your PIN to show the recovery phrase.',
+      reason: l.backupPinReason,
     );
     if (!mounted) return;
     if (password == null) {
@@ -56,7 +58,7 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
       if (!mounted) return;
       setState(() => _words = phrase.split(' '));
     } catch (error) {
-      if (mounted) setState(() => _error = describeError(error));
+      if (mounted) setState(() => _error = describeError(l, error));
     }
   }
 
@@ -72,7 +74,7 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
   @override
   Widget build(BuildContext context) {
     return SlotScaffold(
-      appBar: AppBar(title: const Text('Recovery phrase')),
+      appBar: AppBar(title: Text(context.l10n.backupTitle)),
       body: ScreenBody(
         children: _words.isEmpty
             ? [
@@ -88,6 +90,7 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
 
   List<Widget> _phrase(BuildContext context) {
     final theme = Theme.of(context);
+    final l = context.l10n;
     return [
       Card(
         color: theme.colorScheme.errorContainer,
@@ -99,14 +102,12 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
               Icon(
                 Icons.warning_amber,
                 color: theme.colorScheme.onErrorContainer,
-                semanticLabel: 'Warning',
+                semanticLabel: l.backupWarningIconLabel,
               ),
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
-                  'Write these ${_words.length} words on paper, in order, and '
-                  'keep them private. They are the only way to restore this '
-                  'wallet.',
+                  l.backupWriteDown(_words.length),
                   style: TextStyle(color: theme.colorScheme.onErrorContainer),
                 ),
               ),
@@ -124,9 +125,10 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
             spacing: 8,
             runSpacing: 8,
             children: [
+              // The words are BIP39 English in every language: never translated.
               for (var i = 0; i < _words.length; i++)
                 Semantics(
-                  label: 'Word ${i + 1}: ${_words[i]}',
+                  label: l.backupWordSpoken(i + 1, _words[i]),
                   excludeSemantics: true,
                   child: Container(
                     width: width,
@@ -154,7 +156,7 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
         },
       ),
       const SizedBox(height: 24),
-      BusyButton(label: 'Done', onPressed: _done),
+      BusyButton(label: l.commonDone, onPressed: _done),
     ];
   }
 }

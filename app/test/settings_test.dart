@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:epic_wallet/src/app.dart';
+import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/price.dart';
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/push.dart';
@@ -285,16 +286,20 @@ void main() {
       await _tapText(tester, 'I already have a wallet: restore it');
       await _enter(tester, 'Recovery phrase', h.service.phrase);
       await _tapText(tester, 'Pick the date you created the wallet');
-      // The picker opens on today; pick the 1st of this month.
+      // The picker opens on today (the real clock); pick the 1st of this month.
       await tester.tap(find.text('1'));
       await tester.tap(find.text('OK'));
       await tester.pumpAndSettle();
-      expect(find.text('From 1 Sep 2026'), findsOneWidget);
+      final today = DateTime.now();
+      final dayStart = DateTime(today.year, today.month);
+      expect(
+        find.text('From ${localDay(englishStrings, dayStart)}'),
+        findsOneWidget,
+      );
       await _tapText(tester, 'Continue');
       await _enter(tester, 'PIN', _pin);
       await _enter(tester, 'Repeat PIN', _pin);
 
-      final dayStart = DateTime(2026, 9, 1);
       expect(h.session.lastStart, mainnetHeightForDate(dayStart));
       expect(find.text('Your wallet is restored'), findsOneWidget);
       expect(
@@ -323,6 +328,28 @@ void main() {
       await _tapText(tester, 'Light');
       expect(app().themeMode, ThemeMode.light);
       expect(h.store.values['app.theme'], 'light');
+    });
+  });
+
+  group('language', () {
+    testWidgets('follows the system until one is picked by its own name', (
+      tester,
+    ) async {
+      final h = _Harness();
+      await h.pump(tester);
+      MaterialApp app() => tester.widget(find.byType(MaterialApp));
+      expect(app().locale, isNull);
+      await h.unlock(tester);
+      await h.openSettings(tester);
+      expect(find.text('System default'), findsOneWidget);
+      await _tapText(tester, 'Language');
+      for (final language in appLanguages) {
+        expect(find.text(language.name), findsOneWidget);
+      }
+      await _tapText(tester, 'Deutsch');
+      expect(h.store.values['app.language'], 'de');
+      expect(h.container.read(appSettingsProvider).value?.language, 'de');
+      expect(app().locale, const Locale('de'));
     });
   });
 
@@ -581,6 +608,7 @@ void main() {
     test('describes the import counts in words', () {
       expect(
         describeImport(
+          englishStrings,
           const ImportReport(merged: 2, added: 1, skipped: 0, contactsAdded: 1),
         ),
         '2 payments got their details back, '
@@ -588,12 +616,14 @@ void main() {
       );
       expect(
         describeImport(
+          englishStrings,
           const ImportReport(merged: 0, added: 0, skipped: 3, contactsAdded: 0),
         ),
         '3 records were already here.',
       );
       expect(
         describeImport(
+          englishStrings,
           const ImportReport(merged: 0, added: 0, skipped: 0, contactsAdded: 0),
         ),
         'The backup held nothing new.',
@@ -641,7 +671,10 @@ void main() {
       );
       await tester.tap(tile);
       await tester.pump(const Duration(milliseconds: 300));
-      expect(find.text(deleteDuringScanMessage), findsOneWidget);
+      expect(
+        find.text(englishStrings.settingsDeleteDuringScan),
+        findsOneWidget,
+      );
       expect(find.byType(DeleteWalletDialog), findsNothing);
       expect(h.service.deletedWallets, isEmpty);
       await h.session.controller!.close();
@@ -658,11 +691,11 @@ void main() {
       await h.unlock(tester);
       expect(h.push.starts, 0);
       await h.openSettings(tester);
-      expect(find.text(pushNotificationsHint), findsOneWidget);
+      expect(find.text(englishStrings.settingsPushHint), findsOneWidget);
       await _tapText(tester, 'Payment notifications');
       expect(h.push.starts, 1);
       expect(h.store.values['app.push'], 'true');
-      expect(find.text(pushNotificationsOnMessage), findsOneWidget);
+      expect(find.text(englishStrings.settingsPushOnNotice), findsOneWidget);
       await _tapText(tester, 'Payment notifications');
       expect(h.store.values['app.push'], 'false');
       expect(
@@ -680,11 +713,11 @@ void main() {
       await h.pump(tester);
       await h.unlock(tester);
       await h.openSettings(tester);
-      expect(find.text(pushBlockedMessage), findsNothing);
+      expect(find.text(englishStrings.settingsPushBlocked), findsNothing);
       await _tapText(tester, 'Payment notifications');
       expect(h.push.starts, 1);
       expect(h.store.values['app.push'], 'false');
-      expect(find.text(pushBlockedMessage), findsOneWidget);
+      expect(find.text(englishStrings.settingsPushBlocked), findsOneWidget);
       final toggle = tester.widget<SwitchListTile>(
         find.widgetWithText(SwitchListTile, 'Payment notifications'),
       );
@@ -695,7 +728,7 @@ void main() {
       await _tapText(tester, 'Payment notifications');
       expect(h.push.starts, 2);
       expect(h.store.values['app.push'], 'true');
-      expect(find.text(pushBlockedMessage), findsNothing);
+      expect(find.text(englishStrings.settingsPushBlocked), findsNothing);
     });
 
     testWidgets('turn back off and say so when Firebase fails to start', (
@@ -709,8 +742,8 @@ void main() {
       await _tapText(tester, 'Payment notifications');
       expect(h.push.starts, 1);
       expect(h.store.values['app.push'], 'false');
-      expect(find.text(pushUnavailableMessage), findsOneWidget);
-      expect(find.text(pushBlockedMessage), findsNothing);
+      expect(find.text(englishStrings.settingsPushUnavailable), findsOneWidget);
+      expect(find.text(englishStrings.settingsPushBlocked), findsNothing);
     });
 
     testWidgets('turn off at launch when Firebase fails to start', (
@@ -764,12 +797,12 @@ void main() {
       await h.pump(tester);
       await h.unlock(tester);
       await h.openSettings(tester);
-      expect(find.text(pricesOnMessage), findsNothing);
+      expect(find.text(englishStrings.settingsPricesOnNotice), findsNothing);
       await _tapText(tester, 'Show prices');
       expect(h.store.values['app.show_fiat'], 'false');
-      expect(find.text(pricesOnMessage), findsNothing);
+      expect(find.text(englishStrings.settingsPricesOnNotice), findsNothing);
       await _tapText(tester, 'Show prices');
-      expect(find.text(pricesOnMessage), findsOneWidget);
+      expect(find.text(englishStrings.settingsPricesOnNotice), findsOneWidget);
     });
 
     testWidgets('lists settings without explanations', (tester) async {

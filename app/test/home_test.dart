@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:epic_wallet/src/network.dart';
 import 'package:epic_wallet/src/amount.dart';
+import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/price.dart';
 import 'package:epic_wallet/src/push.dart';
 import 'package:epic_wallet/src/providers.dart';
@@ -24,6 +25,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 BigInt _epic(num value) => BigInt.from((value * 100000000).round());
 
@@ -302,6 +304,8 @@ class _Harness {
           walletConfigProvider.overrideWith(() => _Config(config)),
         ],
         child: MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
           home: home,
           builder: (context, child) => MediaQuery(
             data: MediaQuery.of(context)
@@ -323,9 +327,12 @@ Future<void> _tap(WidgetTester tester, Finder finder) async {
 }
 
 void main() {
+  // Unit tests below call the date helpers outside a widget tree, where no MaterialApp has
+  // loaded the locale data.
+  setUpAll(initializeDateFormatting);
   group('status words', () {
     test('name who or what the transaction waits for', () {
-      String label(TxEntry tx) => txStatusLabel(tx, _tip);
+      String label(TxEntry tx) => txStatusLabel(englishStrings, tx, _tip);
       expect(
         label(fakeTx(kind: TxKind.sent, status: TxStatus.awaitingRecipient)),
         'Waiting for recipient',
@@ -358,9 +365,16 @@ void main() {
     });
 
     test('one title style: contact, else short address, else the kind', () {
-      expect(txTitle(fakeTx(kind: TxKind.coinbase)), 'Mining reward');
       expect(
-        txTitle(fakeTx(source: TxSource.restored), contactName: 'Bob'),
+        txTitle(englishStrings, fakeTx(kind: TxKind.coinbase)),
+        'Mining reward',
+      );
+      expect(
+        txTitle(
+          englishStrings,
+          fakeTx(source: TxSource.restored),
+          contactName: 'Bob',
+        ),
         'Restored funds',
       );
       // The status never changes the title: pending, completed and cancelled read alike.
@@ -370,16 +384,25 @@ void main() {
           status: status,
           counterparty: _bob,
         );
-        expect(txTitle(tx, contactName: 'Bob'), 'Bob');
-        expect(txTitle(tx), 'esBobA…567890@epicbox.epiccash.com');
+        expect(txTitle(englishStrings, tx, contactName: 'Bob'), 'Bob');
         expect(
-          txTitle(fakeTx(kind: TxKind.sent, status: status)),
+          txTitle(englishStrings, tx),
+          'esBobA…567890@epicbox.epiccash.com',
+        );
+        expect(
+          txTitle(englishStrings, fakeTx(kind: TxKind.sent, status: status)),
           'Outgoing payment',
         );
-        expect(txTitle(fakeTx(status: status)), 'Incoming payment');
+        expect(
+          txTitle(englishStrings, fakeTx(status: status)),
+          'Incoming payment',
+        );
       }
       expect(
-        txTitle(fakeTx(counterparty: 'http://203.0.113.5:3415')),
+        txTitle(
+          englishStrings,
+          fakeTx(counterparty: 'http://203.0.113.5:3415'),
+        ),
         'http://203.0.113.5:3415',
       );
     });
@@ -390,18 +413,24 @@ void main() {
         status: TxStatus.confirmed,
         counterparty: _bob,
       );
-      expect(txHeading(send), 'Outgoing payment');
-      expect(txHeading(send, contactName: 'Bob'), 'Bob');
+      expect(txHeading(englishStrings, send), 'Outgoing payment');
+      expect(txHeading(englishStrings, send, contactName: 'Bob'), 'Bob');
       expect(
-        txHeading(fakeTx(source: TxSource.imported, counterparty: _bob)),
+        txHeading(
+          englishStrings,
+          fakeTx(source: TxSource.imported, counterparty: _bob),
+        ),
         'Incoming payment',
       );
-      expect(txHeading(fakeTx(kind: TxKind.coinbase)), 'Mining reward');
+      expect(
+        txHeading(englishStrings, fakeTx(kind: TxKind.coinbase)),
+        'Mining reward',
+      );
     });
 
     test('EPIC amounts group thousands for display, not for fields', () {
-      expect(epicText(_epic(1234.5678)), '1,234.5678 EPIC');
-      expect(epicText(_epic(-1234567)), '-1,234,567 EPIC');
+      expect(epicText(englishStrings, _epic(1234.5678)), '1,234.5678 EPIC');
+      expect(epicText(englishStrings, _epic(-1234567)), '-1,234,567 EPIC');
       expect(formatEpic(_epic(1234.5)), '1234.5');
       expect(
         matchesQuery(fakeTx(amountCredited: _epic(1234.5)), '1,234'),
@@ -416,10 +445,16 @@ void main() {
         source: TxSource.imported,
       );
       expect(isPending(tx), isFalse);
-      expect(txStatusLabel(tx, _tip), 'From backup, status unknown');
+      expect(
+        txStatusLabel(englishStrings, tx, _tip),
+        'From backup, status unknown',
+      );
       expect(matchesFilter(tx, HistoryFilter.pending), isFalse);
       expect(matchesFilter(tx, HistoryFilter.sent), isTrue);
-      expect(txExplanation(tx, _tip), contains('Nothing is locked'));
+      expect(
+        txExplanation(englishStrings, tx, _tip),
+        contains('Nothing is locked'),
+      );
     });
 
     test('the expiry line counts down to the TTL height', () {
@@ -429,13 +464,17 @@ void main() {
         ttlCutoffHeight: _tip + BigInt.from(120),
       );
       expect(
-        ttlLine(tx, _tip),
+        ttlLine(englishStrings, tx, _tip),
         'Cancels automatically if not completed by block 2,500,120 '
         '(in about 2 hours).',
       );
-      expect(ttlLine(tx, _tip + BigInt.from(200)), startsWith('Expired'));
+      expect(
+        ttlLine(englishStrings, tx, _tip + BigInt.from(200)),
+        startsWith('Expired'),
+      );
       expect(
         ttlLine(
+          englishStrings,
           fakeTx(status: TxStatus.confirmed, ttlCutoffHeight: _tip),
           _tip,
         ),
@@ -480,7 +519,7 @@ void main() {
 
   group('history', () {
     test('pending on top, then days: today, yesterday, a date', () {
-      final sections = groupHistory(_transactions(), _now);
+      final sections = groupHistory(englishStrings, _transactions(), _now);
       expect(sections.map((s) => s.title), [
         'Pending',
         'Yesterday',
@@ -840,10 +879,11 @@ void main() {
         'http://203.0.113.5:3415',
       );
       final tx = fakeTx(kind: TxKind.sent, counterparty: _bob);
-      expect(txTitle(tx, ownServer: own), 'esBobA…567890');
+      expect(txTitle(englishStrings, tx, ownServer: own), 'esBobA…567890');
       final bob = fakeTx(counterparty: _bob);
       expect(
         paymentNotice(
+          englishStrings,
           const ListenerEvent(
             kind: ListenerEventKind.finalized,
             slateId: 'x',
@@ -882,11 +922,12 @@ void main() {
       final tx = fakeTx(amountCredited: _epic(1.5), counterparty: _bob);
       // The listener only accepted it: the sender still has to finish.
       expect(
-        paymentNotice(received, tx),
+        paymentNotice(englishStrings, received, tx),
         '1.5 EPIC on the way. It completes when the sender finishes.',
       );
       expect(
         paymentNotice(
+          englishStrings,
           ListenerEvent(
             kind: ListenerEventKind.received,
             message: 'raw',
@@ -898,27 +939,28 @@ void main() {
         '2 EPIC from Alice on the way. It completes when the sender finishes.',
       );
       expect(
-        paymentNotice(received, null),
+        paymentNotice(englishStrings, received, null),
         'A payment is on the way. It completes when the sender finishes.',
       );
       expect(
-        paymentNotice(received, tx, hidden: true),
+        paymentNotice(englishStrings, received, tx, hidden: true),
         'A payment is on the way. It completes when the sender finishes.',
       );
       expect(
-        paymentNotice(finalized, tx),
+        paymentNotice(englishStrings, finalized, tx),
         'Payment to esBobA…567890@epicbox.epiccash.com finished. Waiting for confirmations.',
       );
       expect(
-        paymentNotice(finalized, tx, contactName: 'Bob'),
+        paymentNotice(englishStrings, finalized, tx, contactName: 'Bob'),
         'Payment to Bob finished. Waiting for confirmations.',
       );
       expect(
-        paymentNotice(finalized, null),
+        paymentNotice(englishStrings, finalized, null),
         'Payment finished. Waiting for confirmations.',
       );
       expect(
         paymentNotice(
+          englishStrings,
           const ListenerEvent(
             kind: ListenerEventKind.error,
             message: 'relay error: Unauthorized x',
@@ -1390,7 +1432,7 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      expect(find.text(pushNotice), findsNothing);
+      expect(find.text(englishStrings.homePushNotice), findsNothing);
       expect(find.text('Transaction waiting on relay'), findsNothing);
       expect(find.byKey(noticeKey), findsOneWidget);
       expect(find.textContaining('5 EPIC on the way'), findsOneWidget);
@@ -1412,7 +1454,7 @@ void main() {
       await h.startPush(tester);
       h.push.foregroundMessages.add(push);
       await tester.pumpAndSettle();
-      expect(find.text(pushNotice), findsOneWidget);
+      expect(find.text(englishStrings.homePushNotice), findsOneWidget);
       expect(find.text('Transaction waiting on relay'), findsNothing);
     });
 
@@ -1446,7 +1488,12 @@ void main() {
             ttlCutoffHeight: ttl,
           );
       expect(
-        txExplanation(send(age: const Duration(days: 16)), _tip, now: _now),
+        txExplanation(
+          englishStrings,
+          send(age: const Duration(days: 16)),
+          _tip,
+          now: _now,
+        ),
         'Waiting for 16 days. The epicbox deletes payments after 7 days, so '
         'this one can no longer complete. Cancel it to unlock your funds, then '
         'send again.',
@@ -1458,7 +1505,7 @@ void main() {
         send(age: const Duration(days: 16), to: null),
       ]) {
         expect(
-          txExplanation(tx, _tip, now: _now),
+          txExplanation(englishStrings, tx, _tip, now: _now),
           isNot(startsWith('Waiting for 16 days')),
         );
       }
@@ -1618,6 +1665,7 @@ void main() {
       );
       expect(
         txSpokenLabel(
+          englishStrings,
           fakeTx(status: TxStatus.confirmed, amountCredited: _epic(10)),
           who: 'Alice',
           date: 'Today, 10:01',
@@ -1628,6 +1676,7 @@ void main() {
       );
       expect(
         txSpokenLabel(
+          englishStrings,
           tx,
           who: null,
           date: 'Today, 10:01',
@@ -1723,6 +1772,7 @@ void main() {
     test('a finished send cancelled by the 14-day limit says to check', () {
       expect(
         txExplanation(
+          englishStrings,
           cancelledSend(finalizedAt: _at(_now), cutoff: _tip - BigInt.one),
           _tip,
         ),
@@ -1732,6 +1782,7 @@ void main() {
       // Released by the user before the limit: it may still have left the device.
       expect(
         txExplanation(
+          englishStrings,
           cancelledSend(finalizedAt: _at(_now), cutoff: _tip + BigInt.one),
           _tip,
         ),
@@ -1739,12 +1790,12 @@ void main() {
       );
       // Unanswered and expired: nothing left the device.
       expect(
-        txExplanation(cancelledSend(cutoff: _tip), _tip),
+        txExplanation(englishStrings, cancelledSend(cutoff: _tip), _tip),
         startsWith('The recipient did not answer within 14 days'),
       );
       // Cancelled by the user.
       expect(
-        txExplanation(cancelledSend(), _tip),
+        txExplanation(englishStrings, cancelledSend(), _tip),
         'Cancelled. Nothing was sent, and the funds are spendable again.',
       );
     });
@@ -1765,15 +1816,17 @@ void main() {
         // The core knows whether the funds are unlocked yet; the notice does not guess.
         expect(
           paymentNotice(
+            englishStrings,
             expired,
             cancelledSend(cutoff: _tip),
             contactName: 'Bob',
           ),
           coreExpired,
         );
-        expect(paymentNotice(expired, null), coreExpired);
+        expect(paymentNotice(englishStrings, expired, null), coreExpired);
         expect(
           paymentNotice(
+            englishStrings,
             const ListenerEvent(
               kind: ListenerEventKind.error,
               slateId: 'late',
@@ -1824,7 +1877,7 @@ void main() {
     );
 
     test('the cancelled explanation follows the recorded reason', () {
-      String say(TxEntry tx) => txExplanation(tx, _tip);
+      String say(TxEntry tx) => txExplanation(englishStrings, tx, _tip);
       expect(
         say(cancelled(CancelReason.user)),
         'Cancelled. Nothing was sent, and the funds are spendable again.',

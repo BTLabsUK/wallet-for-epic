@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../errors.dart';
+import '../l10n.dart';
 import '../providers.dart';
 import '../settings.dart';
 import '../wallet_service.dart';
@@ -28,36 +29,31 @@ String? explorerUrl(Chain chain, TxEntry tx) {
   };
 }
 
-/// `45 minutes`, `5 hours`, `3 days`.
-String roughDuration(int minutes) {
-  if (minutes < 90) return minutes == 1 ? '1 minute' : '$minutes minutes';
+/// The unit a rough duration is said in.
+enum _DurationUnit { minutes, hours, days }
+
+/// [minutes] rounded the way the details screen says it: minutes below 90, else hours below
+/// 48, else days. Each sentence has one message per unit, so every language can inflect both
+/// the number and the words around it.
+({_DurationUnit unit, int count}) _roughDuration(int minutes) {
+  if (minutes < 90) return (unit: _DurationUnit.minutes, count: minutes);
   final hours = (minutes / 60).round();
-  if (hours < 48) return '$hours hours';
-  return '${(hours / 24).round()} days';
+  if (hours < 48) return (unit: _DurationUnit.hours, count: hours);
+  return (unit: _DurationUnit.days, count: (hours / 24).round());
 }
 
 /// Why a cancelled send was cancelled, in the words of the details screen.
-String _cancelledBecause(TxEntry tx, CancelReason reason) => switch (reason) {
-  CancelReason.user =>
-    'Cancelled. Nothing was sent, and the funds are spendable again.',
-  CancelReason.release =>
-    'The network never took it, so its funds were released. Check the '
-        'recipient did not receive it before sending again.',
-  // A finished send that never confirmed may have left this device; an unanswered one did not.
-  CancelReason.expiry when tx.finalizedAtUnix != null =>
-    'It did not reach the network within 14 days, so the wallet cancelled '
-        'it. Check the recipient did not receive it before sending again.',
-  CancelReason.expiry =>
-    'The recipient did not answer within 14 days, so the wallet cancelled '
-        'it. Nothing was sent, and the funds are spendable again.',
-  CancelReason.lateAnswer =>
-    'The recipient answered after the 14-day limit, so the wallet cancelled '
-        'it instead of finishing it. Nothing was sent, and the funds are '
-        'spendable again.',
-  CancelReason.failed =>
-    'It could not be delivered to the recipient, so the wallet cancelled it '
-        'at once. Nothing was sent, and the funds are spendable again.',
-};
+String _cancelledBecause(AppLocalizations l, TxEntry tx, CancelReason reason) =>
+    switch (reason) {
+      CancelReason.user => l.txDetailsCancelledByUser,
+      CancelReason.release => l.txDetailsCancelledReleased,
+      // A finished send that never confirmed may have left this device; an unanswered one did not.
+      CancelReason.expiry when tx.finalizedAtUnix != null =>
+        l.txDetailsCancelledNotOnChain,
+      CancelReason.expiry => l.txDetailsCancelledUnanswered,
+      CancelReason.lateAnswer => l.txDetailsCancelledLateAnswer,
+      CancelReason.failed => l.txDetailsCancelledUndelivered,
+    };
 
 /// Whether the chain has reached the send's expiry height.
 bool _expired(TxEntry tx, BigInt? tip) {
@@ -71,63 +67,66 @@ bool _isEpicboxAddress(String? address) =>
     address.contains('@') &&
     !address.toLowerCase().startsWith('http');
 
+/// `In block 2,500,120. 3 of 10 confirmations; final in about 7 minutes.`
+String _confirmingLine(AppLocalizations l, BigInt height, int n) {
+  final block = groupDigits(l, height);
+  final target = confirmationsTarget;
+  final (:unit, :count) = _roughDuration((target - n) * _minutesPerBlock);
+  return switch (unit) {
+    _DurationUnit.minutes => l.txDetailsConfirmingMinutes(
+      block,
+      n,
+      target,
+      count,
+    ),
+    _DurationUnit.hours => l.txDetailsConfirmingHours(block, n, target, count),
+    _DurationUnit.days => l.txDetailsConfirmingDays(block, n, target, count),
+  };
+}
+
 /// What the status means for the user, in a sentence or two. [now] lets an old epicbox send
 /// say that it can no longer complete.
-String txExplanation(TxEntry tx, BigInt? tip, {DateTime? now}) {
+String txExplanation(
+  AppLocalizations l,
+  TxEntry tx,
+  BigInt? tip, {
+  DateTime? now,
+}) {
   final n = txConfirmations(tx, tip);
   final height = tx.blockHeight;
   final outgoing = txAmount(tx).outgoing;
   final tooLong = now == null ? null : daysWaitingTooLong(tx, now);
   return switch (txPhase(tx, tip)) {
-    TxPhase.waitingRecipient when tooLong != null =>
-      'Waiting for $tooLong days. The epicbox deletes payments after 7 days, '
-          'so this one can no longer complete. Cancel it to unlock your funds, '
-          'then send again.',
+    TxPhase.waitingRecipient when tooLong != null => l.txDetailsWaitingTooLong(
+      tooLong,
+    ),
     TxPhase.waitingRecipient when _isEpicboxAddress(tx.counterparty) =>
-      'Sent to the recipient\'s epicbox. It completes when their wallet comes '
-          'online. Your funds stay locked until then, or until you cancel.',
-    TxPhase.waitingRecipient =>
-      'Waiting for the recipient to answer with their transaction file. Your '
-          'funds stay locked until then, or until you cancel.',
-    TxPhase.waitingSender =>
-      'You accepted this payment. It completes when the sender finishes it '
-          'and publishes it to the network.',
+      l.txDetailsWaitingEpicbox,
+    TxPhase.waitingRecipient => l.txDetailsWaitingRecipient,
+    TxPhase.waitingSender => l.txDetailsWaitingSender,
     TxPhase.confirming when height == null || n == null =>
-      outgoing
-          ? 'Published to the network. Waiting for the first confirmation.'
-          : 'Waiting for the network to confirm it.',
-    TxPhase.confirming =>
-      'In block ${groupDigits(height!)}. $n of $confirmationsTarget '
-          'confirmations; final in about '
-          '${roughDuration((confirmationsTarget - n!) * _minutesPerBlock)}.',
+      outgoing ? l.txDetailsPublished : l.txDetailsWaitingConfirmation,
+    TxPhase.confirming => _confirmingLine(l, height!, n!),
     TxPhase.completed =>
       height == null
-          ? 'Completed.'
-          : 'Completed in block ${groupDigits(height)}.',
+          ? l.txDetailsCompleted
+          : l.txDetailsCompletedInBlock(groupDigits(l, height)),
     TxPhase.cancelled when outgoing && tx.cancelReason != null =>
-      _cancelledBecause(tx, tx.cancelReason!),
+      _cancelledBecause(l, tx, tx.cancelReason!),
     // No recorded reason (cancelled before the wallet kept one): infer it.
     // Finalized but never confirmed, then cancelled: by the 14-day limit, or released by the
     // user after the node refused it. Either way it may have left this device once.
     TxPhase.cancelled
         when outgoing && tx.finalizedAtUnix != null && _expired(tx, tip) =>
-      'It did not reach the network within 14 days, so the wallet cancelled '
-          'it. Check the recipient did not receive it before sending again.',
+      l.txDetailsCancelledNotOnChain,
     TxPhase.cancelled when outgoing && tx.finalizedAtUnix != null =>
-      'The network never took it, so its funds were released. Check the '
-          'recipient did not receive it before sending again.',
+      l.txDetailsCancelledReleased,
     // Unanswered, and cancelled by the 14-day limit rather than by the user.
     TxPhase.cancelled when outgoing && _expired(tx, tip) =>
-      'The recipient did not answer within 14 days, so the wallet cancelled '
-          'it. Nothing was sent, and the funds are spendable again.',
+      l.txDetailsCancelledUnanswered,
     TxPhase.cancelled =>
-      outgoing
-          ? 'Cancelled. Nothing was sent, and the funds are spendable again.'
-          : 'Cancelled. This payment will not arrive.',
-    TxPhase.fromBackup =>
-      'This payment comes from a history backup and was not finished when '
-          'the backup was made. This wallet has no record of its own for it, '
-          'so it cannot tell whether it completed. Nothing is locked.',
+      outgoing ? l.txDetailsCancelledByUser : l.txDetailsCancelledIncoming,
+    TxPhase.fromBackup => l.txDetailsFromBackup,
   };
 }
 
@@ -159,21 +158,19 @@ int? daysWaitingTooLong(TxEntry tx, DateTime now) {
 }
 
 /// When a pending transaction cancels itself, if it has an expiry.
-String? ttlLine(TxEntry tx, BigInt? tip) {
+String? ttlLine(AppLocalizations l, TxEntry tx, BigInt? tip) {
   final cutoff = tx.ttlCutoffHeight;
   if (cutoff == null || !isPending(tx)) return null;
-  if (tip == null) {
-    return 'Cancels automatically if not completed by block '
-        '${groupDigits(cutoff)}.';
-  }
+  final block = groupDigits(l, cutoff);
+  if (tip == null) return l.txDetailsCancelsAtBlock(block);
   final left = (cutoff - tip).toInt();
-  if (left <= 0) {
-    return 'Expired at block ${groupDigits(cutoff)}. The wallet cancels it '
-        'on the next refresh.';
-  }
-  return 'Cancels automatically if not completed by block '
-      '${groupDigits(cutoff)} (in about '
-      '${roughDuration(left * _minutesPerBlock)}).';
+  if (left <= 0) return l.txDetailsExpiredAtBlock(block);
+  final (:unit, :count) = _roughDuration(left * _minutesPerBlock);
+  return switch (unit) {
+    _DurationUnit.minutes => l.txDetailsCancelsAtBlockInMinutes(block, count),
+    _DurationUnit.hours => l.txDetailsCancelsAtBlockInHours(block, count),
+    _DurationUnit.days => l.txDetailsCancelsAtBlockInDays(block, count),
+  };
 }
 
 /// Everything known about one transaction, with its note, contact and cancel.
@@ -215,9 +212,14 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
       final text = note.trim();
       await session.setTxNote(key: tx.key, note: text.isEmpty ? null : text);
       await _reload();
-      if (mounted) _showMessage(text.isEmpty ? 'Note removed' : 'Note saved');
+      if (!mounted) return;
+      _showMessage(
+        text.isEmpty
+            ? context.l10n.txDetailsNoteRemoved
+            : context.l10n.txDetailsNoteSaved,
+      );
     } catch (error) {
-      if (mounted) _showMessage(describeError(error));
+      if (mounted) _showMessage(describeError(context.l10n, error));
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -230,10 +232,10 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
     try {
       await session.repostTransaction(key: tx.key);
       if (!mounted) return;
-      _showMessage('Broadcast again. It should confirm within a few minutes.');
+      _showMessage(context.l10n.txDetailsBroadcastAgainDone);
       await _reload();
     } catch (error) {
-      if (mounted) _showMessage(describeError(error));
+      if (mounted) _showMessage(describeError(context.l10n, error));
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -243,23 +245,23 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
   Future<void> _release(TxEntry tx) async {
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Release funds?'),
-        content: const Text(
-          'Use this only if the payment will never confirm. If it still does, '
-          'you may see a wrong balance until you rescan.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Keep waiting'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('Release funds'),
-          ),
-        ],
-      ),
+      builder: (context) {
+        final l = context.l10n;
+        return AlertDialog(
+          title: Text(l.txDetailsReleaseTitle),
+          content: Text(l.txDetailsReleaseBody),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: Text(l.txDetailsReleaseKeepWaiting),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: Text(l.txDetailsReleaseFunds),
+            ),
+          ],
+        );
+      },
     );
     if (confirmed != true || !mounted) return;
     final session = ref.read(sessionProvider);
@@ -268,10 +270,10 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
     try {
       await session.releaseStuckSend(key: tx.key);
       if (!mounted) return;
-      _showMessage('Funds released');
+      _showMessage(context.l10n.txDetailsFundsReleased);
       await _reload();
     } catch (error) {
-      if (mounted) _showMessage(describeError(error));
+      if (mounted) _showMessage(describeError(context.l10n, error));
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -283,26 +285,25 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
     final receive = !txAmount(tx).outgoing;
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Cancel payment?'),
-        content: Text(
-          receive
-              ? 'The sender may still finish this payment. If they do after '
-                    'you cancel, it will not show until you rescan.'
-              : 'Cancel this payment and unlock its funds? Only do this if '
-                    'the recipient has not finished it.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Keep'),
+      builder: (context) {
+        final l = context.l10n;
+        return AlertDialog(
+          title: Text(l.txDetailsCancelTitle),
+          content: Text(
+            receive ? l.txDetailsCancelReceiveBody : l.txDetailsCancelSendBody,
           ),
-          FilledButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('Cancel payment'),
-          ),
-        ],
-      ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: Text(l.txDetailsCancelKeep),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: Text(l.txDetailsCancelPayment),
+            ),
+          ],
+        );
+      },
     );
     if (confirmed != true || !mounted) return;
     final session = ref.read(sessionProvider);
@@ -311,10 +312,10 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
     try {
       await session.cancelTransaction(txId: id);
       if (!mounted) return;
-      _showMessage('Payment cancelled');
+      _showMessage(context.l10n.txDetailsPaymentCancelled);
       await _reload();
     } catch (error) {
-      if (mounted) _showMessage(describeError(error));
+      if (mounted) _showMessage(describeError(context.l10n, error));
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -322,25 +323,23 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     final home = ref.watch(homeProvider);
     final tx = home.value?.transactions
         .where((t) => t.key == widget.txKey)
         .firstOrNull;
     if (tx == null) {
       return SlotScaffold(
-        appBar: AppBar(title: const Text('Payment')),
-        idle: home.isLoading ? const SlotProgress(label: 'Loading') : null,
+        appBar: AppBar(title: Text(l.txDetailsTitle)),
+        idle: home.isLoading ? SlotProgress(label: l.txDetailsLoading) : null,
         centered: !home.isLoading,
         body: home.isLoading
             ? const SizedBox.shrink()
             : Padding(
                 padding: const EdgeInsets.all(16),
                 child: home.hasError
-                    ? ErrorText(describeError(home.error!))
-                    : const Text(
-                        'This payment is no longer in the wallet.',
-                        textAlign: TextAlign.center,
-                      ),
+                    ? ErrorText(describeError(l, home.error!))
+                    : Text(l.txDetailsGone, textAlign: TextAlign.center),
               ),
       );
     }
@@ -355,19 +354,20 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
     final name = contactName(ref, counterparty);
     final fiat = tx.status == TxStatus.cancelled
         ? null
-        : approxFiat(amount, display);
-    final ttl = ttlLine(tx, tip);
+        : approxFiat(l, amount, display);
+    final ttl = ttlLine(l, tx, tip);
     final now = ref.watch(clockProvider)();
     final stuck = isStuck(tx, now);
     final url = chain == null ? null : explorerUrl(chain, tx);
     final fee = tx.fee;
     final blockTime = tx.blockTimeUnix;
     final note = tx.note;
+    final singleOutput = tx.outputCommits.length == 1;
 
     return SlotScaffold(
-      appBar: AppBar(title: Text(txHeading(tx, contactName: name))),
+      appBar: AppBar(title: Text(txHeading(l, tx, contactName: name))),
       idle: _busy || home.isLoading
-          ? const SlotProgress(label: 'Working')
+          ? SlotProgress(label: l.txDetailsWorking)
           : null,
       body: ScreenBody(
         children: [
@@ -380,10 +380,10 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Semantics(
-                      label: hidden ? 'Amount hidden' : null,
+                      label: hidden ? l.txDetailsAmountHidden : null,
                       excludeSemantics: hidden,
                       child: Text(
-                        signedEpic(tx, hidden: hidden),
+                        signedEpic(l, tx, hidden: hidden),
                         style: theme.textTheme.headlineMedium,
                       ),
                     ),
@@ -408,7 +408,7 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
                 children: [
                   TxStatusChip(tx: tx, tip: tip),
                   const SizedBox(height: 8),
-                  Text(txExplanation(tx, tip, now: now)),
+                  Text(txExplanation(l, tx, tip, now: now)),
                   if (ttl != null) ...[
                     const SizedBox(height: 8),
                     Text(ttl, style: theme.textTheme.bodySmall),
@@ -416,37 +416,30 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
                   if (stuck) ...[
                     const SizedBox(height: 12),
                     Text(
-                      'Not confirmed yet',
+                      l.txDetailsNotConfirmedYet,
                       style: theme.textTheme.titleSmall,
                     ),
                     const SizedBox(height: 4),
-                    const Text(
-                      'The network has not taken this payment yet. Broadcasting '
-                      'it again is safe. The same payment cannot go through '
-                      'twice.',
-                    ),
+                    Text(l.txDetailsStuckBody),
                     const SizedBox(height: 8),
                     Align(
                       alignment: Alignment.centerRight,
                       child: FilledButton.tonalIcon(
                         icon: const Icon(Icons.cell_tower),
-                        label: const Text('Broadcast again'),
+                        label: Text(l.txDetailsBroadcastAgain),
                         onPressed: _busy ? null : () => _repost(tx),
                       ),
                     ),
                   ],
                   if (tx.releasable) ...[
                     const SizedBox(height: 12),
-                    const Text(
-                      'The network refused this payment and it never reached the '
-                      'chain. You can release the funds it locked.',
-                    ),
+                    Text(l.txDetailsRefusedBody),
                     const SizedBox(height: 8),
                     Align(
                       alignment: Alignment.centerRight,
                       child: OutlinedButton.icon(
                         icon: const Icon(Icons.lock_open),
-                        label: const Text('Release funds'),
+                        label: Text(l.txDetailsReleaseFunds),
                         onPressed: _busy ? null : () => _release(tx),
                       ),
                     ),
@@ -457,7 +450,7 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
                       alignment: Alignment.centerRight,
                       child: OutlinedButton.icon(
                         icon: const Icon(Icons.cancel_outlined),
-                        label: const Text('Cancel payment'),
+                        label: Text(l.txDetailsCancelPayment),
                         onPressed: _busy ? null : () => _cancel(tx),
                       ),
                     ),
@@ -472,71 +465,105 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
           ],
           const SizedBox(height: 8),
           _DetailRow(
-            label: 'Date',
-            value: formatDateTime(localTime(blockTime ?? tx.timeUnix)),
+            label: l.txDetailsDate,
+            value: formatDateTime(l, localTime(blockTime ?? tx.timeUnix)),
           ),
           if (blockTime != null &&
               tx.source == TxSource.wallet &&
               (blockTime - tx.createdAtUnix).abs() > 120)
             _DetailRow(
-              label: 'Created',
-              value: formatDateTime(localTime(tx.createdAtUnix)),
+              label: l.txDetailsCreated,
+              value: formatDateTime(l, localTime(tx.createdAtUnix)),
             ),
           if (counterparty != null)
             _CounterpartyRow(
-              label: outgoing ? 'Sent to' : 'Received from',
+              label: outgoing ? l.txDetailsSentTo : l.txDetailsReceivedFrom,
               address: counterparty,
               name: name,
               canSendAgain: outgoing && tx.status == TxStatus.confirmed,
             ),
           if (fee != null && outgoing)
             _DetailRow(
-              label: 'Fee',
-              value: shownEpic(fee, hidden: hidden),
+              label: l.txDetailsFee,
+              value: shownEpic(l, fee, hidden: hidden),
             ),
           ListTile(
             contentPadding: EdgeInsets.zero,
-            title: Text('Note', style: theme.textTheme.labelLarge),
-            subtitle: Text(
-              note ?? 'No note. Add one to remember what this was for.',
+            title: Text(
+              l.txDetailsNoteLabel,
+              style: theme.textTheme.labelLarge,
             ),
+            subtitle: Text(note ?? l.txDetailsNoNote),
             trailing: IconButton(
-              tooltip: note == null ? 'Add note' : 'Edit note',
+              tooltip: note == null ? l.txDetailsAddNote : l.txDetailsEditNote,
               icon: Icon(note == null ? Icons.note_add_outlined : Icons.edit),
               onPressed: _busy ? null : () => _editNote(tx),
             ),
           ),
           if (url != null)
             _DetailRow(
-              label: 'Copy explorer link',
+              label: l.txDetailsExplorerLink,
               value: url,
-              copy: true,
-              copyLabel: 'Copy explorer link',
-              copyWhat: 'Link',
+              copy: (
+                tooltip: l.txDetailsExplorerLinkCopy,
+                notice: l.txDetailsLinkCopied,
+              ),
             ),
           ExpansionTile(
             tilePadding: EdgeInsets.zero,
             childrenPadding: EdgeInsets.zero,
-            title: const Text('Technical details'),
+            title: Text(l.txDetailsTechnical),
             children: [
               if (tx.blockHeight case final height?)
-                _DetailRow(label: 'Block height', value: groupDigits(height)),
+                _DetailRow(
+                  label: l.txDetailsBlockHeight,
+                  value: groupDigits(l, height),
+                ),
               if (tx.slateId case final slate?)
-                _DetailRow(label: 'Slate ID', value: slate, copy: true),
+                _DetailRow(
+                  label: l.txDetailsSlateId,
+                  value: slate,
+                  copy: (
+                    tooltip: l.txDetailsSlateIdCopy,
+                    notice: l.txDetailsSlateIdCopied,
+                  ),
+                ),
               if (tx.kernelExcess case final kernel?)
-                _DetailRow(label: 'Kernel', value: kernel, copy: true),
+                _DetailRow(
+                  label: l.txDetailsKernel,
+                  value: kernel,
+                  copy: (
+                    tooltip: l.txDetailsKernelCopy,
+                    notice: l.txDetailsKernelCopied,
+                  ),
+                ),
               for (final (i, commit) in tx.outputCommits.indexed)
                 _DetailRow(
-                  label: tx.outputCommits.length == 1
-                      ? 'Output commitment'
-                      : 'Output commitment ${i + 1}',
+                  label: singleOutput
+                      ? l.txDetailsOutputCommitment
+                      : l.txDetailsOutputCommitmentNumbered(i + 1),
                   value: commit,
-                  copy: true,
+                  copy: singleOutput
+                      ? (
+                          tooltip: l.txDetailsOutputCommitmentCopy,
+                          notice: l.txDetailsOutputCommitmentCopied,
+                        )
+                      : (
+                          tooltip: l.txDetailsOutputCommitmentNumberedCopy(
+                            i + 1,
+                          ),
+                          notice: l.txDetailsOutputCommitmentNumberedCopied(
+                            i + 1,
+                          ),
+                        ),
                 ),
               if (tx.ttlCutoffHeight case final cutoff?)
-                _DetailRow(label: 'Expiry height', value: groupDigits(cutoff)),
+                _DetailRow(
+                  label: l.txDetailsExpiryHeight,
+                  value: groupDigits(l, cutoff),
+                ),
               if (tx.id case final id?)
-                _DetailRow(label: 'Local id', value: '$id'),
+                _DetailRow(label: l.txDetailsLocalId, value: '$id'),
             ],
           ),
         ],
@@ -566,28 +593,29 @@ class _NoteDialogState extends State<_NoteDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     return AlertDialog(
-      title: const Text('Note'),
+      title: Text(l.txDetailsNoteDialogTitle),
       content: TextField(
         controller: _controller,
         autofocus: true,
         maxLines: 3,
         maxLength: 200,
         textCapitalization: TextCapitalization.sentences,
-        decoration: const InputDecoration(
-          labelText: 'Note',
-          helperText: 'Only on this device and in your history backups.',
-          border: OutlineInputBorder(),
+        decoration: InputDecoration(
+          labelText: l.txDetailsNoteLabel,
+          helperText: l.txDetailsNoteHelper,
+          border: const OutlineInputBorder(),
         ),
       ),
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Cancel'),
+          child: Text(l.commonCancel),
         ),
         FilledButton(
           onPressed: () => Navigator.pop(context, _controller.text),
-          child: const Text('Save'),
+          child: Text(l.commonSave),
         ),
       ],
     );
@@ -602,13 +630,10 @@ class _SourceNote extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     final text = switch (source) {
-      TxSource.restored =>
-        'Found by scanning the chain. Details such as the sender and fee are '
-            'not stored on the chain; import a history backup to restore them.',
-      TxSource.imported =>
-        'Imported from a history backup. This wallet has no record of its own '
-            'for it, so its status may be out of date.',
+      TxSource.restored => l.txDetailsSourceRestored,
+      TxSource.imported => l.txDetailsSourceImported,
       TxSource.wallet => '',
     };
     return Row(
@@ -625,35 +650,32 @@ class _SourceNote extends StatelessWidget {
 /// A labelled value that can be selected; with [copy], also copied, by the icon or a tap on the
 /// row.
 class _DetailRow extends StatelessWidget {
-  const _DetailRow({
-    required this.label,
-    required this.value,
-    this.copy = false,
-    this.copyLabel,
-    this.copyWhat,
-  });
+  const _DetailRow({required this.label, required this.value, this.copy});
 
   final String label;
   final String value;
-  final bool copy;
-  final String? copyLabel;
-  final String? copyWhat;
+
+  /// The copy button's tooltip and the notice after copying, for a value worth copying.
+  final ({String tooltip, String notice})? copy;
 
   @override
   Widget build(BuildContext context) {
-    void doCopy() => copyText(context, value, copyWhat ?? label);
+    final copy = this.copy;
+    final VoidCallback? doCopy = copy == null
+        ? null
+        : () => copyText(context, value, copy.notice);
     return ListTile(
       contentPadding: EdgeInsets.zero,
       title: Text(label, style: Theme.of(context).textTheme.labelLarge),
-      subtitle: copy ? Text(value) : SelectableText(value),
-      onTap: copy ? doCopy : null,
-      trailing: copy
-          ? IconButton(
-              tooltip: copyLabel ?? 'Copy ${label.toLowerCase()}',
+      subtitle: copy == null ? SelectableText(value) : Text(value),
+      onTap: doCopy,
+      trailing: copy == null
+          ? null
+          : IconButton(
+              tooltip: copy.tooltip,
               icon: const Icon(Icons.copy),
               onPressed: doCopy,
-            )
-          : null,
+            ),
     );
   }
 }
@@ -676,6 +698,7 @@ class _CounterpartyRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     final theme = Theme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -691,9 +714,10 @@ class _CounterpartyRow extends StatelessWidget {
             ],
           ),
           trailing: IconButton(
-            tooltip: 'Copy address',
+            tooltip: l.txDetailsCopyAddress,
             icon: const Icon(Icons.copy),
-            onPressed: () => copyText(context, address, 'Address'),
+            onPressed: () =>
+                copyText(context, address, l.txDetailsAddressCopied),
           ),
         ),
         // The actions for this address, on one row in one style.
@@ -704,7 +728,7 @@ class _CounterpartyRow extends StatelessWidget {
               if (name == null)
                 TextButton.icon(
                   icon: const Icon(Icons.person_add_alt),
-                  label: const Text('Add to contacts'),
+                  label: Text(l.txDetailsAddToContacts),
                   onPressed: () => Navigator.of(context).push(
                     MaterialPageRoute<void>(
                       builder: (_) => ContactEditScreen(address: address),
@@ -714,7 +738,7 @@ class _CounterpartyRow extends StatelessWidget {
               if (canSendAgain)
                 TextButton.icon(
                   icon: const Icon(Icons.replay),
-                  label: const Text('Send again'),
+                  label: Text(l.txDetailsSendAgain),
                   onPressed: () => Navigator.of(context).push(
                     MaterialPageRoute<void>(
                       builder: (_) => SendScreen(recipient: address),

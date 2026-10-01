@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../app_log.dart';
 import '../errors.dart';
+import '../l10n.dart';
 import '../providers.dart';
 import '../settings.dart';
 import '../slate_files.dart';
@@ -27,7 +28,10 @@ class SlateFileScreen extends ConsumerStatefulWidget {
 
 class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
   SlateInfo? _info;
-  String? _error;
+
+  /// What went wrong, worded when shown: the file is checked in [initState], before the
+  /// screen's strings can be read.
+  String Function(AppLocalizations l)? _error;
   bool _busy = false;
 
   /// The signed answer, once made, so it can be handed over again.
@@ -43,17 +47,15 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
           .inspectSlate(json: widget.file.json);
       final expected = widget.expectedSlateId;
       if (expected != null && info.slateId != expected) {
-        _error =
-            'This response is for a different payment. Open the file the '
-            'recipient returned for this send.';
+        _error = (l) => l.slateWrongPayment;
       } else if (info.stage == SlateStage.invoice) {
-        _error = 'Payment requests (invoices) are not supported yet.';
+        _error = (l) => l.slateInvoiceUnsupported;
       }
       _info = info;
     } catch (error) {
       _error = error is WalletError
-          ? 'That file is not a transaction file.'
-          : describeError(error);
+          ? (l) => l.slateNotTransactionFile
+          : (l) => describeError(l, error);
     }
   }
 
@@ -71,7 +73,7 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
       await action(session);
       container.invalidate(homeProvider);
     } catch (error) {
-      if (mounted) setState(() => _error = describeError(error));
+      if (mounted) setState(() => _error = (l) => describeError(l, error));
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -94,6 +96,7 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     final info = _info;
     final theme = Theme.of(context);
     final List<Widget> body;
@@ -102,7 +105,7 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
         NotPostedNotice(tx: posted),
         const SizedBox(height: 8),
         BusyButton(
-          label: 'Done',
+          label: l.commonDone,
           onPressed: () => Navigator.pop(context, true),
         ),
       ];
@@ -110,15 +113,13 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
       body = [
         _Headline(
           icon: Icons.check_circle,
-          text: 'Payment of ${epicText(info!.amount)} sent to the network.',
+          text: l.slatePostedHeadline(epicText(l, info!.amount)),
         ),
         const SizedBox(height: 8),
-        Text(
-          'It shows as Completed after $minimumConfirmations confirmations.',
-        ),
+        Text(l.slatePostedBody(confirmationsTarget)),
         const SizedBox(height: 24),
         BusyButton(
-          label: 'Done',
+          label: l.commonDone,
           onPressed: () => Navigator.pop(context, true),
         ),
       ];
@@ -127,20 +128,17 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
       body = [
         _Headline(
           icon: Icons.check_circle,
-          text: 'Accepted. Return $name to the sender.',
+          text: l.slateAcceptedHeadline(name),
         ),
         const SizedBox(height: 8),
-        Text(
-          'The ${epicText(info!.amount)} arrive once the sender finishes '
-          'the payment and it is on the chain.',
-        ),
+        Text(l.slateAcceptedBody(epicText(l, info!.amount))),
         const SizedBox(height: 24),
         SlateFileButtons(name: name, json: _response!.json),
         const SizedBox(height: 8),
         TextButton(
           style: TextButton.styleFrom(minimumSize: const Size.fromHeight(48)),
           onPressed: () => Navigator.pop(context, true),
-          child: const Text('Done'),
+          child: Text(l.commonDone),
         ),
       ];
     } else if (info == null) {
@@ -152,30 +150,29 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
         const SizedBox(height: 8),
         Text(
           receiving
-              ? 'Someone is sending you ${epicText(info.amount)}.'
-              : 'The recipient\'s answer to your send of '
-                    '${epicText(info.amount)} (fee ${epicText(info.fee)}).',
+              ? l.slateIncomingSend(epicText(l, info.amount))
+              : l.slateIncomingResponse(
+                  epicText(l, info.amount),
+                  epicText(l, info.fee),
+                ),
           style: theme.textTheme.bodyLarge,
         ),
         const SizedBox(height: 8),
-        Text(
-          receiving
-              ? 'Accept it, then return the response file to the sender.'
-              : 'Finish it to send the payment to the network.',
-        ),
+        Text(receiving ? l.slateIncomingSendHint : l.slateIncomingResponseHint),
         const SizedBox(height: 24),
         if (_error == null)
           BusyButton(
-            label: receiving ? 'Accept payment' : 'Finish payment',
+            label: receiving ? l.slateAcceptPayment : l.slateFinishPayment,
             busy: _busy,
             onPressed: receiving ? _sign : _finalize,
           ),
       ];
     }
+    final error = _error;
     return SlotScaffold(
-      appBar: AppBar(title: const Text('Transaction file')),
+      appBar: AppBar(title: Text(l.slateFileTitle)),
       body: ScreenBody(
-        children: [...body, if (_error != null) ErrorText(_error!)],
+        children: [...body, if (error != null) ErrorText(error(l))],
       ),
     );
   }
@@ -199,6 +196,7 @@ class SlateFileButtons extends ConsumerWidget {
     final files = ref.read(slateFilesProvider);
     // Read now: the notice outlives this button if the screen closes meanwhile.
     final notice = ref.read(noticeProvider.notifier);
+    final failed = context.l10n.slateHandOverFailed(name);
     try {
       final ok = await ref
           .read(autoLockHoldProvider.notifier)
@@ -206,12 +204,13 @@ class SlateFileButtons extends ConsumerWidget {
       if (ok && done != null) notice.show(done);
     } catch (error) {
       logWarn('files', 'handing over a transaction file failed: $error');
-      notice.show('Could not hand over $name. Please try again.');
+      notice.show(failed);
     }
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l = context.l10n;
     final files = ref.watch(slateFilesProvider);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -219,12 +218,16 @@ class SlateFileButtons extends ConsumerWidget {
         FilledButton.icon(
           style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
           icon: const Icon(Icons.save_alt),
-          label: const Text('Save to device'),
+          label: Text(l.slateSaveToDevice),
           onPressed: () => _out(
             context,
             ref,
-            (f) => f.save(name: name, json: json),
-            done: 'Saved $name',
+            (f) => f.save(
+              name: name,
+              json: json,
+              dialogTitle: l.slateSaveDialogTitle,
+            ),
+            done: l.slateSaved(name),
           ),
         ),
         if (files.canShare) ...[
@@ -234,7 +237,7 @@ class SlateFileButtons extends ConsumerWidget {
               minimumSize: const Size.fromHeight(48),
             ),
             icon: const Icon(Icons.share),
-            label: const Text('Share'),
+            label: Text(l.commonShare),
             onPressed: () =>
                 _out(context, ref, (f) => f.share(name: name, json: json)),
           ),
@@ -251,12 +254,12 @@ class NotPostedNotice extends StatelessWidget {
 
   final TxEntry tx;
 
-  static const String text =
-      'The payment is finished but the network has not taken it yet. It will '
-      'be broadcast again from the payment. Do not send it again.';
+  /// The explanation under the headline.
+  static String text(AppLocalizations l) => l.slateNotPostedBody;
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     final theme = Theme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -269,7 +272,7 @@ class NotPostedNotice extends StatelessWidget {
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
-                  'Not on the network yet',
+                  l.slateNotPostedTitle,
                   style: theme.textTheme.titleLarge,
                 ),
               ),
@@ -277,7 +280,7 @@ class NotPostedNotice extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 12),
-        Text(text, style: theme.textTheme.bodyLarge),
+        Text(text(l), style: theme.textTheme.bodyLarge),
         if (tx.statusDetail case final detail? when detail.trim().isNotEmpty)
           Padding(
             padding: const EdgeInsets.only(top: 8),
@@ -293,7 +296,7 @@ class NotPostedNotice extends StatelessWidget {
               builder: (_) => TxDetailsScreen(txKey: tx.key),
             ),
           ),
-          child: const Text('Open the payment'),
+          child: Text(l.slateOpenPayment),
         ),
       ],
     );
@@ -332,13 +335,18 @@ Future<bool> openSlateFile(
 }) async {
   // Read before the picker: the calling screen may be gone when it returns.
   final notice = ref.read(noticeProvider.notifier);
+  final l = context.l10n;
   final SlateFile? file;
   try {
     file = await ref
         .read(autoLockHoldProvider.notifier)
-        .during(() => ref.read(slateFilesProvider).pick());
+        .during(
+          () => ref
+              .read(slateFilesProvider)
+              .pick(dialogTitle: l.slateOpenDialogTitle),
+        );
   } on FormatException catch (e) {
-    notice.show(e.message);
+    notice.show(describeError(l, e));
     return false;
   }
   if (file == null || !context.mounted) return false;

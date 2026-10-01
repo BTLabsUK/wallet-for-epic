@@ -16,6 +16,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
 import 'app_log.dart';
+import 'l10n.dart' show LocalizedFormatException;
 
 /// Slate files are a few kilobytes; anything far larger is not one.
 const int maxSlateFileBytes = 1 << 20;
@@ -37,18 +38,16 @@ String responseFileName(String incomingName) => '$incomingName.response';
 /// Reads a picked file's bytes as slate JSON, refusing files that cannot be one.
 String decodeSlateFile(List<int> bytes) {
   if (bytes.length > maxSlateFileBytes) {
-    throw const FormatException(
-      'That file is too large to be a transaction file.',
-    );
+    throw LocalizedFormatException((l) => l.slateFileTooLarge);
   }
   final String text;
   try {
     text = utf8.decode(bytes).trim();
   } on FormatException {
-    throw const FormatException('That file is not a transaction file.');
+    throw LocalizedFormatException((l) => l.slateNotTransactionFile);
   }
   if (!text.startsWith('{')) {
-    throw const FormatException('That file is not a transaction file.');
+    throw LocalizedFormatException((l) => l.slateNotTransactionFile);
   }
   return text;
 }
@@ -124,9 +123,13 @@ Future<void> clearSharedFiles({@visibleForTesting Directory? tempDir}) async {
 }
 
 abstract interface class SlateFiles {
-  /// Saves [json] as a file called [name] where the user chooses. Returns false if they
-  /// cancelled.
-  Future<bool> save({required String name, required String json});
+  /// Saves [json] as a file called [name] where the user chooses, in a system dialog titled
+  /// [dialogTitle]. Returns false if they cancelled.
+  Future<bool> save({
+    required String name,
+    required String json,
+    required String dialogTitle,
+  });
 
   /// Whether [share] works here. Many phones' share sheets have no "save to files" target, so
   /// [save] comes first and sharing is the second option.
@@ -136,8 +139,9 @@ abstract interface class SlateFiles {
   /// user dismissed it.
   Future<bool> share({required String name, required String json});
 
-  /// Lets the user pick a transaction file, or returns null if they cancelled.
-  Future<SlateFile?> pick();
+  /// Lets the user pick a transaction file in a system dialog titled [dialogTitle], or returns
+  /// null if they cancelled.
+  Future<SlateFile?> pick({required String dialogTitle});
 
   /// Whether [shareText] opens a share sheet on this platform.
   bool get canShareText;
@@ -150,12 +154,15 @@ class PlatformSlateFiles implements SlateFiles {
   const PlatformSlateFiles();
 
   @override
-  Future<bool> save({required String name, required String json}) =>
-      saveBytesToDevice(
-        name: name,
-        bytes: Uint8List.fromList(utf8.encode(json)),
-        dialogTitle: 'Save transaction file',
-      );
+  Future<bool> save({
+    required String name,
+    required String json,
+    required String dialogTitle,
+  }) => saveBytesToDevice(
+    name: name,
+    bytes: Uint8List.fromList(utf8.encode(json)),
+    dialogTitle: dialogTitle,
+  );
 
   @override
   bool get canShare => canShareFiles;
@@ -165,16 +172,12 @@ class PlatformSlateFiles implements SlateFiles {
       shareBytes(name: name, bytes: Uint8List.fromList(utf8.encode(json)));
 
   @override
-  Future<SlateFile?> pick() async {
-    final file = await FilePicker.pickFile(
-      dialogTitle: 'Open transaction file',
-    );
+  Future<SlateFile?> pick({required String dialogTitle}) async {
+    final file = await FilePicker.pickFile(dialogTitle: dialogTitle);
     if (file == null) return null;
     final length = await file.length();
     if (length != null && length > maxSlateFileBytes) {
-      throw const FormatException(
-        'That file is too large to be a transaction file.',
-      );
+      throw LocalizedFormatException((l) => l.slateFileTooLarge);
     }
     return SlateFile(
       name: file.name,
@@ -210,7 +213,11 @@ class FakeSlateFiles implements SlateFiles {
   Future<void> shareText(String text) async => sharedTexts.add(text);
 
   @override
-  Future<bool> save({required String name, required String json}) async {
+  Future<bool> save({
+    required String name,
+    required String json,
+    required String dialogTitle,
+  }) async {
     saved.add(SlateFile(name: name, json: json));
     return true;
   }
@@ -222,7 +229,8 @@ class FakeSlateFiles implements SlateFiles {
   }
 
   @override
-  Future<SlateFile?> pick() async => picks.isEmpty ? null : picks.removeAt(0);
+  Future<SlateFile?> pick({required String dialogTitle}) async =>
+      picks.isEmpty ? null : picks.removeAt(0);
 }
 
 final slateFilesProvider = Provider<SlateFiles>(

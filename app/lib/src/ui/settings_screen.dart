@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../app_log.dart';
 import '../errors.dart';
+import '../l10n.dart';
 import '../network.dart';
 import '../price.dart';
 import '../providers.dart';
@@ -20,7 +21,7 @@ import 'help_screen.dart';
 import 'launch_screen.dart';
 import 'pin.dart';
 import 'restore_screen.dart'
-    show ScanSlotLine, formatDay, mainnetFirstDay, mainnetHeightForDate;
+    show ScanSlotLine, mainnetFirstDay, mainnetHeightForDate;
 import 'settings_history.dart';
 import 'settings_pin.dart';
 import 'setup_screen.dart';
@@ -34,30 +35,6 @@ final sharedFilesCleanupProvider = Provider<Future<void> Function()>(
   (ref) => clearSharedFiles,
 );
 
-/// Under the payment notifications switch.
-const String pushNotificationsHint = 'Delivered by Google Firebase.';
-
-/// Said when payment notifications are turned on. No epicbox server registers push tokens
-/// yet (`push.dart`), so a notification never arrives by itself today.
-const String pushNotificationsOnMessage =
-    'No epicbox server sends them yet. Open the app to receive a payment.';
-
-/// Said when prices are turned on.
-const String pricesOnMessage =
-    'Prices come from CoinGecko, which sees your IP address.';
-
-/// Under the payment notifications switch after the system denied notification permission.
-const String pushBlockedMessage =
-    'Notifications are blocked in system settings';
-
-/// Under the payment notifications switch after Firebase failed to start.
-const String pushUnavailableMessage =
-    'Notifications are not available in this build';
-
-/// Said when a delete is asked for while a scan runs.
-const String deleteDuringScanMessage =
-    'Wait for the scan to finish before deleting the wallet.';
-
 /// Whether this device offers biometric unlock, and whether the open wallet uses it.
 final _biometricsProvider =
     FutureProvider.autoDispose<({bool available, bool enabled})>((ref) async {
@@ -70,8 +47,8 @@ final _biometricsProvider =
     });
 
 /// The app version: the installed package's on Android, else the one this build was made
-/// from (`pubspec.yaml`, passed in by `flutter build`).
-final appVersionProvider = FutureProvider<String>((ref) async {
+/// from (`pubspec.yaml`, passed in by `flutter build`). Null when neither is known.
+final appVersionProvider = FutureProvider<String?>((ref) async {
   final platform = ref.watch(updatePlatformProvider);
   if (platform != null) {
     try {
@@ -84,7 +61,7 @@ final appVersionProvider = FutureProvider<String>((ref) async {
   }
   const name = String.fromEnvironment('FLUTTER_BUILD_NAME');
   const number = String.fromEnvironment('FLUTTER_BUILD_NUMBER');
-  if (name.isEmpty) return 'Unknown';
+  if (name.isEmpty) return null;
   return number.isEmpty ? name : '$name ($number)';
 });
 
@@ -151,44 +128,63 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   // Display.
 
   Future<void> _pickCurrency(AppSettings s) async {
+    final l = context.l10n;
     final code = await _choose(
-      title: 'Currency',
+      title: l.settingsCurrency,
       current: s.fiatCurrency,
       options: [
-        for (final c in fiatCurrencies)
-          (value: c.code, label: '${c.name} (${c.code.toUpperCase()})'),
+        for (final c in fiatCurrencies) (value: c, label: _currencyName(l, c)),
       ],
     );
     if (code != null) await _settings.setFiatCurrency(code);
   }
 
   Future<void> _pickTheme(AppSettings s) async {
+    final l = context.l10n;
     final mode = await _choose(
-      title: 'Theme',
+      title: l.settingsTheme,
       current: s.themeMode,
       options: [
-        for (final m in ThemeMode.values) (value: m, label: themeLabel(m)),
+        for (final m in ThemeMode.values) (value: m, label: themeLabel(l, m)),
       ],
     );
     if (mode != null) await _settings.setThemeMode(mode);
   }
 
+  Future<void> _pickLanguage(AppSettings s) async {
+    // A sentinel, because the dialog returns null when dismissed and null also means the
+    // system's language.
+    const system = '';
+    final code = await _choose<String>(
+      title: context.l10n.languageSetting,
+      current: s.language ?? system,
+      options: [
+        (value: system, label: context.l10n.languageSystem),
+        for (final a in appLanguages) (value: a.code, label: a.name),
+      ],
+    );
+    if (code != null) {
+      await _settings.setLanguage(code == system ? null : code);
+    }
+  }
+
   Future<void> _setShowFiat(bool on) async {
     await _settings.setShowFiat(on);
-    if (on && mounted) _say(pricesOnMessage);
+    if (on && mounted) _say(context.l10n.settingsPricesOnNotice);
   }
 
   // Security.
 
   Future<void> _pickAutoLock(AppSettings s) async {
+    final l = context.l10n;
     // A sentinel, because the dialog returns null when dismissed and null also means never.
     const never = -1;
     final minutes = await _choose<int>(
-      title: 'Auto-lock',
+      title: l.settingsAutoLock,
       current: s.autoLockMinutes ?? never,
       options: [
         for (final m in autoLockChoices)
-          (value: m ?? never, label: autoLockLabel(m)),
+          (value: m ?? never, label: autoLockLabel(l, m)),
       ],
     );
     if (minutes != null) {
@@ -199,11 +195,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   Future<void> _setPushNotifications(bool on) async {
     await _settings.setPushNotifications(on);
     if (!mounted) return;
-    if (!on) {
-      _say('Notifications stop the next time the app starts.');
-    } else {
-      _say(pushNotificationsOnMessage);
-    }
+    final l = context.l10n;
+    _say(on ? l.settingsPushOnNotice : l.settingsPushOffNotice);
   }
 
   Future<void> _setBiometrics(bool on) async {
@@ -212,19 +205,18 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final vault = ref.read(vaultProvider);
     if (!on) {
       await vault.disableBiometrics(config.chain);
-      if (mounted) _say('Biometric unlock turned off');
+      if (mounted) _say(context.l10n.settingsBiometricsOff);
     } else {
       final password = await askWalletPassword(
         context,
-        reason: 'Enter your PIN to turn on biometric unlock.',
+        reason: context.l10n.settingsBiometricsPinReason,
         allowBiometrics: false,
       );
       if (password == null) return;
       final ok = await vault.enableBiometrics(config.chain, password);
       if (mounted) {
-        _say(
-          ok ? 'Biometric unlock turned on' : 'Biometric unlock was not set up',
-        );
+        final l = context.l10n;
+        _say(ok ? l.settingsBiometricsOn : l.settingsBiometricsFailed);
       }
     }
     ref.invalidate(_biometricsProvider);
@@ -233,7 +225,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   Future<void> _showPhrase() async {
     final done = await Navigator.of(context)
         .push<bool>(MaterialPageRoute(builder: (_) => const BackupScreen()));
-    if (done == true && mounted) _say('Recovery phrase confirmed');
+    if (done == true && mounted) _say(context.l10n.settingsPhraseConfirmed);
   }
 
   // Wallet.
@@ -248,7 +240,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final ok = await ref.read(scanProvider.notifier).run(startHeight: start);
     if (!mounted) return;
     ref.invalidate(homeProvider);
-    if (ok) _say('Rescan finished');
+    if (ok) _say(context.l10n.settingsRescanFinished);
   }
 
   Future<void> _deleteWallet() async {
@@ -256,7 +248,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     if (config == null) return;
     // A scan writes to the wallet's files until it ends.
     if (ref.read(scanProvider).running) {
-      _say(deleteDuringScanMessage);
+      _say(context.l10n.settingsDeleteDuringScan);
       return;
     }
     final confirmed = await showDialog<bool>(
@@ -266,12 +258,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     if (confirmed != true || !mounted) return;
     final password = await askWalletPassword(
       context,
-      reason: 'Enter your PIN to delete this wallet.',
+      reason: context.l10n.settingsDeletePinReason,
       allowBiometrics: false,
     );
     if (password == null || !mounted) return;
     if (ref.read(scanProvider).running) {
-      _say(deleteDuringScanMessage);
+      _say(context.l10n.settingsDeleteDuringScan);
       return;
     }
     await _run(() async {
@@ -295,29 +287,30 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           (_) => false,
         );
       } catch (error) {
-        if (mounted) _say(describeError(error));
+        if (mounted) _say(describeError(context.l10n, error));
       }
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     final settings = ref.watch(appSettingsProvider);
     final s = settings.value ?? const AppSettings();
     final config = ref.watch(walletConfigProvider);
     final network = ref.watch(networkChoiceProvider).value;
     final scan = ref.watch(scanProvider);
     final biometrics = ref.watch(_biometricsProvider).value;
-    final version = ref.watch(appVersionProvider).value;
+    final version = ref.watch(appVersionProvider);
     final walletOpen = ref.watch(sessionProvider) != null;
     final updates = ref.read(updateProvider.notifier).supported;
-    final chainName = config == null ? 'Unknown' : chainLabel(config.chain);
+    final chain = config == null ? l.commonUnknown : chainName(l, config.chain);
 
     return SlotScaffold(
       // A running scan shows in the slot. `_busy` shows nothing: most of its time is spent
       // waiting on a sheet or dialog, where a progress bar would say the wrong thing.
       idle: scan.running ? ScanSlotLine(scan: scan) : null,
-      appBar: AppBar(title: const Text('Settings')),
+      appBar: AppBar(title: Text(l.settingsTitle)),
       body: SafeArea(
         child: Center(
           child: ConstrainedBox(
@@ -327,116 +320,126 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 if (!scan.running && scan.error != null)
                   Padding(
                     padding: const EdgeInsets.all(16),
-                    child: ErrorText(scan.error!),
+                    child: ErrorText(describeError(l, scan.error!)),
                   ),
-                const _Header('Network'),
+                _Header(l.settingsSectionNetwork),
                 ListTile(
                   leading: const Icon(Icons.settings_ethernet),
-                  title: const Text('Network and node'),
+                  title: Text(l.settingsNetworkAndNode),
                   subtitle: Text(
                     network == null
-                        ? chainName
-                        : '$chainName · ${Uri.tryParse(network.nodeUrl)?.host ?? network.nodeUrl}',
+                        ? chain
+                        : l.settingsNetworkSubtitle(
+                            chain,
+                            Uri.tryParse(network.nodeUrl)?.host ??
+                                network.nodeUrl,
+                          ),
                   ),
                   onTap: () => _push(const SetupScreen()),
                 ),
-                const _Header('Display'),
+                _Header(l.settingsSectionDisplay),
                 ListTile(
                   leading: const Icon(Icons.attach_money),
-                  title: const Text('Currency'),
-                  subtitle: Text(_currencyName(s.fiatCurrency)),
+                  title: Text(l.settingsCurrency),
+                  subtitle: Text(_currencyName(l, s.fiatCurrency)),
                   enabled: s.showFiat,
                   onTap: () => _pickCurrency(s),
                 ),
                 SwitchListTile(
                   secondary: const Icon(Icons.show_chart),
-                  title: const Text('Show prices'),
+                  title: Text(l.settingsShowPrices),
                   value: s.showFiat,
                   onChanged: _setShowFiat,
                 ),
                 SwitchListTile(
                   secondary: const Icon(Icons.visibility_off),
-                  title: const Text('Hide balances'),
+                  title: Text(l.settingsHideBalances),
                   value: s.hideBalances,
                   onChanged: _settings.setHideBalances,
                 ),
                 ListTile(
                   leading: const Icon(Icons.brightness_6),
-                  title: const Text('Theme'),
-                  subtitle: Text(themeLabel(s.themeMode)),
+                  title: Text(l.settingsTheme),
+                  subtitle: Text(themeLabel(l, s.themeMode)),
                   onTap: () => _pickTheme(s),
                 ),
+                ListTile(
+                  leading: const Icon(Icons.language),
+                  title: Text(l.languageSetting),
+                  subtitle: Text(_languageLabel(l, s.language)),
+                  onTap: () => _pickLanguage(s),
+                ),
                 if (ref.watch(pushConfiguredProvider).value ?? false) ...[
-                  const _Header('Notifications'),
+                  _Header(l.settingsSectionNotifications),
                   SwitchListTile(
                     secondary: const Icon(Icons.notifications_outlined),
-                    title: const Text('Payment notifications'),
+                    title: Text(l.settingsPaymentNotifications),
                     subtitle: _PushSubtitle(ref.watch(pushProvider)),
                     value: s.pushNotifications,
                     onChanged: _setPushNotifications,
                   ),
                 ],
                 if (walletOpen) ...[
-                  const _Header('Security'),
+                  _Header(l.settingsSectionSecurity),
                   ListTile(
                     leading: const Icon(Icons.pin),
-                    title: const Text('Change PIN'),
+                    title: Text(l.settingsChangePin),
                     onTap: () => _push(const ChangePinScreen()),
                   ),
                   if (biometrics?.available ?? false)
                     SwitchListTile(
                       secondary: const Icon(Icons.fingerprint),
-                      title: const Text('Unlock with biometrics'),
+                      title: Text(l.settingsBiometrics),
                       value: biometrics!.enabled,
                       onChanged: _setBiometrics,
                     ),
                   ListTile(
                     leading: const Icon(Icons.lock_clock),
-                    title: const Text('Auto-lock'),
-                    subtitle: Text(autoLockLabel(s.autoLockMinutes)),
+                    title: Text(l.settingsAutoLock),
+                    subtitle: Text(autoLockLabel(l, s.autoLockMinutes)),
                     onTap: () => _pickAutoLock(s),
                   ),
                   ListTile(
                     leading: const Icon(Icons.key),
-                    title: const Text('Back up recovery phrase'),
+                    title: Text(l.settingsBackupPhrase),
                     onTap: _showPhrase,
                   ),
                   ListTile(
                     leading: const Icon(Icons.lock),
-                    title: const Text('Lock wallet'),
+                    title: Text(l.settingsLockWallet),
                     onTap: () => lockWallet(context, ref),
                   ),
-                  const _Header('Payment history'),
+                  _Header(l.settingsSectionHistory),
                   ListTile(
                     leading: const Icon(Icons.upload_file),
-                    title: const Text('Export history backup'),
+                    title: Text(l.settingsExportHistory),
                     onTap: _busy
                         ? null
                         : () => _run(() => exportHistoryBackup(context, ref)),
                   ),
                   ListTile(
                     leading: const Icon(Icons.table_view),
-                    title: const Text('Export CSV'),
+                    title: Text(l.settingsExportCsv),
                     onTap: _busy
                         ? null
                         : () => _run(() => exportHistoryCsv(context, ref)),
                   ),
                   ListTile(
                     leading: const Icon(Icons.download),
-                    title: const Text('Import history backup'),
+                    title: Text(l.settingsImportHistory),
                     onTap: _busy
                         ? null
                         : () => _run(() => importHistoryBackup(context, ref)),
                   ),
-                  const _Header('Wallet'),
+                  _Header(l.settingsSectionWallet),
                   ListTile(
                     leading: const Icon(Icons.contacts_outlined),
-                    title: const Text('Contacts'),
+                    title: Text(l.settingsContacts),
                     onTap: () => _push(const ContactsScreen()),
                   ),
                   ListTile(
                     leading: const Icon(Icons.sync),
-                    title: const Text('Rescan the chain'),
+                    title: Text(l.settingsRescan),
                     enabled: !scan.running,
                     onTap: _rescan,
                   ),
@@ -446,7 +449,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       color: Theme.of(context).colorScheme.error,
                     ),
                     title: Text(
-                      'Delete this wallet',
+                      l.settingsDeleteWallet,
                       style: TextStyle(
                         color: Theme.of(context).colorScheme.error,
                       ),
@@ -455,24 +458,26 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     onTap: _deleteWallet,
                   ),
                 ],
-                const _Header('About'),
+                _Header(l.settingsSectionAbout),
                 ListTile(
                   leading: const Icon(Icons.info_outline),
-                  title: const Text('Version'),
-                  subtitle: Text(version ?? '…'),
+                  title: Text(l.settingsVersion),
+                  subtitle: Text(
+                    version.hasValue ? version.value ?? l.commonUnknown : '…',
+                  ),
                 ),
                 ListTile(
                   leading: const Icon(Icons.hub),
-                  title: const Text('Network'),
-                  subtitle: Text(chainName),
+                  title: Text(l.settingsAboutNetwork),
+                  subtitle: Text(chain),
                 ),
                 ListTile(
                   leading: const Icon(Icons.dns_outlined),
-                  title: const Text('Epicbox server'),
+                  title: Text(l.settingsEpicboxServer),
                   subtitle: Text(
                     network?.relay.label ??
                         (config == null
-                            ? 'Unknown'
+                            ? l.commonUnknown
                             : EpicboxRelay(
                                 host: config.epicboxDomain,
                                 port: config.epicboxPort,
@@ -482,28 +487,26 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 if (updates)
                   ListTile(
                     leading: const Icon(Icons.system_update),
-                    title: const Text('Check for updates'),
+                    title: Text(l.settingsCheckUpdates),
                     onTap: () {
                       ref.read(updateProvider.notifier).check();
-                      _say(
-                        'Checking for updates. The result shows on the home '
-                        'screen.',
-                      );
+                      _say(l.settingsCheckingUpdates);
                     },
                   ),
                 ListTile(
                   leading: const Icon(Icons.help_outline),
-                  title: const Text('Help'),
+                  title: Text(l.settingsHelp),
                   onTap: () => openHelp(context),
                 ),
                 ListTile(
                   leading: const Icon(Icons.feedback_outlined),
-                  title: const Text('Send feedback'),
-                  subtitle: const Text('Report a problem or suggest an idea'),
+                  title: Text(l.settingsSendFeedback),
+                  subtitle: Text(l.settingsSendFeedbackHint),
                   onTap: () => openFeedback(context),
                 ),
+                // A proper name, the same in every language.
                 const _LinkTile(title: 'Epic Cash', url: epicCashUrl),
-                const _LinkTile(title: 'Source code', url: projectRepoUrl),
+                _LinkTile(title: l.settingsSourceCode, url: projectRepoUrl),
                 const SizedBox(height: 24),
               ],
             ),
@@ -515,19 +518,26 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 }
 
 /// `Euro (EUR)`, or the bare code for one the list does not know.
-String _currencyName(String code) {
-  for (final c in fiatCurrencies) {
-    if (c.code == code) return '${c.name} (${code.toUpperCase()})';
-  }
-  return code.toUpperCase();
-}
+String _currencyName(AppLocalizations l, String code) =>
+    fiatCurrencies.contains(code)
+    ? l.settingsCurrencyWithCode(currencyName(l, code), code.toUpperCase())
+    : code.toUpperCase();
 
 /// Plain words for a theme choice.
-String themeLabel(ThemeMode mode) => switch (mode) {
-  ThemeMode.system => 'Same as the device',
-  ThemeMode.light => 'Light',
-  ThemeMode.dark => 'Dark',
+String themeLabel(AppLocalizations l, ThemeMode mode) => switch (mode) {
+  ThemeMode.system => l.settingsThemeSystem,
+  ThemeMode.light => l.settingsThemeLight,
+  ThemeMode.dark => l.settingsThemeDark,
 };
+
+/// The language setting as the user reads it: [AppLocalizations.languageSystem] for null, else
+/// the language's own name from [appLanguages], which is never translated.
+String _languageLabel(AppLocalizations l, String? code) {
+  for (final a in appLanguages) {
+    if (a.code == code) return a.name;
+  }
+  return l.languageSystem;
+}
 
 class _Header extends StatelessWidget {
   const _Header(this.title);
@@ -561,12 +571,13 @@ class _LinkTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     return ListTile(
       leading: const Icon(Icons.link),
       title: Text(title),
       subtitle: Text(url),
-      trailing: const Icon(Icons.copy, semanticLabel: 'Copy link'),
-      onTap: () => copyText(context, url, 'Link'),
+      trailing: Icon(Icons.copy, semanticLabel: l.settingsCopyLink),
+      onTap: () => copyText(context, url, l.settingsLinkCopied),
     );
   }
 }
@@ -609,19 +620,20 @@ class _RescanDialogState extends State<_RescanDialog> {
   }
 
   void _start() {
+    final l = context.l10n;
     final BigInt? start;
     switch (_from) {
       case _RescanFrom.date:
         final date = _date;
         if (date == null) {
-          setState(() => _error = 'Pick a date first.');
+          setState(() => _error = l.settingsRescanPickDateFirst);
           return;
         }
         start = mainnetHeightForDate(date);
       case _RescanFrom.height:
         final height = BigInt.tryParse(_height.text.trim());
         if (height == null || height < BigInt.one) {
-          setState(() => _error = 'Enter a block height of 1 or more.');
+          setState(() => _error = l.settingsRescanHeightInvalid);
           return;
         }
         start = height;
@@ -633,18 +645,16 @@ class _RescanDialogState extends State<_RescanDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     final date = _date;
     return AlertDialog(
-      title: const Text('Rescan the chain'),
+      title: Text(l.settingsRescanTitle),
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Text(
-              'The wallet looks for its funds again. An earlier start finds '
-              'more but takes longer; the whole chain can take a long time.',
-            ),
+            Text(l.settingsRescanBody),
             const SizedBox(height: 8),
             RadioGroup<_RescanFrom>(
               groupValue: _from,
@@ -655,20 +665,20 @@ class _RescanDialogState extends State<_RescanDialog> {
               child: Column(
                 children: [
                   if (widget.datesSupported)
-                    const RadioListTile(
+                    RadioListTile(
                       contentPadding: EdgeInsets.zero,
                       value: _RescanFrom.date,
-                      title: Text('From a date'),
+                      title: Text(l.settingsRescanFromDate),
                     ),
-                  const RadioListTile(
+                  RadioListTile(
                     contentPadding: EdgeInsets.zero,
                     value: _RescanFrom.height,
-                    title: Text('From a block height'),
+                    title: Text(l.settingsRescanFromHeight),
                   ),
-                  const RadioListTile(
+                  RadioListTile(
                     contentPadding: EdgeInsets.zero,
                     value: _RescanFrom.start,
-                    title: Text('The whole chain'),
+                    title: Text(l.settingsRescanWholeChain),
                   ),
                 ],
               ),
@@ -676,7 +686,9 @@ class _RescanDialogState extends State<_RescanDialog> {
             if (_from == _RescanFrom.date)
               OutlinedButton.icon(
                 icon: const Icon(Icons.calendar_today),
-                label: Text(date == null ? 'Pick a date' : formatDay(date)),
+                label: Text(
+                  date == null ? l.settingsRescanPickDate : localDay(l, date),
+                ),
                 onPressed: _pickDate,
               ),
             if (_from == _RescanFrom.height)
@@ -684,9 +696,9 @@ class _RescanDialogState extends State<_RescanDialog> {
                 controller: _height,
                 keyboardType: TextInputType.number,
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                decoration: const InputDecoration(
-                  labelText: 'Start height',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: l.settingsRescanStartHeight,
+                  border: const OutlineInputBorder(),
                 ),
               ),
             if (_error != null) ErrorText(_error!),
@@ -696,19 +708,17 @@ class _RescanDialogState extends State<_RescanDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Cancel'),
+          child: Text(l.commonCancel),
         ),
-        FilledButton(onPressed: _start, child: const Text('Rescan')),
+        FilledButton(onPressed: _start, child: Text(l.settingsRescanButton)),
       ],
     );
   }
 }
 
-/// The word the user types to confirm deleting the wallet.
-const String deleteConfirmWord = 'delete';
-
-/// A strong warning before deleting the wallet. Pops true only after the user typed
-/// [deleteConfirmWord] and confirmed they have the recovery phrase.
+/// A strong warning before deleting the wallet. Pops true only after the user typed the
+/// confirm word ([AppLocalizations.settingsDeleteConfirmWord]) and confirmed they have the
+/// recovery phrase.
 class DeleteWalletDialog extends StatefulWidget {
   const DeleteWalletDialog({super.key});
 
@@ -726,40 +736,43 @@ class _DeleteWalletDialogState extends State<DeleteWalletDialog> {
     super.dispose();
   }
 
-  bool get _ready =>
-      _understood && _word.text.trim().toLowerCase() == deleteConfirmWord;
+  // Lower case on both sides only to match what was typed, never for display.
+  bool _ready(String word) =>
+      _understood && _word.text.trim().toLowerCase() == word.toLowerCase();
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
+    final word = l.settingsDeleteConfirmWord;
     final error = Theme.of(context).colorScheme.error;
     return AlertDialog(
-      icon: Icon(Icons.warning_amber, color: error, semanticLabel: 'Warning'),
-      title: const Text('Delete this wallet?'),
+      icon: Icon(
+        Icons.warning_amber,
+        color: error,
+        semanticLabel: l.settingsDeleteWarningIcon,
+      ),
+      title: Text(l.settingsDeleteTitle),
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'This removes the wallet, its history and its PIN from this '
-              'device. Only the recovery phrase can bring the funds back. '
-              'Without it, they are lost for good.',
-            ),
+            Text(l.settingsDeleteBody),
             CheckboxListTile(
               contentPadding: EdgeInsets.zero,
               value: _understood,
               onChanged: (value) =>
                   setState(() => _understood = value ?? false),
-              title: const Text('I have written down my recovery phrase'),
+              title: Text(l.settingsDeleteHavePhrase),
             ),
             TextField(
               controller: _word,
               autocorrect: false,
               enableSuggestions: false,
               onChanged: (_) => setState(() {}),
-              decoration: const InputDecoration(
-                labelText: 'Type "$deleteConfirmWord" to confirm',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                labelText: l.settingsDeleteTypeToConfirm(word),
+                border: const OutlineInputBorder(),
               ),
             ),
           ],
@@ -768,12 +781,12 @@ class _DeleteWalletDialogState extends State<DeleteWalletDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context, false),
-          child: const Text('Keep wallet'),
+          child: Text(l.settingsDeleteKeep),
         ),
         FilledButton(
           style: FilledButton.styleFrom(backgroundColor: error),
-          onPressed: _ready ? () => Navigator.pop(context, true) : null,
-          child: const Text('Delete wallet'),
+          onPressed: _ready(word) ? () => Navigator.pop(context, true) : null,
+          child: Text(l.settingsDeleteConfirm),
         ),
       ],
     );
@@ -788,16 +801,17 @@ class _PushSubtitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     final problem = push.blocked
-        ? pushBlockedMessage
+        ? l.settingsPushBlocked
         : push.unavailable
-        ? pushUnavailableMessage
+        ? l.settingsPushUnavailable
         : null;
-    if (problem == null) return const Text(pushNotificationsHint);
+    if (problem == null) return Text(l.settingsPushHint);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(pushNotificationsHint),
+        Text(l.settingsPushHint),
         const SizedBox(height: 4),
         Text(
           problem,

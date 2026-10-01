@@ -17,6 +17,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
 
 import 'app_log.dart';
+import 'l10n.dart';
 
 /// Where releases publish `update.json`. Override with `--dart-define=WFE_UPDATE_URL=...`.
 const String updateManifestUrl = String.fromEnvironment(
@@ -71,10 +72,13 @@ class AvailableUpdate {
   final ReleaseApk apk;
 }
 
-/// A manifest that does not parse or does not fit this app.
+/// A manifest that does not parse or does not fit this app, or a download or install that
+/// failed. [text] words it for the screen in the reader's language; [message] is English, for
+/// logs.
 class UpdateError implements Exception {
-  const UpdateError(this.message);
+  UpdateError(this.text) : message = text(englishStrings);
 
+  final String Function(AppLocalizations l) text;
   final String message;
 
   @override
@@ -94,17 +98,17 @@ AvailableUpdate? parseUpdateManifest(
   try {
     decoded = jsonDecode(json);
   } on FormatException {
-    throw const UpdateError('The update information is not valid JSON.');
+    throw UpdateError((l) => l.updateManifestNotJson);
   }
   if (decoded is! Map<String, Object?>) {
-    throw const UpdateError('The update information has the wrong shape.');
+    throw UpdateError((l) => l.updateManifestWrongShape);
   }
   if (decoded['packageName'] != app.packageName) {
-    throw const UpdateError('The update information is for another app.');
+    throw UpdateError((l) => l.updateManifestOtherApp);
   }
   final apks = decoded['apks'];
   if (apks is! List) {
-    throw const UpdateError('The update information lists no APKs.');
+    throw UpdateError((l) => l.updateManifestNoApks);
   }
   final byAbi = <String, ReleaseApk>{};
   for (final entry in apks) {
@@ -206,8 +210,12 @@ class AndroidUpdatePlatform implements UpdatePlatform {
     );
     final status = result['status'] as String? ?? 'failed';
     if (status == 'failed') {
+      // The system's own message stays English, inside the translated sentence.
+      final detail = result['message'];
       throw UpdateError(
-        'Cannot install the update: ${result['message'] ?? 'unknown error'}.',
+        (l) => detail == null
+            ? l.updateCannotInstallUnknown
+            : l.updateCannotInstall('$detail'),
       );
     }
     return status;
@@ -225,9 +233,10 @@ Future<void> downloadApk(
   try {
     final request = await client.getUrl(apk.url);
     final response = await request.close();
-    if (response.statusCode != HttpStatus.ok) {
+    final code = response.statusCode;
+    if (code != HttpStatus.ok) {
       await response.drain<void>();
-      throw UpdateError('The download failed (HTTP ${response.statusCode}).');
+      throw UpdateError((l) => l.updateDownloadHttpFailed(code));
     }
     final digestSink = _DigestSink();
     final hasher = sha256.startChunkedConversion(digestSink);
@@ -237,7 +246,7 @@ Future<void> downloadApk(
       await for (final chunk in response) {
         received += chunk.length;
         if (received > apk.size) {
-          throw const UpdateError('The download is larger than announced.');
+          throw UpdateError((l) => l.updateDownloadTooLarge);
         }
         hasher.add(chunk);
         out.add(chunk);
@@ -248,16 +257,16 @@ Future<void> downloadApk(
     }
     hasher.close();
     if (received != apk.size) {
-      throw const UpdateError('The download is incomplete.');
+      throw UpdateError((l) => l.updateDownloadIncomplete);
     }
     if (digestSink.value.toString() != apk.sha256) {
-      throw const UpdateError('The download is damaged (checksum mismatch).');
+      throw UpdateError((l) => l.updateDownloadDamaged);
     }
     await partial.rename(target.path);
   } on SocketException {
-    throw const UpdateError('Cannot reach the update server.');
+    throw UpdateError((l) => l.updateServerUnreachable);
   } on HttpException {
-    throw const UpdateError('The download was interrupted.');
+    throw UpdateError((l) => l.updateDownloadInterrupted);
   } finally {
     if (await partial.exists()) await partial.delete();
   }
@@ -284,12 +293,15 @@ enum UpdatePhase {
 }
 
 class UpdateState {
-  const UpdateState(this.phase, {this.update, this.progress, this.message});
+  const UpdateState(this.phase, {this.update, this.progress, this.text});
 
   final UpdatePhase phase;
   final AvailableUpdate? update;
   final double? progress;
-  final String? message;
+
+  /// A sentence that replaces the phase's usual line: why it failed, or what to do next.
+  /// Worded on the screen, in the reader's language.
+  final String Function(AppLocalizations l)? text;
 }
 
 final updatePlatformProvider = Provider<UpdatePlatform?>((ref) {
@@ -322,10 +334,12 @@ class UpdateNotifier extends Notifier<UpdateState> {
   void _onInstallEvent(({String status, String? message}) event) {
     switch (event.status) {
       case 'failed':
+        // The installer's own message stays English, inside the translated sentence.
+        final detail = event.message ?? '';
         state = UpdateState(
           UpdatePhase.failed,
           update: state.update,
-          message: 'The update was not installed: ${event.message}',
+          text: (l) => l.updateNotInstalled(detail),
         );
       case 'cancelled':
         state = UpdateState(UpdatePhase.available, update: state.update);
@@ -364,9 +378,8 @@ class UpdateNotifier extends Notifier<UpdateState> {
       );
       if (response.statusCode != HttpStatus.ok) {
         await response.drain<void>();
-        throw UpdateError(
-          'The update server answered HTTP ${response.statusCode}.',
-        );
+        final code = response.statusCode;
+        throw UpdateError((l) => l.updateServerHttpStatus(code));
       }
       final body = await response
           .transform(utf8.decoder)
@@ -382,7 +395,7 @@ class UpdateNotifier extends Notifier<UpdateState> {
       if (!ref.mounted) return;
       state = quiet
           ? const UpdateState(UpdatePhase.idle)
-          : UpdateState(UpdatePhase.failed, message: _describe(error));
+          : UpdateState(UpdatePhase.failed, text: _describe(error));
     } finally {
       client.close(force: true);
     }
@@ -427,9 +440,7 @@ class UpdateNotifier extends Notifier<UpdateState> {
         state = UpdateState(
           UpdatePhase.available,
           update: update,
-          message:
-              'Allow this app to install updates in the screen that opened, '
-              'then tap Update again.',
+          text: (l) => l.updateNeedsPermission,
         );
       }
     } catch (error) {
@@ -438,7 +449,7 @@ class UpdateNotifier extends Notifier<UpdateState> {
         state = UpdateState(
           UpdatePhase.failed,
           update: update,
-          message: _describe(error),
+          text: _describe(error),
         );
       }
     } finally {
@@ -446,11 +457,12 @@ class UpdateNotifier extends Notifier<UpdateState> {
     }
   }
 
-  static String _describe(Object error) => switch (error) {
-    UpdateError(:final message) => message,
-    SocketException() => 'Cannot reach the update server.',
-    TimeoutException() => 'The update server did not answer in time.',
-    HttpException() => 'The connection to the update server failed.',
-    _ => 'Checking for updates failed.',
-  };
+  static String Function(AppLocalizations l) _describe(Object error) =>
+      switch (error) {
+        UpdateError(:final text) => text,
+        SocketException() => (l) => l.updateServerUnreachable,
+        TimeoutException() => (l) => l.updateServerTimeout,
+        HttpException() => (l) => l.updateConnectionFailed,
+        _ => (l) => l.updateCheckFailed,
+      };
 }

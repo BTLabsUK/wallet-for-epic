@@ -5,7 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../app_log.dart';
 import '../errors.dart';
-import '../network.dart';
+import '../l10n.dart';
 import '../providers.dart';
 import '../vault.dart';
 import 'centered_body.dart';
@@ -89,6 +89,7 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
   Future<void> _unlockWithPin(String pin) async {
     final config = ref.read(walletConfigProvider);
     if (config == null || _busy) return;
+    final l = context.l10n;
     setState(() {
       _busy = true;
       _pinError = null;
@@ -102,13 +103,16 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
     } on PinRejected catch (rejection) {
       _pin.clear();
       if (!mounted) return;
-      setState(() => _pinError = describePinRejection(rejection));
+      setState(() => _pinError = describePinRejection(l, rejection));
       final until = rejection.lockedUntil;
       if (until != null) _lockOut(until);
     } catch (error) {
-      logWarn('unlock', 'PIN unlock failed: ${describeError(error)}');
+      logWarn(
+        'unlock',
+        'PIN unlock failed: ${describeError(englishStrings, error)}',
+      );
       _pin.clear();
-      if (mounted) setState(() => _error = describeError(error));
+      if (mounted) setState(() => _error = describeError(l, error));
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -117,6 +121,7 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
   Future<void> _open(String password) async {
     final config = ref.read(walletConfigProvider);
     if (config == null) return;
+    final l = context.l10n;
     setState(() => _busy = true);
     try {
       final session = await ref
@@ -128,7 +133,7 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
       if (mounted) {
         setState(() {
           _busy = false;
-          _error = describeError(error);
+          _error = describeError(l, error);
         });
       }
     }
@@ -137,6 +142,7 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
   Future<void> _forgotPin() async {
     final config = ref.read(walletConfigProvider);
     if (config == null) return;
+    final l = context.l10n;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (_) => const _ResetDialog(),
@@ -156,7 +162,7 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
       if (mounted) {
         setState(() {
           _busy = false;
-          _error = describeError(error);
+          _error = describeError(l, error);
         });
       }
     }
@@ -164,6 +170,7 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     final config = ref.watch(walletConfigProvider);
     final locked = _lockedUntil != null;
     return SlotScaffold(
@@ -171,12 +178,12 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
       appBar: AppBar(
         title: Text(
           config == null
-              ? 'Unlock wallet'
-              : 'Unlock wallet${networkSuffix(config.chain)}',
+              ? l.unlockTitle
+              : '${l.unlockTitle}${networkSuffix(l, config.chain)}',
         ),
         actions: [
           IconButton(
-            tooltip: 'Network settings',
+            tooltip: l.setupNetworkSettingsTooltip,
             icon: const Icon(Icons.settings_ethernet),
             onPressed: _busy
                 ? null
@@ -192,7 +199,7 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
         children: [
           PinField(
             controller: _pin,
-            label: 'PIN',
+            label: l.pinLabel,
             enabled: !_busy && !locked,
             errorText: _pinError,
             onCompleted: _unlockWithPin,
@@ -207,14 +214,14 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
                 minimumSize: const Size.fromHeight(48),
               ),
               icon: const Icon(Icons.fingerprint),
-              label: const Text('Use biometrics'),
+              label: Text(l.pinUseBiometrics),
               onPressed: _busy ? null : _unlockWithBiometrics,
             ),
           ],
           const SizedBox(height: 24),
           TextButton(
             onPressed: _busy ? null : _forgotPin,
-            child: const Text('Forgot PIN?'),
+            child: Text(l.pinForgot),
           ),
         ],
       ),
@@ -234,35 +241,32 @@ class _ResetDialogState extends State<_ResetDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     final error = Theme.of(context).colorScheme.error;
     return AlertDialog(
-      title: const Text('Forgot PIN'),
+      title: Text(l.pinResetTitle),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'The PIN cannot be recovered. You can delete this wallet from the '
-            'device and restore it from its recovery phrase. Without the '
-            'phrase, its funds are lost for good.',
-          ),
+          Text(l.pinResetBody),
           CheckboxListTile(
             contentPadding: EdgeInsets.zero,
             value: _understood,
             onChanged: (value) => setState(() => _understood = value ?? false),
-            title: const Text('I have my recovery phrase'),
+            title: Text(l.pinResetConfirm),
           ),
         ],
       ),
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context, false),
-          child: const Text('Keep wallet'),
+          child: Text(l.pinResetKeep),
         ),
         FilledButton(
           style: FilledButton.styleFrom(backgroundColor: error),
           onPressed: _understood ? () => Navigator.pop(context, true) : null,
-          child: const Text('Delete wallet'),
+          child: Text(l.pinResetDelete),
         ),
       ],
     );

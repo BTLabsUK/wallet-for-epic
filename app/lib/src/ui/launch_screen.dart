@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../errors.dart';
+import '../l10n.dart';
 import '../providers.dart';
 import '../vault.dart';
 import 'centered_body.dart';
@@ -29,6 +30,7 @@ class _LaunchScreenState extends ConsumerState<LaunchScreen> {
   }
 
   Future<void> _route() async {
+    final l = context.l10n;
     setState(() => _error = null);
     try {
       final next = await _destination();
@@ -36,7 +38,7 @@ class _LaunchScreenState extends ConsumerState<LaunchScreen> {
       Navigator.of(context)
           .pushReplacement(MaterialPageRoute<void>(builder: (_) => next));
     } catch (error) {
-      if (mounted) setState(() => _error = describeError(error));
+      if (mounted) setState(() => _error = describeError(l, error));
     }
   }
 
@@ -76,7 +78,7 @@ class _LaunchScreenState extends ConsumerState<LaunchScreen> {
             const Center(child: CircularProgressIndicator())
           else ...[
             ErrorText(_error!),
-            BusyButton(label: 'Try again', onPressed: _route),
+            BusyButton(label: context.l10n.launchTryAgain, onPressed: _route),
           ],
         ],
       ),

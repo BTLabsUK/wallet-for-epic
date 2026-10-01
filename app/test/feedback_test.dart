@@ -321,8 +321,8 @@ void main() {
       await h.openFeedback(tester);
       await enter(tester, 'Your message', 'Please add dark mode');
 
-      h.outlet.postError = const FeedbackSendError(
-        'The feedback server answered 503.',
+      h.outlet.postError = FeedbackSendError(
+        (l) => l.feedbackServerAnswered(503),
       );
       await tap(tester, find.widgetWithText(FilledButton, 'Send'));
       expect(find.text('The feedback server answered 503.'), findsOneWidget);

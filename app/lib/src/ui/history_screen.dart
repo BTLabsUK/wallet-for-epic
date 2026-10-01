@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../amount.dart';
 import '../contacts.dart' show contactNameFor, contactsProvider;
 import '../errors.dart';
+import '../l10n.dart';
 import '../providers.dart';
 import '../settings.dart';
 import '../wallet_service.dart';
@@ -13,12 +14,24 @@ import 'common.dart';
 
 enum HistoryFilter { all, sent, received, pending, cancelled }
 
-String historyFilterLabel(HistoryFilter filter) => switch (filter) {
-  HistoryFilter.all => 'All',
-  HistoryFilter.sent => 'Sent',
-  HistoryFilter.received => 'Received',
-  HistoryFilter.pending => 'Pending',
-  HistoryFilter.cancelled => 'Cancelled',
+/// The filter's chip label.
+String historyFilterLabel(AppLocalizations l, HistoryFilter filter) =>
+    switch (filter) {
+      HistoryFilter.all => l.historyFilterAll,
+      HistoryFilter.sent => l.historyFilterSent,
+      HistoryFilter.received => l.historyFilterReceived,
+      HistoryFilter.pending => l.historyFilterPending,
+      HistoryFilter.cancelled => l.historyFilterCancelled,
+    };
+
+/// What the list says when [filter] matches none of the wallet's payments. Every payment
+/// passes [HistoryFilter.all], so that case only says the wallet has none.
+String _noneUnder(AppLocalizations l, HistoryFilter filter) => switch (filter) {
+  HistoryFilter.all => l.historyEmpty,
+  HistoryFilter.sent => l.historyNoSent,
+  HistoryFilter.received => l.historyNoReceived,
+  HistoryFilter.pending => l.historyNoPending,
+  HistoryFilter.cancelled => l.historyNoCancelled,
 };
 
 bool _outgoing(TxEntry tx) =>
@@ -78,6 +91,7 @@ class HistoryRow extends HistoryItem {
 /// The history list as flat items for a lazy list: the payments of [txs] that pass [filter] and
 /// [query], grouped as in [groupHistory]. [contactName] names a counterparty for the search.
 List<HistoryItem> historyItems(
+  AppLocalizations l,
   Iterable<TxEntry> txs, {
   required HistoryFilter filter,
   required String query,
@@ -95,7 +109,7 @@ List<HistoryItem> historyItems(
         tx,
   ];
   return [
-    for (final section in groupHistory(shown, now)) ...[
+    for (final section in groupHistory(l, shown, now)) ...[
       HistoryHeading(section.title),
       for (final tx in section.transactions) HistoryRow(tx),
     ],
@@ -103,15 +117,19 @@ List<HistoryItem> historyItems(
 }
 
 /// Pending transactions in their own section on top, then the rest by local day, newest first.
-List<HistorySection> groupHistory(Iterable<TxEntry> txs, DateTime now) {
+List<HistorySection> groupHistory(
+  AppLocalizations l,
+  Iterable<TxEntry> txs,
+  DateTime now,
+) {
   final ordered = pendingFirst(txs);
   final sections = <HistorySection>[];
   final pending = ordered.where(isPending).toList();
   if (pending.isNotEmpty) {
-    sections.add((title: 'Pending', transactions: pending));
+    sections.add((title: l.historySectionPending, transactions: pending));
   }
   for (final tx in ordered.where((t) => !isPending(t))) {
-    final title = dayLabel(localTime(tx.timeUnix), now);
+    final title = dayLabel(l, localTime(tx.timeUnix), now);
     if (sections.isNotEmpty && sections.last.title == title) {
       sections.last.transactions.add(tx);
     } else {
@@ -179,11 +197,13 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
   }
 
   List<HistoryItem> _itemsFor(
+    AppLocalizations l,
     List<TxEntry> all,
     List<Contact>? contacts,
     DateTime now,
   ) {
     final key = (
+      l.localeName,
       all,
       contacts,
       _filter,
@@ -193,6 +213,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
     if (key != _itemsKey) {
       _itemsKey = key;
       _items = historyItems(
+        l,
         all,
         filter: _filter,
         query: _query,
@@ -207,24 +228,25 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     final home = ref.watch(homeProvider);
     final contacts = ref.watch(contactsProvider).value;
     final now = ref.watch(clockProvider)();
     final all = home.value?.transactions;
     final items = all == null
         ? const <HistoryItem>[]
-        : _itemsFor(all, contacts, now);
+        : _itemsFor(l, all, contacts, now);
     final theme = Theme.of(context);
 
     final String? empty;
     if (all == null) {
       empty = null;
     } else if (all.isEmpty) {
-      empty = 'Nothing yet. Payments you send or receive show up here.';
+      empty = l.historyEmpty;
     } else if (items.isEmpty) {
       empty = _query.trim().isEmpty
-          ? 'No ${historyFilterLabel(_filter).toLowerCase()} payments.'
-          : 'Nothing matches "${_query.trim()}".';
+          ? _noneUnder(l, _filter)
+          : l.historyNoMatch(_query.trim());
     } else {
       empty = null;
     }
@@ -235,14 +257,14 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
         onChanged: _onSearchChanged,
         textInputAction: TextInputAction.search,
         decoration: InputDecoration(
-          labelText: 'Search',
-          hintText: 'Note, contact, address or amount',
+          labelText: l.historySearchLabel,
+          hintText: l.historySearchHint,
           prefixIcon: const Icon(Icons.search),
           border: const OutlineInputBorder(),
           suffixIcon: _search.text.isEmpty
               ? null
               : IconButton(
-                  tooltip: 'Clear search',
+                  tooltip: l.historyClearSearch,
                   icon: const Icon(Icons.clear),
                   onPressed: _clearSearch,
                 ),
@@ -256,7 +278,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
             Padding(
               padding: const EdgeInsets.only(right: 8),
               child: ChoiceChip(
-                label: Text(historyFilterLabel(filter)),
+                label: Text(historyFilterLabel(l, filter)),
                 selected: _filter == filter,
                 onSelected: (_) => setState(() => _filter = filter),
               ),
@@ -264,7 +286,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
         ],
       ),
       if (home.hasError && !home.isLoading)
-        ErrorText(describeError(home.error!)),
+        ErrorText(describeError(l, home.error!)),
       if (empty != null)
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 24),
@@ -273,9 +295,11 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
     ];
 
     return SlotScaffold(
-      appBar: AppBar(title: const Text('History')),
+      appBar: AppBar(title: Text(l.historyTitle)),
       idle: home.isLoading
-          ? SlotProgress(label: all == null ? 'Loading payments' : 'Refreshing')
+          ? SlotProgress(
+              label: all == null ? l.historyLoading : l.historyRefreshing,
+            )
           : null,
       body: SafeArea(
         child: Center(

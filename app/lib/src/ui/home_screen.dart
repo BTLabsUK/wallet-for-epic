@@ -5,7 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../contacts.dart' show contactNameFor, contactsProvider;
 import '../errors.dart';
-import '../network.dart';
+import '../l10n.dart';
 import '../providers.dart';
 import '../push.dart';
 import '../settings.dart';
@@ -67,13 +67,10 @@ int? paymentsNotInBackup(
   return n == 0 ? null : n;
 }
 
-/// The notice for a push that arrives while the app is open but not connected to epicbox.
-const String pushNotice =
-    'A payment is waiting in your epicbox. It arrives once the app is connected.';
-
 /// The notice for a listener event: what happened to which payment, never the raw message.
 /// [tx] is the transaction with the event's slate id, when the list has it.
 String paymentNotice(
+  AppLocalizations l,
   ListenerEvent event,
   TxEntry? tx, {
   String? contactName,
@@ -90,30 +87,31 @@ String paymentNotice(
     case ListenerEventKind.received:
       // The listener only accepted it; the sender still has to finish it.
       final amount = event.amount ?? (tx == null ? null : txAmount(tx).amount);
-      final from = contactName == null ? '' : ' from $contactName';
-      const rest = 'It completes when the sender finishes.';
-      return amount == null || hidden
-          ? 'A payment$from is on the way. $rest'
-          : '${epicText(amount)}$from on the way. $rest';
+      final shown = hidden || amount == null ? null : epicText(l, amount);
+      return switch ((shown, contactName)) {
+        (null, null) => l.homeNoticeReceived,
+        (null, final from?) => l.homeNoticeReceivedFrom(from),
+        (final a?, null) => l.homeNoticeReceivedAmount(a),
+        (final a?, final from?) => l.homeNoticeReceivedAmountFrom(a, from),
+      };
     case ListenerEventKind.finalized:
       // Finished and posted, not yet confirmed: "Completed" is kept for 10 confirmations.
-      const wait = 'Waiting for confirmations.';
-      return who == null
-          ? 'Payment finished. $wait'
-          : 'Payment to $who finished. $wait';
+      return who == null ? l.homeNoticeFinished : l.homeNoticeFinishedTo(who);
     case ListenerEventKind.expired:
-      // The core says whether the funds are unlocked yet or unlock at the next refresh.
-      return event.message;
+      // The core says whether the funds are unlocked yet or unlock at the next refresh, in
+      // English; other languages get the sentence that claims neither.
+      return l.localeName == 'en' ? event.message : l.errorPaymentExpired;
     case ListenerEventKind.delayed:
       // Shown once per payment by home; the core retries and the payment is unchanged.
-      return 'Could not reach the node. The payment will finish once it can.';
+      return l.homeNoticeDelayed;
     case ListenerEventKind.error:
       return event.slateId == null
-          ? 'The epicbox server reported a problem. Retrying.'
-          : 'A payment could not be completed.';
+          ? l.homeNoticeRelayProblem
+          : l.homeNoticePaymentFailed;
     case ListenerEventKind.connected ||
         ListenerEventKind.disconnected ||
         ListenerEventKind.stopped:
+      // Never a notice: these change the listener's state, not `ListenerState.last`.
       return event.message;
   }
 }
@@ -191,7 +189,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   Future<void> _backup() async {
     final done = await Navigator.of(context)
         .push<bool>(MaterialPageRoute(builder: (_) => const BackupScreen()));
-    if (done == true && mounted) _showNotice('Recovery phrase backed up');
+    if (done == true && mounted) _showNotice(context.l10n.homeBackedUpNotice);
   }
 
   Future<void> _open(Widget screen) async {
@@ -228,6 +226,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     if (!mounted) return;
     final contacts = ref.read(contactsProvider).value ?? const <Contact>[];
     final text = paymentNotice(
+      context.l10n,
       event,
       tx,
       contactName: contactNameFor(contacts, tx?.counterparty),
@@ -248,7 +247,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           action: txKey == null
               ? null
               : NoticeAction(
-                  'View',
+                  context.l10n.homeNoticeView,
                   () => Navigator.of(context).push(
                     MaterialPageRoute<void>(
                       builder: (_) => TxDetailsScreen(txKey: txKey),
@@ -264,7 +263,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     // collects it and gives the notice, so one payment gets one notice.
     ref.listen(pushProvider.select((s) => s.last), (_, message) {
       if (message == null || ref.read(listenerProvider).connected) return;
-      _showNotice(pushNotice);
+      _showNotice(context.l10n.homePushNotice);
     });
     ref.listen(incomingSlateProvider, (_, file) {
       if (file != null) _openIncoming();
@@ -275,32 +274,35 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final config = ref.watch(walletConfigProvider);
     final home = ref.watch(homeProvider);
     final scan = ref.watch(scanProvider);
+    final l = context.l10n;
     final data = home.value;
     final syncing = _syncing(home);
     final backedUp = ref.watch(backedUpProvider).value ?? true;
     final backupDismissed =
         ref.watch(backupCardDismissedProvider).value ?? false;
-    final title = config == null ? 'Wallet' : chainLabel(config.chain);
+    final title = config == null
+        ? l.homeTitleNoNetwork
+        : l.homeTitle(chainName(l, config.chain));
     final transactions = data?.transactions ?? const <TxEntry>[];
     final scanner = ref.watch(qrScannerProvider);
 
     return SlotScaffold(
       idle: const _HomeStatus(),
       appBar: AppBar(
-        title: Text('Epic Cash · $title'),
+        title: Text(title),
         actions: [
           IconButton(
-            tooltip: 'Refresh',
+            tooltip: l.homeRefreshTooltip,
             icon: const Icon(Icons.refresh),
             onPressed: syncing || scan.running ? null : _refresh,
           ),
           IconButton(
-            tooltip: 'Lock wallet',
+            tooltip: l.homeLockTooltip,
             icon: const Icon(Icons.lock_outline),
             onPressed: () => lockWallet(context, ref),
           ),
           IconButton(
-            tooltip: 'Settings',
+            tooltip: l.homeSettingsTooltip,
             icon: const Icon(Icons.settings_outlined),
             onPressed: () => _open(const SettingsScreen()),
           ),
@@ -329,7 +331,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       onDismiss: () => dismissBackupCard(ref, config.chain),
                     ),
                   if (home.hasError && !home.isLoading)
-                    ErrorText(describeError(home.error!)),
+                    ErrorText(describeError(l, home.error!)),
                   if (data != null) BalanceHeader(summary: data.summary),
                   _SyncLine(summary: data?.summary, syncing: syncing),
                   const SizedBox(height: 16),
@@ -341,7 +343,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             minimumSize: const Size.fromHeight(48),
                           ),
                           icon: const Icon(Icons.north_east),
-                          label: const Text('Send'),
+                          label: Text(l.homeSendButton),
                           onPressed: () => _open(const SendScreen()),
                         ),
                       ),
@@ -352,14 +354,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             minimumSize: const Size.fromHeight(48),
                           ),
                           icon: const Icon(Icons.south_west),
-                          label: const Text('Receive'),
+                          label: Text(l.homeReceiveButton),
                           onPressed: () => _open(const ReceiveScreen()),
                         ),
                       ),
                       if (scanner.supported) ...[
                         const SizedBox(width: 12),
                         IconButton.filledTonal(
-                          tooltip: 'Scan a QR code to send',
+                          tooltip: l.homeScanTooltip,
                           constraints: const BoxConstraints(
                             minWidth: 48,
                             minHeight: 48,
@@ -385,7 +387,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         child: Semantics(
                           header: true,
                           child: Text(
-                            'Recent activity',
+                            l.homeRecentActivity,
                             style: Theme.of(context).textTheme.titleMedium,
                           ),
                         ),
@@ -393,7 +395,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       if (transactions.isNotEmpty)
                         TextButton(
                           onPressed: () => _open(const HistoryScreen()),
-                          child: const Text('See all'),
+                          child: Text(l.homeSeeAll),
                         ),
                     ],
                   ),
@@ -430,7 +432,7 @@ class _HomeStatus extends ConsumerWidget {
     final percent = ref.watch(syncProgressProvider);
     return SlotProgress(
       value: percent == null ? null : percent / 100,
-      label: 'Syncing',
+      label: context.l10n.homeSyncingLabel,
     );
   }
 }
@@ -441,29 +443,33 @@ class _UpdateLine extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l = context.l10n;
     final state = ref.watch(updateProvider);
     final notifier = ref.read(updateProvider.notifier);
     final update = state.update;
-    final version = update == null ? '' : ' ${update.versionName}';
+    // The available, downloading and installing phases always carry the update.
+    final version = update?.versionName ?? '';
     final (String text, Widget? action) = switch (state.phase) {
       UpdatePhase.idle => ('', null),
-      UpdatePhase.checking => ('Checking for updates…', null),
-      UpdatePhase.upToDate => ('This is the latest version.', null),
+      UpdatePhase.checking => (l.updateChecking, null),
+      UpdatePhase.upToDate => (l.updateUpToDate, null),
       UpdatePhase.available => (
-        state.message ?? 'Version$version is available.',
-        TextButton(onPressed: notifier.install, child: const Text('Update')),
+        state.text?.call(l) ?? l.updateAvailable(version),
+        TextButton(
+          onPressed: notifier.install,
+          child: Text(l.updateInstallButton),
+        ),
       ),
       UpdatePhase.downloading => (
-        'Downloading version$version… '
-            '${((state.progress ?? 0) * 100).floor()}%',
+        l.updateDownloading(version, ((state.progress ?? 0) * 100).floor()),
         null,
       ),
-      UpdatePhase.installing => ('Installing version$version…', null),
+      UpdatePhase.installing => (l.updateInstalling(version), null),
       UpdatePhase.failed => (
-        state.message ?? 'The update failed.',
+        state.text?.call(l) ?? l.updateFailed,
         TextButton(
           onPressed: update == null ? notifier.check : notifier.install,
-          child: const Text('Try again'),
+          child: Text(l.updateTryAgain),
         ),
       ),
     };
@@ -471,7 +477,7 @@ class _UpdateLine extends ConsumerWidget {
     final notes = update?.notes ?? '';
     final line = Row(
       children: [
-        const Icon(Icons.system_update, semanticLabel: 'Update'),
+        Icon(Icons.system_update, semanticLabel: l.updateIconLabel),
         const SizedBox(width: 12),
         Expanded(
           child: Semantics(
@@ -499,7 +505,7 @@ class _UpdateLine extends ConsumerWidget {
               bottom: 4,
               child: LinearProgressIndicator(
                 value: state.progress,
-                semanticsLabel: 'Download progress',
+                semanticsLabel: l.updateDownloadProgressLabel,
               ),
             ),
         ],
@@ -530,15 +536,11 @@ class _HistoryBackupCard extends ConsumerWidget {
     );
     if (count == null) return const SizedBox.shrink();
     final colors = Theme.of(context).colorScheme;
+    final l = context.l10n;
     // Before any export nothing is in a backup; after one, some payments may only have changed.
     final text = exportedAt == null
-        ? (count == 1
-              ? '1 payment is not in a history backup.'
-              : '$count payments are not in a history backup.')
-        : (count == 1
-              ? '1 payment is new or changed since your last history backup.'
-              : '$count payments are new or changed since your last history '
-                    'backup.');
+        ? l.homeHistoryNotBackedUp(count)
+        : l.homeHistoryChangedSinceBackup(count);
     return Padding(
       padding: const EdgeInsets.only(top: 16),
       child: Card(
@@ -548,11 +550,7 @@ class _HistoryBackupCard extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text(
-                '$text A restore from your recovery phrase brings back only your '
-                'balance.',
-                style: TextStyle(color: colors.onSecondaryContainer),
-              ),
+              Text(text, style: TextStyle(color: colors.onSecondaryContainer)),
               Wrap(
                 alignment: WrapAlignment.end,
                 children: [
@@ -560,11 +558,11 @@ class _HistoryBackupCard extends ConsumerWidget {
                     onPressed: () => ref
                         .read(appSettingsProvider.notifier)
                         .dismissHistoryReminder(chain, now),
-                    child: const Text('Not now'),
+                    child: Text(l.homeHistoryReminderNotNow),
                   ),
                   TextButton(
                     onPressed: () => exportHistoryBackup(context, ref),
-                    child: const Text('Export history backup'),
+                    child: Text(l.homeHistoryExportButton),
                   ),
                 ],
               ),
@@ -608,6 +606,7 @@ class _BackupCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
+    final l = context.l10n;
     return Card.outlined(
       child: Padding(
         padding: const EdgeInsets.only(left: 16),
@@ -615,10 +614,13 @@ class _BackupCard extends StatelessWidget {
           children: [
             Icon(Icons.key_outlined, color: colors.primary),
             const SizedBox(width: 12),
-            const Expanded(child: Text('Back up your recovery phrase.')),
-            TextButton(onPressed: onBackup, child: const Text('Back up')),
+            Expanded(child: Text(l.homeBackupCardText)),
+            TextButton(
+              onPressed: onBackup,
+              child: Text(l.homeBackupCardButton),
+            ),
             IconButton(
-              tooltip: 'Dismiss',
+              tooltip: l.homeBackupCardDismiss,
               icon: const Icon(Icons.close),
               onPressed: onDismiss,
             ),
@@ -646,43 +648,45 @@ class _BalanceHeaderState extends ConsumerState<BalanceHeader> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l = context.l10n;
     final summary = widget.summary;
     final display = amountDisplay(ref);
     final hidden = display.hidden;
-    final fiat = approxFiat(summary.spendable, display);
+    final fiat = approxFiat(l, summary.spendable, display);
     final buckets = [
-      ('Confirming', summary.awaitingConfirmation),
-      ('Waiting to finish', summary.awaitingFinalization),
-      ('Locked by a payment in progress', summary.locked),
-      ('Mining rewards not spendable yet', summary.immature),
+      (l.homeBalanceConfirming, summary.awaitingConfirmation),
+      (l.homeBalanceWaitingToFinish, summary.awaitingFinalization),
+      (l.homeBalanceLocked, summary.locked),
+      (l.homeBalanceImmature, summary.immature),
     ].where((b) => b.$2 > BigInt.zero).toList();
     final notSpendable = summary.total - summary.spendable;
     final summaryLine = notSpendable > BigInt.zero
-        ? '${shownEpic(notSpendable, hidden: hidden)} not spendable yet'
-        : '${shownEpic(summary.awaitingFinalization, hidden: hidden)} '
-              'waiting to finish';
+        ? l.homeBalanceNotSpendable(shownEpic(l, notSpendable, hidden: hidden))
+        : l.homeBalanceAmountWaitingToFinish(
+            shownEpic(l, summary.awaitingFinalization, hidden: hidden),
+          );
 
     return Padding(
       padding: const EdgeInsets.only(top: 8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Spendable', style: theme.textTheme.labelLarge),
+          Text(l.homeBalanceSpendable, style: theme.textTheme.labelLarge),
           Row(
             children: [
               Flexible(
                 child: Semantics(
                   container: true,
-                  label: hidden ? 'Balance hidden' : null,
+                  label: hidden ? l.homeBalanceHiddenLabel : null,
                   excludeSemantics: hidden,
                   child: Text(
-                    shownEpic(summary.spendable, hidden: hidden),
+                    shownEpic(l, summary.spendable, hidden: hidden),
                     style: theme.textTheme.displaySmall,
                   ),
                 ),
               ),
               IconButton(
-                tooltip: hidden ? 'Show balances' : 'Hide balances',
+                tooltip: hidden ? l.homeShowBalances : l.homeHideBalances,
                 icon: Icon(
                   hidden
                       ? Icons.visibility_outlined
@@ -718,8 +722,8 @@ class _BalanceHeaderState extends ConsumerState<BalanceHeader> {
                       Icon(
                         _expanded ? Icons.expand_less : Icons.expand_more,
                         semanticLabel: _expanded
-                            ? 'Hide breakdown'
-                            : 'Show breakdown',
+                            ? l.homeHideBreakdown
+                            : l.homeShowBreakdown,
                       ),
                     ],
                   ),
@@ -733,7 +737,7 @@ class _BalanceHeaderState extends ConsumerState<BalanceHeader> {
                 child: Row(
                   children: [
                     Expanded(child: Text(label)),
-                    Text(shownEpic(value, hidden: hidden)),
+                    Text(shownEpic(l, value, hidden: hidden)),
                   ],
                 ),
               ),
@@ -754,6 +758,7 @@ class _SyncLine extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final l = context.l10n;
     final tip = ref.watch(nodeTipProvider);
     final listening = ref.watch(listenerProvider.select((s) => s.connected));
     final lost = ref.watch(listenerProvider.select((s) => s.lost));
@@ -763,28 +768,24 @@ class _SyncLine extends ConsumerWidget {
     final (IconData icon, String text, bool problem) = switch (tip) {
       _ when syncing => (
         Icons.sync,
-        percent == null ? 'Syncing…' : 'Syncing… $percent%',
+        percent == null ? l.homeSyncSyncing : l.homeSyncSyncingPercent(percent),
         false,
       ),
-      AsyncError() => (
-        Icons.cloud_off,
-        'Node unreachable. Balances may be out of date.',
-        true,
-      ),
+      AsyncError() => (Icons.cloud_off, l.homeSyncNodeUnreachable, true),
       _ when summary != null && !summary.validatedWithNode => (
         Icons.sync_problem,
-        'Not validated with node. Balances may be out of date.',
+        l.homeSyncNotValidated,
         true,
       ),
-      AsyncData() => (Icons.check_circle_outline, 'Up to date.', false),
-      _ => (Icons.sync, 'Contacting node…', false),
+      AsyncData() => (Icons.check_circle_outline, l.homeSyncUpToDate, false),
+      _ => (Icons.sync, l.homeSyncContactingNode, false),
     };
     if (tip case AsyncData(:final value)) {
       final synced =
           summary != null && summary.lastConfirmedHeight > BigInt.zero
           ? summary.lastConfirmedHeight
           : value.height;
-      height = 'Synced at block ${groupDigits(synced)}';
+      height = l.homeSyncedAtBlock(groupDigits(l, synced));
     }
     final color = problem
         ? theme.colorScheme.error
@@ -792,8 +793,8 @@ class _SyncLine extends ConsumerWidget {
     final relay = listening
         ? null
         : lost
-        ? 'Epicbox offline, reconnecting.'
-        : 'Connecting to epicbox…';
+        ? l.homeEpicboxOffline
+        : l.homeEpicboxConnecting;
     final line = Semantics(
       liveRegion: problem,
       child: Padding(
@@ -805,7 +806,7 @@ class _SyncLine extends ConsumerWidget {
             const SizedBox(width: 8),
             Expanded(
               child: Text(
-                relay == null ? text : '$text $relay',
+                relay == null ? text : l.homeSyncLineWithRelay(text, relay),
                 style: theme.textTheme.bodySmall?.copyWith(color: color),
               ),
             ),
@@ -846,7 +847,8 @@ class _PendingSendsCard extends ConsumerWidget {
       (sum, t) => sum + txAmount(t).amount,
     );
     final colors = Theme.of(context).colorScheme;
-    final one = waiting.length == 1;
+    final l = context.l10n;
+    final count = waiting.length;
     return Padding(
       padding: const EdgeInsets.only(top: 16),
       child: Card(
@@ -857,23 +859,13 @@ class _PendingSendsCard extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text(
-                one
-                    ? 'A payment is waiting for the recipient'
-                    : '${waiting.length} payments are waiting for their recipients',
+                l.homePendingTitle(count),
                 style: Theme.of(context).textTheme.titleSmall
                     ?.copyWith(color: colors.onSecondaryContainer),
               ),
               const SizedBox(height: 4),
               Text(
-                one
-                    ? '${shownEpic(total, hidden: hidden)} is waiting for the '
-                          'recipient\'s wallet to answer. Until then the funds '
-                          'stay locked. If it never answers, open the payment and '
-                          'tap Cancel payment.'
-                    : '${shownEpic(total, hidden: hidden)} is waiting for the '
-                          'recipients\' wallets to answer. Until then the funds '
-                          'stay locked. If one never answers, open the payment '
-                          'and tap Cancel payment.',
+                l.homePendingBody(count, shownEpic(l, total, hidden: hidden)),
                 style: TextStyle(color: colors.onSecondaryContainer),
               ),
               // One row on a phone; wraps only at large text.
@@ -884,16 +876,16 @@ class _PendingSendsCard extends ConsumerWidget {
                     style: _compact,
                     onPressed: () =>
                         openHelp(context, HelpTopic.waitingForRecipient),
-                    child: const Text('Why is it waiting?'),
+                    child: Text(l.homePendingWhy),
                   ),
                   TextButton(
                     style: _compact,
                     onPressed: () => open(
-                      one
+                      count == 1
                           ? TxDetailsScreen(txKey: waiting.single.key)
                           : const HistoryScreen(filter: HistoryFilter.pending),
                     ),
-                    child: Text(one ? 'View payment' : 'View payments'),
+                    child: Text(l.homePendingView(count)),
                   ),
                 ],
               ),
@@ -927,14 +919,14 @@ class _EmptyActivity extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             Text(
-              'No payments yet.',
+              context.l10n.homeNoPayments,
               style: theme.textTheme.titleMedium,
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),
             FilledButton.icon(
               icon: const Icon(Icons.qr_code),
-              label: const Text('Show my address'),
+              label: Text(context.l10n.homeShowMyAddress),
               onPressed: onReceive,
             ),
           ],

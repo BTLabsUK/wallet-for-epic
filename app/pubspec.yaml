@@ -30,6 +30,11 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  # UI translations: gen-l10n reads lib/l10n/*.arb (see l10n.yaml). intl is the version
+  # flutter_localizations already resolves; it formats numbers, dates and plurals per locale.
+  flutter_localizations:
+    sdk: flutter
+  intl: 0.20.3
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -74,6 +79,8 @@ flutter:
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
+  # Runs gen-l10n on pub get, run, build and test.
+  generate: true
 
   # To add assets to your application, add an assets section, like this:
   # assets:

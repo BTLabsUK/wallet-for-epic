@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'app_log.dart';
+import 'l10n.dart';
 import 'providers.dart';
 import 'push.dart';
+import 'secret_store.dart' show PlatformBiometricStore;
 import 'settings.dart';
 import 'ui/common.dart';
 import 'ui/launch_screen.dart';
@@ -124,12 +126,30 @@ class _WalletAppState extends ConsumerState<WalletApp> {
         _lockAfterScan = false;
       }
     });
-    final themeMode =
-        ref.watch(appSettingsProvider).value?.themeMode ?? ThemeMode.system;
+    final settings = ref.watch(appSettingsProvider).value;
+    final themeMode = settings?.themeMode ?? ThemeMode.system;
     return MaterialApp(
-      title: 'Epic Cash Wallet',
+      onGenerateTitle: (context) => context.l10n.appTitle,
       navigatorKey: _navigator,
       debugShowCheckedModeBanner: false,
+      // Null follows the system's languages; Flutter picks the first one we translate, else
+      // English (the first supported locale).
+      locale: settings?.locale,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      builder: (context, child) {
+        // The system biometric prompt is not a widget, so it gets the current words here.
+        final biometrics = ref.read(biometricStoreProvider);
+        if (biometrics is PlatformBiometricStore) {
+          final l = context.l10n;
+          biometrics.prompt = (
+            title: l.biometricPromptTitle,
+            subtitle: l.biometricPromptSubtitle,
+            usePin: l.biometricPromptUsePin,
+          );
+        }
+        return child!;
+      },
       themeMode: themeMode,
       theme: ThemeData(colorScheme: ColorScheme.fromSeed(seedColor: _seed)),
       darkTheme: ThemeData(

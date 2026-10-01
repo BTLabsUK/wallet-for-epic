@@ -6,6 +6,7 @@ import 'package:path_provider/path_provider.dart';
 
 import 'app_log.dart';
 import 'errors.dart';
+import 'l10n.dart' show englishStrings;
 import 'network.dart';
 import 'secret_store.dart';
 import 'vault.dart';
@@ -277,7 +278,7 @@ class HomeNotifier extends AsyncNotifier<HomeData> {
       final data = await _refreshed(session);
       if (ref.mounted) state = AsyncData(data);
     } catch (error, stack) {
-      logWarn('sync', 'refresh failed: ${describeError(error)}');
+      logWarn('sync', 'refresh failed: ${describeError(englishStrings, error)}');
       if (!ref.mounted) return;
       // The local figures stay, no longer marked as syncing, under the error.
       final shown = state.value;
@@ -317,7 +318,7 @@ class HomeNotifier extends AsyncNotifier<HomeData> {
       );
     } catch (error) {
       // The list stays as it was.
-      logInfo('history', 'enrich failed: ${describeError(error)}');
+      logInfo('history', 'enrich failed: ${describeError(englishStrings, error)}');
     } finally {
       _enriching = false;
     }
@@ -343,18 +344,26 @@ final nodeTipProvider = FutureProvider.autoDispose<NodeTip>((ref) {
 /// Prefix of the core's final scan event when the scan failed.
 const String scanFailedPrefix = 'Scan failed:';
 
+/// A scan's progress. The screen words it from [running], [percent], [done] and [error];
+/// [message] is the core's English line, for the log only.
 class ScanState {
   const ScanState({
     this.running = false,
     this.percent,
     this.message,
     this.error,
+    this.done = false,
   });
 
   final bool running;
   final int? percent;
   final String? message;
-  final String? error;
+
+  /// Why the last scan failed, for `describeError`.
+  final Object? error;
+
+  /// The last scan finished without an error.
+  final bool done;
 }
 
 /// A scan of the chain for the open wallet's outputs, with its latest progress.
@@ -373,17 +382,19 @@ class ScanNotifier extends Notifier<ScanState> {
   Future<bool> run({BigInt? startHeight}) async {
     final session = ref.read(sessionProvider);
     if (session == null || state.running) return false;
-    state = const ScanState(running: true, message: 'Starting scan');
+    state = const ScanState(running: true);
     logInfo('scan', 'started from ${startHeight ?? 'the last scanned block'}');
     // The core ends every scan with a `finished` event; on failure its message starts with
-    // "Scan failed:" and the stream then closes with the error as well.
-    String? failure;
+    // "Scan failed:" and the stream then closes with the error as well, which wins.
+    Object? failure;
     try {
       await for (final progress in session.scan(startHeight: startHeight)) {
         if (!ref.mounted) return false;
         if (progress.finished &&
             progress.message.startsWith(scanFailedPrefix)) {
-          failure = progress.message;
+          failure = ScanFailed(
+            progress.message.substring(scanFailedPrefix.length).trim(),
+          );
           continue;
         }
         state = ScanState(
@@ -393,14 +404,15 @@ class ScanNotifier extends Notifier<ScanState> {
         );
       }
     } catch (error) {
-      failure ??= describeError(error);
+      failure = error;
     }
     if (!ref.mounted) return false;
     if (failure != null) {
+      logWarn('scan', 'failed: ${describeError(englishStrings, failure)}');
       state = ScanState(error: failure);
       return false;
     }
-    state = ScanState(message: state.message);
+    state = ScanState(message: state.message, done: true);
     return true;
   }
 }
@@ -453,7 +465,7 @@ class WalletSetupNotifier extends Notifier<WalletSetup> {
       }
       state = WalletSetup(config: config, session: session);
     } catch (error) {
-      logWarn('setup', 'creating the wallet failed: ${describeError(error)}');
+      logWarn('setup', 'creating the wallet failed: ${describeError(englishStrings, error)}');
       if (ref.mounted && state.config?.dataDir == config.dataDir) {
         state = WalletSetup(config: config, error: error);
       }
@@ -573,8 +585,11 @@ class ListenerNotifier extends Notifier<ListenerState> {
     _events = session.startListener().listen(
       _onEvent,
       onError: (Object error) {
-        logWarn('listener', 'stream failed: ${describeError(error)}');
-        state = ListenerState(status: describeError(error), last: state.last);
+        logWarn('listener', 'stream failed: ${describeError(englishStrings, error)}');
+        state = ListenerState(
+          status: describeError(englishStrings, error),
+          last: state.last,
+        );
       },
     );
     return const ListenerState(status: 'Connecting to the epicbox relay…');

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../errors.dart';
-import '../network.dart';
+import '../l10n.dart';
 import '../providers.dart';
 import '../wallet_service.dart';
 import 'centered_body.dart';
@@ -35,8 +35,9 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
   Future<void> _unlock() async {
     final config = ref.read(walletConfigProvider);
     if (config == null) return;
+    final l = context.l10n;
     if (_password.text.isEmpty) {
-      setState(() => _passwordError = 'Enter your password.');
+      setState(() => _passwordError = l.unlockPasswordEmpty);
       return;
     }
     setState(() {
@@ -61,10 +62,10 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
         _busy = false;
         if (error is WalletError &&
             error.kind == WalletErrorKind.wrongPassword) {
-          _passwordError = describeError(error);
+          _passwordError = describeError(l, error);
           _password.clear();
         } else {
-          _error = describeError(error);
+          _error = describeError(l, error);
         }
       });
     }
@@ -74,6 +75,7 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
     final config = ref.read(walletConfigProvider);
     final password = _openedPassword;
     if (config == null || password == null) return;
+    final l = context.l10n;
     setState(() => _busy = true);
     try {
       await ref
@@ -92,7 +94,7 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
       if (mounted) {
         setState(() {
           _busy = false;
-          _error = describeError(error);
+          _error = describeError(l, error);
         });
       }
     }
@@ -100,22 +102,21 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     final config = ref.watch(walletConfigProvider);
     return SlotScaffold(
       centered: true,
       appBar: AppBar(
         title: Text(
           config == null
-              ? 'Unlock wallet'
-              : 'Unlock wallet${networkSuffix(config.chain)}',
+              ? l.unlockTitle
+              : '${l.unlockTitle}${networkSuffix(l, config.chain)}',
         ),
       ),
       body: CenteredBody(
         children: _openedPassword != null
             ? [
-                const Text(
-                  'This wallet now opens with a PIN instead of its password.',
-                ),
+                Text(l.unlockMovedToPin),
                 const SizedBox(height: 16),
                 if (_busy)
                   const LinearProgressIndicator()
@@ -126,14 +127,18 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
             : [
                 PasswordField(
                   controller: _password,
-                  label: 'Password',
+                  label: l.unlockPasswordLabel,
                   errorText: _passwordError,
                   textInputAction: TextInputAction.done,
                   onSubmitted: (_) => _unlock(),
                 ),
                 const SizedBox(height: 16),
                 if (_error != null) ErrorText(_error!),
-                BusyButton(label: 'Unlock', busy: _busy, onPressed: _unlock),
+                BusyButton(
+                  label: l.unlockButton,
+                  busy: _busy,
+                  onPressed: _unlock,
+                ),
               ],
       ),
     );

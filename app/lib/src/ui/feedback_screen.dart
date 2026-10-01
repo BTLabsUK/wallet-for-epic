@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../app_log.dart';
 import '../errors.dart';
 import '../feedback.dart';
+import '../l10n.dart';
 import '../network.dart';
 import '../providers.dart';
 import '../settings.dart';
@@ -18,8 +19,9 @@ final feedbackPlatformProvider = Provider<String>(
   (ref) => '${Platform.operatingSystem} ${Platform.operatingSystemVersion}',
 );
 
-/// Plain words for what the wallet is doing, for a feedback report. Reads only providers that
-/// are already running, so asking never starts a refresh or a listener.
+/// Plain words for what the wallet is doing, for a feedback report. English, like the rest of
+/// the report. Reads only providers that are already running, so asking never starts a
+/// refresh or a listener.
 String describeSyncState(WidgetRef ref) {
   if (ref.read(sessionProvider) == null) return 'Wallet locked';
   final parts = <String>[];
@@ -34,7 +36,7 @@ String describeSyncState(WidgetRef ref) {
     final data = home.value;
     parts.add(
       home.hasError
-          ? 'Last sync failed: ${describeError(home.error!)}'
+          ? 'Last sync failed: ${describeError(englishStrings, home.error!)}'
           : data == null
           ? 'Loading'
           : data.syncing
@@ -84,9 +86,10 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
   }
 
   Future<FeedbackDetails> _details() async {
+    // English, like the rest of the report.
     String version;
     try {
-      version = await ref.read(appVersionProvider.future);
+      version = await ref.read(appVersionProvider.future) ?? 'Unknown';
     } catch (_) {
       version = 'Unknown';
     }
@@ -128,14 +131,13 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
   }
 
   bool _validate() {
+    final l = context.l10n;
     final message = _message.text.trim();
     final email = _email.text.trim();
     setState(() {
-      _messageError = message.isEmpty
-          ? 'Write a few words about what happened.'
-          : null;
+      _messageError = message.isEmpty ? l.feedbackMessageMissing : null;
       _emailError = email.isNotEmpty && !isValidFeedbackEmail(email)
-          ? 'This does not look like an email address.'
+          ? l.feedbackEmailInvalid
           : null;
       _error = null;
     });
@@ -160,10 +162,11 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
     } catch (error) {
       logWarn('feedback', 'not sent: $error');
       if (mounted) {
+        final l = context.l10n;
         setState(
           () => _error = error is FeedbackSendError
-              ? error.message
-              : describeError(error),
+              ? error.text(l)
+              : describeError(l, error),
         );
       }
     } finally {
@@ -181,7 +184,7 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
     final report = await _report();
     await ref.read(feedbackOutletProvider).post(url, report);
     logInfo('feedback', 'sent to ${url.host}');
-    _done('Thank you. Your feedback was sent.');
+    if (mounted) _done(context.l10n.feedbackSent);
   });
 
   Future<void> _handOver() async {
@@ -193,29 +196,33 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
       final chosen = await showModalBottomSheet<_Destination>(
         context: context,
         showDragHandle: true,
-        builder: (context) => SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ListTile(
-                leading: const Icon(Icons.share),
-                title: const Text('Share'),
-                subtitle: const Text('Send it by email or a chat app'),
-                onTap: () => Navigator.pop(context, _Destination.share),
-              ),
-              ListTile(
-                leading: const Icon(Icons.save_alt),
-                title: const Text('Save to device'),
-                onTap: () => Navigator.pop(context, _Destination.device),
-              ),
-              const SizedBox(height: 8),
-            ],
-          ),
-        ),
+        builder: (context) {
+          final l = context.l10n;
+          return SafeArea(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ListTile(
+                  leading: const Icon(Icons.share),
+                  title: Text(l.commonShare),
+                  subtitle: Text(l.feedbackShareHint),
+                  onTap: () => Navigator.pop(context, _Destination.share),
+                ),
+                ListTile(
+                  leading: const Icon(Icons.save_alt),
+                  title: Text(l.feedbackSaveToDevice),
+                  onTap: () => Navigator.pop(context, _Destination.device),
+                ),
+                const SizedBox(height: 8),
+              ],
+            ),
+          );
+        },
       );
       if (chosen == null || !mounted) return;
       destination = chosen;
     }
+    final dialogTitle = context.l10n.feedbackSaveDialogTitle;
     await _run(() async {
       final report = await _report();
       final name = feedbackFileName(ref.read(clockProvider)());
@@ -223,32 +230,36 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
           .read(autoLockHoldProvider.notifier)
           .during(
             () => switch (destination) {
-              _Destination.device => outlet.save(name: name, report: report),
+              _Destination.device => outlet.save(
+                name: name,
+                report: report,
+                dialogTitle: dialogTitle,
+              ),
               _Destination.share => outlet.share(name: name, report: report),
             },
           );
       if (!done) return;
       logInfo('feedback', 'handed over as ${destination.name}');
+      if (!mounted) return;
+      final l = context.l10n;
       _done(
         destination == _Destination.device
-            ? 'Saved $name'
-            : 'Thank you for your feedback.',
+            ? l.feedbackSavedFile(name)
+            : l.feedbackThanks,
       );
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     final url = ref.watch(feedbackUrlProvider);
     final theme = Theme.of(context);
     return SlotScaffold(
-      appBar: AppBar(title: const Text('Send feedback')),
+      appBar: AppBar(title: Text(l.feedbackTitle)),
       body: ScreenBody(
         children: [
-          Text(
-            'Tell us what went wrong or what could be better.',
-            style: theme.textTheme.bodyLarge,
-          ),
+          Text(l.feedbackIntro, style: theme.textTheme.bodyLarge),
           const SizedBox(height: 16),
           TextField(
             controller: _message,
@@ -260,7 +271,7 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
               if (_messageError != null) setState(() => _messageError = null);
             },
             decoration: InputDecoration(
-              labelText: 'Your message',
+              labelText: l.feedbackMessageLabel,
               alignLabelWithHint: true,
               error: _messageError == null
                   ? null
@@ -277,7 +288,7 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
               if (_emailError != null) setState(() => _emailError = null);
             },
             decoration: InputDecoration(
-              labelText: 'Email for a reply (optional)',
+              labelText: l.feedbackEmailLabel,
               error: _emailError == null ? null : LiveFieldError(_emailError!),
               border: const OutlineInputBorder(),
             ),
@@ -285,11 +296,8 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
           const SizedBox(height: 8),
           SwitchListTile(
             contentPadding: EdgeInsets.zero,
-            title: const Text('Attach diagnostic logs'),
-            subtitle: const Text(
-              'Helps us find the problem. Your recovery phrase, PIN and other '
-              'secrets are removed first.',
-            ),
+            title: Text(l.feedbackAttachLogs),
+            subtitle: Text(l.feedbackAttachLogsHint),
             value: _attachLogs,
             onChanged: (on) => setState(() => _attachLogs = on),
           ),
@@ -297,31 +305,31 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
             alignment: Alignment.centerLeft,
             child: TextButton.icon(
               icon: const Icon(Icons.visibility_outlined),
-              label: const Text('Preview what is sent'),
+              label: Text(l.feedbackPreviewButton),
               onPressed: _busy ? null : _preview,
             ),
           ),
           const SizedBox(height: 8),
           if (_error != null) ErrorText(_error!),
           if (url != null) ...[
-            BusyButton(label: 'Send', busy: _busy, onPressed: () => _send(url)),
+            BusyButton(
+              label: l.feedbackSend,
+              busy: _busy,
+              onPressed: () => _send(url),
+            ),
             const SizedBox(height: 8),
             OutlinedButton(
               style: OutlinedButton.styleFrom(
                 minimumSize: const Size.fromHeight(48),
               ),
               onPressed: _busy ? null : _handOver,
-              child: const Text('Share or save instead'),
+              child: Text(l.feedbackShareOrSaveInstead),
             ),
           ] else ...[
-            Text(
-              'Your feedback becomes a text file you can send by email or '
-              'chat, or save.',
-              style: theme.textTheme.bodyMedium,
-            ),
+            Text(l.feedbackFileExplanation, style: theme.textTheme.bodyMedium),
             const SizedBox(height: 12),
             BusyButton(
-              label: 'Share or save',
+              label: l.feedbackShareOrSave,
               busy: _busy,
               onPressed: _handOver,
             ),
@@ -332,8 +340,8 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
   }
 }
 
-/// The exact text a report would carry. One line per row, so a 256 KB log scrolls smoothly;
-/// the selection area still lets the user copy across rows.
+/// The exact text a report would carry, which stays English. One line per row, so a 256 KB log
+/// scrolls smoothly; the selection area still lets the user copy across rows.
 class FeedbackPreviewScreen extends StatelessWidget {
   const FeedbackPreviewScreen({super.key, required this.report});
 
@@ -344,7 +352,7 @@ class FeedbackPreviewScreen extends StatelessWidget {
     final style = Theme.of(context).textTheme.bodySmall;
     final lines = report.split('\n');
     return SlotScaffold(
-      appBar: AppBar(title: const Text('What is sent')),
+      appBar: AppBar(title: Text(context.l10n.feedbackPreviewTitle)),
       body: SafeArea(
         child: SelectionArea(
           child: Scrollbar(
