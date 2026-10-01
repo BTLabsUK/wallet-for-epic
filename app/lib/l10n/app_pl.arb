@@ -442,6 +442,7 @@
   "sendAmountZero": "Wpisz kwotę większą od zera.",
   "sendRecipientLabel": "Do",
   "sendRecipientHint": "Adres odbiorcy lub URL portfela",
+  "sendRecipientHintSimple": "Adres odbiorcy",
   "scanQrTooltip": "Zeskanuj kod QR",
   "sendScanButton": "Skanuj",
   "sendChooseContactTooltip": "Wybierz kontakt",

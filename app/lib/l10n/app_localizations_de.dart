@@ -1974,6 +1974,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get sendRecipientHint => 'Adresse oder Wallet-URL des Empfängers';
 
   @override
+  String get sendRecipientHintSimple => 'Adresse des Empfängers';
+
+  @override
   String get scanQrTooltip => 'QR-Code scannen';
 
   @override

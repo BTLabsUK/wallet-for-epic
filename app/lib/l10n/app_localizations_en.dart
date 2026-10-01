@@ -1949,6 +1949,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sendRecipientHint => 'Their address or a wallet URL';
 
   @override
+  String get sendRecipientHintSimple => 'Their address';
+
+  @override
   String get scanQrTooltip => 'Scan QR code';
 
   @override

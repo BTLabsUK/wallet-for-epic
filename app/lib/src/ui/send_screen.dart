@@ -21,6 +21,7 @@ import 'contacts_screen.dart';
 import 'help_screen.dart';
 import 'scan_screen.dart';
 import 'slate_file_screen.dart';
+import 'theme/advanced.dart';
 
 /// Sending: pick a recipient (their address or a wallet URL), an amount, review, send. A
 /// transaction file is offered under "Other ways to send".
@@ -603,6 +604,8 @@ class _SendScreenState extends ConsumerState<SendScreen> {
         : contactFor(contacts, to.address);
     final amount = _parsedAmount;
     final estimate = _estimate;
+    // Wallet URLs are accepted either way; only the hint and the file route are technical.
+    final advanced = AdvancedOptions.of(context);
 
     String? amountHelper;
     if (amount != null && price != null) {
@@ -633,7 +636,9 @@ class _SendScreenState extends ConsumerState<SendScreen> {
           }),
           decoration: InputDecoration(
             labelText: l.sendRecipientLabel,
-            hintText: l.sendRecipientHint,
+            hintText: advanced
+                ? l.sendRecipientHint
+                : l.sendRecipientHintSimple,
             error: _recipientError == null
                 ? null
                 : LiveFieldError(_recipientError!),
@@ -838,7 +843,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
           }),
           child: Text(l.sendToAddressInstead),
         )
-      else
+      else if (advanced)
         ExpansionTile(
           tilePadding: EdgeInsets.zero,
           title: Text(l.sendOtherWays),

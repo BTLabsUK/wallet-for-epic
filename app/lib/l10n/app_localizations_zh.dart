@@ -1833,6 +1833,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get sendRecipientHint => '对方的地址或钱包 URL';
 
   @override
+  String get sendRecipientHintSimple => '对方的地址';
+
+  @override
   String get scanQrTooltip => '扫描二维码';
 
   @override

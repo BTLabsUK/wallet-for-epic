@@ -442,6 +442,7 @@
   "sendAmountZero": "请输入大于零的金额。",
   "sendRecipientLabel": "接收方",
   "sendRecipientHint": "对方的地址或钱包 URL",
+  "sendRecipientHintSimple": "对方的地址",
   "scanQrTooltip": "扫描二维码",
   "sendScanButton": "扫码",
   "sendChooseContactTooltip": "选择联系人",

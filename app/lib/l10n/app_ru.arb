@@ -442,6 +442,7 @@
   "sendAmountZero": "Введите сумму больше нуля.",
   "sendRecipientLabel": "Кому",
   "sendRecipientHint": "Адрес получателя или URL кошелька",
+  "sendRecipientHintSimple": "Адрес получателя",
   "scanQrTooltip": "Сканировать QR-код",
   "sendScanButton": "Сканировать",
   "sendChooseContactTooltip": "Выбрать контакт",

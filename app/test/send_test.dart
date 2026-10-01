@@ -20,6 +20,7 @@ import 'package:epic_wallet/src/ui/receive_screen.dart';
 import 'package:epic_wallet/src/ui/scan_screen.dart';
 import 'package:epic_wallet/src/ui/send_screen.dart';
 import 'package:epic_wallet/src/ui/slate_file_screen.dart';
+import 'package:epic_wallet/src/ui/theme/advanced.dart';
 import 'package:epic_wallet/src/ui/tx_details_screen.dart';
 import 'package:epic_wallet/src/updater.dart';
 import 'package:epic_wallet/src/vault.dart';
@@ -178,8 +179,11 @@ class _Host extends ConsumerWidget {
 }
 
 class _Harness {
-  _Harness({this.price, bool scanSupported = true})
+  _Harness({this.price, bool scanSupported = true, this.advanced = false})
     : scanner = FakeQrScanner(supported: scanSupported);
+
+  /// Advanced options, as `MaterialApp.builder` in the app would provide it.
+  final bool advanced;
 
   final session = _funded();
   final service = FakeWalletService();
@@ -206,6 +210,8 @@ class _Harness {
         child: MaterialApp(
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
+          builder: (context, child) =>
+              AdvancedOptions(enabled: advanced, child: child!),
           home: screen,
         ),
       ),
@@ -295,9 +301,10 @@ class _NoRelays implements RelayDirectory {
 /// The whole app on a funded mainnet wallet with a PIN, auto-lock "Immediately", and a clock
 /// the test moves.
 class _AppHarness {
-  _AppHarness() {
+  _AppHarness({bool advanced = false}) {
     store.values['wallet.mainnet.sealed'] = 'sealed|$_pin|$_password';
     store.values['app.auto_lock'] = '0';
+    if (advanced) store.values['app.advanced'] = 'true';
     service = FakeWalletService(
       existingWallets: {'/fake/wallets/mainnet'},
       session: session,
@@ -985,7 +992,7 @@ void main() {
     testWidgets('by transaction file under "Other ways to send"', (
       tester,
     ) async {
-      final h = _Harness();
+      final h = _Harness(advanced: true);
       await h.pump(tester, const SendScreen());
       await _tap(tester, find.text('Other ways to send'));
       await _tap(tester, find.text('Send by transaction file'));
@@ -1057,7 +1064,7 @@ void main() {
     testWidgets('where files cannot be shared, only Save to device shows', (
       tester,
     ) async {
-      final h = _Harness();
+      final h = _Harness(advanced: true);
       h.files.canShare = false;
       await h.pump(tester, const SendScreen());
       await _tap(tester, find.text('Other ways to send'));
@@ -1069,7 +1076,7 @@ void main() {
     });
 
     testWidgets('by file: paste the response instead', (tester) async {
-      final h = _Harness();
+      final h = _Harness(advanced: true);
       await h.pump(tester, const SendScreen());
       await _tap(tester, find.text('Other ways to send'));
       await _tap(tester, find.text('Send by transaction file'));
@@ -1196,7 +1203,7 @@ void main() {
     });
 
     testWidgets('picking a transaction file does not lock', (tester) async {
-      final h = _AppHarness();
+      final h = _AppHarness(advanced: true);
       await h.pumpUnlocked(tester);
       await h.open(tester, const ReceiveScreen());
       await _tap(tester, find.text('Receive a transaction file'));
@@ -1209,7 +1216,7 @@ void main() {
     });
 
     testWidgets('sharing a send file does not lock', (tester) async {
-      final h = _AppHarness();
+      final h = _AppHarness(advanced: true);
       await h.pumpUnlocked(tester);
       await h.open(tester, const SendScreen());
       await _tap(tester, find.text('Other ways to send'));
@@ -1251,7 +1258,7 @@ void main() {
     });
 
     testWidgets('file, pasted response: the same notice', (tester) async {
-      final h = _Harness();
+      final h = _Harness(advanced: true);
       h.session.notPosted = true;
       await h.pump(tester, const SendScreen());
       await _tap(tester, find.text('Other ways to send'));
@@ -1551,7 +1558,7 @@ void main() {
   group('accessibility', () {
     testWidgets('field errors are live regions', (tester) async {
       final handle = tester.ensureSemantics();
-      final h = _Harness();
+      final h = _Harness(advanced: true);
       await h.pump(tester, const SendScreen());
       await _enter(tester, 'Amount (EPIC)', '-1');
       await _enter(tester, 'To', 'nonsense');
@@ -1743,7 +1750,7 @@ void main() {
   group('receive', () {
     testWidgets('QR, address, copy, share, a connection dot and the file '
         'section, with no explanations', (tester) async {
-      final h = _Harness();
+      final h = _Harness(advanced: true);
       await h.pump(tester, const ReceiveScreen());
       expect(find.text(h.session.address), findsOneWidget);
       expect(find.bySemanticsLabel('QR code of your address'), findsOneWidget);
@@ -1825,7 +1832,7 @@ void main() {
     });
 
     testWidgets('by file: open .tx, sign, share .response', (tester) async {
-      final h = _Harness();
+      final h = _Harness(advanced: true);
       await h.pump(tester, const ReceiveScreen());
       await _tap(tester, find.text('Receive a transaction file'));
 
@@ -1859,7 +1866,7 @@ void main() {
     });
 
     testWidgets('paste slate text as a fallback', (tester) async {
-      final h = _Harness();
+      final h = _Harness(advanced: true);
       await h.pump(tester, const ReceiveScreen());
       await _tap(tester, find.text('Receive a transaction file'));
       await _tap(tester, find.text('Paste the transaction text instead'));
@@ -1878,6 +1885,75 @@ void main() {
       await _tap(tester, find.text('Accept payment'));
       expect(h.session.receivedSlates, ['{"id":"incoming"}']);
       expect(find.text(h.session.responseSlate.json), findsOneWidget);
+    });
+  });
+
+  group('advanced options', () {
+    // Screens are lazy lists: go to the end before saying something is not there.
+    Future<void> toEnd(WidgetTester tester) async {
+      await tester.drag(find.byType(Scrollable).last, const Offset(0, -5000));
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('send hides the file route and the URL hint, but takes URLs', (
+      tester,
+    ) async {
+      final off = _Harness();
+      await off.pump(tester, const SendScreen());
+      expect(find.text('Their address'), findsOneWidget);
+      expect(find.text('Their address or a wallet URL'), findsNothing);
+      await toEnd(tester);
+      expect(find.text('Other ways to send'), findsNothing);
+      await _enter(tester, 'To', 'http://203.0.113.5:3415');
+      await _enter(tester, 'Amount (EPIC)', '2');
+      await _tap(tester, find.text('Review'));
+      await _tap(tester, find.text('Send 2 EPIC'));
+      expect(off.session.httpSends.single.to, 'http://203.0.113.5:3415');
+
+      // A fresh tree, so the screen's state starts over.
+      await tester.pumpWidget(const SizedBox());
+      final on = _Harness(advanced: true);
+      await on.pump(tester, const SendScreen());
+      expect(find.text('Their address or a wallet URL'), findsOneWidget);
+      await toEnd(tester);
+      expect(find.text('Other ways to send'), findsOneWidget);
+    });
+
+    testWidgets('receive hides the file section and shortens the address', (
+      tester,
+    ) async {
+      final off = _Harness();
+      await off.pump(tester, const ReceiveScreen());
+      final address = off.session.address;
+      expect(find.text('Receive a transaction file'), findsNothing);
+      expect(find.text(address), findsNothing);
+      expect(find.text(shortAddress(address)), findsOneWidget);
+      // The connection dot stays.
+      expect(find.byTooltip('Connecting to epicbox'), findsOneWidget);
+      // Copy still hands over the whole address.
+      final copied = <Object?>[];
+      tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+        SystemChannels.platform,
+        (call) async {
+          if (call.method == 'Clipboard.setData') copied.add(call.arguments);
+          return null;
+        },
+      );
+      addTearDown(
+        () => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+          SystemChannels.platform,
+          null,
+        ),
+      );
+      await _tap(tester, find.text('Copy'));
+      expect(copied.single, {'text': address});
+
+      // A fresh tree, so the screen's state starts over.
+      await tester.pumpWidget(const SizedBox());
+      final on = _Harness(advanced: true);
+      await on.pump(tester, const ReceiveScreen());
+      expect(find.text('Receive a transaction file'), findsOneWidget);
+      expect(find.text(address), findsOneWidget);
     });
   });
 }

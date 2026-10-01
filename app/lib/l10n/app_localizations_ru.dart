@@ -2069,6 +2069,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get sendRecipientHint => 'Адрес получателя или URL кошелька';
 
   @override
+  String get sendRecipientHintSimple => 'Адрес получателя';
+
+  @override
   String get scanQrTooltip => 'Сканировать QR-код';
 
   @override

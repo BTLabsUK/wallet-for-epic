@@ -2184,6 +2184,10 @@
   "@sendRecipientHint": {
     "description": "Hint inside the empty recipient field."
   },
+  "sendRecipientHintSimple": "Their address",
+  "@sendRecipientHintSimple": {
+    "description": "Hint inside the empty recipient field with Advanced options off, where wallet URLs are not mentioned (they are still accepted)."
+  },
   "scanQrTooltip": "Scan QR code",
   "@scanQrTooltip": {
     "description": "Tooltip of a button that opens the camera to read an address from a QR code."

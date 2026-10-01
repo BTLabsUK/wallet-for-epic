@@ -2792,6 +2792,12 @@ abstract class AppLocalizations {
   /// **'Their address or a wallet URL'**
   String get sendRecipientHint;
 
+  /// Hint inside the empty recipient field with Advanced options off, where wallet URLs are not mentioned (they are still accepted).
+  ///
+  /// In en, this message translates to:
+  /// **'Their address'**
+  String get sendRecipientHintSimple;
+
   /// Tooltip of a button that opens the camera to read an address from a QR code.
   ///
   /// In en, this message translates to:

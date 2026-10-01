@@ -12,6 +12,7 @@ import 'centered_body.dart';
 import 'common.dart';
 import 'help_screen.dart';
 import 'slate_file_screen.dart';
+import 'theme/advanced.dart';
 
 /// Receiving: epicbox payments arrive by themselves while connected; a transaction file or
 /// text can still be accepted by hand. There is no HTTP receive, because a phone cannot
@@ -93,13 +94,16 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
             AsyncError(:final error) => ErrorText(describeError(l, error)),
             _ => const LinearProgressIndicator(),
           },
-          const SizedBox(height: 24),
-          ExpansionTile(
-            tilePadding: EdgeInsets.zero,
-            title: Text(l.receiveFileSection),
-            childrenPadding: const EdgeInsets.only(bottom: 16),
-            children: _fileSection(l),
-          ),
+          // Transaction files are a technical route; epicbox needs nothing from the user.
+          if (AdvancedOptions.of(context)) ...[
+            const SizedBox(height: 24),
+            ExpansionTile(
+              tilePadding: EdgeInsets.zero,
+              title: Text(l.receiveFileSection),
+              childrenPadding: const EdgeInsets.only(bottom: 16),
+              children: _fileSection(l),
+            ),
+          ],
         ],
       ),
     );
@@ -163,8 +167,12 @@ class _AddressCard extends ConsumerWidget {
           ),
         ),
         const SizedBox(height: 16),
+        // The QR code, Copy and Share always carry the full address. On screen it is short,
+        // without this wallet's own relay, unless Advanced options is on.
         SelectableText(
-          address,
+          AdvancedOptions.of(context)
+              ? address
+              : shortAddress(address, ownServer: ownEpicboxServer(ref)),
           textAlign: TextAlign.center,
           style: theme.textTheme.bodyLarge,
         ),

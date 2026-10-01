@@ -442,6 +442,7 @@
   "sendAmountZero": "Geben Sie einen Betrag über null ein.",
   "sendRecipientLabel": "An",
   "sendRecipientHint": "Adresse oder Wallet-URL des Empfängers",
+  "sendRecipientHintSimple": "Adresse des Empfängers",
   "scanQrTooltip": "QR-Code scannen",
   "sendScanButton": "Scannen",
   "sendChooseContactTooltip": "Kontakt auswählen",

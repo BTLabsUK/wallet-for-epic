@@ -2076,6 +2076,9 @@ class AppLocalizationsPl extends AppLocalizations {
   String get sendRecipientHint => 'Adres odbiorcy lub URL portfela';
 
   @override
+  String get sendRecipientHintSimple => 'Adres odbiorcy';
+
+  @override
   String get scanQrTooltip => 'Zeskanuj kod QR';
 
   @override
