@@ -369,6 +369,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   subtitle: Text(_languageLabel(l, s.language)),
                   onTap: () => _pickLanguage(s),
                 ),
+                SwitchListTile(
+                  secondary: const Icon(Icons.terminal),
+                  title: Text(l.settingsAdvancedOptions),
+                  subtitle: Text(l.settingsAdvancedOptionsSubtitle),
+                  value: s.advancedOptions,
+                  onChanged: _settings.setAdvancedOptions,
+                ),
                 if (ref.watch(pushConfiguredProvider).value ?? false) ...[
                   _Header(l.settingsSectionNotifications),
                   SwitchListTile(

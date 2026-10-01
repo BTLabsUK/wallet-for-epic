@@ -2639,4 +2639,31 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get feedbackPreviewTitle => '发送内容';
+
+  @override
+  String get settingsAdvancedOptions => '高级选项';
+
+  @override
+  String get settingsAdvancedOptionsSubtitle => '网络、节点、epicbox 服务器、文件和日志';
+
+  @override
+  String get txStepStarted => '付款已发起';
+
+  @override
+  String get txStepAccepted => '接收方已接受';
+
+  @override
+  String get txStepPosted => '已发送到网络';
+
+  @override
+  String get txStepConfirming => '确认中';
+
+  @override
+  String get txStepConfirmed => '已确认';
+
+  @override
+  String get txStepArrived => '付款已到达';
+
+  @override
+  String get txStepSenderFinished => '发送方已完成';
 }

@@ -691,6 +691,7 @@ void main() {
       await h.unlock(tester);
       expect(h.push.starts, 0);
       await h.openSettings(tester);
+      await _reveal(tester, find.text(englishStrings.settingsPushHint));
       expect(find.text(englishStrings.settingsPushHint), findsOneWidget);
       await _tapText(tester, 'Payment notifications');
       expect(h.push.starts, 1);

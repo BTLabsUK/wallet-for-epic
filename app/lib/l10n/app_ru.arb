@@ -667,5 +667,14 @@
   "feedbackServerAnswered": "Сервер отзывов ответил: {status}.",
   "feedbackServerNoAnswer": "Сервер отзывов не ответил.",
   "feedbackServerUnreachable": "Не удалось связаться с сервером отзывов.",
-  "feedbackPreviewTitle": "Что будет отправлено"
+  "feedbackPreviewTitle": "Что будет отправлено",
+  "settingsAdvancedOptions": "Расширенные настройки",
+  "settingsAdvancedOptionsSubtitle": "Сеть, узел, сервер epicbox, файлы и журналы",
+  "txStepStarted": "Платёж начат",
+  "txStepAccepted": "Получатель принял",
+  "txStepPosted": "Отправлен в сеть",
+  "txStepConfirming": "Подтверждение",
+  "txStepConfirmed": "Подтверждён",
+  "txStepArrived": "Платёж получен",
+  "txStepSenderFinished": "Отправитель завершил его"
 }

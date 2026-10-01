@@ -109,9 +109,14 @@ class AppSettings {
     this.historyReminderDismissedAt = const {},
     this.historyExportSnapshots = const {},
     this.language,
+    this.advancedOptions = false,
   });
 
   final ThemeMode themeMode;
+
+  /// Show the technical controls: node, relay, block heights, transport, files and logs.
+  /// Off by default, so the simple path never mentions them.
+  final bool advancedOptions;
 
   /// The app's language as a code from `appLanguages` (`de`), or null to follow the system.
   final String? language;
@@ -157,6 +162,7 @@ class AppSettings {
     Map<String, int>? historyReminderDismissedAt,
     Map<String, HistoryExportSnapshot>? historyExportSnapshots,
     String? Function()? language,
+    bool? advancedOptions,
   }) => AppSettings(
     themeMode: themeMode ?? this.themeMode,
     fiatCurrency: fiatCurrency ?? this.fiatCurrency,
@@ -172,6 +178,7 @@ class AppSettings {
     historyExportSnapshots:
         historyExportSnapshots ?? this.historyExportSnapshots,
     language: language != null ? language() : this.language,
+    advancedOptions: advancedOptions ?? this.advancedOptions,
   );
 }
 
@@ -188,6 +195,7 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
   static const String _autoLockKey = 'app.auto_lock';
   static const String _pushKey = 'app.push';
   static const String _languageKey = 'app.language';
+  static const String _advancedKey = 'app.advanced';
   static String _exportedKey(Chain chain) =>
       'app.history_exported.${chain.name}';
   static String _dismissedKey(Chain chain) =>
@@ -207,6 +215,7 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
     final autoLock = await store.read(_autoLockKey);
     final push = await store.read(_pushKey);
     final language = await store.read(_languageKey);
+    final advanced = await store.read(_advancedKey);
     Future<Map<String, int>> perChain(String Function(Chain) key) async => {
       for (final chain in Chain.values)
         chain.name: ?int.tryParse(await store.read(key(chain)) ?? ''),
@@ -252,6 +261,9 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
       historyExportSnapshots: snapshots,
       // A code no translation has any more (a language removed) falls back to the system.
       language: appLanguages.any((a) => a.code == language) ? language : null,
+      advancedOptions: advanced == null
+          ? defaults.advancedOptions
+          : advanced == 'true',
     );
   }
 
@@ -279,6 +291,12 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
 
   Future<void> setHideBalances(bool hide) async =>
       _put(_hideKey, '$hide', (await _current()).copyWith(hideBalances: hide));
+
+  Future<void> setAdvancedOptions(bool on) async => _put(
+    _advancedKey,
+    '$on',
+    (await _current()).copyWith(advancedOptions: on),
+  );
 
   Future<void> setAutoLockMinutes(int? minutes) async => _put(
     _autoLockKey,

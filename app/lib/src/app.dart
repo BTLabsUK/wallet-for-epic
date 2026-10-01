@@ -9,8 +9,8 @@ import 'secret_store.dart' show PlatformBiometricStore;
 import 'settings.dart';
 import 'ui/common.dart';
 import 'ui/launch_screen.dart';
-
-const Color _seed = Color(0xFF5B3FD0);
+import 'ui/theme/advanced.dart';
+import 'ui/theme/tokens.dart';
 
 /// Root widget. Expects a `ProviderScope` above it.
 class WalletApp extends ConsumerStatefulWidget {
@@ -148,16 +148,14 @@ class _WalletAppState extends ConsumerState<WalletApp> {
             usePin: l.biometricPromptUsePin,
           );
         }
-        return child!;
+        return AdvancedOptions(
+          enabled: settings?.advancedOptions ?? false,
+          child: child!,
+        );
       },
       themeMode: themeMode,
-      theme: ThemeData(colorScheme: ColorScheme.fromSeed(seedColor: _seed)),
-      darkTheme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: _seed,
-          brightness: Brightness.dark,
-        ),
-      ),
+      theme: buildWalletTheme(protocolLight, Brightness.light),
+      darkTheme: buildWalletTheme(protocolDark, Brightness.dark),
       home: const LaunchScreen(),
     );
   }

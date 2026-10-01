@@ -3294,5 +3294,41 @@
   "feedbackPreviewTitle": "What is sent",
   "@feedbackPreviewTitle": {
     "description": "Title of the screen that shows the report's full text, which stays in English."
+  },
+  "settingsAdvancedOptions": "Advanced options",
+  "@settingsAdvancedOptions": {
+    "description": "Settings switch that shows the technical controls (network, node, epicbox server, transaction files, logs) across the app. Off by default."
+  },
+  "settingsAdvancedOptionsSubtitle": "Network, node, epicbox server, files and logs",
+  "@settingsAdvancedOptionsSubtitle": {
+    "description": "Under the Advanced options switch: what it shows. epicbox is a proper name."
+  },
+  "txStepStarted": "Payment started",
+  "@txStepStarted": {
+    "description": "Payment details timeline, first step of a send: we created it and set the funds aside."
+  },
+  "txStepAccepted": "Recipient accepted",
+  "@txStepAccepted": {
+    "description": "Payment details timeline, a send: the recipient's wallet signed it. Shown once it happened."
+  },
+  "txStepPosted": "Sent to the network",
+  "@txStepPosted": {
+    "description": "Payment details timeline, a send: the finished payment was posted to the chain."
+  },
+  "txStepConfirming": "Confirming",
+  "@txStepConfirming": {
+    "description": "Payment details timeline: the confirmation step, before it has started. Short."
+  },
+  "txStepConfirmed": "Confirmed",
+  "@txStepConfirmed": {
+    "description": "Payment details timeline: the confirmation step, once enough blocks confirmed the payment."
+  },
+  "txStepArrived": "Payment arrived",
+  "@txStepArrived": {
+    "description": "Payment details timeline, first step of an incoming payment: our wallet signed it and sent it back."
+  },
+  "txStepSenderFinished": "Sender finished it",
+  "@txStepSenderFinished": {
+    "description": "Payment details timeline, an incoming payment: the sender finished it and posted it to the chain."
   }
 }

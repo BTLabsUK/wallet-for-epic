@@ -16,6 +16,7 @@ import 'package:epic_wallet/src/ui/receive_screen.dart';
 import 'package:epic_wallet/src/ui/scan_screen.dart';
 import 'package:epic_wallet/src/ui/send_screen.dart';
 import 'package:epic_wallet/src/ui/settings_history.dart';
+import 'package:epic_wallet/src/ui/theme/protocol.dart';
 import 'package:epic_wallet/src/ui/tx_details_screen.dart';
 import 'package:epic_wallet/src/updater.dart';
 import 'package:epic_wallet/src/vault.dart';
@@ -775,7 +776,22 @@ void main() {
       expect(find.text('Sent to'), findsOneWidget);
       expect(find.text('Bob'), findsWidgets);
       expect(find.text('Add to contacts'), findsNothing);
-      expect(find.text('Waiting for recipient'), findsOneWidget);
+      // Once in the status chip, once as the timeline's current step.
+      expect(
+        find.descendant(
+          of: find.byType(TxStatusChip),
+          matching: find.text('Waiting for recipient'),
+        ),
+        findsOneWidget,
+      );
+      expect(
+        find.descendant(
+          of: find.byType(StatusTimeline),
+          matching: find.text('Waiting for recipient'),
+        ),
+        findsOneWidget,
+      );
+      expect(find.text('Payment started'), findsOneWidget);
       expect(find.textContaining('by block 2,500,120'), findsOneWidget);
 
       final cancel = find.widgetWithText(OutlinedButton, 'Cancel payment');

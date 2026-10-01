@@ -667,5 +667,14 @@
   "feedbackServerAnswered": "Serwer opinii odpowiedział kodem {status}.",
   "feedbackServerNoAnswer": "Serwer opinii nie odpowiedział.",
   "feedbackServerUnreachable": "Nie można połączyć się z serwerem opinii.",
-  "feedbackPreviewTitle": "Co zostanie wysłane"
+  "feedbackPreviewTitle": "Co zostanie wysłane",
+  "settingsAdvancedOptions": "Opcje zaawansowane",
+  "settingsAdvancedOptionsSubtitle": "Sieć, węzeł, serwer epicbox, pliki i dzienniki",
+  "txStepStarted": "Rozpoczęto płatność",
+  "txStepAccepted": "Odbiorca przyjął",
+  "txStepPosted": "Wysłano do sieci",
+  "txStepConfirming": "Potwierdzanie",
+  "txStepConfirmed": "Potwierdzona",
+  "txStepArrived": "Płatność dotarła",
+  "txStepSenderFinished": "Nadawca ją zakończył"
 }

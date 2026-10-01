@@ -8,6 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'src/app.dart';
 import 'src/app_log.dart';
 import 'src/rust/frb_generated.dart';
+import 'src/ui/theme/fonts.dart';
 
 Future<void> main() async {
   // Errors that escape every other handler land here, in the zone the app runs in.
@@ -25,6 +26,7 @@ Future<void> main() async {
     };
     await RustLib.init();
     await startLogging();
+    registerFontLicences();
     const build = String.fromEnvironment('FLUTTER_BUILD_NAME');
     logInfo(
       'app',

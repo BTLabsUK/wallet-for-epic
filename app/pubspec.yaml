@@ -82,6 +82,23 @@ flutter:
   # Runs gen-l10n on pub get, run, build and test.
   generate: true
 
+  # The Protocol look (lib/src/ui/theme/). Both OFL 1.1; the licence texts are registered with
+  # LicenseRegistry in main.dart, so they show on the licences page.
+  assets:
+    - assets/fonts/OFL-Montserrat.txt
+    - assets/fonts/OFL-JetBrainsMono.txt
+  fonts:
+    # Display only: the balance, screen titles and section heads. Body text is the platform font.
+    - family: Montserrat
+      fonts:
+        - asset: assets/fonts/Montserrat-SemiBold.ttf
+          weight: 600
+    # Data only: readouts, amounts in lists, slate ids. The no-ligature cut, so "->" stays two
+    # characters in an address or an id.
+    - family: JetBrainsMonoNL
+      fonts:
+        - asset: assets/fonts/JetBrainsMonoNL-Regular.ttf
+
   # To add assets to your application, add an assets section, like this:
   # assets:
   #   - images/a_dot_burr.jpeg

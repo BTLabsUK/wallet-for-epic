@@ -667,5 +667,14 @@
   "feedbackServerAnswered": "反馈服务器返回了 {status}。",
   "feedbackServerNoAnswer": "反馈服务器没有响应。",
   "feedbackServerUnreachable": "无法连接反馈服务器。",
-  "feedbackPreviewTitle": "发送内容"
+  "feedbackPreviewTitle": "发送内容",
+  "settingsAdvancedOptions": "高级选项",
+  "settingsAdvancedOptionsSubtitle": "网络、节点、epicbox 服务器、文件和日志",
+  "txStepStarted": "付款已发起",
+  "txStepAccepted": "接收方已接受",
+  "txStepPosted": "已发送到网络",
+  "txStepConfirming": "确认中",
+  "txStepConfirmed": "已确认",
+  "txStepArrived": "付款已到达",
+  "txStepSenderFinished": "发送方已完成"
 }

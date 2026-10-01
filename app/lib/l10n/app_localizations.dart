@@ -4147,6 +4147,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'What is sent'**
   String get feedbackPreviewTitle;
+
+  /// Settings switch that shows the technical controls (network, node, epicbox server, transaction files, logs) across the app. Off by default.
+  ///
+  /// In en, this message translates to:
+  /// **'Advanced options'**
+  String get settingsAdvancedOptions;
+
+  /// Under the Advanced options switch: what it shows. epicbox is a proper name.
+  ///
+  /// In en, this message translates to:
+  /// **'Network, node, epicbox server, files and logs'**
+  String get settingsAdvancedOptionsSubtitle;
+
+  /// Payment details timeline, first step of a send: we created it and set the funds aside.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment started'**
+  String get txStepStarted;
+
+  /// Payment details timeline, a send: the recipient's wallet signed it. Shown once it happened.
+  ///
+  /// In en, this message translates to:
+  /// **'Recipient accepted'**
+  String get txStepAccepted;
+
+  /// Payment details timeline, a send: the finished payment was posted to the chain.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent to the network'**
+  String get txStepPosted;
+
+  /// Payment details timeline: the confirmation step, before it has started. Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirming'**
+  String get txStepConfirming;
+
+  /// Payment details timeline: the confirmation step, once enough blocks confirmed the payment.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirmed'**
+  String get txStepConfirmed;
+
+  /// Payment details timeline, first step of an incoming payment: our wallet signed it and sent it back.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment arrived'**
+  String get txStepArrived;
+
+  /// Payment details timeline, an incoming payment: the sender finished it and posted it to the chain.
+  ///
+  /// In en, this message translates to:
+  /// **'Sender finished it'**
+  String get txStepSenderFinished;
 }
 
 class _AppLocalizationsDelegate

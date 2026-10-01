@@ -14,6 +14,7 @@ import '../settings.dart';
 import '../wallet_service.dart';
 import 'home_screen.dart';
 import 'launch_screen.dart';
+import 'theme/protocol.dart';
 import 'tx_details_screen.dart';
 
 /// Replaces the whole navigation stack with the home screen of the open wallet.
@@ -493,6 +494,58 @@ String txStatusLabel(AppLocalizations l, TxEntry tx, BigInt? tip) =>
       TxPhase.fromBackup => l.txStatusFromBackup,
     };
 
+/// A payment's progress for [StatusTimeline], or null where a timeline would add nothing to
+/// the status text: cancelled payments, backup records, mining rewards, restored or imported
+/// rows. The current step names what the wallet waits for ("Waiting for recipient").
+List<TimelineStep>? txTimeline(AppLocalizations l, TxEntry tx, BigInt? tip) {
+  if (tx.source != TxSource.wallet || tx.kind == TxKind.coinbase) return null;
+  final phase = txPhase(tx, tip);
+  final confirming = l.txStatusConfirming(
+    txConfirmations(tx, tip) ?? 0,
+    confirmationsTarget,
+  );
+  // Each step: label once done, label while current, label before it is reached.
+  final List<(String, String, String)> steps;
+  final int? at;
+  if (_outgoingKind(tx)) {
+    steps = [
+      (l.txStepStarted, l.txStepStarted, l.txStepStarted),
+      (l.txStepAccepted, l.txStatusWaitingRecipient, l.txStepAccepted),
+      (l.txStepPosted, l.txStepPosted, l.txStepPosted),
+      (l.txStepConfirmed, confirming, l.txStepConfirming),
+      (l.txStatusCompleted, l.txStatusCompleted, l.txStatusCompleted),
+    ];
+    at = switch (phase) {
+      TxPhase.waitingRecipient => 1,
+      TxPhase.confirming => 3,
+      TxPhase.completed => steps.length,
+      _ => null,
+    };
+  } else {
+    steps = [
+      (l.txStepArrived, l.txStepArrived, l.txStepArrived),
+      (l.txStepSenderFinished, l.txStatusWaitingSender, l.txStepSenderFinished),
+      (l.txStepConfirmed, confirming, l.txStepConfirming),
+      (l.txStatusCompleted, l.txStatusCompleted, l.txStatusCompleted),
+    ];
+    at = switch (phase) {
+      TxPhase.waitingSender => 1,
+      TxPhase.confirming => 2,
+      TxPhase.completed => steps.length,
+      _ => null,
+    };
+  }
+  if (at == null) return null;
+  return [
+    for (final (i, (done, now, todo)) in steps.indexed)
+      i < at
+          ? TimelineStep(done, TimelineState.done)
+          : i == at
+          ? TimelineStep(now, TimelineState.current)
+          : TimelineStep(todo, TimelineState.todo),
+  ];
+}
+
 /// Pending transactions first, then the rest, each newest first.
 List<TxEntry> pendingFirst(Iterable<TxEntry> txs) {
   int newest(TxEntry a, TxEntry b) => b.timeUnix.compareTo(a.timeUnix);
@@ -611,7 +664,9 @@ String txSpokenLabel(
   required String status,
   required bool hidden,
 }) {
-  final amount = hidden ? l.txSpokenHiddenAmount : epicText(l, txAmount(tx).amount);
+  final amount = hidden
+      ? l.txSpokenHiddenAmount
+      : epicText(l, txAmount(tx).amount);
   final out = _outgoingKind(tx);
   final String what;
   if (tx.kind == TxKind.coinbase) {
@@ -625,8 +680,10 @@ String txSpokenLabel(
       (true, null) when cancelled => l.txSpokenCancelledSend(amount),
       (true, final w?) when cancelled => l.txSpokenCancelledSendTo(amount, w),
       (false, null) when cancelled => l.txSpokenCancelledReceive(amount),
-      (false, final w?) when cancelled =>
-        l.txSpokenCancelledReceiveFrom(amount, w),
+      (false, final w?) when cancelled => l.txSpokenCancelledReceiveFrom(
+        amount,
+        w,
+      ),
       (true, null) when pending => l.txSpokenSending(amount),
       (true, final w?) when pending => l.txSpokenSendingTo(amount, w),
       (false, null) when pending => l.txSpokenReceiving(amount),

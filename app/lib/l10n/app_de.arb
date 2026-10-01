@@ -667,5 +667,14 @@
   "feedbackServerAnswered": "Der Feedback-Server hat mit {status} geantwortet.",
   "feedbackServerNoAnswer": "Der Feedback-Server hat nicht geantwortet.",
   "feedbackServerUnreachable": "Der Feedback-Server ist nicht erreichbar.",
-  "feedbackPreviewTitle": "Was gesendet wird"
+  "feedbackPreviewTitle": "Was gesendet wird",
+  "settingsAdvancedOptions": "Erweiterte Optionen",
+  "settingsAdvancedOptionsSubtitle": "Netzwerk, Node, epicbox-Server, Dateien und Protokolle",
+  "txStepStarted": "Zahlung gestartet",
+  "txStepAccepted": "Empfänger hat angenommen",
+  "txStepPosted": "An das Netzwerk gesendet",
+  "txStepConfirming": "Bestätigung",
+  "txStepConfirmed": "Bestätigt",
+  "txStepArrived": "Zahlung eingegangen",
+  "txStepSenderFinished": "Absender hat abgeschlossen"
 }

@@ -2832,4 +2832,32 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get feedbackPreviewTitle => 'Was gesendet wird';
+
+  @override
+  String get settingsAdvancedOptions => 'Erweiterte Optionen';
+
+  @override
+  String get settingsAdvancedOptionsSubtitle =>
+      'Netzwerk, Node, epicbox-Server, Dateien und Protokolle';
+
+  @override
+  String get txStepStarted => 'Zahlung gestartet';
+
+  @override
+  String get txStepAccepted => 'Empfänger hat angenommen';
+
+  @override
+  String get txStepPosted => 'An das Netzwerk gesendet';
+
+  @override
+  String get txStepConfirming => 'Bestätigung';
+
+  @override
+  String get txStepConfirmed => 'Bestätigt';
+
+  @override
+  String get txStepArrived => 'Zahlung eingegangen';
+
+  @override
+  String get txStepSenderFinished => 'Absender hat abgeschlossen';
 }

@@ -2944,4 +2944,32 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get feedbackPreviewTitle => 'Co zostanie wysłane';
+
+  @override
+  String get settingsAdvancedOptions => 'Opcje zaawansowane';
+
+  @override
+  String get settingsAdvancedOptionsSubtitle =>
+      'Sieć, węzeł, serwer epicbox, pliki i dzienniki';
+
+  @override
+  String get txStepStarted => 'Rozpoczęto płatność';
+
+  @override
+  String get txStepAccepted => 'Odbiorca przyjął';
+
+  @override
+  String get txStepPosted => 'Wysłano do sieci';
+
+  @override
+  String get txStepConfirming => 'Potwierdzanie';
+
+  @override
+  String get txStepConfirmed => 'Potwierdzona';
+
+  @override
+  String get txStepArrived => 'Płatność dotarła';
+
+  @override
+  String get txStepSenderFinished => 'Nadawca ją zakończył';
 }

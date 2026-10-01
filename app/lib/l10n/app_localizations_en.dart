@@ -2797,4 +2797,32 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get feedbackPreviewTitle => 'What is sent';
+
+  @override
+  String get settingsAdvancedOptions => 'Advanced options';
+
+  @override
+  String get settingsAdvancedOptionsSubtitle =>
+      'Network, node, epicbox server, files and logs';
+
+  @override
+  String get txStepStarted => 'Payment started';
+
+  @override
+  String get txStepAccepted => 'Recipient accepted';
+
+  @override
+  String get txStepPosted => 'Sent to the network';
+
+  @override
+  String get txStepConfirming => 'Confirming';
+
+  @override
+  String get txStepConfirmed => 'Confirmed';
+
+  @override
+  String get txStepArrived => 'Payment arrived';
+
+  @override
+  String get txStepSenderFinished => 'Sender finished it';
 }

@@ -2931,4 +2931,32 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get feedbackPreviewTitle => 'Что будет отправлено';
+
+  @override
+  String get settingsAdvancedOptions => 'Расширенные настройки';
+
+  @override
+  String get settingsAdvancedOptionsSubtitle =>
+      'Сеть, узел, сервер epicbox, файлы и журналы';
+
+  @override
+  String get txStepStarted => 'Платёж начат';
+
+  @override
+  String get txStepAccepted => 'Получатель принял';
+
+  @override
+  String get txStepPosted => 'Отправлен в сеть';
+
+  @override
+  String get txStepConfirming => 'Подтверждение';
+
+  @override
+  String get txStepConfirmed => 'Подтверждён';
+
+  @override
+  String get txStepArrived => 'Платёж получен';
+
+  @override
+  String get txStepSenderFinished => 'Отправитель завершил его';
 }

@@ -9,6 +9,8 @@ import '../wallet_service.dart';
 import 'common.dart';
 import 'contacts_screen.dart' show ContactEditScreen;
 import 'send_screen.dart' show SendScreen;
+import 'theme/advanced.dart';
+import 'theme/protocol.dart';
 
 /// Minutes per Epic block, for rough "about N hours" estimates.
 const int _minutesPerBlock = 1;
@@ -409,6 +411,10 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
                   TxStatusChip(tx: tx, tip: tip),
                   const SizedBox(height: 8),
                   Text(txExplanation(l, tx, tip, now: now)),
+                  if (txTimeline(l, tx, tip) case final steps?) ...[
+                    const SizedBox(height: 16),
+                    StatusTimeline(steps: steps),
+                  ],
                   if (ttl != null) ...[
                     const SizedBox(height: 8),
                     Text(ttl, style: theme.textTheme.bodySmall),
@@ -512,6 +518,8 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
           ExpansionTile(
             tilePadding: EdgeInsets.zero,
             childrenPadding: EdgeInsets.zero,
+            // Open by itself for people who asked for the technical side.
+            initiallyExpanded: AdvancedOptions.of(context),
             title: Text(l.txDetailsTechnical),
             children: [
               if (tx.blockHeight case final height?)
