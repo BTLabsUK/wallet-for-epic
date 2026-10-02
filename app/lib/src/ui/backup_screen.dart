@@ -15,7 +15,9 @@ final backedUpProvider = FutureProvider.autoDispose<bool>((ref) {
   return ref.watch(vaultProvider).isBackedUp(config.chain);
 });
 
-/// Shows the recovery phrase after the PIN. "Done" marks it backed up and pops true.
+/// Shows the recovery phrase once the user has agreed to keep any copy private and entered the
+/// PIN. Screenshots are allowed, since many people keep the phrase that way; the recent-apps
+/// preview stays hidden. "Done" marks it backed up and pops true.
 class BackupScreen extends ConsumerStatefulWidget {
   const BackupScreen({super.key});
 
@@ -26,21 +28,23 @@ class BackupScreen extends ConsumerStatefulWidget {
 class _BackupScreenState extends ConsumerState<BackupScreen> {
   List<String> _words = const [];
   String? _error;
+  bool _agreed = false;
+  bool _asked = false;
 
   @override
   void initState() {
     super.initState();
-    setSecureScreen(true);
-    WidgetsBinding.instance.addPostFrameCallback((_) => _load());
+    hideRecentsPreview(true);
   }
 
   @override
   void dispose() {
-    setSecureScreen(false);
+    hideRecentsPreview(false);
     super.dispose();
   }
 
   Future<void> _load() async {
+    setState(() => _asked = true);
     final l = context.l10n;
     final password = await askWalletPassword(
       context,
@@ -76,7 +80,9 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
     return SlotScaffold(
       appBar: AppBar(title: Text(context.l10n.backupTitle)),
       body: ScreenBody(
-        children: _words.isEmpty
+        children: !_asked
+            ? _consent(context)
+            : _words.isEmpty
             ? [
                 if (_error != null)
                   ErrorText(_error!)
@@ -86,6 +92,52 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
             : _phrase(context),
       ),
     );
+  }
+
+  /// What a copy of the phrase means, agreed to before the PIN.
+  List<Widget> _consent(BuildContext context) {
+    final theme = Theme.of(context);
+    final l = context.l10n;
+    final onError = theme.colorScheme.onErrorContainer;
+    return [
+      Card(
+        color: theme.colorScheme.errorContainer,
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(
+                Icons.warning_amber,
+                color: onError,
+                semanticLabel: l.backupWarningIconLabel,
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  l.backupCopyWarning,
+                  style: TextStyle(color: onError),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+      const SizedBox(height: 8),
+      CheckboxListTile(
+        contentPadding: EdgeInsets.zero,
+        controlAffinity: ListTileControlAffinity.leading,
+        value: _agreed,
+        onChanged: (value) => setState(() => _agreed = value ?? false),
+        title: Text(l.backupCopyAgree),
+      ),
+      const SizedBox(height: 16),
+      FilledButton(
+        style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+        onPressed: _agreed ? _load : null,
+        child: Text(l.backupShowPhrase),
+      ),
+    ];
   }
 
   List<Widget> _phrase(BuildContext context) {

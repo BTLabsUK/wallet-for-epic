@@ -1794,6 +1794,16 @@ class AppLocalizationsDe extends AppLocalizations {
       'Geben Sie Ihre PIN ein, um die Wiederherstellungsphrase anzuzeigen.';
 
   @override
+  String get backupCopyWarning =>
+      'Auf dem nächsten Bildschirm sind Screenshots erlaubt. Ein Screenshot oder Foto der Phrase ist eine vollständige Kopie Ihrer Wallet: Wer ihn sieht, kann Ihr Guthaben nehmen, und Foto-Apps laden ihn unter Umständen in die Cloud hoch. Papier ist am sichersten.';
+
+  @override
+  String get backupCopyAgree => 'Ich halte jede Kopie der Phrase geheim';
+
+  @override
+  String get backupShowPhrase => 'Wiederherstellungsphrase anzeigen';
+
+  @override
   String get backupWarningIconLabel => 'Warnung';
 
   @override

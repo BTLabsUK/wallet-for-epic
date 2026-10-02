@@ -1889,6 +1889,16 @@ class AppLocalizationsPl extends AppLocalizations {
   String get backupPinReason => 'Wpisz PIN, aby wyświetlić frazę odzyskiwania.';
 
   @override
+  String get backupCopyWarning =>
+      'Na następnym ekranie możesz zrobić zrzut ekranu. Zrzut lub zdjęcie frazy to pełna kopia portfela: każdy, kto je zobaczy, może zabrać twoje środki, a aplikacje ze zdjęciami mogą wysłać je do chmury. Papier jest najbezpieczniejszy.';
+
+  @override
+  String get backupCopyAgree => 'Każdą kopię frazy zachowam tylko dla siebie';
+
+  @override
+  String get backupShowPhrase => 'Pokaż frazę odzyskiwania';
+
+  @override
   String get backupWarningIconLabel => 'Ostrzeżenie';
 
   @override

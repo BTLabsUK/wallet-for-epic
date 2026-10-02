@@ -1981,6 +1981,18 @@
   "@backupPinReason": {
     "description": "Shown in the PIN prompt before the recovery phrase appears."
   },
+  "backupCopyWarning": "Screenshots are allowed on the next screen. A screenshot or photo of the phrase is a full copy of your wallet: anyone who sees it can take your funds, and photo apps may upload it to the cloud. Paper is safest.",
+  "@backupCopyWarning": {
+    "description": "Warning before the recovery phrase is shown: screenshots are allowed there, and what a copy of the phrase means."
+  },
+  "backupCopyAgree": "I will keep any copy of the phrase private",
+  "@backupCopyAgree": {
+    "description": "Checkbox the user ticks before the recovery phrase can be shown."
+  },
+  "backupShowPhrase": "Show recovery phrase",
+  "@backupShowPhrase": {
+    "description": "Button that asks for the PIN and then shows the recovery phrase."
+  },
   "backupWarningIconLabel": "Warning",
   "@backupWarningIconLabel": {
     "description": "Screen-reader label of the warning icon above the recovery phrase."

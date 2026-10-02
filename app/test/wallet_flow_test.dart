@@ -546,34 +546,45 @@ void main() {
       expect(cancel, findsNothing);
     });
 
-    testWidgets('backup asks for the PIN, shows the phrase, Done marks it', (
-      tester,
-    ) async {
-      final service = _existing();
-      final device = _Device(sealedMainnet: true);
-      await _pumpApp(tester, service, device);
-      await _unlockToHome(tester);
+    testWidgets(
+      'backup asks for agreement, then the PIN, shows the phrase, Done marks it',
+      (tester) async {
+        final service = _existing();
+        final device = _Device(sealedMainnet: true);
+        await _pumpApp(tester, service, device);
+        await _unlockToHome(tester);
 
-      await tester.tap(find.text('Back up'));
-      await _pumpFrames(tester);
-      expect(find.text('Enter your PIN'), findsOneWidget);
-      await tester.enterText(
-        find.descendant(
-          of: find.byType(AlertDialog),
-          matching: find.byType(TextField),
-        ),
-        _pin,
-      );
-      await tester.pumpAndSettle();
+        await tester.tap(find.text('Back up'));
+        await _pumpFrames(tester);
+        // No PIN, and no phrase, until the user agrees to keep any copy private.
+        expect(find.text('Enter your PIN'), findsNothing);
+        final show = find.widgetWithText(FilledButton, 'Show recovery phrase');
+        expect(tester.widget<FilledButton>(show).onPressed, isNull);
+        await tester.tap(
+          find.text('I will keep any copy of the phrase private'),
+        );
+        await tester.pump();
+        await tester.tap(show);
+        await _pumpFrames(tester);
+        expect(find.text('Enter your PIN'), findsOneWidget);
+        await tester.enterText(
+          find.descendant(
+            of: find.byType(AlertDialog),
+            matching: find.byType(TextField),
+          ),
+          _pin,
+        );
+        await tester.pumpAndSettle();
 
-      final words = service.phrase.split(' ');
-      expect(find.text('1. ${words.first}'), findsOneWidget);
-      await _tapText(tester, 'Done');
+        final words = service.phrase.split(' ');
+        expect(find.text('1. ${words.first}'), findsOneWidget);
+        await _tapText(tester, 'Done');
 
-      expect(find.text('Recovery phrase backed up'), findsOneWidget);
-      expect(find.text('Back up your recovery phrase.'), findsNothing);
-      expect(device.store.values['wallet.mainnet.backedUp'], '1');
-    });
+        expect(find.text('Recovery phrase backed up'), findsOneWidget);
+        expect(find.text('Back up your recovery phrase.'), findsNothing);
+        expect(device.store.values['wallet.mainnet.backedUp'], '1');
+      },
+    );
 
     testWidgets('biometric unlock can be turned on from settings', (
       tester,

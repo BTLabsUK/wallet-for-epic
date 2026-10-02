@@ -1882,6 +1882,16 @@ class AppLocalizationsRu extends AppLocalizations {
       'Введите PIN-код, чтобы показать фразу восстановления.';
 
   @override
+  String get backupCopyWarning =>
+      'На следующем экране можно сделать снимок экрана. Снимок или фото фразы — это полная копия вашего кошелька: любой, кто его увидит, сможет забрать ваши средства, а приложения для фото могут загрузить его в облако. Бумага надёжнее всего.';
+
+  @override
+  String get backupCopyAgree => 'Я буду хранить любую копию фразы в тайне';
+
+  @override
+  String get backupShowPhrase => 'Показать фразу восстановления';
+
+  @override
   String get backupWarningIconLabel => 'Предупреждение';
 
   @override

@@ -1667,6 +1667,16 @@ class AppLocalizationsZh extends AppLocalizations {
   String get backupPinReason => '请输入 PIN 码以显示助记词。';
 
   @override
+  String get backupCopyWarning =>
+      '下一个页面允许截图。助记词的截图或照片就是你钱包的完整副本：任何看到它的人都能转走你的资金，相册应用还可能把它上传到云端。抄在纸上最安全。';
+
+  @override
+  String get backupCopyAgree => '我会妥善保管助记词的任何副本，不泄露给他人';
+
+  @override
+  String get backupShowPhrase => '显示助记词';
+
+  @override
   String get backupWarningIconLabel => '警告';
 
   @override

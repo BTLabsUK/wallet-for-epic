@@ -1775,6 +1775,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get backupPinReason => 'Enter your PIN to show the recovery phrase.';
 
   @override
+  String get backupCopyWarning =>
+      'Screenshots are allowed on the next screen. A screenshot or photo of the phrase is a full copy of your wallet: anyone who sees it can take your funds, and photo apps may upload it to the cloud. Paper is safest.';
+
+  @override
+  String get backupCopyAgree => 'I will keep any copy of the phrase private';
+
+  @override
+  String get backupShowPhrase => 'Show recovery phrase';
+
+  @override
   String get backupWarningIconLabel => 'Warning';
 
   @override
