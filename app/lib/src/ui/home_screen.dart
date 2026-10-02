@@ -196,11 +196,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     if (done == true && mounted) _showNotice(context.l10n.homeBackedUpNotice);
   }
 
-  Future<void> _open(Widget screen) async {
-    await Navigator.of(context)
-        .push(MaterialPageRoute<void>(builder: (_) => screen));
-    if (mounted) await _refresh();
-  }
+  /// Opens [screen] over home. Coming back does not refresh: screens that change the wallet
+  /// reload home themselves, and the timer keeps it current.
+  Future<void> _open(Widget screen) =>
+      Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => screen));
 
   /// Scans a QR code and opens Send with it as the recipient.
   Future<void> _scan() async {

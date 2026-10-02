@@ -270,7 +270,10 @@ class _PinPromptDialogState extends ConsumerState<_PinPromptDialog> {
     final enabled = await ref
         .read(vaultProvider)
         .biometricsEnabled(config.chain);
-    if (mounted) setState(() => _biometrics = enabled);
+    if (!mounted) return;
+    setState(() => _biometrics = enabled);
+    // Biometrics go first, as on the unlock screen; the PIN stays for a dismissed prompt.
+    if (enabled) await _useBiometrics();
   }
 
   Future<void> _useBiometrics() async {

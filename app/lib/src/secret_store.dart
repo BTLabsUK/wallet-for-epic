@@ -98,6 +98,8 @@ class PlatformBiometricStore implements BiometricStore {
       enforceBiometrics: true,
       requireBiometricsPerOperation: true,
       biometricType: AndroidBiometricType.strongBiometricOnly,
+      // A recognized face continues on its own instead of waiting for a Confirm tap.
+      requireBiometricConfirmation: false,
       storageNamespace: 'wfe_biometric',
       biometricPromptTitle: 'Unlock wallet',
       biometricPromptSubtitle: 'Confirm with your fingerprint or face',
@@ -154,6 +156,7 @@ class PlatformBiometricStore implements BiometricStore {
         !await _auth.authenticate(
           localizedReason: prompt.title,
           biometricOnly: true,
+          sensitiveTransaction: false,
         )) {
       throw const BiometricCancelled('dismissed');
     }
