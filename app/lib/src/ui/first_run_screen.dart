@@ -10,6 +10,7 @@ import 'pin.dart';
 import 'restore_screen.dart';
 import 'setup_screen.dart';
 import 'theme/advanced.dart';
+import 'theme/brand.dart';
 
 /// First start: the wallet is created in the background while the user picks a PIN.
 class FirstRunScreen extends ConsumerStatefulWidget {
@@ -80,8 +81,9 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
 
     return SlotScaffold(
       centered: true,
+      glow: heroGlow,
+      // The title is the hero's heading; the bar only holds the network action.
       appBar: AppBar(
-        title: Text('${l.firstRunTitle}$network'),
         // Mainnet on node.btlabs.uk works without a choice; another network or node is an
         // Advanced option, also reachable later from Settings.
         actions: [
@@ -95,6 +97,8 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
       ),
       body: CenteredBody(
         children: [
+          BrandHero(title: '${l.firstRunTitle}$network'),
+          const SizedBox(height: 28),
           if (_answer == null) ...[
             PinSetupView(onDone: _finish),
             const SizedBox(height: 16),

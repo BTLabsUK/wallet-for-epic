@@ -9,6 +9,7 @@ import 'centered_body.dart';
 import 'common.dart';
 import 'first_run_screen.dart';
 import 'pin_unlock_screen.dart';
+import 'theme/brand.dart';
 import 'unlock_screen.dart';
 
 /// Decides where the app starts: PIN unlock, first run, or password unlock for a wallet made
@@ -72,8 +73,11 @@ class _LaunchScreenState extends ConsumerState<LaunchScreen> {
   Widget build(BuildContext context) {
     return SlotScaffold(
       centered: true,
+      glow: heroGlow,
       body: CenteredBody(
         children: [
+          BrandHero(title: context.l10n.appTitle),
+          const SizedBox(height: 32),
           if (_error == null)
             const Center(child: CircularProgressIndicator())
           else ...[

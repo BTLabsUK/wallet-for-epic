@@ -14,6 +14,7 @@ import '../settings.dart';
 import '../wallet_service.dart';
 import 'home_screen.dart';
 import 'launch_screen.dart';
+import 'theme/brand.dart';
 import 'theme/protocol.dart';
 import 'theme/tokens.dart';
 import 'tx_details_screen.dart';
@@ -222,7 +223,8 @@ class SlotProgress extends StatelessWidget {
 
 /// A [Scaffold] with a [NoticeSlot] under the app bar. With [centered], [body] sits in the
 /// middle of the space left (and scrolls when it does not fit); otherwise it starts right
-/// below the slot. [idle] is what the slot shows when there is no notice.
+/// below the slot. [idle] is what the slot shows when there is no notice. With [glow], the
+/// screen gets the lit Protocol backdrop, its light at that point.
 class SlotScaffold extends StatelessWidget {
   const SlotScaffold({
     super.key,
@@ -230,6 +232,7 @@ class SlotScaffold extends StatelessWidget {
     required this.body,
     this.centered = false,
     this.idle,
+    this.glow,
     this.floatingActionButton,
     this.bottomNavigationBar,
   });
@@ -238,12 +241,13 @@ class SlotScaffold extends StatelessWidget {
   final Widget body;
   final bool centered;
   final Widget? idle;
+  final Alignment? glow;
   final Widget? floatingActionButton;
   final Widget? bottomNavigationBar;
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    final scaffold = Scaffold(
       appBar: appBar,
       floatingActionButton: floatingActionButton,
       bottomNavigationBar: bottomNavigationBar,
@@ -268,6 +272,10 @@ class SlotScaffold extends StatelessWidget {
         ],
       ),
     );
+    final glow = this.glow;
+    return glow == null
+        ? scaffold
+        : ProtocolBackdrop(focus: glow, child: scaffold);
   }
 }
 
@@ -1014,22 +1022,45 @@ class SlateInput extends StatelessWidget {
   }
 }
 
-/// Body padding and a width cap, so screens stay readable on tablets and desktop.
+/// Body padding and a width cap, so screens stay readable on tablets and desktop. [bottom] is
+/// the screen's main action, held at the foot of the screen (above the keyboard when it is
+/// open) instead of wherever the form happens to end.
 class ScreenBody extends StatelessWidget {
-  const ScreenBody({super.key, required this.children});
+  const ScreenBody({super.key, required this.children, this.bottom});
 
   final List<Widget> children;
+  final Widget? bottom;
 
   @override
   Widget build(BuildContext context) {
+    final bottom = this.bottom;
+    final list = ListView(
+      padding: const EdgeInsets.all(16),
+      children: children,
+    );
     return SafeArea(
       child: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 600),
-          child: ListView(
-            padding: const EdgeInsets.all(16),
-            children: children,
-          ),
+          child: bottom == null
+              ? list
+              : Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Expanded(child: list),
+                    DecoratedBox(
+                      decoration: BoxDecoration(
+                        border: Border(
+                          top: BorderSide(color: context.tokens.line),
+                        ),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+                        child: bottom,
+                      ),
+                    ),
+                  ],
+                ),
         ),
       ),
     );

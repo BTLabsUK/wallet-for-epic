@@ -24,6 +24,7 @@ import 'settings_history.dart' show exportHistoryBackup;
 import 'settings_screen.dart';
 import 'slate_file_screen.dart';
 import 'theme/advanced.dart';
+import 'theme/brand.dart';
 import 'theme/protocol.dart';
 import 'theme/tokens.dart';
 import 'tx_details_screen.dart';
@@ -291,7 +292,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
     return SlotScaffold(
       idle: const _HomeStatus(),
+      glow: topGlow,
       appBar: AppBar(
+        leading: const Center(child: EpicMark(size: 26)),
+        titleSpacing: 0,
         title: Text(title),
         actions: [
           IconButton(
@@ -1015,32 +1019,13 @@ class _EmptyActivity extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Card.outlined(
-      margin: const EdgeInsets.only(top: 8),
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          children: [
-            Icon(
-              Icons.account_balance_wallet_outlined,
-              size: 48,
-              color: theme.colorScheme.primary,
-            ),
-            const SizedBox(height: 12),
-            Text(
-              context.l10n.homeNoPayments,
-              style: theme.textTheme.titleMedium,
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 16),
-            FilledButton.icon(
-              icon: const Icon(Icons.qr_code),
-              label: Text(context.l10n.homeShowMyAddress),
-              onPressed: onReceive,
-            ),
-          ],
-        ),
+    return EmptyState(
+      icon: const Icon(Icons.south_west),
+      message: context.l10n.homeNoPayments,
+      action: FilledButton.icon(
+        icon: const Icon(Icons.qr_code),
+        label: Text(context.l10n.homeShowMyAddress),
+        onPressed: onReceive,
       ),
     );
   }

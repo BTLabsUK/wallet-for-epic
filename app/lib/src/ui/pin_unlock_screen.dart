@@ -13,6 +13,7 @@ import 'common.dart';
 import 'launch_screen.dart';
 import 'pin.dart';
 import 'setup_screen.dart';
+import 'theme/brand.dart';
 
 /// Opens the wallet with the PIN or biometrics.
 class PinUnlockScreen extends ConsumerStatefulWidget {
@@ -175,12 +176,9 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
     final locked = _lockedUntil != null;
     return SlotScaffold(
       centered: true,
+      glow: heroGlow,
+      // The title is the hero's heading; the bar only holds the network action.
       appBar: AppBar(
-        title: Text(
-          config == null
-              ? l.unlockTitle
-              : '${l.unlockTitle}${networkSuffix(l, config.chain)}',
-        ),
         actions: [
           IconButton(
             tooltip: l.setupNetworkSettingsTooltip,
@@ -197,6 +195,12 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
       ),
       body: CenteredBody(
         children: [
+          BrandHero(
+            title: config == null
+                ? l.unlockTitle
+                : '${l.unlockTitle}${networkSuffix(l, config.chain)}',
+          ),
+          const SizedBox(height: 28),
           PinField(
             controller: _pin,
             label: l.pinLabel,

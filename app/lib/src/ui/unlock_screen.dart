@@ -8,6 +8,7 @@ import '../wallet_service.dart';
 import 'centered_body.dart';
 import 'common.dart';
 import 'pin.dart';
+import 'theme/brand.dart';
 
 /// Opens a wallet made before PINs existed with its password, then moves it to a PIN.
 class UnlockScreen extends ConsumerStatefulWidget {
@@ -106,40 +107,43 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
     final config = ref.watch(walletConfigProvider);
     return SlotScaffold(
       centered: true,
-      appBar: AppBar(
-        title: Text(
-          config == null
-              ? l.unlockTitle
-              : '${l.unlockTitle}${networkSuffix(l, config.chain)}',
-        ),
-      ),
+      glow: heroGlow,
+      appBar: AppBar(),
       body: CenteredBody(
-        children: _openedPassword != null
-            ? [
-                Text(l.unlockMovedToPin),
-                const SizedBox(height: 16),
-                if (_busy)
-                  const LinearProgressIndicator()
-                else
-                  PinSetupView(onDone: _setPin),
-                if (_error != null) ErrorText(_error!),
-              ]
-            : [
-                PasswordField(
-                  controller: _password,
-                  label: l.unlockPasswordLabel,
-                  errorText: _passwordError,
-                  textInputAction: TextInputAction.done,
-                  onSubmitted: (_) => _unlock(),
-                ),
-                const SizedBox(height: 16),
-                if (_error != null) ErrorText(_error!),
-                BusyButton(
-                  label: l.unlockButton,
-                  busy: _busy,
-                  onPressed: _unlock,
-                ),
-              ],
+        children: [
+          BrandHero(
+            title: config == null
+                ? l.unlockTitle
+                : '${l.unlockTitle}${networkSuffix(l, config.chain)}',
+          ),
+          const SizedBox(height: 28),
+          ...(_openedPassword != null
+              ? [
+                  Text(l.unlockMovedToPin),
+                  const SizedBox(height: 16),
+                  if (_busy)
+                    const LinearProgressIndicator()
+                  else
+                    PinSetupView(onDone: _setPin),
+                  if (_error != null) ErrorText(_error!),
+                ]
+              : [
+                  PasswordField(
+                    controller: _password,
+                    label: l.unlockPasswordLabel,
+                    errorText: _passwordError,
+                    textInputAction: TextInputAction.done,
+                    onSubmitted: (_) => _unlock(),
+                  ),
+                  const SizedBox(height: 16),
+                  if (_error != null) ErrorText(_error!),
+                  BusyButton(
+                    label: l.unlockButton,
+                    busy: _busy,
+                    onPressed: _unlock,
+                  ),
+                ]),
+        ],
       ),
     );
   }

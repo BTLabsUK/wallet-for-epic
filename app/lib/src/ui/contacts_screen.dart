@@ -9,6 +9,8 @@ import '../providers.dart';
 import 'centered_body.dart';
 import 'common.dart';
 import 'scan_screen.dart';
+import 'theme/brand.dart';
+import 'theme/tokens.dart';
 
 /// A field's error that screen readers announce as soon as it appears, for
 /// `InputDecoration.error`.
@@ -106,10 +108,9 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
       body: none
           ? CenteredBody(
               children: [
-                Text(
-                  l.contactsEmpty,
-                  textAlign: TextAlign.center,
-                  style: theme.textTheme.bodyLarge,
+                EmptyState(
+                  icon: const Icon(Icons.people_outline),
+                  message: l.contactsEmpty,
                 ),
                 // Room for the floating button.
                 const SizedBox(height: 72),
@@ -153,9 +154,7 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
         for (final c in contacts)
           ListTile(
             contentPadding: EdgeInsets.zero,
-            leading: CircleAvatar(
-              child: Text(c.name.characters.first.toUpperCase()),
-            ),
+            leading: _Initial(c.name),
             title: Text(c.name),
             // Start and end of the key, so contacts on the same server stay apart.
             subtitle: Text(
@@ -310,6 +309,11 @@ class _ContactEditScreenState extends ConsumerState<ContactEditScreen> {
         ],
       ),
       body: ScreenBody(
+        bottom: BusyButton(
+          label: l.contactsSave,
+          busy: _busy,
+          onPressed: _save,
+        ),
         children: [
           TextField(
             controller: _name,
@@ -377,8 +381,34 @@ class _ContactEditScreenState extends ConsumerState<ContactEditScreen> {
           ),
           const SizedBox(height: 16),
           if (_error != null) ErrorText(_error!),
-          BusyButton(label: l.contactsSave, busy: _busy, onPressed: _save),
         ],
+      ),
+    );
+  }
+}
+
+/// A contact's first letter in a hairline square, the same frame as a payment's direction.
+class _Initial extends StatelessWidget {
+  const _Initial(this.name);
+
+  final String name;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    return Container(
+      width: 40,
+      height: 40,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: t.surface,
+        borderRadius: BorderRadius.circular(t.radiusSmall),
+        border: Border.all(color: t.lineStrong),
+      ),
+      child: Text(
+        name.characters.first.toUpperCase(),
+        style: Theme.of(context).textTheme.titleMedium
+            ?.copyWith(color: t.accentText),
       ),
     );
   }

@@ -11,6 +11,7 @@ import '../providers.dart';
 import '../settings.dart';
 import '../wallet_service.dart';
 import 'common.dart';
+import 'theme/brand.dart';
 
 enum HistoryFilter { all, sent, received, pending, cancelled }
 
@@ -288,9 +289,13 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
       if (home.hasError && !home.isLoading)
         ErrorText(describeError(l, home.error!)),
       if (empty != null)
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 24),
-          child: Text(empty, textAlign: TextAlign.center),
+        EmptyState(
+          icon: Icon(
+            _query.trim().isEmpty
+                ? Icons.receipt_long_outlined
+                : Icons.search_off,
+          ),
+          message: empty,
         ),
     ];
 

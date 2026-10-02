@@ -16,6 +16,8 @@ import 'launch_screen.dart';
 import 'pin.dart';
 import 'settings_history.dart';
 import 'theme/advanced.dart';
+import 'theme/brand.dart';
+import 'theme/tokens.dart';
 
 /// Mainnet block 1 was mined at 2019-09-03T02:10:08Z (`get_header` at height 1 on
 /// node.btlabs.uk, checked 2026-09-30). The genesis block is dated 2019-08-09T17:04:38Z, 24 days
@@ -195,10 +197,12 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
       _RestoreStep.scan => _scanView(context),
       _RestoreStep.importOffer => _importOffer(),
     };
-    // The phrase form is long; the later steps are short and sit in the middle.
+    // The phrase form is long and keeps Continue at the foot; the later steps are short and
+    // sit in the middle.
     final form = _step == _RestoreStep.phrase;
     return SlotScaffold(
       centered: !form,
+      glow: _step == _RestoreStep.importOffer ? heroGlow : null,
       appBar: AppBar(
         title: Text(l.restoreTitle),
         // Reached by replacing the first-run screen, so back means starting over there.
@@ -211,7 +215,15 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
             : null,
         automaticallyImplyLeading: false,
       ),
-      body: form ? ScreenBody(children: steps) : CenteredBody(children: steps),
+      body: form
+          ? ScreenBody(
+              bottom: BusyButton(
+                label: l.commonContinue,
+                onPressed: _checkPhrase,
+              ),
+              children: steps,
+            )
+          : CenteredBody(children: steps),
     );
   }
 
@@ -277,7 +289,6 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
       ],
       const SizedBox(height: 16),
       if (_error != null) ErrorText(_error!),
-      BusyButton(label: l.commonContinue, onPressed: _checkPhrase),
     ];
   }
 
@@ -289,16 +300,20 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
     final theme = Theme.of(context);
     final l = context.l10n;
     return [
-      Icon(
-        Icons.check_circle,
-        size: 48,
-        color: theme.colorScheme.primary,
-        semanticLabel: l.restoreDoneIconLabel,
+      Center(
+        child: Semantics(
+          label: l.restoreDoneIconLabel,
+          image: true,
+          child: GlyphTile(
+            size: 88,
+            child: Icon(Icons.check, color: context.tokens.ok),
+          ),
+        ),
       ),
-      const SizedBox(height: 16),
+      const SizedBox(height: 20),
       Text(
         l.restoreDoneTitle,
-        style: theme.textTheme.titleMedium,
+        style: theme.textTheme.titleLarge,
         textAlign: TextAlign.center,
       ),
       const SizedBox(height: 8),

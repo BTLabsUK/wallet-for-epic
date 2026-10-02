@@ -341,6 +341,14 @@ ThemeData buildWalletTheme(WalletTokens t, Brightness brightness) {
         minimumSize: const Size(48, 48),
       ),
     ),
+    // The one floating action (Add contact) is a primary action, so it takes the accent fill.
+    floatingActionButtonTheme: FloatingActionButtonThemeData(
+      backgroundColor: t.accent,
+      foregroundColor: t.accentInk,
+      elevation: 0,
+      highlightElevation: 0,
+      shape: shape,
+    ),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
       fillColor: t.field,

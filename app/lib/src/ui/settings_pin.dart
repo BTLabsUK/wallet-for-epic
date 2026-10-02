@@ -8,6 +8,7 @@ import '../vault.dart';
 import 'centered_body.dart';
 import 'common.dart';
 import 'pin.dart';
+import 'theme/brand.dart';
 
 /// Asks for the current PIN, then a new one twice. Pops true when the PIN changed.
 class ChangePinScreen extends ConsumerStatefulWidget {
@@ -96,9 +97,14 @@ class _ChangePinScreenState extends ConsumerState<ChangePinScreen> {
     final l = context.l10n;
     return SlotScaffold(
       centered: true,
+      glow: heroGlow,
       appBar: AppBar(title: Text(l.settingsPinTitle)),
       body: CenteredBody(
         children: [
+          const Center(
+            child: GlyphTile(size: 80, child: Icon(Icons.lock_outline)),
+          ),
+          const SizedBox(height: 24),
           if (_currentPin == null) ...[
             Text(
               l.settingsPinEnterCurrent,

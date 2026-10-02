@@ -22,6 +22,8 @@ import 'help_screen.dart';
 import 'scan_screen.dart';
 import 'slate_file_screen.dart';
 import 'theme/advanced.dart';
+import 'theme/brand.dart';
+import 'theme/tokens.dart';
 
 /// Sending: pick a recipient (their address or a wallet URL), an amount, review, send. A
 /// transaction file is offered under "Other ways to send".
@@ -569,9 +571,12 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       children = _formStep(context);
     }
     final all = [...children, if (_error != null) ErrorText(_error!)];
-    // The result is short, so it sits in the middle; the form and file steps scroll.
+    // The result is short, so it sits in the middle; the form and file steps scroll, and the
+    // form keeps its button at the foot of the screen.
+    final form = sent == null && _slate == null;
     return SlotScaffold(
       centered: sent != null,
+      glow: sent != null && !sent.tx.repostable ? heroGlow : null,
       appBar: AppBar(
         title: Text(
           _fileMode && sent == null
@@ -581,7 +586,24 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       ),
       body: sent != null
           ? CenteredBody(children: all)
-          : ScreenBody(children: all),
+          : ScreenBody(
+              bottom: form ? _formAction(context) : null,
+              children: all,
+            ),
+    );
+  }
+
+  /// Review, or Create file in file mode.
+  Widget _formAction(BuildContext context) {
+    final l = context.l10n;
+    return BusyButton(
+      label: _fileMode ? l.sendCreateFile : l.sendReview,
+      busy: _busy || _estimating,
+      onPressed: _parsedAmount == null || _estimateError != null || _reviewing
+          ? null
+          : _fileMode
+          ? _createFile
+          : _review,
     );
   }
 
@@ -825,16 +847,6 @@ class _SendScreenState extends ConsumerState<SendScreen> {
         ),
       ],
       const SizedBox(height: 16),
-      BusyButton(
-        label: _fileMode ? l.sendCreateFile : l.sendReview,
-        busy: _busy || _estimating,
-        onPressed: amount == null || _estimateError != null || _reviewing
-            ? null
-            : _fileMode
-            ? _createFile
-            : _review,
-      ),
-      const SizedBox(height: 24),
       if (_fileMode)
         TextButton(
           onPressed: () => setState(() {
@@ -922,27 +934,26 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     final contacts = ref.watch(contactsProvider).value ?? const <Contact>[];
     final known = to == null || contactFor(contacts, to.address) != null;
     return [
+      Center(
+        child: GlyphTile(
+          size: 88,
+          child: Icon(
+            waiting ? Icons.schedule_send : Icons.check,
+            color: waiting ? null : context.tokens.ok,
+          ),
+        ),
+      ),
+      const SizedBox(height: 20),
       Semantics(
         liveRegion: true,
-        child: Row(
-          children: [
-            Icon(
-              waiting ? Icons.schedule_send : Icons.check_circle,
-              color: theme.colorScheme.primary,
-              size: 32,
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                // An epicbox payment has not gone anywhere yet; "Sent" would let the
-                // user close the app, which stops it from finishing.
-                waiting
-                    ? l.sendResultStarted(epicText(l, sent.amount))
-                    : l.sendResultSent(epicText(l, sent.amount)),
-                style: theme.textTheme.titleLarge,
-              ),
-            ),
-          ],
+        child: Text(
+          // An epicbox payment has not gone anywhere yet; "Sent" would let the
+          // user close the app, which stops it from finishing.
+          waiting
+              ? l.sendResultStarted(epicText(l, sent.amount))
+              : l.sendResultSent(epicText(l, sent.amount)),
+          textAlign: TextAlign.center,
+          style: theme.textTheme.titleLarge,
         ),
       ),
       const SizedBox(height: 12),
@@ -950,11 +961,18 @@ class _SendScreenState extends ConsumerState<SendScreen> {
         waiting
             ? l.sendResultWaitingBody
             : l.sendResultOnItsWay(confirmationsTarget),
+        textAlign: TextAlign.center,
         style: theme.textTheme.bodyLarge,
       ),
       if (waiting) ...[
         const SizedBox(height: 8),
-        Text(l.sendResultAutoCancel(sendTtlDays)),
+        Text(
+          l.sendResultAutoCancel(sendTtlDays),
+          textAlign: TextAlign.center,
+          style: theme.textTheme.bodyMedium?.copyWith(
+            color: theme.colorScheme.onSurfaceVariant,
+          ),
+        ),
       ],
       if (sent.changedFee case final fee?) ...[
         const SizedBox(height: 8),

@@ -1,7 +1,9 @@
 /// The devices that make the Protocol look recognisable: corner ticks, the measurement grid and
 /// the signal trace on the balance panel, the gold-rule section head, accent-edged notices and
-/// the payment timeline. The panel devices belong on Home's balance only; everywhere else is
-/// hairlines. Spec: `docs/themes/protocol/FLUTTER.md`.
+/// the payment timeline. The full panel (grid, ticks, trace) is Home's balance only; the
+/// screens that open the app or end a task reuse the grid and ticks through `brand.dart`
+/// (the Epic mark, glyph tiles, the lit backdrop), and lists and forms stay hairlines.
+/// Spec: `docs/themes/protocol/FLUTTER.md`.
 library;
 
 import 'dart:ui' as ui;

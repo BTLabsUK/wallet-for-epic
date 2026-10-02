@@ -183,6 +183,9 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
     return SlotScaffold(
       appBar: AppBar(title: Text(l.setupTitle)),
       body: ScreenBody(
+        bottom: preset == null
+            ? null
+            : BusyButton(label: l.commonSave, busy: _busy, onPressed: _save),
         children: preset == null
             ? [
                 if (_error != null)
@@ -302,7 +305,6 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
                 Text(l.setupWalletPerNetwork),
                 const SizedBox(height: 24),
                 if (_error != null) ErrorText(_error!),
-                BusyButton(label: l.commonSave, busy: _busy, onPressed: _save),
               ],
       ),
     );

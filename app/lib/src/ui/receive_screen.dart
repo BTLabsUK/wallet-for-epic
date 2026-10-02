@@ -13,6 +13,9 @@ import 'common.dart';
 import 'help_screen.dart';
 import 'slate_file_screen.dart';
 import 'theme/advanced.dart';
+import 'theme/brand.dart';
+import 'theme/protocol.dart';
+import 'theme/tokens.dart';
 
 /// Receiving: epicbox payments arrive by themselves while connected; a transaction file or
 /// text can still be accepted by hand. There is no HTTP receive, because a phone cannot
@@ -76,6 +79,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
     final address = ref.watch(addressProvider);
     return SlotScaffold(
       centered: true,
+      glow: heroGlow,
       appBar: AppBar(
         title: Text(l.receiveTitle),
         actions: [
@@ -147,36 +151,55 @@ class _AddressCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final files = ref.watch(slateFilesProvider);
     final theme = Theme.of(context);
+    final t = context.tokens;
+    final dark = theme.brightness == Brightness.dark;
     final l = context.l10n;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Center(
-          child: Container(
-            // Dark modules on white scan reliably in either theme.
-            color: Colors.white,
-            padding: const EdgeInsets.all(16),
-            child: Semantics(
-              label: l.receiveQrLabel,
-              image: true,
-              child: SizedBox.square(
-                dimension: 260,
-                child: PrettyQrView.data(data: address),
+          // The corner ticks frame the code as the screen's one object, like Home's balance.
+          child: CustomPaint(
+            foregroundPainter: CornerTicksPainter(t.tick, length: 16),
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  // Dark modules on white scan reliably in either theme.
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(t.radiusSmall),
+                  boxShadow: [
+                    BoxShadow(
+                      color: t.accent.withValues(alpha: dark ? 0.22 : 0.12),
+                      blurRadius: 40,
+                    ),
+                  ],
+                ),
+                child: Semantics(
+                  label: l.receiveQrLabel,
+                  image: true,
+                  child: SizedBox.square(
+                    dimension: 260,
+                    child: PrettyQrView.data(data: address),
+                  ),
+                ),
               ),
             ),
           ),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 20),
         // The QR code, Copy and Share always carry the full address. On screen it is short,
-        // without this wallet's own relay, unless Advanced options is on.
+        // without this wallet's own relay, unless Advanced options is on. It is data, so the
+        // mono face.
         SelectableText(
           AdvancedOptions.of(context)
               ? address
               : shortAddress(address, ownServer: ownEpicboxServer(ref)),
           textAlign: TextAlign.center,
-          style: theme.textTheme.bodyLarge,
+          style: theme.textTheme.bodyLarge?.copyWith(fontFamily: t.monoFamily),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 20),
         Row(
           children: [
             Expanded(
