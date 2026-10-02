@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Themed icons (Android 13+) tint this; only its shape counts. -->
+    <path android:fillColor="#FFFFFFFF" android:pathData="M70.068,41.285C70.47,41.052 70.47,40.474 70.068,40.25L66.124,37.975C65.937,37.872 65.714,37.872 65.527,37.975L62.823,39.532L67.98,42.507L70.068,41.285Z" />
+    <path android:fillColor="#FFFFFFFF" android:pathData="M45.944,49.603L45.944,54.256C45.944,54.723 46.448,55.012 46.849,54.779L67.066,43.029L61.909,40.054L46.243,49.09C46.056,49.193 45.944,49.389 45.944,49.603Z" />
+    <path android:fillColor="#FFFFFFFF" android:pathData="M49.824,61.008L53.945,63.386C54.132,63.488 54.356,63.488 54.542,63.386L70.041,54.443L70.041,48.214L49.824,59.963C49.423,60.197 49.432,60.775 49.824,61.008Z" />
+    <path android:fillColor="#FFFFFFFF" android:pathData="M73.649,52.363C73.836,52.261 73.948,52.056 73.948,51.841L73.948,46.992C73.948,46.526 73.444,46.237 73.043,46.47L70.954,47.682L70.954,53.911L73.649,52.363Z" />
+    <path android:fillColor="#FFFFFFFF" android:pathData="M54.029,76.935L54.038,76.935L59.755,73.634L59.755,73.625L73.901,65.465L73.901,58.854L70.964,60.551L70.05,61.073L59.177,67.349L54.029,70.324L39.892,62.164L39.892,45.845L55.913,36.595L56.817,36.072L59.755,34.375L54.029,31.065L34.166,42.535L34.166,65.465L54.029,76.935Z" />
+</vector>
