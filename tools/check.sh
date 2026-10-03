@@ -12,11 +12,18 @@ if [ ! -d "$root/playground/src/epic-wallet" ]; then
   exit 1
 fi
 
+step "LEPIC at the pin (tools/lepic.rev)"
+"$root/tools/lepic.sh" build linux
+
 step "flutter analyze"
 (cd "$root/app" && flutter pub get >/dev/null && flutter analyze --no-pub)
 
 step "flutter test"
 (cd "$root/app" && flutter test --no-pub)
+
+step "core parity, epic-wallet against LEPIC (Linux, offline)"
+(cd "$root/app" && LEPIC_FFI_LIB="$("$root/tools/lepic.sh" lib)" \
+  xvfb-run -a flutter test --no-pub integration_test/core_parity_test.dart -d linux)
 
 step "cargo test (app/rust, offline)"
 (cd "$root/app/rust" && cargo test --locked -q)

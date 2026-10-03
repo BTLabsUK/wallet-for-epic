@@ -1,3 +1,5 @@
+# LEPIC clone pinned by tools/lepic.rev, created by tools/lepic.sh sync
+/app/third_party/
 
 # Firebase: the app config ships in every APK but stays out of git; the server key is secret.
 /firebase.secret

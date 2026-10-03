@@ -4,6 +4,8 @@
 import 'dart:io';
 
 import 'package:epic_wallet/src/app.dart';
+import 'package:epic_wallet/src/core_backend.dart';
+import 'package:epic_wallet/src/lepic_wallet_service.dart';
 import 'package:epic_wallet/src/network.dart';
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/rust/frb_generated.dart';
@@ -38,7 +40,16 @@ Future<void> _pumpUntil(
   final end = DateTime.now().add(timeout);
   while (finder.evaluate().isEmpty) {
     if (DateTime.now().isAfter(end)) {
-      fail('Timed out after $timeout waiting for $finder');
+      final shown = find
+          .byType(RichText)
+          .evaluate()
+          .map((e) => (e.widget as RichText).text.toPlainText())
+          .where((t) => t.trim().isNotEmpty)
+          .join(' | ');
+      fail(
+        'Timed out after $timeout waiting for $finder; on screen: $shown; '
+        'home: ${find.byType(HomeScreen).evaluate().isNotEmpty}',
+      );
     }
     await tester.pump(const Duration(milliseconds: 100));
   }
@@ -70,7 +81,11 @@ Future<void> _enter(WidgetTester tester, String label, String text) async {
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
-  setUpAll(() async => RustLib.init());
+  setUpAll(() async {
+    await RustLib.init();
+    // The first-run test goes through walletServiceProvider, so WFE_CORE=lepic runs it on LEPIC.
+    if (coreBackend == CoreBackend.lepic) await initLepic();
+  });
 
   const service = RustWalletService();
 

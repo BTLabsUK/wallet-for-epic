@@ -55,6 +55,10 @@ dependencies:
   mobile_scanner: 7.4.2
   firebase_core: 4.15.0
   firebase_messaging: 16.7.0
+  # The LEPIC core behind --dart-define=WFE_CORE=lepic. A clone pinned by tools/lepic.rev;
+  # tools/lepic.sh sync creates it and tools/lepic.sh build builds its libraries.
+  lepic:
+    path: third_party/lepic/bindings/flutter
 
 dev_dependencies:
   flutter_test:

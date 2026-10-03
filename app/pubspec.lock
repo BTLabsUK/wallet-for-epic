@@ -428,6 +428,13 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.2"
+  lepic:
+    dependency: "direct main"
+    description:
+      path: "third_party/lepic/bindings/flutter"
+      relative: true
+    source: path
+    version: "0.1.0"
   lints:
     dependency: transitive
     description:
@@ -899,4 +906,4 @@ packages:
     version: "3.1.4"
 sdks:
   dart: ">=3.13.4 <4.0.0"
-  flutter: ">=3.44.0"
+  flutter: ">=3.47.0"
