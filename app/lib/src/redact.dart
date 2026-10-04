@@ -1,7 +1,8 @@
 /// Scrubs secrets from text before it is logged or put in a feedback report.
 ///
-/// The Rust twin is `rust/src/core/redact.rs`, which runs again at the log sink. Both apply the
-/// same rules in the same order, and each has tests:
+/// It runs at the call (`AppLog`) and again at the log file sink (`FileLogSink` in
+/// `app_log.dart`). The Rust twin `rust/src/core/redact.rs` applies the same rules in the same
+/// order to the old core's lines until R-01 removes it; each has tests:
 ///
 /// 1. A slate (text with `"participant_data"`, `"public_blind_excess"` or `"part_sig"`) becomes
 ///    `[slate]` from its first `{` on.

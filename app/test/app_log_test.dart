@@ -81,86 +81,109 @@ void main() {
     sink.close();
   });
 
-  test(
-    'a LEPIC entry is redacted at the sink: slate, phrase and PIN',
-    () async {
-      final sink = open();
-      AppLog.use(sink);
-      logLepicEntry(
-        const lepic.LogEntry(
-          level: lepic.LogLevel.info,
-          target: 'lepic_wallet::receive',
-          message: 'slate received $_slate',
-          spans: ['receive'],
-          fields: [lepic.LogField(name: 'slate_id', value: 'abcd1234')],
-        ),
-      );
-      logLepicEntry(
-        const lepic.LogEntry(
-          level: lepic.LogLevel.error,
-          target: 'lepic_wallet::restore',
-          message: 'restore failed',
-          spans: [],
-          fields: [
-            lepic.LogField(name: 'amount', value: '2500000000'),
-            lepic.LogField(name: 'height', value: '1041'),
-            // Last: the phrase rule also takes a wordlist word after the run.
-            lepic.LogField(name: 'error', value: 'bad words $_phrase'),
-          ],
-        ),
-      );
-      logLepicEntry(
-        const lepic.LogEntry(
-          level: lepic.LogLevel.warn,
-          target: 'lepic_ffi::vault',
-          message: 'unlock with pin 123456 refused, sending to $_address',
-          spans: [],
-          fields: [],
-        ),
-      );
-      logLepicEntry(
-        const lepic.LogEntry(
-          level: lepic.LogLevel.debug,
-          target: 'lepic_wallet::send',
-          message: 'debug detail',
-          spans: [],
-          fields: [],
-        ),
-      );
+  test('a LEPIC entry is redacted at the sink: slate, phrase and PIN', () async {
+    final sink = open();
+    AppLog.use(sink);
+    logLepicEntry(
+      const lepic.LogEntry(
+        level: lepic.LogLevel.info,
+        target: 'lepic_wallet::receive',
+        message: 'slate received $_slate',
+        spans: ['receive'],
+        fields: [lepic.LogField(name: 'slate_id', value: 'abcd1234')],
+      ),
+    );
+    logLepicEntry(
+      const lepic.LogEntry(
+        level: lepic.LogLevel.error,
+        target: 'lepic_wallet::restore',
+        message: 'restore failed',
+        spans: [],
+        fields: [
+          lepic.LogField(name: 'amount', value: '2500000000'),
+          lepic.LogField(name: 'height', value: '1041'),
+          // Last: the phrase rule also takes a wordlist word after the run.
+          lepic.LogField(name: 'error', value: 'bad words $_phrase'),
+        ],
+      ),
+    );
+    logLepicEntry(
+      const lepic.LogEntry(
+        level: lepic.LogLevel.warn,
+        target: 'lepic_ffi::vault',
+        message: 'unlock with pin 123456 refused, sending to $_address',
+        spans: [],
+        fields: [],
+      ),
+    );
+    logLepicEntry(
+      const lepic.LogEntry(
+        level: lepic.LogLevel.warn,
+        target: 'lepic_epicbox::frame',
+        message: 'relay frame rejected',
+        spans: [],
+        fields: [
+          lepic.LogField(
+            name: 'error',
+            value:
+                'invalid type: string "say \\"hi\\" 7300431", '
+                'expected u64; out of range `300431`',
+          ),
+        ],
+      ),
+    );
+    logLepicEntry(
+      const lepic.LogEntry(
+        level: lepic.LogLevel.debug,
+        target: 'lepic_wallet::send',
+        message: 'debug detail',
+        spans: [],
+        fields: [],
+      ),
+    );
 
-      final written = sink.file.readAsStringSync();
-      expect(
-        written,
-        contains('INFO  lepic_wallet::receive: slate received [slate]'),
-      );
-      expect(
-        written,
-        contains(
-          'ERROR lepic_wallet::restore: restore failed amount=[redacted] '
-          'height=1041 error=bad words [words]\n',
-        ),
-      );
-      expect(
-        written,
-        contains('WARN  lepic_ffi::vault: unlock with pin [redacted] refused'),
-      );
-      expect(written, contains('esWn9r…@epicbox.epiccash.com'));
-      expect(written, isNot(contains('debug detail')));
-      for (final text in [written, await sink.tail(1 << 20), ...mirrored]) {
-        for (final secret in [
-          'participant_data',
-          'abandon',
-          '123456',
-          '2500000000',
-          'esWn9r2zQj5',
-        ]) {
-          expect(text, isNot(contains(secret)), reason: secret);
-        }
+    final written = sink.file.readAsStringSync();
+    expect(
+      written,
+      contains('INFO  lepic_wallet::receive: slate received [slate]'),
+    );
+    expect(
+      written,
+      contains(
+        'ERROR lepic_wallet::restore: restore failed amount=[redacted] '
+        'height=1041 error=bad words [words]\n',
+      ),
+    );
+    expect(
+      written,
+      contains('WARN  lepic_ffi::vault: unlock with pin [redacted] refused'),
+    );
+    expect(written, contains('esWn9r…@epicbox.epiccash.com'));
+    expect(
+      written,
+      contains(
+        'WARN  lepic_epicbox::frame: relay frame rejected error=invalid type: '
+        'string "[redacted]", expected u64; out of range `[redacted]`\n',
+      ),
+    );
+    expect(written, isNot(contains('debug detail')));
+    for (final text in [written, await sink.tail(1 << 20), ...mirrored]) {
+      for (final secret in [
+        'participant_data',
+        'abandon',
+        '123456',
+        '2500000000',
+        'esWn9r2zQj5',
+        '7300431',
+        '300431',
+        'say',
+      ]) {
+        expect(text, isNot(contains(secret)), reason: secret);
       }
-      expect(mirrored, hasLength(3));
-      sink.close();
-    },
-  );
+    }
+    expect(mirrored, hasLength(4));
+    sink.close();
+  });
 
   test(
     'early lines reach the file, and dependencies log at warn only',
@@ -184,6 +207,66 @@ void main() {
       sink.close();
     },
   );
+
+  test(
+    'the sink itself redacts what reaches it, and so does the tail',
+    () async {
+      final sink = open();
+      sink.record(LogLevel.info, 'lepic_wallet::x', 'pin 123456 $_slate');
+      sink.write(LogLevel.warn, 'restore', 'words $_phrase');
+      final written = sink.file.readAsStringSync();
+      expect(
+        written,
+        contains('INFO  lepic_wallet::x: pin [redacted] [slate]\n'),
+      );
+      expect(written, contains('WARN  dart.restore: words [words]\n'));
+      // A line an older build, or anything else, wrote without redaction.
+      File(sink.file.path).writeAsStringSync(
+        '2026-10-01T00:00:00.000Z INFO  dart.old: pin 654321 $_address\n',
+        mode: FileMode.append,
+      );
+      final tail = await sink.tail(1 << 20);
+      expect(tail, contains('dart.old: pin [redacted] esWn9r…@'));
+      for (final text in [written, tail, ...mirrored]) {
+        for (final secret in [
+          '123456',
+          '654321',
+          'participant_data',
+          'abandon',
+          'esWn9r2zQj5',
+        ]) {
+          expect(text, isNot(contains(secret)), reason: secret);
+        }
+      }
+      expect(mirrored, hasLength(2));
+      sink.close();
+    },
+  );
+
+  test('a failed rotation keeps the log going and says so', () {
+    // A directory where wfe.log.1 belongs cannot be deleted as a file or renamed over.
+    Directory('${dir.path}/wfe.log.1/blocker').createSync(recursive: true);
+    final sink = open(maxBytes: 300);
+    for (var i = 0; i < 20; i++) {
+      sink.write(LogLevel.info, 't', 'line $i ${'x' * 40}');
+    }
+    final written = sink.file.readAsStringSync();
+    expect(written, contains('WARN  dart.log: rotation failed'));
+    expect(written, contains('line 19 '));
+    expect(written, contains('line 0 '), reason: 'nothing was lost');
+    sink.close();
+  });
+
+  test('quoted text in an error is redacted, escapes and all', () {
+    expect(redactQuoted('no quotes'), 'no quotes');
+    expect(
+      redactQuoted('bad "abc" and `12`'),
+      'bad "[redacted]" and `[redacted]`',
+    );
+    expect(redactQuoted(r'say "a \" b" end'), 'say "[redacted]" end');
+    expect(redactQuoted('open "rest of it'), 'open "[redacted]');
+    expect(redactQuoted(r'tick `a\` b'), r'tick `[redacted]` b');
+  });
 
   test('long messages are cut on a character', () {
     final line = formatLogLine(

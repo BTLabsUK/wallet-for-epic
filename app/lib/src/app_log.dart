@@ -211,14 +211,35 @@ class FileLogSink extends LogSink {
     _size += line.length;
   }
 
+  /// Moves `wfe.log` to `wfe.log.1`. If that fails (a sharing violation on Windows, a
+  /// scanner holding the file), it keeps writing to `wfe.log`, says so there, and tries again
+  /// after another [maxBytes].
   void _rotate() {
     _file.closeSync();
-    final old = previous;
-    // Windows cannot rename over a file; remove it first.
-    if (old.existsSync()) old.deleteSync();
-    file.renameSync(old.path);
-    _file = file.openSync(mode: FileMode.append);
-    _size = 0;
+    FileSystemException? failed;
+    try {
+      final old = previous;
+      // Windows cannot rename over a file; remove it first.
+      if (old.existsSync()) old.deleteSync();
+      file.renameSync(old.path);
+    } on FileSystemException catch (error) {
+      failed = error;
+    } finally {
+      _file = file.openSync(mode: FileMode.append);
+      _size = 0;
+    }
+    if (failed != null) {
+      final line = utf8.encode(
+        formatLogLine(
+          DateTime.now(),
+          LogLevel.warn,
+          '$dartTarget.log',
+          redact('rotation failed: ${failed.message} ${failed.osError ?? ''}'),
+        ),
+      );
+      _file.writeFromSync(line);
+      _size = line.length;
+    }
   }
 
   /// The newest [maxBytes] across `wfe.log.1` and `wfe.log`, from a whole line on.
@@ -360,7 +381,7 @@ void logError(String tag, Object error, [StackTrace? stack]) {
 
 /// Fields of LEPIC's log vocabulary whose values say nothing about keys, amounts or addresses,
 /// as LEPIC's own log ring keeps them (`lepic-telemetry/src/mobile.rs`, `KEPT_FIELDS`). Any
-/// other field is written as `[redacted]`.
+/// other field is written as `[redacted]`, and `error` through [redactQuoted].
 const Set<String> lepicKeptFields = {
   'wallet',
   'account',
@@ -379,6 +400,31 @@ const Set<String> lepicKeptFields = {
   'tag',
 };
 
+/// [error] with every span quoted with `"` or `` ` `` replaced by `[redacted]`, as LEPIC's
+/// ring does (`redact_quoted` in `lepic-telemetry/src/mobile.rs`): decoder errors quote the
+/// input they rejected, which may be an amount or an address. An unclosed quote redacts the
+/// rest; inside `"`, `\"` does not close it.
+String redactQuoted(String error) {
+  final out = StringBuffer();
+  final chars = error.runes.iterator;
+  while (chars.moveNext()) {
+    final c = chars.current;
+    out.writeCharCode(c);
+    if (c != 0x22 && c != 0x60) continue;
+    out.write(redacted);
+    var escaped = false;
+    while (chars.moveNext()) {
+      final inner = chars.current;
+      if (inner == c && !escaped) {
+        out.writeCharCode(c);
+        break;
+      }
+      escaped = c == 0x22 && inner == 0x5c && !escaped;
+    }
+  }
+  return out.toString();
+}
+
 /// Logs one entry of `LepicRuntime.logs()` under its own target:
 /// `lepic_wallet::send: slate received in send slate_id=… height=…`. Debug and trace entries
 /// are dropped.
@@ -393,7 +439,11 @@ void logLepicEntry(lepic.LogEntry entry) {
   final line = StringBuffer(entry.message);
   if (entry.spans.isNotEmpty) line.write(' in ${entry.spans.join('>')}');
   for (final field in entry.fields) {
-    final value = lepicKeptFields.contains(field.name) ? field.value : redacted;
+    final value = field.name == 'error'
+        ? redactQuoted(field.value)
+        : lepicKeptFields.contains(field.name)
+        ? field.value
+        : redacted;
     line.write(' ${field.name}=$value');
   }
   AppLog.record(level, entry.target, line.toString());
