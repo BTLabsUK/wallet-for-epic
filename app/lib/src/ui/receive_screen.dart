@@ -420,7 +420,11 @@ Future<void> shareAddress(
     png = await renderShareCard(context, address: address, chain: chain);
   } catch (error) {
     // The address alone still gets it across.
-    logWarn('share', 'rendering the address card failed: $error');
+    logWarn(
+      'share',
+      'rendering the address card failed: '
+          '${describeError(englishStrings, error)}',
+    );
   }
   if (png == null) {
     await hold.during(() => files.shareText(address));

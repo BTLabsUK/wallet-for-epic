@@ -275,10 +275,7 @@ class HomeNotifier extends AsyncNotifier<HomeData> {
       final data = await _refreshed(session);
       if (ref.mounted) state = AsyncData(data);
     } catch (error, stack) {
-      logWarn(
-        'sync',
-        'refresh failed: ${describeError(englishStrings, error)}',
-      );
+      logWarn('sync', 'refresh failed: ${describeError(englishStrings, error)}');
       if (!ref.mounted) return;
       // The local figures stay, no longer marked as syncing, under the error.
       final shown = state.value;
@@ -318,10 +315,7 @@ class HomeNotifier extends AsyncNotifier<HomeData> {
       );
     } catch (error) {
       // The list stays as it was.
-      logInfo(
-        'history',
-        'enrich failed: ${describeError(englishStrings, error)}',
-      );
+      logInfo('history', 'enrich failed: ${describeError(englishStrings, error)}');
     } finally {
       _enriching = false;
     }
@@ -479,6 +473,8 @@ class ListenerNotifier extends Notifier<ListenerState> {
       if (!ended.isCompleted) ended.complete();
     }
 
+    // An error already said Offline; the stream's end after it changes nothing.
+    var failed = false;
     late final StreamSubscription<ListenerEvent> events;
     events = session.startListener().listen(
       (event) {
@@ -488,6 +484,7 @@ class ListenerNotifier extends Notifier<ListenerState> {
       },
       onError: (Object error) {
         if (!identical(_events, events)) return;
+        failed = true;
         logWarn(
           'listener',
           'stream failed: ${describeError(englishStrings, error)}',
@@ -499,7 +496,18 @@ class ListenerNotifier extends Notifier<ListenerState> {
           last: state.last,
         );
       },
-      onDone: end,
+      onDone: () {
+        end();
+        // Ended without a word, as LEPIC's stream does when a listener runs already: nothing
+        // listens, so it counts as stopped and Receive offers Retry.
+        if (identical(_events, events) && !failed && !state.stopped) {
+          state = ListenerState(
+            stopped: true,
+            status: 'Listener stopped',
+            last: state.last,
+          );
+        }
+      },
     );
     _events = events;
   }

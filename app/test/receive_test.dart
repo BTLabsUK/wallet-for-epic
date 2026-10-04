@@ -404,6 +404,34 @@ void main() {
       },
     );
 
+    testWidgets('a stream that ends without a word counts as stopped', (
+      tester,
+    ) async {
+      final h = _Harness();
+      await h.pump(tester);
+      expect(find.text('Epicbox connecting'), findsOneWidget);
+      // LEPIC's stream when a listener runs already: it closes with no event.
+      await h.session.listenerEvents.close();
+      await tester.pumpAndSettle();
+      expect(h.container.read(listenerProvider).stopped, isTrue);
+      expect(find.text('Epicbox offline'), findsOneWidget);
+      expect(find.text('Retry'), findsOneWidget);
+    });
+
+    testWidgets('an error stays offline when its stream then ends', (
+      tester,
+    ) async {
+      final h = _Harness();
+      await h.pump(tester);
+      h.session.listenerEvents.addError(StateError('relay gone'));
+      await h.session.listenerEvents.close();
+      await tester.pumpAndSettle();
+      final state = h.container.read(listenerProvider);
+      expect(state.lost, isTrue);
+      expect(state.stopped, isFalse);
+      expect(find.text('Retry'), findsOneWidget);
+    });
+
     testWidgets('the relay readout is for Advanced options only', (
       tester,
     ) async {
