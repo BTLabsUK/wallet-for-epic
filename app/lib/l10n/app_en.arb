@@ -2689,9 +2689,9 @@
   "@contactsNameLabel": {
     "description": "Label of the contact's name field."
   },
-  "contactsAddressLabel": "Address or wallet URL",
+  "contactsAddressLabel": "Epicbox address",
   "@contactsAddressLabel": {
-    "description": "Label of the contact's address field: an epicbox address or the URL of a wallet."
+    "description": "Label of the contact's address field, which holds an epicbox address. epicbox is a proper name."
   },
   "contactsDuplicate": "This address is already saved as {name}.",
   "@contactsDuplicate": {
@@ -2710,7 +2710,7 @@
   "@contactsSave": {
     "description": "Button that saves the contact."
   },
-  "contactsAddressMissing": "Enter their address or a wallet URL.",
+  "contactsAddressMissing": "Enter their epicbox address.",
   "@contactsAddressMissing": {
     "description": "Error under a recipient or contact address field left empty."
   },
@@ -2723,10 +2723,6 @@
         "example": "http://203.0.113.5:3415"
       }
     }
-  },
-  "contactsUrlUnsupported": "Payments to a wallet URL are not supported. Ask the recipient for their epicbox address.",
-  "@contactsUrlUnsupported": {
-    "description": "Error under the address field of a contact when the user entered a wallet URL (http:// or https://). Same text as sendUrlUnsupported: the wallet sends over epicbox and by transaction file only. epicbox is a proper name."
   },
   "contactsAddressInvalid": "This is not a valid address. It looks like {example}",
   "@contactsAddressInvalid": {

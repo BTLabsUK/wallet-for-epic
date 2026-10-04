@@ -2331,7 +2331,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get contactsNameLabel => 'Name';
 
   @override
-  String get contactsAddressLabel => 'Address or wallet URL';
+  String get contactsAddressLabel => 'Epicbox address';
 
   @override
   String contactsDuplicate(String name) {
@@ -2345,16 +2345,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get contactsSave => 'Save contact';
 
   @override
-  String get contactsAddressMissing => 'Enter their address or a wallet URL.';
+  String get contactsAddressMissing => 'Enter their epicbox address.';
 
   @override
   String contactsUrlIncomplete(String example) {
     return 'Enter the full wallet URL, such as $example';
   }
-
-  @override
-  String get contactsUrlUnsupported =>
-      'Payments to a wallet URL are not supported. Ask the recipient for their epicbox address.';
 
   @override
   String contactsAddressInvalid(String example) {

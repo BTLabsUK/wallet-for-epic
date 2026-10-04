@@ -2458,7 +2458,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get contactsNameLabel => 'Имя';
 
   @override
-  String get contactsAddressLabel => 'Адрес или URL кошелька';
+  String get contactsAddressLabel => 'Адрес epicbox';
 
   @override
   String contactsDuplicate(String name) {
@@ -2472,16 +2472,12 @@ class AppLocalizationsRu extends AppLocalizations {
   String get contactsSave => 'Сохранить контакт';
 
   @override
-  String get contactsAddressMissing => 'Введите адрес или URL кошелька.';
+  String get contactsAddressMissing => 'Введите адрес epicbox.';
 
   @override
   String contactsUrlIncomplete(String example) {
     return 'Введите полный URL кошелька, например $example';
   }
-
-  @override
-  String get contactsUrlUnsupported =>
-      'Платежи на URL кошелька не поддерживаются. Попросите у получателя его адрес epicbox.';
 
   @override
   String contactsAddressInvalid(String example) {

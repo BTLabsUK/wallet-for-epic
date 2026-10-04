@@ -2194,7 +2194,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get contactsNameLabel => '名称';
 
   @override
-  String get contactsAddressLabel => '地址或钱包 URL';
+  String get contactsAddressLabel => 'epicbox 地址';
 
   @override
   String contactsDuplicate(String name) {
@@ -2208,15 +2208,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get contactsSave => '保存联系人';
 
   @override
-  String get contactsAddressMissing => '请输入对方的地址或钱包 URL。';
+  String get contactsAddressMissing => '请输入对方的 epicbox 地址。';
 
   @override
   String contactsUrlIncomplete(String example) {
     return '请输入完整的钱包 URL，例如 $example';
   }
-
-  @override
-  String get contactsUrlUnsupported => '不支持向钱包 URL 付款。请向接收方索取其 epicbox 地址。';
 
   @override
   String contactsAddressInvalid(String example) {

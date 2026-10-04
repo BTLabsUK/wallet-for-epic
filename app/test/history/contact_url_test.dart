@@ -45,7 +45,7 @@ void main() {
     );
     for (final locale in AppLocalizations.supportedLocales) {
       final t = await AppLocalizations.delegate.load(locale);
-      expect(t.contactsUrlUnsupported, isNotEmpty, reason: '$locale');
+      expect(t.sendUrlUnsupported, isNotEmpty, reason: '$locale');
     }
   });
 

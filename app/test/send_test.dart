@@ -560,7 +560,10 @@ void main() {
     test('checkRecipient explains what is wrong', () {
       final service = FakeWalletService();
       final l = englishStrings;
-      expect(checkRecipient(l, service, ''), contains('Enter their address'));
+      expect(
+        checkRecipient(l, service, ''),
+        contains('Enter their epicbox address'),
+      );
       expect(checkRecipient(l, service, 'esBare'), contains('not a valid'));
       expect(
         checkRecipient(l, service, 'http://'),
@@ -1128,25 +1131,25 @@ void main() {
       await _tap(tester, find.text('Add contact'));
       await _tap(tester, find.text('Save contact'));
       expect(find.text('Enter a name.'), findsOneWidget);
-      expect(find.text('Enter their address or a wallet URL.'), findsOneWidget);
+      expect(find.text('Enter their epicbox address.'), findsOneWidget);
 
       await _enter(tester, 'Name', 'Bob');
-      await _enter(tester, 'Address or wallet URL', 'nonsense');
+      await _enter(tester, 'Epicbox address', 'nonsense');
       await _tap(tester, find.text('Save contact'));
       expect(find.textContaining('not a valid address'), findsOneWidget);
 
-      await _enter(tester, 'Address or wallet URL', ' $_bob ');
+      await _enter(tester, 'Epicbox address', ' $_bob ');
       await _tap(tester, find.text('Save contact'));
       expect(find.text('Bob'), findsOneWidget);
 
       await _tap(tester, find.text('Add contact'));
       await _enter(tester, 'Name', 'Carol');
-      await _enter(tester, 'Address or wallet URL', _bob);
+      await _enter(tester, 'Epicbox address', _bob);
       expect(
         find.text('This address is already saved as Bob.'),
         findsOneWidget,
       );
-      await _enter(tester, 'Address or wallet URL', _carol);
+      await _enter(tester, 'Epicbox address', _carol);
       expect(find.textContaining('already saved'), findsNothing);
       await _tap(tester, find.text('Save contact'));
       expect(find.text('Carol'), findsOneWidget);

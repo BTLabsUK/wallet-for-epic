@@ -3350,10 +3350,10 @@ abstract class AppLocalizations {
   /// **'Name'**
   String get contactsNameLabel;
 
-  /// Label of the contact's address field: an epicbox address or the URL of a wallet.
+  /// Label of the contact's address field, which holds an epicbox address. epicbox is a proper name.
   ///
   /// In en, this message translates to:
-  /// **'Address or wallet URL'**
+  /// **'Epicbox address'**
   String get contactsAddressLabel;
 
   /// No description provided for @contactsDuplicate.
@@ -3377,7 +3377,7 @@ abstract class AppLocalizations {
   /// Error under a recipient or contact address field left empty.
   ///
   /// In en, this message translates to:
-  /// **'Enter their address or a wallet URL.'**
+  /// **'Enter their epicbox address.'**
   String get contactsAddressMissing;
 
   /// Error under an address field holding an incomplete web address.
@@ -3385,12 +3385,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Enter the full wallet URL, such as {example}'**
   String contactsUrlIncomplete(String example);
-
-  /// Error under the address field of a contact when the user entered a wallet URL (http:// or https://). Same text as sendUrlUnsupported: the wallet sends over epicbox and by transaction file only. epicbox is a proper name.
-  ///
-  /// In en, this message translates to:
-  /// **'Payments to a wallet URL are not supported. Ask the recipient for their epicbox address.'**
-  String get contactsUrlUnsupported;
 
   /// Error under an address field. example shows the shape of an epicbox address.
   ///

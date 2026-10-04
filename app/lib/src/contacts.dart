@@ -169,7 +169,7 @@ String? checkContactAddress(
 ) {
   if (text.trim().isNotEmpty &&
       parseRecipient(text).kind == RecipientKind.http) {
-    return l.contactsUrlUnsupported;
+    return l.sendUrlUnsupported;
   }
   return checkRecipient(l, service, text);
 }
