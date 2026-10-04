@@ -365,10 +365,13 @@ void main() {
 
       // The phrase, read through the core for the restore below. Never printed.
       final container = _container(tester);
-      final password = await container
+      final phrase = await container
           .read(vaultProvider)
-          .unlockWithPin(Chain.usernet, _pin);
-      final phrase = await _session(tester).mnemonic(password: password);
+          .mnemonic(
+            _session(tester),
+            container.read(walletConfigProvider)!,
+            _pin,
+          );
       expect(phrase.split(' '), hasLength(24));
 
       // Delete the wallet: confirm, type the word, enter the PIN.

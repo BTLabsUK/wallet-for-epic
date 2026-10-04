@@ -1638,24 +1638,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get firstRunRestore => '我已有钱包：恢复钱包';
 
   @override
-  String get firstRunFinishing => '正在完成钱包创建…';
-
-  @override
   String get firstRunSecuring => '正在保护你的钱包…';
 
   @override
   String get firstRunTryAgain => '重试';
-
-  @override
-  String get firstRunCreating => '正在创建钱包…';
-
-  @override
-  String get firstRunCreated => '钱包已创建';
-
-  @override
-  String firstRunCreateFailed(String error) {
-    return '创建钱包失败：$error 完成 PIN 码设置后将再次尝试。';
-  }
 
   @override
   String get firstRunBiometricsNotSetUp => '未能设置生物识别解锁。你可以在“设置”中开启。';
@@ -1696,18 +1682,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get unlockTitle => '解锁钱包';
-
-  @override
-  String get unlockPasswordLabel => '密码';
-
-  @override
-  String get unlockPasswordEmpty => '请输入密码。';
-
-  @override
-  String get unlockButton => '解锁';
-
-  @override
-  String get unlockMovedToPin => '此钱包现在改用 PIN 码而非密码解锁。';
 
   @override
   String get pinLabel => 'PIN 码';
@@ -1760,24 +1734,47 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String pinLockedSeconds(int count) {
+  String pinWrongWaitSeconds(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'PIN 码错误次数过多。请在 $count 秒后重试。',
+      other: 'PIN 码错误。下一次尝试将在 $count 秒后验证。',
     );
     return '$_temp0';
   }
 
   @override
-  String pinLockedMinutes(int count) {
+  String pinWrongWaitMinutes(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'PIN 码错误次数过多。请在 $count 分钟后重试。',
+      other: 'PIN 码错误。下一次尝试将在 $count 分钟后验证。',
     );
     return '$_temp0';
   }
+
+  @override
+  String pinCheckingSeconds(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '将在 $count 秒后验证 PIN 码…',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String pinCheckingMinutes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '将在 $count 分钟后验证 PIN 码…',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get pinChecking => '正在验证 PIN 码…';
 
   @override
   String get pinPromptTitle => '请输入 PIN 码';
@@ -2471,6 +2468,9 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get settingsPinChanged => 'PIN 码已修改';
+
+  @override
+  String get settingsPinChangedBiometricsOff => 'PIN 码已修改。生物识别解锁已关闭，请在下方重新开启。';
 
   @override
   String get helpTitle => '帮助';

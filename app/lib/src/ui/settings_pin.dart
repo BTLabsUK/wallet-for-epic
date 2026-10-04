@@ -33,16 +33,17 @@ class _ChangePinScreenState extends ConsumerState<ChangePinScreen> {
 
   Future<void> _checkCurrent(String pin) async {
     final config = ref.read(walletConfigProvider);
-    if (config == null || _busy) return;
+    final session = ref.read(sessionProvider);
+    if (config == null || session == null || _busy) return;
     setState(() {
       _busy = true;
       _pinError = null;
       _error = null;
     });
     try {
-      // Checked first so a wrong PIN is caught before choosing a new one; it counts towards
-      // the lockout like any other wrong PIN.
-      await ref.read(vaultProvider).unlockWithPin(config.chain, pin);
+      // Checked first so a wrong PIN is caught before choosing a new one; LEPIC counts it like
+      // any other wrong PIN.
+      await ref.read(vaultProvider).checkPin(session, config, pin);
       if (mounted) setState(() => _currentPin = pin);
     } on PinRejected catch (rejection) {
       if (mounted) {
@@ -60,18 +61,31 @@ class _ChangePinScreenState extends ConsumerState<ChangePinScreen> {
 
   Future<void> _change(String newPin, bool _) async {
     final config = ref.read(walletConfigProvider);
+    final session = ref.read(sessionProvider);
     final currentPin = _currentPin;
-    if (config == null || currentPin == null) return;
+    if (config == null || session == null || currentPin == null) return;
     setState(() {
       _busy = true;
       _error = null;
     });
     try {
-      await ref
+      final biometricsKept = await ref
           .read(vaultProvider)
-          .changePin(config.chain, currentPin: currentPin, newPin: newPin);
+          .changePin(
+            session,
+            config,
+            currentPin: currentPin,
+            newPin: newPin,
+          );
       if (!mounted) return;
-      ref.read(noticeProvider.notifier).show(context.l10n.settingsPinChanged);
+      final l = context.l10n;
+      ref
+          .read(noticeProvider.notifier)
+          .show(
+            biometricsKept
+                ? l.settingsPinChanged
+                : l.settingsPinChangedBiometricsOff,
+          );
       Navigator.pop(context, true);
     } on PinRejected catch (rejection) {
       if (mounted) {

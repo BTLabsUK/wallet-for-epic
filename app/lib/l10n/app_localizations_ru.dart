@@ -1851,24 +1851,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get firstRunRestore => 'У меня уже есть кошелёк: восстановить';
 
   @override
-  String get firstRunFinishing => 'Завершаем создание кошелька…';
-
-  @override
   String get firstRunSecuring => 'Защищаем кошелёк…';
 
   @override
   String get firstRunTryAgain => 'Повторить';
-
-  @override
-  String get firstRunCreating => 'Создание кошелька…';
-
-  @override
-  String get firstRunCreated => 'Кошелёк создан';
-
-  @override
-  String firstRunCreateFailed(String error) {
-    return 'Не удалось создать кошелёк: $error Попытка повторится, когда вы закончите ввод PIN-кода.';
-  }
 
   @override
   String get firstRunBiometricsNotSetUp =>
@@ -1916,19 +1902,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get unlockTitle => 'Разблокировать кошелёк';
-
-  @override
-  String get unlockPasswordLabel => 'Пароль';
-
-  @override
-  String get unlockPasswordEmpty => 'Введите пароль.';
-
-  @override
-  String get unlockButton => 'Разблокировать';
-
-  @override
-  String get unlockMovedToPin =>
-      'Теперь этот кошелёк открывается PIN-кодом вместо пароля.';
 
   @override
   String get pinLabel => 'PIN-код';
@@ -1988,7 +1961,7 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String pinLockedSeconds(int count) {
+  String pinWrongWaitSeconds(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
@@ -1997,11 +1970,11 @@ class AppLocalizationsRu extends AppLocalizations {
       few: '$count секунды',
       one: '$count секунду',
     );
-    return 'Слишком много неверных попыток. Повторите через $_temp0.';
+    return 'Неверный PIN-код. Следующая попытка будет проверена через $_temp0.';
   }
 
   @override
-  String pinLockedMinutes(int count) {
+  String pinWrongWaitMinutes(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
@@ -2010,8 +1983,37 @@ class AppLocalizationsRu extends AppLocalizations {
       few: '$count минуты',
       one: '$count минуту',
     );
-    return 'Слишком много неверных попыток. Повторите через $_temp0.';
+    return 'Неверный PIN-код. Следующая попытка будет проверена через $_temp0.';
   }
+
+  @override
+  String pinCheckingSeconds(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count секунды',
+      many: '$count секунд',
+      few: '$count секунды',
+      one: '$count секунду',
+    );
+    return 'Проверка PIN-кода через $_temp0…';
+  }
+
+  @override
+  String pinCheckingMinutes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count минуты',
+      many: '$count минут',
+      few: '$count минуты',
+      one: '$count минуту',
+    );
+    return 'Проверка PIN-кода через $_temp0…';
+  }
+
+  @override
+  String get pinChecking => 'Проверка PIN-кода…';
 
   @override
   String get pinPromptTitle => 'Введите PIN-код';
@@ -2742,6 +2744,10 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get settingsPinChanged => 'PIN-код изменён';
+
+  @override
+  String get settingsPinChangedBiometricsOff =>
+      'PIN-код изменён. Биометрическая разблокировка выключена; включите её снова ниже.';
 
   @override
   String get helpTitle => 'Справка';

@@ -1,17 +1,16 @@
-// Runs against the real Rust core. Needs no node: the node URL points at a closed port.
+// Runs against the real cores: epic-wallet for the core API and history tests, LEPIC for the
+// PIN vault and the first run. Needs no node: the node URL points at a closed port.
 //
 // Never print the phrase or password; compare them only.
 import 'dart:io';
 
 import 'package:epic_wallet/src/app.dart';
-import 'package:epic_wallet/src/core_backend.dart';
 import 'package:epic_wallet/src/lepic_wallet_service.dart';
 import 'package:epic_wallet/src/network.dart';
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/rust/frb_generated.dart';
 import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/updater.dart';
-import 'package:epic_wallet/src/vault.dart';
 import 'package:epic_wallet/src/ui/home_screen.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:flutter/material.dart';
@@ -83,8 +82,8 @@ void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
   setUpAll(() async {
     await RustLib.init();
-    // The first-run test goes through walletServiceProvider, so WFE_CORE=lepic runs it on LEPIC.
-    if (coreBackend == CoreBackend.lepic) await initLepic();
+    // The first-run and PIN tests run on LEPIC; only it has the PIN vault.
+    await initLepic();
   });
 
   const service = RustWalletService();
@@ -194,26 +193,60 @@ void main() {
     );
   });
 
-  testWidgets('vault: seal and open through the real core', (tester) async {
-    const crypto = RustVaultCrypto();
-    final password = crypto.generatePassword();
-    expect(password, hasLength(64));
-    final sealed = await crypto.seal(pin: '123456', password: password);
-    expect(sealed.contains(password), isFalse);
-    expect(
-      await crypto.open(pin: '123456', sealed: sealed) == password,
-      isTrue,
+  testWidgets('PIN vault through LEPIC: create, wrong PIN, phrase, change', (
+    tester,
+  ) async {
+    final dir = await _tempDir('pin');
+    addTearDown(() => dir.delete(recursive: true));
+    final config = _config(dir.path);
+    final lepic = LepicWalletService(secrets: MemorySecretStore());
+    WalletError? failure(Object e) => e is WalletError ? e : null;
+
+    final created = await lepic.createWithPin(config: config, pin: '123456');
+    final sealed = created.sealedPassword;
+    created.session.dispose();
+    expect(await lepic.walletExists(config: config), isTrue);
+
+    final wrong = await lepic
+        .openWithPin(config: config, pin: '000000', sealedPassword: sealed)
+        .then<Object>((s) => s, onError: (Object e) => e);
+    expect(failure(wrong)?.kind, WalletErrorKind.wrongPassword);
+    expect(await lepic.pinFailures(config: config), 1);
+
+    var session = await lepic.openWithPin(
+      config: config,
+      pin: '123456',
+      sealedPassword: sealed,
     );
-    await expectLater(
-      crypto.open(pin: '654321', sealed: sealed),
-      throwsA(
-        isA<WalletError>().having(
-          (e) => e.kind,
-          'kind',
-          WalletErrorKind.wrongPassword,
-        ),
-      ),
+    expect(await lepic.pinFailures(config: config), 0);
+    final phrase = await session.mnemonicWithPin(
+      pin: '123456',
+      sealedPassword: sealed,
     );
+    expect(phrase.split(' '), hasLength(24));
+
+    final changed = await session.changePin(
+      sealedPassword: sealed,
+      oldPin: '123456',
+      newPin: '654321',
+    );
+    expect(changed == sealed, isFalse);
+    await session.confirmPinChange(sealedPassword: changed);
+    session.dispose();
+
+    final old = await lepic
+        .openWithPin(config: config, pin: '123456', sealedPassword: sealed)
+        .then<Object>((s) => s, onError: (Object e) => e);
+    expect(failure(old)?.kind, WalletErrorKind.wrongPassword);
+    session = await lepic.openWithPin(
+      config: config,
+      pin: '654321',
+      sealedPassword: changed,
+    );
+    session.dispose();
+
+    await lepic.deleteWallet(config: config);
+    expect(await lepic.walletExists(config: config), isFalse);
   });
 
   testWidgets('platform secure storage round-trips', (tester) async {
@@ -259,16 +292,15 @@ void main() {
 
     await _pumpUntil(tester, find.text('Spendable'));
     expect(find.text('Back up your recovery phrase.'), findsOneWidget);
-    expect(await store.read('wallet.mainnet.pending'), isNull);
 
     final container = ProviderScope.containerOf(
       tester.element(find.byType(HomeScreen)),
     );
-    final password = await container
-        .read(vaultProvider)
-        .unlockWithPin(Chain.mainnet, '123456');
+    expect(await store.read('wallet.mainnet.pinSealed'), isNotNull);
     final session = container.read(sessionProvider)!;
-    final phrase = await session.mnemonic(password: password);
+    final phrase = await container
+        .read(vaultProvider)
+        .mnemonic(session, container.read(walletConfigProvider)!, '123456');
     expect(phrase.split(' '), hasLength(24));
 
     container.read(sessionProvider.notifier).lock();

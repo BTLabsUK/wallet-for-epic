@@ -1939,10 +1939,6 @@
   "@firstRunRestore": {
     "description": "Button that opens the restore from a recovery phrase instead of making a new wallet."
   },
-  "firstRunFinishing": "Finishing your wallet…",
-  "@firstRunFinishing": {
-    "description": "Shown after the PIN while the new wallet is still being made."
-  },
   "firstRunSecuring": "Securing your wallet…",
   "@firstRunSecuring": {
     "description": "Shown after the PIN while the wallet is locked under it."
@@ -1950,24 +1946,6 @@
   "firstRunTryAgain": "Try again",
   "@firstRunTryAgain": {
     "description": "Button after making the wallet failed."
-  },
-  "firstRunCreating": "Creating wallet…",
-  "@firstRunCreating": {
-    "description": "Status line under the PIN field while the wallet is made in the background."
-  },
-  "firstRunCreated": "Wallet created",
-  "@firstRunCreated": {
-    "description": "Status line under the PIN field once the wallet is made."
-  },
-  "firstRunCreateFailed": "Creating the wallet failed: {error} It is tried again when you finish the PIN.",
-  "@firstRunCreateFailed": {
-    "description": "Error under the PIN field.",
-    "placeholders": {
-      "error": {
-        "type": "String",
-        "example": "Could not read or write wallet files."
-      }
-    }
   },
   "firstRunBiometricsNotSetUp": "Biometric unlock was not set up. You can turn it on in Settings.",
   "@firstRunBiometricsNotSetUp": {
@@ -2021,23 +1999,7 @@
   },
   "unlockTitle": "Unlock wallet",
   "@unlockTitle": {
-    "description": "Title of the screen that opens the wallet with the PIN or the password."
-  },
-  "unlockPasswordLabel": "Password",
-  "@unlockPasswordLabel": {
-    "description": "Field label on the unlock screen of a wallet made before PINs existed."
-  },
-  "unlockPasswordEmpty": "Enter your password.",
-  "@unlockPasswordEmpty": {
-    "description": "Error under the empty password field."
-  },
-  "unlockButton": "Unlock",
-  "@unlockButton": {
-    "description": "Button that opens the wallet with the typed password."
-  },
-  "unlockMovedToPin": "This wallet now opens with a PIN instead of its password.",
-  "@unlockMovedToPin": {
-    "description": "Shown above the PIN setup after a wallet made before PINs existed was opened with its password."
+    "description": "Title of the screen that opens the wallet with the PIN or biometrics."
   },
   "pinLabel": "PIN",
   "@pinLabel": {
@@ -2084,30 +2046,52 @@
   },
   "pinWrong": "{count, plural, =1{Wrong PIN. 1 try left before a pause.} other{Wrong PIN. {count} tries left before a pause.}}",
   "@pinWrong": {
-    "description": "Error under the PIN field. After the last try the PIN is refused for a while.",
+    "description": "Error under the PIN field while tries are still checked at once. After the last one, each try waits before it is checked.",
     "placeholders": {
       "count": {
         "type": "int"
       }
     }
   },
-  "pinLockedSeconds": "{count, plural, =1{Too many wrong PINs. Try again in 1 second.} other{Too many wrong PINs. Try again in {count} seconds.}}",
-  "@pinLockedSeconds": {
-    "description": "Error under the PIN field while PIN entry is paused.",
+  "pinWrongWaitSeconds": "{count, plural, =1{Wrong PIN. The next try is checked after 1 second.} other{Wrong PIN. The next try is checked after {count} seconds.}}",
+  "@pinWrongWaitSeconds": {
+    "description": "Error under the PIN field after the free tries are used up: each further try waits before the PIN is checked.",
     "placeholders": {
       "count": {
         "type": "int"
       }
     }
   },
-  "pinLockedMinutes": "{count, plural, =1{Too many wrong PINs. Try again in 1 minute.} other{Too many wrong PINs. Try again in {count} minutes.}}",
-  "@pinLockedMinutes": {
-    "description": "Error under the PIN field while PIN entry is paused.",
+  "pinWrongWaitMinutes": "{count, plural, =1{Wrong PIN. The next try is checked after 1 minute.} other{Wrong PIN. The next try is checked after {count} minutes.}}",
+  "@pinWrongWaitMinutes": {
+    "description": "Error under the PIN field after the free tries are used up, for waits of two minutes or more.",
     "placeholders": {
       "count": {
         "type": "int"
       }
     }
+  },
+  "pinCheckingSeconds": "{count, plural, =1{Checking the PIN in 1 second…} other{Checking the PIN in {count} seconds…}}",
+  "@pinCheckingSeconds": {
+    "description": "Countdown under the PIN field while the wallet waits before it checks a PIN, after repeated wrong PINs.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "pinCheckingMinutes": "{count, plural, =1{Checking the PIN in 1 minute…} other{Checking the PIN in {count} minutes…}}",
+  "@pinCheckingMinutes": {
+    "description": "Countdown under the PIN field, for waits of two minutes or more.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "pinChecking": "Checking the PIN…",
+  "@pinChecking": {
+    "description": "Shown under the PIN field when the wait before checking a PIN is over."
   },
   "pinPromptTitle": "Enter your PIN",
   "@pinPromptTitle": {
@@ -3086,6 +3070,10 @@
   "settingsPinChanged": "PIN changed",
   "@settingsPinChanged": {
     "description": "Short notice."
+  },
+  "settingsPinChangedBiometricsOff": "PIN changed. Biometric unlock is off; turn it on again below.",
+  "@settingsPinChangedBiometricsOff": {
+    "description": "Notice after a PIN change when the fingerprint or face prompt that updates biometric unlock was dismissed."
   },
   "helpTitle": "Help",
   "@helpTitle": {

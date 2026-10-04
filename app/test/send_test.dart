@@ -22,7 +22,6 @@ import 'package:epic_wallet/src/ui/send_screen.dart';
 import 'package:epic_wallet/src/ui/slate_file_screen.dart';
 import 'package:epic_wallet/src/ui/theme/advanced.dart';
 import 'package:epic_wallet/src/updater.dart';
-import 'package:epic_wallet/src/vault.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -296,7 +295,7 @@ class _NoRelays implements RelayDirectory {
 /// the test moves.
 class _AppHarness {
   _AppHarness({bool advanced = false}) {
-    store.values['wallet.mainnet.sealed'] = 'sealed|$_pin|$_password';
+    store.values['wallet.mainnet.pinSealed'] = fakeSealedPassword(_pin);
     store.values['app.auto_lock'] = '0';
     if (advanced) store.values['app.advanced'] = 'true';
     service = FakeWalletService(
@@ -306,7 +305,6 @@ class _AppHarness {
   }
 
   static const _pin = '123456';
-  static const _password = 'correct horse';
 
   final store = MemorySecretStore();
   final session = _funded();
@@ -331,7 +329,6 @@ class _AppHarness {
           biometricStoreProvider.overrideWithValue(
             MemoryBiometricStore(available: false),
           ),
-          vaultCryptoProvider.overrideWithValue(FakeVaultCrypto()),
           updatePlatformProvider.overrideWithValue(null),
           relayDirectoryProvider.overrideWithValue(_NoRelays()),
           slateFilesProvider.overrideWithValue(files),

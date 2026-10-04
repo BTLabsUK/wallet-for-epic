@@ -12,160 +12,213 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('WalletVault', () {
-    late DateTime now;
+    const dir = '/fake/wallets/mainnet';
+    final config = mainnetPreset.config(dataDir: dir, nodeUrl: 'http://n');
     late MemorySecretStore store;
+    late MemoryBiometricStore bio;
+    late FakeWalletService service;
     late WalletVault vault;
 
-    setUp(() {
-      now = DateTime(2026, 9, 27, 12);
-      store = MemorySecretStore();
-      vault = WalletVault(
-        store: store,
-        biometrics: MemoryBiometricStore(),
-        crypto: FakeVaultCrypto(),
-        clock: () => now,
-      );
-    });
-
-    test('keeps one pending password until sealed', () async {
-      expect(await vault.stage(Chain.mainnet), VaultStage.empty);
-      final first = await vault.pendingPassword(Chain.mainnet);
-      expect(await vault.pendingPassword(Chain.mainnet), first);
-      expect(await vault.stage(Chain.mainnet), VaultStage.pending);
-      await vault.seal(
-        Chain.mainnet,
-        pin: '123456',
-        password: first,
-        useBiometrics: false,
-      );
-      expect(await vault.stage(Chain.mainnet), VaultStage.sealed);
-      expect(await vault.unlockWithPin(Chain.mainnet, '123456'), first);
-      expect(await vault.stage(Chain.usernet), VaultStage.empty);
-    });
-
-    test('rejects PINs that are not six digits', () async {
-      expect(isValidPin('12345'), isFalse);
-      expect(isValidPin('12345a'), isFalse);
-      expect(isValidPin('１２３４５６'), isFalse);
-      await expectLater(
-        vault.seal(
-          Chain.mainnet,
-          pin: '1234',
-          password: 'x',
-          useBiometrics: false,
-        ),
-        throwsArgumentError,
-      );
-    });
-
-    test(
-      'locks out after five wrong PINs, doubling, and resets on success',
-      () async {
-        await vault.seal(
-          Chain.mainnet,
-          pin: '123456',
-          password: 'pw',
-          useBiometrics: false,
-        );
-        Future<PinRejected> wrong() async {
-          try {
-            await vault.unlockWithPin(Chain.mainnet, '000000');
-          } on PinRejected catch (r) {
-            return r;
-          }
-          fail('wrong PIN accepted');
-        }
-
-        for (var left = 4; left >= 1; left--) {
-          expect((await wrong()).attemptsLeft, left);
-        }
-        expect((await wrong()).lockedUntil, now.add(firstLockout));
-        // Even the right PIN waits out the lockout.
-        await expectLater(
-          vault.unlockWithPin(Chain.mainnet, '123456'),
-          throwsA(isA<PinRejected>()),
-        );
-        now = now.add(firstLockout);
-        expect((await wrong()).lockedUntil, now.add(firstLockout * 2));
-        now = now.add(maxLockout);
-        expect(await vault.unlockWithPin(Chain.mainnet, '123456'), 'pw');
-        expect((await wrong()).attemptsLeft, 4);
-      },
+    WalletVault makeVault({LegacyFiles? legacyFiles}) => WalletVault(
+      store: store,
+      biometrics: bio,
+      service: service,
+      legacyFiles: legacyFiles ?? (_) async => false,
     );
 
-    test('lockout never exceeds the maximum', () async {
-      store.values['wallet.mainnet.sealed'] = 'sealed|123456|pw';
-      store.values['wallet.mainnet.failed'] = '60';
-      try {
-        await vault.unlockWithPin(Chain.mainnet, '000000');
-      } on PinRejected catch (r) {
-        expect(r.lockedUntil, now.add(maxLockout));
-      }
+    setUp(() {
+      store = MemorySecretStore();
+      bio = MemoryBiometricStore();
+      service = FakeWalletService();
+      vault = makeVault();
     });
 
-    test('biometrics store a copy and fall back when dismissed', () async {
-      final bio = vault.biometrics as MemoryBiometricStore;
+    Future<PinRejected> wrong(String pin) async {
+      try {
+        await vault.unlock(config, pin);
+      } on PinRejected catch (r) {
+        return r;
+      }
+      fail('PIN $pin was accepted');
+    }
+
+    test('creates under a PIN and keeps only the sealed text', () async {
+      expect(await vault.prepare(config), VaultStage.empty);
+      await expectLater(
+        vault.create(config, pin: '12345'),
+        throwsA(isA<ArgumentError>()),
+      );
+      final created = await vault.create(config, pin: '123456');
+      expect(created.biometrics, isFalse);
+      expect(service.createdPin, '123456');
+      expect(store.values, {
+        'wallet.mainnet.pinSealed': fakeSealedPassword('123456'),
+      });
+      expect(await vault.prepare(config), VaultStage.ready);
+      expect(await vault.unlock(config, '123456'), same(service.session));
+      // A wallet that opens with a PIN is never replaced.
+      await expectLater(
+        vault.create(config, pin: '654321'),
+        throwsA(
+          isA<WalletError>().having(
+            (e) => e.kind,
+            'kind',
+            WalletErrorKind.walletAlreadyExists,
+          ),
+        ),
+      );
+    });
+
+    test("reports LEPIC's count: tries left, then the wait", () async {
+      await vault.create(config, pin: '123456');
+      final first = await wrong('000000');
+      expect((first.attemptsLeft, first.nextWait), (2, Duration.zero));
+      expect((await wrong('000000')).attemptsLeft, 1);
+      final third = await wrong('000000');
+      expect((third.attemptsLeft, third.nextWait), (0, firstPinDelay));
+      expect(await vault.nextPinWait(config), firstPinDelay);
+      expect((await wrong('000000')).nextWait, firstPinDelay * 2);
+      await vault.unlock(config, '123456');
+      expect(await vault.nextPinWait(config), Duration.zero);
+      expect(pinDelay(5), const Duration(minutes: 2));
+      expect(pinDelay(10), maxPinDelay);
+      expect(pinDelay(1 << 30), maxPinDelay);
+    });
+
+    test('a wallet without sealed text goes, and so do entries without a wallet', () async {
+      // The app stopped between creating the wallet and storing its sealed text.
+      service.existingWallets.add(dir);
+      expect(await vault.prepare(config), VaultStage.empty);
+      expect(service.deletedWallets, [dir]);
+
+      // The files are gone but the entries are not.
+      store.values['wallet.mainnet.pinSealed'] = fakeSealedPassword('123456');
+      store.values['wallet.mainnet.backedUp'] = '1';
+      expect(await vault.prepare(config), VaultStage.empty);
+      expect(store.values, isEmpty);
+    });
+
+    test('discards a 1.2.x install, files and entries', () async {
+      final tmp = await Directory.systemTemp.createTemp('wfe-vault-');
+      addTearDown(() => tmp.delete(recursive: true));
+      final legacyConfig = mainnetPreset.config(
+        dataDir: tmp.path,
+        nodeUrl: 'http://n',
+      );
+      await Directory('${tmp.path}/wallet_data/db').create(recursive: true);
+      await File('${tmp.path}/wfe_meta.json').writeAsString('{}');
+      await Directory('${tmp.path}/lepic').create();
+      store.values.addAll({
+        'wallet.mainnet.sealed': 'old sealed password',
+        'wallet.mainnet.biometrics': '1',
+        'wallet.mainnet.failed': '2',
+        'wallet.mainnet.backedUp': '1',
+        'app.network': 'mainnet',
+      });
+      bio.values['wallet.mainnet.password'] = 'old password';
+      vault = WalletVault(store: store, biometrics: bio, service: service);
+
+      expect(await vault.prepare(legacyConfig), VaultStage.empty);
+      expect(await Directory('${tmp.path}/wallet_data').exists(), isFalse);
+      expect(await File('${tmp.path}/wfe_meta.json').exists(), isFalse);
+      expect(await Directory('${tmp.path}/lepic').exists(), isTrue);
+      expect(store.values, {'app.network': 'mainnet'});
+      expect(bio.values, isEmpty);
+      expect(bio.prompts, 0);
+      expect(await deleteLegacyWalletFiles(tmp.path), isFalse);
+    });
+
+    test('biometrics hold the PIN and fall back when dismissed', () async {
+      final created = await vault.create(
+        config,
+        pin: '123456',
+        useBiometrics: true,
+      );
+      expect(created.biometrics, isTrue);
+      expect(bio.values['wallet.mainnet.pin'], '123456');
+      expect(await vault.unlockWithBiometrics(config), same(service.session));
+
+      bio.succeed = false;
+      expect(await vault.unlockWithBiometrics(config), isNull);
+      expect(await vault.biometricsEnabled(Chain.mainnet), isTrue);
+
+      // A copy that no longer opens counts as a wrong PIN and turns biometrics off.
+      bio.succeed = true;
+      bio.values['wallet.mainnet.pin'] = '999999';
+      await expectLater(
+        vault.unlockWithBiometrics(config),
+        throwsA(isA<PinRejected>()),
+      );
+      expect(await vault.biometricsEnabled(Chain.mainnet), isFalse);
+      expect(bio.values, isEmpty);
+      expect(await vault.unlockWithBiometrics(config), isNull);
+    });
+
+    test('changes the PIN, confirms it and rewrites the biometric copy', () async {
+      final session = (await vault.create(
+        config,
+        pin: '123456',
+        useBiometrics: true,
+      )).session;
+      await expectLater(
+        vault.changePin(
+          session,
+          config,
+          currentPin: '000000',
+          newPin: '654321',
+        ),
+        throwsA(isA<PinRejected>()),
+      );
       expect(
-        await vault.seal(
-          Chain.mainnet,
-          pin: '123456',
-          password: 'pw',
-          useBiometrics: true,
+        store.values['wallet.mainnet.pinSealed'],
+        fakeSealedPassword('123456'),
+      );
+      expect(service.confirmedPinChanges, isEmpty);
+
+      expect(
+        await vault.changePin(
+          session,
+          config,
+          currentPin: '123456',
+          newPin: '654321',
         ),
         isTrue,
       );
-      expect(await vault.unlockWithBiometrics(Chain.mainnet), 'pw');
+      expect(
+        store.values['wallet.mainnet.pinSealed'],
+        fakeSealedPassword('654321'),
+      );
+      expect(service.confirmedPinChanges, [fakeSealedPassword('654321')]);
+      expect(bio.values['wallet.mainnet.pin'], '654321');
+      await vault.unlock(config, '654321');
+
+      // A dismissed prompt keeps the new PIN but turns biometrics off.
       bio.succeed = false;
-      expect(await vault.unlockWithBiometrics(Chain.mainnet), isNull);
-      expect(await vault.biometricsEnabled(Chain.mainnet), isTrue);
-      await vault.forget(Chain.mainnet);
-      expect(store.values, isEmpty);
-      expect(bio.values, isEmpty);
+      expect(
+        await vault.changePin(
+          session,
+          config,
+          currentPin: '654321',
+          newPin: '111111',
+        ),
+        isFalse,
+      );
+      expect(await vault.biometricsEnabled(Chain.mainnet), isFalse);
+      await vault.unlock(config, '111111');
     });
 
-    test('changes the PIN and keeps biometrics working', () async {
-      await vault.seal(
-        Chain.mainnet,
-        pin: '123456',
-        password: 'pw',
-        useBiometrics: true,
-      );
-      await vault.changePin(
-        Chain.mainnet,
-        currentPin: '123456',
-        newPin: '654321',
-      );
-      expect(await vault.unlockWithPin(Chain.mainnet, '654321'), 'pw');
+    test('checks a PIN by sealing again under it', () async {
+      final session = (await vault.create(config, pin: '123456')).session;
+      await vault.checkPin(session, config, '123456');
+      expect(service.confirmedPinChanges, [fakeSealedPassword('123456')]);
       await expectLater(
-        vault.unlockWithPin(Chain.mainnet, '123456'),
+        vault.checkPin(session, config, '000000'),
         throwsA(isA<PinRejected>()),
       );
-      expect(await vault.biometricsEnabled(Chain.mainnet), isTrue);
-      expect(await vault.unlockWithBiometrics(Chain.mainnet), 'pw');
-    });
-
-    test('a wrong current PIN changes nothing and counts as a try', () async {
-      await vault.seal(
-        Chain.mainnet,
-        pin: '123456',
-        password: 'pw',
-        useBiometrics: false,
+      expect(
+        await vault.mnemonic(session, config, '123456'),
+        service.session.phrase,
       );
-      try {
-        await vault.changePin(
-          Chain.mainnet,
-          currentPin: '000000',
-          newPin: '654321',
-        );
-        fail('wrong PIN accepted');
-      } on PinRejected catch (r) {
-        expect(r.attemptsLeft, freePinAttempts - 1);
-      }
-      await expectLater(
-        vault.changePin(Chain.mainnet, currentPin: '123456', newPin: '12'),
-        throwsArgumentError,
-      );
-      expect(await vault.unlockWithPin(Chain.mainnet, '123456'), 'pw');
     });
   });
 

@@ -1745,24 +1745,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get firstRunRestore => 'I already have a wallet: restore it';
 
   @override
-  String get firstRunFinishing => 'Finishing your wallet…';
-
-  @override
   String get firstRunSecuring => 'Securing your wallet…';
 
   @override
   String get firstRunTryAgain => 'Try again';
-
-  @override
-  String get firstRunCreating => 'Creating wallet…';
-
-  @override
-  String get firstRunCreated => 'Wallet created';
-
-  @override
-  String firstRunCreateFailed(String error) {
-    return 'Creating the wallet failed: $error It is tried again when you finish the PIN.';
-  }
 
   @override
   String get firstRunBiometricsNotSetUp =>
@@ -1805,19 +1791,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get unlockTitle => 'Unlock wallet';
-
-  @override
-  String get unlockPasswordLabel => 'Password';
-
-  @override
-  String get unlockPasswordEmpty => 'Enter your password.';
-
-  @override
-  String get unlockButton => 'Unlock';
-
-  @override
-  String get unlockMovedToPin =>
-      'This wallet now opens with a PIN instead of its password.';
 
   @override
   String get pinLabel => 'PIN';
@@ -1872,26 +1845,51 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String pinLockedSeconds(int count) {
+  String pinWrongWaitSeconds(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'Too many wrong PINs. Try again in $count seconds.',
-      one: 'Too many wrong PINs. Try again in 1 second.',
+      other: 'Wrong PIN. The next try is checked after $count seconds.',
+      one: 'Wrong PIN. The next try is checked after 1 second.',
     );
     return '$_temp0';
   }
 
   @override
-  String pinLockedMinutes(int count) {
+  String pinWrongWaitMinutes(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'Too many wrong PINs. Try again in $count minutes.',
-      one: 'Too many wrong PINs. Try again in 1 minute.',
+      other: 'Wrong PIN. The next try is checked after $count minutes.',
+      one: 'Wrong PIN. The next try is checked after 1 minute.',
     );
     return '$_temp0';
   }
+
+  @override
+  String pinCheckingSeconds(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Checking the PIN in $count seconds…',
+      one: 'Checking the PIN in 1 second…',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String pinCheckingMinutes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Checking the PIN in $count minutes…',
+      one: 'Checking the PIN in 1 minute…',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get pinChecking => 'Checking the PIN…';
 
   @override
   String get pinPromptTitle => 'Enter your PIN';
@@ -2617,6 +2615,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsPinChanged => 'PIN changed';
+
+  @override
+  String get settingsPinChangedBiometricsOff =>
+      'PIN changed. Biometric unlock is off; turn it on again below.';
 
   @override
   String get helpTitle => 'Help';

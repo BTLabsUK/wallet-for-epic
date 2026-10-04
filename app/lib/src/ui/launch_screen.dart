@@ -10,10 +10,9 @@ import 'common.dart';
 import 'first_run_screen.dart';
 import 'pin_unlock_screen.dart';
 import 'theme/brand.dart';
-import 'unlock_screen.dart';
 
-/// Decides where the app starts: PIN unlock, first run, or password unlock for a wallet made
-/// before PINs existed.
+/// Decides where the app starts: PIN unlock, or first run when no wallet opens with a PIN
+/// (also after an install of 1.2.x or older was discarded, [WalletVault.prepare]).
 class LaunchScreen extends ConsumerStatefulWidget {
   const LaunchScreen({super.key});
 
@@ -52,21 +51,10 @@ class _LaunchScreenState extends ConsumerState<LaunchScreen> {
     final config = choice.config(dataDir);
     ref.read(walletConfigProvider.notifier).select(config);
 
-    final vault = ref.read(vaultProvider);
-    final exists = await ref
-        .read(walletServiceProvider)
-        .walletExists(config: config);
-    final stage = await vault.stage(chain);
-    if (exists) {
-      return switch (stage) {
-        VaultStage.sealed => const PinUnlockScreen(),
-        VaultStage.pending => const FirstRunScreen(),
-        VaultStage.empty => const UnlockScreen(),
-      };
-    }
-    // A PIN without a wallet means the files were removed; that key opens nothing now.
-    if (stage == VaultStage.sealed) await vault.forget(chain);
-    return const FirstRunScreen();
+    return switch (await ref.read(vaultProvider).prepare(config)) {
+      VaultStage.ready => const PinUnlockScreen(),
+      VaultStage.empty => const FirstRunScreen(),
+    };
   }
 
   @override

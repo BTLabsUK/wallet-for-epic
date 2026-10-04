@@ -2486,12 +2486,6 @@ abstract class AppLocalizations {
   /// **'I already have a wallet: restore it'**
   String get firstRunRestore;
 
-  /// Shown after the PIN while the new wallet is still being made.
-  ///
-  /// In en, this message translates to:
-  /// **'Finishing your wallet…'**
-  String get firstRunFinishing;
-
   /// Shown after the PIN while the wallet is locked under it.
   ///
   /// In en, this message translates to:
@@ -2503,24 +2497,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Try again'**
   String get firstRunTryAgain;
-
-  /// Status line under the PIN field while the wallet is made in the background.
-  ///
-  /// In en, this message translates to:
-  /// **'Creating wallet…'**
-  String get firstRunCreating;
-
-  /// Status line under the PIN field once the wallet is made.
-  ///
-  /// In en, this message translates to:
-  /// **'Wallet created'**
-  String get firstRunCreated;
-
-  /// Error under the PIN field.
-  ///
-  /// In en, this message translates to:
-  /// **'Creating the wallet failed: {error} It is tried again when you finish the PIN.'**
-  String firstRunCreateFailed(String error);
 
   /// Notice after the first run when the fingerprint or face unlock the user asked for could not be enabled.
   ///
@@ -2576,35 +2552,11 @@ abstract class AppLocalizations {
   /// **'Word {number}: {word}'**
   String backupWordSpoken(int number, String word);
 
-  /// Title of the screen that opens the wallet with the PIN or the password.
+  /// Title of the screen that opens the wallet with the PIN or biometrics.
   ///
   /// In en, this message translates to:
   /// **'Unlock wallet'**
   String get unlockTitle;
-
-  /// Field label on the unlock screen of a wallet made before PINs existed.
-  ///
-  /// In en, this message translates to:
-  /// **'Password'**
-  String get unlockPasswordLabel;
-
-  /// Error under the empty password field.
-  ///
-  /// In en, this message translates to:
-  /// **'Enter your password.'**
-  String get unlockPasswordEmpty;
-
-  /// Button that opens the wallet with the typed password.
-  ///
-  /// In en, this message translates to:
-  /// **'Unlock'**
-  String get unlockButton;
-
-  /// Shown above the PIN setup after a wallet made before PINs existed was opened with its password.
-  ///
-  /// In en, this message translates to:
-  /// **'This wallet now opens with a PIN instead of its password.'**
-  String get unlockMovedToPin;
 
   /// Label of the 6-digit PIN field.
   ///
@@ -2672,23 +2624,41 @@ abstract class AppLocalizations {
   /// **'Not now'**
   String get pinBiometricsNotNow;
 
-  /// Error under the PIN field. After the last try the PIN is refused for a while.
+  /// Error under the PIN field while tries are still checked at once. After the last one, each try waits before it is checked.
   ///
   /// In en, this message translates to:
   /// **'{count, plural, =1{Wrong PIN. 1 try left before a pause.} other{Wrong PIN. {count} tries left before a pause.}}'**
   String pinWrong(int count);
 
-  /// Error under the PIN field while PIN entry is paused.
+  /// Error under the PIN field after the free tries are used up: each further try waits before the PIN is checked.
   ///
   /// In en, this message translates to:
-  /// **'{count, plural, =1{Too many wrong PINs. Try again in 1 second.} other{Too many wrong PINs. Try again in {count} seconds.}}'**
-  String pinLockedSeconds(int count);
+  /// **'{count, plural, =1{Wrong PIN. The next try is checked after 1 second.} other{Wrong PIN. The next try is checked after {count} seconds.}}'**
+  String pinWrongWaitSeconds(int count);
 
-  /// Error under the PIN field while PIN entry is paused.
+  /// Error under the PIN field after the free tries are used up, for waits of two minutes or more.
   ///
   /// In en, this message translates to:
-  /// **'{count, plural, =1{Too many wrong PINs. Try again in 1 minute.} other{Too many wrong PINs. Try again in {count} minutes.}}'**
-  String pinLockedMinutes(int count);
+  /// **'{count, plural, =1{Wrong PIN. The next try is checked after 1 minute.} other{Wrong PIN. The next try is checked after {count} minutes.}}'**
+  String pinWrongWaitMinutes(int count);
+
+  /// Countdown under the PIN field while the wallet waits before it checks a PIN, after repeated wrong PINs.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Checking the PIN in 1 second…} other{Checking the PIN in {count} seconds…}}'**
+  String pinCheckingSeconds(int count);
+
+  /// Countdown under the PIN field, for waits of two minutes or more.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Checking the PIN in 1 minute…} other{Checking the PIN in {count} minutes…}}'**
+  String pinCheckingMinutes(int count);
+
+  /// Shown under the PIN field when the wait before checking a PIN is over.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking the PIN…'**
+  String get pinChecking;
 
   /// Title of the dialog that asks for the PIN before a protected action.
   ///
@@ -3889,6 +3859,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'PIN changed'**
   String get settingsPinChanged;
+
+  /// Notice after a PIN change when the fingerprint or face prompt that updates biometric unlock was dismissed.
+  ///
+  /// In en, this message translates to:
+  /// **'PIN changed. Biometric unlock is off; turn it on again below.'**
+  String get settingsPinChangedBiometricsOff;
 
   /// Title of the help page.
   ///

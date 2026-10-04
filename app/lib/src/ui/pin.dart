@@ -209,48 +209,114 @@ class _PinSetupViewState extends ConsumerState<PinSetupView> {
   }
 }
 
-/// A sentence for a rejected PIN.
-String describePinRejection(AppLocalizations l, PinRejected rejection) {
-  final until = rejection.lockedUntil;
-  if (until != null) {
-    final wait = until.difference(DateTime.now());
-    final seconds = wait.inSeconds < 1 ? 1 : wait.inSeconds;
-    return seconds < 120
-        ? l.pinLockedSeconds(seconds)
-        : l.pinLockedMinutes((seconds / 60).ceil());
-  }
-  return l.pinWrong(rejection.attemptsLeft ?? 0);
+/// A sentence for a wait before LEPIC checks a PIN: seconds up to two minutes, then minutes.
+String _describeWait(
+  Duration wait,
+  String Function(int) seconds,
+  String Function(int) minutes,
+) {
+  final s = wait.inSeconds < 1 ? 1 : wait.inSeconds;
+  return s < 120 ? seconds(s) : minutes((s / 60).ceil());
 }
 
-/// Asks for the PIN (or, with [allowBiometrics], biometrics) of the current wallet and returns
-/// its password, or null if the user cancelled.
-Future<String?> askWalletPassword(
+/// A sentence for a rejected PIN: the tries left, or how long the next one waits.
+String describePinRejection(AppLocalizations l, PinRejected rejection) {
+  final wait = rejection.nextWait;
+  if (wait == Duration.zero) return l.pinWrong(rejection.attemptsLeft);
+  return _describeWait(wait, l.pinWrongWaitSeconds, l.pinWrongWaitMinutes);
+}
+
+/// Counts down to [until], while LEPIC waits before it checks a PIN after repeated failures.
+class PinWaitNote extends StatefulWidget {
+  const PinWaitNote({super.key, required this.until});
+
+  final DateTime until;
+
+  @override
+  State<PinWaitNote> createState() => _PinWaitNoteState();
+}
+
+class _PinWaitNoteState extends State<PinWaitNote> {
+  late final Timer _tick;
+
+  @override
+  void initState() {
+    super.initState();
+    _tick = Timer.periodic(
+      const Duration(seconds: 1),
+      (_) => setState(() {}),
+    );
+  }
+
+  @override
+  void dispose() {
+    _tick.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    final left = widget.until.difference(DateTime.now());
+    return Text(
+      left <= Duration.zero
+          ? l.pinChecking
+          : _describeWait(left, l.pinCheckingSeconds, l.pinCheckingMinutes),
+      textAlign: TextAlign.center,
+    );
+  }
+}
+
+/// When a PIN typed now will be checked, or null if at once.
+Future<DateTime?> pinCheckTime(WidgetRef ref) async {
+  final config = ref.read(walletConfigProvider);
+  if (config == null) return null;
+  final wait = await ref.read(vaultProvider).nextPinWait(config);
+  return wait == Duration.zero ? null : DateTime.now().add(wait);
+}
+
+/// Asks for the PIN of the open wallet (or, with [allowBiometrics], its biometric copy) and
+/// runs [action] with it. Returns what [action] returned, or null if the user cancelled. A
+/// wrong PIN ([PinRejected] from [action]) is shown in the dialog and asked again.
+Future<T?> askPin<T extends Object>(
   BuildContext context, {
   String? reason,
   bool allowBiometrics = true,
+  required Future<T> Function(String pin) action,
 }) {
-  return showDialog<String>(
+  return showDialog<T>(
     context: context,
-    builder: (_) =>
-        _PinPromptDialog(reason: reason, allowBiometrics: allowBiometrics),
+    builder: (_) => _PinPromptDialog<T>(
+      reason: reason,
+      allowBiometrics: allowBiometrics,
+      action: action,
+    ),
   );
 }
 
-class _PinPromptDialog extends ConsumerStatefulWidget {
-  const _PinPromptDialog({this.reason, required this.allowBiometrics});
+class _PinPromptDialog<T extends Object> extends ConsumerStatefulWidget {
+  const _PinPromptDialog({
+    this.reason,
+    required this.allowBiometrics,
+    required this.action,
+  });
 
   final String? reason;
   final bool allowBiometrics;
+  final Future<T> Function(String pin) action;
 
   @override
-  ConsumerState<_PinPromptDialog> createState() => _PinPromptDialogState();
+  ConsumerState<_PinPromptDialog<T>> createState() =>
+      _PinPromptDialogState<T>();
 }
 
-class _PinPromptDialogState extends ConsumerState<_PinPromptDialog> {
+class _PinPromptDialogState<T extends Object>
+    extends ConsumerState<_PinPromptDialog<T>> {
   final _pin = TextEditingController();
   String? _error;
   bool _busy = false;
   bool _biometrics = false;
+  DateTime? _checkAt;
 
   @override
   void initState() {
@@ -278,41 +344,58 @@ class _PinPromptDialogState extends ConsumerState<_PinPromptDialog> {
 
   Future<void> _useBiometrics() async {
     final config = ref.read(walletConfigProvider);
-    if (config == null) return;
-    final password = await ref
-        .read(vaultProvider)
-        .unlockWithBiometrics(config.chain);
-    if (password != null && mounted) Navigator.pop(context, password);
+    if (config == null || _busy) return;
+    final vault = ref.read(vaultProvider);
+    final pin = await vault.readBiometricPin(config.chain);
+    if (pin == null) {
+      final still = await vault.biometricsEnabled(config.chain);
+      if (mounted) setState(() => _biometrics = still);
+      return;
+    }
+    await _run(pin, biometric: true);
   }
 
-  Future<void> _submit(String pin) async {
-    final config = ref.read(walletConfigProvider);
-    if (config == null) return;
+  Future<void> _run(String pin, {bool biometric = false}) async {
     final l = context.l10n;
     setState(() {
       _busy = true;
       _error = null;
     });
+    final checkAt = await pinCheckTime(ref);
+    if (mounted) setState(() => _checkAt = checkAt);
     try {
-      final password = await ref
-          .read(vaultProvider)
-          .unlockWithPin(config.chain, pin);
-      if (mounted) Navigator.pop(context, password);
+      final result = await widget.action(pin);
+      if (mounted) Navigator.pop(context, result);
     } on PinRejected catch (rejection) {
       _pin.clear();
+      final config = ref.read(walletConfigProvider);
+      // A biometric copy that no longer opens is of no use.
+      if (biometric && config != null) {
+        await ref.read(vaultProvider).disableBiometrics(config.chain);
+      }
       if (mounted) {
-        setState(() => _error = describePinRejection(l, rejection));
+        setState(() {
+          if (biometric) _biometrics = false;
+          _error = describePinRejection(l, rejection);
+        });
       }
     } catch (error) {
+      _pin.clear();
       if (mounted) setState(() => _error = describeError(l, error));
     } finally {
-      if (mounted) setState(() => _busy = false);
+      if (mounted) {
+        setState(() {
+          _busy = false;
+          _checkAt = null;
+        });
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
+    final checkAt = _checkAt;
     return AlertDialog(
       title: Text(l.pinPromptTitle),
       content: Column(
@@ -328,8 +411,16 @@ class _PinPromptDialogState extends ConsumerState<_PinPromptDialog> {
             label: l.pinLabel,
             enabled: !_busy,
             errorText: _error,
-            onCompleted: _submit,
+            onCompleted: _run,
           ),
+          if (_busy) ...[
+            const SizedBox(height: 8),
+            const LinearProgressIndicator(),
+            if (checkAt != null) ...[
+              const SizedBox(height: 8),
+              PinWaitNote(until: checkAt),
+            ],
+          ],
           if (_biometrics)
             TextButton.icon(
               icon: const Icon(Icons.fingerprint),

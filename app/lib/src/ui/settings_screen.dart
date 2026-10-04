@@ -202,19 +202,20 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
   Future<void> _setBiometrics(bool on) async {
     final config = ref.read(walletConfigProvider);
-    if (config == null) return;
+    final session = ref.read(sessionProvider);
+    if (config == null || session == null) return;
     final vault = ref.read(vaultProvider);
     if (!on) {
       await vault.disableBiometrics(config.chain);
       if (mounted) _say(context.l10n.settingsBiometricsOff);
     } else {
-      final password = await askWalletPassword(
+      final ok = await askPin(
         context,
         reason: context.l10n.settingsBiometricsPinReason,
         allowBiometrics: false,
+        action: (pin) => vault.enableBiometrics(session, config, pin),
       );
-      if (password == null) return;
-      final ok = await vault.enableBiometrics(config.chain, password);
+      if (ok == null) return;
       if (mounted) {
         final l = context.l10n;
         _say(ok ? l.settingsBiometricsOn : l.settingsBiometricsFailed);
@@ -257,12 +258,19 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       builder: (_) => const DeleteWalletDialog(),
     );
     if (confirmed != true || !mounted) return;
-    final password = await askWalletPassword(
+    final session = ref.read(sessionProvider);
+    if (session == null) return;
+    final vault = ref.read(vaultProvider);
+    final checked = await askPin(
       context,
       reason: context.l10n.settingsDeletePinReason,
       allowBiometrics: false,
+      action: (pin) async {
+        await vault.checkPin(session, config, pin);
+        return true;
+      },
     );
-    if (password == null || !mounted) return;
+    if (checked == null || !mounted) return;
     if (ref.read(scanProvider).running) {
       _say(context.l10n.settingsDeleteDuringScan);
       return;

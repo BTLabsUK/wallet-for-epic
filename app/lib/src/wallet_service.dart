@@ -43,10 +43,57 @@ abstract interface class WalletService {
     required String password,
   });
 
+  /// Creates a wallet whose password the core generates and seals under [pin]; Dart only ever
+  /// holds the sealed text. Store [PinWallet.sealedPassword] before showing the phrase: without
+  /// it the wallet cannot be opened, only deleted and created again.
+  Future<PinWallet> createWithPin({
+    required WalletConfig config,
+    String? mnemonic,
+    required String pin,
+  });
+
+  /// Opens a wallet from [createWithPin]. A wrong PIN throws [WalletError] with
+  /// [WalletErrorKind.wrongPassword]; the core counts it ([pinFailures]) and makes later tries
+  /// wait ([pinDelay]).
+  Future<WalletSession> openWithPin({
+    required WalletConfig config,
+    required String pin,
+    required String sealedPassword,
+  });
+
+  /// Wrong PINs counted by the core since the last right one.
+  Future<int> pinFailures({required WalletConfig config});
+
   /// Deletes the wallet files in `config.dataDir`. Every session on it must be disposed first.
   /// Only the recovery phrase can bring the wallet back.
   Future<void> deleteWallet({required WalletConfig config});
 }
+
+/// A wallet from [WalletService.createWithPin] and its password sealed under the PIN.
+typedef PinWallet = ({WalletSession session, String sealedPassword});
+
+/// PIN tries that never wait, LEPIC's `PinPolicy::DEFAULT` (`crates/lepic-ffi/src/pin.rs`).
+const int freePinAttempts = 3;
+
+/// The wait once [freePinAttempts] failures are counted; it doubles with each further one, up
+/// to [maxPinDelay].
+const Duration firstPinDelay = Duration(seconds: 30);
+const Duration maxPinDelay = Duration(hours: 1);
+
+/// How long the core waits before it tries a PIN after [failures] wrong ones.
+Duration pinDelay(int failures) {
+  if (failures < freePinAttempts) return Duration.zero;
+  final doublings = failures - freePinAttempts;
+  if (doublings >= 20) return maxPinDelay;
+  final wait = firstPinDelay * (1 << doublings);
+  return wait > maxPinDelay ? maxPinDelay : wait;
+}
+
+/// The error of a PIN call the old core does not have.
+WalletError pinUnsupported(String call) => WalletError(
+  kind: WalletErrorKind.other,
+  message: '$call needs the LEPIC core',
+);
 
 /// An open wallet. Mirrors the methods of the native `EpicWallet`.
 ///
@@ -56,6 +103,25 @@ abstract interface class WalletSession {
   void dispose();
 
   Future<String> mnemonic({required String password});
+
+  /// The recovery phrase of a wallet from [WalletService.createWithPin], for the backup screen.
+  /// The PIN attempt counts as in [WalletService.openWithPin].
+  Future<String> mnemonicWithPin({
+    required String pin,
+    required String sealedPassword,
+  });
+
+  /// Seals the wallet password under [newPin] and returns the new sealed text. [oldPin] must
+  /// open [sealedPassword]; the attempt counts as in [WalletService.openWithPin]. Both texts
+  /// open until [confirmPinChange], so store the new one first.
+  Future<String> changePin({
+    required String sealedPassword,
+    required String oldPin,
+    required String newPin,
+  });
+
+  /// Ends a [changePin] once its text is stored; then only that text opens.
+  Future<void> confirmPinChange({required String sealedPassword});
 
   Future<void> cancelTransaction({required int txId});
 
@@ -190,6 +256,24 @@ class RustWalletService implements WalletService {
     await rust.EpicWallet.open(config: config, password: password),
   );
 
+  @override
+  Future<PinWallet> createWithPin({
+    required WalletConfig config,
+    String? mnemonic,
+    required String pin,
+  }) async => throw pinUnsupported('createWithPin');
+
+  @override
+  Future<WalletSession> openWithPin({
+    required WalletConfig config,
+    required String pin,
+    required String sealedPassword,
+  }) async => throw pinUnsupported('openWithPin');
+
+  @override
+  Future<int> pinFailures({required WalletConfig config}) async =>
+      throw pinUnsupported('pinFailures');
+
   /// In Rust: waits for calls still running on the wallet, so nothing writes into the directory
   /// after it is gone.
   @override
@@ -210,6 +294,23 @@ class _RustWalletSession implements WalletSession {
   @override
   Future<String> mnemonic({required String password}) =>
       _wallet.mnemonic(password: password);
+
+  @override
+  Future<String> mnemonicWithPin({
+    required String pin,
+    required String sealedPassword,
+  }) async => throw pinUnsupported('mnemonicWithPin');
+
+  @override
+  Future<String> changePin({
+    required String sealedPassword,
+    required String oldPin,
+    required String newPin,
+  }) async => throw pinUnsupported('changePin');
+
+  @override
+  Future<void> confirmPinChange({required String sealedPassword}) async =>
+      throw pinUnsupported('confirmPinChange');
 
   @override
   Future<void> cancelTransaction({required int txId}) =>
@@ -441,8 +542,76 @@ class FakeWalletService implements WalletService {
   Future<void> deleteWallet({required WalletConfig config}) async {
     existingWallets.remove(config.dataDir);
     deletedWallets.add(config.dataDir);
+    pinFailureCount = 0;
   }
+
+  /// Wrong PINs since the last right one, as LEPIC counts them. The fake never waits.
+  int pinFailureCount = 0;
+
+  /// The PIN of the last [createWithPin].
+  String? createdPin;
+
+  /// Sealed texts passed to [FakeWalletSession.confirmPinChange].
+  final List<String> confirmedPinChanges = [];
+
+  /// Opens [sealed] with [pin], counting the attempt as LEPIC does.
+  void _checkPin(String pin, String sealed) {
+    pinFailureCount++;
+    if (sealed != fakeSealedPassword(pin)) {
+      throw const WalletError(
+        kind: WalletErrorKind.wrongPassword,
+        message: 'pin did not open the sealed text',
+      );
+    }
+    pinFailureCount = 0;
+  }
+
+  @override
+  Future<PinWallet> createWithPin({
+    required WalletConfig config,
+    String? mnemonic,
+    required String pin,
+  }) async {
+    if (existingWallets.contains(config.dataDir)) {
+      throw const WalletError(
+        kind: WalletErrorKind.walletAlreadyExists,
+        message: 'wallet exists',
+      );
+    }
+    await createGate?.future;
+    existingWallets.add(config.dataDir);
+    createdConfig = config;
+    createdMnemonic = mnemonic;
+    createdPin = pin;
+    pinFailureCount = 0;
+    session.owner = this;
+    return (session: session, sealedPassword: fakeSealedPassword(pin));
+  }
+
+  @override
+  Future<WalletSession> openWithPin({
+    required WalletConfig config,
+    required String pin,
+    required String sealedPassword,
+  }) async {
+    if (!existingWallets.contains(config.dataDir)) {
+      throw const WalletError(
+        kind: WalletErrorKind.walletNotFound,
+        message: 'no wallet',
+      );
+    }
+    _checkPin(pin, sealedPassword);
+    session.owner = this;
+    return session;
+  }
+
+  @override
+  Future<int> pinFailures({required WalletConfig config}) async =>
+      pinFailureCount;
 }
+
+/// The sealed text [FakeWalletService] hands out for [pin]. Not encryption.
+String fakeSealedPassword(String pin) => 'fake-sealed|$pin';
 
 /// Scripted open wallet for tests. Mutate the public fields to shape each scenario.
 class FakeWalletSession implements WalletSession {
@@ -503,6 +672,41 @@ class FakeWalletSession implements WalletSession {
 
   @override
   Future<String> mnemonic({required String password}) async => phrase;
+
+  /// The service that last handed this session out, which holds the PIN state.
+  FakeWalletService? owner;
+
+  FakeWalletService get _owner =>
+      owner ?? (throw StateError('session not opened by a FakeWalletService'));
+
+  @override
+  Future<String> mnemonicWithPin({
+    required String pin,
+    required String sealedPassword,
+  }) async {
+    _owner._checkPin(pin, sealedPassword);
+    return phrase;
+  }
+
+  @override
+  Future<String> changePin({
+    required String sealedPassword,
+    required String oldPin,
+    required String newPin,
+  }) async {
+    if (newPin.length < 4) {
+      throw const WalletError(
+        kind: WalletErrorKind.invalidArgument,
+        message: 'pin has fewer than 4 characters',
+      );
+    }
+    _owner._checkPin(oldPin, sealedPassword);
+    return fakeSealedPassword(newPin);
+  }
+
+  @override
+  Future<void> confirmPinChange({required String sealedPassword}) async =>
+      _owner.confirmedPinChanges.add(sealedPassword);
 
   @override
   Future<void> cancelTransaction({required int txId}) async {

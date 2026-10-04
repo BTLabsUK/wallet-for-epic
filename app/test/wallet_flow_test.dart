@@ -10,14 +10,12 @@ import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/slate_files.dart';
 import 'package:epic_wallet/src/ui/common.dart';
 import 'package:epic_wallet/src/updater.dart';
-import 'package:epic_wallet/src/vault.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 const _mainnetDir = '/fake/wallets/mainnet';
-const _password = 'correct horse';
 const _pin = '123456';
 
 BigInt _epic(num value) => BigInt.from((value * 100000000).round());
@@ -61,14 +59,13 @@ class _Device {
   }) : bio = MemoryBiometricStore(available: biometrics) {
     if (advanced) store.values['app.advanced'] = 'true';
     if (sealedMainnet) {
-      store.values['wallet.mainnet.sealed'] = 'sealed|$_pin|$_password';
+      store.values['wallet.mainnet.pinSealed'] = fakeSealedPassword(_pin);
     }
   }
 
   final bool sealedMainnet;
   final store = MemorySecretStore();
   final MemoryBiometricStore bio;
-  final crypto = FakeVaultCrypto();
   final files = FakeSlateFiles();
 }
 
@@ -98,7 +95,6 @@ Future<void> _pumpApp(
         ),
         secretStoreProvider.overrideWithValue(device.store),
         biometricStoreProvider.overrideWithValue(device.bio),
-        vaultCryptoProvider.overrideWithValue(device.crypto),
         updatePlatformProvider.overrideWithValue(null),
         pushPlatformProvider.overrideWithValue(null),
         relayDirectoryProvider.overrideWithValue(_FakeRelays()),
@@ -204,16 +200,15 @@ FakeWalletSession _fundedSession() => FakeWalletSession(
 void main() {
   group('first run', () {
     testWidgets(
-      'creates the wallet while the user picks a PIN and biometrics',
+      'creates the wallet under the PIN, with biometrics holding the PIN',
       (tester) async {
         final service = FakeWalletService()..createGate = Completer<void>();
         final device = _Device(biometrics: true);
         await _pumpApp(tester, service, device, settle: false);
 
         expect(find.text('Welcome'), findsOneWidget);
-        expect(find.text('Creating wallet…'), findsOneWidget);
-        // The password exists before the wallet does, so an interrupted run can resume.
-        expect(device.store.values['wallet.mainnet.pending'], isNotNull);
+        // Nothing exists before the PIN: LEPIC creates the wallet under it.
+        expect(service.existingWallets, isEmpty);
 
         await _enterNow(tester, 'PIN', _pin);
         await _enterNow(tester, 'Repeat PIN', '654321');
@@ -225,7 +220,7 @@ void main() {
         await tester.tap(find.text('Use biometrics'));
         await tester.pump();
         await tester.pump();
-        expect(find.text('Finishing your wallet…'), findsOneWidget);
+        expect(find.text('Securing your wallet…'), findsOneWidget);
         expect(find.text('Spendable'), findsNothing);
 
         service.createGate!.complete();
@@ -236,16 +231,13 @@ void main() {
         expect(service.createdConfig?.chain, Chain.mainnet);
         expect(service.createdConfig?.dataDir, _mainnetDir);
         expect(service.createdMnemonic, isNull);
-        expect(service.password, 'generated-password-0');
-        expect(device.store.values['wallet.mainnet.pending'], isNull);
-        expect(
-          device.store.values['wallet.mainnet.sealed'],
-          'sealed|$_pin|generated-password-0',
-        );
-        expect(
-          device.bio.values['wallet.mainnet.password'],
-          'generated-password-0',
-        );
+        expect(service.createdPin, _pin);
+        // Only the sealed text is stored; the biometric copy is the PIN.
+        expect(device.store.values, {
+          'wallet.mainnet.pinSealed': fakeSealedPassword(_pin),
+          'wallet.mainnet.pinBiometrics': '1',
+        });
+        expect(device.bio.values, {'wallet.mainnet.pin': _pin});
       },
     );
 
@@ -259,39 +251,62 @@ void main() {
       await _enter(tester, 'Repeat PIN', _pin);
       expect(find.text('Spendable'), findsOneWidget);
       expect(device.bio.values, isEmpty);
-      expect(device.store.values['wallet.mainnet.biometrics'], isNull);
+      expect(device.store.values['wallet.mainnet.pinBiometrics'], isNull);
     });
 
-    testWidgets('an interrupted first run reopens the same wallet', (
+    testWidgets('a wallet left without its sealed text starts over', (
       tester,
     ) async {
-      final service = FakeWalletService(
-        existingWallets: {_mainnetDir},
-        password: 'kept-password',
-      );
+      // The app stopped after LEPIC created the wallet and before the text was stored.
+      final service = _existing();
       final device = _Device();
-      device.store.values['wallet.mainnet.pending'] = 'kept-password';
       await _pumpApp(tester, service, device);
 
-      expect(find.text('Wallet created'), findsOneWidget);
+      expect(find.text('Welcome'), findsOneWidget);
+      expect(service.deletedWallets, [_mainnetDir]);
       await _enter(tester, 'PIN', _pin);
       await _enter(tester, 'Repeat PIN', _pin);
       expect(find.text('Spendable'), findsOneWidget);
-      expect(service.createdConfig, isNull);
+      expect(service.createdPin, _pin);
       expect(
-        device.store.values['wallet.mainnet.sealed'],
-        'sealed|$_pin|kept-password',
+        device.store.values['wallet.mainnet.pinSealed'],
+        fakeSealedPassword(_pin),
       );
     });
 
-    testWidgets('restore replaces the wallet made in the background', (
+    testWidgets('an install of 1.2.x is discarded and starts at first run', (
+      tester,
+    ) async {
+      final service = FakeWalletService();
+      final device = _Device(biometrics: true);
+      device.store.values.addAll({
+        'wallet.mainnet.sealed': 'sealed by the old core',
+        'wallet.mainnet.biometrics': '1',
+        'wallet.mainnet.backedUp': '1',
+      });
+      device.bio.values['wallet.mainnet.password'] = 'old password';
+      await _pumpApp(tester, service, device);
+
+      expect(find.text('Welcome'), findsOneWidget);
+      expect(find.text('Unlock wallet'), findsNothing);
+      expect(device.store.values, isEmpty);
+      expect(device.bio.values, isEmpty);
+      expect(device.bio.prompts, 0);
+
+      await _enter(tester, 'PIN', _pin);
+      await _enter(tester, 'Repeat PIN', _pin);
+      await _tapText(tester, 'Not now');
+      expect(find.text('Spendable'), findsOneWidget);
+      expect(find.text('Back up your recovery phrase.'), findsOneWidget);
+    });
+
+    testWidgets('restore creates the wallet from the phrase under the PIN', (
       tester,
     ) async {
       final service = FakeWalletService();
       final device = _Device(advanced: true);
       await _pumpApp(tester, service, device);
       await _tapText(tester, 'I already have a wallet: restore it');
-      expect(service.existingWallets, contains(_mainnetDir));
 
       await _enter(tester, 'Recovery phrase', 'not a valid phrase');
       await _tapText(tester, 'Continue');
@@ -312,14 +327,15 @@ void main() {
       await _enter(tester, 'Repeat PIN', _pin);
       await _tapText(tester, 'Not now');
 
-      expect(service.deletedWallets, [_mainnetDir]);
+      expect(service.deletedWallets, isEmpty);
       expect(service.createdMnemonic == service.phrase, isTrue);
+      expect(service.createdPin, _pin);
       expect(service.session.scanCalls, 1);
       expect(find.text('Spendable'), findsOneWidget);
       expect(find.text('Back up your recovery phrase.'), findsNothing);
       expect(
-        device.store.values['wallet.mainnet.sealed'],
-        startsWith('sealed|$_pin|'),
+        device.store.values['wallet.mainnet.pinSealed'],
+        fakeSealedPassword(_pin),
       );
     });
 
@@ -342,8 +358,6 @@ void main() {
       expect(find.text('Spendable'), findsOneWidget);
       expect(service.createdConfig?.chain, Chain.usernet);
       expect(service.createdConfig?.epicboxPort, 3423);
-      // The mainnet wallet created first was closed, so usernet could open.
-      expect(service.session.disposeCalls, greaterThanOrEqualTo(1));
     });
   });
 
@@ -382,8 +396,8 @@ void main() {
     expect(device.store.values['app.relay.mainnet'], 'epicbox.epicnet.us');
     await _enter(tester, 'PIN', _pin);
     await _enter(tester, 'Repeat PIN', _pin);
-    // The wallet made before the change is reopened; the relay comes from the config it opens
-    // with, which is what the address and the listener use.
+    // The relay comes from the config the wallet opens with, which is what the address and
+    // the listener use.
     final container = ProviderScope.containerOf(
       tester.element(find.text('Spendable')),
     );
@@ -393,25 +407,48 @@ void main() {
   });
 
   group('unlock', () {
-    testWidgets('a wrong PIN counts down, then locks out', (tester) async {
+    testWidgets("a wrong PIN shows LEPIC's count, then its wait", (
+      tester,
+    ) async {
       final service = _existing();
       final device = _Device(sealedMainnet: true);
       await _pumpApp(tester, service, device);
 
       await _enter(tester, 'PIN', '000000');
       expect(
-        find.text('Wrong PIN. 4 tries left before a pause.'),
+        find.text('Wrong PIN. 2 tries left before a pause.'),
         findsOneWidget,
       );
       expect(find.text('Spendable'), findsNothing);
-      for (var i = 0; i < 4; i++) {
-        await _enter(tester, 'PIN', '000000');
-      }
-      expect(find.textContaining('Too many wrong PINs'), findsOneWidget);
+      await _enter(tester, 'PIN', '000000');
+      await _enter(tester, 'PIN', '000000');
+      expect(service.pinFailureCount, 3);
+      expect(
+        find.text('Wrong PIN. The next try is checked after 30 seconds.'),
+        findsOneWidget,
+      );
+      // LEPIC does the waiting, inside the next try, so the field stays usable.
       final field = tester.widget<TextField>(
         find.widgetWithText(TextField, 'PIN'),
       );
-      expect(field.enabled, isFalse);
+      expect(field.enabled, isTrue);
+      await _enter(tester, 'PIN', '000000');
+      expect(
+        find.text('Wrong PIN. The next try is checked after 60 seconds.'),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('the count survives a restart', (tester) async {
+      final service = _existing()..pinFailureCount = 9;
+      await _pumpApp(tester, service, _Device(sealedMainnet: true));
+      expect(
+        find.text('Wrong PIN. The next try is checked after 32 minutes.'),
+        findsOneWidget,
+      );
+      await _unlockToHome(tester);
+      expect(find.text('Spendable'), findsOneWidget);
+      expect(service.pinFailureCount, 0);
     });
 
     testWidgets('the right PIN opens the wallet', (tester) async {
@@ -424,8 +461,8 @@ void main() {
     testWidgets('biometrics unlock on start when enabled', (tester) async {
       final service = _existing();
       final device = _Device(biometrics: true, sealedMainnet: true);
-      device.store.values['wallet.mainnet.biometrics'] = '1';
-      device.bio.values['wallet.mainnet.password'] = _password;
+      device.store.values['wallet.mainnet.pinBiometrics'] = '1';
+      device.bio.values['wallet.mainnet.pin'] = _pin;
       await _pumpApp(tester, service, device);
       expect(device.bio.prompts, 1);
       expect(find.text('Spendable'), findsOneWidget);
@@ -434,8 +471,8 @@ void main() {
     testWidgets('a dismissed biometric prompt leaves the PIN', (tester) async {
       final service = _existing();
       final device = _Device(biometrics: true, sealedMainnet: true);
-      device.store.values['wallet.mainnet.biometrics'] = '1';
-      device.bio.values['wallet.mainnet.password'] = _password;
+      device.store.values['wallet.mainnet.pinBiometrics'] = '1';
+      device.bio.values['wallet.mainnet.pin'] = _pin;
       device.bio.succeed = false;
       await _pumpApp(tester, service, device);
       expect(find.text('Spendable'), findsNothing);
@@ -444,27 +481,23 @@ void main() {
       expect(find.text('Spendable'), findsOneWidget);
     });
 
-    testWidgets('a password wallet from before PINs moves to a PIN', (
+    testWidgets('a biometric copy that no longer opens turns biometrics off', (
       tester,
     ) async {
       final service = _existing();
-      final device = _Device();
+      final device = _Device(biometrics: true, sealedMainnet: true);
+      device.store.values['wallet.mainnet.pinBiometrics'] = '1';
+      device.bio.values['wallet.mainnet.pin'] = '999999';
       await _pumpApp(tester, service, device);
-      expect(find.text('Unlock wallet'), findsOneWidget);
-
-      await _enter(tester, 'Password', 'guess');
-      await _tapText(tester, 'Unlock');
-      expect(find.text('Wrong password.'), findsOneWidget);
-
-      await _enter(tester, 'Password', _password);
-      await _tapText(tester, 'Unlock');
-      await _enter(tester, 'PIN', _pin);
-      await _enter(tester, 'Repeat PIN', _pin);
-      expect(find.text('Spendable'), findsOneWidget);
+      expect(find.text('Spendable'), findsNothing);
       expect(
-        device.store.values['wallet.mainnet.sealed'],
-        'sealed|$_pin|$_password',
+        find.text('Wrong PIN. 2 tries left before a pause.'),
+        findsOneWidget,
       );
+      expect(find.text('Use biometrics'), findsNothing);
+      expect(device.bio.values, isEmpty);
+      await _unlockToHome(tester);
+      expect(find.text('Spendable'), findsOneWidget);
     });
 
     testWidgets('forgot PIN deletes the wallet only after confirmation', (
@@ -483,7 +516,7 @@ void main() {
       await _tapText(tester, 'I have my recovery phrase');
       await _tap(tester, delete);
       expect(service.deletedWallets, [_mainnetDir]);
-      expect(device.store.values['wallet.mainnet.sealed'], isNull);
+      expect(device.store.values['wallet.mainnet.pinSealed'], isNull);
       expect(find.text('Welcome'), findsOneWidget);
     });
   });
@@ -604,7 +637,8 @@ void main() {
         _pin,
       );
       await tester.pumpAndSettle();
-      expect(device.bio.values['wallet.mainnet.password'], _password);
+      expect(device.bio.values['wallet.mainnet.pin'], _pin);
+      expect(device.store.values['wallet.mainnet.pinBiometrics'], '1');
       expect(find.text('Biometric unlock turned on'), findsOneWidget);
     });
 

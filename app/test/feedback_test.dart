@@ -17,14 +17,12 @@ import 'package:epic_wallet/src/ui/help_screen.dart';
 import 'package:epic_wallet/src/ui/settings_history.dart';
 import 'package:epic_wallet/src/ui/settings_screen.dart';
 import 'package:epic_wallet/src/updater.dart';
-import 'package:epic_wallet/src/vault.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 const _pin = '123456';
-const _password = 'correct horse';
 const _phrase =
     'abandon ability able about above absent absorb abstract absurd abuse '
     'access accident';
@@ -52,7 +50,7 @@ class _NoPrice implements PriceSource {
 
 class _Harness {
   final store = MemorySecretStore()
-    ..values['wallet.mainnet.sealed'] = 'sealed|$_pin|$_password';
+    ..values['wallet.mainnet.pinSealed'] = fakeSealedPassword(_pin);
   final session = FakeWalletSession();
   late final service = FakeWalletService(
     existingWallets: {'/fake/wallets/mainnet'},
@@ -79,7 +77,6 @@ class _Harness {
           biometricStoreProvider.overrideWithValue(
             MemoryBiometricStore(available: false),
           ),
-          vaultCryptoProvider.overrideWithValue(FakeVaultCrypto()),
           updatePlatformProvider.overrideWithValue(null),
           relayDirectoryProvider.overrideWithValue(_NoRelays()),
           slateFilesProvider.overrideWithValue(FakeSlateFiles()),

@@ -1859,24 +1859,10 @@ class AppLocalizationsPl extends AppLocalizations {
   String get firstRunRestore => 'Mam już portfel: przywróć go';
 
   @override
-  String get firstRunFinishing => 'Kończenie tworzenia portfela…';
-
-  @override
   String get firstRunSecuring => 'Zabezpieczanie portfela…';
 
   @override
   String get firstRunTryAgain => 'Spróbuj ponownie';
-
-  @override
-  String get firstRunCreating => 'Tworzenie portfela…';
-
-  @override
-  String get firstRunCreated => 'Portfel utworzony';
-
-  @override
-  String firstRunCreateFailed(String error) {
-    return 'Nie udało się utworzyć portfela: $error Kolejna próba nastąpi po wpisaniu kodu PIN.';
-  }
 
   @override
   String get firstRunBiometricsNotSetUp =>
@@ -1923,19 +1909,6 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get unlockTitle => 'Odblokuj portfel';
-
-  @override
-  String get unlockPasswordLabel => 'Hasło';
-
-  @override
-  String get unlockPasswordEmpty => 'Wpisz hasło.';
-
-  @override
-  String get unlockButton => 'Odblokuj';
-
-  @override
-  String get unlockMovedToPin =>
-      'Ten portfel otwiera się teraz kodem PIN zamiast hasłem.';
 
   @override
   String get pinLabel => 'PIN';
@@ -1995,30 +1968,67 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String pinLockedSeconds(int count) {
+  String pinWrongWaitSeconds(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'Zbyt wiele nieudanych prób. Spróbuj ponownie za $count sekundy.',
-      many: 'Zbyt wiele nieudanych prób. Spróbuj ponownie za $count sekund.',
-      few: 'Zbyt wiele nieudanych prób. Spróbuj ponownie za $count sekundy.',
-      one: 'Zbyt wiele nieudanych prób. Spróbuj ponownie za $count sekundę.',
+      other:
+          'Nieprawidłowy PIN. Następna próba zostanie sprawdzona po $count sekundy.',
+      many:
+          'Nieprawidłowy PIN. Następna próba zostanie sprawdzona po $count sekundach.',
+      few:
+          'Nieprawidłowy PIN. Następna próba zostanie sprawdzona po $count sekundach.',
+      one:
+          'Nieprawidłowy PIN. Następna próba zostanie sprawdzona po $count sekundzie.',
     );
     return '$_temp0';
   }
 
   @override
-  String pinLockedMinutes(int count) {
+  String pinWrongWaitMinutes(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'Zbyt wiele nieudanych prób. Spróbuj ponownie za $count minuty.',
-      many: 'Zbyt wiele nieudanych prób. Spróbuj ponownie za $count minut.',
-      few: 'Zbyt wiele nieudanych prób. Spróbuj ponownie za $count minuty.',
-      one: 'Zbyt wiele nieudanych prób. Spróbuj ponownie za $count minutę.',
+      other:
+          'Nieprawidłowy PIN. Następna próba zostanie sprawdzona po $count minuty.',
+      many:
+          'Nieprawidłowy PIN. Następna próba zostanie sprawdzona po $count minutach.',
+      few:
+          'Nieprawidłowy PIN. Następna próba zostanie sprawdzona po $count minutach.',
+      one:
+          'Nieprawidłowy PIN. Następna próba zostanie sprawdzona po $count minucie.',
     );
     return '$_temp0';
   }
+
+  @override
+  String pinCheckingSeconds(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Sprawdzanie PIN-u za $count sekundy…',
+      many: 'Sprawdzanie PIN-u za $count sekund…',
+      few: 'Sprawdzanie PIN-u za $count sekundy…',
+      one: 'Sprawdzanie PIN-u za $count sekundę…',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String pinCheckingMinutes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Sprawdzanie PIN-u za $count minuty…',
+      many: 'Sprawdzanie PIN-u za $count minut…',
+      few: 'Sprawdzanie PIN-u za $count minuty…',
+      one: 'Sprawdzanie PIN-u za $count minutę…',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get pinChecking => 'Sprawdzanie PIN-u…';
 
   @override
   String get pinPromptTitle => 'Wpisz PIN';
@@ -2757,6 +2767,10 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get settingsPinChanged => 'Zmieniono PIN';
+
+  @override
+  String get settingsPinChangedBiometricsOff =>
+      'Zmieniono PIN. Odblokowanie biometryczne jest wyłączone; włącz je ponownie poniżej.';
 
   @override
   String get helpTitle => 'Pomoc';

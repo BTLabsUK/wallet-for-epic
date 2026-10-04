@@ -8,6 +8,7 @@ import '../errors.dart';
 import '../l10n.dart';
 import '../providers.dart';
 import '../vault.dart';
+import '../wallet_service.dart';
 import 'centered_body.dart';
 import 'common.dart';
 import 'launch_screen.dart';
@@ -29,8 +30,9 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
   String? _error;
   bool _busy = false;
   bool _biometrics = false;
-  DateTime? _lockedUntil;
-  Timer? _lockTimer;
+
+  /// When LEPIC checks the PIN being tried, while it waits after repeated failures.
+  DateTime? _checkAt;
 
   @override
   void initState() {
@@ -40,7 +42,6 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
 
   @override
   void dispose() {
-    _lockTimer?.cancel();
     _pin.dispose();
     super.dispose();
   }
@@ -49,92 +50,71 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
     final config = ref.read(walletConfigProvider);
     if (config == null) return;
     final vault = ref.read(vaultProvider);
-    final lockedUntil = await vault.lockedUntil(config.chain);
-    if (lockedUntil != null) _lockOut(lockedUntil);
+    // The count survives a restart; say what the next try costs before it is made.
+    final failures = await ref
+        .read(walletServiceProvider)
+        .pinFailures(config: config);
     final biometrics = await vault.biometricsEnabled(config.chain);
     if (!mounted) return;
-    setState(() => _biometrics = biometrics);
+    setState(() {
+      _biometrics = biometrics;
+      if (failures > 0) {
+        _pinError = describePinRejection(context.l10n, PinRejected(failures));
+      }
+    });
     if (biometrics) await _unlockWithBiometrics();
   }
 
-  void _lockOut(DateTime until) {
-    _lockTimer?.cancel();
-    setState(() => _lockedUntil = until);
-    _lockTimer = Timer(until.difference(DateTime.now()), () {
-      if (mounted) {
-        setState(() {
-          _lockedUntil = null;
-          _pinError = null;
-        });
-      }
-    });
-  }
-
   Future<void> _unlockWithBiometrics() async {
-    final config = ref.read(walletConfigProvider);
-    if (config == null || _busy) return;
-    final password = await ref
-        .read(vaultProvider)
-        .unlockWithBiometrics(config.chain);
-    if (password == null) {
-      // Dismissed, or the copy is gone after a new enrollment.
-      final still = await ref
-          .read(vaultProvider)
-          .biometricsEnabled(config.chain);
-      if (mounted) setState(() => _biometrics = still);
-      return;
-    }
-    await _open(password);
+    await _attempt((vault, config) => vault.unlockWithBiometrics(config));
   }
 
   Future<void> _unlockWithPin(String pin) async {
+    await _attempt((vault, config) => vault.unlock(config, pin));
+  }
+
+  /// Runs one unlock; [open] answers null when the biometric prompt was dismissed.
+  Future<void> _attempt(
+    Future<WalletSession?> Function(WalletVault vault, WalletConfig config)
+    open,
+  ) async {
     final config = ref.read(walletConfigProvider);
     if (config == null || _busy) return;
     final l = context.l10n;
+    final vault = ref.read(vaultProvider);
     setState(() {
       _busy = true;
-      _pinError = null;
       _error = null;
     });
+    final checkAt = await pinCheckTime(ref);
+    if (mounted) setState(() => _checkAt = checkAt);
     try {
-      final password = await ref
-          .read(vaultProvider)
-          .unlockWithPin(config.chain, pin);
-      await _open(password);
+      final session = await open(vault, config);
+      if (session == null) {
+        // Dismissed, or the copy is gone after a new enrollment.
+        final still = await vault.biometricsEnabled(config.chain);
+        if (mounted) setState(() => _biometrics = still);
+        return;
+      }
+      ref.read(sessionProvider.notifier).unlocked(session);
+      if (mounted) goHome(context);
     } on PinRejected catch (rejection) {
       _pin.clear();
+      final still = await vault.biometricsEnabled(config.chain);
       if (!mounted) return;
-      setState(() => _pinError = describePinRejection(l, rejection));
-      final until = rejection.lockedUntil;
-      if (until != null) _lockOut(until);
+      setState(() {
+        _biometrics = still;
+        _pinError = describePinRejection(l, rejection);
+      });
     } catch (error) {
-      logWarn(
-        'unlock',
-        'PIN unlock failed: ${describeError(englishStrings, error)}',
-      );
+      logWarn('unlock', 'unlock failed: ${describeError(englishStrings, error)}');
       _pin.clear();
       if (mounted) setState(() => _error = describeError(l, error));
     } finally {
-      if (mounted) setState(() => _busy = false);
-    }
-  }
-
-  Future<void> _open(String password) async {
-    final config = ref.read(walletConfigProvider);
-    if (config == null) return;
-    final l = context.l10n;
-    setState(() => _busy = true);
-    try {
-      final session = await ref
-          .read(walletServiceProvider)
-          .open(config: config, password: password);
-      ref.read(sessionProvider.notifier).unlocked(session);
-      if (mounted) goHome(context);
-    } catch (error) {
       if (mounted) {
         setState(() {
           _busy = false;
-          _error = describeError(l, error);
+          _checkAt = null;
         });
       }
     }
@@ -173,7 +153,7 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
   Widget build(BuildContext context) {
     final l = context.l10n;
     final config = ref.watch(walletConfigProvider);
-    final locked = _lockedUntil != null;
+    final checkAt = _checkAt;
     return SlotScaffold(
       centered: true,
       glow: heroGlow,
@@ -204,12 +184,16 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
           PinField(
             controller: _pin,
             label: l.pinLabel,
-            enabled: !_busy && !locked,
+            enabled: !_busy,
             errorText: _pinError,
             onCompleted: _unlockWithPin,
           ),
           const SizedBox(height: 16),
           if (_busy) const LinearProgressIndicator(),
+          if (_busy && checkAt != null) ...[
+            const SizedBox(height: 8),
+            PinWaitNote(until: checkAt),
+          ],
           if (_error != null) ErrorText(_error!),
           if (_biometrics) ...[
             const SizedBox(height: 8),

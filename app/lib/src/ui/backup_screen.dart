@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../errors.dart';
 import '../l10n.dart';
 import '../providers.dart';
 import '../secure_screen.dart';
@@ -27,7 +26,6 @@ class BackupScreen extends ConsumerStatefulWidget {
 
 class _BackupScreenState extends ConsumerState<BackupScreen> {
   List<String> _words = const [];
-  String? _error;
   bool _agreed = false;
   bool _asked = false;
 
@@ -46,24 +44,21 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
   Future<void> _load() async {
     setState(() => _asked = true);
     final l = context.l10n;
-    final password = await askWalletPassword(
+    final session = ref.read(sessionProvider);
+    final config = ref.read(walletConfigProvider);
+    if (session == null || config == null) return;
+    final vault = ref.read(vaultProvider);
+    final phrase = await askPin(
       context,
       reason: l.backupPinReason,
+      action: (pin) => vault.mnemonic(session, config, pin),
     );
     if (!mounted) return;
-    if (password == null) {
+    if (phrase == null) {
       Navigator.pop(context, false);
       return;
     }
-    final session = ref.read(sessionProvider);
-    if (session == null) return;
-    try {
-      final phrase = await session.mnemonic(password: password);
-      if (!mounted) return;
-      setState(() => _words = phrase.split(' '));
-    } catch (error) {
-      if (mounted) setState(() => _error = describeError(l, error));
-    }
+    setState(() => _words = phrase.split(' '));
   }
 
   Future<void> _done() async {
@@ -83,12 +78,7 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
         children: !_asked
             ? _consent(context)
             : _words.isEmpty
-            ? [
-                if (_error != null)
-                  ErrorText(_error!)
-                else
-                  const LinearProgressIndicator(),
-              ]
+            ? [const LinearProgressIndicator()]
             : _phrase(context),
       ),
     );

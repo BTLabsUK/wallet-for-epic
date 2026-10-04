@@ -294,7 +294,6 @@ class _Harness {
           walletServiceProvider.overrideWithValue(service),
           secretStoreProvider.overrideWithValue(store),
           biometricStoreProvider.overrideWithValue(MemoryBiometricStore()),
-          vaultCryptoProvider.overrideWithValue(FakeVaultCrypto()),
           updatePlatformProvider.overrideWithValue(null),
           priceSourceProvider.overrideWithValue(prices),
           qrScannerProvider.overrideWithValue(scanner),
@@ -1221,7 +1220,7 @@ void main() {
       await WalletVault(
         store: store,
         biometrics: MemoryBiometricStore(),
-        crypto: FakeVaultCrypto(),
+        service: FakeWalletService(),
       ).forget(Chain.mainnet);
       expect(store.values['wallet.mainnet.backupCardDismissed'], isNull);
     });

@@ -49,9 +49,6 @@ String normalizePhrase(String input) =>
     input.trim().toLowerCase().split(RegExp(r'\s+')).join(' ');
 
 /// Restores a wallet from its recovery phrase, protects it with a PIN, then scans the chain.
-///
-/// A wallet the first run created in the meantime is deleted first: its phrase was never
-/// shown, so it cannot hold funds.
 class RestoreScreen extends ConsumerStatefulWidget {
   const RestoreScreen({super.key});
 
@@ -131,31 +128,22 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
       _error = null;
     });
     try {
-      await ref.read(walletSetupProvider.notifier).discard(config);
-      final service = ref.read(walletServiceProvider);
-      // A wallet still here after discard has a PIN or a password; never replace it.
-      if (await service.walletExists(config: config)) {
-        throw const WalletError(
-          kind: WalletErrorKind.walletAlreadyExists,
-          message: 'wallet exists',
-        );
-      }
+      // The vault never replaces a wallet that opens with a PIN; one the first run left
+      // without its sealed text is deleted first, since its phrase was never shown.
       final vault = ref.read(vaultProvider);
-      final password = await vault.pendingPassword(config.chain);
-      final session = await service.create(
-        config: config,
-        mnemonic: _validPhrase,
-        password: password,
-      );
-      _validPhrase = '';
-      await vault.seal(
-        config.chain,
+      final created = await vault.create(
+        config,
         pin: pin,
-        password: password,
+        mnemonic: _validPhrase,
         useBiometrics: useBiometrics,
       );
+      _validPhrase = '';
+      final session = created.session;
       // The user typed the phrase in, so they have it.
       await vault.markBackedUp(config.chain);
+      if (useBiometrics && !created.biometrics && mounted) {
+        ref.read(noticeProvider.notifier).show(l.firstRunBiometricsNotSetUp);
+      }
       ref.read(sessionProvider.notifier).unlocked(session);
       if (!mounted) return;
       setState(() => _step = _RestoreStep.scan);

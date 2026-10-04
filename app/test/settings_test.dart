@@ -17,7 +17,6 @@ import 'package:epic_wallet/src/ui/settings_history.dart';
 import 'package:epic_wallet/src/ui/settings_pin.dart';
 import 'package:epic_wallet/src/ui/settings_screen.dart';
 import 'package:epic_wallet/src/updater.dart';
-import 'package:epic_wallet/src/vault.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
@@ -25,7 +24,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 const _mainnetDir = '/fake/wallets/mainnet';
-const _password = 'correct horse';
 const _pin = '123456';
 
 class _FakePush implements PushPlatform {
@@ -85,7 +83,7 @@ class _Harness {
   }) {
     if (advanced) store.values['app.advanced'] = 'true';
     if (sealed) {
-      store.values['wallet.mainnet.sealed'] = 'sealed|$_pin|$_password';
+      store.values['wallet.mainnet.pinSealed'] = fakeSealedPassword(_pin);
     }
     service = FakeWalletService(
       existingWallets: walletExists ? {_mainnetDir} : {},
@@ -117,7 +115,6 @@ class _Harness {
           ),
           secretStoreProvider.overrideWithValue(store),
           biometricStoreProvider.overrideWithValue(bio),
-          vaultCryptoProvider.overrideWithValue(FakeVaultCrypto()),
           updatePlatformProvider.overrideWithValue(null),
           relayDirectoryProvider.overrideWithValue(_NoRelays()),
           slateFilesProvider.overrideWithValue(FakeSlateFiles()),
@@ -468,9 +465,10 @@ void main() {
       // The content did not move when the notice left.
       expect(tester.getTopLeft(find.text('Change PIN')), firstTile);
       expect(
-        h.store.values['wallet.mainnet.sealed'],
-        'sealed|654321|$_password',
+        h.store.values['wallet.mainnet.pinSealed'],
+        fakeSealedPassword('654321'),
       );
+      expect(h.service.confirmedPinChanges.last, fakeSealedPassword('654321'));
     });
 
     testWidgets('delete needs the warning, the word and the PIN', (
@@ -512,7 +510,7 @@ void main() {
 
       expect(h.service.deletedWallets, [_mainnetDir]);
       expect(h.cleanups, 1);
-      expect(h.store.values['wallet.mainnet.sealed'], isNull);
+      expect(h.store.values['wallet.mainnet.pinSealed'], isNull);
       // A new wallet on this network starts without the deleted one's backup dates.
       expect(h.store.values['app.history_exported.mainnet'], isNull);
       expect(h.store.values['app.history_reminder_dismissed.mainnet'], isNull);

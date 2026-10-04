@@ -279,9 +279,11 @@ class LepicWalletService implements WalletService {
     );
   }
 
-  lepic.AppSecretStore _store(WalletConfig config) => lepic.lepicSecretStore(
-    _PrefixedStore(_secrets, 'lepic:${config.chain.name}:${config.dataDir}:'),
-  );
+  _PrefixedStore _storeKeys(WalletConfig config) =>
+      _PrefixedStore(_secrets, 'lepic:${config.chain.name}:${config.dataDir}:');
+
+  lepic.AppSecretStore _store(WalletConfig config) =>
+      lepic.lepicSecretStore(_storeKeys(config));
 
   @override
   bool validateMnemonic({required String phrase}) =>
@@ -342,6 +344,52 @@ class LepicWalletService implements WalletService {
   );
 
   @override
+  Future<PinWallet> createWithPin({
+    required WalletConfig config,
+    String? mnemonic,
+    required String pin,
+  }) => _guard(() async {
+    final created = await lepic.EpicWallet.createWithPin(
+      runtime: _runtime,
+      config: _config(config),
+      store: _store(config),
+      mnemonic: mnemonic,
+      pin: pin,
+    );
+    return (
+      session: LepicWalletSession(created.wallet) as WalletSession,
+      sealedPassword: created.sealedPassword,
+    );
+  });
+
+  @override
+  Future<WalletSession> openWithPin({
+    required WalletConfig config,
+    required String pin,
+    required String sealedPassword,
+  }) => _guard(
+    () async => LepicWalletSession(
+      await lepic.EpicWallet.openWithPin(
+        runtime: _runtime,
+        config: _config(config),
+        store: _store(config),
+        pin: pin,
+        sealedPassword: sealedPassword,
+      ),
+    ),
+  );
+
+  /// LEPIC keeps the count in the wallet's store as `lepic.pin-failures` (documented on
+  /// `EpicWallet.openWithPin`). A count that does not parse costs LEPIC the longest wait, so it
+  /// reads as a large one here too.
+  @override
+  Future<int> pinFailures({required WalletConfig config}) async {
+    final text = await _storeKeys(config).read('lepic.pin-failures');
+    if (text == null) return 0;
+    return int.tryParse(text.trim()) ?? 0x7fffffff;
+  }
+
+  @override
   Future<void> deleteWallet({required WalletConfig config}) => _guard(
     () => lepic.deleteWallet(
       runtime: _runtime,
@@ -371,6 +419,32 @@ class LepicWalletSession implements WalletSession {
   @override
   Future<String> mnemonic({required String password}) =>
       _guard(() => _wallet.mnemonic(password: password));
+
+  @override
+  Future<String> mnemonicWithPin({
+    required String pin,
+    required String sealedPassword,
+  }) => _guard(
+    () => _wallet.mnemonicWithPin(pin: pin, sealedPassword: sealedPassword),
+  );
+
+  @override
+  Future<String> changePin({
+    required String sealedPassword,
+    required String oldPin,
+    required String newPin,
+  }) => _guard(
+    () => _wallet.changePin(
+      sealedPassword: sealedPassword,
+      oldPin: oldPin,
+      newPin: newPin,
+    ),
+  );
+
+  @override
+  Future<void> confirmPinChange({required String sealedPassword}) => _guard(
+    () => _wallet.confirmPinChange(sealedPassword: sealedPassword),
+  );
 
   @override
   Future<void> cancelTransaction({required int txId}) =>

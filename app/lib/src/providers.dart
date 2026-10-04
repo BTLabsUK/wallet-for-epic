@@ -50,15 +50,11 @@ final biometricStoreProvider = Provider<BiometricStore>(
   (ref) => PlatformBiometricStore(),
 );
 
-final vaultCryptoProvider = Provider<VaultCrypto>(
-  (ref) => const RustVaultCrypto(),
-);
-
 final vaultProvider = Provider<WalletVault>(
   (ref) => WalletVault(
     store: ref.watch(secretStoreProvider),
     biometrics: ref.watch(biometricStoreProvider),
-    crypto: ref.watch(vaultCryptoProvider),
+    service: ref.watch(walletServiceProvider),
   ),
 );
 
@@ -424,136 +420,6 @@ class ScanNotifier extends Notifier<ScanState> {
   }
 }
 
-/// First-run wallet creation, which runs while the user picks a PIN.
-class WalletSetup {
-  const WalletSetup({this.config, this.session, this.error});
-
-  final WalletConfig? config;
-
-  /// The created (or, after an interrupted first run, reopened) wallet.
-  final WalletSession? session;
-  final Object? error;
-
-  bool get running => config != null && session == null && error == null;
-}
-
-final walletSetupProvider = NotifierProvider<WalletSetupNotifier, WalletSetup>(
-  WalletSetupNotifier.new,
-);
-
-class WalletSetupNotifier extends Notifier<WalletSetup> {
-  Future<String>? _password;
-  Future<void>? _task;
-
-  @override
-  WalletSetup build() => const WalletSetup();
-
-  /// Starts creating the wallet for [config] with a new random password. The password is stored
-  /// before the wallet exists, so an interrupted first run resumes by opening that wallet.
-  void start(WalletConfig config) {
-    if (_task != null && state.config?.dataDir == config.dataDir) return;
-    final vault = ref.read(vaultProvider);
-    final password = vault.pendingPassword(config.chain);
-    _password = password;
-    state = WalletSetup(config: config);
-    _task = _create(config, password);
-  }
-
-  Future<void> _create(WalletConfig config, Future<String> password) async {
-    final service = ref.read(walletServiceProvider);
-    try {
-      final secret = await password;
-      final session = await service.walletExists(config: config)
-          ? await service.open(config: config, password: secret)
-          : await service.create(config: config, password: secret);
-      if (!ref.mounted || state.config?.dataDir != config.dataDir) {
-        session.dispose();
-        return;
-      }
-      state = WalletSetup(config: config, session: session);
-    } catch (error) {
-      logWarn('setup', 'creating the wallet failed: ${describeError(englishStrings, error)}');
-      if (ref.mounted && state.config?.dataDir == config.dataDir) {
-        state = WalletSetup(config: config, error: error);
-      }
-    }
-  }
-
-  /// Tries the creation again after [WalletSetup.error], with the same password.
-  void retry() {
-    final config = state.config;
-    var password = _password;
-    if (config == null || password == null || state.error == null) return;
-    // A failed read of the secure store is retried; a stored password is reused.
-    password = password.catchError(
-      (Object _) => ref.read(vaultProvider).pendingPassword(config.chain),
-    );
-    _password = password;
-    state = WalletSetup(config: config);
-    _task = _create(config, password);
-  }
-
-  /// Seals the password under [pin], and with [useBiometrics] also stores the biometric copy
-  /// (which prompts). Then waits for the wallet and returns it. Returns whether biometrics were
-  /// enabled.
-  Future<({WalletSession session, bool biometrics})> finish({
-    required String pin,
-    required bool useBiometrics,
-  }) async {
-    if (state.error != null) retry();
-    final config = state.config;
-    final password = _password;
-    if (config == null || password == null) {
-      throw StateError('Setup not started');
-    }
-    final vault = ref.read(vaultProvider);
-    final biometrics = await vault.seal(
-      config.chain,
-      pin: pin,
-      password: await password,
-      useBiometrics: useBiometrics,
-    );
-    await _task;
-    final session = state.session;
-    if (session == null) throw state.error ?? StateError('Wallet not created');
-    _reset();
-    return (session: session, biometrics: biometrics);
-  }
-
-  /// Stops caring about the wallet being set up, keeping its files and pending password. A
-  /// later first run on this chain opens it again.
-  Future<void> abandon() async {
-    await _task;
-    state.session?.dispose();
-    _reset();
-  }
-
-  /// Deletes the wallet being set up, for a restore in its place. Safe because its phrase was
-  /// never shown, so it cannot hold funds. Only a wallet still waiting for its PIN counts: one
-  /// with a PIN, or one opened by password (made before PINs existed), is left alone.
-  Future<void> discard(WalletConfig config) async {
-    if (state.config?.dataDir == config.dataDir) {
-      await _task;
-      state.session?.dispose();
-      _reset();
-    }
-    final vault = ref.read(vaultProvider);
-    if (await vault.stage(config.chain) != VaultStage.pending) return;
-    final service = ref.read(walletServiceProvider);
-    if (await service.walletExists(config: config)) {
-      await service.deleteWallet(config: config);
-    }
-    await vault.forget(config.chain);
-  }
-
-  void _reset() {
-    _task = null;
-    _password = null;
-    state = const WalletSetup();
-  }
-}
-
-/// What the epicbox listener of the open wallet is doing.
 class ListenerState {
   const ListenerState({
     this.connected = false,
