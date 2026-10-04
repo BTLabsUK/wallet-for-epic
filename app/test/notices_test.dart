@@ -145,6 +145,11 @@ void main() {
     await mouse.moveTo(tester.getCenter(_card));
     await tester.pump(const Duration(seconds: 20));
     expect(_visible(c), 'Held');
+    // A click inside the card keeps it held while the mouse stays on it.
+    await mouse.down(tester.getCenter(_card));
+    await mouse.up();
+    await tester.pump(const Duration(seconds: 20));
+    expect(_visible(c), 'Held');
     await mouse.moveTo(const Offset(5, 900));
     await tester.pump(const Duration(seconds: 3));
     expect(_visible(c), isNull);

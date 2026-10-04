@@ -1196,6 +1196,34 @@ void main() {
       expect(find.byKey(noticeKey), findsNothing);
     });
 
+    testWidgets('View on a notice that outlived home does nothing', (
+      tester,
+    ) async {
+      final h = _Harness();
+      await h.pump(tester);
+      h.session.listenerEvents.add(
+        ListenerEvent(
+          kind: ListenerEventKind.received,
+          slateId: 'from-alice',
+          message: 'raw',
+          amount: _epic(5),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('View'), findsOneWidget);
+      // What a lock does: home goes, the unlock screen takes the whole stack.
+      Navigator.of(tester.element(find.byType(HomeScreen))).pushAndRemoveUntil(
+        MaterialPageRoute<void>(builder: (_) => const Scaffold()),
+        (_) => false,
+      );
+      await tester.pumpAndSettle();
+      expect(find.byType(HomeScreen), findsNothing);
+      await tester.tap(find.text('View'));
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+      expect(find.byType(TxDetailsScreen), findsNothing);
+    });
+
     testWidgets('payment notices carry their level and View', (tester) async {
       final h = _Harness();
       await h.pump(tester);

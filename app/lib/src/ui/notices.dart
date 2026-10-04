@@ -169,6 +169,7 @@ class NoticeNotifier extends Notifier<Notice?> {
       return;
     }
     if (visible != null && visible.persistent) {
+      // It goes first and stays; over the cap, the newest waiting one gives way to it.
       _queue.insert(0, visible);
       if (_queue.length > maxQueuedNotices) _queue.removeLast();
     }
@@ -349,6 +350,9 @@ class _NoticeCardState extends ConsumerState<NoticeCard> {
   /// How far a swipe has moved the card: sideways either way, or up.
   Offset _drag = Offset.zero;
 
+  /// Whether a mouse is over the card: then lifting a click does not restart the clock.
+  bool _hovering = false;
+
   NoticeNotifier get _notices => ref.read(noticeProvider.notifier);
 
   void _onDragEnd(DragEndDetails details) {
@@ -364,7 +368,11 @@ class _NoticeCardState extends ConsumerState<NoticeCard> {
     } else {
       setState(() => _drag = Offset.zero);
     }
-    _notices.release();
+    _releaseUnlessHovered();
+  }
+
+  void _releaseUnlessHovered() {
+    if (!_hovering) _notices.release();
   }
 
   @override
@@ -449,11 +457,17 @@ class _NoticeCardState extends ConsumerState<NoticeCard> {
     );
     return Listener(
       onPointerDown: (_) => _notices.hold(),
-      onPointerUp: (_) => _notices.release(),
-      onPointerCancel: (_) => _notices.release(),
+      onPointerUp: (_) => _releaseUnlessHovered(),
+      onPointerCancel: (_) => _releaseUnlessHovered(),
       child: MouseRegion(
-        onEnter: (_) => _notices.hold(),
-        onExit: (_) => _notices.release(),
+        onEnter: (_) {
+          _hovering = true;
+          _notices.hold();
+        },
+        onExit: (_) {
+          _hovering = false;
+          _notices.release();
+        },
         child: GestureDetector(
           onPanUpdate: (d) => setState(() => _drag += d.delta),
           onPanEnd: _onDragEnd,

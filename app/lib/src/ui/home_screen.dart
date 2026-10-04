@@ -231,8 +231,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   /// Opens [screen] over home. Coming back does not refresh: screens that change the wallet
   /// reload home themselves, and the timer keeps it current.
   Future<void> _open(Widget screen) =>
-      Navigator.of(context)
-          .push(MaterialPageRoute<void>(builder: (_) => screen));
+      Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => screen));
 
   /// Scans a QR code and shows the Send tab with it as the recipient.
   Future<void> _scan() async {
@@ -325,14 +324,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           level: level,
           action: txKey == null
               ? null
-              : NoticeAction(
-                  context.l10n.homeNoticeView,
-                  () => Navigator.of(context).push(
+              : NoticeAction(context.l10n.homeNoticeView, () {
+                  // The notice outlives home: a lock replaces it with the unlock screen.
+                  if (!mounted) return;
+                  Navigator.of(context).push(
                     MaterialPageRoute<void>(
                       builder: (_) => TxDetailsScreen(txKey: txKey),
                     ),
-                  ),
-                ),
+                  );
+                }),
         );
   }
 
