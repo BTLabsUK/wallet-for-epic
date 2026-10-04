@@ -769,7 +769,23 @@
   },
   "txDetailsNoteLabel": "Note",
   "@txDetailsNoteLabel": {
-    "description": "Label of the payment's note, in the details row and in the note field. The note is the user's own text about the payment."
+    "description": "Label of the field that edits the payment's note. The note is the user's own text about the payment."
+  },
+  "txDetailsPrivateNoteLabel": "Private note, only on this device",
+  "@txDetailsPrivateNoteLabel": {
+    "description": "Label of the details row with the user's own note on the payment. It is never sent to the other party, unlike the message."
+  },
+  "txDetailsMessageFromSender": "Message from the sender",
+  "@txDetailsMessageFromSender": {
+    "description": "Label of the message the person who sent the money wrote into the payment. Shown in payment details and on a transaction file before accepting it."
+  },
+  "txDetailsMessageFromRecipient": "Message from the recipient",
+  "@txDetailsMessageFromRecipient": {
+    "description": "Label of the message the person who received the money wrote into their answer to the payment."
+  },
+  "txDetailsYourMessage": "Your message",
+  "@txDetailsYourMessage": {
+    "description": "Label of the message this wallet's user wrote into the payment, which the other party sees."
   },
   "txDetailsNoNote": "No note. Add one to remember what this was for.",
   "txDetailsAddNote": "Add note",

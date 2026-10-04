@@ -1109,11 +1109,35 @@ abstract class AppLocalizations {
   /// **'Fee'**
   String get txDetailsFee;
 
-  /// Label of the payment's note, in the details row and in the note field. The note is the user's own text about the payment.
+  /// Label of the field that edits the payment's note. The note is the user's own text about the payment.
   ///
   /// In en, this message translates to:
   /// **'Note'**
   String get txDetailsNoteLabel;
+
+  /// Label of the details row with the user's own note on the payment. It is never sent to the other party, unlike the message.
+  ///
+  /// In en, this message translates to:
+  /// **'Private note, only on this device'**
+  String get txDetailsPrivateNoteLabel;
+
+  /// Label of the message the person who sent the money wrote into the payment. Shown in payment details and on a transaction file before accepting it.
+  ///
+  /// In en, this message translates to:
+  /// **'Message from the sender'**
+  String get txDetailsMessageFromSender;
+
+  /// Label of the message the person who received the money wrote into their answer to the payment.
+  ///
+  /// In en, this message translates to:
+  /// **'Message from the recipient'**
+  String get txDetailsMessageFromRecipient;
+
+  /// Label of the message this wallet's user wrote into the payment, which the other party sees.
+  ///
+  /// In en, this message translates to:
+  /// **'Your message'**
+  String get txDetailsYourMessage;
 
   /// No description provided for @txDetailsNoNote.
   ///

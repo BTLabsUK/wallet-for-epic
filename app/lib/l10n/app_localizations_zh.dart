@@ -658,6 +658,18 @@ class AppLocalizationsZh extends AppLocalizations {
   String get txDetailsNoteLabel => '备注';
 
   @override
+  String get txDetailsPrivateNoteLabel => '私人备注，仅保存在本设备';
+
+  @override
+  String get txDetailsMessageFromSender => '发送方的留言';
+
+  @override
+  String get txDetailsMessageFromRecipient => '接收方的留言';
+
+  @override
+  String get txDetailsYourMessage => '你的留言';
+
+  @override
   String get txDetailsNoNote => '暂无备注。添加备注，记下这笔付款的用途。';
 
   @override

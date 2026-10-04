@@ -187,6 +187,29 @@ void main() {
     expect(c.cancellable, isFalse);
   });
 
+  test('slate messages stay on the live row and out of the export', () {
+    const said = [SlateMessage(role: SlateRole.sender, text: 'for lunch')];
+    final row = fakeTx(
+      key: 'l:1',
+      id: 1,
+      slateId: 'slate-9',
+      kind: TxKind.sent,
+      messages: said,
+    );
+    final old = {'messages': <Object?>[]};
+    final merged = mergeHistory([
+      row,
+    ], Meta(records: [record(slate: 'slate-9')..messages = old]));
+    final m = byId(merged, 1);
+    expect(m.tx.messages, said);
+    expect(m.tx.note, 'rent');
+    expect(
+      toRecord(m).messages,
+      same(old),
+      reason: 'a backup keeps what the old core wrote, never LEPIC\'s',
+    );
+  });
+
   test('a record absorbs every restored output of its transaction', () {
     final rows = [
       restored(0, ['o1'], blockHeight: 3),

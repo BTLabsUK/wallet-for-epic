@@ -717,6 +717,19 @@ class AppLocalizationsPl extends AppLocalizations {
   String get txDetailsNoteLabel => 'Notatka';
 
   @override
+  String get txDetailsPrivateNoteLabel =>
+      'Prywatna notatka, tylko na tym urządzeniu';
+
+  @override
+  String get txDetailsMessageFromSender => 'Wiadomość od nadawcy';
+
+  @override
+  String get txDetailsMessageFromRecipient => 'Wiadomość od odbiorcy';
+
+  @override
+  String get txDetailsYourMessage => 'Twoja wiadomość';
+
+  @override
   String get txDetailsNoNote =>
       'Brak notatki. Dodaj ją, aby pamiętać, czego dotyczyła płatność.';
 

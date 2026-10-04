@@ -696,6 +696,18 @@ class AppLocalizationsDe extends AppLocalizations {
   String get txDetailsNoteLabel => 'Notiz';
 
   @override
+  String get txDetailsPrivateNoteLabel => 'Private Notiz, nur auf diesem Gerät';
+
+  @override
+  String get txDetailsMessageFromSender => 'Nachricht des Absenders';
+
+  @override
+  String get txDetailsMessageFromRecipient => 'Nachricht des Empfängers';
+
+  @override
+  String get txDetailsYourMessage => 'Ihre Nachricht';
+
+  @override
   String get txDetailsNoNote =>
       'Keine Notiz. Fügen Sie eine hinzu, um sich zu merken, wofür diese Zahlung war.';
 

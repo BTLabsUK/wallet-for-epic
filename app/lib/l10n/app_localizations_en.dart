@@ -692,6 +692,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get txDetailsNoteLabel => 'Note';
 
   @override
+  String get txDetailsPrivateNoteLabel => 'Private note, only on this device';
+
+  @override
+  String get txDetailsMessageFromSender => 'Message from the sender';
+
+  @override
+  String get txDetailsMessageFromRecipient => 'Message from the recipient';
+
+  @override
+  String get txDetailsYourMessage => 'Your message';
+
+  @override
   String get txDetailsNoNote =>
       'No note. Add one to remember what this was for.';
 

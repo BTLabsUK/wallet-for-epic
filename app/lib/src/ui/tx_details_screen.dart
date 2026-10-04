@@ -394,6 +394,13 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
     final fee = tx.fee;
     final blockTime = tx.blockTimeUnix;
     final note = tx.note;
+    // The money's side this wallet is on writes "your" message; the other side's is theirs.
+    final ownRole = outgoing ? SlateRole.sender : SlateRole.receiver;
+    final ownMessage = messageBy(tx.messages, ownRole);
+    final theirMessage = messageBy(
+      tx.messages,
+      outgoing ? SlateRole.receiver : SlateRole.sender,
+    );
     final singleOutput = tx.outputCommits.length == 1;
 
     return SlotScaffold(
@@ -528,10 +535,19 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
               label: l.txDetailsFee,
               value: shownEpic(l, fee, hidden: hidden),
             ),
+          if (theirMessage != null)
+            _DetailRow(
+              label: outgoing
+                  ? l.txDetailsMessageFromRecipient
+                  : l.txDetailsMessageFromSender,
+              value: theirMessage,
+            ),
+          if (ownMessage != null)
+            _DetailRow(label: l.txDetailsYourMessage, value: ownMessage),
           ListTile(
             contentPadding: EdgeInsets.zero,
             title: Text(
-              l.txDetailsNoteLabel,
+              l.txDetailsPrivateNoteLabel,
               style: theme.textTheme.labelLarge,
             ),
             subtitle: Text(note ?? l.txDetailsNoNote),

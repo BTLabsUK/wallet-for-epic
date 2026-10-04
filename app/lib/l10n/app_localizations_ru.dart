@@ -715,6 +715,19 @@ class AppLocalizationsRu extends AppLocalizations {
   String get txDetailsNoteLabel => 'Заметка';
 
   @override
+  String get txDetailsPrivateNoteLabel =>
+      'Личная заметка, только на этом устройстве';
+
+  @override
+  String get txDetailsMessageFromSender => 'Сообщение отправителя';
+
+  @override
+  String get txDetailsMessageFromRecipient => 'Сообщение получателя';
+
+  @override
+  String get txDetailsYourMessage => 'Ваше сообщение';
+
+  @override
   String get txDetailsNoNote =>
       'Заметки нет. Добавьте её, чтобы помнить, за что этот платёж.';
 

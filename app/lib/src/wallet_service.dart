@@ -134,9 +134,12 @@ abstract interface class WalletSession {
   /// when the node shows the payment on chain or in its pool.
   Future<void> releaseStuckSend({required String key});
 
+  /// [message], when set, is signed into the slate for the recipient to see; LEPIC cuts it
+  /// to [slateMessageMaxBytes].
   Future<Slate> createSendSlate({
     required BigInt amount,
     required BigInt minimumConfirmations,
+    String? message,
   });
 
   Future<String> epicboxAddress();
@@ -149,10 +152,12 @@ abstract interface class WalletSession {
   Future<TxEntry> finalizeAndPost({required String slateJson});
 
   /// Posts a send over epicbox. The listener finalizes it when the recipient answers.
+  /// [message] as for [createSendSlate].
   Future<TxEntry> sendEpicbox({
     required BigInt amount,
     required BigInt minimumConfirmations,
     required String address,
+    String? message,
   });
 
   /// Starts the epicbox listener and streams its events. It runs until [stopListener] or
@@ -511,6 +516,9 @@ class FakeWalletSession implements WalletSession {
   String phrase = FakeWalletService._defaultPhrase;
   final List<int> cancelledTxIds = [];
   final List<BigInt> sentAmounts = [];
+
+  /// The message of every [createSendSlate] and [sendEpicbox] call, null when none was given.
+  final List<String?> sentMessages = [];
   final List<String> finalizedSlates = [];
   final List<String> receivedSlates = [];
   int scanCalls = 0;
@@ -610,9 +618,11 @@ class FakeWalletSession implements WalletSession {
   Future<Slate> createSendSlate({
     required BigInt amount,
     required BigInt minimumConfirmations,
+    String? message,
   }) async {
     _checkFunds(amount);
     sentAmounts.add(amount);
+    sentMessages.add(message);
     return sendSlate;
   }
 
@@ -662,7 +672,7 @@ class FakeWalletSession implements WalletSession {
     );
   }
 
-  TxEntry _pendingSend(BigInt amount, {String? to}) => fakeTx(
+  TxEntry _pendingSend(BigInt amount, {String? to, String? message}) => fakeTx(
     id: 100 + epicboxSends.length,
     slateId: 'send-${epicboxSends.length}',
     kind: TxKind.sent,
@@ -673,6 +683,9 @@ class FakeWalletSession implements WalletSession {
     numInputs: 1,
     numOutputs: 0,
     counterparty: to,
+    messages: [
+      if (message != null) SlateMessage(role: SlateRole.sender, text: message),
+    ],
     cancellable: true,
   );
 
@@ -681,11 +694,13 @@ class FakeWalletSession implements WalletSession {
     required BigInt amount,
     required BigInt minimumConfirmations,
     required String address,
+    String? message,
   }) async {
     if (sendError != null) throw sendError!;
     _checkFunds(amount);
     epicboxSends.add((amount: amount, to: address));
-    return _pendingSend(amount, to: address);
+    sentMessages.add(message);
+    return _pendingSend(amount, to: address, message: message);
   }
 
   @override
@@ -1328,6 +1343,7 @@ TxEntry fakeTx({
   List<String> outputCommits = const [],
   String? counterparty,
   String? note,
+  List<SlateMessage> messages = const [],
   BigInt? ttlCutoffHeight,
   bool cancellable = false,
   bool repostable = false,
@@ -1368,6 +1384,7 @@ TxEntry fakeTx({
     outputCommits: outputCommits,
     counterparty: counterparty,
     note: note,
+    messages: messages,
     ttlCutoffHeight: ttlCutoffHeight,
     cancellable: cancellable,
     repostable: repostable,
@@ -1400,6 +1417,7 @@ TxEntry copyTx(TxEntry tx, {String? note}) => TxEntry(
   outputCommits: tx.outputCommits,
   counterparty: tx.counterparty,
   note: note,
+  messages: tx.messages,
   ttlCutoffHeight: tx.ttlCutoffHeight,
   cancellable: tx.cancellable,
   repostable: tx.repostable,

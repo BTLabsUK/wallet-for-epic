@@ -192,6 +192,11 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
       body = [];
     } else {
       final receiving = info.stage == SlateStage.send;
+      // The other party's words: the sender's on a payment to us, the recipient's on an answer.
+      final message = messageBy(
+        info.messages,
+        receiving ? SlateRole.sender : SlateRole.receiver,
+      );
       body = [
         Text(
           widget.pasted ? l.slatePastedTitle : widget.file.name,
@@ -209,6 +214,17 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
         ),
         const SizedBox(height: 8),
         Text(receiving ? l.slateIncomingSendHint : l.slateIncomingResponseHint),
+        if (message != null) ...[
+          const SizedBox(height: 16),
+          Text(
+            receiving
+                ? l.txDetailsMessageFromSender
+                : l.txDetailsMessageFromRecipient,
+            style: theme.textTheme.labelLarge,
+          ),
+          const SizedBox(height: 4),
+          SelectableText(message, style: theme.textTheme.bodyLarge),
+        ],
         const SizedBox(height: 24),
         if (_error == null)
           BusyButton(

@@ -834,6 +834,68 @@ void main() {
       expect(find.text('Note saved'), findsOneWidget);
     });
 
+    testWidgets('a received message shows apart from the private note', (
+      tester,
+    ) async {
+      final h = _Harness(
+        transactions: [
+          fakeTx(
+            id: 3,
+            slateId: 'from-alice',
+            kind: TxKind.received,
+            status: TxStatus.confirmed,
+            blockHeight: _tip - BigInt.from(700),
+            amountCredited: _epic(5),
+            note: 'Rent share',
+            messages: const [
+              SlateMessage(role: SlateRole.sender, text: 'September rent'),
+            ],
+          ),
+        ],
+      );
+      await h.pump(tester, const TxDetailsScreen(txKey: 's:from-alice'));
+      expect(find.text('Message from the sender'), findsOneWidget);
+      expect(find.text('September rent'), findsOneWidget);
+      expect(find.text('Your message'), findsNothing);
+      expect(find.text('Private note, only on this device'), findsOneWidget);
+      expect(find.text('Rent share'), findsOneWidget);
+    });
+
+    testWidgets('a finished send shows both parties\' messages', (
+      tester,
+    ) async {
+      final h = _Harness(
+        transactions: [
+          fakeTx(
+            id: 4,
+            slateId: 'send-bob',
+            kind: TxKind.sent,
+            status: TxStatus.awaitingConfirmation,
+            amountDebited: _epic(3),
+            fee: _epic(0.008),
+            counterparty: _bob,
+            messages: const [
+              SlateMessage(role: SlateRole.sender, text: 'for the pizza'),
+              SlateMessage(role: SlateRole.receiver, text: 'thanks!'),
+            ],
+          ),
+        ],
+      );
+      await h.pump(tester, const TxDetailsScreen(txKey: 's:send-bob'));
+      expect(find.text('Your message'), findsOneWidget);
+      expect(find.text('for the pizza'), findsOneWidget);
+      expect(find.text('Message from the recipient'), findsOneWidget);
+      expect(find.text('thanks!'), findsOneWidget);
+      expect(find.text('Message from the sender'), findsNothing);
+    });
+
+    testWidgets('a payment without messages shows none', (tester) async {
+      final h = _Harness();
+      await h.pump(tester, const TxDetailsScreen(txKey: 's:from-alice'));
+      expect(find.text('Message from the sender'), findsNothing);
+      expect(find.text('Your message'), findsNothing);
+    });
+
     testWidgets('cancels a waiting send after confirmation', (tester) async {
       final h = _Harness();
       h.session.contactsValue.add(

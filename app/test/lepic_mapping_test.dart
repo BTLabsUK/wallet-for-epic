@@ -15,6 +15,61 @@ class _NoNativeWallet implements lepic.EpicWallet {
       throw StateError('reached LEPIC: ${invocation.memberName}');
 }
 
+/// Records the message of each send and answers with one stored transaction.
+class _SendingWallet extends _NoNativeWallet {
+  final List<String?> messages = [];
+
+  lepic.TransactionDetails get _stored => lepic.TransactionDetails(
+    txId: 5,
+    direction: lepic.TxDirection.outgoing,
+    status: lepic.TxStatus.sent,
+    slateId: 'sent-1',
+    amountCredited: BigInt.zero,
+    amountDebited: BigInt.from(11),
+    fee: BigInt.one,
+    createdAtMs: 1790000000000,
+    releasable: false,
+    messages: [
+      for (final m in messages)
+        if (m != null)
+          lepic.SlateMessage(role: lepic.SlateRole.sender, text: m),
+    ],
+  );
+
+  @override
+  Future<lepic.Slate> createSendSlate({
+    required BigInt amount,
+    required BigInt minimumConfirmations,
+    String? message,
+  }) async {
+    messages.add(message);
+    return const lepic.Slate(txId: 5, slateId: 'sent-1', json: '{}');
+  }
+
+  @override
+  Future<lepic.SentTx> sendEpicbox({
+    required BigInt amount,
+    required BigInt minimumConfirmations,
+    required String address,
+    String? message,
+  }) async {
+    messages.add(message);
+    return lepic.SentTx(
+      txId: 5,
+      slateId: 'sent-1',
+      amount: amount,
+      fee: BigInt.one,
+    );
+  }
+
+  @override
+  Future<List<lepic.TransactionDetails>> transactions() async => [_stored];
+
+  @override
+  Future<lepic.TransactionDetails> transaction({required int txId}) async =>
+      _stored;
+}
+
 void main() {
   group('error mapping', () {
     lepic.WalletError error(lepic.WalletErrorKind kind) =>
@@ -125,6 +180,64 @@ void main() {
     );
   });
 
+  test('a slate\'s messages keep their role and text', () {
+    final info = lepicSlateInfo(
+      lepic.SlateInfo(
+        slateId: 'abc',
+        version: 3,
+        stage: lepic.SlateStage.s2,
+        amount: BigInt.from(7),
+        fee: BigInt.one,
+        messages: const [
+          lepic.SlateMessage(role: lepic.SlateRole.sender, text: 'for lunch'),
+          lepic.SlateMessage(role: lepic.SlateRole.receiver, text: 'thanks'),
+        ],
+      ),
+    );
+    expect(info.messages, const [
+      SlateMessage(role: SlateRole.sender, text: 'for lunch'),
+      SlateMessage(role: SlateRole.receiver, text: 'thanks'),
+    ]);
+    expect(messageBy(info.messages, SlateRole.receiver), 'thanks');
+  });
+
+  group('send messages reach LEPIC', () {
+    test('trimmed, and none when blank or missing', () async {
+      final wallet = _SendingWallet();
+      final session = LepicWalletSession(wallet);
+      await session.createSendSlate(
+        amount: BigInt.from(10),
+        minimumConfirmations: BigInt.from(10),
+        message: '  for lunch ',
+      );
+      await session.createSendSlate(
+        amount: BigInt.from(10),
+        minimumConfirmations: BigInt.from(10),
+        message: '   ',
+      );
+      await session.createSendSlate(
+        amount: BigInt.from(10),
+        minimumConfirmations: BigInt.from(10),
+      );
+      expect(wallet.messages, ['for lunch', null, null]);
+    });
+
+    test('an epicbox send returns its row with the message', () async {
+      final wallet = _SendingWallet();
+      final session = LepicWalletSession(wallet);
+      final row = await session.sendEpicbox(
+        amount: BigInt.from(10),
+        minimumConfirmations: BigInt.from(10),
+        address: 'key@relay',
+        message: 'rent',
+      );
+      expect(wallet.messages, ['rent']);
+      expect(row.messages, const [
+        SlateMessage(role: SlateRole.sender, text: 'rent'),
+      ]);
+    });
+  });
+
   test('a repeated receive keeps its flag and the first answer', () {
     lepic.ReceivedSlate received({required bool repeated}) =>
         lepic.ReceivedSlate(
@@ -210,6 +323,7 @@ void main() {
       int? confirmedAtMs,
       BigInt? confirmedHeight,
       bool releasable = false,
+      List<lepic.SlateMessage> messages = const [],
     }) => lepic.TransactionDetails(
       txId: 7,
       direction: direction,
@@ -225,6 +339,7 @@ void main() {
       counterparty: 'key@relay',
       ttlCutoffHeight: BigInt.from(99),
       releasable: releasable,
+      messages: messages,
     );
 
     test('a send waiting for its answer can be cancelled', () {
@@ -292,6 +407,22 @@ void main() {
       );
       expect(row.kind, TxKind.received);
       expect(row.source, TxSource.restored);
+      expect(row.messages, isEmpty);
+    });
+
+    test('a receive carries the sender\'s verified message', () {
+      final row = lepicTxEntry(
+        details(
+          direction: lepic.TxDirection.incoming,
+          status: lepic.TxStatus.received,
+          messages: const [
+            lepic.SlateMessage(role: lepic.SlateRole.sender, text: 'hi'),
+          ],
+        ),
+      );
+      expect(row.messages, const [
+        SlateMessage(role: SlateRole.sender, text: 'hi'),
+      ]);
     });
   });
 }

@@ -301,6 +301,45 @@ class ReceivedSlate extends Slate {
       super == other && other is ReceivedSlate && repeated == other.repeated;
 }
 
+/// Which side of the money a slate message's author is on.
+enum SlateRole { sender, receiver }
+
+/// A participant's message as the slate carries it, epic-wallet's `send --message`. It travels
+/// with the slate, so the other party sees it, unlike [TxEntry.note].
+class SlateMessage {
+  final SlateRole role;
+  final String text;
+
+  const SlateMessage({required this.role, required this.text});
+
+  @override
+  int get hashCode => role.hashCode ^ text.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is SlateMessage &&
+          runtimeType == other.runtimeType &&
+          role == other.role &&
+          text == other.text;
+}
+
+/// The longest slate message LEPIC signs, in UTF-8 bytes; it cuts a longer one there.
+const int slateMessageMaxBytes = 256;
+
+/// The text of the first message by [role] in [messages], or null.
+String? messageBy(List<SlateMessage> messages, SlateRole role) =>
+    messages.where((m) => m.role == role).firstOrNull?.text;
+
+bool _listEquals<T>(List<T> a, List<T> b) {
+  if (identical(a, b)) return true;
+  if (a.length != b.length) return false;
+  for (var i = 0; i < a.length; i++) {
+    if (a[i] != b[i]) return false;
+  }
+  return true;
+}
+
 /// A slate's header, read without touching the wallet.
 class SlateInfo {
   final String slateId;
@@ -308,16 +347,24 @@ class SlateInfo {
   final BigInt fee;
   final SlateStage stage;
 
+  /// The parties' messages, in the order they joined. Their signatures are not checked.
+  final List<SlateMessage> messages;
+
   const SlateInfo({
     required this.slateId,
     required this.amount,
     required this.fee,
     required this.stage,
+    this.messages = const [],
   });
 
   @override
   int get hashCode =>
-      slateId.hashCode ^ amount.hashCode ^ fee.hashCode ^ stage.hashCode;
+      slateId.hashCode ^
+      amount.hashCode ^
+      fee.hashCode ^
+      stage.hashCode ^
+      Object.hashAll(messages);
 
   @override
   bool operator ==(Object other) =>
@@ -327,7 +374,8 @@ class SlateInfo {
           slateId == other.slateId &&
           amount == other.amount &&
           fee == other.fee &&
-          stage == other.stage;
+          stage == other.stage &&
+          _listEquals(messages, other.messages);
 }
 
 /// What a slate file asks this wallet to do.
@@ -372,7 +420,13 @@ class TxEntry {
 
   /// Epicbox address or URL of the other side, when known.
   final String? counterparty;
+
+  /// The user's private note. It stays on this device and in history backups.
   final String? note;
+
+  /// The parties' signed slate messages, which both sides see. Empty for a restored or imported
+  /// row.
+  final List<SlateMessage> messages;
   final BigInt? ttlCutoffHeight;
 
   /// True when `cancel_transaction(id)` is allowed.
@@ -417,6 +471,7 @@ class TxEntry {
     required this.outputCommits,
     this.counterparty,
     this.note,
+    this.messages = const [],
     this.ttlCutoffHeight,
     required this.cancellable,
     required this.repostable,
@@ -448,6 +503,7 @@ class TxEntry {
       outputCommits.hashCode ^
       counterparty.hashCode ^
       note.hashCode ^
+      Object.hashAll(messages) ^
       ttlCutoffHeight.hashCode ^
       cancellable.hashCode ^
       repostable.hashCode ^
@@ -481,6 +537,7 @@ class TxEntry {
           outputCommits == other.outputCommits &&
           counterparty == other.counterparty &&
           note == other.note &&
+          _listEquals(messages, other.messages) &&
           ttlCutoffHeight == other.ttlCutoffHeight &&
           cancellable == other.cancellable &&
           repostable == other.repostable &&

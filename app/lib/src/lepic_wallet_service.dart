@@ -125,6 +125,24 @@ ListenerEvent lepicListenerEvent(lepic.ListenerEvent e) => ListenerEvent(
 ReceivedSlate lepicReceivedSlate(lepic.ReceivedSlate s) =>
     ReceivedSlate(slateId: s.slateId, json: s.json, repeated: s.repeated);
 
+/// LEPIC's slate messages as the app's.
+List<SlateMessage> lepicMessages(List<lepic.SlateMessage> messages) => [
+  for (final m in messages)
+    SlateMessage(
+      role: switch (m.role) {
+        lepic.SlateRole.sender => SlateRole.sender,
+        lepic.SlateRole.receiver => SlateRole.receiver,
+      },
+      text: m.text,
+    ),
+];
+
+/// A message as LEPIC takes it: trimmed, and none when blank.
+String? _message(String? text) {
+  final t = text?.trim() ?? '';
+  return t.isEmpty ? null : t;
+}
+
 /// LEPIC's reading of a slate as the old core's. LEPIC names every step; the app tells only a
 /// send to sign from an answer to finalize, as the old core did: a finalized S3 reads as an
 /// answer, and every invoice step as an invoice, which the app refuses.
@@ -139,6 +157,7 @@ SlateInfo lepicSlateInfo(lepic.SlateInfo info) => SlateInfo(
     lepic.SlateStage.i2 ||
     lepic.SlateStage.i3 => SlateStage.invoice,
   },
+  messages: lepicMessages(info.messages),
 );
 
 /// The local transaction id in a history key this service made (`l:<id>`).
@@ -154,7 +173,8 @@ int lepicTxId(String key) {
 }
 
 /// A LEPIC transaction as a history row. Keys are `l:<tx id>` ([lepicTxId]). Notes, contacts
-/// and imported rows are the app's (H-01), so `note` stays empty here.
+/// and imported rows are the app's (H-01), so `note` stays empty here; `messages` are the
+/// slate's, which LEPIC verified.
 TxEntry lepicTxEntry(lepic.TransactionDetails d) {
   final outgoing = d.direction == lepic.TxDirection.outgoing;
   final ended =
@@ -198,6 +218,7 @@ TxEntry lepicTxEntry(lepic.TransactionDetails d) {
     kernelExcess: d.kernelExcess,
     outputCommits: const [],
     counterparty: d.counterparty,
+    messages: lepicMessages(d.messages),
     ttlCutoffHeight: d.ttlCutoffHeight,
     cancellable:
         d.status == lepic.TxStatus.sent || d.status == lepic.TxStatus.received,
@@ -503,10 +524,12 @@ class LepicWalletSession implements WalletSession {
   Future<Slate> createSendSlate({
     required BigInt amount,
     required BigInt minimumConfirmations,
+    String? message,
   }) => _guard(() async {
     final slate = await _wallet.createSendSlate(
       amount: amount,
       minimumConfirmations: minimumConfirmations,
+      message: _message(message),
     );
     return Slate(slateId: slate.slateId, json: slate.json);
   });
@@ -547,11 +570,13 @@ class LepicWalletSession implements WalletSession {
     required BigInt amount,
     required BigInt minimumConfirmations,
     required String address,
+    String? message,
   }) => _guard(() async {
     final tx = await _wallet.sendEpicbox(
       amount: amount,
       minimumConfirmations: minimumConfirmations,
       address: address,
+      message: _message(message),
     );
     return _entry(tx.txId);
   });

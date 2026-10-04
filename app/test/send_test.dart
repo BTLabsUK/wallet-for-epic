@@ -106,12 +106,14 @@ class _GatedSession extends FakeWalletSession {
     required BigInt amount,
     required BigInt minimumConfirmations,
     required String address,
+    String? message,
   }) async {
     await sendGate?.future;
     return super.sendEpicbox(
       amount: amount,
       minimumConfirmations: minimumConfirmations,
       address: address,
+      message: message,
     );
   }
 
@@ -1793,6 +1795,76 @@ void main() {
   });
 
   group('receive', () {
+    testWidgets('a file shows the sender\'s message before it is accepted', (
+      tester,
+    ) async {
+      final h = _Harness();
+      const incoming = '{"id":"incoming"}';
+      h.service.slateInfos[incoming] = SlateInfo(
+        slateId: 'incoming',
+        amount: _epic(3),
+        fee: BigInt.zero,
+        stage: SlateStage.send,
+        messages: const [SlateMessage(role: SlateRole.sender, text: 'hi Bob')],
+      );
+      await h.pump(
+        tester,
+        const SlateFileScreen(
+          file: SlateFile(name: 'from-alice.tx', json: incoming),
+        ),
+      );
+      expect(find.text('Message from the sender'), findsOneWidget);
+      expect(find.text('hi Bob'), findsOneWidget);
+      expect(h.session.receivedSlates, isEmpty);
+    });
+
+    testWidgets('an answer shows the recipient\'s message, not ours', (
+      tester,
+    ) async {
+      final h = _Harness();
+      h.service.slateInfos[h.session.responseSlate.json] = SlateInfo(
+        slateId: 'slate-2',
+        amount: _epic(3),
+        fee: _epic(0.008),
+        stage: SlateStage.response,
+        messages: const [
+          SlateMessage(role: SlateRole.sender, text: 'ours'),
+          SlateMessage(role: SlateRole.receiver, text: 'got it'),
+        ],
+      );
+      await h.pump(
+        tester,
+        SlateFileScreen(
+          file: SlateFile(
+            name: 'pay.tx.response',
+            json: h.session.responseSlate.json,
+          ),
+        ),
+      );
+      expect(find.text('Message from the recipient'), findsOneWidget);
+      expect(find.text('got it'), findsOneWidget);
+      expect(find.text('ours'), findsNothing);
+    });
+
+    testWidgets('a file without a message shows none', (tester) async {
+      final h = _Harness();
+      const incoming = '{"id":"incoming"}';
+      h.service.slateInfos[incoming] = SlateInfo(
+        slateId: 'incoming',
+        amount: _epic(3),
+        fee: BigInt.zero,
+        stage: SlateStage.send,
+      );
+      await h.pump(
+        tester,
+        const SlateFileScreen(
+          file: SlateFile(name: 'from-alice.tx', json: incoming),
+        ),
+      );
+      expect(find.text('Someone is sending you 3 EPIC.'), findsOneWidget);
+      expect(find.text('Message from the sender'), findsNothing);
+    });
+
     testWidgets('a file accepted before says so and hands out the same answer', (
       tester,
     ) async {

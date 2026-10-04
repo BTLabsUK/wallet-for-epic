@@ -102,6 +102,7 @@ class MergedTx {
       outputCommits = [...e.outputCommits],
       counterparty = e.counterparty,
       note = e.note,
+      messages = e.messages,
       ttlCutoffHeight = e.ttlCutoffHeight,
       cancellable = e.cancellable,
       repostable = e.repostable,
@@ -130,6 +131,10 @@ class MergedTx {
   List<String> outputCommits;
   String? counterparty;
   String? note;
+
+  /// The live row's slate messages, shown in details. Not exported: a backup's `messages` is
+  /// [recordMessages].
+  List<SlateMessage> messages;
   BigInt? ttlCutoffHeight;
   bool cancellable;
   bool repostable;
@@ -141,7 +146,9 @@ class MergedTx {
   /// Every key the transaction was ever known by, for notes.
   List<String> aliases = const [];
   BigInt? kernelLookupMinHeight;
-  Object? messages;
+
+  /// A record's `messages` as the old core wrote them, kept for the next export.
+  Object? recordMessages;
   Object? paymentProof;
 
   TxEntry get tx => TxEntry(
@@ -165,6 +172,7 @@ class MergedTx {
     outputCommits: List.unmodifiable(outputCommits),
     counterparty: counterparty,
     note: note,
+    messages: messages,
     ttlCutoffHeight: ttlCutoffHeight,
     cancellable: cancellable,
     repostable: repostable,
@@ -225,7 +233,7 @@ MergedTx _fromRecord(Record r) {
     ),
   );
   m.kernelLookupMinHeight = r.kernelLookupMinHeight;
-  m.messages = r.messages;
+  m.recordMessages = r.messages;
   m.paymentProof = r.paymentProof;
   return m;
 }
@@ -254,7 +262,7 @@ void _absorb(MergedTx m, Record r) {
     if (!m.outputCommits.contains(c)) m.outputCommits.add(c);
   }
   m.kernelLookupMinHeight ??= r.kernelLookupMinHeight;
-  m.messages ??= r.messages;
+  m.recordMessages ??= r.messages;
   m.paymentProof ??= r.paymentProof;
 }
 
@@ -503,7 +511,7 @@ Record toRecord(MergedTx m) => Record(
   counterparty: m.counterparty,
   note: m.note,
   ttlCutoffHeight: m.ttlCutoffHeight,
-  messages: m.messages,
+  messages: m.recordMessages,
   paymentProof: m.paymentProof,
   statusDetail: m.statusDetail,
   cancelReason: m.cancelReason == null
