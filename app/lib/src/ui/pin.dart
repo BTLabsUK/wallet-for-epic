@@ -242,10 +242,7 @@ class _PinWaitNoteState extends State<PinWaitNote> {
   @override
   void initState() {
     super.initState();
-    _tick = Timer.periodic(
-      const Duration(seconds: 1),
-      (_) => setState(() {}),
-    );
+    _tick = Timer.periodic(const Duration(seconds: 1), (_) => setState(() {}));
   }
 
   @override
@@ -396,45 +393,50 @@ class _PinPromptDialogState<T extends Object>
   Widget build(BuildContext context) {
     final l = context.l10n;
     final checkAt = _checkAt;
-    return AlertDialog(
-      title: Text(l.pinPromptTitle),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          if (widget.reason != null) ...[
-            Text(widget.reason!),
-            const SizedBox(height: 16),
-          ],
-          PinField(
-            controller: _pin,
-            label: l.pinLabel,
-            enabled: !_busy,
-            errorText: _error,
-            onCompleted: _run,
-          ),
-          if (_busy) ...[
-            const SizedBox(height: 8),
-            const LinearProgressIndicator(),
-            if (checkAt != null) ...[
-              const SizedBox(height: 8),
-              PinWaitNote(until: checkAt),
+    // Closing the dialog would not stop a running action (LEPIC may wait up to an hour before
+    // it checks the PIN), so it stays open until the action ends.
+    return PopScope(
+      canPop: !_busy,
+      child: AlertDialog(
+        title: Text(l.pinPromptTitle),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            if (widget.reason != null) ...[
+              Text(widget.reason!),
+              const SizedBox(height: 16),
             ],
-          ],
-          if (_biometrics)
-            TextButton.icon(
-              icon: const Icon(Icons.fingerprint),
-              label: Text(l.pinUseBiometrics),
-              onPressed: _busy ? null : _useBiometrics,
+            PinField(
+              controller: _pin,
+              label: l.pinLabel,
+              enabled: !_busy,
+              errorText: _error,
+              onCompleted: _run,
             ),
+            if (_busy) ...[
+              const SizedBox(height: 8),
+              const LinearProgressIndicator(),
+              if (checkAt != null) ...[
+                const SizedBox(height: 8),
+                PinWaitNote(until: checkAt),
+              ],
+            ],
+            if (_biometrics)
+              TextButton.icon(
+                icon: const Icon(Icons.fingerprint),
+                label: Text(l.pinUseBiometrics),
+                onPressed: _busy ? null : _useBiometrics,
+              ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: _busy ? null : () => Navigator.pop(context),
+            child: Text(l.commonCancel),
+          ),
         ],
       ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: Text(l.commonCancel),
-        ),
-      ],
     );
   }
 }
