@@ -34,8 +34,8 @@ void main() {
       expect(() => CoreBackend.parse('lepik'), throwsArgumentError);
     });
 
-    test('a plain test build runs the epic-wallet core', () {
-      expect(coreBackend, CoreBackend.epicWallet);
+    test('a plain build runs LEPIC', () {
+      expect(coreBackend, CoreBackend.lepic);
     });
   });
 
@@ -65,6 +65,8 @@ void main() {
       );
       for (final kind in [
         lepic.WalletErrorKind.onChain,
+        lepic.WalletErrorKind.inPool,
+        lepic.WalletErrorKind.notReleasable,
         lepic.WalletErrorKind.foreignAppData,
         lepic.WalletErrorKind.damagedAppData,
       ]) {
@@ -111,7 +113,6 @@ void main() {
     final calls = <String, Future<Object?> Function()>{
       'generateMnemonic': () async => service.generateMnemonic(wordCount: 24),
       'inspectSlate': () async => service.inspectSlate(json: '{}'),
-      'releaseStuckSend': () => session.releaseStuckSend(key: 'l:1'),
       'sendHttp': () => session.sendHttp(
         amount: one,
         minimumConfirmations: one,
@@ -145,6 +146,7 @@ void main() {
       String? slateId = 'slate-1',
       int? confirmedAtMs,
       BigInt? confirmedHeight,
+      bool releasable = false,
     }) => lepic.TransactionDetails(
       txId: 7,
       direction: direction,
@@ -159,6 +161,7 @@ void main() {
       kernelExcess: 'ab',
       counterparty: 'key@relay',
       ttlCutoffHeight: BigInt.from(99),
+      releasable: releasable,
     );
 
     test('a send waiting for its answer can be cancelled', () {
@@ -179,6 +182,14 @@ void main() {
       expect(row.status, TxStatus.awaitingConfirmation);
       expect(row.repostable, isTrue);
       expect(row.cancellable, isFalse);
+      expect(row.releasable, isFalse);
+    });
+
+    test('a send LEPIC lets go of is releasable', () {
+      final row = lepicTxEntry(
+        details(status: lepic.TxStatus.posted, releasable: true),
+      );
+      expect(row.releasable, isTrue);
     });
 
     test('a confirmed send carries its block and the confirmation time', () {

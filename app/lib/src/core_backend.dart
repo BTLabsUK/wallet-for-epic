@@ -2,8 +2,8 @@
 ///
 ///     flutter run --dart-define=WFE_CORE=lepic
 ///
-/// `epicwallet` (the default) is `app/rust` over epic-wallet. `lepic` is the LEPIC library
-///, still missing features; [LepicWalletService] lists them.
+/// `lepic` (the default) is the LEPIC library. `epicwallet` is `app/rust`
+/// over epic-wallet, kept until LEPIC covers the vault and logging (R-01 removes it).
 library;
 
 enum CoreBackend {
@@ -27,7 +27,7 @@ enum CoreBackend {
 
 const String _coreDefine = String.fromEnvironment(
   'WFE_CORE',
-  defaultValue: 'epicwallet',
+  defaultValue: 'lepic',
 );
 
 /// The backend this build was compiled for. An unknown `WFE_CORE` fails at the first read, so a

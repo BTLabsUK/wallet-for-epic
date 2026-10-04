@@ -1,6 +1,6 @@
 /// [WalletService] over the LEPIC library (`package:lepic`, pinned by `tools/lepic.rev`).
 ///
-/// Selected with `--dart-define=WFE_CORE=lepic` (`core_backend.dart`). It speaks the same
+/// The default core (`core_backend.dart`); `WFE_CORE=epicwallet` selects the old one. It speaks the same
 /// interface as [RustWalletService], so the UI does not know which core runs. LEPIC lacks some
 /// calls the UI uses; [lepicMissing] lists them, and each throws [lepicUnsupported] until the
 /// matching request to LEPIC lands and the pin moves. `contacts` answers
@@ -23,7 +23,6 @@ const Map<String, String> lepicMissing = {
   'generateMnemonic': 'none: LEPIC generates the seed inside create',
   'inspectSlate':
       'A-03: LEPIC answers asynchronously, the app interface is synchronous',
-  'releaseStuckSend': 'UP-9, LEPIC W-16',
   'sendHttp': 'OD-2, LEPIC speaks Epicbox and files only',
   'setTxNote': 'H-01',
   'saveContact': 'H-01',
@@ -66,6 +65,8 @@ WalletError mapLepicError(lepic.WalletError error) {
     // The old core refused a cancel of a payment on chain, and a history file of another
     // wallet or a damaged one, as invalidArgument; the UI words them from that.
     lepic.WalletErrorKind.onChain ||
+    lepic.WalletErrorKind.inPool ||
+    lepic.WalletErrorKind.notReleasable ||
     lepic.WalletErrorKind.foreignAppData ||
     lepic.WalletErrorKind.damagedAppData => WalletErrorKind.invalidArgument,
     lepic.WalletErrorKind.restoreScanRequired ||
@@ -198,7 +199,7 @@ TxEntry lepicTxEntry(lepic.TransactionDetails d) {
         d.status == lepic.TxStatus.sent || d.status == lepic.TxStatus.received,
     // Finalized but refused by the node: LEPIC stores it for a repost.
     repostable: d.status == lepic.TxStatus.finalized,
-    releasable: false,
+    releasable: d.releasable,
     cancelReason: d.status == lepic.TxStatus.expired
         ? CancelReason.expiry
         : null,
@@ -373,8 +374,8 @@ class LepicWalletSession implements WalletSession {
       _guard(() => _wallet.repostTransaction(txId: lepicTxId(key)));
 
   @override
-  Future<void> releaseStuckSend({required String key}) async =>
-      throw lepicUnsupported('releaseStuckSend');
+  Future<void> releaseStuckSend({required String key}) =>
+      _guard(() => _wallet.releaseTransaction(txId: lepicTxId(key)));
 
   @override
   Future<Slate> createSendSlate({
