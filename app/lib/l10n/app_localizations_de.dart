@@ -2070,8 +2070,17 @@ class AppLocalizationsDe extends AppLocalizations {
       'Verbindung wird noch hergestellt. Sie können jetzt senden; die Zahlung wird abgeschlossen, sobald die App verbunden ist.';
 
   @override
+  String get sendMethodEpicbox => 'Epicbox-Adresse';
+
+  @override
+  String get sendMethodFile => 'Zahlungsdatei';
+
+  @override
   String get sendFileIntro =>
-      'Das Senden erfolgt in zwei Schritten: Teilen Sie die Transaktionsdatei mit dem Empfänger und öffnen Sie dann die .response-Datei, die er zurückschickt, um die Zahlung abzuschließen.';
+      'Erstellen Sie eine Zahlungsdatei, schicken Sie sie auf beliebigem Weg an den Empfänger und öffnen Sie dann die Antwort, die er zurückschickt.';
+
+  @override
+  String get sendFileHelpTooltip => 'So funktioniert das Bezahlen per Datei';
 
   @override
   String sendAmountLabel(String unit) {
@@ -2108,23 +2117,10 @@ class AppLocalizationsDe extends AppLocalizations {
   String get sendNoteHelper => 'Nur Sie sehen diese Notiz.';
 
   @override
-  String get sendCreateFile => 'Transaktionsdatei erstellen';
+  String get sendCreateFile => 'Zahlungsdatei erstellen';
 
   @override
   String get sendReview => 'Prüfen';
-
-  @override
-  String get sendToAddressInstead => 'Stattdessen an eine Adresse senden';
-
-  @override
-  String get sendOtherWays => 'Weitere Sendeoptionen';
-
-  @override
-  String get sendOtherWaysExplanation =>
-      'Senden Sie mit einer Transaktionsdatei, wenn der Empfänger epicbox nicht nutzt: Sie teilen eine Datei, er schickt eine Antwortdatei zurück.';
-
-  @override
-  String get sendByFileButton => 'Per Transaktionsdatei senden';
 
   @override
   String sendFileStep1(String file) {
@@ -2238,6 +2234,38 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get sendReviewViaEpicbox =>
       'Läuft über epicbox. Wird abgeschlossen, sobald die Wallet des Empfängers antwortet.';
+
+  @override
+  String get sendCheckNodeRunning => 'Node wird geprüft…';
+
+  @override
+  String get sendCheckNodeOk => 'Der Node antwortet';
+
+  @override
+  String get sendCheckNodeFailed =>
+      'Der Node antwortet nicht, daher kann diese Zahlung jetzt nicht gesendet werden.';
+
+  @override
+  String get sendCheckListenerOk => 'Mit epicbox verbunden';
+
+  @override
+  String get sendCheckListenerFailed =>
+      'Noch nicht mit epicbox verbunden. Sie können trotzdem senden; die Zahlung wird abgeschlossen, sobald die App verbunden ist.';
+
+  @override
+  String sendCheckRelayRunning(String relay) {
+    return '$relay wird geprüft…';
+  }
+
+  @override
+  String sendCheckRelayOk(String relay) {
+    return '$relay ist erreichbar';
+  }
+
+  @override
+  String sendCheckRelayFailed(String relay) {
+    return '$relay antwortet gerade nicht. Sie können trotzdem senden; die Zahlung kommt eventuell später an.';
+  }
 
   @override
   String sendReviewSendButton(String amount) {

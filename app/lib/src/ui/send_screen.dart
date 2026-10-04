@@ -10,23 +10,26 @@ import '../amount.dart';
 import '../contacts.dart';
 import '../errors.dart';
 import '../l10n.dart';
+import '../network.dart';
 import '../price.dart';
 import '../providers.dart';
+import '../send_preflight.dart';
 import '../settings.dart';
 import '../slate_files.dart';
 import '../wallet_service.dart';
 import 'centered_body.dart';
 import 'common.dart';
 import 'contacts_screen.dart';
+import 'file_exchange_help.dart';
 import 'help_screen.dart';
 import 'scan_screen.dart';
 import 'slate_file_screen.dart';
-import 'theme/advanced.dart';
 import 'theme/brand.dart';
 import 'theme/tokens.dart';
 
-/// Sending: pick a recipient (their epicbox address), an amount, review, send. A
-/// transaction file is offered under "Other ways to send".
+// Sending: a choice at the top between an epicbox address (pick a recipient, an amount,
+// review with checks, send) and a payment file (make it, pass it on, open the reply).
+
 /// The most EPIC that will ever exist, 21 million. Anything above is a typo.
 final BigInt maxSendAtomic = BigInt.from(21000000) * atomicPerEpic;
 
@@ -159,7 +162,7 @@ class _SendViewState extends ConsumerState<SendView> {
   final _amountFocus = FocusNode();
   final _noteFocus = FocusNode();
 
-  /// Transaction file instead of epicbox or HTTP.
+  /// Payment file instead of an epicbox address.
   bool _fileMode = false;
 
   /// The amount field holds fiat instead of EPIC.
@@ -367,7 +370,8 @@ class _SendViewState extends ConsumerState<SendView> {
   }
 
   /// Checks the form, asks the wallet for the fee again (outputs may have changed since the
-  /// last estimate), then shows the review sheet and sends when the user confirms.
+  /// last estimate) while [sendPreflightProvider] checks the node and epicbox, then shows the
+  /// review sheet and sends when the user confirms.
   Future<void> _review() async {
     if (_reviewing || _busy) return;
     final session = ref.read(sessionProvider);
@@ -390,6 +394,14 @@ class _SendViewState extends ConsumerState<SendView> {
       _estimating = true;
       _error = null;
     });
+    // Started now and kept until the sheet closes, so the checks run beside the estimate and
+    // the next review asks the node again.
+    final checks = ref.listenManual(
+      sendPreflightProvider(
+        recipientRelay(parseRecipient(_recipient.text).address),
+      ),
+      (_, _) {},
+    );
     try {
       final FeeEstimate estimate;
       try {
@@ -430,6 +442,7 @@ class _SendViewState extends ConsumerState<SendView> {
         showDragHandle: true,
         builder: (_) => _ReviewSheet(
           to: to,
+          relay: recipientRelay(to.address),
           contactName: contactNameFor(contacts, to.address),
           estimate: estimate,
           note: _note.text.trim(),
@@ -439,6 +452,7 @@ class _SendViewState extends ConsumerState<SendView> {
       );
       if (confirmed == true && mounted) await _send(to, estimate);
     } finally {
+      checks.close();
       if (mounted) {
         setState(() {
           _reviewing = false;
@@ -630,8 +644,6 @@ class _SendViewState extends ConsumerState<SendView> {
         : contactFor(contacts, to.address);
     final amount = _parsedAmount;
     final estimate = _estimate;
-    // The file route is technical.
-    final advanced = AdvancedOptions.of(context);
 
     String? amountHelper;
     if (amount != null && price != null) {
@@ -641,6 +653,31 @@ class _SendViewState extends ConsumerState<SendView> {
     }
 
     return [
+      SegmentedButton<bool>(
+        segments: [
+          ButtonSegment(
+            value: false,
+            icon: const Icon(Icons.alternate_email),
+            label: Text(l.sendMethodEpicbox),
+          ),
+          ButtonSegment(
+            value: true,
+            icon: const Icon(Icons.description_outlined),
+            label: Text(l.sendMethodFile),
+          ),
+        ],
+        selected: {_fileMode},
+        showSelectedIcon: false,
+        expandedInsets: EdgeInsets.zero,
+        onSelectionChanged: _busy || _reviewing
+            ? null
+            : (selected) => setState(() {
+                _fileMode = selected.first;
+                _recipientError = null;
+                _error = null;
+              }),
+      ),
+      const SizedBox(height: 16),
       if (!_fileMode) ...[
         TextField(
           controller: _recipient,
@@ -760,7 +797,19 @@ class _SendViewState extends ConsumerState<SendView> {
           ),
         const SizedBox(height: 16),
       ] else ...[
-        Text(l.sendFileIntro),
+        Row(
+          children: [
+            Expanded(
+              child: Text(l.sendFileIntro, style: theme.textTheme.bodyMedium),
+            ),
+            IconButton(
+              tooltip: l.sendFileHelpTooltip,
+              icon: const Icon(Icons.help_outline),
+              onPressed: () =>
+                  showFileExchangeHelp(context, role: FileExchangeRole.sender),
+            ),
+          ],
+        ),
         const SizedBox(height: 16),
       ],
       TextField(
@@ -848,36 +897,6 @@ class _SendViewState extends ConsumerState<SendView> {
           ),
         ),
       ],
-      const SizedBox(height: 16),
-      if (_fileMode)
-        TextButton(
-          onPressed: () => setState(() {
-            _fileMode = false;
-            _error = null;
-          }),
-          child: Text(l.sendToAddressInstead),
-        )
-      else if (advanced)
-        ExpansionTile(
-          tilePadding: EdgeInsets.zero,
-          title: Text(l.sendOtherWays),
-          children: [
-            Text(l.sendOtherWaysExplanation),
-            const SizedBox(height: 8),
-            OutlinedButton(
-              style: OutlinedButton.styleFrom(
-                minimumSize: const Size.fromHeight(48),
-              ),
-              onPressed: () => setState(() {
-                _fileMode = true;
-                _recipientError = null;
-                _error = null;
-              }),
-              child: Text(l.sendByFileButton),
-            ),
-            const SizedBox(height: 8),
-          ],
-        ),
     ];
   }
 
@@ -1016,10 +1035,12 @@ class _SendViewState extends ConsumerState<SendView> {
   }
 }
 
-/// Everything about the send on one sheet, with the button that sends it.
-class _ReviewSheet extends StatefulWidget {
+/// Everything about the send on one sheet, with the checks of [sendPreflightProvider] and the
+/// button that sends it.
+class _ReviewSheet extends ConsumerStatefulWidget {
   const _ReviewSheet({
     required this.to,
+    required this.relay,
     required this.contactName,
     required this.estimate,
     required this.note,
@@ -1028,6 +1049,9 @@ class _ReviewSheet extends StatefulWidget {
   });
 
   final Recipient to;
+
+  /// The recipient's relay, from their address.
+  final EpicboxRelay? relay;
   final String? contactName;
   final FeeEstimate estimate;
   final String note;
@@ -1035,10 +1059,10 @@ class _ReviewSheet extends StatefulWidget {
   final String currency;
 
   @override
-  State<_ReviewSheet> createState() => _ReviewSheetState();
+  ConsumerState<_ReviewSheet> createState() => _ReviewSheetState();
 }
 
-class _ReviewSheetState extends State<_ReviewSheet> {
+class _ReviewSheetState extends ConsumerState<_ReviewSheet> {
   /// Set by the first tap on Send. A second tap would pop the Send screen as well.
   bool _closing = false;
 
@@ -1056,6 +1080,7 @@ class _ReviewSheetState extends State<_ReviewSheet> {
     final total = estimate.amount + estimate.fee;
     final price = widget.price;
     final name = widget.contactName;
+    final checks = ref.watch(sendPreflightProvider(widget.relay));
     return SafeArea(
       child: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
@@ -1089,12 +1114,17 @@ class _ReviewSheetState extends State<_ReviewSheet> {
               _Row(label: l.sendReviewNote, value: widget.note),
             const SizedBox(height: 8),
             Text(l.sendReviewViaEpicbox, style: theme.textTheme.bodySmall),
+            const SizedBox(height: 12),
+            _ChecksList(checks: checks),
             const SizedBox(height: 16),
             FilledButton(
               style: FilledButton.styleFrom(
                 minimumSize: const Size.fromHeight(52),
               ),
-              onPressed: _closing ? null : () => _close(true),
+              // Without a node answer the send could not be built or posted.
+              onPressed: _closing || !checks.canSend
+                  ? null
+                  : () => _close(true),
               child: Text(l.sendReviewSendButton(epicText(l, estimate.amount))),
             ),
             const SizedBox(height: 8),
@@ -1102,6 +1132,123 @@ class _ReviewSheetState extends State<_ReviewSheet> {
               onPressed: _closing ? null : () => _close(false),
               child: Text(l.sendReviewEdit),
             ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// One quiet row per check of [SendPreflight]: node, our epicbox listener, and the
+/// recipient's relay when the monitor lists it.
+class _ChecksList extends ConsumerWidget {
+  const _ChecksList({required this.checks});
+
+  final SendPreflight checks;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = context.l10n;
+    final relay = checks.relay?.label;
+    final relayOutcome = checks.relayOutcome;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _CheckRow(
+          outcome: checks.node,
+          text: switch (checks.node) {
+            CheckOutcome.running => l.sendCheckNodeRunning,
+            CheckOutcome.passed => l.sendCheckNodeOk,
+            CheckOutcome.failed => l.sendCheckNodeFailed,
+          },
+          blocking: true,
+          onRetry: () => ref.invalidate(sendNodeCheckProvider),
+        ),
+        _CheckRow(
+          outcome: checks.listener,
+          text: checks.listener == CheckOutcome.passed
+              ? l.sendCheckListenerOk
+              : l.sendCheckListenerFailed,
+        ),
+        if (relay != null && relayOutcome != null)
+          _CheckRow(
+            outcome: relayOutcome,
+            text: switch (relayOutcome) {
+              CheckOutcome.running => l.sendCheckRelayRunning(relay),
+              CheckOutcome.passed => l.sendCheckRelayOk(relay),
+              CheckOutcome.failed => l.sendCheckRelayFailed(relay),
+            },
+          ),
+      ],
+    );
+  }
+}
+
+class _CheckRow extends StatelessWidget {
+  const _CheckRow({
+    required this.outcome,
+    required this.text,
+    this.blocking = false,
+    this.onRetry,
+  });
+
+  final CheckOutcome outcome;
+  final String text;
+
+  /// A failure stops the send (risk), rather than warning (warn).
+  final bool blocking;
+
+  /// Offered when the check failed.
+  final VoidCallback? onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final t = context.tokens;
+    final Widget icon = switch (outcome) {
+      // A still icon under reduced motion, where a spinner would be an animation.
+      CheckOutcome.running when MediaQuery.disableAnimationsOf(context) => Icon(
+        Icons.hourglass_empty,
+        size: 18,
+        color: t.dim,
+      ),
+      CheckOutcome.running => const SizedBox.square(
+        dimension: 18,
+        child: CircularProgressIndicator(strokeWidth: 2),
+      ),
+      CheckOutcome.passed => Icon(
+        Icons.check_circle_outline,
+        size: 18,
+        color: t.ok,
+      ),
+      CheckOutcome.failed => Icon(
+        blocking ? Icons.error_outline : Icons.warning_amber,
+        size: 18,
+        color: blocking ? t.risk : t.warn,
+      ),
+    };
+    final failed = outcome == CheckOutcome.failed;
+    return Semantics(
+      liveRegion: failed,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4),
+        child: Row(
+          children: [
+            ExcludeSemantics(child: icon),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                text,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: failed ? null : t.dim,
+                ),
+              ),
+            ),
+            if (failed && onRetry != null)
+              TextButton(
+                onPressed: onRetry,
+                child: Text(context.l10n.commonRetry),
+              ),
           ],
         ),
       ),

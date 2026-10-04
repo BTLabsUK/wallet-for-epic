@@ -2918,11 +2918,29 @@ abstract class AppLocalizations {
   /// **'Still connecting. You can send now; it finishes once the app is connected.'**
   String get sendStillConnecting;
 
-  /// Explains sending with a transaction file. '.response' is a file-name ending: keep it as it is.
+  /// Send form, first choice of how to send: to the recipient's epicbox address. epicbox is the relay service that carries payments (a proper name).
   ///
   /// In en, this message translates to:
-  /// **'Sending takes two steps: share the transaction file with the recipient, then open the .response file they send back to finish the payment.'**
+  /// **'Epicbox address'**
+  String get sendMethodEpicbox;
+
+  /// Send form, second choice of how to send: a payment file the user passes on any way they like, and the recipient's signed reply.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment file'**
+  String get sendMethodFile;
+
+  /// One line under the method choice in payment file mode. 'Reply' is the signed file the recipient sends back.
+  ///
+  /// In en, this message translates to:
+  /// **'Make a payment file, send it to them any way you like, then open the reply they send back.'**
   String get sendFileIntro;
+
+  /// Tooltip and label of the ? button in payment file mode that opens an animated explanation.
+  ///
+  /// In en, this message translates to:
+  /// **'How paying by file works'**
+  String get sendFileHelpTooltip;
 
   /// Label of the amount field. unit is EPIC or a currency code.
   ///
@@ -2972,10 +2990,10 @@ abstract class AppLocalizations {
   /// **'Only you see this note.'**
   String get sendNoteHelper;
 
-  /// Button that creates the file to give to the recipient.
+  /// Button that creates the payment file to give to the recipient.
   ///
   /// In en, this message translates to:
-  /// **'Create transaction file'**
+  /// **'Create payment file'**
   String get sendCreateFile;
 
   /// Button that shows the payment for a last check before sending.
@@ -2983,30 +3001,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Review'**
   String get sendReview;
-
-  /// Button that leaves file mode for the normal send form.
-  ///
-  /// In en, this message translates to:
-  /// **'Send to an address instead'**
-  String get sendToAddressInstead;
-
-  /// Heading of a section that expands to show sending by file.
-  ///
-  /// In en, this message translates to:
-  /// **'Other ways to send'**
-  String get sendOtherWays;
-
-  /// epicbox is the relay service that carries payments (a proper name).
-  ///
-  /// In en, this message translates to:
-  /// **'Send with a transaction file when the recipient does not use epicbox: you share a file, they return a response file.'**
-  String get sendOtherWaysExplanation;
-
-  /// Button that switches the send screen to file mode.
-  ///
-  /// In en, this message translates to:
-  /// **'Send by transaction file'**
-  String get sendByFileButton;
 
   /// Heading of the first step of a send by file.
   ///
@@ -3163,6 +3157,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Goes through epicbox. It completes when the recipient\'s wallet answers.'**
   String get sendReviewViaEpicbox;
+
+  /// Review sheet, check row while the app asks the node (the server the wallet reads the chain from) for its latest block.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking the node…'**
+  String get sendCheckNodeRunning;
+
+  /// Review sheet, check row: the node answered.
+  ///
+  /// In en, this message translates to:
+  /// **'The node answers'**
+  String get sendCheckNodeOk;
+
+  /// Review sheet, check row when the node did not answer within 8 seconds. The send button stays off.
+  ///
+  /// In en, this message translates to:
+  /// **'The node does not answer, so this payment cannot be sent now.'**
+  String get sendCheckNodeFailed;
+
+  /// Review sheet, check row: the app is connected to epicbox, the relay service that carries payments (a proper name).
+  ///
+  /// In en, this message translates to:
+  /// **'Connected to epicbox'**
+  String get sendCheckListenerOk;
+
+  /// Review sheet, warning row: the app is not connected to epicbox; sending is still allowed.
+  ///
+  /// In en, this message translates to:
+  /// **'Not connected to epicbox yet. You can still send; the payment finishes once the app connects.'**
+  String get sendCheckListenerFailed;
+
+  /// Review sheet, check row while the app looks up the recipient's epicbox relay at the status monitor. relay is a host name.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking {relay}…'**
+  String sendCheckRelayRunning(String relay);
+
+  /// Review sheet, check row: the recipient's epicbox relay is healthy. relay is a host name.
+  ///
+  /// In en, this message translates to:
+  /// **'{relay} is up'**
+  String sendCheckRelayOk(String relay);
+
+  /// Review sheet, warning row: the recipient's epicbox relay failed the monitor's last check; sending is still allowed. relay is a host name.
+  ///
+  /// In en, this message translates to:
+  /// **'{relay} is not answering right now. You can still send; the payment may take longer to arrive.'**
+  String sendCheckRelayFailed(String relay);
 
   /// Button in the payment review that sends the payment.
   ///

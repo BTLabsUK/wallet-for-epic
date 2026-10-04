@@ -2283,9 +2283,21 @@
   "@sendStillConnecting": {
     "description": "Shown while the app is not yet connected to epicbox, the relay service that carries payments."
   },
-  "sendFileIntro": "Sending takes two steps: share the transaction file with the recipient, then open the .response file they send back to finish the payment.",
+  "sendMethodEpicbox": "Epicbox address",
+  "@sendMethodEpicbox": {
+    "description": "Send form, first choice of how to send: to the recipient's epicbox address. epicbox is the relay service that carries payments (a proper name)."
+  },
+  "sendMethodFile": "Payment file",
+  "@sendMethodFile": {
+    "description": "Send form, second choice of how to send: a payment file the user passes on any way they like, and the recipient's signed reply."
+  },
+  "sendFileIntro": "Make a payment file, send it to them any way you like, then open the reply they send back.",
   "@sendFileIntro": {
-    "description": "Explains sending with a transaction file. '.response' is a file-name ending: keep it as it is."
+    "description": "One line under the method choice in payment file mode. 'Reply' is the signed file the recipient sends back."
+  },
+  "sendFileHelpTooltip": "How paying by file works",
+  "@sendFileHelpTooltip": {
+    "description": "Tooltip and label of the ? button in payment file mode that opens an animated explanation."
   },
   "sendAmountLabel": "Amount ({unit})",
   "@sendAmountLabel": {
@@ -2357,29 +2369,13 @@
   "@sendNoteHelper": {
     "description": "Helper text under the payment note field: the note is not sent to the recipient."
   },
-  "sendCreateFile": "Create transaction file",
+  "sendCreateFile": "Create payment file",
   "@sendCreateFile": {
-    "description": "Button that creates the file to give to the recipient."
+    "description": "Button that creates the payment file to give to the recipient."
   },
   "sendReview": "Review",
   "@sendReview": {
     "description": "Button that shows the payment for a last check before sending."
-  },
-  "sendToAddressInstead": "Send to an address instead",
-  "@sendToAddressInstead": {
-    "description": "Button that leaves file mode for the normal send form."
-  },
-  "sendOtherWays": "Other ways to send",
-  "@sendOtherWays": {
-    "description": "Heading of a section that expands to show sending by file."
-  },
-  "sendOtherWaysExplanation": "Send with a transaction file when the recipient does not use epicbox: you share a file, they return a response file.",
-  "@sendOtherWaysExplanation": {
-    "description": "epicbox is the relay service that carries payments (a proper name)."
-  },
-  "sendByFileButton": "Send by transaction file",
-  "@sendByFileButton": {
-    "description": "Button that switches the send screen to file mode."
   },
   "sendFileStep1": "Step 1: give {file} to the recipient",
   "@sendFileStep1": {
@@ -2535,6 +2531,56 @@
   "sendReviewViaEpicbox": "Goes through epicbox. It completes when the recipient's wallet answers.",
   "@sendReviewViaEpicbox": {
     "description": "In the payment review. epicbox is the relay service that carries payments (a proper name)."
+  },
+  "sendCheckNodeRunning": "Checking the node…",
+  "@sendCheckNodeRunning": {
+    "description": "Review sheet, check row while the app asks the node (the server the wallet reads the chain from) for its latest block."
+  },
+  "sendCheckNodeOk": "The node answers",
+  "@sendCheckNodeOk": {
+    "description": "Review sheet, check row: the node answered."
+  },
+  "sendCheckNodeFailed": "The node does not answer, so this payment cannot be sent now.",
+  "@sendCheckNodeFailed": {
+    "description": "Review sheet, check row when the node did not answer within 8 seconds. The send button stays off."
+  },
+  "sendCheckListenerOk": "Connected to epicbox",
+  "@sendCheckListenerOk": {
+    "description": "Review sheet, check row: the app is connected to epicbox, the relay service that carries payments (a proper name)."
+  },
+  "sendCheckListenerFailed": "Not connected to epicbox yet. You can still send; the payment finishes once the app connects.",
+  "@sendCheckListenerFailed": {
+    "description": "Review sheet, warning row: the app is not connected to epicbox; sending is still allowed."
+  },
+  "sendCheckRelayRunning": "Checking {relay}…",
+  "@sendCheckRelayRunning": {
+    "description": "Review sheet, check row while the app looks up the recipient's epicbox relay at the status monitor. relay is a host name.",
+    "placeholders": {
+      "relay": {
+        "type": "String",
+        "example": "epicbox.epiccash.com"
+      }
+    }
+  },
+  "sendCheckRelayOk": "{relay} is up",
+  "@sendCheckRelayOk": {
+    "description": "Review sheet, check row: the recipient's epicbox relay is healthy. relay is a host name.",
+    "placeholders": {
+      "relay": {
+        "type": "String",
+        "example": "epicbox.epiccash.com"
+      }
+    }
+  },
+  "sendCheckRelayFailed": "{relay} is not answering right now. You can still send; the payment may take longer to arrive.",
+  "@sendCheckRelayFailed": {
+    "description": "Review sheet, warning row: the recipient's epicbox relay failed the monitor's last check; sending is still allowed. relay is a host name.",
+    "placeholders": {
+      "relay": {
+        "type": "String",
+        "example": "epicbox.epiccash.com"
+      }
+    }
   },
   "sendReviewSendButton": "Send {amount}",
   "@sendReviewSendButton": {

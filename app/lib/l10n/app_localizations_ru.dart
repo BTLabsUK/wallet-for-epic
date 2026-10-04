@@ -2171,8 +2171,17 @@ class AppLocalizationsRu extends AppLocalizations {
       'Подключение ещё идёт. Отправить можно уже сейчас: платёж уйдёт, как только приложение подключится.';
 
   @override
+  String get sendMethodEpicbox => 'Адрес epicbox';
+
+  @override
+  String get sendMethodFile => 'Платёжный файл';
+
+  @override
   String get sendFileIntro =>
-      'Отправка проходит в два шага: передайте файл транзакции получателю, затем откройте файл .response, который он вернёт, чтобы завершить платёж.';
+      'Создайте платёжный файл, передайте его получателю любым способом, затем откройте ответ, который он пришлёт.';
+
+  @override
+  String get sendFileHelpTooltip => 'Как работает оплата файлом';
 
   @override
   String sendAmountLabel(String unit) {
@@ -2209,23 +2218,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get sendNoteHelper => 'Эту заметку видите только вы.';
 
   @override
-  String get sendCreateFile => 'Создать файл транзакции';
+  String get sendCreateFile => 'Создать платёжный файл';
 
   @override
   String get sendReview => 'Проверить';
-
-  @override
-  String get sendToAddressInstead => 'Отправить на адрес';
-
-  @override
-  String get sendOtherWays => 'Другие способы отправки';
-
-  @override
-  String get sendOtherWaysExplanation =>
-      'Используйте файл транзакции, если получатель не пользуется epicbox: вы передаёте файл, а он возвращает файл ответа.';
-
-  @override
-  String get sendByFileButton => 'Отправить файлом транзакции';
 
   @override
   String sendFileStep1(String file) {
@@ -2340,6 +2336,38 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get sendReviewViaEpicbox =>
       'Через epicbox. Платёж завершится, когда ответит кошелёк получателя.';
+
+  @override
+  String get sendCheckNodeRunning => 'Проверка узла…';
+
+  @override
+  String get sendCheckNodeOk => 'Узел отвечает';
+
+  @override
+  String get sendCheckNodeFailed =>
+      'Узел не отвечает, поэтому сейчас этот платёж отправить нельзя.';
+
+  @override
+  String get sendCheckListenerOk => 'Подключено к epicbox';
+
+  @override
+  String get sendCheckListenerFailed =>
+      'Подключения к epicbox ещё нет. Отправить всё равно можно: платёж завершится, когда приложение подключится.';
+
+  @override
+  String sendCheckRelayRunning(String relay) {
+    return 'Проверка $relay…';
+  }
+
+  @override
+  String sendCheckRelayOk(String relay) {
+    return '$relay работает';
+  }
+
+  @override
+  String sendCheckRelayFailed(String relay) {
+    return '$relay сейчас не отвечает. Отправить всё равно можно, но платёж может прийти позже.';
+  }
 
   @override
   String sendReviewSendButton(String amount) {

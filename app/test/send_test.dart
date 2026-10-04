@@ -6,6 +6,7 @@ import 'package:epic_wallet/src/app.dart';
 import 'package:epic_wallet/src/contacts.dart';
 import 'package:epic_wallet/src/errors.dart';
 import 'package:epic_wallet/src/l10n.dart';
+import 'package:epic_wallet/src/network.dart';
 import 'package:epic_wallet/src/price.dart';
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/relay_directory.dart';
@@ -66,6 +67,15 @@ class _OpenSession extends SessionNotifier {
 
   @override
   WalletSession? build() => session;
+}
+
+/// The open wallet is on mainnet, as after the launch screen.
+class _MainnetConfig extends WalletConfigNotifier {
+  @override
+  WalletConfig? build() => mainnetPreset.config(
+    dataDir: '/fake/wallets/mainnet',
+    nodeUrl: mainnetPreset.nodeUrl,
+  );
 }
 
 /// The fake, with calls that can be held open and counted.
@@ -207,6 +217,8 @@ class _Harness {
           qrScannerProvider.overrideWithValue(scanner),
           priceSourceProvider.overrideWithValue(_FixedPrice(price)),
           sessionProvider.overrideWith(() => _OpenSession(session)),
+          walletConfigProvider.overrideWith(_MainnetConfig.new),
+          relayDirectoryProvider.overrideWithValue(_NoRelays()),
         ],
         child: MaterialApp(
           localizationsDelegates: AppLocalizations.localizationsDelegates,
@@ -1046,17 +1058,16 @@ void main() {
       expect(field.controller!.text, _bob);
     });
 
-    testWidgets('by transaction file under "Other ways to send"', (
+    testWidgets('by payment file, chosen at the top with Advanced off', (
       tester,
     ) async {
-      final h = _Harness(advanced: true);
+      final h = _Harness();
       await h.pump(tester, _sendTab());
-      await _tap(tester, find.text('Other ways to send'));
-      await _tap(tester, find.text('Send by transaction file'));
-      expect(find.textContaining('Sending takes two steps'), findsOneWidget);
+      await _tap(tester, find.text('Payment file'));
+      expect(find.textContaining('Make a payment file'), findsOneWidget);
       expect(find.widgetWithText(TextField, 'To'), findsNothing);
       await _enter(tester, 'Amount (EPIC)', '1.5');
-      await _tap(tester, find.text('Create transaction file'));
+      await _tap(tester, find.text('Create payment file'));
       expect(h.session.sentAmounts, [_epic(1.5)]);
       // Nothing leaves the app until the user picks how.
       expect(h.files.saved, isEmpty);
@@ -1129,10 +1140,9 @@ void main() {
       final h = _Harness(advanced: true);
       h.files.canShare = false;
       await h.pump(tester, _sendTab());
-      await _tap(tester, find.text('Other ways to send'));
-      await _tap(tester, find.text('Send by transaction file'));
+      await _tap(tester, find.text('Payment file'));
       await _enter(tester, 'Amount (EPIC)', '1');
-      await _tap(tester, find.text('Create transaction file'));
+      await _tap(tester, find.text('Create payment file'));
       expect(find.text('Save to device'), findsOneWidget);
       expect(find.widgetWithText(OutlinedButton, 'Share'), findsNothing);
     });
@@ -1140,10 +1150,9 @@ void main() {
     testWidgets('by file: paste the response instead', (tester) async {
       final h = _Harness(advanced: true);
       await h.pump(tester, _sendTab());
-      await _tap(tester, find.text('Other ways to send'));
-      await _tap(tester, find.text('Send by transaction file'));
+      await _tap(tester, find.text('Payment file'));
       await _enter(tester, 'Amount (EPIC)', '1.5');
-      await _tap(tester, find.text('Create transaction file'));
+      await _tap(tester, find.text('Create payment file'));
       await _tap(tester, find.text('Copy and paste instead'));
       await _tap(tester, find.text('Finish payment'));
       expect(
@@ -1281,10 +1290,9 @@ void main() {
       final h = _AppHarness(advanced: true);
       await h.pumpUnlocked(tester);
       await h.open(tester, _sendTab());
-      await _tap(tester, find.text('Other ways to send'));
-      await _tap(tester, find.text('Send by transaction file'));
+      await _tap(tester, find.text('Payment file'));
       await _enter(tester, 'Amount (EPIC)', '1.5');
-      await _tap(tester, find.text('Create transaction file'));
+      await _tap(tester, find.text('Create payment file'));
       await _tap(tester, find.text('Save to device'));
       expect(h.container.read(autoLockHoldProvider), 1);
       await h.awayAndBack(tester, const Duration(minutes: 10));
@@ -1300,10 +1308,9 @@ void main() {
       final h = _Harness(advanced: true);
       h.session.notPosted = true;
       await h.pump(tester, _sendTab());
-      await _tap(tester, find.text('Other ways to send'));
-      await _tap(tester, find.text('Send by transaction file'));
+      await _tap(tester, find.text('Payment file'));
       await _enter(tester, 'Amount (EPIC)', '1.5');
-      await _tap(tester, find.text('Create transaction file'));
+      await _tap(tester, find.text('Create payment file'));
       await _tap(tester, find.text('Copy and paste instead'));
       await tester.enterText(
         find.descendant(
@@ -1601,7 +1608,6 @@ void main() {
       await h.pump(tester, _sendTab());
       await _enter(tester, 'Amount (EPIC)', '-1');
       await _enter(tester, 'To', 'nonsense');
-      await _tap(tester, find.text('Other ways to send'));
       await _enter(tester, 'Amount (EPIC)', '1');
       await _tap(tester, find.text('Review'));
       for (final text in [
@@ -1867,33 +1873,29 @@ void main() {
   });
 
   group('advanced options', () {
-    // Screens are lazy lists: go to the end before saying something is not there.
-    Future<void> toEnd(WidgetTester tester) async {
-      await tester.drag(find.byType(Scrollable).last, const Offset(0, -5000));
-      await tester.pumpAndSettle();
-    }
+    testWidgets(
+      'send offers the file either way; a URL is refused either way',
+      (tester) async {
+        final off = _Harness();
+        await off.pump(tester, _sendTab());
+        expect(find.text('Their address'), findsOneWidget);
+        expect(find.text('Payment file'), findsOneWidget);
+        expect(find.text('Other ways to send'), findsNothing);
 
-    testWidgets('send hides the file route; a URL is refused either way', (
-      tester,
-    ) async {
-      final off = _Harness();
-      await off.pump(tester, _sendTab());
-      expect(find.text('Their address'), findsOneWidget);
-      await toEnd(tester);
-      expect(find.text('Other ways to send'), findsNothing);
-
-      // A fresh tree, so the screen's state starts over.
-      await tester.pumpWidget(const SizedBox());
-      final on = _Harness(advanced: true);
-      await on.pump(tester, _sendTab());
-      expect(find.text('Their address'), findsOneWidget);
-      await _enter(tester, 'To', 'http://203.0.113.5:3415');
-      await _enter(tester, 'Amount (EPIC)', '2');
-      await _tap(tester, find.text('Review'));
-      expect(find.textContaining('not supported'), findsOneWidget);
-      expect(on.session.epicboxSends, isEmpty);
-      await toEnd(tester);
-      expect(find.text('Other ways to send'), findsOneWidget);
-    });
+        // A fresh tree, so the screen's state starts over.
+        await tester.pumpWidget(const SizedBox());
+        final on = _Harness(advanced: true);
+        await on.pump(tester, _sendTab());
+        expect(find.text('Their address'), findsOneWidget);
+        await _enter(tester, 'To', 'http://203.0.113.5:3415');
+        await _enter(tester, 'Amount (EPIC)', '2');
+        await _tap(tester, find.text('Review'));
+        expect(find.textContaining('not supported'), findsOneWidget);
+        expect(on.session.epicboxSends, isEmpty);
+        await tester.drag(find.byType(Scrollable).last, const Offset(0, 5000));
+        await tester.pumpAndSettle();
+        expect(find.text('Payment file'), findsOneWidget);
+      },
+    );
   });
 }

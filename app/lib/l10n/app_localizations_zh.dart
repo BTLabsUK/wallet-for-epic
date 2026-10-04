@@ -1919,7 +1919,16 @@ class AppLocalizationsZh extends AppLocalizations {
   String get sendStillConnecting => '仍在连接。你现在就可以发送，应用连接后即会完成。';
 
   @override
-  String get sendFileIntro => '发送分两步：先将交易文件交给接收方，再打开对方发回的 .response 文件以完成付款。';
+  String get sendMethodEpicbox => 'Epicbox 地址';
+
+  @override
+  String get sendMethodFile => '付款文件';
+
+  @override
+  String get sendFileIntro => '创建付款文件，用任意方式发给对方，然后打开对方发回的回复。';
+
+  @override
+  String get sendFileHelpTooltip => '文件付款如何使用';
 
   @override
   String sendAmountLabel(String unit) {
@@ -1956,23 +1965,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get sendNoteHelper => '此备注仅你自己可见。';
 
   @override
-  String get sendCreateFile => '创建交易文件';
+  String get sendCreateFile => '创建付款文件';
 
   @override
   String get sendReview => '核对';
-
-  @override
-  String get sendToAddressInstead => '改为发送到地址';
-
-  @override
-  String get sendOtherWays => '其他发送方式';
-
-  @override
-  String get sendOtherWaysExplanation =>
-      '如果接收方不使用 epicbox，可以通过交易文件发送：你分享一个文件，对方返回一个回复文件。';
-
-  @override
-  String get sendByFileButton => '通过交易文件发送';
 
   @override
   String sendFileStep1(String file) {
@@ -2079,6 +2075,36 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get sendReviewViaEpicbox => '通过 epicbox 发送。接收方的钱包回复后即会完成。';
+
+  @override
+  String get sendCheckNodeRunning => '正在检查节点…';
+
+  @override
+  String get sendCheckNodeOk => '节点有响应';
+
+  @override
+  String get sendCheckNodeFailed => '节点没有响应，因此现在无法发送这笔付款。';
+
+  @override
+  String get sendCheckListenerOk => '已连接 epicbox';
+
+  @override
+  String get sendCheckListenerFailed => '尚未连接 epicbox。你仍可发送，应用连接后付款即会完成。';
+
+  @override
+  String sendCheckRelayRunning(String relay) {
+    return '正在检查 $relay…';
+  }
+
+  @override
+  String sendCheckRelayOk(String relay) {
+    return '$relay 正常';
+  }
+
+  @override
+  String sendCheckRelayFailed(String relay) {
+    return '$relay 目前没有响应。你仍可发送，但付款可能会晚些到达。';
+  }
 
   @override
   String sendReviewSendButton(String amount) {
