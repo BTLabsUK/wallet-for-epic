@@ -614,6 +614,252 @@ enum WalletErrorKind {
   other,
 }
 
+/// The key part of an epicbox address, before `@`. Services are matched on it alone: the
+/// relay checks the signature with the key, never the domain, so the domain proves nothing.
+String epicboxKey(String address) => address.trim().split('@').first;
+
+/// A service the user allows to send invoices to their invoice address, by the full epicbox
+/// address the service shows. The wallet stores the address; the label is the app's, kept in
+/// `wfe_meta.json` by address. It is null only when that file lost it.
+class TrustedService {
+  final String address;
+  final String? label;
+
+  const TrustedService({required this.address, this.label});
+
+  @override
+  int get hashCode => address.hashCode ^ label.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is TrustedService &&
+          address == other.address &&
+          label == other.label;
+}
+
+/// The label the user gave the service at [address], matched on the key. Never anything the
+/// invoice says about itself.
+String? serviceLabel(List<TrustedService> services, String address) {
+  final key = epicboxKey(address);
+  return services.where((s) => epicboxKey(s.address) == key).firstOrNull?.label;
+}
+
+/// An invoice from a trusted service, parked until the user approves or declines it. Nothing
+/// pays it but a call the user makes after the PIN or biometric gate.
+class PendingInvoice {
+  final String slateId;
+
+  /// The epicbox address the invoice came from, as the wallet verified it.
+  final String senderAddress;
+
+  /// What the service asks for, in the smallest unit. Paying needs this exact amount.
+  final BigInt amount;
+
+  /// The service's message: untrusted text. Render it as one plain line, never as a link.
+  final String? message;
+  final DateTime receivedAt;
+
+  /// After this the invoice is gone and cannot be paid.
+  final DateTime expiresAt;
+
+  const PendingInvoice({
+    required this.slateId,
+    required this.senderAddress,
+    required this.amount,
+    this.message,
+    required this.receivedAt,
+    required this.expiresAt,
+  });
+
+  bool isExpiredAt(DateTime now) => !now.isBefore(expiresAt);
+
+  /// Time left at [now], never negative.
+  Duration timeLeftAt(DateTime now) {
+    final left = expiresAt.difference(now);
+    return left.isNegative ? Duration.zero : left;
+  }
+
+  @override
+  int get hashCode =>
+      slateId.hashCode ^
+      senderAddress.hashCode ^
+      amount.hashCode ^
+      message.hashCode ^
+      receivedAt.hashCode ^
+      expiresAt.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is PendingInvoice &&
+          slateId == other.slateId &&
+          senderAddress == other.senderAddress &&
+          amount == other.amount &&
+          message == other.message &&
+          receivedAt == other.receivedAt &&
+          expiresAt == other.expiresAt;
+}
+
+/// Where an invoice the user approved stands.
+enum InvoiceStatus {
+  /// Signed and stored, but the reply did not reach the service. Resend it; the user does
+  /// not approve again.
+  replyFailed,
+
+  /// The reply reached the relay; the service finalizes and posts it.
+  replied,
+
+  /// The service reports it posted the payment (a receipt, with the kernel excess). It
+  /// informs only: confirmation comes from the chain.
+  posted,
+
+  /// The service withdrew the invoice after the user paid it. Offer a cancel the user
+  /// confirms; never cancel on its own.
+  withdrawn,
+}
+
+/// An invoice the user approved, as a transaction's details show it.
+class PaidInvoice {
+  final String slateId;
+  final String senderAddress;
+  final BigInt amount;
+  final String? message;
+  final InvoiceStatus status;
+
+  /// Local id of the payment, for `cancelTransaction`.
+  final int? txId;
+
+  /// From the `posted` receipt.
+  final String? kernelExcess;
+
+  const PaidInvoice({
+    required this.slateId,
+    required this.senderAddress,
+    required this.amount,
+    this.message,
+    required this.status,
+    this.txId,
+    this.kernelExcess,
+  });
+
+  PaidInvoice withStatus(InvoiceStatus status, {String? kernelExcess}) =>
+      PaidInvoice(
+        slateId: slateId,
+        senderAddress: senderAddress,
+        amount: amount,
+        message: message,
+        status: status,
+        txId: txId,
+        kernelExcess: kernelExcess ?? this.kernelExcess,
+      );
+
+  @override
+  int get hashCode =>
+      slateId.hashCode ^
+      senderAddress.hashCode ^
+      amount.hashCode ^
+      message.hashCode ^
+      status.hashCode ^
+      txId.hashCode ^
+      kernelExcess.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is PaidInvoice &&
+          slateId == other.slateId &&
+          senderAddress == other.senderAddress &&
+          amount == other.amount &&
+          message == other.message &&
+          status == other.status &&
+          txId == other.txId &&
+          kernelExcess == other.kernelExcess;
+}
+
+/// What happened to an invoice. `posted`, `declined` and `withdrawn` are the notices; they
+/// inform and never move funds.
+enum InvoiceEventKind {
+  /// A trusted service's invoice was parked for review.
+  received,
+
+  /// Receipt: the service reports it posted a paid invoice. `kernelExcess` is set.
+  posted,
+
+  /// This wallet declined the invoice and told the service.
+  declined,
+
+  /// The service withdrew the invoice (cancelled it, or its own expiry).
+  withdrawn,
+
+  /// The invoice's time ran out before the user answered it.
+  expired,
+}
+
+class InvoiceEvent {
+  final InvoiceEventKind kind;
+  final String slateId;
+
+  /// For [InvoiceEventKind.posted] only.
+  final String? kernelExcess;
+
+  const InvoiceEvent({
+    required this.kind,
+    required this.slateId,
+    this.kernelExcess,
+  });
+
+  @override
+  int get hashCode => kind.hashCode ^ slateId.hashCode ^ kernelExcess.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is InvoiceEvent &&
+          kind == other.kind &&
+          slateId == other.slateId &&
+          kernelExcess == other.kernelExcess;
+}
+
+/// What one drain of the invoice address did.
+class InvoiceDrainReport {
+  /// Invoices from trusted services, now pending.
+  final int parked;
+
+  /// Invoice replies finalized (the issuer side; the app pays only, so 0 for now).
+  final int finalized;
+
+  /// Messages from senders not on the list, or notices from anyone but the invoice's service,
+  /// dropped unread. The user is not told; Advanced shows a count.
+  final int dropped;
+
+  /// Notices accepted (receipts, withdrawals).
+  final int notices;
+
+  const InvoiceDrainReport({
+    this.parked = 0,
+    this.finalized = 0,
+    this.dropped = 0,
+    this.notices = 0,
+  });
+
+  @override
+  int get hashCode =>
+      parked.hashCode ^
+      finalized.hashCode ^
+      dropped.hashCode ^
+      notices.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is InvoiceDrainReport &&
+          parked == other.parked &&
+          finalized == other.finalized &&
+          dropped == other.dropped &&
+          notices == other.notices;
+}
+
 /// Mirrors epic-wallet's `WalletInfo`.
 class WalletSummary {
   final BigInt lastConfirmedHeight;

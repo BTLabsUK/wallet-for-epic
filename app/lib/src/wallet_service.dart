@@ -8,6 +8,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'history/wallet_history.dart';
 import 'models.dart';
 
 export 'models.dart';
@@ -206,7 +207,78 @@ abstract interface class WalletSession {
 
   /// Largest amount that can be sent now, with its fee.
   Future<FeeEstimate> estimateMax({required BigInt minimumConfirmations});
+
+  // Invoices over epicbox (I-01). Trusted services bill the user at a separate invoice
+  // address; each invoice waits for the user. Capabilities, not LEPIC's names: I-04 adapts
+  // them to the binding. Every call below throws [invoicesUnsupported] when this is false.
+
+  /// True when this core handles invoices over epicbox.
+  bool get supportsInvoices;
+
+  /// The address the user gives services, apart from [epicboxAddress], which keeps taking
+  /// payments from anyone.
+  Future<String> invoiceAddress();
+
+  /// Moves to a new invoice address and abandons the old one for good. Services must be given
+  /// the new one. Returns it.
+  Future<String> rotateInvoiceAddress();
+
+  /// Services allowed to send invoices, with the user's labels.
+  Future<List<TrustedService>> trustedServices();
+
+  /// Allows the service at [address] (a full epicbox address, validated as one) under
+  /// [label]. Adding one already listed, by key, replaces its address and label.
+  Future<TrustedService> addTrustedService({
+    required String address,
+    required String label,
+  });
+
+  /// Stops the service at [address] from reaching the wallet. Its pending invoices stay until
+  /// answered or expired.
+  Future<void> removeTrustedService({required String address});
+
+  /// Fetches what waits at the invoice address: invoices from trusted services are parked,
+  /// notices applied, everything else dropped unread. Runs on demand only.
+  Future<InvoiceDrainReport> drainInvoices();
+
+  /// Parked invoices not yet answered or expired, oldest first.
+  Future<List<PendingInvoice>> pendingInvoices();
+
+  /// Pays a pending invoice and sends the reply to the service's address on the list.
+  /// [amount] must equal the invoiced amount ([WalletErrorKind.invalidArgument] otherwise).
+  /// Call it only after the user approved behind the PIN or biometric gate.
+  ///
+  /// A reply that cannot be delivered does not undo the payment: the result has status
+  /// [InvoiceStatus.replyFailed], and [resendInvoiceReply] delivers it later.
+  Future<PaidInvoice> payInvoice({
+    required String slateId,
+    required BigInt amount,
+  });
+
+  /// Sends the stored reply of a paid invoice again. Signs nothing; the user's approval
+  /// stands. Throws [WalletErrorKind.transportFailed] when it fails again.
+  Future<PaidInvoice> resendInvoiceReply({required String slateId});
+
+  /// Declines a pending invoice and tells the service.
+  Future<void> declineInvoice({required String slateId});
+
+  /// The invoice behind the transaction with [slateId], once paid, or null.
+  Future<PaidInvoice?> paidInvoice({required String slateId});
+
+  /// Invoices parked, receipts and withdrawals applied, expiries, as drains and answers find
+  /// them. Informational: no event pays or cancels anything.
+  Stream<InvoiceEvent> invoiceEvents();
 }
+
+/// The error of an invoice call on a core without them.
+WalletError invoicesUnsupported(String call) => WalletError(
+  kind: WalletErrorKind.other,
+  message: '$call needs LEPIC with invoices over epicbox (UP-14)',
+);
+
+/// What the fakes accept as an epicbox address, as LEPIC requires it: key `@` relay.
+bool fakeEpicboxAddress(String address) =>
+    RegExp(r'^[1-9A-HJ-NP-Za-km-z]{52}@[a-z0-9.]+(:\d+)?$').hasMatch(address);
 
 /// In-memory wallet for widget tests. Holds at most one wallet per data directory.
 ///
@@ -270,7 +342,7 @@ class FakeWalletService implements WalletService {
 
   @override
   bool validateEpicboxAddress({required String address}) =>
-      RegExp(r'^[1-9A-HJ-NP-Za-km-z]{52}@[a-z0-9.]+(:\d+)?$').hasMatch(address);
+      fakeEpicboxAddress(address);
 
   @override
   Future<bool> walletExists({required WalletConfig config}) async =>
@@ -397,9 +469,13 @@ String fakeSealedPassword(String pin) => 'fake-sealed|$pin';
 
 /// Scripted open wallet for tests. Mutate the public fields to shape each scenario.
 class FakeWalletSession implements WalletSession {
-  FakeWalletSession({WalletSummary? summary, List<TxEntry>? transactions})
-    : summaryValue = summary ?? emptySummary,
-      transactionsValue = transactions ?? <TxEntry>[];
+  FakeWalletSession({
+    WalletSummary? summary,
+    List<TxEntry>? transactions,
+    WalletHistory? invoiceHistory,
+  }) : summaryValue = summary ?? emptySummary,
+       transactionsValue = transactions ?? <TxEntry>[],
+       invoiceHistory = invoiceHistory ?? WalletHistory.memory();
 
   static final WalletSummary emptySummary = WalletSummary(
     lastConfirmedHeight: BigInt.zero,
@@ -857,6 +933,375 @@ class FakeWalletSession implements WalletSession {
       );
     }
   }
+
+  // Invoices. The fake plays the wallet's half as UP-14 describes it: the allowlist and the
+  // parked invoices are the wallet's, labels and the invoice index live in [invoiceHistory],
+  // as the LEPIC session will keep them. Tests and the tour drive it with [relayInvoice],
+  // [relayNotice], [clock] and [replyError]; [drainInvoices] picks up what was relayed.
+
+  /// When false, every invoice call throws [invoicesUnsupported], as on a core without them.
+  bool invoicesSupported = true;
+
+  /// Labels and the invoice index; a test passes one on a file to check a reopen.
+  WalletHistory invoiceHistory;
+
+  /// Now, for expiry. Tests move it forward.
+  DateTime Function() clock = DateTime.now;
+
+  /// The wallet's allowlist: full epicbox addresses.
+  final List<String> allowlist = [];
+
+  /// Waiting at the relay until the next [drainInvoices].
+  final List<_Relayed> _relay = [];
+
+  /// Parked invoices by slate id, in arrival order.
+  final Map<String, PendingInvoice> pendingInvoicesValue = {};
+
+  /// Approved invoices by slate id.
+  final Map<String, PaidInvoice> paidInvoicesValue = {};
+
+  /// Every [payInvoice] that got past its checks, so a test can prove nothing paid.
+  int invoicePayments = 0;
+
+  /// Slate ids whose reply reached the relay, once per delivery.
+  final List<String> deliveredReplies = [];
+
+  /// Slate ids declined, in order.
+  final List<String> declinedInvoices = [];
+
+  /// When set, delivering an invoice reply fails with it, after the payment is stored.
+  WalletError? replyError;
+
+  final StreamController<InvoiceEvent> invoiceEventsController =
+      StreamController<InvoiceEvent>.broadcast();
+
+  /// The invoice address at [index].
+  static String fakeInvoiceAddress(int index) =>
+      'esFakeInvoice$index@epicbox.epiccash.com';
+
+  /// An invoice from [from] waiting at the relay. Parked by the next drain only if [from]'s
+  /// key is on the allowlist; dropped unread otherwise.
+  void relayInvoice({
+    required String from,
+    required String slateId,
+    required BigInt amount,
+    String? message,
+    Duration expiresIn = const Duration(hours: 24),
+  }) => _relay.add(
+    _Relayed(
+      from: from,
+      slateId: slateId,
+      amount: amount,
+      message: message,
+      expiresIn: expiresIn,
+    ),
+  );
+
+  /// A notice from [from] waiting at the relay: [InvoiceEventKind.posted] (with
+  /// [kernelExcess]) or [InvoiceEventKind.withdrawn]. Applied by the next drain only when
+  /// [from] is the service of that invoice; dropped otherwise.
+  void relayNotice({
+    required String from,
+    required InvoiceEventKind kind,
+    required String slateId,
+    String? kernelExcess,
+  }) => _relay.add(
+    _Relayed(
+      from: from,
+      slateId: slateId,
+      notice: kind,
+      kernelExcess: kernelExcess,
+    ),
+  );
+
+  void _requireInvoices(String call) {
+    if (!invoicesSupported) throw invoicesUnsupported(call);
+  }
+
+  void _emit(InvoiceEventKind kind, String slateId, {String? kernelExcess}) =>
+      invoiceEventsController.add(
+        InvoiceEvent(kind: kind, slateId: slateId, kernelExcess: kernelExcess),
+      );
+
+  /// Drops the invoices whose time ran out.
+  void _sweepExpired() {
+    final now = clock();
+    final gone = [
+      for (final i in pendingInvoicesValue.values)
+        if (i.isExpiredAt(now)) i.slateId,
+    ];
+    for (final id in gone) {
+      pendingInvoicesValue.remove(id);
+      _emit(InvoiceEventKind.expired, id);
+    }
+  }
+
+  bool _trusted(String from) =>
+      allowlist.any((a) => epicboxKey(a) == epicboxKey(from));
+
+  @override
+  bool get supportsInvoices => invoicesSupported;
+
+  @override
+  Future<String> invoiceAddress() async {
+    _requireInvoices('invoiceAddress');
+    return fakeInvoiceAddress(invoiceHistory.invoiceIndex);
+  }
+
+  @override
+  Future<String> rotateInvoiceAddress() async {
+    _requireInvoices('rotateInvoiceAddress');
+    final next = invoiceHistory.invoiceIndex + 1;
+    await invoiceHistory.setInvoiceIndex(next);
+    return fakeInvoiceAddress(next);
+  }
+
+  @override
+  Future<List<TrustedService>> trustedServices() async {
+    _requireInvoices('trustedServices');
+    return invoiceHistory.trustedServices(allowlist);
+  }
+
+  @override
+  Future<TrustedService> addTrustedService({
+    required String address,
+    required String label,
+  }) async {
+    _requireInvoices('addTrustedService');
+    final a = address.trim();
+    if (!fakeEpicboxAddress(a)) {
+      throw const WalletError(
+        kind: WalletErrorKind.invalidArgument,
+        message: 'not an epicbox address',
+      );
+    }
+    final own = [this.address, fakeInvoiceAddress(invoiceHistory.invoiceIndex)];
+    if (own.any((o) => epicboxKey(o) == epicboxKey(a))) {
+      throw const WalletError(
+        kind: WalletErrorKind.invalidArgument,
+        message: 'this is one of your own addresses',
+      );
+    }
+    await invoiceHistory.setServiceLabel(a, label);
+    final i = allowlist.indexWhere((e) => epicboxKey(e) == epicboxKey(a));
+    if (i >= 0) {
+      if (allowlist[i] != a) {
+        await invoiceHistory.removeServiceLabel(allowlist[i]);
+      }
+      allowlist[i] = a;
+    } else {
+      allowlist.add(a);
+    }
+    return TrustedService(address: a, label: label.trim());
+  }
+
+  @override
+  Future<void> removeTrustedService({required String address}) async {
+    _requireInvoices('removeTrustedService');
+    final key = epicboxKey(address);
+    for (final a in allowlist.where((e) => epicboxKey(e) == key).toList()) {
+      allowlist.remove(a);
+      await invoiceHistory.removeServiceLabel(a);
+    }
+  }
+
+  @override
+  Future<InvoiceDrainReport> drainInvoices() async {
+    _requireInvoices('drainInvoices');
+    var parked = 0, dropped = 0, notices = 0;
+    final batch = [..._relay];
+    _relay.clear();
+    for (final m in batch) {
+      final notice = m.notice;
+      if (notice == null) {
+        if (!_trusted(m.from)) {
+          dropped++;
+          continue;
+        }
+        // A second copy of a known invoice is acknowledged and changes nothing.
+        if (pendingInvoicesValue.containsKey(m.slateId) ||
+            paidInvoicesValue.containsKey(m.slateId)) {
+          continue;
+        }
+        final now = clock();
+        pendingInvoicesValue[m.slateId] = PendingInvoice(
+          slateId: m.slateId,
+          senderAddress: m.from,
+          amount: m.amount!,
+          message: m.message,
+          receivedAt: now,
+          expiresAt: now.add(m.expiresIn),
+        );
+        parked++;
+        _emit(InvoiceEventKind.received, m.slateId);
+        continue;
+      }
+      // A notice counts only from the service of that invoice.
+      final pending = pendingInvoicesValue[m.slateId];
+      final paid = paidInvoicesValue[m.slateId];
+      final sender = pending?.senderAddress ?? paid?.senderAddress;
+      if (sender == null || epicboxKey(sender) != epicboxKey(m.from)) {
+        dropped++;
+        continue;
+      }
+      switch (notice) {
+        case InvoiceEventKind.posted when paid != null:
+          paidInvoicesValue[m.slateId] = paid.withStatus(
+            InvoiceStatus.posted,
+            kernelExcess: m.kernelExcess,
+          );
+          _emit(
+            InvoiceEventKind.posted,
+            m.slateId,
+            kernelExcess: m.kernelExcess,
+          );
+        case InvoiceEventKind.withdrawn when pending != null:
+          pendingInvoicesValue.remove(m.slateId);
+          _emit(InvoiceEventKind.withdrawn, m.slateId);
+        case InvoiceEventKind.withdrawn when paid != null:
+          paidInvoicesValue[m.slateId] = paid.withStatus(
+            InvoiceStatus.withdrawn,
+          );
+          _emit(InvoiceEventKind.withdrawn, m.slateId);
+        default:
+          dropped++;
+          continue;
+      }
+      notices++;
+    }
+    _sweepExpired();
+    return InvoiceDrainReport(
+      parked: parked,
+      dropped: dropped,
+      notices: notices,
+    );
+  }
+
+  @override
+  Future<List<PendingInvoice>> pendingInvoices() async {
+    _requireInvoices('pendingInvoices');
+    _sweepExpired();
+    return [...pendingInvoicesValue.values];
+  }
+
+  @override
+  Future<PaidInvoice> payInvoice({
+    required String slateId,
+    required BigInt amount,
+  }) async {
+    _requireInvoices('payInvoice');
+    _sweepExpired();
+    final invoice = pendingInvoicesValue[slateId];
+    if (invoice == null) {
+      throw const WalletError(
+        kind: WalletErrorKind.invalidArgument,
+        message: 'no pending invoice with that id',
+      );
+    }
+    if (amount != invoice.amount) {
+      throw const WalletError(
+        kind: WalletErrorKind.invalidArgument,
+        message: 'the amount does not match the invoice',
+      );
+    }
+    _checkFunds(amount);
+    invoicePayments++;
+    pendingInvoicesValue.remove(slateId);
+    final txId = 200 + invoicePayments;
+    transactionsValue.add(
+      fakeTx(
+        id: txId,
+        slateId: slateId,
+        kind: TxKind.sent,
+        status: TxStatus.awaitingRecipient,
+        createdAtUnix: clock().millisecondsSinceEpoch ~/ 1000,
+        amountDebited: amount + fee,
+        fee: fee,
+        numInputs: 1,
+        counterparty: invoice.senderAddress,
+        cancellable: true,
+      ),
+    );
+    final paid = PaidInvoice(
+      slateId: slateId,
+      senderAddress: invoice.senderAddress,
+      amount: amount,
+      message: invoice.message,
+      status: InvoiceStatus.replyFailed,
+      txId: txId,
+    );
+    paidInvoicesValue[slateId] = paid;
+    if (replyError != null) return paid;
+    return _deliver(paid);
+  }
+
+  PaidInvoice _deliver(PaidInvoice paid) {
+    deliveredReplies.add(paid.slateId);
+    return paidInvoicesValue[paid.slateId] = paid.withStatus(
+      InvoiceStatus.replied,
+    );
+  }
+
+  @override
+  Future<PaidInvoice> resendInvoiceReply({required String slateId}) async {
+    _requireInvoices('resendInvoiceReply');
+    final paid = paidInvoicesValue[slateId];
+    if (paid == null) {
+      throw const WalletError(
+        kind: WalletErrorKind.invalidArgument,
+        message: 'no paid invoice with that id',
+      );
+    }
+    if (paid.status != InvoiceStatus.replyFailed) return paid;
+    if (replyError != null) throw replyError!;
+    return _deliver(paid);
+  }
+
+  @override
+  Future<void> declineInvoice({required String slateId}) async {
+    _requireInvoices('declineInvoice');
+    if (pendingInvoicesValue.remove(slateId) == null) {
+      throw const WalletError(
+        kind: WalletErrorKind.invalidArgument,
+        message: 'no pending invoice with that id',
+      );
+    }
+    declinedInvoices.add(slateId);
+    _emit(InvoiceEventKind.declined, slateId);
+  }
+
+  @override
+  Future<PaidInvoice?> paidInvoice({required String slateId}) async {
+    _requireInvoices('paidInvoice');
+    return paidInvoicesValue[slateId];
+  }
+
+  @override
+  Stream<InvoiceEvent> invoiceEvents() {
+    _requireInvoices('invoiceEvents');
+    return invoiceEventsController.stream;
+  }
+}
+
+/// A message waiting at the fake relay: an invoice, or a notice when [notice] is set.
+class _Relayed {
+  _Relayed({
+    required this.from,
+    required this.slateId,
+    this.amount,
+    this.message,
+    this.expiresIn = Duration.zero,
+    this.notice,
+    this.kernelExcess,
+  });
+
+  final String from;
+  final String slateId;
+  final BigInt? amount;
+  final String? message;
+  final Duration expiresIn;
+  final InvoiceEventKind? notice;
+  final String? kernelExcess;
 }
 
 /// A [TxEntry] for tests, with the fields most tests do not care about filled in. [key] defaults

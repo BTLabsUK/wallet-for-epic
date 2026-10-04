@@ -548,3 +548,170 @@ class SendRecipientNotifier extends Notifier<RecipientHandoff?> {
 
   void clear() => state = null;
 }
+
+// Invoices over epicbox (I-01). Every provider here is empty or null while the wallet is
+// locked or its core has no invoices ([WalletSession.supportsInvoices]). None of them pays:
+// paying is the review screen's call after the PIN or biometric gate, and nothing else.
+
+/// Now, for invoice expiry. Tests and the tour override it.
+final invoiceClockProvider = Provider<DateTime Function()>(
+  (ref) => DateTime.now,
+);
+
+/// The open wallet when it handles invoices, else null.
+WalletSession? _invoiceSession(Ref ref) {
+  final session = ref.watch(sessionProvider);
+  return session != null && session.supportsInvoices ? session : null;
+}
+
+/// Pending invoices of the open wallet, oldest first. The first read drains the invoice
+/// address, and so does [PendingInvoicesNotifier.refresh] (pull to refresh, opening the
+/// screen, app start); nothing listens on it in the background. An invoice drops out of the
+/// list when its time runs out.
+final pendingInvoicesProvider =
+    AsyncNotifierProvider.autoDispose<
+      PendingInvoicesNotifier,
+      List<PendingInvoice>
+    >(PendingInvoicesNotifier.new);
+
+class PendingInvoicesNotifier extends AsyncNotifier<List<PendingInvoice>> {
+  Timer? _expiry;
+
+  @override
+  Future<List<PendingInvoice>> build() async {
+    ref.onDispose(() => _expiry?.cancel());
+    final session = _invoiceSession(ref);
+    if (session == null) return const [];
+    final report = await session.drainInvoices();
+    if (!ref.mounted) return const [];
+    if (report.dropped > 0) {
+      ref.read(droppedInvoiceMessagesProvider.notifier).add(report.dropped);
+    }
+    // A receipt or a withdrawal changes what a paid invoice's details show.
+    if (report.notices > 0) ref.invalidate(paidInvoiceProvider);
+    return _unexpired(await session.pendingInvoices());
+  }
+
+  /// [invoices] without the expired ones, with a timer for the next to expire.
+  List<PendingInvoice> _unexpired(List<PendingInvoice> invoices) {
+    _expiry?.cancel();
+    final now = ref.read(invoiceClockProvider)();
+    final live = [
+      for (final i in invoices)
+        if (!i.isExpiredAt(now)) i,
+    ];
+    if (live.isNotEmpty) {
+      final next = live
+          .map((i) => i.timeLeftAt(now))
+          .reduce((a, b) => a < b ? a : b);
+      _expiry = Timer(next, () {
+        final shown = state.value;
+        if (ref.mounted && shown != null) state = AsyncData(_unexpired(shown));
+      });
+    }
+    return live;
+  }
+
+  /// Drains the invoice address again and reloads the list.
+  Future<void> refresh() async {
+    ref.invalidateSelf();
+    await future;
+  }
+
+  /// Takes an invoice the user paid or declined off the list, without another drain.
+  void answered(String slateId) {
+    final shown = state.value;
+    if (shown == null) return;
+    state = AsyncData([
+      for (final i in shown)
+        if (i.slateId != slateId) i,
+    ]);
+  }
+}
+
+/// How many pending invoices wait, for Home's badge. 0 until the first drain is done.
+final pendingInvoiceCountProvider = Provider.autoDispose<int>(
+  (ref) => ref.watch(pendingInvoicesProvider).value?.length ?? 0,
+);
+
+/// Messages the drains of this session dropped unread (senders not on the list, notices from
+/// anyone but the invoice's service). Shown under Advanced only; the user is never told.
+final droppedInvoiceMessagesProvider =
+    NotifierProvider<DroppedInvoiceMessagesNotifier, int>(
+      DroppedInvoiceMessagesNotifier.new,
+    );
+
+class DroppedInvoiceMessagesNotifier extends Notifier<int> {
+  @override
+  int build() {
+    ref.watch(sessionProvider);
+    return 0;
+  }
+
+  void add(int dropped) => state += dropped;
+}
+
+/// The invoice address the user hands to services, or null without invoices.
+final invoiceAddressProvider = FutureProvider.autoDispose<String?>((ref) {
+  final session = _invoiceSession(ref);
+  return session?.invoiceAddress();
+});
+
+/// Moves to a new invoice address. The old one is abandoned: services need the new one.
+Future<String> rotateInvoiceAddress(WidgetRef ref) async {
+  final session = ref.read(sessionProvider);
+  if (session == null) throw StateError('Wallet is locked');
+  final address = await session.rotateInvoiceAddress();
+  logInfo('invoices', 'invoice address rotated');
+  ref.invalidate(invoiceAddressProvider);
+  return address;
+}
+
+/// Trusted services with the user's labels from `wfe_meta.json`.
+final trustedServicesProvider =
+    AsyncNotifierProvider.autoDispose<
+      TrustedServicesNotifier,
+      List<TrustedService>
+    >(TrustedServicesNotifier.new);
+
+class TrustedServicesNotifier extends AsyncNotifier<List<TrustedService>> {
+  @override
+  Future<List<TrustedService>> build() async {
+    final session = _invoiceSession(ref);
+    if (session == null) return const [];
+    return session.trustedServices();
+  }
+
+  WalletSession get _session =>
+      _invoiceSession(ref) ?? (throw StateError('No wallet with invoices'));
+
+  /// Allows the service at [address] under [label]. Throws [WalletError] for an address that
+  /// is not an epicbox address.
+  Future<TrustedService> add({
+    required String address,
+    required String label,
+  }) async {
+    final added = await _session.addTrustedService(
+      address: address,
+      label: label,
+    );
+    logInfo('invoices', 'trusted service added');
+    ref.invalidateSelf();
+    await future;
+    return added;
+  }
+
+  Future<void> remove(String address) async {
+    await _session.removeTrustedService(address: address);
+    logInfo('invoices', 'trusted service removed');
+    ref.invalidateSelf();
+    await future;
+  }
+}
+
+/// The invoice behind the transaction with that slate id, once paid, or null.
+final paidInvoiceProvider = FutureProvider.autoDispose
+    .family<PaidInvoice?, String>((ref, slateId) {
+      final session = _invoiceSession(ref);
+      return session?.paidInvoice(slateId: slateId);
+    });

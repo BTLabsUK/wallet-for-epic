@@ -703,4 +703,62 @@ class LepicWalletSession implements WalletSession {
       };
     }
   }
+
+  // Invoices wait for LEPIC's UP-14 binding and a pin move (I-04). Until then every call says
+  // so, and the UI hides invoices because [supportsInvoices] is false.
+
+  @override
+  bool get supportsInvoices => false;
+
+  @override
+  Future<String> invoiceAddress() async =>
+      throw invoicesUnsupported('invoiceAddress');
+
+  @override
+  Future<String> rotateInvoiceAddress() async =>
+      throw invoicesUnsupported('rotateInvoiceAddress');
+
+  @override
+  Future<List<TrustedService>> trustedServices() async =>
+      throw invoicesUnsupported('trustedServices');
+
+  @override
+  Future<TrustedService> addTrustedService({
+    required String address,
+    required String label,
+  }) async => throw invoicesUnsupported('addTrustedService');
+
+  @override
+  Future<void> removeTrustedService({required String address}) async =>
+      throw invoicesUnsupported('removeTrustedService');
+
+  @override
+  Future<InvoiceDrainReport> drainInvoices() async =>
+      throw invoicesUnsupported('drainInvoices');
+
+  @override
+  Future<List<PendingInvoice>> pendingInvoices() async =>
+      throw invoicesUnsupported('pendingInvoices');
+
+  @override
+  Future<PaidInvoice> payInvoice({
+    required String slateId,
+    required BigInt amount,
+  }) async => throw invoicesUnsupported('payInvoice');
+
+  @override
+  Future<PaidInvoice> resendInvoiceReply({required String slateId}) async =>
+      throw invoicesUnsupported('resendInvoiceReply');
+
+  @override
+  Future<void> declineInvoice({required String slateId}) async =>
+      throw invoicesUnsupported('declineInvoice');
+
+  @override
+  Future<PaidInvoice?> paidInvoice({required String slateId}) async =>
+      throw invoicesUnsupported('paidInvoice');
+
+  @override
+  Stream<InvoiceEvent> invoiceEvents() =>
+      Stream.error(invoicesUnsupported('invoiceEvents'));
 }

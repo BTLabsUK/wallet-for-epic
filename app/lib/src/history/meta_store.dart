@@ -425,7 +425,10 @@ class Meta {
     Map<String, BigInt>? kernelHeights,
     Map<String, BigInt>? blockTimeMisses,
     this.cacheNode,
-  }) : notes = SplayTreeMap.of(notes ?? const {}),
+    Map<String, String>? serviceLabels,
+    this.invoiceIndex,
+  }) : serviceLabels = SplayTreeMap.of(serviceLabels ?? const {}),
+       notes = SplayTreeMap.of(notes ?? const {}),
        contacts = contacts ?? [],
        annotations = SplayTreeMap.of(annotations ?? const {}),
        records = records ?? [],
@@ -470,6 +473,11 @@ class Meta {
         ),
       ),
       cacheNode: _optStr(m['cache_node'], 'cache_node'),
+      serviceLabels: map('service_labels')
+          .map((k, v) => MapEntry(k, _str(v, 'service label'))),
+      invoiceIndex: m['invoice_index'] == null
+          ? null
+          : _u32(m['invoice_index'], 'invoice_index'),
     );
   }
 
@@ -495,6 +503,15 @@ class Meta {
   final SplayTreeMap<String, BigInt> kernelHeights;
   final SplayTreeMap<String, BigInt> blockTimeMisses;
   final String? cacheNode;
+
+  /// The user's labels of trusted invoice services, by the full epicbox address. The wallet
+  /// keeps the addresses; only these names are the app's. Written only when not empty, so a
+  /// file without invoices stays as the old core wrote it.
+  final SplayTreeMap<String, String> serviceLabels;
+
+  /// The address index of the current invoice address (1 or higher), which the seed does not
+  /// hold. Null until the first rotation: the wallet starts at 1.
+  int? invoiceIndex;
 
   /// The block time at [height], when cached and known.
   int? blockTime(BigInt height) {
@@ -522,6 +539,8 @@ class Meta {
       };
     }
     _put(out, 'cache_node', cacheNode);
+    if (serviceLabels.isNotEmpty) out['service_labels'] = {...serviceLabels};
+    _put(out, 'invoice_index', invoiceIndex);
     return out;
   }
 

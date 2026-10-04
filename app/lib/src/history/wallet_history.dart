@@ -123,6 +123,35 @@ class WalletHistory {
   Future<void> deleteContact(String id) =>
       _store.update((m) => m.contacts.removeWhere((c) => c.id == id));
 
+  /// [addresses], the wallet's trusted invoice services, with the labels kept here. An address
+  /// with no label here (the file was lost) comes back with none.
+  List<TrustedService> trustedServices(List<String> addresses) => [
+    for (final a in addresses)
+      TrustedService(address: a, label: meta.serviceLabels[a]),
+  ];
+
+  /// Stores [label] for the service at [address]. A blank label is refused.
+  Future<void> setServiceLabel(String address, String label) async {
+    final text = label.trim();
+    if (text.isEmpty) throw _invalid('the service needs a label');
+    await _store.update((m) => m.serviceLabels[address.trim()] = text);
+  }
+
+  Future<void> removeServiceLabel(String address) =>
+      _store.update((m) => m.serviceLabels.remove(address.trim()));
+
+  /// The index of the current invoice address; 1 until the first rotation.
+  int get invoiceIndex => meta.invoiceIndex ?? 1;
+
+  /// Records a rotation to [index], which must be above the current one: an abandoned
+  /// invoice address is never used again.
+  Future<void> setInvoiceIndex(int index) async {
+    if (index <= invoiceIndex) {
+      throw _invalid('the invoice index only moves forward');
+    }
+    await _store.update((m) => m.invoiceIndex = index);
+  }
+
   /// What an export of this wallet carries. A row a scan rebuilt with nothing added by the
   /// user comes back by itself after a restore, so it is left out.
   HistoryPayload exportPayload(
