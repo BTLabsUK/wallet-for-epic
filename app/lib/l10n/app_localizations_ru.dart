@@ -1258,24 +1258,23 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String homeTitle(String network) {
-    return 'Epic Cash · $network';
-  }
-
-  @override
-  String get homeTitleNoNetwork => 'Epic Cash · Кошелёк';
-
-  @override
-  String get homeRefreshTooltip => 'Обновить';
-
-  @override
   String get homeLockTooltip => 'Заблокировать кошелёк';
+
+  @override
+  String get shellTitle => 'Epic Cash';
+
+  @override
+  String get shellTestNetworkTooltip =>
+      'Тестовая сеть. Её монеты ничего не стоят.';
 
   @override
   String get homeSettingsTooltip => 'Настройки';
 
   @override
   String get homeSendButton => 'Отправить';
+
+  @override
+  String get shellWalletTab => 'Кошелёк';
 
   @override
   String get homeReceiveButton => 'Получить';
@@ -1398,6 +1397,20 @@ class AppLocalizationsRu extends AppLocalizations {
   String get homeBalanceSpendable => 'Доступно';
 
   @override
+  String get balanceHelpLabel => 'Что означают эти балансы';
+
+  @override
+  String get balanceTotal => 'Всего';
+
+  @override
+  String balanceHelpRow(String label, String amount) {
+    return '$label: $amount';
+  }
+
+  @override
+  String get balanceTotalHelp => 'Всё в этом кошельке, доступное и нет.';
+
+  @override
   String get homeBalanceHiddenLabel => 'Баланс скрыт';
 
   @override
@@ -1407,32 +1420,32 @@ class AppLocalizationsRu extends AppLocalizations {
   String get homeHideBalances => 'Скрыть баланс';
 
   @override
-  String homeBalanceNotSpendable(String amount) {
-    return '$amount пока недоступно';
-  }
-
-  @override
-  String homeBalanceAmountWaitingToFinish(String amount) {
-    return '$amount ожидает завершения';
-  }
-
-  @override
-  String get homeShowBreakdown => 'Показать детализацию';
-
-  @override
-  String get homeHideBreakdown => 'Скрыть детализацию';
-
-  @override
   String get homeBalanceConfirming => 'Подтверждается';
+
+  @override
+  String get balanceConfirmingHelp =>
+      'В блокчейне, ждёт достаточно подтверждений.';
 
   @override
   String get homeBalanceWaitingToFinish => 'Ожидает завершения';
 
   @override
+  String get balanceWaitingHelp =>
+      'Принято вами; отправитель ещё должен её завершить.';
+
+  @override
   String get homeBalanceLocked => 'Заблокировано текущим платежом';
 
   @override
+  String get balanceLockedHelp =>
+      'Зарезервировано для начатого платежа; сдача вернётся после его завершения.';
+
+  @override
   String get homeBalanceImmature => 'Награды за майнинг (пока недоступны)';
+
+  @override
+  String get balanceImmatureHelp =>
+      'Награды за майнинг ждут определённое число блоков, прежде чем их можно потратить.';
 
   @override
   String get homeSyncSyncing => 'Синхронизация…';
@@ -1457,15 +1470,52 @@ class AppLocalizationsRu extends AppLocalizations {
   String get homeSyncContactingNode => 'Подключение к узлу…';
 
   @override
+  String get statusOnline => 'В сети';
+
+  @override
+  String get statusSyncing => 'Синхронизация';
+
+  @override
+  String statusSyncingPercent(Object percent) {
+    return 'Синхронизация $percent%';
+  }
+
+  @override
+  String get statusConnecting => 'Подключение';
+
+  @override
+  String get statusOffline => 'Не в сети';
+
+  @override
+  String statusNodeLabel(Object state) {
+    return 'Узел: $state';
+  }
+
+  @override
+  String statusEpicboxLabel(Object state) {
+    return 'epicbox: $state';
+  }
+
+  @override
+  String statusNodeHost(Object host) {
+    return 'Узел: $host';
+  }
+
+  @override
+  String statusNodeVersion(Object version) {
+    return 'Версия узла $version';
+  }
+
+  @override
+  String statusRelay(Object relay) {
+    return 'Сервер: $relay';
+  }
+
+  @override
   String get homeEpicboxOffline => 'Epicbox недоступен, переподключение.';
 
   @override
   String get homeEpicboxConnecting => 'Подключение к epicbox…';
-
-  @override
-  String homeSyncLineWithRelay(String status, String relay) {
-    return '$status $relay';
-  }
 
   @override
   String homeSyncedAtBlock(String height) {
@@ -1522,25 +1572,13 @@ class AppLocalizationsRu extends AppLocalizations {
   String get homeNoPayments => 'Платежей пока нет.';
 
   @override
-  String get homeShowMyAddress => 'Показать мой адрес';
-
-  @override
-  String get receiveTitle => 'Получить';
-
-  @override
-  String get receiveHelpTooltip => 'Справка';
-
-  @override
   String get receiveEpicboxConnected => 'Epicbox подключён';
 
   @override
-  String get receiveEpicboxOffline => 'Epicbox недоступен';
-
-  @override
-  String get receiveEpicboxConnecting => 'Подключение к epicbox';
-
-  @override
   String get receiveQrLabel => 'QR-код вашего адреса';
+
+  @override
+  String get receiveHelpButton => 'Как работает получение';
 
   @override
   String get receiveAddressCopied => 'Адрес скопирован';
@@ -2055,12 +2093,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get launchTryAgain => 'Повторить';
-
-  @override
-  String get sendTitle => 'Отправить';
-
-  @override
-  String get sendByFileTitle => 'Отправка файлом';
 
   @override
   String get sendAmountNegative => 'Сумма не может быть отрицательной.';

@@ -13,22 +13,24 @@ import 'common.dart';
 import 'help_screen.dart';
 import 'slate_file_screen.dart';
 import 'theme/advanced.dart';
-import 'theme/brand.dart';
 import 'theme/protocol.dart';
 import 'theme/tokens.dart';
 
 /// Receiving: epicbox payments arrive by themselves while connected; a transaction file or
 /// text can still be accepted by hand. There is no HTTP receive, because a phone cannot
 /// accept connections.
-class ReceiveScreen extends ConsumerStatefulWidget {
-  const ReceiveScreen({super.key});
+///
+/// The Receive tab's content; the shell's header carries the epicbox status.
+class ReceiveView extends ConsumerStatefulWidget {
+  const ReceiveView({super.key});
 
   @override
-  ConsumerState<ReceiveScreen> createState() => _ReceiveScreenState();
+  ConsumerState<ReceiveView> createState() => _ReceiveViewState();
 }
 
-class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
+class _ReceiveViewState extends ConsumerState<ReceiveView> {
   final _incoming = TextEditingController();
+
   /// A repeat carries the answer given the first time.
   ReceivedSlate? _response;
   String? _error;
@@ -79,21 +81,8 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
   Widget build(BuildContext context) {
     final l = context.l10n;
     final address = ref.watch(addressProvider);
-    return SlotScaffold(
-      centered: true,
-      glow: heroGlow,
-      appBar: AppBar(
-        title: Text(l.receiveTitle),
-        actions: [
-          const _ConnectionDot(),
-          IconButton(
-            tooltip: l.receiveHelpTooltip,
-            icon: const Icon(Icons.help_outline),
-            onPressed: () => openHelp(context, HelpTopic.receiving),
-          ),
-        ],
-      ),
-      body: CenteredBody(
+    return CenteredScroll(
+      child: CenteredBody(
         children: [
           switch (address) {
             AsyncData(:final value) => _AddressCard(address: value),
@@ -110,6 +99,14 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
               children: _fileSection(l),
             ),
           ],
+          const SizedBox(height: 16),
+          Center(
+            child: TextButton.icon(
+              icon: const Icon(Icons.help_outline),
+              label: Text(l.receiveHelpButton),
+              onPressed: () => openHelp(context, HelpTopic.receiving),
+            ),
+          ),
         ],
       ),
     );
@@ -238,46 +235,6 @@ class _AddressCard extends ConsumerWidget {
           ],
         ),
       ],
-    );
-  }
-}
-
-/// A small dot for the epicbox connection: filled when connected, red when offline, hollow
-/// while connecting. The words are in its tooltip and semantics label only.
-class _ConnectionDot extends ConsumerWidget {
-  const _ConnectionDot();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final listener = ref.watch(listenerProvider);
-    final colors = Theme.of(context).colorScheme;
-    final l = context.l10n;
-    final (label, color, filled) = listener.connected
-        ? (l.receiveEpicboxConnected, colors.primary, true)
-        : listener.lost
-        ? (l.receiveEpicboxOffline, colors.error, true)
-        : (l.receiveEpicboxConnecting, colors.outline, false);
-    return Tooltip(
-      message: label,
-      child: Semantics(
-        label: label,
-        liveRegion: true,
-        child: SizedBox.square(
-          // A 48 dp target, so the tooltip opens on a long press.
-          dimension: 48,
-          child: Center(
-            child: Container(
-              width: 10,
-              height: 10,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: filled ? color : null,
-                border: Border.all(color: color, width: 2),
-              ),
-            ),
-          ),
-        ),
-      ),
     );
   }
 }

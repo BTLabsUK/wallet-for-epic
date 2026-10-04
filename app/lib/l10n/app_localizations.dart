@@ -1562,29 +1562,23 @@ abstract class AppLocalizations {
     int contacts,
   );
 
-  /// Home screen title. Epic Cash is the coin's name; network is the network's name (Mainnet, Floonet, Usernet).
-  ///
-  /// In en, this message translates to:
-  /// **'Epic Cash · {network}'**
-  String homeTitle(String network);
-
-  /// Home screen title for the moment before the network is known. Epic Cash is the coin's name.
-  ///
-  /// In en, this message translates to:
-  /// **'Epic Cash · Wallet'**
-  String get homeTitleNoNetwork;
-
-  /// Tooltip of the app-bar button that reloads balances and payments from the node (the Epic Cash server the wallet reads the chain from).
-  ///
-  /// In en, this message translates to:
-  /// **'Refresh'**
-  String get homeRefreshTooltip;
-
   /// Tooltip of the app-bar button that closes the wallet and returns to the PIN screen.
   ///
   /// In en, this message translates to:
   /// **'Lock wallet'**
   String get homeLockTooltip;
+
+  /// App-bar title of the wallet's main page. The coin's name; do not translate.
+  ///
+  /// In en, this message translates to:
+  /// **'Epic Cash'**
+  String get shellTitle;
+
+  /// Tooltip of the small network name (Floonet) beside the app-bar title, shown only on a test network.
+  ///
+  /// In en, this message translates to:
+  /// **'A test network. Its coins have no value.'**
+  String get shellTestNetworkTooltip;
 
   /// Tooltip of the app-bar button that opens settings.
   ///
@@ -1592,19 +1586,25 @@ abstract class AppLocalizations {
   /// **'Settings'**
   String get homeSettingsTooltip;
 
-  /// Main button on home that starts a payment. Short: it shares a row with the Receive button.
+  /// Label of the left tab of the bottom tab bar, where payments are sent. Short.
   ///
   /// In en, this message translates to:
   /// **'Send'**
   String get homeSendButton;
 
-  /// Main button on home that shows the wallet's address. Short: it shares a row with the Send button.
+  /// Label of the middle tab of the bottom tab bar: balance, reminders and recent payments. Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet'**
+  String get shellWalletTab;
+
+  /// Label of the right tab of the bottom tab bar, which shows the wallet's address. Short.
   ///
   /// In en, this message translates to:
   /// **'Receive'**
   String get homeReceiveButton;
 
-  /// Tooltip of the button beside Send and Receive that scans a recipient's QR code.
+  /// Tooltip of the app-bar button that scans a recipient's QR code and opens Send with it.
   ///
   /// In en, this message translates to:
   /// **'Scan a QR code to send'**
@@ -1760,6 +1760,30 @@ abstract class AppLocalizations {
   /// **'Spendable'**
   String get homeBalanceSpendable;
 
+  /// Screen-reader label of the ? beside the balance; a tap shows every balance with a short explanation.
+  ///
+  /// In en, this message translates to:
+  /// **'What these balances mean'**
+  String get balanceHelpLabel;
+
+  /// Label in the balance explanation: everything in the wallet. Followed by a colon and the amount.
+  ///
+  /// In en, this message translates to:
+  /// **'Total'**
+  String get balanceTotal;
+
+  /// One balance in the balance explanation: its name, then the amount.
+  ///
+  /// In en, this message translates to:
+  /// **'{label}: {amount}'**
+  String balanceHelpRow(String label, String amount);
+
+  /// Explanation under Total in the balance explanation.
+  ///
+  /// In en, this message translates to:
+  /// **'Everything in this wallet, spendable or not.'**
+  String get balanceTotalHelp;
+
   /// Screen-reader label of the balance while amounts are hidden.
   ///
   /// In en, this message translates to:
@@ -1778,35 +1802,17 @@ abstract class AppLocalizations {
   /// **'Hide balances'**
   String get homeHideBalances;
 
-  /// Line under the balance; tapping it shows why. No full stop.
-  ///
-  /// In en, this message translates to:
-  /// **'{amount} not spendable yet'**
-  String homeBalanceNotSpendable(String amount);
-
-  /// Line under the balance: received payments the sender has not finished yet. No full stop.
-  ///
-  /// In en, this message translates to:
-  /// **'{amount} waiting to finish'**
-  String homeBalanceAmountWaitingToFinish(String amount);
-
-  /// Screen-reader label of the arrow that lists the parts of the balance that are not spendable yet.
-  ///
-  /// In en, this message translates to:
-  /// **'Show breakdown'**
-  String get homeShowBreakdown;
-
-  /// Screen-reader label of the arrow that hides that list.
-  ///
-  /// In en, this message translates to:
-  /// **'Hide breakdown'**
-  String get homeHideBreakdown;
-
   /// Row of the balance breakdown: payments on the chain still collecting confirmations.
   ///
   /// In en, this message translates to:
   /// **'Confirming'**
   String get homeBalanceConfirming;
+
+  /// Explanation under Confirming in the balance explanation.
+  ///
+  /// In en, this message translates to:
+  /// **'On the chain, waiting for enough confirmations.'**
+  String get balanceConfirmingHelp;
 
   /// Row of the balance breakdown: received payments the sender has not finished yet.
   ///
@@ -1814,17 +1820,35 @@ abstract class AppLocalizations {
   /// **'Waiting to finish'**
   String get homeBalanceWaitingToFinish;
 
+  /// Explanation under Waiting to finish in the balance explanation.
+  ///
+  /// In en, this message translates to:
+  /// **'Accepted by you; the sender still has to finish it.'**
+  String get balanceWaitingHelp;
+
   /// Row of the balance breakdown: funds held by an outgoing payment until it finishes or is cancelled.
   ///
   /// In en, this message translates to:
   /// **'Locked by a payment in progress'**
   String get homeBalanceLocked;
 
+  /// Explanation under Locked in the balance explanation.
+  ///
+  /// In en, this message translates to:
+  /// **'Held for a payment you started; the change comes back when it completes.'**
+  String get balanceLockedHelp;
+
   /// Row of the balance breakdown: mined coins that need more blocks before they can be spent.
   ///
   /// In en, this message translates to:
   /// **'Mining rewards not spendable yet'**
   String get homeBalanceImmature;
+
+  /// Explanation under the mining rewards line in the balance explanation.
+  ///
+  /// In en, this message translates to:
+  /// **'Mining rewards wait a set number of blocks before they can be spent.'**
+  String get balanceImmatureHelp;
 
   /// Status line under the balance while the wallet syncs with the node.
   ///
@@ -1862,6 +1886,66 @@ abstract class AppLocalizations {
   /// **'Contacting node…'**
   String get homeSyncContactingNode;
 
+  /// One word beside an icon in the balance header: the node or epicbox works.
+  ///
+  /// In en, this message translates to:
+  /// **'Online'**
+  String get statusOnline;
+
+  /// One word beside an icon in the balance header: the wallet reads new blocks from the node.
+  ///
+  /// In en, this message translates to:
+  /// **'Syncing'**
+  String get statusSyncing;
+
+  /// statusSyncing with how far it got.
+  ///
+  /// In en, this message translates to:
+  /// **'Syncing {percent}%'**
+  String statusSyncingPercent(Object percent);
+
+  /// One word beside an icon in the balance header: no answer yet from the node or epicbox.
+  ///
+  /// In en, this message translates to:
+  /// **'Connecting'**
+  String get statusConnecting;
+
+  /// One word beside an icon in the balance header: the node or epicbox cannot be reached.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline'**
+  String get statusOffline;
+
+  /// What a screen reader says for the node status. node is the Epic Cash server the wallet reads the chain from; state is one of the status words.
+  ///
+  /// In en, this message translates to:
+  /// **'Node: {state}'**
+  String statusNodeLabel(Object state);
+
+  /// What a screen reader says for the epicbox status. Epicbox is the relay payments arrive through; state is one of the status words.
+  ///
+  /// In en, this message translates to:
+  /// **'Epicbox: {state}'**
+  String statusEpicboxLabel(Object state);
+
+  /// Line in the node status tooltip: the node's host name.
+  ///
+  /// In en, this message translates to:
+  /// **'Node: {host}'**
+  String statusNodeHost(Object host);
+
+  /// Line in the node status tooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Node version {version}'**
+  String statusNodeVersion(Object version);
+
+  /// Line in the epicbox status tooltip: the epicbox server as host:port.
+  ///
+  /// In en, this message translates to:
+  /// **'Server: {relay}'**
+  String statusRelay(Object relay);
+
   /// Second sentence of the status line: the connection to epicbox (the relay service that carries payments, a proper name) was lost.
   ///
   /// In en, this message translates to:
@@ -1873,12 +1957,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Connecting to epicbox…'**
   String get homeEpicboxConnecting;
-
-  /// The status line when both the sync state and the epicbox state have something to say: two whole sentences, in the order and with the spacing this language uses between sentences.
-  ///
-  /// In en, this message translates to:
-  /// **'{status} {relay}'**
-  String homeSyncLineWithRelay(String status, String relay);
 
   /// Tooltip of the status line: the chain height the balance was last checked at.
   ///
@@ -1916,47 +1994,23 @@ abstract class AppLocalizations {
   /// **'No payments yet.'**
   String get homeNoPayments;
 
-  /// Button under 'No payments yet.' that opens the receive screen with the wallet's address.
-  ///
-  /// In en, this message translates to:
-  /// **'Show my address'**
-  String get homeShowMyAddress;
-
-  /// Title of the screen that shows the wallet's address.
-  ///
-  /// In en, this message translates to:
-  /// **'Receive'**
-  String get receiveTitle;
-
-  /// Tooltip of the app-bar button that opens help about receiving.
-  ///
-  /// In en, this message translates to:
-  /// **'Help'**
-  String get receiveHelpTooltip;
-
   /// Tooltip and screen-reader label of the connection dot. epicbox is the relay service that carries payments (a proper name).
   ///
   /// In en, this message translates to:
   /// **'Epicbox connected'**
   String get receiveEpicboxConnected;
 
-  /// Tooltip and screen-reader label of the connection dot when the epicbox connection was lost.
-  ///
-  /// In en, this message translates to:
-  /// **'Epicbox offline'**
-  String get receiveEpicboxOffline;
-
-  /// Tooltip and screen-reader label of the connection dot while the app connects to epicbox.
-  ///
-  /// In en, this message translates to:
-  /// **'Connecting to epicbox'**
-  String get receiveEpicboxConnecting;
-
   /// Screen-reader label of the QR code image.
   ///
   /// In en, this message translates to:
   /// **'QR code of your address'**
   String get receiveQrLabel;
+
+  /// Button on the Receive tab that opens help about receiving.
+  ///
+  /// In en, this message translates to:
+  /// **'How receiving works'**
+  String get receiveHelpButton;
 
   /// Notice after the wallet's address was copied.
   ///
@@ -2731,18 +2785,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Try again'**
   String get launchTryAgain;
-
-  /// Title of the screen that sends a payment.
-  ///
-  /// In en, this message translates to:
-  /// **'Send'**
-  String get sendTitle;
-
-  /// Title of the send screen while sending with a transaction file (a file holding the payment's slate, the JSON passed between sender and recipient).
-  ///
-  /// In en, this message translates to:
-  /// **'Send by file'**
-  String get sendByFileTitle;
 
   /// Amount field error.
   ///

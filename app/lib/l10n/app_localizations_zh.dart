@@ -1094,24 +1094,22 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String homeTitle(String network) {
-    return 'Epic Cash · $network';
-  }
-
-  @override
-  String get homeTitleNoNetwork => 'Epic Cash · 钱包';
-
-  @override
-  String get homeRefreshTooltip => '刷新';
-
-  @override
   String get homeLockTooltip => '锁定钱包';
+
+  @override
+  String get shellTitle => 'Epic Cash';
+
+  @override
+  String get shellTestNetworkTooltip => '测试网络，其中的币没有价值。';
 
   @override
   String get homeSettingsTooltip => '设置';
 
   @override
   String get homeSendButton => '发送';
+
+  @override
+  String get shellWalletTab => '钱包';
 
   @override
   String get homeReceiveButton => '接收';
@@ -1219,6 +1217,20 @@ class AppLocalizationsZh extends AppLocalizations {
   String get homeBalanceSpendable => '可用余额';
 
   @override
+  String get balanceHelpLabel => '这些余额的含义';
+
+  @override
+  String get balanceTotal => '总额';
+
+  @override
+  String balanceHelpRow(String label, String amount) {
+    return '$label：$amount';
+  }
+
+  @override
+  String get balanceTotalHelp => '此钱包中的全部金额，无论能否使用。';
+
+  @override
   String get homeBalanceHiddenLabel => '余额已隐藏';
 
   @override
@@ -1228,32 +1240,28 @@ class AppLocalizationsZh extends AppLocalizations {
   String get homeHideBalances => '隐藏余额';
 
   @override
-  String homeBalanceNotSpendable(String amount) {
-    return '$amount 暂不可用';
-  }
-
-  @override
-  String homeBalanceAmountWaitingToFinish(String amount) {
-    return '$amount 等待完成';
-  }
-
-  @override
-  String get homeShowBreakdown => '显示明细';
-
-  @override
-  String get homeHideBreakdown => '隐藏明细';
-
-  @override
   String get homeBalanceConfirming => '确认中';
+
+  @override
+  String get balanceConfirmingHelp => '已上链，等待足够的确认。';
 
   @override
   String get homeBalanceWaitingToFinish => '等待完成';
 
   @override
+  String get balanceWaitingHelp => '你已接受，发送方还需完成。';
+
+  @override
   String get homeBalanceLocked => '被进行中的付款锁定';
 
   @override
+  String get balanceLockedHelp => '为你发起的付款保留；完成后找零会返回。';
+
+  @override
   String get homeBalanceImmature => '暂不可用的挖矿奖励';
+
+  @override
+  String get balanceImmatureHelp => '挖矿奖励需等待一定数量的区块后才能使用。';
 
   @override
   String get homeSyncSyncing => '正在同步…';
@@ -1276,15 +1284,52 @@ class AppLocalizationsZh extends AppLocalizations {
   String get homeSyncContactingNode => '正在连接节点…';
 
   @override
+  String get statusOnline => '在线';
+
+  @override
+  String get statusSyncing => '同步中';
+
+  @override
+  String statusSyncingPercent(Object percent) {
+    return '同步中 $percent%';
+  }
+
+  @override
+  String get statusConnecting => '连接中';
+
+  @override
+  String get statusOffline => '离线';
+
+  @override
+  String statusNodeLabel(Object state) {
+    return '节点：$state';
+  }
+
+  @override
+  String statusEpicboxLabel(Object state) {
+    return 'epicbox：$state';
+  }
+
+  @override
+  String statusNodeHost(Object host) {
+    return '节点：$host';
+  }
+
+  @override
+  String statusNodeVersion(Object version) {
+    return '节点版本 $version';
+  }
+
+  @override
+  String statusRelay(Object relay) {
+    return '服务器：$relay';
+  }
+
+  @override
   String get homeEpicboxOffline => 'epicbox 已离线，正在重新连接。';
 
   @override
   String get homeEpicboxConnecting => '正在连接 epicbox…';
-
-  @override
-  String homeSyncLineWithRelay(String status, String relay) {
-    return '$status$relay';
-  }
 
   @override
   String homeSyncedAtBlock(String height) {
@@ -1328,25 +1373,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String get homeNoPayments => '暂无付款。';
 
   @override
-  String get homeShowMyAddress => '显示我的地址';
-
-  @override
-  String get receiveTitle => '接收';
-
-  @override
-  String get receiveHelpTooltip => '帮助';
-
-  @override
   String get receiveEpicboxConnected => 'epicbox 已连接';
 
   @override
-  String get receiveEpicboxOffline => 'epicbox 已离线';
-
-  @override
-  String get receiveEpicboxConnecting => '正在连接 epicbox';
-
-  @override
   String get receiveQrLabel => '你的地址二维码';
+
+  @override
+  String get receiveHelpButton => '收款说明';
 
   @override
   String get receiveAddressCopied => '地址已复制';
@@ -1814,12 +1847,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get launchTryAgain => '重试';
-
-  @override
-  String get sendTitle => '发送';
-
-  @override
-  String get sendByFileTitle => '通过文件发送';
 
   @override
   String get sendAmountNegative => '金额不能为负数。';

@@ -14,6 +14,7 @@ import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/lepic_wallet_service.dart';
 import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/ui/settings_history.dart';
+import 'package:epic_wallet/src/ui/shell_header.dart' show balanceFigureKey;
 import 'package:epic_wallet/src/updater.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:flutter/material.dart';
@@ -255,12 +256,12 @@ void main() {
 
       // 1. First run: PIN, then home.
       await _pinSetup(tester);
-      await _pumpUntil(tester, find.text('Spendable'));
+      await _pumpUntil(tester, find.byKey(balanceFigureKey));
       debugPrint(
         'WFE_E2E step=home after ${DateTime.now().difference(started)}',
       );
 
-      // 2. The address, as the Receive screen shows it.
+      // 2. The address, as the Receive tab shows it.
       await _tapText(tester, 'Receive');
       final addressText = find.byWidgetPredicate(
         (w) => w is SelectableText && (w.data ?? '').contains('@127.0.0.1'),
@@ -269,7 +270,8 @@ void main() {
       final address = (tester.widget<SelectableText>(addressText.first)).data!;
       expect(address, await _session(tester).epicboxAddress());
       debugPrint('WFE_E2E address=$address');
-      await _backHome(tester);
+      // Receive is a tab now; Wallet is the one beside it.
+      await _tapText(tester, 'Wallet');
 
       // 3. The CLI sends 1 EPIC: the notice, then Completed once the host has mined.
       await _pumpUntil(
@@ -400,7 +402,7 @@ void main() {
       await _tapText(tester, 'Import a history backup');
       await _pumpUntil(tester, find.text('History imported'));
       await _tapText(tester, 'OK');
-      await _pumpUntil(tester, find.text('Spendable'));
+      await _pumpUntil(tester, find.byKey(balanceFigureKey));
 
       final back = await _waitFor(
         tester,

@@ -1168,24 +1168,23 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String homeTitle(String network) {
-    return 'Epic Cash · $network';
-  }
-
-  @override
-  String get homeTitleNoNetwork => 'Epic Cash · Wallet';
-
-  @override
-  String get homeRefreshTooltip => 'Refresh';
-
-  @override
   String get homeLockTooltip => 'Lock wallet';
+
+  @override
+  String get shellTitle => 'Epic Cash';
+
+  @override
+  String get shellTestNetworkTooltip =>
+      'A test network. Its coins have no value.';
 
   @override
   String get homeSettingsTooltip => 'Settings';
 
   @override
   String get homeSendButton => 'Send';
+
+  @override
+  String get shellWalletTab => 'Wallet';
 
   @override
   String get homeReceiveButton => 'Receive';
@@ -1303,6 +1302,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String get homeBalanceSpendable => 'Spendable';
 
   @override
+  String get balanceHelpLabel => 'What these balances mean';
+
+  @override
+  String get balanceTotal => 'Total';
+
+  @override
+  String balanceHelpRow(String label, String amount) {
+    return '$label: $amount';
+  }
+
+  @override
+  String get balanceTotalHelp => 'Everything in this wallet, spendable or not.';
+
+  @override
   String get homeBalanceHiddenLabel => 'Balance hidden';
 
   @override
@@ -1312,32 +1325,32 @@ class AppLocalizationsEn extends AppLocalizations {
   String get homeHideBalances => 'Hide balances';
 
   @override
-  String homeBalanceNotSpendable(String amount) {
-    return '$amount not spendable yet';
-  }
-
-  @override
-  String homeBalanceAmountWaitingToFinish(String amount) {
-    return '$amount waiting to finish';
-  }
-
-  @override
-  String get homeShowBreakdown => 'Show breakdown';
-
-  @override
-  String get homeHideBreakdown => 'Hide breakdown';
-
-  @override
   String get homeBalanceConfirming => 'Confirming';
+
+  @override
+  String get balanceConfirmingHelp =>
+      'On the chain, waiting for enough confirmations.';
 
   @override
   String get homeBalanceWaitingToFinish => 'Waiting to finish';
 
   @override
+  String get balanceWaitingHelp =>
+      'Accepted by you; the sender still has to finish it.';
+
+  @override
   String get homeBalanceLocked => 'Locked by a payment in progress';
 
   @override
+  String get balanceLockedHelp =>
+      'Held for a payment you started; the change comes back when it completes.';
+
+  @override
   String get homeBalanceImmature => 'Mining rewards not spendable yet';
+
+  @override
+  String get balanceImmatureHelp =>
+      'Mining rewards wait a set number of blocks before they can be spent.';
 
   @override
   String get homeSyncSyncing => 'Syncing…';
@@ -1362,15 +1375,52 @@ class AppLocalizationsEn extends AppLocalizations {
   String get homeSyncContactingNode => 'Contacting node…';
 
   @override
+  String get statusOnline => 'Online';
+
+  @override
+  String get statusSyncing => 'Syncing';
+
+  @override
+  String statusSyncingPercent(Object percent) {
+    return 'Syncing $percent%';
+  }
+
+  @override
+  String get statusConnecting => 'Connecting';
+
+  @override
+  String get statusOffline => 'Offline';
+
+  @override
+  String statusNodeLabel(Object state) {
+    return 'Node: $state';
+  }
+
+  @override
+  String statusEpicboxLabel(Object state) {
+    return 'Epicbox: $state';
+  }
+
+  @override
+  String statusNodeHost(Object host) {
+    return 'Node: $host';
+  }
+
+  @override
+  String statusNodeVersion(Object version) {
+    return 'Node version $version';
+  }
+
+  @override
+  String statusRelay(Object relay) {
+    return 'Server: $relay';
+  }
+
+  @override
   String get homeEpicboxOffline => 'Epicbox offline, reconnecting.';
 
   @override
   String get homeEpicboxConnecting => 'Connecting to epicbox…';
-
-  @override
-  String homeSyncLineWithRelay(String status, String relay) {
-    return '$status $relay';
-  }
 
   @override
   String homeSyncedAtBlock(String height) {
@@ -1419,25 +1469,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get homeNoPayments => 'No payments yet.';
 
   @override
-  String get homeShowMyAddress => 'Show my address';
-
-  @override
-  String get receiveTitle => 'Receive';
-
-  @override
-  String get receiveHelpTooltip => 'Help';
-
-  @override
   String get receiveEpicboxConnected => 'Epicbox connected';
 
   @override
-  String get receiveEpicboxOffline => 'Epicbox offline';
-
-  @override
-  String get receiveEpicboxConnecting => 'Connecting to epicbox';
-
-  @override
   String get receiveQrLabel => 'QR code of your address';
+
+  @override
+  String get receiveHelpButton => 'How receiving works';
 
   @override
   String get receiveAddressCopied => 'Address copied';
@@ -1931,12 +1969,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get launchTryAgain => 'Try again';
-
-  @override
-  String get sendTitle => 'Send';
-
-  @override
-  String get sendByFileTitle => 'Send by file';
 
   @override
   String get sendAmountNegative => 'The amount cannot be negative.';

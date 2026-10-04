@@ -1195,27 +1195,17 @@
       }
     }
   },
-  "homeTitle": "Epic Cash · {network}",
-  "@homeTitle": {
-    "description": "Home screen title. Epic Cash is the coin's name; network is the network's name (Mainnet, Floonet, Usernet).",
-    "placeholders": {
-      "network": {
-        "type": "String",
-        "example": "Mainnet"
-      }
-    }
-  },
-  "homeTitleNoNetwork": "Epic Cash · Wallet",
-  "@homeTitleNoNetwork": {
-    "description": "Home screen title for the moment before the network is known. Epic Cash is the coin's name."
-  },
-  "homeRefreshTooltip": "Refresh",
-  "@homeRefreshTooltip": {
-    "description": "Tooltip of the app-bar button that reloads balances and payments from the node (the Epic Cash server the wallet reads the chain from)."
-  },
   "homeLockTooltip": "Lock wallet",
   "@homeLockTooltip": {
     "description": "Tooltip of the app-bar button that closes the wallet and returns to the PIN screen."
+  },
+  "shellTitle": "Epic Cash",
+  "@shellTitle": {
+    "description": "App-bar title of the wallet's main page. The coin's name; do not translate."
+  },
+  "shellTestNetworkTooltip": "A test network. Its coins have no value.",
+  "@shellTestNetworkTooltip": {
+    "description": "Tooltip of the small network name (Floonet) beside the app-bar title, shown only on a test network."
   },
   "homeSettingsTooltip": "Settings",
   "@homeSettingsTooltip": {
@@ -1223,15 +1213,19 @@
   },
   "homeSendButton": "Send",
   "@homeSendButton": {
-    "description": "Main button on home that starts a payment. Short: it shares a row with the Receive button."
+    "description": "Label of the left tab of the bottom tab bar, where payments are sent. Short."
+  },
+  "shellWalletTab": "Wallet",
+  "@shellWalletTab": {
+    "description": "Label of the middle tab of the bottom tab bar: balance, reminders and recent payments. Short."
   },
   "homeReceiveButton": "Receive",
   "@homeReceiveButton": {
-    "description": "Main button on home that shows the wallet's address. Short: it shares a row with the Send button."
+    "description": "Label of the right tab of the bottom tab bar, which shows the wallet's address. Short."
   },
   "homeScanTooltip": "Scan a QR code to send",
   "@homeScanTooltip": {
-    "description": "Tooltip of the button beside Send and Receive that scans a recipient's QR code."
+    "description": "Tooltip of the app-bar button that scans a recipient's QR code and opens Send with it."
   },
   "homeRecentActivity": "Recent activity",
   "@homeRecentActivity": {
@@ -1377,6 +1371,32 @@
   "@homeBalanceSpendable": {
     "description": "Label above the large balance on home: the funds that can be sent now."
   },
+  "balanceHelpLabel": "What these balances mean",
+  "@balanceHelpLabel": {
+    "description": "Screen-reader label of the ? beside the balance; a tap shows every balance with a short explanation."
+  },
+  "balanceTotal": "Total",
+  "@balanceTotal": {
+    "description": "Label in the balance explanation: everything in the wallet. Followed by a colon and the amount."
+  },
+  "balanceHelpRow": "{label}: {amount}",
+  "@balanceHelpRow": {
+    "description": "One balance in the balance explanation: its name, then the amount.",
+    "placeholders": {
+      "label": {
+        "type": "String",
+        "example": "Total"
+      },
+      "amount": {
+        "type": "String",
+        "example": "50 EPIC"
+      }
+    }
+  },
+  "balanceTotalHelp": "Everything in this wallet, spendable or not.",
+  "@balanceTotalHelp": {
+    "description": "Explanation under Total in the balance explanation."
+  },
   "homeBalanceHiddenLabel": "Balance hidden",
   "@homeBalanceHiddenLabel": {
     "description": "Screen-reader label of the balance while amounts are hidden."
@@ -1389,49 +1409,37 @@
   "@homeHideBalances": {
     "description": "Tooltip of the eye button that hides all amounts."
   },
-  "homeBalanceNotSpendable": "{amount} not spendable yet",
-  "@homeBalanceNotSpendable": {
-    "description": "Line under the balance; tapping it shows why. No full stop.",
-    "placeholders": {
-      "amount": {
-        "type": "String",
-        "example": "2 EPIC"
-      }
-    }
-  },
-  "homeBalanceAmountWaitingToFinish": "{amount} waiting to finish",
-  "@homeBalanceAmountWaitingToFinish": {
-    "description": "Line under the balance: received payments the sender has not finished yet. No full stop.",
-    "placeholders": {
-      "amount": {
-        "type": "String",
-        "example": "2 EPIC"
-      }
-    }
-  },
-  "homeShowBreakdown": "Show breakdown",
-  "@homeShowBreakdown": {
-    "description": "Screen-reader label of the arrow that lists the parts of the balance that are not spendable yet."
-  },
-  "homeHideBreakdown": "Hide breakdown",
-  "@homeHideBreakdown": {
-    "description": "Screen-reader label of the arrow that hides that list."
-  },
   "homeBalanceConfirming": "Confirming",
   "@homeBalanceConfirming": {
     "description": "Row of the balance breakdown: payments on the chain still collecting confirmations."
+  },
+  "balanceConfirmingHelp": "On the chain, waiting for enough confirmations.",
+  "@balanceConfirmingHelp": {
+    "description": "Explanation under Confirming in the balance explanation."
   },
   "homeBalanceWaitingToFinish": "Waiting to finish",
   "@homeBalanceWaitingToFinish": {
     "description": "Row of the balance breakdown: received payments the sender has not finished yet."
   },
+  "balanceWaitingHelp": "Accepted by you; the sender still has to finish it.",
+  "@balanceWaitingHelp": {
+    "description": "Explanation under Waiting to finish in the balance explanation."
+  },
   "homeBalanceLocked": "Locked by a payment in progress",
   "@homeBalanceLocked": {
     "description": "Row of the balance breakdown: funds held by an outgoing payment until it finishes or is cancelled."
   },
+  "balanceLockedHelp": "Held for a payment you started; the change comes back when it completes.",
+  "@balanceLockedHelp": {
+    "description": "Explanation under Locked in the balance explanation."
+  },
   "homeBalanceImmature": "Mining rewards not spendable yet",
   "@homeBalanceImmature": {
     "description": "Row of the balance breakdown: mined coins that need more blocks before they can be spent."
+  },
+  "balanceImmatureHelp": "Mining rewards wait a set number of blocks before they can be spent.",
+  "@balanceImmatureHelp": {
+    "description": "Explanation under the mining rewards line in the balance explanation."
   },
   "homeSyncSyncing": "Syncing…",
   "@homeSyncSyncing": {
@@ -1462,6 +1470,46 @@
   "@homeSyncContactingNode": {
     "description": "Status line under the balance before the node (the Epic Cash server the wallet reads the chain from) answered."
   },
+  "statusOnline": "Online",
+  "@statusOnline": {
+    "description": "One word beside an icon in the balance header: the node or epicbox works."
+  },
+  "statusSyncing": "Syncing",
+  "@statusSyncing": {
+    "description": "One word beside an icon in the balance header: the wallet reads new blocks from the node."
+  },
+  "statusSyncingPercent": "Syncing {percent}%",
+  "@statusSyncingPercent": {
+    "description": "statusSyncing with how far it got."
+  },
+  "statusConnecting": "Connecting",
+  "@statusConnecting": {
+    "description": "One word beside an icon in the balance header: no answer yet from the node or epicbox."
+  },
+  "statusOffline": "Offline",
+  "@statusOffline": {
+    "description": "One word beside an icon in the balance header: the node or epicbox cannot be reached."
+  },
+  "statusNodeLabel": "Node: {state}",
+  "@statusNodeLabel": {
+    "description": "What a screen reader says for the node status. node is the Epic Cash server the wallet reads the chain from; state is one of the status words."
+  },
+  "statusEpicboxLabel": "Epicbox: {state}",
+  "@statusEpicboxLabel": {
+    "description": "What a screen reader says for the epicbox status. Epicbox is the relay payments arrive through; state is one of the status words."
+  },
+  "statusNodeHost": "Node: {host}",
+  "@statusNodeHost": {
+    "description": "Line in the node status tooltip: the node's host name."
+  },
+  "statusNodeVersion": "Node version {version}",
+  "@statusNodeVersion": {
+    "description": "Line in the node status tooltip."
+  },
+  "statusRelay": "Server: {relay}",
+  "@statusRelay": {
+    "description": "Line in the epicbox status tooltip: the epicbox server as host:port."
+  },
   "homeEpicboxOffline": "Epicbox offline, reconnecting.",
   "@homeEpicboxOffline": {
     "description": "Second sentence of the status line: the connection to epicbox (the relay service that carries payments, a proper name) was lost."
@@ -1469,20 +1517,6 @@
   "homeEpicboxConnecting": "Connecting to epicbox…",
   "@homeEpicboxConnecting": {
     "description": "Second sentence of the status line while the app connects to epicbox (the relay service that carries payments, a proper name)."
-  },
-  "homeSyncLineWithRelay": "{status} {relay}",
-  "@homeSyncLineWithRelay": {
-    "description": "The status line when both the sync state and the epicbox state have something to say: two whole sentences, in the order and with the spacing this language uses between sentences.",
-    "placeholders": {
-      "status": {
-        "type": "String",
-        "example": "Up to date."
-      },
-      "relay": {
-        "type": "String",
-        "example": "Connecting to epicbox…"
-      }
-    }
   },
   "homeSyncedAtBlock": "Synced at block {height}",
   "@homeSyncedAtBlock": {
@@ -1533,33 +1567,17 @@
   "@homeNoPayments": {
     "description": "Shown on home in place of the payment list in a new wallet."
   },
-  "homeShowMyAddress": "Show my address",
-  "@homeShowMyAddress": {
-    "description": "Button under 'No payments yet.' that opens the receive screen with the wallet's address."
-  },
-  "receiveTitle": "Receive",
-  "@receiveTitle": {
-    "description": "Title of the screen that shows the wallet's address."
-  },
-  "receiveHelpTooltip": "Help",
-  "@receiveHelpTooltip": {
-    "description": "Tooltip of the app-bar button that opens help about receiving."
-  },
   "receiveEpicboxConnected": "Epicbox connected",
   "@receiveEpicboxConnected": {
     "description": "Tooltip and screen-reader label of the connection dot. epicbox is the relay service that carries payments (a proper name)."
   },
-  "receiveEpicboxOffline": "Epicbox offline",
-  "@receiveEpicboxOffline": {
-    "description": "Tooltip and screen-reader label of the connection dot when the epicbox connection was lost."
-  },
-  "receiveEpicboxConnecting": "Connecting to epicbox",
-  "@receiveEpicboxConnecting": {
-    "description": "Tooltip and screen-reader label of the connection dot while the app connects to epicbox."
-  },
   "receiveQrLabel": "QR code of your address",
   "@receiveQrLabel": {
     "description": "Screen-reader label of the QR code image."
+  },
+  "receiveHelpButton": "How receiving works",
+  "@receiveHelpButton": {
+    "description": "Button on the Receive tab that opens help about receiving."
   },
   "receiveAddressCopied": "Address copied",
   "@receiveAddressCopied": {
@@ -2143,14 +2161,6 @@
   "launchTryAgain": "Try again",
   "@launchTryAgain": {
     "description": "Button on the start screen after the wallet could not be found or opened."
-  },
-  "sendTitle": "Send",
-  "@sendTitle": {
-    "description": "Title of the screen that sends a payment."
-  },
-  "sendByFileTitle": "Send by file",
-  "@sendByFileTitle": {
-    "description": "Title of the send screen while sending with a transaction file (a file holding the payment's slate, the JSON passed between sender and recipient)."
   },
   "sendAmountNegative": "The amount cannot be negative.",
   "@sendAmountNegative": {

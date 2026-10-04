@@ -11,6 +11,7 @@ import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/updater.dart';
 import 'package:epic_wallet/src/ui/home_screen.dart';
+import 'package:epic_wallet/src/ui/shell_header.dart' show balanceFigureKey;
 import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -180,7 +181,7 @@ void main() {
     await _pumpUntil(tester, find.widgetWithText(TextField, 'Repeat PIN'));
     await _enter(tester, 'Repeat PIN', '123456');
 
-    await _pumpUntil(tester, find.text('Spendable'));
+    await _pumpUntil(tester, find.byKey(balanceFigureKey));
     expect(find.text('Back up your recovery phrase.'), findsOneWidget);
 
     final container = ProviderScope.containerOf(

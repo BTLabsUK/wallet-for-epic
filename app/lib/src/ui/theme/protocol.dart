@@ -1,6 +1,6 @@
-/// The devices that make the Protocol look recognisable: corner ticks, the measurement grid and
-/// the signal trace on the balance panel, the gold-rule section head, accent-edged notices and
-/// the payment timeline. The full panel (grid, ticks, trace) is Home's balance only; the
+/// The devices that make the Protocol look recognisable: corner ticks and the measurement grid
+/// on the balance panel, the gold-rule section head, accent-edged notices and
+/// the payment timeline. The full panel (grid, ticks) is Home's balance only; the
 /// screens that open the app or end a task reuse the grid and ticks through `brand.dart`
 /// (the Epic mark, glyph tiles, the lit backdrop), and lists and forms stay hairlines.
 /// Spec: `docs/themes/protocol/FLUTTER.md`.
@@ -80,96 +80,20 @@ class GridFieldPainter extends CustomPainter {
       old.color != color || old.step != step;
 }
 
-/// The gold signal line. [progress] runs from 0 to 1 while the wallet syncs; at 1 it rests,
-/// fully drawn.
-class SignalTracePainter extends CustomPainter {
-  const SignalTracePainter({
-    required this.progress,
-    required this.color,
-    required this.glow,
-  });
-
-  final double progress;
-  final Color color;
-  final bool glow;
-
-  // The mockup's SVG path, in a 350 x 26 box.
-  static const List<Offset> _points = [
-    Offset(0, 13),
-    Offset(70, 13),
-    Offset(76, 4),
-    Offset(84, 22),
-    Offset(92, 8),
-    Offset(98, 13),
-    Offset(190, 13),
-    Offset(196, 6),
-    Offset(202, 20),
-    Offset(208, 13),
-    Offset(350, 13),
-  ];
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final sx = size.width / 350, sy = size.height / 26;
-    final full = Path()..moveTo(_points.first.dx * sx, _points.first.dy * sy);
-    for (final p in _points.skip(1)) {
-      full.lineTo(p.dx * sx, p.dy * sy);
-    }
-    final metric = full.computeMetrics().first;
-    final part = metric.extractPath(
-      0,
-      metric.length * progress.clamp(0.0, 1.0),
-    );
-    if (glow) {
-      canvas.drawPath(
-        part,
-        Paint()
-          ..color = color.withValues(alpha: 0.45)
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 4
-          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 5),
-      );
-    }
-    canvas.drawPath(
-      part,
-      Paint()
-        ..color = color
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 1.5
-        ..strokeCap = StrokeCap.round
-        ..strokeJoin = StrokeJoin.round,
-    );
-  }
-
-  @override
-  bool shouldRepaint(SignalTracePainter old) =>
-      old.progress != progress || old.color != color || old.glow != glow;
-}
-
-/// Home's balance as the one framed object: grid behind, ticks in front, the trace under the
-/// amount, then [footer] under a hairline.
+/// The balance header as the one framed object: grid behind, ticks in front.
 class ProtocolBalancePanel extends StatelessWidget {
-  const ProtocolBalancePanel({
-    super.key,
-    required this.syncProgress,
-    required this.child,
-    this.footer,
-  });
+  const ProtocolBalancePanel({super.key, required this.child, this.padding});
 
-  /// 0 to 1. Pass 1 once the wallet is up to date.
-  final double syncProgress;
-
-  /// Label, amount, fiat value and the not-spendable line.
+  /// The figure, its fiat value and the status rows.
   final Widget child;
 
-  /// The sync line, and the readout with Advanced options on.
-  final Widget? footer;
+  /// Inside the frame; the header passes less while it shrinks on Send and Receive.
+  final EdgeInsetsGeometry? padding;
 
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
     final dark = Theme.of(context).brightness == Brightness.dark;
-    final still = MediaQuery.of(context).disableAnimations;
     return DecoratedBox(
       decoration: BoxDecoration(
         color: t.surface,
@@ -182,39 +106,8 @@ class ProtocolBalancePanel extends StatelessWidget {
         ),
         foregroundPainter: CornerTicksPainter(t.tick),
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(18, 18, 10, 16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              child,
-              Padding(
-                padding: const EdgeInsets.only(top: 8, right: 8),
-                child: ExcludeSemantics(
-                  child: TweenAnimationBuilder<double>(
-                    tween: Tween(end: syncProgress),
-                    duration: still
-                        ? Duration.zero
-                        : const Duration(milliseconds: 400),
-                    builder: (context, value, _) => CustomPaint(
-                      size: const Size.fromHeight(26),
-                      painter: SignalTracePainter(
-                        progress: value,
-                        color: t.accent,
-                        glow: dark,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              if (footer case final footer?) ...[
-                Padding(
-                  padding: const EdgeInsets.only(top: 12, right: 8),
-                  child: Divider(color: t.line),
-                ),
-                footer,
-              ],
-            ],
-          ),
+          padding: padding ?? const EdgeInsets.fromLTRB(18, 14, 12, 14),
+          child: child,
         ),
       ),
     );

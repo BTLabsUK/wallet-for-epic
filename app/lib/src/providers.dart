@@ -275,7 +275,10 @@ class HomeNotifier extends AsyncNotifier<HomeData> {
       final data = await _refreshed(session);
       if (ref.mounted) state = AsyncData(data);
     } catch (error, stack) {
-      logWarn('sync', 'refresh failed: ${describeError(englishStrings, error)}');
+      logWarn(
+        'sync',
+        'refresh failed: ${describeError(englishStrings, error)}',
+      );
       if (!ref.mounted) return;
       // The local figures stay, no longer marked as syncing, under the error.
       final shown = state.value;
@@ -315,7 +318,10 @@ class HomeNotifier extends AsyncNotifier<HomeData> {
       );
     } catch (error) {
       // The list stays as it was.
-      logInfo('history', 'enrich failed: ${describeError(englishStrings, error)}');
+      logInfo(
+        'history',
+        'enrich failed: ${describeError(englishStrings, error)}',
+      );
     } finally {
       _enriching = false;
     }
@@ -418,6 +424,7 @@ class ListenerState {
   const ListenerState({
     this.connected = false,
     this.lost = false,
+    this.stopped = false,
     this.status,
     this.last,
   });
@@ -427,6 +434,9 @@ class ListenerState {
 
   /// Was connected, lost the connection, and is retrying.
   final bool lost;
+
+  /// The listener ended: the core stopped it, or its stream failed. It does not retry.
+  final bool stopped;
 
   /// Why it is not connected, when known.
   final String? status;
@@ -452,8 +462,12 @@ class ListenerNotifier extends Notifier<ListenerState> {
     _events = session.startListener().listen(
       _onEvent,
       onError: (Object error) {
-        logWarn('listener', 'stream failed: ${describeError(englishStrings, error)}');
+        logWarn(
+          'listener',
+          'stream failed: ${describeError(englishStrings, error)}',
+        );
         state = ListenerState(
+          stopped: true,
           status: describeError(englishStrings, error),
           last: state.last,
         );
@@ -473,7 +487,11 @@ class ListenerNotifier extends Notifier<ListenerState> {
           last: state.last,
         );
       case ListenerEventKind.stopped:
-        state = ListenerState(status: 'Listener stopped', last: state.last);
+        state = ListenerState(
+          stopped: true,
+          status: 'Listener stopped',
+          last: state.last,
+        );
       case ListenerEventKind.received ||
           ListenerEventKind.repeated ||
           ListenerEventKind.finalized ||
@@ -483,6 +501,7 @@ class ListenerNotifier extends Notifier<ListenerState> {
         state = ListenerState(
           connected: state.connected,
           lost: state.lost,
+          stopped: state.stopped,
           status: state.status,
           last: event,
         );
@@ -494,4 +513,46 @@ class ListenerNotifier extends Notifier<ListenerState> {
         }
     }
   }
+}
+
+/// The three tabs of the wallet shell, left to right.
+enum ShellTab { send, wallet, receive }
+
+/// The tab the shell shows. Wallet, the middle one, whenever a wallet opens.
+final shellTabProvider = NotifierProvider<ShellTabNotifier, ShellTab>(
+  ShellTabNotifier.new,
+);
+
+class ShellTabNotifier extends Notifier<ShellTab> {
+  @override
+  ShellTab build() {
+    ref.watch(sessionProvider);
+    return ShellTab.wallet;
+  }
+
+  void go(ShellTab tab) => state = tab;
+}
+
+/// A recipient handed to the Send tab, from a scanned QR code or Send again. [id] tells two
+/// hand-offs of the same text apart.
+typedef RecipientHandoff = ({int id, String text});
+
+/// The latest [RecipientHandoff], until the Send form that took it is cleared.
+final sendRecipientProvider =
+    NotifierProvider<SendRecipientNotifier, RecipientHandoff?>(
+      SendRecipientNotifier.new,
+    );
+
+class SendRecipientNotifier extends Notifier<RecipientHandoff?> {
+  int _next = 0;
+
+  @override
+  RecipientHandoff? build() {
+    ref.watch(sessionProvider);
+    return null;
+  }
+
+  void hand(String text) => state = (id: _next++, text: text);
+
+  void clear() => state = null;
 }

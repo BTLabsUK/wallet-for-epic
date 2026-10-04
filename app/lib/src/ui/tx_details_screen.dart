@@ -8,7 +8,6 @@ import '../settings.dart';
 import '../wallet_service.dart';
 import 'common.dart';
 import 'contacts_screen.dart' show ContactEditScreen;
-import 'send_screen.dart' show SendScreen;
 import 'theme/advanced.dart';
 import 'theme/protocol.dart';
 
@@ -747,11 +746,8 @@ class _CounterpartyRow extends StatelessWidget {
                 TextButton.icon(
                   icon: const Icon(Icons.replay),
                   label: Text(l.txDetailsSendAgain),
-                  onPressed: () => Navigator.of(context).push(
-                    MaterialPageRoute<void>(
-                      builder: (_) => SendScreen(recipient: address),
-                    ),
-                  ),
+                  onPressed: () =>
+                      showShellTab(context, ShellTab.send, recipient: address),
                 ),
             ],
           ),

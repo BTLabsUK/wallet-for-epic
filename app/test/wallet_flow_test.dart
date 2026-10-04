@@ -9,6 +9,8 @@ import 'package:epic_wallet/src/relay_directory.dart';
 import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/slate_files.dart';
 import 'package:epic_wallet/src/ui/common.dart';
+import 'package:epic_wallet/src/ui/shell_header.dart';
+import 'package:epic_wallet/src/ui/status.dart';
 import 'package:epic_wallet/src/updater.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:flutter/material.dart';
@@ -221,11 +223,11 @@ void main() {
         await tester.pump();
         await tester.pump();
         expect(find.text('Securing your wallet…'), findsOneWidget);
-        expect(find.text('Spendable'), findsNothing);
+        expect(find.byKey(balanceFigureKey), findsNothing);
 
         service.createGate!.complete();
         await tester.pumpAndSettle();
-        expect(find.text('Spendable'), findsOneWidget);
+        expect(find.byKey(balanceFigureKey), findsOneWidget);
         expect(find.text('Back up your recovery phrase.'), findsOneWidget);
 
         expect(service.createdConfig?.chain, Chain.mainnet);
@@ -249,7 +251,7 @@ void main() {
       await _pumpApp(tester, service, device);
       await _enter(tester, 'PIN', _pin);
       await _enter(tester, 'Repeat PIN', _pin);
-      expect(find.text('Spendable'), findsOneWidget);
+      expect(find.byKey(balanceFigureKey), findsOneWidget);
       expect(device.bio.values, isEmpty);
       expect(device.store.values['wallet.mainnet.pinBiometrics'], isNull);
     });
@@ -266,7 +268,7 @@ void main() {
       expect(service.deletedWallets, [_mainnetDir]);
       await _enter(tester, 'PIN', _pin);
       await _enter(tester, 'Repeat PIN', _pin);
-      expect(find.text('Spendable'), findsOneWidget);
+      expect(find.byKey(balanceFigureKey), findsOneWidget);
       expect(service.createdPin, _pin);
       expect(
         device.store.values['wallet.mainnet.pinSealed'],
@@ -296,7 +298,7 @@ void main() {
       await _enter(tester, 'PIN', _pin);
       await _enter(tester, 'Repeat PIN', _pin);
       await _tapText(tester, 'Not now');
-      expect(find.text('Spendable'), findsOneWidget);
+      expect(find.byKey(balanceFigureKey), findsOneWidget);
       expect(find.text('Back up your recovery phrase.'), findsOneWidget);
     });
 
@@ -331,7 +333,7 @@ void main() {
       expect(service.createdMnemonic == service.phrase, isTrue);
       expect(service.createdPin, _pin);
       expect(service.session.scanCalls, 1);
-      expect(find.text('Spendable'), findsOneWidget);
+      expect(find.byKey(balanceFigureKey), findsOneWidget);
       expect(find.text('Back up your recovery phrase.'), findsNothing);
       expect(
         device.store.values['wallet.mainnet.pinSealed'],
@@ -355,7 +357,7 @@ void main() {
       expect(find.text('Welcome (Usernet, test coins)'), findsOneWidget);
       await _enter(tester, 'PIN', _pin);
       await _enter(tester, 'Repeat PIN', _pin);
-      expect(find.text('Spendable'), findsOneWidget);
+      expect(find.byKey(balanceFigureKey), findsOneWidget);
       expect(service.createdConfig?.chain, Chain.usernet);
       expect(service.createdConfig?.epicboxPort, 3423);
     });
@@ -399,7 +401,7 @@ void main() {
     // The relay comes from the config the wallet opens with, which is what the address and
     // the listener use.
     final container = ProviderScope.containerOf(
-      tester.element(find.text('Spendable')),
+      tester.element(find.byKey(balanceFigureKey)),
     );
     final config = container.read(walletConfigProvider)!;
     expect(config.epicboxDomain, 'epicbox.epicnet.us');
@@ -419,7 +421,7 @@ void main() {
         find.text('Wrong PIN. 2 tries left before a pause.'),
         findsOneWidget,
       );
-      expect(find.text('Spendable'), findsNothing);
+      expect(find.byKey(balanceFigureKey), findsNothing);
       await _enter(tester, 'PIN', '000000');
       await _enter(tester, 'PIN', '000000');
       expect(service.pinFailureCount, 3);
@@ -447,7 +449,7 @@ void main() {
         findsOneWidget,
       );
       await _unlockToHome(tester);
-      expect(find.text('Spendable'), findsOneWidget);
+      expect(find.byKey(balanceFigureKey), findsOneWidget);
       expect(service.pinFailureCount, 0);
     });
 
@@ -455,7 +457,7 @@ void main() {
       final service = _existing();
       await _pumpApp(tester, service, _Device(sealedMainnet: true));
       await _unlockToHome(tester);
-      expect(find.text('Spendable'), findsOneWidget);
+      expect(find.byKey(balanceFigureKey), findsOneWidget);
     });
 
     testWidgets('biometrics unlock on start when enabled', (tester) async {
@@ -465,7 +467,7 @@ void main() {
       device.bio.values['wallet.mainnet.pin'] = _pin;
       await _pumpApp(tester, service, device);
       expect(device.bio.prompts, 1);
-      expect(find.text('Spendable'), findsOneWidget);
+      expect(find.byKey(balanceFigureKey), findsOneWidget);
     });
 
     testWidgets('a dismissed biometric prompt leaves the PIN', (tester) async {
@@ -475,10 +477,10 @@ void main() {
       device.bio.values['wallet.mainnet.pin'] = _pin;
       device.bio.succeed = false;
       await _pumpApp(tester, service, device);
-      expect(find.text('Spendable'), findsNothing);
+      expect(find.byKey(balanceFigureKey), findsNothing);
       expect(find.text('Use biometrics'), findsOneWidget);
       await _unlockToHome(tester);
-      expect(find.text('Spendable'), findsOneWidget);
+      expect(find.byKey(balanceFigureKey), findsOneWidget);
     });
 
     testWidgets('a biometric copy that no longer opens turns biometrics off', (
@@ -489,7 +491,7 @@ void main() {
       device.store.values['wallet.mainnet.pinBiometrics'] = '1';
       device.bio.values['wallet.mainnet.pin'] = '999999';
       await _pumpApp(tester, service, device);
-      expect(find.text('Spendable'), findsNothing);
+      expect(find.byKey(balanceFigureKey), findsNothing);
       expect(
         find.text('Wrong PIN. 2 tries left before a pause.'),
         findsOneWidget,
@@ -497,7 +499,7 @@ void main() {
       expect(find.text('Use biometrics'), findsNothing);
       expect(device.bio.values, isEmpty);
       await _unlockToHome(tester);
-      expect(find.text('Spendable'), findsOneWidget);
+      expect(find.byKey(balanceFigureKey), findsOneWidget);
     });
 
     testWidgets('forgot PIN deletes the wallet only after confirmation', (
@@ -531,14 +533,30 @@ void main() {
       await _unlockToHome(tester);
 
       expect(find.text('12.5 EPIC'), findsOneWidget);
-      expect(find.textContaining('Not validated with node'), findsOneWidget);
-      // Total 16, spendable 12.5: the rest is behind the breakdown line.
-      expect(find.text('Confirming'), findsNothing);
-      await _tapText(tester, '3.5 EPIC not spendable yet');
-      expect(find.text('Confirming'), findsOneWidget);
-      expect(find.text('1 EPIC'), findsOneWidget);
-      expect(find.text('2 EPIC'), findsOneWidget);
-      expect(find.text('0.5 EPIC'), findsOneWidget);
+      final handle = tester.ensureSemantics();
+      await tester.pump();
+      expect(find.bySemanticsLabel('Node: Offline'), findsOneWidget);
+      handle.dispose();
+      // Total 16, spendable 12.5: the rest is behind the ? beside the figure.
+      expect(find.textContaining('Confirming'), findsNothing);
+      await tester.tap(find.byType(BalanceHelp));
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(find.textContaining('Total: 16 EPIC'), findsOneWidget);
+      expect(find.textContaining('Confirming: 1 EPIC'), findsOneWidget);
+      expect(
+        find.textContaining('Locked by a payment in progress: 2 EPIC'),
+        findsOneWidget,
+      );
+      expect(
+        find.textContaining('Mining rewards not spendable yet: 0.5 EPIC'),
+        findsOneWidget,
+      );
+      // Nothing waits to finish, so that line is left out.
+      expect(find.textContaining('Waiting to finish'), findsNothing);
+      // A tap anywhere closes it.
+      await tester.tapAt(tester.getCenter(find.text('12.5 EPIC')));
+      await tester.pumpAndSettle();
+      expect(find.textContaining('Total: 16 EPIC'), findsNothing);
 
       await _reveal(tester, find.text('+5 EPIC'));
       expect(find.text('Incoming payment'), findsOneWidget);
@@ -658,7 +676,7 @@ void main() {
       expect(service.session.scanCalls, 1);
       await tester.pageBack();
       await tester.pumpAndSettle();
-      expect(find.text('Spendable'), findsOneWidget);
+      expect(find.byKey(balanceFigureKey), findsOneWidget);
     });
 
     testWidgets('a failed scan shows the core message on home too', (
@@ -705,16 +723,25 @@ void main() {
       final service = _existing(session: session);
       await _pumpApp(tester, service, _Device(sealedMainnet: true));
       await _unlockToHome(tester);
-      expect(find.textContaining('Connecting to epicbox…'), findsOneWidget);
+      expect(find.bySemanticsLabel('Epicbox: Connecting'), findsOneWidget);
 
       session.listenerEvents.add(
         const ListenerEvent(kind: ListenerEventKind.connected, message: 'a'),
       );
       await tester.pumpAndSettle();
-      expect(find.textContaining('Connecting to epicbox'), findsNothing);
+      expect(find.bySemanticsLabel('Epicbox: Online'), findsOneWidget);
+      // Balances the node did not check count as the node being offline, and say why.
+      expect(find.bySemanticsLabel('Node: Offline'), findsOneWidget);
       expect(
-        find.text('Not validated with node. Balances may be out of date.'),
-        findsOneWidget,
+        tester
+            .widget<Tooltip>(
+              find.descendant(
+                of: find.byKey(nodeStatusKey),
+                matching: find.byType(Tooltip),
+              ),
+            )
+            .message,
+        startsWith('Not validated with node. Balances may be out of date.'),
       );
 
       session.summaryValue = FakeWalletSession.emptySummary;

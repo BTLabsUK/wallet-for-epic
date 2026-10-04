@@ -19,12 +19,27 @@ import 'theme/protocol.dart';
 import 'theme/tokens.dart';
 import 'tx_details_screen.dart';
 
-/// Replaces the whole navigation stack with the home screen of the open wallet.
+/// Replaces the whole navigation stack with the shell of the open wallet, on its Wallet tab.
 void goHome(BuildContext context) {
+  ProviderScope.containerOf(
+    context,
+    listen: false,
+  ).read(shellTabProvider.notifier).go(ShellTab.wallet);
   Navigator.of(context).pushAndRemoveUntil(
     MaterialPageRoute<void>(builder: (_) => const HomeScreen()),
     (_) => false,
   );
+}
+
+/// Shows [tab] of the wallet shell and closes every screen over it. With [recipient] (a
+/// scanned code, Send again), the Send form takes it as the recipient.
+void showShellTab(BuildContext context, ShellTab tab, {String? recipient}) {
+  final container = ProviderScope.containerOf(context, listen: false);
+  if (recipient != null) {
+    container.read(sendRecipientProvider.notifier).hand(recipient);
+  }
+  container.read(shellTabProvider.notifier).go(tab);
+  Navigator.of(context).popUntil((route) => route.isFirst);
 }
 
 /// Closes the wallet and returns to the unlock screen.
@@ -255,20 +270,7 @@ class SlotScaffold extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           NoticeSlot(idle: idle),
-          Expanded(
-            child: centered
-                ? LayoutBuilder(
-                    builder: (context, constraints) => SingleChildScrollView(
-                      child: ConstrainedBox(
-                        constraints: BoxConstraints(
-                          minHeight: constraints.maxHeight,
-                        ),
-                        child: Center(child: body),
-                      ),
-                    ),
-                  )
-                : body,
-          ),
+          Expanded(child: centered ? CenteredScroll(child: body) : body),
         ],
       ),
     );
@@ -276,6 +278,26 @@ class SlotScaffold extends StatelessWidget {
     return glow == null
         ? scaffold
         : ProtocolBackdrop(focus: glow, child: scaffold);
+  }
+}
+
+/// [child] in the middle of the space it gets, scrolling when it does not fit. For a short
+/// body such as [CenteredBody], in a scaffold or a tab.
+class CenteredScroll extends StatelessWidget {
+  const CenteredScroll({super.key, required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) => SingleChildScrollView(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(minHeight: constraints.maxHeight),
+          child: Center(child: child),
+        ),
+      ),
+    );
   }
 }
 

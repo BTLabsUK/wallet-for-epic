@@ -106,14 +106,17 @@ LocalizedFormatException _unclearAmount(String text) =>
 bool _isGrouped(String digits, String sep) =>
     RegExp('^\\d{1,3}(${RegExp.escape(sep)}\\d{3})*\$').hasMatch(digits);
 
-class SendScreen extends ConsumerStatefulWidget {
-  const SendScreen({super.key, this.recipient});
+/// The Send tab's content. The recipient comes from [sendRecipientProvider] (a scanned QR code,
+/// Send again), at the start and whenever a new one is handed over.
+class SendView extends ConsumerStatefulWidget {
+  const SendView({super.key, required this.onDone});
 
-  /// Prefills the recipient, for example from a QR code scanned on the home screen.
-  final String? recipient;
+  /// The payment is finished or handed to the network: the shell goes back to Wallet and
+  /// starts a fresh form.
+  final VoidCallback onDone;
 
   @override
-  ConsumerState<SendScreen> createState() => _SendScreenState();
+  ConsumerState<SendView> createState() => _SendViewState();
 }
 
 /// What the result step reports.
@@ -145,12 +148,11 @@ class _Sent {
   }
 }
 
-class _SendScreenState extends ConsumerState<SendScreen> {
-  late final _recipient = TextEditingController(
-    text: widget.recipient == null
-        ? null
-        : parseRecipient(widget.recipient!).address,
-  );
+class _SendViewState extends ConsumerState<SendView> {
+  final _recipient = TextEditingController();
+
+  /// The [RecipientHandoff.id] this form took last.
+  int? _handoff;
   final _amount = TextEditingController();
   final _note = TextEditingController();
   final _response = TextEditingController();
@@ -181,6 +183,16 @@ class _SendScreenState extends ConsumerState<SendScreen> {
 
   /// The amount came from Max, so Review asks for the maximum again rather than a fee.
   bool _maxUsed = false;
+
+  @override
+  void initState() {
+    super.initState();
+    final handoff = ref.read(sendRecipientProvider);
+    if (handoff != null) {
+      _handoff = handoff.id;
+      _recipient.text = parseRecipient(handoff.text).address;
+    }
+  }
 
   @override
   void dispose() {
@@ -534,7 +546,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       ref,
       expectedSlateId: slate.slateId,
     );
-    if (posted && mounted) Navigator.pop(context);
+    if (posted && mounted) widget.onDone();
   }
 
   Future<void> _finalize() async {
@@ -573,23 +585,16 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     // The result is short, so it sits in the middle; the form and file steps scroll, and the
     // form keeps its button at the foot of the screen.
     final form = sent == null && _slate == null;
-    return SlotScaffold(
-      centered: sent != null,
-      glow: sent != null && !sent.tx.repostable ? heroGlow : null,
-      appBar: AppBar(
-        title: Text(
-          _fileMode && sent == null
-              ? context.l10n.sendByFileTitle
-              : context.l10n.sendTitle,
-        ),
-      ),
-      body: sent != null
-          ? CenteredBody(children: all)
-          : ScreenBody(
-              bottom: form ? _formAction(context) : null,
-              children: all,
-            ),
-    );
+    final body = sent != null
+        ? CenteredScroll(child: CenteredBody(children: all))
+        : ScreenBody(bottom: form ? _formAction(context) : null, children: all);
+    // A recipient handed over while the tab is kept alive fills the form in place.
+    ref.listen(sendRecipientProvider, (_, handoff) {
+      if (handoff == null || handoff.id == _handoff) return;
+      _handoff = handoff.id;
+      _setRecipient(handoff.text);
+    });
+    return body;
   }
 
   /// Review, or Create file in file mode.
@@ -921,10 +926,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       return [
         NotPostedNotice(tx: sent.tx),
         const SizedBox(height: 8),
-        BusyButton(
-          label: l.commonDone,
-          onPressed: () => Navigator.pop(context),
-        ),
+        BusyButton(label: l.commonDone, onPressed: widget.onDone),
       ];
     }
     final waiting = to?.kind == RecipientKind.epicbox;
@@ -1000,7 +1002,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
         ),
         const SizedBox(height: 12),
       ],
-      BusyButton(label: l.commonDone, onPressed: () => Navigator.pop(context)),
+      BusyButton(label: l.commonDone, onPressed: widget.onDone),
       const SizedBox(height: 8),
       TextButton.icon(
         icon: const Icon(Icons.help_outline),

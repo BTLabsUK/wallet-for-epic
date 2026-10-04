@@ -69,11 +69,8 @@ void main() {
               child: Scaffold(
                 body: ListView(
                   children: const [
-                    ProtocolBalancePanel(
-                      syncProgress: 0.6,
-                      footer: Readout('Synced at block 2,500,000'),
-                      child: Text('1,234.5 EPIC'),
-                    ),
+                    ProtocolBalancePanel(child: Text('1,234.5 EPIC')),
+                    Readout('Synced at block 2,500,000'),
                     ProtocolSectionHead('Recent activity'),
                     EdgeCard(edge: Colors.amber, child: Text('Waiting')),
                     StatusTimeline(
@@ -125,20 +122,5 @@ void main() {
       const MaterialApp(home: Advanced(child: Text('technical'))),
     );
     expect(find.text('technical'), findsNothing);
-  });
-
-  test('the signal trace draws a part of its line per progress', () {
-    const half = SignalTracePainter(
-      progress: 0.5,
-      color: Colors.amber,
-      glow: false,
-    );
-    expect(
-      half.shouldRepaint(
-        const SignalTracePainter(progress: 1, color: Colors.amber, glow: false),
-      ),
-      isTrue,
-    );
-    expect(half.shouldRepaint(half), isFalse);
   });
 }
