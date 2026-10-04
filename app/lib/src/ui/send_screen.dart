@@ -25,7 +25,7 @@ import 'theme/advanced.dart';
 import 'theme/brand.dart';
 import 'theme/tokens.dart';
 
-/// Sending: pick a recipient (their address or a wallet URL), an amount, review, send. A
+/// Sending: pick a recipient (their epicbox address), an amount, review, send. A
 /// transaction file is offered under "Other ways to send".
 /// The most EPIC that will ever exist, 21 million. Anything above is a typo.
 final BigInt maxSendAtomic = BigInt.from(21000000) * atomicPerEpic;
