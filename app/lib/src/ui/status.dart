@@ -120,7 +120,8 @@ WalletStatus watchWalletStatus(WidgetRef ref) {
   );
 }
 
-/// Icon, word, colour, spoken label and tooltip of one status.
+/// Icon, words (the service and its state, also what a screen reader says), colour, spoken
+/// label and tooltip of one status.
 class _Face {
   const _Face(this.icon, this.word, this.color, this.label, this.detail);
 
@@ -142,15 +143,15 @@ _Face _nodeFace(BuildContext context, NodeStatus node, WalletConfig? config) {
   ) = switch (node.state) {
     NodeState.online => (
       Icons.cloud_done_outlined,
-      l.statusOnline,
+      l.statusNodeOnline,
       t.ok,
       l.homeSyncUpToDate,
     ),
     NodeState.syncing => (
       Icons.sync,
       node.percent == null
-          ? l.statusSyncing
-          : l.statusSyncingPercent(node.percent!),
+          ? l.statusNodeSyncing
+          : l.statusNodeSyncingPercent(node.percent!),
       t.dim,
       node.percent == null
           ? l.homeSyncSyncing
@@ -158,13 +159,13 @@ _Face _nodeFace(BuildContext context, NodeStatus node, WalletConfig? config) {
     ),
     NodeState.connecting => (
       Icons.cloud_queue,
-      l.statusConnecting,
+      l.statusNodeConnecting,
       t.dim,
       l.homeSyncContactingNode,
     ),
     NodeState.offline => (
       Icons.cloud_off,
-      l.statusOffline,
+      l.statusNodeOffline,
       t.risk,
       node.validated ? l.homeSyncNodeUnreachable : l.homeSyncNotValidated,
     ),
@@ -181,7 +182,7 @@ _Face _nodeFace(BuildContext context, NodeStatus node, WalletConfig? config) {
       l.homeSyncedAtBlock(groupDigits(l, height)),
     if (version.isNotEmpty) l.statusNodeVersion(version),
   ].join('\n');
-  return _Face(icon, word, color, l.statusNodeLabel(word), detail);
+  return _Face(icon, word, color, word, detail);
 }
 
 _Face _epicboxFace(
@@ -199,19 +200,19 @@ _Face _epicboxFace(
   ) = switch (state) {
     EpicboxState.online => (
       Icons.mark_email_read_outlined,
-      l.statusOnline,
+      l.statusEpicboxOnline,
       t.ok,
       l.receiveEpicboxConnected,
     ),
     EpicboxState.connecting => (
       Icons.mail_outline,
-      l.statusConnecting,
+      l.statusEpicboxConnecting,
       t.dim,
       l.homeEpicboxConnecting,
     ),
     EpicboxState.offline => (
       Icons.unsubscribe_outlined,
-      l.statusOffline,
+      l.statusEpicboxOffline,
       t.risk,
       l.homeEpicboxOffline,
     ),
@@ -221,7 +222,7 @@ _Face _epicboxFace(
     if (config != null)
       l.statusRelay('${config.epicboxDomain}:${config.epicboxPort}'),
   ].join('\n');
-  return _Face(icon, word, color, l.statusEpicboxLabel(word), detail);
+  return _Face(icon, word, color, word, detail);
 }
 
 /// A tooltip that opens on a long press, a tap, or hover, over a 48 dp target.
@@ -335,7 +336,12 @@ class CompactStatus extends ConsumerWidget {
     return _StatusTarget(
       key: compactStatusKey,
       face: face,
-      child: Center(child: Icon(face.icon, size: 20, color: face.color)),
+      // At the row's end, where the two rows end on Wallet.
+      child: Align(
+        alignment: AlignmentDirectional.centerEnd,
+        widthFactor: 1,
+        child: Icon(face.icon, size: 20, color: face.color),
+      ),
     );
   }
 }

@@ -647,8 +647,8 @@ void main() {
 
       expect(find.text('12.5 EPIC'), findsOneWidget);
       expect(find.text('≈ 6.25 USD'), findsOneWidget);
-      expect(_statusWord(tester, nodeStatusKey), 'Online');
-      expect(_statusWord(tester, epicboxStatusKey), 'Connecting');
+      expect(_statusWord(tester, nodeStatusKey), 'Node online');
+      expect(_statusWord(tester, epicboxStatusKey), 'Epicbox connecting');
       // The line, the life line and the breakdown expander went.
       expect(find.textContaining('not spendable yet'), findsNothing);
       expect(find.text('Spendable'), findsNothing);
@@ -1147,7 +1147,7 @@ void main() {
           ),
         );
       await tester.pumpAndSettle();
-      expect(_statusWord(tester, epicboxStatusKey), 'Offline');
+      expect(_statusWord(tester, epicboxStatusKey), 'Epicbox offline');
       expect(
         _statusTip(tester, epicboxStatusKey),
         contains('Epicbox offline, reconnecting.'),
@@ -1238,7 +1238,7 @@ void main() {
       await h.pump(tester);
       // Local figures while the refresh against the node runs, with its progress.
       expect(find.text('12.5 EPIC'), findsOneWidget);
-      expect(_statusWord(tester, nodeStatusKey), 'Syncing 40%');
+      expect(_statusWord(tester, nodeStatusKey), 'Node syncing 40%');
       final syncBar = find.byWidgetPredicate(
         (w) => w is LinearProgressIndicator && w.semanticsLabel == 'Syncing',
       );
@@ -1280,8 +1280,8 @@ void main() {
         const ListenerEvent(kind: ListenerEventKind.connected, message: 'a'),
       );
       await tester.pumpAndSettle();
-      expect(_statusWord(tester, nodeStatusKey), 'Online');
-      expect(_statusWord(tester, epicboxStatusKey), 'Online');
+      expect(_statusWord(tester, nodeStatusKey), 'Node online');
+      expect(_statusWord(tester, epicboxStatusKey), 'Epicbox online');
       expect(find.textContaining('Up to date'), findsNothing);
       expect(find.textContaining('receive payments'), findsNothing);
     });
@@ -2550,6 +2550,56 @@ void main() {
       expect(page.page, allOf(greaterThan(0), lessThan(1)));
       await tester.pump(const Duration(milliseconds: 200));
       expect(page.page, 0);
+    });
+
+    testWidgets('a tap from Send to Receive never marks Wallet on the way', (
+      tester,
+    ) async {
+      final h = _Harness();
+      await h.pump(tester);
+      await _tab(tester, 'Send');
+      await tester.tap(
+        find.descendant(
+          of: find.byType(NavigationBar),
+          matching: find.text('Receive'),
+        ),
+      );
+      for (var i = 0; i < 15; i++) {
+        await tester.pump(const Duration(milliseconds: 25));
+        expect(_selectedTab(tester), ShellTab.receive);
+      }
+      await tester.pumpAndSettle();
+      expect(_selectedTab(tester), ShellTab.receive);
+      // A swipe afterwards still changes the tab.
+      await tester.fling(find.byType(PageView), const Offset(300, 0), 1000);
+      await tester.pumpAndSettle();
+      expect(_selectedTab(tester), ShellTab.wallet);
+    });
+
+    testWidgets('the shrunk status sits at the end, where the rows end', (
+      tester,
+    ) async {
+      final h = _Harness();
+      await h.pump(tester);
+      final rowsEnd = tester.getRect(find.byKey(nodeStatusKey)).right;
+      await _tab(tester, 'Send');
+      final icon = tester.getRect(
+        find.descendant(
+          of: find.byKey(compactStatusKey),
+          matching: find.byType(Icon),
+        ),
+      );
+      expect(icon.right, closeTo(rowsEnd, 1));
+    });
+
+    testWidgets('a failed listener stream shows epicbox offline', (
+      tester,
+    ) async {
+      final h = _Harness();
+      await h.pump(tester);
+      h.session.listenerEvents.addError(StateError('relay closed'));
+      await tester.pumpAndSettle();
+      expect(_statusWord(tester, epicboxStatusKey), 'Epicbox offline');
     });
 
     testWidgets('with reduced motion a tap cuts to the tab', (tester) async {

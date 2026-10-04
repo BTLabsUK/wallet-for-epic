@@ -1476,31 +1476,30 @@ class AppLocalizationsPl extends AppLocalizations {
   String get homeSyncContactingNode => 'Łączenie z węzłem…';
 
   @override
-  String get statusOnline => 'Online';
+  String get statusNodeOnline => 'Węzeł online';
 
   @override
-  String get statusSyncing => 'Synchronizacja';
+  String get statusNodeSyncing => 'Synchronizacja węzła';
 
   @override
-  String statusSyncingPercent(Object percent) {
-    return 'Synchronizacja $percent%';
+  String statusNodeSyncingPercent(int percent) {
+    return 'Synchronizacja węzła $percent%';
   }
 
   @override
-  String get statusConnecting => 'Łączenie';
+  String get statusNodeConnecting => 'Łączenie z węzłem';
 
   @override
-  String get statusOffline => 'Offline';
+  String get statusNodeOffline => 'Węzeł offline';
 
   @override
-  String statusNodeLabel(Object state) {
-    return 'Węzeł: $state';
-  }
+  String get statusEpicboxOnline => 'epicbox online';
 
   @override
-  String statusEpicboxLabel(Object state) {
-    return 'epicbox: $state';
-  }
+  String get statusEpicboxConnecting => 'Łączenie z epicbox';
+
+  @override
+  String get statusEpicboxOffline => 'epicbox offline';
 
   @override
   String statusNodeHost(Object host) {

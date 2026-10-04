@@ -1470,33 +1470,42 @@
   "@homeSyncContactingNode": {
     "description": "Status line under the balance before the node (the Epic Cash server the wallet reads the chain from) answered."
   },
-  "statusOnline": "Online",
-  "@statusOnline": {
-    "description": "One word beside an icon in the balance header: the node or epicbox works."
+  "statusNodeOnline": "Node online",
+  "@statusNodeOnline": {
+    "description": "Status in the balance header beside an icon, also what a screen reader says: the service (node: the Epic Cash server the wallet reads the chain from; epicbox: the relay payments arrive through) and its state, about two words. The node works."
   },
-  "statusSyncing": "Syncing",
-  "@statusSyncing": {
-    "description": "One word beside an icon in the balance header: the wallet reads new blocks from the node."
+  "statusNodeSyncing": "Node syncing",
+  "@statusNodeSyncing": {
+    "description": "Status in the balance header beside an icon, also what a screen reader says: the service (node: the Epic Cash server the wallet reads the chain from; epicbox: the relay payments arrive through) and its state, about two words. The wallet reads new blocks from the node."
   },
-  "statusSyncingPercent": "Syncing {percent}%",
-  "@statusSyncingPercent": {
-    "description": "statusSyncing with how far it got."
+  "statusNodeSyncingPercent": "Node syncing {percent}%",
+  "@statusNodeSyncingPercent": {
+    "description": "Status in the balance header beside an icon, also what a screen reader says: the service (node: the Epic Cash server the wallet reads the chain from; epicbox: the relay payments arrive through) and its state, about two words. statusNodeSyncing with how far it got.",
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
   },
-  "statusConnecting": "Connecting",
-  "@statusConnecting": {
-    "description": "One word beside an icon in the balance header: no answer yet from the node or epicbox."
+  "statusNodeConnecting": "Node connecting",
+  "@statusNodeConnecting": {
+    "description": "Status in the balance header beside an icon, also what a screen reader says: the service (node: the Epic Cash server the wallet reads the chain from; epicbox: the relay payments arrive through) and its state, about two words. No answer from the node yet."
   },
-  "statusOffline": "Offline",
-  "@statusOffline": {
-    "description": "One word beside an icon in the balance header: the node or epicbox cannot be reached."
+  "statusNodeOffline": "Node offline",
+  "@statusNodeOffline": {
+    "description": "Status in the balance header beside an icon, also what a screen reader says: the service (node: the Epic Cash server the wallet reads the chain from; epicbox: the relay payments arrive through) and its state, about two words. The node cannot be reached, or did not check the balances."
   },
-  "statusNodeLabel": "Node: {state}",
-  "@statusNodeLabel": {
-    "description": "What a screen reader says for the node status. node is the Epic Cash server the wallet reads the chain from; state is one of the status words."
+  "statusEpicboxOnline": "Epicbox online",
+  "@statusEpicboxOnline": {
+    "description": "Status in the balance header beside an icon, also what a screen reader says: the service (node: the Epic Cash server the wallet reads the chain from; epicbox: the relay payments arrive through) and its state, about two words. Connected to the epicbox relay, so payments arrive."
   },
-  "statusEpicboxLabel": "Epicbox: {state}",
-  "@statusEpicboxLabel": {
-    "description": "What a screen reader says for the epicbox status. Epicbox is the relay payments arrive through; state is one of the status words."
+  "statusEpicboxConnecting": "Epicbox connecting",
+  "@statusEpicboxConnecting": {
+    "description": "Status in the balance header beside an icon, also what a screen reader says: the service (node: the Epic Cash server the wallet reads the chain from; epicbox: the relay payments arrive through) and its state, about two words. No connection to the epicbox relay yet."
+  },
+  "statusEpicboxOffline": "Epicbox offline",
+  "@statusEpicboxOffline": {
+    "description": "Status in the balance header beside an icon, also what a screen reader says: the service (node: the Epic Cash server the wallet reads the chain from; epicbox: the relay payments arrive through) and its state, about two words. The connection to the epicbox relay was lost; it retries."
   },
   "statusNodeHost": "Node: {host}",
   "@statusNodeHost": {

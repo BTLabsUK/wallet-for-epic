@@ -1470,31 +1470,30 @@ class AppLocalizationsRu extends AppLocalizations {
   String get homeSyncContactingNode => 'Подключение к узлу…';
 
   @override
-  String get statusOnline => 'В сети';
+  String get statusNodeOnline => 'Узел в сети';
 
   @override
-  String get statusSyncing => 'Синхронизация';
+  String get statusNodeSyncing => 'Синхронизация узла';
 
   @override
-  String statusSyncingPercent(Object percent) {
-    return 'Синхронизация $percent%';
+  String statusNodeSyncingPercent(int percent) {
+    return 'Синхронизация узла $percent%';
   }
 
   @override
-  String get statusConnecting => 'Подключение';
+  String get statusNodeConnecting => 'Подключение к узлу';
 
   @override
-  String get statusOffline => 'Не в сети';
+  String get statusNodeOffline => 'Узел не в сети';
 
   @override
-  String statusNodeLabel(Object state) {
-    return 'Узел: $state';
-  }
+  String get statusEpicboxOnline => 'epicbox в сети';
 
   @override
-  String statusEpicboxLabel(Object state) {
-    return 'epicbox: $state';
-  }
+  String get statusEpicboxConnecting => 'Подключение к epicbox';
+
+  @override
+  String get statusEpicboxOffline => 'epicbox не в сети';
 
   @override
   String statusNodeHost(Object host) {

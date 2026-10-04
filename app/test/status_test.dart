@@ -222,14 +222,14 @@ void main() {
         home: home,
         listener: _connected,
       );
-      expect(word(tester, nodeStatusKey), 'Online');
+      expect(word(tester, nodeStatusKey), 'Node online');
       expect(icon(tester, nodeStatusKey), Icons.cloud_done_outlined);
       expect(
         tip(tester, nodeStatusKey),
         'Up to date.\nNode: node.example.org\nSynced at block 2,499,990\n'
         'Node version 3.6.0',
       );
-      expect(word(tester, epicboxStatusKey), 'Online');
+      expect(word(tester, epicboxStatusKey), 'Epicbox online');
       expect(icon(tester, epicboxStatusKey), Icons.mark_email_read_outlined);
       expect(
         tip(tester, epicboxStatusKey),
@@ -252,7 +252,7 @@ void main() {
         percent: 40,
         listener: _connected,
       );
-      expect(word(tester, nodeStatusKey), 'Syncing 40%');
+      expect(word(tester, nodeStatusKey), 'Node syncing 40%');
       expect(icon(tester, nodeStatusKey), Icons.sync);
       expect(tip(tester, nodeStatusKey), startsWith('Syncing… 40%'));
     });
@@ -264,10 +264,10 @@ void main() {
         home: home,
         listener: _connecting,
       );
-      expect(word(tester, nodeStatusKey), 'Connecting');
+      expect(word(tester, nodeStatusKey), 'Node connecting');
       expect(icon(tester, nodeStatusKey), Icons.cloud_queue);
       expect(tip(tester, nodeStatusKey), startsWith('Contacting node…'));
-      expect(word(tester, epicboxStatusKey), 'Connecting');
+      expect(word(tester, epicboxStatusKey), 'Epicbox connecting');
       expect(icon(tester, epicboxStatusKey), Icons.mail_outline);
       expect(
         tip(tester, epicboxStatusKey),
@@ -284,10 +284,10 @@ void main() {
         home: home,
         listener: _lost,
       );
-      expect(word(tester, nodeStatusKey), 'Offline');
+      expect(word(tester, nodeStatusKey), 'Node offline');
       expect(icon(tester, nodeStatusKey), Icons.cloud_off);
       expect(tip(tester, nodeStatusKey), startsWith('Node unreachable.'));
-      expect(word(tester, epicboxStatusKey), 'Offline');
+      expect(word(tester, epicboxStatusKey), 'Epicbox offline');
       expect(icon(tester, epicboxStatusKey), Icons.unsubscribe_outlined);
       expect(
         tip(tester, epicboxStatusKey),
@@ -312,9 +312,9 @@ void main() {
     testWidgets('a screen reader hears the kind and the word', (tester) async {
       final handle = tester.ensureSemantics();
       await pump(tester, tip: AsyncData(_tip), home: home, listener: _lost);
-      expect(find.bySemanticsLabel('Node: Online'), findsOneWidget);
+      expect(find.bySemanticsLabel('Node online'), findsOneWidget);
       // The row and the shrunk icon, both on screen in this test.
-      expect(find.bySemanticsLabel('Epicbox: Offline'), findsNWidgets(2));
+      expect(find.bySemanticsLabel('Epicbox offline'), findsNWidgets(2));
       handle.dispose();
     });
   });

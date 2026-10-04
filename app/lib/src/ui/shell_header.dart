@@ -134,10 +134,11 @@ class ShellHeader extends ConsumerWidget {
       child: ProtocolBalancePanel(
         key: shellHeaderKey,
         padding: EdgeInsets.lerp(
+          // The same end inset open and shrunk, so the status stays at one edge.
           const EdgeInsetsDirectional.fromSTEB(
             14,
             2,
-            4,
+            8,
             2,
           ).resolve(Directionality.of(context)),
           const EdgeInsetsDirectional.fromSTEB(

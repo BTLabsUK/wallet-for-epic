@@ -232,13 +232,27 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     if (!_pages.hasClients || _pages.page?.round() == tab.index) return;
     if (MediaQuery.of(context).disableAnimations) {
       _pages.jumpToPage(tab.index);
-    } else {
-      _pages.animateToPage(
-        tab.index,
-        duration: shellTabDuration,
-        curve: Curves.easeOutCubic,
-      );
+      return;
     }
+    // Send to Receive passes Wallet; the tab bar keeps marking the tab that was tapped.
+    _tapMove++;
+    final move = _tapMove;
+    _pages
+        .animateToPage(
+          tab.index,
+          duration: shellTabDuration,
+          curve: Curves.easeOutCubic,
+        )
+        .whenComplete(() {
+          if (move == _tapMove) _tapMove = 0;
+        });
+  }
+
+  /// Nonzero while a tap moves the pages, so the pages passed on the way change no tab.
+  int _tapMove = 0;
+
+  void _pageChanged(int index) {
+    if (_tapMove == 0) _goTab(ShellTab.values[index]);
   }
 
   /// A payment is done: back to Wallet, with a fresh Send form for next time.
@@ -397,7 +411,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           Expanded(
             child: PageView(
               controller: _pages,
-              onPageChanged: (i) => _goTab(ShellTab.values[i]),
+              onPageChanged: _pageChanged,
               children: [
                 _KeepAlive(
                   child: SendView(

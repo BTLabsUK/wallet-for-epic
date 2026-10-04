@@ -1886,47 +1886,53 @@ abstract class AppLocalizations {
   /// **'Contacting node…'**
   String get homeSyncContactingNode;
 
-  /// One word beside an icon in the balance header: the node or epicbox works.
+  /// Status in the balance header beside an icon, also what a screen reader says: the service (node: the Epic Cash server the wallet reads the chain from; epicbox: the relay payments arrive through) and its state, about two words. The node works.
   ///
   /// In en, this message translates to:
-  /// **'Online'**
-  String get statusOnline;
+  /// **'Node online'**
+  String get statusNodeOnline;
 
-  /// One word beside an icon in the balance header: the wallet reads new blocks from the node.
+  /// Status in the balance header beside an icon, also what a screen reader says: the service (node: the Epic Cash server the wallet reads the chain from; epicbox: the relay payments arrive through) and its state, about two words. The wallet reads new blocks from the node.
   ///
   /// In en, this message translates to:
-  /// **'Syncing'**
-  String get statusSyncing;
+  /// **'Node syncing'**
+  String get statusNodeSyncing;
 
-  /// statusSyncing with how far it got.
+  /// Status in the balance header beside an icon, also what a screen reader says: the service (node: the Epic Cash server the wallet reads the chain from; epicbox: the relay payments arrive through) and its state, about two words. statusNodeSyncing with how far it got.
   ///
   /// In en, this message translates to:
-  /// **'Syncing {percent}%'**
-  String statusSyncingPercent(Object percent);
+  /// **'Node syncing {percent}%'**
+  String statusNodeSyncingPercent(int percent);
 
-  /// One word beside an icon in the balance header: no answer yet from the node or epicbox.
+  /// Status in the balance header beside an icon, also what a screen reader says: the service (node: the Epic Cash server the wallet reads the chain from; epicbox: the relay payments arrive through) and its state, about two words. No answer from the node yet.
   ///
   /// In en, this message translates to:
-  /// **'Connecting'**
-  String get statusConnecting;
+  /// **'Node connecting'**
+  String get statusNodeConnecting;
 
-  /// One word beside an icon in the balance header: the node or epicbox cannot be reached.
+  /// Status in the balance header beside an icon, also what a screen reader says: the service (node: the Epic Cash server the wallet reads the chain from; epicbox: the relay payments arrive through) and its state, about two words. The node cannot be reached, or did not check the balances.
   ///
   /// In en, this message translates to:
-  /// **'Offline'**
-  String get statusOffline;
+  /// **'Node offline'**
+  String get statusNodeOffline;
 
-  /// What a screen reader says for the node status. node is the Epic Cash server the wallet reads the chain from; state is one of the status words.
+  /// Status in the balance header beside an icon, also what a screen reader says: the service (node: the Epic Cash server the wallet reads the chain from; epicbox: the relay payments arrive through) and its state, about two words. Connected to the epicbox relay, so payments arrive.
   ///
   /// In en, this message translates to:
-  /// **'Node: {state}'**
-  String statusNodeLabel(Object state);
+  /// **'Epicbox online'**
+  String get statusEpicboxOnline;
 
-  /// What a screen reader says for the epicbox status. Epicbox is the relay payments arrive through; state is one of the status words.
+  /// Status in the balance header beside an icon, also what a screen reader says: the service (node: the Epic Cash server the wallet reads the chain from; epicbox: the relay payments arrive through) and its state, about two words. No connection to the epicbox relay yet.
   ///
   /// In en, this message translates to:
-  /// **'Epicbox: {state}'**
-  String statusEpicboxLabel(Object state);
+  /// **'Epicbox connecting'**
+  String get statusEpicboxConnecting;
+
+  /// Status in the balance header beside an icon, also what a screen reader says: the service (node: the Epic Cash server the wallet reads the chain from; epicbox: the relay payments arrive through) and its state, about two words. The connection to the epicbox relay was lost; it retries.
+  ///
+  /// In en, this message translates to:
+  /// **'Epicbox offline'**
+  String get statusEpicboxOffline;
 
   /// Line in the node status tooltip: the node's host name.
   ///

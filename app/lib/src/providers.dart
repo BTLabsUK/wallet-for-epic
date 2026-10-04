@@ -275,10 +275,7 @@ class HomeNotifier extends AsyncNotifier<HomeData> {
       final data = await _refreshed(session);
       if (ref.mounted) state = AsyncData(data);
     } catch (error, stack) {
-      logWarn(
-        'sync',
-        'refresh failed: ${describeError(englishStrings, error)}',
-      );
+      logWarn('sync', 'refresh failed: ${describeError(englishStrings, error)}');
       if (!ref.mounted) return;
       // The local figures stay, no longer marked as syncing, under the error.
       final shown = state.value;
@@ -318,10 +315,7 @@ class HomeNotifier extends AsyncNotifier<HomeData> {
       );
     } catch (error) {
       // The list stays as it was.
-      logInfo(
-        'history',
-        'enrich failed: ${describeError(englishStrings, error)}',
-      );
+      logInfo('history', 'enrich failed: ${describeError(englishStrings, error)}');
     } finally {
       _enriching = false;
     }
@@ -435,7 +429,7 @@ class ListenerState {
   /// Was connected, lost the connection, and is retrying.
   final bool lost;
 
-  /// The listener ended: the core stopped it, or its stream failed. It does not retry.
+  /// The core stopped the listener. It does not retry, and the header shows no epicbox row.
   final bool stopped;
 
   /// Why it is not connected, when known.
@@ -462,12 +456,10 @@ class ListenerNotifier extends Notifier<ListenerState> {
     _events = session.startListener().listen(
       _onEvent,
       onError: (Object error) {
-        logWarn(
-          'listener',
-          'stream failed: ${describeError(englishStrings, error)}',
-        );
+        logWarn('listener', 'stream failed: ${describeError(englishStrings, error)}');
+        // Not stopped: the receive path is broken, so the header says Offline.
         state = ListenerState(
-          stopped: true,
+          lost: true,
           status: describeError(englishStrings, error),
           last: state.last,
         );

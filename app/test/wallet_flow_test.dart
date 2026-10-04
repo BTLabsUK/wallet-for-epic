@@ -535,7 +535,7 @@ void main() {
       expect(find.text('12.5 EPIC'), findsOneWidget);
       final handle = tester.ensureSemantics();
       await tester.pump();
-      expect(find.bySemanticsLabel('Node: Offline'), findsOneWidget);
+      expect(find.bySemanticsLabel('Node offline'), findsOneWidget);
       handle.dispose();
       // Total 16, spendable 12.5: the rest is behind the ? beside the figure.
       expect(find.textContaining('Confirming'), findsNothing);
@@ -723,15 +723,15 @@ void main() {
       final service = _existing(session: session);
       await _pumpApp(tester, service, _Device(sealedMainnet: true));
       await _unlockToHome(tester);
-      expect(find.bySemanticsLabel('Epicbox: Connecting'), findsOneWidget);
+      expect(find.bySemanticsLabel('Epicbox connecting'), findsOneWidget);
 
       session.listenerEvents.add(
         const ListenerEvent(kind: ListenerEventKind.connected, message: 'a'),
       );
       await tester.pumpAndSettle();
-      expect(find.bySemanticsLabel('Epicbox: Online'), findsOneWidget);
+      expect(find.bySemanticsLabel('Epicbox online'), findsOneWidget);
       // Balances the node did not check count as the node being offline, and say why.
-      expect(find.bySemanticsLabel('Node: Offline'), findsOneWidget);
+      expect(find.bySemanticsLabel('Node offline'), findsOneWidget);
       expect(
         tester
             .widget<Tooltip>(

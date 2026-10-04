@@ -1284,31 +1284,30 @@ class AppLocalizationsZh extends AppLocalizations {
   String get homeSyncContactingNode => '正在连接节点…';
 
   @override
-  String get statusOnline => '在线';
+  String get statusNodeOnline => '节点在线';
 
   @override
-  String get statusSyncing => '同步中';
+  String get statusNodeSyncing => '节点同步中';
 
   @override
-  String statusSyncingPercent(Object percent) {
-    return '同步中 $percent%';
+  String statusNodeSyncingPercent(int percent) {
+    return '节点同步中 $percent%';
   }
 
   @override
-  String get statusConnecting => '连接中';
+  String get statusNodeConnecting => '正在连接节点';
 
   @override
-  String get statusOffline => '离线';
+  String get statusNodeOffline => '节点离线';
 
   @override
-  String statusNodeLabel(Object state) {
-    return '节点：$state';
-  }
+  String get statusEpicboxOnline => 'epicbox 在线';
 
   @override
-  String statusEpicboxLabel(Object state) {
-    return 'epicbox：$state';
-  }
+  String get statusEpicboxConnecting => '正在连接 epicbox';
+
+  @override
+  String get statusEpicboxOffline => 'epicbox 离线';
 
   @override
   String statusNodeHost(Object host) {

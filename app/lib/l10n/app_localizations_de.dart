@@ -1382,31 +1382,30 @@ class AppLocalizationsDe extends AppLocalizations {
   String get homeSyncContactingNode => 'Node wird kontaktiert…';
 
   @override
-  String get statusOnline => 'Online';
+  String get statusNodeOnline => 'Node online';
 
   @override
-  String get statusSyncing => 'Synchronisiert';
+  String get statusNodeSyncing => 'Node synchronisiert';
 
   @override
-  String statusSyncingPercent(Object percent) {
-    return 'Synchronisiert $percent %';
+  String statusNodeSyncingPercent(int percent) {
+    return 'Node synchronisiert $percent %';
   }
 
   @override
-  String get statusConnecting => 'Verbindet';
+  String get statusNodeConnecting => 'Node verbindet';
 
   @override
-  String get statusOffline => 'Offline';
+  String get statusNodeOffline => 'Node offline';
 
   @override
-  String statusNodeLabel(Object state) {
-    return 'Node: $state';
-  }
+  String get statusEpicboxOnline => 'epicbox online';
 
   @override
-  String statusEpicboxLabel(Object state) {
-    return 'epicbox: $state';
-  }
+  String get statusEpicboxConnecting => 'epicbox verbindet';
+
+  @override
+  String get statusEpicboxOffline => 'epicbox offline';
 
   @override
   String statusNodeHost(Object host) {
