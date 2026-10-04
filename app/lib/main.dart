@@ -16,6 +16,8 @@ Future<void> main() async {
   // Errors that escape every other handler land here, in the zone the app runs in.
   await runZonedGuarded(() async {
     WidgetsFlutterBinding.ensureInitialized();
+    // First, so a failure to load either core is in the file.
+    await startLogging();
     final previous = FlutterError.onError;
     FlutterError.onError = (details) {
       logError('flutter', details.exception, details.stack);
@@ -28,7 +30,6 @@ Future<void> main() async {
     };
     await RustLib.init();
     if (coreBackend == CoreBackend.lepic) await initLepic();
-    await startLogging();
     registerFontLicences();
     const build = String.fromEnvironment('FLUTTER_BUILD_NAME');
     logInfo(

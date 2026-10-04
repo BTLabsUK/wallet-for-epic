@@ -108,7 +108,7 @@ void main() {
         AppLog.use(later);
         expect(early.entries, isEmpty);
         final text = await later.tail(1 << 20);
-        expect(text, contains('INFO dart.unlock: PIN [redacted] entered'));
+        expect(text, contains('INFO  dart.unlock: PIN [redacted] entered'));
         expect(text, contains('ERROR dart.send: Bad state: to esWn9r…@'));
         expect(text, isNot(contains('123456')));
       },

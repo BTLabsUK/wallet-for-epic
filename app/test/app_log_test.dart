@@ -1,0 +1,210 @@
+import 'dart:io';
+
+import 'package:epic_wallet/src/app_log.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:lepic/lepic.dart' as lepic;
+
+const _phrase =
+    'abandon ability able about above absent absorb abstract absurd abuse '
+    'access accident';
+const _address =
+    'esWn9r2zQj5eKkVh3sT4YpX7cBdF8gHmNaLuRvS6tE1iPo2wZxC9@epicbox.epiccash.com';
+const _slate =
+    '{"version_info":{"version":3},"id":"0436430c-2b02-624c-2032-570501212b00",'
+    '"participant_data":[{"public_blind_excess":"03aa","part_sig":null}]}';
+
+void main() {
+  late Directory dir;
+  final mirrored = <String>[];
+
+  FileLogSink open({int maxBytes = maxLogFileBytes}) => FileLogSink.open(
+    dir,
+    maxBytes: maxBytes,
+    mirror: (level, target, body) => mirrored.add('$target: $body'),
+  );
+
+  setUp(() {
+    dir = Directory.systemTemp.createTempSync('wfe_log_test');
+    mirrored.clear();
+  });
+  tearDown(() {
+    AppLog.use(MemoryLogSink());
+    dir.deleteSync(recursive: true);
+  });
+
+  test('the file rotates to wfe.log.1 and stays bounded', () async {
+    final sink = open(maxBytes: 1000);
+    for (var i = 0; i < 100; i++) {
+      sink.write(
+        LogLevel.info,
+        't',
+        'line ${i.toString().padLeft(3, '0')} ${'x' * 20}',
+      );
+    }
+    final current = sink.file.lengthSync();
+    final previous = sink.previous.lengthSync();
+    expect(current, lessThanOrEqualTo(1000));
+    expect(previous, lessThanOrEqualTo(1000));
+    expect(dir.listSync().map((e) => e.uri.pathSegments.last).toSet(), {
+      'wfe.log',
+      'wfe.log.1',
+    });
+
+    final tail = await sink.tail(1500);
+    expect(tail.length, lessThanOrEqualTo(1500));
+    expect(tail, endsWith('dart.t: line 099 ${'x' * 20}\n'));
+    expect(tail, matches(RegExp(r'^\d{4}-\d\d-\d\dT')), reason: 'whole line');
+    expect(tail, isNot(contains('line 000')));
+    // It reaches into the rotated file when the current one is short.
+    expect(tail.length, greaterThan(current));
+    sink.close();
+  });
+
+  test('the tail keeps whole lines, and a reopened file carries on', () async {
+    open()
+      ..write(LogLevel.info, 'a', 'first')
+      ..close();
+    final sink = open()..write(LogLevel.warn, 'b', 'second');
+    final all = await sink.tail(1 << 20);
+    expect(
+      all,
+      matches(
+        RegExp(r'^\S+Z INFO  dart\.a: first\n\S+Z WARN  dart\.b: second\n$'),
+      ),
+    );
+    final last = await sink.tail(
+      '2026-10-01T00:00:00.000Z WARN  dart.b: second\n'.length,
+    );
+    expect(last, endsWith('WARN  dart.b: second\n'));
+    expect(last, isNot(contains('first')));
+    expect(await sink.tail(10), isEmpty, reason: 'no partial line');
+    sink.close();
+  });
+
+  test(
+    'a LEPIC entry is redacted at the sink: slate, phrase and PIN',
+    () async {
+      final sink = open();
+      AppLog.use(sink);
+      logLepicEntry(
+        const lepic.LogEntry(
+          level: lepic.LogLevel.info,
+          target: 'lepic_wallet::receive',
+          message: 'slate received $_slate',
+          spans: ['receive'],
+          fields: [lepic.LogField(name: 'slate_id', value: 'abcd1234')],
+        ),
+      );
+      logLepicEntry(
+        const lepic.LogEntry(
+          level: lepic.LogLevel.error,
+          target: 'lepic_wallet::restore',
+          message: 'restore failed',
+          spans: [],
+          fields: [
+            lepic.LogField(name: 'amount', value: '2500000000'),
+            lepic.LogField(name: 'height', value: '1041'),
+            // Last: the phrase rule also takes a wordlist word after the run.
+            lepic.LogField(name: 'error', value: 'bad words $_phrase'),
+          ],
+        ),
+      );
+      logLepicEntry(
+        const lepic.LogEntry(
+          level: lepic.LogLevel.warn,
+          target: 'lepic_ffi::vault',
+          message: 'unlock with pin 123456 refused, sending to $_address',
+          spans: [],
+          fields: [],
+        ),
+      );
+      logLepicEntry(
+        const lepic.LogEntry(
+          level: lepic.LogLevel.debug,
+          target: 'lepic_wallet::send',
+          message: 'debug detail',
+          spans: [],
+          fields: [],
+        ),
+      );
+
+      final written = sink.file.readAsStringSync();
+      expect(
+        written,
+        contains('INFO  lepic_wallet::receive: slate received [slate]'),
+      );
+      expect(
+        written,
+        contains(
+          'ERROR lepic_wallet::restore: restore failed amount=[redacted] '
+          'height=1041 error=bad words [words]\n',
+        ),
+      );
+      expect(
+        written,
+        contains('WARN  lepic_ffi::vault: unlock with pin [redacted] refused'),
+      );
+      expect(written, contains('esWn9r…@epicbox.epiccash.com'));
+      expect(written, isNot(contains('debug detail')));
+      for (final text in [written, await sink.tail(1 << 20), ...mirrored]) {
+        for (final secret in [
+          'participant_data',
+          'abandon',
+          '123456',
+          '2500000000',
+          'esWn9r2zQj5',
+        ]) {
+          expect(text, isNot(contains(secret)), reason: secret);
+        }
+      }
+      expect(mirrored, hasLength(3));
+      sink.close();
+    },
+  );
+
+  test(
+    'early lines reach the file, and dependencies log at warn only',
+    () async {
+      final early = MemoryLogSink();
+      AppLog.use(early);
+      logInfo('app', 'start');
+      final sink = open();
+      AppLog.use(sink);
+      AppLog.record(LogLevel.info, 'hyper::client', 'chatter');
+      AppLog.record(LogLevel.warn, 'hyper::client', 'dependency warning');
+      logError('push', StateError('multi\nline'));
+      final written = sink.file.readAsStringSync();
+      expect(written, contains('INFO  dart.app: start\n'));
+      expect(written, isNot(contains('chatter')));
+      expect(written, contains('WARN  hyper::client: dependency warning\n'));
+      expect(
+        written,
+        contains('ERROR dart.push: Bad state: multi\n    line\n'),
+      );
+      sink.close();
+    },
+  );
+
+  test('long messages are cut on a character', () {
+    final line = formatLogLine(
+      DateTime.utc(2026),
+      LogLevel.info,
+      'dart.t',
+      'é' * maxLogMessageBytes,
+    );
+    expect(line, endsWith('…\n'));
+    expect(line, isNot(contains('\uFFFD')));
+    expect(line.length, lessThan(maxLogMessageBytes));
+  });
+
+  test('timestamps are UTC to the millisecond', () {
+    expect(
+      logTimestamp(DateTime.fromMillisecondsSinceEpoch(1790000000123)),
+      '2026-09-21T14:13:20.123Z',
+    );
+    expect(
+      logTimestamp(DateTime.fromMillisecondsSinceEpoch(0, isUtc: true)),
+      '1970-01-01T00:00:00.000Z',
+    );
+  });
+}

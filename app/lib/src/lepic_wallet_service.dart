@@ -253,15 +253,11 @@ class LepicWalletService implements WalletService {
 
   static lepic.LepicRuntime _defaultRuntime() {
     final runtime = lepic.LepicRuntime(logLevel: lepic.LogLevel.info);
-    runtime.logs().listen((entry) {
-      final line = '${entry.target}: ${entry.message}';
-      switch (entry.level) {
-        case lepic.LogLevel.error || lepic.LogLevel.warn:
-          logWarn('lepic', line);
-        case _:
-          logInfo('lepic', line);
-      }
-    });
+    // The stream's error reaches the zone instead (UP-11); onError covers a future pin.
+    runtime.logs().listen(
+      logLepicEntry,
+      onError: (Object error) => logWarn('lepic', 'log stream ended: $error'),
+    );
     return runtime;
   }
 
