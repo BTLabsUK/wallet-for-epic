@@ -163,11 +163,11 @@ String describeImport(AppLocalizations l, ImportReport report) {
   };
 }
 
-void _say(BuildContext context, String message) {
+void _say(BuildContext context, String message, {required NoticeLevel level}) {
   ProviderScope.containerOf(
     context,
     listen: false,
-  ).read(noticeProvider.notifier).show(message);
+  ).read(noticeProvider.notifier).show(message, level: level);
 }
 
 Future<void> _tell(BuildContext context, String title, String message) =>
@@ -256,7 +256,7 @@ Future<bool> _handOver(
       );
   // The share sheet is its own confirmation; a save into a folder is silent otherwise.
   if (done && destination == _Destination.device && context.mounted) {
-    _say(context, l.historyBackupSaved(name));
+    _say(context, l.historyBackupSaved(name), level: NoticeLevel.success);
   }
   return done;
 }
@@ -299,7 +299,9 @@ Future<bool> exportHistoryBackup(BuildContext context, WidgetRef ref) async {
     }
     return saved;
   } catch (error) {
-    if (context.mounted) _say(context, describeError(l, error));
+    if (context.mounted) {
+      _say(context, describeError(l, error), level: NoticeLevel.error);
+    }
     return false;
   }
 }
@@ -348,7 +350,9 @@ Future<bool> exportHistoryCsv(BuildContext context, WidgetRef ref) async {
     );
     return saved;
   } catch (error) {
-    if (context.mounted) _say(context, describeError(l, error));
+    if (context.mounted) {
+      _say(context, describeError(l, error), level: NoticeLevel.error);
+    }
     return false;
   }
 }
@@ -379,10 +383,10 @@ Future<bool> importHistoryBackup(BuildContext context, WidgetRef ref) async {
     return true;
   } catch (error) {
     if (context.mounted) {
-      await _tell(
+      _say(
         context,
-        l.historyBackupImportFailedTitle,
-        describeError(l, error),
+        l.historyBackupImportFailed(describeError(l, error)),
+        level: NoticeLevel.error,
       );
     }
     return false;

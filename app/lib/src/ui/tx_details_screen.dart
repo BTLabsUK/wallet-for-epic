@@ -188,8 +188,8 @@ class TxDetailsScreen extends ConsumerStatefulWidget {
 class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
   bool _busy = false;
 
-  void _showMessage(String message) =>
-      ref.read(noticeProvider.notifier).show(message);
+  void _showMessage(String message, {required NoticeLevel level}) =>
+      ref.read(noticeProvider.notifier).show(message, level: level);
 
   Future<void> _reload() async {
     ref.invalidate(nodeTipProvider);
@@ -218,9 +218,15 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
         text.isEmpty
             ? context.l10n.txDetailsNoteRemoved
             : context.l10n.txDetailsNoteSaved,
+        level: NoticeLevel.success,
       );
     } catch (error) {
-      if (mounted) _showMessage(describeError(context.l10n, error));
+      if (mounted) {
+        _showMessage(
+          describeError(context.l10n, error),
+          level: NoticeLevel.error,
+        );
+      }
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -233,10 +239,18 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
     try {
       await session.repostTransaction(key: tx.key);
       if (!mounted) return;
-      _showMessage(context.l10n.txDetailsBroadcastAgainDone);
+      _showMessage(
+        context.l10n.txDetailsBroadcastAgainDone,
+        level: NoticeLevel.success,
+      );
       await _reload();
     } catch (error) {
-      if (mounted) _showMessage(describeError(context.l10n, error));
+      if (mounted) {
+        _showMessage(
+          describeError(context.l10n, error),
+          level: NoticeLevel.error,
+        );
+      }
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -271,10 +285,18 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
     try {
       await session.releaseStuckSend(key: tx.key);
       if (!mounted) return;
-      _showMessage(context.l10n.txDetailsFundsReleased);
+      _showMessage(
+        context.l10n.txDetailsFundsReleased,
+        level: NoticeLevel.success,
+      );
       await _reload();
     } catch (error) {
-      if (mounted) _showMessage(describeError(context.l10n, error));
+      if (mounted) {
+        _showMessage(
+          describeError(context.l10n, error),
+          level: NoticeLevel.error,
+        );
+      }
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -313,10 +335,18 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
     try {
       await session.cancelTransaction(txId: id);
       if (!mounted) return;
-      _showMessage(context.l10n.txDetailsPaymentCancelled);
+      _showMessage(
+        context.l10n.txDetailsPaymentCancelled,
+        level: NoticeLevel.success,
+      );
       await _reload();
     } catch (error) {
-      if (mounted) _showMessage(describeError(context.l10n, error));
+      if (mounted) {
+        _showMessage(
+          describeError(context.l10n, error),
+          level: NoticeLevel.error,
+        );
+      }
     } finally {
       if (mounted) setState(() => _busy = false);
     }

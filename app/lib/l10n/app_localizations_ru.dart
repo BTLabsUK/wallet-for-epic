@@ -19,6 +19,18 @@ class AppLocalizationsRu extends AppLocalizations {
   String get commonClose => 'Закрыть';
 
   @override
+  String get noticeLevelInfo => 'Информация';
+
+  @override
+  String get noticeLevelSuccess => 'Готово';
+
+  @override
+  String get noticeLevelWarning => 'Предупреждение';
+
+  @override
+  String get noticeLevelError => 'Ошибка';
+
+  @override
   String get commonContinue => 'Продолжить';
 
   @override
@@ -899,7 +911,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get historyBackupImportedTitle => 'История импортирована';
 
   @override
-  String get historyBackupImportFailedTitle => 'Не удалось импортировать';
+  String historyBackupImportFailed(String reason) {
+    return 'История не импортирована. $reason';
+  }
 
   @override
   String get historyBackupImportNothingNew =>
@@ -1639,9 +1653,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get updateTryAgain => 'Повторить';
-
-  @override
-  String get updateIconLabel => 'Обновление';
 
   @override
   String get updateDownloadProgressLabel => 'Ход загрузки';
@@ -2751,10 +2762,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get settingsCheckUpdates => 'Проверить обновления';
-
-  @override
-  String get settingsCheckingUpdates =>
-      'Проверяем обновления. Результат появится на главном экране.';
 
   @override
   String get settingsHelp => 'Справка';

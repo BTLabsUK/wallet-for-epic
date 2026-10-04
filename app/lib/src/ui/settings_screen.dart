@@ -77,8 +77,8 @@ class SettingsScreen extends ConsumerStatefulWidget {
 class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   bool _busy = false;
 
-  void _say(String message) {
-    ref.read(noticeProvider.notifier).show(message);
+  void _say(String message, {required NoticeLevel level}) {
+    ref.read(noticeProvider.notifier).show(message, level: level);
   }
 
   Future<void> _push(Widget screen) =>
@@ -171,7 +171,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
   Future<void> _setShowFiat(bool on) async {
     await _settings.setShowFiat(on);
-    if (on && mounted) _say(context.l10n.settingsPricesOnNotice);
+    if (on && mounted) {
+      _say(context.l10n.settingsPricesOnNotice, level: NoticeLevel.info);
+    }
   }
 
   // Security.
@@ -197,7 +199,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     await _settings.setPushNotifications(on);
     if (!mounted) return;
     final l = context.l10n;
-    _say(on ? l.settingsPushOnNotice : l.settingsPushOffNotice);
+    _say(
+      on ? l.settingsPushOnNotice : l.settingsPushOffNotice,
+      level: NoticeLevel.info,
+    );
   }
 
   Future<void> _setBiometrics(bool on) async {
@@ -207,7 +212,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final vault = ref.read(vaultProvider);
     if (!on) {
       await vault.disableBiometrics(config.chain);
-      if (mounted) _say(context.l10n.settingsBiometricsOff);
+      if (mounted) {
+        _say(context.l10n.settingsBiometricsOff, level: NoticeLevel.success);
+      }
     } else {
       final ok = await askPin(
         context,
@@ -218,7 +225,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       if (ok == null) return;
       if (mounted) {
         final l = context.l10n;
-        _say(ok ? l.settingsBiometricsOn : l.settingsBiometricsFailed);
+        if (ok) {
+          _say(l.settingsBiometricsOn, level: NoticeLevel.success);
+        } else {
+          _say(l.settingsBiometricsFailed, level: NoticeLevel.error);
+        }
       }
     }
     ref.invalidate(_biometricsProvider);
@@ -227,7 +238,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   Future<void> _showPhrase() async {
     final done = await Navigator.of(context)
         .push<bool>(MaterialPageRoute(builder: (_) => const BackupScreen()));
-    if (done == true && mounted) _say(context.l10n.settingsPhraseConfirmed);
+    if (done == true && mounted) {
+      _say(context.l10n.settingsPhraseConfirmed, level: NoticeLevel.success);
+    }
   }
 
   // Wallet.
@@ -242,7 +255,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final ok = await ref.read(scanProvider.notifier).run(startHeight: start);
     if (!mounted) return;
     ref.invalidate(homeProvider);
-    if (ok) _say(context.l10n.settingsRescanFinished);
+    if (ok) {
+      _say(context.l10n.settingsRescanFinished, level: NoticeLevel.success);
+    }
   }
 
   Future<void> _deleteWallet() async {
@@ -250,7 +265,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     if (config == null) return;
     // A scan writes to the wallet's files until it ends.
     if (ref.read(scanProvider).running) {
-      _say(context.l10n.settingsDeleteDuringScan);
+      _say(context.l10n.settingsDeleteDuringScan, level: NoticeLevel.warning);
       return;
     }
     final confirmed = await showDialog<bool>(
@@ -272,7 +287,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     );
     if (checked == null || !mounted) return;
     if (ref.read(scanProvider).running) {
-      _say(context.l10n.settingsDeleteDuringScan);
+      _say(context.l10n.settingsDeleteDuringScan, level: NoticeLevel.warning);
       return;
     }
     await _run(() async {
@@ -296,7 +311,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           (_) => false,
         );
       } catch (error) {
-        if (mounted) _say(describeError(context.l10n, error));
+        if (mounted) {
+          _say(describeError(context.l10n, error), level: NoticeLevel.error);
+        }
       }
     });
   }
@@ -513,7 +530,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     title: Text(l.settingsCheckUpdates),
                     onTap: () {
                       ref.read(updateProvider.notifier).check();
-                      _say(l.settingsCheckingUpdates);
+                      // The result follows as a notice of its own.
+                      _say(l.updateChecking, level: NoticeLevel.info);
                     },
                   ),
                 ListTile(

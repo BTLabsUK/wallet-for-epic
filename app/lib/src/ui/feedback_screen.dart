@@ -176,7 +176,7 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
 
   void _done(String message) {
     if (!mounted) return;
-    ref.read(noticeProvider.notifier).show(message);
+    ref.read(noticeProvider.notifier).show(message, level: NoticeLevel.success);
     Navigator.of(context).pop();
   }
 

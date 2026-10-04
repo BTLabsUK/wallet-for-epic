@@ -126,6 +126,14 @@ Future<void> _reveal(WidgetTester tester, Finder finder) async {
   await tester.ensureVisible(finder);
 }
 
+/// Closes every notice: they float over the app bar, so its buttons are covered until then.
+Future<void> _clearNotices(WidgetTester tester) async {
+  ProviderScope.containerOf(
+    tester.element(find.byType(MaterialApp)),
+  ).read(noticeProvider.notifier).clear();
+  await tester.pumpAndSettle();
+}
+
 Future<void> _tap(WidgetTester tester, Finder finder) async {
   await _reveal(tester, finder);
   await tester.pumpAndSettle();
@@ -590,6 +598,7 @@ void main() {
       expect(find.text('Payment cancelled'), findsOneWidget);
 
       // A confirmed receive has no cancel.
+      await _clearNotices(tester);
       await tester.pageBack();
       await tester.pumpAndSettle();
       await _tap(tester, find.byKey(const ValueKey('tx-s:a')));
@@ -674,6 +683,7 @@ void main() {
       await _tapText(tester, 'The whole chain');
       await _tapText(tester, 'Rescan');
       expect(service.session.scanCalls, 1);
+      await _clearNotices(tester);
       await tester.pageBack();
       await tester.pumpAndSettle();
       expect(find.byKey(balanceFigureKey), findsOneWidget);
@@ -762,6 +772,7 @@ void main() {
       expect(find.text('Received 3 EPIC from zz…'), findsNothing);
       expect(find.text('0 EPIC'), findsWidgets);
 
+      await _clearNotices(tester);
       await _tap(tester, find.byTooltip('Lock wallet'));
       expect(session.disposeCalls, 1);
     });

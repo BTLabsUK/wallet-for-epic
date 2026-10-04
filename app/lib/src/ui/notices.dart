@@ -1,0 +1,488 @@
+/// The app's one way to tell the user something happened: a card that floats at the top, over
+/// the app bar, from a host that `MaterialApp.builder` owns ([NoticeHost]). `app/README.md`
+/// "Notifications" has the standard.
+library;
+
+import 'dart:async';
+
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../l10n.dart';
+import 'theme/tokens.dart';
+
+/// How much a notice matters. Each has its own icon and token colour.
+enum NoticeLevel {
+  info,
+  success,
+  warning,
+  error;
+
+  /// Which notice gives way: a new one queues behind a visible one of a higher rank. Info and
+  /// success both only confirm, so they share the lowest.
+  int get rank => switch (this) {
+    info || success => 0,
+    warning => 1,
+    error => 2,
+  };
+}
+
+/// How long a notice of [level] stays unless it is persistent: success 3 s, info 4 s, warning
+/// 6 s, error 8 s; 4 s more with an action; twice as long for a screen reader or switch access
+/// ([accessible], `MediaQuery.accessibleNavigation`).
+Duration noticeDuration(
+  NoticeLevel level, {
+  bool action = false,
+  bool accessible = false,
+}) {
+  var seconds = switch (level) {
+    NoticeLevel.success => 3,
+    NoticeLevel.info => 4,
+    NoticeLevel.warning => 6,
+    NoticeLevel.error => 8,
+  };
+  if (action) seconds += 4;
+  if (accessible) seconds *= 2;
+  return Duration(seconds: seconds);
+}
+
+/// Notices waiting behind a visible one of a higher level; the oldest goes first.
+const int maxQueuedNotices = 3;
+
+/// The key of the visible notice card, for tests.
+const Key noticeKey = ValueKey('notice');
+
+/// A button on a notice. Pressing it also closes the notice.
+class NoticeAction {
+  const NoticeAction(this.label, this.onPressed);
+
+  final String label;
+  final VoidCallback onPressed;
+}
+
+/// A short message: two lines on screen, the whole text for a screen reader.
+class Notice {
+  const Notice(
+    this.id,
+    this.text, {
+    required this.level,
+    this.action,
+    this.persistent = false,
+    this.progress,
+    this.progressLabel,
+    this.tag,
+  });
+
+  /// Distinct per notice, so the card animates when another one takes its place.
+  final int id;
+  final String text;
+  final NoticeLevel level;
+  final NoticeAction? action;
+
+  /// Stays until closed or replaced, instead of leaving after [noticeDuration].
+  final bool persistent;
+
+  /// Work in progress inside the card, from 0 to 1, with its screen-reader label.
+  final double? progress;
+  final String? progressLabel;
+
+  /// Notices with the same tag are one subject (the update), so a newer one updates it in
+  /// place, wherever it is, instead of stacking.
+  final String? tag;
+
+  /// Has a close button: warnings, errors, persistent notices and any with an action.
+  bool get closable =>
+      persistent ||
+      action != null ||
+      level == NoticeLevel.warning ||
+      level == NoticeLevel.error;
+}
+
+/// The visible notice; [NoticeHost] shows it.
+final noticeProvider = NotifierProvider<NoticeNotifier, Notice?>(
+  NoticeNotifier.new,
+);
+
+class NoticeNotifier extends Notifier<Notice?> {
+  static const Duration _tick = Duration(milliseconds: 100);
+
+  final List<Notice> _queue = [];
+  Timer? _timer;
+  Duration _left = Duration.zero;
+  bool _held = false;
+  int _next = 0;
+
+  /// Whether a screen reader or switch access is on; [NoticeHost] keeps it current.
+  bool accessibleNavigation = false;
+
+  @override
+  Notice? build() {
+    ref.onDispose(() => _timer?.cancel());
+    return null;
+  }
+
+  /// The notices waiting, next first.
+  List<Notice> get queued => List.unmodifiable(_queue);
+
+  /// Shows [text] at [level]. It replaces the visible notice, unless that one has a higher
+  /// level: then it waits (at most [maxQueuedNotices], the oldest dropped). The same text
+  /// again restarts the visible notice's timer instead of stacking. A persistent notice that
+  /// gets replaced waits to come back.
+  void show(
+    String text, {
+    required NoticeLevel level,
+    NoticeAction? action,
+    bool persistent = false,
+    double? progress,
+    String? progressLabel,
+    String? tag,
+  }) {
+    Notice make(int id) => Notice(
+      id,
+      text,
+      level: level,
+      action: action,
+      persistent: persistent,
+      progress: progress,
+      progressLabel: progressLabel,
+      tag: tag,
+    );
+    final visible = state;
+    if (visible != null &&
+        ((tag != null && visible.tag == tag) ||
+            (visible.text == text && visible.level == level))) {
+      _display(make(visible.id));
+      return;
+    }
+    final i = _queue.indexWhere(
+      (n) =>
+          (tag != null && n.tag == tag) || (n.text == text && n.level == level),
+    );
+    if (i >= 0) {
+      _queue[i] = make(_queue[i].id);
+      return;
+    }
+    final notice = make(_next++);
+    if (visible != null && visible.level.rank > level.rank) {
+      _queue.add(notice);
+      if (_queue.length > maxQueuedNotices) _queue.removeAt(0);
+      return;
+    }
+    if (visible != null && visible.persistent) {
+      _queue.insert(0, visible);
+      if (_queue.length > maxQueuedNotices) _queue.removeLast();
+    }
+    _display(notice);
+  }
+
+  /// Closes the visible notice, or the one with [id] wherever it is; the next one shows.
+  void dismiss([int? id]) {
+    if (id != null && state?.id != id) {
+      _queue.removeWhere((n) => n.id == id);
+      return;
+    }
+    _timer?.cancel();
+    state = null;
+    if (_queue.isNotEmpty) _display(_queue.removeAt(0));
+  }
+
+  /// Closes every notice with [tag], visible or waiting.
+  void dismissTag(String tag) {
+    _queue.removeWhere((n) => n.tag == tag);
+    if (state?.tag == tag) dismiss();
+  }
+
+  /// Closes everything, for tests that need a clear screen.
+  void clear() {
+    _queue.clear();
+    _timer?.cancel();
+    state = null;
+  }
+
+  /// Stops the clock while the pointer is on the card (hover or press).
+  void hold() => _held = true;
+
+  void release() => _held = false;
+
+  void _display(Notice notice) {
+    _timer?.cancel();
+    // A notice updated in place (the same text, or its tag) keeps a hold from the pointer.
+    if (state?.id != notice.id) _held = false;
+    state = notice;
+    if (notice.persistent) return;
+    _left = noticeDuration(
+      notice.level,
+      action: notice.action != null,
+      accessible: accessibleNavigation,
+    );
+    _timer = Timer.periodic(_tick, (_) {
+      if (_held) return;
+      _left -= _tick;
+      if (_left <= Duration.zero) dismiss(notice.id);
+    });
+  }
+}
+
+/// Floats the visible notice at the top of [child], inside the safe area, over every route,
+/// so a notice survives a pop and never moves the content under it. `MaterialApp.builder`
+/// wraps the navigator in it.
+class NoticeHost extends ConsumerStatefulWidget {
+  const NoticeHost({super.key, required this.child});
+
+  final Widget child;
+
+  @override
+  ConsumerState<NoticeHost> createState() => _NoticeHostState();
+}
+
+class _NoticeHostState extends ConsumerState<NoticeHost> {
+  // An overlay of its own, so the card's tooltips work above the navigator.
+  late final OverlayEntry _content = OverlayEntry(
+    builder: (_) => widget.child,
+    maintainState: true,
+  );
+  late final OverlayEntry _notices = OverlayEntry(
+    builder: (_) => const _NoticeLayer(),
+  );
+
+  @override
+  void didUpdateWidget(NoticeHost oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.child != widget.child) _content.markNeedsBuild();
+  }
+
+  @override
+  void dispose() {
+    for (final entry in [_content, _notices]) {
+      entry
+        ..remove()
+        ..dispose();
+    }
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    ref.read(noticeProvider.notifier).accessibleNavigation =
+        MediaQuery.accessibleNavigationOf(context);
+    return Overlay(initialEntries: [_content, _notices]);
+  }
+}
+
+class _NoticeLayer extends ConsumerWidget {
+  const _NoticeLayer();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final notice = ref.watch(noticeProvider);
+    final still = MediaQuery.disableAnimationsOf(context);
+    // Only the card takes touches; everywhere else they reach the screen below.
+    return SafeArea(
+      bottom: false,
+      child: Align(
+        alignment: Alignment.topCenter,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 600),
+            child: AnimatedSwitcher(
+              duration: still
+                  ? Duration.zero
+                  : const Duration(milliseconds: 200),
+              switchInCurve: Curves.easeOutCubic,
+              switchOutCurve: Curves.easeInCubic,
+              layoutBuilder: (current, previous) => Stack(
+                alignment: Alignment.topCenter,
+                children: [...previous, ?current],
+              ),
+              transitionBuilder: (child, animation) => FadeTransition(
+                opacity: animation,
+                child: SlideTransition(
+                  position: Tween(
+                    begin: const Offset(0, -0.3),
+                    end: Offset.zero,
+                  ).animate(animation),
+                  child: child,
+                ),
+              ),
+              child: notice == null
+                  ? const SizedBox.shrink()
+                  : _NoticeCard(key: ValueKey(notice.id), notice: notice),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// The icon and token colour of [level].
+(IconData, Color) noticeLook(WalletTokens t, NoticeLevel level) =>
+    switch (level) {
+      NoticeLevel.info => (Icons.info_outline, t.accent),
+      NoticeLevel.success => (Icons.check_circle_outline, t.ok),
+      NoticeLevel.warning => (Icons.warning_amber_rounded, t.warn),
+      NoticeLevel.error => (Icons.error_outline, t.risk),
+    };
+
+/// What a screen reader says before the text.
+String noticeLevelLabel(AppLocalizations l, NoticeLevel level) =>
+    switch (level) {
+      NoticeLevel.info => l.noticeLevelInfo,
+      NoticeLevel.success => l.noticeLevelSuccess,
+      NoticeLevel.warning => l.noticeLevelWarning,
+      NoticeLevel.error => l.noticeLevelError,
+    };
+
+class _NoticeCard extends ConsumerStatefulWidget {
+  const _NoticeCard({super.key, required this.notice});
+
+  final Notice notice;
+
+  @override
+  ConsumerState<_NoticeCard> createState() => _NoticeCardState();
+}
+
+class _NoticeCardState extends ConsumerState<_NoticeCard> {
+  /// How far a swipe has moved the card: sideways either way, or up.
+  Offset _drag = Offset.zero;
+
+  NoticeNotifier get _notices => ref.read(noticeProvider.notifier);
+
+  void _onDragEnd(DragEndDetails details) {
+    final v = details.velocity.pixelsPerSecond;
+    final width = context.size?.width ?? 300;
+    final away =
+        _drag.dx.abs() > width / 3 ||
+        _drag.dy < -32 ||
+        v.dx.abs() > 700 ||
+        v.dy < -500;
+    if (away) {
+      _notices.dismiss(widget.notice.id);
+    } else {
+      setState(() => _drag = Offset.zero);
+    }
+    _notices.release();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final notice = widget.notice;
+    final t = context.tokens;
+    final l = context.l10n;
+    final (icon, color) = noticeLook(t, notice.level);
+    final action = notice.action;
+    final scale = MediaQuery.textScalerOf(context).scale(1);
+    final actionButton = action == null
+        ? null
+        : TextButton(
+            onPressed: () {
+              _notices.dismiss(notice.id);
+              action.onPressed();
+            },
+            child: Text(action.label),
+          );
+    final close = notice.closable
+        ? IconButton(
+            tooltip: l.commonClose,
+            icon: const Icon(Icons.close),
+            onPressed: () => _notices.dismiss(notice.id),
+          )
+        : null;
+    // With large text the action moves under the text, so the text keeps its width.
+    final actionBelow = actionButton != null && scale > 1.3;
+    final message = Semantics(
+      container: true,
+      liveRegion: true,
+      label: '${noticeLevelLabel(l, notice.level)}: ${notice.text}',
+      child: ExcludeSemantics(
+        child: Text(
+          notice.text,
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(color: t.text),
+        ),
+      ),
+    );
+    final progress = notice.progress;
+    final body = Padding(
+      padding: EdgeInsets.only(
+        left: 12,
+        right: close == null && (actionButton == null || actionBelow) ? 16 : 4,
+        top: 4,
+        bottom: 4,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: 48),
+            child: Row(
+              children: [
+                Icon(icon, color: color),
+                const SizedBox(width: 12),
+                Expanded(child: message),
+                if (!actionBelow) ?actionButton,
+                ?close,
+              ],
+            ),
+          ),
+          if (progress != null)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(36, 0, 12, 8),
+              child: LinearProgressIndicator(
+                value: progress,
+                minHeight: 2,
+                semanticsLabel: notice.progressLabel,
+              ),
+            ),
+          if (actionBelow)
+            Align(
+              alignment: AlignmentDirectional.centerEnd,
+              child: actionButton,
+            ),
+        ],
+      ),
+    );
+    return Listener(
+      onPointerDown: (_) => _notices.hold(),
+      onPointerUp: (_) => _notices.release(),
+      onPointerCancel: (_) => _notices.release(),
+      child: MouseRegion(
+        onEnter: (_) => _notices.hold(),
+        onExit: (_) => _notices.release(),
+        child: GestureDetector(
+          onPanUpdate: (d) => setState(() => _drag += d.delta),
+          onPanEnd: _onDragEnd,
+          onPanCancel: () => setState(() => _drag = Offset.zero),
+          child: Transform.translate(
+            offset: Offset(_drag.dx, _drag.dy < 0 ? _drag.dy : 0),
+            child: Opacity(
+              opacity: (1 - _drag.distance / 300).clamp(0.2, 1),
+              child: Material(
+                key: noticeKey,
+                color: t.surfaceHi,
+                elevation: 3,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(t.radiusSmall),
+                  side: BorderSide(color: t.lineStrong),
+                ),
+                clipBehavior: Clip.antiAlias,
+                child: DecoratedBox(
+                  // The level's colour as a 3 dp edge on the leading side.
+                  decoration: BoxDecoration(
+                    border: BorderDirectional(
+                      start: BorderSide(color: color, width: 3),
+                    ),
+                  ),
+                  child: body,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}

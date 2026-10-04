@@ -19,6 +19,18 @@ class AppLocalizationsPl extends AppLocalizations {
   String get commonClose => 'Zamknij';
 
   @override
+  String get noticeLevelInfo => 'Informacja';
+
+  @override
+  String get noticeLevelSuccess => 'Gotowe';
+
+  @override
+  String get noticeLevelWarning => 'Ostrzeżenie';
+
+  @override
+  String get noticeLevelError => 'Błąd';
+
+  @override
   String get commonContinue => 'Dalej';
 
   @override
@@ -900,7 +912,9 @@ class AppLocalizationsPl extends AppLocalizations {
   String get historyBackupImportedTitle => 'Zaimportowano historię';
 
   @override
-  String get historyBackupImportFailedTitle => 'Nie udało się zaimportować';
+  String historyBackupImportFailed(String reason) {
+    return 'Nie zaimportowano historii. $reason';
+  }
 
   @override
   String get historyBackupImportNothingNew =>
@@ -1646,9 +1660,6 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get updateTryAgain => 'Ponów';
-
-  @override
-  String get updateIconLabel => 'Aktualizacja';
 
   @override
   String get updateDownloadProgressLabel => 'Postęp pobierania';
@@ -2775,10 +2786,6 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get settingsCheckUpdates => 'Sprawdź aktualizacje';
-
-  @override
-  String get settingsCheckingUpdates =>
-      'Sprawdzanie aktualizacji. Wynik pojawi się na ekranie głównym.';
 
   @override
   String get settingsHelp => 'Pomoc';

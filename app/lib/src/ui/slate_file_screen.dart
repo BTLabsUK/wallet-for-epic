@@ -231,10 +231,10 @@ class SlateFileButtons extends ConsumerWidget {
       final ok = await ref
           .read(autoLockHoldProvider.notifier)
           .during(() => action(files));
-      if (ok && done != null) notice.show(done);
+      if (ok && done != null) notice.show(done, level: NoticeLevel.success);
     } catch (error) {
       logWarn('files', 'handing over a transaction file failed: $error');
-      notice.show(failed);
+      notice.show(failed, level: NoticeLevel.error);
     }
   }
 
@@ -376,7 +376,7 @@ Future<bool> openSlateFile(
               .pick(dialogTitle: l.slateOpenDialogTitle),
         );
   } on FormatException catch (e) {
-    notice.show(describeError(l, e));
+    notice.show(describeError(l, e), level: NoticeLevel.error);
     return false;
   }
   if (file == null || !context.mounted) return false;

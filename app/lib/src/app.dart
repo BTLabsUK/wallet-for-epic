@@ -150,7 +150,8 @@ class _WalletAppState extends ConsumerState<WalletApp> {
         }
         return AdvancedOptions(
           enabled: settings?.advancedOptions ?? false,
-          child: child!,
+          // Above the navigator, so a notice outlives the screen that showed it.
+          child: NoticeHost(child: child!),
         );
       },
       themeMode: themeMode,

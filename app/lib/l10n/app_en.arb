@@ -6,6 +6,22 @@
   },
   "commonCancel": "Cancel",
   "commonClose": "Close",
+  "noticeLevelInfo": "Information",
+  "@noticeLevelInfo": {
+    "description": "Said by a screen reader before the text of an info notice, followed by a colon."
+  },
+  "noticeLevelSuccess": "Done",
+  "@noticeLevelSuccess": {
+    "description": "Said by a screen reader before the text of a success notice, followed by a colon."
+  },
+  "noticeLevelWarning": "Warning",
+  "@noticeLevelWarning": {
+    "description": "Said by a screen reader before the text of a warning notice, followed by a colon."
+  },
+  "noticeLevelError": "Error",
+  "@noticeLevelError": {
+    "description": "Said by a screen reader before the text of an error notice, followed by a colon."
+  },
   "commonContinue": "Continue",
   "commonCopy": "Copy",
   "commonDelete": "Delete",
@@ -1001,9 +1017,15 @@
   "@historyBackupImportedTitle": {
     "description": "Title of the dialog with the result of a history backup import."
   },
-  "historyBackupImportFailedTitle": "Could not import",
-  "@historyBackupImportFailedTitle": {
-    "description": "Title of the dialog shown when a history backup import failed."
+  "historyBackupImportFailed": "Could not import the history backup. {reason}",
+  "@historyBackupImportFailed": {
+    "description": "Error notice when a history backup could not be imported; reason is the error, a whole sentence.",
+    "placeholders": {
+      "reason": {
+        "type": "String",
+        "example": "The file is not a history backup."
+      }
+    }
   },
   "historyBackupImportNothingNew": "The backup held nothing new.",
   "@historyBackupImportNothingNew": {
@@ -1630,15 +1652,15 @@
   },
   "updateChecking": "Checking for updates…",
   "@updateChecking": {
-    "description": "Line under the home app bar while the app checks for a new version."
+    "description": "Notice at the top of the screen while the app checks for a new version."
   },
   "updateUpToDate": "This is the latest version.",
   "@updateUpToDate": {
-    "description": "Line under the home app bar after a check found no new version."
+    "description": "Notice at the top of the screen after a check found no new version."
   },
   "updateAvailable": "Version {version} is available.",
   "@updateAvailable": {
-    "description": "Line under the home app bar; beside it is the Update button.",
+    "description": "Notice at the top of the screen; beside it is the Update button.",
     "placeholders": {
       "version": {
         "type": "String",
@@ -1648,7 +1670,7 @@
   },
   "updateDownloading": "Downloading version {version}… {percent}%",
   "@updateDownloading": {
-    "description": "Line under the home app bar while the new version downloads.",
+    "description": "Notice at the top of the screen while the new version downloads.",
     "placeholders": {
       "version": {
         "type": "String",
@@ -1661,7 +1683,7 @@
   },
   "updateInstalling": "Installing version {version}…",
   "@updateInstalling": {
-    "description": "Line under the home app bar while Android installs the new version.",
+    "description": "Notice at the top of the screen while Android installs the new version.",
     "placeholders": {
       "version": {
         "type": "String",
@@ -1671,7 +1693,7 @@
   },
   "updateFailed": "The update failed.",
   "@updateFailed": {
-    "description": "Line under the home app bar when an update failed for no known reason."
+    "description": "Notice at the top of the screen when an update failed for no known reason."
   },
   "updateInstallButton": "Update",
   "@updateInstallButton": {
@@ -1680,10 +1702,6 @@
   "updateTryAgain": "Try again",
   "@updateTryAgain": {
     "description": "Button after a failed update check or install. Short."
-  },
-  "updateIconLabel": "Update",
-  "@updateIconLabel": {
-    "description": "Screen-reader label of the icon in front of the update line (a noun: about an app update)."
   },
   "updateDownloadProgressLabel": "Download progress",
   "@updateDownloadProgressLabel": {
@@ -3074,10 +3092,6 @@
   "settingsCheckUpdates": "Check for updates",
   "@settingsCheckUpdates": {
     "description": "Settings row."
-  },
-  "settingsCheckingUpdates": "Checking for updates. The result shows on the home screen.",
-  "@settingsCheckingUpdates": {
-    "description": "Notice after Check for updates is tapped."
   },
   "settingsHelp": "Help",
   "@settingsHelp": {

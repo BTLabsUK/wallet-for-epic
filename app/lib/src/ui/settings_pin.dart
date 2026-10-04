@@ -71,12 +71,7 @@ class _ChangePinScreenState extends ConsumerState<ChangePinScreen> {
     try {
       final biometricsKept = await ref
           .read(vaultProvider)
-          .changePin(
-            session,
-            config,
-            currentPin: currentPin,
-            newPin: newPin,
-          );
+          .changePin(session, config, currentPin: currentPin, newPin: newPin);
       if (!mounted) return;
       final l = context.l10n;
       ref
@@ -85,6 +80,7 @@ class _ChangePinScreenState extends ConsumerState<ChangePinScreen> {
             biometricsKept
                 ? l.settingsPinChanged
                 : l.settingsPinChangedBiometricsOff,
+            level: biometricsKept ? NoticeLevel.success : NoticeLevel.warning,
           );
       Navigator.pop(context, true);
     } on PinRejected catch (rejection) {

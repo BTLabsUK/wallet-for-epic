@@ -142,7 +142,9 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
       // The user typed the phrase in, so they have it.
       await vault.markBackedUp(config.chain);
       if (useBiometrics && !created.biometrics && mounted) {
-        ref.read(noticeProvider.notifier).show(l.firstRunBiometricsNotSetUp);
+        ref
+            .read(noticeProvider.notifier)
+            .show(l.firstRunBiometricsNotSetUp, level: NoticeLevel.warning);
       }
       ref.read(sessionProvider.notifier).unlocked(session);
       if (!mounted) return;

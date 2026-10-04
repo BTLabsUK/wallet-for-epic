@@ -122,6 +122,30 @@ abstract class AppLocalizations {
   /// **'Close'**
   String get commonClose;
 
+  /// Said by a screen reader before the text of an info notice, followed by a colon.
+  ///
+  /// In en, this message translates to:
+  /// **'Information'**
+  String get noticeLevelInfo;
+
+  /// Said by a screen reader before the text of a success notice, followed by a colon.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get noticeLevelSuccess;
+
+  /// Said by a screen reader before the text of a warning notice, followed by a colon.
+  ///
+  /// In en, this message translates to:
+  /// **'Warning'**
+  String get noticeLevelWarning;
+
+  /// Said by a screen reader before the text of an error notice, followed by a colon.
+  ///
+  /// In en, this message translates to:
+  /// **'Error'**
+  String get noticeLevelError;
+
   /// No description provided for @commonContinue.
   ///
   /// In en, this message translates to:
@@ -1439,11 +1463,11 @@ abstract class AppLocalizations {
   /// **'History imported'**
   String get historyBackupImportedTitle;
 
-  /// Title of the dialog shown when a history backup import failed.
+  /// Error notice when a history backup could not be imported; reason is the error, a whole sentence.
   ///
   /// In en, this message translates to:
-  /// **'Could not import'**
-  String get historyBackupImportFailedTitle;
+  /// **'Could not import the history backup. {reason}'**
+  String historyBackupImportFailed(String reason);
 
   /// Import result when the backup added nothing.
   ///
@@ -2078,37 +2102,37 @@ abstract class AppLocalizations {
   /// **'Receive another payment'**
   String get receiveAnother;
 
-  /// Line under the home app bar while the app checks for a new version.
+  /// Notice at the top of the screen while the app checks for a new version.
   ///
   /// In en, this message translates to:
   /// **'Checking for updates…'**
   String get updateChecking;
 
-  /// Line under the home app bar after a check found no new version.
+  /// Notice at the top of the screen after a check found no new version.
   ///
   /// In en, this message translates to:
   /// **'This is the latest version.'**
   String get updateUpToDate;
 
-  /// Line under the home app bar; beside it is the Update button.
+  /// Notice at the top of the screen; beside it is the Update button.
   ///
   /// In en, this message translates to:
   /// **'Version {version} is available.'**
   String updateAvailable(String version);
 
-  /// Line under the home app bar while the new version downloads.
+  /// Notice at the top of the screen while the new version downloads.
   ///
   /// In en, this message translates to:
   /// **'Downloading version {version}… {percent}%'**
   String updateDownloading(String version, int percent);
 
-  /// Line under the home app bar while Android installs the new version.
+  /// Notice at the top of the screen while Android installs the new version.
   ///
   /// In en, this message translates to:
   /// **'Installing version {version}…'**
   String updateInstalling(String version);
 
-  /// Line under the home app bar when an update failed for no known reason.
+  /// Notice at the top of the screen when an update failed for no known reason.
   ///
   /// In en, this message translates to:
   /// **'The update failed.'**
@@ -2125,12 +2149,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Try again'**
   String get updateTryAgain;
-
-  /// Screen-reader label of the icon in front of the update line (a noun: about an app update).
-  ///
-  /// In en, this message translates to:
-  /// **'Update'**
-  String get updateIconLabel;
 
   /// Screen-reader label of the progress bar while the new version downloads.
   ///
@@ -3865,12 +3883,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Check for updates'**
   String get settingsCheckUpdates;
-
-  /// Notice after Check for updates is tapped.
-  ///
-  /// In en, this message translates to:
-  /// **'Checking for updates. The result shows on the home screen.'**
-  String get settingsCheckingUpdates;
 
   /// Settings row that opens the help page.
   ///

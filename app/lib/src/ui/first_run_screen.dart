@@ -41,7 +41,9 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
       _answer = null;
       if (!mounted) return;
       if (useBiometrics && !result.biometrics) {
-        ref.read(noticeProvider.notifier).show(l.firstRunBiometricsNotSetUp);
+        ref
+            .read(noticeProvider.notifier)
+            .show(l.firstRunBiometricsNotSetUp, level: NoticeLevel.warning);
       }
       goHome(context);
     } catch (error) {
@@ -58,8 +60,9 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
     if (answer != null) _finish(answer.pin, answer.biometrics);
   }
 
-  void _leave(Widget screen) => Navigator.of(context)
-      .pushReplacement(MaterialPageRoute<void>(builder: (_) => screen));
+  void _leave(Widget screen) =>
+      Navigator.of(context)
+          .pushReplacement(MaterialPageRoute<void>(builder: (_) => screen));
 
   @override
   Widget build(BuildContext context) {

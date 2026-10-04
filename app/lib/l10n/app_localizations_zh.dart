@@ -19,6 +19,18 @@ class AppLocalizationsZh extends AppLocalizations {
   String get commonClose => '关闭';
 
   @override
+  String get noticeLevelInfo => '提示';
+
+  @override
+  String get noticeLevelSuccess => '完成';
+
+  @override
+  String get noticeLevelWarning => '警告';
+
+  @override
+  String get noticeLevelError => '错误';
+
+  @override
   String get commonContinue => '继续';
 
   @override
@@ -832,7 +844,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get historyBackupImportedTitle => '已导入历史备份';
 
   @override
-  String get historyBackupImportFailedTitle => '无法导入';
+  String historyBackupImportFailed(String reason) {
+    return '未能导入历史备份。$reason';
+  }
 
   @override
   String get historyBackupImportNothingNew => '备份中没有新内容。';
@@ -1439,9 +1453,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get updateTryAgain => '重试';
-
-  @override
-  String get updateIconLabel => '更新';
 
   @override
   String get updateDownloadProgressLabel => '下载进度';
@@ -2472,9 +2483,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get settingsCheckUpdates => '检查更新';
-
-  @override
-  String get settingsCheckingUpdates => '正在检查更新，结果将显示在首页。';
 
   @override
   String get settingsHelp => '帮助';

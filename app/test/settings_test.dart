@@ -459,7 +459,7 @@ void main() {
         findsOneWidget,
       );
       final firstTile = tester.getTopLeft(find.text('Change PIN'));
-      await tester.pump(noticeDuration);
+      await tester.pump(noticeDuration(NoticeLevel.success));
       await tester.pumpAndSettle();
       expect(find.text('PIN changed'), findsNothing);
       // The content did not move when the notice left.
@@ -576,9 +576,16 @@ void main() {
       );
       h.files.picks.add(Uint8List.fromList([1, 2, 3]));
       await _tapText(tester, 'Import history backup');
-      expect(find.text('Could not import'), findsOneWidget);
+      // An error notice, not a dialog.
+      expect(find.byType(AlertDialog), findsNothing);
       expect(
-        find.text('This history file belongs to a different wallet.'),
+        find.descendant(
+          of: find.byKey(noticeKey),
+          matching: find.text(
+            'Could not import the history backup. '
+            'This history file belongs to a different wallet.',
+          ),
+        ),
         findsOneWidget,
       );
     });

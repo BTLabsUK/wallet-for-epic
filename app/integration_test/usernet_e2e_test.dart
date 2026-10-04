@@ -13,6 +13,7 @@ import 'package:epic_wallet/src/app.dart';
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/lepic_wallet_service.dart';
 import 'package:epic_wallet/src/secret_store.dart';
+import 'package:epic_wallet/src/ui/notices.dart';
 import 'package:epic_wallet/src/ui/settings_history.dart';
 import 'package:epic_wallet/src/ui/shell_header.dart' show balanceFigureKey;
 import 'package:epic_wallet/src/updater.dart';
@@ -186,12 +187,11 @@ Future<void> _backHome(WidgetTester tester) async {
 }
 
 /// Hides snack bars (payment notices), which can sit over the row a test taps.
+/// Closes every notice: they float over the app bar and the top of the screen.
 void _clearNotices(WidgetTester tester) {
-  for (final m in tester.stateList<ScaffoldMessengerState>(
-    find.byType(ScaffoldMessenger),
-  )) {
-    m.clearSnackBars();
-  }
+  ProviderScope.containerOf(
+    tester.element(find.byType(MaterialApp)),
+  ).read(noticeProvider.notifier).clear();
 }
 
 /// On home, refreshes until [n] rows say Completed (10 confirmations, as the app counts).

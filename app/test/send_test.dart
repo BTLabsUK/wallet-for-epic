@@ -211,8 +211,10 @@ class _Harness {
         child: MaterialApp(
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
-          builder: (context, child) =>
-              AdvancedOptions(enabled: advanced, child: child!),
+          builder: (context, child) => AdvancedOptions(
+            enabled: advanced,
+            child: NoticeHost(child: child!),
+          ),
           home: screen,
         ),
       ),
@@ -644,7 +646,7 @@ void main() {
       // The result is a short screen, centred below the notice slot.
       expect(find.byType(CenteredBody), findsOneWidget);
       expect(find.byType(ScreenBody), findsNothing);
-      expect(find.byType(NoticeSlot), findsOneWidget);
+      expect(find.byType(ProgressSlot), findsOneWidget);
       expect(
         find.text(
           'It finishes when the recipient\'s wallet answers, usually within '
@@ -1066,6 +1068,11 @@ void main() {
       await _tap(tester, find.text('Open response file'));
       expect(find.textContaining('for a different payment'), findsOneWidget);
       expect(find.text('Finish payment'), findsNothing);
+      // The notice floats over the app bar's back button until it goes.
+      ProviderScope.containerOf(
+        tester.element(find.byType(MaterialApp)),
+      ).read(noticeProvider.notifier).clear();
+      await tester.pumpAndSettle();
       await tester.pageBack();
       await tester.pumpAndSettle();
 
@@ -1785,7 +1792,7 @@ void main() {
       expect(find.textContaining('epicbox server'), findsNothing);
 
       // The content sits in the middle of the space below the notice slot.
-      final slot = tester.getRect(find.byType(NoticeSlot));
+      final slot = tester.getRect(find.byType(ProgressSlot));
       final screen = tester.getRect(find.byType(Scaffold));
       final body = tester.getRect(find.byType(CenteredBody));
       expect(

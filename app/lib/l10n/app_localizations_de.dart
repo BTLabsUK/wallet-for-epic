@@ -19,6 +19,18 @@ class AppLocalizationsDe extends AppLocalizations {
   String get commonClose => 'Schließen';
 
   @override
+  String get noticeLevelInfo => 'Hinweis';
+
+  @override
+  String get noticeLevelSuccess => 'Erledigt';
+
+  @override
+  String get noticeLevelWarning => 'Warnung';
+
+  @override
+  String get noticeLevelError => 'Fehler';
+
+  @override
   String get commonContinue => 'Weiter';
 
   @override
@@ -878,7 +890,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get historyBackupImportedTitle => 'Verlauf importiert';
 
   @override
-  String get historyBackupImportFailedTitle => 'Import fehlgeschlagen';
+  String historyBackupImportFailed(String reason) {
+    return 'Verlauf nicht importiert. $reason';
+  }
 
   @override
   String get historyBackupImportNothingNew =>
@@ -1547,9 +1561,6 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get updateTryAgain => 'Wiederholen';
-
-  @override
-  String get updateIconLabel => 'Update';
 
   @override
   String get updateDownloadProgressLabel => 'Download-Fortschritt';
@@ -2655,10 +2666,6 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get settingsCheckUpdates => 'Nach Updates suchen';
-
-  @override
-  String get settingsCheckingUpdates =>
-      'Es wird nach Updates gesucht. Das Ergebnis erscheint auf dem Startbildschirm.';
 
   @override
   String get settingsHelp => 'Hilfe';

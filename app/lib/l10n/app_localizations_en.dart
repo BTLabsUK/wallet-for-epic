@@ -19,6 +19,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get commonClose => 'Close';
 
   @override
+  String get noticeLevelInfo => 'Information';
+
+  @override
+  String get noticeLevelSuccess => 'Done';
+
+  @override
+  String get noticeLevelWarning => 'Warning';
+
+  @override
+  String get noticeLevelError => 'Error';
+
+  @override
   String get commonContinue => 'Continue';
 
   @override
@@ -874,7 +886,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get historyBackupImportedTitle => 'History imported';
 
   @override
-  String get historyBackupImportFailedTitle => 'Could not import';
+  String historyBackupImportFailed(String reason) {
+    return 'Could not import the history backup. $reason';
+  }
 
   @override
   String get historyBackupImportNothingNew => 'The backup held nothing new.';
@@ -1536,9 +1550,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get updateTryAgain => 'Try again';
-
-  @override
-  String get updateIconLabel => 'Update';
 
   @override
   String get updateDownloadProgressLabel => 'Download progress';
@@ -2625,10 +2636,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsCheckUpdates => 'Check for updates';
-
-  @override
-  String get settingsCheckingUpdates =>
-      'Checking for updates. The result shows on the home screen.';
 
   @override
   String get settingsHelp => 'Help';

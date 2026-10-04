@@ -236,6 +236,18 @@ class _FakePush implements PushPlatform {
   Stream<RemoteMessage> get foreground => foregroundMessages.stream;
 }
 
+final Uri _apkUrl = Uri.parse('https://example.org/app.apk');
+
+/// Update phases set by the test; Install and Try again only count.
+class _FakeUpdates extends UpdateNotifier {
+  int installs = 0;
+
+  void set(UpdateState value) => state = value;
+
+  @override
+  Future<void> install() async => installs++;
+}
+
 class _Harness {
   _Harness({
     List<TxEntry>? transactions,
@@ -297,6 +309,7 @@ class _Harness {
           secretStoreProvider.overrideWithValue(store),
           biometricStoreProvider.overrideWithValue(MemoryBiometricStore()),
           updatePlatformProvider.overrideWithValue(null),
+          updateProvider.overrideWith(_FakeUpdates.new),
           priceSourceProvider.overrideWithValue(prices),
           qrScannerProvider.overrideWithValue(scanner),
           pushPlatformProvider.overrideWithValue(push),
@@ -312,7 +325,7 @@ class _Harness {
           builder: (context, child) => MediaQuery(
             data: MediaQuery.of(context)
                 .copyWith(textScaler: TextScaler.linear(textScale)),
-            child: child!,
+            child: NoticeHost(child: child!),
           ),
         ),
       ),
@@ -1157,7 +1170,7 @@ void main() {
   });
 
   group('user-2', () {
-    testWidgets('a payment notice appears in the slot without moving home', (
+    testWidgets('a payment notice floats over home without moving it', (
       tester,
     ) async {
       final h = _Harness();
@@ -1183,47 +1196,102 @@ void main() {
       expect(find.byKey(noticeKey), findsNothing);
     });
 
-    testWidgets('a notice leaves after a few seconds, the newest wins', (
-      tester,
-    ) async {
+    testWidgets('payment notices carry their level and View', (tester) async {
       final h = _Harness();
       await h.pump(tester);
-      final notices = ProviderScope.containerOf(
+      final c = ProviderScope.containerOf(
         tester.element(find.byType(HomeScreen)),
-      ).read(noticeProvider.notifier);
-      notices.show('First');
-      await tester.pump(const Duration(seconds: 3));
-      notices.show('Second');
-      await tester.pumpAndSettle();
-      expect(find.text('First'), findsNothing);
-      expect(find.text('Second'), findsOneWidget);
-      // The first one's timer does not cut the second short.
-      await tester.pump(const Duration(seconds: 2));
-      expect(find.text('Second'), findsOneWidget);
-      await tester.pump(noticeDuration);
-      await tester.pumpAndSettle();
-      expect(find.byKey(noticeKey), findsNothing);
-
-      notices.show('Stays', persistent: true);
-      await tester.pump(noticeDuration * 2);
-      await tester.pumpAndSettle();
-      expect(find.text('Stays'), findsOneWidget);
-      await _tap(tester, find.byTooltip('Close'));
-      expect(find.text('Stays'), findsNothing);
+      );
+      for (final (kind, level) in [
+        (ListenerEventKind.received, NoticeLevel.success),
+        (ListenerEventKind.finalized, NoticeLevel.success),
+        (ListenerEventKind.repeated, NoticeLevel.info),
+        (ListenerEventKind.expired, NoticeLevel.warning),
+        (ListenerEventKind.delayed, NoticeLevel.warning),
+        (ListenerEventKind.error, NoticeLevel.error),
+      ]) {
+        expect(paymentNoticeLevel(kind), level, reason: kind.name);
+        c.read(noticeProvider.notifier).clear();
+        h.session.listenerEvents.add(
+          ListenerEvent(kind: kind, slateId: 'from-alice', message: 'raw'),
+        );
+        await tester.pumpAndSettle();
+        expect(c.read(noticeProvider)?.level, level, reason: kind.name);
+      }
     });
 
-    testWidgets('the slot keeps its height and grows only with large text', (
+    testWidgets('update phases become notices, the download with progress', (
       tester,
     ) async {
       final h = _Harness();
       await h.pump(tester);
-      expect(tester.getSize(find.byType(NoticeSlot)).height, noticeSlotHeight);
-      await tester.pumpWidget(const SizedBox());
-      await h.pump(tester, const HomeScreen(), 2);
-      expect(
-        tester.getSize(find.byType(NoticeSlot)).height,
-        noticeSlotHeight * 2,
+      final c = ProviderScope.containerOf(
+        tester.element(find.byType(HomeScreen)),
       );
+      final updates = c.read(updateProvider.notifier) as _FakeUpdates;
+      final update = AvailableUpdate(
+        versionName: '1.4.0',
+        notes: '',
+        apk: ReleaseApk(
+          abi: 'arm64-v8a',
+          versionCode: 19,
+          url: _apkUrl,
+          sha256: '',
+          size: 1,
+        ),
+      );
+      Notice? shown() => c.read(noticeProvider);
+
+      updates.set(UpdateState(UpdatePhase.available, update: update));
+      await tester.pumpAndSettle();
+      expect(find.text('Version 1.4.0 is available.'), findsOneWidget);
+      expect(shown()?.level, NoticeLevel.info);
+      expect(shown()?.persistent, isTrue);
+      await tester.tap(find.text('Update'));
+      await tester.pumpAndSettle();
+      expect(updates.installs, 1);
+
+      updates.set(
+        UpdateState(UpdatePhase.downloading, update: update, progress: 0.42),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('Downloading version 1.4.0… 42%'), findsOneWidget);
+      final bar = tester.widget<LinearProgressIndicator>(
+        find.descendant(
+          of: find.byKey(noticeKey),
+          matching: find.byType(LinearProgressIndicator),
+        ),
+      );
+      expect(bar.value, 0.42);
+      final id = shown()!.id;
+      updates.set(
+        UpdateState(UpdatePhase.downloading, update: update, progress: 0.5),
+      );
+      await tester.pumpAndSettle();
+      expect(shown()!.id, id, reason: 'the same card, updated in place');
+      expect(find.text('Downloading version 1.4.0… 50%'), findsOneWidget);
+
+      updates.set(UpdateState(UpdatePhase.installing, update: update));
+      await tester.pumpAndSettle();
+      expect(find.text('Installing version 1.4.0…'), findsOneWidget);
+
+      updates.set(UpdateState(UpdatePhase.failed, update: update));
+      await tester.pumpAndSettle();
+      expect(shown()?.level, NoticeLevel.error);
+      await tester.tap(find.text('Try again'));
+      await tester.pumpAndSettle();
+      expect(updates.installs, 2);
+
+      updates.set(const UpdateState(UpdatePhase.upToDate));
+      await tester.pumpAndSettle();
+      expect(find.text('This is the latest version.'), findsOneWidget);
+      expect(shown()?.level, NoticeLevel.success);
+
+      updates.set(UpdateState(UpdatePhase.available, update: update));
+      await tester.pumpAndSettle();
+      updates.set(const UpdateState(UpdatePhase.idle));
+      await tester.pumpAndSettle();
+      expect(shown(), isNull);
     });
   });
 
@@ -2052,7 +2120,7 @@ void main() {
       );
       expect(find.text('A payment could not be completed.'), findsNothing);
       // Let the notice go, then the core retries the same payment: nothing new.
-      await tester.pump(const Duration(seconds: 8));
+      await tester.pump(noticeDuration(NoticeLevel.warning, action: true));
       await tester.pumpAndSettle();
       expect(find.byKey(noticeKey), findsNothing);
       h.session.listenerEvents

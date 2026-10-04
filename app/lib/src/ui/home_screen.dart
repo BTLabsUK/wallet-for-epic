@@ -125,6 +125,21 @@ String paymentNotice(
   }
 }
 
+/// The level of a listener event's notice: a payment that arrived or finished is a success, a
+/// repeated slate only informs, a payment that expired or waits on the node is a warning, and a
+/// relay or payment failure is an error.
+NoticeLevel paymentNoticeLevel(ListenerEventKind kind) => switch (kind) {
+  ListenerEventKind.received ||
+  ListenerEventKind.finalized => NoticeLevel.success,
+  ListenerEventKind.repeated => NoticeLevel.info,
+  ListenerEventKind.expired || ListenerEventKind.delayed => NoticeLevel.warning,
+  ListenerEventKind.error => NoticeLevel.error,
+  // Never a notice; see [paymentNotice].
+  ListenerEventKind.connected ||
+  ListenerEventKind.disconnected ||
+  ListenerEventKind.stopped => NoticeLevel.info,
+};
+
 /// Whether home's figures are on screen while a refresh against the node runs: the background
 /// refresh after a local first load, or a reload in place.
 bool _syncing(AsyncValue<HomeData> home) {
@@ -208,7 +223,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   Future<void> _backup() async {
     final done = await Navigator.of(context)
         .push<bool>(MaterialPageRoute(builder: (_) => const BackupScreen()));
-    if (done == true && mounted) _showNotice(context.l10n.homeBackedUpNotice);
+    if (done == true && mounted) {
+      _showNotice(context.l10n.homeBackedUpNotice, level: NoticeLevel.success);
+    }
   }
 
   /// Opens [screen] over home. Coming back does not refresh: screens that change the wallet
@@ -295,16 +312,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       ownServer: ref.read(walletConfigProvider)?.epicboxDomain,
     );
     final key = tx?.key;
-    _showNotice(text, txKey: key);
+    _showNotice(text, level: paymentNoticeLevel(event.kind), txKey: key);
   }
 
-  /// A notice in the slot, with a way to the payment when it is known. It leaves on its own;
-  /// the payment is always one tap away in the list too.
-  void _showNotice(String text, {String? txKey}) {
+  /// A notice with a way to the payment when it is known. It leaves on its own; the payment is
+  /// always one tap away in the list too.
+  void _showNotice(String text, {required NoticeLevel level, String? txKey}) {
     ref
         .read(noticeProvider.notifier)
         .show(
           text,
+          level: level,
           action: txKey == null
               ? null
               : NoticeAction(
@@ -324,7 +342,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     // collects it and gives the notice, so one payment gets one notice.
     ref.listen(pushProvider.select((s) => s.last), (_, message) {
       if (message == null || ref.read(listenerProvider).connected) return;
-      _showNotice(context.l10n.homePushNotice);
+      _showNotice(context.l10n.homePushNotice, level: NoticeLevel.info);
     });
     ref.listen(incomingSlateProvider, (_, file) {
       if (file != null) _openIncoming();
@@ -333,6 +351,18 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       if (event != null) _notify(event);
     });
     ref.listen(shellTabProvider, (_, tab) => _showTab(tab));
+    // Once per phase, and per whole percent while downloading.
+    ref.listen(
+      updateProvider.select(
+        (s) => (s.phase, ((s.progress ?? 0) * 100).floor(), s.text),
+      ),
+      (_, _) => showUpdateNotice(
+        context.l10n,
+        ref.read(updateProvider),
+        ref.read(noticeProvider.notifier),
+        ref.read(updateProvider.notifier),
+      ),
+    );
     final config = ref.watch(walletConfigProvider);
     final tab = ref.watch(shellTabProvider);
     final l = context.l10n;
@@ -530,17 +560,12 @@ class _KeepAliveState extends State<_KeepAlive>
   }
 }
 
-/// What home's notice slot shows when there is no notice: the update line while there is
-/// something to say about an update, else the sync bar while home syncs, else nothing.
+/// The line under home's app bar: the sync bar while home syncs, else nothing.
 class _HomeStatus extends ConsumerWidget {
   const _HomeStatus();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final updating = ref.watch(
-      updateProvider.select((s) => s.phase != UpdatePhase.idle),
-    );
-    if (updating) return const _UpdateLine();
     if (!_syncing(ref.watch(homeProvider))) return const SizedBox.shrink();
     final percent = ref.watch(syncProgressProvider);
     return SlotProgress(
@@ -550,80 +575,70 @@ class _HomeStatus extends ConsumerWidget {
   }
 }
 
-/// Update availability, download progress and install errors, in one line that fits the slot.
-class _UpdateLine extends ConsumerWidget {
-  const _UpdateLine();
+/// The notice tag of the update phases, so each phase replaces the one before.
+const String updateNoticeTag = 'update';
 
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final l = context.l10n;
-    final state = ref.watch(updateProvider);
-    final notifier = ref.read(updateProvider.notifier);
-    final update = state.update;
-    // The available, downloading and installing phases always carry the update.
-    final version = update?.versionName ?? '';
-    final (String text, Widget? action) = switch (state.phase) {
-      UpdatePhase.idle => ('', null),
-      UpdatePhase.checking => (l.updateChecking, null),
-      UpdatePhase.upToDate => (l.updateUpToDate, null),
-      UpdatePhase.available => (
+/// Shows the notice for [state]: available (persistent, Install), downloading (persistent, with
+/// its progress), installing (persistent), failed (error, Try again), up to date after a check
+/// from Settings (success). Idle closes it; checking says nothing here, since a check on start
+/// is quiet and Settings announces its own.
+void showUpdateNotice(
+  AppLocalizations l,
+  UpdateState state,
+  NoticeNotifier notices,
+  UpdateNotifier updater,
+) {
+  final update = state.update;
+  // The available, downloading and installing phases always carry the update.
+  final version = update?.versionName ?? '';
+  void show(
+    String text,
+    NoticeLevel level, {
+    NoticeAction? action,
+    bool persistent = false,
+    double? progress,
+  }) => notices.show(
+    text,
+    level: level,
+    action: action,
+    persistent: persistent,
+    progress: progress,
+    progressLabel: progress == null ? null : l.updateDownloadProgressLabel,
+    tag: updateNoticeTag,
+  );
+  switch (state.phase) {
+    case UpdatePhase.idle:
+      notices.dismissTag(updateNoticeTag);
+    case UpdatePhase.checking:
+      break;
+    case UpdatePhase.upToDate:
+      show(l.updateUpToDate, NoticeLevel.success);
+    case UpdatePhase.available:
+      show(
         state.text?.call(l) ?? l.updateAvailable(version),
-        TextButton(
-          onPressed: notifier.install,
-          child: Text(l.updateInstallButton),
-        ),
-      ),
-      UpdatePhase.downloading => (
-        l.updateDownloading(version, ((state.progress ?? 0) * 100).floor()),
-        null,
-      ),
-      UpdatePhase.installing => (l.updateInstalling(version), null),
-      UpdatePhase.failed => (
+        NoticeLevel.info,
+        persistent: true,
+        action: NoticeAction(l.updateInstallButton, updater.install),
+      );
+    case UpdatePhase.downloading:
+      final progress = state.progress ?? 0;
+      show(
+        l.updateDownloading(version, (progress * 100).floor()),
+        NoticeLevel.info,
+        persistent: true,
+        progress: progress,
+      );
+    case UpdatePhase.installing:
+      show(l.updateInstalling(version), NoticeLevel.info, persistent: true);
+    case UpdatePhase.failed:
+      show(
         state.text?.call(l) ?? l.updateFailed,
-        TextButton(
-          onPressed: update == null ? notifier.check : notifier.install,
-          child: Text(l.updateTryAgain),
+        NoticeLevel.error,
+        action: NoticeAction(
+          l.updateTryAgain,
+          update == null ? updater.check : updater.install,
         ),
-      ),
-    };
-    if (text.isEmpty) return const SizedBox.shrink();
-    final notes = update?.notes ?? '';
-    final line = Row(
-      children: [
-        Icon(Icons.system_update, semanticLabel: l.updateIconLabel),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Semantics(
-            liveRegion: true,
-            child: Text(text, maxLines: 2, overflow: TextOverflow.ellipsis),
-          ),
-        ),
-        ?action,
-      ],
-    );
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 0, 8, 0),
-      child: Stack(
-        children: [
-          Positioned.fill(
-            child: notes.isNotEmpty && state.phase == UpdatePhase.available
-                // The release notes stay one long-press away.
-                ? Tooltip(message: notes, child: line)
-                : line,
-          ),
-          if (state.phase == UpdatePhase.downloading)
-            Positioned(
-              left: 36,
-              right: 8,
-              bottom: 4,
-              child: LinearProgressIndicator(
-                value: state.progress,
-                semanticsLabel: l.updateDownloadProgressLabel,
-              ),
-            ),
-        ],
-      ),
-    );
+      );
   }
 }
 
