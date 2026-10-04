@@ -125,7 +125,8 @@ void main() {
     } finally {
       imported.dispose();
     }
-  });
+    // The fixtures are files of this checkout, which a device does not have.
+  }, skip: !Platform.isLinux);
 
   // simple_test.dart's history test, on LEPIC.
   testWidgets('history: contacts and an export that only the same seed opens', (
