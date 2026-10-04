@@ -3,7 +3,7 @@
 // what the app relies on from the old core. Calls LEPIC lacks are in lepic_mapping_test.dart.
 //
 //   tools/lepic.sh build linux
-//   LEPIC_FFI_LIB="$(tools/lepic.sh lib)" flutter test integration_test/core_parity_test.dart -d linux
+//   flutter test integration_test/core_parity_test.dart -d linux
 //
 // Offline by default: the node is a closed port. With --dart-define=WFE_PARITY_ONLINE=true it
 // also reads the tip and refreshes against node.btlabs.uk (mainnet, read-only).
@@ -46,7 +46,10 @@ class _Core {
   final WalletService service;
   final List<Directory> _dirs = [];
 
-  Future<WalletConfig> config(Chain chain, {String node = _unreachableNode}) async {
+  Future<WalletConfig> config(
+    Chain chain, {
+    String node = _unreachableNode,
+  }) async {
     final base = await getTemporaryDirectory();
     final dir = await base.createTemp('wfe-parity-$name-');
     _dirs.add(dir);
@@ -74,17 +77,6 @@ void _same((Object?, Object?) outcomes, String what) => expect(
   outcomes.$1,
   reason: '$what: epic-wallet gave ${outcomes.$1}, LEPIC ${outcomes.$2}',
 );
-
-/// A difference the plan already tracks under [request]. It fails once the cores agree, so the
-/// pin move that closes the gap turns it back into [_same].
-void _gap((Object?, Object?) outcomes, String what, String request) {
-  expect(
-    outcomes.$2,
-    isNot(outcomes.$1),
-    reason: '$what now matches: $request is closed, use _same here',
-  );
-  debugPrint('known gap ($request) $what: epic-wallet ${outcomes.$1}, LEPIC ${outcomes.$2}');
-}
 
 /// Restores [phrase] on [chain] in a fresh directory and returns the open session.
 Future<WalletSession> _restore(
@@ -169,11 +161,34 @@ void main() {
           };
         }
 
-        // LEPIC asks the node even without a refresh; the app shows local balances offline.
-        _gap(
+        _same(
           await _both((c) => balances(c == _old ? old : neu)),
           'balances without a refresh',
-          'UP-1',
+        );
+        _same(
+          await _both(
+            (c) async =>
+                (await (c == _old ? old : neu).transactions(refresh: false))
+                    .length,
+          ),
+          'history of a fresh restore',
+        );
+        _same(
+          await _both(
+            (c) => (c == _old ? old : neu).estimateMax(
+              minimumConfirmations: minimumConfirmations,
+            ),
+          ),
+          'largest send from an empty wallet',
+        );
+        _same(
+          await _both(
+            (c) => (c == _old ? old : neu).estimateFee(
+              amount: BigInt.from(100000000),
+              minimumConfirmations: minimumConfirmations,
+            ),
+          ),
+          'fee for a send from an empty wallet',
         );
 
         final validity = {
@@ -191,7 +206,9 @@ void main() {
         }
 
         _same(
-          await _both((c) => (c == _old ? old : neu).receiveSlate(slateJson: '{}')),
+          await _both(
+            (c) => (c == _old ? old : neu).receiveSlate(slateJson: '{}'),
+          ),
           'receive an empty slate',
         );
         _same(
@@ -224,7 +241,7 @@ void main() {
               'total ${last.summary?.total}';
         });
         debugPrint('refresh, closed port: LEPIC took ${watch.elapsed}');
-        _gap(refreshed, 'refresh with the node unreachable', 'UP-1');
+        _same(refreshed, 'refresh with the node unreachable');
       } finally {
         old.dispose();
         neu.dispose();
@@ -302,17 +319,29 @@ void main() {
       reason: 'tips ${oldTip.height} and ${newTip.height}',
     );
 
-    final old = await _restore(_old, Chain.mainnet, _phrase12, node: _onlineNode);
-    final neu = await _restore(_new, Chain.mainnet, _phrase12, node: _onlineNode);
+    final old = await _restore(
+      _old,
+      Chain.mainnet,
+      _phrase12,
+      node: _onlineNode,
+    );
+    final neu = await _restore(
+      _new,
+      Chain.mainnet,
+      _phrase12,
+      node: _onlineNode,
+    );
     try {
-      final oldLast = (await old
-              .refresh(minimumConfirmations: minimumConfirmations)
-              .toList())
-          .last;
-      final newLast = (await neu
-              .refresh(minimumConfirmations: minimumConfirmations)
-              .toList())
-          .last;
+      final oldLast =
+          (await old
+                  .refresh(minimumConfirmations: minimumConfirmations)
+                  .toList())
+              .last;
+      final newLast =
+          (await neu
+                  .refresh(minimumConfirmations: minimumConfirmations)
+                  .toList())
+              .last;
       expect(newLast.percent, oldLast.percent);
       expect(newLast.summary?.total, oldLast.summary?.total);
       expect(

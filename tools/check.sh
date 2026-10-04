@@ -22,8 +22,7 @@ step "flutter test"
 (cd "$root/app" && flutter test --no-pub)
 
 step "core parity, epic-wallet against LEPIC (Linux, offline)"
-(cd "$root/app" && LEPIC_FFI_LIB="$("$root/tools/lepic.sh" lib)" \
-  xvfb-run -a flutter test --no-pub integration_test/core_parity_test.dart -d linux)
+(cd "$root/app" && xvfb-run -a flutter test --no-pub integration_test/core_parity_test.dart -d linux)
 
 step "cargo test (app/rust, offline)"
 (cd "$root/app/rust" && cargo test --locked -q)

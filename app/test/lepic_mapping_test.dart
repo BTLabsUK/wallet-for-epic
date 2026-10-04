@@ -64,6 +64,19 @@ void main() {
         WalletErrorKind.io,
       );
       for (final kind in [
+        lepic.WalletErrorKind.onChain,
+        lepic.WalletErrorKind.foreignAppData,
+        lepic.WalletErrorKind.damagedAppData,
+      ]) {
+        expect(
+          mapLepicError(error(kind)).kind,
+          WalletErrorKind.invalidArgument,
+          reason: kind.name,
+        );
+      }
+      for (final kind in [
+        lepic.WalletErrorKind.restoreScanRequired,
+        lepic.WalletErrorKind.changedDuringCancel,
         lepic.WalletErrorKind.locked,
         lepic.WalletErrorKind.notPosted,
         lepic.WalletErrorKind.cancelled,
@@ -99,9 +112,6 @@ void main() {
       'generateMnemonic': () async => service.generateMnemonic(wordCount: 24),
       'inspectSlate': () async => service.inspectSlate(json: '{}'),
       'releaseStuckSend': () => session.releaseStuckSend(key: 'l:1'),
-      'estimateFee': () =>
-          session.estimateFee(amount: one, minimumConfirmations: one),
-      'estimateMax': () => session.estimateMax(minimumConfirmations: one),
       'sendHttp': () => session.sendHttp(
         amount: one,
         minimumConfirmations: one,
@@ -122,10 +132,92 @@ void main() {
     }
   });
 
-  test('the partial calls answer without reaching LEPIC', () async {
+  test('contacts and enrichment answer without reaching LEPIC', () async {
     final session = LepicWalletSession(_NoNativeWallet());
-    expect(await session.transactions(refresh: false), isEmpty);
     expect(await session.contacts(), isEmpty);
     expect(await session.enrichHistory(), 0);
+  });
+
+  group('history rows', () {
+    lepic.TransactionDetails details({
+      lepic.TxDirection direction = lepic.TxDirection.outgoing,
+      required lepic.TxStatus status,
+      String? slateId = 'slate-1',
+      int? confirmedAtMs,
+      BigInt? confirmedHeight,
+    }) => lepic.TransactionDetails(
+      txId: 7,
+      direction: direction,
+      status: status,
+      slateId: slateId,
+      amountCredited: BigInt.from(3),
+      amountDebited: BigInt.from(10),
+      fee: BigInt.from(1),
+      createdAtMs: 1790000000500,
+      confirmedAtMs: confirmedAtMs,
+      confirmedHeight: confirmedHeight,
+      kernelExcess: 'ab',
+      counterparty: 'key@relay',
+      ttlCutoffHeight: BigInt.from(99),
+    );
+
+    test('a send waiting for its answer can be cancelled', () {
+      final row = lepicTxEntry(details(status: lepic.TxStatus.sent));
+      expect(row.key, 'l:7');
+      expect(lepicTxId(row.key), 7);
+      expect(row.kind, TxKind.sent);
+      expect(row.status, TxStatus.awaitingRecipient);
+      expect(row.cancellable, isTrue);
+      expect(row.repostable, isFalse);
+      expect(row.timeUnix, 1790000000);
+      expect(row.counterparty, 'key@relay');
+      expect(row.ttlCutoffHeight, BigInt.from(99));
+    });
+
+    test('a finalized send the node refused can be posted again', () {
+      final row = lepicTxEntry(details(status: lepic.TxStatus.finalized));
+      expect(row.status, TxStatus.awaitingConfirmation);
+      expect(row.repostable, isTrue);
+      expect(row.cancellable, isFalse);
+    });
+
+    test('a confirmed send carries its block and the confirmation time', () {
+      final row = lepicTxEntry(
+        details(
+          status: lepic.TxStatus.confirmed,
+          confirmedAtMs: 1790000600000,
+          confirmedHeight: BigInt.from(42),
+        ),
+      );
+      expect(row.status, TxStatus.confirmed);
+      expect(row.confirmed, isTrue);
+      expect(row.blockHeight, BigInt.from(42));
+      expect(row.timeUnix, 1790000600);
+      expect(row.kernelExcess, 'ab');
+    });
+
+    test('an expired receive is a cancelled one, by expiry', () {
+      final row = lepicTxEntry(
+        details(
+          direction: lepic.TxDirection.incoming,
+          status: lepic.TxStatus.expired,
+        ),
+      );
+      expect(row.kind, TxKind.receivedCancelled);
+      expect(row.status, TxStatus.cancelled);
+      expect(row.cancelReason, CancelReason.expiry);
+    });
+
+    test('an output a scan restored has no slate', () {
+      final row = lepicTxEntry(
+        details(
+          direction: lepic.TxDirection.incoming,
+          status: lepic.TxStatus.confirmed,
+          slateId: null,
+        ),
+      );
+      expect(row.kind, TxKind.received);
+      expect(row.source, TxSource.restored);
+    });
   });
 }

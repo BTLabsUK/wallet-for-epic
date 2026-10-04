@@ -5,7 +5,7 @@
 #
 # Usage:
 #   tools/lepic.sh sync              clone or move the clone to the pinned commit
-#   tools/lepic.sh build linux       liblepic_ffi.so for this host (flutter test, Linux runs)
+#   tools/lepic.sh build linux       liblepic_ffi.so for this host, bundled by the hook on Linux
 #   tools/lepic.sh build android     the three Android ABIs into bindings/flutter/native/
 #   tools/lepic.sh build all         both
 #   tools/lepic.sh lib               print the path of the Linux library
@@ -41,16 +41,17 @@ case "${1:-}" in
     check_clone
     what="${2:-all}"
     if [ "$what" = linux ] || [ "$what" = all ]; then
-      (cd "$clone" && cargo build -p lepic-ffi --lib --locked --release)
-      echo "linux: $clone/target/release/liblepic_ffi.so"
+      (cd "$clone" && cargo xtask mobile --package --target x86_64-unknown-linux-gnu)
+      echo "linux: $clone/bindings/flutter/native/x86_64-unknown-linux-gnu/"
     fi
     if [ "$what" = android ] || [ "$what" = all ]; then
-      (cd "$clone" && cargo xtask mobile --package)
+      (cd "$clone" && cargo xtask mobile --package --target aarch64-linux-android \
+        --target armv7-linux-androideabi --target x86_64-linux-android)
       echo "android: $clone/bindings/flutter/native/"
     fi
     ;;
   lib)
-    echo "$clone/target/release/liblepic_ffi.so"
+    echo "$clone/bindings/flutter/native/x86_64-unknown-linux-gnu/liblepic_ffi.so"
     ;;
   *)
     sed -n '6,12p' "$0" >&2

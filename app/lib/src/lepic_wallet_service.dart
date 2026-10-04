@@ -3,16 +3,14 @@
 /// Selected with `--dart-define=WFE_CORE=lepic` (`core_backend.dart`). It speaks the same
 /// interface as [RustWalletService], so the UI does not know which core runs. LEPIC lacks some
 /// calls the UI uses; [lepicMissing] lists them, and each throws [lepicUnsupported] until the
-/// matching request to LEPIC lands and the pin moves. Two calls answer
-/// partly: `transactions` lists only this session's sends (UP-1) and `contacts` is empty (H-01).
+/// matching request to LEPIC lands and the pin moves. `contacts` answers
+/// with an empty book until notes and contacts move to Dart (H-01).
 library;
 
 import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart'
-    show ExternalLibrary;
 import 'package:lepic/lepic.dart' as lepic;
 
 import 'app_log.dart';
@@ -23,10 +21,9 @@ import 'wallet_service.dart';
 /// that unblocks each. `test/lepic_mapping_test.dart` keeps this list and the code in step.
 const Map<String, String> lepicMissing = {
   'generateMnemonic': 'none: LEPIC generates the seed inside create',
-  'inspectSlate': 'UP-4',
-  'releaseStuckSend': 'UP-9',
-  'estimateFee': 'UP-2',
-  'estimateMax': 'UP-2',
+  'inspectSlate':
+      'A-03: LEPIC answers asynchronously, the app interface is synchronous',
+  'releaseStuckSend': 'UP-9, LEPIC W-16',
   'sendHttp': 'OD-2, LEPIC speaks Epicbox and files only',
   'setTxNote': 'H-01',
   'saveContact': 'H-01',
@@ -42,15 +39,9 @@ WalletError lepicUnsupported(String call) => WalletError(
   message: '$call is not available on the LEPIC core yet',
 );
 
-/// Loads the LEPIC library. Android and iOS bundle it through the package's build hook; on a
-/// desktop `LEPIC_FFI_LIB` names it (`tools/lepic.sh lib` prints the path), since LEPIC bundles
-/// no desktop library yet (UP-3).
-Future<void> initLepic() async {
-  final path = Platform.environment['LEPIC_FFI_LIB'];
-  await lepic.RustLib.init(
-    externalLibrary: path == null ? null : ExternalLibrary.open(path),
-  );
-}
+/// Loads the LEPIC library, which the package's build hook bundles on Android, iOS and x86_64
+/// Linux (`tools/lepic.sh build`). Windows has none (UP-3, deferred).
+Future<void> initLepic() => lepic.RustLib.init();
 
 /// LEPIC's error as the app's. The switch is exhaustive, so a kind LEPIC adds breaks the build
 /// here instead of reaching the UI unmapped.
@@ -72,6 +63,13 @@ WalletError mapLepicError(lepic.WalletError error) {
     lepic.WalletErrorKind.io => WalletErrorKind.io,
     lepic.WalletErrorKind.secretStore => WalletErrorKind.io,
     lepic.WalletErrorKind.foreignWallet => WalletErrorKind.invalidArgument,
+    // The old core refused a cancel of a payment on chain, and a history file of another
+    // wallet or a damaged one, as invalidArgument; the UI words them from that.
+    lepic.WalletErrorKind.onChain ||
+    lepic.WalletErrorKind.foreignAppData ||
+    lepic.WalletErrorKind.damagedAppData => WalletErrorKind.invalidArgument,
+    lepic.WalletErrorKind.restoreScanRequired ||
+    lepic.WalletErrorKind.changedDuringCancel ||
     lepic.WalletErrorKind.other ||
     lepic.WalletErrorKind.locked ||
     lepic.WalletErrorKind.notPosted ||
@@ -98,64 +96,20 @@ T _guardSync<T>(T Function() call) {
   }
 }
 
-/// How long a LEPIC stream that ended without its last event waits for the call's error.
-const Duration _lateErrorWait = Duration(seconds: 2);
-
-/// A LEPIC stream that ends with the call's error. The generated bindings at the pin do not
-/// await the call behind a stream (`unawaited(handler.executeNormal(...))` in
-/// `frb_generated.dart`), so a failure closes the stream with no error and the error escapes to
-/// the zone (UP-11). This catches it in a zone of its own. A stream that ends without an event
-/// [isLast] accepts gets that error, or a generic one if none arrives within [_lateErrorWait].
-Stream<T> _lepicStream<T>(Stream<T> Function() open, bool Function(T) isLast) {
-  late final StreamController<T> controller;
-  void fail(Object error, [StackTrace? stack]) {
-    if (controller.isClosed) return;
-    controller.addError(
+Stream<T> _guardStream<T>(Stream<T> stream) => stream.transform(
+  StreamTransformer.fromHandlers(
+    handleError: (error, stack, sink) => sink.addError(
       error is lepic.WalletError ? mapLepicError(error) : error,
       stack,
-    );
-    controller.close();
-  }
-
-  StreamSubscription<T>? subscription;
-  controller = StreamController<T>(
-    onListen: () => runZonedGuarded(() {
-      var finished = false;
-      subscription = open().listen(
-        (event) {
-          finished = isLast(event);
-          controller.add(event);
-        },
-        onError: fail,
-        onDone: () {
-          if (finished) {
-            controller.close();
-            return;
-          }
-          Timer(
-            _lateErrorWait,
-            () => fail(
-              const WalletError(
-                kind: WalletErrorKind.other,
-                message: 'LEPIC ended the call without a result',
-              ),
-            ),
-          );
-        },
-      );
-    }, fail),
-    onCancel: () => subscription?.cancel(),
-  );
-  return controller.stream;
-}
-
-lepic.Chain _lepicChain(Chain chain) => switch (chain) {
-  Chain.mainnet => lepic.Chain.mainnet,
-  Chain.floonet => lepic.Chain.floonet,
-  Chain.usernet => throw const WalletError(
-    kind: WalletErrorKind.invalidArgument,
-    message: 'LEPIC has no usernet (UP-8)',
+    ),
   ),
+);
+
+/// Usernet is `Chain.mainnet` to LEPIC: epic-wallet derives mainnet Epicbox addresses there
+/// too, and LEPIC's interop chain runs that way (LEPIC V-09).
+lepic.Chain _lepicChain(Chain chain) => switch (chain) {
+  Chain.mainnet || Chain.usernet => lepic.Chain.mainnet,
+  Chain.floonet => lepic.Chain.floonet,
 };
 
 WalletSummary _summary(lepic.WalletSummary s) => WalletSummary(
@@ -192,6 +146,63 @@ int lepicTxId(String key) {
     );
   }
   return id;
+}
+
+/// A LEPIC transaction as a history row. Keys are `l:<tx id>` ([lepicTxId]). Notes, contacts
+/// and imported rows are the app's (H-01), so `note` stays empty here.
+TxEntry lepicTxEntry(lepic.TransactionDetails d) {
+  final outgoing = d.direction == lepic.TxDirection.outgoing;
+  final ended =
+      d.status == lepic.TxStatus.cancelled ||
+      d.status == lepic.TxStatus.expired;
+  final status = switch (d.status) {
+    lepic.TxStatus.sent => TxStatus.awaitingRecipient,
+    lepic.TxStatus.received ||
+    lepic.TxStatus.finalized ||
+    lepic.TxStatus.posted => TxStatus.awaitingConfirmation,
+    lepic.TxStatus.confirmed => TxStatus.confirmed,
+    lepic.TxStatus.cancelled || lepic.TxStatus.expired => TxStatus.cancelled,
+  };
+  final createdAt = d.createdAtMs ~/ 1000;
+  final confirmedAt = d.confirmedAtMs == null ? null : d.confirmedAtMs! ~/ 1000;
+  return TxEntry(
+    key: 'l:${d.txId}',
+    id: d.txId,
+    slateId: d.slateId,
+    kind: switch ((outgoing, ended)) {
+      (true, false) => TxKind.sent,
+      (true, true) => TxKind.sentCancelled,
+      (false, false) => TxKind.received,
+      (false, true) => TxKind.receivedCancelled,
+    },
+    status: status,
+    // A scan rebuilds a received output without its slate.
+    source: !outgoing && d.slateId == null
+        ? TxSource.restored
+        : TxSource.wallet,
+    createdAtUnix: createdAt,
+    timeUnix: confirmedAt ?? createdAt,
+    confirmed: status == TxStatus.confirmed,
+    blockHeight: d.confirmedHeight,
+    blockTimeUnix: confirmedAt,
+    amountCredited: d.amountCredited,
+    amountDebited: d.amountDebited,
+    fee: d.fee,
+    numInputs: 0,
+    numOutputs: 0,
+    kernelExcess: d.kernelExcess,
+    outputCommits: const [],
+    counterparty: d.counterparty,
+    ttlCutoffHeight: d.ttlCutoffHeight,
+    cancellable:
+        d.status == lepic.TxStatus.sent || d.status == lepic.TxStatus.received,
+    // Finalized but refused by the node: LEPIC stores it for a repost.
+    repostable: d.status == lepic.TxStatus.finalized,
+    releasable: false,
+    cancelReason: d.status == lepic.TxStatus.expired
+        ? CancelReason.expiry
+        : null,
+  );
 }
 
 /// Prefixes every key, so each wallet's LEPIC vault stays apart from the app's other secrets.
@@ -275,16 +286,9 @@ class LepicWalletService implements WalletService {
   SlateInfo inspectSlate({required String json}) =>
       throw lepicUnsupported('inspectSlate');
 
-  /// The app's rule is `<key>@<relay>[:port]`, as the old core checks: the relay is part of the
-  /// address. LEPIC also accepts a bare key, so the relay part is required here.
   @override
-  bool validateEpicboxAddress({required String address}) =>
-      _chain != Chain.usernet &&
-      address.contains('@') &&
-      lepic.validateEpicboxAddress(
-        address: address,
-        chain: _lepicChain(_chain),
-      );
+  bool validateEpicboxAddress({required String address}) => lepic
+      .validateEpicboxAddress(address: address, chain: _lepicChain(_chain));
 
   @override
   Future<bool> walletExists({required WalletConfig config}) => _guard(
@@ -345,10 +349,6 @@ class LepicWalletSession implements WalletSession {
 
   final lepic.EpicWallet _wallet;
 
-  /// Sends made through this session. LEPIC has no transaction list yet (UP-1), so these are
-  /// the only rows [transactions] can show.
-  final List<TxEntry> _sent = [];
-
   @override
   void dispose() {
     if (_wallet.isDisposed) return;
@@ -356,41 +356,9 @@ class LepicWalletSession implements WalletSession {
     _wallet.dispose();
   }
 
-  TxEntry _sendEntry({
-    required int txId,
-    required String slateId,
-    required TxStatus status,
-    BigInt? amount,
-    BigInt? fee,
-    String? counterparty,
-  }) {
-    final now = DateTime.now().millisecondsSinceEpoch ~/ 1000;
-    final entry = TxEntry(
-      key: 'l:$txId',
-      id: txId,
-      slateId: slateId,
-      kind: TxKind.sent,
-      status: status,
-      source: TxSource.wallet,
-      createdAtUnix: now,
-      timeUnix: now,
-      confirmed: false,
-      amountCredited: BigInt.zero,
-      amountDebited: (amount ?? BigInt.zero) + (fee ?? BigInt.zero),
-      fee: fee,
-      numInputs: 0,
-      numOutputs: 0,
-      outputCommits: const [],
-      counterparty: counterparty,
-      cancellable: status == TxStatus.awaitingRecipient,
-      repostable: false,
-      releasable: false,
-    );
-    _sent
-      ..removeWhere((t) => t.key == entry.key)
-      ..insert(0, entry);
-    return entry;
-  }
+  /// The stored row of [txId], as the history shows it.
+  Future<TxEntry> _entry(int txId) async =>
+      lepicTxEntry(await _wallet.transaction(txId: txId));
 
   @override
   Future<String> mnemonic({required String password}) =>
@@ -427,22 +395,28 @@ class LepicWalletSession implements WalletSession {
   Future<FeeEstimate> estimateFee({
     required BigInt amount,
     required BigInt minimumConfirmations,
-  }) async => throw lepicUnsupported('estimateFee');
+  }) => _guard(() async {
+    final e = await _wallet.estimateFee(
+      amount: amount,
+      minimumConfirmations: minimumConfirmations,
+    );
+    return FeeEstimate(amount: e.amount, fee: e.fee);
+  });
 
   @override
-  Future<FeeEstimate> estimateMax({
-    required BigInt minimumConfirmations,
-  }) async => throw lepicUnsupported('estimateMax');
+  Future<FeeEstimate> estimateMax({required BigInt minimumConfirmations}) =>
+      _guard(() async {
+        final e = await _wallet.estimateMax(
+          minimumConfirmations: minimumConfirmations,
+        );
+        return FeeEstimate(amount: e.amount, fee: e.fee);
+      });
 
   @override
   Future<TxEntry> finalizeAndPost({required String slateJson}) =>
       _guard(() async {
         final tx = await _wallet.finalizeAndPost(slateJson: slateJson);
-        return _sendEntry(
-          txId: tx.txId,
-          slateId: tx.slateId,
-          status: TxStatus.awaitingConfirmation,
-        );
+        return _entry(tx.txId);
       });
 
   @override
@@ -463,21 +437,12 @@ class LepicWalletSession implements WalletSession {
       minimumConfirmations: minimumConfirmations,
       address: address,
     );
-    return _sendEntry(
-      txId: tx.txId,
-      slateId: tx.slateId,
-      status: TxStatus.awaitingRecipient,
-      amount: tx.amount,
-      fee: tx.fee,
-      counterparty: address,
-    );
+    return _entry(tx.txId);
   });
 
   @override
-  Stream<ListenerEvent> startListener() => _lepicStream(
-    () => _wallet.startListener().map(_listenerEvent),
-    (e) => e.kind == ListenerEventKind.stopped,
-  );
+  Stream<ListenerEvent> startListener() =>
+      _guardStream(_wallet.startListener().map(_listenerEvent));
 
   @override
   Future<void> stopListener() async {
@@ -491,8 +456,8 @@ class LepicWalletSession implements WalletSession {
   });
 
   @override
-  Stream<ScanProgress> scan({BigInt? startHeight}) => _lepicStream(
-    () => _wallet
+  Stream<ScanProgress> scan({BigInt? startHeight}) => _guardStream(
+    _wallet
         .scan(startHeight: startHeight)
         .map(
           (p) => ScanProgress(
@@ -501,7 +466,6 @@ class LepicWalletSession implements WalletSession {
             finished: p.finished,
           ),
         ),
-    (p) => p.finished,
   );
 
   /// LEPIC counts balances with its own 10 confirmations, the app's value too
@@ -512,25 +476,54 @@ class LepicWalletSession implements WalletSession {
     required BigInt minimumConfirmations,
   }) => _guard(() async => _summary(await _wallet.summary(refresh: refresh)));
 
+  /// As the old core: with the node out of reach the refresh still ends with the local balances,
+  /// marked as not checked with the node, so Home shows them instead of an error.
   @override
-  Stream<RefreshProgress> refresh({required BigInt minimumConfirmations}) =>
-      _lepicStream(
-        () => _wallet.refresh().map(
-          (p) => RefreshProgress(
-            percent: p.percent,
-            message: p.message,
-            summary: p.summary == null ? null : _summary(p.summary!),
-          ),
-        ),
-        (p) => p.summary != null,
+  Stream<RefreshProgress> refresh({
+    required BigInt minimumConfirmations,
+  }) async* {
+    try {
+      // `await for`, not `yield*`: only it raises the stream's error here.
+      await for (final p in _guardStream(_wallet.refresh())) {
+        yield RefreshProgress(
+          percent: p.percent,
+          message: p.message,
+          summary: p.summary == null ? null : _summary(p.summary!),
+        );
+      }
+    } on WalletError catch (error) {
+      if (error.kind != WalletErrorKind.nodeUnreachable) rethrow;
+      final local = _summary(
+        await _guard(() => _wallet.summary(refresh: false)),
       );
+      yield RefreshProgress(
+        percent: 100,
+        message: 'Could not reach the node',
+        summary: WalletSummary(
+          lastConfirmedHeight: local.lastConfirmedHeight,
+          minimumConfirmations: local.minimumConfirmations,
+          total: local.total,
+          spendable: local.spendable,
+          awaitingConfirmation: local.awaitingConfirmation,
+          awaitingFinalization: local.awaitingFinalization,
+          immature: local.immature,
+          locked: local.locked,
+          validatedWithNode: false,
+        ),
+      );
+    }
+  }
 
   @override
-  Future<List<TxEntry>> transactions({required bool refresh}) async => [
-    ..._sent,
-  ];
+  Future<List<TxEntry>> transactions({required bool refresh}) =>
+      _guard(() async {
+        if (refresh) await _wallet.summary(refresh: true);
+        final rows = (await _wallet.transactions()).map(lepicTxEntry).toList()
+          ..sort((a, b) => b.timeUnix.compareTo(a.timeUnix));
+        return rows;
+      });
 
-  /// Nothing to enrich: the rows are this session's sends only.
+  /// LEPIC stores heights and times as it confirms, so nothing is left to fill in.
   @override
   Future<int> enrichHistory() async => 0;
 
