@@ -2036,6 +2036,228 @@ abstract class AppLocalizations {
   /// **'No payments yet.'**
   String get homeNoPayments;
 
+  /// Title of the Invoices screen: invoices that services the user trusts sent, waiting for the user's answer. Also the word for an invoice elsewhere.
+  ///
+  /// In en, this message translates to:
+  /// **'Invoices'**
+  String get invoicesTitle;
+
+  /// Tooltip and screen-reader label of the Invoices button in home's app bar. count is how many invoices wait for an answer.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{Invoices} =1{Invoices, 1 waiting} other{Invoices, {count} waiting}}'**
+  String invoicesEntryTooltip(int count);
+
+  /// Screen-reader label of the progress line while the Invoices screen fetches new invoices.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking for invoices'**
+  String get invoicesChecking;
+
+  /// Shown on the Invoices screen when no invoice waits.
+  ///
+  /// In en, this message translates to:
+  /// **'No invoices are waiting. When a service you trust bills you, the invoice appears here, and nothing is paid until you approve it.'**
+  String get invoicesEmpty;
+
+  /// Name shown for a trusted service whose label was lost. Never the name the invoice gives itself.
+  ///
+  /// In en, this message translates to:
+  /// **'Unnamed service'**
+  String get invoicesUnnamedService;
+
+  /// How long an invoice can still be paid, with an hour or more left. Short units, no plural forms needed.
+  ///
+  /// In en, this message translates to:
+  /// **'{hours} h {minutes} min left'**
+  String invoiceTimeLeftHours(int hours, int minutes);
+
+  /// How long an invoice can still be paid, under an hour left. Short unit, no plural forms needed.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} min left'**
+  String invoiceTimeLeftMinutes(int minutes);
+
+  /// How long an invoice can still be paid, under a minute left.
+  ///
+  /// In en, this message translates to:
+  /// **'Less than a minute left'**
+  String get invoiceTimeLeftUnderMinute;
+
+  /// On the invoice review screen once the invoice's time ran out.
+  ///
+  /// In en, this message translates to:
+  /// **'This invoice has expired. Nothing was paid.'**
+  String get invoiceExpired;
+
+  /// On the invoice review screen when the service withdrew the invoice while the user looked at it.
+  ///
+  /// In en, this message translates to:
+  /// **'This invoice is no longer open. Nothing was paid.'**
+  String get invoiceGone;
+
+  /// Title of the screen where the user approves or declines one invoice.
+  ///
+  /// In en, this message translates to:
+  /// **'Review invoice'**
+  String get invoiceReviewTitle;
+
+  /// Heading above the invoiced amount. service is the name the user gave the service. No full stop.
+  ///
+  /// In en, this message translates to:
+  /// **'{service} asks you to pay'**
+  String invoiceReviewAsks(String service);
+
+  /// Label above the one line of text the service put in its invoice.
+  ///
+  /// In en, this message translates to:
+  /// **'Message from the service'**
+  String get invoiceReviewMessageLabel;
+
+  /// Under the invoice on the review screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Your wallet adds the network fee. Nothing is paid until you approve it.'**
+  String get invoiceReviewNote;
+
+  /// Main button of the invoice review screen; it asks for the PIN, then pays.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve and pay'**
+  String get invoiceApprove;
+
+  /// Button that declines an invoice and tells the service.
+  ///
+  /// In en, this message translates to:
+  /// **'Decline'**
+  String get invoiceDecline;
+
+  /// In the PIN dialog after the user approves an invoice.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your PIN to pay this invoice.'**
+  String get invoicePinReason;
+
+  /// Title of the dialog that confirms declining an invoice.
+  ///
+  /// In en, this message translates to:
+  /// **'Decline this invoice?'**
+  String get invoiceDeclineTitle;
+
+  /// Text of the dialog that confirms declining an invoice. service is the name the user gave the service.
+  ///
+  /// In en, this message translates to:
+  /// **'{service} is told that you declined. Nothing is paid.'**
+  String invoiceDeclineBody(String service);
+
+  /// Button of the decline dialog that keeps the invoice open.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep it'**
+  String get invoiceDeclineKeep;
+
+  /// Notice after the user declined an invoice.
+  ///
+  /// In en, this message translates to:
+  /// **'Invoice declined.'**
+  String get invoiceDeclinedNotice;
+
+  /// Notice after an approved invoice's payment reached the service, which finalizes and posts it. service is the name the user gave the service.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid. {service} now finishes the payment.'**
+  String invoicePaidNotice(String service);
+
+  /// Heading on the review screen when the approved payment could not be delivered to the service. No full stop.
+  ///
+  /// In en, this message translates to:
+  /// **'Your payment has not reached {service}'**
+  String invoiceReplyFailedTitle(String service);
+
+  /// Under invoiceReplyFailedTitle. 'Retry' is the button below: use the same word as invoiceRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'It is signed and kept on this device. Retry sends it again; you do not approve it again.'**
+  String get invoiceReplyFailedBody;
+
+  /// Error notice when an approved invoice's payment could not be delivered. 'Retry' is the button: use the same word as invoiceRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Your payment could not reach the service. Tap Retry to send it again.'**
+  String get invoiceReplyFailedNotice;
+
+  /// Button that sends an approved invoice's payment to the service again, without approving again.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get invoiceRetry;
+
+  /// Section heading in a payment's details when the payment paid an invoice.
+  ///
+  /// In en, this message translates to:
+  /// **'Invoice'**
+  String get invoiceDetailsSection;
+
+  /// Label of the service's name in a paid invoice's details.
+  ///
+  /// In en, this message translates to:
+  /// **'Billed by'**
+  String get invoiceDetailsService;
+
+  /// Paid invoice's details: the service got the payment and has not reported posting it yet. service is the name the user gave the service.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for {service} to post the payment.'**
+  String invoiceDetailsReplied(String service);
+
+  /// Paid invoice's details after the service's receipt arrived. The receipt only informs: the status above comes from the chain. service is the name the user gave the service.
+  ///
+  /// In en, this message translates to:
+  /// **'{service} reports it posted the payment. It completes once the network confirms it.'**
+  String invoiceDetailsPosted(String service);
+
+  /// Paid invoice's details when the payment could not be delivered to the service. 'Retry' is the button below: use the same word as invoiceRetry. service is the name the user gave the service.
+  ///
+  /// In en, this message translates to:
+  /// **'{service} has not received your payment yet. Retry sends it again; you do not approve it again.'**
+  String invoiceDetailsReplyFailed(String service);
+
+  /// Warning in a paid invoice's details when the service withdrew the invoice after payment. The Cancel payment button follows. service is the name the user gave the service.
+  ///
+  /// In en, this message translates to:
+  /// **'{service} withdrew this invoice after you paid it. If the payment does not confirm, cancel it to unlock your funds.'**
+  String invoiceDetailsWithdrawn(String service);
+
+  /// Notice when a trusted service's invoice arrived.
+  ///
+  /// In en, this message translates to:
+  /// **'An invoice is waiting for your approval.'**
+  String get invoiceNoticeReceived;
+
+  /// Notice when a service's receipt for a paid invoice arrived.
+  ///
+  /// In en, this message translates to:
+  /// **'A service reports it posted your payment.'**
+  String get invoiceNoticePosted;
+
+  /// Warning notice when a service withdrew an invoice after the user paid it.
+  ///
+  /// In en, this message translates to:
+  /// **'A service withdrew an invoice you already paid.'**
+  String get invoiceNoticeWithdrawnPaid;
+
+  /// Notice when a service withdrew an invoice the user had not answered.
+  ///
+  /// In en, this message translates to:
+  /// **'A service withdrew an invoice before you answered it.'**
+  String get invoiceNoticeWithdrawn;
+
+  /// Notice when an invoice's time ran out before the user answered it.
+  ///
+  /// In en, this message translates to:
+  /// **'An invoice expired before you answered it.'**
+  String get invoiceNoticeExpired;
+
   /// Tooltip and screen-reader label of the connection dot. epicbox is the relay service that carries payments (a proper name).
   ///
   /// In en, this message translates to:

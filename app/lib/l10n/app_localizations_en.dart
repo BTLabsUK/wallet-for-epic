@@ -1488,6 +1488,154 @@ class AppLocalizationsEn extends AppLocalizations {
   String get homeNoPayments => 'No payments yet.';
 
   @override
+  String get invoicesTitle => 'Invoices';
+
+  @override
+  String invoicesEntryTooltip(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Invoices, $count waiting',
+      one: 'Invoices, 1 waiting',
+      zero: 'Invoices',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get invoicesChecking => 'Checking for invoices';
+
+  @override
+  String get invoicesEmpty =>
+      'No invoices are waiting. When a service you trust bills you, the invoice appears here, and nothing is paid until you approve it.';
+
+  @override
+  String get invoicesUnnamedService => 'Unnamed service';
+
+  @override
+  String invoiceTimeLeftHours(int hours, int minutes) {
+    return '$hours h $minutes min left';
+  }
+
+  @override
+  String invoiceTimeLeftMinutes(int minutes) {
+    return '$minutes min left';
+  }
+
+  @override
+  String get invoiceTimeLeftUnderMinute => 'Less than a minute left';
+
+  @override
+  String get invoiceExpired => 'This invoice has expired. Nothing was paid.';
+
+  @override
+  String get invoiceGone => 'This invoice is no longer open. Nothing was paid.';
+
+  @override
+  String get invoiceReviewTitle => 'Review invoice';
+
+  @override
+  String invoiceReviewAsks(String service) {
+    return '$service asks you to pay';
+  }
+
+  @override
+  String get invoiceReviewMessageLabel => 'Message from the service';
+
+  @override
+  String get invoiceReviewNote =>
+      'Your wallet adds the network fee. Nothing is paid until you approve it.';
+
+  @override
+  String get invoiceApprove => 'Approve and pay';
+
+  @override
+  String get invoiceDecline => 'Decline';
+
+  @override
+  String get invoicePinReason => 'Enter your PIN to pay this invoice.';
+
+  @override
+  String get invoiceDeclineTitle => 'Decline this invoice?';
+
+  @override
+  String invoiceDeclineBody(String service) {
+    return '$service is told that you declined. Nothing is paid.';
+  }
+
+  @override
+  String get invoiceDeclineKeep => 'Keep it';
+
+  @override
+  String get invoiceDeclinedNotice => 'Invoice declined.';
+
+  @override
+  String invoicePaidNotice(String service) {
+    return 'Paid. $service now finishes the payment.';
+  }
+
+  @override
+  String invoiceReplyFailedTitle(String service) {
+    return 'Your payment has not reached $service';
+  }
+
+  @override
+  String get invoiceReplyFailedBody =>
+      'It is signed and kept on this device. Retry sends it again; you do not approve it again.';
+
+  @override
+  String get invoiceReplyFailedNotice =>
+      'Your payment could not reach the service. Tap Retry to send it again.';
+
+  @override
+  String get invoiceRetry => 'Retry';
+
+  @override
+  String get invoiceDetailsSection => 'Invoice';
+
+  @override
+  String get invoiceDetailsService => 'Billed by';
+
+  @override
+  String invoiceDetailsReplied(String service) {
+    return 'Waiting for $service to post the payment.';
+  }
+
+  @override
+  String invoiceDetailsPosted(String service) {
+    return '$service reports it posted the payment. It completes once the network confirms it.';
+  }
+
+  @override
+  String invoiceDetailsReplyFailed(String service) {
+    return '$service has not received your payment yet. Retry sends it again; you do not approve it again.';
+  }
+
+  @override
+  String invoiceDetailsWithdrawn(String service) {
+    return '$service withdrew this invoice after you paid it. If the payment does not confirm, cancel it to unlock your funds.';
+  }
+
+  @override
+  String get invoiceNoticeReceived =>
+      'An invoice is waiting for your approval.';
+
+  @override
+  String get invoiceNoticePosted => 'A service reports it posted your payment.';
+
+  @override
+  String get invoiceNoticeWithdrawnPaid =>
+      'A service withdrew an invoice you already paid.';
+
+  @override
+  String get invoiceNoticeWithdrawn =>
+      'A service withdrew an invoice before you answered it.';
+
+  @override
+  String get invoiceNoticeExpired =>
+      'An invoice expired before you answered it.';
+
+  @override
   String get receiveEpicboxConnected => 'Epicbox connected';
 
   @override

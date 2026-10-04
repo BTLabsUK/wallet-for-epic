@@ -1591,6 +1591,154 @@ class AppLocalizationsRu extends AppLocalizations {
   String get homeNoPayments => 'Платежей пока нет.';
 
   @override
+  String get invoicesTitle => 'Счета';
+
+  @override
+  String invoicesEntryTooltip(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Счета, $count ждут',
+      many: 'Счета, $count ждут',
+      few: 'Счета, $count ждут',
+      one: 'Счета, $count ждёт',
+      zero: 'Счета',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get invoicesChecking => 'Проверка счетов';
+
+  @override
+  String get invoicesEmpty =>
+      'Нет ожидающих счетов. Когда доверенный сервис выставит вам счёт, он появится здесь. Ничего не оплачивается без вашего одобрения.';
+
+  @override
+  String get invoicesUnnamedService => 'Сервис без названия';
+
+  @override
+  String invoiceTimeLeftHours(int hours, int minutes) {
+    return 'Осталось $hours ч $minutes мин';
+  }
+
+  @override
+  String invoiceTimeLeftMinutes(int minutes) {
+    return 'Осталось $minutes мин';
+  }
+
+  @override
+  String get invoiceTimeLeftUnderMinute => 'Осталось меньше минуты';
+
+  @override
+  String get invoiceExpired => 'Срок этого счёта истёк. Ничего не оплачено.';
+
+  @override
+  String get invoiceGone => 'Этот счёт больше не открыт. Ничего не оплачено.';
+
+  @override
+  String get invoiceReviewTitle => 'Проверка счёта';
+
+  @override
+  String invoiceReviewAsks(String service) {
+    return 'Сервис $service просит оплатить';
+  }
+
+  @override
+  String get invoiceReviewMessageLabel => 'Сообщение от сервиса';
+
+  @override
+  String get invoiceReviewNote =>
+      'Кошелёк добавит сетевую комиссию. Ничего не оплачивается, пока вы не одобрите.';
+
+  @override
+  String get invoiceApprove => 'Одобрить и оплатить';
+
+  @override
+  String get invoiceDecline => 'Отклонить';
+
+  @override
+  String get invoicePinReason => 'Введите PIN, чтобы оплатить этот счёт.';
+
+  @override
+  String get invoiceDeclineTitle => 'Отклонить этот счёт?';
+
+  @override
+  String invoiceDeclineBody(String service) {
+    return 'Сервис $service узнает, что вы отказались. Ничего не оплачивается.';
+  }
+
+  @override
+  String get invoiceDeclineKeep => 'Оставить';
+
+  @override
+  String get invoiceDeclinedNotice => 'Счёт отклонён.';
+
+  @override
+  String invoicePaidNotice(String service) {
+    return 'Оплачено. Сервис $service завершает платёж.';
+  }
+
+  @override
+  String invoiceReplyFailedTitle(String service) {
+    return 'Платёж ещё не дошёл до сервиса $service';
+  }
+
+  @override
+  String get invoiceReplyFailedBody =>
+      'Он подписан и сохранён на этом устройстве. «Повторить» отправит его снова, без повторного одобрения.';
+
+  @override
+  String get invoiceReplyFailedNotice =>
+      'Платёж не дошёл до сервиса. Нажмите «Повторить», чтобы отправить его снова.';
+
+  @override
+  String get invoiceRetry => 'Повторить';
+
+  @override
+  String get invoiceDetailsSection => 'Счёт';
+
+  @override
+  String get invoiceDetailsService => 'Выставил';
+
+  @override
+  String invoiceDetailsReplied(String service) {
+    return 'Ожидание, пока сервис $service опубликует платёж.';
+  }
+
+  @override
+  String invoiceDetailsPosted(String service) {
+    return 'Сервис $service сообщает, что опубликовал платёж. Он завершится, когда сеть его подтвердит.';
+  }
+
+  @override
+  String invoiceDetailsReplyFailed(String service) {
+    return 'Сервис $service ещё не получил ваш платёж. «Повторить» отправит его снова, без повторного одобрения.';
+  }
+
+  @override
+  String invoiceDetailsWithdrawn(String service) {
+    return 'Сервис $service отозвал этот счёт после оплаты. Если платёж не подтвердится, отмените его, чтобы разблокировать средства.';
+  }
+
+  @override
+  String get invoiceNoticeReceived => 'Счёт ждёт вашего одобрения.';
+
+  @override
+  String get invoiceNoticePosted =>
+      'Сервис сообщает, что опубликовал ваш платёж.';
+
+  @override
+  String get invoiceNoticeWithdrawnPaid =>
+      'Сервис отозвал уже оплаченный счёт.';
+
+  @override
+  String get invoiceNoticeWithdrawn => 'Сервис отозвал счёт до вашего ответа.';
+
+  @override
+  String get invoiceNoticeExpired => 'Срок счёта истёк до вашего ответа.';
+
+  @override
   String get receiveEpicboxConnected => 'Epicbox подключён';
 
   @override

@@ -1497,6 +1497,158 @@ class AppLocalizationsDe extends AppLocalizations {
   String get homeNoPayments => 'Noch keine Zahlungen.';
 
   @override
+  String get invoicesTitle => 'Rechnungen';
+
+  @override
+  String invoicesEntryTooltip(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Rechnungen, $count offen',
+      one: 'Rechnungen, 1 offen',
+      zero: 'Rechnungen',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get invoicesChecking => 'Rechnungen werden abgerufen';
+
+  @override
+  String get invoicesEmpty =>
+      'Keine offenen Rechnungen. Wenn Ihnen ein vertrauenswürdiger Dienst eine Rechnung schickt, erscheint sie hier. Bezahlt wird nichts, bevor Sie zustimmen.';
+
+  @override
+  String get invoicesUnnamedService => 'Unbenannter Dienst';
+
+  @override
+  String invoiceTimeLeftHours(int hours, int minutes) {
+    return 'Noch $hours Std. $minutes Min.';
+  }
+
+  @override
+  String invoiceTimeLeftMinutes(int minutes) {
+    return 'Noch $minutes Min.';
+  }
+
+  @override
+  String get invoiceTimeLeftUnderMinute => 'Weniger als eine Minute übrig';
+
+  @override
+  String get invoiceExpired =>
+      'Diese Rechnung ist abgelaufen. Es wurde nichts bezahlt.';
+
+  @override
+  String get invoiceGone =>
+      'Diese Rechnung ist nicht mehr offen. Es wurde nichts bezahlt.';
+
+  @override
+  String get invoiceReviewTitle => 'Rechnung prüfen';
+
+  @override
+  String invoiceReviewAsks(String service) {
+    return '$service bittet Sie um Zahlung';
+  }
+
+  @override
+  String get invoiceReviewMessageLabel => 'Nachricht des Dienstes';
+
+  @override
+  String get invoiceReviewNote =>
+      'Ihre Wallet fügt die Netzwerkgebühr hinzu. Bezahlt wird erst, wenn Sie zustimmen.';
+
+  @override
+  String get invoiceApprove => 'Zustimmen und bezahlen';
+
+  @override
+  String get invoiceDecline => 'Ablehnen';
+
+  @override
+  String get invoicePinReason =>
+      'Geben Sie Ihre PIN ein, um diese Rechnung zu bezahlen.';
+
+  @override
+  String get invoiceDeclineTitle => 'Diese Rechnung ablehnen?';
+
+  @override
+  String invoiceDeclineBody(String service) {
+    return '$service erfährt, dass Sie abgelehnt haben. Es wird nichts bezahlt.';
+  }
+
+  @override
+  String get invoiceDeclineKeep => 'Behalten';
+
+  @override
+  String get invoiceDeclinedNotice => 'Rechnung abgelehnt.';
+
+  @override
+  String invoicePaidNotice(String service) {
+    return 'Bezahlt. $service schließt die Zahlung jetzt ab.';
+  }
+
+  @override
+  String invoiceReplyFailedTitle(String service) {
+    return 'Ihre Zahlung hat $service noch nicht erreicht';
+  }
+
+  @override
+  String get invoiceReplyFailedBody =>
+      'Sie ist signiert und auf diesem Gerät gespeichert. „Erneut senden“ schickt sie noch einmal, ohne dass Sie erneut zustimmen.';
+
+  @override
+  String get invoiceReplyFailedNotice =>
+      'Ihre Zahlung konnte den Dienst nicht erreichen. Tippen Sie auf „Erneut senden“.';
+
+  @override
+  String get invoiceRetry => 'Erneut senden';
+
+  @override
+  String get invoiceDetailsSection => 'Rechnung';
+
+  @override
+  String get invoiceDetailsService => 'Gestellt von';
+
+  @override
+  String invoiceDetailsReplied(String service) {
+    return 'Warten, bis $service die Zahlung veröffentlicht.';
+  }
+
+  @override
+  String invoiceDetailsPosted(String service) {
+    return '$service meldet, dass die Zahlung veröffentlicht wurde. Sie ist abgeschlossen, sobald das Netzwerk sie bestätigt.';
+  }
+
+  @override
+  String invoiceDetailsReplyFailed(String service) {
+    return '$service hat Ihre Zahlung noch nicht erhalten. „Erneut senden“ schickt sie noch einmal, ohne dass Sie erneut zustimmen.';
+  }
+
+  @override
+  String invoiceDetailsWithdrawn(String service) {
+    return '$service hat diese Rechnung zurückgezogen, nachdem Sie sie bezahlt haben. Wenn die Zahlung nicht bestätigt wird, brechen Sie sie ab, um Ihr Guthaben freizugeben.';
+  }
+
+  @override
+  String get invoiceNoticeReceived =>
+      'Eine Rechnung wartet auf Ihre Zustimmung.';
+
+  @override
+  String get invoiceNoticePosted =>
+      'Ein Dienst meldet, dass er Ihre Zahlung veröffentlicht hat.';
+
+  @override
+  String get invoiceNoticeWithdrawnPaid =>
+      'Ein Dienst hat eine bereits bezahlte Rechnung zurückgezogen.';
+
+  @override
+  String get invoiceNoticeWithdrawn =>
+      'Ein Dienst hat eine Rechnung zurückgezogen, bevor Sie geantwortet haben.';
+
+  @override
+  String get invoiceNoticeExpired =>
+      'Eine Rechnung ist abgelaufen, bevor Sie geantwortet haben.';
+
+  @override
   String get receiveEpicboxConnected => 'Mit epicbox verbunden';
 
   @override

@@ -1598,6 +1598,156 @@ class AppLocalizationsPl extends AppLocalizations {
   String get homeNoPayments => 'Brak płatności.';
 
   @override
+  String get invoicesTitle => 'Faktury';
+
+  @override
+  String invoicesEntryTooltip(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Faktury, $count oczekuje',
+      many: 'Faktury, $count oczekuje',
+      few: 'Faktury, $count oczekują',
+      one: 'Faktury, $count oczekuje',
+      zero: 'Faktury',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get invoicesChecking => 'Sprawdzanie faktur';
+
+  @override
+  String get invoicesEmpty =>
+      'Brak oczekujących faktur. Gdy zaufany serwis wystawi Ci fakturę, pojawi się tutaj. Nic nie zostanie zapłacone bez Twojej zgody.';
+
+  @override
+  String get invoicesUnnamedService => 'Serwis bez nazwy';
+
+  @override
+  String invoiceTimeLeftHours(int hours, int minutes) {
+    return 'Zostało $hours godz. $minutes min';
+  }
+
+  @override
+  String invoiceTimeLeftMinutes(int minutes) {
+    return 'Zostało $minutes min';
+  }
+
+  @override
+  String get invoiceTimeLeftUnderMinute => 'Została niecała minuta';
+
+  @override
+  String get invoiceExpired => 'Ta faktura wygasła. Nic nie zostało zapłacone.';
+
+  @override
+  String get invoiceGone =>
+      'Ta faktura nie jest już otwarta. Nic nie zostało zapłacone.';
+
+  @override
+  String get invoiceReviewTitle => 'Sprawdź fakturę';
+
+  @override
+  String invoiceReviewAsks(String service) {
+    return 'Serwis $service prosi o zapłatę';
+  }
+
+  @override
+  String get invoiceReviewMessageLabel => 'Wiadomość od serwisu';
+
+  @override
+  String get invoiceReviewNote =>
+      'Portfel doliczy opłatę sieciową. Nic nie zostanie zapłacone, dopóki nie zatwierdzisz.';
+
+  @override
+  String get invoiceApprove => 'Zatwierdź i zapłać';
+
+  @override
+  String get invoiceDecline => 'Odrzuć';
+
+  @override
+  String get invoicePinReason => 'Wpisz PIN, aby zapłacić tę fakturę.';
+
+  @override
+  String get invoiceDeclineTitle => 'Odrzucić tę fakturę?';
+
+  @override
+  String invoiceDeclineBody(String service) {
+    return 'Serwis $service dowie się, że odrzucasz fakturę. Nic nie zostanie zapłacone.';
+  }
+
+  @override
+  String get invoiceDeclineKeep => 'Zostaw';
+
+  @override
+  String get invoiceDeclinedNotice => 'Faktura odrzucona.';
+
+  @override
+  String invoicePaidNotice(String service) {
+    return 'Zapłacono. Serwis $service teraz kończy płatność.';
+  }
+
+  @override
+  String invoiceReplyFailedTitle(String service) {
+    return 'Płatność nie dotarła jeszcze do serwisu $service';
+  }
+
+  @override
+  String get invoiceReplyFailedBody =>
+      'Jest podpisana i zapisana na tym urządzeniu. „Ponów” wyśle ją jeszcze raz, bez ponownego zatwierdzania.';
+
+  @override
+  String get invoiceReplyFailedNotice =>
+      'Płatność nie dotarła do serwisu. Dotknij „Ponów”, aby wysłać ją ponownie.';
+
+  @override
+  String get invoiceRetry => 'Ponów';
+
+  @override
+  String get invoiceDetailsSection => 'Faktura';
+
+  @override
+  String get invoiceDetailsService => 'Wystawca';
+
+  @override
+  String invoiceDetailsReplied(String service) {
+    return 'Oczekiwanie, aż serwis $service opublikuje płatność.';
+  }
+
+  @override
+  String invoiceDetailsPosted(String service) {
+    return 'Serwis $service zgłasza, że płatność została opublikowana. Zakończy się, gdy sieć ją potwierdzi.';
+  }
+
+  @override
+  String invoiceDetailsReplyFailed(String service) {
+    return 'Serwis $service nie otrzymał jeszcze Twojej płatności. „Ponów” wyśle ją jeszcze raz, bez ponownego zatwierdzania.';
+  }
+
+  @override
+  String invoiceDetailsWithdrawn(String service) {
+    return 'Serwis $service wycofał tę fakturę po jej opłaceniu. Jeśli płatność nie zostanie potwierdzona, anuluj ją, aby odblokować środki.';
+  }
+
+  @override
+  String get invoiceNoticeReceived => 'Faktura czeka na Twoje zatwierdzenie.';
+
+  @override
+  String get invoiceNoticePosted =>
+      'Serwis zgłasza, że opublikował Twoją płatność.';
+
+  @override
+  String get invoiceNoticeWithdrawnPaid =>
+      'Serwis wycofał fakturę, która jest już opłacona.';
+
+  @override
+  String get invoiceNoticeWithdrawn =>
+      'Serwis wycofał fakturę przed Twoją odpowiedzią.';
+
+  @override
+  String get invoiceNoticeExpired => 'Faktura wygasła przed Twoją odpowiedzią.';
+
+  @override
   String get receiveEpicboxConnected => 'Połączono z epicbox';
 
   @override

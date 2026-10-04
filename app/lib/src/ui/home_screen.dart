@@ -16,6 +16,7 @@ import 'backup_screen.dart';
 import 'common.dart';
 import 'help_screen.dart';
 import 'history_screen.dart';
+import 'invoices_screen.dart' show InvoicesEntry;
 import 'receive_screen.dart' show ReceiveView;
 import 'restore_screen.dart' show ScanProgressView;
 import 'scan_screen.dart' show qrScannerProvider;
@@ -376,6 +377,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         titleSpacing: 0,
         title: ShellTitle(chain: config?.chain),
         actions: [
+          const InvoicesEntry(),
           if (scanner.supported)
             IconButton(
               tooltip: l.homeScanTooltip,

@@ -8,6 +8,7 @@ import '../settings.dart';
 import '../wallet_service.dart';
 import 'common.dart';
 import 'contacts_screen.dart' show ContactEditScreen;
+import 'invoice_review_screen.dart' show PaidInvoiceBlock;
 import 'theme/advanced.dart';
 import 'theme/protocol.dart';
 
@@ -493,6 +494,11 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
                 ],
               ),
             ),
+          ),
+          // The invoice this payment paid, if any (I-03).
+          PaidInvoiceBlock(
+            tx: tx,
+            onCancel: _busy || tx.id == null ? null : () => _cancel(tx),
           ),
           if (tx.source != TxSource.wallet) ...[
             const SizedBox(height: 8),

@@ -694,6 +694,8 @@ void main() {
     const allowed = {
       'lib/src/wallet_service.dart',
       'lib/src/lepic_wallet_service.dart',
+      // Approve, after askPin; test/invoice_screens_test.dart proves the gate comes first.
+      'lib/src/ui/invoice_review_screen.dart',
     };
     final callers = [
       for (final f in Directory(

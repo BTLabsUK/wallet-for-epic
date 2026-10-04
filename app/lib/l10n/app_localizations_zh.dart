@@ -1392,6 +1392,145 @@ class AppLocalizationsZh extends AppLocalizations {
   String get homeNoPayments => '暂无付款。';
 
   @override
+  String get invoicesTitle => '账单';
+
+  @override
+  String invoicesEntryTooltip(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '账单，$count 张待处理',
+      zero: '账单',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get invoicesChecking => '正在检查账单';
+
+  @override
+  String get invoicesEmpty => '没有待处理的账单。您信任的服务向您发送账单后，账单会显示在这里。未经您批准，不会支付任何款项。';
+
+  @override
+  String get invoicesUnnamedService => '未命名的服务';
+
+  @override
+  String invoiceTimeLeftHours(int hours, int minutes) {
+    return '剩余 $hours 小时 $minutes 分钟';
+  }
+
+  @override
+  String invoiceTimeLeftMinutes(int minutes) {
+    return '剩余 $minutes 分钟';
+  }
+
+  @override
+  String get invoiceTimeLeftUnderMinute => '剩余不到一分钟';
+
+  @override
+  String get invoiceExpired => '此账单已过期，未支付任何款项。';
+
+  @override
+  String get invoiceGone => '此账单已不再有效，未支付任何款项。';
+
+  @override
+  String get invoiceReviewTitle => '查看账单';
+
+  @override
+  String invoiceReviewAsks(String service) {
+    return '$service 请您付款';
+  }
+
+  @override
+  String get invoiceReviewMessageLabel => '服务的留言';
+
+  @override
+  String get invoiceReviewNote => '钱包会加上网络手续费。在您批准之前不会支付任何款项。';
+
+  @override
+  String get invoiceApprove => '批准并付款';
+
+  @override
+  String get invoiceDecline => '拒绝';
+
+  @override
+  String get invoicePinReason => '输入 PIN 码以支付此账单。';
+
+  @override
+  String get invoiceDeclineTitle => '拒绝此账单？';
+
+  @override
+  String invoiceDeclineBody(String service) {
+    return '$service 会收到您拒绝的通知。不会支付任何款项。';
+  }
+
+  @override
+  String get invoiceDeclineKeep => '保留';
+
+  @override
+  String get invoiceDeclinedNotice => '已拒绝账单。';
+
+  @override
+  String invoicePaidNotice(String service) {
+    return '已付款。$service 正在完成这笔付款。';
+  }
+
+  @override
+  String invoiceReplyFailedTitle(String service) {
+    return '您的付款尚未送达 $service';
+  }
+
+  @override
+  String get invoiceReplyFailedBody => '付款已签名并保存在此设备上。点“重试”会再次发送，无需再次批准。';
+
+  @override
+  String get invoiceReplyFailedNotice => '付款未能送达服务。请点“重试”再次发送。';
+
+  @override
+  String get invoiceRetry => '重试';
+
+  @override
+  String get invoiceDetailsSection => '账单';
+
+  @override
+  String get invoiceDetailsService => '开单方';
+
+  @override
+  String invoiceDetailsReplied(String service) {
+    return '正在等待 $service 发布这笔付款。';
+  }
+
+  @override
+  String invoiceDetailsPosted(String service) {
+    return '$service 报告已发布这笔付款。网络确认后即完成。';
+  }
+
+  @override
+  String invoiceDetailsReplyFailed(String service) {
+    return '$service 尚未收到您的付款。点“重试”会再次发送，无需再次批准。';
+  }
+
+  @override
+  String invoiceDetailsWithdrawn(String service) {
+    return '您付款后，$service 撤回了此账单。如果这笔付款未能确认，请取消它以解锁资金。';
+  }
+
+  @override
+  String get invoiceNoticeReceived => '有一张账单等待您批准。';
+
+  @override
+  String get invoiceNoticePosted => '某个服务报告已发布您的付款。';
+
+  @override
+  String get invoiceNoticeWithdrawnPaid => '某个服务撤回了一张您已支付的账单。';
+
+  @override
+  String get invoiceNoticeWithdrawn => '某个服务在您答复前撤回了一张账单。';
+
+  @override
+  String get invoiceNoticeExpired => '一张账单在您答复前已过期。';
+
+  @override
   String get receiveEpicboxConnected => 'epicbox 已连接';
 
   @override

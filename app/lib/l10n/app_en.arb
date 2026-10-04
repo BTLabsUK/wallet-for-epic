@@ -1606,6 +1606,220 @@
   "@homeNoPayments": {
     "description": "Shown on home in place of the payment list in a new wallet."
   },
+  "invoicesTitle": "Invoices",
+  "@invoicesTitle": {
+    "description": "Title of the Invoices screen: invoices that services the user trusts sent, waiting for the user's answer. Also the word for an invoice elsewhere."
+  },
+  "invoicesEntryTooltip": "{count, plural, =0{Invoices} =1{Invoices, 1 waiting} other{Invoices, {count} waiting}}",
+  "@invoicesEntryTooltip": {
+    "description": "Tooltip and screen-reader label of the Invoices button in home's app bar. count is how many invoices wait for an answer.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "invoicesChecking": "Checking for invoices",
+  "@invoicesChecking": {
+    "description": "Screen-reader label of the progress line while the Invoices screen fetches new invoices."
+  },
+  "invoicesEmpty": "No invoices are waiting. When a service you trust bills you, the invoice appears here, and nothing is paid until you approve it.",
+  "@invoicesEmpty": {
+    "description": "Shown on the Invoices screen when no invoice waits."
+  },
+  "invoicesUnnamedService": "Unnamed service",
+  "@invoicesUnnamedService": {
+    "description": "Name shown for a trusted service whose label was lost. Never the name the invoice gives itself."
+  },
+  "invoiceTimeLeftHours": "{hours} h {minutes} min left",
+  "@invoiceTimeLeftHours": {
+    "description": "How long an invoice can still be paid, with an hour or more left. Short units, no plural forms needed.",
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "invoiceTimeLeftMinutes": "{minutes} min left",
+  "@invoiceTimeLeftMinutes": {
+    "description": "How long an invoice can still be paid, under an hour left. Short unit, no plural forms needed.",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "invoiceTimeLeftUnderMinute": "Less than a minute left",
+  "@invoiceTimeLeftUnderMinute": {
+    "description": "How long an invoice can still be paid, under a minute left."
+  },
+  "invoiceExpired": "This invoice has expired. Nothing was paid.",
+  "@invoiceExpired": {
+    "description": "On the invoice review screen once the invoice's time ran out."
+  },
+  "invoiceGone": "This invoice is no longer open. Nothing was paid.",
+  "@invoiceGone": {
+    "description": "On the invoice review screen when the service withdrew the invoice while the user looked at it."
+  },
+  "invoiceReviewTitle": "Review invoice",
+  "@invoiceReviewTitle": {
+    "description": "Title of the screen where the user approves or declines one invoice."
+  },
+  "invoiceReviewAsks": "{service} asks you to pay",
+  "@invoiceReviewAsks": {
+    "description": "Heading above the invoiced amount. service is the name the user gave the service. No full stop.",
+    "placeholders": {
+      "service": {
+        "type": "String",
+        "example": "My Exchange"
+      }
+    }
+  },
+  "invoiceReviewMessageLabel": "Message from the service",
+  "@invoiceReviewMessageLabel": {
+    "description": "Label above the one line of text the service put in its invoice."
+  },
+  "invoiceReviewNote": "Your wallet adds the network fee. Nothing is paid until you approve it.",
+  "@invoiceReviewNote": {
+    "description": "Under the invoice on the review screen."
+  },
+  "invoiceApprove": "Approve and pay",
+  "@invoiceApprove": {
+    "description": "Main button of the invoice review screen; it asks for the PIN, then pays."
+  },
+  "invoiceDecline": "Decline",
+  "@invoiceDecline": {
+    "description": "Button that declines an invoice and tells the service."
+  },
+  "invoicePinReason": "Enter your PIN to pay this invoice.",
+  "@invoicePinReason": {
+    "description": "In the PIN dialog after the user approves an invoice."
+  },
+  "invoiceDeclineTitle": "Decline this invoice?",
+  "@invoiceDeclineTitle": {
+    "description": "Title of the dialog that confirms declining an invoice."
+  },
+  "invoiceDeclineBody": "{service} is told that you declined. Nothing is paid.",
+  "@invoiceDeclineBody": {
+    "description": "Text of the dialog that confirms declining an invoice. service is the name the user gave the service.",
+    "placeholders": {
+      "service": {
+        "type": "String",
+        "example": "My Exchange"
+      }
+    }
+  },
+  "invoiceDeclineKeep": "Keep it",
+  "@invoiceDeclineKeep": {
+    "description": "Button of the decline dialog that keeps the invoice open."
+  },
+  "invoiceDeclinedNotice": "Invoice declined.",
+  "@invoiceDeclinedNotice": {
+    "description": "Notice after the user declined an invoice."
+  },
+  "invoicePaidNotice": "Paid. {service} now finishes the payment.",
+  "@invoicePaidNotice": {
+    "description": "Notice after an approved invoice's payment reached the service, which finalizes and posts it. service is the name the user gave the service.",
+    "placeholders": {
+      "service": {
+        "type": "String",
+        "example": "My Exchange"
+      }
+    }
+  },
+  "invoiceReplyFailedTitle": "Your payment has not reached {service}",
+  "@invoiceReplyFailedTitle": {
+    "description": "Heading on the review screen when the approved payment could not be delivered to the service. No full stop.",
+    "placeholders": {
+      "service": {
+        "type": "String",
+        "example": "My Exchange"
+      }
+    }
+  },
+  "invoiceReplyFailedBody": "It is signed and kept on this device. Retry sends it again; you do not approve it again.",
+  "@invoiceReplyFailedBody": {
+    "description": "Under invoiceReplyFailedTitle. 'Retry' is the button below: use the same word as invoiceRetry."
+  },
+  "invoiceReplyFailedNotice": "Your payment could not reach the service. Tap Retry to send it again.",
+  "@invoiceReplyFailedNotice": {
+    "description": "Error notice when an approved invoice's payment could not be delivered. 'Retry' is the button: use the same word as invoiceRetry."
+  },
+  "invoiceRetry": "Retry",
+  "@invoiceRetry": {
+    "description": "Button that sends an approved invoice's payment to the service again, without approving again."
+  },
+  "invoiceDetailsSection": "Invoice",
+  "@invoiceDetailsSection": {
+    "description": "Section heading in a payment's details when the payment paid an invoice."
+  },
+  "invoiceDetailsService": "Billed by",
+  "@invoiceDetailsService": {
+    "description": "Label of the service's name in a paid invoice's details."
+  },
+  "invoiceDetailsReplied": "Waiting for {service} to post the payment.",
+  "@invoiceDetailsReplied": {
+    "description": "Paid invoice's details: the service got the payment and has not reported posting it yet. service is the name the user gave the service.",
+    "placeholders": {
+      "service": {
+        "type": "String",
+        "example": "My Exchange"
+      }
+    }
+  },
+  "invoiceDetailsPosted": "{service} reports it posted the payment. It completes once the network confirms it.",
+  "@invoiceDetailsPosted": {
+    "description": "Paid invoice's details after the service's receipt arrived. The receipt only informs: the status above comes from the chain. service is the name the user gave the service.",
+    "placeholders": {
+      "service": {
+        "type": "String",
+        "example": "My Exchange"
+      }
+    }
+  },
+  "invoiceDetailsReplyFailed": "{service} has not received your payment yet. Retry sends it again; you do not approve it again.",
+  "@invoiceDetailsReplyFailed": {
+    "description": "Paid invoice's details when the payment could not be delivered to the service. 'Retry' is the button below: use the same word as invoiceRetry. service is the name the user gave the service.",
+    "placeholders": {
+      "service": {
+        "type": "String",
+        "example": "My Exchange"
+      }
+    }
+  },
+  "invoiceDetailsWithdrawn": "{service} withdrew this invoice after you paid it. If the payment does not confirm, cancel it to unlock your funds.",
+  "@invoiceDetailsWithdrawn": {
+    "description": "Warning in a paid invoice's details when the service withdrew the invoice after payment. The Cancel payment button follows. service is the name the user gave the service.",
+    "placeholders": {
+      "service": {
+        "type": "String",
+        "example": "My Exchange"
+      }
+    }
+  },
+  "invoiceNoticeReceived": "An invoice is waiting for your approval.",
+  "@invoiceNoticeReceived": {
+    "description": "Notice when a trusted service's invoice arrived."
+  },
+  "invoiceNoticePosted": "A service reports it posted your payment.",
+  "@invoiceNoticePosted": {
+    "description": "Notice when a service's receipt for a paid invoice arrived."
+  },
+  "invoiceNoticeWithdrawnPaid": "A service withdrew an invoice you already paid.",
+  "@invoiceNoticeWithdrawnPaid": {
+    "description": "Warning notice when a service withdrew an invoice after the user paid it."
+  },
+  "invoiceNoticeWithdrawn": "A service withdrew an invoice before you answered it.",
+  "@invoiceNoticeWithdrawn": {
+    "description": "Notice when a service withdrew an invoice the user had not answered."
+  },
+  "invoiceNoticeExpired": "An invoice expired before you answered it.",
+  "@invoiceNoticeExpired": {
+    "description": "Notice when an invoice's time ran out before the user answered it."
+  },
   "receiveEpicboxConnected": "Epicbox connected",
   "@receiveEpicboxConnected": {
     "description": "Tooltip and screen-reader label of the connection dot. epicbox is the relay service that carries payments (a proper name)."
