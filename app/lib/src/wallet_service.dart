@@ -15,13 +15,12 @@ export 'rust/api/types.dart';
 
 /// Free functions of the native API plus the two ways to obtain an open wallet.
 abstract interface class WalletService {
-  String generateMnemonic({required int wordCount});
-
   bool validateMnemonic({required String phrase});
 
   /// Reads a slate's id, amount, fee and step without touching a wallet. Throws [WalletError]
-  /// with [WalletErrorKind.invalidSlate] for anything that is not a slate.
-  SlateInfo inspectSlate({required String json});
+  /// with [WalletErrorKind.invalidSlate] for anything that is not a slate. LEPIC reads it on
+  /// the chain of the last wallet config it saw.
+  Future<SlateInfo> inspectSlate({required String json});
 
   /// True for `<address>@<relay>[:port]` valid on the chain of the open wallet.
   bool validateEpicboxAddress({required String address});
@@ -82,13 +81,6 @@ abstract interface class WalletSession {
   });
 
   Future<TxEntry> finalizeAndPost({required String slateJson});
-
-  /// Sends to a wallet listening on HTTP and posts the transaction, in one call.
-  Future<TxEntry> sendHttp({
-    required BigInt amount,
-    required BigInt minimumConfirmations,
-    required String url,
-  });
 
   /// Posts a send over epicbox. The listener finalizes it when the recipient answers.
   Future<TxEntry> sendEpicbox({
@@ -153,7 +145,7 @@ abstract interface class WalletSession {
 class RustWalletService implements WalletService {
   const RustWalletService();
 
-  @override
+  /// Only the old core's integration tests use it; LEPIC makes the seed inside create.
   String generateMnemonic({required int wordCount}) =>
       rust.generateMnemonic(wordCount: wordCount);
 
@@ -162,7 +154,7 @@ class RustWalletService implements WalletService {
       rust.validateMnemonic(phrase: phrase);
 
   @override
-  SlateInfo inspectSlate({required String json}) =>
+  Future<SlateInfo> inspectSlate({required String json}) async =>
       rust.inspectSlate(json: json);
 
   @override
@@ -261,17 +253,6 @@ class _RustWalletSession implements WalletSession {
       _wallet.receiveSlate(slateJson: slateJson);
 
   @override
-  Future<TxEntry> sendHttp({
-    required BigInt amount,
-    required BigInt minimumConfirmations,
-    required String url,
-  }) => _wallet.sendHttp(
-    amount: amount,
-    minimumConfirmations: minimumConfirmations,
-    url: url,
-  );
-
-  @override
   Future<TxEntry> sendEpicbox({
     required BigInt amount,
     required BigInt minimumConfirmations,
@@ -360,7 +341,7 @@ class FakeWalletService implements WalletService {
       'alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima '
       'mike november oscar papa quebec romeo sierra tango uniform victor whiskey xray';
 
-  /// Phrase returned by [generateMnemonic] and accepted by [validateMnemonic].
+  /// Phrase accepted by [validateMnemonic].
   final String phrase;
 
   /// Data directories that already hold a wallet.
@@ -383,16 +364,17 @@ class FakeWalletService implements WalletService {
   final List<String> deletedWallets = [];
 
   @override
-  String generateMnemonic({required int wordCount}) => phrase;
-
-  @override
   bool validateMnemonic({required String phrase}) => phrase == this.phrase;
 
   /// Slates [inspectSlate] recognises, by JSON text.
   final Map<String, SlateInfo> slateInfos = {};
 
+  /// When set, [inspectSlate] waits for it, so tests see the file screen while it reads.
+  Completer<void>? inspectGate;
+
   @override
-  SlateInfo inspectSlate({required String json}) {
+  Future<SlateInfo> inspectSlate({required String json}) async {
+    await inspectGate?.future;
     final info = slateInfos[json];
     if (info == null) {
       throw const WalletError(
@@ -505,7 +487,6 @@ class FakeWalletSession implements WalletSession {
   final List<String> finalizedSlates = [];
   final List<String> receivedSlates = [];
   int scanCalls = 0;
-  final List<({BigInt amount, String to})> httpSends = [];
   final List<({BigInt amount, String to})> epicboxSends = [];
 
   /// Events the listener emits; tests add to it.
@@ -613,34 +594,19 @@ class FakeWalletSession implements WalletSession {
     return responseSlate;
   }
 
-  TxEntry _pendingSend(BigInt amount, {required bool posted, String? to}) =>
-      fakeTx(
-        id: 100 + httpSends.length + epicboxSends.length,
-        slateId: 'send-${httpSends.length + epicboxSends.length}',
-        kind: TxKind.sent,
-        status: posted
-            ? TxStatus.awaitingConfirmation
-            : TxStatus.awaitingRecipient,
-        createdAtUnix: 1790000200,
-        amountDebited: amount + fee,
-        fee: fee,
-        numInputs: 1,
-        numOutputs: posted ? 1 : 0,
-        counterparty: to,
-        cancellable: !posted,
-      );
-
-  @override
-  Future<TxEntry> sendHttp({
-    required BigInt amount,
-    required BigInt minimumConfirmations,
-    required String url,
-  }) async {
-    if (sendError != null) throw sendError!;
-    _checkFunds(amount);
-    httpSends.add((amount: amount, to: url));
-    return _pendingSend(amount, posted: true, to: url);
-  }
+  TxEntry _pendingSend(BigInt amount, {String? to}) => fakeTx(
+    id: 100 + epicboxSends.length,
+    slateId: 'send-${epicboxSends.length}',
+    kind: TxKind.sent,
+    status: TxStatus.awaitingRecipient,
+    createdAtUnix: 1790000200,
+    amountDebited: amount + fee,
+    fee: fee,
+    numInputs: 1,
+    numOutputs: 0,
+    counterparty: to,
+    cancellable: true,
+  );
 
   @override
   Future<TxEntry> sendEpicbox({
@@ -651,7 +617,7 @@ class FakeWalletSession implements WalletSession {
     if (sendError != null) throw sendError!;
     _checkFunds(amount);
     epicboxSends.add((amount: amount, to: address));
-    return _pendingSend(amount, posted: false, to: address);
+    return _pendingSend(amount, to: address);
   }
 
   @override

@@ -2798,7 +2798,7 @@ abstract class AppLocalizations {
   /// **'Enter an amount above zero.'**
   String get sendAmountZero;
 
-  /// Label of the field for the recipient's epicbox address or wallet URL.
+  /// Label of the field for the recipient's epicbox address.
   ///
   /// In en, this message translates to:
   /// **'To'**
@@ -2807,14 +2807,14 @@ abstract class AppLocalizations {
   /// Hint inside the empty recipient field.
   ///
   /// In en, this message translates to:
-  /// **'Their address or a wallet URL'**
-  String get sendRecipientHint;
-
-  /// Hint inside the empty recipient field with Advanced options off, where wallet URLs are not mentioned (they are still accepted).
-  ///
-  /// In en, this message translates to:
   /// **'Their address'**
   String get sendRecipientHintSimple;
+
+  /// Error under the recipient field when the user entered a wallet URL (http:// or https://). The wallet sends over epicbox and by transaction file only. epicbox is a proper name.
+  ///
+  /// In en, this message translates to:
+  /// **'Payments to a wallet URL are not supported. Ask the recipient for their epicbox address.'**
+  String get sendUrlUnsupported;
 
   /// Tooltip of a button that opens the camera to read an address from a QR code.
   ///
@@ -3110,12 +3110,6 @@ abstract class AppLocalizations {
   /// **'Goes through epicbox. It completes when the recipient\'s wallet answers.'**
   String get sendReviewViaEpicbox;
 
-  /// In the payment review, for a send to a wallet URL.
-  ///
-  /// In en, this message translates to:
-  /// **'Goes straight to the recipient\'s wallet.'**
-  String get sendReviewViaHttp;
-
   /// Button in the payment review that sends the payment.
   ///
   /// In en, this message translates to:
@@ -3151,6 +3145,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'That file is not a transaction file.'**
   String get slateNotTransactionFile;
+
+  /// Screen reader label of the spinner while a transaction file is being read.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading the file'**
+  String get slateReading;
 
   /// No description provided for @slateFileTooLarge.
   ///
@@ -4010,10 +4010,10 @@ abstract class AppLocalizations {
   /// **'Are there other ways to send?'**
   String get helpOtherWaysQuestion;
 
-  /// Answer on the help page. "Send by transaction file" and "Other ways to send" are names on the send screen: use the same words. Keep http://, https:// and .response as they are.
+  /// Answer on the help page. "Send by transaction file" and "Other ways to send" are names on the send screen: use the same words. Keep .response as it is.
   ///
   /// In en, this message translates to:
-  /// **'For advanced users. If the recipient runs a wallet that listens on the internet, paste its address starting with http:// or https:// as the recipient, and the payment goes straight to it. Without epicbox, use \"Send by transaction file\" under \"Other ways to send\": you share a file, the recipient accepts it and returns a .response file, and you open that file to finish. \"Other ways to send\" appears once Advanced options is on in Settings.'**
+  /// **'For advanced users. Without epicbox, use \"Send by transaction file\" under \"Other ways to send\": you share a file, the recipient accepts it and returns a .response file, and you open that file to finish. \"Other ways to send\" appears once Advanced options is on in Settings.'**
   String get helpOtherWaysAnswer;
 
   /// Heading at the end of the help page.

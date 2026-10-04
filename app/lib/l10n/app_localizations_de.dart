@@ -1981,10 +1981,11 @@ class AppLocalizationsDe extends AppLocalizations {
   String get sendRecipientLabel => 'An';
 
   @override
-  String get sendRecipientHint => 'Adresse oder Wallet-URL des Empfängers';
+  String get sendRecipientHintSimple => 'Adresse des Empfängers';
 
   @override
-  String get sendRecipientHintSimple => 'Adresse des Empfängers';
+  String get sendUrlUnsupported =>
+      'Zahlungen an eine Wallet-URL werden nicht unterstützt. Fragen Sie den Empfänger nach seiner epicbox-Adresse.';
 
   @override
   String get scanQrTooltip => 'QR-Code scannen';
@@ -2186,9 +2187,6 @@ class AppLocalizationsDe extends AppLocalizations {
       'Läuft über epicbox. Wird abgeschlossen, sobald die Wallet des Empfängers antwortet.';
 
   @override
-  String get sendReviewViaHttp => 'Geht direkt an die Wallet des Empfängers.';
-
-  @override
   String sendReviewSendButton(String amount) {
     return '$amount senden';
   }
@@ -2210,6 +2208,9 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get slateNotTransactionFile =>
       'Diese Datei ist keine Transaktionsdatei.';
+
+  @override
+  String get slateReading => 'Datei wird gelesen';
 
   @override
   String get slateFileTooLarge =>
@@ -2754,7 +2755,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get helpOtherWaysAnswer =>
-      'Für fortgeschrittene Nutzer. Betreibt der Empfänger eine Wallet, die im Internet erreichbar ist, fügen Sie deren Adresse mit http:// oder https:// als Empfänger ein; die Zahlung geht dann direkt dorthin. Ohne epicbox nutzen Sie „Per Transaktionsdatei senden“ unter „Weitere Sendeoptionen“: Sie teilen eine Datei, der Empfänger nimmt sie an und schickt eine .response-Datei zurück, und Sie öffnen diese Datei, um die Zahlung abzuschließen. „Weitere Sendeoptionen“ erscheint, sobald Sie in den Einstellungen „Erweiterte Optionen“ einschalten.';
+      'Für fortgeschrittene Nutzer. Ohne epicbox nutzen Sie „Per Transaktionsdatei senden“ unter „Weitere Sendeoptionen“: Sie teilen eine Datei, der Empfänger nimmt sie an und schickt eine .response-Datei zurück, und Sie öffnen diese Datei, um die Zahlung abzuschließen. „Weitere Sendeoptionen“ erscheint, sobald Sie in den Einstellungen „Erweiterte Optionen“ einschalten.';
 
   @override
   String get helpStillStuck => 'Kommen Sie nicht weiter?';

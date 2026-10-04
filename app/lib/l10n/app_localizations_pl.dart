@@ -2083,10 +2083,11 @@ class AppLocalizationsPl extends AppLocalizations {
   String get sendRecipientLabel => 'Do';
 
   @override
-  String get sendRecipientHint => 'Adres odbiorcy lub URL portfela';
+  String get sendRecipientHintSimple => 'Adres odbiorcy';
 
   @override
-  String get sendRecipientHintSimple => 'Adres odbiorcy';
+  String get sendUrlUnsupported =>
+      'Płatności na URL portfela nie są obsługiwane. Poproś odbiorcę o jego adres epicbox.';
 
   @override
   String get scanQrTooltip => 'Zeskanuj kod QR';
@@ -2297,9 +2298,6 @@ class AppLocalizationsPl extends AppLocalizations {
       'Przez epicbox. Płatność zakończy się, gdy odpowie portfel odbiorcy.';
 
   @override
-  String get sendReviewViaHttp => 'Bezpośrednio do portfela odbiorcy.';
-
-  @override
   String sendReviewSendButton(String amount) {
     return 'Wyślij $amount';
   }
@@ -2320,6 +2318,9 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get slateNotTransactionFile => 'To nie jest plik transakcji.';
+
+  @override
+  String get slateReading => 'Odczytywanie pliku';
 
   @override
   String get slateFileTooLarge =>
@@ -2870,7 +2871,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get helpOtherWaysAnswer =>
-      'Dla zaawansowanych. Jeśli odbiorca ma portfel nasłuchujący w internecie, wklej jako odbiorcę jego adres zaczynający się od http:// lub https://, a płatność trafi prosto do niego. Bez epicbox użyj opcji „Wyślij plikiem transakcji” w sekcji „Inne sposoby wysyłki”: przekazujesz plik, odbiorca go przyjmuje i odsyła plik .response, a Ty otwierasz ten plik, aby dokończyć płatność. Sekcja „Inne sposoby wysyłki” pojawi się, gdy włączysz „Opcje zaawansowane” w ustawieniach.';
+      'Dla zaawansowanych. Bez epicbox użyj opcji „Wyślij plikiem transakcji” w sekcji „Inne sposoby wysyłki”: przekazujesz plik, odbiorca go przyjmuje i odsyła plik .response, a Ty otwierasz ten plik, aby dokończyć płatność. Sekcja „Inne sposoby wysyłki” pojawi się, gdy włączysz „Opcje zaawansowane” w ustawieniach.';
 
   @override
   String get helpStillStuck => 'Nadal masz problem?';

@@ -2190,15 +2190,15 @@
   },
   "sendRecipientLabel": "To",
   "@sendRecipientLabel": {
-    "description": "Label of the field for the recipient's epicbox address or wallet URL."
-  },
-  "sendRecipientHint": "Their address or a wallet URL",
-  "@sendRecipientHint": {
-    "description": "Hint inside the empty recipient field."
+    "description": "Label of the field for the recipient's epicbox address."
   },
   "sendRecipientHintSimple": "Their address",
   "@sendRecipientHintSimple": {
-    "description": "Hint inside the empty recipient field with Advanced options off, where wallet URLs are not mentioned (they are still accepted)."
+    "description": "Hint inside the empty recipient field."
+  },
+  "sendUrlUnsupported": "Payments to a wallet URL are not supported. Ask the recipient for their epicbox address.",
+  "@sendUrlUnsupported": {
+    "description": "Error under the recipient field when the user entered a wallet URL (http:// or https://). The wallet sends over epicbox and by transaction file only. epicbox is a proper name."
   },
   "scanQrTooltip": "Scan QR code",
   "@scanQrTooltip": {
@@ -2497,10 +2497,6 @@
   "@sendReviewViaEpicbox": {
     "description": "In the payment review. epicbox is the relay service that carries payments (a proper name)."
   },
-  "sendReviewViaHttp": "Goes straight to the recipient's wallet.",
-  "@sendReviewViaHttp": {
-    "description": "In the payment review, for a send to a wallet URL."
-  },
   "sendReviewSendButton": "Send {amount}",
   "@sendReviewSendButton": {
     "description": "Button in the payment review that sends the payment.",
@@ -2522,6 +2518,10 @@
   "slateWrongPayment": "This response is for a different payment. Open the file the recipient returned for this send.",
   "slateInvoiceUnsupported": "Payment requests (invoices) are not supported yet.",
   "slateNotTransactionFile": "That file is not a transaction file.",
+  "slateReading": "Reading the file",
+  "@slateReading": {
+    "description": "Screen reader label of the spinner while a transaction file is being read."
+  },
   "slateFileTooLarge": "That file is too large to be a transaction file.",
   "slatePostedHeadline": "Payment of {amount} sent to the network.",
   "@slatePostedHeadline": {
@@ -3192,9 +3192,9 @@
   "@helpOtherWaysQuestion": {
     "description": "A question on the help page."
   },
-  "helpOtherWaysAnswer": "For advanced users. If the recipient runs a wallet that listens on the internet, paste its address starting with http:// or https:// as the recipient, and the payment goes straight to it. Without epicbox, use \"Send by transaction file\" under \"Other ways to send\": you share a file, the recipient accepts it and returns a .response file, and you open that file to finish. \"Other ways to send\" appears once Advanced options is on in Settings.",
+  "helpOtherWaysAnswer": "For advanced users. Without epicbox, use \"Send by transaction file\" under \"Other ways to send\": you share a file, the recipient accepts it and returns a .response file, and you open that file to finish. \"Other ways to send\" appears once Advanced options is on in Settings.",
   "@helpOtherWaysAnswer": {
-    "description": "Answer on the help page. \"Send by transaction file\" and \"Other ways to send\" are names on the send screen: use the same words. Keep http://, https:// and .response as they are."
+    "description": "Answer on the help page. \"Send by transaction file\" and \"Other ways to send\" are names on the send screen: use the same words. Keep .response as it is."
   },
   "helpStillStuck": "Still stuck?",
   "@helpStillStuck": {

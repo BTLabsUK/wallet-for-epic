@@ -2076,10 +2076,11 @@ class AppLocalizationsRu extends AppLocalizations {
   String get sendRecipientLabel => 'Кому';
 
   @override
-  String get sendRecipientHint => 'Адрес получателя или URL кошелька';
+  String get sendRecipientHintSimple => 'Адрес получателя';
 
   @override
-  String get sendRecipientHintSimple => 'Адрес получателя';
+  String get sendUrlUnsupported =>
+      'Платежи на URL кошелька не поддерживаются. Попросите у получателя его адрес epicbox.';
 
   @override
   String get scanQrTooltip => 'Сканировать QR-код';
@@ -2282,9 +2283,6 @@ class AppLocalizationsRu extends AppLocalizations {
       'Через epicbox. Платёж завершится, когда ответит кошелёк получателя.';
 
   @override
-  String get sendReviewViaHttp => 'Напрямую в кошелёк получателя.';
-
-  @override
   String sendReviewSendButton(String amount) {
     return 'Отправить $amount';
   }
@@ -2305,6 +2303,9 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get slateNotTransactionFile => 'Это не файл транзакции.';
+
+  @override
+  String get slateReading => 'Чтение файла';
 
   @override
   String get slateFileTooLarge =>
@@ -2855,7 +2856,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get helpOtherWaysAnswer =>
-      'Для опытных пользователей. Если кошелёк получателя принимает соединения из интернета, укажите получателем его адрес, начинающийся с http:// или https://, и платёж пойдёт прямо в этот кошелёк. Без epicbox используйте «Отправить файлом транзакции» в разделе «Другие способы отправки»: вы передаёте файл, получатель принимает его и возвращает файл .response, а вы открываете этот файл, чтобы завершить платёж. Раздел «Другие способы отправки» появляется после включения «Расширенных настроек».';
+      'Для опытных пользователей. Без epicbox используйте «Отправить файлом транзакции» в разделе «Другие способы отправки»: вы передаёте файл, получатель принимает его и возвращает файл .response, а вы открываете этот файл, чтобы завершить платёж. Раздел «Другие способы отправки» появляется после включения «Расширенных настроек».';
 
   @override
   String get helpStillStuck => 'Остались вопросы?';

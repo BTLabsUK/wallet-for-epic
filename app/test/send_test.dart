@@ -21,7 +21,6 @@ import 'package:epic_wallet/src/ui/scan_screen.dart';
 import 'package:epic_wallet/src/ui/send_screen.dart';
 import 'package:epic_wallet/src/ui/slate_file_screen.dart';
 import 'package:epic_wallet/src/ui/theme/advanced.dart';
-import 'package:epic_wallet/src/ui/tx_details_screen.dart';
 import 'package:epic_wallet/src/updater.dart';
 import 'package:epic_wallet/src/vault.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
@@ -107,7 +106,7 @@ class _GatedSession extends FakeWalletSession {
     );
   }
 
-  /// When set, HTTP sends and finishes return a finished send the network has not taken.
+  /// When set, finishes return a finished send the network has not taken.
   bool notPosted = false;
 
   TxEntry _notPosted(BigInt amount) => fakeTx(
@@ -121,20 +120,6 @@ class _GatedSession extends FakeWalletSession {
     repostable: true,
     statusDetail: 'The node did not answer.',
   );
-
-  @override
-  Future<TxEntry> sendHttp({
-    required BigInt amount,
-    required BigInt minimumConfirmations,
-    required String url,
-  }) async {
-    final tx = await super.sendHttp(
-      amount: amount,
-      minimumConfirmations: minimumConfirmations,
-      url: url,
-    );
-    return notPosted ? _notPosted(amount) : tx;
-  }
 
   @override
   Future<TxEntry> finalizeAndPost({required String slateJson}) async {
@@ -191,7 +176,12 @@ class _Harness {
   final FakeQrScanner scanner;
   final double? price;
 
-  Future<void> pump(WidgetTester tester, Widget screen) async {
+  /// [settle] false stops after the first frame, for a screen with a spinner.
+  Future<void> pump(
+    WidgetTester tester,
+    Widget screen, {
+    bool settle = true,
+  }) async {
     tester.view.physicalSize = const Size(1080, 2340);
     tester.view.devicePixelRatio = 3;
     addTearDown(tester.view.reset);
@@ -216,7 +206,11 @@ class _Harness {
         ),
       ),
     );
-    await tester.pumpAndSettle();
+    if (settle) {
+      await tester.pumpAndSettle();
+    } else {
+      await tester.pump();
+    }
   }
 
   void connectListener() => session.listenerEvents.add(
@@ -669,36 +663,59 @@ void main() {
       expect(find.text('Save to contacts'), findsNothing);
     });
 
-    testWidgets('http: completes at once; transport errors in plain words', (
+    testWidgets('a wallet URL is refused in plain words, before review', (
       tester,
     ) async {
       final h = _Harness();
       await h.pump(tester, const SendScreen());
       await _enter(tester, 'To', 'http://203.0.113.5:3415');
       await _enter(tester, 'Amount (EPIC)', '2');
+      await _tap(tester, find.text('Review'));
+      expect(
+        find.text(
+          'Payments to a wallet URL are not supported. Ask the recipient for '
+          'their epicbox address.',
+        ),
+        findsOneWidget,
+      );
+      expect(find.text('Review your payment'), findsNothing);
+      expect(h.session.epicboxSends, isEmpty);
+      expect(h.session.sentAmounts, isEmpty);
+
+      // An incomplete URL keeps the message about the URL itself.
+      await _enter(tester, 'To', 'https://');
+      await _tap(tester, find.text('Review'));
+      expect(find.textContaining('full wallet URL'), findsOneWidget);
+
+      // Typing clears it, and an epicbox address goes on to review.
+      await _enter(tester, 'To', _bob);
+      expect(find.textContaining('wallet URL'), findsNothing);
+      await _tap(tester, find.text('Review'));
+      expect(find.text('Review your payment'), findsOneWidget);
+    });
+
+    testWidgets('transport errors in plain words', (tester) async {
+      final h = _Harness();
+      await h.pump(tester, const SendScreen());
+      await _enter(tester, 'To', _bob);
+      await _enter(tester, 'Amount (EPIC)', '2');
 
       h.session.sendError = const WalletError(
         kind: WalletErrorKind.transportFailed,
-        message: 'the recipient did not answer',
+        message: 'the relay did not answer',
       );
       await _tap(tester, find.text('Review'));
-      expect(
-        find.text('Goes straight to the recipient\'s wallet.'),
-        findsOneWidget,
-      );
       await _tap(tester, find.text('Send 2 EPIC'));
       expect(
-        find.text(
-          'Could not reach the recipient. the recipient did not answer',
-        ),
+        find.text('Could not reach the recipient. the relay did not answer'),
         findsOneWidget,
       );
 
       h.session.sendError = null;
       await _tap(tester, find.text('Review'));
       await _tap(tester, find.text('Send 2 EPIC'));
-      expect(h.session.httpSends.single.to, 'http://203.0.113.5:3415');
-      expect(find.text('Sent 2 EPIC'), findsOneWidget);
+      expect(h.session.epicboxSends.single.to, _bob);
+      expect(find.text('Payment started: 2 EPIC'), findsOneWidget);
     });
 
     testWidgets('Max fills the largest amount with its fee', (tester) async {
@@ -1234,29 +1251,6 @@ void main() {
   });
 
   group('finished but not taken by the network', () {
-    testWidgets('HTTP: the result says so, and the form is gone', (
-      tester,
-    ) async {
-      final h = _Harness();
-      h.session.notPosted = true;
-      await h.pump(tester, const SendScreen());
-      await _enter(tester, 'To', 'http://203.0.113.5:3415');
-      await _enter(tester, 'Amount (EPIC)', '2');
-      await _tap(tester, find.text('Review'));
-      await _tap(tester, find.text('Send 2 EPIC'));
-      expect(find.text('Not on the network yet'), findsOneWidget);
-      expect(find.text(NotPostedNotice.text(englishStrings)), findsOneWidget);
-      expect(find.text('The node did not answer.'), findsOneWidget);
-      expect(find.text('Sent 2 EPIC'), findsNothing);
-      // Nothing to send a second time with.
-      expect(find.text('Review'), findsNothing);
-      expect(find.widgetWithText(TextField, 'To'), findsNothing);
-      expect(h.session.httpSends, hasLength(1));
-
-      await _tap(tester, find.text('Open the payment'));
-      expect(find.byType(TxDetailsScreen), findsOneWidget);
-    });
-
     testWidgets('file, pasted response: the same notice', (tester) async {
       final h = _Harness(advanced: true);
       h.session.notPosted = true;
@@ -1865,6 +1859,42 @@ void main() {
       expect(h.files.shared.single.name, 'from-bob.tx.response');
     });
 
+    testWidgets('the file screen waits for the core, and refuses invoices', (
+      tester,
+    ) async {
+      final h = _Harness();
+      const invoice = '{"id":"invoice"}';
+      h.service.slateInfos[invoice] = SlateInfo(
+        slateId: 'invoice',
+        amount: _epic(4),
+        fee: BigInt.zero,
+        stage: SlateStage.invoice,
+      );
+      final gate = h.service.inspectGate = Completer<void>();
+      await h.pump(
+        tester,
+        const SlateFileScreen(
+          file: SlateFile(name: 'bill.tx', json: invoice),
+        ),
+        settle: false,
+      );
+      expect(find.bySemanticsLabel('Reading the file'), findsOneWidget);
+      expect(find.text('Accept payment'), findsNothing);
+      expect(find.byType(ErrorText), findsNothing);
+
+      gate.complete();
+      await tester.pumpAndSettle();
+      expect(find.bySemanticsLabel('Reading the file'), findsNothing);
+      expect(
+        find.text('Payment requests (invoices) are not supported yet.'),
+        findsOneWidget,
+      );
+      expect(find.text('Accept payment'), findsNothing);
+      expect(find.text('Finish payment'), findsNothing);
+      expect(h.session.receivedSlates, isEmpty);
+      expect(h.session.finalizedSlates, isEmpty);
+    });
+
     testWidgets('paste slate text as a fallback', (tester) async {
       final h = _Harness(advanced: true);
       await h.pump(tester, const ReceiveScreen());
@@ -1895,26 +1925,25 @@ void main() {
       await tester.pumpAndSettle();
     }
 
-    testWidgets('send hides the file route and the URL hint, but takes URLs', (
+    testWidgets('send hides the file route; a URL is refused either way', (
       tester,
     ) async {
       final off = _Harness();
       await off.pump(tester, const SendScreen());
       expect(find.text('Their address'), findsOneWidget);
-      expect(find.text('Their address or a wallet URL'), findsNothing);
       await toEnd(tester);
       expect(find.text('Other ways to send'), findsNothing);
-      await _enter(tester, 'To', 'http://203.0.113.5:3415');
-      await _enter(tester, 'Amount (EPIC)', '2');
-      await _tap(tester, find.text('Review'));
-      await _tap(tester, find.text('Send 2 EPIC'));
-      expect(off.session.httpSends.single.to, 'http://203.0.113.5:3415');
 
       // A fresh tree, so the screen's state starts over.
       await tester.pumpWidget(const SizedBox());
       final on = _Harness(advanced: true);
       await on.pump(tester, const SendScreen());
-      expect(find.text('Their address or a wallet URL'), findsOneWidget);
+      expect(find.text('Their address'), findsOneWidget);
+      await _enter(tester, 'To', 'http://203.0.113.5:3415');
+      await _enter(tester, 'Amount (EPIC)', '2');
+      await _tap(tester, find.text('Review'));
+      expect(find.textContaining('not supported'), findsOneWidget);
+      expect(on.session.epicboxSends, isEmpty);
       await toEnd(tester);
       expect(find.text('Other ways to send'), findsOneWidget);
     });

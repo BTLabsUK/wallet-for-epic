@@ -361,11 +361,16 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     final session = ref.read(sessionProvider);
     final amount = _parsedAmount;
     if (session == null || amount == null) return;
-    final problem = checkRecipient(
-      context.l10n,
-      ref.read(walletServiceProvider),
-      _recipient.text,
-    );
+    // The check still takes a wallet URL; this wallet no longer sends to one (OD-2).
+    final problem =
+        checkRecipient(
+          context.l10n,
+          ref.read(walletServiceProvider),
+          _recipient.text,
+        ) ??
+        (parseRecipient(_recipient.text).kind == RecipientKind.http
+            ? context.l10n.sendUrlUnsupported
+            : null);
     setState(() => _recipientError = problem);
     if (problem != null) return;
     setState(() {
@@ -438,19 +443,13 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     final hold = ref.read(autoLockHoldProvider.notifier);
     final amount = reviewed.amount;
     return _run((session) async {
+      // [_review] lets only an epicbox address through.
       final tx = await hold.during(
-        () => switch (to.kind) {
-          RecipientKind.epicbox => session.sendEpicbox(
-            amount: amount,
-            minimumConfirmations: minimumConfirmations,
-            address: to.address,
-          ),
-          RecipientKind.http => session.sendHttp(
-            amount: amount,
-            minimumConfirmations: minimumConfirmations,
-            url: to.address,
-          ),
-        },
+        () => session.sendEpicbox(
+          amount: amount,
+          minimumConfirmations: minimumConfirmations,
+          address: to.address,
+        ),
       );
       // The payment is out; a note that fails to save must not look like a failed send.
       var noteSaved = true;
@@ -626,7 +625,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
         : contactFor(contacts, to.address);
     final amount = _parsedAmount;
     final estimate = _estimate;
-    // Wallet URLs are accepted either way; only the hint and the file route are technical.
+    // The file route is technical.
     final advanced = AdvancedOptions.of(context);
 
     String? amountHelper;
@@ -658,9 +657,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
           }),
           decoration: InputDecoration(
             labelText: l.sendRecipientLabel,
-            hintText: advanced
-                ? l.sendRecipientHint
-                : l.sendRecipientHintSimple,
+            hintText: l.sendRecipientHintSimple,
             error: _recipientError == null
                 ? null
                 : LiveFieldError(_recipientError!),
@@ -1089,12 +1086,7 @@ class _ReviewSheetState extends State<_ReviewSheet> {
             if (widget.note.isNotEmpty)
               _Row(label: l.sendReviewNote, value: widget.note),
             const SizedBox(height: 8),
-            Text(
-              widget.to.kind == RecipientKind.epicbox
-                  ? l.sendReviewViaEpicbox
-                  : l.sendReviewViaHttp,
-              style: theme.textTheme.bodySmall,
-            ),
+            Text(l.sendReviewViaEpicbox, style: theme.textTheme.bodySmall),
             const SizedBox(height: 16),
             FilledButton(
               style: FilledButton.styleFrom(

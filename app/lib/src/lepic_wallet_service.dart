@@ -20,10 +20,6 @@ import 'wallet_service.dart';
 /// Calls of [WalletService] and [WalletSession] that LEPIC cannot serve yet, with the request
 /// that unblocks each. `test/lepic_mapping_test.dart` keeps this list and the code in step.
 const Map<String, String> lepicMissing = {
-  'generateMnemonic': 'none: LEPIC generates the seed inside create',
-  'inspectSlate':
-      'A-03: LEPIC answers asynchronously, the app interface is synchronous',
-  'sendHttp': 'OD-2, LEPIC speaks Epicbox and files only',
   'setTxNote': 'H-01',
   'saveContact': 'H-01',
   'deleteContact': 'H-01',
@@ -137,6 +133,22 @@ ListenerEvent _listenerEvent(lepic.ListenerEvent e) => ListenerEvent(
   message: e.message,
 );
 
+/// LEPIC's reading of a slate as the old core's. LEPIC names every step; the app tells only a
+/// send to sign from an answer to finalize, as the old core did: a finalized S3 reads as an
+/// answer, and every invoice step as an invoice, which the app refuses.
+SlateInfo lepicSlateInfo(lepic.SlateInfo info) => SlateInfo(
+  slateId: info.slateId,
+  amount: info.amount,
+  fee: info.fee,
+  stage: switch (info.stage) {
+    lepic.SlateStage.s1 => SlateStage.send,
+    lepic.SlateStage.s2 || lepic.SlateStage.s3 => SlateStage.response,
+    lepic.SlateStage.i1 ||
+    lepic.SlateStage.i2 ||
+    lepic.SlateStage.i3 => SlateStage.invoice,
+  },
+);
+
 /// The local transaction id in a history key this service made (`l:<id>`).
 int lepicTxId(String key) {
   final id = key.startsWith('l:') ? int.tryParse(key.substring(2)) : null;
@@ -235,8 +247,8 @@ class LepicWalletService implements WalletService {
   final lepic.LepicRuntime Function() _makeRuntime;
   lepic.LepicRuntime? _runtimeValue;
 
-  /// Chain of the last wallet config seen, for [validateEpicboxAddress], which the interface
-  /// asks without one.
+  /// Chain of the last wallet config seen, for [validateEpicboxAddress] and [inspectSlate],
+  /// which the interface asks without one.
   Chain _chain = Chain.mainnet;
 
   static lepic.LepicRuntime _defaultRuntime() {
@@ -276,16 +288,15 @@ class LepicWalletService implements WalletService {
   );
 
   @override
-  String generateMnemonic({required int wordCount}) =>
-      throw lepicUnsupported('generateMnemonic');
-
-  @override
   bool validateMnemonic({required String phrase}) =>
       lepic.validateMnemonic(phrase: phrase);
 
   @override
-  SlateInfo inspectSlate({required String json}) =>
-      throw lepicUnsupported('inspectSlate');
+  Future<SlateInfo> inspectSlate({required String json}) => _guard(
+    () async => lepicSlateInfo(
+      await lepic.inspectSlate(json: json, chain: _lepicChain(_chain)),
+    ),
+  );
 
   @override
   bool validateEpicboxAddress({required String address}) => lepic
@@ -419,13 +430,6 @@ class LepicWalletSession implements WalletSession {
         final tx = await _wallet.finalizeAndPost(slateJson: slateJson);
         return _entry(tx.txId);
       });
-
-  @override
-  Future<TxEntry> sendHttp({
-    required BigInt amount,
-    required BigInt minimumConfirmations,
-    required String url,
-  }) async => throw lepicUnsupported('sendHttp');
 
   @override
   Future<TxEntry> sendEpicbox({

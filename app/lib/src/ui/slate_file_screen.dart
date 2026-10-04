@@ -29,7 +29,7 @@ class SlateFileScreen extends ConsumerStatefulWidget {
 class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
   SlateInfo? _info;
 
-  /// What went wrong, worded when shown: the file is checked in [initState], before the
+  /// What went wrong, worded when shown: the file is checked from [initState], before the
   /// screen's strings can be read.
   String Function(AppLocalizations l)? _error;
   bool _busy = false;
@@ -38,25 +38,39 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
   Slate? _response;
   TxEntry? _posted;
 
+  /// True until the core has read the file.
+  bool _reading = true;
+
   @override
   void initState() {
     super.initState();
+    _read();
+  }
+
+  Future<void> _read() async {
+    SlateInfo? info;
+    String Function(AppLocalizations l)? error;
     try {
-      final info = ref
+      info = await ref
           .read(walletServiceProvider)
           .inspectSlate(json: widget.file.json);
       final expected = widget.expectedSlateId;
       if (expected != null && info.slateId != expected) {
-        _error = (l) => l.slateWrongPayment;
+        error = (l) => l.slateWrongPayment;
       } else if (info.stage == SlateStage.invoice) {
-        _error = (l) => l.slateInvoiceUnsupported;
+        error = (l) => l.slateInvoiceUnsupported;
       }
-      _info = info;
-    } catch (error) {
-      _error = error is WalletError
+    } catch (e) {
+      error = e is WalletError
           ? (l) => l.slateNotTransactionFile
-          : (l) => describeError(l, error);
+          : (l) => describeError(l, e);
     }
+    if (!mounted) return;
+    setState(() {
+      _reading = false;
+      _info = info;
+      _error = error;
+    });
   }
 
   /// Runs one wallet action at a time, then refreshes home, even if this screen has closed.
@@ -139,6 +153,13 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
           style: TextButton.styleFrom(minimumSize: const Size.fromHeight(48)),
           onPressed: () => Navigator.pop(context, true),
           child: Text(l.commonDone),
+        ),
+      ];
+    } else if (_reading) {
+      body = [
+        Semantics(
+          label: l.slateReading,
+          child: const Center(child: CircularProgressIndicator()),
         ),
       ];
     } else if (info == null) {

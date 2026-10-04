@@ -1840,10 +1840,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get sendRecipientLabel => '接收方';
 
   @override
-  String get sendRecipientHint => '对方的地址或钱包 URL';
+  String get sendRecipientHintSimple => '对方的地址';
 
   @override
-  String get sendRecipientHintSimple => '对方的地址';
+  String get sendUrlUnsupported => '不支持向钱包 URL 付款。请向接收方索取其 epicbox 地址。';
 
   @override
   String get scanQrTooltip => '扫描二维码';
@@ -2036,9 +2036,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get sendReviewViaEpicbox => '通过 epicbox 发送。接收方的钱包回复后即会完成。';
 
   @override
-  String get sendReviewViaHttp => '直接发送到接收方的钱包。';
-
-  @override
   String sendReviewSendButton(String amount) {
     return '发送 $amount';
   }
@@ -2057,6 +2054,9 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get slateNotTransactionFile => '该文件不是交易文件。';
+
+  @override
+  String get slateReading => '正在读取文件';
 
   @override
   String get slateFileTooLarge => '该文件过大，不可能是交易文件。';
@@ -2569,7 +2569,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get helpOtherWaysAnswer =>
-      '供高级用户使用。如果接收方运行着在互联网上监听的钱包，请将以 http:// 或 https:// 开头的地址粘贴为接收方，付款就会直接发送到该钱包。如果不使用 epicbox，请在“其他发送方式”中选择“通过交易文件发送”：你分享一个文件，接收方接受后返回一个 .response 文件，你再打开该文件完成付款。在设置中打开“高级选项”后，才会显示“其他发送方式”。';
+      '供高级用户使用。如果不使用 epicbox，请在“其他发送方式”中选择“通过交易文件发送”：你分享一个文件，接收方接受后返回一个 .response 文件，你再打开该文件完成付款。在设置中打开“高级选项”后，才会显示“其他发送方式”。';
 
   @override
   String get helpStillStuck => '仍未解决？';

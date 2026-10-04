@@ -1956,10 +1956,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sendRecipientLabel => 'To';
 
   @override
-  String get sendRecipientHint => 'Their address or a wallet URL';
+  String get sendRecipientHintSimple => 'Their address';
 
   @override
-  String get sendRecipientHintSimple => 'Their address';
+  String get sendUrlUnsupported =>
+      'Payments to a wallet URL are not supported. Ask the recipient for their epicbox address.';
 
   @override
   String get scanQrTooltip => 'Scan QR code';
@@ -2161,9 +2162,6 @@ class AppLocalizationsEn extends AppLocalizations {
       'Goes through epicbox. It completes when the recipient\'s wallet answers.';
 
   @override
-  String get sendReviewViaHttp => 'Goes straight to the recipient\'s wallet.';
-
-  @override
   String sendReviewSendButton(String amount) {
     return 'Send $amount';
   }
@@ -2184,6 +2182,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get slateNotTransactionFile => 'That file is not a transaction file.';
+
+  @override
+  String get slateReading => 'Reading the file';
 
   @override
   String get slateFileTooLarge =>
@@ -2722,7 +2723,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get helpOtherWaysAnswer =>
-      'For advanced users. If the recipient runs a wallet that listens on the internet, paste its address starting with http:// or https:// as the recipient, and the payment goes straight to it. Without epicbox, use \"Send by transaction file\" under \"Other ways to send\": you share a file, the recipient accepts it and returns a .response file, and you open that file to finish. \"Other ways to send\" appears once Advanced options is on in Settings.';
+      'For advanced users. Without epicbox, use \"Send by transaction file\" under \"Other ways to send\": you share a file, the recipient accepts it and returns a .response file, and you open that file to finish. \"Other ways to send\" appears once Advanced options is on in Settings.';
 
   @override
   String get helpStillStuck => 'Still stuck?';

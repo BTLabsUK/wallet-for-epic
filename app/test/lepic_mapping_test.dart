@@ -4,7 +4,6 @@ import 'dart:typed_data';
 
 import 'package:epic_wallet/src/core_backend.dart';
 import 'package:epic_wallet/src/lepic_wallet_service.dart';
-import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lepic/lepic.dart' as lepic;
@@ -106,18 +105,51 @@ void main() {
     }
   });
 
-  test('every call in lepicMissing refuses without reaching LEPIC', () async {
-    final service = LepicWalletService(secrets: MemorySecretStore());
-    final session = LepicWalletSession(_NoNativeWallet());
-    final one = BigInt.one;
-    final calls = <String, Future<Object?> Function()>{
-      'generateMnemonic': () async => service.generateMnemonic(wordCount: 24),
-      'inspectSlate': () async => service.inspectSlate(json: '{}'),
-      'sendHttp': () => session.sendHttp(
-        amount: one,
-        minimumConfirmations: one,
-        url: 'http://127.0.0.1:9',
+  test('slate steps read as the old core tells them', () {
+    SlateStage stage(lepic.SlateStage s) => lepicSlateInfo(
+      lepic.SlateInfo(
+        slateId: 'id',
+        version: 3,
+        stage: s,
+        amount: BigInt.from(5),
+        fee: BigInt.two,
+        messages: const [],
       ),
+    ).stage;
+    expect(stage(lepic.SlateStage.s1), SlateStage.send);
+    expect(stage(lepic.SlateStage.s2), SlateStage.response);
+    expect(stage(lepic.SlateStage.s3), SlateStage.response);
+    for (final s in [
+      lepic.SlateStage.i1,
+      lepic.SlateStage.i2,
+      lepic.SlateStage.i3,
+    ]) {
+      expect(stage(s), SlateStage.invoice, reason: s.name);
+    }
+    final info = lepicSlateInfo(
+      lepic.SlateInfo(
+        slateId: 'abc',
+        version: 2,
+        stage: lepic.SlateStage.s1,
+        amount: BigInt.from(7),
+        fee: BigInt.one,
+        messages: const [],
+      ),
+    );
+    expect(
+      info,
+      SlateInfo(
+        slateId: 'abc',
+        amount: BigInt.from(7),
+        fee: BigInt.one,
+        stage: SlateStage.send,
+      ),
+    );
+  });
+
+  test('every call in lepicMissing refuses without reaching LEPIC', () async {
+    final session = LepicWalletSession(_NoNativeWallet());
+    final calls = <String, Future<Object?> Function()>{
       'setTxNote': () => session.setTxNote(key: 'l:1', note: 'n'),
       'saveContact': () => session.saveContact(
         contact: const Contact(id: '', name: 'n', address: 'a'),
