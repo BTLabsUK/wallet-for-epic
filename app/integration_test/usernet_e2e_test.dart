@@ -11,7 +11,7 @@ import 'dart:typed_data';
 
 import 'package:epic_wallet/src/app.dart';
 import 'package:epic_wallet/src/providers.dart';
-import 'package:epic_wallet/src/rust/frb_generated.dart';
+import 'package:epic_wallet/src/lepic_wallet_service.dart';
 import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/ui/settings_history.dart';
 import 'package:epic_wallet/src/updater.dart';
@@ -219,7 +219,7 @@ void main() {
   testWidgets(
     'usernet end to end: receive, send with a note, back up, delete, restore, import',
     (tester) async {
-      await RustLib.init();
+      await initLepic();
       final started = DateTime.now();
       final base = await getApplicationDocumentsDirectory();
       final root = await Directory(

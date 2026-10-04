@@ -1,6 +1,5 @@
-// The LEPIC adapter's pure parts: error mapping, keys, the backend switch and the list of calls
-// LEPIC cannot serve yet. No native library is loaded.
-import 'package:epic_wallet/src/core_backend.dart';
+// The LEPIC adapter's pure parts: error mapping, history keys and rows. No native library is
+// loaded.
 import 'package:epic_wallet/src/lepic_wallet_service.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -17,21 +16,6 @@ class _NoNativeWallet implements lepic.EpicWallet {
 }
 
 void main() {
-  group('backend switch', () {
-    test('parses the WFE_CORE values', () {
-      expect(CoreBackend.parse('epicwallet'), CoreBackend.epicWallet);
-      expect(CoreBackend.parse('lepic'), CoreBackend.lepic);
-    });
-
-    test('refuses an unknown value instead of falling back', () {
-      expect(() => CoreBackend.parse('lepik'), throwsArgumentError);
-    });
-
-    test('a plain build runs LEPIC', () {
-      expect(coreBackend, CoreBackend.lepic);
-    });
-  });
-
   group('error mapping', () {
     lepic.WalletError error(lepic.WalletErrorKind kind) =>
         lepic.WalletError(kind: kind, code: 0, message: 'm');
@@ -139,10 +123,6 @@ void main() {
         stage: SlateStage.send,
       ),
     );
-  });
-
-  test('LEPIC serves every call of the app interface', () {
-    expect(lepicMissing, isEmpty);
   });
 
   test('contacts and enrichment answer without reaching LEPIC', () async {

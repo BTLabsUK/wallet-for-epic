@@ -7,11 +7,6 @@ root="$(git rev-parse --show-toplevel)"
 
 step() { printf '\n== %s\n' "$1"; }
 
-if [ ! -d "$root/playground/src/epic-wallet" ]; then
-  echo "playground/src is missing: run ./pg sync in the main checkout (worktrees link to it)" >&2
-  exit 1
-fi
-
 step "LEPIC at the pin (tools/lepic.rev)"
 "$root/tools/lepic.sh" build linux
 
@@ -21,10 +16,10 @@ step "flutter analyze"
 step "flutter test"
 (cd "$root/app" && flutter test --no-pub)
 
-step "core parity, epic-wallet against LEPIC (Linux, offline)"
-(cd "$root/app" && xvfb-run -a flutter test --no-pub integration_test/core_parity_test.dart -d linux)
-
-step "cargo test (app/rust, offline)"
-(cd "$root/app/rust" && cargo test --locked -q)
+step "integration tests on LEPIC (Linux, offline)"
+# One run per file: a second app start in one `flutter test` run fails on Linux now and then.
+for t in simple_test history_test; do
+  (cd "$root/app" && xvfb-run -a flutter test --no-pub -d linux "integration_test/$t.dart")
+done
 
 printf '\ncheck passed\n'

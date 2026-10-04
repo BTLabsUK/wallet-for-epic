@@ -1,10 +1,8 @@
 /// [WalletService] over the LEPIC library (`package:lepic`, pinned by `tools/lepic.rev`).
 ///
-/// The default core (`core_backend.dart`); `WFE_CORE=epicwallet` selects the old one. It speaks the same
-/// interface as [RustWalletService], so the UI does not know which core runs. LEPIC lacks some
-/// calls the UI uses; [lepicMissing] lists them, and each throws [lepicUnsupported] until the
-/// matching request to LEPIC lands and the pin moves. Notes, contacts,
-/// imported records and history files are the app's own, in `history/` (H-01).
+/// The app's only core. It implements [WalletService], so the UI and its fakes never see
+/// LEPIC's own types. Notes, contacts, imported records and history files are the app's own, in
+/// `history/` (H-01).
 library;
 
 import 'dart:async';
@@ -19,16 +17,6 @@ import 'history/meta_store.dart';
 import 'history/wallet_history.dart';
 import 'secret_store.dart';
 import 'wallet_service.dart';
-
-/// Calls of [WalletService] and [WalletSession] that LEPIC cannot serve yet, with the request
-/// that unblocks each. `test/lepic_mapping_test.dart` keeps this list and the code in step.
-const Map<String, String> lepicMissing = {};
-
-/// The error a call in [lepicMissing] throws.
-WalletError lepicUnsupported(String call) => WalletError(
-  kind: WalletErrorKind.other,
-  message: '$call is not available on the LEPIC core yet',
-);
 
 /// Loads the LEPIC library, which the package's build hook bundles on Android, iOS and x86_64
 /// Linux (`tools/lepic.sh build`). Windows has none (UP-3, deferred).

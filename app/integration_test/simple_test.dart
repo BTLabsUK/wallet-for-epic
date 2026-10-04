@@ -8,7 +8,6 @@ import 'package:epic_wallet/src/app.dart';
 import 'package:epic_wallet/src/lepic_wallet_service.dart';
 import 'package:epic_wallet/src/network.dart';
 import 'package:epic_wallet/src/providers.dart';
-import 'package:epic_wallet/src/rust/frb_generated.dart';
 import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/updater.dart';
 import 'package:epic_wallet/src/ui/home_screen.dart';
@@ -20,7 +19,6 @@ import 'package:integration_test/integration_test.dart';
 import 'package:path_provider/path_provider.dart';
 
 const _unreachableNode = 'http://127.0.0.1:9';
-const _password = 'integration test password';
 
 Future<Directory> _tempDir(String name) async {
   final base = await getTemporaryDirectory();
@@ -81,117 +79,9 @@ Future<void> _enter(WidgetTester tester, String label, String text) async {
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
   setUpAll(() async {
-    await RustLib.init();
-    // The first-run and PIN tests run on LEPIC; only it has the PIN vault.
     await initLepic();
   });
 
-  const service = RustWalletService();
-
-  testWidgets('core API: create, wrong password, open, address, phrase', (
-    tester,
-  ) async {
-    final dir = await _tempDir('api');
-    addTearDown(() => dir.delete(recursive: true));
-    final config = _config(dir.path);
-
-    final phrase = service.generateMnemonic(wordCount: 24);
-    expect(phrase.split(' ').length, 24);
-    expect(service.validateMnemonic(phrase: phrase), isTrue);
-    expect(service.validateMnemonic(phrase: 'not a real phrase'), isFalse);
-
-    expect(await service.walletExists(config: config), isFalse);
-    final created = await service.create(
-      config: config,
-      mnemonic: phrase,
-      password: _password,
-    );
-    created.dispose();
-    expect(await service.walletExists(config: config), isTrue);
-
-    await expectLater(
-      service.open(config: config, password: 'wrong password'),
-      throwsA(
-        isA<WalletError>().having(
-          (e) => e.kind,
-          'kind',
-          WalletErrorKind.wrongPassword,
-        ),
-      ),
-    );
-
-    final wallet = await service.open(config: config, password: _password);
-    addTearDown(wallet.dispose);
-    expect(await wallet.epicboxAddress(), endsWith('@epicbox.epiccash.com'));
-    final stored = await wallet.mnemonic(password: _password);
-    expect(stored == phrase, isTrue, reason: 'stored phrase differs');
-
-    final summary = await wallet.summary(
-      refresh: false,
-      minimumConfirmations: minimumConfirmations,
-    );
-    expect(summary.total, BigInt.zero);
-    expect(await wallet.transactions(refresh: false), isEmpty);
-
-    // The node in _config is unreachable: the refresh still ends with the local balances.
-    final steps = await wallet
-        .refresh(minimumConfirmations: minimumConfirmations)
-        .toList();
-    expect(steps.last.percent, 100);
-    expect(steps.last.summary?.validatedWithNode, isFalse);
-  });
-
-  testWidgets('history: contacts and an export that only the same seed opens', (
-    tester,
-  ) async {
-    final dirA = await _tempDir('hist-a');
-    final dirB = await _tempDir('hist-b');
-    final dirC = await _tempDir('hist-c');
-    addTearDown(() async {
-      for (final d in [dirA, dirB, dirC]) {
-        await d.delete(recursive: true);
-      }
-    });
-    final phrase = service.generateMnemonic(wordCount: 24);
-
-    final a = await service.create(
-      config: _config(dirA.path),
-      mnemonic: phrase,
-      password: _password,
-    );
-    final saved = await a.saveContact(
-      contact: const Contact(id: '', name: 'Bob', address: 'bob@relay.example'),
-    );
-    expect(saved.id, isNotEmpty);
-    final file = await a.exportHistory();
-    expect(String.fromCharCodes(file.take(4)), 'WFEH');
-    a.dispose();
-
-    final b = await service.create(
-      config: _config(dirB.path),
-      mnemonic: phrase,
-      password: 'another password',
-    );
-    addTearDown(b.dispose);
-    final report = await b.importHistory(data: file);
-    expect(report.contactsAdded, 1);
-    expect((await b.importHistory(data: file)).contactsAdded, 0);
-    expect((await b.contacts()).single.name, 'Bob');
-
-    final c = await service.create(
-      config: _config(dirC.path),
-      password: _password,
-    );
-    addTearDown(c.dispose);
-    await expectLater(
-      c.importHistory(data: file),
-      throwsA(
-        isA<WalletError>()
-            .having((e) => e.kind, 'kind', WalletErrorKind.invalidArgument)
-            .having((e) => e.message, 'message', contains('different wallet')),
-      ),
-    );
-  });
 
   testWidgets('PIN vault through LEPIC: create, wrong PIN, phrase, change', (
     tester,

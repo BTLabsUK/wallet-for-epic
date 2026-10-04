@@ -5,7 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
 
 import 'app_log.dart';
-import 'core_backend.dart';
 import 'errors.dart';
 import 'l10n.dart' show englishStrings;
 import 'lepic_wallet_service.dart';
@@ -30,12 +29,7 @@ Future<String> defaultWalletDir(Chain chain) async {
 }
 
 final walletServiceProvider = Provider<WalletService>(
-  (ref) => switch (coreBackend) {
-    CoreBackend.epicWallet => const RustWalletService(),
-    CoreBackend.lepic => LepicWalletService(
-      secrets: ref.watch(secretStoreProvider),
-    ),
-  },
+  (ref) => LepicWalletService(secrets: ref.watch(secretStoreProvider)),
 );
 
 final walletDirProvider = Provider<WalletDirResolver>(

@@ -7,9 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'src/app.dart';
 import 'src/app_log.dart';
-import 'src/core_backend.dart';
 import 'src/lepic_wallet_service.dart';
-import 'src/rust/frb_generated.dart';
 import 'src/ui/theme/fonts.dart';
 
 Future<void> main() async {
@@ -28,14 +26,13 @@ Future<void> main() async {
       // Not handled: the engine still reports it as before.
       return false;
     };
-    await RustLib.init();
-    if (coreBackend == CoreBackend.lepic) await initLepic();
+    await initLepic();
     registerFontLicences();
     const build = String.fromEnvironment('FLUTTER_BUILD_NAME');
     logInfo(
       'app',
       'start ${build.isEmpty ? 'dev' : build}, ${Platform.operatingSystem} '
-          '${Platform.operatingSystemVersion}, core ${coreBackend.define}',
+          '${Platform.operatingSystemVersion}',
     );
     // Wallet errors are final answers (wrong password, node down); do not retry them silently.
     runApp(ProviderScope(retry: (_, _) => null, child: const WalletApp()));
