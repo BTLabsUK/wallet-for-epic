@@ -2216,6 +2216,9 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String get contactsUrlUnsupported => '不支持向钱包 URL 付款。请向接收方索取其 epicbox 地址。';
+
+  @override
   String contactsAddressInvalid(String example) {
     return '这不是有效的地址。地址格式类似 $example';
   }

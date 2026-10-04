@@ -92,6 +92,13 @@ class WalletHistory {
     final address = contact.address.trim();
     if (name.isEmpty) throw _invalid('the contact needs a name');
     if (address.isEmpty) throw _invalid('the contact needs an address');
+    // The wallet pays over epicbox and by file only (OD-2); the screen says so in words.
+    final lower = address.toLowerCase();
+    if (lower.startsWith('http://') || lower.startsWith('https://')) {
+      throw _invalid(
+        'a contact address must be an epicbox address, not a wallet URL',
+      );
+    }
     final isNew = contact.id.trim().isEmpty;
     final note = contact.note?.trim();
     final rec = ContactRec(

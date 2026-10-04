@@ -541,6 +541,7 @@
   "contactsSave": "Kontakt speichern",
   "contactsAddressMissing": "Geben Sie die Adresse oder eine Wallet-URL ein.",
   "contactsUrlIncomplete": "Geben Sie die vollständige Wallet-URL ein, z. B. {example}",
+  "contactsUrlUnsupported": "Zahlungen an eine Wallet-URL werden nicht unterstützt. Fragen Sie den Empfänger nach seiner epicbox-Adresse.",
   "contactsAddressInvalid": "Dies ist keine gültige Adresse. Eine Adresse sieht etwa so aus: {example}",
   "settingsTitle": "Einstellungen",
   "settingsSectionNetwork": "Netzwerk",

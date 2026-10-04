@@ -541,6 +541,7 @@
   "contactsSave": "Сохранить контакт",
   "contactsAddressMissing": "Введите адрес или URL кошелька.",
   "contactsUrlIncomplete": "Введите полный URL кошелька, например {example}",
+  "contactsUrlUnsupported": "Платежи на URL кошелька не поддерживаются. Попросите у получателя его адрес epicbox.",
   "contactsAddressInvalid": "Это недействительный адрес. Правильный адрес выглядит так: {example}",
   "settingsTitle": "Настройки",
   "settingsSectionNetwork": "Сеть",

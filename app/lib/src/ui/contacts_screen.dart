@@ -229,7 +229,7 @@ class _ContactEditScreenState extends ConsumerState<ContactEditScreen> {
     final recipient = parseRecipient(_address.text);
     setState(() {
       _nameError = name.isEmpty ? l.contactsNameMissing : null;
-      _addressError = checkRecipient(
+      _addressError = checkContactAddress(
         l,
         ref.read(walletServiceProvider),
         _address.text,

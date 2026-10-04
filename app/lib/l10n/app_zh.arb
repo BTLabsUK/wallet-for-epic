@@ -541,6 +541,7 @@
   "contactsSave": "保存联系人",
   "contactsAddressMissing": "请输入对方的地址或钱包 URL。",
   "contactsUrlIncomplete": "请输入完整的钱包 URL，例如 {example}",
+  "contactsUrlUnsupported": "不支持向钱包 URL 付款。请向接收方索取其 epicbox 地址。",
   "contactsAddressInvalid": "这不是有效的地址。地址格式类似 {example}",
   "settingsTitle": "设置",
   "settingsSectionNetwork": "网络",

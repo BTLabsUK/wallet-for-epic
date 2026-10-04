@@ -2724,6 +2724,10 @@
       }
     }
   },
+  "contactsUrlUnsupported": "Payments to a wallet URL are not supported. Ask the recipient for their epicbox address.",
+  "@contactsUrlUnsupported": {
+    "description": "Error under the address field of a contact when the user entered a wallet URL (http:// or https://). Same text as sendUrlUnsupported: the wallet sends over epicbox and by transaction file only. epicbox is a proper name."
+  },
   "contactsAddressInvalid": "This is not a valid address. It looks like {example}",
   "@contactsAddressInvalid": {
     "description": "Error under an address field. example shows the shape of an epicbox address.",

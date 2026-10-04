@@ -2503,6 +2503,10 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
+  String get contactsUrlUnsupported =>
+      'Płatności na URL portfela nie są obsługiwane. Poproś odbiorcę o jego adres epicbox.';
+
+  @override
   String contactsAddressInvalid(String example) {
     return 'To nie jest prawidłowy adres. Prawidłowy wygląda tak: $example';
   }

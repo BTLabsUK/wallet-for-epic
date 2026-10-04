@@ -160,6 +160,20 @@ String? checkRecipient(AppLocalizations l, WalletService service, String text) {
   }
 }
 
+/// [checkRecipient] for a contact's address: a wallet URL is refused, since the wallet pays
+/// over epicbox and by transaction file only (OD-2), as Send refuses it.
+String? checkContactAddress(
+  AppLocalizations l,
+  WalletService service,
+  String text,
+) {
+  if (text.trim().isNotEmpty &&
+      parseRecipient(text).kind == RecipientKind.http) {
+    return l.contactsUrlUnsupported;
+  }
+  return checkRecipient(l, service, text);
+}
+
 /// The last [limit] distinct addresses this wallet sent to, newest first. Only sends that name
 /// their recipient count; cancelled sends are left out, since a cancel often follows a mistyped
 /// address.

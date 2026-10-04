@@ -2480,6 +2480,10 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String get contactsUrlUnsupported =>
+      'Платежи на URL кошелька не поддерживаются. Попросите у получателя его адрес epicbox.';
+
+  @override
   String contactsAddressInvalid(String example) {
     return 'Это недействительный адрес. Правильный адрес выглядит так: $example';
   }

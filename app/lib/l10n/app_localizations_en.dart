@@ -2353,6 +2353,10 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get contactsUrlUnsupported =>
+      'Payments to a wallet URL are not supported. Ask the recipient for their epicbox address.';
+
+  @override
   String contactsAddressInvalid(String example) {
     return 'This is not a valid address. It looks like $example';
   }

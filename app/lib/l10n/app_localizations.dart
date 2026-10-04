@@ -3386,6 +3386,12 @@ abstract class AppLocalizations {
   /// **'Enter the full wallet URL, such as {example}'**
   String contactsUrlIncomplete(String example);
 
+  /// Error under the address field of a contact when the user entered a wallet URL (http:// or https://). Same text as sendUrlUnsupported: the wallet sends over epicbox and by transaction file only. epicbox is a proper name.
+  ///
+  /// In en, this message translates to:
+  /// **'Payments to a wallet URL are not supported. Ask the recipient for their epicbox address.'**
+  String get contactsUrlUnsupported;
+
   /// Error under an address field. example shows the shape of an epicbox address.
   ///
   /// In en, this message translates to:

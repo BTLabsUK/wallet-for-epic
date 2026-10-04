@@ -541,6 +541,7 @@
   "contactsSave": "Zapisz kontakt",
   "contactsAddressMissing": "Wpisz adres odbiorcy lub URL portfela.",
   "contactsUrlIncomplete": "Wpisz pełny URL portfela, np. {example}",
+  "contactsUrlUnsupported": "Płatności na URL portfela nie są obsługiwane. Poproś odbiorcę o jego adres epicbox.",
   "contactsAddressInvalid": "To nie jest prawidłowy adres. Prawidłowy wygląda tak: {example}",
   "settingsTitle": "Ustawienia",
   "settingsSectionNetwork": "Sieć",
