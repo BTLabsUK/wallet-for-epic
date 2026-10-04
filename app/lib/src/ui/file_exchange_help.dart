@@ -465,6 +465,8 @@ class FileExchangePainter extends CustomPainter {
     final dot = Paint()..color = path;
     const gap = 9.0;
     final n = ((b.dx - a.dx).abs() / gap).floor();
+    // Too narrow for one gap: i / n would be NaN.
+    if (n == 0) return;
     for (var i = 0; i <= n; i++) {
       canvas.drawCircle(Offset.lerp(a, b, i / n)!, 1.2, dot);
     }
