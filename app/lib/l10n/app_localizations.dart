@@ -1682,6 +1682,18 @@ abstract class AppLocalizations {
   /// **'Payment to {who} finished. Waiting for confirmations.'**
   String homeNoticeFinishedTo(String who);
 
+  /// Notice: an incoming payment the wallet accepted before arrived again and got the same answer; it is not a second payment.
+  ///
+  /// In en, this message translates to:
+  /// **'This payment was already accepted. The sender got the same answer again; no second payment is on the way.'**
+  String get homeNoticeRepeated;
+
+  /// Notice: an incoming payment from a saved contact that the wallet accepted before arrived again and got the same answer; it is not a second payment.
+  ///
+  /// In en, this message translates to:
+  /// **'The payment from {who} was already accepted. They got the same answer again; no second payment is on the way.'**
+  String homeNoticeRepeatedFrom(String who);
+
   /// Notice: the answer to a payment arrived but the node (the Epic Cash server the wallet reads the chain from) could not be reached; the wallet retries.
   ///
   /// In en, this message translates to:
@@ -3151,6 +3163,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The {amount} arrive once the sender finishes the payment and it is on the chain.'**
   String slateAcceptedBody(String amount);
+
+  /// A transaction file this wallet accepted before was opened again: the same answer file can be given back; nothing new happened.
+  ///
+  /// In en, this message translates to:
+  /// **'Already accepted. Return {file} to the sender again.'**
+  String slateRepeatedHeadline(String file);
+
+  /// No description provided for @slateRepeatedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'You accepted this payment before, so this is the same answer, not a second payment. The {amount} arrive once the sender finishes it and it is on the chain.'**
+  String slateRepeatedBody(String amount);
 
   /// A transaction file that pays this wallet.
   ///

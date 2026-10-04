@@ -98,6 +98,11 @@ String paymentNotice(
         (final a?, null) => l.homeNoticeReceivedAmount(a),
         (final a?, final from?) => l.homeNoticeReceivedAmountFrom(a, from),
       };
+    case ListenerEventKind.repeated:
+      // The sender asked again and got the first answer; no second payment is on the way.
+      return contactName == null
+          ? l.homeNoticeRepeated
+          : l.homeNoticeRepeatedFrom(contactName);
     case ListenerEventKind.finalized:
       // Finished and posted, not yet confirmed: "Completed" is kept for 10 confirmations.
       return who == null ? l.homeNoticeFinished : l.homeNoticeFinishedTo(who);
@@ -216,12 +221,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       // Once per payment for as long as home is open, however often the answer is retried.
       if (slateId != null && !_delayedShown.add(slateId)) return;
     }
-    if (slateId != null) {
-      // The listener refreshes home right after this event; wait for that list.
+    final txId = event.txId;
+    if (slateId != null || txId != null) {
+      // The listener refreshes home right after this event, except for a repeat; wait for
+      // that list.
       await Future<void>.delayed(Duration.zero);
       try {
         final data = await ref.read(homeProvider.future);
-        tx = data.transactions.where((t) => t.slateId == slateId).firstOrNull;
+        tx = data.transactions
+            .where((t) => slateId != null ? t.slateId == slateId : t.id == txId)
+            .firstOrNull;
       } catch (_) {
         // Word it without the transaction.
       }

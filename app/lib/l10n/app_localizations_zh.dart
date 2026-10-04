@@ -1164,6 +1164,14 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String get homeNoticeRepeated => '这笔付款已被接受。发送方再次收到了相同的回复；不会有第二笔付款。';
+
+  @override
+  String homeNoticeRepeatedFrom(String who) {
+    return '来自 $who 的付款已被接受。对方再次收到了相同的回复；不会有第二笔付款。';
+  }
+
+  @override
   String get homeNoticeDelayed => '无法连接节点。连接恢复后，付款将自动完成。';
 
   @override
@@ -2081,6 +2089,16 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String slateAcceptedBody(String amount) {
     return '发送方完成付款并上链后，这笔 $amount 即会到账。';
+  }
+
+  @override
+  String slateRepeatedHeadline(String file) {
+    return '已接受过。请再次将 $file 发回给发送方。';
+  }
+
+  @override
+  String slateRepeatedBody(String amount) {
+    return '您之前已接受这笔付款，因此这是相同的回复，而不是第二笔付款。发送方完成付款并上链后，这笔 $amount 即会到账。';
   }
 
   @override

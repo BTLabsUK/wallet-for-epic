@@ -125,6 +125,49 @@ void main() {
     );
   });
 
+  test('a repeated receive keeps its flag and the first answer', () {
+    lepic.ReceivedSlate received({required bool repeated}) =>
+        lepic.ReceivedSlate(
+          txId: 4,
+          slateId: 'abc',
+          json: '{"r":1}',
+          repeated: repeated,
+        );
+    expect(
+      lepicReceivedSlate(received(repeated: true)),
+      const ReceivedSlate(slateId: 'abc', json: '{"r":1}', repeated: true),
+    );
+    expect(
+      lepicReceivedSlate(received(repeated: false)),
+      const ReceivedSlate(slateId: 'abc', json: '{"r":1}'),
+    );
+  });
+
+  test('listener kinds map one to one, a repeat apart from a receive', () {
+    for (final kind in lepic.ListenerEventKind.values) {
+      final event = lepicListenerEvent(
+        lepic.ListenerEvent(kind: kind, txId: 7, message: 'm'),
+      );
+      expect(event.kind.name, kind.name);
+      expect(event.txId, 7);
+      expect(event.message, 'm');
+    }
+    expect(
+      lepicListenerEvent(
+        const lepic.ListenerEvent(
+          kind: lepic.ListenerEventKind.repeated,
+          txId: 3,
+          message: 'answered again',
+        ),
+      ),
+      const ListenerEvent(
+        kind: ListenerEventKind.repeated,
+        txId: 3,
+        message: 'answered again',
+      ),
+    );
+  });
+
   test('contacts and enrichment answer without reaching LEPIC', () async {
     final session = LepicWalletSession(_NoNativeWallet());
     expect(await session.contacts(), isEmpty);

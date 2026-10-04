@@ -475,6 +475,7 @@ class ListenerNotifier extends Notifier<ListenerState> {
       case ListenerEventKind.stopped:
         state = ListenerState(status: 'Listener stopped', last: state.last);
       case ListenerEventKind.received ||
+          ListenerEventKind.repeated ||
           ListenerEventKind.finalized ||
           ListenerEventKind.expired ||
           ListenerEventKind.delayed ||
@@ -486,6 +487,8 @@ class ListenerNotifier extends Notifier<ListenerState> {
           last: event,
         );
         // An error about a payment may have changed it too (an expired send is cancelled).
+        // A repeat changed nothing, so it refreshes nothing.
+        if (event.kind == ListenerEventKind.repeated) return;
         if (event.kind != ListenerEventKind.error || event.slateId != null) {
           ref.invalidate(homeProvider);
         }

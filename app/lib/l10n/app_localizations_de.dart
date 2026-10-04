@@ -1246,6 +1246,15 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
+  String get homeNoticeRepeated =>
+      'Diese Zahlung wurde bereits angenommen. Der Absender hat dieselbe Antwort erneut erhalten; es ist keine zweite Zahlung unterwegs.';
+
+  @override
+  String homeNoticeRepeatedFrom(String who) {
+    return 'Die Zahlung von $who wurde bereits angenommen. Der Absender hat dieselbe Antwort erneut erhalten; es ist keine zweite Zahlung unterwegs.';
+  }
+
+  @override
   String get homeNoticeDelayed =>
       'Der Node ist nicht erreichbar. Die Zahlung wird abgeschlossen, sobald er wieder erreichbar ist.';
 
@@ -2239,6 +2248,16 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String slateAcceptedBody(String amount) {
     return 'Der Betrag von $amount trifft ein, sobald der Absender die Zahlung abschließt und sie in der Blockchain steht.';
+  }
+
+  @override
+  String slateRepeatedHeadline(String file) {
+    return 'Bereits angenommen. Senden Sie $file erneut an den Absender zurück.';
+  }
+
+  @override
+  String slateRepeatedBody(String amount) {
+    return 'Sie haben diese Zahlung bereits angenommen. Dies ist dieselbe Antwort, keine zweite Zahlung. Der Betrag von $amount trifft ein, sobald der Absender sie abschließt und sie in der Blockchain steht.';
   }
 
   @override

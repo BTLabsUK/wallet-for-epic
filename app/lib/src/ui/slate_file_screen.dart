@@ -34,8 +34,9 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
   String Function(AppLocalizations l)? _error;
   bool _busy = false;
 
-  /// The signed answer, once made, so it can be handed over again.
-  Slate? _response;
+  /// The signed answer, once made, so it can be handed over again. A repeat carries the answer
+  /// given the first time.
+  ReceivedSlate? _response;
   TxEntry? _posted;
 
   /// True until the core has read the file.
@@ -73,8 +74,9 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
     });
   }
 
-  /// Runs one wallet action at a time, then refreshes home, even if this screen has closed.
-  Future<void> _run(Future<void> Function(WalletSession session) action) async {
+  /// Runs one wallet action at a time, then refreshes home, even if this screen has closed,
+  /// unless the action returns false because it changed nothing.
+  Future<void> _run(Future<bool> Function(WalletSession session) action) async {
     if (_busy) return;
     final session = ref.read(sessionProvider);
     if (session == null) return;
@@ -84,8 +86,7 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
       _error = null;
     });
     try {
-      await action(session);
-      container.invalidate(homeProvider);
+      if (await action(session)) container.invalidate(homeProvider);
     } catch (error) {
       if (mounted) setState(() => _error = (l) => describeError(l, error));
     } finally {
@@ -96,6 +97,7 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
   Future<void> _sign() => _run((session) async {
     final response = await session.receiveSlate(slateJson: widget.file.json);
     if (mounted) setState(() => _response = response);
+    return !response.repeated;
   });
 
   Future<void> _finalize() {
@@ -105,6 +107,7 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
         () => session.finalizeAndPost(slateJson: widget.file.json),
       );
       if (mounted) setState(() => _posted = tx);
+      return true;
     });
   }
 
@@ -137,17 +140,23 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
           onPressed: () => Navigator.pop(context, true),
         ),
       ];
-    } else if (_response != null) {
+    } else if (_response case final response?) {
       final name = responseFileName(widget.file.name);
       body = [
         _Headline(
           icon: Icons.check_circle,
-          text: l.slateAcceptedHeadline(name),
+          text: response.repeated
+              ? l.slateRepeatedHeadline(name)
+              : l.slateAcceptedHeadline(name),
         ),
         const SizedBox(height: 8),
-        Text(l.slateAcceptedBody(epicText(l, info!.amount))),
+        Text(
+          response.repeated
+              ? l.slateRepeatedBody(epicText(l, info!.amount))
+              : l.slateAcceptedBody(epicText(l, info!.amount)),
+        ),
         const SizedBox(height: 24),
-        SlateFileButtons(name: name, json: _response!.json),
+        SlateFileButtons(name: name, json: response.json),
         const SizedBox(height: 8),
         TextButton(
           style: TextButton.styleFrom(minimumSize: const Size.fromHeight(48)),

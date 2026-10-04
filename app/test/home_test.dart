@@ -1011,6 +1011,52 @@ void main() {
       expect(find.text('Rent share'), findsOneWidget);
     });
 
+    test('a repeat says it was already accepted, never "on the way"', () {
+      const repeated = ListenerEvent(
+        kind: ListenerEventKind.repeated,
+        txId: 3,
+        message: 'raw',
+      );
+      final tx = fakeTx(amountCredited: _epic(1.5), counterparty: _bob);
+      expect(
+        paymentNotice(englishStrings, repeated, tx),
+        'This payment was already accepted. The sender got the same answer '
+        'again; no second payment is on the way.',
+      );
+      expect(
+        paymentNotice(englishStrings, repeated, tx, contactName: 'Alice'),
+        'The payment from Alice was already accepted. They got the same '
+        'answer again; no second payment is on the way.',
+      );
+    });
+
+    testWidgets('a repeated payment neither reloads home nor counts as new', (
+      tester,
+    ) async {
+      final h = _Harness();
+      await h.pump(tester);
+      final loads = h.session.transactionsCalls;
+      h.session.listenerEvents.add(
+        const ListenerEvent(
+          kind: ListenerEventKind.repeated,
+          txId: 3,
+          message: 'answered again',
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(
+        find.textContaining('This payment was already accepted.'),
+        findsOneWidget,
+      );
+      expect(find.textContaining('on the way. It completes'), findsNothing);
+      expect(h.session.transactionsCalls, loads);
+      // The notice still leads to the payment answered the first time.
+      await tester.tap(find.text('View'));
+      await tester.pumpAndSettle();
+      expect(find.byType(TxDetailsScreen), findsOneWidget);
+      expect(find.text('Rent share'), findsOneWidget);
+    });
+
     testWidgets('a completed send names the contact', (tester) async {
       final h = _Harness();
       h.session.contactsValue.add(

@@ -160,7 +160,9 @@ abstract interface class WalletSession {
 
   Future<void> stopListener();
 
-  Future<Slate> receiveSlate({required String slateJson});
+  /// Signs an incoming send. The same slate again returns the answer given the first time with
+  /// [ReceivedSlate.repeated] set; nothing is stored or signed again.
+  Future<ReceivedSlate> receiveSlate({required String slateJson});
 
   Stream<ScanProgress> scan({BigInt? startHeight});
 
@@ -572,10 +574,16 @@ class FakeWalletSession implements WalletSession {
     );
   }
 
+  /// Like LEPIC, a slate received before gets the same answer, marked as a repeat.
   @override
-  Future<Slate> receiveSlate({required String slateJson}) async {
+  Future<ReceivedSlate> receiveSlate({required String slateJson}) async {
+    final repeated = receivedSlates.contains(slateJson);
     receivedSlates.add(slateJson);
-    return responseSlate;
+    return ReceivedSlate(
+      slateId: responseSlate.slateId,
+      json: responseSlate.json,
+      repeated: repeated,
+    );
   }
 
   TxEntry _pendingSend(BigInt amount, {String? to}) => fakeTx(
@@ -653,10 +661,14 @@ class FakeWalletSession implements WalletSession {
     );
   }
 
+  /// Number of [transactions] calls, so a test can tell whether home reloaded.
+  int transactionsCalls = 0;
+
   @override
-  Future<List<TxEntry>> transactions({required bool refresh}) async => [
-    for (final tx in transactionsValue) _withNote(tx),
-  ];
+  Future<List<TxEntry>> transactions({required bool refresh}) async {
+    transactionsCalls++;
+    return [for (final tx in transactionsValue) _withNote(tx)];
+  }
 
   /// Rows [enrichHistory] reports as changed on its next call (then 0 again).
   int enrichChanges = 0;

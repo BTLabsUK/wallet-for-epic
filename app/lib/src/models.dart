@@ -115,6 +115,10 @@ class ImportReport {
 class ListenerEvent {
   final ListenerEventKind kind;
   final String? slateId;
+
+  /// Local id of the transaction, for `Received`, `Repeated` and `Finalized`, when the core
+  /// names it.
+  final int? txId;
   final String message;
 
   /// For `Received`, `Finalized`, `Expired` and `Delayed`: the slate's amount (what arrived,
@@ -124,13 +128,18 @@ class ListenerEvent {
   const ListenerEvent({
     required this.kind,
     this.slateId,
+    this.txId,
     required this.message,
     this.amount,
   });
 
   @override
   int get hashCode =>
-      kind.hashCode ^ slateId.hashCode ^ message.hashCode ^ amount.hashCode;
+      kind.hashCode ^
+      slateId.hashCode ^
+      txId.hashCode ^
+      message.hashCode ^
+      amount.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -139,6 +148,7 @@ class ListenerEvent {
           runtimeType == other.runtimeType &&
           kind == other.kind &&
           slateId == other.slateId &&
+          txId == other.txId &&
           message == other.message &&
           amount == other.amount;
 }
@@ -153,6 +163,10 @@ enum ListenerEventKind {
 
   /// Signed an incoming send and returned it to the sender.
   received,
+
+  /// A payment answered before arrived again and got the same answer. Nothing changed; it is
+  /// not a second payment. `txId` names the transaction from the first time.
+  repeated,
 
   /// Finalized and posted one of our sends.
   finalized,
@@ -265,6 +279,26 @@ class Slate {
           runtimeType == other.runtimeType &&
           slateId == other.slateId &&
           json == other.json;
+}
+
+/// The answer to a received slate.
+class ReceivedSlate extends Slate {
+  /// The slate was received before: [json] is the answer given then, byte for byte, and
+  /// nothing changed in the wallet. Show it as already answered, not as a second payment.
+  final bool repeated;
+
+  const ReceivedSlate({
+    required super.slateId,
+    required super.json,
+    this.repeated = false,
+  });
+
+  @override
+  int get hashCode => super.hashCode ^ repeated.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      super == other && other is ReceivedSlate && repeated == other.repeated;
 }
 
 /// A slate's header, read without touching the wallet.

@@ -1241,6 +1241,15 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get homeNoticeRepeated =>
+      'This payment was already accepted. The sender got the same answer again; no second payment is on the way.';
+
+  @override
+  String homeNoticeRepeatedFrom(String who) {
+    return 'The payment from $who was already accepted. They got the same answer again; no second payment is on the way.';
+  }
+
+  @override
   String get homeNoticeDelayed =>
       'Could not reach the node. The payment will finish once it can.';
 
@@ -2212,6 +2221,16 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String slateAcceptedBody(String amount) {
     return 'The $amount arrive once the sender finishes the payment and it is on the chain.';
+  }
+
+  @override
+  String slateRepeatedHeadline(String file) {
+    return 'Already accepted. Return $file to the sender again.';
+  }
+
+  @override
+  String slateRepeatedBody(String amount) {
+    return 'You accepted this payment before, so this is the same answer, not a second payment. The $amount arrive once the sender finishes it and it is on the chain.';
   }
 
   @override

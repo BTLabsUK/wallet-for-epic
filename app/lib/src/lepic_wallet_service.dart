@@ -105,17 +105,25 @@ WalletSummary _summary(lepic.WalletSummary s) => WalletSummary(
   validatedWithNode: s.validatedWithNode,
 );
 
-ListenerEvent _listenerEvent(lepic.ListenerEvent e) => ListenerEvent(
+/// LEPIC's listener event as the app's. `repeated` stays apart from `received`: it is a slate
+/// answered before, not a new payment.
+ListenerEvent lepicListenerEvent(lepic.ListenerEvent e) => ListenerEvent(
   kind: switch (e.kind) {
     lepic.ListenerEventKind.connected => ListenerEventKind.connected,
     lepic.ListenerEventKind.disconnected => ListenerEventKind.disconnected,
     lepic.ListenerEventKind.received => ListenerEventKind.received,
+    lepic.ListenerEventKind.repeated => ListenerEventKind.repeated,
     lepic.ListenerEventKind.finalized => ListenerEventKind.finalized,
     lepic.ListenerEventKind.error => ListenerEventKind.error,
     lepic.ListenerEventKind.stopped => ListenerEventKind.stopped,
   },
+  txId: e.txId,
   message: e.message,
 );
+
+/// LEPIC's answer to a received slate as the app's, keeping whether it was a repeat.
+ReceivedSlate lepicReceivedSlate(lepic.ReceivedSlate s) =>
+    ReceivedSlate(slateId: s.slateId, json: s.json, repeated: s.repeated);
 
 /// LEPIC's reading of a slate as the old core's. LEPIC names every step; the app tells only a
 /// send to sign from an answer to finalize, as the old core did: a finalized S3 reads as an
@@ -550,7 +558,7 @@ class LepicWalletSession implements WalletSession {
 
   @override
   Stream<ListenerEvent> startListener() =>
-      _guardStream(_wallet.startListener().map(_listenerEvent));
+      _guardStream(_wallet.startListener().map(lepicListenerEvent));
 
   @override
   Future<void> stopListener() async {
@@ -558,10 +566,10 @@ class LepicWalletSession implements WalletSession {
   }
 
   @override
-  Future<Slate> receiveSlate({required String slateJson}) => _guard(() async {
-    final slate = await _wallet.receiveSlate(slateJson: slateJson);
-    return Slate(slateId: slate.slateId, json: slate.json);
-  });
+  Future<ReceivedSlate> receiveSlate({required String slateJson}) => _guard(
+    () async =>
+        lepicReceivedSlate(await _wallet.receiveSlate(slateJson: slateJson)),
+  );
 
   @override
   Stream<ScanProgress> scan({BigInt? startHeight}) => _guardStream(

@@ -1309,6 +1309,20 @@
       }
     }
   },
+  "homeNoticeRepeated": "This payment was already accepted. The sender got the same answer again; no second payment is on the way.",
+  "@homeNoticeRepeated": {
+    "description": "Notice: an incoming payment the wallet accepted before arrived again and got the same answer; it is not a second payment."
+  },
+  "homeNoticeRepeatedFrom": "The payment from {who} was already accepted. They got the same answer again; no second payment is on the way.",
+  "@homeNoticeRepeatedFrom": {
+    "description": "Notice: an incoming payment from a saved contact that the wallet accepted before arrived again and got the same answer; it is not a second payment.",
+    "placeholders": {
+      "who": {
+        "type": "String",
+        "example": "Alice"
+      }
+    }
+  },
   "homeNoticeDelayed": "Could not reach the node. The payment will finish once it can.",
   "@homeNoticeDelayed": {
     "description": "Notice: the answer to a payment arrived but the node (the Epic Cash server the wallet reads the chain from) could not be reached; the wallet retries."
@@ -2537,6 +2551,25 @@
   },
   "slateAcceptedBody": "The {amount} arrive once the sender finishes the payment and it is on the chain.",
   "@slateAcceptedBody": {
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "1.5 EPIC"
+      }
+    }
+  },
+  "slateRepeatedHeadline": "Already accepted. Return {file} to the sender again.",
+  "@slateRepeatedHeadline": {
+    "description": "A transaction file this wallet accepted before was opened again: the same answer file can be given back; nothing new happened.",
+    "placeholders": {
+      "file": {
+        "type": "String",
+        "example": "0f3c…e1.tx.response"
+      }
+    }
+  },
+  "slateRepeatedBody": "You accepted this payment before, so this is the same answer, not a second payment. The {amount} arrive once the sender finishes it and it is on the chain.",
+  "@slateRepeatedBody": {
     "placeholders": {
       "amount": {
         "type": "String",

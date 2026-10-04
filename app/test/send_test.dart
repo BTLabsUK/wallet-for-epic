@@ -1859,6 +1859,40 @@ void main() {
       expect(h.files.shared.single.name, 'from-bob.tx.response');
     });
 
+    testWidgets('a file accepted before says so and hands out the same answer', (
+      tester,
+    ) async {
+      final h = _Harness();
+      const incoming = '{"id":"incoming"}';
+      h.service.slateInfos[incoming] = SlateInfo(
+        slateId: 'incoming',
+        amount: _epic(3),
+        fee: BigInt.zero,
+        stage: SlateStage.send,
+      );
+      // Accepted once already, as through the listener or an earlier open.
+      await h.session.receiveSlate(slateJson: incoming);
+      await h.pump(
+        tester,
+        const SlateFileScreen(
+          file: SlateFile(name: 'from-bob.tx', json: incoming),
+        ),
+      );
+      await _tap(tester, find.text('Accept payment'));
+      expect(h.session.receivedSlates, [incoming, incoming]);
+      expect(
+        find.text(
+          'Already accepted. Return from-bob.tx.response to the sender again.',
+        ),
+        findsOneWidget,
+      );
+      expect(find.textContaining('not a second payment'), findsOneWidget);
+      expect(find.textContaining('Accepted. Return'), findsNothing);
+      await _tap(tester, find.text('Save to device'));
+      expect(h.files.saved.single.name, 'from-bob.tx.response');
+      expect(h.files.saved.single.json, h.session.responseSlate.json);
+    });
+
     testWidgets('the file screen waits for the core, and refuses invoices', (
       tester,
     ) async {

@@ -1330,6 +1330,15 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String get homeNoticeRepeated =>
+      'Этот платёж уже принят. Отправитель снова получил тот же ответ; второго платежа не будет.';
+
+  @override
+  String homeNoticeRepeatedFrom(String who) {
+    return 'Платёж от $who уже принят. Отправитель снова получил тот же ответ; второго платежа не будет.';
+  }
+
+  @override
   String get homeNoticeDelayed =>
       'Не удаётся подключиться к узлу. Платёж будет завершён, как только это станет возможно.';
 
@@ -2339,6 +2348,16 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String slateAcceptedBody(String amount) {
     return 'Сумма $amount поступит, когда отправитель завершит платёж и он попадёт в блокчейн.';
+  }
+
+  @override
+  String slateRepeatedHeadline(String file) {
+    return 'Уже принято. Верните $file отправителю ещё раз.';
+  }
+
+  @override
+  String slateRepeatedBody(String amount) {
+    return 'Вы уже приняли этот платёж, поэтому это тот же ответ, а не второй платёж. Сумма $amount поступит, когда отправитель завершит платёж и он попадёт в блокчейн.';
   }
 
   @override

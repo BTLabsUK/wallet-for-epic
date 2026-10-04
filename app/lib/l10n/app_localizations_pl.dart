@@ -1332,6 +1332,15 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
+  String get homeNoticeRepeated =>
+      'Ta płatność została już przyjęta. Nadawca ponownie otrzymał tę samą odpowiedź; żadna druga płatność nie jest w drodze.';
+
+  @override
+  String homeNoticeRepeatedFrom(String who) {
+    return 'Płatność od $who została już przyjęta. Nadawca ponownie otrzymał tę samą odpowiedź; żadna druga płatność nie jest w drodze.';
+  }
+
+  @override
   String get homeNoticeDelayed =>
       'Nie można połączyć się z węzłem. Płatność zostanie sfinalizowana, gdy będzie to możliwe.';
 
@@ -2362,6 +2371,16 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String slateAcceptedBody(String amount) {
     return 'Kwota $amount dotrze, gdy nadawca sfinalizuje płatność i trafi ona do łańcucha.';
+  }
+
+  @override
+  String slateRepeatedHeadline(String file) {
+    return 'Już przyjęto. Odeślij $file nadawcy ponownie.';
+  }
+
+  @override
+  String slateRepeatedBody(String amount) {
+    return 'Ta płatność została już przyjęta, więc to ta sama odpowiedź, a nie druga płatność. Kwota $amount dotrze, gdy nadawca ją sfinalizuje i trafi ona do łańcucha.';
   }
 
   @override
