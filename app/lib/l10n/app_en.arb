@@ -2570,6 +2570,7 @@
   },
   "slateRepeatedBody": "You accepted this payment before, so this is the same answer, not a second payment. The {amount} arrive once the sender finishes it and it is on the chain.",
   "@slateRepeatedBody": {
+    "description": "Body under slateRepeatedHeadline: the payment was accepted before; this is the same answer, not a second payment.",
     "placeholders": {
       "amount": {
         "type": "String",

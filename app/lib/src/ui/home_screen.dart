@@ -72,7 +72,7 @@ int? paymentsNotInBackup(
 }
 
 /// The notice for a listener event: what happened to which payment, never the raw message.
-/// [tx] is the transaction with the event's slate id, when the list has it.
+/// [tx] is the transaction with the event's slate id, else its tx id, when the list has it.
 String paymentNotice(
   AppLocalizations l,
   ListenerEvent event,

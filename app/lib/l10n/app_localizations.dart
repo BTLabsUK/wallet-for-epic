@@ -3170,7 +3170,7 @@ abstract class AppLocalizations {
   /// **'Already accepted. Return {file} to the sender again.'**
   String slateRepeatedHeadline(String file);
 
-  /// No description provided for @slateRepeatedBody.
+  /// Body under slateRepeatedHeadline: the payment was accepted before; this is the same answer, not a second payment.
   ///
   /// In en, this message translates to:
   /// **'You accepted this payment before, so this is the same answer, not a second payment. The {amount} arrive once the sender finishes it and it is on the chain.'**

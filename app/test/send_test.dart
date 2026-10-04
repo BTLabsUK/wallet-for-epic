@@ -1872,14 +1872,22 @@ void main() {
       );
       // Accepted once already, as through the listener or an earlier open.
       await h.session.receiveSlate(slateJson: incoming);
+      // Home's data stays watched, so a refresh would reload the transactions.
       await h.pump(
         tester,
-        const SlateFileScreen(
-          file: SlateFile(name: 'from-bob.tx', json: incoming),
+        Consumer(
+          builder: (context, ref, _) {
+            ref.watch(homeProvider);
+            return const SlateFileScreen(
+              file: SlateFile(name: 'from-bob.tx', json: incoming),
+            );
+          },
         ),
       );
+      final loads = h.session.transactionsCalls;
       await _tap(tester, find.text('Accept payment'));
       expect(h.session.receivedSlates, [incoming, incoming]);
+      expect(h.session.transactionsCalls, loads);
       expect(
         find.text(
           'Already accepted. Return from-bob.tx.response to the sender again.',
