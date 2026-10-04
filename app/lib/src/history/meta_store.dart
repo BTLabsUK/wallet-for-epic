@@ -563,7 +563,15 @@ class MetaStore {
         if (e is! FormatException && e is! MetaFormatException) rethrow;
         // Timestamped, so a second damaged file does not replace the first.
         final aside = '$path.corrupt-${DateTime.now().millisecondsSinceEpoch}';
-        logWarn('history', '$metaFileName is unreadable ($e); moved aside');
+        // Never the exception's text: Dart's FormatException quotes the source, which holds
+        // notes and addresses. serde's error in the old core named only the position.
+        final why = switch (e) {
+          FormatException(:final offset) =>
+            offset == null ? 'not JSON' : 'not JSON at byte $offset',
+          MetaFormatException(:final message) => 'wrong shape: $message',
+          _ => 'unreadable',
+        };
+        logWarn('history', '$metaFileName is unreadable ($why); moved aside');
         try {
           await file.rename(aside);
         } on FileSystemException catch (e) {

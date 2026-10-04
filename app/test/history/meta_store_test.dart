@@ -3,6 +3,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:epic_wallet/src/app_log.dart';
 import 'package:epic_wallet/src/history/meta_store.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -122,6 +123,28 @@ void main() {
       '{ not json',
       '{"notes":["a"]}',
     ], reason: 'the first damaged copy is kept');
+  });
+
+  test('a damaged file is logged without its contents', () async {
+    const secret = 'rent to carol';
+    final damaged = [
+      '{"notes":{"s:1":"$secret"},x',
+      '{"notes":{"s:1":"$secret"},"contacts":"$secret"}',
+      '{"notes":{"s:1":"$secret"}',
+    ];
+    for (final text in damaged) {
+      AppLog.use(MemoryLogSink());
+      metaFile().writeAsStringSync(text);
+      await MetaStore.open(dir.path);
+      final log = await AppLog.sink.tail(1 << 16);
+      expect(log, contains('$metaFileName is unreadable'), reason: text);
+      expect(log, isNot(contains(secret)), reason: text);
+    }
+    // Bytes that are not UTF-8 are named by position only too.
+    AppLog.use(MemoryLogSink());
+    metaFile().writeAsBytesSync([...utf8.encode('{"notes":{"$secret'), 0xff]);
+    await MetaStore.open(dir.path);
+    expect(await AppLog.sink.tail(1 << 16), isNot(contains(secret)));
   });
 
   test('a newer file version is read but never rewritten', () async {
