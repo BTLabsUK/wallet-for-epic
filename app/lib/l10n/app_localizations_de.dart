@@ -1471,6 +1471,10 @@ class AppLocalizationsDe extends AppLocalizations {
   String get receiveAccept => 'Zahlung annehmen';
 
   @override
+  String get receiveRepeatedTitle =>
+      'Bereits angenommen. Senden Sie dieselbe Antwort erneut an den Absender zurück; es ist keine zweite Zahlung.';
+
+  @override
   String get receiveResponseTitle =>
       'Diese Antwort an den Absender zurücksenden';
 

@@ -310,6 +310,7 @@
   "receiveSlateLabel": "交易文本",
   "receivePasteFirst": "请粘贴你收到的交易文本。",
   "receiveAccept": "接受付款",
+  "receiveRepeatedTitle": "已接受过。请将相同的回复再次发回给发送方；这不是第二笔付款。",
   "receiveResponseTitle": "将此回复发回给发送方",
   "receiveAnother": "接收另一笔付款",
   "updateChecking": "正在检查更新…",

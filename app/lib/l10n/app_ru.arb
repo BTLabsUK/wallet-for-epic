@@ -310,6 +310,7 @@
   "receiveSlateLabel": "Текст транзакции",
   "receivePasteFirst": "Вставьте полученный текст транзакции.",
   "receiveAccept": "Принять платёж",
+  "receiveRepeatedTitle": "Уже принято. Верните отправителю тот же ответ; это не второй платёж.",
   "receiveResponseTitle": "Верните этот ответ отправителю",
   "receiveAnother": "Получить ещё один платёж",
   "updateChecking": "Проверка обновлений…",

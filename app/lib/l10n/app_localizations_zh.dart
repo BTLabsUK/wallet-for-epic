@@ -1370,6 +1370,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get receiveAccept => '接受付款';
 
   @override
+  String get receiveRepeatedTitle => '已接受过。请将相同的回复再次发回给发送方；这不是第二笔付款。';
+
+  @override
   String get receiveResponseTitle => '将此回复发回给发送方';
 
   @override

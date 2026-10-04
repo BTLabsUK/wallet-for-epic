@@ -2000,6 +2000,12 @@ abstract class AppLocalizations {
   /// **'Accept payment'**
   String get receiveAccept;
 
+  /// Title of the box with the transaction text (slate JSON) when the pasted payment was accepted before: the same answer as the first time, no new payment.
+  ///
+  /// In en, this message translates to:
+  /// **'Already accepted. Return this same response to the sender; it is not a second payment.'**
+  String get receiveRepeatedTitle;
+
   /// Title of the box with the signed transaction text (slate JSON) the user passes back to the sender.
   ///
   /// In en, this message translates to:

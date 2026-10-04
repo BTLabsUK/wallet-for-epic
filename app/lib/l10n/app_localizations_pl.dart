@@ -1571,6 +1571,10 @@ class AppLocalizationsPl extends AppLocalizations {
   String get receiveAccept => 'Przyjmij płatność';
 
   @override
+  String get receiveRepeatedTitle =>
+      'Już przyjęto. Odeślij nadawcy tę samą odpowiedź; to nie jest druga płatność.';
+
+  @override
   String get receiveResponseTitle => 'Odeślij tę odpowiedź nadawcy';
 
   @override

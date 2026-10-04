@@ -29,7 +29,8 @@ class ReceiveScreen extends ConsumerStatefulWidget {
 
 class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
   final _incoming = TextEditingController();
-  Slate? _response;
+  /// A repeat carries the answer given the first time.
+  ReceivedSlate? _response;
   String? _error;
   bool _busy = false;
 
@@ -56,7 +57,8 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
     });
     try {
       final response = await session.receiveSlate(slateJson: json);
-      container.invalidate(homeProvider);
+      // A repeat changed nothing, so home keeps what it shows.
+      if (!response.repeated) container.invalidate(homeProvider);
       if (mounted) setState(() => _response = response);
     } catch (error) {
       if (mounted) setState(() => _error = describeError(context.l10n, error));
@@ -131,7 +133,12 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
             if (_error != null) ErrorText(_error!),
             BusyButton(label: l.receiveAccept, busy: _busy, onPressed: _sign),
           ] else ...[
-            SlateBox(title: l.receiveResponseTitle, json: response.json),
+            SlateBox(
+              title: response.repeated
+                  ? l.receiveRepeatedTitle
+                  : l.receiveResponseTitle,
+              json: response.json,
+            ),
             const SizedBox(height: 16),
             OutlinedButton(onPressed: _reset, child: Text(l.receiveAnother)),
           ],

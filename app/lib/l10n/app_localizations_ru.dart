@@ -1564,6 +1564,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get receiveAccept => 'Принять платёж';
 
   @override
+  String get receiveRepeatedTitle =>
+      'Уже принято. Верните отправителю тот же ответ; это не второй платёж.';
+
+  @override
   String get receiveResponseTitle => 'Верните этот ответ отправителю';
 
   @override

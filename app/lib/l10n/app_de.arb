@@ -310,6 +310,7 @@
   "receiveSlateLabel": "Transaktionstext",
   "receivePasteFirst": "Fügen Sie den erhaltenen Transaktionstext ein.",
   "receiveAccept": "Zahlung annehmen",
+  "receiveRepeatedTitle": "Bereits angenommen. Senden Sie dieselbe Antwort erneut an den Absender zurück; es ist keine zweite Zahlung.",
   "receiveResponseTitle": "Diese Antwort an den Absender zurücksenden",
   "receiveAnother": "Weitere Zahlung empfangen",
   "updateChecking": "Suche nach Updates…",

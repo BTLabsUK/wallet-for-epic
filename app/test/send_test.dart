@@ -1958,6 +1958,47 @@ void main() {
       expect(h.session.receivedSlates, ['{"id":"incoming"}']);
       expect(find.text(h.session.responseSlate.json), findsOneWidget);
     });
+
+    testWidgets('pasted text accepted before says so and gives the same answer', (
+      tester,
+    ) async {
+      final h = _Harness(advanced: true);
+      const incoming = '{"id":"incoming"}';
+      // Accepted once already, as through the listener or a file.
+      await h.session.receiveSlate(slateJson: incoming);
+      // Home's data stays watched, so a refresh would reload the transactions.
+      await h.pump(
+        tester,
+        Consumer(
+          builder: (context, ref, _) {
+            ref.watch(homeProvider);
+            return const ReceiveScreen();
+          },
+        ),
+      );
+      await _tap(tester, find.text('Receive a transaction file'));
+      await _tap(tester, find.text('Paste the transaction text instead'));
+      await tester.enterText(
+        find.descendant(
+          of: find.byType(SlateInput),
+          matching: find.byType(TextField),
+        ),
+        incoming,
+      );
+      final loads = h.session.transactionsCalls;
+      await _tap(tester, find.text('Accept payment'));
+      expect(h.session.receivedSlates, [incoming, incoming]);
+      expect(h.session.transactionsCalls, loads);
+      expect(
+        find.text(
+          'Already accepted. Return this same response to the sender; it is '
+          'not a second payment.',
+        ),
+        findsOneWidget,
+      );
+      expect(find.text('Return this response to the sender'), findsNothing);
+      expect(find.text(h.session.responseSlate.json), findsOneWidget);
+    });
   });
 
   group('advanced options', () {

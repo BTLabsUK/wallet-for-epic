@@ -1589,6 +1589,10 @@
   "@receiveAccept": {
     "description": "Button that signs the pasted transaction text as the recipient."
   },
+  "receiveRepeatedTitle": "Already accepted. Return this same response to the sender; it is not a second payment.",
+  "@receiveRepeatedTitle": {
+    "description": "Title of the box with the transaction text (slate JSON) when the pasted payment was accepted before: the same answer as the first time, no new payment."
+  },
   "receiveResponseTitle": "Return this response to the sender",
   "@receiveResponseTitle": {
     "description": "Title of the box with the signed transaction text (slate JSON) the user passes back to the sender."
