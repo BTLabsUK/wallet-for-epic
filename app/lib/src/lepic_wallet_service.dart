@@ -3,8 +3,8 @@
 /// The default core (`core_backend.dart`); `WFE_CORE=epicwallet` selects the old one. It speaks the same
 /// interface as [RustWalletService], so the UI does not know which core runs. LEPIC lacks some
 /// calls the UI uses; [lepicMissing] lists them, and each throws [lepicUnsupported] until the
-/// matching request to LEPIC lands and the pin moves. `contacts` answers
-/// with an empty book until notes and contacts move to Dart (H-01).
+/// matching request to LEPIC lands and the pin moves. Notes, contacts,
+/// imported records and history files are the app's own, in `history/` (H-01).
 library;
 
 import 'dart:async';
@@ -14,19 +14,15 @@ import 'dart:typed_data';
 import 'package:lepic/lepic.dart' as lepic;
 
 import 'app_log.dart';
+import 'history/export.dart';
+import 'history/meta_store.dart';
+import 'history/wallet_history.dart';
 import 'secret_store.dart';
 import 'wallet_service.dart';
 
 /// Calls of [WalletService] and [WalletSession] that LEPIC cannot serve yet, with the request
 /// that unblocks each. `test/lepic_mapping_test.dart` keeps this list and the code in step.
-const Map<String, String> lepicMissing = {
-  'setTxNote': 'H-01',
-  'saveContact': 'H-01',
-  'deleteContact': 'H-01',
-  'exportHistory': 'H-02, UP-5',
-  'exportHistoryCsv': 'H-01',
-  'importHistory': 'H-02, UP-5',
-};
+const Map<String, String> lepicMissing = {};
 
 /// The error a call in [lepicMissing] throws.
 WalletError lepicUnsupported(String call) => WalletError(
@@ -317,7 +313,8 @@ class LepicWalletService implements WalletService {
     String? mnemonic,
     required String password,
   }) => _guard(
-    () async => LepicWalletSession(
+    () async => _session(
+      config,
       await lepic.EpicWallet.create(
         runtime: _runtime,
         config: _config(config),
@@ -333,7 +330,8 @@ class LepicWalletService implements WalletService {
     required WalletConfig config,
     required String password,
   }) => _guard(
-    () async => LepicWalletSession(
+    () async => _session(
+      config,
       await lepic.EpicWallet.open(
         runtime: _runtime,
         config: _config(config),
@@ -342,6 +340,22 @@ class LepicWalletService implements WalletService {
       ),
     ),
   );
+
+  /// [wallet] with its history archive, `<dataDir>/wfe_meta.json`. A wallet whose archive
+  /// cannot be read is closed again.
+  Future<LepicWalletSession> _session(
+    WalletConfig config,
+    lepic.EpicWallet wallet,
+  ) async {
+    try {
+      final history = await WalletHistory.open(config.dataDir, config.chain);
+      return LepicWalletSession(wallet, history: history);
+    } catch (_) {
+      wallet.lock();
+      wallet.dispose();
+      rethrow;
+    }
+  }
 
   @override
   Future<PinWallet> createWithPin({
@@ -357,7 +371,7 @@ class LepicWalletService implements WalletService {
       pin: pin,
     );
     return (
-      session: LepicWalletSession(created.wallet) as WalletSession,
+      session: await _session(config, created.wallet) as WalletSession,
       sealedPassword: created.sealedPassword,
     );
   });
@@ -368,7 +382,8 @@ class LepicWalletService implements WalletService {
     required String pin,
     required String sealedPassword,
   }) => _guard(
-    () async => LepicWalletSession(
+    () async => _session(
+      config,
       await lepic.EpicWallet.openWithPin(
         runtime: _runtime,
         config: _config(config),
@@ -390,31 +405,62 @@ class LepicWalletService implements WalletService {
   }
 
   @override
-  Future<void> deleteWallet({required WalletConfig config}) => _guard(
-    () => lepic.deleteWallet(
+  Future<void> deleteWallet({required WalletConfig config}) => _guard(() async {
+    await lepic.deleteWallet(
       runtime: _runtime,
       config: _config(config),
       store: _store(config),
-    ),
-  );
+    );
+    // After LEPIC, which refuses while a wallet on the directory is open.
+    await MetaStore.deleteFiles(config.dataDir);
+  });
 }
 
-/// An open LEPIC wallet. Public so tests can wrap a stand-in `EpicWallet`.
+/// What a history file names as the program that wrote it. Informational only.
+const String historyAppVersion = 'wfe-lepic';
+
+/// An open LEPIC wallet. Public so tests can wrap a stand-in `EpicWallet`; without [history]
+/// it keeps notes and contacts in memory only.
 class LepicWalletSession implements WalletSession {
-  LepicWalletSession(this._wallet);
+  LepicWalletSession(this._wallet, {WalletHistory? history})
+    : _history = history ?? WalletHistory.memory();
 
   final lepic.EpicWallet _wallet;
+  final WalletHistory _history;
 
   @override
   void dispose() {
+    _history.close();
     if (_wallet.isDisposed) return;
     _wallet.lock();
     _wallet.dispose();
   }
 
+  /// LEPIC's rows, before the archive is merged in.
+  Future<List<TxEntry>> _live() async => [
+    for (final d in await _wallet.transactions()) lepicTxEntry(d),
+  ];
+
   /// The stored row of [txId], as the history shows it.
-  Future<TxEntry> _entry(int txId) async =>
-      lepicTxEntry(await _wallet.transaction(txId: txId));
+  Future<TxEntry> _entry(int txId) async {
+    final live = await _live();
+    final shown = _history
+        .transactions(live)
+        .where((t) => t.id == txId)
+        .firstOrNull;
+    return shown ?? lepicTxEntry(await _wallet.transaction(txId: txId));
+  }
+
+  /// The LEPIC id behind a history key: `l:<id>`, or the row shown under [key].
+  Future<int> _txIdOf(String key) async {
+    if (key.startsWith('l:')) return lepicTxId(key);
+    final id = _history
+        .transactions(await _live())
+        .where((t) => t.key == key)
+        .firstOrNull
+        ?.id;
+    return id ?? lepicTxId(key);
+  }
 
   @override
   Future<String> mnemonic({required String password}) =>
@@ -442,9 +488,8 @@ class LepicWalletSession implements WalletSession {
   );
 
   @override
-  Future<void> confirmPinChange({required String sealedPassword}) => _guard(
-    () => _wallet.confirmPinChange(sealedPassword: sealedPassword),
-  );
+  Future<void> confirmPinChange({required String sealedPassword}) =>
+      _guard(() => _wallet.confirmPinChange(sealedPassword: sealedPassword));
 
   @override
   Future<void> cancelTransaction({required int txId}) =>
@@ -452,11 +497,11 @@ class LepicWalletSession implements WalletSession {
 
   @override
   Future<void> repostTransaction({required String key}) =>
-      _guard(() => _wallet.repostTransaction(txId: lepicTxId(key)));
+      _guard(() async => _wallet.repostTransaction(txId: await _txIdOf(key)));
 
   @override
   Future<void> releaseStuckSend({required String key}) =>
-      _guard(() => _wallet.releaseTransaction(txId: lepicTxId(key)));
+      _guard(() async => _wallet.releaseTransaction(txId: await _txIdOf(key)));
 
   @override
   Future<Slate> createSendSlate({
@@ -593,9 +638,7 @@ class LepicWalletSession implements WalletSession {
   Future<List<TxEntry>> transactions({required bool refresh}) =>
       _guard(() async {
         if (refresh) await _wallet.summary(refresh: true);
-        final rows = (await _wallet.transactions()).map(lepicTxEntry).toList()
-          ..sort((a, b) => b.timeUnix.compareTo(a.timeUnix));
-        return rows;
+        return _history.transactions(await _live());
       });
 
   /// LEPIC stores heights and times as it confirms, so nothing is left to fill in.
@@ -603,30 +646,65 @@ class LepicWalletSession implements WalletSession {
   Future<int> enrichHistory() async => 0;
 
   @override
-  Future<void> setTxNote({required String key, String? note}) async =>
-      throw lepicUnsupported('setTxNote');
-
-  /// No address book on this core yet (H-01); an empty one keeps the screens usable.
-  @override
-  Future<List<Contact>> contacts() async => const [];
+  Future<void> setTxNote({required String key, String? note}) =>
+      _guard(() async => _history.setNote(await _live(), key, note));
 
   @override
-  Future<Contact> saveContact({required Contact contact}) async =>
-      throw lepicUnsupported('saveContact');
+  Future<List<Contact>> contacts() async => _history.contacts();
 
   @override
-  Future<void> deleteContact({required String id}) async =>
-      throw lepicUnsupported('deleteContact');
+  Future<Contact> saveContact({required Contact contact}) =>
+      _history.saveContact(contact);
 
   @override
-  Future<Uint8List> exportHistory() async =>
-      throw lepicUnsupported('exportHistory');
+  Future<void> deleteContact({required String id}) =>
+      _history.deleteContact(id);
+
+  /// The history as a `.wfeh` file LEPIC seals under a key from the seed, so only a wallet
+  /// with the same recovery phrase opens it.
+  @override
+  Future<Uint8List> exportHistory() => _guard(() async {
+    final payload = _history.exportPayload(
+      await _live(),
+      walletFp: walletFingerprint(await _wallet.epicboxAddress()),
+      appVersion: historyAppVersion,
+      lastConfirmedHeight: (await _wallet.summary(refresh: false))
+          .lastConfirmedHeight,
+    );
+    return _wallet.sealAppData(payload: payload.encode());
+  });
 
   @override
-  Future<String> exportHistoryCsv() async =>
-      throw lepicUnsupported('exportHistoryCsv');
+  Future<String> exportHistoryCsv() => _guard(() async {
+    final tip = (await _wallet.summary(refresh: false)).lastConfirmedHeight;
+    return _history.csv(await _live(), tip);
+  });
 
   @override
-  Future<ImportReport> importHistory({required Uint8List data}) async =>
-      throw lepicUnsupported('importHistory');
+  Future<ImportReport> importHistory({required Uint8List data}) =>
+      _guard(() async {
+        final payload = HistoryPayload.decode(await _openHistoryFile(data));
+        return _history.importPayload(
+          payload,
+          await _live(),
+          walletFp: walletFingerprint(await _wallet.epicboxAddress()),
+        );
+      });
+
+  /// LEPIC's answer for a history file, in the old core's sentences the UI translates.
+  Future<Uint8List> _openHistoryFile(Uint8List data) async {
+    try {
+      return await _wallet.openAppData(file: data);
+    } on lepic.WalletError catch (e) {
+      throw switch (e.kind) {
+        lepic.WalletErrorKind.foreignAppData => historyError(
+          historyOtherWallet,
+        ),
+        lepic.WalletErrorKind.damagedAppData => historyError(historyDamaged),
+        lepic.WalletErrorKind.unsupported => historyError(historyNewer),
+        lepic.WalletErrorKind.invalidArgument => historyError(historyNotOurs),
+        _ => mapLepicError(e),
+      };
+    }
+  }
 }

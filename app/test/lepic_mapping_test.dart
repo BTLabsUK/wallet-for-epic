@@ -1,7 +1,5 @@
 // The LEPIC adapter's pure parts: error mapping, keys, the backend switch and the list of calls
 // LEPIC cannot serve yet. No native library is loaded.
-import 'dart:typed_data';
-
 import 'package:epic_wallet/src/core_backend.dart';
 import 'package:epic_wallet/src/lepic_wallet_service.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
@@ -17,10 +15,6 @@ class _NoNativeWallet implements lepic.EpicWallet {
   dynamic noSuchMethod(Invocation invocation) =>
       throw StateError('reached LEPIC: ${invocation.memberName}');
 }
-
-Matcher _unsupported(String call) => isA<WalletError>()
-    .having((e) => e.kind, 'kind', WalletErrorKind.other)
-    .having((e) => e.message, 'message', contains(call));
 
 void main() {
   group('backend switch', () {
@@ -147,22 +141,8 @@ void main() {
     );
   });
 
-  test('every call in lepicMissing refuses without reaching LEPIC', () async {
-    final session = LepicWalletSession(_NoNativeWallet());
-    final calls = <String, Future<Object?> Function()>{
-      'setTxNote': () => session.setTxNote(key: 'l:1', note: 'n'),
-      'saveContact': () => session.saveContact(
-        contact: const Contact(id: '', name: 'n', address: 'a'),
-      ),
-      'deleteContact': () => session.deleteContact(id: 'c'),
-      'exportHistory': session.exportHistory,
-      'exportHistoryCsv': session.exportHistoryCsv,
-      'importHistory': () => session.importHistory(data: Uint8List(0)),
-    };
-    expect(calls.keys.toSet(), lepicMissing.keys.toSet());
-    for (final MapEntry(key: name, value: call) in calls.entries) {
-      await expectLater(call(), throwsA(_unsupported(name)), reason: name);
-    }
+  test('LEPIC serves every call of the app interface', () {
+    expect(lepicMissing, isEmpty);
   });
 
   test('contacts and enrichment answer without reaching LEPIC', () async {
