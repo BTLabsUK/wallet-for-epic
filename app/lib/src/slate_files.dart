@@ -79,10 +79,13 @@ Future<bool> saveBytesToDevice({
 ///
 /// The share sheet needs a real file. It is written to `<tmp>/shared` and deleted as soon as the
 /// sheet returns: on Android share_plus has copied it into its own cache by then, and on iOS the
-/// receiving app has read it. [share] and [tempDir] are for tests.
+/// receiving app has read it. [mimeType] tells the receiving app what it is; [text] goes along
+/// as the message, where the app takes one. [share] and [tempDir] are for tests.
 Future<bool> shareBytes({
   required String name,
   required Uint8List bytes,
+  String mimeType = 'application/octet-stream',
+  String? text,
   @visibleForTesting Future<ShareResult> Function(ShareParams params)? share,
   @visibleForTesting Directory? tempDir,
 }) async {
@@ -94,9 +97,11 @@ Future<bool> shareBytes({
   try {
     final result = await (share ?? SharePlus.instance.share)(
       ShareParams(
-        files: [XFile(file.path, mimeType: 'application/octet-stream')],
+        files: [XFile(file.path, mimeType: mimeType)],
         fileNameOverrides: [name],
-        subject: name,
+        // A message app shows the subject as text too; with a message, that is enough.
+        subject: text == null ? name : null,
+        text: text,
       ),
     );
     return result.status != ShareResultStatus.dismissed;
@@ -148,6 +153,14 @@ abstract interface class SlateFiles {
 
   /// Shares plain [text], such as the wallet's address, through the share sheet.
   Future<void> shareText(String text);
+
+  /// Shares a PNG [png] called [name] with [text] as its message, through the share sheet, so
+  /// a chat shows the picture and the text stays copyable. Only where [canShare].
+  Future<void> shareImage({
+    required String name,
+    required Uint8List png,
+    required String text,
+  });
 }
 
 class PlatformSlateFiles implements SlateFiles {
@@ -194,7 +207,17 @@ class PlatformSlateFiles implements SlateFiles {
   Future<void> shareText(String text) async {
     await SharePlus.instance.share(ShareParams(text: text));
   }
+
+  @override
+  Future<void> shareImage({
+    required String name,
+    required Uint8List png,
+    required String text,
+  }) => shareBytes(name: name, bytes: png, mimeType: 'image/png', text: text);
 }
+
+/// An image handed to [SlateFiles.shareImage], as [FakeSlateFiles] records it.
+typedef SharedImage = ({String name, Uint8List png, String text});
 
 /// Records saves and shares and hands out queued picks, for widget tests.
 class FakeSlateFiles implements SlateFiles {
@@ -202,6 +225,7 @@ class FakeSlateFiles implements SlateFiles {
   final List<SlateFile> shared = [];
   final List<SlateFile?> picks = [];
   final List<String> sharedTexts = [];
+  final List<SharedImage> sharedImages = [];
 
   @override
   bool canShare = true;
@@ -211,6 +235,13 @@ class FakeSlateFiles implements SlateFiles {
 
   @override
   Future<void> shareText(String text) async => sharedTexts.add(text);
+
+  @override
+  Future<void> shareImage({
+    required String name,
+    required Uint8List png,
+    required String text,
+  }) async => sharedImages.add((name: name, png: png, text: text));
 
   @override
   Future<bool> save({

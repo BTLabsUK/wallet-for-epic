@@ -275,7 +275,10 @@ class HomeNotifier extends AsyncNotifier<HomeData> {
       final data = await _refreshed(session);
       if (ref.mounted) state = AsyncData(data);
     } catch (error, stack) {
-      logWarn('sync', 'refresh failed: ${describeError(englishStrings, error)}');
+      logWarn(
+        'sync',
+        'refresh failed: ${describeError(englishStrings, error)}',
+      );
       if (!ref.mounted) return;
       // The local figures stay, no longer marked as syncing, under the error.
       final shown = state.value;
@@ -315,7 +318,10 @@ class HomeNotifier extends AsyncNotifier<HomeData> {
       );
     } catch (error) {
       // The list stays as it was.
-      logInfo('history', 'enrich failed: ${describeError(englishStrings, error)}');
+      logInfo(
+        'history',
+        'enrich failed: ${describeError(englishStrings, error)}',
+      );
     } finally {
       _enriching = false;
     }
@@ -445,18 +451,47 @@ final listenerProvider = NotifierProvider<ListenerNotifier, ListenerState>(
   ListenerNotifier.new,
 );
 
+/// How long [ListenerNotifier.restart] waits for the old listener to report it stopped before
+/// it starts a new one anyway.
+const Duration listenerStopWait = Duration(seconds: 5);
+
 class ListenerNotifier extends Notifier<ListenerState> {
   StreamSubscription<ListenerEvent>? _events;
+
+  /// Completes when the current listener's stream reports `stopped` or ends.
+  Completer<void>? _ended;
+  bool _restarting = false;
+
+  static const String _connecting = 'Connecting to the epicbox relay…';
 
   @override
   ListenerState build() {
     final session = ref.watch(sessionProvider);
     ref.onDispose(() => _events?.cancel());
     if (session == null) return const ListenerState();
-    _events = session.startListener().listen(
-      _onEvent,
+    _listen(session);
+    return const ListenerState(status: _connecting);
+  }
+
+  void _listen(WalletSession session) {
+    final ended = _ended = Completer<void>();
+    void end() {
+      if (!ended.isCompleted) ended.complete();
+    }
+
+    late final StreamSubscription<ListenerEvent> events;
+    events = session.startListener().listen(
+      (event) {
+        if (event.kind == ListenerEventKind.stopped) end();
+        // A listener being replaced by [restart] no longer speaks for the wallet.
+        if (identical(_events, events)) _onEvent(event);
+      },
       onError: (Object error) {
-        logWarn('listener', 'stream failed: ${describeError(englishStrings, error)}');
+        if (!identical(_events, events)) return;
+        logWarn(
+          'listener',
+          'stream failed: ${describeError(englishStrings, error)}',
+        );
         // Not stopped: the receive path is broken, so the header says Offline.
         state = ListenerState(
           lost: true,
@@ -464,8 +499,48 @@ class ListenerNotifier extends Notifier<ListenerState> {
           last: state.last,
         );
       },
+      onDone: end,
     );
-    return const ListenerState(status: 'Connecting to the epicbox relay…');
+    _events = events;
+  }
+
+  /// Stops the listener and starts it again, for Retry on Receive. The core starts a second
+  /// listener only once the first has stopped, so this waits for that, at most
+  /// [listenerStopWait].
+  Future<void> restart() async {
+    final session = ref.read(sessionProvider);
+    if (session == null || _restarting) return;
+    _restarting = true;
+    final old = _events;
+    final ended = _ended;
+    _events = null;
+    state = ListenerState(status: _connecting, last: state.last);
+    logInfo('listener', 'restart');
+    try {
+      await session.stopListener();
+      await ended?.future.timeout(
+        listenerStopWait,
+        onTimeout: () {
+          logWarn(
+            'listener',
+            'old listener did not stop in time; starting anyway',
+          );
+        },
+      );
+    } catch (error) {
+      logWarn(
+        'listener',
+        'stop failed: ${describeError(englishStrings, error)}',
+      );
+    } finally {
+      _restarting = false;
+    }
+    // Not awaited: a cancel can take a turn of the event loop, and it changes nothing here.
+    unawaited(old?.cancel());
+    // A lock or another wallet meanwhile rebuilt the provider, which started its own.
+    if (!ref.mounted || ref.read(sessionProvider) != session) return;
+    if (_events != null) return;
+    _listen(session);
   }
 
   void _onEvent(ListenerEvent event) {

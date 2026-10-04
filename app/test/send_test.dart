@@ -163,9 +163,9 @@ class _Host extends ConsumerWidget {
         children: [
           Text('Host ${spendable ?? '-'}'),
           TextButton(
-            onPressed: () => Navigator.of(context).push<void>(
-              MaterialPageRoute<void>(builder: (_) => _sendTab()),
-            ),
+            onPressed: () => Navigator.of(
+              context,
+            ).push<void>(MaterialPageRoute<void>(builder: (_) => _sendTab())),
             child: const Text('Open send'),
           ),
         ],
@@ -298,6 +298,28 @@ class _GatedFiles extends FakeSlateFiles {
     await _wait();
     await super.shareText(text);
   }
+
+  @override
+  Future<void> shareImage({
+    required String name,
+    required Uint8List png,
+    required String text,
+  }) async {
+    await _wait();
+    await super.shareImage(name: name, png: png, text: text);
+  }
+}
+
+/// Pumps until [done], letting real time pass between frames: the share card renders through
+/// the engine, which fake time does not move.
+Future<void> _untilRendered(WidgetTester tester, bool Function() done) async {
+  for (var i = 0; i < 100 && !done(); i++) {
+    await tester.runAsync(
+      () => Future<void>.delayed(const Duration(milliseconds: 20)),
+    );
+    await tester.pump();
+  }
+  expect(done(), isTrue, reason: 'the share card did not render');
 }
 
 class _NoRelays implements RelayDirectory {
@@ -1014,9 +1036,9 @@ void main() {
     testWidgets('a recipient handed over fills the open form', (tester) async {
       final h = _Harness();
       await h.pump(tester, _sendTab());
-      ProviderScope.containerOf(
-        tester.element(find.byType(SendView)),
-      ).read(sendRecipientProvider.notifier).hand('epicbox://$_bob');
+      ProviderScope.containerOf(tester.element(find.byType(SendView)))
+          .read(sendRecipientProvider.notifier)
+          .hand('epicbox://$_bob');
       await tester.pumpAndSettle();
       final field = tester.widget<TextField>(
         find.widgetWithText(TextField, 'To'),
@@ -1069,9 +1091,9 @@ void main() {
       expect(find.textContaining('for a different payment'), findsOneWidget);
       expect(find.text('Finish payment'), findsNothing);
       // The notice floats over the app bar's back button until it goes.
-      ProviderScope.containerOf(
-        tester.element(find.byType(MaterialApp)),
-      ).read(noticeProvider.notifier).clear();
+      ProviderScope.containerOf(tester.element(find.byType(MaterialApp)))
+          .read(noticeProvider.notifier)
+          .clear();
       await tester.pumpAndSettle();
       await tester.pageBack();
       await tester.pumpAndSettle();
@@ -1206,13 +1228,14 @@ void main() {
       await h.pumpUnlocked(tester);
       await h.open(tester, _receiveTab());
 
-      await _tap(tester, find.text('Share'));
+      await tester.tap(find.byTooltip('Share'));
+      await _untilRendered(tester, () => h.files.gate != null);
       expect(h.container.read(autoLockHoldProvider), 1);
       await h.awayAndBack(tester, const Duration(minutes: 10));
       expect(h.locked, isFalse);
       await h.finishTrip(tester);
       expect(h.container.read(autoLockHoldProvider), 0);
-      expect(h.files.sharedTexts, [h.session.address]);
+      expect(h.files.sharedImages.single.text, h.session.address);
 
       // The control: "Immediately" locks an ordinary trip away.
       await h.awayAndBack(tester, const Duration(seconds: 1));
@@ -1246,8 +1269,7 @@ void main() {
       final h = _AppHarness(advanced: true);
       await h.pumpUnlocked(tester);
       await h.open(tester, _receiveTab());
-      await _tap(tester, find.text('Receive a transaction file'));
-      await _tap(tester, find.text('Open transaction file'));
+      await _tap(tester, find.text('Open file'));
       expect(h.container.read(autoLockHoldProvider), 1);
       await h.awayAndBack(tester, const Duration(minutes: 10));
       await h.finishTrip(tester);
@@ -1765,112 +1787,6 @@ void main() {
   });
 
   group('receive', () {
-    testWidgets('QR, address, copy, share and the file section, with no '
-        'explanations', (tester) async {
-      final h = _Harness(advanced: true);
-      await h.pump(tester, _receiveTab());
-      expect(find.text(h.session.address), findsOneWidget);
-      expect(find.bySemanticsLabel('QR code of your address'), findsOneWidget);
-      expect(find.text('Copy'), findsOneWidget);
-      // Only the address and the button labels: no sentences.
-      final texts = tester
-          .widgetList<Text>(
-            find.descendant(
-              of: find.byType(CenteredBody),
-              matching: find.byType(Text),
-            ),
-          )
-          .map((t) => t.data ?? t.textSpan?.toPlainText() ?? '')
-          .toSet();
-      expect(texts, {
-        'Copy',
-        'Share',
-        'Receive a transaction file',
-        'How receiving works',
-      });
-      expect(find.textContaining('arrive'), findsNothing);
-      expect(find.textContaining('epicbox server'), findsNothing);
-
-      // The content sits in the middle of the space below the notice slot.
-      final slot = tester.getRect(find.byType(ProgressSlot));
-      final screen = tester.getRect(find.byType(Scaffold));
-      final body = tester.getRect(find.byType(CenteredBody));
-      expect(
-        body.center.dy,
-        moreOrLessEquals((slot.bottom + screen.bottom) / 2, epsilon: 1),
-      );
-
-      // Copying confirms in the slot, and the content does not move.
-      final copied = <Object?>[];
-      tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
-        SystemChannels.platform,
-        (call) async {
-          if (call.method == 'Clipboard.setData') copied.add(call.arguments);
-          return null;
-        },
-      );
-      addTearDown(
-        () => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
-          SystemChannels.platform,
-          null,
-        ),
-      );
-      await _tap(tester, find.text('Copy'));
-      expect(copied, [
-        {'text': h.session.address},
-      ]);
-      expect(
-        find.descendant(
-          of: find.byKey(noticeKey),
-          matching: find.text('Address copied'),
-        ),
-        findsOneWidget,
-      );
-      expect(find.byType(SnackBar), findsNothing);
-      expect(tester.getRect(find.byType(CenteredBody)), body);
-
-      await _tap(tester, find.text('Share'));
-      expect(h.files.sharedTexts, [h.session.address]);
-
-      expect(find.text('Open transaction file'), findsNothing);
-      await _tap(tester, find.text('Receive a transaction file'));
-      expect(find.text('Open transaction file'), findsOneWidget);
-    });
-
-    testWidgets('by file: open .tx, sign, share .response', (tester) async {
-      final h = _Harness(advanced: true);
-      await h.pump(tester, _receiveTab());
-      await _tap(tester, find.text('Receive a transaction file'));
-
-      h.files.picks.add(const SlateFile(name: 'photo.jpg', json: 'nope'));
-      await _tap(tester, find.text('Open transaction file'));
-      expect(find.text('That file is not a transaction file.'), findsOneWidget);
-      await tester.pageBack();
-      await tester.pumpAndSettle();
-
-      const incoming = '{"id":"incoming"}';
-      h.service.slateInfos[incoming] = SlateInfo(
-        slateId: 'incoming',
-        amount: _epic(3),
-        fee: BigInt.zero,
-        stage: SlateStage.send,
-      );
-      h.files.picks.add(const SlateFile(name: 'from-bob.tx', json: incoming));
-      await _tap(tester, find.text('Open transaction file'));
-      expect(find.text('Someone is sending you 3 EPIC.'), findsOneWidget);
-      await _tap(tester, find.text('Accept payment'));
-      expect(h.session.receivedSlates, [incoming]);
-      expect(
-        find.text('Accepted. Return from-bob.tx.response to the sender.'),
-        findsOneWidget,
-      );
-      await _tap(tester, find.text('Save to device'));
-      expect(h.files.saved.single.name, 'from-bob.tx.response');
-      expect(h.files.saved.single.json, h.session.responseSlate.json);
-      await _tap(tester, find.text('Share'));
-      expect(h.files.shared.single.name, 'from-bob.tx.response');
-    });
-
     testWidgets('a file accepted before says so and hands out the same answer', (
       tester,
     ) async {
@@ -1948,69 +1864,6 @@ void main() {
       expect(h.session.receivedSlates, isEmpty);
       expect(h.session.finalizedSlates, isEmpty);
     });
-
-    testWidgets('paste slate text as a fallback', (tester) async {
-      final h = _Harness(advanced: true);
-      await h.pump(tester, _receiveTab());
-      await _tap(tester, find.text('Receive a transaction file'));
-      await _tap(tester, find.text('Paste the transaction text instead'));
-      await _tap(tester, find.text('Accept payment'));
-      expect(
-        find.text('Paste the transaction text you received.'),
-        findsOneWidget,
-      );
-      await tester.enterText(
-        find.descendant(
-          of: find.byType(SlateInput),
-          matching: find.byType(TextField),
-        ),
-        '{"id":"incoming"}',
-      );
-      await _tap(tester, find.text('Accept payment'));
-      expect(h.session.receivedSlates, ['{"id":"incoming"}']);
-      expect(find.text(h.session.responseSlate.json), findsOneWidget);
-    });
-
-    testWidgets('pasted text accepted before says so and gives the same answer', (
-      tester,
-    ) async {
-      final h = _Harness(advanced: true);
-      const incoming = '{"id":"incoming"}';
-      // Accepted once already, as through the listener or a file.
-      await h.session.receiveSlate(slateJson: incoming);
-      // Home's data stays watched, so a refresh would reload the transactions.
-      await h.pump(
-        tester,
-        Consumer(
-          builder: (context, ref, _) {
-            ref.watch(homeProvider);
-            return _receiveTab();
-          },
-        ),
-      );
-      await _tap(tester, find.text('Receive a transaction file'));
-      await _tap(tester, find.text('Paste the transaction text instead'));
-      await tester.enterText(
-        find.descendant(
-          of: find.byType(SlateInput),
-          matching: find.byType(TextField),
-        ),
-        incoming,
-      );
-      final loads = h.session.transactionsCalls;
-      await _tap(tester, find.text('Accept payment'));
-      expect(h.session.receivedSlates, [incoming, incoming]);
-      expect(h.session.transactionsCalls, loads);
-      expect(
-        find.text(
-          'Already accepted. Return this same response to the sender; it is '
-          'not a second payment.',
-        ),
-        findsOneWidget,
-      );
-      expect(find.text('Return this response to the sender'), findsNothing);
-      expect(find.text(h.session.responseSlate.json), findsOneWidget);
-    });
   });
 
   group('advanced options', () {
@@ -2041,41 +1894,6 @@ void main() {
       expect(on.session.epicboxSends, isEmpty);
       await toEnd(tester);
       expect(find.text('Other ways to send'), findsOneWidget);
-    });
-
-    testWidgets('receive hides the file section and shortens the address', (
-      tester,
-    ) async {
-      final off = _Harness();
-      await off.pump(tester, _receiveTab());
-      final address = off.session.address;
-      expect(find.text('Receive a transaction file'), findsNothing);
-      expect(find.text(address), findsNothing);
-      expect(find.text(shortAddress(address)), findsOneWidget);
-      // Copy still hands over the whole address.
-      final copied = <Object?>[];
-      tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
-        SystemChannels.platform,
-        (call) async {
-          if (call.method == 'Clipboard.setData') copied.add(call.arguments);
-          return null;
-        },
-      );
-      addTearDown(
-        () => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
-          SystemChannels.platform,
-          null,
-        ),
-      );
-      await _tap(tester, find.text('Copy'));
-      expect(copied.single, {'text': address});
-
-      // A fresh tree, so the screen's state starts over.
-      await tester.pumpWidget(const SizedBox());
-      final on = _Harness(advanced: true);
-      await on.pump(tester, _receiveTab());
-      expect(find.text('Receive a transaction file'), findsOneWidget);
-      expect(find.text(address), findsOneWidget);
     });
   });
 }

@@ -46,6 +46,14 @@
     "description": "Tooltip on the copy button of a box holding a transaction's text (an Epic Cash slate, JSON) that the user passes to the other side."
   },
   "slateCopied": "Transaction text copied",
+  "slatePastedTitle": "Pasted payment",
+  "@slatePastedTitle": {
+    "description": "Heading of the payment file screen when the payment came as pasted text, where a file name would be."
+  },
+  "slateCopyReply": "Copy reply",
+  "@slateCopyReply": {
+    "description": "Button that copies the signed reply's text, after a pasted payment was accepted."
+  },
   "biometricPromptTitle": "Unlock wallet",
   "@biometricPromptTitle": {
     "description": "Title of the system fingerprint/face prompt."
@@ -1606,6 +1614,18 @@
   "@receiveQrLabel": {
     "description": "Screen-reader label of the QR code image."
   },
+  "receiveAddressLabel": "Your address",
+  "@receiveAddressLabel": {
+    "description": "Caption above the wallet's full epicbox address on the Receive tab; a tap on the card copies the address."
+  },
+  "receiveEpicboxOfflineBody": "Payments sent to you now wait at epicbox and arrive once the wallet connects again.",
+  "@receiveEpicboxOfflineBody": {
+    "description": "Shown under 'Epicbox offline' on the Receive tab, above a Retry button. epicbox is the relay service that carries payments (a proper name)."
+  },
+  "receiveShareCardHeadline": "Pay me in Epic Cash",
+  "@receiveShareCardHeadline": {
+    "description": "One line at the top of the picture Share sends, above the QR code and the address. Epic Cash is the coin's name."
+  },
   "receiveHelpButton": "How receiving works",
   "@receiveHelpButton": {
     "description": "Button on the Receive tab that opens help about receiving."
@@ -1614,41 +1634,21 @@
   "@receiveAddressCopied": {
     "description": "Notice after the wallet's address was copied."
   },
-  "receiveFileSection": "Receive a transaction file",
-  "@receiveFileSection": {
-    "description": "Heading of the folded section for receiving a payment by file. A transaction file holds the slate, the JSON a payment passes between sender and recipient."
+  "receiveFileTitle": "Receive by payment file",
+  "@receiveFileTitle": {
+    "description": "Heading of the Receive tab's card for a payment that comes as a file (or its text) instead of over epicbox."
   },
-  "receiveOpenFile": "Open transaction file",
-  "@receiveOpenFile": {
-    "description": "Button that picks a transaction file (a slate, the JSON a payment passes between sender and recipient)."
+  "receiveFileBody": "Got a payment file from someone? Open it, or copy its text and paste it here.",
+  "@receiveFileBody": {
+    "description": "Line in the payment file card, above the Open file and Paste buttons."
   },
-  "receivePasteSection": "Paste the transaction text instead",
-  "@receivePasteSection": {
-    "description": "Heading of the folded section for pasting the transaction text (the slate JSON) by hand."
+  "receiveFileOpen": "Open file",
+  "@receiveFileOpen": {
+    "description": "Button in the payment file card that picks the file."
   },
-  "receiveSlateLabel": "Transaction text",
-  "@receiveSlateLabel": {
-    "description": "Label of the field for the transaction text (the slate JSON the sender passed on)."
-  },
-  "receivePasteFirst": "Paste the transaction text you received.",
-  "@receivePasteFirst": {
-    "description": "Error when Accept payment is tapped with an empty transaction text field."
-  },
-  "receiveAccept": "Accept payment",
-  "@receiveAccept": {
-    "description": "Button that signs the pasted transaction text as the recipient."
-  },
-  "receiveRepeatedTitle": "Already accepted. Return this same response to the sender; it is not a second payment.",
-  "@receiveRepeatedTitle": {
-    "description": "Title of the box with the transaction text (slate JSON) when the pasted payment was accepted before: the same answer as the first time, no new payment."
-  },
-  "receiveResponseTitle": "Return this response to the sender",
-  "@receiveResponseTitle": {
-    "description": "Title of the box with the signed transaction text (slate JSON) the user passes back to the sender."
-  },
-  "receiveAnother": "Receive another payment",
-  "@receiveAnother": {
-    "description": "Button that clears the screen for another transaction text."
+  "receivePasteEmpty": "Copy the payment text first, then tap Paste.",
+  "@receivePasteEmpty": {
+    "description": "Notice when Paste is tapped and the clipboard holds no text."
   },
   "updateChecking": "Checking for updates…",
   "@updateChecking": {

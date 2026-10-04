@@ -76,6 +76,12 @@ class AppLocalizationsRu extends AppLocalizations {
   String get slateCopied => 'Текст транзакции скопирован';
 
   @override
+  String get slatePastedTitle => 'Вставленный платёж';
+
+  @override
+  String get slateCopyReply => 'Копировать ответ';
+
+  @override
   String get biometricPromptTitle => 'Разблокировать кошелёк';
 
   @override
@@ -1591,38 +1597,34 @@ class AppLocalizationsRu extends AppLocalizations {
   String get receiveQrLabel => 'QR-код вашего адреса';
 
   @override
+  String get receiveAddressLabel => 'Ваш адрес';
+
+  @override
+  String get receiveEpicboxOfflineBody =>
+      'Отправленные вам платежи сейчас ждут в epicbox и придут, когда кошелёк снова подключится.';
+
+  @override
+  String get receiveShareCardHeadline => 'Заплатите мне в Epic Cash';
+
+  @override
   String get receiveHelpButton => 'Как работает получение';
 
   @override
   String get receiveAddressCopied => 'Адрес скопирован';
 
   @override
-  String get receiveFileSection => 'Получение через файл транзакции';
+  String get receiveFileTitle => 'Получить по платёжному файлу';
 
   @override
-  String get receiveOpenFile => 'Открыть файл транзакции';
+  String get receiveFileBody =>
+      'Получили платёжный файл? Откройте его или скопируйте его текст и вставьте сюда.';
 
   @override
-  String get receivePasteSection => 'Или вставьте текст транзакции';
+  String get receiveFileOpen => 'Открыть файл';
 
   @override
-  String get receiveSlateLabel => 'Текст транзакции';
-
-  @override
-  String get receivePasteFirst => 'Вставьте полученный текст транзакции.';
-
-  @override
-  String get receiveAccept => 'Принять платёж';
-
-  @override
-  String get receiveRepeatedTitle =>
-      'Уже принято. Верните отправителю тот же ответ; это не второй платёж.';
-
-  @override
-  String get receiveResponseTitle => 'Верните этот ответ отправителю';
-
-  @override
-  String get receiveAnother => 'Получить ещё один платёж';
+  String get receivePasteEmpty =>
+      'Сначала скопируйте текст платежа, затем нажмите «Вставить».';
 
   @override
   String get updateChecking => 'Проверка обновлений…';

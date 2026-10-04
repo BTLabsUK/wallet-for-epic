@@ -76,6 +76,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get slateCopied => '交易文本已复制';
 
   @override
+  String get slatePastedTitle => '粘贴的付款';
+
+  @override
+  String get slateCopyReply => '复制回复';
+
+  @override
   String get biometricPromptTitle => '解锁钱包';
 
   @override
@@ -1392,37 +1398,31 @@ class AppLocalizationsZh extends AppLocalizations {
   String get receiveQrLabel => '你的地址二维码';
 
   @override
+  String get receiveAddressLabel => '你的地址';
+
+  @override
+  String get receiveEpicboxOfflineBody => '发给你的付款现在会在 epicbox 等待，钱包重新连接后到账。';
+
+  @override
+  String get receiveShareCardHeadline => '用 Epic Cash 付款给我';
+
+  @override
   String get receiveHelpButton => '收款说明';
 
   @override
   String get receiveAddressCopied => '地址已复制';
 
   @override
-  String get receiveFileSection => '接收交易文件';
+  String get receiveFileTitle => '通过付款文件收款';
 
   @override
-  String get receiveOpenFile => '打开交易文件';
+  String get receiveFileBody => '收到了付款文件？打开它，或复制其中的文本粘贴到这里。';
 
   @override
-  String get receivePasteSection => '改为粘贴交易文本';
+  String get receiveFileOpen => '打开文件';
 
   @override
-  String get receiveSlateLabel => '交易文本';
-
-  @override
-  String get receivePasteFirst => '请粘贴你收到的交易文本。';
-
-  @override
-  String get receiveAccept => '接受付款';
-
-  @override
-  String get receiveRepeatedTitle => '已接受过。请将相同的回复再次发回给发送方；这不是第二笔付款。';
-
-  @override
-  String get receiveResponseTitle => '将此回复发回给发送方';
-
-  @override
-  String get receiveAnother => '接收另一笔付款';
+  String get receivePasteEmpty => '请先复制付款文本，再点按粘贴。';
 
   @override
   String get updateChecking => '正在检查更新…';

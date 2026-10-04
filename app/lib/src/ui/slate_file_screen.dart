@@ -11,13 +11,24 @@ import '../wallet_service.dart';
 import 'common.dart';
 import 'tx_details_screen.dart';
 
+/// The [SlateFile.name] of payment text pasted on Receive.
+const String pastedSlateName = 'pasted';
+
 /// One transaction file: shows what it is, then signs it (a send to us) or finalizes it (the
-/// answer to our send). Opened from Receive, from Send's second step, and from files other apps
-/// hand to the wallet.
+/// answer to our send). Opened from Receive (a file or pasted text), from Send's second step,
+/// and from files other apps hand to the wallet.
 class SlateFileScreen extends ConsumerStatefulWidget {
-  const SlateFileScreen({super.key, required this.file, this.expectedSlateId});
+  const SlateFileScreen({
+    super.key,
+    required this.file,
+    this.expectedSlateId,
+    this.pasted = false,
+  });
 
   final SlateFile file;
+
+  /// The text was pasted, not picked: it has no file name, and the reply can be copied too.
+  final bool pasted;
 
   /// When finalizing our own send, the id the response must carry.
   final String? expectedSlateId;
@@ -141,7 +152,9 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
         ),
       ];
     } else if (_response case final response?) {
-      final name = responseFileName(widget.file.name);
+      final name = responseFileName(
+        widget.pasted ? sendFileName(info!.slateId) : widget.file.name,
+      );
       body = [
         _Headline(
           icon: Icons.check_circle,
@@ -156,7 +169,11 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
               : l.slateAcceptedBody(epicText(l, info!.amount)),
         ),
         const SizedBox(height: 24),
-        SlateFileButtons(name: name, json: response.json),
+        SlateFileButtons(
+          name: name,
+          json: response.json,
+          copyable: widget.pasted,
+        ),
         const SizedBox(height: 8),
         TextButton(
           style: TextButton.styleFrom(minimumSize: const Size.fromHeight(48)),
@@ -176,7 +193,10 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
     } else {
       final receiving = info.stage == SlateStage.send;
       body = [
-        Text(widget.file.name, style: theme.textTheme.titleMedium),
+        Text(
+          widget.pasted ? l.slatePastedTitle : widget.file.name,
+          style: theme.textTheme.titleMedium,
+        ),
         const SizedBox(height: 8),
         Text(
           receiving
@@ -210,12 +230,19 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
 
 /// "Save to device" first, then "Share" where the platform has a share sheet for files. Many
 /// phones' share sheets have no "save to files" target, so saving must not depend on it. Both
-/// run under the auto-lock hold, since they open another app.
+/// run under the auto-lock hold, since they open another app. With [copyable], a "Copy reply"
+/// button follows, for an answer to pasted text.
 class SlateFileButtons extends ConsumerWidget {
-  const SlateFileButtons({super.key, required this.name, required this.json});
+  const SlateFileButtons({
+    super.key,
+    required this.name,
+    required this.json,
+    this.copyable = false,
+  });
 
   final String name;
   final String json;
+  final bool copyable;
 
   Future<void> _out(
     BuildContext context,
@@ -270,6 +297,17 @@ class SlateFileButtons extends ConsumerWidget {
             label: Text(l.commonShare),
             onPressed: () =>
                 _out(context, ref, (f) => f.share(name: name, json: json)),
+          ),
+        ],
+        if (copyable) ...[
+          const SizedBox(height: 8),
+          OutlinedButton.icon(
+            style: OutlinedButton.styleFrom(
+              minimumSize: const Size.fromHeight(48),
+            ),
+            icon: const Icon(Icons.copy),
+            label: Text(l.slateCopyReply),
+            onPressed: () => copyText(context, json, l.slateCopied),
           ),
         ],
       ],

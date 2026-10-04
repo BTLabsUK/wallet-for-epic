@@ -236,6 +236,18 @@ abstract class AppLocalizations {
   /// **'Transaction text copied'**
   String get slateCopied;
 
+  /// Heading of the payment file screen when the payment came as pasted text, where a file name would be.
+  ///
+  /// In en, this message translates to:
+  /// **'Pasted payment'**
+  String get slatePastedTitle;
+
+  /// Button that copies the signed reply's text, after a pasted payment was accepted.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy reply'**
+  String get slateCopyReply;
+
   /// Title of the system fingerprint/face prompt.
   ///
   /// In en, this message translates to:
@@ -2036,6 +2048,24 @@ abstract class AppLocalizations {
   /// **'QR code of your address'**
   String get receiveQrLabel;
 
+  /// Caption above the wallet's full epicbox address on the Receive tab; a tap on the card copies the address.
+  ///
+  /// In en, this message translates to:
+  /// **'Your address'**
+  String get receiveAddressLabel;
+
+  /// Shown under 'Epicbox offline' on the Receive tab, above a Retry button. epicbox is the relay service that carries payments (a proper name).
+  ///
+  /// In en, this message translates to:
+  /// **'Payments sent to you now wait at epicbox and arrive once the wallet connects again.'**
+  String get receiveEpicboxOfflineBody;
+
+  /// One line at the top of the picture Share sends, above the QR code and the address. Epic Cash is the coin's name.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay me in Epic Cash'**
+  String get receiveShareCardHeadline;
+
   /// Button on the Receive tab that opens help about receiving.
   ///
   /// In en, this message translates to:
@@ -2048,59 +2078,29 @@ abstract class AppLocalizations {
   /// **'Address copied'**
   String get receiveAddressCopied;
 
-  /// Heading of the folded section for receiving a payment by file. A transaction file holds the slate, the JSON a payment passes between sender and recipient.
+  /// Heading of the Receive tab's card for a payment that comes as a file (or its text) instead of over epicbox.
   ///
   /// In en, this message translates to:
-  /// **'Receive a transaction file'**
-  String get receiveFileSection;
+  /// **'Receive by payment file'**
+  String get receiveFileTitle;
 
-  /// Button that picks a transaction file (a slate, the JSON a payment passes between sender and recipient).
+  /// Line in the payment file card, above the Open file and Paste buttons.
   ///
   /// In en, this message translates to:
-  /// **'Open transaction file'**
-  String get receiveOpenFile;
+  /// **'Got a payment file from someone? Open it, or copy its text and paste it here.'**
+  String get receiveFileBody;
 
-  /// Heading of the folded section for pasting the transaction text (the slate JSON) by hand.
+  /// Button in the payment file card that picks the file.
   ///
   /// In en, this message translates to:
-  /// **'Paste the transaction text instead'**
-  String get receivePasteSection;
+  /// **'Open file'**
+  String get receiveFileOpen;
 
-  /// Label of the field for the transaction text (the slate JSON the sender passed on).
+  /// Notice when Paste is tapped and the clipboard holds no text.
   ///
   /// In en, this message translates to:
-  /// **'Transaction text'**
-  String get receiveSlateLabel;
-
-  /// Error when Accept payment is tapped with an empty transaction text field.
-  ///
-  /// In en, this message translates to:
-  /// **'Paste the transaction text you received.'**
-  String get receivePasteFirst;
-
-  /// Button that signs the pasted transaction text as the recipient.
-  ///
-  /// In en, this message translates to:
-  /// **'Accept payment'**
-  String get receiveAccept;
-
-  /// Title of the box with the transaction text (slate JSON) when the pasted payment was accepted before: the same answer as the first time, no new payment.
-  ///
-  /// In en, this message translates to:
-  /// **'Already accepted. Return this same response to the sender; it is not a second payment.'**
-  String get receiveRepeatedTitle;
-
-  /// Title of the box with the signed transaction text (slate JSON) the user passes back to the sender.
-  ///
-  /// In en, this message translates to:
-  /// **'Return this response to the sender'**
-  String get receiveResponseTitle;
-
-  /// Button that clears the screen for another transaction text.
-  ///
-  /// In en, this message translates to:
-  /// **'Receive another payment'**
-  String get receiveAnother;
+  /// **'Copy the payment text first, then tap Paste.'**
+  String get receivePasteEmpty;
 
   /// Notice at the top of the screen while the app checks for a new version.
   ///

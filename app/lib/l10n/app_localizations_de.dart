@@ -76,6 +76,12 @@ class AppLocalizationsDe extends AppLocalizations {
   String get slateCopied => 'Transaktionstext kopiert';
 
   @override
+  String get slatePastedTitle => 'Eingefügte Zahlung';
+
+  @override
+  String get slateCopyReply => 'Antwort kopieren';
+
+  @override
   String get biometricPromptTitle => 'Wallet entsperren';
 
   @override
@@ -1497,40 +1503,34 @@ class AppLocalizationsDe extends AppLocalizations {
   String get receiveQrLabel => 'QR-Code Ihrer Adresse';
 
   @override
+  String get receiveAddressLabel => 'Ihre Adresse';
+
+  @override
+  String get receiveEpicboxOfflineBody =>
+      'An Sie gesendete Zahlungen warten jetzt bei epicbox und kommen an, sobald die Wallet wieder verbunden ist.';
+
+  @override
+  String get receiveShareCardHeadline => 'Bezahl mich mit Epic Cash';
+
+  @override
   String get receiveHelpButton => 'So funktioniert Empfangen';
 
   @override
   String get receiveAddressCopied => 'Adresse kopiert';
 
   @override
-  String get receiveFileSection => 'Transaktionsdatei empfangen';
+  String get receiveFileTitle => 'Per Zahlungsdatei empfangen';
 
   @override
-  String get receiveOpenFile => 'Transaktionsdatei öffnen';
+  String get receiveFileBody =>
+      'Sie haben eine Zahlungsdatei bekommen? Öffnen Sie sie, oder kopieren Sie ihren Text und fügen Sie ihn hier ein.';
 
   @override
-  String get receivePasteSection => 'Stattdessen Transaktionstext einfügen';
+  String get receiveFileOpen => 'Datei öffnen';
 
   @override
-  String get receiveSlateLabel => 'Transaktionstext';
-
-  @override
-  String get receivePasteFirst =>
-      'Fügen Sie den erhaltenen Transaktionstext ein.';
-
-  @override
-  String get receiveAccept => 'Zahlung annehmen';
-
-  @override
-  String get receiveRepeatedTitle =>
-      'Bereits angenommen. Senden Sie dieselbe Antwort erneut an den Absender zurück; es ist keine zweite Zahlung.';
-
-  @override
-  String get receiveResponseTitle =>
-      'Diese Antwort an den Absender zurücksenden';
-
-  @override
-  String get receiveAnother => 'Weitere Zahlung empfangen';
+  String get receivePasteEmpty =>
+      'Kopieren Sie zuerst den Zahlungstext und tippen Sie dann auf Einfügen.';
 
   @override
   String get updateChecking => 'Suche nach Updates…';

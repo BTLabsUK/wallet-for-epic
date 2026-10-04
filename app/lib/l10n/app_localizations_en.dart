@@ -76,6 +76,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get slateCopied => 'Transaction text copied';
 
   @override
+  String get slatePastedTitle => 'Pasted payment';
+
+  @override
+  String get slateCopyReply => 'Copy reply';
+
+  @override
   String get biometricPromptTitle => 'Unlock wallet';
 
   @override
@@ -1488,38 +1494,34 @@ class AppLocalizationsEn extends AppLocalizations {
   String get receiveQrLabel => 'QR code of your address';
 
   @override
+  String get receiveAddressLabel => 'Your address';
+
+  @override
+  String get receiveEpicboxOfflineBody =>
+      'Payments sent to you now wait at epicbox and arrive once the wallet connects again.';
+
+  @override
+  String get receiveShareCardHeadline => 'Pay me in Epic Cash';
+
+  @override
   String get receiveHelpButton => 'How receiving works';
 
   @override
   String get receiveAddressCopied => 'Address copied';
 
   @override
-  String get receiveFileSection => 'Receive a transaction file';
+  String get receiveFileTitle => 'Receive by payment file';
 
   @override
-  String get receiveOpenFile => 'Open transaction file';
+  String get receiveFileBody =>
+      'Got a payment file from someone? Open it, or copy its text and paste it here.';
 
   @override
-  String get receivePasteSection => 'Paste the transaction text instead';
+  String get receiveFileOpen => 'Open file';
 
   @override
-  String get receiveSlateLabel => 'Transaction text';
-
-  @override
-  String get receivePasteFirst => 'Paste the transaction text you received.';
-
-  @override
-  String get receiveAccept => 'Accept payment';
-
-  @override
-  String get receiveRepeatedTitle =>
-      'Already accepted. Return this same response to the sender; it is not a second payment.';
-
-  @override
-  String get receiveResponseTitle => 'Return this response to the sender';
-
-  @override
-  String get receiveAnother => 'Receive another payment';
+  String get receivePasteEmpty =>
+      'Copy the payment text first, then tap Paste.';
 
   @override
   String get updateChecking => 'Checking for updates…';

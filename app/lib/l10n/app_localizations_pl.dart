@@ -76,6 +76,12 @@ class AppLocalizationsPl extends AppLocalizations {
   String get slateCopied => 'Skopiowano tekst transakcji';
 
   @override
+  String get slatePastedTitle => 'Wklejona płatność';
+
+  @override
+  String get slateCopyReply => 'Kopiuj odpowiedź';
+
+  @override
   String get biometricPromptTitle => 'Odblokuj portfel';
 
   @override
@@ -1598,38 +1604,34 @@ class AppLocalizationsPl extends AppLocalizations {
   String get receiveQrLabel => 'Kod QR Twojego adresu';
 
   @override
+  String get receiveAddressLabel => 'Twój adres';
+
+  @override
+  String get receiveEpicboxOfflineBody =>
+      'Płatności wysłane do Ciebie czekają teraz w epicbox i dotrą, gdy portfel znów się połączy.';
+
+  @override
+  String get receiveShareCardHeadline => 'Zapłać mi w Epic Cash';
+
+  @override
   String get receiveHelpButton => 'Jak działa odbieranie';
 
   @override
   String get receiveAddressCopied => 'Skopiowano adres';
 
   @override
-  String get receiveFileSection => 'Odbierz plik transakcji';
+  String get receiveFileTitle => 'Odbierz przez plik płatności';
 
   @override
-  String get receiveOpenFile => 'Otwórz plik transakcji';
+  String get receiveFileBody =>
+      'Dostałeś plik płatności? Otwórz go albo skopiuj jego tekst i wklej tutaj.';
 
   @override
-  String get receivePasteSection => 'Albo wklej tekst transakcji';
+  String get receiveFileOpen => 'Otwórz plik';
 
   @override
-  String get receiveSlateLabel => 'Tekst transakcji';
-
-  @override
-  String get receivePasteFirst => 'Wklej otrzymany tekst transakcji.';
-
-  @override
-  String get receiveAccept => 'Przyjmij płatność';
-
-  @override
-  String get receiveRepeatedTitle =>
-      'Już przyjęto. Odeślij nadawcy tę samą odpowiedź; to nie jest druga płatność.';
-
-  @override
-  String get receiveResponseTitle => 'Odeślij tę odpowiedź nadawcy';
-
-  @override
-  String get receiveAnother => 'Odbierz kolejną płatność';
+  String get receivePasteEmpty =>
+      'Najpierw skopiuj tekst płatności, a potem dotknij Wklej.';
 
   @override
   String get updateChecking => 'Sprawdzanie aktualizacji…';
