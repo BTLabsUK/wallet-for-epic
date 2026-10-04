@@ -3002,4 +3002,53 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get txStepSenderFinished => 'Отправитель завершил его';
+
+  @override
+  String get fileHelpTitle => 'Как работает платёжный файл';
+
+  @override
+  String get fileHelpYou => 'Вы';
+
+  @override
+  String get fileHelpFriend => 'Друг';
+
+  @override
+  String get fileHelpSendStep1 => 'Вы создаёте платёжный файл.';
+
+  @override
+  String get fileHelpSendStep2 =>
+      'Вы отправляете его другу любым удобным способом, например в чате или по почте.';
+
+  @override
+  String get fileHelpSendStep3 =>
+      'Друг открывает его в своём кошельке и присылает вам подписанный ответ.';
+
+  @override
+  String get fileHelpSendStep4 => 'Вы открываете ответ, и платёж уже в пути.';
+
+  @override
+  String get fileHelpReceiveStep1 => 'Друг создаёт для вас платёжный файл.';
+
+  @override
+  String get fileHelpReceiveStep2 =>
+      'Он отправляет его вам любым удобным способом, например в чате или по почте.';
+
+  @override
+  String get fileHelpReceiveStep3 =>
+      'Вы открываете его в своём кошельке и отправляете подписанный ответ.';
+
+  @override
+  String get fileHelpReceiveStep4 =>
+      'Друг открывает ответ, и платёж уже в пути к вам.';
+
+  @override
+  String fileHelpStepOf(int step, int count) {
+    return 'Шаг $step из $count';
+  }
+
+  @override
+  String get fileHelpPause => 'Приостановить анимацию';
+
+  @override
+  String get fileHelpPlay => 'Воспроизвести анимацию';
 }

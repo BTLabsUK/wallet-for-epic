@@ -681,5 +681,19 @@
   "txStepConfirming": "Bestätigung",
   "txStepConfirmed": "Bestätigt",
   "txStepArrived": "Zahlung eingegangen",
-  "txStepSenderFinished": "Absender hat abgeschlossen"
+  "txStepSenderFinished": "Absender hat abgeschlossen",
+  "fileHelpTitle": "So funktioniert eine Zahlungsdatei",
+  "fileHelpYou": "Du",
+  "fileHelpFriend": "Freund",
+  "fileHelpSendStep1": "Du erstellst eine Zahlungsdatei.",
+  "fileHelpSendStep2": "Du schickst sie deinem Freund, wie du möchtest, etwa per Chat oder E-Mail.",
+  "fileHelpSendStep3": "Dein Freund öffnet sie in seiner Wallet und schickt dir die unterschriebene Antwort zurück.",
+  "fileHelpSendStep4": "Du öffnest die Antwort, und die Zahlung ist unterwegs.",
+  "fileHelpReceiveStep1": "Dein Freund erstellt eine Zahlungsdatei für dich.",
+  "fileHelpReceiveStep2": "Er schickt sie dir, wie er möchte, etwa per Chat oder E-Mail.",
+  "fileHelpReceiveStep3": "Du öffnest sie in deiner Wallet und schickst die unterschriebene Antwort zurück.",
+  "fileHelpReceiveStep4": "Dein Freund öffnet die Antwort, und die Zahlung ist auf dem Weg zu dir.",
+  "fileHelpStepOf": "Schritt {step} von {count}",
+  "fileHelpPause": "Animation anhalten",
+  "fileHelpPlay": "Animation abspielen"
 }

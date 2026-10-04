@@ -2898,4 +2898,55 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get txStepSenderFinished => 'Absender hat abgeschlossen';
+
+  @override
+  String get fileHelpTitle => 'So funktioniert eine Zahlungsdatei';
+
+  @override
+  String get fileHelpYou => 'Du';
+
+  @override
+  String get fileHelpFriend => 'Freund';
+
+  @override
+  String get fileHelpSendStep1 => 'Du erstellst eine Zahlungsdatei.';
+
+  @override
+  String get fileHelpSendStep2 =>
+      'Du schickst sie deinem Freund, wie du möchtest, etwa per Chat oder E-Mail.';
+
+  @override
+  String get fileHelpSendStep3 =>
+      'Dein Freund öffnet sie in seiner Wallet und schickt dir die unterschriebene Antwort zurück.';
+
+  @override
+  String get fileHelpSendStep4 =>
+      'Du öffnest die Antwort, und die Zahlung ist unterwegs.';
+
+  @override
+  String get fileHelpReceiveStep1 =>
+      'Dein Freund erstellt eine Zahlungsdatei für dich.';
+
+  @override
+  String get fileHelpReceiveStep2 =>
+      'Er schickt sie dir, wie er möchte, etwa per Chat oder E-Mail.';
+
+  @override
+  String get fileHelpReceiveStep3 =>
+      'Du öffnest sie in deiner Wallet und schickst die unterschriebene Antwort zurück.';
+
+  @override
+  String get fileHelpReceiveStep4 =>
+      'Dein Freund öffnet die Antwort, und die Zahlung ist auf dem Weg zu dir.';
+
+  @override
+  String fileHelpStepOf(int step, int count) {
+    return 'Schritt $step von $count';
+  }
+
+  @override
+  String get fileHelpPause => 'Animation anhalten';
+
+  @override
+  String get fileHelpPlay => 'Animation abspielen';
 }

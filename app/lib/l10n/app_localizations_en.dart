@@ -2864,4 +2864,55 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get txStepSenderFinished => 'Sender finished it';
+
+  @override
+  String get fileHelpTitle => 'How a payment file works';
+
+  @override
+  String get fileHelpYou => 'You';
+
+  @override
+  String get fileHelpFriend => 'Friend';
+
+  @override
+  String get fileHelpSendStep1 => 'You make a payment file.';
+
+  @override
+  String get fileHelpSendStep2 =>
+      'You send it to your friend any way you like, such as a chat or an email.';
+
+  @override
+  String get fileHelpSendStep3 =>
+      'Your friend opens it in their wallet and sends you back the signed reply.';
+
+  @override
+  String get fileHelpSendStep4 =>
+      'You open the reply, and the payment is on its way.';
+
+  @override
+  String get fileHelpReceiveStep1 =>
+      'Your friend makes a payment file for you.';
+
+  @override
+  String get fileHelpReceiveStep2 =>
+      'They send it to you any way they like, such as a chat or an email.';
+
+  @override
+  String get fileHelpReceiveStep3 =>
+      'You open it in your wallet and send back the signed reply.';
+
+  @override
+  String get fileHelpReceiveStep4 =>
+      'Your friend opens the reply, and the payment is on its way to you.';
+
+  @override
+  String fileHelpStepOf(int step, int count) {
+    return 'Step $step of $count';
+  }
+
+  @override
+  String get fileHelpPause => 'Pause the animation';
+
+  @override
+  String get fileHelpPlay => 'Play the animation';
 }

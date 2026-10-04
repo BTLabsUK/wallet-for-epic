@@ -681,5 +681,19 @@
   "txStepConfirming": "Подтверждение",
   "txStepConfirmed": "Подтверждён",
   "txStepArrived": "Платёж получен",
-  "txStepSenderFinished": "Отправитель завершил его"
+  "txStepSenderFinished": "Отправитель завершил его",
+  "fileHelpTitle": "Как работает платёжный файл",
+  "fileHelpYou": "Вы",
+  "fileHelpFriend": "Друг",
+  "fileHelpSendStep1": "Вы создаёте платёжный файл.",
+  "fileHelpSendStep2": "Вы отправляете его другу любым удобным способом, например в чате или по почте.",
+  "fileHelpSendStep3": "Друг открывает его в своём кошельке и присылает вам подписанный ответ.",
+  "fileHelpSendStep4": "Вы открываете ответ, и платёж уже в пути.",
+  "fileHelpReceiveStep1": "Друг создаёт для вас платёжный файл.",
+  "fileHelpReceiveStep2": "Он отправляет его вам любым удобным способом, например в чате или по почте.",
+  "fileHelpReceiveStep3": "Вы открываете его в своём кошельке и отправляете подписанный ответ.",
+  "fileHelpReceiveStep4": "Друг открывает ответ, и платёж уже в пути к вам.",
+  "fileHelpStepOf": "Шаг {step} из {count}",
+  "fileHelpPause": "Приостановить анимацию",
+  "fileHelpPlay": "Воспроизвести анимацию"
 }

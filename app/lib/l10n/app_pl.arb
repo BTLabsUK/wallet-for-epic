@@ -681,5 +681,19 @@
   "txStepConfirming": "Potwierdzanie",
   "txStepConfirmed": "Potwierdzona",
   "txStepArrived": "Płatność dotarła",
-  "txStepSenderFinished": "Nadawca ją zakończył"
+  "txStepSenderFinished": "Nadawca ją zakończył",
+  "fileHelpTitle": "Jak działa plik płatności",
+  "fileHelpYou": "Ty",
+  "fileHelpFriend": "Znajomy",
+  "fileHelpSendStep1": "Tworzysz plik płatności.",
+  "fileHelpSendStep2": "Wysyłasz go znajomemu w dowolny sposób, na przykład czatem lub e-mailem.",
+  "fileHelpSendStep3": "Znajomy otwiera go w swoim portfelu i odsyła ci podpisaną odpowiedź.",
+  "fileHelpSendStep4": "Otwierasz odpowiedź i płatność jest w drodze.",
+  "fileHelpReceiveStep1": "Znajomy tworzy dla ciebie plik płatności.",
+  "fileHelpReceiveStep2": "Wysyła ci go w dowolny sposób, na przykład czatem lub e-mailem.",
+  "fileHelpReceiveStep3": "Otwierasz go w swoim portfelu i odsyłasz podpisaną odpowiedź.",
+  "fileHelpReceiveStep4": "Znajomy otwiera odpowiedź i płatność jest w drodze do ciebie.",
+  "fileHelpStepOf": "Krok {step} z {count}",
+  "fileHelpPause": "Wstrzymaj animację",
+  "fileHelpPlay": "Odtwórz animację"
 }

@@ -2700,4 +2700,48 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get txStepSenderFinished => '发送方已完成';
+
+  @override
+  String get fileHelpTitle => '付款文件如何使用';
+
+  @override
+  String get fileHelpYou => '你';
+
+  @override
+  String get fileHelpFriend => '朋友';
+
+  @override
+  String get fileHelpSendStep1 => '你创建一个付款文件。';
+
+  @override
+  String get fileHelpSendStep2 => '你用任何方式把它发给朋友，比如聊天或电子邮件。';
+
+  @override
+  String get fileHelpSendStep3 => '朋友在自己的钱包中打开它，并把签名后的回复发还给你。';
+
+  @override
+  String get fileHelpSendStep4 => '你打开回复，付款就在路上了。';
+
+  @override
+  String get fileHelpReceiveStep1 => '朋友为你创建一个付款文件。';
+
+  @override
+  String get fileHelpReceiveStep2 => '对方用任何方式把它发给你，比如聊天或电子邮件。';
+
+  @override
+  String get fileHelpReceiveStep3 => '你在钱包中打开它，并发回签名后的回复。';
+
+  @override
+  String get fileHelpReceiveStep4 => '朋友打开回复，付款就在发给你的路上了。';
+
+  @override
+  String fileHelpStepOf(int step, int count) {
+    return '第 $step 步，共 $count 步';
+  }
+
+  @override
+  String get fileHelpPause => '暂停动画';
+
+  @override
+  String get fileHelpPlay => '播放动画';
 }

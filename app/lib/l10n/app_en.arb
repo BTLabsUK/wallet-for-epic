@@ -3372,5 +3372,69 @@
   "txStepSenderFinished": "Sender finished it",
   "@txStepSenderFinished": {
     "description": "Payment details timeline, an incoming payment: the sender finished it and posted it to the chain."
+  },
+  "fileHelpTitle": "How a payment file works",
+  "@fileHelpTitle": {
+    "description": "Title of the sheet that explains, with an animation, how paying by file works: one wallet makes a file, the other signs it and sends it back."
+  },
+  "fileHelpYou": "You",
+  "@fileHelpYou": {
+    "description": "Label under the figure that stands for the user in the payment file animation."
+  },
+  "fileHelpFriend": "Friend",
+  "@fileHelpFriend": {
+    "description": "Label under the figure that stands for the other person in the payment file animation."
+  },
+  "fileHelpSendStep1": "You make a payment file.",
+  "@fileHelpSendStep1": {
+    "description": "Payment file animation, told by the person who pays, step 1 of 4."
+  },
+  "fileHelpSendStep2": "You send it to your friend any way you like, such as a chat or an email.",
+  "@fileHelpSendStep2": {
+    "description": "Payment file animation, sender's side, step 2 of 4."
+  },
+  "fileHelpSendStep3": "Your friend opens it in their wallet and sends you back the signed reply.",
+  "@fileHelpSendStep3": {
+    "description": "Payment file animation, sender's side, step 3 of 4. The reply is a second file."
+  },
+  "fileHelpSendStep4": "You open the reply, and the payment is on its way.",
+  "@fileHelpSendStep4": {
+    "description": "Payment file animation, sender's side, step 4 of 4."
+  },
+  "fileHelpReceiveStep1": "Your friend makes a payment file for you.",
+  "@fileHelpReceiveStep1": {
+    "description": "Payment file animation, told by the person who gets paid, step 1 of 4."
+  },
+  "fileHelpReceiveStep2": "They send it to you any way they like, such as a chat or an email.",
+  "@fileHelpReceiveStep2": {
+    "description": "Payment file animation, receiver's side, step 2 of 4."
+  },
+  "fileHelpReceiveStep3": "You open it in your wallet and send back the signed reply.",
+  "@fileHelpReceiveStep3": {
+    "description": "Payment file animation, receiver's side, step 3 of 4. The reply is a second file."
+  },
+  "fileHelpReceiveStep4": "Your friend opens the reply, and the payment is on its way to you.",
+  "@fileHelpReceiveStep4": {
+    "description": "Payment file animation, receiver's side, step 4 of 4."
+  },
+  "fileHelpStepOf": "Step {step} of {count}",
+  "@fileHelpStepOf": {
+    "description": "Screen-reader label of the dots under the payment file animation.",
+    "placeholders": {
+      "step": {
+        "type": "int"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "fileHelpPause": "Pause the animation",
+  "@fileHelpPause": {
+    "description": "Screen-reader label of the payment file animation while it plays; a tap pauses it."
+  },
+  "fileHelpPlay": "Play the animation",
+  "@fileHelpPlay": {
+    "description": "Screen-reader label of the payment file animation while it is paused; a tap plays it."
   }
 }

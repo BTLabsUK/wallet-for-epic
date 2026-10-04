@@ -4231,6 +4231,90 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Sender finished it'**
   String get txStepSenderFinished;
+
+  /// Title of the sheet that explains, with an animation, how paying by file works: one wallet makes a file, the other signs it and sends it back.
+  ///
+  /// In en, this message translates to:
+  /// **'How a payment file works'**
+  String get fileHelpTitle;
+
+  /// Label under the figure that stands for the user in the payment file animation.
+  ///
+  /// In en, this message translates to:
+  /// **'You'**
+  String get fileHelpYou;
+
+  /// Label under the figure that stands for the other person in the payment file animation.
+  ///
+  /// In en, this message translates to:
+  /// **'Friend'**
+  String get fileHelpFriend;
+
+  /// Payment file animation, told by the person who pays, step 1 of 4.
+  ///
+  /// In en, this message translates to:
+  /// **'You make a payment file.'**
+  String get fileHelpSendStep1;
+
+  /// Payment file animation, sender's side, step 2 of 4.
+  ///
+  /// In en, this message translates to:
+  /// **'You send it to your friend any way you like, such as a chat or an email.'**
+  String get fileHelpSendStep2;
+
+  /// Payment file animation, sender's side, step 3 of 4. The reply is a second file.
+  ///
+  /// In en, this message translates to:
+  /// **'Your friend opens it in their wallet and sends you back the signed reply.'**
+  String get fileHelpSendStep3;
+
+  /// Payment file animation, sender's side, step 4 of 4.
+  ///
+  /// In en, this message translates to:
+  /// **'You open the reply, and the payment is on its way.'**
+  String get fileHelpSendStep4;
+
+  /// Payment file animation, told by the person who gets paid, step 1 of 4.
+  ///
+  /// In en, this message translates to:
+  /// **'Your friend makes a payment file for you.'**
+  String get fileHelpReceiveStep1;
+
+  /// Payment file animation, receiver's side, step 2 of 4.
+  ///
+  /// In en, this message translates to:
+  /// **'They send it to you any way they like, such as a chat or an email.'**
+  String get fileHelpReceiveStep2;
+
+  /// Payment file animation, receiver's side, step 3 of 4. The reply is a second file.
+  ///
+  /// In en, this message translates to:
+  /// **'You open it in your wallet and send back the signed reply.'**
+  String get fileHelpReceiveStep3;
+
+  /// Payment file animation, receiver's side, step 4 of 4.
+  ///
+  /// In en, this message translates to:
+  /// **'Your friend opens the reply, and the payment is on its way to you.'**
+  String get fileHelpReceiveStep4;
+
+  /// Screen-reader label of the dots under the payment file animation.
+  ///
+  /// In en, this message translates to:
+  /// **'Step {step} of {count}'**
+  String fileHelpStepOf(int step, int count);
+
+  /// Screen-reader label of the payment file animation while it plays; a tap pauses it.
+  ///
+  /// In en, this message translates to:
+  /// **'Pause the animation'**
+  String get fileHelpPause;
+
+  /// Screen-reader label of the payment file animation while it is paused; a tap plays it.
+  ///
+  /// In en, this message translates to:
+  /// **'Play the animation'**
+  String get fileHelpPlay;
 }
 
 class _AppLocalizationsDelegate
