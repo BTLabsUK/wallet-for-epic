@@ -85,6 +85,23 @@ void main() {
     expect(metaFile().existsSync(), isTrue);
   });
 
+  test('a delete removes the damaged copies and leaves other files', () async {
+    metaFile().writeAsStringSync('{ not json');
+    await MetaStore.open(dir.path);
+    final store = await MetaStore.open(dir.path);
+    await store.update((m) => m.notes['k'] = 'v');
+    File('${dir.path}/wfe_meta.tmp').writeAsStringSync('half');
+    final other = File('${dir.path}/keep.json')..writeAsStringSync('{}');
+    expect(corruptCopies(), hasLength(1));
+    await MetaStore.deleteFiles(dir.path);
+    expect(corruptCopies(), isEmpty);
+    expect(metaFile().existsSync(), isFalse);
+    expect(File('${dir.path}/wfe_meta.tmp').existsSync(), isFalse);
+    expect(other.existsSync(), isTrue);
+    // A directory that is already gone is nothing to delete.
+    await MetaStore.deleteFiles('${dir.path}/missing');
+  });
+
   test('a failed update changes nothing', () async {
     final store = await MetaStore.open(dir.path);
     await expectLater(

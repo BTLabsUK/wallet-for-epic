@@ -372,4 +372,35 @@ void main() {
     );
     expect(meta.existsSync(), isFalse);
   });
+
+  testWidgets(
+    'a new wallet in a deleted wallet directory starts with no history',
+    (tester) async {
+      final config = await _config();
+      final first = await _lepic.create(
+        config: config,
+        mnemonic: _phrase,
+        password: _password,
+      );
+      await first.saveContact(
+        contact: const Contact(id: '', name: 'Bob', address: 'bob@relay'),
+      );
+      final live = await first.transactions(refresh: false);
+      expect(live, isEmpty);
+      await first.setTxNote(key: 's:gone', note: 'kept by the old wallet');
+      first.dispose();
+      // A damaged copy moved aside earlier holds notes too.
+      final aside = File('${config.dataDir}/$metaFileName.corrupt-1')
+        ..writeAsStringSync('{"notes":{"s:x":"old"}');
+
+      await _lepic.deleteWallet(config: config);
+      expect(File('${config.dataDir}/$metaFileName').existsSync(), isFalse);
+      expect(aside.existsSync(), isFalse);
+
+      final second = await _lepic.create(config: config, password: _password);
+      addTearDown(second.dispose);
+      expect(await second.contacts(), isEmpty);
+      expect(await second.transactions(refresh: false), isEmpty);
+    },
+  );
 }

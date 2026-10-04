@@ -589,14 +589,28 @@ class MetaStore {
     return store;
   }
 
-  /// Removes the archive of [dataDir] and stops every store still open on it from writing, so
-  /// no late call brings the file back.
+  /// Removes the archive of [dataDir], its temp file and the `.corrupt-<ms>` copies moved aside,
+  /// and stops every store still open on it from writing, so no late call brings the file back
+  /// and a new wallet in the same directory starts with no notes or contacts.
   static Future<void> deleteFiles(String dataDir) async {
     final path = _fileOf(dataDir);
     for (final store in _open.remove(path) ?? const <MetaStore>{}) {
       store._closed = true;
     }
-    for (final name in [path, _tmpOf(path)]) {
+    final corrupt = <String>[];
+    try {
+      await for (final e in Directory(File(path).parent.path).list()) {
+        if (e is File &&
+            e.uri.pathSegments.last.startsWith('$metaFileName.corrupt-')) {
+          corrupt.add(e.path);
+        }
+      }
+    } on PathNotFoundException {
+      return;
+    } on FileSystemException catch (e) {
+      throw _io('listing ${File(path).parent.path}: ${e.message}');
+    }
+    for (final name in [path, _tmpOf(path), ...corrupt]) {
       try {
         await File(name).delete();
       } on PathNotFoundException {
