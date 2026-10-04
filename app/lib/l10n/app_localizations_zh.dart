@@ -2423,6 +2423,114 @@ class AppLocalizationsZh extends AppLocalizations {
   String get settingsContacts => '联系人';
 
   @override
+  String get settingsSectionInvoices => '账单';
+
+  @override
+  String get settingsInvoices => '账单地址和受信任的服务';
+
+  @override
+  String get settingsInvoicesSubtitle => '允许您信任的服务向您发送账单。每张账单都需要您批准。';
+
+  @override
+  String get invoiceSettingsTitle => '账单';
+
+  @override
+  String get invoiceSettingsAddressTitle => '您的账单地址';
+
+  @override
+  String get invoiceSettingsAddressBody =>
+      '将此地址提供给您信任的服务，以便它向您发送账单。您的收款地址保持不变。';
+
+  @override
+  String get invoiceSettingsQrLabel => '您的账单地址二维码';
+
+  @override
+  String get invoiceSettingsAddressCopied => '已复制账单地址。';
+
+  @override
+  String get invoiceSettingsServicesTitle => '受信任的服务';
+
+  @override
+  String get invoiceSettingsNoServices => '还没有受信任的服务。其他人的账单永远不会到达您这里。';
+
+  @override
+  String get invoiceSettingsAddService => '添加服务';
+
+  @override
+  String invoiceSettingsRemoveTooltip(String name) {
+    return '移除 $name';
+  }
+
+  @override
+  String invoiceSettingsRemoveTitle(String name) {
+    return '移除 $name？';
+  }
+
+  @override
+  String get invoiceSettingsRemoveBody => '此服务将无法再向您发送账单。已完成的付款不受影响。';
+
+  @override
+  String get invoiceSettingsKeep => '保留';
+
+  @override
+  String get invoiceSettingsRemoveConfirm => '移除';
+
+  @override
+  String invoiceSettingsRemoved(String name) {
+    return '$name 无法再向您发送账单。';
+  }
+
+  @override
+  String get invoiceSettingsRotate => '获取新的账单地址';
+
+  @override
+  String get invoiceSettingsRotateHint => '当前地址将停止使用。';
+
+  @override
+  String get invoiceSettingsRotateTitle => '获取新的账单地址？';
+
+  @override
+  String get invoiceSettingsRotateBody => '您当前的账单地址将永久停止使用。每个向您发送账单的服务都需要新地址。';
+
+  @override
+  String get invoiceSettingsRotateConfirm => '获取新地址';
+
+  @override
+  String get invoiceSettingsRotated => '新的账单地址已就绪。请把它提供给您的服务。';
+
+  @override
+  String invoiceSettingsDropped(int count) {
+    return '本次会话丢弃（未知发件人）：$count';
+  }
+
+  @override
+  String get invoiceSettingsAddTitle => '添加受信任的服务';
+
+  @override
+  String get invoiceSettingsAddExplanation =>
+      '受信任的服务可以向您的账单地址发送账单；其他人的消息会被丢弃。在您用 PIN 或指纹批准每张账单之前，不会支付任何款项。';
+
+  @override
+  String get invoiceSettingsLabelLabel => '名称';
+
+  @override
+  String get invoiceSettingsLabelMissing => '请为服务命名。';
+
+  @override
+  String get invoiceSettingsServiceAddressLabel => '服务的 epicbox 地址';
+
+  @override
+  String get invoiceSettingsAddressMissing => '粘贴或扫描服务显示的地址。';
+
+  @override
+  String get invoiceSettingsAddButton => '添加服务';
+
+  @override
+  String invoiceSettingsAdded(String name) {
+    return '$name 现在可以向您发送账单了。';
+  }
+
+  @override
   String get settingsRescan => '重新扫描区块链';
 
   @override

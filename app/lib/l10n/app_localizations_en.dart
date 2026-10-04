@@ -2577,6 +2577,121 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsContacts => 'Contacts';
 
   @override
+  String get settingsSectionInvoices => 'Invoices';
+
+  @override
+  String get settingsInvoices => 'Invoice address and trusted services';
+
+  @override
+  String get settingsInvoicesSubtitle =>
+      'Let services you trust bill you. You approve every invoice.';
+
+  @override
+  String get invoiceSettingsTitle => 'Invoices';
+
+  @override
+  String get invoiceSettingsAddressTitle => 'Your invoice address';
+
+  @override
+  String get invoiceSettingsAddressBody =>
+      'Give this address to a service you trust, so it can send you invoices. Your address for payments stays the same.';
+
+  @override
+  String get invoiceSettingsQrLabel => 'QR code of your invoice address';
+
+  @override
+  String get invoiceSettingsAddressCopied => 'Invoice address copied.';
+
+  @override
+  String get invoiceSettingsServicesTitle => 'Trusted services';
+
+  @override
+  String get invoiceSettingsNoServices =>
+      'No trusted services yet. Invoices from anyone else never reach you.';
+
+  @override
+  String get invoiceSettingsAddService => 'Add a service';
+
+  @override
+  String invoiceSettingsRemoveTooltip(String name) {
+    return 'Remove $name';
+  }
+
+  @override
+  String invoiceSettingsRemoveTitle(String name) {
+    return 'Remove $name?';
+  }
+
+  @override
+  String get invoiceSettingsRemoveBody =>
+      'This service can no longer send you invoices. Payments you already made are not affected.';
+
+  @override
+  String get invoiceSettingsKeep => 'Keep';
+
+  @override
+  String get invoiceSettingsRemoveConfirm => 'Remove';
+
+  @override
+  String invoiceSettingsRemoved(String name) {
+    return '$name can no longer send you invoices.';
+  }
+
+  @override
+  String get invoiceSettingsRotate => 'Get a new invoice address';
+
+  @override
+  String get invoiceSettingsRotateHint => 'The current one stops working.';
+
+  @override
+  String get invoiceSettingsRotateTitle => 'Get a new invoice address?';
+
+  @override
+  String get invoiceSettingsRotateBody =>
+      'Your current invoice address stops working for good. Every service that bills you needs the new one.';
+
+  @override
+  String get invoiceSettingsRotateConfirm => 'Get new address';
+
+  @override
+  String get invoiceSettingsRotated =>
+      'New invoice address ready. Give it to your services.';
+
+  @override
+  String invoiceSettingsDropped(int count) {
+    return 'Dropped from unknown senders this session: $count';
+  }
+
+  @override
+  String get invoiceSettingsAddTitle => 'Add a trusted service';
+
+  @override
+  String get invoiceSettingsAddExplanation =>
+      'A trusted service can send invoices to your invoice address; messages from anyone else are dropped. Nothing is paid until you approve each invoice with your PIN or fingerprint.';
+
+  @override
+  String get invoiceSettingsLabelLabel => 'Name';
+
+  @override
+  String get invoiceSettingsLabelMissing => 'Give the service a name.';
+
+  @override
+  String get invoiceSettingsServiceAddressLabel =>
+      'The service\'s epicbox address';
+
+  @override
+  String get invoiceSettingsAddressMissing =>
+      'Paste or scan the address the service shows.';
+
+  @override
+  String get invoiceSettingsAddButton => 'Add service';
+
+  @override
+  String invoiceSettingsAdded(String name) {
+    return '$name can now send you invoices.';
+  }
+
+  @override
   String get settingsRescan => 'Rescan the chain';
 
   @override

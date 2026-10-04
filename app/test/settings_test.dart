@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:typed_data';
 
 import 'package:epic_wallet/src/app.dart';
 import 'package:epic_wallet/src/l10n.dart';
@@ -13,6 +12,8 @@ import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/settings.dart';
 import 'package:epic_wallet/src/slate_files.dart';
 import 'package:epic_wallet/src/ui/restore_screen.dart';
+import 'package:epic_wallet/src/ui/scan_screen.dart';
+import 'package:epic_wallet/src/ui/settings_invoices.dart';
 import 'package:epic_wallet/src/ui/settings_history.dart';
 import 'package:epic_wallet/src/ui/settings_pin.dart';
 import 'package:epic_wallet/src/ui/settings_screen.dart';
@@ -20,8 +21,10 @@ import 'package:epic_wallet/src/updater.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:pretty_qr_code/pretty_qr_code.dart';
 
 const _mainnetDir = '/fake/wallets/mainnet';
 const _pin = '123456';
@@ -80,7 +83,8 @@ class _Harness {
     bool sealed = true,
     bool walletExists = true,
     bool advanced = false,
-  }) {
+    bool scanSupported = false,
+  }) : scanner = FakeQrScanner(supported: scanSupported) {
     if (advanced) store.values['app.advanced'] = 'true';
     if (sealed) {
       store.values['wallet.mainnet.pinSealed'] = fakeSealedPassword(_pin);
@@ -96,6 +100,7 @@ class _Harness {
   final files = FakeHistoryFiles();
   final session = _ScanSession();
   final push = _FakePush();
+  final FakeQrScanner scanner;
   int cleanups = 0;
   late final FakeWalletService service;
   DateTime now = DateTime(2026, 9, 30, 12);
@@ -122,6 +127,7 @@ class _Harness {
           priceSourceProvider.overrideWithValue(_FixedPrice()),
           clockProvider.overrideWithValue(() => now),
           pushPlatformProvider.overrideWithValue(push),
+          qrScannerProvider.overrideWithValue(scanner),
           sharedFilesCleanupProvider.overrideWithValue(() async => cleanups++),
         ],
         child: const WalletApp(),
@@ -798,6 +804,259 @@ void main() {
     await _tapText(tester, 'Contacts');
     final screen = tester.widget<ContactsScreen>(find.byType(ContactsScreen));
     expect(screen.pick, isFalse);
+  });
+
+  group('invoices', () {
+    // A valid epicbox address with a key made of [c].
+    String addr(String c) => '${'es$c'.padRight(52, c)}@epicbox.epiccash.com';
+    final shop = addr('S');
+    final exchange = addr('X');
+
+    Future<_Harness> openInvoices(
+      WidgetTester tester, {
+      bool advanced = false,
+      bool scanSupported = false,
+      Future<void> Function(_Harness h)? before,
+    }) async {
+      final h = _Harness(advanced: advanced, scanSupported: scanSupported);
+      await h.pump(tester);
+      await h.unlock(tester);
+      await before?.call(h);
+      await h.openSettings(tester);
+      await _tapText(tester, 'Invoice address and trusted services');
+      expect(find.byType(InvoiceSettingsScreen), findsOneWidget);
+      return h;
+    }
+
+    Finder notice(String text) =>
+        find.descendant(of: find.byKey(noticeKey), matching: find.text(text));
+
+    testWidgets('the section is hidden on a core without invoices', (
+      tester,
+    ) async {
+      final h = _Harness(advanced: true);
+      h.session.invoicesSupported = false;
+      await h.pump(tester);
+      await h.unlock(tester);
+      await h.openSettings(tester);
+      // The section would sit between History and Wallet.
+      await _reveal(tester, find.text('Import history backup'));
+      expect(find.text('Contacts'), findsOneWidget);
+      expect(find.text('Invoices'), findsNothing);
+      expect(find.text('Invoice address and trusted services'), findsNothing);
+    });
+
+    testWidgets('the section shows on a core with invoices', (tester) async {
+      final h = _Harness();
+      await h.pump(tester);
+      await h.unlock(tester);
+      await h.openSettings(tester);
+      await _reveal(tester, find.text('Import history backup'));
+      expect(find.text('Invoices'), findsOneWidget);
+      expect(find.text('Invoice address and trusted services'), findsOneWidget);
+    });
+
+    testWidgets('shows the invoice address as a QR code and copies it', (
+      tester,
+    ) async {
+      final h = await openInvoices(tester);
+      final address = FakeWalletSession.fakeInvoiceAddress(
+        h.session.invoiceHistory.invoiceIndex,
+      );
+      final copied = <Object?>[];
+      tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+        SystemChannels.platform,
+        (call) async {
+          if (call.method == 'Clipboard.setData') copied.add(call.arguments);
+          return null;
+        },
+      );
+      addTearDown(
+        () => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+          SystemChannels.platform,
+          null,
+        ),
+      );
+      expect(find.byType(PrettyQrView), findsOneWidget);
+      expect(
+        find.bySemanticsLabel('QR code of your invoice address'),
+        findsOneWidget,
+      );
+      // Not the payments address: services get their own.
+      expect(address, isNot(h.session.address));
+      await _tapText(tester, 'Copy');
+      expect(copied, [
+        {'text': address},
+      ]);
+      expect(notice('Invoice address copied.'), findsOneWidget);
+    });
+
+    testWidgets('adding explains what it allows, then saves a valid address', (
+      tester,
+    ) async {
+      final h = await openInvoices(tester);
+      expect(
+        find.text(englishStrings.invoiceSettingsNoServices),
+        findsOneWidget,
+      );
+      await _tapText(tester, 'Add a service');
+      expect(
+        find.text(englishStrings.invoiceSettingsAddExplanation),
+        findsOneWidget,
+      );
+      // Two sentences: what it allows, and that each invoice still needs approval.
+      final explanation = englishStrings.invoiceSettingsAddExplanation;
+      expect('.'.allMatches(explanation).length, 2);
+      expect(explanation, contains('approve each invoice'));
+
+      await _enter(tester, 'Name', 'Shop');
+      await _enter(tester, "The service's epicbox address", '  $shop ');
+      await _tapText(tester, 'Add service');
+      expect(find.byType(TrustedServiceAddScreen), findsNothing);
+      expect(h.session.allowlist, [shop]);
+      expect(await h.session.trustedServices(), [
+        TrustedService(address: shop, label: 'Shop'),
+      ]);
+      expect(find.text('Shop'), findsOneWidget);
+      expect(notice('Shop can now send you invoices.'), findsOneWidget);
+      // Adding never paid anything.
+      expect(h.session.invoicePayments, 0);
+    });
+
+    testWidgets('a scanned address fills the field', (tester) async {
+      final h = await openInvoices(tester, scanSupported: true);
+      await _tapText(tester, 'Add a service');
+      h.scanner.codes.add(exchange);
+      await tester.tap(find.byTooltip('Scan QR code'));
+      await tester.pumpAndSettle();
+      expect(find.text(exchange), findsOneWidget);
+      await _enter(tester, 'Name', 'Exchange');
+      await _tapText(tester, 'Add service');
+      expect(h.session.allowlist, [exchange]);
+    });
+
+    testWidgets('refuses a missing name, an invalid address and its own', (
+      tester,
+    ) async {
+      final own = addr('W');
+      final h = await openInvoices(
+        tester,
+        before: (h) async => h.session.address = own,
+      );
+      await _tapText(tester, 'Add a service');
+      await _tapText(tester, 'Add service');
+      expect(find.text('Give the service a name.'), findsOneWidget);
+      expect(
+        find.text('Paste or scan the address the service shows.'),
+        findsOneWidget,
+      );
+
+      await _enter(tester, 'Name', 'Shop');
+      await _enter(tester, "The service's epicbox address", 'esShop@nowhere');
+      await _tapText(tester, 'Add service');
+      expect(
+        find.text(
+          englishStrings.contactsAddressInvalid('es5x…@epicbox.epiccash.com'),
+        ),
+        findsOneWidget,
+      );
+      // A wallet URL is no service address either.
+      await _enter(
+        tester,
+        "The service's epicbox address",
+        'http://203.0.113.5:3415',
+      );
+      await _tapText(tester, 'Add service');
+      expect(
+        find.text(
+          englishStrings.contactsAddressInvalid('es5x…@epicbox.epiccash.com'),
+        ),
+        findsOneWidget,
+      );
+      // The wallet's own address passes the format check; the core refuses it.
+      await _enter(tester, "The service's epicbox address", own);
+      await _tapText(tester, 'Add service');
+      expect(find.byType(TrustedServiceAddScreen), findsOneWidget);
+      expect(find.byType(ErrorText), findsOneWidget);
+      expect(h.session.allowlist, isEmpty);
+    });
+
+    testWidgets('removing asks first', (tester) async {
+      final h = await openInvoices(
+        tester,
+        before: (h) =>
+            h.session.addTrustedService(address: shop, label: 'Shop'),
+      );
+      expect(find.text('Shop'), findsOneWidget);
+      await tester.tap(find.byTooltip('Remove Shop'));
+      await tester.pumpAndSettle();
+      expect(find.text('Remove Shop?'), findsOneWidget);
+      expect(
+        find.text(englishStrings.invoiceSettingsRemoveBody),
+        findsOneWidget,
+      );
+      await _tapText(tester, 'Keep');
+      expect(h.session.allowlist, [shop]);
+      expect(find.text('Shop'), findsOneWidget);
+
+      await tester.tap(find.byTooltip('Remove Shop'));
+      await tester.pumpAndSettle();
+      await _tapText(tester, 'Remove');
+      expect(h.session.allowlist, isEmpty);
+      expect(await h.session.trustedServices(), isEmpty);
+      expect(find.byTooltip('Remove Shop'), findsNothing);
+      expect(notice('Shop can no longer send you invoices.'), findsOneWidget);
+    });
+
+    testWidgets('rotation and the dropped count are hidden without Advanced', (
+      tester,
+    ) async {
+      await openInvoices(tester);
+      expect(find.text('Get a new invoice address'), findsNothing);
+      expect(find.textContaining('Dropped from unknown senders'), findsNothing);
+    });
+
+    testWidgets(
+      'Advanced rotates after a confirm and shows the dropped count',
+      (tester) async {
+        final h = await openInvoices(tester, advanced: true);
+        final first = FakeWalletSession.fakeInvoiceAddress(1);
+        // Advanced shows the full address.
+        expect(find.text(first), findsOneWidget);
+        await _reveal(
+          tester,
+          find.text('Dropped from unknown senders this session: 0'),
+        );
+        h.container.read(droppedInvoiceMessagesProvider.notifier).add(3);
+        await tester.pumpAndSettle();
+        await _reveal(
+          tester,
+          find.text('Dropped from unknown senders this session: 3'),
+        );
+
+        await _tapText(tester, 'Get a new invoice address');
+        expect(find.text('Get a new invoice address?'), findsOneWidget);
+        expect(
+          find.text(englishStrings.invoiceSettingsRotateBody),
+          findsOneWidget,
+        );
+        await _tapText(tester, 'Keep');
+        expect(h.session.invoiceHistory.invoiceIndex, 1);
+
+        await _tapText(tester, 'Get a new invoice address');
+        await _tapText(tester, 'Get new address');
+        expect(h.session.invoiceHistory.invoiceIndex, 2);
+        expect(
+          notice('New invoice address ready. Give it to your services.'),
+          findsOneWidget,
+        );
+        await _reveal(
+          tester,
+          find.text(FakeWalletSession.fakeInvoiceAddress(2)),
+        );
+        expect(find.text(first), findsNothing);
+      },
+    );
   });
 
   group('wording', () {

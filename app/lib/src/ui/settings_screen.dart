@@ -23,6 +23,7 @@ import 'pin.dart';
 import 'restore_screen.dart'
     show ScanSlotLine, mainnetFirstDay, mainnetHeightForDate;
 import 'settings_history.dart';
+import 'settings_invoices.dart';
 import 'settings_pin.dart';
 import 'theme/advanced.dart';
 import 'setup_screen.dart';
@@ -329,6 +330,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final biometrics = ref.watch(_biometricsProvider).value;
     final version = ref.watch(appVersionProvider);
     final walletOpen = ref.watch(sessionProvider) != null;
+    // Invoices only on a core that has them (UP-14); until then no entry at all.
+    final invoices = ref.watch(sessionProvider)?.supportsInvoices ?? false;
     final updates = ref.read(updateProvider.notifier).supported;
     final chain = config == null ? l.commonUnknown : chainName(l, config.chain);
     // Network, node, relay and rescan are technical; the Display switch shows them.
@@ -468,6 +471,15 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         ? null
                         : () => _run(() => importHistoryBackup(context, ref)),
                   ),
+                  if (invoices) ...[
+                    _Header(l.settingsSectionInvoices),
+                    ListTile(
+                      leading: const Icon(Icons.request_quote_outlined),
+                      title: Text(l.settingsInvoices),
+                      subtitle: Text(l.settingsInvoicesSubtitle),
+                      onTap: () => _push(const InvoiceSettingsScreen()),
+                    ),
+                  ],
                   _Header(l.settingsSectionWallet),
                   ListTile(
                     leading: const Icon(Icons.contacts_outlined),

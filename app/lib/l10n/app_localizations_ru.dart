@@ -2704,6 +2704,120 @@ class AppLocalizationsRu extends AppLocalizations {
   String get settingsContacts => 'Контакты';
 
   @override
+  String get settingsSectionInvoices => 'Счета';
+
+  @override
+  String get settingsInvoices => 'Адрес для счетов и доверенные сервисы';
+
+  @override
+  String get settingsInvoicesSubtitle =>
+      'Доверенные сервисы могут выставлять вам счета. Каждый счёт вы подтверждаете сами.';
+
+  @override
+  String get invoiceSettingsTitle => 'Счета';
+
+  @override
+  String get invoiceSettingsAddressTitle => 'Ваш адрес для счетов';
+
+  @override
+  String get invoiceSettingsAddressBody =>
+      'Передайте этот адрес сервису, которому доверяете, чтобы он мог присылать вам счета. Ваш адрес для платежей не меняется.';
+
+  @override
+  String get invoiceSettingsQrLabel => 'QR-код вашего адреса для счетов';
+
+  @override
+  String get invoiceSettingsAddressCopied => 'Адрес для счетов скопирован.';
+
+  @override
+  String get invoiceSettingsServicesTitle => 'Доверенные сервисы';
+
+  @override
+  String get invoiceSettingsNoServices =>
+      'Доверенных сервисов пока нет. Счета от других до вас не доходят.';
+
+  @override
+  String get invoiceSettingsAddService => 'Добавить сервис';
+
+  @override
+  String invoiceSettingsRemoveTooltip(String name) {
+    return 'Удалить $name';
+  }
+
+  @override
+  String invoiceSettingsRemoveTitle(String name) {
+    return 'Удалить $name?';
+  }
+
+  @override
+  String get invoiceSettingsRemoveBody =>
+      'Этот сервис больше не сможет присылать вам счета. Уже сделанные платежи это не затрагивает.';
+
+  @override
+  String get invoiceSettingsKeep => 'Оставить';
+
+  @override
+  String get invoiceSettingsRemoveConfirm => 'Удалить';
+
+  @override
+  String invoiceSettingsRemoved(String name) {
+    return '$name больше не может присылать вам счета.';
+  }
+
+  @override
+  String get invoiceSettingsRotate => 'Получить новый адрес для счетов';
+
+  @override
+  String get invoiceSettingsRotateHint => 'Текущий перестанет работать.';
+
+  @override
+  String get invoiceSettingsRotateTitle => 'Получить новый адрес для счетов?';
+
+  @override
+  String get invoiceSettingsRotateBody =>
+      'Текущий адрес для счетов перестанет работать навсегда. Каждому сервису, который выставляет вам счета, нужен новый.';
+
+  @override
+  String get invoiceSettingsRotateConfirm => 'Новый адрес';
+
+  @override
+  String get invoiceSettingsRotated =>
+      'Новый адрес для счетов готов. Передайте его своим сервисам.';
+
+  @override
+  String invoiceSettingsDropped(int count) {
+    return 'Отброшено за сеанс (неизвестные отправители): $count';
+  }
+
+  @override
+  String get invoiceSettingsAddTitle => 'Добавить доверенный сервис';
+
+  @override
+  String get invoiceSettingsAddExplanation =>
+      'Доверенный сервис может присылать счета на ваш адрес для счетов; сообщения от других отбрасываются. Ничего не оплачивается, пока вы не подтвердите каждый счёт PIN-кодом или отпечатком пальца.';
+
+  @override
+  String get invoiceSettingsLabelLabel => 'Название';
+
+  @override
+  String get invoiceSettingsLabelMissing => 'Дайте сервису название.';
+
+  @override
+  String get invoiceSettingsServiceAddressLabel => 'Адрес epicbox сервиса';
+
+  @override
+  String get invoiceSettingsAddressMissing =>
+      'Вставьте или отсканируйте адрес, который показывает сервис.';
+
+  @override
+  String get invoiceSettingsAddButton => 'Добавить сервис';
+
+  @override
+  String invoiceSettingsAdded(String name) {
+    return '$name теперь может присылать вам счета.';
+  }
+
+  @override
   String get settingsRescan => 'Пересканировать блокчейн';
 
   @override

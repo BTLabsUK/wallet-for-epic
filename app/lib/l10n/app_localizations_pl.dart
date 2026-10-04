@@ -2728,6 +2728,120 @@ class AppLocalizationsPl extends AppLocalizations {
   String get settingsContacts => 'Kontakty';
 
   @override
+  String get settingsSectionInvoices => 'Faktury';
+
+  @override
+  String get settingsInvoices => 'Adres do faktur i zaufane serwisy';
+
+  @override
+  String get settingsInvoicesSubtitle =>
+      'Zaufane serwisy mogą wystawiać Ci faktury. Każdą zatwierdzasz sam.';
+
+  @override
+  String get invoiceSettingsTitle => 'Faktury';
+
+  @override
+  String get invoiceSettingsAddressTitle => 'Twój adres do faktur';
+
+  @override
+  String get invoiceSettingsAddressBody =>
+      'Podaj ten adres serwisowi, któremu ufasz, aby mógł wysyłać Ci faktury. Twój adres do płatności się nie zmienia.';
+
+  @override
+  String get invoiceSettingsQrLabel => 'Kod QR Twojego adresu do faktur';
+
+  @override
+  String get invoiceSettingsAddressCopied => 'Skopiowano adres do faktur.';
+
+  @override
+  String get invoiceSettingsServicesTitle => 'Zaufane serwisy';
+
+  @override
+  String get invoiceSettingsNoServices =>
+      'Brak zaufanych serwisów. Faktury od innych nigdy do Ciebie nie dotrą.';
+
+  @override
+  String get invoiceSettingsAddService => 'Dodaj serwis';
+
+  @override
+  String invoiceSettingsRemoveTooltip(String name) {
+    return 'Usuń $name';
+  }
+
+  @override
+  String invoiceSettingsRemoveTitle(String name) {
+    return 'Usunąć $name?';
+  }
+
+  @override
+  String get invoiceSettingsRemoveBody =>
+      'Ten serwis nie będzie mógł już wysyłać Ci faktur. Dokonane płatności pozostają bez zmian.';
+
+  @override
+  String get invoiceSettingsKeep => 'Zostaw';
+
+  @override
+  String get invoiceSettingsRemoveConfirm => 'Usuń';
+
+  @override
+  String invoiceSettingsRemoved(String name) {
+    return '$name nie może już wysyłać Ci faktur.';
+  }
+
+  @override
+  String get invoiceSettingsRotate => 'Utwórz nowy adres do faktur';
+
+  @override
+  String get invoiceSettingsRotateHint => 'Obecny przestanie działać.';
+
+  @override
+  String get invoiceSettingsRotateTitle => 'Utworzyć nowy adres do faktur?';
+
+  @override
+  String get invoiceSettingsRotateBody =>
+      'Obecny adres do faktur przestanie działać na zawsze. Każdy serwis, który wystawia Ci faktury, potrzebuje nowego.';
+
+  @override
+  String get invoiceSettingsRotateConfirm => 'Nowy adres';
+
+  @override
+  String get invoiceSettingsRotated =>
+      'Nowy adres do faktur gotowy. Przekaż go swoim serwisom.';
+
+  @override
+  String invoiceSettingsDropped(int count) {
+    return 'Odrzucone w tej sesji (nieznani nadawcy): $count';
+  }
+
+  @override
+  String get invoiceSettingsAddTitle => 'Dodaj zaufany serwis';
+
+  @override
+  String get invoiceSettingsAddExplanation =>
+      'Zaufany serwis może wysyłać faktury na Twój adres do faktur; wiadomości od innych są odrzucane. Nic nie zostanie zapłacone, dopóki nie zatwierdzisz każdej faktury PIN-em lub odciskiem palca.';
+
+  @override
+  String get invoiceSettingsLabelLabel => 'Nazwa';
+
+  @override
+  String get invoiceSettingsLabelMissing => 'Nadaj serwisowi nazwę.';
+
+  @override
+  String get invoiceSettingsServiceAddressLabel => 'Adres epicbox serwisu';
+
+  @override
+  String get invoiceSettingsAddressMissing =>
+      'Wklej lub zeskanuj adres, który pokazuje serwis.';
+
+  @override
+  String get invoiceSettingsAddButton => 'Dodaj serwis';
+
+  @override
+  String invoiceSettingsAdded(String name) {
+    return '$name może teraz wysyłać Ci faktury.';
+  }
+
+  @override
   String get settingsRescan => 'Skanuj łańcuch ponownie';
 
   @override

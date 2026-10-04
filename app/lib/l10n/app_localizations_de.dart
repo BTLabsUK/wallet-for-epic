@@ -2604,6 +2604,123 @@ class AppLocalizationsDe extends AppLocalizations {
   String get settingsContacts => 'Kontakte';
 
   @override
+  String get settingsSectionInvoices => 'Rechnungen';
+
+  @override
+  String get settingsInvoices =>
+      'Rechnungsadresse und vertrauenswürdige Dienste';
+
+  @override
+  String get settingsInvoicesSubtitle =>
+      'Vertrauenswürdige Dienste dürfen Ihnen Rechnungen schicken. Sie bestätigen jede Rechnung.';
+
+  @override
+  String get invoiceSettingsTitle => 'Rechnungen';
+
+  @override
+  String get invoiceSettingsAddressTitle => 'Ihre Rechnungsadresse';
+
+  @override
+  String get invoiceSettingsAddressBody =>
+      'Geben Sie diese Adresse einem Dienst, dem Sie vertrauen, damit er Ihnen Rechnungen schicken kann. Ihre Adresse für Zahlungen bleibt dieselbe.';
+
+  @override
+  String get invoiceSettingsQrLabel => 'QR-Code Ihrer Rechnungsadresse';
+
+  @override
+  String get invoiceSettingsAddressCopied => 'Rechnungsadresse kopiert.';
+
+  @override
+  String get invoiceSettingsServicesTitle => 'Vertrauenswürdige Dienste';
+
+  @override
+  String get invoiceSettingsNoServices =>
+      'Noch keine vertrauenswürdigen Dienste. Rechnungen von anderen erreichen Sie nie.';
+
+  @override
+  String get invoiceSettingsAddService => 'Dienst hinzufügen';
+
+  @override
+  String invoiceSettingsRemoveTooltip(String name) {
+    return '$name entfernen';
+  }
+
+  @override
+  String invoiceSettingsRemoveTitle(String name) {
+    return '$name entfernen?';
+  }
+
+  @override
+  String get invoiceSettingsRemoveBody =>
+      'Dieser Dienst kann Ihnen dann keine Rechnungen mehr schicken. Bereits geleistete Zahlungen sind nicht betroffen.';
+
+  @override
+  String get invoiceSettingsKeep => 'Behalten';
+
+  @override
+  String get invoiceSettingsRemoveConfirm => 'Entfernen';
+
+  @override
+  String invoiceSettingsRemoved(String name) {
+    return '$name kann Ihnen keine Rechnungen mehr schicken.';
+  }
+
+  @override
+  String get invoiceSettingsRotate => 'Neue Rechnungsadresse erzeugen';
+
+  @override
+  String get invoiceSettingsRotateHint =>
+      'Die aktuelle funktioniert dann nicht mehr.';
+
+  @override
+  String get invoiceSettingsRotateTitle => 'Neue Rechnungsadresse erzeugen?';
+
+  @override
+  String get invoiceSettingsRotateBody =>
+      'Ihre aktuelle Rechnungsadresse funktioniert danach nie wieder. Jeder Dienst, der Ihnen Rechnungen schickt, braucht die neue.';
+
+  @override
+  String get invoiceSettingsRotateConfirm => 'Neue Adresse';
+
+  @override
+  String get invoiceSettingsRotated =>
+      'Neue Rechnungsadresse bereit. Geben Sie sie Ihren Diensten.';
+
+  @override
+  String invoiceSettingsDropped(int count) {
+    return 'In dieser Sitzung verworfen (unbekannte Absender): $count';
+  }
+
+  @override
+  String get invoiceSettingsAddTitle => 'Vertrauenswürdigen Dienst hinzufügen';
+
+  @override
+  String get invoiceSettingsAddExplanation =>
+      'Ein vertrauenswürdiger Dienst kann Rechnungen an Ihre Rechnungsadresse schicken; Nachrichten von anderen werden verworfen. Bezahlt wird nichts, bevor Sie jede Rechnung mit Ihrer PIN oder Ihrem Fingerabdruck bestätigen.';
+
+  @override
+  String get invoiceSettingsLabelLabel => 'Name';
+
+  @override
+  String get invoiceSettingsLabelMissing => 'Geben Sie dem Dienst einen Namen.';
+
+  @override
+  String get invoiceSettingsServiceAddressLabel =>
+      'Epicbox-Adresse des Dienstes';
+
+  @override
+  String get invoiceSettingsAddressMissing =>
+      'Fügen Sie die Adresse ein, die der Dienst anzeigt, oder scannen Sie sie.';
+
+  @override
+  String get invoiceSettingsAddButton => 'Dienst hinzufügen';
+
+  @override
+  String invoiceSettingsAdded(String name) {
+    return '$name kann Ihnen jetzt Rechnungen schicken.';
+  }
+
+  @override
   String get settingsRescan => 'Blockchain neu scannen';
 
   @override

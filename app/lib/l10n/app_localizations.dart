@@ -3758,6 +3758,198 @@ abstract class AppLocalizations {
   /// **'Contacts'**
   String get settingsContacts;
 
+  /// Settings section header for invoices from trusted services.
+  ///
+  /// In en, this message translates to:
+  /// **'Invoices'**
+  String get settingsSectionInvoices;
+
+  /// Settings row that opens the invoice settings.
+  ///
+  /// In en, this message translates to:
+  /// **'Invoice address and trusted services'**
+  String get settingsInvoices;
+
+  /// Hint under the invoice settings row.
+  ///
+  /// In en, this message translates to:
+  /// **'Let services you trust bill you. You approve every invoice.'**
+  String get settingsInvoicesSubtitle;
+
+  /// Title of the invoice settings screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Invoices'**
+  String get invoiceSettingsTitle;
+
+  /// Heading above the invoice address and its QR code.
+  ///
+  /// In en, this message translates to:
+  /// **'Your invoice address'**
+  String get invoiceSettingsAddressTitle;
+
+  /// Explains the invoice address, which is separate from the receive address.
+  ///
+  /// In en, this message translates to:
+  /// **'Give this address to a service you trust, so it can send you invoices. Your address for payments stays the same.'**
+  String get invoiceSettingsAddressBody;
+
+  /// Screen reader label of the invoice address QR code.
+  ///
+  /// In en, this message translates to:
+  /// **'QR code of your invoice address'**
+  String get invoiceSettingsQrLabel;
+
+  /// Notice after copying the invoice address.
+  ///
+  /// In en, this message translates to:
+  /// **'Invoice address copied.'**
+  String get invoiceSettingsAddressCopied;
+
+  /// Heading above the list of services allowed to send invoices.
+  ///
+  /// In en, this message translates to:
+  /// **'Trusted services'**
+  String get invoiceSettingsServicesTitle;
+
+  /// Shown when no service is allowed to send invoices.
+  ///
+  /// In en, this message translates to:
+  /// **'No trusted services yet. Invoices from anyone else never reach you.'**
+  String get invoiceSettingsNoServices;
+
+  /// Button that opens the form to add a trusted service.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a service'**
+  String get invoiceSettingsAddService;
+
+  /// Tooltip of the button that removes a trusted service.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove {name}'**
+  String invoiceSettingsRemoveTooltip(String name);
+
+  /// Title of the dialog that confirms removing a trusted service.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove {name}?'**
+  String invoiceSettingsRemoveTitle(String name);
+
+  /// Body of the dialog that confirms removing a trusted service.
+  ///
+  /// In en, this message translates to:
+  /// **'This service can no longer send you invoices. Payments you already made are not affected.'**
+  String get invoiceSettingsRemoveBody;
+
+  /// Dialog button that leaves the invoice settings as they are.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep'**
+  String get invoiceSettingsKeep;
+
+  /// Dialog button that removes a trusted service.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get invoiceSettingsRemoveConfirm;
+
+  /// Notice after removing a trusted service.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} can no longer send you invoices.'**
+  String invoiceSettingsRemoved(String name);
+
+  /// Advanced settings row that replaces the invoice address.
+  ///
+  /// In en, this message translates to:
+  /// **'Get a new invoice address'**
+  String get invoiceSettingsRotate;
+
+  /// Hint under the row that replaces the invoice address.
+  ///
+  /// In en, this message translates to:
+  /// **'The current one stops working.'**
+  String get invoiceSettingsRotateHint;
+
+  /// Title of the dialog that confirms replacing the invoice address.
+  ///
+  /// In en, this message translates to:
+  /// **'Get a new invoice address?'**
+  String get invoiceSettingsRotateTitle;
+
+  /// Body of the dialog that confirms replacing the invoice address.
+  ///
+  /// In en, this message translates to:
+  /// **'Your current invoice address stops working for good. Every service that bills you needs the new one.'**
+  String get invoiceSettingsRotateBody;
+
+  /// Dialog button that replaces the invoice address.
+  ///
+  /// In en, this message translates to:
+  /// **'Get new address'**
+  String get invoiceSettingsRotateConfirm;
+
+  /// Notice after the invoice address was replaced.
+  ///
+  /// In en, this message translates to:
+  /// **'New invoice address ready. Give it to your services.'**
+  String get invoiceSettingsRotated;
+
+  /// Advanced readout: messages to the invoice address from senders not on the list, dropped unread.
+  ///
+  /// In en, this message translates to:
+  /// **'Dropped from unknown senders this session: {count}'**
+  String invoiceSettingsDropped(int count);
+
+  /// Title of the form that adds a trusted service.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a trusted service'**
+  String get invoiceSettingsAddTitle;
+
+  /// Explains, in two sentences, what adding a trusted service allows.
+  ///
+  /// In en, this message translates to:
+  /// **'A trusted service can send invoices to your invoice address; messages from anyone else are dropped. Nothing is paid until you approve each invoice with your PIN or fingerprint.'**
+  String get invoiceSettingsAddExplanation;
+
+  /// Label of the field for the user's own name for a service.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get invoiceSettingsLabelLabel;
+
+  /// Field error when the service name is empty.
+  ///
+  /// In en, this message translates to:
+  /// **'Give the service a name.'**
+  String get invoiceSettingsLabelMissing;
+
+  /// Label of the field for the address a service shows.
+  ///
+  /// In en, this message translates to:
+  /// **'The service\'s epicbox address'**
+  String get invoiceSettingsServiceAddressLabel;
+
+  /// Field error when the service address is empty.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste or scan the address the service shows.'**
+  String get invoiceSettingsAddressMissing;
+
+  /// Button that saves a trusted service.
+  ///
+  /// In en, this message translates to:
+  /// **'Add service'**
+  String get invoiceSettingsAddButton;
+
+  /// Notice after adding a trusted service.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} can now send you invoices.'**
+  String invoiceSettingsAdded(String name);
+
   /// Settings row: search the blockchain for the wallet's funds again.
   ///
   /// In en, this message translates to:

@@ -3027,6 +3027,163 @@
   "@settingsContacts": {
     "description": "Settings row that opens the address book."
   },
+  "settingsSectionInvoices": "Invoices",
+  "@settingsSectionInvoices": {
+    "description": "Settings section header for invoices from trusted services."
+  },
+  "settingsInvoices": "Invoice address and trusted services",
+  "@settingsInvoices": {
+    "description": "Settings row that opens the invoice settings."
+  },
+  "settingsInvoicesSubtitle": "Let services you trust bill you. You approve every invoice.",
+  "@settingsInvoicesSubtitle": {
+    "description": "Hint under the invoice settings row."
+  },
+  "invoiceSettingsTitle": "Invoices",
+  "@invoiceSettingsTitle": {
+    "description": "Title of the invoice settings screen."
+  },
+  "invoiceSettingsAddressTitle": "Your invoice address",
+  "@invoiceSettingsAddressTitle": {
+    "description": "Heading above the invoice address and its QR code."
+  },
+  "invoiceSettingsAddressBody": "Give this address to a service you trust, so it can send you invoices. Your address for payments stays the same.",
+  "@invoiceSettingsAddressBody": {
+    "description": "Explains the invoice address, which is separate from the receive address."
+  },
+  "invoiceSettingsQrLabel": "QR code of your invoice address",
+  "@invoiceSettingsQrLabel": {
+    "description": "Screen reader label of the invoice address QR code."
+  },
+  "invoiceSettingsAddressCopied": "Invoice address copied.",
+  "@invoiceSettingsAddressCopied": {
+    "description": "Notice after copying the invoice address."
+  },
+  "invoiceSettingsServicesTitle": "Trusted services",
+  "@invoiceSettingsServicesTitle": {
+    "description": "Heading above the list of services allowed to send invoices."
+  },
+  "invoiceSettingsNoServices": "No trusted services yet. Invoices from anyone else never reach you.",
+  "@invoiceSettingsNoServices": {
+    "description": "Shown when no service is allowed to send invoices."
+  },
+  "invoiceSettingsAddService": "Add a service",
+  "@invoiceSettingsAddService": {
+    "description": "Button that opens the form to add a trusted service."
+  },
+  "invoiceSettingsRemoveTooltip": "Remove {name}",
+  "@invoiceSettingsRemoveTooltip": {
+    "description": "Tooltip of the button that removes a trusted service.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Exchange"
+      }
+    }
+  },
+  "invoiceSettingsRemoveTitle": "Remove {name}?",
+  "@invoiceSettingsRemoveTitle": {
+    "description": "Title of the dialog that confirms removing a trusted service.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Exchange"
+      }
+    }
+  },
+  "invoiceSettingsRemoveBody": "This service can no longer send you invoices. Payments you already made are not affected.",
+  "@invoiceSettingsRemoveBody": {
+    "description": "Body of the dialog that confirms removing a trusted service."
+  },
+  "invoiceSettingsKeep": "Keep",
+  "@invoiceSettingsKeep": {
+    "description": "Dialog button that leaves the invoice settings as they are."
+  },
+  "invoiceSettingsRemoveConfirm": "Remove",
+  "@invoiceSettingsRemoveConfirm": {
+    "description": "Dialog button that removes a trusted service."
+  },
+  "invoiceSettingsRemoved": "{name} can no longer send you invoices.",
+  "@invoiceSettingsRemoved": {
+    "description": "Notice after removing a trusted service.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Exchange"
+      }
+    }
+  },
+  "invoiceSettingsRotate": "Get a new invoice address",
+  "@invoiceSettingsRotate": {
+    "description": "Advanced settings row that replaces the invoice address."
+  },
+  "invoiceSettingsRotateHint": "The current one stops working.",
+  "@invoiceSettingsRotateHint": {
+    "description": "Hint under the row that replaces the invoice address."
+  },
+  "invoiceSettingsRotateTitle": "Get a new invoice address?",
+  "@invoiceSettingsRotateTitle": {
+    "description": "Title of the dialog that confirms replacing the invoice address."
+  },
+  "invoiceSettingsRotateBody": "Your current invoice address stops working for good. Every service that bills you needs the new one.",
+  "@invoiceSettingsRotateBody": {
+    "description": "Body of the dialog that confirms replacing the invoice address."
+  },
+  "invoiceSettingsRotateConfirm": "Get new address",
+  "@invoiceSettingsRotateConfirm": {
+    "description": "Dialog button that replaces the invoice address."
+  },
+  "invoiceSettingsRotated": "New invoice address ready. Give it to your services.",
+  "@invoiceSettingsRotated": {
+    "description": "Notice after the invoice address was replaced."
+  },
+  "invoiceSettingsDropped": "Dropped from unknown senders this session: {count}",
+  "@invoiceSettingsDropped": {
+    "description": "Advanced readout: messages to the invoice address from senders not on the list, dropped unread.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "invoiceSettingsAddTitle": "Add a trusted service",
+  "@invoiceSettingsAddTitle": {
+    "description": "Title of the form that adds a trusted service."
+  },
+  "invoiceSettingsAddExplanation": "A trusted service can send invoices to your invoice address; messages from anyone else are dropped. Nothing is paid until you approve each invoice with your PIN or fingerprint.",
+  "@invoiceSettingsAddExplanation": {
+    "description": "Explains, in two sentences, what adding a trusted service allows."
+  },
+  "invoiceSettingsLabelLabel": "Name",
+  "@invoiceSettingsLabelLabel": {
+    "description": "Label of the field for the user's own name for a service."
+  },
+  "invoiceSettingsLabelMissing": "Give the service a name.",
+  "@invoiceSettingsLabelMissing": {
+    "description": "Field error when the service name is empty."
+  },
+  "invoiceSettingsServiceAddressLabel": "The service's epicbox address",
+  "@invoiceSettingsServiceAddressLabel": {
+    "description": "Label of the field for the address a service shows."
+  },
+  "invoiceSettingsAddressMissing": "Paste or scan the address the service shows.",
+  "@invoiceSettingsAddressMissing": {
+    "description": "Field error when the service address is empty."
+  },
+  "invoiceSettingsAddButton": "Add service",
+  "@invoiceSettingsAddButton": {
+    "description": "Button that saves a trusted service."
+  },
+  "invoiceSettingsAdded": "{name} can now send you invoices.",
+  "@invoiceSettingsAdded": {
+    "description": "Notice after adding a trusted service.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Exchange"
+      }
+    }
+  },
   "settingsRescan": "Rescan the chain",
   "@settingsRescan": {
     "description": "Settings row: search the blockchain for the wallet's funds again."
