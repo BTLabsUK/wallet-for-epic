@@ -2,7 +2,8 @@
 /// `app/rust/src/core/export.rs`; the encryption is LEPIC's (`EpicWallet.sealAppData`), in the
 /// same `WFEH` version 1 format, so files of the old core open and the other way round.
 ///
-/// The payload holds only public or user-entered data ([Record], contacts). Never in it:
+/// The payload holds only public or user-entered data ([Record], contacts, invoice service
+/// labels, the invoice address index). Never in it:
 /// keys, the seed or phrase, the password, the PIN or its sealed text, node secrets.
 library;
 
@@ -47,8 +48,11 @@ class HistoryPayload {
     this.lastConfirmedHeight,
     List<Record>? txs,
     List<ContactRec>? contacts,
+    Map<String, String>? serviceLabels,
+    this.invoiceIndex,
   }) : txs = txs ?? [],
-       contacts = contacts ?? [];
+       contacts = contacts ?? [],
+       serviceLabels = serviceLabels ?? {};
 
   /// Reads a payload as serde reads it. Throws [MetaFormatException] for a wrong shape.
   factory HistoryPayload.fromJson(Object? json) {
@@ -70,6 +74,13 @@ class HistoryPayload {
     if (height != null && (height is! int || height < 0)) {
       throw const MetaFormatException('last_confirmed_height');
     }
+    final index = m['invoice_index'];
+    if (index != null && (index is! int || index < 1 || index > 0xffffffff)) {
+      throw const MetaFormatException('invoice_index');
+    }
+    final labels = m['service_labels'] == null
+        ? const <String, Object?>{}
+        : asObject(m['service_labels'], 'service_labels');
     return HistoryPayload(
       format: str('format'),
       version: version,
@@ -80,6 +91,13 @@ class HistoryPayload {
       lastConfirmedHeight: height == null ? null : BigInt.from(height as int),
       txs: [for (final r in list('txs')) Record.fromJson(r)],
       contacts: [for (final c in list('contacts')) ContactRec.fromJson(c)],
+      serviceLabels: labels.map(
+        (k, v) => MapEntry(
+          k,
+          v is String ? v : throw const MetaFormatException('service label'),
+        ),
+      ),
+      invoiceIndex: index as int?,
     );
   }
 
@@ -97,6 +115,14 @@ class HistoryPayload {
   final List<Record> txs;
   final List<ContactRec> contacts;
 
+  /// The user's labels of trusted invoice services, by address ([Meta.serviceLabels]).
+  final Map<String, String> serviceLabels;
+
+  /// The current invoice address index ([Meta.invoiceIndex]), so a restore with this file
+  /// keeps the address services were given. Null when the wallet never rotated.
+  final int? invoiceIndex;
+
+  // The invoice fields only when set, so a file without invoices stays as the old core wrote it.
   Map<String, Object?> toJson() => {
     'format': format,
     'version': version,
@@ -107,6 +133,8 @@ class HistoryPayload {
     'last_confirmed_height': lastConfirmedHeight,
     'txs': [for (final r in txs) r.toJson()],
     'contacts': [for (final c in contacts) c.toJson()],
+    if (serviceLabels.isNotEmpty) 'service_labels': {...serviceLabels},
+    'invoice_index': ?invoiceIndex,
   };
 
   List<int> encode() => utf8.encode(encodeJson(toJson()));

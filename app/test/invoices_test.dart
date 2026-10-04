@@ -1,7 +1,9 @@
 // The invoice service layer (I-01) against the fake: drains, pay, decline, expiry, a failed
 // reply, labels and the invoice index in wfe_meta.json, and the providers over them.
+import 'dart:convert';
 import 'dart:io';
 
+import 'package:epic_wallet/src/history/export.dart';
 import 'package:epic_wallet/src/history/meta_store.dart';
 import 'package:epic_wallet/src/history/wallet_history.dart';
 import 'package:epic_wallet/src/providers.dart';
@@ -169,6 +171,26 @@ void main() {
         invalidArgument('no pending invoice'),
       );
       expect(s.invoicePayments, 0);
+    });
+
+    test('an invoice open longer than 48 h is dropped', () async {
+      s.relayInvoice(
+        from: shop,
+        slateId: 'max',
+        amount: eight,
+        expiresIn: maxInvoiceExpiry,
+      );
+      s.relayInvoice(
+        from: shop,
+        slateId: 'long',
+        amount: eight,
+        expiresIn: maxInvoiceExpiry + const Duration(seconds: 1),
+      );
+      expect(
+        await s.drainInvoices(),
+        const InvoiceDrainReport(parked: 1, dropped: 1),
+      );
+      expect([for (final i in await s.pendingInvoices()) i.slateId], ['max']);
     });
 
     test('a failed reply is resent without a second payment', () async {
@@ -407,6 +429,98 @@ void main() {
         second.close();
       },
     );
+
+    test('labels and the index travel in the history backup', () async {
+      final a = await WalletHistory.open(dir.path, Chain.mainnet);
+      addTearDown(a.close);
+      await a.setServiceLabel(shop, 'Shop');
+      await a.setInvoiceIndex(3);
+      final file = a
+          .exportPayload(const [], walletFp: 'fp', appVersion: 't')
+          .encode();
+
+      // A restore: a new directory, an empty archive, the same wallet.
+      final dirB = await Directory.systemTemp.createTemp('wfe-invoice-b-');
+      addTearDown(() => dirB.delete(recursive: true));
+      final b = await WalletHistory.open(dirB.path, Chain.mainnet);
+      await b.setServiceLabel(exchange, 'Exchange');
+      await b.importPayload(
+        HistoryPayload.decode(file),
+        const [],
+        walletFp: 'fp',
+      );
+      expect(b.invoiceIndex, 3);
+      expect(b.meta.serviceLabels, {shop: 'Shop', exchange: 'Exchange'});
+
+      // Again, after the user renamed one and rotated on: neither goes back.
+      await b.setServiceLabel(shop, 'My shop');
+      await b.setInvoiceIndex(5);
+      await b.importPayload(
+        HistoryPayload.decode(file),
+        const [],
+        walletFp: 'fp',
+      );
+      expect(b.invoiceIndex, 5);
+      expect(b.meta.serviceLabels[shop], 'My shop');
+      b.close();
+
+      // On disk too.
+      final reopened = await WalletHistory.open(dirB.path, Chain.mainnet);
+      addTearDown(reopened.close);
+      expect(reopened.invoiceIndex, 5);
+      expect(reopened.meta.serviceLabels, {
+        shop: 'My shop',
+        exchange: 'Exchange',
+      });
+    });
+
+    test('a backup without invoices carries no invoice fields', () async {
+      final a = await WalletHistory.open(dir.path, Chain.mainnet);
+      addTearDown(a.close);
+      final text = utf8.decode(
+        a.exportPayload(const [], walletFp: 'fp', appVersion: 't').encode(),
+      );
+      expect(text, isNot(contains('invoice_index')));
+      expect(text, isNot(contains('service_labels')));
+    });
+
+    test('a backup with bad invoice fields is damaged', () {
+      List<int> payload(String extra) => utf8.encode(
+        '{"format":"wfe-history","version":1,"chain":"Mainnet","wallet_fp":"fp",'
+        '"exported_at_unix":1,"app_version":"t","txs":[],"contacts":[]$extra}',
+      );
+      expect(HistoryPayload.decode(payload('')).invoiceIndex, isNull);
+      expect(
+        HistoryPayload.decode(payload(',"invoice_index":4')).invoiceIndex,
+        4,
+      );
+      for (final bad in [
+        ',"invoice_index":0',
+        ',"invoice_index":-1',
+        ',"invoice_index":"2"',
+        ',"service_labels":[]',
+        ',"service_labels":{"a":1}',
+      ]) {
+        expect(
+          () => HistoryPayload.decode(payload(bad)),
+          throwsA(
+            isA<WalletError>().having(
+              (e) => e.message,
+              'message',
+              historyDamaged,
+            ),
+          ),
+          reason: bad,
+        );
+      }
+    });
+
+    test('a label is found despite stray whitespace', () async {
+      final h = await WalletHistory.open(dir.path, Chain.mainnet);
+      addTearDown(h.close);
+      await h.setServiceLabel(' $shop ', 'Shop');
+      expect(h.trustedServices(['$shop\n']).single.label, 'Shop');
+    });
   });
 
   group('providers', () {

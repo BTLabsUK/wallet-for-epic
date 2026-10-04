@@ -127,7 +127,7 @@ class WalletHistory {
   /// with no label here (the file was lost) comes back with none.
   List<TrustedService> trustedServices(List<String> addresses) => [
     for (final a in addresses)
-      TrustedService(address: a, label: meta.serviceLabels[a]),
+      TrustedService(address: a, label: meta.serviceLabels[a.trim()]),
   ];
 
   /// Stores [label] for the service at [address]. A blank label is refused.
@@ -171,6 +171,8 @@ class WalletHistory {
         if (!(m.source == TxSource.restored && m.note == null)) toRecord(m),
     ],
     contacts: [for (final c in meta.contacts) ContactRec.fromJson(c.toJson())],
+    serviceLabels: {...meta.serviceLabels},
+    invoiceIndex: meta.invoiceIndex,
   );
 
   /// Merges an opened history file of this wallet into the archive. A record known from an
@@ -214,6 +216,18 @@ class WalletHistory {
           added++;
         }
         m.records.add(r.copy());
+      }
+      // A label set here wins over the file's; the index only moves forward, so an older
+      // file never brings back an abandoned invoice address.
+      payload.serviceLabels.forEach((a, l) {
+        final address = a.trim(), label = l.trim();
+        if (address.isNotEmpty && label.isNotEmpty) {
+          m.serviceLabels.putIfAbsent(address, () => label);
+        }
+      });
+      final index = payload.invoiceIndex;
+      if (index != null && index > (m.invoiceIndex ?? 1)) {
+        m.invoiceIndex = index;
       }
       for (final c in payload.contacts) {
         if (m.contacts.any((e) => e.address.trim() == c.address.trim())) {

@@ -980,7 +980,8 @@ class FakeWalletSession implements WalletSession {
       'esFakeInvoice$index@epicbox.epiccash.com';
 
   /// An invoice from [from] waiting at the relay. Parked by the next drain only if [from]'s
-  /// key is on the allowlist; dropped unread otherwise.
+  /// key is on the allowlist and [expiresIn] is at most [maxInvoiceExpiry]; dropped
+  /// otherwise.
   void relayInvoice({
     required String from,
     required String slateId,
@@ -1114,7 +1115,7 @@ class FakeWalletSession implements WalletSession {
     for (final m in batch) {
       final notice = m.notice;
       if (notice == null) {
-        if (!_trusted(m.from)) {
+        if (!_trusted(m.from) || m.expiresIn > maxInvoiceExpiry) {
           dropped++;
           continue;
         }

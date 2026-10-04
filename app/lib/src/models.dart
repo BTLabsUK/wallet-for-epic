@@ -645,6 +645,10 @@ String? serviceLabel(List<TrustedService> services, String address) {
   return services.where((s) => epicboxKey(s.address) == key).firstOrNull?.label;
 }
 
+/// The longest an invoice may stay open (UP-14); the default is 24 h. One that asks for more
+/// is dropped.
+const Duration maxInvoiceExpiry = Duration(hours: 48);
+
 /// An invoice from a trusted service, parked until the user approves or declines it. Nothing
 /// pays it but a call the user makes after the PIN or biometric gate.
 class PendingInvoice {
