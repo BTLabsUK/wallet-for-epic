@@ -307,7 +307,7 @@ class _NoticeLayer extends ConsumerWidget {
               ),
               child: notice == null
                   ? const SizedBox.shrink()
-                  : _NoticeCard(key: ValueKey(notice.id), notice: notice),
+                  : NoticeCard(key: ValueKey(notice.id), notice: notice),
             ),
           ),
         ),
@@ -334,16 +334,18 @@ String noticeLevelLabel(AppLocalizations l, NoticeLevel level) =>
       NoticeLevel.error => l.noticeLevelError,
     };
 
-class _NoticeCard extends ConsumerStatefulWidget {
-  const _NoticeCard({super.key, required this.notice});
+/// The card [NoticeHost] shows, swipeable and with its buttons. Placed elsewhere only by
+/// `tool/notice_mockups_test.dart`.
+class NoticeCard extends ConsumerStatefulWidget {
+  const NoticeCard({super.key, required this.notice});
 
   final Notice notice;
 
   @override
-  ConsumerState<_NoticeCard> createState() => _NoticeCardState();
+  ConsumerState<NoticeCard> createState() => _NoticeCardState();
 }
 
-class _NoticeCardState extends ConsumerState<_NoticeCard> {
+class _NoticeCardState extends ConsumerState<NoticeCard> {
   /// How far a swipe has moved the card: sideways either way, or up.
   Offset _drag = Offset.zero;
 
