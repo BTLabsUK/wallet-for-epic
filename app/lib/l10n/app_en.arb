@@ -2591,13 +2591,21 @@
       }
     }
   },
-  "sendNoteLabel": "Note (optional)",
-  "@sendNoteLabel": {
-    "description": "Label of the field for a private note on the payment."
+  "sendMessageLabel": "Message to recipient (optional)",
+  "@sendMessageLabel": {
+    "description": "Label of the field for a short message that travels with the payment. The recipient sees it; the sender also keeps it as a private note."
   },
-  "sendNoteHelper": "Only you see this note.",
-  "@sendNoteHelper": {
-    "description": "Helper text under the payment note field: the note is not sent to the recipient."
+  "sendMessageHelper": "The recipient sees this message. You keep it as a note too.",
+  "@sendMessageHelper": {
+    "description": "Helper text under the message field: the recipient's wallet shows the message, and the sender's wallet keeps a copy as its private note."
+  },
+  "sendMessageCounter": "{used}/{limit}",
+  "@sendMessageCounter": {
+    "description": "Counter under the message field: how much of the message's size limit is used, in bytes. Most letters count 1, accented letters 2, Chinese characters 3.",
+    "placeholders": {
+      "used": {"type": "int"},
+      "limit": {"type": "int"}
+    }
   },
   "sendCreateFile": "Create payment file",
   "@sendCreateFile": {
@@ -2754,9 +2762,9 @@
       }
     }
   },
-  "sendReviewNote": "Note",
-  "@sendReviewNote": {
-    "description": "Row label in the payment review: the user's private note. Space is tight (about 9 characters)."
+  "sendReviewMessage": "Message",
+  "@sendReviewMessage": {
+    "description": "Row label in the payment review: the message the recipient will see. Space is tight (about 9 characters)."
   },
   "sendReviewViaEpicbox": "Goes through epicbox. It completes when the recipient's wallet answers.",
   "@sendReviewViaEpicbox": {

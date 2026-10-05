@@ -341,7 +341,11 @@ void main() {
 
       await _tap(tester, find.text('Payment file'));
       expect(find.widgetWithText(TextField, 'To'), findsNothing);
-      expect(find.widgetWithText(TextField, 'Note (optional)'), findsNothing);
+      // A file carries the message as an epicbox send does.
+      expect(
+        find.widgetWithText(TextField, 'Message to recipient (optional)'),
+        findsOneWidget,
+      );
       expect(find.textContaining('Make a payment file'), findsOneWidget);
       expect(find.text('Create payment file'), findsOneWidget);
 
@@ -383,6 +387,29 @@ void main() {
       await _tap(tester, find.text('Finish payment'));
       expect(h.session.finalizedSlates, [h.session.responseSlate.json]);
       expect(find.text('Sent 1.5 EPIC'), findsOneWidget);
+    });
+
+    testWidgets('a file send signs the message in and keeps it as the note', (
+      tester,
+    ) async {
+      final h = _Harness();
+      await h.pump(tester);
+      await _tap(tester, find.text('Payment file'));
+      await _enter(tester, 'Amount (EPIC)', '1.5');
+      await _enter(tester, 'Message to recipient (optional)', ' For rent ');
+      await _tap(tester, find.text('Create payment file'));
+      expect(h.session.sentMessages, ['For rent']);
+      expect(h.session.notes, {'s:${h.session.sendSlate.slateId}': 'For rent'});
+    });
+
+    testWidgets('a file send without a message signs none in', (tester) async {
+      final h = _Harness();
+      await h.pump(tester);
+      await _tap(tester, find.text('Payment file'));
+      await _enter(tester, 'Amount (EPIC)', '1.5');
+      await _tap(tester, find.text('Create payment file'));
+      expect(h.session.sentMessages, [null]);
+      expect(h.session.notes, isEmpty);
     });
 
     for (final file in [false, true]) {

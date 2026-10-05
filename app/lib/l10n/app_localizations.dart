@@ -3224,17 +3224,23 @@ abstract class AppLocalizations {
   /// **'Fee: {fee}. Total: {total}.'**
   String sendFeeAndTotal(String fee, String total);
 
-  /// Label of the field for a private note on the payment.
+  /// Label of the field for a short message that travels with the payment. The recipient sees it; the sender also keeps it as a private note.
   ///
   /// In en, this message translates to:
-  /// **'Note (optional)'**
-  String get sendNoteLabel;
+  /// **'Message to recipient (optional)'**
+  String get sendMessageLabel;
 
-  /// Helper text under the payment note field: the note is not sent to the recipient.
+  /// Helper text under the message field: the recipient's wallet shows the message, and the sender's wallet keeps a copy as its private note.
   ///
   /// In en, this message translates to:
-  /// **'Only you see this note.'**
-  String get sendNoteHelper;
+  /// **'The recipient sees this message. You keep it as a note too.'**
+  String get sendMessageHelper;
+
+  /// Counter under the message field: how much of the message's size limit is used, in bytes. Most letters count 1, accented letters 2, Chinese characters 3.
+  ///
+  /// In en, this message translates to:
+  /// **'{used}/{limit}'**
+  String sendMessageCounter(int used, int limit);
 
   /// Button that creates the payment file to give to the recipient.
   ///
@@ -3392,11 +3398,11 @@ abstract class AppLocalizations {
   /// **'{amount} (≈ {fiat})'**
   String sendReviewTotalWithFiat(String amount, String fiat);
 
-  /// Row label in the payment review: the user's private note. Space is tight (about 9 characters).
+  /// Row label in the payment review: the message the recipient will see. Space is tight (about 9 characters).
   ///
   /// In en, this message translates to:
-  /// **'Note'**
-  String get sendReviewNote;
+  /// **'Message'**
+  String get sendReviewMessage;
 
   /// In the payment review. epicbox is the relay service that carries payments (a proper name).
   ///

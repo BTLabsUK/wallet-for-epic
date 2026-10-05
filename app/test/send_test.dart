@@ -651,7 +651,7 @@ void main() {
       expect(find.text('Review your payment'), findsNothing);
 
       await _enter(tester, 'To', _bob);
-      await _enter(tester, 'Note (optional)', 'Lunch');
+      await _enter(tester, 'Message to recipient (optional)', 'Lunch');
       await _tap(tester, find.text('Review'));
       expect(find.text('Review your payment'), findsOneWidget);
       expect(
@@ -676,6 +676,7 @@ void main() {
       expect(h.session.epicboxSends.single.to, _bob);
       expect(h.session.epicboxSends.single.amount, _epic(1.5));
       expect(h.session.notes, {'s:send-1': 'Lunch'});
+      expect(h.session.sentMessages, ['Lunch']);
       expect(find.text('Payment started: 1.5 EPIC'), findsOneWidget);
       // Not "Sent": an epicbox payment has not gone anywhere yet.
       expect(find.text('Sent 1.5 EPIC'), findsNothing);
@@ -756,6 +757,9 @@ void main() {
       );
       await _tap(tester, find.text('Review'));
       await _tap(tester, find.text('Send 2 EPIC'));
+      // The error sits under the form, below the message field.
+      await tester.drag(find.byType(Scrollable).first, const Offset(0, -3000));
+      await tester.pumpAndSettle();
       expect(
         find.text('Could not reach the recipient. the relay did not answer'),
         findsOneWidget,
@@ -765,7 +769,33 @@ void main() {
       await _tap(tester, find.text('Review'));
       await _tap(tester, find.text('Send 2 EPIC'));
       expect(h.session.epicboxSends.single.to, _bob);
+      expect(h.session.sentMessages, [null], reason: 'no message, none sent');
       expect(find.text('Payment started: 2 EPIC'), findsOneWidget);
+    });
+
+    testWidgets('the message stops at LEPIC\'s limit in bytes', (tester) async {
+      final h = _Harness();
+      await h.pump(tester, _sendTab());
+      const label = 'Message to recipient (optional)';
+      expect(
+        find.text(
+          'The recipient sees this message. You keep it as a note too.',
+        ),
+        findsOneWidget,
+      );
+      expect(find.text('0/256'), findsOneWidget);
+      await _enter(tester, label, 'Zażółć');
+      // Four of the six letters take two bytes.
+      expect(find.text('10/256'), findsOneWidget);
+      // A paste past the limit keeps the whole characters that fit.
+      await _enter(tester, label, 'é' * 200);
+      final field = tester.widget<TextField>(
+        find.widgetWithText(TextField, label),
+      );
+      expect(field.controller!.text, 'é' * 128);
+      expect(find.text('256/256'), findsOneWidget);
+      await _enter(tester, label, '${'a' * 255}€');
+      expect(field.controller!.text, 'a' * 255, reason: '€ takes three bytes');
     });
 
     testWidgets('Max fills the largest amount with its fee', (tester) async {
@@ -1594,8 +1624,14 @@ void main() {
       await tester.pump(const Duration(milliseconds: 500));
       await tester.testTextInput.receiveAction(TextInputAction.next);
       await tester.pumpAndSettle();
-      expect(editable('Note (optional)').focusNode.hasFocus, isTrue);
-      expect(editable('Note (optional)').textInputAction, TextInputAction.done);
+      expect(
+        editable('Message to recipient (optional)').focusNode.hasFocus,
+        isTrue,
+      );
+      expect(
+        editable('Message to recipient (optional)').textInputAction,
+        TextInputAction.done,
+      );
 
       await tester.testTextInput.receiveAction(TextInputAction.done);
       await tester.pumpAndSettle();

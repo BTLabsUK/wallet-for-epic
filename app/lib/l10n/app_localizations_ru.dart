@@ -2373,10 +2373,16 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get sendNoteLabel => 'Заметка (необязательно)';
+  String get sendMessageLabel => 'Сообщение получателю (необязательно)';
 
   @override
-  String get sendNoteHelper => 'Эту заметку видите только вы.';
+  String get sendMessageHelper =>
+      'Получатель увидит это сообщение. Оно сохранится и как ваша заметка.';
+
+  @override
+  String sendMessageCounter(int used, int limit) {
+    return '$used/$limit';
+  }
 
   @override
   String get sendCreateFile => 'Создать платёжный файл';
@@ -2492,7 +2498,7 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get sendReviewNote => 'Заметка';
+  String get sendReviewMessage => 'Сообщение';
 
   @override
   String get sendReviewViaEpicbox =>

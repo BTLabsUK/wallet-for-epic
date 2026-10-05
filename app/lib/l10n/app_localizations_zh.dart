@@ -2110,10 +2110,15 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get sendNoteLabel => '备注（可选）';
+  String get sendMessageLabel => '给接收方的留言（可选）';
 
   @override
-  String get sendNoteHelper => '此备注仅你自己可见。';
+  String get sendMessageHelper => '接收方会看到这条留言。你也会把它保存为备注。';
+
+  @override
+  String sendMessageCounter(int used, int limit) {
+    return '$used/$limit';
+  }
 
   @override
   String get sendCreateFile => '创建付款文件';
@@ -2222,7 +2227,7 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get sendReviewNote => '备注';
+  String get sendReviewMessage => '留言';
 
   @override
   String get sendReviewViaEpicbox => '通过 epicbox 发送。接收方的钱包回复后即会完成。';

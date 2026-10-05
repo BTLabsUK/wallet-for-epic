@@ -2390,10 +2390,16 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String get sendNoteLabel => 'Notatka (opcjonalnie)';
+  String get sendMessageLabel => 'Wiadomość do odbiorcy (opcjonalnie)';
 
   @override
-  String get sendNoteHelper => 'Notatka jest widoczna tylko dla Ciebie.';
+  String get sendMessageHelper =>
+      'Odbiorca zobaczy tę wiadomość. Zachowasz ją też jako notatkę.';
+
+  @override
+  String sendMessageCounter(int used, int limit) {
+    return '$used/$limit';
+  }
 
   @override
   String get sendCreateFile => 'Utwórz plik płatności';
@@ -2517,7 +2523,7 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String get sendReviewNote => 'Notatka';
+  String get sendReviewMessage => 'Wiadomość';
 
   @override
   String get sendReviewViaEpicbox =>

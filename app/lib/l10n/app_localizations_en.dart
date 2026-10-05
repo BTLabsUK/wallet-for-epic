@@ -2248,10 +2248,16 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get sendNoteLabel => 'Note (optional)';
+  String get sendMessageLabel => 'Message to recipient (optional)';
 
   @override
-  String get sendNoteHelper => 'Only you see this note.';
+  String get sendMessageHelper =>
+      'The recipient sees this message. You keep it as a note too.';
+
+  @override
+  String sendMessageCounter(int used, int limit) {
+    return '$used/$limit';
+  }
 
   @override
   String get sendCreateFile => 'Create payment file';
@@ -2366,7 +2372,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get sendReviewNote => 'Note';
+  String get sendReviewMessage => 'Message';
 
   @override
   String get sendReviewViaEpicbox =>

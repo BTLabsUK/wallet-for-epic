@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -475,6 +476,7 @@ class _SendViewState extends ConsumerState<SendView> {
           amount: amount,
           minimumConfirmations: minimumConfirmations,
           address: to.address,
+          message: _note.text.trim().isEmpty ? null : _note.text.trim(),
         ),
       );
       // The payment is out; a note that fails to save must not look like a failed send.
@@ -543,10 +545,24 @@ class _SendViewState extends ConsumerState<SendView> {
     if (amount == null) return;
     final container = ProviderScope.containerOf(context, listen: false);
     await _run((session) async {
+      final message = _note.text.trim();
       final slate = await session.createSendSlate(
         amount: amount,
         minimumConfirmations: minimumConfirmations,
+        message: message.isEmpty ? null : message,
       );
+      // The sender keeps the message as the private note too. The file is made, so a note
+      // that fails to save only goes to the log.
+      if (message.isNotEmpty) {
+        try {
+          await session.setTxNote(key: 's:${slate.slateId}', note: message);
+        } catch (error) {
+          logWarn(
+            'send',
+            'saving the note failed: ${describeError(englishStrings, error)}',
+          );
+        }
+      }
       container.invalidate(homeProvider);
       if (mounted) setState(() => _slate = slate);
     });
@@ -816,12 +832,8 @@ class _SendViewState extends ConsumerState<SendView> {
         controller: _amount,
         focusNode: _amountFocus,
         keyboardType: const TextInputType.numberWithOptions(decimal: true),
-        textInputAction: _fileMode
-            ? TextInputAction.done
-            : TextInputAction.next,
-        onEditingComplete: _fileMode
-            ? () => FocusScope.of(context).unfocus()
-            : _noteFocus.requestFocus,
+        textInputAction: TextInputAction.next,
+        onEditingComplete: _noteFocus.requestFocus,
         onChanged: _onAmountChanged,
         decoration: InputDecoration(
           labelText: l.sendAmountLabel(
@@ -875,28 +887,42 @@ class _SendViewState extends ConsumerState<SendView> {
           ),
         ),
       if (_estimateError != null) ErrorText(_estimateError!),
-      if (!_fileMode) ...[
-        const SizedBox(height: 12),
-        TextField(
-          controller: _note,
-          focusNode: _noteFocus,
-          maxLength: 200,
-          textInputAction: TextInputAction.done,
-          onSubmitted: (_) {
-            if (_parsedAmount != null &&
-                _estimateError == null &&
-                !_reviewing &&
-                !_busy) {
-              _review();
-            }
-          },
-          decoration: InputDecoration(
-            labelText: l.sendNoteLabel,
-            helperText: l.sendNoteHelper,
-            border: const OutlineInputBorder(),
-          ),
+      const SizedBox(height: 12),
+      TextField(
+        controller: _note,
+        focusNode: _noteFocus,
+        // LEPIC signs at most this many bytes; the field stops there instead of cutting.
+        inputFormatters: const [Utf8LengthLimiter(slateMessageMaxBytes)],
+        buildCounter:
+            (
+              context, {
+              required currentLength,
+              required isFocused,
+              maxLength,
+            }) => Text(
+              l.sendMessageCounter(
+                utf8Length(_note.text),
+                slateMessageMaxBytes,
+              ),
+              style: theme.textTheme.bodySmall,
+            ),
+        textInputAction: TextInputAction.done,
+        onSubmitted: (_) {
+          if (_parsedAmount == null ||
+              _estimateError != null ||
+              _reviewing ||
+              _busy) {
+            return;
+          }
+          _fileMode ? _createFile() : _review();
+        },
+        decoration: InputDecoration(
+          labelText: l.sendMessageLabel,
+          helperText: l.sendMessageHelper,
+          helperMaxLines: 3,
+          border: const OutlineInputBorder(),
         ),
-      ],
+      ),
     ];
   }
 
@@ -1111,7 +1137,7 @@ class _ReviewSheetState extends ConsumerState<_ReviewSheet> {
               style: theme.textTheme.titleMedium,
             ),
             if (widget.note.isNotEmpty)
-              _Row(label: l.sendReviewNote, value: widget.note),
+              _Row(label: l.sendReviewMessage, value: widget.note),
             const SizedBox(height: 8),
             Text(l.sendReviewViaEpicbox, style: theme.textTheme.bodySmall),
             const SizedBox(height: 12),
@@ -1286,6 +1312,38 @@ class _Row extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+/// The length of [text] in UTF-8 bytes, as LEPIC counts a slate message.
+int utf8Length(String text) => utf8.encode(text).length;
+
+/// Keeps a field's text within [maxBytes] UTF-8 bytes. An edit that would pass it keeps as many
+/// whole characters of the new text as fit, so a long paste is cut, never refused.
+class Utf8LengthLimiter extends TextInputFormatter {
+  const Utf8LengthLimiter(this.maxBytes);
+
+  final int maxBytes;
+
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    if (utf8Length(newValue.text) <= maxBytes) return newValue;
+    final kept = StringBuffer();
+    var bytes = 0;
+    for (final c in newValue.text.characters) {
+      final n = utf8Length(c);
+      if (bytes + n > maxBytes) break;
+      kept.write(c);
+      bytes += n;
+    }
+    final text = kept.toString();
+    return TextEditingValue(
+      text: text,
+      selection: TextSelection.collapsed(offset: text.length),
     );
   }
 }
