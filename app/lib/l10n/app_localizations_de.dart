@@ -1337,6 +1337,12 @@ class AppLocalizationsDe extends AppLocalizations {
   String get homeBalanceSpendable => 'Verfügbar';
 
   @override
+  String get homeShowBreakdown => 'Aufschlüsselung anzeigen';
+
+  @override
+  String get homeHideBreakdown => 'Aufschlüsselung ausblenden';
+
+  @override
   String get balanceHelpLabel => 'Was diese Guthaben bedeuten';
 
   @override

@@ -279,6 +279,8 @@
   "homeHistoryReminderNotNow": "Не сейчас",
   "homeHistoryExportButton": "Экспортировать копию",
   "homeBalanceSpendable": "Доступно",
+  "homeShowBreakdown": "Показать детализацию",
+  "homeHideBreakdown": "Скрыть детализацию",
   "balanceHelpLabel": "Что означают эти балансы",
   "balanceTotal": "Всего",
   "balanceHelpRow": "{label}: {amount}",

@@ -1814,6 +1814,18 @@ abstract class AppLocalizations {
   /// **'Spendable'**
   String get homeBalanceSpendable;
 
+  /// Screen-reader label of the arrow on Wallet's not-spendable line that lists the parts of the balance that are not spendable yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Show breakdown'**
+  String get homeShowBreakdown;
+
+  /// Screen-reader label of the arrow that hides that list.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide breakdown'**
+  String get homeHideBreakdown;
+
   /// Screen-reader label of the ? beside the balance; a tap shows every balance with a short explanation.
   ///
   /// In en, this message translates to:

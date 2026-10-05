@@ -1,6 +1,7 @@
-/// The devices that make the Protocol look recognisable: corner ticks and the measurement grid
-/// on the balance panel, the gold-rule section head, accent-edged notices and
-/// the payment timeline. The full panel (grid, ticks) is Home's balance only; the
+/// The devices that make the Protocol look recognisable: corner ticks, the measurement grid and
+/// the signal trace (the life line) on the balance panel, the gold-rule section head,
+/// accent-edged notices and the payment timeline. The full panel (grid, ticks, trace) is the
+/// shell's balance only; the
 /// screens that open the app or end a task reuse the grid and ticks through `brand.dart`
 /// (the Epic mark, glyph tiles, the lit backdrop), and lists and forms stay hairlines.
 /// Spec: `docs/themes/protocol/FLUTTER.md`.
@@ -78,6 +79,102 @@ class GridFieldPainter extends CustomPainter {
   @override
   bool shouldRepaint(GridFieldPainter old) =>
       old.color != color || old.step != step;
+}
+
+/// The gold signal line. [progress] runs from 0 to 1 while the wallet syncs; at 1 it rests,
+/// fully drawn.
+class SignalTracePainter extends CustomPainter {
+  const SignalTracePainter({
+    required this.progress,
+    required this.color,
+    required this.glow,
+  });
+
+  final double progress;
+  final Color color;
+  final bool glow;
+
+  // The mockup's SVG path, in a 350 x 26 box.
+  static const List<Offset> _points = [
+    Offset(0, 13),
+    Offset(70, 13),
+    Offset(76, 4),
+    Offset(84, 22),
+    Offset(92, 8),
+    Offset(98, 13),
+    Offset(190, 13),
+    Offset(196, 6),
+    Offset(202, 20),
+    Offset(208, 13),
+    Offset(350, 13),
+  ];
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final sx = size.width / 350, sy = size.height / 26;
+    final full = Path()..moveTo(_points.first.dx * sx, _points.first.dy * sy);
+    for (final p in _points.skip(1)) {
+      full.lineTo(p.dx * sx, p.dy * sy);
+    }
+    final metric = full.computeMetrics().first;
+    final part = metric.extractPath(
+      0,
+      metric.length * progress.clamp(0.0, 1.0),
+    );
+    if (glow) {
+      canvas.drawPath(
+        part,
+        Paint()
+          ..color = color.withValues(alpha: 0.45)
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 4
+          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 5),
+      );
+    }
+    canvas.drawPath(
+      part,
+      Paint()
+        ..color = color
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.5
+        ..strokeCap = StrokeCap.round
+        ..strokeJoin = StrokeJoin.round,
+    );
+  }
+
+  @override
+  bool shouldRepaint(SignalTracePainter old) =>
+      old.progress != progress || old.color != color || old.glow != glow;
+}
+
+/// The life line under the balance: the signal trace, drawn as far as [progress] (0 to 1, 1
+/// once the wallet is up to date). It moves to a new value in 400 ms; with reduced motion it
+/// cuts. Screen readers skip it; the node status says the same.
+class ProtocolLifeLine extends StatelessWidget {
+  const ProtocolLifeLine({super.key, required this.progress});
+
+  final double progress;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    final dark = Theme.of(context).brightness == Brightness.dark;
+    final still = MediaQuery.of(context).disableAnimations;
+    return ExcludeSemantics(
+      child: TweenAnimationBuilder<double>(
+        tween: Tween(end: progress),
+        duration: still ? Duration.zero : const Duration(milliseconds: 400),
+        builder: (context, value, _) => CustomPaint(
+          size: const Size.fromHeight(26),
+          painter: SignalTracePainter(
+            progress: value,
+            color: t.accent,
+            glow: dark,
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 /// The balance header as the one framed object: grid behind, ticks in front.

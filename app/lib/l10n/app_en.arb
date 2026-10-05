@@ -1413,6 +1413,14 @@
   "@homeBalanceSpendable": {
     "description": "Label above the large balance on home: the funds that can be sent now."
   },
+  "homeShowBreakdown": "Show breakdown",
+  "@homeShowBreakdown": {
+    "description": "Screen-reader label of the arrow on Wallet's not-spendable line that lists the parts of the balance that are not spendable yet."
+  },
+  "homeHideBreakdown": "Hide breakdown",
+  "@homeHideBreakdown": {
+    "description": "Screen-reader label of the arrow that hides that list."
+  },
   "balanceHelpLabel": "What these balances mean",
   "@balanceHelpLabel": {
     "description": "Screen-reader label of the ? beside the balance; a tap shows every balance with a short explanation."

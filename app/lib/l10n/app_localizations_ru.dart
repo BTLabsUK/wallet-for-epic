@@ -1427,6 +1427,12 @@ class AppLocalizationsRu extends AppLocalizations {
   String get homeBalanceSpendable => 'Доступно';
 
   @override
+  String get homeShowBreakdown => 'Показать детализацию';
+
+  @override
+  String get homeHideBreakdown => 'Скрыть детализацию';
+
+  @override
   String get balanceHelpLabel => 'Что означают эти балансы';
 
   @override

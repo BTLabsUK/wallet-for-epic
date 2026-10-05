@@ -347,6 +347,22 @@ Finder _verticalList() => find
     .first;
 
 /// Taps the tab bar's [label] and lets the pages settle.
+Finder _iconLabelled(String label) =>
+    find.byWidgetPredicate((w) => w is Icon && w.semanticLabel == label);
+
+/// How far Wallet's life line is drawn, 0 to 1.
+double _lifeLine(WidgetTester tester) =>
+    (tester
+                .widget<CustomPaint>(
+                  find.descendant(
+                    of: find.byKey(lifeLineKey),
+                    matching: find.byType(CustomPaint),
+                  ),
+                )
+                .painter!
+            as SignalTracePainter)
+        .progress;
+
 Future<void> _tab(WidgetTester tester, String label) async {
   await tester.tap(
     find.descendant(of: find.byType(NavigationBar), matching: find.text(label)),
@@ -662,9 +678,11 @@ void main() {
       expect(find.text('≈ 6.25 USD'), findsOneWidget);
       expect(_statusWord(tester, nodeStatusKey), 'Node online');
       expect(_statusWord(tester, epicboxStatusKey), 'Epicbox connecting');
-      // No caption and no life line; 2 EPIC are locked, so the not-spendable line shows.
+      // The 1.3.1 panel: caption and life line; 2 EPIC are locked, so the not-spendable
+      // line shows.
       expect(find.text('2 EPIC not spendable yet'), findsOneWidget);
-      expect(find.text('Spendable'), findsNothing);
+      expect(find.byKey(spendableCaptionKey), findsOneWidget);
+      expect(find.byKey(lifeLineKey), findsOneWidget);
       // The height is only in the tooltip.
       expect(
         _statusTip(tester, nodeStatusKey),
@@ -1397,10 +1415,9 @@ void main() {
       // Local figures while the refresh against the node runs, with its progress.
       expect(find.text('12.5 EPIC'), findsOneWidget);
       expect(_statusWord(tester, nodeStatusKey), 'Node syncing 40%');
-      // One progress line, at the header's foot.
-      final syncBar = find.byKey(headerSyncLineKey);
-      expect(tester.widget<LinearProgressIndicator>(syncBar).value, 0.4);
-      expect(find.byType(LinearProgressIndicator), findsOneWidget);
+      // The life line is drawn as far as the sync has come, and no other progress shows.
+      expect(_lifeLine(tester), 0.4);
+      expect(find.byType(LinearProgressIndicator), findsNothing);
       // Pull to refresh replaced the button.
       expect(find.byTooltip('Refresh'), findsNothing);
 
@@ -1408,7 +1425,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('20 EPIC'), findsOneWidget);
       expect(find.textContaining('Syncing'), findsNothing);
-      expect(syncBar, findsNothing);
+      expect(_lifeLine(tester), 1);
       expect(session.refreshCalls, 1);
     });
 
@@ -2640,7 +2657,7 @@ void main() {
       expect(tester.element(find.byType(NavigationBar)), same(bar));
     });
 
-    testWidgets('the header shrinks on Send and Receive, and scrubs between', (
+    testWidgets('Send and Receive show the shorter panel, and a swipe scrubs', (
       tester,
     ) async {
       final h = _Harness(price: 0.5);
@@ -2656,38 +2673,58 @@ void main() {
           .fontSize!;
       double headerHeight() =>
           tester.getSize(find.byKey(shellHeaderKey)).height;
+      final theme = Theme.of(tester.element(find.byKey(shellHeaderKey)));
 
-      final fullSize = figureSize();
+      // Wallet: 1.3.1's displaySmall figure, caption and life line.
+      expect(figureSize(), theme.textTheme.displaySmall!.fontSize);
       final fullHeight = headerHeight();
-      expect(find.byKey(nodeStatusKey), findsOneWidget);
-      expect(find.byKey(compactStatusKey), findsNothing);
-      expect(find.text('≈ 6.25 USD'), findsOneWidget);
-      expect(find.byType(BalanceHelp), findsOneWidget);
+      final rowsEnd = tester.getRect(find.byKey(nodeStatusKey)).right;
 
       for (final tab in ['Send', 'Receive']) {
         await _tab(tester, tab);
-        expect(figureSize(), lessThan(fullSize));
+        // D-06's panel: a larger number with a small unit, and shorter overall.
+        expect(figureSize(), theme.textTheme.displayMedium!.fontSize);
         expect(headerHeight(), lessThan(fullHeight));
-        expect(find.byKey(nodeStatusKey), findsNothing);
-        expect(find.byKey(epicboxStatusKey), findsNothing);
-        expect(find.byKey(compactStatusKey), findsOneWidget);
-        // Two lines: the figure, and the fiat value under it.
+        expect(find.byKey(spendableCaptionKey), findsNothing);
+        expect(find.byKey(lifeLineKey), findsNothing);
+        // The two status rows beside the figure, ending where Wallet's end.
+        final figure = tester.getRect(find.byKey(balanceFigureKey));
+        final node = tester.getRect(find.byKey(nodeStatusKey));
+        expect(find.byKey(epicboxStatusKey), findsOneWidget);
+        expect(find.byKey(compactStatusKey), findsNothing);
+        expect(node.left, greaterThan(figure.right));
+        expect(node.top, lessThan(figure.bottom));
+        expect(node.right, closeTo(rowsEnd, 1));
+        // The fiat value under the figure, with the eye and the ? on its row.
+        final fiat = tester.getRect(find.byKey(fiatValueKey));
         expect(find.text('≈ 6.25 USD'), findsOneWidget);
-        expect(
-          tester.getTopLeft(find.byKey(fiatValueKey)).dy,
-          greaterThan(
-            tester.getBottomLeft(find.byKey(balanceFigureKey)).dy - 1,
-          ),
-        );
-        expect(find.byType(BalanceHelp), findsNothing);
-        expect(find.byKey(notSpendableKey), findsNothing);
-        expect(find.byTooltip('Hide balances'), findsNothing);
+        expect(fiat.top, greaterThan(figure.bottom - 1));
+        for (final control in [
+          find.byTooltip('Hide balances'),
+          find.byType(BalanceHelp),
+        ]) {
+          expect(control, findsOneWidget);
+          expect(tester.getCenter(control).dy, closeTo(fiat.center.dy, 2));
+        }
+        // The not-spendable line, under them; a tap opens the help, not a list.
+        final line = tester.getRect(find.byKey(notSpendableKey));
+        expect(find.text('2 EPIC not spendable yet'), findsOneWidget);
+        expect(line.top, greaterThan(fiat.bottom - 1));
+        await tester.tap(find.byKey(notSpendableKey));
+        await tester.pump(const Duration(milliseconds: 200));
+        expect(find.byKey(breakdownKey), findsNothing);
+        expect(find.textContaining('Locked by a payment'), findsWidgets);
+        await tester.pumpAndSettle(const Duration(seconds: 11));
+
         await _tab(tester, 'Wallet');
-        expect(figureSize(), fullSize);
+        expect(figureSize(), theme.textTheme.displaySmall!.fontSize);
         expect(headerHeight(), fullHeight);
       }
 
-      // Halfway through a swipe, the header is halfway too.
+      // Halfway through a swipe, the height is between the two; one panel takes taps.
+      await _tab(tester, 'Send');
+      final shortHeight = headerHeight();
+      await _tab(tester, 'Wallet');
       final gesture = await tester.startGesture(
         tester.getCenter(find.byType(PageView)),
       );
@@ -2695,39 +2732,85 @@ void main() {
       await tester.pump();
       await gesture.moveBy(const Offset(-160, 0));
       await tester.pump();
-      expect(figureSize(), allOf(lessThan(fullSize), greaterThan(22)));
-      expect(find.byKey(nodeStatusKey), findsOneWidget);
-      expect(find.byKey(compactStatusKey), findsOneWidget);
+      expect(
+        headerHeight(),
+        allOf(greaterThan(shortHeight), lessThan(fullHeight)),
+      );
+      expect(find.byKey(balanceFigureKey), findsOneWidget);
+      expect(find.byTooltip('Hide balances'), findsNWidgets(2));
+      expect(tester.takeException(), isNull);
       await gesture.up();
       await tester.pumpAndSettle();
     });
 
-    testWidgets('Wallet\'s header: figure, fiat, and the not-spendable line', (
+    testWidgets('Wallet\'s panel: caption, figure, eye, ?, fiat, statuses', (
       tester,
     ) async {
       final h = _Harness(price: 0.5);
       await h.pump(tester);
+      final caption = tester.getRect(find.byKey(spendableCaptionKey));
       final figure = tester.getRect(find.byKey(balanceFigureKey));
       final fiat = tester.getRect(find.byKey(fiatValueKey));
       final line = tester.getRect(find.byKey(notSpendableKey));
+      final life = tester.getRect(find.byKey(lifeLineKey));
+      expect(find.text('Spendable'), findsOneWidget);
       expect(find.text('12.5 EPIC'), findsOneWidget);
       expect(find.text('≈ 6.25 USD'), findsOneWidget);
       expect(find.text('2 EPIC not spendable yet'), findsOneWidget);
-      // Figure, then fiat, then the line, top to bottom.
+      // Caption, figure, fiat, the line, then the life line, top to bottom.
+      expect(figure.top, greaterThanOrEqualTo(caption.bottom - 1));
       expect(fiat.top, greaterThanOrEqualTo(figure.bottom - 1));
       expect(line.top, greaterThanOrEqualTo(fiat.bottom - 1));
-      // The statuses stay on the right, beside the figure.
+      expect(life.top, greaterThanOrEqualTo(line.bottom - 1));
+      expect(_lifeLine(tester), 1);
+      // The eye and the ? beside the figure.
+      for (final control in [
+        find.byTooltip('Hide balances'),
+        find.byType(BalanceHelp),
+      ]) {
+        expect(control, findsOneWidget);
+        expect(tester.getCenter(control).dy, closeTo(figure.center.dy, 2));
+        expect(tester.getCenter(control).dx, greaterThan(figure.right));
+      }
+      // The statuses, one row each, right-aligned beside the lines under the figure.
       final node = tester.getRect(find.byKey(nodeStatusKey));
-      expect(node.left, greaterThan(figure.right));
-      expect(node.top, lessThan(line.top));
-      // Not syncing: no sync line.
+      final epicbox = tester.getRect(find.byKey(epicboxStatusKey));
+      expect(node.left, greaterThan(line.right));
+      expect(epicbox.top, greaterThanOrEqualTo(node.bottom - 1));
+      expect(epicbox.right, closeTo(node.right, 1));
+      expect(node.top, greaterThan(figure.bottom - 1));
+      expect(epicbox.bottom, lessThanOrEqualTo(life.top + 1));
+      // Not syncing: no thin sync line.
       expect(find.byKey(headerSyncLineKey), findsNothing);
 
-      // The line opens the balance help.
-      await tester.tap(find.byKey(notSpendableKey));
-      await tester.pump(const Duration(milliseconds: 200));
-      expect(find.textContaining('Locked by a payment'), findsWidgets);
-      await tester.pumpAndSettle(const Duration(seconds: 11));
+      // The line lists the balances behind it, as in 1.3.1, and closes again.
+      expect(find.byKey(breakdownKey), findsNothing);
+      await _tap(tester, find.byKey(notSpendableKey));
+      expect(find.byKey(breakdownKey), findsOneWidget);
+      expect(
+        find.descendant(
+          of: find.byKey(breakdownKey),
+          matching: find.text('Locked by a payment in progress'),
+        ),
+        findsOneWidget,
+      );
+      expect(
+        find.descendant(
+          of: find.byKey(breakdownKey),
+          matching: find.text('2 EPIC'),
+        ),
+        findsOneWidget,
+      );
+      // Only the balances that are not zero.
+      expect(find.text('Confirming'), findsNothing);
+      expect(_iconLabelled('Hide breakdown'), findsOneWidget);
+      // It stays open across a tab change.
+      await _tab(tester, 'Send');
+      await _tab(tester, 'Wallet');
+      expect(find.byKey(breakdownKey), findsOneWidget);
+      await _tap(tester, find.byKey(notSpendableKey));
+      expect(find.byKey(breakdownKey), findsNothing);
+      expect(_iconLabelled('Show breakdown'), findsOneWidget);
     });
 
     testWidgets('no not-spendable line when everything is spendable', (
@@ -2753,27 +2836,58 @@ void main() {
       expect(find.text('12.5 EPIC'), findsOneWidget);
       expect(find.byKey(notSpendableKey), findsNothing);
       expect(find.textContaining('not spendable yet'), findsNothing);
+      await _tab(tester, 'Send');
+      expect(find.byKey(notSpendableKey), findsNothing);
     });
 
-    testWidgets('the sync line runs at the header\'s foot only while syncing', (
+    testWidgets(
+      'while syncing: the life line on Wallet, a thin line elsewhere',
+      (tester) async {
+        final session = _SlowRefreshSession(refreshed: _summary());
+        final h = _Harness(session: session);
+        await h.pump(tester);
+        final bar = find.byKey(headerSyncLineKey);
+        expect(_lifeLine(tester), 0.4);
+        expect(bar, findsNothing);
+        // On Send and Receive the thin line runs at the panel's foot.
+        for (final tab in ['Send', 'Receive']) {
+          await _tab(tester, tab);
+          expect(find.byKey(lifeLineKey), findsNothing);
+          expect(tester.widget<LinearProgressIndicator>(bar).value, 0.4);
+          final header = tester.getRect(find.byKey(shellHeaderKey));
+          expect(tester.getRect(bar).bottom, closeTo(header.bottom, 2));
+        }
+        await _tab(tester, 'Wallet');
+        expect(bar, findsNothing);
+
+        session.gate.complete();
+        await tester.pumpAndSettle();
+        expect(_lifeLine(tester), 1);
+        await _tab(tester, 'Send');
+        expect(bar, findsNothing);
+      },
+    );
+
+    testWidgets('with reduced motion the life line cuts to its progress', (
       tester,
     ) async {
       final session = _SlowRefreshSession(refreshed: _summary());
       final h = _Harness(session: session);
-      await h.pump(tester);
-      final bar = find.byKey(headerSyncLineKey);
-      expect(tester.widget<LinearProgressIndicator>(bar).value, 0.4);
-      final header = tester.getRect(find.byKey(shellHeaderKey));
-      expect(tester.getRect(bar).bottom, closeTo(header.bottom, 2));
-      // Not on Send and Receive, where the header has two lines.
-      await _tab(tester, 'Send');
-      expect(bar, findsNothing);
-      await _tab(tester, 'Wallet');
-      expect(bar, findsOneWidget);
-
+      await h.pump(
+        tester,
+        Builder(
+          builder: (context) => MediaQuery(
+            data: MediaQuery.of(context).copyWith(disableAnimations: true),
+            child: const HomeScreen(),
+          ),
+        ),
+      );
+      expect(_lifeLine(tester), 0.4);
       session.gate.complete();
+      await tester.pump();
+      await tester.pump();
+      expect(_lifeLine(tester), 1);
       await tester.pumpAndSettle();
-      expect(bar, findsNothing);
     });
 
     testWidgets('a tap moves the pages in about 250 ms', (tester) async {
@@ -2815,22 +2929,6 @@ void main() {
       await tester.fling(find.byType(PageView), const Offset(300, 0), 1000);
       await tester.pumpAndSettle();
       expect(_selectedTab(tester), ShellTab.wallet);
-    });
-
-    testWidgets('the shrunk status sits at the end, where the rows end', (
-      tester,
-    ) async {
-      final h = _Harness();
-      await h.pump(tester);
-      final rowsEnd = tester.getRect(find.byKey(nodeStatusKey)).right;
-      await _tab(tester, 'Send');
-      final icon = tester.getRect(
-        find.descendant(
-          of: find.byKey(compactStatusKey),
-          matching: find.byType(Icon),
-        ),
-      );
-      expect(icon.right, closeTo(rowsEnd, 1));
     });
 
     testWidgets('a failed listener stream shows epicbox offline', (

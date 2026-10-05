@@ -279,6 +279,8 @@
   "homeHistoryReminderNotNow": "以后再说",
   "homeHistoryExportButton": "导出历史备份",
   "homeBalanceSpendable": "可用余额",
+  "homeShowBreakdown": "显示明细",
+  "homeHideBreakdown": "隐藏明细",
   "balanceHelpLabel": "这些余额的含义",
   "balanceTotal": "总额",
   "balanceHelpRow": "{label}：{amount}",

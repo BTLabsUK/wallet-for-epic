@@ -1433,6 +1433,12 @@ class AppLocalizationsPl extends AppLocalizations {
   String get homeBalanceSpendable => 'Dostępne';
 
   @override
+  String get homeShowBreakdown => 'Pokaż szczegóły salda';
+
+  @override
+  String get homeHideBreakdown => 'Ukryj szczegóły salda';
+
+  @override
   String get balanceHelpLabel => 'Co oznaczają te salda';
 
   @override

@@ -279,6 +279,8 @@
   "homeHistoryReminderNotNow": "Nicht jetzt",
   "homeHistoryExportButton": "Verlaufssicherung exportieren",
   "homeBalanceSpendable": "Verfügbar",
+  "homeShowBreakdown": "Aufschlüsselung anzeigen",
+  "homeHideBreakdown": "Aufschlüsselung ausblenden",
   "balanceHelpLabel": "Was diese Guthaben bedeuten",
   "balanceTotal": "Gesamt",
   "balanceHelpRow": "{label}: {amount}",

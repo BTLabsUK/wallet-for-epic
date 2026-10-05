@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../amount.dart';
@@ -23,7 +24,16 @@ const Key fiatValueKey = ValueKey('balance-fiat');
 /// The key of the "not spendable yet" line, for tests.
 const Key notSpendableKey = ValueKey('balance-not-spendable');
 
-/// The key of the sync line at the header's foot, for tests.
+/// The key of the "Spendable" caption above Wallet's figure, for tests.
+const Key spendableCaptionKey = ValueKey('balance-caption');
+
+/// The key of the list of not-spendable balances that Wallet's line opens, for tests.
+const Key breakdownKey = ValueKey('balance-breakdown');
+
+/// The key of Wallet's life line, for tests.
+const Key lifeLineKey = ValueKey('balance-life-line');
+
+/// The key of the sync line at the foot of the Send and Receive header, for tests.
 const Key headerSyncLineKey = ValueKey('header-sync-line');
 
 /// How far the header is open, from the shell's page position: 1 on Wallet, 0 on Send and
@@ -33,224 +43,443 @@ double headerOpenness(double page) =>
 
 /// The balance header above the three tabs.
 ///
-/// On Wallet ([openness] 1) it is a panel of four or five lines: the spendable figure, large,
-/// with the balance help, and the node and epicbox status rows on the right beside it; the
-/// fiat value with the hide toggle; "X EPIC not spendable yet" when anything is not spendable,
-/// which opens the balance help; and while syncing a thin progress line at the panel's foot.
+/// On Wallet ([openness] 1) it is the 1.3.1 balance panel: the "Spendable" caption; the
+/// figure, large, with the hide toggle and the balance help; the fiat value and "X EPIC not
+/// spendable yet", which opens the not-spendable balances, with the node and epicbox status
+/// rows on their right; and the life line, drawn as far as the sync has come.
 ///
-/// On Send and Receive ([openness] 0) it is two lines: a smaller figure with the single worse
-/// status's icon at the row's end, and the fiat value under it. In between it scrubs from one
+/// On Send and Receive ([openness] 0) it is shorter: the figure with its unit small, the
+/// status rows beside it; the fiat value with the hide toggle and the help; the not-spendable
+/// line, which opens the help; and while syncing a thin progress line at the panel's foot.
+///
+/// In between, the two cross-fade and the height follows the page, so a swipe scrubs from one
 /// to the other.
-class ShellHeader extends ConsumerWidget {
+class ShellHeader extends ConsumerStatefulWidget {
   const ShellHeader({super.key, required this.openness});
 
   final double openness;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final theme = Theme.of(context);
-    final l = context.l10n;
-    final t = openness;
-    final summary = ref.watch(homeProvider).value?.summary;
-    final node = watchWalletStatus(ref).node;
-    final display = amountDisplay(ref);
-    final hidden = display.hidden;
-    final fiat = summary == null
-        ? null
-        : approxFiat(l, summary.spendable, display);
-    final notSpendable = summary == null
-        ? BigInt.zero
-        : summary.total - summary.spendable;
-    // The theme's balance face (Montserrat, tabular) at displayMedium's size on Wallet.
-    final figureStyle = TextStyle.lerp(
-      theme.textTheme.headlineSmall,
-      theme.textTheme.displaySmall?.copyWith(
-        fontSize: theme.textTheme.displayMedium?.fontSize,
+  ConsumerState<ShellHeader> createState() => _ShellHeaderState();
+}
+
+class _ShellHeaderState extends ConsumerState<ShellHeader> {
+  /// Whether Wallet lists the not-spendable balances. Kept here, so it survives a tab change.
+  bool _breakdown = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = widget.openness;
+    final b = _Balance(
+      summary: ref.watch(homeProvider).value?.summary,
+      node: watchWalletStatus(ref).node,
+      display: amountDisplay(ref),
+    );
+    // The panel that is more than half shown takes taps, keys and screen readers; Wallet's
+    // from halfway.
+    Widget layer(double opacity, bool active, Widget panel) => IgnorePointer(
+      ignoring: !active,
+      child: ExcludeSemantics(
+        excluding: !active,
+        child: Opacity(opacity: opacity, child: panel),
       ),
-      t,
     );
-    // On Wallet the unit is 40 % of the number's size, so the number gets the width.
-    final unitStyle = figureStyle?.copyWith(
-      fontSize: (figureStyle.fontSize ?? 24) * (1 - 0.6 * t),
-    );
-    final fiatStyle = TextStyle.lerp(
-      theme.textTheme.bodyMedium,
-      theme.textTheme.titleMedium,
-      t,
-    )?.copyWith(color: theme.colorScheme.onSurfaceVariant);
-    final Widget figure = summary == null
-        ? const SizedBox.square(
-            dimension: 24,
-            child: CircularProgressIndicator(strokeWidth: 2),
-          )
-        : Semantics(
-            container: true,
-            label: hidden ? l.homeBalanceHiddenLabel : null,
-            excludeSemantics: hidden,
-            // One line however long the balance: it shrinks rather than wraps.
-            child: FittedBox(
-              key: balanceFigureKey,
-              fit: BoxFit.scaleDown,
-              alignment: AlignmentDirectional.centerStart,
-              child: Text.rich(
-                hidden
-                    ? const TextSpan(text: hiddenAmount)
-                    : TextSpan(
-                        children: [
-                          TextSpan(
-                            text: localDigits(
-                              l,
-                              formatEpic(summary.spendable, grouped: true),
-                            ),
-                          ),
-                          // The same words as [epicText], so it reads as one amount.
-                          TextSpan(text: ' EPIC', style: unitStyle),
-                        ],
-                      ),
-                maxLines: 1,
-                style: figureStyle,
-              ),
-            ),
-          );
-    final eye = IconButton(
-      tooltip: hidden ? l.homeShowBalances : l.homeHideBalances,
-      icon: Icon(
-        hidden ? Icons.visibility_outlined : Icons.visibility_off_outlined,
-      ),
-      onPressed: () =>
-          ref.read(appSettingsProvider.notifier).setHideBalances(!hidden),
-    );
-    final left = Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        figure,
-        // The fiat value on every tab; on Wallet the hide toggle and the balance help at its
-        // end, so the figure keeps the row's width.
-        if (summary != null && (fiat != null || t > 0))
-          Row(
-            children: [
-              if (fiat != null)
-                Flexible(
-                  child: Text(fiat, key: fiatValueKey, style: fiatStyle),
-                ),
-              if (t > 0) ...[
-                _Collapse(openness: t, child: eye),
-                _Collapse(
-                  openness: t,
-                  child: BalanceHelp(summary: summary, hidden: hidden),
-                ),
-              ],
-            ],
-          ),
-      ],
-    );
-    final status = Stack(
-      alignment: AlignmentDirectional.centerEnd,
-      children: [
-        if (t > 0)
-          _Collapse(
-            openness: t,
-            axis: Axis.vertical,
-            alignment: AlignmentDirectional.centerEnd,
-            fill: false,
-            child: const StatusRows(),
-          ),
-        if (t < 1)
-          IgnorePointer(
-            ignoring: t >= 0.5,
-            child: Opacity(opacity: 1 - t, child: const CompactStatus()),
-          ),
-      ],
-    );
-    final syncing = node.state == NodeState.syncing;
+
     return Semantics(
       container: true,
       child: ProtocolBalancePanel(
         key: shellHeaderKey,
-        // The header pads its own content, so the sync line can run along the panel's foot.
+        // Each panel pads its own content, so the sync line can run along the panel's foot.
         padding: EdgeInsets.zero,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+        child: _Blend(
+          openness: t,
           children: [
-            Padding(
-              padding: EdgeInsets.lerp(
-                // The same end inset open and shrunk, so the status stays at one edge.
-                const EdgeInsetsDirectional.fromSTEB(
-                  14,
-                  6,
-                  10,
-                  6,
-                ).resolve(Directionality.of(context)),
-                // The 1.3.1 panel's padding.
-                const EdgeInsetsDirectional.fromSTEB(
-                  18,
-                  18,
-                  10,
-                  16,
-                ).resolve(Directionality.of(context)),
-                t,
-              )!,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  LayoutBuilder(
-                    builder: (context, constraints) => Row(
-                      children: [
-                        Expanded(child: left),
-                        const SizedBox(width: 4),
-                        // At most 30 % of the row: large text shortens the status words
-                        // before it squeezes the figure.
-                        ConstrainedBox(
-                          constraints: BoxConstraints(
-                            maxWidth: constraints.maxWidth * 0.3,
-                          ),
-                          child: status,
-                        ),
-                      ],
-                    ),
-                  ),
-                  if (summary != null && notSpendable > BigInt.zero && t > 0)
-                    _Collapse(
-                      openness: t,
-                      axis: Axis.vertical,
-                      child: _NotSpendableLine(
-                        summary: summary,
-                        amount: notSpendable,
-                        hidden: hidden,
-                      ),
-                    ),
-                ],
-              ),
-            ),
-            if (syncing && t > 0)
-              _Collapse(
-                openness: t,
-                axis: Axis.vertical,
-                child: ExcludeSemantics(
-                  // Determinate, so it never animates by itself; the node row says the
-                  // percent to screen readers.
-                  child: LinearProgressIndicator(
-                    key: headerSyncLineKey,
-                    value: (node.percent ?? 0) / 100,
-                    minHeight: 2,
-                    color: context.tokens.accent,
-                    backgroundColor: Colors.transparent,
-                  ),
-                ),
-              ),
+            if (t < 1) layer(_fade(1 - t), t < 0.5, _tabPanel(b, t < 0.5)),
+            if (t > 0) layer(_fade(t), t >= 0.5, _walletPanel(b, t >= 0.5)),
           ],
         ),
       ),
     );
   }
+
+  /// A panel's opacity at [share] of the way to it: out of sight until 0.4, full from 0.6,
+  /// so the two barely show at once.
+  static double _fade(double share) => ((share - 0.4) / 0.2).clamp(0.0, 1.0);
+
+  /// The figure on one line however long the balance: it shrinks rather than wraps.
+  Widget _figure(_Balance b, bool keyed, TextStyle? style, TextStyle? unit) {
+    final l = context.l10n;
+    final summary = b.summary;
+    if (summary == null) {
+      return const SizedBox.square(
+        dimension: 24,
+        child: CircularProgressIndicator(strokeWidth: 2),
+      );
+    }
+    return Semantics(
+      container: true,
+      label: b.hidden ? l.homeBalanceHiddenLabel : null,
+      excludeSemantics: b.hidden,
+      child: FittedBox(
+        key: keyed ? balanceFigureKey : null,
+        fit: BoxFit.scaleDown,
+        alignment: AlignmentDirectional.centerStart,
+        child: Text.rich(
+          b.hidden
+              ? const TextSpan(text: hiddenAmount)
+              : TextSpan(
+                  children: [
+                    TextSpan(
+                      text: localDigits(
+                        l,
+                        formatEpic(summary.spendable, grouped: true),
+                      ),
+                    ),
+                    // The same words as [epicText], so it reads as one amount.
+                    TextSpan(text: ' EPIC', style: unit),
+                  ],
+                ),
+          maxLines: 1,
+          style: style,
+        ),
+      ),
+    );
+  }
+
+  Widget _eye(_Balance b) {
+    final l = context.l10n;
+    return IconButton(
+      tooltip: b.hidden ? l.homeShowBalances : l.homeHideBalances,
+      icon: Icon(
+        b.hidden ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+      ),
+      onPressed: () =>
+          ref.read(appSettingsProvider.notifier).setHideBalances(!b.hidden),
+    );
+  }
+
+  /// [left], and the status rows on the right, at most 30 % of the row: large text shortens
+  /// the status words before it squeezes the balance.
+  Widget _withStatus(Widget left) => LayoutBuilder(
+    builder: (context, constraints) => Row(
+      children: [
+        Expanded(child: left),
+        const SizedBox(width: 4),
+        ConstrainedBox(
+          constraints: BoxConstraints(maxWidth: constraints.maxWidth * 0.3),
+          child: const StatusRows(),
+        ),
+      ],
+    ),
+  );
+
+  /// Send and Receive: the figure with the statuses beside it, the fiat value with the hide
+  /// toggle and the help, the not-spendable line, and the sync line at the foot.
+  Widget _tabPanel(_Balance b, bool keyed) {
+    final theme = Theme.of(context);
+    final summary = b.summary;
+    final figureStyle = theme.textTheme.displaySmall?.copyWith(
+      fontSize: theme.textTheme.displayMedium?.fontSize,
+    );
+    // The unit is 40 % of the number's size, so the number gets the width.
+    final unitStyle = figureStyle?.copyWith(
+      fontSize: (figureStyle.fontSize ?? 45) * 0.4,
+    );
+    final fiat = b.fiat(context);
+    final left = Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _figure(b, keyed, figureStyle, unitStyle),
+        if (summary != null)
+          Row(
+            children: [
+              if (fiat != null)
+                Flexible(
+                  child: Text(
+                    fiat,
+                    key: keyed ? fiatValueKey : null,
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ),
+              _eye(b),
+              BalanceHelp(summary: summary, hidden: b.hidden),
+            ],
+          ),
+      ],
+    );
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Padding(
+          padding: const EdgeInsetsDirectional.fromSTEB(18, 18, 10, 16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              _withStatus(left),
+              if (summary != null && b.notSpendable > BigInt.zero)
+                _NotSpendableLine(
+                  key: keyed ? notSpendableKey : null,
+                  summary: summary,
+                  amount: b.notSpendable,
+                  hidden: b.hidden,
+                ),
+            ],
+          ),
+        ),
+        if (b.syncing)
+          ExcludeSemantics(
+            // Determinate, so it never animates by itself; the node row says the percent to
+            // screen readers.
+            child: LinearProgressIndicator(
+              key: keyed ? headerSyncLineKey : null,
+              value: b.syncProgress,
+              minHeight: 2,
+              color: context.tokens.accent,
+              backgroundColor: Colors.transparent,
+            ),
+          ),
+      ],
+    );
+  }
+
+  /// Wallet: the 1.3.1 panel, with the help beside the figure and the statuses beside the
+  /// lines under it instead of the "Up to date" footer.
+  Widget _walletPanel(_Balance b, bool keyed) {
+    final theme = Theme.of(context);
+    final l = context.l10n;
+    final summary = b.summary;
+    final fiat = b.fiat(context);
+    final figureStyle = theme.textTheme.displaySmall;
+    final open = _breakdown && b.notSpendable > BigInt.zero;
+    return Padding(
+      // The 1.3.1 panel's padding and its 8 dp above the caption; below the life line it
+      // keeps part of the room its "Up to date" footer took, so the panel is 1.3.1's height.
+      padding: const EdgeInsetsDirectional.fromSTEB(18, 26, 10, 22),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            l.homeBalanceSpendable,
+            key: keyed ? spendableCaptionKey : null,
+            style: theme.textTheme.labelLarge,
+          ),
+          Row(
+            children: [
+              Flexible(child: _figure(b, keyed, figureStyle, figureStyle)),
+              if (summary != null) ...[
+                _eye(b),
+                BalanceHelp(summary: summary, hidden: b.hidden),
+              ],
+            ],
+          ),
+          _withStatus(
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (fiat != null)
+                  Text(
+                    fiat,
+                    key: keyed ? fiatValueKey : null,
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                if (summary != null && b.notSpendable > BigInt.zero)
+                  _BreakdownLine(
+                    key: keyed ? notSpendableKey : null,
+                    amount: b.notSpendable,
+                    hidden: b.hidden,
+                    open: open,
+                    onTap: () => setState(() => _breakdown = !_breakdown),
+                  ),
+              ],
+            ),
+          ),
+          if (open)
+            Padding(
+              key: keyed ? breakdownKey : null,
+              padding: const EdgeInsetsDirectional.only(end: 8),
+              child: Column(
+                children: [
+                  for (final (label, value) in b.buckets(l))
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 4),
+                      child: Row(
+                        children: [
+                          Expanded(child: Text(label)),
+                          Text(shownEpic(l, value, hidden: b.hidden)),
+                        ],
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          Padding(
+            padding: const EdgeInsetsDirectional.only(top: 16, end: 8),
+            child: ProtocolLifeLine(
+              key: keyed ? lifeLineKey : null,
+              progress: b.syncing ? b.syncProgress : 1,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
-/// "X EPIC not spendable yet", under the fiat value on Wallet. A tap opens the balance help.
+/// What both panels show, read once per build.
+class _Balance {
+  _Balance({required this.summary, required this.node, required this.display});
+
+  final WalletSummary? summary;
+  final NodeStatus node;
+  final ({bool hidden, double? price, String currency}) display;
+
+  bool get hidden => display.hidden;
+
+  bool get syncing => node.state == NodeState.syncing;
+
+  double get syncProgress => (node.percent ?? 0) / 100;
+
+  BigInt get notSpendable {
+    final summary = this.summary;
+    return summary == null ? BigInt.zero : summary.total - summary.spendable;
+  }
+
+  String? fiat(BuildContext context) {
+    final summary = this.summary;
+    return summary == null
+        ? null
+        : approxFiat(context.l10n, summary.spendable, display);
+  }
+
+  /// The balances that are not spendable yet, zero ones left out.
+  List<(String, BigInt)> buckets(AppLocalizations l) {
+    final summary = this.summary;
+    if (summary == null) return const [];
+    return [
+      (l.homeBalanceConfirming, summary.awaitingConfirmation),
+      (l.homeBalanceWaitingToFinish, summary.awaitingFinalization),
+      (l.homeBalanceLocked, summary.locked),
+      (l.homeBalanceImmature, summary.immature),
+    ].where((b) => b.$2 > BigInt.zero).toList();
+  }
+}
+
+/// Lays its one or two children over each other at the top, and takes the height of the one
+/// that is there, or between the two by [openness] while both are: the first child's at 0,
+/// the last's at 1. Clips what does not fit.
+class _Blend extends MultiChildRenderObjectWidget {
+  const _Blend({required this.openness, required super.children});
+
+  final double openness;
+
+  @override
+  RenderObject createRenderObject(BuildContext context) =>
+      _RenderBlend(openness);
+
+  @override
+  void updateRenderObject(BuildContext context, _RenderBlend renderObject) {
+    renderObject.openness = openness;
+  }
+}
+
+class _BlendParentData extends ContainerBoxParentData<RenderBox> {}
+
+class _RenderBlend extends RenderBox
+    with
+        ContainerRenderObjectMixin<RenderBox, _BlendParentData>,
+        RenderBoxContainerDefaultsMixin<RenderBox, _BlendParentData> {
+  _RenderBlend(this._openness);
+
+  double _openness;
+  set openness(double value) {
+    if (value == _openness) return;
+    _openness = value;
+    markNeedsLayout();
+  }
+
+  @override
+  void setupParentData(RenderBox child) {
+    if (child.parentData is! _BlendParentData) {
+      child.parentData = _BlendParentData();
+    }
+  }
+
+  double _height(List<double> heights) => heights.length == 1
+      ? heights.single
+      : heights.first + (heights.last - heights.first) * _openness;
+
+  BoxConstraints _childConstraints(BoxConstraints constraints) =>
+      BoxConstraints.tightFor(width: constraints.maxWidth);
+
+  @override
+  Size computeDryLayout(covariant BoxConstraints constraints) {
+    final heights = [
+      for (final child in getChildrenAsList())
+        child.getDryLayout(_childConstraints(constraints)).height,
+    ];
+    if (heights.isEmpty) return constraints.smallest;
+    return constraints.constrain(Size(constraints.maxWidth, _height(heights)));
+  }
+
+  @override
+  void performLayout() {
+    final heights = <double>[];
+    for (final child in getChildrenAsList()) {
+      child.layout(_childConstraints(constraints), parentUsesSize: true);
+      heights.add(child.size.height);
+    }
+    size = heights.isEmpty
+        ? constraints.smallest
+        : constraints.constrain(Size(constraints.maxWidth, _height(heights)));
+  }
+
+  @override
+  double computeMinIntrinsicHeight(double width) => _height([
+    for (final child in getChildrenAsList()) child.getMinIntrinsicHeight(width),
+  ]);
+
+  @override
+  double computeMaxIntrinsicHeight(double width) => _height([
+    for (final child in getChildrenAsList()) child.getMaxIntrinsicHeight(width),
+  ]);
+
+  @override
+  bool hitTestChildren(BoxHitTestResult result, {required Offset position}) =>
+      defaultHitTestChildren(result, position: position);
+
+  final _clip = LayerHandle<ClipRectLayer>();
+
+  @override
+  void paint(PaintingContext context, Offset offset) {
+    _clip.layer = context.pushClipRect(
+      needsCompositing,
+      offset,
+      Offset.zero & size,
+      defaultPaint,
+      oldLayer: _clip.layer,
+    );
+  }
+
+  @override
+  void dispose() {
+    _clip.layer = null;
+    super.dispose();
+  }
+}
+
+/// "X EPIC not spendable yet" on Send and Receive. A tap opens the balance help.
 class _NotSpendableLine extends StatefulWidget {
   const _NotSpendableLine({
+    super.key,
     required this.summary,
     required this.amount,
     required this.hidden,
@@ -278,7 +507,6 @@ class _NotSpendableLineState extends State<_NotSpendableLine> {
       child: Semantics(
         button: true,
         child: InkWell(
-          key: notSpendableKey,
           borderRadius: BorderRadius.circular(8),
           onTap: () => _tooltip.currentState?.ensureTooltipVisible(),
           child: ConstrainedBox(
@@ -306,37 +534,50 @@ class _NotSpendableLineState extends State<_NotSpendableLine> {
   }
 }
 
-/// [child] faded and folded along [axis] by [openness], or along both when [axis] is null, so
-/// the header's size follows the page.
-class _Collapse extends StatelessWidget {
-  const _Collapse({
-    required this.openness,
-    this.axis,
-    required this.child,
-    this.alignment = AlignmentDirectional.centerStart,
-    this.fill = true,
+/// "X EPIC not spendable yet" on Wallet, as in 1.3.1: a tap lists the balances behind it.
+class _BreakdownLine extends StatelessWidget {
+  const _BreakdownLine({
+    super.key,
+    required this.amount,
+    required this.hidden,
+    required this.open,
+    required this.onTap,
   });
 
-  final double openness;
-  final Axis? axis;
-
-  /// Folded along [Axis.vertical] only: true takes the full width, false the child's own.
-  final bool fill;
-  final AlignmentGeometry alignment;
-  final Widget child;
+  final BigInt amount;
+  final bool hidden;
+  final bool open;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    return ClipRect(
-      child: Align(
-        alignment: alignment,
-        widthFactor: axis != Axis.vertical
-            ? openness
-            : fill
-            ? null
-            : 1,
-        heightFactor: axis != Axis.horizontal ? openness : null,
-        child: Opacity(opacity: openness, child: child),
+    final l = context.l10n;
+    return Semantics(
+      button: true,
+      expanded: open,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(8),
+        onTap: onTap,
+        child: ConstrainedBox(
+          // A full-size tap target, however short the text.
+          constraints: const BoxConstraints(minHeight: 48),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Flexible(
+                child: Text(
+                  l.homeBalanceNotSpendable(
+                    shownEpic(l, amount, hidden: hidden),
+                  ),
+                ),
+              ),
+              Icon(
+                open ? Icons.expand_less : Icons.expand_more,
+                semanticLabel: open ? l.homeHideBreakdown : l.homeShowBreakdown,
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

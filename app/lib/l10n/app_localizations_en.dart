@@ -1331,6 +1331,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get homeBalanceSpendable => 'Spendable';
 
   @override
+  String get homeShowBreakdown => 'Show breakdown';
+
+  @override
+  String get homeHideBreakdown => 'Hide breakdown';
+
+  @override
   String get balanceHelpLabel => 'What these balances mean';
 
   @override

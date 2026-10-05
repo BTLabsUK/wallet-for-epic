@@ -279,6 +279,8 @@
   "homeHistoryReminderNotNow": "Nie teraz",
   "homeHistoryExportButton": "Eksportuj kopię historii",
   "homeBalanceSpendable": "Dostępne",
+  "homeShowBreakdown": "Pokaż szczegóły salda",
+  "homeHideBreakdown": "Ukryj szczegóły salda",
   "balanceHelpLabel": "Co oznaczają te salda",
   "balanceTotal": "Łącznie",
   "balanceHelpRow": "{label}: {amount}",

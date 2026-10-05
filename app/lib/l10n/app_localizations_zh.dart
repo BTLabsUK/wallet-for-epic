@@ -1246,6 +1246,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get homeBalanceSpendable => '可用余额';
 
   @override
+  String get homeShowBreakdown => '显示明细';
+
+  @override
+  String get homeHideBreakdown => '隐藏明细';
+
+  @override
   String get balanceHelpLabel => '这些余额的含义';
 
   @override
