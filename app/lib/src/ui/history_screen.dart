@@ -55,6 +55,8 @@ bool matchesQuery(TxEntry tx, String query, {String? contactName}) {
   if (q.isEmpty) return true;
   final amount = formatEpic(txAmount(tx).amount);
   final grouped = formatEpic(txAmount(tx).amount, grouped: true);
+  // What the row shows, which may have fewer decimals.
+  final shown = displayEpic(txAmount(tx).amount);
   final fields = [
     tx.note,
     tx.counterparty,
@@ -63,6 +65,7 @@ bool matchesQuery(TxEntry tx, String query, {String? contactName}) {
     tx.kernelExcess,
     amount,
     grouped,
+    shown,
   ];
   if (fields.any((f) => f != null && f.toLowerCase().contains(q))) return true;
   return amount.contains(q.replaceAll(',', '.'));

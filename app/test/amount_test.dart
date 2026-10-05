@@ -25,6 +25,85 @@ void main() {
     });
   });
 
+  group('displayEpic', () {
+    BigInt epic(String text) => parseEpic(text);
+
+    test('the brief\'s matrix', () {
+      for (final (exact, shown) in [
+        ('0', '0'),
+        ('0.00000001', '0.00000001'),
+        ('0.5', '0.5'),
+        ('1', '1'),
+        ('12.5', '12.5'),
+        ('99.99999999', '99.99999999'),
+        ('999.99999999', '999.9999999'),
+        ('1000', '1,000'),
+        ('123456.789', '123,456.789'),
+        ('1234567.12345678', '1,234,567.123'),
+        // Epic's supply approaches 21 million; a wallet must still show more.
+        ('20999999.99999999', '20,999,999.99'),
+        ('21000000', '21,000,000'),
+        ('99999999.99999999', '99,999,999.99'),
+        ('123456789012.34567891', '123,456,789,012.34'),
+      ]) {
+        expect(displayEpic(epic(exact)), shown, reason: exact);
+      }
+    });
+
+    test('decimals fall as the whole part grows, never below 2', () {
+      expect(
+        [for (var digits = 1; digits <= 10; digits++) '1'.padRight(digits, '0')]
+            .map((whole) => displayDecimals(epic(whole))),
+        [8, 8, 7, 6, 5, 4, 3, 2, 2, 2],
+      );
+      expect(displayDecimals(epic('0.1')), 8);
+    });
+
+    test('cuts digits off and never rounds up', () {
+      // Each would round up to the next shown digit.
+      expect(displayEpic(epic('999.99999999')), '999.9999999');
+      expect(displayEpic(epic('9999.99999999')), '9,999.999999');
+      expect(displayEpic(epic('99999.99999999')), '99,999.99999');
+      expect(displayEpic(epic('999999.99999999')), '999,999.9999');
+      expect(displayEpic(epic('9999999.99999999')), '9,999,999.999');
+      expect(displayEpic(epic('20999999.99999999')), '20,999,999.99');
+      // Not past a whole either.
+      expect(displayEpic(epic('99999999.999')), '99,999,999.99');
+      // Shown never exceeds the real amount, and drops less than one shown digit.
+      for (final text in [
+        '0.12345678',
+        '987.65432199',
+        '54321.98765432',
+        '7654321.99999999',
+        '20999999.98765432',
+        '31415926.53589793',
+      ]) {
+        final real = epic(text);
+        final shown = parseEpic(displayEpic(real).replaceAll(',', ''));
+        expect(shown, lessThanOrEqualTo(real), reason: text);
+        final step = BigInt.from(10).pow(epicDecimals - displayDecimals(real));
+        expect(real - shown, lessThan(step), reason: text);
+      }
+    });
+
+    test('trailing zeros go after the cut', () {
+      expect(displayEpic(epic('1234567.10000009')), '1,234,567.1');
+      expect(displayEpic(epic('1234567.00099999')), '1,234,567');
+    });
+
+    test('a negative amount is cut towards zero', () {
+      expect(displayEpic(-epic('1234567.12345678')), '-1,234,567.123');
+      expect(displayEpic(-epic('0.00000001')), '-0.00000001');
+    });
+
+    test('exact above the double precision limit', () {
+      // 2^53 + 1 atomic units, where a double would already be off.
+      final big = BigInt.two.pow(53) + BigInt.one;
+      expect(displayEpic(big), '90,071,992.54');
+      expect(formatEpic(big), '90071992.54740993');
+    });
+  });
+
   group('parseEpic', () {
     test('valid input', () {
       expect(parseEpic('1'), atomic(100000000));

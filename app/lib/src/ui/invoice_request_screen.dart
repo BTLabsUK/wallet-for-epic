@@ -353,7 +353,7 @@ class _InvoiceRequestScreenState extends ConsumerState<InvoiceRequestScreen> {
     String? amountHelper;
     if (amount != null && price != null) {
       amountHelper = _fiatEntry
-          ? '≈ ${epicText(l, amount)}'
+          ? '≈ ${epicExact(l, amount)}'
           : '≈ ${localDigits(l, fiatText(amount, price, currency))}';
     }
 

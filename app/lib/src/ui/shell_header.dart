@@ -21,7 +21,7 @@ const Key balanceFigureKey = ValueKey('balance-figure');
 /// The key of the fiat value under the figure, for tests.
 const Key fiatValueKey = ValueKey('balance-fiat');
 
-/// The key of the "not spendable yet" line, for tests.
+/// The key of Wallet's "not spendable yet" line, for tests.
 const Key notSpendableKey = ValueKey('balance-not-spendable');
 
 /// The key of the "Spendable" caption above Wallet's figure, for tests.
@@ -49,8 +49,9 @@ double headerOpenness(double page) =>
 /// rows on their right; and the life line, drawn as far as the sync has come.
 ///
 /// On Send and Receive ([openness] 0) it is shorter: the figure with its unit small, the
-/// status rows beside it; the fiat value with the hide toggle and the help; the not-spendable
-/// line, which opens the help; and while syncing a thin progress line at the panel's foot.
+/// status rows beside it; the fiat value with the hide toggle and the help, which lists the
+/// balances not spendable yet; and while syncing a thin progress line at the panel's foot. Its
+/// height does not depend on what is pending.
 ///
 /// In between, the two cross-fade and the height follows the page, so a swipe scrubs from one
 /// to the other.
@@ -110,8 +111,15 @@ class _ShellHeaderState extends ConsumerState<ShellHeader> {
   /// so the two barely show at once.
   static double _fade(double share) => ((share - 0.4) / 0.2).clamp(0.0, 1.0);
 
-  /// The figure on one line however long the balance: it shrinks rather than wraps.
-  Widget _figure(_Balance b, bool keyed, TextStyle? style, TextStyle? unit) {
+  /// [amount] (Spendable unless given) as the figure, by the display rule ([displayEpic]), on
+  /// one line however long it is: it shrinks rather than wraps, and the unit stays with it.
+  Widget _figure(
+    _Balance b, {
+    required bool keyed,
+    required TextStyle? style,
+    required TextStyle? unit,
+    BigInt? amount,
+  }) {
     final l = context.l10n;
     final summary = b.summary;
     if (summary == null) {
@@ -124,28 +132,23 @@ class _ShellHeaderState extends ConsumerState<ShellHeader> {
       container: true,
       label: b.hidden ? l.homeBalanceHiddenLabel : null,
       excludeSemantics: b.hidden,
-      child: FittedBox(
-        key: keyed ? balanceFigureKey : null,
-        fit: BoxFit.scaleDown,
-        alignment: AlignmentDirectional.centerStart,
-        child: Text.rich(
-          b.hidden
-              ? const TextSpan(text: hiddenAmount)
-              : TextSpan(
-                  children: [
-                    TextSpan(
-                      text: localDigits(
-                        l,
-                        formatEpic(summary.spendable, grouped: true),
-                      ),
+      child: _OneLine(
+        fitKey: keyed ? balanceFigureKey : null,
+        style: style,
+        text: b.hidden
+            ? const TextSpan(text: hiddenAmount)
+            : TextSpan(
+                children: [
+                  TextSpan(
+                    text: localDigits(
+                      l,
+                      displayEpic(amount ?? summary.spendable),
                     ),
-                    // The same words as [epicText], so it reads as one amount.
-                    TextSpan(text: ' EPIC', style: unit),
-                  ],
-                ),
-          maxLines: 1,
-          style: style,
-        ),
+                  ),
+                  // The same words as [epicText], so it reads as one amount.
+                  TextSpan(text: ' EPIC', style: unit),
+                ],
+              ),
       ),
     );
   }
@@ -179,7 +182,7 @@ class _ShellHeaderState extends ConsumerState<ShellHeader> {
       );
 
   /// Send and Receive: the figure with the statuses beside it, the fiat value with the hide
-  /// toggle and the help, the not-spendable line, and the sync line at the foot.
+  /// toggle and the help, and the sync line at the foot.
   Widget _tabPanel(_Balance b, bool keyed) {
     final theme = Theme.of(context);
     final summary = b.summary;
@@ -195,15 +198,15 @@ class _ShellHeaderState extends ConsumerState<ShellHeader> {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _figure(b, keyed, figureStyle, unitStyle),
+        _figure(b, keyed: keyed, style: figureStyle, unit: unitStyle),
         if (summary != null)
           Row(
             children: [
               if (fiat != null)
                 Flexible(
-                  child: Text(
-                    fiat,
-                    key: keyed ? fiatValueKey : null,
+                  child: _OneLine(
+                    fitKey: keyed ? fiatValueKey : null,
+                    text: TextSpan(text: fiat),
                     style: theme.textTheme.titleMedium?.copyWith(
                       color: theme.colorScheme.onSurfaceVariant,
                     ),
@@ -221,20 +224,7 @@ class _ShellHeaderState extends ConsumerState<ShellHeader> {
       children: [
         Padding(
           padding: const EdgeInsetsDirectional.fromSTEB(18, 18, 10, 16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              _withStatus(left),
-              if (summary != null && b.notSpendable > BigInt.zero)
-                _NotSpendableLine(
-                  key: keyed ? notSpendableKey : null,
-                  summary: summary,
-                  amount: b.notSpendable,
-                  hidden: b.hidden,
-                ),
-            ],
-          ),
+          child: _withStatus(left),
         ),
         if (b.syncing)
           ExcludeSemantics(
@@ -277,7 +267,14 @@ class _ShellHeaderState extends ConsumerState<ShellHeader> {
           ),
           Row(
             children: [
-              Flexible(child: _figure(b, keyed, figureStyle, figureStyle)),
+              Flexible(
+                child: _figure(
+                  b,
+                  keyed: keyed,
+                  style: figureStyle,
+                  unit: figureStyle,
+                ),
+              ),
               if (summary != null) ...[
                 _eye(b),
                 BalanceHelp(summary: summary, hidden: b.hidden),
@@ -289,9 +286,9 @@ class _ShellHeaderState extends ConsumerState<ShellHeader> {
           _withStatus(
             fiat == null
                 ? null
-                : Text(
-                    fiat,
-                    key: keyed ? fiatValueKey : null,
+                : _OneLine(
+                    fitKey: keyed ? fiatValueKey : null,
+                    text: TextSpan(text: fiat),
                     style: theme.textTheme.titleMedium?.copyWith(
                       color: theme.colorScheme.onSurfaceVariant,
                     ),
@@ -388,6 +385,41 @@ class _Balance {
       (l.homeBalanceImmature, summary.immature),
     ].where((b) => b.$2 > BigInt.zero).toList();
   }
+}
+
+/// [text] on one line, shrunk rather than wrapped when it is too long, and always one line of
+/// [style] high, so a long amount does not change the panel's height.
+class _OneLine extends StatelessWidget {
+  const _OneLine({required this.text, required this.style, this.fitKey});
+
+  final InlineSpan text;
+  final TextStyle? style;
+
+  /// The key of the part that shrinks, so tests measure what is drawn.
+  final Key? fitKey;
+
+  @override
+  Widget build(BuildContext context) => Stack(
+    alignment: AlignmentDirectional.centerStart,
+    children: [
+      // An unseen line holds the height.
+      ExcludeSemantics(
+        child: Visibility(
+          visible: false,
+          maintainSize: true,
+          maintainAnimation: true,
+          maintainState: true,
+          child: Text('0', maxLines: 1, style: style),
+        ),
+      ),
+      FittedBox(
+        key: fitKey,
+        fit: BoxFit.scaleDown,
+        alignment: AlignmentDirectional.centerStart,
+        child: Text.rich(text, maxLines: 1, style: style),
+      ),
+    ],
+  );
 }
 
 /// Lays its one or two children over each other at the top, and takes the height of the one
@@ -493,64 +525,6 @@ class _RenderBlend extends RenderBox
   }
 }
 
-/// "X EPIC not spendable yet" on Send and Receive. A tap opens the balance help.
-class _NotSpendableLine extends StatefulWidget {
-  const _NotSpendableLine({
-    super.key,
-    required this.summary,
-    required this.amount,
-    required this.hidden,
-  });
-
-  final WalletSummary summary;
-  final BigInt amount;
-  final bool hidden;
-
-  @override
-  State<_NotSpendableLine> createState() => _NotSpendableLineState();
-}
-
-class _NotSpendableLineState extends State<_NotSpendableLine> {
-  final _tooltip = GlobalKey<TooltipState>();
-
-  @override
-  Widget build(BuildContext context) {
-    final l = context.l10n;
-    return Tooltip(
-      key: _tooltip,
-      richMessage: BalanceHelp.message(l, widget.summary, widget.hidden),
-      triggerMode: TooltipTriggerMode.manual,
-      showDuration: const Duration(seconds: 10),
-      child: Semantics(
-        button: true,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(8),
-          onTap: () => _tooltip.currentState?.ensureTooltipVisible(),
-          child: ConstrainedBox(
-            // A full-size tap target, however short the text.
-            constraints: const BoxConstraints(minHeight: 48),
-            child: Row(
-              children: [
-                Flexible(
-                  child: Text(
-                    l.homeBalanceNotSpendable(
-                      shownEpic(l, widget.amount, hidden: widget.hidden),
-                    ),
-                    style: Theme.of(context).textTheme.bodyMedium
-                        ?.copyWith(color: context.tokens.dim),
-                  ),
-                ),
-                const SizedBox(width: 4),
-                Icon(Icons.help_outline, size: 16, color: context.tokens.dim),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
 /// "X EPIC not spendable yet" on Wallet, as in 1.3.1: a tap lists the balances behind it.
 class _BreakdownLine extends StatelessWidget {
   const _BreakdownLine({
@@ -645,7 +619,10 @@ class BalanceHelp extends StatefulWidget {
       if (i > 0) spans.add(const TextSpan(text: '\n\n'));
       spans.add(
         TextSpan(
-          text: l.balanceHelpRow(label, shownEpic(l, amount, hidden: hidden)),
+          text: l.balanceHelpRow(
+            label,
+            shownEpic(l, amount, hidden: hidden, exact: true),
+          ),
           style: const TextStyle(fontWeight: FontWeight.w600),
         ),
       );

@@ -257,7 +257,7 @@ class _InvoiceReviewScreenState extends ConsumerState<InvoiceReviewScreen> {
             fit: BoxFit.scaleDown,
             alignment: AlignmentDirectional.centerStart,
             child: Text(
-              epicText(l, _invoice.amount),
+              epicExact(l, _invoice.amount),
               maxLines: 1,
               style: theme.textTheme.displaySmall,
             ),

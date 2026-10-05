@@ -25,6 +25,7 @@ import 'package:epic_wallet/src/vault.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -2789,11 +2790,10 @@ void main() {
           expect(control, findsOneWidget);
           expect(tester.getCenter(control).dy, closeTo(fiat.center.dy, 2));
         }
-        // The not-spendable line, under them; a tap opens the help, not a list.
-        final line = tester.getRect(find.byKey(notSpendableKey));
-        expect(find.text('2 EPIC not spendable yet'), findsOneWidget);
-        expect(line.top, greaterThan(fiat.bottom - 1));
-        await tester.tap(find.byKey(notSpendableKey));
+        // No not-spendable line on these tabs; the ? lists those balances.
+        expect(find.byKey(notSpendableKey), findsNothing);
+        expect(find.textContaining('not spendable yet'), findsNothing);
+        await tester.tap(find.byType(BalanceHelp));
         await tester.pump(const Duration(milliseconds: 200));
         expect(find.byKey(breakdownKey), findsNothing);
         expect(find.textContaining('Locked by a payment'), findsWidgets);
@@ -3235,6 +3235,158 @@ void main() {
         await tester.pumpAndSettle();
         expect(tester.takeException(), isNull);
       });
+    }
+  });
+
+  group('amounts', () {
+    /// Spendable [spendable], and 2 EPIC locked unless [pending] is false.
+    WalletSummary summaryOf(BigInt spendable, {bool pending = true}) {
+      final locked = pending ? _epic(2) : BigInt.zero;
+      return WalletSummary(
+        lastConfirmedHeight: _tip,
+        minimumConfirmations: BigInt.from(10),
+        total: spendable + locked,
+        spendable: spendable,
+        awaitingConfirmation: BigInt.zero,
+        awaitingFinalization: BigInt.zero,
+        immature: BigInt.zero,
+        locked: locked,
+        validatedWithNode: true,
+      );
+    }
+
+    Future<void> show(_Harness h, WidgetTester tester, WalletSummary s) async {
+      h.session.summaryValue = s;
+      await tester.pump(autoRefreshInterval);
+      await tester.pumpAndSettle();
+    }
+
+    double headerHeight(WidgetTester tester) =>
+        tester.getSize(find.byKey(shellHeaderKey)).height;
+
+    testWidgets('Send and Receive keep one height, pending or not', (
+      tester,
+    ) async {
+      final h = _Harness(
+        price: 0.5,
+        session: FakeWalletSession(
+          summary: summaryOf(_epic(12.5), pending: false),
+          transactions: _transactions(),
+        ),
+      );
+      await h.pump(tester);
+      for (final tab in ['Send', 'Receive']) {
+        await _tab(tester, tab);
+        final clear = headerHeight(tester);
+        await show(h, tester, summaryOf(_epic(12.5)));
+        expect(find.byKey(notSpendableKey), findsNothing);
+        expect(headerHeight(tester), clear, reason: '$tab, pending');
+        await show(h, tester, summaryOf(_epic(12.5), pending: false));
+        expect(headerHeight(tester), clear, reason: '$tab, cleared');
+      }
+      // Wallet still shows the line once something is pending.
+      await _tab(tester, 'Wallet');
+      expect(find.byKey(notSpendableKey), findsNothing);
+      await show(h, tester, summaryOf(_epic(12.5)));
+      expect(find.text('2 EPIC not spendable yet'), findsOneWidget);
+    });
+
+    // The brief's matrix: each amount on each panel, at three phone widths, at text scale 1
+    // and 2, with the fiat value, without it, and hidden.
+    final matrix = [
+      '0',
+      '0.00000001',
+      '0.5',
+      '1',
+      '12.5',
+      '999.99999999',
+      '1000',
+      '123456.789',
+      '1234567.12345678',
+      // Epic's supply approaches 21 million; a wallet must still show more.
+      '20999999.99999999',
+      '99999999.99999999',
+    ].map(parseEpic).toList();
+
+    for (final width in [320.0, 360.0, 412.0]) {
+      for (final scale in [1.0, 2.0]) {
+        for (final mode in ['fiat', 'no fiat', 'hidden']) {
+          testWidgets('the matrix at $width dp, text x$scale, $mode', (
+            tester,
+          ) async {
+            final h = _Harness(
+              price: mode == 'no fiat' ? null : 0.5,
+              session: FakeWalletSession(
+                summary: summaryOf(matrix.first),
+                transactions: _transactions(),
+              ),
+            );
+            if (mode == 'hidden') h.store.values['app.hide_balances'] = 'true';
+            await h.pump(
+              tester,
+              const HomeScreen(),
+              scale,
+              Size(width * 3, 2340),
+            );
+            final heights = <String, double>{};
+            for (final amount in matrix) {
+              await show(h, tester, summaryOf(amount));
+              for (final tab in ['Wallet', 'Send', 'Receive']) {
+                await _tab(tester, tab);
+                final why = '${formatEpic(amount)} on $tab';
+                expect(tester.takeException(), isNull, reason: why);
+                final figure = find.byKey(balanceFigureKey);
+                final paragraph = tester.renderObject<RenderParagraph>(
+                  find.descendant(of: figure, matching: find.byType(RichText)),
+                );
+                // One line, the unit with the number, by the display rule.
+                expect(
+                  paragraph.text.toPlainText(),
+                  mode == 'hidden'
+                      ? hiddenAmount
+                      : '${displayEpic(amount)} EPIC',
+                  reason: why,
+                );
+                expect(paragraph.didExceedMaxLines, isFalse, reason: why);
+                // Inside the header, clear of the controls and statuses beside it.
+                final rect = tester.getRect(figure);
+                final header = tester.getRect(find.byKey(shellHeaderKey));
+                expect(
+                  rect.left,
+                  greaterThanOrEqualTo(header.left),
+                  reason: why,
+                );
+                final beside = tab == 'Wallet'
+                    ? find.byType(BalanceHelp)
+                    : find.byKey(nodeStatusKey);
+                final next = tab == 'Wallet'
+                    ? tester
+                          .getRect(
+                            find.byTooltip(
+                              mode == 'hidden'
+                                  ? 'Show balances'
+                                  : 'Hide balances',
+                            ),
+                          )
+                          .left
+                    : tester.getRect(beside).left;
+                expect(rect.right, lessThanOrEqualTo(next + 0.5), reason: why);
+                // How small it gets is the tour's check, with real fonts: the test font
+                // draws every glyph a full em wide.
+                // The fiat value of what is spendable, on one line: no amount changes the
+                // panel's height.
+                if (mode == 'fiat') {
+                  expect(find.byKey(fiatValueKey), findsOneWidget, reason: why);
+                } else {
+                  expect(find.byKey(fiatValueKey), findsNothing, reason: why);
+                }
+                heights.putIfAbsent(tab, () => headerHeight(tester));
+                expect(headerHeight(tester), heights[tab], reason: why);
+              }
+            }
+          });
+        }
+      }
     }
   });
 }

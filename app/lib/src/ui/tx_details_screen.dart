@@ -431,7 +431,7 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
                       label: hidden ? l.txDetailsAmountHidden : null,
                       excludeSemantics: hidden,
                       child: Text(
-                        signedEpic(l, tx, hidden: hidden),
+                        signedEpic(l, tx, hidden: hidden, exact: true),
                         style: theme.textTheme.headlineMedium,
                       ),
                     ),
@@ -550,7 +550,7 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
           if (fee != null && outgoing)
             _DetailRow(
               label: l.txDetailsFee,
-              value: shownEpic(l, fee, hidden: hidden),
+              value: shownEpic(l, fee, hidden: hidden, exact: true),
             ),
           if (theirMessage != null)
             _DetailRow(

@@ -32,6 +32,29 @@ String formatEpic(BigInt atomic, {int minDecimals = 0, bool grouped = false}) {
   return negative ? '-$text' : text;
 }
 
+/// Digits, whole and decimal, that [displayEpic] shows before it drops decimals.
+const int displayDigits = 10;
+
+/// Decimals [displayEpic] keeps at most for [atomic]: all 8 up to 99.99999999, then one fewer
+/// for each further digit of the whole part, so whole and decimal digits stay within
+/// [displayDigits], and never fewer than 2 (`20,999,999.99`).
+int displayDecimals(BigInt atomic) {
+  final wholeDigits = (atomic.abs() ~/ atomicPerEpic).toString().length;
+  return (displayDigits - wholeDigits).clamp(2, epicDecimals);
+}
+
+/// [atomic] as the app shows an amount: grouped, with [displayDecimals] decimals at most and
+/// trailing zeros dropped. The digits beyond are cut off, never rounded, so a balance never
+/// reads more than it is: `1,234,567.12345678` shows as `1,234,567.123`.
+///
+/// Display only. Where the exact value matters (the Send review, transaction details, the
+/// balance help, CSV, fields), use [formatEpic].
+String displayEpic(BigInt atomic) {
+  final cut = BigInt.from(10).pow(epicDecimals - displayDecimals(atomic));
+  // `remainder` keeps the sign, so a negative amount is cut towards zero too.
+  return formatEpic(atomic - atomic.remainder(cut), grouped: true);
+}
+
 String _group(String digits) {
   final out = StringBuffer();
   for (var i = 0; i < digits.length; i++) {

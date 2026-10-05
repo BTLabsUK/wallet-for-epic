@@ -171,17 +171,32 @@ class CenteredScroll extends StatelessWidget {
   }
 }
 
-/// `1,234.5 EPIC`, with [l]'s separators (`1.234,5 EPIC` in German). Display only; see
-/// [formatEpic] and [localDigits].
+/// `1,234.5 EPIC`, with [l]'s separators (`1.234,5 EPIC` in German), by the app's display
+/// rule ([displayEpic]): large amounts lose decimals, cut off, never rounded up. For balances,
+/// lists and notices. Display only; see [localDigits].
 String epicText(AppLocalizations l, BigInt atomic) =>
+    '${localDigits(l, displayEpic(atomic))} EPIC';
+
+/// [epicText] with every decimal there is: `1,234,567.12345678 EPIC`. For the places that hold
+/// the full value one tap from a balance or a row: the balance help, transaction details, the
+/// Send form's fee and total, the review and its result, payment files and invoice reviews.
+String epicExact(AppLocalizations l, BigInt atomic) =>
     '${localDigits(l, formatEpic(atomic, grouped: true))} EPIC';
 
 /// What an amount shows while balances are hidden.
 const String hiddenAmount = '•••••';
 
-/// [epicText], or [hiddenAmount] when [hidden].
-String shownEpic(AppLocalizations l, BigInt atomic, {required bool hidden}) =>
-    hidden ? hiddenAmount : epicText(l, atomic);
+/// [epicText], or [epicExact] with [exact], or [hiddenAmount] when [hidden].
+String shownEpic(
+  AppLocalizations l,
+  BigInt atomic, {
+  required bool hidden,
+  bool exact = false,
+}) => hidden
+    ? hiddenAmount
+    : exact
+    ? epicExact(l, atomic)
+    : epicText(l, atomic);
 
 /// An epicbox address short enough for a list or a title: the first and last 6 characters of
 /// the key around an ellipsis, then `@relay`. With [ownServer] (the host of the wallet's own
@@ -283,11 +298,18 @@ String shortDate(AppLocalizations l, DateTime t, DateTime now) {
   return (amount: sent.isNegative ? BigInt.zero : sent, outgoing: true);
 }
 
-/// `+5 EPIC`, `-1 EPIC`, or [hiddenAmount].
-String signedEpic(AppLocalizations l, TxEntry tx, {required bool hidden}) {
+/// `+5 EPIC`, `-1 EPIC`, or [hiddenAmount]; by the display rule, or with every decimal when
+/// [exact].
+String signedEpic(
+  AppLocalizations l,
+  TxEntry tx, {
+  required bool hidden,
+  bool exact = false,
+}) {
   if (hidden) return hiddenAmount;
   final (:amount, :outgoing) = txAmount(tx);
-  return '${outgoing ? '-' : '+'}${epicText(l, amount)}';
+  final text = shownEpic(l, amount, hidden: false, exact: exact);
+  return '${outgoing ? '-' : '+'}$text';
 }
 
 bool _outgoingKind(TxEntry tx) =>

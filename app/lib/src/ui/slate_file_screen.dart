@@ -141,7 +141,7 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
       body = [
         _Headline(
           icon: Icons.check_circle,
-          text: l.slatePostedHeadline(epicText(l, info!.amount)),
+          text: l.slatePostedHeadline(epicExact(l, info!.amount)),
         ),
         const SizedBox(height: 8),
         Text(l.slatePostedBody(confirmationsTarget)),
@@ -165,8 +165,8 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
         const SizedBox(height: 8),
         Text(
           response.repeated
-              ? l.slateRepeatedBody(epicText(l, info!.amount))
-              : l.slateAcceptedBody(epicText(l, info!.amount)),
+              ? l.slateRepeatedBody(epicExact(l, info!.amount))
+              : l.slateAcceptedBody(epicExact(l, info!.amount)),
         ),
         const SizedBox(height: 24),
         SlateFileButtons(
@@ -205,10 +205,10 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
         const SizedBox(height: 8),
         Text(
           receiving
-              ? l.slateIncomingSend(epicText(l, info.amount))
+              ? l.slateIncomingSend(epicExact(l, info.amount))
               : l.slateIncomingResponse(
-                  epicText(l, info.amount),
-                  epicText(l, info.fee),
+                  epicExact(l, info.amount),
+                  epicExact(l, info.fee),
                 ),
           style: theme.textTheme.bodyLarge,
         ),

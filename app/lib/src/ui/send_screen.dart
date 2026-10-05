@@ -664,7 +664,7 @@ class _SendViewState extends ConsumerState<SendView> {
     String? amountHelper;
     if (amount != null && price != null) {
       amountHelper = _fiatEntry
-          ? '≈ ${epicText(l, amount)}'
+          ? '≈ ${epicExact(l, amount)}'
           : '≈ ${localDigits(l, fiatText(amount, price, currency))}';
     }
 
@@ -881,8 +881,8 @@ class _SendViewState extends ConsumerState<SendView> {
           liveRegion: true,
           child: Text(
             l.sendFeeAndTotal(
-              epicText(l, estimate.fee),
-              epicText(l, estimate.amount + estimate.fee),
+              epicExact(l, estimate.fee),
+              epicExact(l, estimate.amount + estimate.fee),
             ),
           ),
         ),
@@ -994,8 +994,8 @@ class _SendViewState extends ConsumerState<SendView> {
           // An epicbox payment has not gone anywhere yet; "Sent" would let the
           // user close the app, which stops it from finishing.
           waiting
-              ? l.sendResultStarted(epicText(l, sent.amount))
-              : l.sendResultSent(epicText(l, sent.amount)),
+              ? l.sendResultStarted(epicExact(l, sent.amount))
+              : l.sendResultSent(epicExact(l, sent.amount)),
           textAlign: TextAlign.center,
           style: theme.textTheme.titleLarge,
         ),
@@ -1022,8 +1022,8 @@ class _SendViewState extends ConsumerState<SendView> {
         const SizedBox(height: 8),
         Text(
           l.sendResultFeeChanged(
-            epicText(l, fee),
-            epicText(l, sent.reviewedFee!),
+            epicExact(l, fee),
+            epicExact(l, sent.reviewedFee!),
           ),
         ),
       ],
@@ -1123,15 +1123,15 @@ class _ReviewSheetState extends ConsumerState<_ReviewSheet> {
             ),
             _Row(
               label: l.sendReviewAmount,
-              value: epicText(l, estimate.amount),
+              value: epicExact(l, estimate.amount),
             ),
-            _Row(label: l.sendReviewFee, value: epicText(l, estimate.fee)),
+            _Row(label: l.sendReviewFee, value: epicExact(l, estimate.fee)),
             _Row(
               label: l.sendReviewTotal,
               value: price == null
-                  ? epicText(l, total)
+                  ? epicExact(l, total)
                   : l.sendReviewTotalWithFiat(
-                      epicText(l, total),
+                      epicExact(l, total),
                       localDigits(l, fiatText(total, price, widget.currency)),
                     ),
               style: theme.textTheme.titleMedium,
@@ -1151,7 +1151,9 @@ class _ReviewSheetState extends ConsumerState<_ReviewSheet> {
               onPressed: _closing || !checks.canSend
                   ? null
                   : () => _close(true),
-              child: Text(l.sendReviewSendButton(epicText(l, estimate.amount))),
+              child: Text(
+                l.sendReviewSendButton(epicExact(l, estimate.amount)),
+              ),
             ),
             const SizedBox(height: 8),
             TextButton(
