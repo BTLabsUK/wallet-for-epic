@@ -1793,15 +1793,52 @@ class AppLocalizationsDe extends AppLocalizations {
       'Eine Ihrer Anforderungen ist unbezahlt abgelaufen.';
 
   @override
-  String issuerNoticeBounced(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other:
-          '$count Anforderungen kamen von Wallets zurück, die keine Rechnungen bezahlen können. Bitten Sie diese Personen, Ihnen die Zahlung stattdessen zu senden, an Ihre Adresse oder als Zahlungsdatei.',
-      one: 'Eine Wallet hat Ihre Anforderung zurückgeschickt: Sie kann keine Rechnungen bezahlen. Bitten Sie die Person, Ihnen die Zahlung stattdessen zu senden, an Ihre Adresse oder als Zahlungsdatei.',
-    );
-    return '$_temp0';
+  String issuerNoticeBouncedFrom(String payer) {
+    return 'Die Wallet von $payer kann keine Anforderungen bezahlen und hat Ihre zurückgeschickt, daher wurde sie zurückgezogen. Bitten Sie die Person, Ihnen die Zahlung stattdessen zu senden, an Ihre Adresse oder als Zahlungsdatei.';
+  }
+
+  @override
+  String get issuedBounced => 'Zurückgeschickt';
+
+  @override
+  String get issuedDetailsBounced =>
+      'Die Wallet des Zahlers kann keine Anforderungen bezahlen und hat diese zurückgeschickt, daher wurde sie zurückgezogen. Es wurde nichts bezahlt. Bitten Sie die Person, Ihnen die Zahlung stattdessen zu senden, an Ihre Adresse oder als Zahlungsdatei.';
+
+  @override
+  String get requestPayerNoInvoices =>
+      'Diese Wallet hat schon einmal eine Anforderung zurückgeschickt: Sie kann keine Anforderungen bezahlen. Bitten Sie die Person, Ihnen die Zahlung stattdessen zu senden, an Ihre Adresse oder als Zahlungsdatei.';
+
+  @override
+  String get txStatusWaitingPayer => 'Wartet auf Zahler';
+
+  @override
+  String get txStepRequested => 'Angefordert';
+
+  @override
+  String get txStepPaid => 'Bezahlt';
+
+  @override
+  String get txDetailsWaitingPayer =>
+      'Sie haben diese Zahlung angefordert. Bisher ist nichts eingegangen: Die Zahlung kommt, sobald der Zahler die Anforderung bezahlt.';
+
+  @override
+  String get txDetailsRequestEnded =>
+      'Diese Anforderung wurde nicht bezahlt. Es ist nichts eingegangen.';
+
+  @override
+  String get txDetailsRequestedFrom => 'Angefordert von';
+
+  @override
+  String get txPaymentRequest => 'Angeforderte Zahlung';
+
+  @override
+  String txSpokenRequesting(String amount) {
+    return 'Angefordert: $amount';
+  }
+
+  @override
+  String txSpokenRequestingFrom(String amount, String who) {
+    return 'Von $who angefordert: $amount';
   }
 
   @override

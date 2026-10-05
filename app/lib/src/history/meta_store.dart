@@ -150,104 +150,58 @@ class ContactRec {
   }
 }
 
-/// An invoice the user approved, keyed by slate id in [Meta.paidInvoices]. LEPIC keeps the
-/// payment; whether its reply reached the service and what the service reported since are
-/// the app's, since LEPIC tells them only as events.
+/// What the app knows of an invoice the user approved, keyed by slate id in
+/// [Meta.paidInvoices]. LEPIC keeps the payment (`flow` invoice, outgoing) with its payee,
+/// amount and message; whether the reply reached the service and the service's receipt are
+/// the app's, since LEPIC tells them only as events. Fields of 1.5 records LEPIC now gives
+/// are read past.
 class PaidInvoiceRec {
-  PaidInvoiceRec({
-    required this.senderAddress,
-    required this.amount,
-    this.message,
-    required this.status,
-    this.txId,
-    this.kernelExcess,
-  });
+  PaidInvoiceRec({required this.status, this.kernelExcess});
 
   factory PaidInvoiceRec.fromJson(Object? json) {
     final m = asObject(json, 'paid invoice');
     final status = _str(m['status'], 'paid invoice status');
     return PaidInvoiceRec(
-      senderAddress: _str(m['sender_address'], 'paid invoice sender'),
-      amount: _u64(m['amount'], 'paid invoice amount'),
-      message: _optStr(m['message'], 'paid invoice message'),
       status:
           InvoiceStatus.values.where((s) => s.name == status).firstOrNull ??
           _bad('paid invoice status'),
-      txId: m['tx_id'] == null ? null : _u32(m['tx_id'], 'paid invoice tx id'),
       kernelExcess: _optStr(m['kernel_excess'], 'paid invoice kernel excess'),
     );
   }
 
-  final String senderAddress;
-  final BigInt amount;
-  final String? message;
   InvoiceStatus status;
-  final int? txId;
+
+  /// From the service's `posted` receipt.
   String? kernelExcess;
 
   Map<String, Object?> toJson() {
-    final out = <String, Object?>{
-      'sender_address': senderAddress,
-      'amount': _u64Json(amount),
-      'status': status.name,
-    };
-    _put(out, 'message', message);
-    _put(out, 'tx_id', txId);
+    final out = <String, Object?>{'status': status.name};
     _put(out, 'kernel_excess', kernelExcess);
     return out;
   }
 }
 
-/// An invoice this wallet issued, keyed by slate id in [Meta.issuedInvoices]. LEPIC keeps it
-/// as an incoming transaction like any signed receive, so only this record says it is a
-/// request, to whom, and what became of it.
+/// What the app knows of an invoice this wallet issued, keyed by slate id in
+/// [Meta.issuedInvoices]. LEPIC keeps the request (`flow` invoice, incoming) with its payer,
+/// amount, message and time, but says only `cancelled` for a declined, withdrawn or bounced
+/// one; the state here tells them apart and makes each notice go out once. Fields of
+/// earlier records LEPIC now gives are read past.
 class IssuedInvoiceRec {
-  IssuedInvoiceRec({
-    required this.txId,
-    required this.payerAddress,
-    required this.amount,
-    this.message,
-    required this.issuedAtUnix,
-    required this.expiresAtUnix,
-    required this.state,
-  });
+  IssuedInvoiceRec({required this.state});
 
   factory IssuedInvoiceRec.fromJson(Object? json) {
     final m = asObject(json, 'issued invoice');
     final state = _str(m['state'], 'issued invoice state');
     return IssuedInvoiceRec(
-      txId: _u32(m['tx_id'], 'issued invoice tx id'),
-      payerAddress: _str(m['payer_address'], 'issued invoice payer'),
-      amount: _u64(m['amount'], 'issued invoice amount'),
-      message: _optStr(m['message'], 'issued invoice message'),
-      issuedAtUnix: _i64(m['issued_at_unix'], 'issued invoice time'),
-      expiresAtUnix: _i64(m['expires_at_unix'], 'issued invoice expiry'),
       state:
           IssuedInvoiceState.values.where((s) => s.name == state).firstOrNull ??
           _bad('issued invoice state'),
     );
   }
 
-  final int txId;
-  final String payerAddress;
-  final BigInt amount;
-  final String? message;
-  final int issuedAtUnix;
-  final int expiresAtUnix;
   IssuedInvoiceState state;
 
-  Map<String, Object?> toJson() {
-    final out = <String, Object?>{
-      'tx_id': txId,
-      'payer_address': payerAddress,
-      'amount': _u64Json(amount),
-      'issued_at_unix': issuedAtUnix,
-      'expires_at_unix': expiresAtUnix,
-      'state': state.name,
-    };
-    _put(out, 'message', message);
-    return out;
-  }
+  Map<String, Object?> toJson() => {'state': state.name};
 }
 
 /// Facts the old core recorded about one of its transactions, keyed by slate id. Kept as read;

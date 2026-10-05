@@ -54,6 +54,20 @@ class _IssuerWallet implements lepic.EpicWallet {
   @override
   Stream<lepic.WalletEvent> events() => eventSink.stream;
 
+  final StreamController<lepic.ListenerEvent> listenerSink =
+      StreamController<lepic.ListenerEvent>.broadcast();
+
+  @override
+  Stream<lepic.ListenerEvent> startListener() => listenerSink.stream;
+
+  /// What [peerCapability] answers, by address; LEPIC matches the key.
+  final Map<String, lepic.PeerCapability> peers = {};
+
+  @override
+  Future<lepic.PeerCapability> peerCapability({
+    required String address,
+  }) async => peers[address] ?? lepic.PeerCapability.unknown;
+
   @override
   Future<String> epicboxAddress() async => _payments;
 
@@ -72,6 +86,8 @@ class _IssuerWallet implements lepic.EpicWallet {
     BigInt amount, {
     String? counterparty,
     String? transport = 'epicbox',
+    lepic.TxFlow flow = lepic.TxFlow.payment,
+    List<lepic.SlateMessage> messages = const [],
   }) => stored[txId] = lepic.TransactionDetails(
     txId: txId,
     direction: lepic.TxDirection.incoming,
@@ -83,7 +99,8 @@ class _IssuerWallet implements lepic.EpicWallet {
     amountDebited: BigInt.zero,
     createdAtMs: 1790000000000,
     releasable: false,
-    messages: const [],
+    messages: messages,
+    flow: flow,
   );
 
   void setStatus(int txId, lepic.TxStatus status) {
@@ -95,6 +112,8 @@ class _IssuerWallet implements lepic.EpicWallet {
       t.amountCredited,
       counterparty: t.counterparty,
       transport: t.transport,
+      flow: t.flow,
+      messages: t.messages,
     );
   }
 
@@ -118,6 +137,11 @@ class _IssuerWallet implements lepic.EpicWallet {
       lepic.TxStatus.received,
       amount,
       counterparty: address,
+      flow: lepic.TxFlow.invoice,
+      messages: [
+        if (message != null)
+          lepic.SlateMessage(role: lepic.SlateRole.receiver, text: message),
+      ],
     );
     duringIssue?.call();
     if (issueError != null) throw _lepicError(issueError!);
@@ -348,6 +372,12 @@ void main() {
         )?.state,
         IssuedInvoiceState.expired,
       );
+      expect(
+        lepicIssuerEvent(
+          _event(lepic.WalletEventKind.invoiceBounced, slateId: 's', txId: 1),
+        )?.state,
+        IssuedInvoiceState.bounced,
+      );
       for (final e in [
         // Without a txId it was an invoice to pay.
         _event(lepic.WalletEventKind.invoiceExpired, slateId: 's'),
@@ -407,9 +437,21 @@ void main() {
       await _settle();
       await sub.cancel();
       expect(events, [
-        IssuerEvent(kind: IssuerEventKind.paid, slateId: a.slateId),
-        IssuerEvent(kind: IssuerEventKind.declined, slateId: b.slateId),
-        IssuerEvent(kind: IssuerEventKind.expired, slateId: c.slateId),
+        IssuerEvent(
+          kind: IssuerEventKind.paid,
+          slateId: a.slateId,
+          payerAddress: _payer,
+        ),
+        IssuerEvent(
+          kind: IssuerEventKind.declined,
+          slateId: b.slateId,
+          payerAddress: _payer,
+        ),
+        IssuerEvent(
+          kind: IssuerEventKind.expired,
+          slateId: c.slateId,
+          payerAddress: _payer,
+        ),
       ]);
       final states = {
         for (final i in await session.issuedInvoices()) i.slateId: i.state,
@@ -454,6 +496,166 @@ void main() {
     });
   });
 
+  group('bounces', () {
+    lepic.WalletEvent bounce(IssuedInvoice i) => _event(
+      lepic.WalletEventKind.invoiceBounced,
+      slateId: i.slateId,
+      txId: i.txId,
+    );
+
+    test('an event marks that request, withdraws it and tells once', () async {
+      final a = await session.issueInvoice(amount: five, address: _payer);
+      final b = await session.issueInvoice(amount: five, address: _payer);
+      // LEPIC raises it again for a bounce redelivered before it was settled.
+      wallet.eventSink
+        ..add(bounce(a))
+        ..add(bounce(a));
+      await _settle();
+      expect(events, [
+        IssuerEvent(
+          kind: IssuerEventKind.bounced,
+          slateId: a.slateId,
+          payerAddress: _payer,
+        ),
+      ]);
+      expect(wallet.cancelled, [a.txId]);
+      final states = {
+        for (final i in await session.issuedInvoices()) i.slateId: i.state,
+      };
+      expect(states, {
+        a.slateId: IssuedInvoiceState.bounced,
+        b.slateId: IssuedInvoiceState.waiting,
+      });
+    });
+
+    test(
+      'the listener\'s bounce does the same, and with the event once',
+      () async {
+        final a = await session.issueInvoice(amount: five, address: _payer);
+        final seen = <ListenerEvent>[];
+        final sub = session.startListener().listen(seen.add);
+        wallet.listenerSink
+          ..add(
+            lepic.ListenerEvent(
+              kind: lepic.ListenerEventKind.invoiceBounced,
+              txId: a.txId,
+              slateId: a.slateId,
+              message: 'sent back',
+            ),
+          )
+          ..add(
+            const lepic.ListenerEvent(
+              kind: lepic.ListenerEventKind.connected,
+              message: 'up',
+            ),
+          );
+        // While the listener runs LEPIC raises it on the events too.
+        wallet.eventSink.add(bounce(a));
+        await _settle();
+        await sub.cancel();
+        expect(events, [
+          IssuerEvent(
+            kind: IssuerEventKind.bounced,
+            slateId: a.slateId,
+            payerAddress: _payer,
+          ),
+        ]);
+        expect(wallet.cancelled, [a.txId]);
+        // The listener's own stream shows the connection, not the bounce.
+        expect([for (final e in seen) e.kind], [ListenerEventKind.connected]);
+      },
+    );
+
+    test('a bounce for a request already ended changes nothing', () async {
+      final a = await session.issueInvoice(amount: five, address: _payer);
+      await session.withdrawInvoice(slateId: a.slateId);
+      wallet.eventSink.add(bounce(a));
+      await _settle();
+      expect(
+        (await session.issuedInvoice(slateId: a.slateId))!.state,
+        IssuedInvoiceState.withdrawn,
+      );
+      expect(wallet.cancelled, [a.txId]);
+      expect(events.map((e) => e.kind), [IssuerEventKind.withdrawn]);
+    });
+
+    test('a drain no longer raises a signal of its own', () async {
+      wallet.bounced = 2;
+      expect((await session.drainPayments()).bounced, 2);
+      await _settle();
+      expect(events, isEmpty);
+    });
+
+    test('the payer\'s capability comes from LEPIC, trimmed', () async {
+      wallet.peers[_payer] = lepic.PeerCapability.noInvoices;
+      expect(
+        await session.peerCapability(address: ' $_payer '),
+        PeerCapability.noInvoices,
+      );
+      expect(
+        await session.peerCapability(address: 'otherKey@epicbox.example'),
+        PeerCapability.unknown,
+      );
+    });
+  });
+
+  group('requests from LEPIC', () {
+    test(
+      'one without a record shows what LEPIC says, without a notice',
+      () async {
+        wallet
+          ..store(
+            60,
+            'restored-waiting',
+            lepic.TxStatus.received,
+            five,
+            counterparty: _payer,
+            flow: lepic.TxFlow.invoice,
+          )
+          ..store(
+            61,
+            'restored-paid',
+            lepic.TxStatus.confirmed,
+            five,
+            counterparty: _payer,
+            flow: lepic.TxFlow.invoice,
+          )
+          // A plain receive is no request.
+          ..store(
+            62,
+            'payment',
+            lepic.TxStatus.received,
+            five,
+            counterparty: _payer,
+          );
+        final states = {
+          for (final i in await session.issuedInvoices()) i.slateId: i.state,
+        };
+        expect(states, {
+          'restored-waiting': IssuedInvoiceState.waiting,
+          'restored-paid': IssuedInvoiceState.paid,
+        });
+        // It can be withdrawn like any other, and the payer's bounce still counts.
+        wallet.eventSink.add(
+          _event(
+            lepic.WalletEventKind.invoiceBounced,
+            slateId: 'restored-waiting',
+            txId: 60,
+          ),
+        );
+        await _settle();
+        expect(wallet.cancelled, [60]);
+        expect(events, [
+          const IssuerEvent(
+            kind: IssuerEventKind.bounced,
+            slateId: 'restored-waiting',
+            payerAddress: _payer,
+          ),
+        ]);
+      },
+    );
+  });
+
   group('withdraw', () {
     test('cancels a waiting request and says so', () async {
       final a = await session.issueInvoice(amount: five, address: _payer);
@@ -462,7 +664,11 @@ void main() {
       expect(wallet.cancelled, [a.txId]);
       await _settle();
       expect(events, [
-        IssuerEvent(kind: IssuerEventKind.withdrawn, slateId: a.slateId),
+        IssuerEvent(
+          kind: IssuerEventKind.withdrawn,
+          slateId: a.slateId,
+          payerAddress: _payer,
+        ),
       ]);
       // The cancelled transaction is not taken for an expiry afterwards.
       expect(
@@ -518,16 +724,6 @@ void main() {
       },
     );
 
-    test('bounces raise one signal per drain', () async {
-      wallet.bounced = 2;
-      expect((await session.drainPayments()).bounced, 2);
-      await session.drainPayments();
-      await _settle();
-      expect(events, [
-        const IssuerEvent(kind: IssuerEventKind.bounced, count: 2),
-      ]);
-    });
-
     test('a missed event is caught up from LEPIC\'s store', () async {
       final a = await session.issueInvoice(amount: five, address: _payer);
       final b = await session.issueInvoice(amount: five, address: _payer);
@@ -547,8 +743,16 @@ void main() {
       expect(
         events,
         unorderedEquals([
-          IssuerEvent(kind: IssuerEventKind.paid, slateId: a.slateId),
-          IssuerEvent(kind: IssuerEventKind.expired, slateId: b.slateId),
+          IssuerEvent(
+            kind: IssuerEventKind.paid,
+            slateId: a.slateId,
+            payerAddress: _payer,
+          ),
+          IssuerEvent(
+            kind: IssuerEventKind.expired,
+            slateId: b.slateId,
+            payerAddress: _payer,
+          ),
         ]),
       );
     });
@@ -563,23 +767,12 @@ void main() {
       expect(await session.issuedInvoice(slateId: 'nope'), isNull);
       await _settle();
       expect(events, [
-        IssuerEvent(kind: IssuerEventKind.paid, slateId: a.slateId),
+        IssuerEvent(
+          kind: IssuerEventKind.paid,
+          slateId: a.slateId,
+          payerAddress: _payer,
+        ),
       ]);
-    });
-
-    test('LEPIC\'s stored states', () {
-      expect(lepicIssuedState(lepic.TxStatus.received), isNull);
-      expect(lepicIssuedState(lepic.TxStatus.sent), isNull);
-      for (final s in [
-        lepic.TxStatus.finalized,
-        lepic.TxStatus.posted,
-        lepic.TxStatus.confirmed,
-      ]) {
-        expect(lepicIssuedState(s), IssuedInvoiceState.paid);
-      }
-      for (final s in [lepic.TxStatus.cancelled, lepic.TxStatus.expired]) {
-        expect(lepicIssuedState(s), IssuedInvoiceState.expired);
-      }
     });
   });
 

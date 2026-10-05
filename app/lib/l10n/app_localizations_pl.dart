@@ -1890,19 +1890,52 @@ class AppLocalizationsPl extends AppLocalizations {
   String get issuerNoticeExpired => 'Jedna z Twoich próśb wygasła bez zapłaty.';
 
   @override
-  String issuerNoticeBounced(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other:
-          '$count prośby wróciło z portfeli, które nie umieją płacić faktur. Poproś te osoby, by zamiast tego wysłały Ci płatność na Twój adres lub jako plik płatności.',
-      many:
-          '$count próśb wróciło z portfeli, które nie umieją płacić faktur. Poproś te osoby, by zamiast tego wysłały Ci płatność na Twój adres lub jako plik płatności.',
-      few:
-          '$count prośby wróciły z portfeli, które nie umieją płacić faktur. Poproś te osoby, by zamiast tego wysłały Ci płatność na Twój adres lub jako plik płatności.',
-      one: 'Portfel odesłał Twoją prośbę: nie umie płacić faktur. Poproś tę osobę, by zamiast tego wysłała Ci płatność na Twój adres lub jako plik płatności.',
-    );
-    return '$_temp0';
+  String issuerNoticeBouncedFrom(String payer) {
+    return 'Portfel $payer nie umie płacić próśb i odesłał Twoją, więc została wycofana. Poproś tę osobę, by zamiast tego wysłała Ci płatność na Twój adres lub jako plik płatności.';
+  }
+
+  @override
+  String get issuedBounced => 'Odesłana';
+
+  @override
+  String get issuedDetailsBounced =>
+      'Portfel płacącego nie umie płacić próśb i odesłał tę, więc została wycofana. Nic nie zapłacono. Poproś tę osobę, by zamiast tego wysłała Ci płatność na Twój adres lub jako plik płatności.';
+
+  @override
+  String get requestPayerNoInvoices =>
+      'Ten portfel odesłał już prośbę: nie umie płacić próśb. Poproś tę osobę, by zamiast tego wysłała Ci płatność na Twój adres lub jako plik płatności.';
+
+  @override
+  String get txStatusWaitingPayer => 'Czeka na płacącego';
+
+  @override
+  String get txStepRequested => 'Wysłano prośbę';
+
+  @override
+  String get txStepPaid => 'Opłacono';
+
+  @override
+  String get txDetailsWaitingPayer =>
+      'Poproszono o tę płatność. Nic jeszcze nie dotarło: płatność przyjdzie, gdy płacący opłaci prośbę.';
+
+  @override
+  String get txDetailsRequestEnded =>
+      'Ta prośba zakończyła się bez płatności. Nic nie dotarło.';
+
+  @override
+  String get txDetailsRequestedFrom => 'Prośba do';
+
+  @override
+  String get txPaymentRequest => 'Wysłana prośba o płatność';
+
+  @override
+  String txSpokenRequesting(String amount) {
+    return 'Prośba o $amount';
+  }
+
+  @override
+  String txSpokenRequestingFrom(String amount, String who) {
+    return 'Prośba o $amount, płacący: $who';
   }
 
   @override

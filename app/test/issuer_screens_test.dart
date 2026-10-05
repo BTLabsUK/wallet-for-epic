@@ -12,6 +12,7 @@ import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/settings.dart';
 import 'package:epic_wallet/src/slate_files.dart';
 import 'package:epic_wallet/src/ui/common.dart';
+import 'package:epic_wallet/src/ui/file_exchange_help.dart';
 import 'package:epic_wallet/src/ui/home_screen.dart';
 import 'package:epic_wallet/src/ui/invoice_request_screen.dart';
 import 'package:epic_wallet/src/ui/invoices_screen.dart';
@@ -274,6 +275,41 @@ void main() {
       expect(h.session.issuedRequests, isEmpty);
     });
 
+    testWidgets('warns before Request when the payer cannot pay requests', (
+      tester,
+    ) async {
+      final h = _Harness();
+      final known = _address('L');
+      final stock = _address('S');
+      h.session.peerCapabilities
+        ..[epicboxKey(known)] = PeerCapability.lepic
+        ..[epicboxKey(stock)] = PeerCapability.noInvoices;
+      await h.pump(tester, const InvoiceRequestScreen(), tall: true);
+      Future<void> payer(String text) async {
+        await tester.enterText(find.byKey(requestPayerKey), text);
+        await tester.pumpAndSettle();
+      }
+
+      // Unknown and LEPIC payers say nothing, nor does an address still being typed.
+      await payer(_payer);
+      expect(find.byKey(requestNoInvoicesKey), findsNothing);
+      await payer(known);
+      expect(find.byKey(requestNoInvoicesKey), findsNothing);
+      await payer(stock.substring(0, 20));
+      expect(find.byKey(requestNoInvoicesKey), findsNothing);
+      await payer(stock);
+      expect(find.byKey(requestNoInvoicesKey), findsOneWidget);
+      expect(find.text(_l.requestPayerNoInvoices), findsOneWidget);
+      expect(_l.requestPayerNoInvoices, contains('payment file'));
+      // It offers the payment file instead.
+      await tester.tap(find.text(_l.fileHelpTitle));
+      // The explainer animates without end, so time is moved by hand.
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 500));
+      expect(find.byType(FileExchangeHelp), findsOneWidget);
+      expect(h.session.issuedRequests, isEmpty);
+    });
+
     testWidgets('stops the message at 256 bytes and counts them', (
       tester,
     ) async {
@@ -480,6 +516,11 @@ void main() {
         (FakeWalletSession s, String id) => s.expireIssued(id),
         _l.issuedDetailsExpired,
       ),
+      (
+        'bounced',
+        (FakeWalletSession s, String id) => s.bounceIssued(id),
+        _l.issuedDetailsBounced,
+      ),
     ]) {
       testWidgets('a $name request says so and cannot be withdrawn', (
         tester,
@@ -492,6 +533,66 @@ void main() {
         expect(find.text(_l.issuedWithdraw), findsNothing);
       });
     }
+
+    testWidgets('a waiting request reads as a request, not a receive', (
+      tester,
+    ) async {
+      final h = _Harness();
+      final request = await h.issue();
+      await details(tester, h, request);
+      // Status card and timeline: requested, then waiting for the payer.
+      expect(find.text(_l.txDetailsWaitingPayer), findsOneWidget);
+      expect(find.text(_l.txStepRequested), findsOneWidget);
+      expect(find.text(_l.txStatusWaitingPayer), findsWidgets);
+      expect(find.text(_l.txDetailsRequestedFrom), findsWidgets);
+      for (final receive in [
+        _l.txStepArrived,
+        _l.txStatusWaitingSender,
+        _l.txDetailsWaitingSender,
+        _l.txDetailsReceivedFrom,
+      ]) {
+        expect(find.text(receive), findsNothing, reason: receive);
+      }
+    });
+
+    testWidgets('a paid request steps on to confirming', (tester) async {
+      final h = _Harness();
+      final request = await h.issue();
+      await h.session.payIssued(request.slateId);
+      await details(tester, h, request);
+      expect(find.text(_l.txStepRequested), findsOneWidget);
+      expect(find.text(_l.txStepPaid), findsOneWidget);
+      expect(find.text(_l.txStatusWaitingPayer), findsNothing);
+      expect(find.text(_l.txStepArrived), findsNothing);
+      expect(find.text(_l.txDetailsRequestedFrom), findsWidgets);
+    });
+
+    testWidgets('an ended request says nothing arrived', (tester) async {
+      final h = _Harness();
+      final request = await h.issue();
+      await h.session.bounceIssued(request.slateId);
+      await details(tester, h, request);
+      expect(find.text(_l.txDetailsRequestEnded), findsOneWidget);
+      expect(find.text(_l.txDetailsCancelledIncoming), findsNothing);
+    });
+
+    testWidgets('its row in a list waits for the payer', (tester) async {
+      final h = _Harness();
+      final request = await h.issue();
+      final tx = h.session.transactionsValue.single;
+      await h.pump(tester, Scaffold(body: TxTile(tx: tx)));
+      expect(find.text(_l.txStatusWaitingPayer), findsOneWidget);
+      expect(find.text(_l.txStatusWaitingSender), findsNothing);
+      expect(
+        tester.getSemantics(find.byKey(ValueKey('tx-${tx.key}'))).label,
+        startsWith(
+          _l.txSpokenRequestingFrom(
+            epicText(_l, request.amount),
+            shortAddress(_payer, ownServer: 'epicbox.epiccash.com'),
+          ),
+        ),
+      );
+    });
 
     testWidgets('a waiting request counts its time left down', (tester) async {
       final h = _Harness();
@@ -581,19 +682,29 @@ void main() {
       expect(_noticeLevel(tester), NoticeLevel.info);
     });
 
-    testWidgets('bounced warns once per drain with the payment advice', (
+    testWidgets('bounced names the payer, with the payment file advice, once', (
       tester,
     ) async {
-      final (h, _) = await onHome(tester);
-      h.session.bounceIssued(count: 2);
-      await h.container(tester).read(paymentsDrainProvider.notifier).drain();
+      final (h, request) = await onHome(tester);
+      await h.session.bounceIssued(request.slateId);
       await tester.pumpAndSettle();
-      expect(_notice(tester), _l.issuerNoticeBounced(2));
+      final payer = payerName(const [], request.payerAddress);
+      expect(_notice(tester), _l.issuerNoticeBouncedFrom(payer));
       expect(_noticeLevel(tester), NoticeLevel.warning);
-      expect(_l.issuerNoticeBounced(1), contains('payment file'));
-      // Nothing was paid or cancelled by the bounce itself.
+      expect(_l.issuerNoticeBouncedFrom(payer), contains('payment file'));
+      // Withdrawn by the app, once; nothing paid.
       expect(h.session.invoicePayments, 0);
-      expect(h.session.cancelledTxIds, isEmpty);
+      expect(h.session.cancelledTxIds, [request.txId]);
+      h.container(tester).read(noticeProvider.notifier).clear();
+      await tester.pumpAndSettle();
+      await h.session.bounceIssued(request.slateId);
+      await tester.pumpAndSettle();
+      expect(
+        find.byKey(noticeKey),
+        findsNothing,
+        reason: 'a repeat is the same',
+      );
+      expect(h.session.cancelledTxIds, [request.txId]);
     });
   });
 }

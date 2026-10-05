@@ -834,10 +834,10 @@ class IssuedInvoicesNotifier extends AsyncNotifier<List<IssuedInvoice>> {
   Future<List<IssuedInvoice>> build() async {
     final session = _invoiceSession(ref);
     if (session == null) return const [];
-    final events = session
-        .issuerEvents()
-        .where((e) => e.kind != IssuerEventKind.bounced)
-        .listen((_) => ref.invalidateSelf(), onError: (_) {});
+    final events = session.issuerEvents().listen(
+      (_) => ref.invalidateSelf(),
+      onError: (_) {},
+    );
     ref.onDispose(events.cancel);
     return session.issuedInvoices();
   }
@@ -886,11 +886,29 @@ final issuedInvoiceProvider = FutureProvider.autoDispose
       return session.issuedInvoice(slateId: slateId);
     });
 
+/// What the open wallet learned about the payer at that invoice address, for the request
+/// form's warning. [PeerCapability.unknown] without invoices or when the wallet cannot say;
+/// the warning is advice, so a failure only leaves it out.
+final peerCapabilityProvider = FutureProvider.autoDispose
+    .family<PeerCapability, String>((ref, address) async {
+      final session = _invoiceSession(ref);
+      if (session == null) return PeerCapability.unknown;
+      try {
+        return await session.peerCapability(address: address);
+      } catch (error) {
+        logWarn(
+          'invoices',
+          'peer capability unknown: ${describeError(englishStrings, error)}',
+        );
+        return PeerCapability.unknown;
+      }
+    });
+
 /// An issuer event for a notice. [id] tells two equal events apart.
 typedef IssuerNotice = ({int id, IssuerEvent event});
 
-/// The latest issuer event of the open wallet: paid, declined, withdrawn, expired, or a
-/// drain's bounces. Kept alive by [paymentsDrainProvider], so no event of a drain is missed.
+/// The latest issuer event of the open wallet: paid, declined, withdrawn, expired or
+/// bounced. Kept alive by [paymentsDrainProvider], so no event of a drain is missed.
 final issuerNoticeProvider =
     NotifierProvider<IssuerNoticeNotifier, IssuerNotice?>(
       IssuerNoticeNotifier.new,

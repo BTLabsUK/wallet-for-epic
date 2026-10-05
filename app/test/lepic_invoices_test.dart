@@ -172,12 +172,17 @@ class _InvoiceWallet implements lepic.EpicWallet {
         direction: lepic.TxDirection.outgoing,
         status: lepic.TxStatus.received,
         slateId: slateId,
+        counterparty: invoice.senderAddress,
         amountCredited: BigInt.zero,
         amountDebited: amount + BigInt.one,
         fee: BigInt.one,
         createdAtMs: 1790000000000,
         releasable: false,
-        messages: const [],
+        messages: [
+          if (invoice.message case final text?)
+            lepic.SlateMessage(role: lepic.SlateRole.receiver, text: text),
+        ],
+        flow: lepic.TxFlow.invoice,
       ),
     );
     if (payError != null) throw _lepicError(payError!);
@@ -629,8 +634,9 @@ void main() {
         amount: BigInt.from(500),
       );
       s.dispose();
+      // LEPIC's store outlives the app; the archive adds the reply's state.
       final reopened = LepicWalletSession(
-        _InvoiceWallet(),
+        wallet,
         history: await WalletHistory.open(dir.path, Chain.floonet),
       );
       expect(await reopened.paidInvoice(slateId: 'inv-1'), paid);

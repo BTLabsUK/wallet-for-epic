@@ -1883,20 +1883,52 @@ class AppLocalizationsRu extends AppLocalizations {
       'Срок одного из ваших запросов истёк без оплаты.';
 
   @override
-  String issuerNoticeBounced(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other:
-          '$count запроса вернулись от кошельков, которые не умеют оплачивать счета. Попросите этих людей отправить вам платёж обычным способом: на ваш адрес или файлом платежа.',
-      many:
-          '$count запросов вернулись от кошельков, которые не умеют оплачивать счета. Попросите этих людей отправить вам платёж обычным способом: на ваш адрес или файлом платежа.',
-      few:
-          '$count запроса вернулись от кошельков, которые не умеют оплачивать счета. Попросите этих людей отправить вам платёж обычным способом: на ваш адрес или файлом платежа.',
-      one:
-          '$count запрос вернулся от кошелька, который не умеет оплачивать счета. Попросите этого человека отправить вам платёж обычным способом: на ваш адрес или файлом платежа.',
-    );
-    return '$_temp0';
+  String issuerNoticeBouncedFrom(String payer) {
+    return 'Кошелёк $payer не умеет оплачивать запросы и вернул ваш, поэтому он отозван. Попросите этого человека отправить вам платёж обычным способом: на ваш адрес или файлом платежа.';
+  }
+
+  @override
+  String get issuedBounced => 'Возвращён';
+
+  @override
+  String get issuedDetailsBounced =>
+      'Кошелёк плательщика не умеет оплачивать запросы и вернул этот, поэтому он отозван. Ничего не оплачено. Попросите этого человека отправить вам платёж обычным способом: на ваш адрес или файлом платежа.';
+
+  @override
+  String get requestPayerNoInvoices =>
+      'Этот кошелёк уже возвращал запрос: он не умеет оплачивать запросы. Попросите этого человека отправить вам платёж обычным способом: на ваш адрес или файлом платежа.';
+
+  @override
+  String get txStatusWaitingPayer => 'Ждёт плательщика';
+
+  @override
+  String get txStepRequested => 'Запрошено';
+
+  @override
+  String get txStepPaid => 'Оплачено';
+
+  @override
+  String get txDetailsWaitingPayer =>
+      'Вы запросили этот платёж. Пока ничего не поступило: платёж придёт, когда плательщик оплатит запрос.';
+
+  @override
+  String get txDetailsRequestEnded =>
+      'Этот запрос завершён без оплаты. Ничего не поступило.';
+
+  @override
+  String get txDetailsRequestedFrom => 'Запрошено у';
+
+  @override
+  String get txPaymentRequest => 'Запрошенный платёж';
+
+  @override
+  String txSpokenRequesting(String amount) {
+    return 'Запрошено: $amount';
+  }
+
+  @override
+  String txSpokenRequestingFrom(String amount, String who) {
+    return 'Запрошено: $amount, плательщик: $who';
   }
 
   @override

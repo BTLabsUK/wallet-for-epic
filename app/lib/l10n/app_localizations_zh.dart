@@ -1660,13 +1660,50 @@ class AppLocalizationsZh extends AppLocalizations {
   String get issuerNoticeExpired => '你发出的一个请求未支付就过期了。';
 
   @override
-  String issuerNoticeBounced(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '有 $count 个请求被无法支付账单的钱包退回。请让对方改为直接向你的地址付款，或发送付款文件。',
-    );
-    return '$_temp0';
+  String issuerNoticeBouncedFrom(String payer) {
+    return '$payer 的钱包无法支付请求，已将你的请求退回，因此已撤回。请让对方改为直接向你的地址付款，或使用付款文件。';
+  }
+
+  @override
+  String get issuedBounced => '已退回';
+
+  @override
+  String get issuedDetailsBounced =>
+      '付款人的钱包无法支付请求，已将这个请求退回，因此已撤回。没有支付任何款项。请让对方改为直接向你的地址付款，或使用付款文件。';
+
+  @override
+  String get requestPayerNoInvoices =>
+      '这个钱包之前退回过请求：它无法支付请求。请让对方改为直接向你的地址付款，或使用付款文件。';
+
+  @override
+  String get txStatusWaitingPayer => '等待付款人';
+
+  @override
+  String get txStepRequested => '已请求';
+
+  @override
+  String get txStepPaid => '已支付';
+
+  @override
+  String get txDetailsWaitingPayer => '你请求了这笔付款。目前还没有到账：付款人支付请求后款项才会到达。';
+
+  @override
+  String get txDetailsRequestEnded => '这个请求未付款即已结束。没有任何款项到账。';
+
+  @override
+  String get txDetailsRequestedFrom => '请求对象';
+
+  @override
+  String get txPaymentRequest => '已请求的付款';
+
+  @override
+  String txSpokenRequesting(String amount) {
+    return '正在请求 $amount';
+  }
+
+  @override
+  String txSpokenRequestingFrom(String amount, String who) {
+    return '正在向 $who 请求 $amount';
   }
 
   @override

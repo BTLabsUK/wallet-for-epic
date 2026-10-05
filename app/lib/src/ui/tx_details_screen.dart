@@ -107,6 +107,7 @@ String txExplanation(
       l.txDetailsWaitingEpicbox,
     TxPhase.waitingRecipient => l.txDetailsWaitingRecipient,
     TxPhase.waitingSender => l.txDetailsWaitingSender,
+    TxPhase.waitingPayer => l.txDetailsWaitingPayer,
     TxPhase.confirming when height == null || n == null =>
       outgoing ? l.txDetailsPublished : l.txDetailsWaitingConfirmation,
     TxPhase.confirming => _confirmingLine(l, height!, n!),
@@ -127,6 +128,7 @@ String txExplanation(
     // Unanswered, and cancelled by the 14-day limit rather than by the user.
     TxPhase.cancelled when outgoing && _expired(tx, tip) =>
       l.txDetailsCancelledUnanswered,
+    TxPhase.cancelled when tx.isRequest => l.txDetailsRequestEnded,
     TxPhase.cancelled =>
       outgoing ? l.txDetailsCancelledByUser : l.txDetailsCancelledIncoming,
     TxPhase.fromBackup => l.txDetailsFromBackup,
@@ -403,10 +405,12 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
       outgoing ? SlateRole.receiver : SlateRole.sender,
     );
     final singleOutput = tx.outputCommits.length == 1;
-    final issued = switch (tx.slateId) {
-      final slate? => ref.watch(issuedInvoiceProvider(slate)).value != null,
-      null => false,
-    };
+    final issued =
+        tx.isRequest ||
+        switch (tx.slateId) {
+          final slate? => ref.watch(issuedInvoiceProvider(slate)).value != null,
+          null => false,
+        };
 
     return SlotScaffold(
       appBar: AppBar(title: Text(txHeading(l, tx, contactName: name))),
@@ -534,7 +538,11 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
             ),
           if (counterparty != null)
             _CounterpartyRow(
-              label: outgoing ? l.txDetailsSentTo : l.txDetailsReceivedFrom,
+              label: outgoing
+                  ? l.txDetailsSentTo
+                  : tx.isRequest
+                  ? l.txDetailsRequestedFrom
+                  : l.txDetailsReceivedFrom,
               address: counterparty,
               name: name,
               canSendAgain: outgoing && tx.status == TxStatus.confirmed,

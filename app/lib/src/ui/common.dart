@@ -321,8 +321,11 @@ String? _specialTitle(AppLocalizations l, TxEntry tx) {
   return null;
 }
 
-String _directionNoun(AppLocalizations l, TxEntry tx) =>
-    _outgoingKind(tx) ? l.txOutgoingPayment : l.txIncomingPayment;
+String _directionNoun(AppLocalizations l, TxEntry tx) => _outgoingKind(tx)
+    ? l.txOutgoingPayment
+    : tx.isRequest
+    ? l.txPaymentRequest
+    : l.txIncomingPayment;
 
 /// A pending record that came only from a history backup: this wallet has nothing of its own
 /// to say how it ended, so it is neither pending nor done.
@@ -353,6 +356,9 @@ final int confirmationsTarget = minimumConfirmations.toInt();
 enum TxPhase {
   waitingRecipient,
   waitingSender,
+
+  /// A request this wallet sent that the payer has not paid ([TxEntry.awaitingPayer]).
+  waitingPayer,
   confirming,
   completed,
   cancelled,
@@ -367,6 +373,9 @@ TxPhase txPhase(TxEntry tx, BigInt? tip) {
   return switch (tx.status) {
     TxStatus.cancelled => TxPhase.cancelled,
     TxStatus.awaitingRecipient => TxPhase.waitingRecipient,
+    TxStatus.awaitingConfirmation when tx.awaitingPayer => TxPhase.waitingPayer,
+    // A paid request has arrived: it waits only for the chain.
+    TxStatus.awaitingConfirmation when tx.isRequest => TxPhase.confirming,
     TxStatus.awaitingConfirmation
         when tx.blockHeight == null &&
             (tx.kind == TxKind.received ||
@@ -384,6 +393,7 @@ String txStatusLabel(AppLocalizations l, TxEntry tx, BigInt? tip) =>
     switch (txPhase(tx, tip)) {
       TxPhase.waitingRecipient => l.txStatusWaitingRecipient,
       TxPhase.waitingSender => l.txStatusWaitingSender,
+      TxPhase.waitingPayer => l.txStatusWaitingPayer,
       TxPhase.confirming => l.txStatusConfirming(
         txConfirmations(tx, tip) ?? 0,
         confirmationsTarget,
@@ -417,6 +427,20 @@ List<TimelineStep>? txTimeline(AppLocalizations l, TxEntry tx, BigInt? tip) {
     at = switch (phase) {
       TxPhase.waitingRecipient => 1,
       TxPhase.confirming => 3,
+      TxPhase.completed => steps.length,
+      _ => null,
+    };
+  } else if (tx.isRequest) {
+    // Nothing arrives before the payer pays.
+    steps = [
+      (l.txStepRequested, l.txStepRequested, l.txStepRequested),
+      (l.txStepPaid, l.txStatusWaitingPayer, l.txStepPaid),
+      (l.txStepConfirmed, confirming, l.txStepConfirming),
+      (l.txStatusCompleted, l.txStatusCompleted, l.txStatusCompleted),
+    ];
+    at = switch (phase) {
+      TxPhase.waitingPayer => 1,
+      TxPhase.confirming => 2,
       TxPhase.completed => steps.length,
       _ => null,
     };
@@ -478,7 +502,9 @@ class TxStatusChip extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
     final (Color bg, Color fg) = switch (txPhase(tx, tip)) {
-      TxPhase.waitingRecipient || TxPhase.waitingSender => (
+      TxPhase.waitingRecipient ||
+      TxPhase.waitingSender ||
+      TxPhase.waitingPayer => (
         colors.tertiaryContainer,
         colors.onTertiaryContainer,
       ),
@@ -570,6 +596,11 @@ String txSpokenLabel(
       (true, final w?) when cancelled => l.txSpokenCancelledSendTo(amount, w),
       (false, null) when cancelled => l.txSpokenCancelledReceive(amount),
       (false, final w?) when cancelled => l.txSpokenCancelledReceiveFrom(
+        amount,
+        w,
+      ),
+      (false, null) when tx.awaitingPayer => l.txSpokenRequesting(amount),
+      (false, final w?) when tx.awaitingPayer => l.txSpokenRequestingFrom(
         amount,
         w,
       ),

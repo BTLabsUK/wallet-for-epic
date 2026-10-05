@@ -183,10 +183,10 @@ class _InvoicesEntryState extends ConsumerState<InvoicesEntry> {
     if (!mounted) return;
     final l = context.l10n;
     final notices = ref.read(noticeProvider.notifier);
-    final slateId = event.slateId;
-    final view = slateId == null
-        ? null
-        : NoticeAction(l.homeNoticeView, _detailsOf('s:$slateId'));
+    final view = NoticeAction(
+      l.homeNoticeView,
+      _detailsOf('s:${event.slateId}'),
+    );
     switch (event.kind) {
       case IssuerEventKind.paid:
         notices.show(
@@ -210,9 +210,15 @@ class _InvoicesEntryState extends ConsumerState<InvoicesEntry> {
           action: view,
         );
       case IssuerEventKind.bounced:
+        // Named, so the user knows whom to ask for a payment file.
+        final payer = payerName(
+          ref.read(contactsProvider).value ?? const <Contact>[],
+          event.payerAddress ?? '',
+        );
         notices.show(
-          l.issuerNoticeBounced(event.count),
+          l.issuerNoticeBouncedFrom(payer),
           level: NoticeLevel.warning,
+          action: view,
         );
     }
   }

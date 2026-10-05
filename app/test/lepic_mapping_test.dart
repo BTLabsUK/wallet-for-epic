@@ -29,6 +29,7 @@ class _SendingWallet extends _NoNativeWallet {
     fee: BigInt.one,
     createdAtMs: 1790000000000,
     releasable: false,
+    flow: lepic.TxFlow.payment,
     messages: [
       for (final m in messages)
         if (m != null)
@@ -264,12 +265,17 @@ void main() {
 
   test('listener kinds map one to one, a repeat apart from a receive', () {
     for (final kind in lepic.ListenerEventKind.values) {
+      if (kind == lepic.ListenerEventKind.invoiceBounced) continue;
       final event = lepicListenerEvent(
         lepic.ListenerEvent(kind: kind, txId: 7, message: 'm'),
-      );
+      )!;
       expect(event.kind.name, kind.name);
       expect(event.txId, 7);
       expect(event.message, 'm');
+      expect(
+        lepicListenerBounce(lepic.ListenerEvent(kind: kind, message: '')),
+        isNull,
+      );
     }
     expect(
       lepicListenerEvent(
@@ -287,6 +293,23 @@ void main() {
     );
   });
 
+  test('a listener bounce is an issuer event, not a listener one', () {
+    const bounce = lepic.ListenerEvent(
+      kind: lepic.ListenerEventKind.invoiceBounced,
+      txId: 4,
+      slateId: 'inv-4',
+      message: 'sent back',
+    );
+    expect(lepicListenerEvent(bounce), isNull);
+    expect(lepicListenerBounce(bounce), 'inv-4');
+  });
+
+  test('peer capabilities map one to one', () {
+    for (final c in lepic.PeerCapability.values) {
+      expect(lepicPeerCapability(c).name, c.name);
+    }
+  });
+
   test('contacts and enrichment answer without reaching LEPIC', () async {
     final session = LepicWalletSession(_NoNativeWallet());
     expect(await session.contacts(), isEmpty);
@@ -302,6 +325,7 @@ void main() {
       BigInt? confirmedHeight,
       bool releasable = false,
       List<lepic.SlateMessage> messages = const [],
+      lepic.TxFlow flow = lepic.TxFlow.payment,
     }) => lepic.TransactionDetails(
       txId: 7,
       direction: direction,
@@ -318,6 +342,7 @@ void main() {
       ttlCutoffHeight: BigInt.from(99),
       releasable: releasable,
       messages: messages,
+      flow: flow,
     );
 
     test('a send waiting for its answer can be cancelled', () {
@@ -386,6 +411,100 @@ void main() {
       expect(row.kind, TxKind.received);
       expect(row.source, TxSource.restored);
       expect(row.messages, isEmpty);
+    });
+
+    test('flow tells a request and a paid invoice from payments', () {
+      TxEntry row(lepic.TxDirection direction, lepic.TxFlow flow) =>
+          lepicTxEntry(
+            details(
+              direction: direction,
+              status: lepic.TxStatus.received,
+              flow: flow,
+            ),
+          );
+      final request = row(lepic.TxDirection.incoming, lepic.TxFlow.invoice);
+      expect(request.flow, TxFlow.invoice);
+      expect(request.isRequest, isTrue);
+      expect(request.awaitingPayer, isTrue);
+      final paid = row(lepic.TxDirection.outgoing, lepic.TxFlow.invoice);
+      expect(paid.flow, TxFlow.invoice);
+      expect(paid.isRequest, isFalse);
+      final received = row(lepic.TxDirection.incoming, lepic.TxFlow.payment);
+      expect(received.flow, TxFlow.payment);
+      expect(received.isRequest, isFalse);
+      final sent = row(lepic.TxDirection.outgoing, lepic.TxFlow.payment);
+      expect(sent.flow, TxFlow.payment);
+      // LEPIC finalized the request's payment: it is paid, not waiting.
+      final finalized = lepicTxEntry(
+        details(
+          direction: lepic.TxDirection.incoming,
+          status: lepic.TxStatus.posted,
+          flow: lepic.TxFlow.invoice,
+        ),
+      );
+      expect(finalized.isRequest, isTrue);
+      expect(finalized.awaitingPayer, isFalse);
+    });
+
+    test('a request and a paid invoice read from their transactions', () {
+      final request = issuedInvoiceOf(
+        lepicTxEntry(
+          details(
+            direction: lepic.TxDirection.incoming,
+            status: lepic.TxStatus.received,
+            flow: lepic.TxFlow.invoice,
+            messages: const [
+              lepic.SlateMessage(role: lepic.SlateRole.receiver, text: 'rent'),
+            ],
+          ),
+        ),
+      )!;
+      expect(request.slateId, 'slate-1');
+      expect(request.txId, 7);
+      expect(request.payerAddress, 'key@relay');
+      expect(request.amount, BigInt.from(3));
+      expect(request.message, 'rent');
+      expect(request.state, IssuedInvoiceState.waiting);
+      expect(
+        request.issuedAt,
+        DateTime.fromMillisecondsSinceEpoch(1790000000000),
+      );
+      expect(request.expiresAt, request.issuedAt.add(invoiceExpiry));
+      // What the app recorded wins over LEPIC's plain cancelled.
+      final cancelled = lepicTxEntry(
+        details(
+          direction: lepic.TxDirection.incoming,
+          status: lepic.TxStatus.cancelled,
+          flow: lepic.TxFlow.invoice,
+        ),
+      );
+      expect(issuedInvoiceOf(cancelled)!.state, IssuedInvoiceState.expired);
+      expect(
+        issuedInvoiceOf(cancelled, recorded: IssuedInvoiceState.bounced)!.state,
+        IssuedInvoiceState.bounced,
+      );
+      // A received payment is no request; a paid invoice is the payer's side.
+      final payment = lepicTxEntry(
+        details(
+          direction: lepic.TxDirection.incoming,
+          status: lepic.TxStatus.received,
+        ),
+      );
+      expect(issuedInvoiceOf(payment), isNull);
+      final paidTx = lepicTxEntry(
+        details(status: lepic.TxStatus.posted, flow: lepic.TxFlow.invoice),
+      );
+      expect(issuedInvoiceOf(paidTx), isNull);
+      final paid = paidInvoiceOf(paidTx, kernelExcess: 'k')!;
+      expect(paid.senderAddress, 'key@relay');
+      expect(paid.amount, BigInt.from(6), reason: '10 in, 3 change, 1 fee');
+      expect(paid.status, InvoiceStatus.replied);
+      expect(paid.txId, 7);
+      expect(paid.kernelExcess, 'k');
+      expect(
+        paidInvoiceOf(lepicTxEntry(details(status: lepic.TxStatus.posted))),
+        isNull,
+      );
     });
 
     test('a receive carries the sender\'s verified message', () {

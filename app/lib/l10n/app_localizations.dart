@@ -2504,11 +2504,83 @@ abstract class AppLocalizations {
   /// **'A request you sent expired unpaid.'**
   String get issuerNoticeExpired;
 
-  /// Warning when requests the user sent came back from wallets that cannot pay invoices (for example the standard epic-wallet). The payer can still send a normal payment, to the user's address or as a payment file. count is how many came back.
+  /// Warning when a request the user sent came back from the payer's wallet, which cannot pay invoices (for example the standard epic-wallet). The app withdrew the request. payer is the contact name or the start of the address.
   ///
   /// In en, this message translates to:
-  /// **'{count, plural, one{A wallet sent your request back: it cannot pay invoices. Ask that person to send you the payment instead, to your address or as a payment file.} other{{count} requests came back from wallets that cannot pay invoices. Ask those people to send you the payment instead, to your address or as a payment file.}}'**
-  String issuerNoticeBounced(int count);
+  /// **'{payer}\'s wallet cannot pay requests and sent yours back, so it was withdrawn. Ask them to send you the payment instead, to your address or as a payment file.'**
+  String issuerNoticeBouncedFrom(String payer);
+
+  /// State of a request the user sent: the payer's wallet cannot pay invoices and sent it back.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent back'**
+  String get issuedBounced;
+
+  /// Request details: the payer's wallet cannot pay invoices and sent the request back, so the app withdrew it.
+  ///
+  /// In en, this message translates to:
+  /// **'The payer\'s wallet cannot pay requests and sent this one back, so it was withdrawn. Nothing was paid. Ask them to send you the payment instead, to your address or as a payment file.'**
+  String get issuedDetailsBounced;
+
+  /// Warning on the request form, before Request: this payer's wallet sent a request back before, so it cannot pay requests. Shown with a button that explains payment files.
+  ///
+  /// In en, this message translates to:
+  /// **'This wallet sent a request back before: it cannot pay requests. Ask them to send you the payment instead, to your address or as a payment file.'**
+  String get requestPayerNoInvoices;
+
+  /// Status of a payment request the user sent: the payer has not paid it yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for payer'**
+  String get txStatusWaitingPayer;
+
+  /// Timeline step of a payment request: the user sent the request.
+  ///
+  /// In en, this message translates to:
+  /// **'Requested'**
+  String get txStepRequested;
+
+  /// Timeline step of a payment request: the payer paid it and the wallet published the payment.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid'**
+  String get txStepPaid;
+
+  /// Details of a payment request the user sent that is not paid yet. Nothing has arrived.
+  ///
+  /// In en, this message translates to:
+  /// **'You asked for this payment. Nothing has arrived yet: it comes when the payer pays the request.'**
+  String get txDetailsWaitingPayer;
+
+  /// Details of a payment request that ended unpaid: declined, withdrawn, sent back or expired.
+  ///
+  /// In en, this message translates to:
+  /// **'This request ended unpaid. Nothing arrived.'**
+  String get txDetailsRequestEnded;
+
+  /// Details label above the address of the person a payment request went to.
+  ///
+  /// In en, this message translates to:
+  /// **'Requested from'**
+  String get txDetailsRequestedFrom;
+
+  /// Title of a payment request the user sent, when no name or address is known.
+  ///
+  /// In en, this message translates to:
+  /// **'Requested payment'**
+  String get txPaymentRequest;
+
+  /// Screen reader label of a payment request row that is not paid yet. amount is the formatted amount.
+  ///
+  /// In en, this message translates to:
+  /// **'Requesting {amount}'**
+  String txSpokenRequesting(String amount);
+
+  /// Screen reader label of a payment request row that is not paid yet. amount is the formatted amount, who the contact name or short address.
+  ///
+  /// In en, this message translates to:
+  /// **'Requesting {amount} from {who}'**
+  String txSpokenRequestingFrom(String amount, String who);
 
   /// Tooltip and screen-reader label of the connection dot. epicbox is the relay service that carries payments (a proper name).
   ///

@@ -159,9 +159,21 @@ void main() {
         c.slateId: IssuedInvoiceState.expired,
       });
       expect(events, [
-        IssuerEvent(kind: IssuerEventKind.paid, slateId: a.slateId),
-        IssuerEvent(kind: IssuerEventKind.declined, slateId: b.slateId),
-        IssuerEvent(kind: IssuerEventKind.expired, slateId: c.slateId),
+        IssuerEvent(
+          kind: IssuerEventKind.paid,
+          slateId: a.slateId,
+          payerAddress: payer,
+        ),
+        IssuerEvent(
+          kind: IssuerEventKind.declined,
+          slateId: b.slateId,
+          payerAddress: payer,
+        ),
+        IssuerEvent(
+          kind: IssuerEventKind.expired,
+          slateId: c.slateId,
+          payerAddress: payer,
+        ),
       ]);
       // A decline is final, so the wallet withdrew the request itself.
       expect(s.cancelledTxIds, [b.txId]);
@@ -175,7 +187,11 @@ void main() {
       expect(s.cancelledTxIds, [a.txId]);
       await settle();
       expect(events, [
-        IssuerEvent(kind: IssuerEventKind.withdrawn, slateId: a.slateId),
+        IssuerEvent(
+          kind: IssuerEventKind.withdrawn,
+          slateId: a.slateId,
+          payerAddress: payer,
+        ),
       ]);
       await expectLater(
         s.withdrawInvoice(slateId: a.slateId),
@@ -194,17 +210,31 @@ void main() {
       expect(s.cancelledTxIds, [a.txId]);
     });
 
-    test('a drain with bounces raises one bounced signal', () async {
-      await s.issueInvoice(amount: five, address: payer);
-      expect((await s.drainPayments()).bounced, 0);
-      s.bounceIssued();
-      s.bounceIssued();
-      expect((await s.drainPayments()).bounced, 2);
-      expect((await s.drainPayments()).bounced, 0);
+    test('a bounce withdraws that request once and names its payer', () async {
+      final a = await s.issueInvoice(amount: five, address: payer);
+      final b = await s.issueInvoice(amount: five, address: addr('Q'));
+      expect(await s.peerCapability(address: payer), PeerCapability.unknown);
+      await s.bounceIssued(a.slateId);
+      await s.bounceIssued(a.slateId);
       await settle();
       expect(events, [
-        const IssuerEvent(kind: IssuerEventKind.bounced, count: 2),
+        IssuerEvent(
+          kind: IssuerEventKind.bounced,
+          slateId: a.slateId,
+          payerAddress: payer,
+        ),
       ]);
+      expect(s.cancelledTxIds, [a.txId]);
+      expect(
+        (await s.issuedInvoice(slateId: a.slateId))!.state,
+        IssuedInvoiceState.bounced,
+      );
+      expect(
+        (await s.issuedInvoice(slateId: b.slateId))!.state,
+        IssuedInvoiceState.waiting,
+      );
+      expect(await s.peerCapability(address: payer), PeerCapability.noInvoices);
+      expectNothingSpent(s);
     });
 
     test('a drain sweeps requests whose day ran out', () async {
@@ -263,8 +293,10 @@ void main() {
       expect(kept.keys, unorderedEquals([a.slateId, b.slateId]));
       expect((kept[b.slateId] as Map)['state'], 'paid');
 
+      // LEPIC's store outlives the app; the archive adds the states.
       final reopened = FakeWalletSession(
         invoiceHistory: await WalletHistory.open(dir.path, Chain.floonet),
+        transactions: first.transactionsValue,
       );
       expect(await reopened.issuedInvoice(slateId: a.slateId), a);
       expect(
@@ -324,21 +356,25 @@ void main() {
       expect(s.drainPaymentCalls, 0);
     });
 
-    test('a drain\'s bounces reach the notice, once per drain', () async {
+    test('a bounce reaches the notice once', () async {
       c.listen(paymentsDrainProvider, (_, _) {});
       c.read(sessionProvider.notifier).unlocked(s);
       await settle();
-      s.bounceIssued();
-      await c.read(paymentsDrainProvider.notifier).drain();
+      final issued = await s.issueInvoice(amount: five, address: payer);
+      await s.bounceIssued(issued.slateId);
       await settle();
       final first = c.read(issuerNoticeProvider)!;
-      expect(first.event, const IssuerEvent(kind: IssuerEventKind.bounced));
-      s.bounceIssued();
-      await c.read(paymentsDrainProvider.notifier).drain();
+      expect(
+        first.event,
+        IssuerEvent(
+          kind: IssuerEventKind.bounced,
+          slateId: issued.slateId,
+          payerAddress: payer,
+        ),
+      );
+      await s.bounceIssued(issued.slateId);
       await settle();
-      final second = c.read(issuerNoticeProvider)!;
-      expect(second.event, first.event);
-      expect(second.id, isNot(first.id), reason: 'a second notice, not lost');
+      expect(c.read(issuerNoticeProvider)!.id, first.id, reason: 'no second');
     });
 
     test('the list issues, withdraws and follows the payer', () async {

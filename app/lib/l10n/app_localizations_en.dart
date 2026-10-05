@@ -1776,15 +1776,52 @@ class AppLocalizationsEn extends AppLocalizations {
   String get issuerNoticeExpired => 'A request you sent expired unpaid.';
 
   @override
-  String issuerNoticeBounced(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other:
-          '$count requests came back from wallets that cannot pay invoices. Ask those people to send you the payment instead, to your address or as a payment file.',
-      one: 'A wallet sent your request back: it cannot pay invoices. Ask that person to send you the payment instead, to your address or as a payment file.',
-    );
-    return '$_temp0';
+  String issuerNoticeBouncedFrom(String payer) {
+    return '$payer\'s wallet cannot pay requests and sent yours back, so it was withdrawn. Ask them to send you the payment instead, to your address or as a payment file.';
+  }
+
+  @override
+  String get issuedBounced => 'Sent back';
+
+  @override
+  String get issuedDetailsBounced =>
+      'The payer\'s wallet cannot pay requests and sent this one back, so it was withdrawn. Nothing was paid. Ask them to send you the payment instead, to your address or as a payment file.';
+
+  @override
+  String get requestPayerNoInvoices =>
+      'This wallet sent a request back before: it cannot pay requests. Ask them to send you the payment instead, to your address or as a payment file.';
+
+  @override
+  String get txStatusWaitingPayer => 'Waiting for payer';
+
+  @override
+  String get txStepRequested => 'Requested';
+
+  @override
+  String get txStepPaid => 'Paid';
+
+  @override
+  String get txDetailsWaitingPayer =>
+      'You asked for this payment. Nothing has arrived yet: it comes when the payer pays the request.';
+
+  @override
+  String get txDetailsRequestEnded =>
+      'This request ended unpaid. Nothing arrived.';
+
+  @override
+  String get txDetailsRequestedFrom => 'Requested from';
+
+  @override
+  String get txPaymentRequest => 'Requested payment';
+
+  @override
+  String txSpokenRequesting(String amount) {
+    return 'Requesting $amount';
+  }
+
+  @override
+  String txSpokenRequestingFrom(String amount, String who) {
+    return 'Requesting $amount from $who';
   }
 
   @override

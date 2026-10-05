@@ -454,6 +454,10 @@ class TxEntry {
   /// For a cancelled payment: why, when known.
   final CancelReason? cancelReason;
 
+  /// Who started it: the sender ([TxFlow.payment]) or the receiver with an invoice
+  /// ([TxFlow.invoice]). Imported and restored rows are payments.
+  final TxFlow flow;
+
   const TxEntry({
     required this.key,
     this.id,
@@ -483,7 +487,22 @@ class TxEntry {
     required this.releasable,
     this.finalizedAtUnix,
     this.cancelReason,
+    this.flow = TxFlow.payment,
   });
+
+  /// A request this wallet sent: an invoice it issued, paid or not. LEPIC keeps it as an
+  /// incoming transaction like a signed receive.
+  bool get isRequest =>
+      flow == TxFlow.invoice &&
+      (kind == TxKind.received || kind == TxKind.receivedCancelled);
+
+  /// A request this wallet sent that the payer has not paid yet: LEPIC still holds it as
+  /// received, the only state in which it can be cancelled.
+  bool get awaitingPayer =>
+      isRequest &&
+      status == TxStatus.awaitingConfirmation &&
+      cancellable &&
+      blockHeight == null;
 
   @override
   int get hashCode =>
@@ -514,7 +533,8 @@ class TxEntry {
       statusDetail.hashCode ^
       releasable.hashCode ^
       finalizedAtUnix.hashCode ^
-      cancelReason.hashCode;
+      cancelReason.hashCode ^
+      flow.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -548,10 +568,28 @@ class TxEntry {
           statusDetail == other.statusDetail &&
           releasable == other.releasable &&
           finalizedAtUnix == other.finalizedAtUnix &&
-          cancelReason == other.cancelReason;
+          cancelReason == other.cancelReason &&
+          flow == other.flow;
 }
 
 enum TxKind { coinbase, received, sent, receivedCancelled, sentCancelled }
+
+/// Which side started a transaction. With [TxKind] it tells the four kinds apart: an
+/// incoming payment was received and an outgoing one sent; an incoming invoice was issued by
+/// this wallet (a request) and an outgoing one paid by it.
+enum TxFlow { payment, invoice }
+
+/// What this wallet learned about a payer from its own messages, for the request form.
+enum PeerCapability {
+  /// Nothing yet.
+  unknown,
+
+  /// It proved it runs LEPIC: it pays requests.
+  lepic,
+
+  /// It sent a request back unpaid, as a stock `epic-wallet` does: it cannot pay requests.
+  noInvoices,
+}
 
 /// Where a transaction row comes from.
 enum TxSource {
@@ -962,6 +1000,10 @@ enum IssuedInvoiceState {
 
   /// Its time ran out unpaid, and the wallet cancelled it.
   expired,
+
+  /// The payer's wallet cannot pay invoices and sent it back, as a stock `epic-wallet` does;
+  /// the app withdrew it. That payer can still send a payment, as a file or to the address.
+  bounced,
 }
 
 /// An invoice this wallet issued: a request to the payer at [payerAddress], their invoice
@@ -1041,17 +1083,85 @@ class IssuedInvoice {
           state == other.state;
 }
 
-/// What happened to invoices this wallet issued. Each but [bounced] names one invoice and
-/// the state it moved to.
+/// The message the receiver of the money signed into [tx]: the issuer's, in an invoice.
+String? _receiverMessage(TxEntry tx) =>
+    tx.messages.where((m) => m.role == SlateRole.receiver).firstOrNull?.text;
+
+/// The request [tx] is, from LEPIC's transaction, or null when it is not one. [recorded] is
+/// the state the app kept for it: an ending it learned (declined, withdrawn, bounced) wins,
+/// since LEPIC says only cancelled; otherwise the transaction says waiting, paid or, once
+/// cancelled, expired. The payer is LEPIC's counterparty, empty when it kept none.
+IssuedInvoice? issuedInvoiceOf(TxEntry tx, {IssuedInvoiceState? recorded}) {
+  final slateId = tx.slateId;
+  final txId = tx.id;
+  if (!tx.isRequest || slateId == null || txId == null) return null;
+  final issuedAt = DateTime.fromMillisecondsSinceEpoch(tx.createdAtUnix * 1000);
+  final fromTx = tx.status == TxStatus.cancelled
+      ? IssuedInvoiceState.expired
+      : tx.awaitingPayer
+      ? IssuedInvoiceState.waiting
+      : IssuedInvoiceState.paid;
+  return IssuedInvoice(
+    slateId: slateId,
+    txId: txId,
+    payerAddress: tx.counterparty ?? '',
+    amount: tx.amountCredited,
+    message: _receiverMessage(tx),
+    issuedAt: issuedAt,
+    expiresAt: issuedAt.add(invoiceExpiry),
+    state: recorded == null || recorded == IssuedInvoiceState.waiting
+        ? fromTx
+        : recorded,
+  );
+}
+
+/// The requests among [txs], newest first, each with the state [recorded] gives for its slate
+/// id. A cancelled one without a record is left out: the relay never took it, so it was
+/// never sent; the history row still shows it.
+List<IssuedInvoice> requestsOf(
+  Iterable<TxEntry> txs,
+  IssuedInvoiceState? Function(String? slateId) recorded,
+) =>
+    [
+      for (final t in txs)
+        if (t.status != TxStatus.cancelled || recorded(t.slateId) != null)
+          ?issuedInvoiceOf(t, recorded: recorded(t.slateId)),
+    ]..sort((a, b) {
+      final byTime = b.issuedAt.compareTo(a.issuedAt);
+      return byTime != 0 ? byTime : b.txId.compareTo(a.txId);
+    });
+
+/// The invoice [tx] paid, from LEPIC's transaction, or null when it paid none. [status] and
+/// [kernelExcess] are what the app recorded of the reply and the receipt; without a record
+/// the reply is taken as delivered, since LEPIC stored the payment.
+PaidInvoice? paidInvoiceOf(
+  TxEntry tx, {
+  InvoiceStatus? status,
+  String? kernelExcess,
+}) {
+  final slateId = tx.slateId;
+  final outgoing = tx.kind == TxKind.sent || tx.kind == TxKind.sentCancelled;
+  if (tx.flow != TxFlow.invoice || !outgoing || slateId == null) return null;
+  return PaidInvoice(
+    slateId: slateId,
+    senderAddress: tx.counterparty ?? '',
+    amount: tx.amountDebited - tx.amountCredited - (tx.fee ?? BigInt.zero),
+    message: _receiverMessage(tx),
+    status: status ?? InvoiceStatus.replied,
+    txId: tx.id,
+    kernelExcess: kernelExcess,
+  );
+}
+
+/// What happened to an invoice this wallet issued: the state it moved to, once.
 enum IssuerEventKind {
   paid,
   declined,
   withdrawn,
   expired,
 
-  /// A drain found invoices sent back unpaid by wallets that cannot pay invoices, such as a
-  /// stock `epic-wallet`. LEPIC gives only a count, not which invoice; the expiry sweep
-  /// cancels them. Tell the user to send that person a payment file instead.
+  /// The payer's wallet sent it back unpaid: it cannot pay invoices. Tell the user to ask
+  /// that person for a payment file instead.
   bounced,
 }
 
@@ -1063,21 +1173,24 @@ IssuerEventKind? issuerEventFor(IssuedInvoiceState state) => switch (state) {
   IssuedInvoiceState.declined => IssuerEventKind.declined,
   IssuedInvoiceState.withdrawn => IssuerEventKind.withdrawn,
   IssuedInvoiceState.expired => IssuerEventKind.expired,
+  IssuedInvoiceState.bounced => IssuerEventKind.bounced,
 };
 
 class IssuerEvent {
   final IssuerEventKind kind;
+  final String slateId;
 
-  /// Null for [IssuerEventKind.bounced].
-  final String? slateId;
+  /// The payer's invoice address, when known, so a notice can name them.
+  final String? payerAddress;
 
-  /// For [IssuerEventKind.bounced]: how many came back in that drain.
-  final int count;
-
-  const IssuerEvent({required this.kind, this.slateId, this.count = 1});
+  const IssuerEvent({
+    required this.kind,
+    required this.slateId,
+    this.payerAddress,
+  });
 
   @override
-  int get hashCode => kind.hashCode ^ slateId.hashCode ^ count.hashCode;
+  int get hashCode => kind.hashCode ^ slateId.hashCode ^ payerAddress.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -1085,7 +1198,7 @@ class IssuerEvent {
       other is IssuerEvent &&
           kind == other.kind &&
           slateId == other.slateId &&
-          count == other.count;
+          payerAddress == other.payerAddress;
 }
 
 /// What one drain of the payments address did.

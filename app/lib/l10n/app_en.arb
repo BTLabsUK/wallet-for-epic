@@ -2002,12 +2002,73 @@
   "@issuerNoticeExpired": {
     "description": "Notice when a request the user sent ran out of time unpaid."
   },
-  "issuerNoticeBounced": "{count, plural, one{A wallet sent your request back: it cannot pay invoices. Ask that person to send you the payment instead, to your address or as a payment file.} other{{count} requests came back from wallets that cannot pay invoices. Ask those people to send you the payment instead, to your address or as a payment file.}}",
-  "@issuerNoticeBounced": {
-    "description": "Warning when requests the user sent came back from wallets that cannot pay invoices (for example the standard epic-wallet). The payer can still send a normal payment, to the user's address or as a payment file. count is how many came back.",
+  "issuerNoticeBouncedFrom": "{payer}'s wallet cannot pay requests and sent yours back, so it was withdrawn. Ask them to send you the payment instead, to your address or as a payment file.",
+  "@issuerNoticeBouncedFrom": {
+    "description": "Warning when a request the user sent came back from the payer's wallet, which cannot pay invoices (for example the standard epic-wallet). The app withdrew the request. payer is the contact name or the start of the address.",
     "placeholders": {
-      "count": {
-        "type": "int"
+      "payer": {
+        "type": "String"
+      }
+    }
+  },
+  "issuedBounced": "Sent back",
+  "@issuedBounced": {
+    "description": "State of a request the user sent: the payer's wallet cannot pay invoices and sent it back."
+  },
+  "issuedDetailsBounced": "The payer's wallet cannot pay requests and sent this one back, so it was withdrawn. Nothing was paid. Ask them to send you the payment instead, to your address or as a payment file.",
+  "@issuedDetailsBounced": {
+    "description": "Request details: the payer's wallet cannot pay invoices and sent the request back, so the app withdrew it."
+  },
+  "requestPayerNoInvoices": "This wallet sent a request back before: it cannot pay requests. Ask them to send you the payment instead, to your address or as a payment file.",
+  "@requestPayerNoInvoices": {
+    "description": "Warning on the request form, before Request: this payer's wallet sent a request back before, so it cannot pay requests. Shown with a button that explains payment files."
+  },
+  "txStatusWaitingPayer": "Waiting for payer",
+  "@txStatusWaitingPayer": {
+    "description": "Status of a payment request the user sent: the payer has not paid it yet."
+  },
+  "txStepRequested": "Requested",
+  "@txStepRequested": {
+    "description": "Timeline step of a payment request: the user sent the request."
+  },
+  "txStepPaid": "Paid",
+  "@txStepPaid": {
+    "description": "Timeline step of a payment request: the payer paid it and the wallet published the payment."
+  },
+  "txDetailsWaitingPayer": "You asked for this payment. Nothing has arrived yet: it comes when the payer pays the request.",
+  "@txDetailsWaitingPayer": {
+    "description": "Details of a payment request the user sent that is not paid yet. Nothing has arrived."
+  },
+  "txDetailsRequestEnded": "This request ended unpaid. Nothing arrived.",
+  "@txDetailsRequestEnded": {
+    "description": "Details of a payment request that ended unpaid: declined, withdrawn, sent back or expired."
+  },
+  "txDetailsRequestedFrom": "Requested from",
+  "@txDetailsRequestedFrom": {
+    "description": "Details label above the address of the person a payment request went to."
+  },
+  "txPaymentRequest": "Requested payment",
+  "@txPaymentRequest": {
+    "description": "Title of a payment request the user sent, when no name or address is known."
+  },
+  "txSpokenRequesting": "Requesting {amount}",
+  "@txSpokenRequesting": {
+    "description": "Screen reader label of a payment request row that is not paid yet. amount is the formatted amount.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "txSpokenRequestingFrom": "Requesting {amount} from {who}",
+  "@txSpokenRequestingFrom": {
+    "description": "Screen reader label of a payment request row that is not paid yet. amount is the formatted amount, who the contact name or short address.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "who": {
+        "type": "String"
       }
     }
   },
@@ -2778,8 +2839,12 @@
   "@sendMessageCounter": {
     "description": "Counter under the message field: how much of the message's size limit is used, in bytes. Most letters count 1, accented letters 2, Chinese characters 3.",
     "placeholders": {
-      "used": {"type": "int"},
-      "limit": {"type": "int"}
+      "used": {
+        "type": "int"
+      },
+      "limit": {
+        "type": "int"
+      }
     }
   },
   "sendCreateFile": "Create payment file",

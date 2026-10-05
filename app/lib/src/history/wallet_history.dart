@@ -152,30 +152,19 @@ class WalletHistory {
     await _store.update((m) => m.invoiceIndex = index);
   }
 
-  /// The invoice approved under [slateId], or null when this install paid none.
-  PaidInvoice? paidInvoice(String slateId) {
-    final r = meta.paidInvoices[slateId];
-    if (r == null) return null;
-    return PaidInvoice(
-      slateId: slateId,
-      senderAddress: r.senderAddress,
-      amount: r.amount,
-      message: r.message,
-      status: r.status,
-      txId: r.txId,
-      kernelExcess: r.kernelExcess,
-    );
-  }
+  /// What this install recorded of the invoice it approved under [slateId], or null.
+  PaidInvoiceRec? paidInvoiceRecord(String slateId) =>
+      meta.paidInvoices[slateId];
 
-  /// Stores [paid], replacing what was kept under its slate id.
-  Future<void> putPaidInvoice(PaidInvoice paid) => _store.update(
-    (m) => m.paidInvoices[paid.slateId] = PaidInvoiceRec(
-      senderAddress: paid.senderAddress,
-      amount: paid.amount,
-      message: paid.message,
-      status: paid.status,
-      txId: paid.txId,
-      kernelExcess: paid.kernelExcess,
+  /// Records how the reply of the invoice [slateId] went, replacing what was kept.
+  Future<void> putPaidInvoice(
+    String slateId,
+    InvoiceStatus status, {
+    String? kernelExcess,
+  }) => _store.update(
+    (m) => m.paidInvoices[slateId] = PaidInvoiceRec(
+      status: status,
+      kernelExcess: kernelExcess,
     ),
   );
 
@@ -193,57 +182,29 @@ class WalletHistory {
     return true;
   });
 
-  static IssuedInvoice _issued(String slateId, IssuedInvoiceRec r) =>
-      IssuedInvoice(
-        slateId: slateId,
-        txId: r.txId,
-        payerAddress: r.payerAddress,
-        amount: r.amount,
-        message: r.message,
-        issuedAt: DateTime.fromMillisecondsSinceEpoch(r.issuedAtUnix * 1000),
-        expiresAt: DateTime.fromMillisecondsSinceEpoch(r.expiresAtUnix * 1000),
-        state: r.state,
-      );
+  /// The state recorded for the invoice this wallet issued under [slateId], or null when
+  /// none was: LEPIC's transaction then says what it can.
+  IssuedInvoiceState? issuedInvoiceState(String? slateId) =>
+      slateId == null ? null : meta.issuedInvoices[slateId]?.state;
 
-  /// Invoices this wallet issued, newest first.
-  List<IssuedInvoice> issuedInvoices() =>
-      [for (final e in meta.issuedInvoices.entries) _issued(e.key, e.value)]
-        ..sort((a, b) {
-          final byTime = b.issuedAt.compareTo(a.issuedAt);
-          return byTime != 0 ? byTime : b.txId.compareTo(a.txId);
-        });
-
-  /// The invoice this wallet issued under [slateId], or null.
-  IssuedInvoice? issuedInvoice(String slateId) {
-    final r = meta.issuedInvoices[slateId];
-    return r == null ? null : _issued(slateId, r);
-  }
-
-  /// Records a newly issued invoice. Times are kept to the second.
-  Future<void> putIssuedInvoice(IssuedInvoice issued) => _store.update(
-    (m) => m.issuedInvoices[issued.slateId] = IssuedInvoiceRec(
-      txId: issued.txId,
-      payerAddress: issued.payerAddress,
-      amount: issued.amount,
-      message: issued.message,
-      issuedAtUnix: issued.issuedAt.millisecondsSinceEpoch ~/ 1000,
-      expiresAtUnix: issued.expiresAt.millisecondsSinceEpoch ~/ 1000,
-      state: issued.state,
+  /// Records a newly issued invoice as waiting.
+  Future<void> putIssuedInvoice(String slateId) => _store.update(
+    (m) => m.issuedInvoices[slateId] = IssuedInvoiceRec(
+      state: IssuedInvoiceState.waiting,
     ),
   );
 
-  /// Moves the issued invoice [slateId] from waiting to [state]. Every other state is final,
-  /// so a late event never turns a paid invoice into an expired one. Returns false, changing
-  /// nothing, when there is no such invoice or it is no longer waiting.
+  /// Moves the issued invoice [slateId] from waiting, or from no record, to [state]. Every
+  /// other state is final, so a late event never turns a paid invoice into an expired one
+  /// and a repeated one changes nothing. Returns whether it moved.
   Future<bool> settleIssuedInvoice(String slateId, IssuedInvoiceState state) =>
       _store.update((m) {
         final r = m.issuedInvoices[slateId];
-        if (r == null ||
-            r.state != IssuedInvoiceState.waiting ||
-            state == IssuedInvoiceState.waiting) {
+        if (state == IssuedInvoiceState.waiting ||
+            (r != null && r.state != IssuedInvoiceState.waiting)) {
           return false;
         }
-        r.state = state;
+        m.issuedInvoices[slateId] = IssuedInvoiceRec(state: state);
         return true;
       });
 

@@ -23,6 +23,7 @@ import '../slate_files.dart';
 import '../wallet_service.dart';
 import 'common.dart';
 import 'contacts_screen.dart';
+import 'file_exchange_help.dart';
 import 'invoices_screen.dart';
 import 'receive_screen.dart' show shareAddress;
 import 'scan_screen.dart';
@@ -33,6 +34,7 @@ import 'theme/tokens.dart';
 
 /// Keys of the request form, for tests.
 const Key requestPayerKey = ValueKey('request-payer');
+const Key requestNoInvoicesKey = ValueKey('request-no-invoices');
 const Key requestAmountKey = ValueKey('request-amount');
 const Key requestMessageKey = ValueKey('request-message');
 
@@ -49,6 +51,7 @@ String? issuedStateWord(AppLocalizations l, IssuedInvoiceState state) =>
       IssuedInvoiceState.declined => l.issuedDeclined,
       IssuedInvoiceState.withdrawn => l.issuedWithdrawn,
       IssuedInvoiceState.expired => l.issuedExpired,
+      IssuedInvoiceState.bounced => l.issuedBounced,
     };
 
 /// Asks before [invoice] is withdrawn, then withdraws it. The `withdrawn` event brings the
@@ -339,6 +342,13 @@ class _InvoiceRequestScreenState extends ConsumerState<InvoiceRequestScreen> {
     final price = ref.watch(priceProvider).value;
     final currency =
         ref.watch(appSettingsProvider).value?.fiatCurrency ?? 'usd';
+    // Said before Request: a payer whose wallet sent a request back cannot pay this one.
+    final payerText = _payer.text.trim();
+    final capability = payerText.isEmpty || _checkPayer(l, payerText) != null
+        ? null
+        : ref
+              .watch(peerCapabilityProvider(parseRecipient(payerText).address))
+              .value;
     final amount = _parsedAmount;
     String? amountHelper;
     if (amount != null && price != null) {
@@ -456,6 +466,43 @@ class _InvoiceRequestScreenState extends ConsumerState<InvoiceRequestScreen> {
               ),
             ],
           ),
+          if (capability == PeerCapability.noInvoices)
+            Card(
+              key: requestNoInvoicesKey,
+              margin: const EdgeInsets.only(top: 8),
+              child: Padding(
+                padding: const EdgeInsetsDirectional.fromSTEB(16, 12, 8, 4),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Icon(Icons.warning_amber, color: t.warn, size: 20),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Semantics(
+                            liveRegion: true,
+                            child: Text(l.requestPayerNoInvoices),
+                          ),
+                        ),
+                      ],
+                    ),
+                    Align(
+                      alignment: AlignmentDirectional.centerEnd,
+                      child: TextButton.icon(
+                        icon: const Icon(Icons.description_outlined),
+                        label: Text(l.fileHelpTitle),
+                        onPressed: () => showFileExchangeHelp(
+                          context,
+                          role: FileExchangeRole.receiver,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           const SizedBox(height: 16),
           TextField(
             key: requestAmountKey,
@@ -606,6 +653,11 @@ class _IssuedInvoiceBlockState extends ConsumerState<IssuedInvoiceBlock> {
         Icons.timer_off_outlined,
         t.dim,
         l.issuedDetailsExpired,
+      ),
+      IssuedInvoiceState.bounced => (
+        Icons.reply,
+        t.warn,
+        l.issuedDetailsBounced,
       ),
     };
 
