@@ -5,6 +5,9 @@
 //
 // The app approves one invoice and declines another through the review screen, the service
 // finalizes and posts the approved one, and the payment's details show the service's receipt.
+// Then the other way round (I-06): the app requests two payments from the same CLI wallet
+// through Receive > Request a payment; the CLI pays one, which the app finalizes and shows
+// paid, and declines the other, which the app shows declined.
 import 'dart:io';
 
 import 'package:epic_wallet/src/amount.dart';
@@ -25,6 +28,9 @@ import 'package:path_provider/path_provider.dart';
 
 const _mode = String.fromEnvironment('WFE_E2E');
 const _service = String.fromEnvironment('WFE_SERVICE_ADDRESS');
+
+/// The CLI's invoice address, where the app's requests go.
+const _payerInvoices = String.fromEnvironment('WFE_PAYER_INVOICE_ADDRESS');
 const _pin = '271828';
 const _label = 'Floo shop';
 
@@ -162,11 +168,52 @@ Future<PendingInvoice> _openInvoice(WidgetTester tester, BigInt amount) async {
   return invoice;
 }
 
+/// From home, Receive > New request: asks the CLI's invoice address for [amount] EPIC, and
+/// waits for the Invoices screen the form opens on success.
+Future<void> _request(
+  WidgetTester tester,
+  String amount,
+  String message,
+) async {
+  _clearNotices(tester);
+  await _tapText(tester, 'Receive');
+  await _tapText(tester, 'New request');
+  await _enter(tester, 'Their invoice address', _payerInvoices);
+  await _enter(tester, 'Amount (EPIC)', amount);
+  await _enter(tester, 'Message to the payer (optional)', message);
+  await _tapText(tester, 'Request');
+  await _pumpUntil(
+    tester,
+    find.text('Requests you sent'),
+    timeout: const Duration(minutes: 1),
+  );
+}
+
+/// Drains the payments address, as a resume does, until the request for [amount] is [state].
+Future<IssuedInvoice> _waitForRequest(
+  WidgetTester tester,
+  BigInt amount,
+  IssuedInvoiceState state,
+) => _waitFor(
+  tester,
+  'the request for $amount to be ${state.name}',
+  () async {
+    await _container(tester).read(paymentsDrainProvider.notifier).drain();
+    final issued = await _session(tester).issuedInvoices();
+    return issued
+        .where((i) => i.amount == amount && i.state == state)
+        .firstOrNull;
+  },
+  timeout: const Duration(minutes: 10),
+  every: const Duration(seconds: 10),
+);
+
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   testWidgets(
-    'floonet invoices: approve one, decline one, the service posts and reports it',
+    'floonet invoices: approve one, decline one, the service posts and reports it; '
+    'then request two, one paid and one declined',
     (tester) async {
       await initLepic();
       final started = DateTime.now();
@@ -347,10 +394,47 @@ void main() {
       );
       step('done');
 
+      // 9. The other way round: the app requests a payment from the CLI, which pays it.
+      //    The host allowed the app's payments address on the CLI when it saw it above.
+      await _backHome(tester);
+      await _request(tester, '1.2', 'order 3');
+      step('requested-paid');
+      final paidRequest = await _waitForRequest(
+        tester,
+        BigInt.from(12) * _epic ~/ BigInt.from(10),
+        IssuedInvoiceState.paid,
+      );
+      expect(paidRequest.payerAddress, _payerInvoices);
+      await _pumpUntil(
+        tester,
+        find.text('Paid'),
+        poke: () async => _container(tester).invalidate(issuedInvoicesProvider),
+      );
+      step('request-paid');
+
+      // 10. A second request, which the CLI declines.
+      await _backHome(tester);
+      await _request(tester, '0.4', 'order 4');
+      step('requested-declined');
+      await _waitForRequest(
+        tester,
+        BigInt.from(4) * _epic ~/ BigInt.from(10),
+        IssuedInvoiceState.declined,
+      );
+      await _pumpUntil(
+        tester,
+        find.text('Declined'),
+        poke: () async => _container(tester).invalidate(issuedInvoicesProvider),
+      );
+      step('request-declined');
+
       _container(tester).read(sessionProvider.notifier).lock();
       await tester.pumpWidget(const SizedBox.shrink());
     },
-    skip: _mode != 'floonet-invoices' || _service.isEmpty,
+    skip:
+        _mode != 'floonet-invoices' ||
+        _service.isEmpty ||
+        _payerInvoices.isEmpty,
     timeout: const Timeout(Duration(minutes: 60)),
   );
 }
