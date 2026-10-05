@@ -1443,6 +1443,16 @@
   "@balanceTotalHelp": {
     "description": "Explanation under Total in the balance explanation."
   },
+  "homeBalanceNotSpendable": "{amount} not spendable yet",
+  "@homeBalanceNotSpendable": {
+    "description": "Line under the fiat value in the Wallet tab's balance header, shown when some money is not spendable yet; tapping it shows why. No full stop.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "2 EPIC"
+      }
+    }
+  },
   "homeBalanceHiddenLabel": "Balance hidden",
   "@homeBalanceHiddenLabel": {
     "description": "Screen-reader label of the balance while amounts are hidden."

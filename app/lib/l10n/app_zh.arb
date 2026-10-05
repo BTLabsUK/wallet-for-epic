@@ -284,6 +284,7 @@
   "balanceTotal": "总额",
   "balanceHelpRow": "{label}：{amount}",
   "balanceTotalHelp": "此钱包中的全部金额，无论能否使用。",
+  "homeBalanceNotSpendable": "{amount} 暂不可用",
   "homeBalanceHiddenLabel": "余额已隐藏",
   "homeShowBalances": "显示余额",
   "homeHideBalances": "隐藏余额",

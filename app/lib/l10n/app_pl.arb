@@ -284,6 +284,7 @@
   "balanceTotal": "Łącznie",
   "balanceHelpRow": "{label}: {amount}",
   "balanceTotalHelp": "Wszystko w tym portfelu, dostępne lub nie.",
+  "homeBalanceNotSpendable": "{amount} jeszcze niedostępne",
   "homeBalanceHiddenLabel": "Saldo ukryte",
   "homeShowBalances": "Pokaż salda",
   "homeHideBalances": "Ukryj salda",

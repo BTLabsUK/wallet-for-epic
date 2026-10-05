@@ -662,8 +662,8 @@ void main() {
       expect(find.text('≈ 6.25 USD'), findsOneWidget);
       expect(_statusWord(tester, nodeStatusKey), 'Node online');
       expect(_statusWord(tester, epicboxStatusKey), 'Epicbox connecting');
-      // The line, the life line and the breakdown expander went.
-      expect(find.textContaining('not spendable yet'), findsNothing);
+      // No caption and no life line; 2 EPIC are locked, so the not-spendable line shows.
+      expect(find.text('2 EPIC not spendable yet'), findsOneWidget);
       expect(find.text('Spendable'), findsNothing);
       // The height is only in the tooltip.
       expect(
@@ -2671,8 +2671,17 @@ void main() {
         expect(find.byKey(nodeStatusKey), findsNothing);
         expect(find.byKey(epicboxStatusKey), findsNothing);
         expect(find.byKey(compactStatusKey), findsOneWidget);
-        expect(find.text('≈ 6.25 USD'), findsNothing);
+        // Two lines: the figure, and the fiat value under it.
+        expect(find.text('≈ 6.25 USD'), findsOneWidget);
+        expect(
+          tester.getTopLeft(find.byKey(fiatValueKey)).dy,
+          greaterThan(
+            tester.getBottomLeft(find.byKey(balanceFigureKey)).dy - 1,
+          ),
+        );
         expect(find.byType(BalanceHelp), findsNothing);
+        expect(find.byKey(notSpendableKey), findsNothing);
+        expect(find.byTooltip('Hide balances'), findsNothing);
         await _tab(tester, 'Wallet');
         expect(figureSize(), fullSize);
         expect(headerHeight(), fullHeight);
@@ -2691,6 +2700,80 @@ void main() {
       expect(find.byKey(compactStatusKey), findsOneWidget);
       await gesture.up();
       await tester.pumpAndSettle();
+    });
+
+    testWidgets('Wallet\'s header: figure, fiat, and the not-spendable line', (
+      tester,
+    ) async {
+      final h = _Harness(price: 0.5);
+      await h.pump(tester);
+      final figure = tester.getRect(find.byKey(balanceFigureKey));
+      final fiat = tester.getRect(find.byKey(fiatValueKey));
+      final line = tester.getRect(find.byKey(notSpendableKey));
+      expect(find.text('12.5 EPIC'), findsOneWidget);
+      expect(find.text('≈ 6.25 USD'), findsOneWidget);
+      expect(find.text('2 EPIC not spendable yet'), findsOneWidget);
+      // Figure, then fiat, then the line, top to bottom.
+      expect(fiat.top, greaterThanOrEqualTo(figure.bottom - 1));
+      expect(line.top, greaterThanOrEqualTo(fiat.bottom - 1));
+      // The statuses stay on the right, beside the figure.
+      final node = tester.getRect(find.byKey(nodeStatusKey));
+      expect(node.left, greaterThan(figure.right));
+      expect(node.top, lessThan(line.top));
+      // Not syncing: no sync line.
+      expect(find.byKey(headerSyncLineKey), findsNothing);
+
+      // The line opens the balance help.
+      await tester.tap(find.byKey(notSpendableKey));
+      await tester.pump(const Duration(milliseconds: 200));
+      expect(find.textContaining('Locked by a payment'), findsWidgets);
+      await tester.pumpAndSettle(const Duration(seconds: 11));
+    });
+
+    testWidgets('no not-spendable line when everything is spendable', (
+      tester,
+    ) async {
+      final h = _Harness(
+        session: FakeWalletSession(
+          summary: WalletSummary(
+            lastConfirmedHeight: _tip,
+            minimumConfirmations: BigInt.from(10),
+            total: _epic(12.5),
+            spendable: _epic(12.5),
+            awaitingConfirmation: BigInt.zero,
+            awaitingFinalization: BigInt.zero,
+            immature: BigInt.zero,
+            locked: BigInt.zero,
+            validatedWithNode: true,
+          ),
+          transactions: _transactions(),
+        ),
+      );
+      await h.pump(tester);
+      expect(find.text('12.5 EPIC'), findsOneWidget);
+      expect(find.byKey(notSpendableKey), findsNothing);
+      expect(find.textContaining('not spendable yet'), findsNothing);
+    });
+
+    testWidgets('the sync line runs at the header\'s foot only while syncing', (
+      tester,
+    ) async {
+      final session = _SlowRefreshSession(refreshed: _summary());
+      final h = _Harness(session: session);
+      await h.pump(tester);
+      final bar = find.byKey(headerSyncLineKey);
+      expect(tester.widget<LinearProgressIndicator>(bar).value, 0.4);
+      final header = tester.getRect(find.byKey(shellHeaderKey));
+      expect(tester.getRect(bar).bottom, closeTo(header.bottom, 2));
+      // Not on Send and Receive, where the header has two lines.
+      await _tab(tester, 'Send');
+      expect(bar, findsNothing);
+      await _tab(tester, 'Wallet');
+      expect(bar, findsOneWidget);
+
+      session.gate.complete();
+      await tester.pumpAndSettle();
+      expect(bar, findsNothing);
     });
 
     testWidgets('a tap moves the pages in about 250 ms', (tester) async {

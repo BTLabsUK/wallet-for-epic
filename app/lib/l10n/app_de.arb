@@ -284,6 +284,7 @@
   "balanceTotal": "Gesamt",
   "balanceHelpRow": "{label}: {amount}",
   "balanceTotalHelp": "Alles in dieser Wallet, verfügbar oder nicht.",
+  "homeBalanceNotSpendable": "{amount} noch nicht verfügbar",
   "homeBalanceHiddenLabel": "Guthaben verborgen",
   "homeShowBalances": "Guthaben anzeigen",
   "homeHideBalances": "Guthaben verbergen",

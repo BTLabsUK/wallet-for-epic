@@ -284,6 +284,7 @@
   "balanceTotal": "Всего",
   "balanceHelpRow": "{label}: {amount}",
   "balanceTotalHelp": "Всё в этом кошельке, доступное и нет.",
+  "homeBalanceNotSpendable": "{amount} пока недоступно",
   "homeBalanceHiddenLabel": "Баланс скрыт",
   "homeShowBalances": "Показать баланс",
   "homeHideBalances": "Скрыть баланс",
