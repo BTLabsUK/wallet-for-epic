@@ -235,8 +235,9 @@ String groupDigits(AppLocalizations l, Object number) => localInt(l, number);
 
 /// `≈ 1.23 USD` for [atomic], or null when there is no price or amounts are hidden.
 ///
-/// With [short], as beside a balance or in a row, a value of 1,000 or more drops its
-/// decimals, cut off like [displayEpic]'s: `≈ 8,820,000 USD`. It is an estimate either way.
+/// With [short], as beside a balance or in a row, a value of 1,000 or more shows no cents:
+/// [fiatText] rounds to cents, then the cents are dropped (`≈ 8,820,000 USD`), so 999.995
+/// shows as `1,000`. It is an estimate either way.
 String? approxFiat(
   AppLocalizations l,
   BigInt atomic,
