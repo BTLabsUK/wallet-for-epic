@@ -1844,6 +1844,12 @@ abstract class AppLocalizations {
   /// **'Everything in this wallet, spendable or not.'**
   String get balanceTotalHelp;
 
+  /// Line under the fiat value in the Wallet tab's balance header, shown when some money is not spendable yet; tapping it shows why. No full stop.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} not spendable yet'**
+  String homeBalanceNotSpendable(String amount);
+
   /// Screen-reader label of the balance while amounts are hidden.
   ///
   /// In en, this message translates to:

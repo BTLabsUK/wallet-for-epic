@@ -1444,6 +1444,11 @@ class AppLocalizationsRu extends AppLocalizations {
   String get balanceTotalHelp => 'Всё в этом кошельке, доступное и нет.';
 
   @override
+  String homeBalanceNotSpendable(String amount) {
+    return '$amount пока недоступно';
+  }
+
+  @override
   String get homeBalanceHiddenLabel => 'Баланс скрыт';
 
   @override

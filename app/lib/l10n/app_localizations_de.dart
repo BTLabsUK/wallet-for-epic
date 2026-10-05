@@ -1355,6 +1355,11 @@ class AppLocalizationsDe extends AppLocalizations {
       'Alles in dieser Wallet, verfügbar oder nicht.';
 
   @override
+  String homeBalanceNotSpendable(String amount) {
+    return '$amount noch nicht verfügbar';
+  }
+
+  @override
   String get homeBalanceHiddenLabel => 'Guthaben verborgen';
 
   @override

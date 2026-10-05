@@ -1348,6 +1348,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get balanceTotalHelp => 'Everything in this wallet, spendable or not.';
 
   @override
+  String homeBalanceNotSpendable(String amount) {
+    return '$amount not spendable yet';
+  }
+
+  @override
   String get homeBalanceHiddenLabel => 'Balance hidden';
 
   @override

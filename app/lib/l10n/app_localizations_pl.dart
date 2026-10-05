@@ -1450,6 +1450,11 @@ class AppLocalizationsPl extends AppLocalizations {
   String get balanceTotalHelp => 'Wszystko w tym portfelu, dostępne lub nie.';
 
   @override
+  String homeBalanceNotSpendable(String amount) {
+    return '$amount jeszcze niedostępne';
+  }
+
+  @override
   String get homeBalanceHiddenLabel => 'Saldo ukryte';
 
   @override

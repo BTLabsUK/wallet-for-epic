@@ -1263,6 +1263,11 @@ class AppLocalizationsZh extends AppLocalizations {
   String get balanceTotalHelp => '此钱包中的全部金额，无论能否使用。';
 
   @override
+  String homeBalanceNotSpendable(String amount) {
+    return '$amount 暂不可用';
+  }
+
+  @override
   String get homeBalanceHiddenLabel => '余额已隐藏';
 
   @override
