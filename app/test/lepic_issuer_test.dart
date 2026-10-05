@@ -566,6 +566,33 @@ void main() {
       },
     );
 
+    test('the listener\'s bounce alone marks, withdraws and tells', () async {
+      final a = await session.issueInvoice(amount: five, address: _payer);
+      final sub = session.startListener().listen((_) {});
+      wallet.listenerSink.add(
+        lepic.ListenerEvent(
+          kind: lepic.ListenerEventKind.invoiceBounced,
+          txId: a.txId,
+          slateId: a.slateId,
+          message: 'sent back',
+        ),
+      );
+      await _settle();
+      await sub.cancel();
+      expect(events, [
+        IssuerEvent(
+          kind: IssuerEventKind.bounced,
+          slateId: a.slateId,
+          payerAddress: _payer,
+        ),
+      ]);
+      expect(wallet.cancelled, [a.txId]);
+      expect(
+        (await session.issuedInvoice(slateId: a.slateId))!.state,
+        IssuedInvoiceState.bounced,
+      );
+    });
+
     test('a bounce for a request already ended changes nothing', () async {
       final a = await session.issueInvoice(amount: five, address: _payer);
       await session.withdrawInvoice(slateId: a.slateId);

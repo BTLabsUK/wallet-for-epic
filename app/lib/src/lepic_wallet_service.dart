@@ -1253,7 +1253,9 @@ class LepicWalletSession implements WalletSession {
   /// An issuer event from LEPIC, for a request still waiting. A decline is final and a
   /// bounce means the payer cannot pay it, so the app withdraws the request itself, which
   /// frees the output LEPIC set aside for it. A repeated event finds it no longer waiting and
-  /// changes nothing, so a bounce LEPIC delivers twice withdraws and tells once.
+  /// changes nothing, so a bounce LEPIC delivers twice withdraws and tells once. A request
+  /// without a record (its write failed) is moved and told too: a live event is news, unlike
+  /// the catch-up in [_reconcileIssued], which stays silent for such a request.
   Future<void> _onIssuerEvent(String slateId, IssuedInvoiceState state) async {
     final recorded = _history.issuedInvoiceState(slateId);
     if (recorded != null && recorded != IssuedInvoiceState.waiting) return;
