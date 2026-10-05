@@ -1499,6 +1499,20 @@ class AppLocalizationsPl extends AppLocalizations {
       'Nagrody za kopanie czekają określoną liczbę bloków, zanim można je wydać.';
 
   @override
+  String get homeCaptionLocked => 'Zablokowane';
+
+  @override
+  String get homeCaptionMiningRewards => 'Nagrody za wydobycie';
+
+  @override
+  String get homeBalanceNextHint => 'Pokaż następne saldo';
+
+  @override
+  String homeBalanceSpendableLine(String amount) {
+    return '$amount dostępne';
+  }
+
+  @override
   String get homeSyncSyncing => 'Synchronizacja…';
 
   @override

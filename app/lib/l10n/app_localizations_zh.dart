@@ -1307,6 +1307,20 @@ class AppLocalizationsZh extends AppLocalizations {
   String get balanceImmatureHelp => '挖矿奖励需等待一定数量的区块后才能使用。';
 
   @override
+  String get homeCaptionLocked => '已锁定';
+
+  @override
+  String get homeCaptionMiningRewards => '挖矿奖励';
+
+  @override
+  String get homeBalanceNextHint => '显示下一项余额';
+
+  @override
+  String homeBalanceSpendableLine(String amount) {
+    return '可用 $amount';
+  }
+
+  @override
   String get homeSyncSyncing => '正在同步…';
 
   @override

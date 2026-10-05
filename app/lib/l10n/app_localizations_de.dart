@@ -1404,6 +1404,20 @@ class AppLocalizationsDe extends AppLocalizations {
       'Mining-Belohnungen warten eine feste Zahl von Blöcken, bevor sie verfügbar sind.';
 
   @override
+  String get homeCaptionLocked => 'Gesperrt';
+
+  @override
+  String get homeCaptionMiningRewards => 'Mining-Belohnungen';
+
+  @override
+  String get homeBalanceNextHint => 'Nächstes Guthaben anzeigen';
+
+  @override
+  String homeBalanceSpendableLine(String amount) {
+    return '$amount verfügbar';
+  }
+
+  @override
   String get homeSyncSyncing => 'Wird synchronisiert…';
 
   @override

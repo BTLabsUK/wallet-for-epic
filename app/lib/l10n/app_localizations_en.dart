@@ -1396,6 +1396,20 @@ class AppLocalizationsEn extends AppLocalizations {
       'Mining rewards wait a set number of blocks before they can be spent.';
 
   @override
+  String get homeCaptionLocked => 'Locked';
+
+  @override
+  String get homeCaptionMiningRewards => 'Mining rewards';
+
+  @override
+  String get homeBalanceNextHint => 'Show the next balance';
+
+  @override
+  String homeBalanceSpendableLine(String amount) {
+    return '$amount spendable';
+  }
+
+  @override
   String get homeSyncSyncing => 'Syncing…';
 
   @override

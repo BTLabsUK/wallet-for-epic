@@ -1928,6 +1928,30 @@ abstract class AppLocalizations {
   /// **'Mining rewards wait a set number of blocks before they can be spent.'**
   String get balanceImmatureHelp;
 
+  /// Short caption above the Wallet tab's large figure while it shows the funds held by an outgoing payment (a tap on the figure steps through the balances). One or two words.
+  ///
+  /// In en, this message translates to:
+  /// **'Locked'**
+  String get homeCaptionLocked;
+
+  /// Short caption above the Wallet tab's large figure while it shows mined coins that cannot be spent yet. One or two words.
+  ///
+  /// In en, this message translates to:
+  /// **'Mining rewards'**
+  String get homeCaptionMiningRewards;
+
+  /// Screen-reader hint of the Wallet tab's large figure: a tap shows the next balance that is not zero (confirming, locked and so on).
+  ///
+  /// In en, this message translates to:
+  /// **'Show the next balance'**
+  String get homeBalanceNextHint;
+
+  /// Line under the fiat value on the Wallet tab while the large figure shows a balance that is not spendable yet; tapping it shows the spendable balance again. No full stop.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} spendable'**
+  String homeBalanceSpendableLine(String amount);
+
   /// Status line under the balance while the wallet syncs with the node.
   ///
   /// In en, this message translates to:

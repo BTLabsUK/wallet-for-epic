@@ -1492,6 +1492,20 @@ class AppLocalizationsRu extends AppLocalizations {
       'Награды за майнинг ждут определённое число блоков, прежде чем их можно потратить.';
 
   @override
+  String get homeCaptionLocked => 'Заблокировано';
+
+  @override
+  String get homeCaptionMiningRewards => 'Награды за майнинг';
+
+  @override
+  String get homeBalanceNextHint => 'Показать следующий баланс';
+
+  @override
+  String homeBalanceSpendableLine(String amount) {
+    return '$amount доступно';
+  }
+
+  @override
   String get homeSyncSyncing => 'Синхронизация…';
 
   @override
