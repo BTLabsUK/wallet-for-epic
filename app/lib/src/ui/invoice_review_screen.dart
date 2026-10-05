@@ -92,8 +92,11 @@ class _InvoiceReviewScreenState extends ConsumerState<InvoiceReviewScreen> {
     if (!await _invoiceGate(context, ref) || !mounted) return;
     final session = ref.read(sessionProvider);
     if (session == null) return;
-    // The time may have run out while the PIN was asked.
-    if (_invoice.isExpiredAt(ref.read(invoiceClockProvider)())) {
+    // The time may have run out, or the service withdrawn it, while the PIN was asked.
+    final pending = ref.read(pendingInvoicesProvider).value;
+    if (_invoice.isExpiredAt(ref.read(invoiceClockProvider)()) ||
+        (pending != null &&
+            !pending.any((i) => i.slateId == _invoice.slateId))) {
       setState(() {});
       return;
     }

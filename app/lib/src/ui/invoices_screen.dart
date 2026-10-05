@@ -8,6 +8,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../app_log.dart';
 import '../errors.dart';
 import '../l10n.dart';
 import '../providers.dart';
@@ -144,11 +145,21 @@ class _InvoicesEntryState extends ConsumerState<InvoicesEntry> {
         if (paid == null) {
           view(l.invoiceNoticeWithdrawn, NoticeLevel.info, null);
         } else {
-          // The payment's details carry the Cancel the user may confirm.
-          view(
+          // Cancel, which asks first, while the payment can still be cancelled; else the way
+          // to its details.
+          final tx = await _findPayment(event.slateId);
+          if (!mounted) return;
+          notices.show(
             l.invoiceNoticeWithdrawnPaid,
-            NoticeLevel.warning,
-            await _openPayment(event.slateId),
+            level: NoticeLevel.warning,
+            action: tx == null
+                ? null
+                : tx.cancellable && tx.id != null
+                ? NoticeAction(
+                    l.txDetailsCancelPayment,
+                    () => _cancelPayment(tx),
+                  )
+                : NoticeAction(l.homeNoticeView, _detailsOf(tx.key)),
           );
         }
       case InvoiceEventKind.expired:
@@ -166,23 +177,74 @@ class _InvoicesEntryState extends ConsumerState<InvoicesEntry> {
         .push(MaterialPageRoute<void>(builder: (_) => const InvoicesScreen()));
   }
 
+  /// The payment of [slateId] in home's list, reloaded once when the list lacks it.
+  Future<TxEntry?> _findPayment(String slateId) async {
+    for (var attempt = 0; attempt < 2; attempt++) {
+      try {
+        if (attempt > 0) ref.invalidate(homeProvider);
+        final data = await ref.read(homeProvider.future);
+        final tx = data.transactions
+            .where((t) => t.slateId == slateId)
+            .firstOrNull;
+        if (tx != null) return tx;
+      } catch (_) {
+        // Worded without the payment.
+      }
+      if (!mounted) return null;
+    }
+    return null;
+  }
+
+  VoidCallback _detailsOf(String key) => () {
+    if (!mounted) return;
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(builder: (_) => TxDetailsScreen(txKey: key)),
+    );
+  };
+
   /// A way to the payment of [slateId] once home's list has it, else null.
   Future<VoidCallback?> _openPayment(String slateId) async {
-    TxEntry? tx;
+    final tx = await _findPayment(slateId);
+    return tx == null ? null : _detailsOf(tx.key);
+  }
+
+  /// Cancels [tx] after the same confirm the details screen asks, never without it.
+  Future<void> _cancelPayment(TxEntry tx) async {
+    final id = tx.id;
+    if (!mounted || id == null) return;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        final l = context.l10n;
+        return AlertDialog(
+          title: Text(l.txDetailsCancelTitle),
+          content: Text(l.txDetailsCancelSendBody),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: Text(l.txDetailsCancelKeep),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: Text(l.txDetailsCancelPayment),
+            ),
+          ],
+        );
+      },
+    );
+    if (confirmed != true || !mounted) return;
+    final session = ref.read(sessionProvider);
+    if (session == null) return;
+    final l = context.l10n;
+    final notices = ref.read(noticeProvider.notifier);
     try {
-      final data = await ref.read(homeProvider.future);
-      tx = data.transactions.where((t) => t.slateId == slateId).firstOrNull;
-    } catch (_) {
-      // Worded without the payment.
+      await session.cancelTransaction(txId: id);
+      logInfo('invoices', 'payment of a withdrawn invoice cancelled');
+      notices.show(l.txDetailsPaymentCancelled, level: NoticeLevel.success);
+    } catch (error) {
+      notices.show(describeError(l, error), level: NoticeLevel.error);
     }
-    final key = tx?.key;
-    if (key == null) return null;
-    return () {
-      if (!mounted) return;
-      Navigator.of(context).push(
-        MaterialPageRoute<void>(builder: (_) => TxDetailsScreen(txKey: key)),
-      );
-    };
+    ref.invalidate(homeProvider);
   }
 
   @override

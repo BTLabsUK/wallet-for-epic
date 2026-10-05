@@ -552,6 +552,29 @@ void main() {
     });
   });
 
+  testWidgets('an invoice withdrawn while the PIN is asked is not paid', (
+    tester,
+  ) async {
+    final h = _Harness();
+    await h.invoice();
+    await h.review(tester);
+    await tester.tap(find.text(_l.invoiceApprove));
+    await tester.pumpAndSettle();
+    h.session.relayNotice(
+      from: _shop,
+      kind: InvoiceEventKind.withdrawn,
+      slateId: 'inv-1',
+    );
+    await h.container(tester).read(pendingInvoicesProvider.notifier).refresh();
+    await tester.enterText(find.byType(TextField).last, _pin);
+    await tester.pumpAndSettle();
+    expect(find.text(_l.invoicePinReason), findsNothing);
+    expect(h.session.invoicePayments, 0);
+    expect(find.text(_l.invoiceGone), findsOneWidget);
+    // Stopped before payInvoice, so no error from the wallet either.
+    expect(_notice(tester), isNull);
+  });
+
   group('paid details', () {
     /// Pays the shop's invoice the way Approve does, then shows the payment's details.
     Future<_Harness> paid(
@@ -665,10 +688,8 @@ void main() {
       expect(h.session.cancelledTxIds, [h.session.transactionsValue.single.id]);
     });
 
-    testWidgets('a withdrawal after payment comes as a warning notice', (
-      tester,
-    ) async {
-      final h = await paid(tester);
+    /// Home open, then the shop's `withdrawn` notice for the paid invoice arrives.
+    Future<Notice> withdrawnOnHome(WidgetTester tester, _Harness h) async {
       await h.pump(tester, const HomeScreen());
       h.session.relayNotice(
         from: _shop,
@@ -683,13 +704,69 @@ void main() {
       final notice = h.container(tester).read(noticeProvider)!;
       expect(notice.text, _l.invoiceNoticeWithdrawnPaid);
       expect(notice.level, NoticeLevel.warning);
-      expect(h.session.cancelledTxIds, isEmpty);
-      await tester.tap(find.text(_l.homeNoticeView));
+      expect(h.session.cancelledTxIds, isEmpty, reason: 'never on its own');
+      return notice;
+    }
+
+    Finder noticeButton(String label) =>
+        find.descendant(of: find.byKey(noticeKey), matching: find.text(label));
+
+    testWidgets(
+      'a withdrawal after payment comes as a warning notice with Cancel',
+      (tester) async {
+        final h = await paid(tester);
+        final notice = await withdrawnOnHome(tester, h);
+        expect(notice.action?.label, _l.txDetailsCancelPayment);
+        await tester.tap(noticeButton(_l.txDetailsCancelPayment));
+        await tester.pumpAndSettle();
+        expect(find.text(_l.txDetailsCancelTitle), findsOneWidget);
+        await tester.tap(find.text(_l.txDetailsCancelKeep));
+        await tester.pumpAndSettle();
+        expect(h.session.cancelledTxIds, isEmpty);
+      },
+    );
+
+    testWidgets("the notice's Cancel cancels once the user confirms", (
+      tester,
+    ) async {
+      final h = await paid(tester);
+      await withdrawnOnHome(tester, h);
+      await tester.tap(noticeButton(_l.txDetailsCancelPayment));
+      await tester.pumpAndSettle();
+      await tester.tap(
+        find.widgetWithText(FilledButton, _l.txDetailsCancelPayment),
+      );
+      await tester.pumpAndSettle();
+      expect(h.session.cancelledTxIds, [h.session.transactionsValue.single.id]);
+      expect(_notice(tester), _l.txDetailsPaymentCancelled);
+    });
+
+    testWidgets('the notice offers View when the payment cannot be cancelled', (
+      tester,
+    ) async {
+      final h = await paid(tester);
+      final tx = h.session.transactionsValue.single;
+      h.session.transactionsValue = [
+        fakeTx(
+          id: tx.id,
+          slateId: tx.slateId,
+          kind: TxKind.sent,
+          status: TxStatus.awaitingConfirmation,
+          createdAtUnix: tx.createdAtUnix,
+          amountDebited: tx.amountDebited,
+          fee: tx.fee,
+          counterparty: tx.counterparty,
+        ),
+      ];
+      final notice = await withdrawnOnHome(tester, h);
+      expect(notice.action?.label, _l.homeNoticeView);
+      await tester.tap(noticeButton(_l.homeNoticeView));
       await tester.pumpAndSettle();
       expect(
         find.text(_l.invoiceDetailsWithdrawn('My Exchange')),
         findsOneWidget,
       );
+      expect(h.session.cancelledTxIds, isEmpty);
     });
 
     testWidgets('a payment that paid no invoice has no invoice block', (
