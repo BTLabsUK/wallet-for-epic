@@ -152,6 +152,47 @@ class WalletHistory {
     await _store.update((m) => m.invoiceIndex = index);
   }
 
+  /// The invoice approved under [slateId], or null when this install paid none.
+  PaidInvoice? paidInvoice(String slateId) {
+    final r = meta.paidInvoices[slateId];
+    if (r == null) return null;
+    return PaidInvoice(
+      slateId: slateId,
+      senderAddress: r.senderAddress,
+      amount: r.amount,
+      message: r.message,
+      status: r.status,
+      txId: r.txId,
+      kernelExcess: r.kernelExcess,
+    );
+  }
+
+  /// Stores [paid], replacing what was kept under its slate id.
+  Future<void> putPaidInvoice(PaidInvoice paid) => _store.update(
+    (m) => m.paidInvoices[paid.slateId] = PaidInvoiceRec(
+      senderAddress: paid.senderAddress,
+      amount: paid.amount,
+      message: paid.message,
+      status: paid.status,
+      txId: paid.txId,
+      kernelExcess: paid.kernelExcess,
+    ),
+  );
+
+  /// Moves the paid invoice [slateId] to [status], keeping [kernelExcess] once known. Returns
+  /// false when this install paid no invoice under that id.
+  Future<bool> setPaidInvoiceStatus(
+    String slateId,
+    InvoiceStatus status, {
+    String? kernelExcess,
+  }) => _store.update((m) {
+    final r = m.paidInvoices[slateId];
+    if (r == null) return false;
+    r.status = status;
+    r.kernelExcess = kernelExcess ?? r.kernelExcess;
+    return true;
+  });
+
   /// What an export of this wallet carries. A row a scan rebuilt with nothing added by the
   /// user comes back by itself after a restore, so it is left out.
   HistoryPayload exportPayload(

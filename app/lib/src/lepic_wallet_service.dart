@@ -6,6 +6,7 @@
 library;
 
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
@@ -49,6 +50,11 @@ WalletError mapLepicError(lepic.WalletError error) {
     lepic.WalletErrorKind.notReleasable ||
     lepic.WalletErrorKind.foreignAppData ||
     lepic.WalletErrorKind.damagedAppData => WalletErrorKind.invalidArgument,
+    // The app's invoice calls name a missing invoice and a wrong amount invalidArgument, and
+    // an undelivered reply a transport failure (`wallet_service.dart`).
+    lepic.WalletErrorKind.invoiceNotFound ||
+    lepic.WalletErrorKind.amountMismatch => WalletErrorKind.invalidArgument,
+    lepic.WalletErrorKind.notDelivered => WalletErrorKind.transportFailed,
     lepic.WalletErrorKind.restoreScanRequired ||
     lepic.WalletErrorKind.changedDuringCancel ||
     lepic.WalletErrorKind.other ||
@@ -159,6 +165,70 @@ SlateInfo lepicSlateInfo(lepic.SlateInfo info) => SlateInfo(
   },
   messages: lepicMessages(info.messages),
 );
+
+/// How long a waiting invoice stays payable: UP-14's default day. LEPIC's `pendingInvoices`
+/// and `sweepInvoices` take it in seconds, the same value for both.
+const Duration invoiceExpiry = Duration(hours: 24);
+
+/// LEPIC's waiting invoice as the app's. LEPIC cleaned the message for display already.
+PendingInvoice lepicPendingInvoice(lepic.IncomingInvoice i) => PendingInvoice(
+  slateId: i.slateId,
+  senderAddress: i.senderAddress,
+  amount: i.amount,
+  message: i.message,
+  receivedAt: DateTime.fromMillisecondsSinceEpoch(i.receivedAtMs),
+  expiresAt: DateTime.fromMillisecondsSinceEpoch(i.expiresAtMs),
+);
+
+/// LEPIC's drain of the invoice address as the app's.
+InvoiceDrainReport lepicInvoiceReport(lepic.InvoiceReport r) =>
+    InvoiceDrainReport(
+      parked: r.parked,
+      finalized: r.finalized,
+      dropped: r.dropped,
+      notices: r.notices,
+    );
+
+/// The invoice event in a LEPIC wallet event, or null for any other event and for the
+/// issuer's side (`invoiceFinalized`, `invoiceDeclined`, an expired invoice this wallet
+/// issued), which the app, a payer only, does not show. The app's own `declined` comes from
+/// [LepicWalletSession.declineInvoice].
+InvoiceEvent? lepicInvoiceEvent(lepic.WalletEvent e) {
+  final slateId = e.slateId;
+  if (slateId == null) return null;
+  final kind = switch (e.kind) {
+    lepic.WalletEventKind.invoiceReceived => InvoiceEventKind.received,
+    lepic.WalletEventKind.invoicePosted => InvoiceEventKind.posted,
+    lepic.WalletEventKind.invoiceWithdrawn => InvoiceEventKind.withdrawn,
+    lepic.WalletEventKind.invoiceExpired when e.txId == null =>
+      InvoiceEventKind.expired,
+    _ => null,
+  };
+  if (kind == null) return null;
+  return InvoiceEvent(
+    kind: kind,
+    slateId: slateId,
+    kernelExcess: kind == InvoiceEventKind.posted ? e.kernelExcess : null,
+  );
+}
+
+/// [label] as LEPIC stores it beside a sender: no control characters, at most 64 bytes, cut
+/// on a character boundary. The app's full label stays in `wfe_meta.json`.
+String lepicSenderLabel(String label) {
+  final clean = label
+      .replaceAll(RegExp(r'[\u0000-\u001f\u007f-\u009f]'), ' ')
+      .trim();
+  final out = StringBuffer();
+  var bytes = 0;
+  for (final rune in clean.runes) {
+    final char = String.fromCharCode(rune);
+    final size = utf8.encode(char).length;
+    if (bytes + size > 64) break;
+    out.write(char);
+    bytes += size;
+  }
+  return out.toString().trim();
+}
 
 /// The local transaction id in a history key this service made (`l:<id>`).
 int lepicTxId(String key) {
@@ -366,7 +436,9 @@ class LepicWalletService implements WalletService {
   ) async {
     try {
       final history = await WalletHistory.open(config.dataDir, config.chain);
-      return LepicWalletSession(wallet, history: history);
+      final session = LepicWalletSession(wallet, history: history);
+      await session.restoreInvoiceIndex();
+      return session;
     } catch (_) {
       wallet.lock();
       wallet.dispose();
@@ -447,6 +519,9 @@ class LepicWalletSession implements WalletSession {
 
   @override
   void dispose() {
+    _walletEvents?.cancel();
+    _walletEvents = null;
+    _invoiceEvents.close();
     _history.close();
     if (_wallet.isDisposed) return;
     _wallet.lock();
@@ -705,11 +780,14 @@ class LepicWalletSession implements WalletSession {
   Future<ImportReport> importHistory({required Uint8List data}) =>
       _guard(() async {
         final payload = HistoryPayload.decode(await _openHistoryFile(data));
-        return _history.importPayload(
+        final report = await _history.importPayload(
           payload,
           await _live(),
           walletFp: walletFingerprint(await _wallet.epicboxAddress()),
         );
+        // The file may carry the invoice index from before a restore.
+        await restoreInvoiceIndex();
+        return report;
       });
 
   /// LEPIC's answer for a history file, in the old core's sentences the UI translates.
@@ -729,61 +807,297 @@ class LepicWalletSession implements WalletSession {
     }
   }
 
-  // Invoices wait for LEPIC's UP-14 binding and a pin move (I-04). Until then every call says
-  // so, and the UI hides invoices because [supportsInvoices] is false.
+  // Invoices over epicbox (UP-14). LEPIC keeps the invoice address, the allowlist and the
+  // waiting invoices; the app keeps the labels, the invoice index and what became of each
+  // invoice it paid, in `wfe_meta.json`. Nothing here pays but [payInvoice], which only the
+  // review screen calls after the PIN or biometric gate; no event leads to it.
+
+  /// LEPIC's balance rule, the app's `minimumConfirmations` too (`providers.dart`).
+  static final BigInt _minimumConfirmations = BigInt.from(10);
+
+  BigInt get _expirySecs => BigInt.from(invoiceExpiry.inSeconds);
+
+  StreamSubscription<lepic.WalletEvent>? _walletEvents;
+  final StreamController<InvoiceEvent> _invoiceEvents =
+      StreamController<InvoiceEvent>.broadcast();
+
+  /// Events are handled one at a time, so the archive changes in the order LEPIC reported.
+  Future<void> _eventTail = Future.value();
+
+  /// Subscribes to LEPIC's events on the first invoice call, so a notice found by a drain
+  /// updates the archive before the app's event goes out.
+  void _watchEvents() {
+    if (_walletEvents != null || _wallet.isDisposed) return;
+    _walletEvents = _wallet.events().listen(
+      (e) => _eventTail = _eventTail.then((_) => _onWalletEvent(e)),
+      onError: (Object error) =>
+          logWarn('invoices', 'wallet events ended: $error'),
+    );
+  }
+
+  Future<void> _onWalletEvent(lepic.WalletEvent e) async {
+    final event = lepicInvoiceEvent(e);
+    if (event == null) return;
+    try {
+      switch (event.kind) {
+        case InvoiceEventKind.posted:
+          await _history.setPaidInvoiceStatus(
+            event.slateId,
+            InvoiceStatus.posted,
+            kernelExcess: event.kernelExcess,
+          );
+        case InvoiceEventKind.withdrawn:
+          // Only a paid one has a record; a waiting one LEPIC deleted itself.
+          await _history.setPaidInvoiceStatus(
+            event.slateId,
+            InvoiceStatus.withdrawn,
+          );
+        case InvoiceEventKind.received ||
+            InvoiceEventKind.declined ||
+            InvoiceEventKind.expired:
+          break;
+      }
+    } on WalletError catch (error) {
+      logWarn(
+        'invoices',
+        'could not record an invoice notice: ${error.kind.name}',
+      );
+    }
+    if (!_invoiceEvents.isClosed) _invoiceEvents.add(event);
+  }
+
+  /// Gives LEPIC the invoice index the archive kept, or records LEPIC's when it is ahead, so
+  /// a restored wallet with its history file keeps the address services were given. Never
+  /// fails the caller: without a relay LEPIC has no invoice address, and the app still opens.
+  Future<void> restoreInvoiceIndex() async {
+    try {
+      final current = await _wallet.invoiceAddressIndex();
+      final kept = _history.meta.invoiceIndex;
+      if (kept != null && kept > current) {
+        await _wallet.setInvoiceAddressIndex(index: kept);
+        logInfo('invoices', 'invoice address index restored');
+      } else if (current > _history.invoiceIndex) {
+        await _history.setInvoiceIndex(current);
+      }
+    } on lepic.WalletError catch (error) {
+      logWarn('invoices', 'invoice index not synced: ${error.kind.name}');
+    } on WalletError catch (error) {
+      logWarn('invoices', 'invoice index not recorded: ${error.kind.name}');
+    }
+  }
 
   @override
-  bool get supportsInvoices => false;
+  bool get supportsInvoices => true;
 
   @override
-  Future<String> invoiceAddress() async =>
-      throw invoicesUnsupported('invoiceAddress');
+  Future<String> invoiceAddress() => _guard(_wallet.invoiceAddress);
 
   @override
-  Future<String> rotateInvoiceAddress() async =>
-      throw invoicesUnsupported('rotateInvoiceAddress');
+  Future<String> rotateInvoiceAddress() => _guard(() async {
+    final address = await _wallet.rotateInvoiceAddress();
+    final index = await _wallet.invoiceAddressIndex();
+    if (index > _history.invoiceIndex) await _history.setInvoiceIndex(index);
+    return address;
+  });
 
   @override
-  Future<List<TrustedService>> trustedServices() async =>
-      throw invoicesUnsupported('trustedServices');
+  Future<List<TrustedService>> trustedServices() => _guard(() async {
+    final senders = await _wallet.invoiceSenders();
+    final labelled = _history.trustedServices([
+      for (final s in senders) s.address,
+    ]);
+    return [
+      for (var i = 0; i < senders.length; i++)
+        labelled[i].label != null || senders[i].label.isEmpty
+            ? labelled[i]
+            : TrustedService(
+                address: senders[i].address,
+                label: senders[i].label,
+              ),
+    ];
+  });
 
   @override
   Future<TrustedService> addTrustedService({
     required String address,
     required String label,
-  }) async => throw invoicesUnsupported('addTrustedService');
+  }) => _guard(() async {
+    final a = address.trim();
+    final name = label.trim();
+    if (name.isEmpty) {
+      throw const WalletError(
+        kind: WalletErrorKind.invalidArgument,
+        message: 'the service needs a label',
+      );
+    }
+    final key = epicboxKey(a);
+    final own = [
+      await _wallet.epicboxAddress(),
+      await _wallet.invoiceAddress(),
+    ];
+    if (own.any((o) => epicboxKey(o) == key)) {
+      throw const WalletError(
+        kind: WalletErrorKind.invalidArgument,
+        message: 'this is one of your own addresses',
+      );
+    }
+    final previous = [
+      for (final s in await _wallet.invoiceSenders())
+        if (epicboxKey(s.address) == key && s.address != a) s.address,
+    ];
+    final sender = await _wallet.allowInvoiceSender(
+      address: a,
+      label: lepicSenderLabel(name),
+    );
+    for (final p in previous) {
+      await _history.removeServiceLabel(p);
+    }
+    await _history.setServiceLabel(sender.address, name);
+    return TrustedService(address: sender.address, label: name);
+  });
 
   @override
-  Future<void> removeTrustedService({required String address}) async =>
-      throw invoicesUnsupported('removeTrustedService');
+  Future<void> removeTrustedService({required String address}) =>
+      _guard(() async {
+        final key = epicboxKey(address);
+        await _wallet.removeInvoiceSender(address: address.trim());
+        for (final a in _history.meta.serviceLabels.keys.toList()) {
+          if (epicboxKey(a) == key) await _history.removeServiceLabel(a);
+        }
+      });
 
   @override
-  Future<InvoiceDrainReport> drainInvoices() async =>
-      throw invoicesUnsupported('drainInvoices');
+  Future<InvoiceDrainReport> drainInvoices() => _guard(() async {
+    _watchEvents();
+    final report = await _wallet.drainInvoices();
+    try {
+      final sweep = await _wallet.sweepInvoices(expirySecs: _expirySecs);
+      if (sweep.cancellable.isNotEmpty) {
+        logInfo(
+          'invoices',
+          '${sweep.cancellable.length} invoice payments past their time to live',
+        );
+      }
+    } on lepic.WalletError catch (error) {
+      // The drain itself worked; expired invoices are swept on the next one.
+      logWarn('invoices', 'invoice sweep failed: ${error.kind.name}');
+    }
+    return lepicInvoiceReport(report);
+  });
 
   @override
-  Future<List<PendingInvoice>> pendingInvoices() async =>
-      throw invoicesUnsupported('pendingInvoices');
+  Future<List<PendingInvoice>> pendingInvoices() => _guard(() async {
+    _watchEvents();
+    return [
+      for (final i in await _wallet.pendingInvoices(expirySecs: _expirySecs))
+        lepicPendingInvoice(i),
+    ];
+  });
+
+  /// The local id of the payment of the invoice [slateId], from LEPIC's store.
+  Future<int?> _paymentTxId(String slateId) async =>
+      (await _wallet.transactions())
+          .where(
+            (t) =>
+                t.slateId == slateId &&
+                t.direction == lepic.TxDirection.outgoing,
+          )
+          .firstOrNull
+          ?.txId;
 
   @override
   Future<PaidInvoice> payInvoice({
     required String slateId,
     required BigInt amount,
-  }) async => throw invoicesUnsupported('payInvoice');
+  }) => _guard(() async {
+    _watchEvents();
+    final pending = (await _wallet.pendingInvoices(expirySecs: _expirySecs))
+        .where((i) => i.slateId == slateId)
+        .firstOrNull;
+    if (pending == null) {
+      throw const WalletError(
+        kind: WalletErrorKind.invalidArgument,
+        message: 'no pending invoice with that id',
+      );
+    }
+    PaidInvoice paid({required InvoiceStatus status, int? txId}) => PaidInvoice(
+      slateId: slateId,
+      senderAddress: pending.senderAddress,
+      amount: pending.amount,
+      message: pending.message,
+      status: status,
+      txId: txId,
+    );
+    PaidInvoice result;
+    try {
+      final tx = await _wallet.payInvoice(
+        slateId: slateId,
+        amount: amount,
+        minimumConfirmations: _minimumConfirmations,
+      );
+      result = paid(status: InvoiceStatus.replied, txId: tx.txId);
+    } on lepic.WalletError catch (error) {
+      if (error.kind != lepic.WalletErrorKind.notDelivered) rethrow;
+      // Paid and stored with its inputs locked; the reply goes again with Retry.
+      result = paid(
+        status: InvoiceStatus.replyFailed,
+        txId: await _paymentTxId(slateId),
+      );
+    }
+    try {
+      await _history.putPaidInvoice(result);
+    } on WalletError catch (error) {
+      // The payment stands either way; only its details screen loses the invoice.
+      logWarn(
+        'invoices',
+        'could not record a paid invoice: ${error.kind.name}',
+      );
+    }
+    return result;
+  });
 
   @override
-  Future<PaidInvoice> resendInvoiceReply({required String slateId}) async =>
-      throw invoicesUnsupported('resendInvoiceReply');
+  Future<PaidInvoice> resendInvoiceReply({required String slateId}) =>
+      _guard(() async {
+        final paid = _history.paidInvoice(slateId);
+        if (paid == null) {
+          throw const WalletError(
+            kind: WalletErrorKind.invalidArgument,
+            message: 'no paid invoice with that id',
+          );
+        }
+        if (paid.status != InvoiceStatus.replyFailed) return paid;
+        final txId = paid.txId ?? await _paymentTxId(slateId);
+        if (txId == null) {
+          throw const WalletError(
+            kind: WalletErrorKind.invalidArgument,
+            message: 'the payment of this invoice is not stored',
+          );
+        }
+        await _wallet.resendInvoicePayment(txId: txId);
+        await _history.setPaidInvoiceStatus(slateId, InvoiceStatus.replied);
+        return _history.paidInvoice(slateId) ??
+            paid.withStatus(InvoiceStatus.replied);
+      });
 
   @override
-  Future<void> declineInvoice({required String slateId}) async =>
-      throw invoicesUnsupported('declineInvoice');
+  Future<void> declineInvoice({required String slateId}) => _guard(() async {
+    _watchEvents();
+    await _wallet.declineInvoice(slateId: slateId);
+    if (!_invoiceEvents.isClosed) {
+      _invoiceEvents.add(
+        InvoiceEvent(kind: InvoiceEventKind.declined, slateId: slateId),
+      );
+    }
+  });
 
   @override
   Future<PaidInvoice?> paidInvoice({required String slateId}) async =>
-      throw invoicesUnsupported('paidInvoice');
+      _history.paidInvoice(slateId);
 
   @override
-  Stream<InvoiceEvent> invoiceEvents() =>
-      Stream.error(invoicesUnsupported('invoiceEvents'));
+  Stream<InvoiceEvent> invoiceEvents() {
+    _watchEvents();
+    return _invoiceEvents.stream;
+  }
 }

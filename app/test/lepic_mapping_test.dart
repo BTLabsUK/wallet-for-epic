@@ -101,6 +101,8 @@ void main() {
         lepic.WalletErrorKind.notReleasable,
         lepic.WalletErrorKind.foreignAppData,
         lepic.WalletErrorKind.damagedAppData,
+        lepic.WalletErrorKind.invoiceNotFound,
+        lepic.WalletErrorKind.amountMismatch,
       ]) {
         expect(
           mapLepicError(error(kind)).kind,
@@ -108,6 +110,10 @@ void main() {
           reason: kind.name,
         );
       }
+      expect(
+        mapLepicError(error(lepic.WalletErrorKind.notDelivered)).kind,
+        WalletErrorKind.transportFailed,
+      );
       for (final kind in [
         lepic.WalletErrorKind.restoreScanRequired,
         lepic.WalletErrorKind.changedDuringCancel,
@@ -286,34 +292,6 @@ void main() {
     expect(await session.contacts(), isEmpty);
     expect(await session.enrichHistory(), 0);
   });
-
-  test(
-    'invoices are unsupported until UP-14, without reaching LEPIC',
-    () async {
-      final session = LepicWalletSession(_NoNativeWallet());
-      expect(session.supportsInvoices, isFalse);
-      final unsupported = isA<WalletError>()
-          .having((e) => e.kind, 'kind', WalletErrorKind.other)
-          .having((e) => e.message, 'message', contains('UP-14'));
-      final calls = <Future<Object?> Function()>[
-        session.invoiceAddress,
-        session.rotateInvoiceAddress,
-        session.trustedServices,
-        () => session.addTrustedService(address: 'a', label: 'l'),
-        () => session.removeTrustedService(address: 'a'),
-        session.drainInvoices,
-        session.pendingInvoices,
-        () => session.payInvoice(slateId: 's', amount: BigInt.one),
-        () => session.resendInvoiceReply(slateId: 's'),
-        () => session.declineInvoice(slateId: 's'),
-        () => session.paidInvoice(slateId: 's'),
-        () => session.invoiceEvents().first,
-      ];
-      for (final call in calls) {
-        await expectLater(call(), throwsA(unsupported));
-      }
-    },
-  );
 
   group('history rows', () {
     lepic.TransactionDetails details({

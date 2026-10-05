@@ -275,7 +275,10 @@ class HomeNotifier extends AsyncNotifier<HomeData> {
       final data = await _refreshed(session);
       if (ref.mounted) state = AsyncData(data);
     } catch (error, stack) {
-      logWarn('sync', 'refresh failed: ${describeError(englishStrings, error)}');
+      logWarn(
+        'sync',
+        'refresh failed: ${describeError(englishStrings, error)}',
+      );
       if (!ref.mounted) return;
       // The local figures stay, no longer marked as syncing, under the error.
       final shown = state.value;
@@ -315,7 +318,10 @@ class HomeNotifier extends AsyncNotifier<HomeData> {
       );
     } catch (error) {
       // The list stays as it was.
-      logInfo('history', 'enrich failed: ${describeError(englishStrings, error)}');
+      logInfo(
+        'history',
+        'enrich failed: ${describeError(englishStrings, error)}',
+      );
     } finally {
       _enriching = false;
     }
@@ -792,9 +798,22 @@ class TrustedServicesNotifier extends AsyncNotifier<List<TrustedService>> {
   }
 }
 
-/// The invoice behind the transaction with that slate id, once paid, or null.
+/// The invoice behind the transaction with that slate id, once paid, or null. Reloads when
+/// a receipt or a withdrawal for it arrives: LEPIC reports those as events, which may come
+/// after the drain that found them has returned.
 final paidInvoiceProvider = FutureProvider.autoDispose
     .family<PaidInvoice?, String>((ref, slateId) {
       final session = _invoiceSession(ref);
-      return session?.paidInvoice(slateId: slateId);
+      if (session == null) return null;
+      final events = session
+          .invoiceEvents()
+          .where(
+            (e) =>
+                e.slateId == slateId &&
+                (e.kind == InvoiceEventKind.posted ||
+                    e.kind == InvoiceEventKind.withdrawn),
+          )
+          .listen((_) => ref.invalidateSelf(), onError: (_) {});
+      ref.onDispose(events.cancel);
+      return session.paidInvoice(slateId: slateId);
     });
