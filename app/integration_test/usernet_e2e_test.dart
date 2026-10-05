@@ -313,7 +313,7 @@ void main() {
       await _tapText(tester, 'Send');
       await _enter(tester, 'To', _cliAddress);
       await _enter(tester, 'Amount (EPIC)', '0.3');
-      await _enter(tester, 'Note (optional)', _note);
+      await _enter(tester, 'Message to recipient (optional)', _note);
       await _tapText(tester, 'Review');
       final sendButton = find.textContaining(RegExp(r'^Send 0\.3'));
       await _pumpUntil(tester, sendButton, timeout: const Duration(minutes: 1));
