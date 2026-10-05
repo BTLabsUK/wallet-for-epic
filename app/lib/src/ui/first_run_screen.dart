@@ -111,19 +111,44 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
 
 /// The app bar's way to network settings before a wallet is open, on first run and unlock:
 /// the icon and its label in the accent colour, so it reads as a button rather than a
-/// decoration. From text scale 1.5 the label gives way to the icon and its tooltip, so a
-/// long translation never pushes the bar out of shape.
+/// decoration. When the labelled button would take more than half the screen's width, at the
+/// current text scale and in the current language, it gives way to the icon and its tooltip,
+/// so a long label never overflows the bar.
 class NetworkSettingsButton extends StatelessWidget {
   const NetworkSettingsButton({super.key, required this.onPressed});
 
   final VoidCallback? onPressed;
+
+  /// Everything beside the label: the button's start padding (12), the icon (18), the gap
+  /// (8), its end padding (16) and the margin after it (8).
+  static const double _chrome = 62;
+
+  /// The labelled button keeps to this share of the width; the rest is left for the bar's
+  /// back arrow and some air.
+  static const double _maxShare = 0.5;
+
+  bool _labelFits(BuildContext context, String label) {
+    final theme = Theme.of(context);
+    final style =
+        theme.textButtonTheme.style?.textStyle?.resolve(const {}) ??
+        theme.textTheme.labelLarge;
+    final painter = TextPainter(
+      text: TextSpan(text: label, style: style),
+      textDirection: Directionality.of(context),
+      textScaler: MediaQuery.textScalerOf(context),
+      maxLines: 1,
+    )..layout();
+    final width = painter.width + _chrome;
+    painter.dispose();
+    return width <= MediaQuery.sizeOf(context).width * _maxShare;
+  }
 
   @override
   Widget build(BuildContext context) {
     final label = context.l10n.setupNetworkSettingsTooltip;
     final colour = context.tokens.accentText;
     const icon = Icon(Icons.settings_ethernet);
-    if (MediaQuery.textScalerOf(context).scale(1) >= 1.5) {
+    if (!_labelFits(context, label)) {
       return IconButton(
         tooltip: label,
         color: colour,

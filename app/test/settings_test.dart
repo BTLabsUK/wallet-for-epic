@@ -1415,7 +1415,9 @@ void main() {
       final h = _Harness(sealed: false, walletExists: false);
       await h.pump(tester);
       // The network choice shows without Advanced too, so a new install can reach floonet.
-      expect(find.text('Network settings'), findsOneWidget);
+      // The test font's wide glyphs leave it as the icon; network_settings_button_test.dart
+      // checks the label with the real faces.
+      expect(find.byTooltip('Network settings'), findsOneWidget);
       await _tapText(tester, 'I already have a wallet: restore it');
       expect(find.text('Where to start scanning'), findsNothing);
       expect(find.text('Pick the date you created the wallet'), findsNothing);
@@ -1434,7 +1436,7 @@ void main() {
     ) async {
       final h = _Harness(sealed: false, walletExists: false, advanced: true);
       await h.pump(tester);
-      expect(find.text('Network settings'), findsOneWidget);
+      expect(find.byTooltip('Network settings'), findsOneWidget);
       await _tapText(tester, 'I already have a wallet: restore it');
       expect(find.text('Where to start scanning'), findsOneWidget);
       expect(find.text('Pick the date you created the wallet'), findsOneWidget);
