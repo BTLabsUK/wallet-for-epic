@@ -65,23 +65,42 @@ class _IssuerWallet implements lepic.EpicWallet {
     ...stored.values,
   ];
 
-  void store(int txId, String slateId, lepic.TxStatus status, BigInt amount) =>
-      stored[txId] = lepic.TransactionDetails(
-        txId: txId,
-        direction: lepic.TxDirection.incoming,
-        status: status,
-        slateId: slateId,
-        amountCredited: amount,
-        amountDebited: BigInt.zero,
-        createdAtMs: 1790000000000,
-        releasable: false,
-        messages: const [],
-      );
+  void store(
+    int txId,
+    String slateId,
+    lepic.TxStatus status,
+    BigInt amount, {
+    String? counterparty,
+    String? transport = 'epicbox',
+  }) => stored[txId] = lepic.TransactionDetails(
+    txId: txId,
+    direction: lepic.TxDirection.incoming,
+    status: status,
+    slateId: slateId,
+    counterparty: counterparty,
+    transport: transport,
+    amountCredited: amount,
+    amountDebited: BigInt.zero,
+    createdAtMs: 1790000000000,
+    releasable: false,
+    messages: const [],
+  );
 
   void setStatus(int txId, lepic.TxStatus status) {
     final t = stored[txId]!;
-    store(txId, t.slateId!, status, t.amountCredited);
+    store(
+      txId,
+      t.slateId!,
+      status,
+      t.amountCredited,
+      counterparty: t.counterparty,
+      transport: t.transport,
+    );
   }
+
+  /// Called inside [issueInvoiceEpicbox] before it fails, as a listener signing a payment
+  /// at the same moment would.
+  void Function()? duringIssue;
 
   @override
   Future<lepic.IssuedInvoice> issueInvoiceEpicbox({
@@ -92,8 +111,15 @@ class _IssuerWallet implements lepic.EpicWallet {
     issued.add((amount: amount, address: address, message: message));
     final txId = _next++;
     final slateId = 'issued-$txId';
-    // Stored before delivery, as LEPIC does.
-    store(txId, slateId, lepic.TxStatus.received, amount);
+    // Stored before delivery, as LEPIC does, with the payer as counterparty.
+    store(
+      txId,
+      slateId,
+      lepic.TxStatus.received,
+      amount,
+      counterparty: address,
+    );
+    duringIssue?.call();
     if (issueError != null) throw _lepicError(issueError!);
     return lepic.IssuedInvoice(txId: txId, slateId: slateId, amount: amount);
   }
@@ -255,14 +281,40 @@ void main() {
     });
 
     test('an undelivered request is cancelled and leaves no record', () async {
-      wallet.store(7, 'older', lepic.TxStatus.received, five);
+      wallet.store(
+        7,
+        'older',
+        lepic.TxStatus.received,
+        five,
+        counterparty: _payer,
+      );
+      // Payments for the same amount the listener signs during the call: from someone
+      // else over epicbox, and from the payer's key by file.
+      wallet.duringIssue = () => wallet
+        ..store(
+          80,
+          'concurrent',
+          lepic.TxStatus.received,
+          five,
+          counterparty: 'senderKey@epicbox.example',
+        )
+        ..store(
+          81,
+          'by-file',
+          lepic.TxStatus.received,
+          five,
+          counterparty: _payer,
+          transport: 'file',
+        );
       wallet.issueError = lepic.WalletErrorKind.notDelivered;
       await expectLater(
         session.issueInvoice(amount: five, address: _payer),
         _kind(WalletErrorKind.transportFailed),
       );
-      // Only the one this call stored, not an older receive for the same amount.
+      // Only the one this call stored: not an older receive, not a concurrent one.
       expect(wallet.cancelled, [40]);
+      expect(wallet.stored[80]!.status, lepic.TxStatus.received);
+      expect(wallet.stored[81]!.status, lepic.TxStatus.received);
       expect(await session.issuedInvoices(), isEmpty);
     });
 
@@ -499,6 +551,20 @@ void main() {
           IssuerEvent(kind: IssuerEventKind.expired, slateId: b.slateId),
         ]),
       );
+    });
+
+    test('a single request is caught up too, for its details', () async {
+      final a = await session.issueInvoice(amount: five, address: _payer);
+      wallet.setStatus(a.txId, lepic.TxStatus.posted);
+      expect(
+        (await session.issuedInvoice(slateId: a.slateId))!.state,
+        IssuedInvoiceState.paid,
+      );
+      expect(await session.issuedInvoice(slateId: 'nope'), isNull);
+      await _settle();
+      expect(events, [
+        IssuerEvent(kind: IssuerEventKind.paid, slateId: a.slateId),
+      ]);
     });
 
     test('LEPIC\'s stored states', () {

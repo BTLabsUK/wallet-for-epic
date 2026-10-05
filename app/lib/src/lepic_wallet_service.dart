@@ -228,7 +228,10 @@ InvoiceEvent? lepicInvoiceEvent(lepic.WalletEvent e) {
 }
 
 /// What LEPIC's stored transaction says became of an issued invoice the app still holds as
-/// waiting, for events the app missed: null while LEPIC still waits for the payer.
+/// waiting, for events the app missed: null while LEPIC still waits for the payer. A
+/// cancelled one reads as expired: the app's own withdraw or decline settles its record
+/// before this can see it, unless that record write failed, and then the request shows
+/// expired instead of withdrawn or declined. It is ended either way.
 IssuedInvoiceState? lepicIssuedState(lepic.TxStatus status) => switch (status) {
   lepic.TxStatus.finalized ||
   lepic.TxStatus.posted ||
@@ -1266,7 +1269,7 @@ class LepicWalletSession implements WalletSession {
       );
     } on lepic.WalletError catch (error) {
       if (error.kind == lepic.WalletErrorKind.notDelivered) {
-        await _dropUndelivered(before, amount);
+        await _dropUndelivered(before, amount, to);
       }
       rethrow;
     }
@@ -1296,15 +1299,25 @@ class LepicWalletSession implements WalletSession {
 
   /// Cancels the invoice LEPIC stored when the relay did not take it, so a failed request
   /// leaves nothing behind: LEPIC cannot send an issued invoice again. It is the incoming
-  /// transaction for [amount] that was not there before the call.
-  Future<void> _dropUndelivered(Set<int> before, BigInt amount) async {
+  /// epicbox transaction for [amount] to the payer at [to] that was not there before the
+  /// call. A payment the listener signed meanwhile for the same amount comes from another
+  /// address, so it is never taken for it.
+  Future<void> _dropUndelivered(
+    Set<int> before,
+    BigInt amount,
+    String to,
+  ) async {
+    final key = epicboxKey(to);
     try {
       final stored = (await _wallet.transactions()).where(
         (t) =>
             !before.contains(t.txId) &&
             t.direction == lepic.TxDirection.incoming &&
             t.status == lepic.TxStatus.received &&
-            t.amountCredited == amount,
+            t.amountCredited == amount &&
+            t.transport == 'epicbox' &&
+            t.counterparty != null &&
+            epicboxKey(t.counterparty!) == key,
       );
       for (final t in stored) {
         await _wallet.cancelTransaction(txId: t.txId);
@@ -1340,9 +1353,15 @@ class LepicWalletSession implements WalletSession {
     }
   }
 
+  /// Reconciled as [issuedInvoices] is, so a details screen does not show a request as
+  /// waiting after an event the app missed.
   @override
-  Future<IssuedInvoice?> issuedInvoice({required String slateId}) async =>
-      _history.issuedInvoice(slateId);
+  Future<IssuedInvoice?> issuedInvoice({required String slateId}) =>
+      _guard(() async {
+        _watchEvents();
+        await _inTurn(_reconcileIssued);
+        return _history.issuedInvoice(slateId);
+      });
 
   @override
   Future<IssuedInvoice> withdrawInvoice({required String slateId}) =>
