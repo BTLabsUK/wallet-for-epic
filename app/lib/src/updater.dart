@@ -356,7 +356,8 @@ class UpdateNotifier extends Notifier<UpdateState> {
   }
 
   /// Fetches the manifest. With [quiet], "up to date" leaves the state idle and a failure
-  /// keeps what the last check found: the update it offered, else idle.
+  /// keeps what the last check found: the update it offered, else idle. A failure that is not
+  /// quiet reports itself and still keeps a known update.
   Future<void> check({bool quiet = false}) async {
     final platform = ref.read(updatePlatformProvider);
     if (platform == null) return;
@@ -399,7 +400,12 @@ class UpdateNotifier extends Notifier<UpdateState> {
           ? known == null
                 ? const UpdateState(UpdatePhase.idle)
                 : UpdateState(UpdatePhase.available, update: known)
-          : UpdateState(UpdatePhase.failed, text: _describe(error));
+          // Settings keeps its row and dot; Try again then installs the known update.
+          : UpdateState(
+              UpdatePhase.failed,
+              update: known,
+              text: _describe(error),
+            );
     } finally {
       client.close(force: true);
     }

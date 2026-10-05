@@ -106,8 +106,9 @@ class SlotProgress extends StatelessWidget {
 
 /// A [Scaffold] with a [ProgressSlot] under the app bar and the [NoticeDock] under that. With
 /// [centered], [body] sits in the middle of the space left (and scrolls when it does not fit);
-/// otherwise it starts right below the dock, which moves it down while a notice shows. [idle] is what the slot shows, such as a [SlotProgress]. With [glow], the
-/// screen gets the lit Protocol backdrop, its light at that point.
+/// otherwise it starts right below the dock, which moves it down while a notice shows. [idle]
+/// is what the slot shows, such as a [SlotProgress]. With [glow], the screen gets the lit
+/// Protocol backdrop, its light at that point.
 class SlotScaffold extends StatelessWidget {
   const SlotScaffold({
     super.key,

@@ -486,6 +486,15 @@ void main() {
       },
     );
 
+    test('a failed check from Settings keeps the known update', () async {
+      final updates = container.read(updateProvider.notifier);
+      await updates.checkOnOpening();
+      reply = 'error';
+      await updates.check();
+      expect(container.read(updateProvider).phase, UpdatePhase.failed);
+      expect(container.read(updateProvider).update?.versionName, '1.0.1');
+    });
+
     test('a quiet failure with nothing known stays idle', () async {
       reply = 'error';
       await container.read(updateProvider.notifier).checkOnOpening();
