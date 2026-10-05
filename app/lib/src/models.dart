@@ -4,6 +4,10 @@
 /// the UI and the tests did not change when the core did.
 library;
 
+import 'dart:convert';
+
+import 'package:flutter/widgets.dart' show StringCharacters;
+
 /// Why a payment was cancelled.
 enum CancelReason {
   /// The user cancelled it.
@@ -919,6 +923,198 @@ class InvoiceDrainReport {
           finalized == other.finalized &&
           dropped == other.dropped &&
           notices == other.notices;
+}
+
+/// How long an invoice stays payable: UP-14's default day, for invoices the wallet pays and
+/// the ones it issues. LEPIC's `pendingInvoices` and `sweepInvoices` take it in seconds.
+const Duration invoiceExpiry = Duration(hours: 24);
+
+/// [text] cut to at most [maxBytes] UTF-8 bytes on a character boundary, as Send cuts a
+/// message, trimmed, and null when nothing is left.
+String? cutMessage(String? text, {int maxBytes = slateMessageMaxBytes}) {
+  final kept = StringBuffer();
+  var bytes = 0;
+  for (final c in (text ?? '').trim().characters) {
+    final n = utf8.encode(c).length;
+    if (bytes + n > maxBytes) break;
+    kept.write(c);
+    bytes += n;
+  }
+  final out = kept.toString().trim();
+  return out.isEmpty ? null : out;
+}
+
+/// Where an invoice this wallet issued stands. Only [waiting] moves, and only once: every
+/// other state is final.
+enum IssuedInvoiceState {
+  /// Sent to the payer, not paid yet. It can be withdrawn.
+  waiting,
+
+  /// The payer paid; this wallet finalized and posted the payment. Confirmation comes from
+  /// the chain like any received payment.
+  paid,
+
+  /// The payer declined it, and the app withdrew it.
+  declined,
+
+  /// The user withdrew it.
+  withdrawn,
+
+  /// Its time ran out unpaid, and the wallet cancelled it.
+  expired,
+}
+
+/// An invoice this wallet issued: a request to the payer at [payerAddress], their invoice
+/// address, to pay [amount]. Its payment arrives on the wallet's payments address. Nothing
+/// about it ever pays from this wallet.
+class IssuedInvoice {
+  final String slateId;
+
+  /// Local id of the invoice's transaction, for a withdrawal.
+  final int txId;
+  final String payerAddress;
+
+  /// What the payer is asked for, in the smallest unit.
+  final BigInt amount;
+
+  /// The message signed into the invoice, as cut for it.
+  final String? message;
+  final DateTime issuedAt;
+
+  /// When the wallet cancels it unpaid.
+  final DateTime expiresAt;
+  final IssuedInvoiceState state;
+
+  const IssuedInvoice({
+    required this.slateId,
+    required this.txId,
+    required this.payerAddress,
+    required this.amount,
+    this.message,
+    required this.issuedAt,
+    required this.expiresAt,
+    required this.state,
+  });
+
+  /// Only an unpaid, unanswered invoice can be withdrawn.
+  bool get withdrawable => state == IssuedInvoiceState.waiting;
+
+  /// Time left at [now], never negative.
+  Duration timeLeftAt(DateTime now) {
+    final left = expiresAt.difference(now);
+    return left.isNegative ? Duration.zero : left;
+  }
+
+  IssuedInvoice withState(IssuedInvoiceState state) => IssuedInvoice(
+    slateId: slateId,
+    txId: txId,
+    payerAddress: payerAddress,
+    amount: amount,
+    message: message,
+    issuedAt: issuedAt,
+    expiresAt: expiresAt,
+    state: state,
+  );
+
+  @override
+  int get hashCode =>
+      slateId.hashCode ^
+      txId.hashCode ^
+      payerAddress.hashCode ^
+      amount.hashCode ^
+      message.hashCode ^
+      issuedAt.hashCode ^
+      expiresAt.hashCode ^
+      state.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is IssuedInvoice &&
+          slateId == other.slateId &&
+          txId == other.txId &&
+          payerAddress == other.payerAddress &&
+          amount == other.amount &&
+          message == other.message &&
+          issuedAt == other.issuedAt &&
+          expiresAt == other.expiresAt &&
+          state == other.state;
+}
+
+/// What happened to invoices this wallet issued. Each but [bounced] names one invoice and
+/// the state it moved to.
+enum IssuerEventKind {
+  paid,
+  declined,
+  withdrawn,
+  expired,
+
+  /// A drain found invoices sent back unpaid by wallets that cannot pay invoices, such as a
+  /// stock `epic-wallet`. LEPIC gives only a count, not which invoice; the expiry sweep
+  /// cancels them. Tell the user to send that person a payment file instead.
+  bounced,
+}
+
+/// The event an issued invoice raises on moving to [state]; none for [waiting], where every
+/// invoice starts.
+IssuerEventKind? issuerEventFor(IssuedInvoiceState state) => switch (state) {
+  IssuedInvoiceState.waiting => null,
+  IssuedInvoiceState.paid => IssuerEventKind.paid,
+  IssuedInvoiceState.declined => IssuerEventKind.declined,
+  IssuedInvoiceState.withdrawn => IssuerEventKind.withdrawn,
+  IssuedInvoiceState.expired => IssuerEventKind.expired,
+};
+
+class IssuerEvent {
+  final IssuerEventKind kind;
+
+  /// Null for [IssuerEventKind.bounced].
+  final String? slateId;
+
+  /// For [IssuerEventKind.bounced]: how many came back in that drain.
+  final int count;
+
+  const IssuerEvent({required this.kind, this.slateId, this.count = 1});
+
+  @override
+  int get hashCode => kind.hashCode ^ slateId.hashCode ^ count.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is IssuerEvent &&
+          kind == other.kind &&
+          slateId == other.slateId &&
+          count == other.count;
+}
+
+/// What one drain of the payments address did.
+class PaymentsDrainReport {
+  /// Payments to this wallet signed and answered.
+  final int received;
+
+  /// Answers finalized and posted: sends of this wallet, and paid invoices it issued.
+  final int finalized;
+
+  /// Invoices this wallet issued that came back unpaid.
+  final int bounced;
+
+  const PaymentsDrainReport({
+    this.received = 0,
+    this.finalized = 0,
+    this.bounced = 0,
+  });
+
+  @override
+  int get hashCode => received.hashCode ^ finalized.hashCode ^ bounced.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is PaymentsDrainReport &&
+          received == other.received &&
+          finalized == other.finalized &&
+          bounced == other.bounced;
 }
 
 /// Mirrors epic-wallet's `WalletInfo`.

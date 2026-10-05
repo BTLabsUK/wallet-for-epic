@@ -167,10 +167,6 @@ SlateInfo lepicSlateInfo(lepic.SlateInfo info) => SlateInfo(
   messages: lepicMessages(info.messages),
 );
 
-/// How long a waiting invoice stays payable: UP-14's default day. LEPIC's `pendingInvoices`
-/// and `sweepInvoices` take it in seconds, the same value for both.
-const Duration invoiceExpiry = Duration(hours: 24);
-
 /// LEPIC's waiting invoice as the app's. LEPIC cleaned the message for display already.
 PendingInvoice lepicPendingInvoice(lepic.IncomingInvoice i) => PendingInvoice(
   slateId: i.slateId,
@@ -212,6 +208,35 @@ InvoiceEvent? lepicInvoiceEvent(lepic.WalletEvent e) {
     kernelExcess: kind == InvoiceEventKind.posted ? e.kernelExcess : null,
   );
 }
+
+/// The issuer's side of a LEPIC wallet event: the state an invoice this wallet issued moved
+/// to, or null for any other event. `invoiceExpired` is the issuer's only with a `txId`
+/// (LEPIC cancelled it); without one it was a waiting invoice to pay.
+({String slateId, IssuedInvoiceState state})? lepicIssuerEvent(
+  lepic.WalletEvent e,
+) {
+  final slateId = e.slateId;
+  if (slateId == null) return null;
+  final state = switch (e.kind) {
+    lepic.WalletEventKind.invoiceFinalized => IssuedInvoiceState.paid,
+    lepic.WalletEventKind.invoiceDeclined => IssuedInvoiceState.declined,
+    lepic.WalletEventKind.invoiceExpired when e.txId != null =>
+      IssuedInvoiceState.expired,
+    _ => null,
+  };
+  return state == null ? null : (slateId: slateId, state: state);
+}
+
+/// What LEPIC's stored transaction says became of an issued invoice the app still holds as
+/// waiting, for events the app missed: null while LEPIC still waits for the payer.
+IssuedInvoiceState? lepicIssuedState(lepic.TxStatus status) => switch (status) {
+  lepic.TxStatus.finalized ||
+  lepic.TxStatus.posted ||
+  lepic.TxStatus.confirmed => IssuedInvoiceState.paid,
+  lepic.TxStatus.cancelled ||
+  lepic.TxStatus.expired => IssuedInvoiceState.expired,
+  lepic.TxStatus.sent || lepic.TxStatus.received => null,
+};
 
 /// [label] as LEPIC stores it beside a sender: no control characters, at most 64 bytes, cut
 /// on a character boundary. The app's full label stays in `wfe_meta.json`.
@@ -513,8 +538,22 @@ const String historyAppVersion = 'wfe-lepic';
 /// An open LEPIC wallet. Public so tests can wrap a stand-in `EpicWallet`; without [history]
 /// it keeps notes and contacts in memory only.
 class LepicWalletSession implements WalletSession {
-  LepicWalletSession(this._wallet, {WalletHistory? history})
-    : _history = history ?? WalletHistory.memory();
+  /// [validateAddress] stands in for LEPIC's `validateEpicboxAddress` on the history's
+  /// chain, so tests need no native library.
+  LepicWalletSession(
+    this._wallet, {
+    WalletHistory? history,
+    this._validateAddress,
+  }) : _history = history ?? WalletHistory.memory();
+
+  final bool Function(String address)? _validateAddress;
+
+  bool _validAddress(String address) =>
+      _validateAddress?.call(address) ??
+      lepic.validateEpicboxAddress(
+        address: address,
+        chain: _lepicChain(_history.chain),
+      );
 
   /// [wallet] with the archive in [dataDir], and LEPIC given the invoice index kept there,
   /// as every open does. Public so tests can drive it with a stand-in wallet.
@@ -538,6 +577,7 @@ class LepicWalletSession implements WalletSession {
     _walletEvents?.cancel();
     _walletEvents = null;
     _invoiceEvents.close();
+    _issuerEvents.close();
     _history.close();
     if (_wallet.isDisposed) return;
     _wallet.lock();
@@ -836,30 +876,41 @@ class LepicWalletSession implements WalletSession {
   StreamSubscription<lepic.WalletEvent>? _walletEvents;
   final StreamController<InvoiceEvent> _invoiceEvents =
       StreamController<InvoiceEvent>.broadcast();
+  final StreamController<IssuerEvent> _issuerEvents =
+      StreamController<IssuerEvent>.broadcast();
 
   /// Events are handled one at a time, so the archive changes in the order LEPIC reported.
+  /// A withdrawal and a reconcile of issued invoices take their turn here too.
   Future<void> _eventTail = Future.value();
+
+  /// Runs [step] after every event and step before it.
+  Future<T> _inTurn<T>(Future<T> Function() step) {
+    final result = _eventTail.then((_) => step());
+    _eventTail = result.then((_) {}, onError: (_) {});
+    return result;
+  }
 
   /// Subscribes to LEPIC's events on the first invoice call, so a notice found by a drain
   /// updates the archive before the app's event goes out.
   void _watchEvents() {
     if (_walletEvents != null || _wallet.isDisposed) return;
     _walletEvents = _wallet.events().listen(
-      (e) => _eventTail = _eventTail
-          .then((_) => _onWalletEvent(e))
-          // One failed event must not stop the ones after it.
-          .catchError(
-            (Object error) => logWarn(
-              'invoices',
-              'invoice event failed: ${error.runtimeType}',
-            ),
-          ),
+      (e) => unawaited(
+        _inTurn(() => _onWalletEvent(e))
+        // One failed event must not stop the ones after it.
+        .catchError(
+          (Object error) =>
+              logWarn('invoices', 'invoice event failed: ${error.runtimeType}'),
+        ),
+      ),
       onError: (Object error) =>
           logWarn('invoices', 'wallet events ended: $error'),
     );
   }
 
   Future<void> _onWalletEvent(lepic.WalletEvent e) async {
+    final issued = lepicIssuerEvent(e);
+    if (issued != null) return _onIssuerEvent(issued.slateId, issued.state);
     final event = lepicInvoiceEvent(e);
     if (event == null) return;
     try {
@@ -994,6 +1045,13 @@ class LepicWalletSession implements WalletSession {
   Future<InvoiceDrainReport> drainInvoices() => _guard(() async {
     _watchEvents();
     final report = await _wallet.drainInvoices();
+    await _sweep();
+    return lepicInvoiceReport(report);
+  });
+
+  /// Expires invoices on both sides: waiting ones to pay are deleted, issued ones cancelled,
+  /// each with its event. A failure is logged only; the next drain sweeps again.
+  Future<void> _sweep() async {
     try {
       final sweep = await _wallet.sweepInvoices(expirySecs: _expirySecs);
       if (sweep.cancellable.isNotEmpty) {
@@ -1003,11 +1061,9 @@ class LepicWalletSession implements WalletSession {
         );
       }
     } on lepic.WalletError catch (error) {
-      // The drain itself worked; expired invoices are swept on the next one.
       logWarn('invoices', 'invoice sweep failed: ${error.kind.name}');
     }
-    return lepicInvoiceReport(report);
-  });
+  }
 
   @override
   Future<List<PendingInvoice>> pendingInvoices() => _guard(() async {
@@ -1123,5 +1179,212 @@ class LepicWalletSession implements WalletSession {
   Stream<InvoiceEvent> invoiceEvents() {
     _watchEvents();
     return _invoiceEvents.stream;
+  }
+
+  // Issuing invoices (I-05). LEPIC keeps an issued invoice as an incoming `received`
+  // transaction, so the app records what it issued in `wfe_meta.json` (`issued_invoices`)
+  // and moves each record once, from waiting, on LEPIC's events. Nothing here pays.
+
+  /// Moves [slateId] to [state] and tells the app, once.
+  Future<void> _settleIssued(String slateId, IssuedInvoiceState state) async {
+    final kind = issuerEventFor(state);
+    if (kind == null) return;
+    bool moved;
+    try {
+      moved = await _history.settleIssuedInvoice(slateId, state);
+    } on WalletError catch (error) {
+      logWarn(
+        'invoices',
+        'could not record an issued invoice: ${error.kind.name}',
+      );
+      return;
+    }
+    if (moved && !_issuerEvents.isClosed) {
+      _issuerEvents.add(IssuerEvent(kind: kind, slateId: slateId));
+    }
+  }
+
+  /// An issuer event from LEPIC, for an invoice this install issued and still holds as
+  /// waiting. A decline is final, so the app withdraws the invoice itself, which frees the
+  /// output LEPIC set aside for it.
+  Future<void> _onIssuerEvent(String slateId, IssuedInvoiceState state) async {
+    final issued = _history.issuedInvoice(slateId);
+    if (issued == null || !issued.withdrawable) return;
+    if (state == IssuedInvoiceState.declined) {
+      try {
+        await _wallet.cancelTransaction(txId: issued.txId);
+      } on lepic.WalletError catch (error) {
+        // The sweep cancels it when its time runs out.
+        logWarn(
+          'invoices',
+          'declined invoice not withdrawn: ${error.kind.name}',
+        );
+      }
+    }
+    await _settleIssued(slateId, state);
+  }
+
+  @override
+  Future<IssuedInvoice> issueInvoice({
+    required BigInt amount,
+    required String address,
+    String? message,
+  }) => _guard(() async {
+    _watchEvents();
+    final to = address.trim();
+    if (!_validAddress(to)) {
+      throw const WalletError(
+        kind: WalletErrorKind.invalidArgument,
+        message: 'not an epicbox address with a relay on this network',
+      );
+    }
+    final key = epicboxKey(to);
+    final own = [
+      await _wallet.epicboxAddress(),
+      await _wallet.invoiceAddress(),
+    ];
+    if (own.any((o) => epicboxKey(o) == key)) {
+      throw const WalletError(
+        kind: WalletErrorKind.invalidArgument,
+        message: 'this is one of your own addresses',
+      );
+    }
+    if (amount <= BigInt.zero) {
+      throw const WalletError(
+        kind: WalletErrorKind.invalidArgument,
+        message: 'the amount must be above zero',
+      );
+    }
+    final text = cutMessage(message);
+    final before = {for (final t in await _wallet.transactions()) t.txId};
+    final lepic.IssuedInvoice sent;
+    try {
+      sent = await _wallet.issueInvoiceEpicbox(
+        amount: amount,
+        address: to,
+        message: text,
+      );
+    } on lepic.WalletError catch (error) {
+      if (error.kind == lepic.WalletErrorKind.notDelivered) {
+        await _dropUndelivered(before, amount);
+      }
+      rethrow;
+    }
+    final now = DateTime.now();
+    final issued = IssuedInvoice(
+      slateId: sent.slateId,
+      txId: sent.txId,
+      payerAddress: to,
+      amount: sent.amount,
+      message: text,
+      issuedAt: now,
+      expiresAt: now.add(invoiceExpiry),
+      state: IssuedInvoiceState.waiting,
+    );
+    try {
+      await _history.putIssuedInvoice(issued);
+    } on WalletError catch (error) {
+      // The request went out; only the app's view of it is lost. The sweep ends it.
+      logWarn(
+        'invoices',
+        'could not record an issued invoice: ${error.kind.name}',
+      );
+    }
+    logInfo('invoices', 'invoice issued');
+    return issued;
+  });
+
+  /// Cancels the invoice LEPIC stored when the relay did not take it, so a failed request
+  /// leaves nothing behind: LEPIC cannot send an issued invoice again. It is the incoming
+  /// transaction for [amount] that was not there before the call.
+  Future<void> _dropUndelivered(Set<int> before, BigInt amount) async {
+    try {
+      final stored = (await _wallet.transactions()).where(
+        (t) =>
+            !before.contains(t.txId) &&
+            t.direction == lepic.TxDirection.incoming &&
+            t.status == lepic.TxStatus.received &&
+            t.amountCredited == amount,
+      );
+      for (final t in stored) {
+        await _wallet.cancelTransaction(txId: t.txId);
+      }
+    } on lepic.WalletError catch (error) {
+      logWarn(
+        'invoices',
+        'undelivered invoice not cancelled: ${error.kind.name}',
+      );
+    }
+  }
+
+  @override
+  Future<List<IssuedInvoice>> issuedInvoices() => _guard(() async {
+    _watchEvents();
+    await _inTurn(_reconcileIssued);
+    return _history.issuedInvoices();
+  });
+
+  /// Settles waiting records from LEPIC's transactions, for events the app missed: the
+  /// listener or a drain finalized one while nothing listened, or a sweep cancelled one.
+  Future<void> _reconcileIssued() async {
+    final waiting = [
+      for (final i in _history.issuedInvoices())
+        if (i.withdrawable) i,
+    ];
+    if (waiting.isEmpty) return;
+    final byId = {for (final t in await _wallet.transactions()) t.txId: t};
+    for (final i in waiting) {
+      final tx = byId[i.txId];
+      final state = tx == null ? null : lepicIssuedState(tx.status);
+      if (state != null) await _settleIssued(i.slateId, state);
+    }
+  }
+
+  @override
+  Future<IssuedInvoice?> issuedInvoice({required String slateId}) async =>
+      _history.issuedInvoice(slateId);
+
+  @override
+  Future<IssuedInvoice> withdrawInvoice({required String slateId}) =>
+      _guard(() async {
+        _watchEvents();
+        return _inTurn(() async {
+          final issued = _history.issuedInvoice(slateId);
+          if (issued == null || !issued.withdrawable) {
+            throw const WalletError(
+              kind: WalletErrorKind.invalidArgument,
+              message: 'only a waiting invoice can be withdrawn',
+            );
+          }
+          // LEPIC sends a LEPIC payer the `withdrawn` notice.
+          await _wallet.cancelTransaction(txId: issued.txId);
+          await _settleIssued(slateId, IssuedInvoiceState.withdrawn);
+          return _history.issuedInvoice(slateId) ??
+              issued.withState(IssuedInvoiceState.withdrawn);
+        });
+      });
+
+  @override
+  Future<PaymentsDrainReport> drainPayments() => _guard(() async {
+    _watchEvents();
+    final report = await _wallet.drainEpicbox();
+    await _sweep();
+    // LEPIC counts bounces without naming the invoices (UP-15), so one signal per drain.
+    if (report.bounced > 0 && !_issuerEvents.isClosed) {
+      _issuerEvents.add(
+        IssuerEvent(kind: IssuerEventKind.bounced, count: report.bounced),
+      );
+    }
+    return PaymentsDrainReport(
+      received: report.received,
+      finalized: report.finalized,
+      bounced: report.bounced,
+    );
+  });
+
+  @override
+  Stream<IssuerEvent> issuerEvents() {
+    _watchEvents();
+    return _issuerEvents.stream;
   }
 }

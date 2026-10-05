@@ -817,3 +817,142 @@ final paidInvoiceProvider = FutureProvider.autoDispose
       ref.onDispose(events.cancel);
       return session.paidInvoice(slateId: slateId);
     });
+
+// Issuing invoices (I-05): requests this wallet sent, and the drain of the payments address
+// that finalizes their payments. Empty or idle while the wallet is locked or has no
+// invoices. Nothing here spends: an issuer only receives.
+
+/// Invoices this wallet issued, newest first. Reloads on every issuer event.
+final issuedInvoicesProvider =
+    AsyncNotifierProvider.autoDispose<
+      IssuedInvoicesNotifier,
+      List<IssuedInvoice>
+    >(IssuedInvoicesNotifier.new);
+
+class IssuedInvoicesNotifier extends AsyncNotifier<List<IssuedInvoice>> {
+  @override
+  Future<List<IssuedInvoice>> build() async {
+    final session = _invoiceSession(ref);
+    if (session == null) return const [];
+    final events = session
+        .issuerEvents()
+        .where((e) => e.kind != IssuerEventKind.bounced)
+        .listen((_) => ref.invalidateSelf(), onError: (_) {});
+    ref.onDispose(events.cancel);
+    return session.issuedInvoices();
+  }
+
+  WalletSession get _session =>
+      _invoiceSession(ref) ?? (throw StateError('No wallet with invoices'));
+
+  /// Asks the payer at [address] for [amount]. Throws [WalletError] for an address that
+  /// cannot take it, or when the relay did not.
+  Future<IssuedInvoice> issue({
+    required BigInt amount,
+    required String address,
+    String? message,
+  }) async {
+    final issued = await _session.issueInvoice(
+      amount: amount,
+      address: address,
+      message: message,
+    );
+    ref.invalidateSelf();
+    await future;
+    return issued;
+  }
+
+  /// Withdraws a waiting request. The user confirms first.
+  Future<IssuedInvoice> withdraw(String slateId) async {
+    final withdrawn = await _session.withdrawInvoice(slateId: slateId);
+    logInfo('invoices', 'issued invoice withdrawn');
+    ref.invalidateSelf();
+    await future;
+    return withdrawn;
+  }
+}
+
+/// The invoice this wallet issued under that slate id, for a transaction's details, or null.
+/// Reloads when it changes state.
+final issuedInvoiceProvider = FutureProvider.autoDispose
+    .family<IssuedInvoice?, String>((ref, slateId) {
+      final session = _invoiceSession(ref);
+      if (session == null) return null;
+      final events = session
+          .issuerEvents()
+          .where((e) => e.slateId == slateId)
+          .listen((_) => ref.invalidateSelf(), onError: (_) {});
+      ref.onDispose(events.cancel);
+      return session.issuedInvoice(slateId: slateId);
+    });
+
+/// An issuer event for a notice. [id] tells two equal events apart.
+typedef IssuerNotice = ({int id, IssuerEvent event});
+
+/// The latest issuer event of the open wallet: paid, declined, withdrawn, expired, or a
+/// drain's bounces. Kept alive by [paymentsDrainProvider], so no event of a drain is missed.
+final issuerNoticeProvider =
+    NotifierProvider<IssuerNoticeNotifier, IssuerNotice?>(
+      IssuerNoticeNotifier.new,
+    );
+
+class IssuerNoticeNotifier extends Notifier<IssuerNotice?> {
+  int _next = 0;
+
+  @override
+  IssuerNotice? build() {
+    final session = _invoiceSession(ref);
+    if (session == null) return null;
+    final events = session.issuerEvents().listen((event) {
+      state = (id: _next++, event: event);
+      // A paid request is money in: the balance and the list change.
+      if (event.kind == IssuerEventKind.paid) ref.invalidate(homeProvider);
+    }, onError: (_) {});
+    ref.onDispose(events.cancel);
+    return null;
+  }
+}
+
+/// Drains the payments address when a wallet opens and, through [PaymentsDrainNotifier.drain],
+/// on every resume, beside the listener: payments that arrived while the app was away are
+/// finalized and posted on return. Holds the last drain's report.
+final paymentsDrainProvider =
+    NotifierProvider<PaymentsDrainNotifier, PaymentsDrainReport?>(
+      PaymentsDrainNotifier.new,
+    );
+
+class PaymentsDrainNotifier extends Notifier<PaymentsDrainReport?> {
+  bool _running = false;
+
+  @override
+  PaymentsDrainReport? build() {
+    final session = _invoiceSession(ref);
+    // Subscribed before the first drain, so its events reach a notice.
+    ref.listen(issuerNoticeProvider, (_, _) {});
+    if (session != null) Future<void>.delayed(Duration.zero, drain);
+    return null;
+  }
+
+  /// One drain, unless one is running. Failures are logged; the next resume tries again.
+  Future<void> drain() async {
+    if (!ref.mounted || _running) return;
+    final session = ref.read(sessionProvider);
+    if (session == null || !session.supportsInvoices) return;
+    _running = true;
+    try {
+      final report = await session.drainPayments();
+      if (!ref.mounted || ref.read(sessionProvider) != session) return;
+      state = report;
+      if (report.received > 0 || report.finalized > 0) {
+        ref.invalidate(homeProvider);
+      }
+    } catch (error) {
+      logWarn(
+        'invoices',
+        'payments drain failed: ${describeError(englishStrings, error)}',
+      );
+    } finally {
+      _running = false;
+    }
+  }
+}

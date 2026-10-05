@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -37,6 +39,8 @@ class _WalletAppState extends ConsumerState<WalletApp> {
   void initState() {
     super.initState();
     _lifecycle;
+    // Alive for the app's life: it drains the payments address whenever a wallet opens.
+    ref.listenManual(paymentsDrainProvider, (_, _) {});
     // Payment notifications start only once the user turned them on. Firebase cannot be shut
     // down in-process, so turning them off takes effect at the next start.
     ref.listenManual(
@@ -76,6 +80,7 @@ class _WalletAppState extends ConsumerState<WalletApp> {
       case AppLifecycleState.resumed:
         if (ref.read(autoLockHoldProvider) > 0) {
           _leftAt = null;
+          _drainPayments();
           return;
         }
         if (_timedOut()) {
@@ -84,12 +89,21 @@ class _WalletAppState extends ConsumerState<WalletApp> {
           } else {
             _lock();
           }
+        } else {
+          _drainPayments();
         }
         _leftAt = null;
       case AppLifecycleState.inactive || AppLifecycleState.detached:
         // Inactive covers system dialogs such as the biometric prompt; it is not leaving.
         break;
     }
+  }
+
+  /// Payments that reached the payments address while the app was away are finalized on
+  /// return, beside the listener. The provider also drains when a wallet opens.
+  void _drainPayments() {
+    if (ref.read(sessionProvider) == null) return;
+    unawaited(ref.read(paymentsDrainProvider.notifier).drain());
   }
 
   /// Whether the time away reached the auto-lock setting.

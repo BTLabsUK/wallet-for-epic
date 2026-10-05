@@ -193,6 +193,60 @@ class WalletHistory {
     return true;
   });
 
+  static IssuedInvoice _issued(String slateId, IssuedInvoiceRec r) =>
+      IssuedInvoice(
+        slateId: slateId,
+        txId: r.txId,
+        payerAddress: r.payerAddress,
+        amount: r.amount,
+        message: r.message,
+        issuedAt: DateTime.fromMillisecondsSinceEpoch(r.issuedAtUnix * 1000),
+        expiresAt: DateTime.fromMillisecondsSinceEpoch(r.expiresAtUnix * 1000),
+        state: r.state,
+      );
+
+  /// Invoices this wallet issued, newest first.
+  List<IssuedInvoice> issuedInvoices() =>
+      [for (final e in meta.issuedInvoices.entries) _issued(e.key, e.value)]
+        ..sort((a, b) {
+          final byTime = b.issuedAt.compareTo(a.issuedAt);
+          return byTime != 0 ? byTime : b.txId.compareTo(a.txId);
+        });
+
+  /// The invoice this wallet issued under [slateId], or null.
+  IssuedInvoice? issuedInvoice(String slateId) {
+    final r = meta.issuedInvoices[slateId];
+    return r == null ? null : _issued(slateId, r);
+  }
+
+  /// Records a newly issued invoice. Times are kept to the second.
+  Future<void> putIssuedInvoice(IssuedInvoice issued) => _store.update(
+    (m) => m.issuedInvoices[issued.slateId] = IssuedInvoiceRec(
+      txId: issued.txId,
+      payerAddress: issued.payerAddress,
+      amount: issued.amount,
+      message: issued.message,
+      issuedAtUnix: issued.issuedAt.millisecondsSinceEpoch ~/ 1000,
+      expiresAtUnix: issued.expiresAt.millisecondsSinceEpoch ~/ 1000,
+      state: issued.state,
+    ),
+  );
+
+  /// Moves the issued invoice [slateId] from waiting to [state]. Every other state is final,
+  /// so a late event never turns a paid invoice into an expired one. Returns false, changing
+  /// nothing, when there is no such invoice or it is no longer waiting.
+  Future<bool> settleIssuedInvoice(String slateId, IssuedInvoiceState state) =>
+      _store.update((m) {
+        final r = m.issuedInvoices[slateId];
+        if (r == null ||
+            r.state != IssuedInvoiceState.waiting ||
+            state == IssuedInvoiceState.waiting) {
+          return false;
+        }
+        r.state = state;
+        return true;
+      });
+
   /// What an export of this wallet carries. A row a scan rebuilt with nothing added by the
   /// user comes back by itself after a restore, so it is left out.
   HistoryPayload exportPayload(

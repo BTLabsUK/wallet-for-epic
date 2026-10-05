@@ -273,6 +273,42 @@ abstract interface class WalletSession {
   /// Invoices parked, receipts and withdrawals applied, expiries, as drains and answers find
   /// them. Informational: no event pays or cancels anything.
   Stream<InvoiceEvent> invoiceEvents();
+
+  // Issuing invoices (I-05): the user asks someone to pay them. The request goes to the
+  // payer's invoice address; the payment comes back to [epicboxAddress], where the listener
+  // or [drainPayments] finalizes and posts it. Nothing here spends from this wallet, so no
+  // call needs the PIN. Every call throws [invoicesUnsupported] when [supportsInvoices] is
+  // false.
+
+  /// Sends the payer at [address], their invoice address, a request for [amount].
+  /// [message] is cut with [cutMessage] and signed into it. Throws
+  /// [WalletErrorKind.invalidArgument] for an address that is not an epicbox address on this
+  /// chain or is one of this wallet's own, and [WalletErrorKind.transportFailed] when the
+  /// relay did not take it, in which case nothing stays behind.
+  Future<IssuedInvoice> issueInvoice({
+    required BigInt amount,
+    required String address,
+    String? message,
+  });
+
+  /// Invoices this wallet issued, newest first, with their current state.
+  Future<List<IssuedInvoice>> issuedInvoices();
+
+  /// The invoice this wallet issued under [slateId], or null.
+  Future<IssuedInvoice?> issuedInvoice({required String slateId});
+
+  /// Withdraws a waiting invoice: the wallet cancels it, and a LEPIC payer is told. Throws
+  /// [WalletErrorKind.invalidArgument] when it is not waiting.
+  Future<IssuedInvoice> withdrawInvoice({required String slateId});
+
+  /// Reads the payments address once, finalizing and posting what payers sent, then sweeps
+  /// expired invoices. Run it when the wallet opens and on every resume, beside the listener,
+  /// so an issuer that was away finalizes on return. A bounce raises one
+  /// [IssuerEventKind.bounced] event.
+  Future<PaymentsDrainReport> drainPayments();
+
+  /// What happened to issued invoices, as drains, the listener and sweeps find it.
+  Stream<IssuerEvent> issuerEvents();
 }
 
 /// The error of an invoice call on a core without them.
@@ -1297,6 +1333,176 @@ class FakeWalletSession implements WalletSession {
     _requireInvoices('invoiceEvents');
     return invoiceEventsController.stream;
   }
+
+  // Issuing. Records live in [invoiceHistory], as the LEPIC session keeps them; the payer's
+  // side is played by [payIssued], [declineIssued], [expireIssued] and [bounceIssued].
+
+  /// When set, [issueInvoice] throws it and records nothing, as LEPIC does when the relay
+  /// does not take the invoice.
+  WalletError? issueError;
+
+  /// Every [issueInvoice] that got past its checks, with what it sent.
+  final List<({BigInt amount, String to, String? message})> issuedRequests = [];
+
+  /// Number of [drainPayments] calls.
+  int drainPaymentCalls = 0;
+
+  /// Bounces the next [drainPayments] reports.
+  int _bounces = 0;
+
+  final StreamController<IssuerEvent> issuerEventsController =
+      StreamController<IssuerEvent>.broadcast();
+
+  Future<void> _settleIssued(String slateId, IssuedInvoiceState state) async {
+    final kind = issuerEventFor(state);
+    if (kind == null) return;
+    if (await invoiceHistory.settleIssuedInvoice(slateId, state)) {
+      issuerEventsController.add(IssuerEvent(kind: kind, slateId: slateId));
+    }
+  }
+
+  IssuedInvoice _requireIssued(String slateId) =>
+      invoiceHistory.issuedInvoice(slateId) ??
+      (throw const WalletError(
+        kind: WalletErrorKind.invalidArgument,
+        message: 'no issued invoice with that id',
+      ));
+
+  @override
+  Future<IssuedInvoice> issueInvoice({
+    required BigInt amount,
+    required String address,
+    String? message,
+  }) async {
+    _requireInvoices('issueInvoice');
+    final to = address.trim();
+    // Its own addresses first: the fake's are not valid epicbox addresses.
+    final own = [this.address, fakeInvoiceAddress(invoiceHistory.invoiceIndex)];
+    if (own.any((o) => epicboxKey(o) == epicboxKey(to))) {
+      throw const WalletError(
+        kind: WalletErrorKind.invalidArgument,
+        message: 'this is one of your own addresses',
+      );
+    }
+    if (!fakeEpicboxAddress(to)) {
+      throw const WalletError(
+        kind: WalletErrorKind.invalidArgument,
+        message: 'not an epicbox address',
+      );
+    }
+    if (amount <= BigInt.zero) {
+      throw const WalletError(
+        kind: WalletErrorKind.invalidArgument,
+        message: 'the amount must be above zero',
+      );
+    }
+    if (issueError != null) throw issueError!;
+    final text = cutMessage(message);
+    issuedRequests.add((amount: amount, to: to, message: text));
+    final n = issuedRequests.length;
+    // Whole seconds, as the record keeps them.
+    final now = DateTime.fromMillisecondsSinceEpoch(
+      clock().millisecondsSinceEpoch ~/ 1000 * 1000,
+    );
+    final issued = IssuedInvoice(
+      slateId: 'issued-$n',
+      txId: 300 + n,
+      payerAddress: to,
+      amount: amount,
+      message: text,
+      issuedAt: now,
+      expiresAt: now.add(invoiceExpiry),
+      state: IssuedInvoiceState.waiting,
+    );
+    // LEPIC keeps it as an incoming payment waiting for the payer.
+    transactionsValue.add(
+      fakeTx(
+        id: issued.txId,
+        slateId: issued.slateId,
+        kind: TxKind.received,
+        status: TxStatus.awaitingConfirmation,
+        createdAtUnix: now.millisecondsSinceEpoch ~/ 1000,
+        amountCredited: amount,
+        counterparty: to,
+        cancellable: true,
+      ),
+    );
+    await invoiceHistory.putIssuedInvoice(issued);
+    return issued;
+  }
+
+  @override
+  Future<List<IssuedInvoice>> issuedInvoices() async {
+    _requireInvoices('issuedInvoices');
+    return invoiceHistory.issuedInvoices();
+  }
+
+  @override
+  Future<IssuedInvoice?> issuedInvoice({required String slateId}) async {
+    _requireInvoices('issuedInvoice');
+    return invoiceHistory.issuedInvoice(slateId);
+  }
+
+  @override
+  Future<IssuedInvoice> withdrawInvoice({required String slateId}) async {
+    _requireInvoices('withdrawInvoice');
+    final issued = _requireIssued(slateId);
+    if (!issued.withdrawable) {
+      throw const WalletError(
+        kind: WalletErrorKind.invalidArgument,
+        message: 'only a waiting invoice can be withdrawn',
+      );
+    }
+    cancelledTxIds.add(issued.txId);
+    await _settleIssued(slateId, IssuedInvoiceState.withdrawn);
+    return _requireIssued(slateId);
+  }
+
+  @override
+  Future<PaymentsDrainReport> drainPayments() async {
+    _requireInvoices('drainPayments');
+    drainPaymentCalls++;
+    final bounced = _bounces;
+    _bounces = 0;
+    if (bounced > 0) {
+      issuerEventsController.add(
+        IssuerEvent(kind: IssuerEventKind.bounced, count: bounced),
+      );
+    }
+    // The sweep: waiting invoices past their time are cancelled.
+    final now = clock();
+    for (final i in invoiceHistory.issuedInvoices()) {
+      if (i.withdrawable && !now.isBefore(i.expiresAt)) {
+        await _settleIssued(i.slateId, IssuedInvoiceState.expired);
+      }
+    }
+    return PaymentsDrainReport(bounced: bounced);
+  }
+
+  @override
+  Stream<IssuerEvent> issuerEvents() {
+    _requireInvoices('issuerEvents');
+    return issuerEventsController.stream;
+  }
+
+  /// The payer paid [slateId]; the wallet finalized and posted it.
+  Future<void> payIssued(String slateId) =>
+      _settleIssued(slateId, IssuedInvoiceState.paid);
+
+  /// The payer declined [slateId]; the wallet withdraws it, as the LEPIC session does.
+  Future<void> declineIssued(String slateId) async {
+    if (invoiceHistory.issuedInvoice(slateId)?.withdrawable ?? false) {
+      cancelledTxIds.add(_requireIssued(slateId).txId);
+    }
+    await _settleIssued(slateId, IssuedInvoiceState.declined);
+  }
+
+  /// The wallet's sweep cancelled [slateId] unpaid.
+  Future<void> expireIssued(String slateId) =>
+      _settleIssued(slateId, IssuedInvoiceState.expired);
+
+  /// [count] invoices come back unpaid at the next [drainPayments].
+  void bounceIssued({int count = 1}) => _bounces += count;
 }
 
 /// A message waiting at the fake relay: an invoice, or a notice when [notice] is set.

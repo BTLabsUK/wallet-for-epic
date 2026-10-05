@@ -198,6 +198,58 @@ class PaidInvoiceRec {
   }
 }
 
+/// An invoice this wallet issued, keyed by slate id in [Meta.issuedInvoices]. LEPIC keeps it
+/// as an incoming transaction like any signed receive, so only this record says it is a
+/// request, to whom, and what became of it.
+class IssuedInvoiceRec {
+  IssuedInvoiceRec({
+    required this.txId,
+    required this.payerAddress,
+    required this.amount,
+    this.message,
+    required this.issuedAtUnix,
+    required this.expiresAtUnix,
+    required this.state,
+  });
+
+  factory IssuedInvoiceRec.fromJson(Object? json) {
+    final m = asObject(json, 'issued invoice');
+    final state = _str(m['state'], 'issued invoice state');
+    return IssuedInvoiceRec(
+      txId: _u32(m['tx_id'], 'issued invoice tx id'),
+      payerAddress: _str(m['payer_address'], 'issued invoice payer'),
+      amount: _u64(m['amount'], 'issued invoice amount'),
+      message: _optStr(m['message'], 'issued invoice message'),
+      issuedAtUnix: _i64(m['issued_at_unix'], 'issued invoice time'),
+      expiresAtUnix: _i64(m['expires_at_unix'], 'issued invoice expiry'),
+      state:
+          IssuedInvoiceState.values.where((s) => s.name == state).firstOrNull ??
+          _bad('issued invoice state'),
+    );
+  }
+
+  final int txId;
+  final String payerAddress;
+  final BigInt amount;
+  final String? message;
+  final int issuedAtUnix;
+  final int expiresAtUnix;
+  IssuedInvoiceState state;
+
+  Map<String, Object?> toJson() {
+    final out = <String, Object?>{
+      'tx_id': txId,
+      'payer_address': payerAddress,
+      'amount': _u64Json(amount),
+      'issued_at_unix': issuedAtUnix,
+      'expires_at_unix': expiresAtUnix,
+      'state': state.name,
+    };
+    _put(out, 'message', message);
+    return out;
+  }
+}
+
 /// Facts the old core recorded about one of its transactions, keyed by slate id. Kept as read;
 /// this app only reads `counterparty`, `kernel_excess`, `finalized_at_unix` and `cancelled_by`.
 class Annotation {
@@ -476,8 +528,10 @@ class Meta {
     Map<String, String>? serviceLabels,
     this.invoiceIndex,
     Map<String, PaidInvoiceRec>? paidInvoices,
+    Map<String, IssuedInvoiceRec>? issuedInvoices,
   }) : serviceLabels = SplayTreeMap.of(serviceLabels ?? const {}),
        paidInvoices = SplayTreeMap.of(paidInvoices ?? const {}),
+       issuedInvoices = SplayTreeMap.of(issuedInvoices ?? const {}),
        notes = SplayTreeMap.of(notes ?? const {}),
        contacts = contacts ?? [],
        annotations = SplayTreeMap.of(annotations ?? const {}),
@@ -530,6 +584,8 @@ class Meta {
           : _u32(m['invoice_index'], 'invoice_index'),
       paidInvoices: map('paid_invoices')
           .map((k, v) => MapEntry(k, PaidInvoiceRec.fromJson(v))),
+      issuedInvoices: map('issued_invoices')
+          .map((k, v) => MapEntry(k, IssuedInvoiceRec.fromJson(v))),
     );
   }
 
@@ -569,6 +625,10 @@ class Meta {
   /// [serviceLabels]. Not part of a history file: they describe this install's replies.
   final SplayTreeMap<String, PaidInvoiceRec> paidInvoices;
 
+  /// Invoices this wallet issued, by slate id. Written only when not empty, and not part of
+  /// a history file, as [paidInvoices].
+  final SplayTreeMap<String, IssuedInvoiceRec> issuedInvoices;
+
   /// The block time at [height], when cached and known.
   int? blockTime(BigInt height) {
     final t = blockTimes['$height'];
@@ -600,6 +660,11 @@ class Meta {
     if (paidInvoices.isNotEmpty) {
       out['paid_invoices'] = {
         for (final e in paidInvoices.entries) e.key: e.value.toJson(),
+      };
+    }
+    if (issuedInvoices.isNotEmpty) {
+      out['issued_invoices'] = {
+        for (final e in issuedInvoices.entries) e.key: e.value.toJson(),
       };
     }
     return out;
