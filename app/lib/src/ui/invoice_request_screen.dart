@@ -667,14 +667,16 @@ class _IssuedInvoiceBlockState extends ConsumerState<IssuedInvoiceBlock> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           ProtocolSectionHead(l.issuedDetailsSection),
-          ListTile(
-            contentPadding: EdgeInsets.zero,
-            title: Text(
-              l.issuedDetailsPayer,
-              style: theme.textTheme.labelLarge,
+          // The details' "Requested from" row names the payer already, with the address.
+          if (widget.tx.counterparty == null)
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              title: Text(
+                l.issuedDetailsPayer,
+                style: theme.textTheme.labelLarge,
+              ),
+              subtitle: Text(payerName(contacts, invoice.payerAddress)),
             ),
-            subtitle: Text(payerName(contacts, invoice.payerAddress)),
-          ),
           if (message != null && !shownElsewhere)
             ListTile(
               contentPadding: EdgeInsets.zero,

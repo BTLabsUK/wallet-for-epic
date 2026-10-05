@@ -480,7 +480,8 @@ void main() {
         final request = await h.issue(message: 'Dinner on Friday');
         await details(tester, h, request);
         expect(find.text(_l.issuedDetailsSection), findsOneWidget);
-        expect(find.text(shortAddress(_payer)), findsWidgets);
+        // One "Requested from" row names the payer, with the address.
+        expect(find.text(_l.txDetailsRequestedFrom), findsOneWidget);
         expect(find.text('Dinner on Friday'), findsOneWidget);
         expect(
           find.text(
@@ -544,7 +545,7 @@ void main() {
       expect(find.text(_l.txDetailsWaitingPayer), findsOneWidget);
       expect(find.text(_l.txStepRequested), findsOneWidget);
       expect(find.text(_l.txStatusWaitingPayer), findsWidgets);
-      expect(find.text(_l.txDetailsRequestedFrom), findsWidgets);
+      expect(find.text(_l.txDetailsRequestedFrom), findsOneWidget);
       for (final receive in [
         _l.txStepArrived,
         _l.txStatusWaitingSender,
@@ -564,7 +565,7 @@ void main() {
       expect(find.text(_l.txStepPaid), findsOneWidget);
       expect(find.text(_l.txStatusWaitingPayer), findsNothing);
       expect(find.text(_l.txStepArrived), findsNothing);
-      expect(find.text(_l.txDetailsRequestedFrom), findsWidgets);
+      expect(find.text(_l.txDetailsRequestedFrom), findsOneWidget);
     });
 
     testWidgets('an ended request says nothing arrived', (tester) async {
