@@ -10,8 +10,8 @@ import 'common.dart';
 import 'pin.dart';
 import 'restore_screen.dart';
 import 'setup_screen.dart';
-import 'theme/advanced.dart';
 import 'theme/brand.dart';
+import 'theme/tokens.dart';
 
 /// First start: the user picks a PIN, then LEPIC creates the wallet sealed under it.
 class FirstRunScreen extends ConsumerStatefulWidget {
@@ -75,15 +75,12 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
       glow: heroGlow,
       // The title is the hero's heading; the bar only holds the network action.
       appBar: AppBar(
-        // Mainnet on node.btlabs.uk works without a choice; another network or node is an
-        // Advanced option, also reachable later from Settings.
+        // Mainnet on node.btlabs.uk works without a choice, but a new install must be able
+        // to reach floonet or another node before it has a wallet, so this is not Advanced.
         actions: [
-          if (AdvancedOptions.of(context))
-            IconButton(
-              tooltip: l.setupNetworkSettingsTooltip,
-              icon: const Icon(Icons.settings_ethernet),
-              onPressed: waiting ? null : () => _leave(const SetupScreen()),
-            ),
+          NetworkSettingsButton(
+            onPressed: waiting ? null : () => _leave(const SetupScreen()),
+          ),
         ],
       ),
       body: CenteredBody(
@@ -107,6 +104,44 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
             BusyButton(label: l.firstRunTryAgain, onPressed: _retry),
           ],
         ],
+      ),
+    );
+  }
+}
+
+/// The app bar's way to network settings before a wallet is open, on first run and unlock:
+/// the icon and its label in the accent colour, so it reads as a button rather than a
+/// decoration. From text scale 1.5 the label gives way to the icon and its tooltip, so a
+/// long translation never pushes the bar out of shape.
+class NetworkSettingsButton extends StatelessWidget {
+  const NetworkSettingsButton({super.key, required this.onPressed});
+
+  final VoidCallback? onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final label = context.l10n.setupNetworkSettingsTooltip;
+    final colour = context.tokens.accentText;
+    const icon = Icon(Icons.settings_ethernet);
+    if (MediaQuery.textScalerOf(context).scale(1) >= 1.5) {
+      return IconButton(
+        tooltip: label,
+        color: colour,
+        icon: icon,
+        onPressed: onPressed,
+      );
+    }
+    return Padding(
+      padding: const EdgeInsetsDirectional.only(end: 8),
+      child: TextButton.icon(
+        style: TextButton.styleFrom(
+          foregroundColor: colour,
+          minimumSize: const Size(48, 48),
+          tapTargetSize: MaterialTapTargetSize.padded,
+        ),
+        icon: icon,
+        label: Text(label),
+        onPressed: onPressed,
       ),
     );
   }

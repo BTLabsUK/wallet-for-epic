@@ -9,6 +9,7 @@ import 'package:epic_wallet/src/relay_directory.dart';
 import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/slate_files.dart';
 import 'package:epic_wallet/src/ui/common.dart';
+import 'package:epic_wallet/src/ui/setup_screen.dart';
 import 'package:epic_wallet/src/ui/shell_header.dart';
 import 'package:epic_wallet/src/ui/status.dart';
 import 'package:epic_wallet/src/updater.dart';
@@ -353,8 +354,8 @@ void main() {
       tester,
     ) async {
       final service = FakeWalletService();
-      await _pumpApp(tester, service, _Device(advanced: true));
-      await _tap(tester, find.byTooltip('Network settings'));
+      await _pumpApp(tester, service, _Device());
+      await _tap(tester, find.text('Network settings'));
       await _tapText(tester, 'Usernet');
       final urlField = tester.widget<TextField>(
         find.widgetWithText(TextField, 'Node URL'),
@@ -375,9 +376,9 @@ void main() {
     tester,
   ) async {
     final service = FakeWalletService();
-    final device = _Device(advanced: true);
+    final device = _Device();
     await _pumpApp(tester, service, device);
-    await _tap(tester, find.byTooltip('Network settings'));
+    await _tap(tester, find.text('Network settings'));
 
     expect(find.text('epicbox.epicnet.us'), findsOneWidget);
     expect(find.textContaining('Up · epicnet.us · official'), findsOneWidget);
@@ -414,6 +415,59 @@ void main() {
     final config = container.read(walletConfigProvider)!;
     expect(config.epicboxDomain, 'epicbox.epicnet.us');
     expect(config.epicboxPort, 443);
+  });
+
+  group('network settings button', () {
+    // The owner, 2026-10-05: the icon alone was impossible to spot, and on first run it hid
+    // behind Advanced options, so a new install could not reach floonet.
+    final screens = {
+      'first run': () => (FakeWalletService(), _Device()),
+      'unlock': () => (_existing(), _Device(sealedMainnet: true)),
+    };
+
+    for (final MapEntry(key: screen, value: make) in screens.entries) {
+      testWidgets('$screen labels it with Advanced off and opens the setup', (
+        tester,
+      ) async {
+        final (service, device) = make();
+        expect(device.store.values['app.advanced'], isNull);
+        await _pumpApp(tester, service, device);
+        final button = find.widgetWithText(TextButton, 'Network settings');
+        expect(button, findsOneWidget);
+        expect(
+          find.descendant(
+            of: button,
+            matching: find.byIcon(Icons.settings_ethernet),
+          ),
+          findsOneWidget,
+        );
+        expect(tester.getSize(button).height, greaterThanOrEqualTo(48));
+        await _tap(tester, button);
+        expect(find.byType(SetupScreen), findsOneWidget);
+      });
+
+      testWidgets('$screen meets the tap target guidelines', (tester) async {
+        final handle = tester.ensureSemantics();
+        final (service, device) = make();
+        await _pumpApp(tester, service, device);
+        await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
+        await expectLater(tester, meetsGuideline(labeledTapTargetGuideline));
+        handle.dispose();
+      });
+
+      testWidgets('$screen keeps the icon and its tooltip at text scale 2', (
+        tester,
+      ) async {
+        tester.platformDispatcher.textScaleFactorTestValue = 2;
+        addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+        final (service, device) = make();
+        await _pumpApp(tester, service, device);
+        expect(tester.takeException(), isNull);
+        expect(find.text('Network settings'), findsNothing);
+        await _tap(tester, find.byTooltip('Network settings'));
+        expect(find.byType(SetupScreen), findsOneWidget);
+      });
+    }
   });
 
   group('unlock', () {

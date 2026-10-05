@@ -11,6 +11,7 @@ import '../vault.dart';
 import '../wallet_service.dart';
 import 'centered_body.dart';
 import 'common.dart';
+import 'first_run_screen.dart' show NetworkSettingsButton;
 import 'launch_screen.dart';
 import 'pin.dart';
 import 'setup_screen.dart';
@@ -160,9 +161,7 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
       // The title is the hero's heading; the bar only holds the network action.
       appBar: AppBar(
         actions: [
-          IconButton(
-            tooltip: l.setupNetworkSettingsTooltip,
-            icon: const Icon(Icons.settings_ethernet),
+          NetworkSettingsButton(
             onPressed: _busy
                 ? null
                 : () => Navigator.of(context).push(

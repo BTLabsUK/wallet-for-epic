@@ -1414,8 +1414,8 @@ void main() {
     ) async {
       final h = _Harness(sealed: false, walletExists: false);
       await h.pump(tester);
-      // First run offers no network choice: mainnet on its default node works.
-      expect(find.byTooltip('Network settings'), findsNothing);
+      // The network choice shows without Advanced too, so a new install can reach floonet.
+      expect(find.text('Network settings'), findsOneWidget);
       await _tapText(tester, 'I already have a wallet: restore it');
       expect(find.text('Where to start scanning'), findsNothing);
       expect(find.text('Pick the date you created the wallet'), findsNothing);
@@ -1434,7 +1434,7 @@ void main() {
     ) async {
       final h = _Harness(sealed: false, walletExists: false, advanced: true);
       await h.pump(tester);
-      expect(find.byTooltip('Network settings'), findsOneWidget);
+      expect(find.text('Network settings'), findsOneWidget);
       await _tapText(tester, 'I already have a wallet: restore it');
       expect(find.text('Where to start scanning'), findsOneWidget);
       expect(find.text('Pick the date you created the wallet'), findsOneWidget);
