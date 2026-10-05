@@ -1505,6 +1505,28 @@
   "@balanceImmatureHelp": {
     "description": "Explanation under the mining rewards line in the balance explanation."
   },
+  "homeCaptionLocked": "Locked",
+  "@homeCaptionLocked": {
+    "description": "Short caption above the Wallet tab's large figure while it shows the funds held by an outgoing payment (a tap on the figure steps through the balances). One or two words."
+  },
+  "homeCaptionMiningRewards": "Mining rewards",
+  "@homeCaptionMiningRewards": {
+    "description": "Short caption above the Wallet tab's large figure while it shows mined coins that cannot be spent yet. One or two words."
+  },
+  "homeBalanceNextHint": "Show the next balance",
+  "@homeBalanceNextHint": {
+    "description": "Screen-reader hint of the Wallet tab's large figure: a tap shows the next balance that is not zero (confirming, locked and so on)."
+  },
+  "homeBalanceSpendableLine": "{amount} spendable",
+  "@homeBalanceSpendableLine": {
+    "description": "Line under the fiat value on the Wallet tab while the large figure shows a balance that is not spendable yet; tapping it shows the spendable balance again. No full stop.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "12.5 EPIC"
+      }
+    }
+  },
   "homeSyncSyncing": "Syncing…",
   "@homeSyncSyncing": {
     "description": "Status line under the balance while the wallet syncs with the node."

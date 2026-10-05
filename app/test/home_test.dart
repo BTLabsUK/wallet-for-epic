@@ -2027,7 +2027,11 @@ void main() {
       final h = _Harness();
       h.store.values['app.hide_balances'] = 'true';
       await h.pump(tester);
-      expect(find.bySemanticsLabel('Balance hidden'), findsOneWidget);
+      // Wallet's figure reads its caption too (D-10).
+      expect(
+        find.bySemanticsLabel('Spendable: Balance hidden'),
+        findsOneWidget,
+      );
       expect(
         tester.getSemantics(find.byKey(const ValueKey('tx-s:from-alice'))),
         matchesSemantics(
@@ -3388,5 +3392,289 @@ void main() {
         }
       }
     }
+  });
+
+  group('balance cycle', () {
+    /// A summary with these balances in EPIC; total is their sum.
+    WalletSummary balances({
+      num spendable = 0,
+      num confirming = 0,
+      num waiting = 0,
+      num locked = 0,
+      num immature = 0,
+    }) => WalletSummary(
+      lastConfirmedHeight: _tip,
+      minimumConfirmations: BigInt.from(10),
+      total: _epic(spendable + confirming + waiting + locked + immature),
+      spendable: _epic(spendable),
+      awaitingConfirmation: _epic(confirming),
+      awaitingFinalization: _epic(waiting),
+      immature: _epic(immature),
+      locked: _epic(locked),
+      validatedWithNode: true,
+    );
+
+    Future<_Harness> start(
+      WidgetTester tester,
+      WalletSummary summary, {
+      double? price,
+    }) async {
+      final h = _Harness(
+        price: price,
+        session: FakeWalletSession(
+          summary: summary,
+          transactions: _transactions(),
+        ),
+      );
+      await h.pump(tester);
+      return h;
+    }
+
+    String caption(WidgetTester tester) =>
+        tester.widget<Text>(find.byKey(spendableCaptionKey)).data!;
+
+    String figure(WidgetTester tester) => tester
+        .widget<RichText>(
+          find.descendant(
+            of: find.byKey(balanceFigureKey),
+            matching: find.byType(RichText),
+          ),
+        )
+        .text
+        .toPlainText();
+
+    String shown(WidgetTester tester) => '${caption(tester)} ${figure(tester)}';
+
+    Future<void> tapFigure(WidgetTester tester) async {
+      await tester.tap(find.byKey(balanceFigureKey));
+      await tester.pumpAndSettle();
+    }
+
+    Future<void> refreshWith(
+      _Harness h,
+      WidgetTester tester,
+      WalletSummary s,
+    ) async {
+      h.session.summaryValue = s;
+      await tester.pump(autoRefreshInterval);
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('steps through the non-zero balances in order, and wraps', (
+      tester,
+    ) async {
+      await start(
+        tester,
+        balances(spendable: 10, confirming: 3, locked: 2, immature: 1),
+      );
+      expect(find.byKey(balanceDotsKey), findsOneWidget);
+      final seen = [shown(tester)];
+      for (var i = 0; i < 4; i++) {
+        await tapFigure(tester);
+        seen.add(shown(tester));
+      }
+      // Waiting to finish is zero, so it is skipped.
+      expect(seen, [
+        'Spendable 10 EPIC',
+        'Confirming 3 EPIC',
+        'Locked 2 EPIC',
+        'Mining rewards 1 EPIC',
+        'Spendable 10 EPIC',
+      ]);
+      // The caption is also a tap target.
+      await tester.tap(find.byKey(spendableCaptionKey));
+      await tester.pumpAndSettle();
+      expect(shown(tester), 'Confirming 3 EPIC');
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('a zero Spendable is skipped once left', (tester) async {
+      await start(tester, balances(confirming: 3, waiting: 1.5));
+      expect(shown(tester), 'Spendable 0 EPIC');
+      final seen = <String>[];
+      for (var i = 0; i < 3; i++) {
+        await tapFigure(tester);
+        seen.add(shown(tester));
+      }
+      expect(seen, [
+        'Confirming 3 EPIC',
+        'Waiting to finish 1.5 EPIC',
+        'Confirming 3 EPIC',
+      ]);
+    });
+
+    testWidgets('nothing to step to: Spendable, no dots, not a button', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      for (final s in [balances(), balances(spendable: 4)]) {
+        await start(tester, s);
+        await tapFigure(tester);
+        expect(caption(tester), 'Spendable');
+        expect(find.byKey(balanceDotsKey), findsNothing);
+        expect(
+          tester.getSemantics(find.byKey(balanceFigureKey)),
+          matchesSemantics(label: 'Spendable: ${figure(tester)}'),
+        );
+      }
+      handle.dispose();
+    });
+
+    testWidgets('reads caption and amount, with a hint, at 48 dp', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      await start(tester, balances(spendable: 10, confirming: 3));
+      await tapFigure(tester);
+      final node = tester.getSemantics(find.byKey(balanceFigureKey));
+      expect(
+        node,
+        matchesSemantics(
+          label: 'Confirming: 3 EPIC',
+          isButton: true,
+          hasTapAction: true,
+          onTapHint: 'Show the next balance',
+        ),
+      );
+      expect(node.rect.height, greaterThanOrEqualTo(48));
+      // The caption is not read twice.
+      expect(find.bySemanticsLabel('Confirming'), findsNothing);
+      await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
+      await expectLater(tester, meetsGuideline(labeledTapTargetGuideline));
+      handle.dispose();
+    });
+
+    testWidgets('the fiat value follows; the line shows Spendable instead', (
+      tester,
+    ) async {
+      await start(
+        tester,
+        balances(spendable: 10, confirming: 3, locked: 2),
+        price: 0.5,
+      );
+      String fiat() => tester
+          .widget<RichText>(
+            find.descendant(
+              of: find.byKey(fiatValueKey),
+              matching: find.byType(RichText),
+            ),
+          )
+          .text
+          .toPlainText();
+      String line() => tester
+          .widget<Text>(
+            find.descendant(
+              of: find.byKey(notSpendableKey),
+              matching: find.byType(Text),
+            ),
+          )
+          .data!;
+      expect(fiat(), '≈ 5.00 USD');
+      expect(line(), '5 EPIC not spendable yet');
+      // The breakdown, opened on Spendable, steps aside while another balance is shown.
+      await _tap(tester, find.byKey(notSpendableKey));
+      expect(find.byKey(breakdownKey), findsOneWidget);
+
+      await tapFigure(tester);
+      expect(shown(tester), 'Confirming 3 EPIC');
+      expect(fiat(), '≈ 1.50 USD');
+      expect(line(), '10 EPIC spendable');
+      expect(find.byKey(breakdownKey), findsNothing);
+      await tapFigure(tester);
+      expect(fiat(), '≈ 1.00 USD');
+      expect(line(), '10 EPIC spendable');
+
+      // A tap on the line goes back to Spendable, and the breakdown is as it was.
+      await _tap(tester, find.byKey(notSpendableKey));
+      expect(shown(tester), 'Spendable 10 EPIC');
+      expect(fiat(), '≈ 5.00 USD');
+      expect(find.byKey(breakdownKey), findsOneWidget);
+    });
+
+    testWidgets('kept by kind across a tab change and a refresh', (
+      tester,
+    ) async {
+      final h = await start(
+        tester,
+        balances(spendable: 10, confirming: 3, locked: 2),
+      );
+      await tapFigure(tester);
+      await tapFigure(tester);
+      expect(shown(tester), 'Locked 2 EPIC');
+      await _tab(tester, 'Send');
+      await _tab(tester, 'Wallet');
+      expect(shown(tester), 'Locked 2 EPIC');
+      // Confirming completes; Locked is still Locked, though its place changed.
+      await refreshWith(h, tester, balances(spendable: 13, locked: 2.5));
+      expect(shown(tester), 'Locked 2.5 EPIC');
+    });
+
+    testWidgets('falls back to Spendable in the frame its balance hits zero', (
+      tester,
+    ) async {
+      final h = await start(
+        tester,
+        balances(spendable: 10, confirming: 3, locked: 2),
+      );
+      await tapFigure(tester);
+      expect(shown(tester), 'Confirming 3 EPIC');
+      h.session.summaryValue = balances(spendable: 13, locked: 2);
+      await tester.pump(autoRefreshInterval);
+      // Every frame from here shows either Confirming 3 or Spendable 13, never a zero.
+      for (var i = 0; i < 20; i++) {
+        await tester.pump(const Duration(milliseconds: 50));
+        expect(shown(tester), anyOf('Confirming 3 EPIC', 'Spendable 13 EPIC'));
+      }
+      await tester.pumpAndSettle();
+      expect(shown(tester), 'Spendable 13 EPIC');
+      // It starts again from Spendable.
+      await tapFigure(tester);
+      expect(shown(tester), 'Locked 2 EPIC');
+    });
+
+    testWidgets('while hidden: Spendable, no dots, and a tap does nothing', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      await start(tester, balances(spendable: 10, confirming: 3));
+      await tapFigure(tester);
+      expect(caption(tester), 'Confirming');
+
+      await _tap(tester, find.byTooltip('Hide balances'));
+      expect(caption(tester), 'Spendable');
+      expect(figure(tester), hiddenAmount);
+      expect(find.byKey(balanceDotsKey), findsNothing);
+      for (var i = 0; i < 3; i++) {
+        await tapFigure(tester);
+        expect(caption(tester), 'Spendable');
+      }
+      expect(
+        tester.getSemantics(find.byKey(balanceFigureKey)),
+        matchesSemantics(label: 'Spendable: Balance hidden'),
+      );
+      handle.dispose();
+    });
+
+    testWidgets('Send and Receive keep showing Spendable', (tester) async {
+      await start(
+        tester,
+        balances(spendable: 10, confirming: 3, locked: 2),
+        price: 0.5,
+      );
+      await tapFigure(tester);
+      expect(shown(tester), 'Confirming 3 EPIC');
+      for (final tab in ['Send', 'Receive']) {
+        await _tab(tester, tab);
+        expect(figure(tester), '10 EPIC', reason: tab);
+        expect(find.text('≈ 5.00 USD'), findsOneWidget, reason: tab);
+        expect(find.byKey(spendableCaptionKey), findsNothing, reason: tab);
+        expect(find.byKey(balanceDotsKey), findsNothing, reason: tab);
+        // A tap on their figure changes nothing.
+        await tapFigure(tester);
+        expect(figure(tester), '10 EPIC', reason: tab);
+      }
+      await _tab(tester, 'Wallet');
+      expect(shown(tester), 'Confirming 3 EPIC');
+    });
   });
 }

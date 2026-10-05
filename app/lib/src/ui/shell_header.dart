@@ -27,6 +27,10 @@ const Key notSpendableKey = ValueKey('balance-not-spendable');
 /// The key of the "Spendable" caption above Wallet's figure, for tests.
 const Key spendableCaptionKey = ValueKey('balance-caption');
 
+/// The key of the dots beside Wallet's caption that say a tap shows another balance, for
+/// tests.
+const Key balanceDotsKey = ValueKey('balance-dots');
+
 /// The key of the list of not-spendable balances that Wallet's line opens, for tests.
 const Key breakdownKey = ValueKey('balance-breakdown');
 
@@ -68,6 +72,10 @@ class _ShellHeaderState extends ConsumerState<ShellHeader> {
   /// Whether Wallet lists the not-spendable balances. Kept here, so it survives a tab change.
   bool _breakdown = false;
 
+  /// The balance Wallet's figure shows, by kind, so it survives a tab change and a refresh
+  /// that reorders nothing.
+  _Kind _shown = _Kind.spendable;
+
   @override
   Widget build(BuildContext context) {
     final t = widget.openness;
@@ -80,6 +88,10 @@ class _ShellHeaderState extends ConsumerState<ShellHeader> {
     );
     // Once nothing is pending the list is closed, so it does not open by itself next time.
     if (b.summary != null && b.notSpendable == BigInt.zero) _breakdown = false;
+    // A balance that reached zero is not shown: back to Spendable in the same frame.
+    if (b.summary != null && b.amountOf(_shown) == BigInt.zero) {
+      _shown = _Kind.spendable;
+    }
     // The panel that is more than half shown takes taps, keys and screen readers; Wallet's
     // from halfway.
     Widget layer(double opacity, bool active, Widget panel) => IgnorePointer(
@@ -244,14 +256,24 @@ class _ShellHeaderState extends ConsumerState<ShellHeader> {
 
   /// Wallet: the 1.3.1 panel, with the help beside the figure and the statuses beside the
   /// lines under it instead of the "Up to date" footer.
+  ///
+  /// A tap on the caption or the figure shows the next balance that is not zero ([_Kind]
+  /// order, wrapping); dots beside the caption say there is one. While amounts are hidden it
+  /// shows Spendable and a tap does nothing, so the caption gives nothing away.
   Widget _walletPanel(_Balance b, bool keyed) {
     final theme = Theme.of(context);
     final l = context.l10n;
     final summary = b.summary;
-    final fiat = b.fiat(context);
+    final shown = b.hidden ? _Kind.spendable : _shown;
+    final amount = b.amountOf(shown);
+    final fiat = b.fiat(context, amount);
     final figureStyle = theme.textTheme.displaySmall;
     final pending = summary != null && b.notSpendable > BigInt.zero;
-    final open = _breakdown && pending;
+    final open = _breakdown && pending && shown == _Kind.spendable;
+    final next = b.next(shown);
+    final cycles = summary != null && !b.hidden && next != shown;
+    void cycle() => setState(() => _shown = next);
+    final caption = b.caption(l, shown);
     return Padding(
       // The 1.3.1 panel's padding and its 8 dp above the caption; below the life line it
       // keeps part of the room its "Up to date" footer took, so the panel is 1.3.1's height.
@@ -260,26 +282,80 @@ class _ShellHeaderState extends ConsumerState<ShellHeader> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(
-            l.homeBalanceSpendable,
-            key: keyed ? spendableCaptionKey : null,
-            style: theme.textTheme.labelLarge,
-          ),
-          Row(
-            children: [
-              Flexible(
-                child: _figure(
-                  b,
-                  keyed: keyed,
-                  style: figureStyle,
-                  unit: figureStyle,
+          // Caption and figure take the tap together; the eye and the ? win their own.
+          GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: cycles ? cycle : null,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // The figure's label reads the caption, so screen readers hear it once.
+                ExcludeSemantics(
+                  child: Row(
+                    children: [
+                      Flexible(
+                        child: Text(
+                          caption,
+                          key: keyed ? spendableCaptionKey : null,
+                          style: theme.textTheme.labelLarge,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      if (cycles) ...[
+                        const SizedBox(width: 8),
+                        _Dots(
+                          key: keyed ? balanceDotsKey : null,
+                          count: b.cycled.length,
+                          index: b.cycled.indexOf(shown),
+                        ),
+                      ],
+                    ],
+                  ),
                 ),
-              ),
-              if (summary != null) ...[
-                _eye(b),
-                BalanceHelp(summary: summary, hidden: b.hidden),
+                Row(
+                  children: [
+                    Flexible(
+                      child: Semantics(
+                        container: true,
+                        button: cycles,
+                        label: summary == null
+                            ? null
+                            : l.balanceHelpRow(
+                                caption,
+                                b.hidden
+                                    ? l.homeBalanceHiddenLabel
+                                    : epicText(l, amount),
+                              ),
+                        onTap: cycles ? cycle : null,
+                        onTapHint: cycles ? l.homeBalanceNextHint : null,
+                        excludeSemantics: summary != null,
+                        child: ConstrainedBox(
+                          // A full-size tap target, however short the amount.
+                          constraints: const BoxConstraints(minHeight: 48),
+                          child: Align(
+                            alignment: AlignmentDirectional.centerStart,
+                            widthFactor: 1,
+                            child: _figure(
+                              b,
+                              keyed: keyed,
+                              style: figureStyle,
+                              unit: figureStyle,
+                              amount: amount,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    if (summary != null) ...[
+                      _eye(b),
+                      BalanceHelp(summary: summary, hidden: b.hidden),
+                    ],
+                  ],
+                ),
               ],
-            ],
+            ),
           ),
           // Each status on a line of its own, centred on it: the node on the fiat line,
           // epicbox on the not-spendable line, or alone while nothing is pending.
@@ -297,15 +373,26 @@ class _ShellHeaderState extends ConsumerState<ShellHeader> {
           ),
           if (pending || b.epicbox != null)
             _withStatus(
-              pending
+              !pending
+                  ? null
+                  : shown == _Kind.spendable
                   ? _BreakdownLine(
                       key: keyed ? notSpendableKey : null,
-                      amount: b.notSpendable,
-                      hidden: b.hidden,
+                      text: l.homeBalanceNotSpendable(
+                        shownEpic(l, b.notSpendable, hidden: b.hidden),
+                      ),
                       open: open,
                       onTap: () => setState(() => _breakdown = !_breakdown),
                     )
-                  : null,
+                  // The figure shows a balance not spendable yet, so the line says what
+                  // is, and a tap goes back to it.
+                  : _BreakdownLine(
+                      key: keyed ? notSpendableKey : null,
+                      text: l.homeBalanceSpendableLine(
+                        epicText(l, b.amountOf(_Kind.spendable)),
+                      ),
+                      onTap: () => setState(() => _shown = _Kind.spendable),
+                    ),
               status: const EpicboxStatusRow(),
             ),
           if (open)
@@ -340,6 +427,9 @@ class _ShellHeaderState extends ConsumerState<ShellHeader> {
   }
 }
 
+/// The balances Wallet's figure can show, in the order a tap steps through them.
+enum _Kind { spendable, confirming, waitingToFinish, locked, immature }
+
 /// What both panels show, read once per build.
 class _Balance {
   _Balance({
@@ -367,11 +457,56 @@ class _Balance {
     return summary == null ? BigInt.zero : summary.total - summary.spendable;
   }
 
-  String? fiat(BuildContext context) {
+  String? fiat(BuildContext context, [BigInt? amount]) {
     final summary = this.summary;
     return summary == null
         ? null
-        : approxFiat(context.l10n, summary.spendable, display, short: true);
+        : approxFiat(
+            context.l10n,
+            amount ?? summary.spendable,
+            display,
+            short: true,
+          );
+  }
+
+  /// The balance of [kind]; zero before the summary is there.
+  BigInt amountOf(_Kind kind) {
+    final summary = this.summary;
+    if (summary == null) return BigInt.zero;
+    return switch (kind) {
+      _Kind.spendable => summary.spendable,
+      _Kind.confirming => summary.awaitingConfirmation,
+      _Kind.waitingToFinish => summary.awaitingFinalization,
+      _Kind.locked => summary.locked,
+      _Kind.immature => summary.immature,
+    };
+  }
+
+  /// The caption above Wallet's figure while it shows [kind]: the breakdown's words, shorter
+  /// where those are long.
+  String caption(AppLocalizations l, _Kind kind) => switch (kind) {
+    _Kind.spendable => l.homeBalanceSpendable,
+    _Kind.confirming => l.homeBalanceConfirming,
+    _Kind.waitingToFinish => l.homeBalanceWaitingToFinish,
+    _Kind.locked => l.homeCaptionLocked,
+    _Kind.immature => l.homeCaptionMiningRewards,
+  };
+
+  /// The kinds a tap steps through: those that are not zero, in order.
+  List<_Kind> get cycled => [
+    for (final k in _Kind.values)
+      if (amountOf(k) > BigInt.zero) k,
+  ];
+
+  /// The kind after [from] that is not zero, wrapping; [from] when there is none.
+  _Kind next(_Kind from) {
+    const kinds = _Kind.values;
+    for (var i = 1; i <= kinds.length; i++) {
+      final k = kinds[(from.index + i) % kinds.length];
+      if (k == from) break;
+      if (amountOf(k) > BigInt.zero) return k;
+    }
+    return from;
   }
 
   /// The balances that are not spendable yet, zero ones left out.
@@ -525,24 +660,24 @@ class _RenderBlend extends RenderBox
   }
 }
 
-/// "X EPIC not spendable yet" on Wallet, as in 1.3.1: a tap lists the balances behind it.
+/// "X EPIC not spendable yet" on Wallet, as in 1.3.1: a tap lists the balances behind it
+/// ([open] says whether they show). Without [open], a plain line that acts on a tap.
 class _BreakdownLine extends StatelessWidget {
   const _BreakdownLine({
     super.key,
-    required this.amount,
-    required this.hidden,
-    required this.open,
+    required this.text,
+    this.open,
     required this.onTap,
   });
 
-  final BigInt amount;
-  final bool hidden;
-  final bool open;
+  final String text;
+  final bool? open;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
+    final open = this.open;
     return Semantics(
       button: true,
       expanded: open,
@@ -555,21 +690,50 @@ class _BreakdownLine extends StatelessWidget {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Flexible(
-                child: Text(
-                  l.homeBalanceNotSpendable(
-                    shownEpic(l, amount, hidden: hidden),
-                  ),
+              Flexible(child: Text(text)),
+              if (open != null)
+                Icon(
+                  open ? Icons.expand_less : Icons.expand_more,
+                  semanticLabel: open
+                      ? l.homeHideBreakdown
+                      : l.homeShowBreakdown,
                 ),
-              ),
-              Icon(
-                open ? Icons.expand_less : Icons.expand_more,
-                semanticLabel: open ? l.homeHideBreakdown : l.homeShowBreakdown,
-              ),
             ],
           ),
         ),
       ),
+    );
+  }
+}
+
+/// Which of the balances a tap on Wallet's figure steps through is shown, as dots: the
+/// current one in the accent colour. Seen, not read; the figure's label says the rest.
+class _Dots extends StatelessWidget {
+  const _Dots({super.key, required this.count, required this.index});
+
+  final int count;
+
+  /// -1 while the figure shows a zero Spendable, which is not one of the steps.
+  final int index;
+
+  @override
+  Widget build(BuildContext context) {
+    final tokens = context.tokens;
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        for (var i = 0; i < count; i++)
+          Padding(
+            padding: const EdgeInsetsDirectional.only(end: 4),
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: i == index ? tokens.accent : tokens.dim,
+              ),
+              child: const SizedBox.square(dimension: 6),
+            ),
+          ),
+      ],
     );
   }
 }
