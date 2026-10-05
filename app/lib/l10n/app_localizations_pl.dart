@@ -1763,6 +1763,149 @@ class AppLocalizationsPl extends AppLocalizations {
   String get invoiceNoticeExpired => 'Faktura wygasła przed Twoją odpowiedzią.';
 
   @override
+  String get receiveRequestTitle => 'Poproś o płatność';
+
+  @override
+  String get receiveRequestBody =>
+      'Poproś kogoś o zapłatę kwoty. Zatwierdza ją raz w swoim portfelu, a Twój kończy płatność.';
+
+  @override
+  String get receiveRequestButton => 'Nowa prośba';
+
+  @override
+  String get requestTitle => 'Poproś o płatność';
+
+  @override
+  String get requestStepsIntro =>
+      'Portfel płacącego musi przyjmować faktury. Przed prośbą:';
+
+  @override
+  String get requestStepTrust =>
+      '1. Płacący dodaje Twój adres poniżej do swoich zaufanych serwisów.';
+
+  @override
+  String get requestStepAddress => '2. Płacący podaje Ci swój adres do faktur.';
+
+  @override
+  String get requestYourAddress => 'Twój adres';
+
+  @override
+  String get requestPayerLabel => 'Adres do faktur płacącego';
+
+  @override
+  String get requestPayerMissing =>
+      'Wklej lub zeskanuj adres do faktur płacącego.';
+
+  @override
+  String get requestPayerOwn =>
+      'To jeden z Twoich własnych adresów. Wpisz adres do faktur, który poda Ci płacący.';
+
+  @override
+  String get requestMessageLabel => 'Wiadomość do płacącego (opcjonalnie)';
+
+  @override
+  String get requestMessageHelper =>
+      'Płacący zobaczy tę wiadomość razem z prośbą.';
+
+  @override
+  String get requestButton => 'Poproś';
+
+  @override
+  String requestSentNotice(String payer) {
+    return 'Wysłano prośbę do: $payer.';
+  }
+
+  @override
+  String get invoicesToPaySection => 'Do zapłaty';
+
+  @override
+  String get invoicesNoneToPay => 'Nic do zapłaty.';
+
+  @override
+  String get invoicesSentSection => 'Wysłane prośby';
+
+  @override
+  String get issuedPaid => 'Zapłacona';
+
+  @override
+  String get issuedDeclined => 'Odrzucona';
+
+  @override
+  String get issuedWithdrawn => 'Wycofana';
+
+  @override
+  String get issuedExpired => 'Wygasła';
+
+  @override
+  String get issuedWithdraw => 'Wycofaj';
+
+  @override
+  String get issuedWithdrawTitle => 'Wycofać tę prośbę?';
+
+  @override
+  String issuedWithdrawBody(String payer) {
+    return '$payer nie będzie mógł już jej zapłacić. Tego nie można cofnąć.';
+  }
+
+  @override
+  String get issuedWithdrawKeep => 'Zostaw';
+
+  @override
+  String get issuedDetailsSection => 'Prośba o płatność';
+
+  @override
+  String get issuedDetailsPayer => 'Prośba do';
+
+  @override
+  String get issuedDetailsWaiting =>
+      'Czekamy na płacącego. Twój portfel zakończy płatność, gdy ona dotrze.';
+
+  @override
+  String get issuedDetailsPaid =>
+      'Zapłacona. Twój portfel zakończył płatność; będzie gotowa, gdy sieć ją potwierdzi.';
+
+  @override
+  String get issuedDetailsDeclined =>
+      'Płacący odrzucił tę prośbę, więc została wycofana. Nic nie zapłacono.';
+
+  @override
+  String get issuedDetailsWithdrawn =>
+      'Ta prośba została przez Ciebie wycofana. Nic nie zapłacono.';
+
+  @override
+  String get issuedDetailsExpired =>
+      'Ta prośba wygasła, zanim ją zapłacono. Nic nie zapłacono.';
+
+  @override
+  String get issuerNoticePaid => 'Jedna z Twoich próśb została zapłacona.';
+
+  @override
+  String get issuerNoticeDeclined => 'Jedna z Twoich próśb została odrzucona.';
+
+  @override
+  String get issuerNoticeWithdrawn =>
+      'Prośba wycofana. Nie można jej już zapłacić.';
+
+  @override
+  String get issuerNoticeExpired => 'Jedna z Twoich próśb wygasła bez zapłaty.';
+
+  @override
+  String issuerNoticeBounced(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          '$count prośby wróciło z portfeli, które nie umieją płacić faktur. Poproś te osoby, by zamiast tego wysłały Ci płatność na Twój adres lub jako plik płatności.',
+      many:
+          '$count próśb wróciło z portfeli, które nie umieją płacić faktur. Poproś te osoby, by zamiast tego wysłały Ci płatność na Twój adres lub jako plik płatności.',
+      few:
+          '$count prośby wróciły z portfeli, które nie umieją płacić faktur. Poproś te osoby, by zamiast tego wysłały Ci płatność na Twój adres lub jako plik płatności.',
+      one: 'Portfel odesłał Twoją prośbę: nie umie płacić faktur. Poproś tę osobę, by zamiast tego wysłała Ci płatność na Twój adres lub jako plik płatności.',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get receiveEpicboxConnected => 'Połączono z epicbox';
 
   @override

@@ -1842,6 +1842,175 @@
   "@invoiceNoticeExpired": {
     "description": "Notice when an invoice's time ran out before the user answered it."
   },
+  "receiveRequestTitle": "Request a payment",
+  "@receiveRequestTitle": {
+    "description": "Heading of the card on Receive that opens the request form: the user asks someone to pay them over epicbox (an invoice they send)."
+  },
+  "receiveRequestBody": "Ask someone to pay you an amount. They approve it once in their wallet, and yours finishes the payment.",
+  "@receiveRequestBody": {
+    "description": "Line in Receive's request card."
+  },
+  "receiveRequestButton": "New request",
+  "@receiveRequestButton": {
+    "description": "Button in Receive's request card that opens the request form."
+  },
+  "requestTitle": "Request a payment",
+  "@requestTitle": {
+    "description": "Title of the screen where the user asks someone to pay them."
+  },
+  "requestStepsIntro": "Their wallet must take invoices. Before you request:",
+  "@requestStepsIntro": {
+    "description": "First line of the request screen, above the two numbered steps the payer must take first."
+  },
+  "requestStepTrust": "1. They add your address below to their trusted services.",
+  "@requestStepTrust": {
+    "description": "First step on the request screen. 'Trusted services' is the list in the payer's invoice settings; the user's own address is shown in full right below."
+  },
+  "requestStepAddress": "2. They give you their invoice address.",
+  "@requestStepAddress": {
+    "description": "Second step on the request screen: the payer's invoice address goes in the field below."
+  },
+  "requestYourAddress": "Your address",
+  "@requestYourAddress": {
+    "description": "Label above the user's own payments address on the request screen, which the payer must trust."
+  },
+  "requestPayerLabel": "Their invoice address",
+  "@requestPayerLabel": {
+    "description": "Label of the field for the payer's invoice address."
+  },
+  "requestPayerMissing": "Paste or scan their invoice address.",
+  "@requestPayerMissing": {
+    "description": "Error under the payer field when it is empty."
+  },
+  "requestPayerOwn": "That is one of your own addresses. Enter the invoice address the payer gives you.",
+  "@requestPayerOwn": {
+    "description": "Error under the payer field when it holds the user's own payments or invoice address."
+  },
+  "requestMessageLabel": "Message to the payer (optional)",
+  "@requestMessageLabel": {
+    "description": "Label of the optional message field on the request screen."
+  },
+  "requestMessageHelper": "The payer sees this message with your request.",
+  "@requestMessageHelper": {
+    "description": "Helper text under the request's message field."
+  },
+  "requestButton": "Request",
+  "@requestButton": {
+    "description": "Main button of the request screen: sends the request to the payer."
+  },
+  "requestSentNotice": "Request sent to {payer}.",
+  "@requestSentNotice": {
+    "description": "Notice after a request reached the relay. payer is the contact's name or the start of their address.",
+    "placeholders": {
+      "payer": {
+        "type": "String",
+        "example": "Alice"
+      }
+    }
+  },
+  "invoicesToPaySection": "To pay",
+  "@invoicesToPaySection": {
+    "description": "Heading on the Invoices screen above invoices that services sent the user."
+  },
+  "invoicesNoneToPay": "Nothing to pay.",
+  "@invoicesNoneToPay": {
+    "description": "Shown under invoicesToPaySection when no invoice waits but the user has sent requests."
+  },
+  "invoicesSentSection": "Requests you sent",
+  "@invoicesSentSection": {
+    "description": "Heading on the Invoices screen above the payment requests the user sent to others."
+  },
+  "issuedPaid": "Paid",
+  "@issuedPaid": {
+    "description": "State of a request the user sent: the payer paid it."
+  },
+  "issuedDeclined": "Declined",
+  "@issuedDeclined": {
+    "description": "State of a request the user sent: the payer declined it."
+  },
+  "issuedWithdrawn": "Withdrawn",
+  "@issuedWithdrawn": {
+    "description": "State of a request the user sent: the user withdrew it."
+  },
+  "issuedExpired": "Expired",
+  "@issuedExpired": {
+    "description": "State of a request the user sent: its time ran out unpaid."
+  },
+  "issuedWithdraw": "Withdraw",
+  "@issuedWithdraw": {
+    "description": "Button that withdraws a request the user sent, so it can no longer be paid. Asks first."
+  },
+  "issuedWithdrawTitle": "Withdraw this request?",
+  "@issuedWithdrawTitle": {
+    "description": "Title of the confirm before a request is withdrawn."
+  },
+  "issuedWithdrawBody": "{payer} can no longer pay it. This cannot be undone.",
+  "@issuedWithdrawBody": {
+    "description": "Body of the withdraw confirm. payer is the contact's name or the start of their address.",
+    "placeholders": {
+      "payer": {
+        "type": "String",
+        "example": "Alice"
+      }
+    }
+  },
+  "issuedWithdrawKeep": "Keep it",
+  "@issuedWithdrawKeep": {
+    "description": "Button in the withdraw confirm that keeps the request open."
+  },
+  "issuedDetailsSection": "Payment request",
+  "@issuedDetailsSection": {
+    "description": "Heading of the request block in a transaction's details, for a request the user sent."
+  },
+  "issuedDetailsPayer": "Requested from",
+  "@issuedDetailsPayer": {
+    "description": "Label above the payer in the request block of a transaction's details."
+  },
+  "issuedDetailsWaiting": "Waiting for the payer. Your wallet finishes the payment when it arrives.",
+  "@issuedDetailsWaiting": {
+    "description": "Request block, while the request is unpaid."
+  },
+  "issuedDetailsPaid": "Paid. Your wallet finished the payment; it completes once the network confirms it.",
+  "@issuedDetailsPaid": {
+    "description": "Request block, once the payer paid."
+  },
+  "issuedDetailsDeclined": "The payer declined this request, so it was withdrawn. Nothing was paid.",
+  "@issuedDetailsDeclined": {
+    "description": "Request block, after the payer declined."
+  },
+  "issuedDetailsWithdrawn": "You withdrew this request. Nothing was paid.",
+  "@issuedDetailsWithdrawn": {
+    "description": "Request block, after the user withdrew it."
+  },
+  "issuedDetailsExpired": "This request expired before it was paid. Nothing was paid.",
+  "@issuedDetailsExpired": {
+    "description": "Request block, after its time ran out unpaid."
+  },
+  "issuerNoticePaid": "A request you sent was paid.",
+  "@issuerNoticePaid": {
+    "description": "Notice when a payer paid a request the user sent, and the wallet finished the payment."
+  },
+  "issuerNoticeDeclined": "A request you sent was declined.",
+  "@issuerNoticeDeclined": {
+    "description": "Notice when a payer declined a request the user sent."
+  },
+  "issuerNoticeWithdrawn": "Request withdrawn. It can no longer be paid.",
+  "@issuerNoticeWithdrawn": {
+    "description": "Notice after the user withdrew a request."
+  },
+  "issuerNoticeExpired": "A request you sent expired unpaid.",
+  "@issuerNoticeExpired": {
+    "description": "Notice when a request the user sent ran out of time unpaid."
+  },
+  "issuerNoticeBounced": "{count, plural, one{A wallet sent your request back: it cannot pay invoices. Ask that person to send you the payment instead, to your address or as a payment file.} other{{count} requests came back from wallets that cannot pay invoices. Ask those people to send you the payment instead, to your address or as a payment file.}}",
+  "@issuerNoticeBounced": {
+    "description": "Warning when requests the user sent came back from wallets that cannot pay invoices (for example the standard epic-wallet). The payer can still send a normal payment, to the user's address or as a payment file. count is how many came back.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "receiveEpicboxConnected": "Epicbox connected",
   "@receiveEpicboxConnected": {
     "description": "Tooltip and screen-reader label of the connection dot. epicbox is the relay service that carries payments (a proper name)."

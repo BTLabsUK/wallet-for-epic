@@ -1545,6 +1545,131 @@ class AppLocalizationsZh extends AppLocalizations {
   String get invoiceNoticeExpired => '一张账单在您答复前已过期。';
 
   @override
+  String get receiveRequestTitle => '请求付款';
+
+  @override
+  String get receiveRequestBody => '请某人向你支付一笔金额。对方在自己的钱包里批准一次，你的钱包完成这笔付款。';
+
+  @override
+  String get receiveRequestButton => '新请求';
+
+  @override
+  String get requestTitle => '请求付款';
+
+  @override
+  String get requestStepsIntro => '对方的钱包必须能接收账单。请求之前：';
+
+  @override
+  String get requestStepTrust => '1. 对方把下面你的地址添加到其信任的服务中。';
+
+  @override
+  String get requestStepAddress => '2. 对方把其账单地址给你。';
+
+  @override
+  String get requestYourAddress => '你的地址';
+
+  @override
+  String get requestPayerLabel => '对方的账单地址';
+
+  @override
+  String get requestPayerMissing => '粘贴或扫描对方的账单地址。';
+
+  @override
+  String get requestPayerOwn => '这是你自己的地址之一。请输入付款人给你的账单地址。';
+
+  @override
+  String get requestMessageLabel => '给付款人的留言（可选）';
+
+  @override
+  String get requestMessageHelper => '付款人会随请求看到这条留言。';
+
+  @override
+  String get requestButton => '请求';
+
+  @override
+  String requestSentNotice(String payer) {
+    return '已向 $payer 发送请求。';
+  }
+
+  @override
+  String get invoicesToPaySection => '待支付';
+
+  @override
+  String get invoicesNoneToPay => '没有待支付的账单。';
+
+  @override
+  String get invoicesSentSection => '你发出的请求';
+
+  @override
+  String get issuedPaid => '已支付';
+
+  @override
+  String get issuedDeclined => '已拒绝';
+
+  @override
+  String get issuedWithdrawn => '已撤回';
+
+  @override
+  String get issuedExpired => '已过期';
+
+  @override
+  String get issuedWithdraw => '撤回';
+
+  @override
+  String get issuedWithdrawTitle => '撤回这个请求？';
+
+  @override
+  String issuedWithdrawBody(String payer) {
+    return '$payer 将无法再支付它。此操作无法撤销。';
+  }
+
+  @override
+  String get issuedWithdrawKeep => '保留';
+
+  @override
+  String get issuedDetailsSection => '付款请求';
+
+  @override
+  String get issuedDetailsPayer => '请求对象';
+
+  @override
+  String get issuedDetailsWaiting => '正在等待付款人。付款到达后，你的钱包会完成它。';
+
+  @override
+  String get issuedDetailsPaid => '已支付。你的钱包已完成这笔付款；网络确认后即完成。';
+
+  @override
+  String get issuedDetailsDeclined => '付款人拒绝了这个请求，因此已撤回。没有支付任何款项。';
+
+  @override
+  String get issuedDetailsWithdrawn => '你撤回了这个请求。没有支付任何款项。';
+
+  @override
+  String get issuedDetailsExpired => '这个请求在支付前已过期。没有支付任何款项。';
+
+  @override
+  String get issuerNoticePaid => '你发出的一个请求已支付。';
+
+  @override
+  String get issuerNoticeDeclined => '你发出的一个请求被拒绝了。';
+
+  @override
+  String get issuerNoticeWithdrawn => '请求已撤回，无法再支付。';
+
+  @override
+  String get issuerNoticeExpired => '你发出的一个请求未支付就过期了。';
+
+  @override
+  String issuerNoticeBounced(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '有 $count 个请求被无法支付账单的钱包退回。请让对方改为直接向你的地址付款，或发送付款文件。',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get receiveEpicboxConnected => 'epicbox 已连接';
 
   @override

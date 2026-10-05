@@ -1754,6 +1754,152 @@ class AppLocalizationsRu extends AppLocalizations {
   String get invoiceNoticeExpired => 'Срок счёта истёк до вашего ответа.';
 
   @override
+  String get receiveRequestTitle => 'Запросить платёж';
+
+  @override
+  String get receiveRequestBody =>
+      'Попросите кого-то заплатить вам сумму. Он подтверждает её один раз в своём кошельке, а ваш завершает платёж.';
+
+  @override
+  String get receiveRequestButton => 'Новый запрос';
+
+  @override
+  String get requestTitle => 'Запросить платёж';
+
+  @override
+  String get requestStepsIntro =>
+      'Кошелёк плательщика должен принимать счета. Перед запросом:';
+
+  @override
+  String get requestStepTrust =>
+      '1. Плательщик добавляет ваш адрес ниже в свои доверенные сервисы.';
+
+  @override
+  String get requestStepAddress =>
+      '2. Плательщик даёт вам свой адрес для счетов.';
+
+  @override
+  String get requestYourAddress => 'Ваш адрес';
+
+  @override
+  String get requestPayerLabel => 'Адрес для счетов плательщика';
+
+  @override
+  String get requestPayerMissing =>
+      'Вставьте или отсканируйте адрес для счетов плательщика.';
+
+  @override
+  String get requestPayerOwn =>
+      'Это один из ваших собственных адресов. Введите адрес для счетов, который даст вам плательщик.';
+
+  @override
+  String get requestMessageLabel => 'Сообщение плательщику (необязательно)';
+
+  @override
+  String get requestMessageHelper =>
+      'Плательщик увидит это сообщение вместе с запросом.';
+
+  @override
+  String get requestButton => 'Запросить';
+
+  @override
+  String requestSentNotice(String payer) {
+    return 'Запрос отправлен: $payer.';
+  }
+
+  @override
+  String get invoicesToPaySection => 'К оплате';
+
+  @override
+  String get invoicesNoneToPay => 'Нечего оплачивать.';
+
+  @override
+  String get invoicesSentSection => 'Отправленные запросы';
+
+  @override
+  String get issuedPaid => 'Оплачен';
+
+  @override
+  String get issuedDeclined => 'Отклонён';
+
+  @override
+  String get issuedWithdrawn => 'Отозван';
+
+  @override
+  String get issuedExpired => 'Истёк';
+
+  @override
+  String get issuedWithdraw => 'Отозвать';
+
+  @override
+  String get issuedWithdrawTitle => 'Отозвать этот запрос?';
+
+  @override
+  String issuedWithdrawBody(String payer) {
+    return '$payer больше не сможет его оплатить. Это нельзя отменить.';
+  }
+
+  @override
+  String get issuedWithdrawKeep => 'Оставить';
+
+  @override
+  String get issuedDetailsSection => 'Запрос платежа';
+
+  @override
+  String get issuedDetailsPayer => 'Запрошено у';
+
+  @override
+  String get issuedDetailsWaiting =>
+      'Ждём плательщика. Ваш кошелёк завершит платёж, когда он придёт.';
+
+  @override
+  String get issuedDetailsPaid =>
+      'Оплачен. Ваш кошелёк завершил платёж; он будет готов, когда сеть его подтвердит.';
+
+  @override
+  String get issuedDetailsDeclined =>
+      'Плательщик отклонил этот запрос, поэтому он отозван. Ничего не оплачено.';
+
+  @override
+  String get issuedDetailsWithdrawn =>
+      'Вы отозвали этот запрос. Ничего не оплачено.';
+
+  @override
+  String get issuedDetailsExpired =>
+      'Срок этого запроса истёк до оплаты. Ничего не оплачено.';
+
+  @override
+  String get issuerNoticePaid => 'Один из ваших запросов оплачен.';
+
+  @override
+  String get issuerNoticeDeclined => 'Один из ваших запросов отклонён.';
+
+  @override
+  String get issuerNoticeWithdrawn =>
+      'Запрос отозван. Его больше нельзя оплатить.';
+
+  @override
+  String get issuerNoticeExpired =>
+      'Срок одного из ваших запросов истёк без оплаты.';
+
+  @override
+  String issuerNoticeBounced(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          '$count запроса вернулись от кошельков, которые не умеют оплачивать счета. Попросите этих людей отправить вам платёж обычным способом: на ваш адрес или файлом платежа.',
+      many:
+          '$count запросов вернулись от кошельков, которые не умеют оплачивать счета. Попросите этих людей отправить вам платёж обычным способом: на ваш адрес или файлом платежа.',
+      few:
+          '$count запроса вернулись от кошельков, которые не умеют оплачивать счета. Попросите этих людей отправить вам платёж обычным способом: на ваш адрес или файлом платежа.',
+      one:
+          '$count запрос вернулся от кошелька, который не умеет оплачивать счета. Попросите этого человека отправить вам платёж обычным способом: на ваш адрес или файлом платежа.',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get receiveEpicboxConnected => 'Epicbox подключён';
 
   @override

@@ -1650,6 +1650,144 @@ class AppLocalizationsEn extends AppLocalizations {
       'An invoice expired before you answered it.';
 
   @override
+  String get receiveRequestTitle => 'Request a payment';
+
+  @override
+  String get receiveRequestBody =>
+      'Ask someone to pay you an amount. They approve it once in their wallet, and yours finishes the payment.';
+
+  @override
+  String get receiveRequestButton => 'New request';
+
+  @override
+  String get requestTitle => 'Request a payment';
+
+  @override
+  String get requestStepsIntro =>
+      'Their wallet must take invoices. Before you request:';
+
+  @override
+  String get requestStepTrust =>
+      '1. They add your address below to their trusted services.';
+
+  @override
+  String get requestStepAddress => '2. They give you their invoice address.';
+
+  @override
+  String get requestYourAddress => 'Your address';
+
+  @override
+  String get requestPayerLabel => 'Their invoice address';
+
+  @override
+  String get requestPayerMissing => 'Paste or scan their invoice address.';
+
+  @override
+  String get requestPayerOwn =>
+      'That is one of your own addresses. Enter the invoice address the payer gives you.';
+
+  @override
+  String get requestMessageLabel => 'Message to the payer (optional)';
+
+  @override
+  String get requestMessageHelper =>
+      'The payer sees this message with your request.';
+
+  @override
+  String get requestButton => 'Request';
+
+  @override
+  String requestSentNotice(String payer) {
+    return 'Request sent to $payer.';
+  }
+
+  @override
+  String get invoicesToPaySection => 'To pay';
+
+  @override
+  String get invoicesNoneToPay => 'Nothing to pay.';
+
+  @override
+  String get invoicesSentSection => 'Requests you sent';
+
+  @override
+  String get issuedPaid => 'Paid';
+
+  @override
+  String get issuedDeclined => 'Declined';
+
+  @override
+  String get issuedWithdrawn => 'Withdrawn';
+
+  @override
+  String get issuedExpired => 'Expired';
+
+  @override
+  String get issuedWithdraw => 'Withdraw';
+
+  @override
+  String get issuedWithdrawTitle => 'Withdraw this request?';
+
+  @override
+  String issuedWithdrawBody(String payer) {
+    return '$payer can no longer pay it. This cannot be undone.';
+  }
+
+  @override
+  String get issuedWithdrawKeep => 'Keep it';
+
+  @override
+  String get issuedDetailsSection => 'Payment request';
+
+  @override
+  String get issuedDetailsPayer => 'Requested from';
+
+  @override
+  String get issuedDetailsWaiting =>
+      'Waiting for the payer. Your wallet finishes the payment when it arrives.';
+
+  @override
+  String get issuedDetailsPaid =>
+      'Paid. Your wallet finished the payment; it completes once the network confirms it.';
+
+  @override
+  String get issuedDetailsDeclined =>
+      'The payer declined this request, so it was withdrawn. Nothing was paid.';
+
+  @override
+  String get issuedDetailsWithdrawn =>
+      'You withdrew this request. Nothing was paid.';
+
+  @override
+  String get issuedDetailsExpired =>
+      'This request expired before it was paid. Nothing was paid.';
+
+  @override
+  String get issuerNoticePaid => 'A request you sent was paid.';
+
+  @override
+  String get issuerNoticeDeclined => 'A request you sent was declined.';
+
+  @override
+  String get issuerNoticeWithdrawn =>
+      'Request withdrawn. It can no longer be paid.';
+
+  @override
+  String get issuerNoticeExpired => 'A request you sent expired unpaid.';
+
+  @override
+  String issuerNoticeBounced(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          '$count requests came back from wallets that cannot pay invoices. Ask those people to send you the payment instead, to your address or as a payment file.',
+      one: 'A wallet sent your request back: it cannot pay invoices. Ask that person to send you the payment instead, to your address or as a payment file.',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get receiveEpicboxConnected => 'Epicbox connected';
 
   @override

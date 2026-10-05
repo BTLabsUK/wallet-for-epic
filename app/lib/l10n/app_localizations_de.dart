@@ -1663,6 +1663,148 @@ class AppLocalizationsDe extends AppLocalizations {
       'Eine Rechnung ist abgelaufen, bevor Sie geantwortet haben.';
 
   @override
+  String get receiveRequestTitle => 'Zahlung anfordern';
+
+  @override
+  String get receiveRequestBody =>
+      'Bitten Sie jemanden, Ihnen einen Betrag zu zahlen. Die andere Seite bestätigt ihn einmal in ihrer Wallet, und Ihre schließt die Zahlung ab.';
+
+  @override
+  String get receiveRequestButton => 'Neue Anforderung';
+
+  @override
+  String get requestTitle => 'Zahlung anfordern';
+
+  @override
+  String get requestStepsIntro =>
+      'Die Wallet der anderen Seite muss Rechnungen annehmen. Vor der Anforderung:';
+
+  @override
+  String get requestStepTrust =>
+      '1. Die andere Seite fügt Ihre Adresse unten zu ihren vertrauenswürdigen Diensten hinzu.';
+
+  @override
+  String get requestStepAddress =>
+      '2. Die andere Seite gibt Ihnen ihre Rechnungsadresse.';
+
+  @override
+  String get requestYourAddress => 'Ihre Adresse';
+
+  @override
+  String get requestPayerLabel => 'Rechnungsadresse der anderen Seite';
+
+  @override
+  String get requestPayerMissing =>
+      'Fügen Sie die Rechnungsadresse ein oder scannen Sie sie.';
+
+  @override
+  String get requestPayerOwn =>
+      'Das ist eine Ihrer eigenen Adressen. Geben Sie die Rechnungsadresse ein, die Ihnen der Zahler gibt.';
+
+  @override
+  String get requestMessageLabel => 'Nachricht an den Zahler (optional)';
+
+  @override
+  String get requestMessageHelper =>
+      'Der Zahler sieht diese Nachricht mit Ihrer Anforderung.';
+
+  @override
+  String get requestButton => 'Anfordern';
+
+  @override
+  String requestSentNotice(String payer) {
+    return 'Anforderung an $payer gesendet.';
+  }
+
+  @override
+  String get invoicesToPaySection => 'Zu zahlen';
+
+  @override
+  String get invoicesNoneToPay => 'Nichts zu zahlen.';
+
+  @override
+  String get invoicesSentSection => 'Ihre Anforderungen';
+
+  @override
+  String get issuedPaid => 'Bezahlt';
+
+  @override
+  String get issuedDeclined => 'Abgelehnt';
+
+  @override
+  String get issuedWithdrawn => 'Zurückgezogen';
+
+  @override
+  String get issuedExpired => 'Abgelaufen';
+
+  @override
+  String get issuedWithdraw => 'Zurückziehen';
+
+  @override
+  String get issuedWithdrawTitle => 'Diese Anforderung zurückziehen?';
+
+  @override
+  String issuedWithdrawBody(String payer) {
+    return '$payer kann sie dann nicht mehr bezahlen. Das lässt sich nicht rückgängig machen.';
+  }
+
+  @override
+  String get issuedWithdrawKeep => 'Behalten';
+
+  @override
+  String get issuedDetailsSection => 'Zahlungsanforderung';
+
+  @override
+  String get issuedDetailsPayer => 'Angefordert bei';
+
+  @override
+  String get issuedDetailsWaiting =>
+      'Warten auf den Zahler. Ihre Wallet schließt die Zahlung ab, sobald sie eintrifft.';
+
+  @override
+  String get issuedDetailsPaid =>
+      'Bezahlt. Ihre Wallet hat die Zahlung abgeschlossen; sie ist fertig, sobald das Netzwerk sie bestätigt.';
+
+  @override
+  String get issuedDetailsDeclined =>
+      'Der Zahler hat diese Anforderung abgelehnt, daher wurde sie zurückgezogen. Es wurde nichts bezahlt.';
+
+  @override
+  String get issuedDetailsWithdrawn =>
+      'Sie haben diese Anforderung zurückgezogen. Es wurde nichts bezahlt.';
+
+  @override
+  String get issuedDetailsExpired =>
+      'Diese Anforderung ist abgelaufen, bevor sie bezahlt wurde. Es wurde nichts bezahlt.';
+
+  @override
+  String get issuerNoticePaid => 'Eine Ihrer Anforderungen wurde bezahlt.';
+
+  @override
+  String get issuerNoticeDeclined =>
+      'Eine Ihrer Anforderungen wurde abgelehnt.';
+
+  @override
+  String get issuerNoticeWithdrawn =>
+      'Anforderung zurückgezogen. Sie kann nicht mehr bezahlt werden.';
+
+  @override
+  String get issuerNoticeExpired =>
+      'Eine Ihrer Anforderungen ist unbezahlt abgelaufen.';
+
+  @override
+  String issuerNoticeBounced(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          '$count Anforderungen kamen von Wallets zurück, die keine Rechnungen bezahlen können. Bitten Sie diese Personen, Ihnen die Zahlung stattdessen zu senden, an Ihre Adresse oder als Zahlungsdatei.',
+      one: 'Eine Wallet hat Ihre Anforderung zurückgeschickt: Sie kann keine Rechnungen bezahlen. Bitten Sie die Person, Ihnen die Zahlung stattdessen zu senden, an Ihre Adresse oder als Zahlungsdatei.',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get receiveEpicboxConnected => 'Mit epicbox verbunden';
 
   @override

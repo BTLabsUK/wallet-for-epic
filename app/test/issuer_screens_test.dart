@@ -1,0 +1,585 @@
+// Requesting a payment (I-06), against FakeWalletSession: Receive's card, the request form,
+// the requests in the Invoices list, the request block in a transaction's details, withdraw
+// with its confirm, and the notices of each issuer event. Nothing on this side pays.
+
+import 'package:epic_wallet/src/contacts.dart';
+import 'package:epic_wallet/src/l10n.dart';
+import 'package:epic_wallet/src/network.dart';
+import 'package:epic_wallet/src/price.dart';
+import 'package:epic_wallet/src/providers.dart';
+import 'package:epic_wallet/src/push.dart';
+import 'package:epic_wallet/src/secret_store.dart';
+import 'package:epic_wallet/src/settings.dart';
+import 'package:epic_wallet/src/slate_files.dart';
+import 'package:epic_wallet/src/ui/common.dart';
+import 'package:epic_wallet/src/ui/home_screen.dart';
+import 'package:epic_wallet/src/ui/invoice_request_screen.dart';
+import 'package:epic_wallet/src/ui/invoices_screen.dart';
+import 'package:epic_wallet/src/ui/receive_screen.dart';
+import 'package:epic_wallet/src/ui/scan_screen.dart';
+import 'package:epic_wallet/src/ui/settings_history.dart';
+import 'package:epic_wallet/src/ui/tx_details_screen.dart';
+import 'package:epic_wallet/src/updater.dart';
+import 'package:epic_wallet/src/wallet_service.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+BigInt _epic(num value) => BigInt.from((value * 100000000).round());
+
+/// A fake epicbox address: `es`, 50 copies of [c], then [relay].
+String _address(String c, [String relay = 'epicbox.epiccash.com']) =>
+    'es${c * 50}@$relay';
+
+/// The payer's invoice address.
+final String _payer = _address('P');
+
+/// This wallet's payments address, valid so the own-address check can see it.
+final String _own = _address('W');
+
+final AppLocalizations _l = lookupAppLocalizations(const Locale('en'));
+
+class _OpenSession extends SessionNotifier {
+  _OpenSession(this.session);
+
+  final WalletSession session;
+
+  @override
+  WalletSession? build() => session;
+}
+
+class _Config extends WalletConfigNotifier {
+  _Config(this.config);
+
+  final WalletConfig config;
+
+  @override
+  WalletConfig? build() => config;
+}
+
+class _NoPrice implements PriceSource {
+  @override
+  Future<double?> price(String currency) async => null;
+}
+
+class _NoPush implements PushPlatform {
+  @override
+  Future<bool> start() async => false;
+
+  @override
+  Future<bool> configured() async => false;
+
+  @override
+  Future<String?> token() async => null;
+
+  @override
+  Stream<String> get tokenRefresh => const Stream.empty();
+
+  @override
+  Stream<RemoteMessage> get foreground => const Stream.empty();
+}
+
+class _Harness {
+  _Harness() {
+    store.values['wallet.mainnet.backedUp'] = '1';
+    session.clock = () => now;
+    session.owner = service;
+    session.address = _own;
+  }
+
+  DateTime now = DateTime(2026, 10, 5, 12);
+  final session = FakeWalletSession(summary: _summary);
+  final store = MemorySecretStore();
+  final files = FakeSlateFiles();
+  late final service = FakeWalletService(session: session);
+  final copied = <String>[];
+  String? clipboard;
+
+  WalletConfig get config => mainnetPreset.config(
+    dataDir: '/fake/wallets/mainnet',
+    nodeUrl: 'https://node',
+  );
+
+  static final WalletSummary _summary = WalletSummary(
+    lastConfirmedHeight: BigInt.from(2500000),
+    minimumConfirmations: BigInt.from(10),
+    total: _epic(100),
+    spendable: _epic(100),
+    awaitingConfirmation: BigInt.zero,
+    awaitingFinalization: BigInt.zero,
+    immature: BigInt.zero,
+    locked: BigInt.zero,
+    validatedWithNode: true,
+  );
+
+  ProviderContainer container(WidgetTester tester) =>
+      ProviderScope.containerOf(tester.element(find.byType(Navigator).first));
+
+  /// One request to the payer, as the form sends it.
+  Future<IssuedInvoice> issue({num amount = 2.5, String? message}) => session
+      .issueInvoice(amount: _epic(amount), address: _payer, message: message);
+
+  Future<void> pump(
+    WidgetTester tester,
+    Widget home, {
+    bool tall = false,
+  }) async {
+    tester.view.physicalSize = Size(1080, tall ? 7200 : 2340);
+    tester.view.devicePixelRatio = 3;
+    addTearDown(tester.view.reset);
+    tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+      SystemChannels.platform,
+      (call) async {
+        if (call.method == 'Clipboard.setData') {
+          copied.add((call.arguments as Map)['text'] as String);
+        }
+        if (call.method == 'Clipboard.getData') {
+          return clipboard == null ? null : {'text': clipboard};
+        }
+        return null;
+      },
+    );
+    addTearDown(
+      () => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+        SystemChannels.platform,
+        null,
+      ),
+    );
+    await tester.pumpWidget(
+      ProviderScope(
+        retry: (_, _) => null,
+        overrides: [
+          walletServiceProvider.overrideWithValue(service),
+          secretStoreProvider.overrideWithValue(store),
+          biometricStoreProvider.overrideWithValue(MemoryBiometricStore()),
+          updatePlatformProvider.overrideWithValue(null),
+          priceSourceProvider.overrideWithValue(_NoPrice()),
+          qrScannerProvider.overrideWithValue(FakeQrScanner(supported: false)),
+          pushPlatformProvider.overrideWithValue(_NoPush()),
+          historyFilesProvider.overrideWithValue(FakeHistoryFiles()),
+          slateFilesProvider.overrideWithValue(files),
+          clockProvider.overrideWithValue(() => now),
+          invoiceClockProvider.overrideWithValue(() => now),
+          sessionProvider.overrideWith(() => _OpenSession(session)),
+          walletConfigProvider.overrideWith(() => _Config(config)),
+        ],
+        child: MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: home,
+          builder: (context, child) => NoticeHost(child: child!),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+  }
+
+  /// Fills the form and taps Request.
+  Future<void> request(
+    WidgetTester tester, {
+    String? payer,
+    String amount = '2.5',
+    String message = '',
+  }) async {
+    await tester.enterText(find.byKey(requestPayerKey), payer ?? _payer);
+    await tester.enterText(find.byKey(requestAmountKey), amount);
+    if (message.isNotEmpty) {
+      await tester.enterText(find.byKey(requestMessageKey), message);
+    }
+    await tester.pump();
+    await tester.tap(find.text(_l.requestButton));
+    await tester.pumpAndSettle();
+  }
+}
+
+String? _notice(WidgetTester tester) =>
+    ProviderScope.containerOf(tester.element(find.byType(Navigator).first))
+        .read(noticeProvider)
+        ?.text;
+
+NoticeLevel? _noticeLevel(WidgetTester tester) =>
+    ProviderScope.containerOf(tester.element(find.byType(Navigator).first))
+        .read(noticeProvider)
+        ?.level;
+
+void main() {
+  group('Receive card', () {
+    testWidgets('is hidden when the wallet has no invoices', (tester) async {
+      final h = _Harness();
+      h.session.invoicesSupported = false;
+      await h.pump(tester, const SlotScaffold(body: ReceiveView()));
+      expect(find.byKey(receiveRequestKey), findsNothing);
+      expect(find.text(_l.receiveRequestTitle), findsNothing);
+    });
+
+    testWidgets('opens the request form', (tester) async {
+      final h = _Harness();
+      await h.pump(tester, const SlotScaffold(body: ReceiveView()));
+      expect(find.byKey(receiveRequestKey), findsOneWidget);
+      await tester.ensureVisible(find.text(_l.receiveRequestButton));
+      await tester.tap(find.text(_l.receiveRequestButton));
+      await tester.pumpAndSettle();
+      expect(find.text(_l.requestTitle), findsOneWidget);
+      expect(find.text(_l.requestStepTrust), findsOneWidget);
+      expect(find.text(_l.requestStepAddress), findsOneWidget);
+    });
+  });
+
+  group('form', () {
+    testWidgets('shows the own address in full, with copy and share', (
+      tester,
+    ) async {
+      final h = _Harness();
+      await h.pump(tester, const InvoiceRequestScreen());
+      expect(find.text(_own), findsOneWidget);
+      await tester.tap(find.byTooltip(_l.commonCopy));
+      await tester.pumpAndSettle();
+      expect(h.copied, [_own]);
+      await tester.tap(find.byTooltip(_l.commonShare));
+      // The share card renders through the engine, which fake time does not move.
+      for (var i = 0; i < 100 && h.files.sharedImages.isEmpty; i++) {
+        await tester.runAsync(
+          () => Future<void>.delayed(const Duration(milliseconds: 20)),
+        );
+        await tester.pump();
+      }
+      expect(h.files.sharedImages.single.text, _own);
+    });
+
+    testWidgets('checks the payer and the amount before sending', (
+      tester,
+    ) async {
+      final h = _Harness();
+      await h.pump(tester, const InvoiceRequestScreen());
+      await tester.tap(find.text(_l.requestButton));
+      await tester.pumpAndSettle();
+      expect(find.text(_l.requestPayerMissing), findsOneWidget);
+      expect(find.text(_l.sendAmountZero), findsOneWidget);
+
+      await h.request(tester, payer: 'not an address');
+      expect(
+        find.text(_l.contactsAddressInvalid('es5x…@epicbox.epiccash.com')),
+        findsOneWidget,
+      );
+
+      await h.request(tester, payer: _own);
+      expect(find.text(_l.requestPayerOwn), findsOneWidget);
+      await h.request(tester, payer: await h.session.invoiceAddress());
+      expect(find.text(_l.requestPayerOwn), findsOneWidget);
+
+      await h.request(tester, amount: '0');
+      expect(find.text(_l.sendAmountZero), findsOneWidget);
+      expect(h.session.issuedRequests, isEmpty);
+    });
+
+    testWidgets('stops the message at 256 bytes and counts them', (
+      tester,
+    ) async {
+      final h = _Harness();
+      await h.pump(tester, const InvoiceRequestScreen());
+      // Three bytes each: 90 of them would be 270.
+      await tester.enterText(find.byKey(requestMessageKey), '€' * 85);
+      await tester.pump();
+      expect(find.text(_l.sendMessageCounter(255, 256)), findsOneWidget);
+      await tester.enterText(find.byKey(requestMessageKey), '€' * 90);
+      await tester.pump();
+      final field = tester.widget<TextField>(find.byKey(requestMessageKey));
+      expect(field.controller!.text, '€' * 85, reason: 'refused, not cut');
+    });
+
+    testWidgets('requests, says so, and opens the request in the list', (
+      tester,
+    ) async {
+      final h = _Harness();
+      await h.pump(tester, const InvoiceRequestScreen());
+      await h.request(tester, message: 'Dinner on Friday');
+      expect(h.session.issuedRequests.single, (
+        amount: _epic(2.5),
+        to: _payer,
+        message: 'Dinner on Friday',
+      ));
+      expect(_notice(tester), _l.requestSentNotice(shortAddress(_payer)));
+      expect(_noticeLevel(tester), NoticeLevel.success);
+      expect(find.text(_l.invoicesTitle), findsOneWidget);
+      expect(find.text(_l.invoicesSentSection), findsOneWidget);
+      expect(find.text(epicText(_l, _epic(2.5))), findsOneWidget);
+      expect(find.text(_l.invoiceTimeLeftHours(24, 0)), findsOneWidget);
+      // Nothing leaves the wallet, so no PIN.
+      expect(find.text(_l.invoicePinReason), findsNothing);
+      expect(h.session.invoicePayments, 0);
+    });
+
+    testWidgets('names a contact as the payer', (tester) async {
+      final h = _Harness();
+      await h.pump(tester, const InvoiceRequestScreen());
+      await h
+          .container(tester)
+          .read(contactsProvider.notifier)
+          .save(Contact(id: '', name: 'Alice', address: _payer));
+      await h.request(tester);
+      expect(_notice(tester), _l.requestSentNotice('Alice'));
+      expect(find.text('Alice'), findsOneWidget);
+    });
+
+    testWidgets('a request the relay did not take stays on the form', (
+      tester,
+    ) async {
+      final h = _Harness();
+      h.session.issueError = const WalletError(
+        kind: WalletErrorKind.transportFailed,
+        message: 'relay closed the socket',
+      );
+      await h.pump(tester, const InvoiceRequestScreen());
+      await h.request(tester);
+      expect(_noticeLevel(tester), NoticeLevel.error);
+      expect(find.text(_l.requestTitle), findsOneWidget);
+      expect(h.session.issuedRequests, isEmpty);
+    });
+  });
+
+  group('list', () {
+    testWidgets('shows each state of a sent request', (tester) async {
+      final h = _Harness();
+      final waiting = await h.issue(amount: 1);
+      final paid = await h.issue(amount: 2);
+      final declined = await h.issue(amount: 3);
+      final withdrawn = await h.issue(amount: 4);
+      final expired = await h.issue(amount: 5);
+      await h.session.payIssued(paid.slateId);
+      await h.session.declineIssued(declined.slateId);
+      await h.session.withdrawInvoice(slateId: withdrawn.slateId);
+      await h.session.expireIssued(expired.slateId);
+      await h.pump(tester, const InvoicesScreen(), tall: true);
+      expect(find.text(_l.invoicesToPaySection), findsOneWidget);
+      expect(find.text(_l.invoicesNoneToPay), findsOneWidget);
+      expect(find.text(_l.invoicesEmpty), findsNothing);
+      expect(find.text(_l.invoicesSentSection), findsOneWidget);
+      expect(find.text(shortAddress(_payer)), findsNWidgets(5));
+      for (final (amount, state) in [
+        (1, _l.invoiceTimeLeftHours(24, 0)),
+        (2, _l.issuedPaid),
+        (3, _l.issuedDeclined),
+        (4, _l.issuedWithdrawn),
+        (5, _l.issuedExpired),
+      ]) {
+        final tile = find.ancestor(
+          of: find.text(epicText(_l, _epic(amount))),
+          matching: find.byType(Card),
+        );
+        expect(
+          find.descendant(of: tile, matching: find.text(state)),
+          findsOneWidget,
+          reason: '$amount EPIC',
+        );
+      }
+      // Only the waiting one can be withdrawn.
+      expect(find.text(_l.issuedWithdraw), findsOneWidget);
+      expect(waiting.withdrawable, isTrue);
+    });
+
+    testWidgets('counts the time left down', (tester) async {
+      final h = _Harness();
+      await h.issue();
+      await h.pump(tester, const InvoicesScreen());
+      expect(find.text(_l.invoiceTimeLeftHours(24, 0)), findsOneWidget);
+      h.now = h.now.add(const Duration(hours: 23, minutes: 30));
+      await tester.pump(const Duration(seconds: 30));
+      expect(find.text(_l.invoiceTimeLeftMinutes(30)), findsOneWidget);
+    });
+
+    testWidgets('withdraw asks first, then withdraws', (tester) async {
+      final h = _Harness();
+      final request = await h.issue();
+      await h.pump(tester, const HomeScreen());
+      await tester.tap(find.byKey(invoicesEntryKey));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text(_l.issuedWithdraw));
+      await tester.pumpAndSettle();
+      expect(find.text(_l.issuedWithdrawTitle), findsOneWidget);
+      expect(
+        find.text(_l.issuedWithdrawBody(shortAddress(_payer))),
+        findsOneWidget,
+      );
+      await tester.tap(find.text(_l.issuedWithdrawKeep));
+      await tester.pumpAndSettle();
+      expect(h.session.cancelledTxIds, isEmpty);
+      await tester.tap(find.text(_l.issuedWithdraw));
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(FilledButton, _l.issuedWithdraw));
+      await tester.pumpAndSettle();
+      expect(h.session.cancelledTxIds, [request.txId]);
+      expect(find.text(_l.issuedWithdrawn), findsOneWidget);
+      expect(find.text(_l.issuedWithdraw), findsNothing);
+      expect(_notice(tester), _l.issuerNoticeWithdrawn);
+      expect(_noticeLevel(tester), NoticeLevel.warning);
+    });
+
+    testWidgets('opens a request in its details', (tester) async {
+      final h = _Harness();
+      await h.issue(message: 'Dinner on Friday');
+      await h.pump(tester, const InvoicesScreen());
+      await tester.tap(find.text(shortAddress(_payer)));
+      await tester.pumpAndSettle();
+      expect(find.text(_l.issuedDetailsSection), findsOneWidget);
+    });
+  });
+
+  group('details', () {
+    Future<void> details(
+      WidgetTester tester,
+      _Harness h,
+      IssuedInvoice request,
+    ) => h.pump(
+      tester,
+      TxDetailsScreen(txKey: 's:${request.slateId}'),
+      tall: true,
+    );
+
+    testWidgets(
+      'a waiting request shows the payer, message, time and Withdraw',
+      (tester) async {
+        final h = _Harness();
+        final request = await h.issue(message: 'Dinner on Friday');
+        await details(tester, h, request);
+        expect(find.text(_l.issuedDetailsSection), findsOneWidget);
+        expect(find.text(shortAddress(_payer)), findsWidgets);
+        expect(find.text('Dinner on Friday'), findsOneWidget);
+        expect(
+          find.text(
+            '${_l.issuedDetailsWaiting} ${_l.invoiceTimeLeftHours(24, 0)}',
+          ),
+          findsOneWidget,
+        );
+        // Withdraw replaces the plain cancel, which would not keep the state.
+        expect(find.text(_l.txDetailsCancelPayment), findsNothing);
+        await tester.tap(find.text(_l.issuedWithdraw));
+        await tester.pumpAndSettle();
+        await tester.tap(find.widgetWithText(FilledButton, _l.issuedWithdraw));
+        await tester.pumpAndSettle();
+        expect(h.session.cancelledTxIds, [request.txId]);
+        expect(find.text(_l.issuedDetailsWithdrawn), findsOneWidget);
+        expect(find.text(_l.issuedWithdraw), findsNothing);
+      },
+    );
+
+    for (final (name, settle, text) in [
+      (
+        'paid',
+        (FakeWalletSession s, String id) => s.payIssued(id),
+        _l.issuedDetailsPaid,
+      ),
+      (
+        'declined',
+        (FakeWalletSession s, String id) => s.declineIssued(id),
+        _l.issuedDetailsDeclined,
+      ),
+      (
+        'expired',
+        (FakeWalletSession s, String id) => s.expireIssued(id),
+        _l.issuedDetailsExpired,
+      ),
+    ]) {
+      testWidgets('a $name request says so and cannot be withdrawn', (
+        tester,
+      ) async {
+        final h = _Harness();
+        final request = await h.issue();
+        await settle(h.session, request.slateId);
+        await details(tester, h, request);
+        expect(find.text(text), findsOneWidget);
+        expect(find.text(_l.issuedWithdraw), findsNothing);
+      });
+    }
+
+    testWidgets('follows a state change while open', (tester) async {
+      final h = _Harness();
+      final request = await h.issue();
+      await details(tester, h, request);
+      expect(find.text(_l.issuedWithdraw), findsOneWidget);
+      await h.session.payIssued(request.slateId);
+      await tester.pumpAndSettle();
+      expect(find.text(_l.issuedDetailsPaid), findsOneWidget);
+      expect(find.text(_l.issuedWithdraw), findsNothing);
+    });
+
+    testWidgets('a transaction that is no request has no request block', (
+      tester,
+    ) async {
+      final h = _Harness();
+      h.session.transactionsValue = [
+        fakeTx(
+          id: 1,
+          slateId: 'plain',
+          kind: TxKind.received,
+          status: TxStatus.awaitingConfirmation,
+          createdAtUnix: 1790000000,
+          amountCredited: _epic(1),
+          cancellable: true,
+        ),
+      ];
+      await h.pump(tester, const TxDetailsScreen(txKey: 's:plain'), tall: true);
+      expect(find.text(_l.issuedDetailsSection), findsNothing);
+      expect(find.text(_l.txDetailsCancelPayment), findsOneWidget);
+    });
+  });
+
+  group('notices', () {
+    Future<(_Harness, IssuedInvoice)> onHome(WidgetTester tester) async {
+      final h = _Harness();
+      final request = await h.issue();
+      await h.pump(tester, const HomeScreen());
+      h.container(tester).read(noticeProvider.notifier).clear();
+      await tester.pumpAndSettle();
+      return (h, request);
+    }
+
+    testWidgets('paid is a success with View', (tester) async {
+      final (h, request) = await onHome(tester);
+      await h.session.payIssued(request.slateId);
+      await tester.pumpAndSettle();
+      expect(_notice(tester), _l.issuerNoticePaid);
+      expect(_noticeLevel(tester), NoticeLevel.success);
+      await tester.tap(
+        find.descendant(
+          of: find.byKey(noticeKey),
+          matching: find.text(_l.homeNoticeView),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text(_l.issuedDetailsPaid), findsOneWidget);
+    });
+
+    testWidgets('declined is a warning', (tester) async {
+      final (h, request) = await onHome(tester);
+      await h.session.declineIssued(request.slateId);
+      await tester.pumpAndSettle();
+      expect(_notice(tester), _l.issuerNoticeDeclined);
+      expect(_noticeLevel(tester), NoticeLevel.warning);
+    });
+
+    testWidgets('expired is information', (tester) async {
+      final (h, request) = await onHome(tester);
+      await h.session.expireIssued(request.slateId);
+      await tester.pumpAndSettle();
+      expect(_notice(tester), _l.issuerNoticeExpired);
+      expect(_noticeLevel(tester), NoticeLevel.info);
+    });
+
+    testWidgets('bounced warns once per drain with the payment advice', (
+      tester,
+    ) async {
+      final (h, _) = await onHome(tester);
+      h.session.bounceIssued(count: 2);
+      await h.container(tester).read(paymentsDrainProvider.notifier).drain();
+      await tester.pumpAndSettle();
+      expect(_notice(tester), _l.issuerNoticeBounced(2));
+      expect(_noticeLevel(tester), NoticeLevel.warning);
+      expect(_l.issuerNoticeBounced(1), contains('payment file'));
+      // Nothing was paid or cancelled by the bounce itself.
+      expect(h.session.invoicePayments, 0);
+      expect(h.session.cancelledTxIds, isEmpty);
+    });
+  });
+}

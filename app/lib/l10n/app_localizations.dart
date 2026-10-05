@@ -2282,6 +2282,234 @@ abstract class AppLocalizations {
   /// **'An invoice expired before you answered it.'**
   String get invoiceNoticeExpired;
 
+  /// Heading of the card on Receive that opens the request form: the user asks someone to pay them over epicbox (an invoice they send).
+  ///
+  /// In en, this message translates to:
+  /// **'Request a payment'**
+  String get receiveRequestTitle;
+
+  /// Line in Receive's request card.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask someone to pay you an amount. They approve it once in their wallet, and yours finishes the payment.'**
+  String get receiveRequestBody;
+
+  /// Button in Receive's request card that opens the request form.
+  ///
+  /// In en, this message translates to:
+  /// **'New request'**
+  String get receiveRequestButton;
+
+  /// Title of the screen where the user asks someone to pay them.
+  ///
+  /// In en, this message translates to:
+  /// **'Request a payment'**
+  String get requestTitle;
+
+  /// First line of the request screen, above the two numbered steps the payer must take first.
+  ///
+  /// In en, this message translates to:
+  /// **'Their wallet must take invoices. Before you request:'**
+  String get requestStepsIntro;
+
+  /// First step on the request screen. 'Trusted services' is the list in the payer's invoice settings; the user's own address is shown in full right below.
+  ///
+  /// In en, this message translates to:
+  /// **'1. They add your address below to their trusted services.'**
+  String get requestStepTrust;
+
+  /// Second step on the request screen: the payer's invoice address goes in the field below.
+  ///
+  /// In en, this message translates to:
+  /// **'2. They give you their invoice address.'**
+  String get requestStepAddress;
+
+  /// Label above the user's own payments address on the request screen, which the payer must trust.
+  ///
+  /// In en, this message translates to:
+  /// **'Your address'**
+  String get requestYourAddress;
+
+  /// Label of the field for the payer's invoice address.
+  ///
+  /// In en, this message translates to:
+  /// **'Their invoice address'**
+  String get requestPayerLabel;
+
+  /// Error under the payer field when it is empty.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste or scan their invoice address.'**
+  String get requestPayerMissing;
+
+  /// Error under the payer field when it holds the user's own payments or invoice address.
+  ///
+  /// In en, this message translates to:
+  /// **'That is one of your own addresses. Enter the invoice address the payer gives you.'**
+  String get requestPayerOwn;
+
+  /// Label of the optional message field on the request screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Message to the payer (optional)'**
+  String get requestMessageLabel;
+
+  /// Helper text under the request's message field.
+  ///
+  /// In en, this message translates to:
+  /// **'The payer sees this message with your request.'**
+  String get requestMessageHelper;
+
+  /// Main button of the request screen: sends the request to the payer.
+  ///
+  /// In en, this message translates to:
+  /// **'Request'**
+  String get requestButton;
+
+  /// Notice after a request reached the relay. payer is the contact's name or the start of their address.
+  ///
+  /// In en, this message translates to:
+  /// **'Request sent to {payer}.'**
+  String requestSentNotice(String payer);
+
+  /// Heading on the Invoices screen above invoices that services sent the user.
+  ///
+  /// In en, this message translates to:
+  /// **'To pay'**
+  String get invoicesToPaySection;
+
+  /// Shown under invoicesToPaySection when no invoice waits but the user has sent requests.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing to pay.'**
+  String get invoicesNoneToPay;
+
+  /// Heading on the Invoices screen above the payment requests the user sent to others.
+  ///
+  /// In en, this message translates to:
+  /// **'Requests you sent'**
+  String get invoicesSentSection;
+
+  /// State of a request the user sent: the payer paid it.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid'**
+  String get issuedPaid;
+
+  /// State of a request the user sent: the payer declined it.
+  ///
+  /// In en, this message translates to:
+  /// **'Declined'**
+  String get issuedDeclined;
+
+  /// State of a request the user sent: the user withdrew it.
+  ///
+  /// In en, this message translates to:
+  /// **'Withdrawn'**
+  String get issuedWithdrawn;
+
+  /// State of a request the user sent: its time ran out unpaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Expired'**
+  String get issuedExpired;
+
+  /// Button that withdraws a request the user sent, so it can no longer be paid. Asks first.
+  ///
+  /// In en, this message translates to:
+  /// **'Withdraw'**
+  String get issuedWithdraw;
+
+  /// Title of the confirm before a request is withdrawn.
+  ///
+  /// In en, this message translates to:
+  /// **'Withdraw this request?'**
+  String get issuedWithdrawTitle;
+
+  /// Body of the withdraw confirm. payer is the contact's name or the start of their address.
+  ///
+  /// In en, this message translates to:
+  /// **'{payer} can no longer pay it. This cannot be undone.'**
+  String issuedWithdrawBody(String payer);
+
+  /// Button in the withdraw confirm that keeps the request open.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep it'**
+  String get issuedWithdrawKeep;
+
+  /// Heading of the request block in a transaction's details, for a request the user sent.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment request'**
+  String get issuedDetailsSection;
+
+  /// Label above the payer in the request block of a transaction's details.
+  ///
+  /// In en, this message translates to:
+  /// **'Requested from'**
+  String get issuedDetailsPayer;
+
+  /// Request block, while the request is unpaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for the payer. Your wallet finishes the payment when it arrives.'**
+  String get issuedDetailsWaiting;
+
+  /// Request block, once the payer paid.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid. Your wallet finished the payment; it completes once the network confirms it.'**
+  String get issuedDetailsPaid;
+
+  /// Request block, after the payer declined.
+  ///
+  /// In en, this message translates to:
+  /// **'The payer declined this request, so it was withdrawn. Nothing was paid.'**
+  String get issuedDetailsDeclined;
+
+  /// Request block, after the user withdrew it.
+  ///
+  /// In en, this message translates to:
+  /// **'You withdrew this request. Nothing was paid.'**
+  String get issuedDetailsWithdrawn;
+
+  /// Request block, after its time ran out unpaid.
+  ///
+  /// In en, this message translates to:
+  /// **'This request expired before it was paid. Nothing was paid.'**
+  String get issuedDetailsExpired;
+
+  /// Notice when a payer paid a request the user sent, and the wallet finished the payment.
+  ///
+  /// In en, this message translates to:
+  /// **'A request you sent was paid.'**
+  String get issuerNoticePaid;
+
+  /// Notice when a payer declined a request the user sent.
+  ///
+  /// In en, this message translates to:
+  /// **'A request you sent was declined.'**
+  String get issuerNoticeDeclined;
+
+  /// Notice after the user withdrew a request.
+  ///
+  /// In en, this message translates to:
+  /// **'Request withdrawn. It can no longer be paid.'**
+  String get issuerNoticeWithdrawn;
+
+  /// Notice when a request the user sent ran out of time unpaid.
+  ///
+  /// In en, this message translates to:
+  /// **'A request you sent expired unpaid.'**
+  String get issuerNoticeExpired;
+
+  /// Warning when requests the user sent came back from wallets that cannot pay invoices (for example the standard epic-wallet). The payer can still send a normal payment, to the user's address or as a payment file. count is how many came back.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{A wallet sent your request back: it cannot pay invoices. Ask that person to send you the payment instead, to your address or as a payment file.} other{{count} requests came back from wallets that cannot pay invoices. Ask those people to send you the payment instead, to your address or as a payment file.}}'**
+  String issuerNoticeBounced(int count);
+
   /// Tooltip and screen-reader label of the connection dot. epicbox is the relay service that carries payments (a proper name).
   ///
   /// In en, this message translates to:

@@ -8,6 +8,7 @@ import '../settings.dart';
 import '../wallet_service.dart';
 import 'common.dart';
 import 'contacts_screen.dart' show ContactEditScreen;
+import 'invoice_request_screen.dart' show IssuedInvoiceBlock;
 import 'invoice_review_screen.dart' show PaidInvoiceBlock;
 import 'theme/advanced.dart';
 import 'theme/protocol.dart';
@@ -402,6 +403,10 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
       outgoing ? SlateRole.receiver : SlateRole.sender,
     );
     final singleOutput = tx.outputCommits.length == 1;
+    final issued = switch (tx.slateId) {
+      final slate? => ref.watch(issuedInvoiceProvider(slate)).value != null,
+      null => false,
+    };
 
     return SlotScaffold(
       appBar: AppBar(title: Text(txHeading(l, tx, contactName: name))),
@@ -487,7 +492,9 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
                       ),
                     ),
                   ],
-                  if (tx.cancellable && tx.id != null) ...[
+                  // A request this wallet sent is withdrawn in its own block, which keeps
+                  // its state; a plain cancel would not.
+                  if (tx.cancellable && tx.id != null && !issued) ...[
                     const SizedBox(height: 8),
                     Align(
                       alignment: Alignment.centerRight,
@@ -507,6 +514,8 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
             tx: tx,
             onCancel: _busy || tx.id == null ? null : () => _cancel(tx),
           ),
+          // The request this wallet sent, if it is one (I-06).
+          IssuedInvoiceBlock(tx: tx),
           if (tx.source != TxSource.wallet) ...[
             const SizedBox(height: 8),
             _SourceNote(source: tx.source),

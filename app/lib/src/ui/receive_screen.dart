@@ -17,6 +17,7 @@ import 'centered_body.dart';
 import 'common.dart';
 import 'file_exchange_help.dart';
 import 'help_screen.dart';
+import 'invoice_request_screen.dart' show InvoiceRequestScreen;
 import 'slate_file_screen.dart';
 import 'theme/advanced.dart';
 import 'theme/brand.dart';
@@ -28,7 +29,8 @@ import 'theme/tokens.dart';
 /// accept connections.
 ///
 /// The Receive tab's content, top to bottom: the address (tap to copy, Share inside), the
-/// epicbox line, the QR code, receiving by file, and help.
+/// epicbox line, the QR code, receiving by file, requesting a payment when the wallet
+/// handles invoices, and help.
 class ReceiveView extends ConsumerWidget {
   const ReceiveView({super.key});
 
@@ -52,6 +54,10 @@ class ReceiveView extends ConsumerWidget {
           },
           const SizedBox(height: 24),
           const _FileCard(),
+          if (ref.watch(sessionProvider)?.supportsInvoices ?? false) ...[
+            const SizedBox(height: 16),
+            const _RequestCard(),
+          ],
           const SizedBox(height: 8),
           Center(
             child: TextButton.icon(
@@ -388,6 +394,59 @@ class _FileCard extends ConsumerWidget {
                     ),
                   ),
                 ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// The key of Receive's request card, for tests.
+const Key receiveRequestKey = ValueKey('receive-request');
+
+/// Asking someone to pay this wallet, when the wallet handles invoices: one line and the
+/// button to the request form.
+class _RequestCard extends StatelessWidget {
+  const _RequestCard();
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    final t = context.tokens;
+    final theme = Theme.of(context);
+    return Card(
+      key: receiveRequestKey,
+      margin: EdgeInsets.zero,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Semantics(
+              header: true,
+              child: Text(
+                l.receiveRequestTitle,
+                style: theme.textTheme.titleSmall,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              l.receiveRequestBody,
+              style: theme.textTheme.bodyMedium?.copyWith(color: t.dim),
+            ),
+            const SizedBox(height: 12),
+            OutlinedButton.icon(
+              style: OutlinedButton.styleFrom(
+                minimumSize: const Size.fromHeight(48),
+              ),
+              icon: const Icon(Icons.request_quote_outlined),
+              label: Text(l.receiveRequestButton),
+              onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder: (_) => const InvoiceRequestScreen(),
+                ),
               ),
             ),
           ],

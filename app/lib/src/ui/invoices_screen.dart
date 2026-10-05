@@ -1,6 +1,7 @@
 /// Invoices from trusted services (I-03): home's entry with its badge, the list, and the
 /// notices for what the drains find. Paying is the review screen's, behind the PIN gate;
-/// nothing here pays.
+/// nothing here pays. The list also holds the requests this wallet sent (I-06), and home's
+/// entry turns their events into notices.
 library;
 
 import 'dart:async';
@@ -9,13 +10,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../app_log.dart';
+import '../contacts.dart';
 import '../errors.dart';
 import '../l10n.dart';
 import '../providers.dart';
 import '../wallet_service.dart';
 import 'common.dart';
+import 'invoice_request_screen.dart';
 import 'invoice_review_screen.dart';
 import 'theme/brand.dart';
+import 'theme/protocol.dart';
+import 'theme/tokens.dart';
 import 'tx_details_screen.dart';
 
 /// The most of a service's message the app shows. LEPIC caps it too; this keeps one line.
@@ -92,6 +97,9 @@ class _InvoicesEntryState extends ConsumerState<InvoicesEntry> {
       (_, session) => _subscribe(session),
       fireImmediately: true,
     );
+    ref.listenManual<IssuerNotice?>(issuerNoticeProvider, (_, notice) {
+      if (notice != null) _notifyIssuer(notice.event);
+    });
   }
 
   @override
@@ -167,6 +175,45 @@ class _InvoicesEntryState extends ConsumerState<InvoicesEntry> {
       case InvoiceEventKind.declined:
         // The review screen says so itself.
         break;
+    }
+  }
+
+  /// What happened to a request this wallet sent, as a notice. None of them pays anything.
+  void _notifyIssuer(IssuerEvent event) {
+    if (!mounted) return;
+    final l = context.l10n;
+    final notices = ref.read(noticeProvider.notifier);
+    final slateId = event.slateId;
+    final view = slateId == null
+        ? null
+        : NoticeAction(l.homeNoticeView, _detailsOf('s:$slateId'));
+    switch (event.kind) {
+      case IssuerEventKind.paid:
+        notices.show(
+          l.issuerNoticePaid,
+          level: NoticeLevel.success,
+          action: view,
+        );
+      case IssuerEventKind.declined:
+        notices.show(
+          l.issuerNoticeDeclined,
+          level: NoticeLevel.warning,
+          action: view,
+        );
+      case IssuerEventKind.withdrawn:
+        // The user withdrew it a moment ago; nothing to open.
+        notices.show(l.issuerNoticeWithdrawn, level: NoticeLevel.warning);
+      case IssuerEventKind.expired:
+        notices.show(
+          l.issuerNoticeExpired,
+          level: NoticeLevel.info,
+          action: view,
+        );
+      case IssuerEventKind.bounced:
+        notices.show(
+          l.issuerNoticeBounced(event.count),
+          level: NoticeLevel.warning,
+        );
     }
   }
 
@@ -301,6 +348,8 @@ class _InvoicesScreenState extends ConsumerState<InvoicesScreen> {
 
   Future<void> _refresh() async {
     if (!mounted) return;
+    // Payments for requests this wallet sent come to the payments address.
+    unawaited(ref.read(paymentsDrainProvider.notifier).drain());
     try {
       await ref.read(pendingInvoicesProvider.notifier).refresh();
     } catch (_) {
@@ -317,6 +366,11 @@ class _InvoicesScreenState extends ConsumerState<InvoicesScreen> {
     final now = ref.watch(invoiceClockProvider)();
     final hidden = amountDisplay(ref).hidden;
     final list = invoices.value;
+    final sent = ref.watch(issuedInvoicesProvider);
+    final requests = sent.value ?? const <IssuedInvoice>[];
+    final contacts = ref.watch(contactsProvider).value ?? const <Contact>[];
+    // One empty state for both sections; with requests sent, the invoices part says so in a line.
+    final nothing = list != null && list.isEmpty && requests.isEmpty;
     return SlotScaffold(
       appBar: AppBar(title: Text(l.invoicesTitle)),
       idle: invoices.isLoading ? SlotProgress(label: l.invoicesChecking) : null,
@@ -334,10 +388,20 @@ class _InvoicesScreenState extends ConsumerState<InvoicesScreen> {
                 children: [
                   if (invoices.hasError && !invoices.isLoading)
                     ErrorText(describeError(l, invoices.error!)),
-                  if (list != null && list.isEmpty)
+                  if (nothing)
                     EmptyState(
                       icon: const Icon(Icons.receipt_long_outlined),
                       message: l.invoicesEmpty,
+                    ),
+                  if (requests.isNotEmpty)
+                    ProtocolSectionHead(l.invoicesToPaySection),
+                  if (requests.isNotEmpty && list != null && list.isEmpty)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      child: Text(
+                        l.invoicesNoneToPay,
+                        style: TextStyle(color: context.tokens.dim),
+                      ),
                     ),
                   for (final invoice in list ?? const <PendingInvoice>[])
                     _InvoiceTile(
@@ -350,6 +414,19 @@ class _InvoicesScreenState extends ConsumerState<InvoicesScreen> {
                       timeLeft: invoiceTimeLeft(l, invoice.timeLeftAt(now)),
                       amount: shownEpic(l, invoice.amount, hidden: hidden),
                     ),
+                  if (requests.isNotEmpty) ...[
+                    const SizedBox(height: 16),
+                    ProtocolSectionHead(l.invoicesSentSection),
+                    for (final request in requests)
+                      _RequestTile(
+                        request: request,
+                        payer: payerName(contacts, request.payerAddress),
+                        state:
+                            issuedStateWord(l, request.state) ??
+                            invoiceTimeLeft(l, request.timeLeftAt(now)),
+                        amount: shownEpic(l, request.amount, hidden: hidden),
+                      ),
+                  ],
                 ],
               ),
             ),
@@ -387,6 +464,78 @@ class _InvoiceTile extends StatelessWidget {
             builder: (_) => InvoiceReviewScreen(invoice: invoice),
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// A request this wallet sent: the payer, the amount, the time left or its final state, and
+/// Withdraw while it waits. A tap opens its transaction's details.
+class _RequestTile extends ConsumerStatefulWidget {
+  const _RequestTile({
+    required this.request,
+    required this.payer,
+    required this.state,
+    required this.amount,
+  });
+
+  final IssuedInvoice request;
+  final String payer;
+  final String state;
+  final String amount;
+
+  @override
+  ConsumerState<_RequestTile> createState() => _RequestTileState();
+}
+
+class _RequestTileState extends ConsumerState<_RequestTile> {
+  bool _busy = false;
+
+  Future<void> _withdraw() async {
+    setState(() => _busy = true);
+    try {
+      await confirmWithdraw(context, ref, widget.request);
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final request = widget.request;
+    return Card(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          ListTile(
+            leading: const Icon(Icons.call_received),
+            title: Text(
+              widget.payer,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+            subtitle: Text(widget.state),
+            trailing: Text(widget.amount, style: theme.textTheme.titleMedium),
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (_) => TxDetailsScreen(txKey: 's:${request.slateId}'),
+              ),
+            ),
+          ),
+          if (request.withdrawable)
+            Padding(
+              padding: const EdgeInsetsDirectional.only(end: 8, bottom: 4),
+              child: Align(
+                alignment: AlignmentDirectional.centerEnd,
+                child: TextButton.icon(
+                  icon: const Icon(Icons.undo),
+                  label: Text(context.l10n.issuedWithdraw),
+                  onPressed: _busy ? null : _withdraw,
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }
