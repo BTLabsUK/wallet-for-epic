@@ -798,6 +798,54 @@ void main() {
       expect(field.controller!.text, 'a' * 255, reason: '€ takes three bytes');
     });
 
+    group('the byte limit cuts only what is inserted', () {
+      const limit = Utf8LengthLimiter(10);
+      TextEditingValue at(String text, int start, [int? end]) =>
+          TextEditingValue(
+            text: text,
+            selection: TextSelection(
+              baseOffset: start,
+              extentOffset: end ?? start,
+            ),
+          );
+
+      test('typing in the middle of a full field changes nothing', () {
+        final out = limit.formatEditUpdate(
+          at('abcdefghij', 2),
+          at('abXcdefghij', 3),
+        );
+        expect(out.text, 'abcdefghij');
+        expect(out.selection, const TextSelection.collapsed(offset: 2));
+      });
+
+      test('a paste in the middle keeps the text after it', () {
+        final out = limit.formatEditUpdate(
+          at('abcdefgh', 4),
+          at('abcdéXYZefgh', 8),
+        );
+        // é takes two bytes, so only it fits beside the eight letters.
+        expect(out.text, 'abcdéefgh');
+        expect(out.selection, const TextSelection.collapsed(offset: 5));
+      });
+
+      test('a paste over a selection replaces it, cut to fit', () {
+        final out = limit.formatEditUpdate(
+          at('abcdefghij', 2, 5),
+          at('ab12345fghij', 7),
+        );
+        expect(out.text, 'ab123fghij');
+        expect(out.selection, const TextSelection.collapsed(offset: 5));
+      });
+
+      test('an edit that is no insertion falls back to the first bytes', () {
+        final out = limit.formatEditUpdate(
+          const TextEditingValue(text: 'abc'),
+          const TextEditingValue(text: 'zzzzzzzzzzzz'),
+        );
+        expect(out.text, 'zzzzzzzzzz');
+      });
+    });
+
     testWidgets('Max fills the largest amount with its fee', (tester) async {
       final h = _Harness(price: 0.5);
       await h.pump(tester, _sendTab());
