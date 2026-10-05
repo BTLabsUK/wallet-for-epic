@@ -1,4 +1,7 @@
 import 'package:epic_wallet/src/amount.dart';
+import 'package:epic_wallet/src/l10n.dart';
+import 'package:epic_wallet/src/ui/common.dart';
+import 'package:flutter/widgets.dart' show Locale;
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -101,6 +104,49 @@ void main() {
       final big = BigInt.two.pow(53) + BigInt.one;
       expect(displayEpic(big), '90,071,992.54');
       expect(formatEpic(big), '90071992.54740993');
+    });
+  });
+
+  group('amount text', () {
+    final big = parseEpic('1234567.12345678');
+    AppLocalizations l(String code) => lookupAppLocalizations(Locale(code));
+
+    test(
+      'epicText follows the display rule, epicExact keeps every decimal',
+      () {
+        expect(epicText(englishStrings, big), '1,234,567.123 EPIC');
+        expect(epicExact(englishStrings, big), '1,234,567.12345678 EPIC');
+        expect(
+          shownEpic(englishStrings, big, hidden: false, exact: true),
+          '1,234,567.12345678 EPIC',
+        );
+        expect(
+          shownEpic(englishStrings, big, hidden: true, exact: true),
+          hiddenAmount,
+        );
+      },
+    );
+
+    test('each language\'s marks', () {
+      expect(epicText(l('de'), big), '1.234.567,123 EPIC');
+      expect(epicText(l('pl'), big), '1\u00a0234\u00a0567,123 EPIC');
+      expect(epicText(l('ru'), big), '1\u00a0234\u00a0567,123 EPIC');
+      expect(epicText(l('zh'), big), '1,234,567.123 EPIC');
+    });
+
+    test('a short fiat value drops its cents from 1,000, cut off', () {
+      const display = (hidden: false, price: 0.5, currency: 'usd');
+      String? fiat(String epic, {bool short = true}) =>
+          approxFiat(englishStrings, parseEpic(epic), display, short: short);
+      expect(fiat('12.5'), '≈ 6.25 USD');
+      expect(fiat('1999.98'), '≈ 999.99 USD');
+      expect(fiat('2001.98'), '≈ 1,000 USD');
+      expect(fiat('17639999.98'), '≈ 8,819,999 USD');
+      expect(fiat('17639999.98', short: false), '≈ 8,819,999.99 USD');
+      expect(
+        approxFiat(l('de'), parseEpic('2001.98'), display, short: true),
+        '≈ 1.000 USD',
+      );
     });
   });
 

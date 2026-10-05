@@ -371,7 +371,7 @@ class _Balance {
     final summary = this.summary;
     return summary == null
         ? null
-        : approxFiat(context.l10n, summary.spendable, display);
+        : approxFiat(context.l10n, summary.spendable, display, short: true);
   }
 
   /// The balances that are not spendable yet, zero ones left out.

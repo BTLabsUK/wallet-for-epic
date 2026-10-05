@@ -234,14 +234,25 @@ String groupDigits(AppLocalizations l, Object number) => localInt(l, number);
 }
 
 /// `≈ 1.23 USD` for [atomic], or null when there is no price or amounts are hidden.
+///
+/// With [short], as beside a balance or in a row, a value of 1,000 or more drops its
+/// decimals, cut off like [displayEpic]'s: `≈ 8,820,000 USD`. It is an estimate either way.
 String? approxFiat(
   AppLocalizations l,
   BigInt atomic,
-  ({bool hidden, double? price, String currency}) display,
-) {
+  ({bool hidden, double? price, String currency}) display, {
+  bool short = false,
+}) {
   final price = display.price;
   if (price == null || display.hidden) return null;
-  return '≈ ${localDigits(l, fiatText(atomic, price, display.currency))}';
+  var text = fiatText(atomic, price, display.currency);
+  if (short) {
+    final dot = text.indexOf('.');
+    if (dot >= 0 && text.substring(0, dot).contains(',')) {
+      text = text.substring(0, dot) + text.substring(text.indexOf(' ', dot));
+    }
+  }
+  return '≈ ${localDigits(l, text)}';
 }
 
 // Dates.
@@ -660,7 +671,7 @@ class TxTile extends ConsumerWidget {
     // A cancelled payment moved nothing, so it has no value to show.
     final fiat = tx.status == TxStatus.cancelled
         ? null
-        : approxFiat(l, amount, display);
+        : approxFiat(l, amount, display, short: true);
     final theme = Theme.of(context);
     final name = contactName(ref, tx.counterparty);
     final title = txTitle(
