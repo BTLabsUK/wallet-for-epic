@@ -354,7 +354,7 @@ void main() {
     ) async {
       final service = FakeWalletService();
       await _pumpApp(tester, service, _Device());
-      await _tap(tester, find.byTooltip('Network settings'));
+      await _tap(tester, find.bySemanticsLabel('Network settings'));
       await _tapText(tester, 'Usernet');
       final urlField = tester.widget<TextField>(
         find.widgetWithText(TextField, 'Node URL'),
@@ -377,7 +377,7 @@ void main() {
     final service = FakeWalletService();
     final device = _Device();
     await _pumpApp(tester, service, device);
-    await _tap(tester, find.byTooltip('Network settings'));
+    await _tap(tester, find.bySemanticsLabel('Network settings'));
 
     expect(find.text('epicbox.epicnet.us'), findsOneWidget);
     expect(find.textContaining('Up · epicnet.us · official'), findsOneWidget);

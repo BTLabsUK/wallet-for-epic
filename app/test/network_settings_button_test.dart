@@ -152,23 +152,20 @@ void main() {
         handle.dispose();
       });
 
-      testWidgets('keeps the icon and its tooltip at text scale 2', (
-        tester,
-      ) async {
-        await _pump(tester, make(), textScale: 2);
-        expect(tester.takeException(), isNull);
-        expect(find.text('Network settings'), findsNothing);
-        await _opensSetup(tester, find.byTooltip('Network settings'));
-      });
-
-      // The cases the review named against the scale-only rule. The label stays only while
-      // the whole button takes at most half the width, so all three give way to the icon,
-      // which a rule by scale alone would not do below 1.5.
+      // The label stays while the measured button fits the width less 72 dp, for a back
+      // arrow and the inset. German keeps it on 320 dp up to 1.3 and gives way at 2.0;
+      // English keeps it on 360 dp even at 2.0.
+      const narrow = Size(960, 2080);
+      const usual = Size(1080, 2340);
       for (final (language, label, physicalSize, scale, labelled) in [
-        ('de', 'Netzwerkeinstellungen', const Size(960, 2080), 1.0, false),
-        ('de', 'Netzwerkeinstellungen', const Size(960, 2080), 1.3, false),
-        ('en', 'Network settings', const Size(1080, 2340), 1.45, false),
-        ('en', 'Network settings', const Size(1080, 2340), 1.0, true),
+        ('de', 'Netzwerkeinstellungen', usual, 1.0, true),
+        ('de', 'Netzwerkeinstellungen', usual, 1.3, true),
+        ('de', 'Netzwerkeinstellungen', narrow, 1.0, true),
+        ('de', 'Netzwerkeinstellungen', narrow, 1.3, true),
+        ('en', 'Network settings', usual, 1.3, true),
+        ('en', 'Network settings', usual, 2.0, true),
+        ('de', 'Netzwerkeinstellungen', narrow, 2.0, false),
+        ('de', 'Netzwerkeinstellungen', usual, 2.0, false),
       ]) {
         final dp = physicalSize.width ~/ 3;
         final form = labelled ? 'the label' : 'the icon';
@@ -190,7 +187,7 @@ void main() {
             labelled ? findsOneWidget : findsNothing,
           );
           final width = tester.getSize(button).width;
-          expect(width, lessThanOrEqualTo(physicalSize.width / 3 / 2));
+          expect(width, lessThanOrEqualTo(physicalSize.width / 3 - 72));
           await _opensSetup(tester, button);
         });
       }

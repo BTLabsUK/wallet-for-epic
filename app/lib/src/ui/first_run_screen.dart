@@ -1,3 +1,5 @@
+import 'dart:ui' show lerpDouble;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -111,36 +113,49 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
 
 /// The app bar's way to network settings before a wallet is open, on first run and unlock:
 /// the icon and its label in the accent colour, so it reads as a button rather than a
-/// decoration. When the labelled button would take more than half the screen's width, at the
-/// current text scale and in the current language, it gives way to the icon and its tooltip,
-/// so a long label never overflows the bar.
+/// decoration. When the labelled button, measured at the current text scale and in the
+/// current language, would not fit beside a back arrow, it gives way to the icon and its
+/// tooltip, so a long label never overflows the bar.
 class NetworkSettingsButton extends StatelessWidget {
   const NetworkSettingsButton({super.key, required this.onPressed});
 
   final VoidCallback? onPressed;
 
-  /// Everything beside the label: the button's start padding (12), the icon (18), the gap
-  /// (8), its end padding (16) and the margin after it (8).
-  static const double _chrome = 62;
+  /// The icon in a [TextButton.icon]; it does not grow with the text.
+  static const double _iconSize = 18;
 
-  /// The labelled button keeps to this share of the width; the rest is left for the bar's
-  /// back arrow and some air.
-  static const double _maxShare = 0.5;
+  /// The button's start padding, icon gap and end padding: Material 3 shrinks them from
+  /// 12 + 8 + 16 at text scale 1 to 4 + 4 + 4 at scale 2 and above.
+  static const double _paddingAtOne = 36;
+  static const double _paddingAtTwo = 12;
+
+  /// The margin after the button, at the bar's end.
+  static const double _margin = 8;
+
+  /// What the bar keeps for everything else: a 56 dp back arrow when the screen is pushed,
+  /// and 16 of inset.
+  static const double _reserved = 72;
 
   bool _labelFits(BuildContext context, String label) {
     final theme = Theme.of(context);
     final style =
         theme.textButtonTheme.style?.textStyle?.resolve(const {}) ??
         theme.textTheme.labelLarge;
+    final scaler = MediaQuery.textScalerOf(context);
     final painter = TextPainter(
       text: TextSpan(text: label, style: style),
       textDirection: Directionality.of(context),
-      textScaler: MediaQuery.textScalerOf(context),
+      textScaler: scaler,
       maxLines: 1,
     )..layout();
-    final width = painter.width + _chrome;
+    final padding = lerpDouble(
+      _paddingAtOne,
+      _paddingAtTwo,
+      (scaler.scale(1) - 1).clamp(0.0, 1.0),
+    )!;
+    final width = painter.width + _iconSize + padding + _margin;
     painter.dispose();
-    return width <= MediaQuery.sizeOf(context).width * _maxShare;
+    return width <= MediaQuery.sizeOf(context).width - _reserved;
   }
 
   @override
