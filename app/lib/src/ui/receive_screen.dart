@@ -27,7 +27,7 @@ import 'theme/tokens.dart';
 /// text can still be accepted by hand. There is no HTTP receive, because a phone cannot
 /// accept connections.
 ///
-/// The Receive tab's content, top to bottom: the address (tap to copy) with Share, the
+/// The Receive tab's content, top to bottom: the address (tap to copy, Share inside), the
 /// epicbox line, the QR code, receiving by file, and help.
 class ReceiveView extends ConsumerWidget {
   const ReceiveView({super.key});
@@ -69,10 +69,14 @@ class ReceiveView extends ConsumerWidget {
 /// The key of the address card, which copies on a tap, for tests.
 const Key receiveAddressKey = ValueKey('receive-address');
 
+/// The key of Share inside the address card, for tests.
+const Key receiveShareKey = ValueKey('receive-share');
+
 /// The key of the epicbox line, for tests.
 const Key receiveEpicboxKey = ValueKey('receive-epicbox');
 
-/// The full address in a card that copies on a tap anywhere on it, and Share beside it.
+/// The full address in a full-width card that copies on a tap anywhere on it, with the copy
+/// icon and, where the device shares, Share stacked on its right.
 class _AddressRow extends ConsumerStatefulWidget {
   const _AddressRow({required this.address});
 
@@ -110,10 +114,16 @@ class _AddressRowState extends ConsumerState<_AddressRow> {
     final theme = Theme.of(context);
     final files = ref.watch(slateFilesProvider);
     final address = widget.address;
-    return Row(
-      children: [
-        Expanded(
-          child: Semantics(
+    final canShare = files.canShare || files.canShareText;
+    // A 48 dp box for each icon, stacked on the card's right: copy above share.
+    const icon = 48.0;
+    const inset = 4.0;
+    return Card(
+      margin: EdgeInsets.zero,
+      clipBehavior: Clip.antiAlias,
+      child: Stack(
+        children: [
+          Semantics(
             key: receiveAddressKey,
             container: true,
             button: true,
@@ -122,56 +132,78 @@ class _AddressRowState extends ConsumerState<_AddressRow> {
             onTapHint: l.commonCopy,
             onTap: _copy,
             excludeSemantics: true,
-            child: Card(
-              margin: EdgeInsets.zero,
-              clipBehavior: Clip.antiAlias,
-              child: InkWell(
-                onTap: _copy,
+            child: InkWell(
+              onTap: _copy,
+              child: ConstrainedBox(
+                // Room for both icons, however short the address.
+                constraints: BoxConstraints(
+                  minHeight: canShare ? 2 * icon + 2 * inset : 0,
+                ),
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 12, 12, 12),
+                  padding: const EdgeInsetsDirectional.fromSTEB(
+                    16,
+                    inset,
+                    inset,
+                    inset,
+                  ),
                   child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              l.receiveAddressLabel,
-                              style: theme.textTheme.labelMedium?.copyWith(
-                                color: t.dim,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                l.receiveAddressLabel,
+                                style: theme.textTheme.labelMedium?.copyWith(
+                                  color: t.dim,
+                                ),
                               ),
-                            ),
-                            const SizedBox(height: 4),
-                            // Selectable for a long press; a tap copies, like the card.
-                            SelectableText(
-                              address,
-                              onTap: _copy,
-                              style: theme.textTheme.bodyMedium?.copyWith(
-                                fontFamily: t.monoFamily,
+                              const SizedBox(height: 4),
+                              // Selectable for a long press; a tap copies, like the card.
+                              SelectableText(
+                                address,
+                                onTap: _copy,
+                                style: theme.textTheme.bodyMedium?.copyWith(
+                                  fontFamily: t.monoFamily,
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
-                      const SizedBox(width: 12),
-                      Icon(Icons.copy, size: 20, color: t.accentText),
+                      SizedBox.square(
+                        dimension: icon,
+                        child: Icon(Icons.copy, size: 20, color: t.accentText),
+                      ),
                     ],
                   ),
                 ),
               ),
             ),
           ),
-        ),
-        if (files.canShare || files.canShareText) ...[
-          const SizedBox(width: 8),
-          IconButton.outlined(
-            tooltip: l.commonShare,
-            constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
-            onPressed: _sharing ? null : _share,
-            icon: const Icon(Icons.share),
-          ),
+          if (canShare)
+            PositionedDirectional(
+              top: inset + icon,
+              end: inset,
+              child: IconButton(
+                key: receiveShareKey,
+                tooltip: l.commonShare,
+                constraints: const BoxConstraints.tightFor(
+                  width: icon,
+                  height: icon,
+                ),
+                padding: EdgeInsets.zero,
+                onPressed: _sharing ? null : _share,
+                // Through the button, so it greys while a share is under way.
+                color: t.accentText,
+                icon: const Icon(Icons.share, size: 20),
+              ),
+            ),
         ],
-      ],
+      ),
     );
   }
 }

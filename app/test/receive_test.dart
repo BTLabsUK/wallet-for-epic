@@ -31,15 +31,26 @@ class _OpenSession extends SessionNotifier {
   WalletSession? build() => session;
 }
 
+/// A device that shares nothing, not even text.
+class _NoShareFiles extends FakeSlateFiles {
+  _NoShareFiles() {
+    canShare = false;
+  }
+
+  @override
+  bool get canShareText => false;
+}
+
 class _Harness {
-  _Harness({this.advanced = false}) {
+  _Harness({this.advanced = false, FakeSlateFiles? files})
+    : files = files ?? FakeSlateFiles() {
     session.address = _address;
   }
 
   final bool advanced;
   final session = FakeWalletSession();
   final service = FakeWalletService();
-  final files = FakeSlateFiles();
+  final FakeSlateFiles files;
   late ProviderContainer container;
 
   /// What the app put on the clipboard.
@@ -190,6 +201,50 @@ void main() {
         await tester.pumpAndSettle();
       }
       expect(h.copied, [_address, _address, _address]);
+    });
+
+    testWidgets('the card takes the full width, copy above share inside it', (
+      tester,
+    ) async {
+      final h = _Harness();
+      await h.pump(tester);
+      final card = tester.getRect(
+        find.ancestor(
+          of: find.byKey(receiveAddressKey),
+          matching: find.byType(Card),
+        ),
+      );
+      final qr = tester.getRect(find.byType(MarkedQr));
+      final view = tester.getRect(find.byType(ReceiveView));
+      // Nothing beside the card: it spans the view, less the view's own padding.
+      expect(card.width, greaterThan(view.width - 40));
+      final copy = tester.getRect(find.byIcon(Icons.copy));
+      final share = tester.getRect(find.byKey(receiveShareKey));
+      expect(card.contains(copy.center), isTrue);
+      expect(
+        card.contains(share.topLeft) && card.contains(share.bottomRight),
+        isTrue,
+      );
+      expect(share.top, greaterThanOrEqualTo(copy.bottom));
+      expect(share.center.dx, closeTo(copy.center.dx, 1));
+      expect(share.size, const Size(48, 48));
+      expect(card.bottom, lessThan(qr.top));
+      // Share shares; it does not copy.
+      await tester.tap(find.byKey(receiveShareKey));
+      await _untilRendered(tester, () => h.files.sharedImages.isNotEmpty);
+      expect(h.copied, isEmpty);
+    });
+
+    testWidgets('where nothing can be shared, only the copy icon shows', (
+      tester,
+    ) async {
+      final h = _Harness(files: _NoShareFiles());
+      await h.pump(tester);
+      expect(find.byKey(receiveShareKey), findsNothing);
+      expect(find.byTooltip('Share'), findsNothing);
+      expect(find.byIcon(Icons.copy), findsOneWidget);
+      await _tap(tester, find.text(_address));
+      expect(h.copied, [_address]);
     });
 
     testWidgets('the card reads as a button with the address', (tester) async {
