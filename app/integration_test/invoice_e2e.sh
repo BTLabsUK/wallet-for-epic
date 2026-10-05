@@ -78,6 +78,7 @@ LOG="$LOGS/invoice-e2e-test.log"
   > "$LOG" 2>&1) &
 TEST_PID=$!
 CLAIMED=0
+: > "$LOGS/invoice-e2e-svc.log"
 ISSUED=0
 FINALIZED=0
 DRAINS_AFTER=0

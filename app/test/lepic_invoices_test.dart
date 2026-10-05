@@ -4,6 +4,7 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:epic_wallet/src/history/export.dart';
 import 'package:epic_wallet/src/history/wallet_history.dart';
 import 'package:epic_wallet/src/lepic_wallet_service.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
@@ -206,6 +207,16 @@ class _InvoiceWallet implements lepic.EpicWallet {
     }
     declined.add(slateId);
   }
+}
+
+/// A restored wallet whose history file opens to [payload].
+class _ImportingWallet extends _InvoiceWallet {
+  _ImportingWallet(this.payload);
+
+  final Uint8List payload;
+
+  @override
+  Future<Uint8List> openAppData({required List<int> file}) async => payload;
 }
 
 lepic.WalletEvent _event(
@@ -568,6 +579,38 @@ void main() {
       final s = LepicWalletSession(wallet, history: history);
       await s.restoreInvoiceIndex();
       expect(history.invoiceIndex, 4);
+      s.dispose();
+    });
+
+    test('opening a wallet gives LEPIC the kept index', () async {
+      final history = await WalletHistory.open(dir.path, Chain.floonet);
+      await history.setInvoiceIndex(3);
+      history.close();
+      final restored = _InvoiceWallet();
+      final s = await LepicWalletSession.openOn(
+        restored,
+        dir.path,
+        Chain.floonet,
+      );
+      expect(restored.index, 3);
+      s.dispose();
+    });
+
+    test('importing a history file gives LEPIC its index', () async {
+      final payload = HistoryPayload(
+        chain: chainName(Chain.floonet),
+        walletFp: walletFingerprint(_payments),
+        exportedAtUnix: 1790000000,
+        appVersion: historyAppVersion,
+        invoiceIndex: 3,
+      );
+      final restored = _ImportingWallet(Uint8List.fromList(payload.encode()));
+      final s = LepicWalletSession(
+        restored,
+        history: await WalletHistory.open(dir.path, Chain.floonet),
+      );
+      await s.importHistory(data: Uint8List.fromList([1, 2, 3]));
+      expect(restored.index, 3);
       s.dispose();
     });
 

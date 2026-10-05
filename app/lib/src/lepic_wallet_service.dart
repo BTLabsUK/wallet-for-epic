@@ -10,6 +10,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:lepic/lepic.dart' as lepic;
 
 import 'app_log.dart';
@@ -435,10 +436,11 @@ class LepicWalletService implements WalletService {
     lepic.EpicWallet wallet,
   ) async {
     try {
-      final history = await WalletHistory.open(config.dataDir, config.chain);
-      final session = LepicWalletSession(wallet, history: history);
-      await session.restoreInvoiceIndex();
-      return session;
+      return await LepicWalletSession.openOn(
+        wallet,
+        config.dataDir,
+        config.chain,
+      );
     } catch (_) {
       wallet.lock();
       wallet.dispose();
@@ -513,6 +515,20 @@ const String historyAppVersion = 'wfe-lepic';
 class LepicWalletSession implements WalletSession {
   LepicWalletSession(this._wallet, {WalletHistory? history})
     : _history = history ?? WalletHistory.memory();
+
+  /// [wallet] with the archive in [dataDir], and LEPIC given the invoice index kept there,
+  /// as every open does. Public so tests can drive it with a stand-in wallet.
+  @visibleForTesting
+  static Future<LepicWalletSession> openOn(
+    lepic.EpicWallet wallet,
+    String dataDir,
+    Chain chain,
+  ) async {
+    final history = await WalletHistory.open(dataDir, chain);
+    final session = LepicWalletSession(wallet, history: history);
+    await session.restoreInvoiceIndex();
+    return session;
+  }
 
   final lepic.EpicWallet _wallet;
   final WalletHistory _history;
@@ -829,7 +845,15 @@ class LepicWalletSession implements WalletSession {
   void _watchEvents() {
     if (_walletEvents != null || _wallet.isDisposed) return;
     _walletEvents = _wallet.events().listen(
-      (e) => _eventTail = _eventTail.then((_) => _onWalletEvent(e)),
+      (e) => _eventTail = _eventTail
+          .then((_) => _onWalletEvent(e))
+          // One failed event must not stop the ones after it.
+          .catchError(
+            (Object error) => logWarn(
+              'invoices',
+              'invoice event failed: ${error.runtimeType}',
+            ),
+          ),
       onError: (Object error) =>
           logWarn('invoices', 'wallet events ended: $error'),
     );
