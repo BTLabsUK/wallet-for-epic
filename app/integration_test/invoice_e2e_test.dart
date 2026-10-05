@@ -84,8 +84,26 @@ Future<void> _tap(WidgetTester tester, Finder finder) async {
   await tester.pump(const Duration(milliseconds: 300));
 }
 
+/// Taps the first match of [label], scrolling a lazy list until it is built if need be.
 Future<void> _tapText(WidgetTester tester, String label) async {
   final finder = find.text(label);
+  final end = DateTime.now().add(const Duration(seconds: 5));
+  while (finder.evaluate().isEmpty && DateTime.now().isBefore(end)) {
+    await tester.pump(const Duration(milliseconds: 200));
+  }
+  if (finder.evaluate().isEmpty) {
+    final lists = find.byWidgetPredicate(
+      (w) => w is Scrollable && w.axisDirection == AxisDirection.down,
+    );
+    if (lists.evaluate().isNotEmpty) {
+      await tester.scrollUntilVisible(
+        finder,
+        300,
+        scrollable: lists.last,
+        maxScrolls: 60,
+      );
+    }
+  }
   await _pumpUntil(tester, finder);
   await _tap(tester, finder.first);
 }
@@ -199,10 +217,13 @@ void main() {
       await _tapText(tester, 'Invoice address and trusted services');
       final invoiceAddress = await _session(tester).invoiceAddress();
       expect(invoiceAddress, isNot(await _session(tester).epicboxAddress()));
+      // Shown short unless Advanced options is on, as on Receive.
       await _pumpUntil(
         tester,
         find.byWidgetPredicate(
-          (w) => w is SelectableText && w.data == invoiceAddress,
+          (w) =>
+              w is SelectableText &&
+              (w.data ?? '').startsWith(invoiceAddress.substring(0, 6)),
         ),
       );
       await _tapText(tester, 'Add a service');
@@ -312,6 +333,9 @@ void main() {
         timeout: const Duration(minutes: 1),
         poke: () async => _container(tester).invalidate(homeProvider),
       );
+      // The receipt's notice floats over the top rows.
+      _clearNotices(tester);
+      await tester.pump(const Duration(milliseconds: 500));
       await _tap(tester, row.first);
       await _pumpUntil(
         tester,

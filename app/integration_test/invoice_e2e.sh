@@ -88,7 +88,7 @@ while kill -0 "$TEST_PID" 2>/dev/null; do
       for _ in 1 2 3 4; do
         CODE="$(curl -s -m 30 -o "$LOGS/invoice-e2e-faucet.log" -w '%{http_code}' -X POST \
           "$FAUCET?method=epicbox&destination=$PAY")"
-        [ "$CODE" = 200 ] && break
+        case "$CODE" in 2??) break ;; esac
         echo "faucet answered $CODE; again in 40 s"
         sleep 40
       done
