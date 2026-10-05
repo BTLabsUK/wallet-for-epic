@@ -1257,6 +1257,10 @@
   "@homeSettingsTooltip": {
     "description": "Tooltip of the app-bar button that opens settings."
   },
+  "homeSettingsUpdateTooltip": "Settings: an update is available",
+  "@homeSettingsUpdateTooltip": {
+    "description": "Tooltip and screen-reader label of the app-bar Settings button while it carries a small dot because a newer app version is available."
+  },
   "homeSendButton": "Send",
   "@homeSendButton": {
     "description": "Label of the left tab of the bottom tab bar, where payments are sent. Short."
@@ -2134,7 +2138,7 @@
   },
   "updateAvailable": "Version {version} is available.",
   "@updateAvailable": {
-    "description": "Notice at the top of the screen; beside it is the Update button.",
+    "description": "Notice under the app bar; beside it is the Update button.",
     "placeholders": {
       "version": {
         "type": "String",
@@ -3777,6 +3781,20 @@
   "settingsEpicboxServer": "Epicbox server",
   "@settingsEpicboxServer": {
     "description": "Settings row showing the epicbox server's host. epicbox is the relay service that carries payments (a proper name)."
+  },
+  "settingsUpdateTo": "Update to {version}",
+  "@settingsUpdateTo": {
+    "description": "First row of Settings while a newer app version is available; Install is beside it.",
+    "placeholders": {
+      "version": {
+        "type": "String",
+        "example": "1.6.1"
+      }
+    }
+  },
+  "settingsUpdateInstall": "Install",
+  "@settingsUpdateInstall": {
+    "description": "Button on the Settings row that offers a newer app version; downloads and installs it."
   },
   "settingsCheckUpdates": "Check for updates",
   "@settingsCheckUpdates": {

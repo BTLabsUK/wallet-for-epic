@@ -1646,6 +1646,12 @@ abstract class AppLocalizations {
   /// **'Settings'**
   String get homeSettingsTooltip;
 
+  /// Tooltip and screen-reader label of the app-bar Settings button while it carries a small dot because a newer app version is available.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings: an update is available'**
+  String get homeSettingsUpdateTooltip;
+
   /// Label of the left tab of the bottom tab bar, where payments are sent. Short.
   ///
   /// In en, this message translates to:
@@ -2672,7 +2678,7 @@ abstract class AppLocalizations {
   /// **'This is the latest version.'**
   String get updateUpToDate;
 
-  /// Notice at the top of the screen; beside it is the Update button.
+  /// Notice under the app bar; beside it is the Update button.
   ///
   /// In en, this message translates to:
   /// **'Version {version} is available.'**
@@ -4675,6 +4681,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Epicbox server'**
   String get settingsEpicboxServer;
+
+  /// First row of Settings while a newer app version is available; Install is beside it.
+  ///
+  /// In en, this message translates to:
+  /// **'Update to {version}'**
+  String settingsUpdateTo(String version);
+
+  /// Button on the Settings row that offers a newer app version; downloads and installs it.
+  ///
+  /// In en, this message translates to:
+  /// **'Install'**
+  String get settingsUpdateInstall;
 
   /// Settings row.
   ///

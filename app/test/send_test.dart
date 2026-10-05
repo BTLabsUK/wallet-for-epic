@@ -227,7 +227,7 @@ class _Harness {
           supportedLocales: AppLocalizations.supportedLocales,
           builder: (context, child) => AdvancedOptions(
             enabled: advanced,
-            child: NoticeHost(child: child!),
+            child: child!,
           ),
           home: screen,
         ),
@@ -1181,7 +1181,7 @@ void main() {
       await _tap(tester, find.text('Open response file'));
       expect(find.textContaining('for a different payment'), findsOneWidget);
       expect(find.text('Finish payment'), findsNothing);
-      // The notice floats over the app bar's back button until it goes.
+      // The error notice goes first, so the screen is back in its own place.
       ProviderScope.containerOf(tester.element(find.byType(MaterialApp)))
           .read(noticeProvider.notifier)
           .clear();

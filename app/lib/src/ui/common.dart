@@ -67,8 +67,8 @@ Future<void> copyText(BuildContext context, String text, String notice) async {
 const double progressSlotHeight = 2;
 
 /// A 2 dp line under the app bar for a screen's own status, such as [SlotProgress]. It
-/// reserves no more, so nothing moves when work starts or ends. Notices float above the app
-/// ([NoticeHost]).
+/// reserves no more, so nothing moves when work starts or ends. Notices dock under it
+/// ([NoticeDock]).
 class ProgressSlot extends StatelessWidget {
   const ProgressSlot({super.key, this.idle});
 
@@ -104,9 +104,9 @@ class SlotProgress extends StatelessWidget {
   }
 }
 
-/// A [Scaffold] with a [ProgressSlot] under the app bar. With [centered], [body] sits in the
-/// middle of the space left (and scrolls when it does not fit); otherwise it starts right
-/// below the slot. [idle] is what the slot shows, such as a [SlotProgress]. With [glow], the
+/// A [Scaffold] with a [ProgressSlot] under the app bar and the [NoticeDock] under that. With
+/// [centered], [body] sits in the middle of the space left (and scrolls when it does not fit);
+/// otherwise it starts right below the dock, which moves it down while a notice shows. [idle] is what the slot shows, such as a [SlotProgress]. With [glow], the
 /// screen gets the lit Protocol backdrop, its light at that point.
 class SlotScaffold extends StatelessWidget {
   const SlotScaffold({
@@ -138,6 +138,7 @@ class SlotScaffold extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           ProgressSlot(idle: idle),
+          const NoticeDock(),
           Expanded(child: centered ? CenteredScroll(child: body) : body),
         ],
       ),

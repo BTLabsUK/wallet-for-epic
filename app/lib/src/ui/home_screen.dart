@@ -179,7 +179,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     _lifecycle;
     _timer = Timer.periodic(autoRefreshInterval, (_) => _autoRefresh());
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(updateProvider.notifier).checkOnStart();
+      // Home opens at start and on every unlock: each is an opening. A resume that needs no
+      // unlock checks from `WalletApp`.
+      ref.read(updateProvider.notifier).checkOnOpening();
       _openIncoming();
     });
   }
@@ -389,11 +391,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             icon: const Icon(Icons.lock_outline),
             onPressed: () => lockWallet(context, ref),
           ),
-          IconButton(
-            tooltip: l.homeSettingsTooltip,
-            icon: const Icon(Icons.settings_outlined),
-            onPressed: () => _open(const SettingsScreen()),
-          ),
+          _SettingsButton(onPressed: () => _open(const SettingsScreen())),
         ],
       ),
       bottomNavigationBar: NavigationBar(
@@ -425,7 +423,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               child: ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 600),
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
+                  padding: const EdgeInsets.fromLTRB(
+                    16,
+                    shellHeaderGap - progressSlotHeight,
+                    16,
+                    0,
+                  ),
                   child: AnimatedBuilder(
                     animation: _pages,
                     builder: (context, _) => ShellHeader(
@@ -536,6 +539,39 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 }
+
+/// From the app bar to the balance header on every tab while no notice shows; a notice docks
+/// above this gap and moves the header down with it.
+const double shellHeaderGap = 20;
+
+/// The app bar's Settings button, with an accent dot while an update is on offer.
+class _SettingsButton extends ConsumerWidget {
+  const _SettingsButton({required this.onPressed});
+
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final update = ref.watch(updateProvider.select((s) => s.update != null));
+    final l = context.l10n;
+    return IconButton(
+      key: settingsButtonKey,
+      tooltip: update ? l.homeSettingsUpdateTooltip : l.homeSettingsTooltip,
+      icon: Badge(
+        key: update ? settingsUpdateDotKey : null,
+        isLabelVisible: update,
+        smallSize: 8,
+        backgroundColor: context.tokens.accent,
+        child: const Icon(Icons.settings_outlined),
+      ),
+      onPressed: onPressed,
+    );
+  }
+}
+
+/// The app bar's Settings button and its update dot, for tests.
+const Key settingsButtonKey = ValueKey('settings-button');
+const Key settingsUpdateDotKey = ValueKey('settings-update-dot');
 
 /// How long a tap on the tab bar takes to move the pages.
 const Duration shellTabDuration = Duration(milliseconds: 250);

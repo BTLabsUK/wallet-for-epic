@@ -11,6 +11,7 @@ import 'package:epic_wallet/src/relay_directory.dart';
 import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/settings.dart';
 import 'package:epic_wallet/src/slate_files.dart';
+import 'package:epic_wallet/src/ui/home_screen.dart';
 import 'package:epic_wallet/src/ui/restore_screen.dart';
 import 'package:epic_wallet/src/ui/scan_screen.dart';
 import 'package:epic_wallet/src/ui/settings_invoices.dart';
@@ -78,6 +79,51 @@ class _ScanSession extends FakeWalletSession {
   }
 }
 
+/// What the update check finds, and how often the app asked. With [offer], every opening
+/// finds it, through the phases the real check passes.
+class _UpdateScript {
+  bool supported = false;
+  AvailableUpdate? offer;
+  int checks = 0;
+  int installs = 0;
+}
+
+class _ScriptedUpdates extends UpdateNotifier {
+  _ScriptedUpdates(this.script);
+
+  final _UpdateScript script;
+
+  @override
+  bool get supported => script.supported;
+
+  @override
+  Future<void> checkOnOpening() async {
+    script.checks++;
+    final offer = script.offer;
+    if (offer == null) return;
+    state = UpdateState(UpdatePhase.checking, update: state.update);
+    await Future<void>.delayed(Duration.zero);
+    state = UpdateState(UpdatePhase.available, update: offer);
+  }
+
+  @override
+  Future<void> install() async => script.installs++;
+
+  void set(UpdateState value) => state = value;
+}
+
+final _update = AvailableUpdate(
+  versionName: '1.6.1',
+  notes: '',
+  apk: ReleaseApk(
+    abi: 'arm64-v8a',
+    versionCode: 23,
+    url: Uri.parse('https://example.org/app.apk'),
+    sha256: '',
+    size: 1,
+  ),
+);
+
 class _Harness {
   _Harness({
     bool sealed = true,
@@ -101,6 +147,7 @@ class _Harness {
   final session = _ScanSession();
   final push = _FakePush();
   final FakeQrScanner scanner;
+  final updates = _UpdateScript();
   int cleanups = 0;
   late final FakeWalletService service;
   DateTime now = DateTime(2026, 9, 30, 12);
@@ -121,6 +168,7 @@ class _Harness {
           secretStoreProvider.overrideWithValue(store),
           biometricStoreProvider.overrideWithValue(bio),
           updatePlatformProvider.overrideWithValue(null),
+          updateProvider.overrideWith(() => _ScriptedUpdates(updates)),
           relayDirectoryProvider.overrideWithValue(_NoRelays()),
           slateFilesProvider.overrideWithValue(FakeSlateFiles()),
           historyFilesProvider.overrideWithValue(files),
@@ -361,6 +409,141 @@ void main() {
     });
   });
 
+  group('updates on opening', () {
+    testWidgets('checks at start, on unlock and on a resume, never between', (
+      tester,
+    ) async {
+      final h = _Harness();
+      await h.pump(tester);
+      // Locked at start: the unlock is the opening.
+      expect(h.updates.checks, 0);
+      await h.unlock(tester);
+      expect(h.updates.checks, 1);
+
+      // Time on screen and a trip to Settings check nothing.
+      await tester.pump(const Duration(minutes: 10));
+      await h.openSettings(tester);
+      await tester.pageBack();
+      await tester.pumpAndSettle();
+      expect(h.updates.checks, 1);
+
+      // Opened again without an unlock.
+      await _leave(tester);
+      h.now = h.now.add(const Duration(minutes: 1));
+      await _return(tester);
+      expect(h.updates.checks, 2);
+
+      // A system dialog (inactive and back) and a file picker are not openings.
+      await _states(tester, const [
+        AppLifecycleState.inactive,
+        AppLifecycleState.resumed,
+      ], settle: true);
+      final hold = Completer<void>();
+      unawaited(
+        h.container
+            .read(autoLockHoldProvider.notifier)
+            .during(() => hold.future),
+      );
+      await _leave(tester);
+      await _return(tester);
+      hold.complete();
+      await tester.pumpAndSettle();
+      expect(h.updates.checks, 2);
+
+      // Away past the timeout: it locks, and the unlock checks once.
+      await _leave(tester);
+      h.now = h.now.add(const Duration(minutes: 5));
+      await _return(tester);
+      expect(h.container.read(sessionProvider), isNull);
+      expect(h.updates.checks, 2);
+      await h.unlock(tester);
+      expect(h.updates.checks, 3);
+    });
+
+    testWidgets(
+      'the notice shows once per opening, again after lock and unlock',
+      (tester) async {
+        final h = _Harness()..updates.offer = _update;
+        await h.pump(tester);
+        await h.unlock(tester);
+        Finder notice() => find.descendant(
+          of: find.byKey(noticeKey),
+          matching: find.text('Version 1.6.1 is available.'),
+        );
+        expect(notice(), findsOneWidget);
+        // Dismissed, it stays away until the next opening.
+        await tester.tap(
+          find.descendant(
+            of: find.byKey(noticeKey),
+            matching: find.byTooltip('Close'),
+          ),
+        );
+        await tester.pumpAndSettle();
+        expect(notice(), findsNothing);
+        await tester.pump(const Duration(minutes: 10));
+        expect(notice(), findsNothing);
+
+        await _leave(tester);
+        await _return(tester);
+        expect(notice(), findsOneWidget);
+        await tester.tap(
+          find.descendant(
+            of: find.byKey(noticeKey),
+            matching: find.byTooltip('Close'),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        await tester.tap(find.byTooltip('Lock wallet'));
+        await tester.pumpAndSettle();
+        expect(notice(), findsNothing);
+        await h.unlock(tester);
+        expect(notice(), findsOneWidget);
+      },
+    );
+
+    testWidgets('an update puts a dot on Settings and a row at its top', (
+      tester,
+    ) async {
+      final h = _Harness()
+        ..updates.supported = true
+        ..updates.offer = _update;
+      await h.pump(tester);
+      await h.unlock(tester);
+      expect(find.byKey(settingsUpdateDotKey), findsOneWidget);
+      expect(
+        find.byTooltip('Settings: an update is available'),
+        findsOneWidget,
+      );
+      await tester.tap(find.byKey(settingsButtonKey));
+      await tester.pumpAndSettle();
+      final row = find.byKey(settingsUpdateRowKey);
+      expect(
+        find.descendant(of: row, matching: find.text('Update to 1.6.1')),
+        findsOneWidget,
+      );
+      // Above every other row.
+      final tiles = find.byType(ListTile);
+      expect(tester.getTopLeft(tiles.first).dy, tester.getTopLeft(row).dy);
+      await tester.tap(
+        find.descendant(of: row, matching: find.text('Install')),
+      );
+      await tester.pumpAndSettle();
+      expect(h.updates.installs, 1);
+
+      // Without an update: no dot, no row.
+      (h.container.read(updateProvider.notifier) as _ScriptedUpdates).set(
+        const UpdateState(UpdatePhase.idle),
+      );
+      await tester.pumpAndSettle();
+      expect(row, findsNothing);
+      await tester.pageBack();
+      await tester.pumpAndSettle();
+      expect(find.byKey(settingsUpdateDotKey), findsNothing);
+      expect(find.byTooltip('Settings'), findsOneWidget);
+    });
+  });
+
   group('auto-lock', () {
     testWidgets('locks after the timeout, not before', (tester) async {
       final h = _Harness();
@@ -455,7 +638,7 @@ void main() {
       await _enter(tester, 'PIN', '654321');
       await _enter(tester, 'Repeat PIN', '654321');
 
-      // Back on settings, in the notice slot under the app bar, and gone after a while.
+      // Back on settings, docked under the app bar, and gone after a while.
       expect(find.byType(ChangePinScreen), findsNothing);
       expect(
         find.descendant(
@@ -464,12 +647,18 @@ void main() {
         ),
         findsOneWidget,
       );
-      final firstTile = tester.getTopLeft(find.text('Change PIN'));
+      final docked = tester.getTopLeft(find.text('Change PIN'));
+      final dock = tester.getSize(find.byType(NoticeDock)).height;
+      expect(dock, greaterThan(0));
       await tester.pump(noticeDuration(NoticeLevel.success));
       await tester.pumpAndSettle();
       expect(find.text('PIN changed'), findsNothing);
-      // The content did not move when the notice left.
-      expect(tester.getTopLeft(find.text('Change PIN')), firstTile);
+      // The dock closed and the content moved back up by its height.
+      expect(tester.getSize(find.byType(NoticeDock)).height, 0);
+      expect(
+        tester.getTopLeft(find.text('Change PIN')),
+        docked.translate(0, -dock),
+      );
       expect(
         h.store.values['wallet.mainnet.pinSealed'],
         fakeSealedPassword('654321'),

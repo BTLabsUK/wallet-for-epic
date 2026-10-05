@@ -126,7 +126,7 @@ Future<void> _reveal(WidgetTester tester, Finder finder) async {
   await tester.ensureVisible(finder);
 }
 
-/// Closes every notice: they float over the app bar, so its buttons are covered until then.
+/// Closes every notice: a docked one moves the content down, so taps by position would miss.
 Future<void> _clearNotices(WidgetTester tester) async {
   ProviderScope.containerOf(
     tester.element(find.byType(MaterialApp)),

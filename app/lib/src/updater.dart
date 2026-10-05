@@ -319,7 +319,6 @@ final updateProvider = NotifierProvider<UpdateNotifier, UpdateState>(
 
 class UpdateNotifier extends Notifier<UpdateState> {
   StreamSubscription<({String status, String? message})>? _events;
-  bool _checkedOnce = false;
 
   @override
   UpdateState build() {
@@ -349,14 +348,15 @@ class UpdateNotifier extends Notifier<UpdateState> {
     }
   }
 
-  /// Checks once per app start; later calls do nothing. Stays quiet on failure.
-  Future<void> checkOnStart() async {
-    if (_checkedOnce || !supported) return;
-    _checkedOnce = true;
+  /// Checks each time the app is opened: at start, on each unlock, and on a resume that needs
+  /// no unlock (`app/README.md` "In-app updates"). Never on a timer. Stays quiet on failure.
+  Future<void> checkOnOpening() async {
+    if (!supported) return;
     await check(quiet: true);
   }
 
-  /// Fetches the manifest. With [quiet], failures and "up to date" leave the state idle.
+  /// Fetches the manifest. With [quiet], "up to date" leaves the state idle and a failure
+  /// keeps what the last check found: the update it offered, else idle.
   Future<void> check({bool quiet = false}) async {
     final platform = ref.read(updatePlatformProvider);
     if (platform == null) return;
@@ -366,7 +366,9 @@ class UpdateNotifier extends Notifier<UpdateState> {
       UpdatePhase.installing,
     };
     if (busy.contains(state.phase)) return;
-    state = const UpdateState(UpdatePhase.checking);
+    // A known update stays offered (the Settings row and dot) while the check runs.
+    final known = state.update;
+    state = UpdateState(UpdatePhase.checking, update: known);
     final url = ref.read(updateManifestUrlProvider);
     final client = HttpClient()
       ..connectionTimeout = const Duration(seconds: 15);
@@ -394,7 +396,9 @@ class UpdateNotifier extends Notifier<UpdateState> {
       logInfo('update', 'check failed: $error');
       if (!ref.mounted) return;
       state = quiet
-          ? const UpdateState(UpdatePhase.idle)
+          ? known == null
+                ? const UpdateState(UpdatePhase.idle)
+                : UpdateState(UpdatePhase.available, update: known)
           : UpdateState(UpdatePhase.failed, text: _describe(error));
     } finally {
       client.close(force: true);

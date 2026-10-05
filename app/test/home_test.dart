@@ -325,7 +325,7 @@ class _Harness {
           builder: (context, child) => MediaQuery(
             data: MediaQuery.of(context)
                 .copyWith(textScaler: TextScaler.linear(textScale)),
-            child: NoticeHost(child: child!),
+            child: child!,
           ),
         ),
       ),
@@ -1250,12 +1250,13 @@ void main() {
   });
 
   group('user-2', () {
-    testWidgets('a payment notice floats over home without moving it', (
+    testWidgets('a payment notice docks above the header and moves it down', (
       tester,
     ) async {
       final h = _Harness();
       await h.pump(tester);
       final before = tester.getTopLeft(find.byKey(balanceFigureKey));
+      final headerBefore = tester.getRect(find.byType(ShellHeader));
       h.session.listenerEvents.add(
         ListenerEvent(
           kind: ListenerEventKind.received,
@@ -1268,7 +1269,21 @@ void main() {
       expect(find.byKey(noticeKey), findsOneWidget);
       expect(find.textContaining('5 EPIC on the way'), findsOneWidget);
       expect(find.byType(SnackBar), findsNothing);
-      expect(tester.getTopLeft(find.byKey(balanceFigureKey)), before);
+      // Docked between the app bar and the header: nothing overlaps, and the header moved
+      // down by the dock's height.
+      final card = tester.getRect(find.byKey(noticeKey));
+      final header = tester.getRect(find.byType(ShellHeader));
+      final appBar = tester.getRect(find.byType(AppBar));
+      final dock = tester.getSize(find.byType(NoticeDock)).height;
+      expect(card.overlaps(appBar), isFalse);
+      expect(card.overlaps(header), isFalse);
+      expect(card.top, greaterThanOrEqualTo(appBar.bottom));
+      expect(header.top - card.bottom, greaterThanOrEqualTo(shellHeaderGap));
+      expect(header.top, headerBefore.top + dock);
+      expect(
+        tester.getTopLeft(find.byKey(balanceFigureKey)),
+        before.translate(0, dock),
+      );
 
       // "View" opens the payment and clears the notice.
       await _tap(tester, find.text('View'));
@@ -1293,7 +1308,9 @@ void main() {
       expect(find.text('View'), findsOneWidget);
       // What a lock does: home goes, the unlock screen takes the whole stack.
       Navigator.of(tester.element(find.byType(HomeScreen))).pushAndRemoveUntil(
-        MaterialPageRoute<void>(builder: (_) => const Scaffold()),
+        MaterialPageRoute<void>(
+          builder: (_) => const SlotScaffold(body: SizedBox.expand()),
+        ),
         (_) => false,
       );
       await tester.pumpAndSettle();
@@ -2613,6 +2630,73 @@ void main() {
 
   group('shell', () {
     final payee = '${'b' * 52}@epicbox.epiccash.com';
+
+    testWidgets('20 dp from the app bar to the header on every tab', (
+      tester,
+    ) async {
+      final h = _Harness();
+      await h.pump(tester);
+      for (final tab in ['Send', 'Receive', 'Wallet']) {
+        await tester.tap(
+          find.descendant(
+            of: find.byType(NavigationBar),
+            matching: find.text(tab),
+          ),
+        );
+        await tester.pumpAndSettle();
+        expect(
+          tester.getRect(find.byType(ShellHeader)).top -
+              tester.getRect(find.byType(AppBar)).bottom,
+          shellHeaderGap,
+          reason: tab,
+        );
+        expect(shellHeaderGap, 20);
+      }
+    });
+
+    for (final scale in [1.0, 2.0]) {
+      testWidgets('a docked notice overlaps nothing at text scale $scale', (
+        tester,
+      ) async {
+        final h = _Harness();
+        await h.pump(tester, const HomeScreen(), scale);
+        final c = ProviderScope.containerOf(
+          tester.element(find.byType(HomeScreen)),
+        );
+        (c.read(updateProvider.notifier) as _FakeUpdates).set(
+          UpdateState(
+            UpdatePhase.available,
+            update: AvailableUpdate(
+              versionName: '1.6.1',
+              notes: '',
+              apk: ReleaseApk(
+                abi: 'arm64-v8a',
+                versionCode: 23,
+                url: _apkUrl,
+                sha256: '',
+                size: 1,
+              ),
+            ),
+          ),
+        );
+        for (final tab in ['Send', 'Receive', 'Wallet']) {
+          await tester.tap(
+            find.descendant(
+              of: find.byType(NavigationBar),
+              matching: find.text(tab),
+            ),
+          );
+          await tester.pumpAndSettle();
+          expect(tester.takeException(), isNull, reason: tab);
+          final card = tester.getRect(find.byKey(noticeKey));
+          final header = tester.getRect(find.byType(ShellHeader));
+          expect(card.overlaps(tester.getRect(find.byType(AppBar))), isFalse);
+          expect(card.overlaps(header), isFalse, reason: tab);
+          expect(header.top - card.bottom, greaterThanOrEqualTo(20));
+          expect(find.text('Update'), findsOneWidget);
+        }
+      });
+    }
 
     testWidgets('a tap changes tab; app bar, header and tab bar stay', (
       tester,

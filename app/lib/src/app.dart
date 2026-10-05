@@ -13,6 +13,7 @@ import 'ui/common.dart';
 import 'ui/launch_screen.dart';
 import 'ui/theme/advanced.dart';
 import 'ui/theme/tokens.dart';
+import 'updater.dart';
 
 /// Root widget. Expects a `ProviderScope` above it.
 class WalletApp extends ConsumerStatefulWidget {
@@ -87,10 +88,13 @@ class _WalletAppState extends ConsumerState<WalletApp> {
           if (ref.read(scanProvider).running) {
             _lockAfterScan = true;
           } else {
+            // The unlock that follows checks for an update.
             _lock();
           }
         } else {
           _drainPayments();
+          // Only after the app was away: a system dialog (inactive) is not an opening.
+          if (_leftAt != null) _checkForUpdate();
         }
         _leftAt = null;
       case AppLifecycleState.inactive || AppLifecycleState.detached:
@@ -104,6 +108,13 @@ class _WalletAppState extends ConsumerState<WalletApp> {
   void _drainPayments() {
     if (ref.read(sessionProvider) == null) return;
     unawaited(ref.read(paymentsDrainProvider.notifier).drain());
+  }
+
+  /// Opening the app again without an unlock looks for an update, as start and unlock do
+  /// (home). Coming back from a picker or the scanner (the auto-lock hold) is not an opening.
+  void _checkForUpdate() {
+    if (ref.read(sessionProvider) == null) return;
+    unawaited(ref.read(updateProvider.notifier).checkOnOpening());
   }
 
   /// Whether the time away reached the auto-lock setting.
@@ -164,8 +175,7 @@ class _WalletAppState extends ConsumerState<WalletApp> {
         }
         return AdvancedOptions(
           enabled: settings?.advancedOptions ?? false,
-          // Above the navigator, so a notice outlives the screen that showed it.
-          child: NoticeHost(child: child!),
+          child: child!,
         );
       },
       themeMode: themeMode,

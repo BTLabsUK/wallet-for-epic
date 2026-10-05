@@ -1304,6 +1304,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get homeSettingsTooltip => 'Настройки';
 
   @override
+  String get homeSettingsUpdateTooltip => 'Настройки: доступно обновление';
+
+  @override
   String get homeSendButton => 'Отправить';
 
   @override
@@ -3256,6 +3259,14 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get settingsEpicboxServer => 'Сервер epicbox';
+
+  @override
+  String settingsUpdateTo(String version) {
+    return 'Обновить до $version';
+  }
+
+  @override
+  String get settingsUpdateInstall => 'Установить';
 
   @override
   String get settingsCheckUpdates => 'Проверить обновления';

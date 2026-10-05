@@ -1218,6 +1218,10 @@ class AppLocalizationsDe extends AppLocalizations {
   String get homeSettingsTooltip => 'Einstellungen';
 
   @override
+  String get homeSettingsUpdateTooltip =>
+      'Einstellungen: Ein Update ist verfügbar';
+
+  @override
   String get homeSendButton => 'Senden';
 
   @override
@@ -3165,6 +3169,14 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get settingsEpicboxServer => 'epicbox-Server';
+
+  @override
+  String settingsUpdateTo(String version) {
+    return 'Auf $version aktualisieren';
+  }
+
+  @override
+  String get settingsUpdateInstall => 'Installieren';
 
   @override
   String get settingsCheckUpdates => 'Nach Updates suchen';

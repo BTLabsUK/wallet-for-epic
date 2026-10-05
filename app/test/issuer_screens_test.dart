@@ -170,7 +170,6 @@ class _Harness {
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
           home: home,
-          builder: (context, child) => NoticeHost(child: child!),
         ),
       ),
     );

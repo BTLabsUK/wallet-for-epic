@@ -103,7 +103,7 @@ class _Harness {
             maxScaleFactor: textScale,
             child: AdvancedOptions(
               enabled: advanced,
-              child: NoticeHost(child: child!),
+              child: child!,
             ),
           ),
           home: screen,
@@ -188,8 +188,8 @@ void main() {
     ) async {
       final h = _Harness();
       await h.pump(tester);
-      // On the caption, on the copy icon, and on the address text itself. The notice
-      // floats over the top of the screen, so it goes before the next tap.
+      // On the caption, on the copy icon, and on the address text itself. The docked notice
+      // moves the content down, so it goes before the next tap.
       for (final target in [
         find.text('Your address'),
         find.byIcon(Icons.copy),

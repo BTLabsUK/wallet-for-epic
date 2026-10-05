@@ -26,6 +26,7 @@ import 'settings_history.dart';
 import 'settings_invoices.dart';
 import 'settings_pin.dart';
 import 'theme/advanced.dart';
+import 'theme/tokens.dart';
 import 'setup_screen.dart';
 
 /// The project's source code.
@@ -348,6 +349,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             constraints: const BoxConstraints(maxWidth: 600),
             child: ListView(
               children: [
+                if (updates) const _UpdateRow(),
                 if (!scan.running && scan.error != null)
                   Padding(
                     padding: const EdgeInsets.all(16),
@@ -569,6 +571,43 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     );
   }
 }
+
+/// The first row while an update is on offer: its version, with Install. While it downloads
+/// or installs, the row says how far it got and Install waits.
+class _UpdateRow extends ConsumerWidget {
+  const _UpdateRow();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(updateProvider);
+    final update = state.update;
+    if (update == null) return const SizedBox.shrink();
+    final l = context.l10n;
+    final version = update.versionName;
+    final busy =
+        state.phase == UpdatePhase.downloading ||
+        state.phase == UpdatePhase.installing;
+    return ListTile(
+      key: settingsUpdateRowKey,
+      leading: Icon(Icons.system_update, color: context.tokens.accentText),
+      title: Text(l.settingsUpdateTo(version)),
+      subtitle: switch (state.phase) {
+        UpdatePhase.downloading => Text(
+          l.updateDownloading(version, ((state.progress ?? 0) * 100).floor()),
+        ),
+        UpdatePhase.installing => Text(l.updateInstalling(version)),
+        _ => null,
+      },
+      trailing: FilledButton(
+        onPressed: busy ? null : ref.read(updateProvider.notifier).install,
+        child: Text(l.settingsUpdateInstall),
+      ),
+    );
+  }
+}
+
+/// The Settings row that offers an update, for tests.
+const Key settingsUpdateRowKey = ValueKey('settings-update-row');
 
 /// `Euro (EUR)`, or the bare code for one the list does not know.
 String _currencyName(AppLocalizations l, String code) =>

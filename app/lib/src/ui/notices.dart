@@ -1,6 +1,6 @@
-/// The app's one way to tell the user something happened: a card that floats at the top, over
-/// the app bar, from a host that `MaterialApp.builder` owns ([NoticeHost]). `app/README.md`
-/// "Notifications" has the standard.
+/// The app's one way to tell the user something happened: a card docked under the app bar
+/// ([NoticeDock], in every `SlotScaffold`) that moves the content down instead of covering it.
+/// `app/README.md` "Notifications" has the standard.
 library;
 
 import 'dart:async';
@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../l10n.dart';
+import 'theme/protocol.dart';
 import 'theme/tokens.dart';
 
 /// How much a notice matters. Each has its own icon and token colour.
@@ -98,7 +99,7 @@ class Notice {
       level == NoticeLevel.error;
 }
 
-/// The visible notice; [NoticeHost] shows it.
+/// The visible notice; every [NoticeDock] shows it.
 final noticeProvider = NotifierProvider<NoticeNotifier, Notice?>(
   NoticeNotifier.new,
 );
@@ -112,7 +113,7 @@ class NoticeNotifier extends Notifier<Notice?> {
   bool _held = false;
   int _next = 0;
 
-  /// Whether a screen reader or switch access is on; [NoticeHost] keeps it current.
+  /// Whether a screen reader or switch access is on; [NoticeDock] keeps it current.
   bool accessibleNavigation = false;
 
   @override
@@ -224,91 +225,121 @@ class NoticeNotifier extends Notifier<Notice?> {
   }
 }
 
-/// Floats the visible notice at the top of [child], inside the safe area, over every route,
-/// so a notice survives a pop and never moves the content under it. `MaterialApp.builder`
-/// wraps the navigator in it.
-class NoticeHost extends ConsumerStatefulWidget {
-  const NoticeHost({super.key, required this.child});
+/// How long the dock takes to open, close or change its height.
+const Duration noticeDockDuration = Duration(milliseconds: 200);
 
-  final Widget child;
+/// The space under the app bar where the visible notice docks; `SlotScaffold` puts one on
+/// every screen. Closed it takes no height. A notice opens it to the card's height and the
+/// content below moves down with it, so a notice never covers the app bar or the screen; it
+/// closes when the last notice goes. Every dock shows the same notice, so one survives a pop.
+class NoticeDock extends ConsumerStatefulWidget {
+  const NoticeDock({super.key});
+
+  /// Space above and below the card while the dock is open, and its side margins, the
+  /// content's 16 dp.
+  static const EdgeInsets padding = EdgeInsets.fromLTRB(16, 12, 16, 4);
 
   @override
-  ConsumerState<NoticeHost> createState() => _NoticeHostState();
+  ConsumerState<NoticeDock> createState() => _NoticeDockState();
 }
 
-class _NoticeHostState extends ConsumerState<NoticeHost> {
-  // An overlay of its own, so the card's tooltips work above the navigator.
-  late final OverlayEntry _content = OverlayEntry(
-    builder: (_) => widget.child,
-    maintainState: true,
+class _NoticeDockState extends ConsumerState<NoticeDock>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _open = AnimationController(
+    vsync: this,
+    duration: noticeDockDuration,
   );
-  late final OverlayEntry _notices = OverlayEntry(
-    builder: (_) => const _NoticeLayer(),
+  late final Animation<double> _curve = CurvedAnimation(
+    parent: _open,
+    curve: Curves.easeOutCubic,
+    reverseCurve: Curves.easeInCubic,
   );
 
+  /// The card on show; it stays while the dock closes.
+  Notice? _shown;
+
   @override
-  void didUpdateWidget(NoticeHost oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.child != widget.child) _content.markNeedsBuild();
+  void initState() {
+    super.initState();
+    // A screen opened while a notice shows starts with the dock open.
+    _shown = ref.read(noticeProvider);
+    if (_shown != null) _open.value = 1;
   }
 
   @override
   void dispose() {
-    for (final entry in [_content, _notices]) {
-      entry
-        ..remove()
-        ..dispose();
-    }
+    _open.dispose();
     super.dispose();
+  }
+
+  void _onNotice(Notice? _, Notice? notice) {
+    // Reduced motion, or a screen under another one (its tickers stopped), moves at once.
+    final cut =
+        MediaQuery.disableAnimationsOf(context) ||
+        !TickerMode.valuesOf(context).enabled;
+    if (notice != null) {
+      setState(() => _shown = notice);
+      if (cut) {
+        _open.value = 1;
+      } else {
+        _open.forward();
+      }
+      return;
+    }
+    if (cut) {
+      _open.value = 0;
+      setState(() => _shown = null);
+      return;
+    }
+    _open.reverse().whenCompleteOrCancel(() {
+      if (mounted && ref.read(noticeProvider) == null) {
+        setState(() => _shown = null);
+      }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+    ref.listen<Notice?>(noticeProvider, _onNotice);
     ref.read(noticeProvider.notifier).accessibleNavigation =
         MediaQuery.accessibleNavigationOf(context);
-    return Overlay(initialEntries: [_content, _notices]);
-  }
-}
-
-class _NoticeLayer extends ConsumerWidget {
-  const _NoticeLayer();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final notice = ref.watch(noticeProvider);
-    final still = MediaQuery.disableAnimationsOf(context);
-    // Only the card takes touches; everywhere else they reach the screen below.
-    return SafeArea(
-      bottom: false,
-      child: Align(
-        alignment: Alignment.topCenter,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 600),
-            child: AnimatedSwitcher(
-              duration: still
-                  ? Duration.zero
-                  : const Duration(milliseconds: 200),
-              switchInCurve: Curves.easeOutCubic,
-              switchOutCurve: Curves.easeInCubic,
-              layoutBuilder: (current, previous) => Stack(
-                alignment: Alignment.topCenter,
-                children: [...previous, ?current],
-              ),
-              transitionBuilder: (child, animation) => FadeTransition(
-                opacity: animation,
-                child: SlideTransition(
-                  position: Tween(
-                    begin: const Offset(0, -0.3),
-                    end: Offset.zero,
-                  ).animate(animation),
-                  child: child,
+    final shown = _shown;
+    if (shown == null) return const SizedBox.shrink();
+    final duration = MediaQuery.disableAnimationsOf(context)
+        ? Duration.zero
+        : noticeDockDuration;
+    return ClipRect(
+      child: SizeTransition(
+        sizeFactor: _curve,
+        // The card's lower edge leads, so it slides down from under the app bar.
+        alignment: Alignment.bottomCenter,
+        child: FadeTransition(
+          opacity: _curve,
+          child: SafeArea(
+            top: false,
+            bottom: false,
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 600),
+                child: Padding(
+                  padding: NoticeDock.padding,
+                  child: AnimatedSize(
+                    duration: duration,
+                    curve: Curves.easeOutCubic,
+                    alignment: Alignment.topCenter,
+                    child: AnimatedSwitcher(
+                      duration: duration,
+                      switchInCurve: Curves.easeOutCubic,
+                      switchOutCurve: Curves.easeInCubic,
+                      layoutBuilder: (current, previous) => Stack(
+                        alignment: Alignment.topCenter,
+                        children: [...previous, ?current],
+                      ),
+                      child: NoticeCard(key: ValueKey(shown.id), notice: shown),
+                    ),
+                  ),
                 ),
               ),
-              child: notice == null
-                  ? const SizedBox.shrink()
-                  : NoticeCard(key: ValueKey(notice.id), notice: notice),
             ),
           ),
         ),
@@ -335,8 +366,8 @@ String noticeLevelLabel(AppLocalizations l, NoticeLevel level) =>
       NoticeLevel.error => l.noticeLevelError,
     };
 
-/// The card [NoticeHost] shows, swipeable and with its buttons. Placed elsewhere only by
-/// `tool/notice_mockups_test.dart`.
+/// The card [NoticeDock] shows, swipeable and with its buttons: the balance panel's surface,
+/// hairline and corner ticks, with the level's colour as the leading edge and on the icon.
 class NoticeCard extends ConsumerStatefulWidget {
   const NoticeCard({super.key, required this.notice});
 
@@ -476,23 +507,25 @@ class _NoticeCardState extends ConsumerState<NoticeCard> {
             offset: Offset(_drag.dx, _drag.dy < 0 ? _drag.dy : 0),
             child: Opacity(
               opacity: (1 - _drag.distance / 300).clamp(0.2, 1),
-              child: Material(
-                key: noticeKey,
-                color: t.surfaceHi,
-                elevation: 3,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(t.radiusSmall),
-                  side: BorderSide(color: t.lineStrong),
-                ),
-                clipBehavior: Clip.antiAlias,
-                child: DecoratedBox(
-                  // The level's colour as a 3 dp edge on the leading side.
-                  decoration: BoxDecoration(
-                    border: BorderDirectional(
-                      start: BorderSide(color: color, width: 3),
-                    ),
+              child: CustomPaint(
+                foregroundPainter: CornerTicksPainter(t.tick, length: 8),
+                child: Material(
+                  key: noticeKey,
+                  color: t.surface,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(t.radiusSmall),
+                    side: BorderSide(color: t.line),
                   ),
-                  child: body,
+                  clipBehavior: Clip.antiAlias,
+                  child: DecoratedBox(
+                    // The level's colour as a 3 dp edge on the leading side.
+                    decoration: BoxDecoration(
+                      border: BorderDirectional(
+                        start: BorderSide(color: color, width: 3),
+                      ),
+                    ),
+                    child: body,
+                  ),
                 ),
               ),
             ),

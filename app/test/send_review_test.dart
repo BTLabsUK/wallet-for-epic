@@ -136,7 +136,7 @@ class _Harness {
             ),
             child: AdvancedOptions(
               enabled: false,
-              child: NoticeHost(child: child!),
+              child: child!,
             ),
           ),
           home: SlotScaffold(

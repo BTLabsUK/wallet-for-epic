@@ -8,6 +8,7 @@ import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/updater.dart';
 import 'package:epic_wallet/src/vault.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -85,18 +86,21 @@ void main() {
       expect(pinDelay(1 << 30), maxPinDelay);
     });
 
-    test('a wallet without sealed text goes, and so do entries without a wallet', () async {
-      // The app stopped between creating the wallet and storing its sealed text.
-      service.existingWallets.add(dir);
-      expect(await vault.prepare(config), VaultStage.empty);
-      expect(service.deletedWallets, [dir]);
+    test(
+      'a wallet without sealed text goes, and so do entries without a wallet',
+      () async {
+        // The app stopped between creating the wallet and storing its sealed text.
+        service.existingWallets.add(dir);
+        expect(await vault.prepare(config), VaultStage.empty);
+        expect(service.deletedWallets, [dir]);
 
-      // The files are gone but the entries are not.
-      store.values['wallet.mainnet.pinSealed'] = fakeSealedPassword('123456');
-      store.values['wallet.mainnet.backedUp'] = '1';
-      expect(await vault.prepare(config), VaultStage.empty);
-      expect(store.values, isEmpty);
-    });
+        // The files are gone but the entries are not.
+        store.values['wallet.mainnet.pinSealed'] = fakeSealedPassword('123456');
+        store.values['wallet.mainnet.backedUp'] = '1';
+        expect(await vault.prepare(config), VaultStage.empty);
+        expect(store.values, isEmpty);
+      },
+    );
 
     test('discards a 1.2.x install, files and entries', () async {
       final tmp = await Directory.systemTemp.createTemp('wfe-vault-');
@@ -154,58 +158,61 @@ void main() {
       expect(await vault.unlockWithBiometrics(config), isNull);
     });
 
-    test('changes the PIN, confirms it and rewrites the biometric copy', () async {
-      final session = (await vault.create(
-        config,
-        pin: '123456',
-        useBiometrics: true,
-      )).session;
-      await expectLater(
-        vault.changePin(
-          session,
+    test(
+      'changes the PIN, confirms it and rewrites the biometric copy',
+      () async {
+        final session = (await vault.create(
           config,
-          currentPin: '000000',
-          newPin: '654321',
-        ),
-        throwsA(isA<PinRejected>()),
-      );
-      expect(
-        store.values['wallet.mainnet.pinSealed'],
-        fakeSealedPassword('123456'),
-      );
-      expect(service.confirmedPinChanges, isEmpty);
+          pin: '123456',
+          useBiometrics: true,
+        )).session;
+        await expectLater(
+          vault.changePin(
+            session,
+            config,
+            currentPin: '000000',
+            newPin: '654321',
+          ),
+          throwsA(isA<PinRejected>()),
+        );
+        expect(
+          store.values['wallet.mainnet.pinSealed'],
+          fakeSealedPassword('123456'),
+        );
+        expect(service.confirmedPinChanges, isEmpty);
 
-      expect(
-        await vault.changePin(
-          session,
-          config,
-          currentPin: '123456',
-          newPin: '654321',
-        ),
-        isTrue,
-      );
-      expect(
-        store.values['wallet.mainnet.pinSealed'],
-        fakeSealedPassword('654321'),
-      );
-      expect(service.confirmedPinChanges, [fakeSealedPassword('654321')]);
-      expect(bio.values['wallet.mainnet.pin'], '654321');
-      await vault.unlock(config, '654321');
+        expect(
+          await vault.changePin(
+            session,
+            config,
+            currentPin: '123456',
+            newPin: '654321',
+          ),
+          isTrue,
+        );
+        expect(
+          store.values['wallet.mainnet.pinSealed'],
+          fakeSealedPassword('654321'),
+        );
+        expect(service.confirmedPinChanges, [fakeSealedPassword('654321')]);
+        expect(bio.values['wallet.mainnet.pin'], '654321');
+        await vault.unlock(config, '654321');
 
-      // A dismissed prompt keeps the new PIN but turns biometrics off.
-      bio.succeed = false;
-      expect(
-        await vault.changePin(
-          session,
-          config,
-          currentPin: '654321',
-          newPin: '111111',
-        ),
-        isFalse,
-      );
-      expect(await vault.biometricsEnabled(Chain.mainnet), isFalse);
-      await vault.unlock(config, '111111');
-    });
+        // A dismissed prompt keeps the new PIN but turns biometrics off.
+        bio.succeed = false;
+        expect(
+          await vault.changePin(
+            session,
+            config,
+            currentPin: '654321',
+            newPin: '111111',
+          ),
+          isFalse,
+        );
+        expect(await vault.biometricsEnabled(Chain.mainnet), isFalse);
+        await vault.unlock(config, '111111');
+      },
+    );
 
     test('checks a PIN by sealing again under it', () async {
       final session = (await vault.create(config, pin: '123456')).session;
@@ -384,6 +391,109 @@ void main() {
     });
   });
 
+  group('UpdateNotifier', () {
+    late HttpServer server;
+    late ProviderContainer container;
+    var requests = 0;
+    // What the manifest says next: a newer version, the installed one, or a server error.
+    var reply = 'newer';
+
+    String manifest(int versionCode) => jsonEncode({
+      'schema': 1,
+      'packageName': 'com.blacktyger.epic_wallet',
+      'versionName': versionCode == 2002 ? '1.0.1' : '1.0.0',
+      'notes': '',
+      'apks': [
+        {
+          'abi': 'arm64-v8a',
+          'versionCode': versionCode,
+          'url': 'app.apk',
+          'sha256': 'a' * 64,
+          'size': 10,
+        },
+      ],
+    });
+
+    setUp(() async {
+      requests = 0;
+      reply = 'newer';
+      server = await HttpServer.bind(InternetAddress.loopbackIPv4, 0);
+      server.listen((request) {
+        requests++;
+        final response = request.response;
+        switch (reply) {
+          case 'newer':
+            response.write(manifest(2002));
+          case 'same':
+            response.write(manifest(2001));
+          default:
+            response.statusCode = HttpStatus.internalServerError;
+        }
+        response.close();
+      });
+      container = ProviderContainer(
+        overrides: [
+          updatePlatformProvider.overrideWithValue(_FakeUpdatePlatform()),
+          updateManifestUrlProvider.overrideWithValue(
+            Uri.parse('http://127.0.0.1:${server.port}/update.json'),
+          ),
+        ],
+      );
+    });
+
+    tearDown(() async {
+      container.dispose();
+      await server.close(force: true);
+    });
+
+    test('checks on every opening, not once per process', () async {
+      final updates = container.read(updateProvider.notifier);
+      for (var i = 1; i <= 3; i++) {
+        await updates.checkOnOpening();
+        expect(requests, i);
+        expect(container.read(updateProvider).phase, UpdatePhase.available);
+        expect(container.read(updateProvider).update?.versionName, '1.0.1');
+      }
+    });
+
+    test(
+      'a quiet failure keeps the update it knew; up to date clears it',
+      () async {
+        final updates = container.read(updateProvider.notifier);
+        final phases = <(UpdatePhase, bool)>[];
+        container.listen(
+          updateProvider,
+          (_, s) => phases.add((s.phase, s.update != null)),
+        );
+        await updates.checkOnOpening();
+        reply = 'error';
+        await updates.checkOnOpening();
+        expect(container.read(updateProvider).phase, UpdatePhase.available);
+        expect(container.read(updateProvider).update?.versionName, '1.0.1');
+        reply = 'same';
+        await updates.checkOnOpening();
+        expect(container.read(updateProvider).phase, UpdatePhase.idle);
+        expect(container.read(updateProvider).update, isNull);
+        expect(phases, [
+          (UpdatePhase.checking, false),
+          (UpdatePhase.available, true),
+          // The check keeps the update offered while it runs.
+          (UpdatePhase.checking, true),
+          (UpdatePhase.available, true),
+          (UpdatePhase.checking, true),
+          (UpdatePhase.idle, false),
+        ]);
+      },
+    );
+
+    test('a quiet failure with nothing known stays idle', () async {
+      reply = 'error';
+      await container.read(updateProvider.notifier).checkOnOpening();
+      expect(requests, 1);
+      expect(container.read(updateProvider).phase, UpdatePhase.idle);
+    });
+  });
+
   group('relays', () {
     test('parses host and port, and refuses junk', () {
       final a = EpicboxRelay.parse(' Epicbox.EpicNet.us ')!;
@@ -433,4 +543,22 @@ void main() {
       expect(() => parseRelayStatus('[]'), throwsFormatException);
     });
   });
+}
+
+/// An installed 1.0.0 (2001) on arm64 that never installs anything.
+class _FakeUpdatePlatform implements UpdatePlatform {
+  @override
+  Future<InstalledApp> installedApp() async => const InstalledApp(
+    packageName: 'com.blacktyger.epic_wallet',
+    versionCode: 2001,
+    versionName: '1.0.0',
+    abis: ['arm64-v8a'],
+  );
+
+  @override
+  Future<String> install(File apk) async => 'started';
+
+  @override
+  Stream<({String status, String? message})> get installEvents =>
+      const Stream.empty();
 }
