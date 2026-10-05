@@ -257,7 +257,6 @@
   "homeScanTooltip": "扫描二维码发送",
   "homeRecentActivity": "最近交易",
   "homeSeeAll": "查看全部",
-  "homeSyncingLabel": "正在同步",
   "homeBackedUpNotice": "助记词已备份",
   "homeNoticeView": "查看",
   "homePushNotice": "你的 epicbox 中有一笔待接收的付款。应用连接后即可到账。",

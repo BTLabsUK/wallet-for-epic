@@ -1682,12 +1682,6 @@ abstract class AppLocalizations {
   /// **'See all'**
   String get homeSeeAll;
 
-  /// Screen-reader label of the thin progress bar while the wallet syncs with the node.
-  ///
-  /// In en, this message translates to:
-  /// **'Syncing'**
-  String get homeSyncingLabel;
-
   /// Short notice after the user wrote down the recovery phrase (the 12 or 24 words).
   ///
   /// In en, this message translates to:

@@ -69,9 +69,9 @@ class ShellHeader extends ConsumerWidget {
       ),
       t,
     );
-    // On Wallet the unit is about 60 % of the number's size, so the number gets the width.
+    // On Wallet the unit is 40 % of the number's size, so the number gets the width.
     final unitStyle = figureStyle?.copyWith(
-      fontSize: (figureStyle.fontSize ?? 24) * (1 - 0.4 * t),
+      fontSize: (figureStyle.fontSize ?? 24) * (1 - 0.6 * t),
     );
     final fiatStyle = TextStyle.lerp(
       theme.textTheme.bodyMedium,
@@ -124,18 +124,9 @@ class ShellHeader extends ConsumerWidget {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          children: [
-            Flexible(child: figure),
-            if (summary != null && t > 0)
-              _Collapse(
-                openness: t,
-                child: BalanceHelp(summary: summary, hidden: hidden),
-              ),
-          ],
-        ),
-        // The fiat value on every tab; the hide toggle at its end on Wallet only, so the
-        // figure keeps the width.
+        figure,
+        // The fiat value on every tab; on Wallet the hide toggle and the balance help at its
+        // end, so the figure keeps the row's width.
         if (summary != null && (fiat != null || t > 0))
           Row(
             children: [
@@ -143,7 +134,13 @@ class ShellHeader extends ConsumerWidget {
                 Flexible(
                   child: Text(fiat, key: fiatValueKey, style: fiatStyle),
                 ),
-              if (t > 0) _Collapse(openness: t, child: eye),
+              if (t > 0) ...[
+                _Collapse(openness: t, child: eye),
+                _Collapse(
+                  openness: t,
+                  child: BalanceHelp(summary: summary, hidden: hidden),
+                ),
+              ],
             ],
           ),
       ],
@@ -156,6 +153,7 @@ class ShellHeader extends ConsumerWidget {
             openness: t,
             axis: Axis.vertical,
             alignment: AlignmentDirectional.centerEnd,
+            fill: false,
             child: const StatusRows(),
           ),
         if (t < 1)
@@ -202,12 +200,12 @@ class ShellHeader extends ConsumerWidget {
                     builder: (context, constraints) => Row(
                       children: [
                         Expanded(child: left),
-                        const SizedBox(width: 8),
-                        // At most 40 % of the row: large text shortens the status words
+                        const SizedBox(width: 4),
+                        // At most 30 % of the row: large text shortens the status words
                         // before it squeezes the figure.
                         ConstrainedBox(
                           constraints: BoxConstraints(
-                            maxWidth: constraints.maxWidth * 0.4,
+                            maxWidth: constraints.maxWidth * 0.3,
                           ),
                           child: status,
                         ),
@@ -316,10 +314,14 @@ class _Collapse extends StatelessWidget {
     this.axis,
     required this.child,
     this.alignment = AlignmentDirectional.centerStart,
+    this.fill = true,
   });
 
   final double openness;
   final Axis? axis;
+
+  /// Folded along [Axis.vertical] only: true takes the full width, false the child's own.
+  final bool fill;
   final AlignmentGeometry alignment;
   final Widget child;
 
@@ -328,7 +330,11 @@ class _Collapse extends StatelessWidget {
     return ClipRect(
       child: Align(
         alignment: alignment,
-        widthFactor: axis != Axis.vertical ? openness : null,
+        widthFactor: axis != Axis.vertical
+            ? openness
+            : fill
+            ? null
+            : 1,
         heightFactor: axis != Axis.horizontal ? openness : null,
         child: Opacity(opacity: openness, child: child),
       ),

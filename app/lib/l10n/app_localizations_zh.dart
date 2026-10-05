@@ -1156,9 +1156,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get homeSeeAll => '查看全部';
 
   @override
-  String get homeSyncingLabel => '正在同步';
-
-  @override
   String get homeBackedUpNotice => '助记词已备份';
 
   @override

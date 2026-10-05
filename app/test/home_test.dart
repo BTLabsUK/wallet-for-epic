@@ -1397,10 +1397,10 @@ void main() {
       // Local figures while the refresh against the node runs, with its progress.
       expect(find.text('12.5 EPIC'), findsOneWidget);
       expect(_statusWord(tester, nodeStatusKey), 'Node syncing 40%');
-      final syncBar = find.byWidgetPredicate(
-        (w) => w is LinearProgressIndicator && w.semanticsLabel == 'Syncing',
-      );
+      // One progress line, at the header's foot.
+      final syncBar = find.byKey(headerSyncLineKey);
       expect(tester.widget<LinearProgressIndicator>(syncBar).value, 0.4);
+      expect(find.byType(LinearProgressIndicator), findsOneWidget);
       // Pull to refresh replaced the button.
       expect(find.byTooltip('Refresh'), findsNothing);
 

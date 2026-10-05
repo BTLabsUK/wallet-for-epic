@@ -1231,9 +1231,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get homeSeeAll => 'See all';
 
   @override
-  String get homeSyncingLabel => 'Syncing';
-
-  @override
   String get homeBackedUpNotice => 'Recovery phrase backed up';
 
   @override

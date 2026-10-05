@@ -1236,9 +1236,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get homeSeeAll => 'Alle anzeigen';
 
   @override
-  String get homeSyncingLabel => 'Synchronisierung';
-
-  @override
   String get homeBackedUpNotice => 'Wiederherstellungsphrase gesichert';
 
   @override

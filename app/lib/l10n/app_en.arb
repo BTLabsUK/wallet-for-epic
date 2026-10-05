@@ -1281,10 +1281,6 @@
   "@homeSeeAll": {
     "description": "Button beside the Recent activity heading that opens the full payment history."
   },
-  "homeSyncingLabel": "Syncing",
-  "@homeSyncingLabel": {
-    "description": "Screen-reader label of the thin progress bar while the wallet syncs with the node."
-  },
   "homeBackedUpNotice": "Recovery phrase backed up",
   "@homeBackedUpNotice": {
     "description": "Short notice after the user wrote down the recovery phrase (the 12 or 24 words)."

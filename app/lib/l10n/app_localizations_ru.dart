@@ -1322,9 +1322,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get homeSeeAll => 'Все';
 
   @override
-  String get homeSyncingLabel => 'Синхронизация';
-
-  @override
   String get homeBackedUpNotice => 'Фраза восстановления сохранена';
 
   @override

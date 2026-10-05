@@ -232,7 +232,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   /// Opens [screen] over home. Coming back does not refresh: screens that change the wallet
   /// reload home themselves, and the timer keeps it current.
   Future<void> _open(Widget screen) =>
-      Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => screen));
+      Navigator.of(context)
+          .push(MaterialPageRoute<void>(builder: (_) => screen));
 
   /// Scans a QR code and shows the Send tab with it as the recipient.
   Future<void> _scan() async {
@@ -370,7 +371,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final scanner = ref.watch(qrScannerProvider);
 
     return SlotScaffold(
-      idle: const _HomeStatus(),
       glow: topGlow,
       appBar: AppBar(
         leading: const Center(child: EpicMark(size: 26)),
@@ -559,21 +559,6 @@ class _KeepAliveState extends State<_KeepAlive>
   Widget build(BuildContext context) {
     super.build(context);
     return widget.child;
-  }
-}
-
-/// The line under home's app bar: the sync bar while home syncs, else nothing.
-class _HomeStatus extends ConsumerWidget {
-  const _HomeStatus();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    if (!_syncing(ref.watch(homeProvider))) return const SizedBox.shrink();
-    final percent = ref.watch(syncProgressProvider);
-    return SlotProgress(
-      value: percent == null ? null : percent / 100,
-      label: context.l10n.homeSyncingLabel,
-    );
   }
 }
 

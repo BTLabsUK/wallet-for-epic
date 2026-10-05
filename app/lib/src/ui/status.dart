@@ -261,7 +261,8 @@ class _StatusRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context).textTheme.labelMedium
+    // Small, so the column beside the figure stays narrow and the figure keeps its size.
+    final style = Theme.of(context).textTheme.labelSmall
         ?.copyWith(color: face.color);
     return _StatusTarget(
       face: face,
@@ -269,8 +270,8 @@ class _StatusRow extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          Icon(face.icon, size: 16, color: face.color),
-          const SizedBox(width: 6),
+          Icon(face.icon, size: 14, color: face.color),
+          const SizedBox(width: 4),
           Flexible(
             child: Text(
               face.word,
