@@ -92,20 +92,6 @@ WalletStatus walletStatus({
   return (node: node, epicbox: epicbox);
 }
 
-/// How bad a state is: 0 fine, 1 on its way, 2 a problem.
-int _severity(Object state) => switch (state) {
-  NodeState.online || EpicboxState.online => 0,
-  NodeState.offline || EpicboxState.offline => 2,
-  _ => 1,
-};
-
-/// Whether the single icon of the shrunk header shows epicbox instead of the node: only when
-/// epicbox is strictly worse. A tie names the node, since the balances depend on it.
-bool epicboxIsWorse(WalletStatus status) {
-  final epicbox = status.epicbox;
-  return epicbox != null && _severity(epicbox) > _severity(status.node.state);
-}
-
 /// The [WalletStatus] of the open wallet, rebuilt when any input changes.
 WalletStatus watchWalletStatus(WidgetRef ref) {
   final home = ref.watch(homeProvider);
@@ -227,7 +213,7 @@ _Face _epicboxFace(
 
 /// A tooltip that opens on a long press, a tap, or hover, over a 48 dp target.
 class _StatusTarget extends StatelessWidget {
-  const _StatusTarget({super.key, required this.face, required this.child});
+  const _StatusTarget({required this.face, required this.child});
 
   final _Face face;
   final Widget child;
@@ -292,57 +278,45 @@ const Key nodeStatusKey = ValueKey('status-node');
 /// The key of the epicbox row, for tests.
 const Key epicboxStatusKey = ValueKey('status-epicbox');
 
-/// The key of the single icon the shrunk header shows, for tests.
-const Key compactStatusKey = ValueKey('status-compact');
-
-/// The Wallet tab's statuses: one right-aligned row for the node, one for epicbox while the
+/// The statuses as a column: one right-aligned row for the node, one for epicbox while the
 /// listener runs. Each row's tooltip has the detail.
-class StatusRows extends ConsumerWidget {
+class StatusRows extends StatelessWidget {
   const StatusRows({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final status = watchWalletStatus(ref);
-    final config = ref.watch(walletConfigProvider);
-    final epicbox = status.epicbox;
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.end,
-      children: [
-        _StatusRow(
-          key: nodeStatusKey,
-          face: _nodeFace(context, status.node, config),
-        ),
-        if (epicbox != null)
-          _StatusRow(
-            key: epicboxStatusKey,
-            face: _epicboxFace(context, epicbox, config),
-          ),
-      ],
-    );
-  }
+  Widget build(BuildContext context) => const Column(
+    mainAxisSize: MainAxisSize.min,
+    crossAxisAlignment: CrossAxisAlignment.end,
+    children: [NodeStatusRow(), EpicboxStatusRow()],
+  );
 }
 
-/// The shrunk header's status: the icon of the worse of the two, with its tooltip.
-class CompactStatus extends ConsumerWidget {
-  const CompactStatus({super.key});
+/// The node's status row, right-aligned.
+class NodeStatusRow extends ConsumerWidget {
+  const NodeStatusRow({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) => _StatusRow(
+    key: nodeStatusKey,
+    face: _nodeFace(
+      context,
+      watchWalletStatus(ref).node,
+      ref.watch(walletConfigProvider),
+    ),
+  );
+}
+
+/// The epicbox status row, right-aligned; nothing while the listener is stopped.
+class EpicboxStatusRow extends ConsumerWidget {
+  const EpicboxStatusRow({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final status = watchWalletStatus(ref);
-    final config = ref.watch(walletConfigProvider);
-    final face = epicboxIsWorse(status)
-        ? _epicboxFace(context, status.epicbox!, config)
-        : _nodeFace(context, status.node, config);
-    return _StatusTarget(
-      key: compactStatusKey,
-      face: face,
-      // At the row's end, where the two rows end on Wallet.
-      child: Align(
-        alignment: AlignmentDirectional.centerEnd,
-        widthFactor: 1,
-        child: Icon(face.icon, size: 20, color: face.color),
-      ),
+    final epicbox = watchWalletStatus(ref).epicbox;
+    if (epicbox == null) return const SizedBox.shrink();
+    return _StatusRow(
+      key: epicboxStatusKey,
+      face: _epicboxFace(context, epicbox, ref.watch(walletConfigProvider)),
     );
   }
 }

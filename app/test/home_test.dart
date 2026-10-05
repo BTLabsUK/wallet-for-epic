@@ -192,7 +192,7 @@ class _SlowRefreshSession extends FakeWalletSession {
   _SlowRefreshSession({required this.refreshed})
     : super(summary: _summary(), transactions: _transactions());
 
-  final WalletSummary refreshed;
+  WalletSummary refreshed;
   Completer<void> gate = Completer<void>();
 
   @override
@@ -2691,7 +2691,6 @@ void main() {
         final figure = tester.getRect(find.byKey(balanceFigureKey));
         final node = tester.getRect(find.byKey(nodeStatusKey));
         expect(find.byKey(epicboxStatusKey), findsOneWidget);
-        expect(find.byKey(compactStatusKey), findsNothing);
         expect(node.left, greaterThan(figure.right));
         expect(node.top, lessThan(figure.bottom));
         expect(node.right, closeTo(rowsEnd, 1));
@@ -2772,10 +2771,13 @@ void main() {
         expect(tester.getCenter(control).dy, closeTo(figure.center.dy, 2));
         expect(tester.getCenter(control).dx, greaterThan(figure.right));
       }
-      // The statuses, one row each, right-aligned beside the lines under the figure.
+      // The statuses, one row each, right-aligned under the figure row: the node centred on
+      // the fiat line, epicbox on the not-spendable line.
       final node = tester.getRect(find.byKey(nodeStatusKey));
       final epicbox = tester.getRect(find.byKey(epicboxStatusKey));
       expect(node.left, greaterThan(line.right));
+      expect(node.center.dy, closeTo(fiat.center.dy, 1));
+      expect(epicbox.center.dy, closeTo(line.center.dy, 1));
       expect(epicbox.top, greaterThanOrEqualTo(node.bottom - 1));
       expect(epicbox.right, closeTo(node.right, 1));
       expect(node.top, greaterThan(figure.bottom - 1));
@@ -2836,8 +2838,54 @@ void main() {
       expect(find.text('12.5 EPIC'), findsOneWidget);
       expect(find.byKey(notSpendableKey), findsNothing);
       expect(find.textContaining('not spendable yet'), findsNothing);
+      // Epicbox keeps a line of its own, as tall as the not-spendable line, under the node.
+      final node = tester.getRect(find.byKey(nodeStatusKey));
+      final epicbox = tester.getRect(find.byKey(epicboxStatusKey));
+      expect(epicbox.top, greaterThanOrEqualTo(node.bottom - 1));
+      expect(epicbox.right, closeTo(node.right, 1));
+      expect(epicbox.height, 48);
+      expect(
+        tester.getRect(find.byKey(lifeLineKey)).top,
+        greaterThanOrEqualTo(epicbox.bottom - 1),
+      );
       await _tab(tester, 'Send');
       expect(find.byKey(notSpendableKey), findsNothing);
+    });
+
+    testWidgets('the list closes once nothing is pending, and stays closed', (
+      tester,
+    ) async {
+      final session = _SlowRefreshSession(refreshed: _summary());
+      final h = _Harness(session: session);
+      await h.pump(tester, const HomeScreen(), 1, const Size(1080, 2340));
+      await _tap(tester, find.byKey(notSpendableKey));
+      expect(find.byKey(breakdownKey), findsOneWidget);
+
+      // The refresh finds everything spendable: no line and no list.
+      session.refreshed = WalletSummary(
+        lastConfirmedHeight: _tip,
+        minimumConfirmations: BigInt.from(10),
+        total: _epic(14.5),
+        spendable: _epic(14.5),
+        awaitingConfirmation: BigInt.zero,
+        awaitingFinalization: BigInt.zero,
+        immature: BigInt.zero,
+        locked: BigInt.zero,
+        validatedWithNode: true,
+      );
+      session.gate.complete();
+      await tester.pumpAndSettle();
+      expect(find.byKey(notSpendableKey), findsNothing);
+      expect(find.byKey(breakdownKey), findsNothing);
+
+      // Something is pending again: the line comes back closed.
+      session
+        ..refreshed = _summary()
+        ..gate = (Completer<void>()..complete());
+      await tester.fling(_walletList(), const Offset(0, 400), 1000);
+      await tester.pumpAndSettle();
+      expect(find.byKey(notSpendableKey), findsOneWidget);
+      expect(find.byKey(breakdownKey), findsNothing);
     });
 
     testWidgets(

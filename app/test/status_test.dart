@@ -134,26 +134,6 @@ void main() {
       expect(s.node.state, NodeState.connecting);
       expect(s.epicbox, isNull);
     });
-
-    test('the shrunk header names epicbox only when it is worse', () {
-      WalletStatus of(NodeState node, EpicboxState? epicbox) =>
-          (node: NodeStatus(node), epicbox: epicbox);
-      expect(epicboxIsWorse(of(NodeState.online, EpicboxState.offline)), true);
-      expect(
-        epicboxIsWorse(of(NodeState.online, EpicboxState.connecting)),
-        true,
-      );
-      // A tie names the node.
-      expect(
-        epicboxIsWorse(of(NodeState.syncing, EpicboxState.connecting)),
-        false,
-      );
-      expect(
-        epicboxIsWorse(of(NodeState.offline, EpicboxState.offline)),
-        false,
-      );
-      expect(epicboxIsWorse(of(NodeState.connecting, null)), false);
-    });
   });
 
   group('status rows', () {
@@ -183,9 +163,7 @@ void main() {
           child: const MaterialApp(
             localizationsDelegates: AppLocalizations.localizationsDelegates,
             supportedLocales: AppLocalizations.supportedLocales,
-            home: Scaffold(
-              body: Column(children: [StatusRows(), CompactStatus()]),
-            ),
+            home: Scaffold(body: StatusRows()),
           ),
         ),
       );
@@ -235,9 +213,6 @@ void main() {
         tip(tester, epicboxStatusKey),
         'Epicbox connected\nServer: epicbox.epiccash.com:443',
       );
-      // Both fine: the shrunk header shows the node.
-      expect(icon(tester, compactStatusKey), Icons.cloud_done_outlined);
-      expect(tip(tester, compactStatusKey), tip(tester, nodeStatusKey));
     });
 
     testWidgets('node syncing with its percent', (tester) async {
@@ -275,9 +250,7 @@ void main() {
       );
     });
 
-    testWidgets('node offline and epicbox offline; the node wins the icon', (
-      tester,
-    ) async {
+    testWidgets('node offline and epicbox offline', (tester) async {
       await pump(
         tester,
         tip: AsyncError(StateError('down'), StackTrace.empty),
@@ -293,14 +266,6 @@ void main() {
         tip(tester, epicboxStatusKey),
         startsWith('Epicbox offline, reconnecting.'),
       );
-      expect(icon(tester, compactStatusKey), Icons.cloud_off);
-    });
-
-    testWidgets('epicbox worse than the node takes the shrunk icon', (
-      tester,
-    ) async {
-      await pump(tester, tip: AsyncData(_tip), home: home, listener: _lost);
-      expect(icon(tester, compactStatusKey), Icons.unsubscribe_outlined);
     });
 
     testWidgets('a stopped listener shows no epicbox row', (tester) async {
@@ -313,8 +278,7 @@ void main() {
       final handle = tester.ensureSemantics();
       await pump(tester, tip: AsyncData(_tip), home: home, listener: _lost);
       expect(find.bySemanticsLabel('Node online'), findsOneWidget);
-      // The row and the shrunk icon, both on screen in this test.
-      expect(find.bySemanticsLabel('Epicbox offline'), findsNWidgets(2));
+      expect(find.bySemanticsLabel('Epicbox offline'), findsOneWidget);
       handle.dispose();
     });
   });

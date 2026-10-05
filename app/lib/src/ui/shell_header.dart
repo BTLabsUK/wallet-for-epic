@@ -70,11 +70,15 @@ class _ShellHeaderState extends ConsumerState<ShellHeader> {
   @override
   Widget build(BuildContext context) {
     final t = widget.openness;
+    final status = watchWalletStatus(ref);
     final b = _Balance(
       summary: ref.watch(homeProvider).value?.summary,
-      node: watchWalletStatus(ref).node,
+      node: status.node,
+      epicbox: status.epicbox,
       display: amountDisplay(ref),
     );
+    // Once nothing is pending the list is closed, so it does not open by itself next time.
+    if (b.summary != null && b.notSpendable == BigInt.zero) _breakdown = false;
     // The panel that is more than half shown takes taps, keys and screen readers; Wallet's
     // from halfway.
     Widget layer(double opacity, bool active, Widget panel) => IgnorePointer(
@@ -160,18 +164,19 @@ class _ShellHeaderState extends ConsumerState<ShellHeader> {
 
   /// [left], and the status rows on the right, at most 30 % of the row: large text shortens
   /// the status words before it squeezes the balance.
-  Widget _withStatus(Widget left) => LayoutBuilder(
-    builder: (context, constraints) => Row(
-      children: [
-        Expanded(child: left),
-        const SizedBox(width: 4),
-        ConstrainedBox(
-          constraints: BoxConstraints(maxWidth: constraints.maxWidth * 0.3),
-          child: const StatusRows(),
+  Widget _withStatus(Widget? left, {Widget status = const StatusRows()}) =>
+      LayoutBuilder(
+        builder: (context, constraints) => Row(
+          children: [
+            Expanded(child: left ?? const SizedBox.shrink()),
+            const SizedBox(width: 4),
+            ConstrainedBox(
+              constraints: BoxConstraints(maxWidth: constraints.maxWidth * 0.3),
+              child: status,
+            ),
+          ],
         ),
-      ],
-    ),
-  );
+      );
 
   /// Send and Receive: the figure with the statuses beside it, the fiat value with the hide
   /// toggle and the help, the not-spendable line, and the sync line at the foot.
@@ -255,7 +260,8 @@ class _ShellHeaderState extends ConsumerState<ShellHeader> {
     final summary = b.summary;
     final fiat = b.fiat(context);
     final figureStyle = theme.textTheme.displaySmall;
-    final open = _breakdown && b.notSpendable > BigInt.zero;
+    final pending = summary != null && b.notSpendable > BigInt.zero;
+    final open = _breakdown && pending;
     return Padding(
       // The 1.3.1 panel's padding and its 8 dp above the caption; below the life line it
       // keeps part of the room its "Up to date" footer took, so the panel is 1.3.1's height.
@@ -278,30 +284,33 @@ class _ShellHeaderState extends ConsumerState<ShellHeader> {
               ],
             ],
           ),
+          // Each status on a line of its own, centred on it: the node on the fiat line,
+          // epicbox on the not-spendable line, or alone while nothing is pending.
           _withStatus(
-            Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (fiat != null)
-                  Text(
+            fiat == null
+                ? null
+                : Text(
                     fiat,
                     key: keyed ? fiatValueKey : null,
                     style: theme.textTheme.titleMedium?.copyWith(
                       color: theme.colorScheme.onSurfaceVariant,
                     ),
                   ),
-                if (summary != null && b.notSpendable > BigInt.zero)
-                  _BreakdownLine(
-                    key: keyed ? notSpendableKey : null,
-                    amount: b.notSpendable,
-                    hidden: b.hidden,
-                    open: open,
-                    onTap: () => setState(() => _breakdown = !_breakdown),
-                  ),
-              ],
-            ),
+            status: const NodeStatusRow(),
           ),
+          if (pending || b.epicbox != null)
+            _withStatus(
+              pending
+                  ? _BreakdownLine(
+                      key: keyed ? notSpendableKey : null,
+                      amount: b.notSpendable,
+                      hidden: b.hidden,
+                      open: open,
+                      onTap: () => setState(() => _breakdown = !_breakdown),
+                    )
+                  : null,
+              status: const EpicboxStatusRow(),
+            ),
           if (open)
             Padding(
               key: keyed ? breakdownKey : null,
@@ -336,10 +345,18 @@ class _ShellHeaderState extends ConsumerState<ShellHeader> {
 
 /// What both panels show, read once per build.
 class _Balance {
-  _Balance({required this.summary, required this.node, required this.display});
+  _Balance({
+    required this.summary,
+    required this.node,
+    required this.epicbox,
+    required this.display,
+  });
 
   final WalletSummary? summary;
   final NodeStatus node;
+
+  /// Null while the listener is stopped.
+  final EpicboxState? epicbox;
   final ({bool hidden, double? price, String currency}) display;
 
   bool get hidden => display.hidden;
