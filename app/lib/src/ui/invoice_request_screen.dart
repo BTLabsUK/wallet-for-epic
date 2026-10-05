@@ -535,16 +535,19 @@ class IssuedInvoiceBlock extends ConsumerStatefulWidget {
 }
 
 class _IssuedInvoiceBlockState extends ConsumerState<IssuedInvoiceBlock> {
-  late final Timer _tick = Timer.periodic(
-    const Duration(seconds: 30),
-    (_) => setState(() {}),
-  );
+  /// Keeps a waiting request's time left current; nothing else on the block changes by itself.
+  late final Timer _tick;
   bool _busy = false;
 
   @override
   void initState() {
     super.initState();
-    _tick;
+    _tick = Timer.periodic(const Duration(seconds: 30), (_) {
+      final slateId = widget.tx.slateId;
+      if (slateId == null) return;
+      final invoice = ref.read(issuedInvoiceProvider(slateId)).value;
+      if (invoice?.state == IssuedInvoiceState.waiting) setState(() {});
+    });
   }
 
   @override

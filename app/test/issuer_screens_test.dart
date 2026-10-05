@@ -493,6 +493,20 @@ void main() {
       });
     }
 
+    testWidgets('a waiting request counts its time left down', (tester) async {
+      final h = _Harness();
+      final request = await h.issue();
+      await details(tester, h, request);
+      h.now = h.now.add(const Duration(hours: 23, minutes: 30));
+      await tester.pump(const Duration(seconds: 30));
+      expect(
+        find.text(
+          '${_l.issuedDetailsWaiting} ${_l.invoiceTimeLeftMinutes(30)}',
+        ),
+        findsOneWidget,
+      );
+    });
+
     testWidgets('follows a state change while open', (tester) async {
       final h = _Harness();
       final request = await h.issue();
