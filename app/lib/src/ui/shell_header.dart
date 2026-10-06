@@ -493,13 +493,20 @@ class _Balance {
     _Kind.immature => l.homeCaptionMiningRewards,
   };
 
-  /// The kinds a tap steps through: those that are not zero, in order.
-  List<_Kind> get cycled => [
-    for (final k in _Kind.values)
-      if (amountOf(k) > BigInt.zero) k,
-  ];
+  /// The kinds a tap steps through: those that are not zero, in order. When Spendable is
+  /// zero and only one other is not, Spendable stays one of them, so there are two.
+  List<_Kind> get cycled {
+    final kinds = [
+      for (final k in _Kind.values)
+        if (amountOf(k) > BigInt.zero) k,
+    ];
+    return kinds.length == 1 && kinds.single != _Kind.spendable
+        ? [_Kind.spendable, ...kinds]
+        : kinds;
+  }
 
-  /// The kind after [from] that is not zero, wrapping; [from] when there is none.
+  /// The kind after [from] that is not zero, wrapping. With no other, a zero Spendable when
+  /// [from] is not Spendable (the pair [cycled] keeps), else [from].
   _Kind next(_Kind from) {
     const kinds = _Kind.values;
     for (var i = 1; i <= kinds.length; i++) {
@@ -507,7 +514,7 @@ class _Balance {
       if (k == from) break;
       if (amountOf(k) > BigInt.zero) return k;
     }
-    return from;
+    return from == _Kind.spendable ? from : _Kind.spendable;
   }
 
   /// The balances that are not spendable yet, zero ones left out.

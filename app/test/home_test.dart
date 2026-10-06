@@ -3503,6 +3503,43 @@ void main() {
       ]);
     });
 
+    testWidgets(
+      'a zero Spendable and one other: the tap goes between the two',
+      (tester) async {
+        final handle = tester.ensureSemantics();
+        await start(tester, balances(locked: 2));
+        final seen = [shown(tester)];
+        for (var i = 0; i < 3; i++) {
+          await tapFigure(tester);
+          seen.add(shown(tester));
+          // Two dots throughout, and the figure stays a button.
+          expect(
+            find.descendant(
+              of: find.byKey(balanceDotsKey),
+              matching: find.byType(DecoratedBox),
+            ),
+            findsNWidgets(2),
+          );
+          expect(
+            tester.getSemantics(find.byKey(balanceFigureKey)),
+            matchesSemantics(
+              label: '${caption(tester)}: ${figure(tester)}',
+              isButton: true,
+              hasTapAction: true,
+              onTapHint: 'Show the next balance',
+            ),
+          );
+        }
+        expect(seen, [
+          'Spendable 0 EPIC',
+          'Locked 2 EPIC',
+          'Spendable 0 EPIC',
+          'Locked 2 EPIC',
+        ]);
+        handle.dispose();
+      },
+    );
+
     testWidgets('nothing to step to: Spendable, no dots, not a button', (
       tester,
     ) async {
@@ -3652,6 +3689,9 @@ void main() {
         tester.getSemantics(find.byKey(balanceFigureKey)),
         matchesSemantics(label: 'Spendable: Balance hidden'),
       );
+      // Shown again, it is back on the balance chosen before.
+      await _tap(tester, find.byTooltip('Show balances'));
+      expect(caption(tester), 'Confirming');
       handle.dispose();
     });
 
