@@ -84,8 +84,8 @@ for family in json.load(open(sys.argv[1])):
     for font in family["fonts"]:
         print("assets/" + font["asset"])
 ' "$out/assets/FontManifest.json")
-common=(index.html flutter_bootstrap.js manifest.json assets/FontManifest.json
-  assets/AssetManifest.bin "${fonts[@]}")
+# What Chrome fetched from a fake build before its first screen, besides icons.
+common=(index.html flutter_bootstrap.js manifest.json assets/FontManifest.json "${fonts[@]}")
 skwasm=$(total "${common[@]}" main.dart.wasm main.dart.mjs canvaskit/skwasm.js canvaskit/skwasm.wasm)
 canvaskit=$(total "${common[@]}" main.dart.js canvaskit/canvaskit.js canvaskit/canvaskit.wasm)
 
