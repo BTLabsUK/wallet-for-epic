@@ -42,7 +42,7 @@ Future<void> main(List<String> args) async {
       await initLepic(libraryPath: library);
       final server = DemoServer(
         config: config,
-        // Each demo has its own service and secret store file.
+        // Each demo has its own service and secret store file; they share one LEPIC runtime.
         serviceFor: (paths) =>
             LepicWalletService(secrets: FileSecretStore(paths.secrets)),
       );

@@ -405,7 +405,13 @@ class LepicWalletService implements WalletService {
   /// which the interface asks without one.
   Chain _chain = Chain.mainnet;
 
-  static lepic.LepicRuntime _defaultRuntime() {
+  /// One runtime for every service built without `runtime:`: the demo server makes a service
+  /// per demo, and they share LEPIC's pool and log stream. The phone builds one service.
+  static lepic.LepicRuntime? _shared;
+
+  static lepic.LepicRuntime _defaultRuntime() => _shared ??= _newRuntime();
+
+  static lepic.LepicRuntime _newRuntime() {
     final runtime = lepic.LepicRuntime(logLevel: lepic.LogLevel.info);
     // The stream's error reaches the zone instead (UP-11); onError covers a future pin.
     runtime.logs().listen(
