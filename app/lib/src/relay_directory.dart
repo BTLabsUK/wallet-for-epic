@@ -7,10 +7,10 @@ library;
 
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'net/http.dart';
 import 'network.dart';
 
 /// The monitor's status endpoint. Override with `--dart-define=WFE_STATUS_URL=...`.
@@ -101,22 +101,9 @@ class HttpRelayDirectory implements RelayDirectory {
   Future<List<RelayStatus>> relays(String chain) async {
     final url = Uri.parse(relayStatusUrl)
         .replace(queryParameters: chain == 'mainnet' ? null : {'chain': chain});
-    final client = HttpClient()
-      ..connectionTimeout = const Duration(seconds: 10);
-    try {
-      final request = await client.getUrl(url);
-      final response = await request.close().timeout(
-        const Duration(seconds: 15),
-      );
-      if (response.statusCode != HttpStatus.ok) {
-        await response.drain<void>();
-        throw HttpException('status ${response.statusCode}', uri: url);
-      }
-      final body = await response.transform(utf8.decoder).join();
-      return parseRelayStatus(body);
-    } finally {
-      client.close(force: true);
-    }
+    final reply = await httpGet(url);
+    if (reply.status != 200) throw NetError('status ${reply.status}');
+    return parseRelayStatus(reply.body);
   }
 }
 

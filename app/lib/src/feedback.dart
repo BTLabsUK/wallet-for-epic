@@ -8,13 +8,13 @@ library;
 
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'app_log.dart';
 import 'l10n.dart';
+import 'net/http.dart';
 import 'redact.dart';
 import 'slate_files.dart';
 
@@ -191,32 +191,21 @@ class PlatformFeedbackOutlet implements FeedbackOutlet {
 
   @override
   Future<void> post(Uri url, String report) async {
-    final client = HttpClient()..connectionTimeout = timeout;
     try {
-      final request = await client.postUrl(url).timeout(timeout);
-      request.headers.contentType = ContentType(
-        'text',
-        'plain',
-        charset: 'utf-8',
+      final reply = await httpPost(
+        url,
+        body: utf8.encode(report),
+        contentType: 'text/plain; charset=utf-8',
+        timeout: timeout,
       );
-      // A declared length, not chunked encoding, which simple receivers cannot read.
-      final body = utf8.encode(report);
-      request.contentLength = body.length;
-      request.add(body);
-      final response = await request.close().timeout(timeout);
-      await response.drain<void>();
-      if (response.statusCode < 200 || response.statusCode >= 300) {
-        final status = response.statusCode;
+      if (!reply.ok) {
+        final status = reply.status;
         throw FeedbackSendError((l) => l.feedbackServerAnswered(status));
       }
-    } on FeedbackSendError {
-      rethrow;
     } on TimeoutException {
       throw FeedbackSendError((l) => l.feedbackServerNoAnswer);
-    } on IOException {
+    } on NetError {
       throw FeedbackSendError((l) => l.feedbackServerUnreachable);
-    } finally {
-      client.close(force: true);
     }
   }
 }

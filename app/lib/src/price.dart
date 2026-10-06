@@ -5,12 +5,12 @@ library;
 
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'app_log.dart';
 import 'amount.dart';
+import 'net/http.dart';
 import 'providers.dart';
 import 'settings.dart';
 import 'wallet_service.dart' show Chain;
@@ -51,24 +51,18 @@ class CoinGeckoPriceSource implements PriceSource {
 
   @override
   Future<double?> price(String currency) async {
-    final client = HttpClient()..connectionTimeout = timeout;
     try {
       final uri = Uri.https('api.coingecko.com', '/api/v3/simple/price', {
         'ids': 'epic-cash',
         'vs_currencies': currency,
       });
-      final request = await client.getUrl(uri).timeout(timeout);
-      request.headers.set(HttpHeaders.acceptHeader, 'application/json');
-      final response = await request.close().timeout(timeout);
-      if (response.statusCode != HttpStatus.ok) {
-        await response.drain<void>();
-        return null;
-      }
-      final body = await response
-          .transform(utf8.decoder)
-          .join()
-          .timeout(timeout);
-      final decoded = jsonDecode(body);
+      final reply = await httpGet(
+        uri,
+        headers: const {'accept': 'application/json'},
+        timeout: timeout,
+      );
+      if (reply.status != 200) return null;
+      final decoded = jsonDecode(reply.body);
       if (decoded is! Map) return null;
       final coin = decoded['epic-cash'];
       final value = coin is Map ? coin[currency] : null;
@@ -77,8 +71,6 @@ class CoinGeckoPriceSource implements PriceSource {
       // Offline, blocked, rate-limited or malformed: no price this time.
       logInfo('price', 'no price: ${error.runtimeType}');
       return null;
-    } finally {
-      client.close(force: true);
     }
   }
 }
