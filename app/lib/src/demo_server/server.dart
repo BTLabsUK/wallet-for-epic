@@ -242,6 +242,9 @@ class DemoServer {
       return _plain(request, HttpStatus.unauthorized);
     }
     final socket = await WebSocketTransformer.upgrade(request);
+    // A phone that drops off the network leaves a half-open socket; pings find it, so the
+    // idle window starts.
+    socket.pingInterval = const Duration(seconds: 30);
     if (d.ended) {
       await socket.close(WebSocketStatus.goingAway);
       return;
