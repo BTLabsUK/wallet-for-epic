@@ -5,3 +5,6 @@
 /firebase.secret
 /firebase-service-account*.json
 /app/android/app/google-services.json
+
+# Web demo server settings, copied from demo/server/demo.env.example
+/demo/server/demo.env
