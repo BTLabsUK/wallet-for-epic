@@ -8,12 +8,16 @@ import 'dart:convert';
 import 'dart:io';
 
 import '../network.dart';
+import '../remote/dispatcher.dart';
+import '../remote/protocol.dart' show ServiceMember;
 import '../wallet_service.dart';
 import 'config.dart';
 import 'demo_log.dart';
 import 'demo_store.dart';
+import 'gated_service.dart';
 import 'limits.dart';
 import 'static_site.dart';
+import 'ws_channel.dart';
 
 /// The cookie that names a visitor's demo.
 const String demoCookie = 'wfe_demo';
@@ -38,12 +42,39 @@ class DemoPaths {
   final String secrets;
 }
 
-/// A demo that is live in this process.
+/// Members the demo never serves: a visitor must not type a real phrase into a website or be
+/// shown one there, and history files are hidden on the web.
+const Set<String> refusedMembers = {
+  'mnemonic',
+  'mnemonicWithPin',
+  'importHistory',
+  'exportHistory',
+  'exportHistoryCsv',
+};
+
+/// True for a call the demo refuses: [refusedMembers], and a create that restores a phrase.
+bool refuseDemoCall(String member, Map<String, Object?> params) =>
+    refusedMembers.contains(member) ||
+    ((member == ServiceMember.create.name ||
+            member == ServiceMember.createWithPin.name) &&
+        params['mnemonic'] != null);
+
+/// The push a socket gets when its demo ends.
+const String demoEndedPush = 'demoEnded';
+
+/// A demo that is live in this process. Its sessions belong to it, not to a socket, so a
+/// reload finds its wallet still open within [DemoServerConfig.idleTimeout].
 class _LiveDemo {
   _LiveDemo(this.record);
 
   final DemoRecord record;
   bool ended = false;
+
+  /// Made on the first socket.
+  WalletService? service;
+  final WalletSessions sessions = WalletSessions();
+  final Set<WalletDispatcher> sockets = {};
+  Timer? idle;
 
   String get short => shortDemoId(record.id);
 }
@@ -59,12 +90,10 @@ class DemoServer {
        _argon = WorkGate(config.argonSlots);
 
   final DemoServerConfig config;
-  // ignore: unused_field
   final DemoServiceFactory _serviceFor;
   final DateTime Function() _clock;
   final DemoStore _store;
   final ClientRateLimit _rate;
-  // ignore: unused_field
   final WorkGate _argon;
   final Map<String, _LiveDemo> _live = {};
   final List<StaticSite> _sites = [];
@@ -78,6 +107,12 @@ class DemoServer {
 
   /// Live demos in this process.
   int get liveCount => _live.length;
+
+  /// Sockets open on the demo [id].
+  int socketsOf(String id) => _live[id]?.sockets.length ?? 0;
+
+  /// True while the demo [id] holds open sessions.
+  bool hasSessions(String id) => !(_live[id]?.sessions.isEmpty ?? true);
 
   DemoStore get store => _store;
 
@@ -99,13 +134,11 @@ class DemoServer {
       ServerLogLevel.info,
       'start-up: ${loaded.live.length} live demos, ${loaded.removed} removed',
     );
-    if (config.landingRoot != null || config.webRoot != null) {
-      if (config.webRoot case final web?) {
-        _sites.add(StaticSite(root: web, prefix: '/app/', spaFallback: true));
-      }
-      if (config.landingRoot case final landing?) {
-        _sites.add(StaticSite(root: landing, prefix: '/'));
-      }
+    if (config.webRoot case final web?) {
+      _sites.add(StaticSite(root: web, prefix: '/app/', spaFallback: true));
+    }
+    if (config.landingRoot case final landing?) {
+      _sites.add(StaticSite(root: landing, prefix: '/'));
     }
     final http = await HttpServer.bind(config.bindAddress, config.port);
     http.autoCompress = false;
@@ -121,11 +154,17 @@ class DemoServer {
     );
   }
 
-  /// Stops listening. Live demos stay on disk for the next start.
+  /// Stops listening, closes every socket and locks every wallet. Live demos stay on disk for
+  /// the next start.
   Future<void> stop() async {
     _sweeper?.cancel();
     await _http?.close(force: true);
     _http = null;
+    for (final d in [..._live.values]) {
+      d.idle?.cancel();
+      await _closeSockets(d);
+      d.sessions.disposeAll();
+    }
   }
 
   /// Ends every expired demo. Runs every [DemoServerConfig.sweepInterval].
@@ -141,16 +180,100 @@ class DemoServer {
     }
   }
 
+  Future<void> _closeSockets(_LiveDemo d, {String? push}) async {
+    final sockets = [...d.sockets];
+    d.sockets.clear();
+    await Future.wait([
+      for (final s in sockets)
+        () async {
+          if (push != null) s.push(push);
+          await s.close().timeout(const Duration(seconds: 5), onTimeout: () {});
+        }(),
+    ]);
+  }
+
+  /// Tells the demo's sockets it ended, locks its wallet, deletes it and its directory.
   Future<void> _end(_LiveDemo d, String why) async {
     if (d.ended) return;
     d.ended = true;
     _live.remove(d.record.id);
+    d.idle?.cancel();
+    await _closeSockets(d, push: demoEndedPush);
+    d.sessions.disposeAll();
+    final service = d.service;
+    if (service != null) {
+      try {
+        await service.deleteWallet(config: configFor(d.record.id));
+      } on Object catch (e) {
+        serverLog(ServerLogLevel.warn, 'demo ${d.short}: deleteWallet: $e');
+      }
+    }
     try {
       await _store.remove(d.record.id);
     } on Object catch (e) {
       serverLog(ServerLogLevel.error, 'demo ${d.short}: remove failed: $e');
     }
     serverLog(ServerLogLevel.info, 'demo ${d.short} ended ($why)');
+  }
+
+  WalletService _serviceOf(_LiveDemo d) => d.service ??= GatedWalletService(
+    _serviceFor(
+      DemoPaths(
+        id: d.record.id,
+        walletDir: _store.walletDirOf(d.record.id),
+        secrets: _store.secretsOf(d.record.id),
+      ),
+    ),
+    _argon,
+  );
+
+  /// `/api/ws`: the cookie of a live demo and an allowed `Origin`, against cross-site
+  /// WebSocket hijacking.
+  Future<void> _socket(HttpRequest request) async {
+    if (!WebSocketTransformer.isUpgradeRequest(request)) {
+      return _plain(request, HttpStatus.badRequest);
+    }
+    if (!_originAllowed(request, required: true)) {
+      return _plain(request, HttpStatus.forbidden);
+    }
+    final id = _cookieId(request);
+    final d = id == null ? null : _live[id];
+    if (d == null || d.record.expiredAt(_clock())) {
+      return _plain(request, HttpStatus.unauthorized);
+    }
+    final socket = await WebSocketTransformer.upgrade(request);
+    if (d.ended) {
+      await socket.close(WebSocketStatus.goingAway);
+      return;
+    }
+    d.idle?.cancel();
+    d.idle = null;
+    final dispatcher = WalletDispatcher(
+      _serviceOf(d),
+      IoWebSocketChannel(socket),
+      sessions: d.sessions,
+      refuse: refuseDemoCall,
+      rewriteConfig: (_) => configFor(d.record.id),
+      maxFrameBytes: config.maxFrameBytes,
+      onError: (e, st) => serverLog(
+        ServerLogLevel.error,
+        'demo ${d.short}: wallet call failed: $e\n$st',
+      ),
+    );
+    d.sockets.add(dispatcher);
+    unawaited(
+      dispatcher.done.then((_) {
+        if (!d.sockets.remove(dispatcher) || d.ended || d.sockets.isNotEmpty) {
+          return;
+        }
+        d.idle = Timer(config.idleTimeout, () {
+          d.idle = null;
+          if (d.sockets.isNotEmpty || d.sessions.isEmpty) return;
+          d.sessions.disposeAll();
+          serverLog(ServerLogLevel.info, 'demo ${d.short} idle, wallet locked');
+        });
+      }),
+    );
   }
 
   // HTTP.
@@ -162,6 +285,7 @@ class DemoServer {
       final path = request.uri.path;
       if (path == '/api/health') return await _health(request);
       if (path == '/api/demo') return await _demo(request);
+      if (path == '/api/ws') return await _socket(request);
       if (path.startsWith('/api/')) {
         return await _plain(request, HttpStatus.notFound);
       }

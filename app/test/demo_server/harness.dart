@@ -29,6 +29,7 @@ class Harness {
   static Future<Harness> start({
     Directory? root,
     DemoServerConfig Function(String dataRoot)? config,
+    FakeWalletService Function()? fake,
   }) async {
     serverLogSink = logged.add;
     final dir = root ?? await Directory.systemTemp.createTemp('wfe-demo-test-');
@@ -37,7 +38,8 @@ class Harness {
       config:
           config?.call(dir.path) ??
           DemoServerConfig(dataRoot: dir.path, port: 0),
-      serviceFor: (paths) => services[paths.id] = FakeWalletService(),
+      serviceFor: (paths) =>
+          services[paths.id] = fake?.call() ?? FakeWalletService(),
     );
     await server.start();
     final h = Harness._(dir, server, services);
