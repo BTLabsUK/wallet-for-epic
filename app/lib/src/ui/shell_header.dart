@@ -285,6 +285,8 @@ class _ShellHeaderState extends ConsumerState<ShellHeader> {
           // Caption and figure take the tap together; the eye and the ? win their own.
           GestureDetector(
             behavior: HitTestBehavior.opaque,
+            // The figure's own Semantics carries the action.
+            excludeFromSemantics: true,
             onTap: cycles ? cycle : null,
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -330,20 +332,19 @@ class _ShellHeaderState extends ConsumerState<ShellHeader> {
                               ),
                         onTap: cycles ? cycle : null,
                         onTapHint: cycles ? l.homeBalanceNextHint : null,
-                        excludeSemantics: summary != null,
-                        child: ConstrainedBox(
-                          // A full-size tap target, however short the amount.
-                          constraints: const BoxConstraints(minHeight: 48),
-                          child: Align(
-                            alignment: AlignmentDirectional.centerStart,
-                            widthFactor: 1,
-                            child: _figure(
-                              b,
-                              keyed: keyed,
-                              style: figureStyle,
-                              unit: figureStyle,
-                              amount: amount,
-                            ),
+                        excludeSemantics: true,
+                        // 2 dp above and below the figure's 44 dp line make a 48 dp tap target,
+                        // as tall as the eye beside it. A ConstrainedBox(minHeight: 48) here
+                        // made Flutter 3.47.5's semantics flush throw (a null geometry) once a
+                        // dialog opened over home.
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 2),
+                          child: _figure(
+                            b,
+                            keyed: keyed,
+                            style: figureStyle,
+                            unit: figureStyle,
+                            amount: amount,
                           ),
                         ),
                       ),
