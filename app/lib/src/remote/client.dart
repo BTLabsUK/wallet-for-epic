@@ -12,41 +12,229 @@ import 'codec.dart';
 import 'local_checks.dart';
 import 'protocol.dart';
 
+/// Opens a new connection to the server, or throws when it cannot.
+typedef ChannelConnector = Future<RpcChannel> Function();
+
+/// Where the connection of a [RemoteWalletService] stands.
+enum RemoteConnection {
+  /// Not connected and not trying: before the first call, or after
+  /// [RemoteWalletService.disconnect]. The next call connects.
+  idle,
+
+  /// The first attempt after [idle]. Calls made meanwhile wait for it.
+  connecting,
+
+  connected,
+
+  /// The connection dropped and the client is retrying. Calls fail at once meanwhile.
+  reconnecting,
+
+  /// For good: [RemoteWalletService.close], or a single channel that closed.
+  closed,
+}
+
 /// The client side of the wallet protocol. Every call becomes a request frame; the server's
 /// [WalletDispatcher] answers it.
 ///
-/// Once the channel closes, every pending call and stream fails with [connectionClosed], and
-/// so does every later call.
+/// Over one channel ([RemoteWalletService.new]), once the channel closes, every pending call
+/// and stream fails with [connectionClosed], and so does every later call.
+///
+/// With a connector ([RemoteWalletService.reconnecting]), the first call connects. A dropped
+/// connection fails what was pending with [connectionClosed] and is retried after
+/// [firstRetry], doubling up to [maxRetry]; calls fail at once until it is back. Session
+/// handles stay valid across connections as long as the server keeps them; a call on one it
+/// no longer knows fails with [unknownSession] and its handle goes to [lostSessions].
 class RemoteWalletService implements WalletService {
-  RemoteWalletService(this._channel) {
-    _channel.incoming.listen(
-      _onFrame,
-      onDone: _onClosed,
-      onError: (Object _) => _onClosed(),
-    );
+  RemoteWalletService(RpcChannel channel)
+    : _connect = null,
+      firstRetry = Duration.zero,
+      maxRetry = Duration.zero,
+      _state = RemoteConnection.connected {
+    _attach(channel);
   }
 
-  final RpcChannel _channel;
+  RemoteWalletService.reconnecting(
+    ChannelConnector connect, {
+    this.firstRetry = const Duration(seconds: 1),
+    this.maxRetry = const Duration(seconds: 30),
+  }) : _connect = connect,
+       _state = RemoteConnection.idle;
+
+  final ChannelConnector? _connect;
+
+  /// The wait before the first retry after a drop.
+  final Duration firstRetry;
+
+  /// The longest wait between retries.
+  final Duration maxRetry;
+
+  RemoteConnection _state;
+  RpcChannel? _channel;
+  StreamSubscription<String>? _incoming;
+
+  /// Frames sent while [RemoteConnection.connecting], flushed once connected.
+  final List<String> _queued = [];
+  Timer? _retry;
+  late Duration _delay = firstRetry;
+
   int _lastId = 0;
-  bool _closed = false;
   final Map<int, Completer<Object?>> _calls = {};
   final Map<int, StreamController<Object?>> _streams = {};
   final StreamController<RpcPush> _pushes =
       StreamController<RpcPush>.broadcast();
+  final StreamController<RemoteConnection> _connection =
+      StreamController<RemoteConnection>.broadcast();
+  final StreamController<String> _lost = StreamController<String>.broadcast();
 
-  /// What the server sends outside any call, such as `demoEnded`. Ends with the channel.
+  /// What the server sends outside any call, such as `demoEnded`. Over one channel it ends
+  /// with the channel; with a connector it spans every connection and ends at [close].
   ///
   /// A broadcast stream: a push that arrives while nobody listens is dropped, so subscribe
   /// right after constructing the service.
   Stream<RpcPush> get pushes => _pushes.stream;
 
-  /// True once the channel has closed.
-  bool get closed => _closed;
+  /// The connection now.
+  RemoteConnection get connection => _state;
 
-  /// Closes the channel; pending calls fail as for a dropped connection.
-  Future<void> close() => _channel.close();
+  /// Every change of [connection].
+  Stream<RemoteConnection> get connectionChanges => _connection.stream;
 
-  void _send(Map<String, Object?> frame) => _channel.send(jsonEncode(frame));
+  /// Handles of sessions the server answered [unknownSession] for: it dropped them, as after
+  /// its idle timeout. The wallet behind one is locked.
+  Stream<String> get lostSessions => _lost.stream;
+
+  /// True once the service is closed for good.
+  bool get closed => _state == RemoteConnection.closed;
+
+  /// Closes the connection for good; pending calls fail as for a dropped connection.
+  Future<void> close() async {
+    if (closed) return;
+    final channel = _drop(RemoteConnection.closed);
+    await _pushes.close();
+    await _connection.close();
+    await _lost.close();
+    await channel?.close();
+  }
+
+  /// Closes the connection and stops retrying, as when the demo behind it ended. Pending
+  /// calls fail; the next call connects again. Nothing happens over one channel, or once
+  /// closed.
+  Future<void> disconnect() async {
+    if (_connect == null || closed || _state == RemoteConnection.idle) return;
+    await _drop(RemoteConnection.idle)?.close();
+  }
+
+  /// Leaves the current channel, fails what was pending and moves to [next]. Returns the
+  /// channel, for the caller to close.
+  RpcChannel? _drop(RemoteConnection next) {
+    _retry?.cancel();
+    _retry = null;
+    final channel = _channel;
+    _channel = null;
+    unawaited(_incoming?.cancel());
+    _incoming = null;
+    _failPending();
+    _setState(next);
+    return channel;
+  }
+
+  void _setState(RemoteConnection next) {
+    if (_state == next) return;
+    _state = next;
+    if (!_connection.isClosed) _connection.add(next);
+  }
+
+  void _attach(RpcChannel channel) {
+    _channel = channel;
+    _incoming = channel.incoming.listen(
+      _onFrame,
+      onDone: () => _onClosed(channel),
+      onError: (Object _) => _onClosed(channel),
+    );
+  }
+
+  /// Whether a call can go out now. From [RemoteConnection.idle] it starts connecting, and
+  /// the call waits for that.
+  bool _ready() {
+    switch (_state) {
+      case RemoteConnection.connected || RemoteConnection.connecting:
+        return true;
+      case RemoteConnection.idle:
+        _startConnect();
+        return true;
+      case RemoteConnection.reconnecting || RemoteConnection.closed:
+        return false;
+    }
+  }
+
+  void _startConnect() {
+    _setState(RemoteConnection.connecting);
+    unawaited(
+      _connect!().then(
+        (channel) {
+          if (_state != RemoteConnection.connecting) {
+            unawaited(channel.close());
+            return;
+          }
+          _connected(channel);
+          final frames = [..._queued];
+          _queued.clear();
+          frames.forEach(channel.send);
+        },
+        onError: (Object _) {
+          if (_state != RemoteConnection.connecting) return;
+          _failPending();
+          _delay = firstRetry;
+          _scheduleRetry();
+        },
+      ),
+    );
+  }
+
+  void _connected(RpcChannel channel) {
+    _attach(channel);
+    _delay = firstRetry;
+    _setState(RemoteConnection.connected);
+  }
+
+  void _scheduleRetry() {
+    _setState(RemoteConnection.reconnecting);
+    _retry?.cancel();
+    final wait = _delay;
+    final doubled = _delay * 2;
+    _delay = doubled > maxRetry ? maxRetry : doubled;
+    _retry = Timer(wait, () {
+      _retry = null;
+      unawaited(
+        _connect!().then(
+          (channel) {
+            if (_state != RemoteConnection.reconnecting) {
+              unawaited(channel.close());
+              return;
+            }
+            _connected(channel);
+          },
+          onError: (Object _) {
+            if (_state == RemoteConnection.reconnecting) _scheduleRetry();
+          },
+        ),
+      );
+    });
+  }
+
+  void _send(Map<String, Object?> frame) {
+    final text = jsonEncode(frame);
+    switch (_state) {
+      case RemoteConnection.connected:
+        _channel?.send(text);
+      case RemoteConnection.connecting:
+        _queued.add(text);
+      case RemoteConnection.idle ||
+          RemoteConnection.reconnecting ||
+          RemoteConnection.closed:
+        break;
+    }
+  }
 
   Map<String, Object?> _request(
     int id,
@@ -55,18 +243,34 @@ class RemoteWalletService implements WalletService {
     String? session,
   ) => {'id': id, 'm': member, 'p': params, 's': ?session};
 
+  /// Reports [error] on [session] to [lostSessions] when the server no longer knows it.
+  void _checkLost(Object error, String? session) {
+    if (session == null || error is! WalletError) return;
+    if (error.kind == unknownSession.kind &&
+        error.message == unknownSession.message &&
+        !_lost.isClosed) {
+      _lost.add(session);
+    }
+  }
+
   Future<T> _call<T>(
     String member,
     Map<String, Object?> params,
     WireCodec<T> result, {
     String? session,
   }) {
-    if (_closed) return Future<T>.error(connectionClosed);
+    if (!_ready()) return Future<T>.error(connectionClosed);
     final id = ++_lastId;
     final completer = Completer<Object?>();
     _calls[id] = completer;
     _send(_request(id, member, params, session));
-    return completer.future.then(result.decode);
+    return completer.future.then(
+      result.decode,
+      onError: (Object error, StackTrace stack) {
+        _checkLost(error, session);
+        Error.throwWithStackTrace(error, stack);
+      },
+    );
   }
 
   /// A stream that sends its request when listened to and a cancel when cancelled early.
@@ -81,7 +285,7 @@ class RemoteWalletService implements WalletService {
     StreamSubscription<Object?>? sub;
     out = StreamController<T>(
       onListen: () {
-        if (_closed) {
+        if (!_ready()) {
           out
             ..addError(connectionClosed)
             ..close();
@@ -104,7 +308,10 @@ class RemoteWalletService implements WalletService {
             }
             out.add(value);
           },
-          onError: out.addError,
+          onError: (Object error, StackTrace stack) {
+            _checkLost(error, session);
+            out.addError(error, stack);
+          },
           onDone: out.close,
         );
         _send(_request(id!, member, params, session));
@@ -120,12 +327,16 @@ class RemoteWalletService implements WalletService {
 
   void _cancel(int id) {
     if (_streams.remove(id) == null) return;
-    if (!_closed) _send({'id': id, 'cancel': true});
+    _send({'id': id, 'cancel': true});
   }
 
-  /// Sends [member] without waiting for, or reading, an answer.
+  /// Sends [member] without waiting for, or reading, an answer. Dropped while not connected:
+  /// it never opens a connection.
   void _notify(String member, String session) {
-    if (_closed) return;
+    if (_state != RemoteConnection.connected &&
+        _state != RemoteConnection.connecting) {
+      return;
+    }
     _send(_request(++_lastId, member, const {}, session));
   }
 
@@ -139,7 +350,9 @@ class RemoteWalletService implements WalletService {
     if (json is! Map<String, Object?>) return;
     final push = json['push'];
     if (push is String) {
-      _pushes.add(RpcPush(push, {...json}..remove('push')));
+      if (!_pushes.isClosed) {
+        _pushes.add(RpcPush(push, {...json}..remove('push')));
+      }
       return;
     }
     final id = json['id'];
@@ -173,9 +386,8 @@ class RemoteWalletService implements WalletService {
     }
   }
 
-  void _onClosed() {
-    if (_closed) return;
-    _closed = true;
+  void _failPending() {
+    _queued.clear();
     final calls = [..._calls.values];
     final streams = [..._streams.values];
     _calls.clear();
@@ -188,7 +400,22 @@ class RemoteWalletService implements WalletService {
         ..addError(connectionClosed)
         ..close();
     }
-    _pushes.close();
+  }
+
+  void _onClosed(RpcChannel channel) {
+    if (!identical(channel, _channel)) return;
+    _channel = null;
+    _incoming = null;
+    _failPending();
+    if (_connect == null) {
+      _setState(RemoteConnection.closed);
+      _pushes.close();
+      _connection.close();
+      _lost.close();
+      return;
+    }
+    _delay = firstRetry;
+    _scheduleRetry();
   }
 
   RemoteWalletSession _session(SessionRef ref) =>
