@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -8,10 +6,11 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 import '../demo.dart';
 import '../l10n.dart';
 import '../settings.dart';
+import '../wallet_backend.dart' show hostIsPhone;
 import 'common.dart';
 
 /// QR scanning needs a camera plugin that exists on Android and iOS only.
-bool get qrScanSupported => !kIsWeb && (Platform.isAndroid || Platform.isIOS);
+bool get qrScanSupported => !kIsWeb && hostIsPhone;
 
 /// Opens the camera and returns the text of the first QR code it reads, or null when the user
 /// backs out or scanning is not supported here.

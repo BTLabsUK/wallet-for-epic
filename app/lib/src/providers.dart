@@ -1,17 +1,15 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:path_provider/path_provider.dart';
 
 import 'app_log.dart';
 import 'demo.dart';
 import 'errors.dart';
 import 'l10n.dart' show englishStrings;
-import 'lepic_wallet_service.dart';
 import 'network.dart';
 import 'secret_store.dart';
 import 'vault.dart';
+import 'wallet_backend.dart' as backend;
 import 'wallet_service.dart';
 
 /// Confirmations before an output counts as spendable. epic-wallet's CLI default.
@@ -26,25 +24,19 @@ final minimumConfirmationsProvider = Provider<BigInt>(
 /// Resolves, and creates if missing, the data directory of the wallet for [chain].
 typedef WalletDirResolver = Future<String> Function(Chain chain);
 
-/// `<application support>/wallets/<chain>`. One wallet per chain.
-Future<String> defaultWalletDir(Chain chain) async {
-  final support = await getApplicationSupportDirectory();
-  final sep = Platform.pathSeparator;
-  final dir = Directory('${support.path}${sep}wallets$sep${chain.name}');
-  await dir.create(recursive: true);
-  return dir.path;
-}
-
+/// LEPIC on this device, or in the browser the wallet server (`wallet_backend.dart`).
 final walletServiceProvider = Provider<WalletService>(
-  (ref) => LepicWalletService(secrets: ref.watch(secretStoreProvider)),
+  (ref) => backend.createWalletService(ref.watch(secretStoreProvider)),
 );
 
+/// `<application support>/wallets/<chain>` on a device; a fixed name per chain on the web.
 final walletDirProvider = Provider<WalletDirResolver>(
-  (ref) => defaultWalletDir,
+  (ref) => backend.defaultWalletDir,
 );
 
+/// The platform keystore, or on the web the browser's `localStorage`.
 final secretStoreProvider = Provider<SecretStore>(
-  (ref) => const PlatformSecretStore(),
+  (ref) => backend.createSecretStore(),
 );
 
 final biometricStoreProvider = Provider<BiometricStore>(
@@ -56,6 +48,7 @@ final vaultProvider = Provider<WalletVault>(
     store: ref.watch(secretStoreProvider),
     biometrics: ref.watch(biometricStoreProvider),
     service: ref.watch(walletServiceProvider),
+    legacyFiles: backend.legacyWalletFiles,
   ),
 );
 

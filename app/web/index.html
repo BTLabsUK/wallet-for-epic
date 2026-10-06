@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Replaced by flutter build's --base-href (tool/build_web.sh: /app/). -->
+  <base href="$FLUTTER_BASE_HREF">
+
+  <meta charset="UTF-8">
+  <!-- No viewport meta: the Flutter engine sets its own. -->
+  <title>Epic Cash Wallet: try it in your browser</title>
+  <meta name="description" content="A free Epic Cash wallet to try in your browser. Each visitor gets a test wallet on floonet for 24 hours, with test coins, sending and receiving.">
+  <meta name="theme-color" content="#08080A">
+  <meta name="color-scheme" content="dark light">
+
+  <!-- Flutter output cannot be crawled, so links straight to /app/ get their card from here. -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Epic Cash Wallet">
+  <meta property="og:title" content="Epic Cash Wallet: try it in your browser">
+  <meta property="og:description" content="A test wallet on floonet for 24 hours. Get test coins, send, receive and pay invoices before you download anything.">
+  <meta property="og:image" content="icons/Icon-512.png">
+  <meta property="og:image:width" content="512">
+  <meta property="og:image:height" content="512">
+  <meta property="og:image:alt" content="The Epic Cash mark in gold on black">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Epic Cash Wallet: try it in your browser">
+  <meta name="twitter:description" content="A test wallet on floonet for 24 hours. Get test coins, send, receive and pay invoices before you download anything.">
+  <meta name="twitter:image" content="icons/Icon-512.png">
+
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="Epic Wallet">
+  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+  <link rel="icon" type="image/svg+xml" href="icons/icon.svg">
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="manifest" href="manifest.json">
+
+  <style>
+    html, body { margin: 0; height: 100%; background: #08080A; overflow: hidden; }
+    /* The splash: the mark on the brand black until Flutter's first frame, when
+       lib/src/web/splash_web.dart removes it. */
+    #splash {
+      position: fixed; inset: 0; z-index: 2147483647;
+      display: flex; align-items: center; justify-content: center;
+      background: radial-gradient(circle at 50% 50%, #29251A 0, #08080A 60%);
+    }
+    #splash svg { width: 72px; height: auto; }
+    @media (prefers-reduced-motion: no-preference) {
+      #splash svg { animation: wfe-glow 1.6s ease-in-out infinite alternate; }
+      @keyframes wfe-glow { from { opacity: .55; } to { opacity: 1; } }
+    }
+  </style>
+</head>
+<body>
+  <div id="splash" role="img" aria-label="Epic Cash Wallet is loading">
+    <svg viewBox="0 0 281 324" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <defs>
+        <linearGradient id="splash-gold" x1="0" y1="0" x2="0" y2="324" gradientUnits="userSpaceOnUse">
+          <stop offset="0" stop-color="#F6D471"/><stop offset="1" stop-color="#C98A3E"/>
+        </linearGradient>
+      </defs>
+      <g fill="url(#splash-gold)">
+      <path d="M253.678 72.4431C256.503 70.801 256.503 66.7288 253.678 65.1524L225.895 49.126C224.581 48.4035 223.005 48.4035 221.691 49.126L202.644 60.0949L238.966 81.0474L253.678 72.4431Z"/>
+      <path d="M83.7588 131.031V163.806C83.7588 167.09 87.3056 169.126 90.1299 167.484L232.528 84.7253L196.206 63.7729L85.8606 127.419C84.547 128.141 83.7588 129.52 83.7588 131.031Z"/>
+      <path d="M111.084 211.36L140.115 228.108C141.429 228.831 143.005 228.831 144.319 228.108L253.482 165.12V121.244L111.084 204.003C108.26 205.645 108.325 209.717 111.084 211.36Z"/>
+      <path d="M278.899 150.473C280.213 149.75 281.001 148.305 281.001 146.795V112.64C281.001 109.356 277.454 107.32 274.63 108.962L259.917 117.501V161.376L278.899 150.473Z"/>
+      <path d="M140.705 323.544H140.771L181.034 300.293V300.227L280.673 242.756V196.187L259.983 208.141L253.546 211.82L176.961 256.023L140.705 276.976L41.1313 219.504V104.561L153.973 39.405L160.344 35.7268L181.034 23.7727L140.705 0.455658L0.802734 81.2442V242.756L140.705 323.544Z"/>
+      </g>
+    </svg>
+  </div>
+  <noscript>Epic Cash Wallet needs JavaScript.</noscript>
+  <script src="flutter_bootstrap.js" async></script>
+</body>
+</html>

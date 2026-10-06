@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -7,8 +6,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'src/app.dart';
 import 'src/app_log.dart';
-import 'src/lepic_wallet_service.dart';
 import 'src/ui/theme/fonts.dart';
+import 'src/wallet_backend.dart';
+import 'src/web/splash.dart';
 
 Future<void> main() async {
   // Errors that escape every other handler land here, in the zone the app runs in.
@@ -26,15 +26,16 @@ Future<void> main() async {
       // Not handled: the engine still reports it as before.
       return false;
     };
-    await initLepic();
+    await initWalletBackend();
     registerFontLicences();
     const build = String.fromEnvironment('FLUTTER_BUILD_NAME');
     logInfo(
       'app',
-      'start ${build.isEmpty ? 'dev' : build}, ${Platform.operatingSystem} '
-          '${Platform.operatingSystemVersion}',
+      'start ${build.isEmpty ? 'dev' : build}, $platformLabel',
     );
     // Wallet errors are final answers (wrong password, node down); do not retry them silently.
     runApp(ProviderScope(retry: (_, _) => null, child: const WalletApp()));
+    // The web page's splash (web/index.html) stays until Flutter has drawn over it.
+    WidgetsBinding.instance.addPostFrameCallback((_) => removeSplash());
   }, (error, stack) => logError('zone', error, stack));
 }
