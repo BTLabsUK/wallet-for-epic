@@ -12,6 +12,7 @@ import '../vault.dart';
 import '../wallet_service.dart';
 import 'centered_body.dart';
 import 'common.dart';
+import 'demo_screens.dart' show endDemo;
 import 'first_run_screen.dart' show NetworkSettingsButton;
 import 'launch_screen.dart';
 import 'pin.dart';
@@ -123,6 +124,8 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
   }
 
   Future<void> _forgotPin() async {
+    // A demo wallet has no phrase to restore from: forgetting its PIN ends the demo.
+    if (ref.read(demoModeProvider)) return endDemo(context, ref);
     final config = ref.read(walletConfigProvider);
     if (config == null) return;
     final l = context.l10n;

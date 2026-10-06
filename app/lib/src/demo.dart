@@ -92,7 +92,8 @@ abstract interface class DemoApi {
 }
 
 /// The [DemoApi] in use. Until the server's (W-06) exists, the fake, so a demo build without a
-/// server still reaches its screens.
+/// server still reaches its screens. The fake reports test coins it never pays, so no demo
+/// build may be deployed before W-06 replaces it.
 final demoApiProvider = Provider<DemoApi>((ref) {
   final api = FakeDemoApi();
   ref.onDispose(api.dispose);

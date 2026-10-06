@@ -614,6 +614,31 @@ void main() {
         expect(find.byType(NetworkSettingsButton), present);
       });
 
+      testWidgets(
+        'unlock: Forgot PIN ${demo ? 'ends the demo' : 'resets the wallet'}',
+        (tester) async {
+          final h = _Harness(demo: demo);
+          await h.pump(tester);
+          await _tap(tester, find.text(l.pinForgot));
+          expect(find.text(l.pinResetTitle), present);
+          expect(
+            find.text(l.demoEndTitle),
+            demo ? findsOneWidget : findsNothing,
+          );
+          if (!demo) return;
+          await _tap(
+            tester,
+            find.descendant(
+              of: find.byType(AlertDialog),
+              matching: find.text(l.demoEnd),
+            ),
+          );
+          expect(h.api.ends, 1);
+          expect(h.store.values['wallet.floonet.pinSealed'], isNull);
+          expect(find.text(l.demoWelcomeTitle), findsOneWidget);
+        },
+      );
+
       testWidgets('home: phrase card, QR scan, updates ($mode)', (
         tester,
       ) async {
