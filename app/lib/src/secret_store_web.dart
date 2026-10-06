@@ -7,7 +7,7 @@ library;
 
 import 'dart:js_interop';
 
-import 'secret_store.dart' show SecretStore;
+import 'secret_store_api.dart';
 
 class BrowserSecretStore implements SecretStore {
   const BrowserSecretStore();
@@ -15,7 +15,8 @@ class BrowserSecretStore implements SecretStore {
   static const String prefix = 'wfe.';
 
   @override
-  Future<String?> read(String key) async => _localStorage.getItem('$prefix$key');
+  Future<String?> read(String key) async =>
+      _localStorage.getItem('$prefix$key');
 
   @override
   Future<void> write(String key, String value) async =>

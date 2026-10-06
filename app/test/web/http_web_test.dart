@@ -56,7 +56,8 @@ void main() {
 
   setUpAll(() async {
     final channel = spawnHybridCode(_server);
-    final port = await channel.stream.first as int;
+    // A number, not an int, under dart2wasm.
+    final port = (await channel.stream.first as num).toInt();
     base = Uri.parse('http://127.0.0.1:$port');
   });
 

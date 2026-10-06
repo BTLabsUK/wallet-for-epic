@@ -29,10 +29,7 @@ Future<void> main() async {
     await initWalletBackend();
     registerFontLicences();
     const build = String.fromEnvironment('FLUTTER_BUILD_NAME');
-    logInfo(
-      'app',
-      'start ${build.isEmpty ? 'dev' : build}, $platformLabel',
-    );
+    logInfo('app', 'start ${build.isEmpty ? 'dev' : build}, $platformLabel');
     // Wallet errors are final answers (wrong password, node down); do not retry them silently.
     runApp(ProviderScope(retry: (_, _) => null, child: const WalletApp()));
     // The web page's splash (web/index.html) stays until Flutter has drawn over it.

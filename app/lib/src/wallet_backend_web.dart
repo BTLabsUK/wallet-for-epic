@@ -1,9 +1,14 @@
-/// `wallet_backend.dart` in the browser. The wallet runs on the demo server; this side keeps
-/// only the PIN-sealed text, in `localStorage`. A `WFE_WEB_FAKE=true` build runs on
-/// [previewWalletService] instead, with nothing kept across a reload.
+/// `wallet_backend.dart` in the browser. The wallet runs on the demo server, reached over one
+/// WebSocket to `<origin>/api/ws` (W-01's protocol); this side keeps only the PIN-sealed text,
+/// in `localStorage`. A `WFE_WEB_FAKE=true` build runs on [previewWalletService] instead, with
+/// nothing kept across a reload and no network at all.
 library;
 
-import 'secret_store.dart' show MemorySecretStore, SecretStore;
+import 'package:flutter/widgets.dart' show WidgetsBinding;
+
+import 'remote/client.dart';
+import 'remote/web_channel.dart';
+import 'secret_store_api.dart';
 import 'secret_store_web.dart';
 import 'vault.dart' show LegacyFiles;
 import 'wallet_service.dart';
@@ -12,10 +17,17 @@ import 'web/preview.dart';
 /// Nothing to load: LEPIC runs on the server.
 Future<void> initWalletBackend() async {}
 
+/// The server's wallet service. The socket opens at the end of the frame being drawn, the
+/// first one when the launch screen asks for the vault, so nothing touches the network before
+/// the first screen shows. [secrets] stays in the browser; the server keeps its own.
 WalletService createWalletService(SecretStore secrets) {
   if (webFakeBackend) return previewWalletService();
-  // W-03 step 2: RemoteWalletService over <origin>/api/ws, once W-01 is on main.
-  throw UnsupportedError('the web app needs the wallet server');
+  return RemoteWalletService(
+    WebSocketChannel(
+      demoSocketUrl(Uri.base),
+      openAfter: WidgetsBinding.instance.endOfFrame,
+    ),
+  );
 }
 
 SecretStore createSecretStore() =>
