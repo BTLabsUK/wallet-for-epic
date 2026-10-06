@@ -225,6 +225,8 @@ class DemoServer {
       ),
     ),
     _argon,
+    // One wallet per demo: an open replaces the sessions a lost page left behind.
+    beforeOpen: d.sessions.disposeAll,
   );
 
   /// `/api/ws`: the cookie of a live demo and an allowed `Origin`, against cross-site

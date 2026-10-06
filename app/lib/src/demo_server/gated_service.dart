@@ -1,7 +1,8 @@
 /// A [WalletService] whose PIN and password calls wait for a [WorkGate] slot.
 ///
 /// LEPIC runs Argon2id at 64 MiB for each of them, so the server caps how many run at once
-/// across all demos. Everything else passes straight through.
+/// across all demos. Everything else passes straight through, except that `beforeOpen` runs
+/// before each call that opens a wallet.
 library;
 
 import 'dart:typed_data';
@@ -10,10 +11,21 @@ import '../wallet_service.dart';
 import 'limits.dart';
 
 class GatedWalletService implements WalletService {
-  GatedWalletService(this._inner, this._gate);
+  GatedWalletService(this._inner, this._gate, {this.beforeOpen});
 
   final WalletService _inner;
   final WorkGate _gate;
+
+  /// Runs before `create`, `open`, `createWithPin` and `openWithPin`, once their turn at the
+  /// gate comes. The demo server closes the demo's open sessions there: LEPIC refuses a second
+  /// open of one directory (`walletBusy`), and a reloaded page that lost its handle must be
+  /// able to unlock again.
+  final void Function()? beforeOpen;
+
+  Future<T> _opening<T>(Future<T> Function() open) => _gate.run(() {
+    beforeOpen?.call();
+    return open();
+  });
 
   WalletSession _wrap(WalletSession s) => GatedWalletSession(s, _gate);
 
@@ -43,7 +55,7 @@ class GatedWalletService implements WalletService {
     String? mnemonic,
     required String password,
   }) async => _wrap(
-    await _gate.run(
+    await _opening(
       () =>
           _inner.create(config: config, mnemonic: mnemonic, password: password),
     ),
@@ -54,7 +66,7 @@ class GatedWalletService implements WalletService {
     required WalletConfig config,
     required String password,
   }) async => _wrap(
-    await _gate.run(() => _inner.open(config: config, password: password)),
+    await _opening(() => _inner.open(config: config, password: password)),
   );
 
   @override
@@ -63,7 +75,7 @@ class GatedWalletService implements WalletService {
     String? mnemonic,
     required String pin,
   }) async {
-    final w = await _gate.run(
+    final w = await _opening(
       () => _inner.createWithPin(config: config, mnemonic: mnemonic, pin: pin),
     );
     return (session: _wrap(w.session), sealedPassword: w.sealedPassword);
@@ -75,7 +87,7 @@ class GatedWalletService implements WalletService {
     required String pin,
     required String sealedPassword,
   }) async => _wrap(
-    await _gate.run(
+    await _opening(
       () => _inner.openWithPin(
         config: config,
         pin: pin,

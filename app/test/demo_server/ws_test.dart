@@ -269,6 +269,39 @@ void main() {
       expect((await v.status()).json['state'], 'active');
     },
   );
+  test(
+    'an open on a new page replaces the sessions the old page left',
+    () async {
+      final h = await Harness.start();
+      final (v, first) = await demoClient(h);
+      final id = v.cookie!;
+      final created = await first.createWithPin(
+        config: clientConfig,
+        pin: '123456',
+      );
+      final old = created.session as RemoteWalletSession;
+      final fake = h.services[id]!;
+      await first.close();
+
+      // A reload that kept no handle unlocks with the PIN; LEPIC would refuse a second open of
+      // the directory, so the old session is disposed first.
+      final second = RemoteWalletService(await connect(h, cookie: id));
+      await second.openWithPin(
+        config: clientConfig,
+        pin: '123456',
+        sealedPassword: created.sealedPassword,
+      );
+      expect(fake.session.disposeCalls, 1);
+      final raw = RawSocket(await connect(h, cookie: id));
+      final gone = await raw.call(
+        jsonEncode({'id': 1, 'm': 'epicboxAddress', 'p': {}, 's': old.handle}),
+      );
+      expect((gone['e']! as Map)['message'], unknownSession.message);
+      await raw.channel.close();
+      await second.close();
+    },
+  );
+
   test('PIN calls across all demos wait for the Argon2id slots', () async {
     var running = 0;
     var peak = 0;
