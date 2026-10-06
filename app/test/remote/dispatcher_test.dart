@@ -271,6 +271,75 @@ void main() {
       await settle();
       expect((peer.replies.last['r'] as Map)['invoices'], true);
     });
+
+    test('a cancel does not free the id of a one-shot call', () async {
+      fake.createGate = Completer<void>();
+      const create =
+          '{"id":1,"m":"create","p":{"config":{"dataDir":"/d","chain":"floonet",'
+          '"nodeUrl":"n","epicboxDomain":"e","epicboxPort":1},"password":"p"}}';
+      peer.end.send(create);
+      await settle();
+      await peer.sendUnanswered('{"id":1,"cancel":true}');
+      expect(await peer.send(create), {'id': 1, 'e': errorOf(idInUse)});
+      fake.createGate!.complete();
+      await settle();
+      expect(
+        peer.replies.where((r) => r['id'] == 1 && r.containsKey('r')),
+        hasLength(1),
+      );
+    });
+  });
+
+  test('calls and streams over maxInFlight are refused until one ends', () async {
+    final fake = FakeWalletService();
+    final (a, b) = loopbackPair();
+    WalletDispatcher(fake, b, maxInFlight: 3);
+    final peer = RawPeer(a);
+    const cfg =
+        '{"dataDir":"/d","chain":"floonet","nodeUrl":"n","epicboxDomain":"e","epicboxPort":1}';
+    // One session (answered at once), then a held call and two open streams.
+    final opened = await peer.send(
+      '{"id":1,"m":"createWithPin","p":{"config":$cfg,"pin":"1234"}}',
+    );
+    final handle = ((opened['r'] as Map)['session'] as Map)['s'];
+    fake.createGate = Completer<void>();
+    peer.end.send(
+      '{"id":2,"m":"create","p":{"config":{"dataDir":"/e","chain":"floonet",'
+      '"nodeUrl":"n","epicboxDomain":"e","epicboxPort":1},"password":"p"}}',
+    );
+    await settle();
+    await peer.sendUnanswered(
+      '{"id":3,"m":"startListener","p":{},"s":"$handle"}',
+    );
+    await peer.sendUnanswered(
+      '{"id":4,"m":"invoiceEvents","p":{},"s":"$handle"}',
+    );
+    expect(
+      await peer.send('{"id":5,"m":"epicboxAddress","p":{},"s":"$handle"}'),
+      {'id': 5, 'e': errorOf(tooManyInFlight)},
+    );
+    expect(tooManyInFlight.kind, WalletErrorKind.invalidArgument);
+    // A cancelled stream frees its place.
+    await peer.sendUnanswered('{"id":3,"cancel":true}');
+    expect(
+      await peer.send('{"id":6,"m":"epicboxAddress","p":{},"s":"$handle"}'),
+      {'id': 6, 'r': fake.session.address},
+    );
+    // Full again, then a held call answers and frees its place.
+    await peer.sendUnanswered(
+      '{"id":7,"m":"startListener","p":{},"s":"$handle"}',
+    );
+    expect(
+      await peer.send('{"id":8,"m":"epicboxAddress","p":{},"s":"$handle"}'),
+      {'id': 8, 'e': errorOf(tooManyInFlight)},
+    );
+    fake.createGate!.complete();
+    await settle();
+    expect(peer.replies.last['id'], 2);
+    expect(
+      await peer.send('{"id":9,"m":"epicboxAddress","p":{},"s":"$handle"}'),
+      {'id': 9, 'r': fake.session.address},
+    );
   });
 
   group('sessions', () {

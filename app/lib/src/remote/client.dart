@@ -35,6 +35,9 @@ class RemoteWalletService implements WalletService {
       StreamController<RpcPush>.broadcast();
 
   /// What the server sends outside any call, such as `demoEnded`. Ends with the channel.
+  ///
+  /// A broadcast stream: a push that arrives while nobody listens is dropped, so subscribe
+  /// right after constructing the service.
   Stream<RpcPush> get pushes => _pushes.stream;
 
   /// True once the channel has closed.

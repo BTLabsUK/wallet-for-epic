@@ -65,6 +65,7 @@ class WalletDispatcher {
     this._refuse,
     this._rewriteConfig,
     this.maxFrameBytes = defaultMaxFrameBytes,
+    this.maxInFlight = defaultMaxInFlight,
     void Function(Object error, StackTrace stack)? onError,
   }) : _sessions = sessions ?? WalletSessions(),
        _ownsSessions = sessions == null,
@@ -86,6 +87,10 @@ class WalletDispatcher {
 
   /// Frames longer than this, in UTF-8 bytes, are refused unread.
   final int maxFrameBytes;
+
+  /// Calls and streams this channel may have running at once; one more is refused with
+  /// [tooManyInFlight] until one ends.
+  final int maxInFlight;
 
   final Map<int, StreamSubscription<Object?>> _streams = {};
   final Set<int> _active = {};
@@ -164,8 +169,12 @@ class WalletDispatcher {
     final id = json['id'];
     if (id is! int) return;
     if (json['cancel'] == true) {
-      _active.remove(id);
-      unawaited(_streams.remove(id)?.cancel());
+      // Only a stream ends early; a one-shot call keeps its id until it answers.
+      final stream = _streams.remove(id);
+      if (stream != null) {
+        _active.remove(id);
+        unawaited(stream.cancel());
+      }
       return;
     }
     final member = json['m'];
@@ -177,10 +186,15 @@ class WalletDispatcher {
       _sendError(id, badFrame);
       return;
     }
-    if (!_active.add(id)) {
+    if (_active.contains(id)) {
       _sendError(id, idInUse);
       return;
     }
+    if (_active.length >= maxInFlight) {
+      _sendError(id, tooManyInFlight);
+      return;
+    }
+    _active.add(id);
     _handle(id, member, params, session as String?);
   }
 

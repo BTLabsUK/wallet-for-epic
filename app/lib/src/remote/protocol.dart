@@ -79,6 +79,9 @@ const Set<String> localSessionMembers = {'supportsInvoices'};
 /// The largest frame the dispatcher reads, in UTF-8 bytes.
 const int defaultMaxFrameBytes = 256 * 1024;
 
+/// Calls and streams one channel may have running at once.
+const int defaultMaxInFlight = 32;
+
 /// Every pending call and stream fails with this once the connection is gone. Its kind is the
 /// one the UI already shows as a connection problem.
 const WalletError connectionClosed = WalletError(
@@ -106,6 +109,11 @@ const WalletError frameTooLarge = WalletError(
 const WalletError badFrame = WalletError(
   kind: WalletErrorKind.invalidArgument,
   message: 'malformed frame',
+);
+
+const WalletError tooManyInFlight = WalletError(
+  kind: WalletErrorKind.invalidArgument,
+  message: 'too many calls in flight',
 );
 
 const WalletError idInUse = WalletError(
