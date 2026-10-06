@@ -5,7 +5,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import '../secret_store.dart' show SecretStore;
+import '../secret_store_api.dart' show SecretStore;
 import 'demo_store.dart' show writeAtomic;
 
 /// Holds what LEPIC stores through the app's `SecretStore` (its PIN vault). The values are

@@ -8,6 +8,7 @@ import 'package:epic_wallet/src/demo_server/demo_log.dart';
 import 'package:epic_wallet/src/demo_server/demo_store.dart';
 import 'package:epic_wallet/src/demo_server/file_secret_store.dart';
 import 'package:epic_wallet/src/demo_server/limits.dart';
+import 'package:epic_wallet/src/log.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'harness.dart';
@@ -144,6 +145,22 @@ void main() {
     final id = newDemoId();
     final text = serverLogText('open failed: /srv/demos/$id/wallet/lepic');
     expect(text, 'open failed: /srv/demos/[hex]/wallet/lepic');
+  });
+
+  test('the app log reaches the server log, redacted', () {
+    final lines = <String>[];
+    serverLogSink = lines.add;
+    AppLog.use(DemoLogSink());
+    final id = newDemoId();
+    logWarn('lepic', 'open failed in /srv/demos/$id/wallet');
+    AppLog.record(LogLevel.info, 'lepic_wallet::send', 'slate received');
+    AppLog.record(LogLevel.info, 'hyper::client', 'noise');
+    expect(lines, hasLength(2));
+    expect(
+      lines[0],
+      endsWith('WARN dart.lepic: open failed in /srv/demos/[hex]/wallet'),
+    );
+    expect(lines[1], endsWith('INFO lepic_wallet::send: slate received'));
   });
 
   group('settings', () {

@@ -7,6 +7,7 @@ library;
 
 import 'dart:io';
 
+import '../log.dart';
 import '../redact.dart';
 
 enum ServerLogLevel { info, warn, error }
@@ -26,4 +27,22 @@ String serverLogText(String message) =>
 void serverLog(ServerLogLevel level, String message) {
   final time = DateTime.now().toUtc().toIso8601String();
   serverLogSink('$time ${level.name.toUpperCase()} ${serverLogText(message)}');
+}
+
+/// The app's [AppLog] on the server: LEPIC's lines and the wallet service's own, as
+/// `<target>: <message>`. They arrive redacted already; [serverLog] redacts again.
+class DemoLogSink extends LogSink {
+  @override
+  void record(LogLevel level, String target, String message) {
+    if (!logPasses(level, target)) return;
+    serverLog(switch (level) {
+      LogLevel.error => ServerLogLevel.error,
+      LogLevel.warn => ServerLogLevel.warn,
+      LogLevel.info => ServerLogLevel.info,
+    }, '$target: $message');
+  }
+
+  /// The server keeps no log of its own; pm2 does.
+  @override
+  Future<String> tail(int maxBytes) async => '';
 }
