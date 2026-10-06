@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../demo.dart';
 import '../l10n.dart';
-import '../providers.dart' show minimumConfirmations;
 import 'common.dart';
 import 'feedback_screen.dart';
 
@@ -25,8 +26,7 @@ const int sendTtlDays = 14;
 
 typedef _Answer = ({String question, String answer});
 
-_Answer _answer(AppLocalizations l, HelpTopic topic) {
-  final confirmations = minimumConfirmations.toInt();
+_Answer _answer(AppLocalizations l, HelpTopic topic, int confirmations) {
   return switch (topic) {
     HelpTopic.waitingForRecipient => (
       question: l.helpWaitingQuestion,
@@ -67,36 +67,40 @@ _Answer _answer(AppLocalizations l, HelpTopic topic) {
 
 /// Plain-language answers for people new to Epic Cash. With [topic], that question starts
 /// open and in view.
-class HelpScreen extends StatelessWidget {
+class HelpScreen extends ConsumerWidget {
   const HelpScreen({super.key, this.topic});
 
   final HelpTopic? topic;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l = context.l10n;
+    final confirmations = confirmationsTargetOf(ref);
     return SlotScaffold(
       appBar: AppBar(title: Text(l.helpTitle)),
       body: ScreenBody(
         children: [
           for (final t in HelpTopic.values)
-            _Question(answer: _answer(l, t), open: t == topic),
-          const SizedBox(height: 24),
-          Text(
-            l.helpStillStuck,
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
-          const SizedBox(height: 8),
-          Text(l.helpTellUs),
-          const SizedBox(height: 8),
-          Align(
-            alignment: Alignment.centerLeft,
-            child: OutlinedButton.icon(
-              icon: const Icon(Icons.feedback_outlined),
-              label: Text(l.helpSendFeedback),
-              onPressed: () => openFeedback(context),
+            _Question(answer: _answer(l, t, confirmations), open: t == topic),
+          // The web demo has no feedback report until a feedback proxy exists.
+          if (!ref.watch(demoModeProvider)) ...[
+            const SizedBox(height: 24),
+            Text(
+              l.helpStillStuck,
+              style: Theme.of(context).textTheme.titleMedium,
             ),
-          ),
+            const SizedBox(height: 8),
+            Text(l.helpTellUs),
+            const SizedBox(height: 8),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: OutlinedButton.icon(
+                icon: const Icon(Icons.feedback_outlined),
+                label: Text(l.helpSendFeedback),
+                onPressed: () => openFeedback(context),
+              ),
+            ),
+          ],
         ],
       ),
     );

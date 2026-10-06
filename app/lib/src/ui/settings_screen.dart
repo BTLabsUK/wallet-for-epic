@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../app_log.dart';
+import '../demo.dart';
 import '../errors.dart';
 import '../l10n.dart';
 import '../network.dart';
@@ -16,6 +17,7 @@ import '../wallet_service.dart';
 import 'backup_screen.dart';
 import 'common.dart';
 import 'contacts_screen.dart';
+import 'demo_screens.dart' show GetAppTile, endDemo;
 import 'feedback_screen.dart';
 import 'help_screen.dart';
 import 'launch_screen.dart';
@@ -333,7 +335,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final walletOpen = ref.watch(sessionProvider) != null;
     // Invoices only on a core that has them (UP-14); until then no entry at all.
     final invoices = ref.watch(sessionProvider)?.supportsInvoices ?? false;
-    final updates = ref.read(updateProvider.notifier).supported;
+    // The web demo hides what makes no sense in a browser or on a temporary wallet: network
+    // settings, rescan, biometrics, push, updates, the phrase, history files and feedback.
+    final demo = ref.watch(demoModeProvider);
+    final updates = !demo && ref.read(updateProvider.notifier).supported;
     final chain = config == null ? l.commonUnknown : chainName(l, config.chain);
     // Network, node, relay and rescan are technical; the Display switch shows them.
     final advanced = AdvancedOptions.of(context);
@@ -355,7 +360,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     padding: const EdgeInsets.all(16),
                     child: ErrorText(describeError(l, scan.error!)),
                   ),
-                if (advanced) ...[
+                if (advanced && !demo) ...[
                   _Header(l.settingsSectionNetwork),
                   ListTile(
                     leading: const Icon(Icons.settings_ethernet),
@@ -411,7 +416,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   value: s.advancedOptions,
                   onChanged: _settings.setAdvancedOptions,
                 ),
-                if (ref.watch(pushConfiguredProvider).value ?? false) ...[
+                if (!demo &&
+                    (ref.watch(pushConfiguredProvider).value ?? false)) ...[
                   _Header(l.settingsSectionNotifications),
                   SwitchListTile(
                     secondary: const Icon(Icons.notifications_outlined),
@@ -428,7 +434,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     title: Text(l.settingsChangePin),
                     onTap: () => _push(const ChangePinScreen()),
                   ),
-                  if (biometrics?.available ?? false)
+                  if (!demo && (biometrics?.available ?? false))
                     SwitchListTile(
                       secondary: const Icon(Icons.fingerprint),
                       title: Text(l.settingsBiometrics),
@@ -441,38 +447,41 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     subtitle: Text(autoLockLabel(l, s.autoLockMinutes)),
                     onTap: () => _pickAutoLock(s),
                   ),
-                  ListTile(
-                    leading: const Icon(Icons.key),
-                    title: Text(l.settingsBackupPhrase),
-                    onTap: _showPhrase,
-                  ),
+                  if (!demo)
+                    ListTile(
+                      leading: const Icon(Icons.key),
+                      title: Text(l.settingsBackupPhrase),
+                      onTap: _showPhrase,
+                    ),
                   ListTile(
                     leading: const Icon(Icons.lock),
                     title: Text(l.settingsLockWallet),
                     onTap: () => lockWallet(context, ref),
                   ),
-                  _Header(l.settingsSectionHistory),
-                  ListTile(
-                    leading: const Icon(Icons.upload_file),
-                    title: Text(l.settingsExportHistory),
-                    onTap: _busy
-                        ? null
-                        : () => _run(() => exportHistoryBackup(context, ref)),
-                  ),
-                  ListTile(
-                    leading: const Icon(Icons.table_view),
-                    title: Text(l.settingsExportCsv),
-                    onTap: _busy
-                        ? null
-                        : () => _run(() => exportHistoryCsv(context, ref)),
-                  ),
-                  ListTile(
-                    leading: const Icon(Icons.download),
-                    title: Text(l.settingsImportHistory),
-                    onTap: _busy
-                        ? null
-                        : () => _run(() => importHistoryBackup(context, ref)),
-                  ),
+                  if (!demo) ...[
+                    _Header(l.settingsSectionHistory),
+                    ListTile(
+                      leading: const Icon(Icons.upload_file),
+                      title: Text(l.settingsExportHistory),
+                      onTap: _busy
+                          ? null
+                          : () => _run(() => exportHistoryBackup(context, ref)),
+                    ),
+                    ListTile(
+                      leading: const Icon(Icons.table_view),
+                      title: Text(l.settingsExportCsv),
+                      onTap: _busy
+                          ? null
+                          : () => _run(() => exportHistoryCsv(context, ref)),
+                    ),
+                    ListTile(
+                      leading: const Icon(Icons.download),
+                      title: Text(l.settingsImportHistory),
+                      onTap: _busy
+                          ? null
+                          : () => _run(() => importHistoryBackup(context, ref)),
+                    ),
+                  ],
                   if (invoices) ...[
                     _Header(l.settingsSectionInvoices),
                     ListTile(
@@ -488,7 +497,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     title: Text(l.settingsContacts),
                     onTap: () => _push(const ContactsScreen()),
                   ),
-                  if (advanced)
+                  if (advanced && !demo)
                     ListTile(
                       leading: const Icon(Icons.sync),
                       title: Text(l.settingsRescan),
@@ -501,13 +510,15 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       color: Theme.of(context).colorScheme.error,
                     ),
                     title: Text(
-                      l.settingsDeleteWallet,
+                      demo ? l.demoEnd : l.settingsDeleteWallet,
                       style: TextStyle(
                         color: Theme.of(context).colorScheme.error,
                       ),
                     ),
                     enabled: !_busy,
-                    onTap: _deleteWallet,
+                    onTap: demo
+                        ? () => _run(() => endDemo(context, ref))
+                        : _deleteWallet,
                   ),
                 ],
                 _Header(l.settingsSectionAbout),
@@ -553,12 +564,15 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   title: Text(l.settingsHelp),
                   onTap: () => openHelp(context),
                 ),
-                ListTile(
-                  leading: const Icon(Icons.feedback_outlined),
-                  title: Text(l.settingsSendFeedback),
-                  subtitle: Text(l.settingsSendFeedbackHint),
-                  onTap: () => openFeedback(context),
-                ),
+                // No feedback report in the web demo until a feedback proxy exists.
+                if (!demo)
+                  ListTile(
+                    leading: const Icon(Icons.feedback_outlined),
+                    title: Text(l.settingsSendFeedback),
+                    subtitle: Text(l.settingsSendFeedbackHint),
+                    onTap: () => openFeedback(context),
+                  ),
+                if (demo) const GetAppTile(),
                 // A proper name, the same in every language.
                 const _LinkTile(title: 'Epic Cash', url: epicCashUrl),
                 _LinkTile(title: l.settingsSourceCode, url: projectRepoUrl),

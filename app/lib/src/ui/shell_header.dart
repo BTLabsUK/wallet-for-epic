@@ -835,10 +835,13 @@ class _BalanceHelpState extends State<BalanceHelp> {
 /// The app bar's title: the mark's name, and on a test network its name with a ? whose tooltip
 /// says its coins have no value. Mainnet shows no network name.
 class ShellTitle extends StatelessWidget {
-  const ShellTitle({super.key, required this.chain});
+  const ShellTitle({super.key, required this.chain, this.trailing});
 
   /// Null before the network is known.
   final Chain? chain;
+
+  /// After the network name: the web demo's countdown.
+  final Widget? trailing;
 
   @override
   Widget build(BuildContext context) {
@@ -878,6 +881,10 @@ class ShellTitle extends StatelessWidget {
               ),
             ),
           ),
+        ],
+        if (trailing case final trailing?) ...[
+          const SizedBox(width: 8),
+          Flexible(child: trailing),
         ],
       ],
     );

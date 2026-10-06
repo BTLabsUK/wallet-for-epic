@@ -71,9 +71,8 @@ bool _isEpicboxAddress(String? address) =>
     !address.toLowerCase().startsWith('http');
 
 /// `In block 2,500,120. 3 of 10 confirmations; final in about 7 minutes.`
-String _confirmingLine(AppLocalizations l, BigInt height, int n) {
+String _confirmingLine(AppLocalizations l, BigInt height, int n, int target) {
   final block = groupDigits(l, height);
-  final target = confirmationsTarget;
   final (:unit, :count) = _roughDuration((target - n) * _minutesPerBlock);
   return switch (unit) {
     _DurationUnit.minutes => l.txDetailsConfirmingMinutes(
@@ -94,12 +93,13 @@ String txExplanation(
   TxEntry tx,
   BigInt? tip, {
   DateTime? now,
+  int? target,
 }) {
   final n = txConfirmations(tx, tip);
   final height = tx.blockHeight;
   final outgoing = txAmount(tx).outgoing;
   final tooLong = now == null ? null : daysWaitingTooLong(tx, now);
-  return switch (txPhase(tx, tip)) {
+  return switch (txPhase(tx, tip, target: target)) {
     TxPhase.waitingRecipient when tooLong != null => l.txDetailsWaitingTooLong(
       tooLong,
     ),
@@ -110,7 +110,12 @@ String txExplanation(
     TxPhase.waitingPayer => l.txDetailsWaitingPayer,
     TxPhase.confirming when height == null || n == null =>
       outgoing ? l.txDetailsPublished : l.txDetailsWaitingConfirmation,
-    TxPhase.confirming => _confirmingLine(l, height!, n!),
+    TxPhase.confirming => _confirmingLine(
+      l,
+      height!,
+      n!,
+      target ?? confirmationsTarget,
+    ),
     TxPhase.completed =>
       height == null
           ? l.txDetailsCompleted
@@ -383,6 +388,7 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
     final display = amountDisplay(ref);
     final hidden = display.hidden;
     final tip = tipHeight(ref);
+    final target = confirmationsTargetOf(ref);
     final chain = ref.watch(walletConfigProvider)?.chain;
     final (:amount, :outgoing) = txAmount(tx);
     final counterparty = tx.counterparty;
@@ -456,8 +462,9 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
                 children: [
                   TxStatusChip(tx: tx, tip: tip),
                   const SizedBox(height: 8),
-                  Text(txExplanation(l, tx, tip, now: now)),
-                  if (txTimeline(l, tx, tip) case final steps?) ...[
+                  Text(txExplanation(l, tx, tip, now: now, target: target)),
+                  if (txTimeline(l, tx, tip, target: target)
+                      case final steps?) ...[
                     const SizedBox(height: 16),
                     StatusTimeline(steps: steps),
                   ],

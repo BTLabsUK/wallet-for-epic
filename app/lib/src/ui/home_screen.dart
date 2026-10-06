@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../contacts.dart' show contactNameFor, contactsProvider;
+import '../demo.dart';
 import '../errors.dart';
 import '../l10n.dart';
 import '../providers.dart';
@@ -14,12 +15,13 @@ import '../updater.dart';
 import '../wallet_service.dart';
 import 'backup_screen.dart';
 import 'common.dart';
+import 'demo_screens.dart' show DemoCountdown, TestCoinsButton;
 import 'help_screen.dart';
 import 'history_screen.dart';
 import 'invoices_screen.dart' show InvoicesEntry;
 import 'receive_screen.dart' show ReceiveView;
 import 'restore_screen.dart' show ScanProgressView;
-import 'scan_screen.dart' show qrScannerProvider;
+import 'scan_screen.dart' show offersQrScan, qrScannerProvider;
 import 'send_screen.dart' show SendView;
 import 'shell_header.dart';
 import 'settings_history.dart' show exportHistoryBackup;
@@ -181,7 +183,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // Home opens at start and on every unlock: each is an opening. A resume that needs no
       // unlock checks from `WalletApp`.
-      ref.read(updateProvider.notifier).checkOnOpening();
+      // The web demo has no in-app updates.
+      if (!ref.read(demoModeProvider)) {
+        ref.read(updateProvider.notifier).checkOnOpening();
+      }
       _openIncoming();
     });
   }
@@ -370,17 +375,21 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final config = ref.watch(walletConfigProvider);
     final tab = ref.watch(shellTabProvider);
     final l = context.l10n;
-    final scanner = ref.watch(qrScannerProvider);
+    final demo = ref.watch(demoModeProvider);
+    final scan = offersQrScan(ref);
 
     return SlotScaffold(
       glow: topGlow,
       appBar: AppBar(
         leading: const Center(child: EpicMark(size: 26)),
         titleSpacing: 0,
-        title: ShellTitle(chain: config?.chain),
+        title: ShellTitle(
+          chain: config?.chain,
+          trailing: demo ? const DemoCountdown() : null,
+        ),
         actions: [
           const InvoicesEntry(),
-          if (scanner.supported)
+          if (scan)
             IconButton(
               tooltip: l.homeScanTooltip,
               icon: const Icon(Icons.qr_code_scanner),
@@ -471,7 +480,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final scan = ref.watch(scanProvider);
     final l = context.l10n;
     final data = home.value;
-    final backedUp = ref.watch(backedUpProvider).value ?? true;
+    final demo = ref.watch(demoModeProvider);
+    // The web demo shows no phrase and keeps no history files, so it has no backup cards.
+    final backedUp = demo || (ref.watch(backedUpProvider).value ?? true);
     final backupDismissed =
         ref.watch(backupCardDismissedProvider).value ?? false;
     final transactions = data?.transactions ?? const <TxEntry>[];
@@ -507,7 +518,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   ErrorText(describeError(l, home.error!)),
                 _PendingSendsCard(transactions: transactions, open: _open),
                 // It waits until the phrase card is gone, so the two backup cards never stack.
-                if ((backedUp || backupDismissed) && config != null)
+                if ((backedUp || backupDismissed) && config != null && !demo)
                   _HistoryBackupCard(
                     chain: config.chain,
                     transactions: transactions,
@@ -526,6 +537,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   EmptyState(
                     icon: const Icon(Icons.south_west),
                     message: l.homeNoPayments,
+                    action: demo ? const TestCoinsButton() : null,
                   ),
                 for (final tx in pendingFirst(
                   transactions,

@@ -373,7 +373,7 @@ class _TrustedServiceAddScreenState
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
-    final scanner = ref.watch(qrScannerProvider);
+    final scan = offersQrScan(ref);
     return SlotScaffold(
       appBar: AppBar(title: Text(l.invoiceSettingsAddTitle)),
       body: ScreenBody(
@@ -417,7 +417,7 @@ class _TrustedServiceAddScreenState
                     icon: const Icon(Icons.content_paste),
                     onPressed: _paste,
                   ),
-                  if (scanner.supported)
+                  if (scan)
                     IconButton(
                       tooltip: l.scanQrTooltip,
                       icon: const Icon(Icons.qr_code_scanner),

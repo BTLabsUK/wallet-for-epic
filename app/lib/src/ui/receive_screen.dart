@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../app_log.dart';
+import '../demo.dart';
 import '../errors.dart';
 import '../l10n.dart';
 import '../providers.dart';
@@ -15,6 +16,7 @@ import '../slate_files.dart';
 import '../wallet_service.dart';
 import 'centered_body.dart';
 import 'common.dart';
+import 'demo_screens.dart' show TestCoinsButton;
 import 'file_exchange_help.dart';
 import 'help_screen.dart';
 import 'invoice_request_screen.dart' show InvoiceRequestScreen;
@@ -48,6 +50,10 @@ class ReceiveView extends ConsumerWidget {
               const _EpicboxLine(),
               const SizedBox(height: 16),
               _AddressQr(address: value),
+              if (ref.watch(demoModeProvider)) ...[
+                const SizedBox(height: 16),
+                const Center(child: TestCoinsButton()),
+              ],
             ],
             AsyncError(:final error) => [ErrorText(describeError(l, error))],
             _ => [const LinearProgressIndicator()],
@@ -120,7 +126,9 @@ class _AddressRowState extends ConsumerState<_AddressRow> {
     final theme = Theme.of(context);
     final files = ref.watch(slateFilesProvider);
     final address = widget.address;
-    final canShare = files.canShare || files.canShareText;
+    // The web demo has no share card.
+    final canShare =
+        !ref.watch(demoModeProvider) && (files.canShare || files.canShareText);
     // A 48 dp box for each icon, stacked on the card's right: copy above share.
     const icon = 48.0;
     const inset = 4.0;

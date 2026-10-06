@@ -1135,6 +1135,77 @@ class AppLocalizationsZh extends AppLocalizations {
   String get shellTestNetworkTooltip => '测试网络，其中的币没有价值。';
 
   @override
+  String get demoWelcomeTitle => '试用 Epic Cash 钱包';
+
+  @override
+  String get demoWelcomeLine => '一个真正的 Epic Cash 钱包，运行在 Floonet 测试网络上。';
+
+  @override
+  String get demoWelcomeNoValue => '这些币没有价值。';
+
+  @override
+  String get demoWelcomeNothingToInstall => '无需安装。';
+
+  @override
+  String get demoWelcomeDeleted => '演示钱包会在开始 24 小时后删除。';
+
+  @override
+  String get demoStart => '开始演示';
+
+  @override
+  String get demoGetApp => '获取应用';
+
+  @override
+  String get demoEndedTitle => '你的演示已结束';
+
+  @override
+  String get demoEndedBody => '它的钱包和测试币已在开始 24 小时后删除。点“重新开始”可获得一个新的演示。';
+
+  @override
+  String get demoStartAgain => '重新开始';
+
+  @override
+  String demoEndsInHours(int hours) {
+    return '演示，$hours 小时后结束';
+  }
+
+  @override
+  String demoEndsInMinutes(int minutes) {
+    return '演示，$minutes 分钟后结束';
+  }
+
+  @override
+  String demoEndsAt(String time) {
+    return '你的演示将于 $time 结束，届时它的钱包和测试币会被删除。';
+  }
+
+  @override
+  String get demoEndingSoon => '你的演示将在 30 分钟后结束，届时它的钱包和测试币会被删除。';
+
+  @override
+  String get demoTestCoins => '获取测试币';
+
+  @override
+  String get demoTestCoinsPaid => '测试币已在路上，一两分钟内到账。';
+
+  @override
+  String demoTestCoinsCooldown(int seconds) {
+    return '水龙头需要休息一下。请在 $seconds 秒后重试。';
+  }
+
+  @override
+  String get demoTestCoinsFailed => '水龙头这次没有发送。请一分钟后重试。';
+
+  @override
+  String get demoEnd => '结束演示';
+
+  @override
+  String get demoEndTitle => '结束演示？';
+
+  @override
+  String get demoEndBody => '你的演示钱包及其测试币现在会被删除。之后可以开始新的演示。';
+
+  @override
   String get homeSettingsTooltip => '设置';
 
   @override

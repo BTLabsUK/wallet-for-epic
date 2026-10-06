@@ -144,7 +144,7 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
           text: l.slatePostedHeadline(epicExact(l, info!.amount)),
         ),
         const SizedBox(height: 8),
-        Text(l.slatePostedBody(confirmationsTarget)),
+        Text(l.slatePostedBody(confirmationsTargetOf(ref))),
         const SizedBox(height: 24),
         BusyButton(
           label: l.commonDone,

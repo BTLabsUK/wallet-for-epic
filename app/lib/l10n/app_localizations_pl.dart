@@ -1302,6 +1302,84 @@ class AppLocalizationsPl extends AppLocalizations {
       'Sieć testowa. Jej monety nie mają wartości.';
 
   @override
+  String get demoWelcomeTitle => 'Wypróbuj Epic Cash Wallet';
+
+  @override
+  String get demoWelcomeLine =>
+      'Prawdziwy portfel Epic Cash w sieci testowej Floonet.';
+
+  @override
+  String get demoWelcomeNoValue => 'Monety nie mają wartości.';
+
+  @override
+  String get demoWelcomeNothingToInstall => 'Nic do instalowania.';
+
+  @override
+  String get demoWelcomeDeleted =>
+      'Portfel demo jest usuwany 24 godziny po starcie.';
+
+  @override
+  String get demoStart => 'Uruchom demo';
+
+  @override
+  String get demoGetApp => 'Pobierz aplikację';
+
+  @override
+  String get demoEndedTitle => 'Twoje demo się skończyło';
+
+  @override
+  String get demoEndedBody =>
+      'Jego portfel i monety testowe zostały usunięte 24 godziny po starcie. Wybierz Zacznij od nowa, aby uruchomić nowe.';
+
+  @override
+  String get demoStartAgain => 'Zacznij od nowa';
+
+  @override
+  String demoEndsInHours(int hours) {
+    return 'Demo, koniec za $hours h';
+  }
+
+  @override
+  String demoEndsInMinutes(int minutes) {
+    return 'Demo, koniec za $minutes min';
+  }
+
+  @override
+  String demoEndsAt(String time) {
+    return 'Twoje demo kończy się $time. Wtedy jego portfel i monety testowe zostaną usunięte.';
+  }
+
+  @override
+  String get demoEndingSoon =>
+      'Twoje demo kończy się za 30 minut. Wtedy jego portfel i monety testowe zostaną usunięte.';
+
+  @override
+  String get demoTestCoins => 'Pobierz monety testowe';
+
+  @override
+  String get demoTestCoinsPaid =>
+      'Monety testowe są w drodze. Dotrą w ciągu minuty lub dwóch.';
+
+  @override
+  String demoTestCoinsCooldown(int seconds) {
+    return 'Kran potrzebuje przerwy. Spróbuj ponownie za $seconds s.';
+  }
+
+  @override
+  String get demoTestCoinsFailed =>
+      'Kran tym razem nic nie wysłał. Spróbuj ponownie za minutę.';
+
+  @override
+  String get demoEnd => 'Zakończ demo';
+
+  @override
+  String get demoEndTitle => 'Zakończyć demo?';
+
+  @override
+  String get demoEndBody =>
+      'Portfel demo i jego monety testowe zostaną teraz usunięte. Potem możesz uruchomić nowe demo.';
+
+  @override
   String get homeSettingsTooltip => 'Ustawienia';
 
   @override

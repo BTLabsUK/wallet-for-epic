@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../app_log.dart';
+import '../demo.dart';
 import '../errors.dart';
 import '../l10n.dart';
 import '../providers.dart';
@@ -71,6 +72,8 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
     final config = ref.watch(walletConfigProvider);
     final network = config == null ? '' : networkSuffix(l, config.chain);
     final waiting = _answer != null && _error == null;
+    // The web demo is on floonet for good, and never takes a phrase or biometrics.
+    final demo = ref.watch(demoModeProvider);
 
     return SlotScaffold(
       centered: true,
@@ -80,9 +83,10 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
         // Mainnet on node.btlabs.uk works without a choice, but a new install must be able
         // to reach floonet or another node before it has a wallet, so this is not Advanced.
         actions: [
-          NetworkSettingsButton(
-            onPressed: waiting ? null : () => _leave(const SetupScreen()),
-          ),
+          if (!demo)
+            NetworkSettingsButton(
+              onPressed: waiting ? null : () => _leave(const SetupScreen()),
+            ),
         ],
       ),
       body: CenteredBody(
@@ -90,13 +94,15 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
           BrandHero(title: '${l.firstRunTitle}$network'),
           const SizedBox(height: 28),
           if (_answer == null) ...[
-            PinSetupView(onDone: _finish),
-            const SizedBox(height: 24),
-            TextButton.icon(
-              icon: const Icon(Icons.restore),
-              label: Text(l.firstRunRestore),
-              onPressed: () => _leave(const RestoreScreen()),
-            ),
+            PinSetupView(onDone: _finish, askBiometrics: !demo),
+            if (!demo) ...[
+              const SizedBox(height: 24),
+              TextButton.icon(
+                icon: const Icon(Icons.restore),
+                label: Text(l.firstRunRestore),
+                onPressed: () => _leave(const RestoreScreen()),
+              ),
+            ],
           ] else if (waiting) ...[
             const Center(child: CircularProgressIndicator()),
             const SizedBox(height: 16),

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
+import '../demo.dart';
 import '../l10n.dart';
 import '../settings.dart';
 import 'common.dart';
@@ -56,6 +57,10 @@ class FakeQrScanner implements QrScanner {
 final qrScannerProvider = Provider<QrScanner>(
   (ref) => const PlatformQrScanner(),
 );
+
+/// Whether screens offer a QR scan: the scanner works here, and this is not the web demo.
+bool offersQrScan(WidgetRef ref) =>
+    ref.watch(qrScannerProvider).supported && !ref.watch(demoModeProvider);
 
 /// Full-screen camera view that pops with the first QR code's text.
 class ScanScreen extends ConsumerStatefulWidget {

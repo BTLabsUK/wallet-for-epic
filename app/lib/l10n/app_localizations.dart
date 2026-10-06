@@ -1640,6 +1640,132 @@ abstract class AppLocalizations {
   /// **'A test network. Its coins have no value.'**
   String get shellTestNetworkTooltip;
 
+  /// Heading of the web demo's welcome screen, under the mark.
+  ///
+  /// In en, this message translates to:
+  /// **'Try Epic Cash Wallet'**
+  String get demoWelcomeTitle;
+
+  /// The welcome screen's one line under its heading. 'Floonet' is a network's name; keep it.
+  ///
+  /// In en, this message translates to:
+  /// **'A real Epic Cash wallet, on the Floonet test network.'**
+  String get demoWelcomeLine;
+
+  /// First of three short facts on the demo's welcome screen: test coins are worth nothing.
+  ///
+  /// In en, this message translates to:
+  /// **'The coins have no value.'**
+  String get demoWelcomeNoValue;
+
+  /// Second fact on the demo's welcome screen: it runs in the browser.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing to install.'**
+  String get demoWelcomeNothingToInstall;
+
+  /// Third fact on the demo's welcome screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Your demo wallet is deleted 24 hours after you start.'**
+  String get demoWelcomeDeleted;
+
+  /// Main button of the demo's welcome screen. It creates a demo wallet, then asks for a PIN.
+  ///
+  /// In en, this message translates to:
+  /// **'Start the demo'**
+  String get demoStart;
+
+  /// Button and Settings row in the web demo that open the page where the phone app is downloaded.
+  ///
+  /// In en, this message translates to:
+  /// **'Get the app'**
+  String get demoGetApp;
+
+  /// Heading of the screen shown when the 24 hours of a web demo ran out.
+  ///
+  /// In en, this message translates to:
+  /// **'Your demo ended'**
+  String get demoEndedTitle;
+
+  /// Body of the screen shown when a web demo ran out. 'Start again' is the button below (demoStartAgain); use the same words.
+  ///
+  /// In en, this message translates to:
+  /// **'Its wallet and test coins were deleted 24 hours after it started. Start again for a new one.'**
+  String get demoEndedBody;
+
+  /// Button on the ended screen of the web demo: starts a new demo.
+  ///
+  /// In en, this message translates to:
+  /// **'Start again'**
+  String get demoStartAgain;
+
+  /// Beside the network name in the web demo's app bar: hours until the demo wallet is deleted, with the hour abbreviation.
+  ///
+  /// In en, this message translates to:
+  /// **'Demo, ends in {hours} h'**
+  String demoEndsInHours(int hours);
+
+  /// As demoEndsInHours, under an hour left: minutes, with the minute abbreviation.
+  ///
+  /// In en, this message translates to:
+  /// **'Demo, ends in {minutes} min'**
+  String demoEndsInMinutes(int minutes);
+
+  /// Tooltip of the demo countdown. {time} is a date and time, such as '21 Sep 2026, 14:05'.
+  ///
+  /// In en, this message translates to:
+  /// **'Your demo ends at {time}. Its wallet and test coins are deleted then.'**
+  String demoEndsAt(String time);
+
+  /// Warning notice shown once, 30 minutes before a web demo ends.
+  ///
+  /// In en, this message translates to:
+  /// **'Your demo ends in 30 minutes. Its wallet and test coins are deleted then.'**
+  String get demoEndingSoon;
+
+  /// Button in the web demo that asks the Floonet faucet to send free test coins to this wallet.
+  ///
+  /// In en, this message translates to:
+  /// **'Get test coins'**
+  String get demoTestCoins;
+
+  /// Notice after the faucet accepted a claim for test coins.
+  ///
+  /// In en, this message translates to:
+  /// **'Test coins are on their way. They arrive in a minute or two.'**
+  String get demoTestCoinsPaid;
+
+  /// Notice when the faucet refused a claim because the last one was too recent. {seconds} is a number, with the seconds abbreviation.
+  ///
+  /// In en, this message translates to:
+  /// **'The faucet needs a pause. Try again in {seconds} s.'**
+  String demoTestCoinsCooldown(int seconds);
+
+  /// Notice when the faucet failed or did not answer.
+  ///
+  /// In en, this message translates to:
+  /// **'The faucet sent nothing this time. Try again in a minute.'**
+  String get demoTestCoinsFailed;
+
+  /// Settings row in the web demo, instead of Delete this wallet, and the confirm button of its dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'End demo'**
+  String get demoEnd;
+
+  /// Title of the dialog before a web demo is ended.
+  ///
+  /// In en, this message translates to:
+  /// **'End the demo?'**
+  String get demoEndTitle;
+
+  /// Body of the dialog before a web demo is ended.
+  ///
+  /// In en, this message translates to:
+  /// **'Your demo wallet and its test coins are deleted now. You can start a new demo afterwards.'**
+  String get demoEndBody;
+
   /// Tooltip of the app-bar button that opens settings.
   ///
   /// In en, this message translates to:

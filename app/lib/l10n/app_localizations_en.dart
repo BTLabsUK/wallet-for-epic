@@ -1210,6 +1210,84 @@ class AppLocalizationsEn extends AppLocalizations {
       'A test network. Its coins have no value.';
 
   @override
+  String get demoWelcomeTitle => 'Try Epic Cash Wallet';
+
+  @override
+  String get demoWelcomeLine =>
+      'A real Epic Cash wallet, on the Floonet test network.';
+
+  @override
+  String get demoWelcomeNoValue => 'The coins have no value.';
+
+  @override
+  String get demoWelcomeNothingToInstall => 'Nothing to install.';
+
+  @override
+  String get demoWelcomeDeleted =>
+      'Your demo wallet is deleted 24 hours after you start.';
+
+  @override
+  String get demoStart => 'Start the demo';
+
+  @override
+  String get demoGetApp => 'Get the app';
+
+  @override
+  String get demoEndedTitle => 'Your demo ended';
+
+  @override
+  String get demoEndedBody =>
+      'Its wallet and test coins were deleted 24 hours after it started. Start again for a new one.';
+
+  @override
+  String get demoStartAgain => 'Start again';
+
+  @override
+  String demoEndsInHours(int hours) {
+    return 'Demo, ends in $hours h';
+  }
+
+  @override
+  String demoEndsInMinutes(int minutes) {
+    return 'Demo, ends in $minutes min';
+  }
+
+  @override
+  String demoEndsAt(String time) {
+    return 'Your demo ends at $time. Its wallet and test coins are deleted then.';
+  }
+
+  @override
+  String get demoEndingSoon =>
+      'Your demo ends in 30 minutes. Its wallet and test coins are deleted then.';
+
+  @override
+  String get demoTestCoins => 'Get test coins';
+
+  @override
+  String get demoTestCoinsPaid =>
+      'Test coins are on their way. They arrive in a minute or two.';
+
+  @override
+  String demoTestCoinsCooldown(int seconds) {
+    return 'The faucet needs a pause. Try again in $seconds s.';
+  }
+
+  @override
+  String get demoTestCoinsFailed =>
+      'The faucet sent nothing this time. Try again in a minute.';
+
+  @override
+  String get demoEnd => 'End demo';
+
+  @override
+  String get demoEndTitle => 'End the demo?';
+
+  @override
+  String get demoEndBody =>
+      'Your demo wallet and its test coins are deleted now. You can start a new demo afterwards.';
+
+  @override
   String get homeSettingsTooltip => 'Settings';
 
   @override

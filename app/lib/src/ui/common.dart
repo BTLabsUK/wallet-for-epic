@@ -385,8 +385,13 @@ int? txConfirmations(TxEntry tx, BigInt? tip) {
   return n.isNegative ? 0 : n.toInt();
 }
 
-/// Confirmations after which the list calls a transaction completed.
+/// Confirmations after which the list calls a transaction completed, on the phone. Screens
+/// pass [confirmationsTargetOf] as `target`, which is 1 in the web demo.
 final int confirmationsTarget = minimumConfirmations.toInt();
+
+/// The confirmations the app counts with ([minimumConfirmationsProvider]).
+int confirmationsTargetOf(WidgetRef ref) =>
+    ref.watch(minimumConfirmationsProvider).toInt();
 
 /// Where a transaction stands, in the words its status chip uses.
 enum TxPhase {
@@ -403,9 +408,10 @@ enum TxPhase {
   fromBackup,
 }
 
-TxPhase txPhase(TxEntry tx, BigInt? tip) {
+TxPhase txPhase(TxEntry tx, BigInt? tip, {int? target}) {
   if (isFromBackupUnknown(tx)) return TxPhase.fromBackup;
   final n = txConfirmations(tx, tip);
+  final needed = target ?? confirmationsTarget;
   return switch (tx.status) {
     TxStatus.cancelled => TxPhase.cancelled,
     TxStatus.awaitingRecipient => TxPhase.waitingRecipient,
@@ -418,36 +424,44 @@ TxPhase txPhase(TxEntry tx, BigInt? tip) {
                 tx.kind == TxKind.receivedCancelled) =>
       TxPhase.waitingSender,
     TxStatus.awaitingConfirmation => TxPhase.confirming,
-    TxStatus.confirmed when n != null && n < confirmationsTarget =>
-      TxPhase.confirming,
+    TxStatus.confirmed when n != null && n < needed => TxPhase.confirming,
     TxStatus.confirmed => TxPhase.completed,
   };
 }
 
 /// `Waiting for recipient`, `Confirming 3/10`, `Completed`, …
-String txStatusLabel(AppLocalizations l, TxEntry tx, BigInt? tip) =>
-    switch (txPhase(tx, tip)) {
-      TxPhase.waitingRecipient => l.txStatusWaitingRecipient,
-      TxPhase.waitingSender => l.txStatusWaitingSender,
-      TxPhase.waitingPayer => l.txStatusWaitingPayer,
-      TxPhase.confirming => l.txStatusConfirming(
-        txConfirmations(tx, tip) ?? 0,
-        confirmationsTarget,
-      ),
-      TxPhase.completed => l.txStatusCompleted,
-      TxPhase.cancelled => l.txStatusCancelled,
-      TxPhase.fromBackup => l.txStatusFromBackup,
-    };
+String txStatusLabel(
+  AppLocalizations l,
+  TxEntry tx,
+  BigInt? tip, {
+  int? target,
+}) => switch (txPhase(tx, tip, target: target)) {
+  TxPhase.waitingRecipient => l.txStatusWaitingRecipient,
+  TxPhase.waitingSender => l.txStatusWaitingSender,
+  TxPhase.waitingPayer => l.txStatusWaitingPayer,
+  TxPhase.confirming => l.txStatusConfirming(
+    txConfirmations(tx, tip) ?? 0,
+    target ?? confirmationsTarget,
+  ),
+  TxPhase.completed => l.txStatusCompleted,
+  TxPhase.cancelled => l.txStatusCancelled,
+  TxPhase.fromBackup => l.txStatusFromBackup,
+};
 
 /// A payment's progress for [StatusTimeline], or null where a timeline would add nothing to
 /// the status text: cancelled payments, backup records, mining rewards, restored or imported
 /// rows. The current step names what the wallet waits for ("Waiting for recipient").
-List<TimelineStep>? txTimeline(AppLocalizations l, TxEntry tx, BigInt? tip) {
+List<TimelineStep>? txTimeline(
+  AppLocalizations l,
+  TxEntry tx,
+  BigInt? tip, {
+  int? target,
+}) {
   if (tx.source != TxSource.wallet || tx.kind == TxKind.coinbase) return null;
-  final phase = txPhase(tx, tip);
+  final phase = txPhase(tx, tip, target: target);
   final confirming = l.txStatusConfirming(
     txConfirmations(tx, tip) ?? 0,
-    confirmationsTarget,
+    target ?? confirmationsTarget,
   );
   // Each step: label once done, label while current, label before it is reached.
   final List<(String, String, String)> steps;
@@ -528,16 +542,17 @@ String? contactName(WidgetRef ref, String? address) {
 }
 
 /// The small rounded label with a transaction's status.
-class TxStatusChip extends StatelessWidget {
+class TxStatusChip extends ConsumerWidget {
   const TxStatusChip({super.key, required this.tx, required this.tip});
 
   final TxEntry tx;
   final BigInt? tip;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final colors = Theme.of(context).colorScheme;
-    final (Color bg, Color fg) = switch (txPhase(tx, tip)) {
+    final target = confirmationsTargetOf(ref);
+    final (Color bg, Color fg) = switch (txPhase(tx, tip, target: target)) {
       TxPhase.waitingRecipient ||
       TxPhase.waitingSender ||
       TxPhase.waitingPayer => (
@@ -562,7 +577,7 @@ class TxStatusChip extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
         child: Text(
-          txStatusLabel(context.l10n, tx, tip),
+          txStatusLabel(context.l10n, tx, tip, target: target),
           style: Theme.of(context).textTheme.labelSmall?.copyWith(color: fg),
         ),
       ),
@@ -704,7 +719,7 @@ class TxTile extends ConsumerWidget {
                 ? null
                 : shortAddress(counterparty, ownServer: ownEpicboxServer(ref))),
         date: date,
-        status: txStatusLabel(l, tx, tip),
+        status: txStatusLabel(l, tx, tip, target: confirmationsTargetOf(ref)),
         hidden: display.hidden,
       ),
       onTap: open,

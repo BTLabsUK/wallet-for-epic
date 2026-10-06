@@ -1301,6 +1301,84 @@ class AppLocalizationsRu extends AppLocalizations {
       'Тестовая сеть. Её монеты ничего не стоят.';
 
   @override
+  String get demoWelcomeTitle => 'Попробуйте Epic Cash Wallet';
+
+  @override
+  String get demoWelcomeLine =>
+      'Настоящий кошелёк Epic Cash в тестовой сети Floonet.';
+
+  @override
+  String get demoWelcomeNoValue => 'Монеты ничего не стоят.';
+
+  @override
+  String get demoWelcomeNothingToInstall => 'Ничего не нужно устанавливать.';
+
+  @override
+  String get demoWelcomeDeleted =>
+      'Демо-кошелёк удаляется через 24 часа после старта.';
+
+  @override
+  String get demoStart => 'Начать демо';
+
+  @override
+  String get demoGetApp => 'Скачать приложение';
+
+  @override
+  String get demoEndedTitle => 'Ваше демо закончилось';
+
+  @override
+  String get demoEndedBody =>
+      'Его кошелёк и тестовые монеты удалены через 24 часа после старта. Нажмите «Начать заново», чтобы получить новое.';
+
+  @override
+  String get demoStartAgain => 'Начать заново';
+
+  @override
+  String demoEndsInHours(int hours) {
+    return 'Демо, конец через $hours ч';
+  }
+
+  @override
+  String demoEndsInMinutes(int minutes) {
+    return 'Демо, конец через $minutes мин';
+  }
+
+  @override
+  String demoEndsAt(String time) {
+    return 'Ваше демо закончится $time. Тогда его кошелёк и тестовые монеты будут удалены.';
+  }
+
+  @override
+  String get demoEndingSoon =>
+      'Ваше демо закончится через 30 минут. Тогда его кошелёк и тестовые монеты будут удалены.';
+
+  @override
+  String get demoTestCoins => 'Получить тестовые монеты';
+
+  @override
+  String get demoTestCoinsPaid =>
+      'Тестовые монеты в пути. Они придут через минуту-две.';
+
+  @override
+  String demoTestCoinsCooldown(int seconds) {
+    return 'Крану нужна пауза. Попробуйте снова через $seconds с.';
+  }
+
+  @override
+  String get demoTestCoinsFailed =>
+      'На этот раз кран ничего не отправил. Попробуйте снова через минуту.';
+
+  @override
+  String get demoEnd => 'Завершить демо';
+
+  @override
+  String get demoEndTitle => 'Завершить демо?';
+
+  @override
+  String get demoEndBody =>
+      'Демо-кошелёк и его тестовые монеты будут удалены сейчас. Потом можно начать новое демо.';
+
+  @override
   String get homeSettingsTooltip => 'Настройки';
 
   @override

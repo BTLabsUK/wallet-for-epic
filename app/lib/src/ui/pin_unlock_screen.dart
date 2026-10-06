@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../app_log.dart';
+import '../demo.dart';
 import '../errors.dart';
 import '../l10n.dart';
 import '../providers.dart';
@@ -161,15 +162,17 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
       // The title is the hero's heading; the bar only holds the network action.
       appBar: AppBar(
         actions: [
-          NetworkSettingsButton(
-            onPressed: _busy
-                ? null
-                : () => Navigator.of(context).push(
-                    MaterialPageRoute<void>(
-                      builder: (_) => const SetupScreen(),
+          // The web demo is on floonet for good.
+          if (!ref.watch(demoModeProvider))
+            NetworkSettingsButton(
+              onPressed: _busy
+                  ? null
+                  : () => Navigator.of(context).push(
+                      MaterialPageRoute<void>(
+                        builder: (_) => const SetupScreen(),
+                      ),
                     ),
-                  ),
-          ),
+            ),
         ],
       ),
       body: CenteredBody(

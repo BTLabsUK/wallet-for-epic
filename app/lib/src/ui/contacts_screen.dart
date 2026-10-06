@@ -295,7 +295,7 @@ class _ContactEditScreenState extends ConsumerState<ContactEditScreen> {
     final l = context.l10n;
     final contacts = ref.watch(contactsProvider).value ?? const <Contact>[];
     final duplicate = _duplicate(contacts);
-    final scanner = ref.watch(qrScannerProvider);
+    final scan = offersQrScan(ref);
     return SlotScaffold(
       appBar: AppBar(
         title: Text(_editing ? l.contactsEditTitle : l.contactsNewTitle),
@@ -347,7 +347,7 @@ class _ContactEditScreenState extends ConsumerState<ContactEditScreen> {
                     icon: const Icon(Icons.content_paste),
                     onPressed: _paste,
                   ),
-                  if (scanner.supported)
+                  if (scan)
                     IconButton(
                       tooltip: l.scanQrTooltip,
                       icon: const Icon(Icons.qr_code_scanner),

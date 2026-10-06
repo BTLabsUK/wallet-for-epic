@@ -283,7 +283,7 @@ class _SendViewState extends ConsumerState<SendView> {
     try {
       final estimate = await session.estimateFee(
         amount: amount,
-        minimumConfirmations: minimumConfirmations,
+        minimumConfirmations: ref.read(minimumConfirmationsProvider),
       );
       if (mounted && _parsedAmount == amount) {
         setState(() => _estimate = estimate);
@@ -408,11 +408,11 @@ class _SendViewState extends ConsumerState<SendView> {
       try {
         estimate = _maxUsed
             ? await session.estimateMax(
-                minimumConfirmations: minimumConfirmations,
+                minimumConfirmations: ref.read(minimumConfirmationsProvider),
               )
             : await session.estimateFee(
                 amount: amount,
-                minimumConfirmations: minimumConfirmations,
+                minimumConfirmations: ref.read(minimumConfirmationsProvider),
               );
       } catch (error) {
         if (mounted) {
@@ -474,7 +474,7 @@ class _SendViewState extends ConsumerState<SendView> {
       final tx = await hold.during(
         () => session.sendEpicbox(
           amount: amount,
-          minimumConfirmations: minimumConfirmations,
+          minimumConfirmations: ref.read(minimumConfirmationsProvider),
           address: to.address,
           message: _note.text.trim().isEmpty ? null : _note.text.trim(),
         ),
@@ -519,7 +519,7 @@ class _SendViewState extends ConsumerState<SendView> {
     });
     try {
       final estimate = await session.estimateMax(
-        minimumConfirmations: minimumConfirmations,
+        minimumConfirmations: ref.read(minimumConfirmationsProvider),
       );
       if (!mounted) return;
       _amount.text = localDecimal(context.l10n, formatEpic(estimate.amount));
@@ -548,7 +548,7 @@ class _SendViewState extends ConsumerState<SendView> {
       final message = _note.text.trim();
       final slate = await session.createSendSlate(
         amount: amount,
-        minimumConfirmations: minimumConfirmations,
+        minimumConfirmations: ref.read(minimumConfirmationsProvider),
         message: message.isEmpty ? null : message,
       );
       // The sender keeps the message as the private note too. The file is made, so a note
@@ -650,7 +650,7 @@ class _SendViewState extends ConsumerState<SendView> {
     final currency =
         ref.watch(appSettingsProvider).value?.fiatCurrency ?? 'usd';
     final contacts = ref.watch(contactsProvider).value ?? const <Contact>[];
-    final scanner = ref.watch(qrScannerProvider);
+    final scan = offersQrScan(ref);
     final recent = recentRecipients(
       ref.watch(homeProvider).value?.transactions ?? const <TxEntry>[],
     );
@@ -733,7 +733,7 @@ class _SendViewState extends ConsumerState<SendView> {
                 onPressed: _paste,
               ),
             ),
-            if (scanner.supported)
+            if (scan)
               Tooltip(
                 message: l.scanQrTooltip,
                 child: TextButton.icon(
@@ -1004,7 +1004,9 @@ class _SendViewState extends ConsumerState<SendView> {
       Text(
         waiting
             ? l.sendResultWaitingBody
-            : l.sendResultOnItsWay(confirmationsTarget),
+            : l.sendResultOnItsWay(
+                ref.watch(minimumConfirmationsProvider).toInt(),
+              ),
         textAlign: TextAlign.center,
         style: theme.textTheme.bodyLarge,
       ),

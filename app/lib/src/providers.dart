@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
 
 import 'app_log.dart';
+import 'demo.dart';
 import 'errors.dart';
 import 'l10n.dart' show englishStrings;
 import 'lepic_wallet_service.dart';
@@ -15,6 +16,12 @@ import 'wallet_service.dart';
 
 /// Confirmations before an output counts as spendable. epic-wallet's CLI default.
 final BigInt minimumConfirmations = BigInt.from(10);
+
+/// The confirmations the app counts with: [minimumConfirmations], and 1 in the web demo, so
+/// test coins can be spent about a block after they land.
+final minimumConfirmationsProvider = Provider<BigInt>(
+  (ref) => ref.watch(demoModeProvider) ? BigInt.one : minimumConfirmations,
+);
 
 /// Resolves, and creates if missing, the data directory of the wallet for [chain].
 typedef WalletDirResolver = Future<String> Function(Chain chain);
@@ -81,6 +88,15 @@ class NetworkChoiceNotifier extends AsyncNotifier<NetworkChoice> {
 
   @override
   Future<NetworkChoice> build() async {
+    // The web demo runs on floonet's own node and relay, whatever was saved; its server
+    // forces them too.
+    if (ref.watch(demoModeProvider)) {
+      return NetworkChoice(
+        preset: floonetPreset,
+        nodeUrl: floonetPreset.nodeUrl,
+        relay: floonetPreset.defaultRelay,
+      );
+    }
     final store = ref.watch(secretStoreProvider);
     final saved = await store.read(_networkKey);
     final preset = networkPresets.firstWhere(
@@ -113,6 +129,8 @@ class NetworkChoiceNotifier extends AsyncNotifier<NetworkChoice> {
     String nodeUrl, {
     EpicboxRelay? relay,
   }) async {
+    // The demo's network cannot change.
+    if (ref.read(demoModeProvider)) return;
     final store = ref.read(secretStoreProvider);
     final r = relay ?? await relayFor(preset);
     await store.write(_networkKey, preset.chain.name);
@@ -227,7 +245,7 @@ class HomeNotifier extends AsyncNotifier<HomeData> {
     }
     final summary = await session.summary(
       refresh: false,
-      minimumConfirmations: minimumConfirmations,
+      minimumConfirmations: ref.read(minimumConfirmationsProvider),
     );
     final transactions = await session.transactions(refresh: false);
     Future<void>.delayed(Duration.zero, () => _syncInBackground(session));
@@ -246,7 +264,7 @@ class HomeNotifier extends AsyncNotifier<HomeData> {
     WalletSummary? summary;
     try {
       await for (final step in session.refresh(
-        minimumConfirmations: minimumConfirmations,
+        minimumConfirmations: ref.read(minimumConfirmationsProvider),
       )) {
         // A reload replaced this one; it shows its own progress.
         if (!ref.mounted) throw StateError('Refresh replaced');
