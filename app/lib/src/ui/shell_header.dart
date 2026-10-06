@@ -840,7 +840,8 @@ class ShellTitle extends StatelessWidget {
   /// Null before the network is known.
   final Chain? chain;
 
-  /// After the network name: the web demo's countdown.
+  /// After the network name: the web demo's countdown. It takes the name's place, which the
+  /// bar has no room for beside both; the mark before the title still names the app.
   final Widget? trailing;
 
   @override
@@ -848,14 +849,16 @@ class ShellTitle extends StatelessWidget {
     final l = context.l10n;
     final chain = this.chain;
     final theme = Theme.of(context);
+    final named = trailing == null;
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Flexible(
-          child: Text(l.shellTitle, maxLines: 1, overflow: TextOverflow.fade),
-        ),
+        if (named)
+          Flexible(
+            child: Text(l.shellTitle, maxLines: 1, overflow: TextOverflow.fade),
+          ),
         if (chain != null && chain != Chain.mainnet) ...[
-          const SizedBox(width: 8),
+          if (named) const SizedBox(width: 8),
           Tooltip(
             message: l.shellTestNetworkTooltip,
             triggerMode: TooltipTriggerMode.tap,
