@@ -51,6 +51,9 @@ dependencies:
   characters: 1.4.1
   meta: 1.18.3
   web: 1.1.1
+  # ExternalLibrary for initLepic(libraryPath:), which a plain `dart run` needs because the
+  # default load by name fails outside a Flutter bundle. The version lepic pins.
+  flutter_rust_bridge: 2.13.0
   file_picker: 13.1.0
   share_plus: 13.3.0
   # QR scanning on the send screen (Android, iOS). Hidden where unsupported.

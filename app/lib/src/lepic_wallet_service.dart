@@ -10,6 +10,8 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart'
+    show ExternalLibrary;
 import 'package:lepic/lepic.dart' as lepic;
 import 'package:meta/meta.dart' show visibleForTesting;
 
@@ -23,7 +25,15 @@ import 'wallet_service.dart';
 
 /// Loads the LEPIC library, which the package's build hook bundles on Android, iOS and x86_64
 /// Linux (`tools/lepic.sh build`). Windows has none (UP-3, deferred).
-Future<void> initLepic() => lepic.RustLib.init();
+///
+/// Outside a Flutter bundle (a plain `dart run`, the demo server) the load by name fails, so
+/// those pass [libraryPath], the library file itself, for example
+/// `third_party/lepic/bindings/flutter/native/x86_64-unknown-linux-gnu/liblepic_ffi.so`.
+Future<void> initLepic({String? libraryPath}) => lepic.RustLib.init(
+  externalLibrary: libraryPath == null
+      ? null
+      : ExternalLibrary.open(libraryPath),
+);
 
 /// Logs one entry of `LepicRuntime.logs()` under its own target:
 /// `lepic_wallet::send: slate received in send slate_id=… height=…`. Debug and trace entries
