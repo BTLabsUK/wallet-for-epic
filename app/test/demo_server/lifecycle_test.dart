@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:epic_wallet/src/demo_server/config.dart';
+import 'package:epic_wallet/src/demo_server/demo_log.dart';
 import 'package:epic_wallet/src/demo_server/demo_store.dart';
 import 'package:epic_wallet/src/demo_server/file_secret_store.dart';
 import 'package:epic_wallet/src/demo_server/limits.dart';
@@ -137,6 +138,12 @@ void main() {
     );
     expect(gate.running, 0);
     expect(order, hasLength(6));
+  });
+
+  test('a whole demo id inside any log text does not reach the log', () {
+    final id = newDemoId();
+    final text = serverLogText('open failed: /srv/demos/$id/wallet/lepic');
+    expect(text, 'open failed: /srv/demos/[hex]/wallet/lepic');
   });
 
   group('settings', () {

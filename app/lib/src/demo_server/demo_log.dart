@@ -1,7 +1,8 @@
 /// The demo server's log: one line per entry on stdout (pm2 keeps it), through [redact].
 ///
 /// Nothing about a visitor is logged but [shortDemoId] of their demo: no address, cookie, PIN,
-/// sealed text or slate. Callers pass ids through [shortDemoId]; [redact] catches the rest.
+/// sealed text or slate. Callers pass ids through [shortDemoId]; [redact] catches the rest,
+/// including a whole demo id inside a path from LEPIC or an exception, which it writes `[hex]`.
 library;
 
 import 'dart:io';
@@ -15,7 +16,14 @@ typedef ServerLogSink = void Function(String line);
 /// Where [serverLog] writes. Tests replace it to read what was logged.
 ServerLogSink serverLogSink = stdout.writeln;
 
+final RegExp _longHex = RegExp(r'[0-9a-f]{64}');
+
+/// [message] as the log may show it.
+String serverLogText(String message) =>
+    redact(message)
+        .replaceAllMapped(_longHex, (m) => '${m[0]!.substring(0, 8)}…');
+
 void serverLog(ServerLogLevel level, String message) {
   final time = DateTime.now().toUtc().toIso8601String();
-  serverLogSink('$time ${level.name.toUpperCase()} ${redact(message)}');
+  serverLogSink('$time ${level.name.toUpperCase()} ${serverLogText(message)}');
 }
