@@ -1380,6 +1380,27 @@ class AppLocalizationsPl extends AppLocalizations {
       'Portfel demo i jego monety testowe zostaną teraz usunięte. Potem możesz uruchomić nowe demo.';
 
   @override
+  String get demoServerUnreachable =>
+      'Nie można połączyć się z serwerem demo. Sprawdź połączenie i spróbuj ponownie.';
+
+  @override
+  String demoStartFull(int minutes) {
+    return 'Demo jest teraz pełne. Spróbuj ponownie za $minutes min.';
+  }
+
+  @override
+  String demoStartTooMany(int minutes) {
+    return 'Z Twojej sieci uruchomiono zbyt wiele wersji demo. Spróbuj ponownie za $minutes min.';
+  }
+
+  @override
+  String get demoConnectionLost =>
+      'Utracono połączenie, trwa ponowne łączenie.';
+
+  @override
+  String get demoConnectionBack => 'Połączono ponownie.';
+
+  @override
   String get homeSettingsTooltip => 'Ustawienia';
 
   @override

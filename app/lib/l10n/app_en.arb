@@ -1357,6 +1357,36 @@
   "@demoEndBody": {
     "description": "Body of the dialog before a web demo is ended."
   },
+  "demoServerUnreachable": "Cannot reach the demo server. Check your connection and try again.",
+  "@demoServerUnreachable": {
+    "description": "Error on the web demo's welcome screen when the demo server did not answer."
+  },
+  "demoStartFull": "The demo is full right now. Try again in {minutes} min.",
+  "@demoStartFull": {
+    "description": "Error when the demo server already runs as many demos as it allows. {minutes} is a number, with the minute abbreviation.",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "demoStartTooMany": "Too many demos were started from your network. Try again in {minutes} min.",
+  "@demoStartTooMany": {
+    "description": "Error when the visitor's network started too many demos in the last hour. {minutes} is a number, with the minute abbreviation.",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "demoConnectionLost": "Connection lost, reconnecting.",
+  "@demoConnectionLost": {
+    "description": "Warning notice in the web demo while the connection to its wallet server is down and the app retries."
+  },
+  "demoConnectionBack": "Connected again.",
+  "@demoConnectionBack": {
+    "description": "Success notice in the web demo once the connection to its wallet server is back."
+  },
   "homeSettingsTooltip": "Settings",
   "@homeSettingsTooltip": {
     "description": "Tooltip of the app-bar button that opens settings."

@@ -1379,6 +1379,26 @@ class AppLocalizationsRu extends AppLocalizations {
       'Демо-кошелёк и его тестовые монеты будут удалены сейчас. Потом можно начать новое демо.';
 
   @override
+  String get demoServerUnreachable =>
+      'Не удаётся связаться с демо-сервером. Проверьте подключение и попробуйте снова.';
+
+  @override
+  String demoStartFull(int minutes) {
+    return 'Сейчас демо заполнено. Попробуйте снова через $minutes мин.';
+  }
+
+  @override
+  String demoStartTooMany(int minutes) {
+    return 'Из вашей сети запущено слишком много демо. Попробуйте снова через $minutes мин.';
+  }
+
+  @override
+  String get demoConnectionLost => 'Соединение потеряно, переподключение.';
+
+  @override
+  String get demoConnectionBack => 'Соединение восстановлено.';
+
+  @override
   String get homeSettingsTooltip => 'Настройки';
 
   @override

@@ -1288,6 +1288,26 @@ class AppLocalizationsEn extends AppLocalizations {
       'Your demo wallet and its test coins are deleted now. You can start a new demo afterwards.';
 
   @override
+  String get demoServerUnreachable =>
+      'Cannot reach the demo server. Check your connection and try again.';
+
+  @override
+  String demoStartFull(int minutes) {
+    return 'The demo is full right now. Try again in $minutes min.';
+  }
+
+  @override
+  String demoStartTooMany(int minutes) {
+    return 'Too many demos were started from your network. Try again in $minutes min.';
+  }
+
+  @override
+  String get demoConnectionLost => 'Connection lost, reconnecting.';
+
+  @override
+  String get demoConnectionBack => 'Connected again.';
+
+  @override
   String get homeSettingsTooltip => 'Settings';
 
   @override

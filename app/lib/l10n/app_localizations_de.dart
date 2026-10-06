@@ -1293,6 +1293,27 @@ class AppLocalizationsDe extends AppLocalizations {
       'Ihre Demo-Wallet und ihre Test-Coins werden jetzt gelöscht. Danach können Sie eine neue Demo starten.';
 
   @override
+  String get demoServerUnreachable =>
+      'Der Demo-Server ist nicht erreichbar. Prüfen Sie Ihre Verbindung und versuchen Sie es erneut.';
+
+  @override
+  String demoStartFull(int minutes) {
+    return 'Die Demo ist gerade voll. Versuchen Sie es in $minutes Min. erneut.';
+  }
+
+  @override
+  String demoStartTooMany(int minutes) {
+    return 'Aus Ihrem Netzwerk wurden zu viele Demos gestartet. Versuchen Sie es in $minutes Min. erneut.';
+  }
+
+  @override
+  String get demoConnectionLost =>
+      'Verbindung unterbrochen, wird wiederhergestellt.';
+
+  @override
+  String get demoConnectionBack => 'Wieder verbunden.';
+
+  @override
   String get homeSettingsTooltip => 'Einstellungen';
 
   @override

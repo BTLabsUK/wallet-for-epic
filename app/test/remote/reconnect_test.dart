@@ -309,4 +309,25 @@ void main() {
     expect(client.connection, RemoteConnection.idle);
     expect(server.connects, 1);
   });
+
+  test('a closing push leaves the client idle, not retrying', () async {
+    final closing = RemoteWalletService.reconnecting(
+      server.connect,
+      firstRetry: const Duration(milliseconds: 20),
+      closingPushes: const {'demoEnded'},
+    );
+    addTearDown(closing.close);
+    final pushes = <String>[];
+    closing.pushes.listen((p) => pushes.add(p.name));
+    await closing.walletExists(config: config);
+    server.dispatcher!.push('other');
+    await settle();
+    expect(closing.connection, RemoteConnection.connected);
+    server.dispatcher!.push('demoEnded');
+    await server.drop();
+    expect(pushes, ['other', 'demoEnded']);
+    expect(closing.connection, RemoteConnection.idle);
+    await Future<void>.delayed(const Duration(milliseconds: 60));
+    expect(server.connects, 1);
+  });
 }

@@ -1766,6 +1766,36 @@ abstract class AppLocalizations {
   /// **'Your demo wallet and its test coins are deleted now. You can start a new demo afterwards.'**
   String get demoEndBody;
 
+  /// Error on the web demo's welcome screen when the demo server did not answer.
+  ///
+  /// In en, this message translates to:
+  /// **'Cannot reach the demo server. Check your connection and try again.'**
+  String get demoServerUnreachable;
+
+  /// Error when the demo server already runs as many demos as it allows. {minutes} is a number, with the minute abbreviation.
+  ///
+  /// In en, this message translates to:
+  /// **'The demo is full right now. Try again in {minutes} min.'**
+  String demoStartFull(int minutes);
+
+  /// Error when the visitor's network started too many demos in the last hour. {minutes} is a number, with the minute abbreviation.
+  ///
+  /// In en, this message translates to:
+  /// **'Too many demos were started from your network. Try again in {minutes} min.'**
+  String demoStartTooMany(int minutes);
+
+  /// Warning notice in the web demo while the connection to its wallet server is down and the app retries.
+  ///
+  /// In en, this message translates to:
+  /// **'Connection lost, reconnecting.'**
+  String get demoConnectionLost;
+
+  /// Success notice in the web demo once the connection to its wallet server is back.
+  ///
+  /// In en, this message translates to:
+  /// **'Connected again.'**
+  String get demoConnectionBack;
+
   /// Tooltip of the app-bar button that opens settings.
   ///
   /// In en, this message translates to:

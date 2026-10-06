@@ -49,6 +49,7 @@ class RemoteWalletService implements WalletService {
     : _connect = null,
       firstRetry = Duration.zero,
       maxRetry = Duration.zero,
+      closingPushes = const {},
       _state = RemoteConnection.connected {
     _attach(channel);
   }
@@ -57,6 +58,7 @@ class RemoteWalletService implements WalletService {
     ChannelConnector connect, {
     this.firstRetry = const Duration(seconds: 1),
     this.maxRetry = const Duration(seconds: 30),
+    this.closingPushes = const {},
   }) : _connect = connect,
        _state = RemoteConnection.idle;
 
@@ -67,6 +69,10 @@ class RemoteWalletService implements WalletService {
 
   /// The longest wait between retries.
   final Duration maxRetry;
+
+  /// Pushes after which the server closes the connection on purpose, such as `demoEnded`:
+  /// the client goes [RemoteConnection.idle] instead of retrying.
+  final Set<String> closingPushes;
 
   RemoteConnection _state;
   RpcChannel? _channel;
@@ -352,6 +358,9 @@ class RemoteWalletService implements WalletService {
     if (push is String) {
       if (!_pushes.isClosed) {
         _pushes.add(RpcPush(push, {...json}..remove('push')));
+      }
+      if (_connect != null && closingPushes.contains(push)) {
+        unawaited(_drop(RemoteConnection.idle)?.close());
       }
       return;
     }

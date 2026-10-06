@@ -1206,6 +1206,25 @@ class AppLocalizationsZh extends AppLocalizations {
   String get demoEndBody => '你的演示钱包及其测试币现在会被删除。之后可以开始新的演示。';
 
   @override
+  String get demoServerUnreachable => '无法连接演示服务器。请检查网络连接后重试。';
+
+  @override
+  String demoStartFull(int minutes) {
+    return '演示名额已满。请在 $minutes 分钟后重试。';
+  }
+
+  @override
+  String demoStartTooMany(int minutes) {
+    return '从你的网络启动的演示过多。请在 $minutes 分钟后重试。';
+  }
+
+  @override
+  String get demoConnectionLost => '连接已断开，正在重新连接。';
+
+  @override
+  String get demoConnectionBack => '已重新连接。';
+
+  @override
   String get homeSettingsTooltip => '设置';
 
   @override
