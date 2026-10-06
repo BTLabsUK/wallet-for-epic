@@ -10,6 +10,9 @@ step() { printf '\n== %s\n' "$1"; }
 step "LEPIC at the pin (tools/lepic.rev)"
 "$root/tools/lepic.sh" build linux
 
+step "wallet core under plain Dart (no Flutter on its path)"
+(cd "$root/app" && dart run bin/core_check.dart)
+
 step "flutter analyze"
 (cd "$root/app" && flutter pub get >/dev/null && flutter analyze --no-pub)
 
