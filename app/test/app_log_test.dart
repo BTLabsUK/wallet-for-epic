@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:epic_wallet/src/app_log.dart';
+import 'package:epic_wallet/src/lepic_wallet_service.dart' show logLepicEntry;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lepic/lepic.dart' as lepic;
 

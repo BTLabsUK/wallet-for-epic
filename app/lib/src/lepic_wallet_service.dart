@@ -10,19 +10,44 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:lepic/lepic.dart' as lepic;
+import 'package:meta/meta.dart' show visibleForTesting;
 
-import 'app_log.dart';
 import 'history/export.dart';
 import 'history/meta_store.dart';
 import 'history/wallet_history.dart';
-import 'secret_store.dart';
+import 'log.dart';
+import 'redact.dart';
+import 'secret_store_api.dart';
 import 'wallet_service.dart';
 
 /// Loads the LEPIC library, which the package's build hook bundles on Android, iOS and x86_64
 /// Linux (`tools/lepic.sh build`). Windows has none (UP-3, deferred).
 Future<void> initLepic() => lepic.RustLib.init();
+
+/// Logs one entry of `LepicRuntime.logs()` under its own target:
+/// `lepic_wallet::send: slate received in send slate_id=… height=…`. Debug and trace entries
+/// are dropped.
+void logLepicEntry(lepic.LogEntry entry) {
+  final level = switch (entry.level) {
+    lepic.LogLevel.error => LogLevel.error,
+    lepic.LogLevel.warn => LogLevel.warn,
+    lepic.LogLevel.info => LogLevel.info,
+    lepic.LogLevel.debug || lepic.LogLevel.trace => null,
+  };
+  if (level == null) return;
+  final line = StringBuffer(entry.message);
+  if (entry.spans.isNotEmpty) line.write(' in ${entry.spans.join('>')}');
+  for (final field in entry.fields) {
+    final value = field.name == 'error'
+        ? redactQuoted(field.value)
+        : lepicKeptFields.contains(field.name)
+        ? field.value
+        : redacted;
+    line.write(' ${field.name}=$value');
+  }
+  AppLog.record(level, entry.target, line.toString());
+}
 
 /// LEPIC's error as the app's. The switch is exhaustive, so a kind LEPIC adds breaks the build
 /// here instead of reaching the UI unmapped.

@@ -14,7 +14,7 @@ import 'dart:collection';
 import 'dart:convert';
 import 'dart:io';
 
-import '../app_log.dart';
+import '../log.dart';
 import '../wallet_service.dart';
 
 const String metaFileName = 'wfe_meta.json';

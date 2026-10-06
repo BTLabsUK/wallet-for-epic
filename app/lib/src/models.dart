@@ -6,7 +6,7 @@ library;
 
 import 'dart:convert';
 
-import 'package:flutter/widgets.dart' show StringCharacters;
+import 'package:characters/characters.dart';
 
 /// Why a payment was cancelled.
 enum CancelReason {

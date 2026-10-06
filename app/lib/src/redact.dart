@@ -1,6 +1,6 @@
 /// Scrubs secrets from text before it is logged or put in a feedback report.
 ///
-/// It runs at the call (`AppLog`) and again at the log file sink (`FileLogSink` in
+/// It runs at the call (`AppLog` in `log.dart`) and again at the log file sink (`FileLogSink` in
 /// `app_log.dart`). The Rust twin `rust/src/core/redact.rs` applies the same rules in the same
 /// order to the old core's lines until R-01 removes it; each has tests:
 ///

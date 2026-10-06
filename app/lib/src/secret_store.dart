@@ -1,4 +1,5 @@
-/// Key-value storage for secrets, and a biometric-gated variant.
+/// The platform's secret storage, and a biometric-gated variant. The [SecretStore] interface
+/// and [MemorySecretStore] are in `secret_store_api.dart`, without Flutter, and re-exported here.
 ///
 /// [PlatformSecretStore] is the platform keystore: Android Keystore, iOS Keychain (this device
 /// only), libsecret on Linux. [PlatformBiometricStore] adds a Keystore/Keychain key that only a
@@ -12,14 +13,9 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:local_auth/local_auth.dart';
 
 import 'app_log.dart';
+import 'secret_store_api.dart';
 
-abstract interface class SecretStore {
-  Future<String?> read(String key);
-
-  Future<void> write(String key, String value);
-
-  Future<void> delete(String key);
-}
+export 'secret_store_api.dart';
 
 /// Biometric storage. [read] and [write] show the system prompt and throw
 /// [BiometricCancelled] when the user dismisses it or the check fails.
@@ -177,21 +173,6 @@ class PlatformBiometricStore implements BiometricStore {
       // Deleting an entry whose key was invalidated can fail; the entry is useless either way.
     }
   }
-}
-
-class MemorySecretStore implements SecretStore {
-  MemorySecretStore([Map<String, String>? values]) : values = values ?? {};
-
-  final Map<String, String> values;
-
-  @override
-  Future<String?> read(String key) async => values[key];
-
-  @override
-  Future<void> write(String key, String value) async => values[key] = value;
-
-  @override
-  Future<void> delete(String key) async => values.remove(key);
 }
 
 /// Scripted biometrics for tests. Set [succeed] to false to simulate a dismissed prompt.
