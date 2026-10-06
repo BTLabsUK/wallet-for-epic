@@ -167,20 +167,26 @@ LocalizedFormatException demoStartRefused(String body) {
 }
 
 /// The seconds a faucet 429 asks to wait. The browser cannot read a cross-origin
-/// `Retry-After`, so this reads the body, and falls back to the faucet's interval.
+/// `Retry-After`, so this reads the body: the faucet answers
+/// `{"code": "cooldown", "message": "Please wait 31s between requests."}` (seen 2026-10-06), so
+/// a number field first, then the first `<n>s` or `<n> s` in `message`, else the faucet's
+/// interval.
 int faucetCooldownSeconds(String body) {
   final json = _json(body);
-  if (json != null) {
-    for (final key in const [
-      'retry_after_seconds',
-      'retry_after',
-      'retryAfter',
-      'seconds',
-      'wait',
-    ]) {
-      final value = json[key];
-      if (value is num && value > 0) return value.ceil();
-    }
+  if (json == null) return defaultFaucetCooldownSeconds;
+  for (final key in const [
+    'retry_after_seconds',
+    'retry_after',
+    'retryAfter',
+  ]) {
+    final value = json[key];
+    if (value is num && value > 0) return value.ceil();
+  }
+  final message = json['message'];
+  if (message is String) {
+    final match = RegExp(r'(\d+)\s?s\b').firstMatch(message);
+    final seconds = int.tryParse(match?.group(1) ?? '');
+    if (seconds != null && seconds > 0) return seconds;
   }
   return defaultFaucetCooldownSeconds;
 }

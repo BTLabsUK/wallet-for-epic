@@ -154,6 +154,12 @@ void main() {
       http.answers.addAll([
         const DemoReply(429, '{"error":"cooldown","retry_after":12}'),
         const DemoReply(429, '{"code":"cooldown","retryAfter":7.2}'),
+        // The faucet's own answer, seen on 2026-10-06.
+        const DemoReply(
+          429,
+          '{"code":"cooldown","message":"Please wait 31s between requests."}',
+        ),
+        const DemoReply(429, '{"code":"cooldown","message":"Wait 5 s."}'),
         const DemoReply(429, '{"code":"cooldown"}'),
         const DemoReply(429, 'Too Many Requests'),
       ]);
@@ -161,6 +167,8 @@ void main() {
           (await api.claimTestCoins(address) as TestCoinsCooldown).seconds;
       expect(await seconds(), 12);
       expect(await seconds(), 8);
+      expect(await seconds(), 31);
+      expect(await seconds(), 5);
       expect(await seconds(), defaultFaucetCooldownSeconds);
       expect(await seconds(), defaultFaucetCooldownSeconds);
     });
