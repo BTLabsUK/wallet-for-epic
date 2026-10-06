@@ -73,6 +73,7 @@ Future<void> waitFor(bool Function() done, {String? reason}) async {
 }
 
 void main() {
+  _moreTests();
   test(
     'a socket needs the cookie of a live demo and an allowed Origin',
     () async {
@@ -365,6 +366,143 @@ void main() {
 }
 
 /// A fake whose createWithPin takes a while, reporting when it runs.
+void _moreTests() {
+  test('a demo that ends during a gated open leaves no wallet open', () async {
+    final gate = Completer<void>();
+    final h = await Harness.start(
+      fake: () => _DirMakingFake()..createGate = gate,
+    );
+    final (v, client) = await demoClient(h);
+    final id = v.cookie!;
+    final call = client.createWithPin(config: clientConfig, pin: '123456');
+    unawaited(call.then((_) {}, onError: (Object _) {}));
+    await waitFor(() => h.services.containsKey(id), reason: 'service made');
+    final fake = h.services[id]! as _DirMakingFake;
+    await waitFor(() => fake.entered, reason: 'open waiting in the wallet');
+
+    // The visitor ends the demo while the open waits; then the open finishes.
+    expect((await v.end()).status, HttpStatus.noContent);
+    final dir = Directory(h.server.store.dirOf(id));
+    expect(await dir.exists(), isFalse);
+    gate.complete();
+
+    await expectLater(call, throwsA(isA<WalletError>()));
+    await waitFor(
+      () => fake.session.disposeCalls == 1,
+      reason: 'late session disposed',
+    );
+    expect(fake.createdConfig, isNotNull, reason: 'the open did run');
+    await waitFor(
+      () => !dir.existsSync(),
+      reason: 're-created directory removed',
+    );
+    expect(h.server.liveCount, 0);
+  });
+
+  test('concurrent starts never pass the live cap', () async {
+    final h = await Harness.start(
+      config: (r) => DemoServerConfig(
+        dataRoot: r,
+        port: 0,
+        maxLiveDemos: 2,
+        trustProxy: true,
+      ),
+    );
+    final replies = await Future.wait([
+      for (var i = 0; i < 6; i++)
+        Visitor(h, forwardedFor: '198.51.100.$i').start(),
+    ]);
+    final created = replies.where((r) => r.status == HttpStatus.created);
+    final refused = replies.where(
+      (r) => r.status == HttpStatus.tooManyRequests,
+    );
+    expect(created, hasLength(2));
+    expect(refused, hasLength(4));
+    expect(
+      refused.every(
+        (r) => r.headers.value(HttpHeaders.retryAfterHeader) != null,
+      ),
+      isTrue,
+    );
+    expect(h.server.liveCount, 2);
+    expect(await Directory(h.server.store.demosDir).list().length, 2);
+  });
+
+  test('a demo holds at most 4 sockets; the fifth gets 429', () async {
+    final h = await Harness.start();
+    final v = Visitor(h);
+    await v.start();
+    final open = <IoWebSocketChannel>[];
+    final attempts = await Future.wait([
+      for (var i = 0; i < 5; i++)
+        connect(
+          h,
+          cookie: v.cookie,
+        ).then<Object>((c) => c, onError: (Object e) => e),
+    ]);
+    open.addAll(attempts.whereType<IoWebSocketChannel>());
+    expect(open, hasLength(4));
+    expect(attempts.whereType<WebSocketException>(), hasLength(1));
+    await waitFor(
+      () => h.server.socketsOf(v.cookie!) == 4,
+      reason: 'four sockets',
+    );
+    expect(await upgradeStatus(h, v.cookie!), HttpStatus.tooManyRequests);
+
+    await open.removeLast().close();
+    await waitFor(
+      () => h.server.socketsOf(v.cookie!) == 3,
+      reason: 'one closed',
+    );
+    open.add(await connect(h, cookie: v.cookie));
+    for (final c in open) {
+      await c.close();
+    }
+  });
+}
+
+/// The HTTP status of a WebSocket upgrade request, as the browser would see it.
+Future<int> upgradeStatus(Harness h, String cookie) async {
+  final client = HttpClient();
+  try {
+    final req = await client.getUrl(Uri.parse('${h.base}/api/ws'));
+    req.headers
+      ..set('origin', h.origin)
+      ..set(HttpHeaders.cookieHeader, '$demoCookie=$cookie')
+      ..set(HttpHeaders.connectionHeader, 'Upgrade')
+      ..set(HttpHeaders.upgradeHeader, 'websocket')
+      ..set('sec-websocket-version', '13')
+      ..set('sec-websocket-key', base64.encode(List.filled(16, 7)));
+    final res = await req.close();
+    await res.drain<void>();
+    return res.statusCode;
+  } finally {
+    client.close(force: true);
+  }
+}
+
+/// A fake whose create writes into the wallet directory, as LEPIC does, after its gate.
+class _DirMakingFake extends FakeWalletService {
+  /// True once createWithPin has started.
+  bool entered = false;
+
+  @override
+  Future<PinWallet> createWithPin({
+    required WalletConfig config,
+    String? mnemonic,
+    required String pin,
+  }) async {
+    entered = true;
+    final w = await super.createWithPin(
+      config: config,
+      mnemonic: mnemonic,
+      pin: pin,
+    );
+    await Directory('${config.dataDir}/lepic').create(recursive: true);
+    return w;
+  }
+}
+
 class _SlowPinFake extends FakeWalletService {
   _SlowPinFake({required this.onEnter, required this.onLeave});
 

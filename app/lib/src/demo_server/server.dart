@@ -74,6 +74,9 @@ class _LiveDemo {
   WalletService? service;
   final WalletSessions sessions = WalletSessions();
   final Set<WalletDispatcher> sockets = {};
+
+  /// Sockets accepted but still upgrading, counted against the per-demo cap.
+  int upgrading = 0;
   Timer? idle;
 
   String get short => shortDemoId(record.id);
@@ -96,6 +99,9 @@ class DemoServer {
   final ClientRateLimit _rate;
   final WorkGate _argon;
   final Map<String, _LiveDemo> _live = {};
+
+  /// `POST /api/demo` calls between the cap check and [_live].
+  int _creating = 0;
   final List<StaticSite> _sites = [];
 
   HttpServer? _http;
@@ -208,11 +214,7 @@ class DemoServer {
         serverLog(ServerLogLevel.warn, 'demo ${d.short}: deleteWallet: $e');
       }
     }
-    try {
-      await _store.remove(d.record.id);
-    } on Object catch (e) {
-      serverLog(ServerLogLevel.error, 'demo ${d.short}: remove failed: $e');
-    }
+    await _removeDir(d);
     serverLog(ServerLogLevel.info, 'demo ${d.short} ended ($why)');
   }
 
@@ -227,7 +229,18 @@ class DemoServer {
     _argon,
     // One wallet per demo: an open replaces the sessions a lost page left behind.
     beforeOpen: d.sessions.disposeAll,
+    // An open that was queued or running when the demo ended leaves nothing behind.
+    ended: () => d.ended,
+    afterLateOpen: () => _removeDir(d),
   );
+
+  Future<void> _removeDir(_LiveDemo d) async {
+    try {
+      await _store.remove(d.record.id);
+    } on Object catch (e) {
+      serverLog(ServerLogLevel.error, 'demo ${d.short}: remove failed: $e');
+    }
+  }
 
   /// `/api/ws`: the cookie of a live demo and an allowed `Origin`, against cross-site
   /// WebSocket hijacking.
@@ -243,7 +256,16 @@ class DemoServer {
     if (d == null || d.record.expiredAt(_clock())) {
       return _plain(request, HttpStatus.unauthorized);
     }
-    final socket = await WebSocketTransformer.upgrade(request);
+    if (d.sockets.length + d.upgrading >= config.maxSocketsPerDemo) {
+      return _plain(request, HttpStatus.tooManyRequests);
+    }
+    d.upgrading++;
+    final WebSocket socket;
+    try {
+      socket = await WebSocketTransformer.upgrade(request);
+    } finally {
+      d.upgrading--;
+    }
     // A phone that drops off the network leaves a half-open socket; pings find it, so the
     // idle window starts.
     socket.pingInterval = const Duration(seconds: 30);
@@ -416,11 +438,14 @@ class DemoServer {
 
   Future<void> _create(HttpRequest request) async {
     final now = _clock();
-    if (_live.length >= config.maxLiveDemos) {
-      final soonest = _live.values
-          .map((d) => d.record.expires)
-          .reduce((a, b) => a.isBefore(b) ? a : b);
-      final wait = soonest.difference(now);
+    // Creates still writing their directory count too, so concurrent starts stay under the cap.
+    if (_live.length + _creating >= config.maxLiveDemos) {
+      final wait = _live.isEmpty
+          ? const Duration(seconds: 1)
+          : _live.values
+                .map((d) => d.record.expires)
+                .reduce((a, b) => a.isBefore(b) ? a : b)
+                .difference(now);
       serverLog(
         ServerLogLevel.warn,
         'live cap of ${config.maxLiveDemos} reached',
@@ -429,7 +454,13 @@ class DemoServer {
     }
     final wait = _rate.take(_client(request), now);
     if (wait != null) return _tooMany(request, 'rate', wait);
-    final record = await _store.create(now: now, ttl: config.ttl);
+    final DemoRecord record;
+    _creating++;
+    try {
+      record = await _store.create(now: now, ttl: config.ttl);
+    } finally {
+      _creating--;
+    }
     final d = _LiveDemo(record);
     _live[record.id] = d;
     serverLog(ServerLogLevel.info, 'demo ${d.short} started');

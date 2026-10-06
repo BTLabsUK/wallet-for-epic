@@ -1,8 +1,8 @@
 /// A [WalletService] whose PIN and password calls wait for a [WorkGate] slot.
 ///
 /// LEPIC runs Argon2id at 64 MiB for each of them, so the server caps how many run at once
-/// across all demos. Everything else passes straight through, except that `beforeOpen` runs
-/// before each call that opens a wallet.
+/// across all demos. Everything else passes straight through, except the calls that open a
+/// wallet, which also follow the demo's lifetime (`beforeOpen`, `ended`, `afterLateOpen`).
 library;
 
 import 'dart:typed_data';
@@ -10,8 +10,20 @@ import 'dart:typed_data';
 import '../wallet_service.dart';
 import 'limits.dart';
 
+/// What an open gets once its demo has ended.
+const WalletError demoEndedError = WalletError(
+  kind: WalletErrorKind.other,
+  message: 'this demo has ended',
+);
+
 class GatedWalletService implements WalletService {
-  GatedWalletService(this._inner, this._gate, {this.beforeOpen});
+  GatedWalletService(
+    this._inner,
+    this._gate, {
+    this.beforeOpen,
+    this.ended,
+    this.afterLateOpen,
+  });
 
   final WalletService _inner;
   final WorkGate _gate;
@@ -22,10 +34,42 @@ class GatedWalletService implements WalletService {
   /// able to unlock again.
   final void Function()? beforeOpen;
 
-  Future<T> _opening<T>(Future<T> Function() open) => _gate.run(() {
+  /// True once the demo has ended. An open then never starts, and one that was queued or
+  /// running when it ended has its session disposed and fails with [demoEndedError], so no
+  /// wallet stays open past its demo.
+  final bool Function()? ended;
+
+  /// Runs after an open that finished, or failed, after the demo ended: the open may have
+  /// re-created files the end already removed.
+  final Future<void> Function()? afterLateOpen;
+
+  bool get _ended => ended?.call() ?? false;
+
+  Future<T> _opening<T>(
+    Future<T> Function() open,
+    WalletSession Function(T) sessionOf,
+  ) => _gate.run(() async {
+    if (_ended) throw demoEndedError;
     beforeOpen?.call();
-    return open();
+    final T result;
+    try {
+      result = await open();
+    } catch (_) {
+      if (_ended) {
+        await afterLateOpen?.call();
+        throw demoEndedError;
+      }
+      rethrow;
+    }
+    if (_ended) {
+      sessionOf(result).dispose();
+      await afterLateOpen?.call();
+      throw demoEndedError;
+    }
+    return result;
   });
+
+  static WalletSession _itself(WalletSession s) => s;
 
   WalletSession _wrap(WalletSession s) => GatedWalletSession(s, _gate);
 
@@ -58,6 +102,7 @@ class GatedWalletService implements WalletService {
     await _opening(
       () =>
           _inner.create(config: config, mnemonic: mnemonic, password: password),
+      _itself,
     ),
   );
 
@@ -66,7 +111,10 @@ class GatedWalletService implements WalletService {
     required WalletConfig config,
     required String password,
   }) async => _wrap(
-    await _opening(() => _inner.open(config: config, password: password)),
+    await _opening(
+      () => _inner.open(config: config, password: password),
+      _itself,
+    ),
   );
 
   @override
@@ -77,6 +125,7 @@ class GatedWalletService implements WalletService {
   }) async {
     final w = await _opening(
       () => _inner.createWithPin(config: config, mnemonic: mnemonic, pin: pin),
+      (w) => w.session,
     );
     return (session: _wrap(w.session), sealedPassword: w.sealedPassword);
   }
@@ -93,6 +142,7 @@ class GatedWalletService implements WalletService {
         pin: pin,
         sealedPassword: sealedPassword,
       ),
+      _itself,
     ),
   );
 

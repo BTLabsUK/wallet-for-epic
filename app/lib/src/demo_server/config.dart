@@ -25,6 +25,7 @@ class DemoServerConfig {
     this.newDemosPerClientPerHour = 5,
     this.argonSlots = 2,
     this.maxFrameBytes = 256 * 1024,
+    this.maxSocketsPerDemo = 4,
     this.idleTimeout = const Duration(minutes: 10),
     this.sweepInterval = const Duration(minutes: 1),
     this.lepicLibrary,
@@ -64,6 +65,9 @@ class DemoServerConfig {
   /// The largest WebSocket frame read, in UTF-8 bytes.
   final int maxFrameBytes;
 
+  /// Sockets one demo may hold at once; one more is refused with 429.
+  final int maxSocketsPerDemo;
+
   /// A demo with no socket for this long has its sessions disposed, which locks its wallet.
   final Duration idleTimeout;
 
@@ -100,6 +104,7 @@ Each option also reads from its environment variable; a flag wins.
   --rate <n>               WFE_DEMO_RATE          new demos per client per hour (default 5)
   --argon <n>              WFE_DEMO_ARGON         Argon2id operations at once (default 2)
   --max-frame <bytes>      WFE_DEMO_MAX_FRAME     largest WebSocket frame (default 262144)
+  --max-sockets <n>        WFE_DEMO_MAX_SOCKETS   sockets per demo at once (default 4)
   --idle <duration>        WFE_DEMO_IDLE          lock after this long without a socket (default 10m)
   --sweep <duration>       WFE_DEMO_SWEEP         expiry check interval (default 1m)
   --lepic-lib <file>       WFE_DEMO_LEPIC_LIB     liblepic_ffi.so to load
@@ -199,6 +204,7 @@ Durations are a number with s, m or h, such as 90s, 15m or 24h.''';
       newDemosPerClientPerHour: integer('rate', 5),
       argonSlots: integer('argon', 2, max: 64),
       maxFrameBytes: integer('max-frame', 256 * 1024, min: 1024),
+      maxSocketsPerDemo: integer('max-sockets', 4, max: 64),
       idleTimeout: duration('idle', const Duration(minutes: 10)),
       sweepInterval: duration('sweep', const Duration(minutes: 1)),
       lepicLibrary: read('lepic-lib'),
@@ -219,6 +225,7 @@ Durations are a number with s, m or h, such as 90s, 15m or 24h.''';
     'rate': 'WFE_DEMO_RATE',
     'argon': 'WFE_DEMO_ARGON',
     'max-frame': 'WFE_DEMO_MAX_FRAME',
+    'max-sockets': 'WFE_DEMO_MAX_SOCKETS',
     'idle': 'WFE_DEMO_IDLE',
     'sweep': 'WFE_DEMO_SWEEP',
     'lepic-lib': 'WFE_DEMO_LEPIC_LIB',
