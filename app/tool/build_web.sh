@@ -2,8 +2,9 @@
 # Builds the web app the way the demo serves it, then
 # precompresses it and prints what a first load transfers.
 #
-# Usage: tool/build_web.sh [--base-href /app/] [--fake]
+# Usage: tool/build_web.sh [--base-href /app/] [--download <https url>] [--fake]
 #   --base-href  the path the app is served under, with both slashes (default /app/)
+#   --download   where Get the app points (WFE_DOWNLOAD_URL); without it the app hides it
 #   --fake       --dart-define=WFE_WEB_FAKE=true: the tour's fake wallet, no server. For QA
 #                previews only; no release uses it.
 #
@@ -17,11 +18,13 @@ app_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 base_href=/app/
 fake=false
+download=''
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --base-href) base_href="${2:?--base-href needs a path}"; shift 2 ;;
+    --download) download="${2:?--download needs a URL}"; shift 2 ;;
     --fake) fake=true; shift ;;
-    *) sed -n '5,8p' "${BASH_SOURCE[0]}" >&2; exit 64 ;;
+    *) sed -n '5,9p' "${BASH_SOURCE[0]}" >&2; exit 64 ;;
   esac
 done
 [[ "$base_href" == /*/ || "$base_href" == / ]] || {
@@ -36,6 +39,7 @@ trap 'rm -f "$log"' EXIT
 
 defines=(--dart-define=WFE_DEMO=true)
 $fake && defines+=(--dart-define=WFE_WEB_FAKE=true)
+[[ -n "$download" ]] && defines+=("--dart-define=WFE_DOWNLOAD_URL=$download")
 
 # --wasm writes dart2wasm+skwasm and dart2js+CanvasKit side by side; the loader picks one per
 # browser. --no-web-resources-cdn keeps the engine on our origin.
