@@ -14,6 +14,7 @@ import 'settings.dart';
 import 'ui/common.dart';
 import 'ui/demo_screens.dart';
 import 'ui/launch_screen.dart';
+import 'ui/phone_frame.dart';
 import 'ui/theme/advanced.dart';
 import 'ui/theme/tokens.dart';
 import 'updater.dart';
@@ -179,9 +180,11 @@ class _WalletAppState extends ConsumerState<WalletApp> {
             usePin: l.biometricPromptUsePin,
           );
         }
-        return AdvancedOptions(
-          enabled: settings?.advancedOptions ?? false,
-          child: child!,
+        return PhoneFrame(
+          child: AdvancedOptions(
+            enabled: settings?.advancedOptions ?? false,
+            child: child!,
+          ),
         );
       },
       themeMode: themeMode,
