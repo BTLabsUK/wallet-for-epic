@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -254,8 +256,25 @@ class _ShellHeaderState extends ConsumerState<ShellHeader> {
     );
   }
 
-  /// Wallet: the 1.3.1 panel, with the help beside the figure and the statuses beside the
-  /// lines under it instead of the "Up to date" footer.
+  /// How wide Wallet's caption is drawn: the words, and its dots when there are [dots].
+  double _captionWidth(String caption, TextStyle? style, int dots) {
+    final painter = TextPainter(
+      text: TextSpan(text: caption, style: style),
+      textDirection: Directionality.of(context),
+      textScaler: MediaQuery.textScalerOf(context),
+      maxLines: 1,
+    )..layout();
+    final width = painter.width;
+    painter.dispose();
+    // Each dot is 6 dp with 4 dp after it, 8 dp before the first.
+    return width + (dots == 0 ? 0 : 8 + dots * 10);
+  }
+
+  /// Wallet: the caption with the node and epicbox statuses at its end, the figure with the
+  /// hide toggle and the balance help, then only what has something to say: the fiat value,
+  /// and "X EPIC not spendable yet", which opens the not-spendable balances. The life line,
+  /// drawn as far as the sync has come, closes the panel. Nothing holds room for a line that
+  /// is not there, so the panel is as tall as its content.
   ///
   /// A tap on the caption or the figure shows the next balance that is not zero ([_Kind]
   /// order, wrapping); dots beside the caption say there is one. While amounts are hidden it
@@ -274,109 +293,128 @@ class _ShellHeaderState extends ConsumerState<ShellHeader> {
     final cycles = summary != null && !b.hidden && next != shown;
     void cycle() => setState(() => _shown = next);
     final caption = b.caption(l, shown);
+    // Caption and figure take the tap; the statuses, the eye and the ? win their own.
+    Widget cycling(Widget child) => GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      // The figure's own Semantics carries the action.
+      excludeFromSemantics: true,
+      onTap: cycles ? cycle : null,
+      child: child,
+    );
     return Padding(
-      // The 1.3.1 panel's padding and its 8 dp above the caption; below the life line it
-      // keeps part of the room its "Up to date" footer took, so the panel is 1.3.1's height.
-      padding: const EdgeInsetsDirectional.fromSTEB(18, 26, 10, 22),
+      padding: const EdgeInsetsDirectional.fromSTEB(18, 8, 10, 18),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Caption and figure take the tap together; the eye and the ? win their own.
-          GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            // The figure's own Semantics carries the action.
-            excludeFromSemantics: true,
-            onTap: cycles ? cycle : null,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
+          // The statuses take what the caption leaves; where that is too little for their
+          // words, they show icons only.
+          LayoutBuilder(
+            builder: (context, constraints) => Row(
               children: [
-                // The figure's label reads the caption, so screen readers hear it once.
-                ExcludeSemantics(
-                  child: Row(
-                    children: [
-                      Flexible(
-                        child: Text(
-                          caption,
-                          key: keyed ? spendableCaptionKey : null,
-                          style: theme.textTheme.labelLarge,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      if (cycles) ...[
-                        const SizedBox(width: 8),
-                        _Dots(
-                          key: keyed ? balanceDotsKey : null,
-                          count: b.cycled.length,
-                          index: b.cycled.indexOf(shown),
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-                Row(
-                  children: [
-                    Flexible(
-                      child: Semantics(
-                        container: true,
-                        button: cycles,
-                        label: summary == null
-                            ? null
-                            : l.balanceHelpRow(
+                Expanded(
+                  child: cycling(
+                    // The figure's label reads the caption, so screen readers hear it once.
+                    ExcludeSemantics(
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(minHeight: 48),
+                        child: Row(
+                          children: [
+                            Flexible(
+                              child: Text(
                                 caption,
-                                b.hidden
-                                    ? l.homeBalanceHiddenLabel
-                                    : epicText(l, amount),
+                                key: keyed ? spendableCaptionKey : null,
+                                style: theme.textTheme.labelLarge,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                               ),
-                        onTap: cycles ? cycle : null,
-                        onTapHint: cycles ? l.homeBalanceNextHint : null,
-                        excludeSemantics: true,
-                        // 2 dp above and below the figure's 44 dp line make a 48 dp tap target,
-                        // as tall as the eye beside it. A ConstrainedBox(minHeight: 48) here
-                        // made Flutter 3.47.5's semantics flush throw (a null geometry) once a
-                        // dialog opened over home.
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 2),
-                          child: _figure(
-                            b,
-                            keyed: keyed,
-                            style: figureStyle,
-                            unit: figureStyle,
-                            amount: amount,
-                          ),
+                            ),
+                            if (cycles) ...[
+                              const SizedBox(width: 8),
+                              _Dots(
+                                key: keyed ? balanceDotsKey : null,
+                                count: b.cycled.length,
+                                index: b.cycled.indexOf(shown),
+                              ),
+                            ],
+                          ],
                         ),
                       ),
                     ),
-                    if (summary != null) ...[
-                      _eye(b),
-                      BalanceHelp(summary: summary, hidden: b.hidden),
-                    ],
-                  ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+                ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxWidth: math.max(
+                      inlineStatusesMinWidth(b.epicbox == null ? 1 : 2),
+                      constraints.maxWidth -
+                          8 -
+                          _captionWidth(
+                            caption,
+                            theme.textTheme.labelLarge,
+                            cycles ? b.cycled.length : 0,
+                          ),
+                    ),
+                  ),
+                  child: const InlineStatuses(),
                 ),
               ],
             ),
           ),
-          // Each status on a line of its own, centred on it: the node on the fiat line,
-          // epicbox on the not-spendable line, or alone while nothing is pending.
-          _withStatus(
-            fiat == null
-                ? null
-                : _OneLine(
-                    fitKey: keyed ? fiatValueKey : null,
-                    text: TextSpan(text: fiat),
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
+          cycling(
+            Row(
+              children: [
+                Flexible(
+                  child: Semantics(
+                    container: true,
+                    button: cycles,
+                    label: summary == null
+                        ? null
+                        : l.balanceHelpRow(
+                            caption,
+                            b.hidden
+                                ? l.homeBalanceHiddenLabel
+                                : epicText(l, amount),
+                          ),
+                    onTap: cycles ? cycle : null,
+                    onTapHint: cycles ? l.homeBalanceNextHint : null,
+                    excludeSemantics: true,
+                    // 2 dp above and below the figure's 44 dp line make a 48 dp tap target,
+                    // as tall as the eye beside it. A ConstrainedBox(minHeight: 48) here
+                    // made Flutter 3.47.5's semantics flush throw (a null geometry) once a
+                    // dialog opened over home.
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 2),
+                      child: _figure(
+                        b,
+                        keyed: keyed,
+                        style: figureStyle,
+                        unit: figureStyle,
+                        amount: amount,
+                      ),
                     ),
                   ),
-            status: const NodeStatusRow(),
+                ),
+                if (summary != null) ...[
+                  _eye(b),
+                  BalanceHelp(summary: summary, hidden: b.hidden),
+                ],
+              ],
+            ),
           ),
-          if (pending || b.epicbox != null)
-            _withStatus(
-              !pending
-                  ? null
-                  : shown == _Kind.spendable
+          if (fiat != null)
+            _OneLine(
+              fitKey: keyed ? fiatValueKey : null,
+              text: TextSpan(text: fiat),
+              style: theme.textTheme.titleMedium?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+          if (pending)
+            Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: shown == _Kind.spendable
                   ? _BreakdownLine(
                       key: keyed ? notSpendableKey : null,
                       text: l.homeBalanceNotSpendable(
@@ -394,7 +432,6 @@ class _ShellHeaderState extends ConsumerState<ShellHeader> {
                       ),
                       onTap: () => setState(() => _shown = _Kind.spendable),
                     ),
-              status: const EpicboxStatusRow(),
             ),
           if (open)
             Padding(
@@ -416,7 +453,7 @@ class _ShellHeaderState extends ConsumerState<ShellHeader> {
               ),
             ),
           Padding(
-            padding: const EdgeInsetsDirectional.only(top: 16, end: 8),
+            padding: const EdgeInsetsDirectional.only(top: 12, end: 8),
             child: ProtocolLifeLine(
               key: keyed ? lifeLineKey : null,
               progress: b.syncing ? b.syncProgress : 1,

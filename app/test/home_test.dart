@@ -372,11 +372,21 @@ Future<void> _tab(WidgetTester tester, String label) async {
 }
 
 /// The word of the header status with [key].
+/// The word of the header status with [key], as its label reads it: Wallet's caption row
+/// shows only the icons when the words do not fit.
 String _statusWord(WidgetTester tester, Key key) => tester
-    .widget<Text>(
-      find.descendant(of: find.byKey(key), matching: find.byType(Text)),
+    .widget<Semantics>(
+      find
+          .descendant(
+            of: find.byKey(key),
+            matching: find.byWidgetPredicate(
+              (w) => w is Semantics && w.properties.label != null,
+            ),
+          )
+          .first,
     )
-    .data!;
+    .properties
+    .label!;
 
 /// The tooltip of the header status with [key].
 String _statusTip(WidgetTester tester, Key key) => tester
@@ -2767,7 +2777,8 @@ void main() {
       // Wallet: 1.3.1's displaySmall figure, caption and life line.
       expect(figureSize(), theme.textTheme.displaySmall!.fontSize);
       final fullHeight = headerHeight();
-      final rowsEnd = tester.getRect(find.byKey(nodeStatusKey)).right;
+      // Wallet's statuses sit side by side, epicbox last.
+      final rowsEnd = tester.getRect(find.byKey(epicboxStatusKey)).right;
 
       for (final tab in ['Send', 'Receive']) {
         await _tab(tester, tab);
@@ -2859,17 +2870,16 @@ void main() {
         expect(tester.getCenter(control).dy, closeTo(figure.center.dy, 2));
         expect(tester.getCenter(control).dx, greaterThan(figure.right));
       }
-      // The statuses, one row each, right-aligned under the figure row: the node centred on
-      // the fiat line, epicbox on the not-spendable line.
+      // The statuses at the end of the caption's line, the node then epicbox, above the
+      // figure; nothing sits beside the lines under it.
       final node = tester.getRect(find.byKey(nodeStatusKey));
       final epicbox = tester.getRect(find.byKey(epicboxStatusKey));
-      expect(node.left, greaterThan(line.right));
-      expect(node.center.dy, closeTo(fiat.center.dy, 1));
-      expect(epicbox.center.dy, closeTo(line.center.dy, 1));
-      expect(epicbox.top, greaterThanOrEqualTo(node.bottom - 1));
-      expect(epicbox.right, closeTo(node.right, 1));
-      expect(node.top, greaterThan(figure.bottom - 1));
-      expect(epicbox.bottom, lessThanOrEqualTo(life.top + 1));
+      expect(node.center.dy, closeTo(caption.center.dy, 1));
+      expect(epicbox.center.dy, closeTo(node.center.dy, 1));
+      expect(node.left, greaterThan(caption.right));
+      expect(epicbox.left, greaterThanOrEqualTo(node.right));
+      expect(epicbox.bottom, lessThanOrEqualTo(figure.top + 1));
+      expect(life.top, greaterThan(line.bottom - 1));
       // Not syncing: no thin sync line.
       expect(find.byKey(headerSyncLineKey), findsNothing);
 
@@ -2926,15 +2936,19 @@ void main() {
       expect(find.text('12.5 EPIC'), findsOneWidget);
       expect(find.byKey(notSpendableKey), findsNothing);
       expect(find.textContaining('not spendable yet'), findsNothing);
-      // Epicbox keeps a line of its own, as tall as the not-spendable line, under the node.
+      // Both statuses on the caption's line; no room is held for the missing line, so the
+      // life line comes right after the last line there is.
       final node = tester.getRect(find.byKey(nodeStatusKey));
       final epicbox = tester.getRect(find.byKey(epicboxStatusKey));
-      expect(epicbox.top, greaterThanOrEqualTo(node.bottom - 1));
-      expect(epicbox.right, closeTo(node.right, 1));
+      expect(epicbox.center.dy, closeTo(node.center.dy, 1));
       expect(epicbox.height, 48);
+      final last = find.byKey(fiatValueKey).evaluate().isEmpty
+          ? tester.getRect(find.byKey(balanceFigureKey))
+          : tester.getRect(find.byKey(fiatValueKey));
       expect(
-        tester.getRect(find.byKey(lifeLineKey)).top,
-        greaterThanOrEqualTo(epicbox.bottom - 1),
+        tester.getRect(find.byKey(lifeLineKey)).top - last.bottom,
+        // The life line's 12 dp and the line's own leading; an empty 48 dp row would show.
+        lessThan(30),
       );
       await _tab(tester, 'Send');
       expect(find.byKey(notSpendableKey), findsNothing);

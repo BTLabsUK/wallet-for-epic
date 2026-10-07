@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -239,11 +241,13 @@ class _StatusTarget extends StatelessWidget {
   }
 }
 
-/// One status as a row: icon, then the word, right-aligned.
+/// One status as a row: icon, then the word, right-aligned. Without [showWord] only the icon
+/// shows; the tooltip and the screen reader still have the word and the detail.
 class _StatusRow extends StatelessWidget {
-  const _StatusRow({super.key, required this.face});
+  const _StatusRow({super.key, required this.face, this.showWord = true});
 
   final _Face face;
+  final bool showWord;
 
   @override
   Widget build(BuildContext context) {
@@ -257,15 +261,17 @@ class _StatusRow extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
           Icon(face.icon, size: 14, color: face.color),
-          const SizedBox(width: 4),
-          Flexible(
-            child: Text(
-              face.word,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: style,
+          if (showWord) ...[
+            const SizedBox(width: 4),
+            Flexible(
+              child: Text(
+                face.word,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: style,
+              ),
             ),
-          ),
+          ],
         ],
       ),
     );
@@ -317,6 +323,62 @@ class EpicboxStatusRow extends ConsumerWidget {
     return _StatusRow(
       key: epicboxStatusKey,
       face: _epicboxFace(context, epicbox, ref.watch(walletConfigProvider)),
+    );
+  }
+}
+
+/// Space between two statuses on one line.
+const double _inlineGap = 12;
+
+/// The width [InlineStatuses] needs at least for [count] statuses: their icons, each on a
+/// 48 dp target.
+double inlineStatusesMinWidth(int count) =>
+    48.0 * count + _inlineGap * math.max(0, count - 1);
+
+/// The statuses side by side on one line, for Wallet's caption row: the node, then epicbox
+/// while the listener runs. Both keep their words while they fit the width given; otherwise
+/// both show only their icons, so large text never squeezes them into an ellipsis.
+class InlineStatuses extends ConsumerWidget {
+  const InlineStatuses({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final status = watchWalletStatus(ref);
+    final config = ref.watch(walletConfigProvider);
+    final epicbox = status.epicbox;
+    final faces = [
+      (nodeStatusKey, _nodeFace(context, status.node, config)),
+      if (epicbox != null)
+        (epicboxStatusKey, _epicboxFace(context, epicbox, config)),
+    ];
+    final style = Theme.of(context).textTheme.labelSmall;
+    final scaler = MediaQuery.textScalerOf(context);
+    final direction = Directionality.of(context);
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        var needed = _inlineGap * (faces.length - 1);
+        for (final (_, face) in faces) {
+          final painter = TextPainter(
+            text: TextSpan(text: face.word, style: style),
+            textDirection: direction,
+            textScaler: scaler,
+            maxLines: 1,
+          )..layout();
+          // The icon, its gap, and the word.
+          needed += 14 + 4 + painter.width;
+          painter.dispose();
+        }
+        final words = needed <= constraints.maxWidth;
+        return Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            for (final (i, (key, face)) in faces.indexed) ...[
+              if (i > 0) const SizedBox(width: _inlineGap),
+              _StatusRow(key: key, face: face, showWord: words),
+            ],
+          ],
+        );
+      },
     );
   }
 }
