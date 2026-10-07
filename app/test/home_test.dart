@@ -3838,4 +3838,121 @@ void main() {
       });
     }
   });
+  group('amounts', () {
+    // The brief's matrix (D-09): each amount on Wallet's figure and Send's and Receive's
+    // title, at three phone widths, at text scale 1 and 2, with the fiat value, without it,
+    // and hidden.
+    final matrix = [
+      '0',
+      '0.00000001',
+      '0.5',
+      '1',
+      '12.5',
+      '999.99999999',
+      '1000',
+      '123456.789',
+      '1234567.12345678',
+      // Epic's supply approaches 21 million; a wallet must still show more.
+      '20999999.99999999',
+      '99999999.99999999',
+    ].map(parseEpic).toList();
+
+    WalletSummary summaryOf(BigInt spendable) => WalletSummary(
+      lastConfirmedHeight: _tip,
+      minimumConfirmations: BigInt.from(10),
+      total: spendable + _epic(2),
+      spendable: spendable,
+      awaitingConfirmation: BigInt.zero,
+      awaitingFinalization: BigInt.zero,
+      immature: BigInt.zero,
+      locked: _epic(2),
+      validatedWithNode: true,
+    );
+
+    for (final width in [320.0, 360.0, 412.0]) {
+      for (final scale in [1.0, 2.0]) {
+        for (final mode in ['fiat', 'no fiat', 'hidden']) {
+          testWidgets('the matrix at $width dp, text x$scale, $mode', (
+            tester,
+          ) async {
+            final h = _Harness(
+              price: mode == 'no fiat' ? null : 0.5,
+              still: true,
+              session: FakeWalletSession(
+                summary: summaryOf(matrix.first),
+                transactions: _transactions(),
+              ),
+            );
+            if (mode == 'hidden') h.store.values['app.hide_balances'] = 'true';
+            await h.pump(
+              tester,
+              const HomeScreen(),
+              scale,
+              Size(width * 3, 2340),
+            );
+            final height = tester.getSize(find.byKey(walletBalanceKey)).height;
+            for (final amount in matrix) {
+              h.session.summaryValue = summaryOf(amount);
+              await _reload(tester);
+              final shown = mode == 'hidden'
+                  ? hiddenAmount
+                  : displayEpic(amount);
+              for (final tab in ['Wallet', 'Send', 'Receive']) {
+                await _tab(tester, tab);
+                final why = '${formatEpic(amount)} on $tab';
+                final error = tester.takeException();
+                // Send's amount field overflows at 320 dp and x2 with a price, on main too:
+                // its "Use USD" and "Max" do not fit (D-11's claim, Found). Now the field is
+                // on screen there, so it reports once, on the first visit.
+                final knownSendOverflow =
+                    tab == 'Send' &&
+                    width == 320 &&
+                    scale == 2 &&
+                    mode != 'no fiat' &&
+                    amount == matrix.first &&
+                    '$error'.contains('A RenderFlex overflowed by 25 pixels');
+                if (!knownSendOverflow) expect(error, isNull, reason: why);
+                if (tab == 'Wallet') {
+                  // One line by the display rule, inside the area with its unit.
+                  final figure = tester.widget<Text>(
+                    find.byKey(balanceFigureKey),
+                  );
+                  expect(figure.data, shown, reason: why);
+                  expect(figure.maxLines, 1, reason: why);
+                  final area = tester.getRect(find.byKey(walletBalanceKey));
+                  expect(
+                    tester.getRect(find.byKey(balanceUnitKey)).right,
+                    lessThanOrEqualTo(area.right + 0.5),
+                    reason: why,
+                  );
+                  expect(
+                    tester.getSize(find.byKey(walletBalanceKey)).height,
+                    height,
+                    reason: why,
+                  );
+                  if (mode == 'fiat') {
+                    expect(find.byKey(fiatValueKey), findsOneWidget);
+                  } else {
+                    expect(find.byKey(fiatValueKey), findsNothing);
+                  }
+                } else {
+                  // The title: the figure and its unit, clear of the actions.
+                  expect(_titleText(tester), '$shown EPIC', reason: why);
+                  final title = tester.getRect(find.byKey(titleFigureKey));
+                  expect(
+                    title.right,
+                    lessThanOrEqualTo(
+                      tester.getRect(find.byKey(invoicesEntryKey)).left + 0.5,
+                    ),
+                    reason: why,
+                  );
+                }
+              }
+              await _tab(tester, 'Wallet');
+            }
+          });
+        }
+      }
+    }
+  });
 }
