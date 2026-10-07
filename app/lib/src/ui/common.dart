@@ -1029,7 +1029,9 @@ Path txEdgePath(Rect rect, double radius, double start, double extent) {
   final from = (start % 1) * length;
   final to = from + extent.clamp(0.0, 1.0) * length;
   final part = metric.extractPath(from, math.min(to, length));
-  if (to > length) part.addPath(metric.extractPath(0, to - length), Offset.zero);
+  if (to > length) {
+    part.addPath(metric.extractPath(0, to - length), Offset.zero);
+  }
   return part;
 }
 
