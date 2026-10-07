@@ -227,12 +227,9 @@ const Key nodeStatusKey = ValueKey('status-node');
 /// The key of the epicbox status, for tests.
 const Key epicboxStatusKey = ValueKey('status-epicbox');
 
-/// How many statuses [BarStatuses] shows for [status]: the node, and epicbox while the
-/// listener runs.
-int statusCount(WalletStatus status) => status.epicbox == null ? 1 : 2;
-
-/// The width [BarStatuses] takes for [status].
-double statusesWidth(WalletStatus status) => statusTarget * statusCount(status);
+/// The width [BarStatuses] takes: the node, and epicbox while the listener runs.
+double statusesWidth({required bool listenerRunning}) =>
+    statusTarget * (listenerRunning ? 2 : 1);
 
 /// [child] fading between 45 % and full opacity every 1.6 s while [active], as the mockup's
 /// pulse. Still at full opacity with reduced motion, or when not [active].

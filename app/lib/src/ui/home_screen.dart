@@ -193,12 +193,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   void _placeStatuses() {
     final title = _title;
     if (title == null || !mounted) return;
-    final count = ref.read(listenerProvider).stopped ? 1 : 2;
     final inBar = statusesInBar(
       inBar: _statusesInBar,
       need: title.need,
       room: title.room,
-      statuses: statusTarget * count,
+      statuses: statusesWidth(
+        listenerRunning: !ref.read(listenerProvider).stopped,
+      ),
     );
     if (inBar != _statusesInBar) setState(() => _statusesInBar = inBar);
   }

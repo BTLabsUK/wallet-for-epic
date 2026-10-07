@@ -2102,7 +2102,7 @@ abstract class AppLocalizations {
   /// **'Nothing here yet'**
   String get balanceLineNothingYet;
 
-  /// Screen-reader label of the small pulsing dot after the balance in the app bar on the Send and Receive tabs: some money is not spendable yet (confirming, waiting or locked).
+  /// Screen-reader label of the small pulsing dot after the balance in the app bar on the Send and Receive tabs: some money is not spendable yet (confirming, waiting, locked, or maturing mining rewards).
   ///
   /// In en, this message translates to:
   /// **'Payments on their way'**

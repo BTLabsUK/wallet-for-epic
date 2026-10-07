@@ -3900,18 +3900,7 @@ void main() {
               for (final tab in ['Wallet', 'Send', 'Receive']) {
                 await _tab(tester, tab);
                 final why = '${formatEpic(amount)} on $tab';
-                final error = tester.takeException();
-                // Send's amount field overflows at 320 dp and x2 with a price, on main too:
-                // its "Use USD" and "Max" do not fit (D-11's claim, Found). Now the field is
-                // on screen there, so it reports once, on the first visit.
-                final knownSendOverflow =
-                    tab == 'Send' &&
-                    width == 320 &&
-                    scale == 2 &&
-                    mode != 'no fiat' &&
-                    amount == matrix.first &&
-                    '$error'.contains('A RenderFlex overflowed by 25 pixels');
-                if (!knownSendOverflow) expect(error, isNull, reason: why);
+                expect(tester.takeException(), isNull, reason: why);
                 if (tab == 'Wallet') {
                   // One line by the display rule, inside the area with its unit.
                   final figure = tester.widget<Text>(
