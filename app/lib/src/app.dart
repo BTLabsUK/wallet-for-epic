@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'app_log.dart';
 import 'demo.dart';
+import 'demo_web_connection.dart';
 import 'l10n.dart';
 import 'providers.dart';
 import 'push.dart';
@@ -155,6 +156,7 @@ class _WalletAppState extends ConsumerState<WalletApp> {
     });
     final demo = ref.watch(demoModeProvider);
     if (demo) listenForDemoEnd(ref, _navigator);
+    if (demo) listenForDemoConnection(ref, _navigator);
     final settings = ref.watch(appSettingsProvider).value;
     final themeMode = settings?.themeMode ?? ThemeMode.system;
     return MaterialApp(

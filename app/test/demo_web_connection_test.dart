@@ -2,16 +2,23 @@
 // the success notice once it is back, the unlock screen when the server dropped the open
 // wallet, and no retrying once the demo is over.
 
-
+import 'package:epic_wallet/src/app.dart';
 import 'package:epic_wallet/src/demo.dart';
 import 'package:epic_wallet/src/demo_web_connection.dart';
 import 'package:epic_wallet/src/l10n.dart';
+import 'package:epic_wallet/src/price.dart';
 import 'package:epic_wallet/src/providers.dart';
+import 'package:epic_wallet/src/push.dart';
+import 'package:epic_wallet/src/relay_directory.dart';
 import 'package:epic_wallet/src/remote/channel.dart';
 import 'package:epic_wallet/src/remote/client.dart';
 import 'package:epic_wallet/src/remote/dispatcher.dart';
 import 'package:epic_wallet/src/secret_store.dart';
+import 'package:epic_wallet/src/slate_files.dart';
 import 'package:epic_wallet/src/ui/notices.dart';
+import 'package:epic_wallet/src/ui/scan_screen.dart';
+import 'package:epic_wallet/src/ui/settings_history.dart';
+import 'package:epic_wallet/src/ui/settings_screen.dart';
 import 'package:epic_wallet/src/updater.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:flutter/material.dart';
@@ -70,6 +77,16 @@ class _RootState extends ConsumerState<_Root> {
   }
 }
 
+class _NoRelays implements RelayDirectory {
+  @override
+  Future<List<RelayStatus>> relays(String chain) async => const [];
+}
+
+class _NoPrice implements PriceSource {
+  @override
+  Future<double?> price(String currency) async => null;
+}
+
 class _Harness {
   final server = _Server();
   late final RemoteWalletService client = RemoteWalletService.reconnecting(
@@ -81,6 +98,41 @@ class _Harness {
   );
   final store = MemorySecretStore();
   late ProviderContainer container;
+
+  /// The real app root in demo mode, unlocked on Home, over the remote service.
+  Future<void> pumpApp(WidgetTester tester) async {
+    store.values['wallet.floonet.pinSealed'] = fakeSealedPassword(_pin);
+    store.values['wallet.floonet.backedUp'] = '1';
+    await tester.pumpWidget(
+      ProviderScope(
+        retry: (_, _) => null,
+        overrides: [
+          demoModeProvider.overrideWithValue(true),
+          demoApiProvider.overrideWithValue(api),
+          walletServiceProvider.overrideWithValue(client),
+          walletDirProvider.overrideWithValue((chain) async => _dir),
+          secretStoreProvider.overrideWithValue(store),
+          biometricStoreProvider.overrideWithValue(MemoryBiometricStore()),
+          updatePlatformProvider.overrideWithValue(null),
+          relayDirectoryProvider.overrideWithValue(_NoRelays()),
+          slateFilesProvider.overrideWithValue(FakeSlateFiles()),
+          historyFilesProvider.overrideWithValue(FakeHistoryFiles()),
+          priceSourceProvider.overrideWithValue(_NoPrice()),
+          pushPlatformProvider.overrideWithValue(null),
+          qrScannerProvider.overrideWithValue(FakeQrScanner()),
+          sharedFilesCleanupProvider.overrideWithValue(() async {}),
+        ],
+        child: const WalletApp(),
+      ),
+    );
+    container = ProviderScope.containerOf(
+      tester.element(find.byType(MaterialApp)),
+    );
+    addTearDown(() async {
+      await tester.pumpWidget(const SizedBox());
+      await client.close();
+    });
+  }
 
   Future<void> pump(WidgetTester tester) async {
     store.values['wallet.floonet.pinSealed'] = fakeSealedPassword(_pin);
@@ -253,6 +305,31 @@ void main() {
     await tester.pump();
     expect(h.client.connection, RemoteConnection.idle);
     expect(h.notice, isNull);
+  });
+
+  testWidgets('the app root shows the connection warning in demo mode', (
+    tester,
+  ) async {
+    final h = _Harness();
+    await h.pumpApp(tester);
+    // The launch screen asks the server about the wallet, which connects the socket; the
+    // unlock screen then asks for the PIN failures. Both answer before the drop.
+    for (var i = 0; i < 30; i++) {
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 10)),
+      );
+    }
+    expect(h.client.connection, RemoteConnection.connected);
+    expect(find.widgetWithText(TextField, l.pinLabel), findsOneWidget);
+    expect(h.notice, isNull);
+    h.server.down = true;
+    await tester.runAsync(h.server.drop);
+    await tester.pump();
+    expect(h.notice?.text, l.demoConnectionLost);
+    h.container.read(noticeProvider.notifier).clear();
+    // No retry timer outlives the test.
+    await h.client.close();
   });
 }
 
