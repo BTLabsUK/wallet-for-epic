@@ -22,6 +22,8 @@ Uri demoSocketUrl(Uri page) => Uri(
 /// protocol is text.
 class WebSocketChannel implements RpcChannel {
   WebSocketChannel(this.url, {Future<void>? openAfter}) {
+    // Nobody has to wait for [opened]; a failed open is then not an uncaught error.
+    _opened.future.ignore();
     if (openAfter == null) {
       _open();
     } else {
@@ -32,6 +34,7 @@ class WebSocketChannel implements RpcChannel {
   final Uri url;
   final StreamController<String> _in = StreamController<String>();
   final List<String> _waiting = [];
+  final Completer<void> _opened = Completer<void>();
   _WebSocket? _socket;
   bool _connected = false;
   bool _ended = false;
@@ -39,12 +42,28 @@ class WebSocketChannel implements RpcChannel {
   @override
   Stream<String> get incoming => _in.stream;
 
+  /// Completes once the socket is open, or fails with [WebSocketClosed] when it closed before
+  /// that, so a reconnecting client can tell a failed connect from a dropped connection.
+  Future<void> get opened => _opened.future;
+
+  /// Opens a channel to [url] and waits until it is open; for
+  /// `RemoteWalletService.reconnecting`.
+  static Future<WebSocketChannel> connect(
+    Uri url, {
+    Future<void>? openAfter,
+  }) async {
+    final channel = WebSocketChannel(url, openAfter: openAfter);
+    await channel.opened;
+    return channel;
+  }
+
   void _open() {
     if (_ended) return;
     final socket = _WebSocket(url.toString());
     _socket = socket;
     socket.onopen = ((JSAny _) {
       _connected = true;
+      if (!_opened.isCompleted) _opened.complete();
       for (final frame in _waiting) {
         socket.send(frame);
       }
@@ -81,9 +100,18 @@ class WebSocketChannel implements RpcChannel {
     if (_ended) return;
     _ended = true;
     _connected = false;
+    if (!_opened.isCompleted) _opened.completeError(const WebSocketClosed());
     _waiting.clear();
     if (!_in.isClosed) unawaited(_in.close());
   }
+}
+
+/// The socket closed before it opened.
+class WebSocketClosed implements Exception {
+  const WebSocketClosed();
+
+  @override
+  String toString() => 'WebSocketClosed';
 }
 
 @JS('WebSocket')

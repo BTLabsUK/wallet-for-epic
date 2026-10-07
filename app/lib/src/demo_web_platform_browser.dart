@@ -3,9 +3,48 @@ library;
 
 import 'dart:js_interop';
 
+import 'package:flutter/widgets.dart' show WidgetsBinding;
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:web/web.dart' as web;
 
+import 'demo.dart';
 import 'demo_web.dart';
+import 'providers.dart';
+import 'remote/client.dart';
+import 'remote/web_channel.dart';
+import 'web/preview.dart';
+
+/// Set by `--dart-define=WFE_DOWNLOAD_URL=...`; empty hides every Get the app.
+const String _downloadUrl = String.fromEnvironment('WFE_DOWNLOAD_URL');
+
+/// The web demo on its server: the wallet over a reconnecting socket to `<origin>/api/ws`
+/// and the server's [DemoApi]. Nothing for a `WFE_WEB_FAKE` build, which keeps the preview
+/// wallet and [FakeDemoApi], or outside demo mode.
+List<Override> webDemoOverrides() {
+  if (webFakeBackend || !demoBuild) return const [];
+  final page = Uri.base;
+  var first = true;
+  final wallet = RemoteWalletService.reconnecting(() {
+    // The first socket waits for the end of a frame, so nothing touches the network
+    // before the first screen shows.
+    final openAfter = first ? WidgetsBinding.instance.endOfFrame : null;
+    first = false;
+    return WebSocketChannel.connect(demoSocketUrl(page), openAfter: openAfter);
+  }, closingPushes: const {demoEndedPushName});
+  final api = ServerDemoApi(
+    http: browserDemoHttp(),
+    origin: page,
+    ended: wallet.pushes
+        .where((push) => push.name == demoEndedPushName)
+        .map((_) {}),
+    openLink: openInNewTab,
+    downloadUrl: _downloadUrl.isEmpty ? null : Uri.tryParse(_downloadUrl),
+  );
+  return [
+    walletServiceProvider.overrideWithValue(wallet),
+    demoApiProvider.overrideWithValue(api),
+  ];
+}
 
 DemoHttp browserDemoHttp() => const _FetchDemoHttp();
 
