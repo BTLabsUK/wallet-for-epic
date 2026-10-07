@@ -371,7 +371,6 @@ Future<void> _tab(WidgetTester tester, String label) async {
   await tester.pumpAndSettle();
 }
 
-/// The word of the header status with [key].
 /// The word of the header status with [key], as its label reads it: Wallet's caption row
 /// shows only the icons when the words do not fit.
 String _statusWord(WidgetTester tester, Key key) => tester
@@ -2644,6 +2643,43 @@ void main() {
   });
 
   group('shell', () {
+    testWidgets(
+      'a tap from Send to Receive keeps the header closed on the way',
+      (tester) async {
+        final h = _Harness(price: 0.5);
+        await h.pump(tester);
+        await _tab(tester, 'Send');
+        final height = tester.getSize(find.byKey(shellHeaderKey)).height;
+        for (final (from, to) in [('Send', 'Receive'), ('Receive', 'Send')]) {
+          expect(find.byKey(lifeLineKey), findsNothing, reason: 'on $from');
+          await tester.tap(
+            find.descendant(
+              of: find.byType(NavigationBar),
+              matching: find.text(to),
+            ),
+          );
+          // Every frame of the move: no Wallet panel, so no life line, and the same height.
+          for (var i = 0; i < 40; i++) {
+            await tester.pump(const Duration(milliseconds: 16));
+            expect(
+              find.byKey(lifeLineKey),
+              findsNothing,
+              reason: '$from to $to',
+            );
+            expect(
+              tester.getSize(find.byKey(shellHeaderKey)).height,
+              height,
+              reason: '$from to $to',
+            );
+          }
+          await tester.pumpAndSettle();
+        }
+        // A tap to Wallet still opens it.
+        await _tab(tester, 'Wallet');
+        expect(find.byKey(lifeLineKey), findsOneWidget);
+      },
+    );
+
     final payee = '${'b' * 52}@epicbox.epiccash.com';
 
     testWidgets('20 dp from the app bar to the header on every tab', (

@@ -262,6 +262,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     // Send to Receive passes Wallet; the tab bar keeps marking the tab that was tapped.
     _tapMove++;
     final move = _tapMove;
+    final from = ShellTab.values[(_pages.page ?? tab.index.toDouble()).round()];
+    _tapPassesWallet = from != ShellTab.wallet && tab != ShellTab.wallet;
     _pages
         .animateToPage(
           tab.index,
@@ -269,12 +271,19 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           curve: Curves.easeOutCubic,
         )
         .whenComplete(() {
-          if (move == _tapMove) _tapMove = 0;
+          if (move == _tapMove) {
+            _tapMove = 0;
+            _tapPassesWallet = false;
+          }
         });
   }
 
   /// Nonzero while a tap moves the pages, so the pages passed on the way change no tab.
   int _tapMove = 0;
+
+  /// Whether the running tap moves between Send and Receive, past Wallet. The header then
+  /// stays closed instead of opening and closing again on the way, which flickered.
+  bool _tapPassesWallet = false;
 
   void _pageChanged(int index) {
     if (_tapMove == 0) _goTab(ShellTab.values[index]);
@@ -441,11 +450,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   child: AnimatedBuilder(
                     animation: _pages,
                     builder: (context, _) => ShellHeader(
-                      openness: headerOpenness(
-                        _pages.hasClients && _pages.position.haveDimensions
-                            ? _pages.page ?? tab.index.toDouble()
-                            : tab.index.toDouble(),
-                      ),
+                      openness: _tapPassesWallet
+                          ? 0
+                          : headerOpenness(
+                              _pages.hasClients &&
+                                      _pages.position.haveDimensions
+                                  ? _pages.page ?? tab.index.toDouble()
+                                  : tab.index.toDouble(),
+                            ),
                     ),
                   ),
                 ),
