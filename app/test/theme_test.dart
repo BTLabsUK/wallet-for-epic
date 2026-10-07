@@ -69,7 +69,6 @@ void main() {
               child: Scaffold(
                 body: ListView(
                   children: const [
-                    ProtocolBalancePanel(child: Text('1,234.5 EPIC')),
                     Readout('Synced at block 2,500,000'),
                     ProtocolSectionHead('Recent activity'),
                     EdgeCard(edge: Colors.amber, child: Text('Waiting')),

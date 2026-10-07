@@ -1528,12 +1528,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get homeBalanceSpendable => 'Доступно';
 
   @override
-  String get homeShowBreakdown => 'Показать детализацию';
-
-  @override
-  String get homeHideBreakdown => 'Скрыть детализацию';
-
-  @override
   String get balanceHelpLabel => 'Что означают эти балансы';
 
   @override
@@ -1546,11 +1540,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get balanceTotalHelp => 'Всё в этом кошельке, доступное и нет.';
-
-  @override
-  String homeBalanceNotSpendable(String amount) {
-    return '$amount пока недоступно';
-  }
 
   @override
   String get homeBalanceHiddenLabel => 'Баланс скрыт';
@@ -1590,18 +1579,33 @@ class AppLocalizationsRu extends AppLocalizations {
       'Награды за майнинг ждут определённое число блоков, прежде чем их можно потратить.';
 
   @override
-  String get homeCaptionLocked => 'Заблокировано';
-
-  @override
-  String get homeCaptionMiningRewards => 'Награды за майнинг';
-
-  @override
-  String get homeBalanceNextHint => 'Показать следующий баланс';
-
-  @override
-  String homeBalanceSpendableLine(String amount) {
-    return '$amount доступно';
+  String balanceLineConfirming(String amount) {
+    return '+$amount подтверждается';
   }
+
+  @override
+  String balanceLineWaiting(String amount) {
+    return '+$amount ждёт отправителя';
+  }
+
+  @override
+  String balanceLineLocked(String amount) {
+    return '$amount заблокировано отправкой';
+  }
+
+  @override
+  String balanceLineMining(String amount) {
+    return 'Награды за майнинг созревают: $amount';
+  }
+
+  @override
+  String get balanceLineAllConfirmed => 'Всё подтверждено';
+
+  @override
+  String get balanceLineNothingYet => 'Пока ничего нет';
+
+  @override
+  String get shellPendingLabel => 'Платежи в пути';
 
   @override
   String get homeSyncSyncing => 'Синхронизация…';

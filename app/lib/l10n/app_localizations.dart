@@ -1976,18 +1976,6 @@ abstract class AppLocalizations {
   /// **'Spendable'**
   String get homeBalanceSpendable;
 
-  /// Screen-reader label of the arrow on Wallet's not-spendable line that lists the parts of the balance that are not spendable yet.
-  ///
-  /// In en, this message translates to:
-  /// **'Show breakdown'**
-  String get homeShowBreakdown;
-
-  /// Screen-reader label of the arrow that hides that list.
-  ///
-  /// In en, this message translates to:
-  /// **'Hide breakdown'**
-  String get homeHideBreakdown;
-
   /// Screen-reader label of the ? beside the balance; a tap shows every balance with a short explanation.
   ///
   /// In en, this message translates to:
@@ -2011,12 +1999,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Everything in this wallet, spendable or not.'**
   String get balanceTotalHelp;
-
-  /// Line under the fiat value in the Wallet tab's balance header, shown when some money is not spendable yet; tapping it shows why. No full stop.
-  ///
-  /// In en, this message translates to:
-  /// **'{amount} not spendable yet'**
-  String homeBalanceNotSpendable(String amount);
 
   /// Screen-reader label of the balance while amounts are hidden.
   ///
@@ -2084,29 +2066,47 @@ abstract class AppLocalizations {
   /// **'Mining rewards wait a set number of blocks before they can be spent.'**
   String get balanceImmatureHelp;
 
-  /// Short caption above the Wallet tab's large figure while it shows the funds held by an outgoing payment (a tap on the figure steps through the balances). One or two words.
+  /// One item of the line under the Wallet tab's large balance: money on the chain still collecting confirmations. {amount} is a number without the unit. Short, no full stop.
   ///
   /// In en, this message translates to:
-  /// **'Locked'**
-  String get homeCaptionLocked;
+  /// **'+{amount} confirming'**
+  String balanceLineConfirming(String amount);
 
-  /// Short caption above the Wallet tab's large figure while it shows mined coins that cannot be spent yet. One or two words.
+  /// Item of that line: a received payment the sender still has to finish ('Waiting for sender' is the status chip, txStatusWaitingSender: same words). {amount} is a number without the unit. Short, no full stop.
   ///
   /// In en, this message translates to:
-  /// **'Mining rewards'**
-  String get homeCaptionMiningRewards;
+  /// **'+{amount} waiting for sender'**
+  String balanceLineWaiting(String amount);
 
-  /// Screen-reader hint of the Wallet tab's large figure: a tap shows the next balance that is not zero (confirming, locked and so on).
+  /// Item of that line: funds held by an outgoing payment until it completes. {amount} is a number without the unit. Short, no full stop.
   ///
   /// In en, this message translates to:
-  /// **'Show the next balance'**
-  String get homeBalanceNextHint;
+  /// **'{amount} locked by a send'**
+  String balanceLineLocked(String amount);
 
-  /// Line under the fiat value on the Wallet tab while the large figure shows a balance that is not spendable yet; tapping it shows the spendable balance again. No full stop.
+  /// Item of that line: mined coins that need more blocks before they can be spent. {amount} is a number without the unit. Short, no full stop.
   ///
   /// In en, this message translates to:
-  /// **'{amount} spendable'**
-  String homeBalanceSpendableLine(String amount);
+  /// **'{amount} mining rewards maturing'**
+  String balanceLineMining(String amount);
+
+  /// That line when nothing is pending: the whole balance is spendable. No full stop.
+  ///
+  /// In en, this message translates to:
+  /// **'All confirmed'**
+  String get balanceLineAllConfirmed;
+
+  /// That line in a wallet that has had no payments yet. No full stop.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing here yet'**
+  String get balanceLineNothingYet;
+
+  /// Screen-reader label of the small pulsing dot after the balance in the app bar on the Send and Receive tabs: some money is not spendable yet (confirming, waiting or locked).
+  ///
+  /// In en, this message translates to:
+  /// **'Payments on their way'**
+  String get shellPendingLabel;
 
   /// Status line under the balance while the wallet syncs with the node.
   ///

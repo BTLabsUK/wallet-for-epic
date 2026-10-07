@@ -1,7 +1,7 @@
 /// The wallet's identity: the Epic Cash mark, the framed tile that carries it (or an icon) on
 /// hero screens, the lit backdrop behind those screens, and the empty state built from them.
-/// They reuse the Protocol devices in `protocol.dart` (grid, corner ticks), so a hero screen
-/// reads as the same instrument as Home's balance panel.
+/// They reuse the Protocol devices in `protocol.dart` (grid, corner ticks), so every hero screen
+/// reads as the same instrument.
 library;
 
 import 'dart:ui' as ui;
@@ -276,7 +276,7 @@ class BrandHero extends StatelessWidget {
 /// Where the backdrop's light sits on a centred hero screen: on the tile above the middle.
 const Alignment heroGlow = Alignment(0, -0.4);
 
-/// Where it sits on a screen that leads with a panel, such as Home's balance.
+/// Where it sits on a screen that leads with its top, such as Home's balance.
 const Alignment topGlow = Alignment(0, -0.9);
 
 /// The background of a hero screen: [WalletTokens.bg], a pool of accent light at [focus], and
@@ -335,12 +335,64 @@ class ProtocolBackdropPainter extends CustomPainter {
 }
 
 /// Paints [ProtocolBackdropPainter] behind [child] with the active tokens, and makes the
-/// scaffold and app bar inside see-through so the light runs under the status bar.
-class ProtocolBackdrop extends StatelessWidget {
-  const ProtocolBackdrop({super.key, required this.focus, required this.child});
+/// scaffold and app bar inside see-through so the light runs under the status bar. With
+/// [breathing] the light swells and fades slowly (3.2 s a breath, between 55 % and full), as
+/// home does while the node syncs; with reduced motion it stays full.
+class ProtocolBackdrop extends StatefulWidget {
+  const ProtocolBackdrop({
+    super.key,
+    required this.focus,
+    required this.child,
+    this.breathing = false,
+  });
 
   final Alignment focus;
   final Widget child;
+  final bool breathing;
+
+  @override
+  State<ProtocolBackdrop> createState() => _ProtocolBackdropState();
+}
+
+/// The key of the backdrop's paint, for tests.
+const Key backdropPaintKey = ValueKey('protocol-backdrop');
+
+class _ProtocolBackdropState extends State<ProtocolBackdrop>
+    with SingleTickerProviderStateMixin {
+  /// 0 at full light, 1 at the faintest.
+  late final AnimationController _breath = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 1600),
+  );
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _sync();
+  }
+
+  @override
+  void didUpdateWidget(ProtocolBackdrop old) {
+    super.didUpdateWidget(old);
+    _sync();
+  }
+
+  void _sync() {
+    final run = widget.breathing && !MediaQuery.disableAnimationsOf(context);
+    if (run && !_breath.isAnimating) {
+      _breath.repeat(reverse: true);
+    } else if (!run && _breath.isAnimating) {
+      _breath
+        ..stop()
+        ..value = 0;
+    }
+  }
+
+  @override
+  void dispose() {
+    _breath.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -348,20 +400,30 @@ class ProtocolBackdrop extends StatelessWidget {
     final theme = Theme.of(context);
     final dark = theme.brightness == Brightness.dark;
     final clear = t.bg.withValues(alpha: 0);
-    return CustomPaint(
-      painter: ProtocolBackdropPainter(
-        bg: t.bg,
-        glow: t.accent.withValues(alpha: dark ? 0.13 : 0.08),
-        grid: t.text.withValues(alpha: dark ? 0.05 : 0.06),
-        focus: focus,
+    final glow = dark ? 0.13 : 0.08;
+    final child = Theme(
+      data: theme.copyWith(
+        scaffoldBackgroundColor: clear,
+        appBarTheme: theme.appBarTheme.copyWith(backgroundColor: clear),
       ),
-      child: Theme(
-        data: theme.copyWith(
-          scaffoldBackgroundColor: clear,
-          appBarTheme: theme.appBarTheme.copyWith(backgroundColor: clear),
+      child: widget.child,
+    );
+    return AnimatedBuilder(
+      animation: _breath,
+      builder: (context, child) => CustomPaint(
+        key: backdropPaintKey,
+        painter: ProtocolBackdropPainter(
+          bg: t.bg,
+          glow: t.accent.withValues(
+            alpha:
+                glow * (1 - 0.45 * Curves.easeInOut.transform(_breath.value)),
+          ),
+          grid: t.text.withValues(alpha: dark ? 0.05 : 0.06),
+          focus: widget.focus,
         ),
         child: child,
       ),
+      child: child,
     );
   }
 }

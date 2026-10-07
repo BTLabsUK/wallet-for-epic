@@ -1440,12 +1440,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get homeBalanceSpendable => 'Verfügbar';
 
   @override
-  String get homeShowBreakdown => 'Aufschlüsselung anzeigen';
-
-  @override
-  String get homeHideBreakdown => 'Aufschlüsselung ausblenden';
-
-  @override
   String get balanceHelpLabel => 'Was diese Guthaben bedeuten';
 
   @override
@@ -1459,11 +1453,6 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get balanceTotalHelp =>
       'Alles in dieser Wallet, verfügbar oder nicht.';
-
-  @override
-  String homeBalanceNotSpendable(String amount) {
-    return '$amount noch nicht verfügbar';
-  }
 
   @override
   String get homeBalanceHiddenLabel => 'Guthaben verborgen';
@@ -1503,18 +1492,33 @@ class AppLocalizationsDe extends AppLocalizations {
       'Mining-Belohnungen warten eine feste Zahl von Blöcken, bevor sie verfügbar sind.';
 
   @override
-  String get homeCaptionLocked => 'Gesperrt';
-
-  @override
-  String get homeCaptionMiningRewards => 'Mining-Belohnungen';
-
-  @override
-  String get homeBalanceNextHint => 'Nächstes Guthaben anzeigen';
-
-  @override
-  String homeBalanceSpendableLine(String amount) {
-    return '$amount verfügbar';
+  String balanceLineConfirming(String amount) {
+    return '+$amount wird bestätigt';
   }
+
+  @override
+  String balanceLineWaiting(String amount) {
+    return '+$amount wartet auf Absender';
+  }
+
+  @override
+  String balanceLineLocked(String amount) {
+    return '$amount durch eine Zahlung gesperrt';
+  }
+
+  @override
+  String balanceLineMining(String amount) {
+    return '$amount Mining-Belohnungen reifen';
+  }
+
+  @override
+  String get balanceLineAllConfirmed => 'Alles bestätigt';
+
+  @override
+  String get balanceLineNothingYet => 'Noch nichts da';
+
+  @override
+  String get shellPendingLabel => 'Zahlungen unterwegs';
 
   @override
   String get homeSyncSyncing => 'Wird synchronisiert…';

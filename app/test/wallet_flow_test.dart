@@ -128,10 +128,18 @@ Future<void> _reveal(WidgetTester tester, Finder finder) async {
 
 /// Closes every notice: a docked one moves the content down, so taps by position would miss.
 Future<void> _clearNotices(WidgetTester tester) async {
-  ProviderScope.containerOf(
-    tester.element(find.byType(MaterialApp)),
-  ).read(noticeProvider.notifier).clear();
+  ProviderScope.containerOf(tester.element(find.byType(MaterialApp)))
+      .read(noticeProvider.notifier)
+      .clear();
   await tester.pumpAndSettle();
+}
+
+/// Reduced motion for the rest of the test: a wallet with three kinds pending has a pending
+/// line wider than the screen, which would scroll on and never let the screen settle.
+void _holdStill(WidgetTester tester) {
+  tester.platformDispatcher.accessibilityFeaturesTestValue =
+      const FakeAccessibilityFeatures(disableAnimations: true);
+  addTearDown(tester.platformDispatcher.clearAccessibilityFeaturesTestValue);
 }
 
 Future<void> _tap(WidgetTester tester, Finder finder) async {
@@ -535,12 +543,13 @@ void main() {
     testWidgets('renders balances, sync state and transactions', (
       tester,
     ) async {
+      _holdStill(tester);
       final session = _fundedSession();
       final service = _existing(session: session);
       await _pumpApp(tester, service, _Device(sealedMainnet: true));
       await _unlockToHome(tester);
 
-      expect(find.text('12.5 EPIC'), findsOneWidget);
+      expect(tester.widget<Text>(find.byKey(balanceFigureKey)).data, '12.5');
       final handle = tester.ensureSemantics();
       await tester.pump();
       expect(find.bySemanticsLabel('Node offline'), findsOneWidget);
@@ -562,7 +571,7 @@ void main() {
       // Nothing waits to finish, so that line is left out.
       expect(find.textContaining('Waiting to finish'), findsNothing);
       // A tap anywhere closes it.
-      await tester.tapAt(tester.getCenter(find.text('12.5 EPIC')));
+      await tester.tapAt(tester.getCenter(find.byKey(balanceFigureKey)));
       await tester.pumpAndSettle();
       expect(find.textContaining('Total: 16 EPIC'), findsNothing);
 
@@ -578,6 +587,7 @@ void main() {
     testWidgets('an unconfirmed send is cancelled from its details', (
       tester,
     ) async {
+      _holdStill(tester);
       final session = _fundedSession();
       final service = _existing(session: session);
       await _pumpApp(tester, service, _Device(sealedMainnet: true));
@@ -729,6 +739,7 @@ void main() {
     testWidgets('a payment arriving over epicbox refreshes home and says so', (
       tester,
     ) async {
+      _holdStill(tester);
       final session = _fundedSession();
       final service = _existing(session: session);
       await _pumpApp(tester, service, _Device(sealedMainnet: true));
@@ -746,7 +757,8 @@ void main() {
         tester
             .widget<Tooltip>(
               find.descendant(
-                of: find.byKey(nodeStatusKey),
+                // Where the app bar has no room, Wallet's row holds the first.
+                of: find.byKey(nodeStatusKey).first,
                 matching: find.byType(Tooltip),
               ),
             )
@@ -770,7 +782,7 @@ void main() {
         findsOneWidget,
       );
       expect(find.text('Received 3 EPIC from zz…'), findsNothing);
-      expect(find.text('0 EPIC'), findsWidgets);
+      expect(tester.widget<Text>(find.byKey(balanceFigureKey)).data, '0');
 
       await _clearNotices(tester);
       await _tap(tester, find.byTooltip('Lock wallet'));

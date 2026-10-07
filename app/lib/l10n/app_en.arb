@@ -1551,14 +1551,6 @@
   "@homeBalanceSpendable": {
     "description": "Label above the large balance on home: the funds that can be sent now."
   },
-  "homeShowBreakdown": "Show breakdown",
-  "@homeShowBreakdown": {
-    "description": "Screen-reader label of the arrow on Wallet's not-spendable line that lists the parts of the balance that are not spendable yet."
-  },
-  "homeHideBreakdown": "Hide breakdown",
-  "@homeHideBreakdown": {
-    "description": "Screen-reader label of the arrow that hides that list."
-  },
   "balanceHelpLabel": "What these balances mean",
   "@balanceHelpLabel": {
     "description": "Screen-reader label of the ? beside the balance; a tap shows every balance with a short explanation."
@@ -1584,16 +1576,6 @@
   "balanceTotalHelp": "Everything in this wallet, spendable or not.",
   "@balanceTotalHelp": {
     "description": "Explanation under Total in the balance explanation."
-  },
-  "homeBalanceNotSpendable": "{amount} not spendable yet",
-  "@homeBalanceNotSpendable": {
-    "description": "Line under the fiat value in the Wallet tab's balance header, shown when some money is not spendable yet; tapping it shows why. No full stop.",
-    "placeholders": {
-      "amount": {
-        "type": "String",
-        "example": "2 EPIC"
-      }
-    }
   },
   "homeBalanceHiddenLabel": "Balance hidden",
   "@homeBalanceHiddenLabel": {
@@ -1639,27 +1621,57 @@
   "@balanceImmatureHelp": {
     "description": "Explanation under the mining rewards line in the balance explanation."
   },
-  "homeCaptionLocked": "Locked",
-  "@homeCaptionLocked": {
-    "description": "Short caption above the Wallet tab's large figure while it shows the funds held by an outgoing payment (a tap on the figure steps through the balances). One or two words."
-  },
-  "homeCaptionMiningRewards": "Mining rewards",
-  "@homeCaptionMiningRewards": {
-    "description": "Short caption above the Wallet tab's large figure while it shows mined coins that cannot be spent yet. One or two words."
-  },
-  "homeBalanceNextHint": "Show the next balance",
-  "@homeBalanceNextHint": {
-    "description": "Screen-reader hint of the Wallet tab's large figure: a tap shows the next balance that is not zero (confirming, locked and so on)."
-  },
-  "homeBalanceSpendableLine": "{amount} spendable",
-  "@homeBalanceSpendableLine": {
-    "description": "Line under the fiat value on the Wallet tab while the large figure shows a balance that is not spendable yet; tapping it shows the spendable balance again. No full stop.",
+  "balanceLineConfirming": "+{amount} confirming",
+  "@balanceLineConfirming": {
+    "description": "One item of the line under the Wallet tab's large balance: money on the chain still collecting confirmations. {amount} is a number without the unit. Short, no full stop.",
     "placeholders": {
       "amount": {
         "type": "String",
-        "example": "12.5 EPIC"
+        "example": "2"
       }
     }
+  },
+  "balanceLineWaiting": "+{amount} waiting for sender",
+  "@balanceLineWaiting": {
+    "description": "Item of that line: a received payment the sender still has to finish ('Waiting for sender' is the status chip, txStatusWaitingSender: same words). {amount} is a number without the unit. Short, no full stop.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "2"
+      }
+    }
+  },
+  "balanceLineLocked": "{amount} locked by a send",
+  "@balanceLineLocked": {
+    "description": "Item of that line: funds held by an outgoing payment until it completes. {amount} is a number without the unit. Short, no full stop.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "2"
+      }
+    }
+  },
+  "balanceLineMining": "{amount} mining rewards maturing",
+  "@balanceLineMining": {
+    "description": "Item of that line: mined coins that need more blocks before they can be spent. {amount} is a number without the unit. Short, no full stop.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "2"
+      }
+    }
+  },
+  "balanceLineAllConfirmed": "All confirmed",
+  "@balanceLineAllConfirmed": {
+    "description": "That line when nothing is pending: the whole balance is spendable. No full stop."
+  },
+  "balanceLineNothingYet": "Nothing here yet",
+  "@balanceLineNothingYet": {
+    "description": "That line in a wallet that has had no payments yet. No full stop."
+  },
+  "shellPendingLabel": "Payments on their way",
+  "@shellPendingLabel": {
+    "description": "Screen-reader label of the small pulsing dot after the balance in the app bar on the Send and Receive tabs: some money is not spendable yet (confirming, waiting or locked)."
   },
   "homeSyncSyncing": "Syncing…",
   "@homeSyncSyncing": {

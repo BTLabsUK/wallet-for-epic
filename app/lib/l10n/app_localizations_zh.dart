@@ -1339,12 +1339,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get homeBalanceSpendable => '可用余额';
 
   @override
-  String get homeShowBreakdown => '显示明细';
-
-  @override
-  String get homeHideBreakdown => '隐藏明细';
-
-  @override
   String get balanceHelpLabel => '这些余额的含义';
 
   @override
@@ -1357,11 +1351,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get balanceTotalHelp => '此钱包中的全部金额，无论能否使用。';
-
-  @override
-  String homeBalanceNotSpendable(String amount) {
-    return '$amount 暂不可用';
-  }
 
   @override
   String get homeBalanceHiddenLabel => '余额已隐藏';
@@ -1397,18 +1386,33 @@ class AppLocalizationsZh extends AppLocalizations {
   String get balanceImmatureHelp => '挖矿奖励需等待一定数量的区块后才能使用。';
 
   @override
-  String get homeCaptionLocked => '已锁定';
-
-  @override
-  String get homeCaptionMiningRewards => '挖矿奖励';
-
-  @override
-  String get homeBalanceNextHint => '显示下一项余额';
-
-  @override
-  String homeBalanceSpendableLine(String amount) {
-    return '可用 $amount';
+  String balanceLineConfirming(String amount) {
+    return '+$amount 确认中';
   }
+
+  @override
+  String balanceLineWaiting(String amount) {
+    return '+$amount 等待发送方';
+  }
+
+  @override
+  String balanceLineLocked(String amount) {
+    return '$amount 被发送锁定';
+  }
+
+  @override
+  String balanceLineMining(String amount) {
+    return '$amount 挖矿奖励待成熟';
+  }
+
+  @override
+  String get balanceLineAllConfirmed => '全部已确认';
+
+  @override
+  String get balanceLineNothingYet => '暂无内容';
+
+  @override
+  String get shellPendingLabel => '付款进行中';
 
   @override
   String get homeSyncSyncing => '正在同步…';

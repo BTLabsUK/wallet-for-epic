@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/network.dart';
@@ -163,7 +164,7 @@ void main() {
           child: const MaterialApp(
             localizationsDelegates: AppLocalizations.localizationsDelegates,
             supportedLocales: AppLocalizations.supportedLocales,
-            home: Scaffold(body: StatusRows()),
+            home: Scaffold(body: Center(child: BarStatuses())),
           ),
         ),
       );
@@ -171,11 +172,20 @@ void main() {
       await tester.pump();
     }
 
+    /// What a screen reader says for the status: the icon shows no words.
     String word(WidgetTester tester, Key key) => tester
-        .widget<Text>(
-          find.descendant(of: find.byKey(key), matching: find.byType(Text)),
+        .widget<Semantics>(
+          find
+              .descendant(
+                of: find.byKey(key),
+                matching: find.byWidgetPredicate(
+                  (w) => w is Semantics && w.properties.label != null,
+                ),
+              )
+              .first,
         )
-        .data!;
+        .properties
+        .label!;
 
     String tip(WidgetTester tester, Key key) => tester
         .widget<Tooltip>(
@@ -230,6 +240,43 @@ void main() {
       expect(word(tester, nodeStatusKey), 'Node syncing 40%');
       expect(icon(tester, nodeStatusKey), Icons.sync);
       expect(tip(tester, nodeStatusKey), startsWith('Syncing… 40%'));
+      // The syncing node pulses; epicbox does not.
+      double opacity(Key key) => tester
+          .widget<FadeTransition>(
+            find.descendant(
+              of: find.byKey(key),
+              matching: find.byType(FadeTransition),
+            ),
+          )
+          .opacity
+          .value;
+      final node = <double>{}, epicbox = <double>{};
+      for (var i = 0; i < 5; i++) {
+        await tester.pump(const Duration(milliseconds: 150));
+        node.add(opacity(nodeStatusKey));
+        epicbox.add(opacity(epicboxStatusKey));
+      }
+      expect(node.length, greaterThan(3));
+      expect(node.reduce(math.min), greaterThanOrEqualTo(0.45));
+      expect(epicbox, {1.0});
+    });
+
+    testWidgets('icons only, each on a 48 dp target', (tester) async {
+      await pump(
+        tester,
+        tip: AsyncData(_tip),
+        home: home,
+        listener: _connected,
+      );
+      expect(find.byType(Text), findsNothing);
+      for (final key in [nodeStatusKey, epicboxStatusKey]) {
+        expect(tester.getSize(find.byKey(key)), const Size(48, 48));
+        final glyph = tester.getRect(
+          find.descendant(of: find.byKey(key), matching: find.byType(Icon)),
+        );
+        expect(glyph.size, const Size(statusGlyph, statusGlyph));
+        expect(glyph.left - tester.getRect(find.byKey(key)).left, statusInset);
+      }
     });
 
     testWidgets('node connecting, epicbox connecting', (tester) async {

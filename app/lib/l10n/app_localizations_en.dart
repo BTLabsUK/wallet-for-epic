@@ -1432,12 +1432,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get homeBalanceSpendable => 'Spendable';
 
   @override
-  String get homeShowBreakdown => 'Show breakdown';
-
-  @override
-  String get homeHideBreakdown => 'Hide breakdown';
-
-  @override
   String get balanceHelpLabel => 'What these balances mean';
 
   @override
@@ -1450,11 +1444,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get balanceTotalHelp => 'Everything in this wallet, spendable or not.';
-
-  @override
-  String homeBalanceNotSpendable(String amount) {
-    return '$amount not spendable yet';
-  }
 
   @override
   String get homeBalanceHiddenLabel => 'Balance hidden';
@@ -1494,18 +1483,33 @@ class AppLocalizationsEn extends AppLocalizations {
       'Mining rewards wait a set number of blocks before they can be spent.';
 
   @override
-  String get homeCaptionLocked => 'Locked';
-
-  @override
-  String get homeCaptionMiningRewards => 'Mining rewards';
-
-  @override
-  String get homeBalanceNextHint => 'Show the next balance';
-
-  @override
-  String homeBalanceSpendableLine(String amount) {
-    return '$amount spendable';
+  String balanceLineConfirming(String amount) {
+    return '+$amount confirming';
   }
+
+  @override
+  String balanceLineWaiting(String amount) {
+    return '+$amount waiting for sender';
+  }
+
+  @override
+  String balanceLineLocked(String amount) {
+    return '$amount locked by a send';
+  }
+
+  @override
+  String balanceLineMining(String amount) {
+    return '$amount mining rewards maturing';
+  }
+
+  @override
+  String get balanceLineAllConfirmed => 'All confirmed';
+
+  @override
+  String get balanceLineNothingYet => 'Nothing here yet';
+
+  @override
+  String get shellPendingLabel => 'Payments on their way';
 
   @override
   String get homeSyncSyncing => 'Syncing…';

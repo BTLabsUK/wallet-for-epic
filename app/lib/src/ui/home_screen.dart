@@ -27,6 +27,7 @@ import 'shell_header.dart';
 import 'settings_history.dart' show exportHistoryBackup;
 import 'settings_screen.dart';
 import 'slate_file_screen.dart';
+import 'status.dart';
 import 'theme/brand.dart';
 import 'theme/protocol.dart';
 import 'theme/tokens.dart';
@@ -174,6 +175,45 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   /// Bumped when a payment is done, so the Send tab starts a fresh form.
   int _sendForm = 0;
+
+  /// Whether the node and epicbox statuses sit in the app bar. When a title on any tab does
+  /// not fit beside them, they move out on every tab at once: into Wallet's fiat row, and into
+  /// a row under the app bar on Send and Receive ([statusesInBar]).
+  bool _statusesInBar = true;
+
+  /// The last widths the app bar's title reported: the widest title, and the room for it.
+  ({double need, double room})? _title;
+
+  void _titleMeasured(double need, double room) {
+    _title = (need: need, room: room);
+    _placeStatuses();
+  }
+
+  /// Decides where the statuses go from the last measured title, and moves them.
+  void _placeStatuses() {
+    final title = _title;
+    if (title == null || !mounted) return;
+    final count = ref.read(listenerProvider).stopped ? 1 : 2;
+    final inBar = statusesInBar(
+      inBar: _statusesInBar,
+      need: title.need,
+      room: title.room,
+      statuses: statusTarget * count,
+    );
+    if (inBar != _statusesInBar) setState(() => _statusesInBar = inBar);
+  }
+
+  /// The page position as [headerOpenness] reads it: 1 on Wallet, 0 on Send and Receive. A tap
+  /// from Send to Receive stays at 0, rather than opening and closing on the way.
+  double _openness() {
+    final tab = ref.read(shellTabProvider);
+    if (_tapPassesWallet) return 0;
+    return headerOpenness(
+      _pages.hasClients && _pages.position.haveDimensions
+          ? _pages.page ?? tab.index.toDouble()
+          : tab.index.toDouble(),
+    );
+  }
 
   @override
   void initState() {
@@ -369,6 +409,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       if (event != null) _notify(event);
     });
     ref.listen(shellTabProvider, (_, tab) => _showTab(tab));
+    // A started or stopped listener changes how much room the statuses take.
+    ref.listen(listenerProvider.select((s) => s.stopped), (_, _) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _placeStatuses());
+    });
     // Once per phase, and per whole percent while downloading.
     ref.listen(
       updateProvider.select(
@@ -387,100 +431,115 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final demo = ref.watch(demoModeProvider);
     final scan = offersQrScan(ref);
 
-    return SlotScaffold(
-      glow: topGlow,
-      appBar: AppBar(
-        leading: const Center(child: EpicMark(size: 26)),
-        titleSpacing: 0,
-        title: ShellTitle(
-          chain: config?.chain,
-          trailing: demo ? const DemoCountdown() : null,
-        ),
-        actions: [
-          const InvoicesEntry(),
-          if (scan)
-            IconButton(
-              tooltip: l.homeScanTooltip,
-              icon: const Icon(Icons.qr_code_scanner),
-              onPressed: _scan,
+    final inBar = _statusesInBar;
+    // Send and Receive keep a row under the app bar for the statuses when the bar has none.
+    Widget tabPage(Widget view) => Padding(
+      padding: EdgeInsets.only(top: inBar ? 0 : tabStatusRowHeight),
+      child: view,
+    );
+    return _Backdrop(
+      child: SlotScaffold(
+        idle: const ShellEdge(),
+        appBar: AppBar(
+          leadingWidth: shellLeadingWidth,
+          leading: const Align(
+            alignment: AlignmentDirectional.centerEnd,
+            child: Padding(
+              padding: EdgeInsetsDirectional.only(end: 10),
+              child: EpicMark(size: 26),
             ),
-          IconButton(
-            tooltip: l.homeLockTooltip,
-            icon: const Icon(Icons.lock_outline),
-            onPressed: () => lockWallet(context, ref),
           ),
-          _SettingsButton(onPressed: () => _open(const SettingsScreen())),
-        ],
-      ),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: tab.index,
-        onDestinationSelected: (i) => _goTab(ShellTab.values[i]),
-        destinations: [
-          NavigationDestination(
-            icon: const Icon(Icons.north_east),
-            label: l.homeSendButton,
+          titleSpacing: 0,
+          title: AnimatedBuilder(
+            animation: _pages,
+            builder: (context, _) => ShellBarTitle(
+              openness: _openness(),
+              chain: config?.chain,
+              trailing: demo ? const DemoCountdown() : null,
+              onMeasured: _titleMeasured,
+            ),
           ),
-          NavigationDestination(
-            icon: const Icon(Icons.account_balance_wallet_outlined),
-            selectedIcon: const Icon(Icons.account_balance_wallet),
-            label: l.shellWalletTab,
-          ),
-          NavigationDestination(
-            icon: const Icon(Icons.south_west),
-            label: l.homeReceiveButton,
-          ),
-        ],
-      ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          SafeArea(
-            top: false,
-            bottom: false,
-            child: Center(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 600),
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(
-                    16,
-                    shellHeaderGap - progressSlotHeight,
-                    16,
-                    0,
-                  ),
-                  child: AnimatedBuilder(
-                    animation: _pages,
-                    builder: (context, _) => ShellHeader(
-                      openness: _tapPassesWallet
-                          ? 0
-                          : headerOpenness(
-                              _pages.hasClients &&
-                                      _pages.position.haveDimensions
-                                  ? _pages.page ?? tab.index.toDouble()
-                                  : tab.index.toDouble(),
-                            ),
-                    ),
-                  ),
-                ),
+          actions: [
+            if (inBar) const BarStatuses(key: barStatusesKey),
+            const InvoicesEntry(),
+            if (scan)
+              IconButton(
+                tooltip: l.homeScanTooltip,
+                icon: const Icon(Icons.qr_code_scanner),
+                onPressed: _scan,
               ),
+            IconButton(
+              tooltip: l.homeLockTooltip,
+              icon: const Icon(Icons.lock_outline),
+              onPressed: () => lockWallet(context, ref),
             ),
-          ),
-          Expanded(
-            child: PageView(
+            _SettingsButton(onPressed: () => _open(const SettingsScreen())),
+          ],
+        ),
+        bottomNavigationBar: NavigationBar(
+          selectedIndex: tab.index,
+          onDestinationSelected: (i) => _goTab(ShellTab.values[i]),
+          destinations: [
+            NavigationDestination(
+              icon: const Icon(Icons.north_east),
+              label: l.homeSendButton,
+            ),
+            NavigationDestination(
+              icon: const Icon(Icons.account_balance_wallet_outlined),
+              selectedIcon: const Icon(Icons.account_balance_wallet),
+              label: l.shellWalletTab,
+            ),
+            NavigationDestination(
+              icon: const Icon(Icons.south_west),
+              label: l.homeReceiveButton,
+            ),
+          ],
+        ),
+        body: Stack(
+          children: [
+            PageView(
               controller: _pages,
               onPageChanged: _pageChanged,
               children: [
                 _KeepAlive(
-                  child: SendView(
-                    key: ValueKey('send-$_sendForm'),
-                    onDone: _sendDone,
+                  child: tabPage(
+                    SendView(
+                      key: ValueKey('send-$_sendForm'),
+                      onDone: _sendDone,
+                    ),
                   ),
                 ),
                 _KeepAlive(child: _walletTab(context)),
-                const _KeepAlive(child: ReceiveView()),
+                _KeepAlive(child: tabPage(const ReceiveView())),
               ],
             ),
-          ),
-        ],
+            // On Send and Receive, the statuses' glyphs line up with the title's figure. The
+            // targets reach below the row, so they keep their full size.
+            if (!inBar)
+              PositionedDirectional(
+                top: 0,
+                start: shellLeadingWidth - statusInset,
+                child: AnimatedBuilder(
+                  animation: _pages,
+                  builder: (context, child) {
+                    final t = _openness();
+                    return IgnorePointer(
+                      ignoring: t >= 0.5,
+                      child: ExcludeSemantics(
+                        excluding: t >= 0.5,
+                        child: Opacity(opacity: shellFade(1 - t), child: child),
+                      ),
+                    );
+                  },
+                  child: const BarStatuses(
+                    key: tabStatusesKey,
+                    // The glyph's centre on the row's: (30 / 2 - 24) / 15.
+                    alignment: Alignment(0, -0.6),
+                  ),
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }
@@ -498,75 +557,111 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final backupDismissed =
         ref.watch(backupCardDismissedProvider).value ?? false;
     final transactions = data?.transactions ?? const <TxEntry>[];
-    return RefreshIndicator(
-      onRefresh: _refresh,
-      child: SafeArea(
-        top: false,
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 600),
-            child: ListView(
-              // Pull to refresh works on a short list too.
-              physics: const AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.all(16),
-              children: [
-                if (scan.running || scan.error != null)
-                  Card(
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: ScanProgressView(scan: scan),
-                    ),
-                  ),
-                // The recovery phrase guards the funds, so its card stays on top.
-                if (!backedUp && !backupDismissed && config != null)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 16),
-                    child: _BackupCard(
-                      onBackup: _backup,
-                      onDismiss: () => dismissBackupCard(ref, config.chain),
-                    ),
-                  ),
-                if (home.hasError && !home.isLoading)
-                  ErrorText(describeError(l, home.error!)),
-                _PendingSendsCard(transactions: transactions, open: _open),
-                // It waits until the phrase card is gone, so the two backup cards never stack.
-                if ((backedUp || backupDismissed) && config != null && !demo)
-                  _HistoryBackupCard(
-                    chain: config.chain,
-                    transactions: transactions,
-                  ),
-                const SizedBox(height: 16),
-                ProtocolSectionHead(
-                  l.homeRecentActivity,
-                  trailing: transactions.isEmpty
-                      ? null
-                      : TextButton(
-                          onPressed: () => _open(const HistoryScreen()),
-                          child: Text(l.homeSeeAll),
+    Widget column(Widget child) => Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 600),
+        child: child,
+      ),
+    );
+    return SafeArea(
+      top: false,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // The balance stays put above the list; a swipe fades it with the page position,
+          // and off Wallet its line stops scrolling.
+          AnimatedBuilder(
+            animation: _pages,
+            builder: (context, child) {
+              final t = _openness();
+              return TickerMode(
+                enabled: t > 0,
+                child: Opacity(opacity: shellFade(t), child: child),
+              );
+            },
+            child: column(WalletBalance(statuses: !_statusesInBar)),
+          ),
+          Expanded(
+            child: RefreshIndicator(
+              onRefresh: _refresh,
+              child: column(
+                ListView(
+                  // Pull to refresh works on a short list too.
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                  children: [
+                    if (scan.running || scan.error != null)
+                      Card(
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: ScanProgressView(scan: scan),
                         ),
+                      ),
+                    // The recovery phrase guards the funds, so its card stays on top.
+                    if (!backedUp && !backupDismissed && config != null)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 16),
+                        child: _BackupCard(
+                          onBackup: _backup,
+                          onDismiss: () => dismissBackupCard(ref, config.chain),
+                        ),
+                      ),
+                    if (home.hasError && !home.isLoading)
+                      ErrorText(describeError(l, home.error!)),
+                    _PendingSendsCard(transactions: transactions, open: _open),
+                    // It waits until the phrase card is gone, so the two backup cards never stack.
+                    if ((backedUp || backupDismissed) &&
+                        config != null &&
+                        !demo)
+                      _HistoryBackupCard(
+                        chain: config.chain,
+                        transactions: transactions,
+                      ),
+                    const SizedBox(height: 16),
+                    ProtocolSectionHead(
+                      l.homeRecentActivity,
+                      trailing: transactions.isEmpty
+                          ? null
+                          : TextButton(
+                              onPressed: () => _open(const HistoryScreen()),
+                              child: Text(l.homeSeeAll),
+                            ),
+                    ),
+                    if (data != null && transactions.isEmpty)
+                      EmptyState(
+                        icon: const Icon(Icons.south_west),
+                        message: l.homeNoPayments,
+                        action: demo ? const TestCoinsButton() : null,
+                      ),
+                    for (final tx in pendingFirst(
+                      transactions,
+                    ).take(recentActivityCount))
+                      TxTile(tx: tx),
+                  ],
                 ),
-                if (data != null && transactions.isEmpty)
-                  EmptyState(
-                    icon: const Icon(Icons.south_west),
-                    message: l.homeNoPayments,
-                    action: demo ? const TestCoinsButton() : null,
-                  ),
-                for (final tx in pendingFirst(
-                  transactions,
-                ).take(recentActivityCount))
-                  TxTile(tx: tx),
-              ],
+              ),
             ),
           ),
-        ),
+        ],
       ),
     );
   }
 }
 
-/// From the app bar to the balance header on every tab while no notice shows; a notice docks
-/// above this gap and moves the header down with it.
-const double shellHeaderGap = 20;
+/// The lit backdrop behind the shell. While the node syncs its light breathes slowly; with
+/// reduced motion it does not.
+class _Backdrop extends ConsumerWidget {
+  const _Backdrop({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) => ProtocolBackdrop(
+    focus: topGlow,
+    breathing: watchWalletStatus(ref).node.state == NodeState.syncing,
+    child: child,
+  );
+}
 
 /// The app bar's Settings button, with an accent dot while an update is on offer.
 class _SettingsButton extends ConsumerWidget {

@@ -1,5 +1,3 @@
-import 'dart:math' as math;
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -213,12 +211,98 @@ _Face _epicboxFace(
   return _Face(icon, word, color, word, detail);
 }
 
-/// A tooltip that opens on a long press, a tap, or hover, over a 48 dp target.
-class _StatusTarget extends StatelessWidget {
-  const _StatusTarget({required this.face, required this.child});
+/// The side of a status's tap target.
+const double statusTarget = 48;
+
+/// The side of a status's icon, centred in its target.
+const double statusGlyph = 18;
+
+/// From a status target's leading edge to its icon's: what a row of statuses is moved back by
+/// so its first icon lines up with the text above or beside it.
+const double statusInset = (statusTarget - statusGlyph) / 2;
+
+/// The key of the node status, for tests.
+const Key nodeStatusKey = ValueKey('status-node');
+
+/// The key of the epicbox status, for tests.
+const Key epicboxStatusKey = ValueKey('status-epicbox');
+
+/// How many statuses [BarStatuses] shows for [status]: the node, and epicbox while the
+/// listener runs.
+int statusCount(WalletStatus status) => status.epicbox == null ? 1 : 2;
+
+/// The width [BarStatuses] takes for [status].
+double statusesWidth(WalletStatus status) => statusTarget * statusCount(status);
+
+/// [child] fading between 45 % and full opacity every 1.6 s while [active], as the mockup's
+/// pulse. Still at full opacity with reduced motion, or when not [active].
+class Pulse extends StatefulWidget {
+  const Pulse({super.key, required this.active, required this.child});
+
+  final bool active;
+  final Widget child;
+
+  @override
+  State<Pulse> createState() => _PulseState();
+}
+
+class _PulseState extends State<Pulse> with SingleTickerProviderStateMixin {
+  late final AnimationController _controller = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 800),
+  );
+  late final Animation<double> _opacity = Tween<double>(begin: 1, end: 0.45)
+      .chain(CurveTween(curve: const Cubic(0.22, 0.61, 0.36, 1)))
+      .animate(_controller);
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _sync();
+  }
+
+  @override
+  void didUpdateWidget(Pulse old) {
+    super.didUpdateWidget(old);
+    _sync();
+  }
+
+  void _sync() {
+    final run = widget.active && !MediaQuery.disableAnimationsOf(context);
+    if (run && !_controller.isAnimating) {
+      _controller.repeat(reverse: true);
+    } else if (!run && _controller.isAnimating) {
+      _controller
+        ..stop()
+        ..value = 0;
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) =>
+      FadeTransition(opacity: _opacity, child: widget.child);
+}
+
+/// One status as its icon on a [statusTarget] square, in the state's colour. A tap, a long
+/// press or hover shows the tooltip with the detail; a screen reader says the word and the
+/// detail. The syncing node pulses.
+class _StatusIcon extends StatelessWidget {
+  const _StatusIcon({
+    super.key,
+    required this.face,
+    required this.pulse,
+    required this.alignment,
+  });
 
   final _Face face;
-  final Widget child;
+  final bool pulse;
+  final AlignmentGeometry alignment;
 
   @override
   Widget build(BuildContext context) {
@@ -232,153 +316,52 @@ class _StatusTarget extends StatelessWidget {
         hint: face.detail,
         liveRegion: true,
         excludeSemantics: true,
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(minHeight: 48, minWidth: 48),
-          child: child,
+        child: SizedBox.square(
+          dimension: statusTarget,
+          child: Align(
+            alignment: alignment,
+            child: Pulse(
+              active: pulse,
+              child: Icon(face.icon, size: statusGlyph, color: face.color),
+            ),
+          ),
         ),
       ),
     );
   }
 }
 
-/// One status as a row: icon, then the word, right-aligned. Without [showWord] only the icon
-/// shows; the tooltip and the screen reader still have the word and the detail.
-class _StatusRow extends StatelessWidget {
-  const _StatusRow({super.key, required this.face, this.showWord = true});
+/// The node and epicbox statuses as icons side by side, epicbox only while the listener
+/// runs: in the app bar, in Wallet's fiat row, or in the row under the app bar on Send and
+/// Receive. [alignment] places each icon in its target; the row under the app bar is shorter
+/// than a target, so its icons sit in the target's top part.
+class BarStatuses extends ConsumerWidget {
+  const BarStatuses({super.key, this.alignment = Alignment.center});
 
-  final _Face face;
-  final bool showWord;
-
-  @override
-  Widget build(BuildContext context) {
-    // Small, so the column beside the figure stays narrow and the figure keeps its size.
-    final style = Theme.of(context).textTheme.labelSmall
-        ?.copyWith(color: face.color);
-    return _StatusTarget(
-      face: face,
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          Icon(face.icon, size: 14, color: face.color),
-          if (showWord) ...[
-            const SizedBox(width: 4),
-            Flexible(
-              child: Text(
-                face.word,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: style,
-              ),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-}
-
-/// The key of the node row, for tests.
-const Key nodeStatusKey = ValueKey('status-node');
-
-/// The key of the epicbox row, for tests.
-const Key epicboxStatusKey = ValueKey('status-epicbox');
-
-/// The statuses as a column: one right-aligned row for the node, one for epicbox while the
-/// listener runs. Each row's tooltip has the detail.
-class StatusRows extends StatelessWidget {
-  const StatusRows({super.key});
-
-  @override
-  Widget build(BuildContext context) => const Column(
-    mainAxisSize: MainAxisSize.min,
-    crossAxisAlignment: CrossAxisAlignment.end,
-    children: [NodeStatusRow(), EpicboxStatusRow()],
-  );
-}
-
-/// The node's status row, right-aligned.
-class NodeStatusRow extends ConsumerWidget {
-  const NodeStatusRow({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) => _StatusRow(
-    key: nodeStatusKey,
-    face: _nodeFace(
-      context,
-      watchWalletStatus(ref).node,
-      ref.watch(walletConfigProvider),
-    ),
-  );
-}
-
-/// The epicbox status row, right-aligned; nothing while the listener is stopped.
-class EpicboxStatusRow extends ConsumerWidget {
-  const EpicboxStatusRow({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final epicbox = watchWalletStatus(ref).epicbox;
-    if (epicbox == null) return const SizedBox.shrink();
-    return _StatusRow(
-      key: epicboxStatusKey,
-      face: _epicboxFace(context, epicbox, ref.watch(walletConfigProvider)),
-    );
-  }
-}
-
-/// Space between two statuses on one line.
-const double _inlineGap = 12;
-
-/// The width [InlineStatuses] needs at least for [count] statuses: their icons, each on a
-/// 48 dp target.
-double inlineStatusesMinWidth(int count) =>
-    48.0 * count + _inlineGap * math.max(0, count - 1);
-
-/// The statuses side by side on one line, for Wallet's caption row: the node, then epicbox
-/// while the listener runs. Both keep their words while they fit the width given; otherwise
-/// both show only their icons, so large text never squeezes them into an ellipsis.
-class InlineStatuses extends ConsumerWidget {
-  const InlineStatuses({super.key});
+  final AlignmentGeometry alignment;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final status = watchWalletStatus(ref);
     final config = ref.watch(walletConfigProvider);
     final epicbox = status.epicbox;
-    final faces = [
-      (nodeStatusKey, _nodeFace(context, status.node, config)),
-      if (epicbox != null)
-        (epicboxStatusKey, _epicboxFace(context, epicbox, config)),
-    ];
-    final style = Theme.of(context).textTheme.labelSmall;
-    final scaler = MediaQuery.textScalerOf(context);
-    final direction = Directionality.of(context);
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        var needed = _inlineGap * (faces.length - 1);
-        for (final (_, face) in faces) {
-          final painter = TextPainter(
-            text: TextSpan(text: face.word, style: style),
-            textDirection: direction,
-            textScaler: scaler,
-            maxLines: 1,
-          )..layout();
-          // The icon, its gap, and the word.
-          needed += 14 + 4 + painter.width;
-          painter.dispose();
-        }
-        final words = needed <= constraints.maxWidth;
-        return Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            for (final (i, (key, face)) in faces.indexed) ...[
-              if (i > 0) const SizedBox(width: _inlineGap),
-              _StatusRow(key: key, face: face, showWord: words),
-            ],
-          ],
-        );
-      },
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _StatusIcon(
+          key: nodeStatusKey,
+          face: _nodeFace(context, status.node, config),
+          pulse: status.node.state == NodeState.syncing,
+          alignment: alignment,
+        ),
+        if (epicbox != null)
+          _StatusIcon(
+            key: epicboxStatusKey,
+            face: _epicboxFace(context, epicbox, config),
+            pulse: false,
+            alignment: alignment,
+          ),
+      ],
     );
   }
 }

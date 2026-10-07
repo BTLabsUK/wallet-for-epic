@@ -1536,12 +1536,6 @@ class AppLocalizationsPl extends AppLocalizations {
   String get homeBalanceSpendable => 'Dostępne';
 
   @override
-  String get homeShowBreakdown => 'Pokaż szczegóły salda';
-
-  @override
-  String get homeHideBreakdown => 'Ukryj szczegóły salda';
-
-  @override
   String get balanceHelpLabel => 'Co oznaczają te salda';
 
   @override
@@ -1554,11 +1548,6 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get balanceTotalHelp => 'Wszystko w tym portfelu, dostępne lub nie.';
-
-  @override
-  String homeBalanceNotSpendable(String amount) {
-    return '$amount jeszcze niedostępne';
-  }
 
   @override
   String get homeBalanceHiddenLabel => 'Saldo ukryte';
@@ -1598,18 +1587,33 @@ class AppLocalizationsPl extends AppLocalizations {
       'Nagrody za kopanie czekają określoną liczbę bloków, zanim można je wydać.';
 
   @override
-  String get homeCaptionLocked => 'Zablokowane';
-
-  @override
-  String get homeCaptionMiningRewards => 'Nagrody za wydobycie';
-
-  @override
-  String get homeBalanceNextHint => 'Pokaż następne saldo';
-
-  @override
-  String homeBalanceSpendableLine(String amount) {
-    return '$amount dostępne';
+  String balanceLineConfirming(String amount) {
+    return '+$amount w potwierdzaniu';
   }
+
+  @override
+  String balanceLineWaiting(String amount) {
+    return '+$amount czeka na nadawcę';
+  }
+
+  @override
+  String balanceLineLocked(String amount) {
+    return '$amount zablokowane przez wysyłkę';
+  }
+
+  @override
+  String balanceLineMining(String amount) {
+    return 'Dojrzewające nagrody za wydobycie: $amount';
+  }
+
+  @override
+  String get balanceLineAllConfirmed => 'Wszystko potwierdzone';
+
+  @override
+  String get balanceLineNothingYet => 'Jeszcze nic tu nie ma';
+
+  @override
+  String get shellPendingLabel => 'Płatności w drodze';
 
   @override
   String get homeSyncSyncing => 'Synchronizacja…';

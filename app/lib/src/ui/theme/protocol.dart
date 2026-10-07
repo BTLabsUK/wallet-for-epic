@@ -1,9 +1,8 @@
-/// The devices that make the Protocol look recognisable: corner ticks, the measurement grid and
-/// the signal trace (the life line) on the balance panel, the gold-rule section head,
-/// accent-edged notices and the payment timeline. The full panel (grid, ticks, trace) is the
-/// shell's balance only; the
-/// screens that open the app or end a task reuse the grid and ticks through `brand.dart`
-/// (the Epic mark, glyph tiles, the lit backdrop), and lists and forms stay hairlines.
+/// The devices that make the Protocol look recognisable: corner ticks and the measurement grid
+/// (on the screens that open the app or end a task, through `brand.dart`: the Epic mark, glyph
+/// tiles, the lit backdrop), the sweep along the app bar when a payment lands, the gold-rule
+/// section head, accent-edged notices and the payment timeline. Lists and forms stay
+/// hairlines.
 /// Spec: `docs/themes/protocol/FLUTTER.md`.
 library;
 
@@ -81,134 +80,46 @@ class GridFieldPainter extends CustomPainter {
       old.color != color || old.step != step;
 }
 
-/// The gold signal line. [progress] runs from 0 to 1 while the wallet syncs; at 1 it rests,
-/// fully drawn.
-class SignalTracePainter extends CustomPainter {
-  const SignalTracePainter({
-    required this.progress,
-    required this.color,
-    required this.glow,
-  });
+/// The accent line that runs along the app bar's foot once when a payment lands: from the
+/// centre out to both ends as [progress] goes from 0 to 1, fading from 70 % on, its ends
+/// fading into the bar. Nothing at 0 or 1.
+class SweepLinePainter extends CustomPainter {
+  const SweepLinePainter({required this.progress, required this.color});
 
   final double progress;
   final Color color;
-  final bool glow;
 
-  // The mockup's SVG path, in a 350 x 26 box.
-  static const List<Offset> _points = [
-    Offset(0, 13),
-    Offset(70, 13),
-    Offset(76, 4),
-    Offset(84, 22),
-    Offset(92, 8),
-    Offset(98, 13),
-    Offset(190, 13),
-    Offset(196, 6),
-    Offset(202, 20),
-    Offset(208, 13),
-    Offset(350, 13),
-  ];
+  /// The line's height.
+  static const double thickness = 1;
 
   @override
   void paint(Canvas canvas, Size size) {
-    final sx = size.width / 350, sy = size.height / 26;
-    final full = Path()..moveTo(_points.first.dx * sx, _points.first.dy * sy);
-    for (final p in _points.skip(1)) {
-      full.lineTo(p.dx * sx, p.dy * sy);
-    }
-    final metric = full.computeMetrics().first;
-    final part = metric.extractPath(
+    if (progress <= 0 || progress >= 1) return;
+    final eased = Curves.easeOut.transform(progress);
+    final opacity = progress < 0.7 ? 1.0 : (1 - progress) / 0.3;
+    final half = size.width / 2 * eased;
+    final rect = Rect.fromLTRB(
+      size.width / 2 - half,
       0,
-      metric.length * progress.clamp(0.0, 1.0),
+      size.width / 2 + half,
+      thickness,
     );
-    if (glow) {
-      canvas.drawPath(
-        part,
-        Paint()
-          ..color = color.withValues(alpha: 0.45)
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 4
-          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 5),
-      );
-    }
-    canvas.drawPath(
-      part,
+    final c = color.withValues(alpha: color.a * opacity);
+    canvas.drawRect(
+      rect,
       Paint()
-        ..color = color
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 1.5
-        ..strokeCap = StrokeCap.round
-        ..strokeJoin = StrokeJoin.round,
+        ..shader = ui.Gradient.linear(
+          rect.centerLeft,
+          rect.centerRight,
+          [c.withValues(alpha: 0), c, c.withValues(alpha: 0)],
+          const [0, 0.5, 1],
+        ),
     );
   }
 
   @override
-  bool shouldRepaint(SignalTracePainter old) =>
-      old.progress != progress || old.color != color || old.glow != glow;
-}
-
-/// The life line under the balance: the signal trace, drawn as far as [progress] (0 to 1, 1
-/// once the wallet is up to date). It moves to a new value in 400 ms; with reduced motion it
-/// cuts. Screen readers skip it; the node status says the same.
-class ProtocolLifeLine extends StatelessWidget {
-  const ProtocolLifeLine({super.key, required this.progress});
-
-  final double progress;
-
-  @override
-  Widget build(BuildContext context) {
-    final t = context.tokens;
-    final dark = Theme.of(context).brightness == Brightness.dark;
-    final still = MediaQuery.of(context).disableAnimations;
-    return ExcludeSemantics(
-      child: TweenAnimationBuilder<double>(
-        tween: Tween(end: progress),
-        duration: still ? Duration.zero : const Duration(milliseconds: 400),
-        builder: (context, value, _) => CustomPaint(
-          size: const Size.fromHeight(26),
-          painter: SignalTracePainter(
-            progress: value,
-            color: t.accent,
-            glow: dark,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// The balance header as the one framed object: grid behind, ticks in front.
-class ProtocolBalancePanel extends StatelessWidget {
-  const ProtocolBalancePanel({super.key, required this.child, this.padding});
-
-  /// The figure, its fiat value and the status rows.
-  final Widget child;
-
-  /// Inside the frame; the header passes less while it shrinks on Send and Receive.
-  final EdgeInsetsGeometry? padding;
-
-  @override
-  Widget build(BuildContext context) {
-    final t = context.tokens;
-    final dark = Theme.of(context).brightness == Brightness.dark;
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: t.surface,
-        border: Border.all(color: t.line),
-        borderRadius: BorderRadius.circular(t.radiusSmall),
-      ),
-      child: CustomPaint(
-        painter: GridFieldPainter(
-          t.text.withValues(alpha: dark ? 0.035 : 0.05),
-        ),
-        foregroundPainter: CornerTicksPainter(t.tick),
-        child: Padding(
-          padding: padding ?? const EdgeInsets.fromLTRB(18, 14, 12, 14),
-          child: child,
-        ),
-      ),
-    );
-  }
+  bool shouldRepaint(SweepLinePainter old) =>
+      old.progress != progress || old.color != color;
 }
 
 /// A section heading: a short gold rule, then the title in sentence case.

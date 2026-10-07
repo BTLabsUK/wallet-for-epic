@@ -415,6 +415,12 @@ void main() {
     testWidgets('fits at text scale 2', (tester) async {
       addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
       tester.platformDispatcher.textScaleFactorTestValue = 2;
+      // Reduced motion: at this size Wallet's "Nothing here yet" does not fit, and scrolls on.
+      addTearDown(
+        tester.platformDispatcher.clearAccessibilityFeaturesTestValue,
+      );
+      tester.platformDispatcher.accessibilityFeaturesTestValue =
+          const FakeAccessibilityFeatures(disableAnimations: true);
       final h = _Harness();
       await h.pump(tester);
       await h.unlock(tester);
