@@ -25,4 +25,7 @@ for t in simple_test history_test; do
   (cd "$root/app" && xvfb-run -a flutter test --no-pub -d linux "integration_test/$t.dart")
 done
 
+step "web build (the demo's flags, tool/build_web.sh)"
+(cd "$root/app" && tool/build_web.sh >/dev/null)
+
 printf '\ncheck passed\n'
