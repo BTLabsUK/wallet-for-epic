@@ -112,6 +112,9 @@ bool _isGrouped(String digits, String sep) =>
 
 /// The Send tab's content. The recipient comes from [sendRecipientProvider] (a scanned QR code,
 /// Send again), at the start and whenever a new one is handed over.
+/// The key of the amount field's suffix, "Use USD" and "Max", for tests.
+const Key amountSuffixKey = ValueKey('send-amount-suffix');
+
 class SendView extends ConsumerStatefulWidget {
   const SendView({super.key, required this.onDone});
 
@@ -828,37 +831,58 @@ class _SendViewState extends ConsumerState<SendView> {
         ),
         const SizedBox(height: 16),
       ],
-      TextField(
-        controller: _amount,
-        focusNode: _amountFocus,
-        keyboardType: const TextInputType.numberWithOptions(decimal: true),
-        textInputAction: TextInputAction.next,
-        onEditingComplete: _noteFocus.requestFocus,
-        onChanged: _onAmountChanged,
-        decoration: InputDecoration(
-          labelText: l.sendAmountLabel(
-            _fiatEntry ? currency.toUpperCase() : 'EPIC',
-          ),
-          helperText: amountHelper,
-          error: _amountError == null ? null : LiveFieldError(_amountError!),
-          border: const OutlineInputBorder(),
-          suffixIcon: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Plain text buttons: their text is their label. A Tooltip here, inside the
-              // field's suffix, broke the semantics tree after a route pop.
-              if (price != null || _fiatEntry)
-                TextButton(
-                  onPressed: _toggleUnit,
-                  child: Text(
-                    l.sendUseUnit(_fiatEntry ? 'EPIC' : currency.toUpperCase()),
+      LayoutBuilder(
+        builder: (context, field) => TextField(
+          controller: _amount,
+          focusNode: _amountFocus,
+          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          textInputAction: TextInputAction.next,
+          onEditingComplete: _noteFocus.requestFocus,
+          onChanged: _onAmountChanged,
+          decoration: InputDecoration(
+            labelText: l.sendAmountLabel(
+              _fiatEntry ? currency.toUpperCase() : 'EPIC',
+            ),
+            helperText: amountHelper,
+            error: _amountError == null ? null : LiveFieldError(_amountError!),
+            border: const OutlineInputBorder(),
+            // At most 60 % of the field, so the amount keeps its room; on a narrow phone
+            // with large text the buttons' words shrink rather than overflow the field.
+            suffixIcon: ConstrainedBox(
+              key: amountSuffixKey,
+              constraints: BoxConstraints(maxWidth: field.maxWidth * 0.6),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Plain text buttons: their text is their label. A Tooltip here, inside the
+                  // field's suffix, broke the semantics tree after a route pop.
+                  if (price != null || _fiatEntry)
+                    Flexible(
+                      child: TextButton(
+                        onPressed: _toggleUnit,
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(
+                            l.sendUseUnit(
+                              _fiatEntry ? 'EPIC' : currency.toUpperCase(),
+                            ),
+                            maxLines: 1,
+                          ),
+                        ),
+                      ),
+                    ),
+                  Flexible(
+                    child: TextButton(
+                      onPressed: _busy ? null : _max,
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(l.sendMax, maxLines: 1),
+                      ),
+                    ),
                   ),
-                ),
-              TextButton(
-                onPressed: _busy ? null : _max,
-                child: Text(l.sendMax),
+                ],
               ),
-            ],
+            ),
           ),
         ),
       ),

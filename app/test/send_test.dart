@@ -225,10 +225,8 @@ class _Harness {
         child: MaterialApp(
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
-          builder: (context, child) => AdvancedOptions(
-            enabled: advanced,
-            child: child!,
-          ),
+          builder: (context, child) =>
+              AdvancedOptions(enabled: advanced, child: child!),
           home: screen,
         ),
       ),
@@ -1068,6 +1066,41 @@ void main() {
       expect(find.text('Use USD'), findsNothing);
       expect(find.text('Spendable: 40 EPIC'), findsOneWidget);
     });
+
+    for (final scale in [1.0, 2.0]) {
+      testWidgets('Use USD and Max fit the field at 320 dp, text x$scale', (
+        tester,
+      ) async {
+        addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+        tester.platformDispatcher.textScaleFactorTestValue = scale;
+        final h = _Harness(price: 0.5);
+        await h.pump(tester, _sendTab());
+        tester.view.physicalSize = const Size(960, 2340);
+        await tester.pumpAndSettle();
+        expect(tester.takeException(), isNull);
+        final field = tester.getRect(
+          find.widgetWithText(TextField, 'Amount (EPIC)'),
+        );
+        final suffix = tester.getRect(find.byKey(amountSuffixKey));
+        // Inside the field, leaving the amount at least 40 % of it.
+        expect(suffix.right, lessThanOrEqualTo(field.right));
+        expect(suffix.width, lessThanOrEqualTo(field.width * 0.6 + 0.5));
+        for (final label in ['Use USD', 'Max']) {
+          final button = find.ancestor(
+            of: find.text(label),
+            matching: find.byType(TextButton),
+          );
+          final rect = tester.getRect(button);
+          expect(rect.left, greaterThanOrEqualTo(suffix.left), reason: label);
+          expect(rect.right, lessThanOrEqualTo(suffix.right), reason: label);
+          expect(rect.height, greaterThanOrEqualTo(48), reason: label);
+        }
+        // Both still work.
+        await _tap(tester, find.text('Use USD'));
+        expect(find.widgetWithText(TextField, 'Amount (USD)'), findsOneWidget);
+        expect(tester.takeException(), isNull);
+      });
+    }
 
     testWidgets('scan fills the recipient and a contact shows by name', (
       tester,
