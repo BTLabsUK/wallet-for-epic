@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -578,21 +581,29 @@ class TxStatusChip extends ConsumerWidget {
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
         child: Text(
           txStatusLabel(context.l10n, tx, tip, target: target),
-          style: Theme.of(context).textTheme.labelSmall?.copyWith(color: fg),
+          // Tabular digits, so the chip keeps its width while confirmations come in.
+          style: Theme.of(context).textTheme.labelSmall?.copyWith(
+            color: fg,
+            fontFeatures: const [FontFeature.tabularFigures()],
+          ),
         ),
       ),
     );
   }
 }
 
-/// The direction of [tx] in a hairline square: green in, plain out, gold for a reward.
-class TxIcon extends StatelessWidget {
-  const TxIcon({super.key, required this.tx});
+/// The direction of [tx] in a rounded square whose edge shows its progress: green in, plain
+/// out, gold for a reward. See [TxProgressSquare] for the edge.
+class TxIcon extends ConsumerWidget {
+  const TxIcon({super.key, required this.tx, required this.tip});
 
   final TxEntry tx;
 
+  /// The node's tip, for the confirmations a confirming payment has.
+  final BigInt? tip;
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final t = context.tokens;
     final l = context.l10n;
     final (IconData icon, Color fg, String label) = switch (tx.kind) {
@@ -607,16 +618,419 @@ class TxIcon extends StatelessWidget {
       TxKind.sent ||
       TxKind.sentCancelled => (Icons.north_east, t.text, l.txIconOutgoing),
     };
-    return Container(
-      width: 40,
-      height: 40,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(t.radiusSmall),
-        border: Border.all(color: t.lineStrong),
-      ),
+    final target = confirmationsTargetOf(ref);
+    final phase = txPhase(tx, tip, target: target);
+    return TxProgressSquare(
+      payment: tx.key,
+      phase: phase,
+      fraction: phase == TxPhase.confirming
+          ? txConfirmedShare(txConfirmations(tx, tip) ?? 0, target)
+          : 0,
       child: Icon(icon, size: 20, color: fg, semanticLabel: label),
     );
   }
+}
+
+/// [confirmations] of [target] as a share of the tile's edge, 0 to 1.
+double txConfirmedShare(int confirmations, int target) =>
+    target <= 0 ? 1 : (confirmations / target).clamp(0.0, 1.0);
+
+/// What a payment tile's edge does in a [TxPhase].
+enum TxEdgeKind {
+  /// Final or not followed: the 1 dp hairline only.
+  hairline,
+
+  /// Confirming: the current mark's line fills clockwise to the confirmations' share.
+  fill,
+
+  /// Waiting for the other side: a short run of the line travels round the square.
+  run,
+}
+
+TxEdgeKind txEdgeKind(TxPhase phase) => switch (phase) {
+  TxPhase.waitingRecipient ||
+  TxPhase.waitingSender ||
+  TxPhase.waitingPayer => TxEdgeKind.run,
+  TxPhase.confirming => TxEdgeKind.fill,
+  TxPhase.completed ||
+  TxPhase.cancelled ||
+  TxPhase.fromBackup => TxEdgeKind.hairline,
+};
+
+/// The tile's side.
+const double txTileSize = 40;
+
+/// The halo round a live tile, outside its square.
+const double txTileHalo = 3;
+
+/// The share of the edge the waiting run covers.
+const double txEdgeRunShare = 0.16;
+
+/// One lap of the waiting run; twice as long for a send waiting on its recipient, which may
+/// take hours.
+Duration txEdgeLap(TxPhase phase) => phase == TxPhase.waitingRecipient
+    ? const Duration(milliseconds: 4800)
+    : const Duration(milliseconds: 2400);
+
+/// Whether a waiting tile's run travels. Widget tests turn it off in
+/// `test/flutter_test_config.dart`, since a loop never lets `pumpAndSettle` settle; the tile
+/// then shows the full current mark, as with reduced motion. The loader's own tests turn it on.
+@visibleForTesting
+bool txEdgeRunMoves = true;
+
+/// How long the fill takes to reach a new confirmation count.
+const Duration txEdgeFillDuration = Duration(milliseconds: 900);
+
+/// How long a landed payment's tile stays closed in [doneMarkEdge] before it is a hairline.
+const Duration txEdgeLandDuration = Duration(milliseconds: 1300);
+
+/// The landing halo's opacity, of [doneMarkEdge].
+const double txEdgeLandHaloAlpha = 0.22;
+
+/// The 40 dp rounded square of a payment tile, as a loader. Pending, its edge is the
+/// timeline's current mark ([currentMarkEdge] line, [currentMarkHalo] halo): filling to
+/// [fraction] while confirming, a run travelling round it while waiting. When it goes from
+/// confirming to completed while shown, the edge closes in [doneMarkEdge] for
+/// [txEdgeLandDuration], then it is the hairline. Final, cancelled and backup rows keep the
+/// hairline. With reduced motion nothing moves: waiting shows the full mark, the fill cuts
+/// and a landing cuts to the hairline. The square never changes size; it adds no semantics.
+class TxProgressSquare extends StatefulWidget {
+  const TxProgressSquare({
+    super.key,
+    required this.payment,
+    required this.phase,
+    required this.fraction,
+    required this.child,
+  });
+
+  /// The payment shown ([TxEntry.key]). A tile built anew for the same payment, as a list
+  /// does when it reorders, still sees the payment land.
+  final String payment;
+
+  final TxPhase phase;
+
+  /// The confirmed share of the edge while [phase] is [TxPhase.confirming], 0 to 1.
+  final double fraction;
+
+  /// The glyph in the middle.
+  final Widget child;
+
+  @override
+  State<TxProgressSquare> createState() => _TxProgressSquareState();
+}
+
+/// The phase each payment's tiles showed in the last frame, kept while a tile shows the
+/// payment. A list that moves a payment drops its old tile and builds a new one in the same
+/// frame, and two tiles may show one payment, so what a frame shows is written after it, in
+/// a microtask, and a payment no tile holds is forgotten then.
+abstract final class _TxEdgeMemory {
+  static final Map<String, TxPhase> _phases = {};
+  static final Map<String, TxPhase> _shown = {};
+  static final Map<String, int> _holders = {};
+  static bool _queued = false;
+
+  static TxPhase? phaseOf(String payment) => _phases[payment];
+
+  static void hold(String payment) =>
+      _holders[payment] = (_holders[payment] ?? 0) + 1;
+
+  static void show(String payment, TxPhase phase) {
+    _shown[payment] = phase;
+    _commitLater();
+  }
+
+  static void release(String payment) {
+    final left = (_holders[payment] ?? 1) - 1;
+    if (left > 0) {
+      _holders[payment] = left;
+    } else {
+      _holders.remove(payment);
+      _commitLater();
+    }
+  }
+
+  static void _commitLater() {
+    if (_queued) return;
+    _queued = true;
+    scheduleMicrotask(() {
+      _queued = false;
+      _phases.addAll(_shown);
+      _shown.clear();
+      _phases.removeWhere((payment, _) => !_holders.containsKey(payment));
+    });
+  }
+}
+
+class _TxProgressSquareState extends State<TxProgressSquare>
+    with TickerProviderStateMixin {
+  late final AnimationController _fill = AnimationController(
+    vsync: this,
+    duration: txEdgeFillDuration,
+    value: 1,
+  );
+  late final AnimationController _run = AnimationController(vsync: this);
+  late final AnimationController _land = AnimationController(
+    vsync: this,
+    duration: txEdgeLandDuration,
+  )..addStatusListener(_landed);
+  late final Listenable _motion = Listenable.merge([_fill, _run, _land]);
+
+  /// The fill tweens from [_from] to [_to] as [_fill] runs.
+  late double _from = widget.fraction;
+  late double _to = widget.fraction;
+  bool _landing = false;
+  bool _still = false;
+  bool _seen = false;
+
+  double get _filled =>
+      _from + (_to - _from) * Curves.easeOutCubic.transform(_fill.value);
+
+  @override
+  void initState() {
+    super.initState();
+    _TxEdgeMemory.hold(widget.payment);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _still = MediaQuery.disableAnimationsOf(context);
+    if (_still) {
+      _settle(_to);
+      _endLanding();
+    }
+    if (!_seen) {
+      _seen = true;
+      _follow(_TxEdgeMemory.phaseOf(widget.payment));
+    }
+    _syncRun();
+  }
+
+  @override
+  void didUpdateWidget(TxProgressSquare old) {
+    super.didUpdateWidget(old);
+    if (old.payment != widget.payment) {
+      // Another payment in this place: start from what it shows, without a tween.
+      _TxEdgeMemory.release(old.payment);
+      _TxEdgeMemory.hold(widget.payment);
+      _endLanding();
+      _settle(widget.fraction);
+      _follow(_TxEdgeMemory.phaseOf(widget.payment));
+    } else {
+      _follow(old.phase);
+    }
+    _syncRun();
+  }
+
+  /// Moves the edge from [before], the phase last shown for this payment, to the widget's.
+  void _follow(TxPhase? before) {
+    final phase = widget.phase;
+    _TxEdgeMemory.show(widget.payment, phase);
+    if (before == TxPhase.confirming && phase == TxPhase.completed) {
+      if (_still) return;
+      // Close the edge, then hold it in the done colour.
+      _from = _filled;
+      _to = 1;
+      _fill.forward(from: 0);
+      _landing = true;
+      _land.forward(from: 0);
+      return;
+    }
+    if (_landing && phase == TxPhase.completed) return;
+    _endLanding();
+    if (phase != TxPhase.confirming || before != TxPhase.confirming) {
+      // A new phase starts where it is, without a tween.
+      _settle(widget.fraction);
+    } else if (widget.fraction != _to) {
+      if (_still) {
+        _settle(widget.fraction);
+      } else {
+        _from = _filled;
+        _to = widget.fraction;
+        _fill.forward(from: 0);
+      }
+    }
+  }
+
+  /// Shows [fraction] at once.
+  void _settle(double fraction) {
+    _from = _to = fraction;
+    if (_fill.value != 1) _fill.value = 1;
+  }
+
+  void _landed(AnimationStatus status) {
+    if (status == AnimationStatus.completed) setState(_endLanding);
+  }
+
+  void _endLanding() {
+    _landing = false;
+    if (_land.isAnimating) _land.stop();
+  }
+
+  bool get _runMoves => !_still && txEdgeRunMoves;
+
+  void _syncRun() {
+    final run = txEdgeKind(widget.phase) == TxEdgeKind.run && _runMoves;
+    if (!run) {
+      if (_run.isAnimating) _run.stop();
+      return;
+    }
+    final lap = txEdgeLap(widget.phase);
+    if (_run.duration != lap) {
+      _run.duration = lap;
+      if (_run.isAnimating) _run.repeat();
+    }
+    if (!_run.isAnimating) _run.repeat();
+  }
+
+  @override
+  void dispose() {
+    _TxEdgeMemory.release(widget.payment);
+    _fill.dispose();
+    _run.dispose();
+    _land.dispose();
+    super.dispose();
+  }
+
+  TxEdgePainter _painter(WalletTokens t) {
+    final radius = t.radiusSmall;
+    if (_landing) {
+      // Held, then fading out over the last quarter.
+      final fade = 1 - ((_land.value - 0.75) / 0.25).clamp(0.0, 1.0);
+      final done = doneMarkEdge(t);
+      return TxEdgePainter(
+        radius: radius,
+        hairline: t.lineStrong,
+        edge: done.withValues(alpha: done.a * fade),
+        halo: done.withValues(alpha: txEdgeLandHaloAlpha * fade),
+        extent: _filled,
+      );
+    }
+    return switch (txEdgeKind(widget.phase)) {
+      TxEdgeKind.hairline => TxEdgePainter(
+        radius: radius,
+        hairline: t.lineStrong,
+      ),
+      TxEdgeKind.fill => TxEdgePainter(
+        radius: radius,
+        hairline: t.lineStrong,
+        edge: currentMarkEdge(t),
+        halo: currentMarkHalo(t),
+        extent: _filled,
+      ),
+      TxEdgeKind.run => TxEdgePainter(
+        radius: radius,
+        hairline: t.lineStrong,
+        edge: currentMarkEdge(t),
+        halo: currentMarkHalo(t),
+        start: _runMoves ? _run.value : 0,
+        extent: _runMoves ? txEdgeRunShare : 1,
+      ),
+    };
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    return SizedBox.square(
+      dimension: txTileSize,
+      child: AnimatedBuilder(
+        animation: _motion,
+        builder: (context, child) =>
+            CustomPaint(painter: _painter(t), child: child),
+        child: Center(child: widget.child),
+      ),
+    );
+  }
+}
+
+/// A payment tile's square: the [halo] outside it, the 1 dp [hairline] on it, and over that
+/// the current mark's [currentMarkStroke] line in [edge], from [start] for [extent] of the
+/// edge (shares of the perimeter, clockwise from the top centre).
+class TxEdgePainter extends CustomPainter {
+  const TxEdgePainter({
+    required this.radius,
+    required this.hairline,
+    this.edge,
+    this.halo,
+    this.start = 0,
+    this.extent = 0,
+  });
+
+  final double radius;
+  final Color hairline;
+  final Color? edge;
+  final Color? halo;
+  final double start;
+  final double extent;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final box = Offset.zero & size;
+    if (halo case final halo?) {
+      canvas.drawDRRect(
+        RRect.fromRectAndRadius(
+          box.inflate(txTileHalo),
+          Radius.circular(radius + txTileHalo),
+        ),
+        RRect.fromRectAndRadius(box, Radius.circular(radius)),
+        Paint()..color = halo,
+      );
+    }
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(box.deflate(0.5), Radius.circular(radius - 0.5)),
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1
+        ..color = hairline,
+    );
+    if (edge case final edge? when extent > 0) {
+      const w = currentMarkStroke;
+      canvas.drawPath(
+        txEdgePath(box.deflate(w / 2), radius - w / 2, start, extent),
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = w
+          ..strokeCap = extent >= 1 ? StrokeCap.butt : StrokeCap.round
+          ..color = edge,
+      );
+    }
+  }
+
+  @override
+  bool shouldRepaint(TxEdgePainter old) =>
+      old.radius != radius ||
+      old.hairline != hairline ||
+      old.edge != edge ||
+      old.halo != halo ||
+      old.start != start ||
+      old.extent != extent;
+}
+
+/// The part of [rect]'s edge, corners rounded by [radius], from [start] for [extent], both
+/// shares of the perimeter measured clockwise from the top centre. A part that passes the top
+/// centre wraps round; an [extent] of 1 or more is the whole closed edge.
+Path txEdgePath(Rect rect, double radius, double start, double extent) {
+  final r = Radius.circular(radius);
+  final loop = Path()
+    ..moveTo(rect.center.dx, rect.top)
+    ..lineTo(rect.right - radius, rect.top)
+    ..arcToPoint(Offset(rect.right, rect.top + radius), radius: r)
+    ..lineTo(rect.right, rect.bottom - radius)
+    ..arcToPoint(Offset(rect.right - radius, rect.bottom), radius: r)
+    ..lineTo(rect.left + radius, rect.bottom)
+    ..arcToPoint(Offset(rect.left, rect.bottom - radius), radius: r)
+    ..lineTo(rect.left, rect.top + radius)
+    ..arcToPoint(Offset(rect.left + radius, rect.top), radius: r)
+    ..close();
+  if (extent >= 1) return loop;
+  final metric = loop.computeMetrics().first;
+  final length = metric.length;
+  final from = (start % 1) * length;
+  final to = from + extent.clamp(0.0, 1.0) * length;
+  final part = metric.extractPath(from, math.min(to, length));
+  if (to > length) part.addPath(metric.extractPath(0, to - length), Offset.zero);
+  return part;
 }
 
 /// What a screen reader says for a payment row, as one sentence:
@@ -732,7 +1146,7 @@ class TxTile extends ConsumerWidget {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              TxIcon(tx: tx),
+              TxIcon(tx: tx, tip: tip),
               const SizedBox(width: 16),
               Expanded(
                 child: Column(

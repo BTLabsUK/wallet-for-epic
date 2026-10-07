@@ -270,6 +270,21 @@ class EdgeCard extends StatelessWidget {
 
 enum TimelineState { done, current, todo }
 
+/// The edge of the step being waited for: [StatusTimeline]'s current mark and the payment
+/// tile's loader (`TxIcon`) both draw it, so the two read as one thing. A
+/// [currentMarkStroke] line in [currentMarkEdge] with a [currentMarkHalo] halo, on a square
+/// with rounded corners.
+const double currentMarkStroke = 2;
+
+/// The current mark's line.
+Color currentMarkEdge(WalletTokens t) => t.accent;
+
+/// The current mark's halo.
+Color currentMarkHalo(WalletTokens t) => t.accentSoft;
+
+/// A done mark's line and rail, which a payment's tile closes in when it lands.
+Color doneMarkEdge(WalletTokens t) => t.ok;
+
 /// One step of [StatusTimeline]. The current step says what is being waited for, never what
 /// already happened.
 class TimelineStep {
@@ -308,7 +323,7 @@ class StatusTimeline extends StatelessWidget {
                           child: Container(
                             width: 2,
                             color: steps[i].state == TimelineState.done
-                                ? t.ok
+                                ? doneMarkEdge(t)
                                 : t.line,
                           ),
                         ),
@@ -367,19 +382,19 @@ class _Mark extends StatelessWidget {
         borderRadius: BorderRadius.circular(4),
         color: t.bg,
         border: Border.all(
-          width: 2,
+          width: currentMarkStroke,
           color: switch (state) {
-            TimelineState.done => t.ok,
-            TimelineState.current => t.accent,
+            TimelineState.done => doneMarkEdge(t),
+            TimelineState.current => currentMarkEdge(t),
             TimelineState.todo => t.lineStrong,
           },
         ),
         boxShadow: state == TimelineState.current
-            ? [BoxShadow(color: t.accentSoft, spreadRadius: 4)]
+            ? [BoxShadow(color: currentMarkHalo(t), spreadRadius: 4)]
             : null,
       ),
       child: state == TimelineState.done
-          ? Icon(Icons.check, size: 14, color: t.ok)
+          ? Icon(Icons.check, size: 14, color: doneMarkEdge(t))
           : null,
     );
   }

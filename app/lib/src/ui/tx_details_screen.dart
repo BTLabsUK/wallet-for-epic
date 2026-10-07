@@ -427,7 +427,7 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
         children: [
           Row(
             children: [
-              TxIcon(tx: tx),
+              TxIcon(tx: tx, tip: tip),
               const SizedBox(width: 16),
               Expanded(
                 child: Column(
