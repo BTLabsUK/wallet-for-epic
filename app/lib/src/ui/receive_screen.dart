@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math' as math;
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
@@ -14,7 +15,6 @@ import '../providers.dart';
 import '../settings.dart';
 import '../slate_files.dart';
 import '../wallet_service.dart';
-import 'centered_body.dart';
 import 'common.dart';
 import 'demo_screens.dart' show TestCoinsButton;
 import 'file_exchange_help.dart';
@@ -26,56 +26,272 @@ import 'theme/brand.dart';
 import 'theme/protocol.dart';
 import 'theme/tokens.dart';
 
+/// Which of Receive's tabs shows: false for Epicbox address, true for Payment file. Kept
+/// while the app runs, across tab changes and rebuilds; Epicbox address at start.
+final receiveByFileProvider = NotifierProvider<ReceiveTabNotifier, bool>(
+  ReceiveTabNotifier.new,
+);
+
+class ReceiveTabNotifier extends Notifier<bool> {
+  @override
+  bool build() => false;
+
+  void choose({required bool byFile}) => state = byFile;
+}
+
+/// The key of Receive's tab choice, for tests.
+const Key receiveTabsKey = ValueKey('receive-tabs');
+
+/// The QR code's side on Receive: at most [receiveQrMaxSize], and less when the Epicbox tab
+/// would not fit the screen otherwise, down to [receiveQrMinSize]. Below that the page scrolls.
+const double receiveQrMaxSize = 240, receiveQrMinSize = 160;
+
 /// Receiving: epicbox payments arrive by themselves while connected; a payment file or its
 /// text can still be accepted by hand. There is no HTTP receive, because a phone cannot
 /// accept connections.
 ///
-/// The Receive tab's content, top to bottom: the address (tap to copy, Share inside), the
-/// epicbox line, the QR code, receiving by file, requesting a payment when the wallet
-/// handles invoices, and help.
+/// The Receive tab's content: a choice at the top with Send's look and labels, then on
+/// Epicbox address the address (tap to copy, Share inside), the epicbox line, the QR code, and
+/// the demo's test coins and requesting a payment when the wallet handles invoices; on Payment
+/// file the file card. Help ends both. The QR code takes the room left, so the Epicbox tab
+/// fits a phone without scrolling.
 class ReceiveView extends ConsumerWidget {
   const ReceiveView({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l = context.l10n;
+    final byFile = ref.watch(receiveByFileProvider);
     final address = ref.watch(addressProvider);
-    return CenteredScroll(
-      child: CenteredBody(
-        children: [
-          ...switch (address) {
-            AsyncData(:final value) => [
-              _AddressRow(address: value),
-              const SizedBox(height: 8),
-              const _EpicboxLine(),
-              const SizedBox(height: 16),
-              _AddressQr(address: value),
-              if (ref.watch(demoModeProvider)) ...[
-                const SizedBox(height: 16),
-                const Center(child: TestCoinsButton()),
-              ],
-            ],
-            AsyncError(:final error) => [ErrorText(describeError(l, error))],
-            _ => [const LinearProgressIndicator()],
-          },
-          const SizedBox(height: 24),
-          const _FileCard(),
-          if (ref.watch(sessionProvider)?.supportsInvoices ?? false) ...[
-            const SizedBox(height: 16),
-            const _RequestCard(),
-          ],
+    final demo = ref.watch(demoModeProvider);
+    final invoices = ref.watch(sessionProvider)?.supportsInvoices ?? false;
+    final help = Center(
+      child: TextButton.icon(
+        icon: const Icon(Icons.help_outline),
+        label: Text(l.receiveHelpButton),
+        onPressed: () => openHelp(context, HelpTopic.receiving),
+      ),
+    );
+    final tabs = SegmentedButton<bool>(
+      key: receiveTabsKey,
+      segments: [
+        ButtonSegment(
+          value: false,
+          icon: const Icon(Icons.alternate_email),
+          label: Text(l.sendMethodEpicbox),
+        ),
+        ButtonSegment(
+          value: true,
+          icon: const Icon(Icons.description_outlined),
+          label: Text(l.sendMethodFile),
+        ),
+      ],
+      selected: {byFile},
+      showSelectedIcon: false,
+      expandedInsets: EdgeInsets.zero,
+      onSelectionChanged: (selected) => ref
+          .read(receiveByFileProvider.notifier)
+          .choose(byFile: selected.first),
+    );
+    Widget column(List<Widget> children) => Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: children,
+    );
+    final value = address.value;
+    final Widget above;
+    final Widget? code;
+    final Widget below;
+    if (byFile) {
+      above = column([const _FileCard(), const SizedBox(height: 8), help]);
+      code = null;
+      below = const SizedBox.shrink();
+    } else {
+      above = column([
+        if (value != null) ...[
+          _AddressRow(address: value),
           const SizedBox(height: 8),
-          Center(
-            child: TextButton.icon(
-              icon: const Icon(Icons.help_outline),
-              label: Text(l.receiveHelpButton),
-              onPressed: () => openHelp(context, HelpTopic.receiving),
-            ),
+          const _EpicboxLine(),
+          const SizedBox(height: 8),
+        ] else if (address.hasError)
+          ErrorText(describeError(l, address.error!))
+        else
+          const LinearProgressIndicator(),
+      ]);
+      code = value == null
+          ? null
+          : LayoutBuilder(
+              builder: (context, room) => _AddressQr(
+                address: value,
+                size:
+                    math
+                        .min(room.maxWidth, room.maxHeight)
+                        .clamp(
+                          receiveQrMinSize + _AddressQr.frame,
+                          receiveQrMaxSize + _AddressQr.frame,
+                        ) -
+                    _AddressQr.frame,
+              ),
+            );
+      below = column([
+        if (demo || invoices) ...[
+          const SizedBox(height: 8),
+          Wrap(
+            alignment: WrapAlignment.center,
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              if (demo && value != null) const TestCoinsButton(),
+              if (invoices) const _RequestButton(),
+            ],
           ),
         ],
+        const SizedBox(height: 8),
+        help,
+      ]);
+    }
+    const padding = 16.0;
+    return SafeArea(
+      child: LayoutBuilder(
+        builder: (context, viewport) => SingleChildScrollView(
+          child: Align(
+            alignment: Alignment.topCenter,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 600),
+              child: Padding(
+                padding: const EdgeInsets.all(padding),
+                child: _ReceivePage(
+                  height: math.max(0, viewport.maxHeight - 2 * padding),
+                  leastCode: receiveQrMinSize + _AddressQr.frame,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: tabs,
+                    ),
+                    above,
+                    ?code,
+                    below,
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }
+}
+
+/// Receive's page: the tabs at the top, then the rest centred in the room under them. With
+/// four children the third is the QR code, which gets the room the others leave, at least
+/// [leastCode]: the page is [height] tall, or taller and scrolled when even the least code
+/// does not fit.
+class _ReceivePage extends MultiChildRenderObjectWidget {
+  const _ReceivePage({
+    required this.height,
+    required this.leastCode,
+    required super.children,
+  });
+
+  final double height;
+  final double leastCode;
+
+  @override
+  RenderObject createRenderObject(BuildContext context) =>
+      _RenderReceivePage(height, leastCode);
+
+  @override
+  void updateRenderObject(BuildContext context, _RenderReceivePage render) {
+    render
+      ..height = height
+      ..leastCode = leastCode;
+  }
+}
+
+class _ReceivePageData extends ContainerBoxParentData<RenderBox> {}
+
+class _RenderReceivePage extends RenderBox
+    with
+        ContainerRenderObjectMixin<RenderBox, _ReceivePageData>,
+        RenderBoxContainerDefaultsMixin<RenderBox, _ReceivePageData> {
+  _RenderReceivePage(this._height, this._leastCode);
+
+  double _height;
+  set height(double value) {
+    if (value == _height) return;
+    _height = value;
+    markNeedsLayout();
+  }
+
+  double _leastCode;
+  set leastCode(double value) {
+    if (value == _leastCode) return;
+    _leastCode = value;
+    markNeedsLayout();
+  }
+
+  @override
+  void setupParentData(RenderBox child) {
+    if (child.parentData is! _ReceivePageData) {
+      child.parentData = _ReceivePageData();
+    }
+  }
+
+  @override
+  double computeMinIntrinsicHeight(double width) => _height;
+
+  @override
+  double computeMaxIntrinsicHeight(double width) => _height;
+
+  @override
+  Size computeDryLayout(covariant BoxConstraints constraints) =>
+      constraints.constrain(Size(constraints.maxWidth, _height));
+
+  @override
+  void performLayout() {
+    final width = constraints.maxWidth;
+    final children = getChildrenAsList();
+    final loose = BoxConstraints(maxWidth: width);
+    final tight = BoxConstraints.tightFor(width: width);
+    // The tabs, the part above the code and the part below it: as tall as they are.
+    final rest = [
+      for (final (i, child) in children.indexed)
+        if (children.length < 4 || i != 2) child,
+    ];
+    var used = 0.0;
+    for (final child in rest) {
+      child.layout(tight, parentUsesSize: true);
+      used += child.size.height;
+    }
+    if (children.length == 4) {
+      final code = children[2];
+      code.layout(
+        loose.copyWith(maxHeight: math.max(_height - used, _leastCode)),
+        parentUsesSize: true,
+      );
+      used += code.size.height;
+    }
+    size = constraints.constrain(Size(width, math.max(_height, used)));
+    // The tabs stay at the top; the rest is centred in the room under them.
+    final head = children.first;
+    var y = head.size.height + (size.height - used) / 2;
+    (head.parentData! as _ReceivePageData).offset = Offset.zero;
+    for (final child in children.skip(1)) {
+      (child.parentData! as _ReceivePageData).offset = Offset(
+        (width - child.size.width) / 2,
+        y,
+      );
+      y += child.size.height;
+    }
+  }
+
+  @override
+  bool hitTestChildren(BoxHitTestResult result, {required Offset position}) =>
+      defaultHitTestChildren(result, position: position);
+
+  @override
+  void paint(PaintingContext context, Offset offset) =>
+      defaultPaint(context, offset);
 }
 
 /// The key of the address card, which copies on a tap, for tests.
@@ -290,18 +506,24 @@ class _EpicboxLine extends ConsumerWidget {
   }
 }
 
-/// The address as a QR code with the mark, framed like Home's balance.
+/// The address as a QR code of [size] with the mark, framed by corner ticks.
 class _AddressQr extends StatelessWidget {
-  const _AddressQr({required this.address});
+  const _AddressQr({required this.address, required this.size});
 
   final String address;
+  final double size;
+
+  /// What the frame adds to the code's side: the ticks' and the white margin's padding.
+  static const double frame = 2 * 12 + 2 * 16;
 
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
     final dark = Theme.of(context).brightness == Brightness.dark;
     return Center(
-      // The corner ticks frame the code as the screen's one object, like Home's balance.
+      // As tall as the code, so the page centres it with the rest.
+      heightFactor: 1,
+      // The corner ticks frame the code as the screen's one object.
       child: CustomPaint(
         foregroundPainter: CornerTicksPainter(t.tick, length: 16),
         child: Padding(
@@ -322,7 +544,7 @@ class _AddressQr extends StatelessWidget {
             child: Semantics(
               label: context.l10n.receiveQrLabel,
               image: true,
-              child: MarkedQr(data: address, size: 240),
+              child: MarkedQr(data: address, size: size),
             ),
           ),
         ),
@@ -411,57 +633,24 @@ class _FileCard extends ConsumerWidget {
   }
 }
 
-/// The key of Receive's request card, for tests.
+/// The key of Receive's request button, for tests.
 const Key receiveRequestKey = ValueKey('receive-request');
 
-/// Asking someone to pay this wallet, when the wallet handles invoices: one line and the
-/// button to the request form.
-class _RequestCard extends StatelessWidget {
-  const _RequestCard();
+/// Asking someone to pay this wallet, when the wallet handles invoices: the button to the
+/// request form.
+class _RequestButton extends StatelessWidget {
+  const _RequestButton();
 
   @override
-  Widget build(BuildContext context) {
-    final l = context.l10n;
-    final t = context.tokens;
-    final theme = Theme.of(context);
-    return Card(
-      key: receiveRequestKey,
-      margin: EdgeInsets.zero,
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Semantics(
-              header: true,
-              child: Text(
-                l.receiveRequestTitle,
-                style: theme.textTheme.titleSmall,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              l.receiveRequestBody,
-              style: theme.textTheme.bodyMedium?.copyWith(color: t.dim),
-            ),
-            const SizedBox(height: 12),
-            OutlinedButton.icon(
-              style: OutlinedButton.styleFrom(
-                minimumSize: const Size.fromHeight(48),
-              ),
-              icon: const Icon(Icons.request_quote_outlined),
-              label: Text(l.receiveRequestButton),
-              onPressed: () => Navigator.of(context).push(
-                MaterialPageRoute<void>(
-                  builder: (_) => const InvoiceRequestScreen(),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+  Widget build(BuildContext context) => OutlinedButton.icon(
+    key: receiveRequestKey,
+    style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
+    icon: const Icon(Icons.request_quote_outlined),
+    label: Text(context.l10n.receiveRequestTitle),
+    onPressed: () => Navigator.of(context).push(
+      MaterialPageRoute<void>(builder: (_) => const InvoiceRequestScreen()),
+    ),
+  );
 }
 
 /// Reads payment text from the clipboard and opens it in [SlateFileScreen], as a file would

@@ -373,13 +373,14 @@ void main() {
       expect(demoTimeLeft(Duration.zero), isNull);
     });
 
-    testWidgets('beside Floonet, with the exact time in its tooltip', (
+    testWidgets('in the title, with the exact time in its tooltip', (
       tester,
     ) async {
       final h = _Harness();
       await h.pump(tester);
       await h.unlock(tester);
-      expect(find.text(chainName(l, Chain.floonet)), findsOneWidget);
+      // The bar names no network; the node status's tooltip says Floonet.
+      expect(find.text(chainName(l, Chain.floonet)), findsNothing);
       expect(find.text(l.demoEndsInHours(5)), findsOneWidget);
       final tooltip = tester.widget<Tooltip>(find.byKey(demoCountdownKey));
       expect(

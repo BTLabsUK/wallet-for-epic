@@ -1391,6 +1391,7 @@ void main() {
       final h = _AppHarness(advanced: true);
       await h.pumpUnlocked(tester);
       await h.open(tester, _receiveTab());
+      await _tap(tester, find.text('Payment file'));
       await _tap(tester, find.text('Open file'));
       expect(h.container.read(autoLockHoldProvider), 1);
       await h.awayAndBack(tester, const Duration(minutes: 10));

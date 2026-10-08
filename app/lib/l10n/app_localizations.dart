@@ -1634,12 +1634,6 @@ abstract class AppLocalizations {
   /// **'Epic Cash'**
   String get shellTitle;
 
-  /// Tooltip of the small network name (Floonet) beside the app-bar title, shown only on a test network.
-  ///
-  /// In en, this message translates to:
-  /// **'A test network. Its coins have no value.'**
-  String get shellTestNetworkTooltip;
-
   /// Heading of the web demo's welcome screen, under the mark.
   ///
   /// In en, this message translates to:
@@ -2192,6 +2186,12 @@ abstract class AppLocalizations {
   /// **'Epicbox offline'**
   String get statusEpicboxOffline;
 
+  /// First line of the node status tooltip on a test network only, since the app bar names no network: the network's name (for example Floonet) and that its coins are test coins with no value.
+  ///
+  /// In en, this message translates to:
+  /// **'{network}, test coins'**
+  String statusNodeTestNetwork(String network);
+
   /// Line in the node status tooltip: the node's host name.
   ///
   /// In en, this message translates to:
@@ -2480,23 +2480,11 @@ abstract class AppLocalizations {
   /// **'An invoice expired before you answered it.'**
   String get invoiceNoticeExpired;
 
-  /// Heading of the card on Receive that opens the request form: the user asks someone to pay them over epicbox (an invoice they send).
+  /// Button on Receive's Epicbox address tab that opens the request form: the user asks someone to pay them over epicbox (an invoice they send). Shown beside Get test coins in the web demo, so keep it short.
   ///
   /// In en, this message translates to:
   /// **'Request a payment'**
   String get receiveRequestTitle;
-
-  /// Line in Receive's request card.
-  ///
-  /// In en, this message translates to:
-  /// **'Ask someone to pay you an amount. They approve it once in their wallet, and yours finishes the payment.'**
-  String get receiveRequestBody;
-
-  /// Button in Receive's request card that opens the request form.
-  ///
-  /// In en, this message translates to:
-  /// **'New request'**
-  String get receiveRequestButton;
 
   /// Title of the screen where the user asks someone to pay them.
   ///
@@ -3662,13 +3650,13 @@ abstract class AppLocalizations {
   /// **'Still connecting. You can send now; it finishes once the app is connected.'**
   String get sendStillConnecting;
 
-  /// Send form, first choice of how to send: to the recipient's epicbox address. epicbox is the relay service that carries payments (a proper name).
+  /// Send form, first choice of how to send: to the recipient's epicbox address. Also Receive's first tab, which shows this wallet's epicbox address. epicbox is the relay service that carries payments (a proper name).
   ///
   /// In en, this message translates to:
   /// **'Epicbox address'**
   String get sendMethodEpicbox;
 
-  /// Send form, second choice of how to send: a payment file the user passes on any way they like, and the recipient's signed reply.
+  /// Send form, second choice of how to send: a payment file the user passes on any way they like, and the recipient's signed reply. Also Receive's second tab, for accepting a payment file.
   ///
   /// In en, this message translates to:
   /// **'Payment file'**

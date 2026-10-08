@@ -1132,9 +1132,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get shellTitle => 'Epic Cash';
 
   @override
-  String get shellTestNetworkTooltip => '测试网络，其中的币没有价值。';
-
-  @override
   String get demoWelcomeTitle => '试用 Epic Cash 钱包';
 
   @override
@@ -1461,6 +1458,11 @@ class AppLocalizationsZh extends AppLocalizations {
   String get statusEpicboxOffline => 'epicbox 离线';
 
   @override
+  String statusNodeTestNetwork(String network) {
+    return '$network，测试币';
+  }
+
+  @override
   String statusNodeHost(Object host) {
     return '节点：$host';
   }
@@ -1663,12 +1665,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get receiveRequestTitle => '请求付款';
-
-  @override
-  String get receiveRequestBody => '请某人向你支付一笔金额。对方在自己的钱包里批准一次，你的钱包完成这笔付款。';
-
-  @override
-  String get receiveRequestButton => '新请求';
 
   @override
   String get requestTitle => '请求付款';

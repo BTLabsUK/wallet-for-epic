@@ -1206,10 +1206,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get shellTitle => 'Epic Cash';
 
   @override
-  String get shellTestNetworkTooltip =>
-      'A test network. Its coins have no value.';
-
-  @override
   String get demoWelcomeTitle => 'Try Epic Cash Wallet';
 
   @override
@@ -1560,6 +1556,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get statusEpicboxOffline => 'Epicbox offline';
 
   @override
+  String statusNodeTestNetwork(String network) {
+    return '$network, test coins';
+  }
+
+  @override
   String statusNodeHost(Object host) {
     return 'Node: $host';
   }
@@ -1776,13 +1777,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get receiveRequestTitle => 'Request a payment';
-
-  @override
-  String get receiveRequestBody =>
-      'Ask someone to pay you an amount. They approve it once in their wallet, and yours finishes the payment.';
-
-  @override
-  String get receiveRequestButton => 'New request';
 
   @override
   String get requestTitle => 'Request a payment';

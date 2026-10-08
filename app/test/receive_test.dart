@@ -101,10 +101,7 @@ class _Harness {
           builder: (context, child) => MediaQuery.withClampedTextScaling(
             minScaleFactor: textScale,
             maxScaleFactor: textScale,
-            child: AdvancedOptions(
-              enabled: advanced,
-              child: child!,
-            ),
+            child: AdvancedOptions(enabled: advanced, child: child!),
           ),
           home: screen,
         ),
@@ -126,6 +123,10 @@ class _Harness {
         );
     await tester.pumpAndSettle();
   }
+
+  /// Shows the Payment file tab.
+  Future<void> byFile(WidgetTester tester) =>
+      _tap(tester, find.text('Payment file'));
 
   Future<void> listener(WidgetTester tester, ListenerEventKind kind) async {
     session.listenerEvents.add(ListenerEvent(kind: kind, message: 'x'));
@@ -163,6 +164,99 @@ Future<void> _untilRendered(WidgetTester tester, bool Function() done) async {
 // ignore_for_file: invalid_use_of_protected_member
 
 void main() {
+  group('tabs', () {
+    testWidgets('two tabs with Send\'s look; Epicbox address by default', (
+      tester,
+    ) async {
+      final h = _Harness();
+      await h.pump(tester);
+      final tabs = tester.widget<SegmentedButton<bool>>(
+        find.byKey(receiveTabsKey),
+      );
+      expect(tabs.selected, {false});
+      expect(tabs.showSelectedIcon, isFalse);
+      expect(tabs.expandedInsets, EdgeInsets.zero);
+      expect(
+        [for (final s in tabs.segments) (s.value, (s.label! as Text).data)],
+        [(false, 'Epicbox address'), (true, 'Payment file')],
+      );
+      expect(
+        [for (final s in tabs.segments) (s.icon! as Icon).icon],
+        [Icons.alternate_email, Icons.description_outlined],
+      );
+      // Full width: as wide as the address card under it.
+      expect(
+        tester.getSize(find.byKey(receiveTabsKey)).width,
+        tester.getSize(find.byKey(receiveAddressKey)).width,
+      );
+      // Epicbox address: the card, the epicbox line, the code, the request, the help.
+      for (final key in [
+        receiveAddressKey,
+        receiveEpicboxKey,
+        receiveRequestKey,
+      ]) {
+        expect(find.byKey(key), findsOneWidget);
+      }
+      expect(find.byType(MarkedQr), findsOneWidget);
+      expect(find.text('Receive by payment file'), findsNothing);
+      expect(find.text('How receiving works'), findsOneWidget);
+      // Payment file: the file card and the help, nothing else.
+      await h.byFile(tester);
+      expect(find.text('Receive by payment file'), findsOneWidget);
+      expect(find.text('How receiving works'), findsOneWidget);
+      for (final key in [
+        receiveAddressKey,
+        receiveEpicboxKey,
+        receiveRequestKey,
+      ]) {
+        expect(find.byKey(key), findsNothing);
+      }
+      expect(find.byType(MarkedQr), findsNothing);
+      // The help ends both tabs.
+      expect(
+        tester.getRect(find.text('How receiving works')).top,
+        greaterThan(tester.getRect(find.text('Open file')).bottom),
+      );
+      await _tap(tester, find.text('Epicbox address'));
+      expect(find.byKey(receiveAddressKey), findsOneWidget);
+    });
+
+    testWidgets('the choice outlives the view while the app runs', (
+      tester,
+    ) async {
+      final shown = ValueNotifier(true);
+      addTearDown(shown.dispose);
+      final h = _Harness();
+      await h.pump(
+        tester,
+        screen: SlotScaffold(
+          body: ValueListenableBuilder<bool>(
+            valueListenable: shown,
+            builder: (_, on, _) =>
+                on ? const ReceiveView() : const SizedBox.shrink(),
+          ),
+        ),
+      );
+      await h.byFile(tester);
+      // The view goes and is built again, as after a lock and unlock.
+      shown.value = false;
+      await tester.pumpAndSettle();
+      expect(find.byType(ReceiveView), findsNothing);
+      shown.value = true;
+      await tester.pumpAndSettle();
+      expect(find.text('Receive by payment file'), findsOneWidget);
+      expect(find.byKey(receiveAddressKey), findsNothing);
+    });
+
+    testWidgets('the code keeps its size where there is room', (tester) async {
+      await _Harness().pump(tester);
+      expect(
+        tester.getSize(find.byType(MarkedQr)),
+        const Size.square(receiveQrMaxSize),
+      );
+    });
+  });
+
   group('address', () {
     testWidgets('the full address comes first, the QR code below it', (
       tester,
@@ -504,6 +598,7 @@ void main() {
     ) async {
       final h = _Harness();
       await h.pump(tester);
+      await h.byFile(tester);
       expect(find.text('Receive by payment file'), findsOneWidget);
       expect(find.text('Open file'), findsOneWidget);
       expect(find.text('Paste'), findsOneWidget);
@@ -522,6 +617,7 @@ void main() {
     ) async {
       final h = _Harness();
       await h.pump(tester);
+      await h.byFile(tester);
       h.files.picks.add(const SlateFile(name: 'photo.jpg', json: 'nope'));
       await _tap(tester, find.text('Open file'));
       expect(find.text('That file is not a transaction file.'), findsOneWidget);
@@ -552,6 +648,7 @@ void main() {
     ) async {
       final h = _Harness();
       await h.pump(tester);
+      await h.byFile(tester);
       await _tap(tester, find.text('Paste'));
       expect(
         find.text('Copy the payment text first, then tap Paste.'),
@@ -568,6 +665,7 @@ void main() {
     ) async {
       final h = _Harness();
       await h.pump(tester);
+      await h.byFile(tester);
       const incoming = '{"id":"incoming"}';
       h.service.slateInfos[incoming] = SlateInfo(
         slateId: 'incoming',
@@ -603,6 +701,8 @@ void main() {
         await h.pump(tester, textScale: 2);
         await h.listener(tester, state);
         expect(tester.takeException(), isNull);
+        await h.byFile(tester);
+        expect(tester.takeException(), isNull);
         expect(find.text('Open file'), findsOneWidget);
       });
 
@@ -611,9 +711,12 @@ void main() {
         final h = _Harness();
         await h.pump(tester);
         await h.listener(tester, state);
-        await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
-        await expectLater(tester, meetsGuideline(labeledTapTargetGuideline));
-        await expectLater(tester, meetsGuideline(textContrastGuideline));
+        for (final tab in ['Epicbox address', 'Payment file']) {
+          await _tap(tester, find.text(tab));
+          await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
+          await expectLater(tester, meetsGuideline(labeledTapTargetGuideline));
+          await expectLater(tester, meetsGuideline(textContrastGuideline));
+        }
         handle.dispose();
       });
     }

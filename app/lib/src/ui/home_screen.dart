@@ -176,34 +176,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   /// Bumped when a payment is done, so the Send tab starts a fresh form.
   int _sendForm = 0;
 
-  /// Whether the node and epicbox statuses sit in the app bar. When a title on any tab does
-  /// not fit beside them, they move out on every tab at once: into Wallet's fiat row, and into
-  /// a row under the app bar on Send and Receive ([statusesInBar]).
-  bool _statusesInBar = true;
-
-  /// The last widths the app bar's title reported: the widest title, and the room for it.
-  ({double need, double room})? _title;
-
-  void _titleMeasured(double need, double room) {
-    _title = (need: need, room: room);
-    _placeStatuses();
-  }
-
-  /// Decides where the statuses go from the last measured title, and moves them.
-  void _placeStatuses() {
-    final title = _title;
-    if (title == null || !mounted) return;
-    final inBar = statusesInBar(
-      inBar: _statusesInBar,
-      need: title.need,
-      room: title.room,
-      statuses: statusesWidth(
-        listenerRunning: !ref.read(listenerProvider).stopped,
-      ),
-    );
-    if (inBar != _statusesInBar) setState(() => _statusesInBar = inBar);
-  }
-
   /// The page position as [headerOpenness] reads it: 1 on Wallet, 0 on Send and Receive. A tap
   /// from Send to Receive stays at 0, rather than opening and closing on the way.
   double _openness() {
@@ -410,10 +382,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       if (event != null) _notify(event);
     });
     ref.listen(shellTabProvider, (_, tab) => _showTab(tab));
-    // A started or stopped listener changes how much room the statuses take.
-    ref.listen(listenerProvider.select((s) => s.stopped), (_, _) {
-      WidgetsBinding.instance.addPostFrameCallback((_) => _placeStatuses());
-    });
     // Once per phase, and per whole percent while downloading.
     ref.listen(
       updateProvider.select(
@@ -426,18 +394,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         ref.read(updateProvider.notifier),
       ),
     );
-    final config = ref.watch(walletConfigProvider);
     final tab = ref.watch(shellTabProvider);
     final l = context.l10n;
     final demo = ref.watch(demoModeProvider);
     final scan = offersQrScan(ref);
 
-    final inBar = _statusesInBar;
-    // Send and Receive keep a row under the app bar for the statuses when the bar has none.
-    Widget tabPage(Widget view) => Padding(
-      padding: EdgeInsets.only(top: inBar ? 0 : tabStatusRowHeight),
-      child: view,
-    );
     return _Backdrop(
       child: SlotScaffold(
         idle: const ShellEdge(),
@@ -455,13 +416,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             animation: _pages,
             builder: (context, _) => ShellBarTitle(
               openness: _openness(),
-              chain: config?.chain,
               trailing: demo ? const DemoCountdown() : null,
-              onMeasured: _titleMeasured,
             ),
           ),
           actions: [
-            if (inBar) const BarStatuses(key: barStatusesKey),
             const InvoicesEntry(),
             if (scan)
               IconButton(
@@ -496,49 +454,18 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             ),
           ],
         ),
-        body: Stack(
+        body: PageView(
+          controller: _pages,
+          onPageChanged: _pageChanged,
           children: [
-            PageView(
-              controller: _pages,
-              onPageChanged: _pageChanged,
-              children: [
-                _KeepAlive(
-                  child: tabPage(
-                    SendView(
-                      key: ValueKey('send-$_sendForm'),
-                      onDone: _sendDone,
-                    ),
-                  ),
-                ),
-                _KeepAlive(child: _walletTab(context)),
-                _KeepAlive(child: tabPage(const ReceiveView())),
-              ],
-            ),
-            // On Send and Receive, the statuses' glyphs line up with the title's figure. The
-            // targets reach below the row, so they keep their full size.
-            if (!inBar)
-              PositionedDirectional(
-                top: 0,
-                start: shellLeadingWidth - statusInset,
-                child: AnimatedBuilder(
-                  animation: _pages,
-                  builder: (context, child) {
-                    final t = _openness();
-                    return IgnorePointer(
-                      ignoring: t >= 0.5,
-                      child: ExcludeSemantics(
-                        excluding: t >= 0.5,
-                        child: Opacity(opacity: shellFade(1 - t), child: child),
-                      ),
-                    );
-                  },
-                  child: const BarStatuses(
-                    key: tabStatusesKey,
-                    // The glyph's centre on the row's: (30 / 2 - 24) / 15.
-                    alignment: Alignment(0, -0.6),
-                  ),
-                ),
+            _KeepAlive(
+              child: SendView(
+                key: ValueKey('send-$_sendForm'),
+                onDone: _sendDone,
               ),
+            ),
+            _KeepAlive(child: _walletTab(context)),
+            const _KeepAlive(child: ReceiveView()),
           ],
         ),
       ),
@@ -580,7 +507,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 child: Opacity(opacity: shellFade(t), child: child),
               );
             },
-            child: column(WalletBalance(statuses: !_statusesInBar)),
+            child: column(const WalletBalance()),
           ),
           Expanded(
             child: RefreshIndicator(

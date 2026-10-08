@@ -218,8 +218,8 @@ void main() {
       final h = _Harness();
       await h.pump(tester, const SlotScaffold(body: ReceiveView()));
       expect(find.byKey(receiveRequestKey), findsOneWidget);
-      await tester.ensureVisible(find.text(_l.receiveRequestButton));
-      await tester.tap(find.text(_l.receiveRequestButton));
+      await tester.ensureVisible(find.text(_l.receiveRequestTitle));
+      await tester.tap(find.text(_l.receiveRequestTitle));
       await tester.pumpAndSettle();
       expect(find.text(_l.requestTitle), findsOneWidget);
       expect(find.text(_l.requestStepTrust), findsOneWidget);

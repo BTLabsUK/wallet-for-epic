@@ -164,7 +164,7 @@ void main() {
           child: const MaterialApp(
             localizationsDelegates: AppLocalizations.localizationsDelegates,
             supportedLocales: AppLocalizations.supportedLocales,
-            home: Scaffold(body: Center(child: BarStatuses())),
+            home: Scaffold(body: Center(child: StatusIcons())),
           ),
         ),
       );

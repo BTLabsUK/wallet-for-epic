@@ -29,6 +29,7 @@ import 'package:epic_wallet/src/vault.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart' show RenderParagraph;
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -481,7 +482,6 @@ String _titleText(WidgetTester tester) {
 }
 
 /// The word of the status with [key], as its label reads it; the statuses show only icons.
-/// Where the app bar has no room for them, Wallet's row has the first.
 String _statusWord(WidgetTester tester, Key key) => tester
     .widget<Semantics>(
       find
@@ -2938,8 +2938,6 @@ void main() {
       final session = _SlowRefreshSession(refreshed: _summary());
       final h = _Harness(session: session, still: true);
       await h.pump(tester);
-      await _tab(tester, 'Send');
-      expect(find.byKey(pendingDotKey), findsOneWidget);
       double opacityOf(Finder of) => tester
           .widget<FadeTransition>(
             find.ancestor(of: of, matching: find.byType(FadeTransition)).first,
@@ -2950,9 +2948,15 @@ void main() {
         of: find.byKey(nodeStatusKey).first,
         matching: find.byType(Icon),
       );
+      // The node on Wallet, then the dot on Send.
+      for (var i = 0; i < 5; i++) {
+        expect(opacityOf(node), 1);
+        await tester.pump(const Duration(milliseconds: 300));
+      }
+      await _tab(tester, 'Send');
+      expect(find.byKey(pendingDotKey), findsOneWidget);
       for (var i = 0; i < 5; i++) {
         expect(opacityOf(find.byKey(pendingDotKey)), 1);
-        expect(opacityOf(node), 1);
         await tester.pump(const Duration(milliseconds: 300));
       }
       // Nothing is left running: the screen settles.
@@ -3026,7 +3030,11 @@ void main() {
         ),
         findsNothing,
       );
-      expect(figure.left, area.left + 18);
+      // Centred as a unit: the figure and its EPIC, in the area's middle.
+      expect(
+        figure.expandToInclude(unit).center.dx,
+        closeTo(area.center.dx, 1),
+      );
       expect(find.text('Spendable'), findsNothing);
       expect(find.textContaining('not spendable yet'), findsNothing);
       expect(find.text('Node online'), findsNothing);
@@ -3220,135 +3228,150 @@ void main() {
       );
     });
 
-    testWidgets('statuses in the bar with a short figure, on every tab', (
-      tester,
-    ) async {
-      final h = _Harness(still: true, size: const Size(1800, 2340));
-      await h.pump(tester);
-      for (final tab in ['Wallet', 'Send', 'Receive']) {
-        await _tab(tester, tab);
-        expect(find.byKey(barStatusesKey), findsOneWidget, reason: tab);
-        expect(find.byKey(walletStatusesKey), findsNothing, reason: tab);
-        expect(find.byKey(tabStatusesKey), findsNothing, reason: tab);
-        // Icons only, before Invoices, on 48 dp targets.
-        final node = tester.getRect(find.byKey(nodeStatusKey));
-        final epicbox = tester.getRect(find.byKey(epicboxStatusKey));
-        expect(node.size, const Size(48, 48));
-        expect(epicbox.left, closeTo(node.right, 0.5));
-        expect(
-          epicbox.right,
-          lessThanOrEqualTo(
-            tester.getRect(find.byKey(invoicesEntryKey)).left + 0.5,
-          ),
-        );
-        expect(find.text('Node online'), findsNothing);
-        expect(
-          node.center.dy,
-          closeTo(tester.getCenter(find.byTooltip('Lock wallet')).dy, 0.5),
-        );
+    for (final (what, spendable) in [
+      ('a short figure', 12.5),
+      ('the 21 million figure', 20999999.99999999),
+    ]) {
+      for (final width in [320.0, 412.0]) {
+        testWidgets('statuses on Wallet only, with $what at $width dp', (
+          tester,
+        ) async {
+          final h = _Harness(
+            still: true,
+            price: 0.5,
+            size: Size(width * 3, 2340),
+            session: FakeWalletSession(
+              summary: _balances(spendable: spendable, locked: 2),
+              transactions: _transactions(),
+            ),
+          );
+          await h.pump(tester);
+          final appBar = find.byType(AppBar);
+          // Wallet: in the row under the figure, before the fiat value, the eye and the ?.
+          final row = find.byKey(walletStatusesKey);
+          expect(row, findsOneWidget);
+          final node = tester.getRect(find.byKey(nodeStatusKey));
+          final epicbox = tester.getRect(find.byKey(epicboxStatusKey));
+          final fiat = tester.getRect(find.byKey(fiatValueKey));
+          final eye = tester.getRect(find.byTooltip('Hide balances'));
+          expect(node.size, const Size(48, 48));
+          expect(epicbox.left, closeTo(node.right, 0.5));
+          expect(fiat.left, greaterThanOrEqualTo(epicbox.right - 0.5));
+          expect(eye.left, greaterThanOrEqualTo(fiat.right - 0.5));
+          expect(node.center.dy, closeTo(eye.center.dy, 0.5));
+          expect(
+            node.top,
+            greaterThanOrEqualTo(
+              tester.getRect(find.byKey(balanceFigureKey)).bottom,
+            ),
+          );
+          expect(find.text('Node online'), findsNothing);
+          for (final tab in ['Wallet', 'Send', 'Receive']) {
+            await _tab(tester, tab);
+            // Never in the app bar, never in a row under it.
+            expect(
+              find.descendant(of: appBar, matching: find.byKey(nodeStatusKey)),
+              findsNothing,
+              reason: tab,
+            );
+            expect(
+              find.byKey(nodeStatusKey).hitTestable(),
+              tab == 'Wallet' ? findsOneWidget : findsNothing,
+              reason: tab,
+            );
+            expect(
+              find.byKey(epicboxStatusKey).hitTestable(),
+              tab == 'Wallet' ? findsOneWidget : findsNothing,
+              reason: tab,
+            );
+            expect(tester.takeException(), isNull, reason: tab);
+          }
+          // Send and Receive bodies start right under the app bar.
+          for (final (tab, body) in [
+            ('Send', find.byType(SendView)),
+            ('Receive', find.byType(ReceiveView)),
+          ]) {
+            await _tab(tester, tab);
+            expect(
+              tester.getRect(body).top,
+              tester.getRect(appBar).bottom + progressSlotHeight,
+              reason: tab,
+            );
+            // The figure title has the bar to itself, and shrinks rather than overflows.
+            expect(
+              tester.getRect(find.byKey(titleFigureKey)).right,
+              lessThanOrEqualTo(
+                tester.getRect(find.byKey(invoicesEntryKey)).left + 0.5,
+              ),
+            );
+          }
+        });
       }
-      // Send and Receive bodies start right under the app bar.
-      for (final (tab, body) in [
-        ('Send', find.byType(SendView)),
-        ('Receive', find.byType(ReceiveView)),
-      ]) {
-        await _tab(tester, tab);
-        expect(
-          tester.getRect(body).top,
-          tester.getRect(find.byType(AppBar)).bottom + progressSlotHeight,
-          reason: tab,
-        );
-      }
-    });
+    }
 
-    testWidgets('a long figure moves the statuses below on every tab', (
-      tester,
-    ) async {
-      final h = _Harness(
-        still: true,
-        size: const Size(960, 2340),
-        session: FakeWalletSession(
-          summary: _balances(spendable: 20999999.99999999, locked: 2),
-          transactions: _transactions(),
-        ),
-      );
-      await h.pump(tester);
-      Rect glyph(Key row) => tester.getRect(
-        find.descendant(
-          of: find.descendant(
-            of: find.byKey(row),
-            matching: find.byKey(nodeStatusKey),
-          ),
-          matching: find.byType(Icon),
-        ),
-      );
-      expect(find.byKey(barStatusesKey), findsNothing);
-      // Wallet: in the fiat row, the glyph under the figure's first digit.
-      expect(
-        glyph(walletStatusesKey).left,
-        closeTo(tester.getRect(find.byKey(balanceFigureKey)).left, 1),
-      );
-      expect(
-        tester.getRect(find.byKey(walletStatusesKey)).center.dy,
-        closeTo(tester.getCenter(find.byTooltip('Hide balances')).dy, 0.5),
-      );
-      for (final (tab, body) in [
-        ('Send', find.byType(SendView)),
-        ('Receive', find.byType(ReceiveView)),
-      ]) {
-        await _tab(tester, tab);
-        expect(find.byKey(barStatusesKey), findsNothing, reason: tab);
-        // Under the app bar, the glyph under the title's figure, in a 30 dp row.
-        final appBar = tester.getRect(find.byType(AppBar));
-        final rowTop = appBar.bottom + progressSlotHeight;
-        expect(
-          glyph(tabStatusesKey).left,
-          closeTo(tester.getRect(find.byKey(titleFigureKey)).left, 1),
-          reason: tab,
+    for (final width in [320.0, 360.0, 412.0]) {
+      testWidgets('Wallet\'s balance is centred at $width dp', (tester) async {
+        final h = _Harness(
+          price: 0.5,
+          still: true,
+          size: Size(width * 3, 2340),
         );
-        expect(
-          glyph(tabStatusesKey).center.dy,
-          closeTo(rowTop + tabStatusRowHeight / 2, 0.5),
-          reason: tab,
-        );
-        expect(
-          tester.getSize(find.byKey(nodeStatusKey).hitTestable()),
-          const Size(48, 48),
-        );
-        expect(
-          tester.getRect(body).top,
-          rowTop + tabStatusRowHeight,
-          reason: tab,
-        );
-        // The figure title shrank to the room it has; nothing overflows.
-        expect(
-          tester.getRect(find.byKey(titleFigureKey)).right,
-          lessThanOrEqualTo(
-            tester.getRect(find.byKey(invoicesEntryKey)).left + 0.5,
-          ),
-        );
-        expect(tester.takeException(), isNull);
-      }
-    });
+        await h.pump(tester);
+        final centre = width / 2;
+        for (final (name, summary) in [
+          ('settled', _balances(spendable: 12.5)),
+          ('one pending', _balances(spendable: 12.5, locked: 2)),
+          ('long', _balances(spendable: 20999999.99999999, confirming: 2)),
+        ]) {
+          h.session.summaryValue = summary;
+          await _reload(tester);
+          // The figure and its EPIC as one unit.
+          final figure = tester
+              .getRect(find.byKey(balanceFigureKey))
+              .expandToInclude(tester.getRect(find.byKey(balanceUnitKey)));
+          expect(figure.center.dx, closeTo(centre, 1), reason: name);
+          // The row: first status target to the ?.
+          final row = tester
+              .getRect(find.byKey(nodeStatusKey))
+              .expandToInclude(tester.getRect(find.byType(BalanceHelp)));
+          expect(row.center.dx, closeTo(centre, 1), reason: name);
+          // The pending line's text, while it fits.
+          final line = find.byKey(pendingLineKey);
+          final items = tester
+              .getRect(
+                find.descendant(of: line, matching: find.byType(Icon)).first,
+              )
+              .expandToInclude(
+                tester.getRect(
+                  find.descendant(of: line, matching: find.byType(Text)).last,
+                ),
+              );
+          expect(items.center.dx, closeTo(centre, 1), reason: name);
+          expect(_reel(tester), 0, reason: name);
+          expect(tester.takeException(), isNull, reason: name);
+        }
+      });
+    }
 
-    test('the statuses do not flap at the boundary', () {
-      // In the bar: they leave once the title needs more than the room.
-      expect(
-        statusesInBar(inBar: true, need: 100, room: 100, statuses: 96),
-        isTrue,
+    testWidgets('a pending line too long for the width still scrolls from the '
+        'start, across the full width', (tester) async {
+      final h = _Harness(size: const Size(960, 2340), still: true);
+      await h.pump(tester);
+      h.session.summaryValue = _balances(
+        spendable: 3.25,
+        confirming: 2,
+        waiting: 0.5,
+        locked: 5,
+        immature: 16,
       );
+      await _reload(tester);
+      final line = tester.getRect(find.byKey(pendingLineKey));
+      final area = tester.getRect(find.byKey(walletBalanceKey));
+      expect(line.left, area.left + 18);
+      expect(line.right, area.right - 18);
       expect(
-        statusesInBar(inBar: true, need: 101, room: 100, statuses: 96),
-        isFalse,
-      );
-      // Below, the title has their room too; they come back only with 8 dp to spare.
-      expect(
-        statusesInBar(inBar: false, need: 100, room: 196, statuses: 96),
-        isFalse,
-      );
-      expect(
-        statusesInBar(inBar: false, need: 92, room: 196, statuses: 96),
-        isTrue,
+        tester.getRect(find.text('+2 confirming').first).left,
+        closeTo(line.left + 18, 0.5),
       );
     });
 
@@ -3569,7 +3592,8 @@ void main() {
           );
           expect(line.height, progressSlotHeight);
         }
-        // The light swells and fades; the syncing node pulses.
+        // The light swells and fades; the syncing node pulses, on Wallet, its only place.
+        await _tab(tester, 'Wallet', settle: false);
         final glows = <double>{};
         final nodes = <double>{};
         for (var i = 0; i < 8; i++) {
@@ -3582,7 +3606,7 @@ void main() {
                       .ancestor(
                         of: find
                             .descendant(
-                              of: find.byKey(tabStatusesKey),
+                              of: find.byKey(walletStatusesKey),
                               matching: find.byType(Icon),
                             )
                             .first,
@@ -3597,7 +3621,7 @@ void main() {
         expect(glows.length, greaterThan(3));
         expect(nodes.length, greaterThan(3));
         session.gate.complete();
-        // The dot still pulses on Receive's title: pump instead of settling.
+        // Pump instead of settling, as the tab titles' dot pulses.
         await _frames(tester);
         expect(_syncLine(tester), isNull);
         final glow = _glow(tester);
@@ -3697,33 +3721,88 @@ void main() {
       expect(page.page, 2);
     });
 
-    testWidgets('floonet has a labelled ?; mainnet shows no network', (
-      tester,
-    ) async {
-      final main = _Harness();
-      await main.pump(tester);
-      expect(find.text('Epic Cash'), findsOneWidget);
-      expect(find.text('Mainnet'), findsNothing);
-      expect(find.text('Floonet'), findsNothing);
+    testWidgets(
+      'no network in the bar; the node tooltip names a test network',
+      (tester) async {
+        final main = _Harness();
+        await main.pump(tester);
+        for (final tab in ['Wallet', 'Send', 'Receive']) {
+          await _tab(tester, tab, settle: false);
+          expect(
+            find.descendant(
+              of: find.byType(AppBar),
+              matching: find.textContaining(RegExp('Mainnet|Floonet|Usernet')),
+            ),
+            findsNothing,
+            reason: tab,
+          );
+        }
+        await _tab(tester, 'Wallet', settle: false);
+        expect(find.text('Epic Cash'), findsOneWidget);
+        expect(_statusTip(tester, nodeStatusKey), isNot(contains('Mainnet')));
+        expect(
+          _statusTip(tester, nodeStatusKey).split('\n').first,
+          'Up to date.',
+        );
 
-      await tester.pumpWidget(const SizedBox());
-      final floo = _Harness(chain: Chain.floonet);
-      await floo.pump(tester);
-      expect(find.text('Epic Cash'), findsOneWidget);
-      expect(find.text('Floonet'), findsOneWidget);
-      expect(
-        find.byTooltip('A test network. Its coins have no value.'),
-        findsOneWidget,
-      );
-      await tester.tap(find.text('Floonet'));
-      await tester.pump(const Duration(milliseconds: 300));
-      expect(
-        find.text('A test network. Its coins have no value.'),
-        findsOneWidget,
-      );
-      await tester.pump(const Duration(seconds: 7));
-      await tester.pumpAndSettle();
-    });
+        await tester.pumpWidget(const SizedBox());
+        final floo = _Harness(chain: Chain.floonet);
+        await floo.pump(tester);
+        for (final tab in ['Wallet', 'Send', 'Receive']) {
+          await _tab(tester, tab, settle: false);
+          expect(
+            find.descendant(
+              of: find.byType(AppBar),
+              matching: find.textContaining('Floonet'),
+            ),
+            findsNothing,
+            reason: tab,
+          );
+          expect(
+            find.descendant(
+              of: find.byType(AppBar),
+              matching: find.byIcon(Icons.help_outline),
+            ),
+            findsNothing,
+            reason: tab,
+          );
+        }
+        await _tab(tester, 'Wallet', settle: false);
+        expect(find.text('Epic Cash'), findsOneWidget);
+        // The title is not cut.
+        expect(
+          tester
+              .renderObject<RenderParagraph>(
+                find.descendant(
+                  of: find.text('Epic Cash'),
+                  matching: find.byType(RichText),
+                ),
+              )
+              .didExceedMaxLines,
+          isFalse,
+        );
+        final tip = _statusTip(tester, nodeStatusKey).split('\n');
+        expect(tip.first, 'Floonet, test coins');
+        expect(tip[1], 'Up to date.');
+        // A screen reader hears it too.
+        expect(
+          tester
+              .widget<Semantics>(
+                find
+                    .descendant(
+                      of: find.byKey(nodeStatusKey),
+                      matching: find.byWidgetPredicate(
+                        (w) => w is Semantics && w.properties.hint != null,
+                      ),
+                    )
+                    .first,
+              )
+              .properties
+              .hint,
+          startsWith('Floonet, test coins\n'),
+        );
+      },
+    );
 
     testWidgets('the ? explains each balance, zero ones left out', (
       tester,
@@ -3763,6 +3842,40 @@ void main() {
       await _tab(tester, 'Wallet');
       await _tab(tester, 'Send');
       expect(_toField(tester), payee);
+    });
+
+    testWidgets('Receive keeps its tab across a tab change', (tester) async {
+      final h = _Harness(still: true);
+      await h.pump(tester);
+      await _tab(tester, 'Receive');
+      // Epicbox address by default.
+      expect(find.byKey(receiveAddressKey).hitTestable(), findsOneWidget);
+      expect(find.text('Receive by payment file'), findsNothing);
+      await tester.tap(
+        find.descendant(
+          of: find.byKey(receiveTabsKey),
+          matching: find.text('Payment file'),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('Receive by payment file'), findsOneWidget);
+      expect(find.byKey(receiveAddressKey), findsNothing);
+      for (final tab in ['Wallet', 'Send', 'Receive']) {
+        await _tab(tester, tab);
+      }
+      expect(find.text('Receive by payment file'), findsOneWidget);
+      expect(find.byKey(receiveAddressKey), findsNothing);
+      // And back.
+      await tester.tap(
+        find.descendant(
+          of: find.byKey(receiveTabsKey),
+          matching: find.text('Epicbox address'),
+        ),
+      );
+      await tester.pumpAndSettle();
+      await _tab(tester, 'Wallet');
+      await _tab(tester, 'Receive');
+      expect(find.byKey(receiveAddressKey).hitTestable(), findsOneWidget);
     });
 
     testWidgets('Done after a payment goes to Wallet with a fresh form', (

@@ -161,7 +161,11 @@ _Face _nodeFace(BuildContext context, NodeStatus node, WalletConfig? config) {
       : Uri.tryParse(config.nodeUrl)?.host ?? config.nodeUrl;
   final height = node.height;
   final version = node.tip?.nodeVersion ?? '';
+  final chain = config?.chain;
   final detail = [
+    // A test network says so first: the app bar names no network.
+    if (chain != null && chain != Chain.mainnet)
+      l.statusNodeTestNetwork(chainName(l, chain)),
     sentence,
     if (host != null && host.isNotEmpty) l.statusNodeHost(host),
     if (height != null && height > BigInt.zero)
@@ -227,10 +231,6 @@ const Key nodeStatusKey = ValueKey('status-node');
 /// The key of the epicbox status, for tests.
 const Key epicboxStatusKey = ValueKey('status-epicbox');
 
-/// The width [BarStatuses] takes: the node, and epicbox while the listener runs.
-double statusesWidth({required bool listenerRunning}) =>
-    statusTarget * (listenerRunning ? 2 : 1);
-
 /// [child] fading between 45 % and full opacity every 1.6 s while [active], as the mockup's
 /// pulse. Still at full opacity with reduced motion, or when not [active].
 class Pulse extends StatefulWidget {
@@ -290,16 +290,10 @@ class _PulseState extends State<Pulse> with SingleTickerProviderStateMixin {
 /// press or hover shows the tooltip with the detail; a screen reader says the word and the
 /// detail. The syncing node pulses.
 class _StatusIcon extends StatelessWidget {
-  const _StatusIcon({
-    super.key,
-    required this.face,
-    required this.pulse,
-    required this.alignment,
-  });
+  const _StatusIcon({super.key, required this.face, required this.pulse});
 
   final _Face face;
   final bool pulse;
-  final AlignmentGeometry alignment;
 
   @override
   Widget build(BuildContext context) {
@@ -315,8 +309,7 @@ class _StatusIcon extends StatelessWidget {
         excludeSemantics: true,
         child: SizedBox.square(
           dimension: statusTarget,
-          child: Align(
-            alignment: alignment,
+          child: Center(
             child: Pulse(
               active: pulse,
               child: Icon(face.icon, size: statusGlyph, color: face.color),
@@ -329,13 +322,9 @@ class _StatusIcon extends StatelessWidget {
 }
 
 /// The node and epicbox statuses as icons side by side, epicbox only while the listener
-/// runs: in the app bar, in Wallet's fiat row, or in the row under the app bar on Send and
-/// Receive. [alignment] places each icon in its target; the row under the app bar is shorter
-/// than a target, so its icons sit in the target's top part.
-class BarStatuses extends ConsumerWidget {
-  const BarStatuses({super.key, this.alignment = Alignment.center});
-
-  final AlignmentGeometry alignment;
+/// runs. They show on Wallet only, at the start of the row under the figure.
+class StatusIcons extends ConsumerWidget {
+  const StatusIcons({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -349,14 +338,12 @@ class BarStatuses extends ConsumerWidget {
           key: nodeStatusKey,
           face: _nodeFace(context, status.node, config),
           pulse: status.node.state == NodeState.syncing,
-          alignment: alignment,
         ),
         if (epicbox != null)
           _StatusIcon(
             key: epicboxStatusKey,
             face: _epicboxFace(context, epicbox, config),
             pulse: false,
-            alignment: alignment,
           ),
       ],
     );

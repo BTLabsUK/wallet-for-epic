@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -40,14 +39,8 @@ const Key titleFigureKey = ValueKey('title-figure');
 /// The key of the pulsing dot after that figure while anything is pending, for tests.
 const Key pendingDotKey = ValueKey('pending-dot');
 
-/// The key of the statuses in the app bar, for tests.
-const Key barStatusesKey = ValueKey('statuses-bar');
-
-/// The key of the statuses in Wallet's fiat row, when the app bar has no room for them.
+/// The key of the statuses in Wallet's fiat row, the only place they show.
 const Key walletStatusesKey = ValueKey('statuses-wallet');
-
-/// The key of the statuses under the app bar on Send and Receive, when the bar has no room.
-const Key tabStatusesKey = ValueKey('statuses-tab');
 
 /// The key of the sync line along the app bar's foot, for tests.
 const Key headerSyncLineKey = ValueKey('header-sync-line');
@@ -58,14 +51,6 @@ const Key landingSweepKey = ValueKey('landing-sweep');
 /// The width of the app bar's leading slot, the mark. The title, and so the figure on Send
 /// and Receive, starts here.
 const double shellLeadingWidth = 48;
-
-/// The height of the row under the app bar that holds the statuses on Send and Receive when
-/// the bar has no room for them.
-const double tabStatusRowHeight = 30;
-
-/// How much narrower than the room the titles must be before the statuses move back into
-/// the app bar, so they do not flap at the boundary.
-const double statusHysteresis = 8;
 
 /// How long the sweep takes when a payment lands.
 const Duration landingSweepDuration = Duration(milliseconds: 1200);
@@ -87,20 +72,6 @@ double headerOpenness(double page) =>
 /// A layer's opacity at [share] of the way to it: out of sight until 0.4, full from 0.6, so
 /// the two layers of a cross-fade barely show at once.
 double shellFade(double share) => ((share - 0.4) / 0.2).clamp(0.0, 1.0);
-
-/// Whether the statuses belong in the app bar, given where they are now ([inBar]): the widest
-/// title on any tab needs [need], the bar gives the title [room], and the statuses take
-/// [statuses] of it while in the bar. They leave once a title does not fit beside them, and
-/// come back only when every title fits with [statusHysteresis] to spare.
-bool statusesInBar({
-  required bool inBar,
-  required double need,
-  required double room,
-  required double statuses,
-}) {
-  if (inBar) return need <= room;
-  return need <= room - statuses - statusHysteresis;
-}
 
 /// Whether [after] is [before] with a pending payment landed: spendable rose while the money
 /// on its way in (confirming, waiting to finish, mining rewards) fell. A cancelled send, a
@@ -181,17 +152,16 @@ String _spendableLabel(AppLocalizations l, BigInt spendable, bool hidden) =>
       hidden ? l.homeBalanceHiddenLabel : epicText(l, spendable),
     );
 
-/// Wallet's balance area, with no panel around it: the spendable figure in Montserrat 60,
-/// the gold EPIC at its top right; under it one row with the statuses when the app bar has no
-/// room for them ([statuses]), the fiat value, the eye and the ?; under that the pending line.
+/// Wallet's balance area, with no panel around it, centred as one column: the spendable
+/// figure in Montserrat 60 with the gold EPIC at its top right, the two centred as a unit;
+/// under it one centred row with the node and epicbox statuses, the fiat value, the eye and
+/// the ?; under that the pending line, centred while it fits.
 ///
 /// Every part has a fixed height for the text scale, so nothing here moves when amounts
 /// change, a payment lands, amounts are hidden or nothing is pending. A figure too wide shrinks
 /// to fit, to [figureMinSize] at least, and never wraps.
 class WalletBalance extends ConsumerWidget {
-  const WalletBalance({super.key, required this.statuses});
-
-  final bool statuses;
+  const WalletBalance({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -225,81 +195,59 @@ class WalletBalance extends ConsumerWidget {
       onPressed: () =>
           ref.read(appSettingsProvider.notifier).setHideBalances(!hidden),
     );
-    // The area's own start is [statusInset] before the figure, so a status target or the eye
-    // that leads its row puts its glyph under the figure's first digit.
     return Semantics(
       container: true,
       child: Padding(
         key: walletBalanceKey,
-        padding: const EdgeInsetsDirectional.fromSTEB(
-          18 - statusInset,
-          20,
-          18,
-          4,
-        ),
+        padding: const EdgeInsets.fromLTRB(18, 20, 18, 4),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Padding(
-              padding: const EdgeInsetsDirectional.only(start: statusInset),
-              child: SizedBox(
-                height: figureSize,
-                child: summary == null
-                    ? const Align(
-                        alignment: AlignmentDirectional.centerStart,
-                        child: SizedBox.square(
-                          dimension: 24,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        ),
-                      )
-                    : _Figure(spendable: summary.spendable, hidden: hidden),
-              ),
+            SizedBox(
+              height: figureSize,
+              child: summary == null
+                  ? const Center(
+                      child: SizedBox.square(
+                        dimension: 24,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      ),
+                    )
+                  : _Figure(spendable: summary.spendable, hidden: hidden),
             ),
             const SizedBox(height: 2),
+            // The statuses show before the first balance too: they say why it is not here.
             SizedBox(
               height: rowHeight,
-              child: summary == null
-                  ? null
-                  : Row(
-                      children: [
-                        if (statuses) const BarStatuses(key: walletStatusesKey),
-                        if (fiat != null)
-                          Flexible(
-                            child: Padding(
-                              padding: EdgeInsetsDirectional.only(
-                                start: statuses ? 0 : statusInset,
-                              ),
-                              child: FittedBox(
-                                key: fiatValueKey,
-                                fit: BoxFit.scaleDown,
-                                alignment: AlignmentDirectional.centerStart,
-                                child: Text(
-                                  fiat,
-                                  maxLines: 1,
-                                  style: fiatStyle,
-                                ),
-                              ),
-                            ),
-                          ),
-                        eye,
-                        BalanceHelp(summary: summary, hidden: hidden),
-                      ],
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const StatusIcons(key: walletStatusesKey),
+                  if (fiat != null)
+                    Flexible(
+                      child: FittedBox(
+                        key: fiatValueKey,
+                        fit: BoxFit.scaleDown,
+                        child: Text(fiat, maxLines: 1, style: fiatStyle),
+                      ),
                     ),
+                  if (summary != null) ...[
+                    eye,
+                    BalanceHelp(summary: summary, hidden: hidden),
+                  ],
+                ],
+              ),
             ),
             const SizedBox(height: 2),
-            Padding(
-              padding: const EdgeInsetsDirectional.only(start: statusInset),
-              child: PendingLine(
-                items: summary == null
-                    ? const []
-                    : pendingItems(
-                        l,
-                        summary,
-                        hidden: hidden,
-                        empty: data?.transactions.isEmpty ?? false,
-                      ),
-              ),
+            PendingLine(
+              items: summary == null
+                  ? const []
+                  : pendingItems(
+                      l,
+                      summary,
+                      hidden: hidden,
+                      empty: data?.transactions.isEmpty ?? false,
+                    ),
             ),
           ],
         ),
@@ -403,7 +351,10 @@ class _Figure extends StatelessWidget {
             }
             size = low;
           }
+          // The figure and its unit are centred as one; the figure's Flexible is loose, so
+          // the row's free space falls on both sides.
           return Row(
+            mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Only an extreme width needs less than the least size: then it scales down
@@ -441,7 +392,8 @@ class _Figure extends StatelessWidget {
 }
 
 /// The pending line under Wallet's figure: [items] on one line of fixed height, each a small
-/// glyph and its words, mono 12; the calm item ("All confirmed") fainter.
+/// glyph and its words, mono 12; the calm item ("All confirmed") fainter. Centred while they
+/// fit.
 ///
 /// When they do not fit, they scroll left as one seamless loop at [pendingLineSpeed], the
 /// right edge faded; a press, or hover with a mouse, pauses it. A changed amount changes the
@@ -584,12 +536,15 @@ class _PendingLineState extends State<PendingLine>
             // The space after the last item does not need to fit.
             _overflow = items.isNotEmpty && x - _after > constraints.maxWidth;
             WidgetsBinding.instance.addPostFrameCallback((_) => _sync(still));
-            Widget copy() => Row(
+            // A copy that is not followed by another ends at its last word, so it centres.
+            Widget copy({required bool followed}) => Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 for (final (n, i) in items.indexed)
                   SizedBox(
-                    width: widths[n],
+                    width:
+                        widths[n] -
+                        (!followed && n == items.length - 1 ? _after : 0),
                     child: Row(
                       children: [
                         Icon(
@@ -612,9 +567,12 @@ class _PendingLineState extends State<PendingLine>
                   ),
               ],
             );
+            // Centred while it fits; scrolling, it starts at the line's start.
             Widget reel = ClipRect(
               child: OverflowBox(
-                alignment: AlignmentDirectional.centerStart,
+                alignment: _overflow
+                    ? AlignmentDirectional.centerStart
+                    : AlignmentDirectional.center,
                 minWidth: 0,
                 maxWidth: double.infinity,
                 child: ValueListenableBuilder<double>(
@@ -636,7 +594,10 @@ class _PendingLineState extends State<PendingLine>
                   },
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
-                    children: [copy(), if (_overflow) copy()],
+                    children: [
+                      copy(followed: _overflow),
+                      if (_overflow) copy(followed: true),
+                    ],
                   ),
                 ),
               ),
@@ -677,27 +638,14 @@ class _PendingLineState extends State<PendingLine>
 }
 
 /// The app bar's title on every tab, cross-faded by the page position ([openness], 1 on
-/// Wallet): Wallet's [ShellTitle] (the name, a test network's name, the demo's countdown in
-/// [trailing]), and on Send and Receive the spendable figure with a small gold EPIC and a
-/// pulsing dot while anything is pending.
-///
-/// Both are laid out on every frame, so [onMeasured] hears after each layout that changed them
-/// how wide the wider one would be ([need]) and how wide the bar lets the title be ([room]);
-/// the shell moves the statuses out of the bar from that ([statusesInBar]). Each shrinks
-/// rather than overflows when the bar is narrower still.
+/// Wallet): Wallet's [ShellTitle] ("Epic Cash", or the demo's countdown in [trailing]), and
+/// on Send and Receive the spendable figure with a small gold EPIC and a pulsing dot while
+/// anything is pending. Each shrinks rather than overflows when the bar is narrow.
 class ShellBarTitle extends StatelessWidget {
-  const ShellBarTitle({
-    super.key,
-    required this.openness,
-    required this.chain,
-    required this.onMeasured,
-    this.trailing,
-  });
+  const ShellBarTitle({super.key, required this.openness, this.trailing});
 
   final double openness;
-  final Chain? chain;
   final Widget? trailing;
-  final void Function(double need, double room) onMeasured;
 
   @override
   Widget build(BuildContext context) {
@@ -710,14 +658,10 @@ class ShellBarTitle extends StatelessWidget {
         child: Opacity(opacity: opacity, child: child),
       ),
     );
-    return _TitleSlots(
-      onMeasured: onMeasured,
+    return Stack(
+      alignment: AlignmentDirectional.centerStart,
       children: [
-        layer(
-          shellFade(t),
-          t >= 0.5,
-          ShellTitle(chain: chain, trailing: trailing),
-        ),
+        layer(shellFade(t), t >= 0.5, ShellTitle(trailing: trailing)),
         layer(shellFade(1 - t), t < 0.5, _FigureTitle(shown: t < 1)),
       ],
     );
@@ -798,120 +742,6 @@ class _FigureTitle extends ConsumerWidget {
       ),
     );
   }
-}
-
-/// Lays its children over each other at the start, vertically centred, each as wide as it is
-/// up to the room given, and tells [onMeasured] how wide the widest would be unconstrained.
-class _TitleSlots extends MultiChildRenderObjectWidget {
-  const _TitleSlots({required this.onMeasured, required super.children});
-
-  final void Function(double need, double room) onMeasured;
-
-  @override
-  RenderObject createRenderObject(BuildContext context) =>
-      _RenderTitleSlots(onMeasured);
-
-  @override
-  void updateRenderObject(
-    BuildContext context,
-    _RenderTitleSlots renderObject,
-  ) {
-    renderObject.onMeasured = onMeasured;
-  }
-}
-
-class _TitleSlotsParentData extends ContainerBoxParentData<RenderBox> {}
-
-class _RenderTitleSlots extends RenderBox
-    with
-        ContainerRenderObjectMixin<RenderBox, _TitleSlotsParentData>,
-        RenderBoxContainerDefaultsMixin<RenderBox, _TitleSlotsParentData> {
-  _RenderTitleSlots(this.onMeasured);
-
-  void Function(double need, double room) onMeasured;
-
-  double? _need, _room;
-
-  @override
-  void setupParentData(RenderBox child) {
-    if (child.parentData is! _TitleSlotsParentData) {
-      child.parentData = _TitleSlotsParentData();
-    }
-  }
-
-  BoxConstraints _childConstraints(BoxConstraints constraints) =>
-      BoxConstraints(
-        maxWidth: constraints.maxWidth,
-        maxHeight: constraints.maxHeight,
-      );
-
-  @override
-  double computeMinIntrinsicWidth(double height) => 0;
-
-  @override
-  double computeMaxIntrinsicWidth(double height) => getChildrenAsList().fold(
-    0.0,
-    (w, child) => math.max(w, child.getMaxIntrinsicWidth(height)),
-  );
-
-  @override
-  double computeMinIntrinsicHeight(double width) => getChildrenAsList().fold(
-    0.0,
-    (h, child) => math.max(h, child.getMinIntrinsicHeight(width)),
-  );
-
-  @override
-  double computeMaxIntrinsicHeight(double width) => getChildrenAsList().fold(
-    0.0,
-    (h, child) => math.max(h, child.getMaxIntrinsicHeight(width)),
-  );
-
-  @override
-  Size computeDryLayout(covariant BoxConstraints constraints) {
-    var size = Size.zero;
-    for (final child in getChildrenAsList()) {
-      final s = child.getDryLayout(_childConstraints(constraints));
-      size = Size(
-        math.max(size.width, s.width),
-        math.max(size.height, s.height),
-      );
-    }
-    return constraints.constrain(size);
-  }
-
-  @override
-  void performLayout() {
-    final room = constraints.maxWidth;
-    var need = 0.0, width = 0.0, height = 0.0;
-    for (final child in getChildrenAsList()) {
-      need = math.max(need, child.getMaxIntrinsicWidth(double.infinity));
-      child.layout(_childConstraints(constraints), parentUsesSize: true);
-      width = math.max(width, child.size.width);
-      height = math.max(height, child.size.height);
-    }
-    size = constraints.constrain(Size(width, height));
-    for (final child in getChildrenAsList()) {
-      (child.parentData! as _TitleSlotsParentData).offset = Offset(
-        0,
-        (size.height - child.size.height) / 2,
-      );
-    }
-    if (need != _need || room != _room) {
-      _need = need;
-      _room = room;
-      SchedulerBinding.instance.addPostFrameCallback((_) {
-        if (attached) onMeasured(need, room);
-      });
-    }
-  }
-
-  @override
-  bool hitTestChildren(BoxHitTestResult result, {required Offset position}) =>
-      defaultHitTestChildren(result, position: position);
-
-  @override
-  void paint(PaintingContext context, Offset offset) =>
-      defaultPaint(context, offset);
 }
 
 /// The app bar's foot on every tab, in the shell's progress slot: while the node syncs, its
@@ -1064,71 +894,29 @@ class _BalanceHelpState extends State<BalanceHelp> {
   }
 }
 
-/// Wallet's app bar title: the mark's name, and on a test network its name with a ? whose
-/// tooltip says its coins have no value. Mainnet shows no network name.
+/// Wallet's app bar title: the mark's name, or in the web demo its countdown ([trailing]),
+/// which takes the name's place; the mark before the title still names the app. It names no
+/// network: a test network says so in the node status's tooltip.
 class ShellTitle extends StatelessWidget {
-  const ShellTitle({super.key, required this.chain, this.trailing});
+  const ShellTitle({super.key, this.trailing});
 
-  /// Null before the network is known.
-  final Chain? chain;
-
-  /// After the network name: the web demo's countdown. It takes the name's place, which the
-  /// bar has no room for beside both; the mark before the title still names the app.
   final Widget? trailing;
 
   @override
   Widget build(BuildContext context) {
-    final l = context.l10n;
-    final chain = this.chain;
-    final theme = Theme.of(context);
-    final named = trailing == null;
+    final trailing = this.trailing;
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (named)
-          Flexible(
-            child: Text(l.shellTitle, maxLines: 1, overflow: TextOverflow.fade),
-          ),
-        if (chain != null && chain != Chain.mainnet) ...[
-          if (named) const SizedBox(width: 8),
-          // Flexible like the name, so a bar narrower than both fades them, never overflows.
-          Flexible(
-            child: Tooltip(
-              message: l.shellTestNetworkTooltip,
-              triggerMode: TooltipTriggerMode.tap,
-              showDuration: const Duration(seconds: 6),
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(minHeight: 48),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Flexible(
-                      child: Text(
-                        chainName(l, chain),
-                        maxLines: 1,
-                        softWrap: false,
-                        overflow: TextOverflow.fade,
-                        style: theme.textTheme.labelMedium?.copyWith(
-                          color: context.tokens.accentText,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 2),
-                    Icon(
-                      Icons.help_outline,
-                      size: 16,
-                      color: context.tokens.accentText,
-                    ),
-                  ],
-                ),
+        Flexible(
+          child:
+              trailing ??
+              Text(
+                context.l10n.shellTitle,
+                maxLines: 1,
+                overflow: TextOverflow.fade,
               ),
-            ),
-          ),
-        ],
-        if (trailing case final trailing?) ...[
-          const SizedBox(width: 8),
-          Flexible(child: trailing),
-        ],
+        ),
       ],
     );
   }
