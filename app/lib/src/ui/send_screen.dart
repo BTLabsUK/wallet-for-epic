@@ -110,11 +110,11 @@ LocalizedFormatException _unclearAmount(String text) =>
 bool _isGrouped(String digits, String sep) =>
     RegExp('^\\d{1,3}(${RegExp.escape(sep)}\\d{3})*\$').hasMatch(digits);
 
-/// The Send tab's content. The recipient comes from [sendRecipientProvider] (a scanned QR code,
-/// Send again), at the start and whenever a new one is handed over.
 /// The key of the amount field's suffix, "Use USD" and "Max", for tests.
 const Key amountSuffixKey = ValueKey('send-amount-suffix');
 
+/// The Send tab's content. The recipient comes from [sendRecipientProvider] (a scanned QR code,
+/// Send again), at the start and whenever a new one is handed over.
 class SendView extends ConsumerStatefulWidget {
   const SendView({super.key, required this.onDone});
 
