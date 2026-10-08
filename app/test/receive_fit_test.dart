@@ -16,6 +16,7 @@ import 'package:epic_wallet/src/ui/receive_screen.dart';
 import 'package:epic_wallet/src/ui/scan_screen.dart';
 import 'package:epic_wallet/src/ui/settings_history.dart';
 import 'package:epic_wallet/src/ui/theme/brand.dart';
+import 'package:epic_wallet/src/ui/theme/protocol.dart' show CornerTicksPainter;
 import 'package:epic_wallet/src/ui/theme/tokens.dart';
 import 'package:epic_wallet/src/updater.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
@@ -81,10 +82,19 @@ Future<void> _pump(
   WidgetTester tester, {
   required Size size,
   required bool demo,
+  bool insets = false,
   double textScale = 1,
 }) async {
   tester.view.physicalSize = size * 3;
   tester.view.devicePixelRatio = 3;
+  if (insets) {
+    // A phone's status bar and gesture bar, in physical pixels.
+    tester.view.padding = const FakeViewPadding(top: 24 * 3, bottom: 48 * 3);
+    tester.view.viewPadding = const FakeViewPadding(
+      top: 24 * 3,
+      bottom: 48 * 3,
+    );
+  }
   addTearDown(tester.view.reset);
   final session = FakeWalletSession()..address = _address;
   expect(session.supportsInvoices, isTrue);
@@ -159,41 +169,84 @@ double _qrSide(WidgetTester tester) =>
 void main() {
   setUpAll(_loadFonts);
 
-  for (final size in [const Size(412, 915), const Size(360, 780)]) {
-    for (final demo in [false, true]) {
-      final name =
-          '${size.width.toInt()} x ${size.height.toInt()} dp'
-          '${demo ? ', demo' : ', invoices'}';
-      testWidgets('the Epicbox tab fits without scrolling at $name', (
-        tester,
-      ) async {
-        await _pump(tester, size: size, demo: demo);
-        expect(tester.takeException(), isNull);
-        // Everything the tab holds is there.
-        expect(find.byKey(receiveAddressKey), findsOneWidget);
-        expect(find.byKey(receiveEpicboxKey), findsOneWidget);
-        expect(find.byType(MarkedQr), findsOneWidget);
-        expect(find.byKey(receiveRequestKey), findsOneWidget);
-        expect(find.byKey(testCoinsKey), demo ? findsOneWidget : findsNothing);
-        final help = find.text('How receiving works');
-        expect(help, findsOneWidget);
-        // No scroll, and the last of it ends above the tab bar.
-        expect(_receiveScroll(tester).maxScrollExtent, 0);
-        final bar = tester.getRect(find.byType(NavigationBar));
-        final helpButton = tester.getRect(
-          find.ancestor(of: help, matching: find.byType(TextButton)),
-        );
-        expect(helpButton.bottom, lessThanOrEqualTo(bar.top));
-        final side = _qrSide(tester);
+  // A phone with its status bar (24 dp) and gesture bar (48 dp), wallet with invoices; and
+  // the web demo, which runs in a browser window without them.
+  for (final (size, demo, insets) in [
+    (const Size(412, 915), false, false),
+    (const Size(360, 780), false, false),
+    (const Size(412, 915), false, true),
+    (const Size(360, 780), false, true),
+    (const Size(412, 915), true, false),
+    (const Size(360, 780), true, false),
+  ]) {
+    final name =
+        '${size.width.toInt()} x ${size.height.toInt()} dp'
+        '${demo ? ', demo' : ', invoices'}'
+        '${insets ? ', status and gesture bars' : ''}';
+    testWidgets('the Epicbox tab fits without scrolling at $name', (
+      tester,
+    ) async {
+      await _pump(tester, size: size, demo: demo, insets: insets);
+      expect(tester.takeException(), isNull);
+      // Everything the tab holds is there.
+      expect(find.byKey(receiveAddressKey), findsOneWidget);
+      expect(find.byKey(receiveEpicboxKey), findsOneWidget);
+      expect(find.byType(MarkedQr), findsOneWidget);
+      expect(find.byKey(receiveRequestKey), findsOneWidget);
+      expect(find.byKey(testCoinsKey), demo ? findsOneWidget : findsNothing);
+      final help = find.text('How receiving works');
+      expect(help, findsOneWidget);
+      // No scroll, and the last of it ends above the tab bar.
+      expect(_receiveScroll(tester).maxScrollExtent, 0);
+      final bar = tester.getRect(find.byType(NavigationBar));
+      final helpButton = tester.getRect(
+        find.ancestor(of: help, matching: find.byType(TextButton)),
+      );
+      expect(helpButton.bottom, lessThanOrEqualTo(bar.top));
+      // The code and its frame stay in their slot: under the epicbox line, above the
+      // buttons. A code drawn past the room it was given would cover them.
+      final code = tester.getRect(
+        find.ancestor(
+          of: find.byType(MarkedQr),
+          matching: find.byWidgetPredicate(
+            (w) =>
+                w is CustomPaint && w.foregroundPainter is CornerTicksPainter,
+          ),
+        ),
+      );
+      expect(
+        code.top,
+        greaterThanOrEqualTo(
+          tester.getRect(find.byKey(receiveEpicboxKey)).bottom,
+        ),
+      );
+      for (final below in [receiveRequestKey, if (demo) testCoinsKey]) {
         expect(
-          side,
-          inInclusiveRange(receiveQrMinSize, receiveQrMaxSize),
-          reason: name,
+          code.bottom,
+          lessThanOrEqualTo(tester.getRect(find.byKey(below)).top),
+          reason: '$below',
         );
-        // ignore: avoid_print
-        print('$name: QR $side dp, ${bar.top - helpButton.bottom} dp to spare');
-      });
-    }
+      }
+      final side = _qrSide(tester);
+      // The frame holds the whole code: its ticks' 12 dp and the white 16 dp on each side.
+      expect(code.height, closeTo(side + 56, 0.5));
+      expect(code.width, closeTo(side + 56, 0.5));
+      expect(
+        code.deflate(28).contains(tester.getCenter(find.byType(MarkedQr))),
+        isTrue,
+      );
+      expect(
+        tester.getRect(find.byType(MarkedQr)).top,
+        closeTo(code.top + 28, 0.5),
+      );
+      expect(
+        side,
+        inInclusiveRange(receiveQrMinSize, receiveQrMaxSize),
+        reason: name,
+      );
+      // ignore: avoid_print
+      print('$name: QR $side dp, ${bar.top - helpButton.bottom} dp to spare');
+    });
   }
 
   testWidgets('with no room for the least code, the page scrolls', (
