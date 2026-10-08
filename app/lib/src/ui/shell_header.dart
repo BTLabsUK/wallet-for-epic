@@ -495,11 +495,15 @@ class _PendingLineState extends State<PendingLine>
     final scaler = MediaQuery.textScalerOf(context);
     final still = MediaQuery.disableAnimationsOf(context);
     final direction = Directionality.of(context);
-    final style = TextStyle(
-      fontFamily: t.monoFamily,
-      fontSize: 12,
-      color: t.dim,
-      fontFeatures: const [FontFeature.tabularFigures()],
+    // Merged with the inherited style, as the Text widgets draw it, so the widths measured
+    // below are the widths drawn.
+    final style = DefaultTextStyle.of(context).style.merge(
+      TextStyle(
+        fontFamily: t.monoFamily,
+        fontSize: 12,
+        color: t.dim,
+        fontFeatures: const [FontFeature.tabularFigures()],
+      ),
     );
     final calm = style.copyWith(color: t.faint);
     final height = math.max(20.0, _lineHeight(style, scaler, context) + 4);
@@ -536,15 +540,12 @@ class _PendingLineState extends State<PendingLine>
             // The space after the last item does not need to fit.
             _overflow = items.isNotEmpty && x - _after > constraints.maxWidth;
             WidgetsBinding.instance.addPostFrameCallback((_) => _sync(still));
-            // A copy that is not followed by another ends at its last word, so it centres.
-            Widget copy({required bool followed}) => Row(
+            Widget copy() => Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 for (final (n, i) in items.indexed)
                   SizedBox(
-                    width:
-                        widths[n] -
-                        (!followed && n == items.length - 1 ? _after : 0),
+                    width: widths[n],
                     child: Row(
                       children: [
                         Icon(
@@ -592,13 +593,19 @@ class _PendingLineState extends State<PendingLine>
                       child: row,
                     );
                   },
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      copy(followed: _overflow),
-                      if (_overflow) copy(followed: true),
-                    ],
-                  ),
+                  // Fitting, the line is padded at its start as at its end, so its words
+                  // centre; scrolling, a copy follows it, so the loop has no gap.
+                  child: _overflow
+                      ? Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [copy(), copy()],
+                        )
+                      : Padding(
+                          padding: const EdgeInsetsDirectional.only(
+                            start: _after,
+                          ),
+                          child: copy(),
+                        ),
                 ),
               ),
             );
