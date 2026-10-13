@@ -512,11 +512,24 @@ ShellTab _selectedTab(WidgetTester tester) =>
         .widget<NavigationBar>(find.byType(NavigationBar))
         .selectedIndex];
 
-/// The text in Send's To field.
+/// The text in Send's address field.
 String _toField(WidgetTester tester) => tester
-    .widget<TextField>(find.widgetWithText(TextField, 'To'))
+    .widget<TextField>(find.widgetWithText(TextField, 'Epic address'))
     .controller!
     .text;
+
+/// On the shell's Send tab: [to], 1 EPIC, review, Send.
+Future<void> _sendOne(WidgetTester tester, String to) async {
+  await _tab(tester, 'Send');
+  await tester.enterText(find.widgetWithText(TextField, 'Epic address'), to);
+  await tester.pumpAndSettle();
+  await _tap(tester, find.widgetWithText(FilledButton, 'Continue'));
+  await tester.enterText(find.widgetWithText(TextField, 'Amount (EPIC)'), '1');
+  await tester.pump(const Duration(milliseconds: 500));
+  await tester.pumpAndSettle();
+  await _tap(tester, find.widgetWithText(FilledButton, 'Continue'));
+  await _tap(tester, find.text('Send 1 EPIC'));
+}
 
 /// Scrolls to [finder] when it is out of sight, then taps it. A control already in sight is
 /// not scrolled to, so the shell's pages stay on their tab.
@@ -3837,7 +3850,10 @@ void main() {
       final h = _Harness(still: true);
       await h.pump(tester);
       await _tab(tester, 'Send');
-      await tester.enterText(find.widgetWithText(TextField, 'To'), payee);
+      await tester.enterText(
+        find.widgetWithText(TextField, 'Epic address'),
+        payee,
+      );
       await _tab(tester, 'Receive');
       await _tab(tester, 'Wallet');
       await _tab(tester, 'Send');
@@ -3883,21 +3899,47 @@ void main() {
     ) async {
       final h = _Harness(still: true);
       await h.pump(tester, const HomeScreen(), 1, const Size(1080, 2340));
-      await _tab(tester, 'Send');
-      await tester.enterText(find.widgetWithText(TextField, 'To'), payee);
-      await tester.enterText(
-        find.widgetWithText(TextField, 'Amount (EPIC)'),
-        '1',
-      );
-      await tester.pump(const Duration(milliseconds: 500));
-      await tester.pumpAndSettle();
-      await _tap(tester, find.text('Review'));
-      await _tap(tester, find.text('Send 1 EPIC'));
-      expect(find.text('Payment started: 1 EPIC'), findsOneWidget);
+      await _sendOne(tester, payee);
+      expect(find.text('Waiting for their wallet'), findsOneWidget);
       await _tap(tester, find.text('Done'));
       expect(_selectedTab(tester), ShellTab.wallet);
       await _tab(tester, 'Send');
       expect(_toField(tester), isEmpty);
+    });
+
+    testWidgets('the tracker moves on when their wallet answers, without a notice', (
+      tester,
+    ) async {
+      final h = _Harness(still: true);
+      await h.pump(tester, const HomeScreen(), 1, const Size(1080, 2340));
+      await _sendOne(tester, payee);
+      expect(find.text('Waiting for their wallet'), findsOneWidget);
+
+      // Their reply comes: the listener finishes and posts it.
+      h.session.transactionsValue.add(
+        fakeTx(
+          slateId: 'send-1',
+          kind: TxKind.sent,
+          status: TxStatus.awaitingConfirmation,
+          amountDebited: _epic(1) + h.session.fee,
+          fee: h.session.fee,
+          counterparty: payee,
+        ),
+      );
+      h.session.listenerEvents.add(
+        const ListenerEvent(
+          kind: ListenerEventKind.finalized,
+          slateId: 'send-1',
+          message: 'Sent 1 EPIC, posted to the node',
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('Waiting for their wallet'), findsNothing);
+      expect(find.text('Their wallet signed'), findsOneWidget);
+      expect(find.text('Sent to the network'), findsOneWidget);
+      expect(find.textContaining('Confirming 0/'), findsOneWidget);
+      // The tracker says it; a notice would say it twice.
+      expect(find.textContaining('finished. Waiting for'), findsNothing);
     });
 
     testWidgets('pull to refresh on the Wallet tab reloads from the node', (

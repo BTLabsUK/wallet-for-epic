@@ -5389,6 +5389,372 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Opening your demo wallet'**
   String get demoPinUnlockTitle;
+
+  /// Send, step 1: heading of the step where the user enters who to pay.
+  ///
+  /// In en, this message translates to:
+  /// **'Recipient'**
+  String get sendStepRecipient;
+
+  /// Send, step 2: heading of the step where the user enters how much.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount'**
+  String get sendStepAmount;
+
+  /// Send, step 3: heading of the step that shows the payment before it is sent.
+  ///
+  /// In en, this message translates to:
+  /// **'Review'**
+  String get sendStepReview;
+
+  /// Send: which step of the three the user is on, beside the step heading.
+  ///
+  /// In en, this message translates to:
+  /// **'{step} of {total}'**
+  String sendStepOf(int step, int total);
+
+  /// Send: tooltip and label of the info button that opens the animated explanation of how an Epic payment works; also the heading of that sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'How it works'**
+  String get sendHowItWorks;
+
+  /// Send, step 1: label of the field for the recipient's address.
+  ///
+  /// In en, this message translates to:
+  /// **'Epic address'**
+  String get sendAddressLabel;
+
+  /// Send, step 1: shown when Continue is tapped with an empty address field.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter their address.'**
+  String get sendAddressMissing;
+
+  /// Send, step 1: the pasted text is a web URL; the wallet only pays Epic addresses or by file.
+  ///
+  /// In en, this message translates to:
+  /// **'This is a web link, not an Epic address.'**
+  String get sendAddressWebLink;
+
+  /// Send, step 1: the text looks like the start of an Epic address but is too short or lacks its server part.
+  ///
+  /// In en, this message translates to:
+  /// **'This address looks incomplete.'**
+  String get sendAddressIncomplete;
+
+  /// Send, step 1: the text is not a valid Epic address for this network.
+  ///
+  /// In en, this message translates to:
+  /// **'This is not an Epic address.'**
+  String get sendAddressNotEpic;
+
+  /// Send: shown on the recipient card instead of a name when the address is not in the user's contacts.
+  ///
+  /// In en, this message translates to:
+  /// **'New recipient'**
+  String get sendNewRecipient;
+
+  /// Send: quiet button that saves the recipient's address as a contact.
+  ///
+  /// In en, this message translates to:
+  /// **'Save as contact'**
+  String get sendSaveContact;
+
+  /// Send, step 1: heading of the short list of people the user paid recently.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent'**
+  String get sendRecent;
+
+  /// Send, step 1: quiet row that opens paying with a payment file instead of an address.
+  ///
+  /// In en, this message translates to:
+  /// **'No address? Use a payment file'**
+  String get sendUseFile;
+
+  /// Send: who the payment goes to, a contact name or a shortened address, above the amount and under it on the tracker.
+  ///
+  /// In en, this message translates to:
+  /// **'To {who}'**
+  String sendTo(String who);
+
+  /// Send, step 2: the amount the wallet can spend now, under the amount field. {amount} is like '7.49 EPIC'.
+  ///
+  /// In en, this message translates to:
+  /// **'Available {amount}'**
+  String sendAvailable(String amount);
+
+  /// Send, step 2: nothing is spendable yet because coins are still confirming or in a pending payment. {amount} is like '10 EPIC'.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} is on hold until it confirms.'**
+  String sendOnHold(String amount);
+
+  /// Send, step 2: the estimated network fee as a quiet figure under the amount.
+  ///
+  /// In en, this message translates to:
+  /// **'Network fee {fee}'**
+  String sendFeeQuiet(String fee);
+
+  /// Send, step 2: folded row that opens the optional note field.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a note'**
+  String get sendAddNote;
+
+  /// Send, step 2: label of the optional note field.
+  ///
+  /// In en, this message translates to:
+  /// **'Note'**
+  String get sendNoteLabel;
+
+  /// Send, step 2: under the note field; the recipient sees the note as well.
+  ///
+  /// In en, this message translates to:
+  /// **'They see it too.'**
+  String get sendNoteHelper;
+
+  /// Send, review: label of the row with the network fee.
+  ///
+  /// In en, this message translates to:
+  /// **'Network fee'**
+  String get sendNetworkFee;
+
+  /// Send, review: the checks of the network and the recipient's relay are running.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking…'**
+  String get sendChecking;
+
+  /// Send, review: every check passed.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready to send'**
+  String get sendReady;
+
+  /// Send, review: the node does not answer, so the payment cannot be sent; a Retry button follows.
+  ///
+  /// In en, this message translates to:
+  /// **'Can\'t reach the network right now.'**
+  String get sendNodeDown;
+
+  /// Send, review: the recipient's message relay does not answer, so the payment may not arrive; paying with a file is offered.
+  ///
+  /// In en, this message translates to:
+  /// **'Their relay isn\'t answering.'**
+  String get sendRelayDown;
+
+  /// Send, review: this wallet is not connected to its message relay yet; sending is still allowed.
+  ///
+  /// In en, this message translates to:
+  /// **'Not connected yet. You can still send.'**
+  String get sendListenerDown;
+
+  /// Send, review: button that switches to paying with a payment file, keeping the amount and note.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay with a file instead'**
+  String get sendPayWithFile;
+
+  /// Send, review: sends although the recipient's relay did not answer.
+  ///
+  /// In en, this message translates to:
+  /// **'Send anyway'**
+  String get sendAnyway;
+
+  /// Send tracker, step 1 done: the payment went to the contact {name}.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent to {name}'**
+  String sendTrackSentTo(String name);
+
+  /// Send tracker, step 1 done, for a recipient without a contact name.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent'**
+  String get sendTrackSent;
+
+  /// Send tracker, step 2 current: the contact's wallet has not signed yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for {name}\'s wallet'**
+  String sendTrackWaitingFor(String name);
+
+  /// Send tracker, step 2 current, for a recipient without a contact name.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for their wallet'**
+  String get sendTrackWaiting;
+
+  /// Send tracker, step 2 done: the contact's wallet signed the payment.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}\'s wallet signed'**
+  String sendTrackSignedBy(String name);
+
+  /// Send tracker, step 2 done, for a recipient without a contact name; also the file route's reply step once done.
+  ///
+  /// In en, this message translates to:
+  /// **'Their wallet signed'**
+  String get sendTrackSigned;
+
+  /// Send tracker: the finished payment was handed to the network.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent to the network'**
+  String get sendTrackOnNetwork;
+
+  /// Send tracker, last step: the network confirmed the payment.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirmed'**
+  String get sendTrackConfirmed;
+
+  /// Send tracker, while waiting for the recipient's wallet. {amount} is the amount plus fee, like '2.508 EPIC'.
+  ///
+  /// In en, this message translates to:
+  /// **'Their wallet finishes it when it opens. {amount} stays on hold until then.'**
+  String sendTrackOffline(String amount);
+
+  /// Send tracker: small expandable row with the automatic cancel rule.
+  ///
+  /// In en, this message translates to:
+  /// **'What if it never finishes?'**
+  String get sendTrackIfNot;
+
+  /// Send tracker: the payment was cancelled or expired.
+  ///
+  /// In en, this message translates to:
+  /// **'This payment was cancelled.'**
+  String get sendTrackCancelled;
+
+  /// Send: empty state when the wallet has no coins at all, spendable or on the way.
+  ///
+  /// In en, this message translates to:
+  /// **'No coins to send yet.'**
+  String get sendNoCoins;
+
+  /// Send, file route: heading of the steps that pay with a payment file.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay with a file'**
+  String get sendFileTitle;
+
+  /// Send, file route: button that makes the payment file for the amount.
+  ///
+  /// In en, this message translates to:
+  /// **'Make payment file'**
+  String get sendMakeFile;
+
+  /// Send, file route tracker: the payment file exists.
+  ///
+  /// In en, this message translates to:
+  /// **'File made'**
+  String get sendFileMade;
+
+  /// Send, file route tracker: detail under 'File made'; the amount is held until the payment finishes.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} on hold'**
+  String sendFileOnHold(String amount);
+
+  /// Send, file route tracker, current step: waiting for the file the other person sends back.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for their reply'**
+  String get sendFileWaitingReply;
+
+  /// Send, file route: one line above the save and share buttons.
+  ///
+  /// In en, this message translates to:
+  /// **'Send them this file. Then open their reply.'**
+  String get sendFileShareHint;
+
+  /// Send, file route: button that opens the file the other person sent back.
+  ///
+  /// In en, this message translates to:
+  /// **'Open their reply'**
+  String get sendOpenReply;
+
+  /// How it works sheet: toggle segment for the flow where you pay someone.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment'**
+  String get handshakePayment;
+
+  /// How it works sheet: toggle segment for the flow where you ask someone for coins (an invoice).
+  ///
+  /// In en, this message translates to:
+  /// **'Request'**
+  String get handshakeRequest;
+
+  /// How it works sheet: label of the user's wallet in the diagram.
+  ///
+  /// In en, this message translates to:
+  /// **'You'**
+  String get handshakeYou;
+
+  /// How it works sheet: label of the other person's wallet in the diagram.
+  ///
+  /// In en, this message translates to:
+  /// **'Them'**
+  String get handshakeThem;
+
+  /// How it works sheet: label of the Epic network in the diagram.
+  ///
+  /// In en, this message translates to:
+  /// **'Network'**
+  String get handshakeNetwork;
+
+  /// How it works, payment, step 1.
+  ///
+  /// In en, this message translates to:
+  /// **'Your wallet sends them the payment. Your coins go on hold.'**
+  String get handshakePay1;
+
+  /// How it works, payment, step 2.
+  ///
+  /// In en, this message translates to:
+  /// **'Their wallet adds its part, signs and sends it back.'**
+  String get handshakePay2;
+
+  /// How it works, step 3 of both flows: the wallet that started finishes and broadcasts it.
+  ///
+  /// In en, this message translates to:
+  /// **'Your wallet finishes it and sends it to the network.'**
+  String get handshakeFinish;
+
+  /// How it works, step 4 of both flows.
+  ///
+  /// In en, this message translates to:
+  /// **'The network confirms it.'**
+  String get handshakeConfirm;
+
+  /// How it works, request, step 1: you ask them for coins.
+  ///
+  /// In en, this message translates to:
+  /// **'Your wallet sends them the request.'**
+  String get handshakeReq1;
+
+  /// How it works, request, step 2: the payer's wallet pays and signs.
+  ///
+  /// In en, this message translates to:
+  /// **'Their wallet adds the coins, signs and sends it back.'**
+  String get handshakeReq2;
+
+  /// How it works sheet: tooltip of the button that shows the step before.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous step'**
+  String get handshakePrevious;
+
+  /// How it works sheet: tooltip of the button that shows the next step.
+  ///
+  /// In en, this message translates to:
+  /// **'Next step'**
+  String get handshakeNext;
 }
 
 class _AppLocalizationsDelegate

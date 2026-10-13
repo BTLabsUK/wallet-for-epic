@@ -3368,4 +3368,207 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get demoPinUnlockTitle => '正在打开你的演示钱包';
+
+  @override
+  String get sendStepRecipient => '收款人';
+
+  @override
+  String get sendStepAmount => '金额';
+
+  @override
+  String get sendStepReview => '确认';
+
+  @override
+  String sendStepOf(int step, int total) {
+    return '第 $step 步，共 $total 步';
+  }
+
+  @override
+  String get sendHowItWorks => '运作方式';
+
+  @override
+  String get sendAddressLabel => 'Epic 地址';
+
+  @override
+  String get sendAddressMissing => '请输入对方的地址。';
+
+  @override
+  String get sendAddressWebLink => '这是网页链接，不是 Epic 地址。';
+
+  @override
+  String get sendAddressIncomplete => '这个地址似乎不完整。';
+
+  @override
+  String get sendAddressNotEpic => '这不是 Epic 地址。';
+
+  @override
+  String get sendNewRecipient => '新收款人';
+
+  @override
+  String get sendSaveContact => '保存为联系人';
+
+  @override
+  String get sendRecent => '最近';
+
+  @override
+  String get sendUseFile => '没有地址？使用付款文件';
+
+  @override
+  String sendTo(String who) {
+    return '付给 $who';
+  }
+
+  @override
+  String sendAvailable(String amount) {
+    return '可用 $amount';
+  }
+
+  @override
+  String sendOnHold(String amount) {
+    return '$amount 在确认前处于冻结状态。';
+  }
+
+  @override
+  String sendFeeQuiet(String fee) {
+    return '网络手续费 $fee';
+  }
+
+  @override
+  String get sendAddNote => '添加备注';
+
+  @override
+  String get sendNoteLabel => '备注';
+
+  @override
+  String get sendNoteHelper => '对方也能看到。';
+
+  @override
+  String get sendNetworkFee => '网络手续费';
+
+  @override
+  String get sendChecking => '正在检查…';
+
+  @override
+  String get sendReady => '可以发送';
+
+  @override
+  String get sendNodeDown => '目前无法连接网络。';
+
+  @override
+  String get sendRelayDown => '对方的中继没有响应。';
+
+  @override
+  String get sendListenerDown => '尚未连接。仍可发送。';
+
+  @override
+  String get sendPayWithFile => '改用文件付款';
+
+  @override
+  String get sendAnyway => '仍然发送';
+
+  @override
+  String sendTrackSentTo(String name) {
+    return '已发送给 $name';
+  }
+
+  @override
+  String get sendTrackSent => '已发送';
+
+  @override
+  String sendTrackWaitingFor(String name) {
+    return '等待 $name 的钱包';
+  }
+
+  @override
+  String get sendTrackWaiting => '等待对方的钱包';
+
+  @override
+  String sendTrackSignedBy(String name) {
+    return '$name 的钱包已签名';
+  }
+
+  @override
+  String get sendTrackSigned => '对方钱包已签名';
+
+  @override
+  String get sendTrackOnNetwork => '已发送到网络';
+
+  @override
+  String get sendTrackConfirmed => '已确认';
+
+  @override
+  String sendTrackOffline(String amount) {
+    return '对方钱包打开后会完成付款。在此之前 $amount 处于冻结状态。';
+  }
+
+  @override
+  String get sendTrackIfNot => '如果一直没有完成怎么办？';
+
+  @override
+  String get sendTrackCancelled => '这笔付款已取消。';
+
+  @override
+  String get sendNoCoins => '还没有可发送的币。';
+
+  @override
+  String get sendFileTitle => '用文件付款';
+
+  @override
+  String get sendMakeFile => '生成付款文件';
+
+  @override
+  String get sendFileMade => '文件已生成';
+
+  @override
+  String sendFileOnHold(String amount) {
+    return '$amount 已冻结';
+  }
+
+  @override
+  String get sendFileWaitingReply => '等待对方回复';
+
+  @override
+  String get sendFileShareHint => '把这个文件发给对方，然后打开对方的回复。';
+
+  @override
+  String get sendOpenReply => '打开回复';
+
+  @override
+  String get handshakePayment => '付款';
+
+  @override
+  String get handshakeRequest => '收款请求';
+
+  @override
+  String get handshakeYou => '你';
+
+  @override
+  String get handshakeThem => '对方';
+
+  @override
+  String get handshakeNetwork => '网络';
+
+  @override
+  String get handshakePay1 => '你的钱包把付款发给对方。你的币被冻结。';
+
+  @override
+  String get handshakePay2 => '对方钱包加入自己的部分、签名并发回。';
+
+  @override
+  String get handshakeFinish => '你的钱包完成它并发送到网络。';
+
+  @override
+  String get handshakeConfirm => '网络确认它。';
+
+  @override
+  String get handshakeReq1 => '你的钱包把收款请求发给对方。';
+
+  @override
+  String get handshakeReq2 => '对方钱包加入币、签名并发回。';
+
+  @override
+  String get handshakePrevious => '上一步';
+
+  @override
+  String get handshakeNext => '下一步';
 }

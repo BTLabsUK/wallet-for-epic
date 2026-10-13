@@ -3747,4 +3747,210 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get demoPinUnlockTitle => 'Otwieramy twój portfel demo';
+
+  @override
+  String get sendStepRecipient => 'Odbiorca';
+
+  @override
+  String get sendStepAmount => 'Kwota';
+
+  @override
+  String get sendStepReview => 'Sprawdź';
+
+  @override
+  String sendStepOf(int step, int total) {
+    return '$step z $total';
+  }
+
+  @override
+  String get sendHowItWorks => 'Jak to działa';
+
+  @override
+  String get sendAddressLabel => 'Adres Epic';
+
+  @override
+  String get sendAddressMissing => 'Wpisz adres odbiorcy.';
+
+  @override
+  String get sendAddressWebLink => 'To link internetowy, a nie adres Epic.';
+
+  @override
+  String get sendAddressIncomplete => 'Ten adres wygląda na niepełny.';
+
+  @override
+  String get sendAddressNotEpic => 'To nie jest adres Epic.';
+
+  @override
+  String get sendNewRecipient => 'Nowy odbiorca';
+
+  @override
+  String get sendSaveContact => 'Zapisz jako kontakt';
+
+  @override
+  String get sendRecent => 'Ostatnio';
+
+  @override
+  String get sendUseFile => 'Brak adresu? Użyj pliku płatności';
+
+  @override
+  String sendTo(String who) {
+    return 'Do $who';
+  }
+
+  @override
+  String sendAvailable(String amount) {
+    return 'Dostępne $amount';
+  }
+
+  @override
+  String sendOnHold(String amount) {
+    return '$amount czeka na potwierdzenie.';
+  }
+
+  @override
+  String sendFeeQuiet(String fee) {
+    return 'Opłata sieciowa $fee';
+  }
+
+  @override
+  String get sendAddNote => 'Dodaj notatkę';
+
+  @override
+  String get sendNoteLabel => 'Notatka';
+
+  @override
+  String get sendNoteHelper => 'Odbiorca też ją zobaczy.';
+
+  @override
+  String get sendNetworkFee => 'Opłata sieciowa';
+
+  @override
+  String get sendChecking => 'Sprawdzanie…';
+
+  @override
+  String get sendReady => 'Gotowe do wysłania';
+
+  @override
+  String get sendNodeDown => 'Brak połączenia z siecią.';
+
+  @override
+  String get sendRelayDown => 'Ich przekaźnik nie odpowiada.';
+
+  @override
+  String get sendListenerDown => 'Jeszcze bez połączenia. Możesz już wysłać.';
+
+  @override
+  String get sendPayWithFile => 'Zapłać plikiem';
+
+  @override
+  String get sendAnyway => 'Wyślij mimo to';
+
+  @override
+  String sendTrackSentTo(String name) {
+    return 'Wysłano do: $name';
+  }
+
+  @override
+  String get sendTrackSent => 'Wysłano';
+
+  @override
+  String sendTrackWaitingFor(String name) {
+    return 'Czekamy na portfel: $name';
+  }
+
+  @override
+  String get sendTrackWaiting => 'Czekamy na portfel odbiorcy';
+
+  @override
+  String sendTrackSignedBy(String name) {
+    return 'Portfel $name podpisał';
+  }
+
+  @override
+  String get sendTrackSigned => 'Portfel odbiorcy podpisał';
+
+  @override
+  String get sendTrackOnNetwork => 'Wysłano do sieci';
+
+  @override
+  String get sendTrackConfirmed => 'Potwierdzono';
+
+  @override
+  String sendTrackOffline(String amount) {
+    return 'Portfel odbiorcy dokończy ją po otwarciu. Do tego czasu $amount jest wstrzymane.';
+  }
+
+  @override
+  String get sendTrackIfNot => 'A jeśli się nie zakończy?';
+
+  @override
+  String get sendTrackCancelled => 'Ta płatność została anulowana.';
+
+  @override
+  String get sendNoCoins => 'Nie masz jeszcze monet do wysłania.';
+
+  @override
+  String get sendFileTitle => 'Płatność plikiem';
+
+  @override
+  String get sendMakeFile => 'Utwórz plik płatności';
+
+  @override
+  String get sendFileMade => 'Plik utworzony';
+
+  @override
+  String sendFileOnHold(String amount) {
+    return '$amount wstrzymane';
+  }
+
+  @override
+  String get sendFileWaitingReply => 'Czekamy na odpowiedź';
+
+  @override
+  String get sendFileShareHint =>
+      'Wyślij im ten plik. Potem otwórz ich odpowiedź.';
+
+  @override
+  String get sendOpenReply => 'Otwórz odpowiedź';
+
+  @override
+  String get handshakePayment => 'Płatność';
+
+  @override
+  String get handshakeRequest => 'Prośba';
+
+  @override
+  String get handshakeYou => 'Ty';
+
+  @override
+  String get handshakeThem => 'Oni';
+
+  @override
+  String get handshakeNetwork => 'Sieć';
+
+  @override
+  String get handshakePay1 =>
+      'Twój portfel wysyła im płatność. Twoje monety są wstrzymane.';
+
+  @override
+  String get handshakePay2 =>
+      'Ich portfel dodaje swoją część, podpisuje i odsyła.';
+
+  @override
+  String get handshakeFinish => 'Twój portfel kończy ją i wysyła do sieci.';
+
+  @override
+  String get handshakeConfirm => 'Sieć ją potwierdza.';
+
+  @override
+  String get handshakeReq1 => 'Twój portfel wysyła im prośbę.';
+
+  @override
+  String get handshakeReq2 => 'Ich portfel dodaje monety, podpisuje i odsyła.';
+
+  @override
+  String get handshakePrevious => 'Poprzedni krok';
+
+  @override
+  String get handshakeNext => 'Następny krok';
 }

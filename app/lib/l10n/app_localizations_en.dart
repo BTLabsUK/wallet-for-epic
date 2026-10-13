@@ -3583,4 +3583,211 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get demoPinUnlockTitle => 'Opening your demo wallet';
+
+  @override
+  String get sendStepRecipient => 'Recipient';
+
+  @override
+  String get sendStepAmount => 'Amount';
+
+  @override
+  String get sendStepReview => 'Review';
+
+  @override
+  String sendStepOf(int step, int total) {
+    return '$step of $total';
+  }
+
+  @override
+  String get sendHowItWorks => 'How it works';
+
+  @override
+  String get sendAddressLabel => 'Epic address';
+
+  @override
+  String get sendAddressMissing => 'Enter their address.';
+
+  @override
+  String get sendAddressWebLink => 'This is a web link, not an Epic address.';
+
+  @override
+  String get sendAddressIncomplete => 'This address looks incomplete.';
+
+  @override
+  String get sendAddressNotEpic => 'This is not an Epic address.';
+
+  @override
+  String get sendNewRecipient => 'New recipient';
+
+  @override
+  String get sendSaveContact => 'Save as contact';
+
+  @override
+  String get sendRecent => 'Recent';
+
+  @override
+  String get sendUseFile => 'No address? Use a payment file';
+
+  @override
+  String sendTo(String who) {
+    return 'To $who';
+  }
+
+  @override
+  String sendAvailable(String amount) {
+    return 'Available $amount';
+  }
+
+  @override
+  String sendOnHold(String amount) {
+    return '$amount is on hold until it confirms.';
+  }
+
+  @override
+  String sendFeeQuiet(String fee) {
+    return 'Network fee $fee';
+  }
+
+  @override
+  String get sendAddNote => 'Add a note';
+
+  @override
+  String get sendNoteLabel => 'Note';
+
+  @override
+  String get sendNoteHelper => 'They see it too.';
+
+  @override
+  String get sendNetworkFee => 'Network fee';
+
+  @override
+  String get sendChecking => 'Checking…';
+
+  @override
+  String get sendReady => 'Ready to send';
+
+  @override
+  String get sendNodeDown => 'Can\'t reach the network right now.';
+
+  @override
+  String get sendRelayDown => 'Their relay isn\'t answering.';
+
+  @override
+  String get sendListenerDown => 'Not connected yet. You can still send.';
+
+  @override
+  String get sendPayWithFile => 'Pay with a file instead';
+
+  @override
+  String get sendAnyway => 'Send anyway';
+
+  @override
+  String sendTrackSentTo(String name) {
+    return 'Sent to $name';
+  }
+
+  @override
+  String get sendTrackSent => 'Sent';
+
+  @override
+  String sendTrackWaitingFor(String name) {
+    return 'Waiting for $name\'s wallet';
+  }
+
+  @override
+  String get sendTrackWaiting => 'Waiting for their wallet';
+
+  @override
+  String sendTrackSignedBy(String name) {
+    return '$name\'s wallet signed';
+  }
+
+  @override
+  String get sendTrackSigned => 'Their wallet signed';
+
+  @override
+  String get sendTrackOnNetwork => 'Sent to the network';
+
+  @override
+  String get sendTrackConfirmed => 'Confirmed';
+
+  @override
+  String sendTrackOffline(String amount) {
+    return 'Their wallet finishes it when it opens. $amount stays on hold until then.';
+  }
+
+  @override
+  String get sendTrackIfNot => 'What if it never finishes?';
+
+  @override
+  String get sendTrackCancelled => 'This payment was cancelled.';
+
+  @override
+  String get sendNoCoins => 'No coins to send yet.';
+
+  @override
+  String get sendFileTitle => 'Pay with a file';
+
+  @override
+  String get sendMakeFile => 'Make payment file';
+
+  @override
+  String get sendFileMade => 'File made';
+
+  @override
+  String sendFileOnHold(String amount) {
+    return '$amount on hold';
+  }
+
+  @override
+  String get sendFileWaitingReply => 'Waiting for their reply';
+
+  @override
+  String get sendFileShareHint => 'Send them this file. Then open their reply.';
+
+  @override
+  String get sendOpenReply => 'Open their reply';
+
+  @override
+  String get handshakePayment => 'Payment';
+
+  @override
+  String get handshakeRequest => 'Request';
+
+  @override
+  String get handshakeYou => 'You';
+
+  @override
+  String get handshakeThem => 'Them';
+
+  @override
+  String get handshakeNetwork => 'Network';
+
+  @override
+  String get handshakePay1 =>
+      'Your wallet sends them the payment. Your coins go on hold.';
+
+  @override
+  String get handshakePay2 =>
+      'Their wallet adds its part, signs and sends it back.';
+
+  @override
+  String get handshakeFinish =>
+      'Your wallet finishes it and sends it to the network.';
+
+  @override
+  String get handshakeConfirm => 'The network confirms it.';
+
+  @override
+  String get handshakeReq1 => 'Your wallet sends them the request.';
+
+  @override
+  String get handshakeReq2 =>
+      'Their wallet adds the coins, signs and sends it back.';
+
+  @override
+  String get handshakePrevious => 'Previous step';
+
+  @override
+  String get handshakeNext => 'Next step';
 }

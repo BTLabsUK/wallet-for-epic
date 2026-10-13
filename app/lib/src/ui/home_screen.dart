@@ -22,7 +22,7 @@ import 'invoices_screen.dart' show InvoicesEntry;
 import 'receive_screen.dart' show ReceiveView;
 import 'restore_screen.dart' show ScanProgressView;
 import 'scan_screen.dart' show offersQrScan, qrScannerProvider;
-import 'send_screen.dart' show SendView;
+import 'send_screen.dart' show SendView, trackedSendProvider;
 import 'shell_header.dart';
 import 'settings_history.dart' show exportHistoryBackup;
 import 'settings_screen.dart';
@@ -332,6 +332,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       }
     }
     if (!mounted) return;
+    // Send's tracker is showing this payment finish; a notice would say it twice.
+    if (event.kind == ListenerEventKind.finalized &&
+        tx != null &&
+        tx.key == ref.read(trackedSendProvider) &&
+        ref.read(shellTabProvider) == ShellTab.send) {
+      return;
+    }
     final contacts = ref.read(contactsProvider).value ?? const <Contact>[];
     final text = paymentNotice(
       context.l10n,

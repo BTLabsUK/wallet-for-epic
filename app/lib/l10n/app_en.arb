@@ -4362,5 +4362,302 @@
   "demoPinUnlockTitle": "Opening your demo wallet",
   "@demoPinUnlockTitle": {
     "description": "Web demo: heading of the unlock screen while the demo PIN fills in. The usual title returns with the PIN field."
+  },
+  "sendStepRecipient": "Recipient",
+  "@sendStepRecipient": {
+    "description": "Send, step 1: heading of the step where the user enters who to pay."
+  },
+  "sendStepAmount": "Amount",
+  "@sendStepAmount": {
+    "description": "Send, step 2: heading of the step where the user enters how much."
+  },
+  "sendStepReview": "Review",
+  "@sendStepReview": {
+    "description": "Send, step 3: heading of the step that shows the payment before it is sent."
+  },
+  "sendStepOf": "{step} of {total}",
+  "@sendStepOf": {
+    "description": "Send: which step of the three the user is on, beside the step heading.",
+    "placeholders": {
+      "step": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "sendHowItWorks": "How it works",
+  "@sendHowItWorks": {
+    "description": "Send: tooltip and label of the info button that opens the animated explanation of how an Epic payment works; also the heading of that sheet."
+  },
+  "sendAddressLabel": "Epic address",
+  "@sendAddressLabel": {
+    "description": "Send, step 1: label of the field for the recipient's address."
+  },
+  "sendAddressMissing": "Enter their address.",
+  "@sendAddressMissing": {
+    "description": "Send, step 1: shown when Continue is tapped with an empty address field."
+  },
+  "sendAddressWebLink": "This is a web link, not an Epic address.",
+  "@sendAddressWebLink": {
+    "description": "Send, step 1: the pasted text is a web URL; the wallet only pays Epic addresses or by file."
+  },
+  "sendAddressIncomplete": "This address looks incomplete.",
+  "@sendAddressIncomplete": {
+    "description": "Send, step 1: the text looks like the start of an Epic address but is too short or lacks its server part."
+  },
+  "sendAddressNotEpic": "This is not an Epic address.",
+  "@sendAddressNotEpic": {
+    "description": "Send, step 1: the text is not a valid Epic address for this network."
+  },
+  "sendNewRecipient": "New recipient",
+  "@sendNewRecipient": {
+    "description": "Send: shown on the recipient card instead of a name when the address is not in the user's contacts."
+  },
+  "sendSaveContact": "Save as contact",
+  "@sendSaveContact": {
+    "description": "Send: quiet button that saves the recipient's address as a contact."
+  },
+  "sendRecent": "Recent",
+  "@sendRecent": {
+    "description": "Send, step 1: heading of the short list of people the user paid recently."
+  },
+  "sendUseFile": "No address? Use a payment file",
+  "@sendUseFile": {
+    "description": "Send, step 1: quiet row that opens paying with a payment file instead of an address."
+  },
+  "sendTo": "To {who}",
+  "@sendTo": {
+    "description": "Send: who the payment goes to, a contact name or a shortened address, above the amount and under it on the tracker.",
+    "placeholders": {
+      "who": {
+        "type": "String"
+      }
+    }
+  },
+  "sendAvailable": "Available {amount}",
+  "@sendAvailable": {
+    "description": "Send, step 2: the amount the wallet can spend now, under the amount field. {amount} is like '7.49 EPIC'.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "sendOnHold": "{amount} is on hold until it confirms.",
+  "@sendOnHold": {
+    "description": "Send, step 2: nothing is spendable yet because coins are still confirming or in a pending payment. {amount} is like '10 EPIC'.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "sendFeeQuiet": "Network fee {fee}",
+  "@sendFeeQuiet": {
+    "description": "Send, step 2: the estimated network fee as a quiet figure under the amount.",
+    "placeholders": {
+      "fee": {
+        "type": "String"
+      }
+    }
+  },
+  "sendAddNote": "Add a note",
+  "@sendAddNote": {
+    "description": "Send, step 2: folded row that opens the optional note field."
+  },
+  "sendNoteLabel": "Note",
+  "@sendNoteLabel": {
+    "description": "Send, step 2: label of the optional note field."
+  },
+  "sendNoteHelper": "They see it too.",
+  "@sendNoteHelper": {
+    "description": "Send, step 2: under the note field; the recipient sees the note as well."
+  },
+  "sendNetworkFee": "Network fee",
+  "@sendNetworkFee": {
+    "description": "Send, review: label of the row with the network fee."
+  },
+  "sendChecking": "Checking…",
+  "@sendChecking": {
+    "description": "Send, review: the checks of the network and the recipient's relay are running."
+  },
+  "sendReady": "Ready to send",
+  "@sendReady": {
+    "description": "Send, review: every check passed."
+  },
+  "sendNodeDown": "Can't reach the network right now.",
+  "@sendNodeDown": {
+    "description": "Send, review: the node does not answer, so the payment cannot be sent; a Retry button follows."
+  },
+  "sendRelayDown": "Their relay isn't answering.",
+  "@sendRelayDown": {
+    "description": "Send, review: the recipient's message relay does not answer, so the payment may not arrive; paying with a file is offered."
+  },
+  "sendListenerDown": "Not connected yet. You can still send.",
+  "@sendListenerDown": {
+    "description": "Send, review: this wallet is not connected to its message relay yet; sending is still allowed."
+  },
+  "sendPayWithFile": "Pay with a file instead",
+  "@sendPayWithFile": {
+    "description": "Send, review: button that switches to paying with a payment file, keeping the amount and note."
+  },
+  "sendAnyway": "Send anyway",
+  "@sendAnyway": {
+    "description": "Send, review: sends although the recipient's relay did not answer."
+  },
+  "sendTrackSentTo": "Sent to {name}",
+  "@sendTrackSentTo": {
+    "description": "Send tracker, step 1 done: the payment went to the contact {name}.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "sendTrackSent": "Sent",
+  "@sendTrackSent": {
+    "description": "Send tracker, step 1 done, for a recipient without a contact name."
+  },
+  "sendTrackWaitingFor": "Waiting for {name}'s wallet",
+  "@sendTrackWaitingFor": {
+    "description": "Send tracker, step 2 current: the contact's wallet has not signed yet.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "sendTrackWaiting": "Waiting for their wallet",
+  "@sendTrackWaiting": {
+    "description": "Send tracker, step 2 current, for a recipient without a contact name."
+  },
+  "sendTrackSignedBy": "{name}'s wallet signed",
+  "@sendTrackSignedBy": {
+    "description": "Send tracker, step 2 done: the contact's wallet signed the payment.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "sendTrackSigned": "Their wallet signed",
+  "@sendTrackSigned": {
+    "description": "Send tracker, step 2 done, for a recipient without a contact name; also the file route's reply step once done."
+  },
+  "sendTrackOnNetwork": "Sent to the network",
+  "@sendTrackOnNetwork": {
+    "description": "Send tracker: the finished payment was handed to the network."
+  },
+  "sendTrackConfirmed": "Confirmed",
+  "@sendTrackConfirmed": {
+    "description": "Send tracker, last step: the network confirmed the payment."
+  },
+  "sendTrackOffline": "Their wallet finishes it when it opens. {amount} stays on hold until then.",
+  "@sendTrackOffline": {
+    "description": "Send tracker, while waiting for the recipient's wallet. {amount} is the amount plus fee, like '2.508 EPIC'.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "sendTrackIfNot": "What if it never finishes?",
+  "@sendTrackIfNot": {
+    "description": "Send tracker: small expandable row with the automatic cancel rule."
+  },
+  "sendTrackCancelled": "This payment was cancelled.",
+  "@sendTrackCancelled": {
+    "description": "Send tracker: the payment was cancelled or expired."
+  },
+  "sendNoCoins": "No coins to send yet.",
+  "@sendNoCoins": {
+    "description": "Send: empty state when the wallet has no coins at all, spendable or on the way."
+  },
+  "sendFileTitle": "Pay with a file",
+  "@sendFileTitle": {
+    "description": "Send, file route: heading of the steps that pay with a payment file."
+  },
+  "sendMakeFile": "Make payment file",
+  "@sendMakeFile": {
+    "description": "Send, file route: button that makes the payment file for the amount."
+  },
+  "sendFileMade": "File made",
+  "@sendFileMade": {
+    "description": "Send, file route tracker: the payment file exists."
+  },
+  "sendFileOnHold": "{amount} on hold",
+  "@sendFileOnHold": {
+    "description": "Send, file route tracker: detail under 'File made'; the amount is held until the payment finishes.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "sendFileWaitingReply": "Waiting for their reply",
+  "@sendFileWaitingReply": {
+    "description": "Send, file route tracker, current step: waiting for the file the other person sends back."
+  },
+  "sendFileShareHint": "Send them this file. Then open their reply.",
+  "@sendFileShareHint": {
+    "description": "Send, file route: one line above the save and share buttons."
+  },
+  "sendOpenReply": "Open their reply",
+  "@sendOpenReply": {
+    "description": "Send, file route: button that opens the file the other person sent back."
+  },
+  "handshakePayment": "Payment",
+  "@handshakePayment": {
+    "description": "How it works sheet: toggle segment for the flow where you pay someone."
+  },
+  "handshakeRequest": "Request",
+  "@handshakeRequest": {
+    "description": "How it works sheet: toggle segment for the flow where you ask someone for coins (an invoice)."
+  },
+  "handshakeYou": "You",
+  "@handshakeYou": {
+    "description": "How it works sheet: label of the user's wallet in the diagram."
+  },
+  "handshakeThem": "Them",
+  "@handshakeThem": {
+    "description": "How it works sheet: label of the other person's wallet in the diagram."
+  },
+  "handshakeNetwork": "Network",
+  "@handshakeNetwork": {
+    "description": "How it works sheet: label of the Epic network in the diagram."
+  },
+  "handshakePay1": "Your wallet sends them the payment. Your coins go on hold.",
+  "@handshakePay1": {
+    "description": "How it works, payment, step 1."
+  },
+  "handshakePay2": "Their wallet adds its part, signs and sends it back.",
+  "@handshakePay2": {
+    "description": "How it works, payment, step 2."
+  },
+  "handshakeFinish": "Your wallet finishes it and sends it to the network.",
+  "@handshakeFinish": {
+    "description": "How it works, step 3 of both flows: the wallet that started finishes and broadcasts it."
+  },
+  "handshakeConfirm": "The network confirms it.",
+  "@handshakeConfirm": {
+    "description": "How it works, step 4 of both flows."
+  },
+  "handshakeReq1": "Your wallet sends them the request.",
+  "@handshakeReq1": {
+    "description": "How it works, request, step 1: you ask them for coins."
+  },
+  "handshakeReq2": "Their wallet adds the coins, signs and sends it back.",
+  "@handshakeReq2": {
+    "description": "How it works, request, step 2: the payer's wallet pays and signs."
+  },
+  "handshakePrevious": "Previous step",
+  "@handshakePrevious": {
+    "description": "How it works sheet: tooltip of the button that shows the step before."
+  },
+  "handshakeNext": "Next step",
+  "@handshakeNext": {
+    "description": "How it works sheet: tooltip of the button that shows the next step."
   }
 }
