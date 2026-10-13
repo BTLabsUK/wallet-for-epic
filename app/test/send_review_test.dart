@@ -189,17 +189,27 @@ Future<void> _enter(WidgetTester tester, String label, String text) async {
   await tester.pumpAndSettle();
 }
 
-/// Fills the form for [to] and opens the review sheet.
-Future<void> _review(WidgetTester tester, String to) async {
-  await _enter(tester, 'To', to);
-  await _enter(tester, 'Amount (EPIC)', '1.5');
-  await _tap(tester, find.text('Review'));
+/// The recipient step: [to] in the address field, then Continue to the amount.
+Future<void> _recipient(WidgetTester tester, String to) async {
+  await _enter(tester, 'Epic address', to);
+  await _tap(tester, find.widgetWithText(FilledButton, 'Continue'));
 }
 
-Finder _inSheet(Finder finder) =>
-    find.descendant(of: find.byType(BottomSheet), matching: finder);
+/// Goes through the recipient and amount steps for [to] and opens the review.
+Future<void> _review(WidgetTester tester, String to, {String? note}) async {
+  await _recipient(tester, to);
+  await _enter(tester, 'Amount (EPIC)', '1.5');
+  if (note != null) {
+    await _tap(tester, find.text('Add a note'));
+    await _enter(tester, 'Note', note);
+  }
+  await _tap(tester, find.widgetWithText(FilledButton, 'Continue'));
+}
 
 Finder get _sendButton => find.widgetWithText(FilledButton, 'Send 1.5 EPIC');
+
+Finder get _fileButton =>
+    find.widgetWithText(FilledButton, 'Pay with a file instead');
 
 bool _enabled(WidgetTester tester, Finder button) =>
     tester.widget<ButtonStyleButton>(button).onPressed != null;
@@ -326,28 +336,24 @@ void main() {
     });
   });
 
-  group('method choice', () {
-    testWidgets('epicbox address and payment file, with Advanced off', (
+  group('file route', () {
+    testWidgets('a quiet row on the first step, with the file help', (
       tester,
     ) async {
       final h = _Harness();
       await h.pump(tester);
-      expect(find.byType(SegmentedButton<bool>), findsOneWidget);
-      expect(find.text('Epicbox address'), findsOneWidget);
-      expect(find.text('Payment file'), findsOneWidget);
-      expect(find.text('Other ways to send'), findsNothing);
-      expect(find.widgetWithText(TextField, 'To'), findsOneWidget);
-      expect(find.text('Review'), findsOneWidget);
+      // No choice of method up front: one address field.
+      expect(find.byType(SegmentedButton<bool>), findsNothing);
+      expect(find.widgetWithText(TextField, 'Epic address'), findsOneWidget);
+      expect(find.textContaining('epicbox', findRichText: true), findsNothing);
 
-      await _tap(tester, find.text('Payment file'));
-      expect(find.widgetWithText(TextField, 'To'), findsNothing);
-      // A file carries the message as an epicbox send does.
-      expect(
-        find.widgetWithText(TextField, 'Message to recipient (optional)'),
-        findsOneWidget,
-      );
-      expect(find.textContaining('Make a payment file'), findsOneWidget);
-      expect(find.text('Create payment file'), findsOneWidget);
+      await _tap(tester, find.text('No address? Use a payment file'));
+      expect(find.text('Pay with a file'), findsOneWidget);
+      expect(find.widgetWithText(TextField, 'Epic address'), findsNothing);
+      expect(find.text('Make payment file'), findsOneWidget);
+      // A file carries the note as an address payment does.
+      await _tap(tester, find.text('Add a note'));
+      expect(find.widgetWithText(TextField, 'Note'), findsOneWidget);
 
       // The help loops its animation, so it never settles while open.
       await tester.tap(find.byTooltip('How paying by file works'));
@@ -359,23 +365,30 @@ void main() {
       expect(help.role, FileExchangeRole.sender);
       Navigator.of(tester.element(find.byType(FileExchangeHelp))).pop();
       await tester.pumpAndSettle();
-      expect(find.byType(FileExchangeHelp), findsNothing);
 
-      await _tap(tester, find.text('Epicbox address'));
-      expect(find.widgetWithText(TextField, 'To'), findsOneWidget);
-      expect(find.text('Review'), findsOneWidget);
+      await _tap(tester, find.byTooltip('Back'));
+      expect(find.widgetWithText(TextField, 'Epic address'), findsOneWidget);
     });
 
-    testWidgets('a file send skips the review checks and goes to finalize', (
+    testWidgets('round trip: make the file, finish with the reply', (
       tester,
     ) async {
       final h = _Harness();
       await h.pump(tester);
-      await _tap(tester, find.text('Payment file'));
+      await _tap(tester, find.text('No address? Use a payment file'));
       await _enter(tester, 'Amount (EPIC)', '1.5');
-      await _tap(tester, find.text('Create payment file'));
+      await _tap(tester, find.text('Make payment file'));
       expect(h.session.sentAmounts, [_epic(1.5)]);
+      // No review checks: nothing goes over a relay.
       expect(h.service.tipCalls, 0);
+      // The tracker: made, waiting for the reply, then the network.
+      expect(find.text('File made'), findsOneWidget);
+      expect(find.text('1.5 EPIC on hold'), findsOneWidget);
+      expect(find.text('Waiting for their reply'), findsOneWidget);
+      expect(find.text('Sent to the network'), findsOneWidget);
+      expect(find.text('Open their reply'), findsOneWidget);
+      expect(find.textContaining('slate'), findsNothing);
+
       await _tap(tester, find.text('Copy and paste instead'));
       await tester.enterText(
         find.descendant(
@@ -386,56 +399,61 @@ void main() {
       );
       await _tap(tester, find.text('Finish payment'));
       expect(h.session.finalizedSlates, [h.session.responseSlate.json]);
-      expect(find.text('Sent 1.5 EPIC'), findsOneWidget);
+      expect(find.text('Waiting for their reply'), findsNothing);
+      expect(find.text('Their wallet signed'), findsOneWidget);
+      expect(find.text('Sent to the network'), findsOneWidget);
+      expect(find.byIcon(Icons.check), findsNWidgets(3));
+      expect(find.widgetWithText(FilledButton, 'Done'), findsOneWidget);
     });
 
-    testWidgets('a file send signs the message in and keeps it as the note', (
-      tester,
-    ) async {
+    testWidgets('a file send signs the note in and keeps it', (tester) async {
       final h = _Harness();
       await h.pump(tester);
-      await _tap(tester, find.text('Payment file'));
+      await _tap(tester, find.text('No address? Use a payment file'));
       await _enter(tester, 'Amount (EPIC)', '1.5');
-      await _enter(tester, 'Message to recipient (optional)', ' For rent ');
-      await _tap(tester, find.text('Create payment file'));
+      await _tap(tester, find.text('Add a note'));
+      await _enter(tester, 'Note', ' For rent ');
+      await _tap(tester, find.text('Make payment file'));
       expect(h.session.sentMessages, ['For rent']);
       expect(h.session.notes, {'s:${h.session.sendSlate.slateId}': 'For rent'});
     });
 
-    testWidgets('a file send without a message signs none in', (tester) async {
+    testWidgets('a file send without a note signs none in', (tester) async {
       final h = _Harness();
       await h.pump(tester);
-      await _tap(tester, find.text('Payment file'));
+      await _tap(tester, find.text('No address? Use a payment file'));
       await _enter(tester, 'Amount (EPIC)', '1.5');
-      await _tap(tester, find.text('Create payment file'));
+      await _tap(tester, find.text('Make payment file'));
       expect(h.session.sentMessages, [null]);
       expect(h.session.notes, isEmpty);
     });
 
-    for (final file in [false, true]) {
-      testWidgets(
-        '${file ? 'file' : 'epicbox'} form: 48 dp targets and text scale 2',
-        (tester) async {
-          final handle = tester.ensureSemantics();
-          final h = _Harness();
-          await h.pump(tester, textScale: 2);
-          if (file) await _tap(tester, find.text('Payment file'));
-          expect(tester.takeException(), isNull);
-          await tester.drag(
-            find.byType(Scrollable).first,
-            const Offset(0, 3000),
-          );
-          await tester.pumpAndSettle();
-          await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
-          await expectLater(tester, meetsGuideline(labeledTapTargetGuideline));
-          handle.dispose();
-        },
-      );
+    for (final step in ['recipient', 'amount', 'file', 'review']) {
+      testWidgets('$step step: 48 dp targets and text scale 2', (tester) async {
+        final handle = tester.ensureSemantics();
+        final h = _Harness();
+        h.relays.list = [_status(_bobRelay, healthy: false)];
+        await h.pump(tester, textScale: 2);
+        switch (step) {
+          case 'amount':
+            await _recipient(tester, _bob);
+          case 'file':
+            await _tap(tester, find.text('No address? Use a payment file'));
+          case 'review':
+            await _review(tester, _bob);
+        }
+        expect(tester.takeException(), isNull);
+        await tester.drag(find.byType(Scrollable).first, const Offset(0, 3000));
+        await tester.pumpAndSettle();
+        await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
+        await expectLater(tester, meetsGuideline(labeledTapTargetGuideline));
+        handle.dispose();
+      });
     }
   });
 
   group('review checks', () {
-    testWidgets('all pass: one quiet row each, and the send goes', (
+    testWidgets('all pass: one "Ready to send" line, and the send goes', (
       tester,
     ) async {
       final h = _Harness();
@@ -443,15 +461,34 @@ void main() {
       await h.pump(tester);
       await h.connect(tester);
       await _review(tester, _bob);
-      expect(find.text('Fee'), findsOneWidget);
-      expect(find.text('The node answers'), findsOneWidget);
-      expect(find.text('Connected to epicbox'), findsOneWidget);
-      expect(find.text('epicbox.epiccash.com is up'), findsOneWidget);
-      expect(find.byIcon(Icons.check_circle_outline), findsNWidgets(3));
+      expect(find.text('Ready to send'), findsOneWidget);
       expect(find.text('Retry'), findsNothing);
+      expect(_fileButton, findsNothing);
       expect(_enabled(tester, _sendButton), isTrue);
       await _tap(tester, _sendButton);
       expect(h.session.epicboxSends.single.to, _bob);
+    });
+
+    testWidgets('the review shows the fee and the total, nothing else', (
+      tester,
+    ) async {
+      final h = _Harness();
+      h.relays.list = [_status(_bobRelay, healthy: true)];
+      await h.pump(tester);
+      await h.connect(tester);
+      await _review(tester, _bob, note: 'For rent');
+      expect(find.text('Review'), findsOneWidget);
+      expect(find.text('3 of 3'), findsOneWidget);
+      expect(find.text('New recipient'), findsOneWidget);
+      expect(find.text('1.5 EPIC'), findsOneWidget);
+      expect(find.text('Network fee'), findsOneWidget);
+      expect(find.text('0.008 EPIC'), findsOneWidget);
+      expect(find.text('Total'), findsOneWidget);
+      expect(find.text('1.508 EPIC'), findsOneWidget);
+      // Two rows only: no note, no relay, no method.
+      expect(find.text('For rent'), findsNothing);
+      expect(find.textContaining('Goes through'), findsNothing);
+      expect(find.text('Message'), findsNothing);
     });
 
     testWidgets('the checks run beside the fee, and each review asks again', (
@@ -463,7 +500,8 @@ void main() {
       await _review(tester, _bob);
       expect(h.service.tipCalls, 1);
       await _tap(tester, find.text('Edit'));
-      await _tap(tester, find.text('Review'));
+      expect(find.widgetWithText(TextField, 'Amount (EPIC)'), findsOneWidget);
+      await _tap(tester, find.widgetWithText(FilledButton, 'Continue'));
       expect(h.service.tipCalls, 2);
     });
 
@@ -478,12 +516,7 @@ void main() {
       await h.pump(tester);
       await h.connect(tester);
       await _review(tester, _bob);
-      expect(
-        find.text(
-          'The node does not answer, so this payment cannot be sent now.',
-        ),
-        findsOneWidget,
-      );
+      expect(find.text("Can't reach the network right now."), findsOneWidget);
       expect(find.byIcon(Icons.error_outline), findsOneWidget);
       expect(_enabled(tester, _sendButton), isFalse);
       await tester.tap(_sendButton, warnIfMissed: false);
@@ -492,7 +525,7 @@ void main() {
 
       h.service.error = null;
       await _tap(tester, find.text('Retry'));
-      expect(find.text('The node answers'), findsOneWidget);
+      expect(find.text('Ready to send'), findsOneWidget);
       expect(_enabled(tester, _sendButton), isTrue);
       await _tap(tester, _sendButton);
       expect(h.session.epicboxSends, hasLength(1));
@@ -505,18 +538,18 @@ void main() {
       h.service.pending = Completer<NodeTip>();
       await h.pump(tester);
       await h.connect(tester);
-      await _enter(tester, 'To', _bob);
+      await _recipient(tester, _bob);
       await _enter(tester, 'Amount (EPIC)', '1.5');
-      await tester.tap(find.text('Review'));
+      await tester.tap(find.widgetWithText(FilledButton, 'Continue'));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 500));
-      expect(find.text('Checking the node…'), findsOneWidget);
+      expect(find.text('Checking…'), findsOneWidget);
       expect(_enabled(tester, _sendButton), isFalse);
       await tester.pump(const Duration(seconds: 7));
-      expect(find.text('Checking the node…'), findsOneWidget);
+      expect(find.text('Checking…'), findsOneWidget);
       await tester.pump(const Duration(seconds: 1));
       await tester.pumpAndSettle();
-      expect(find.textContaining('The node does not answer'), findsOneWidget);
+      expect(find.text("Can't reach the network right now."), findsOneWidget);
       expect(_enabled(tester, _sendButton), isFalse);
     });
 
@@ -526,56 +559,125 @@ void main() {
       final h = _Harness();
       h.service.pending = Completer<NodeTip>();
       await h.pump(tester, reducedMotion: true);
-      await _enter(tester, 'To', _bob);
+      await _recipient(tester, _bob);
       await _enter(tester, 'Amount (EPIC)', '1.5');
-      await tester.tap(find.text('Review'));
+      await tester.tap(find.widgetWithText(FilledButton, 'Continue'));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 500));
-      expect(find.text('Checking the node…'), findsOneWidget);
+      expect(find.text('Checking…'), findsOneWidget);
       expect(find.byIcon(Icons.hourglass_empty), findsOneWidget);
-      expect(
-        find.descendant(
-          of: find.byType(BottomSheet),
-          matching: find.byType(CircularProgressIndicator),
-        ),
-        findsNothing,
-      );
+      expect(find.byType(CircularProgressIndicator), findsNothing);
       h.service.pending!.complete(_tip);
       await tester.pumpAndSettle();
-      expect(find.text('The node answers'), findsOneWidget);
+      expect(find.text('Not connected yet. You can still send.'), findsOne);
     });
 
-    testWidgets('epicbox not connected warns and still sends', (tester) async {
+    testWidgets('our listener not connected: a quiet line, and it sends', (
+      tester,
+    ) async {
       final h = _Harness();
       await h.pump(tester);
       await _review(tester, _bob);
-      expect(
-        find.textContaining('Not connected to epicbox yet'),
-        findsOneWidget,
-      );
-      expect(find.byIcon(Icons.warning_amber), findsOneWidget);
+      expect(find.text('Not connected yet. You can still send.'), findsOne);
+      expect(_fileButton, findsNothing);
       expect(_enabled(tester, _sendButton), isTrue);
       await _tap(tester, _sendButton);
       expect(h.session.epicboxSends, hasLength(1));
     });
 
     testWidgets(
-      'a recipient relay the monitor sees down warns and still sends',
+      'their relay down at the monitor offers the file, keeping amount and note',
       (tester) async {
         final h = _Harness();
         h.relays.list = [_status(_bobRelay, healthy: false)];
         await h.pump(tester);
         await h.connect(tester);
-        await _review(tester, _bob);
+        await _review(tester, _bob, note: 'For rent');
+        expect(find.text("Their relay isn't answering."), findsOneWidget);
+        expect(_sendButton, findsNothing);
+        expect(_enabled(tester, _fileButton), isTrue);
+        // Sending is still possible.
+        expect(find.text('Send anyway'), findsOneWidget);
+
+        await _tap(tester, _fileButton);
+        expect(find.text('Pay with a file'), findsOneWidget);
         expect(
-          find.textContaining('epicbox.epiccash.com is not answering'),
-          findsOneWidget,
+          tester
+              .widget<TextField>(find.widgetWithText(TextField, 'Amount (EPIC)'))
+              .controller!
+              .text,
+          '1.5',
         );
-        expect(_enabled(tester, _sendButton), isTrue);
-        await _tap(tester, _sendButton);
-        expect(h.session.epicboxSends, hasLength(1));
+        expect(
+          tester
+              .widget<TextField>(find.widgetWithText(TextField, 'Note'))
+              .controller!
+              .text,
+          'For rent',
+        );
+        await _tap(tester, find.text('Make payment file'));
+        expect(h.session.sentAmounts, [_epic(1.5)]);
+        expect(h.session.sentMessages, ['For rent']);
+        expect(h.session.epicboxSends, isEmpty);
       },
     );
+
+    testWidgets('Send anyway goes over the relay all the same', (tester) async {
+      final h = _Harness();
+      h.relays.list = [_status(_bobRelay, healthy: false)];
+      await h.pump(tester);
+      await h.connect(tester);
+      await _review(tester, _bob);
+      await _tap(tester, find.text('Send anyway'));
+      expect(h.session.epicboxSends, hasLength(1));
+    });
+
+    testWidgets(
+      'a send the relay refuses offers the file, with the amount kept',
+      (tester) async {
+        final h = _Harness();
+        h.relays.list = [_status(_bobRelay, healthy: true)];
+        h.session.sendError = const WalletError(
+          kind: WalletErrorKind.transportFailed,
+          message: 'failed to lookup address information: unknown host',
+        );
+        await h.pump(tester);
+        await h.connect(tester);
+        await _review(tester, _bob);
+        await _tap(tester, _sendButton);
+        expect(find.text("Their relay isn't answering."), findsOneWidget);
+        // Not the raw transport error.
+        expect(find.textContaining('lookup'), findsNothing);
+        expect(_enabled(tester, _fileButton), isTrue);
+
+        await _tap(tester, _fileButton);
+        expect(
+          tester
+              .widget<TextField>(find.widgetWithText(TextField, 'Amount (EPIC)'))
+              .controller!
+              .text,
+          '1.5',
+        );
+        await _tap(tester, find.text('Make payment file'));
+        expect(h.session.sentAmounts, [_epic(1.5)]);
+      },
+    );
+
+    testWidgets('other send errors stay in words, without the file offer', (
+      tester,
+    ) async {
+      final h = _Harness();
+      h.session.sendError = const WalletError(
+        kind: WalletErrorKind.notEnoughFunds,
+        message: 'not enough funds',
+      );
+      await h.pump(tester);
+      await h.connect(tester);
+      await _review(tester, _bob);
+      await _tap(tester, _sendButton);
+      expect(find.textContaining('Not enough spendable funds'), findsOneWidget);
+      expect(_fileButton, findsNothing);
+    });
 
     testWidgets('an unlisted relay or no monitor answer is skipped', (
       tester,
@@ -585,29 +687,17 @@ void main() {
       await h.pump(tester);
       await h.connect(tester);
       await _review(tester, _carol);
-      expect(_inSheet(find.textContaining('is up')), findsNothing);
-      expect(_inSheet(find.textContaining('not answering')), findsNothing);
-      expect(find.byIcon(Icons.warning_amber), findsNothing);
-      expect(find.byIcon(Icons.check_circle_outline), findsNWidgets(2));
-      await _tap(tester, find.text('Edit'));
+      expect(find.text('Ready to send'), findsOneWidget);
+      expect(_fileButton, findsNothing);
+      await _tap(tester, find.byTooltip('Back'));
+      await _tap(tester, find.byTooltip('Back'));
 
       h.relays.error = StateError('monitor down');
-      await tester.enterText(find.widgetWithText(TextField, 'To'), _bob);
-      await tester.pumpAndSettle();
-      await _tap(tester, find.text('Review'));
-      expect(_inSheet(find.textContaining('is up')), findsNothing);
-      expect(_inSheet(find.textContaining('not answering')), findsNothing);
-      expect(find.byIcon(Icons.warning_amber), findsNothing);
+      await _enter(tester, 'Epic address', _bob);
+      await _tap(tester, find.widgetWithText(FilledButton, 'Continue'));
+      await _tap(tester, find.widgetWithText(FilledButton, 'Continue'));
+      expect(find.text('Ready to send'), findsOneWidget);
       expect(_enabled(tester, _sendButton), isTrue);
-    });
-
-    testWidgets('the sheet with warnings at text scale 2', (tester) async {
-      final h = _Harness();
-      h.relays.list = [_status(_bobRelay, healthy: false)];
-      await h.pump(tester, textScale: 2);
-      await _review(tester, _bob);
-      expect(tester.takeException(), isNull);
-      expect(find.byIcon(Icons.warning_amber), findsNWidgets(2));
     });
   });
 }

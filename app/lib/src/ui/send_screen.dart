@@ -9,6 +9,7 @@ import 'package:intl/intl.dart' show NumberFormat;
 import '../app_log.dart';
 import '../amount.dart';
 import '../contacts.dart';
+import '../demo.dart' show demoModeProvider;
 import '../errors.dart';
 import '../l10n.dart';
 import '../network.dart';
@@ -21,15 +22,20 @@ import '../wallet_service.dart';
 import 'centered_body.dart';
 import 'common.dart';
 import 'contacts_screen.dart';
+import 'demo_screens.dart' show TestCoinsButton;
 import 'file_exchange_help.dart';
+import 'handshake.dart';
 import 'help_screen.dart';
 import 'scan_screen.dart';
+import 'send_tracker.dart';
 import 'slate_file_screen.dart';
 import 'theme/brand.dart';
+import 'theme/protocol.dart' show TimelineState, TimelineStep;
 import 'theme/tokens.dart';
 
-// Sending: a choice at the top between an epicbox address (pick a recipient, an amount,
-// review with checks, send) and a payment file (make it, pass it on, open the reply).
+// Sending, in three steps: the recipient, the amount, a review with quiet checks; then a
+// tracker that follows the payment as both wallets finish it. A payment file is the
+// fallback: from a row on the first step, or when their relay does not answer.
 
 /// The most EPIC that will ever exist, 21 million. Anything above is a typo.
 final BigInt maxSendAtomic = BigInt.from(21000000) * atomicPerEpic;
@@ -110,8 +116,29 @@ LocalizedFormatException _unclearAmount(String text) =>
 bool _isGrouped(String digits, String sep) =>
     RegExp('^\\d{1,3}(${RegExp.escape(sep)}\\d{3})*\$').hasMatch(digits);
 
-/// The key of the amount field's suffix, "Use USD" and "Max", for tests.
+/// The key of the row under the amount with "Use USD" and "Max", for tests.
 const Key amountSuffixKey = ValueKey('send-amount-suffix');
+
+/// The payment Send's tracker is showing, while it shows one, so home does not repeat the
+/// tracker's news in a notice.
+final trackedSendProvider = NotifierProvider<TrackedSendNotifier, String?>(
+  TrackedSendNotifier.new,
+);
+
+class TrackedSendNotifier extends Notifier<String?> {
+  @override
+  String? build() {
+    ref.watch(sessionProvider);
+    return null;
+  }
+
+  /// [key] is the [TxEntry.key] on the tracker, or null when none is shown.
+  void track(String? key) => state = key;
+}
+
+/// Where the Send tab is. An address payment goes recipient, amount, review, then the
+/// tracker; a payment file goes amount, file made, then sent.
+enum SendStage { recipient, amount, review, sent, fileAmount, fileMade, fileSent }
 
 /// The Send tab's content. The recipient comes from [sendRecipientProvider] (a scanned QR code,
 /// Send again), at the start and whenever a new one is handed over.
@@ -126,23 +153,22 @@ class SendView extends ConsumerStatefulWidget {
   ConsumerState<SendView> createState() => _SendViewState();
 }
 
-/// What the result step reports.
+/// What the tracker follows.
 class _Sent {
   const _Sent({
     required this.tx,
     required this.amount,
-    this.to,
+    required this.to,
     this.reviewedFee,
     this.noteSaved = true,
   });
 
+  /// The payment as the send returned it; the tracker follows it in [homeProvider].
   final TxEntry tx;
   final BigInt amount;
+  final Recipient to;
 
-  /// Their address or URL; null for a file send.
-  final Recipient? to;
-
-  /// The fee the review sheet showed, to compare with the one charged.
+  /// The fee the review showed, to compare with the one charged.
   final BigInt? reviewedFee;
   final bool noteSaved;
 
@@ -155,19 +181,23 @@ class _Sent {
   }
 }
 
+/// Coins held back from spending: confirming, coming in, newly mined or in a pending send.
+BigInt _onHold(WalletSummary s) =>
+    s.awaitingConfirmation + s.awaitingFinalization + s.immature + s.locked;
+
 class _SendViewState extends ConsumerState<SendView> {
   final _recipient = TextEditingController();
-
-  /// The [RecipientHandoff.id] this form took last.
-  int? _handoff;
   final _amount = TextEditingController();
   final _note = TextEditingController();
   final _response = TextEditingController();
+  final _recipientFocus = FocusNode();
   final _amountFocus = FocusNode();
   final _noteFocus = FocusNode();
 
-  /// Payment file instead of an epicbox address.
-  bool _fileMode = false;
+  /// The [RecipientHandoff.id] this form took last.
+  int? _handoff;
+
+  SendStage _stage = SendStage.recipient;
 
   /// The amount field holds fiat instead of EPIC.
   bool _fiatEntry = false;
@@ -177,23 +207,35 @@ class _SendViewState extends ConsumerState<SendView> {
   String? _recipientError;
   FeeEstimate? _estimate;
   String? _estimateError;
+
+  /// The amount came from Max, so Continue asks for the maximum again rather than a fee.
+  bool _maxUsed = false;
+
+  /// The note field is unfolded.
+  bool _noteOpen = false;
+
+  /// The review's checks, kept from the tap on Continue until the review is left, so they
+  /// run beside the fee estimate and each review asks the node again.
+  ProviderSubscription<SendPreflight>? _checks;
+
+  /// The send itself could not reach their relay: the review offers the file route.
+  bool _relayFailed = false;
+
   Slate? _slate;
   _Sent? _sent;
+
+  /// A file payment finished from a pasted reply.
+  TxEntry? _filePosted;
   String? _error;
   bool _busy = false;
 
-  /// Between a tap on Review and the sheet closing. A second tap must not open a second sheet.
-  bool _reviewing = false;
-
-  /// Review is asking the wallet for the fee; the button shows a spinner meanwhile.
+  /// Continue on the amount is asking the wallet for the fee; its button shows a spinner.
   bool _estimating = false;
-
-  /// The amount came from Max, so Review asks for the maximum again rather than a fee.
-  bool _maxUsed = false;
 
   @override
   void initState() {
     super.initState();
+    _recipientFocus.addListener(_recipientFocusChanged);
     final handoff = ref.read(sendRecipientProvider);
     if (handoff != null) {
       _handoff = handoff.id;
@@ -204,10 +246,12 @@ class _SendViewState extends ConsumerState<SendView> {
   @override
   void dispose() {
     _debounce?.cancel();
+    _checks?.close();
     _recipient.dispose();
     _amount.dispose();
     _note.dispose();
     _response.dispose();
+    _recipientFocus.dispose();
     _amountFocus.dispose();
     _noteFocus.dispose();
     super.dispose();
@@ -217,6 +261,105 @@ class _SendViewState extends ConsumerState<SendView> {
 
   String get _currency =>
       ref.read(appSettingsProvider).value?.fiatCurrency ?? 'usd';
+
+  String get _noteText => _note.text.trim();
+
+  // Recipient.
+
+  /// What is wrong with [text] as a recipient, in one short line, or null. Empty text is
+  /// only a problem with [required], when the user tries to go on.
+  String? _recipientProblem(String text, {bool required = false}) {
+    final l = context.l10n;
+    if (text.trim().isEmpty) return required ? l.sendAddressMissing : null;
+    final to = parseRecipient(text);
+    // The wallet pays over epicbox and by file only (OD-2).
+    if (to.kind == RecipientKind.http) return l.sendAddressWebLink;
+    if (checkRecipient(l, ref.read(walletServiceProvider), text) == null) {
+      return null;
+    }
+    final at = to.address.indexOf('@');
+    final key = at < 0 ? to.address : to.address.substring(0, at);
+    final looksLikeKey = RegExp(r'^[1-9A-HJ-NP-Za-km-z]+$').hasMatch(key);
+    return looksLikeKey && (key.length < 52 || at < 0)
+        ? l.sendAddressIncomplete
+        : l.sendAddressNotEpic;
+  }
+
+  void _recipientFocusChanged() {
+    if (_recipientFocus.hasFocus || _stage != SendStage.recipient) return;
+    setState(() => _recipientError = _recipientProblem(_recipient.text));
+  }
+
+  Future<void> _paste() async {
+    final data = await Clipboard.getData(Clipboard.kTextPlain);
+    final text = data?.text?.trim();
+    if (text == null || text.isEmpty || !mounted) return;
+    _setRecipient(text);
+  }
+
+  Future<void> _scan() async {
+    final text = await ref.read(qrScannerProvider).scan(context);
+    if (text != null && mounted) _setRecipient(text);
+  }
+
+  Future<void> _pickContact() async {
+    final contact = await Navigator.of(context).push<Contact>(
+      MaterialPageRoute<Contact>(
+        builder: (_) => const ContactsScreen(pick: true),
+      ),
+    );
+    if (contact != null && mounted) _setRecipient(contact.address);
+  }
+
+  /// Fills the recipient and checks it at once, as after a paste.
+  void _setRecipient(String text) {
+    _recipient.text = parseRecipient(text).address;
+    if (_stage == SendStage.amount || _stage == SendStage.review) {
+      _closeChecks();
+      _stage = SendStage.recipient;
+    }
+    setState(() {
+      _recipientError = _recipientProblem(_recipient.text);
+      _error = null;
+    });
+  }
+
+  void _saveContact(String address) => Navigator.of(context).push<Contact>(
+    MaterialPageRoute<Contact>(
+      builder: (_) => ContactEditScreen(address: address),
+    ),
+  );
+
+  void _toAmount() {
+    final problem = _recipientProblem(_recipient.text, required: true);
+    setState(() {
+      _recipientError = problem;
+      _error = null;
+      if (problem == null) _stage = SendStage.amount;
+    });
+    if (problem == null) _amountFocus.requestFocus();
+  }
+
+  void _toRecipient() {
+    _closeChecks();
+    setState(() {
+      _stage = SendStage.recipient;
+      _error = null;
+    });
+  }
+
+  /// The file route, from the recipient step or from a relay that does not answer. The
+  /// amount and the note stay.
+  void _toFileRoute() {
+    _closeChecks();
+    setState(() {
+      _stage = SendStage.fileAmount;
+      _error = null;
+      _relayFailed = false;
+    });
+  }
+
+  // Amount.
 
   /// Parses the amount field in the current unit into atomic EPIC.
   BigInt _parseAmount(String text) {
@@ -326,191 +469,6 @@ class _SendViewState extends ConsumerState<SendView> {
     );
   }
 
-  Future<void> _paste() async {
-    final data = await Clipboard.getData(Clipboard.kTextPlain);
-    final text = data?.text?.trim();
-    if (text == null || text.isEmpty) return;
-    _setRecipient(text);
-  }
-
-  Future<void> _scan() async {
-    final text = await ref.read(qrScannerProvider).scan(context);
-    if (text != null && mounted) _setRecipient(text);
-  }
-
-  Future<void> _pickContact() async {
-    final contact = await Navigator.of(context).push<Contact>(
-      MaterialPageRoute<Contact>(
-        builder: (_) => const ContactsScreen(pick: true),
-      ),
-    );
-    if (contact != null && mounted) _setRecipient(contact.address);
-  }
-
-  void _setRecipient(String text) {
-    _recipient.text = parseRecipient(text).address;
-    setState(() {
-      _recipientError = null;
-      _error = null;
-    });
-  }
-
-  /// Runs one wallet action at a time; a second tap while one runs does nothing.
-  Future<void> _run(Future<void> Function(WalletSession session) action) async {
-    if (_busy) return;
-    final session = ref.read(sessionProvider);
-    if (session == null) return;
-    setState(() {
-      _busy = true;
-      _error = null;
-    });
-    try {
-      await action(session);
-    } catch (error) {
-      if (mounted) setState(() => _error = describeError(context.l10n, error));
-    } finally {
-      if (mounted) setState(() => _busy = false);
-    }
-  }
-
-  /// Checks the form, asks the wallet for the fee again (outputs may have changed since the
-  /// last estimate) while [sendPreflightProvider] checks the node and epicbox, then shows the
-  /// review sheet and sends when the user confirms.
-  Future<void> _review() async {
-    if (_reviewing || _busy) return;
-    final session = ref.read(sessionProvider);
-    final amount = _parsedAmount;
-    if (session == null || amount == null) return;
-    // The check still takes a wallet URL; this wallet no longer sends to one (OD-2).
-    final problem =
-        checkRecipient(
-          context.l10n,
-          ref.read(walletServiceProvider),
-          _recipient.text,
-        ) ??
-        (parseRecipient(_recipient.text).kind == RecipientKind.http
-            ? context.l10n.sendUrlUnsupported
-            : null);
-    setState(() => _recipientError = problem);
-    if (problem != null) return;
-    setState(() {
-      _reviewing = true;
-      _estimating = true;
-      _error = null;
-    });
-    // Started now and kept until the sheet closes, so the checks run beside the estimate and
-    // the next review asks the node again.
-    final checks = ref.listenManual(
-      sendPreflightProvider(
-        recipientRelay(parseRecipient(_recipient.text).address),
-      ),
-      (_, _) {},
-    );
-    try {
-      final FeeEstimate estimate;
-      try {
-        estimate = _maxUsed
-            ? await session.estimateMax(
-                minimumConfirmations: ref.read(minimumConfirmationsProvider),
-              )
-            : await session.estimateFee(
-                amount: amount,
-                minimumConfirmations: ref.read(minimumConfirmationsProvider),
-              );
-      } catch (error) {
-        if (mounted) {
-          setState(() => _estimateError = describeError(context.l10n, error));
-        }
-        return;
-      }
-      if (!mounted) return;
-      setState(() {
-        _estimating = false;
-        _estimate = estimate;
-        _estimateError = null;
-        if (_maxUsed && estimate.amount != amount) {
-          _parsedAmount = estimate.amount;
-          if (!_fiatEntry) {
-            _amount.text = localDecimal(
-              context.l10n,
-              formatEpic(estimate.amount),
-            );
-          }
-        }
-      });
-      final to = parseRecipient(_recipient.text);
-      final contacts = ref.read(contactsProvider).value ?? const <Contact>[];
-      final confirmed = await showModalBottomSheet<bool>(
-        context: context,
-        isScrollControlled: true,
-        showDragHandle: true,
-        builder: (_) => _ReviewSheet(
-          to: to,
-          relay: recipientRelay(to.address),
-          contactName: contactNameFor(contacts, to.address),
-          estimate: estimate,
-          note: _note.text.trim(),
-          price: _price,
-          currency: _currency,
-        ),
-      );
-      if (confirmed == true && mounted) await _send(to, estimate);
-    } finally {
-      checks.close();
-      if (mounted) {
-        setState(() {
-          _reviewing = false;
-          _estimating = false;
-        });
-      }
-    }
-  }
-
-  Future<void> _send(Recipient to, FeeEstimate reviewed) {
-    // Captured now: after the await the screen may be gone, and home must still refresh.
-    final container = ProviderScope.containerOf(context, listen: false);
-    // A slow send must not lock the wallet under the user and lose the result step.
-    final hold = ref.read(autoLockHoldProvider.notifier);
-    final amount = reviewed.amount;
-    return _run((session) async {
-      // [_review] lets only an epicbox address through.
-      final tx = await hold.during(
-        () => session.sendEpicbox(
-          amount: amount,
-          minimumConfirmations: ref.read(minimumConfirmationsProvider),
-          address: to.address,
-          message: _note.text.trim().isEmpty ? null : _note.text.trim(),
-        ),
-      );
-      // The payment is out; a note that fails to save must not look like a failed send.
-      var noteSaved = true;
-      final note = _note.text.trim();
-      if (note.isNotEmpty) {
-        try {
-          await session.setTxNote(key: tx.key, note: note);
-        } catch (error) {
-          logWarn(
-            'send',
-            'saving the note failed: ${describeError(englishStrings, error)}',
-          );
-          noteSaved = false;
-        }
-      }
-      container.invalidate(homeProvider);
-      if (mounted) {
-        setState(
-          () => _sent = _Sent(
-            tx: tx,
-            amount: amount,
-            to: to,
-            reviewedFee: reviewed.fee,
-            noteSaved: noteSaved,
-          ),
-        );
-      }
-    });
-  }
-
   /// Fills in the largest amount that can be sent now, with its fee.
   Future<void> _max() async {
     final session = ref.read(sessionProvider);
@@ -543,12 +501,172 @@ class _SendViewState extends ConsumerState<SendView> {
     }
   }
 
+  bool get _amountReady =>
+      _parsedAmount != null && _estimateError == null && !_estimating;
+
+  // Review.
+
+  void _closeChecks() {
+    _checks?.close();
+    _checks = null;
+  }
+
+  EpicboxRelay? get _relay =>
+      recipientRelay(parseRecipient(_recipient.text).address);
+
+  /// Asks the wallet for the fee again (outputs may have changed since the last estimate)
+  /// while [sendPreflightProvider] checks the node and epicbox, then shows the review.
+  Future<void> _toReview() async {
+    if (_estimating || _busy) return;
+    final session = ref.read(sessionProvider);
+    final amount = _parsedAmount;
+    if (session == null || amount == null) return;
+    final problem = _recipientProblem(_recipient.text, required: true);
+    if (problem != null) {
+      setState(() {
+        _recipientError = problem;
+        _stage = SendStage.recipient;
+      });
+      return;
+    }
+    _closeChecks();
+    _checks = ref.listenManual(sendPreflightProvider(_relay), (_, _) {});
+    setState(() {
+      _estimating = true;
+      _error = null;
+      _relayFailed = false;
+    });
+    try {
+      final minimum = ref.read(minimumConfirmationsProvider);
+      final estimate = _maxUsed
+          ? await session.estimateMax(minimumConfirmations: minimum)
+          : await session.estimateFee(
+              amount: amount,
+              minimumConfirmations: minimum,
+            );
+      if (!mounted) return;
+      setState(() {
+        _estimate = estimate;
+        _estimateError = null;
+        if (_maxUsed && estimate.amount != amount) {
+          _parsedAmount = estimate.amount;
+          if (!_fiatEntry) {
+            _amount.text = localDecimal(
+              context.l10n,
+              formatEpic(estimate.amount),
+            );
+          }
+        }
+        _stage = SendStage.review;
+      });
+    } catch (error) {
+      _closeChecks();
+      if (mounted) {
+        setState(() => _estimateError = describeError(context.l10n, error));
+      }
+    } finally {
+      if (mounted) setState(() => _estimating = false);
+    }
+  }
+
+  void _backToAmount() {
+    _closeChecks();
+    setState(() {
+      _stage = SendStage.amount;
+      _error = null;
+      _relayFailed = false;
+    });
+  }
+
+  /// Runs one wallet action at a time; a second tap while one runs does nothing.
+  Future<void> _run(Future<void> Function(WalletSession session) action) async {
+    if (_busy) return;
+    final session = ref.read(sessionProvider);
+    if (session == null) return;
+    setState(() {
+      _busy = true;
+      _error = null;
+    });
+    try {
+      await action(session);
+    } catch (error) {
+      if (mounted) setState(() => _error = describeError(context.l10n, error));
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  Future<void> _send() {
+    final reviewed = _estimate;
+    // A second tap can land on the old button after the first send already finished.
+    if (reviewed == null || _stage != SendStage.review) return Future.value();
+    final to = parseRecipient(_recipient.text);
+    // Captured now: after the await the screen may be gone, and home must still refresh.
+    final container = ProviderScope.containerOf(context, listen: false);
+    // A slow send must not lock the wallet under the user and lose the tracker.
+    final hold = ref.read(autoLockHoldProvider.notifier);
+    final amount = reviewed.amount;
+    final note = _noteText;
+    return _run((session) async {
+      final TxEntry tx;
+      try {
+        tx = await hold.during(
+          () => session.sendEpicbox(
+            amount: amount,
+            minimumConfirmations: ref.read(minimumConfirmationsProvider),
+            address: to.address,
+            message: note.isEmpty ? null : note,
+          ),
+        );
+      } on WalletError catch (error) {
+        // Their relay could not be reached: the same answer as a relay the monitor flags.
+        if (error.kind != WalletErrorKind.transportFailed) rethrow;
+        logWarn(
+          'send',
+          'the relay did not take it: ${describeError(englishStrings, error)}',
+        );
+        if (mounted) setState(() => _relayFailed = true);
+        return;
+      }
+      // The payment is out; a note that fails to save must not look like a failed send.
+      var noteSaved = true;
+      if (note.isNotEmpty) {
+        try {
+          await session.setTxNote(key: tx.key, note: note);
+        } catch (error) {
+          logWarn(
+            'send',
+            'saving the note failed: ${describeError(englishStrings, error)}',
+          );
+          noteSaved = false;
+        }
+      }
+      container.invalidate(homeProvider);
+      container.read(trackedSendProvider.notifier).track(tx.key);
+      if (mounted) {
+        _closeChecks();
+        setState(() {
+          _sent = _Sent(
+            tx: tx,
+            amount: amount,
+            to: to,
+            reviewedFee: reviewed.fee,
+            noteSaved: noteSaved,
+          );
+          _stage = SendStage.sent;
+        });
+      }
+    });
+  }
+
+  // File route.
+
   Future<void> _createFile() async {
     final amount = _parsedAmount;
     if (amount == null) return;
     final container = ProviderScope.containerOf(context, listen: false);
     await _run((session) async {
-      final message = _note.text.trim();
+      final message = _noteText;
       final slate = await session.createSendSlate(
         amount: amount,
         minimumConfirmations: ref.read(minimumConfirmationsProvider),
@@ -567,11 +685,16 @@ class _SendViewState extends ConsumerState<SendView> {
         }
       }
       container.invalidate(homeProvider);
-      if (mounted) setState(() => _slate = slate);
+      if (mounted) {
+        setState(() {
+          _slate = slate;
+          _stage = SendStage.fileMade;
+        });
+      }
     });
   }
 
-  Future<void> _openResponse() async {
+  Future<void> _openReply() async {
     final slate = _slate;
     if (slate == null) return;
     final posted = await openSlateFile(
@@ -579,10 +702,10 @@ class _SendViewState extends ConsumerState<SendView> {
       ref,
       expectedSlateId: slate.slateId,
     );
-    if (posted && mounted) widget.onDone();
+    if (posted && mounted) setState(() => _stage = SendStage.fileSent);
   }
 
-  Future<void> _finalize() async {
+  Future<void> _finalizePasted() async {
     final json = _response.text.trim();
     if (json.isEmpty) {
       setState(() => _error = context.l10n.sendPasteResponseMissing);
@@ -596,381 +719,717 @@ class _SendViewState extends ConsumerState<SendView> {
       );
       container.invalidate(homeProvider);
       if (mounted) {
-        setState(
-          () => _sent = _Sent(tx: tx, amount: _parsedAmount ?? BigInt.zero),
-        );
+        setState(() {
+          _filePosted = tx;
+          _stage = SendStage.fileSent;
+        });
       }
     });
   }
 
+  void _done() {
+    ref.read(trackedSendProvider.notifier).track(null);
+    widget.onDone();
+  }
+
+  // Build.
+
   @override
   Widget build(BuildContext context) {
-    final List<Widget> children;
-    final sent = _sent;
-    if (sent != null) {
-      children = _resultStep(context, sent);
-    } else if (_slate != null) {
-      children = _responseStep(context, _slate!);
-    } else {
-      children = _formStep(context);
-    }
-    final all = [...children, if (_error != null) ErrorText(_error!)];
-    // The result is short, so it sits in the middle; the form and file steps scroll, and the
-    // form keeps its button at the foot of the screen.
-    final form = sent == null && _slate == null;
-    final body = sent != null
-        ? CenteredScroll(child: CenteredBody(children: all))
-        : ScreenBody(bottom: form ? _formAction(context) : null, children: all);
+    // An estimate made against the old balance is stale: coins that confirmed may cover it
+    // now, or a send elsewhere may have spent them (F-06).
+    ref.listen(
+      homeProvider.select((home) => home.value?.summary.spendable),
+      (before, now) {
+        final amount = _parsedAmount;
+        if (before == now || amount == null) return;
+        if (_stage != SendStage.amount && _stage != SendStage.fileAmount) {
+          return;
+        }
+        setState(() {
+          _estimate = null;
+          _estimateError = null;
+        });
+        _estimateFee(amount);
+      },
+    );
     // A recipient handed over while the tab is kept alive fills the form in place.
     ref.listen(sendRecipientProvider, (_, handoff) {
       if (handoff == null || handoff.id == _handoff) return;
       _handoff = handoff.id;
       _setRecipient(handoff.text);
     });
-    return body;
-  }
 
-  /// Review, or Create file in file mode.
-  Widget _formAction(BuildContext context) {
-    final l = context.l10n;
-    return BusyButton(
-      label: _fileMode ? l.sendCreateFile : l.sendReview,
-      busy: _busy || _estimating,
-      onPressed: _parsedAmount == null || _estimateError != null || _reviewing
-          ? null
-          : _fileMode
-          ? _createFile
-          : _review,
+    // Keeps the listener running while Send shows, as home does, so the review's check sees
+    // its state at once.
+    ref.watch(listenerProvider.select((s) => s.connected));
+    final summary = ref.watch(homeProvider).value?.summary;
+    final starting =
+        _stage == SendStage.recipient ||
+        _stage == SendStage.amount ||
+        _stage == SendStage.fileAmount;
+    // Nothing to send and nothing on its way: say so instead of a form that fails late.
+    if (starting &&
+        summary != null &&
+        summary.spendable == BigInt.zero &&
+        _onHold(summary) == BigInt.zero) {
+      return _emptyState(context);
+    }
+
+    final (children, bottom) = switch (_stage) {
+      SendStage.recipient => (_recipientStep(context), _recipientAction()),
+      SendStage.amount => (_amountStep(context), _amountAction()),
+      SendStage.review => (_reviewStep(context), _reviewAction(context)),
+      SendStage.sent => (_trackerStep(context, _sent!), _doneAction()),
+      SendStage.fileAmount => (_fileAmountStep(context), _fileAmountAction()),
+      SendStage.fileMade => (_fileMadeStep(context, _slate!), _openReplyAction()),
+      SendStage.fileSent => (_fileSentStep(context), _doneAction()),
+    };
+    return ScreenBody(
+      bottom: bottom,
+      children: [...children, if (_error != null) ErrorText(_error!)],
     );
   }
 
-  List<Widget> _formStep(BuildContext context) {
+  Widget _emptyState(BuildContext context) {
+    final demo = ref.watch(demoModeProvider);
+    return CenteredScroll(
+      child: CenteredBody(
+        children: [
+          EmptyState(
+            icon: const Icon(Icons.north_east),
+            message: context.l10n.sendNoCoins,
+            action: demo ? const TestCoinsButton() : null,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _header(
+    BuildContext context,
+    String title, {
+    int? step,
+    VoidCallback? onBack,
+    Widget? extra,
+  }) {
     final l = context.l10n;
     final theme = Theme.of(context);
-    final spendable = ref.watch(homeProvider).value?.summary.spendable;
-    final listening = ref.watch(listenerProvider).connected;
-    final price = ref.watch(priceProvider).value;
-    final currency =
-        ref.watch(appSettingsProvider).value?.fiatCurrency ?? 'usd';
+    final t = context.tokens;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Row(
+        children: [
+          if (onBack != null)
+            IconButton(
+              tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+              icon: const Icon(Icons.arrow_back),
+              onPressed: _busy || _estimating ? null : onBack,
+            ),
+          Expanded(
+            child: Padding(
+              padding: EdgeInsetsDirectional.only(
+                start: onBack == null ? 0 : 4,
+              ),
+              child: Semantics(
+                header: true,
+                child: Text(title, style: theme.textTheme.titleLarge),
+              ),
+            ),
+          ),
+          if (step != null)
+            Text(
+              l.sendStepOf(step, 3),
+              style: theme.textTheme.bodySmall?.copyWith(color: t.dim),
+            ),
+          ?extra,
+          IconButton(
+            tooltip: l.sendHowItWorks,
+            icon: const Icon(Icons.info_outline),
+            onPressed: () => showHandshakeSheet(context),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String? _contactName(String address) {
     final contacts = ref.watch(contactsProvider).value ?? const <Contact>[];
+    return contactNameFor(contacts, address);
+  }
+
+  List<Widget> _recipientStep(BuildContext context) {
+    final l = context.l10n;
+    final theme = Theme.of(context);
+    final t = context.tokens;
     final scan = offersQrScan(ref);
+    final text = _recipient.text.trim();
+    final to = parseRecipient(text);
+    final valid = text.isNotEmpty && _recipientProblem(text) == null;
     final recent = recentRecipients(
       ref.watch(homeProvider).value?.transactions ?? const <TxEntry>[],
     );
-    final to = parseRecipient(_recipient.text);
-    final contact = _recipient.text.trim().isEmpty
-        ? null
-        : contactFor(contacts, to.address);
+    return [
+      _header(context, l.sendStepRecipient, step: 1),
+      TextField(
+        controller: _recipient,
+        focusNode: _recipientFocus,
+        autocorrect: false,
+        enableSuggestions: false,
+        // Grows to show the whole address, so its start can be checked.
+        minLines: 1,
+        maxLines: null,
+        keyboardType: TextInputType.url,
+        textInputAction: TextInputAction.next,
+        onEditingComplete: _toAmount,
+        style: theme.textTheme.bodyMedium?.copyWith(fontFamily: t.monoFamily),
+        onChanged: (_) => setState(() {
+          _recipientError = null;
+          _error = null;
+        }),
+        decoration: InputDecoration(
+          labelText: l.sendAddressLabel,
+          error: _recipientError == null
+              ? null
+              : LiveFieldError(_recipientError!),
+          border: const OutlineInputBorder(),
+        ),
+      ),
+      Wrap(
+        spacing: 8,
+        children: [
+          Tooltip(
+            message: l.commonPaste,
+            child: TextButton.icon(
+              icon: const Icon(Icons.content_paste),
+              label: Text(l.commonPaste),
+              onPressed: _paste,
+            ),
+          ),
+          if (scan)
+            Tooltip(
+              message: l.scanQrTooltip,
+              child: TextButton.icon(
+                icon: const Icon(Icons.qr_code_scanner),
+                label: Text(l.sendScanButton),
+                onPressed: _scan,
+              ),
+            ),
+          Tooltip(
+            message: l.sendChooseContactTooltip,
+            child: TextButton.icon(
+              icon: const Icon(Icons.contacts),
+              label: Text(l.sendContactsButton),
+              onPressed: _pickContact,
+            ),
+          ),
+        ],
+      ),
+      if (valid) ...[
+        const SizedBox(height: 8),
+        RecipientCard(
+          address: to.address,
+          name: _contactName(to.address),
+          onSave: _contactName(to.address) == null
+              ? () => _saveContact(to.address)
+              : null,
+        ),
+      ],
+      if (text.isEmpty && recent.isNotEmpty) ...[
+        const SizedBox(height: 16),
+        Text(
+          l.sendRecent,
+          style: theme.textTheme.labelLarge?.copyWith(color: t.dim),
+        ),
+        const SizedBox(height: 4),
+        for (final address in recent)
+          _RecentRow(
+            address: address,
+            name: _contactName(address),
+            onTap: () => _setRecipient(address),
+          ),
+      ],
+      const SizedBox(height: 16),
+      Divider(color: t.line, height: 1),
+      ListTile(
+        contentPadding: EdgeInsets.zero,
+        minTileHeight: 56,
+        leading: Icon(Icons.description_outlined, color: t.dim),
+        title: Text(l.sendUseFile, style: theme.textTheme.bodyMedium),
+        trailing: Icon(Icons.chevron_right, color: t.dim),
+        onTap: _toFileRoute,
+      ),
+    ];
+  }
+
+  Widget _recipientAction() => BusyButton(
+    label: context.l10n.commonContinue,
+    onPressed: _recipient.text.trim().isEmpty ? null : _toAmount,
+  );
+
+  /// The big amount, what is available, Use USD and Max, the fee, and the folded note.
+  List<Widget> _amountFields(BuildContext context, {required bool file}) {
+    final l = context.l10n;
+    final theme = Theme.of(context);
+    final t = context.tokens;
+    final summary = ref.watch(homeProvider).value?.summary;
+    final price = ref.watch(priceProvider).value;
+    final currency =
+        ref.watch(appSettingsProvider).value?.fiatCurrency ?? 'usd';
     final amount = _parsedAmount;
     final estimate = _estimate;
-
     String? amountHelper;
     if (amount != null && price != null) {
       amountHelper = _fiatEntry
           ? '≈ ${epicExact(l, amount)}'
           : '≈ ${localDigits(l, fiatText(amount, price, currency))}';
     }
-
+    final onHold = summary == null ? BigInt.zero : _onHold(summary);
     return [
-      SegmentedButton<bool>(
-        segments: [
-          ButtonSegment(
-            value: false,
-            icon: const Icon(Icons.alternate_email),
-            label: Text(l.sendMethodEpicbox),
+      TextField(
+        controller: _amount,
+        focusNode: _amountFocus,
+        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+        textInputAction: TextInputAction.next,
+        textAlign: TextAlign.center,
+        onEditingComplete: () {
+          if (_noteOpen) {
+            _noteFocus.requestFocus();
+          } else {
+            _submitAmount(file: file);
+          }
+        },
+        onChanged: _onAmountChanged,
+        style: theme.textTheme.displaySmall?.copyWith(
+          fontFamily: t.monoFamily,
+          color: t.text,
+        ),
+        decoration: InputDecoration(
+          labelText: l.sendAmountLabel(
+            _fiatEntry ? currency.toUpperCase() : 'EPIC',
           ),
-          ButtonSegment(
-            value: true,
-            icon: const Icon(Icons.description_outlined),
-            label: Text(l.sendMethodFile),
+          floatingLabelBehavior: FloatingLabelBehavior.always,
+          floatingLabelAlignment: FloatingLabelAlignment.center,
+          hintText: '0',
+          helperText: amountHelper,
+          error: _amountError == null ? null : LiveFieldError(_amountError!),
+        ),
+      ),
+      const SizedBox(height: 12),
+      if (summary != null)
+        Text(
+          l.sendAvailable(epicExact(l, summary.spendable)),
+          textAlign: TextAlign.center,
+          style: theme.textTheme.bodyMedium?.copyWith(color: t.dim),
+        ),
+      if (summary != null &&
+          summary.spendable == BigInt.zero &&
+          onHold > BigInt.zero)
+        Padding(
+          padding: const EdgeInsets.only(top: 4),
+          child: Text(
+            l.sendOnHold(epicText(l, onHold)),
+            textAlign: TextAlign.center,
+            style: theme.textTheme.bodyMedium?.copyWith(color: t.dim),
+          ),
+        ),
+      const SizedBox(height: 12),
+      Wrap(
+        key: amountSuffixKey,
+        alignment: WrapAlignment.center,
+        spacing: 8,
+        runSpacing: 8,
+        children: [
+          if (price != null || _fiatEntry)
+            OutlinedButton(
+              style: OutlinedButton.styleFrom(minimumSize: const Size(64, 48)),
+              onPressed: _toggleUnit,
+              child: Text(
+                l.sendUseUnit(_fiatEntry ? 'EPIC' : currency.toUpperCase()),
+              ),
+            ),
+          OutlinedButton(
+            style: OutlinedButton.styleFrom(minimumSize: const Size(64, 48)),
+            onPressed: _busy ? null : _max,
+            child: Text(l.sendMax),
           ),
         ],
-        selected: {_fileMode},
-        showSelectedIcon: false,
-        expandedInsets: EdgeInsets.zero,
-        onSelectionChanged: _busy || _reviewing
-            ? null
-            : (selected) => setState(() {
-                _fileMode = selected.first;
-                _recipientError = null;
-                _error = null;
-              }),
       ),
-      const SizedBox(height: 16),
-      if (!_fileMode) ...[
-        TextField(
-          controller: _recipient,
-          autocorrect: false,
-          enableSuggestions: false,
-          // Grows to show the whole address, so its start can be checked. The full width and
-          // a smaller size fit a 52-character key on one line and its @server on the next,
-          // instead of breaking inside the server name.
-          minLines: 1,
-          maxLines: null,
-          keyboardType: TextInputType.url,
-          // Next goes to the amount, not to the Paste button below the field.
-          textInputAction: TextInputAction.next,
-          onEditingComplete: _amountFocus.requestFocus,
-          style: theme.textTheme.bodyMedium,
-          onChanged: (_) => setState(() {
-            _recipientError = null;
-            _error = null;
-          }),
-          decoration: InputDecoration(
-            labelText: l.sendRecipientLabel,
-            hintText: l.sendRecipientHintSimple,
-            error: _recipientError == null
-                ? null
-                : LiveFieldError(_recipientError!),
-            border: const OutlineInputBorder(),
-          ),
-        ),
-        Wrap(
-          spacing: 8,
-          children: [
-            Tooltip(
-              message: l.commonPaste,
-              child: TextButton.icon(
-                icon: const Icon(Icons.content_paste),
-                label: Text(l.commonPaste),
-                onPressed: _paste,
-              ),
-            ),
-            if (scan)
-              Tooltip(
-                message: l.scanQrTooltip,
-                child: TextButton.icon(
-                  icon: const Icon(Icons.qr_code_scanner),
-                  label: Text(l.sendScanButton),
-                  onPressed: _scan,
-                ),
-              ),
-            Tooltip(
-              message: l.sendChooseContactTooltip,
-              child: TextButton.icon(
-                icon: const Icon(Icons.contacts),
-                label: Text(l.sendContactsButton),
-                onPressed: _pickContact,
-              ),
-            ),
-          ],
-        ),
-        if (_recipient.text.trim().isEmpty && recent.isNotEmpty)
-          Padding(
-            padding: const EdgeInsets.only(top: 4),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // On its own line, so wrapped chips line up under each other.
-                Text(l.sendRecentLabel, style: theme.textTheme.bodyMedium),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 4,
-                  children: [
-                    for (final address in recent)
-                      ActionChip(
-                        avatar: const Icon(Icons.history, size: 18),
-                        label: Text(
-                          contactNameFor(contacts, address) ??
-                              shortAddress(address),
-                        ),
-                        tooltip: l.sendRecentTooltip(address),
-                        onPressed: () => _setRecipient(address),
-                      ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        if (contact != null)
-          Padding(
-            padding: const EdgeInsets.only(top: 8),
-            child: Row(
-              children: [
-                const Icon(Icons.person, size: 18),
-                const SizedBox(width: 8),
-                Expanded(child: Text(l.sendSendingToContact(contact.name))),
-              ],
-            ),
-          ),
-        if (_recipient.text.trim().isNotEmpty &&
-            to.kind == RecipientKind.epicbox &&
-            !listening)
-          Padding(
-            padding: const EdgeInsets.only(top: 8),
-            child: Semantics(
-              liveRegion: true,
-              child: Row(
-                children: [
-                  const Icon(Icons.sync, size: 18),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      l.sendStillConnecting,
-                      style: theme.textTheme.bodyMedium,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        const SizedBox(height: 16),
-      ] else ...[
-        Row(
-          children: [
-            Expanded(
-              child: Text(l.sendFileIntro, style: theme.textTheme.bodyMedium),
-            ),
-            IconButton(
-              tooltip: l.sendFileHelpTooltip,
-              icon: const Icon(Icons.help_outline),
-              onPressed: () =>
-                  showFileExchangeHelp(context, role: FileExchangeRole.sender),
-            ),
-          ],
-        ),
-        const SizedBox(height: 16),
-      ],
-      LayoutBuilder(
-        builder: (context, field) => TextField(
-          controller: _amount,
-          focusNode: _amountFocus,
-          keyboardType: const TextInputType.numberWithOptions(decimal: true),
-          textInputAction: TextInputAction.next,
-          onEditingComplete: _noteFocus.requestFocus,
-          onChanged: _onAmountChanged,
-          decoration: InputDecoration(
-            labelText: l.sendAmountLabel(
-              _fiatEntry ? currency.toUpperCase() : 'EPIC',
-            ),
-            helperText: amountHelper,
-            error: _amountError == null ? null : LiveFieldError(_amountError!),
-            border: const OutlineInputBorder(),
-            // At most 60 % of the field, so the amount keeps its room; on a narrow phone
-            // with large text the buttons' words shrink rather than overflow the field.
-            suffixIcon: ConstrainedBox(
-              key: amountSuffixKey,
-              constraints: BoxConstraints(maxWidth: field.maxWidth * 0.6),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Plain text buttons: their text is their label. A Tooltip here, inside the
-                  // field's suffix, broke the semantics tree after a route pop.
-                  if (price != null || _fiatEntry)
-                    Flexible(
-                      child: TextButton(
-                        onPressed: _toggleUnit,
-                        child: FittedBox(
-                          fit: BoxFit.scaleDown,
-                          child: Text(
-                            l.sendUseUnit(
-                              _fiatEntry ? 'EPIC' : currency.toUpperCase(),
-                            ),
-                            maxLines: 1,
-                          ),
-                        ),
-                      ),
-                    ),
-                  Flexible(
-                    child: TextButton(
-                      onPressed: _busy ? null : _max,
-                      child: FittedBox(
-                        fit: BoxFit.scaleDown,
-                        child: Text(l.sendMax, maxLines: 1),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-      if (spendable != null)
+      if (estimate != null && _estimateError == null)
         Padding(
-          padding: const EdgeInsets.only(top: 8),
-          child: Text(
-            price == null
-                ? l.sendSpendable(epicText(l, spendable))
-                : l.sendSpendableWithFiat(
-                    epicText(l, spendable),
-                    localDigits(l, fiatText(spendable, price, currency)),
-                  ),
-            style: theme.textTheme.bodyMedium,
-          ),
-        ),
-      const SizedBox(height: 8),
-      if (estimate != null)
-        Semantics(
-          liveRegion: true,
-          child: Text(
-            l.sendFeeAndTotal(
-              epicExact(l, estimate.fee),
-              epicExact(l, estimate.amount + estimate.fee),
+          padding: const EdgeInsets.only(top: 12),
+          child: Semantics(
+            liveRegion: true,
+            child: Text(
+              l.sendFeeQuiet(epicExact(l, estimate.fee)),
+              textAlign: TextAlign.center,
+              style: theme.textTheme.bodySmall?.copyWith(color: t.dim),
             ),
           ),
         ),
       if (_estimateError != null) ErrorText(_estimateError!),
       const SizedBox(height: 12),
-      TextField(
-        controller: _note,
-        focusNode: _noteFocus,
-        // LEPIC signs at most this many bytes; the field stops there instead of cutting.
-        inputFormatters: const [Utf8LengthLimiter(slateMessageMaxBytes)],
-        buildCounter:
-            (
-              context, {
-              required currentLength,
-              required isFocused,
-              maxLength,
-            }) => Text(
-              l.sendMessageCounter(
-                utf8Length(_note.text),
-                slateMessageMaxBytes,
-              ),
-              style: theme.textTheme.bodySmall,
+      Divider(color: t.line, height: 1),
+      if (!_noteOpen)
+        ListTile(
+          contentPadding: EdgeInsets.zero,
+          minTileHeight: 56,
+          title: Text(l.sendAddNote, style: theme.textTheme.bodyMedium),
+          trailing: Icon(Icons.expand_more, color: t.dim),
+          onTap: () {
+            setState(() => _noteOpen = true);
+            _noteFocus.requestFocus();
+          },
+        )
+      else
+        Padding(
+          padding: const EdgeInsets.only(top: 16),
+          child: TextField(
+            controller: _note,
+            focusNode: _noteFocus,
+            // LEPIC signs at most this many bytes; the field stops there instead of cutting.
+            inputFormatters: const [Utf8LengthLimiter(slateMessageMaxBytes)],
+            onChanged: (_) => setState(() {}),
+            buildCounter:
+                (
+                  context, {
+                  required currentLength,
+                  required isFocused,
+                  maxLength,
+                }) => Text(
+                  l.sendMessageCounter(
+                    utf8Length(_note.text),
+                    slateMessageMaxBytes,
+                  ),
+                  style: theme.textTheme.bodySmall,
+                ),
+            textInputAction: TextInputAction.done,
+            onSubmitted: (_) => _submitAmount(file: file),
+            decoration: InputDecoration(
+              labelText: l.sendNoteLabel,
+              helperText: l.sendNoteHelper,
+              border: const OutlineInputBorder(),
             ),
-        textInputAction: TextInputAction.done,
-        onSubmitted: (_) {
-          if (_parsedAmount == null ||
-              _estimateError != null ||
-              _reviewing ||
-              _busy) {
-            return;
-          }
-          _fileMode ? _createFile() : _review();
-        },
-        decoration: InputDecoration(
-          labelText: l.sendMessageLabel,
-          helperText: l.sendMessageHelper,
-          helperMaxLines: 3,
-          border: const OutlineInputBorder(),
+          ),
         ),
-      ),
     ];
   }
 
-  List<Widget> _responseStep(BuildContext context, Slate slate) {
+  void _submitAmount({required bool file}) {
+    if (!_amountReady || _busy) return;
+    file ? _createFile() : _toReview();
+  }
+
+  List<Widget> _amountStep(BuildContext context) {
     final l = context.l10n;
-    final name = sendFileName(slate.slateId);
-    final theme = Theme.of(context);
+    final address = parseRecipient(_recipient.text).address;
     return [
-      Text(l.sendFileStep1(name), style: theme.textTheme.titleMedium),
-      const SizedBox(height: 8),
-      SlateFileButtons(name: name, json: slate.json),
-      const SizedBox(height: 8),
-      Text(l.sendFileLockedNote),
-      const SizedBox(height: 24),
+      _header(context, l.sendStepAmount, step: 2, onBack: _toRecipient),
+      Align(
+        alignment: AlignmentDirectional.centerStart,
+        child: _ToChip(address: address, name: _contactName(address)),
+      ),
+      const SizedBox(height: 20),
+      ..._amountFields(context, file: false),
+    ];
+  }
+
+  Widget _amountAction() => BusyButton(
+    label: context.l10n.commonContinue,
+    busy: _estimating,
+    onPressed: _amountReady && !_busy ? _toReview : null,
+  );
+
+  List<Widget> _reviewStep(BuildContext context) {
+    final l = context.l10n;
+    final theme = Theme.of(context);
+    final t = context.tokens;
+    final estimate = _estimate!;
+    final total = estimate.amount + estimate.fee;
+    final price = ref.watch(priceProvider).value;
+    final currency =
+        ref.watch(appSettingsProvider).value?.fiatCurrency ?? 'usd';
+    final to = parseRecipient(_recipient.text);
+    final checks = ref.watch(sendPreflightProvider(_relay));
+    return [
+      _header(context, l.sendStepReview, step: 3, onBack: _backToAmount),
+      RecipientCard(address: to.address, name: _contactName(to.address)),
+      const SizedBox(height: 20),
       Text(
-        l.sendFileStep2(responseFileName(name)),
-        style: theme.textTheme.titleMedium,
+        epicExact(l, estimate.amount),
+        style: theme.textTheme.headlineMedium?.copyWith(
+          fontFamily: t.monoFamily,
+          color: t.text,
+        ),
+      ),
+      const SizedBox(height: 12),
+      _Row(label: l.sendNetworkFee, value: epicExact(l, estimate.fee)),
+      _Row(
+        label: l.sendReviewTotal,
+        value: price == null
+            ? epicExact(l, total)
+            : l.sendReviewTotalWithFiat(
+                epicExact(l, total),
+                localDigits(l, fiatText(total, price, currency)),
+              ),
+        strong: true,
       ),
       const SizedBox(height: 8),
-      BusyButton(label: l.sendOpenResponseFile, onPressed: _openResponse),
+      Divider(color: t.line, height: 1),
+      const SizedBox(height: 8),
+      _ReadyLine(checks: checks, relayFailed: _relayFailed),
+    ];
+  }
+
+  Widget _reviewAction(BuildContext context) {
+    final l = context.l10n;
+    final checks = ref.watch(sendPreflightProvider(_relay));
+    final relayDown =
+        _relayFailed || checks.relayOutcome == CheckOutcome.failed;
+    // Without a node answer the send could not be built or posted.
+    final canSend = checks.canSend && !_busy;
+    final amount = epicExact(l, _estimate!.amount);
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        if (relayDown) ...[
+          BusyButton(
+            label: l.sendPayWithFile,
+            onPressed: _busy ? null : _toFileRoute,
+          ),
+          const SizedBox(height: 4),
+          TextButton(
+            style: TextButton.styleFrom(minimumSize: const Size.fromHeight(44)),
+            onPressed: canSend ? _send : null,
+            child: Text(l.sendAnyway),
+          ),
+        ] else ...[
+          BusyButton(
+            label: l.sendReviewSendButton(amount),
+            busy: _busy,
+            onPressed: canSend ? _send : null,
+          ),
+          const SizedBox(height: 4),
+          TextButton(
+            style: TextButton.styleFrom(minimumSize: const Size.fromHeight(44)),
+            onPressed: _busy ? null : _backToAmount,
+            child: Text(l.sendReviewEdit),
+          ),
+        ],
+      ],
+    );
+  }
+
+  Widget _doneAction() =>
+      BusyButton(label: context.l10n.commonDone, onPressed: _done);
+
+  List<Widget> _trackerStep(BuildContext context, _Sent sent) {
+    final l = context.l10n;
+    final theme = Theme.of(context);
+    final t = context.tokens;
+    final live =
+        ref
+            .watch(homeProvider)
+            .value
+            ?.transactions
+            .where((tx) => tx.key == sent.tx.key)
+            .firstOrNull ??
+        sent.tx;
+    final target = confirmationsTargetOf(ref);
+    final tip = tipHeight(ref);
+    final track = sendTrackerAt(live, tip, target: target);
+    if (track == SendTrack.notPosted) {
+      // Finished but not taken by the network: no way back to the form, so it cannot be
+      // sent twice.
+      return [NotPostedNotice(tx: live)];
+    }
+    final name = _contactName(sent.to.address);
+    final who = name ?? shortAddress(sent.to.address);
+    final at = sendTrackerStep(track);
+    final confirmations = txConfirmations(live, tip) ?? 0;
+    final labels = <(String done, String now)>[
+      (
+        name == null ? l.sendTrackSent : l.sendTrackSentTo(name),
+        name == null ? l.sendTrackSent : l.sendTrackSentTo(name),
+      ),
+      (
+        name == null ? l.sendTrackSigned : l.sendTrackSignedBy(name),
+        name == null ? l.sendTrackWaiting : l.sendTrackWaitingFor(name),
+      ),
+      (l.sendTrackOnNetwork, l.sendTrackOnNetwork),
+      (l.sendTrackConfirmed, l.txStatusConfirming(confirmations, target)),
+    ];
+    final steps = [
+      for (final (i, (done, now)) in labels.indexed)
+        TimelineStep(
+          i == at ? now : done,
+          i < at
+              ? TimelineState.done
+              : i == at
+              ? TimelineState.current
+              : TimelineState.todo,
+        ),
+    ];
+    final waiting = track == SendTrack.waitingRecipient;
+    final unknown = name == null;
+    return [
+      Align(
+        alignment: AlignmentDirectional.centerEnd,
+        child: IconButton(
+          tooltip: l.sendHowItWorks,
+          icon: const Icon(Icons.info_outline),
+          onPressed: () => showHandshakeSheet(context),
+        ),
+      ),
+      Center(
+        child: Text(
+          epicExact(l, sent.amount),
+          style: theme.textTheme.headlineMedium?.copyWith(
+            fontFamily: t.monoFamily,
+            color: t.text,
+          ),
+        ),
+      ),
+      Center(
+        child: Text(
+          l.sendTo(who),
+          style: theme.textTheme.bodyMedium?.copyWith(color: t.dim),
+        ),
+      ),
       const SizedBox(height: 24),
+      if (track == SendTrack.cancelled)
+        Semantics(
+          liveRegion: true,
+          child: Text(l.sendTrackCancelled, style: theme.textTheme.bodyLarge),
+        )
+      else
+        RoundSteps(steps: steps),
+      if (waiting)
+        Text(
+          l.sendTrackOffline(epicText(l, sent.amount + (sent.tx.fee ?? BigInt.zero))),
+          style: theme.textTheme.bodyMedium?.copyWith(color: t.dim),
+        ),
+      if (sent.changedFee case final fee?) ...[
+        const SizedBox(height: 8),
+        Text(
+          l.sendResultFeeChanged(
+            epicExact(l, fee),
+            epicExact(l, sent.reviewedFee!),
+          ),
+          style: theme.textTheme.bodyMedium,
+        ),
+      ],
+      if (!sent.noteSaved) ...[
+        const SizedBox(height: 8),
+        Text(l.sendResultNoteNotSaved, style: theme.textTheme.bodyMedium),
+      ],
+      if (waiting) ...[
+        const SizedBox(height: 8),
+        ExpansionTile(
+          tilePadding: EdgeInsets.zero,
+          childrenPadding: const EdgeInsets.only(bottom: 8),
+          expandedCrossAxisAlignment: CrossAxisAlignment.start,
+          shape: const Border(),
+          title: Text(l.sendTrackIfNot, style: theme.textTheme.bodyMedium),
+          children: [
+            Text(
+              l.sendResultAutoCancel(sendTtlDays),
+              style: theme.textTheme.bodyMedium?.copyWith(color: t.dim),
+            ),
+            TextButton.icon(
+              icon: const Icon(Icons.help_outline),
+              label: Text(l.sendHelp),
+              onPressed: () =>
+                  openHelp(context, HelpTopic.waitingForRecipient),
+            ),
+          ],
+        ),
+      ],
+      if (unknown) ...[
+        const SizedBox(height: 8),
+        Align(
+          alignment: AlignmentDirectional.centerStart,
+          child: TextButton.icon(
+            icon: const Icon(Icons.person_add_alt),
+            label: Text(l.sendSaveContact),
+            onPressed: () => _saveContact(sent.to.address),
+          ),
+        ),
+      ],
+    ];
+  }
+
+  List<Widget> _fileAmountStep(BuildContext context) {
+    final l = context.l10n;
+    return [
+      _header(
+        context,
+        l.sendFileTitle,
+        onBack: _toRecipient,
+        extra: IconButton(
+          tooltip: l.sendFileHelpTooltip,
+          icon: const Icon(Icons.help_outline),
+          onPressed: () =>
+              showFileExchangeHelp(context, role: FileExchangeRole.sender),
+        ),
+      ),
+      ..._amountFields(context, file: true),
+    ];
+  }
+
+  Widget _fileAmountAction() => BusyButton(
+    label: context.l10n.sendMakeFile,
+    busy: _busy,
+    onPressed: _amountReady ? _createFile : null,
+  );
+
+  /// The file route's three steps, [at] the current one (3 when all are done).
+  Widget _fileSteps(BuildContext context, int at, BigInt amount) {
+    final l = context.l10n;
+    final labels = [
+      (l.sendFileMade, l.sendFileMade),
+      (l.sendTrackSigned, l.sendFileWaitingReply),
+      (l.sendTrackOnNetwork, l.sendTrackOnNetwork),
+    ];
+    return RoundSteps(
+      steps: [
+        for (final (i, (done, now)) in labels.indexed)
+          TimelineStep(
+            i == at ? now : done,
+            i < at
+                ? TimelineState.done
+                : i == at
+                ? TimelineState.current
+                : TimelineState.todo,
+            detail: i == 0 && at < 3
+                ? l.sendFileOnHold(epicExact(l, amount))
+                : null,
+          ),
+      ],
+    );
+  }
+
+  List<Widget> _fileMadeStep(BuildContext context, Slate slate) {
+    final l = context.l10n;
+    final theme = Theme.of(context);
+    final t = context.tokens;
+    final name = sendFileName(slate.slateId);
+    return [
+      _header(context, l.sendFileTitle),
+      _fileSteps(context, 1, _parsedAmount ?? BigInt.zero),
+      Text(
+        l.sendFileShareHint,
+        style: theme.textTheme.bodyMedium?.copyWith(color: t.dim),
+      ),
+      const SizedBox(height: 12),
+      SlateFileButtons(name: name, json: slate.json),
+      const SizedBox(height: 8),
+      // The text itself is a detail for those who copy it by hand.
       ExpansionTile(
         tilePadding: EdgeInsets.zero,
-        title: Text(l.sendCopyPasteInstead),
+        shape: const Border(),
+        title: Text(l.sendCopyPasteInstead, style: theme.textTheme.bodyMedium),
         children: [
           SlateBox(title: l.sendSlateBoxTitle, json: slate.json),
           const SizedBox(height: 16),
@@ -979,213 +1438,340 @@ class _SendViewState extends ConsumerState<SendView> {
           BusyButton(
             label: l.slateFinishPayment,
             busy: _busy,
-            onPressed: _finalize,
+            onPressed: _finalizePasted,
           ),
+          const SizedBox(height: 8),
         ],
       ),
+      TextButton(
+        style: TextButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+        onPressed: _done,
+        child: Text(l.commonDone),
+      ),
     ];
   }
 
-  List<Widget> _resultStep(BuildContext context, _Sent sent) {
+  Widget _openReplyAction() => BusyButton(
+    label: context.l10n.sendOpenReply,
+    onPressed: _busy ? null : _openReply,
+  );
+
+  List<Widget> _fileSentStep(BuildContext context) {
     final l = context.l10n;
-    final theme = Theme.of(context);
-    final to = sent.to;
-    // Finished but not taken by the network: the form stays closed, so it cannot be sent twice.
-    if (sent.tx.repostable) {
-      return [
-        NotPostedNotice(tx: sent.tx),
-        const SizedBox(height: 8),
-        BusyButton(label: l.commonDone, onPressed: widget.onDone),
-      ];
+    final slate = _slate;
+    final posted =
+        _filePosted ??
+        (slate == null
+            ? null
+            : ref
+                  .watch(homeProvider)
+                  .value
+                  ?.transactions
+                  .where((tx) => tx.key == 's:${slate.slateId}')
+                  .firstOrNull);
+    if (posted != null && posted.repostable) {
+      return [NotPostedNotice(tx: posted)];
     }
-    final waiting = to?.kind == RecipientKind.epicbox;
-    final contacts = ref.watch(contactsProvider).value ?? const <Contact>[];
-    final known = to == null || contactFor(contacts, to.address) != null;
     return [
-      Center(
-        child: GlyphTile(
-          size: 88,
-          child: Icon(
-            waiting ? Icons.schedule_send : Icons.check,
-            color: waiting ? null : context.tokens.ok,
-          ),
-        ),
-      ),
-      const SizedBox(height: 20),
-      Semantics(
-        liveRegion: true,
-        child: Text(
-          // An epicbox payment has not gone anywhere yet; "Sent" would let the
-          // user close the app, which stops it from finishing.
-          waiting
-              ? l.sendResultStarted(epicExact(l, sent.amount))
-              : l.sendResultSent(epicExact(l, sent.amount)),
-          textAlign: TextAlign.center,
-          style: theme.textTheme.titleLarge,
-        ),
-      ),
-      const SizedBox(height: 12),
-      Text(
-        waiting
-            ? l.sendResultWaitingBody
-            : l.sendResultOnItsWay(
-                ref.watch(minimumConfirmationsProvider).toInt(),
-              ),
-        textAlign: TextAlign.center,
-        style: theme.textTheme.bodyLarge,
-      ),
-      if (waiting) ...[
-        const SizedBox(height: 8),
-        Text(
-          l.sendResultAutoCancel(sendTtlDays),
-          textAlign: TextAlign.center,
-          style: theme.textTheme.bodyMedium?.copyWith(
-            color: theme.colorScheme.onSurfaceVariant,
-          ),
-        ),
-      ],
-      if (sent.changedFee case final fee?) ...[
-        const SizedBox(height: 8),
-        Text(
-          l.sendResultFeeChanged(
-            epicExact(l, fee),
-            epicExact(l, sent.reviewedFee!),
-          ),
-        ),
-      ],
-      if (!sent.noteSaved) ...[
-        const SizedBox(height: 8),
-        Text(l.sendResultNoteNotSaved),
-      ],
-      const SizedBox(height: 24),
-      if (!known) ...[
-        OutlinedButton.icon(
-          style: OutlinedButton.styleFrom(
-            minimumSize: const Size.fromHeight(48),
-          ),
-          icon: const Icon(Icons.person_add),
-          label: Text(l.sendSaveToContacts),
-          onPressed: () => Navigator.of(context).push<Contact>(
-            MaterialPageRoute<Contact>(
-              builder: (_) => ContactEditScreen(address: to.address),
-            ),
-          ),
-        ),
-        const SizedBox(height: 12),
-      ],
-      BusyButton(label: l.commonDone, onPressed: widget.onDone),
-      const SizedBox(height: 8),
-      TextButton.icon(
-        icon: const Icon(Icons.help_outline),
-        label: Text(l.sendHelp),
-        onPressed: () => openHelp(
-          context,
-          waiting ? HelpTopic.waitingForRecipient : HelpTopic.confirmations,
-        ),
-      ),
+      _header(context, l.sendFileTitle),
+      _fileSteps(context, 3, _parsedAmount ?? BigInt.zero),
     ];
   }
 }
 
-/// Everything about the send on one sheet, with the checks of [sendPreflightProvider] and the
-/// button that sends it.
-class _ReviewSheet extends ConsumerStatefulWidget {
-  const _ReviewSheet({
-    required this.to,
-    required this.relay,
-    required this.contactName,
-    required this.estimate,
-    required this.note,
-    required this.price,
-    required this.currency,
+/// The recipient as a person: their name or "New recipient", and the address with the ends
+/// of its key strong and the middle dim, for checking with them. [onSave] offers to save a
+/// new one as a contact.
+class RecipientCard extends StatelessWidget {
+  const RecipientCard({
+    super.key,
+    required this.address,
+    this.name,
+    this.onSave,
   });
 
-  final Recipient to;
-
-  /// The recipient's relay, from their address.
-  final EpicboxRelay? relay;
-  final String? contactName;
-  final FeeEstimate estimate;
-  final String note;
-  final double? price;
-  final String currency;
-
-  @override
-  ConsumerState<_ReviewSheet> createState() => _ReviewSheetState();
-}
-
-class _ReviewSheetState extends ConsumerState<_ReviewSheet> {
-  /// Set by the first tap on Send. A second tap would pop the Send screen as well.
-  bool _closing = false;
-
-  void _close(bool send) {
-    if (_closing) return;
-    setState(() => _closing = true);
-    Navigator.pop(context, send);
-  }
+  final String address;
+  final String? name;
+  final VoidCallback? onSave;
 
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
     final theme = Theme.of(context);
-    final estimate = widget.estimate;
-    final total = estimate.amount + estimate.fee;
-    final price = widget.price;
-    final name = widget.contactName;
-    final checks = ref.watch(sendPreflightProvider(widget.relay));
-    return SafeArea(
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(l.sendReviewTitle, style: theme.textTheme.titleLarge),
-            const SizedBox(height: 16),
-            if (name != null) _Row(label: l.sendReviewTo, value: name),
-            _Row(
-              label: name == null ? l.sendReviewTo : '',
-              value: _breakableAddress(widget.to.address),
-              style: theme.textTheme.bodyMedium,
-            ),
-            _Row(
-              label: l.sendReviewAmount,
-              value: epicExact(l, estimate.amount),
-            ),
-            _Row(label: l.sendReviewFee, value: epicExact(l, estimate.fee)),
-            _Row(
-              label: l.sendReviewTotal,
-              value: price == null
-                  ? epicExact(l, total)
-                  : l.sendReviewTotalWithFiat(
-                      epicExact(l, total),
-                      localDigits(l, fiatText(total, price, widget.currency)),
+    final t = context.tokens;
+    final name = this.name;
+    return Container(
+      padding: const EdgeInsets.fromLTRB(14, 12, 14, 8),
+      decoration: BoxDecoration(
+        color: t.surface,
+        border: Border.all(color: t.line),
+        borderRadius: BorderRadius.circular(t.radiusSmall),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _Initial(name: name),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      name ?? l.sendNewRecipient,
+                      style: theme.textTheme.titleSmall?.copyWith(
+                        color: t.text,
+                      ),
                     ),
-              style: theme.textTheme.titleMedium,
-            ),
-            if (widget.note.isNotEmpty)
-              _Row(label: l.sendReviewMessage, value: widget.note),
-            const SizedBox(height: 8),
-            Text(l.sendReviewViaEpicbox, style: theme.textTheme.bodySmall),
-            const SizedBox(height: 12),
-            _ChecksList(checks: checks),
-            const SizedBox(height: 16),
-            FilledButton(
-              style: FilledButton.styleFrom(
-                minimumSize: const Size.fromHeight(52),
+                    const SizedBox(height: 4),
+                    AddressEnds(address: address),
+                  ],
+                ),
               ),
-              // Without a node answer the send could not be built or posted.
-              onPressed: _closing || !checks.canSend
-                  ? null
-                  : () => _close(true),
+            ],
+          ),
+          if (onSave != null)
+            Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: TextButton.icon(
+                icon: const Icon(Icons.person_add_alt, size: 18),
+                label: Text(l.sendSaveContact),
+                onPressed: onSave,
+              ),
+            )
+          else
+            const SizedBox(height: 4),
+        ],
+      ),
+    );
+  }
+}
+
+/// An address in the mono face with the first and last 6 characters of its key strong and
+/// the rest dim, and the relay on its own line.
+class AddressEnds extends StatelessWidget {
+  const AddressEnds({super.key, required this.address});
+
+  final String address;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    final base = Theme.of(context).textTheme.bodySmall?.copyWith(
+      fontFamily: t.monoFamily,
+      color: t.dim,
+      height: 1.45,
+    );
+    final strong = base?.copyWith(color: t.text, fontWeight: FontWeight.w700);
+    final at = address.indexOf('@');
+    final key = at < 0 ? address : address.substring(0, at);
+    final relay = at < 0 ? null : address.substring(at);
+    final spans = key.length <= 12
+        ? [TextSpan(text: key, style: strong)]
+        : [
+            TextSpan(text: key.substring(0, 6), style: strong),
+            TextSpan(text: key.substring(6, key.length - 6)),
+            TextSpan(text: key.substring(key.length - 6), style: strong),
+          ];
+    return Text.rich(
+      TextSpan(
+        style: base,
+        children: [
+          ...spans,
+          if (relay != null) TextSpan(text: '\n$relay'),
+        ],
+      ),
+    );
+  }
+}
+
+/// A round tile with the contact's initial, or a person for a new recipient.
+class _Initial extends StatelessWidget {
+  const _Initial({this.name});
+
+  final String? name;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    final name = this.name?.trim();
+    return ExcludeSemantics(
+      child: Container(
+        width: 40,
+        height: 40,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: t.surfaceHi,
+          shape: BoxShape.circle,
+          border: Border.all(color: t.lineStrong),
+        ),
+        child: name == null || name.isEmpty
+            ? Icon(Icons.person_outline, size: 20, color: t.dim)
+            : Text(
+                name.characters.first.toUpperCase(),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleSmall?.copyWith(color: t.text),
+              ),
+      ),
+    );
+  }
+}
+
+/// "To Bob" above the amount.
+class _ToChip extends StatelessWidget {
+  const _ToChip({required this.address, this.name});
+
+  final String address;
+  final String? name;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    return Container(
+      padding: const EdgeInsetsDirectional.fromSTEB(4, 4, 14, 4),
+      decoration: BoxDecoration(
+        color: t.surface,
+        border: Border.all(color: t.line),
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Transform.scale(scale: 0.8, child: _Initial(name: name)),
+          const SizedBox(width: 6),
+          Flexible(
+            child: Text(
+              context.l10n.sendTo(name ?? shortAddress(address)),
+              overflow: TextOverflow.ellipsis,
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(color: t.text),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// One recent recipient: their name where known, else the short address.
+class _RecentRow extends StatelessWidget {
+  const _RecentRow({required this.address, this.name, required this.onTap});
+
+  final String address;
+  final String? name;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    final theme = Theme.of(context);
+    return ListTile(
+      contentPadding: EdgeInsets.zero,
+      minTileHeight: 52,
+      leading: _Initial(name: name),
+      title: Text(
+        name ?? shortAddress(address),
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: theme.textTheme.bodyLarge?.copyWith(color: t.text),
+      ),
+      subtitle: name == null
+          ? null
+          : Text(
+              shortAddress(address),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: t.dim,
+                fontFamily: t.monoFamily,
+              ),
+            ),
+      onTap: onTap,
+    );
+  }
+}
+
+/// The review's checks of [SendPreflight] as one quiet line: "Ready to send" when they
+/// pass, else the one that matters most. Only the node blocks.
+class _ReadyLine extends ConsumerWidget {
+  const _ReadyLine({required this.checks, required this.relayFailed});
+
+  final SendPreflight checks;
+
+  /// The send itself could not reach their relay.
+  final bool relayFailed;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = context.l10n;
+    final t = context.tokens;
+    final theme = Theme.of(context);
+    final relayDown =
+        relayFailed || checks.relayOutcome == CheckOutcome.failed;
+    final running =
+        checks.node == CheckOutcome.running ||
+        checks.relayOutcome == CheckOutcome.running;
+    final (Widget icon, String text, Color color, bool retry) = switch (()) {
+      _ when checks.node == CheckOutcome.failed => (
+        Icon(Icons.error_outline, size: 18, color: t.risk),
+        l.sendNodeDown,
+        t.text,
+        true,
+      ),
+      _ when relayDown => (
+        Icon(Icons.warning_amber, size: 18, color: t.warn),
+        l.sendRelayDown,
+        t.text,
+        false,
+      ),
+      // A still icon under reduced motion, where a spinner would be an animation.
+      _ when running => (
+        MediaQuery.disableAnimationsOf(context)
+            ? Icon(Icons.hourglass_empty, size: 18, color: t.dim)
+            : const SizedBox.square(
+                dimension: 16,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              ),
+        l.sendChecking,
+        t.dim,
+        false,
+      ),
+      _ when checks.listener == CheckOutcome.failed => (
+        Icon(Icons.sync, size: 18, color: t.dim),
+        l.sendListenerDown,
+        t.dim,
+        false,
+      ),
+      _ => (
+        Icon(Icons.check, size: 18, color: t.ok),
+        l.sendReady,
+        t.dim,
+        false,
+      ),
+    };
+    return Semantics(
+      liveRegion: true,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: 48),
+        child: Row(
+          children: [
+            ExcludeSemantics(child: SizedBox(width: 20, child: Center(child: icon))),
+            const SizedBox(width: 10),
+            Expanded(
               child: Text(
-                l.sendReviewSendButton(epicExact(l, estimate.amount)),
+                text,
+                style: theme.textTheme.bodyMedium?.copyWith(color: color),
               ),
             ),
-            const SizedBox(height: 8),
-            TextButton(
-              onPressed: _closing ? null : () => _close(false),
-              child: Text(l.sendReviewEdit),
-            ),
+            if (retry)
+              TextButton(
+                onPressed: () => ref.invalidate(sendNodeCheckProvider),
+                child: Text(l.commonRetry),
+              ),
           ],
         ),
       ),
@@ -1193,150 +1779,35 @@ class _ReviewSheetState extends ConsumerState<_ReviewSheet> {
   }
 }
 
-/// One quiet row per check of [SendPreflight]: node, our epicbox listener, and the
-/// recipient's relay when the monitor lists it.
-class _ChecksList extends ConsumerWidget {
-  const _ChecksList({required this.checks});
+class _Row extends StatelessWidget {
+  const _Row({required this.label, required this.value, this.strong = false});
 
-  final SendPreflight checks;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final l = context.l10n;
-    final relay = checks.relay?.label;
-    final relayOutcome = checks.relayOutcome;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        _CheckRow(
-          outcome: checks.node,
-          text: switch (checks.node) {
-            CheckOutcome.running => l.sendCheckNodeRunning,
-            CheckOutcome.passed => l.sendCheckNodeOk,
-            CheckOutcome.failed => l.sendCheckNodeFailed,
-          },
-          blocking: true,
-          onRetry: () => ref.invalidate(sendNodeCheckProvider),
-        ),
-        _CheckRow(
-          outcome: checks.listener,
-          text: checks.listener == CheckOutcome.passed
-              ? l.sendCheckListenerOk
-              : l.sendCheckListenerFailed,
-        ),
-        if (relay != null && relayOutcome != null)
-          _CheckRow(
-            outcome: relayOutcome,
-            text: switch (relayOutcome) {
-              CheckOutcome.running => l.sendCheckRelayRunning(relay),
-              CheckOutcome.passed => l.sendCheckRelayOk(relay),
-              CheckOutcome.failed => l.sendCheckRelayFailed(relay),
-            },
-          ),
-      ],
-    );
-  }
-}
-
-class _CheckRow extends StatelessWidget {
-  const _CheckRow({
-    required this.outcome,
-    required this.text,
-    this.blocking = false,
-    this.onRetry,
-  });
-
-  final CheckOutcome outcome;
-  final String text;
-
-  /// A failure stops the send (risk), rather than warning (warn).
-  final bool blocking;
-
-  /// Offered when the check failed.
-  final VoidCallback? onRetry;
+  final String label;
+  final String value;
+  final bool strong;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final t = context.tokens;
-    final Widget icon = switch (outcome) {
-      // A still icon under reduced motion, where a spinner would be an animation.
-      CheckOutcome.running when MediaQuery.disableAnimationsOf(context) => Icon(
-        Icons.hourglass_empty,
-        size: 18,
-        color: t.dim,
-      ),
-      CheckOutcome.running => const SizedBox.square(
-        dimension: 18,
-        child: CircularProgressIndicator(strokeWidth: 2),
-      ),
-      CheckOutcome.passed => Icon(
-        Icons.check_circle_outline,
-        size: 18,
-        color: t.ok,
-      ),
-      CheckOutcome.failed => Icon(
-        blocking ? Icons.error_outline : Icons.warning_amber,
-        size: 18,
-        color: blocking ? t.risk : t.warn,
-      ),
-    };
-    final failed = outcome == CheckOutcome.failed;
-    return Semantics(
-      liveRegion: failed,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 4),
-        child: Row(
-          children: [
-            ExcludeSemantics(child: icon),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                text,
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: failed ? null : t.dim,
-                ),
-              ),
-            ),
-            if (failed && onRetry != null)
-              TextButton(
-                onPressed: onRetry,
-                child: Text(context.l10n.commonRetry),
-              ),
-          ],
-        ),
-      ),
+    final style = theme.textTheme.bodyMedium?.copyWith(
+      color: strong ? t.text : t.dim,
+      fontWeight: strong ? FontWeight.w600 : null,
     );
-  }
-}
-
-/// [address] with a zero-width break before `@`, so a line break keeps the epicbox server
-/// whole instead of splitting it. For display only: the break character must never be copied.
-String _breakableAddress(String address) =>
-    address.replaceFirst('@', '\u200B@');
-
-class _Row extends StatelessWidget {
-  const _Row({required this.label, required this.value, this.style});
-
-  final String label;
-  final String value;
-  final TextStyle? style;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(
-            width: 72,
-            child: Text(label, style: theme.textTheme.bodyMedium),
-          ),
-          // Plain text: the address carries a display-only break character.
-          Expanded(
-            child: Text(value, style: style ?? theme.textTheme.bodyLarge),
+          Expanded(child: Text(label, style: style)),
+          const SizedBox(width: 12),
+          Flexible(
+            flex: 2,
+            child: Text(
+              value,
+              textAlign: TextAlign.end,
+              style: style?.copyWith(fontFamily: t.monoFamily),
+            ),
           ),
         ],
       ),

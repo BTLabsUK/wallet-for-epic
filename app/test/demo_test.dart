@@ -743,6 +743,18 @@ void main() {
 
       testWidgets('Send and contacts: QR scan ($mode)', (tester) async {
         final h = _Harness(demo: demo);
+        // Coins to send, or Send shows its empty state instead of the form.
+        h.session.summaryValue = WalletSummary(
+          lastConfirmedHeight: BigInt.from(100),
+          minimumConfirmations: BigInt.from(10),
+          total: BigInt.from(1000000000),
+          spendable: BigInt.from(1000000000),
+          awaitingConfirmation: BigInt.zero,
+          awaitingFinalization: BigInt.zero,
+          immature: BigInt.zero,
+          locked: BigInt.zero,
+          validatedWithNode: true,
+        );
         await h.pump(tester);
         await h.unlock(tester);
         await h.tab(tester, l.homeSendButton);

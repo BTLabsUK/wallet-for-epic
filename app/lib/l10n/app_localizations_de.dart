@@ -2497,12 +2497,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get sendAmountZero => 'Geben Sie einen Betrag über null ein.';
 
   @override
-  String get sendRecipientLabel => 'An';
-
-  @override
-  String get sendRecipientHintSimple => 'Adresse des Empfängers';
-
-  @override
   String get sendUrlUnsupported =>
       'Zahlungen an eine Wallet-URL werden nicht unterstützt. Fragen Sie den Empfänger nach seiner epicbox-Adresse.';
 
@@ -2519,31 +2513,10 @@ class AppLocalizationsDe extends AppLocalizations {
   String get sendContactsButton => 'Kontakte';
 
   @override
-  String get sendRecentLabel => 'Zuletzt:';
-
-  @override
-  String sendRecentTooltip(String address) {
-    return 'An $address senden';
-  }
-
-  @override
-  String sendSendingToContact(String name) {
-    return 'Senden an $name';
-  }
-
-  @override
-  String get sendStillConnecting =>
-      'Verbindung wird noch hergestellt. Sie können jetzt senden; die Zahlung wird abgeschlossen, sobald die App verbunden ist.';
-
-  @override
   String get sendMethodEpicbox => 'Epicbox-Adresse';
 
   @override
   String get sendMethodFile => 'Zahlungsdatei';
-
-  @override
-  String get sendFileIntro =>
-      'Erstellen Sie eine Zahlungsdatei, schicken Sie sie auf beliebigem Weg an den Empfänger und öffnen Sie dann die Antwort, die er zurückschickt.';
 
   @override
   String get sendFileHelpTooltip => 'So funktioniert das Bezahlen per Datei';
@@ -2562,54 +2535,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get sendMax => 'Max.';
 
   @override
-  String sendSpendable(String amount) {
-    return 'Verfügbar: $amount';
-  }
-
-  @override
-  String sendSpendableWithFiat(String amount, String fiat) {
-    return 'Verfügbar: $amount (≈ $fiat)';
-  }
-
-  @override
-  String sendFeeAndTotal(String fee, String total) {
-    return 'Gebühr: $fee. Gesamt: $total.';
-  }
-
-  @override
-  String get sendMessageLabel => 'Nachricht an den Empfänger (optional)';
-
-  @override
-  String get sendMessageHelper =>
-      'Der Empfänger sieht diese Nachricht. Sie behalten sie auch als Notiz.';
-
-  @override
   String sendMessageCounter(int used, int limit) {
     return '$used/$limit';
   }
-
-  @override
-  String get sendCreateFile => 'Zahlungsdatei erstellen';
-
-  @override
-  String get sendReview => 'Prüfen';
-
-  @override
-  String sendFileStep1(String file) {
-    return 'Schritt 1: $file an den Empfänger übergeben';
-  }
-
-  @override
-  String get sendFileLockedNote =>
-      'Der Betrag bleibt gesperrt, bis Sie abschließen. Falls der Empfänger nie antwortet, öffnen Sie die Zahlung und tippen Sie auf „Zahlung abbrechen“.';
-
-  @override
-  String sendFileStep2(String file) {
-    return 'Schritt 2: zurückgesendete Datei $file öffnen';
-  }
-
-  @override
-  String get sendOpenResponseFile => 'Antwortdatei öffnen';
 
   @override
   String get sendCopyPasteInstead => 'Stattdessen kopieren und einfügen';
@@ -2626,32 +2554,6 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get slateFinishPayment => 'Zahlung abschließen';
-
-  @override
-  String sendResultStarted(String amount) {
-    return 'Zahlung gestartet: $amount';
-  }
-
-  @override
-  String sendResultSent(String amount) {
-    return '$amount gesendet';
-  }
-
-  @override
-  String get sendResultWaitingBody =>
-      'Die Zahlung wird abgeschlossen, sobald die Wallet des Empfängers antwortet, meist innerhalb weniger Minuten, wenn dessen App geöffnet ist. Lassen Sie diese App geöffnet oder öffnen Sie sie innerhalb einer Woche wieder: So lange bewahrt die epicbox die Antwort etwa auf. Sie finden die Zahlung auf dem Startbildschirm und unter „Verlauf“.';
-
-  @override
-  String sendResultOnItsWay(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other:
-          'Die Zahlung ist auf dem Weg ins Netzwerk. Nach $count Bestätigungen wird sie als „Abgeschlossen“ angezeigt.',
-      one: 'Die Zahlung ist auf dem Weg ins Netzwerk. Nach 1 Bestätigung wird sie als „Abgeschlossen“ angezeigt.',
-    );
-    return '$_temp0';
-  }
 
   @override
   String sendResultAutoCancel(int days) {
@@ -2675,22 +2577,7 @@ class AppLocalizationsDe extends AppLocalizations {
       'Die Notiz konnte nicht gespeichert werden. Sie können sie hinzufügen, indem Sie die Zahlung öffnen.';
 
   @override
-  String get sendSaveToContacts => 'In Kontakten speichern';
-
-  @override
   String get sendHelp => 'Hilfe';
-
-  @override
-  String get sendReviewTitle => 'Zahlung prüfen';
-
-  @override
-  String get sendReviewTo => 'An';
-
-  @override
-  String get sendReviewAmount => 'Betrag';
-
-  @override
-  String get sendReviewFee => 'Gebühr';
 
   @override
   String get sendReviewTotal => 'Gesamt';
@@ -2698,45 +2585,6 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String sendReviewTotalWithFiat(String amount, String fiat) {
     return '$amount (≈ $fiat)';
-  }
-
-  @override
-  String get sendReviewMessage => 'Nachricht';
-
-  @override
-  String get sendReviewViaEpicbox =>
-      'Läuft über epicbox. Wird abgeschlossen, sobald die Wallet des Empfängers antwortet.';
-
-  @override
-  String get sendCheckNodeRunning => 'Node wird geprüft…';
-
-  @override
-  String get sendCheckNodeOk => 'Der Node antwortet';
-
-  @override
-  String get sendCheckNodeFailed =>
-      'Der Node antwortet nicht, daher kann diese Zahlung jetzt nicht gesendet werden.';
-
-  @override
-  String get sendCheckListenerOk => 'Mit epicbox verbunden';
-
-  @override
-  String get sendCheckListenerFailed =>
-      'Noch nicht mit epicbox verbunden. Sie können trotzdem senden; die Zahlung wird abgeschlossen, sobald die App verbunden ist.';
-
-  @override
-  String sendCheckRelayRunning(String relay) {
-    return '$relay wird geprüft…';
-  }
-
-  @override
-  String sendCheckRelayOk(String relay) {
-    return '$relay ist erreichbar';
-  }
-
-  @override
-  String sendCheckRelayFailed(String relay) {
-    return '$relay antwortet gerade nicht. Sie können trotzdem senden; die Zahlung kommt eventuell später an.';
   }
 
   @override
@@ -3627,4 +3475,214 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get demoPinUnlockTitle => 'Ihre Demo-Wallet wird geöffnet';
+
+  @override
+  String get sendStepRecipient => 'Empfänger';
+
+  @override
+  String get sendStepAmount => 'Betrag';
+
+  @override
+  String get sendStepReview => 'Prüfen';
+
+  @override
+  String sendStepOf(int step, int total) {
+    return '$step von $total';
+  }
+
+  @override
+  String get sendHowItWorks => 'So funktioniert es';
+
+  @override
+  String get sendAddressLabel => 'Epic-Adresse';
+
+  @override
+  String get sendAddressMissing => 'Geben Sie die Adresse der Gegenseite ein.';
+
+  @override
+  String get sendAddressWebLink => 'Das ist ein Weblink, keine Epic-Adresse.';
+
+  @override
+  String get sendAddressIncomplete => 'Diese Adresse scheint unvollständig.';
+
+  @override
+  String get sendAddressNotEpic => 'Das ist keine Epic-Adresse.';
+
+  @override
+  String get sendNewRecipient => 'Neuer Empfänger';
+
+  @override
+  String get sendSaveContact => 'Als Kontakt speichern';
+
+  @override
+  String get sendRecent => 'Zuletzt';
+
+  @override
+  String get sendUseFile => 'Keine Adresse? Mit Zahlungsdatei zahlen';
+
+  @override
+  String sendTo(String who) {
+    return 'An $who';
+  }
+
+  @override
+  String sendAvailable(String amount) {
+    return 'Verfügbar $amount';
+  }
+
+  @override
+  String sendOnHold(String amount) {
+    return '$amount sind bis zur Bestätigung zurückgehalten.';
+  }
+
+  @override
+  String sendFeeQuiet(String fee) {
+    return 'Netzwerkgebühr $fee';
+  }
+
+  @override
+  String get sendAddNote => 'Notiz hinzufügen';
+
+  @override
+  String get sendNoteLabel => 'Notiz';
+
+  @override
+  String get sendNoteHelper => 'Der Empfänger sieht sie auch.';
+
+  @override
+  String get sendNetworkFee => 'Netzwerkgebühr';
+
+  @override
+  String get sendChecking => 'Wird geprüft…';
+
+  @override
+  String get sendReady => 'Bereit zum Senden';
+
+  @override
+  String get sendNodeDown => 'Das Netzwerk ist gerade nicht erreichbar.';
+
+  @override
+  String get sendRelayDown => 'Das Relay der Gegenseite antwortet nicht.';
+
+  @override
+  String get sendListenerDown =>
+      'Noch nicht verbunden. Sie können trotzdem senden.';
+
+  @override
+  String get sendPayWithFile => 'Stattdessen mit Datei zahlen';
+
+  @override
+  String get sendAnyway => 'Trotzdem senden';
+
+  @override
+  String sendTrackSentTo(String name) {
+    return 'An $name gesendet';
+  }
+
+  @override
+  String get sendTrackSent => 'Gesendet';
+
+  @override
+  String sendTrackWaitingFor(String name) {
+    return 'Warten auf die Wallet von $name';
+  }
+
+  @override
+  String get sendTrackWaiting => 'Warten auf die Wallet der Gegenseite';
+
+  @override
+  String sendTrackSignedBy(String name) {
+    return 'Wallet von $name hat signiert';
+  }
+
+  @override
+  String get sendTrackSigned => 'Die Wallet der Gegenseite hat signiert';
+
+  @override
+  String get sendTrackOnNetwork => 'An das Netzwerk gesendet';
+
+  @override
+  String get sendTrackConfirmed => 'Bestätigt';
+
+  @override
+  String sendTrackOffline(String amount) {
+    return 'Die Wallet der Gegenseite schließt sie ab, sobald sie geöffnet wird. Bis dahin bleiben $amount zurückgehalten.';
+  }
+
+  @override
+  String get sendTrackIfNot => 'Was, wenn sie nie abgeschlossen wird?';
+
+  @override
+  String get sendTrackCancelled => 'Diese Zahlung wurde storniert.';
+
+  @override
+  String get sendNoCoins => 'Noch keine Coins zum Senden.';
+
+  @override
+  String get sendFileTitle => 'Mit Datei zahlen';
+
+  @override
+  String get sendMakeFile => 'Zahlungsdatei erstellen';
+
+  @override
+  String get sendFileMade => 'Datei erstellt';
+
+  @override
+  String sendFileOnHold(String amount) {
+    return '$amount zurückgehalten';
+  }
+
+  @override
+  String get sendFileWaitingReply => 'Warten auf die Antwort';
+
+  @override
+  String get sendFileShareHint =>
+      'Senden Sie diese Datei an die Gegenseite. Öffnen Sie dann die Antwort.';
+
+  @override
+  String get sendOpenReply => 'Antwort öffnen';
+
+  @override
+  String get handshakePayment => 'Zahlung';
+
+  @override
+  String get handshakeRequest => 'Anforderung';
+
+  @override
+  String get handshakeYou => 'Sie';
+
+  @override
+  String get handshakeThem => 'Gegenseite';
+
+  @override
+  String get handshakeNetwork => 'Netzwerk';
+
+  @override
+  String get handshakePay1 =>
+      'Ihre Wallet sendet der Gegenseite die Zahlung. Ihre Coins werden zurückgehalten.';
+
+  @override
+  String get handshakePay2 =>
+      'Die Wallet der Gegenseite ergänzt ihren Teil, signiert und schickt sie zurück.';
+
+  @override
+  String get handshakeFinish =>
+      'Ihre Wallet schließt sie ab und sendet sie an das Netzwerk.';
+
+  @override
+  String get handshakeConfirm => 'Das Netzwerk bestätigt sie.';
+
+  @override
+  String get handshakeReq1 =>
+      'Ihre Wallet sendet der Gegenseite die Anforderung.';
+
+  @override
+  String get handshakeReq2 =>
+      'Die Wallet der Gegenseite fügt die Coins hinzu, signiert und schickt sie zurück.';
+
+  @override
+  String get handshakePrevious => 'Vorheriger Schritt';
+
+  @override
+  String get handshakeNext => 'Nächster Schritt';
 }

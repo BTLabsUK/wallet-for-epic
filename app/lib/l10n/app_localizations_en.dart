@@ -2464,12 +2464,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sendAmountZero => 'Enter an amount above zero.';
 
   @override
-  String get sendRecipientLabel => 'To';
-
-  @override
-  String get sendRecipientHintSimple => 'Their address';
-
-  @override
   String get sendUrlUnsupported =>
       'Payments to a wallet URL are not supported. Ask the recipient for their epicbox address.';
 
@@ -2486,31 +2480,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sendContactsButton => 'Contacts';
 
   @override
-  String get sendRecentLabel => 'Recent:';
-
-  @override
-  String sendRecentTooltip(String address) {
-    return 'Send to $address';
-  }
-
-  @override
-  String sendSendingToContact(String name) {
-    return 'Sending to $name';
-  }
-
-  @override
-  String get sendStillConnecting =>
-      'Still connecting. You can send now; it finishes once the app is connected.';
-
-  @override
   String get sendMethodEpicbox => 'Epicbox address';
 
   @override
   String get sendMethodFile => 'Payment file';
-
-  @override
-  String get sendFileIntro =>
-      'Make a payment file, send it to them any way you like, then open the reply they send back.';
 
   @override
   String get sendFileHelpTooltip => 'How paying by file works';
@@ -2529,54 +2502,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sendMax => 'Max';
 
   @override
-  String sendSpendable(String amount) {
-    return 'Spendable: $amount';
-  }
-
-  @override
-  String sendSpendableWithFiat(String amount, String fiat) {
-    return 'Spendable: $amount (≈ $fiat)';
-  }
-
-  @override
-  String sendFeeAndTotal(String fee, String total) {
-    return 'Fee: $fee. Total: $total.';
-  }
-
-  @override
-  String get sendMessageLabel => 'Message to recipient (optional)';
-
-  @override
-  String get sendMessageHelper =>
-      'The recipient sees this message. You keep it as a note too.';
-
-  @override
   String sendMessageCounter(int used, int limit) {
     return '$used/$limit';
   }
-
-  @override
-  String get sendCreateFile => 'Create payment file';
-
-  @override
-  String get sendReview => 'Review';
-
-  @override
-  String sendFileStep1(String file) {
-    return 'Step 1: give $file to the recipient';
-  }
-
-  @override
-  String get sendFileLockedNote =>
-      'The funds stay locked until you finish. If the recipient never responds, open the payment and tap Cancel payment.';
-
-  @override
-  String sendFileStep2(String file) {
-    return 'Step 2: open the $file file they return';
-  }
-
-  @override
-  String get sendOpenResponseFile => 'Open response file';
 
   @override
   String get sendCopyPasteInstead => 'Copy and paste instead';
@@ -2593,32 +2521,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get slateFinishPayment => 'Finish payment';
-
-  @override
-  String sendResultStarted(String amount) {
-    return 'Payment started: $amount';
-  }
-
-  @override
-  String sendResultSent(String amount) {
-    return 'Sent $amount';
-  }
-
-  @override
-  String get sendResultWaitingBody =>
-      'It finishes when the recipient\'s wallet answers, usually within minutes if their app is open. Keep this app open, or open it again within a week: epicbox keeps their answer for about that long. You can find it on the home screen and in History.';
-
-  @override
-  String sendResultOnItsWay(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other:
-          'The payment is on its way to the network. It shows as Completed after $count confirmations.',
-      one: 'The payment is on its way to the network. It shows as Completed after 1 confirmation.',
-    );
-    return '$_temp0';
-  }
 
   @override
   String sendResultAutoCancel(int days) {
@@ -2642,22 +2544,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'The note could not be saved. You can add it by opening the payment.';
 
   @override
-  String get sendSaveToContacts => 'Save to contacts';
-
-  @override
   String get sendHelp => 'Help';
-
-  @override
-  String get sendReviewTitle => 'Review your payment';
-
-  @override
-  String get sendReviewTo => 'To';
-
-  @override
-  String get sendReviewAmount => 'Amount';
-
-  @override
-  String get sendReviewFee => 'Fee';
 
   @override
   String get sendReviewTotal => 'Total';
@@ -2665,45 +2552,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String sendReviewTotalWithFiat(String amount, String fiat) {
     return '$amount (≈ $fiat)';
-  }
-
-  @override
-  String get sendReviewMessage => 'Message';
-
-  @override
-  String get sendReviewViaEpicbox =>
-      'Goes through epicbox. It completes when the recipient\'s wallet answers.';
-
-  @override
-  String get sendCheckNodeRunning => 'Checking the node…';
-
-  @override
-  String get sendCheckNodeOk => 'The node answers';
-
-  @override
-  String get sendCheckNodeFailed =>
-      'The node does not answer, so this payment cannot be sent now.';
-
-  @override
-  String get sendCheckListenerOk => 'Connected to epicbox';
-
-  @override
-  String get sendCheckListenerFailed =>
-      'Not connected to epicbox yet. You can still send; the payment finishes once the app connects.';
-
-  @override
-  String sendCheckRelayRunning(String relay) {
-    return 'Checking $relay…';
-  }
-
-  @override
-  String sendCheckRelayOk(String relay) {
-    return '$relay is up';
-  }
-
-  @override
-  String sendCheckRelayFailed(String relay) {
-    return '$relay is not answering right now. You can still send; the payment may take longer to arrive.';
   }
 
   @override
@@ -3583,4 +3431,211 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get demoPinUnlockTitle => 'Opening your demo wallet';
+
+  @override
+  String get sendStepRecipient => 'Recipient';
+
+  @override
+  String get sendStepAmount => 'Amount';
+
+  @override
+  String get sendStepReview => 'Review';
+
+  @override
+  String sendStepOf(int step, int total) {
+    return '$step of $total';
+  }
+
+  @override
+  String get sendHowItWorks => 'How it works';
+
+  @override
+  String get sendAddressLabel => 'Epic address';
+
+  @override
+  String get sendAddressMissing => 'Enter their address.';
+
+  @override
+  String get sendAddressWebLink => 'This is a web link, not an Epic address.';
+
+  @override
+  String get sendAddressIncomplete => 'This address looks incomplete.';
+
+  @override
+  String get sendAddressNotEpic => 'This is not an Epic address.';
+
+  @override
+  String get sendNewRecipient => 'New recipient';
+
+  @override
+  String get sendSaveContact => 'Save as contact';
+
+  @override
+  String get sendRecent => 'Recent';
+
+  @override
+  String get sendUseFile => 'No address? Use a payment file';
+
+  @override
+  String sendTo(String who) {
+    return 'To $who';
+  }
+
+  @override
+  String sendAvailable(String amount) {
+    return 'Available $amount';
+  }
+
+  @override
+  String sendOnHold(String amount) {
+    return '$amount is on hold until it confirms.';
+  }
+
+  @override
+  String sendFeeQuiet(String fee) {
+    return 'Network fee $fee';
+  }
+
+  @override
+  String get sendAddNote => 'Add a note';
+
+  @override
+  String get sendNoteLabel => 'Note';
+
+  @override
+  String get sendNoteHelper => 'They see it too.';
+
+  @override
+  String get sendNetworkFee => 'Network fee';
+
+  @override
+  String get sendChecking => 'Checking…';
+
+  @override
+  String get sendReady => 'Ready to send';
+
+  @override
+  String get sendNodeDown => 'Can\'t reach the network right now.';
+
+  @override
+  String get sendRelayDown => 'Their relay isn\'t answering.';
+
+  @override
+  String get sendListenerDown => 'Not connected yet. You can still send.';
+
+  @override
+  String get sendPayWithFile => 'Pay with a file instead';
+
+  @override
+  String get sendAnyway => 'Send anyway';
+
+  @override
+  String sendTrackSentTo(String name) {
+    return 'Sent to $name';
+  }
+
+  @override
+  String get sendTrackSent => 'Sent';
+
+  @override
+  String sendTrackWaitingFor(String name) {
+    return 'Waiting for $name\'s wallet';
+  }
+
+  @override
+  String get sendTrackWaiting => 'Waiting for their wallet';
+
+  @override
+  String sendTrackSignedBy(String name) {
+    return '$name\'s wallet signed';
+  }
+
+  @override
+  String get sendTrackSigned => 'Their wallet signed';
+
+  @override
+  String get sendTrackOnNetwork => 'Sent to the network';
+
+  @override
+  String get sendTrackConfirmed => 'Confirmed';
+
+  @override
+  String sendTrackOffline(String amount) {
+    return 'Their wallet finishes it when it opens. $amount stays on hold until then.';
+  }
+
+  @override
+  String get sendTrackIfNot => 'What if it never finishes?';
+
+  @override
+  String get sendTrackCancelled => 'This payment was cancelled.';
+
+  @override
+  String get sendNoCoins => 'No coins to send yet.';
+
+  @override
+  String get sendFileTitle => 'Pay with a file';
+
+  @override
+  String get sendMakeFile => 'Make payment file';
+
+  @override
+  String get sendFileMade => 'File made';
+
+  @override
+  String sendFileOnHold(String amount) {
+    return '$amount on hold';
+  }
+
+  @override
+  String get sendFileWaitingReply => 'Waiting for their reply';
+
+  @override
+  String get sendFileShareHint => 'Send them this file. Then open their reply.';
+
+  @override
+  String get sendOpenReply => 'Open their reply';
+
+  @override
+  String get handshakePayment => 'Payment';
+
+  @override
+  String get handshakeRequest => 'Request';
+
+  @override
+  String get handshakeYou => 'You';
+
+  @override
+  String get handshakeThem => 'Them';
+
+  @override
+  String get handshakeNetwork => 'Network';
+
+  @override
+  String get handshakePay1 =>
+      'Your wallet sends them the payment. Your coins go on hold.';
+
+  @override
+  String get handshakePay2 =>
+      'Their wallet adds its part, signs and sends it back.';
+
+  @override
+  String get handshakeFinish =>
+      'Your wallet finishes it and sends it to the network.';
+
+  @override
+  String get handshakeConfirm => 'The network confirms it.';
+
+  @override
+  String get handshakeReq1 => 'Your wallet sends them the request.';
+
+  @override
+  String get handshakeReq2 =>
+      'Their wallet adds the coins, signs and sends it back.';
+
+  @override
+  String get handshakePrevious => 'Previous step';
+
+  @override
+  String get handshakeNext => 'Next step';
 }
