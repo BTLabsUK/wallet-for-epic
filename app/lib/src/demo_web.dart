@@ -51,8 +51,6 @@ class ServerDemoApi implements DemoApi {
     required this._http,
     required Uri origin,
     required this._ended,
-    required this._openLink,
-    this.downloadUrl,
     Uri? faucet,
   }) : _demo = origin.resolve('/api/demo'),
        _faucet = faucet ?? floonetFaucetClaim;
@@ -60,17 +58,10 @@ class ServerDemoApi implements DemoApi {
   final DemoHttp _http;
   final Uri _demo;
   final Stream<void> _ended;
-  final Future<void> Function(Uri uri) _openLink;
   final Uri _faucet;
 
   @override
-  final Uri? downloadUrl;
-
-  @override
   Stream<void> get ended => _ended;
-
-  @override
-  Future<void> openLink(Uri uri) => _openLink(uri);
 
   Future<DemoReply> _api(String method) async {
     try {

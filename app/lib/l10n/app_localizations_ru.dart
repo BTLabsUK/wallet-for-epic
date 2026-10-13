@@ -1297,47 +1297,23 @@ class AppLocalizationsRu extends AppLocalizations {
   String get shellTitle => 'Epic Cash';
 
   @override
-  String get demoWelcomeTitle => 'Попробуйте Epic Cash Wallet';
+  String get demoWelcomeTitle => 'Попробуйте Epic Cash';
 
   @override
   String get demoWelcomeLine =>
-      'Настоящий кошелёк Epic Cash в тестовой сети Floonet.';
-
-  @override
-  String get demoWelcomeNoValue => 'Монеты ничего не стоят.';
-
-  @override
-  String get demoWelcomeNothingToInstall => 'Ничего не нужно устанавливать.';
-
-  @override
-  String get demoWelcomeDeleted =>
-      'Демо-кошелёк удаляется через 24 часа после старта.';
+      'Настоящий кошелёк с бесплатными тестовыми монетами, которые ничего не стоят. Он удаляется через 24 часа.';
 
   @override
   String get demoStart => 'Начать демо';
 
   @override
-  String get demoGetApp => 'Скачать приложение';
-
-  @override
   String get demoEndedTitle => 'Ваше демо закончилось';
 
   @override
-  String get demoEndedBody =>
-      'Его кошелёк и тестовые монеты удалены через 24 часа после старта. Нажмите «Начать заново», чтобы получить новое.';
+  String get demoEndedBody => 'Его кошелёк и тестовые монеты удалены.';
 
   @override
   String get demoStartAgain => 'Начать заново';
-
-  @override
-  String demoEndsInHours(int hours) {
-    return 'Демо, конец через $hours ч';
-  }
-
-  @override
-  String demoEndsInMinutes(int minutes) {
-    return 'Демо, конец через $minutes мин';
-  }
 
   @override
   String demoEndsAt(String time) {
@@ -1575,33 +1551,10 @@ class AppLocalizationsRu extends AppLocalizations {
       'Награды за майнинг ждут определённое число блоков, прежде чем их можно потратить.';
 
   @override
-  String balanceLineConfirming(String amount) {
-    return '+$amount подтверждается';
-  }
-
-  @override
-  String balanceLineWaiting(String amount) {
-    return '+$amount ждёт отправителя';
-  }
-
-  @override
-  String balanceLineLocked(String amount) {
-    return '$amount заблокировано отправкой';
-  }
-
-  @override
-  String balanceLineMining(String amount) {
-    return 'Награды за майнинг созревают: $amount';
-  }
-
-  @override
   String get balanceLineAllConfirmed => 'Всё подтверждено';
 
   @override
   String get balanceLineNothingYet => 'Пока ничего нет';
-
-  @override
-  String get shellPendingLabel => 'Платежи в пути';
 
   @override
   String get homeSyncSyncing => 'Синхронизация…';
@@ -3712,9 +3665,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get demoPinFilled => 'Демо-PIN введён за вас';
 
   @override
-  String get demoPinOwnInApp => 'В приложении вы выбираете свой PIN.';
-
-  @override
   String get demoPinSkip => 'Пропустить';
 
   @override
@@ -3722,4 +3672,71 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get demoPinUnlockTitle => 'Открываем ваш демо-кошелёк';
+
+  @override
+  String balanceLineOnHold(String amount) {
+    return '$amount на удержании';
+  }
+
+  @override
+  String balanceLineComingIn(String amount) {
+    return '+$amount поступает';
+  }
+
+  @override
+  String get demoTestCoinsPill => 'Тестовые монеты';
+
+  @override
+  String get demoTestCoinsPillTip =>
+      'Floonet, тестовая сеть Epic. Монеты ничего не стоят.';
+
+  @override
+  String demoLeftHours(int hours) {
+    return 'осталось $hours ч';
+  }
+
+  @override
+  String demoLeftMinutes(int minutes) {
+    return 'осталось $minutes мин';
+  }
+
+  @override
+  String get demoReceiveKeepOpen =>
+      'Не закрывайте эту вкладку, чтобы получать платежи.';
+
+  @override
+  String get demoGuideTitle => 'Попробуйте платёж';
+
+  @override
+  String get demoGuideSend => 'Отправьте немного кому-нибудь';
+
+  @override
+  String get demoGuideSendHint =>
+      'Заплатите в демо друга или откройте эту страницу в приватном окне для второго кошелька.';
+
+  @override
+  String get demoGuideOpenSend => 'К отправке';
+
+  @override
+  String get demoGuideAsking =>
+      'Запрашиваем тестовый кран. Это может занять минуту.';
+
+  @override
+  String get demoGuideDone => 'Готово. Осматривайтесь, пока идёт демо.';
+
+  @override
+  String get demoGuideHide => 'Скрыть';
+
+  @override
+  String get demoGuideHideLabel => 'Скрыть шаги демо';
+
+  @override
+  String demoGuideStepDone(String step) {
+    return '$step, готово';
+  }
+
+  @override
+  String demoGuideStepToDo(String step) {
+    return '$step, ещё не сделано';
+  }
 }

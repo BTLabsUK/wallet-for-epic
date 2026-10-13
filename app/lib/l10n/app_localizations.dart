@@ -1637,44 +1637,20 @@ abstract class AppLocalizations {
   /// Heading of the web demo's welcome screen, under the mark.
   ///
   /// In en, this message translates to:
-  /// **'Try Epic Cash Wallet'**
+  /// **'Try Epic Cash'**
   String get demoWelcomeTitle;
 
   /// The welcome screen's one line under its heading. 'Floonet' is a network's name; keep it.
   ///
   /// In en, this message translates to:
-  /// **'A real Epic Cash wallet, on the Floonet test network.'**
+  /// **'A real wallet with free test coins, which have no value. It is deleted after 24 hours.'**
   String get demoWelcomeLine;
-
-  /// First of three short facts on the demo's welcome screen: test coins are worth nothing.
-  ///
-  /// In en, this message translates to:
-  /// **'The coins have no value.'**
-  String get demoWelcomeNoValue;
-
-  /// Second fact on the demo's welcome screen: it runs in the browser.
-  ///
-  /// In en, this message translates to:
-  /// **'Nothing to install.'**
-  String get demoWelcomeNothingToInstall;
-
-  /// Third fact on the demo's welcome screen.
-  ///
-  /// In en, this message translates to:
-  /// **'Your demo wallet is deleted 24 hours after you start.'**
-  String get demoWelcomeDeleted;
 
   /// Main button of the demo's welcome screen. It creates a demo wallet, then asks for a PIN.
   ///
   /// In en, this message translates to:
   /// **'Start the demo'**
   String get demoStart;
-
-  /// Button and Settings row in the web demo that open the page where the phone app is downloaded.
-  ///
-  /// In en, this message translates to:
-  /// **'Get the app'**
-  String get demoGetApp;
 
   /// Heading of the screen shown when the 24 hours of a web demo ran out.
   ///
@@ -1685,7 +1661,7 @@ abstract class AppLocalizations {
   /// Body of the screen shown when a web demo ran out. 'Start again' is the button below (demoStartAgain); use the same words.
   ///
   /// In en, this message translates to:
-  /// **'Its wallet and test coins were deleted 24 hours after it started. Start again for a new one.'**
+  /// **'Its wallet and test coins were deleted.'**
   String get demoEndedBody;
 
   /// Button on the ended screen of the web demo: starts a new demo.
@@ -1693,18 +1669,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Start again'**
   String get demoStartAgain;
-
-  /// Beside the network name in the web demo's app bar: hours until the demo wallet is deleted, with the hour abbreviation.
-  ///
-  /// In en, this message translates to:
-  /// **'Demo, ends in {hours} h'**
-  String demoEndsInHours(int hours);
-
-  /// As demoEndsInHours, under an hour left: minutes, with the minute abbreviation.
-  ///
-  /// In en, this message translates to:
-  /// **'Demo, ends in {minutes} min'**
-  String demoEndsInMinutes(int minutes);
 
   /// Tooltip of the demo countdown. {time} is a date and time, such as '21 Sep 2026, 14:05'.
   ///
@@ -2060,30 +2024,6 @@ abstract class AppLocalizations {
   /// **'Mining rewards wait a set number of blocks before they can be spent.'**
   String get balanceImmatureHelp;
 
-  /// One item of the line under the Wallet tab's large balance: money on the chain still collecting confirmations. {amount} is a number without the unit. Short, no full stop.
-  ///
-  /// In en, this message translates to:
-  /// **'+{amount} confirming'**
-  String balanceLineConfirming(String amount);
-
-  /// Item of that line: a received payment the sender still has to finish ('Waiting for sender' is the status chip, txStatusWaitingSender: same words). {amount} is a number without the unit. Short, no full stop.
-  ///
-  /// In en, this message translates to:
-  /// **'+{amount} waiting for sender'**
-  String balanceLineWaiting(String amount);
-
-  /// Item of that line: funds held by an outgoing payment until it completes. {amount} is a number without the unit. Short, no full stop.
-  ///
-  /// In en, this message translates to:
-  /// **'{amount} locked by a send'**
-  String balanceLineLocked(String amount);
-
-  /// Item of that line: mined coins that need more blocks before they can be spent. {amount} is a number without the unit. Short, no full stop.
-  ///
-  /// In en, this message translates to:
-  /// **'{amount} mining rewards maturing'**
-  String balanceLineMining(String amount);
-
   /// That line when nothing is pending: the whole balance is spendable. No full stop.
   ///
   /// In en, this message translates to:
@@ -2095,12 +2035,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Nothing here yet'**
   String get balanceLineNothingYet;
-
-  /// Screen-reader label of the small pulsing dot after the balance in the app bar on the Send and Receive tabs: some money is not spendable yet (confirming, waiting, locked, or maturing mining rewards).
-  ///
-  /// In en, this message translates to:
-  /// **'Payments on their way'**
-  String get shellPendingLabel;
 
   /// Status line under the balance while the wallet syncs with the node.
   ///
@@ -5366,12 +5300,6 @@ abstract class AppLocalizations {
   /// **'Demo PIN, filled in for you'**
   String get demoPinFilled;
 
-  /// Web demo: under demoPinFilled, says the real app asks for a PIN the user picks.
-  ///
-  /// In en, this message translates to:
-  /// **'In the app you choose your own PIN.'**
-  String get demoPinOwnInApp;
-
   /// Web demo: button that stops the PIN fill animation and goes on at once.
   ///
   /// In en, this message translates to:
@@ -5389,6 +5317,108 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Opening your demo wallet'**
   String get demoPinUnlockTitle;
+
+  /// Under the balance: coins a send holds until it completes (locked outputs), with the amount. Keep it short; it shares one line with balanceLineComingIn.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} on hold'**
+  String balanceLineOnHold(String amount);
+
+  /// Under the balance: coins on their way in (confirming, waiting for the sender, mining rewards maturing), with the amount. Keep it short.
+  ///
+  /// In en, this message translates to:
+  /// **'+{amount} coming in'**
+  String balanceLineComingIn(String amount);
+
+  /// Web demo: a small pill in the app bar saying the wallet holds test coins. Keep it very short.
+  ///
+  /// In en, this message translates to:
+  /// **'Test coins'**
+  String get demoTestCoinsPill;
+
+  /// Web demo: tooltip and screen-reader text of the Test coins pill. Floonet is a proper name.
+  ///
+  /// In en, this message translates to:
+  /// **'Floonet, Epic\'s test network. The coins have no value.'**
+  String get demoTestCoinsPillTip;
+
+  /// Web demo: in the Test coins pill, hours until the demo wallet is deleted, with the hour abbreviation.
+  ///
+  /// In en, this message translates to:
+  /// **'{hours} h left'**
+  String demoLeftHours(int hours);
+
+  /// Web demo: in the Test coins pill, minutes until the demo wallet is deleted, with the minute abbreviation.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} min left'**
+  String demoLeftMinutes(int minutes);
+
+  /// Web demo, Receive: under the address. Payments arrive only while the browser tab with the demo is open.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep this tab open to receive.'**
+  String get demoReceiveKeepOpen;
+
+  /// Web demo, Wallet tab: heading of the short checklist that guides a visitor through a first payment.
+  ///
+  /// In en, this message translates to:
+  /// **'Try a payment'**
+  String get demoGuideTitle;
+
+  /// Web demo checklist, step 2: send some test coins to someone.
+  ///
+  /// In en, this message translates to:
+  /// **'Send some to someone'**
+  String get demoGuideSend;
+
+  /// Web demo checklist, under step 2. A private (incognito) window starts a second, separate demo; a normal second tab opens the same one, so do not say 'new tab'.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay a friend\'s demo, or open this page in a private window for a second wallet.'**
+  String get demoGuideSendHint;
+
+  /// Web demo checklist, step 2's button: switches to the Send tab.
+  ///
+  /// In en, this message translates to:
+  /// **'Go to Send'**
+  String get demoGuideOpenSend;
+
+  /// Web demo checklist: while the faucet claim runs, which takes up to about a minute.
+  ///
+  /// In en, this message translates to:
+  /// **'Asking the test faucet. This can take a minute.'**
+  String get demoGuideAsking;
+
+  /// Web demo checklist: the one line left once both steps are done.
+  ///
+  /// In en, this message translates to:
+  /// **'Both done. Look around as long as the demo lasts.'**
+  String get demoGuideDone;
+
+  /// Web demo checklist: small button that hides the checklist.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide'**
+  String get demoGuideHide;
+
+  /// Web demo checklist: screen-reader label of the Hide button.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide the demo steps'**
+  String get demoGuideHideLabel;
+
+  /// Web demo checklist: what a screen reader says for a finished step; step is the step's text.
+  ///
+  /// In en, this message translates to:
+  /// **'{step}, done'**
+  String demoGuideStepDone(String step);
+
+  /// Web demo checklist: what a screen reader says for a step not done yet; step is the step's text.
+  ///
+  /// In en, this message translates to:
+  /// **'{step}, not done yet'**
+  String demoGuideStepToDo(String step);
 }
 
 class _AppLocalizationsDelegate

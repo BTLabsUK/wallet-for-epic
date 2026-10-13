@@ -15,6 +15,7 @@ import '../updater.dart';
 import '../wallet_service.dart';
 import 'backup_screen.dart';
 import 'common.dart';
+import 'demo_guide.dart';
 import 'demo_screens.dart' show DemoCountdown, TestCoinsButton;
 import 'help_screen.dart';
 import 'history_screen.dart';
@@ -438,19 +439,24 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         bottomNavigationBar: NavigationBar(
           selectedIndex: tab.index,
           onDestinationSelected: (i) => _goTab(ShellTab.values[i]),
+          // Each tab shows its label, so none has a tooltip, which stayed over the main
+          // button after a click.
           destinations: [
             NavigationDestination(
               icon: const Icon(Icons.north_east),
               label: l.homeSendButton,
+              tooltip: '',
             ),
             NavigationDestination(
               icon: const Icon(Icons.account_balance_wallet_outlined),
               selectedIcon: const Icon(Icons.account_balance_wallet),
               label: l.shellWalletTab,
+              tooltip: '',
             ),
             NavigationDestination(
               icon: const Icon(Icons.south_west),
               label: l.homeReceiveButton,
+              tooltip: '',
             ),
           ],
         ),
@@ -480,6 +486,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final l = context.l10n;
     final data = home.value;
     final demo = ref.watch(demoModeProvider);
+    final guide = demoGuideShown(ref);
     // The web demo shows no phrase and keeps no history files, so it has no backup cards.
     final backedUp = demo || (ref.watch(backedUpProvider).value ?? true);
     final backupDismissed =
@@ -537,6 +544,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     if (home.hasError && !home.isLoading)
                       ErrorText(describeError(l, home.error!)),
                     _PendingSendsCard(transactions: transactions, open: _open),
+                    if (guide)
+                      const Padding(
+                        padding: EdgeInsets.only(top: 16),
+                        child: DemoGuide(),
+                      ),
                     // It waits until the phrase card is gone, so the two backup cards never stack.
                     if ((backedUp || backupDismissed) &&
                         config != null &&
@@ -559,7 +571,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       EmptyState(
                         icon: const Icon(Icons.south_west),
                         message: l.homeNoPayments,
-                        action: demo ? const TestCoinsButton() : null,
+                        // The checklist carries Get test coins while it shows.
+                        action: demo && !guide ? const TestCoinsButton() : null,
                       ),
                     for (final tx in pendingFirst(
                       transactions,

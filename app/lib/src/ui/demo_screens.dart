@@ -1,6 +1,7 @@
 /// The web demo's own screens and controls (`app/README.md` "Web demo"): the gate before the
-/// app's usual start, the welcome and ended screens, the countdown beside the network name,
-/// Get test coins, Get the app and End demo. Nothing here shows unless [demoModeProvider] is on.
+/// app's usual start, the welcome and ended screens, the Test coins pill with the countdown,
+/// Get test coins and End demo. Nothing here shows unless [demoModeProvider] is on. The demo
+/// is the app itself, so nothing here points to another app, a store or a download.
 library;
 
 import 'dart:async';
@@ -75,7 +76,7 @@ void listenForDemoEnd(WidgetRef ref, GlobalKey<NavigatorState> navigator) {
   });
 }
 
-/// Before the first run of a demo: what it is, then Start the demo and Get the app.
+/// Before the first run of a demo: what it is in one line, then Start the demo.
 class DemoWelcomeScreen extends ConsumerWidget {
   const DemoWelcomeScreen({super.key});
 
@@ -92,16 +93,12 @@ class DemoWelcomeScreen extends ConsumerWidget {
           textAlign: TextAlign.center,
           style: Theme.of(context).textTheme.bodyLarge,
         ),
-        const SizedBox(height: 24),
-        _Fact(icon: Icons.science_outlined, text: l.demoWelcomeNoValue),
-        _Fact(icon: Icons.language, text: l.demoWelcomeNothingToInstall),
-        _Fact(icon: Icons.timer_outlined, text: l.demoWelcomeDeleted),
       ],
     );
   }
 }
 
-/// After a demo ran out: it ended, then Start again and Get the app.
+/// After a demo ran out: it ended, then Start again.
 class DemoEndedScreen extends ConsumerWidget {
   const DemoEndedScreen({super.key});
 
@@ -124,7 +121,7 @@ class DemoEndedScreen extends ConsumerWidget {
 }
 
 /// The lit hero layout of the welcome and ended screens, with the button that starts a demo
-/// and Get the app at the bottom.
+/// at the bottom.
 class _DemoStartScaffold extends ConsumerStatefulWidget {
   const _DemoStartScaffold({required this.startLabel, required this.children});
 
@@ -160,17 +157,10 @@ class _DemoStartScaffoldState extends ConsumerState<_DemoStartScaffold> {
     return SlotScaffold(
       glow: heroGlow,
       body: ScreenBody(
-        bottom: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            BusyButton(
-              label: widget.startLabel,
-              busy: _busy,
-              onPressed: _start,
-            ),
-            const GetAppButton(),
-          ],
+        bottom: BusyButton(
+          label: widget.startLabel,
+          busy: _busy,
+          onPressed: _start,
         ),
         children: [
           const SizedBox(height: 24),
@@ -185,73 +175,12 @@ class _DemoStartScaffoldState extends ConsumerState<_DemoStartScaffold> {
   }
 }
 
-/// One of the welcome screen's short facts.
-class _Fact extends StatelessWidget {
-  const _Fact({required this.icon, required this.text});
-
-  final IconData icon;
-  final String text;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Row(
-        children: [
-          Icon(icon, color: context.tokens.accentText),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Text(text, style: Theme.of(context).textTheme.bodyLarge),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-/// Opens the configured download page; nothing without one ([DemoApi.downloadUrl]).
-class GetAppButton extends ConsumerWidget {
-  const GetAppButton({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final api = ref.watch(demoApiProvider);
-    final url = api.downloadUrl;
-    if (url == null) return const SizedBox.shrink();
-    return Padding(
-      padding: const EdgeInsets.only(top: 8),
-      child: TextButton.icon(
-        style: TextButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-        icon: const Icon(Icons.install_mobile),
-        label: Text(context.l10n.demoGetApp),
-        onPressed: () => api.openLink(url),
-      ),
-    );
-  }
-}
-
-/// Settings' About row that opens the download page; nothing without one.
-class GetAppTile extends ConsumerWidget {
-  const GetAppTile({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final api = ref.watch(demoApiProvider);
-    final url = api.downloadUrl;
-    if (url == null) return const SizedBox.shrink();
-    return ListTile(
-      leading: const Icon(Icons.install_mobile),
-      title: Text(context.l10n.demoGetApp),
-      onTap: () => api.openLink(url),
-    );
-  }
-}
-
-/// The key of the countdown beside the network name, for tests.
+/// The key of the Test coins pill with the countdown, for tests.
 const Key demoCountdownKey = ValueKey('demo-countdown');
 
-/// "Demo, ends in 5 h" beside the network name, the exact time in its tooltip. Warns once at
-/// [demoWarningAt] left, and asks the server again when the time is up.
+/// Wallet's app bar title in the demo: a quiet pill, "Test coins · 5 h left". Its tooltip
+/// names Floonet and the exact end. Warns once at [demoWarningAt] left, and asks the server
+/// again when the time is up.
 class DemoCountdown extends ConsumerStatefulWidget {
   const DemoCountdown({super.key});
 
@@ -304,29 +233,59 @@ class _DemoCountdownState extends ConsumerState<DemoCountdown> {
     final status = ref.watch(demoStatusProvider).value;
     if (status is! DemoActive) return const SizedBox.shrink();
     final l = context.l10n;
+    final t = context.tokens;
     final left = demoTimeLeft(
       status.expiresAt.difference(ref.watch(clockProvider)()),
     );
     if (left == null) return const SizedBox.shrink();
-    final text = left.hours > 0
-        ? l.demoEndsInHours(left.hours)
-        : l.demoEndsInMinutes(left.minutes);
+    final time = left.hours > 0
+        ? l.demoLeftHours(left.hours)
+        : l.demoLeftMinutes(left.minutes);
+    final style = Theme.of(context).textTheme.labelMedium
+        ?.copyWith(color: t.dim);
     return Tooltip(
       key: demoCountdownKey,
-      message: l.demoEndsAt(formatDateTime(l, status.expiresAt.toLocal())),
+      message:
+          '${l.demoTestCoinsPillTip}\n'
+          '${l.demoEndsAt(formatDateTime(l, status.expiresAt.toLocal()))}',
       triggerMode: TooltipTriggerMode.tap,
       showDuration: const Duration(seconds: 6),
       child: ConstrainedBox(
         constraints: const BoxConstraints(minHeight: 48),
         child: Align(
           widthFactor: 1,
-          child: Text(
-            text,
-            maxLines: 1,
-            overflow: TextOverflow.fade,
-            softWrap: false,
-            style: Theme.of(context).textTheme.labelMedium
-                ?.copyWith(color: context.tokens.dim),
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              border: Border.all(color: t.lineStrong),
+              borderRadius: BorderRadius.circular(999),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ExcludeSemantics(
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        color: t.accent,
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                      child: const SizedBox.square(dimension: 7),
+                    ),
+                  ),
+                  const SizedBox(width: 7),
+                  Flexible(
+                    child: Text(
+                      '${l.demoTestCoinsPill} · $time',
+                      maxLines: 1,
+                      overflow: TextOverflow.fade,
+                      softWrap: false,
+                      style: style,
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
         ),
       ),
@@ -338,9 +297,12 @@ class _DemoCountdownState extends ConsumerState<DemoCountdown> {
 const Key testCoinsKey = ValueKey('demo-test-coins');
 
 /// Get test coins: asks the faucet for coins to the epicbox address, and says how it went in
-/// a notice. Disabled while any claim runs.
+/// a notice. Disabled while any claim runs. [primary] makes it the screen's main button, as
+/// in the demo's checklist.
 class TestCoinsButton extends ConsumerWidget {
-  const TestCoinsButton({super.key});
+  const TestCoinsButton({super.key, this.primary = false});
+
+  final bool primary;
 
   Future<void> _claim(BuildContext context, WidgetRef ref) async {
     final l = context.l10n;
@@ -371,18 +333,30 @@ class TestCoinsButton extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final running = ref.watch(testCoinsProvider);
-    return FilledButton.tonalIcon(
-      key: testCoinsKey,
-      style: FilledButton.styleFrom(minimumSize: const Size(48, 48)),
-      icon: running
-          ? const SizedBox.square(
-              dimension: 18,
-              child: CircularProgressIndicator(strokeWidth: 2),
-            )
-          : const Icon(Icons.water_drop_outlined),
-      label: Text(context.l10n.demoTestCoins),
-      onPressed: running ? null : () => _claim(context, ref),
-    );
+    final style = FilledButton.styleFrom(minimumSize: const Size(48, 48));
+    final icon = running
+        ? const SizedBox.square(
+            dimension: 18,
+            child: CircularProgressIndicator(strokeWidth: 2),
+          )
+        : const Icon(Icons.water_drop_outlined);
+    final label = Text(context.l10n.demoTestCoins);
+    final onPressed = running ? null : () => _claim(context, ref);
+    return primary
+        ? FilledButton.icon(
+            key: testCoinsKey,
+            style: style,
+            icon: icon,
+            label: label,
+            onPressed: onPressed,
+          )
+        : FilledButton.tonalIcon(
+            key: testCoinsKey,
+            style: style,
+            icon: icon,
+            label: label,
+            onPressed: onPressed,
+          );
   }
 }
 

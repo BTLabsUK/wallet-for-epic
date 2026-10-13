@@ -17,7 +17,7 @@ import '../wallet_service.dart';
 import 'backup_screen.dart';
 import 'common.dart';
 import 'contacts_screen.dart';
-import 'demo_screens.dart' show GetAppTile, endDemo;
+import 'demo_screens.dart' show endDemo;
 import 'feedback_screen.dart';
 import 'help_screen.dart';
 import 'launch_screen.dart';
@@ -575,7 +575,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     subtitle: Text(l.settingsSendFeedbackHint),
                     onTap: () => openFeedback(context),
                   ),
-                if (demo) const GetAppTile(),
                 // A proper name, the same in every language.
                 const _LinkTile(title: 'Epic Cash', url: epicCashUrl),
                 _LinkTile(title: l.settingsSourceCode, url: projectRepoUrl),

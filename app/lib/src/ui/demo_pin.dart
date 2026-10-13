@@ -141,14 +141,6 @@ class _DemoPinFillState extends State<DemoPinFill>
               textAlign: TextAlign.center,
             ),
           ),
-          if (!widget.compact) ...[
-            const SizedBox(height: 4),
-            Text(
-              l.demoPinOwnInApp,
-              style: text.bodyMedium?.copyWith(color: tokens.dim),
-              textAlign: TextAlign.center,
-            ),
-          ],
           const SizedBox(height: 8),
           // Once done, Skip fades out and can no longer be reached, but keeps its space.
           Center(

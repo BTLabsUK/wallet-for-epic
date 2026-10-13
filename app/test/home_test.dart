@@ -425,12 +425,9 @@ WalletSummary _balances({
   validatedWithNode: true,
 );
 
-/// How far the pending line has scrolled, in dp.
-double _reel(WidgetTester tester) => -tester
-    .widget<Transform>(find.byKey(pendingReelKey))
-    .transform
-    .getTranslation()
-    .x;
+/// [text] in Wallet's pending line; the title on Send and Receive repeats it out of sight.
+Finder _inLine(String text) =>
+    find.descendant(of: find.byKey(pendingLineKey), matching: find.text(text));
 
 /// How far the landing sweep has run, 0 when it does not show.
 double _sweep(WidgetTester tester) {
@@ -805,7 +802,7 @@ void main() {
       expect(_statusWord(tester, nodeStatusKey), 'Node online');
       expect(_statusWord(tester, epicboxStatusKey), 'Epicbox connecting');
       // 2 EPIC are locked, so the pending line says so.
-      expect(find.text('2 locked by a send'), findsOneWidget);
+      expect(_inLine('2 on hold'), findsOneWidget);
       // The height is only in the tooltip.
       expect(
         _statusTip(tester, nodeStatusKey),
@@ -2874,7 +2871,7 @@ void main() {
     });
 
     testWidgets(
-      'Send and Receive: the figure is the title, with a pending dot',
+      'Send and Receive: the figure is the title, with what is on hold',
       (tester) async {
         final h = _Harness(price: 0.5);
         await h.pump(tester);
@@ -2885,30 +2882,24 @@ void main() {
           await _tab(tester, tab, settle: false);
           expect(_titleOpacity(tester), (wallet: 0.0, tab: 1.0), reason: tab);
           expect(_titleText(tester), '12.5 EPIC', reason: tab);
-          // 2 EPIC are locked: the dot pulses after the unit.
-          expect(find.byKey(pendingDotKey), findsOneWidget, reason: tab);
-          final dot = tester.getRect(find.byKey(pendingDotKey));
-          expect(dot.size, const Size(6, 6));
+          // 2 EPIC are locked: the line under the figure says so, as Wallet's does.
+          final pending = find.byKey(titlePendingKey);
+          expect(tester.widget<Text>(pending).data, '2 on hold', reason: tab);
           expect(
-            dot.left,
-            greaterThan(tester.getRect(find.byKey(titleFigureKey)).left),
+            tester.getRect(pending).top,
+            greaterThanOrEqualTo(
+              tester.getRect(find.byKey(titleFigureKey)).bottom,
+            ),
           );
-          final pulse = find.ancestor(
-            of: find.byKey(pendingDotKey),
-            matching: find.byType(FadeTransition),
+          expect(
+            tester.getRect(pending).bottom,
+            lessThanOrEqualTo(tester.getRect(find.byType(AppBar)).bottom),
           );
-          final seen = <double>{};
-          for (var i = 0; i < 4; i++) {
-            await tester.pump(const Duration(milliseconds: 150));
-            seen.add(tester.widget<FadeTransition>(pulse.first).opacity.value);
-          }
-          expect(seen.length, greaterThan(2), reason: '$tab: the dot pulses');
           // No figure, fiat, caption or pending line in the body.
           expect(find.byKey(balanceFigureKey).hitTestable(), findsNothing);
           expect(find.text('Spendable'), findsNothing);
         }
-        // Nothing pending: no dot, and the title keeps its width.
-        final width = tester.getSize(find.byKey(titleFigureKey)).width;
+        // Nothing pending: no line, the figure alone.
         h.session.summaryValue = WalletSummary(
           lastConfirmedHeight: _tip,
           minimumConfirmations: BigInt.from(10),
@@ -2922,8 +2913,8 @@ void main() {
         );
         await tester.pump(autoRefreshInterval);
         await tester.pumpAndSettle();
-        expect(find.byKey(pendingDotKey), findsNothing);
-        expect(tester.getSize(find.byKey(titleFigureKey)).width, width);
+        expect(find.byKey(titlePendingKey), findsNothing);
+        expect(_titleText(tester), '12.5 EPIC');
         // Hidden: the title hides the figure too.
         await _tab(tester, 'Wallet');
         await _tap(tester, find.byTooltip('Hide balances'));
@@ -2932,7 +2923,7 @@ void main() {
       },
     );
 
-    testWidgets('with reduced motion the dot and the syncing node hold still', (
+    testWidgets('with reduced motion the syncing node holds still', (
       tester,
     ) async {
       final session = _SlowRefreshSession(refreshed: _summary());
@@ -2948,15 +2939,8 @@ void main() {
         of: find.byKey(nodeStatusKey).first,
         matching: find.byType(Icon),
       );
-      // The node on Wallet, then the dot on Send.
       for (var i = 0; i < 5; i++) {
         expect(opacityOf(node), 1);
-        await tester.pump(const Duration(milliseconds: 300));
-      }
-      await _tab(tester, 'Send');
-      expect(find.byKey(pendingDotKey), findsOneWidget);
-      for (var i = 0; i < 5; i++) {
-        expect(opacityOf(find.byKey(pendingDotKey)), 1);
         await tester.pump(const Duration(milliseconds: 300));
       }
       // Nothing is left running: the screen settles.
@@ -3051,26 +3035,25 @@ void main() {
       expect(help.left, greaterThanOrEqualTo(eye.right));
       expect(eye.center.dy, closeTo(fiat.center.dy, 1));
       expect(help.center.dy, closeTo(fiat.center.dy, 1));
-      // The pending line under that row: the locked 2 EPIC, mono 12.
+      // The pending line under that row: the locked 2 EPIC, in the body face at 13.
       expect(line.top, greaterThanOrEqualTo(eye.bottom));
-      expect(find.text('2 locked by a send'), findsOneWidget);
-      final words = tester.widget<Text>(find.text('2 locked by a send'));
-      expect(words.style!.fontSize, 12);
-      expect(words.style!.fontFamily, jetBrainsMono);
+      expect(_inLine('2 on hold'), findsOneWidget);
+      final words = tester.widget<Text>(_inLine('2 on hold'));
+      expect(words.style!.fontSize, 13);
+      expect(words.style!.fontFamily, isNot(jetBrainsMono));
       expect(words.style!.color, tokens.dim);
       expect(
         tester.getSemantics(find.byKey(pendingLineKey)),
-        matchesSemantics(label: '2 locked by a send'),
+        matchesSemantics(label: '2 on hold'),
       );
       expect(find.bySemanticsLabel('Spendable: 12.5 EPIC'), findsOneWidget);
       handle.dispose();
     });
 
-    testWidgets('the pending line lists every pending balance in order', (
+    testWidgets('the pending line: on hold, then everything coming in', (
       tester,
     ) async {
       final handle = tester.ensureSemantics();
-      // Reduced motion: the four do not fit the 600 dp column, and would scroll on.
       final h = _Harness(still: true);
       await h.pump(tester);
       h.session.summaryValue = _balances(
@@ -3081,35 +3064,42 @@ void main() {
         immature: 16,
       );
       await _reload(tester);
-      const order = [
-        '+2 confirming',
-        '+0.5 waiting for sender',
-        '5 locked by a send',
-        '16 mining rewards maturing',
-      ];
+      // Confirming, waiting for the sender and maturing rewards are one sum.
+      const order = ['5 on hold', '+18.5 coming in'];
       final lefts = [
-        for (final text in order) tester.getRect(find.text(text).first).left,
+        for (final text in order) tester.getRect(_inLine(text)).left,
       ];
       expect(lefts, orderedEquals([...lefts]..sort()));
       for (final (text, icon) in [
-        ('+2 confirming', Icons.south_west),
-        ('+0.5 waiting for sender', Icons.schedule),
-        ('5 locked by a send', Icons.lock_outline),
-        ('16 mining rewards maturing', Icons.bolt),
+        ('5 on hold', Icons.lock_outline),
+        ('+18.5 coming in', Icons.south_west),
       ]) {
         final glyph = find.descendant(
-          of: find
-              .ancestor(of: find.text(text).first, matching: find.byType(Row))
-              .first,
+          of: find.byKey(pendingLineKey),
           matching: find.byIcon(icon),
         );
         expect(glyph, findsOneWidget, reason: text);
-        expect(tester.getSize(glyph), const Size(12, 12));
+        expect(tester.getSize(glyph), const Size(13, 13));
+        expect(
+          tester.getRect(glyph).right,
+          lessThanOrEqualTo(tester.getRect(_inLine(text)).left),
+        );
       }
       // One label for the whole list, read once.
       expect(
         tester.getSemantics(find.byKey(pendingLineKey)),
         matchesSemantics(label: order.join('\n')),
+      );
+      // Only what comes in.
+      h.session.summaryValue = _balances(spendable: 1, confirming: 2);
+      await _reload(tester);
+      expect(_inLine('+2 coming in'), findsOneWidget);
+      expect(
+        find.descendant(
+          of: find.byKey(pendingLineKey),
+          matching: find.byIcon(Icons.lock_outline),
+        ),
+        findsNothing,
       );
       // Everything confirmed, then a wallet without payments.
       final tokens = protocolLight;
@@ -3129,7 +3119,7 @@ void main() {
       h.session.summaryValue = _balances(spendable: 1, confirming: 2);
       await _reload(tester);
       await _tap(tester, find.byTooltip('Hide balances'));
-      expect(find.text('+$hiddenAmount confirming'), findsOneWidget);
+      expect(_inLine('+$hiddenAmount coming in'), findsOneWidget);
       handle.dispose();
     });
 
@@ -3347,138 +3337,37 @@ void main() {
                 ),
               );
           expect(items.center.dx, closeTo(centre, 1), reason: name);
-          expect(_reel(tester), 0, reason: name);
           expect(tester.takeException(), isNull, reason: name);
         }
       });
     }
 
-    testWidgets('a pending line too long for the width still scrolls from the '
-        'start, across the full width', (tester) async {
-      final h = _Harness(size: const Size(960, 2340), still: true);
-      await h.pump(tester);
-      h.session.summaryValue = _balances(
-        spendable: 3.25,
-        confirming: 2,
-        waiting: 0.5,
-        locked: 5,
-        immature: 16,
-      );
-      await _reload(tester);
-      final line = tester.getRect(find.byKey(pendingLineKey));
-      final area = tester.getRect(find.byKey(walletBalanceKey));
-      expect(line.left, area.left + 18);
-      expect(line.right, area.right - 18);
-      expect(
-        tester.getRect(find.text('+2 confirming').first).left,
-        closeTo(line.left + 18, 0.5),
-      );
-    });
-
-    testWidgets('the pending line scrolls only when it does not fit', (
-      tester,
-    ) async {
-      final h = _Harness(size: const Size(960, 2340));
-      await h.pump(tester);
-      // One item fits: still, and it stays still.
-      expect(find.text('2 locked by a send'), findsOneWidget);
-      await tester.pump(const Duration(seconds: 2));
-      expect(_reel(tester), 0);
-      // Four do not fit at 320 dp: they scroll left at about 24 dp/s.
-      h.session.summaryValue = _balances(
-        spendable: 3.25,
-        confirming: 2,
-        waiting: 0.5,
-        locked: 5,
-        immature: 16,
-      );
-      await tester.pump(autoRefreshInterval);
-      await _frames(tester, 2);
-      final start = _reel(tester);
-      await _frames(tester, 10);
-      expect(_reel(tester) - start, closeTo(24, 3));
-      // A copy follows the items, so the loop has no gap.
-      expect(find.text('+2 confirming'), findsNWidgets(2));
-      // An amount changes: the words change in place and the loop runs on.
-      final before = _reel(tester);
-      h.session.summaryValue = _balances(
-        spendable: 3.25,
-        confirming: 2,
-        waiting: 0.5,
-        locked: 5,
-        immature: 17,
-      );
-      await tester.pump(autoRefreshInterval);
-      await _frames(tester, 5);
-      expect(find.text('17 mining rewards maturing'), findsNWidgets(2));
-      expect(_reel(tester), greaterThan(before));
-      // A press pauses it.
-      final press = await tester.startGesture(
-        tester.getCenter(find.byKey(pendingLineKey)),
-      );
-      await _frames(tester, 1);
-      final held = _reel(tester);
-      await _frames(tester, 10);
-      expect(_reel(tester), held);
-      await press.up();
-      await _frames(tester, 5);
-      expect(_reel(tester), greaterThan(held));
-      // The kinds change: it starts again from the first item.
-      h.session.summaryValue = _balances(
-        spendable: 3.25,
-        confirming: 2,
-        waiting: 0.5,
-        locked: 5,
-      );
-      await tester.pump(autoRefreshInterval);
-      await tester.pump();
-      expect(_reel(tester), lessThan(3));
-      // Back to one: still again, and the screen settles.
-      h.session.summaryValue = _balances(spendable: 12.5, locked: 2);
-      await tester.pump(autoRefreshInterval);
-      await tester.pumpAndSettle();
-      expect(_reel(tester), 0);
-    });
-
-    testWidgets('with reduced motion the pending line cuts every 4 s', (
-      tester,
-    ) async {
-      final h = _Harness(size: const Size(960, 2340), still: true);
-      await h.pump(tester);
-      h.session.summaryValue = _balances(
-        spendable: 3.25,
-        confirming: 2,
-        waiting: 0.5,
-        locked: 5,
-        immature: 16,
-      );
-      await _reload(tester);
-      final line = tester.getRect(find.byKey(pendingLineKey));
-      // Every 100 ms for 9 s: the reel only ever jumps, and each jump puts the next item at
-      // the line's start, 4 s after the one before.
-      final jumps = <(int, double)>[];
-      var last = _reel(tester);
-      expect(last, 0);
-      for (var ms = 100; ms <= 9000; ms += 100) {
-        await tester.pump(const Duration(milliseconds: 100));
-        final now = _reel(tester);
-        if (now != last) jumps.add((ms, now));
-        last = now;
-      }
-      expect(jumps, hasLength(2));
-      expect(jumps[1].$1 - jumps[0].$1, 4000);
-      for (final (i, text) in [
-        (0, '+0.5 waiting for sender'),
-        (1, '5 locked by a send'),
-      ]) {
-        expect(jumps[i].$2, greaterThan(0));
-        expect(
-          tester.getRect(find.text(text).first).left - jumps[i].$2 + last,
-          closeTo(line.left + 18, 0.5),
+    testWidgets(
+      'a pending line too long for the width shrinks, never scrolls',
+      (tester) async {
+        final h = _Harness(size: const Size(960, 2340));
+        await h.pump(tester);
+        h.session.summaryValue = _balances(
+          spendable: 3.25,
+          confirming: 2.12345678,
+          waiting: 0.5,
+          locked: 5.12345678,
+          immature: 16,
         );
-      }
-      await tester.pumpAndSettle();
-    });
+        await _reload(tester);
+        final line = tester.getRect(find.byKey(pendingLineKey));
+        for (final text in ['5.12345678 on hold', '+18.62345678 coming in']) {
+          final words = tester.getRect(_inLine(text));
+          expect(words.left, greaterThanOrEqualTo(line.left), reason: text);
+          expect(words.right, lessThanOrEqualTo(line.right), reason: text);
+        }
+        final at = tester.getRect(_inLine('5.12345678 on hold'));
+        await tester.pump(const Duration(seconds: 3));
+        expect(tester.getRect(_inLine('5.12345678 on hold')), at);
+        expect(tester.binding.hasScheduledFrame, isFalse);
+        expect(tester.takeException(), isNull);
+      },
+    );
 
     for (final still in [false, true]) {
       testWidgets(

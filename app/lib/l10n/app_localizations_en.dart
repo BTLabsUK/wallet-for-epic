@@ -1206,47 +1206,23 @@ class AppLocalizationsEn extends AppLocalizations {
   String get shellTitle => 'Epic Cash';
 
   @override
-  String get demoWelcomeTitle => 'Try Epic Cash Wallet';
+  String get demoWelcomeTitle => 'Try Epic Cash';
 
   @override
   String get demoWelcomeLine =>
-      'A real Epic Cash wallet, on the Floonet test network.';
-
-  @override
-  String get demoWelcomeNoValue => 'The coins have no value.';
-
-  @override
-  String get demoWelcomeNothingToInstall => 'Nothing to install.';
-
-  @override
-  String get demoWelcomeDeleted =>
-      'Your demo wallet is deleted 24 hours after you start.';
+      'A real wallet with free test coins, which have no value. It is deleted after 24 hours.';
 
   @override
   String get demoStart => 'Start the demo';
 
   @override
-  String get demoGetApp => 'Get the app';
-
-  @override
   String get demoEndedTitle => 'Your demo ended';
 
   @override
-  String get demoEndedBody =>
-      'Its wallet and test coins were deleted 24 hours after it started. Start again for a new one.';
+  String get demoEndedBody => 'Its wallet and test coins were deleted.';
 
   @override
   String get demoStartAgain => 'Start again';
-
-  @override
-  String demoEndsInHours(int hours) {
-    return 'Demo, ends in $hours h';
-  }
-
-  @override
-  String demoEndsInMinutes(int minutes) {
-    return 'Demo, ends in $minutes min';
-  }
 
   @override
   String demoEndsAt(String time) {
@@ -1479,33 +1455,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Mining rewards wait a set number of blocks before they can be spent.';
 
   @override
-  String balanceLineConfirming(String amount) {
-    return '+$amount confirming';
-  }
-
-  @override
-  String balanceLineWaiting(String amount) {
-    return '+$amount waiting for sender';
-  }
-
-  @override
-  String balanceLineLocked(String amount) {
-    return '$amount locked by a send';
-  }
-
-  @override
-  String balanceLineMining(String amount) {
-    return '$amount mining rewards maturing';
-  }
-
-  @override
   String get balanceLineAllConfirmed => 'All confirmed';
 
   @override
   String get balanceLineNothingYet => 'Nothing here yet';
-
-  @override
-  String get shellPendingLabel => 'Payments on their way';
 
   @override
   String get homeSyncSyncing => 'Syncing…';
@@ -3573,9 +3526,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get demoPinFilled => 'Demo PIN, filled in for you';
 
   @override
-  String get demoPinOwnInApp => 'In the app you choose your own PIN.';
-
-  @override
   String get demoPinSkip => 'Skip';
 
   @override
@@ -3583,4 +3533,71 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get demoPinUnlockTitle => 'Opening your demo wallet';
+
+  @override
+  String balanceLineOnHold(String amount) {
+    return '$amount on hold';
+  }
+
+  @override
+  String balanceLineComingIn(String amount) {
+    return '+$amount coming in';
+  }
+
+  @override
+  String get demoTestCoinsPill => 'Test coins';
+
+  @override
+  String get demoTestCoinsPillTip =>
+      'Floonet, Epic\'s test network. The coins have no value.';
+
+  @override
+  String demoLeftHours(int hours) {
+    return '$hours h left';
+  }
+
+  @override
+  String demoLeftMinutes(int minutes) {
+    return '$minutes min left';
+  }
+
+  @override
+  String get demoReceiveKeepOpen => 'Keep this tab open to receive.';
+
+  @override
+  String get demoGuideTitle => 'Try a payment';
+
+  @override
+  String get demoGuideSend => 'Send some to someone';
+
+  @override
+  String get demoGuideSendHint =>
+      'Pay a friend\'s demo, or open this page in a private window for a second wallet.';
+
+  @override
+  String get demoGuideOpenSend => 'Go to Send';
+
+  @override
+  String get demoGuideAsking =>
+      'Asking the test faucet. This can take a minute.';
+
+  @override
+  String get demoGuideDone =>
+      'Both done. Look around as long as the demo lasts.';
+
+  @override
+  String get demoGuideHide => 'Hide';
+
+  @override
+  String get demoGuideHideLabel => 'Hide the demo steps';
+
+  @override
+  String demoGuideStepDone(String step) {
+    return '$step, done';
+  }
+
+  @override
+  String demoGuideStepToDo(String step) {
+    return '$step, not done yet';
+  }
 }

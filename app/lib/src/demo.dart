@@ -87,12 +87,6 @@ abstract interface class DemoApi {
   /// Asks the floonet faucet to pay [address], an epicbox address of the demo wallet.
   Future<TestCoinsResult> claimTestCoins(String address);
 
-  /// Where to get the app, or null, which hides every Get the app.
-  Uri? get downloadUrl;
-
-  /// Opens [uri] outside the app, in a new browser tab.
-  Future<void> openLink(Uri uri);
-
   /// Fires when the server ended the demo (its time ran out).
   Stream<void> get ended;
 }
@@ -110,7 +104,6 @@ final demoApiProvider = Provider<DemoApi>((ref) {
 class FakeDemoApi implements DemoApi {
   FakeDemoApi({
     DemoStatus status = const DemoNone(),
-    this.downloadUrl,
     DateTime Function()? clock,
   }) : current = status,
        _clock = clock ?? DateTime.now;
@@ -120,9 +113,6 @@ class FakeDemoApi implements DemoApi {
 
   /// What [status] answers. [start] and [end] change it.
   DemoStatus current;
-
-  @override
-  Uri? downloadUrl;
 
   /// Answers for [claimTestCoins], in turn; paid once they run out.
   final List<TestCoinsResult> claims = [];
@@ -134,7 +124,6 @@ class FakeDemoApi implements DemoApi {
   Object? startError;
 
   final List<String> claimedFor = [];
-  final List<Uri> opened = [];
   int starts = 0;
   int ends = 0;
 
@@ -162,9 +151,6 @@ class FakeDemoApi implements DemoApi {
     await claimGate?.future;
     return claims.isEmpty ? const TestCoinsPaid() : claims.removeAt(0);
   }
-
-  @override
-  Future<void> openLink(Uri uri) async => opened.add(uri);
 
   @override
   Stream<void> get ended => _ended.stream;

@@ -8,8 +8,5 @@ import 'demo_web.dart';
 DemoHttp browserDemoHttp() =>
     throw UnsupportedError('the web demo runs only in a browser');
 
-Future<void> openInNewTab(Uri uri) =>
-    throw UnsupportedError('the web demo runs only in a browser');
-
 /// Nothing to change off the web.
 List<Override> webDemoOverrides() => const [];
