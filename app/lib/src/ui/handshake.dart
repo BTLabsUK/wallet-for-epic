@@ -335,8 +335,8 @@ class _Dots extends StatelessWidget {
 
 /// Where each node sits, as a share of the diagram's width and height.
 const Map<HandshakeParty, Alignment> _place = {
-  HandshakeParty.you: Alignment(-0.66, -0.5),
-  HandshakeParty.them: Alignment(0.66, -0.5),
+  HandshakeParty.you: Alignment(-0.85, -0.5),
+  HandshakeParty.them: Alignment(0.85, -0.5),
   HandshakeParty.network: Alignment(0, 0.62),
 };
 
@@ -360,7 +360,7 @@ class _Diagram extends StatelessWidget {
       height: 168,
       child: LayoutBuilder(
         builder: (context, box) {
-          final nodeWidth = math.min(112.0, box.maxWidth * 0.3);
+          final nodeWidth = math.min(104.0, box.maxWidth * 0.26);
           return Stack(
             children: [
               Positioned.fill(

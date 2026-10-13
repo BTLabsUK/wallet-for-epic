@@ -2464,12 +2464,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sendAmountZero => 'Enter an amount above zero.';
 
   @override
-  String get sendRecipientLabel => 'To';
-
-  @override
-  String get sendRecipientHintSimple => 'Their address';
-
-  @override
   String get sendUrlUnsupported =>
       'Payments to a wallet URL are not supported. Ask the recipient for their epicbox address.';
 
@@ -2486,31 +2480,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sendContactsButton => 'Contacts';
 
   @override
-  String get sendRecentLabel => 'Recent:';
-
-  @override
-  String sendRecentTooltip(String address) {
-    return 'Send to $address';
-  }
-
-  @override
-  String sendSendingToContact(String name) {
-    return 'Sending to $name';
-  }
-
-  @override
-  String get sendStillConnecting =>
-      'Still connecting. You can send now; it finishes once the app is connected.';
-
-  @override
   String get sendMethodEpicbox => 'Epicbox address';
 
   @override
   String get sendMethodFile => 'Payment file';
-
-  @override
-  String get sendFileIntro =>
-      'Make a payment file, send it to them any way you like, then open the reply they send back.';
 
   @override
   String get sendFileHelpTooltip => 'How paying by file works';
@@ -2529,54 +2502,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sendMax => 'Max';
 
   @override
-  String sendSpendable(String amount) {
-    return 'Spendable: $amount';
-  }
-
-  @override
-  String sendSpendableWithFiat(String amount, String fiat) {
-    return 'Spendable: $amount (≈ $fiat)';
-  }
-
-  @override
-  String sendFeeAndTotal(String fee, String total) {
-    return 'Fee: $fee. Total: $total.';
-  }
-
-  @override
-  String get sendMessageLabel => 'Message to recipient (optional)';
-
-  @override
-  String get sendMessageHelper =>
-      'The recipient sees this message. You keep it as a note too.';
-
-  @override
   String sendMessageCounter(int used, int limit) {
     return '$used/$limit';
   }
-
-  @override
-  String get sendCreateFile => 'Create payment file';
-
-  @override
-  String get sendReview => 'Review';
-
-  @override
-  String sendFileStep1(String file) {
-    return 'Step 1: give $file to the recipient';
-  }
-
-  @override
-  String get sendFileLockedNote =>
-      'The funds stay locked until you finish. If the recipient never responds, open the payment and tap Cancel payment.';
-
-  @override
-  String sendFileStep2(String file) {
-    return 'Step 2: open the $file file they return';
-  }
-
-  @override
-  String get sendOpenResponseFile => 'Open response file';
 
   @override
   String get sendCopyPasteInstead => 'Copy and paste instead';
@@ -2593,32 +2521,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get slateFinishPayment => 'Finish payment';
-
-  @override
-  String sendResultStarted(String amount) {
-    return 'Payment started: $amount';
-  }
-
-  @override
-  String sendResultSent(String amount) {
-    return 'Sent $amount';
-  }
-
-  @override
-  String get sendResultWaitingBody =>
-      'It finishes when the recipient\'s wallet answers, usually within minutes if their app is open. Keep this app open, or open it again within a week: epicbox keeps their answer for about that long. You can find it on the home screen and in History.';
-
-  @override
-  String sendResultOnItsWay(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other:
-          'The payment is on its way to the network. It shows as Completed after $count confirmations.',
-      one: 'The payment is on its way to the network. It shows as Completed after 1 confirmation.',
-    );
-    return '$_temp0';
-  }
 
   @override
   String sendResultAutoCancel(int days) {
@@ -2642,22 +2544,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'The note could not be saved. You can add it by opening the payment.';
 
   @override
-  String get sendSaveToContacts => 'Save to contacts';
-
-  @override
   String get sendHelp => 'Help';
-
-  @override
-  String get sendReviewTitle => 'Review your payment';
-
-  @override
-  String get sendReviewTo => 'To';
-
-  @override
-  String get sendReviewAmount => 'Amount';
-
-  @override
-  String get sendReviewFee => 'Fee';
 
   @override
   String get sendReviewTotal => 'Total';
@@ -2665,45 +2552,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String sendReviewTotalWithFiat(String amount, String fiat) {
     return '$amount (≈ $fiat)';
-  }
-
-  @override
-  String get sendReviewMessage => 'Message';
-
-  @override
-  String get sendReviewViaEpicbox =>
-      'Goes through epicbox. It completes when the recipient\'s wallet answers.';
-
-  @override
-  String get sendCheckNodeRunning => 'Checking the node…';
-
-  @override
-  String get sendCheckNodeOk => 'The node answers';
-
-  @override
-  String get sendCheckNodeFailed =>
-      'The node does not answer, so this payment cannot be sent now.';
-
-  @override
-  String get sendCheckListenerOk => 'Connected to epicbox';
-
-  @override
-  String get sendCheckListenerFailed =>
-      'Not connected to epicbox yet. You can still send; the payment finishes once the app connects.';
-
-  @override
-  String sendCheckRelayRunning(String relay) {
-    return 'Checking $relay…';
-  }
-
-  @override
-  String sendCheckRelayOk(String relay) {
-    return '$relay is up';
-  }
-
-  @override
-  String sendCheckRelayFailed(String relay) {
-    return '$relay is not answering right now. You can still send; the payment may take longer to arrive.';
   }
 
   @override

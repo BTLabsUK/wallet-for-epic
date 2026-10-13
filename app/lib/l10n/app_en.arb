@@ -2871,14 +2871,6 @@
   "@sendAmountZero": {
     "description": "Amount field error."
   },
-  "sendRecipientLabel": "To",
-  "@sendRecipientLabel": {
-    "description": "Label of the field for the recipient's epicbox address."
-  },
-  "sendRecipientHintSimple": "Their address",
-  "@sendRecipientHintSimple": {
-    "description": "Hint inside the empty recipient field."
-  },
   "sendUrlUnsupported": "Payments to a wallet URL are not supported. Ask the recipient for their epicbox address.",
   "@sendUrlUnsupported": {
     "description": "Error under the recipient field when the user entered a wallet URL (http:// or https://). The wallet sends over epicbox and by transaction file only. epicbox is a proper name."
@@ -2899,34 +2891,6 @@
   "@sendContactsButton": {
     "description": "Short button label under the recipient field; opens the address book."
   },
-  "sendRecentLabel": "Recent:",
-  "@sendRecentLabel": {
-    "description": "Label above chips holding the last addresses this wallet sent to."
-  },
-  "sendRecentTooltip": "Send to {address}",
-  "@sendRecentTooltip": {
-    "description": "Tooltip of a chip that fills in a recent recipient.",
-    "placeholders": {
-      "address": {
-        "type": "String",
-        "example": "es5x…@epicbox.epiccash.com"
-      }
-    }
-  },
-  "sendSendingToContact": "Sending to {name}",
-  "@sendSendingToContact": {
-    "description": "Shown under the recipient field when the address belongs to a saved contact.",
-    "placeholders": {
-      "name": {
-        "type": "String",
-        "example": "Alice"
-      }
-    }
-  },
-  "sendStillConnecting": "Still connecting. You can send now; it finishes once the app is connected.",
-  "@sendStillConnecting": {
-    "description": "Shown while the app is not yet connected to epicbox, the relay service that carries payments."
-  },
   "sendMethodEpicbox": "Epicbox address",
   "@sendMethodEpicbox": {
     "description": "Send form, first choice of how to send: to the recipient's epicbox address. Also Receive's first tab, which shows this wallet's epicbox address. epicbox is the relay service that carries payments (a proper name)."
@@ -2934,10 +2898,6 @@
   "sendMethodFile": "Payment file",
   "@sendMethodFile": {
     "description": "Send form, second choice of how to send: a payment file the user passes on any way they like, and the recipient's signed reply. Also Receive's second tab, for accepting a payment file."
-  },
-  "sendFileIntro": "Make a payment file, send it to them any way you like, then open the reply they send back.",
-  "@sendFileIntro": {
-    "description": "One line under the method choice in payment file mode. 'Reply' is the signed file the recipient sends back."
   },
   "sendFileHelpTooltip": "How paying by file works",
   "@sendFileHelpTooltip": {
@@ -2967,52 +2927,6 @@
   "@sendMax": {
     "description": "Small button inside the amount field that fills in the most that can be sent. Space is tight."
   },
-  "sendSpendable": "Spendable: {amount}",
-  "@sendSpendable": {
-    "description": "Under the amount field: how much the wallet can send now.",
-    "placeholders": {
-      "amount": {
-        "type": "String",
-        "example": "1,234.5 EPIC"
-      }
-    }
-  },
-  "sendSpendableWithFiat": "Spendable: {amount} (≈ {fiat})",
-  "@sendSpendableWithFiat": {
-    "description": "Under the amount field: how much the wallet can send now, with its value in a fiat currency.",
-    "placeholders": {
-      "amount": {
-        "type": "String",
-        "example": "1,234.5 EPIC"
-      },
-      "fiat": {
-        "type": "String",
-        "example": "12.34 USD"
-      }
-    }
-  },
-  "sendFeeAndTotal": "Fee: {fee}. Total: {total}.",
-  "@sendFeeAndTotal": {
-    "description": "Under the amount field: the network fee and the amount plus fee.",
-    "placeholders": {
-      "fee": {
-        "type": "String",
-        "example": "0.008 EPIC"
-      },
-      "total": {
-        "type": "String",
-        "example": "1.008 EPIC"
-      }
-    }
-  },
-  "sendMessageLabel": "Message to recipient (optional)",
-  "@sendMessageLabel": {
-    "description": "Label of the field for a short message that travels with the payment. The recipient sees it; the sender also keeps it as a private note."
-  },
-  "sendMessageHelper": "The recipient sees this message. You keep it as a note too.",
-  "@sendMessageHelper": {
-    "description": "Helper text under the message field: the recipient's wallet shows the message, and the sender's wallet keeps a copy as its private note."
-  },
   "sendMessageCounter": "{used}/{limit}",
   "@sendMessageCounter": {
     "description": "Counter under the message field: how much of the message's size limit is used, in bytes. Most letters count 1, accented letters 2, Chinese characters 3.",
@@ -3024,42 +2938,6 @@
         "type": "int"
       }
     }
-  },
-  "sendCreateFile": "Create payment file",
-  "@sendCreateFile": {
-    "description": "Button that creates the payment file to give to the recipient."
-  },
-  "sendReview": "Review",
-  "@sendReview": {
-    "description": "Button that shows the payment for a last check before sending."
-  },
-  "sendFileStep1": "Step 1: give {file} to the recipient",
-  "@sendFileStep1": {
-    "description": "Heading of the first step of a send by file.",
-    "placeholders": {
-      "file": {
-        "type": "String",
-        "example": "0f3c…e1.tx"
-      }
-    }
-  },
-  "sendFileLockedNote": "The funds stay locked until you finish. If the recipient never responds, open the payment and tap Cancel payment.",
-  "@sendFileLockedNote": {
-    "description": "'Cancel payment' is the button on the payment's details screen; use the same words."
-  },
-  "sendFileStep2": "Step 2: open the {file} file they return",
-  "@sendFileStep2": {
-    "description": "Heading of the second step of a send by file.",
-    "placeholders": {
-      "file": {
-        "type": "String",
-        "example": "0f3c…e1.tx.response"
-      }
-    }
-  },
-  "sendOpenResponseFile": "Open response file",
-  "@sendOpenResponseFile": {
-    "description": "Button that picks the file the recipient sent back."
   },
   "sendCopyPasteInstead": "Copy and paste instead",
   "@sendCopyPasteInstead": {
@@ -3080,39 +2958,6 @@
   "slateFinishPayment": "Finish payment",
   "@slateFinishPayment": {
     "description": "Button that completes a payment with the recipient's answer and sends it to the network."
-  },
-  "sendResultStarted": "Payment started: {amount}",
-  "@sendResultStarted": {
-    "description": "Headline after an epicbox send: the payment is under way but not finished.",
-    "placeholders": {
-      "amount": {
-        "type": "String",
-        "example": "1.5 EPIC"
-      }
-    }
-  },
-  "sendResultSent": "Sent {amount}",
-  "@sendResultSent": {
-    "description": "Headline after a send straight to the recipient's wallet.",
-    "placeholders": {
-      "amount": {
-        "type": "String",
-        "example": "1.5 EPIC"
-      }
-    }
-  },
-  "sendResultWaitingBody": "It finishes when the recipient's wallet answers, usually within minutes if their app is open. Keep this app open, or open it again within a week: epicbox keeps their answer for about that long. You can find it on the home screen and in History.",
-  "@sendResultWaitingBody": {
-    "description": "After an epicbox send. epicbox is the relay service that carries payments (a proper name). 'History' is the name of the payment history screen."
-  },
-  "sendResultOnItsWay": "{count, plural, =1{The payment is on its way to the network. It shows as Completed after 1 confirmation.} other{The payment is on its way to the network. It shows as Completed after {count} confirmations.}}",
-  "@sendResultOnItsWay": {
-    "description": "After a send straight to the recipient's wallet. 'Completed' is the payment's status chip (txStatusCompleted); use the same word.",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
   },
   "sendResultAutoCancel": "{days, plural, =1{If it is still not completed after 1 day, it cancels by itself and the amount unlocks. To stop it sooner, open the payment and tap Cancel payment.} other{If it is still not completed after {days} days, it cancels by itself and the amount unlocks. To stop it sooner, open the payment and tap Cancel payment.}}",
   "@sendResultAutoCancel": {
@@ -3138,29 +2983,9 @@
     }
   },
   "sendResultNoteNotSaved": "The note could not be saved. You can add it by opening the payment.",
-  "sendSaveToContacts": "Save to contacts",
-  "@sendSaveToContacts": {
-    "description": "Button after a send that saves the recipient's address in the address book."
-  },
   "sendHelp": "Help",
   "@sendHelp": {
     "description": "Button after a send that opens the matching help answer."
-  },
-  "sendReviewTitle": "Review your payment",
-  "@sendReviewTitle": {
-    "description": "Title of the sheet that shows a payment before it is sent."
-  },
-  "sendReviewTo": "To",
-  "@sendReviewTo": {
-    "description": "Row label in the payment review: the recipient. Space is tight (about 9 characters)."
-  },
-  "sendReviewAmount": "Amount",
-  "@sendReviewAmount": {
-    "description": "Row label in the payment review. Space is tight (about 9 characters)."
-  },
-  "sendReviewFee": "Fee",
-  "@sendReviewFee": {
-    "description": "Row label in the payment review: the network fee. Space is tight (about 9 characters)."
   },
   "sendReviewTotal": "Total",
   "@sendReviewTotal": {
@@ -3177,64 +3002,6 @@
       "fiat": {
         "type": "String",
         "example": "0.12 USD"
-      }
-    }
-  },
-  "sendReviewMessage": "Message",
-  "@sendReviewMessage": {
-    "description": "Row label in the payment review: the message the recipient will see. Space is tight (about 9 characters)."
-  },
-  "sendReviewViaEpicbox": "Goes through epicbox. It completes when the recipient's wallet answers.",
-  "@sendReviewViaEpicbox": {
-    "description": "In the payment review. epicbox is the relay service that carries payments (a proper name)."
-  },
-  "sendCheckNodeRunning": "Checking the node…",
-  "@sendCheckNodeRunning": {
-    "description": "Review sheet, check row while the app asks the node (the server the wallet reads the chain from) for its latest block."
-  },
-  "sendCheckNodeOk": "The node answers",
-  "@sendCheckNodeOk": {
-    "description": "Review sheet, check row: the node answered."
-  },
-  "sendCheckNodeFailed": "The node does not answer, so this payment cannot be sent now.",
-  "@sendCheckNodeFailed": {
-    "description": "Review sheet, check row when the node did not answer within 8 seconds. The send button stays off."
-  },
-  "sendCheckListenerOk": "Connected to epicbox",
-  "@sendCheckListenerOk": {
-    "description": "Review sheet, check row: the app is connected to epicbox, the relay service that carries payments (a proper name)."
-  },
-  "sendCheckListenerFailed": "Not connected to epicbox yet. You can still send; the payment finishes once the app connects.",
-  "@sendCheckListenerFailed": {
-    "description": "Review sheet, warning row: the app is not connected to epicbox; sending is still allowed."
-  },
-  "sendCheckRelayRunning": "Checking {relay}…",
-  "@sendCheckRelayRunning": {
-    "description": "Review sheet, check row while the app looks up the recipient's epicbox relay at the status monitor. relay is a host name.",
-    "placeholders": {
-      "relay": {
-        "type": "String",
-        "example": "epicbox.epiccash.com"
-      }
-    }
-  },
-  "sendCheckRelayOk": "{relay} is up",
-  "@sendCheckRelayOk": {
-    "description": "Review sheet, check row: the recipient's epicbox relay is healthy. relay is a host name.",
-    "placeholders": {
-      "relay": {
-        "type": "String",
-        "example": "epicbox.epiccash.com"
-      }
-    }
-  },
-  "sendCheckRelayFailed": "{relay} is not answering right now. You can still send; the payment may take longer to arrive.",
-  "@sendCheckRelayFailed": {
-    "description": "Review sheet, warning row: the recipient's epicbox relay failed the monitor's last check; sending is still allowed. relay is a host name.",
-    "placeholders": {
-      "relay": {
-        "type": "String",
-        "example": "epicbox.epiccash.com"
       }
     }
   },

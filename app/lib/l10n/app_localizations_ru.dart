@@ -2592,12 +2592,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get sendAmountZero => 'Введите сумму больше нуля.';
 
   @override
-  String get sendRecipientLabel => 'Кому';
-
-  @override
-  String get sendRecipientHintSimple => 'Адрес получателя';
-
-  @override
   String get sendUrlUnsupported =>
       'Платежи на URL кошелька не поддерживаются. Попросите у получателя его адрес epicbox.';
 
@@ -2614,31 +2608,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get sendContactsButton => 'Контакты';
 
   @override
-  String get sendRecentLabel => 'Недавние:';
-
-  @override
-  String sendRecentTooltip(String address) {
-    return 'Отправить на $address';
-  }
-
-  @override
-  String sendSendingToContact(String name) {
-    return 'Получатель: $name';
-  }
-
-  @override
-  String get sendStillConnecting =>
-      'Подключение ещё идёт. Отправить можно уже сейчас: платёж уйдёт, как только приложение подключится.';
-
-  @override
   String get sendMethodEpicbox => 'Адрес epicbox';
 
   @override
   String get sendMethodFile => 'Платёжный файл';
-
-  @override
-  String get sendFileIntro =>
-      'Создайте платёжный файл, передайте его получателю любым способом, затем откройте ответ, который он пришлёт.';
 
   @override
   String get sendFileHelpTooltip => 'Как работает оплата файлом';
@@ -2657,54 +2630,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get sendMax => 'Макс.';
 
   @override
-  String sendSpendable(String amount) {
-    return 'Доступно: $amount';
-  }
-
-  @override
-  String sendSpendableWithFiat(String amount, String fiat) {
-    return 'Доступно: $amount (≈ $fiat)';
-  }
-
-  @override
-  String sendFeeAndTotal(String fee, String total) {
-    return 'Комиссия: $fee. Итого: $total.';
-  }
-
-  @override
-  String get sendMessageLabel => 'Сообщение получателю (необязательно)';
-
-  @override
-  String get sendMessageHelper =>
-      'Получатель увидит это сообщение. Оно сохранится и как ваша заметка.';
-
-  @override
   String sendMessageCounter(int used, int limit) {
     return '$used/$limit';
   }
-
-  @override
-  String get sendCreateFile => 'Создать платёжный файл';
-
-  @override
-  String get sendReview => 'Проверить';
-
-  @override
-  String sendFileStep1(String file) {
-    return 'Шаг 1: передайте $file получателю';
-  }
-
-  @override
-  String get sendFileLockedNote =>
-      'Средства заблокированы до завершения. Если получатель так и не ответит, откройте платёж и нажмите «Отменить платёж».';
-
-  @override
-  String sendFileStep2(String file) {
-    return 'Шаг 2: откройте файл $file, который вернёт получатель';
-  }
-
-  @override
-  String get sendOpenResponseFile => 'Открыть файл ответа';
 
   @override
   String get sendCopyPasteInstead => 'Или скопируйте и вставьте текст';
@@ -2720,33 +2648,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get slateFinishPayment => 'Завершить платёж';
-
-  @override
-  String sendResultStarted(String amount) {
-    return 'Платёж начат: $amount';
-  }
-
-  @override
-  String sendResultSent(String amount) {
-    return 'Отправлено: $amount';
-  }
-
-  @override
-  String get sendResultWaitingBody =>
-      'Платёж завершится, когда ответит кошелёк получателя, обычно в течение нескольких минут, если у получателя открыто приложение. Не закрывайте приложение или откройте его снова в течение недели: epicbox хранит ответ примерно столько. Платёж можно найти на главном экране и на экране «История».';
-
-  @override
-  String sendResultOnItsWay(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count подтверждения',
-      many: '$count подтверждений',
-      few: '$count подтверждений',
-      one: '$count подтверждения',
-    );
-    return 'Платёж передаётся в сеть. Он получит статус «Завершён» после $_temp0.';
-  }
 
   @override
   String sendResultAutoCancel(int days) {
@@ -2771,22 +2672,7 @@ class AppLocalizationsRu extends AppLocalizations {
       'Не удалось сохранить заметку. Её можно добавить, открыв платёж.';
 
   @override
-  String get sendSaveToContacts => 'Сохранить в контакты';
-
-  @override
   String get sendHelp => 'Справка';
-
-  @override
-  String get sendReviewTitle => 'Проверьте платёж';
-
-  @override
-  String get sendReviewTo => 'Кому';
-
-  @override
-  String get sendReviewAmount => 'Сумма';
-
-  @override
-  String get sendReviewFee => 'Комиссия';
 
   @override
   String get sendReviewTotal => 'Итого';
@@ -2794,45 +2680,6 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String sendReviewTotalWithFiat(String amount, String fiat) {
     return '$amount (≈ $fiat)';
-  }
-
-  @override
-  String get sendReviewMessage => 'Сообщение';
-
-  @override
-  String get sendReviewViaEpicbox =>
-      'Через epicbox. Платёж завершится, когда ответит кошелёк получателя.';
-
-  @override
-  String get sendCheckNodeRunning => 'Проверка узла…';
-
-  @override
-  String get sendCheckNodeOk => 'Узел отвечает';
-
-  @override
-  String get sendCheckNodeFailed =>
-      'Узел не отвечает, поэтому сейчас этот платёж отправить нельзя.';
-
-  @override
-  String get sendCheckListenerOk => 'Подключено к epicbox';
-
-  @override
-  String get sendCheckListenerFailed =>
-      'Подключения к epicbox ещё нет. Отправить всё равно можно: платёж завершится, когда приложение подключится.';
-
-  @override
-  String sendCheckRelayRunning(String relay) {
-    return 'Проверка $relay…';
-  }
-
-  @override
-  String sendCheckRelayOk(String relay) {
-    return '$relay работает';
-  }
-
-  @override
-  String sendCheckRelayFailed(String relay) {
-    return '$relay сейчас не отвечает. Отправить всё равно можно, но платёж может прийти позже.';
   }
 
   @override

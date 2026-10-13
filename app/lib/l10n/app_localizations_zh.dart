@@ -2310,12 +2310,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get sendAmountZero => '请输入大于零的金额。';
 
   @override
-  String get sendRecipientLabel => '接收方';
-
-  @override
-  String get sendRecipientHintSimple => '对方的地址';
-
-  @override
   String get sendUrlUnsupported => '不支持向钱包 URL 付款。请向接收方索取其 epicbox 地址。';
 
   @override
@@ -2331,29 +2325,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get sendContactsButton => '联系人';
 
   @override
-  String get sendRecentLabel => '最近使用：';
-
-  @override
-  String sendRecentTooltip(String address) {
-    return '发送至 $address';
-  }
-
-  @override
-  String sendSendingToContact(String name) {
-    return '发送给 $name';
-  }
-
-  @override
-  String get sendStillConnecting => '仍在连接。你现在就可以发送，应用连接后即会完成。';
-
-  @override
   String get sendMethodEpicbox => 'Epicbox 地址';
 
   @override
   String get sendMethodFile => '付款文件';
-
-  @override
-  String get sendFileIntro => '创建付款文件，用任意方式发给对方，然后打开对方发回的回复。';
 
   @override
   String get sendFileHelpTooltip => '文件付款如何使用';
@@ -2372,53 +2347,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get sendMax => '最大';
 
   @override
-  String sendSpendable(String amount) {
-    return '可用：$amount';
-  }
-
-  @override
-  String sendSpendableWithFiat(String amount, String fiat) {
-    return '可用：$amount（≈ $fiat）';
-  }
-
-  @override
-  String sendFeeAndTotal(String fee, String total) {
-    return '手续费：$fee，总计：$total。';
-  }
-
-  @override
-  String get sendMessageLabel => '给接收方的留言（可选）';
-
-  @override
-  String get sendMessageHelper => '接收方会看到这条留言。你也会把它保存为备注。';
-
-  @override
   String sendMessageCounter(int used, int limit) {
     return '$used/$limit';
   }
-
-  @override
-  String get sendCreateFile => '创建付款文件';
-
-  @override
-  String get sendReview => '核对';
-
-  @override
-  String sendFileStep1(String file) {
-    return '第 1 步：将 $file 交给接收方';
-  }
-
-  @override
-  String get sendFileLockedNote =>
-      '在你完成之前，资金将保持锁定。如果接收方一直没有回复，请打开该付款并点击“取消付款”。';
-
-  @override
-  String sendFileStep2(String file) {
-    return '第 2 步：打开对方返回的 $file 文件';
-  }
-
-  @override
-  String get sendOpenResponseFile => '打开回复文件';
 
   @override
   String get sendCopyPasteInstead => '改为复制粘贴';
@@ -2434,30 +2365,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get slateFinishPayment => '完成付款';
-
-  @override
-  String sendResultStarted(String amount) {
-    return '付款已发起：$amount';
-  }
-
-  @override
-  String sendResultSent(String amount) {
-    return '已发送 $amount';
-  }
-
-  @override
-  String get sendResultWaitingBody =>
-      '接收方的钱包回复后，付款即会完成；如果对方的应用处于打开状态，通常几分钟内即可完成。请保持此应用打开，或在一周内再次打开：epicbox 会将对方的回复保留大约这么长时间。你可以在首页和“交易记录”中找到这笔付款。';
-
-  @override
-  String sendResultOnItsWay(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '付款正在提交到网络。获得 $count 个确认后将显示为“已完成”。',
-    );
-    return '$_temp0';
-  }
 
   @override
   String sendResultAutoCancel(int days) {
@@ -2478,22 +2385,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get sendResultNoteNotSaved => '备注未能保存。你可以打开该付款重新添加。';
 
   @override
-  String get sendSaveToContacts => '保存到联系人';
-
-  @override
   String get sendHelp => '帮助';
-
-  @override
-  String get sendReviewTitle => '核对付款';
-
-  @override
-  String get sendReviewTo => '接收方';
-
-  @override
-  String get sendReviewAmount => '金额';
-
-  @override
-  String get sendReviewFee => '手续费';
 
   @override
   String get sendReviewTotal => '总计';
@@ -2501,42 +2393,6 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String sendReviewTotalWithFiat(String amount, String fiat) {
     return '$amount（≈ $fiat）';
-  }
-
-  @override
-  String get sendReviewMessage => '留言';
-
-  @override
-  String get sendReviewViaEpicbox => '通过 epicbox 发送。接收方的钱包回复后即会完成。';
-
-  @override
-  String get sendCheckNodeRunning => '正在检查节点…';
-
-  @override
-  String get sendCheckNodeOk => '节点有响应';
-
-  @override
-  String get sendCheckNodeFailed => '节点没有响应，因此现在无法发送这笔付款。';
-
-  @override
-  String get sendCheckListenerOk => '已连接 epicbox';
-
-  @override
-  String get sendCheckListenerFailed => '尚未连接 epicbox。你仍可发送，应用连接后付款即会完成。';
-
-  @override
-  String sendCheckRelayRunning(String relay) {
-    return '正在检查 $relay…';
-  }
-
-  @override
-  String sendCheckRelayOk(String relay) {
-    return '$relay 正常';
-  }
-
-  @override
-  String sendCheckRelayFailed(String relay) {
-    return '$relay 目前没有响应。你仍可发送，但付款可能会晚些到达。';
   }
 
   @override

@@ -3584,18 +3584,6 @@ abstract class AppLocalizations {
   /// **'Enter an amount above zero.'**
   String get sendAmountZero;
 
-  /// Label of the field for the recipient's epicbox address.
-  ///
-  /// In en, this message translates to:
-  /// **'To'**
-  String get sendRecipientLabel;
-
-  /// Hint inside the empty recipient field.
-  ///
-  /// In en, this message translates to:
-  /// **'Their address'**
-  String get sendRecipientHintSimple;
-
   /// Error under the recipient field when the user entered a wallet URL (http:// or https://). The wallet sends over epicbox and by transaction file only. epicbox is a proper name.
   ///
   /// In en, this message translates to:
@@ -3626,30 +3614,6 @@ abstract class AppLocalizations {
   /// **'Contacts'**
   String get sendContactsButton;
 
-  /// Label above chips holding the last addresses this wallet sent to.
-  ///
-  /// In en, this message translates to:
-  /// **'Recent:'**
-  String get sendRecentLabel;
-
-  /// Tooltip of a chip that fills in a recent recipient.
-  ///
-  /// In en, this message translates to:
-  /// **'Send to {address}'**
-  String sendRecentTooltip(String address);
-
-  /// Shown under the recipient field when the address belongs to a saved contact.
-  ///
-  /// In en, this message translates to:
-  /// **'Sending to {name}'**
-  String sendSendingToContact(String name);
-
-  /// Shown while the app is not yet connected to epicbox, the relay service that carries payments.
-  ///
-  /// In en, this message translates to:
-  /// **'Still connecting. You can send now; it finishes once the app is connected.'**
-  String get sendStillConnecting;
-
   /// Send form, first choice of how to send: to the recipient's epicbox address. Also Receive's first tab, which shows this wallet's epicbox address. epicbox is the relay service that carries payments (a proper name).
   ///
   /// In en, this message translates to:
@@ -3661,12 +3625,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Payment file'**
   String get sendMethodFile;
-
-  /// One line under the method choice in payment file mode. 'Reply' is the signed file the recipient sends back.
-  ///
-  /// In en, this message translates to:
-  /// **'Make a payment file, send it to them any way you like, then open the reply they send back.'**
-  String get sendFileIntro;
 
   /// Tooltip and label of the ? button in payment file mode that opens an animated explanation.
   ///
@@ -3692,77 +3650,11 @@ abstract class AppLocalizations {
   /// **'Max'**
   String get sendMax;
 
-  /// Under the amount field: how much the wallet can send now.
-  ///
-  /// In en, this message translates to:
-  /// **'Spendable: {amount}'**
-  String sendSpendable(String amount);
-
-  /// Under the amount field: how much the wallet can send now, with its value in a fiat currency.
-  ///
-  /// In en, this message translates to:
-  /// **'Spendable: {amount} (≈ {fiat})'**
-  String sendSpendableWithFiat(String amount, String fiat);
-
-  /// Under the amount field: the network fee and the amount plus fee.
-  ///
-  /// In en, this message translates to:
-  /// **'Fee: {fee}. Total: {total}.'**
-  String sendFeeAndTotal(String fee, String total);
-
-  /// Label of the field for a short message that travels with the payment. The recipient sees it; the sender also keeps it as a private note.
-  ///
-  /// In en, this message translates to:
-  /// **'Message to recipient (optional)'**
-  String get sendMessageLabel;
-
-  /// Helper text under the message field: the recipient's wallet shows the message, and the sender's wallet keeps a copy as its private note.
-  ///
-  /// In en, this message translates to:
-  /// **'The recipient sees this message. You keep it as a note too.'**
-  String get sendMessageHelper;
-
   /// Counter under the message field: how much of the message's size limit is used, in bytes. Most letters count 1, accented letters 2, Chinese characters 3.
   ///
   /// In en, this message translates to:
   /// **'{used}/{limit}'**
   String sendMessageCounter(int used, int limit);
-
-  /// Button that creates the payment file to give to the recipient.
-  ///
-  /// In en, this message translates to:
-  /// **'Create payment file'**
-  String get sendCreateFile;
-
-  /// Button that shows the payment for a last check before sending.
-  ///
-  /// In en, this message translates to:
-  /// **'Review'**
-  String get sendReview;
-
-  /// Heading of the first step of a send by file.
-  ///
-  /// In en, this message translates to:
-  /// **'Step 1: give {file} to the recipient'**
-  String sendFileStep1(String file);
-
-  /// 'Cancel payment' is the button on the payment's details screen; use the same words.
-  ///
-  /// In en, this message translates to:
-  /// **'The funds stay locked until you finish. If the recipient never responds, open the payment and tap Cancel payment.'**
-  String get sendFileLockedNote;
-
-  /// Heading of the second step of a send by file.
-  ///
-  /// In en, this message translates to:
-  /// **'Step 2: open the {file} file they return'**
-  String sendFileStep2(String file);
-
-  /// Button that picks the file the recipient sent back.
-  ///
-  /// In en, this message translates to:
-  /// **'Open response file'**
-  String get sendOpenResponseFile;
 
   /// Heading of a section that expands to exchange the transaction as text instead of a file.
   ///
@@ -3794,30 +3686,6 @@ abstract class AppLocalizations {
   /// **'Finish payment'**
   String get slateFinishPayment;
 
-  /// Headline after an epicbox send: the payment is under way but not finished.
-  ///
-  /// In en, this message translates to:
-  /// **'Payment started: {amount}'**
-  String sendResultStarted(String amount);
-
-  /// Headline after a send straight to the recipient's wallet.
-  ///
-  /// In en, this message translates to:
-  /// **'Sent {amount}'**
-  String sendResultSent(String amount);
-
-  /// After an epicbox send. epicbox is the relay service that carries payments (a proper name). 'History' is the name of the payment history screen.
-  ///
-  /// In en, this message translates to:
-  /// **'It finishes when the recipient\'s wallet answers, usually within minutes if their app is open. Keep this app open, or open it again within a week: epicbox keeps their answer for about that long. You can find it on the home screen and in History.'**
-  String get sendResultWaitingBody;
-
-  /// After a send straight to the recipient's wallet. 'Completed' is the payment's status chip (txStatusCompleted); use the same word.
-  ///
-  /// In en, this message translates to:
-  /// **'{count, plural, =1{The payment is on its way to the network. It shows as Completed after 1 confirmation.} other{The payment is on its way to the network. It shows as Completed after {count} confirmations.}}'**
-  String sendResultOnItsWay(int count);
-
   /// After an epicbox send. 'Cancel payment' is the button on the payment's details screen; use the same words.
   ///
   /// In en, this message translates to:
@@ -3836,41 +3704,11 @@ abstract class AppLocalizations {
   /// **'The note could not be saved. You can add it by opening the payment.'**
   String get sendResultNoteNotSaved;
 
-  /// Button after a send that saves the recipient's address in the address book.
-  ///
-  /// In en, this message translates to:
-  /// **'Save to contacts'**
-  String get sendSaveToContacts;
-
   /// Button after a send that opens the matching help answer.
   ///
   /// In en, this message translates to:
   /// **'Help'**
   String get sendHelp;
-
-  /// Title of the sheet that shows a payment before it is sent.
-  ///
-  /// In en, this message translates to:
-  /// **'Review your payment'**
-  String get sendReviewTitle;
-
-  /// Row label in the payment review: the recipient. Space is tight (about 9 characters).
-  ///
-  /// In en, this message translates to:
-  /// **'To'**
-  String get sendReviewTo;
-
-  /// Row label in the payment review. Space is tight (about 9 characters).
-  ///
-  /// In en, this message translates to:
-  /// **'Amount'**
-  String get sendReviewAmount;
-
-  /// Row label in the payment review: the network fee. Space is tight (about 9 characters).
-  ///
-  /// In en, this message translates to:
-  /// **'Fee'**
-  String get sendReviewFee;
 
   /// Row label in the payment review: amount plus fee. Space is tight (about 9 characters).
   ///
@@ -3883,66 +3721,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{amount} (≈ {fiat})'**
   String sendReviewTotalWithFiat(String amount, String fiat);
-
-  /// Row label in the payment review: the message the recipient will see. Space is tight (about 9 characters).
-  ///
-  /// In en, this message translates to:
-  /// **'Message'**
-  String get sendReviewMessage;
-
-  /// In the payment review. epicbox is the relay service that carries payments (a proper name).
-  ///
-  /// In en, this message translates to:
-  /// **'Goes through epicbox. It completes when the recipient\'s wallet answers.'**
-  String get sendReviewViaEpicbox;
-
-  /// Review sheet, check row while the app asks the node (the server the wallet reads the chain from) for its latest block.
-  ///
-  /// In en, this message translates to:
-  /// **'Checking the node…'**
-  String get sendCheckNodeRunning;
-
-  /// Review sheet, check row: the node answered.
-  ///
-  /// In en, this message translates to:
-  /// **'The node answers'**
-  String get sendCheckNodeOk;
-
-  /// Review sheet, check row when the node did not answer within 8 seconds. The send button stays off.
-  ///
-  /// In en, this message translates to:
-  /// **'The node does not answer, so this payment cannot be sent now.'**
-  String get sendCheckNodeFailed;
-
-  /// Review sheet, check row: the app is connected to epicbox, the relay service that carries payments (a proper name).
-  ///
-  /// In en, this message translates to:
-  /// **'Connected to epicbox'**
-  String get sendCheckListenerOk;
-
-  /// Review sheet, warning row: the app is not connected to epicbox; sending is still allowed.
-  ///
-  /// In en, this message translates to:
-  /// **'Not connected to epicbox yet. You can still send; the payment finishes once the app connects.'**
-  String get sendCheckListenerFailed;
-
-  /// Review sheet, check row while the app looks up the recipient's epicbox relay at the status monitor. relay is a host name.
-  ///
-  /// In en, this message translates to:
-  /// **'Checking {relay}…'**
-  String sendCheckRelayRunning(String relay);
-
-  /// Review sheet, check row: the recipient's epicbox relay is healthy. relay is a host name.
-  ///
-  /// In en, this message translates to:
-  /// **'{relay} is up'**
-  String sendCheckRelayOk(String relay);
-
-  /// Review sheet, warning row: the recipient's epicbox relay failed the monitor's last check; sending is still allowed. relay is a host name.
-  ///
-  /// In en, this message translates to:
-  /// **'{relay} is not answering right now. You can still send; the payment may take longer to arrive.'**
-  String sendCheckRelayFailed(String relay);
 
   /// Button in the payment review that sends the payment.
   ///
