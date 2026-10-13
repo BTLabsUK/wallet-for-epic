@@ -50,6 +50,19 @@ _GatedSession _funded() => _GatedSession(
   ),
 );
 
+/// A wallet holding 10 EPIC, still confirming or [confirmed] and spendable.
+WalletSummary _tenEpic({required bool confirmed}) => WalletSummary(
+  lastConfirmedHeight: BigInt.from(2499990),
+  minimumConfirmations: BigInt.from(10),
+  total: _epic(10),
+  spendable: confirmed ? _epic(10) : BigInt.zero,
+  awaitingConfirmation: confirmed ? BigInt.zero : _epic(10),
+  awaitingFinalization: BigInt.zero,
+  immature: BigInt.zero,
+  locked: BigInt.zero,
+  validatedWithNode: true,
+);
+
 class _FixedPrice implements PriceSource {
   const _FixedPrice(this.value);
 
@@ -1034,6 +1047,31 @@ void main() {
         find.widgetWithText(FilledButton, 'Review'),
       );
       expect(review.onPressed, isNull);
+    });
+
+    // F-06: "Spendable: 10 EPIC" beside "Not enough spendable funds", because the estimate
+    // failed while the balance was 0 and was never asked again.
+    testWidgets('a balance that arrives clears the funds error and estimates again', (
+      tester,
+    ) async {
+      final h = _Harness();
+      h.session.summaryValue = _tenEpic(confirmed: false);
+      await h.pump(tester, _sendTab());
+      await _enter(tester, 'Amount (EPIC)', '2.5');
+      expect(find.textContaining('Not enough spendable funds'), findsOneWidget);
+      final calls = h.session.estimateCalls;
+
+      // The coins confirm: the balance becomes spendable.
+      h.session.summaryValue = _tenEpic(confirmed: true);
+      final container = ProviderScope.containerOf(
+        tester.element(find.byType(SendView)),
+      );
+      await container.read(homeProvider.notifier).reload();
+      await tester.pump(const Duration(milliseconds: 500));
+      await tester.pumpAndSettle();
+
+      expect(find.textContaining('Not enough spendable funds'), findsNothing);
+      expect(h.session.estimateCalls, greaterThan(calls));
     });
 
     testWidgets('fiat entry converts at the price and back', (tester) async {

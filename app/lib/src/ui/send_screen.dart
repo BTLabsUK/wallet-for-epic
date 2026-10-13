@@ -621,6 +621,20 @@ class _SendViewState extends ConsumerState<SendView> {
     final body = sent != null
         ? CenteredScroll(child: CenteredBody(children: all))
         : ScreenBody(bottom: form ? _formAction(context) : null, children: all);
+    // An estimate made against the old balance is stale: coins that confirmed may cover it
+    // now, or a send elsewhere may have spent them (F-06).
+    ref.listen(
+      homeProvider.select((home) => home.value?.summary.spendable),
+      (before, now) {
+        final amount = _parsedAmount;
+        if (before == now || amount == null) return;
+        setState(() {
+          _estimate = null;
+          _estimateError = null;
+        });
+        _estimateFee(amount);
+      },
+    );
     // A recipient handed over while the tab is kept alive fills the form in place.
     ref.listen(sendRecipientProvider, (_, handoff) {
       if (handoff == null || handoff.id == _handoff) return;
