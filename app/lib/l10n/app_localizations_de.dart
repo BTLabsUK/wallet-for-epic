@@ -3612,4 +3612,13 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get fileHelpPlay => 'Animation abspielen';
+
+  @override
+  String get demoPinFilled => 'Demo-PIN, für Sie ausgefüllt';
+
+  @override
+  String get demoPinOwnInApp => 'In der App wählen Sie Ihre eigene PIN.';
+
+  @override
+  String get demoPinSkip => 'Überspringen';
 }

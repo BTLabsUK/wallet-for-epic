@@ -3568,4 +3568,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get fileHelpPlay => 'Play the animation';
+
+  @override
+  String get demoPinFilled => 'Demo PIN, filled in for you';
+
+  @override
+  String get demoPinOwnInApp => 'In the app you choose your own PIN.';
+
+  @override
+  String get demoPinSkip => 'Skip';
 }

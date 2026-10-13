@@ -308,6 +308,14 @@ class WalletVault {
   Future<void> markBackedUp(Chain chain) =>
       store.write(_key(chain, 'backedUp'), '1');
 
+  /// Whether [chain]'s wallet was created with the web demo's fixed PIN. Only demo mode reads
+  /// it; elsewhere it changes nothing.
+  Future<bool> usesDemoPin(Chain chain) async =>
+      await store.read(_key(chain, 'demoPin')) == '1';
+
+  Future<void> markDemoPin(Chain chain) =>
+      store.write(_key(chain, 'demoPin'), '1');
+
   /// Deletes everything the app stored for [chain]. The wallet itself, with LEPIC's PIN key
   /// and count, goes with [WalletService.deleteWallet].
   Future<void> forget(Chain chain) async {
@@ -315,6 +323,7 @@ class WalletVault {
     for (final name in [
       'pinSealed',
       'backedUp',
+      'demoPin',
       'backupCardDismissed', // home's recovery phrase card (home_screen.dart)
     ]) {
       await store.delete(_key(chain, name));

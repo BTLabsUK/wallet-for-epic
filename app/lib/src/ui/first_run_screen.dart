@@ -8,8 +8,10 @@ import '../demo.dart';
 import '../errors.dart';
 import '../l10n.dart';
 import '../providers.dart';
+import '../wallet_service.dart' show Chain;
 import 'centered_body.dart';
 import 'common.dart';
+import 'demo_pin.dart';
 import 'pin.dart';
 import 'restore_screen.dart';
 import 'setup_screen.dart';
@@ -37,9 +39,13 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
       _error = null;
     });
     try {
-      final result = await ref
-          .read(vaultProvider)
-          .create(config, pin: pin, useBiometrics: useBiometrics);
+      final vault = ref.read(vaultProvider);
+      final result = await vault.create(
+        config,
+        pin: pin,
+        useBiometrics: useBiometrics,
+      );
+      if (ref.read(demoModeProvider)) await _markDemoPin(config.chain);
       ref.read(sessionProvider.notifier).unlocked(result.session);
       _answer = null;
       if (!mounted) return;
@@ -55,6 +61,16 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
         'creating the wallet failed: ${describeError(englishStrings, error)}',
       );
       if (mounted) setState(() => _error = describeError(l, error));
+    }
+  }
+
+  /// Notes that the demo wallet opens with [demoPin], so unlock fills it in again. The wallet
+  /// exists already; without the note unlock asks for the PIN, and Forgot PIN ends the demo.
+  Future<void> _markDemoPin(Chain chain) async {
+    try {
+      await ref.read(vaultProvider).markDemoPin(chain);
+    } catch (error) {
+      logWarn('setup', 'storing the demo PIN note failed: $error');
     }
   }
 
@@ -94,7 +110,10 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
           BrandHero(title: '${l.firstRunTitle}$network'),
           const SizedBox(height: 28),
           if (_answer == null) ...[
-            PinSetupView(onDone: _finish, askBiometrics: !demo),
+            if (demo)
+              DemoPinFill(onDone: () => _finish(demoPin, false))
+            else
+              PinSetupView(onDone: _finish),
             if (!demo) ...[
               const SizedBox(height: 24),
               TextButton.icon(

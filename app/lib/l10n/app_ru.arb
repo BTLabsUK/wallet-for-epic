@@ -869,5 +869,8 @@
   "fileHelpReceiveStep4": "Друг открывает ответ, и платёж уже в пути к вам.",
   "fileHelpStepOf": "Шаг {step} из {count}",
   "fileHelpPause": "Приостановить анимацию",
-  "fileHelpPlay": "Воспроизвести анимацию"
+  "fileHelpPlay": "Воспроизвести анимацию",
+  "demoPinFilled": "Демо-PIN введён за вас",
+  "demoPinOwnInApp": "В приложении вы выбираете свой PIN.",
+  "demoPinSkip": "Пропустить"
 }

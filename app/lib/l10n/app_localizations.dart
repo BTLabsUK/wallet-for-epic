@@ -5359,6 +5359,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Play the animation'**
   String get fileHelpPlay;
+
+  /// Web demo: under the six dots that fill in the demo wallet's fixed PIN on first run, unlock and PIN prompts. Also the screen-reader announcement.
+  ///
+  /// In en, this message translates to:
+  /// **'Demo PIN, filled in for you'**
+  String get demoPinFilled;
+
+  /// Web demo: under demoPinFilled, says the real app asks for a PIN the user picks.
+  ///
+  /// In en, this message translates to:
+  /// **'In the app you choose your own PIN.'**
+  String get demoPinOwnInApp;
+
+  /// Web demo: button that stops the PIN fill animation and goes on at once.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip'**
+  String get demoPinSkip;
 }
 
 class _AppLocalizationsDelegate

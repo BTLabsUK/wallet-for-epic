@@ -429,11 +429,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 ],
                 if (walletOpen) ...[
                   _Header(l.settingsSectionSecurity),
-                  ListTile(
-                    leading: const Icon(Icons.pin),
-                    title: Text(l.settingsChangePin),
-                    onTap: () => _push(const ChangePinScreen()),
-                  ),
+                  // The demo wallet opens with the demo PIN, filled in; another would lock
+                  // the visitor out.
+                  if (!demo)
+                    ListTile(
+                      leading: const Icon(Icons.pin),
+                      title: Text(l.settingsChangePin),
+                      onTap: () => _push(const ChangePinScreen()),
+                    ),
                   if (!demo && (biometrics?.available ?? false))
                     SwitchListTile(
                       secondary: const Icon(Icons.fingerprint),

@@ -4,11 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../demo.dart';
 import '../errors.dart';
 import '../l10n.dart';
 import '../providers.dart';
 import '../vault.dart';
 import 'common.dart';
+import 'demo_pin.dart';
 
 /// A masked [pinLength]-digit field that calls [onCompleted] once all digits are in.
 class PinField extends StatelessWidget {
@@ -315,10 +317,38 @@ class _PinPromptDialogState<T extends Object>
   bool _biometrics = false;
   DateTime? _checkAt;
 
+  /// Web demo only: true while the demo PIN is filled in, false for the PIN field, null until
+  /// [_checkDemoPin] has looked. Outside the demo always false.
+  bool? _autoPin;
+
   @override
   void initState() {
     super.initState();
+    if (ref.read(demoModeProvider)) {
+      unawaited(_checkDemoPin());
+    } else {
+      _autoPin = false;
+    }
     unawaited(_checkBiometrics());
+  }
+
+  Future<void> _checkDemoPin() async {
+    final config = ref.read(walletConfigProvider);
+    var auto = false;
+    try {
+      auto =
+          config != null &&
+          await ref.read(vaultProvider).usesDemoPin(config.chain);
+    } catch (_) {
+      // Unreadable: the PIN field shows.
+    }
+    if (mounted) setState(() => _autoPin = auto);
+  }
+
+  /// Runs the action with [demoPin]; if it fails, the field shows with the error.
+  Future<void> _runDemoPin() async {
+    await _run(demoPin);
+    if (mounted && _error != null) setState(() => _autoPin = false);
   }
 
   @override
@@ -407,13 +437,17 @@ class _PinPromptDialogState<T extends Object>
               Text(widget.reason!),
               const SizedBox(height: 16),
             ],
-            PinField(
-              controller: _pin,
-              label: l.pinLabel,
-              enabled: !_busy,
-              errorText: _error,
-              onCompleted: _run,
-            ),
+            switch (_autoPin) {
+              null => const SizedBox(height: 56),
+              true => DemoPinFill(compact: true, onDone: _runDemoPin),
+              false => PinField(
+                controller: _pin,
+                label: l.pinLabel,
+                enabled: !_busy,
+                errorText: _error,
+                onCompleted: _run,
+              ),
+            },
             if (_busy) ...[
               const SizedBox(height: 8),
               const LinearProgressIndicator(),

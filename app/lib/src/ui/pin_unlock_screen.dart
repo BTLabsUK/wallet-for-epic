@@ -12,6 +12,7 @@ import '../vault.dart';
 import '../wallet_service.dart';
 import 'centered_body.dart';
 import 'common.dart';
+import 'demo_pin.dart';
 import 'demo_screens.dart' show endDemo;
 import 'first_run_screen.dart' show NetworkSettingsButton;
 import 'launch_screen.dart';
@@ -37,9 +38,14 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
   /// When LEPIC checks the PIN being tried, while it waits after repeated failures.
   DateTime? _checkAt;
 
+  /// Web demo only: true while the demo PIN is filled in for the visitor, false for the PIN
+  /// field, null until [_prepare] has looked. Outside the demo always false.
+  bool? _autoPin;
+
   @override
   void initState() {
     super.initState();
+    _autoPin = ref.read(demoModeProvider) ? null : false;
     WidgetsBinding.instance.addPostFrameCallback((_) => _prepare());
   }
 
@@ -50,6 +56,15 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
   }
 
   Future<void> _prepare() async {
+    try {
+      await _prepareUnlock();
+    } finally {
+      // The demo waits for the lookup; if it never came, the PIN field shows.
+      if (mounted && _autoPin == null) setState(() => _autoPin = false);
+    }
+  }
+
+  Future<void> _prepareUnlock() async {
     final config = ref.read(walletConfigProvider);
     if (config == null) return;
     final vault = ref.read(vaultProvider);
@@ -58,14 +73,27 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
         .read(walletServiceProvider)
         .pinFailures(config: config);
     final biometrics = await vault.biometricsEnabled(config.chain);
+    // A demo wallet made with the demo PIN gets it filled in, unless a try already failed.
+    final autoPin =
+        ref.read(demoModeProvider) &&
+        failures == 0 &&
+        await vault.usesDemoPin(config.chain);
     if (!mounted) return;
     setState(() {
       _biometrics = biometrics;
+      _autoPin = autoPin;
       if (failures > 0) {
         _pinError = describePinRejection(context.l10n, PinRejected(failures));
       }
     });
-    if (biometrics) await _unlockWithBiometrics();
+    if (biometrics && !autoPin) await _unlockWithBiometrics();
+  }
+
+  /// Opens the demo wallet with [demoPin] once the dots are filled. A rejected PIN leaves the
+  /// field; any other error stays here with Try again.
+  Future<void> _unlockWithDemoPin() async {
+    await _unlockWithPin(demoPin);
+    if (mounted && _pinError != null) setState(() => _autoPin = false);
   }
 
   Future<void> _unlockWithBiometrics() async {
@@ -186,13 +214,18 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
                 : '${l.unlockTitle}${networkSuffix(l, config.chain)}',
           ),
           const SizedBox(height: 28),
-          PinField(
-            controller: _pin,
-            label: l.pinLabel,
-            enabled: !_busy,
-            errorText: _pinError,
-            onCompleted: _unlockWithPin,
-          ),
+          switch (_autoPin) {
+            // A frame or two while the demo looks up how its wallet opens.
+            null => const SizedBox(height: 56),
+            true => DemoPinFill(onDone: _unlockWithDemoPin),
+            false => PinField(
+              controller: _pin,
+              label: l.pinLabel,
+              enabled: !_busy,
+              errorText: _pinError,
+              onCompleted: _unlockWithPin,
+            ),
+          },
           const SizedBox(height: 16),
           if (_busy) const LinearProgressIndicator(),
           if (_busy && checkAt != null) ...[
@@ -200,6 +233,12 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
             PinWaitNote(until: checkAt),
           ],
           if (_error != null) ErrorText(_error!),
+          if (_autoPin == true && _error != null)
+            BusyButton(
+              label: l.launchTryAgain,
+              busy: _busy,
+              onPressed: _unlockWithDemoPin,
+            ),
           if (_biometrics) ...[
             const SizedBox(height: 8),
             OutlinedButton.icon(

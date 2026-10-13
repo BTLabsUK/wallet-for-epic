@@ -3732,4 +3732,13 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get fileHelpPlay => 'Odtwórz animację';
+
+  @override
+  String get demoPinFilled => 'PIN demo, wpisany za ciebie';
+
+  @override
+  String get demoPinOwnInApp => 'W aplikacji wybierasz własny PIN.';
+
+  @override
+  String get demoPinSkip => 'Pomiń';
 }

@@ -869,5 +869,8 @@
   "fileHelpReceiveStep4": "Dein Freund öffnet die Antwort, und die Zahlung ist auf dem Weg zu dir.",
   "fileHelpStepOf": "Schritt {step} von {count}",
   "fileHelpPause": "Animation anhalten",
-  "fileHelpPlay": "Animation abspielen"
+  "fileHelpPlay": "Animation abspielen",
+  "demoPinFilled": "Demo-PIN, für Sie ausgefüllt",
+  "demoPinOwnInApp": "In der App wählen Sie Ihre eigene PIN.",
+  "demoPinSkip": "Überspringen"
 }

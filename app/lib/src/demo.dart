@@ -15,6 +15,12 @@ const bool demoBuild = bool.fromEnvironment('WFE_DEMO');
 /// Whether the app runs as the web demo. Tests override it.
 final demoModeProvider = Provider<bool>((ref) => demoBuild);
 
+/// The PIN every demo wallet is created with, filled in for the visitor (`ui/demo_pin.dart`).
+/// It is no secret: a demo is guarded by the server's HttpOnly cookie, and its wallet is a
+/// throwaway one on floonet. Still never shown or logged. Used only while [demoModeProvider]
+/// is on.
+const String demoPin = '135790';
+
 /// Where the visitor's demo stands.
 sealed class DemoStatus {
   const DemoStatus();

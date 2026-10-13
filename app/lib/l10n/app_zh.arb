@@ -869,5 +869,8 @@
   "fileHelpReceiveStep4": "朋友打开回复，付款就在发给你的路上了。",
   "fileHelpStepOf": "第 {step} 步，共 {count} 步",
   "fileHelpPause": "暂停动画",
-  "fileHelpPlay": "播放动画"
+  "fileHelpPlay": "播放动画",
+  "demoPinFilled": "演示 PIN 已为你填好",
+  "demoPinOwnInApp": "在应用中你会自己设置 PIN。",
+  "demoPinSkip": "跳过"
 }

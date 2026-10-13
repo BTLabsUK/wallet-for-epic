@@ -3353,4 +3353,13 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get fileHelpPlay => '播放动画';
+
+  @override
+  String get demoPinFilled => '演示 PIN 已为你填好';
+
+  @override
+  String get demoPinOwnInApp => '在应用中你会自己设置 PIN。';
+
+  @override
+  String get demoPinSkip => '跳过';
 }

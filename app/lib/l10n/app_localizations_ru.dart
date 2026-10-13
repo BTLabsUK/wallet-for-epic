@@ -3707,4 +3707,13 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get fileHelpPlay => 'Воспроизвести анимацию';
+
+  @override
+  String get demoPinFilled => 'Демо-PIN введён за вас';
+
+  @override
+  String get demoPinOwnInApp => 'В приложении вы выбираете свой PIN.';
+
+  @override
+  String get demoPinSkip => 'Пропустить';
 }

@@ -4342,5 +4342,17 @@
   "fileHelpPlay": "Play the animation",
   "@fileHelpPlay": {
     "description": "Screen-reader label of the payment file animation while it is paused; a tap plays it."
+  },
+  "demoPinFilled": "Demo PIN, filled in for you",
+  "@demoPinFilled": {
+    "description": "Web demo: under the six dots that fill in the demo wallet's fixed PIN on first run, unlock and PIN prompts. Also the screen-reader announcement."
+  },
+  "demoPinOwnInApp": "In the app you choose your own PIN.",
+  "@demoPinOwnInApp": {
+    "description": "Web demo: under demoPinFilled, says the real app asks for a PIN the user picks."
+  },
+  "demoPinSkip": "Skip",
+  "@demoPinSkip": {
+    "description": "Web demo: button that stops the PIN fill animation and goes on at once."
   }
 }
