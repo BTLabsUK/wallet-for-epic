@@ -383,7 +383,8 @@ class PendingLine extends StatelessWidget {
 
   final List<PendingItem> items;
 
-  /// Glyph, the gap after it, and the space between two items.
+  /// Glyph (at the text scale, like its words), the gap after it, and the space between two
+  /// items.
   static const double _glyph = 13, _gap = 5, _between = 16;
 
   @override
@@ -414,7 +415,7 @@ class PendingLine extends StatelessWidget {
                   if (n > 0) const SizedBox(width: _between),
                   Icon(
                     i.icon,
-                    size: _glyph,
+                    size: scaler.scale(_glyph),
                     color: i.kind == null ? t.faint : t.dim,
                   ),
                   const SizedBox(width: _gap),
