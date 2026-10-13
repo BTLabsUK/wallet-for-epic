@@ -4354,5 +4354,13 @@
   "demoPinSkip": "Skip",
   "@demoPinSkip": {
     "description": "Web demo: button that stops the PIN fill animation and goes on at once."
+  },
+  "demoPinSetUpTitle": "Setting up your demo wallet",
+  "@demoPinSetUpTitle": {
+    "description": "Web demo: heading of the first run while the demo PIN fills in and the wallet is created. Replaces the usual title with its network name."
+  },
+  "demoPinUnlockTitle": "Opening your demo wallet",
+  "@demoPinUnlockTitle": {
+    "description": "Web demo: heading of the unlock screen while the demo PIN fills in. The usual title returns with the PIN field."
   }
 }

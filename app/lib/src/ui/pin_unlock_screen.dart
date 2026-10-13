@@ -56,12 +56,22 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
   }
 
   Future<void> _prepare() async {
+    if (!ref.read(demoModeProvider)) return _prepareUnlock();
+    // In the demo the lookup goes to the server; a failure says so and offers Try again.
     try {
       await _prepareUnlock();
-    } finally {
-      // The demo waits for the lookup; if it never came, the PIN field shows.
-      if (mounted && _autoPin == null) setState(() => _autoPin = false);
+    } catch (error) {
+      logWarn('unlock', 'demo lookup failed: ${describeError(englishStrings, error)}');
+      if (mounted) setState(() => _error = describeError(context.l10n, error));
+      return;
     }
+    // Without a wallet config nothing was looked up; the PIN field shows.
+    if (mounted && _autoPin == null) setState(() => _autoPin = false);
+  }
+
+  Future<void> _retryPrepare() async {
+    setState(() => _error = null);
+    await _prepare();
   }
 
   Future<void> _prepareUnlock() async {
@@ -209,7 +219,10 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
       body: CenteredBody(
         children: [
           BrandHero(
-            title: config == null
+            // The demo PIN needs no network jargon: the visitor only watches it open.
+            title: _autoPin != false
+                ? l.demoPinUnlockTitle
+                : config == null
                 ? l.unlockTitle
                 : '${l.unlockTitle}${networkSuffix(l, config.chain)}',
           ),
@@ -233,11 +246,11 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
             PinWaitNote(until: checkAt),
           ],
           if (_error != null) ErrorText(_error!),
-          if (_autoPin == true && _error != null)
+          if (_autoPin != false && _error != null)
             BusyButton(
               label: l.launchTryAgain,
               busy: _busy,
-              onPressed: _unlockWithDemoPin,
+              onPressed: _autoPin == null ? _retryPrepare : _unlockWithDemoPin,
             ),
           if (_biometrics) ...[
             const SizedBox(height: 8),
@@ -250,11 +263,15 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
               onPressed: _busy ? null : _unlockWithBiometrics,
             ),
           ],
-          const SizedBox(height: 24),
-          TextButton(
-            onPressed: _busy ? null : _forgotPin,
-            child: Text(l.pinForgot),
-          ),
+          // Forgot PIN ends a demo; it stays away while the demo PIN fills in, and comes back
+          // with an error or the PIN field.
+          if (_autoPin == false || _error != null) ...[
+            const SizedBox(height: 24),
+            TextButton(
+              onPressed: _busy ? null : _forgotPin,
+              child: Text(l.pinForgot),
+            ),
+          ],
         ],
       ),
     );

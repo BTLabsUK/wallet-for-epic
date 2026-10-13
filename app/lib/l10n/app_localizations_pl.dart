@@ -3741,4 +3741,10 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get demoPinSkip => 'Pomiń';
+
+  @override
+  String get demoPinSetUpTitle => 'Przygotowujemy twój portfel demo';
+
+  @override
+  String get demoPinUnlockTitle => 'Otwieramy twój portfel demo';
 }

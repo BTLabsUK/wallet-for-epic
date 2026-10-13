@@ -3621,4 +3621,10 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get demoPinSkip => 'Überspringen';
+
+  @override
+  String get demoPinSetUpTitle => 'Ihre Demo-Wallet wird eingerichtet';
+
+  @override
+  String get demoPinUnlockTitle => 'Ihre Demo-Wallet wird geöffnet';
 }

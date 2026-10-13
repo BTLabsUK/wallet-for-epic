@@ -3716,4 +3716,10 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get demoPinSkip => 'Пропустить';
+
+  @override
+  String get demoPinSetUpTitle => 'Настраиваем ваш демо-кошелёк';
+
+  @override
+  String get demoPinUnlockTitle => 'Открываем ваш демо-кошелёк';
 }

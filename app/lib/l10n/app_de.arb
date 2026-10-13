@@ -872,5 +872,7 @@
   "fileHelpPlay": "Animation abspielen",
   "demoPinFilled": "Demo-PIN, für Sie ausgefüllt",
   "demoPinOwnInApp": "In der App wählen Sie Ihre eigene PIN.",
-  "demoPinSkip": "Überspringen"
+  "demoPinSkip": "Überspringen",
+  "demoPinSetUpTitle": "Ihre Demo-Wallet wird eingerichtet",
+  "demoPinUnlockTitle": "Ihre Demo-Wallet wird geöffnet"
 }

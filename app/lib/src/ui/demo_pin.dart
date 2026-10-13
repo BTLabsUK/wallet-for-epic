@@ -79,7 +79,7 @@ class _DemoPinFillState extends State<DemoPinFill>
 
   void _finish() {
     if (_done || !mounted) return;
-    _done = true;
+    setState(() => _done = true);
     widget.onDone();
   }
 
@@ -150,11 +150,30 @@ class _DemoPinFillState extends State<DemoPinFill>
             ),
           ],
           const SizedBox(height: 8),
+          // Once done, Skip fades out and can no longer be reached, but keeps its space.
           Center(
-            child: TextButton(
-              style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
-              onPressed: _skip,
-              child: Text(l.demoPinSkip),
+            child: ExcludeSemantics(
+              excluding: _done,
+              child: ExcludeFocus(
+                excluding: _done,
+                child: IgnorePointer(
+                  ignoring: _done,
+                  child: AnimatedOpacity(
+                    opacity: _done ? 0 : 1,
+                    duration: MediaQuery.disableAnimationsOf(context)
+                        ? Duration.zero
+                        : const Duration(milliseconds: 150),
+                    child: TextButton(
+                      style: TextButton.styleFrom(
+                        minimumSize: const Size(48, 48),
+                      ),
+                      // Not disabled, so it does not change colour as it fades.
+                      onPressed: _skip,
+                      child: Text(l.demoPinSkip),
+                    ),
+                  ),
+                ),
+              ),
             ),
           ),
         ],

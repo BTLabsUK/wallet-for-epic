@@ -5377,6 +5377,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Skip'**
   String get demoPinSkip;
+
+  /// Web demo: heading of the first run while the demo PIN fills in and the wallet is created. Replaces the usual title with its network name.
+  ///
+  /// In en, this message translates to:
+  /// **'Setting up your demo wallet'**
+  String get demoPinSetUpTitle;
+
+  /// Web demo: heading of the unlock screen while the demo PIN fills in. The usual title returns with the PIN field.
+  ///
+  /// In en, this message translates to:
+  /// **'Opening your demo wallet'**
+  String get demoPinUnlockTitle;
 }
 
 class _AppLocalizationsDelegate

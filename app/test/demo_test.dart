@@ -26,6 +26,7 @@ import 'package:epic_wallet/src/ui/scan_screen.dart';
 import 'package:epic_wallet/src/ui/settings_history.dart';
 import 'package:epic_wallet/src/ui/settings_screen.dart';
 import 'package:epic_wallet/src/updater.dart';
+import 'package:epic_wallet/src/vault.dart' show PinRejected;
 import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
@@ -104,6 +105,21 @@ class _Service extends FakeWalletService {
   _Service({super.existingWallets, super.session});
 
   int openErrors = 0;
+
+  /// The next [pinFailures] lookups that fail as a lost connection.
+  int lookupErrors = 0;
+
+  @override
+  Future<int> pinFailures({required WalletConfig config}) async {
+    if (lookupErrors > 0) {
+      lookupErrors--;
+      throw const WalletError(
+        kind: WalletErrorKind.nodeUnreachable,
+        message: 'connection lost',
+      );
+    }
+    return super.pinFailures(config: config);
+  }
 
   @override
   Future<WalletSession> openWithPin({
@@ -294,10 +310,11 @@ void main() {
       expect(find.byType(FirstRunScreen), findsOneWidget);
       // The demo PIN is filled in: nothing to choose.
       expect(find.text(l.pinChooseTitle(6)), findsNothing);
-      // The first run is on floonet.
+      // The demo's first run names no network: it only sets itself up.
+      expect(find.text(l.demoPinSetUpTitle), findsOneWidget);
       expect(
         find.text('${l.firstRunTitle}${networkSuffix(l, Chain.floonet)}'),
-        findsOneWidget,
+        findsNothing,
       );
       await tester.pumpAndSettle();
       expect(h.container.read(sessionProvider), isNotNull);
@@ -819,6 +836,7 @@ void main() {
       await tester.tap(find.text(l.demoStart));
       await _untilDemoPinFill(tester);
       expect(pinField(), findsNothing);
+      expect(find.text(l.demoPinSetUpTitle), findsOneWidget);
       expect(find.text(l.demoPinFilled), findsOneWidget);
       expect(find.text(l.demoPinOwnInApp), findsOneWidget);
       await tester.pumpAndSettle();
@@ -832,12 +850,26 @@ void main() {
       final h = _Harness(pin: demoPin, demoPinFlag: true);
       await h.pump(tester, settle: false);
       await _untilDemoPinFill(tester);
-      // The field never shows while the dots fill.
+      // The field never shows while the dots fill, nor Forgot PIN, nor the network title.
       expect(pinField(), findsNothing);
+      expect(find.text(l.pinForgot), findsNothing);
+      expect(find.text(l.demoPinUnlockTitle), findsOneWidget);
       expect(h.container.read(sessionProvider), isNull);
       await tester.pumpAndSettle();
       expect(h.container.read(sessionProvider), isNotNull);
       expect(find.text(l.shellWalletTab), findsOneWidget);
+    });
+
+    testWidgets('a failed lookup says so and offers Try again', (tester) async {
+      final h = _Harness(pin: demoPin, demoPinFlag: true);
+      h.service.lookupErrors = 1;
+      await h.pump(tester);
+      expect(find.byType(ErrorText), findsOneWidget);
+      expect(pinField(), findsNothing);
+      expect(h.container.read(sessionProvider), isNull);
+      await _tap(tester, find.widgetWithText(FilledButton, l.launchTryAgain));
+      expect(find.byType(ErrorText), findsNothing);
+      expect(h.container.read(sessionProvider), isNotNull);
     });
 
     testWidgets('without demo mode the same store still asks for the PIN', (
@@ -860,6 +892,13 @@ void main() {
       await h.pump(tester);
       expect(find.byType(DemoPinFill), findsNothing);
       expect(pinField(), findsOneWidget);
+      // The manual field keeps the usual title and Forgot PIN.
+      expect(
+        find.text('${l.unlockTitle}${networkSuffix(l, Chain.floonet)}'),
+        findsOneWidget,
+      );
+      expect(find.text(l.demoPinUnlockTitle), findsNothing);
+      expect(find.text(l.pinForgot), findsOneWidget);
       expect(h.container.read(sessionProvider), isNull);
       await h.unlock(tester);
     });
@@ -931,24 +970,76 @@ void main() {
       );
     }
 
-    testWidgets('the PIN prompt falls back to the field on an error', (
+    testWidgets(
+      'the PIN prompt keeps the dots and offers Try again on an error',
+      (tester) async {
+        final h = _Harness(pin: demoPin, demoPinFlag: true);
+        await h.pump(tester);
+        var calls = 0;
+        String? got;
+        unawaited(
+          askPin<String>(
+            tester.element(find.byType(Scaffold).first),
+            action: (pin) async {
+              if (calls++ == 0) {
+                throw const WalletError(
+                  kind: WalletErrorKind.nodeUnreachable,
+                  message: 'connection lost',
+                );
+              }
+              return pin;
+            },
+          ).then((value) => got = value),
+        );
+        await tester.pumpAndSettle();
+        expect(find.byType(AlertDialog), findsOneWidget);
+        expect(find.byType(DemoPinFill), findsOneWidget);
+        expect(find.byType(ErrorText), findsOneWidget);
+        expect(pinField(), findsNothing);
+        await _tap(tester, find.widgetWithText(FilledButton, l.launchTryAgain));
+        expect(calls, 2);
+        expect(got, demoPin);
+        expect(find.byType(AlertDialog), findsNothing);
+      },
+    );
+
+    testWidgets(
+      'the PIN prompt falls back to the field when the PIN is refused',
+      (tester) async {
+        final h = _Harness(pin: demoPin, demoPinFlag: true);
+        await h.pump(tester);
+        unawaited(
+          askPin<String>(
+            tester.element(find.byType(Scaffold).first),
+            action: (pin) async => throw const PinRejected(1),
+          ),
+        );
+        await tester.pumpAndSettle();
+        expect(find.byType(AlertDialog), findsOneWidget);
+        expect(find.byType(DemoPinFill), findsNothing);
+        expect(pinField(), findsOneWidget);
+        expect(find.text(l.launchTryAgain), findsNothing);
+      },
+    );
+
+    testWidgets('the PIN prompt asks for the PIN after a wrong one', (
       tester,
     ) async {
       final h = _Harness(pin: demoPin, demoPinFlag: true);
       await h.pump(tester);
+      expect(h.container.read(sessionProvider), isNotNull);
+      h.service.pinFailureCount = 1;
+      String? got;
       unawaited(
         askPin<String>(
           tester.element(find.byType(Scaffold).first),
-          action: (pin) async => throw const WalletError(
-            kind: WalletErrorKind.nodeUnreachable,
-            message: 'connection lost',
-          ),
-        ),
+          action: (pin) async => pin,
+        ).then((value) => got = value),
       );
       await tester.pumpAndSettle();
-      expect(find.byType(AlertDialog), findsOneWidget);
       expect(find.byType(DemoPinFill), findsNothing);
       expect(pinField(), findsOneWidget);
+      expect(got, isNull);
     });
 
     Future<List<int>> pumpFill(WidgetTester tester, {bool reduced = false}) {
@@ -987,6 +1078,45 @@ void main() {
       await tester.pump();
       // 100 ms in, far before the animation's end.
       expect(done, hasLength(1));
+      // Skip fades out over 150 ms, keeps its space, and can no longer be reached.
+      final skip = find.ancestor(
+        of: find.text(l.demoPinSkip),
+        matching: find.byType(AnimatedOpacity),
+      );
+      final box = tester.getRect(find.text(l.demoPinSkip));
+      expect(tester.widget<AnimatedOpacity>(skip).opacity, 0);
+      expect(
+        tester.widget<AnimatedOpacity>(skip).duration,
+        const Duration(milliseconds: 150),
+      );
+      await tester.pump(const Duration(milliseconds: 200));
+      expect(tester.getRect(find.text(l.demoPinSkip)), box);
+      expect(
+        tester
+            .widget<ExcludeFocus>(
+              find
+                  .ancestor(
+                    of: find.text(l.demoPinSkip),
+                    matching: find.byType(ExcludeFocus),
+                  )
+                  .first,
+            )
+            .excluding,
+        isTrue,
+      );
+      expect(
+        tester
+            .widget<IgnorePointer>(
+              find
+                  .ancestor(
+                    of: find.text(l.demoPinSkip),
+                    matching: find.byType(IgnorePointer),
+                  )
+                  .first,
+            )
+            .ignoring,
+        isTrue,
+      );
       await tester.pump(const Duration(seconds: 2));
       // A tap on the dots after the end does nothing more.
       await tester.tap(find.text(l.demoPinFilled));
@@ -1007,7 +1137,15 @@ void main() {
     ) async {
       final done = await pumpFill(tester, reduced: true);
       expect(done, hasLength(1));
+      await tester.pump();
       expect(tester.hasRunningAnimations, isFalse);
+      // Skip goes at once, with no fade.
+      final skip = find.ancestor(
+        of: find.text(l.demoPinSkip),
+        matching: find.byType(AnimatedOpacity),
+      );
+      expect(tester.widget<AnimatedOpacity>(skip).opacity, 0);
+      expect(tester.widget<AnimatedOpacity>(skip).duration, Duration.zero);
     });
 
     testWidgets('announces itself and keeps Skip reachable', (tester) async {

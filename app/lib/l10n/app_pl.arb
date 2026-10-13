@@ -872,5 +872,7 @@
   "fileHelpPlay": "Odtwórz animację",
   "demoPinFilled": "PIN demo, wpisany za ciebie",
   "demoPinOwnInApp": "W aplikacji wybierasz własny PIN.",
-  "demoPinSkip": "Pomiń"
+  "demoPinSkip": "Pomiń",
+  "demoPinSetUpTitle": "Przygotowujemy twój portfel demo",
+  "demoPinUnlockTitle": "Otwieramy twój portfel demo"
 }

@@ -3577,4 +3577,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get demoPinSkip => 'Skip';
+
+  @override
+  String get demoPinSetUpTitle => 'Setting up your demo wallet';
+
+  @override
+  String get demoPinUnlockTitle => 'Opening your demo wallet';
 }

@@ -872,5 +872,7 @@
   "fileHelpPlay": "播放动画",
   "demoPinFilled": "演示 PIN 已为你填好",
   "demoPinOwnInApp": "在应用中你会自己设置 PIN。",
-  "demoPinSkip": "跳过"
+  "demoPinSkip": "跳过",
+  "demoPinSetUpTitle": "正在设置你的演示钱包",
+  "demoPinUnlockTitle": "正在打开你的演示钱包"
 }

@@ -3362,4 +3362,10 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get demoPinSkip => '跳过';
+
+  @override
+  String get demoPinSetUpTitle => '正在设置你的演示钱包';
+
+  @override
+  String get demoPinUnlockTitle => '正在打开你的演示钱包';
 }

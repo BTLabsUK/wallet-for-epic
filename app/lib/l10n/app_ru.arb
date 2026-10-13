@@ -872,5 +872,7 @@
   "fileHelpPlay": "Воспроизвести анимацию",
   "demoPinFilled": "Демо-PIN введён за вас",
   "demoPinOwnInApp": "В приложении вы выбираете свой PIN.",
-  "demoPinSkip": "Пропустить"
+  "demoPinSkip": "Пропустить",
+  "demoPinSetUpTitle": "Настраиваем ваш демо-кошелёк",
+  "demoPinUnlockTitle": "Открываем ваш демо-кошелёк"
 }

@@ -107,7 +107,10 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
       ),
       body: CenteredBody(
         children: [
-          BrandHero(title: '${l.firstRunTitle}$network'),
+          // The demo has no PIN to choose and no network to name: it only sets itself up.
+          BrandHero(
+            title: demo ? l.demoPinSetUpTitle : '${l.firstRunTitle}$network',
+          ),
           const SizedBox(height: 28),
           if (_answer == null) ...[
             if (demo)
