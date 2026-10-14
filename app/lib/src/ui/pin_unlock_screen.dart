@@ -222,7 +222,8 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
             // The demo PIN needs no network jargon: the visitor only watches it open.
             title: _autoPin != false
                 ? l.demoPinUnlockTitle
-                : config == null
+                // The header's Test coins pill names the network in the demo.
+                : config == null || ref.watch(demoModeProvider)
                 ? l.unlockTitle
                 : '${l.unlockTitle}${networkSuffix(l, config.chain)}',
           ),
