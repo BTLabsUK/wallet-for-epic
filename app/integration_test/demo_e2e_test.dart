@@ -64,7 +64,6 @@ class Visitor {
     http: http,
     origin: _base,
     ended: _ended.stream,
-    openLink: (_) async {},
   );
   late RemoteWalletService wallet;
   late WalletSession session;
