@@ -1,8 +1,6 @@
-import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../amount.dart';
@@ -30,14 +28,11 @@ const Key fiatValueKey = ValueKey('balance-fiat');
 /// The key of the pending line under the fiat row, for tests.
 const Key pendingLineKey = ValueKey('pending-line');
 
-/// The key of the pending line's moving part, a [Transform], for tests.
-const Key pendingReelKey = ValueKey('pending-reel');
-
 /// The key of the figure in the app bar's title on Send and Receive, for tests.
 const Key titleFigureKey = ValueKey('title-figure');
 
-/// The key of the pulsing dot after that figure while anything is pending, for tests.
-const Key pendingDotKey = ValueKey('pending-dot');
+/// The key of the line under that figure with what is on hold and coming in, for tests.
+const Key titlePendingKey = ValueKey('title-pending');
 
 /// The key of the statuses in Wallet's fiat row, the only place they show.
 const Key walletStatusesKey = ValueKey('statuses-wallet');
@@ -54,12 +49,6 @@ const double shellLeadingWidth = 48;
 
 /// How long the sweep takes when a payment lands.
 const Duration landingSweepDuration = Duration(milliseconds: 1200);
-
-/// How fast the pending line scrolls when it does not fit, in dp per second.
-const double pendingLineSpeed = 24;
-
-/// How long each item of the pending line shows with reduced motion, when it does not fit.
-const Duration pendingLineStep = Duration(seconds: 4);
 
 /// The size Wallet's figure starts at, and the least it shrinks to.
 const double figureSize = 60, figureMinSize = 34;
@@ -84,16 +73,24 @@ bool paymentLanded(WalletSummary? before, WalletSummary? after) {
       incoming(after) < incoming(before);
 }
 
-/// The balances that are not spendable yet, in the pending line's order.
-enum PendingKind { confirming, waiting, locked, mining }
+/// The two kinds of balance the pending line names: coins a send holds until it completes,
+/// and coins on their way in (confirming, waiting for the sender, mining rewards maturing).
+enum PendingKind { onHold, comingIn }
 
 /// One item of the pending line: what it is, its glyph and its words. [kind] is null for the
 /// calm line ("All confirmed", "Nothing here yet").
 typedef PendingItem = ({PendingKind? kind, IconData icon, String text});
 
-/// The pending line's items for [summary]: each non-zero balance not spendable yet, in
-/// [PendingKind] order; with none, "All confirmed", or "Nothing here yet" when the wallet has
-/// had no payments ([empty]).
+/// The money on its way in: confirming, waiting for the sender to finish, and mining rewards.
+BigInt comingIn(WalletSummary summary) =>
+    summary.awaitingConfirmation +
+    summary.awaitingFinalization +
+    summary.immature;
+
+/// The pending line's items for [summary], at most two: what a send holds ("10 on hold") and
+/// what is on its way in ("+7.49 coming in"). With neither, "All confirmed", or "Nothing here
+/// yet" when the wallet has had no payments ([empty]). The ? beside the balance still splits
+/// each one up.
 List<PendingItem> pendingItems(
   AppLocalizations l,
   WalletSummary summary, {
@@ -102,30 +99,19 @@ List<PendingItem> pendingItems(
 }) {
   String amount(BigInt v) =>
       hidden ? hiddenAmount : localDigits(l, displayEpic(v));
+  final incoming = comingIn(summary);
   final items = <PendingItem>[
-    if (summary.awaitingConfirmation > BigInt.zero)
-      (
-        kind: PendingKind.confirming,
-        icon: Icons.south_west,
-        text: l.balanceLineConfirming(amount(summary.awaitingConfirmation)),
-      ),
-    if (summary.awaitingFinalization > BigInt.zero)
-      (
-        kind: PendingKind.waiting,
-        icon: Icons.schedule,
-        text: l.balanceLineWaiting(amount(summary.awaitingFinalization)),
-      ),
     if (summary.locked > BigInt.zero)
       (
-        kind: PendingKind.locked,
+        kind: PendingKind.onHold,
         icon: Icons.lock_outline,
-        text: l.balanceLineLocked(amount(summary.locked)),
+        text: l.balanceLineOnHold(amount(summary.locked)),
       ),
-    if (summary.immature > BigInt.zero)
+    if (incoming > BigInt.zero)
       (
-        kind: PendingKind.mining,
-        icon: Icons.bolt,
-        text: l.balanceLineMining(amount(summary.immature)),
+        kind: PendingKind.comingIn,
+        icon: Icons.south_west,
+        text: l.balanceLineComingIn(amount(incoming)),
       ),
   ];
   if (items.isNotEmpty) return items;
@@ -140,10 +126,7 @@ List<PendingItem> pendingItems(
 
 /// Whether anything in [summary] is not spendable yet.
 bool hasPending(WalletSummary summary) =>
-    summary.awaitingConfirmation > BigInt.zero ||
-    summary.awaitingFinalization > BigInt.zero ||
-    summary.locked > BigInt.zero ||
-    summary.immature > BigInt.zero;
+    summary.locked > BigInt.zero || comingIn(summary) > BigInt.zero;
 
 /// What a screen reader says for the spendable balance.
 String _spendableLabel(AppLocalizations l, BigInt spendable, bool hidden) =>
@@ -391,123 +374,30 @@ class _Figure extends StatelessWidget {
   }
 }
 
-/// The pending line under Wallet's figure: [items] on one line of fixed height, each a small
-/// glyph and its words, mono 12; the calm item ("All confirmed") fainter. Centred while they
-/// fit.
-///
-/// When they do not fit, they scroll left as one seamless loop at [pendingLineSpeed], the
-/// right edge faded; a press, or hover with a mouse, pauses it. A changed amount changes the
-/// words in place and the loop runs on; a changed set of kinds starts it again. With reduced
-/// motion it never scrolls: it cuts to the next item every [pendingLineStep]. Screen readers
-/// hear the whole list once.
-class PendingLine extends StatefulWidget {
+/// The pending line under Wallet's figure: [items] (at most two) on one centred line of fixed
+/// height, each a small glyph and its words in the body face at 13, dim; the calm item ("All
+/// confirmed") fainter. It never scrolls: when the items are wider than the line, as at large
+/// text on a small phone, they shrink to fit. Screen readers hear them once, in order.
+class PendingLine extends StatelessWidget {
   const PendingLine({super.key, required this.items});
 
   final List<PendingItem> items;
 
-  @override
-  State<PendingLine> createState() => _PendingLineState();
-}
-
-class _PendingLineState extends State<PendingLine>
-    with SingleTickerProviderStateMixin {
-  late final Ticker _ticker = createTicker(_tick);
-  Duration? _last;
-  Timer? _cutTimer;
-
-  /// How far the loop has scrolled, within one copy of the items. A notifier, so a frame of
-  /// the loop moves the reel without building the line again.
-  final ValueNotifier<double> _offset = ValueNotifier(0);
-
-  /// With reduced motion: the item the line starts at.
-  int _cut = 0;
-
-  bool _pressed = false;
-  bool _hovered = false;
-
-  /// What the last layout found: the width of one copy, each item's start, and whether the
-  /// items overflow the line.
-  double _cycle = 0;
-  List<double> _starts = const [];
-  bool _overflow = false;
-
-  /// Glyph, the gap after it, and the space after each item.
-  static const double _glyph = 12, _gap = 6, _after = 22;
-
-  String get _kinds => widget.items.map((i) => i.kind?.name).join(',');
-
-  @override
-  void didUpdateWidget(PendingLine old) {
-    super.didUpdateWidget(old);
-    final before = old.items.map((i) => i.kind?.name).join(',');
-    if (before != _kinds) {
-      _offset.value = 0;
-      _cut = 0;
-      _last = null;
-      _cutTimer?.cancel();
-      _cutTimer = null;
-    }
-  }
-
-  @override
-  void dispose() {
-    _ticker.dispose();
-    _cutTimer?.cancel();
-    _offset.dispose();
-    super.dispose();
-  }
-
-  void _tick(Duration elapsed) {
-    final last = _last;
-    _last = elapsed;
-    if (last == null || _pressed || _hovered || _cycle <= 0) return;
-    final dt = (elapsed - last).inMicroseconds / Duration.microsecondsPerSecond;
-    _offset.value = (_offset.value + pendingLineSpeed * dt) % _cycle;
-  }
-
-  /// Starts or stops the ticker and the reduced-motion timer for the last layout.
-  void _sync(bool still) {
-    if (!mounted) return;
-    final scroll = _overflow && !still;
-    if (scroll && !_ticker.isActive) {
-      _last = null;
-      _ticker.start();
-    } else if (!scroll && _ticker.isActive) {
-      _ticker.stop();
-    }
-    if (!_overflow) _offset.value = 0;
-    final cut = _overflow && still;
-    if (cut && _cutTimer == null) {
-      _cutTimer = Timer.periodic(pendingLineStep, (_) {
-        if (!mounted || _starts.isEmpty) return;
-        setState(() => _cut = (_cut + 1) % _starts.length);
-      });
-    } else if (!cut && _cutTimer != null) {
-      _cutTimer!.cancel();
-      _cutTimer = null;
-      _cut = 0;
-    }
-  }
+  /// Glyph (at the text scale, like its words), the gap after it, and the space between two
+  /// items.
+  static const double _glyph = 13, _gap = 5, _between = 16;
 
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
     final scaler = MediaQuery.textScalerOf(context);
-    final still = MediaQuery.disableAnimationsOf(context);
-    final direction = Directionality.of(context);
-    // Merged with the inherited style, as the Text widgets draw it, so the widths measured
-    // below are the widths drawn.
-    final style = DefaultTextStyle.of(context).style.merge(
-      TextStyle(
-        fontFamily: t.monoFamily,
-        fontSize: 12,
-        color: t.dim,
-        fontFeatures: const [FontFeature.tabularFigures()],
-      ),
+    final style = TextStyle(
+      fontSize: 13,
+      color: t.dim,
+      fontFeatures: const [FontFeature.tabularFigures()],
     );
     final calm = style.copyWith(color: t.faint);
     final height = math.max(20.0, _lineHeight(style, scaler, context) + 4);
-    final items = widget.items;
     return Semantics(
       container: true,
       label: items.map((i) => i.text).join('\n'),
@@ -515,129 +405,30 @@ class _PendingLineState extends State<PendingLine>
       child: SizedBox(
         key: pendingLineKey,
         height: height,
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final widths = [
-              for (final i in items)
-                _glyph +
-                    _gap +
-                    _textWidth(
-                      i.text,
-                      i.kind == null ? calm : style,
-                      scaler,
-                      direction,
-                    ) +
-                    _after,
-            ];
-            final starts = <double>[];
-            var x = 0.0;
-            for (final w in widths) {
-              starts.add(x);
-              x += w;
-            }
-            _cycle = x;
-            _starts = starts;
-            // The space after the last item does not need to fit.
-            _overflow = items.isNotEmpty && x - _after > constraints.maxWidth;
-            WidgetsBinding.instance.addPostFrameCallback((_) => _sync(still));
-            Widget copy() => Row(
+        child: Center(
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                for (final (n, i) in items.indexed)
-                  SizedBox(
-                    width: widths[n],
-                    child: Row(
-                      children: [
-                        Icon(
-                          i.icon,
-                          size: _glyph,
-                          color: i.kind == null ? t.faint : t.dim,
-                        ),
-                        const SizedBox(width: _gap),
-                        Flexible(
-                          child: Text(
-                            i.text,
-                            maxLines: 1,
-                            softWrap: false,
-                            overflow: TextOverflow.clip,
-                            style: i.kind == null ? calm : style,
-                          ),
-                        ),
-                      ],
-                    ),
+                for (final (n, i) in items.indexed) ...[
+                  if (n > 0) const SizedBox(width: _between),
+                  Icon(
+                    i.icon,
+                    size: scaler.scale(_glyph),
+                    color: i.kind == null ? t.faint : t.dim,
                   ),
+                  const SizedBox(width: _gap),
+                  Text(
+                    i.text,
+                    maxLines: 1,
+                    softWrap: false,
+                    style: i.kind == null ? calm : style,
+                  ),
+                ],
               ],
-            );
-            // Centred while it fits; scrolling, it starts at the line's start.
-            Widget reel = ClipRect(
-              child: OverflowBox(
-                alignment: _overflow
-                    ? AlignmentDirectional.centerStart
-                    : AlignmentDirectional.center,
-                minWidth: 0,
-                maxWidth: double.infinity,
-                child: ValueListenableBuilder<double>(
-                  valueListenable: _offset,
-                  builder: (context, offset, row) {
-                    final shift = !_overflow
-                        ? 0.0
-                        : still
-                        ? starts[_cut % starts.length]
-                        : offset;
-                    return Transform.translate(
-                      key: pendingReelKey,
-                      offset: Offset(
-                        direction == TextDirection.ltr ? -shift : shift,
-                        0,
-                      ),
-                      child: row,
-                    );
-                  },
-                  // Fitting, the line is padded at its start as at its end, so its words
-                  // centre; scrolling, a copy follows it, so the loop has no gap.
-                  child: _overflow
-                      ? Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [copy(), copy()],
-                        )
-                      : Padding(
-                          padding: const EdgeInsetsDirectional.only(
-                            start: _after,
-                          ),
-                          child: copy(),
-                        ),
-                ),
-              ),
-            );
-            if (_overflow) {
-              // The far edge fades out over 28 dp, so the cut-off word does not end hard.
-              reel = ShaderMask(
-                blendMode: BlendMode.dstIn,
-                shaderCallback: (rect) => LinearGradient(
-                  begin: AlignmentDirectional.centerStart.resolve(direction),
-                  end: AlignmentDirectional.centerEnd.resolve(direction),
-                  colors: const [
-                    Colors.white,
-                    Colors.white,
-                    Colors.transparent,
-                  ],
-                  stops: [0, 1 - 28 / math.max(rect.width, 28), 1],
-                ).createShader(rect),
-                child: reel,
-              );
-            }
-            return MouseRegion(
-              onEnter: (_) => _hovered = true,
-              onExit: (_) => _hovered = false,
-              child: Listener(
-                behavior: HitTestBehavior.opaque,
-                onPointerDown: (_) => _pressed = true,
-                onPointerUp: (_) => _pressed = false,
-                onPointerCancel: (_) => _pressed = false,
-                child: reel,
-              ),
-            );
-          },
+            ),
+          ),
         ),
       ),
     );
@@ -645,9 +436,9 @@ class _PendingLineState extends State<PendingLine>
 }
 
 /// The app bar's title on every tab, cross-faded by the page position ([openness], 1 on
-/// Wallet): Wallet's [ShellTitle] ("Epic Cash", or the demo's countdown in [trailing]), and
-/// on Send and Receive the spendable figure with a small gold EPIC and a pulsing dot while
-/// anything is pending. Each shrinks rather than overflows when the bar is narrow.
+/// Wallet): Wallet's [ShellTitle] ("Epic Cash", or the demo's pill in [trailing]), and on
+/// Send and Receive the spendable figure with a small gold EPIC, and under it what is on hold
+/// or coming in. Each shrinks rather than overflows when the bar is narrow.
 class ShellBarTitle extends StatelessWidget {
   const ShellBarTitle({super.key, required this.openness, this.trailing});
 
@@ -669,82 +460,87 @@ class ShellBarTitle extends StatelessWidget {
       alignment: AlignmentDirectional.centerStart,
       children: [
         layer(shellFade(t), t >= 0.5, ShellTitle(trailing: trailing)),
-        layer(shellFade(1 - t), t < 0.5, _FigureTitle(shown: t < 1)),
+        layer(shellFade(1 - t), t < 0.5, const _FigureTitle()),
       ],
     );
   }
 }
 
 /// The spendable figure as Send's and Receive's title: the app bar's title style with tabular
-/// figures, a small gold EPIC after it, and while anything is pending an accent dot that pulses
-/// while [shown]. The dot's room is kept when there is no dot, so a payment starting does not
-/// change the title's width.
+/// figures and a small gold EPIC after it; while anything is on hold or coming in, a quiet line
+/// under it with the same words as Wallet's pending line, so the two never disagree.
 class _FigureTitle extends ConsumerWidget {
-  const _FigureTitle({required this.shown});
-
-  final bool shown;
+  const _FigureTitle();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final summary = ref.watch(homeProvider).value?.summary;
+    final data = ref.watch(homeProvider).value;
+    final summary = data?.summary;
     if (summary == null) return const SizedBox.shrink();
     final l = context.l10n;
     final t = context.tokens;
     final hidden = amountDisplay(ref).hidden;
-    final pending = hasPending(summary);
+    final pending = [
+      for (final i in pendingItems(l, summary, hidden: hidden, empty: false))
+        if (i.kind != null) i.text,
+    ];
     final style = DefaultTextStyle.of(context).style
         .copyWith(fontFeatures: const [FontFeature.tabularFigures()]);
-    const dot = 6.0;
+    final figure = Text.rich(
+      key: titleFigureKey,
+      TextSpan(
+        children: [
+          TextSpan(
+            text: hidden
+                ? hiddenAmount
+                : localDigits(l, displayEpic(summary.spendable)),
+          ),
+          const WidgetSpan(child: SizedBox(width: 6)),
+          TextSpan(
+            text: 'EPIC',
+            style: TextStyle(
+              fontSize: 11,
+              letterSpacing: 0.12 * 11,
+              color: t.accentText,
+            ),
+          ),
+        ],
+      ),
+      maxLines: 1,
+      softWrap: false,
+      style: style,
+    );
     return Semantics(
       container: true,
       label: [
         _spendableLabel(l, summary.spendable, hidden),
-        if (pending) l.shellPendingLabel,
+        ...pending,
       ].join('\n'),
       excludeSemantics: true,
       child: FittedBox(
         fit: BoxFit.scaleDown,
         alignment: AlignmentDirectional.centerStart,
-        child: Text.rich(
-          key: titleFigureKey,
-          TextSpan(
-            children: [
-              TextSpan(
-                text: hidden
-                    ? hiddenAmount
-                    : localDigits(l, displayEpic(summary.spendable)),
-              ),
-              const WidgetSpan(child: SizedBox(width: 6)),
-              TextSpan(
-                text: 'EPIC',
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            figure,
+            if (pending.isNotEmpty)
+              Text(
+                pending.join(' · '),
+                key: titlePendingKey,
+                maxLines: 1,
+                softWrap: false,
                 style: TextStyle(
-                  fontSize: 11,
-                  letterSpacing: 0.12 * 11,
-                  color: t.accentText,
+                  fontSize: 12,
+                  height: 1.2,
+                  color: t.dim,
+                  fontWeight: FontWeight.w400,
+                  letterSpacing: 0,
+                  fontFeatures: const [FontFeature.tabularFigures()],
                 ),
               ),
-              const WidgetSpan(child: SizedBox(width: 6)),
-              WidgetSpan(
-                alignment: PlaceholderAlignment.middle,
-                child: pending
-                    ? Pulse(
-                        active: shown,
-                        child: DecoratedBox(
-                          key: pendingDotKey,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: t.accent,
-                          ),
-                          child: const SizedBox.square(dimension: dot),
-                        ),
-                      )
-                    : const SizedBox.square(dimension: dot),
-              ),
-            ],
-          ),
-          maxLines: 1,
-          softWrap: false,
-          style: style,
+          ],
         ),
       ),
     );
@@ -901,7 +697,7 @@ class _BalanceHelpState extends State<BalanceHelp> {
   }
 }
 
-/// Wallet's app bar title: the mark's name, or in the web demo its countdown ([trailing]),
+/// Wallet's app bar title: the mark's name, or in the web demo its Test coins pill ([trailing]),
 /// which takes the name's place; the mark before the title still names the app. It names no
 /// network: a test network says so in the node status's tooltip.
 class ShellTitle extends StatelessWidget {

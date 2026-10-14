@@ -1132,44 +1132,22 @@ class AppLocalizationsZh extends AppLocalizations {
   String get shellTitle => 'Epic Cash';
 
   @override
-  String get demoWelcomeTitle => '试用 Epic Cash 钱包';
+  String get demoWelcomeTitle => '试用 Epic Cash';
 
   @override
-  String get demoWelcomeLine => '一个真正的 Epic Cash 钱包，运行在 Floonet 测试网络上。';
-
-  @override
-  String get demoWelcomeNoValue => '这些币没有价值。';
-
-  @override
-  String get demoWelcomeNothingToInstall => '无需安装。';
-
-  @override
-  String get demoWelcomeDeleted => '演示钱包会在开始 24 小时后删除。';
+  String get demoWelcomeLine => '一个真正的钱包，附带免费的测试币，测试币没有价值。24 小时后删除。';
 
   @override
   String get demoStart => '开始演示';
 
   @override
-  String get demoGetApp => '获取应用';
-
-  @override
   String get demoEndedTitle => '你的演示已结束';
 
   @override
-  String get demoEndedBody => '它的钱包和测试币已在开始 24 小时后删除。点“重新开始”可获得一个新的演示。';
+  String get demoEndedBody => '它的钱包和测试币已删除。';
 
   @override
   String get demoStartAgain => '重新开始';
-
-  @override
-  String demoEndsInHours(int hours) {
-    return '演示，$hours 小时后结束';
-  }
-
-  @override
-  String demoEndsInMinutes(int minutes) {
-    return '演示，$minutes 分钟后结束';
-  }
 
   @override
   String demoEndsAt(String time) {
@@ -1383,33 +1361,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get balanceImmatureHelp => '挖矿奖励需等待一定数量的区块后才能使用。';
 
   @override
-  String balanceLineConfirming(String amount) {
-    return '+$amount 确认中';
-  }
-
-  @override
-  String balanceLineWaiting(String amount) {
-    return '+$amount 等待发送方';
-  }
-
-  @override
-  String balanceLineLocked(String amount) {
-    return '$amount 被发送锁定';
-  }
-
-  @override
-  String balanceLineMining(String amount) {
-    return '$amount 挖矿奖励待成熟';
-  }
-
-  @override
   String get balanceLineAllConfirmed => '全部已确认';
 
   @override
   String get balanceLineNothingYet => '暂无内容';
-
-  @override
-  String get shellPendingLabel => '付款进行中';
 
   @override
   String get homeSyncSyncing => '正在同步…';
@@ -3214,9 +3169,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get demoPinFilled => '演示 PIN 已为你填好';
 
   @override
-  String get demoPinOwnInApp => '在应用中你会自己设置 PIN。';
-
-  @override
   String get demoPinSkip => '跳过';
 
   @override
@@ -3427,4 +3379,67 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get handshakeNext => '下一步';
+
+  @override
+  String balanceLineOnHold(String amount) {
+    return '$amount 冻结中';
+  }
+
+  @override
+  String balanceLineComingIn(String amount) {
+    return '+$amount 即将到账';
+  }
+
+  @override
+  String get demoTestCoinsPill => '测试币';
+
+  @override
+  String get demoTestCoinsPillTip => 'Floonet，Epic 的测试网络。这些币没有价值。';
+
+  @override
+  String demoLeftHours(int hours) {
+    return '剩 $hours 小时';
+  }
+
+  @override
+  String demoLeftMinutes(int minutes) {
+    return '剩 $minutes 分钟';
+  }
+
+  @override
+  String get demoReceiveKeepOpen => '保持此标签页打开才能收款。';
+
+  @override
+  String get demoGuideTitle => '试一次付款';
+
+  @override
+  String get demoGuideSend => '发一些给别人';
+
+  @override
+  String get demoGuideSendHint => '付款给朋友的演示，或在无痕窗口中打开本页面获得第二个钱包。';
+
+  @override
+  String get demoGuideOpenSend => '前往发送';
+
+  @override
+  String get demoGuideAsking => '正在向测试水龙头申请，可能需要一分钟。';
+
+  @override
+  String get demoGuideDone => '都完成了。演示结束前可以随意看看。';
+
+  @override
+  String get demoGuideHide => '隐藏';
+
+  @override
+  String get demoGuideHideLabel => '隐藏演示步骤';
+
+  @override
+  String demoGuideStepDone(String step) {
+    return '$step，已完成';
+  }
+
+  @override
+  String demoGuideStepToDo(String step) {
+    return '$step，尚未完成';
+  }
 }

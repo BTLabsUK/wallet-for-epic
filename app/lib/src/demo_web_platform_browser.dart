@@ -14,9 +14,6 @@ import 'remote/client.dart';
 import 'remote/web_channel.dart';
 import 'web/preview.dart';
 
-/// Set by `--dart-define=WFE_DOWNLOAD_URL=...`; empty hides every Get the app.
-const String _downloadUrl = String.fromEnvironment('WFE_DOWNLOAD_URL');
-
 /// The web demo on its server: the wallet over a reconnecting socket to `<origin>/api/ws`
 /// and the server's [DemoApi]. Nothing for a `WFE_WEB_FAKE` build, which keeps the preview
 /// wallet and [FakeDemoApi], or outside demo mode.
@@ -37,8 +34,6 @@ List<Override> webDemoOverrides() {
     ended: wallet.pushes
         .where((push) => push.name == demoEndedPushName)
         .map((_) {}),
-    openLink: openInNewTab,
-    downloadUrl: _downloadUrl.isEmpty ? null : Uri.tryParse(_downloadUrl),
   );
   return [
     walletServiceProvider.overrideWithValue(wallet),
@@ -47,11 +42,6 @@ List<Override> webDemoOverrides() {
 }
 
 DemoHttp browserDemoHttp() => const _FetchDemoHttp();
-
-/// Opens [uri] in a new tab, with no way back to this page (`noopener`).
-Future<void> openInNewTab(Uri uri) async {
-  web.window.open(uri.toString(), '_blank', 'noopener,noreferrer');
-}
 
 class _FetchDemoHttp implements DemoHttp {
   const _FetchDemoHttp();

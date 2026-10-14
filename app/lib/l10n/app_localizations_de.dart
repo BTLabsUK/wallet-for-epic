@@ -1211,47 +1211,23 @@ class AppLocalizationsDe extends AppLocalizations {
   String get shellTitle => 'Epic Cash';
 
   @override
-  String get demoWelcomeTitle => 'Epic Cash Wallet ausprobieren';
+  String get demoWelcomeTitle => 'Epic Cash ausprobieren';
 
   @override
   String get demoWelcomeLine =>
-      'Eine echte Epic-Cash-Wallet im Testnetz Floonet.';
-
-  @override
-  String get demoWelcomeNoValue => 'Die Coins haben keinen Wert.';
-
-  @override
-  String get demoWelcomeNothingToInstall => 'Nichts zu installieren.';
-
-  @override
-  String get demoWelcomeDeleted =>
-      'Ihre Demo-Wallet wird 24 Stunden nach dem Start gelöscht.';
+      'Eine echte Wallet mit kostenlosen Test-Coins ohne Wert. Sie wird nach 24 Stunden gelöscht.';
 
   @override
   String get demoStart => 'Demo starten';
 
   @override
-  String get demoGetApp => 'App holen';
-
-  @override
   String get demoEndedTitle => 'Ihre Demo ist beendet';
 
   @override
-  String get demoEndedBody =>
-      'Ihre Wallet und die Test-Coins wurden 24 Stunden nach dem Start gelöscht. Mit Neu starten beginnen Sie eine neue.';
+  String get demoEndedBody => 'Ihre Wallet und die Test-Coins wurden gelöscht.';
 
   @override
   String get demoStartAgain => 'Neu starten';
-
-  @override
-  String demoEndsInHours(int hours) {
-    return 'Demo, endet in $hours h';
-  }
-
-  @override
-  String demoEndsInMinutes(int minutes) {
-    return 'Demo, endet in $minutes Min.';
-  }
 
   @override
   String demoEndsAt(String time) {
@@ -1488,33 +1464,10 @@ class AppLocalizationsDe extends AppLocalizations {
       'Mining-Belohnungen warten eine feste Zahl von Blöcken, bevor sie verfügbar sind.';
 
   @override
-  String balanceLineConfirming(String amount) {
-    return '+$amount wird bestätigt';
-  }
-
-  @override
-  String balanceLineWaiting(String amount) {
-    return '+$amount wartet auf Absender';
-  }
-
-  @override
-  String balanceLineLocked(String amount) {
-    return '$amount durch eine Zahlung gesperrt';
-  }
-
-  @override
-  String balanceLineMining(String amount) {
-    return '$amount Mining-Belohnungen reifen';
-  }
-
-  @override
   String get balanceLineAllConfirmed => 'Alles bestätigt';
 
   @override
   String get balanceLineNothingYet => 'Noch nichts da';
-
-  @override
-  String get shellPendingLabel => 'Zahlungen unterwegs';
 
   @override
   String get homeSyncSyncing => 'Wird synchronisiert…';
@@ -3465,9 +3418,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get demoPinFilled => 'Demo-PIN, für Sie ausgefüllt';
 
   @override
-  String get demoPinOwnInApp => 'In der App wählen Sie Ihre eigene PIN.';
-
-  @override
   String get demoPinSkip => 'Überspringen';
 
   @override
@@ -3685,4 +3635,72 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get handshakeNext => 'Nächster Schritt';
+
+  @override
+  String balanceLineOnHold(String amount) {
+    return '$amount zurückgehalten';
+  }
+
+  @override
+  String balanceLineComingIn(String amount) {
+    return '+$amount unterwegs';
+  }
+
+  @override
+  String get demoTestCoinsPill => 'Test-Coins';
+
+  @override
+  String get demoTestCoinsPillTip =>
+      'Floonet, das Testnetz von Epic. Die Coins haben keinen Wert.';
+
+  @override
+  String demoLeftHours(int hours) {
+    return 'noch $hours h';
+  }
+
+  @override
+  String demoLeftMinutes(int minutes) {
+    return 'noch $minutes Min.';
+  }
+
+  @override
+  String get demoReceiveKeepOpen =>
+      'Lassen Sie diesen Tab offen, um zu empfangen.';
+
+  @override
+  String get demoGuideTitle => 'Eine Zahlung ausprobieren';
+
+  @override
+  String get demoGuideSend => 'Jemandem etwas senden';
+
+  @override
+  String get demoGuideSendHint =>
+      'Bezahlen Sie die Demo eines Freundes, oder öffnen Sie diese Seite in einem privaten Fenster für eine zweite Wallet.';
+
+  @override
+  String get demoGuideOpenSend => 'Zu Senden';
+
+  @override
+  String get demoGuideAsking =>
+      'Der Test-Faucet wird gefragt. Das kann eine Minute dauern.';
+
+  @override
+  String get demoGuideDone =>
+      'Beides erledigt. Sehen Sie sich um, solange die Demo läuft.';
+
+  @override
+  String get demoGuideHide => 'Ausblenden';
+
+  @override
+  String get demoGuideHideLabel => 'Demo-Schritte ausblenden';
+
+  @override
+  String demoGuideStepDone(String step) {
+    return '$step, erledigt';
+  }
+
+  @override
+  String demoGuideStepToDo(String step) {
+    return '$step, noch offen';
+  }
 }

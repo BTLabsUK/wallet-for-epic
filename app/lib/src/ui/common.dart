@@ -392,9 +392,17 @@ int? txConfirmations(TxEntry tx, BigInt? tip) {
 /// pass [confirmationsTargetOf] as `target`, which is 1 in the web demo.
 final int confirmationsTarget = minimumConfirmations.toInt();
 
-/// The confirmations the app counts with ([minimumConfirmationsProvider]).
-int confirmationsTargetOf(WidgetRef ref) =>
-    ref.watch(minimumConfirmationsProvider).toInt();
+/// The confirmations a payment needs before its row says Completed: the count the balance
+/// was worked out with ([WalletSummary.minimumConfirmations]), so a row never says Completed
+/// while the balance still has its coins as confirming. LEPIC counts 10 whatever the app asks
+/// for, the web demo too. Before the first balance, [minimumConfirmationsProvider].
+int confirmationsTargetOf(WidgetRef ref) {
+  final counted = ref.watch(
+    homeProvider.select((h) => h.value?.summary.minimumConfirmations),
+  );
+  if (counted != null && counted > BigInt.zero) return counted.toInt();
+  return ref.watch(minimumConfirmationsProvider).toInt();
+}
 
 /// Where a transaction stands, in the words its status chip uses.
 enum TxPhase {
@@ -531,8 +539,17 @@ List<TxEntry> pendingFirst(Iterable<TxEntry> txs) {
   ];
 }
 
-/// The node's tip height, when known.
-BigInt? tipHeight(WidgetRef ref) => ref.watch(nodeTipProvider).value?.height;
+/// The height payments count their confirmations at: the one the balance was worked out at
+/// ([WalletSummary.lastConfirmedHeight]), which arrives with the list in one refresh, so rows
+/// and balance always agree. The node's own tip, which a status check may have read a block
+/// or more later, only until the wallet has a balance.
+BigInt? tipHeight(WidgetRef ref) {
+  final counted = ref.watch(
+    homeProvider.select((h) => h.value?.summary.lastConfirmedHeight),
+  );
+  if (counted != null && counted > BigInt.zero) return counted;
+  return ref.watch(nodeTipProvider).value?.height;
+}
 
 /// The host of the open wallet's epicbox server, for [shortAddress].
 String? ownEpicboxServer(WidgetRef ref) =>

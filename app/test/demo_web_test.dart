@@ -35,19 +35,15 @@ String textOf(Object error) => (error as LocalizedFormatException).text(l);
 void main() {
   late FakeDemoHttp http;
   late StreamController<void> ended;
-  late List<Uri> opened;
   late ServerDemoApi api;
 
   setUp(() {
     http = FakeDemoHttp();
     ended = StreamController<void>.broadcast();
-    opened = [];
     api = ServerDemoApi(
       http: http,
       origin: Uri.parse('https://try.example/app/#/home'),
       ended: ended.stream,
-      openLink: (uri) async => opened.add(uri),
-      downloadUrl: Uri.parse('https://get.example/app.apk'),
     );
   });
 
@@ -185,15 +181,12 @@ void main() {
     });
   });
 
-  test('ended, downloadUrl and openLink come from the wiring', () async {
+  test('ended comes from the wiring', () async {
     var ends = 0;
     api.ended.listen((_) => ends++);
     ended.add(null);
     await Future<void>.delayed(Duration.zero);
     expect(ends, 1);
-    expect(api.downloadUrl, Uri.parse('https://get.example/app.apk'));
-    await api.openLink(api.downloadUrl!);
-    expect(opened, [api.downloadUrl]);
   });
 
   test("the push name is the server's", () {

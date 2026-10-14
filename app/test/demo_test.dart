@@ -2,6 +2,8 @@
 // off, so the phone app is shown to keep it.
 
 import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
 
 import 'package:epic_wallet/src/app.dart';
 import 'package:epic_wallet/src/demo.dart';
@@ -150,13 +152,11 @@ class _Harness {
     bool wallet = true,
     bool backedUp = true,
     bool advanced = false,
-    Uri? download,
     String pin = _pin,
     bool demoPinFlag = false,
   }) {
     api = FakeDemoApi(
       status: status ?? DemoActive(now.add(const Duration(hours: 5))),
-      downloadUrl: download,
       clock: () => now,
     );
     final chain = demo ? Chain.floonet : Chain.mainnet;
@@ -285,13 +285,7 @@ void main() {
     ) async {
       final h = _Harness(status: const DemoNone(), wallet: false);
       await h.pump(tester);
-      for (final text in [
-        l.demoWelcomeTitle,
-        l.demoWelcomeLine,
-        l.demoWelcomeNoValue,
-        l.demoWelcomeNothingToInstall,
-        l.demoWelcomeDeleted,
-      ]) {
+      for (final text in [l.demoWelcomeTitle, l.demoWelcomeLine]) {
         expect(find.text(text), findsOneWidget);
       }
       // The main button sits in the bottom bar of ScreenBody.
@@ -334,41 +328,35 @@ void main() {
       expect(find.text(l.demoStart), findsOneWidget);
     });
 
-    for (final withUrl in [true, false]) {
-      testWidgets(
-        'Get the app ${withUrl ? 'opens the download page' : 'hides without a URL'}',
-        (tester) async {
-          final url = Uri.parse('https://example.org/app');
-          final h = _Harness(
-            status: const DemoNone(),
-            wallet: false,
-            download: withUrl ? url : null,
-          );
-          await h.pump(tester);
-          expect(find.text(l.demoWelcomeTitle), findsOneWidget);
-          if (!withUrl) {
-            expect(find.text(l.demoGetApp), findsNothing);
-            return;
-          }
-          await _tap(tester, find.text(l.demoGetApp));
-          expect(h.api.opened, [url]);
-        },
+    testWidgets('the welcome line leads with the outcome, not the network', (
+      tester,
+    ) async {
+      final h = _Harness(status: const DemoNone(), wallet: false);
+      await h.pump(tester);
+      expect(l.demoWelcomeLine, isNot(startsWith('Floonet')));
+      expect(l.demoWelcomeLine, isNot(contains('Epicbox')));
+      // The title, the line and the main button: nothing else to read first.
+      expect(
+        find.descendant(
+          of: find.byType(ScreenBody),
+          matching: find.byType(Text),
+        ),
+        findsNWidgets(3),
       );
-    }
+    });
   });
 
   group('ended', () {
     testWidgets('from status(), with Start again', (tester) async {
-      final url = Uri.parse('https://example.org/app');
-      final h = _Harness(
-        status: const DemoEnded(),
-        wallet: false,
-        download: url,
-      );
+      final h = _Harness(status: const DemoEnded(), wallet: false);
       await h.pump(tester);
       expect(find.text(l.demoEndedTitle), findsOneWidget);
       expect(find.text(l.demoEndedBody), findsOneWidget);
-      expect(find.text(l.demoGetApp), findsOneWidget);
+      // Start again is the one button.
+      expect(
+        find.byWidgetPredicate((w) => w is ButtonStyleButton),
+        findsOneWidget,
+      );
       await tester.tap(find.text(l.demoStartAgain));
       await _untilDemoPinFill(tester);
       expect(h.api.starts, 1);
@@ -438,26 +426,33 @@ void main() {
       expect(demoTimeLeft(Duration.zero), isNull);
     });
 
-    testWidgets('in the title, with the exact time in its tooltip', (
-      tester,
-    ) async {
+    testWidgets('a Test coins pill in the title, Floonet and the end in its '
+        'tooltip', (tester) async {
       final h = _Harness();
       await h.pump(tester);
       await h.unlock(tester);
-      // The bar names no network; the node status's tooltip says Floonet.
+      // The bar names no network; the pill's tooltip says Floonet.
       expect(find.text(chainName(l, Chain.floonet)), findsNothing);
-      expect(find.text(l.demoEndsInHours(5)), findsOneWidget);
+      expect(
+        find.text('${l.demoTestCoinsPill} · ${l.demoLeftHours(5)}'),
+        findsOneWidget,
+      );
       final tooltip = tester.widget<Tooltip>(find.byKey(demoCountdownKey));
+      expect(tooltip.message, contains('Floonet'));
+      final end = formatDateTime(l, h.now.add(const Duration(hours: 5)));
       expect(
         tooltip.message,
-        l.demoEndsAt(formatDateTime(l, h.now.add(const Duration(hours: 5)))),
+        '${l.demoTestCoinsPillTip}\n${l.demoEndsAt(end)}',
       );
       expect(_notice(h), isNull);
 
       // Under an hour it counts minutes.
       h.now = h.now.add(const Duration(hours: 4, minutes: 20));
       await tester.pump(const Duration(seconds: 15));
-      expect(find.text(l.demoEndsInMinutes(40)), findsOneWidget);
+      expect(
+        find.text('${l.demoTestCoinsPill} · ${l.demoLeftMinutes(40)}'),
+        findsOneWidget,
+      );
       expect(_notice(h), isNull);
     });
 
@@ -475,7 +470,10 @@ void main() {
       await tester.pump(const Duration(seconds: 15));
       await tester.pump(const Duration(seconds: 15));
       expect(_notice(h), isNull);
-      expect(find.text(l.demoEndsInMinutes(25)), findsOneWidget);
+      expect(
+        find.text('${l.demoTestCoinsPill} · ${l.demoLeftMinutes(25)}'),
+        findsOneWidget,
+      );
     });
 
     testWidgets('fits at text scale 2', (tester) async {
@@ -506,8 +504,9 @@ void main() {
         h.api.claims.add(result);
         await h.pump(tester);
         await h.unlock(tester);
-        // The empty Wallet tab offers it.
+        // The empty Wallet tab offers it, in the checklist.
         expect(find.text(l.homeNoPayments), findsOneWidget);
+        expect(find.byKey(testCoinsKey), findsOneWidget);
         await _tap(tester, find.byKey(testCoinsKey));
         expect(h.api.claimedFor, [h.session.address]);
         expect(_notice(h), text);
@@ -648,14 +647,10 @@ void main() {
           expect(h.session.confirmations.toSet(), {
             demo ? BigInt.one : BigInt.from(10),
           });
-          expect(
-            find.text(l.txStatusConfirming(1, 10)),
-            demo ? findsNothing : findsWidgets,
-          );
-          expect(
-            find.text(l.txStatusCompleted),
-            demo ? findsWidgets : findsNothing,
-          );
+          // Rows count with what the balance counted (10 here, as LEPIC always does), so a
+          // row never says Completed under coins the balance still has as confirming.
+          expect(find.text(l.txStatusConfirming(1, 10)), findsWidgets);
+          expect(find.text(l.txStatusCompleted), findsNothing);
         },
       );
     }
@@ -815,26 +810,6 @@ void main() {
         expect(find.text(l.helpSendFeedback), present);
       });
     }
-
-    for (final withUrl in [true, false]) {
-      testWidgets(
-        'About: Get the app ${withUrl ? 'with' : 'hidden without'} a URL',
-        (tester) async {
-          final url = Uri.parse('https://example.org/app');
-          final h = _Harness(download: withUrl ? url : null);
-          await h.pump(tester, height: 4000);
-          await h.unlock(tester);
-          await h.open(tester, const SettingsScreen());
-          expect(find.text(l.settingsHelp), findsOneWidget);
-          if (!withUrl) {
-            expect(find.text(l.demoGetApp), findsNothing);
-            return;
-          }
-          await _tap(tester, find.text(l.demoGetApp));
-          expect(h.api.opened, [url]);
-        },
-      );
-    }
   });
 
   group('demo PIN', () {
@@ -850,7 +825,6 @@ void main() {
       expect(pinField(), findsNothing);
       expect(find.text(l.demoPinSetUpTitle), findsOneWidget);
       expect(find.text(l.demoPinFilled), findsOneWidget);
-      expect(find.text(l.demoPinOwnInApp), findsOneWidget);
       await tester.pumpAndSettle();
       expect(h.container.read(sessionProvider), isNotNull);
       expect(h.service.createdPin, demoPin);
@@ -1173,6 +1147,88 @@ void main() {
     });
   });
 
+  group('no other app', () {
+    // The demo is the app itself: no phone app, store, install or download anywhere.
+    final mention = RegExp(
+      r'\b(apps?|store|install\w*|download\w*|apk)\b',
+      caseSensitive: false,
+    );
+
+    /// Every word the screen shows: texts, rich texts and tooltips.
+    List<String> words(WidgetTester tester) => [
+      for (final e in find.byType(RichText, skipOffstage: false).evaluate())
+        (e.widget as RichText).text.toPlainText(),
+      for (final e in find.byType(Tooltip, skipOffstage: false).evaluate())
+        (e.widget as Tooltip).message ?? '',
+    ];
+
+    void expectNoMention(WidgetTester tester, String screen) {
+      for (final text in words(tester)) {
+        expect(mention.hasMatch(text), isFalse, reason: '$screen: "$text"');
+      }
+    }
+
+    test('the English demo strings', () {
+      final arb = jsonDecode(
+        File('lib/l10n/app_en.arb').readAsStringSync(),
+      ) as Map<String, dynamic>;
+      final demo = arb.entries.where(
+        (e) => e.key.startsWith('demo') && e.value is String,
+      );
+      expect(demo, isNotEmpty);
+      for (final MapEntry(:key, :value) in demo) {
+        expect(mention.hasMatch(value as String), isFalse, reason: key);
+      }
+    });
+
+    test('the landing page and its card', () {
+      for (final path in [
+        '../demo/site/public/index.html',
+        '../demo/site/card.html',
+      ]) {
+        final page = File(path).readAsStringSync();
+        // The words people read, not the markup's own names (stylesheets, icons).
+        final text = page
+            .replaceAll(RegExp(r'<(style|script)[^>]*>[\s\S]*?</\1>'), ' ')
+            .replaceAll(RegExp(r'<[^>]*>'), ' ');
+        expect(mention.hasMatch(text), isFalse, reason: path);
+        expect(page, isNot(contains('data-download')), reason: path);
+        final meta = RegExp(r'content="([^"]*)"')
+            .allMatches(page)
+            .map((m) => m.group(1)!);
+        for (final value in meta) {
+          expect(mention.hasMatch(value), isFalse, reason: '$path: $value');
+        }
+      }
+    });
+
+    testWidgets('welcome and ended', (tester) async {
+      for (final status in [const DemoNone(), const DemoEnded()]) {
+        final h = _Harness(status: status, wallet: false);
+        await h.pump(tester);
+        expectNoMention(tester, '$status');
+      }
+    });
+
+    testWidgets('the demo PIN, Wallet with its guide, Receive, Settings', (
+      tester,
+    ) async {
+      final h = _Harness(status: const DemoNone(), wallet: false);
+      await h.pump(tester, height: 4000);
+      await tester.tap(find.text(l.demoStart));
+      await _untilDemoPinFill(tester);
+      expectNoMention(tester, 'demo PIN');
+      await tester.pumpAndSettle();
+      expect(find.text(l.demoGuideTitle), findsOneWidget);
+      expectNoMention(tester, 'Wallet');
+      await h.tab(tester, l.homeReceiveButton);
+      expect(find.text(l.demoReceiveKeepOpen), findsOneWidget);
+      expectNoMention(tester, 'Receive');
+      await h.open(tester, const SettingsScreen());
+      expectNoMention(tester, 'Settings');
+    });
+  });
+
   group('accessibility', () {
     for (final (name, status) in <(String, DemoStatus)>[
       ('welcome', const DemoNone()),
@@ -1182,11 +1238,7 @@ void main() {
         testWidgets('$name at text scale $scale', (tester) async {
           addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
           tester.platformDispatcher.textScaleFactorTestValue = scale;
-          final h = _Harness(
-            status: status,
-            wallet: false,
-            download: Uri.parse('https://example.org/app'),
-          );
+          final h = _Harness(status: status, wallet: false);
           final semantics = tester.ensureSemantics();
           await h.pump(tester);
           expect(tester.takeException(), isNull);

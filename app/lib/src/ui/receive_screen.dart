@@ -112,6 +112,7 @@ class ReceiveView extends ConsumerWidget {
           _AddressRow(address: value),
           const SizedBox(height: 8),
           const _EpicboxLine(),
+          if (demo) const _KeepTabOpenLine(),
           const SizedBox(height: 8),
         ] else if (address.hasError)
           ErrorText(describeError(l, address.error!))
@@ -505,6 +506,27 @@ class _EpicboxLine extends ConsumerWidget {
     );
   }
 }
+
+/// The web demo's one rule for receiving, under the epicbox line: payments arrive only while
+/// this browser tab is open.
+class _KeepTabOpenLine extends StatelessWidget {
+  const _KeepTabOpenLine();
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.only(top: 2),
+    child: Text(
+      context.l10n.demoReceiveKeepOpen,
+      key: receiveKeepOpenKey,
+      textAlign: TextAlign.center,
+      style: Theme.of(context).textTheme.bodySmall
+          ?.copyWith(color: context.tokens.dim),
+    ),
+  );
+}
+
+/// The key of the demo's "keep this tab open" line on Receive, for tests.
+const Key receiveKeepOpenKey = ValueKey('receive-keep-open');
 
 /// The address as a QR code of [size] with the mark, framed by corner ticks.
 class _AddressQr extends StatelessWidget {
