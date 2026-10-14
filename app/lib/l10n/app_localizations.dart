@@ -5516,10 +5516,10 @@ abstract class AppLocalizations {
   /// **'Send some to someone'**
   String get demoGuideSend;
 
-  /// Web demo checklist, under step 2. A private (incognito) window starts a second, separate demo; a normal second tab opens the same one, so do not say 'new tab'.
+  /// Web demo checklist, under step 2. A demo is tied to the browser's cookies: another browser, or a private window opened from a normal one, starts a second, separate demo; a second tab or a second private window opens the same one, so do not say 'new tab'.
   ///
   /// In en, this message translates to:
-  /// **'Pay a friend\'s demo, or open this page in a private window for a second wallet.'**
+  /// **'Pay a friend\'s demo, or open this page in a different browser or a private window.'**
   String get demoGuideSendHint;
 
   /// Web demo checklist, step 2's button: switches to the Send tab.

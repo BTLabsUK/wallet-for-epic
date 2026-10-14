@@ -388,8 +388,9 @@ int? txConfirmations(TxEntry tx, BigInt? tip) {
   return n.isNegative ? 0 : n.toInt();
 }
 
-/// Confirmations after which the list calls a transaction completed, on the phone. Screens
-/// pass [confirmationsTargetOf] as `target`, which is 1 in the web demo.
+/// Confirmations after which the list calls a transaction completed, when no balance says
+/// otherwise. Screens pass [confirmationsTargetOf] as `target`: the balance's own count, 10 as
+/// LEPIC counts, in the web demo too.
 final int confirmationsTarget = minimumConfirmations.toInt();
 
 /// The confirmations a payment needs before its row says Completed: the count the balance

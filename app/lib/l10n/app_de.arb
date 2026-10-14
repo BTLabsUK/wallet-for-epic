@@ -896,7 +896,7 @@
   "demoReceiveKeepOpen": "Lassen Sie diesen Tab offen, um zu empfangen.",
   "demoGuideTitle": "Eine Zahlung ausprobieren",
   "demoGuideSend": "Jemandem etwas senden",
-  "demoGuideSendHint": "Bezahlen Sie die Demo eines Freundes, oder öffnen Sie diese Seite in einem privaten Fenster für eine zweite Wallet.",
+  "demoGuideSendHint": "Bezahlen Sie die Demo eines Freundes, oder öffnen Sie diese Seite in einem anderen Browser oder einem privaten Fenster.",
   "demoGuideOpenSend": "Zu Senden",
   "demoGuideAsking": "Der Test-Faucet wird gefragt. Das kann eine Minute dauern.",
   "demoGuideDone": "Beides erledigt. Sehen Sie sich um, solange die Demo läuft.",

@@ -4403,9 +4403,9 @@
   "@demoGuideSend": {
     "description": "Web demo checklist, step 2: send some test coins to someone."
   },
-  "demoGuideSendHint": "Pay a friend's demo, or open this page in a private window for a second wallet.",
+  "demoGuideSendHint": "Pay a friend's demo, or open this page in a different browser or a private window.",
   "@demoGuideSendHint": {
-    "description": "Web demo checklist, under step 2. A private (incognito) window starts a second, separate demo; a normal second tab opens the same one, so do not say 'new tab'."
+    "description": "Web demo checklist, under step 2. A demo is tied to the browser's cookies: another browser, or a private window opened from a normal one, starts a second, separate demo; a second tab or a second private window opens the same one, so do not say 'new tab'."
   },
   "demoGuideOpenSend": "Go to Send",
   "@demoGuideOpenSend": {

@@ -3767,7 +3767,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get demoGuideSendHint =>
-      'Заплатите в демо друга или откройте эту страницу в приватном окне для второго кошелька.';
+      'Заплатите в демо друга или откройте эту страницу в другом браузере или приватном окне.';
 
   @override
   String get demoGuideOpenSend => 'К отправке';

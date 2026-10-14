@@ -878,10 +878,12 @@ void main() {
       await h.pump(tester);
       expect(find.byType(DemoPinFill), findsNothing);
       expect(pinField(), findsOneWidget);
-      // The manual field keeps the usual title and Forgot PIN.
+      // The manual field keeps the usual title, without the network: the header's Test coins
+      // pill names it in the demo. Forgot PIN stays.
+      expect(find.text(l.unlockTitle), findsOneWidget);
       expect(
         find.text('${l.unlockTitle}${networkSuffix(l, Chain.floonet)}'),
-        findsOneWidget,
+        findsNothing,
       );
       expect(find.text(l.demoPinUnlockTitle), findsNothing);
       expect(find.text(l.pinForgot), findsOneWidget);

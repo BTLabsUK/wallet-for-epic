@@ -3416,7 +3416,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get demoGuideSend => '发一些给别人';
 
   @override
-  String get demoGuideSendHint => '付款给朋友的演示，或在无痕窗口中打开本页面获得第二个钱包。';
+  String get demoGuideSendHint => '付款给朋友的演示，或在另一个浏览器或无痕窗口中打开本页面。';
 
   @override
   String get demoGuideOpenSend => '前往发送';

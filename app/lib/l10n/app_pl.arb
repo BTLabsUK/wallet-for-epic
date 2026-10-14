@@ -896,7 +896,7 @@
   "demoReceiveKeepOpen": "Nie zamykaj tej karty, aby odbierać.",
   "demoGuideTitle": "Wypróbuj płatność",
   "demoGuideSend": "Wyślij komuś trochę",
-  "demoGuideSendHint": "Zapłać do demo znajomego albo otwórz tę stronę w oknie prywatnym, aby mieć drugi portfel.",
+  "demoGuideSendHint": "Zapłać do demo znajomego albo otwórz tę stronę w innej przeglądarce lub oknie prywatnym.",
   "demoGuideOpenSend": "Przejdź do Wyślij",
   "demoGuideAsking": "Pytamy testowy kran. To może potrwać minutę.",
   "demoGuideDone": "Gotowe. Rozejrzyj się, póki trwa demo.",

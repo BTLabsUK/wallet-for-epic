@@ -96,17 +96,13 @@ class DemoGuide extends ConsumerWidget {
                     ),
                   ),
                 ),
-                Semantics(
-                  label: l.demoGuideHideLabel,
-                  button: true,
-                  excludeSemantics: true,
-                  child: TextButton(
-                    style: TextButton.styleFrom(
-                      minimumSize: const Size(48, 48),
-                    ),
-                    onPressed: () =>
-                        ref.read(demoGuideHiddenProvider.notifier).hide(),
-                    child: Text(l.demoGuideHide),
+                TextButton(
+                  style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
+                  onPressed: () =>
+                      ref.read(demoGuideHiddenProvider.notifier).hide(),
+                  child: Text(
+                    l.demoGuideHide,
+                    semanticsLabel: l.demoGuideHideLabel,
                   ),
                 ),
               ],

@@ -3675,7 +3675,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get demoGuideSendHint =>
-      'Bezahlen Sie die Demo eines Freundes, oder öffnen Sie diese Seite in einem privaten Fenster für eine zweite Wallet.';
+      'Bezahlen Sie die Demo eines Freundes, oder öffnen Sie diese Seite in einem anderen Browser oder einem privaten Fenster.';
 
   @override
   String get demoGuideOpenSend => 'Zu Senden';

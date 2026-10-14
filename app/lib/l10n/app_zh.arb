@@ -896,7 +896,7 @@
   "demoReceiveKeepOpen": "保持此标签页打开才能收款。",
   "demoGuideTitle": "试一次付款",
   "demoGuideSend": "发一些给别人",
-  "demoGuideSendHint": "付款给朋友的演示，或在无痕窗口中打开本页面获得第二个钱包。",
+  "demoGuideSendHint": "付款给朋友的演示，或在另一个浏览器或无痕窗口中打开本页面。",
   "demoGuideOpenSend": "前往发送",
   "demoGuideAsking": "正在向测试水龙头申请，可能需要一分钟。",
   "demoGuideDone": "都完成了。演示结束前可以随意看看。",

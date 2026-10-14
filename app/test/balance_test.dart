@@ -1,6 +1,7 @@
-// The balance and the rows under it tell one story (design review F-05 and F-06): coins on
-// hold are said plainly beside a spendable 0, and a payment's row never says Completed while
-// the balance still counts it as confirming.
+// The balance and the rows under it tell one story: coins on hold are said plainly beside a
+// spendable 0 (design review F-05), and a payment's row never says Completed while the balance
+// still counts it as confirming (one of the F-06 disagreements; Send's re-estimate is another,
+// in send_test.dart).
 
 import 'package:epic_wallet/src/demo.dart';
 import 'package:epic_wallet/src/l10n.dart';
@@ -177,7 +178,7 @@ String _rowLabel(WidgetTester tester) => tester
     .label!;
 
 void main() {
-  group('F-05: coins on hold', () {
+  group('coins on hold beside a spendable 0', () {
     testWidgets('a spendable 0 says what is on hold and coming in, plainly', (
       tester,
     ) async {
@@ -264,7 +265,7 @@ void main() {
     });
   });
 
-  group('F-06: the row and the balance agree', () {
+  group('a payment row and the balance agree on confirmations', () {
     // Bob's wallet in the review: the payment is in block 220, the node is there too, but
     // the balance comes from a refresh that read the chain at 219 and counts 10.
     TxEntry received({required BigInt height}) => fakeTx(

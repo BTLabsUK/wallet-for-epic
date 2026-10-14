@@ -124,10 +124,6 @@ List<PendingItem> pendingItems(
   ];
 }
 
-/// Whether anything in [summary] is not spendable yet.
-bool hasPending(WalletSummary summary) =>
-    summary.locked > BigInt.zero || comingIn(summary) > BigInt.zero;
-
 /// What a screen reader says for the spendable balance.
 String _spendableLabel(AppLocalizations l, BigInt spendable, bool hidden) =>
     l.balanceHelpRow(

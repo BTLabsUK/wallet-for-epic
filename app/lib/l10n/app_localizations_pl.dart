@@ -3785,7 +3785,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get demoGuideSendHint =>
-      'Zapłać do demo znajomego albo otwórz tę stronę w oknie prywatnym, aby mieć drugi portfel.';
+      'Zapłać do demo znajomego albo otwórz tę stronę w innej przeglądarce lub oknie prywatnym.';
 
   @override
   String get demoGuideOpenSend => 'Przejdź do Wyślij';

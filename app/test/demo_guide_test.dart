@@ -331,6 +331,27 @@ void main() {
     handle.dispose();
   });
 
+  testWidgets('Hide is a labelled button a screen reader can press', (
+    tester,
+  ) async {
+    final handle = tester.ensureSemantics();
+    final h = _Harness();
+    await h.pump(tester);
+    final hide = find.bySemanticsLabel(l.demoGuideHideLabel);
+    expect(hide, findsOneWidget);
+    final data = tester.getSemantics(hide).getSemanticsData();
+    expect(data.flagsCollection.isButton, isTrue);
+    expect(data.hasAction(SemanticsAction.tap), isTrue);
+    // As a screen reader presses it: through the node's tap action, not a pointer.
+    tester
+        .getSemantics(hide)
+        .owner!
+        .performAction(tester.getSemantics(hide).id, SemanticsAction.tap);
+    await tester.pumpAndSettle();
+    expect(find.byKey(demoGuideKey), findsNothing);
+    handle.dispose();
+  });
+
   testWidgets(
     'Hide puts it away; Get test coins goes back to the empty state',
     (tester) async {
