@@ -3437,11 +3437,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String sendOnHold(String amount) {
-    return '$amount is on hold until it confirms.';
-  }
-
-  @override
   String sendFeeQuiet(String fee) {
     return 'Network fee $fee';
   }
@@ -3588,6 +3583,38 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get handshakeNext => 'Next step';
+
+  @override
+  String get sendRelayRefused =>
+      'Their relay didn\'t take it. The amount is on hold until you cancel.';
+
+  @override
+  String get sendRelayRefusedLost =>
+      'Their relay didn\'t take it. Check Wallet before you send again.';
+
+  @override
+  String get sendCancelAndFile => 'Cancel and pay with a file';
+
+  @override
+  String get sendLeaveIt => 'Leave it for now';
+
+  @override
+  String get sendSending => 'Sending…';
+
+  @override
+  String trackStepDone(String step) {
+    return '$step, done';
+  }
+
+  @override
+  String trackStepNow(String step) {
+    return '$step, now';
+  }
+
+  @override
+  String trackStepLater(String step) {
+    return '$step, later';
+  }
 
   @override
   String balanceLineOnHold(String amount) {

@@ -3575,11 +3575,6 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String sendOnHold(String amount) {
-    return '$amount заблокировано до подтверждения.';
-  }
-
-  @override
   String sendFeeQuiet(String fee) {
     return 'Комиссия сети $fee';
   }
@@ -3727,6 +3722,38 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get handshakeNext => 'Следующий шаг';
+
+  @override
+  String get sendRelayRefused =>
+      'Их ретранслятор не принял платёж. Сумма заблокирована, пока вы его не отмените.';
+
+  @override
+  String get sendRelayRefusedLost =>
+      'Их ретранслятор не принял платёж. Проверьте Кошелёк, прежде чем отправлять снова.';
+
+  @override
+  String get sendCancelAndFile => 'Отменить и оплатить файлом';
+
+  @override
+  String get sendLeaveIt => 'Оставить пока';
+
+  @override
+  String get sendSending => 'Отправка…';
+
+  @override
+  String trackStepDone(String step) {
+    return '$step, выполнено';
+  }
+
+  @override
+  String trackStepNow(String step) {
+    return '$step, сейчас';
+  }
+
+  @override
+  String trackStepLater(String step) {
+    return '$step, позже';
+  }
 
   @override
   String balanceLineOnHold(String amount) {

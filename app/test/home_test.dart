@@ -9,6 +9,7 @@ import 'package:epic_wallet/src/price.dart';
 import 'package:epic_wallet/src/push.dart';
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/secret_store.dart';
+import 'package:epic_wallet/src/send_preflight.dart';
 import 'package:epic_wallet/src/settings.dart';
 import 'package:epic_wallet/src/ui/common.dart';
 import 'package:epic_wallet/src/ui/history_screen.dart';
@@ -323,6 +324,7 @@ class _Harness {
       ProviderScope(
         retry: (_, _) => null,
         overrides: [
+          relayProbeProvider.overrideWithValue(FakeRelayProbe()),
           walletServiceProvider.overrideWithValue(service),
           secretStoreProvider.overrideWithValue(store),
           biometricStoreProvider.overrideWithValue(MemoryBiometricStore()),
@@ -3794,6 +3796,40 @@ void main() {
       expect(_selectedTab(tester), ShellTab.wallet);
       await _tab(tester, 'Send');
       expect(_toField(tester), isEmpty);
+    });
+
+    testWidgets('a recipient handed over while the tracker shows waits for the next form', (
+      tester,
+    ) async {
+      final h = _Harness(still: true);
+      await h.pump(tester, const HomeScreen(), 1, const Size(1080, 2340));
+      await _sendOne(tester, payee);
+      expect(find.text('Waiting for their wallet'), findsOneWidget);
+      final carol = '${'c' * 52}@epicbox.epiccash.com';
+      ProviderScope.containerOf(tester.element(find.byType(SendView)))
+          .read(sendRecipientProvider.notifier)
+          .hand(carol);
+      await tester.pumpAndSettle();
+      // The tracker stays.
+      expect(find.text('Waiting for their wallet'), findsOneWidget);
+      await _tap(tester, find.text('Done'));
+      await _tab(tester, 'Send');
+      expect(_toField(tester), carol);
+
+      // The same from the payment file screens.
+      await _tap(tester, find.text('No address? Use a payment file'));
+      await tester.enterText(find.widgetWithText(TextField, 'Amount (EPIC)'), '1');
+      await tester.pump(const Duration(milliseconds: 500));
+      await tester.pumpAndSettle();
+      await _tap(tester, find.text('Make payment file'));
+      ProviderScope.containerOf(tester.element(find.byType(SendView)))
+          .read(sendRecipientProvider.notifier)
+          .hand(payee);
+      await tester.pumpAndSettle();
+      expect(find.text('Waiting for their reply'), findsOneWidget);
+      await _tap(tester, find.widgetWithText(TextButton, 'Done'));
+      await _tab(tester, 'Send');
+      expect(_toField(tester), payee);
     });
 
     testWidgets('the tracker moves on when their wallet answers, without a notice', (

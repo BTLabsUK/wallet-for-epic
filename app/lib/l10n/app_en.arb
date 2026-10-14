@@ -4130,15 +4130,6 @@
       }
     }
   },
-  "sendOnHold": "{amount} is on hold until it confirms.",
-  "@sendOnHold": {
-    "description": "Send, step 2: nothing is spendable yet because coins are still confirming or in a pending payment. {amount} is like '10 EPIC'.",
-    "placeholders": {
-      "amount": {
-        "type": "String"
-      }
-    }
-  },
   "sendFeeQuiet": "Network fee {fee}",
   "@sendFeeQuiet": {
     "description": "Send, step 2: the estimated network fee as a quiet figure under the amount.",
@@ -4344,6 +4335,53 @@
   "handshakeNext": "Next step",
   "@handshakeNext": {
     "description": "How it works sheet: tooltip of the button that shows the next step."
+  },
+  "sendRelayRefused": "Their relay didn't take it. The amount is on hold until you cancel.",
+  "@sendRelayRefused": {
+    "description": "Send, review: the send failed at the recipient's relay; the wallet keeps the payment with its coins on hold until it is cancelled."
+  },
+  "sendRelayRefusedLost": "Their relay didn't take it. Check Wallet before you send again.",
+  "@sendRelayRefusedLost": {
+    "description": "Send, review: the send failed at the recipient's relay and the app could not find the payment it may have left; the user should look in Wallet before trying again."
+  },
+  "sendCancelAndFile": "Cancel and pay with a file",
+  "@sendCancelAndFile": {
+    "description": "Send, review after a failed send: cancels the payment the wallet kept, then pays the same amount with a payment file."
+  },
+  "sendLeaveIt": "Leave it for now",
+  "@sendLeaveIt": {
+    "description": "Send, review after a failed send: leaves the payment on hold (it can be cancelled later from Wallet) and goes back to Wallet."
+  },
+  "sendSending": "Sending…",
+  "@sendSending": {
+    "description": "Send, review: the payment is being sent; it can take a while when a relay is slow."
+  },
+  "trackStepDone": "{step}, done",
+  "@trackStepDone": {
+    "description": "Screen readers, a step of a payment's progress that is done. {step} is the step's label.",
+    "placeholders": {
+      "step": {
+        "type": "String"
+      }
+    }
+  },
+  "trackStepNow": "{step}, now",
+  "@trackStepNow": {
+    "description": "Screen readers, the step of a payment's progress that is happening now.",
+    "placeholders": {
+      "step": {
+        "type": "String"
+      }
+    }
+  },
+  "trackStepLater": "{step}, later",
+  "@trackStepLater": {
+    "description": "Screen readers, a step of a payment's progress still to come.",
+    "placeholders": {
+      "step": {
+        "type": "String"
+      }
+    }
   },
   "balanceLineOnHold": "{amount} on hold",
   "@balanceLineOnHold": {

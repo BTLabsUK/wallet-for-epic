@@ -16,8 +16,10 @@ List<(HandshakeParty, HandshakeParty, HandshakeParty?)> _order(
 Future<AppLocalizations> _pump(
   WidgetTester tester, {
   bool reducedMotion = false,
+  double textScale = 1,
+  Size size = const Size(1080, 2340),
 }) async {
-  tester.view.physicalSize = const Size(1080, 2340);
+  tester.view.physicalSize = size;
   tester.view.devicePixelRatio = 3;
   addTearDown(tester.view.reset);
   await tester.pumpWidget(
@@ -26,9 +28,10 @@ Future<AppLocalizations> _pump(
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       builder: (context, child) => MediaQuery(
-        data: MediaQuery.of(
-          context,
-        ).copyWith(disableAnimations: reducedMotion),
+        data: MediaQuery.of(context).copyWith(
+          disableAnimations: reducedMotion,
+          textScaler: TextScaler.linear(textScale),
+        ),
         child: child!,
       ),
       home: const Scaffold(body: HandshakeSheet()),
@@ -49,14 +52,17 @@ String _caption(WidgetTester tester) =>
 
 void main() {
   group('handshake order', () {
-    test('a payment: you start, they sign and return it, you finish and post', () {
-      expect(_order(HandshakeFlow.payment), [
-        (_you, _you, _them),
-        (_them, _them, _you),
-        (_you, _you, _network),
-        (_network, _network, null),
-      ]);
-    });
+    test(
+      'a payment: you start, they sign and return it, you finish and post',
+      () {
+        expect(_order(HandshakeFlow.payment), [
+          (_you, _you, _them),
+          (_them, _them, _you),
+          (_you, _you, _network),
+          (_network, _network, null),
+        ]);
+      },
+    );
 
     test('a request: you ask, the payer adds coins and signs, you finish', () {
       expect(_order(HandshakeFlow.request), [
@@ -129,6 +135,31 @@ void main() {
       await tester.pump();
       await _nextStep(tester);
       expect(_caption(tester), '1. ${l.handshakePay1}');
+    });
+
+    testWidgets('a step press while it plays pauses there', (tester) async {
+      final l = await _pump(tester);
+      await tester.tap(find.byTooltip(l.handshakeNext));
+      await tester.pump();
+      expect(_caption(tester), '2. ${l.handshakePay2}');
+      expect(find.byTooltip(l.fileHelpPlay), findsOneWidget);
+      await tester.pump(handshakeStepDuration * 3);
+      expect(_caption(tester), '2. ${l.handshakePay2}');
+    });
+
+    testWidgets('fits a 360 dp phone at text scale 2', (tester) async {
+      final l = await _pump(tester, textScale: 2, size: const Size(1080, 2400));
+      expect(tester.takeException(), isNull);
+      await tester.tap(find.text(l.handshakeRequest));
+      await tester.pump();
+      for (var i = 0; i < 4; i++) {
+        await tester.tap(find.byTooltip(l.handshakeNext));
+        await tester.pump();
+        expect(tester.takeException(), isNull);
+      }
+      final handle = tester.ensureSemantics();
+      await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
+      handle.dispose();
     });
 
     testWidgets('reduced motion: nothing plays, step buttons only', (

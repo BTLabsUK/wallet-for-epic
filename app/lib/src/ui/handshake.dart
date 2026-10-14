@@ -103,12 +103,13 @@ const Duration handshakeStepDuration = Duration(milliseconds: 2800);
 const Key handshakeCaptionKey = ValueKey('handshake-caption');
 
 /// Opens the sheet.
-Future<void> showHandshakeSheet(BuildContext context) => showModalBottomSheet<void>(
-  context: context,
-  isScrollControlled: true,
-  showDragHandle: true,
-  builder: (_) => const HandshakeSheet(),
-);
+Future<void> showHandshakeSheet(BuildContext context) =>
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (_) => const HandshakeSheet(),
+    );
 
 /// The sheet's content. Public for the screenshot tour and tests; open it with
 /// [showHandshakeSheet].
@@ -160,11 +161,15 @@ class _HandshakeSheetState extends State<HandshakeSheet>
     _progress.forward(from: 0);
   }
 
+  /// Shows [step] and pauses there: the reader chose it, so it must not move on unannounced.
   void _go(int step) {
     final count = handshakeSteps(_flow).length;
-    setState(() => _step = (step + count) % count);
+    setState(() {
+      _step = (step + count) % count;
+      _paused = true;
+    });
     if (_still) return;
-    _progress.value = _paused ? 0.5 : 0;
+    _progress.value = 0.5;
     _sync();
   }
 
@@ -417,7 +422,9 @@ class _Node extends StatelessWidget {
           color: lit ? t.accent : t.lineStrong,
           width: lit ? 2 : 1,
         ),
-        boxShadow: lit ? [BoxShadow(color: t.accentSoft, spreadRadius: 4)] : null,
+        boxShadow: lit
+            ? [BoxShadow(color: t.accentSoft, spreadRadius: 4)]
+            : null,
       ),
       child: FittedBox(
         fit: BoxFit.scaleDown,
@@ -455,10 +462,7 @@ class HandshakePainter extends CustomPainter {
   Offset _centre(HandshakeParty p, Size size) =>
       _place[p]!.alongSize(size) +
       // Align places the box, so its centre moves with the alignment.
-      Offset(
-        -_place[p]!.x * nodeWidth / 2,
-        -_place[p]!.y * _nodeHeight / 2,
-      );
+      Offset(-_place[p]!.x * nodeWidth / 2, -_place[p]!.y * _nodeHeight / 2);
 
   /// The lane from [from] to [to]: the two wallets talk on two lanes, out above and back
   /// below, so the arrow back is not the same line.
