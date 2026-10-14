@@ -3697,11 +3697,11 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get handshakePay1 =>
-      'Ваш кошелёк отправляет им платёж. Ваши монеты блокируются.';
+      'Ваш кошелёк отправляет платёж на ретранслятор. Ваши монеты блокируются.';
 
   @override
   String get handshakePay2 =>
-      'Их кошелёк добавляет свою часть, подписывает и отправляет обратно.';
+      'Ретранслятор передаёт его дальше. Их кошелёк добавляет свою часть и подписывает.';
 
   @override
   String get handshakeFinish =>
@@ -3711,11 +3711,39 @@ class AppLocalizationsRu extends AppLocalizations {
   String get handshakeConfirm => 'Сеть его подтверждает.';
 
   @override
-  String get handshakeReq1 => 'Ваш кошелёк отправляет им запрос.';
+  String get handshakeReq1 => 'Ваш кошелёк отправляет запрос на ретранслятор.';
 
   @override
   String get handshakeReq2 =>
-      'Их кошелёк добавляет монеты, подписывает и отправляет обратно.';
+      'Ретранслятор передаёт его дальше. Они одобряют его, их кошелёк добавляет монеты и подписывает.';
+
+  @override
+  String get handshakeRelay => 'Ретранслятор';
+
+  @override
+  String get handshakeFile => 'Файл';
+
+  @override
+  String get handshakeBack =>
+      'Их кошелёк отправляет его обратно на ретранслятор.';
+
+  @override
+  String get handshakeRelayBack =>
+      'Ретранслятор передаёт его обратно вашему кошельку.';
+
+  @override
+  String get handshakeFile1 =>
+      'Ваш кошелёк сохраняет платёжный файл. Вы сами отправляете его им.';
+
+  @override
+  String get handshakeFile2 =>
+      'Они открывают его. Их кошелёк добавляет свою часть, подписывает и сохраняет ответ.';
+
+  @override
+  String get handshakeFile3 => 'Они отправляют вам файл ответа.';
+
+  @override
+  String get handshakeFile4 => 'Вы открываете их ответ в своём кошельке.';
 
   @override
   String get handshakePrevious => 'Предыдущий шаг';

@@ -5408,16 +5408,16 @@ abstract class AppLocalizations {
   /// **'Network'**
   String get handshakeNetwork;
 
-  /// How it works, payment, step 1.
+  /// How it works, payment, step 1: your wallet sends the payment to the epicbox relay.
   ///
   /// In en, this message translates to:
-  /// **'Your wallet sends them the payment. Your coins go on hold.'**
+  /// **'Your wallet sends the payment to the relay. Your coins go on hold.'**
   String get handshakePay1;
 
-  /// How it works, payment, step 2.
+  /// How it works, payment, step 2: the relay hands it to their wallet, which signs.
   ///
   /// In en, this message translates to:
-  /// **'Their wallet adds its part, signs and sends it back.'**
+  /// **'The relay passes it on. Their wallet adds its part and signs.'**
   String get handshakePay2;
 
   /// How it works, step 3 of both flows: the wallet that started finishes and broadcasts it.
@@ -5432,17 +5432,65 @@ abstract class AppLocalizations {
   /// **'The network confirms it.'**
   String get handshakeConfirm;
 
-  /// How it works, request, step 1: you ask them for coins.
+  /// How it works, request, step 1: you ask them for coins through the relay.
   ///
   /// In en, this message translates to:
-  /// **'Your wallet sends them the request.'**
+  /// **'Your wallet sends the request to the relay.'**
   String get handshakeReq1;
 
-  /// How it works, request, step 2: the payer's wallet pays and signs.
+  /// How it works, request, step 2: the relay hands the request to the payer, who approves; their wallet pays and signs.
   ///
   /// In en, this message translates to:
-  /// **'Their wallet adds the coins, signs and sends it back.'**
+  /// **'The relay passes it on. They approve it, and their wallet adds the coins and signs.'**
   String get handshakeReq2;
+
+  /// How it works sheet: label of the epicbox relay in the diagram, which carries the payment between the two wallets.
+  ///
+  /// In en, this message translates to:
+  /// **'Relay'**
+  String get handshakeRelay;
+
+  /// How it works sheet: toggle segment for paying with a payment file, and the label of the file in the diagram. Keep it short.
+  ///
+  /// In en, this message translates to:
+  /// **'File'**
+  String get handshakeFile;
+
+  /// How it works, step 3 of the payment and the request: the other wallet sends it back to the relay.
+  ///
+  /// In en, this message translates to:
+  /// **'Their wallet sends it back to the relay.'**
+  String get handshakeBack;
+
+  /// How it works, step 4 of the payment and the request: the relay hands it back to your wallet.
+  ///
+  /// In en, this message translates to:
+  /// **'The relay passes it back to your wallet.'**
+  String get handshakeRelayBack;
+
+  /// How it works, payment file, step 1: your wallet makes a payment file and you pass it on by hand (message, email…).
+  ///
+  /// In en, this message translates to:
+  /// **'Your wallet saves a payment file. You send it to them yourself.'**
+  String get handshakeFile1;
+
+  /// How it works, payment file, step 2.
+  ///
+  /// In en, this message translates to:
+  /// **'They open it. Their wallet adds its part, signs and saves a reply.'**
+  String get handshakeFile2;
+
+  /// How it works, payment file, step 3.
+  ///
+  /// In en, this message translates to:
+  /// **'They send the reply file back to you.'**
+  String get handshakeFile3;
+
+  /// How it works, payment file, step 4: you open the reply file.
+  ///
+  /// In en, this message translates to:
+  /// **'You open their reply in your wallet.'**
+  String get handshakeFile4;
 
   /// How it works sheet: tooltip of the button that shows the step before.
   ///

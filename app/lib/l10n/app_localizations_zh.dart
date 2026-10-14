@@ -3352,10 +3352,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get handshakeNetwork => '网络';
 
   @override
-  String get handshakePay1 => '你的钱包把付款发给对方。你的币被冻结。';
+  String get handshakePay1 => '你的钱包把付款发到中继。你的币被冻结。';
 
   @override
-  String get handshakePay2 => '对方钱包加入自己的部分、签名并发回。';
+  String get handshakePay2 => '中继把它转给对方。对方钱包加入自己的部分并签名。';
 
   @override
   String get handshakeFinish => '你的钱包完成它并发送到网络。';
@@ -3364,10 +3364,34 @@ class AppLocalizationsZh extends AppLocalizations {
   String get handshakeConfirm => '网络确认它。';
 
   @override
-  String get handshakeReq1 => '你的钱包把收款请求发给对方。';
+  String get handshakeReq1 => '你的钱包把收款请求发到中继。';
 
   @override
-  String get handshakeReq2 => '对方钱包加入币、签名并发回。';
+  String get handshakeReq2 => '中继把它转给对方。对方批准后，其钱包加入币并签名。';
+
+  @override
+  String get handshakeRelay => '中继';
+
+  @override
+  String get handshakeFile => '文件';
+
+  @override
+  String get handshakeBack => '对方钱包把它发回中继。';
+
+  @override
+  String get handshakeRelayBack => '中继把它转回你的钱包。';
+
+  @override
+  String get handshakeFile1 => '你的钱包保存一个付款文件。你自己把它发给对方。';
+
+  @override
+  String get handshakeFile2 => '对方打开它。对方钱包加入自己的部分、签名并保存回复。';
+
+  @override
+  String get handshakeFile3 => '对方把回复文件发回给你。';
+
+  @override
+  String get handshakeFile4 => '你在钱包中打开对方的回复。';
 
   @override
   String get handshakePrevious => '上一步';

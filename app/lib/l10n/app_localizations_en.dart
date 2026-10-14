@@ -3558,11 +3558,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get handshakePay1 =>
-      'Your wallet sends them the payment. Your coins go on hold.';
+      'Your wallet sends the payment to the relay. Your coins go on hold.';
 
   @override
   String get handshakePay2 =>
-      'Their wallet adds its part, signs and sends it back.';
+      'The relay passes it on. Their wallet adds its part and signs.';
 
   @override
   String get handshakeFinish =>
@@ -3572,11 +3572,37 @@ class AppLocalizationsEn extends AppLocalizations {
   String get handshakeConfirm => 'The network confirms it.';
 
   @override
-  String get handshakeReq1 => 'Your wallet sends them the request.';
+  String get handshakeReq1 => 'Your wallet sends the request to the relay.';
 
   @override
   String get handshakeReq2 =>
-      'Their wallet adds the coins, signs and sends it back.';
+      'The relay passes it on. They approve it, and their wallet adds the coins and signs.';
+
+  @override
+  String get handshakeRelay => 'Relay';
+
+  @override
+  String get handshakeFile => 'File';
+
+  @override
+  String get handshakeBack => 'Their wallet sends it back to the relay.';
+
+  @override
+  String get handshakeRelayBack => 'The relay passes it back to your wallet.';
+
+  @override
+  String get handshakeFile1 =>
+      'Your wallet saves a payment file. You send it to them yourself.';
+
+  @override
+  String get handshakeFile2 =>
+      'They open it. Their wallet adds its part, signs and saves a reply.';
+
+  @override
+  String get handshakeFile3 => 'They send the reply file back to you.';
+
+  @override
+  String get handshakeFile4 => 'You open their reply in your wallet.';
 
   @override
   String get handshakePrevious => 'Previous step';

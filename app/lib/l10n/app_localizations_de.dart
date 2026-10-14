@@ -3604,11 +3604,11 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get handshakePay1 =>
-      'Ihre Wallet sendet der Gegenseite die Zahlung. Ihre Coins werden zurückgehalten.';
+      'Ihre Wallet sendet die Zahlung an das Relay. Ihre Coins werden zurückgehalten.';
 
   @override
   String get handshakePay2 =>
-      'Die Wallet der Gegenseite ergänzt ihren Teil, signiert und schickt sie zurück.';
+      'Das Relay leitet sie weiter. Die Wallet der Gegenseite ergänzt ihren Teil und signiert.';
 
   @override
   String get handshakeFinish =>
@@ -3619,11 +3619,39 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get handshakeReq1 =>
-      'Ihre Wallet sendet der Gegenseite die Anforderung.';
+      'Ihre Wallet sendet die Anforderung an das Relay.';
 
   @override
   String get handshakeReq2 =>
-      'Die Wallet der Gegenseite fügt die Coins hinzu, signiert und schickt sie zurück.';
+      'Das Relay leitet sie weiter. Die Gegenseite stimmt zu, ihre Wallet fügt die Coins hinzu und signiert.';
+
+  @override
+  String get handshakeRelay => 'Relay';
+
+  @override
+  String get handshakeFile => 'Datei';
+
+  @override
+  String get handshakeBack =>
+      'Die Wallet der Gegenseite schickt sie an das Relay zurück.';
+
+  @override
+  String get handshakeRelayBack => 'Das Relay gibt sie an Ihre Wallet zurück.';
+
+  @override
+  String get handshakeFile1 =>
+      'Ihre Wallet speichert eine Zahlungsdatei. Sie senden sie selbst an die Gegenseite.';
+
+  @override
+  String get handshakeFile2 =>
+      'Die Gegenseite öffnet sie. Ihre Wallet ergänzt ihren Teil, signiert und speichert eine Antwort.';
+
+  @override
+  String get handshakeFile3 =>
+      'Die Gegenseite schickt Ihnen die Antwortdatei zurück.';
+
+  @override
+  String get handshakeFile4 => 'Sie öffnen die Antwort in Ihrer Wallet.';
 
   @override
   String get handshakePrevious => 'Vorheriger Schritt';

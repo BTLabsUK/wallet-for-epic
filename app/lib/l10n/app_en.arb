@@ -4304,13 +4304,13 @@
   "@handshakeNetwork": {
     "description": "How it works sheet: label of the Epic network in the diagram."
   },
-  "handshakePay1": "Your wallet sends them the payment. Your coins go on hold.",
+  "handshakePay1": "Your wallet sends the payment to the relay. Your coins go on hold.",
   "@handshakePay1": {
-    "description": "How it works, payment, step 1."
+    "description": "How it works, payment, step 1: your wallet sends the payment to the epicbox relay."
   },
-  "handshakePay2": "Their wallet adds its part, signs and sends it back.",
+  "handshakePay2": "The relay passes it on. Their wallet adds its part and signs.",
   "@handshakePay2": {
-    "description": "How it works, payment, step 2."
+    "description": "How it works, payment, step 2: the relay hands it to their wallet, which signs."
   },
   "handshakeFinish": "Your wallet finishes it and sends it to the network.",
   "@handshakeFinish": {
@@ -4320,13 +4320,45 @@
   "@handshakeConfirm": {
     "description": "How it works, step 4 of both flows."
   },
-  "handshakeReq1": "Your wallet sends them the request.",
+  "handshakeReq1": "Your wallet sends the request to the relay.",
   "@handshakeReq1": {
-    "description": "How it works, request, step 1: you ask them for coins."
+    "description": "How it works, request, step 1: you ask them for coins through the relay."
   },
-  "handshakeReq2": "Their wallet adds the coins, signs and sends it back.",
+  "handshakeReq2": "The relay passes it on. They approve it, and their wallet adds the coins and signs.",
   "@handshakeReq2": {
-    "description": "How it works, request, step 2: the payer's wallet pays and signs."
+    "description": "How it works, request, step 2: the relay hands the request to the payer, who approves; their wallet pays and signs."
+  },
+  "handshakeRelay": "Relay",
+  "@handshakeRelay": {
+    "description": "How it works sheet: label of the epicbox relay in the diagram, which carries the payment between the two wallets."
+  },
+  "handshakeFile": "File",
+  "@handshakeFile": {
+    "description": "How it works sheet: toggle segment for paying with a payment file, and the label of the file in the diagram. Keep it short."
+  },
+  "handshakeBack": "Their wallet sends it back to the relay.",
+  "@handshakeBack": {
+    "description": "How it works, step 3 of the payment and the request: the other wallet sends it back to the relay."
+  },
+  "handshakeRelayBack": "The relay passes it back to your wallet.",
+  "@handshakeRelayBack": {
+    "description": "How it works, step 4 of the payment and the request: the relay hands it back to your wallet."
+  },
+  "handshakeFile1": "Your wallet saves a payment file. You send it to them yourself.",
+  "@handshakeFile1": {
+    "description": "How it works, payment file, step 1: your wallet makes a payment file and you pass it on by hand (message, email…)."
+  },
+  "handshakeFile2": "They open it. Their wallet adds its part, signs and saves a reply.",
+  "@handshakeFile2": {
+    "description": "How it works, payment file, step 2."
+  },
+  "handshakeFile3": "They send the reply file back to you.",
+  "@handshakeFile3": {
+    "description": "How it works, payment file, step 3."
+  },
+  "handshakeFile4": "You open their reply in your wallet.",
+  "@handshakeFile4": {
+    "description": "How it works, payment file, step 4: you open the reply file."
   },
   "handshakePrevious": "Previous step",
   "@handshakePrevious": {

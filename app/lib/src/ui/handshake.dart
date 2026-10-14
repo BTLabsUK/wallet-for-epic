@@ -1,5 +1,6 @@
-/// "How it works": an Epic payment as the handshake it is, in a bottom sheet. Three nodes,
-/// You, Them and the Network, with one arrow lit at a time and a token moving along it.
+/// "How it works": an Epic payment as the handshake it is, in a bottom sheet. Four nodes,
+/// You, the Relay (epicbox, or the file passed by hand), Them and the Network, with one
+/// arrow lit at a time and a token moving along it.
 ///
 /// The order is Mimblewimble's ([handshakeSteps]): the wallet that starts a payment or a
 /// request also finishes it and hands it to the network; the other wallet adds its part and
@@ -16,15 +17,19 @@ import 'theme/tokens.dart';
 
 /// Which handshake the sheet shows.
 enum HandshakeFlow {
-  /// You pay them.
+  /// You pay them over epicbox.
   payment,
 
-  /// You ask them for coins (an invoice); they pay.
+  /// You ask them for coins (an invoice) over epicbox; they pay.
   request,
+
+  /// You pay them with a payment file, passed by hand both ways.
+  file,
 }
 
-/// A node of the diagram.
-enum HandshakeParty { you, them, network }
+/// A node of the diagram. [relay] is the epicbox relay, or the file passed by hand in
+/// [HandshakeFlow.file].
+enum HandshakeParty { you, relay, them, network }
 
 /// One step of a handshake: [actor] does it, and the message goes [from] one node [to]
 /// another. [to] is null for the network's confirmation, which goes nowhere.
@@ -42,59 +47,60 @@ class HandshakeStep {
   final String Function(AppLocalizations l) caption;
 }
 
-/// The steps of [flow], in the order they happen.
-List<HandshakeStep> handshakeSteps(HandshakeFlow flow) => switch (flow) {
-  HandshakeFlow.payment => [
+const _you = HandshakeParty.you;
+const _relay = HandshakeParty.relay;
+const _them = HandshakeParty.them;
+const _network = HandshakeParty.network;
+
+/// The steps of [flow], in the order they happen. The slate goes out through the relay
+/// (or the file), comes back the same way, and the wallet that started finishes it and
+/// posts it: the payer for a payment, the issuer for a request (LEPIC finalizes an invoice
+/// on the issuer's side once the payer's reply arrives).
+List<HandshakeStep> handshakeSteps(HandshakeFlow flow) {
+  final (out, signs, back, returned) = switch (flow) {
+    HandshakeFlow.payment => (
+      (AppLocalizations l) => l.handshakePay1,
+      (AppLocalizations l) => l.handshakePay2,
+      (AppLocalizations l) => l.handshakeBack,
+      (AppLocalizations l) => l.handshakeRelayBack,
+    ),
+    HandshakeFlow.request => (
+      (AppLocalizations l) => l.handshakeReq1,
+      (AppLocalizations l) => l.handshakeReq2,
+      (AppLocalizations l) => l.handshakeBack,
+      (AppLocalizations l) => l.handshakeRelayBack,
+    ),
+    HandshakeFlow.file => (
+      (AppLocalizations l) => l.handshakeFile1,
+      (AppLocalizations l) => l.handshakeFile2,
+      (AppLocalizations l) => l.handshakeFile3,
+      (AppLocalizations l) => l.handshakeFile4,
+    ),
+  };
+  return [
+    HandshakeStep(actor: _you, from: _you, to: _relay, caption: out),
+    HandshakeStep(actor: _them, from: _relay, to: _them, caption: signs),
+    HandshakeStep(actor: _them, from: _them, to: _relay, caption: back),
     HandshakeStep(
-      actor: HandshakeParty.you,
-      from: HandshakeParty.you,
-      to: HandshakeParty.them,
-      caption: (l) => l.handshakePay1,
+      // The relay delivers; a file is opened by you.
+      actor: flow == HandshakeFlow.file ? _you : _relay,
+      from: _relay,
+      to: _you,
+      caption: returned,
     ),
     HandshakeStep(
-      actor: HandshakeParty.them,
-      from: HandshakeParty.them,
-      to: HandshakeParty.you,
-      caption: (l) => l.handshakePay2,
-    ),
-    HandshakeStep(
-      actor: HandshakeParty.you,
-      from: HandshakeParty.you,
-      to: HandshakeParty.network,
+      actor: _you,
+      from: _you,
+      to: _network,
       caption: (l) => l.handshakeFinish,
     ),
     HandshakeStep(
-      actor: HandshakeParty.network,
-      from: HandshakeParty.network,
+      actor: _network,
+      from: _network,
       caption: (l) => l.handshakeConfirm,
     ),
-  ],
-  HandshakeFlow.request => [
-    HandshakeStep(
-      actor: HandshakeParty.you,
-      from: HandshakeParty.you,
-      to: HandshakeParty.them,
-      caption: (l) => l.handshakeReq1,
-    ),
-    HandshakeStep(
-      actor: HandshakeParty.them,
-      from: HandshakeParty.them,
-      to: HandshakeParty.you,
-      caption: (l) => l.handshakeReq2,
-    ),
-    HandshakeStep(
-      actor: HandshakeParty.you,
-      from: HandshakeParty.you,
-      to: HandshakeParty.network,
-      caption: (l) => l.handshakeFinish,
-    ),
-    HandshakeStep(
-      actor: HandshakeParty.network,
-      from: HandshakeParty.network,
-      caption: (l) => l.handshakeConfirm,
-    ),
-  ],
-};
+  ];
+}
 
 /// How long each step plays.
 const Duration handshakeStepDuration = Duration(milliseconds: 2800);
@@ -216,17 +222,34 @@ class _HandshakeSheetState extends State<HandshakeSheet>
             const SizedBox(height: 16),
             SegmentedButton<HandshakeFlow>(
               segments: [
-                ButtonSegment(
-                  value: HandshakeFlow.payment,
-                  label: Text(l.handshakePayment),
-                ),
-                ButtonSegment(
-                  value: HandshakeFlow.request,
-                  label: Text(l.handshakeRequest),
-                ),
+                for (final (flow, label) in [
+                  (HandshakeFlow.payment, l.handshakePayment),
+                  (HandshakeFlow.request, l.handshakeRequest),
+                  (HandshakeFlow.file, l.handshakeFile),
+                ])
+                  ButtonSegment(
+                    value: flow,
+                    label: Text(
+                      label,
+                      textAlign: TextAlign.center,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
               ],
               selected: {_flow},
               showSelectedIcon: false,
+              // The chosen flow is filled with the accent, so it cannot pass for a shade.
+              style: SegmentedButton.styleFrom(
+                backgroundColor: t.surface,
+                foregroundColor: t.dim,
+                selectedBackgroundColor: t.accent,
+                selectedForegroundColor: t.accentInk,
+                side: BorderSide(color: t.lineStrong),
+                textStyle: theme.textTheme.labelLarge?.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
               expandedInsets: EdgeInsets.zero,
               onSelectionChanged: (selected) => _switch(selected.first),
             ),
@@ -241,8 +264,11 @@ class _HandshakeSheetState extends State<HandshakeSheet>
                 ),
                 child: AnimatedBuilder(
                   animation: _progress,
-                  builder: (context, _) =>
-                      _Diagram(step: step, progress: _progress.value),
+                  builder: (context, _) => _Diagram(
+                    flow: _flow,
+                    step: step,
+                    progress: _progress.value,
+                  ),
                 ),
               ),
             ),
@@ -252,6 +278,8 @@ class _HandshakeSheetState extends State<HandshakeSheet>
               // Announced when the user moves it, not every few seconds while it plays.
               liveRegion: _paused || still,
               child: Stack(
+                // A one-line caption is as wide as its text: keep it centred.
+                alignment: Alignment.topCenter,
                 children: [
                   for (final (i, s) in steps.indexed)
                     Visibility(
@@ -338,17 +366,24 @@ class _Dots extends StatelessWidget {
   }
 }
 
-/// Where each node sits, as a share of the diagram's width and height.
+/// Where each node sits, as a share of the diagram's width and height: a diamond, the
+/// relay above between the wallets and the network below.
 const Map<HandshakeParty, Alignment> _place = {
-  HandshakeParty.you: Alignment(-0.85, -0.5),
-  HandshakeParty.them: Alignment(0.85, -0.5),
-  HandshakeParty.network: Alignment(0, 0.62),
+  HandshakeParty.you: Alignment(-1, 0),
+  HandshakeParty.relay: Alignment(0, -1),
+  HandshakeParty.them: Alignment(1, 0),
+  HandshakeParty.network: Alignment(0, 1),
 };
 
-/// The three nodes as labelled boxes over the painted arrows and token.
+/// The four nodes as labelled boxes over the painted arrows and token.
 class _Diagram extends StatelessWidget {
-  const _Diagram({required this.step, required this.progress});
+  const _Diagram({
+    required this.flow,
+    required this.step,
+    required this.progress,
+  });
 
+  final HandshakeFlow flow;
   final HandshakeStep step;
   final double progress;
 
@@ -358,42 +393,48 @@ class _Diagram extends StatelessWidget {
     final t = context.tokens;
     String label(HandshakeParty p) => switch (p) {
       HandshakeParty.you => l.handshakeYou,
+      HandshakeParty.relay =>
+        flow == HandshakeFlow.file ? l.handshakeFile : l.handshakeRelay,
       HandshakeParty.them => l.handshakeThem,
       HandshakeParty.network => l.handshakeNetwork,
     };
     return SizedBox(
-      height: 168,
-      child: LayoutBuilder(
-        builder: (context, box) {
-          final nodeWidth = math.min(104.0, box.maxWidth * 0.26);
-          return Stack(
-            children: [
-              Positioned.fill(
-                child: CustomPaint(
-                  painter: HandshakePainter(
-                    step: step,
-                    progress: progress,
-                    line: t.lineStrong,
-                    lit: t.accent,
-                    halo: t.accentSoft,
-                    token: t.accent,
-                    done: t.ok,
-                    nodeWidth: nodeWidth,
+      height: 184,
+      child: Padding(
+        // Room for the lit node's halo and the network's ring.
+        padding: const EdgeInsets.all(10),
+        child: LayoutBuilder(
+          builder: (context, box) {
+            final nodeWidth = math.min(104.0, box.maxWidth * 0.24);
+            return Stack(
+              children: [
+                Positioned.fill(
+                  child: CustomPaint(
+                    painter: HandshakePainter(
+                      step: step,
+                      progress: progress,
+                      line: t.lineStrong,
+                      lit: t.accent,
+                      halo: t.accentSoft,
+                      token: t.accent,
+                      done: t.ok,
+                      nodeWidth: nodeWidth,
+                    ),
                   ),
                 ),
-              ),
-              for (final party in HandshakeParty.values)
-                Align(
-                  alignment: _place[party]!,
-                  child: _Node(
-                    width: nodeWidth,
-                    label: label(party),
-                    lit: step.actor == party,
+                for (final party in HandshakeParty.values)
+                  Align(
+                    alignment: _place[party]!,
+                    child: _Node(
+                      width: nodeWidth,
+                      label: label(party),
+                      lit: step.actor == party,
+                    ),
                   ),
-                ),
-            ],
-          );
-        },
+              ],
+            );
+          },
+        ),
       ),
     );
   }
@@ -464,28 +505,25 @@ class HandshakePainter extends CustomPainter {
       // Align places the box, so its centre moves with the alignment.
       Offset(-_place[p]!.x * nodeWidth / 2, -_place[p]!.y * _nodeHeight / 2);
 
-  /// The lane from [from] to [to]: the two wallets talk on two lanes, out above and back
-  /// below, so the arrow back is not the same line.
+  /// The lane from [from] to [to], between the two boxes' edges. A pair that talks both
+  /// ways gets two lanes side by side, so the arrow back is not the same line.
   (Offset, Offset) _lane(HandshakeParty from, HandshakeParty to, Size size) {
     final a = _centre(from, size), b = _centre(to, size);
-    if (to == HandshakeParty.network || from == HandshakeParty.network) {
-      // From the wallet's lower edge to the network's top.
-      final toNet = to == HandshakeParty.network;
-      final wallet = toNet ? a : b, net = toNet ? b : a;
-      final w = Offset(wallet.dx, wallet.dy + _nodeHeight / 2 + 4);
-      final n = Offset(
-        net.dx + (wallet.dx < net.dx ? -1 : 1) * nodeWidth * 0.2,
-        net.dy - _nodeHeight / 2 - 4,
-      );
-      return toNet ? (w, n) : (n, w);
-    }
-    final left = a.dx < b.dx;
-    final dy = from == HandshakeParty.you ? -8.0 : 8.0;
-    final half = nodeWidth / 2 + 6;
-    return (
-      Offset(a.dx + (left ? half : -half), a.dy + dy),
-      Offset(b.dx + (left ? -half : half), b.dy + dy),
+    final dir = (b - a) / (b - a).distance;
+    double exit(Offset d) => math.min(
+      d.dx == 0 ? double.infinity : (nodeWidth / 2 + 5) / d.dx.abs(),
+      d.dy == 0 ? double.infinity : (_nodeHeight / 2 + 5) / d.dy.abs(),
     );
+    var start = a + dir * exit(dir), end = b - dir * exit(dir);
+    if (to != HandshakeParty.network) {
+      // The same side for a pair whichever way it goes: out on one lane, back on the other.
+      final forward = from.index < to.index;
+      final canon = forward ? dir : -dir;
+      final normal = Offset(-canon.dy, canon.dx) * (forward ? 5.0 : -5.0);
+      start += normal;
+      end += normal;
+    }
+    return (start, end);
   }
 
   void _arrow(Canvas canvas, Offset a, Offset b, Paint paint) {
@@ -509,8 +547,10 @@ class HandshakePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     const lanes = [
-      (HandshakeParty.you, HandshakeParty.them),
-      (HandshakeParty.them, HandshakeParty.you),
+      (HandshakeParty.you, HandshakeParty.relay),
+      (HandshakeParty.relay, HandshakeParty.them),
+      (HandshakeParty.them, HandshakeParty.relay),
+      (HandshakeParty.relay, HandshakeParty.you),
       (HandshakeParty.you, HandshakeParty.network),
     ];
     final quiet = Paint()

@@ -3718,11 +3718,11 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get handshakePay1 =>
-      'Twój portfel wysyła im płatność. Twoje monety są wstrzymane.';
+      'Twój portfel wysyła płatność do przekaźnika. Twoje monety są wstrzymane.';
 
   @override
   String get handshakePay2 =>
-      'Ich portfel dodaje swoją część, podpisuje i odsyła.';
+      'Przekaźnik przekazuje ją dalej. Ich portfel dodaje swoją część i podpisuje.';
 
   @override
   String get handshakeFinish => 'Twój portfel kończy ją i wysyła do sieci.';
@@ -3731,10 +3731,38 @@ class AppLocalizationsPl extends AppLocalizations {
   String get handshakeConfirm => 'Sieć ją potwierdza.';
 
   @override
-  String get handshakeReq1 => 'Twój portfel wysyła im prośbę.';
+  String get handshakeReq1 => 'Twój portfel wysyła prośbę do przekaźnika.';
 
   @override
-  String get handshakeReq2 => 'Ich portfel dodaje monety, podpisuje i odsyła.';
+  String get handshakeReq2 =>
+      'Przekaźnik przekazuje ją dalej. Oni ją akceptują, a ich portfel dodaje monety i podpisuje.';
+
+  @override
+  String get handshakeRelay => 'Przekaźnik';
+
+  @override
+  String get handshakeFile => 'Plik';
+
+  @override
+  String get handshakeBack => 'Ich portfel odsyła ją do przekaźnika.';
+
+  @override
+  String get handshakeRelayBack =>
+      'Przekaźnik przekazuje ją z powrotem do twojego portfela.';
+
+  @override
+  String get handshakeFile1 =>
+      'Twój portfel zapisuje plik płatności. Sam wysyłasz go do nich.';
+
+  @override
+  String get handshakeFile2 =>
+      'Oni go otwierają. Ich portfel dodaje swoją część, podpisuje i zapisuje odpowiedź.';
+
+  @override
+  String get handshakeFile3 => 'Odsyłają ci plik odpowiedzi.';
+
+  @override
+  String get handshakeFile4 => 'Otwierasz ich odpowiedź w swoim portfelu.';
 
   @override
   String get handshakePrevious => 'Poprzedni krok';
