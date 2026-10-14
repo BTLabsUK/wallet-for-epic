@@ -3376,7 +3376,14 @@ class AppLocalizationsZh extends AppLocalizations {
   String get handshakeNext => '下一步';
 
   @override
-  String get sendRelayRefused => '对方的中继没有接收。在你取消之前，这笔金额处于冻结状态。';
+  String sendRelayRefused(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: '对方的中继没有接收。在你取消之前，这笔金额处于冻结状态，最长 $days 天。',
+    );
+    return '$_temp0';
+  }
 
   @override
   String get sendRelayRefusedLost => '对方的中继没有接收。再次发送前请先查看钱包。';

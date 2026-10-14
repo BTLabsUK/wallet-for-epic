@@ -92,7 +92,10 @@ class _Mainnet extends WalletConfigNotifier {
 
 /// A relay that refuses the send without the wallet storing it, so there is nothing to find.
 class _LostSession extends FakeWalletSession {
-  _LostSession({required WalletSummary super.summary});
+  _LostSession({required WalletSummary super.summary, this.leaves});
+
+  /// Something the failed send changed that is not its payment, so nothing can be told.
+  final TxEntry? leaves;
 
   @override
   Future<TxEntry> sendEpicbox({
@@ -102,9 +105,39 @@ class _LostSession extends FakeWalletSession {
     String? message,
   }) async {
     epicboxSends.add((amount: amount, to: address));
+    if (leaves case final tx?) transactionsValue.add(tx);
     throw const WalletError(
       kind: WalletErrorKind.transportFailed,
       message: 'relay sent nothing in time',
+    );
+  }
+}
+
+/// A cancel that fails. With [finalizes], the reply came first: the payment is finished and
+/// on its way to the network.
+class _RaceSession extends FakeWalletSession {
+  _RaceSession({required WalletSummary super.summary, required this.finalizes});
+
+  final bool finalizes;
+
+  @override
+  Future<void> cancelTransaction({required int txId}) async {
+    if (finalizes) {
+      final i = transactionsValue.indexWhere((t) => t.id == txId);
+      final tx = transactionsValue[i];
+      transactionsValue[i] = fakeTx(
+        id: tx.id,
+        slateId: tx.slateId,
+        kind: TxKind.sent,
+        status: TxStatus.awaitingConfirmation,
+        amountDebited: tx.amountDebited,
+        fee: tx.fee,
+        counterparty: tx.counterparty,
+      );
+    }
+    throw const WalletError(
+      kind: WalletErrorKind.invalidArgument,
+      message: 'only a payment waiting for the recipient can be cancelled',
     );
   }
 }
@@ -416,6 +449,32 @@ void main() {
           probe: const AsyncData(true),
         );
         expect(listed.relayOutcome, CheckOutcome.failed);
+      },
+    );
+
+    test(
+      'the probe speaks ws to a loopback relay, as LEPIC does, else wss',
+      () {
+        for (final host in ['localhost', '127.0.0.1', '127.8.9.10', '::1']) {
+          expect(
+            relayProbeUri(EpicboxRelay(host: host, port: 3420)).scheme,
+            'ws',
+            reason: host,
+          );
+        }
+        for (final host in ['epicbox.epiccash.com', '128.0.0.1', '10.0.0.1']) {
+          expect(
+            relayProbeUri(EpicboxRelay(host: host)).scheme,
+            'wss',
+            reason: host,
+          );
+        }
+        expect(
+          relayProbeUri(
+            const EpicboxRelay(host: 'relay.example.org', port: 8443),
+          ).toString(),
+          'wss://relay.example.org:8443',
+        );
       },
     );
 
@@ -749,7 +808,8 @@ void main() {
         expect(find.textContaining('relay sent nothing'), findsNothing);
         expect(
           find.text(
-            "Their relay didn't take it. The amount is on hold until you cancel.",
+            "Their relay didn't take it. The amount is on hold until you cancel "
+            'it, or for at most 14 days.',
           ),
           findsOneWidget,
         );
@@ -820,10 +880,42 @@ void main() {
       },
     );
 
+    testWidgets('a refused send that stored nothing offers the file', (
+      tester,
+    ) async {
+      final h = _Harness(session: _LostSession(summary: _forty));
+      h.relays.list = [_status(_bobRelay, healthy: true)];
+      await h.pump(tester);
+      await h.connect(tester);
+      await _review(tester, _bob);
+      await _tap(tester, _sendButton);
+      // Balance and payments as before: nothing is held, so a file cannot pay twice.
+      expect(find.text("Their relay isn't answering."), findsOneWidget);
+      expect(find.text('Cancel and pay with a file'), findsNothing);
+      expect(find.text('Send anyway'), findsNothing);
+      expect(_sendButton, findsNothing);
+      await _tap(tester, _fileButton);
+      await _tap(tester, find.text('Make payment file'));
+      expect(h.session.epicboxSends, hasLength(1));
+      expect(h.session.sentAmounts, [_epic(1.5)]);
+    });
+
     testWidgets(
-      'a refused send that left nothing to find says so, sends no more',
+      'a refused send that changed something else says so, sends no more',
       (tester) async {
-        final h = _Harness(session: _LostSession(summary: _forty));
+        final h = _Harness(
+          session: _LostSession(
+            summary: _forty,
+            leaves: fakeTx(
+              id: 9,
+              slateId: 'other',
+              kind: TxKind.sent,
+              status: TxStatus.awaitingRecipient,
+              amountDebited: _epic(3),
+              counterparty: _carol,
+            ),
+          ),
+        );
         h.relays.list = [_status(_bobRelay, healthy: true)];
         await h.pump(tester);
         await h.connect(tester);
@@ -835,14 +927,82 @@ void main() {
           ),
           findsOneWidget,
         );
+        expect(_fileButton, findsNothing);
         expect(find.text('Cancel and pay with a file'), findsNothing);
-        expect(find.text('Send anyway'), findsNothing);
         expect(_sendButton, findsNothing);
         await _tap(tester, find.widgetWithText(FilledButton, 'Done'));
         expect(h.session.epicboxSends, hasLength(1));
         expect(h.session.sentAmounts, isEmpty);
       },
     );
+
+    testWidgets('a cancel that loses to their reply shows the tracker', (
+      tester,
+    ) async {
+      final race = _RaceSession(summary: _forty, finalizes: true);
+      race.sendError = const WalletError(
+        kind: WalletErrorKind.transportFailed,
+        message: 'relay sent nothing in time',
+      );
+      final h = _Harness(session: race);
+      h.relays.list = [_status(_bobRelay, healthy: true)];
+      await h.pump(tester);
+      await h.connect(tester);
+      await _review(tester, _bob);
+      await _tap(tester, _sendButton);
+      await _tap(tester, find.text('Cancel and pay with a file'));
+      // Their wallet answered first: the payment is going ahead.
+      expect(find.text('Pay with a file'), findsNothing);
+      expect(find.text('Sent to the network'), findsOneWidget);
+      expect(find.textContaining('Confirming 0/'), findsOneWidget);
+      expect(h.session.sentAmounts, isEmpty);
+    });
+
+    testWidgets('a cancel that fails otherwise shows the error, then Done', (
+      tester,
+    ) async {
+      final race = _RaceSession(summary: _forty, finalizes: false);
+      race.sendError = const WalletError(
+        kind: WalletErrorKind.transportFailed,
+        message: 'relay sent nothing in time',
+      );
+      final h = _Harness(session: race);
+      h.relays.list = [_status(_bobRelay, healthy: true)];
+      await h.pump(tester);
+      await h.connect(tester);
+      await _review(tester, _bob);
+      await _tap(tester, _sendButton);
+      await _tap(tester, find.text('Cancel and pay with a file'));
+      expect(find.byType(ErrorText), findsOneWidget);
+      expect(find.text('Cancel and pay with a file'), findsNothing);
+      expect(find.text('Leave it for now'), findsNothing);
+      expect(find.text('Pay with a file'), findsNothing);
+      await _tap(tester, find.widgetWithText(FilledButton, 'Done'));
+      expect(h.session.sentAmounts, isEmpty);
+    });
+
+    testWidgets('a recipient handed over while a refused send is held waits', (
+      tester,
+    ) async {
+      final h = _Harness();
+      h.relays.list = [_status(_bobRelay, healthy: true)];
+      h.session.sendError = const WalletError(
+        kind: WalletErrorKind.transportFailed,
+        message: 'relay sent nothing in time',
+      );
+      await h.pump(tester);
+      await h.connect(tester);
+      await _review(tester, _bob);
+      await _tap(tester, _sendButton);
+      ProviderScope.containerOf(tester.element(find.byType(SendView)))
+          .read(sendRecipientProvider.notifier)
+          .hand(_carol);
+      await tester.pumpAndSettle();
+      // Still the held payment, with no way to a second send.
+      expect(find.text('Cancel and pay with a file'), findsOneWidget);
+      expect(find.text('1 of 3'), findsNothing);
+      expect(h.session.epicboxSends, hasLength(1));
+    });
 
     testWidgets('Review shows that it is sending, and Back waits', (
       tester,

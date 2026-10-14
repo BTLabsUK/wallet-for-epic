@@ -3743,8 +3743,21 @@ class AppLocalizationsPl extends AppLocalizations {
   String get handshakeNext => 'Następny krok';
 
   @override
-  String get sendRelayRefused =>
-      'Ich przekaźnik jej nie przyjął. Kwota jest wstrzymana, dopóki nie anulujesz.';
+  String sendRelayRefused(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other:
+          'Ich przekaźnik jej nie przyjął. Kwota jest wstrzymana, dopóki jej nie anulujesz, najwyżej $days dnia.',
+      many:
+          'Ich przekaźnik jej nie przyjął. Kwota jest wstrzymana, dopóki jej nie anulujesz, najwyżej $days dni.',
+      few:
+          'Ich przekaźnik jej nie przyjął. Kwota jest wstrzymana, dopóki jej nie anulujesz, najwyżej $days dni.',
+      one:
+          'Ich przekaźnik jej nie przyjął. Kwota jest wstrzymana, dopóki jej nie anulujesz, najwyżej $days dzień.',
+    );
+    return '$_temp0';
+  }
 
   @override
   String get sendRelayRefusedLost =>

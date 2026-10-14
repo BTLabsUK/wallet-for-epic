@@ -3585,8 +3585,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get handshakeNext => 'Next step';
 
   @override
-  String get sendRelayRefused =>
-      'Their relay didn\'t take it. The amount is on hold until you cancel.';
+  String sendRelayRefused(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other:
+          'Their relay didn\'t take it. The amount is on hold until you cancel it, or for at most $days days.',
+      one: 'Their relay didn\'t take it. The amount is on hold until you cancel it, or for at most 1 day.',
+    );
+    return '$_temp0';
+  }
 
   @override
   String get sendRelayRefusedLost =>

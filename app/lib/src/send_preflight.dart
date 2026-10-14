@@ -121,10 +121,23 @@ class WebSocketRelayProbe implements RelayProbe {
   const WebSocketRelayProbe();
 
   @override
-  Future<bool> reachable(EpicboxRelay relay) => probeWebSocket(
-    Uri(scheme: 'wss', host: relay.host, port: relay.port),
-    timeout: probeTimeout,
-  );
+  Future<bool> reachable(EpicboxRelay relay) =>
+      probeWebSocket(relayProbeUri(relay), timeout: probeTimeout);
+}
+
+/// The URL the probe opens for [relay]: plain `ws` on a loopback host, where LEPIC talks to
+/// the relay without TLS too (a local test relay), `wss` everywhere else.
+Uri relayProbeUri(EpicboxRelay relay) => Uri(
+  scheme: _loopback(relay.host) ? 'ws' : 'wss',
+  host: relay.host,
+  port: relay.port,
+);
+
+bool _loopback(String host) {
+  final h = host.toLowerCase();
+  if (h == 'localhost' || h == '::1' || h == '[::1]') return true;
+  final ip = RegExp(r'^127\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$').firstMatch(h);
+  return ip != null && [1, 2, 3].every((i) => int.parse(ip.group(i)!) <= 255);
 }
 
 /// A probe that answers [answer] at once, for tests.

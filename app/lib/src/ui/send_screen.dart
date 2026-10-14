@@ -245,6 +245,13 @@ class _SendViewState extends ConsumerState<SendView> {
   /// The payment a failed send left behind, when it was found.
   TxEntry? _undelivered;
 
+  /// The failed send changed neither the balance nor the payments: nothing is held, so a
+  /// payment file cannot pay twice.
+  bool _nothingStored = false;
+
+  /// Cancelling [_undelivered] failed and it did not go ahead either: only Done is left.
+  bool _cancelFailed = false;
+
   /// A recipient handed over while the tracker or a file screen shows, for the next form.
   String? _laterRecipient;
 
@@ -342,8 +349,10 @@ class _SendViewState extends ConsumerState<SendView> {
   void _setRecipient(String text) {
     if (_stage == SendStage.sent ||
         _stage == SendStage.fileMade ||
-        _stage == SendStage.fileSent) {
-      // Not over a payment in progress: the next form takes it.
+        _stage == SendStage.fileSent ||
+        _sendFailed) {
+      // Not over a payment in progress, or one a refused send holds: the next form takes
+      // it, so Send again cannot make a second payment meanwhile.
       _laterRecipient = text;
       return;
     }
@@ -391,6 +400,8 @@ class _SendViewState extends ConsumerState<SendView> {
       _error = null;
       _sendFailed = false;
       _undelivered = null;
+      _nothingStored = false;
+      _cancelFailed = false;
     });
   }
 
@@ -571,6 +582,8 @@ class _SendViewState extends ConsumerState<SendView> {
       _error = null;
       _sendFailed = false;
       _undelivered = null;
+      _nothingStored = false;
+      _cancelFailed = false;
     });
     try {
       final minimum = ref.read(minimumConfirmationsProvider);
@@ -612,6 +625,8 @@ class _SendViewState extends ConsumerState<SendView> {
       _error = null;
       _sendFailed = false;
       _undelivered = null;
+      _nothingStored = false;
+      _cancelFailed = false;
     });
   }
 
@@ -646,9 +661,14 @@ class _SendViewState extends ConsumerState<SendView> {
     final note = _noteText;
     return _run((session) async {
       // What the wallet held before, to tell the payment a failed send leaves behind.
+      final minimum = ref.read(minimumConfirmationsProvider);
       final before = {
         for (final t in await session.transactions(refresh: false)) t.key,
       };
+      final spendableBefore = (await session.summary(
+        refresh: false,
+        minimumConfirmations: minimum,
+      )).spendable;
       final TxEntry tx;
       try {
         tx = await hold.during(
@@ -667,8 +687,13 @@ class _SendViewState extends ConsumerState<SendView> {
         );
         // LEPIC stores the payment and holds its coins before the relay refuses it.
         container.invalidate(homeProvider);
+        final after = await session.transactions(refresh: false);
+        final spendableAfter = (await session.summary(
+          refresh: false,
+          minimumConfirmations: minimum,
+        )).spendable;
         final left =
-            (await session.transactions(refresh: false))
+            after
                 .where(
                   (t) =>
                       !before.contains(t.key) &&
@@ -684,6 +709,11 @@ class _SendViewState extends ConsumerState<SendView> {
           setState(() {
             _sendFailed = true;
             _undelivered = left.firstOrNull;
+            _nothingStored =
+                left.isEmpty &&
+                spendableAfter == spendableBefore &&
+                after.length == before.length &&
+                after.every((t) => before.contains(t.key));
           });
         }
         return;
@@ -723,9 +753,14 @@ class _SendViewState extends ConsumerState<SendView> {
   /// the note. After Max the maximum is asked again, now that the coins are free.
   Future<void> _cancelAndFile() async {
     final stuck = _undelivered;
-    if (stuck == null) return;
+    final session = ref.read(sessionProvider);
+    if (stuck == null || session == null || _busy) return;
     final container = ProviderScope.containerOf(context, listen: false);
-    await _run((session) async {
+    setState(() {
+      _busy = true;
+      _error = null;
+    });
+    try {
       await session.cancelTransaction(txId: stuck.id!);
       container.invalidate(homeProvider);
       if (!mounted) return;
@@ -735,7 +770,45 @@ class _SendViewState extends ConsumerState<SendView> {
         _undelivered = null;
         _stage = SendStage.fileAmount;
       });
-    });
+    } catch (error) {
+      // Their reply may have come first: then the payment is going ahead, not held.
+      container.invalidate(homeProvider);
+      TxEntry? now;
+      try {
+        now = (await session.transactions(refresh: true))
+            .where((t) => t.key == stuck.key)
+            .firstOrNull;
+      } catch (_) {
+        // Said by the error below.
+      }
+      if (!mounted) return;
+      final moved =
+          now != null &&
+          now.status != TxStatus.awaitingRecipient &&
+          now.status != TxStatus.cancelled;
+      if (moved) {
+        container.read(trackedSendProvider.notifier).track(now.key);
+        _closeChecks();
+        setState(() {
+          _sent = _Sent(
+            tx: now!,
+            amount: txAmount(now).amount,
+            to: parseRecipient(_recipient.text),
+            reviewedFee: _estimate?.fee,
+          );
+          _stage = SendStage.sent;
+          _sendFailed = false;
+          _undelivered = null;
+        });
+      } else {
+        setState(() {
+          _cancelFailed = true;
+          _error = describeError(context.l10n, error);
+        });
+      }
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
     if (!mounted || _stage != SendStage.fileAmount) return;
     final amount = _parsedAmount;
     if (_maxUsed) {
@@ -1317,9 +1390,11 @@ class _SendViewState extends ConsumerState<SendView> {
         sending: _busy,
         failed: !_sendFailed
             ? null
+            : _nothingStored
+            ? l.sendRelayDown
             : _undelivered == null
             ? l.sendRelayRefusedLost
-            : l.sendRelayRefused,
+            : l.sendRelayRefused(sendTtlDays),
       ),
     ];
   }
@@ -1337,7 +1412,9 @@ class _SendViewState extends ConsumerState<SendView> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         // The send failed and LEPIC holds the payment: never a second send from here.
-        if (_sendFailed && _undelivered != null) ...[
+        if (_sendFailed && _cancelFailed)
+          BusyButton(label: l.commonDone, onPressed: _done)
+        else if (_sendFailed && _undelivered != null) ...[
           BusyButton(
             label: l.sendCancelAndFile,
             busy: _busy,
@@ -1348,6 +1425,18 @@ class _SendViewState extends ConsumerState<SendView> {
             style: quiet,
             onPressed: _busy ? null : _done,
             child: Text(l.sendLeaveIt),
+          ),
+        ] else if (_sendFailed && _nothingStored) ...[
+          // Nothing is held, so a file is the one payment.
+          BusyButton(
+            label: l.sendPayWithFile,
+            onPressed: _busy ? null : _toFileRoute,
+          ),
+          const SizedBox(height: 4),
+          TextButton(
+            style: quiet,
+            onPressed: _busy ? null : _done,
+            child: Text(l.commonDone),
           ),
         ] else if (_sendFailed)
           BusyButton(label: l.commonDone, onPressed: _done)

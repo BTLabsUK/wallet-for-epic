@@ -5456,11 +5456,11 @@ abstract class AppLocalizations {
   /// **'Next step'**
   String get handshakeNext;
 
-  /// Send, review: the send failed at the recipient's relay; the wallet keeps the payment with its coins on hold until it is cancelled.
+  /// Send, review: the send failed at the recipient's relay; the wallet keeps the payment with its coins on hold until it is cancelled, and cancels it by itself after {days} days.
   ///
   /// In en, this message translates to:
-  /// **'Their relay didn\'t take it. The amount is on hold until you cancel.'**
-  String get sendRelayRefused;
+  /// **'{days, plural, =1{Their relay didn\'t take it. The amount is on hold until you cancel it, or for at most 1 day.} other{Their relay didn\'t take it. The amount is on hold until you cancel it, or for at most {days} days.}}'**
+  String sendRelayRefused(int days);
 
   /// Send, review: the send failed at the recipient's relay and the app could not find the payment it may have left; the user should look in Wallet before trying again.
   ///

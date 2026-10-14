@@ -4336,9 +4336,14 @@
   "@handshakeNext": {
     "description": "How it works sheet: tooltip of the button that shows the next step."
   },
-  "sendRelayRefused": "Their relay didn't take it. The amount is on hold until you cancel.",
+  "sendRelayRefused": "{days, plural, =1{Their relay didn't take it. The amount is on hold until you cancel it, or for at most 1 day.} other{Their relay didn't take it. The amount is on hold until you cancel it, or for at most {days} days.}}",
   "@sendRelayRefused": {
-    "description": "Send, review: the send failed at the recipient's relay; the wallet keeps the payment with its coins on hold until it is cancelled."
+    "description": "Send, review: the send failed at the recipient's relay; the wallet keeps the payment with its coins on hold until it is cancelled, and cancels it by itself after {days} days.",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
   },
   "sendRelayRefusedLost": "Their relay didn't take it. Check Wallet before you send again.",
   "@sendRelayRefusedLost": {

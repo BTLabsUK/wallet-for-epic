@@ -3632,8 +3632,16 @@ class AppLocalizationsDe extends AppLocalizations {
   String get handshakeNext => 'Nächster Schritt';
 
   @override
-  String get sendRelayRefused =>
-      'Das Relay der Gegenseite hat sie nicht angenommen. Der Betrag bleibt zurückgehalten, bis Sie stornieren.';
+  String sendRelayRefused(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other:
+          'Das Relay der Gegenseite hat sie nicht angenommen. Der Betrag bleibt zurückgehalten, bis Sie stornieren, höchstens $days Tage.',
+      one: 'Das Relay der Gegenseite hat sie nicht angenommen. Der Betrag bleibt zurückgehalten, bis Sie stornieren, höchstens 1 Tag.',
+    );
+    return '$_temp0';
+  }
 
   @override
   String get sendRelayRefusedLost =>

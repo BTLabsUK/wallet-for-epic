@@ -189,9 +189,9 @@ Future<void> _backHome(WidgetTester tester) async {
 /// Hides snack bars (payment notices), which can sit over the row a test taps.
 /// Closes every notice: they float over the app bar and the top of the screen.
 void _clearNotices(WidgetTester tester) {
-  ProviderScope.containerOf(
-    tester.element(find.byType(MaterialApp)),
-  ).read(noticeProvider.notifier).clear();
+  ProviderScope.containerOf(tester.element(find.byType(MaterialApp)))
+      .read(noticeProvider.notifier)
+      .clear();
 }
 
 /// On home, refreshes until [n] rows say Completed (10 confirmations, as the app counts).
@@ -309,18 +309,23 @@ void main() {
         'WFE_E2E step=received after ${DateTime.now().difference(started)}',
       );
 
-      // 4. Send 0.3 EPIC back to the CLI with a note: Review, Send, "Payment started".
+      // 4. Send 0.3 EPIC back to the CLI with a note: Recipient, Amount, Review, Send, then
+      // the tracker, waiting for the CLI's wallet or already on the network.
       await _tapText(tester, 'Send');
-      await _enter(tester, 'To', _cliAddress);
+      await _enter(tester, 'Epic address', _cliAddress);
+      await _tap(tester, find.widgetWithText(FilledButton, 'Continue'));
       await _enter(tester, 'Amount (EPIC)', '0.3');
-      await _enter(tester, 'Message to recipient (optional)', _note);
-      await _tapText(tester, 'Review');
+      await _tapText(tester, 'Add a note');
+      await _enter(tester, 'Note', _note);
+      await _tap(tester, find.widgetWithText(FilledButton, 'Continue'));
       final sendButton = find.textContaining(RegExp(r'^Send 0\.3'));
       await _pumpUntil(tester, sendButton, timeout: const Duration(minutes: 1));
       await _tap(tester, sendButton.first);
       await _pumpUntil(
         tester,
-        find.textContaining('Payment started'),
+        find.textContaining(
+          RegExp(r'^(Waiting for their wallet|Sent to the network)'),
+        ),
         timeout: const Duration(minutes: 1),
       );
       await _tapText(tester, 'Done');

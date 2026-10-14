@@ -886,7 +886,7 @@
   "handshakeReq2": "Die Wallet der Gegenseite fügt die Coins hinzu, signiert und schickt sie zurück.",
   "handshakePrevious": "Vorheriger Schritt",
   "handshakeNext": "Nächster Schritt",
-  "sendRelayRefused": "Das Relay der Gegenseite hat sie nicht angenommen. Der Betrag bleibt zurückgehalten, bis Sie stornieren.",
+  "sendRelayRefused": "{days, plural, =1{Das Relay der Gegenseite hat sie nicht angenommen. Der Betrag bleibt zurückgehalten, bis Sie stornieren, höchstens 1 Tag.} other{Das Relay der Gegenseite hat sie nicht angenommen. Der Betrag bleibt zurückgehalten, bis Sie stornieren, höchstens {days} Tage.}}",
   "sendRelayRefusedLost": "Das Relay der Gegenseite hat sie nicht angenommen. Prüfen Sie die Wallet, bevor Sie erneut senden.",
   "sendCancelAndFile": "Stornieren und mit Datei zahlen",
   "sendLeaveIt": "Vorerst so lassen",

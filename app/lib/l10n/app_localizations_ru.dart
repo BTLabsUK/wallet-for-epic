@@ -3724,8 +3724,21 @@ class AppLocalizationsRu extends AppLocalizations {
   String get handshakeNext => 'Следующий шаг';
 
   @override
-  String get sendRelayRefused =>
-      'Их ретранслятор не принял платёж. Сумма заблокирована, пока вы его не отмените.';
+  String sendRelayRefused(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other:
+          'Их ретранслятор не принял платёж. Сумма заблокирована, пока вы его не отмените, но не дольше $days дня.',
+      many:
+          'Их ретранслятор не принял платёж. Сумма заблокирована, пока вы его не отмените, но не дольше $days дней.',
+      few:
+          'Их ретранслятор не принял платёж. Сумма заблокирована, пока вы его не отмените, но не дольше $days дней.',
+      one:
+          'Их ретранслятор не принял платёж. Сумма заблокирована, пока вы его не отмените, но не дольше $days дня.',
+    );
+    return '$_temp0';
+  }
 
   @override
   String get sendRelayRefusedLost =>

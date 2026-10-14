@@ -886,7 +886,7 @@
   "handshakeReq2": "Ich portfel dodaje monety, podpisuje i odsyła.",
   "handshakePrevious": "Poprzedni krok",
   "handshakeNext": "Następny krok",
-  "sendRelayRefused": "Ich przekaźnik jej nie przyjął. Kwota jest wstrzymana, dopóki nie anulujesz.",
+  "sendRelayRefused": "{days, plural, one{Ich przekaźnik jej nie przyjął. Kwota jest wstrzymana, dopóki jej nie anulujesz, najwyżej {days} dzień.} few{Ich przekaźnik jej nie przyjął. Kwota jest wstrzymana, dopóki jej nie anulujesz, najwyżej {days} dni.} many{Ich przekaźnik jej nie przyjął. Kwota jest wstrzymana, dopóki jej nie anulujesz, najwyżej {days} dni.} other{Ich przekaźnik jej nie przyjął. Kwota jest wstrzymana, dopóki jej nie anulujesz, najwyżej {days} dnia.}}",
   "sendRelayRefusedLost": "Ich przekaźnik jej nie przyjął. Sprawdź Portfel przed ponownym wysłaniem.",
   "sendCancelAndFile": "Anuluj i zapłać plikiem",
   "sendLeaveIt": "Zostaw na razie",
