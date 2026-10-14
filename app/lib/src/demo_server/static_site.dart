@@ -17,7 +17,9 @@ const String reportOnlyCsp =
     "img-src 'self' data: blob:; "
     "font-src 'self' data: https://fonts.gstatic.com; "
     "connect-src 'self' https://fonts.gstatic.com https://floo-explorer.btlabs.uk "
-    "https://status.btlabs.uk https://api.coingecko.com; "
+    "https://status.btlabs.uk https://api.coingecko.com "
+    // Send checks a recipient's relay with a WebSocket handshake; relays are anywhere.
+    "wss:; "
     "worker-src 'self'";
 
 /// Sets the headers every response carries.

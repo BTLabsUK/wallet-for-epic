@@ -1,12 +1,15 @@
-/// Checks the review sheet runs beside the fee estimate before an epicbox send: the node
-/// answers, our listener is connected, and the recipient's relay is healthy at the monitor.
+/// Checks the review runs beside the fee estimate before an epicbox send: the node answers,
+/// our listener is connected, and the recipient's relay answers: healthy at the monitor, or,
+/// for a relay the monitor does not list or when it cannot be reached, a WebSocket handshake
+/// to the relay itself.
 ///
-/// Only the node check blocks: without a node the send cannot be built or posted. The epicbox
-/// checks warn, because the relay keeps the message until the other side picks it up.
+/// Only the node check blocks: without a node the send cannot be built or posted. A relay that
+/// does not answer offers a payment file instead; the listener only warns.
 library;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'net/ws_probe.dart';
 import 'network.dart';
 import 'providers.dart';
 import 'relay_directory.dart';
@@ -19,8 +22,8 @@ enum SendCheck { node, listener, relay }
 
 enum CheckOutcome { running, passed, failed }
 
-/// The checks of one review. A check that cannot be made (a relay the monitor does not list,
-/// or no monitor answer) is left out.
+/// The checks of one review. The relay check is left out only for an address without a relay,
+/// or when no probe is given.
 class SendPreflight {
   const SendPreflight({
     required this.node,
@@ -39,6 +42,10 @@ class SendPreflight {
   /// Confirm is allowed only once the node has answered.
   bool get canSend => node == CheckOutcome.passed;
 
+  /// [canSend], and the recipient's relay has been checked: their relay is known before
+  /// anything is sent.
+  bool get ready => canSend && relayOutcome != CheckOutcome.running;
+
   /// An epicbox check failed: the send is allowed, with a warning.
   bool get warns =>
       listener == CheckOutcome.failed || relayOutcome == CheckOutcome.failed;
@@ -50,12 +57,15 @@ EpicboxRelay? recipientRelay(String address) {
   return at < 0 ? null : EpicboxRelay.parse(address.substring(at + 1));
 }
 
-/// The [SendPreflight] from the node's answer, the listener and the monitor's relay list.
+/// The [SendPreflight] from the node's answer, the listener and the monitor's relay list. The
+/// monitor's word on a relay it lists stands; for one it does not list, or when it gave no
+/// answer, [probe] (the relay's own handshake, when asked) decides.
 SendPreflight sendPreflight({
   required AsyncValue<NodeTip> node,
   required ListenerState listener,
   required AsyncValue<List<RelayStatus>> relays,
   required EpicboxRelay? relay,
+  AsyncValue<bool>? probe,
 }) {
   final nodeOutcome = node.isLoading
       ? CheckOutcome.running
@@ -73,6 +83,13 @@ SendPreflight sendPreflight({
             ? CheckOutcome.passed
             : CheckOutcome.failed;
       }
+    }
+    if (relayOutcome == null && !relays.isLoading && probe != null) {
+      relayOutcome = probe.isLoading
+          ? CheckOutcome.running
+          : probe.value == true
+          ? CheckOutcome.passed
+          : CheckOutcome.failed;
     }
   }
   return SendPreflight(
@@ -94,6 +111,49 @@ final sendNodeCheckProvider = FutureProvider.autoDispose<NodeTip>((ref) {
       .timeout(nodeCheckTimeout);
 });
 
+/// Says whether a relay answers a WebSocket handshake. Tests replace it.
+abstract interface class RelayProbe {
+  Future<bool> reachable(EpicboxRelay relay);
+}
+
+/// `wss://<host>:<port>`, within [probeTimeout].
+class WebSocketRelayProbe implements RelayProbe {
+  const WebSocketRelayProbe();
+
+  @override
+  Future<bool> reachable(EpicboxRelay relay) => probeWebSocket(
+    Uri(scheme: 'wss', host: relay.host, port: relay.port),
+    timeout: probeTimeout,
+  );
+}
+
+/// A probe that answers [answer] at once, for tests.
+class FakeRelayProbe implements RelayProbe {
+  FakeRelayProbe({this.answer = true});
+
+  bool answer;
+
+  /// Relays probed, in order.
+  final List<EpicboxRelay> probed = [];
+
+  @override
+  Future<bool> reachable(EpicboxRelay relay) async {
+    probed.add(relay);
+    return answer;
+  }
+}
+
+final relayProbeProvider = Provider<RelayProbe>(
+  (ref) => const WebSocketRelayProbe(),
+);
+
+/// One handshake with [relay], asked again by each review (it is disposed when the review is
+/// left).
+final relayProbeCheckProvider = FutureProvider.autoDispose
+    .family<bool, EpicboxRelay>(
+      (ref, relay) => ref.watch(relayProbeProvider).reachable(relay),
+    );
+
 /// The review's checks for a send to an address on [relay]. Listen to it from the tap on
 /// Review until the sheet closes, so the checks run beside the fee estimate and each review
 /// asks the node again.
@@ -103,12 +163,21 @@ final sendPreflightProvider = Provider.autoDispose
       final preset = config == null
           ? null
           : networkPresets.where((p) => p.chain == config.chain).firstOrNull;
+      final relays = preset == null
+          ? const AsyncData(<RelayStatus>[])
+          : ref.watch(relayStatusProvider(preset));
+      // Probed only when the monitor has nothing to say about it.
+      final listed =
+          relays.hasValue &&
+          !relays.hasError &&
+          relays.requireValue.any((r) => r.relay == relay);
       return sendPreflight(
         node: ref.watch(sendNodeCheckProvider),
         listener: ref.watch(listenerProvider),
-        relays: preset == null
-            ? const AsyncData(<RelayStatus>[])
-            : ref.watch(relayStatusProvider(preset)),
+        relays: relays,
         relay: relay,
+        probe: relay == null || relays.isLoading || listed
+            ? null
+            : ref.watch(relayProbeCheckProvider(relay)),
       );
     });
