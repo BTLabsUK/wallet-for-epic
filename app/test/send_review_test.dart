@@ -60,6 +60,14 @@ class _Relays implements RelayDirectory {
   }
 }
 
+/// A relay handshake that answers when the test says.
+class _PendingProbe implements RelayProbe {
+  final answer = Completer<bool>();
+
+  @override
+  Future<bool> reachable(EpicboxRelay relay) => answer.future;
+}
+
 class _Price implements PriceSource {
   @override
   Future<double?> price(String currency) async => null;
@@ -82,26 +90,77 @@ class _Mainnet extends WalletConfigNotifier {
   );
 }
 
+/// A relay that refuses the send without the wallet storing it, so there is nothing to find.
+class _LostSession extends FakeWalletSession {
+  _LostSession({required WalletSummary super.summary});
+
+  @override
+  Future<TxEntry> sendEpicbox({
+    required BigInt amount,
+    required BigInt minimumConfirmations,
+    required String address,
+    String? message,
+  }) async {
+    epicboxSends.add((amount: amount, to: address));
+    throw const WalletError(
+      kind: WalletErrorKind.transportFailed,
+      message: 'relay sent nothing in time',
+    );
+  }
+}
+
+final WalletSummary _forty = WalletSummary(
+  lastConfirmedHeight: BigInt.from(2499990),
+  minimumConfirmations: BigInt.from(10),
+  total: _epic(50),
+  spendable: _epic(40),
+  awaitingConfirmation: BigInt.zero,
+  awaitingFinalization: BigInt.zero,
+  immature: BigInt.zero,
+  locked: BigInt.zero,
+  validatedWithNode: true,
+);
+
+/// Sends that wait for [gate].
+class _SlowSession extends FakeWalletSession {
+  _SlowSession({required WalletSummary super.summary});
+
+  final gate = Completer<void>();
+
+  @override
+  Future<TxEntry> sendEpicbox({
+    required BigInt amount,
+    required BigInt minimumConfirmations,
+    required String address,
+    String? message,
+  }) async {
+    await gate.future;
+    return super.sendEpicbox(
+      amount: amount,
+      minimumConfirmations: minimumConfirmations,
+      address: address,
+      message: message,
+    );
+  }
+}
+
 class _Harness {
-  _Harness() {
-    service = _NodeService(session: session);
+  _Harness({FakeWalletSession? session})
+    : session = session ?? FakeWalletSession(summary: _forty) {
+    service = _NodeService(session: this.session)
+      ..slateInfos[this.session.responseSlate.json] = SlateInfo(
+        slateId: this.session.sendSlate.slateId,
+        amount: _epic(1.5),
+        fee: this.session.fee,
+        stage: SlateStage.response,
+      );
   }
 
-  final session = FakeWalletSession(
-    summary: WalletSummary(
-      lastConfirmedHeight: BigInt.from(2499990),
-      minimumConfirmations: BigInt.from(10),
-      total: _epic(50),
-      spendable: _epic(40),
-      awaitingConfirmation: BigInt.zero,
-      awaitingFinalization: BigInt.zero,
-      immature: BigInt.zero,
-      locked: BigInt.zero,
-      validatedWithNode: true,
-    ),
-  );
+  final FakeWalletSession session;
+
   late final _NodeService service;
   final relays = _Relays();
+  RelayProbe probe = FakeRelayProbe();
   final files = FakeSlateFiles();
 
   Future<void> pump(
@@ -125,6 +184,7 @@ class _Harness {
           sessionProvider.overrideWith(() => _Open(session)),
           walletConfigProvider.overrideWith(_Mainnet.new),
           relayDirectoryProvider.overrideWithValue(relays),
+          relayProbeProvider.overrideWithValue(probe),
         ],
         child: MaterialApp(
           localizationsDelegates: AppLocalizations.localizationsDelegates,
@@ -134,10 +194,7 @@ class _Harness {
               textScaler: TextScaler.linear(textScale),
               disableAnimations: reducedMotion,
             ),
-            child: AdvancedOptions(
-              enabled: false,
-              child: child!,
-            ),
+            child: AdvancedOptions(enabled: false, child: child!),
           ),
           home: SlotScaffold(
             appBar: AppBar(),
@@ -291,7 +348,7 @@ void main() {
       expect(loading.canSend, isTrue);
     });
 
-    test('a relay the monitor does not list, or no monitor, is skipped', () {
+    test('a relay the monitor does not list, or no monitor, is skipped without a probe', () {
       for (final (relays, relay) in [
         (
           AsyncData([
@@ -321,6 +378,46 @@ void main() {
         expect(checks.warns, isFalse);
       }
     });
+
+    test(
+      'a relay the monitor does not list, or no monitor: the probe decides',
+      () {
+        for (final relays in [
+          healthy,
+          AsyncError<List<RelayStatus>>(StateError('down'), StackTrace.empty),
+        ]) {
+          const other = EpicboxRelay(host: 'relay.example.org');
+          for (final (probe, outcome) in [
+            (const AsyncLoading<bool>(), CheckOutcome.running),
+            (const AsyncData(true), CheckOutcome.passed),
+            (const AsyncData(false), CheckOutcome.failed),
+            (
+              AsyncError<bool>(StateError('x'), StackTrace.empty),
+              CheckOutcome.failed,
+            ),
+          ]) {
+            final checks = sendPreflight(
+              node: AsyncData(_tip),
+              listener: connected,
+              relays: relays,
+              relay: relays is AsyncError ? _bobRelay : other,
+              probe: probe,
+            );
+            expect(checks.relayOutcome, outcome);
+            expect(checks.canSend, isTrue);
+          }
+        }
+        // The monitor's word stands where it lists the relay.
+        final listed = sendPreflight(
+          node: AsyncData(_tip),
+          listener: connected,
+          relays: AsyncData([_status(_bobRelay, healthy: false)]),
+          relay: _bobRelay,
+          probe: const AsyncData(true),
+        );
+        expect(listed.relayOutcome, CheckOutcome.failed);
+      },
+    );
 
     test('recipientRelay reads the relay after the @', () {
       expect(recipientRelay(_bob), _bobRelay);
@@ -603,7 +700,9 @@ void main() {
         expect(find.text('Pay with a file'), findsOneWidget);
         expect(
           tester
-              .widget<TextField>(find.widgetWithText(TextField, 'Amount (EPIC)'))
+              .widget<TextField>(
+                find.widgetWithText(TextField, 'Amount (EPIC)'),
+              )
               .controller!
               .text,
           '1.5',
@@ -633,35 +732,153 @@ void main() {
     });
 
     testWidgets(
-      'a send the relay refuses offers the file, with the amount kept',
+      'a send the relay refuses: cancel the stored payment, then pay by file',
       (tester) async {
         final h = _Harness();
         h.relays.list = [_status(_bobRelay, healthy: true)];
         h.session.sendError = const WalletError(
           kind: WalletErrorKind.transportFailed,
-          message: 'failed to lookup address information: unknown host',
+          message: 'relay sent nothing in time',
         );
         await h.pump(tester);
         await h.connect(tester);
-        await _review(tester, _bob);
+        await _review(tester, _bob, note: 'For rent');
         await _tap(tester, _sendButton);
-        expect(find.text("Their relay isn't answering."), findsOneWidget);
-        // Not the raw transport error.
-        expect(find.textContaining('lookup'), findsNothing);
-        expect(_enabled(tester, _fileButton), isTrue);
+        // LEPIC stored it with its coins on hold; the review says so, in plain words.
+        expect(h.session.transactionsValue, hasLength(1));
+        expect(find.textContaining('relay sent nothing'), findsNothing);
+        expect(
+          find.text(
+            "Their relay didn't take it. The amount is on hold until you cancel.",
+          ),
+          findsOneWidget,
+        );
+        // No second payment: neither Send anyway nor a plain file offer.
+        expect(find.text('Send anyway'), findsNothing);
+        expect(_fileButton, findsNothing);
+        expect(_sendButton, findsNothing);
+        expect(find.byTooltip('Back'), findsNothing);
 
-        await _tap(tester, _fileButton);
+        await _tap(tester, find.text('Cancel and pay with a file'));
+        expect(h.session.cancelledTxIds, [
+          h.session.transactionsValue.single.id,
+        ]);
+        expect(find.text('Pay with a file'), findsOneWidget);
         expect(
           tester
-              .widget<TextField>(find.widgetWithText(TextField, 'Amount (EPIC)'))
+              .widget<TextField>(
+                find.widgetWithText(TextField, 'Amount (EPIC)'),
+              )
               .controller!
               .text,
           '1.5',
         );
+        expect(
+          tester
+              .widget<TextField>(find.widgetWithText(TextField, 'Note'))
+              .controller!
+              .text,
+          'For rent',
+        );
         await _tap(tester, find.text('Make payment file'));
         expect(h.session.sentAmounts, [_epic(1.5)]);
+        expect(h.session.epicboxSends, hasLength(1));
       },
     );
+
+    testWidgets(
+      'after Max, the cancel frees the coins and the file takes all again',
+      (tester) async {
+        final h = _Harness();
+        h.relays.list = [_status(_bobRelay, healthy: true)];
+        h.session.sendError = const WalletError(
+          kind: WalletErrorKind.transportFailed,
+          message: 'relay sent nothing in time',
+        );
+        await h.pump(tester);
+        await h.connect(tester);
+        await _recipient(tester, _bob);
+        await _tap(tester, find.text('Max'));
+        await _tap(tester, find.widgetWithText(FilledButton, 'Continue'));
+        await _tap(
+          tester,
+          find.widgetWithText(FilledButton, 'Send 39.992 EPIC'),
+        );
+        await _tap(tester, find.text('Cancel and pay with a file'));
+        expect(
+          tester
+              .widget<TextField>(
+                find.widgetWithText(TextField, 'Amount (EPIC)'),
+              )
+              .controller!
+              .text,
+          '39.992',
+        );
+        await _tap(tester, find.text('Make payment file'));
+        expect(find.byType(ErrorText), findsNothing);
+        expect(h.session.sentAmounts, [_epic(39.992)]);
+      },
+    );
+
+    testWidgets(
+      'a refused send that left nothing to find says so, sends no more',
+      (tester) async {
+        final h = _Harness(session: _LostSession(summary: _forty));
+        h.relays.list = [_status(_bobRelay, healthy: true)];
+        await h.pump(tester);
+        await h.connect(tester);
+        await _review(tester, _bob);
+        await _tap(tester, _sendButton);
+        expect(
+          find.text(
+            "Their relay didn't take it. Check Wallet before you send again.",
+          ),
+          findsOneWidget,
+        );
+        expect(find.text('Cancel and pay with a file'), findsNothing);
+        expect(find.text('Send anyway'), findsNothing);
+        expect(_sendButton, findsNothing);
+        await _tap(tester, find.widgetWithText(FilledButton, 'Done'));
+        expect(h.session.epicboxSends, hasLength(1));
+        expect(h.session.sentAmounts, isEmpty);
+      },
+    );
+
+    testWidgets('Review shows that it is sending, and Back waits', (
+      tester,
+    ) async {
+      final slow = _SlowSession(summary: _forty);
+      final h = _Harness(session: slow);
+      h.relays.list = [_status(_bobRelay, healthy: true)];
+      await h.pump(tester);
+      await h.connect(tester);
+      await _review(tester, _bob);
+      await tester.tap(_sendButton);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(find.text('Sending…'), findsOneWidget);
+      expect(
+        tester
+            .widget<IconButton>(
+              find.ancestor(
+                of: find.byIcon(Icons.arrow_back),
+                matching: find.byType(IconButton),
+              ),
+            )
+            .onPressed,
+        isNull,
+      );
+      expect(
+        find.descendant(
+          of: find.byType(FilledButton),
+          matching: find.byType(CircularProgressIndicator),
+        ),
+        findsOneWidget,
+      );
+      slow.gate.complete();
+      await tester.pumpAndSettle();
+      expect(find.text('Waiting for their wallet'), findsOneWidget);
+    });
 
     testWidgets('other send errors stay in words, without the file offer', (
       tester,
@@ -679,25 +896,82 @@ void main() {
       expect(_fileButton, findsNothing);
     });
 
-    testWidgets('an unlisted relay or no monitor answer is skipped', (
-      tester,
-    ) async {
+    testWidgets('a relay the monitor lists is not probed', (tester) async {
       final h = _Harness();
+      final probe = FakeRelayProbe(answer: false);
+      h.probe = probe;
+      h.relays.list = [_status(_bobRelay, healthy: true)];
+      await h.pump(tester);
+      await h.connect(tester);
+      await _review(tester, _bob);
+      expect(find.text('Ready to send'), findsOneWidget);
+      expect(probe.probed, isEmpty);
+    });
+
+    testWidgets('an unlisted relay is probed: it answers', (tester) async {
+      final h = _Harness();
+      final probe = FakeRelayProbe();
+      h.probe = probe;
       h.relays.list = [_status(_bobRelay, healthy: false)];
       await h.pump(tester);
       await h.connect(tester);
       await _review(tester, _carol);
+      expect(probe.probed, [const EpicboxRelay(host: 'relay.example.org')]);
       expect(find.text('Ready to send'), findsOneWidget);
       expect(_fileButton, findsNothing);
-      await _tap(tester, find.byTooltip('Back'));
-      await _tap(tester, find.byTooltip('Back'));
+      expect(_enabled(tester, _sendButton), isTrue);
+    });
 
-      h.relays.error = StateError('monitor down');
-      await _enter(tester, 'Epic address', _bob);
-      await _tap(tester, find.widgetWithText(FilledButton, 'Continue'));
-      await _tap(tester, find.widgetWithText(FilledButton, 'Continue'));
+    testWidgets(
+      'an unlisted relay that does not answer offers the file first',
+      (tester) async {
+        final h = _Harness();
+        h.probe = FakeRelayProbe(answer: false);
+        await h.pump(tester);
+        await h.connect(tester);
+        await _review(tester, _carol);
+        expect(find.text("Their relay isn't answering."), findsOneWidget);
+        expect(_enabled(tester, _fileButton), isTrue);
+        expect(_sendButton, findsNothing);
+        await _tap(tester, _fileButton);
+        expect(find.text('Pay with a file'), findsOneWidget);
+        expect(h.session.epicboxSends, isEmpty);
+      },
+    );
+
+    testWidgets('while the probe runs: a quiet Checking line, Send waits', (
+      tester,
+    ) async {
+      final h = _Harness();
+      final probe = _PendingProbe();
+      h.probe = probe;
+      await h.pump(tester);
+      await h.connect(tester);
+      await _recipient(tester, _carol);
+      await _enter(tester, 'Amount (EPIC)', '1.5');
+      await tester.tap(find.widgetWithText(FilledButton, 'Continue'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(find.text('Checking…'), findsOneWidget);
+      expect(_enabled(tester, _sendButton), isFalse);
+      probe.answer.complete(true);
+      await tester.pumpAndSettle();
       expect(find.text('Ready to send'), findsOneWidget);
       expect(_enabled(tester, _sendButton), isTrue);
+    });
+
+    testWidgets('no monitor answer: the relay itself is probed', (
+      tester,
+    ) async {
+      final h = _Harness();
+      final probe = FakeRelayProbe(answer: false);
+      h.probe = probe;
+      h.relays.error = StateError('monitor down');
+      await h.pump(tester);
+      await h.connect(tester);
+      await _review(tester, _bob);
+      expect(probe.probed, [_bobRelay]);
+      expect(find.text("Their relay isn't answering."), findsOneWidget);
     });
   });
 }

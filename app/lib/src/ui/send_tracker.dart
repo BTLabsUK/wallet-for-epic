@@ -4,6 +4,7 @@ library;
 
 import 'package:flutter/material.dart';
 
+import '../l10n.dart';
 import '../wallet_service.dart';
 import 'common.dart';
 import 'theme/protocol.dart' show TimelineState, TimelineStep;
@@ -36,7 +37,8 @@ SendTrack sendTrackerAt(TxEntry tx, BigInt? tip, {required int target}) {
   return switch (txPhase(tx, tip, target: target)) {
     TxPhase.cancelled => SendTrack.cancelled,
     TxPhase.completed => SendTrack.completed,
-    TxPhase.waitingRecipient || TxPhase.waitingPayer => SendTrack.waitingRecipient,
+    TxPhase.waitingRecipient ||
+    TxPhase.waitingPayer => SendTrack.waitingRecipient,
     TxPhase.confirming ||
     TxPhase.waitingSender ||
     TxPhase.fromBackup => SendTrack.confirming,
@@ -66,6 +68,7 @@ class RoundSteps extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = context.l10n;
     final theme = Theme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -98,7 +101,19 @@ class RoundSteps extends StatelessWidget {
                   child: Padding(
                     padding: const EdgeInsets.only(top: 3, bottom: 18),
                     child: Semantics(
+                      // One node per step, read on its own.
+                      container: true,
                       liveRegion: step.state == TimelineState.current,
+                      // The marker's state in words: done, now, or later.
+                      label: [
+                        switch (step.state) {
+                          TimelineState.done => l.trackStepDone(step.label),
+                          TimelineState.current => l.trackStepNow(step.label),
+                          TimelineState.todo => l.trackStepLater(step.label),
+                        },
+                        ?step.detail,
+                      ].join('. '),
+                      excludeSemantics: true,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -214,7 +229,8 @@ class _RoundMarkState extends State<_RoundMark>
                 boxShadow: [
                   BoxShadow(
                     color: t.accentSoft,
-                    spreadRadius: 2 + 3 * Curves.easeInOut.transform(_pulse.value),
+                    spreadRadius:
+                        2 + 3 * Curves.easeInOut.transform(_pulse.value),
                   ),
                 ],
               ),

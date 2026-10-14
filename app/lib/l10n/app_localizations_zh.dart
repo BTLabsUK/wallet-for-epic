@@ -3232,11 +3232,6 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String sendOnHold(String amount) {
-    return '$amount 在确认前处于冻结状态。';
-  }
-
-  @override
   String sendFeeQuiet(String fee) {
     return '网络手续费 $fee';
   }
@@ -3379,6 +3374,36 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get handshakeNext => '下一步';
+
+  @override
+  String get sendRelayRefused => '对方的中继没有接收。在你取消之前，这笔金额处于冻结状态。';
+
+  @override
+  String get sendRelayRefusedLost => '对方的中继没有接收。再次发送前请先查看钱包。';
+
+  @override
+  String get sendCancelAndFile => '取消并改用文件付款';
+
+  @override
+  String get sendLeaveIt => '暂时保留';
+
+  @override
+  String get sendSending => '正在发送…';
+
+  @override
+  String trackStepDone(String step) {
+    return '$step，已完成';
+  }
+
+  @override
+  String trackStepNow(String step) {
+    return '$step，进行中';
+  }
+
+  @override
+  String trackStepLater(String step) {
+    return '$step，稍后';
+  }
 
   @override
   String balanceLineOnHold(String amount) {

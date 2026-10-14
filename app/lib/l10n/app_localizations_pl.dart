@@ -3596,11 +3596,6 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String sendOnHold(String amount) {
-    return '$amount czeka na potwierdzenie.';
-  }
-
-  @override
   String sendFeeQuiet(String fee) {
     return 'Opłata sieciowa $fee';
   }
@@ -3746,6 +3741,38 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get handshakeNext => 'Następny krok';
+
+  @override
+  String get sendRelayRefused =>
+      'Ich przekaźnik jej nie przyjął. Kwota jest wstrzymana, dopóki nie anulujesz.';
+
+  @override
+  String get sendRelayRefusedLost =>
+      'Ich przekaźnik jej nie przyjął. Sprawdź Portfel przed ponownym wysłaniem.';
+
+  @override
+  String get sendCancelAndFile => 'Anuluj i zapłać plikiem';
+
+  @override
+  String get sendLeaveIt => 'Zostaw na razie';
+
+  @override
+  String get sendSending => 'Wysyłanie…';
+
+  @override
+  String trackStepDone(String step) {
+    return '$step, gotowe';
+  }
+
+  @override
+  String trackStepNow(String step) {
+    return '$step, teraz';
+  }
+
+  @override
+  String trackStepLater(String step) {
+    return '$step, później';
+  }
 
   @override
   String balanceLineOnHold(String amount) {

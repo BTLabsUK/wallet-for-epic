@@ -5,6 +5,7 @@ import 'package:epic_wallet/src/price.dart';
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/relay_directory.dart';
 import 'package:epic_wallet/src/secret_store.dart';
+import 'package:epic_wallet/src/send_preflight.dart';
 import 'package:epic_wallet/src/slate_files.dart';
 import 'package:epic_wallet/src/ui/common.dart';
 import 'package:epic_wallet/src/ui/demo_screens.dart' show testCoinsKey;
@@ -64,7 +65,9 @@ class _Mainnet extends WalletConfigNotifier {
 
 class _Harness {
   _Harness({WalletSummary? summary})
-    : session = FakeWalletSession(summary: summary ?? _summary(spendable: _epic(40)));
+    : session = FakeWalletSession(
+        summary: summary ?? _summary(spendable: _epic(40)),
+      );
 
   final FakeWalletSession session;
   late ProviderContainer container;
@@ -74,14 +77,17 @@ class _Harness {
     WidgetTester tester, {
     bool demo = false,
     bool reducedMotion = false,
+    double textScale = 1,
+    Size size = const Size(1080, 2340),
   }) async {
-    tester.view.physicalSize = const Size(1080, 2340);
+    tester.view.physicalSize = size;
     tester.view.devicePixelRatio = 3;
     addTearDown(tester.view.reset);
     await tester.pumpWidget(
       ProviderScope(
         retry: (_, _) => null,
         overrides: [
+          relayProbeProvider.overrideWithValue(FakeRelayProbe()),
           walletServiceProvider.overrideWithValue(FakeWalletService()),
           secretStoreProvider.overrideWithValue(MemorySecretStore()),
           slateFilesProvider.overrideWithValue(FakeSlateFiles()),
@@ -96,9 +102,10 @@ class _Harness {
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
           builder: (context, child) => MediaQuery(
-            data: MediaQuery.of(
-              context,
-            ).copyWith(disableAnimations: reducedMotion),
+            data: MediaQuery.of(context).copyWith(
+              disableAnimations: reducedMotion,
+              textScaler: TextScaler.linear(textScale),
+            ),
             child: AdvancedOptions(enabled: false, child: child!),
           ),
           home: SlotScaffold(
@@ -109,7 +116,9 @@ class _Harness {
       ),
     );
     await tester.pumpAndSettle();
-    container = ProviderScope.containerOf(tester.element(find.byType(SendView)));
+    container = ProviderScope.containerOf(
+      tester.element(find.byType(SendView)),
+    );
   }
 
   /// The wallet now lists the payment as [status], as after a refresh.
@@ -311,7 +320,10 @@ void main() {
         'Their wallet signed',
         'Sent to the network',
       ]);
-      expect(_steps(tester, TimelineState.current).single, startsWith('Confirming 0/'));
+      expect(
+        _steps(tester, TimelineState.current).single,
+        startsWith('Confirming 0/'),
+      );
       expect(find.textContaining('finishes it when it opens'), findsNothing);
       expect(find.text('What if it never finishes?'), findsNothing);
 
@@ -373,6 +385,36 @@ void main() {
       handle.dispose();
     });
 
+    testWidgets('each step tells screen readers done, now or later', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      final h = _Harness();
+      await h.pump(tester);
+      await _send(tester);
+      expect(find.bySemanticsLabel('Sent, done'), findsOneWidget);
+      expect(
+        find.bySemanticsLabel('Waiting for their wallet, now'),
+        findsOneWidget,
+      );
+      expect(find.bySemanticsLabel('Sent to the network, later'), findsOne);
+      expect(find.bySemanticsLabel('Confirmed, later'), findsOneWidget);
+      handle.dispose();
+    });
+
+    testWidgets('fits a 360 dp phone at text scale 2', (tester) async {
+      final h = _Harness();
+      await h.pump(tester, textScale: 2, size: const Size(1080, 2400));
+      await _send(tester);
+      expect(tester.takeException(), isNull);
+      await h.payment(tester, TxStatus.awaitingConfirmation);
+      expect(tester.takeException(), isNull);
+      final handle = tester.ensureSemantics();
+      await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
+      await expectLater(tester, meetsGuideline(labeledTapTargetGuideline));
+      handle.dispose();
+    });
+
     testWidgets('the current mark pulses, and is still under reduced motion', (
       tester,
     ) async {
@@ -401,6 +443,56 @@ void main() {
     });
   });
 
+  group('fields', () {
+    EditableTextState editable(WidgetTester tester, Key key) =>
+        tester.state<EditableTextState>(
+          find.descendant(
+            of: find.byKey(key),
+            matching: find.byType(EditableText),
+          ),
+        );
+
+    testWidgets('each step builds its own text field, never another\'s', (
+      tester,
+    ) async {
+      final h = _Harness();
+      await h.pump(tester);
+      final recipient = editable(tester, sendRecipientFieldKey);
+      await _tap(tester, find.text('No address? Use a payment file'));
+      expect(find.byKey(sendRecipientFieldKey), findsNothing);
+      final fileAmount = editable(tester, sendFileAmountFieldKey);
+      expect(identical(fileAmount, recipient), isFalse);
+      expect(
+        fileAmount.widget.keyboardType,
+        const TextInputType.numberWithOptions(decimal: true),
+      );
+      // Typing lands.
+      await _enter(tester, 'Amount (EPIC)', '1');
+      expect(fileAmount.widget.controller.text, '1');
+
+      await _tap(tester, find.byTooltip('Back'));
+      final again = editable(tester, sendRecipientFieldKey);
+      expect(identical(again, fileAmount), isFalse);
+      await _enter(tester, 'Epic address', _bob);
+      await _tap(tester, _continue);
+      final amount = editable(tester, sendAmountFieldKey);
+      expect(identical(amount, again), isFalse);
+      await _tap(tester, find.text('Add a note'));
+      expect(find.byKey(sendNoteFieldKey), findsOneWidget);
+      expect(
+        {
+          sendRecipientFieldKey,
+          sendAmountFieldKey,
+          sendFileAmountFieldKey,
+          sendNoteFieldKey,
+          sendFileNoteFieldKey,
+          sendReplyFieldKey,
+        }.length,
+        6,
+      );
+    });
+  });
+
   group('no coins', () {
     testWidgets('an empty wallet gets one line, not a form', (tester) async {
       final h = _Harness(summary: FakeWalletSession.emptySummary);
@@ -425,7 +517,7 @@ void main() {
       expect(find.text('No coins to send yet.'), findsNothing);
       await _enter(tester, 'Epic address', _bob);
       await _tap(tester, _continue);
-      expect(find.text('10 EPIC is on hold until it confirms.'), findsOneWidget);
+      expect(find.text('+10 EPIC coming in'), findsOneWidget);
     });
   });
 }

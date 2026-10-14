@@ -27,6 +27,7 @@ import 'file_exchange_help.dart';
 import 'handshake.dart';
 import 'help_screen.dart';
 import 'scan_screen.dart';
+import 'shell_header.dart' show comingIn;
 import 'send_tracker.dart';
 import 'slate_file_screen.dart';
 import 'theme/brand.dart';
@@ -119,6 +120,16 @@ bool _isGrouped(String digits, String sep) =>
 /// The key of the row under the amount with "Use USD" and "Max", for tests.
 const Key amountSuffixKey = ValueKey('send-amount-suffix');
 
+/// Each step's fields have their own key, so a step never takes over another's text field:
+/// on the web, Flutter keeps one DOM element per field and cannot turn the address's
+/// multi-line one into a number input.
+const Key sendRecipientFieldKey = ValueKey('send-recipient-field');
+const Key sendAmountFieldKey = ValueKey('send-amount-field');
+const Key sendFileAmountFieldKey = ValueKey('send-file-amount-field');
+const Key sendNoteFieldKey = ValueKey('send-note-field');
+const Key sendFileNoteFieldKey = ValueKey('send-file-note-field');
+const Key sendReplyFieldKey = ValueKey('send-reply-field');
+
 /// The payment Send's tracker is showing, while it shows one, so home does not repeat the
 /// tracker's news in a notice.
 final trackedSendProvider = NotifierProvider<TrackedSendNotifier, String?>(
@@ -138,7 +149,15 @@ class TrackedSendNotifier extends Notifier<String?> {
 
 /// Where the Send tab is. An address payment goes recipient, amount, review, then the
 /// tracker; a payment file goes amount, file made, then sent.
-enum SendStage { recipient, amount, review, sent, fileAmount, fileMade, fileSent }
+enum SendStage {
+  recipient,
+  amount,
+  review,
+  sent,
+  fileAmount,
+  fileMade,
+  fileSent,
+}
 
 /// The Send tab's content. The recipient comes from [sendRecipientProvider] (a scanned QR code,
 /// Send again), at the start and whenever a new one is handed over.
@@ -218,8 +237,16 @@ class _SendViewState extends ConsumerState<SendView> {
   /// run beside the fee estimate and each review asks the node again.
   ProviderSubscription<SendPreflight>? _checks;
 
-  /// The send itself could not reach their relay: the review offers the file route.
-  bool _relayFailed = false;
+  /// The send itself failed at their relay. LEPIC stored the payment with its coins on hold,
+  /// so the review never sends again: it offers to cancel that payment ([_undelivered]) and
+  /// pay by file, or says it could not find it.
+  bool _sendFailed = false;
+
+  /// The payment a failed send left behind, when it was found.
+  TxEntry? _undelivered;
+
+  /// A recipient handed over while the tracker or a file screen shows, for the next form.
+  String? _laterRecipient;
 
   Slate? _slate;
   _Sent? _sent;
@@ -313,6 +340,13 @@ class _SendViewState extends ConsumerState<SendView> {
 
   /// Fills the recipient and checks it at once, as after a paste.
   void _setRecipient(String text) {
+    if (_stage == SendStage.sent ||
+        _stage == SendStage.fileMade ||
+        _stage == SendStage.fileSent) {
+      // Not over a payment in progress: the next form takes it.
+      _laterRecipient = text;
+      return;
+    }
     _recipient.text = parseRecipient(text).address;
     if (_stage == SendStage.amount || _stage == SendStage.review) {
       _closeChecks();
@@ -355,7 +389,8 @@ class _SendViewState extends ConsumerState<SendView> {
     setState(() {
       _stage = SendStage.fileAmount;
       _error = null;
-      _relayFailed = false;
+      _sendFailed = false;
+      _undelivered = null;
     });
   }
 
@@ -534,7 +569,8 @@ class _SendViewState extends ConsumerState<SendView> {
     setState(() {
       _estimating = true;
       _error = null;
-      _relayFailed = false;
+      _sendFailed = false;
+      _undelivered = null;
     });
     try {
       final minimum = ref.read(minimumConfirmationsProvider);
@@ -574,7 +610,8 @@ class _SendViewState extends ConsumerState<SendView> {
     setState(() {
       _stage = SendStage.amount;
       _error = null;
-      _relayFailed = false;
+      _sendFailed = false;
+      _undelivered = null;
     });
   }
 
@@ -608,6 +645,10 @@ class _SendViewState extends ConsumerState<SendView> {
     final amount = reviewed.amount;
     final note = _noteText;
     return _run((session) async {
+      // What the wallet held before, to tell the payment a failed send leaves behind.
+      final before = {
+        for (final t in await session.transactions(refresh: false)) t.key,
+      };
       final TxEntry tx;
       try {
         tx = await hold.during(
@@ -619,13 +660,32 @@ class _SendViewState extends ConsumerState<SendView> {
           ),
         );
       } on WalletError catch (error) {
-        // Their relay could not be reached: the same answer as a relay the monitor flags.
         if (error.kind != WalletErrorKind.transportFailed) rethrow;
         logWarn(
           'send',
           'the relay did not take it: ${describeError(englishStrings, error)}',
         );
-        if (mounted) setState(() => _relayFailed = true);
+        // LEPIC stores the payment and holds its coins before the relay refuses it.
+        container.invalidate(homeProvider);
+        final left =
+            (await session.transactions(refresh: false))
+                .where(
+                  (t) =>
+                      !before.contains(t.key) &&
+                      t.kind == TxKind.sent &&
+                      t.status == TxStatus.awaitingRecipient &&
+                      t.id != null &&
+                      t.counterparty?.trim() == to.address &&
+                      txAmount(t).amount == amount,
+                )
+                .toList()
+              ..sort((a, b) => b.createdAtUnix.compareTo(a.createdAtUnix));
+        if (mounted) {
+          setState(() {
+            _sendFailed = true;
+            _undelivered = left.firstOrNull;
+          });
+        }
         return;
       }
       // The payment is out; a note that fails to save must not look like a failed send.
@@ -657,6 +717,36 @@ class _SendViewState extends ConsumerState<SendView> {
         });
       }
     });
+  }
+
+  /// Cancels the payment a failed send left behind, then the file route with the amount and
+  /// the note. After Max the maximum is asked again, now that the coins are free.
+  Future<void> _cancelAndFile() async {
+    final stuck = _undelivered;
+    if (stuck == null) return;
+    final container = ProviderScope.containerOf(context, listen: false);
+    await _run((session) async {
+      await session.cancelTransaction(txId: stuck.id!);
+      container.invalidate(homeProvider);
+      if (!mounted) return;
+      _closeChecks();
+      setState(() {
+        _sendFailed = false;
+        _undelivered = null;
+        _stage = SendStage.fileAmount;
+      });
+    });
+    if (!mounted || _stage != SendStage.fileAmount) return;
+    final amount = _parsedAmount;
+    if (_maxUsed) {
+      await _max();
+    } else if (amount != null) {
+      setState(() {
+        _estimate = null;
+        _estimateError = null;
+      });
+      await _estimateFee(amount);
+    }
   }
 
   // File route.
@@ -711,9 +801,25 @@ class _SendViewState extends ConsumerState<SendView> {
       setState(() => _error = context.l10n.sendPasteResponseMissing);
       return;
     }
+    final slate = _slate;
     final container = ProviderScope.containerOf(context, listen: false);
     final hold = ref.read(autoLockHoldProvider.notifier);
+    final service = ref.read(walletServiceProvider);
     await _run((session) async {
+      // Only the answer to this file, as opening a reply file checks.
+      final SlateInfo info;
+      try {
+        info = await service.inspectSlate(json: json);
+      } on WalletError {
+        if (mounted) {
+          setState(() => _error = context.l10n.slateNotTransactionFile);
+        }
+        return;
+      }
+      if (slate != null && info.slateId != slate.slateId) {
+        if (mounted) setState(() => _error = context.l10n.slateWrongPayment);
+        return;
+      }
       final tx = await hold.during(
         () => session.finalizeAndPost(slateJson: json),
       );
@@ -729,7 +835,14 @@ class _SendViewState extends ConsumerState<SendView> {
 
   void _done() {
     ref.read(trackedSendProvider.notifier).track(null);
+    final later = _laterRecipient;
+    // The shell clears the handoff for a fresh form; one that came meanwhile goes to it.
+    final handoff = ref.read(sendRecipientProvider.notifier);
     widget.onDone();
+    if (later != null) {
+      _laterRecipient = null;
+      handoff.hand(later);
+    }
   }
 
   // Build.
@@ -738,21 +851,22 @@ class _SendViewState extends ConsumerState<SendView> {
   Widget build(BuildContext context) {
     // An estimate made against the old balance is stale: coins that confirmed may cover it
     // now, or a send elsewhere may have spent them (F-06).
-    ref.listen(
-      homeProvider.select((home) => home.value?.summary.spendable),
-      (before, now) {
-        final amount = _parsedAmount;
-        if (before == now || amount == null) return;
-        if (_stage != SendStage.amount && _stage != SendStage.fileAmount) {
-          return;
-        }
-        setState(() {
-          _estimate = null;
-          _estimateError = null;
-        });
-        _estimateFee(amount);
-      },
-    );
+    ref.listen(homeProvider.select((home) => home.value?.summary.spendable), (
+      before,
+      now,
+    ) {
+      final amount = _parsedAmount;
+      if (before == now || amount == null) return;
+      if (_stage != SendStage.amount && _stage != SendStage.fileAmount) {
+        return;
+      }
+      setState(() {
+        _estimate = null;
+        _estimateError = null;
+      });
+      // After Max the amount is the old balance's maximum; ask for the new one.
+      _maxUsed ? _max() : _estimateFee(amount);
+    });
     // A recipient handed over while the tab is kept alive fills the form in place.
     ref.listen(sendRecipientProvider, (_, handoff) {
       if (handoff == null || handoff.id == _handoff) return;
@@ -782,7 +896,10 @@ class _SendViewState extends ConsumerState<SendView> {
       SendStage.review => (_reviewStep(context), _reviewAction(context)),
       SendStage.sent => (_trackerStep(context, _sent!), _doneAction()),
       SendStage.fileAmount => (_fileAmountStep(context), _fileAmountAction()),
-      SendStage.fileMade => (_fileMadeStep(context, _slate!), _openReplyAction()),
+      SendStage.fileMade => (
+        _fileMadeStep(context, _slate!),
+        _openReplyAction(),
+      ),
       SendStage.fileSent => (_fileSentStep(context), _doneAction()),
     };
     return ScreenBody(
@@ -872,6 +989,7 @@ class _SendViewState extends ConsumerState<SendView> {
     return [
       _header(context, l.sendStepRecipient, step: 1),
       TextField(
+        key: sendRecipientFieldKey,
         controller: _recipient,
         focusNode: _recipientFocus,
         autocorrect: false,
@@ -946,7 +1064,10 @@ class _SendViewState extends ConsumerState<SendView> {
           _RecentRow(
             address: address,
             name: _contactName(address),
-            onTap: () => _setRecipient(address),
+            onTap: () {
+              _setRecipient(address);
+              _toAmount();
+            },
           ),
       ],
       const SizedBox(height: 16),
@@ -984,9 +1105,18 @@ class _SendViewState extends ConsumerState<SendView> {
           ? '≈ ${epicExact(l, amount)}'
           : '≈ ${localDigits(l, fiatText(amount, price, currency))}';
     }
-    final onHold = summary == null ? BigInt.zero : _onHold(summary);
+    // Why nothing is available yet, in the header's words.
+    final held = [
+      if (summary != null && summary.spendable == BigInt.zero) ...[
+        if (summary.locked > BigInt.zero)
+          l.balanceLineOnHold(epicText(l, summary.locked)),
+        if (comingIn(summary) > BigInt.zero)
+          l.balanceLineComingIn(epicText(l, comingIn(summary))),
+      ],
+    ];
     return [
       TextField(
+        key: file ? sendFileAmountFieldKey : sendAmountFieldKey,
         controller: _amount,
         focusNode: _amountFocus,
         keyboardType: const TextInputType.numberWithOptions(decimal: true),
@@ -1022,13 +1152,11 @@ class _SendViewState extends ConsumerState<SendView> {
           textAlign: TextAlign.center,
           style: theme.textTheme.bodyMedium?.copyWith(color: t.dim),
         ),
-      if (summary != null &&
-          summary.spendable == BigInt.zero &&
-          onHold > BigInt.zero)
+      for (final line in held)
         Padding(
           padding: const EdgeInsets.only(top: 4),
           child: Text(
-            l.sendOnHold(epicText(l, onHold)),
+            line,
             textAlign: TextAlign.center,
             style: theme.textTheme.bodyMedium?.copyWith(color: t.dim),
           ),
@@ -1085,6 +1213,7 @@ class _SendViewState extends ConsumerState<SendView> {
         Padding(
           padding: const EdgeInsets.only(top: 16),
           child: TextField(
+            key: file ? sendFileNoteFieldKey : sendNoteFieldKey,
             controller: _note,
             focusNode: _noteFocus,
             // LEPIC signs at most this many bytes; the field stops there instead of cutting.
@@ -1152,7 +1281,13 @@ class _SendViewState extends ConsumerState<SendView> {
     final to = parseRecipient(_recipient.text);
     final checks = ref.watch(sendPreflightProvider(_relay));
     return [
-      _header(context, l.sendStepReview, step: 3, onBack: _backToAmount),
+      // After a failed send the payment exists: no way back to send it again.
+      _header(
+        context,
+        l.sendStepReview,
+        step: 3,
+        onBack: _sendFailed ? null : _backToAmount,
+      ),
       RecipientCard(address: to.address, name: _contactName(to.address)),
       const SizedBox(height: 20),
       Text(
@@ -1177,32 +1312,61 @@ class _SendViewState extends ConsumerState<SendView> {
       const SizedBox(height: 8),
       Divider(color: t.line, height: 1),
       const SizedBox(height: 8),
-      _ReadyLine(checks: checks, relayFailed: _relayFailed),
+      _ReadyLine(
+        checks: checks,
+        sending: _busy,
+        failed: !_sendFailed
+            ? null
+            : _undelivered == null
+            ? l.sendRelayRefusedLost
+            : l.sendRelayRefused,
+      ),
     ];
   }
 
   Widget _reviewAction(BuildContext context) {
     final l = context.l10n;
     final checks = ref.watch(sendPreflightProvider(_relay));
-    final relayDown =
-        _relayFailed || checks.relayOutcome == CheckOutcome.failed;
+    final relayDown = checks.relayOutcome == CheckOutcome.failed;
     // Without a node answer the send could not be built or posted.
-    final canSend = checks.canSend && !_busy;
+    final canSend = checks.ready && !_busy;
     final amount = epicExact(l, _estimate!.amount);
+    final quiet = TextButton.styleFrom(minimumSize: const Size.fromHeight(44));
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        if (relayDown) ...[
+        // The send failed and LEPIC holds the payment: never a second send from here.
+        if (_sendFailed && _undelivered != null) ...[
+          BusyButton(
+            label: l.sendCancelAndFile,
+            busy: _busy,
+            onPressed: _cancelAndFile,
+          ),
+          const SizedBox(height: 4),
+          TextButton(
+            style: quiet,
+            onPressed: _busy ? null : _done,
+            child: Text(l.sendLeaveIt),
+          ),
+        ] else if (_sendFailed)
+          BusyButton(label: l.commonDone, onPressed: _done)
+        // Their relay is down before any attempt: nothing is stored yet.
+        else if (relayDown) ...[
           BusyButton(
             label: l.sendPayWithFile,
             onPressed: _busy ? null : _toFileRoute,
           ),
           const SizedBox(height: 4),
           TextButton(
-            style: TextButton.styleFrom(minimumSize: const Size.fromHeight(44)),
+            style: quiet,
             onPressed: canSend ? _send : null,
-            child: Text(l.sendAnyway),
+            child: _busy
+                ? const SizedBox.square(
+                    dimension: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : Text(l.sendAnyway),
           ),
         ] else ...[
           BusyButton(
@@ -1212,7 +1376,7 @@ class _SendViewState extends ConsumerState<SendView> {
           ),
           const SizedBox(height: 4),
           TextButton(
-            style: TextButton.styleFrom(minimumSize: const Size.fromHeight(44)),
+            style: quiet,
             onPressed: _busy ? null : _backToAmount,
             child: Text(l.sendReviewEdit),
           ),
@@ -1307,7 +1471,9 @@ class _SendViewState extends ConsumerState<SendView> {
         RoundSteps(steps: steps),
       if (waiting)
         Text(
-          l.sendTrackOffline(epicText(l, sent.amount + (sent.tx.fee ?? BigInt.zero))),
+          l.sendTrackOffline(
+            epicText(l, sent.amount + (live.fee ?? sent.tx.fee ?? BigInt.zero)),
+          ),
           style: theme.textTheme.bodyMedium?.copyWith(color: t.dim),
         ),
       if (sent.changedFee case final fee?) ...[
@@ -1340,8 +1506,7 @@ class _SendViewState extends ConsumerState<SendView> {
             TextButton.icon(
               icon: const Icon(Icons.help_outline),
               label: Text(l.sendHelp),
-              onPressed: () =>
-                  openHelp(context, HelpTopic.waitingForRecipient),
+              onPressed: () => openHelp(context, HelpTopic.waitingForRecipient),
             ),
           ],
         ),
@@ -1433,7 +1598,11 @@ class _SendViewState extends ConsumerState<SendView> {
         children: [
           SlateBox(title: l.sendSlateBoxTitle, json: slate.json),
           const SizedBox(height: 16),
-          SlateInput(controller: _response, label: l.sendPasteResponseLabel),
+          SlateInput(
+            key: sendReplyFieldKey,
+            controller: _response,
+            label: l.sendPasteResponseLabel,
+          ),
           const SizedBox(height: 16),
           BusyButton(
             label: l.slateFinishPayment,
@@ -1559,11 +1728,8 @@ class AddressEnds extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
-    final base = Theme.of(context).textTheme.bodySmall?.copyWith(
-      fontFamily: t.monoFamily,
-      color: t.dim,
-      height: 1.45,
-    );
+    final base = Theme.of(context).textTheme.bodySmall
+        ?.copyWith(fontFamily: t.monoFamily, color: t.dim, height: 1.45);
     final strong = base?.copyWith(color: t.text, fontWeight: FontWeight.w700);
     final at = address.indexOf('@');
     final key = at < 0 ? address : address.substring(0, at);
@@ -1611,9 +1777,8 @@ class _Initial extends StatelessWidget {
             ? Icon(Icons.person_outline, size: 20, color: t.dim)
             : Text(
                 name.characters.first.toUpperCase(),
-                style: Theme.of(
-                  context,
-                ).textTheme.titleSmall?.copyWith(color: t.text),
+                style: Theme.of(context).textTheme.titleSmall
+                    ?.copyWith(color: t.text),
               ),
       ),
     );
@@ -1646,9 +1811,8 @@ class _ToChip extends StatelessWidget {
             child: Text(
               context.l10n.sendTo(name ?? shortAddress(address)),
               overflow: TextOverflow.ellipsis,
-              style: Theme.of(
-                context,
-              ).textTheme.bodyMedium?.copyWith(color: t.text),
+              style: Theme.of(context).textTheme.bodyMedium
+                  ?.copyWith(color: t.text),
             ),
           ),
         ],
@@ -1698,24 +1862,44 @@ class _RecentRow extends StatelessWidget {
 /// The review's checks of [SendPreflight] as one quiet line: "Ready to send" when they
 /// pass, else the one that matters most. Only the node blocks.
 class _ReadyLine extends ConsumerWidget {
-  const _ReadyLine({required this.checks, required this.relayFailed});
+  const _ReadyLine({
+    required this.checks,
+    required this.sending,
+    required this.failed,
+  });
 
   final SendPreflight checks;
 
-  /// The send itself could not reach their relay.
-  final bool relayFailed;
+  /// The send runs; with a relay that hangs it can take a quarter of a minute.
+  final bool sending;
+
+  /// What a send that failed at their relay left behind, in words; null when none failed.
+  final String? failed;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l = context.l10n;
     final t = context.tokens;
     final theme = Theme.of(context);
-    final relayDown =
-        relayFailed || checks.relayOutcome == CheckOutcome.failed;
+    final relayDown = checks.relayOutcome == CheckOutcome.failed;
+    final failed = this.failed;
+    final spinner = MediaQuery.disableAnimationsOf(context)
+        ? Icon(Icons.hourglass_empty, size: 18, color: t.dim)
+        : const SizedBox.square(
+            dimension: 16,
+            child: CircularProgressIndicator(strokeWidth: 2),
+          );
     final running =
         checks.node == CheckOutcome.running ||
         checks.relayOutcome == CheckOutcome.running;
     final (Widget icon, String text, Color color, bool retry) = switch (()) {
+      _ when sending => (spinner, l.sendSending, t.dim, false),
+      _ when failed != null => (
+        Icon(Icons.warning_amber, size: 18, color: t.warn),
+        failed,
+        t.text,
+        false,
+      ),
       _ when checks.node == CheckOutcome.failed => (
         Icon(Icons.error_outline, size: 18, color: t.risk),
         l.sendNodeDown,
@@ -1729,17 +1913,7 @@ class _ReadyLine extends ConsumerWidget {
         false,
       ),
       // A still icon under reduced motion, where a spinner would be an animation.
-      _ when running => (
-        MediaQuery.disableAnimationsOf(context)
-            ? Icon(Icons.hourglass_empty, size: 18, color: t.dim)
-            : const SizedBox.square(
-                dimension: 16,
-                child: CircularProgressIndicator(strokeWidth: 2),
-              ),
-        l.sendChecking,
-        t.dim,
-        false,
-      ),
+      _ when running => (spinner, l.sendChecking, t.dim, false),
       _ when checks.listener == CheckOutcome.failed => (
         Icon(Icons.sync, size: 18, color: t.dim),
         l.sendListenerDown,
@@ -1759,7 +1933,9 @@ class _ReadyLine extends ConsumerWidget {
         constraints: const BoxConstraints(minHeight: 48),
         child: Row(
           children: [
-            ExcludeSemantics(child: SizedBox(width: 20, child: Center(child: icon))),
+            ExcludeSemantics(
+              child: SizedBox(width: 20, child: Center(child: icon)),
+            ),
             const SizedBox(width: 10),
             Expanded(
               child: Text(

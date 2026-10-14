@@ -617,6 +617,45 @@ class FakeWalletSession implements WalletSession {
   @override
   Future<void> cancelTransaction({required int txId}) async {
     cancelledTxIds.add(txId);
+    // A payment a failed send left behind: cancelling it frees its coins, as in LEPIC.
+    final i = transactionsValue.indexWhere(
+      (t) => t.id == txId && _undelivered.contains(txId),
+    );
+    if (i < 0) return;
+    final tx = transactionsValue[i];
+    _undelivered.remove(txId);
+    transactionsValue[i] = fakeTx(
+      id: tx.id,
+      slateId: tx.slateId,
+      kind: TxKind.sentCancelled,
+      status: TxStatus.cancelled,
+      createdAtUnix: tx.createdAtUnix,
+      amountDebited: tx.amountDebited,
+      fee: tx.fee,
+      numInputs: tx.numInputs,
+      counterparty: tx.counterparty,
+      messages: tx.messages,
+    );
+    _lock(-tx.amountDebited);
+  }
+
+  /// Ids of sends that failed with [WalletErrorKind.transportFailed]: stored, inputs locked.
+  final Set<int> _undelivered = {};
+
+  /// Moves [amount] from spendable to locked (back, when negative).
+  void _lock(BigInt amount) {
+    final s = summaryValue;
+    summaryValue = WalletSummary(
+      lastConfirmedHeight: s.lastConfirmedHeight,
+      minimumConfirmations: s.minimumConfirmations,
+      total: s.total,
+      spendable: s.spendable - amount,
+      awaitingConfirmation: s.awaitingConfirmation,
+      awaitingFinalization: s.awaitingFinalization,
+      immature: s.immature,
+      locked: s.locked + amount,
+      validatedWithNode: s.validatedWithNode,
+    );
   }
 
   /// Keys passed to [repostTransaction].
@@ -736,11 +775,23 @@ class FakeWalletSession implements WalletSession {
     required String address,
     String? message,
   }) async {
-    if (sendError != null) throw sendError!;
+    final error = sendError;
+    if (error != null && error.kind != WalletErrorKind.transportFailed) {
+      throw error;
+    }
     _checkFunds(amount);
     epicboxSends.add((amount: amount, to: address));
     sentMessages.add(message);
-    return _pendingSend(amount, to: address, message: message);
+    final tx = _pendingSend(amount, to: address, message: message);
+    if (error != null) {
+      // Like LEPIC: the payment is built and stored with its inputs locked before the relay
+      // refuses it, so the error leaves a waiting payment behind.
+      transactionsValue.add(tx);
+      _undelivered.add(tx.id!);
+      _lock(amount + fee);
+      throw error;
+    }
+    return tx;
   }
 
   @override

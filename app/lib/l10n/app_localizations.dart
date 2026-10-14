@@ -5192,12 +5192,6 @@ abstract class AppLocalizations {
   /// **'Available {amount}'**
   String sendAvailable(String amount);
 
-  /// Send, step 2: nothing is spendable yet because coins are still confirming or in a pending payment. {amount} is like '10 EPIC'.
-  ///
-  /// In en, this message translates to:
-  /// **'{amount} is on hold until it confirms.'**
-  String sendOnHold(String amount);
-
   /// Send, step 2: the estimated network fee as a quiet figure under the amount.
   ///
   /// In en, this message translates to:
@@ -5461,6 +5455,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Next step'**
   String get handshakeNext;
+
+  /// Send, review: the send failed at the recipient's relay; the wallet keeps the payment with its coins on hold until it is cancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Their relay didn\'t take it. The amount is on hold until you cancel.'**
+  String get sendRelayRefused;
+
+  /// Send, review: the send failed at the recipient's relay and the app could not find the payment it may have left; the user should look in Wallet before trying again.
+  ///
+  /// In en, this message translates to:
+  /// **'Their relay didn\'t take it. Check Wallet before you send again.'**
+  String get sendRelayRefusedLost;
+
+  /// Send, review after a failed send: cancels the payment the wallet kept, then pays the same amount with a payment file.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel and pay with a file'**
+  String get sendCancelAndFile;
+
+  /// Send, review after a failed send: leaves the payment on hold (it can be cancelled later from Wallet) and goes back to Wallet.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave it for now'**
+  String get sendLeaveIt;
+
+  /// Send, review: the payment is being sent; it can take a while when a relay is slow.
+  ///
+  /// In en, this message translates to:
+  /// **'Sending…'**
+  String get sendSending;
+
+  /// Screen readers, a step of a payment's progress that is done. {step} is the step's label.
+  ///
+  /// In en, this message translates to:
+  /// **'{step}, done'**
+  String trackStepDone(String step);
+
+  /// Screen readers, the step of a payment's progress that is happening now.
+  ///
+  /// In en, this message translates to:
+  /// **'{step}, now'**
+  String trackStepNow(String step);
+
+  /// Screen readers, a step of a payment's progress still to come.
+  ///
+  /// In en, this message translates to:
+  /// **'{step}, later'**
+  String trackStepLater(String step);
 
   /// Under the balance: coins a send holds until it completes (locked outputs), with the amount. Keep it short; it shares one line with balanceLineComingIn.
   ///
