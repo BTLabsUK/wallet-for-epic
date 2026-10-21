@@ -2537,6 +2537,10 @@ class AppLocalizationsPl extends AppLocalizations {
   String get launchTryAgain => 'Spróbuj ponownie';
 
   @override
+  String get unlockStranded =>
+      'Nie udało się poprawnie odczytać tego portfela. Nic nie zostało usunięte. Spróbuj ponownie po ponownym uruchomieniu urządzenia. Jeśli to nie pomoże, możesz usunąć portfel przez „Nie pamiętasz kodu PIN?” i przywrócić go z frazy odzyskiwania.';
+
+  @override
   String get sendAmountNegative => 'Kwota nie może być ujemna.';
 
   @override

@@ -2755,6 +2755,11 @@
   "@launchTryAgain": {
     "description": "Button on the start screen after the wallet could not be found or opened."
   },
+  "unlockStranded": "This wallet could not be read as it should be. Nothing was deleted. Try again after restarting the device. If this stays, you can remove the wallet with “Forgot PIN?” and restore it from its recovery phrase.",
+  "@unlockStranded": {
+    "description": "Unlock screen notice when the wallet or its sealed PIN text is missing from the store. Nothing is deleted automatically."
+  },
+
   "sendAmountNegative": "The amount cannot be negative.",
   "@sendAmountNegative": {
     "description": "Amount field error."

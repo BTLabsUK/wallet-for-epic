@@ -22,7 +22,11 @@ import 'theme/brand.dart';
 
 /// Opens the wallet with the PIN or biometrics.
 class PinUnlockScreen extends ConsumerStatefulWidget {
-  const PinUnlockScreen({super.key});
+  const PinUnlockScreen({super.key, this.stranded = false});
+
+  /// The wallet or its sealed text is missing ([VaultStage.stranded]): a notice says that
+  /// nothing was deleted, and Forgot PIN stays the way to remove it.
+  final bool stranded;
 
   @override
   ConsumerState<PinUnlockScreen> createState() => _PinUnlockScreenState();
@@ -228,6 +232,10 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
                 : '${l.unlockTitle}${networkSuffix(l, config.chain)}',
           ),
           const SizedBox(height: 28),
+          if (widget.stranded) ...[
+            ErrorText(l.unlockStranded),
+            const SizedBox(height: 16),
+          ],
           switch (_autoPin) {
             // A frame or two while the demo looks up how its wallet opens.
             null => const SizedBox(height: 56),

@@ -3476,6 +3476,12 @@ abstract class AppLocalizations {
   /// **'Try again'**
   String get launchTryAgain;
 
+  /// Unlock screen notice when the wallet or its sealed PIN text is missing from the store. Nothing is deleted automatically.
+  ///
+  /// In en, this message translates to:
+  /// **'This wallet could not be read as it should be. Nothing was deleted. Try again after restarting the device. If this stays, you can remove the wallet with “Forgot PIN?” and restore it from its recovery phrase.'**
+  String get unlockStranded;
+
   /// Amount field error.
   ///
   /// In en, this message translates to:

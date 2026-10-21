@@ -556,6 +556,7 @@
   "pinResetKeep": "保留钱包",
   "pinResetDelete": "删除钱包",
   "launchTryAgain": "重试",
+  "unlockStranded": "无法正常读取此钱包。没有删除任何内容。请重启设备后重试。如果问题仍然存在，可以通过“忘记 PIN 码？”移除钱包，再用恢复短语恢复。",
   "sendAmountNegative": "金额不能为负数。",
   "sendAmountAmbiguous": "请写成 {asWhole} 或 {asDecimal}，以免金额产生歧义。",
   "sendAmountUnclear": "请输入不带分隔符的金额，例如 1234.5，以免金额产生歧义。",

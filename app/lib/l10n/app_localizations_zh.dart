@@ -2242,6 +2242,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get launchTryAgain => '重试';
 
   @override
+  String get unlockStranded =>
+      '无法正常读取此钱包。没有删除任何内容。请重启设备后重试。如果问题仍然存在，可以通过“忘记 PIN 码？”移除钱包，再用恢复短语恢复。';
+
+  @override
   String get sendAmountNegative => '金额不能为负数。';
 
   @override

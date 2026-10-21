@@ -2423,6 +2423,10 @@ class AppLocalizationsDe extends AppLocalizations {
   String get launchTryAgain => 'Erneut versuchen';
 
   @override
+  String get unlockStranded =>
+      'Diese Wallet konnte nicht wie erwartet gelesen werden. Es wurde nichts gelöscht. Versuchen Sie es nach einem Neustart des Geräts erneut. Bleibt es dabei, können Sie die Wallet über „PIN vergessen?“ entfernen und mit ihrer Wiederherstellungsphrase wiederherstellen.';
+
+  @override
   String get sendAmountNegative => 'Der Betrag darf nicht negativ sein.';
 
   @override

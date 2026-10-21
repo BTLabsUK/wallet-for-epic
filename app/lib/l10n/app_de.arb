@@ -556,6 +556,7 @@
   "pinResetKeep": "Wallet behalten",
   "pinResetDelete": "Wallet löschen",
   "launchTryAgain": "Erneut versuchen",
+  "unlockStranded": "Diese Wallet konnte nicht wie erwartet gelesen werden. Es wurde nichts gelöscht. Versuchen Sie es nach einem Neustart des Geräts erneut. Bleibt es dabei, können Sie die Wallet über „PIN vergessen?“ entfernen und mit ihrer Wiederherstellungsphrase wiederherstellen.",
   "sendAmountNegative": "Der Betrag darf nicht negativ sein.",
   "sendAmountAmbiguous": "Schreiben Sie {asWhole} oder {asDecimal}, damit der Betrag eindeutig ist.",
   "sendAmountUnclear": "Schreiben Sie den Betrag ohne Trennzeichen, z. B. 1234,5, damit er eindeutig ist.",

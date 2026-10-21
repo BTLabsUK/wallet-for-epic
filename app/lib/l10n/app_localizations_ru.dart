@@ -2520,6 +2520,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get launchTryAgain => 'Повторить';
 
   @override
+  String get unlockStranded =>
+      'Этот кошелёк не удалось прочитать как положено. Ничего не удалено. Попробуйте снова после перезагрузки устройства. Если ошибка останется, удалите кошелёк через «Забыли PIN-код?» и восстановите его по фразе восстановления.';
+
+  @override
   String get sendAmountNegative => 'Сумма не может быть отрицательной.';
 
   @override

@@ -8,14 +8,14 @@ import 'package:path_provider/path_provider.dart';
 
 import 'lepic_wallet_service.dart';
 import 'secret_store.dart';
-import 'vault.dart' show LegacyFiles, deleteLegacyWalletFiles;
+import 'vault.dart' show LegacyFiles, setAsideLegacyWalletFiles;
 import 'wallet_service.dart';
 
 /// Loads LEPIC's native library. Before any [createWalletService] call.
 Future<void> initWalletBackend() => initLepic();
 
 WalletService createWalletService(SecretStore secrets) =>
-    LepicWalletService(secrets: secrets);
+    LepicWalletService(secrets: secrets, oneWalletPerChain: true);
 
 SecretStore createSecretStore() => const PlatformSecretStore();
 
@@ -28,8 +28,8 @@ Future<String> defaultWalletDir(Chain chain) async {
   return dir.path;
 }
 
-/// What an older app left in a wallet directory, deleted at launch.
-const LegacyFiles legacyWalletFiles = deleteLegacyWalletFiles;
+/// What an older app left in a wallet directory, set aside at launch; its wallet stays.
+const LegacyFiles legacyWalletFiles = setAsideLegacyWalletFiles;
 
 /// The operating system and its version, for the log.
 String get platformLabel =>

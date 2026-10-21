@@ -556,6 +556,7 @@
   "pinResetKeep": "Zachowaj portfel",
   "pinResetDelete": "Usuń portfel",
   "launchTryAgain": "Spróbuj ponownie",
+  "unlockStranded": "Nie udało się poprawnie odczytać tego portfela. Nic nie zostało usunięte. Spróbuj ponownie po ponownym uruchomieniu urządzenia. Jeśli to nie pomoże, możesz usunąć portfel przez „Nie pamiętasz kodu PIN?” i przywrócić go z frazy odzyskiwania.",
   "sendAmountNegative": "Kwota nie może być ujemna.",
   "sendAmountAmbiguous": "Wpisz {asWhole} lub {asDecimal}, aby kwota była jednoznaczna.",
   "sendAmountUnclear": "Wpisz kwotę bez separatorów, np. 1234,5, aby była jednoznaczna.",
