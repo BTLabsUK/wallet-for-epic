@@ -6,9 +6,10 @@ project(epic_wallet LANGUAGES CXX)
 # the on-disk name of your application.
 set(BINARY_NAME "epic_wallet")
 # flutter_secure_storage_windows names its Credential Manager entries after this prefix (default
-# BINARY_NAME). The old core's Windows builds used epic_wallet, and the vault deletes that app's
-# entries at unlock, so this build keeps to its own, as Runner.rc's ProductName does for files.
-set(STORAGE_PREFIX "epic_wallet_lepic")
+# BINARY_NAME). The old core's builds used epic_wallet, the first LEPIC test build epic_wallet_lepic
+# and the desktop UI preview epic_wallet_desktop_ui; 0.1.0 keeps to its own, as Runner.rc's
+# ProductName does for files.
+set(STORAGE_PREFIX "EpicWallet")
 
 # Explicitly opt in to modern CMake behaviors to avoid warnings with recent
 # versions of CMake.

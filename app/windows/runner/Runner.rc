@@ -96,9 +96,9 @@ BEGIN
             VALUE "LegalCopyright", "Copyright (C) 2026 com.blacktyger. All rights reserved." "\0"
             VALUE "OriginalFilename", "epic_wallet.exe" "\0"
             // path_provider names the application support folder after CompanyName and
-            // ProductName: %APPDATA%\com.blacktyger\epic_wallet_lepic. The old core's Windows
-            // builds used ...\epic_wallet, whose wallet_data the vault would delete at unlock.
-            VALUE "ProductName", "epic_wallet_lepic" "\0"
+            // ProductName: %APPDATA%\com.blacktyger\EpicWallet. Never epic_wallet (the old
+            // core), epic_wallet_lepic (the first LEPIC test build) or epic_wallet_desktop_ui.
+            VALUE "ProductName", "EpicWallet" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END
