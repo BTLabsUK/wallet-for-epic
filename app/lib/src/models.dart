@@ -709,6 +709,10 @@ enum WalletErrorKind {
   /// The recipient answered at or too near the payment's 14-day limit. The payment was
   /// cancelled instead of finished: nothing was sent and the funds are unlocked.
   paymentExpired,
+
+  /// The wallet database was damaged; the core set it aside. Opening the wallet again rebuilds
+  /// it, then a scan brings the funds back. History, labels and messages are not in the new one.
+  damagedDatabase,
   io,
   other,
 }

@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../data/mock_wallet.dart' show MockDeskWallet;
+import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../widgets/kit.dart';
+import '../settings/prefs.dart' show settingsPrefsProvider;
 import '../settings/dialogs.dart' show RemoveMode, showRemoveWalletDialog;
 import 'kill_process_dialog.dart';
 import 'onboarding_parts.dart';
@@ -54,6 +57,9 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
         _failedStage = 'wallet';
       case UnlockShow.missing:
         _missing = true;
+      // The wallet closed by itself (a server change could not reopen it).
+      case final String reason:
+        _error = reason;
     }
     ref.read(deskApiProvider).wallets().then((w) {
       if (!mounted) return;
@@ -75,7 +81,7 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
 
   List<Stage> get _stages => [
     const Stage('check', 'Checking wallet files'),
-    const Stage('processes', 'Looking for wallet processes still running'),
+    if (DeskFeatures.walletProcesses) const Stage('processes', 'Looking for wallet processes still running'),
     if (_closingStage) const Stage('closing', 'Closing the old wallet processes'),
     const Stage('wallet', 'Starting the wallet service'),
     const Stage('unlock', 'Unlocking the wallet'),
@@ -113,8 +119,9 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
       _failure = null;
       _closingStage = false;
     });
-    if (!await _run('check') || !await _run('processes')) return;
-    if (password == 'busy' && mounted) {
+    if (!await _run('check') || (DeskFeatures.walletProcesses && !await _run('processes'))) return;
+    final mock = ref.read(deskApiProvider) is MockDeskWallet;
+    if (DeskFeatures.walletProcesses && mock && password == 'busy' && mounted) {
       final closed = await showKillProcessDialog(context);
       if (!mounted) return;
       if (!closed) {
@@ -125,7 +132,7 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
       if (!await _run('closing')) return;
     }
     if (!await _run('wallet')) return;
-    if (password == 'fail') {
+    if (mock && password == 'fail') {
       setState(() {
         _failure = 'The wallet service did not start: port 3415 is in use by another program.';
         _failedStage = 'wallet';
@@ -134,14 +141,28 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
       return;
     }
     setState(() => _stage = 'unlock');
-    final ok = await ref.read(deskApiProvider).unlock(password);
+    final bool ok;
+    try {
+      ok = await ref.read(deskApiProvider).unlock(password);
+    } on Object catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _failure = deskErrorText(e);
+        _failedStage = 'unlock';
+        _stage = null;
+      });
+      return;
+    }
     if (!mounted) return;
     if (!ok) {
       _backToForm(error: _wrongPassword);
       return;
     }
-    await ref.read(deskProvider.notifier).refresh();
+    final desk = ref.read(deskProvider.notifier);
+    await desk.refresh();
+    await desk.startLive(listen: ref.read(settingsPrefsProvider).epicboxOnStart);
     if (!mounted) return;
+    _password.clear();
     ref.read(deskNavProvider.notifier).reset(DeskRoute.overview);
   }
 
@@ -185,7 +206,7 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
         title: 'Unlock wallet',
         lead: 'Keys stay on this computer.',
         alternatives: [
-          ELink(label: 'Add a wallet', dim: true, onPressed: () => nav.go(DeskRoute.welcome, 'add')),
+          if (DeskFeatures.multiWallet) ELink(label: 'Add a wallet', dim: true, onPressed: () => nav.go(DeskRoute.welcome, 'add')),
         ],
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -197,7 +218,7 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
               ),
               SizedBox(height: Sp.x5),
             ],
-            if (wallets != null && wallets.length > 1) ...[
+            if (DeskFeatures.multiWallet && wallets != null && wallets.length > 1) ...[
               EField(
                 label: 'Wallet',
                 child: ESelect<String>(
@@ -252,7 +273,7 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
                 onSubmitted: (_) => _unlock(),
               ),
             ),
-            if (_missing) ...[
+            if (DeskFeatures.multiWallet && _missing) ...[
               SizedBox(height: Sp.x5),
               ENotice(
                 title: 'This wallet’s folder is missing',

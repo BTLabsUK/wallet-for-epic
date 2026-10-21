@@ -207,6 +207,7 @@ class ServiceStatus {
     required this.tor,
     this.syncProgress,
     this.lastUpdate,
+    this.notice,
   });
 
   final NodeServer node;
@@ -222,11 +223,40 @@ class ServiceStatus {
   /// 0..1 while the wallet scans; null when idle.
   final double? syncProgress;
   final DateTime? lastUpdate;
+
+  /// A one-line state the wallet is in, e.g. a database being rebuilt; null when none.
+  final String? notice;
+}
+
+/// New wallet passwords must have at least this many characters (LEPIC refuses shorter ones).
+const int minPasswordLength = 8;
+
+/// One step of a rescan: the core's message and, when it gives one, the percentage.
+@immutable
+class ScanStep {
+  const ScanStep(this.message, {this.percent});
+
+  final String message;
+  final int? percent;
+}
+
+/// A wallet error, in a short sentence for the screen.
+class DeskError implements Exception {
+  const DeskError(this.message, {this.wrongPassword = false, this.locked = false});
+
+  final String message;
+  final bool wrongPassword;
+
+  /// The wallet closed (a node or Epicbox change could not reopen it): back to Unlock.
+  final bool locked;
+
+  @override
+  String toString() => message;
 }
 
 @immutable
 class WalletAccount {
-  const WalletAccount({required this.name, required this.network, required this.folder, required this.created});
+  const WalletAccount({required this.name, required this.network, required this.folder, required this.created, this.appFolder});
 
   final String name;
 
@@ -234,6 +264,9 @@ class WalletAccount {
   final String network;
   final String folder;
   final DateTime created;
+
+  /// Where the app keeps its settings and log; null in the mock.
+  final String? appFolder;
 }
 
 enum ThemeChoice { system, dark, light }
@@ -344,8 +377,22 @@ final class SendFileReady extends SendResult {
 }
 
 final class SendFailed extends SendResult {
-  const SendFailed(this.message);
+  const SendFailed(this.message, {this.inActivity = false});
   final String message;
+
+  /// The payment may exist already (waiting in Activity): sending again could pay twice.
+  final bool inActivity;
+}
+
+/// A signed transaction file: the payment and where its response was written.
+@immutable
+class ReceivedFile {
+  const ReceivedFile(this.tx, this.response);
+
+  final Tx tx;
+
+  /// Beside the picked file, or in the app's files folder when that folder is read-only.
+  final String response;
 }
 
 /// A wallet folder found on this computer (switching, import, "found" screen).

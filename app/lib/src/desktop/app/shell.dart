@@ -162,7 +162,7 @@ Future<void> lockWallet(WidgetRef ref) async {
   if (ref.read(deskLockingProvider)) return;
   ref.read(deskLockingProvider.notifier).set(true);
   try {
-    await ref.read(deskApiProvider).lock();
+    await ref.read(deskProvider.notifier).lock();
   } finally {
     ref.read(deskLockingProvider.notifier).set(false);
   }
@@ -172,10 +172,17 @@ Future<void> lockWallet(WidgetRef ref) async {
   ref.read(deskNavProvider.notifier).reset(DeskRoute.unlock);
 }
 
-/// Quit (the app menu's Ctrl+Q). Design run: locks and says so; the process keeps running.
+/// Quit (the app menu's Ctrl+Q): locks, then closes the app. The mock only locks.
 Future<void> quitWallet(BuildContext context, WidgetRef ref) async {
-  showEToast(context, 'Wallet locked', text: 'Quit closes the app once the wallet core is connected.');
+  final quit = ref.read(deskQuitProvider);
+  // Quitting mid-send would leave the payment's outcome unknown.
+  if (ref.read(deskProvider.notifier).sending > 0) {
+    showEToast(context, 'Not quit', text: 'A send is in progress. Quit again once it finishes.');
+    return;
+  }
+  if (quit == null) showEToast(context, 'Wallet locked', text: 'Quit closes the app once the wallet core is connected.');
   await lockWallet(ref);
+  await quit?.call();
 }
 
 /// Switch wallet: locks, then the unlock screen offers the other wallets.
@@ -204,7 +211,7 @@ class _Sidebar extends ConsumerWidget {
     final removed = ref.watch(settingsPrefsProvider.select((p) => p.removedWallets));
     final wallets = ref.watch(deskProvider.select((s) => s.wallets));
     final locking = ref.watch(deskLockingProvider);
-    final canSwitch = (wallets ?? const []).where((w) => !removed.contains(w.folder)).length > 1;
+    final canSwitch = DeskFeatures.multiWallet && (wallets ?? const []).where((w) => !removed.contains(w.folder)).length > 1;
     final name = (label == null || label.isEmpty) ? (account?.name ?? '') : label;
     final lockLabel = 'Lock wallet (${deskKeys('L')})';
     final lockButton = locking
@@ -434,7 +441,7 @@ class ServiceRows extends ConsumerWidget {
           health: rcvHealth,
           word: rcvWord,
           compact: compact,
-          lines: [ebLine, httpLine, if (settings.tor) 'Tor on'],
+          lines: [ebLine, if (DeskFeatures.httpDirect) httpLine, if (DeskFeatures.tor && settings.tor) 'Tor on'],
           open: 'Open Receiving settings',
           onTap: () => p.jumpTo(SettingsJump.epicbox),
         ),

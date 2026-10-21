@@ -50,7 +50,7 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
   @override
   void initState() {
     super.initState();
-    ref.read(deskApiProvider).torAddress().then((v) => mounted ? setState(() => _onion = v) : null);
+    if (DeskFeatures.tor) ref.read(deskApiProvider).torAddress().then((v) => mounted ? setState(() => _onion = v) : null);
     final arg = widget.arg;
     Future.microtask(() {
       final n = ref.read(deskProvider.notifier);
@@ -156,6 +156,7 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
           onChanged: (v) => p.set(prefs.copyWith(epicboxOnStart: v)),
         ),
       ),
+      if (DeskFeatures.httpDirect)
       ESetRow(
         title: 'HTTP listener',
         text: 'For payments to the HTTP address. Off until needed.',
@@ -221,6 +222,7 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           JumpSection(section: SettingsJump.epicbox, child: ESetGroup(title: 'Receiving', rows: rows)),
+          if (DeskFeatures.tor)
           ESetGroup(
             title: 'Advanced',
             rows: [

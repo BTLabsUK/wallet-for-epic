@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../data/files.dart';
 import '../../widgets/kit.dart';
 import 'file_panels.dart';
 
@@ -38,6 +39,9 @@ class _ImportTxScreenState extends ConsumerState<ImportTxScreen> {
   bool _busy = false;
   String? _response;
   ImportError? _error;
+
+  /// The wallet's own reason, under a failed signing.
+  String? _detail;
   Tx? _tx;
 
   @override
@@ -49,17 +53,28 @@ class _ImportTxScreenState extends ConsumerState<ImportTxScreen> {
   }
 
   Future<void> _pick() async {
+    final files = ref.read(deskFilesProvider);
+    final path = files == null ? 'invoice_0042.slate' : await files.pickSlate(title: 'Transaction file');
+    if (path == null || !mounted) return;
     setState(() {
       _busy = true;
       _error = null;
+      _detail = null;
     });
     try {
-      final tx = await ref.read(deskApiProvider).receiveFile('invoice_0042.slate');
+      final r = await ref.read(deskApiProvider).receiveFile(path);
       if (!mounted) return;
       setState(() {
-        _tx = tx;
-        _response = 'invoice_0042.response.slate';
+        _tx = r.tx;
+        _response = files == null ? 'invoice_0042.response.slate' : r.response;
       });
+    } on DeskError catch (e) {
+      if (mounted) {
+        setState(() {
+          _error = e.message == 'File not readable' ? ImportError.unreadable : (e.message == 'Not a transaction file' ? ImportError.wrongType : ImportError.failed);
+          _detail = e.message;
+        });
+      }
     } catch (_) {
       if (mounted) setState(() => _error = ImportError.unreadable);
     } finally {
@@ -90,7 +105,7 @@ class _ImportTxScreenState extends ConsumerState<ImportTxScreen> {
           ),
           SizedBox(height: Sp.x5),
           if (_error != null) ...[
-            ENotice(title: _error!.title, text: _error!.text, tone: ETone.risk, icon: EIcons.error),
+            ENotice(title: _error!.title, text: _error == ImportError.failed && _detail != null ? '${_error!.text} $_detail.' : _error!.text, tone: ETone.risk, icon: EIcons.error),
             SizedBox(height: Sp.x5),
           ],
           if (_response != null)
@@ -126,7 +141,7 @@ class _ImportTxScreenState extends ConsumerState<ImportTxScreen> {
             )
           else
             EDropZone(
-              title: 'Drop a transaction file here',
+              title: 'Choose a transaction file',
               text: 'The wallet signs it and saves a response for the sender.',
               buttonLabel: 'Choose file',
               onPick: _pick,

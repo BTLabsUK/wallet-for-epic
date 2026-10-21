@@ -8,3 +8,4 @@
 
 # Web demo server settings, copied from demo/server/demo.env.example
 /demo/server/demo.env
+/build-windows/

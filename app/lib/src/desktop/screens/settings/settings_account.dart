@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -85,7 +87,7 @@ class _SettingsAccountScreenState extends ConsumerState<SettingsAccountScreen> {
             title: 'Files',
             rows: [
               _FolderRow(title: 'Wallet folder', path: a.folder),
-              const _FolderRow(title: 'App files', text: 'Settings, API secrets and the log.', path: appFilesDir),
+              _FolderRow(title: 'App files', text: 'Settings and the log.', path: a.appFolder ?? appFilesDir),
               if (a.network != 'mainnet')
                 ESetRow(title: 'Network', text: 'Set when the wallet was created.', control: ETag(a.network, tone: ETone.warn)),
               ESetRow(
@@ -98,11 +100,18 @@ class _SettingsAccountScreenState extends ConsumerState<SettingsAccountScreen> {
           ESetGroup(
             title: 'Security',
             rows: [
-              ESetRow(
-                title: 'Password',
-                text: 'Unlocks this wallet.',
-                control: EButton(label: 'Change password…', size: EBtnSize.sm, icon: EIcons.lock, onPressed: () => showChangePasswordDialog(context)),
-              ),
+              if (DeskFeatures.changePassword)
+                ESetRow(
+                  title: 'Password',
+                  text: 'Unlocks this wallet.',
+                  control: EButton(label: 'Change password…', size: EBtnSize.sm, icon: EIcons.lock, onPressed: () => showChangePasswordDialog(context)),
+                ),
+              if (!DeskFeatures.multiWallet)
+                ESetRow(
+                  title: 'Delete wallet',
+                  text: 'Removes it and its seed from this computer.',
+                  control: EButton(label: 'Delete…', size: EBtnSize.sm, icon: EIcons.trash, kind: EBtnKind.danger, onPressed: () => showDeleteWalletDialog(context)),
+                ),
             ],
           ),
         ],
@@ -119,6 +128,20 @@ class _FolderRow extends StatelessWidget {
   final String? text;
   final String path;
 
+  /// Opens [path] in the system's file manager; a path that is not on disk (the mock) toasts.
+  Future<void> _open(BuildContext context) async {
+    if (!Directory(path).existsSync()) {
+      showEToast(context, 'Folder not found', text: path);
+      return;
+    }
+    final (cmd, args) = Platform.isWindows ? ('explorer', [path]) : Platform.isMacOS ? ('open', [path]) : ('xdg-open', [path]);
+    try {
+      await Process.start(cmd, args, mode: ProcessStartMode.detached);
+    } on ProcessException {
+      if (context.mounted) showEToast(context, 'Folder not opened', text: path);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final c = context.dc;
@@ -126,7 +149,7 @@ class _FolderRow extends StatelessWidget {
     return ESetRow(
       title: title,
       text: text,
-      control: EButton(label: 'Open folder', icon: EIcons.folderOpen, size: EBtnSize.sm, onPressed: () => showEToast(context, 'Opening folder', text: path)),
+      control: EButton(label: 'Open folder', icon: EIcons.folderOpen, size: EBtnSize.sm, onPressed: () => _open(context)),
       below: Row(
         children: [
           Flexible(

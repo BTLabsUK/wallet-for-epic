@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../widgets/kit.dart';
 import 'prefs.dart';
 import 'settings_frame.dart';
@@ -569,4 +570,92 @@ class _RemoveWalletDialogState extends ConsumerState<RemoveWalletDialog> {
       ),
     );
   }
+}
+
+// ---- Delete this wallet --------------------------------------------------------------------
+
+/// Deletes the open wallet from this computer after its password (one wallet per network:
+/// the wallet list's three modes need [DeskFeatures.multiWallet]). Then Welcome opens.
+Future<void> showDeleteWalletDialog(BuildContext context) => showEDialog(context, builder: (_) => const DeleteWalletDialog());
+
+class DeleteWalletDialog extends ConsumerStatefulWidget {
+  const DeleteWalletDialog({super.key});
+
+  @override
+  ConsumerState<DeleteWalletDialog> createState() => _DeleteWalletDialogState();
+}
+
+class _DeleteWalletDialogState extends ConsumerState<DeleteWalletDialog> {
+  final _password = TextEditingController();
+  bool _ack = false;
+  bool _busy = false;
+  String? _error;
+
+  @override
+  void dispose() {
+    _password.clear();
+    _password.dispose();
+    super.dispose();
+  }
+
+  bool get _ready => !_busy && _ack && _password.text.isNotEmpty;
+
+  Future<void> _delete() async {
+    if (!_ready) return;
+    setState(() {
+      _busy = true;
+      _error = null;
+    });
+    try {
+      await ref.read(deskApiProvider).removeWallet(_password.text);
+    } on Object catch (e) {
+      if (mounted) {
+        setState(() {
+          _busy = false;
+          _error = deskErrorText(e);
+        });
+      }
+      return;
+    }
+    if (!mounted) return;
+    final nav = ref.read(deskNavProvider.notifier);
+    await ref.read(deskProvider.notifier).lock();
+    if (!mounted) return;
+    Navigator.of(context).pop();
+    nav.reset(DeskRoute.welcome);
+  }
+
+  @override
+  Widget build(BuildContext context) => PopScope(
+    canPop: !_busy,
+    child: EDialog(
+      title: 'Delete this wallet?',
+      description: 'Deletes the wallet and its seed from this computer. Only the recovery phrase restores it; without it the coins are lost.',
+      icon: EIcons.trash,
+      tone: ETone.risk,
+      dismissible: !_busy,
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          EField(
+            label: 'Password',
+            error: _error,
+            child: EPasswordInput(
+              controller: _password,
+              autofocus: true,
+              invalid: _error != null,
+              onChanged: (_) => setState(() => _error = null),
+              onSubmitted: (_) => _delete(),
+            ),
+          ),
+          SizedBox(height: Sp.x4),
+          ECheckbox(value: _ack, onChanged: (v) => setState(() => _ack = v), label: 'The recovery phrase is written down'),
+        ],
+      ),
+      actions: [
+        EButton(label: 'Cancel', size: EBtnSize.sm, kind: EBtnKind.ghost, onPressed: _busy ? null : () => Navigator.of(context).pop()),
+        EButton(label: 'Delete wallet', icon: EIcons.trash, size: EBtnSize.sm, kind: EBtnKind.danger, busy: _busy, onPressed: _ready ? _delete : null),
+      ],
+    ),
+  );
 }

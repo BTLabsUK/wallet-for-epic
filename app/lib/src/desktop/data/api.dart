@@ -12,8 +12,13 @@ abstract interface class DeskWalletApi {
   Future<void> lock();
 
   // First run.
+  /// A phrase to show before a wallet exists (the screenshot tour only; a real wallet's phrase
+  /// comes from [createWallet]).
   Future<List<String>> newPhrase({int words = 24});
-  Future<void> createWallet({required String name, required String password, required List<String> phrase});
+
+  /// Makes the wallet with a new recovery phrase and returns the phrase, for the backup step.
+  /// Passwords under [minPasswordLength] are refused.
+  Future<List<String>> createWallet({required String name, required String password});
   Future<bool> checkPhraseWord(String word);
   Future<void> restoreWallet({required String name, required String password, required List<String> phrase});
 
@@ -33,8 +38,11 @@ abstract interface class DeskWalletApi {
 
   // Acting.
   Future<int> estimateFee(int amount);
+
+  /// The largest amount that can be sent now and its fee (Send › All).
+  Future<(int, int)> estimateMax();
   Future<SendResult> send(SendRequest request);
-  Future<Tx> receiveFile(String fileName);
+  Future<ReceivedFile> receiveFile(String fileName);
   Future<Tx> finalizeFile(String fileName);
   Future<void> cancelTx(int id);
   Future<String> exportProof(int id);
@@ -48,8 +56,14 @@ abstract interface class DeskWalletApi {
 
   /// Starts or stops the receive listener (Epicbox, and HTTP when it is on).
   Future<void> setListening(bool on);
-  Future<void> rescan();
+  /// Scans the chain again, with progress; the stream ends when the scan does.
+  Stream<ScanStep> rescan();
+
+  /// Fires when something the screens show changed in the background (a payment arrived, a
+  /// sync finished, the listener connected). [DeskController] reloads on it.
+  Stream<void> changes();
   Future<List<String>> revealPhrase(String password);
+  /// Only when [DeskFeatures.changePassword].
   Future<void> changePassword(String current, String next);
   Future<void> removeWallet(String password);
 }

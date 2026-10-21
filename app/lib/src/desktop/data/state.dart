@@ -1,9 +1,12 @@
 /// Riverpod state for the desktop UI: the API seam and one snapshot of the open wallet.
 library;
 
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'api.dart';
+import 'desk_store.dart';
 import 'mock_wallet.dart';
 import 'models.dart';
 
@@ -68,8 +71,76 @@ class DeskState {
 class DeskController extends Notifier<DeskState> {
   DeskWalletApi get api => ref.read(deskApiProvider);
 
+  StreamSubscription<void>? _changes;
+  Timer? _statusPoll;
+  Timer? _reload;
+
   @override
-  DeskState build() => const DeskState();
+  DeskState build() {
+    ref.onDispose(_stopLive);
+    return DeskState(settings: ref.read(deskBootProvider).settings);
+  }
+
+  /// After unlock: starts the listener when [listen] (Settings › Start Epicbox with the wallet)
+  /// and keeps the status rows and lists live until [lock].
+  Future<void> startLive({required bool listen}) async {
+    _stopLive();
+    _changes = api.changes().listen((_) {
+      // Bursts of events (sync progress) reload the lists once, the status at once.
+      unawaited(_loadStatus());
+      _reload?.cancel();
+      _reload = Timer(const Duration(milliseconds: 400), () => unawaited(_refreshQuietly()));
+    });
+    _statusPoll = Timer.periodic(const Duration(seconds: 5), (_) => unawaited(_loadStatus()));
+    if (listen) {
+      try {
+        await setListening(true);
+      } on Object {
+        // The status row shows the listener down; Receive offers to start it again.
+      }
+    }
+  }
+
+  void _stopLive() {
+    _changes?.cancel();
+    _changes = null;
+    _statusPoll?.cancel();
+    _statusPoll = null;
+    _reload?.cancel();
+    _reload = null;
+  }
+
+  /// Ctrl+L and Lock: the session closed, the open wallet's data dropped.
+  Future<void> lock() async {
+    _stopLive();
+    await api.lock();
+    state = DeskState(settings: state.settings, nodes: state.nodes, epicboxes: state.epicboxes);
+  }
+
+  Future<void> _loadStatus() async {
+    if (_statusPoll == null && _changes == null) return;
+    try {
+      final s = await api.status();
+      if (_changes != null) state = state.copyWith(status: s);
+    } on Object {
+      // Locked meanwhile.
+    }
+  }
+
+  Future<void> _refreshQuietly() async {
+    if (_changes == null) return;
+    try {
+      final a = api;
+      final balance = await a.balance();
+      final txs = await a.transactions();
+      final contacts = await a.contacts();
+      final nodes = await a.nodes();
+      final boxes = await a.epicboxes();
+      if (_changes != null) state = state.copyWith(balance: balance, txs: txs, contacts: contacts, nodes: nodes, epicboxes: boxes, status: await a.status());
+    } on Object {
+      // Locked meanwhile.
+    }
+  }
 
   /// Loads everything; called after unlock and by Refresh.
   Future<void> refresh() async {
@@ -103,6 +174,11 @@ class DeskController extends Notifier<DeskState> {
   /// The app-wide settings (theme, interface scale) before any wallet is open: they apply
   /// from the first screen.
   Future<void> loadSettings() async {
+    if (ref.read(deskStoreProvider) != null) {
+      // Read before the first frame (DeskBoot); the API was given them.
+      state = state.copyWith(nodes: await api.nodes(), epicboxes: await api.epicboxes());
+      return;
+    }
     final s = await api.settings();
     state = state.copyWith(settings: s);
   }
@@ -110,16 +186,27 @@ class DeskController extends Notifier<DeskState> {
   Future<void> saveSettings(DeskSettings s) async {
     state = state.copyWith(settings: s);
     await api.saveSettings(s);
-    state = state.copyWith(status: await api.status());
+    await ref.read(deskStoreProvider)?.saveSettings(s);
+    if (state.account != null) state = state.copyWith(status: await api.status());
   }
 
-  Future<void> useNode(String url) async {
-    await api.useNode(url);
-    state = state.copyWith(status: await api.status());
-  }
+  Future<void> useNode(String url) => _reopening(() => api.useNode(url));
 
-  Future<void> useEpicbox(String domain) async {
-    await api.useEpicbox(domain);
+  Future<void> useEpicbox(String domain) => _reopening(() => api.useEpicbox(domain));
+
+  /// A node or Epicbox change reopens the wallet; when that closed it, the app goes back to
+  /// Unlock with the reason ([deskClosedProvider]).
+  Future<void> _reopening(Future<void> Function() change) async {
+    try {
+      await change();
+    } on DeskError catch (e) {
+      if (e.locked) {
+        _stopLive();
+        state = DeskState(settings: state.settings, nodes: state.nodes, epicboxes: state.epicboxes);
+        ref.read(deskClosedProvider.notifier).set(e.message);
+      }
+      rethrow;
+    }
     state = state.copyWith(status: await api.status());
   }
 
@@ -134,9 +221,24 @@ class DeskController extends Notifier<DeskState> {
     state = state.copyWith(nodes: await api.nodes());
   }
 
+  /// Sends in flight: Quit waits for them.
+  int get sending => _sending;
+  int _sending = 0;
+
   Future<SendResult> send(SendRequest r) async {
-    final result = await api.send(r);
-    state = state.copyWith(txs: await api.transactions(), balance: await api.balance());
+    _sending++;
+    final SendResult result;
+    try {
+      result = await api.send(r);
+    } finally {
+      _sending--;
+    }
+    // The lists catch up; a failure here does not change what happened to the payment.
+    try {
+      state = state.copyWith(txs: await api.transactions(), balance: await api.balance());
+    } on Object {
+      // Locked meanwhile; the next refresh shows it.
+    }
     return result;
   }
 
@@ -160,3 +262,17 @@ final deskProvider = NotifierProvider<DeskController, DeskState>(DeskController.
 
 /// The wallet's outputs (Activity › Outputs). Invalidate to reload.
 final deskOutputsProvider = FutureProvider<List<Output>>((ref) => ref.read(deskApiProvider).outputs());
+
+/// Why the wallet closed by itself (a server change could not reopen it); the app returns to
+/// Unlock and shows it.
+class DeskClosed extends Notifier<String?> {
+  @override
+  String? build() => null;
+
+  void set(String? message) => state = message;
+}
+
+final deskClosedProvider = NotifierProvider<DeskClosed, String?>(DeskClosed.new);
+
+/// Ends the app (Ctrl+Q) after the wallet is locked; null in the mock, which only locks.
+final deskQuitProvider = Provider<Future<void> Function()?>((ref) => null);

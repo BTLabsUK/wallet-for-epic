@@ -92,11 +92,11 @@ class _SettingsPhraseScreenState extends ConsumerState<SettingsPhraseScreen> {
         _left = _hideAfter;
       });
       _startTimer();
-    } catch (_) {
+    } catch (e) {
       if (mounted) {
         setState(() {
           _busy = false;
-          _error = 'Wrong password.';
+          _error = e is DeskError && !e.wrongPassword ? e.message : 'Wrong password.';
         });
       }
     }

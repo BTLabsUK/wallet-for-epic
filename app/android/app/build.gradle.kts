@@ -15,8 +15,9 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.blacktyger.epic_wallet"
+        // 0.1.0 is its own app beside the 1.x test builds (com.blacktyger.epic_wallet, version
+        // codes 2027+): installing it never replaces or downgrades them, and its data starts empty.
+        applicationId = "com.blacktyger.epicwallet"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion

@@ -112,7 +112,10 @@ class MockDeskWallet implements DeskWalletApi {
   }
 
   @override
-  Future<void> createWallet({required String name, required String password, required List<String> phrase}) => _wait(3);
+  Future<List<String>> createWallet({required String name, required String password}) async {
+    await _wait(3);
+    return _words;
+  }
 
   @override
   Future<bool> checkPhraseWord(String word) async => word.length >= 3 && !word.contains(RegExp('[^a-z]'));
@@ -205,6 +208,13 @@ class MockDeskWallet implements DeskWalletApi {
   }
 
   @override
+  Future<(int, int)> estimateMax() async {
+    final spendable = (await balance()).spendable;
+    final fee = await estimateFee(spendable);
+    return (spendable - fee, fee);
+  }
+
+  @override
   Future<SendResult> send(SendRequest r) async {
     await _wait(4);
     if (r.to != null && r.to!.contains('offline')) {
@@ -228,9 +238,10 @@ class MockDeskWallet implements DeskWalletApi {
   }
 
   @override
-  Future<Tx> receiveFile(String fileName) async {
+  Future<ReceivedFile> receiveFile(String fileName) async {
     await _wait(2);
-    return Tx(id: _nextId++, slateId: '9a8b7c6d-5e4f-4321-8765-0fedcba98765', direction: TxDirection.received, state: TxState.waitingRecipient, method: TxMethod.file, amount: _epic(42), fee: 0, created: DateTime.now(), counterparty: fileName);
+    final tx = Tx(id: _nextId++, slateId: '9a8b7c6d-5e4f-4321-8765-0fedcba98765', direction: TxDirection.received, state: TxState.waitingRecipient, method: TxMethod.file, amount: _epic(42), fee: 0, created: DateTime.now(), counterparty: fileName);
+    return ReceivedFile(tx, '$fileName.response');
   }
 
   @override
@@ -296,8 +307,28 @@ class MockDeskWallet implements DeskWalletApi {
     _listening = on;
   }
 
+  static const _scanLog = [
+    'Starting UTXO scan',
+    'Checking 1000 outputs, up to index 1000 (highest index: 2914414)',
+    'Identified 4 wallet outputs as belonging to this wallet',
+    'Checking 1000 outputs, up to index 2000 (highest index: 2914414)',
+    'Identified 2 wallet outputs as belonging to this wallet',
+    'Checking 1000 outputs, up to index 3000 (highest index: 2914414)',
+    'Scanning for outputs, 41% complete',
+  ];
+
   @override
-  Future<void> rescan() => _wait(6);
+  Stream<ScanStep> rescan() async* {
+    for (final line in _scanLog) {
+      await _wait(2.5);
+      yield ScanStep(line);
+    }
+    await _wait(2);
+    yield const ScanStep('Scan complete', percent: 100);
+  }
+
+  @override
+  Stream<void> changes() => const Stream.empty();
 
   @override
   Future<List<String>> revealPhrase(String password) async {

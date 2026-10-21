@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../widgets/kit.dart';
 import 'onboarding_parts.dart';
 
@@ -148,7 +149,7 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
       if (!mounted) return;
       if (open) {
         setState(() => _locking = true);
-        await ref.read(deskApiProvider).lock();
+        await ref.read(deskProvider.notifier).lock();
         if (!mounted) return;
       }
       final name = _name.text.trim();
@@ -157,7 +158,7 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
       if (mounted) {
         setState(() {
           _step = RestoreStep.failed;
-          _failure = '$e';
+          _failure = deskErrorText(e);
         });
       }
     }

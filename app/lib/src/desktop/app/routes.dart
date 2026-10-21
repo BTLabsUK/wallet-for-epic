@@ -63,6 +63,13 @@ const List<(DeskSection, DeskRoute, String, IconData)> deskNav = [
 /// Start place: `--dart-define=WFE_DESK_START=<route name>`, unlock by default.
 const String _start = String.fromEnvironment('WFE_DESK_START', defaultValue: 'unlock');
 
+/// True when WFE_DESK_START names the start place; otherwise the app picks it (Welcome without
+/// a wallet, Unlock with one) by overriding [deskStartProvider].
+const bool deskStartGiven = bool.hasEnvironment('WFE_DESK_START');
+
+/// Where the app opens.
+final deskStartProvider = Provider<DeskRoute>((ref) => deskRouteNamed(_start));
+
 DeskRoute deskRouteNamed(String name) =>
     DeskRoute.values.firstWhere((r) => r.name == name, orElse: () => DeskRoute.unlock);
 
@@ -70,7 +77,7 @@ class DeskNav extends Notifier<DeskLocation> {
   final List<DeskLocation> _history = [];
 
   @override
-  DeskLocation build() => DeskLocation(deskRouteNamed(_start));
+  DeskLocation build() => DeskLocation(ref.read(deskStartProvider));
 
   void go(DeskRoute route, [Object? arg]) {
     _history.add(state);

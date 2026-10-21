@@ -11,7 +11,7 @@ const List<(DeskRoute, String, IconData)?> _items = [
   (DeskRoute.settingsAppearance, 'Appearance', EIcons.palette),
   null,
   (DeskRoute.settingsAccount, 'This wallet', EIcons.wallet),
-  (DeskRoute.settingsWallets, 'All wallets', EIcons.coins),
+  if (DeskFeatures.multiWallet) (DeskRoute.settingsWallets, 'All wallets', EIcons.coins),
   (DeskRoute.settingsPhrase, 'Recovery phrase', EIcons.key),
   (DeskRoute.settingsRescan, 'Rescan', EIcons.scan),
   null,

@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'src/app.dart';
 import 'src/app_log.dart';
+import 'src/data_folder.dart';
 import 'src/demo_web_platform.dart';
 import 'src/ui/theme/fonts.dart';
 import 'src/wallet_backend.dart';
@@ -15,6 +16,8 @@ Future<void> main() async {
   // Errors that escape every other handler land here, in the zone the app runs in.
   await runZonedGuarded(() async {
     WidgetsFlutterBinding.ensureInitialized();
+    // Before the logs and wallets ask for the support folder: Linux's own, never a stray one.
+    await settleDataFolder();
     // First, so a failure to load either core is in the file.
     await startLogging();
     final previous = FlutterError.onError;

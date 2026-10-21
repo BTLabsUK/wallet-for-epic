@@ -34,7 +34,10 @@ String describeError(AppLocalizations l, Object error) {
       WalletErrorKind.paymentExpired =>
         (l.localeName == 'en' ? _plainSentence(error.message) : null) ??
             l.errorPaymentExpired,
-      WalletErrorKind.io => _withDetail(l.errorIo, error.message),
+      WalletErrorKind.io || WalletErrorKind.damagedDatabase => _withDetail(
+        l.errorIo,
+        error.message,
+      ),
       WalletErrorKind.other => _withDetail(l.errorOther, error.message),
     };
   }

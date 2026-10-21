@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../data/files.dart';
 import '../../widgets/kit.dart';
 import 'file_panels.dart';
 
@@ -49,18 +50,30 @@ class _FinalizeScreenState extends ConsumerState<FinalizeScreen> {
   }
 
   Future<void> _pick() async {
+    final files = ref.read(deskFilesProvider);
+    final path = files == null ? 'invoice_0042.response.slate' : await files.pickSlate(title: 'Response file');
+    if (path == null || !mounted) return;
     setState(() {
       _busy = true;
       _error = null;
     });
     try {
-      final tx = await ref.read(deskApiProvider).finalizeFile('invoice_0042.response.slate');
+      final tx = await ref.read(deskApiProvider).finalizeFile(path);
       if (!mounted) return;
       setState(() {
         _txId = tx.id;
         _done = true;
       });
       showEToast(context, 'Transaction posted');
+    } on DeskError catch (e) {
+      if (mounted) {
+        setState(() => _error = switch (e.message) {
+          'File not readable' => FinalizeError.unreadable,
+          'Not a transaction file' => FinalizeError.wrongType,
+          'Node not answering' => FinalizeError.notPosted,
+          _ => FinalizeError.failed,
+        });
+      }
     } catch (_) {
       if (mounted) setState(() => _error = FinalizeError.unreadable);
     } finally {
@@ -118,7 +131,7 @@ class _FinalizeScreenState extends ConsumerState<FinalizeScreen> {
             )
           else
             EDropZone(
-              title: 'Drop a response file here',
+              title: 'Choose a response file',
               text: 'The wallet completes the transaction and posts it to the network.',
               buttonLabel: 'Choose file',
               onPick: _pick,

@@ -51,10 +51,12 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
     final s = ref.watch(deskProvider);
     final hidden = s.settings.hideAmounts;
     final loading = demo == OverviewDemo.loading || s.balance == null;
-    final empty = demo == OverviewDemo.empty;
+    final empty = demo == OverviewDemo.empty || (demo == null && s.balance?.total == 0 && (s.txs?.isEmpty ?? false));
     final starting = demo == OverviewDemo.starting;
     final syncing = demo == OverviewDemo.syncing;
-    final nodeDown = demo == OverviewDemo.nodeDown;
+    final nodeDown = demo == OverviewDemo.nodeDown || (demo == null && s.status?.nodeHealth == ServiceHealth.down);
+    // The wallet's own sync (a refresh or a scan), not the node's.
+    final walletSync = demo == null && s.status?.syncProgress != null;
     final balance = empty ? const Balance(spendable: 0, awaitingConfirmation: 0, locked: 0, awaitingFinalization: 0) : s.balance;
     final txs = empty ? const <Tx>[] : (demo == OverviewDemo.loading ? null : s.txs);
     final nav = ref.read(deskNavProvider.notifier);
@@ -69,7 +71,8 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
     final gap = SizedBox(height: Sp.x4);
 
     final notices = <Widget>[
-      if (demo == null && !s.settings.newLookSeen && s.balance != null)
+      if (s.status?.notice != null) ENotice(tone: ETone.warn, icon: EIcons.alert, title: s.status!.notice!),
+      if (DeskFeatures.importWizard && demo == null && !s.settings.newLookSeen && s.balance != null)
         ENotice(
           tone: ETone.gold,
           icon: EIcons.palette,
@@ -105,7 +108,7 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
           actionsBelow: true,
           actions: [
             EButton(label: 'Use public node', icon: EIcons.web, size: EBtnSize.inline, onPressed: () => nav.go(DeskRoute.settingsNode)),
-            EButton(label: 'Use built-in node', icon: EIcons.server, size: EBtnSize.inline, busy: _restarting, onPressed: _restartNode),
+            if (DeskFeatures.builtInNode) EButton(label: 'Use built-in node', icon: EIcons.server, size: EBtnSize.inline, busy: _restarting, onPressed: _restartNode),
             EButton(label: 'Hide', kind: EBtnKind.ghost, size: EBtnSize.inline, onPressed: () => setState(() => _problemHidden = true)),
           ],
         ),
@@ -116,6 +119,7 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
           text: 'Check that it is running and reachable. Balances may be out of date and sending is paused.',
           actionsBelow: true,
           actions: [
+            if (DeskFeatures.builtInNode)
             EButton(
               label: _restarting ? 'Restarting' : 'Restart node',
               icon: EIcons.refresh,
@@ -156,7 +160,7 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
               balance: loading ? null : balance,
               empty: empty,
               hidden: hidden,
-              updating: starting || syncing || loading,
+              updating: starting || syncing || loading || walletSync,
               asOfBlock: syncing ? _walletTip : null,
               sendBlocked: syncing || nodeDown || demo == OverviewDemo.nodeProblem,
             ),
@@ -351,7 +355,7 @@ class _BalancePanel extends ConsumerWidget {
                     SizedBox(height: 6.u),
                     if (empty)
                       Text('Share the Epicbox address to receive the first EPIC.', style: ts.bodyDim)
-                    else if (b != null)
+                    else if (DeskFeatures.fiatPrice && b != null)
                       Text.rich(
                         TextSpan(
                           children: [
@@ -759,8 +763,8 @@ class _StatusCard extends ConsumerWidget {
               mono: true,
             ),
             _SRow(EIcons.epicbox, 'Epicbox', st.epicboxHealth, st.epicbox.domain, mono: true),
-            _SRow(EIcons.http, 'Direct HTTP', st.httpListener, st.httpListener == ServiceHealth.off ? '' : 'Port 3415'),
-            _SRow(EIcons.tor, 'Tor', st.tor, st.tor == ServiceHealth.off ? '' : 'Onion service ready'),
+            if (DeskFeatures.httpDirect) _SRow(EIcons.http, 'Direct HTTP', st.httpListener, st.httpListener == ServiceHealth.off ? '' : 'Port 3415'),
+            if (DeskFeatures.tor) _SRow(EIcons.tor, 'Tor', st.tor, st.tor == ServiceHealth.off ? '' : 'Onion service ready'),
           ];
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,

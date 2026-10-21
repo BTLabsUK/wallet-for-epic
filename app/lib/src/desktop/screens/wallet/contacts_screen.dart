@@ -332,7 +332,7 @@ class _Pic extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (!picture) return EAvatar(name, size: size);
+    if (!DeskFeatures.contactPictures || !picture) return EAvatar(name, size: size);
     final c = context.dc;
     return ExcludeSemantics(
       child: Container(
@@ -623,6 +623,7 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Semantics(header: true, child: Text(widget.contact == null ? 'New contact' : 'Edit contact', style: ts.h2)),
+                  if (DeskFeatures.contactPictures) ...[
                   SizedBox(height: Sp.x2),
                   Wrap(
                     spacing: Sp.x2,
@@ -640,6 +641,7 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
                   ),
                   SizedBox(height: Sp.x1),
                   Text('PNG, JPEG, WebP or GIF, up to 10 MB. A small copy is kept in this app.', style: ts.caption),
+                  ],
                 ],
               ),
             ),

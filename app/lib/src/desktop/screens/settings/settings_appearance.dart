@@ -45,6 +45,7 @@ class SettingsAppearanceScreen extends ConsumerWidget {
               ),
             ),
           ),
+          if (DeskFeatures.languages)
           ESetRow(
             title: 'Language',
             text: 'Applies at once.',

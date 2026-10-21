@@ -49,8 +49,8 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
     _args = a is ReceiveArgs ? a : const ReceiveArgs();
     _httpFailed = _args.httpFailed;
     final api = ref.read(deskApiProvider);
-    unawaited(api.httpAddress().then((v) => mounted ? setState(() => _http = v) : null));
-    unawaited(api.torAddress().then((v) => mounted ? setState(() => _tor = v) : null));
+    if (DeskFeatures.httpDirect) unawaited(api.httpAddress().then((v) => mounted ? setState(() => _http = v) : null));
+    if (DeskFeatures.tor) unawaited(api.torAddress().then((v) => mounted ? setState(() => _tor = v) : null));
     final n = ref.read(deskProvider.notifier);
     final settings = ref.read(deskProvider).settings;
     if (_args.stopped) {
@@ -133,9 +133,11 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
         children: [
           if (status != null && !listening) ...[_start(), SizedBox(height: Sp.x5)],
           _hero(st, listening),
-          ESectionHead('Other ways to receive', top: Sp.x8),
-          _direct(st, nav, listening),
-          const ESectionHead('Transaction files'),
+          if (DeskFeatures.httpDirect || DeskFeatures.tor) ...[
+            ESectionHead('Other ways to receive', top: Sp.x8),
+            _direct(st, nav, listening),
+          ],
+          ESectionHead('Transaction files', top: DeskFeatures.httpDirect || DeskFeatures.tor ? null : Sp.x8),
           ESetGroup(
             rows: [
               ESetRow(
@@ -344,6 +346,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
     }
     return ESetGroup(
       rows: [
+        if (DeskFeatures.httpDirect)
         ESetRow(
           title: 'HTTP address',
           stacked: true,
@@ -372,6 +375,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
             ],
           ),
         ),
+        if (DeskFeatures.tor)
         _AddrRow(
           title: 'Tor address',
           on: torOn,

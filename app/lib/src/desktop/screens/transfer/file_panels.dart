@@ -1,6 +1,9 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../data/files.dart' show openInFileManager;
 import '../../widgets/kit.dart';
 
 /// A square outlined glyph with a status tone, as the original's `e-glyph-sq`.
@@ -30,7 +33,8 @@ class ResultGlyph extends StatelessWidget {
   }
 }
 
-/// The file a flow produced: name in mono with Save and Copy.
+/// The file a flow produced: name in mono with Save and Copy. A file the wallet wrote to disk
+/// (a path) gets Open folder instead of Save.
 class FileChip extends StatelessWidget {
   const FileChip(this.name, {super.key});
 
@@ -53,12 +57,22 @@ class FileChip extends StatelessWidget {
           SizedBox(width: Sp.x3),
           Expanded(child: SelectableText(name, style: ts.mono(size: Fs.sm), maxLines: 1)),
           SizedBox(width: Sp.x2),
-          EButton(
-            label: 'Save',
-            icon: EIcons.download,
-            size: EBtnSize.inline,
-            onPressed: () => showEToast(context, 'File saved', text: name),
-          ),
+          if (File(name).existsSync())
+            EButton(
+              label: 'Open folder',
+              icon: EIcons.folderOpen,
+              size: EBtnSize.inline,
+              onPressed: () async {
+                if (!await openInFileManager(File(name).parent.path) && context.mounted) showEToast(context, 'Folder not opened', text: name);
+              },
+            )
+          else
+            EButton(
+              label: 'Save',
+              icon: EIcons.download,
+              size: EBtnSize.inline,
+              onPressed: () => showEToast(context, 'File saved', text: name),
+            ),
           SizedBox(width: Sp.x2),
           EButton(
             label: 'Copy',
