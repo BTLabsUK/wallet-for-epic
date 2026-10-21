@@ -73,6 +73,8 @@ enum SessionMember {
 const Set<String> localServiceMembers = {
   'validateMnemonic',
   'validateEpicboxAddress',
+  // Reads a file on the app's own computer; refused by the client.
+  'importWalletSeed',
 };
 const Set<String> localSessionMembers = {'supportsInvoices'};
 

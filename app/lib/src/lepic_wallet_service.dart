@@ -574,6 +574,26 @@ class LepicWalletService implements WalletService {
   );
 
   @override
+  Future<WalletSession> importWalletSeed({
+    required WalletConfig config,
+    required String seedFile,
+    required String seedPassword,
+    required String password,
+  }) => _guard(
+    () async => _session(
+      config,
+      await lepic.EpicWallet.importWalletSeed(
+        runtime: _runtime,
+        config: _config(config),
+        store: await _store(config, creating: true),
+        seedFile: seedFile,
+        seedPassword: seedPassword,
+        password: password,
+      ),
+    ),
+  );
+
+  @override
   Future<WalletSession> open({
     required WalletConfig config,
     required String password,

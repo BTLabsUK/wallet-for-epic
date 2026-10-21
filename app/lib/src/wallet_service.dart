@@ -43,6 +43,18 @@ abstract interface class WalletService {
     required String password,
   });
 
+  /// Creates a wallet from the text of an `epic-wallet` `wallet.seed` (at most 4 KiB), which
+  /// [seedPassword] decrypts; the new wallet gets [password]. The file is only read. Call
+  /// [WalletSession.scan] next. A wrong [seedPassword] throws [WalletError] with
+  /// [WalletErrorKind.wrongPassword]; text that is not a `wallet.seed`, or a [password] under
+  /// eight characters, [WalletErrorKind.invalidArgument].
+  Future<WalletSession> importWalletSeed({
+    required WalletConfig config,
+    required String seedFile,
+    required String seedPassword,
+    required String password,
+  });
+
   /// Creates a wallet whose password the core generates and seals under [pin]; Dart only ever
   /// holds the sealed text. Store [PinWallet.sealedPassword] before showing the phrase: without
   /// it the wallet cannot be opened, only deleted and created again.
@@ -414,6 +426,40 @@ class FakeWalletService implements WalletService {
     this.password = password;
     createdConfig = config;
     createdMnemonic = mnemonic;
+    return session;
+  }
+
+  /// The seed text and its password [importWalletSeed] was given last.
+  String? importedSeedFile;
+  String? importedSeedPassword;
+
+  /// The only seed password [importWalletSeed] accepts; any other is wrong.
+  String seedFilePassword = 'old password';
+
+  @override
+  Future<WalletSession> importWalletSeed({
+    required WalletConfig config,
+    required String seedFile,
+    required String seedPassword,
+    required String password,
+  }) async {
+    if (existingWallets.contains(config.dataDir)) {
+      throw const WalletError(
+        kind: WalletErrorKind.walletAlreadyExists,
+        message: 'wallet exists',
+      );
+    }
+    if (seedPassword != seedFilePassword) {
+      throw const WalletError(
+        kind: WalletErrorKind.wrongPassword,
+        message: 'wrong password',
+      );
+    }
+    existingWallets.add(config.dataDir);
+    this.password = password;
+    createdConfig = config;
+    importedSeedFile = seedFile;
+    importedSeedPassword = seedPassword;
     return session;
   }
 

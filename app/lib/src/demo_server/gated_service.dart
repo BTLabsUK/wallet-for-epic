@@ -107,6 +107,24 @@ class GatedWalletService implements WalletService {
   );
 
   @override
+  Future<WalletSession> importWalletSeed({
+    required WalletConfig config,
+    required String seedFile,
+    required String seedPassword,
+    required String password,
+  }) async => _wrap(
+    await _opening(
+      () => _inner.importWalletSeed(
+        config: config,
+        seedFile: seedFile,
+        seedPassword: seedPassword,
+        password: password,
+      ),
+      _itself,
+    ),
+  );
+
+  @override
   Future<WalletSession> open({
     required WalletConfig config,
     required String password,
