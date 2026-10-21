@@ -49,6 +49,12 @@ class PlatformSecretStore implements SecretStore {
     iOptions: IOSOptions(
       accessibility: KeychainAccessibility.first_unlock_this_device,
     ),
+    // This Mac only, as on iOS. Entries written before under the default level stay readable:
+    // flutter_secure_storage_darwin 0.4.3+ reads, finds and deletes across every level and
+    // rewrites an entry at this level on its next write (secret_store_test checks the lock).
+    mOptions: MacOsOptions(
+      accessibility: KeychainAccessibility.first_unlock_this_device,
+    ),
   );
 
   @override
