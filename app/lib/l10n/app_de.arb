@@ -523,7 +523,7 @@
   "firstRunBiometricsNotSetUp": "Die biometrische Entsperrung wurde nicht eingerichtet. Sie können sie in den Einstellungen aktivieren.",
   "backupTitle": "Wiederherstellungsphrase",
   "backupPinReason": "Geben Sie Ihre PIN ein, um die Wiederherstellungsphrase anzuzeigen.",
-  "backupCopyWarning": "Auf dem nächsten Bildschirm sind Screenshots erlaubt. Ein Screenshot oder Foto der Phrase ist eine vollständige Kopie Ihrer Wallet: Wer ihn sieht, kann Ihr Guthaben nehmen, und Foto-Apps laden ihn unter Umständen in die Cloud hoch. Papier ist am sichersten.",
+  "backupCopyWarning": "Ein Screenshot oder Foto der Phrase ist eine vollständige Kopie Ihrer Wallet: Wer ihn sieht, kann Ihr Guthaben nehmen, und Foto-Apps laden ihn unter Umständen in die Cloud hoch. Papier ist am sichersten.",
   "backupCopyAgree": "Ich halte jede Kopie der Phrase geheim",
   "backupShowPhrase": "Wiederherstellungsphrase anzeigen",
   "backupWarningIconLabel": "Warnung",

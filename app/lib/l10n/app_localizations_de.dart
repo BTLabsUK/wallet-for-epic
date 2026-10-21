@@ -2261,7 +2261,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get backupCopyWarning =>
-      'Auf dem nächsten Bildschirm sind Screenshots erlaubt. Ein Screenshot oder Foto der Phrase ist eine vollständige Kopie Ihrer Wallet: Wer ihn sieht, kann Ihr Guthaben nehmen, und Foto-Apps laden ihn unter Umständen in die Cloud hoch. Papier ist am sichersten.';
+      'Ein Screenshot oder Foto der Phrase ist eine vollständige Kopie Ihrer Wallet: Wer ihn sieht, kann Ihr Guthaben nehmen, und Foto-Apps laden ihn unter Umständen in die Cloud hoch. Papier ist am sichersten.';
 
   @override
   String get backupCopyAgree => 'Ich halte jede Kopie der Phrase geheim';

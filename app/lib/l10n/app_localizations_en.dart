@@ -2234,7 +2234,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get backupCopyWarning =>
-      'Screenshots are allowed on the next screen. A screenshot or photo of the phrase is a full copy of your wallet: anyone who sees it can take your funds, and photo apps may upload it to the cloud. Paper is safest.';
+      'A screenshot or photo of the phrase is a full copy of your wallet: anyone who sees it can take your funds, and photo apps may upload it to the cloud. Paper is safest.';
 
   @override
   String get backupCopyAgree => 'I will keep any copy of the phrase private';

@@ -15,8 +15,9 @@ final backedUpProvider = FutureProvider.autoDispose<bool>((ref) {
 });
 
 /// Shows the recovery phrase once the user has agreed to keep any copy private and entered the
-/// PIN. Screenshots are allowed, since many people keep the phrase that way; the recent-apps
-/// preview stays hidden. "Done" marks it backed up and pops true.
+/// PIN. Screenshots, screen recording and the app-switcher preview are blocked while it is open
+/// ([setSecureScreen]); a screenshot often ends up in a cloud photo library. "Done" marks it
+/// backed up and pops true.
 class BackupScreen extends ConsumerStatefulWidget {
   const BackupScreen({super.key});
 
@@ -32,12 +33,12 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
   @override
   void initState() {
     super.initState();
-    hideRecentsPreview(true);
+    setSecureScreen(true);
   }
 
   @override
   void dispose() {
-    hideRecentsPreview(false);
+    setSecureScreen(false);
     super.dispose();
   }
 

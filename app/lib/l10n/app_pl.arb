@@ -523,7 +523,7 @@
   "firstRunBiometricsNotSetUp": "Nie skonfigurowano odblokowania biometrycznego. Możesz je włączyć w Ustawieniach.",
   "backupTitle": "Fraza odzyskiwania",
   "backupPinReason": "Wpisz PIN, aby wyświetlić frazę odzyskiwania.",
-  "backupCopyWarning": "Na następnym ekranie możesz zrobić zrzut ekranu. Zrzut lub zdjęcie frazy to pełna kopia portfela: każdy, kto je zobaczy, może zabrać twoje środki, a aplikacje ze zdjęciami mogą wysłać je do chmury. Papier jest najbezpieczniejszy.",
+  "backupCopyWarning": "Zrzut lub zdjęcie frazy to pełna kopia portfela: każdy, kto je zobaczy, może zabrać twoje środki, a aplikacje ze zdjęciami mogą wysłać je do chmury. Papier jest najbezpieczniejszy.",
   "backupCopyAgree": "Każdą kopię frazy zachowam tylko dla siebie",
   "backupShowPhrase": "Pokaż frazę odzyskiwania",
   "backupWarningIconLabel": "Ostrzeżenie",

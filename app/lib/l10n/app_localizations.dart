@@ -3278,10 +3278,10 @@ abstract class AppLocalizations {
   /// **'Enter your PIN to show the recovery phrase.'**
   String get backupPinReason;
 
-  /// Warning before the recovery phrase is shown: screenshots are allowed there, and what a copy of the phrase means.
+  /// Warning before the recovery phrase is shown: what a screenshot, photo or other copy of the phrase means.
   ///
   /// In en, this message translates to:
-  /// **'Screenshots are allowed on the next screen. A screenshot or photo of the phrase is a full copy of your wallet: anyone who sees it can take your funds, and photo apps may upload it to the cloud. Paper is safest.'**
+  /// **'A screenshot or photo of the phrase is a full copy of your wallet: anyone who sees it can take your funds, and photo apps may upload it to the cloud. Paper is safest.'**
   String get backupCopyWarning;
 
   /// Checkbox the user ticks before the recovery phrase can be shown.
