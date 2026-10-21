@@ -7,7 +7,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'src/desktop/app/desk_app.dart';
+import 'src/web/splash.dart';
 
 void main() {
   runApp(const ProviderScope(child: DeskApp()));
+  // The web page's splash (web/index.html) stays until Flutter has drawn over it.
+  WidgetsBinding.instance.addPostFrameCallback((_) => removeSplash());
 }
