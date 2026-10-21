@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -18,13 +19,15 @@ class _Service implements WalletService {
   dynamic noSuchMethod(Invocation invocation) => throw UnimplementedError();
 }
 
+final sep = Platform.pathSeparator;
+
 WalletConfig _config(WalletEntry e) => WalletConfig(
   dataDir: e.dataDir,
   chain: e.chain,
   nodeUrl: 'http://127.0.0.1:1',
   epicboxDomain: 'example.invalid',
   epicboxPort: 443,
-  walletId: e.id,
+  walletId: e.walletId,
 );
 
 void main() {
@@ -52,7 +55,7 @@ void main() {
     expect(a.label, 'Wallet 1');
     expect(b.label, 'Wallet 2');
     expect(Directory(a.dataDir).existsSync(), isTrue);
-    expect(a.dataDir, '${tmp.path}/wallets/${a.id}/floonet');
+    expect(a.dataDir, '${tmp.path}${sep}wallets$sep${a.id}${sep}floonet');
     await registry.forget(a.id);
     final c = await registry.add(chain: Chain.mainnet);
     expect(c.label, 'Wallet 1', reason: 'the lowest free number');
@@ -87,7 +90,7 @@ void main() {
 
   test('forget keeps files; rescan finds it and restore lists it', () async {
     final a = await registry.add(chain: Chain.floonet);
-    Directory('${a.dataDir}/lepic').createSync();
+    Directory('${a.dataDir}${sep}lepic').createSync();
     await registry.forget(a.id);
     expect(registry.list(), isEmpty);
     expect(Directory(a.dataDir).existsSync(), isTrue);
@@ -110,8 +113,8 @@ void main() {
     'a corrupt file is set aside, never deleted, and rebuilt by scan',
     () async {
       final a = await registry.add(chain: Chain.floonet);
-      Directory('${a.dataDir}/lepic').createSync();
-      File('${tmp.path}/wallets.json').writeAsStringSync('{ not json');
+      Directory('${a.dataDir}${sep}lepic').createSync();
+      File('${tmp.path}${sep}wallets.json').writeAsStringSync('{ not json');
       final again = WalletRegistry(tmp.path);
       await again.load();
       final aside = tmp.listSync().whereType<File>().where(
@@ -120,7 +123,7 @@ void main() {
       expect(aside, hasLength(1));
       expect(aside.single.readAsStringSync(), '{ not json');
       expect(again.list().single.id, a.id);
-      expect(File('${tmp.path}/wallets.json').existsSync(), isTrue);
+      expect(File('${tmp.path}${sep}wallets.json').existsSync(), isTrue);
     },
   );
 
@@ -136,11 +139,12 @@ void main() {
   test(
     'legacy wallet 1 is adopted at its old path; wallet_data kept',
     () async {
-      final old = Directory('${tmp.path}/wallets/floonet')
+      final old = Directory('${tmp.path}${sep}wallets${sep}floonet')
         ..createSync(recursive: true);
-      Directory('${old.path}/lepic').createSync();
-      Directory('${old.path}/wallet_data').createSync();
-      File('${old.path}/wallet_data/wallet.seed').writeAsStringSync('seed');
+      Directory('${old.path}${sep}lepic').createSync();
+      Directory('${old.path}${sep}wallet_data').createSync();
+      File('${old.path}${sep}wallet_data${sep}wallet.seed')
+          .writeAsStringSync('seed');
       expect(await registry.adoptLegacy(Chain.mainnet), isNull);
       final e = (await registry.adoptLegacy(Chain.floonet))!;
       expect(e.id, 'legacy-floonet');
@@ -153,9 +157,10 @@ void main() {
       await registry.delete(e.id, service: service, config: _config(e));
       expect(service.deleted, hasLength(1));
       expect(registry.list(), isEmpty);
-      expect(Directory('${old.path}/lepic').existsSync(), isFalse);
+      expect(Directory('${old.path}${sep}lepic').existsSync(), isFalse);
       expect(
-        File('${old.path}/wallet_data/wallet.seed').readAsStringSync(),
+        File('${old.path}${sep}wallet_data${sep}wallet.seed')
+            .readAsStringSync(),
         'seed',
       );
     },
@@ -163,22 +168,25 @@ void main() {
 
   test('delete removes an id wallet and its folders', () async {
     final a = await registry.add(chain: Chain.floonet);
-    Directory('${a.dataDir}/lepic').createSync();
-    File('${a.dataDir}/lepic/db').writeAsStringSync('x');
+    Directory('${a.dataDir}${sep}lepic').createSync();
+    File('${a.dataDir}${sep}lepic${sep}db').writeAsStringSync('x');
     final service = _Service();
     await registry.delete(a.id, service: service, config: _config(a));
     expect(service.deleted.single.walletId, a.id);
-    expect(Directory('${tmp.path}/wallets/${a.id}').existsSync(), isFalse);
+    expect(
+      Directory('${tmp.path}${sep}wallets$sep${a.id}').existsSync(),
+      isFalse,
+    );
     expect(registry.list(), isEmpty);
   });
 
   test('delete refuses a folder outside the wallets root', () async {
-    final outside = Directory('${tmp.path}/elsewhere/floonet')
+    final outside = Directory('${tmp.path}${sep}elsewhere${sep}floonet')
       ..createSync(recursive: true);
-    File('${outside.path}/keep').writeAsStringSync('x');
+    File('${outside.path}${sep}keep').writeAsStringSync('x');
     final a = await registry.add(chain: Chain.floonet);
     // A hand-edited list that points the wallet outside.
-    final file = File('${tmp.path}/wallets.json');
+    final file = File('${tmp.path}${sep}wallets.json');
     file.writeAsStringSync(
       file.readAsStringSync().replaceAll(a.dataDir, outside.path),
     );
@@ -194,25 +202,220 @@ void main() {
       throwsA(isA<UnsafeWalletPathException>()),
     );
     expect(service.deleted, isEmpty);
-    expect(File('${outside.path}/keep').existsSync(), isTrue);
+    expect(File('${outside.path}${sep}keep').existsSync(), isTrue);
     expect(again.list(), hasLength(1));
   });
 
   test('delete refuses a path through a symlink', () async {
-    final target = Directory('${tmp.path}/target/floonet')
+    final target = Directory('${tmp.path}${sep}target${sep}floonet')
       ..createSync(recursive: true);
-    Directory('${target.path}/lepic').createSync();
+    Directory('${target.path}${sep}lepic').createSync();
     final a = await registry.add(chain: Chain.floonet);
-    final idDir = Directory('${tmp.path}/wallets/${a.id}')
+    final idDir = Directory('${tmp.path}${sep}wallets$sep${a.id}')
       ..deleteSync(recursive: true);
-    Link(idDir.path).createSync('${tmp.path}/target');
+    Link(idDir.path).createSync('${tmp.path}${sep}target');
     final service = _Service();
     await expectLater(
       registry.delete(a.id, service: service, config: _config(a)),
       throwsA(isA<UnsafeWalletPathException>()),
     );
     expect(service.deleted, isEmpty);
-    expect(Directory('${target.path}/lepic').existsSync(), isTrue);
+    expect(Directory('${target.path}${sep}lepic').existsSync(), isTrue);
+  });
+
+  test(
+    'delete refuses a ".." path through a link and removes nothing',
+    () async {
+      final a = await registry.add(chain: Chain.floonet);
+      final outside = Directory('${tmp.path}${sep}outside');
+      final real = Directory('${outside.path}${sep}x')
+        ..createSync(recursive: true);
+      final victim = Directory(
+        '${outside.path}$sep${a.id}${sep}floonet${sep}lepic',
+      )..createSync(recursive: true);
+      File('${victim.path}${sep}keep').writeAsStringSync('x');
+      Link('${tmp.path}${sep}wallets${sep}L').createSync(real.path);
+      final sneaky =
+          '${tmp.path}${sep}wallets${sep}L$sep..$sep${a.id}${sep}floonet';
+      final file = File('${tmp.path}${sep}wallets.json');
+      file.writeAsStringSync(
+        file.readAsStringSync().replaceAll(a.dataDir, sneaky),
+      );
+      final again = WalletRegistry(tmp.path);
+      await again.load();
+      expect(again.list().single.dataDir, sneaky);
+      final service = _Service();
+      await expectLater(
+        again.delete(
+          a.id,
+          service: service,
+          config: _config(again.list().single),
+        ),
+        throwsA(isA<UnsafeWalletPathException>()),
+      );
+      expect(service.deleted, isEmpty);
+      expect(File('${victim.path}${sep}keep').existsSync(), isTrue);
+    },
+  );
+
+  test('delete refuses a config with another folder than the entry', () async {
+    final a = await registry.add(chain: Chain.floonet);
+    final c = _config(a);
+    final other = WalletConfig(
+      dataDir: '${a.dataDir}$sep..${sep}floonet',
+      chain: c.chain,
+      nodeUrl: c.nodeUrl,
+      epicboxDomain: c.epicboxDomain,
+      epicboxPort: c.epicboxPort,
+      walletId: c.walletId,
+    );
+    final service = _Service();
+    await expectLater(
+      registry.delete(a.id, service: service, config: other),
+      throwsA(isA<UnsafeWalletPathException>()),
+    );
+    expect(service.deleted, isEmpty);
+  });
+
+  test('a wallet 1 config must use a null walletId', () async {
+    Directory('${tmp.path}${sep}wallets${sep}floonet${sep}lepic')
+        .createSync(recursive: true);
+    final e = (await registry.adoptLegacy(Chain.floonet))!;
+    expect(e.walletId, isNull);
+    final service = _Service();
+    final withId = WalletConfig(
+      dataDir: e.dataDir,
+      chain: e.chain,
+      nodeUrl: 'http://127.0.0.1:1',
+      epicboxDomain: 'example.invalid',
+      epicboxPort: 443,
+      walletId: e.id,
+    );
+    await expectLater(
+      registry.delete(e.id, service: service, config: withId),
+      throwsA(isA<UnsafeWalletPathException>()),
+    );
+    expect(service.deleted, isEmpty);
+  });
+
+  group('wallets.json damage', () {
+    File listFile() => File('${tmp.path}${sep}wallets.json');
+    final goodId = 'a' * 32;
+
+    Map<String, Object?> raw(String id, {String chain = 'floonet'}) => {
+      'id': id,
+      'label': 'L',
+      'chain': chain,
+      'dataDir': '/x',
+      'createdAt': '2026-01-01T00:00:00Z',
+    };
+
+    test('only ids of 32 lowercase hex or legacy-<own chain> parse', () {
+      expect(WalletEntry.tryParse(raw(goodId)), isNotNull);
+      expect(WalletEntry.tryParse(raw('legacy-floonet')), isNotNull);
+      expect(WalletEntry.tryParse(raw('legacy-mainnet')), isNull);
+      expect(WalletEntry.tryParse(raw('A' * 32)), isNull);
+      expect(WalletEntry.tryParse(raw('a' * 31)), isNull);
+      expect(WalletEntry.tryParse(raw('../x')), isNull);
+      expect(WalletEntry.tryParse(raw('x')), isNull);
+    });
+
+    test('one bad entry is skipped and written back unchanged', () async {
+      final bad = {'id': '../../etc', 'label': 'evil'};
+      listFile().writeAsStringSync(
+        jsonEncode({
+          'version': 1,
+          'wallets': [raw(goodId), bad],
+        }),
+      );
+      final again = WalletRegistry(tmp.path);
+      await again.load();
+      expect(again.list().single.id, goodId);
+      await again.rename(goodId, 'Renamed');
+      final saved = jsonDecode(listFile().readAsStringSync()) as Map;
+      expect((saved['wallets'] as List), hasLength(2));
+      expect((saved['wallets'] as List).last, bad);
+      expect(tmp.listSync().where((f) => f.path.contains('damaged')), isEmpty);
+    });
+
+    test('invalid UTF-8 is set aside and legacy wallet 1 is adopted', () async {
+      Directory('${tmp.path}${sep}wallets${sep}floonet${sep}lepic')
+          .createSync(recursive: true);
+      listFile().writeAsBytesSync([0x7b, 0xff, 0xfe, 0x7d]);
+      final again = WalletRegistry(tmp.path);
+      await again.load();
+      expect(again.list().single.id, 'legacy-floonet');
+      final aside = tmp.listSync().where((f) => f.path.contains('.damaged-'));
+      expect((aside.single as File).readAsBytesSync(), [
+        0x7b,
+        0xff,
+        0xfe,
+        0x7d,
+      ]);
+    });
+
+    test('a corrupt file also adopts legacy wallet 1', () async {
+      Directory('${tmp.path}${sep}wallets${sep}floonet${sep}lepic')
+          .createSync(recursive: true);
+      listFile().writeAsStringSync('{ nope');
+      final again = WalletRegistry(tmp.path);
+      await again.load();
+      expect(again.list().single.id, 'legacy-floonet');
+      final reload = WalletRegistry(tmp.path);
+      await reload.load();
+      expect(reload.list().single.id, 'legacy-floonet');
+    });
+
+    test('a newer version is read but never written', () async {
+      final text = jsonEncode({
+        'version': 2,
+        'wallets': [raw(goodId)],
+      });
+      listFile().writeAsStringSync(text);
+      final again = WalletRegistry(tmp.path);
+      await again.load();
+      expect(again.list(), hasLength(1));
+      await expectLater(
+        again.rename(goodId, 'New'),
+        throwsA(isA<WalletRegistryVersionException>()),
+      );
+      expect(again.list().single.label, 'L');
+      expect(listFile().readAsStringSync(), text);
+    });
+
+    test('memory is unchanged when the save fails', () async {
+      final a = await registry.add(chain: Chain.floonet);
+      // A directory where the temp file goes makes the write fail.
+      Directory('${tmp.path}${sep}wallets.json.tmp').createSync();
+      await expectLater(registry.rename(a.id, 'Other'), throwsA(anything));
+      expect(registry.byId(a.id)!.label, 'Wallet 1');
+      await expectLater(registry.markOpened(a.id), throwsA(anything));
+      expect(registry.lastUsedId, isNull);
+      await expectLater(registry.forget(a.id), throwsA(anything));
+      expect(registry.list(), hasLength(1));
+    });
+  });
+
+  test('labels with control or direction characters are refused', () async {
+    final a = await registry.add(chain: Chain.floonet);
+    for (final bad in [
+      'a\nb',
+      'a\u0000b',
+      'a\u2028b',
+      'a\u2029b',
+      'a\u202Eb',
+      'a\u2066b',
+      'a\u200Fb',
+      'a\u200Eb',
+      'a\u0085b',
+    ]) {
+      await expectLater(
+        registry.rename(a.id, bad),
+        throwsA(isA<WalletRegistryException>()),
+        reason: bad.runes.toString(),
+      );
+    }
+    expect((await registry.rename(a.id, 'Zażółć 钱包')).label, 'Zażółć 钱包');
   });
 
   group('store prefixes', () {
@@ -249,6 +452,19 @@ void main() {
       expect(
         await plain.storePrefixFor(cfg(Chain.floonet, '/w/floonet')),
         'lepic:floonet:/w/floonet:',
+      );
+    });
+
+    test('a registry folder without its walletId is refused', () async {
+      final service = LepicWalletService(
+        secrets: MemorySecretStore(),
+        runtime: () => throw StateError('no runtime needed'),
+        oneWalletPerChain: true,
+      );
+      final dir = '${tmp.path}${sep}wallets$sep${'b' * 32}${sep}floonet';
+      await expectLater(
+        service.storePrefixFor(cfg(Chain.floonet, dir)),
+        throwsStateError,
       );
     });
 

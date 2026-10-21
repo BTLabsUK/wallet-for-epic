@@ -449,6 +449,11 @@ class LepicWalletService implements WalletService {
     );
   }
 
+  /// `<anything>/wallets/<32 hex>/<chain>`, the folder of a registry wallet.
+  static final RegExp _registryFolder = RegExp(
+    r'[\\/]wallets[\\/][0-9a-f]{32}[\\/](mainnet|floonet|usernet)[\\/]?$',
+  );
+
   /// The prefix of the wallet's LEPIC entries in the app's store.
   ///
   /// It used to name the absolute data directory, which moves with an app container or a
@@ -469,6 +474,10 @@ class LepicWalletService implements WalletService {
     }
     final pathPrefix = 'lepic:${chain.name}:${config.dataDir}:';
     if (!oneWalletPerChain) return pathPrefix;
+    if (id == null && _registryFolder.hasMatch(config.dataDir)) {
+      // A registry wallet's config lost its id: wallet 1's pinned prefix would be wrong.
+      throw StateError('a registry wallet config needs its walletId');
+    }
     final cached = _pinnedPrefixes[chain];
     if (cached != null) return cached;
     final pinKey = storePrefixKey(chain);

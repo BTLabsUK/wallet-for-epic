@@ -5,6 +5,12 @@
 /// labels, chains and folders only: never a phrase, password or key. Wallet folders are
 /// `<root>/wallets/<id>/<chain>`; the single wallet a 0.1.0 install made sits at
 /// `<root>/wallets/<chain>` and is listed as `legacy-<chain>` ([WalletRegistry.adoptLegacy]).
+///
+/// Wallet 1 has two spellings and they mean the same: the registry hands out the id
+/// `legacy-<chain>`, but its [WalletConfig.walletId] is null ([WalletEntry.walletId]), and
+/// `LepicWalletService` treats `legacy-…` exactly like null. Configs for wallet 1 must use null.
+///
+/// Registry wallets must not use `WalletVault` until it keys by wallet id (it keys by chain).
 library;
 
 import 'dart:async';
@@ -30,6 +36,11 @@ class UnsafeWalletPathException extends WalletRegistryException {
   const UnsafeWalletPathException(super.message);
 }
 
+/// `wallets.json` was written by a newer version of the app; this one will not overwrite it.
+class WalletRegistryVersionException extends WalletRegistryException {
+  const WalletRegistryVersionException(super.message);
+}
+
 /// One wallet in the list.
 class WalletEntry {
   const WalletEntry({
@@ -53,6 +64,9 @@ class WalletEntry {
 
   bool get isLegacy => id.startsWith(WalletRegistry.legacyPrefix);
 
+  /// The [WalletConfig.walletId] for this wallet: null for wallet 1 (`legacy-<chain>`).
+  String? get walletId => isLegacy ? null : id;
+
   WalletEntry copyWith({String? label, DateTime? lastOpenedAt}) => WalletEntry(
     id: id,
     label: label ?? this.label,
@@ -72,7 +86,10 @@ class WalletEntry {
       'lastOpenedAt': lastOpenedAt!.toUtc().toIso8601String(),
   };
 
-  /// Null when [json] is not a well-formed entry.
+  static final RegExp _idPattern = RegExp(r'^[0-9a-f]{32}$');
+
+  /// Null when [json] is not a well-formed entry: the id is 32 lowercase hex characters, or
+  /// `legacy-<chain>` of the entry's own chain.
   static WalletEntry? tryParse(Object? json) {
     if (json is! Map) return null;
     final id = json['id'];
@@ -81,7 +98,9 @@ class WalletEntry {
     final created = json['createdAt'];
     final opened = json['lastOpenedAt'];
     final chain = Chain.values.asNameMap()[json['chain']];
-    if (id is! String || id.isEmpty || label is! String || chain == null) {
+    if (id is! String || label is! String || chain == null) return null;
+    if (!_idPattern.hasMatch(id) &&
+        id != '${WalletRegistry.legacyPrefix}${chain.name}') {
       return null;
     }
     if (dataDir is! String || dataDir.isEmpty || created is! String) {
@@ -112,11 +131,18 @@ class WalletRegistry {
   static const String fileName = 'wallets.json';
   static const int maxLabelLength = 32;
 
+  /// The `version` this code writes.
+  static const int fileVersion = 1;
+
   final String root;
   final DateTime Function() _now;
   final Random _random;
 
   final List<WalletEntry> _entries = [];
+
+  /// Entries in the file that this code could not read; written back unchanged.
+  List<Object?> _foreign = [];
+  int? _newerVersion;
   String? _lastUsedId;
   Future<void> _queue = Future.value();
 
@@ -146,36 +172,67 @@ class WalletRegistry {
     return done;
   }
 
-  /// Reads `wallets.json`. A missing file is an empty list. A file that does not parse is
-  /// renamed to `wallets.json.damaged-<millis>` (never deleted) and the list rebuilt from the
-  /// folders on disk ([rescan]), so no wallet is lost from view.
+  /// Reads `wallets.json`. A missing file is an empty list. A file that does not parse (or is
+  /// not UTF-8) is renamed to `wallets.json.damaged-<millis>` (never removed) and the list
+  /// rebuilt from the folders on disk ([rescan]) and the 0.1.0 wallets ([adoptLegacy]), so no
+  /// wallet is lost from view. One bad entry does not damage the file: it is skipped, kept as
+  /// it was, and written back unchanged. A file with a newer `version` is read as far as
+  /// possible but never written: saving throws [WalletRegistryVersionException].
   Future<void> load() => _locked(() async {
     _entries.clear();
+    _foreign = [];
+    _newerVersion = null;
     _lastUsedId = null;
     final file = _file;
     if (!file.existsSync()) return;
+    final String text;
     try {
-      final json = jsonDecode(await file.readAsString());
+      text = utf8.decode(await file.readAsBytes());
+    } on FormatException {
+      return _rebuild(file);
+    } on FileSystemException catch (e) {
+      throw WalletRegistryException(
+        'wallets.json could not be read (${e.osError?.message ?? e.message})',
+      );
+    }
+    try {
+      final json = jsonDecode(text);
       if (json is! Map || json['wallets'] is! List) {
         throw const FormatException('not a wallet list');
       }
+      final version = json['version'];
+      if (version is int && version > fileVersion) _newerVersion = version;
       for (final raw in json['wallets'] as List) {
         final entry = WalletEntry.tryParse(raw);
-        if (entry == null) throw const FormatException('bad wallet entry');
-        if (_entries.every((e) => e.id != entry.id)) _entries.add(entry);
+        if (entry == null || _entries.any((e) => e.id == entry.id)) {
+          _foreign.add(raw);
+        } else {
+          _entries.add(entry);
+        }
       }
       final last = json['lastUsedId'];
       _lastUsedId = last is String ? last : null;
     } on FormatException {
-      _entries.clear();
-      _lastUsedId = null;
-      final aside = '${file.path}.damaged-${_now().millisecondsSinceEpoch}';
-      await file.rename(aside);
-      logWarn('wallets', 'wallets.json did not parse; kept as $aside');
-      _entries.addAll(await _scan());
-      await _save();
+      await _rebuild(file);
     }
   });
+
+  Future<void> _rebuild(File file) async {
+    _entries.clear();
+    _foreign = [];
+    _lastUsedId = null;
+    final aside = '${file.path}.damaged-${_now().millisecondsSinceEpoch}';
+    await file.rename(aside);
+    logWarn('wallets', 'wallets.json did not parse; kept as $aside');
+    final entries = [...await _scan()];
+    for (final chain in Chain.values) {
+      final found = await _hasLepicFolder(_legacyDir(chain));
+      final legacy = _legacyEntry(chain, found);
+      if (legacy != null) entries.add(legacy);
+    }
+    await _save(entries, null);
+    _entries.addAll(entries);
+  }
 
   /// A new wallet folder `<root>/wallets/<id>/<chain>`, created empty, and its entry.
   /// Without [label] the entry is called "Wallet N", N the lowest free number.
@@ -192,8 +249,8 @@ class WalletRegistry {
           dataDir: dir.path,
           createdAt: _now(),
         );
+        await _save([..._entries, entry], _lastUsedId);
         _entries.add(entry);
-        await _save();
         return entry;
       });
 
@@ -205,22 +262,29 @@ class WalletRegistry {
     Chain chain, {
     Future<bool> Function(String dataDir)? exists,
   }) => _locked(() async {
+    final found = await (exists ?? _hasLepicFolder)(_legacyDir(chain));
+    final entry = _legacyEntry(chain, found);
+    if (entry == null) return null;
+    await _save([..._entries, entry], _lastUsedId);
+    _entries.add(entry);
+    return entry;
+  });
+
+  String _legacyDir(Chain chain) => '$_wallets$_sep${chain.name}';
+
+  /// The `legacy-<chain>` entry when [found] and not listed yet.
+  WalletEntry? _legacyEntry(Chain chain, bool found) {
     final id = '$legacyPrefix${chain.name}';
-    if (byId(id) != null) return null;
-    final dir = '$_wallets$_sep${chain.name}';
-    final found = await (exists ?? _hasLepicFolder)(dir);
-    if (!found) return null;
-    final entry = WalletEntry(
+    if (!found || byId(id) != null) return null;
+    final dir = _legacyDir(chain);
+    return WalletEntry(
       id: id,
       label: _nextLabel(),
       chain: chain,
       dataDir: dir,
       createdAt: _statTime(dir),
     );
-    _entries.add(entry);
-    await _save();
-    return entry;
-  });
+  }
 
   static Future<bool> _hasLepicFolder(String dir) async =>
       Directory('$dir${_sep}lepic').existsSync();
@@ -230,8 +294,8 @@ class WalletRegistry {
     final name = _checkLabel(label);
     final i = _indexOf(id);
     final entry = _entries[i].copyWith(label: name);
+    await _save([..._entries]..[i] = entry, _lastUsedId);
     _entries[i] = entry;
-    await _save();
     return entry;
   });
 
@@ -239,18 +303,20 @@ class WalletRegistry {
   Future<WalletEntry> markOpened(String id) => _locked(() async {
     final i = _indexOf(id);
     final entry = _entries[i].copyWith(lastOpenedAt: _now());
+    await _save([..._entries]..[i] = entry, id);
     _entries[i] = entry;
     _lastUsedId = id;
-    await _save();
     return entry;
   });
 
   /// "Remove from list": drops the entry only. Files and store keys stay, and [rescan] finds
   /// an id wallet again.
   Future<void> forget(String id) => _locked(() async {
-    _entries.removeAt(_indexOf(id));
-    if (_lastUsedId == id) _lastUsedId = null;
-    await _save();
+    final i = _indexOf(id);
+    final last = _lastUsedId == id ? null : _lastUsedId;
+    await _save([..._entries]..removeAt(i), last);
+    _entries.removeAt(i);
+    _lastUsedId = last;
   });
 
   /// True when the wallet's folder is gone (moved, or a drive unplugged), A12.
@@ -265,8 +331,8 @@ class WalletRegistry {
   Future<WalletEntry> restore(WalletEntry candidate) => _locked(() async {
     final existing = byId(candidate.id);
     if (existing != null) return existing;
+    await _save([..._entries, candidate], _lastUsedId);
     _entries.add(candidate);
-    await _save();
     return candidate;
   });
 
@@ -274,9 +340,11 @@ class WalletRegistry {
   /// its `lepic` folder and the empty folders around it, then drops the entry.
   ///
   /// The folder must be exactly `<root>/wallets/<id>/<chain>` (or `<root>/wallets/<chain>` for
-  /// a legacy wallet), with no link on the way down; otherwise [UnsafeWalletPathException] is
-  /// thrown before anything is touched. `wallet_data/` (epic-wallet seed files) is never
-  /// deleted: if one is there the folder stays.
+  /// a legacy wallet), spelled exactly so in both the entry and [config], with no link on the
+  /// way down; otherwise [UnsafeWalletPathException] is thrown before anything is touched.
+  /// Only that built path is ever removed from. `wallet_data/` (epic-wallet seed files) is
+  /// never removed: if one is there the folder stays. The [config] of wallet 1 has a null
+  /// walletId.
   Future<void> delete(
     String id, {
     required WalletService service,
@@ -284,14 +352,32 @@ class WalletRegistry {
   }) => _locked(() async {
     final i = _indexOf(id);
     final entry = _entries[i];
-    if (config.walletId != id || config.dataDir != entry.dataDir) {
+    final expected = entry.isLegacy
+        ? _legacyDir(entry.chain)
+        : '$_wallets$_sep${entry.id}$_sep${entry.chain.name}';
+    if (config.walletId != entry.walletId || config.chain != entry.chain) {
       throw const UnsafeWalletPathException(
         'the wallet config does not match the listed wallet',
       );
     }
-    final folders = _safeFolders(entry);
-    await service.deleteWallet(config: config);
-    final lepicDir = Directory('${entry.dataDir}${_sep}lepic');
+    if (entry.dataDir != expected || config.dataDir != expected) {
+      throw UnsafeWalletPathException(
+        '${entry.label} is not in the folder the registry made for it',
+      );
+    }
+    final folders = _safeFolders(entry, expected);
+    await service.deleteWallet(
+      config: WalletConfig(
+        dataDir: expected,
+        chain: config.chain,
+        nodeUrl: config.nodeUrl,
+        nodeApiSecret: config.nodeApiSecret,
+        epicboxDomain: config.epicboxDomain,
+        epicboxPort: config.epicboxPort,
+        walletId: config.walletId,
+      ),
+    );
+    final lepicDir = Directory('$expected${_sep}lepic');
     if (!_isLink(lepicDir.path) && lepicDir.existsSync()) {
       await lepicDir.delete(recursive: true);
     }
@@ -302,35 +388,19 @@ class WalletRegistry {
         break; // not empty (wallet_data, other files) or already gone
       }
     }
+    final last = _lastUsedId == id ? null : _lastUsedId;
+    await _save([..._entries]..removeAt(i), last);
     _entries.removeAt(i);
-    if (_lastUsedId == id) _lastUsedId = null;
-    await _save();
+    _lastUsedId = last;
   });
 
-  /// The folders to remove once empty, innermost first, after checking [entry]'s path.
-  List<String> _safeFolders(WalletEntry entry) {
-    final dir = _normalize(entry.dataDir);
-    final prefix = '$_wallets$_sep';
-    if (!dir.startsWith(prefix)) {
-      throw UnsafeWalletPathException(
-        '${entry.label} is outside the wallets folder',
-      );
-    }
-    final parts = dir.substring(prefix.length).split(_sep);
-    final expected = entry.isLegacy
-        ? [entry.chain.name]
-        : [entry.id, entry.chain.name];
-    if (parts.length != expected.length ||
-        [for (var i = 0; i < parts.length; i++) parts[i] == expected[i]]
-            .contains(false)) {
-      throw UnsafeWalletPathException(
-        '${entry.label} is not in the folder the registry made for it',
-      );
-    }
+  /// The folders to remove once empty, innermost first; none of them may be a link.
+  List<String> _safeFolders(WalletEntry entry, String expected) {
     var path = _wallets;
     if (_isLink(path)) {
       throw const UnsafeWalletPathException('the wallets folder is a link');
     }
+    final parts = expected.substring('$_wallets$_sep'.length).split(_sep);
     final chain = <String>[];
     for (final part in parts) {
       path = '$path$_sep$part';
@@ -401,8 +471,20 @@ class WalletRegistry {
     return i;
   }
 
+  /// Control characters, line and paragraph separators, bidi marks, embeddings, overrides and
+  /// isolates.
+  static final RegExp _forbiddenInLabel = RegExp(
+    r'[\p{Cc}\u2028\u2029\u200E\u200F\u202A-\u202E\u2066-\u2069]',
+    unicode: true,
+  );
+
   String _checkLabel(String label) {
     final name = label.trim();
+    if (_forbiddenInLabel.hasMatch(name)) {
+      throw const WalletRegistryException(
+        'a wallet name cannot hold control or direction characters',
+      );
+    }
     final length = name.runes.length;
     if (length < 1 || length > maxLabelLength) {
       throw const WalletRegistryException(
@@ -427,22 +509,25 @@ class WalletRegistry {
       _random.nextInt(256).toRadixString(16).padLeft(2, '0'),
   ].join();
 
-  /// Writes a temp file beside `wallets.json`, flushes it, and renames it over the list.
-  Future<void> _save() async {
+  /// Writes [entries] to a temp file beside `wallets.json`, fsyncs it, and renames it over the
+  /// list. Memory is only changed by the caller, after this returns. Entries this code could
+  /// not read are written back unchanged.
+  Future<void> _save(List<WalletEntry> entries, String? lastUsedId) async {
+    final newer = _newerVersion;
+    if (newer != null) {
+      throw WalletRegistryVersionException(
+        'wallets.json is from a newer version of the app (version $newer); '
+        'update the app to change the wallet list',
+      );
+    }
     Directory(root).createSync(recursive: true);
     final tmp = File('${_file.path}.tmp');
     final json = const JsonEncoder.withIndent('  ').convert({
-      'version': 1,
-      'lastUsedId': lastUsedId,
-      'wallets': [for (final e in _entries) e.toJson()],
+      'version': fileVersion,
+      'lastUsedId': entries.any((e) => e.id == lastUsedId) ? lastUsedId : null,
+      'wallets': [for (final e in entries) e.toJson(), ..._foreign],
     });
-    final sink = tmp.openWrite();
-    try {
-      sink.write(json);
-      await sink.flush();
-    } finally {
-      await sink.close();
-    }
+    await tmp.writeAsString(json, flush: true);
     await tmp.rename(_file.path);
   }
 }
