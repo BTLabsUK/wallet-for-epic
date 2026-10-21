@@ -196,6 +196,7 @@ final WireCodec<WalletConfig> walletConfigWire = _object<WalletConfig>(
     'nodeApiSecret': v.nodeApiSecret,
     'epicboxDomain': v.epicboxDomain,
     'epicboxPort': v.epicboxPort,
+    'walletId': v.walletId,
   },
   (r) => WalletConfig(
     dataDir: r.of('dataDir', stringWire),
@@ -204,6 +205,7 @@ final WireCodec<WalletConfig> walletConfigWire = _object<WalletConfig>(
     nodeApiSecret: r.of('nodeApiSecret', optString),
     epicboxDomain: r.of('epicboxDomain', stringWire),
     epicboxPort: r.of('epicboxPort', intWire),
+    walletId: r.of('walletId', optString),
   ),
 );
 

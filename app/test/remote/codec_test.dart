@@ -161,6 +161,17 @@ void main() {
         ),
       );
       roundTrip(
+        walletConfigWire,
+        const WalletConfig(
+          dataDir: '/d',
+          chain: Chain.floonet,
+          nodeUrl: 'http://127.0.0.1:1',
+          epicboxDomain: 'relay',
+          epicboxPort: 1,
+          walletId: '0123456789abcdef0123456789abcdef',
+        ),
+      );
+      roundTrip(
         contactWire,
         const Contact(id: '1', name: 'Ann', address: 'a@b', note: 'n'),
       );

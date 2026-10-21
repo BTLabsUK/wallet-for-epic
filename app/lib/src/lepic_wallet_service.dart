@@ -450,17 +450,35 @@ class LepicWalletService implements WalletService {
     );
   }
 
+  /// `<anything>/wallets/<32 hex>/<chain>`, the folder of a registry wallet.
+  static final RegExp _registryFolder = RegExp(
+    r'[\\/]wallets[\\/][0-9a-f]{32}[\\/](mainnet|floonet|usernet)[\\/]?$',
+  );
+
   /// The prefix of the wallet's LEPIC entries in the app's store.
   ///
   /// It used to name the absolute data directory, which moves with an app container or a
   /// profile. With [oneWalletPerChain] the prefix is pinned once per chain under
   /// [storePrefixKey]: a wallet created before pinning keeps the path prefix its entries
   /// already have, and a new wallet gets a random id. Nothing is copied or deleted. Until a
-  /// prefix is pinned, everything but [creating] uses the path prefix.
-  Future<String> _storePrefix(WalletConfig config, {bool creating = false}) async {
+  /// prefix is pinned, everything but [creating] uses the path prefix. A registry wallet
+  /// ([WalletConfig.walletId], other than `legacy-…`) skips all that: its prefix is
+  /// `lepic:<chain>:id-<walletId>:`.
+  Future<String> _storePrefix(
+    WalletConfig config, {
+    bool creating = false,
+  }) async {
     final chain = config.chain;
+    final id = config.walletId;
+    if (id != null && !id.startsWith('legacy-')) {
+      return 'lepic:${chain.name}:id-$id:';
+    }
     final pathPrefix = 'lepic:${chain.name}:${config.dataDir}:';
     if (!oneWalletPerChain) return pathPrefix;
+    if (id == null && _registryFolder.hasMatch(config.dataDir)) {
+      // A registry wallet's config lost its id: wallet 1's pinned prefix would be wrong.
+      throw StateError('a registry wallet config needs its walletId');
+    }
     final cached = _pinnedPrefixes[chain];
     if (cached != null) return cached;
     final pinKey = storePrefixKey(chain);
@@ -490,16 +508,19 @@ class LepicWalletService implements WalletService {
     return _pinnedPrefixes[chain] = prefix;
   }
 
+  /// [_storePrefix] for tests. A registry wallet's prefix needs no runtime or pin.
+  @visibleForTesting
+  Future<String> storePrefixFor(WalletConfig config) => _storePrefix(config);
+
   /// Where the store keeps the pinned prefix of [chain]'s wallet entries.
-  static String storePrefixKey(Chain chain) => 'lepic:${chain.name}:storePrefix';
+  static String storePrefixKey(Chain chain) =>
+      'lepic:${chain.name}:storePrefix';
 
   Future<_PrefixedStore> _storeKeys(
     WalletConfig config, {
     bool creating = false,
-  }) async => _PrefixedStore(
-    _secrets,
-    await _storePrefix(config, creating: creating),
-  );
+  }) async =>
+      _PrefixedStore(_secrets, await _storePrefix(config, creating: creating));
 
   Future<lepic.AppSecretStore> _store(
     WalletConfig config, {
