@@ -455,9 +455,18 @@ class LepicWalletService implements WalletService {
   /// profile. With [oneWalletPerChain] the prefix is pinned once per chain under
   /// [storePrefixKey]: a wallet created before pinning keeps the path prefix its entries
   /// already have, and a new wallet gets a random id. Nothing is copied or deleted. Until a
-  /// prefix is pinned, everything but [creating] uses the path prefix.
-  Future<String> _storePrefix(WalletConfig config, {bool creating = false}) async {
+  /// prefix is pinned, everything but [creating] uses the path prefix. A registry wallet
+  /// ([WalletConfig.walletId], other than `legacy-…`) skips all that: its prefix is
+  /// `lepic:<chain>:id-<walletId>:`.
+  Future<String> _storePrefix(
+    WalletConfig config, {
+    bool creating = false,
+  }) async {
     final chain = config.chain;
+    final id = config.walletId;
+    if (id != null && !id.startsWith('legacy-')) {
+      return 'lepic:${chain.name}:id-$id:';
+    }
     final pathPrefix = 'lepic:${chain.name}:${config.dataDir}:';
     if (!oneWalletPerChain) return pathPrefix;
     final cached = _pinnedPrefixes[chain];
@@ -489,16 +498,19 @@ class LepicWalletService implements WalletService {
     return _pinnedPrefixes[chain] = prefix;
   }
 
+  /// [_storePrefix] for tests. A registry wallet's prefix needs no runtime or pin.
+  @visibleForTesting
+  Future<String> storePrefixFor(WalletConfig config) => _storePrefix(config);
+
   /// Where the store keeps the pinned prefix of [chain]'s wallet entries.
-  static String storePrefixKey(Chain chain) => 'lepic:${chain.name}:storePrefix';
+  static String storePrefixKey(Chain chain) =>
+      'lepic:${chain.name}:storePrefix';
 
   Future<_PrefixedStore> _storeKeys(
     WalletConfig config, {
     bool creating = false,
-  }) async => _PrefixedStore(
-    _secrets,
-    await _storePrefix(config, creating: creating),
-  );
+  }) async =>
+      _PrefixedStore(_secrets, await _storePrefix(config, creating: creating));
 
   Future<lepic.AppSecretStore> _store(
     WalletConfig config, {

@@ -632,6 +632,10 @@ class WalletConfig {
   final String epicboxDomain;
   final int epicboxPort;
 
+  /// The wallet's id in the desktop wallet registry. Null for the single wallet of a phone and
+  /// for registry wallet 1 of 0.1.0 (`legacy-<chain>`), whose store keys keep the old prefix.
+  final String? walletId;
+
   const WalletConfig({
     required this.dataDir,
     required this.chain,
@@ -639,10 +643,12 @@ class WalletConfig {
     this.nodeApiSecret,
     required this.epicboxDomain,
     required this.epicboxPort,
+    this.walletId,
   });
 
   @override
   int get hashCode =>
+      walletId.hashCode ^
       dataDir.hashCode ^
       chain.hashCode ^
       nodeUrl.hashCode ^
@@ -656,6 +662,7 @@ class WalletConfig {
       other is WalletConfig &&
           runtimeType == other.runtimeType &&
           dataDir == other.dataDir &&
+          walletId == other.walletId &&
           chain == other.chain &&
           nodeUrl == other.nodeUrl &&
           nodeApiSecret == other.nodeApiSecret &&
