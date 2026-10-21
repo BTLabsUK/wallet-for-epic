@@ -5,6 +5,10 @@ project(epic_wallet LANGUAGES CXX)
 # The name of the executable created for the application. Change this to change
 # the on-disk name of your application.
 set(BINARY_NAME "epic_wallet")
+# flutter_secure_storage_windows names its Credential Manager entries after this prefix (default
+# BINARY_NAME). The old core's Windows builds used epic_wallet, and the vault deletes that app's
+# entries at unlock, so this build keeps to its own, as Runner.rc's ProductName does for files.
+set(STORAGE_PREFIX "epic_wallet_lepic")
 
 # Explicitly opt in to modern CMake behaviors to avoid warnings with recent
 # versions of CMake.
