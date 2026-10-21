@@ -472,6 +472,19 @@ class RemoteWalletService implements WalletService {
     'password': password,
   });
 
+  /// Import reads a file on the computer the app runs on, so the remote protocol does not
+  /// offer it.
+  @override
+  Future<WalletSession> importWalletSeed({
+    required WalletConfig config,
+    required String seedFile,
+    required String seedPassword,
+    required String password,
+  }) async => throw const WalletError(
+    kind: WalletErrorKind.invalidArgument,
+    message: 'import is not offered remotely',
+  );
+
   @override
   Future<WalletSession> open({
     required WalletConfig config,
