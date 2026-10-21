@@ -1,0 +1,15 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../widgets/kit.dart';
+
+/// Placeholder: replaced by the screen's owner.
+class WelcomeScreen extends ConsumerWidget {
+  const WelcomeScreen({super.key, this.arg});
+
+  final Object? arg;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) =>
+      EPage(title: 'Welcome', child: EEmpty(icon: EIcons.info, title: 'Welcome'));
+}
