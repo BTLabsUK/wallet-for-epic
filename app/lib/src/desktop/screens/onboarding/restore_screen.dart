@@ -148,7 +148,7 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
       if (!mounted) return;
       if (open) {
         setState(() => _locking = true);
-        await ref.read(deskApiProvider).lock();
+        await ref.read(deskProvider.notifier).lock();
         if (!mounted) return;
       }
       final name = _name.text.trim();

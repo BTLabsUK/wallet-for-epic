@@ -151,7 +151,7 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
     final value = prefs.builtin ? builtinNode : current.url;
     final defaultUrl = nodes.first.url;
     String labelOf(NodeServer n) => prefs.nodeLabels[n.url] ?? n.label;
-    String? tip(NodeServer n) => n.latencyMs == null ? null : 'Response time ${n.latencyMs} ms. Measured from the status site.';
+    String? tip(NodeServer n) => n.latencyMs == null ? null : 'Response time ${n.latencyMs} ms.';
 
     final options = <ComboOption>[
       for (final n in mine)
@@ -197,7 +197,7 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
             ),
           ],
         ),
-      const ComboOption(value: builtinNode, host: 'Built-in node', sub: 'downloads the whole chain', icon: EIcons.monitor, group: 'This computer'),
+      if (DeskFeatures.builtInNode) const ComboOption(value: builtinNode, host: 'Built-in node', sub: 'downloads the whole chain', icon: EIcons.monitor, group: 'This computer'),
     ];
 
     ComboOption? typedRow(String t) {
@@ -351,8 +351,7 @@ class _StatusLine extends StatelessWidget {
             if (answers) ...[
               sep,
               TextSpan(text: groupDigits(height), style: ts.mono(size: Fs.sm, color: c.text)),
-              sep,
-              const TextSpan(text: 'last block 40 s ago'),
+              if (DeskFeatures.nodeBlockTime) ...[sep, const TextSpan(text: 'last block 40 s ago')],
             ] else ...[
               sep,
               const TextSpan(text: 'no answer from the node'),

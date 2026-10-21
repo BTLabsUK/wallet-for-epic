@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../widgets/kit.dart';
+import '../settings/prefs.dart' show settingsPrefsProvider;
 import 'onboarding_parts.dart';
 
 enum SetupStep { prefs, node, epicbox, review }
@@ -22,7 +23,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
   final _domain = TextEditingController(text: 'epicbox.epiccash.com');
   late SetupStep _step = widget.arg is SetupStep ? widget.arg as SetupStep : SetupStep.prefs;
   String _language = 'English';
-  bool _builtIn = true;
+  bool _builtIn = DeskFeatures.builtInNode;
   String _nodeUrl = 'https://node.epiccash.com';
   List<NodeServer>? _nodes;
   List<EpicboxServer>? _boxes;
@@ -32,6 +33,10 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
   @override
   void initState() {
     super.initState();
+    final st = ref.read(deskProvider);
+    _name.text = ref.read(settingsPrefsProvider).walletLabel ?? '';
+    _domain.text = st.status?.epicbox.domain ?? _domain.text;
+    _nodeUrl = st.status?.node.url ?? _nodeUrl;
     final api = ref.read(deskApiProvider);
     api.nodes().then((n) => mounted ? setState(() => _nodes = n) : null);
     api.epicboxes().then((b) => mounted ? setState(() => _boxes = b) : null);
@@ -47,10 +52,22 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
   Future<void> _save() async {
     setState(() => _busy = true);
     final c = ref.read(deskProvider.notifier);
-    await c.refresh();
-    await c.saveSettings(ref.read(deskProvider).settings.copyWith(language: _language));
-    if (!_builtIn) await c.useNode(_nodeUrl);
-    if (_domain.text.trim().isNotEmpty) await c.useEpicbox(_domain.text.trim());
+    final st = ref.read(deskProvider);
+    final prefs = ref.read(settingsPrefsProvider.notifier);
+    final domain = _domain.text.trim();
+    prefs.set(ref.read(settingsPrefsProvider).copyWith(walletLabel: _name.text.trim(), epicboxOnStart: domain.isNotEmpty));
+    if (DeskFeatures.languages) await c.saveSettings(st.settings.copyWith(language: _language));
+    try {
+      if (!_builtIn && _nodeUrl != st.status?.node.url) await c.useNode(_nodeUrl);
+      if (domain.isNotEmpty && domain != st.status?.epicbox.domain) await c.useEpicbox(domain);
+      await c.setListening(domain.isNotEmpty);
+      await c.refresh();
+    } on Object catch (e) {
+      if (!mounted) return;
+      setState(() => _busy = false);
+      showEToast(context, 'Not saved', text: '$e');
+      return;
+    }
     if (!mounted) return;
     ref.read(deskNavProvider.notifier).reset(DeskRoute.overview);
   }
@@ -77,7 +94,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
     final last = _step == SetupStep.review;
     final again = nav.canBack ? 'Running setup again. Nothing changes until Save on the last step.' : null;
     final (title, lead, body) = switch (_step) {
-      SetupStep.prefs => ('Preferences', again ?? 'Wallet name and app language. Both can be changed later.', _prefs(context)),
+      SetupStep.prefs => ('Preferences', again ?? (DeskFeatures.languages ? 'Wallet name and app language. Both can be changed later.' : 'Wallet name. It can be changed later.'), _prefs(context)),
       SetupStep.node => ('Choose a node', again ?? 'The wallet reads the chain and sends through an Epic node.', _node(context)),
       SetupStep.epicbox => ('Receive when offline', again, _epicbox(context)),
       SetupStep.review => ('Check settings', again ?? 'Change anything that is not right, then save.', _review(context)),
@@ -118,6 +135,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
         help: 'Shown in the wallet list.',
         child: EInput(controller: _name, hint: 'Main wallet', semanticLabel: 'Wallet name', onChanged: (_) => setState(() {})),
       ),
+      if (DeskFeatures.languages) ...[
       SizedBox(height: Sp.x5),
       EField(
         label: 'Language',
@@ -128,6 +146,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
           items: [for (final l in deskLanguages) ESelectItem(l, l)],
         ),
       ),
+      ],
     ],
   );
 
@@ -136,14 +155,16 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        EChoiceCard(
-          title: 'Built-in node',
-          description: 'Runs on this computer. Slower to start, nothing is shared.',
-          icon: EIcons.node,
-          selected: _builtIn,
-          onTap: () => setState(() => _builtIn = true),
-        ),
-        SizedBox(height: Sp.x3),
+        if (DeskFeatures.builtInNode) ...[
+          EChoiceCard(
+            title: 'Built-in node',
+            description: 'Runs on this computer. Slower to start, nothing is shared.',
+            icon: EIcons.node,
+            selected: _builtIn,
+            onTap: () => setState(() => _builtIn = true),
+          ),
+          SizedBox(height: Sp.x3),
+        ],
         EChoiceCard(
           title: 'Remote node',
           description: 'Starts faster. The operator sees the IP address and which outputs the wallet asks about.',
@@ -247,7 +268,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
         children: [
           _section(context, 'Preferences', [
             ('Name', Text(_name.text.isEmpty ? 'No name' : _name.text, style: ts.body)),
-            ('Language', Text(_language, style: ts.body)),
+            if (DeskFeatures.languages) ('Language', Text(_language, style: ts.body)),
           ], SetupStep.prefs),
           EDivider(space: Sp.x2),
           _section(context, 'Node', [

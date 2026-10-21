@@ -69,14 +69,16 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
               selected: false,
               onTap: () => nav.go(DeskRoute.create),
             ),
-            SizedBox(height: Sp.x3),
-            EChoiceCard(
-              title: 'Add an existing wallet',
-              description: 'From a folder or an older version',
-              icon: EIcons.folderOpen,
-              selected: false,
-              onTap: () => nav.go(DeskRoute.found, FoundVariant.addExisting),
-            ),
+            if (DeskFeatures.importWizard) ...[
+              SizedBox(height: Sp.x3),
+              EChoiceCard(
+                title: 'Add an existing wallet',
+                description: 'From a folder or an older version',
+                icon: EIcons.folderOpen,
+                selected: false,
+                onTap: () => nav.go(DeskRoute.found, FoundVariant.addExisting),
+              ),
+            ],
             SizedBox(height: Sp.x3),
             EChoiceCard(
               title: 'Restore from a phrase',
@@ -98,12 +100,14 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
                 ),
               ),
             ],
-            SizedBox(height: Sp.x6),
-            EDetails(
-              title: 'Advanced',
-              initiallyOpen: widget.arg == 'advanced' || flow.dataFolder != null,
-              child: _advanced(context, flow, hasWallets),
-            ),
+            if (DeskFeatures.testNetworks || DeskFeatures.dataFolder) ...[
+              SizedBox(height: Sp.x6),
+              EDetails(
+                title: 'Advanced',
+                initiallyOpen: widget.arg == 'advanced' || flow.dataFolder != null,
+                child: _advanced(context, flow, hasWallets),
+              ),
+            ],
           ],
         ),
       ),
@@ -116,6 +120,7 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        if (DeskFeatures.testNetworks) ...[
         EField(
           label: 'Network',
           help: 'Mainnet holds real EPIC. Floonet and Usernet are test networks.',
@@ -131,6 +136,8 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
           ),
         ),
         SizedBox(height: Sp.x5),
+        ],
+        if (DeskFeatures.dataFolder) ...[
         Row(
           children: [
             Expanded(child: Text('App data folder', style: ts.label)),
@@ -202,6 +209,7 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
               ],
             ),
           ),
+        ],
         ],
       ],
     );

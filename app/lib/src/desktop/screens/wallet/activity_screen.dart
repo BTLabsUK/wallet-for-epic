@@ -122,7 +122,7 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
       onChanged: (v) => setState(() => _tab = v),
     );
     final actions = <Widget>[
-      if (roomy) ...[tabs, SizedBox(width: Sp.x2), _search(full: false, hasItems: hasItems)],
+      if (roomy) ...[if (DeskFeatures.coins) ...[tabs, SizedBox(width: Sp.x2)], _search(full: false, hasItems: hasItems)],
       EIconButton(
         icon: hidden ? EIcons.eyeOff : EIcons.eye,
         label: hidden ? 'Show amounts' : 'Hide amounts',
@@ -153,8 +153,7 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
         : Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Align(alignment: Alignment.centerLeft, child: tabs),
-              SizedBox(height: Sp.x3),
+              if (DeskFeatures.coins) ...[Align(alignment: Alignment.centerLeft, child: tabs), SizedBox(height: Sp.x3)],
               _search(full: true, hasItems: hasItems),
               SizedBox(height: Sp.x4),
               body,

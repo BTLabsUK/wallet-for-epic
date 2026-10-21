@@ -37,7 +37,14 @@ class _TxDetailState extends ConsumerState<TxDetail> {
     final ok = await showCancelTxDialog(context, widget.tx);
     if (ok != true || !mounted) return;
     setState(() => _cancelling = true);
-    await ref.read(deskProvider.notifier).cancelTx(widget.tx.id);
+    try {
+      await ref.read(deskProvider.notifier).cancelTx(widget.tx.id);
+    } on Object catch (e) {
+      if (!mounted) return;
+      setState(() => _cancelling = false);
+      showEToast(context, 'Not cancelled', text: '$e');
+      return;
+    }
     if (!mounted) return;
     setState(() => _cancelling = false);
     showEToast(context, 'Transaction cancelled');
@@ -132,7 +139,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
           if (!t.incoming) ...[('Fee', EMoney(t.fee)), ('Total', EMoney(total, weight: FontWeight.w600))],
           if (t.message != null) ('Message', Text(t.message!)),
         ]),
-        if (t.hasProof) ...[
+        if (DeskFeatures.paymentProofs && t.hasProof) ...[
           _Sub('Payment proof'),
           Row(
             children: [

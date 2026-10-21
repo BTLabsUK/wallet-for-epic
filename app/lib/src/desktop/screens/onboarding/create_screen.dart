@@ -80,11 +80,9 @@ class _CreateScreenState extends ConsumerState<CreateScreen> {
       _failure = null;
     });
     try {
-      final phrase = await api.newPhrase();
+      final phrase = await api.createWallet(name: _name.text, password: _password.text);
       if (!mounted) return;
       setState(() => _stage = 'save');
-      await api.createWallet(name: _name.text, password: _password.text, phrase: phrase);
-      if (!mounted) return;
       setState(() {
         _phrase = phrase;
         _step = CreateStep.phrase;
@@ -110,7 +108,7 @@ class _CreateScreenState extends ConsumerState<CreateScreen> {
     setState(() => _busy = true);
     if (ref.read(deskProvider).account != null) {
       _to(CreateStep.locking);
-      await ref.read(deskApiProvider).lock();
+      await ref.read(deskProvider.notifier).lock();
       if (!mounted) return;
     }
     final name = _name.text.trim();

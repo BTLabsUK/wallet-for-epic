@@ -223,7 +223,13 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     }
     if (n == _feeFor) return;
     _feeFor = n;
-    final fee = await ref.read(deskApiProvider).estimateFee(n);
+    int? fee;
+    try {
+      fee = await ref.read(deskApiProvider).estimateFee(n);
+    } on Object {
+      // More than can be sent, or the wallet is busy: the amount check says which.
+      fee = null;
+    }
     if (!mounted || _feeFor != n) return;
     setState(() => _fee = fee);
   }
@@ -254,9 +260,8 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       _allError = null;
     });
     try {
-      final fee = spendable > 0 ? await ref.read(deskApiProvider).estimateFee(spendable) : 0;
+      final (n, fee) = spendable > 0 ? await ref.read(deskApiProvider).estimateMax() : (0, 0);
       if (!mounted) return;
-      final n = spendable - fee;
       if (n <= 0) {
         setState(() => _allError = 'Nothing spendable to send.');
         return;
@@ -355,7 +360,13 @@ class _SendScreenState extends ConsumerState<SendScreen> {
   Future<void> _openReview({bool startBusy = false}) async {
     // The summary's estimate may still be on its way: the review always shows the real fee.
     if (_fee == null) {
-      final fee = await ref.read(deskApiProvider).estimateFee(_amountNano);
+      final int fee;
+      try {
+        fee = await ref.read(deskApiProvider).estimateFee(_amountNano);
+      } on Object catch (e) {
+        if (mounted) setState(() => _failure = '$e');
+        return;
+      }
       if (!mounted) return;
       setState(() => _fee = fee);
     }
@@ -541,7 +552,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
           child: ESegmented<TxMethod>(
             segments: const [
               ESegment(TxMethod.epicbox, 'Epicbox', icon: EIcons.antenna),
-              ESegment(TxMethod.http, 'Direct', icon: EIcons.web),
+              if (DeskFeatures.httpDirect || DeskFeatures.tor) ESegment(TxMethod.http, 'Direct', icon: EIcons.web),
               ESegment(TxMethod.file, 'File', icon: EIcons.file),
             ],
             value: direct ? TxMethod.http : _method,
@@ -556,7 +567,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
           Align(
             alignment: Alignment.centerLeft,
             child: ESegmented<TxMethod>(
-              segments: const [ESegment(TxMethod.http, 'HTTP'), ESegment(TxMethod.tor, 'Tor')],
+              segments: const [if (DeskFeatures.httpDirect) ESegment(TxMethod.http, 'HTTP'), if (DeskFeatures.tor) ESegment(TxMethod.tor, 'Tor')],
               value: _method,
               onChanged: (m) => setState(() => _method = m),
             ),
@@ -688,7 +699,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
             onChanged: (_) => setState(() {}),
           ),
         ),
-        if (!file) ...[
+        if (DeskFeatures.dandelion && !file) ...[
           SizedBox(height: Sp.x5),
           EDetails(
             title: 'Privacy · Dandelion++ ${_dandelion ? 'on' : 'off'}',
@@ -908,7 +919,7 @@ class _ReviewDialogState extends State<_ReviewDialog> {
             ('Via', Text(via, style: ts.body)),
             ('Network fee', EMoney(d.fee)),
             ('Total', EMoney(d.total, weight: FontWeight.w600)),
-            if (d.method != TxMethod.file) ('Privacy', Text(d.dandelion ? 'Dandelion++ on' : 'Dandelion++ off', style: ts.body)),
+            if (DeskFeatures.dandelion && d.method != TxMethod.file) ('Privacy', Text(d.dandelion ? 'Dandelion++ on' : 'Dandelion++ off', style: ts.body)),
             if (d.message.isNotEmpty) ('Message', Text(d.message, style: ts.body)),
           ], labelWidth: 100.u),
           if (_busy) ...[
