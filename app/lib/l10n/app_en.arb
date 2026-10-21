@@ -1559,13 +1559,13 @@
   "@balanceConfirmingHelp": {
     "description": "Explanation under Confirming in the balance explanation."
   },
-  "homeBalanceWaitingToFinish": "Waiting to finish",
-  "@homeBalanceWaitingToFinish": {
-    "description": "Row of the balance breakdown: received payments the sender has not finished yet."
+  "homeBalanceNotOnChain": "Not on chain yet",
+  "@homeBalanceNotOnChain": {
+    "description": "Row of the balance breakdown: outputs not in a block yet (payments the sender has not finished, payments in the pool, change of a send). Never counted as money."
   },
-  "balanceWaitingHelp": "Accepted by you; the sender still has to finish it.",
-  "@balanceWaitingHelp": {
-    "description": "Explanation under Waiting to finish in the balance explanation."
+  "balanceNotOnChainHelp": "Payments to you that the sender has not finished or that are not in a block yet, and change from your sends. Not counted until they are on chain: a payment someone only offered may never arrive.",
+  "@balanceNotOnChainHelp": {
+    "description": "Explanation under Not on chain yet in the balance explanation."
   },
   "homeBalanceLocked": "Locked by a payment in progress",
   "@homeBalanceLocked": {
@@ -4437,7 +4437,7 @@
   },
   "balanceLineComingIn": "+{amount} coming in",
   "@balanceLineComingIn": {
-    "description": "Under the balance: coins on their way in (confirming, waiting for the sender, mining rewards maturing), with the amount. Keep it short.",
+    "description": "Under the balance: coins on their way in (in a block and confirming, mining rewards maturing), with the amount. Keep it short.",
     "placeholders": {
       "amount": {
         "type": "String",

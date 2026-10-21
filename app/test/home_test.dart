@@ -3079,15 +3079,15 @@ void main() {
         immature: 16,
       );
       await _reload(tester);
-      // Confirming, waiting for the sender and maturing rewards are one sum.
-      const order = ['5 on hold', '+18.5 coming in'];
+      // Confirming and maturing rewards are one sum; the 0.5 not on chain yet is left out.
+      const order = ['5 on hold', '+18 coming in'];
       final lefts = [
         for (final text in order) tester.getRect(_inLine(text)).left,
       ];
       expect(lefts, orderedEquals([...lefts]..sort()));
       for (final (text, icon) in [
         ('5 on hold', Icons.lock_outline),
-        ('+18.5 coming in', Icons.south_west),
+        ('+18 coming in', Icons.south_west),
       ]) {
         final glyph = find.descendant(
           of: find.byKey(pendingLineKey),
@@ -3371,7 +3371,7 @@ void main() {
         );
         await _reload(tester);
         final line = tester.getRect(find.byKey(pendingLineKey));
-        for (final text in ['5.12345678 on hold', '+18.62345678 coming in']) {
+        for (final text in ['5.12345678 on hold', '+18.12345678 coming in']) {
           final words = tester.getRect(_inLine(text));
           expect(words.left, greaterThanOrEqualTo(line.left), reason: text);
           expect(words.right, lessThanOrEqualTo(line.right), reason: text);
@@ -3798,74 +3798,79 @@ void main() {
       expect(_toField(tester), isEmpty);
     });
 
-    testWidgets('a recipient handed over while the tracker shows waits for the next form', (
-      tester,
-    ) async {
-      final h = _Harness(still: true);
-      await h.pump(tester, const HomeScreen(), 1, const Size(1080, 2340));
-      await _sendOne(tester, payee);
-      expect(find.text('Waiting for their wallet'), findsOneWidget);
-      final carol = '${'c' * 52}@epicbox.epiccash.com';
-      ProviderScope.containerOf(tester.element(find.byType(SendView)))
-          .read(sendRecipientProvider.notifier)
-          .hand(carol);
-      await tester.pumpAndSettle();
-      // The tracker stays.
-      expect(find.text('Waiting for their wallet'), findsOneWidget);
-      await _tap(tester, find.text('Done'));
-      await _tab(tester, 'Send');
-      expect(_toField(tester), carol);
+    testWidgets(
+      'a recipient handed over while the tracker shows waits for the next form',
+      (tester) async {
+        final h = _Harness(still: true);
+        await h.pump(tester, const HomeScreen(), 1, const Size(1080, 2340));
+        await _sendOne(tester, payee);
+        expect(find.text('Waiting for their wallet'), findsOneWidget);
+        final carol = '${'c' * 52}@epicbox.epiccash.com';
+        ProviderScope.containerOf(tester.element(find.byType(SendView)))
+            .read(sendRecipientProvider.notifier)
+            .hand(carol);
+        await tester.pumpAndSettle();
+        // The tracker stays.
+        expect(find.text('Waiting for their wallet'), findsOneWidget);
+        await _tap(tester, find.text('Done'));
+        await _tab(tester, 'Send');
+        expect(_toField(tester), carol);
 
-      // The same from the payment file screens.
-      await _tap(tester, find.text('No address? Use a payment file'));
-      await tester.enterText(find.widgetWithText(TextField, 'Amount (EPIC)'), '1');
-      await tester.pump(const Duration(milliseconds: 500));
-      await tester.pumpAndSettle();
-      await _tap(tester, find.text('Make payment file'));
-      ProviderScope.containerOf(tester.element(find.byType(SendView)))
-          .read(sendRecipientProvider.notifier)
-          .hand(payee);
-      await tester.pumpAndSettle();
-      expect(find.text('Waiting for their reply'), findsOneWidget);
-      await _tap(tester, find.widgetWithText(TextButton, 'Done'));
-      await _tab(tester, 'Send');
-      expect(_toField(tester), payee);
-    });
+        // The same from the payment file screens.
+        await _tap(tester, find.text('No address? Use a payment file'));
+        await tester.enterText(
+          find.widgetWithText(TextField, 'Amount (EPIC)'),
+          '1',
+        );
+        await tester.pump(const Duration(milliseconds: 500));
+        await tester.pumpAndSettle();
+        await _tap(tester, find.text('Make payment file'));
+        ProviderScope.containerOf(tester.element(find.byType(SendView)))
+            .read(sendRecipientProvider.notifier)
+            .hand(payee);
+        await tester.pumpAndSettle();
+        expect(find.text('Waiting for their reply'), findsOneWidget);
+        await _tap(tester, find.widgetWithText(TextButton, 'Done'));
+        await _tab(tester, 'Send');
+        expect(_toField(tester), payee);
+      },
+    );
 
-    testWidgets('the tracker moves on when their wallet answers, without a notice', (
-      tester,
-    ) async {
-      final h = _Harness(still: true);
-      await h.pump(tester, const HomeScreen(), 1, const Size(1080, 2340));
-      await _sendOne(tester, payee);
-      expect(find.text('Waiting for their wallet'), findsOneWidget);
+    testWidgets(
+      'the tracker moves on when their wallet answers, without a notice',
+      (tester) async {
+        final h = _Harness(still: true);
+        await h.pump(tester, const HomeScreen(), 1, const Size(1080, 2340));
+        await _sendOne(tester, payee);
+        expect(find.text('Waiting for their wallet'), findsOneWidget);
 
-      // Their reply comes: the listener finishes and posts it.
-      h.session.transactionsValue.add(
-        fakeTx(
-          slateId: 'send-1',
-          kind: TxKind.sent,
-          status: TxStatus.awaitingConfirmation,
-          amountDebited: _epic(1) + h.session.fee,
-          fee: h.session.fee,
-          counterparty: payee,
-        ),
-      );
-      h.session.listenerEvents.add(
-        const ListenerEvent(
-          kind: ListenerEventKind.finalized,
-          slateId: 'send-1',
-          message: 'Sent 1 EPIC, posted to the node',
-        ),
-      );
-      await tester.pumpAndSettle();
-      expect(find.text('Waiting for their wallet'), findsNothing);
-      expect(find.text('Their wallet signed'), findsOneWidget);
-      expect(find.text('Sent to the network'), findsOneWidget);
-      expect(find.textContaining('Confirming 0/'), findsOneWidget);
-      // The tracker says it; a notice would say it twice.
-      expect(find.textContaining('finished. Waiting for'), findsNothing);
-    });
+        // Their reply comes: the listener finishes and posts it.
+        h.session.transactionsValue.add(
+          fakeTx(
+            slateId: 'send-1',
+            kind: TxKind.sent,
+            status: TxStatus.awaitingConfirmation,
+            amountDebited: _epic(1) + h.session.fee,
+            fee: h.session.fee,
+            counterparty: payee,
+          ),
+        );
+        h.session.listenerEvents.add(
+          const ListenerEvent(
+            kind: ListenerEventKind.finalized,
+            slateId: 'send-1',
+            message: 'Sent 1 EPIC, posted to the node',
+          ),
+        );
+        await tester.pumpAndSettle();
+        expect(find.text('Waiting for their wallet'), findsNothing);
+        expect(find.text('Their wallet signed'), findsOneWidget);
+        expect(find.text('Sent to the network'), findsOneWidget);
+        expect(find.textContaining('Confirming 0/'), findsOneWidget);
+        // The tracker says it; a notice would say it twice.
+        expect(find.textContaining('finished. Waiting for'), findsNothing);
+      },
+    );
 
     testWidgets('pull to refresh on the Wallet tab reloads from the node', (
       tester,

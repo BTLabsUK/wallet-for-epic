@@ -1343,10 +1343,11 @@ class AppLocalizationsZh extends AppLocalizations {
   String get balanceConfirmingHelp => '已上链，等待足够的确认。';
 
   @override
-  String get homeBalanceWaitingToFinish => '等待完成';
+  String get homeBalanceNotOnChain => '尚未上链';
 
   @override
-  String get balanceWaitingHelp => '你已接受，发送方还需完成。';
+  String get balanceNotOnChainHelp =>
+      '发给你但发送方尚未完成、或尚未进入区块的付款，以及你发送时的找零。进入区块后才计入：仅被提出的付款可能永远不会到账。';
 
   @override
   String get homeBalanceLocked => '被进行中的付款锁定';

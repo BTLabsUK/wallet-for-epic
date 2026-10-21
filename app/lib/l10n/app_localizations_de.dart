@@ -1443,11 +1443,11 @@ class AppLocalizationsDe extends AppLocalizations {
       'In der Chain, wartet auf genug Bestätigungen.';
 
   @override
-  String get homeBalanceWaitingToFinish => 'Wartet auf Abschluss';
+  String get homeBalanceNotOnChain => 'Noch nicht in der Blockchain';
 
   @override
-  String get balanceWaitingHelp =>
-      'Von Ihnen angenommen; der Absender muss sie noch abschließen.';
+  String get balanceNotOnChainHelp =>
+      'Zahlungen an Sie, die der Absender noch nicht abgeschlossen hat oder die noch in keinem Block sind, und Wechselgeld Ihrer Sendungen. Sie zählen erst, wenn sie in einem Block sind: Eine nur angebotene Zahlung kommt vielleicht nie an.';
 
   @override
   String get homeBalanceLocked => 'Durch laufende Zahlung gesperrt';

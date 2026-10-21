@@ -1434,11 +1434,11 @@ class AppLocalizationsEn extends AppLocalizations {
       'On the chain, waiting for enough confirmations.';
 
   @override
-  String get homeBalanceWaitingToFinish => 'Waiting to finish';
+  String get homeBalanceNotOnChain => 'Not on chain yet';
 
   @override
-  String get balanceWaitingHelp =>
-      'Accepted by you; the sender still has to finish it.';
+  String get balanceNotOnChainHelp =>
+      'Payments to you that the sender has not finished or that are not in a block yet, and change from your sends. Not counted until they are on chain: a payment someone only offered may never arrive.';
 
   @override
   String get homeBalanceLocked => 'Locked by a payment in progress';

@@ -1988,17 +1988,17 @@ abstract class AppLocalizations {
   /// **'On the chain, waiting for enough confirmations.'**
   String get balanceConfirmingHelp;
 
-  /// Row of the balance breakdown: received payments the sender has not finished yet.
+  /// Row of the balance breakdown: outputs not in a block yet (payments the sender has not finished, payments in the pool, change of a send). Never counted as money.
   ///
   /// In en, this message translates to:
-  /// **'Waiting to finish'**
-  String get homeBalanceWaitingToFinish;
+  /// **'Not on chain yet'**
+  String get homeBalanceNotOnChain;
 
-  /// Explanation under Waiting to finish in the balance explanation.
+  /// Explanation under Not on chain yet in the balance explanation.
   ///
   /// In en, this message translates to:
-  /// **'Accepted by you; the sender still has to finish it.'**
-  String get balanceWaitingHelp;
+  /// **'Payments to you that the sender has not finished or that are not in a block yet, and change from your sends. Not counted until they are on chain: a payment someone only offered may never arrive.'**
+  String get balanceNotOnChainHelp;
 
   /// Row of the balance breakdown: funds held by an outgoing payment until it finishes or is cancelled.
   ///
@@ -5564,7 +5564,7 @@ abstract class AppLocalizations {
   /// **'{amount} on hold'**
   String balanceLineOnHold(String amount);
 
-  /// Under the balance: coins on their way in (confirming, waiting for the sender, mining rewards maturing), with the amount. Keep it short.
+  /// Under the balance: coins on their way in (in a block and confirming, mining rewards maturing), with the amount. Keep it short.
   ///
   /// In en, this message translates to:
   /// **'+{amount} coming in'**

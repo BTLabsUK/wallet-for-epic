@@ -1538,11 +1538,11 @@ class AppLocalizationsPl extends AppLocalizations {
       'W łańcuchu, czeka na wystarczającą liczbę potwierdzeń.';
 
   @override
-  String get homeBalanceWaitingToFinish => 'Czeka na sfinalizowanie';
+  String get homeBalanceNotOnChain => 'Jeszcze nie w łańcuchu';
 
   @override
-  String get balanceWaitingHelp =>
-      'Przyjęte przez Ciebie; nadawca musi jeszcze ją dokończyć.';
+  String get balanceNotOnChainHelp =>
+      'Płatności do Ciebie, których nadawca jeszcze nie dokończył lub które nie są jeszcze w bloku, oraz reszta z Twoich wysyłek. Liczą się dopiero w bloku: płatność tylko zaproponowana może nigdy nie dotrzeć.';
 
   @override
   String get homeBalanceLocked => 'Zablokowane przez trwającą płatność';

@@ -1530,11 +1530,11 @@ class AppLocalizationsRu extends AppLocalizations {
       'В блокчейне, ждёт достаточно подтверждений.';
 
   @override
-  String get homeBalanceWaitingToFinish => 'Ожидает завершения';
+  String get homeBalanceNotOnChain => 'Ещё не в блокчейне';
 
   @override
-  String get balanceWaitingHelp =>
-      'Принято вами; отправитель ещё должен её завершить.';
+  String get balanceNotOnChainHelp =>
+      'Платежи вам, которые отправитель ещё не завершил или которые ещё не попали в блок, и сдача с ваших отправок. Учитываются только после попадания в блок: просто предложенный платёж может так и не прийти.';
 
   @override
   String get homeBalanceLocked => 'Заблокировано текущим платежом';
