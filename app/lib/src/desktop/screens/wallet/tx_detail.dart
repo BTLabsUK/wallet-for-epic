@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../widgets/kit.dart';
 import 'tx_display.dart';
 
@@ -42,7 +43,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
     } on Object catch (e) {
       if (!mounted) return;
       setState(() => _cancelling = false);
-      showEToast(context, 'Not cancelled', text: '$e');
+      showEToast(context, 'Not cancelled', text: deskErrorText(e));
       return;
     }
     if (!mounted) return;
