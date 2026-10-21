@@ -192,6 +192,47 @@ void main() {
     await expectUnchanged(before);
   });
 
+  test('the wallet folder, wallet_data or wallet_tor being a link refuses it', () async {
+    final real = await wallet('$home/real/main', seed: 'real');
+    await Link('$home/.epic-gui/wallets/via-link').create(real, recursive: true);
+    final scan = await findLegacyWallets(roots: roots());
+    final f = scan.wallets.where((w) => w.path.endsWith('via-link')).toList();
+    // a link to a folder is not descended into, so it is not found at all
+    expect(f, isEmpty);
+    final w2 = '$home/.epic/floo';
+    await write('$home/other/wallet_data/wallet.seed', 'x');
+    await Directory(w2).create(recursive: true);
+    await Link('$w2/wallet_data').create('$home/other/wallet_data');
+    final scan2 = await findLegacyWallets(roots: roots());
+    final linked = scan2.wallets.singleWhere((w) => w.path == w2);
+    expect(linked.hasLinks, isTrue);
+    expect(linked.copyable, isFalse);
+  });
+
+  test('an unreadable part of wallet_data refuses the wallet as incomplete', () async {
+    final w = await wallet('$home/.epic/main', seed: 'inc');
+    final locked = Directory('$w/wallet_data/locked')..createSync();
+    File('${locked.path}/f').writeAsStringSync('x');
+    await Process.run('chmod', ['000', locked.path]);
+    addTearDown(() => Process.run('chmod', ['755', locked.path]));
+    try {
+      Directory(locked.path).listSync();
+      return; // running as someone who can read it anyway
+    } on FileSystemException {/* as expected */}
+    final f = (await findLegacyWallets(roots: roots())).wallets.single;
+    expect(f.incomplete, isTrue);
+    expect(f.copyable, isFalse);
+    expect(f.refusal, LegacyRefusal.incomplete);
+    expect(f.refusal!.text, isNotEmpty);
+  });
+
+  test('displayLabel names a network-folder label by its source', () async {
+    await wallet('$home/.epic/main', seed: 'a');
+    final f = (await findLegacyWallets(roots: roots())).wallets.single;
+    expect(f.label, 'main');
+    expect(f.displayLabel, 'Wallet (epic program)');
+  });
+
   test('seed sanity: empty is no wallet, over 4 KiB is refused and not hashed', () async {
     final epic = '$home/.epic';
     await wallet('$epic/main', seed: '');
@@ -267,9 +308,16 @@ void main() {
     });
     test('no matching process is free', () async {
       expect(await check([]), InUse.free);
-      expect(await check([RunningProcess(pid: 3, name: 'epic-wallet', args: [], cwd: '$home/.epic/floo')]), InUse.free);
+      expect(await check([RunningProcess(pid: 3, name: 'epic-wallet', args: ['--floonet'], cwd: '$home/.epic/floo')]), InUse.free);
       expect(await check([RunningProcess(pid: 4, name: 'bash', args: [], cwd: dir)]), InUse.free);
-      expect(await check([RunningProcess(pid: 5, name: 'epic-wallet', args: [], cwd: '$dir-other')]), InUse.free);
+      expect(await check([RunningProcess(pid: 5, name: 'epic-wallet', args: ['--floonet'], cwd: '$dir-other')]), InUse.free);
+    });
+    test('no folder given and no toml in the cwd: ~/.epic/<net> by the network flags', () async {
+      expect(await check([const RunningProcess(pid: 7, name: 'epic-wallet', args: ['owner_api'], cwd: '/')]), InUse.inUse);
+      expect(await check([const RunningProcess(pid: 8, name: 'epic', args: ['--floonet'], cwd: '/')]), InUse.free);
+      expect(await check([const RunningProcess(pid: 9, name: 'epic', args: ['--usernet'], cwd: '/')]), InUse.free);
+      expect(await check([const RunningProcess(pid: 10, name: 'epic', args: [], cwd: null)]), InUse.unknown);
+      expect(await check([const RunningProcess(pid: 11, name: 'epic', args: [], cwd: '/', argsKnown: false)]), InUse.unknown);
     });
     test('unknown when it cannot tell', () async {
       expect(await check(null), InUse.unknown);
@@ -284,6 +332,29 @@ void main() {
   });
 
   group('folderHash', () {
+    test('database files are never opened, only stat\'ed', () async {
+      final d = await wallet('$home/h2', seed: 'one');
+      await write('$d/wallet_data/db/lmdb/data.mdb', 'aaaa');
+      final db = File('$d/wallet_data/db/sqlite/epic.db');
+      final h0 = await folderHash(d);
+      final when = db.lastModifiedSync();
+      db.writeAsStringSync('b' * db.lengthSync());
+      db.setLastModifiedSync(when);
+      expect(await folderHash(d), h0, reason: 'same path, size and mtime: content not read');
+      db.writeAsStringSync('longer content');
+      expect(await folderHash(d), isNot(h0));
+    });
+
+    test('a file over 64 KiB is not read either', () async {
+      final d = await wallet('$home/h3', seed: 'one');
+      final big = File('$d/wallet_data/big.bin')..writeAsBytesSync(List.filled(70 * 1024, 1));
+      final h0 = await folderHash(d);
+      final when = big.lastModifiedSync();
+      big.writeAsBytesSync(List.filled(70 * 1024, 2));
+      big.setLastModifiedSync(when);
+      expect(await folderHash(d), h0);
+    });
+
     test('is stable and changes with content, size, names and links', () async {
       final d = await wallet('$home/h', seed: 'one');
       final h0 = await folderHash(d);

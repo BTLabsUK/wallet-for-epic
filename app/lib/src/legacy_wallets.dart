@@ -33,6 +33,9 @@ const String noWalletText = 'No wallet in this folder. A wallet folder contains 
 /// The text for a wallet folder with links in it (B15).
 const String linksText = "This wallet's folder has links in it; copy it by hand or restore from the phrase.";
 
+/// The text for a wallet folder that could not be read to the end.
+const String incompleteText = "This wallet's folder could not be read completely; copy it by hand or restore from the phrase.";
+
 /// The text for a wallet.seed LEPIC would refuse.
 const String seedTooLargeText = 'The wallet.seed file is too large to be a wallet seed.';
 
@@ -100,6 +103,9 @@ enum LegacyRefusal {
   /// A symlink, junction or other non-regular file inside the wallet.
   links(linksText),
 
+  /// The wallet's folders are too big to check, or a part could not be read.
+  incomplete(incompleteText),
+
   /// wallet.seed is larger than LEPIC accepts.
   seedTooLarge(seedTooLargeText);
 
@@ -136,10 +142,13 @@ class LegacyRoots {
           ? (env['APPDATA'] ?? _join(home, 'AppData\\Roaming'))
           : Platform.isMacOS
               ? _join(home, 'Library/Application Support')
-              : _join(home, '.config'),
+              : _xdgConfig(env['XDG_CONFIG_HOME']) ?? _join(home, '.config'),
       guiHome: env['EPIC_GUI_HOME'],
     );
   }
+
+  /// Electron's appData on Linux: $XDG_CONFIG_HOME when it is an absolute path, else ~/.config.
+  static String? _xdgConfig(String? v) => v != null && v.startsWith('/') ? v : null;
 
   List<String> get _homes {
     final out = <String>[];
@@ -183,6 +192,7 @@ class LegacyWallet {
     required this.legacyDb,
     required this.app,
     this.chain,
+    this.incomplete = false,
   });
 
   final String path;
@@ -209,8 +219,12 @@ class LegacyWallet {
   /// sha256 (hex) of the wallet.seed file bytes; null when the seed is too large to read.
   final String? seedFingerprint;
 
-  /// A symlink, junction or non-regular file inside wallet_data or wallet_tor.
+  /// A symlink, junction or non-regular file inside wallet_data or wallet_tor, or the wallet
+  /// folder, wallet_data or wallet_tor itself a link.
   final bool hasLinks;
+
+  /// The walk of wallet_data or wallet_tor hit its limit or could not read a part.
+  final bool incomplete;
   final int seedBytes;
 
   /// The old LMDB database (epic-wallet 3.x), not SQLite.
@@ -222,9 +236,22 @@ class LegacyWallet {
 
   bool get seedTooLarge => seedBytes > maxSeedBytes;
 
+  /// [label] as the wizard shows it: a label that is only a network folder name (main, floo,
+  /// user) reads "Wallet (the epic program)" and the like.
+  String get displayLabel {
+    if (LegacyNetwork.fromFolder(label) == null) return label;
+    return switch (source) {
+      LegacySource.cli => 'Wallet (epic program)',
+      LegacySource.gui => 'Wallet (older Epic Wallet)',
+      LegacySource.picked => 'Wallet (chosen folder)',
+    };
+  }
+
   LegacyRefusal? get refusal => hasLinks
       ? LegacyRefusal.links
-      : seedTooLarge
+      : incomplete
+          ? LegacyRefusal.incomplete
+          : seedTooLarge
           ? LegacyRefusal.seedTooLarge
           : null;
 
@@ -457,7 +484,9 @@ class _Scanner {
   Future<void> _addChain(String dir, LegacyNetwork net) async {
     if (!await _isDir(_join(dir, 'lmdb'))) return;
     final key = await _realKey(dir);
-    if (chains.values.any((c) => _norm(c.path) == key)) return;
+    for (final c in chains.values) {
+      if (await _realKey(c.path) == key) return;
+    }
     chains[dir] = LegacyChain(path: dir, network: net, sizeBytes: await _chainBytes(dir));
   }
 
@@ -502,6 +531,7 @@ class _Scanner {
     }
 
     final walk = await _walkWallet(dir);
+    if (await _folderIsLink(dir)) walk.links = true;
     final wd = _join(dir, 'wallet_data');
     final legacyDb = await _isDir(_join(wd, 'db', 'lmdb')) || !await _isDir(_join(wd, 'db', 'sqlite'));
     final chainDir = _join(dir, 'chain_data');
@@ -521,6 +551,7 @@ class _Scanner {
       contacts: null,
       seedFingerprint: fp,
       hasLinks: walk.links,
+      incomplete: walk.incomplete,
       seedBytes: seedBytes,
       legacyDb: legacyDb,
       app: isCli ? 'CLI' : await _guessApp(dir, lay30),
@@ -605,10 +636,13 @@ Future<FolderPick> inspectFolder(String path) async {
 
 /// A running program, as far as the platform tells.
 class RunningProcess {
-  const RunningProcess({required this.pid, required this.name, required this.args, this.cwd});
+  const RunningProcess({required this.pid, required this.name, required this.args, this.cwd, this.argsKnown = true});
   final int pid;
   final String name;
   final List<String> args;
+
+  /// False when the platform would not give the arguments ([args] is then empty).
+  final bool argsKnown;
 
   /// Null when the platform would not tell.
   final String? cwd;
@@ -639,8 +673,16 @@ Future<InUse> checkInUse(LegacyWallet w, {ProcessLister? listProcesses}) async {
     final cwd = p.cwd;
     if (cwd != null && _within(_norm(cwd), target)) return InUse.inUse;
     if (cwd == null) unclear = true;
-    for (final a in p.args) {
+    if (!p.argsKnown) {
+      unclear = true;
+      continue;
+    }
+    for (var i = 0; i < p.args.length; i++) {
+      final a = p.args[i];
       if (a.isEmpty || a.startsWith('-') && !a.contains('/') && !a.contains('\\')) continue;
+      // a bare word is a path only as the value of the flag before it; otherwise a subcommand
+      final isValue = i > 0 && p.args[i - 1].startsWith('-') && !p.args[i - 1].contains('=');
+      if (!a.startsWith('-') && !a.contains('/') && !a.contains('\\') && !isValue) continue;
       final v = a.contains('=') && a.startsWith('-') ? a.substring(a.indexOf('=') + 1) : a;
       final abs = _isAbs(v) ? v : (cwd != null ? _join(cwd, v) : null);
       if (abs == null) continue;
@@ -648,6 +690,13 @@ Future<InUse> checkInUse(LegacyWallet w, {ProcessLister? listProcesses}) async {
       if (_within(_norm(_normalizePath(abs)), target)) return InUse.inUse;
     }
     if (named && cwd == null) unclear = true;
+    if (!named && cwd != null && _base(_dirname(w.path)) == '.epic' && !File(_join(cwd, 'epic-wallet.toml')).existsSync()) {
+      // No folder given and none in the working directory: the epic program falls back to
+      // ~/.epic/<main|floo|user> by its network flags.
+      final flags = p.args.map((a) => a.toLowerCase());
+      final net = flags.contains('--floonet') ? LegacyNetwork.floo : flags.contains('--usernet') ? LegacyNetwork.user : LegacyNetwork.main;
+      if (_base(w.path) == net.folder) return InUse.inUse;
+    }
   }
   return unclear ? InUse.unknown : InUse.free;
 }
@@ -678,22 +727,24 @@ Future<List<RunningProcess>?> _listProcesses() async {
     return out;
   }
   if (Platform.isMacOS) {
-    final ps = await Process.run('ps', ['-axo', 'pid=,args=']);
+    // Paths may hold spaces, so the arguments are not split out of ps: the program name comes
+    // from comm and the working directory from lsof; the arguments stay unknown.
+    final ps = await Process.run('ps', ['-axo', 'pid=,comm=']);
     if (ps.exitCode != 0) return null;
     final out = <RunningProcess>[];
     for (final line in const LineSplitter().convert(ps.stdout as String)) {
       final m = RegExp(r'^\s*(\d+)\s+(.*)$').firstMatch(line);
       if (m == null) continue;
-      final parts = m.group(2)!.split(' ');
-      if (!_walletPrograms.contains(_base(parts.first))) continue;
+      final name = m.group(2)!;
+      if (!_walletPrograms.contains(_base(name))) continue;
       String? cwd;
       try {
-        final l = await Process.run('lsof', ['-a', '-d', 'cwd', '-p', m.group(1)!, '-Fn']);
+        final l = await Process.run('lsof', ['-a', '-p', m.group(1)!, '-d', 'cwd', '-Fn']);
         for (final r in const LineSplitter().convert(l.stdout as String)) {
           if (r.startsWith('n')) cwd = r.substring(1);
         }
       } catch (_) {}
-      out.add(RunningProcess(pid: int.parse(m.group(1)!), name: parts.first, args: parts.sublist(1), cwd: cwd));
+      out.add(RunningProcess(pid: int.parse(m.group(1)!), name: name, args: const [], cwd: cwd, argsKnown: false));
     }
     return out;
   }
@@ -703,8 +754,25 @@ Future<List<RunningProcess>?> _listProcesses() async {
 // ---------------------------------------------------------------------------------------------
 // Folder hash
 
+/// Files up to this size (not databases) are hashed by content.
+const int _hashContentLimit = 64 * 1024;
+
+/// Database and LMDB files: a program holding them open may lock them on Windows, so they are
+/// never opened, only stat'ed.
+bool _isDatabaseFile(String rel) {
+  final parts = rel.split('/');
+  final name = parts.last;
+  if (name == 'lock.mdb' || ['.db', '-wal', '-shm', '-journal', '.mdb'].any(name.endsWith)) return true;
+  for (var i = 0; i < parts.length - 1; i++) {
+    if (parts[i] == 'chain_data' || (parts[i] == 'wallet_data' && i + 1 < parts.length - 1 && parts[i + 1] == 'db')) return true;
+  }
+  return false;
+}
+
 /// A stable sha256 (hex) over every entry under [path]: relative path, kind, size, modification
-/// time and file contents (a link's target). Changes when anything in the folder changes. Reads only.
+/// time and, for small files that are not databases, contents (a link's target). Database files
+/// are never opened. Changes when anything in the folder changes, or when an entry vanishes
+/// during the walk. Reads only.
 Future<String> folderHash(String path) async {
   final root = _normalizePath(path);
   final rows = <String>[];
@@ -722,30 +790,39 @@ Future<String> folderHash(String path) async {
     for (final e in list) {
       final name = _base(e.path);
       final r = rel.isEmpty ? name : '$rel/$name';
-      final st = await e.stat();
-      final type = await FileSystemEntity.type(e.path, followLinks: false);
-      switch (type) {
-        case FileSystemEntityType.directory:
-          rows.add('$r\td\t${st.modified.millisecondsSinceEpoch}');
-          await walk(e.path, r);
-        case FileSystemEntityType.link:
-          String t;
-          try {
-            t = await Link(e.path).target();
-          } catch (_) {
-            t = '?';
-          }
-          rows.add('$r\tl\t$t');
-        case FileSystemEntityType.file:
-          String h;
-          try {
-            h = (await sha256.bind(File(e.path).openRead()).first).toString();
-          } catch (_) {
-            h = 'unreadable';
-          }
-          rows.add('$r\tf\t${st.size}\t${st.modified.millisecondsSinceEpoch}\t$h');
-        default:
-          rows.add('$r\tother');
+      try {
+        final type = await FileSystemEntity.type(e.path, followLinks: false);
+        final st = await e.stat();
+        if (st.type == FileSystemEntityType.notFound) throw const FileSystemException('gone');
+        switch (type) {
+          case FileSystemEntityType.directory:
+            rows.add('$r\td\t${st.modified.millisecondsSinceEpoch}');
+            await walk(e.path, r);
+          case FileSystemEntityType.link:
+            String t;
+            try {
+              t = await Link(e.path).target();
+            } catch (_) {
+              t = '?';
+            }
+            rows.add('$r\tl\t$t');
+          case FileSystemEntityType.file:
+            final isSeed = r == 'wallet_data/wallet.seed';
+            final byContent = !_isDatabaseFile(r) && (isSeed ? st.size <= maxSeedBytes : st.size <= _hashContentLimit);
+            String h = '-';
+            if (byContent) {
+              try {
+                h = sha256.convert(await File(e.path).readAsBytes()).toString();
+              } catch (_) {
+                h = 'unreadable';
+              }
+            }
+            rows.add('$r\tf\t${st.size}\t${st.modified.millisecondsSinceEpoch}\t$h');
+          default:
+            rows.add('$r\tother');
+        }
+      } on FileSystemException {
+        rows.add('$r\tvanished'); // gone mid-walk: the hash differs from the complete folder's
       }
     }
   }
@@ -761,6 +838,32 @@ class _Walk {
   int bytes = 0;
   DateTime? newest;
   bool links = false;
+  bool incomplete = false;
+}
+
+bool _isLinkNow(String p) => FileSystemEntity.typeSync(p, followLinks: false) == FileSystemEntityType.link;
+
+/// The wallet folder, wallet_data or wallet_tor is itself a symlink or junction: its own type
+/// says link, or it resolves to somewhere other than where its parent's real path puts it.
+Future<bool> _folderIsLink(String dir) async {
+  if (_isLinkNow(dir)) return true;
+  String real;
+  try {
+    real = await Directory(dir).resolveSymbolicLinks();
+  } catch (_) {
+    return false;
+  }
+  for (final name in const ['wallet_data', 'wallet_tor']) {
+    final sub = _join(dir, name);
+    if (_isLinkNow(sub)) return true;
+    if (!await _isDir(sub)) continue;
+    try {
+      if (_norm(await Directory(sub).resolveSymbolicLinks()) != _norm(_join(real, name))) return true;
+    } catch (_) {
+      return true;
+    }
+  }
+  return false;
 }
 
 /// wallet_data and wallet_tor: size, newest mtime (wallet_data only), links. lstat only.
@@ -770,7 +873,10 @@ Future<_Walk> _walkWallet(String dir) async {
   Future<void> walk(String d, bool data) async {
     try {
       await for (final e in Directory(d).list(followLinks: false)) {
-        if (++seen > _walletWalkLimit) return;
+        if (++seen > _walletWalkLimit) {
+          out.incomplete = true;
+          return;
+        }
         final t = await FileSystemEntity.type(e.path, followLinks: false);
         if (t == FileSystemEntityType.directory) {
           await walk(e.path, data);
@@ -782,7 +888,9 @@ Future<_Walk> _walkWallet(String dir) async {
           out.links = true;
         }
       }
-    } catch (_) {/* unreadable part: counted as far as read */}
+    } catch (_) {
+      out.incomplete = true; // unreadable part: counted as far as read, and the wallet refused
+    }
   }
 
   await walk(_join(dir, 'wallet_data'), true);
@@ -825,7 +933,7 @@ Future<LegacyNetwork?> _tomlNetwork(String dir) async {
 Future<List<String>> _subdirs(String dir) async {
   final out = <String>[];
   try {
-    await for (final e in Directory(dir).list(followLinks: true)) {
+    await for (final e in Directory(dir).list(followLinks: false)) {
       if (e is Directory) out.add(e.path);
     }
   } catch (_) {}
