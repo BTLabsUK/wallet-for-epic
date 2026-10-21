@@ -1,30 +1,49 @@
-# Builds the Windows release and zips it. Run from app\ in PowerShell 7 on Windows.
+# Builds the Windows release and zips it. Run from anywhere in PowerShell 7 on Windows.
 #
-# Needs: Flutter 3.47.5 (default C:\Users\<you>\flutter), rustup (the Rust 1.89.0 pin in
-# rust\rust-toolchain.toml applies only through rustup), Visual Studio 2022 Build Tools with the
-# C++ workload, CMake, and Strawberry Perl with its NASM for the vendored OpenSSL and aws-lc.
-# ..\playground\src\epic-wallet and ..\playground\src\randomx-rust must exist (`pg sync`).
+# Needs: Flutter 3.47.5 (default C:\Users\<you>\flutter), rustup (LEPIC's rust-toolchain.toml
+# picks the Rust version), Visual Studio 2022 Build Tools with the C++ workload, CMake and Git.
+# -Lepic is a LEPIC repository holding the commit in ..\tools\lepic.rev. As tools/lepic.sh does on
+# Linux, the script clones it into app\third_party\lepic at that commit and builds lepic_ffi.dll
+# there with `cargo xtask mobile --package --target x86_64-pc-windows-msvc`; package:lepic's build
+# hook then bundles the DLL next to epic_wallet.exe.
 #
 # Output: build\epic_wallet-windows-x64-<version>.zip, a portable folder with epic_wallet.exe.
 param(
     [string]$Flutter = "$env:USERPROFILE\flutter\bin",
-    [string]$Strawberry = 'C:\Strawberry'
+    [string]$Lepic = (Join-Path $PSScriptRoot '..\..\..\lepic')
 )
 $ErrorActionPreference = 'Stop'
 Set-Location (Split-Path $PSScriptRoot -Parent)
 
-# rustup's shims first, so rust-toolchain.toml wins over any standalone Rust on PATH. Strawberry
-# Perl before Git's, because OpenSSL's Configure fails under Git's MSYS perl.
-$env:Path = @(
-    $Flutter,
-    "$env:USERPROFILE\.cargo\bin",
-    "$Strawberry\perl\bin",
-    "$Strawberry\c\bin",
-    $env:Path
-) -join ';'
-
-foreach ($tool in 'flutter', 'rustup', 'cmake', 'perl', 'nasm') {
+# rustup's shims first, so LEPIC's rust-toolchain.toml wins over any standalone Rust on PATH.
+$env:Path = @($Flutter, "$env:USERPROFILE\.cargo\bin", $env:Path) -join ';'
+foreach ($tool in 'flutter', 'rustup', 'cargo', 'cmake', 'git') {
     if (-not (Get-Command $tool -ErrorAction SilentlyContinue)) { throw "$tool not found on PATH" }
+}
+
+$rev = (Get-Content ..\tools\lepic.rev -Raw).Trim()
+$clone = 'third_party\lepic'
+if (-not (Test-Path "$clone\.git")) {
+    git clone --quiet --no-checkout $Lepic $clone
+    if ($LASTEXITCODE) { throw "could not clone LEPIC from $Lepic" }
+}
+git -C $clone fetch --quiet $Lepic '+refs/heads/*:refs/remotes/source/*'
+if ($LASTEXITCODE) { throw "could not fetch LEPIC from $Lepic" }
+git -C $clone checkout --quiet --detach $rev
+if ($LASTEXITCODE) { throw "LEPIC $rev is not in $Lepic" }
+if (git -C $clone status --porcelain --untracked-files=no) {
+    throw "$clone has local changes; it must match the pin exactly"
+}
+Write-Output "LEPIC at $(git -C $clone log --oneline -1)"
+
+# One target directory per clone: a shared one bakes the wrong paths into xtask.
+Remove-Item Env:CARGO_TARGET_DIR -ErrorAction SilentlyContinue
+Push-Location $clone
+try {
+    cargo xtask mobile --package --target x86_64-pc-windows-msvc
+    if ($LASTEXITCODE) { throw 'LEPIC build failed' }
+} finally {
+    Pop-Location
 }
 
 flutter --version
@@ -38,7 +57,7 @@ $version = (Select-String -Path pubspec.yaml -Pattern '^version:\s*(\S+)').Match
 $bundle = 'build\windows\x64\runner\Release'
 # A configure that failed once (for example on NuGet) caches C:\Program Files\epic_wallet as the
 # install prefix, and later builds install there, leaving only the exe here. Refuse that bundle.
-foreach ($file in 'flutter_windows.dll', 'epic_wallet_core.dll', 'data\icudtl.dat') {
+foreach ($file in 'epic_wallet.exe', 'flutter_windows.dll', 'lepic_ffi.dll', 'data\icudtl.dat') {
     if (-not (Test-Path "$bundle\$file")) {
         throw "$bundle\$file is missing. Delete build\windows and build again."
     }
