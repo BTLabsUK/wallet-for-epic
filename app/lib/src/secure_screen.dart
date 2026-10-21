@@ -3,17 +3,19 @@ import 'package:flutter/services.dart';
 
 const MethodChannel _channel = MethodChannel('epic_wallet/secure_screen');
 
-/// Blocks screenshots and the recent-apps preview on Android while [secure] is true.
+/// While [secure] is true: on Android, blocks screenshots, screen recording and the recent-apps
+/// preview (FLAG_SECURE, every API level); on iOS, covers the window whenever the app is
+/// inactive, so the app switcher's snapshot shows nothing (iOS cannot block screenshots).
 ///
 /// A no-op elsewhere. Failures are ignored: the phrase must still be shown.
 Future<void> setSecureScreen(bool secure) => _call('setSecure', secure);
 
-/// Keeps the screen out of the recent-apps preview on Android 13+ while [hidden] is true, and
-/// still allows screenshots. A no-op elsewhere, and failures are ignored.
-Future<void> hideRecentsPreview(bool hidden) => _call('hidePreview', hidden);
-
 Future<void> _call(String method, bool on) async {
-  if (kIsWeb || defaultTargetPlatform != TargetPlatform.android) return;
+  if (kIsWeb ||
+      (defaultTargetPlatform != TargetPlatform.android &&
+          defaultTargetPlatform != TargetPlatform.iOS)) {
+    return;
+  }
   try {
     await _channel.invokeMethod<void>(method, on);
   } on MissingPluginException {

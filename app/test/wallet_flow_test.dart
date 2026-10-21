@@ -272,50 +272,83 @@ void main() {
       expect(device.store.values['wallet.mainnet.pinBiometrics'], isNull);
     });
 
-    testWidgets('a wallet left without its sealed text starts over', (
-      tester,
-    ) async {
-      // The app stopped after LEPIC created the wallet and before the text was stored.
-      final service = _existing();
-      final device = _Device();
-      await _pumpApp(tester, service, device);
+    testWidgets(
+      'a wallet without its sealed text is kept until the user removes it',
+      (tester) async {
+        // The app stopped after LEPIC created the wallet and before the text was stored, or the
+        // store did not answer.
+        final service = _existing();
+        final device = _Device();
+        await _pumpApp(tester, service, device);
 
-      expect(find.text('Welcome'), findsOneWidget);
-      expect(service.deletedWallets, [_mainnetDir]);
-      await _enter(tester, 'PIN', _pin);
-      await _enter(tester, 'Repeat PIN', _pin);
-      expect(find.byKey(balanceFigureKey), findsOneWidget);
-      expect(service.createdPin, _pin);
-      expect(
-        device.store.values['wallet.mainnet.pinSealed'],
-        fakeSealedPassword(_pin),
-      );
-    });
+        expect(find.text('Welcome'), findsNothing);
+        expect(find.textContaining('Nothing was deleted'), findsOneWidget);
+        expect(service.deletedWallets, isEmpty);
 
-    testWidgets('an install of 1.2.x is discarded and starts at first run', (
+        // Removing it is the user's step.
+        await _tapText(tester, 'Forgot PIN?');
+        await _tapText(tester, 'I have my recovery phrase');
+        await _tap(tester, find.widgetWithText(FilledButton, 'Delete wallet'));
+        expect(service.deletedWallets, [_mainnetDir]);
+        expect(find.text('Welcome'), findsOneWidget);
+        await _enter(tester, 'PIN', _pin);
+        await _enter(tester, 'Repeat PIN', _pin);
+        expect(find.byKey(balanceFigureKey), findsOneWidget);
+        expect(service.createdPin, _pin);
+        expect(
+          device.store.values['wallet.mainnet.pinSealed'],
+          fakeSealedPassword(_pin),
+        );
+      },
+    );
+
+    testWidgets(
+      'sealed text without its wallet is kept, and nothing is deleted',
+      (tester) async {
+        // The wallet's entries are not where the app looks (a moved data directory).
+        final service = FakeWalletService();
+        final device = _Device(sealedMainnet: true);
+        final before = Map.of(device.store.values);
+        await _pumpApp(tester, service, device);
+
+        expect(find.text('Welcome'), findsNothing);
+        expect(find.textContaining('Nothing was deleted'), findsOneWidget);
+        expect(device.store.values, before);
+        expect(service.deletedWallets, isEmpty);
+      },
+    );
+
+    testWidgets('an install of 1.2.x stays, and first run starts beside it', (
       tester,
     ) async {
       final service = FakeWalletService();
       final device = _Device(biometrics: true);
-      device.store.values.addAll({
+      final old = {
         'wallet.mainnet.sealed': 'sealed by the old core',
         'wallet.mainnet.biometrics': '1',
-        'wallet.mainnet.backedUp': '1',
-      });
+      };
+      device.store.values.addAll({...old, 'wallet.mainnet.backedUp': '1'});
       device.bio.values['wallet.mainnet.password'] = 'old password';
       await _pumpApp(tester, service, device);
 
       expect(find.text('Welcome'), findsOneWidget);
       expect(find.text('Unlock wallet'), findsNothing);
-      expect(device.store.values, isEmpty);
-      expect(device.bio.values, isEmpty);
+      for (final e in old.entries) {
+        expect(device.store.values[e.key], e.value);
+      }
+      expect(device.bio.values, {'wallet.mainnet.password': 'old password'});
       expect(device.bio.prompts, 0);
 
       await _enter(tester, 'PIN', _pin);
       await _enter(tester, 'Repeat PIN', _pin);
       await _tapText(tester, 'Not now');
       expect(find.byKey(balanceFigureKey), findsOneWidget);
+      // The old wallet's backed-up flag does not carry over to the new one.
       expect(find.text('Back up your recovery phrase.'), findsOneWidget);
+      for (final e in old.entries) {
+        expect(device.store.values[e.key], e.value);
+      }
+      expect(device.bio.values['wallet.mainnet.password'], 'old password');
     });
 
     testWidgets('restore creates the wallet from the phrase under the PIN', (

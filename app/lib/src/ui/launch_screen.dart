@@ -12,7 +12,7 @@ import 'pin_unlock_screen.dart';
 import 'theme/brand.dart';
 
 /// Decides where the app starts: PIN unlock, or first run when no wallet opens with a PIN
-/// (also after an install of 1.2.x or older was discarded, [WalletVault.prepare]).
+/// (also over an install of 1.2.x or older, which stays in place, [WalletVault.prepare]).
 class LaunchScreen extends ConsumerStatefulWidget {
   const LaunchScreen({super.key});
 
@@ -54,6 +54,7 @@ class _LaunchScreenState extends ConsumerState<LaunchScreen> {
     return switch (await ref.read(vaultProvider).prepare(config)) {
       VaultStage.ready => const PinUnlockScreen(),
       VaultStage.empty => const FirstRunScreen(),
+      VaultStage.stranded => const PinUnlockScreen(stranded: true),
     };
   }
 

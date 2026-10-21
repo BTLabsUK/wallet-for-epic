@@ -30,6 +30,12 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
   ({String pin, bool biometrics})? _answer;
   String? _error;
 
+  @override
+  void dispose() {
+    _answer = null;
+    super.dispose();
+  }
+
   Future<void> _finish(String pin, bool useBiometrics) async {
     final config = ref.read(walletConfigProvider);
     if (config == null) return;
