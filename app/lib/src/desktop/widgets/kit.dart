@@ -2,6 +2,7 @@
 library;
 
 export '../app/routes.dart';
+export '../data/features.dart';
 export '../data/models.dart';
 export '../data/state.dart';
 export '../theme/icons.dart';

@@ -1,0 +1,60 @@
+/// What the desktop UI shows that the wallet core (LEPIC) or the app cannot do yet. Every spot
+/// of a false flag is hidden, not faked: a screen, row, segment, menu item, status line or
+/// onboarding path. The adapter (`lepic_desk_wallet.dart`) throws [UnsupportedError] for the
+/// methods behind a false flag. Flip a flag once its adapter method is real.
+///
+/// The hidden spots, by flag (gap ids from LEPIC's `docs/reviews/feature-gap-2026-10/gui-parity.md`):
+///
+/// multiWallet (A06–A13): several wallets, one open at a time.
+///   - Unlock: the Wallet select, "Add a wallet", the missing-folder notice and its Remove.
+///   - Welcome: "Add a wallet" heading and "Back to unlock" for a later visit.
+///   - Settings: the "All wallets" section (settingsWallets route).
+///   - Sidebar: "Switch wallet".
+///   - Remove wallet dialog: "Remove from the list only" and "Remove this app's files" modes.
+/// importWizard (B01–B32, A01's third door, A19): existing wallets from a folder or 6.1.x.
+///   - Welcome: "Add an existing wallet". Routes found and importWallets.
+///   - All wallets: "Import wallets…".
+/// dataFolder (A15): Welcome › Advanced › App data folder.
+/// testNetworks (A06 "any network each"): Welcome › Advanced › Network. Mainnet only.
+/// httpDirect (G01–G06, F07, J04): Send › Direct (HTTP), Receive's HTTP address, Settings ›
+///   Receiving › HTTP listener and Start with the wallet, the status card's HTTP line.
+/// tor (G07–G12): Send › Direct › Tor, Receive's onion address, Settings › Receiving ›
+///   Advanced › Tor, the status card's Tor line.
+/// builtInNode (D09–D14): Setup › Node's "Built-in node" card (Remote is the only choice),
+///   Settings › Node's "This computer" option, Sync in background, Blockchain data row.
+/// coins (I05): Activity › Outputs tab.
+/// dandelion (F05, H04): Send's Dandelion++ switch and the review's Privacy line.
+/// rescanRepair (A16): Rescan's "Delete unconfirmed transactions".
+/// stopScan: Rescan's Stop (a LEPIC scan runs to its end).
+/// nodeBlockTime (C04): "last block … ago" on the node status line.
+/// paymentProofs (I08, D6): Transaction details › Export proof.
+/// changePassword: Settings › This wallet › Change password (LEPIC has no password change).
+/// walletProcesses (A20, dropped): Unlock's "Looking for wallet processes" stage and the
+///   kill-process dialog (LEPIC runs in-process).
+///
+/// App-side, not in 0.1.0 (no core change needed):
+/// languages (K04): Setup › Preferences › Language, Settings › Appearance › Language.
+/// fiatPrice (C12): the fiat line under the balance.
+/// contactPictures: the contact form's picture and the list's photos (initials stay).
+library;
+
+abstract final class DeskFeatures {
+  static const bool multiWallet = false;
+  static const bool importWizard = false;
+  static const bool dataFolder = false;
+  static const bool testNetworks = false;
+  static const bool httpDirect = false;
+  static const bool tor = false;
+  static const bool builtInNode = false;
+  static const bool coins = false;
+  static const bool dandelion = false;
+  static const bool rescanRepair = false;
+  static const bool stopScan = false;
+  static const bool nodeBlockTime = false;
+  static const bool paymentProofs = false;
+  static const bool changePassword = false;
+  static const bool walletProcesses = false;
+  static const bool languages = false;
+  static const bool fiatPrice = false;
+  static const bool contactPictures = false;
+}

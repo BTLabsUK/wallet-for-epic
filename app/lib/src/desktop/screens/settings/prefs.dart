@@ -1,11 +1,17 @@
-/// Settings the mock keeps for the settings screens and the shell's status rows only: what
-/// 6.1.6 saves in its config (start Epicbox / HTTP with the wallet, built-in node, sync in
-/// background), the HTTP listener's run state, My nodes' labels and the wallet list edits.
+/// Settings the settings screens and the shell's status rows share: what 6.1.6 saves in its
+/// config (start Epicbox / HTTP with the wallet, built-in node, sync in background), the HTTP
+/// listener's run state, My nodes' labels and the wallet list edits. The saved part
+/// ([SettingsPrefs.toJson]) goes to [DeskStore] on every change and comes back before the
+/// first frame ([DeskBoot.prefs]).
 library;
+
+import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../data/desk_store.dart';
 import '../../widgets/kit.dart';
 
 /// The HTTP listener: off, starting or stopping, running, or failed to start.
@@ -67,6 +73,35 @@ class SettingsPrefs {
   final Set<String> removedWallets;
   final JumpTo? jump;
 
+  /// The part that is saved: choices, not run state.
+  Map<String, Object?> toJson() => {
+    'epicboxOnStart': epicboxOnStart,
+    'httpAutostart': httpAutostart,
+    'nodeBackground': nodeBackground,
+    'builtin': builtin,
+    'nodeLabels': nodeLabels,
+    'removedNodes': removedNodes.toList(),
+    'walletLabel': walletLabel,
+    'removedWallets': removedWallets.toList(),
+  };
+
+  factory SettingsPrefs.fromJson(Map<String, dynamic> j) {
+    const d = SettingsPrefs();
+    bool flag(String k, bool fallback) => j[k] is bool ? j[k] as bool : fallback;
+    Set<String> names(String k) => {for (final v in (j[k] is List ? j[k] as List : const [])) '$v'};
+    final labels = j['nodeLabels'];
+    return SettingsPrefs(
+      epicboxOnStart: flag('epicboxOnStart', d.epicboxOnStart),
+      httpAutostart: flag('httpAutostart', d.httpAutostart),
+      nodeBackground: flag('nodeBackground', d.nodeBackground),
+      builtin: DeskFeatures.builtInNode && flag('builtin', d.builtin),
+      nodeLabels: labels is Map ? {for (final e in labels.entries) '${e.key}': '${e.value}'} : const {},
+      removedNodes: names('removedNodes'),
+      walletLabel: j['walletLabel'] as String?,
+      removedWallets: names('removedWallets'),
+    );
+  }
+
   SettingsPrefs copyWith({
     bool? epicboxOnStart,
     bool? httpAutostart,
@@ -100,7 +135,17 @@ class SettingsPrefs {
 
 class SettingsPrefsController extends Notifier<SettingsPrefs> {
   @override
-  SettingsPrefs build() => const SettingsPrefs();
+  SettingsPrefs build() {
+    listenSelf((prev, next) {
+      final store = ref.read(deskStoreProvider);
+      if (store == null || prev == null) return;
+      final json = next.toJson();
+      if (jsonEncode(json) == jsonEncode(prev.toJson())) return;
+      unawaited(store.writeJson(DeskStore.prefsKey, json));
+    });
+    final saved = ref.read(deskBootProvider).prefs;
+    return saved == null ? const SettingsPrefs() : SettingsPrefs.fromJson(saved);
+  }
 
   void set(SettingsPrefs p) => state = p;
 

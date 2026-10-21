@@ -207,6 +207,7 @@ class ServiceStatus {
     required this.tor,
     this.syncProgress,
     this.lastUpdate,
+    this.notice,
   });
 
   final NodeServer node;
@@ -222,11 +223,37 @@ class ServiceStatus {
   /// 0..1 while the wallet scans; null when idle.
   final double? syncProgress;
   final DateTime? lastUpdate;
+
+  /// A one-line state the wallet is in, e.g. a database being rebuilt; null when none.
+  final String? notice;
+}
+
+/// New wallet passwords must have at least this many characters (LEPIC refuses shorter ones).
+const int minPasswordLength = 8;
+
+/// One step of a rescan: the core's message and, when it gives one, the percentage.
+@immutable
+class ScanStep {
+  const ScanStep(this.message, {this.percent});
+
+  final String message;
+  final int? percent;
+}
+
+/// A wallet error, in a short sentence for the screen.
+class DeskError implements Exception {
+  const DeskError(this.message, {this.wrongPassword = false});
+
+  final String message;
+  final bool wrongPassword;
+
+  @override
+  String toString() => message;
 }
 
 @immutable
 class WalletAccount {
-  const WalletAccount({required this.name, required this.network, required this.folder, required this.created});
+  const WalletAccount({required this.name, required this.network, required this.folder, required this.created, this.appFolder});
 
   final String name;
 
@@ -234,6 +261,9 @@ class WalletAccount {
   final String network;
   final String folder;
   final DateTime created;
+
+  /// Where the app keeps its settings and log; null in the mock.
+  final String? appFolder;
 }
 
 enum ThemeChoice { system, dark, light }
