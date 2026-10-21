@@ -55,6 +55,7 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
 
   @override
   void dispose() {
+    _pin.clear();
     _pin.dispose();
     super.dispose();
   }

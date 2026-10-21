@@ -39,6 +39,7 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
   @override
   void dispose() {
     setSecureScreen(false);
+    _words = const [];
     super.dispose();
   }
 
