@@ -78,6 +78,7 @@ WalletError mapLepicError(lepic.WalletError error) {
     lepic.WalletErrorKind.walletBusy => WalletErrorKind.walletBusy,
     lepic.WalletErrorKind.paymentExpired => WalletErrorKind.paymentExpired,
     lepic.WalletErrorKind.io => WalletErrorKind.io,
+    lepic.WalletErrorKind.damagedDatabase => WalletErrorKind.damagedDatabase,
     lepic.WalletErrorKind.secretStore => WalletErrorKind.io,
     lepic.WalletErrorKind.foreignWallet => WalletErrorKind.invalidArgument,
     // The old core refused a cancel of a payment on chain, and a history file of another
