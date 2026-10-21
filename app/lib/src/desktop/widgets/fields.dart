@@ -258,11 +258,16 @@ class _EPasswordInputState extends State<EPasswordInput> {
 
 /// On/off switch: 40×24 track, label and description beside it when given.
 class ESwitch extends StatelessWidget {
-  const ESwitch({super.key, required this.value, this.onChanged, this.label});
+  const ESwitch({super.key, required this.value, this.onChanged, this.label, this.semanticLabel});
 
   final bool value;
   final ValueChanged<bool>? onChanged;
+
+  /// Shown beside the track.
   final String? label;
+
+  /// Read by screen readers only, for a switch whose row already shows its title.
+  final String? semanticLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -291,7 +296,7 @@ class ESwitch extends StatelessWidget {
     );
     return Semantics(
       toggled: value,
-      label: label,
+      label: label ?? semanticLabel,
       child: FocusableActionDetector(
         enabled: enabled,
         mouseCursor: enabled ? SystemMouseCursors.click : SystemMouseCursors.forbidden,

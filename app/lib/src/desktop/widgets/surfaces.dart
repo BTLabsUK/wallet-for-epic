@@ -313,14 +313,18 @@ class EAddress extends StatelessWidget {
     final ts = context.ts;
     final base = ts.mono(size: large ? 14.5 : Fs.sm);
     final hl = base.copyWith(color: c.accentText, fontWeight: FontWeight.w600);
-    final a = address;
-    final spans = a.length > 14
+    // The highlight marks the address itself, not the relay after "@" or a URL.
+    final at = address.indexOf('@');
+    final a = at > 0 ? address.substring(0, at) : address;
+    final rest = at > 0 ? address.substring(at) : '';
+    final spans = a.length > 14 && !a.startsWith('http')
         ? [
             TextSpan(text: a.substring(0, 6), style: hl),
             TextSpan(text: a.substring(6, a.length - 6)),
             TextSpan(text: a.substring(a.length - 6), style: hl),
+            TextSpan(text: rest, style: base.copyWith(color: c.dim)),
           ]
-        : [TextSpan(text: a)];
+        : [TextSpan(text: address)];
     return Container(
       padding: const EdgeInsets.fromLTRB(Sp.x4, Sp.x3, Sp.x2, Sp.x3),
       decoration: BoxDecoration(
@@ -607,7 +611,7 @@ class _EDetailsState extends State<EDetails> {
                     child: Icon(EIcons.chevronRight, size: Ctl.icon, color: c.dim),
                   ),
                   const SizedBox(width: Sp.x2),
-                  Text(widget.title, style: context.ts.strong.copyWith(color: c.dim)),
+                  Expanded(child: Text(widget.title, style: context.ts.strong.copyWith(color: c.dim))),
                 ],
               ),
             ),

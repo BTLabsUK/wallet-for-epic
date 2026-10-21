@@ -353,7 +353,7 @@ class EOnbFrame extends StatelessWidget {
                 child: Row(
                   children: [
                     for (var i = 0; i < actions.length; i++) ...[
-                      if (i == actions.length - 1 && actions.length > 1) const Spacer(),
+                      if (i == actions.length - 1) const Spacer(),
                       if (i > 0 && i < actions.length - 1) const SizedBox(width: Sp.x3),
                       actions[i],
                     ],

@@ -107,7 +107,7 @@ class _EButtonState extends State<EButton> {
             child: CircularProgressIndicator(strokeWidth: 2, color: fg),
           )
         : (widget.icon == null ? null : Icon(widget.icon, size: iconSize, color: fg));
-    Widget body = AnimatedContainer(
+    final face = AnimatedContainer(
       duration: Dur.fast,
       height: height,
       padding: EdgeInsets.symmetric(horizontal: padH),
@@ -132,7 +132,7 @@ class _EButtonState extends State<EButton> {
         ],
       ),
     );
-    body = Semantics(
+    Widget body = Semantics(
       button: true,
       enabled: enabled,
       label: widget.label,
@@ -150,7 +150,7 @@ class _EButtonState extends State<EButton> {
               onTapUp: enabled ? (_) => setState(() => _down = false) : null,
               onTapCancel: () => setState(() => _down = false),
               onTap: enabled ? widget.onPressed : null,
-              child: FocusRing(focused: focused, child: body),
+              child: FocusRing(focused: focused, child: face),
             );
           },
         ),
