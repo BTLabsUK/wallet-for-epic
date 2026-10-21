@@ -155,11 +155,15 @@ class ETag extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           if (icon != null) ...[Icon(icon, size: 14.u, color: fg), SizedBox(width: Sp.x1)],
-          Text(
-            label,
-            style: mono
-                ? context.ts.mono(size: Fs.xs, color: fg, weight: FontWeight.w500)
-                : TextStyle(fontSize: Fs.xs, fontWeight: FontWeight.w600, color: fg),
+          Flexible(
+            child: Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: mono
+                  ? context.ts.mono(size: Fs.xs, color: fg, weight: FontWeight.w500)
+                  : TextStyle(fontSize: Fs.xs, fontWeight: FontWeight.w600, color: fg),
+            ),
           ),
         ],
       ),
@@ -270,10 +274,11 @@ class ENotice extends StatelessWidget {
 
 /// Key/value facts in two columns.
 class EFacts extends StatelessWidget {
-  const EFacts(this.rows, {super.key, this.labelWidth = 140});
+  const EFacts(this.rows, {super.key, this._labelWidth});
 
   final List<(String, Widget)> rows;
-  final double labelWidth;
+  final double? _labelWidth;
+  double get labelWidth => _labelWidth ?? 140.u;
 
   @override
   Widget build(BuildContext context) {

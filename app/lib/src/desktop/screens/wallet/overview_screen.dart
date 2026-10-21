@@ -104,8 +104,8 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
           text: 'Node: $nodeUrl',
           actionsBelow: true,
           actions: [
-            EButton(label: 'Use a public node', icon: EIcons.web, size: EBtnSize.inline, onPressed: () => nav.go(DeskRoute.settingsNode)),
-            EButton(label: 'Use the built-in node', icon: EIcons.server, size: EBtnSize.inline, busy: _restarting, onPressed: _restartNode),
+            EButton(label: 'Use public node', icon: EIcons.web, size: EBtnSize.inline, onPressed: () => nav.go(DeskRoute.settingsNode)),
+            EButton(label: 'Use built-in node', icon: EIcons.server, size: EBtnSize.inline, busy: _restarting, onPressed: _restartNode),
             EButton(label: 'Hide', kind: EBtnKind.ghost, size: EBtnSize.inline, onPressed: () => setState(() => _problemHidden = true)),
           ],
         ),
@@ -499,11 +499,13 @@ class _BigAmount extends StatelessWidget {
       builder: (context, box) {
         final base = ts.display.copyWith(fontFeatures: const [FontFeature.tabularFigures()]);
         final unitStyle = ts.mono(size: Fs.md, weight: FontWeight.w500);
-        final unitW = (TextPainter(
+        final unitPainter = TextPainter(
           text: TextSpan(text: 'EPIC', style: unitStyle),
           textDirection: TextDirection.ltr,
           textScaler: MediaQuery.textScalerOf(context),
-        )..layout()).width;
+        )..layout();
+        final unitW = unitPainter.width;
+        unitPainter.dispose();
         final size = fitFontSize(context, hidden ? '••••••' : text, base, const [Fs.display, Fs.h1, Fs.h2], box.maxWidth, extra: unitW + 10.u);
         return Semantics(
           label: hidden ? 'Hidden amount' : '$text EPIC',
@@ -827,7 +829,7 @@ class _StatusCard extends ConsumerWidget {
                 padding: EdgeInsets.fromLTRB(Sp.x5, Sp.x2, Sp.x5, Sp.x3),
                 child: Align(
                   alignment: Alignment.centerLeft,
-                  child: EButton(label: 'More ways to receive', size: EBtnSize.sm, onPressed: () => nav.go(DeskRoute.receive)),
+                  child: EButton(label: 'More options', size: EBtnSize.sm, onPressed: () => nav.go(DeskRoute.receive)),
                 ),
               ),
             ],

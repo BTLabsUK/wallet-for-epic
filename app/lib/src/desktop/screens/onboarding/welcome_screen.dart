@@ -181,7 +181,7 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
               EButton(label: 'Choose a folder', icon: EIcons.folder, size: EBtnSize.sm, onPressed: _pickFolder),
               if (flow.dataFolder != null)
                 ELink(
-                  label: 'Use the default folder',
+                  label: 'Default folder',
                   onPressed: () => setState(() {
                     _folderError = null;
                     ref.read(onbFlowProvider.notifier).setFolder(null);

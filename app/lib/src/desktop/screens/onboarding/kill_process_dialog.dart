@@ -123,7 +123,7 @@ class _KillProcessDialogState extends State<_KillProcessDialog> {
         actions: [
           EButton.ghost(label: 'Cancel', onPressed: _closing ? null : () => Navigator.pop(context, false)),
           EButton(
-            label: _closing ? 'Closing…' : 'Close them and unlock',
+            label: _closing ? 'Closing…' : 'Close and unlock',
             kind: EBtnKind.danger,
             busy: _closing,
             onPressed: _close,

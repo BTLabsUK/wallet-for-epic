@@ -434,7 +434,7 @@ class _SegState<T> extends State<_Seg<T>> {
                     ),
                     if (widget.seg.count != null) ...[
                       SizedBox(width: 6.u),
-                      Text('${widget.seg.count}', style: context.ts.mono(size: 11.u, color: c.faint)),
+                      Text('${widget.seg.count}', style: context.ts.mono(size: 11, color: c.faint)),
                     ],
                   ],
                 ),

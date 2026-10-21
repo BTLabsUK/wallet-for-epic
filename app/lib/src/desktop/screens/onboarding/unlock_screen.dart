@@ -141,6 +141,7 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
       return;
     }
     await ref.read(deskProvider.notifier).refresh();
+    if (!mounted) return;
     ref.read(deskNavProvider.notifier).reset(DeskRoute.overview);
   }
 

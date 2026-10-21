@@ -167,8 +167,8 @@ class _FoundScreenState extends ConsumerState<FoundScreen> {
       icon: EIcons.wallet,
       width: 560.u,
       alternatives: [
-        ELink(label: 'Create a new wallet', dim: true, onPressed: () => nav.go(DeskRoute.create)),
-        ELink(label: 'Restore from a phrase', dim: true, onPressed: () => nav.go(DeskRoute.restore)),
+        ELink(label: 'Create wallet', dim: true, onPressed: () => nav.go(DeskRoute.create)),
+        ELink(label: 'Restore wallet', dim: true, onPressed: () => nav.go(DeskRoute.restore)),
       ],
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,

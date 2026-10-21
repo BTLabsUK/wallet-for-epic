@@ -365,7 +365,8 @@ class _CardPlace extends SingleChildLayoutDelegate {
     }
     left = left.clamp(edge, math.max(edge, size.width - card.width - edge));
     top = top.clamp(edge, math.max(edge, size.height - card.height - edge));
-    return Offset(left, top);
+    // Whole pixels: a card at .5 px draws its text blurred on Windows.
+    return Offset(left.roundToDouble(), top.roundToDouble());
   }
 
   @override

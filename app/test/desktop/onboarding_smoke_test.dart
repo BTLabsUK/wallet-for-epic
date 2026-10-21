@@ -75,7 +75,7 @@ void flows() {
     await tester.tap(find.text('Unlock').last);
     await _wait(tester, 1000);
     expect(find.text('Epic is already running'), findsOneWidget);
-    await tester.tap(find.text('Close them and unlock'));
+    await tester.tap(find.text('Close and unlock'));
     await _wait(tester, 1200);
     expect(find.text('Epic is already running'), findsNothing);
     expect(find.textContaining('Closing the old wallet processes'), findsOneWidget);

@@ -174,10 +174,10 @@ class _Grid extends CustomPainter {
     final p = Paint()
       ..color = color
       ..strokeWidth = 1;
-    for (var x = 0.0; x <= size.width; x += 32) {
+    for (var x = 0.0; x <= size.width; x += 32.u) {
       canvas.drawLine(Offset(x, 0), Offset(x, size.height), p);
     }
-    for (var y = 0.0; y <= size.height; y += 32) {
+    for (var y = 0.0; y <= size.height; y += 32.u) {
       canvas.drawLine(Offset(0, y), Offset(size.width, y), p);
     }
   }

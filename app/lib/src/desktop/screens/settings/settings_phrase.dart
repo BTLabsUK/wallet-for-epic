@@ -17,6 +17,9 @@ const _demoWords = [
   'timber', 'crisp', 'wander', 'echo', 'faculty', 'notable', 'ripple', 'garlic', 'stamp', 'dwarf', 'enjoy', 'harbor',
 ];
 
+
+Timer? _clipboardTimer;
+
 class SettingsPhraseScreen extends ConsumerStatefulWidget {
   const SettingsPhraseScreen({super.key, this.arg});
 
@@ -100,8 +103,14 @@ class _SettingsPhraseScreenState extends ConsumerState<SettingsPhraseScreen> {
   }
 
   void _copy() {
-    Clipboard.setData(ClipboardData(text: _words!.join(' ')));
-    Timer(const Duration(seconds: 30), () => Clipboard.setData(const ClipboardData(text: '')));
+    final phrase = _words!.join(' ');
+    Clipboard.setData(ClipboardData(text: phrase));
+    // One timer for the app, outliving the page: cleared only if the phrase is still there.
+    _clipboardTimer?.cancel();
+    _clipboardTimer = Timer(const Duration(seconds: 30), () async {
+      final now = await Clipboard.getData(Clipboard.kTextPlain);
+      if (now?.text == phrase) await Clipboard.setData(const ClipboardData(text: ''));
+    });
     showEToast(context, 'Phrase copied', text: 'The clipboard is cleared in 30 s.');
   }
 

@@ -41,7 +41,7 @@ class EAvatar extends StatelessWidget {
         ),
         child: Text(
           initials(name),
-          style: context.ts.h3.copyWith(fontSize: size * 0.4, color: c.accentText, letterSpacing: 0),
+          style: context.ts.h3.copyWith(fontSize: size * 0.4 / deskScale, color: c.accentText, letterSpacing: 0),
         ),
       ),
     );
@@ -285,7 +285,7 @@ class ESeedGrid extends StatelessWidget {
                   children: [
                     SizedBox(
                       width: 20.u,
-                      child: Text('${i + 1}', textAlign: TextAlign.right, style: context.ts.mono(size: 11.u, color: c.faint)),
+                      child: Text('${i + 1}', textAlign: TextAlign.right, style: context.ts.mono(size: 11, color: c.faint)),
                     ),
                     SizedBox(width: Sp.x2),
                     Expanded(
@@ -547,7 +547,7 @@ class EKbd extends StatelessWidget {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 6.u, vertical: 2),
       decoration: BoxDecoration(borderRadius: BorderRadius.circular(Rad.xs), border: Border.all(color: c.lineStrong)),
-      child: Text(keys, style: context.ts.mono(size: 11.u, color: c.dim, weight: FontWeight.w500)),
+      child: Text(keys, style: context.ts.mono(size: 11, color: c.dim, weight: FontWeight.w500)),
     );
   }
 }

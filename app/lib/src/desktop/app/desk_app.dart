@@ -6,6 +6,9 @@ import '../widgets/kit.dart';
 import 'screens.dart';
 import 'shell.dart';
 
+/// The app's navigator: dialogs and drawers live on it (lock closes them).
+final deskNavigatorKey = GlobalKey<NavigatorState>();
+
 /// The desktop interface's root. Expects a `ProviderScope` above it. Dark by default; the
 /// theme follows Settings › Appearance.
 class DeskApp extends ConsumerWidget {
@@ -19,6 +22,7 @@ class DeskApp extends ConsumerWidget {
     // Theme's 100 % is a 17 px root (6.1.6's MODERN_BASE), the tokens are written for 16.
     deskScale = (deskScales.contains(scale) ? scale : 100) / 100 * deskBase;
     return MaterialApp(
+      navigatorKey: deskNavigatorKey,
       title: 'Epic Cash Wallet',
       debugShowCheckedModeBanner: false,
       themeMode: switch (theme) {
@@ -51,9 +55,16 @@ class DeskRoot extends ConsumerStatefulWidget {
 }
 
 class _DeskRootState extends ConsumerState<DeskRoot> {
+  /// Per provider container, so each test's app starts fresh.
+  static final _started = Expando<bool>();
+
   @override
   void initState() {
     super.initState();
+    // A scale change rebuilds this widget; settings and the wallet load only the first time.
+    final container = ProviderScope.containerOf(context, listen: false);
+    if (_started[container] ?? false) return;
+    _started[container] = true;
     ref.read(deskProvider.notifier).loadSettings();
     // Started straight on an in-app page (WFE_DESK_START, the tour): load the mock wallet.
     if (!ref.read(deskNavProvider).route.bare) ref.read(deskProvider.notifier).refresh();

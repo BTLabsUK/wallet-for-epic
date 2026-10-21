@@ -306,7 +306,7 @@ class _Empty extends ConsumerWidget {
             runSpacing: Sp.x2,
             children: [
               EButton.primary(label: 'Add contact', icon: EIcons.userPlus, onPressed: onAdd),
-              EButton.ghost(label: 'Send to an address', size: EBtnSize.md, onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.send)),
+              EButton.ghost(label: 'Send to address', size: EBtnSize.md, onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.send)),
             ],
           ),
         ],

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:epic_wallet/src/desktop/app/desk_app.dart' show DeskTextScaler;
 import 'package:epic_wallet/src/desktop/app/routes.dart';
 import 'package:epic_wallet/src/desktop/data/state.dart';
 import 'package:epic_wallet/src/desktop/screens/wallet/activity_screen.dart';
@@ -32,10 +33,10 @@ void main() {
       testWidgets('${shot.id} at ${size.width.toInt()} ${(scale * 100).round()}%', (tester) async {
         tester.view.physicalSize = size;
         tester.view.devicePixelRatio = 1;
-        deskScale = scale;
+        deskScale = scale * deskBase;
         addTearDown(() {
           tester.view.reset();
-          deskScale = 1;
+          deskScale = deskBase;
         });
         final container = ProviderContainer();
         addTearDown(container.dispose);
@@ -48,7 +49,7 @@ void main() {
               theme: buildDeskTheme(Brightness.dark),
               builder: (context, child) {
                 final mq = MediaQuery.of(context);
-                return MediaQuery(data: mq.copyWith(textScaler: TextScaler.linear(scale)), child: child!);
+                return MediaQuery(data: mq.copyWith(textScaler: DeskTextScaler(mq.textScaler, deskScale)), child: child!);
               },
               home: Scaffold(body: _screen(shot.route, shot.arg)),
             ),
