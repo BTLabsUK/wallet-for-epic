@@ -243,7 +243,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
               children: [
                 Semantics(header: true, child: Text(title, style: ts.label)),
                 SizedBox(height: Sp.x1),
-                EFacts(rows, labelWidth: 120),
+                EFacts(rows, labelWidth: 120.u),
               ],
             ),
           ),

@@ -11,6 +11,7 @@ import '../screens/settings/settings_frame.dart' show epicboxWord, groupDigits, 
 import '../screens/settings/settings_node.dart' show hostOf;
 import '../screens/settings/settings_receiving.dart' show httpShown;
 import '../widgets/kit.dart';
+import 'desk_app.dart' show deskNavigatorKey;
 import 'screens.dart';
 import 'tour.dart';
 
@@ -165,6 +166,9 @@ Future<void> lockWallet(WidgetRef ref) async {
   } finally {
     ref.read(deskLockingProvider.notifier).set(false);
   }
+  // Nothing of the wallet stays over the unlock screen: open dialogs and the tour go.
+  deskNavigatorKey.currentState?.popUntil((r) => r.isFirst);
+  ref.read(deskTourProvider.notifier).close();
   ref.read(deskNavProvider.notifier).reset(DeskRoute.unlock);
 }
 

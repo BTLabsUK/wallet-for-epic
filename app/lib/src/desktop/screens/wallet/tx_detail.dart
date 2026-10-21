@@ -115,7 +115,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
         ),
         if (t.state != TxState.cancelled) ...[_Sub('Progress'), for (final (i, st) in steps.indexed) _TimelineStep(step: st, last: i == steps.length - 1)],
         _Sub('Details'),
-        EFacts(labelWidth: 96, [
+        EFacts(labelWidth: 96.u, [
           ('Date', Text(dateTimeOf(t))),
           if (t.counterparty != null)
             (
@@ -153,7 +153,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
         SizedBox(height: Sp.x5),
         EDetails(
           title: 'Technical details',
-          child: EFacts(labelWidth: 96, [
+          child: EFacts(labelWidth: 96.u, [
             ('Id', Text('${t.id}', style: ts.mono(size: Fs.xs))),
             (
               'Slate id',
