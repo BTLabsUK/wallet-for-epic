@@ -2,7 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../widgets/kit.dart';
+import 'dialogs.dart';
+import 'prefs.dart';
 import 'settings_frame.dart';
+
+/// Shortens a long folder path in the middle: "~/.epic/…/wallet_data".
+String shortPath(String p, {int max = 40}) {
+  if (p.length <= max) return p;
+  final parts = p.split('/');
+  if (parts.length < 4) return '${p.substring(0, max - 1)}…';
+  return '${parts.take(2).join('/')}/…/${parts.last}';
+}
 
 class SettingsWalletsScreen extends ConsumerWidget {
   const SettingsWalletsScreen({super.key, this.arg});
@@ -11,10 +21,12 @@ class SettingsWalletsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final wallets = ref.watch(deskProvider.select((s) => s.wallets));
+    final all = ref.watch(deskProvider.select((s) => s.wallets));
+    final removed = ref.watch(settingsPrefsProvider.select((p) => p.removedWallets));
     final nav = ref.read(deskNavProvider.notifier);
     final c = context.dc;
     final ts = context.ts;
+    final wallets = all?.where((w) => !removed.contains(w.folder)).toList();
     return SettingsFrame(
       route: DeskRoute.settingsWallets,
       child: wallets == null
@@ -23,48 +35,96 @@ class SettingsWalletsScreen extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 ESetGroup(
-                  title: 'Wallets on this computer',
-                  rows: wallets.isEmpty
-                      ? [const ESetRow(title: 'No wallets found', text: 'Add an existing wallet folder or import wallets.')]
-                      : [
-                          for (final w in wallets)
-                            Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: Sp.x5, vertical: Sp.x3),
-                              child: Row(
+                  title: 'All wallets',
+                  rows: [
+                    for (final w in wallets)
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: Sp.x5, vertical: Sp.x3),
+                        child: Row(
+                          children: [
+                            EGlyphTile(size: 36.u, icon: EIcons.wallet),
+                            SizedBox(width: Sp.x3),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  EAvatar(w.name),
-                                  const SizedBox(width: Sp.x3),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Row(
-                                          children: [
-                                            Flexible(child: Text(w.name, style: ts.strong, overflow: TextOverflow.ellipsis)),
-                                            const SizedBox(width: Sp.x2),
-                                            ETag(w.network),
-                                          ],
-                                        ),
-                                        Text(w.folder, style: ts.mono(size: Fs.xs, color: c.faint), overflow: TextOverflow.ellipsis),
-                                      ],
-                                    ),
+                                  Wrap(
+                                    spacing: Sp.x2,
+                                    runSpacing: Sp.x1,
+                                    crossAxisAlignment: WrapCrossAlignment.center,
+                                    children: [
+                                      Text(w.name, style: ts.strong, overflow: TextOverflow.ellipsis),
+                                      if (w.network != 'mainnet') ETag(w.network, tone: ETone.warn),
+                                      if (w.current) const ETag('Open now', tone: ETone.ok),
+                                    ],
                                   ),
-                                  const SizedBox(width: Sp.x3),
-                                  w.current
-                                      ? const ETag('Current', tone: ETone.gold, icon: EIcons.check)
-                                      : EButton(label: 'Switch', size: EBtnSize.sm, onPressed: () => nav.reset(DeskRoute.unlock)),
+                                  Tooltip(
+                                    message: w.folder,
+                                    child: Text(shortPath(w.folder), style: ts.mono(size: Fs.xs, color: c.faint), overflow: TextOverflow.ellipsis),
+                                  ),
                                 ],
                               ),
                             ),
-                        ],
-                ),
-                Wrap(
-                  spacing: Sp.x3,
-                  runSpacing: Sp.x3,
-                  children: [
-                    EButton(label: 'Add existing', icon: EIcons.plus, size: EBtnSize.sm, onPressed: () => nav.go(DeskRoute.found)),
-                    EButton(label: 'Import wallets', icon: EIcons.fileDown, size: EBtnSize.sm, onPressed: () => nav.go(DeskRoute.importWallets)),
+                            SizedBox(width: Sp.x2),
+                            EIconButton(
+                              icon: EIcons.folderOpen,
+                              label: 'Show ${w.name} in its folder',
+                              onPressed: () => showEToast(context, 'Opening folder', text: w.folder),
+                            ),
+                            w.current
+                                ? SizedBox(width: Ctl.sm)
+                                : EIconButton(icon: EIcons.trash, label: 'Remove ${w.name}…', onPressed: () => showRemoveWalletDialog(context, w)),
+                          ],
+                        ),
+                      ),
                   ],
+                ),
+                ESectionHead('Add a wallet', top: 0),
+                LayoutBuilder(
+                  builder: (context, box) {
+                    final cards = [
+                      EChoiceCard(
+                        title: 'Create a wallet',
+                        description: 'A new wallet with a new recovery phrase.',
+                        icon: EIcons.plus,
+                        selected: false,
+                        onTap: () => nav.go(DeskRoute.create),
+                      ),
+                      EChoiceCard(
+                        title: 'Add existing',
+                        description: 'A wallet folder already on this computer.',
+                        icon: EIcons.folderOpen,
+                        selected: false,
+                        onTap: () => nav.go(DeskRoute.found),
+                      ),
+                      EChoiceCard(
+                        title: 'Restore',
+                        description: 'From a recovery phrase.',
+                        icon: EIcons.backup,
+                        selected: false,
+                        onTap: () => nav.go(DeskRoute.restore),
+                      ),
+                    ];
+                    if (box.maxWidth < 600.u) {
+                      return Column(children: [for (final w in cards) Padding(padding: EdgeInsets.only(bottom: Sp.x3), child: w)]);
+                    }
+                    return IntrinsicHeight(
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          for (var i = 0; i < cards.length; i++) ...[
+                            if (i > 0) SizedBox(width: Sp.x3),
+                            Expanded(child: cards[i]),
+                          ],
+                        ],
+                      ),
+                    );
+                  },
+                ),
+                SizedBox(height: Sp.x3),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: EButton(label: 'Import wallets…', icon: EIcons.fileDown, size: EBtnSize.sm, kind: EBtnKind.ghost, onPressed: () => nav.go(DeskRoute.importWallets)),
                 ),
               ],
             ),

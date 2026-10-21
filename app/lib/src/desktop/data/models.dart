@@ -25,6 +25,7 @@ class Balance {
     required this.awaitingConfirmation,
     required this.locked,
     required this.awaitingFinalization,
+    this.immature = 0,
   });
 
   final int spendable;
@@ -34,7 +35,10 @@ class Balance {
   final int locked;
   final int awaitingFinalization;
 
-  int get total => spendable + awaitingConfirmation + locked;
+  /// Mining rewards below their lock height.
+  final int immature;
+
+  int get total => spendable + awaitingConfirmation + locked + immature;
 }
 
 enum TxDirection { received, sent }
@@ -54,6 +58,33 @@ enum TxState {
 
 enum TxMethod { epicbox, http, tor, file }
 
+/// Confirmations before a mining reward can be spent.
+const int coinbaseMaturity = 1440;
+
+enum OutputStatus { unconfirmed, confirming, unspent, immature, locked, spent }
+
+/// One coin of the balance (an output and its commitment).
+@immutable
+class Output {
+  const Output({
+    required this.commitment,
+    required this.value,
+    required this.status,
+    this.height,
+    this.confirmations = 0,
+    this.lockHeight,
+  });
+
+  final String commitment;
+  final int value;
+  final OutputStatus status;
+  final int? height;
+  final int confirmations;
+
+  /// Height a mining reward unlocks at.
+  final int? lockHeight;
+}
+
 @immutable
 class Tx {
   const Tx({
@@ -72,6 +103,9 @@ class Tx {
     this.height,
     this.kernel,
     this.hasProof = false,
+    this.coinbase = false,
+    this.foundByScan = false,
+    this.confirmedAt,
   });
 
   final int id;
@@ -92,13 +126,22 @@ class Tx {
   final String? kernel;
   final bool hasProof;
 
+  /// A mining reward: spendable only after [coinbaseMaturity] confirmations.
+  final bool coinbase;
+
+  /// A received output a scan found with no transaction record (another copy of the seed).
+  final bool foundByScan;
+  final DateTime? confirmedAt;
+
+  bool get immature => coinbase && state != TxState.cancelled && confirmations > 0 && confirmations < coinbaseMaturity;
+
   bool get incoming => direction == TxDirection.received;
   bool get pending => state == TxState.waitingRecipient || state == TxState.posted || state == TxState.confirming;
 }
 
 @immutable
 class Contact {
-  const Contact({required this.id, required this.name, required this.address, this.note, this.favourite = false, this.lastUsed});
+  const Contact({required this.id, required this.name, required this.address, this.note, this.favourite = false, this.lastUsed, this.hasPicture = false});
 
   final String id;
   final String name;
@@ -106,6 +149,9 @@ class Contact {
   final String? note;
   final bool favourite;
   final DateTime? lastUsed;
+
+  /// A picture was added for the contact (the mock draws a placeholder).
+  final bool hasPicture;
 }
 
 enum ServiceHealth { ok, slow, down, off, checking }
@@ -192,10 +238,14 @@ class WalletAccount {
 
 enum ThemeChoice { system, dark, light }
 
+/// Interface scales offered in Settings › Appearance, in percent (6.1.6's SCALES).
+const List<int> deskScales = [90, 100, 110, 125, 150];
+
 @immutable
 class DeskSettings {
   const DeskSettings({
     this.theme = ThemeChoice.dark,
+    this.scale = 100,
     this.language = 'English',
     this.hideAmounts = false,
     this.nodeFailover = true,
@@ -205,9 +255,13 @@ class DeskSettings {
     this.publicMode = false,
     this.autoLockMinutes = 15,
     this.fiat = 'USD',
+    this.newLookSeen = false,
   });
 
   final ThemeChoice theme;
+
+  /// Interface scale in percent, one of [deskScales]: text and layout together.
+  final int scale;
   final String language;
   final bool hideAmounts;
 
@@ -224,8 +278,12 @@ class DeskSettings {
   final int? autoLockMinutes;
   final String fiat;
 
+  /// The one-time "new look" notice on Overview was closed.
+  final bool newLookSeen;
+
   DeskSettings copyWith({
     ThemeChoice? theme,
+    int? scale,
     String? language,
     bool? hideAmounts,
     bool? nodeFailover,
@@ -235,8 +293,10 @@ class DeskSettings {
     bool? publicMode,
     int? autoLockMinutes,
     String? fiat,
+    bool? newLookSeen,
   }) => DeskSettings(
     theme: theme ?? this.theme,
+    scale: scale ?? this.scale,
     language: language ?? this.language,
     hideAmounts: hideAmounts ?? this.hideAmounts,
     nodeFailover: nodeFailover ?? this.nodeFailover,
@@ -246,13 +306,14 @@ class DeskSettings {
     publicMode: publicMode ?? this.publicMode,
     autoLockMinutes: autoLockMinutes ?? this.autoLockMinutes,
     fiat: fiat ?? this.fiat,
+    newLookSeen: newLookSeen ?? this.newLookSeen,
   );
 }
 
 /// What Send hands over.
 @immutable
 class SendRequest {
-  const SendRequest({required this.method, required this.amount, this.to, this.message, this.sendAll = false});
+  const SendRequest({required this.method, required this.amount, this.to, this.message, this.sendAll = false, this.dandelion = true});
 
   final TxMethod method;
   final int amount;
@@ -261,6 +322,9 @@ class SendRequest {
   final String? to;
   final String? message;
   final bool sendAll;
+
+  /// Broadcast through Dandelion++ (stem first); false fluffs it at once.
+  final bool dandelion;
 }
 
 sealed class SendResult {

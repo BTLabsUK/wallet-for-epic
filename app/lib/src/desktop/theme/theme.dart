@@ -32,6 +32,7 @@ ThemeData buildDeskTheme(Brightness brightness) {
     highlightColor: c.press,
     focusColor: c.accentSoft,
     visualDensity: VisualDensity.standard,
+    iconTheme: IconThemeData(size: Ctl.iconLg),
     materialTapTargetSize: MaterialTapTargetSize.padded,
     extensions: [c],
   );
@@ -45,7 +46,7 @@ ThemeData buildDeskTheme(Brightness brightness) {
     scrollbarTheme: ScrollbarThemeData(
       thumbColor: WidgetStatePropertyAll(c.lineStrong),
       thickness: const WidgetStatePropertyAll(6),
-      radius: const Radius.circular(6),
+      radius: Radius.circular(6.u),
     ),
     tooltipTheme: TooltipThemeData(
       decoration: BoxDecoration(
@@ -54,7 +55,7 @@ ThemeData buildDeskTheme(Brightness brightness) {
         borderRadius: BorderRadius.circular(Rad.sm),
       ),
       textStyle: TextStyle(color: c.text, fontSize: Fs.sm),
-      padding: const EdgeInsets.symmetric(horizontal: Sp.x3, vertical: Sp.x2),
+      padding: EdgeInsets.symmetric(horizontal: Sp.x3, vertical: Sp.x2),
       waitDuration: const Duration(milliseconds: 400),
     ),
     dialogTheme: DialogThemeData(backgroundColor: c.s4),

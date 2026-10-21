@@ -2,19 +2,26 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../widgets/kit.dart';
+import 'prefs.dart';
 import 'settings_frame.dart';
+import 'settings_node.dart' show hostOf, minNodeVersion, nodeTone, versionOld;
 
 // ---- My node -------------------------------------------------------------------------------
 
-/// Add or edit a node of "My nodes": address, check, save. [showError] opens in the failed
-/// check state (shot 31b).
-Future<void> showMyNodeDialog(BuildContext context, {String initial = '', bool showError = false}) =>
-    showEDialog(context, builder: (_) => MyNodeDialog(initial: initial, showError: showError));
+/// Add a node to My nodes, or edit one: address (checked as it is typed) and an optional
+/// label. A node can be saved while it is offline. [showError] opens with a bad address.
+Future<void> showMyNodeDialog(BuildContext context, {String initial = '', String label = '', bool adding = false, bool showError = false}) =>
+    showEDialog(
+      context,
+      builder: (_) => MyNodeDialog(initial: initial, label: label, editing: !adding && initial.isNotEmpty, showError: showError),
+    );
 
 class MyNodeDialog extends ConsumerStatefulWidget {
-  const MyNodeDialog({super.key, this.initial = '', this.showError = false});
+  const MyNodeDialog({super.key, this.initial = '', this.label = '', this.editing = false, this.showError = false});
 
   final String initial;
+  final String label;
+  final bool editing;
   final bool showError;
 
   @override
@@ -23,87 +30,140 @@ class MyNodeDialog extends ConsumerStatefulWidget {
 
 class _MyNodeDialogState extends ConsumerState<MyNodeDialog> {
   late final _address = TextEditingController(text: widget.initial);
+  late final _label = TextEditingController(text: widget.label);
+  NodeServer? _check;
   bool _checking = false;
-  bool _saving = false;
-  NodeServer? _result;
-  late bool _failed = widget.showError;
+  bool _tried = false;
+  int _seq = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.initial.isNotEmpty) _recheck();
+    _tried = widget.showError;
+  }
 
   @override
   void dispose() {
     _address.dispose();
+    _label.dispose();
     super.dispose();
   }
 
-  Future<void> _check() async {
-    final url = _address.text.trim();
-    if (url.isEmpty) return;
+  String get _url {
+    final t = _address.text.trim();
+    return t.isEmpty || t.startsWith('http') ? t : 'http://$t';
+  }
+
+  /// A problem with the address itself; an offline node is not one.
+  String? get _problem {
+    final t = _address.text.trim();
+    if (t.isEmpty) return _tried ? 'Enter the node’s address.' : null;
+    if (t.contains(' ') || !RegExp(r'[.:]').hasMatch(t) || (widget.showError && t == widget.initial)) {
+      return 'Not a node address. Check the address and the port (usually 3413).';
+    }
+    final mine = ref.read(deskProvider).nodes?.where((n) => n.own).map((n) => n.url) ?? const <String>[];
+    final removed = ref.read(settingsPrefsProvider).removedNodes;
+    if (_url != widget.initial && mine.contains(_url) && !removed.contains(_url)) return 'This address is already in My nodes.';
+    return null;
+  }
+
+  Future<void> _recheck() async {
+    final n = ++_seq;
+    final url = _url;
     setState(() {
-      _checking = true;
-      _failed = false;
-      _result = null;
+      _checking = url.isNotEmpty;
+      _check = null;
     });
+    if (url.isEmpty) return;
+    await Future<void>.delayed(const Duration(milliseconds: 300));
+    if (!mounted || n != _seq) return;
     final r = await ref.read(deskApiProvider).checkNode(url);
-    if (!mounted) return;
+    if (!mounted || n != _seq) return;
     setState(() {
       _checking = false;
-      _result = r;
-      _failed = r.health == ServiceHealth.down;
+      _check = r;
     });
   }
 
   Future<void> _save() async {
-    final r = _result;
-    if (r == null) return;
-    setState(() => _saving = true);
-    await ref.read(deskProvider.notifier).addNode(r);
+    setState(() => _tried = true);
+    if (_problem != null) return;
+    final url = _url;
+    final label = _label.text.trim();
+    final prefs = ref.read(settingsPrefsProvider.notifier);
+    final known = ref.read(deskProvider).nodes?.any((n) => n.own && n.url == url) ?? false;
+    if (widget.editing && url != widget.initial) prefs.forgetNode(widget.initial);
+    if (!known) {
+      final r = _check;
+      await ref.read(deskProvider.notifier).addNode(
+        NodeServer(url: url, label: label, own: true, health: r?.health ?? ServiceHealth.down, height: r?.height, version: r?.version, latencyMs: r?.latencyMs),
+      );
+    }
+    prefs.restoreNode(url);
+    prefs.label(url, label);
     if (!mounted) return;
     Navigator.of(context).pop();
-    showEToast(context, 'Node saved', text: r.label);
+    showEToast(context, widget.editing ? 'Node saved' : 'Added to my nodes', text: label.isEmpty ? hostOf(url) : label);
   }
 
   @override
   Widget build(BuildContext context) {
+    final c = context.dc;
     final ts = context.ts;
-    final r = _result;
+    final problem = _problem;
+    final r = _check;
+    Widget? status;
+    if (problem == null && _checking) {
+      status = Row(children: [ESpinner(size: Ctl.iconSm), SizedBox(width: Sp.x2), Text('Checking…', style: ts.small)]);
+    } else if (problem == null && r != null) {
+      final down = r.health == ServiceHealth.down;
+      status = Wrap(
+        spacing: Sp.x2,
+        runSpacing: Sp.x1,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        children: [
+          EStatusDot(nodeTone(r.health)),
+          Text(nodeWord(r.health), style: ts.small.copyWith(color: down ? c.risk : c.text, fontWeight: FontWeight.w600)),
+          if (r.height != null) Text(groupDigits(r.height!), style: ts.mono(size: Fs.sm, color: c.dim)),
+          if (versionOld(r.version)) ETag('Version older than $minNodeVersion', tone: ETone.warn),
+          if (down) Text('It can be saved anyway.', style: ts.small),
+        ],
+      );
+    }
     return EDialog(
-      title: widget.initial.isEmpty ? 'Add node' : 'Edit node',
-      description: 'An Epic node of your own, by address and port (usually 3413).',
-      icon: EIcons.node,
+      title: widget.editing ? 'Edit node' : 'Add to my nodes',
+      description: 'Save a node address to find it again later. It can be saved while it is offline.',
+      icon: EIcons.server,
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           EField(
             label: 'Node address',
-            error: _failed ? 'Not an Epic node. Check the address and the port (usually 3413).' : null,
+            error: problem,
             child: EInput(
               controller: _address,
               hint: 'http://10.0.1.24:3413',
               mono: true,
-              invalid: _failed,
+              invalid: problem != null,
               autofocus: true,
-              enabled: !_checking && !_saving,
-              onChanged: (_) => setState(() {
-                _result = null;
-                _failed = false;
-              }),
-              onSubmitted: (_) => _check(),
               semanticLabel: 'Node address',
+              onChanged: (_) => _recheck(),
+              onSubmitted: (_) => _save(),
             ),
           ),
-          if (r != null && !_failed) ...[
-            const SizedBox(height: Sp.x4),
-            EFacts([
-              ('Status', HealthLine(r.health, latencyMs: r.latencyMs)),
-              ('Height', Text('${r.height ?? '-'}', style: ts.mono(size: Fs.sm))),
-              ('Version', Text(r.version ?? '-', style: ts.mono(size: Fs.sm))),
-            ], labelWidth: 100),
-          ],
+          if (status != null) ...[SizedBox(height: Sp.x2), Semantics(liveRegion: true, child: status)],
+          SizedBox(height: Sp.x4),
+          EField(
+            label: 'Label',
+            optional: true,
+            child: EInput(controller: _label, hint: 'e.g. Home node', semanticLabel: 'Label', onSubmitted: (_) => _save()),
+          ),
         ],
       ),
       actions: [
         EButton(label: 'Cancel', size: EBtnSize.sm, onPressed: () => Navigator.of(context).pop()),
-        EButton(label: 'Check', size: EBtnSize.sm, icon: EIcons.refresh, busy: _checking, onPressed: _address.text.trim().isEmpty ? null : _check),
-        EButton.primary(label: 'Save node', size: EBtnSize.sm, busy: _saving, onPressed: r != null && !_failed ? _save : null),
+        EButton.primary(label: 'Save', icon: EIcons.check, size: EBtnSize.sm, onPressed: _address.text.trim().isEmpty ? null : _save),
       ],
     );
   }
@@ -122,128 +182,124 @@ class NodeDirectoryDialog extends ConsumerWidget {
     final c = context.dc;
     final ts = context.ts;
     final st = ref.watch(deskProvider);
+    final prefs = ref.watch(settingsPrefsProvider);
     final nodes = (st.nodes ?? const <NodeServer>[]).where((n) => !n.own).toList();
-    final current = st.status?.node.url;
+    final current = prefs.builtin ? null : (prefs.typedNode ?? st.status?.node)?.url;
     return EDialog(
       title: 'Node directory',
-      description: 'Public nodes and their operators. Status from the last check.',
+      description: 'Public nodes, their operators and their state at the last check.',
       icon: EIcons.server,
-      width: 640,
+      width: 640.u,
       body: st.nodes == null
           ? const SettingsLoading()
           : nodes.isEmpty
           ? const EEmpty(icon: EIcons.node, title: 'No nodes to show')
-          : Container(
-              decoration: BoxDecoration(border: Border.all(color: c.line), borderRadius: BorderRadius.circular(Rad.sm)),
-              child: Column(
-                children: [
-                  for (var i = 0; i < nodes.length; i++) ...[
-                    if (i > 0) Divider(height: 1, color: c.line),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: Sp.x4, vertical: Sp.x3),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(nodes[i].label, style: ts.strong, overflow: TextOverflow.ellipsis),
-                                Text(nodes[i].url.replaceFirst(RegExp('^https?://'), ''), style: ts.mono(size: Fs.xs, color: c.faint), overflow: TextOverflow.ellipsis),
-                                if (nodes[i].operator != null) Text('Run by ${nodes[i].operator}', style: ts.caption),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(width: Sp.x3),
-                          HealthLine(nodes[i].health, latencyMs: nodes[i].latencyMs),
-                          const SizedBox(width: Sp.x3),
-                          nodes[i].url == current
-                              ? const ETag('In use', tone: ETone.gold)
-                              : EButton(
-                                  label: 'Use',
-                                  size: EBtnSize.inline,
-                                  onPressed: nodes[i].health == ServiceHealth.down
-                                      ? null
-                                      : () async {
-                                          await ref.read(deskProvider.notifier).useNode(nodes[i].url);
-                                          if (context.mounted) Navigator.of(context).pop();
-                                        },
+          : Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Container(
+                  decoration: BoxDecoration(border: Border.all(color: c.line), borderRadius: BorderRadius.circular(Rad.sm)),
+                  child: Column(
+                    children: [
+                      for (var i = 0; i < nodes.length; i++) ...[
+                        if (i > 0) Divider(height: 1, color: c.line),
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: Sp.x4, vertical: Sp.x3),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(hostOf(nodes[i].url), style: ts.mono(size: Fs.sm, color: c.text), overflow: TextOverflow.ellipsis),
+                                    Text(
+                                      [nodes[i].operator, if (nodes[i].version != null) 'version ${nodes[i].version}', if (nodes[i].height != null) 'height ${groupDigits(nodes[i].height!)}']
+                                          .whereType<String>()
+                                          .join(' · '),
+                                      style: ts.caption,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ],
                                 ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ],
-              ),
+                              ),
+                              SizedBox(width: Sp.x3),
+                              HealthLine(nodes[i].health, latencyMs: nodes[i].latencyMs),
+                              SizedBox(width: Sp.x3),
+                              nodes[i].url == current
+                                  ? const ETag('In use', tone: ETone.gold)
+                                  : EButton(
+                                      label: 'Use',
+                                      size: EBtnSize.inline,
+                                      onPressed: nodes[i].health == ServiceHealth.down
+                                          ? null
+                                          : () async {
+                                              await ref.read(deskProvider.notifier).useNode(nodes[i].url);
+                                              final p = ref.read(settingsPrefsProvider.notifier);
+                                              p.set(ref.read(settingsPrefsProvider).copyWith(builtin: false, clearTyped: true));
+                                              if (context.mounted) Navigator.of(context).pop();
+                                            },
+                                    ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+                SizedBox(height: Sp.x3),
+                Text('Response times are measured from the status site, not from this computer.', style: ts.caption),
+              ],
             ),
       actions: [EButton(label: 'Close', size: EBtnSize.sm, onPressed: () => Navigator.of(context).pop())],
     );
   }
 }
 
-// ---- Public mode ---------------------------------------------------------------------------
+// ---- Existing blockchain data --------------------------------------------------------------
 
-Future<void> showPublicModeDialog(BuildContext context) =>
-    showEDialog(context, builder: (_) => const PublicModeDialog());
+/// The built-in node picked and older chain data found: use it (true), download fresh
+/// (false), or back (null). [inUse]: another Epic program holds the folder.
+Future<bool?> showChainOfferDialog(BuildContext context, {bool inUse = false}) =>
+    showEDialog<bool>(context, builder: (_) => ChainOfferDialog(inUse: inUse));
 
-class PublicModeDialog extends ConsumerStatefulWidget {
-  const PublicModeDialog({super.key});
+class ChainOfferDialog extends StatelessWidget {
+  const ChainOfferDialog({super.key, this.inUse = false});
 
-  @override
-  ConsumerState<PublicModeDialog> createState() => _PublicModeDialogState();
-}
-
-class _PublicModeDialogState extends ConsumerState<PublicModeDialog> {
-  late bool _public = ref.read(deskProvider).settings.publicMode;
-  bool _busy = false;
-
-  Future<void> _apply() async {
-    setState(() => _busy = true);
-    final n = ref.read(deskProvider.notifier);
-    await n.saveSettings(ref.read(deskProvider).settings.copyWith(publicMode: _public));
-    if (mounted) Navigator.of(context).pop();
-  }
+  final bool inUse;
 
   @override
   Widget build(BuildContext context) {
     final c = context.dc;
+    final ts = context.ts;
+    final nav = Navigator.of(context);
     return EDialog(
-      title: 'Receive from the internet',
-      description: 'A sender reaches the router; the router forwards port 3415 to this computer.',
-      icon: EIcons.web,
-      width: 560,
+      title: 'Existing blockchain data found',
+      description: 'This computer already has Epic blockchain data that the built-in node can use.',
+      icon: EIcons.node,
+      tone: ETone.gold,
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          EChoiceCard(
-            title: 'Local only',
-            description: 'Only programs on this computer reach the HTTP address. Safe default.',
-            icon: EIcons.lock,
-            selected: !_public,
-            onTap: () => setState(() => _public = false),
+          EFacts([
+            ('Folder', Text('~/.epic/main/chain_data', style: ts.mono(size: Fs.sm, color: c.text))),
+            ('Size', Text('4.2 GB', style: ts.mono(size: Fs.sm, color: c.text))),
+            ('Last updated', Text('3 days ago', style: ts.small.copyWith(color: c.text))),
+          ], labelWidth: 110.u),
+          SizedBox(height: Sp.x3),
+          Text('Other copies were found too (1). This one was updated most recently.', style: ts.small),
+          SizedBox(height: Sp.x3),
+          Text(
+            inUse ? 'Another Epic program is using this folder. Close it, then pick the built-in node again to use this data.' : 'Use it? That saves downloading and syncing the whole blockchain.',
+            style: ts.body.copyWith(fontWeight: FontWeight.w600),
           ),
-          const SizedBox(height: Sp.x3),
-          EChoiceCard(
-            title: 'Public',
-            description: 'Other devices and the internet reach it once the router forwards TCP 3415.',
-            icon: EIcons.web,
-            selected: _public,
-            onTap: () => setState(() => _public = true),
-          ),
-          if (_public) ...[
-            const SizedBox(height: Sp.x4),
-            const ENotice(
-              title: 'Forward the port',
-              text: 'Open the router page, find Port forwarding and forward TCP 3415 to this computer. Plain HTTP is not encrypted; Tor is.',
-              tone: ETone.warn,
-            ),
-          ],
-          const SizedBox(height: Sp.x3),
-          Text('Only the receiving API is exposed. The wallet owner API stays on this computer.', style: context.ts.small.copyWith(color: c.faint)),
+          SizedBox(height: Sp.x2),
+          Text('An older Epic Wallet that uses this folder may need to sync again after this. Coins are not affected.', style: ts.caption),
         ],
       ),
       actions: [
-        EButton(label: 'Cancel', size: EBtnSize.sm, onPressed: () => Navigator.of(context).pop()),
-        EButton.primary(label: 'Apply', size: EBtnSize.sm, busy: _busy, onPressed: _apply),
+        EButton(label: 'Download fresh', size: EBtnSize.sm, kind: EBtnKind.ghost, onPressed: () => nav.pop(false)),
+        if (inUse) EButton(label: 'Close', size: EBtnSize.sm, onPressed: () => nav.pop()),
+        EButton.primary(label: 'Use this data', icon: EIcons.check, size: EBtnSize.sm, onPressed: inUse ? null : () => nav.pop(true)),
       ],
     );
   }
@@ -308,8 +364,11 @@ class _ChangePasswordDialogState extends ConsumerState<ChangePasswordDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return EDialog(
+    return PopScope(
+      canPop: !_busy,
+      child: EDialog(
       title: 'Change password',
+      dismissible: !_busy,
       description: 'The new password unlocks this wallet from now on.',
       icon: EIcons.lock,
       body: Column(
@@ -320,9 +379,9 @@ class _ChangePasswordDialogState extends ConsumerState<ChangePasswordDialog> {
             error: _wrong ?? (_tried && _current.text.isEmpty ? 'Enter the current password.' : null),
             child: EPasswordInput(controller: _current, autofocus: true, invalid: _wrong != null, onChanged: (_) => setState(() => _wrong = null)),
           ),
-          const SizedBox(height: Sp.x4),
+          SizedBox(height: Sp.x4),
           EField(label: 'New password', error: _nextError, child: EPasswordInput(controller: _next, invalid: _nextError != null)),
-          const SizedBox(height: Sp.x4),
+          SizedBox(height: Sp.x4),
           EField(
             label: 'Repeat new password',
             error: _repeatError,
@@ -331,92 +390,183 @@ class _ChangePasswordDialogState extends ConsumerState<ChangePasswordDialog> {
         ],
       ),
       actions: [
-        EButton(label: 'Cancel', size: EBtnSize.sm, onPressed: () => Navigator.of(context).pop()),
+        EButton(label: 'Cancel', size: EBtnSize.sm, onPressed: _busy ? null : () => Navigator.of(context).pop()),
         EButton.primary(label: 'Change password', size: EBtnSize.sm, busy: _busy, onPressed: _save),
       ],
+    ),
     );
   }
 }
 
 // ---- Remove wallet -------------------------------------------------------------------------
 
-Future<void> showRemoveWalletDialog(BuildContext context) =>
-    showEDialog(context, builder: (_) => const RemoveWalletDialog());
+/// What to remove of a wallet that is not open.
+enum RemoveMode { list, app, everything }
+
+/// Remove [wallet] from this computer (6.1.6 RemoveWalletDialog): from the list only, this
+/// app's files for it too, or everything including the seed (typed name and a tick).
+Future<void> showRemoveWalletDialog(BuildContext context, WalletEntry wallet, {RemoveMode? mode}) =>
+    showEDialog(context, builder: (_) => RemoveWalletDialog(wallet: wallet, initialMode: mode));
 
 class RemoveWalletDialog extends ConsumerStatefulWidget {
-  const RemoveWalletDialog({super.key});
+  const RemoveWalletDialog({super.key, required this.wallet, this.initialMode});
+
+  final WalletEntry wallet;
+  final RemoveMode? initialMode;
 
   @override
   ConsumerState<RemoveWalletDialog> createState() => _RemoveWalletDialogState();
 }
 
 class _RemoveWalletDialogState extends ConsumerState<RemoveWalletDialog> {
-  final _password = TextEditingController();
+  final _typed = TextEditingController();
+  bool _checking = true;
   bool _busy = false;
-  bool _confirmed = false;
-  String? _error;
+  bool _ack = false;
+  late RemoveMode? _mode = widget.initialMode;
+
+  @override
+  void initState() {
+    super.initState();
+    Future<void>.delayed(const Duration(milliseconds: 500), () {
+      if (mounted) setState(() => _checking = false);
+    });
+  }
 
   @override
   void dispose() {
-    _password.dispose();
+    _typed.dispose();
     super.dispose();
   }
 
+  WalletEntry get w => widget.wallet;
+
+  /// Why "everything" can't be used for this wallet (the mock: a folder this app didn't make).
+  String? get _everythingOff => w.folder.contains('floo')
+      ? 'This wallet’s files are in a folder this app didn’t create: ${w.folder}. They stay where they are.'
+      : null;
+
+  bool get _nameOk => _typed.text.trim() == w.name;
+
+  bool get _ready =>
+      !_checking && !_busy && _mode != null && (_mode != RemoveMode.everything || (_nameOk && _ack));
+
   Future<void> _remove() async {
-    if (_password.text.isEmpty) {
-      setState(() => _error = 'Enter the password.');
-      return;
-    }
-    setState(() {
-      _busy = true;
-      _error = null;
-    });
-    try {
-      await ref.read(deskApiProvider).removeWallet(_password.text);
-      if (!mounted) return;
-      final nav = ref.read(deskNavProvider.notifier);
-      Navigator.of(context).pop();
-      nav.reset(DeskRoute.welcome);
-    } catch (_) {
-      if (mounted) {
-        setState(() {
-          _busy = false;
-          _error = 'Wrong password.';
-        });
-      }
-    }
+    final mode = _mode;
+    if (mode == null || !_ready) return;
+    setState(() => _busy = true);
+    await Future<void>.delayed(const Duration(milliseconds: 700));
+    if (!mounted) return;
+    ref.read(settingsPrefsProvider.notifier).removeWallet(w.folder);
+    Navigator.of(context).pop();
+    showEToast(context, switch (mode) {
+      RemoveMode.list => '${w.name} was removed from the list',
+      RemoveMode.app => '${w.name} was removed, with this app’s files for it',
+      RemoveMode.everything => '${w.name} was deleted from this computer',
+    }, text: mode == RemoveMode.list ? 'Its files were not touched.' : null);
   }
 
   @override
   Widget build(BuildContext context) {
-    final name = ref.watch(deskProvider.select((s) => s.account?.name)) ?? 'this wallet';
-    return EDialog(
-      title: 'Remove $name?',
-      description: 'The wallet is deleted from this computer. Coins are not lost: the recovery phrase restores them.',
-      icon: EIcons.trash,
-      tone: ETone.risk,
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          const ENotice(
-            title: 'Without the phrase, the coins are gone',
-            text: 'Check that the recovery phrase is written down before removing.',
-            tone: ETone.risk,
+    final c = context.dc;
+    final ts = context.ts;
+    final off = _everythingOff;
+    Widget choice(RemoveMode m, String title, String hint, {String? reason}) => Padding(
+      padding: EdgeInsets.only(bottom: Sp.x2),
+      child: Opacity(
+        opacity: reason != null ? 0.6 : 1,
+        child: IgnorePointer(
+          ignoring: reason != null || _busy || _checking,
+          child: EChoiceCard(
+            title: title,
+            description: reason == null ? hint : '$hint\n$reason',
+            selected: _mode == m,
+            onTap: () => setState(() => _mode = m),
           ),
-          const SizedBox(height: Sp.x4),
-          ECheckbox(value: _confirmed, onChanged: (v) => setState(() => _confirmed = v), label: 'The recovery phrase is written down'),
-          const SizedBox(height: Sp.x4),
-          EField(
-            label: 'Password',
-            error: _error,
-            child: EPasswordInput(controller: _password, invalid: _error != null, onChanged: (_) => setState(() => _error = null), onSubmitted: (_) => _confirmed ? _remove() : null),
+        ),
+      ),
+    );
+    return PopScope(
+      canPop: !_busy,
+      child: EDialog(
+        title: 'Remove ${w.name}?',
+        description: 'Choose what to remove. Nothing happens until the button below is pressed.',
+        icon: EIcons.trash,
+        tone: ETone.risk,
+        dismissible: !_busy,
+        body: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Semantics(
+              liveRegion: true,
+              child: Row(
+                children: [
+                  if (_checking) ...[ESpinner(size: Ctl.iconSm), SizedBox(width: Sp.x2)],
+                  Expanded(child: Text(_checking ? 'Checking this wallet’s files…' : 'Choose one of the options below.', style: ts.small)),
+                ],
+              ),
+            ),
+            SizedBox(height: Sp.x3),
+            Semantics(
+              label: 'What to remove',
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  choice(RemoveMode.list, 'Remove from the list only', 'All files stay where they are. The wallet can be added back later with Add existing.'),
+                  choice(RemoveMode.app, 'Remove this app’s files for it', 'Also deletes its settings and contacts in this app. The wallet itself, with its seed, stays in ${w.folder}.'),
+                  choice(
+                    RemoveMode.everything,
+                    'Remove everything, including the seed',
+                    off != null
+                        ? 'Deletes this wallet from this computer. Only the recovery phrase restores it.'
+                        : 'Deletes this wallet from this computer: ${w.folder}. Only the recovery phrase restores it; without it the coins are lost.',
+                    reason: off,
+                  ),
+                ],
+              ),
+            ),
+            if (_mode == RemoveMode.everything) ...[
+              SizedBox(height: Sp.x2),
+              const ENotice(
+                title: 'This can’t be undone',
+                text: 'The wallet seed is deleted from this computer. Only the recovery phrase restores the wallet; without it the coins are lost for good.',
+                tone: ETone.risk,
+              ),
+              SizedBox(height: Sp.x4),
+              EField(
+                label: 'To confirm, type the wallet’s name: ${w.name}',
+                error: _typed.text.isNotEmpty && !_nameOk ? 'The name doesn’t match yet.' : null,
+                child: EInput(
+                  controller: _typed,
+                  enabled: !_busy,
+                  invalid: _typed.text.isNotEmpty && !_nameOk,
+                  semanticLabel: 'Wallet name',
+                  onChanged: (_) => setState(() {}),
+                ),
+              ),
+              SizedBox(height: Sp.x3),
+              ECheckbox(value: _ack, onChanged: (v) => setState(() => _ack = v), label: 'The recovery phrase is written down'),
+            ],
+            if (_mode == RemoveMode.everything && _busy) SizedBox(height: Sp.x2),
+            if (_busy) Text('Removing…', style: ts.small.copyWith(color: c.dim)),
+          ],
+        ),
+        actions: [
+          EButton(label: 'Cancel', size: EBtnSize.sm, kind: EBtnKind.ghost, onPressed: _busy ? null : () => Navigator.of(context).pop()),
+          EButton(
+            label: switch (_mode) {
+              RemoveMode.app => 'Remove files',
+              RemoveMode.everything => 'Delete everything',
+              _ => 'Remove from list',
+            },
+            icon: EIcons.trash,
+            size: EBtnSize.sm,
+            kind: EBtnKind.danger,
+            busy: _busy,
+            onPressed: _ready ? _remove : null,
           ),
         ],
       ),
-      actions: [
-        EButton(label: 'Keep wallet', size: EBtnSize.sm, onPressed: () => Navigator.of(context).pop()),
-        EButton(label: 'Remove wallet', size: EBtnSize.sm, kind: EBtnKind.danger, busy: _busy, onPressed: _confirmed ? _remove : null),
-      ],
     );
   }
 }

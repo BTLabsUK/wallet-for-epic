@@ -8,25 +8,43 @@ import 'package:flutter/material.dart';
 
 import '../../ui/theme/tokens.dart' show montserrat, jetBrainsMono;
 
+/// Interface scale (Settings › Appearance) as a factor, [deskBase] at 100 %. [DeskApp] sets it
+/// before the tree builds and rebuilds everything below the theme when it changes. Layout sizes
+/// follow it through the getters below (whole logical pixels, so nothing lands between pixels);
+/// text follows it through the app's `TextScaler`, so [Fs] stays the size before scaling.
+double deskScale = deskBase;
+
+/// 100 % in the app: the Electron Modern interface's 17 px root over the 16 px the tokens are
+/// written for (6.1.6 `shared/theme.js` MODERN_BASE), so text and space match it.
+const double deskBase = 17 / 16;
+
+double _px(double v) => (v * deskScale).roundToDouble();
+double _sc(double v) => v * deskScale / deskBase;
+
+/// A size with no token, scaled like the tokens: `200.u`.
+extension DeskUnits on num {
+  double get u => _px(toDouble());
+}
+
 /// Space, 4 px base. Every padding and gap on desktop is one of these.
 abstract final class Sp {
-  static const double x1 = 4;
-  static const double x2 = 8;
-  static const double x3 = 12;
-  static const double x4 = 16;
-  static const double x5 = 20;
-  static const double x6 = 24;
-  static const double x8 = 32;
-  static const double x10 = 40;
-  static const double x12 = 48;
-  static const double x16 = 64;
+  static double get x1 => _px(4);
+  static double get x2 => _px(8);
+  static double get x3 => _px(12);
+  static double get x4 => _px(16);
+  static double get x5 => _px(20);
+  static double get x6 => _px(24);
+  static double get x8 => _px(32);
+  static double get x10 => _px(40);
+  static double get x12 => _px(48);
+  static double get x16 => _px(64);
 }
 
 /// Radii: tags, controls and panels, dialogs. Nothing else.
 abstract final class Rad {
-  static const double xs = 4;
-  static const double sm = 8;
-  static const double lg = 14;
+  static double get xs => _px(4);
+  static double get sm => _px(8);
+  static double get lg => _px(14);
 }
 
 /// Control sizes. Three button heights, one rule: the height says how big the action is.
@@ -35,28 +53,30 @@ abstract final class Rad {
 ///  - [md] 44: the page's main action and every text field.
 /// The Electron app's 52 px "large" button is gone: primary actions are [md].
 abstract final class Ctl {
-  static const double inline = 28;
-  static const double sm = 36;
-  static const double md = 44;
+  static double get inline => _px(28);
+  static double get sm => _px(36);
+  static double get md => _px(44);
 
   /// Icons: 16 inline and in tags, 20 in navigation and buttons, 24 in empty states.
-  static const double iconSm = 16;
-  static const double icon = 20;
-  static const double iconLg = 24;
+  static double get iconSm => _px(16);
+  static double get icon => _px(20);
+  static double get iconLg => _px(24);
 
-  static const double sidebar = 224;
-  static const double rail = 72;
-  static const double topbar = 64;
+  static double get sidebar => _px(224);
+  static double get rail => _px(72);
+  static double get topbar => _px(64);
 
   /// Reading widths.
-  static const double narrow = 720;
-  static const double mid = 960;
+  static double get narrow => _px(720);
+  static double get mid => _px(960);
 }
 
-/// Breakpoints: phone below 600, tablet/narrow desktop to 1000, desktop from 1000.
+/// Breakpoints: phone below 600, tablet/narrow desktop to 1000, desktop from 1000 at 100 %, as
+/// in 6.1.6. They grow with the interface scale (not with [deskBase]), so a larger scale moves to
+/// the narrower layout sooner.
 abstract final class Bp {
-  static const double phone = 600;
-  static const double desktop = 1000;
+  static double get phone => _sc(600);
+  static double get desktop => _sc(1000);
 }
 
 /// Durations. Motion is short and only ever confirms a change.
@@ -218,13 +238,13 @@ class DeskText {
     fontWeight: FontWeight.w600,
     fontSize: size,
     height: 1.2,
-    letterSpacing: size * -0.022,
+    letterSpacing: size * -0.022 * deskScale,
     color: c.text,
   );
   TextStyle get h1 => _display(Fs.h1);
   TextStyle get h2 => _display(Fs.h2);
   TextStyle get h3 => _display(Fs.h3);
-  TextStyle get display => _display(Fs.display).copyWith(height: 1.05, letterSpacing: Fs.display * -0.03);
+  TextStyle get display => _display(Fs.display).copyWith(height: 1.05, letterSpacing: Fs.display * -0.03 * deskScale);
 
   TextStyle mono({double size = Fs.sm, Color? color, FontWeight? weight}) => TextStyle(
     fontFamily: jetBrainsMono,

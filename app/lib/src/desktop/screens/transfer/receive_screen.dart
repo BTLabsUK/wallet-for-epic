@@ -1,20 +1,27 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../widgets/kit.dart';
+import 'epicbox_notice.dart';
 
-/// Argument of the Receive route: [internet] scrolls to the "Receive from internet" section,
-/// [portOpen] is what the port check found there.
+/// Argument of the Receive route, for the tour: [stopped] opens with the listener stopped,
+/// [httpFailed] with the HTTP listener failed on a busy port, [qrHttp] with the HTTP address's QR
+/// code, [epicboxDown] with our relay not answering.
 class ReceiveArgs {
-  const ReceiveArgs({this.internet = false, this.portOpen = false});
+  const ReceiveArgs({this.stopped = false, this.httpFailed = false, this.qrHttp = false, this.epicboxDown = false});
 
-  final bool internet;
-  final bool portOpen;
+  final bool stopped;
+  final bool httpFailed;
+  final bool qrHttp;
+  final bool epicboxDown;
 }
 
-enum _Port { open, closed, checking }
+enum _Qr { epic, http }
+
+const _port = 3415;
 
 class ReceiveScreen extends ConsumerStatefulWidget {
   const ReceiveScreen({super.key, this.arg});
@@ -26,33 +33,75 @@ class ReceiveScreen extends ConsumerStatefulWidget {
 }
 
 class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
-  final _internetKey = GlobalKey();
-  late _Port _port;
+  late final ReceiveArgs _args;
   String? _http;
   String? _tor;
+  _Qr _qr = _Qr.epic;
+  bool _listenBusy = false;
+  bool _httpBusy = false;
+  // The HTTP listener did not start (a port another program holds).
+  bool _httpFailed = false;
 
   @override
   void initState() {
     super.initState();
     final a = widget.arg;
-    _port = a is ReceiveArgs && a.portOpen ? _Port.open : _Port.closed;
+    _args = a is ReceiveArgs ? a : const ReceiveArgs();
+    _httpFailed = _args.httpFailed;
     final api = ref.read(deskApiProvider);
     unawaited(api.httpAddress().then((v) => mounted ? setState(() => _http = v) : null));
     unawaited(api.torAddress().then((v) => mounted ? setState(() => _tor = v) : null));
-    if (a is ReceiveArgs && a.internet) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        final ctx = _internetKey.currentContext;
-        if (ctx != null) Scrollable.ensureVisible(ctx, alignment: 0.05);
+    final n = ref.read(deskProvider.notifier);
+    final settings = ref.read(deskProvider).settings;
+    if (_args.stopped) {
+      Future.microtask(() => n.setListening(false));
+    } else if (_args.httpFailed || _args.qrHttp || _args.epicboxDown) {
+      // The HTTP row needs the listener running (an earlier tour shot may have stopped it).
+      Future.microtask(() async {
+        await n.setListening(true);
+        if (_args.qrHttp) await n.saveSettings(settings.copyWith(directHttp: true));
       });
+    }
+    if (_args.qrHttp) _qr = _Qr.http;
+  }
+
+  bool _listening(ServiceStatus? s) => s != null && (s.epicboxHealth != ServiceHealth.off || s.httpListener != ServiceHealth.off);
+
+  Future<void> _setListening(bool on) async {
+    setState(() => _listenBusy = true);
+    try {
+      await ref.read(deskProvider.notifier).setListening(on);
+      if (!mounted) return;
+      if (!on) {
+        _httpFailed = false;
+        _qr = _Qr.epic;
+      }
+      showEToast(context, on ? 'Listener started' : 'Listener stopped');
+    } finally {
+      if (mounted) setState(() => _listenBusy = false);
     }
   }
 
-  Future<void> _check() async {
-    setState(() => _port = _Port.checking);
-    await Future<void>.delayed(const Duration(milliseconds: 1200));
-    if (!mounted) return;
-    final a = widget.arg;
-    setState(() => _port = a is ReceiveArgs && a.portOpen ? _Port.open : _Port.closed);
+  Future<void> _setHttp(bool on) async {
+    setState(() => _httpBusy = true);
+    try {
+      final n = ref.read(deskProvider.notifier);
+      if (on && !_listening(ref.read(deskProvider).status)) await n.setListening(true);
+      await n.saveSettings(ref.read(deskProvider).settings.copyWith(directHttp: on));
+      if (!mounted) return;
+      setState(() {
+        _httpFailed = false;
+        if (!on && _qr == _Qr.http) _qr = _Qr.epic;
+      });
+      if (on) showEToast(context, 'HTTP listener started');
+    } finally {
+      if (mounted) setState(() => _httpBusy = false);
+    }
+  }
+
+  void _copy(String text) {
+    Clipboard.setData(ClipboardData(text: text));
+    showEToast(context, 'Copied');
   }
 
   @override
@@ -62,28 +111,30 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
     final ts = context.ts;
     final c = context.dc;
     final status = st.status;
-    final listening = status != null && status.epicboxHealth != ServiceHealth.off;
+    final listening = _listening(status);
     return EPage(
       title: 'Receive',
       width: EPageWidth.mid,
       actions: [
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(listening ? EIcons.okCircle : EIcons.minusCircle, size: Ctl.iconSm, color: listening ? c.ok : c.faint),
-            const SizedBox(width: Sp.x2),
-            Text(status == null ? 'Checking' : (listening ? 'Receiving is on' : 'Receiving is off'), style: ts.small),
-          ],
+        Semantics(
+          liveRegion: true,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(listening ? EIcons.okCircle : EIcons.minusCircle, size: Ctl.iconSm, color: listening ? c.ok : c.faint),
+              SizedBox(width: Sp.x2),
+              Text(status == null ? 'Checking' : (listening ? 'Receiving is on' : 'Receiving is off'), style: ts.small),
+            ],
+          ),
         ),
       ],
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          _hero(st),
-          const ESectionHead('Direct receive', top: Sp.x8),
-          _direct(st, nav),
-          Container(key: _internetKey, child: const ESectionHead('Receive from internet')),
-          _internet(st, nav),
+          if (status != null && !listening) ...[_start(), SizedBox(height: Sp.x5)],
+          _hero(st, listening),
+          ESectionHead('Other ways to receive', top: Sp.x8),
+          _direct(st, nav, listening),
           const ESectionHead('Transaction files'),
           ESetGroup(
             rows: [
@@ -99,85 +150,230 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
               ),
             ],
           ),
+          if (listening) ...[
+            const ESectionHead('Listener'),
+            ESetGroup(
+              rows: [
+                ESetRow(
+                  title: 'Receiving is on',
+                  text: status?.httpListener == ServiceHealth.ok
+                      ? 'Epicbox and HTTP are listening. Once stopped, Epicbox payments wait on the relay for a while, HTTP payments fail, and transaction files still work.'
+                      : 'Epicbox is listening. Once stopped, payments to the Epic address wait on the relay for a while, and transaction files still work.',
+                  control: EButton(
+                    label: 'Stop receiving',
+                    icon: EIcons.stop,
+                    size: EBtnSize.sm,
+                    busy: _listenBusy,
+                    onPressed: _listenBusy ? null : () => _setListening(false),
+                  ),
+                ),
+              ],
+            ),
+          ],
         ],
       ),
     );
   }
 
-  Widget _hero(DeskState st) {
+  Widget _start() {
+    final ts = context.ts;
+    final c = context.dc;
+    final text = Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(EIcons.antenna, size: Ctl.iconLg, color: c.accentText),
+        SizedBox(width: Sp.x4),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Semantics(header: true, child: Text('Start the listener to receive online', style: ts.h3)),
+              SizedBox(height: Sp.x2),
+              Text(
+                'Epicbox and HTTP payments need the listener running. Payments already sent to the Epic address wait on the relay and arrive once it starts. Files work either way.',
+                style: ts.bodyDim,
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+    final button = EButton.primary(label: 'Start listener', icon: EIcons.antenna, busy: _listenBusy, onPressed: _listenBusy ? null : () => _setListening(true));
+    return EPanel(
+      padding: EdgeInsets.all(Sp.x6),
+      child: LayoutBuilder(
+        builder: (context, box) => box.maxWidth < 560.u
+            ? Column(crossAxisAlignment: CrossAxisAlignment.start, children: [text, SizedBox(height: Sp.x4), button])
+            : Row(children: [Expanded(child: text), SizedBox(width: Sp.x6), button]),
+      ),
+    );
+  }
+
+  Widget _hero(DeskState st, bool listening) {
     final ts = context.ts;
     final c = context.dc;
     final addr = st.epicboxAddress;
     final status = st.status;
     final domain = status?.epicbox.domain;
-    final health = status?.epicboxHealth;
+    final health = _args.epicboxDown && listening ? ServiceHealth.down : status?.epicboxHealth;
+    final httpOn = status?.httpListener == ServiceHealth.ok;
     final (icon, color, text) = switch (health) {
       null => (EIcons.sync, c.faint, 'Connecting'),
+      _ when !listening => (EIcons.minusCircle, c.faint, 'Receiving is off. Payments wait on the relay until the listener starts.'),
       ServiceHealth.ok || ServiceHealth.slow => (EIcons.okCircle, c.ok, 'Listening via $domain'),
-      ServiceHealth.checking => (EIcons.sync, c.faint, 'Connecting'),
+      ServiceHealth.checking => (EIcons.sync, c.faint, 'Connecting to $domain'),
       ServiceHealth.down => (EIcons.alert, c.warn, '$domain is not answering. Payments wait on the relay.'),
-      ServiceHealth.off => (EIcons.minusCircle, c.faint, 'Receiving is off. Payments wait on the relay.'),
+      ServiceHealth.off => (EIcons.alert, c.warn, httpOn ? 'The listener is on, but Epicbox is not running.' : 'Epicbox is not running.'),
     };
+    final qrData = _qr == _Qr.http && _http != null && httpOn ? _http! : addr;
+    final qrSize = 184.u;
+    final Widget qr = qrData == null
+        ? SizedBox(width: qrSize, height: qrSize)
+        : Column(
+            children: [
+              Stack(
+                alignment: Alignment.center,
+                children: [
+                  Opacity(opacity: listening ? 1 : 0.35, child: EQr(qrData, size: qrSize)),
+                  if (!listening)
+                    Container(
+                      padding: EdgeInsets.symmetric(horizontal: Sp.x3, vertical: Sp.x1),
+                      decoration: BoxDecoration(color: c.s1, borderRadius: BorderRadius.circular(Rad.sm), border: Border.all(color: c.lineStrong)),
+                      child: Text('Paused', style: ts.small.copyWith(color: c.text, fontWeight: FontWeight.w600)),
+                    ),
+                ],
+              ),
+              SizedBox(height: Sp.x2),
+              Text(qrData == addr ? 'QR code of the Epic address' : 'QR code of the HTTP address', style: ts.caption),
+            ],
+          );
     return EPanel(
-      padding: const EdgeInsets.all(Sp.x6),
+      padding: EdgeInsets.all(Sp.x6),
       child: LayoutBuilder(
         builder: (context, box) {
           final info = Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Semantics(header: true, child: Text('Epic address', style: ts.h3)),
-              const SizedBox(height: Sp.x2),
+              SizedBox(height: Sp.x2),
               Text('Share it to get paid. It works while this wallet is closed: the relay holds payments until the wallet is back.', style: ts.bodyDim),
-              const SizedBox(height: Sp.x4),
+              SizedBox(height: Sp.x4),
               if (addr == null)
-                const Padding(padding: EdgeInsets.symmetric(vertical: Sp.x4), child: ESpinner(size: 20))
+                Padding(padding: EdgeInsets.symmetric(vertical: Sp.x4), child: ESpinner(size: 20.u))
+              else if (addr.isEmpty)
+                Text('The Epic address could not be read. Open Receive again in a moment.', style: ts.small)
               else ...[
-                EAddress(addr, large: true),
-                const SizedBox(height: Sp.x2),
+                Opacity(opacity: listening ? 1 : 0.6, child: EAddress(addr, large: true)),
+                SizedBox(height: Sp.x2),
                 Text('When reading it out, check the first six and last six characters.', style: ts.caption),
+                SizedBox(height: Sp.x4),
+                Wrap(
+                  spacing: Sp.x3,
+                  runSpacing: Sp.x2,
+                  children: [
+                    listening
+                        ? EButton.primary(label: 'Copy address', icon: EIcons.copy, size: EBtnSize.sm, onPressed: () => _copy(addr))
+                        : EButton(label: 'Copy address', icon: EIcons.copy, size: EBtnSize.sm, onPressed: () => _copy(addr)),
+                    if (qrData != addr) EButton.ghost(label: 'Show QR code', icon: EIcons.qr, onPressed: () => setState(() => _qr = _Qr.epic)),
+                  ],
+                ),
               ],
-              const SizedBox(height: Sp.x4),
-              Row(
-                children: [
-                  Icon(icon, size: Ctl.iconSm, color: color),
-                  const SizedBox(width: Sp.x2),
-                  Expanded(child: Text(text, style: ts.small)),
-                ],
+              SizedBox(height: Sp.x4),
+              Semantics(
+                liveRegion: true,
+                child: Row(
+                  children: [
+                    Icon(icon, size: Ctl.iconSm, color: color),
+                    SizedBox(width: Sp.x2),
+                    Expanded(child: Text(text, style: ts.small)),
+                  ],
+                ),
               ),
+              if (health == ServiceHealth.down && listening) ...[SizedBox(height: Sp.x3), const EpicboxDownNotice()],
             ],
           );
-          final qr = addr == null ? const SizedBox(width: 184, height: 184) : EQr(addr, size: 184);
-          if (box.maxWidth < 560) {
-            return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [info, const SizedBox(height: Sp.x5), Center(child: qr)]);
+          if (box.maxWidth < 560.u) {
+            return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [info, SizedBox(height: Sp.x5), Center(child: qr)]);
           }
           return Row(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [Expanded(child: info), const SizedBox(width: Sp.x6), qr],
+            children: [Expanded(child: info), SizedBox(width: Sp.x6), qr],
           );
         },
       ),
     );
   }
 
-  Widget _direct(DeskState st, DeskNav nav) {
+  Widget _direct(DeskState st, DeskNav nav, bool listening) {
     final status = st.status;
-    final httpOn = status?.httpListener == ServiceHealth.ok;
+    final ts = context.ts;
+    final c = context.dc;
+    final httpOn = !_httpFailed && status?.httpListener == ServiceHealth.ok;
     final torOn = st.settings.tor && status?.tor == ServiceHealth.ok;
+    final http = _http;
+    final Widget httpLine;
+    if (status == null) {
+      httpLine = const Align(alignment: Alignment.centerLeft, child: ESpinner());
+    } else if (_httpFailed) {
+      httpLine = Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(padding: EdgeInsets.only(top: Sp.x1), child: const EStatusDot(ETone.risk)),
+          SizedBox(width: Sp.x2),
+          Expanded(
+            child: Text.rich(
+              TextSpan(
+                children: [
+                  TextSpan(text: 'HTTP is not receiving. ', style: ts.small.copyWith(fontWeight: FontWeight.w600, color: c.text)),
+                  const TextSpan(text: 'Port $_port is used by another program. Close that program, then try again.'),
+                ],
+              ),
+              style: ts.small,
+            ),
+          ),
+        ],
+      );
+    } else {
+      httpLine = Row(
+        children: [
+          EStatusDot(httpOn ? ETone.ok : ETone.neutral),
+          SizedBox(width: Sp.x2),
+          Expanded(child: Text(httpOn ? 'On, port $_port. This computer only (127.0.0.1).' : 'Off.', style: ts.small)),
+        ],
+      );
+    }
     return ESetGroup(
       rows: [
-        _AddrRow(
+        ESetRow(
           title: 'HTTP address',
-          icon: EIcons.http,
-          on: httpOn,
-          loading: status == null,
-          address: httpOn ? _http : null,
-          offText: 'Off. Turn it on to receive over HTTP.',
-          action: EButton(label: 'Receiving settings', size: EBtnSize.inline, onPressed: () => nav.go(DeskRoute.settingsReceiving)),
-          showAction: !httpOn && status != null,
+          stacked: true,
+          below: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(http ?? '…', style: ts.mono(size: Fs.sm, color: httpOn ? c.dim : c.faint), maxLines: 1, overflow: TextOverflow.ellipsis),
+              SizedBox(height: Sp.x2),
+              httpLine,
+              SizedBox(height: Sp.x3),
+              Wrap(
+                spacing: Sp.x2,
+                runSpacing: Sp.x2,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  if (_httpFailed)
+                    EButton(label: 'Try again', icon: EIcons.refresh, size: EBtnSize.sm, busy: _httpBusy, onPressed: _httpBusy ? null : () => _setHttp(true)),
+                  if (httpOn || _httpFailed)
+                    EButton(label: 'Turn off', icon: EIcons.stop, size: EBtnSize.sm, busy: _httpBusy && !_httpFailed, onPressed: _httpBusy ? null : () => _setHttp(false))
+                  else
+                    EButton(label: 'Turn on', icon: EIcons.antenna, size: EBtnSize.sm, busy: _httpBusy, onPressed: _httpBusy || status == null ? null : () => _setHttp(true)),
+                  EIconButton(icon: EIcons.copy, label: 'Copy HTTP address', size: EBtnSize.sm, onPressed: httpOn && http != null ? () => _copy(http) : null),
+                  EIconButton(icon: EIcons.qr, label: 'Show QR code of the HTTP address', size: EBtnSize.sm, onPressed: httpOn && http != null ? () => setState(() => _qr = _Qr.http) : null),
+                ],
+              ),
+            ],
+          ),
         ),
         _AddrRow(
           title: 'Tor address',
-          icon: EIcons.tor,
           on: torOn,
           loading: status == null,
           address: torOn ? _tor : null,
@@ -188,57 +384,11 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
       ],
     );
   }
-
-  Widget _internet(DeskState st, DeskNav nav) {
-    final ts = context.ts;
-    final pub = st.settings.publicMode;
-    final port = _port;
-    final Widget notice;
-    if (!pub) {
-      notice = ENotice(
-        title: 'Listening on this computer only',
-        text: 'Public mode is off, so only this computer reaches port 3415. Turn it on to receive from other wallets.',
-        icon: EIcons.lanOff,
-        actions: [EButton(label: 'Receiving settings', size: EBtnSize.inline, onPressed: () => nav.go(DeskRoute.settingsReceiving))],
-      );
-    } else {
-      notice = switch (port) {
-        _Port.checking => const ENotice(title: 'Checking port 3415', icon: EIcons.sync),
-        _Port.open => ENotice(
-          title: 'Port 3415 is reachable from the internet',
-          text: 'Wallets anywhere can send to the HTTP address.',
-          tone: ETone.ok,
-          icon: EIcons.web,
-          actions: [EButton(label: 'Check again', size: EBtnSize.inline, onPressed: _check)],
-        ),
-        _Port.closed => ENotice(
-          title: 'Port 3415 is not reachable from the internet',
-          text: 'Only wallets on this network can send here. To receive from anywhere, forward TCP port 3415 on the router to this computer.',
-          tone: ETone.warn,
-          icon: EIcons.lanOff,
-          actions: [EButton(label: 'Check again', size: EBtnSize.inline, onPressed: _check)],
-        ),
-      };
-    }
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Text('Receive over HTTP from wallets outside this network. Needs public mode and a forwarded port.', style: ts.small),
-        const SizedBox(height: Sp.x3),
-        notice,
-        if (pub && _http != null) ...[
-          const SizedBox(height: Sp.x3),
-          EAddress(_http!),
-        ],
-      ],
-    );
-  }
 }
 
 class _AddrRow extends StatelessWidget {
   const _AddrRow({
     required this.title,
-    required this.icon,
     required this.on,
     required this.loading,
     required this.address,
@@ -248,7 +398,6 @@ class _AddrRow extends StatelessWidget {
   });
 
   final String title;
-  final IconData icon;
   final bool on;
   final bool loading;
   final String? address;
@@ -275,7 +424,7 @@ class _AddrRow extends StatelessWidget {
           : Row(
               children: [
                 const EStatusDot(ETone.neutral),
-                const SizedBox(width: Sp.x2),
+                SizedBox(width: Sp.x2),
                 Expanded(child: Text(offText, style: ts.small)),
                 if (showAction) action,
               ],

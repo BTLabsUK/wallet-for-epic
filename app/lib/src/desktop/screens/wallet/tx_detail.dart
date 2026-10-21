@@ -18,22 +18,29 @@ class TxDetail extends ConsumerStatefulWidget {
 class _TxDetailState extends ConsumerState<TxDetail> {
   bool _cancelling = false;
 
-  String _now(Tx t) => switch (t.state) {
-    TxState.waitingRecipient => t.method == TxMethod.file
-        ? 'Waiting for the response file. Finalize when it arrives.'
-        : 'Waiting for the recipient to sign. Nothing leaves the wallet until it is finalized.',
-    TxState.posted => 'Posted to the network, waiting for a block.',
-    TxState.confirming => 'In a block, ${t.confirmations} of $minConfirmations confirmations.',
-    TxState.confirmed => 'Confirmed, ${t.confirmations} confirmations.',
-    TxState.cancelled => 'Cancelled.',
-  };
+  String _now(Tx t) => t.immature
+      ? 'Confirmed, but a mining reward is spendable only after $coinbaseMaturity confirmations.'
+      : switch (t.state) {
+          TxState.waitingRecipient =>
+            t.incoming
+                ? 'Signed and returned. Waiting for the sender to finalize.'
+                : t.method == TxMethod.file
+                ? 'Waiting for the response file. Finalize when it arrives.'
+                : 'Waiting for the recipient to sign. Nothing leaves the wallet until it is finalized.',
+          TxState.posted => 'Posted to the network, waiting for a block.',
+          TxState.confirming => 'In a block, ${t.confirmations} of $minConfirmations confirmations.',
+          TxState.confirmed => 'Confirmed, ${t.confirmations} confirmations.',
+          TxState.cancelled => 'Cancelled.',
+        };
 
   Future<void> _cancel() async {
     final ok = await showCancelTxDialog(context, widget.tx);
     if (ok != true || !mounted) return;
     setState(() => _cancelling = true);
     await ref.read(deskProvider.notifier).cancelTx(widget.tx.id);
-    if (mounted) setState(() => _cancelling = false);
+    if (!mounted) return;
+    setState(() => _cancelling = false);
+    showEToast(context, 'Transaction cancelled');
   }
 
   @override
@@ -51,48 +58,55 @@ class _TxDetailState extends ConsumerState<TxDetail> {
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            TxIcon(t, size: 44),
-            const SizedBox(width: Sp.x4),
+            TxIcon(t, size: 44.u),
+            SizedBox(width: Sp.x4),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  FittedBox(
-                    fit: BoxFit.scaleDown,
-                    alignment: Alignment.centerLeft,
-                    child: EMoney(t.incoming ? t.amount : -t.amount, sign: true, size: Fs.h2, weight: FontWeight.w500, color: t.incoming && t.state != TxState.cancelled ? c.ok : c.text),
+                  FitMoney(
+                    t.incoming ? t.amount : -t.amount,
+                    sign: true,
+                    sizes: const [Fs.h2, Fs.h3, Fs.lg, Fs.md],
+                    weight: FontWeight.w500,
+                    color: t.incoming && t.state != TxState.cancelled ? c.ok : c.text,
                   ),
                   const SizedBox(height: 2),
                   Text.rich(
                     TextSpan(
                       children: [
                         TextSpan(text: t.incoming ? 'from ' : 'to '),
-                        TextSpan(text: whoOf(t), style: t.contactName == null ? ts.mono(size: Fs.xs, color: c.text) : TextStyle(color: c.text)),
+                        TextSpan(
+                          text: whoOf(t),
+                          style: whoIsAddress(t) ? ts.mono(size: Fs.xs, color: c.text) : TextStyle(color: c.text),
+                        ),
                       ],
                     ),
                     style: ts.small,
                   ),
+                  if (whoTip(t) != null) ...[const SizedBox(height: 2), Text(whoTip(t)!, style: ts.small.copyWith(color: c.faint))],
                 ],
               ),
             ),
           ],
         ),
-        const SizedBox(height: Sp.x4),
+        SizedBox(height: Sp.x4),
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: Sp.x3, vertical: 10),
-          decoration: BoxDecoration(color: c.s2, borderRadius: BorderRadius.circular(Rad.sm), border: Border.all(color: c.line)),
+          padding: EdgeInsets.symmetric(horizontal: Sp.x3, vertical: 10.u),
+          decoration: BoxDecoration(
+            color: c.s2,
+            borderRadius: BorderRadius.circular(Rad.sm),
+            border: Border.all(color: c.line),
+          ),
           child: Row(
             children: [
               TxStateMark(t),
-              const SizedBox(width: Sp.x3),
+              SizedBox(width: Sp.x3),
               Expanded(child: Text(_now(t), style: ts.body)),
             ],
           ),
         ),
-        if (t.state != TxState.cancelled) ...[
-          _Sub('Progress'),
-          for (final (i, st) in steps.indexed) _TimelineStep(step: st, last: i == steps.length - 1),
-        ],
+        if (t.state != TxState.cancelled) ...[_Sub('Progress'), for (final (i, st) in steps.indexed) _TimelineStep(step: st, last: i == steps.length - 1)],
         _Sub('Details'),
         EFacts(labelWidth: 96, [
           ('Date', Text(dateTimeOf(t))),
@@ -101,7 +115,14 @@ class _TxDetailState extends ConsumerState<TxDetail> {
               t.incoming ? 'From' : 'To',
               Row(
                 children: [
-                  Expanded(child: Text(t.counterparty!, maxLines: 2, overflow: TextOverflow.ellipsis, style: ts.mono(size: Fs.xs))),
+                  Expanded(
+                    child: Text(
+                      t.counterparty!,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: ts.mono(size: Fs.xs),
+                    ),
+                  ),
                   ECopyButton(text: t.counterparty!, label: 'Copy address'),
                 ],
               ),
@@ -116,13 +137,13 @@ class _TxDetailState extends ConsumerState<TxDetail> {
           Row(
             children: [
               Icon(EIcons.proof, size: Ctl.iconSm, color: c.ok),
-              const SizedBox(width: Sp.x2),
+              SizedBox(width: Sp.x2),
               Expanded(child: Text('Signed by the recipient', style: ts.small)),
               EButton(label: 'View', kind: EBtnKind.ghost, size: EBtnSize.inline, onPressed: () => showTxProofDialog(context, t)),
             ],
           ),
         ],
-        const SizedBox(height: Sp.x5),
+        SizedBox(height: Sp.x5),
         EDetails(
           title: 'Technical details',
           child: EFacts(labelWidth: 96, [
@@ -131,20 +152,26 @@ class _TxDetailState extends ConsumerState<TxDetail> {
               'Slate id',
               Row(
                 children: [
-                  Expanded(child: Text(t.slateId, style: ts.mono(size: Fs.xs))),
-                  ECopyButton(text: t.slateId, label: 'Copy slate id'),
+                  Expanded(
+                    child: Text(t.slateId.isEmpty ? '-' : t.slateId, style: ts.mono(size: Fs.xs)),
+                  ),
+                  if (t.slateId.isNotEmpty) ECopyButton(text: t.slateId, label: 'Copy slate id'),
                 ],
               ),
             ),
             ('Height', Text(t.height == null ? '-' : '${t.height}', style: ts.mono(size: Fs.xs))),
             ('Kernel', Text(t.kernel ?? '-', style: ts.mono(size: Fs.xs))),
-            ('Type', Text(t.incoming ? 'TxReceived' : 'TxSent', style: ts.mono(size: Fs.xs))),
+            ('Confirmed', Text(t.confirmedAt == null ? '-' : dateTimeOf(t, at: t.confirmedAt))),
+            ('Credited', EMoney(t.incoming ? t.amount : 0, unit: false)),
+            ('Debited', EMoney(t.incoming ? 0 : t.amount + t.fee, unit: false)),
+            ('Status', Text(t.state.name, style: ts.mono(size: Fs.xs))),
+            ('Type', Text(t.coinbase ? 'ConfirmedCoinbase' : (t.incoming ? 'TxReceived' : 'TxSent'), style: ts.mono(size: Fs.xs))),
           ]),
         ),
         if (cancelable || finalizable) ...[
-          const SizedBox(height: Sp.x5),
+          SizedBox(height: Sp.x5),
           Divider(height: 1, color: c.line),
-          const SizedBox(height: Sp.x4),
+          SizedBox(height: Sp.x4),
           Row(
             children: [
               if (cancelable)
@@ -174,6 +201,16 @@ class _TxDetailState extends ConsumerState<TxDetail> {
   List<_Step> _steps(Tx t) {
     final at = t.created;
     String hm(Duration d) => timeOf(Tx(id: 0, slateId: '', direction: t.direction, state: t.state, method: t.method, amount: 0, fee: 0, created: at.add(d)));
+    if (t.coinbase || t.foundByScan) {
+      final left = coinbaseMaturity - t.confirmations;
+      return [
+        _Step(t.coinbase ? 'Mined in a block' : 'Found by a scan', _S.done, hm(Duration.zero)),
+        if (t.coinbase)
+          _Step('Spendable', t.immature ? _S.now : _S.done, '', sub: t.immature ? '$left blocks to go' : null)
+        else
+          _Step('Spendable', _S.done, ''),
+      ];
+    }
     final signed = t.state != TxState.waitingRecipient;
     final posted = t.state == TxState.confirming || t.state == TxState.confirmed || t.state == TxState.posted;
     final inBlock = t.state == TxState.confirming || t.state == TxState.confirmed;
@@ -220,11 +257,11 @@ class _TimelineStep extends StatelessWidget {
     final c = context.dc;
     final ts = context.ts;
     final mark = Container(
-      width: 20,
-      height: 20,
+      width: 20.u,
+      height: 20.u,
       decoration: BoxDecoration(
         color: c.s1,
-        borderRadius: BorderRadius.circular(5),
+        borderRadius: BorderRadius.circular(5.u),
         border: Border.all(
           color: switch (step.state) {
             _S.done => c.ok.withValues(alpha: 0.5),
@@ -234,8 +271,11 @@ class _TimelineStep extends StatelessWidget {
         ),
       ),
       child: switch (step.state) {
-        _S.done => Icon(EIcons.check, size: 13, color: c.ok),
-        _S.now => Padding(padding: const EdgeInsets.all(4), child: CircularProgressIndicator(strokeWidth: 1.5, color: c.accent)),
+        _S.done => Icon(EIcons.check, size: 13.u, color: c.ok),
+        _S.now => Padding(
+          padding: EdgeInsets.all(4.u),
+          child: CircularProgressIndicator(strokeWidth: 1.5, color: c.accent),
+        ),
         _S.todo => null,
       },
     );
@@ -244,15 +284,22 @@ class _TimelineStep extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           SizedBox(
-            width: 20,
+            width: 20.u,
             child: Column(
               children: [
                 mark,
-                if (!last) Expanded(child: Container(width: 2, margin: const EdgeInsets.symmetric(vertical: 2), color: step.state == _S.done ? c.ok.withValues(alpha: 0.5) : c.lineStrong)),
+                if (!last)
+                  Expanded(
+                    child: Container(
+                      width: 2,
+                      margin: const EdgeInsets.symmetric(vertical: 2),
+                      color: step.state == _S.done ? c.ok.withValues(alpha: 0.5) : c.lineStrong,
+                    ),
+                  ),
               ],
             ),
           ),
-          const SizedBox(width: Sp.x3),
+          SizedBox(width: Sp.x3),
           Expanded(
             child: Padding(
               padding: EdgeInsets.only(bottom: last ? 0 : Sp.x4),
@@ -268,7 +315,10 @@ class _TimelineStep extends StatelessWidget {
               ),
             ),
           ),
-          Text(step.time, style: ts.mono(size: Fs.xs, color: c.faint)),
+          Text(
+            step.time,
+            style: ts.mono(size: Fs.xs, color: c.faint),
+          ),
         ],
       ),
     );
@@ -282,7 +332,7 @@ class _Sub extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.only(top: Sp.x6, bottom: Sp.x3),
+    padding: EdgeInsets.only(top: Sp.x6, bottom: Sp.x3),
     child: Semantics(header: true, child: Text(title, style: context.ts.label)),
   );
 }
@@ -294,7 +344,8 @@ Future<bool?> showCancelTxDialog(BuildContext context, Tx t) => showEDialog<bool
     title: 'Cancel this send?',
     icon: EIcons.cancel,
     tone: ETone.risk,
-    description: '${formatEpic(t.amount)} EPIC to ${whoOf(t)}. The locked amount returns to the balance. '
+    description:
+        '${formatEpic(t.amount)} EPIC to ${whoOf(t)}. The locked amount returns to the balance. '
         'If the recipient already finalized it, it may still confirm.',
     actions: [
       EButton(label: 'Keep', size: EBtnSize.sm, onPressed: () => Navigator.pop(context, false)),
@@ -310,15 +361,22 @@ Future<void> showTxProofDialog(BuildContext context, Tx t) => showEDialog<void>(
     builder: (context, ref, _) {
       final ts = context.ts;
       Widget field(String label, String value) => Padding(
-        padding: const EdgeInsets.only(bottom: Sp.x3),
+        padding: EdgeInsets.only(bottom: Sp.x3),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(label, style: ts.small),
-            const SizedBox(height: Sp.x1),
+            SizedBox(height: Sp.x1),
             Row(
               children: [
-                Expanded(child: Text(value, style: ts.mono(size: Fs.xs), maxLines: 2, overflow: TextOverflow.ellipsis)),
+                Expanded(
+                  child: Text(
+                    value,
+                    style: ts.mono(size: Fs.xs),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
                 ECopyButton(text: value, label: 'Copy $label'),
               ],
             ),
@@ -330,7 +388,7 @@ Future<void> showTxProofDialog(BuildContext context, Tx t) => showEDialog<void>(
         icon: EIcons.proof,
         tone: ETone.ok,
         description: 'Proves that ${t.incoming ? 'this wallet' : 'the recipient'} received ${formatEpic(t.amount)} EPIC in this kernel.',
-        width: 520,
+        width: 520.u,
         body: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [

@@ -293,11 +293,13 @@ class _ELinkState extends State<ELink> {
 
 /// The 2 px accent outline every focusable control shows on keyboard focus.
 class FocusRing extends StatelessWidget {
-  const FocusRing({super.key, required this.focused, required this.child, this.radius = Rad.sm});
+  const FocusRing({super.key, required this.focused, required this.child, this.radius});
 
   final bool focused;
   final Widget child;
-  final double radius;
+
+  /// Defaults to [Rad.sm].
+  final double? radius;
 
   @override
   Widget build(BuildContext context) {
@@ -306,7 +308,7 @@ class FocusRing extends StatelessWidget {
     return DecoratedBox(
       position: DecorationPosition.foreground,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(radius + 2),
+        borderRadius: BorderRadius.circular((radius ?? Rad.sm) + 2),
         border: Border.all(color: c.accent, width: 2, strokeAlign: BorderSide.strokeAlignOutside),
       ),
       child: child,

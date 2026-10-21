@@ -21,6 +21,7 @@ abstract interface class DeskWalletApi {
   Future<WalletAccount> account();
   Future<Balance> balance();
   Future<List<Tx>> transactions();
+  Future<List<Output>> outputs();
   Future<List<Contact>> contacts();
   Future<ServiceStatus> status();
   Future<List<NodeServer>> nodes();
@@ -44,6 +45,9 @@ abstract interface class DeskWalletApi {
   Future<NodeServer> checkNode(String url);
   Future<void> addNode(NodeServer node);
   Future<void> useEpicbox(String domain);
+
+  /// Starts or stops the receive listener (Epicbox, and HTTP when it is on).
+  Future<void> setListening(bool on);
   Future<void> rescan();
   Future<List<String>> revealPhrase(String password);
   Future<void> changePassword(String current, String next);

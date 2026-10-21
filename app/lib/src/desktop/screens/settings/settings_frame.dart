@@ -3,14 +3,15 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../widgets/kit.dart';
+import 'prefs.dart';
 
 const List<(DeskRoute, String, IconData)?> _items = [
   (DeskRoute.settingsNode, 'Node', EIcons.node),
   (DeskRoute.settingsReceiving, 'Receiving', EIcons.antenna),
   (DeskRoute.settingsAppearance, 'Appearance', EIcons.palette),
   null,
-  (DeskRoute.settingsAccount, 'Wallet', EIcons.wallet),
-  (DeskRoute.settingsWallets, 'Wallets', EIcons.coins),
+  (DeskRoute.settingsAccount, 'This wallet', EIcons.wallet),
+  (DeskRoute.settingsWallets, 'All wallets', EIcons.coins),
   (DeskRoute.settingsPhrase, 'Recovery phrase', EIcons.key),
   (DeskRoute.settingsRescan, 'Rescan', EIcons.scan),
   null,
@@ -30,7 +31,7 @@ class SettingsFrame extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final nav = ref.read(deskNavProvider.notifier);
     final wide = MediaQuery.sizeOf(context).width >= Bp.desktop;
-    final content = ConstrainedBox(constraints: const BoxConstraints(maxWidth: Ctl.narrow), child: child);
+    final content = ConstrainedBox(constraints: BoxConstraints(maxWidth: Ctl.narrow), child: child);
     return EPage(
       title: 'Settings',
       width: EPageWidth.full,
@@ -39,13 +40,13 @@ class SettingsFrame extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(
-                  width: 200,
+                  width: 200.u,
                   child: Semantics(
                     label: 'Settings sections',
                     child: ESubnav(items: _items, current: route, onTap: (r) => nav.go(r as DeskRoute)),
                   ),
                 ),
-                const SizedBox(width: Sp.x8),
+                SizedBox(width: Sp.x8),
                 Expanded(child: content),
               ],
             )
@@ -58,13 +59,13 @@ class SettingsFrame extends ConsumerWidget {
                     children: [
                       for (final i in _items.whereType<(DeskRoute, String, IconData)>())
                         Padding(
-                          padding: const EdgeInsets.only(right: Sp.x2),
+                          padding: EdgeInsets.only(right: Sp.x2),
                           child: _Chip(icon: i.$3, label: i.$2, selected: i.$1 == route, onTap: () => nav.go(i.$1)),
                         ),
                     ],
                   ),
                 ),
-                const SizedBox(height: Sp.x6),
+                SizedBox(height: Sp.x6),
                 content,
               ],
             ),
@@ -75,10 +76,93 @@ class SettingsFrame extends ConsumerWidget {
 String healthWord(ServiceHealth h) => switch (h) {
   ServiceHealth.ok => 'Online',
   ServiceHealth.slow => 'Slow',
-  ServiceHealth.down => 'Offline',
+  ServiceHealth.down => 'Not responding',
   ServiceHealth.off => 'Off',
-  ServiceHealth.checking => 'Checking',
+  ServiceHealth.checking => 'Checking…',
 };
+
+/// The node's state word (6.1.6 nodeBadge): Online, Syncing, Not responding.
+String nodeWord(ServiceHealth h) => switch (h) {
+  ServiceHealth.ok => 'Online',
+  ServiceHealth.slow => 'Syncing',
+  ServiceHealth.down => 'Not responding',
+  ServiceHealth.off => 'Off',
+  ServiceHealth.checking => 'Connecting…',
+};
+
+/// The Epicbox listener's state word.
+String epicboxWord(ServiceHealth h) => switch (h) {
+  ServiceHealth.ok => 'Listening',
+  ServiceHealth.slow || ServiceHealth.checking => 'Connecting…',
+  ServiceHealth.down => 'Not responding',
+  ServiceHealth.off => 'Off',
+};
+
+/// 2914414 → "2,914,414".
+String groupDigits(int n) => n.toString().replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (_) => ',');
+
+/// A section a sidebar status row jumps to: scrolled into view, flashed for 1.8 s, its
+/// heading focused; again on every new jump to it ([SettingsPrefsController.jumpTo]).
+class JumpSection extends ConsumerStatefulWidget {
+  const JumpSection({super.key, required this.section, required this.child});
+
+  final SettingsJump section;
+  final Widget child;
+
+  @override
+  ConsumerState<JumpSection> createState() => _JumpSectionState();
+}
+
+/// The last jump handled, so a page opened later does not flash again.
+int _jumpHandled = 0;
+
+class _JumpSectionState extends ConsumerState<JumpSection> {
+  final _focus = FocusNode(debugLabel: 'jump target');
+  bool _flash = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _maybe(ref.read(settingsPrefsProvider).jump));
+  }
+
+  @override
+  void dispose() {
+    _focus.dispose();
+    super.dispose();
+  }
+
+  void _maybe(JumpTo? j) {
+    if (!mounted || j == null || j.section != widget.section || j.n <= _jumpHandled) return;
+    _jumpHandled = j.n;
+    final reduce = MediaQuery.of(context).disableAnimations;
+    Scrollable.ensureVisible(context, duration: reduce ? Duration.zero : Dur.base, alignment: 0);
+    _focus.requestFocus();
+    setState(() => _flash = true);
+    Future<void>.delayed(const Duration(milliseconds: 1800), () {
+      if (mounted) setState(() => _flash = false);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    ref.listen(settingsPrefsProvider.select((p) => p.jump), (_, j) => WidgetsBinding.instance.addPostFrameCallback((_) => _maybe(j)));
+    final c = context.dc;
+    return Focus(
+      focusNode: _focus,
+      skipTraversal: true,
+      child: AnimatedContainer(
+        duration: Dur.base,
+        decoration: BoxDecoration(
+          color: _flash ? c.accentFaint : null,
+          borderRadius: BorderRadius.circular(Rad.sm),
+          boxShadow: _flash ? [BoxShadow(color: c.accent, spreadRadius: 1)] : null,
+        ),
+        child: widget.child,
+      ),
+    );
+  }
+}
 
 /// Health dot, word and latency: "Online · 84 ms".
 class HealthLine extends StatelessWidget {
@@ -94,7 +178,7 @@ class HealthLine extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         EStatusDot(healthTone(health)),
-        const SizedBox(width: 6),
+        SizedBox(width: 6.u),
         Text(latencyMs == null ? healthWord(health) : '${healthWord(health)} · $latencyMs ms', style: ts.small),
       ],
     );
@@ -106,9 +190,9 @@ class SettingsLoading extends StatelessWidget {
   const SettingsLoading({super.key});
 
   @override
-  Widget build(BuildContext context) => const Padding(
+  Widget build(BuildContext context) => Padding(
     padding: EdgeInsets.symmetric(vertical: Sp.x16),
-    child: Center(child: ESpinner(size: 24)),
+    child: Center(child: ESpinner(size: 24.u)),
   );
 }
 
@@ -149,7 +233,7 @@ class _Chip extends StatelessWidget {
         borderRadius: BorderRadius.circular(Rad.sm),
         child: Container(
           height: Ctl.sm,
-          padding: const EdgeInsets.symmetric(horizontal: Sp.x3),
+          padding: EdgeInsets.symmetric(horizontal: Sp.x3),
           decoration: BoxDecoration(
             color: selected ? c.s3 : null,
             borderRadius: BorderRadius.circular(Rad.sm),
@@ -159,7 +243,7 @@ class _Chip extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Icon(icon, size: Ctl.iconSm, color: selected ? c.accentText : c.dim),
-              const SizedBox(width: Sp.x2),
+              SizedBox(width: Sp.x2),
               Text(label, style: context.ts.body.copyWith(color: selected ? c.text : c.dim)),
             ],
           ),

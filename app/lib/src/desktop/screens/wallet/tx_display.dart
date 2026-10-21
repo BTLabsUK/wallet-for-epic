@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart' hide TextDirection;
 
 import '../../widgets/kit.dart';
 
@@ -13,14 +14,27 @@ String methodLabel(TxMethod m) => switch (m) {
   TxMethod.file => 'File',
 };
 
-/// Who the other side is: the contact's name, else a shortened address or the file name.
+/// Who the other side is: the contact's name, else a shortened address or the file name, else
+/// what kind of transaction it was.
 String whoOf(Tx t) {
   if (t.contactName != null) return t.contactName!;
+  if (t.coinbase) return 'Mining reward';
+  if (t.foundByScan) return 'Found by scan';
   final cp = t.counterparty;
-  if (cp == null) return t.incoming ? 'Received' : 'Sent';
+  if (cp == null) return t.incoming ? 'Unknown sender' : 'Unknown recipient';
   if (t.method == TxMethod.file) return cp;
   return shortAddress(cp);
 }
+
+/// A line explaining [whoOf] where it needs one.
+String? whoTip(Tx t) =>
+    t.foundByScan && t.contactName == null ? 'A scan found this payment; the wallet has no record of who sent it. The time is when the scan found it.' : null;
+
+/// Whether the name is an address (shown in mono).
+bool whoIsAddress(Tx t) => t.contactName == null && t.counterparty != null && t.method != TxMethod.file;
+
+/// How it travelled, or null when that is not known (mining rewards, scan finds).
+String? methodOf(Tx t) => t.coinbase || t.foundByScan ? null : methodLabel(t.method);
 
 String shortAddress(String a) {
   if (a.startsWith('http')) {
@@ -40,48 +54,125 @@ IconData iconOf(Tx t) => switch (t.method) {
 };
 
 /// The state in words, with a tone for its colour.
-(String, ETone) statusOf(Tx t) => switch (t.state) {
-  TxState.waitingRecipient => (t.incoming ? 'Waiting for sender' : 'Waiting for recipient', ETone.warn),
-  TxState.posted => ('Waiting for a block', ETone.neutral),
-  TxState.confirming => ('Confirming ${t.confirmations}/$minConfirmations', ETone.gold),
-  TxState.confirmed => (t.incoming ? 'Received' : 'Sent', ETone.ok),
-  TxState.cancelled => ('Cancelled', ETone.neutral),
-};
+(String, ETone) statusOf(Tx t) => t.immature
+    ? ('Immature', ETone.warn)
+    : switch (t.state) {
+        TxState.waitingRecipient => (
+          t.incoming ? 'Waiting for sender to finalize' : (t.method == TxMethod.file ? 'Waiting for the response file' : 'Waiting for recipient to sign'),
+          ETone.warn,
+        ),
+        TxState.posted => ('Waiting for a block', ETone.neutral),
+        TxState.confirming => ('Confirming ${t.confirmations}/$minConfirmations', ETone.gold),
+        TxState.confirmed => (t.incoming ? 'Received' : 'Sent', ETone.ok),
+        TxState.cancelled => ('Cancelled', ETone.neutral),
+      };
 
 final _time = DateFormat('HH:mm');
 final _day = DateFormat('d MMM yyyy');
+final _dayMonth = DateFormat('d MMM');
+final _weekday = DateFormat('EEEE d MMMM');
+final _weekdayYear = DateFormat('EEEE d MMMM yyyy');
 final _dayTime = DateFormat('d MMM yyyy, HH:mm');
 
 String timeOf(Tx t) => _time.format(t.created);
-String dateTimeOf(Tx t) => _dayTime.format(t.created);
+String dateTimeOf(Tx t, {DateTime? at}) => _dayTime.format(at ?? t.created);
 
-/// "Today", "Yesterday" or the date, for day separators.
+/// The first of [sizes] (whole type sizes, largest first) at which [text] in [style] fits
+/// [maxWidth] after the app's text scaler, else the last one (the caller ellipsizes). Text is
+/// stepped down, never scale-transformed, so it stays crisp.
+double fitFontSize(BuildContext context, String text, TextStyle style, List<double> sizes, double maxWidth, {double extra = 0}) {
+  final scaler = MediaQuery.textScalerOf(context);
+  for (final size in sizes) {
+    final tp = TextPainter(
+      text: TextSpan(
+        text: text,
+        style: style.copyWith(fontSize: size),
+      ),
+      textDirection: TextDirection.ltr,
+      textScaler: scaler,
+      maxLines: 1,
+    )..layout();
+    final w = tp.width;
+    tp.dispose();
+    if (w + extra <= maxWidth) return size;
+  }
+  return sizes.last;
+}
+
+/// An [EMoney] that steps its size down through [sizes] to fit its width.
+class FitMoney extends ConsumerWidget {
+  const FitMoney(this.nano, {super.key, required this.sizes, this.color, this.sign = false, this.unit = false, this.weight, this.width});
+
+  final int nano;
+  final List<double> sizes;
+
+  /// The width to fit, when the caller knows it (inside IntrinsicHeight, where a
+  /// LayoutBuilder can't measure).
+  final double? width;
+  final Color? color;
+  final bool sign;
+  final bool unit;
+  final FontWeight? weight;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final hidden = ref.watch(deskProvider.select((s) => s.settings.hideAmounts));
+    final text = '${sign && nano > 0 ? '+' : ''}${hidden ? '••••••' : formatEpic(nano)}${unit ? ' EPIC' : ''}';
+    final style = context.ts.mono(weight: weight ?? FontWeight.w500);
+    if (width != null) {
+      return EMoney(nano, size: fitFontSize(context, text, style, sizes, width!), color: color, sign: sign, unit: unit, weight: weight);
+    }
+    return LayoutBuilder(
+      builder: (context, box) {
+        final size = box.maxWidth.isFinite ? fitFontSize(context, text, style, sizes, box.maxWidth) : sizes.first;
+        return ClipRect(
+          child: EMoney(nano, size: size, color: color, sign: sign, unit: unit, weight: weight),
+        );
+      },
+    );
+  }
+}
+
+/// The mock's clock, so day labels stay stable in screenshots.
+final DateTime _now = DateTime(2026, 10, 21, 14, 30);
+
+/// Day separators: "Today · Wednesday 21 October", "Yesterday · …", "Monday 19 October".
 String dayLabel(DateTime d, {DateTime? now}) {
-  final n = now ?? DateTime(2026, 10, 21, 14, 30);
+  final n = now ?? _now;
   final a = DateTime(d.year, d.month, d.day);
   final b = DateTime(n.year, n.month, n.day);
   final diff = b.difference(a).inDays;
-  if (diff == 0) return 'Today';
-  if (diff == 1) return 'Yesterday';
-  return _day.format(d);
+  final full = (d.year == n.year ? _weekday : _weekdayYear).format(d);
+  if (diff == 0) return 'Today · $full';
+  if (diff == 1) return 'Yesterday · $full';
+  return full;
 }
 
-/// Short relative time for compact rows: "18 min", "3 h", "2 d", else the date.
+/// Compact rows: "Today 16:58", else "16 Oct 09:15".
 String compactTime(Tx t, {DateTime? now}) {
-  final n = now ?? DateTime(2026, 10, 21, 14, 30);
-  final d = n.difference(t.created);
-  if (d.inMinutes < 60) return '${d.inMinutes} min';
-  if (d.inHours < 24) return '${d.inHours} h';
-  if (d.inDays < 7) return '${d.inDays} d';
-  return _day.format(t.created);
+  final n = now ?? _now;
+  final d = t.created;
+  final today = d.year == n.year && d.month == n.month && d.day == n.day;
+  return '${today ? 'Today' : _dayMonth.format(d)} ${_time.format(d)}';
+}
+
+/// "today", "yesterday", "3 days ago", then "12 Oct" (with the year when it is not this year).
+String whenText(DateTime d, {DateTime? now}) {
+  final n = now ?? _now;
+  final days = DateTime(n.year, n.month, n.day).difference(DateTime(d.year, d.month, d.day)).inDays;
+  if (days == 0) return 'today';
+  if (days == 1) return 'yesterday';
+  if (days > 1 && days < 7) return '$days days ago';
+  return d.year == n.year ? _dayMonth.format(d) : _day.format(d);
 }
 
 /// The 36 px square with the direction icon: green in, gold out, dashed when cancelled.
 class TxIcon extends StatelessWidget {
-  const TxIcon(this.tx, {super.key, this.size = 36});
+  const TxIcon(this.tx, {super.key, this._size});
 
   final Tx tx;
-  final double size;
+  final double? _size;
+  double get size => _size ?? 36.u;
 
   @override
   Widget build(BuildContext context) {
@@ -102,14 +193,16 @@ class TxIcon extends StatelessWidget {
 
 /// Ring or icon for the state, sized for a row.
 class TxStateMark extends StatelessWidget {
-  const TxStateMark(this.tx, {super.key, this.size = 22});
+  const TxStateMark(this.tx, {super.key, this._size});
 
   final Tx tx;
-  final double size;
+  final double? _size;
+  double get size => _size ?? 22.u;
 
   @override
   Widget build(BuildContext context) {
     final c = context.dc;
+    if (tx.immature) return Icon(EIcons.sand, size: size * 0.75, color: c.warn);
     return switch (tx.state) {
       TxState.cancelled => ERing(confirmations: 0, size: size, off: true),
       TxState.waitingRecipient => Icon(EIcons.sand, size: size * 0.75, color: c.warn),
@@ -143,19 +236,19 @@ class TxAmount extends StatelessWidget {
           style: TextStyle(decoration: off ? TextDecoration.lineThrough : null, decorationColor: c.faint),
           child: EMoney(tx.incoming ? tx.amount : -tx.amount, sign: true, unit: false, color: color, size: Fs.md),
         ),
-        if (line != null) ...[
-          const SizedBox(height: 2),
-          Text(line, style: context.ts.caption),
-        ],
+        if (line != null) ...[const SizedBox(height: 2), Text(line, style: context.ts.caption)],
       ],
     );
   }
 }
 
+/// Narrower than this, [TxRow] uses its compact form.
+double get txRowFullWidth => 560.u;
+
 /// One transaction row. [compact] (Overview) puts the state under the name and the time
 /// under the amount; the full row (Activity) has state, time and amount columns.
-class TxRow extends StatefulWidget {
-  const TxRow({super.key, required this.tx, required this.onTap, this.compact = false, this.selected = false, this.onFinalize});
+class TxRow extends ConsumerStatefulWidget {
+  const TxRow({super.key, required this.tx, required this.onTap, this.compact = false, this.selected = false, this.onFinalize, this.title});
 
   final Tx tx;
   final VoidCallback onTap;
@@ -163,15 +256,23 @@ class TxRow extends StatefulWidget {
   final bool selected;
   final VoidCallback? onFinalize;
 
+  /// Replaces the name (a contact's own history says Sent / Received).
+  final String? title;
+
   @override
-  State<TxRow> createState() => _TxRowState();
+  ConsumerState<TxRow> createState() => _TxRowState();
 }
 
-class _TxRowState extends State<TxRow> {
+class _TxRowState extends ConsumerState<TxRow> {
   bool _hover = false;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => LayoutBuilder(
+    // A narrow list gets the compact row: no room for the status and time columns.
+    builder: (context, box) => _row(context, widget.compact || box.maxWidth < txRowFullWidth),
+  );
+
+  Widget _row(BuildContext context, bool compact) {
     final c = context.dc;
     final ts = context.ts;
     final t = widget.tx;
@@ -182,14 +283,18 @@ class _TxRowState extends State<TxRow> {
       ETone.gold => c.accentText,
       _ => c.faint,
     };
+    final hidden = ref.watch(deskProvider.select((s) => s.settings.hideAmounts));
+    final method = methodOf(t);
+    final extra = t.message ?? (t.hasProof ? 'Payment proof' : null);
     final meta = <InlineSpan>[
-      TextSpan(text: methodLabel(t.method)),
-      if (t.message != null) ...[
-        TextSpan(text: '  ·  ', style: TextStyle(color: c.lineField)),
-        TextSpan(text: t.message),
-      ] else if (t.hasProof) ...[
-        TextSpan(text: '  ·  ', style: TextStyle(color: c.lineField)),
-        const TextSpan(text: 'Payment proof'),
+      if (method != null) TextSpan(text: method),
+      if (extra != null) ...[
+        if (method != null)
+          TextSpan(
+            text: '  ·  ',
+            style: TextStyle(color: c.lineField),
+          ),
+        TextSpan(text: extra),
       ],
     ];
     final who = Column(
@@ -197,73 +302,90 @@ class _TxRowState extends State<TxRow> {
       mainAxisSize: MainAxisSize.min,
       children: [
         Text(
-          whoOf(t),
+          widget.title ?? whoOf(t),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: t.contactName == null && t.method != TxMethod.file
-              ? ts.mono(size: 12.5, weight: FontWeight.w500)
-              : ts.strong,
+          style: widget.title == null && whoIsAddress(t) ? ts.mono(size: 12.5, weight: FontWeight.w500) : ts.strong,
         ),
         const SizedBox(height: 2),
-        if (widget.compact)
+        if (compact)
           Row(
             children: [
-              TxStateMark(t, size: 15),
-              const SizedBox(width: 6),
-              Flexible(child: Text(word, maxLines: 1, overflow: TextOverflow.ellipsis, style: ts.small.copyWith(color: toneColor))),
+              TxStateMark(t, size: 15.u),
+              SizedBox(width: 6.u),
+              Flexible(
+                child: Text(
+                  word,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: ts.small.copyWith(color: toneColor),
+                ),
+              ),
             ],
           )
         else
-          Text.rich(TextSpan(children: meta), maxLines: 1, overflow: TextOverflow.ellipsis, style: ts.small.copyWith(color: c.faint)),
+          Text.rich(
+            TextSpan(children: meta),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: ts.small.copyWith(color: c.faint),
+          ),
       ],
     );
-    final finalizable = !widget.compact && !t.incoming && t.method == TxMethod.file && t.state == TxState.waitingRecipient;
+    final finalizable = !compact && !t.incoming && t.method == TxMethod.file && t.state == TxState.waitingRecipient;
     final row = Row(
       children: [
         TxIcon(t),
-        const SizedBox(width: Sp.x4),
+        SizedBox(width: Sp.x4),
         Expanded(flex: 16, child: who),
-        if (!widget.compact) ...[
-          const SizedBox(width: Sp.x4),
+        if (!compact) ...[
+          SizedBox(width: Sp.x4),
           Expanded(
             flex: 10,
             child: finalizable
                 ? Align(
                     alignment: Alignment.centerLeft,
-                    child: EButton(
-                      label: 'Finalize',
-                      icon: EIcons.fileDown,
-                      kind: EBtnKind.ghost,
-                      size: EBtnSize.inline,
-                      onPressed: widget.onFinalize,
-                    ),
+                    child: EButton(label: 'Finalize', icon: EIcons.fileDown, kind: EBtnKind.ghost, size: EBtnSize.inline, onPressed: widget.onFinalize),
                   )
                 : Row(
                     children: [
                       TxStateMark(t),
-                      const SizedBox(width: Sp.x2),
-                      Flexible(child: Text(word, maxLines: 1, overflow: TextOverflow.ellipsis, style: ts.small.copyWith(color: toneColor))),
+                      SizedBox(width: Sp.x2),
+                      Flexible(
+                        child: Text(
+                          word,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: ts.small.copyWith(color: toneColor),
+                        ),
+                      ),
                     ],
                   ),
           ),
-          const SizedBox(width: Sp.x4),
-          SizedBox(width: 52, child: Text(timeOf(t), style: ts.mono(size: Fs.xs, color: c.faint))),
+          SizedBox(width: Sp.x4),
+          SizedBox(
+            width: 52.u,
+            child: Text(
+              timeOf(t),
+              style: ts.mono(size: Fs.xs, color: c.faint),
+            ),
+          ),
         ],
-        const SizedBox(width: Sp.x4),
-        TxAmount(t, sub: widget.compact ? compactTime(t) : null),
+        SizedBox(width: Sp.x4),
+        TxAmount(t, sub: compact ? compactTime(t) : null),
       ],
     );
     return Semantics(
       button: true,
       selected: widget.selected,
-      label: '${t.incoming ? 'Received' : 'Sent'} ${formatEpic(t.amount)} EPIC, ${whoOf(t)}, $word',
+      label: '${t.incoming ? 'Received' : 'Sent'} ${hidden ? 'hidden amount' : '${formatEpic(t.amount)} EPIC'}, ${whoOf(t)}, $word',
       excludeSemantics: true,
       child: InkWell(
         onTap: widget.onTap,
         onHover: (v) => setState(() => _hover = v),
         child: Container(
-          constraints: const BoxConstraints(minHeight: 60),
-          padding: const EdgeInsets.symmetric(horizontal: Sp.x5, vertical: Sp.x2),
+          constraints: BoxConstraints(minHeight: 60.u),
+          padding: EdgeInsets.symmetric(horizontal: Sp.x5, vertical: Sp.x2),
           color: widget.selected ? c.s3 : (_hover ? c.hover : null),
           child: row,
         ),

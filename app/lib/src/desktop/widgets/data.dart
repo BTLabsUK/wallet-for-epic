@@ -13,10 +13,11 @@ import 'surfaces.dart';
 
 /// Initials on a hairline square: wallets and contacts.
 class EAvatar extends StatelessWidget {
-  const EAvatar(this.name, {super.key, this.size = 32});
+  const EAvatar(this.name, {super.key, this._size});
 
   final String name;
-  final double size;
+  final double? _size;
+  double get size => _size ?? 32.u;
 
   static String initials(String name) {
     final parts = name.trim().split(RegExp(r'[\s_:-]+')).where((p) => p.isNotEmpty).toList();
@@ -50,11 +51,12 @@ class EAvatar extends StatelessWidget {
 /// Confirmation ring: an arc for the count out of [needed], a check when done, a dashed
 /// faint ring when [off] (cancelled).
 class ERing extends StatelessWidget {
-  const ERing({super.key, required this.confirmations, this.needed = 10, this.size = 22, this.off = false});
+  const ERing({super.key, required this.confirmations, this.needed = 10, this._size, this.off = false});
 
   final int confirmations;
   final int needed;
-  final double size;
+  final double? _size;
+  double get size => _size ?? 22.u;
   final bool off;
 
   @override
@@ -76,7 +78,7 @@ class ERing extends StatelessWidget {
                 ? Icon(EIcons.check, size: size * 0.6, color: c.ok)
                 : (off || size < 18
                       ? null
-                      : Text('$confirmations', style: context.ts.mono(size: size * 0.42, weight: FontWeight.w600))),
+                      : Text('$confirmations', style: context.ts.mono(size: size * 0.42 / deskScale, weight: FontWeight.w600))),
           ),
         ),
       ),
@@ -147,10 +149,11 @@ class EMoney extends ConsumerWidget {
 
 /// A QR code with the Epic mark, on white, with the accent glow.
 class EQr extends StatelessWidget {
-  const EQr(this.data, {super.key, this.size = 216});
+  const EQr(this.data, {super.key, this._size});
 
   final String data;
-  final double size;
+  final double? _size;
+  double get size => _size ?? 216.u;
 
   @override
   Widget build(BuildContext context) {
@@ -158,16 +161,16 @@ class EQr extends StatelessWidget {
     return Container(
       width: size,
       height: size,
-      padding: const EdgeInsets.all(14),
+      padding: EdgeInsets.all(14.u),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(Rad.sm),
         boxShadow: [
           BoxShadow(color: c.lineStrong, spreadRadius: 1),
-          BoxShadow(color: c.glow, blurRadius: 40, spreadRadius: -6),
+          BoxShadow(color: c.glow, blurRadius: 40.u, spreadRadius: -6.u),
         ],
       ),
-      child: MarkedQr(data: data, size: size - 28),
+      child: MarkedQr(data: data, size: size - 28.u),
     );
   }
 }
@@ -199,8 +202,8 @@ class _EDropZoneState extends State<EDropZone> {
         painter: _DashedBorder(color: _hover ? c.accent : c.lineField),
         child: AnimatedContainer(
           duration: Dur.fast,
-          constraints: const BoxConstraints(minHeight: 160),
-          padding: const EdgeInsets.all(Sp.x6),
+          constraints: BoxConstraints(minHeight: 160.u),
+          padding: EdgeInsets.all(Sp.x6),
           decoration: BoxDecoration(
             color: _hover ? c.accentFaint : Colors.transparent,
             borderRadius: BorderRadius.circular(Rad.sm),
@@ -208,14 +211,14 @@ class _EDropZoneState extends State<EDropZone> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(EIcons.fileUp, size: 28, color: c.accentText),
-              const SizedBox(height: Sp.x2),
+              Icon(EIcons.fileUp, size: 28.u, color: c.accentText),
+              SizedBox(height: Sp.x2),
               Text(widget.title, style: ts.strong, textAlign: TextAlign.center),
               if (widget.text != null) ...[
                 const SizedBox(height: 2),
                 Text(widget.text!, style: ts.small, textAlign: TextAlign.center),
               ],
-              const SizedBox(height: Sp.x3),
+              SizedBox(height: Sp.x3),
               EButton(label: widget.buttonLabel, icon: EIcons.folderOpen, size: EBtnSize.sm, onPressed: widget.onPick),
             ],
           ),
@@ -232,7 +235,7 @@ class _DashedBorder extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final rrect = RRect.fromRectAndRadius(Offset.zero & size, const Radius.circular(Rad.sm));
+    final rrect = RRect.fromRectAndRadius(Offset.zero & size, Radius.circular(Rad.sm));
     final path = Path()..addRRect(rrect.deflate(0.75));
     final paint = Paint()
       ..color = color
@@ -262,7 +265,7 @@ class ESeedGrid extends StatelessWidget {
     final c = context.dc;
     return LayoutBuilder(
       builder: (context, box) {
-        final cols = box.maxWidth < 480 ? 2 : columns;
+        final cols = box.maxWidth < 480.u ? 2 : columns;
         final w = (box.maxWidth - (cols - 1) * Sp.x2) / cols;
         return Wrap(
           spacing: Sp.x2,
@@ -271,8 +274,8 @@ class ESeedGrid extends StatelessWidget {
             for (var i = 0; i < words.length; i++)
               Container(
                 width: w,
-                height: 40,
-                padding: const EdgeInsets.symmetric(horizontal: Sp.x3),
+                height: 40.u,
+                padding: EdgeInsets.symmetric(horizontal: Sp.x3),
                 decoration: BoxDecoration(
                   color: c.s2,
                   borderRadius: BorderRadius.circular(Rad.sm),
@@ -281,14 +284,14 @@ class ESeedGrid extends StatelessWidget {
                 child: Row(
                   children: [
                     SizedBox(
-                      width: 20,
-                      child: Text('${i + 1}', textAlign: TextAlign.right, style: context.ts.mono(size: 11, color: c.faint)),
+                      width: 20.u,
+                      child: Text('${i + 1}', textAlign: TextAlign.right, style: context.ts.mono(size: 11.u, color: c.faint)),
                     ),
-                    const SizedBox(width: Sp.x2),
+                    SizedBox(width: Sp.x2),
                     Expanded(
                       child: revealed
                           ? Text(words[i], style: context.ts.mono(size: Fs.md))
-                          : Container(height: 8, margin: const EdgeInsets.only(right: Sp.x6), decoration: BoxDecoration(color: c.s3, borderRadius: BorderRadius.circular(4))),
+                          : Container(height: 8.u, margin: EdgeInsets.only(right: Sp.x6), decoration: BoxDecoration(color: c.s3, borderRadius: BorderRadius.circular(4.u))),
                     ),
                   ],
                 ),
@@ -341,9 +344,9 @@ class ESelect<T> extends StatelessWidget {
         style: MenuStyle(
           backgroundColor: WidgetStatePropertyAll(c.s4),
           surfaceTintColor: const WidgetStatePropertyAll(Colors.transparent),
-          padding: const WidgetStatePropertyAll(EdgeInsets.all(Sp.x2)),
+          padding: WidgetStatePropertyAll(EdgeInsets.all(Sp.x2)),
           minimumSize: WidgetStatePropertyAll(Size(box.maxWidth, 0)),
-          maximumSize: WidgetStatePropertyAll(Size(box.maxWidth, 420)),
+          maximumSize: WidgetStatePropertyAll(Size(box.maxWidth, 420.u)),
           shape: WidgetStatePropertyAll(
             RoundedRectangleBorder(borderRadius: BorderRadius.circular(Rad.sm), side: BorderSide(color: c.lineStrong)),
           ),
@@ -353,19 +356,19 @@ class ESelect<T> extends StatelessWidget {
             MenuItemButton(
               onPressed: () => onChanged(item.value),
               style: ButtonStyle(
-                minimumSize: WidgetStatePropertyAll(Size(box.maxWidth - Sp.x4, item.subtitle == null ? 40 : 52)),
-                padding: const WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: Sp.x3)),
-                shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(6))),
+                minimumSize: WidgetStatePropertyAll(Size(box.maxWidth - Sp.x4, item.subtitle == null ? 40.u : 52.u)),
+                padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: Sp.x3)),
+                shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(6.u))),
                 backgroundColor: WidgetStateProperty.resolveWith(
                   (s) => s.contains(WidgetState.hovered) || s.contains(WidgetState.focused) || item.value == value ? c.s3 : null,
                 ),
               ),
               leadingIcon: item.value == value
                   ? Icon(EIcons.check, size: Ctl.iconSm, color: c.accentText)
-                  : (item.leading ?? const SizedBox(width: Ctl.iconSm)),
+                  : (item.leading ?? SizedBox(width: Ctl.iconSm)),
               trailingIcon: item.trailing,
               child: SizedBox(
-                width: math.max(120, box.maxWidth - 160),
+                width: math.max(120.u, box.maxWidth - 160.u),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
@@ -387,7 +390,7 @@ class ESelect<T> extends StatelessWidget {
             borderRadius: BorderRadius.circular(Rad.sm),
             child: Container(
               height: Ctl.md,
-              padding: const EdgeInsets.only(left: Sp.x3, right: Sp.x2),
+              padding: EdgeInsets.only(left: Sp.x3, right: Sp.x2),
               decoration: BoxDecoration(
                 color: c.s2,
                 borderRadius: BorderRadius.circular(Rad.sm),
@@ -395,7 +398,7 @@ class ESelect<T> extends StatelessWidget {
               ),
               child: Row(
                 children: [
-                  if (current?.leading != null) ...[current!.leading!, const SizedBox(width: Sp.x2)],
+                  if (current?.leading != null) ...[current!.leading!, SizedBox(width: Sp.x2)],
                   Expanded(
                     child: Text(
                       current?.title ?? '',
@@ -403,7 +406,7 @@ class ESelect<T> extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                  if (current?.trailing != null) ...[current!.trailing!, const SizedBox(width: Sp.x2)],
+                  if (current?.trailing != null) ...[current!.trailing!, SizedBox(width: Sp.x2)],
                   Icon(EIcons.chevronDown, size: Ctl.icon, color: c.dim),
                 ],
               ),
@@ -432,7 +435,7 @@ class ESubnav extends StatelessWidget {
       children: [
         for (final item in items)
           if (item == null)
-            Padding(padding: const EdgeInsets.symmetric(vertical: Sp.x2, horizontal: Sp.x3), child: Divider(height: 1, color: c.line))
+            Padding(padding: EdgeInsets.symmetric(vertical: Sp.x2, horizontal: Sp.x3), child: Divider(height: 1, color: c.line))
           else
             ENavItem(
               icon: item.$3,
@@ -473,7 +476,7 @@ class _ENavItemState extends State<ENavItem> {
     final count = widget.count ?? 0;
     Widget item = AnimatedContainer(
       duration: Dur.fast,
-      height: 40,
+      height: 40.u,
       margin: const EdgeInsets.only(bottom: 2),
       padding: EdgeInsets.symmetric(horizontal: widget.compact ? 0 : Sp.x3),
       decoration: BoxDecoration(
@@ -490,7 +493,7 @@ class _ENavItemState extends State<ENavItem> {
             child: Icon(widget.icon, size: Ctl.icon, color: sel ? c.accentText : c.faint),
           ),
           if (!widget.compact) ...[
-            const SizedBox(width: Sp.x3),
+            SizedBox(width: Sp.x3),
             Expanded(
               child: Text(
                 widget.label,
@@ -500,11 +503,11 @@ class _ENavItemState extends State<ENavItem> {
             ),
             if (count > 0)
               Container(
-                constraints: const BoxConstraints(minWidth: 20),
-                height: 20,
-                padding: const EdgeInsets.symmetric(horizontal: 6),
+                constraints: BoxConstraints(minWidth: 20.u),
+                height: 20.u,
+                padding: EdgeInsets.symmetric(horizontal: 6.u),
                 alignment: Alignment.center,
-                decoration: BoxDecoration(color: c.accentSoft, borderRadius: BorderRadius.circular(10)),
+                decoration: BoxDecoration(color: c.accentSoft, borderRadius: BorderRadius.circular(10.u)),
                 child: Text('$count', style: context.ts.mono(size: Fs.xs, color: c.accentText, weight: FontWeight.w500)),
               ),
           ],
@@ -542,9 +545,9 @@ class EKbd extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.dc;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      padding: EdgeInsets.symmetric(horizontal: 6.u, vertical: 2),
       decoration: BoxDecoration(borderRadius: BorderRadius.circular(Rad.xs), border: Border.all(color: c.lineStrong)),
-      child: Text(keys, style: context.ts.mono(size: 11, color: c.dim, weight: FontWeight.w500)),
+      child: Text(keys, style: context.ts.mono(size: 11.u, color: c.dim, weight: FontWeight.w500)),
     );
   }
 }

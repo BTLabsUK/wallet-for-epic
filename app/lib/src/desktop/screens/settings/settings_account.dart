@@ -1,21 +1,51 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../widgets/kit.dart';
 import 'dialogs.dart';
+import 'prefs.dart';
 import 'settings_frame.dart';
 
-class SettingsAccountScreen extends ConsumerWidget {
+/// Where the app keeps its own files (mock).
+const appFilesDir = '~/.config/epic-wallet';
+
+class SettingsAccountScreen extends ConsumerStatefulWidget {
   const SettingsAccountScreen({super.key, this.arg});
 
   final Object? arg;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<SettingsAccountScreen> createState() => _SettingsAccountScreenState();
+}
+
+class _SettingsAccountScreenState extends ConsumerState<SettingsAccountScreen> {
+  final _label = TextEditingController();
+  bool _filled = false;
+
+  @override
+  void dispose() {
+    _label.dispose();
+    super.dispose();
+  }
+
+  void _save() {
+    final p = ref.read(settingsPrefsProvider.notifier);
+    final t = _label.text.trim();
+    p.set(ref.read(settingsPrefsProvider).copyWith(walletLabel: t));
+    showEToast(context, 'Label saved', text: t.isEmpty ? null : t);
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final a = ref.watch(deskProvider.select((s) => s.account));
+    final label = ref.watch(settingsPrefsProvider.select((p) => p.walletLabel));
     if (a == null) return const SettingsFrame(route: DeskRoute.settingsAccount, child: SettingsLoading());
-    final c = context.dc;
-    final ts = context.ts;
+    if (!_filled) {
+      _filled = true;
+      _label.text = label ?? a.name;
+    }
+    final nav = ref.read(deskNavProvider.notifier);
     return SettingsFrame(
       route: DeskRoute.settingsAccount,
       child: Column(
@@ -24,18 +54,44 @@ class SettingsAccountScreen extends ConsumerWidget {
           ESetGroup(
             title: 'This wallet',
             rows: [
-              ESetRow(title: 'Name', text: 'Only shown in this app.', control: Text(a.name, style: ts.strong)),
-              ESetRow(title: 'Network', text: 'Set when the wallet was created.', control: ETag(a.network, tone: a.network == 'mainnet' ? ETone.gold : ETone.neutral)),
               ESetRow(
-                title: 'Folder',
-                stacked: true,
-                control: Row(
-                  children: [
-                    Expanded(child: Text(a.folder, style: ts.mono(size: Fs.sm, color: c.dim), overflow: TextOverflow.ellipsis)),
-                    const SizedBox(width: Sp.x3),
-                    EButton(label: 'Open folder', icon: EIcons.folderOpen, size: EBtnSize.inline, onPressed: () => showEToast(context, 'Opening folder', text: a.folder)),
-                  ],
+                title: 'Label',
+                text: 'Only shown in this app.',
+                control: SizedBox(
+                  width: 240.u,
+                  child: EInput(
+                    controller: _label,
+                    hint: a.name,
+                    semanticLabel: 'Label',
+                    inputFormatters: [LengthLimitingTextInputFormatter(32)],
+                    onSubmitted: (_) => _save(),
+                    trailing: EIconButton(icon: EIcons.check, label: 'Save label', size: EBtnSize.inline, onPressed: _save),
+                  ),
                 ),
+              ),
+              ESetRow(
+                title: 'Recovery phrase',
+                text: 'The words that restore this wallet. Keep them private.',
+                control: EButton(label: 'Show phrase…', icon: EIcons.key, size: EBtnSize.sm, onPressed: () => nav.go(DeskRoute.settingsPhrase)),
+              ),
+              ESetRow(
+                title: 'Recheck balance',
+                text: 'Scans the chain again when the balance looks wrong.',
+                control: EButton(label: 'Recheck…', icon: EIcons.scan, size: EBtnSize.sm, onPressed: () => nav.go(DeskRoute.settingsRescan)),
+              ),
+            ],
+          ),
+          ESetGroup(
+            title: 'Files',
+            rows: [
+              _FolderRow(title: 'Wallet folder', path: a.folder),
+              const _FolderRow(title: 'App files', text: 'Settings, API secrets and the log.', path: appFilesDir),
+              if (a.network != 'mainnet')
+                ESetRow(title: 'Network', text: 'Set when the wallet was created.', control: ETag(a.network, tone: ETone.warn)),
+              ESetRow(
+                title: 'Setup assistant',
+                text: 'Walk through node and receiving again. Nothing is lost.',
+                control: EButton(label: 'Run setup…', size: EBtnSize.sm, onPressed: () => nav.go(DeskRoute.setup)),
               ),
             ],
           ),
@@ -45,20 +101,39 @@ class SettingsAccountScreen extends ConsumerWidget {
               ESetRow(
                 title: 'Password',
                 text: 'Unlocks this wallet.',
-                control: EButton(label: 'Change password…', size: EBtnSize.sm, icon: EIcons.key, onPressed: () => showChangePasswordDialog(context)),
+                control: EButton(label: 'Change password…', size: EBtnSize.sm, icon: EIcons.lock, onPressed: () => showChangePasswordDialog(context)),
               ),
             ],
           ),
-          ESetGroup(
-            title: 'Remove',
-            rows: [
-              ESetRow(
-                title: 'Remove wallet',
-                text: 'Deletes the wallet from this computer. The recovery phrase restores it.',
-                control: EButton(label: 'Remove wallet…', size: EBtnSize.sm, kind: EBtnKind.danger, icon: EIcons.trash, onPressed: () => showRemoveWalletDialog(context)),
-              ),
-            ],
+        ],
+      ),
+    );
+  }
+}
+
+/// A folder: its path in mono with a copy button, and Open folder.
+class _FolderRow extends StatelessWidget {
+  const _FolderRow({required this.title, required this.path, this.text});
+
+  final String title;
+  final String? text;
+  final String path;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.dc;
+    final ts = context.ts;
+    return ESetRow(
+      title: title,
+      text: text,
+      control: EButton(label: 'Open folder', icon: EIcons.folderOpen, size: EBtnSize.sm, onPressed: () => showEToast(context, 'Opening folder', text: path)),
+      below: Row(
+        children: [
+          Flexible(
+            child: Tooltip(message: path, child: Text(path, style: ts.mono(size: Fs.sm, color: c.dim), overflow: TextOverflow.ellipsis)),
           ),
+          SizedBox(width: Sp.x1),
+          ECopyButton(text: path, label: 'Copy path: $title'),
         ],
       ),
     );

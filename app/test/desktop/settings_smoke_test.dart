@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:epic_wallet/src/desktop/app/app_dialogs.dart';
+import 'package:epic_wallet/src/desktop/app/shell.dart';
+import 'package:epic_wallet/src/desktop/app/tour.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/dialogs.dart';
+import 'package:epic_wallet/src/desktop/screens/settings/shots.dart' show demoOtherWallet;
+import 'package:epic_wallet/src/desktop/screens/settings/prefs.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/settings_about.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/settings_account.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/settings_appearance.dart';
@@ -33,27 +38,40 @@ void main() {
   final cases = <(String, DeskLocation)>[
     ('node', const DeskLocation(DeskRoute.settingsNode)),
     ('node combo', const DeskLocation(DeskRoute.settingsNode, NodeDemo.comboOpen)),
+    ('node typed', const DeskLocation(DeskRoute.settingsNode, NodeDemo.typed)),
+    ('node failed', const DeskLocation(DeskRoute.settingsNode, NodeDemo.pickFailed)),
+    ('node builtin', const DeskLocation(DeskRoute.settingsNode, NodeDemo.builtin)),
+    ('node chain', const DeskLocation(DeskRoute.settingsNode, NodeDemo.chainInUse)),
     ('receiving', const DeskLocation(DeskRoute.settingsReceiving)),
     ('receiving combo', const DeskLocation(DeskRoute.settingsReceiving, ReceivingDemo.comboOpen)),
     ('receiving tor', const DeskLocation(DeskRoute.settingsReceiving, ReceivingDemo.torOn)),
     ('receiving down', const DeskLocation(DeskRoute.settingsReceiving, ReceivingDemo.epicboxDown)),
+    ('receiving http on', const DeskLocation(DeskRoute.settingsReceiving, ReceivingDemo.httpOn)),
+    ('receiving http failed', const DeskLocation(DeskRoute.settingsReceiving, ReceivingDemo.httpFailed)),
     ('appearance', const DeskLocation(DeskRoute.settingsAppearance)),
     ('account', const DeskLocation(DeskRoute.settingsAccount)),
     ('wallets', const DeskLocation(DeskRoute.settingsWallets)),
     ('phrase', const DeskLocation(DeskRoute.settingsPhrase)),
     ('phrase shown', const DeskLocation(DeskRoute.settingsPhrase, PhraseDemo.shown)),
+    ('phrase qr', const DeskLocation(DeskRoute.settingsPhrase, PhraseDemo.qr)),
     ('rescan', const DeskLocation(DeskRoute.settingsRescan)),
     ('rescan running', const DeskLocation(DeskRoute.settingsRescan, RescanDemo.running)),
     ('about', const DeskLocation(DeskRoute.settingsAbout)),
     ('help', const DeskLocation(DeskRoute.settingsHelp)),
+    ('help search', const DeskLocation(DeskRoute.settingsHelp, 'file')),
   ];
   final dialogs = <(String, Future<void> Function(BuildContext))>[
-    ('my node', (c) => showMyNodeDialog(c)),
-    ('my node error', (c) => showMyNodeDialog(c, initial: 'http://bad:3413', showError: true)),
+    ('my node', (c) => showMyNodeDialog(c, adding: true)),
+    ('my node error', (c) => showMyNodeDialog(c, initial: 'http://bad example', adding: true, showError: true)),
+    ('my node edit', (c) => showMyNodeDialog(c, initial: 'http://10.0.1.24:3413', label: 'Home node')),
     ('directory', showNodeDirectoryDialog),
-    ('remove', showRemoveWalletDialog),
-    ('public', showPublicModeDialog),
+    ('chain offer', showChainOfferDialog),
+    ('chain offer in use', (c) => showChainOfferDialog(c, inUse: true)),
+    ('remove', (c) => showRemoveWalletDialog(c, demoOtherWallet)),
+    ('remove everything', (c) => showRemoveWalletDialog(c, demoOtherWallet, mode: RemoveMode.everything)),
     ('password', showChangePasswordDialog),
+    ('node synced', showNodeSyncedDialog),
+    ('first scan', (c) => showFirstScanDialog(c)),
   ];
 
   for (final size in const [Size(1280, 800), Size(1000, 700), Size(560, 800)]) {
@@ -99,4 +117,54 @@ void main() {
       });
     }
   }
+
+  // The shell with the tour open on each step, at the three layouts.
+  for (final size in const [Size(1280, 800), Size(1000, 700), Size(560, 800)]) {
+    for (final step in [0, 1, deskTourSteps.length - 1]) {
+      testWidgets('shell tour step $step at ${size.width.toInt()}', (tester) async {
+        tester.view.physicalSize = size;
+        tester.view.devicePixelRatio = 1;
+        addTearDown(tester.view.reset);
+        final container = ProviderContainer();
+        addTearDown(container.dispose);
+        await tester.runAsync(() => container.read(deskProvider.notifier).refresh());
+        container.read(deskNavProvider.notifier).reset(DeskRoute.settingsAbout);
+        container.read(deskTourProvider.notifier).open(at: step);
+        await tester.pumpWidget(UncontrolledProviderScope(
+          container: container,
+          child: MaterialApp(theme: buildDeskTheme(Brightness.dark), home: const DeskShell(at: DeskLocation(DeskRoute.settingsAbout))),
+        ));
+        await tester.pump(const Duration(seconds: 1));
+        expect(tester.takeException(), isNull);
+        expect(find.text('${step + 1} of ${deskTourSteps.length}'), findsOneWidget);
+        await tester.pumpWidget(const SizedBox());
+        await tester.pump(const Duration(seconds: 10));
+      });
+    }
+  }
+
+  testWidgets('a status row jumps into its settings section', (tester) async {
+    tester.view.physicalSize = const Size(1280, 800);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final container = ProviderContainer();
+    addTearDown(container.dispose);
+    await tester.runAsync(() => container.read(deskProvider.notifier).refresh());
+    container.read(deskNavProvider.notifier).reset(DeskRoute.settingsAbout);
+    await tester.pumpWidget(UncontrolledProviderScope(
+      container: container,
+      child: MaterialApp(
+        theme: buildDeskTheme(Brightness.dark),
+        home: Consumer(builder: (_, ref, _) => DeskShell(at: ref.watch(deskNavProvider))),
+      ),
+    ));
+    await tester.pump(const Duration(seconds: 1));
+    await tester.tap(find.bySemanticsLabel(RegExp('^Open Receiving settings')));
+    await tester.pump(const Duration(milliseconds: 500));
+    expect(container.read(deskNavProvider).route, DeskRoute.settingsReceiving);
+    expect(container.read(settingsPrefsProvider).jump?.section, SettingsJump.epicbox);
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox());
+    await tester.pump(const Duration(seconds: 10));
+  });
 }

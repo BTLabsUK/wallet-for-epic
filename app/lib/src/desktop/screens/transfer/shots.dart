@@ -12,7 +12,12 @@ const _anna = 'esYb3kq9TzWmR8uPfVc2LdN6hJx4gA7sKeQ1oBnC5vD9rHtF3w@epicbox.epicca
 /// reference shots.
 final List<DeskShot> transferShots = [
   const DeskShot(id: '13-send', title: 'Send', route: DeskRoute.send),
-  const DeskShot(id: '13-send-narrow', title: 'Send at 1000x700', route: DeskRoute.send, width: 1000, height: 700),
+  DeskShot(id: '13-send-narrow', title: 'Send at 1000x700', route: DeskRoute.send, width: 1000, height: 700),
+  const DeskShot(id: '13b-send-node-syncing', title: 'Send, node not synced', route: DeskRoute.send, arg: SendArgs(nodeSync: 0.62, recipient: _anna, amount: '12.5')),
+  const DeskShot(id: '13c-send-epicbox-off', title: 'Send, Epicbox not connected', route: DeskRoute.send, arg: SendArgs(epicboxHealth: ServiceHealth.off)),
+  const DeskShot(id: '13d-send-epicbox-down', title: 'Send, Epicbox down', route: DeskRoute.send, arg: SendArgs(epicboxHealth: ServiceHealth.down)),
+  const DeskShot(id: '13e-send-privacy', title: 'Send, privacy open', route: DeskRoute.send, arg: SendArgs(privacyOpen: true, recipient: _anna, amount: '12.5')),
+  const DeskShot(id: '13f-send-suggestions', title: 'Send, matching contacts', route: DeskRoute.send, arg: SendArgs(recipient: 'an', suggest: true)),
   const DeskShot(id: '14-send-direct', title: 'Send, direct HTTP', route: DeskRoute.send, arg: SendArgs(method: TxMethod.http, recipient: 'http://10.0.1.24:3415', amount: '5')),
   const DeskShot(id: '14b-send-direct-tor', title: 'Send, direct Tor', route: DeskRoute.send, arg: SendArgs(method: TxMethod.tor)),
   const DeskShot(id: '15-send-file', title: 'Send, file', route: DeskRoute.send, arg: SendArgs(method: TxMethod.file, amount: '12.5')),
@@ -23,10 +28,25 @@ final List<DeskShot> transferShots = [
   const DeskShot(id: '16d-send-file-ready', title: 'Send, file ready', route: DeskRoute.send, arg: SendArgs(step: SendStep.fileReady, amount: '12.5')),
   const DeskShot(id: '16e-send-failed', title: 'Send, failed', route: DeskRoute.send, arg: SendArgs(step: SendStep.failed, recipient: 'esOffline9TzWmR8uPfVc2LdN6hJx4gA7sKeQ1oBnC5vD9r@epicbox.offline.example', amount: '3')),
   const DeskShot(id: '17-receive', title: 'Receive', route: DeskRoute.receive),
-  const DeskShot(id: '18-receive-internet', title: 'Receive from internet', route: DeskRoute.receive, arg: ReceiveArgs(internet: true), height: 900),
+  const DeskShot(id: '17b-receive-stopped', title: 'Receive, listener stopped', route: DeskRoute.receive, arg: ReceiveArgs(stopped: true)),
+  const DeskShot(id: '17c-receive-http-failed', title: 'Receive, HTTP failed', route: DeskRoute.receive, arg: ReceiveArgs(httpFailed: true)),
+  const DeskShot(id: '17d-receive-qr-http', title: 'Receive, HTTP QR code', route: DeskRoute.receive, arg: ReceiveArgs(qrHttp: true)),
+  DeskShot(
+    id: '17e-receive-epicbox-down',
+    title: 'Receive, Epicbox down',
+    route: DeskRoute.receive,
+    arg: const ReceiveArgs(epicboxDown: true),
+    // 17d turned HTTP on: put it back for the shots after.
+    prepare: (c, _) async {
+      final n = c.read(deskProvider.notifier);
+      await n.saveSettings(c.read(deskProvider).settings.copyWith(directHttp: false));
+    },
+  ),
   const DeskShot(id: '19-import', title: 'Sign a transaction file', route: DeskRoute.importTx),
   const DeskShot(id: '19b-import-done', title: 'Response saved', route: DeskRoute.importTx, arg: ImportArgs(done: true)),
+  const DeskShot(id: '19c-import-error', title: 'Sign, wrong file', route: DeskRoute.importTx, arg: ImportArgs(error: ImportError.wrongType)),
   const DeskShot(id: '20-finalize', title: 'Finalize a response file', route: DeskRoute.finalize),
   const DeskShot(id: '20b-finalize-done', title: 'Transaction posted', route: DeskRoute.finalize, arg: FinalizeArgs(done: true)),
+  const DeskShot(id: '20c-finalize-error', title: 'Finalize, not posted', route: DeskRoute.finalize, arg: FinalizeArgs(error: FinalizeError.notPosted)),
   DeskShot(id: '36-dlg-contact-picker', title: 'Choose contact', route: DeskRoute.send, dialog: showContactPickerDialog),
 ];

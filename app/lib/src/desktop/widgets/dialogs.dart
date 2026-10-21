@@ -44,7 +44,7 @@ class EDialog extends StatelessWidget {
     this.tone = ETone.neutral,
     this.body,
     this.actions = const [],
-    this.width = 480,
+    this._width,
     this.dismissible = true,
   });
 
@@ -54,7 +54,8 @@ class EDialog extends StatelessWidget {
   final ETone tone;
   final Widget? body;
   final List<Widget> actions;
-  final double width;
+  final double? _width;
+  double get width => _width ?? 480.u;
   final bool dismissible;
 
   @override
@@ -70,7 +71,7 @@ class EDialog extends StatelessWidget {
     };
     return Dialog(
       backgroundColor: c.s4,
-      insetPadding: const EdgeInsets.all(Sp.x6),
+      insetPadding: EdgeInsets.all(Sp.x6),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(Rad.lg),
         side: BorderSide(color: c.lineStrong),
@@ -83,21 +84,21 @@ class EDialog extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Padding(
-                padding: const EdgeInsets.fromLTRB(Sp.x6, Sp.x6, Sp.x4, 0),
+                padding: EdgeInsets.fromLTRB(Sp.x6, Sp.x6, Sp.x4, 0),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     if (icon != null) ...[
                       Container(
-                        width: 40,
-                        height: 40,
+                        width: 40.u,
+                        height: 40.u,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(Rad.sm),
                           border: Border.all(color: c.lineStrong),
                         ),
                         child: Icon(icon, size: Ctl.icon, color: iconColor),
                       ),
-                      const SizedBox(width: Sp.x3),
+                      SizedBox(width: Sp.x3),
                     ],
                     Expanded(
                       child: Column(
@@ -105,7 +106,7 @@ class EDialog extends StatelessWidget {
                         children: [
                           Semantics(header: true, child: Text(title, style: ts.h3)),
                           if (description != null) ...[
-                            const SizedBox(height: 6),
+                            SizedBox(height: 6.u),
                             Text(description!, style: ts.bodyDim),
                           ],
                         ],
@@ -122,11 +123,11 @@ class EDialog extends StatelessWidget {
               ),
               if (body != null)
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(Sp.x6, Sp.x5, Sp.x6, 0),
+                  padding: EdgeInsets.fromLTRB(Sp.x6, Sp.x5, Sp.x6, 0),
                   child: body,
                 ),
               Padding(
-                padding: const EdgeInsets.all(Sp.x6),
+                padding: EdgeInsets.all(Sp.x6),
                 child: actions.isEmpty
                     ? const SizedBox.shrink()
                     : Wrap(
@@ -146,12 +147,13 @@ class EDialog extends StatelessWidget {
 
 /// A side sheet: 420 wide, head with title and close, scrolling body, foot with actions.
 class EDrawer extends StatelessWidget {
-  const EDrawer({super.key, required this.title, required this.body, this.actions = const [], this.width = 420});
+  const EDrawer({super.key, required this.title, required this.body, this.actions = const [], this._width});
 
   final String title;
   final Widget body;
   final List<Widget> actions;
-  final double width;
+  final double? _width;
+  double get width => _width ?? 420.u;
 
   @override
   Widget build(BuildContext context) {
@@ -166,7 +168,7 @@ class EDrawer extends StatelessWidget {
           children: [
             Container(
               height: Ctl.topbar,
-              padding: const EdgeInsets.only(left: Sp.x6, right: Sp.x3),
+              padding: EdgeInsets.only(left: Sp.x6, right: Sp.x3),
               decoration: BoxDecoration(border: Border(bottom: BorderSide(color: c.line))),
               child: Row(
                 children: [
@@ -176,11 +178,11 @@ class EDrawer extends StatelessWidget {
               ),
             ),
             Expanded(
-              child: SingleChildScrollView(padding: const EdgeInsets.all(Sp.x6), child: body),
+              child: SingleChildScrollView(padding: EdgeInsets.all(Sp.x6), child: body),
             ),
             if (actions.isNotEmpty)
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: Sp.x6, vertical: Sp.x4),
+                padding: EdgeInsets.symmetric(horizontal: Sp.x6, vertical: Sp.x4),
                 decoration: BoxDecoration(border: Border(top: BorderSide(color: c.line))),
                 child: Wrap(alignment: WrapAlignment.end, spacing: Sp.x3, children: actions),
               ),
@@ -205,7 +207,7 @@ void showEToast(BuildContext context, String title, {String? text, ETone tone = 
   messenger.showSnackBar(
     SnackBar(
       behavior: SnackBarBehavior.floating,
-      width: 380,
+      width: 380.u,
       backgroundColor: c.s4,
       elevation: 6,
       duration: const Duration(seconds: 4),
@@ -216,7 +218,7 @@ void showEToast(BuildContext context, String title, {String? text, ETone tone = 
       content: Row(
         children: [
           Icon(tone == ETone.risk ? EIcons.error : EIcons.okCircle, size: Ctl.icon, color: color),
-          const SizedBox(width: Sp.x3),
+          SizedBox(width: Sp.x3),
           Expanded(
             child: Column(
               mainAxisSize: MainAxisSize.min,

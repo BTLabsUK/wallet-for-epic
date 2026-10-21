@@ -2,9 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../widgets/kit.dart';
+import '../settings/dialogs.dart' show RemoveMode, showRemoveWalletDialog;
+import 'kill_process_dialog.dart';
 import 'onboarding_parts.dart';
 
-/// Opens the app. [arg] `'error'` starts with the wrong-password message.
+/// What [UnlockScreen] starts on, for the screenshot tour.
+enum UnlockShow { wrongPassword, progress, failed, missing }
+
+/// Opens the app. [arg] is an [UnlockShow] or an [UnlockAdded].
+///
+/// Mock passwords: `wrong` is refused, `busy` finds old processes (the kill-process dialog),
+/// `fail` stops at the wallet service.
 class UnlockScreen extends ConsumerStatefulWidget {
   const UnlockScreen({super.key, this.arg});
 
@@ -14,19 +22,38 @@ class UnlockScreen extends ConsumerStatefulWidget {
   ConsumerState<UnlockScreen> createState() => _UnlockScreenState();
 }
 
+const _wrongPassword = 'Wrong password. Check Caps Lock and the keyboard layout.';
+
 class _UnlockScreenState extends ConsumerState<UnlockScreen> {
   final _password = TextEditingController();
+  final _passwordFocus = FocusNode();
   List<WalletEntry>? _wallets;
   String? _folder;
   String? _error;
-  bool _busy = false;
+  bool _missing = false;
+
+  /// The stage running now; null while the form shows.
+  String? _stage;
+  bool _closingStage = false;
+
+  /// The message of a failure before the password step.
+  String? _failure;
+  String _failedStage = '';
 
   @override
   void initState() {
     super.initState();
-    if (widget.arg == 'error') {
-      _error = 'Wrong password. Check Caps Lock and the keyboard layout.';
-      _password.text = 'secret';
+    switch (widget.arg) {
+      case UnlockShow.wrongPassword:
+        _error = _wrongPassword;
+        _password.text = 'secret';
+      case UnlockShow.progress:
+        _stage = 'wallet';
+      case UnlockShow.failed:
+        _failure = 'The wallet service did not start: port 3415 is in use by another program.';
+        _failedStage = 'wallet';
+      case UnlockShow.missing:
+        _missing = true;
     }
     ref.read(deskApiProvider).wallets().then((w) {
       if (!mounted) return;
@@ -40,26 +67,77 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
   @override
   void dispose() {
     _password.dispose();
+    _passwordFocus.dispose();
     super.dispose();
   }
 
+  WalletEntry? get _selected => _wallets?.where((w) => w.folder == _folder).firstOrNull;
+
+  List<Stage> get _stages => [
+    const Stage('check', 'Checking wallet files'),
+    const Stage('processes', 'Looking for wallet processes still running'),
+    if (_closingStage) const Stage('closing', 'Closing the old wallet processes'),
+    const Stage('wallet', 'Starting the wallet service'),
+    const Stage('unlock', 'Unlocking the wallet'),
+  ];
+
+  /// Shows [stage] running; false when the screen went away.
+  Future<bool> _run(String stage) async {
+    setState(() => _stage = stage);
+    await Future<void>.delayed(const Duration(milliseconds: 350));
+    return mounted;
+  }
+
+  void _backToForm({String? error}) {
+    setState(() {
+      _stage = null;
+      _failure = null;
+      _error = error;
+    });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _passwordFocus.requestFocus();
+      if (error != null) _password.selection = TextSelection(baseOffset: 0, extentOffset: _password.text.length);
+    });
+  }
+
   Future<void> _unlock() async {
-    if (_busy) return;
-    if (_password.text.isEmpty) {
+    if (_stage != null) return;
+    final password = _password.text;
+    if (password.isEmpty) {
       setState(() => _error = 'Enter the password');
       return;
     }
     setState(() {
-      _busy = true;
       _error = null;
+      _failure = null;
+      _closingStage = false;
     });
-    final ok = await ref.read(deskApiProvider).unlock(_password.text);
+    if (!await _run('check') || !await _run('processes')) return;
+    if (password == 'busy' && mounted) {
+      final closed = await showKillProcessDialog(context);
+      if (!mounted) return;
+      if (!closed) {
+        _backToForm(error: 'Close the other Epic processes, then unlock.');
+        return;
+      }
+      setState(() => _closingStage = true);
+      if (!await _run('closing')) return;
+    }
+    if (!await _run('wallet')) return;
+    if (password == 'fail') {
+      setState(() {
+        _failure = 'The wallet service did not start: port 3415 is in use by another program.';
+        _failedStage = 'wallet';
+        _stage = null;
+      });
+      return;
+    }
+    setState(() => _stage = 'unlock');
+    final ok = await ref.read(deskApiProvider).unlock(password);
     if (!mounted) return;
     if (!ok) {
-      setState(() {
-        _busy = false;
-        _error = 'Wrong password. Check Caps Lock and the keyboard layout.';
-      });
+      _backToForm(error: _wrongPassword);
       return;
     }
     await ref.read(deskProvider.notifier).refresh();
@@ -68,53 +146,142 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final name = _selected?.name ?? 'this wallet';
+    if (_failure != null) {
+      return ProgressView(
+        title: 'Unlock failed',
+        lead: 'The wallet did not open. The reason is below.',
+        failureTitle: 'The wallet did not open',
+        stages: _stages,
+        failed: _failedStage,
+        failure: _failure,
+        onBack: _backToForm,
+        onRetry: _unlock,
+      );
+    }
+    if (_stage != null) {
+      return ProgressView(
+        title: 'Unlocking $name',
+        lead: 'Each step shows as it finishes.',
+        stages: _stages,
+        current: _stage!,
+        note:
+            'Then the overview opens and finishes in the background: connecting to the node, updating balances, starting the listener.',
+      );
+    }
+    return _form(context);
+  }
+
+  Widget _form(BuildContext context) {
     final nav = ref.read(deskNavProvider.notifier);
+    final ts = context.ts;
     final wallets = _wallets;
+    final selected = _selected;
+    final added = widget.arg is UnlockAdded ? (widget.arg as UnlockAdded).name : null;
     return EHeroScreen(
       footer: const AuthFoot(),
       child: EAuthCard(
         title: 'Unlock wallet',
         lead: 'Keys stay on this computer.',
         alternatives: [
-          ELink(label: 'Other wallet', dim: true, onPressed: () => nav.go(DeskRoute.found)),
-          ELink(label: 'New or restore', dim: true, onPressed: () => nav.go(DeskRoute.welcome)),
+          ELink(label: 'Add a wallet', dim: true, onPressed: () => nav.go(DeskRoute.welcome, 'add')),
         ],
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            if (added != null) ...[
+              Semantics(
+                liveRegion: true,
+                child: ENotice(title: '$added added.', tone: ETone.ok, icon: EIcons.check),
+              ),
+              SizedBox(height: Sp.x5),
+            ],
             if (wallets != null && wallets.length > 1) ...[
               EField(
                 label: 'Wallet',
                 child: ESelect<String>(
                   semanticLabel: 'Wallet',
                   value: _folder ?? wallets.first.folder,
-                  onChanged: _busy ? (_) {} : (v) => setState(() => _folder = v),
+                  onChanged: (v) => setState(() {
+                    _folder = v;
+                    _missing = false;
+                  }),
                   items: [
-                    for (final w in wallets) ESelectItem(w.folder, w.name, subtitle: w.folder),
+                    for (final w in wallets)
+                      ESelectItem(
+                        w.folder,
+                        w.name,
+                        subtitle: w.folder,
+                        trailing: w.network == 'mainnet' ? null : ETag(networkName(w.network), tone: ETone.warn),
+                      ),
                   ],
                 ),
               ),
-              const SizedBox(height: Sp.x5),
+              SizedBox(height: Sp.x5),
+            ] else if (wallets != null && selected != null) ...[
+              Row(
+                children: [
+                  Icon(EIcons.wallet, size: Ctl.iconSm, color: context.dc.dim),
+                  SizedBox(width: Sp.x2),
+                  Flexible(child: Text(selected.name, style: ts.strong, overflow: TextOverflow.ellipsis)),
+                  if (selected.network != 'mainnet') ...[
+                    SizedBox(width: Sp.x2),
+                    ETag(networkName(selected.network), tone: ETone.warn),
+                  ],
+                ],
+              ),
+              SizedBox(height: Sp.x5),
             ] else if (wallets == null)
-              const Padding(
+              Padding(
                 padding: EdgeInsets.only(bottom: Sp.x5),
-                child: Align(alignment: Alignment.centerLeft, child: ESpinner()),
+                child: Align(alignment: Alignment.centerLeft, child: ESpinner(size: Ctl.iconSm)),
               ),
             EField(
               label: 'Password',
               error: _error,
-              child: EPasswordInput(
+              child: PasswordBox(
                 controller: _password,
+                focusNode: _passwordFocus,
                 autofocus: true,
                 invalid: _error != null,
+                semanticLabel: 'Password',
                 onChanged: (_) {
                   if (_error != null) setState(() => _error = null);
                 },
                 onSubmitted: (_) => _unlock(),
               ),
             ),
-            const SizedBox(height: Sp.x6),
-            EButton.primary(label: 'Unlock', icon: EIcons.lockOpen, expand: true, busy: _busy, onPressed: _unlock),
+            if (_missing) ...[
+              SizedBox(height: Sp.x5),
+              ENotice(
+                title: 'This wallet’s folder is missing',
+                text: 'It was at ${selected?.folder ?? _folder ?? ''}',
+                tone: ETone.risk,
+                icon: EIcons.alert,
+              ),
+              SizedBox(height: Sp.x3),
+              Wrap(
+                spacing: Sp.x2,
+                runSpacing: Sp.x2,
+                children: [
+                  EButton(
+                    label: 'Remove',
+                    icon: EIcons.trash,
+                    kind: EBtnKind.danger,
+                    size: EBtnSize.sm,
+                    onPressed: selected == null ? null : () => showRemoveWalletDialog(context, selected, mode: RemoveMode.list),
+                  ),
+                  EButton(
+                    label: 'Try again',
+                    icon: EIcons.refresh,
+                    size: EBtnSize.sm,
+                    onPressed: () => setState(() => _missing = false),
+                  ),
+                ],
+              ),
+            ],
+            SizedBox(height: Sp.x6),
+            EButton.primary(label: 'Unlock', icon: EIcons.lockOpen, expand: true, onPressed: _unlock),
           ],
         ),
       ),

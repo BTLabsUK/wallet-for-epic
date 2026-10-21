@@ -4,11 +4,25 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../widgets/kit.dart';
 import 'file_panels.dart';
 
-/// Argument of the Finalize route: [done] opens on the posted transaction.
+/// Argument of the Finalize route: [done] opens on the posted transaction, [error] on a
+/// refused file.
 class FinalizeArgs {
-  const FinalizeArgs({this.done = false});
+  const FinalizeArgs({this.done = false, this.error});
 
   final bool done;
+  final FinalizeError? error;
+}
+
+/// Why a response file was not finalized.
+enum FinalizeError {
+  wrongType('Not a response file', 'The file is not a response file. Choose the file the recipient sent back.'),
+  unreadable('File not readable', 'The file could not be read. It may be damaged or still being copied.'),
+  failed('Finalizing failed', 'The wallet could not finalize this file. It may belong to another transaction or be finalized already.'),
+  notPosted('Not posted', 'The transaction was finalized but the node did not accept it. Check the node, then try again.');
+
+  const FinalizeError(this.title, this.text);
+  final String title;
+  final String text;
 }
 
 class FinalizeScreen extends ConsumerStatefulWidget {
@@ -24,13 +38,14 @@ class _FinalizeScreenState extends ConsumerState<FinalizeScreen> {
   bool _busy = false;
   bool _done = false;
   int _txId = 38;
-  String? _error;
+  FinalizeError? _error;
 
   @override
   void initState() {
     super.initState();
     final a = widget.arg;
     _done = a is FinalizeArgs && a.done;
+    if (a is FinalizeArgs) _error = a.error;
   }
 
   Future<void> _pick() async {
@@ -45,8 +60,9 @@ class _FinalizeScreenState extends ConsumerState<FinalizeScreen> {
         _txId = tx.id;
         _done = true;
       });
+      showEToast(context, 'Transaction posted');
     } catch (_) {
-      if (mounted) setState(() => _error = 'The file could not be read as a response file.');
+      if (mounted) setState(() => _error = FinalizeError.unreadable);
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -68,10 +84,16 @@ class _FinalizeScreenState extends ConsumerState<FinalizeScreen> {
             text: 'Use the response file the recipient sent back.',
             icon: EIcons.info,
           ),
-          const SizedBox(height: Sp.x5),
+          SizedBox(height: Sp.x5),
           if (_error != null) ...[
-            ENotice(title: 'File not accepted', text: _error, tone: ETone.risk, icon: EIcons.error),
-            const SizedBox(height: Sp.x5),
+            ENotice(
+              title: _error!.title,
+              text: _error!.text,
+              tone: ETone.risk,
+              icon: EIcons.error,
+              actions: [if (_error == FinalizeError.notPosted) EButton(label: 'Try again', icon: EIcons.refresh, size: EBtnSize.inline, onPressed: _busy ? null : _pick)],
+            ),
+            SizedBox(height: Sp.x5),
           ],
           if (_done)
             ResultPanel(
@@ -84,12 +106,12 @@ class _FinalizeScreenState extends ConsumerState<FinalizeScreen> {
             )
           else if (_busy)
             EPanel(
-              padding: const EdgeInsets.all(Sp.x8),
+              padding: EdgeInsets.all(Sp.x8),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const ESpinner(size: 20),
-                  const SizedBox(width: Sp.x3),
+                  ESpinner(size: 20.u),
+                  SizedBox(width: Sp.x3),
                   Text('Finalizing and posting', style: ts.bodyDim),
                 ],
               ),

@@ -4,11 +4,25 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../widgets/kit.dart';
 import 'file_panels.dart';
 
-/// Argument of the Import route: [done] opens on the saved response file.
+/// Argument of the Import route: [done] opens on the saved response file, [error] on a
+/// refused file.
 class ImportArgs {
-  const ImportArgs({this.done = false});
+  const ImportArgs({this.done = false, this.error});
 
   final bool done;
+  final ImportError? error;
+}
+
+/// Why a transaction file was not signed.
+enum ImportError {
+  wrongType('Not a transaction file', 'The file is not a transaction file. Choose the .slate or .tx file the sender gave.'),
+  unreadable('File not readable', 'The file could not be read. It may be damaged or still being copied.'),
+  noPlace('Nothing signed', 'No place was chosen for the response file, so nothing was signed.'),
+  failed('Signing failed', 'The wallet could not sign this file. It may be for another wallet or already used.');
+
+  const ImportError(this.title, this.text);
+  final String title;
+  final String text;
 }
 
 class ImportTxScreen extends ConsumerStatefulWidget {
@@ -23,7 +37,7 @@ class ImportTxScreen extends ConsumerStatefulWidget {
 class _ImportTxScreenState extends ConsumerState<ImportTxScreen> {
   bool _busy = false;
   String? _response;
-  String? _error;
+  ImportError? _error;
   Tx? _tx;
 
   @override
@@ -31,6 +45,7 @@ class _ImportTxScreenState extends ConsumerState<ImportTxScreen> {
     super.initState();
     final a = widget.arg;
     if (a is ImportArgs && a.done) _response = 'invoice_0042.response.slate';
+    if (a is ImportArgs) _error = a.error;
   }
 
   Future<void> _pick() async {
@@ -46,7 +61,7 @@ class _ImportTxScreenState extends ConsumerState<ImportTxScreen> {
         _response = 'invoice_0042.response.slate';
       });
     } catch (_) {
-      if (mounted) setState(() => _error = 'The file could not be read as a transaction file.');
+      if (mounted) setState(() => _error = ImportError.unreadable);
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -73,10 +88,10 @@ class _ImportTxScreenState extends ConsumerState<ImportTxScreen> {
             text: 'Send the response file back to the sender over the same channel they used.',
             icon: EIcons.info,
           ),
-          const SizedBox(height: Sp.x5),
+          SizedBox(height: Sp.x5),
           if (_error != null) ...[
-            ENotice(title: 'File not accepted', text: _error, tone: ETone.risk, icon: EIcons.error),
-            const SizedBox(height: Sp.x5),
+            ENotice(title: _error!.title, text: _error!.text, tone: ETone.risk, icon: EIcons.error),
+            SizedBox(height: Sp.x5),
           ],
           if (_response != null)
             ResultPanel(
@@ -87,7 +102,7 @@ class _ImportTxScreenState extends ConsumerState<ImportTxScreen> {
                 children: [
                   FileChip(_response!),
                   if (_tx != null) ...[
-                    const SizedBox(height: Sp.x3),
+                    SizedBox(height: Sp.x3),
                     Row(children: [Text('Amount ', style: ts.small), EMoney(_tx!.amount)]),
                   ],
                 ],
@@ -99,12 +114,12 @@ class _ImportTxScreenState extends ConsumerState<ImportTxScreen> {
             )
           else if (_busy)
             EPanel(
-              padding: const EdgeInsets.all(Sp.x8),
+              padding: EdgeInsets.all(Sp.x8),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const ESpinner(size: 20),
-                  const SizedBox(width: Sp.x3),
+                  ESpinner(size: 20.u),
+                  SizedBox(width: Sp.x3),
                   Text('Signing the file', style: ts.bodyDim),
                 ],
               ),

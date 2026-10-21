@@ -100,6 +100,13 @@ class DeskController extends Notifier<DeskState> {
     );
   }
 
+  /// The app-wide settings (theme, interface scale) before any wallet is open: they apply
+  /// from the first screen.
+  Future<void> loadSettings() async {
+    final s = await api.settings();
+    state = state.copyWith(settings: s);
+  }
+
   Future<void> saveSettings(DeskSettings s) async {
     state = state.copyWith(settings: s);
     await api.saveSettings(s);
@@ -113,6 +120,12 @@ class DeskController extends Notifier<DeskState> {
 
   Future<void> useEpicbox(String domain) async {
     await api.useEpicbox(domain);
+    state = state.copyWith(status: await api.status());
+  }
+
+  /// Starts or stops receiving (Receive › Start listener / Stop receiving).
+  Future<void> setListening(bool on) async {
+    await api.setListening(on);
     state = state.copyWith(status: await api.status());
   }
 
@@ -144,3 +157,6 @@ class DeskController extends Notifier<DeskState> {
 }
 
 final deskProvider = NotifierProvider<DeskController, DeskState>(DeskController.new);
+
+/// The wallet's outputs (Activity › Outputs). Invalidate to reload.
+final deskOutputsProvider = FutureProvider<List<Output>>((ref) => ref.read(deskApiProvider).outputs());

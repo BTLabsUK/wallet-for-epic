@@ -1,46 +1,128 @@
+import 'dart:async';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../ui/theme/brand.dart' show EpicMark;
+import '../screens/settings/prefs.dart';
+import '../screens/settings/settings_frame.dart' show epicboxWord, groupDigits, nodeWord;
+import '../screens/settings/settings_node.dart' show hostOf;
+import '../screens/settings/settings_receiving.dart' show httpShown;
 import '../widgets/kit.dart';
 import 'screens.dart';
+import 'tour.dart';
 
 /// The app version the sidebar shows.
-const String deskVersion = '1.7.1';
+const String deskVersion = '0.1.0'; // pubspec's version (v0.1)
+
+const _releasesUrl = 'https://github.com/EpicCash/epic-gui-wallet/releases';
+
+/// "Ctrl+L", or "⌘L" on macOS.
+String deskKeys(String key) => defaultTargetPlatform == TargetPlatform.macOS ? '⌘$key' : 'Ctrl+$key';
+
+/// The window title of each in-app place: `<page> · Epic Cash wallet`.
+String deskPageTitle(DeskRoute r) {
+  final page = switch (r.section) {
+    DeskSection.overview => 'Overview',
+    DeskSection.activity => 'Activity',
+    DeskSection.send => 'Send',
+    DeskSection.receive => switch (r) {
+      DeskRoute.importTx => 'Import transaction',
+      DeskRoute.finalize => 'Finalize transaction',
+      _ => 'Receive',
+    },
+    DeskSection.contacts => 'Contacts',
+    DeskSection.settings => 'Settings',
+    null => '',
+  };
+  return page.isEmpty ? 'Epic Cash wallet' : '$page · Epic Cash wallet';
+}
 
 /// The frame of every in-app page. Three layouts by width:
 ///  - desktop (≥ 1000): the 224 px sidebar with labels, statuses and the account;
 ///  - narrow (600–1000): a 72 px icon rail;
 ///  - phone (< 600): a top bar with the statuses and a bottom bar with the five places.
-class DeskShell extends ConsumerWidget {
+/// Ctrl+L locks, Ctrl+Q quits (⌘ on macOS). The tour opens over it.
+class DeskShell extends ConsumerStatefulWidget {
   const DeskShell({super.key, required this.at});
 
   final DeskLocation at;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<DeskShell> createState() => _DeskShellState();
+}
+
+class _DeskShellState extends ConsumerState<DeskShell> {
+  Timer? _tourTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    HardwareKeyboard.instance.addHandler(_onKey);
+    _maybeTour();
+  }
+
+  /// Ctrl+L / ⌘L locks, Ctrl+Q / ⌘Q quits, wherever the focus is (6.1.6 app menu).
+  bool _onKey(KeyEvent e) {
+    if (e is! KeyDownEvent || !mounted) return false;
+    final hw = HardwareKeyboard.instance;
+    if (!(hw.isControlPressed || hw.isMetaPressed) || hw.isShiftPressed || hw.isAltPressed) return false;
+    if (e.logicalKey == LogicalKeyboardKey.keyL) {
+      lockWallet(ref);
+      return true;
+    }
+    if (e.logicalKey == LogicalKeyboardKey.keyQ) {
+      quitWallet(context, ref);
+      return true;
+    }
+    return false;
+  }
+
+  @override
+  void didUpdateWidget(DeskShell oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _maybeTour();
+  }
+
+  @override
+  void dispose() {
+    HardwareKeyboard.instance.removeHandler(_onKey);
+    _tourTimer?.cancel();
+    super.dispose();
+  }
+
+  /// The tour, once, shortly after the first unlock lands on Overview.
+  void _maybeTour() {
+    if (!deskTourAuto || widget.at.route != DeskRoute.overview || ref.read(deskTourProvider).seen) return;
+    _tourTimer?.cancel();
+    _tourTimer = Timer(const Duration(milliseconds: 900), () {
+      if (mounted && ref.read(deskNavProvider).route == DeskRoute.overview && !ref.read(deskTourProvider).seen) {
+        ref.read(deskTourProvider.notifier).open();
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final c = context.dc;
+    final at = widget.at;
     final width = MediaQuery.sizeOf(context).width;
     final page = KeyedSubtree(key: ValueKey(at.route), child: deskScreen(at));
     final main = Material(color: c.bg, child: page);
-    final shortcuts = <ShortcutActivator, VoidCallback>{
-      const SingleActivator(LogicalKeyboardKey.keyL, control: true): () => lockWallet(ref),
-    };
+    final tour = ref.watch(deskTourProvider.select((t) => t.open));
+    final tourStart = ref.watch(deskTourProvider.select((t) => t.start));
+    final Widget frame;
     if (width < Bp.phone) {
-      return CallbackShortcuts(
-        bindings: shortcuts,
-        child: Scaffold(
-          backgroundColor: c.bg,
-          body: SafeArea(child: Column(children: [const _PhoneTopBar(), Expanded(child: main)])),
-          bottomNavigationBar: _PhoneNav(section: at.route.section),
-        ),
+      frame = Scaffold(
+        backgroundColor: c.bg,
+        body: SafeArea(child: Column(children: [const _PhoneTopBar(), Expanded(child: main)])),
+        bottomNavigationBar: _PhoneNav(section: at.route.section),
       );
-    }
-    final compact = width < Bp.desktop;
-    return CallbackShortcuts(
-      bindings: shortcuts,
-      child: Scaffold(
+    } else {
+      final compact = width < Bp.desktop;
+      frame = Scaffold(
         backgroundColor: c.bg,
         body: Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -49,16 +131,57 @@ class DeskShell extends ConsumerWidget {
             Expanded(child: main),
           ],
         ),
+      );
+    }
+    return Title(
+      title: deskPageTitle(at.route),
+      color: c.accent,
+      child: Stack(
+        children: [
+          Positioned.fill(child: ExcludeFocus(excluding: tour, child: frame)),
+          if (tour) Positioned.fill(child: DeskTourOverlay(key: ValueKey(tourStart), startAt: tourStart)),
+        ],
       ),
     );
   }
 }
 
+/// True while the wallet locks (the lock button spins, Ctrl+L waits).
+class DeskLocking extends Notifier<bool> {
+  @override
+  bool build() => false;
+
+  void set(bool v) => state = v;
+}
+
+final deskLockingProvider = NotifierProvider<DeskLocking, bool>(DeskLocking.new);
+
 /// Lock: back to the unlock screen, the wallet closed.
 Future<void> lockWallet(WidgetRef ref) async {
-  await ref.read(deskApiProvider).lock();
+  if (ref.read(deskLockingProvider)) return;
+  ref.read(deskLockingProvider.notifier).set(true);
+  try {
+    await ref.read(deskApiProvider).lock();
+  } finally {
+    ref.read(deskLockingProvider.notifier).set(false);
+  }
   ref.read(deskNavProvider.notifier).reset(DeskRoute.unlock);
 }
+
+/// Quit (the app menu's Ctrl+Q). Design run: locks and says so; the process keeps running.
+Future<void> quitWallet(BuildContext context, WidgetRef ref) async {
+  showEToast(context, 'Wallet locked', text: 'Quit closes the app once the wallet core is connected.');
+  await lockWallet(ref);
+}
+
+/// Switch wallet: locks, then the unlock screen offers the other wallets.
+Future<void> switchWallet(WidgetRef ref) => lockWallet(ref);
+
+const Map<DeskSection, String> _tourIds = {
+  DeskSection.send: 'send',
+  DeskSection.receive: 'receive',
+  DeskSection.activity: 'activity',
+};
 
 class _Sidebar extends ConsumerWidget {
   const _Sidebar({required this.section, required this.compact});
@@ -73,6 +196,16 @@ class _Sidebar extends ConsumerWidget {
     final nav = ref.read(deskNavProvider.notifier);
     final pending = ref.watch(deskProvider.select((s) => s.pendingFiles));
     final account = ref.watch(deskProvider.select((s) => s.account));
+    final label = ref.watch(settingsPrefsProvider.select((p) => p.walletLabel));
+    final removed = ref.watch(settingsPrefsProvider.select((p) => p.removedWallets));
+    final wallets = ref.watch(deskProvider.select((s) => s.wallets));
+    final locking = ref.watch(deskLockingProvider);
+    final canSwitch = (wallets ?? const []).where((w) => !removed.contains(w.folder)).length > 1;
+    final name = (label == null || label.isEmpty) ? (account?.name ?? '') : label;
+    final lockLabel = 'Lock wallet (${deskKeys('L')})';
+    final lockButton = locking
+        ? SizedBox.square(dimension: Ctl.inline, child: Center(child: ESpinner(size: Ctl.iconSm)))
+        : EIconButton(icon: EIcons.lock, label: lockLabel, size: compact ? EBtnSize.sm : EBtnSize.inline, onPressed: () => lockWallet(ref));
     return Semantics(
       container: true,
       label: 'Main navigation',
@@ -89,15 +222,30 @@ class _Sidebar extends ConsumerWidget {
                 child: Row(
                   mainAxisAlignment: compact ? MainAxisAlignment.center : MainAxisAlignment.start,
                   children: [
-                    EpicMark(size: 24, color: c.accent),
+                    EpicMark(size: 24.u, color: c.accent),
                     if (!compact) ...[
-                      const SizedBox(width: 10),
+                      SizedBox(width: 10.u),
                       Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text('Epic Cash', style: ts.h3.copyWith(fontSize: 15, letterSpacing: -0.15)),
-                          Text('Wallet $deskVersion', style: ts.caption),
+                          Tooltip(
+                            message: 'Release notes on GitHub: copies the link',
+                            child: Semantics(
+                              link: true,
+                              label: 'Wallet $deskVersion, release notes on GitHub',
+                              excludeSemantics: true,
+                              child: InkWell(
+                                onTap: () {
+                                  Clipboard.setData(const ClipboardData(text: _releasesUrl));
+                                  showEToast(context, 'Link copied', text: _releasesUrl);
+                                },
+                                borderRadius: BorderRadius.circular(Rad.xs),
+                                child: Text('Wallet $deskVersion', style: ts.caption.copyWith(decoration: TextDecoration.underline, decorationColor: c.line)),
+                              ),
+                            ),
+                          ),
                         ],
                       ),
                     ],
@@ -107,93 +255,98 @@ class _Sidebar extends ConsumerWidget {
             ),
             Expanded(
               child: SingleChildScrollView(
-                padding: EdgeInsets.symmetric(horizontal: compact ? Sp.x3 : Sp.x3, vertical: Sp.x2),
+                padding: EdgeInsets.symmetric(horizontal: Sp.x3, vertical: Sp.x2),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     for (final (s, route, label, icon) in deskNav)
-                      ENavItem(
-                        icon: icon,
-                        label: label,
-                        selected: section == s,
-                        compact: compact,
-                        count: s == DeskSection.activity ? pending : null,
-                        onTap: () => nav.go(route),
+                      _tourWrap(
+                        _tourIds[s],
+                        ENavItem(
+                          icon: icon,
+                          label: label,
+                          selected: section == s,
+                          compact: compact,
+                          count: s == DeskSection.activity ? pending : null,
+                          onTap: () => nav.go(route),
+                        ),
                       ),
                     Padding(
-                      padding: const EdgeInsets.symmetric(vertical: Sp.x2),
+                      padding: EdgeInsets.symmetric(vertical: Sp.x2),
                       child: Divider(height: 1, color: c.line),
                     ),
-                    ENavItem(
-                      icon: EIcons.settings,
-                      label: 'Settings',
-                      selected: section == DeskSection.settings,
-                      compact: compact,
-                      onTap: () => nav.go(DeskRoute.settingsNode),
+                    TourTarget(
+                      id: 'settings',
+                      child: ENavItem(
+                        icon: EIcons.settings,
+                        label: 'Settings',
+                        selected: section == DeskSection.settings,
+                        compact: compact,
+                        onTap: () => nav.go(DeskRoute.settingsNode),
+                      ),
                     ),
                   ],
                 ),
               ),
             ),
             Container(
-              padding: const EdgeInsets.all(Sp.x3),
+              padding: EdgeInsets.all(Sp.x3),
               decoration: BoxDecoration(border: Border(top: BorderSide(color: c.line))),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   ServiceRows(compact: compact),
-                  const SizedBox(height: Sp.x2),
+                  SizedBox(height: Sp.x2),
                   if (compact)
-                    Center(
-                      child: EIconButton(icon: EIcons.lock, label: 'Lock (Ctrl+L)', onPressed: () => lockWallet(ref)),
-                    )
+                    Center(child: lockButton)
                   else
                     Row(
                       children: [
                         Expanded(
                           child: Tooltip(
-                            message: 'Wallet settings',
-                            child: InkWell(
-                              borderRadius: BorderRadius.circular(Rad.sm),
-                              onTap: () => nav.go(DeskRoute.settingsAccount),
-                              child: Padding(
-                                padding: const EdgeInsets.all(Sp.x1),
-                                child: Row(
-                                  children: [
-                                    EAvatar(account?.name ?? ''),
-                                    const SizedBox(width: Sp.x3),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text(account?.name ?? '', style: ts.body.copyWith(fontWeight: FontWeight.w500), overflow: TextOverflow.ellipsis),
-                                          Text(account?.network ?? '', style: ts.caption),
-                                        ],
+                            message: 'Open wallet settings',
+                            child: Semantics(
+                              button: true,
+                              label: 'Open wallet settings: $name',
+                              excludeSemantics: true,
+                              child: InkWell(
+                                borderRadius: BorderRadius.circular(Rad.sm),
+                                onTap: () => nav.go(DeskRoute.settingsAccount),
+                                child: Padding(
+                                  padding: EdgeInsets.all(Sp.x1),
+                                  child: Row(
+                                    children: [
+                                      EAvatar(name),
+                                      SizedBox(width: Sp.x3),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(name, style: ts.body.copyWith(fontWeight: FontWeight.w500), overflow: TextOverflow.ellipsis),
+                                            Text(account?.network ?? '', style: ts.caption),
+                                          ],
+                                        ),
                                       ),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),
                           ),
                         ),
-                        EIconButton(
-                          icon: EIcons.swap,
-                          label: 'Switch wallet',
-                          size: EBtnSize.inline,
-                          onPressed: () => nav.go(DeskRoute.settingsWallets),
-                        ),
-                        const SizedBox(width: Sp.x1),
-                        EIconButton(
-                          icon: EIcons.lock,
-                          label: 'Lock (Ctrl+L)',
-                          size: EBtnSize.inline,
-                          onPressed: () => lockWallet(ref),
-                        ),
+                        if (canSwitch)
+                          EIconButton(
+                            icon: EIcons.swap,
+                            label: 'Switch wallet',
+                            size: EBtnSize.inline,
+                            onPressed: locking ? null : () => switchWallet(ref),
+                          ),
+                        SizedBox(width: Sp.x1),
+                        lockButton,
                       ],
                     ),
                   if (!compact) ...[
-                    const SizedBox(height: Sp.x2),
+                    SizedBox(height: Sp.x2),
                     Text.rich(
                       TextSpan(
                         children: [
@@ -216,50 +369,74 @@ class _Sidebar extends ConsumerWidget {
   }
 }
 
-/// Connection status in the sidebar: Node and Receiving, one word each; details on hover;
-/// a click opens that service's settings.
+Widget _tourWrap(String? id, Widget child) => id == null ? child : TourTarget(id: id, child: child);
+
+/// Connection status in the sidebar: Node and Receiving, one word each; the details in a
+/// hover card; a click opens that service's settings section.
 class ServiceRows extends ConsumerWidget {
-  const ServiceRows({super.key, this.compact = false});
+  const ServiceRows({super.key, this.compact = false, this.horizontal = false});
 
   final bool compact;
+
+  /// Side by side (the phone's top bar).
+  final bool horizontal;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final status = ref.watch(deskProvider.select((s) => s.status));
     final settings = ref.watch(deskProvider.select((s) => s.settings));
-    final nav = ref.read(deskNavProvider.notifier);
+    final prefs = ref.watch(settingsPrefsProvider);
+    final p = ref.read(settingsPrefsProvider.notifier);
     if (status == null) return const SizedBox.shrink();
-    final receiving = status.epicboxHealth;
-    return Column(
-      children: [
+
+    final node = prefs.typedNode ?? status.node;
+    final nodeHealth = prefs.builtin ? ServiceHealth.ok : status.nodeHealth;
+    final nodeLines = [
+      [prefs.builtin ? 'Built-in node' : hostOf(node.url), if (nodeHealth != ServiceHealth.down) groupDigits(status.nodeHeight)].join(' · '),
+      if (nodeHealth == ServiceHealth.down) 'The node is not answering.',
+      if (nodeHealth == ServiceHealth.slow) 'Behind the network; catching up.',
+    ];
+
+    final eb = status.epicboxHealth;
+    final http = httpShown(prefs, settings);
+    final ebLine = eb == ServiceHealth.off ? 'Epicbox off' : 'Epicbox · ${status.epicbox.domain} · ${epicboxWord(eb)}';
+    final httpLine = switch (http) {
+      HttpRun.on => 'HTTP listener on',
+      HttpRun.failed => 'HTTP listener didn’t start',
+      _ => 'HTTP listener off',
+    };
+    var rcvHealth = eb;
+    var rcvWord = eb == ServiceHealth.ok ? 'On' : epicboxWord(eb);
+    if (eb == ServiceHealth.off && http == HttpRun.on) {
+      rcvHealth = ServiceHealth.ok;
+      rcvWord = 'HTTP only';
+    }
+    if (eb == ServiceHealth.ok && http == HttpRun.failed) rcvHealth = ServiceHealth.slow;
+
+    final rows = [
         _ServiceRow(
           icon: EIcons.node,
           name: 'Node',
-          health: status.nodeHealth,
+          health: nodeHealth,
+          word: nodeWord(nodeHealth),
           compact: compact,
-          details: [
-            ('Node', status.node.label),
-            ('Address', status.node.url),
-            ('Height', '${status.nodeHeight}'),
-            if (status.node.latencyMs != null) ('Answer', '${status.node.latencyMs} ms'),
-            ('Failover', settings.nodeFailover ? 'On' : 'Off'),
-          ],
-          onTap: () => nav.go(DeskRoute.settingsNode),
+          lines: nodeLines,
+          open: 'Open node settings',
+          onTap: () => p.jumpTo(SettingsJump.node),
         ),
         _ServiceRow(
           icon: EIcons.epicbox,
           name: 'Receiving',
-          health: receiving,
+          health: rcvHealth,
+          word: rcvWord,
           compact: compact,
-          details: [
-            ('Epicbox', status.epicbox.domain),
-            ('Direct HTTP', healthWord(status.httpListener)),
-            ('Tor', healthWord(status.tor)),
-          ],
-          onTap: () => nav.go(DeskRoute.settingsReceiving),
+          lines: [ebLine, httpLine, if (settings.tor) 'Tor on'],
+          open: 'Open Receiving settings',
+          onTap: () => p.jumpTo(SettingsJump.epicbox),
         ),
-      ],
-    );
+    ];
+    if (horizontal) return Row(mainAxisSize: MainAxisSize.min, children: [for (final r in rows) SizedBox(width: Ctl.sm, child: r)]);
+    return Column(children: rows);
   }
 }
 
@@ -268,7 +445,9 @@ class _ServiceRow extends StatefulWidget {
     required this.icon,
     required this.name,
     required this.health,
-    required this.details,
+    required this.word,
+    required this.lines,
+    required this.open,
     required this.onTap,
     required this.compact,
   });
@@ -276,7 +455,11 @@ class _ServiceRow extends StatefulWidget {
   final IconData icon;
   final String name;
   final ServiceHealth health;
-  final List<(String, String)> details;
+  final String word;
+  final List<String> lines;
+
+  /// The card's last line: where a click goes.
+  final String open;
   final VoidCallback onTap;
   final bool compact;
 
@@ -302,42 +485,46 @@ class _ServiceRowState extends State<_ServiceRow> {
       clipBehavior: Clip.none,
       children: [
         Icon(widget.icon, size: Ctl.iconSm, color: c.dim),
-        Positioned(right: -3, bottom: -2, child: EStatusDot(tone, size: 7)),
+        Positioned(right: -3.u, bottom: -2, child: EStatusDot(tone, size: 7.u)),
       ],
     );
     final card = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        for (final (k, v) in widget.details)
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            EStatusDot(tone),
+            SizedBox(width: Sp.x2),
+            Text('${widget.name} · ${widget.word}', style: ts.small.copyWith(color: c.text, fontWeight: FontWeight.w600)),
+          ],
+        ),
+        SizedBox(height: Sp.x1),
+        for (final l in widget.lines)
           Padding(
-            padding: const EdgeInsets.symmetric(vertical: 2),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                SizedBox(width: 84, child: Text(k, style: ts.small)),
-                Text(v, style: ts.mono(size: Fs.xs)),
-              ],
-            ),
+            padding: EdgeInsets.symmetric(vertical: 1),
+            child: Text(l, style: ts.mono(size: Fs.xs, color: c.dim)),
           ),
-        const SizedBox(height: Sp.x2),
-        Text('Open settings', style: ts.caption.copyWith(color: c.accentText)),
+        SizedBox(height: Sp.x2),
+        Text(widget.open, style: ts.caption.copyWith(color: c.accentText)),
       ],
     );
     return Tooltip(
       richMessage: WidgetSpan(child: card),
       preferBelow: false,
-      verticalOffset: 18,
+      verticalOffset: 18.u,
       child: Semantics(
         button: true,
-        label: '${widget.name}: ${healthWord(widget.health)}',
+        label: '${widget.open}: ${widget.word}',
+        hint: widget.lines.join('. '),
         excludeSemantics: true,
         child: InkWell(
           onTap: widget.onTap,
           onHover: (v) => setState(() => _hover = v),
           borderRadius: BorderRadius.circular(Rad.sm),
           child: Container(
-            height: 32,
+            height: 32.u,
             padding: EdgeInsets.symmetric(horizontal: widget.compact ? 0 : Sp.x2),
             decoration: BoxDecoration(
               color: _hover ? c.hover : null,
@@ -348,9 +535,9 @@ class _ServiceRowState extends State<_ServiceRow> {
                 : Row(
                     children: [
                       glyph,
-                      const SizedBox(width: Sp.x3),
+                      SizedBox(width: Sp.x3),
                       Expanded(child: Text(widget.name, style: ts.small.copyWith(color: c.text, fontWeight: FontWeight.w600))),
-                      Text(healthWord(widget.health), style: ts.caption.copyWith(color: wordColor)),
+                      Text(widget.word, style: ts.caption.copyWith(color: wordColor)),
                     ],
                   ),
           ),
@@ -366,23 +553,29 @@ class _PhoneTopBar extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final c = context.dc;
+    final locking = ref.watch(deskLockingProvider);
     return Container(
-      height: 52,
-      padding: const EdgeInsets.symmetric(horizontal: Sp.x4),
+      height: 52.u,
+      padding: EdgeInsets.symmetric(horizontal: Sp.x4),
       decoration: BoxDecoration(border: Border(bottom: BorderSide(color: c.line))),
       child: Row(
         children: [
-          EpicMark(size: 20, color: c.accent),
-          const SizedBox(width: Sp.x2),
+          EpicMark(size: 20.u, color: c.accent),
+          SizedBox(width: Sp.x2),
           Text('Epic Cash', style: context.ts.h3.copyWith(fontSize: 15)),
           const Spacer(),
-          const SizedBox(width: 150, child: ServiceRows(compact: true)),
-          EIconButton(
-            icon: EIcons.settings,
-            label: 'Settings',
-            onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.settingsNode),
+          const ServiceRows(compact: true, horizontal: true),
+          TourTarget(
+            id: 'settings',
+            child: EIconButton(
+              icon: EIcons.settings,
+              label: 'Settings',
+              onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.settingsNode),
+            ),
           ),
-          EIconButton(icon: EIcons.lock, label: 'Lock', onPressed: () => lockWallet(ref)),
+          locking
+              ? SizedBox.square(dimension: Ctl.sm, child: Center(child: ESpinner(size: Ctl.iconSm)))
+              : EIconButton(icon: EIcons.lock, label: 'Lock wallet (${deskKeys('L')})', onPressed: () => lockWallet(ref)),
         ],
       ),
     );
@@ -402,7 +595,7 @@ class _PhoneNav extends ConsumerWidget {
       data: NavigationBarThemeData(
         backgroundColor: c.s1,
         indicatorColor: c.s3,
-        height: 64,
+        height: 64.u,
         labelTextStyle: WidgetStatePropertyAll(TextStyle(fontSize: Fs.xs, color: c.dim)),
         iconTheme: WidgetStateProperty.resolveWith(
           (s) => IconThemeData(size: Ctl.icon, color: s.contains(WidgetState.selected) ? c.accentText : c.faint),

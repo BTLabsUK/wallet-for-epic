@@ -3,11 +3,36 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../widgets/kit.dart';
 import 'combo.dart';
-import 'dialogs.dart';
+import 'prefs.dart';
 import 'settings_frame.dart';
 
 /// Start states of Settings › Receiving.
-enum ReceivingDemo { comboOpen, torOn, epicboxDown }
+enum ReceivingDemo { comboOpen, torOn, epicboxDown, httpOn, httpFailed }
+
+ETone epicboxTone(ServiceHealth h) => switch (h) {
+  ServiceHealth.ok => ETone.ok,
+  ServiceHealth.slow || ServiceHealth.checking => ETone.warn,
+  ServiceHealth.down => ETone.risk,
+  ServiceHealth.off => ETone.neutral,
+};
+
+/// The line after the Epicbox state word.
+String epicboxLine(ServiceHealth h, {required bool onStart}) => switch (h) {
+  ServiceHealth.ok => 'delivers payments to the Epic address',
+  ServiceHealth.down => 'payments wait until it is back',
+  ServiceHealth.off => onStart ? 'starts on unlock' : 'start it on the Receive page',
+  _ => 'connecting to the server',
+};
+
+/// The HTTP listener as shown: a run in progress or a failure wins, else the saved switch.
+HttpRun httpShown(SettingsPrefs p, DeskSettings s) =>
+    p.http == HttpRun.busy || p.http == HttpRun.failed ? p.http : (s.directHttp ? HttpRun.on : HttpRun.off);
+
+String httpFailText(HttpFail? f) => switch (f) {
+  HttpFail.portInUse => 'Port 3415 is in use by another program.',
+  HttpFail.node => 'The node is not answering.',
+  _ => 'The listener stopped with an error.',
+};
 
 class SettingsReceivingScreen extends ConsumerStatefulWidget {
   const SettingsReceivingScreen({super.key, this.arg});
@@ -19,27 +44,39 @@ class SettingsReceivingScreen extends ConsumerStatefulWidget {
 }
 
 class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScreen> {
-  String? _http;
   String? _onion;
+  bool _switching = false;
 
   @override
   void initState() {
     super.initState();
-    final api = ref.read(deskApiProvider);
-    api.httpAddress().then((v) => mounted ? setState(() => _http = v) : null);
-    api.torAddress().then((v) => mounted ? setState(() => _onion = v) : null);
-    if (widget.arg == ReceivingDemo.torOn) {
-      Future.microtask(() {
-        final n = ref.read(deskProvider.notifier);
-        n.saveSettings(ref.read(deskProvider).settings.copyWith(tor: true, directHttp: true));
-      });
-    }
+    ref.read(deskApiProvider).torAddress().then((v) => mounted ? setState(() => _onion = v) : null);
+    final arg = widget.arg;
+    Future.microtask(() {
+      final n = ref.read(deskProvider.notifier);
+      final p = ref.read(settingsPrefsProvider.notifier);
+      final s = ref.read(deskProvider).settings;
+      if (arg == ReceivingDemo.torOn) n.saveSettings(s.copyWith(tor: true));
+      if (arg == ReceivingDemo.httpOn) {
+        p.set(ref.read(settingsPrefsProvider).copyWith(http: HttpRun.on, clearFail: true));
+        n.saveSettings(s.copyWith(directHttp: true));
+      }
+      if (arg == ReceivingDemo.httpFailed) p.set(ref.read(settingsPrefsProvider).copyWith(http: HttpRun.failed, httpFail: HttpFail.portInUse));
+    });
+  }
+
+  Future<void> _switch(String domain) async {
+    setState(() => _switching = true);
+    await ref.read(deskProvider.notifier).useEpicbox(domain);
+    if (mounted) setState(() => _switching = false);
   }
 
   @override
   Widget build(BuildContext context) {
     final st = ref.watch(deskProvider);
+    final prefs = ref.watch(settingsPrefsProvider);
     final notifier = ref.read(deskProvider.notifier);
+    final p = ref.read(settingsPrefsProvider.notifier);
     final boxes = st.epicboxes;
     final status = st.status;
     if (boxes == null || status == null) {
@@ -50,118 +87,197 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
     final ts = context.ts;
     final box = status.epicbox;
     final boxHealth = widget.arg == ReceivingDemo.epicboxDown ? ServiceHealth.down : status.epicboxHealth;
+    final healthy = boxes.where((b) => b.health == ServiceHealth.ok && b.domain != box.domain);
+    final suggest = healthy.isEmpty ? null : healthy.first;
+    final http = httpShown(prefs, s);
+    String? tip(EpicboxServer b) => b.latencyMs == null ? null : 'Response time ${b.latencyMs} ms. Measured from the status site.';
+
+    final rows = <Widget>[
+      ESetRow(
+        title: 'Epicbox server',
+        stacked: true,
+        control: ServiceCombo(
+          label: 'Epicbox server',
+          hint: 'Find or type an Epicbox server',
+          value: box.domain,
+          fieldText: box.domain,
+          fieldSub: box.operator,
+          tone: epicboxTone(boxHealth),
+          busy: _switching,
+          busyLabel: 'Switching the Epicbox server…',
+          openInitially: widget.arg == ReceivingDemo.comboOpen,
+          options: [
+            for (final b in boxes)
+              ComboOption(
+                value: b.domain,
+                host: b.domain,
+                sub: b.operator,
+                isDefault: b.domain == boxes.first.domain,
+                tone: epicboxTone(b.health),
+                word: b.health == ServiceHealth.down ? 'Not responding' : null,
+                tip: tip(b),
+              ),
+          ],
+          typedRow: (t) {
+            final d = t.toLowerCase().replaceFirst(RegExp('^[a-z]+://'), '').split('/').first;
+            if (!d.contains('.') || d.contains(' ')) return null;
+            return ComboOption(value: d, host: d, sub: 'not in the public list', tone: ETone.neutral);
+          },
+          typedNote: (_) => 'Enter uses it. Its status shows once the wallet connects.',
+          listNote: 'State from status.btlabs.uk, checked every few minutes.',
+          onPicked: _switch,
+        ),
+        below: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Semantics(
+              liveRegion: true,
+              child: Text.rich(
+                TextSpan(style: ts.small, children: [
+                  TextSpan(text: epicboxWord(boxHealth), style: ts.small.copyWith(color: _toneColor(c, epicboxTone(boxHealth)), fontWeight: FontWeight.w600)),
+                  TextSpan(text: '  ·  ', style: ts.small.copyWith(color: c.faint)),
+                  TextSpan(text: epicboxLine(boxHealth, onStart: prefs.epicboxOnStart)),
+                ]),
+              ),
+            ),
+            if (boxHealth == ServiceHealth.down) ...[
+              SizedBox(height: Sp.x3),
+              _DownNotice(suggest: suggest?.domain, busy: _switching, onSwitch: () => _switch(suggest!.domain)),
+            ],
+          ],
+        ),
+      ),
+      ESetRow(
+        title: 'Start Epicbox with the wallet',
+        text: 'Payments arrive as soon as the wallet is unlocked.',
+        control: ESwitch(
+          value: prefs.epicboxOnStart,
+          semanticLabel: 'Start Epicbox with the wallet',
+          onChanged: (v) => p.set(prefs.copyWith(epicboxOnStart: v)),
+        ),
+      ),
+      ESetRow(
+        title: 'HTTP listener',
+        text: 'For payments to the HTTP address. Off until needed.',
+        control: http == HttpRun.busy
+            ? Semantics(label: 'Switching the HTTP listener', child: ESpinner(size: Ctl.iconLg))
+            : ESwitch(
+                value: http == HttpRun.on,
+                semanticLabel: 'HTTP listener',
+                onChanged: (v) => p.setHttp(v, fail: widget.arg == ReceivingDemo.httpFailed ? HttpFail.portInUse : null),
+              ),
+        below: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Semantics(
+              liveRegion: true,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: EdgeInsets.only(top: 6.u),
+                    child: EStatusDot(switch (http) {
+                      HttpRun.on => ETone.ok,
+                      HttpRun.failed => ETone.risk,
+                      HttpRun.busy => ETone.warn,
+                      HttpRun.off => ETone.neutral,
+                    }),
+                  ),
+                  SizedBox(width: Sp.x2),
+                  Expanded(
+                    child: Text.rich(
+                      TextSpan(style: ts.small, children: [
+                        if (http == HttpRun.failed) ...[
+                          TextSpan(text: 'The HTTP listener didn’t start. ', style: ts.small.copyWith(color: c.risk, fontWeight: FontWeight.w600)),
+                          TextSpan(text: httpFailText(prefs.httpFail)),
+                        ] else
+                          TextSpan(
+                            text: switch (http) {
+                              HttpRun.on => 'On · port 3415, this computer only',
+                              HttpRun.busy => 'Switching…',
+                              _ => 'Off · most payments come via Epicbox',
+                            },
+                          ),
+                      ]),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: Sp.x2),
+            ECheckbox(
+              value: prefs.httpAutostart,
+              label: 'Start with the wallet',
+              onChanged: (v) => p.set(prefs.copyWith(httpAutostart: v)),
+            ),
+          ],
+        ),
+      ),
+    ];
+
     return SettingsFrame(
       route: DeskRoute.settingsReceiving,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          JumpSection(section: SettingsJump.epicbox, child: ESetGroup(title: 'Receiving', rows: rows)),
           ESetGroup(
-            title: 'Epicbox',
+            title: 'Advanced',
             rows: [
-              ESetRow(
-                title: 'Epicbox server',
-                text: 'Holds payments for this wallet until it is online.',
-                stacked: true,
-                control: ServiceCombo(
-                  label: 'Epicbox server',
-                  value: box.domain,
-                  openInitially: widget.arg == ReceivingDemo.comboOpen,
-                  options: [
-                    for (final b in boxes)
-                      ComboOption(value: b.domain, title: b.operator ?? b.domain, host: b.domain, health: b.health, latencyMs: b.latencyMs, group: 'Public servers'),
-                  ],
-                  onChanged: notifier.useEpicbox,
-                  footerActions: [('Add server…', EIcons.plus, () => showEToast(context, 'Custom servers are not part of this preview', tone: ETone.warn))],
-                ),
-                below: Row(
-                  children: [
-                    HealthLine(boxHealth, latencyMs: box.latencyMs),
-                    const SizedBox(width: Sp.x3),
-                    Expanded(
-                      child: Text(
-                        boxHealth == ServiceHealth.down ? 'payments wait until it is back' : 'connected',
-                        style: ts.small.copyWith(color: c.faint),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              ESetRow(
-                title: 'Switch automatically',
-                text: 'Use the next healthy server when this one stops answering.',
-                control: ESwitch(
-                  value: s.epicboxFailover,
-                  onChanged: (v) => notifier.saveSettings(s.copyWith(epicboxFailover: v)),
-                ),
-              ),
-            ],
-          ),
-          if (boxHealth == ServiceHealth.down) ...[
-            Padding(
-              padding: const EdgeInsets.only(bottom: Sp.x8),
-              child: ENotice(
-                title: 'Epicbox server is down',
-                text: 'Payments wait until it is back. Switch to another server to receive now.',
-                tone: ETone.risk,
-                actions: [
-                  EButton(
-                    label: 'Switch server',
-                    size: EBtnSize.inline,
-                    onPressed: () => notifier.useEpicbox(boxes.firstWhere((b) => b.health == ServiceHealth.ok, orElse: () => boxes.first).domain),
-                  ),
-                ],
-              ),
-            ),
-          ],
-          ESetGroup(
-            title: 'Direct transactions',
-            rows: [
-              ESetRow(
-                title: 'Receive over HTTP',
-                text: 'Peer to peer on port 3415. Both wallets must be online.',
-                control: ESwitch(
-                  value: s.directHttp,
-                  semanticLabel: 'Receive over HTTP',
-                  onChanged: (v) => notifier.saveSettings(s.copyWith(directHttp: v)),
-                ),
-                below: s.directHttp && _http != null
-                    ? EAddress(s.publicMode ? _http! : 'http://127.0.0.1:3415')
-                    : null,
-              ),
-              ESetRow(
-                title: 'Public mode',
-                text: s.publicMode ? 'Reachable from the internet once the router forwards port 3415.' : 'This computer only.',
-                control: EButton(label: s.publicMode ? 'Change…' : 'Make public…', size: EBtnSize.sm, onPressed: () => showPublicModeDialog(context)),
-              ),
               ESetRow(
                 title: 'Tor',
-                text: 'Receive at an .onion address from anywhere, with nothing to set up.',
+                text: 'Receive at an .onion address and send to one.',
                 control: ESwitch(
                   value: s.tor,
-                  semanticLabel: 'Receive over Tor',
+                  semanticLabel: 'Tor',
                   onChanged: (v) => notifier.saveSettings(s.copyWith(tor: v)),
                 ),
-                below: s.tor
-                    ? Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Row(
-                            children: [
-                              const ETag('Ready', tone: ETone.ok, icon: EIcons.check),
-                              const SizedBox(width: Sp.x3),
-                              Text('Reachable over Tor', style: ts.small),
-                            ],
-                          ),
-                          if (_onion != null) ...[
-                            const SizedBox(height: Sp.x3),
-                            Row(children: [Expanded(child: EAddress(_onion!)), const SizedBox(width: Sp.x2), ECopyButton(text: _onion!)]),
-                          ],
-                        ],
-                      )
+                below: s.tor && _onion != null
+                    ? Row(children: [Expanded(child: EAddress(_onion!)), SizedBox(width: Sp.x2), ECopyButton(text: _onion!)])
                     : null,
               ),
             ],
           ),
+        ],
+      ),
+    );
+  }
+}
+
+Color _toneColor(DeskColors c, ETone t) => switch (t) {
+  ETone.ok => c.ok,
+  ETone.warn => c.warn,
+  ETone.risk => c.risk,
+  _ => c.faint,
+};
+
+/// The Epicbox server is not answering: one line, and the healthiest other server, one click.
+class _DownNotice extends StatelessWidget {
+  const _DownNotice({required this.suggest, required this.busy, required this.onSwitch});
+
+  final String? suggest;
+  final bool busy;
+  final VoidCallback onSwitch;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.dc;
+    final ts = context.ts;
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: Sp.x3, vertical: Sp.x2),
+      decoration: BoxDecoration(color: c.riskSoft, borderRadius: BorderRadius.circular(Rad.sm)),
+      child: Wrap(
+        crossAxisAlignment: WrapCrossAlignment.center,
+        spacing: Sp.x3,
+        runSpacing: Sp.x2,
+        children: [
+          Text.rich(
+            TextSpan(style: ts.small.copyWith(color: c.text), children: [
+              TextSpan(text: 'Epicbox server isn’t responding. ', style: const TextStyle(fontWeight: FontWeight.w600)),
+              TextSpan(text: suggest != null ? 'Switch to $suggest?' : 'Payments wait until it is back.'),
+            ]),
+          ),
+          if (suggest != null) EButton(label: 'Switch', icon: EIcons.swap, size: EBtnSize.inline, busy: busy, onPressed: onSwitch),
         ],
       ),
     );

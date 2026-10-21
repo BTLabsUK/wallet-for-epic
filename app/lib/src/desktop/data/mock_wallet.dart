@@ -26,10 +26,11 @@ class MockDeskWallet implements DeskWalletApi {
   DeskSettings _settings = const DeskSettings();
   String _node = 'https://node.epiccash.com';
   String _epicbox = 'epicbox.epiccash.com';
+  bool _listening = true;
   int _nextId = 40;
 
   final List<Contact> _contacts = [
-    Contact(id: 'c1', name: 'Anna Kowalska', address: 'esYb3kq9TzWmR8uPfVc2LdN6hJx4gA7sKeQ1oBnC5vD9rHtF3w@epicbox.epiccash.com', favourite: true, lastUsed: _ago(days: 1)),
+    Contact(id: 'c1', name: 'Anna Kowalska', address: 'esYb3kq9TzWmR8uPfVc2LdN6hJx4gA7sKeQ1oBnC5vD9rHtF3w@epicbox.epiccash.com', favourite: true, lastUsed: _ago(days: 1), hasPicture: true),
     Contact(id: 'c2', name: 'Mining pool payouts', address: 'esZr8mQ2pVtW5kNcY7uLfB3hJd9gA4sXeR6oTnC1vK8xHwP2b@epicbox.epicnet.us', note: 'Weekly payouts', lastUsed: _ago(days: 3)),
     Contact(id: 'c3', name: 'Exchange deposit', address: 'esQa1nB7cVxZ3mL9kJ5hG2fD8sA6pO4iU1yT7rE3wQ9eR5tY@epicbox.epiccash.com', lastUsed: _ago(days: 12)),
     Contact(id: 'c4', name: 'Tom', address: 'http://10.0.1.24:3415', note: 'Home server'),
@@ -43,6 +44,8 @@ class MockDeskWallet implements DeskWalletApi {
     Tx(id: 36, slateId: 'd4e5f607-1829-43a4-b5c6-d7e8f90a1b2c', direction: TxDirection.received, state: TxState.confirmed, method: TxMethod.epicbox, amount: _epic(148.73215), fee: 0, created: _ago(days: 1, hours: 2), confirmations: 1440, counterparty: _contacts[1].address, contactName: 'Mining pool payouts', height: 2913020, kernel: '09a1c3e5f7b9d1f3a5c7e9b1d3f5a7c9e1b3d5f7a9c1e3b5d7f9a1c3e5b7d9f1a3', hasProof: true),
     Tx(id: 35, slateId: 'e5f60718-2a3b-44c5-d6e7-f8091a2b3c4d', direction: TxDirection.sent, state: TxState.confirmed, method: TxMethod.http, amount: _epic(40), fee: _epic(0.008), created: _ago(days: 2, hours: 6), confirmations: 2810, counterparty: 'http://10.0.1.24:3415', contactName: 'Tom', height: 2911600, kernel: '08b2d4f6a8c0e2b4d6f8a0c2e4b6d8f0a2c4e6b8d0f2a4c6e8b0d2f4a6c8e0b2d4', hasProof: true),
     Tx(id: 34, slateId: 'f6071829-3b4c-45d6-e7f8-091a2b3c4d5e', direction: TxDirection.sent, state: TxState.cancelled, method: TxMethod.epicbox, amount: _epic(5), fee: _epic(0.006), created: _ago(days: 3), counterparty: _contacts[2].address, contactName: 'Exchange deposit'),
+    Tx(id: 101, slateId: '', direction: TxDirection.received, state: TxState.confirmed, method: TxMethod.epicbox, amount: _epic(2), fee: 0, created: _ago(days: 4), confirmations: 620, height: 2913794, coinbase: true, confirmedAt: _ago(days: 4)),
+    Tx(id: 102, slateId: '', direction: TxDirection.received, state: TxState.confirmed, method: TxMethod.epicbox, amount: _epic(7.5), fee: 0, created: _ago(days: 4, hours: 6), confirmations: 900, height: 2913500, foundByScan: true, confirmedAt: _ago(days: 4, hours: 6)),
     Tx(id: 33, slateId: '0718293a-4c5d-46e7-f809-1a2b3c4d5e6f', direction: TxDirection.received, state: TxState.confirmed, method: TxMethod.tor, amount: _epic(0.5), fee: 0, created: _ago(days: 5), confirmations: 5700, counterparty: 'http://3fz7k2mq9xr4tbv6.onion', height: 2908700, kernel: '07c3e5a7b9d1f3e5a7c9b1d3f5e7a9c1b3d5e7f9a1c3b5d7e9f1a3c5b7d9e1f3a5'),
     Tx(id: 32, slateId: '18293a4b-5d6e-47f8-091a-2b3c4d5e6f70', direction: TxDirection.received, state: TxState.confirmed, method: TxMethod.file, amount: _epic(1000), fee: 0, created: _ago(days: 9), confirmations: 11500, counterparty: 'receive_1000.slate.json', height: 2902900, kernel: '06d4f6b8a0c2e4f6b8d0a2c4e6f8b0d2a4c6e8f0b2d4a6c8e0f2b4d6a8c0e2f4b6'),
     Tx(id: 31, slateId: '293a4b5c-6e7f-4809-1a2b-3c4d5e6f7081', direction: TxDirection.sent, state: TxState.confirmed, method: TxMethod.epicbox, amount: _epic(250), fee: _epic(0.012), created: _ago(days: 14), confirmations: 18700, counterparty: _contacts[2].address, contactName: 'Exchange deposit', height: 2895700, hasProof: true, kernel: '05e5a7c9b1d3f5a7e9c1b3d5f7a9e1c3b5d7f9a1e3c5b7d9f1a3e5c7b9d1f3a5e7'),
@@ -124,13 +127,38 @@ class MockDeskWallet implements DeskWalletApi {
   @override
   Future<Balance> balance() async {
     await _wait(0.3);
-    return Balance(spendable: _epic(1284.73215), awaitingConfirmation: _epic(25), locked: _epic(15.713), awaitingFinalization: _epic(12.5));
+    return Balance(spendable: _epic(1284.73215), awaitingConfirmation: _epic(25), locked: _epic(15.713), awaitingFinalization: _epic(12.5), immature: _epic(2));
   }
 
   @override
   Future<List<Tx>> transactions() async {
     await _wait(0.5);
     return List.unmodifiable(_txs);
+  }
+
+  @override
+  Future<List<Output>> outputs() async {
+    await _wait(0.5);
+    String cmt(int i) => '08${List.generate(64, (k) => '0123456789abcdef'[(i * 7 + k * 13 + k * k) % 16]).join()}';
+    return [
+      Output(commitment: cmt(1), value: _epic(25), status: OutputStatus.confirming, height: 2914410, confirmations: 4),
+      Output(commitment: cmt(2), value: _epic(12.5), status: OutputStatus.unconfirmed),
+      Output(commitment: cmt(3), value: _epic(15.713), status: OutputStatus.locked, height: 2911600, confirmations: 2810),
+      Output(commitment: cmt(4), value: _epic(2), status: OutputStatus.immature, height: 2913794, confirmations: 620, lockHeight: 2915234),
+      Output(commitment: cmt(5), value: _epic(148.73215), status: OutputStatus.unspent, height: 2913020, confirmations: 1394),
+      Output(commitment: cmt(6), value: _epic(7.5), status: OutputStatus.unspent, height: 2913500, confirmations: 914),
+      Output(commitment: cmt(7), value: _epic(0.5), status: OutputStatus.unspent, height: 2908700, confirmations: 5714),
+      Output(commitment: cmt(8), value: _epic(1000), status: OutputStatus.unspent, height: 2902900, confirmations: 11514),
+      Output(commitment: cmt(9), value: _epic(40.008), status: OutputStatus.spent, height: 2900100, confirmations: 14314),
+      for (var i = 0; i < 16; i++)
+        Output(
+          commitment: cmt(10 + i),
+          value: _epic(8 + i * 3.5),
+          status: i % 5 == 4 ? OutputStatus.spent : OutputStatus.unspent,
+          height: 2880000 - i * 5760,
+          confirmations: 34414 + i * 5760,
+        ),
+    ];
   }
 
   @override
@@ -145,8 +173,8 @@ class MockDeskWallet implements DeskWalletApi {
       nodeHealth: node.health,
       nodeHeight: 2914414,
       epicbox: box,
-      epicboxHealth: box.health,
-      httpListener: _settings.directHttp ? ServiceHealth.ok : ServiceHealth.off,
+      epicboxHealth: _listening ? box.health : ServiceHealth.off,
+      httpListener: _listening && _settings.directHttp ? ServiceHealth.ok : ServiceHealth.off,
       tor: _settings.tor ? ServiceHealth.ok : ServiceHealth.off,
       lastUpdate: _ago(minutes: 1),
     );
@@ -260,6 +288,12 @@ class MockDeskWallet implements DeskWalletApi {
   Future<void> useEpicbox(String domain) async {
     await _wait();
     _epicbox = domain;
+  }
+
+  @override
+  Future<void> setListening(bool on) async {
+    await _wait(2);
+    _listening = on;
   }
 
   @override

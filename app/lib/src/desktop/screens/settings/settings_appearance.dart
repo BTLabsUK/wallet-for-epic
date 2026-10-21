@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../widgets/kit.dart';
+import '../../app/tour.dart';
 import 'settings_frame.dart';
 
 class SettingsAppearanceScreen extends ConsumerWidget {
@@ -20,30 +21,45 @@ class SettingsAppearanceScreen extends ConsumerWidget {
         rows: [
           ESetRow(
             title: 'Theme',
-            text: 'System follows the computer setting.',
+            text: 'System follows the computer’s setting.',
             control: ESegmented<ThemeChoice>(
               segments: const [
+                ESegment(ThemeChoice.system, 'System', icon: EIcons.themeSystem),
                 ESegment(ThemeChoice.dark, 'Dark', icon: EIcons.moon),
                 ESegment(ThemeChoice.light, 'Light', icon: EIcons.sun),
-                ESegment(ThemeChoice.system, 'System', icon: EIcons.themeSystem),
               ],
               value: s.theme,
               onChanged: (v) => n.saveSettings(s.copyWith(theme: v)),
             ),
           ),
           ESetRow(
+            title: 'Interface scale',
+            text: 'Text and controls, larger or smaller. Applies at once.',
+            control: SizedBox(
+              width: 200.u,
+              child: ESelect<int>(
+                semanticLabel: 'Interface scale',
+                value: s.scale,
+                items: [for (final v in deskScales) ESelectItem(v, '$v%')],
+                onChanged: (v) => n.saveSettings(s.copyWith(scale: v)),
+              ),
+            ),
+          ),
+          ESetRow(
             title: 'Language',
             text: 'Applies at once.',
             control: SizedBox(
-              width: 200,
+              width: 200.u,
               child: ESelect<String>(
                 semanticLabel: 'Language',
                 value: s.language,
+                // The app's own translations (lib/l10n), as on Setup.
                 items: const [
                   ESelectItem('English', 'English'),
                   ESelectItem('Deutsch', 'Deutsch'),
                   ESelectItem('Polski', 'Polski'),
-                  ESelectItem('Čeština', 'Čeština'),
+                  ESelectItem('Русский', 'Русский'),
+                  ESelectItem('中文', '中文'),
                 ],
                 onChanged: (v) => n.saveSettings(s.copyWith(language: v)),
               ),
@@ -56,8 +72,8 @@ class SettingsAppearanceScreen extends ConsumerWidget {
           ),
           ESetRow(
             title: 'Tour',
-            text: 'A short walk through the main screens.',
-            control: EButton(label: 'Show the tour again', size: EBtnSize.sm, icon: EIcons.restart, onPressed: () => showEToast(context, 'Tour starts on Overview')),
+            text: 'A short walk through balance, sending, receiving, activity and settings.',
+            control: EButton(label: 'Show the tour', size: EBtnSize.sm, icon: EIcons.restart, onPressed: () => startDeskTour(ref)),
           ),
         ],
       ),

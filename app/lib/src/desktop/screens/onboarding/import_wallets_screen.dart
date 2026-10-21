@@ -319,7 +319,7 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
         else
           const SizedBox.shrink(),
         if ([ImportStep.choose, ImportStep.check, ImportStep.copy].contains(_step))
-          Padding(padding: const EdgeInsets.only(right: Sp.x3), child: EButton(label: 'Back', onPressed: _back)),
+          Padding(padding: EdgeInsets.only(right: Sp.x3), child: EButton(label: 'Back', onPressed: _back)),
         EButton.primary(label: label, busy: _applying, onPressed: enabled ? _next : null),
       ],
       child: _body(context),
@@ -370,11 +370,11 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
         _wlist(context, [
           for (var i = 0; i < rows.length; i++)
             Padding(
-              padding: const EdgeInsets.all(Sp.x4),
+              padding: EdgeInsets.all(Sp.x4),
               child: Row(
                 children: [
                   Icon(rows[i].$2, size: Ctl.icon, color: c.dim),
-                  const SizedBox(width: Sp.x3),
+                  SizedBox(width: Sp.x3),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -385,16 +385,16 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
                     ),
                   ),
                   if (i < _scan)
-                    Row(children: [Icon(EIcons.okCircle, size: Ctl.iconSm, color: c.ok), const SizedBox(width: Sp.x1), Text('Done', style: ts.small)])
+                    Row(children: [Icon(EIcons.okCircle, size: Ctl.iconSm, color: c.ok), SizedBox(width: Sp.x1), Text('Done', style: ts.small)])
                   else if (i == _scan)
-                    Row(children: [const ESpinner(), const SizedBox(width: Sp.x2), Text('Searching…', style: ts.small)])
+                    Row(children: [const ESpinner(), SizedBox(width: Sp.x2), Text('Searching…', style: ts.small)])
                   else
                     Text('Waiting', style: ts.caption),
                 ],
               ),
             ),
         ]),
-        const SizedBox(height: Sp.x4),
+        SizedBox(height: Sp.x4),
         EProgress(value: _scan / 3),
       ],
     );
@@ -432,11 +432,11 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
         for (final g in _groups.entries)
           if (_found.any((f) => f.group == g.key)) ...[
             Padding(
-              padding: const EdgeInsets.only(top: Sp.x2, bottom: Sp.x2),
+              padding: EdgeInsets.only(top: Sp.x2, bottom: Sp.x2),
               child: Row(
                 children: [
                   Icon(g.value.$2, size: Ctl.iconSm, color: c.dim),
-                  const SizedBox(width: Sp.x2),
+                  SizedBox(width: Sp.x2),
                   Text(g.value.$1, style: ts.label),
                 ],
               ),
@@ -445,7 +445,7 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
               for (final f in _found.where((f) => f.group == g.key))
                 _foundRow(context, f, selectable),
             ]),
-            const SizedBox(height: Sp.x4),
+            SizedBox(height: Sp.x4),
           ],
         EButton(label: 'Choose a folder', icon: EIcons.folderOpen, size: EBtnSize.sm, onPressed: _pickFolder),
       ],
@@ -458,13 +458,13 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
     final same = _same(f);
     final meta = 'Last used ${f.used} · ${f.contacts} contact${f.contacts == 1 ? '' : 's'} · ${_size(f.size)}';
     final info = Padding(
-      padding: const EdgeInsets.all(Sp.x4),
+      padding: EdgeInsets.all(Sp.x4),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (selectable)
             Padding(
-              padding: const EdgeInsets.only(right: Sp.x3),
+              padding: EdgeInsets.only(right: Sp.x3),
               child: ECheckbox(
                 value: _sel[f.id] == true,
                 label: f.label,
@@ -476,7 +476,7 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
             )
           else
             Padding(
-              padding: const EdgeInsets.only(right: Sp.x3),
+              padding: EdgeInsets.only(right: Sp.x3),
               child: Icon(EIcons.wallet, size: Ctl.icon, color: c.dim),
             ),
           Expanded(
@@ -488,12 +488,12 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
                 if (selectable) Text(meta, style: ts.caption),
                 if (selectable && same != null)
                   Padding(
-                    padding: const EdgeInsets.only(top: Sp.x1),
+                    padding: EdgeInsets.only(top: Sp.x1),
                     child: Text('Same wallet as $same. Tick for a second copy.', style: ts.small),
                   ),
                 if (selectable && f.legacyDb)
                   Padding(
-                    padding: const EdgeInsets.only(top: Sp.x1),
+                    padding: EdgeInsets.only(top: Sp.x1),
                     child: Text('Epic Wallet 5.x or older. One blockchain scan restores the history.', style: ts.small),
                   ),
               ],
@@ -512,14 +512,14 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
     return _wlist(context, [
       for (final f in _chosen)
         Padding(
-          padding: const EdgeInsets.all(Sp.x4),
+          padding: EdgeInsets.all(Sp.x4),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Row(
                 children: [
                   Icon(EIcons.wallet, size: Ctl.icon, color: c.dim),
-                  const SizedBox(width: Sp.x3),
+                  SizedBox(width: Sp.x3),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -530,21 +530,21 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
                     ),
                   ),
                   switch (_lock[f.id]) {
-                    null || _Lock.checking => Row(children: [const ESpinner(), const SizedBox(width: Sp.x2), Text('Checking…', style: ts.small)]),
-                    _Lock.free => Row(children: [Icon(EIcons.okCircle, size: Ctl.iconSm, color: c.ok), const SizedBox(width: Sp.x1), Text('Not in use', style: ts.small)]),
-                    _Lock.skipped => Row(children: [Icon(EIcons.cancel, size: Ctl.iconSm, color: c.faint), const SizedBox(width: Sp.x1), Text('Skipped', style: ts.small)]),
-                    _Lock.locked => Row(children: [Icon(EIcons.error, size: Ctl.iconSm, color: c.risk), const SizedBox(width: Sp.x1), Text('In use', style: ts.small.copyWith(color: c.risk))]),
+                    null || _Lock.checking => Row(children: [const ESpinner(), SizedBox(width: Sp.x2), Text('Checking…', style: ts.small)]),
+                    _Lock.free => Row(children: [Icon(EIcons.okCircle, size: Ctl.iconSm, color: c.ok), SizedBox(width: Sp.x1), Text('Not in use', style: ts.small)]),
+                    _Lock.skipped => Row(children: [Icon(EIcons.cancel, size: Ctl.iconSm, color: c.faint), SizedBox(width: Sp.x1), Text('Skipped', style: ts.small)]),
+                    _Lock.locked => Row(children: [Icon(EIcons.error, size: Ctl.iconSm, color: c.risk), SizedBox(width: Sp.x1), Text('In use', style: ts.small.copyWith(color: c.risk))]),
                   },
                 ],
               ),
               if (_lock[f.id] == _Lock.locked) ...[
-                const SizedBox(height: Sp.x3),
+                SizedBox(height: Sp.x3),
                 Text('In use by another program. Close the older Epic Wallet or the epic program, then check again.', style: ts.small),
-                const SizedBox(height: Sp.x3),
+                SizedBox(height: Sp.x3),
                 Row(
                   children: [
                     EButton(label: 'Check again', size: EBtnSize.inline, onPressed: () => _recheck(f.id)),
-                    const SizedBox(width: Sp.x2),
+                    SizedBox(width: Sp.x2),
                     EButton.ghost(label: 'Skip', size: EBtnSize.inline, onPressed: () => setState(() => _lock[f.id] = _Lock.skipped)),
                   ],
                 ),
@@ -564,37 +564,37 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
         Builder(builder: (context) {
           final cp = _copy[f.id] ?? _Copy(_Cp.wait);
           return Padding(
-            padding: const EdgeInsets.all(Sp.x4),
+            padding: EdgeInsets.all(Sp.x4),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Row(
                   children: [
                     Icon(EIcons.wallet, size: Ctl.icon, color: c.dim),
-                    const SizedBox(width: Sp.x3),
+                    SizedBox(width: Sp.x3),
                     Expanded(child: Text('${f.label} · ${_size(f.size)}', style: ts.label)),
                     switch (cp.st) {
-                      _Cp.ok => Row(children: [Icon(EIcons.okCircle, size: Ctl.iconSm, color: c.ok), const SizedBox(width: Sp.x1), Text('Copied and checked', style: ts.small)]),
-                      _Cp.run => Row(children: [const ESpinner(), const SizedBox(width: Sp.x2), Text('Copying…', style: ts.small)]),
-                      _Cp.fail => Row(children: [Icon(EIcons.error, size: Ctl.iconSm, color: c.risk), const SizedBox(width: Sp.x1), Text('Not copied', style: ts.small)]),
+                      _Cp.ok => Row(children: [Icon(EIcons.okCircle, size: Ctl.iconSm, color: c.ok), SizedBox(width: Sp.x1), Text('Copied and checked', style: ts.small)]),
+                      _Cp.run => Row(children: [const ESpinner(), SizedBox(width: Sp.x2), Text('Copying…', style: ts.small)]),
+                      _Cp.fail => Row(children: [Icon(EIcons.error, size: Ctl.iconSm, color: c.risk), SizedBox(width: Sp.x1), Text('Not copied', style: ts.small)]),
                       _ => Text('Waiting', style: ts.caption),
                     },
                   ],
                 ),
                 if (cp.st == _Cp.run || cp.st == _Cp.ok) ...[
-                  const SizedBox(height: Sp.x3),
+                  SizedBox(height: Sp.x3),
                   EProgress(value: cp.pct),
-                  const SizedBox(height: Sp.x3),
+                  SizedBox(height: Sp.x3),
                   for (var i = 0; i < _copyPhases.length; i++)
                     Padding(
                       padding: const EdgeInsets.only(bottom: 2),
                       child: Row(
                         children: [
                           SizedBox(
-                            width: 20,
+                            width: 20.u,
                             child: i < cp.phase
                                 ? Icon(EIcons.check, size: Ctl.iconSm, color: c.ok)
-                                : (i == cp.phase ? const ESpinner(size: 12) : Icon(Icons.circle, size: 5, color: c.faint)),
+                                : (i == cp.phase ? ESpinner(size: 12.u) : Icon(Icons.circle, size: 5.u, color: c.faint)),
                           ),
                           Text(_copyPhases[i], style: i <= cp.phase ? ts.small : ts.caption),
                         ],
@@ -615,7 +615,7 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
     final contacts = chosen.fold<int>(0, (a, f) => a + f.contacts);
     final chain = chosen.where((f) => f.chain != null).firstOrNull;
     Widget row(String key, String title, String text, String value) => Padding(
-      padding: const EdgeInsets.all(Sp.x4),
+      padding: EdgeInsets.all(Sp.x4),
       child: Row(
         children: [
           Expanded(
@@ -639,7 +639,7 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
           row('lang', 'Language', 'Language of the older app', 'Deutsch'),
         ]),
         if (chain != null) ...[
-          const SizedBox(height: Sp.x4),
+          SizedBox(height: Sp.x4),
           EPanel(
             title: 'Blockchain data',
             headTrailing: ETag(_size(chain.chain!)),
@@ -647,7 +647,7 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text('Found in ${chain.dir}. Copied, not moved; used only by the built-in node.', style: ts.small),
-                const SizedBox(height: Sp.x3),
+                SizedBox(height: Sp.x3),
                 ECheckbox(
                   value: _set['chain'] == true,
                   label: 'Copy the blockchain data',
@@ -658,9 +658,9 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
           ),
         ],
         if (_applying) ...[
-          const SizedBox(height: Sp.x4),
+          SizedBox(height: Sp.x4),
           Text('Applying settings…', style: ts.small),
-          const SizedBox(height: Sp.x2),
+          SizedBox(height: Sp.x2),
           const EProgress(),
         ],
       ],
@@ -683,11 +683,11 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
         _wlist(context, [
           for (final f in done)
             Padding(
-              padding: const EdgeInsets.all(Sp.x4),
+              padding: EdgeInsets.all(Sp.x4),
               child: Row(
                 children: [
                   Icon(EIcons.okCircle, size: Ctl.icon, color: c.ok),
-                  const SizedBox(width: Sp.x3),
+                  SizedBox(width: Sp.x3),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -699,7 +699,7 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
             ),
         ]),
         if (bits.isNotEmpty) ...[
-          const SizedBox(height: Sp.x4),
+          SizedBox(height: Sp.x4),
           Wrap(
             spacing: Sp.x2,
             runSpacing: Sp.x2,
@@ -710,9 +710,9 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
             ],
           ),
         ],
-        const SizedBox(height: Sp.x4),
+        SizedBox(height: Sp.x4),
         Text('Old folders can be deleted after the first unlock.', style: ts.bodyDim),
-        const SizedBox(height: Sp.x2),
+        SizedBox(height: Sp.x2),
         Align(
           alignment: Alignment.centerLeft,
           child: ELink(
@@ -735,7 +735,7 @@ Future<bool?> showImportStopDialog(BuildContext context) => showEDialog<bool>(
     description: 'Copies made so far are removed. Old folders are unchanged.',
     icon: EIcons.stop,
     tone: ETone.warn,
-    width: 420,
+    width: 420.u,
     actions: [
       EButton(label: 'Go back', onPressed: () => Navigator.pop(ctx, false)),
       EButton(label: 'Stop import', kind: EBtnKind.danger, onPressed: () => Navigator.pop(ctx, true)),
@@ -751,7 +751,7 @@ Future<bool?> showImportSameWalletDialog(BuildContext context, String name, Stri
     description: '$name has the same address as $other. Both show the same coins.',
     icon: EIcons.alert,
     tone: ETone.warn,
-    width: 440,
+    width: 440.u,
     actions: [
       EButton(label: 'Keep both', onPressed: () => Navigator.pop(ctx, true)),
       EButton.primary(label: 'Remove this copy', onPressed: () => Navigator.pop(ctx, false)),
@@ -767,7 +767,7 @@ Future<bool?> showImportDeleteDialog(BuildContext context, String name, String d
     description: 'Moved to the Recycle Bin. Other files stay; the folder is removed only when empty.',
     icon: EIcons.trash,
     tone: ETone.risk,
-    width: 460,
+    width: 460.u,
     body: Builder(
       builder: (ctx) => Text(dir, style: ctx.ts.mono()),
     ),
@@ -784,7 +784,7 @@ Future<void> showImportCheckingDialog(BuildContext context, String name, {int st
   dismissible: false,
   builder: (ctx) => EDialog(
     title: 'Checking the copy of $name',
-    width: 440,
+    width: 440.u,
     dismissible: false,
     body: Builder(
       builder: (ctx) {
@@ -795,14 +795,14 @@ Future<void> showImportCheckingDialog(BuildContext context, String name, {int st
           children: [
             for (var i = 0; i < steps.length; i++)
               Padding(
-                padding: const EdgeInsets.symmetric(vertical: Sp.x1),
+                padding: EdgeInsets.symmetric(vertical: Sp.x1),
                 child: Row(
                   children: [
                     SizedBox(
-                      width: 24,
+                      width: 24.u,
                       child: i < step
                           ? Icon(EIcons.check, size: Ctl.iconSm, color: c.ok)
-                          : (i == step ? const ESpinner() : Icon(Icons.circle, size: 5, color: c.faint)),
+                          : (i == step ? const ESpinner() : Icon(Icons.circle, size: 5.u, color: c.faint)),
                     ),
                     Text(steps[i], style: i <= step ? ctx.ts.body : ctx.ts.small),
                   ],
@@ -823,7 +823,7 @@ Future<void> showImportOpenFailDialog(BuildContext context, String name) => show
     description: 'The copy matches the original, but the wallet could not open it. The old folder is unchanged. Import it again, or restore from the recovery phrase.',
     icon: EIcons.error,
     tone: ETone.risk,
-    width: 460,
+    width: 460.u,
     actions: [EButton.primary(label: 'Remove the copy', onPressed: () => Navigator.pop(ctx))],
   ),
 );
@@ -851,7 +851,7 @@ class _PickerDialogState extends State<_PickerDialog> {
     return EDialog(
       title: 'Choose a folder',
       description: 'Select the wallet folder. It is only read.',
-      width: 520,
+      width: 520.u,
       body: Container(
         decoration: BoxDecoration(border: Border.all(color: c.line), borderRadius: BorderRadius.circular(Rad.sm)),
         child: Column(

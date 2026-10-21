@@ -52,7 +52,7 @@ class EPage extends StatelessWidget {
             children: [
               if (onBack != null) ...[
                 _BackButton(onBack: onBack!),
-                const SizedBox(width: Sp.x2),
+                SizedBox(width: Sp.x2),
               ],
               Expanded(
                 child: Semantics(
@@ -60,7 +60,7 @@ class EPage extends StatelessWidget {
                   child: Text(title, style: context.ts.h2, maxLines: 1, overflow: TextOverflow.ellipsis),
                 ),
               ),
-              for (final a in actions) ...[const SizedBox(width: Sp.x2), a],
+              for (final a in actions) ...[SizedBox(width: Sp.x2), a],
             ],
           ),
         ),
@@ -86,8 +86,8 @@ class _BackButton extends StatelessWidget {
       onPressed: onBack,
       icon: Icon(EIcons.arrowLeft, size: Ctl.icon, color: context.dc.dim),
       style: IconButton.styleFrom(
-        fixedSize: const Size.square(Ctl.sm),
-        minimumSize: const Size.square(Ctl.sm),
+        fixedSize: Size.square(Ctl.sm),
+        minimumSize: Size.square(Ctl.sm),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(Rad.sm)),
       ),
     ),
@@ -134,23 +134,30 @@ class EHeroScreen extends StatelessWidget {
             child: SingleChildScrollView(
               child: ConstrainedBox(
                 constraints: BoxConstraints(minHeight: MediaQuery.sizeOf(context).height),
-                child: Center(
-                  child: Padding(padding: const EdgeInsets.all(Sp.x8), child: child),
+                // The footer follows the content: on a screen taller than the window it scrolls
+                // with it instead of covering it. The top spacer, about the footer's height,
+                // keeps the content centred.
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    SizedBox(height: footer == null ? 0 : Sp.x10),
+                    Center(child: Padding(padding: EdgeInsets.all(Sp.x8), child: child)),
+                    if (footer != null)
+                      Padding(
+                        padding: EdgeInsets.only(bottom: Sp.x5),
+                        child: DefaultTextStyle.merge(
+                          style: context.ts.caption,
+                          textAlign: TextAlign.center,
+                          child: Center(child: footer!),
+                        ),
+                      )
+                    else
+                      const SizedBox.shrink(),
+                  ],
                 ),
               ),
             ),
           ),
-          if (footer != null)
-            Positioned(
-              left: 0,
-              right: 0,
-              bottom: Sp.x5,
-              child: DefaultTextStyle.merge(
-                style: context.ts.caption,
-                textAlign: TextAlign.center,
-                child: Center(child: footer!),
-              ),
-            ),
         ],
       ),
     );
@@ -181,9 +188,10 @@ class _Grid extends CustomPainter {
 
 /// The Epic mark on a ticked tile with a soft glow.
 class EGlyphTile extends StatelessWidget {
-  const EGlyphTile({super.key, this.size = 72, this.icon});
+  const EGlyphTile({super.key, this._size, this.icon});
 
-  final double size;
+  final double? _size;
+  double get size => _size ?? 72.u;
 
   /// An icon instead of the mark.
   final IconData? icon;
@@ -199,7 +207,7 @@ class EGlyphTile extends StatelessWidget {
           color: c.s1,
           border: Border.all(color: c.lineStrong),
           borderRadius: BorderRadius.circular(Rad.sm),
-          boxShadow: [BoxShadow(color: c.glow.withValues(alpha: c.glow.a * 0.7), blurRadius: 36, spreadRadius: -8)],
+          boxShadow: [BoxShadow(color: c.glow.withValues(alpha: c.glow.a * 0.7), blurRadius: 36.u, spreadRadius: -8.u)],
         ),
         child: CustomPaint(
           painter: GridFieldPainter(c.grid.withValues(alpha: c.grid.a * 2), step: size / 6),
@@ -246,15 +254,15 @@ class EAuthCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Center(child: EGlyphTile(icon: icon)),
-          const SizedBox(height: Sp.x5),
+          SizedBox(height: Sp.x5),
           Semantics(header: true, child: Text(title, style: ts.h1, textAlign: TextAlign.center)),
           if (lead != null) ...[
-            const SizedBox(height: 6),
+            SizedBox(height: 6.u),
             Text(lead!, style: ts.bodyDim, textAlign: TextAlign.center),
           ],
-          const SizedBox(height: Sp.x6),
+          SizedBox(height: Sp.x6),
           Container(
-            padding: const EdgeInsets.all(Sp.x8),
+            padding: EdgeInsets.all(Sp.x8),
             decoration: BoxDecoration(
               color: c.s1,
               border: Border.all(color: c.line),
@@ -263,7 +271,7 @@ class EAuthCard extends StatelessWidget {
             child: child,
           ),
           if (alternatives.isNotEmpty) ...[
-            const SizedBox(height: Sp.x5),
+            SizedBox(height: Sp.x5),
             Wrap(alignment: WrapAlignment.center, spacing: Sp.x4, runSpacing: Sp.x2, children: alternatives),
           ],
         ],
@@ -310,7 +318,7 @@ class EOnbFrame extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.dc;
     final ts = context.ts;
-    final narrow = MediaQuery.sizeOf(context).width < 760;
+    final narrow = MediaQuery.sizeOf(context).width < 760.u;
     final current = steps.indexWhere((s) => s.current);
     final main = Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -321,20 +329,20 @@ class EOnbFrame extends StatelessWidget {
             child: Align(
               alignment: Alignment.topLeft,
               child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 600),
+                constraints: BoxConstraints(maxWidth: 600.u),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     if (narrow && current >= 0) ...[
                       Text('Step ${current + 1} of ${steps.length}', style: ts.caption),
-                      const SizedBox(height: Sp.x2),
+                      SizedBox(height: Sp.x2),
                     ],
                     Semantics(header: true, child: Text(title, style: ts.h1)),
                     if (lead != null) ...[
-                      const SizedBox(height: Sp.x2),
+                      SizedBox(height: Sp.x2),
                       Text(lead!, style: ts.lead),
                     ],
-                    const SizedBox(height: Sp.x8),
+                    SizedBox(height: Sp.x8),
                     child,
                   ],
                 ),
@@ -349,12 +357,12 @@ class EOnbFrame extends StatelessWidget {
             child: Align(
               alignment: Alignment.centerLeft,
               child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 600),
+                constraints: BoxConstraints(maxWidth: 600.u),
                 child: Row(
                   children: [
                     for (var i = 0; i < actions.length; i++) ...[
                       if (i == actions.length - 1) const Spacer(),
-                      if (i > 0 && i < actions.length - 1) const SizedBox(width: Sp.x3),
+                      if (i > 0 && i < actions.length - 1) SizedBox(width: Sp.x3),
                       actions[i],
                     ],
                   ],
@@ -371,18 +379,18 @@ class EOnbFrame extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Container(
-            width: 260,
-            padding: const EdgeInsets.symmetric(horizontal: Sp.x4, vertical: Sp.x6),
+            width: 260.u,
+            padding: EdgeInsets.symmetric(horizontal: Sp.x4, vertical: Sp.x6),
             decoration: BoxDecoration(color: c.s1, border: Border(right: BorderSide(color: c.line))),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: Sp.x2),
+                  padding: EdgeInsets.symmetric(horizontal: Sp.x2),
                   child: Row(
                     children: [
-                      EpicMark(size: 24, color: c.accent),
-                      const SizedBox(width: 10),
+                      EpicMark(size: 24.u, color: c.accent),
+                      SizedBox(width: 10.u),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -393,7 +401,7 @@ class EOnbFrame extends StatelessWidget {
                     ],
                   ),
                 ),
-                const SizedBox(height: Sp.x6),
+                SizedBox(height: Sp.x6),
                 ERail(steps: steps),
                 const Spacer(),
                 ?sideFoot,
@@ -427,7 +435,7 @@ class ERail extends StatelessWidget {
             child: Container(
               height: Ctl.md,
               margin: const EdgeInsets.only(bottom: 2),
-              padding: const EdgeInsets.symmetric(horizontal: Sp.x3),
+              padding: EdgeInsets.symmetric(horizontal: Sp.x3),
               decoration: BoxDecoration(
                 color: steps[i].current ? c.s3 : null,
                 borderRadius: BorderRadius.circular(Rad.sm),
@@ -435,23 +443,23 @@ class ERail extends StatelessWidget {
               child: Row(
                 children: [
                   Container(
-                    width: 24,
-                    height: 24,
+                    width: 24.u,
+                    height: 24.u,
                     alignment: Alignment.center,
                     decoration: steps[i].done
                         ? null
                         : BoxDecoration(
-                            borderRadius: BorderRadius.circular(6),
+                            borderRadius: BorderRadius.circular(6.u),
                             border: Border.all(color: steps[i].current ? c.accent : c.lineStrong),
                           ),
                     child: steps[i].done
-                        ? Icon(EIcons.check, size: 18, color: c.ok)
+                        ? Icon(EIcons.check, size: 18.u, color: c.ok)
                         : Text(
                             '${i + 1}',
                             style: context.ts.mono(size: Fs.xs, color: steps[i].current ? c.accentText : c.faint),
                           ),
                   ),
-                  const SizedBox(width: Sp.x3),
+                  SizedBox(width: Sp.x3),
                   Expanded(
                     child: Text(
                       steps[i].label,

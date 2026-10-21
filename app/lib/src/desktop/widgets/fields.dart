@@ -32,22 +32,31 @@ class EField extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       mainAxisSize: MainAxisSize.min,
       children: [
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.end,
+        // The aside goes under the label when both do not fit on one line.
+        Wrap(
+          alignment: WrapAlignment.spaceBetween,
+          crossAxisAlignment: WrapCrossAlignment.end,
+          spacing: Sp.x3,
+          runSpacing: Sp.x1,
           children: [
-            Text(label, style: ts.label),
-            if (optional) ...[
-              const SizedBox(width: Sp.x2),
-              Text('Optional', style: ts.small.copyWith(color: c.faint)),
-            ],
-            const Spacer(),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(label, style: ts.label),
+                if (optional) ...[
+                  SizedBox(width: Sp.x2),
+                  Text('Optional', style: ts.small.copyWith(color: c.faint)),
+                ],
+              ],
+            ),
             ?aside,
           ],
         ),
-        const SizedBox(height: 6),
+        SizedBox(height: 6.u),
         child,
         if (error != null) ...[
-          const SizedBox(height: 6),
+          SizedBox(height: 6.u),
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -55,14 +64,14 @@ class EField extends StatelessWidget {
                 padding: const EdgeInsets.only(top: 1),
                 child: Icon(EIcons.error, size: Ctl.iconSm, color: c.risk),
               ),
-              const SizedBox(width: 6),
+              SizedBox(width: 6.u),
               Expanded(
                 child: Text(error!, style: ts.small.copyWith(color: c.risk, fontWeight: FontWeight.w500)),
               ),
             ],
           ),
         ] else if (help != null) ...[
-          const SizedBox(height: 6),
+          SizedBox(height: 6.u),
           Text(help!, style: ts.small),
         ],
       ],
@@ -152,14 +161,14 @@ class _EInputState extends State<EInput> {
       onExit: (_) => setState(() => _hover = false),
       child: AnimatedContainer(
         duration: Dur.fast,
-        constraints: BoxConstraints(minHeight: multi ? 80 : Ctl.md),
+        constraints: BoxConstraints(minHeight: multi ? 80.u : Ctl.md),
         decoration: BoxDecoration(
           color: c.s2,
           borderRadius: BorderRadius.circular(Rad.sm),
           border: Border.all(color: border),
           boxShadow: focused
               ? [
-                  BoxShadow(color: widget.invalid ? c.riskSoft : c.accentSoft, spreadRadius: 3),
+                  BoxShadow(color: widget.invalid ? c.riskSoft : c.accentSoft, spreadRadius: 3.u),
                 ]
               : null,
         ),
@@ -170,7 +179,7 @@ class _EInputState extends State<EInput> {
             children: [
               if (widget.leading != null)
                 Padding(
-                  padding: const EdgeInsets.only(left: Sp.x3),
+                  padding: EdgeInsets.only(left: Sp.x3),
                   child: Icon(widget.leading, size: Ctl.icon, color: c.faint),
                 ),
               Expanded(
@@ -202,7 +211,7 @@ class _EInputState extends State<EInput> {
               ),
               if (widget.trailing != null)
                 Padding(
-                  padding: const EdgeInsets.only(right: Sp.x1),
+                  padding: EdgeInsets.only(right: Sp.x1),
                   child: widget.trailing,
                 ),
             ],
@@ -223,6 +232,8 @@ class EPasswordInput extends StatefulWidget {
     this.onSubmitted,
     this.onChanged,
     this.autofocus = false,
+    this.focusNode,
+    this.semanticLabel,
   });
 
   final TextEditingController? controller;
@@ -231,6 +242,8 @@ class EPasswordInput extends StatefulWidget {
   final ValueChanged<String>? onSubmitted;
   final ValueChanged<String>? onChanged;
   final bool autofocus;
+  final FocusNode? focusNode;
+  final String? semanticLabel;
 
   @override
   State<EPasswordInput> createState() => _EPasswordInputState();
@@ -248,6 +261,8 @@ class _EPasswordInputState extends State<EPasswordInput> {
     onSubmitted: widget.onSubmitted,
     onChanged: widget.onChanged,
     autofocus: widget.autofocus,
+    focusNode: widget.focusNode,
+    semanticLabel: widget.semanticLabel,
     trailing: EIconButton(
       icon: _show ? EIcons.eyeOff : EIcons.eye,
       label: _show ? 'Hide' : 'Show',
@@ -275,12 +290,12 @@ class ESwitch extends StatelessWidget {
     final enabled = onChanged != null;
     final track = AnimatedContainer(
       duration: Dur.base,
-      width: 40,
-      height: 24,
-      padding: const EdgeInsets.all(3),
+      width: 40.u,
+      height: 24.u,
+      padding: EdgeInsets.all(3.u),
       decoration: BoxDecoration(
         color: value ? c.accent : c.s3,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(12.u),
         border: Border.all(color: value ? c.accent : c.lineField),
       ),
       child: AnimatedAlign(
@@ -288,8 +303,8 @@ class ESwitch extends StatelessWidget {
         curve: Curves.easeOutCubic,
         alignment: value ? Alignment.centerRight : Alignment.centerLeft,
         child: Container(
-          width: 16,
-          height: 16,
+          width: 16.u,
+          height: 16.u,
           decoration: BoxDecoration(color: value ? c.accentInk : c.dim, shape: BoxShape.circle),
         ),
       ),
@@ -309,9 +324,9 @@ class ESwitch extends StatelessWidget {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  FocusRing(focused: Focus.of(context).hasFocus, radius: 12, child: track),
+                  FocusRing(focused: Focus.of(context).hasFocus, radius: 12.u, child: track),
                   if (label != null) ...[
-                    const SizedBox(width: Sp.x3),
+                    SizedBox(width: Sp.x3),
                     Text(label!, style: context.ts.body),
                   ],
                 ],
@@ -346,7 +361,7 @@ class ESegmented<T> extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.dc;
     return Container(
-      padding: const EdgeInsets.all(3),
+      padding: EdgeInsets.all(3.u),
       decoration: BoxDecoration(
         color: c.s2,
         borderRadius: BorderRadius.circular(Rad.sm),
@@ -396,14 +411,14 @@ class _SegState<T> extends State<_Seg<T>> {
             onTap: widget.onTap,
             child: FocusRing(
               focused: Focus.of(context).hasFocus,
-              radius: 6,
+              radius: 6.u,
               child: AnimatedContainer(
                 duration: Dur.fast,
-                height: 30,
-                padding: const EdgeInsets.symmetric(horizontal: Sp.x3),
+                height: 30.u,
+                padding: EdgeInsets.symmetric(horizontal: Sp.x3),
                 decoration: BoxDecoration(
                   color: sel ? c.s3 : (_hover ? c.hover : Colors.transparent),
-                  borderRadius: BorderRadius.circular(6),
+                  borderRadius: BorderRadius.circular(6.u),
                   border: sel ? Border(bottom: BorderSide(color: c.accent, width: 2)) : null,
                 ),
                 child: Row(
@@ -411,15 +426,15 @@ class _SegState<T> extends State<_Seg<T>> {
                   children: [
                     if (widget.seg.icon != null) ...[
                       Icon(widget.seg.icon, size: Ctl.iconSm, color: fg),
-                      const SizedBox(width: 6),
+                      SizedBox(width: 6.u),
                     ],
                     Text(
                       widget.seg.label,
                       style: TextStyle(fontSize: Fs.sm, fontWeight: FontWeight.w500, color: fg),
                     ),
                     if (widget.seg.count != null) ...[
-                      const SizedBox(width: 6),
-                      Text('${widget.seg.count}', style: context.ts.mono(size: 11, color: c.faint)),
+                      SizedBox(width: 6.u),
+                      Text('${widget.seg.count}', style: context.ts.mono(size: 11.u, color: c.faint)),
                     ],
                   ],
                 ),
@@ -478,7 +493,7 @@ class _EChoiceCardState extends State<EChoiceCard> {
               focused: Focus.of(context).hasFocus,
               child: AnimatedContainer(
                 duration: Dur.fast,
-                padding: const EdgeInsets.all(Sp.x4),
+                padding: EdgeInsets.all(Sp.x4),
                 decoration: BoxDecoration(
                   color: sel ? c.accentFaint : c.s1,
                   borderRadius: BorderRadius.circular(Rad.sm),
@@ -489,7 +504,7 @@ class _EChoiceCardState extends State<EChoiceCard> {
                   children: [
                     if (widget.icon != null) ...[
                       Icon(widget.icon, size: Ctl.icon, color: sel ? c.accentText : c.faint),
-                      const SizedBox(width: Sp.x3),
+                      SizedBox(width: Sp.x3),
                     ],
                     Expanded(
                       child: Column(
@@ -497,10 +512,10 @@ class _EChoiceCardState extends State<EChoiceCard> {
                         children: [
                           Text(widget.title, style: ts.strong),
                           if (widget.description != null) ...[
-                            const SizedBox(height: Sp.x1),
+                            SizedBox(height: Sp.x1),
                             Text(widget.description!, style: ts.small),
                           ],
-                          if (widget.tag != null) ...[const SizedBox(height: Sp.x2), widget.tag!],
+                          if (widget.tag != null) ...[SizedBox(height: Sp.x2), widget.tag!],
                         ],
                       ),
                     ),
@@ -544,18 +559,18 @@ class ECheckbox extends StatelessWidget {
                   focused: Focus.of(context).hasFocus,
                   radius: Rad.xs,
                   child: Container(
-                    width: 20,
-                    height: 20,
+                    width: 20.u,
+                    height: 20.u,
                     margin: const EdgeInsets.only(top: 1),
                     decoration: BoxDecoration(
                       color: value ? c.accent : c.s2,
                       borderRadius: BorderRadius.circular(Rad.xs),
                       border: Border.all(color: value ? c.accent : c.lineField),
                     ),
-                    child: value ? Icon(EIcons.check, size: 16, color: c.accentInk) : null,
+                    child: value ? Icon(EIcons.check, size: 16.u, color: c.accentInk) : null,
                   ),
                 ),
-                const SizedBox(width: Sp.x3),
+                SizedBox(width: Sp.x3),
                 Flexible(child: Text(label, style: context.ts.body)),
               ],
             ),

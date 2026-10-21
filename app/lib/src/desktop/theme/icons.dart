@@ -88,4 +88,5 @@ abstract final class EIcons {
   static const okCircle = Icons.check_circle_outline;
   static const closeCircle = Icons.cancel_outlined;
   static const minusCircle = Icons.remove_circle_outline;
+  static const camera = Icons.photo_camera_outlined;
 }

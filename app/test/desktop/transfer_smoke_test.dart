@@ -43,6 +43,9 @@ void main() {
           await tester.pump(const Duration(milliseconds: 600));
         }
         expect(tester.takeException(), isNull);
+        // Let the mock's delayed answers (listener start/stop) finish before the test ends.
+        await tester.pumpWidget(const SizedBox());
+        await tester.pump(const Duration(seconds: 10));
       });
     }
   }

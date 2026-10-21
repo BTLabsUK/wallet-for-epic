@@ -14,14 +14,16 @@ class EPanel extends StatelessWidget {
     this.title,
     this.headTrailing,
     this.foot,
-    this.padding = const EdgeInsets.symmetric(horizontal: Sp.x6, vertical: Sp.x5),
+    this.padding,
   });
 
   final Widget child;
   final String? title;
   final Widget? headTrailing;
   final Widget? foot;
-  final EdgeInsetsGeometry padding;
+
+  /// Defaults to 24 by 20.
+  final EdgeInsetsGeometry? padding;
 
   @override
   Widget build(BuildContext context) {
@@ -38,8 +40,8 @@ class EPanel extends StatelessWidget {
         children: [
           if (title != null)
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: Sp.x6, vertical: Sp.x3),
-              constraints: const BoxConstraints(minHeight: 52),
+              padding: EdgeInsets.symmetric(horizontal: Sp.x6, vertical: Sp.x3),
+              constraints: BoxConstraints(minHeight: 52.u),
               decoration: BoxDecoration(border: Border(bottom: BorderSide(color: c.line))),
               child: Row(
                 children: [
@@ -48,10 +50,10 @@ class EPanel extends StatelessWidget {
                 ],
               ),
             ),
-          Padding(padding: padding, child: child),
+          Padding(padding: padding ?? EdgeInsets.symmetric(horizontal: Sp.x6, vertical: Sp.x5), child: child),
           if (foot != null)
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: Sp.x6, vertical: Sp.x3),
+              padding: EdgeInsets.symmetric(horizontal: Sp.x6, vertical: Sp.x3),
               decoration: BoxDecoration(border: Border(top: BorderSide(color: c.line))),
               child: foot,
             ),
@@ -89,21 +91,23 @@ class ETicked extends StatelessWidget {
 
 /// Section head: a short accent rule and the title in sentence case.
 class ESectionHead extends StatelessWidget {
-  const ESectionHead(this.title, {super.key, this.trailing, this.top = Sp.x8});
+  const ESectionHead(this.title, {super.key, this.trailing, this.top});
 
   final String title;
   final Widget? trailing;
-  final double top;
+
+  /// Defaults to [Sp.x8].
+  final double? top;
 
   @override
   Widget build(BuildContext context) {
     final c = context.dc;
     return Padding(
-      padding: EdgeInsets.only(top: top, bottom: Sp.x3),
+      padding: EdgeInsets.only(top: top ?? Sp.x8, bottom: Sp.x3),
       child: Row(
         children: [
-          Container(width: 14, height: 2, color: c.accent),
-          const SizedBox(width: 10),
+          Container(width: 14.u, height: 2, color: c.accent),
+          SizedBox(width: 10.u),
           Expanded(
             child: Semantics(header: true, child: Text(title, style: context.ts.h3)),
           ),
@@ -140,8 +144,8 @@ class ETag extends StatelessWidget {
     final c = context.dc;
     final (fg, bg) = tone.colors(c);
     return Container(
-      height: 22,
-      padding: const EdgeInsets.symmetric(horizontal: Sp.x2),
+      height: 22.u,
+      padding: EdgeInsets.symmetric(horizontal: Sp.x2),
       decoration: BoxDecoration(
         color: bg,
         borderRadius: BorderRadius.circular(Rad.xs),
@@ -150,7 +154,7 @@ class ETag extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (icon != null) ...[Icon(icon, size: 14, color: fg), const SizedBox(width: Sp.x1)],
+          if (icon != null) ...[Icon(icon, size: 14.u, color: fg), SizedBox(width: Sp.x1)],
           Text(
             label,
             style: mono
@@ -196,6 +200,7 @@ class ENotice extends StatelessWidget {
     this.tone = ETone.neutral,
     this.icon,
     this.actions = const [],
+    this.actionsBelow = false,
   });
 
   final String title;
@@ -203,6 +208,9 @@ class ENotice extends StatelessWidget {
   final ETone tone;
   final IconData? icon;
   final List<Widget> actions;
+
+  /// Puts [actions] on their own wrapping row under the text (several or long buttons).
+  final bool actionsBelow;
 
   @override
   Widget build(BuildContext context) {
@@ -218,7 +226,7 @@ class ENotice extends StatelessWidget {
           _ => EIcons.info,
         };
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: Sp.x4, vertical: Sp.x3),
+      padding: EdgeInsets.symmetric(horizontal: Sp.x4, vertical: Sp.x3),
       decoration: BoxDecoration(
         color: tone == ETone.neutral || tone == ETone.ok ? c.s1 : (tone == ETone.gold ? c.accentFaint : bg),
         borderRadius: BorderRadius.circular(Rad.sm),
@@ -233,7 +241,7 @@ class ENotice extends StatelessWidget {
             padding: const EdgeInsets.only(top: 1),
             child: Icon(glyph, size: Ctl.icon, color: iconColor),
           ),
-          const SizedBox(width: Sp.x3),
+          SizedBox(width: Sp.x3),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -243,11 +251,15 @@ class ENotice extends StatelessWidget {
                   const SizedBox(height: 2),
                   Text(text!, style: ts.small),
                 ],
+                if (actionsBelow && actions.isNotEmpty) ...[
+                  SizedBox(height: Sp.x3),
+                  Wrap(spacing: Sp.x2, runSpacing: Sp.x2, children: actions),
+                ],
               ],
             ),
           ),
-          if (actions.isNotEmpty) ...[
-            const SizedBox(width: Sp.x3),
+          if (!actionsBelow && actions.isNotEmpty) ...[
+            SizedBox(width: Sp.x3),
             Wrap(spacing: Sp.x2, children: actions),
           ],
         ],
@@ -271,12 +283,12 @@ class EFacts extends StatelessWidget {
       children: [
         for (final (k, v) in rows)
           Padding(
-            padding: const EdgeInsets.symmetric(vertical: 5),
+            padding: EdgeInsets.symmetric(vertical: 5.u),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(width: labelWidth, child: Text(k, style: ts.bodyDim)),
-                const SizedBox(width: Sp.x6),
+                SizedBox(width: Sp.x6),
                 Expanded(child: DefaultTextStyle.merge(style: ts.body, child: v)),
               ],
             ),
@@ -326,7 +338,7 @@ class EAddress extends StatelessWidget {
           ]
         : [TextSpan(text: address)];
     return Container(
-      padding: const EdgeInsets.fromLTRB(Sp.x4, Sp.x3, Sp.x2, Sp.x3),
+      padding: EdgeInsets.fromLTRB(Sp.x4, Sp.x3, Sp.x2, Sp.x3),
       decoration: BoxDecoration(
         color: c.s2,
         borderRadius: BorderRadius.circular(Rad.sm),
@@ -335,7 +347,7 @@ class EAddress extends StatelessWidget {
       child: Row(
         children: [
           Expanded(child: SelectableText.rich(TextSpan(style: base, children: spans))),
-          const SizedBox(width: Sp.x2),
+          SizedBox(width: Sp.x2),
           ECopyButton(text: address, onCopied: onCopied),
         ],
       ),
@@ -402,30 +414,30 @@ class EEmpty extends StatelessWidget {
     final c = context.dc;
     final ts = context.ts;
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: Sp.x8, vertical: Sp.x12),
+      padding: EdgeInsets.symmetric(horizontal: Sp.x8, vertical: Sp.x12),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            width: 56,
-            height: 56,
+            width: 56.u,
+            height: 56.u,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(Rad.sm),
               border: Border.all(color: c.lineStrong),
             ),
             child: Icon(icon, size: Ctl.iconLg, color: c.accentText),
           ),
-          const SizedBox(height: Sp.x4),
+          SizedBox(height: Sp.x4),
           Text(title, style: ts.h3, textAlign: TextAlign.center),
           if (text != null) ...[
-            const SizedBox(height: Sp.x2),
+            SizedBox(height: Sp.x2),
             ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 420),
+              constraints: BoxConstraints(maxWidth: 420.u),
               child: Text(text!, style: ts.bodyDim, textAlign: TextAlign.center),
             ),
           ],
           if (actions.isNotEmpty) ...[
-            const SizedBox(height: Sp.x4),
+            SizedBox(height: Sp.x4),
             Wrap(spacing: Sp.x2, runSpacing: Sp.x2, alignment: WrapAlignment.center, children: actions),
           ],
         ],
@@ -446,7 +458,7 @@ class ESetGroup extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.dc;
     return Padding(
-      padding: const EdgeInsets.only(bottom: Sp.x8),
+      padding: EdgeInsets.only(bottom: Sp.x8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -497,29 +509,29 @@ class ESetRow extends StatelessWidget {
         if (text != null) ...[
           const SizedBox(height: 2),
           ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 560),
+            constraints: BoxConstraints(maxWidth: 560.u),
             child: Text(text!, style: ts.small),
           ),
         ],
       ],
     );
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: Sp.x5, vertical: Sp.x4),
+      padding: EdgeInsets.symmetric(horizontal: Sp.x5, vertical: Sp.x4),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           if (stacked || control == null) ...[
             words,
-            if (control != null) ...[const SizedBox(height: Sp.x3), control!],
+            if (control != null) ...[SizedBox(height: Sp.x3), control!],
           ] else
             Row(
               children: [
                 Expanded(child: words),
-                const SizedBox(width: Sp.x6),
+                SizedBox(width: Sp.x6),
                 control!,
               ],
             ),
-          if (below != null) ...[const SizedBox(height: Sp.x3), below!],
+          if (below != null) ...[SizedBox(height: Sp.x3), below!],
         ],
       ),
     );
@@ -539,7 +551,7 @@ class EProgress extends StatelessWidget {
       borderRadius: BorderRadius.circular(2),
       child: LinearProgressIndicator(
         value: value,
-        minHeight: 4,
+        minHeight: 4.u,
         backgroundColor: c.s3,
         color: c.accent,
       ),
@@ -548,9 +560,10 @@ class EProgress extends StatelessWidget {
 }
 
 class ESpinner extends StatelessWidget {
-  const ESpinner({super.key, this.size = 16, this.color});
+  const ESpinner({super.key, this._size, this.color});
 
-  final double size;
+  final double? _size;
+  double get size => _size ?? 16.u;
   final Color? color;
 
   @override
@@ -562,13 +575,14 @@ class ESpinner extends StatelessWidget {
 
 /// The hairline between blocks.
 class EDivider extends StatelessWidget {
-  const EDivider({super.key, this.space = Sp.x6});
+  const EDivider({super.key, this.space});
 
-  final double space;
+  /// Defaults to [Sp.x6].
+  final double? space;
 
   @override
   Widget build(BuildContext context) =>
-      Padding(padding: EdgeInsets.symmetric(vertical: space), child: Divider(height: 1, thickness: 1, color: context.dc.line));
+      Padding(padding: EdgeInsets.symmetric(vertical: space ?? Sp.x6), child: Divider(height: 1, thickness: 1, color: context.dc.line));
 }
 
 /// Collapsible "technical details" block.
@@ -601,8 +615,8 @@ class _EDetailsState extends State<EDetails> {
             borderRadius: BorderRadius.circular(Rad.sm),
             onTap: () => setState(() => _open = !_open),
             child: Container(
-              constraints: const BoxConstraints(minHeight: Ctl.md),
-              padding: const EdgeInsets.symmetric(horizontal: Sp.x4),
+              constraints: BoxConstraints(minHeight: Ctl.md),
+              padding: EdgeInsets.symmetric(horizontal: Sp.x4),
               child: Row(
                 children: [
                   AnimatedRotation(
@@ -610,7 +624,7 @@ class _EDetailsState extends State<EDetails> {
                     duration: Dur.base,
                     child: Icon(EIcons.chevronRight, size: Ctl.icon, color: c.dim),
                   ),
-                  const SizedBox(width: Sp.x2),
+                  SizedBox(width: Sp.x2),
                   Expanded(child: Text(widget.title, style: context.ts.strong.copyWith(color: c.dim))),
                 ],
               ),
@@ -618,7 +632,7 @@ class _EDetailsState extends State<EDetails> {
           ),
           if (_open)
             Padding(
-              padding: const EdgeInsets.fromLTRB(Sp.x4, 0, Sp.x4, Sp.x4),
+              padding: EdgeInsets.fromLTRB(Sp.x4, 0, Sp.x4, Sp.x4),
               child: widget.child,
             ),
         ],
