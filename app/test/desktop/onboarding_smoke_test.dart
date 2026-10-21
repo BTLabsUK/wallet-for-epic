@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:epic_wallet/src/desktop/data/features.dart';
 import 'package:epic_wallet/src/desktop/screens/onboarding/shots.dart';
 import 'package:epic_wallet/src/desktop/screens/onboarding/create_screen.dart';
 import 'package:epic_wallet/src/desktop/screens/onboarding/found_screen.dart';
@@ -81,7 +82,7 @@ void flows() {
     expect(find.textContaining('Closing the old wallet processes'), findsOneWidget);
     await _wait(tester, 5000);
     await _end(tester);
-  });
+  }, skip: !DeskFeatures.walletProcesses);
 
   testWidgets('unlock: wrong password returns to the form with the message', (tester) async {
     await _pump(tester, const UnlockScreen());
