@@ -100,6 +100,9 @@ class _PinSetupViewState extends ConsumerState<PinSetupView> {
 
   @override
   void dispose() {
+    _pin.clear();
+    _confirm.clear();
+    _chosen = '';
     _pin.dispose();
     _confirm.dispose();
     super.dispose();
@@ -360,6 +363,7 @@ class _PinPromptDialogState<T extends Object>
 
   @override
   void dispose() {
+    _pin.clear();
     _pin.dispose();
     super.dispose();
   }

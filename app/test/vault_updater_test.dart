@@ -87,22 +87,46 @@ void main() {
     });
 
     test(
-      'a wallet without sealed text goes, and so do entries without a wallet',
+      'a wallet without sealed text, or sealed text without a wallet, stays',
       () async {
-        // The app stopped between creating the wallet and storing its sealed text.
+        // The app stopped between creating the wallet and storing its sealed text, or the
+        // store did not answer.
         service.existingWallets.add(dir);
-        expect(await vault.prepare(config), VaultStage.empty);
-        expect(service.deletedWallets, [dir]);
+        expect(await vault.prepare(config), VaultStage.stranded);
+        expect(service.deletedWallets, isEmpty);
+        expect(service.existingWallets, {dir});
 
-        // The files are gone but the entries are not.
+        // The wallet's entries are not found where they were (a moved directory), but the
+        // sealed text is still there.
+        service.existingWallets.clear();
         store.values['wallet.mainnet.pinSealed'] = fakeSealedPassword('123456');
         store.values['wallet.mainnet.backedUp'] = '1';
+        final before = Map.of(store.values);
+        expect(await vault.prepare(config), VaultStage.stranded);
+        expect(store.values, before);
+        expect(service.deletedWallets, isEmpty);
+
+        // Neither replaces it: a new wallet would overwrite the sealed text.
+        await expectLater(
+          vault.create(config, pin: '123456'),
+          throwsA(
+            isA<WalletError>().having(
+              (e) => e.kind,
+              'kind',
+              WalletErrorKind.walletAlreadyExists,
+            ),
+          ),
+        );
+        expect(store.values, before);
+
+        // Removing it is the user's step (Forgot PIN): delete, then forget.
+        await service.deleteWallet(config: config);
+        await vault.forget(Chain.mainnet);
         expect(await vault.prepare(config), VaultStage.empty);
-        expect(store.values, isEmpty);
       },
     );
 
-    test('discards a 1.2.x install, files and entries', () async {
+    test('leaves a 1.2.x install in place, files and entries', () async {
       final tmp = await Directory.systemTemp.createTemp('wfe-vault-');
       addTearDown(() => tmp.delete(recursive: true));
       final legacyConfig = mainnetPreset.config(
@@ -110,26 +134,55 @@ void main() {
         nodeUrl: 'http://n',
       );
       await Directory('${tmp.path}/wallet_data/db').create(recursive: true);
-      await File('${tmp.path}/wfe_meta.json').writeAsString('{}');
+      final seed = File('${tmp.path}/wallet_data/wallet.seed');
+      await seed.writeAsString('old seed');
+      await File('${tmp.path}/wfe_meta.json').writeAsString('{"old":1}');
       await Directory('${tmp.path}/lepic').create();
-      store.values.addAll({
+      final legacyEntries = {
         'wallet.mainnet.sealed': 'old sealed password',
+        'wallet.mainnet.pending': 'old pending password',
         'wallet.mainnet.biometrics': '1',
         'wallet.mainnet.failed': '2',
-        'wallet.mainnet.backedUp': '1',
         'app.network': 'mainnet',
-      });
+      };
+      store.values.addAll(legacyEntries);
+      store.values['wallet.mainnet.backedUp'] = '1';
       bio.values['wallet.mainnet.password'] = 'old password';
       vault = WalletVault(store: store, biometrics: bio, service: service);
 
       expect(await vault.prepare(legacyConfig), VaultStage.empty);
-      expect(await Directory('${tmp.path}/wallet_data').exists(), isFalse);
+      expect(await seed.readAsString(), 'old seed');
+      expect(await Directory('${tmp.path}/wallet_data/db').exists(), isTrue);
+      // The old history is set aside, so the new wallet does not read it as its own.
       expect(await File('${tmp.path}/wfe_meta.json').exists(), isFalse);
-      expect(await Directory('${tmp.path}/lepic').exists(), isTrue);
-      expect(store.values, {'app.network': 'mainnet'});
-      expect(bio.values, isEmpty);
+      final setAside = tmp
+          .listSync()
+          .whereType<File>()
+          .where((f) => f.path.contains('wfe_meta.json.legacy-'))
+          .toList();
+      expect(setAside, hasLength(1));
+      expect(await setAside.single.readAsString(), '{"old":1}');
+      expect(store.values, {...legacyEntries, 'wallet.mainnet.backedUp': '1'});
+      expect(bio.values, {'wallet.mainnet.password': 'old password'});
+
+      // A new wallet over it starts without the old flags, and the old files and entries stay.
+      await vault.create(legacyConfig, pin: '123456');
+      expect(await vault.isBackedUp(Chain.mainnet), isFalse);
+      expect(await seed.readAsString(), 'old seed');
+      for (final e in legacyEntries.entries) {
+        expect(store.values[e.key], e.value);
+      }
+      expect(bio.values['wallet.mainnet.password'], 'old password');
       expect(bio.prompts, 0);
-      expect(await deleteLegacyWalletFiles(tmp.path), isFalse);
+
+      // Later launches change nothing.
+      await File('${tmp.path}/wfe_meta.json').writeAsString('{"new":1}');
+      expect(await vault.prepare(legacyConfig), VaultStage.ready);
+      expect(
+        await File('${tmp.path}/wfe_meta.json').readAsString(),
+        '{"new":1}',
+      );
+      expect(await seed.readAsString(), 'old seed');
     });
 
     test('biometrics hold the PIN and fall back when dismissed', () async {

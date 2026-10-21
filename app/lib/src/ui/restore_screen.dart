@@ -80,6 +80,9 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
   @override
   void dispose() {
     setSecureScreen(false);
+    // Drop the phrase from the controller and the state, so they no longer point at it.
+    _phrase.clear();
+    _validPhrase = '';
     _phrase.dispose();
     _startHeight.dispose();
     super.dispose();
@@ -128,8 +131,7 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
       _error = null;
     });
     try {
-      // The vault never replaces a wallet that opens with a PIN; one the first run left
-      // without its sealed text is deleted first, since its phrase was never shown.
+      // The vault never replaces a wallet, or sealed text, already on this chain.
       final vault = ref.read(vaultProvider);
       final created = await vault.create(
         config,

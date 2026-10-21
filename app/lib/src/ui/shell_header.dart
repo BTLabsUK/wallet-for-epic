@@ -74,18 +74,18 @@ bool paymentLanded(WalletSummary? before, WalletSummary? after) {
 }
 
 /// The two kinds of balance the pending line names: coins a send holds until it completes,
-/// and coins on their way in (confirming, waiting for the sender, mining rewards maturing).
+/// and coins on their way in (in a block and confirming, mining rewards maturing).
 enum PendingKind { onHold, comingIn }
 
 /// One item of the pending line: what it is, its glyph and its words. [kind] is null for the
 /// calm line ("All confirmed", "Nothing here yet").
 typedef PendingItem = ({PendingKind? kind, IconData icon, String text});
 
-/// The money on its way in: confirming, waiting for the sender to finish, and mining rewards.
+/// The money on its way in: in a block and confirming, and mining rewards. Outputs not on
+/// chain yet ([WalletSummary.awaitingFinalization]) are left out: anyone can offer a payment
+/// and never finish it, so it is not money until it is in a block. The ? lists them apart.
 BigInt comingIn(WalletSummary summary) =>
-    summary.awaitingConfirmation +
-    summary.awaitingFinalization +
-    summary.immature;
+    summary.awaitingConfirmation + summary.immature;
 
 /// The pending line's items for [summary], at most two: what a send holds ("10 on hold") and
 /// what is on its way in ("+7.49 coming in"). With neither, "All confirmed", or "Nothing here
@@ -631,9 +631,9 @@ class BalanceHelp extends StatefulWidget {
       ),
     if (summary.awaitingFinalization > BigInt.zero)
       (
-        l.homeBalanceWaitingToFinish,
+        l.homeBalanceNotOnChain,
         summary.awaitingFinalization,
-        l.balanceWaitingHelp,
+        l.balanceNotOnChainHelp,
       ),
     if (summary.locked > BigInt.zero)
       (l.homeBalanceLocked, summary.locked, l.balanceLockedHelp),

@@ -26,27 +26,19 @@ class MainActivity : FlutterFragmentActivity() {
         super.configureFlutterEngine(flutterEngine)
         createNotificationChannel()
         val messenger = flutterEngine.dartExecutor.binaryMessenger
-        // Lets Dart block screenshots (FLAG_SECURE), or only the recent-apps preview, while
-        // a recovery phrase is on screen.
+        // Lets Dart block screenshots, screen recording and the recent-apps preview
+        // (FLAG_SECURE) while a recovery phrase is on screen.
         MethodChannel(messenger, "epic_wallet/secure_screen")
             .setMethodCallHandler { call, result ->
-                when (call.method) {
-                    "setSecure" -> {
-                        if (call.arguments == true) {
-                            window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
-                        } else {
-                            window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
-                        }
-                        result.success(null)
+                if (call.method == "setSecure") {
+                    if (call.arguments == true) {
+                        window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
+                    } else {
+                        window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
                     }
-                    "hidePreview" -> {
-                        // Android 12 and lower have no way to hide only the preview.
-                        if (Build.VERSION.SDK_INT >= 33) {
-                            setRecentsScreenshotEnabled(call.arguments != true)
-                        }
-                        result.success(null)
-                    }
-                    else -> result.notImplemented()
+                    result.success(null)
+                } else {
+                    result.notImplemented()
                 }
             }
         // Transaction files opened or shared from other apps (Telegram, mail, files).

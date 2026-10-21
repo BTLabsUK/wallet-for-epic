@@ -1434,11 +1434,11 @@ class AppLocalizationsEn extends AppLocalizations {
       'On the chain, waiting for enough confirmations.';
 
   @override
-  String get homeBalanceWaitingToFinish => 'Waiting to finish';
+  String get homeBalanceNotOnChain => 'Not on chain yet';
 
   @override
-  String get balanceWaitingHelp =>
-      'Accepted by you; the sender still has to finish it.';
+  String get balanceNotOnChainHelp =>
+      'Payments to you that the sender has not finished or that are not in a block yet, and change from your sends. Not counted until they are on chain: a payment someone only offered may never arrive.';
 
   @override
   String get homeBalanceLocked => 'Locked by a payment in progress';
@@ -2234,7 +2234,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get backupCopyWarning =>
-      'Screenshots are allowed on the next screen. A screenshot or photo of the phrase is a full copy of your wallet: anyone who sees it can take your funds, and photo apps may upload it to the cloud. Paper is safest.';
+      'A screenshot or photo of the phrase is a full copy of your wallet: anyone who sees it can take your funds, and photo apps may upload it to the cloud. Paper is safest.';
 
   @override
   String get backupCopyAgree => 'I will keep any copy of the phrase private';
@@ -2390,6 +2390,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get launchTryAgain => 'Try again';
+
+  @override
+  String get unlockStranded =>
+      'This wallet could not be read as it should be. Nothing was deleted. Try again after restarting the device. If this stays, you can remove the wallet with “Forgot PIN?” and restore it from its recovery phrase.';
 
   @override
   String get sendAmountNegative => 'The amount cannot be negative.';

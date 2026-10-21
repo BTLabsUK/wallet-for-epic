@@ -1343,10 +1343,11 @@ class AppLocalizationsZh extends AppLocalizations {
   String get balanceConfirmingHelp => '已上链，等待足够的确认。';
 
   @override
-  String get homeBalanceWaitingToFinish => '等待完成';
+  String get homeBalanceNotOnChain => '尚未上链';
 
   @override
-  String get balanceWaitingHelp => '你已接受，发送方还需完成。';
+  String get balanceNotOnChainHelp =>
+      '发给你但发送方尚未完成、或尚未进入区块的付款，以及你发送时的找零。进入区块后才计入：仅被提出的付款可能永远不会到账。';
 
   @override
   String get homeBalanceLocked => '被进行中的付款锁定';
@@ -2091,7 +2092,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get backupCopyWarning =>
-      '下一个页面允许截图。助记词的截图或照片就是你钱包的完整副本：任何看到它的人都能转走你的资金，相册应用还可能把它上传到云端。抄在纸上最安全。';
+      '助记词的截图或照片就是你钱包的完整副本：任何看到它的人都能转走你的资金，相册应用还可能把它上传到云端。抄在纸上最安全。';
 
   @override
   String get backupCopyAgree => '我会妥善保管助记词的任何副本，不泄露给他人';
@@ -2240,6 +2241,10 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get launchTryAgain => '重试';
+
+  @override
+  String get unlockStranded =>
+      '无法正常读取此钱包。没有删除任何内容。请重启设备后重试。如果问题仍然存在，可以通过“忘记 PIN 码？”移除钱包，再用恢复短语恢复。';
 
   @override
   String get sendAmountNegative => '金额不能为负数。';

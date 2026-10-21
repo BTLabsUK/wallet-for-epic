@@ -1443,11 +1443,11 @@ class AppLocalizationsDe extends AppLocalizations {
       'In der Chain, wartet auf genug Bestätigungen.';
 
   @override
-  String get homeBalanceWaitingToFinish => 'Wartet auf Abschluss';
+  String get homeBalanceNotOnChain => 'Noch nicht in der Blockchain';
 
   @override
-  String get balanceWaitingHelp =>
-      'Von Ihnen angenommen; der Absender muss sie noch abschließen.';
+  String get balanceNotOnChainHelp =>
+      'Zahlungen an Sie, die der Absender noch nicht abgeschlossen hat oder die noch in keinem Block sind, und Wechselgeld Ihrer Sendungen. Sie zählen erst, wenn sie in einem Block sind: Eine nur angebotene Zahlung kommt vielleicht nie an.';
 
   @override
   String get homeBalanceLocked => 'Durch laufende Zahlung gesperrt';
@@ -2261,7 +2261,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get backupCopyWarning =>
-      'Auf dem nächsten Bildschirm sind Screenshots erlaubt. Ein Screenshot oder Foto der Phrase ist eine vollständige Kopie Ihrer Wallet: Wer ihn sieht, kann Ihr Guthaben nehmen, und Foto-Apps laden ihn unter Umständen in die Cloud hoch. Papier ist am sichersten.';
+      'Ein Screenshot oder Foto der Phrase ist eine vollständige Kopie Ihrer Wallet: Wer ihn sieht, kann Ihr Guthaben nehmen, und Foto-Apps laden ihn unter Umständen in die Cloud hoch. Papier ist am sichersten.';
 
   @override
   String get backupCopyAgree => 'Ich halte jede Kopie der Phrase geheim';
@@ -2421,6 +2421,10 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get launchTryAgain => 'Erneut versuchen';
+
+  @override
+  String get unlockStranded =>
+      'Diese Wallet konnte nicht wie erwartet gelesen werden. Es wurde nichts gelöscht. Versuchen Sie es nach einem Neustart des Geräts erneut. Bleibt es dabei, können Sie die Wallet über „PIN vergessen?“ entfernen und mit ihrer Wiederherstellungsphrase wiederherstellen.';
 
   @override
   String get sendAmountNegative => 'Der Betrag darf nicht negativ sein.';

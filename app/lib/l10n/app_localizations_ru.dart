@@ -1530,11 +1530,11 @@ class AppLocalizationsRu extends AppLocalizations {
       'В блокчейне, ждёт достаточно подтверждений.';
 
   @override
-  String get homeBalanceWaitingToFinish => 'Ожидает завершения';
+  String get homeBalanceNotOnChain => 'Ещё не в блокчейне';
 
   @override
-  String get balanceWaitingHelp =>
-      'Принято вами; отправитель ещё должен её завершить.';
+  String get balanceNotOnChainHelp =>
+      'Платежи вам, которые отправитель ещё не завершил или которые ещё не попали в блок, и сдача с ваших отправок. Учитываются только после попадания в блок: просто предложенный платёж может так и не прийти.';
 
   @override
   String get homeBalanceLocked => 'Заблокировано текущим платежом';
@@ -2345,7 +2345,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get backupCopyWarning =>
-      'На следующем экране можно сделать снимок экрана. Снимок или фото фразы — это полная копия вашего кошелька: любой, кто его увидит, сможет забрать ваши средства, а приложения для фото могут загрузить его в облако. Бумага надёжнее всего.';
+      'Снимок или фото фразы — это полная копия вашего кошелька: любой, кто его увидит, сможет забрать ваши средства, а приложения для фото могут загрузить его в облако. Бумага надёжнее всего.';
 
   @override
   String get backupCopyAgree => 'Я буду хранить любую копию фразы в тайне';
@@ -2518,6 +2518,10 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get launchTryAgain => 'Повторить';
+
+  @override
+  String get unlockStranded =>
+      'Этот кошелёк не удалось прочитать как положено. Ничего не удалено. Попробуйте снова после перезагрузки устройства. Если ошибка останется, удалите кошелёк через «Забыли PIN-код?» и восстановите его по фразе восстановления.';
 
   @override
   String get sendAmountNegative => 'Сумма не может быть отрицательной.';
