@@ -1,0 +1,303 @@
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:epic_wallet/src/legacy_wallets.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+/// Fixture trees live in temp dirs only; no real wallet is ever opened.
+void main() {
+  late Directory tmp;
+  late String home;
+
+  setUp(() async {
+    tmp = await Directory.systemTemp.createTemp('legacy_wallets_');
+    home = '${tmp.path}/home';
+    await Directory(home).create();
+  });
+  tearDown(() => tmp.delete(recursive: true));
+
+  Future<void> write(String path, String text) async {
+    await File(path).create(recursive: true);
+    await File(path).writeAsString(text);
+  }
+
+  /// A wallet folder: wallet_data/wallet.seed (+ an sqlite db), optionally a toml.
+  Future<String> wallet(String dir, {String seed = 'seed-a', String? chainType, bool sqlite = true}) async {
+    await write('$dir/wallet_data/wallet.seed', seed);
+    if (sqlite) await write('$dir/wallet_data/db/sqlite/epic.db', 'db-$seed');
+    if (chainType != null) await write('$dir/epic-wallet.toml', 'chain_type = "$chainType"\n');
+    return dir;
+  }
+
+  LegacyRoots roots() => LegacyRoots(home: home, appData: '${tmp.path}/appdata');
+
+  Future<Map<String, String>> hashes(List<String> dirs) async => {for (final d in dirs) d: await folderHash(d)};
+
+  Future<void> expectUnchanged(Map<String, String> before) async {
+    for (final e in before.entries) {
+      expect(await folderHash(e.key), e.value, reason: '${e.key} changed');
+    }
+  }
+
+  test('GUI root with two wallets: labels, networks, sizes, fingerprints', () async {
+    final root = '$home/.epic-gui';
+    final a = await wallet('$root/wallets/w1', seed: 'alpha');
+    final b = await wallet('$root/wallets/w2', seed: 'beta', chainType: 'Floonet');
+    await write('$root/settings.json', jsonEncode({
+      'wallets': [
+        {'id': 'w1', 'label': 'Savings', 'network': 'mainnet', 'dataDir': a},
+        {'id': 'w2', 'label': 'Testing', 'network': 'floonet', 'dataDir': b},
+      ],
+    }));
+    final before = await hashes([root]);
+    final seen = <ScanProgress>[];
+    final scan = await findLegacyWallets(roots: roots(), progress: seen.add);
+
+    expect(scan.wallets.map((w) => w.label), ['Savings', 'Testing']);
+    final s = scan.wallets[0], t = scan.wallets[1];
+    expect(s.source, LegacySource.gui);
+    expect(s.network, LegacyNetwork.main);
+    expect(s.network.tag, isNull);
+    expect(t.network, LegacyNetwork.floo);
+    expect(t.network.tag, 'Floonet');
+    expect(s.seedPath, '$a/wallet_data/wallet.seed');
+    expect(s.sizeBytes, 'alpha'.length + 'db-alpha'.length);
+    expect(s.lastUsed, isNotNull);
+    expect(s.contacts, isNull);
+    expect(s.seedFingerprint, hasLength(64));
+    expect(s.seedFingerprint, isNot(t.seedFingerprint));
+    expect(s.legacyDb, isFalse);
+    expect(s.copyable, isTrue);
+    expect(scan.groups.keys, [LegacySource.gui]);
+    expect(seen, isNotEmpty);
+    expect(seen.last.found, 2);
+    await expectUnchanged(before);
+  });
+
+  test('~/.epic with main and floo is the epic program; account list gives names', () async {
+    final epic = '$home/.epic';
+    await wallet('$epic/main', seed: 'cli-main');
+    await wallet('$epic/floo', seed: 'cli-floo');
+    final old = '$home/old-gui';
+    await wallet('$old/main', seed: 'acc', sqlite: false);
+    await write('$epic/epic_3-0-0_config.json', jsonEncode({
+      'account_dirs': [
+        {'account': 'Everyday', 'userhomedir': old, 'network': 'mainnet'},
+        {'account': 'x', 'userhomedir': 'relative/dir'},
+      ],
+    }));
+    final before = await hashes([epic, old]);
+    final scan = await findLegacyWallets(roots: roots());
+
+    final cli = scan.of(LegacySource.cli);
+    expect(cli.map((w) => w.network).toSet(), {LegacyNetwork.main, LegacyNetwork.floo});
+    expect(cli.firstWhere((w) => w.network == LegacyNetwork.main).label, 'main');
+    final gui = scan.of(LegacySource.gui).single;
+    expect(gui.label, 'Everyday');
+    expect(gui.legacyDb, isTrue);
+    expect(scan.wallets, hasLength(3));
+    await expectUnchanged(before);
+  });
+
+  test('older layouts: <account>/<net> and <net>/<account>; the same folder is listed once', () async {
+    final epic = '$home/.epic';
+    await wallet('$epic/alpha/floo', seed: 'one');
+    await wallet('$epic/main/beta', seed: 'two');
+    await write('$epic/epic_3-0-0_config.json', jsonEncode({
+      'account_dirs': [
+        {'account': 'alpha', 'userhomedir': epic, 'network': 'floonet'},
+      ],
+    }));
+    final before = await hashes([epic]);
+    final scan = await findLegacyWallets(roots: roots());
+    expect(scan.wallets, hasLength(2));
+    final alpha = scan.wallets.firstWhere((w) => w.label == 'alpha');
+    expect(alpha.network, LegacyNetwork.floo);
+    final beta = scan.wallets.firstWhere((w) => w.label == 'beta');
+    expect(beta.network, LegacyNetwork.main);
+    expect(beta.app, '3.0.x');
+    await expectUnchanged(before);
+  });
+
+  test('network falls back to the toml, then to mainnet (unknown)', () async {
+    final root = '$home/.epic-gui';
+    final a = await wallet('$home/folders/one', chainType: 'UserTesting');
+    final b = await wallet('$home/folders/two');
+    await write('$root/settings.json', jsonEncode({
+      'wallets': [
+        {'label': 'One', 'dataDir': a},
+        {'label': 'Two', 'dataDir': b},
+      ],
+    }));
+    final scan = await findLegacyWallets(roots: roots());
+    expect(scan.wallets[0].network, LegacyNetwork.user);
+    expect(scan.wallets[0].networkKnown, isTrue);
+    expect(scan.wallets[1].networkKnown, isFalse);
+  });
+
+  test('chain data: next to a wallet and alone', () async {
+    final epic = '$home/.epic';
+    await wallet('$epic/main');
+    await write('$epic/main/chain_data/lmdb/data.mdb', 'x' * 100);
+    await write('$epic/floo/chain_data/lmdb/data.mdb', 'y' * 50);
+    final before = await hashes([epic]);
+    final scan = await findLegacyWallets(roots: roots());
+    expect(scan.wallets.single.chain!.sizeBytes, 100);
+    expect(scan.chains.map((c) => c.sizeBytes).toList()..sort(), [50, 100]);
+    expect(scan.wallets, hasLength(1));
+    await expectUnchanged(before);
+
+    final pick = await inspectFolder('$epic/floo/chain_data');
+    expect(pick.chainOnly, isTrue);
+    expect(pick.wallets, isEmpty);
+    expect(pick.message, 'Blockchain data, not a wallet.');
+    final next = await inspectFolder('$epic/main/chain_data');
+    expect(next.chainOnly, isTrue);
+    expect(next.wallets.single.path, '$epic/main');
+    await expectUnchanged(before);
+  });
+
+  test('inspectFolder: a wallet, a folder of wallets, inside a wallet, nothing', () async {
+    final w = await wallet('$home/picked/Mine', seed: 'm');
+    await wallet('$home/many/main', seed: 'a');
+    await wallet('$home/many/other', seed: 'b');
+    await Directory('$home/empty').create();
+    final before = await hashes([home]);
+
+    final one = await inspectFolder(w);
+    expect(one.wallets.single.source, LegacySource.picked);
+    expect(one.message, isNull);
+    expect((await inspectFolder('$w/wallet_data/db')).wallets.single.path, w);
+    expect((await inspectFolder('$home/many')).wallets, hasLength(2));
+    final none = await inspectFolder('$home/empty');
+    expect(none.wallets, isEmpty);
+    expect(none.chainOnly, isFalse);
+    expect(none.message, noWalletText);
+    expect((await inspectFolder('$home/missing')).message, noWalletText);
+    await expectUnchanged(before);
+  });
+
+  test('a symlink inside a wallet refuses it with the spec text', () async {
+    final epic = '$home/.epic';
+    final w = await wallet('$epic/main', seed: 'linked');
+    await write('$home/elsewhere/file', 'data');
+    await Link('$w/wallet_data/saved_txs').create('$home/elsewhere');
+    final before = await hashes([epic, '$home/elsewhere']);
+    final scan = await findLegacyWallets(roots: roots());
+    final f = scan.wallets.single;
+    expect(f.hasLinks, isTrue);
+    expect(f.copyable, isFalse);
+    expect(f.refusal, LegacyRefusal.links);
+    expect(f.refusal!.text, "This wallet's folder has links in it; copy it by hand or restore from the phrase.");
+    await expectUnchanged(before);
+  });
+
+  test('seed sanity: empty is no wallet, over 4 KiB is refused and not hashed', () async {
+    final epic = '$home/.epic';
+    await wallet('$epic/main', seed: '');
+    await wallet('$epic/floo', seed: 'z' * 5000);
+    final before = await hashes([epic]);
+    final scan = await findLegacyWallets(roots: roots());
+    final big = scan.wallets.single;
+    expect(big.network, LegacyNetwork.floo);
+    expect(big.seedTooLarge, isTrue);
+    expect(big.refusal, LegacyRefusal.seedTooLarge);
+    expect(big.seedFingerprint, isNull);
+    await expectUnchanged(before);
+  });
+
+  test('empty home: nothing found, no error', () async {
+    final scan = await findLegacyWallets(roots: roots());
+    expect(scan.isEmpty, isTrue);
+    expect(scan.groups, isEmpty);
+    expect(scan.chains, isEmpty);
+    final gone = await findLegacyWallets(roots: LegacyRoots(home: '${tmp.path}/nope'));
+    expect(gone.isEmpty, isTrue);
+  });
+
+  test('identical seed files are the same wallet; the app list wins', () async {
+    final epic = '$home/.epic';
+    await wallet('$epic/main', seed: 'same');
+    await wallet('$home/copy/Backup', seed: 'same');
+    await wallet('$home/other/Else', seed: 'different');
+    final root = '$home/.epic-gui';
+    await write('$root/settings.json', jsonEncode({
+      'wallets': [
+        {'label': 'Backup', 'dataDir': '$home/copy/Backup'},
+        {'label': 'Else', 'dataDir': '$home/other/Else'},
+      ],
+    }));
+    final before = await hashes([home]);
+    final scan = await findLegacyWallets(roots: roots());
+    final same = findSameWallets(scan.wallets);
+    expect(same, hasLength(1));
+    final cliWallet = scan.of(LegacySource.cli).single;
+    expect(same[cliWallet.path]!.text, 'Same wallet as Backup');
+    expect(same[cliWallet.path]!.inApp, isFalse);
+
+    final fp = scan.wallets.firstWhere((w) => w.label == 'Else').seedFingerprint!;
+    final inApp = findSameWallets(scan.wallets, inApp: {fp: 'Savings'});
+    expect(inApp[scan.wallets.firstWhere((w) => w.label == 'Else').path]!.text, 'Already in the app as Savings');
+    await expectUnchanged(before);
+  });
+
+  test('older Electron profiles are reported, not read', () async {
+    await Directory('${tmp.path}/appdata/EpicWallet/IndexedDB').create(recursive: true);
+    final before = await hashes(['${tmp.path}/appdata']);
+    final scan = await findLegacyWallets(roots: roots());
+    expect(scan.profiles.map((p) => p.app), ['≤5.3.1']);
+    await expectUnchanged(before);
+  });
+
+  group('checkInUse', () {
+    late LegacyWallet w;
+    late String dir;
+    setUp(() async {
+      dir = await wallet('$home/.epic/main');
+      w = (await findLegacyWallets(roots: roots())).wallets.single;
+    });
+
+    Future<InUse> check(List<RunningProcess>? procs) => checkInUse(w, listProcesses: () async => procs);
+
+    test('a running epic-wallet in the folder', () async {
+      expect(await check([RunningProcess(pid: 1, name: '/usr/bin/epic-wallet', args: ['owner_api'], cwd: dir)]), InUse.inUse);
+      expect(
+          await check([RunningProcess(pid: 2, name: 'epic-wallet', args: ['--top_level_dir', '$dir/wallet_data'], cwd: '/')]),
+          InUse.inUse);
+    });
+    test('no matching process is free', () async {
+      expect(await check([]), InUse.free);
+      expect(await check([RunningProcess(pid: 3, name: 'epic-wallet', args: [], cwd: '$home/.epic/floo')]), InUse.free);
+      expect(await check([RunningProcess(pid: 4, name: 'bash', args: [], cwd: dir)]), InUse.free);
+      expect(await check([RunningProcess(pid: 5, name: 'epic-wallet', args: [], cwd: '$dir-other')]), InUse.free);
+    });
+    test('unknown when it cannot tell', () async {
+      expect(await check(null), InUse.unknown);
+      expect(await check([const RunningProcess(pid: 6, name: 'epic-wallet', args: [], cwd: null)]), InUse.unknown);
+      expect(await checkInUse(w, listProcesses: () async => throw Exception('no')), InUse.unknown);
+    });
+    test('the real probe leaves the folder alone', () async {
+      final before = await folderHash(dir);
+      await checkInUse(w);
+      expect(await folderHash(dir), before);
+    });
+  });
+
+  group('folderHash', () {
+    test('is stable and changes with content, size, names and links', () async {
+      final d = await wallet('$home/h', seed: 'one');
+      final h0 = await folderHash(d);
+      expect(await folderHash(d), h0);
+      await write('$d/wallet_data/new.txt', 'x');
+      final h1 = await folderHash(d);
+      expect(h1, isNot(h0));
+      await File('$d/wallet_data/new.txt').writeAsString('y');
+      expect(await folderHash(d), isNot(h1));
+      await File('$d/wallet_data/new.txt').rename('$d/wallet_data/renamed.txt');
+      expect(await folderHash(d), isNot(h1));
+      final h2 = await folderHash(d);
+      await Link('$d/ln').create('$d/wallet_data');
+      expect(await folderHash(d), isNot(h2));
+    });
+  });
+}
