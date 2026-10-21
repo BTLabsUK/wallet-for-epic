@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../log.dart';
+import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../widgets/kit.dart';
 import 'contact_picker.dart';
 import 'epicbox_notice.dart';
@@ -134,6 +136,9 @@ class _SendScreenState extends ConsumerState<SendScreen> {
   int _feeFor = -1;
   SendResult? _result;
   String? _failure;
+
+  /// The failed payment may exist (waiting in Activity): no Review again.
+  bool _failureInActivity = false;
 
   @override
   void initState() {
@@ -364,7 +369,12 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       try {
         fee = await ref.read(deskApiProvider).estimateFee(_amountNano);
       } on Object catch (e) {
-        if (mounted) setState(() => _failure = '$e');
+        if (mounted) {
+          setState(() {
+            _failure = deskErrorText(e);
+            _failureInActivity = false;
+          });
+        }
         return;
       }
       if (!mounted) return;
@@ -405,8 +415,9 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     if (res is SendDone) showEToast(context, 'Sent', text: '${formatEpic(res.tx.amount)} EPIC');
     setState(() {
       switch (res) {
-        case SendFailed(:final message):
+        case SendFailed(:final message, :final inActivity):
           _failure = message;
+          _failureInActivity = inActivity;
           _result = null;
         default:
           _failure = null;
@@ -497,7 +508,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     if (_epicboxBlocked(st)) {
       return ENotice(
         title: 'Epicbox not connected',
-        text: 'Epicbox sends are possible once the listener runs. Send by file or HTTP meanwhile.',
+        text: 'Epicbox sends are possible once the listener runs. Send by file meanwhile.',
         tone: ETone.warn,
         icon: EIcons.antenna,
         actions: [
@@ -527,7 +538,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
         if (res is SendDone) ...[
           ENotice(
             title: 'Sent',
-            text: 'The payment was posted to the network.',
+            text: 'Handed to Epicbox. Completes when the recipient answers.',
             tone: ETone.ok,
             icon: EIcons.okCircle,
             actions: [
@@ -542,7 +553,13 @@ class _SendScreenState extends ConsumerState<SendScreen> {
             text: _failure,
             tone: ETone.risk,
             icon: EIcons.error,
-            actions: [EButton(label: 'Review again', size: EBtnSize.inline, onPressed: _review)],
+            actions: [
+              // The payment may be waiting already: a second review could pay twice.
+              if (_failureInActivity)
+                EButton(label: 'View in Activity', size: EBtnSize.inline, onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.activity))
+              else
+                EButton(label: 'Review again', size: EBtnSize.inline, onPressed: _review),
+            ],
           ),
           SizedBox(height: Sp.x5),
         ],
@@ -846,8 +863,16 @@ class _ReviewDialogState extends State<_ReviewDialog> {
   late bool _busy = widget.startBusy;
 
   Future<void> _go() async {
+    if (_busy) return;
     setState(() => _busy = true);
-    final r = await widget.onConfirm();
+    SendResult r;
+    try {
+      r = await widget.onConfirm();
+    } on Object catch (e) {
+      // The payment may have left before the error: never offer to send it again blind.
+      logWarn('desk', 'send ended with ${e.runtimeType}');
+      r = const SendFailed('Not confirmed. Check Activity before sending again.', inActivity: true);
+    }
     if (mounted) Navigator.of(context).pop(r);
   }
 

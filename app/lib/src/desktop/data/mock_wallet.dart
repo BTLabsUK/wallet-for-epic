@@ -238,9 +238,10 @@ class MockDeskWallet implements DeskWalletApi {
   }
 
   @override
-  Future<Tx> receiveFile(String fileName) async {
+  Future<ReceivedFile> receiveFile(String fileName) async {
     await _wait(2);
-    return Tx(id: _nextId++, slateId: '9a8b7c6d-5e4f-4321-8765-0fedcba98765', direction: TxDirection.received, state: TxState.waitingRecipient, method: TxMethod.file, amount: _epic(42), fee: 0, created: DateTime.now(), counterparty: fileName);
+    final tx = Tx(id: _nextId++, slateId: '9a8b7c6d-5e4f-4321-8765-0fedcba98765', direction: TxDirection.received, state: TxState.waitingRecipient, method: TxMethod.file, amount: _epic(42), fee: 0, created: DateTime.now(), counterparty: fileName);
+    return ReceivedFile(tx, '$fileName.response');
   }
 
   @override

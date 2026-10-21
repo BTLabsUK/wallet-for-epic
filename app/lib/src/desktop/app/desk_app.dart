@@ -5,6 +5,7 @@ import '../theme/theme.dart';
 import '../widgets/kit.dart';
 import 'screens.dart';
 import 'shell.dart';
+import 'tour.dart';
 
 /// The app's navigator: dialogs and drawers live on it (lock closes them).
 final deskNavigatorKey = GlobalKey<NavigatorState>();
@@ -72,6 +73,14 @@ class _DeskRootState extends ConsumerState<DeskRoot> {
 
   @override
   Widget build(BuildContext context) {
+    // The wallet closed by itself: nothing of it stays, Unlock says why.
+    ref.listen(deskClosedProvider, (_, message) {
+      if (message == null) return;
+      deskNavigatorKey.currentState?.popUntil((r) => r.isFirst);
+      ref.read(deskTourProvider.notifier).close();
+      ref.read(deskNavProvider.notifier).reset(DeskRoute.unlock, message);
+      Future.microtask(() => ref.read(deskClosedProvider.notifier).set(null));
+    });
     final at = ref.watch(deskNavProvider);
     final child = at.route.bare
         ? Material(color: context.dc.bg, child: KeyedSubtree(key: ValueKey(at.route), child: deskScreen(at)))

@@ -1,5 +1,6 @@
 // LepicDeskWallet on FakeWalletService: the desktop UI's adapter over the wallet core. The
 // passwords and phrases here are throwaway test values.
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -40,6 +41,21 @@ class _StrictSession extends core.FakeWalletSession {
   Future<String> mnemonic({required String password}) async {
     if (password != _password) throw const core.WalletError(kind: core.WalletErrorKind.wrongPassword, message: 'wrong');
     return phrase;
+  }
+}
+
+/// Opens like LEPIC, except: a config [refuse] picks fails, and [gate] holds every open.
+class _Opens extends core.FakeWalletService {
+  _Opens() : super(password: _password, session: _StrictSession());
+
+  bool Function(core.WalletConfig config)? refuse;
+  Completer<void>? gate;
+
+  @override
+  Future<core.WalletSession> open({required core.WalletConfig config, required String password}) async {
+    await gate?.future;
+    if (refuse?.call(config) ?? false) throw const core.WalletError(kind: core.WalletErrorKind.io, message: 'locked by another process');
+    return super.open(config: config, password: password);
   }
 }
 
@@ -277,7 +293,42 @@ void main() {
       service.session.sendError = const core.WalletError(kind: core.WalletErrorKind.transportFailed, message: 'relay down');
       final r = await wallet.send(SendRequest(method: TxMethod.epicbox, amount: 1000, to: '${'1' * 52}@epicbox.epiccash.com'));
       expect((r as SendFailed).message, startsWith('Not delivered'));
+      expect(r.inActivity, isTrue, reason: 'the payment exists: no second review');
     });
+
+    test('send all sends the reviewed amount, not a new maximum', () async {
+      final to = '${'1' * 52}@epicbox.epiccash.com';
+      final r = await wallet.send(SendRequest(method: TxMethod.epicbox, amount: 1234, to: to, sendAll: true));
+      expect(r, isA<SendDone>());
+      expect(service.session.epicboxSends.single.amount, BigInt.from(1234));
+    });
+
+    test('a slate file that cannot be written fails clearly; the payment is in Activity', () async {
+      final blocker = File('${files.path}${Platform.pathSeparator}not-a-folder')..writeAsStringSync('x');
+      final w = LepicDeskWallet(
+        service: service,
+        walletDir: (chain) async => '/fake/wallets/${chain.name}',
+        secrets: secrets,
+        filesDir: () async => Directory(blocker.path),
+        nodePoll: const Duration(hours: 1),
+      );
+      addTearDown(w.dispose);
+      expect(await w.unlock(_password), isTrue);
+      final r = await w.send(const SendRequest(method: TxMethod.file, amount: 5000));
+      expect(r, isA<SendFailed>().having((f) => f.inActivity, 'inActivity', isTrue).having((f) => f.message, 'message', contains('Activity')));
+      expect(service.session.sentAmounts.single, BigInt.from(5000));
+    });
+
+    test('a response that cannot go beside the slate goes to the files folder', () async {
+      final ro = await Directory('${files.path}${Platform.pathSeparator}ro').create();
+      final incoming = File('${ro.path}${Platform.pathSeparator}in.tx')..writeAsStringSync('{"id":"in"}');
+      await Process.run('chmod', ['555', ro.path]);
+      addTearDown(() => Process.run('chmod', ['755', ro.path]));
+      final r = await wallet.receiveFile(incoming.path);
+      expect(r.response, '${files.path}${Platform.pathSeparator}in.tx.response');
+      expect(File(r.response).readAsStringSync(), service.session.responseSlate.json);
+      expect(File('${incoming.path}.response').existsSync(), isFalse);
+    }, skip: Platform.isWindows || Platform.environment['USER'] == 'root' ? 'needs POSIX permissions' : false);
 
     test('file send, receive and finalize go through files on disk', () async {
       final sent = await wallet.send(const SendRequest(method: TxMethod.file, amount: 5000));
@@ -286,7 +337,7 @@ void main() {
       expect(File(ready.fileName).readAsStringSync(), service.session.sendSlate.json);
 
       final incoming = File('${files.path}${Platform.pathSeparator}in.tx')..writeAsStringSync('{"id":"in"}');
-      await wallet.receiveFile(incoming.path);
+      expect((await wallet.receiveFile(incoming.path)).response, '${incoming.path}.response');
       expect(service.session.receivedSlates.single, '{"id":"in"}');
       expect(File('${incoming.path}.response').readAsStringSync(), service.session.responseSlate.json);
 
@@ -328,6 +379,51 @@ void main() {
     expect((await wallet.nodes()).where((n) => n.own).single.label, 'Home');
   });
 
+  group('server changes reopen the wallet', () {
+    late _Opens opens;
+    late LepicDeskWallet w;
+    const next = 'https://node.epicnet.us:3413';
+
+    setUp(() async {
+      opens = _Opens();
+      w = make(opens);
+      await w.createWallet(name: 'Main', password: _password);
+      expect(await w.unlock(_password), isTrue);
+    });
+
+    tearDown(() => w.dispose());
+
+    test('a node the wallet cannot open on is not saved; the old one is back', () async {
+      opens.refuse = (c) => c.nodeUrl == next;
+      await expectLater(w.useNode(next), throwsA(isA<DeskError>().having((e) => e.locked, 'locked', isFalse).having((e) => e.message, 'message', startsWith('Not changed'))));
+      expect(await secrets.read('app.node.mainnet'), isNull);
+      expect((await w.status()).node.url, isNot(next));
+      expect(await w.epicboxAddress(), opens.session.address, reason: 'open on the old node');
+    });
+
+    test('when the old config fails too, the wallet locks and says so', () async {
+      opens.refuse = (_) => true;
+      await expectLater(w.useNode(next), throwsA(isA<DeskError>().having((e) => e.locked, 'locked', isTrue)));
+      await expectLater(w.balance(), throwsA(isA<DeskError>()));
+      expect(await secrets.read('app.node.mainnet'), isNull);
+    });
+
+    test('a lock during the reopen wins: the new session closes at once', () async {
+      await w.setListening(true);
+      opens.gate = Completer<void>();
+      final change = w.useNode(next);
+      await pumpEventQueue();
+      await w.lock();
+      final disposed = opens.session.disposeCalls;
+      final starts = opens.session.listenerStarts;
+      opens.gate!.complete();
+      await change;
+      expect(opens.session.disposeCalls, disposed + 1);
+      expect(opens.session.listenerStarts, starts, reason: 'no listener on a locked wallet');
+      await expectLater(w.balance(), throwsA(isA<DeskError>()));
+    });
+  });
+
   group('settings persistence', () {
     test('DeskSettings and SettingsPrefs survive a restart', () async {
       final store = DeskStore(secrets);
@@ -359,6 +455,15 @@ void main() {
     test('damaged saved settings fall back to the defaults', () async {
       await secrets.write(DeskStore.settingsKey, 'not json');
       expect((await DeskStore(secrets).settings()).theme, ThemeChoice.dark);
+    });
+
+    test('saved values of the wrong type fall back one by one', () async {
+      await secrets.write(DeskStore.settingsKey, jsonEncode({'theme': 'light', 'scale': '125', 'hideAmounts': 1, 'newLookSeen': 'yes', 'autoLockMinutes': '5'}));
+      final s = await DeskStore(secrets).settings();
+      const d = DeskSettings();
+      expect((s.theme, s.scale, s.hideAmounts, s.newLookSeen, s.autoLockMinutes), (ThemeChoice.light, d.scale, d.hideAmounts, d.newLookSeen, d.autoLockMinutes));
+      expect(deskSettingsFromJson({'autoLockMinutes': null}).autoLockMinutes, isNull);
+      expect(deskSettingsFromJson({'autoLockMinutes': 30}).autoLockMinutes, 30);
     });
   });
 

@@ -101,6 +101,9 @@ class LepicDeskWallet implements DeskWalletApi {
   core.WalletConfig? _config;
   String? _password;
 
+  /// Bumped by [lock]: a session opened under an older value is closed at once.
+  int _generation = 0;
+
   core.WalletSummary? _summary;
   List<core.TxEntry>? _entries;
   int _tip = 0;
@@ -136,8 +139,8 @@ class LepicDeskWallet implements DeskWalletApi {
     return (saved == null ? null : EpicboxRelay.parse(saved)) ?? EpicboxRelay(host: deskEpicboxes.first.domain);
   }
 
-  Future<core.WalletConfig> _makeConfig({String? nodeUrl}) async =>
-      preset.config(dataDir: await _walletDir(preset.chain), nodeUrl: nodeUrl ?? await _nodeUrl(), relay: await _relay());
+  Future<core.WalletConfig> _makeConfig({String? nodeUrl, EpicboxRelay? relay}) async =>
+      preset.config(dataDir: await _walletDir(preset.chain), nodeUrl: nodeUrl ?? await _nodeUrl(), relay: relay ?? await _relay());
 
   Future<Map<String, dynamic>> _meta() async {
     final j = await _store.readJson(DeskStore.walletKey(_chain));
@@ -199,6 +202,7 @@ class LepicDeskWallet implements DeskWalletApi {
 
   @override
   Future<void> lock() async {
+    _generation++;
     _poll?.cancel();
     _poll = null;
     await _stopListener();
@@ -212,17 +216,57 @@ class LepicDeskWallet implements DeskWalletApi {
     session?.dispose();
   }
 
-  /// Opens the wallet again on a changed config, keeping the listener as it was.
-  Future<void> _reopen() async {
+  /// Moves to [nodeUrl] and [relay]: saved under the phone's keys once the wallet opens on
+  /// them, the listener kept as it was. When it does not open, the wallet opens again on the
+  /// old ones and the error says so; when even that fails, the wallet locks
+  /// ([DeskError.locked]). Locked: only saved.
+  Future<void> _switchTo({required String nodeUrl, required EpicboxRelay relay}) async {
+    Future<void> save() async {
+      await _secrets.write(_nodeKey, nodeUrl);
+      await _secrets.write(_relayKey, relay.label);
+    }
+
     final password = _password;
-    if (_session == null || password == null) return;
+    final old = _config;
+    if (_session == null || password == null || old == null) return save();
+    final generation = _generation;
     final listening = _listener != null;
+    final config = await _makeConfig(nodeUrl: nodeUrl, relay: relay);
     await _stopListener();
     _session?.dispose();
     _session = null;
-    final config = await _makeConfig();
-    _session = await _service.open(config: config, password: password);
-    _config = config;
+    // A lock() while opening wins: the new session closes at once.
+    Future<bool> openOn(core.WalletConfig c) async {
+      final session = await _service.open(config: c, password: password);
+      if (generation != _generation) {
+        session.dispose();
+        return false;
+      }
+      _session = session;
+      _config = c;
+      return true;
+    }
+
+    try {
+      if (!await openOn(config)) return;
+    } on Object catch (e) {
+      logWarn('desk', 'reopen on the new server failed: ${e is core.WalletError ? e.kind.name : e.runtimeType}');
+      if (generation != _generation) return;
+      try {
+        if (!await openOn(old)) return;
+      } on Object catch (e2) {
+        logWarn('desk', 'reopen on the old server failed: ${e2 is core.WalletError ? e2.kind.name : e2.runtimeType}');
+        await lock();
+        throw DeskError('Wallet closed: ${deskErrorText(e2)}. Unlock again.', locked: true);
+      }
+      await _afterReopen(listening);
+      throw DeskError('Not changed: ${deskErrorText(e)}');
+    }
+    await save();
+    await _afterReopen(listening);
+  }
+
+  Future<void> _afterReopen(bool listening) async {
     _nodeHealth = ServiceHealth.checking;
     if (listening) await setListening(true);
     unawaited(_checkTip());
@@ -546,9 +590,10 @@ class LepicDeskWallet implements DeskWalletApi {
   @override
   Future<SendResult> send(SendRequest r) async {
     final session = _open;
+    // Send all sends the reviewed amount: when it no longer fits, LEPIC refuses (not enough
+    // funds) and the user reviews again, rather than paying an amount they did not see.
+    final amount = r.amount;
     try {
-      var amount = r.amount;
-      if (r.sendAll) amount = (await estimateMax()).$1;
       final message = r.message?.trim().isEmpty ?? true ? null : r.message!.trim();
       switch (r.method) {
         case TxMethod.epicbox:
@@ -559,10 +604,18 @@ class LepicDeskWallet implements DeskWalletApi {
           return SendDone(_txFor(e));
         case TxMethod.file:
           final slate = await session.createSendSlate(amount: BigInt.from(amount), minimumConfirmations: _minConf, message: message);
-          final dir = await _filesDir();
-          await dir.create(recursive: true);
-          final file = File('${dir.path}${Platform.pathSeparator}${sendFileName(slate.slateId)}');
-          await file.writeAsString(slate.json, flush: true);
+          final File file;
+          try {
+            final dir = await _filesDir();
+            await dir.create(recursive: true);
+            file = File('${dir.path}${Platform.pathSeparator}${sendFileName(slate.slateId)}');
+            await file.writeAsString(slate.json, flush: true);
+          } on FileSystemException catch (e) {
+            // The payment exists in the wallet; only its file is missing.
+            logWarn('desk', 'slate file not written: ${e.osError?.errorCode ?? '?'}');
+            await _reload();
+            return const SendFailed('File not saved. The payment waits in Activity; cancel it there to unlock the funds.', inActivity: true);
+          }
           await _reload();
           final tx = _txs().where((t) => t.slateId == slate.slateId).firstOrNull ??
               Tx(id: -1, slateId: slate.slateId, direction: TxDirection.sent, state: TxState.waitingRecipient, method: TxMethod.file, amount: amount, fee: 0, created: DateTime.now(), counterparty: file.path);
@@ -572,10 +625,10 @@ class LepicDeskWallet implements DeskWalletApi {
       }
     } on core.WalletError catch (e) {
       await _reload();
-      return SendFailed(switch (e.kind) {
-        core.WalletErrorKind.transportFailed => 'Not delivered. The payment waits in Activity; cancel it there to unlock the funds.',
-        _ => deskErrorText(e),
-      });
+      return switch (e.kind) {
+        core.WalletErrorKind.transportFailed => const SendFailed('Not delivered. The payment waits in Activity; cancel it there to unlock the funds.', inActivity: true),
+        _ => SendFailed(deskErrorText(e)),
+      };
     }
   }
 
@@ -590,18 +643,41 @@ class LepicDeskWallet implements DeskWalletApi {
   }
 
   /// Signs the slate in [fileName] (a path) and writes the answer beside it, as
-  /// `<name>.response` (epic-wallet's `receive -i`).
+  /// `<name>.response` (epic-wallet's `receive -i`); in the app's files folder when that folder
+  /// cannot be written.
   @override
-  Future<Tx> receiveFile(String fileName) async {
+  Future<ReceivedFile> receiveFile(String fileName) async {
     final json = await _readSlate(fileName);
     try {
       final answer = await _open.receiveSlate(slateJson: json);
-      await File(responseFileName(fileName)).writeAsString(answer.json, flush: true);
+      final response = await _writeResponse(fileName, answer.json);
       await _reload();
-      return _txs().where((t) => t.slateId == answer.slateId).firstOrNull ??
+      final tx = _txs().where((t) => t.slateId == answer.slateId).firstOrNull ??
           Tx(id: -1, slateId: answer.slateId, direction: TxDirection.received, state: TxState.posted, method: TxMethod.file, amount: 0, fee: 0, created: DateTime.now(), counterparty: fileName);
+      return ReceivedFile(tx, response);
     } on core.WalletError catch (e) {
       throw _deskError(e);
+    }
+  }
+
+  /// Writes the response beside [fileName], or in the app's files folder when that fails.
+  /// Returns the path written.
+  Future<String> _writeResponse(String fileName, String json) async {
+    final beside = responseFileName(fileName);
+    try {
+      await File(beside).writeAsString(json, flush: true);
+      return beside;
+    } on FileSystemException catch (e) {
+      logWarn('desk', 'response not written beside the slate: ${e.osError?.errorCode ?? '?'}');
+    }
+    try {
+      final dir = await _filesDir();
+      await dir.create(recursive: true);
+      final path = '${dir.path}${Platform.pathSeparator}${File(beside).uri.pathSegments.last}';
+      await File(path).writeAsString(json, flush: true);
+      return path;
+    } on FileSystemException {
+      throw const DeskError('Response file not saved');
     }
   }
 
@@ -655,10 +731,8 @@ class LepicDeskWallet implements DeskWalletApi {
 
   @override
   Future<void> useNode(String url) async {
-    await _secrets.write(_nodeKey, url);
-    await _secrets.write(_relayKey, (await _relay()).label);
     logInfo('desk', 'node ${Uri.tryParse(url)?.host ?? '?'}');
-    await _reopen();
+    await _switchTo(nodeUrl: url, relay: await _relay());
   }
 
   @override
@@ -694,10 +768,8 @@ class LepicDeskWallet implements DeskWalletApi {
   Future<void> useEpicbox(String domain) async {
     final relay = EpicboxRelay.parse(domain);
     if (relay == null) throw const DeskError('Not a server name');
-    await _secrets.write(_relayKey, relay.label);
-    await _secrets.write(_nodeKey, await _nodeUrl());
     logInfo('desk', 'epicbox ${relay.label}');
-    await _reopen();
+    await _switchTo(nodeUrl: await _nodeUrl(), relay: relay);
   }
 
   @override
