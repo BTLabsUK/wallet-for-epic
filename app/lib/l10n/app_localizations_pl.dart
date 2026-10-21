@@ -1538,11 +1538,11 @@ class AppLocalizationsPl extends AppLocalizations {
       'W łańcuchu, czeka na wystarczającą liczbę potwierdzeń.';
 
   @override
-  String get homeBalanceWaitingToFinish => 'Czeka na sfinalizowanie';
+  String get homeBalanceNotOnChain => 'Jeszcze nie w łańcuchu';
 
   @override
-  String get balanceWaitingHelp =>
-      'Przyjęte przez Ciebie; nadawca musi jeszcze ją dokończyć.';
+  String get balanceNotOnChainHelp =>
+      'Płatności do Ciebie, których nadawca jeszcze nie dokończył lub które nie są jeszcze w bloku, oraz reszta z Twoich wysyłek. Liczą się dopiero w bloku: płatność tylko zaproponowana może nigdy nie dotrzeć.';
 
   @override
   String get homeBalanceLocked => 'Zablokowane przez trwającą płatność';
@@ -2354,7 +2354,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get backupCopyWarning =>
-      'Na następnym ekranie możesz zrobić zrzut ekranu. Zrzut lub zdjęcie frazy to pełna kopia portfela: każdy, kto je zobaczy, może zabrać twoje środki, a aplikacje ze zdjęciami mogą wysłać je do chmury. Papier jest najbezpieczniejszy.';
+      'Zrzut lub zdjęcie frazy to pełna kopia portfela: każdy, kto je zobaczy, może zabrać twoje środki, a aplikacje ze zdjęciami mogą wysłać je do chmury. Papier jest najbezpieczniejszy.';
 
   @override
   String get backupCopyAgree => 'Każdą kopię frazy zachowam tylko dla siebie';
@@ -2535,6 +2535,10 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get launchTryAgain => 'Spróbuj ponownie';
+
+  @override
+  String get unlockStranded =>
+      'Nie udało się poprawnie odczytać tego portfela. Nic nie zostało usunięte. Spróbuj ponownie po ponownym uruchomieniu urządzenia. Jeśli to nie pomoże, możesz usunąć portfel przez „Nie pamiętasz kodu PIN?” i przywrócić go z frazy odzyskiwania.';
 
   @override
   String get sendAmountNegative => 'Kwota nie może być ujemna.';

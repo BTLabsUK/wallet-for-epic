@@ -27,6 +27,8 @@ class _ChangePinScreenState extends ConsumerState<ChangePinScreen> {
 
   @override
   void dispose() {
+    _current.clear();
+    _currentPin = null;
     _current.dispose();
     super.dispose();
   }

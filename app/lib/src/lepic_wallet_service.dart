@@ -8,6 +8,7 @@ library;
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart'
@@ -392,12 +393,21 @@ class _PrefixedStore implements lepic.SecretStore {
 
 class LepicWalletService implements WalletService {
   /// [runtime] is called once, on first use; tests pass a `MockChain` runtime.
+  ///
+  /// With [oneWalletPerChain] (the app on a device), a chain's store keys stay the same when
+  /// its data directory moves ([_storePrefix]). The demo server and tests keep several wallets
+  /// of one chain in one store, so theirs follow the directory.
   LepicWalletService({
     required this._secrets,
     lepic.LepicRuntime Function()? runtime,
+    this.oneWalletPerChain = false,
   }) : _makeRuntime = runtime ?? _defaultRuntime;
 
   final SecretStore _secrets;
+  final bool oneWalletPerChain;
+
+  /// The prefix pinned for each chain, once read.
+  final Map<Chain, String> _pinnedPrefixes = {};
   final lepic.LepicRuntime Function() _makeRuntime;
   lepic.LepicRuntime? _runtimeValue;
 
@@ -439,11 +449,62 @@ class LepicWalletService implements WalletService {
     );
   }
 
-  _PrefixedStore _storeKeys(WalletConfig config) =>
-      _PrefixedStore(_secrets, 'lepic:${config.chain.name}:${config.dataDir}:');
+  /// The prefix of the wallet's LEPIC entries in the app's store.
+  ///
+  /// It used to name the absolute data directory, which moves with an app container or a
+  /// profile. With [oneWalletPerChain] the prefix is pinned once per chain under
+  /// [storePrefixKey]: a wallet created before pinning keeps the path prefix its entries
+  /// already have, and a new wallet gets a random id. Nothing is copied or deleted. Until a
+  /// prefix is pinned, everything but [creating] uses the path prefix.
+  Future<String> _storePrefix(WalletConfig config, {bool creating = false}) async {
+    final chain = config.chain;
+    final pathPrefix = 'lepic:${chain.name}:${config.dataDir}:';
+    if (!oneWalletPerChain) return pathPrefix;
+    final cached = _pinnedPrefixes[chain];
+    if (cached != null) return cached;
+    final pinKey = storePrefixKey(chain);
+    final pinned = await _secrets.read(pinKey);
+    if (pinned != null) return _pinnedPrefixes[chain] = pinned;
+    final String prefix;
+    if (await lepic.walletExists(
+      runtime: _runtime,
+      store: lepic.lepicSecretStore(_PrefixedStore(_secrets, pathPrefix)),
+    )) {
+      prefix = pathPrefix;
+    } else if (creating) {
+      final random = Random.secure();
+      final id = [
+        for (var i = 0; i < 16; i++)
+          random.nextInt(256).toRadixString(16).padLeft(2, '0'),
+      ].join();
+      prefix = 'lepic:${chain.name}:id-$id:';
+    } else {
+      return pathPrefix;
+    }
+    await _secrets.write(pinKey, prefix);
+    if (await _secrets.read(pinKey) != prefix) {
+      throw StateError('the store did not keep the wallet key prefix');
+    }
+    logInfo('lepic', 'pinned the ${chain.name} wallet store keys');
+    return _pinnedPrefixes[chain] = prefix;
+  }
 
-  lepic.AppSecretStore _store(WalletConfig config) =>
-      lepic.lepicSecretStore(_storeKeys(config));
+  /// Where the store keeps the pinned prefix of [chain]'s wallet entries.
+  static String storePrefixKey(Chain chain) => 'lepic:${chain.name}:storePrefix';
+
+  Future<_PrefixedStore> _storeKeys(
+    WalletConfig config, {
+    bool creating = false,
+  }) async => _PrefixedStore(
+    _secrets,
+    await _storePrefix(config, creating: creating),
+  );
+
+  Future<lepic.AppSecretStore> _store(
+    WalletConfig config, {
+    bool creating = false,
+  }) async =>
+      lepic.lepicSecretStore(await _storeKeys(config, creating: creating));
 
   @override
   bool validateMnemonic({required String phrase}) =>
@@ -462,7 +523,8 @@ class LepicWalletService implements WalletService {
 
   @override
   Future<bool> walletExists({required WalletConfig config}) => _guard(
-    () => lepic.walletExists(runtime: _runtime, store: _store(config)),
+    () async =>
+        lepic.walletExists(runtime: _runtime, store: await _store(config)),
   );
 
   @override
@@ -482,7 +544,7 @@ class LepicWalletService implements WalletService {
       await lepic.EpicWallet.create(
         runtime: _runtime,
         config: _config(config),
-        store: _store(config),
+        store: await _store(config, creating: true),
         mnemonic: mnemonic,
         password: password,
       ),
@@ -499,7 +561,7 @@ class LepicWalletService implements WalletService {
       await lepic.EpicWallet.open(
         runtime: _runtime,
         config: _config(config),
-        store: _store(config),
+        store: await _store(config),
         password: password,
       ),
     ),
@@ -533,7 +595,7 @@ class LepicWalletService implements WalletService {
     final created = await lepic.EpicWallet.createWithPin(
       runtime: _runtime,
       config: _config(config),
-      store: _store(config),
+      store: await _store(config, creating: true),
       mnemonic: mnemonic,
       pin: pin,
     );
@@ -554,7 +616,7 @@ class LepicWalletService implements WalletService {
       await lepic.EpicWallet.openWithPin(
         runtime: _runtime,
         config: _config(config),
-        store: _store(config),
+        store: await _store(config),
         pin: pin,
         sealedPassword: sealedPassword,
       ),
@@ -566,7 +628,7 @@ class LepicWalletService implements WalletService {
   /// reads as a large one here too.
   @override
   Future<int> pinFailures({required WalletConfig config}) async {
-    final text = await _storeKeys(config).read('lepic.pin-failures');
+    final text = await (await _storeKeys(config)).read('lepic.pin-failures');
     if (text == null) return 0;
     return int.tryParse(text.trim()) ?? 0x7fffffff;
   }
@@ -576,7 +638,7 @@ class LepicWalletService implements WalletService {
     await lepic.deleteWallet(
       runtime: _runtime,
       config: _config(config),
-      store: _store(config),
+      store: await _store(config),
     );
     // After LEPIC, which refuses while a wallet on the directory is open.
     await MetaStore.deleteFiles(config.dataDir);

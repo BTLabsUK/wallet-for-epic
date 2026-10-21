@@ -753,7 +753,8 @@ const Duration maxInvoiceExpiry = Duration(hours: 48);
 class PendingInvoice {
   final String slateId;
 
-  /// The epicbox address the invoice came from, as the wallet verified it.
+  /// The epicbox address the invoice came from. Its key (before `@`) signed the message; the
+  /// relay part after it is what the sender wrote, so match services on the key only.
   final String senderAddress;
 
   /// What the service asks for, in the smallest unit. Paying needs this exact amount.

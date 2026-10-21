@@ -42,22 +42,32 @@ enum VaultStage {
 
   /// A wallet and its sealed text.
   ready,
+
+  /// A wallet without its sealed text, or sealed text without a wallet: a store that could not
+  /// be read, a data directory that moved, or an app stopped while it created the wallet.
+  /// Nothing is deleted; only the user removes it ([forget] after [WalletService.deleteWallet]).
+  stranded,
 }
 
-/// Deletes what an older app left in a wallet directory; returns whether anything was there.
+/// Sets aside what an older app left in a wallet directory that this one would read; returns
+/// whether anything was there.
 typedef LegacyFiles = Future<bool> Function(String dataDir);
 
-/// Deletes epic-wallet's `wallet_data/` and the old core's `wfe_meta.json` from [dataDir], the
-/// files of an install on 1.2.x or older (OD-3: no migration). No old-core session runs in a
-/// LEPIC app, so nothing writes them again afterwards. Synchronous calls: one `stat` at launch
-/// in the common case, and they also complete inside widget tests' fake async zone.
-Future<bool> deleteLegacyWalletFiles(String dataDir) async {
+/// The app on 1.2.x or older kept epic-wallet's `wallet_data/` (with its `wallet.seed`) and its
+/// own `wfe_meta.json` in [dataDir]. LEPIC never uses `wallet_data/`, so it stays as it is. The
+/// old `wfe_meta.json` would be read as the new wallet's history, so it is renamed to
+/// `wfe_meta.json.legacy-<ms>` beside it. Call only while no LEPIC wallet is there. Synchronous
+/// calls: one `stat` at launch in the common case, and they also complete inside widget tests'
+/// fake async zone.
+Future<bool> setAsideLegacyWalletFiles(String dataDir) async {
   final sep = Platform.pathSeparator;
-  final walletData = Directory('$dataDir${sep}wallet_data');
-  if (!walletData.existsSync()) return false;
-  walletData.deleteSync(recursive: true);
+  if (!Directory('$dataDir${sep}wallet_data').existsSync()) return false;
   final meta = File('$dataDir${sep}wfe_meta.json');
-  if (meta.existsSync()) meta.deleteSync();
+  if (meta.existsSync()) {
+    meta.renameSync(
+      '${meta.path}.legacy-${DateTime.now().millisecondsSinceEpoch}',
+    );
+  }
   return true;
 }
 
@@ -67,7 +77,7 @@ class WalletVault {
     required this.biometrics,
     required this.service,
     LegacyFiles? legacyFiles,
-  }) : _legacyFiles = legacyFiles ?? deleteLegacyWalletFiles;
+  }) : _legacyFiles = legacyFiles ?? setAsideLegacyWalletFiles;
 
   final SecretStore store;
   final BiometricStore biometrics;
@@ -76,44 +86,25 @@ class WalletVault {
 
   String _key(Chain chain, String name) => 'wallet.${chain.name}.$name';
 
-  /// Entries of the 1.2.x vault: its password sealed by the old core, the password of an
-  /// unfinished first run, and its own lockout.
-  static const List<String> _legacyKeys = [
-    'sealed',
-    'pending',
-    'failed',
-    'lockedUntil',
-    'biometrics',
-  ];
-
-  /// Clears what does not open with a PIN, then says whether [config]'s wallet does.
-  ///
-  /// Gone: the files and entries of a 1.2.x install; a wallet whose sealed text was never
-  /// stored, because the app stopped right after creating it (its phrase was never shown, so
-  /// it holds no funds); and the entries of a wallet whose files are gone.
+  /// Says whether [config]'s wallet opens with a PIN. It never deletes a wallet, its sealed
+  /// text or a 1.2.x install's files and entries; the 1.2.x entries use other names and stay.
   Future<VaultStage> prepare(WalletConfig config) async {
     final chain = config.chain;
-    var legacy = await _legacyFiles(config.dataDir);
-    for (final name in _legacyKeys) {
-      final key = _key(chain, name);
-      if (await store.read(key) != null) {
-        legacy = true;
-        await store.delete(key);
-      }
-    }
-    if (legacy) {
-      // The 1.2.x biometric copy held the old password.
-      await biometrics.delete(_key(chain, 'password'));
-      logInfo('vault', 'discarded the ${chain.name} wallet of an older app');
-    }
     final exists = await service.walletExists(config: config);
     final sealed = await store.read(_key(chain, 'pinSealed'));
     if (exists && sealed != null) return VaultStage.ready;
-    if (exists) {
-      logInfo('vault', 'deleting a ${chain.name} wallet without sealed text');
-      await service.deleteWallet(config: config);
+    if (exists || sealed != null) {
+      logWarn(
+        'vault',
+        exists
+            ? 'the ${chain.name} wallet has no sealed text'
+            : 'the ${chain.name} sealed text has no wallet',
+      );
+      return VaultStage.stranded;
     }
-    if (exists || sealed != null || legacy) await forget(chain);
+    if (await _legacyFiles(config.dataDir)) {
+      logInfo('vault', 'left the ${chain.name} wallet of an older app in place');
+    }
     return VaultStage.empty;
   }
 
@@ -128,12 +119,14 @@ class WalletVault {
     bool useBiometrics = false,
   }) async {
     if (!isValidPin(pin)) throw ArgumentError('PIN must be $pinLength digits');
-    if (await prepare(config) == VaultStage.ready) {
+    if (await prepare(config) != VaultStage.empty) {
       throw const WalletError(
         kind: WalletErrorKind.walletAlreadyExists,
-        message: 'a wallet with a PIN exists',
+        message: 'a wallet or its sealed text exists',
       );
     }
+    // Flags of an earlier wallet on this chain would describe the new one.
+    await _clearFlags(config.chain);
     final created = await service.createWithPin(
       config: config,
       mnemonic: mnemonic,
@@ -317,11 +310,15 @@ class WalletVault {
       store.write(_key(chain, 'demoPin'), '1');
 
   /// Deletes everything the app stored for [chain]. The wallet itself, with LEPIC's PIN key
-  /// and count, goes with [WalletService.deleteWallet].
+  /// and count, goes with [WalletService.deleteWallet]. Only on the user's request.
   Future<void> forget(Chain chain) async {
+    await store.delete(_key(chain, 'pinSealed'));
+    await _clearFlags(chain);
+  }
+
+  Future<void> _clearFlags(Chain chain) async {
     await disableBiometrics(chain);
     for (final name in [
-      'pinSealed',
       'backedUp',
       'demoPin',
       'backupCardDismissed', // home's recovery phrase card (home_screen.dart)

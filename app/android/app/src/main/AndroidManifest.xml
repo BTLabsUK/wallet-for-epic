@@ -11,13 +11,17 @@
          devices without a camera can still install the app. -->
     <uses-permission android:name="android.permission.CAMERA"/>
     <uses-feature android:name="android.hardware.camera" android:required="false"/>
-    <!-- No auto backup: Keystore keys do not move to a new device, so restored secure storage
-         would be unreadable. The recovery phrase is the backup. -->
+    <!-- No auto backup and no device-to-device transfer: Keystore keys do not move to a new
+         device, so restored secure storage would be unreadable, and the wallet database,
+         metadata and logs stay on this one. allowBackup and fullBackupContent cover Android 11
+         and lower; dataExtractionRules covers 12+, where transfer ignores allowBackup. The
+         recovery phrase is the backup. -->
     <application
         android:label="Epic Wallet"
         android:name="${applicationName}"
         android:allowBackup="false"
         android:fullBackupContent="false"
+        android:dataExtractionRules="@xml/data_extraction_rules"
         android:localeConfig="@xml/locales_config"
         android:icon="@mipmap/ic_launcher">
         <activity

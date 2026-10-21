@@ -182,9 +182,9 @@ void main() {
     testWidgets('a spendable 0 says what is on hold and coming in, plainly', (
       tester,
     ) async {
-      // The review's split: 2.5 of 10 EPIC sent, the 10 locked, its change on its way.
+      // The review's split: 2.5 of 10 EPIC sent, the 10 locked, its change confirming.
       final session = FakeWalletSession(
-        summary: _summary(locked: 10, waiting: 7.492),
+        summary: _summary(locked: 10, confirming: 7.492),
       );
       await _pump(tester, session, width: 360);
       expect(tester.widget<Text>(find.byKey(balanceFigureKey)).data, '0');
@@ -219,41 +219,63 @@ void main() {
       }
     });
 
-    testWidgets('at most two items: on hold, and everything coming in', (
+    testWidgets(
+      'at most two items: on hold, and everything on chain coming in',
+      (tester) async {
+        final session = FakeWalletSession(
+          summary: _summary(
+            spendable: 3.25,
+            confirming: 2,
+            waiting: 0.5,
+            locked: 5,
+            immature: 16,
+          ),
+        );
+        await _pump(tester, session, width: 360);
+        final line = find.byKey(pendingLineKey);
+        expect(find.text('5 on hold'), findsOneWidget);
+        // 2 confirming and 16 maturing; the 0.5 not on chain yet is not counted.
+        expect(find.text('+18 coming in'), findsOneWidget);
+        expect(
+          find.descendant(of: line, matching: find.byType(Text)),
+          findsNWidgets(2),
+        );
+        // The ? still lists each balance with its own words.
+        final rows = BalanceHelp.rows(l, session.summaryValue);
+        expect(rows.map((r) => r.$1), [
+          l.balanceTotal,
+          l.homeBalanceSpendable,
+          l.homeBalanceConfirming,
+          l.homeBalanceNotOnChain,
+          l.homeBalanceLocked,
+          l.homeBalanceImmature,
+        ]);
+      },
+    );
+
+    testWidgets('a payment not on chain yet is never counted as coming in', (
       tester,
     ) async {
+      // Someone offered a large payment and never finished it.
       final session = FakeWalletSession(
-        summary: _summary(
-          spendable: 3.25,
-          confirming: 2,
-          waiting: 0.5,
-          locked: 5,
-          immature: 16,
-        ),
+        summary: _summary(spendable: 1, waiting: 1000000),
       );
       await _pump(tester, session, width: 360);
-      final line = find.byKey(pendingLineKey);
-      expect(find.text('5 on hold'), findsOneWidget);
-      expect(find.text('+18.5 coming in'), findsOneWidget);
-      expect(
-        find.descendant(of: line, matching: find.byType(Text)),
-        findsNWidgets(2),
-      );
-      // The ? still lists each balance with its own words.
+      expect(find.textContaining('coming in'), findsNothing);
+      expect(find.textContaining('1,000,000'), findsNothing);
       final rows = BalanceHelp.rows(l, session.summaryValue);
       expect(rows.map((r) => r.$1), [
         l.balanceTotal,
         l.homeBalanceSpendable,
-        l.homeBalanceConfirming,
-        l.homeBalanceWaitingToFinish,
-        l.homeBalanceLocked,
-        l.homeBalanceImmature,
+        l.homeBalanceNotOnChain,
       ]);
+      expect(rows.first.$2, _epic(1));
+      expect(comingIn(session.summaryValue), BigInt.zero);
     });
 
     testWidgets('fits a 360 dp phone at text scale 2', (tester) async {
       final session = FakeWalletSession(
-        summary: _summary(locked: 7.49283746, waiting: 6.48473625),
+        summary: _summary(locked: 7.49283746, confirming: 6.48473625),
       );
       await _pump(tester, session, width: 360, textScale: 2);
       expect(tester.takeException(), isNull);
