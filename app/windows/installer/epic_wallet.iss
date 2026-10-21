@@ -41,7 +41,7 @@ CloseApplications=no
 Name: "desktopicon"; Description: "Create a desktop shortcut"; GroupDescription: "Shortcuts:"
 
 [Files]
-Source: "{#SourceDir}\*"; DestDir: "{app}"; Flags: recursesubdirs createallsubdirs ignoreversion
+Source: "{#SourceDir}\*"; DestDir: "{app}"; Excludes: "*.lib,*.exp,*.pdb,*.ilk"; Flags: recursesubdirs createallsubdirs ignoreversion
 
 [Icons]
 Name: "{userprograms}\Epic Wallet 0.1"; Filename: "{app}\epic_wallet.exe"; WorkingDir: "{app}"
