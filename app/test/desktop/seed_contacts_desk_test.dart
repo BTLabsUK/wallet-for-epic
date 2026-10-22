@@ -12,6 +12,9 @@ import 'package:epic_wallet/src/seed_contacts.dart';
 import 'package:epic_wallet/src/wallet_service.dart' as core;
 import 'package:flutter_test/flutter_test.dart';
 
+import '../support/btlabs_public_file.dart';
+import '../support/btlabs_sign.dart';
+
 const _password = 'test-pass-1234';
 const _moved = 'esWxboBPMgL4RqufRYcGUJ7t6YVWGvyuid6xRM62UkRzSb3jUcNK@epicbox.stackwallet.com';
 
@@ -51,17 +54,41 @@ void main() {
       filesDir: () async => files,
       nodePoll: const Duration(hours: 1),
       seedFetch: web,
+      keyring: testKeyring(),
     );
     opened.add(w);
     return w;
   }
 
-  String webFile(SeedContact c) => jsonEncode({
-    'version': 1,
-    'contacts': [
-      {'id': c.id, 'name': c.name, 'address': c.address, 'note': c.note},
-    ],
-  });
+  /// A file signed with test key A: [c] is its donation.
+  Future<String> webFile(SeedContact c, {int serial = 1, String? issuedAt, String? expiresAt, String? name, String? note}) =>
+      signedPublicFile(
+        [donation(c.id, c.address, name: name ?? c.name, note: note ?? c.note)],
+        serial: serial,
+        issuedAt: issuedAt,
+        expiresAt: expiresAt,
+      );
+
+  const moved = SeedContact(id: 'btlabs', name: 'BT Labs', address: _moved, note: 'Donations support development of this wallet.');
+
+  /// Opens a wallet on a fresh app whose website answers [body]; lets the refresh finish.
+  Future<LepicDeskWallet> openWith(Future<String?> Function(Uri) web) async {
+    final w = app(web: web);
+    expect(await w.unlock(_password), isTrue);
+    await pumpEventQueue(times: 50);
+    return w;
+  }
+
+  Future<void> makeWallet() async {
+    final w = app();
+    await w.createWallet(name: 'Main', password: _password);
+    expect(await w.unlock(_password), isTrue);
+    await w.lock();
+  }
+
+  Future<Map<String, dynamic>> cache() async => jsonDecode(secrets.values['desk.btlabsPublic']!) as Map<String, dynamic>;
+
+  void setCache(Map<String, dynamic> j) => secrets.values['desk.btlabsPublic'] = jsonEncode(j);
 
   Future<List<Contact>> bt(LepicDeskWallet w) async => (await w.contacts()).where((c) => c.name.startsWith('BT Labs')).toList();
 
@@ -95,17 +122,19 @@ void main() {
     expect(await w.unlock(_password), isTrue);
     await w.lock();
 
-    final web = app(web: (_) async => webFile(moved));
+    final web = app(web: (_) => webFile(moved));
     expect(await web.unlock(_password), isTrue);
     await pumpEventQueue(times: 50);
     expect((await bt(web)).single.address, _moved);
 
     // The user edits it; a later website change leaves it.
     final c = (await bt(web)).single;
-    await web.saveContact(Contact(id: c.id, name: 'BT Labs (mine)', address: 'esMine9TzWmR8uPfVc2LdN6hJx4gA7sKeQ1oBnC5vD9rHtF3w@x.y', note: c.note));
+    await web.saveContact(
+      Contact(id: c.id, name: 'BT Labs (mine)', address: 'esMine9TzWmR8uPfVc2LdN6hJx4gA7sKeQ1oBnC5vD9rHtF3w@x.y', note: c.note),
+    );
     await web.lock();
-    await secrets.delete('desk.seedContacts');
-    final later = app(web: (_) async => webFile(btLabsContact));
+    await secrets.delete('desk.btlabsPublic');
+    final later = app(web: (_) => webFile(btLabsContact, serial: 2));
     expect(await later.unlock(_password), isTrue);
     await pumpEventQueue(times: 50);
     expect((await bt(later)).single.name, 'BT Labs (mine)');
@@ -132,7 +161,7 @@ void main() {
     final c = (await bt(w)).single;
     await w.saveContact(Contact(id: c.id, name: 'BT Labs donations', address: c.address, note: c.note));
     await w.lock();
-    final web = app(web: (_) async => webFile(moved));
+    final web = app(web: (_) => webFile(moved));
     expect(await web.unlock(_password), isTrue);
     await pumpEventQueue(times: 50);
     final after = (await bt(web)).single;
@@ -142,7 +171,7 @@ void main() {
 
   test('the website file adds no contact the app does not ship', () async {
     const other = SeedContact(id: 'someone', name: 'Someone', address: _moved, note: 'Not ours.');
-    final w = app(web: (_) async => webFile(other));
+    final w = app(web: (_) => webFile(other));
     await w.createWallet(name: 'Main', password: _password);
     expect(await w.unlock(_password), isTrue);
     await pumpEventQueue(times: 50);
@@ -194,5 +223,151 @@ void main() {
     // Opened again, the update read meanwhile applies once.
     expect(await slow.unlock(_password), isTrue);
     expect((await bt(slow)).single.address, _moved);
+  });
+
+  group('the signed file', () {
+    Future<void> unchanged(Future<String?> Function(Uri) web) async {
+      await makeWallet();
+      final w = await openWith(web);
+      expect((await bt(w)).single.address, btLabsContact.address);
+      expect(secrets.values['desk.btlabsPublic']?.contains('"envelope"') ?? false, isFalse, reason: 'nothing cached');
+    }
+
+    test('an unsigned body in the old website format changes nothing', () async {
+      await unchanged(
+        (_) async => jsonEncode({
+          'version': 1,
+          'contacts': [
+            {'id': 'btlabs', 'name': 'BT Labs', 'address': _moved, 'note': 'x'},
+          ],
+        }),
+      );
+    });
+
+    test('a file signed by an unknown key changes nothing', () async {
+      final stranger = await testKeyFromSeed(List.filled(32, 7));
+      final body = await signedPublicFile([donation('btlabs', _moved)], keys: [stranger]);
+      await unchanged((_) async => body);
+    });
+
+    test('a tampered file changes nothing', () async {
+      final body = await webFile(moved);
+      final env = jsonDecode(body) as Map<String, dynamic>;
+      final payload = utf8.decode(base64.decode(env['payload'] as String));
+      env['payload'] = base64.encode(utf8.encode(payload.replaceFirst(_moved, btLabsContact.address.replaceFirst('Wxbo', 'Wxbp'))));
+      await unchanged((_) async => jsonEncode(env));
+    });
+
+    test('an expired file changes nothing', () async {
+      final now = DateTime.now().toUtc();
+      final body = await webFile(
+        moved,
+        issuedAt: fileTime(now.subtract(const Duration(days: 100))),
+        expiresAt: fileTime(now.subtract(const Duration(hours: 1))),
+      );
+      await unchanged((_) async => body);
+    });
+
+    test('an old file replayed after a newer one changes nothing, even after the 7 days', () async {
+      await makeWallet();
+      final w = await openWith((_) => webFile(moved, serial: 2));
+      expect((await bt(w)).single.address, _moved);
+      await w.lock();
+      // The window passes (at and tried cleared); the website now serves serial 1.
+      final c = await cache();
+      setCache({...c, 'at': 0, 'tried': 0});
+      final again = await openWith((_) => webFile(btLabsContact, serial: 1));
+      expect((await bt(again)).single.address, _moved);
+      expect((await cache())['state']['serial'], 2);
+    });
+
+    test('an accepted file whose cache then expired keeps the contact it set', () async {
+      await makeWallet();
+      final now = DateTime.now().toUtc();
+      final w = await openWith(
+        (_) => webFile(
+          moved,
+          issuedAt: fileTime(now.subtract(const Duration(days: 30))),
+          expiresAt: fileTime(now.add(const Duration(seconds: 2))),
+        ),
+      );
+      expect((await bt(w)).single.address, _moved);
+      await w.lock();
+      await Future<void>.delayed(const Duration(seconds: 3));
+      final later = app();
+      expect(await later.unlock(_password), isTrue);
+      await pumpEventQueue(times: 50);
+      expect((await bt(later)).single.address, _moved, reason: 'no revert to the bundled address');
+    });
+
+    test('a different name or note updates the address only', () async {
+      await makeWallet();
+      final w = await openWith((_) => webFile(moved, name: 'Scam Inc', note: 'Send everything here'));
+      final c = (await bt(w)).single;
+      expect(c.address, _moved);
+      expect(c.name, 'BT Labs');
+      expect(c.note, btLabsContact.note);
+    });
+
+    test('a rejected file is not fetched again within a day', () async {
+      await makeWallet();
+      var calls = 0;
+      await openWith((_) async {
+        calls++;
+        return 'garbage';
+      });
+      expect(calls, 1);
+      final tried = (await cache())['tried'];
+      expect(tried, isA<int>());
+      await openWith((_) async {
+        calls++;
+        return 'garbage';
+      });
+      expect(calls, 1, reason: 'tried less than a day ago');
+      setCache({'tried': DateTime.now().subtract(const Duration(days: 2)).millisecondsSinceEpoch});
+      await openWith((_) async {
+        calls++;
+        return 'garbage';
+      });
+      expect(calls, 2);
+    });
+
+    test('a good read is not repeated within 7 days', () async {
+      await makeWallet();
+      var calls = 0;
+      Future<String?> serve(Uri _) {
+        calls++;
+        return webFile(moved);
+      }
+
+      await openWith(serve);
+      await openWith(serve);
+      expect(calls, 1);
+    });
+
+    test('at and tried in the future (a clock set back) do not block a fetch', () async {
+      await makeWallet();
+      final future = DateTime.now().add(const Duration(days: 30)).millisecondsSinceEpoch;
+      setCache({'at': future, 'tried': future});
+      var calls = 0;
+      await openWith((_) async {
+        calls++;
+        return null;
+      });
+      expect(calls, 1);
+    });
+
+    test('a body over 64 KiB is not read', () async {
+      // fetchSeeds caps the body in httpGet; here the server sends a long answer.
+      final server = await HttpServer.bind(InternetAddress.loopbackIPv4, 0);
+      addTearDown(() => server.close(force: true));
+      server.listen((r) {
+        r.response
+          ..statusCode = 200
+          ..write('x' * 70000);
+        r.response.close();
+      });
+      expect(await LepicDeskWallet.fetchSeeds(Uri.parse('http://127.0.0.1:${server.port}/')), isNull);
+    });
   });
 }
