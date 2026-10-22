@@ -11,7 +11,7 @@ import 'dart:typed_data';
 
 import 'http_types.dart';
 
-/// With [maxBytes], a longer body throws [NetError] (checked once read: `fetch` gives no
+/// With [maxBytes], a longer body throws [NetTooLarge] (checked once read: `fetch` gives no
 /// cheap byte stream here).
 Future<HttpReply> httpGet(
   Uri url, {
@@ -21,7 +21,7 @@ Future<HttpReply> httpGet(
 }) async {
   final reply = await _send('GET', url, headers, null, timeout);
   if (maxBytes != null && utf8.encode(reply.body).length > maxBytes) {
-    throw NetError('body over $maxBytes bytes');
+    throw NetTooLarge(maxBytes);
   }
   return reply;
 }

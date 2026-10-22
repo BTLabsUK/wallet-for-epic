@@ -9,7 +9,7 @@ import 'dart:typed_data';
 import 'http_types.dart';
 
 /// With [maxBytes], a body longer than that is not read to its end: the call throws
-/// [NetError] as soon as it passes the limit.
+/// [NetTooLarge] as soon as it passes the limit.
 Future<HttpReply> httpGet(
   Uri url, {
   Map<String, String> headers = const {},
@@ -60,7 +60,7 @@ Future<HttpReply> _send(
       await for (final chunk in response) {
         bytes.add(chunk);
         if (maxBytes != null && bytes.length > maxBytes) {
-          throw NetError('body over $maxBytes bytes');
+          throw NetTooLarge(maxBytes);
         }
       }
       final text = const Utf8Decoder(allowMalformed: true)

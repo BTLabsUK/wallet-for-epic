@@ -4,13 +4,30 @@ import 'package:epic_wallet/src/desktop/screens/settings/settings_about.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/settings_frame.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
+import 'package:epic_wallet/src/updater.dart' show updateKeyringProvider;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../support/signed_update.dart';
+
 void main() {
   final now = DateTime(2026, 10, 22, 12);
+
+  // Signed manifests (test key A; the test keyring stands in for the bundled one).
+  const page = 'https://github.com/BTLabs-EPIC/epic-wallet/releases/tag/v0.1.1';
+  late String newer, same, phoneOnly, offAccounts, unsignedNewer, forgedNewer;
+  setUpAll(() async {
+    newer = await signedUpdate(testUpdatePayload(versionName: '9.0.0', desktop: {'version': '0.1.1', 'page': page}));
+    same = await signedUpdate(testUpdatePayload(versionName: '9.0.0', desktop: {'version': '0.1.0'}, serial: 1790000100));
+    phoneOnly = await signedUpdate(testUpdatePayload(versionName: '0.2.0'));
+    // The verifier's schema only takes pages on the project's GitHub accounts, so a page
+    // elsewhere is a manifest that does not verify, not one that opens a fallback.
+    offAccounts = await signedUpdate(testUpdatePayload(desktop: {'version': '0.1.1', 'page': 'https://github.com.evil.example/BTLabs-EPIC/'}));
+    unsignedNewer = '{"versionName": "9.0.0", "desktop": {"version": "0.1.1", "page": "$page"}}';
+    forgedNewer = await signedUpdate(testUpdatePayload(desktop: {'version': '0.1.1', 'page': page}), keys: [await testUpdateStrangerKey()]);
+  });
 
   Future<(ProviderContainer, List<String>)> pump(WidgetTester tester, ManifestFetch fetch) async {
     tester.view.physicalSize = const Size(1280, 900);
@@ -20,6 +37,7 @@ void main() {
     final container = ProviderContainer(overrides: [
       deskManifestFetchProvider.overrideWithValue(fetch),
       deskUpdateClockProvider.overrideWithValue(() => now),
+      updateKeyringProvider.overrideWithValue(testUpdateKeyring),
       deskOpenUrlProvider.overrideWithValue((url) async {
         opened.add(url);
         return true;
@@ -74,16 +92,16 @@ void main() {
   });
 
   testWidgets('a newer version offers its page; the same version is the latest', (tester) async {
-    const page = 'https://github.com/BTLabs-EPIC/epic-wallet/releases/tag/v0.1.1';
-    final (container, opened) = await pump(tester, (_) async => (200, '{"versionName": "9.0.0", "desktop": {"version": "0.1.1", "page": "$page"}}'));
+    final (container, opened) = await pump(tester, (_) async => (200, newer));
     expect(find.text('Update available: 0.1.1'), findsOneWidget);
     await tester.tap(find.widgetWithText(EButton, 'Get 0.1.1'));
     await tester.pumpAndSettle();
     expect(opened, [page]);
 
     container.updateOverrides([
-      deskManifestFetchProvider.overrideWithValue((_) async => (200, '{"versionName": "9.0.0", "desktop": {"version": "0.1.0"}}')),
+      deskManifestFetchProvider.overrideWithValue((_) async => (200, same)),
       deskUpdateClockProvider.overrideWithValue(() => now),
+      updateKeyringProvider.overrideWithValue(testUpdateKeyring),
       deskOpenUrlProvider.overrideWithValue((_) async => true),
     ]);
     await tester.tap(find.widgetWithText(EButton, 'Check now'));
@@ -92,17 +110,30 @@ void main() {
   });
 
   testWidgets("the phone's manifest alone offers nothing to the desktop", (tester) async {
-    await pump(tester, (_) async => (200, '{"versionName": "0.2.0", "page": "https://github.com/blacktyger/wallet-for-epic/releases"}'));
+    await pump(tester, (_) async => (200, phoneOnly));
     expect(find.text('Could not check'), findsOneWidget);
     expect(find.text('No desktop update information is published yet. Checked just now.'), findsOneWidget);
     expect(find.textContaining('Update available'), findsNothing);
   });
 
-  testWidgets('a page off the project accounts opens the releases page instead', (tester) async {
-    final (_, opened) = await pump(tester, (_) async => (200, '{"desktop": {"version": "0.1.1", "page": "https://github.com.evil.example/BTLabs-EPIC/"}}'));
-    await tester.tap(find.widgetWithText(EButton, 'Get 0.1.1'));
-    await tester.pumpAndSettle();
-    expect(opened, [deskReleasesUrl]);
+  testWidgets('a page off the project accounts: the manifest is not used', (tester) async {
+    await pump(tester, (_) async => (200, offAccounts));
+    expect(find.text('0.1.0 is the latest'), findsOneWidget);
+    expect(find.textContaining('Update available'), findsNothing);
+  });
+
+  for (final (name, body) in [('an unsigned', () => unsignedNewer), ('a forged', () => forgedNewer)]) {
+    testWidgets('$name manifest offers no update and no error', (tester) async {
+      await pump(tester, (_) async => (200, body()));
+      expect(find.text('0.1.0 is the latest'), findsOneWidget);
+      expect(find.textContaining('Update available'), findsNothing);
+      expect(find.text('Could not check'), findsNothing);
+    });
+  }
+
+  test('the releases fallback is the project repo', () {
+    expect(deskReleasesUrl, 'https://github.com/BTLabs-EPIC/wallet-for-epic/releases/latest');
+    expect(isDeskUpdatePage(deskReleasesUrl), isTrue);
   });
 
   test('download pages: https on the project accounts only', () {
