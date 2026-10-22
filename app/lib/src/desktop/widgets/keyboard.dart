@@ -5,7 +5,7 @@
 /// back. Secondary controls are never stops: eye, info, copy, QR, clear and paste icons, icons
 /// inside a field, a dialog's close icon, Back buttons and the page's back arrow. They stay
 /// reachable by mouse, by screen reader (each keeps its semantics tap) and by a shortcut where
-/// one matters (Alt+F8 shows or hides a password; Esc closes; Alt+Left goes back). Pages that
+/// one matters (Alt+F8, Ctrl+Shift+P off Windows, shows or hides a password; Esc closes; Alt+Left goes back). Pages that
 /// are not forms (lists, toolbars, the sidebar) keep their buttons as stops. Dialogs keep the
 /// focus inside them. The shell's sidebar and page are separate groups, so the focus finishes
 /// the page before it moves to the sidebar.
@@ -122,11 +122,31 @@ class DeskStepBack extends StatefulWidget {
 
   static final List<_DeskStepBackState> _mounted = [];
 
-  /// Runs the innermost step back; false when no screen has one.
+  /// Runs the innermost step back; false when no screen has one. The screen that holds the
+  /// focus decides (its nearest [DeskStepBack] with an [onBack], then the ones around it);
+  /// with no focus in a step, the most recent mounted one whose tickers run. A screen that is
+  /// animating out (its ticker mode is off) never catches Back.
   static bool tryStepBack() {
+    final focus = FocusManager.instance.primaryFocus?.context;
+    if (focus != null && focus.mounted) {
+      var ran = false;
+      focus.visitAncestorElements((e) {
+        if (e is StatefulElement && e.state is _DeskStepBackState) {
+          final s = e.state as _DeskStepBackState;
+          final run = s.widget.onBack;
+          if (run != null) {
+            run();
+            ran = true;
+            return false;
+          }
+        }
+        return true;
+      });
+      if (ran) return true;
+    }
     for (final s in _mounted.reversed) {
       final run = s.widget.onBack;
-      if (run != null && s.mounted) {
+      if (run != null && s.mounted && TickerMode.valuesOf(s.context).enabled) {
         run();
         return true;
       }

@@ -135,7 +135,10 @@ class _CreateScreenState extends ConsumerState<CreateScreen> {
         );
       case CreateStep.account:
         final (pe, ce) = accountErrors(_password.text, _confirm.text);
-        return EOnbFrame(
+        // Typed passwords hold Back (mouse, Alt+Left).
+        return DeskStepBack(
+          onBack: _password.text.isNotEmpty || _confirm.text.isNotEmpty ? () {} : null,
+          child: EOnbFrame(
           sideTitle: 'New wallet',
           steps: rail,
           title: 'Create wallet',
@@ -160,6 +163,7 @@ class _CreateScreenState extends ConsumerState<CreateScreen> {
                 onSubmit: _accountOk ? _create : null,
               ),
             ],
+          ),
           ),
         );
       case CreateStep.phrase:

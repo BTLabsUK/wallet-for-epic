@@ -196,10 +196,16 @@ class _DeskNavKeysState extends ConsumerState<DeskNavKeys> {
     // A tooltip is the top-most thing: one Esc closes it, the next one what is under it.
     if (key == LogicalKeyboardKey.escape) return !hw.isShiftPressed && Tooltip.dismissAllToolTips();
     if (hw.isControlPressed || hw.isMetaPressed || hw.isShiftPressed) return false;
+    // The keyboard's own Back / Forward keys.
+    if (key == LogicalKeyboardKey.browserBack || key == LogicalKeyboardKey.browserForward) {
+      if (_navHeld(ref)) return false;
+      key == LogicalKeyboardKey.browserBack ? deskBack(ref) : deskForward(ref);
+      return true;
+    }
     if (hw.isAltPressed) {
       if (key != LogicalKeyboardKey.arrowLeft && key != LogicalKeyboardKey.arrowRight) return false;
-      // On macOS Option+arrow moves by word in a text field.
-      if (defaultTargetPlatform == TargetPlatform.macOS && deskTextFocused()) return false;
+      // Alt+arrow moves by word in a text field (Option on macOS); a half-typed form stays.
+      if (deskTextFocused()) return false;
       if (_navHeld(ref)) return false;
       key == LogicalKeyboardKey.arrowLeft ? deskBack(ref) : deskForward(ref);
       return true;

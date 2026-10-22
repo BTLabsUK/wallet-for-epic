@@ -647,7 +647,11 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
     final nameError = _shown('name', _nameError);
     final addressError = _shown('address', _addressError);
     // Enter: Name → Address, then Save (the Note keeps Enter for a new line).
-    return EForm(
+    // A form with typed changes holds Back (mouse, Alt+Left).
+    final dirty = _name.text != (widget.contact?.name ?? '') || _address.text != (widget.contact?.address ?? '') || _note.text != (widget.contact?.note ?? '');
+    return DeskStepBack(
+      onBack: dirty ? () {} : null,
+      child: EForm(
       onSubmit: _saving ? null : _save,
       child: Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -723,6 +727,7 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
           ],
         ),
       ],
+    ),
     ),
     );
   }
