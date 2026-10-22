@@ -82,7 +82,7 @@ class FallbackDecision {
   final String? nodeUrl;
   final LocalNodePhase localPhase;
 
-  /// The fallback is in use: the status row shows "Local node syncing · using <host>".
+  /// The fallback is in use: the status row shows `Local node syncing · using <host>`.
   bool get active => action == FallbackAction.usePublic;
 
   @override
