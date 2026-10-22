@@ -37,6 +37,7 @@ import '../../slate_files.dart' show decodeSlateFile, responseFileName, sendFile
 import '../../tor_location.dart';
 import '../../wallet_registry.dart' as reg;
 import '../../wallet_service.dart' as core;
+import 'addresses.dart';
 import 'api.dart';
 import 'desk_store.dart';
 import 'features.dart';
@@ -1146,7 +1147,8 @@ class LepicDeskWallet implements DeskWalletApi {
       final have = {for (final c in await session.contacts()) c.address.toLowerCase()};
       var added = 0;
       for (final c in contacts) {
-        final address = (c.epicboxAddress ?? c.httpAddress)?.trim();
+        final raw = (c.epicboxAddress ?? c.httpAddress)?.trim();
+        final address = raw == null ? null : parseAddress(raw, this).canonical;
         final name = cleanOperator(c.name) ?? '';
         if (address == null || name.isEmpty || !_contactAddressOk(address) || !have.add(address.toLowerCase())) continue;
         final extra = c.epicboxAddress != null && c.httpAddress != null ? 'HTTP: ${c.httpAddress}' : null;
@@ -1162,10 +1164,10 @@ class LepicDeskWallet implements DeskWalletApi {
   }
 
   /// An address the contact form would take: epicbox, http(s) or, with Tor, an onion.
-  bool _contactAddressOk(String a) =>
-      isEpicboxAddress(a) ||
-      (RegExp(r'^https?:', caseSensitive: false).hasMatch(a) && httpAddressProblem(a) == null) ||
-      (_torFeature && isOnionAddress(a));
+  bool _contactAddressOk(String a) {
+    final p = parseAddress(a, this);
+    return p.complete && (p.kind != AddressKind.tor || _torFeature);
+  }
 
   /// Adds the old wallet's node and the older app's own nodes to the node list without switching
   /// to them: the node is app-wide here and would move every wallet. Returns those added.

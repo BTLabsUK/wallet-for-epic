@@ -4,23 +4,19 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../widgets/kit.dart';
 
-/// The way a contact's address is sent to.
-TxMethod contactMethod(Contact c) {
-  final a = c.address.toLowerCase();
-  if (a.contains('.onion') && DeskFeatures.tor) return TxMethod.tor;
-  if (a.startsWith('http') && DeskFeatures.httpDirect) return TxMethod.http;
-  return TxMethod.epicbox;
-}
+/// The way a contact's address is sent to (by its kind, spec 7).
+TxMethod contactMethod(Contact c) => switch (addressKindOf(c.address)) {
+  AddressKind.tor when DeskFeatures.tor => TxMethod.tor,
+  AddressKind.http when DeskFeatures.httpDirect => TxMethod.http,
+  _ => TxMethod.epicbox,
+};
 
-/// Whether Send can reach the contact: HTTP and .onion addresses need their feature on.
-bool contactSendable(Contact c) {
-  final a = c.address.toLowerCase();
-  if (a.contains('.onion')) return DeskFeatures.tor;
-  if (a.startsWith('http')) return DeskFeatures.httpDirect;
-  return true;
-}
-
-String shortAddress(String a) => a.length > 28 ? '${a.substring(0, 12)}…${a.substring(a.length - 14)}' : a;
+/// Whether Send can reach the contact: HTTP and Tor addresses need their feature on.
+bool contactSendable(Contact c) => switch (addressKindOf(c.address)) {
+  AddressKind.tor => DeskFeatures.tor,
+  AddressKind.http => DeskFeatures.httpDirect,
+  _ => true,
+};
 
 /// Opens the contact picker over the current page; resolves to the chosen contact or null.
 Future<Contact?> showContactPicker(BuildContext context) => showEDialog<Contact>(context, builder: (_) => const ContactPickerDialog());
@@ -150,11 +146,9 @@ class _PickRowState extends State<_PickRow> {
   @override
   Widget build(BuildContext context) {
     final c = context.dc;
-    final ts = context.ts;
-    final m = contactMethod(widget.contact);
     return Semantics(
       button: true,
-      label: '${widget.contact.name}, ${shortAddress(widget.contact.address)}',
+      label: '${widget.contact.name}, ${widget.contact.address}',
       excludeSemantics: true,
       child: MouseRegion(
         onEnter: (_) => setState(() => _hover = true),
@@ -167,31 +161,20 @@ class _PickRowState extends State<_PickRow> {
             padding: EdgeInsets.symmetric(vertical: Sp.x3, horizontal: Sp.x2),
             child: Row(
               children: [
-                EAvatar(widget.contact.name, size: 32.u),
-                SizedBox(width: Sp.x3),
+                EAvatar(widget.contact.name, size: 40.u),
+                SizedBox(width: 14.u),
                 Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(widget.contact.name, style: ts.strong, maxLines: 1, overflow: TextOverflow.ellipsis),
-                      Text(
-                        shortAddress(widget.contact.address),
-                        style: ts.mono(size: Fs.xs, color: c.dim),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
+                  child: EAddressLines(
+                    name: widget.contact.name,
+                    address: widget.contact.address,
+                    note: widget.contact.note,
+                    nameTrailing: widget.contact.favourite
+                        ? Padding(
+                            padding: EdgeInsets.only(left: Sp.x1),
+                            child: Icon(EIcons.star, size: 14.u, color: c.accentText),
+                          )
+                        : null,
                   ),
-                ),
-                SizedBox(width: Sp.x2),
-                ETag(
-                  switch (m) {
-                    TxMethod.epicbox => 'Epicbox',
-                    TxMethod.tor => 'Tor',
-                    _ => 'HTTP',
-                  },
-                  tone: m == TxMethod.epicbox ? ETone.gold : ETone.neutral,
-                  icon: m == TxMethod.epicbox ? EIcons.antenna : (m == TxMethod.tor ? EIcons.shield : EIcons.web),
                 ),
               ],
             ),

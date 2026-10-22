@@ -6,7 +6,7 @@ import '../../widgets/kit.dart';
 
 String methodLabel(TxMethod m) => switch (m) {
   TxMethod.epicbox => 'Epicbox',
-  TxMethod.http => 'Direct HTTP',
+  TxMethod.http => 'HTTP',
   TxMethod.tor => 'Tor',
   TxMethod.file => 'File',
 };
@@ -33,18 +33,6 @@ bool whoIsAddress(Tx t) => t.contactName == null && t.counterparty != null && t.
 
 /// How it travelled, or null when that is not known (mining rewards, scan finds).
 String? methodOf(Tx t) => t.coinbase || t.foundByScan ? null : methodLabel(t.method);
-
-String shortAddress(String a) {
-  if (a.startsWith('http')) {
-    final host = a.replaceFirst(RegExp(r'^https?://'), '');
-    if (host.contains('.onion')) return '${host.substring(0, 8)}….onion';
-    return host;
-  }
-  final at = a.indexOf('@');
-  final core = at > 0 ? a.substring(0, at) : a;
-  if (core.length <= 18) return a;
-  return '${core.substring(0, 8)}…${core.substring(core.length - 6)}${at > 0 ? a.substring(at) : ''}';
-}
 
 IconData iconOf(Tx t) => switch (t.method) {
   TxMethod.file => t.incoming ? EIcons.fileDown : EIcons.fileUp,
@@ -304,12 +292,10 @@ class _TxRowState extends ConsumerState<TxRow> {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text(
-          widget.title ?? whoOf(t),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: widget.title == null && whoIsAddress(t) ? ts.mono(size: 12.5, weight: FontWeight.w500) : ts.strong,
-        ),
+        if (widget.title == null && whoIsAddress(t))
+          EShortAddress(t.counterparty!, style: ts.mono(size: 12.5, weight: FontWeight.w500), tooltip: false)
+        else
+          Text(widget.title ?? whoOf(t), maxLines: 1, overflow: TextOverflow.ellipsis, style: ts.strong),
         if (compact || meta.isNotEmpty) const SizedBox(height: 2),
         if (compact)
           Row(
