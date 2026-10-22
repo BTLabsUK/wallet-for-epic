@@ -331,7 +331,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     final q = _to.text.trim().toLowerCase();
     final contacts = st.contacts;
     if (_suggestOff || q.length < 2 || contacts == null || _contactOf(contacts) != null) return const [];
-    return contacts.where((c) => c.name.toLowerCase().contains(q) || c.address.toLowerCase().contains(q)).take(4).toList();
+    return contacts.where(contactSendable).where((c) => c.name.toLowerCase().contains(q) || c.address.toLowerCase().contains(q)).take(4).toList();
   }
 
   Future<void> _startListener() async {

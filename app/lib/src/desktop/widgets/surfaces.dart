@@ -339,7 +339,7 @@ class EAddress extends StatelessWidget {
             TextSpan(text: a.substring(0, 6), style: hl),
             TextSpan(text: a.substring(6, a.length - 6)),
             TextSpan(text: a.substring(a.length - 6), style: hl),
-            TextSpan(text: rest, style: base.copyWith(color: c.dim)),
+            TextSpan(text: '\u200B$rest', style: base.copyWith(color: c.dim)),
           ]
         : [TextSpan(text: address)];
     return Container(
