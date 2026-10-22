@@ -24,7 +24,8 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
   final _domain = TextEditingController(text: 'epicbox.epiccash.com');
   late SetupStep _step = widget.arg is SetupStep ? widget.arg as SetupStep : SetupStep.prefs;
   String _language = 'English';
-  bool _builtIn = DeskFeatures.builtInNode;
+  // A public or own node stays the default (D10); the built-in node is opt-in.
+  bool _builtIn = false;
   String _nodeUrl = 'https://node.epiccash.com';
   List<NodeServer>? _nodes;
   List<EpicboxServer>? _boxes;
@@ -59,7 +60,11 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
     prefs.set(ref.read(settingsPrefsProvider).copyWith(walletLabel: _name.text.trim(), epicboxOnStart: domain.isNotEmpty));
     if (DeskFeatures.languages) await c.saveSettings(st.settings.copyWith(language: _language));
     try {
-      if (!_builtIn && _nodeUrl != st.status?.node.url) await c.useNode(_nodeUrl);
+      if (_builtIn) {
+        await c.useBuiltInNode(true);
+      } else if (_nodeUrl != st.status?.node.url) {
+        await c.useNode(_nodeUrl);
+      }
       if (domain.isNotEmpty && domain != st.status?.epicbox.domain) await c.useEpicbox(domain);
       await c.setListening(domain.isNotEmpty);
       await c.refresh();

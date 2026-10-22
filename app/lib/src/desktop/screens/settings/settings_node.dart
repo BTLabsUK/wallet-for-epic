@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../widgets/kit.dart';
 import 'combo.dart';
 import 'dialogs.dart';
@@ -102,14 +103,25 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
     final prefs = ref.read(settingsPrefsProvider.notifier);
     final p = ref.read(settingsPrefsProvider);
     if (value == builtinNode) {
-      final ok = await showChainOfferDialog(context);
-      if (!mounted || ok == null) {
-        _combo.currentState?.collapse();
+      setState(() {
+        _saving = true;
+        _error = null;
+      });
+      try {
+        await ref.read(deskProvider.notifier).useBuiltInNode(true);
+      } on Object catch (e) {
+        if (!mounted) return;
+        setState(() {
+          _saving = false;
+          _error = deskErrorText(e);
+        });
         return;
       }
+      if (!mounted) return;
       prefs.set(p.copyWith(builtin: true, clearTyped: true));
+      setState(() => _saving = false);
       _combo.currentState?.collapse();
-      showEToast(context, 'Built-in node in use', text: ok ? 'Using the blockchain data found.' : 'It downloads the whole chain.');
+      showEToast(context, 'Built-in node in use', text: 'It downloads the whole chain. Needs 5 GB free.');
       return;
     }
     setState(() {
@@ -259,7 +271,7 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
                   below: _error == null ? _StatusLine(node: current, health: health, height: status.nodeHeight, builtin: prefs.builtin) : null,
                 ),
                 if (_chainInUse) _chainRow(context),
-                if (prefs.builtin)
+                if (prefs.builtin && DeskFeatures.nodeBackground)
                   ESetRow(
                     title: 'Sync in background',
                     text: 'Keeps syncing while the app is closed.',

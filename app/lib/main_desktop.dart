@@ -16,6 +16,8 @@ import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:path_provider/path_provider.dart';
 
 import 'src/app_log.dart';
+import 'src/builtin_node.dart';
+import 'src/builtin_node_provider.dart';
 import 'src/data_folder.dart';
 import 'src/desktop/app/desk_app.dart';
 import 'src/desktop/data/desk_store.dart';
@@ -28,6 +30,10 @@ import 'src/wallet_backend.dart';
 import 'src/web/splash.dart';
 
 const bool _mock = bool.fromEnvironment('WFE_DESK_MOCK');
+
+/// Kept for the app's lifetime; stops the built-in node when the window closes.
+// ignore: unused_element
+AppLifecycleListener? _exitListener;
 
 Future<void> main() async {
   if (_mock) {
@@ -72,6 +78,21 @@ Future<List<Override>> deskOverrides() async {
     filesDir: () async => await getDownloadsDirectory() ?? await getApplicationDocumentsDirectory(),
     settings: boot.settings,
     relayDirectory: container.read(relayDirectoryProvider),
+    builtInNode: builtInNodeSupported
+        ? (chain) async {
+            final where = await container.read(builtInNodeLocationProvider.future);
+            return BuiltInNode(root: where.root, binary: where.binary, chain: chain);
+          }
+        : null,
+  );
+  // Off by default (D10): this starts a node only when the user turned it on before.
+  unawaited(wallet.resumeBuiltInNode());
+  // Closing the window must not leave the node running.
+  _exitListener = AppLifecycleListener(
+    onExitRequested: () async {
+      await stopAllBuiltInNodes();
+      return AppExitResponse.exit;
+    },
   );
   final hasWallet = (await wallet.wallets()).isNotEmpty;
   return [
@@ -81,6 +102,7 @@ Future<List<Override>> deskOverrides() async {
     deskFilesProvider.overrideWithValue(const SystemDeskFiles()),
     deskQuitProvider.overrideWithValue(() async {
       await wallet.dispose();
+      await stopAllBuiltInNodes();
       exit(0);
     }),
     if (!deskStartGiven) deskStartProvider.overrideWithValue(hasWallet ? DeskRoute.unlock : DeskRoute.welcome),

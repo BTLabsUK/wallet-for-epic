@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/tour.dart';
+import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../widgets/kit.dart';
+import '../settings/prefs.dart' show settingsPrefsProvider;
 import '../settings/settings_frame.dart' show groupDigits;
 import 'tx_display.dart';
 
@@ -38,9 +40,14 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
     if (mounted) setState(() => _refreshing = false);
   }
 
+  /// Starts the built-in node again when it stopped; a running one is left as it is.
   Future<void> _restartNode() async {
     setState(() => _restarting = true);
-    await Future<void>.delayed(const Duration(milliseconds: 1500));
+    try {
+      await ref.read(deskProvider.notifier).useBuiltInNode(true);
+    } on Object catch (e) {
+      if (mounted) showEToast(context, 'Node not started', text: deskErrorText(e));
+    }
     if (mounted) setState(() => _restarting = false);
   }
 
@@ -120,9 +127,9 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
           text: 'Check that it is running and reachable. Balances may be out of date and sending is paused.',
           actionsBelow: true,
           actions: [
-            if (DeskFeatures.builtInNode)
+            if (DeskFeatures.builtInNode && ref.watch(settingsPrefsProvider).builtin)
             EButton(
-              label: _restarting ? 'Restarting' : 'Restart node',
+              label: _restarting ? 'Starting' : 'Start node',
               icon: EIcons.refresh,
               size: EBtnSize.inline,
               busy: _restarting,
