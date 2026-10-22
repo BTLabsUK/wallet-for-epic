@@ -177,15 +177,26 @@ abstract interface class DeskWalletApi {
   Future<void> useEpicbox(String domain);
 
   /// Starts or stops the receive listener (Epicbox, and HTTP when [DeskSettings.directHttp]).
+  /// Transitional: the screens move to [setEpicboxListening] and [startAutostart] (W4 §3.1),
+  /// then this goes.
   Future<void> setListening(bool on);
+
+  /// Starts or stops Epicbox receiving alone (HTTP and Tor untouched). Progress and failures
+  /// show in [ServiceStatus.epicboxHealth].
+  Future<void> setEpicboxListening(bool on);
+
+  /// At unlock: starts every method whose Start with the wallet is on
+  /// ([DeskSettings.epicboxAutostart], [DeskSettings.httpAutostart], [DeskSettings.torAutostart]).
+  /// Each method that does not start shows it in [status]; nothing throws.
+  Future<void> startAutostart();
 
   /// Starts or stops the HTTP listener alone, on [DeskSettings.httpPort], reachable as
   /// [DeskSettings.publicMode] says. A start that fails shows in [ServiceStatus.httpProblem].
   /// Only when [DeskFeatures.httpDirect].
   Future<void> setHttpListening(bool on);
 
-  /// Turns Tor on or off for the open wallet, saved per wallet ([DeskSettings.tor]): on starts
-  /// the wallet's tor now and at each unlock; off stops it. On again after a failure is Retry.
+  /// Turns Tor on or off for the open wallet now, saved per wallet ([DeskSettings.tor]); whether
+  /// it starts at unlock is [DeskSettings.torAutostart]. On again after a failure is Retry.
   /// Progress and failures show in [ServiceStatus.tor]. Only when [DeskFeatures.tor].
   Future<void> setTor(bool on);
   /// Refresh (Overview, Activity): brings the balance and history up to date with the node

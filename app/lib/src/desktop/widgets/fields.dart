@@ -409,16 +409,28 @@ class ESegment<T> {
 }
 
 /// Segmented control: the selected segment is raised with an accent underline.
+/// [size] `sm` is 36 u tall (a row's control), `md` 44 u (the Send method selector);
+/// [stretch] gives every segment an equal share of the width.
 class ESegmented<T> extends StatelessWidget {
-  const ESegmented({super.key, required this.segments, required this.value, required this.onChanged});
+  const ESegmented({
+    super.key,
+    required this.segments,
+    required this.value,
+    required this.onChanged,
+    this.size = EBtnSize.sm,
+    this.stretch = false,
+  });
 
   final List<ESegment<T>> segments;
   final T value;
   final ValueChanged<T> onChanged;
+  final EBtnSize size;
+  final bool stretch;
 
   @override
   Widget build(BuildContext context) {
     final c = context.dc;
+    final md = size == EBtnSize.md;
     return Container(
       padding: EdgeInsets.all(3.u),
       decoration: BoxDecoration(
@@ -427,11 +439,14 @@ class ESegmented<T> extends StatelessWidget {
         border: Border.all(color: c.line),
       ),
       child: Row(
-        mainAxisSize: MainAxisSize.min,
+        mainAxisSize: stretch ? MainAxisSize.max : MainAxisSize.min,
         children: [
           for (final s in segments) ...[
             if (s != segments.first) const SizedBox(width: 2),
-            _Seg(seg: s, selected: s.value == value, onTap: () => onChanged(s.value)),
+            if (stretch)
+              Expanded(child: _Seg(seg: s, selected: s.value == value, md: md, stretch: true, onTap: () => onChanged(s.value)))
+            else
+              _Seg(seg: s, selected: s.value == value, md: md, stretch: false, onTap: () => onChanged(s.value)),
           ],
         ],
       ),
@@ -440,10 +455,12 @@ class ESegmented<T> extends StatelessWidget {
 }
 
 class _Seg<T> extends StatefulWidget {
-  const _Seg({required this.seg, required this.selected, required this.onTap});
+  const _Seg({required this.seg, required this.selected, required this.md, required this.stretch, required this.onTap});
 
   final ESegment<T> seg;
   final bool selected;
+  final bool md;
+  final bool stretch;
   final VoidCallback onTap;
 
   @override
@@ -458,6 +475,7 @@ class _SegState<T> extends State<_Seg<T>> {
     final c = context.dc;
     final sel = widget.selected;
     final fg = sel ? c.accentText : (_hover ? c.text : c.dim);
+    final label = TextStyle(fontSize: Fs.sm, fontWeight: FontWeight.w500, color: fg);
     return Semantics(
       button: true,
       selected: sel,
@@ -472,8 +490,9 @@ class _SegState<T> extends State<_Seg<T>> {
               focused: Focus.of(context).hasFocus,
               radius: 6.u,
               child: AnimatedContainer(
-                duration: Dur.fast,
-                height: 30.u,
+                duration: widget.md ? Dur.base : Dur.fast,
+                // md: the whole control (3 u padding and 1 px border each side) is Ctl.md tall.
+                height: widget.md ? Ctl.md - 2 * 3.u - 2 : 30.u,
                 padding: EdgeInsets.symmetric(horizontal: Sp.x3),
                 decoration: BoxDecoration(
                   color: sel ? c.s3 : (_hover ? c.hover : Colors.transparent),
@@ -482,15 +501,16 @@ class _SegState<T> extends State<_Seg<T>> {
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     if (widget.seg.icon != null) ...[
                       Icon(widget.seg.icon, size: Ctl.iconSm, color: fg),
                       SizedBox(width: 6.u),
                     ],
-                    Text(
-                      widget.seg.label,
-                      style: TextStyle(fontSize: Fs.sm, fontWeight: FontWeight.w500, color: fg),
-                    ),
+                    if (widget.stretch)
+                      Flexible(child: Text(widget.seg.label, maxLines: 1, overflow: TextOverflow.ellipsis, style: label))
+                    else
+                      Text(widget.seg.label, style: label),
                     if (widget.seg.count != null) ...[
                       SizedBox(width: 6.u),
                       Text('${widget.seg.count}', style: context.ts.mono(size: 11, color: c.faint)),
