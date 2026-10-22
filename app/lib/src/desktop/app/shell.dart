@@ -377,9 +377,11 @@ class _Sidebar extends ConsumerWidget {
                 children: [
                   ServiceRows(compact: compact),
                   SizedBox(height: Sp.x2),
-                  if (compact)
-                    Center(child: lockButton)
-                  else
+                  if (compact) ...[
+                    Center(child: lockButton),
+                    SizedBox(height: Sp.x2),
+                    _RailVersion(),
+                  ] else
                     Row(
                       children: [
                         Expanded(
@@ -687,6 +689,27 @@ class _PhoneNav extends ConsumerWidget {
         selectedIndex: index < 0 ? 0 : index,
         onDestinationSelected: (i) => ref.read(deskNavProvider.notifier).go(deskNav[i].$2),
         destinations: [for (final (_, _, label, icon) in deskNav) NavigationDestination(icon: Icon(icon), label: label)],
+      ),
+    );
+  }
+}
+
+/// The version and build under the compact rail's lock button, on two lines to fit its width.
+class _RailVersion extends StatelessWidget {
+  const _RailVersion();
+
+  @override
+  Widget build(BuildContext context) {
+    final style = context.ts.caption.copyWith(fontSize: 10.u, height: 1.2);
+    return Semantics(
+      container: true,
+      label: 'Version $deskVersion',
+      excludeSemantics: true,
+      child: Column(
+        children: [
+          Text(deskAppVersion, style: style, maxLines: 1, overflow: TextOverflow.ellipsis, textAlign: TextAlign.center),
+          if (appBuildId.isNotEmpty) Text(appBuildId, style: style, maxLines: 1, overflow: TextOverflow.ellipsis, textAlign: TextAlign.center),
+        ],
       ),
     );
   }

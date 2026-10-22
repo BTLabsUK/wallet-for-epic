@@ -21,6 +21,7 @@ import 'src/builtin_node.dart';
 import 'src/builtin_node_provider.dart';
 import 'src/data_folder.dart';
 import 'src/desktop/app/desk_app.dart';
+import 'src/desktop/app/shell.dart' show deskVersion;
 import 'src/desktop/data/desk_store.dart';
 import 'src/desktop/data/files.dart';
 import 'src/desktop/data/lepic_desk_wallet.dart';
@@ -63,8 +64,7 @@ Future<void> main() async {
     await initWalletBackend();
     registerPasswordListLicences();
     registerTorLicence();
-    const build = String.fromEnvironment('FLUTTER_BUILD_NAME');
-    logInfo('app', 'desktop start ${build.isEmpty ? 'dev' : build}, $platformLabel');
+    logInfo('app', 'desktop start $deskVersion, $platformLabel');
     final overrides = await deskOverrides();
     // Wallet errors are final answers (wrong password, node down); do not retry them silently.
     runApp(ProviderScope(retry: (_, _) => null, overrides: overrides, child: const DeskApp()));
