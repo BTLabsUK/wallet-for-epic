@@ -25,7 +25,7 @@ FakeWalletSession funded({WalletHistory? history}) => FakeWalletSession(
   invoiceHistory: history,
   summary: WalletSummary(
     lastConfirmedHeight: BigInt.from(100),
-    minimumConfirmations: BigInt.from(10),
+    minimumConfirmations: BigInt.from(3),
     total: BigInt.from(10000000000),
     spendable: BigInt.from(10000000000),
     awaitingConfirmation: BigInt.zero,

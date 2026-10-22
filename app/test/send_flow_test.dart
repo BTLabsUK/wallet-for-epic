@@ -26,7 +26,7 @@ final String _bob = '${'b' * 52}@epicbox.epiccash.com';
 
 WalletSummary _summary({BigInt? spendable, BigInt? onHold}) => WalletSummary(
   lastConfirmedHeight: BigInt.from(2499990),
-  minimumConfirmations: BigInt.from(10),
+  minimumConfirmations: BigInt.from(3),
   total: (spendable ?? BigInt.zero) + (onHold ?? BigInt.zero),
   spendable: spendable ?? BigInt.zero,
   awaitingConfirmation: onHold ?? BigInt.zero,
@@ -189,38 +189,38 @@ void main() {
 
     test('follows the payment from their wallet to confirmed', () {
       expect(
-        sendTrackerAt(tx(TxStatus.awaitingRecipient), tip, target: 10),
+        sendTrackerAt(tx(TxStatus.awaitingRecipient), tip, target: 3),
         SendTrack.waitingRecipient,
       );
       expect(
-        sendTrackerAt(tx(TxStatus.awaitingConfirmation), tip, target: 10),
+        sendTrackerAt(tx(TxStatus.awaitingConfirmation), tip, target: 3),
         SendTrack.confirming,
       );
       expect(
         sendTrackerAt(
-          tx(TxStatus.confirmed, height: tip - BigInt.from(3)),
+          tx(TxStatus.confirmed, height: tip - BigInt.one),
           tip,
-          target: 10,
+          target: 3,
         ),
         SendTrack.confirming,
       );
       expect(
         sendTrackerAt(
-          tx(TxStatus.confirmed, height: tip - BigInt.from(9)),
+          tx(TxStatus.confirmed, height: tip - BigInt.two),
           tip,
-          target: 10,
+          target: 3,
         ),
         SendTrack.completed,
       );
       expect(
-        sendTrackerAt(tx(TxStatus.cancelled), tip, target: 10),
+        sendTrackerAt(tx(TxStatus.cancelled), tip, target: 3),
         SendTrack.cancelled,
       );
       expect(
         sendTrackerAt(
           tx(TxStatus.awaitingConfirmation, repostable: true),
           tip,
-          target: 10,
+          target: 3,
         ),
         SendTrack.notPosted,
       );

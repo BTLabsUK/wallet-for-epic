@@ -392,7 +392,7 @@ void main() {
       final s = service.session;
       s.summaryValue = core.WalletSummary(
         lastConfirmedHeight: BigInt.from(2500000),
-        minimumConfirmations: BigInt.from(10),
+        minimumConfirmations: BigInt.from(3),
         total: BigInt.from(700),
         spendable: BigInt.from(500),
         awaitingConfirmation: BigInt.from(100),
@@ -474,7 +474,7 @@ void main() {
       final before = s.refreshCalls;
       s.summaryValue = core.WalletSummary(
         lastConfirmedHeight: BigInt.from(2500001),
-        minimumConfirmations: BigInt.from(10),
+        minimumConfirmations: BigInt.from(3),
         total: BigInt.from(900),
         spendable: BigInt.from(900),
         awaitingConfirmation: BigInt.zero,
@@ -508,7 +508,7 @@ void main() {
       await created();
       service.session.summaryValue = core.WalletSummary(
         lastConfirmedHeight: BigInt.from(2500000),
-        minimumConfirmations: BigInt.from(10),
+        minimumConfirmations: BigInt.from(3),
         total: BigInt.from(100000000),
         spendable: BigInt.from(100000000),
         awaitingConfirmation: BigInt.zero,

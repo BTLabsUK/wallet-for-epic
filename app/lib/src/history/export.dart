@@ -9,6 +9,7 @@ library;
 
 import 'dart:convert';
 
+import '../providers.dart' show defaultMinimumConfirmations;
 import '../wallet_service.dart';
 import 'meta_store.dart';
 
@@ -207,7 +208,7 @@ BigInt netAmount(TxEntry tx) => switch (tx.kind) {
 };
 
 /// Confirmations after which the app calls a payment completed.
-const int confirmationsTarget = 10;
+const int confirmationsTarget = defaultMinimumConfirmations;
 
 /// The type column, in the words the app shows (`txKindLabel`).
 String typeWord(TxKind kind) => switch (kind) {

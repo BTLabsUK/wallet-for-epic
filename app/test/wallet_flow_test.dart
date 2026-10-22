@@ -177,7 +177,7 @@ FakeWalletService _existing({FakeWalletSession? session}) =>
 FakeWalletSession _fundedSession() => FakeWalletSession(
   summary: WalletSummary(
     lastConfirmedHeight: BigInt.from(2499990),
-    minimumConfirmations: BigInt.from(10),
+    minimumConfirmations: BigInt.from(3),
     total: _epic(16),
     spendable: _epic(12.5),
     awaitingConfirmation: _epic(1),

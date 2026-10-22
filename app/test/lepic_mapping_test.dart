@@ -283,14 +283,14 @@ void main() {
     test('send all uses every coin and one change output, others none', () async {
       final wallet = _SendingWallet();
       final session = LepicWalletSession(wallet);
-      final max = await session.estimateMax(minimumConfirmations: BigInt.from(10));
+      final max = await session.estimateMax(minimumConfirmations: BigInt.from(3));
       await session.createSendSlate(
         amount: max.amount,
-        minimumConfirmations: BigInt.from(10),
+        minimumConfirmations: BigInt.from(3),
       );
       await session.createSendSlate(
         amount: BigInt.from(5),
-        minimumConfirmations: BigInt.from(10),
+        minimumConfirmations: BigInt.from(3),
       );
       const all = lepic.SendOptions(
         strategy: lepic.SelectionStrategy.all,
@@ -303,11 +303,11 @@ void main() {
     test('a max remembered from before the balance grew does not make a typed amount a send-all', () async {
       final wallet = _SendingWallet();
       final session = LepicWalletSession(wallet);
-      final max = await session.estimateMax(minimumConfirmations: BigInt.from(10));
+      final max = await session.estimateMax(minimumConfirmations: BigInt.from(3));
       wallet.maxAmount = BigInt.from(150);
       await session.createSendSlate(
         amount: max.amount,
-        minimumConfirmations: BigInt.from(10),
+        minimumConfirmations: BigInt.from(3),
       );
       expect(wallet.options.last, isNull);
     });
@@ -315,15 +315,15 @@ void main() {
     test('after another amount was estimated, the old max is still not a send-all once the balance grew', () async {
       final wallet = _SendingWallet();
       final session = LepicWalletSession(wallet);
-      final max = await session.estimateMax(minimumConfirmations: BigInt.from(10));
-      await session.estimateFee(amount: BigInt.from(5), minimumConfirmations: BigInt.from(10));
+      final max = await session.estimateMax(minimumConfirmations: BigInt.from(3));
+      await session.estimateFee(amount: BigInt.from(5), minimumConfirmations: BigInt.from(3));
       wallet.maxAmount = BigInt.from(150);
-      await session.createSendSlate(amount: max.amount, minimumConfirmations: BigInt.from(10));
+      await session.createSendSlate(amount: max.amount, minimumConfirmations: BigInt.from(3));
       expect(wallet.options.last, isNull);
       // A caller that knows it is a send-all says so, and is not second-guessed.
       await session.createSendSlate(
         amount: max.amount,
-        minimumConfirmations: BigInt.from(10),
+        minimumConfirmations: BigInt.from(3),
         options: const SendOptions(strategy: SelectionStrategy.all),
       );
       expect(wallet.options.last, const lepic.SendOptions(strategy: lepic.SelectionStrategy.all, changeOutputs: 1));
@@ -334,14 +334,14 @@ void main() {
       final session = LepicWalletSession(wallet);
       final e = await session.estimateFee(
         amount: BigInt.from(10),
-        minimumConfirmations: BigInt.from(10),
+        minimumConfirmations: BigInt.from(3),
         options: const SendOptions(changeOutputs: 4),
       );
       // Given options win over the send-all default.
-      final max = await session.estimateMax(minimumConfirmations: BigInt.from(10));
+      final max = await session.estimateMax(minimumConfirmations: BigInt.from(3));
       await session.createSendSlate(
         amount: max.amount,
-        minimumConfirmations: BigInt.from(10),
+        minimumConfirmations: BigInt.from(3),
         options: const SendOptions(),
       );
       expect(wallet.options, [
@@ -427,17 +427,17 @@ void main() {
       final session = LepicWalletSession(wallet);
       await session.createSendSlate(
         amount: BigInt.from(10),
-        minimumConfirmations: BigInt.from(10),
+        minimumConfirmations: BigInt.from(3),
         message: '  for lunch ',
       );
       await session.createSendSlate(
         amount: BigInt.from(10),
-        minimumConfirmations: BigInt.from(10),
+        minimumConfirmations: BigInt.from(3),
         message: '   ',
       );
       await session.createSendSlate(
         amount: BigInt.from(10),
-        minimumConfirmations: BigInt.from(10),
+        minimumConfirmations: BigInt.from(3),
       );
       expect(wallet.messages, ['for lunch', null, null]);
     });
@@ -447,7 +447,7 @@ void main() {
       final session = LepicWalletSession(wallet);
       final row = await session.sendEpicbox(
         amount: BigInt.from(10),
-        minimumConfirmations: BigInt.from(10),
+        minimumConfirmations: BigInt.from(3),
         address: 'key@relay',
         message: 'rent',
       );

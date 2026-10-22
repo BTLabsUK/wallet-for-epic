@@ -105,7 +105,7 @@ class _Harness {
 
   static final WalletSummary _summary = WalletSummary(
     lastConfirmedHeight: BigInt.from(2500000),
-    minimumConfirmations: BigInt.from(10),
+    minimumConfirmations: BigInt.from(3),
     total: _epic(100),
     spendable: _epic(100),
     awaitingConfirmation: BigInt.zero,

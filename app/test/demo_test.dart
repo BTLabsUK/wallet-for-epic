@@ -648,9 +648,9 @@ void main() {
           expect(h.session.confirmations.toSet(), {
             demo ? BigInt.one : BigInt.from(3),
           });
-          // Rows count with what the balance counted (10 here, as the fake LEPIC reports),
+          // Rows count with what the balance counted (3 here, as the fake LEPIC reports),
           // so a row never says Completed under coins the balance still has as confirming.
-          expect(find.text(l.txStatusConfirming(1, 10)), findsWidgets);
+          expect(find.text(l.txStatusConfirming(1, 3)), findsWidgets);
           expect(find.text(l.txStatusCompleted), findsNothing);
         },
       );
@@ -754,7 +754,7 @@ void main() {
         // Coins to send, or Send shows its empty state instead of the form.
         h.session.summaryValue = WalletSummary(
           lastConfirmedHeight: BigInt.from(100),
-          minimumConfirmations: BigInt.from(10),
+          minimumConfirmations: BigInt.from(3),
           total: BigInt.from(1000000000),
           spendable: BigInt.from(1000000000),
           awaitingConfirmation: BigInt.zero,

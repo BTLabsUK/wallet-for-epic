@@ -99,7 +99,7 @@ TxEntry _send() => fakeTx(
 WalletSummary _summary({num spendable = 0, num waiting = 0, num locked = 0}) =>
     WalletSummary(
       lastConfirmedHeight: BigInt.from(2500000),
-      minimumConfirmations: BigInt.from(10),
+      minimumConfirmations: BigInt.from(3),
       total: _epic(spendable + locked),
       spendable: _epic(spendable),
       awaitingConfirmation: BigInt.zero,

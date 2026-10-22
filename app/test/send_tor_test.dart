@@ -38,7 +38,7 @@ const TorBundle _bundle = TorBundle(binary: '/data/app/lib/arm64/libtor.so');
 
 WalletSummary _summary() => WalletSummary(
   lastConfirmedHeight: BigInt.from(2499990),
-  minimumConfirmations: BigInt.from(10),
+  minimumConfirmations: BigInt.from(3),
   total: _epic(40),
   spendable: _epic(40),
   awaitingConfirmation: BigInt.zero,

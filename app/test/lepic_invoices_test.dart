@@ -65,7 +65,7 @@ class _InvoiceWallet implements lepic.EpicWallet {
   Stream<lepic.WalletEvent> events() => eventSink.stream;
 
   /// The balance's count, which an invoice is paid with.
-  BigInt balanceConfirmations = BigInt.from(10);
+  BigInt balanceConfirmations = BigInt.from(3);
 
   @override
   Future<lepic.WalletSummary> summary({required bool refresh}) async =>
