@@ -1868,14 +1868,18 @@ class LepicDeskWallet implements DeskWalletApi {
   Future<void> deleteContact(String id) async {
     await _open.deleteContact(id: id);
     // A seeded contact the user deleted never comes back on this computer.
-    final seeds = await _seedRecords();
-    final seeded = seeds.entries.where((e) => e.value['contact'] == id).map((e) => e.key).toList();
-    if (seeded.isNotEmpty) {
+    final session = _session;
+    final key = _metaKey(_openEntry?.walletId);
+    await _seedLocked(() async {
+      if (_session != session) return;
+      final seeds = await _seedRecords(key);
+      final seeded = seeds.entries.where((e) => e.value['contact'] == id).map((e) => e.key).toList();
+      if (seeded.isEmpty) return;
       for (final k in seeded) {
         seeds[k] = {...seeds[k]!, 'deleted': true};
       }
-      await _setMeta({'seeds': seeds});
-    }
+      await _setMeta({'seeds': seeds}, key);
+    });
     final favourites = await _favourites();
     if (favourites.remove(id)) await _store.writeJson(_favouritesKey, favourites.toList());
   }
@@ -1889,15 +1893,26 @@ class LepicDeskWallet implements DeskWalletApi {
   List<SeedContact>? _webSeeds;
   bool _seedFetchStarted = false;
 
+  /// One seed read-modify-write at a time (open, the website's refresh, a delete), so two
+  /// never interleave and none writes into a wallet opened after it started.
+  Future<void> _seedQueue = Future.value();
+
+  Future<void> _seedLocked(Future<void> Function() body) {
+    final run = _seedQueue.then((_) => body());
+    _seedQueue = run.catchError((Object _) {});
+    return run;
+  }
+
   /// The website's seed contacts file, or null when it did not answer with one.
   static Future<String?> fetchSeeds(Uri url) async {
     final r = await httpGet(url, timeout: const Duration(seconds: 5));
     return r.status == 200 ? r.body : null;
   }
 
-  /// Per wallet: seed id → the contact it made, the address as inserted, deleted.
-  Future<Map<String, Map<String, dynamic>>> _seedRecords() async {
-    final j = (await _meta())['seeds'];
+  /// Per wallet: seed id → the contact it made, its name, address and note as last written,
+  /// deleted.
+  Future<Map<String, Map<String, dynamic>>> _seedRecords([String? key]) async {
+    final j = (await _meta(key))['seeds'];
     return {
       if (j is Map)
         for (final e in j.entries)
@@ -1905,12 +1920,19 @@ class LepicDeskWallet implements DeskWalletApi {
     };
   }
 
+  /// The website may update only the contacts the app ships with (by id); it never adds one.
+  static List<SeedContact> _knownSeeds(List<SeedContact>? web) {
+    final ids = {for (final c in bundledSeedContacts) c.id};
+    return [...?web?.where((c) => ids.contains(c.id))];
+  }
+
   /// On every open: a seed contact the wallet never had is added now (the bundled one at
   /// once, never waiting for the network); one the user did not edit follows the website's
   /// copy; one the user deleted or edited is left alone. A failure changes nothing.
   Future<void> _seedContacts() async {
     try {
-      await _applySeeds([...bundledSeedContacts, ...?await _cachedWebSeeds()]);
+      final web = await _cachedWebSeeds();
+      await _applySeeds([...bundledSeedContacts, ..._knownSeeds(web)]);
     } on Object catch (e) {
       logWarn('desk', 'seed contacts not applied: ${e.runtimeType}');
     }
@@ -1920,32 +1942,59 @@ class LepicDeskWallet implements DeskWalletApi {
     }
   }
 
-  Future<void> _applySeeds(List<SeedContact> list) async {
-    // A later entry (the website's) wins over an earlier one (the bundled) with the same id.
-    final byId = {for (final c in list) c.id: c};
-    final seeds = await _seedRecords();
-    final stored = {for (final c in await _open.contacts()) c.id: c};
-    var changed = false;
-    for (final s in byId.values) {
-      final rec = seeds[s.id];
-      if (rec == null) {
-        final saved = await _open.saveContact(contact: core.Contact(id: '', name: s.name, address: s.address, note: s.note));
-        seeds[s.id] = {'contact': saved.id, 'address': s.address, 'deleted': false};
-        changed = true;
-      } else if (rec['deleted'] != true) {
-        final c = stored[rec['contact']];
-        final untouched = c != null && c.address == rec['address'];
-        if (untouched && (c.address != s.address || c.name != s.name || c.note != s.note)) {
-          await _open.saveContact(contact: core.Contact(id: c.id, name: s.name, address: s.address, note: s.note));
-          seeds[s.id] = {...rec, 'address': s.address};
+  static Map<String, Object?> _seedRecord(String contact, SeedContact s) =>
+      {'contact': contact, 'name': s.name, 'address': s.address, 'note': s.note, 'deleted': false};
+
+  /// Applies [list] to the wallet open now; stops without writing when another one opens or
+  /// the wallet locks meanwhile.
+  Future<void> _applySeeds(List<SeedContact> list) {
+    final session = _session;
+    if (session == null) return Future.value();
+    final key = _metaKey(_openEntry?.walletId);
+    return _seedLocked(() async {
+      if (_session != session) return;
+      // A later entry (the website's) wins over an earlier one (the bundled) with the same id.
+      final byId = {for (final c in list) c.id: c};
+      final seeds = await _seedRecords(key);
+      final stored = {for (final c in await session.contacts()) c.id: c};
+      final claimed = {for (final r in seeds.values) r['contact']};
+      var changed = false;
+      for (final s in byId.values) {
+        if (_session != session) return;
+        final rec = seeds[s.id];
+        if (rec == null) {
+          // A contact with this address already (the user's, or one a failed earlier write
+          // inserted) becomes the seed's: no second row.
+          final same = stored.values.where((c) => c.address == s.address && !claimed.contains(c.id)).firstOrNull;
+          if (same != null) {
+            // Recorded with the seed's values: a name or note the user chose counts as edited.
+            seeds[s.id] = _seedRecord(same.id, s);
+          } else {
+            final saved = await session.saveContact(contact: core.Contact(id: '', name: s.name, address: s.address, note: s.note));
+            seeds[s.id] = _seedRecord(saved.id, s);
+          }
+          claimed.add(seeds[s.id]!['contact']);
           changed = true;
+        } else if (rec['deleted'] != true) {
+          final c = stored[rec['contact']];
+          // Untouched: every field as the app last wrote it (a record without name and note
+          // predates them and is judged by its address).
+          final untouched = c != null &&
+              c.address == rec['address'] &&
+              (!rec.containsKey('name') || c.name == rec['name']) &&
+              (!rec.containsKey('note') || c.note == rec['note']);
+          if (untouched && (c.address != s.address || c.name != s.name || c.note != s.note)) {
+            await session.saveContact(contact: core.Contact(id: c.id, name: s.name, address: s.address, note: s.note));
+            seeds[s.id] = _seedRecord(c.id, s);
+            changed = true;
+          }
         }
       }
-    }
-    if (changed) {
-      await _setMeta({'seeds': seeds});
-      _changed();
-    }
+      if (changed && _session == session) {
+        await _setMeta({'seeds': seeds}, key);
+        _changed();
+      }
+    });
   }
 
   static const _seedCacheKey = 'desk.seedContacts';
@@ -1970,7 +2019,7 @@ class LepicDeskWallet implements DeskWalletApi {
       if (list == null) return;
       _webSeeds = list;
       await _store.writeJson(_seedCacheKey, {'at': DateTime.now().millisecondsSinceEpoch, 'body': body});
-      if (_session != null) await _applySeeds([...bundledSeedContacts, ...list]);
+      await _applySeeds([...bundledSeedContacts, ..._knownSeeds(list)]);
     } on Object catch (e) {
       logInfo('desk', 'seed contacts not read: ${e.runtimeType}');
     }

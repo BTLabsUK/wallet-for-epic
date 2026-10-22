@@ -973,8 +973,8 @@ class _MethodStrip extends StatelessWidget {
   }
 }
 
-/// "Over Tor" next to To after the method followed the address: in over 120 ms, out over
-/// 200 ms after 3 s, and read out once.
+/// "Over Tor" next to To after the method followed the address: fades in, and out after 3 s,
+/// over the same [Motion.cross] both ways; read out once.
 class _SwitchTag extends StatelessWidget {
   const _SwitchTag({required this.method, required this.shown});
 
@@ -1001,7 +1001,8 @@ class _SwitchTag extends StatelessWidget {
         child: AnimatedOpacity(
           key: const ValueKey('send-switch-tag'),
           opacity: shown ? 1 : 0,
-          duration: reduce ? Duration.zero : Duration(milliseconds: shown ? 120 : 200),
+          duration: reduce ? Duration.zero : Motion.cross,
+          curve: shown ? Motion.easeOut : Motion.easeIn,
           child: SizedBox(height: 22.u, child: ETag(word, tone: ETone.gold, icon: methodIcon(m))),
         ),
       ),

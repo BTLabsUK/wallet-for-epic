@@ -1,6 +1,7 @@
 // The BT Labs contact on the desktop (spec 9): a new wallet gets it once, at once; deleting
 // it keeps it gone after a relaunch; the website's copy updates it unless the user edited it;
 // a failed or bad website read changes nothing. On the fake core.
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -121,5 +122,77 @@ void main() {
     expect(await bad.unlock(_password), isTrue);
     await pumpEventQueue(times: 50);
     expect((await bt(bad)).single.address, btLabsContact.address);
+  });
+
+  test("an edit of the name alone keeps the website's update away", () async {
+    const moved = SeedContact(id: 'btlabs', name: 'BT Labs', address: _moved, note: 'Donations support development of this wallet.');
+    final w = app();
+    await w.createWallet(name: 'Main', password: _password);
+    expect(await w.unlock(_password), isTrue);
+    final c = (await bt(w)).single;
+    await w.saveContact(Contact(id: c.id, name: 'BT Labs donations', address: c.address, note: c.note));
+    await w.lock();
+    final web = app(web: (_) async => webFile(moved));
+    expect(await web.unlock(_password), isTrue);
+    await pumpEventQueue(times: 50);
+    final after = (await bt(web)).single;
+    expect(after.name, 'BT Labs donations');
+    expect(after.address, btLabsContact.address, reason: 'an edited contact is left alone');
+  });
+
+  test('the website file adds no contact the app does not ship', () async {
+    const other = SeedContact(id: 'someone', name: 'Someone', address: _moved, note: 'Not ours.');
+    final w = app(web: (_) async => webFile(other));
+    await w.createWallet(name: 'Main', password: _password);
+    expect(await w.unlock(_password), isTrue);
+    await pumpEventQueue(times: 50);
+    await w.lock();
+    expect(await w.unlock(_password), isTrue);
+    final cs = await w.contacts();
+    expect(cs.where((c) => c.name == 'Someone'), isEmpty);
+    expect((await bt(w)).single.address, btLabsContact.address);
+  });
+
+  test('a lost seed record never adds a second BT Labs row', () async {
+    final w = app();
+    await w.createWallet(name: 'Main', password: _password);
+    expect(await w.unlock(_password), isTrue);
+    await w.lock();
+    // As if the write after the insert had failed: the contact is there, its record is not.
+    var dropped = 0;
+    for (final e in [...secrets.values.entries]) {
+      if (!e.key.startsWith('desk.wallet.')) continue;
+      final j = jsonDecode(e.value);
+      if (j is Map && j.remove('seeds') != null) {
+        secrets.values[e.key] = jsonEncode(j);
+        dropped++;
+      }
+    }
+    expect(dropped, 1);
+    final again = app();
+    expect(await again.unlock(_password), isTrue);
+    expect(await bt(again), hasLength(1));
+    // The adopted contact is the seed's again: deleting it keeps it gone.
+    await again.deleteContact((await bt(again)).single.id);
+    await again.lock();
+    expect(await app().unlock(_password), isTrue);
+    expect(await bt(opened.last), isEmpty);
+  });
+
+  test('a website answer that arrives after the wallet locked writes nothing into it', () async {
+    const moved = SeedContact(id: 'btlabs', name: 'BT Labs', address: _moved, note: 'Donations support development of this wallet.');
+    final w = app();
+    await w.createWallet(name: 'Main', password: _password);
+    expect(await w.unlock(_password), isTrue);
+    await w.lock();
+    final answer = Completer<String?>();
+    final slow = app(web: (_) => answer.future);
+    expect(await slow.unlock(_password), isTrue);
+    await slow.lock();
+    answer.complete(webFile(moved));
+    await pumpEventQueue(times: 50);
+    // Opened again, the update read meanwhile applies once.
+    expect(await slow.unlock(_password), isTrue);
+    expect((await bt(slow)).single.address, _moved);
   });
 }

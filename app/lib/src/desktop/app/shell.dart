@@ -481,10 +481,10 @@ class ServiceRows extends ConsumerWidget {
     final http = httpRun(status);
     final ebLine = eb == ServiceHealth.off ? 'Epicbox off' : 'Epicbox · ${status.epicbox.domain} · ${epicboxWord(eb)}';
     final httpLine = switch (http) {
-      HttpRun.on => 'HTTP listener on',
-      HttpRun.busy => 'HTTP listener starting',
-      HttpRun.failed => status.httpProblem == null ? 'HTTP listener didn’t start' : 'HTTP listener: ${status.httpProblem}',
-      _ => 'HTTP listener off',
+      HttpRun.on => 'HTTP receiving on',
+      HttpRun.busy => 'HTTP receiving starting',
+      HttpRun.failed => status.httpProblem == null ? 'HTTP receiving didn’t start' : 'HTTP receiving: ${status.httpProblem}',
+      _ => 'HTTP receiving off',
     };
     var rcvHealth = eb;
     var rcvWord = eb == ServiceHealth.ok ? 'On' : epicboxWord(eb);
