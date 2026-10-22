@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
+import '../../app/tour.dart';
 import '../../widgets/kit.dart';
 import 'tx_display.dart';
 
@@ -135,7 +136,9 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
     final count = q.isEmpty ? '${all.length} contacts' : (shown.isEmpty ? 'No matches' : (shown.length == 1 ? '1 match' : '${shown.length} matches'));
 
     // The search in the list's header band, level with the detail's (docs/plans/w7-layout.md R2).
-    final list = EPanel(
+    final list = TourTarget(
+      id: 'contacts-list',
+      child: EPanel(
       padding: EdgeInsets.zero,
       head: Padding(
         padding: EdgeInsetsDirectional.only(end: Sp.x3),
@@ -222,6 +225,7 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
               ),
             ),
         ],
+      ),
       ),
     );
 

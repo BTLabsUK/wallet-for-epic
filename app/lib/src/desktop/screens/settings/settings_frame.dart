@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../log.dart';
 import '../../widgets/kit.dart';
+import '../../app/tour.dart';
 import 'prefs.dart';
 
 const List<(DeskRoute, String, IconData)?> _items = [
@@ -44,7 +45,12 @@ class SettingsFrame extends ConsumerWidget {
                   width: 200.u,
                   child: Semantics(
                     label: 'Settings sections',
-                    child: ESubnav(items: _items, current: route, onTap: (r) => nav.go(r as DeskRoute)),
+                    child: ESubnav(
+                      items: _items,
+                      current: route,
+                      onTap: (r) => nav.go(r as DeskRoute),
+                      wrap: (r, w) => TourTarget(id: 'subnav-${(r as DeskRoute).name}', child: w),
+                    ),
                   ),
                 ),
                 SizedBox(width: Sp.x8),

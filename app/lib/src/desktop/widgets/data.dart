@@ -443,12 +443,15 @@ class ESelect<T> extends StatelessWidget {
 
 /// A vertical list of sub-pages (settings) with the current one raised.
 class ESubnav extends StatelessWidget {
-  const ESubnav({super.key, required this.items, required this.current, required this.onTap});
+  const ESubnav({super.key, required this.items, required this.current, required this.onTap, this.wrap});
 
   /// Null entries draw a separator.
   final List<(Object, String, IconData)?> items;
   final Object current;
   final ValueChanged<Object> onTap;
+
+  /// Wraps each entry (the tour marks them as targets).
+  final Widget Function(Object id, Widget entry)? wrap;
 
   @override
   Widget build(BuildContext context) {
@@ -462,11 +465,14 @@ class ESubnav extends StatelessWidget {
           if (item == null)
             Padding(padding: EdgeInsets.symmetric(vertical: Sp.x2, horizontal: Sp.x3), child: Divider(height: 1, color: c.line))
           else
-            ENavItem(
-              icon: item.$3,
-              label: item.$2,
-              selected: item.$1 == current,
-              onTap: () => onTap(item.$1),
+            (wrap ?? (_, w) => w)(
+              item.$1,
+              ENavItem(
+                icon: item.$3,
+                label: item.$2,
+                selected: item.$1 == current,
+                onTap: () => onTap(item.$1),
+              ),
             ),
       ],
     ),

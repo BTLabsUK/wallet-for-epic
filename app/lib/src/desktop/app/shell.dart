@@ -275,12 +275,6 @@ Future<void> quitWallet(BuildContext context, WidgetRef ref) async {
 /// Switch wallet: locks, then the unlock screen offers the other wallets.
 Future<void> switchWallet(WidgetRef ref) => lockWallet(ref);
 
-const Map<DeskSection, String> _tourIds = {
-  DeskSection.send: 'send',
-  DeskSection.receive: 'receive',
-  DeskSection.activity: 'activity',
-};
-
 class _Sidebar extends ConsumerWidget {
   const _Sidebar({required this.section, required this.compact});
 
@@ -344,9 +338,9 @@ class _Sidebar extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     for (final (s, route, label, icon) in deskNav)
-                      _tourWrap(
-                        _tourIds[s],
-                        ENavItem(
+                      TourTarget(
+                        id: 'nav-${s.name}',
+                        child: ENavItem(
                           icon: icon,
                           label: label,
                           selected: section == s,
@@ -360,7 +354,7 @@ class _Sidebar extends ConsumerWidget {
                       child: Divider(height: 1, color: c.line),
                     ),
                     TourTarget(
-                      id: 'settings',
+                      id: 'nav-settings',
                       child: ENavItem(
                         icon: EIcons.settings,
                         label: 'Settings',
@@ -459,8 +453,6 @@ class _Sidebar extends ConsumerWidget {
   }
 }
 
-Widget _tourWrap(String? id, Widget child) => id == null ? child : TourTarget(id: id, child: child);
-
 class _PhoneTopBar extends ConsumerWidget {
   const _PhoneTopBar({required this.section});
 
@@ -482,7 +474,7 @@ class _PhoneTopBar extends ConsumerWidget {
           const Spacer(),
           const ServiceRows(compact: true, horizontal: true),
           TourTarget(
-            id: 'settings',
+            id: 'nav-settings',
             child: EIconButton(
               icon: EIcons.settings,
               label: 'Settings',
