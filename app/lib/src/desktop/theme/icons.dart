@@ -30,9 +30,10 @@ abstract final class EIcons {
   static const server = Icons.dns_outlined;
   static const node = Icons.hub_outlined;
   static const antenna = Icons.cell_tower;
-  static const epicbox = Icons.inbox_outlined;
-  static const http = Icons.http;
-  static const tor = Icons.security_outlined;
+  // One glyph per receive/send method, shared with the phone.
+  static const epicbox = Icons.alternate_email;
+  static const http = Icons.link;
+  static const tor = Icons.private_connectivity;
   static const refresh = Icons.refresh;
   static const info = Icons.info_outline;
   static const alert = Icons.warning_amber_outlined;
