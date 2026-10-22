@@ -8,6 +8,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../ui/theme/brand.dart' show EpicMark;
+import '../data/desk_update.dart' show deskAppVersion;
 import '../screens/settings/prefs.dart';
 import '../screens/settings/settings_frame.dart' show epicboxWord, groupDigits, nodeWord;
 import '../screens/settings/settings_node.dart' show hostOf;
@@ -18,7 +19,7 @@ import 'screens.dart';
 import 'tour.dart';
 
 /// The app version the sidebar, About and the support report show, with the build's commit.
-final String deskVersion = withBuildId('0.1.0'); // pubspec's version (v0.1)
+final String deskVersion = withBuildId(deskAppVersion);
 
 
 /// "Ctrl+L", or "⌘L" on macOS.

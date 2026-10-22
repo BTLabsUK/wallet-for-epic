@@ -1,6 +1,9 @@
 /// Settings › About › Updates: whether a newer Epic Wallet is out. Check only: the desktop
 /// never downloads or installs. Reads the manifest the phone's updater reads
-/// ([updateManifestUrl], one constant for both) and compares its `versionName` with this build.
+/// ([updateManifestUrl], one constant for both), but only its `desktop` entry: the phone's
+/// `versionName` is the Android build's. The entry is `{"version": "0.1.1", "page": "…"}`, or
+/// per system `{"windows": {…}, "linux": {…}}`; a manifest without it offers nothing.
+/// The page opens only on [deskUpdatePageHosts]; any other falls back to [deskReleasesUrl].
 library;
 
 import 'dart:async';
@@ -12,8 +15,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../app_log.dart';
 import '../../updater.dart' show updateManifestUrl;
 
-/// This build's version, without the build id.
+/// This build's version, without the build id (pubspec's version); the sidebar, About and
+/// the support report show it with the build id (`shell.dart`).
 const String deskAppVersion = '0.1.0';
+
+/// Where a download page may be: the project's own GitHub accounts.
+const List<String> deskUpdatePageHosts = ['https://github.com/BTLabs-EPIC/', 'https://github.com/blacktyger/'];
 
 /// Where an update is downloaded, when the manifest names no page of its own.
 const String deskReleasesUrl = 'https://github.com/blacktyger/wallet-for-epic/releases/latest';
@@ -69,6 +76,14 @@ bool isNewerVersion(String a, String b) {
   return false;
 }
 
+/// Whether [url] is an https page on one of [deskUpdatePageHosts].
+bool isDeskUpdatePage(String url) {
+  final u = Uri.tryParse(url);
+  if (u == null || u.scheme != 'https' || u.userInfo.isNotEmpty || u.hasPort) return false;
+  final normal = 'https://${u.host.toLowerCase()}${u.path}';
+  return deskUpdatePageHosts.any((h) => normal.toLowerCase().startsWith(h.toLowerCase()));
+}
+
 class DeskUpdateController extends Notifier<DeskUpdateState> {
   @override
   DeskUpdateState build() => const DeskUpdateState(DeskUpdatePhase.idle);
@@ -109,15 +124,21 @@ class DeskUpdateController extends Notifier<DeskUpdateState> {
     } on FormatException {
       return const DeskUpdateState(DeskUpdatePhase.failed, reason: 'The update information is not readable.');
     }
-    final version = json is Map<String, Object?> ? json['versionName'] : null;
+    final desktop = json is Map<String, Object?> ? json['desktop'] : null;
+    final mine = desktop is Map<String, Object?> && desktop[_system] is Map<String, Object?> ? desktop[_system] : desktop;
+    if (mine is! Map<String, Object?>) {
+      return const DeskUpdateState(DeskUpdatePhase.failed, reason: 'No desktop update information is published yet.');
+    }
+    final version = mine['version'];
     if (version is! String || version.isEmpty) {
       return const DeskUpdateState(DeskUpdatePhase.failed, reason: 'The update information has no version.');
     }
     if (!isNewerVersion(version, deskAppVersion)) return const DeskUpdateState(DeskUpdatePhase.latest);
-    final page = (json as Map<String, Object?>)['page'];
-    final safe = page is String && Uri.tryParse(page)?.scheme == 'https' ? page : deskReleasesUrl;
-    return DeskUpdateState(DeskUpdatePhase.available, version: version, page: safe);
+    final page = mine['page'];
+    return DeskUpdateState(DeskUpdatePhase.available, version: version, page: page is String && isDeskUpdatePage(page) ? page : deskReleasesUrl);
   }
+
+  static String get _system => Platform.isWindows ? 'windows' : Platform.isMacOS ? 'macos' : 'linux';
 }
 
 final deskUpdateProvider = NotifierProvider<DeskUpdateController, DeskUpdateState>(DeskUpdateController.new);

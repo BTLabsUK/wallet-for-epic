@@ -66,20 +66,46 @@ void main() {
   });
 
   testWidgets('a newer version offers its page; the same version is the latest', (tester) async {
-    final (container, opened) = await pump(tester, (_) async => (200, '{"versionName": "0.1.1", "page": "https://example.com/get"}'));
+    const page = 'https://github.com/BTLabs-EPIC/epic-wallet/releases/tag/v0.1.1';
+    final (container, opened) = await pump(tester, (_) async => (200, '{"versionName": "9.0.0", "desktop": {"version": "0.1.1", "page": "$page"}}'));
     expect(find.text('Update available: 0.1.1'), findsOneWidget);
     await tester.tap(find.widgetWithText(EButton, 'Get 0.1.1'));
     await tester.pumpAndSettle();
-    expect(opened, ['https://example.com/get']);
+    expect(opened, [page]);
 
     container.updateOverrides([
-      deskManifestFetchProvider.overrideWithValue((_) async => (200, '{"versionName": "0.1.0"}')),
+      deskManifestFetchProvider.overrideWithValue((_) async => (200, '{"versionName": "9.0.0", "desktop": {"version": "0.1.0"}}')),
       deskUpdateClockProvider.overrideWithValue(() => now),
       deskOpenUrlProvider.overrideWithValue((_) async => true),
     ]);
     await tester.tap(find.widgetWithText(EButton, 'Check now'));
     await tester.pumpAndSettle();
     expect(find.text('0.1.0 is the latest'), findsOneWidget);
+  });
+
+  testWidgets("the phone's manifest alone offers nothing to the desktop", (tester) async {
+    await pump(tester, (_) async => (200, '{"versionName": "0.2.0", "page": "https://github.com/blacktyger/wallet-for-epic/releases"}'));
+    expect(find.text('Could not check'), findsOneWidget);
+    expect(find.text('No desktop update information is published yet. Checked just now.'), findsOneWidget);
+    expect(find.textContaining('Update available'), findsNothing);
+  });
+
+  testWidgets('a page off the project accounts opens the releases page instead', (tester) async {
+    final (_, opened) = await pump(tester, (_) async => (200, '{"desktop": {"version": "0.1.1", "page": "https://github.com.evil.example/BTLabs-EPIC/"}}'));
+    await tester.tap(find.widgetWithText(EButton, 'Get 0.1.1'));
+    await tester.pumpAndSettle();
+    expect(opened, [deskReleasesUrl]);
+  });
+
+  test('download pages: https on the project accounts only', () {
+    expect(isDeskUpdatePage('https://github.com/BTLabs-EPIC/epic-wallet/releases'), isTrue);
+    expect(isDeskUpdatePage('https://github.com/blacktyger/wallet-for-epic/releases/latest'), isTrue);
+    expect(isDeskUpdatePage('https://GitHub.com/blacktyger/x'), isTrue);
+    expect(isDeskUpdatePage('http://github.com/blacktyger/x'), isFalse);
+    expect(isDeskUpdatePage('https://github.com/someone/x'), isFalse);
+    expect(isDeskUpdatePage('https://github.com/blacktyger.evil/x'), isFalse);
+    expect(isDeskUpdatePage('https://user@github.com/blacktyger/x'), isFalse);
+    expect(isDeskUpdatePage('https://example.com/get'), isFalse);
   });
 
   testWidgets('copyLink tries once more when the clipboard refuses', (tester) async {
