@@ -19,6 +19,7 @@ import 'dart:async';
 import 'dart:io';
 
 import '../../bip39_words.dart';
+import '../../builtin_node.dart';
 import '../../log.dart';
 import '../../network.dart';
 import '../../providers.dart' show WalletDirResolver;
@@ -85,6 +86,7 @@ class LepicDeskWallet implements DeskWalletApi {
     this.nodePoll = const Duration(seconds: 30),
     this.nodeTimeout = const Duration(seconds: 15),
     reg.WalletRegistry? registry,
+    this._builtInNode,
   }) : _minConf = minimumConfirmations ?? BigInt.from(10),
        _registryGiven = registry;
 
@@ -103,6 +105,11 @@ class LepicDeskWallet implements DeskWalletApi {
   final BigInt _minConf;
   final Duration nodePoll;
   final Duration nodeTimeout;
+
+  /// Makes the built-in node of a network (desktop builds with the bundled `epic`, D10); null
+  /// where there is none.
+  final Future<BuiltInNode> Function(core.Chain chain)? _builtInNode;
+  BuiltInNode? _node;
   DeskSettings _settings;
 
   core.WalletSession? _session;
@@ -1032,6 +1039,70 @@ class LepicDeskWallet implements DeskWalletApi {
   Future<void> useNode(String url) async {
     logInfo('desk', 'node ${Uri.tryParse(url)?.host ?? '?'}');
     await _switchTo(nodeUrl: url, relay: await _relay());
+    if (await _builtInOn()) {
+      await _secrets.write(builtInNodeSettingKey(preset.chain), 'false');
+      await _node?.stop();
+    }
+  }
+
+  String get _beforeBuiltInKey => 'app.node.$_chain.beforeBuiltIn';
+
+  Future<bool> _builtInOn() async =>
+      _builtInNode != null && await _secrets.read(builtInNodeSettingKey(preset.chain)) == 'true';
+
+  Future<BuiltInNode> _theNode() async {
+    final make = _builtInNode;
+    if (make == null) throw const DeskError('No built-in node in this build');
+    return _node ??= await make(preset.chain);
+  }
+
+  @override
+  Future<void> useBuiltInNode(bool on) async {
+    // The setting and the saved node change only once the wallet runs on the new node, so a
+    // failed start or move leaves both as they were.
+    if (on) {
+      final node = await _theNode();
+      try {
+        await node.start();
+      } on NodeStartException catch (e) {
+        throw DeskError(e.message);
+      }
+      // A stop that came in while it was starting wins.
+      if (const {NodeStatusKind.off, NodeStatusKind.stopped, NodeStatusKind.failed}.contains(node.state.kind)) {
+        throw const DeskError('Built-in node stopped');
+      }
+      final current = await _nodeUrl();
+      if (current != node.url) {
+        try {
+          await _switchTo(nodeUrl: node.url, relay: await _relay());
+        } on Object {
+          if (!await _builtInOn()) await node.stop();
+          rethrow;
+        }
+        await _secrets.write(_beforeBuiltInKey, current);
+      }
+      await _secrets.write(builtInNodeSettingKey(preset.chain), 'true');
+      logInfo('desk', 'built-in node on');
+      return;
+    }
+    final back = await _secrets.read(_beforeBuiltInKey) ?? preset.nodeUrl;
+    if (await _nodeUrl() != back) await _switchTo(nodeUrl: back, relay: await _relay());
+    await _secrets.write(builtInNodeSettingKey(preset.chain), 'false');
+    logInfo('desk', 'built-in node off');
+    await _node?.stop();
+  }
+
+  /// At launch: starts the built-in node again when it was left on. A failure is logged and
+  /// shown as a notice; the wallet then reports its node as not responding.
+  Future<void> resumeBuiltInNode() async {
+    if (!await _builtInOn()) return;
+    try {
+      await (await _theNode()).start();
+    } on Object catch (e) {
+      logWarn('desk', 'built-in node did not start: ${e is NodeStartException ? e.failure.name : e.runtimeType}');
+      _notice = 'Built-in node not started: ${e is NodeStartException ? e.message : 'unknown error'}';
+      _changed();
+    }
   }
 
   @override
@@ -1172,6 +1243,7 @@ class LepicDeskWallet implements DeskWalletApi {
   /// Stops background work for good (the app is closing).
   Future<void> dispose() async {
     await lock();
+    await _node?.stop();
     await _changes.close();
   }
 }

@@ -314,6 +314,12 @@ class MockDeskWallet implements DeskWalletApi {
   }
 
   @override
+  Future<void> useBuiltInNode(bool on) async {
+    await _wait();
+    _node = on ? 'http://127.0.0.1:3413' : 'https://node.epiccash.com';
+  }
+
+  @override
   Future<NodeServer> checkNode(String url) async {
     await _wait(3);
     final known = _nodes.where((n) => n.url == url);

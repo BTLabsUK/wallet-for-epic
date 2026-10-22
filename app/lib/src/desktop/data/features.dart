@@ -21,8 +21,11 @@
 ///   Receiving › HTTP listener and Start with the wallet, the status card's HTTP line.
 /// tor (G07–G12): Send › Direct › Tor, Receive's onion address, Settings › Receiving ›
 ///   Advanced › Tor, the status card's Tor line.
-/// builtInNode (D09–D14): Setup › Node's "Built-in node" card (Remote is the only choice),
-///   Settings › Node's "This computer" option, Sync in background, Blockchain data row.
+/// builtInNode (D09–D14, on): Setup › Node's "Built-in node" card (off by default, D10),
+///   Settings › Node's "This computer" option, Overview's "Start node". Needs the bundled `epic`
+///   (bin/epic beside the app); without it turning the node on says so. The blockchain data
+///   offer (D12) and the head start (D14) are not built.
+/// nodeBackground (D09): Settings › Node's "Sync in background" for the built-in node.
 /// coins (I05): Activity › Outputs tab.
 /// dandelion (F05, H04): Send's Dandelion++ switch and the review's Privacy line.
 /// rescanRepair (A16): Rescan's "Delete unconfirmed transactions".
@@ -46,7 +49,8 @@ abstract final class DeskFeatures {
   static const bool testNetworks = false;
   static const bool httpDirect = false;
   static const bool tor = false;
-  static const bool builtInNode = false;
+  static const bool builtInNode = true;
+  static const bool nodeBackground = false;
   static const bool coins = false;
   static const bool dandelion = false;
   static const bool rescanRepair = false;

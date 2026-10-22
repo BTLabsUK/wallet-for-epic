@@ -402,7 +402,7 @@ class ServiceRows extends ConsumerWidget {
     if (status == null) return const SizedBox.shrink();
 
     final node = prefs.typedNode ?? status.node;
-    final nodeHealth = prefs.builtin ? ServiceHealth.ok : status.nodeHealth;
+    final nodeHealth = status.nodeHealth;
     final nodeLines = [
       [prefs.builtin ? 'Built-in node' : hostOf(node.url), if (nodeHealth != ServiceHealth.down) groupDigits(status.nodeHeight)].join(' · '),
       if (nodeHealth == ServiceHealth.down) 'The node is not answering.',
