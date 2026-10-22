@@ -7,6 +7,7 @@ import '../contacts.dart' show contactNameFor, contactsProvider;
 import '../demo.dart';
 import '../errors.dart';
 import '../l10n.dart';
+import '../phone_tor.dart';
 import '../providers.dart';
 import '../push.dart';
 import '../settings.dart';
@@ -389,6 +390,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     ref.listen(listenerProvider.select((s) => s.last), (_, event) {
       if (event != null) _notify(event);
     });
+    // The phone's Tor controller lives as long as the shell: it starts tor on unlock when Tor
+    // receiving is on, and keeps it for a send. A listen, not a watch: progress ticks must
+    // not rebuild the shell.
+    ref.listen(phoneTorProvider, (_, _) {});
     ref.listen(shellTabProvider, (_, tab) => _showTab(tab));
     // Once per phase, and per whole percent while downloading.
     ref.listen(

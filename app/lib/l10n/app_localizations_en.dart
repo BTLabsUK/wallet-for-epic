@@ -1903,7 +1903,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get receiveQrLabel => 'QR code of your address';
 
   @override
-  String get receiveAddressLabel => 'Your address';
+  String get receiveAddressLabel => 'Epicbox address';
 
   @override
   String get receiveEpicboxOfflineBody =>
@@ -3724,4 +3724,118 @@ class AppLocalizationsEn extends AppLocalizations {
   String demoGuideStepToDo(String step) {
     return '$step, not done yet';
   }
+
+  @override
+  String get receiveTabEpicbox => 'Epicbox';
+
+  @override
+  String get receiveTabTor => 'Tor';
+
+  @override
+  String get receiveTabFile => 'File';
+
+  @override
+  String get receiveTorAddressLabel => 'Tor address';
+
+  @override
+  String get receiveTorQrLabel => 'QR code of your Tor address';
+
+  @override
+  String get torReceivingTitle => 'Tor receiving';
+
+  @override
+  String get torHonestLine =>
+      'Slower and more private. Blocked or not allowed in some countries.';
+
+  @override
+  String get torStateOff => 'Tor receiving is off';
+
+  @override
+  String torStateStarting(int percent) {
+    return 'Connecting to Tor… $percent%';
+  }
+
+  @override
+  String get torStatePublishing => 'Publishing your Tor address…';
+
+  @override
+  String get torStateReady => 'Tor receiving is on';
+
+  @override
+  String torStateNotReachable(String reason) {
+    return 'Your Tor address is not reachable yet. $reason';
+  }
+
+  @override
+  String get torFailureMissing => 'Tor is not included in this app.';
+
+  @override
+  String get torFailureStart => 'Tor did not start.';
+
+  @override
+  String get torFailureNetwork =>
+      'Could not reach the Tor network. Check the connection.';
+
+  @override
+  String get torFailureClock =>
+      'The phone\'s clock is wrong. Tor needs the right time.';
+
+  @override
+  String get torFailureListener => 'The wallet could not open its Tor address.';
+
+  @override
+  String get torFailureStopped => 'Tor stopped.';
+
+  @override
+  String get torFailurePublish => 'The Tor address could not be published.';
+
+  @override
+  String get torFailureKeys => 'Tor did not accept the wallet\'s address key.';
+
+  @override
+  String get sendOnionIncomplete =>
+      'This is not a complete Tor address. Copy it again from the recipient.';
+
+  @override
+  String get sendTorUnavailable =>
+      'This app cannot send over Tor, so a Tor address cannot be paid here.';
+
+  @override
+  String get sendOverTor => 'Over Tor';
+
+  @override
+  String get sendTorConnectsOnSend => 'Tor connects when you send.';
+
+  @override
+  String get sendTorReady => 'Ready to send over Tor';
+
+  @override
+  String get sendTorReaching =>
+      'Reaching their wallet over Tor… This can take a while. Keep the app open.';
+
+  @override
+  String sendTorNotReached(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other:
+          'Their wallet was not reached over Tor. The amount is on hold until you cancel it, or for at most $days days.',
+      one: 'Their wallet was not reached over Tor. The amount is on hold until you cancel it, or for at most 1 day.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String sendTorNothingSent(String reason) {
+    return '$reason Nothing was sent.';
+  }
+
+  @override
+  String get sendTryAgain => 'Try again';
+
+  @override
+  String get sendCancelPayment => 'Cancel payment';
+
+  @override
+  String get settingsSectionReceiving => 'Receiving';
 }

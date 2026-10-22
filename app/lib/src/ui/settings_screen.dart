@@ -1,4 +1,5 @@
 import '../app_info.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -9,6 +10,7 @@ import '../errors.dart';
 import '../l10n.dart';
 import '../network.dart';
 import '../price.dart';
+import '../phone_tor.dart';
 import '../providers.dart';
 import '../push.dart';
 import '../settings.dart';
@@ -31,6 +33,7 @@ import 'settings_pin.dart';
 import 'theme/advanced.dart';
 import 'theme/tokens.dart';
 import 'setup_screen.dart';
+import 'tor_ui.dart';
 
 /// The project's source code.
 const String projectRepoUrl = 'https://github.com/blacktyger/wallet-for-epic';
@@ -340,6 +343,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final biometrics = ref.watch(_biometricsProvider).value;
     final version = ref.watch(appVersionProvider);
     final walletOpen = ref.watch(sessionProvider) != null;
+    final torAvailable = ref.watch(phoneTorProvider.select(torShown));
     // Invoices only on a core that has them (UP-14); until then no entry at all.
     final invoices = ref.watch(sessionProvider)?.supportsInvoices ?? false;
     // The web demo hides what makes no sense in a browser or on a temporary wallet: network
@@ -423,6 +427,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   value: s.advancedOptions,
                   onChanged: _settings.setAdvancedOptions,
                 ),
+                // Tor receiving: the same switch as on Receive, one source of truth
+                // (phoneTorProvider). An equal receive method, so no Advanced placement.
+                if (walletOpen && torAvailable) ...[
+                  _Header(l.settingsSectionReceiving),
+                  const TorReceivingBlock(leading: true),
+                ],
                 if (!demo &&
                     (ref.watch(pushConfiguredProvider).value ?? false)) ...[
                   _Header(l.settingsSectionNotifications),

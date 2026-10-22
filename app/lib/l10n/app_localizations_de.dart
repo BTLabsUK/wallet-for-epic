@@ -1922,7 +1922,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get receiveQrLabel => 'QR-Code Ihrer Adresse';
 
   @override
-  String get receiveAddressLabel => 'Ihre Adresse';
+  String get receiveAddressLabel => 'Epicbox-Adresse';
 
   @override
   String get receiveEpicboxOfflineBody =>
@@ -3773,4 +3773,121 @@ class AppLocalizationsDe extends AppLocalizations {
   String demoGuideStepToDo(String step) {
     return '$step, noch offen';
   }
+
+  @override
+  String get receiveTabEpicbox => 'Epicbox';
+
+  @override
+  String get receiveTabTor => 'Tor';
+
+  @override
+  String get receiveTabFile => 'Datei';
+
+  @override
+  String get receiveTorAddressLabel => 'Tor-Adresse';
+
+  @override
+  String get receiveTorQrLabel => 'QR-Code Ihrer Tor-Adresse';
+
+  @override
+  String get torReceivingTitle => 'Empfang über Tor';
+
+  @override
+  String get torHonestLine =>
+      'Langsamer und privater. In manchen Ländern blockiert oder nicht erlaubt.';
+
+  @override
+  String get torStateOff => 'Empfang über Tor ist aus';
+
+  @override
+  String torStateStarting(int percent) {
+    return 'Verbindung mit Tor… $percent %';
+  }
+
+  @override
+  String get torStatePublishing => 'Ihre Tor-Adresse wird veröffentlicht…';
+
+  @override
+  String get torStateReady => 'Empfang über Tor ist an';
+
+  @override
+  String torStateNotReachable(String reason) {
+    return 'Ihre Tor-Adresse ist noch nicht erreichbar. $reason';
+  }
+
+  @override
+  String get torFailureMissing => 'Tor ist in dieser App nicht enthalten.';
+
+  @override
+  String get torFailureStart => 'Tor ist nicht gestartet.';
+
+  @override
+  String get torFailureNetwork =>
+      'Das Tor-Netzwerk ist nicht erreichbar. Prüfen Sie die Verbindung.';
+
+  @override
+  String get torFailureClock =>
+      'Die Uhr des Telefons geht falsch. Tor braucht die richtige Zeit.';
+
+  @override
+  String get torFailureListener =>
+      'Die Wallet konnte ihre Tor-Adresse nicht öffnen.';
+
+  @override
+  String get torFailureStopped => 'Tor wurde beendet.';
+
+  @override
+  String get torFailurePublish =>
+      'Die Tor-Adresse konnte nicht veröffentlicht werden.';
+
+  @override
+  String get torFailureKeys =>
+      'Tor hat den Adressschlüssel der Wallet nicht angenommen.';
+
+  @override
+  String get sendOnionIncomplete =>
+      'Das ist keine vollständige Tor-Adresse. Kopieren Sie sie erneut vom Empfänger.';
+
+  @override
+  String get sendTorUnavailable =>
+      'Diese App kann nicht über Tor senden, daher lässt sich eine Tor-Adresse hier nicht bezahlen.';
+
+  @override
+  String get sendOverTor => 'Über Tor';
+
+  @override
+  String get sendTorConnectsOnSend => 'Tor verbindet sich beim Senden.';
+
+  @override
+  String get sendTorReady => 'Bereit zum Senden über Tor';
+
+  @override
+  String get sendTorReaching =>
+      'Die Wallet der Gegenseite wird über Tor erreicht… Das kann dauern. Lassen Sie die App offen.';
+
+  @override
+  String sendTorNotReached(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other:
+          'Die Wallet der Gegenseite war über Tor nicht erreichbar. Der Betrag bleibt zurückgehalten, bis Sie stornieren, höchstens $days Tage.',
+      one: 'Die Wallet der Gegenseite war über Tor nicht erreichbar. Der Betrag bleibt zurückgehalten, bis Sie stornieren, höchstens 1 Tag.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String sendTorNothingSent(String reason) {
+    return '$reason Es wurde nichts gesendet.';
+  }
+
+  @override
+  String get sendTryAgain => 'Erneut versuchen';
+
+  @override
+  String get sendCancelPayment => 'Zahlung stornieren';
+
+  @override
+  String get settingsSectionReceiving => 'Empfangen';
 }

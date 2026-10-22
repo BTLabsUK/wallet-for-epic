@@ -11,6 +11,7 @@ import '../app_log.dart';
 import '../demo.dart';
 import '../errors.dart';
 import '../l10n.dart';
+import '../phone_tor.dart';
 import '../providers.dart';
 import '../settings.dart';
 import '../slate_files.dart';
@@ -25,18 +26,23 @@ import 'theme/advanced.dart';
 import 'theme/brand.dart';
 import 'theme/protocol.dart';
 import 'theme/tokens.dart';
+import 'tor_ui.dart';
 
-/// Which of Receive's tabs shows: false for Epicbox address, true for Payment file. Kept
-/// while the app runs, across tab changes and rebuilds; Epicbox address at start.
-final receiveByFileProvider = NotifierProvider<ReceiveTabNotifier, bool>(
+/// Receive's ways of receiving, one tab each: Epicbox first and by default, Tor where the app
+/// has it, and a payment file.
+enum ReceiveTab { epicbox, tor, file }
+
+/// Which of Receive's tabs shows. Kept while the app runs, across tab changes and rebuilds;
+/// Epicbox at start.
+final receiveTabProvider = NotifierProvider<ReceiveTabNotifier, ReceiveTab>(
   ReceiveTabNotifier.new,
 );
 
-class ReceiveTabNotifier extends Notifier<bool> {
+class ReceiveTabNotifier extends Notifier<ReceiveTab> {
   @override
-  bool build() => false;
+  ReceiveTab build() => ReceiveTab.epicbox;
 
-  void choose({required bool byFile}) => state = byFile;
+  void choose(ReceiveTab tab) => state = tab;
 }
 
 /// The key of Receive's tab choice, for tests.
@@ -46,22 +52,26 @@ const Key receiveTabsKey = ValueKey('receive-tabs');
 /// would not fit the screen otherwise, down to [receiveQrMinSize]. Below that the page scrolls.
 const double receiveQrMaxSize = 240, receiveQrMinSize = 160;
 
-/// Receiving: epicbox payments arrive by themselves while connected; a payment file or its
-/// text can still be accepted by hand. There is no HTTP receive, because a phone cannot
-/// accept connections.
+/// Receiving: epicbox payments arrive by themselves while connected; over Tor other wallets
+/// reach this one at its onion address while Tor receiving is on; a payment file or its text
+/// can still be accepted by hand. There is no HTTP receive, because a phone cannot accept
+/// connections.
 ///
-/// The Receive tab's content: a choice at the top with Send's look and labels, then on
-/// Epicbox address the address (tap to copy, Share inside), the epicbox line, the QR code, and
-/// the demo's test coins and requesting a payment when the wallet handles invoices; on Payment
-/// file the file card. Help ends both. The QR code takes the room left, so the Epicbox tab
-/// fits a phone without scrolling.
+/// The Receive tab's content: a choice at the top with Send's look, then on Epicbox the
+/// address (tap to copy, Share inside), the epicbox line, the QR code, and the demo's test
+/// coins and requesting a payment when the wallet handles invoices; on Tor the onion address
+/// in the same card, the Tor receiving switch with its status, and the QR code; on File the
+/// file card. Help ends all three. The QR code takes the room left, so the Epicbox tab fits a
+/// phone without scrolling. The Tor tab exists only where the app has Tor.
 class ReceiveView extends ConsumerWidget {
   const ReceiveView({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l = context.l10n;
-    final byFile = ref.watch(receiveByFileProvider);
+    final torAvailable = ref.watch(phoneTorProvider.select(torShown));
+    var tab = ref.watch(receiveTabProvider);
+    if (tab == ReceiveTab.tor && !torAvailable) tab = ReceiveTab.epicbox;
     final address = ref.watch(addressProvider);
     final demo = ref.watch(demoModeProvider);
     final invoices = ref.watch(sessionProvider)?.supportsInvoices ?? false;
@@ -72,26 +82,31 @@ class ReceiveView extends ConsumerWidget {
         onPressed: () => openHelp(context, HelpTopic.receiving),
       ),
     );
-    final tabs = SegmentedButton<bool>(
+    final tabs = SegmentedButton<ReceiveTab>(
       key: receiveTabsKey,
       segments: [
         ButtonSegment(
-          value: false,
+          value: ReceiveTab.epicbox,
           icon: const Icon(Icons.alternate_email),
-          label: Text(l.sendMethodEpicbox),
+          label: Text(l.receiveTabEpicbox),
         ),
+        if (torAvailable)
+          ButtonSegment(
+            value: ReceiveTab.tor,
+            icon: const Icon(torIcon),
+            label: Text(l.receiveTabTor),
+          ),
         ButtonSegment(
-          value: true,
+          value: ReceiveTab.file,
           icon: const Icon(Icons.description_outlined),
-          label: Text(l.sendMethodFile),
+          label: Text(l.receiveTabFile),
         ),
       ],
-      selected: {byFile},
+      selected: {tab},
       showSelectedIcon: false,
       expandedInsets: EdgeInsets.zero,
-      onSelectionChanged: (selected) => ref
-          .read(receiveByFileProvider.notifier)
-          .choose(byFile: selected.first),
+      onSelectionChanged: (selected) =>
+          ref.read(receiveTabProvider.notifier).choose(selected.first),
     );
     Widget column(List<Widget> children) => Column(
       mainAxisSize: MainAxisSize.min,
@@ -102,14 +117,50 @@ class ReceiveView extends ConsumerWidget {
     final Widget above;
     final Widget? code;
     final Widget below;
-    if (byFile) {
+    if (tab == ReceiveTab.file) {
       above = column([const _FileCard(), const SizedBox(height: 8), help]);
       code = null;
       below = const SizedBox.shrink();
+    } else if (tab == ReceiveTab.tor) {
+      final onion = ref.watch(phoneTorProvider.select((s) => s.onion));
+      above = column([
+        if (onion != null) ...[
+          _AddressRow(
+            address: onion,
+            label: l.receiveTorAddressLabel,
+            cardKey: receiveTorAddressKey,
+          ),
+          const SizedBox(height: 4),
+        ] else
+          const LinearProgressIndicator(),
+        const TorReceivingBlock(),
+        const SizedBox(height: 4),
+      ]);
+      code = onion == null
+          ? null
+          : LayoutBuilder(
+              builder: (context, room) => _AddressQr(
+                address: onion,
+                semanticsLabel: l.receiveTorQrLabel,
+                size:
+                    math
+                        .min(room.maxWidth, room.maxHeight)
+                        .clamp(
+                          receiveQrMinSize + _AddressQr.frame,
+                          receiveQrMaxSize + _AddressQr.frame,
+                        ) -
+                    _AddressQr.frame,
+              ),
+            );
+      below = column([const SizedBox(height: 8), help]);
     } else {
       above = column([
         if (value != null) ...[
-          _AddressRow(address: value),
+          _AddressRow(
+            address: value,
+            label: l.receiveAddressLabel,
+            cardKey: receiveAddressKey,
+          ),
           const SizedBox(height: 8),
           const _EpicboxLine(),
           if (demo) const _KeepTabOpenLine(),
@@ -298,6 +349,9 @@ class _RenderReceivePage extends RenderBox
 /// The key of the address card, which copies on a tap, for tests.
 const Key receiveAddressKey = ValueKey('receive-address');
 
+/// The key of the Tor address card on the Tor tab, for tests.
+const Key receiveTorAddressKey = ValueKey('receive-tor-address');
+
 /// The key of Share inside the address card, for tests.
 const Key receiveShareKey = ValueKey('receive-share');
 
@@ -305,11 +359,20 @@ const Key receiveShareKey = ValueKey('receive-share');
 const Key receiveEpicboxKey = ValueKey('receive-epicbox');
 
 /// The full address in a full-width card that copies on a tap anywhere on it, with the copy
-/// icon and, where the device shares, Share stacked on its right.
+/// icon and, where the device shares, Share stacked on its right. [label] names the kind of
+/// address above it: the same card for the epicbox and the Tor address.
 class _AddressRow extends ConsumerStatefulWidget {
-  const _AddressRow({required this.address});
+  const _AddressRow({
+    required this.address,
+    required this.label,
+    required this.cardKey,
+  });
 
   final String address;
+  final String label;
+
+  /// The key of the card's tap target, for tests.
+  final Key cardKey;
 
   @override
   ConsumerState<_AddressRow> createState() => _AddressRowState();
@@ -355,10 +418,10 @@ class _AddressRowState extends ConsumerState<_AddressRow> {
       child: Stack(
         children: [
           Semantics(
-            key: receiveAddressKey,
+            key: widget.cardKey,
             container: true,
             button: true,
-            label: l.receiveAddressLabel,
+            label: widget.label,
             value: address,
             onTapHint: l.commonCopy,
             onTap: _copy,
@@ -387,7 +450,7 @@ class _AddressRowState extends ConsumerState<_AddressRow> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                l.receiveAddressLabel,
+                                widget.label,
                                 style: theme.textTheme.labelMedium?.copyWith(
                                   color: t.dim,
                                 ),
@@ -530,10 +593,17 @@ const Key receiveKeepOpenKey = ValueKey('receive-keep-open');
 
 /// The address as a QR code of [size] with the mark, framed by corner ticks.
 class _AddressQr extends StatelessWidget {
-  const _AddressQr({required this.address, required this.size});
+  const _AddressQr({
+    required this.address,
+    required this.size,
+    this.semanticsLabel,
+  });
 
   final String address;
   final double size;
+
+  /// What a screen reader calls it; the epicbox address's code without it.
+  final String? semanticsLabel;
 
   /// What the frame adds to the code's side: the ticks' and the white margin's padding.
   static const double frame = 2 * 12 + 2 * 16;
@@ -564,7 +634,7 @@ class _AddressQr extends StatelessWidget {
               ],
             ),
             child: Semantics(
-              label: context.l10n.receiveQrLabel,
+              label: semanticsLabel ?? context.l10n.receiveQrLabel,
               image: true,
               child: MarkedQr(data: address, size: size),
             ),

@@ -2180,7 +2180,7 @@
   "@receiveQrLabel": {
     "description": "Screen-reader label of the QR code image."
   },
-  "receiveAddressLabel": "Your address",
+  "receiveAddressLabel": "Epicbox address",
   "@receiveAddressLabel": {
     "description": "Caption above the wallet's full epicbox address on the Receive tab; a tap on the card copies the address."
   },
@@ -2763,7 +2763,6 @@
   "@unlockStranded": {
     "description": "Unlock screen notice when the wallet or its sealed PIN text is missing from the store. Nothing is deleted automatically."
   },
-
   "sendAmountNegative": "The amount cannot be negative.",
   "@sendAmountNegative": {
     "description": "Amount field error."
@@ -4530,5 +4529,149 @@
         "example": "Send some to someone"
       }
     }
+  },
+  "receiveTabEpicbox": "Epicbox",
+  "@receiveTabEpicbox": {
+    "description": "Receive, first tab: this wallet's epicbox address. epicbox is a proper name. Short: three tabs share one row on a phone."
+  },
+  "receiveTabTor": "Tor",
+  "@receiveTabTor": {
+    "description": "Receive, second tab (only when the app has Tor): this wallet's Tor address, an onion address. Tor is a proper name."
+  },
+  "receiveTabFile": "File",
+  "@receiveTabFile": {
+    "description": "Receive, last tab: accepting a payment file. Short: three tabs share one row on a phone."
+  },
+  "receiveTorAddressLabel": "Tor address",
+  "@receiveTorAddressLabel": {
+    "description": "Caption above the wallet's full Tor address (the onion address) on the Receive tab; a tap on the card copies it."
+  },
+  "receiveTorQrLabel": "QR code of your Tor address",
+  "@receiveTorQrLabel": {
+    "description": "Screen reader label of the QR code of the wallet's Tor address."
+  },
+  "torReceivingTitle": "Tor receiving",
+  "@torReceivingTitle": {
+    "description": "Title of the on/off switch for receiving payments over Tor, on the Receive tab and in Settings. Same words in both places."
+  },
+  "torHonestLine": "Slower and more private. Blocked or not allowed in some countries.",
+  "@torHonestLine": {
+    "description": "The one sentence that describes Tor, under the switch: only what is true. No time promises."
+  },
+  "torStateOff": "Tor receiving is off",
+  "@torStateOff": {
+    "description": "Tor status line on Receive: the switch is off, so other wallets cannot reach this one over Tor."
+  },
+  "torStateStarting": "Connecting to Tor… {percent}%",
+  "@torStateStarting": {
+    "description": "Tor status line while tor connects, with the percentage done. Also Send's status while it connects for a payment.",
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "torStatePublishing": "Publishing your Tor address…",
+  "@torStatePublishing": {
+    "description": "Tor status line: connected, the wallet's onion address is being made reachable."
+  },
+  "torStateReady": "Tor receiving is on",
+  "@torStateReady": {
+    "description": "Tor status line: other wallets can reach this one at its Tor address."
+  },
+  "torStateNotReachable": "Your Tor address is not reachable yet. {reason}",
+  "@torStateNotReachable": {
+    "description": "Tor status line: tor is connected but the wallet's own address cannot be reached; {reason} is one of the torFailure sentences.",
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "torFailureMissing": "Tor is not included in this app.",
+  "@torFailureMissing": {
+    "description": "Why Tor is not working: this build has no tor binary."
+  },
+  "torFailureStart": "Tor did not start.",
+  "@torFailureStart": {
+    "description": "Why Tor is not working: the tor program did not start."
+  },
+  "torFailureNetwork": "Could not reach the Tor network. Check the connection.",
+  "@torFailureNetwork": {
+    "description": "Why Tor is not working: no progress connecting (offline, or Tor blocked). The line under the switch already says Tor is blocked in some countries, so this does not repeat it."
+  },
+  "torFailureClock": "The phone's clock is wrong. Tor needs the right time.",
+  "@torFailureClock": {
+    "description": "Why Tor is not working: the device's clock is off, which Tor refuses."
+  },
+  "torFailureListener": "The wallet could not open its Tor address.",
+  "@torFailureListener": {
+    "description": "Why Tor is not working for receiving: the wallet's own Tor service did not start."
+  },
+  "torFailureStopped": "Tor stopped.",
+  "@torFailureStopped": {
+    "description": "Why Tor is not working: the tor program exited."
+  },
+  "torFailurePublish": "The Tor address could not be published.",
+  "@torFailurePublish": {
+    "description": "Why Tor is not working for receiving: the onion address was not published in time."
+  },
+  "torFailureKeys": "Tor did not accept the wallet's address key.",
+  "@torFailureKeys": {
+    "description": "Why Tor is not working for receiving: tor refused the wallet's onion key."
+  },
+  "sendOnionIncomplete": "This is not a complete Tor address. Copy it again from the recipient.",
+  "@sendOnionIncomplete": {
+    "description": "Send, step 1, and a contact's address: the text looks like a Tor (onion) address but its checksum fails: a typo or a cut."
+  },
+  "sendTorUnavailable": "This app cannot send over Tor, so a Tor address cannot be paid here.",
+  "@sendTorUnavailable": {
+    "description": "Send, step 1: the recipient is a Tor address but this build or platform has no Tor."
+  },
+  "sendOverTor": "Over Tor",
+  "@sendOverTor": {
+    "description": "Small label on the recipient card and the review when the payment goes over Tor (the address is an onion address)."
+  },
+  "sendTorConnectsOnSend": "Tor connects when you send.",
+  "@sendTorConnectsOnSend": {
+    "description": "Send, review: the recipient is a Tor address and tor is not running yet; it starts when Send is tapped."
+  },
+  "sendTorReady": "Ready to send over Tor",
+  "@sendTorReady": {
+    "description": "Send, review: tor is connected; the payment can go."
+  },
+  "sendTorReaching": "Reaching their wallet over Tor… This can take a while. Keep the app open.",
+  "@sendTorReaching": {
+    "description": "Send, review, while sending over Tor: the recipient's wallet is being contacted. No time promise."
+  },
+  "sendTorNotReached": "{days, plural, =1{Their wallet was not reached over Tor. The amount is on hold until you cancel it, or for at most 1 day.} other{Their wallet was not reached over Tor. The amount is on hold until you cancel it, or for at most {days} days.}}",
+  "@sendTorNotReached": {
+    "description": "Send, review: the recipient's wallet was not reached over Tor; the wallet keeps the payment with its coins on hold until it is cancelled, and cancels it by itself after {days} days. Try again and Cancel payment follow.",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "sendTorNothingSent": "{reason} Nothing was sent.",
+  "@sendTorNothingSent": {
+    "description": "Send, review: tor did not connect before anything was sent; {reason} is one of the torFailure sentences.",
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "sendTryAgain": "Try again",
+  "@sendTryAgain": {
+    "description": "Button: deliver the waiting payment again over Tor."
+  },
+  "sendCancelPayment": "Cancel payment",
+  "@sendCancelPayment": {
+    "description": "Button: cancel the waiting payment, freeing its coins."
+  },
+  "settingsSectionReceiving": "Receiving",
+  "@settingsSectionReceiving": {
+    "description": "Settings section header: how payments reach this wallet (Tor receiving)."
   }
 }

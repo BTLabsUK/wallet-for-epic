@@ -2019,7 +2019,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get receiveQrLabel => 'Kod QR Twojego adresu';
 
   @override
-  String get receiveAddressLabel => 'Twój adres';
+  String get receiveAddressLabel => 'Adres Epicbox';
 
   @override
   String get receiveEpicboxOfflineBody =>
@@ -3886,4 +3886,124 @@ class AppLocalizationsPl extends AppLocalizations {
   String demoGuideStepToDo(String step) {
     return '$step, jeszcze nie';
   }
+
+  @override
+  String get receiveTabEpicbox => 'Epicbox';
+
+  @override
+  String get receiveTabTor => 'Tor';
+
+  @override
+  String get receiveTabFile => 'Plik';
+
+  @override
+  String get receiveTorAddressLabel => 'Adres Tor';
+
+  @override
+  String get receiveTorQrLabel => 'Kod QR Twojego adresu Tor';
+
+  @override
+  String get torReceivingTitle => 'Odbieranie przez Tor';
+
+  @override
+  String get torHonestLine =>
+      'Wolniej i bardziej prywatnie. W niektórych krajach zablokowane lub niedozwolone.';
+
+  @override
+  String get torStateOff => 'Odbieranie przez Tor jest wyłączone';
+
+  @override
+  String torStateStarting(int percent) {
+    return 'Łączenie z Tor… $percent%';
+  }
+
+  @override
+  String get torStatePublishing => 'Publikowanie Twojego adresu Tor…';
+
+  @override
+  String get torStateReady => 'Odbieranie przez Tor jest włączone';
+
+  @override
+  String torStateNotReachable(String reason) {
+    return 'Twój adres Tor nie jest jeszcze osiągalny. $reason';
+  }
+
+  @override
+  String get torFailureMissing => 'Ta aplikacja nie zawiera Tora.';
+
+  @override
+  String get torFailureStart => 'Tor się nie uruchomił.';
+
+  @override
+  String get torFailureNetwork =>
+      'Nie udało się połączyć z siecią Tor. Sprawdź połączenie.';
+
+  @override
+  String get torFailureClock =>
+      'Zegar telefonu jest źle ustawiony. Tor potrzebuje właściwego czasu.';
+
+  @override
+  String get torFailureListener =>
+      'Portfel nie mógł otworzyć swojego adresu Tor.';
+
+  @override
+  String get torFailureStopped => 'Tor został zatrzymany.';
+
+  @override
+  String get torFailurePublish => 'Nie udało się opublikować adresu Tor.';
+
+  @override
+  String get torFailureKeys => 'Tor nie przyjął klucza adresu portfela.';
+
+  @override
+  String get sendOnionIncomplete =>
+      'To nie jest pełny adres Tor. Skopiuj go ponownie od odbiorcy.';
+
+  @override
+  String get sendTorUnavailable =>
+      'Ta aplikacja nie wysyła przez Tor, więc nie da się tu zapłacić na adres Tor.';
+
+  @override
+  String get sendOverTor => 'Przez Tor';
+
+  @override
+  String get sendTorConnectsOnSend => 'Tor łączy się przy wysyłaniu.';
+
+  @override
+  String get sendTorReady => 'Gotowe do wysłania przez Tor';
+
+  @override
+  String get sendTorReaching =>
+      'Łączenie z portfelem odbiorcy przez Tor… To może potrwać. Nie zamykaj aplikacji.';
+
+  @override
+  String sendTorNotReached(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other:
+          'Nie udało się połączyć z portfelem odbiorcy przez Tor. Kwota jest wstrzymana, dopóki jej nie anulujesz, najwyżej $days dnia.',
+      many:
+          'Nie udało się połączyć z portfelem odbiorcy przez Tor. Kwota jest wstrzymana, dopóki jej nie anulujesz, najwyżej $days dni.',
+      few:
+          'Nie udało się połączyć z portfelem odbiorcy przez Tor. Kwota jest wstrzymana, dopóki jej nie anulujesz, najwyżej $days dni.',
+      one:
+          'Nie udało się połączyć z portfelem odbiorcy przez Tor. Kwota jest wstrzymana, dopóki jej nie anulujesz, najwyżej $days dzień.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String sendTorNothingSent(String reason) {
+    return '$reason Nic nie zostało wysłane.';
+  }
+
+  @override
+  String get sendTryAgain => 'Spróbuj ponownie';
+
+  @override
+  String get sendCancelPayment => 'Anuluj płatność';
+
+  @override
+  String get settingsSectionReceiving => 'Odbieranie';
 }

@@ -1782,7 +1782,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get receiveQrLabel => '你的地址二维码';
 
   @override
-  String get receiveAddressLabel => '你的地址';
+  String get receiveAddressLabel => 'Epicbox 地址';
 
   @override
   String get receiveEpicboxOfflineBody => '发给你的付款现在会在 epicbox 等待，钱包重新连接后到账。';
@@ -3506,4 +3506,110 @@ class AppLocalizationsZh extends AppLocalizations {
   String demoGuideStepToDo(String step) {
     return '$step，尚未完成';
   }
+
+  @override
+  String get receiveTabEpicbox => 'Epicbox';
+
+  @override
+  String get receiveTabTor => 'Tor';
+
+  @override
+  String get receiveTabFile => '文件';
+
+  @override
+  String get receiveTorAddressLabel => 'Tor 地址';
+
+  @override
+  String get receiveTorQrLabel => '你的 Tor 地址二维码';
+
+  @override
+  String get torReceivingTitle => 'Tor 接收';
+
+  @override
+  String get torHonestLine => '更慢、更私密。在部分国家或地区被屏蔽或不被允许。';
+
+  @override
+  String get torStateOff => 'Tor 接收已关闭';
+
+  @override
+  String torStateStarting(int percent) {
+    return '正在连接 Tor… $percent%';
+  }
+
+  @override
+  String get torStatePublishing => '正在发布你的 Tor 地址…';
+
+  @override
+  String get torStateReady => 'Tor 接收已开启';
+
+  @override
+  String torStateNotReachable(String reason) {
+    return '你的 Tor 地址暂时无法访问。$reason';
+  }
+
+  @override
+  String get torFailureMissing => '此应用不包含 Tor。';
+
+  @override
+  String get torFailureStart => 'Tor 未能启动。';
+
+  @override
+  String get torFailureNetwork => '无法连接 Tor 网络。请检查网络。';
+
+  @override
+  String get torFailureClock => '手机时钟不准。Tor 需要正确的时间。';
+
+  @override
+  String get torFailureListener => '钱包无法打开自己的 Tor 地址。';
+
+  @override
+  String get torFailureStopped => 'Tor 已停止。';
+
+  @override
+  String get torFailurePublish => '无法发布 Tor 地址。';
+
+  @override
+  String get torFailureKeys => 'Tor 不接受钱包的地址密钥。';
+
+  @override
+  String get sendOnionIncomplete => '这不是完整的 Tor 地址。请从收款人处重新复制。';
+
+  @override
+  String get sendTorUnavailable => '此应用无法通过 Tor 发送，因此无法在这里向 Tor 地址付款。';
+
+  @override
+  String get sendOverTor => '通过 Tor';
+
+  @override
+  String get sendTorConnectsOnSend => '发送时会连接 Tor。';
+
+  @override
+  String get sendTorReady => '可以通过 Tor 发送';
+
+  @override
+  String get sendTorReaching => '正在通过 Tor 联系对方钱包… 可能需要一些时间，请保持应用打开。';
+
+  @override
+  String sendTorNotReached(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: '未能通过 Tor 联系到对方钱包。在你取消之前，这笔金额处于冻结状态，最长 $days 天。',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String sendTorNothingSent(String reason) {
+    return '$reason未发送任何内容。';
+  }
+
+  @override
+  String get sendTryAgain => '重试';
+
+  @override
+  String get sendCancelPayment => '取消付款';
+
+  @override
+  String get settingsSectionReceiving => '接收';
 }

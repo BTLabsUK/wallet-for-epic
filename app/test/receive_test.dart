@@ -125,8 +125,7 @@ class _Harness {
   }
 
   /// Shows the Payment file tab.
-  Future<void> byFile(WidgetTester tester) =>
-      _tap(tester, find.text('Payment file'));
+  Future<void> byFile(WidgetTester tester) => _tap(tester, find.text('File'));
 
   Future<void> listener(WidgetTester tester, ListenerEventKind kind) async {
     session.listenerEvents.add(ListenerEvent(kind: kind, message: 'x'));
@@ -170,15 +169,15 @@ void main() {
     ) async {
       final h = _Harness();
       await h.pump(tester);
-      final tabs = tester.widget<SegmentedButton<bool>>(
+      final tabs = tester.widget<SegmentedButton<ReceiveTab>>(
         find.byKey(receiveTabsKey),
       );
-      expect(tabs.selected, {false});
+      expect(tabs.selected, {ReceiveTab.epicbox});
       expect(tabs.showSelectedIcon, isFalse);
       expect(tabs.expandedInsets, EdgeInsets.zero);
       expect(
         [for (final s in tabs.segments) (s.value, (s.label! as Text).data)],
-        [(false, 'Epicbox address'), (true, 'Payment file')],
+        [(ReceiveTab.epicbox, 'Epicbox'), (ReceiveTab.file, 'File')],
       );
       expect(
         [for (final s in tabs.segments) (s.icon! as Icon).icon],
@@ -217,7 +216,7 @@ void main() {
         tester.getRect(find.text('How receiving works')).top,
         greaterThan(tester.getRect(find.text('Open file')).bottom),
       );
-      await _tap(tester, find.text('Epicbox address'));
+      await _tap(tester, find.text('Epicbox'));
       expect(find.byKey(receiveAddressKey), findsOneWidget);
     });
 
@@ -285,7 +284,7 @@ void main() {
       // On the caption, on the copy icon, and on the address text itself. The docked notice
       // moves the content down, so it goes before the next tap.
       for (final target in [
-        find.text('Your address'),
+        find.text('Epicbox address'),
         find.byIcon(Icons.copy),
         find.text(_address),
       ]) {
@@ -348,7 +347,7 @@ void main() {
       expect(
         tester.getSemantics(find.byKey(receiveAddressKey)),
         matchesSemantics(
-          label: 'Your address',
+          label: 'Epicbox address',
           value: _address,
           isButton: true,
           hasTapAction: true,
@@ -711,7 +710,7 @@ void main() {
         final h = _Harness();
         await h.pump(tester);
         await h.listener(tester, state);
-        for (final tab in ['Epicbox address', 'Payment file']) {
+        for (final tab in ['Epicbox', 'File']) {
           await _tap(tester, find.text(tab));
           await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
           await expectLater(tester, meetsGuideline(labeledTapTargetGuideline));
