@@ -192,9 +192,11 @@ class _Steps extends StatelessWidget {
           children: [
             mark,
             SizedBox(width: Sp.x2),
-            Text(
-              text,
-              style: st == _StepState.wait ? ts.small.copyWith(color: c.faint) : ts.small.copyWith(color: c.text),
+            Flexible(
+              child: Text(
+                text,
+                style: st == _StepState.wait ? ts.small.copyWith(color: c.faint) : ts.small.copyWith(color: c.text),
+              ),
             ),
           ],
         ),
@@ -211,7 +213,7 @@ class _Steps extends StatelessWidget {
           step(_StepState.done, 'Wallet unlocked'),
           step(_StepState.done, 'Connected to node'),
           step(_StepState.now, 'Updating balances'),
-          step(_StepState.wait, 'Turning on Epicbox receiving'),
+          step(_StepState.wait, 'Starting Epicbox receiving'),
         ],
       ),
     );
