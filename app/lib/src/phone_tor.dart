@@ -4,6 +4,7 @@
 library;
 
 import 'dart:async';
+import 'dart:io' show Platform;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
@@ -107,9 +108,12 @@ final torBundleFinderProvider = Provider<Future<TorBundle?> Function()>(
 );
 
 /// Network regained (true) and lost (false) on Android (`NetworkWatch.kt`); nothing elsewhere.
-/// Tests override it.
+/// Tests override it. Under `flutter test` the platform reads as Android but no plugin answers
+/// the channel, and its failure is reported through [FlutterError], not thrown: empty there.
 final networkChangesProvider = Provider<Stream<bool>>((ref) {
-  if (kIsWeb || defaultTargetPlatform != TargetPlatform.android) {
+  if (kIsWeb ||
+      defaultTargetPlatform != TargetPlatform.android ||
+      Platform.environment['FLUTTER_TEST'] == 'true') {
     return const Stream<bool>.empty();
   }
   return const EventChannel('epic_wallet/network')
@@ -188,7 +192,11 @@ class PhoneTor extends Notifier<PhoneTorState> {
     _stopAfterSends = false;
     _restarts = 0;
     _stallRetried = false;
-    final lifecycle = AppLifecycleListener(onStateChange: _onLifecycle);
+    // A plain observer, not an AppLifecycleListener: on `paused` the app locks first, which
+    // rebuilds this notifier and removes the observer while the binding is still dispatching
+    // to its copy of the list; a disposed AppLifecycleListener asserts on that call.
+    final lifecycle = _LifecycleObserver(_onLifecycle);
+    WidgetsBinding.instance.addObserver(lifecycle);
     final network = ref.watch(networkChangesProvider).listen((available) {
       if (available) _wake('network');
     });
@@ -200,7 +208,7 @@ class PhoneTor extends Notifier<PhoneTorState> {
       _restartTimer?.cancel();
       _stallTimer?.cancel();
       _failWaiters('wallet locked');
-      lifecycle.dispose();
+      WidgetsBinding.instance.removeObserver(lifecycle);
       unawaited(network.cancel());
     });
     if (session == null) return const PhoneTorState(phase: PhoneTorPhase.off);
@@ -550,4 +558,13 @@ class PhoneTor extends Notifier<PhoneTorState> {
       }
     }
   }
+}
+
+class _LifecycleObserver with WidgetsBindingObserver {
+  _LifecycleObserver(this.onChange);
+
+  final void Function(AppLifecycleState state) onChange;
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) => onChange(state);
 }
