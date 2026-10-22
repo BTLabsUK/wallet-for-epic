@@ -12,9 +12,13 @@
 ///   - Settings: the "All wallets" section (settingsWallets route), with Add back.
 ///   - Sidebar: "Switch wallet".
 ///   - Remove wallet dialog: "Remove from list" and "Delete wallet".
-/// importWizard (B01–B32, A01's third door, A19): existing wallets from a folder or 6.1.x.
-///   - Welcome: "Add an existing wallet". Routes found and importWallets.
-///   - All wallets: "Import wallets…".
+/// importWizard (B01–B25 as LEPIC takes them, A01's third door, on): wallets of older Epic
+///   Wallets and the epic program, found or from a chosen folder. Old folders are only read:
+///   each wallet.seed opens once with its old password (B18) and becomes a new wallet whose
+///   history a scan rebuilds (B14, B09). Mainnet only; no settings carried over, no old-folder
+///   delete (B26–B29) and no blockchain data copy (B21).
+///   - Welcome: "Import wallets". Route importWallets.
+///   - All wallets: "Import" and "Import wallets…".
 /// dataFolder (A15): Welcome › Advanced › App data folder.
 /// testNetworks (A06 "any network each"): Welcome › Advanced › Network. Mainnet only.
 /// httpDirect (G01–G06, F07, J04): Send › Direct (HTTP), Receive's HTTP address, Settings ›
@@ -44,7 +48,7 @@ library;
 
 abstract final class DeskFeatures {
   static const bool multiWallet = true;
-  static const bool importWizard = false;
+  static const bool importWizard = true;
   static const bool dataFolder = false;
   static const bool testNetworks = false;
   static const bool httpDirect = false;

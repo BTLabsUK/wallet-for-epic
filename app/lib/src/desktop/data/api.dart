@@ -42,6 +42,27 @@ abstract interface class DeskWalletApi {
   Future<bool> checkPhraseWord(String word);
   Future<void> restoreWallet({required String name, required String password, required List<String> phrase});
 
+  // Import (only when [DeskFeatures.importWizard]). Old folders are only read.
+  /// Looks where older Epic Wallets and the epic program kept wallets, and starts a new import
+  /// run (see [cancelImport]). Wallets the app holds already have [OldWallet.sameAs] set.
+  Future<List<OldWallet>> findOldWallets();
+
+  /// Asks for a folder with the system dialog and lists the wallets in it; null when the
+  /// dialog was closed.
+  Future<FolderFind?> pickFolder();
+
+  /// Whether a running program uses the wallet [id] ([OldWallet.id]).
+  Future<OldWalletUse> checkOldWallet(String id);
+
+  /// Makes a new wallet from the old wallet's wallet.seed, opened once with [oldPassword]. The
+  /// new wallet's password is [newPassword], else [oldPassword] when it has
+  /// [minPasswordLength] characters ([DeskError.newPasswordNeeded] otherwise). A wrong
+  /// [oldPassword] throws [DeskError.wrongPassword] and makes nothing.
+  Future<ImportedWallet> importOldWallet(String id, {required String oldPassword, String? newPassword});
+
+  /// Deletes the wallets this run imported. Old folders are unchanged.
+  Future<void> cancelImport();
+
   // Reading.
   Future<WalletAccount> account();
   Future<Balance> balance();

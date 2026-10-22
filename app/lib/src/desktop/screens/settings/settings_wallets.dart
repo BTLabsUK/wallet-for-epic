@@ -145,11 +145,11 @@ class _SettingsWalletsScreenState extends ConsumerState<SettingsWalletsScreen> {
                       ),
                       if (DeskFeatures.importWizard)
                         EChoiceCard(
-                          title: 'Add existing',
-                          description: 'A wallet folder already on this computer.',
+                          title: 'Import',
+                          description: 'From an older Epic Wallet or a folder.',
                           icon: EIcons.folderOpen,
                           selected: false,
-                          onTap: () => nav.go(DeskRoute.found),
+                          onTap: () => nav.go(DeskRoute.importWallets),
                         ),
                       EChoiceCard(
                         title: 'Restore',

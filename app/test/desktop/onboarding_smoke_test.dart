@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:epic_wallet/src/desktop/data/features.dart';
+import 'package:epic_wallet/src/desktop/data/state.dart';
 import 'package:epic_wallet/src/desktop/screens/onboarding/shots.dart';
 import 'package:epic_wallet/src/desktop/screens/onboarding/create_screen.dart';
-import 'package:epic_wallet/src/desktop/screens/onboarding/found_screen.dart';
 import 'package:epic_wallet/src/desktop/screens/onboarding/import_wallets_screen.dart';
 import 'package:epic_wallet/src/desktop/screens/onboarding/onboarding_parts.dart';
 import 'package:epic_wallet/src/desktop/screens/onboarding/restore_screen.dart';
@@ -20,7 +20,6 @@ Widget _screen(DeskRoute r, Object? a) => switch (r) {
   DeskRoute.restore => RestoreScreen(arg: a),
   DeskRoute.setup => SetupScreen(arg: a),
   DeskRoute.unlock => UnlockScreen(arg: a),
-  DeskRoute.found => FoundScreen(arg: a),
   DeskRoute.importWallets => ImportWalletsScreen(arg: a),
   _ => throw ArgumentError(r),
 };
@@ -103,6 +102,70 @@ void flows() {
     await tester.tap(find.text('Continue'));
     await tester.pump();
     expect(find.text('Choose a password'), findsOneWidget);
+    await _end(tester);
+  });
+
+  testWidgets('import: find, choose, check, one old password per wallet, done opens Unlock', (tester) async {
+    final container = await _pump(tester, const ImportWalletsScreen());
+    await _wait(tester, 1500);
+    expect(find.text('4 wallets found'), findsOneWidget);
+    await tester.tap(find.text('Continue'));
+    await tester.pump();
+    expect(find.text('Choose wallets'), findsOneWidget);
+    expect(find.textContaining('Only mainnet wallets can be imported'), findsOneWidget);
+    expect(find.text('Same wallet as Everyday. Tick for a second copy.'), findsOneWidget);
+    expect(find.text('2 of 4 selected'), findsOneWidget, reason: 'the floonet wallet and the copy start unticked');
+    await tester.tap(find.text('Continue'));
+    await _wait(tester, 1500);
+    // Nothing in use: Check goes straight on to Import.
+    expect(find.text('Each wallet asks for its old password once.'), findsOneWidget);
+    expect(find.text('0 of 2 imported'), findsOneWidget);
+    await tester.enterText(_field(0), 'wrong-password');
+    await tester.tap(find.text('Import').last);
+    await _wait(tester, 1500);
+    expect(find.text('Wrong old password'), findsOneWidget);
+    await tester.enterText(_field(0), 'old-password');
+    await tester.tap(find.text('Import').last);
+    await _wait(tester, 1500);
+    expect(find.text('1 of 2 imported'), findsOneWidget);
+    expect(find.text('Old folder unchanged'), findsOneWidget);
+    // A short old password asks for a new one.
+    await tester.enterText(_field(0), 'abc');
+    await tester.pump();
+    expect(find.text('New password'), findsOneWidget);
+    await tester.enterText(_field(1), 'new-password');
+    await tester.enterText(_field(2), 'new-password');
+    await tester.tap(find.text('Import').last);
+    await _wait(tester, 1500);
+    expect(find.text('2 of 2 imported'), findsOneWidget);
+    await tester.tap(find.text('Continue'));
+    await tester.pump();
+    expect(find.text('Wallets imported'), findsOneWidget);
+    await tester.tap(find.text('Open wallet'));
+    await tester.pump();
+    expect(container.read(deskNavProvider).route, DeskRoute.unlock);
+    expect((container.read(deskNavProvider).arg as UnlockAdded).name, '2 wallets');
+    await _end(tester);
+  });
+
+  testWidgets('import: Cancel after an import asks, then removes it', (tester) async {
+    final container = await _pump(tester, const ImportWalletsScreen());
+    await _wait(tester, 1500);
+    await tester.tap(find.text('Continue'));
+    await tester.pump();
+    await tester.tap(find.text('Continue'));
+    await _wait(tester, 1500);
+    await tester.enterText(_field(0), 'old-password');
+    await tester.tap(find.text('Import').last);
+    await _wait(tester, 1500);
+    final api = container.read(deskApiProvider);
+    expect((await tester.runAsync(api.wallets))!.map((w) => w.id), contains('imp-sav'));
+    await tester.tap(find.text('Cancel'));
+    await tester.pump(const Duration(milliseconds: 500));
+    expect(find.text('Stop the import?'), findsOneWidget);
+    await tester.tap(find.text('Stop import'));
+    await _wait(tester, 1000);
+    expect((await tester.runAsync(api.wallets))!.map((w) => w.id), isNot(contains('imp-sav')));
     await _end(tester);
   });
 

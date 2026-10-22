@@ -1,7 +1,6 @@
 import 'package:flutter/widgets.dart';
 
 import '../screens/onboarding/create_screen.dart';
-import '../screens/onboarding/found_screen.dart';
 import '../screens/onboarding/import_wallets_screen.dart';
 import '../screens/onboarding/restore_screen.dart';
 import '../screens/onboarding/setup_screen.dart';
@@ -34,7 +33,6 @@ Widget deskScreen(DeskLocation at) {
     DeskRoute.restore => RestoreScreen(arg: a),
     DeskRoute.setup => SetupScreen(arg: a),
     DeskRoute.unlock => UnlockScreen(arg: a),
-    DeskRoute.found => FoundScreen(arg: a),
     DeskRoute.importWallets => ImportWalletsScreen(arg: a),
     DeskRoute.overview => OverviewScreen(arg: a),
     DeskRoute.activity => ActivityScreen(arg: a),

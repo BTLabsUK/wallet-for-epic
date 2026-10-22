@@ -10,6 +10,7 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:ui';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
@@ -84,6 +85,7 @@ Future<List<Override>> deskOverrides() async {
             return BuiltInNode(root: where.root, binary: where.binary, chain: chain);
           }
         : null,
+    pickDirectory: () => FilePicker.getDirectoryPath(dialogTitle: 'Choose the wallet folder'),
   );
   // Off by default (D10): this starts a node only when the user turned it on before.
   unawaited(wallet.resumeBuiltInNode());

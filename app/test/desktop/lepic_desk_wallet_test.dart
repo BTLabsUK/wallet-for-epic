@@ -871,9 +871,9 @@ void main() {
       await tester.pump(const Duration(seconds: 10));
     }
 
-    testWidgets('welcome has no import, folder or network choice', (tester) async {
+    testWidgets('welcome offers the import, no folder or network choice', (tester) async {
       await pump(tester, DeskRoute.welcome);
-      expect(find.text('Add an existing wallet'), findsNothing);
+      expect(find.text('Import wallets'), findsOneWidget);
       expect(find.text('Advanced'), findsNothing);
       await done(tester);
     });

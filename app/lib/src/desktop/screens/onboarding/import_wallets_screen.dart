@@ -1,55 +1,39 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../data/api.dart';
 import '../../widgets/kit.dart';
 import 'onboarding_parts.dart';
 
 /// The steps of the import wizard; also the [arg] a tour or a link can start on.
-enum ImportStep { find, found, none, choose, check, copy, settings, done }
+enum ImportStep { find, found, none, choose, check, import, done }
 
-class _Old {
-  const _Old(this.id, this.label, this.group, this.dir, this.used, this.contacts, this.size, this.seed,
-      {this.floonet = false, this.legacyDb = false, this.chain});
+/// The in-use check of one chosen wallet.
+enum _Use { checking, free, inUse, unknown, skipped }
 
-  final String id, label, group, dir, used, seed;
-  final int contacts, size;
-  final bool floonet, legacyDb;
-  final int? chain;
-}
-
-const _groups = {
-  'old': ('Older Epic Wallet', EIcons.wallet),
-  'cli': ('The epic program', EIcons.node),
-  'picked': ('Chosen folders', EIcons.folder),
+const _groupIcons = {
+  OldWalletGroup.gui: EIcons.wallet,
+  OldWalletGroup.cli: EIcons.node,
+  OldWalletGroup.picked: EIcons.folder,
 };
 
-const _olds = [
-  _Old('sav', 'Savings', 'old', '~/EpicWallet-old/Savings', '12 Sep 2026', 14, 38, 'A', legacyDb: true),
-  _Old('eve', 'Everyday', 'old', '~/EpicWallet-old/Everyday', '2 Oct 2026', 9, 112, 'B'),
-  _Old('tst', 'Testing', 'old', '~/EpicWallet-old/Testing', '30 Sep 2026', 0, 3, 'C', floonet: true),
-  _Old('cli', 'Wallet (epic program)', 'cli', '~/.epic/main', '28 Aug 2026', 0, 21, 'D', chain: 8100),
-];
-
-String _size(int mb) => mb >= 1000 ? '${(mb / 1000).toStringAsFixed(1)} GB' : '$mb MB';
-
-enum _Lock { checking, free, locked, skipped }
-
-enum _Cp { wait, run, ok, fail, skip }
-
-class _Copy {
-  _Copy(this.st, [this.phase = 0, this.pct = 0]);
-  _Cp st;
-  int phase;
-  double pct;
+String _size(int bytes) {
+  final mb = bytes / (1 << 20);
+  if (mb >= 1000) return '${(mb / 1024).toStringAsFixed(1)} GB';
+  return mb < 1 ? '< 1 MB' : '${mb.round()} MB';
 }
 
-const _copyPhases = ['Old folder read', 'Copied to a temporary folder', 'Copy checked file by file', 'Old folder unchanged'];
+String _date(DateTime d) {
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  return '${d.day} ${months[d.month - 1]} ${d.year}';
+}
 
-/// Import wallets from older folders: find, choose, check for use, copy, settings, done.
-/// With an [ImportStep] as arg the screen starts on that step as a still snapshot (no timers
-/// until the user moves on).
+String _message(Object e) => e is DeskError ? e.message : 'Something went wrong';
+
+/// Import wallets from older folders: find, choose, check for use, import, done. Old folders
+/// are only read: each wallet's wallet.seed opens once with its old password and becomes a new
+/// wallet of the app, whose history a scan rebuilds at the first unlock. With an [ImportStep]
+/// as arg the screen starts on that step as a still snapshot.
 class ImportWalletsScreen extends ConsumerStatefulWidget {
   const ImportWalletsScreen({super.key, this.arg});
 
@@ -61,161 +45,199 @@ class ImportWalletsScreen extends ConsumerStatefulWidget {
 
 class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
   ImportStep _step = ImportStep.find;
-  int _scan = 0;
-  List<_Old> _found = [];
+  List<OldWallet> _found = [];
   final Map<String, bool> _sel = {};
-  final Map<String, _Lock> _lock = {};
-  final Map<String, _Copy> _copy = {};
-  final Map<String, bool> _set = {'contacts': true, 'node': true, 'epicbox': true, 'lang': true, 'chain': false};
-  bool _applying = false;
-  Timer? _timer;
+  final Map<String, _Use> _use = {};
+  final Map<String, ImportedWallet> _done = {};
+  final Set<String> _skipped = {};
+
+  final _old = TextEditingController();
+  final _new = TextEditingController();
+  final _repeat = TextEditingController();
+  bool _needNew = false;
+  String? _error;
+  bool _busy = false;
+  bool _picking = false;
+  String? _pickNote;
+
+  DeskWalletApi get _api => ref.read(deskApiProvider);
 
   @override
   void initState() {
     super.initState();
     final a = widget.arg;
-    if (a is ImportStep) {
-      _snapshot(a);
-    } else {
-      _enter(ImportStep.find);
-    }
+    _find(snapshot: a is ImportStep ? a : null);
   }
 
   @override
   void dispose() {
-    _timer?.cancel();
+    _old.dispose();
+    _new.dispose();
+    _repeat.dispose();
     super.dispose();
   }
 
-  List<_Old> get _chosen => _found.where((f) => _sel[f.id] == true).toList();
-  List<_Old> get _free => _chosen.where((f) => _lock[f.id] == _Lock.free).toList();
+  List<OldWallet> get _chosen => _found.where((f) => _sel[f.id] == true).toList();
 
-  String? _same(_Old f) {
-    final i = _found.indexOf(f);
-    for (final o in _found.take(i)) {
-      if (o.seed == f.seed) return o.label;
+  /// The chosen wallets the import step takes: not in use, not skipped.
+  List<OldWallet> get _toImport => _chosen.where((f) => _use[f.id] == _Use.free || _use[f.id] == _Use.unknown).toList();
+
+  /// The wallet asking for its password now.
+  OldWallet? get _current => _toImport.where((f) => !_done.containsKey(f.id) && !_skipped.contains(f.id)).firstOrNull;
+
+  void _add(List<OldWallet> wallets) {
+    for (final w in wallets) {
+      if (_found.any((f) => f.id == w.id)) continue;
+      _found = [..._found, w];
+      // Wallets the app holds, other copies and wallets it cannot take start unticked.
+      _sel[w.id] = w.importable && w.sameAs == null;
     }
-    return null;
   }
 
-  /// A still state of [s]: what the wizard looks like part-way, set without timers.
+  Future<void> _find({ImportStep? snapshot}) async {
+    if (snapshot == ImportStep.find) return;
+    List<OldWallet> found;
+    try {
+      found = snapshot == ImportStep.none ? const [] : await _api.findOldWallets();
+    } on Object {
+      found = const [];
+    }
+    if (!mounted) return;
+    setState(() {
+      _found = [];
+      _sel.clear();
+      _add(found);
+      _step = _found.isEmpty ? ImportStep.none : ImportStep.found;
+      if (snapshot != null) _snapshot(snapshot);
+    });
+  }
+
+  /// A still state of [s] over the found wallets: what the wizard looks like part-way.
   void _snapshot(ImportStep s) {
     _step = s;
-    _found = s == ImportStep.none || s == ImportStep.find ? [] : List.of(_olds);
-    if (s == ImportStep.find) _scan = 1;
-    for (final f in _found) {
-      _sel[f.id] = true;
+    if (s.index < ImportStep.check.index) return;
+    // The check shows the epic program's wallet in use: tick every importable one.
+    if (s == ImportStep.check) _sel.updateAll((id, v) => v || _found.any((f) => f.id == id && f.importable));
+    for (final f in _chosen) {
+      _use[f.id] = s == ImportStep.check && f.group == OldWalletGroup.cli ? _Use.inUse : _Use.free;
     }
-    if (s.index >= ImportStep.check.index) {
-      _lock
-        ..['sav'] = _Lock.free
-        ..['eve'] = _Lock.free
-        ..['tst'] = _Lock.free
-        ..['cli'] = s == ImportStep.check ? _Lock.locked : _Lock.free;
-    }
-    if (s == ImportStep.copy) {
-      _copy
-        ..['sav'] = _Copy(_Cp.ok, 4, 1)
-        ..['eve'] = _Copy(_Cp.run, 2, .45)
-        ..['tst'] = _Copy(_Cp.wait)
-        ..['cli'] = _Copy(_Cp.wait);
-    } else if (s.index > ImportStep.copy.index) {
-      for (final f in _found) {
-        _copy[f.id] = _Copy(_Cp.ok, 4, 1);
-      }
+    final todo = _toImport;
+    final upTo = s == ImportStep.import ? 1 : todo.length;
+    for (final f in todo.take(upTo)) {
+      _done[f.id] = ImportedWallet(
+        id: f.id,
+        name: f.name,
+        proof: const [ImportProof('Seed read'), ImportProof('Wallet created'), ImportProof('Old folder unchanged')],
+      );
     }
   }
 
-  void _enter(ImportStep s) {
-    _timer?.cancel();
-    setState(() => _step = s);
-    switch (s) {
-      case ImportStep.find:
-        _scan = 0;
-        _timer = Timer.periodic(const Duration(milliseconds: 700), (t) {
-          setState(() => _scan++);
-          if (_scan >= 3) {
-            t.cancel();
-            _found = List.of(_olds);
-            for (final f in _found) {
-              _sel[f.id] = true;
-            }
-            setState(() => _step = _found.isEmpty ? ImportStep.none : ImportStep.found);
-          }
-        });
-      case ImportStep.check:
-        for (final f in _chosen) {
-          _lock[f.id] = _Lock.checking;
-        }
-        _timer = Timer(const Duration(milliseconds: 900), () {
-          if (!mounted) return;
-          setState(() {
-            for (final f in _chosen) {
-              _lock[f.id] = f.id == 'cli' ? _Lock.locked : _Lock.free;
-            }
-          });
-        });
-      case ImportStep.copy:
-        _startCopy();
-      default:
-    }
+  Future<void> _check() async {
+    final chosen = _chosen;
+    setState(() {
+      _step = ImportStep.check;
+      for (final f in chosen) {
+        _use[f.id] = _Use.checking;
+      }
+    });
+    await Future.wait([for (final f in chosen) _checkOne(f.id)]);
+    if (!mounted || _step != ImportStep.check) return;
+    // Nothing in use: straight on to Import.
+    if (!_chosen.any((f) => _use[f.id] == _Use.inUse)) setState(() => _step = ImportStep.import);
   }
 
-  void _startCopy() {
-    final todo = _free;
-    for (final f in todo) {
-      _copy[f.id] = _Copy(_Cp.wait);
+  Future<void> _checkOne(String id) async {
+    if (mounted) setState(() => _use[id] = _Use.checking);
+    _Use use;
+    try {
+      use = switch (await _api.checkOldWallet(id)) {
+        OldWalletUse.free => _Use.free,
+        OldWalletUse.inUse => _Use.inUse,
+        OldWalletUse.unknown => _Use.unknown,
+      };
+    } on Object {
+      use = _Use.unknown;
     }
-    _timer = Timer.periodic(const Duration(milliseconds: 120), (t) {
-      final cur = todo.where((f) => _copy[f.id]!.st != _Cp.ok).firstOrNull;
-      if (cur == null) {
-        t.cancel();
-        return;
-      }
-      final c = _copy[cur.id]!;
+    if (mounted) setState(() => _use[id] = use);
+  }
+
+  bool get _shortOld => _needNew || (_old.text.isNotEmpty && _old.text.length < minPasswordLength);
+
+  Future<void> _importCurrent() async {
+    final w = _current;
+    if (w == null || _busy) return;
+    final needNew = _shortOld;
+    if (_old.text.isEmpty) return setState(() => _error = 'Enter the old password');
+    if (needNew) {
+      if (_new.text.length < minPasswordLength) return setState(() => _error = 'New password: at least $minPasswordLength characters');
+      if (_new.text != _repeat.text) return setState(() => _error = 'The new passwords differ');
+    }
+    setState(() {
+      _busy = true;
+      _error = null;
+    });
+    try {
+      final r = await _api.importOldWallet(w.id, oldPassword: _old.text, newPassword: needNew ? _new.text : null);
+      if (!mounted) return;
       setState(() {
-        c.st = _Cp.run;
-        c.pct += 0.08;
-        c.phase = (c.pct * 4).floor().clamp(0, 3);
-        if (c.pct >= 1) {
-          c.st = _Cp.ok;
-          c.phase = 4;
-          c.pct = 1;
-        }
+        _done[w.id] = r;
+        _clearPasswords();
       });
+    } on Object catch (e) {
+      if (!mounted) return;
+      setState(() {
+        if (e is DeskError && e.newPasswordNeeded) _needNew = true;
+        _error = _message(e);
+      });
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  void _clearPasswords() {
+    _old.clear();
+    _new.clear();
+    _repeat.clear();
+    _needNew = false;
+    _error = null;
+  }
+
+  void _skipCurrent() {
+    final w = _current;
+    if (w == null || _busy) return;
+    setState(() {
+      _skipped.add(w.id);
+      _clearPasswords();
     });
   }
 
-  void _recheck(String id) {
-    setState(() => _lock[id] = _Lock.checking);
-    Timer(const Duration(milliseconds: 700), () {
-      if (mounted) setState(() => _lock[id] = _Lock.free);
-    });
+  Future<void> _openWallet() async {
+    final done = _done.values.toList();
+    final nav = ref.read(deskNavProvider.notifier);
+    try {
+      await _api.selectWallet(done.first.id);
+    } on Object {
+      // Unlock offers the wallet opened last.
+    }
+    nav.reset(DeskRoute.unlock, UnlockAdded(done.length == 1 ? done.first.name : '${done.length} wallets'));
   }
 
   void _next() {
     switch (_step) {
       case ImportStep.found:
-        // Duplicates start unticked.
-        for (final f in _found) {
-          _sel[f.id] = _same(f) == null;
-        }
-        _enter(ImportStep.choose);
+        setState(() => _step = ImportStep.choose);
       case ImportStep.choose:
-        _enter(ImportStep.check);
+        _check();
       case ImportStep.check:
-        _enter(ImportStep.copy);
-      case ImportStep.copy:
-        _enter(ImportStep.settings);
-      case ImportStep.settings:
-        setState(() => _applying = true);
-        _timer = Timer(const Duration(milliseconds: 900), () {
-          if (!mounted) return;
-          setState(() => _applying = false);
-          _enter(ImportStep.done);
-        });
+        setState(() => _step = ImportStep.import);
+      case ImportStep.import:
+        if (_current != null) {
+          _importCurrent();
+        } else {
+          setState(() => _step = ImportStep.done);
+        }
       case ImportStep.done:
-        ref.read(deskNavProvider.notifier).reset(DeskRoute.unlock);
+        _openWallet();
       default:
     }
   }
@@ -223,38 +245,48 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
   void _back() {
     final prev = switch (_step) {
       ImportStep.choose => ImportStep.found,
-      ImportStep.check => ImportStep.choose,
-      ImportStep.copy => ImportStep.choose,
+      ImportStep.check || ImportStep.import => ImportStep.choose,
       _ => null,
     };
-    if (prev != null) {
-      _timer?.cancel();
-      setState(() => _step = prev);
-    }
+    if (prev == null) return;
+    // A typed password belongs to the wallet it was typed for.
+    if (_step == ImportStep.import) _clearPasswords();
+    setState(() => _step = prev);
   }
 
   Future<void> _cancel() async {
     final nav = ref.read(deskNavProvider.notifier);
     void leave() => nav.canBack ? nav.back() : nav.reset(DeskRoute.welcome);
-    if (_step == ImportStep.copy || _step == ImportStep.settings) {
-      final stop = await showImportStopDialog(context);
-      if (stop == true) leave();
-    } else {
-      leave();
+    if (_done.isEmpty) return leave();
+    final stop = await showImportStopDialog(context);
+    if (stop != true || !mounted) return;
+    setState(() => _busy = true);
+    try {
+      await _api.cancelImport();
+    } on Object {
+      // The wallets left are listed; All wallets can delete them.
     }
+    if (mounted) leave();
   }
 
   Future<void> _pickFolder() async {
-    final path = await showImportPickerDialog(context);
-    if (path == null || !mounted) return;
     setState(() {
-      if (!_found.any((f) => f.dir == path)) {
-        _found = [
-          ..._found,
-          _Old('bak', 'Backup 2024', 'picked', path, '3 Mar 2026', 2, 19, 'E'),
-        ];
-        _sel['bak'] = true;
-      }
+      _picking = true;
+      _pickNote = null;
+    });
+    FolderFind? pick;
+    String? note;
+    try {
+      pick = await _api.pickFolder();
+    } on Object catch (e) {
+      note = _message(e);
+    }
+    if (!mounted) return;
+    setState(() {
+      _picking = false;
+      _pickNote = note ?? pick?.message;
+      if (pick == null || pick.wallets.isEmpty) return;
+      _add(pick.wallets);
       if (_step == ImportStep.none) _step = ImportStep.found;
     });
   }
@@ -262,21 +294,19 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
   ({String title, String? lead}) get _head => switch (_step) {
     ImportStep.find => (title: 'Finding wallets', lead: 'Searching the folders of older Epic Wallet versions and the epic program. Nothing is changed.'),
     ImportStep.found => (title: '${_found.length} wallet${_found.length == 1 ? '' : 's'} found', lead: 'Old folders are only read.'),
-    ImportStep.none => (title: 'No wallets found', lead: 'None in the usual places.'),
-    ImportStep.choose => (title: 'Choose wallets', lead: 'Ticked wallets are copied into the app. Each keeps its password.'),
-    ImportStep.check => (title: 'Checking for use', lead: 'A wallet in use by another program is not copied.'),
-    ImportStep.copy => (title: 'Copying', lead: 'Each copy is compared with the original file by file. Old folders are only read.'),
-    ImportStep.settings => (title: 'Settings', lead: 'Settings from the older app. Untick to keep the defaults.'),
-    ImportStep.done => (title: 'Wallets copied', lead: 'Unlock each wallet once to finish.'),
+    ImportStep.none => (title: 'No wallets found', lead: 'Choose the wallet folder, or restore from the recovery phrase.'),
+    ImportStep.choose => (title: 'Choose wallets', lead: 'Ticked wallets are added to the app. History is rebuilt by a scan.'),
+    ImportStep.check => (title: 'Checking for use', lead: 'A wallet in use by another program is not imported.'),
+    ImportStep.import => (title: 'Import', lead: 'Each wallet asks for its old password once.'),
+    ImportStep.done => (title: 'Wallets imported', lead: 'The first unlock of each wallet scans the chain for its history.'),
   };
 
   int get _railIndex => switch (_step) {
     ImportStep.find || ImportStep.found || ImportStep.none => 0,
     ImportStep.choose => 1,
     ImportStep.check => 2,
-    ImportStep.copy => 3,
-    ImportStep.settings => 4,
-    ImportStep.done => 5,
+    ImportStep.import => 3,
+    ImportStep.done => 4,
   };
 
   @override
@@ -284,10 +314,10 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
     final ts = context.ts;
     final h = _head;
     final chosen = _chosen;
-    final copied = _free.where((f) => _copy[f.id]?.st == _Cp.ok).length;
-    final busyCheck = chosen.any((f) => _lock[f.id] == null || _lock[f.id] == _Lock.checking);
-    final pending = chosen.any((f) => _lock[f.id] == _Lock.locked);
-    final copyOpen = _free.any((f) => _copy[f.id]?.st != _Cp.ok && _copy[f.id]?.st != _Cp.skip);
+    final todo = _toImport;
+    final busyCheck = chosen.any((f) => _use[f.id] == null || _use[f.id] == _Use.checking);
+    final pending = chosen.any((f) => _use[f.id] == _Use.inUse);
+    final current = _current;
     final (label, enabled, stat) = switch (_step) {
       ImportStep.find => ('Continue', false, null),
       ImportStep.found => ('Continue', true, null),
@@ -295,32 +325,32 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
       ImportStep.choose => ('Continue', chosen.isNotEmpty, '${chosen.length} of ${_found.length} selected'),
       ImportStep.check => (
         'Continue',
-        !busyCheck && !pending && _free.isNotEmpty,
+        !busyCheck && !pending && todo.isNotEmpty,
         busyCheck ? 'Checking…' : (pending ? 'Close the other program or skip the wallet' : null),
       ),
-      ImportStep.copy => ('Continue', !copyOpen && copied > 0, '$copied of ${_free.length} copied'),
-      ImportStep.settings => ('Continue', !_applying, null),
+      ImportStep.import => (
+        current == null ? 'Continue' : 'Import',
+        current != null ? !_busy : _done.isNotEmpty,
+        '${_done.length} of ${todo.length} imported',
+      ),
       ImportStep.done => ('Open wallet', true, null),
     };
+    final canBack = _step == ImportStep.choose || _step == ImportStep.check || (_step == ImportStep.import && _done.isEmpty && !_busy);
     return EOnbFrame(
       sideTitle: 'Import wallets',
-      steps: railOf(['Find', 'Choose', 'Check', 'Copy', 'Settings', 'Done'], _railIndex),
+      steps: railOf(['Find', 'Choose', 'Check', 'Import', 'Done'], _railIndex),
       title: h.title,
       lead: h.lead,
       sideFoot: _step == ImportStep.done
           ? null
           : Align(
               alignment: Alignment.centerLeft,
-              child: EButton.ghost(label: 'Cancel', icon: EIcons.close, onPressed: _cancel),
+              child: EButton.ghost(label: 'Cancel', icon: EIcons.close, onPressed: _busy ? null : _cancel),
             ),
       actions: [
-        if (stat != null)
-          Expanded(child: Text(stat, style: ts.small))
-        else
-          const SizedBox.shrink(),
-        if ([ImportStep.choose, ImportStep.check, ImportStep.copy].contains(_step))
-          Padding(padding: EdgeInsets.only(right: Sp.x3), child: EButton(label: 'Back', onPressed: _back)),
-        EButton.primary(label: label, busy: _applying, onPressed: enabled ? _next : null),
+        if (stat != null) Expanded(child: Text(stat, style: ts.small)) else const SizedBox.shrink(),
+        if (canBack) Padding(padding: EdgeInsets.only(right: Sp.x3), child: EButton(label: 'Back', onPressed: _back)),
+        EButton.primary(label: label, busy: _busy && _step == ImportStep.import, onPressed: enabled ? _next : null),
       ],
       child: _body(context),
     );
@@ -331,10 +361,9 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
     ImportStep.found => _foundList(context, selectable: false),
     ImportStep.none => _none(context),
     ImportStep.choose => _foundList(context, selectable: true),
-    ImportStep.check => _check(context),
-    ImportStep.copy => _copying(context),
-    ImportStep.settings => _settings(context),
-    ImportStep.done => _done(context),
+    ImportStep.check => _checkList(context),
+    ImportStep.import => _importList(context),
+    ImportStep.done => _doneList(context),
   };
 
   Widget _wlist(BuildContext context, List<Widget> rows) {
@@ -356,11 +385,47 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
     );
   }
 
+  Widget _status(BuildContext context, IconData? icon, String text, {Color? color, bool spin = false}) {
+    final ts = context.ts;
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (spin) const ESpinner() else if (icon != null) Icon(icon, size: Ctl.iconSm, color: color),
+        SizedBox(width: spin ? Sp.x2 : Sp.x1),
+        Text(text, style: ts.small),
+      ],
+    );
+  }
+
+  Widget _head2(BuildContext context, OldWallet f, Widget trailing, {String? extra}) {
+    final ts = context.ts;
+    final c = context.dc;
+    return Row(
+      children: [
+        Icon(EIcons.wallet, size: Ctl.icon, color: c.dim),
+        SizedBox(width: Sp.x3),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(extra == null ? f.name : '${f.name} · $extra', style: ts.label),
+              Tooltip(
+                message: f.folder,
+                child: Text(f.folder, style: ts.mono(size: Fs.xs, color: c.dim), overflow: TextOverflow.ellipsis),
+              ),
+            ],
+          ),
+        ),
+        SizedBox(width: Sp.x2),
+        trailing,
+      ],
+    );
+  }
+
   Widget _finding(BuildContext context) {
     const rows = [
       ('Older Epic Wallet', EIcons.wallet, 'Accounts and folders'),
       ('The epic program', EIcons.node, '~/.epic'),
-      ('Older app profiles', EIcons.contacts, 'Labels and contacts'),
     ];
     final ts = context.ts;
     final c = context.dc;
@@ -368,58 +433,54 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         _wlist(context, [
-          for (var i = 0; i < rows.length; i++)
+          for (final r in rows)
             Padding(
               padding: EdgeInsets.all(Sp.x4),
               child: Row(
                 children: [
-                  Icon(rows[i].$2, size: Ctl.icon, color: c.dim),
+                  Icon(r.$2, size: Ctl.icon, color: c.dim),
                   SizedBox(width: Sp.x3),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(rows[i].$1, style: ts.label),
-                        Text(rows[i].$3, style: ts.small),
-                      ],
+                      children: [Text(r.$1, style: ts.label), Text(r.$3, style: ts.small)],
                     ),
                   ),
-                  if (i < _scan)
-                    Row(children: [Icon(EIcons.okCircle, size: Ctl.iconSm, color: c.ok), SizedBox(width: Sp.x1), Text('Done', style: ts.small)])
-                  else if (i == _scan)
-                    Row(children: [const ESpinner(), SizedBox(width: Sp.x2), Text('Searching…', style: ts.small)])
-                  else
-                    Text('Waiting', style: ts.caption),
+                  _status(context, null, 'Searching…', spin: true),
                 ],
               ),
             ),
         ]),
         SizedBox(height: Sp.x4),
-        EProgress(value: _scan / 3),
+        const EProgress(),
       ],
     );
   }
 
-  Widget _none(BuildContext context) => Column(
+  Widget _pickButton({bool small = false}) => Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      Wrap(
-        spacing: Sp.x4,
-        runSpacing: Sp.x2,
-        crossAxisAlignment: WrapCrossAlignment.center,
-        children: [
-          EButton(label: 'Choose a folder', icon: EIcons.folderOpen, onPressed: _pickFolder),
-          ELink(label: 'Restore from phrase', onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.restore)),
-        ],
+      EButton(
+        label: 'Choose a folder',
+        icon: EIcons.folderOpen,
+        size: small ? EBtnSize.sm : EBtnSize.md,
+        busy: _picking,
+        onPressed: _picking ? null : _pickFolder,
       ),
+      if (_pickNote != null)
+        Padding(
+          padding: EdgeInsets.only(top: Sp.x2),
+          child: Builder(builder: (context) => Text(_pickNote!, style: context.ts.small)),
+        ),
     ],
   );
 
-  Widget _rowTags(_Old f, {String? same}) => Wrap(
-    spacing: Sp.x2,
+  Widget _none(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      if (f.floonet) const ETag('Floonet'),
-      if (same != null) const ETag('Same wallet', tone: ETone.warn, icon: EIcons.alert),
+      _pickButton(),
+      SizedBox(height: Sp.x4),
+      ELink(label: 'Restore from phrase', onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.restore)),
     ],
   );
 
@@ -429,84 +490,75 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        for (final g in _groups.entries)
-          if (_found.any((f) => f.group == g.key)) ...[
+        for (final g in OldWalletGroup.values)
+          if (_found.any((f) => f.group == g)) ...[
             Padding(
-              padding: EdgeInsets.only(top: Sp.x2, bottom: Sp.x2),
+              padding: EdgeInsets.symmetric(vertical: Sp.x2),
               child: Row(
                 children: [
-                  Icon(g.value.$2, size: Ctl.iconSm, color: c.dim),
+                  Icon(_groupIcons[g], size: Ctl.iconSm, color: c.dim),
                   SizedBox(width: Sp.x2),
-                  Text(g.value.$1, style: ts.label),
+                  Text(g.title, style: ts.label),
                 ],
               ),
             ),
-            _wlist(context, [
-              for (final f in _found.where((f) => f.group == g.key))
-                _foundRow(context, f, selectable),
-            ]),
+            _wlist(context, [for (final f in _found.where((f) => f.group == g)) _foundRow(context, f, selectable)]),
             SizedBox(height: Sp.x4),
           ],
-        EButton(label: 'Choose a folder', icon: EIcons.folderOpen, size: EBtnSize.sm, onPressed: _pickFolder),
+        Align(alignment: Alignment.centerLeft, child: _pickButton(small: true)),
       ],
     );
   }
 
-  Widget _foundRow(BuildContext context, _Old f, bool selectable) {
+  Widget _foundRow(BuildContext context, OldWallet f, bool selectable) {
     final ts = context.ts;
     final c = context.dc;
-    final same = _same(f);
-    final meta = 'Last used ${f.used} · ${f.contacts} contact${f.contacts == 1 ? '' : 's'} · ${_size(f.size)}';
-    final info = Padding(
+    final meta = [if (f.lastUsed != null) 'Last used ${_date(f.lastUsed!)}', _size(f.sizeBytes)].join(' · ');
+    final notes = [
+      if (f.blocked != null) f.blocked!,
+      if (f.importable && f.sameAs != null) '${f.sameAs}. Tick for a second copy.',
+    ];
+    return Padding(
       padding: EdgeInsets.all(Sp.x4),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (selectable)
-            Padding(
-              padding: EdgeInsets.only(right: Sp.x3),
-              child: ECheckbox(
-                value: _sel[f.id] == true,
-                label: f.label,
-                onChanged: (v) {
-                  setState(() => _sel[f.id] = v);
-                  if (v && same != null) showImportSameWalletDialog(context, f.label, same);
-                },
-              ),
-            )
-          else
-            Padding(
-              padding: EdgeInsets.only(right: Sp.x3),
-              child: Icon(EIcons.wallet, size: Ctl.icon, color: c.dim),
-            ),
+          Padding(
+            padding: EdgeInsets.only(right: Sp.x3),
+            child: !selectable
+                ? Icon(EIcons.wallet, size: Ctl.icon, color: c.dim)
+                : f.importable
+                ? ECheckbox(value: _sel[f.id] == true, label: f.name, onChanged: (v) => setState(() => _sel[f.id] = v))
+                : Semantics(label: '${f.name}: cannot be imported', child: Icon(EIcons.cancel, size: Ctl.icon, color: c.faint)),
+          ),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if (!selectable) Text(f.label, style: ts.label),
-                Text(f.dir, style: ts.mono(size: Fs.xs, color: c.dim), overflow: TextOverflow.ellipsis),
+                if (!selectable || !f.importable) Text(f.name, style: ts.label),
+                Tooltip(
+                  message: f.folder,
+                  child: Text(f.folder, style: ts.mono(size: Fs.xs, color: c.dim), overflow: TextOverflow.ellipsis),
+                ),
                 if (selectable) Text(meta, style: ts.caption),
-                if (selectable && same != null)
-                  Padding(
-                    padding: EdgeInsets.only(top: Sp.x1),
-                    child: Text('Same wallet as $same. Tick for a second copy.', style: ts.small),
-                  ),
-                if (selectable && f.legacyDb)
-                  Padding(
-                    padding: EdgeInsets.only(top: Sp.x1),
-                    child: Text('Epic Wallet 5.x or older. One blockchain scan restores the history.', style: ts.small),
-                  ),
+                if (selectable)
+                  for (final n in notes) Padding(padding: EdgeInsets.only(top: Sp.x1), child: Text(n, style: ts.small)),
               ],
             ),
           ),
-          _rowTags(f, same: same),
+          Wrap(
+            spacing: Sp.x2,
+            children: [
+              if (f.network != 'mainnet') ETag('${f.network[0].toUpperCase()}${f.network.substring(1)}'),
+              if (f.sameAs != null) ETag(f.inApp ? 'In the app' : 'Same wallet', tone: ETone.warn, icon: EIcons.alert),
+            ],
+          ),
         ],
       ),
     );
-    return info;
   }
 
-  Widget _check(BuildContext context) {
+  Widget _checkList(BuildContext context) {
     final ts = context.ts;
     final c = context.dc;
     return _wlist(context, [
@@ -516,36 +568,26 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Row(
-                children: [
-                  Icon(EIcons.wallet, size: Ctl.icon, color: c.dim),
-                  SizedBox(width: Sp.x3),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(f.label, style: ts.label),
-                        Text(f.dir, style: ts.mono(size: Fs.xs, color: c.dim), overflow: TextOverflow.ellipsis),
-                      ],
-                    ),
-                  ),
-                  switch (_lock[f.id]) {
-                    null || _Lock.checking => Row(children: [const ESpinner(), SizedBox(width: Sp.x2), Text('Checking…', style: ts.small)]),
-                    _Lock.free => Row(children: [Icon(EIcons.okCircle, size: Ctl.iconSm, color: c.ok), SizedBox(width: Sp.x1), Text('Not in use', style: ts.small)]),
-                    _Lock.skipped => Row(children: [Icon(EIcons.cancel, size: Ctl.iconSm, color: c.faint), SizedBox(width: Sp.x1), Text('Skipped', style: ts.small)]),
-                    _Lock.locked => Row(children: [Icon(EIcons.error, size: Ctl.iconSm, color: c.risk), SizedBox(width: Sp.x1), Text('In use', style: ts.small.copyWith(color: c.risk))]),
-                  },
-                ],
+              _head2(
+                context,
+                f,
+                switch (_use[f.id]) {
+                  null || _Use.checking => _status(context, null, 'Checking…', spin: true),
+                  _Use.free => _status(context, EIcons.okCircle, 'Not in use', color: c.ok),
+                  _Use.unknown => _status(context, EIcons.info, 'Not checked', color: c.faint),
+                  _Use.skipped => _status(context, EIcons.cancel, 'Skipped', color: c.faint),
+                  _Use.inUse => _status(context, EIcons.error, 'In use', color: c.risk),
+                },
               ),
-              if (_lock[f.id] == _Lock.locked) ...[
+              if (_use[f.id] == _Use.inUse) ...[
                 SizedBox(height: Sp.x3),
                 Text('In use by another program. Close the older Epic Wallet or the epic program, then check again.', style: ts.small),
                 SizedBox(height: Sp.x3),
                 Row(
                   children: [
-                    EButton(label: 'Check again', size: EBtnSize.inline, onPressed: () => _recheck(f.id)),
+                    EButton(label: 'Check again', size: EBtnSize.inline, onPressed: () => _checkOne(f.id)),
                     SizedBox(width: Sp.x2),
-                    EButton.ghost(label: 'Skip', size: EBtnSize.inline, onPressed: () => setState(() => _lock[f.id] = _Lock.skipped)),
+                    EButton.ghost(label: 'Skip', size: EBtnSize.inline, onPressed: () => setState(() => _use[f.id] = _Use.skipped)),
                   ],
                 ),
               ],
@@ -555,171 +597,139 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
     ]);
   }
 
-  Widget _copying(BuildContext context) {
+  Widget _proof(BuildContext context, ImportedWallet r) {
     final ts = context.ts;
     final c = context.dc;
-    final rows = _free;
-    return _wlist(context, [
-      for (final f in rows)
-        Builder(builder: (context) {
-          final cp = _copy[f.id] ?? _Copy(_Cp.wait);
-          return Padding(
-            padding: EdgeInsets.all(Sp.x4),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Row(
-                  children: [
-                    Icon(EIcons.wallet, size: Ctl.icon, color: c.dim),
-                    SizedBox(width: Sp.x3),
-                    Expanded(child: Text('${f.label} · ${_size(f.size)}', style: ts.label)),
-                    switch (cp.st) {
-                      _Cp.ok => Row(children: [Icon(EIcons.okCircle, size: Ctl.iconSm, color: c.ok), SizedBox(width: Sp.x1), Text('Copied and checked', style: ts.small)]),
-                      _Cp.run => Row(children: [const ESpinner(), SizedBox(width: Sp.x2), Text('Copying…', style: ts.small)]),
-                      _Cp.fail => Row(children: [Icon(EIcons.error, size: Ctl.iconSm, color: c.risk), SizedBox(width: Sp.x1), Text('Not copied', style: ts.small)]),
-                      _ => Text('Waiting', style: ts.caption),
-                    },
-                  ],
-                ),
-                if (cp.st == _Cp.run || cp.st == _Cp.ok) ...[
-                  SizedBox(height: Sp.x3),
-                  EProgress(value: cp.pct),
-                  SizedBox(height: Sp.x3),
-                  for (var i = 0; i < _copyPhases.length; i++)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 2),
-                      child: Row(
-                        children: [
-                          SizedBox(
-                            width: 20.u,
-                            child: i < cp.phase
-                                ? Icon(EIcons.check, size: Ctl.iconSm, color: c.ok)
-                                : (i == cp.phase ? ESpinner(size: 12.u) : Icon(Icons.circle, size: 5.u, color: c.faint)),
-                          ),
-                          Text(_copyPhases[i], style: i <= cp.phase ? ts.small : ts.caption),
-                        ],
-                      ),
-                    ),
-                ],
-              ],
-            ),
-          );
-        }),
-    ]);
-  }
-
-  Widget _settings(BuildContext context) {
-    final ts = context.ts;
-    final c = context.dc;
-    final chosen = _found.where((f) => _copy[f.id]?.st == _Cp.ok).toList();
-    final contacts = chosen.fold<int>(0, (a, f) => a + f.contacts);
-    final chain = chosen.where((f) => f.chain != null).firstOrNull;
-    Widget row(String key, String title, String text, String value) => Padding(
-      padding: EdgeInsets.all(Sp.x4),
-      child: Row(
+    return Padding(
+      padding: EdgeInsets.only(top: Sp.x3, left: Ctl.icon + Sp.x3),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(
-            child: ECheckbox(
-              value: _set[key] == true,
-              label: title,
-              onChanged: _applying ? (_) {} : (v) => setState(() => _set[key] = v),
+          for (final p in r.proof)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 2),
+              child: Row(
+                children: [
+                  SizedBox(width: 20.u, child: Icon(p.ok ? EIcons.check : EIcons.alert, size: Ctl.iconSm, color: p.ok ? c.ok : c.warn)),
+                  Flexible(child: Text(p.text, style: ts.small)),
+                ],
+              ),
             ),
-          ),
-          Text(value, style: ts.mono(size: Fs.xs, color: c.dim)),
         ],
       ),
     );
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        _wlist(context, [
-          row('contacts', 'Contacts', 'Added to the address book', '$contacts contacts'),
-          row('node', 'Node', 'Node of the older app', 'node.example.net:3413'),
-          row('epicbox', 'Epicbox server', 'Updated to the current server', 'epicbox.epiccash.com'),
-          row('lang', 'Language', 'Language of the older app', 'Deutsch'),
-        ]),
-        if (chain != null) ...[
-          SizedBox(height: Sp.x4),
-          EPanel(
-            title: 'Blockchain data',
-            headTrailing: ETag(_size(chain.chain!)),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Found in ${chain.dir}. Copied, not moved; used only by the built-in node.', style: ts.small),
-                SizedBox(height: Sp.x3),
-                ECheckbox(
-                  value: _set['chain'] == true,
-                  label: 'Copy the blockchain data',
-                  onChanged: (v) => setState(() => _set['chain'] = v),
-                ),
-              ],
+  }
+
+  Widget _importList(BuildContext context) {
+    final c = context.dc;
+    final current = _current;
+    return _wlist(context, [
+      for (final f in _toImport)
+        Padding(
+          padding: EdgeInsets.all(Sp.x4),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              _head2(
+                context,
+                f,
+                _done.containsKey(f.id)
+                    ? _status(context, EIcons.okCircle, 'Imported', color: c.ok)
+                    : _skipped.contains(f.id)
+                    ? _status(context, EIcons.cancel, 'Skipped', color: c.faint)
+                    : f.id == current?.id
+                    ? (_busy ? _status(context, null, 'Importing…', spin: true) : const SizedBox.shrink())
+                    : _status(context, null, 'Waiting'),
+              ),
+              if (_done[f.id] != null) _proof(context, _done[f.id]!),
+              if (f.id == current?.id) _passwordForm(context, f),
+            ],
+          ),
+        ),
+    ]);
+  }
+
+  Widget _passwordForm(BuildContext context, OldWallet f) {
+    final ts = context.ts;
+    final short = _shortOld;
+    return Padding(
+      padding: EdgeInsets.only(top: Sp.x4),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          EField(
+            label: 'Old password',
+            help: 'The password of ${f.name} in the older app.',
+            error: short ? null : _error,
+            child: EPasswordInput(
+              key: ValueKey('old-${f.id}'),
+              controller: _old,
+              autofocus: true,
+              invalid: _error != null && !short,
+              semanticLabel: 'Old password of ${f.name}',
+              onChanged: (_) => setState(() => _error = null),
+              onSubmitted: (_) => _importCurrent(),
             ),
           ),
+          if (short) ...[
+            SizedBox(height: Sp.x3),
+            Text('The old password is short. Choose a new one, $minPasswordLength or more characters.', style: ts.small),
+            SizedBox(height: Sp.x3),
+            EField(
+              label: 'New password',
+              child: EPasswordInput(controller: _new, semanticLabel: 'New password', onChanged: (_) => setState(() => _error = null)),
+            ),
+            SizedBox(height: Sp.x3),
+            EField(
+              label: 'Repeat',
+              error: _error,
+              child: EPasswordInput(
+                controller: _repeat,
+                semanticLabel: 'Repeat the new password',
+                invalid: _error != null,
+                onChanged: (_) => setState(() => _error = null),
+                onSubmitted: (_) => _importCurrent(),
+              ),
+            ),
+          ],
+          SizedBox(height: Sp.x3),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: EButton.ghost(label: 'Skip', size: EBtnSize.inline, onPressed: _busy ? null : _skipCurrent),
+          ),
         ],
-        if (_applying) ...[
-          SizedBox(height: Sp.x4),
-          Text('Applying settings…', style: ts.small),
-          SizedBox(height: Sp.x2),
-          const EProgress(),
-        ],
-      ],
+      ),
     );
   }
 
-  Widget _done(BuildContext context) {
+  Widget _doneList(BuildContext context) {
     final ts = context.ts;
     final c = context.dc;
-    final done = _found.where((f) => _copy[f.id]?.st == _Cp.ok).toList();
-    final bits = [
-      if (_set['contacts'] == true) 'Contacts',
-      if (_set['node'] == true) 'Node',
-      if (_set['epicbox'] == true) 'Epicbox server',
-      if (_set['lang'] == true) 'Language',
-    ];
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         _wlist(context, [
-          for (final f in done)
+          for (final r in _done.values)
             Padding(
               padding: EdgeInsets.all(Sp.x4),
-              child: Row(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Icon(EIcons.okCircle, size: Ctl.icon, color: c.ok),
-                  SizedBox(width: Sp.x3),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [Text(f.label, style: ts.label), Text('Copied and checked', style: ts.small)],
-                    ),
+                  Row(
+                    children: [
+                      Icon(EIcons.okCircle, size: Ctl.icon, color: c.ok),
+                      SizedBox(width: Sp.x3),
+                      Expanded(child: Text(r.name, style: ts.label)),
+                      Text('Imported', style: ts.small),
+                    ],
                   ),
+                  _proof(context, r),
                 ],
               ),
             ),
         ]),
-        if (bits.isNotEmpty) ...[
-          SizedBox(height: Sp.x4),
-          Wrap(
-            spacing: Sp.x2,
-            runSpacing: Sp.x2,
-            crossAxisAlignment: WrapCrossAlignment.center,
-            children: [
-              Text('Settings:', style: ts.small),
-              for (final b in bits) ETag(b, tone: ETone.ok, icon: EIcons.check),
-            ],
-          ),
-        ],
         SizedBox(height: Sp.x4),
-        Text('Old folders can be deleted after the first unlock.', style: ts.bodyDim),
-        SizedBox(height: Sp.x2),
-        Align(
-          alignment: Alignment.centerLeft,
-          child: ELink(
-            label: 'Delete an old folder',
-            onPressed: () => showImportDeleteDialog(context, done.first.label, done.first.dir),
-          ),
-        ),
+        Text('Old folders are unchanged. The older app can still open them.', style: ts.bodyDim),
       ],
     );
   }
@@ -732,7 +742,7 @@ Future<bool?> showImportStopDialog(BuildContext context) => showEDialog<bool>(
   context,
   builder: (ctx) => EDialog(
     title: 'Stop the import?',
-    description: 'Copies made so far are removed. Old folders are unchanged.',
+    description: 'Wallets imported so far are removed. Old folders are unchanged.',
     icon: EIcons.stop,
     tone: ETone.warn,
     width: 420.u,
@@ -742,136 +752,3 @@ Future<bool?> showImportStopDialog(BuildContext context) => showEDialog<bool>(
     ],
   ),
 );
-
-/// "Same wallet as …": keep both copies or remove this one.
-Future<bool?> showImportSameWalletDialog(BuildContext context, String name, String other) => showEDialog<bool>(
-  context,
-  builder: (ctx) => EDialog(
-    title: 'Same wallet as $other',
-    description: '$name has the same address as $other. Both show the same coins.',
-    icon: EIcons.alert,
-    tone: ETone.warn,
-    width: 440.u,
-    actions: [
-      EButton(label: 'Keep both', onPressed: () => Navigator.pop(ctx, true)),
-      EButton.primary(label: 'Remove this copy', onPressed: () => Navigator.pop(ctx, false)),
-    ],
-  ),
-);
-
-/// "Delete the old folder of …?": files go to the Recycle Bin.
-Future<bool?> showImportDeleteDialog(BuildContext context, String name, String dir) => showEDialog<bool>(
-  context,
-  builder: (ctx) => EDialog(
-    title: 'Delete the old folder of $name?',
-    description: 'Moved to the Recycle Bin. Other files stay; the folder is removed only when empty.',
-    icon: EIcons.trash,
-    tone: ETone.risk,
-    width: 460.u,
-    body: Builder(
-      builder: (ctx) => Text(dir, style: ctx.ts.mono()),
-    ),
-    actions: [
-      EButton(label: 'Cancel', onPressed: () => Navigator.pop(ctx, false)),
-      EButton(label: 'Delete', icon: EIcons.trash, kind: EBtnKind.danger, onPressed: () => Navigator.pop(ctx, true)),
-    ],
-  ),
-);
-
-/// "Checking the copy": the four steps of the test open, shown part-way.
-Future<void> showImportCheckingDialog(BuildContext context, String name, {int step = 2}) => showEDialog<void>(
-  context,
-  dismissible: false,
-  builder: (ctx) => EDialog(
-    title: 'Checking the copy of $name',
-    width: 440.u,
-    dismissible: false,
-    body: Builder(
-      builder: (ctx) {
-        const steps = ['Opening with the password', 'Reading the database', 'Reading the balance and transactions', 'Checking the address'];
-        final c = ctx.dc;
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            for (var i = 0; i < steps.length; i++)
-              Padding(
-                padding: EdgeInsets.symmetric(vertical: Sp.x1),
-                child: Row(
-                  children: [
-                    SizedBox(
-                      width: 24.u,
-                      child: i < step
-                          ? Icon(EIcons.check, size: Ctl.iconSm, color: c.ok)
-                          : (i == step ? const ESpinner() : Icon(Icons.circle, size: 5.u, color: c.faint)),
-                    ),
-                    Text(steps[i], style: i <= step ? ctx.ts.body : ctx.ts.small),
-                  ],
-                ),
-              ),
-          ],
-        );
-      },
-    ),
-  ),
-);
-
-/// "The copy did not open".
-Future<void> showImportOpenFailDialog(BuildContext context, String name) => showEDialog<void>(
-  context,
-  builder: (ctx) => EDialog(
-    title: 'The copy of $name did not open',
-    description: 'The copy matches the original, but the wallet could not open it. The old folder is unchanged. Import it again, or restore from the recovery phrase.',
-    icon: EIcons.error,
-    tone: ETone.risk,
-    width: 460.u,
-    actions: [EButton.primary(label: 'Remove the copy', onPressed: () => Navigator.pop(ctx))],
-  ),
-);
-
-/// "Choose a folder": a small mock of the system folder dialog. Pops the chosen path.
-Future<String?> showImportPickerDialog(BuildContext context) => showEDialog<String>(
-  context,
-  builder: (ctx) => const _PickerDialog(),
-);
-
-class _PickerDialog extends StatefulWidget {
-  const _PickerDialog();
-
-  @override
-  State<_PickerDialog> createState() => _PickerDialogState();
-}
-
-class _PickerDialogState extends State<_PickerDialog> {
-  static const _folders = ['~/.epic/chain_backup', '~/Desktop/epic-blockchain', '~/Documents/old-wallet-backup', '~/Downloads'];
-  String? _sel;
-
-  @override
-  Widget build(BuildContext context) {
-    final c = context.dc;
-    return EDialog(
-      title: 'Choose a folder',
-      description: 'Select the wallet folder. It is only read.',
-      width: 520.u,
-      body: Container(
-        decoration: BoxDecoration(border: Border.all(color: c.line), borderRadius: BorderRadius.circular(Rad.sm)),
-        child: Column(
-          children: [
-            for (final f in _folders)
-              ListTile(
-                dense: true,
-                selected: _sel == f,
-                selectedTileColor: c.s3,
-                leading: Icon(EIcons.folder, size: Ctl.icon, color: c.dim),
-                title: Text(f, style: context.ts.mono()),
-                onTap: () => setState(() => _sel = f),
-              ),
-          ],
-        ),
-      ),
-      actions: [
-        EButton(label: 'Cancel', onPressed: () => Navigator.pop(context)),
-        EButton.primary(label: 'Choose', onPressed: _sel == null ? null : () => Navigator.pop(context, _sel)),
-      ],
-    );
-  }
-}
