@@ -391,12 +391,14 @@ class EOnbFrame extends StatelessWidget {
                     children: [
                       EpicMark(size: 24.u, color: c.accent),
                       SizedBox(width: 10.u),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('Epic Cash', style: ts.h3.copyWith(fontSize: 15)),
-                          Text(sideTitle, style: ts.caption),
-                        ],
+                      Flexible(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Epic Cash Wallet', maxLines: 1, overflow: TextOverflow.ellipsis, style: ts.h3.copyWith(fontSize: 15)),
+                            Text(sideTitle, style: ts.caption),
+                          ],
+                        ),
                       ),
                     ],
                   ),

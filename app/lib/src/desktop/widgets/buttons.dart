@@ -79,8 +79,8 @@ class _EButtonState extends State<EButton> {
     final disabled = widget.onPressed == null;
     final (height, padH, fs, iconSize) = switch (widget.size) {
       EBtnSize.inline => (Ctl.inline, Sp.x2, Fs.sm, Ctl.iconSm),
-      EBtnSize.sm => (Ctl.sm, Sp.x3, Fs.sm, 18.0),
-      EBtnSize.md => (Ctl.md, Sp.x5, Fs.md, 18.0),
+      EBtnSize.sm => (Ctl.sm, Sp.x3, Fs.sm, 18.u),
+      EBtnSize.md => (Ctl.md, Sp.x5, Fs.md, 18.u),
     };
     Color bg, fg, border;
     switch (widget.kind) {

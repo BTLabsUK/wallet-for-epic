@@ -24,7 +24,7 @@ class TourStep {
   final String text;
 }
 
-const List<TourStep> deskTourSteps = [
+final List<TourStep> deskTourSteps = [
   TourStep(
     'balance',
     'Balance',
@@ -33,7 +33,7 @@ const List<TourStep> deskTourSteps = [
   TourStep(
     'send',
     'Send EPIC',
-    'To an Epic address, an http(s) address or a contact. A review shows everything before anything leaves the wallet.',
+    'To an Epic address or a contact. A review shows everything before anything leaves the wallet.',
   ),
   TourStep(
     'receive',
@@ -45,11 +45,12 @@ const List<TourStep> deskTourSteps = [
     'Epicbox',
     'Starts with the wallet. The usual way: payments to the Epic address wait while the wallet is offline.',
   ),
-  TourStep(
-    'receive',
-    'HTTP(S)',
-    'Straight from wallet to wallet. Turn the HTTP listener on only when a payment is expected.',
-  ),
+  if (DeskFeatures.httpDirect)
+    const TourStep(
+      'receive',
+      'HTTP(S)',
+      'Straight from wallet to wallet. Turn the HTTP listener on only when a payment is expected.',
+    ),
   TourStep(
     'receive',
     'Transaction files',
@@ -58,7 +59,7 @@ const List<TourStep> deskTourSteps = [
   TourStep(
     'activity',
     'Activity',
-    'Every transaction and output, with its progress. A number here means something waits for an action.',
+    'Every transaction, with its progress. A number here means something waits for an action.',
   ),
   TourStep(
     'settings',
@@ -135,11 +136,13 @@ final bool deskTourAuto = !Platform.environment.containsKey('FLUTTER_TEST');
 class DeskTourOverlay extends ConsumerStatefulWidget {
   const DeskTourOverlay({
     super.key,
-    this.steps = deskTourSteps,
+    this.stepList,
     this.startAt = 0,
   });
 
-  final List<TourStep> steps;
+  final List<TourStep>? stepList;
+
+  List<TourStep> get steps => stepList ?? deskTourSteps;
   final int startAt;
 
   @override

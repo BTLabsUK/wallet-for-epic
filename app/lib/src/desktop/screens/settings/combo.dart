@@ -238,6 +238,7 @@ class ServiceComboState extends State<ServiceCombo> {
               EStatusDot(_editing && _typed != null ? _typed!.tone : widget.tone),
               SizedBox(width: Sp.x3),
               Expanded(
+                flex: 2,
                 child: TextField(
                   controller: _text,
                   focusNode: _field,
@@ -263,7 +264,7 @@ class ServiceComboState extends State<ServiceCombo> {
               ),
               if (!_editing && widget.fieldSub != null) ...[
                 SizedBox(width: Sp.x2),
-                Flexible(child: Text(widget.fieldSub!, style: ts.small.copyWith(color: c.faint), overflow: TextOverflow.ellipsis, maxLines: 1)),
+                Flexible(flex: 1, child: Text(widget.fieldSub!, style: ts.small.copyWith(color: c.faint), overflow: TextOverflow.ellipsis, maxLines: 1)),
               ],
               SizedBox(width: Sp.x1),
               if (widget.busy)

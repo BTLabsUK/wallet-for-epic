@@ -285,7 +285,7 @@ class _TxRowState extends ConsumerState<TxRow> {
     };
     final hidden = ref.watch(deskProvider.select((s) => s.settings.hideAmounts));
     final method = methodOf(t);
-    final extra = t.message ?? (t.hasProof ? 'Payment proof' : null);
+    final extra = t.message ?? (DeskFeatures.paymentProofs && t.hasProof ? 'Payment proof' : null);
     final meta = <InlineSpan>[
       if (method != null) TextSpan(text: method),
       if (extra != null) ...[

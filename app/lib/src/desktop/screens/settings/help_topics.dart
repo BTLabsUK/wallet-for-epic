@@ -1,3 +1,5 @@
+import '../../data/features.dart';
+
 /// Help topics (English), ported from the Electron wallet's help/topics_en.js: titles and short
 /// answers as there, bodies shortened.
 class HelpTopic {
@@ -17,12 +19,12 @@ const helpSections = <(String, String)>[
   ('trouble', 'When something goes wrong'),
 ];
 
-const helpTopics = <HelpTopic>[
+final helpTopics = <HelpTopic>[
   HelpTopic(
     'start',
     'Receive your first EPIC',
     'Open Receive, copy the Epic address and give it to the sender. The payment arrives by itself.',
-    'The Epic address ends in @ and the Epicbox server name. It is safe to share. The payment shows up in Activity on its own; after 3 confirmations, about 3 minutes, it can be spent. If the wallet is closed, Epicbox holds the payment until the next unlock.',
+    'The Epic address ends in @ and the Epicbox server name. It is safe to share. The payment shows up in Activity on its own; after 10 confirmations, about 10 minutes, it can be spent. If the wallet is closed, Epicbox holds the payment until the next unlock.',
   ),
   HelpTopic(
     'start',
@@ -45,8 +47,8 @@ const helpTopics = <HelpTopic>[
   HelpTopic(
     'how',
     'Confirmations',
-    'A transaction is final after 3 confirmations, usually about 3 minutes.',
-    'Each new block on top of the transaction is one confirmation. Until 3, the amount shows as awaiting confirmation and cannot be spent.',
+    'A transaction is final after 10 confirmations, usually about 10 minutes.',
+    'Each new block on top of the transaction is one confirmation. Until 10, the amount shows as awaiting confirmation and cannot be spent.',
   ),
   HelpTopic(
     'how',
@@ -75,14 +77,14 @@ const helpTopics = <HelpTopic>[
   HelpTopic(
     'safety',
     'Backups and restoring',
-    'The recovery phrase is the backup. To restore a wallet, enter its words in Restore from recovery phrase.',
+    'The recovery phrase is the backup. To restore a wallet, enter its words in Restore from a phrase.',
     'The phrase restores coins, not contacts or the transaction notes. Restoring scans the chain, which takes a while.',
   ),
   HelpTopic(
     'network',
-    'Nodes: built-in or external',
-    'A node connects the wallet to the Epic Cash network. A public node is quickest; the built-in one is your own.',
-    'Choose the node in Settings › Node. With switching on, the wallet moves to the next healthy node when the current one stops answering.',
+    'Nodes',
+    'A node connects the wallet to the Epic Cash network. Any public node works.',
+    'Choose the node in Settings › Node: pick one from the list or the node directory, or type an address.',
   ),
   HelpTopic(
     'network',
@@ -90,16 +92,17 @@ const helpTopics = <HelpTopic>[
     'Epicbox delivers transactions between wallets and holds them while the other wallet is offline.',
     'Pick the server in Settings › Receiving. Both wallets can use different servers.',
   ),
-  HelpTopic(
-    'network',
-    'Tor',
-    'Tor lets two wallets pay each other privately at a .onion address, without opening any ports. It is off by default.',
-    'Turn it on in Settings › Receiving. The first connection can take a minute or two.',
-  ),
+  if (DeskFeatures.tor)
+    const HelpTopic(
+      'network',
+      'Tor',
+      'Tor lets two wallets pay each other privately at a .onion address, without opening any ports. It is off by default.',
+      'Turn it on in Settings › Receiving. The first connection can take a minute or two.',
+    ),
   HelpTopic(
     'trouble',
     'Troubleshooting',
-    'Most problems are a node still syncing, a recipient who has not answered yet, or a busy port.',
-    'Check Settings › Node for the node state, Activity for a send waiting for a reply, and Settings › Receiving for port 3415. If the balance looks wrong, run Rescan.',
+    'Most problems are a node still syncing or a recipient who has not answered yet.',
+    'Check Settings › Node for the node state and Activity for a send waiting for a reply. If the balance looks wrong, run Rescan.',
   ),
 ];

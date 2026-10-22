@@ -118,7 +118,7 @@ class _DeskShellState extends ConsumerState<DeskShell> {
     if (width < Bp.phone) {
       frame = Scaffold(
         backgroundColor: c.bg,
-        body: SafeArea(child: Column(children: [const _PhoneTopBar(), Expanded(child: main)])),
+        body: SafeArea(child: Column(children: [_PhoneTopBar(section: at.route.section), Expanded(child: main)])),
         bottomNavigationBar: _PhoneNav(section: at.route.section),
       );
     } else {
@@ -236,11 +236,12 @@ class _Sidebar extends ConsumerWidget {
                     EpicMark(size: 24.u, color: c.accent),
                     if (!compact) ...[
                       SizedBox(width: 10.u),
-                      Column(
+                      Flexible(
+                        child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('Epic Cash', style: ts.h3.copyWith(fontSize: 15, letterSpacing: -0.15)),
+                          Text('Epic Cash Wallet', maxLines: 1, overflow: TextOverflow.ellipsis, style: ts.h3.copyWith(fontSize: 15, letterSpacing: -0.15)),
                           Tooltip(
                             message: 'Release notes on GitHub: copies the link',
                             child: Semantics(
@@ -258,6 +259,7 @@ class _Sidebar extends ConsumerWidget {
                             ),
                           ),
                         ],
+                      ),
                       ),
                     ],
                   ],
@@ -367,7 +369,7 @@ class _Sidebar extends ConsumerWidget {
                           TextSpan(text: 'BT Labs', style: TextStyle(color: c.dim)),
                         ],
                       ),
-                      style: ts.caption.copyWith(fontSize: 11),
+                      style: ts.caption,
                     ),
                   ],
                 ],
@@ -559,7 +561,9 @@ class _ServiceRowState extends State<_ServiceRow> {
 }
 
 class _PhoneTopBar extends ConsumerWidget {
-  const _PhoneTopBar();
+  const _PhoneTopBar({required this.section});
+
+  final DeskSection? section;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -573,7 +577,7 @@ class _PhoneTopBar extends ConsumerWidget {
         children: [
           EpicMark(size: 20.u, color: c.accent),
           SizedBox(width: Sp.x2),
-          Text('Epic Cash', style: context.ts.h3.copyWith(fontSize: 15)),
+          Flexible(child: Text('Epic Cash Wallet', maxLines: 1, overflow: TextOverflow.ellipsis, style: context.ts.h3.copyWith(fontSize: 15))),
           const Spacer(),
           const ServiceRows(compact: true, horizontal: true),
           TourTarget(
@@ -581,6 +585,7 @@ class _PhoneTopBar extends ConsumerWidget {
             child: EIconButton(
               icon: EIcons.settings,
               label: 'Settings',
+              color: section == DeskSection.settings ? c.accentText : null,
               onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.settingsNode),
             ),
           ),
@@ -605,11 +610,11 @@ class _PhoneNav extends ConsumerWidget {
     return NavigationBarTheme(
       data: NavigationBarThemeData(
         backgroundColor: c.s1,
-        indicatorColor: c.s3,
+        indicatorColor: index < 0 ? Colors.transparent : c.s3,
         height: 64.u,
         labelTextStyle: WidgetStatePropertyAll(TextStyle(fontSize: Fs.xs, color: c.dim)),
         iconTheme: WidgetStateProperty.resolveWith(
-          (s) => IconThemeData(size: Ctl.icon, color: s.contains(WidgetState.selected) ? c.accentText : c.faint),
+          (s) => IconThemeData(size: Ctl.icon, color: index >= 0 && s.contains(WidgetState.selected) ? c.accentText : c.faint),
         ),
       ),
       child: NavigationBar(
