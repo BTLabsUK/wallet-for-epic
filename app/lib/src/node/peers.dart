@@ -2,8 +2,9 @@
 /// ban and unban, and peer counts over the session for small graphs.
 ///
 /// The node gives no ping, connected-since or byte counts. [PeerView.firstSeen] is when this app
-/// first saw the peer connected in this session (a reconnect starts it again), not when the
-/// connection began.
+/// first saw the peer connected in this session, not when the connection began. A peer missing
+/// from one read keeps it (reads are 10 s apart and the list flickers); missing from two in a
+/// row, it starts again.
 library;
 
 import 'node_api.dart';
@@ -56,8 +57,12 @@ class PeerCountSample {
 
 /// Peers of one node. Owner calls: the client needs the node's secret.
 class PeerService {
-  PeerService(this._api, {DateTime Function()? clock, this.historyLimit = 240})
-    : _clock = clock ?? DateTime.now;
+  PeerService(
+    this._api, {
+    DateTime Function()? clock,
+    this.historyLimit = 240,
+    this.sampleEvery = const Duration(seconds: 30),
+  }) : _clock = clock ?? DateTime.now;
 
   final NodeApiClient _api;
   final DateTime Function() _clock;
@@ -65,7 +70,12 @@ class PeerService {
   /// Samples kept: 240 at one each 30 s is two hours.
   final int historyLimit;
 
+  /// [refresh] adds a sample to [history] at most this often: the table reads more often than
+  /// the graph samples.
+  final Duration sampleEvery;
+
   final Map<String, DateTime> _firstSeen = {};
+  final Map<String, int> _missed = {};
   final List<PeerCountSample> _history = [];
   PeerSnapshot? _last;
 
@@ -74,17 +84,27 @@ class PeerService {
   /// Oldest first.
   List<PeerCountSample> get history => List.unmodifiable(_history);
 
-  /// Reads the connected peers and the peer store; adds a sample to [history]. Throws
-  /// [NodeRpcException] when the node does not answer.
+  /// Reads the connected peers and the peer store; adds a sample to [history] once the last one
+  /// is [sampleEvery] old. Throws [NodeRpcException] when the node does not answer.
   Future<PeerSnapshot> refresh() async {
     final live = await _api.connectedPeers();
     final stored = await _api.peers();
     final now = _clock();
     final byAddr = {for (final s in stored) s.addr: s};
     final present = {for (final p in live) p.addr};
-    _firstSeen.removeWhere((addr, _) => !present.contains(addr));
+    for (final addr in _firstSeen.keys.toList()) {
+      if (present.contains(addr)) continue;
+      final missed = (_missed[addr] ?? 0) + 1;
+      if (missed < 2) {
+        _missed[addr] = missed;
+      } else {
+        _firstSeen.remove(addr);
+        _missed.remove(addr);
+      }
+    }
     for (final addr in present) {
       _firstSeen.putIfAbsent(addr, () => now);
+      _missed.remove(addr);
     }
     final connected = [
       for (final p in live) PeerView(p, stored: byAddr[p.addr], firstSeen: _firstSeen[p.addr]),
@@ -93,8 +113,12 @@ class PeerService {
       ..sort((a, b) => (b.lastBanned ?? _epoch).compareTo(a.lastBanned ?? _epoch));
     final snap = PeerSnapshot(at: now, connected: connected, banned: banned);
     _last = snap;
-    _history.add(PeerCountSample(now, inbound: snap.inbound, outbound: snap.outbound, maxHeight: snap.maxHeight));
-    if (_history.length > historyLimit) _history.removeRange(0, _history.length - historyLimit);
+    // A second of slack, so a timer firing a little early still samples.
+    final due = _history.isEmpty || now.difference(_history.last.at) >= sampleEvery - const Duration(seconds: 1);
+    if (due) {
+      _history.add(PeerCountSample(now, inbound: snap.inbound, outbound: snap.outbound, maxHeight: snap.maxHeight));
+      if (_history.length > historyLimit) _history.removeRange(0, _history.length - historyLimit);
+    }
     return snap;
   }
 

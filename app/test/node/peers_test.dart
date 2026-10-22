@@ -80,17 +80,35 @@ void main() {
     expect(s.maxHeight, 900);
   });
 
-  test('first seen is kept while connected and starts again after a reconnect', () async {
+  test('first seen survives one missed read and starts again after two', () async {
     node.live = [_live('203.0.113.1:3414')];
     final t0 = now;
     await peers.refresh();
-    now = now.add(const Duration(seconds: 30));
+    now = now.add(const Duration(seconds: 10));
     expect((await peers.refresh()).connected.single.firstSeen, t0);
     node.live = [];
     await peers.refresh();
-    now = now.add(const Duration(seconds: 30));
     node.live = [_live('203.0.113.1:3414')];
-    expect((await peers.refresh()).connected.single.firstSeen, now);
+    now = now.add(const Duration(seconds: 10));
+    expect((await peers.refresh()).connected.single.firstSeen, t0, reason: 'one miss');
+    node.live = [];
+    await peers.refresh();
+    await peers.refresh();
+    node.live = [_live('203.0.113.1:3414')];
+    now = now.add(const Duration(seconds: 10));
+    expect((await peers.refresh()).connected.single.firstSeen, now, reason: 'two misses');
+  });
+
+  test('reads every 10 s add a graph sample every 30 s', () async {
+    final service = PeerService(
+      NodeApiClient('http://127.0.0.1:3413', secret: () => 'x', transport: node.call),
+      clock: () => now,
+    );
+    for (var i = 0; i < 7; i++) {
+      await service.refresh();
+      now = now.add(const Duration(seconds: 10));
+    }
+    expect(service.history.map((h) => h.at.second), [0, 30, 0]);
   });
 
   test('banned peers come from the store, most recently banned first', () async {

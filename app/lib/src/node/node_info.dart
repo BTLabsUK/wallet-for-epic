@@ -35,6 +35,8 @@ class NodeInfo {
     this.releasedVersion,
     this.latencyMs,
     this.latencyFromMonitor = false,
+    this.monitorLatencyMs,
+    this.directoryReachedAt,
     this.uptime24h,
     this.peers,
     this.operator,
@@ -67,10 +69,20 @@ class NodeInfo {
 
   /// The released node version, from the monitor.
   final String? releasedVersion;
+
+  /// This computer's measurement: the median of its last three checks of the node; the
+  /// monitor's number only when this computer could not reach the node ([latencyFromMonitor]).
   final int? latencyMs;
 
   /// [latencyMs] was measured by the monitor, not by this device.
   final bool latencyFromMonitor;
+
+  /// The monitor's own measurement (from its location), for picker rows of nodes this computer
+  /// has not checked yet.
+  final int? monitorLatencyMs;
+
+  /// When the monitor last answered this session ("Status site last reached HH:MM").
+  final DateTime? directoryReachedAt;
 
   /// 0..1.
   final double? uptime24h;
@@ -141,6 +153,26 @@ class NodeInfoService {
   final DateTime Function() _clock;
   final Duration timeout;
 
+  final Map<String, List<int>> _latencies = {};
+  DateTime? _reachedAt;
+
+  /// When the monitor last answered.
+  DateTime? get directoryReachedAt => _reachedAt;
+
+  /// The median of the last three latencies this computer measured for [url], or null.
+  int? measuredLatency(String url) {
+    final l = _latencies[url];
+    if (l == null || l.isEmpty) return null;
+    final sorted = [...l]..sort();
+    return sorted[sorted.length ~/ 2];
+  }
+
+  void _noteLatency(String url, int ms) {
+    final l = _latencies.putIfAbsent(url, () => []);
+    l.add(ms);
+    if (l.length > 3) l.removeAt(0);
+  }
+
   /// [chain] is the monitor's chain name ("mainnet", "floonet"); null skips the monitor
   /// (usernet has none).
   Future<NodeInfo> info(String url, {required String? chain}) async {
@@ -149,6 +181,7 @@ class NodeInfoService {
     if (chain != null) {
       try {
         listed = nodeStatusFor(await nodes.nodes(chain).timeout(timeout), url);
+        _reachedAt = _clock();
       } on Object {
         // the monitor is down: limited info
       }
@@ -158,11 +191,24 @@ class NodeInfoService {
         // no network context
       }
     }
-    if (listed != null) return _fromMonitor(url, listed, net);
+    if (listed != null) return _fromMonitor(url, listed, net, await _measure(url));
     return _limited(url, net);
   }
 
-  NodeInfo _fromMonitor(String url, NodeStatus s, NetworkStatus? net) {
+  /// One timed `get_tip` for this computer's latency; the median so far, or null.
+  Future<int?> _measure(String url) async {
+    try {
+      final api = _clientFor(url);
+      final watch = Stopwatch()..start();
+      await api.tip().timeout(timeout);
+      _noteLatency(url, watch.elapsedMilliseconds);
+    } on Object {
+      // the monitor's number stands in
+    }
+    return measuredLatency(url);
+  }
+
+  NodeInfo _fromMonitor(String url, NodeStatus s, NetworkStatus? net, int? measured) {
     final tip = net?.tipHeight;
     return NodeInfo(
       url: url,
@@ -175,8 +221,10 @@ class NodeInfoService {
       blocksBehind: s.tipLag ?? (tip != null && s.height != null ? tip - s.height! : null),
       version: s.nodeVersion,
       releasedVersion: net?.releasedNodeVersion,
-      latencyMs: s.latencyMs,
-      latencyFromMonitor: s.latencyMs != null,
+      latencyMs: measured ?? s.latencyMs,
+      latencyFromMonitor: measured == null && s.latencyMs != null,
+      monitorLatencyMs: s.latencyMs,
+      directoryReachedAt: _reachedAt,
       uptime24h: s.uptime24h,
       peers: s.peers,
       operator: s.operator,
@@ -191,7 +239,14 @@ class NodeInfoService {
     try {
       api = _clientFor(url);
     } on Object catch (e) {
-      return NodeInfo(url: url, source: NodeInfoSource.none, at: _clock(), network: net, error: '$e');
+      return NodeInfo(
+        url: url,
+        source: NodeInfoSource.none,
+        at: _clock(),
+        network: net,
+        directoryReachedAt: _reachedAt,
+        error: '$e',
+      );
     }
     final watch = Stopwatch()..start();
     final NodeTipInfo tip;
@@ -204,10 +259,11 @@ class NodeInfoService {
         at: _clock(),
         state: NodeHealthState.down,
         network: net,
+        directoryReachedAt: _reachedAt,
         error: e is NodeRpcException ? e.kind.name : e.runtimeType.toString(),
       );
     }
-    final latency = watch.elapsedMilliseconds;
+    _noteLatency(url, watch.elapsedMilliseconds);
     Future<T?> quiet<T>(Future<T?> Function() call) async {
       try {
         return await call().timeout(timeout);
@@ -232,7 +288,8 @@ class NodeInfoService {
       blocksBehind: netTip != null ? netTip - tip.height : null,
       version: version,
       releasedVersion: net?.releasedNodeVersion,
-      latencyMs: latency,
+      latencyMs: measuredLatency(url),
+      directoryReachedAt: _reachedAt,
       readyForTxs: ready,
       tipTime: time,
       network: net,

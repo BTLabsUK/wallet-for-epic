@@ -110,6 +110,30 @@ void main() {
     expect(i.error, NodeRpcError.unreachable.name);
   });
 
+  test('a listed node that answers: this computer\'s latency, median of the last three', () async {
+    final s = NodeInfoService(nodes: _Monitor(), network: _Monitor(), clientFor: _node(), clock: () => at);
+    for (var i = 0; i < 4; i++) {
+      await s.info('https://node.btlabs.uk', chain: 'mainnet');
+    }
+    final i = await s.info('https://node.btlabs.uk', chain: 'mainnet');
+    expect(i.latencyFromMonitor, isFalse);
+    expect(i.latencyMs, s.measuredLatency('https://node.btlabs.uk'));
+    expect(i.monitorLatencyMs, isNotNull);
+    expect(i.directoryReachedAt, at);
+  });
+
+  test('the monitor goes down: the last time it answered stays', () async {
+    final m = _Monitor();
+    var now = at;
+    final s = NodeInfoService(nodes: m, network: m, clientFor: _node(), clock: () => now);
+    await s.info('https://node.btlabs.uk', chain: 'mainnet');
+    m.down = true;
+    now = at.add(const Duration(minutes: 5));
+    final i = await s.info('https://node.btlabs.uk', chain: 'mainnet');
+    expect(i.source, NodeInfoSource.limited);
+    expect(i.directoryReachedAt, at);
+  });
+
   test('usernet skips the monitor', () async {
     final i = await NodeInfoService(nodes: _Monitor(), clientFor: _node()).info('https://node.btlabs.uk', chain: null);
     expect(i.source, NodeInfoSource.limited);
