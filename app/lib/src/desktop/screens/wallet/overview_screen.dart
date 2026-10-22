@@ -99,7 +99,7 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
           actionsBelow: true,
           actions: [
             EButton(label: 'Use public node', icon: EIcons.web, size: EBtnSize.inline, onPressed: () => nav.go(DeskRoute.settingsNode)),
-            if (DeskFeatures.builtInNode) EButton(label: 'Use built-in node', icon: EIcons.server, size: EBtnSize.inline, busy: _restarting, onPressed: _restartNode),
+            if (DeskFeatures.builtInNode) EButton(label: 'Use local node', icon: EIcons.server, size: EBtnSize.inline, busy: _restarting, onPressed: _restartNode),
             EButton(label: 'Hide', kind: EBtnKind.ghost, size: EBtnSize.inline, onPressed: () => setState(() => _problemHidden = true)),
           ],
         ),

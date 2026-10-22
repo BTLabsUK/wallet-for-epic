@@ -235,7 +235,7 @@ final List<DeskShot> settingsShots = [
     dialog: (c) => showRemoveWalletDialog(c, demoOtherWallet, mode: RemoveMode.everything),
   ),
   DeskShot(id: '38-dlg-change-password', title: 'Change password', route: DeskRoute.settingsAccount, dialog: showChangePasswordDialog),
-  DeskShot(id: '39-dlg-node-synced', title: 'Built-in node synced', route: DeskRoute.overview, dialog: showNodeSyncedDialog),
+  DeskShot(id: '39-dlg-node-synced', title: 'Local node synced', route: DeskRoute.overview, dialog: showNodeSyncedDialog),
   DeskShot(id: '40-dlg-first-scan', title: 'Wallet first scan', route: DeskRoute.overview, dialog: (c) => showFirstScanDialog(c)),
   DeskShot(
     id: '41-tour',

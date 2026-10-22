@@ -1974,7 +1974,7 @@ class LepicDeskWallet implements DeskWalletApi {
 
   Future<BuiltInNode> _theNode() async {
     final make = _builtInNode;
-    if (make == null) throw const DeskError('No built-in node in this build');
+    if (make == null) throw const DeskError('No local node in this build');
     final node = _node ??= await make(preset.chain);
     // The user's node settings (data folder, peers) apply to every start, also at launch.
     node.options = await NodeSettings(_secrets, preset.chain).toOptions();
@@ -1996,7 +1996,7 @@ class LepicDeskWallet implements DeskWalletApi {
       }
       await _nodeLock(() async {
         // A stop that came in while it was starting wins.
-        if (!node.wantsRunning) throw const DeskError('Built-in node stopped');
+        if (!node.wantsRunning) throw const DeskError('Local node stopped');
         final current = await _nodeUrl();
         // While it syncs, the public node the user agreed to (D-7).
         final target = await nodeWhileSyncing?.call() ?? node.url;
@@ -2011,7 +2011,7 @@ class LepicDeskWallet implements DeskWalletApi {
           if (await _nodeUrl() != target) throw const DeskError('Not changed: the wallet was locked');
           if (!node.wantsRunning) {
             await _switchTo(nodeUrl: current, relay: await _relay());
-            throw const DeskError('Built-in node stopped');
+            throw const DeskError('Local node stopped');
           }
           await _secrets.write(_beforeBuiltInKey, current);
         }
@@ -2085,7 +2085,7 @@ class LepicDeskWallet implements DeskWalletApi {
       await (await _theNode()).start();
     } on Object catch (e) {
       logWarn('desk', 'built-in node did not start: ${e is NodeStartException ? e.failure.name : e.runtimeType}');
-      _notice = 'Built-in node not started: ${e is NodeStartException ? e.message : 'unknown error'}';
+      _notice = 'Local node not started: ${e is NodeStartException ? e.message : 'unknown error'}';
       _changed();
     }
   }
