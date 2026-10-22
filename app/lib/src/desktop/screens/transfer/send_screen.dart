@@ -9,6 +9,7 @@ import '../../data/api.dart' show DeskWalletApi;
 import '../../data/http_address.dart';
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../../smart_outputs.dart';
+import '../../app/tour.dart';
 import '../../widgets/kit.dart';
 import 'contact_picker.dart';
 import 'epicbox_notice.dart';
@@ -784,7 +785,9 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       padding: EdgeInsets.zero,
       head: Padding(
         padding: EdgeInsetsDirectional.only(end: Sp.x3),
-        child: ESegmented<TxMethod>(
+        child: TourTarget(
+          id: 'send-methods',
+          child: ESegmented<TxMethod>(
           stretch: true,
           segments: const [
             ESegment(TxMethod.epicbox, 'Epicbox', icon: EIcons.epicbox),
@@ -797,6 +800,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
             _method = m;
             _failure = null;
           }),
+          ),
         ),
       ),
       child: Column(

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../app/tour.dart';
 import '../../widgets/help_art.dart';
 import '../../widgets/kit.dart';
 import 'help_topics.dart';
@@ -142,22 +143,44 @@ class _SettingsHelpScreenState extends ConsumerState<SettingsHelpScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const _SupportBar(),
-          SizedBox(height: Sp.x5),
-          EField(
-            label: 'Search help',
-            help: 'Press / to search. Esc clears the search.',
-            child: CallbackShortcuts(
-              bindings: {const SingleActivator(LogicalKeyboardKey.escape): _clear},
-              child: EInput(
-                controller: _query,
-                focusNode: _focus,
-                hint: 'For example: file, confirmations, phrase',
-                leading: EIcons.search,
-                semanticLabel: 'Search help',
-                onChanged: (_) => setState(() {}),
-                trailing: _query.text.isEmpty ? null : EIconButton(icon: EIcons.close, label: 'Clear search', onPressed: _clear),
-              ),
+          // The tour's last step lights the support bar, the search and the section chips.
+          TourTarget(
+            id: 'help-top',
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const _SupportBar(),
+                SizedBox(height: Sp.x5),
+                EField(
+                  label: 'Search help',
+                  help: 'Press / to search. Esc clears the search.',
+                  child: CallbackShortcuts(
+                    bindings: {const SingleActivator(LogicalKeyboardKey.escape): _clear},
+                    child: EInput(
+                      controller: _query,
+                      focusNode: _focus,
+                      hint: 'For example: file, confirmations, phrase',
+                      leading: EIcons.search,
+                      semanticLabel: 'Search help',
+                      onChanged: (_) => setState(() {}),
+                      trailing: _query.text.isEmpty ? null : EIconButton(icon: EIcons.close, label: 'Clear search', onPressed: _clear),
+                    ),
+                  ),
+                ),
+                if (!searching) ...[
+                  SizedBox(height: Sp.x3),
+                  // The section chips, then the tour: it flows with them at every width.
+                  Wrap(
+                    spacing: Sp.x2,
+                    runSpacing: Sp.x2,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      for (final s in helpSections) _Chip(s.title, onTap: () => _show(_sectionKeys[s.id]!)),
+                      EButton.ghost(label: 'Show the tour again', icon: EIcons.restart, size: EBtnSize.inline, onPressed: () => startDeskTour(ref)),
+                    ],
+                  ),
+                ],
+              ],
             ),
           ),
           if (searching) ...[
@@ -177,12 +200,6 @@ class _SettingsHelpScreenState extends ConsumerState<SettingsHelpScreen> {
                 ],
               ),
           ] else ...[
-            SizedBox(height: Sp.x3),
-            Wrap(
-              spacing: Sp.x2,
-              runSpacing: Sp.x2,
-              children: [for (final s in helpSections) _Chip(s.title, onTap: () => _show(_sectionKeys[s.id]!))],
-            ),
             SizedBox(height: Sp.x6),
             for (final s in helpSections)
               if (helpTopics.where((t) => t.section == s.id).toList() case final topics when topics.isNotEmpty)

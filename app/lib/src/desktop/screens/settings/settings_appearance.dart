@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../widgets/kit.dart';
-import '../../app/tour.dart';
 import 'settings_frame.dart';
 
 class SettingsAppearanceScreen extends ConsumerWidget {
@@ -74,11 +73,6 @@ class SettingsAppearanceScreen extends ConsumerWidget {
             title: 'Hide amounts',
             text: 'Shows dots in place of balances and amounts.',
             control: ESwitch(value: s.hideAmounts, semanticLabel: 'Hide amounts', onChanged: (v) => n.saveSettings(s.copyWith(hideAmounts: v))),
-          ),
-          ESetRow(
-            title: 'Tour',
-            text: 'A short walk through balance, sending, receiving, activity and settings.',
-            control: ERowControl(child: EButton(label: 'Show the tour', size: EBtnSize.sm, icon: EIcons.restart, onPressed: () => startDeskTour(ref))),
           ),
         ],
       ),

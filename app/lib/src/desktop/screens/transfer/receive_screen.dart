@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
+import '../../app/tour.dart';
 import '../../widgets/kit.dart';
 import 'epicbox_notice.dart';
 
@@ -156,7 +157,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
     final status = _status(st.status);
     if (DeskFeatures.httpDirect && status?.httpListener == ServiceHealth.ok) unawaited(_readHttp());
     final nav = ref.read(deskNavProvider.notifier);
-    final epicbox = _epicboxPanel(st, status);
+    final epicbox = TourTarget(id: 'receive-epicbox', child: _epicboxPanel(st, status));
     final others = [
       if (DeskFeatures.httpDirect) _httpPanel(st, status),
       if (DeskFeatures.tor) _torPanel(st, status),
@@ -190,7 +191,10 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
                     SizedBox(width: Sp.x6),
                     Expanded(
                       flex: 5,
-                      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [head, ...gap(others)]),
+                      child: TourTarget(
+                        id: 'receive-others',
+                        child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [head, ...gap(others)]),
+                      ),
                     ),
                   ],
                 ],
@@ -202,8 +206,10 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
                 epicbox,
                 if (others.isNotEmpty) ...[
                   SizedBox(height: Sp.x8),
-                  head,
-                  ...gap(others),
+                  TourTarget(
+                    id: 'receive-others',
+                    child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [head, ...gap(others)]),
+                  ),
                 ],
                 SizedBox(height: Sp.x3),
                 files,

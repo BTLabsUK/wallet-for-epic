@@ -7,6 +7,7 @@ import '../../../legacy/gui_rules.dart' show isPrivateHost;
 import '../../data/desk_node.dart';
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../data/node_view.dart';
+import '../../app/tour.dart';
 import '../../widgets/kit.dart';
 import '../../widgets/node_card.dart';
 import '../onboarding/local_node_step.dart' show showLocalNodeSetupDialog, LocalNodeHow;
@@ -414,7 +415,9 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
         children: [
           JumpSection(
             section: SettingsJump.node,
-            child: ESetGroup(
+            child: TourTarget(
+              id: 'node-server',
+              child: ESetGroup(
               title: 'Node',
               trailing: head,
               rows: [
@@ -476,6 +479,7 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
                     ),
                   ),
               ],
+            ),
             ),
           ),
           const PrivacyGroup(),

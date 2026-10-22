@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
+import '../../app/tour.dart';
 import '../../widgets/kit.dart';
 import 'tx_detail.dart';
 import 'tx_display.dart';
@@ -136,7 +137,7 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
 
     // The list and the detail are one unit (docs/plans/w7-layout.md R1, R2): same top, same
     // bottom, header bands of one height; each scrolls inside itself when the window is short.
-    final list = _txList(all);
+    final list = TourTarget(id: 'activity-list', child: _txList(all));
     return EPage(
       title: 'Activity',
       width: EPageWidth.full,

@@ -1,6 +1,6 @@
 // The Overview header and the controls that did nothing in 0.1.0: Refresh asks the wallet to
 // sync with the node (spinner until done, the error shown), the eye hides every amount, Show
-// the tour opens the tour on Overview, Ctrl+L locks.
+// the tour again (Help) opens the tour on Overview, Ctrl+L locks.
 import 'dart:async';
 
 import 'package:epic_wallet/src/desktop/app/desk_app.dart';
@@ -96,10 +96,10 @@ void main() {
     expect(find.textContaining('••••••', findRichText: true), findsNothing);
   });
 
-  testWidgets('Show the tour opens the tour on Overview', (tester) async {
-    final container = await _open(tester, _Wallet(), DeskRoute.settingsAppearance);
+  testWidgets('Show the tour again (Help) opens the tour on Overview', (tester) async {
+    final container = await _open(tester, _Wallet(), DeskRoute.settingsHelp);
     container.read(deskTourProvider.notifier).close();
-    await tester.tap(find.text('Show the tour'));
+    await tester.tap(find.text('Show the tour again'));
     await _settle(tester);
     expect(container.read(deskNavProvider).route, DeskRoute.overview);
     expect(container.read(deskTourProvider).open, isTrue);
@@ -130,10 +130,11 @@ void main() {
     final container = await _open(tester, _Wallet(), DeskRoute.overview);
     container.read(deskTourProvider.notifier).open();
     await _settle(tester);
-    expect(find.text(deskTourSteps[0].title), findsOneWidget);
+    expect(find.text('1 of ${deskTourSteps.length}'), findsOneWidget);
     await tester.sendKeyEvent(LogicalKeyboardKey.enter);
     await _settle(tester);
-    expect(find.text(deskTourSteps[1].title), findsOneWidget);
+    expect(find.text('2 of ${deskTourSteps.length}'), findsOneWidget);
+    expect(container.read(deskNavProvider).route, deskTourSteps[1].route);
   });
 
   testWidgets('a dropdown closes on Escape and on a click outside, choosing nothing', (tester) async {
