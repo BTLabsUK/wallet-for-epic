@@ -10,12 +10,13 @@ import '../../widgets/kit.dart';
 import '../../widgets/node_card.dart';
 import 'combo.dart';
 import 'dialogs.dart';
+import 'local_node.dart';
 import 'prefs.dart';
 import 'settings_frame.dart';
 
 /// Start states of Settings › Node. [behind], [old], [limited] and [down] put the node card
-/// in that state through the mock node layer (the tour).
-enum NodeDemo { comboOpen, typed, pickFailed, builtin, chainInUse, behind, old, limited, down }
+/// in that state through the mock node layer (the tour); [builtin] shows the local node panel.
+enum NodeDemo { comboOpen, typed, pickFailed, builtin, peers, behind, old, limited, down }
 
 String hostOf(String url) => url.replaceFirst(RegExp('^https?://'), '').replaceFirst(RegExp(r'/+$'), '');
 
@@ -147,8 +148,6 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
   final _combo = GlobalKey<ServiceComboState>();
   bool _saving = false;
   String? _error;
-  bool _chainAsk = false;
-  late bool _chainInUse = widget.arg == NodeDemo.chainInUse;
 
   // The live check of a typed address.
   String _typed = '';
@@ -163,7 +162,7 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
     final arg = widget.arg;
     if (arg == NodeDemo.typed) _onTyped(_demoTyped);
     if (arg == NodeDemo.pickFailed) _error = _portNote;
-    if (arg == NodeDemo.builtin || arg == NodeDemo.chainInUse) {
+    if (arg == NodeDemo.builtin || arg == NodeDemo.peers) {
       Future.microtask(() {
         final p = ref.read(settingsPrefsProvider.notifier);
         p.set(ref.read(settingsPrefsProvider).copyWith(builtin: true, clearTyped: true));
@@ -420,8 +419,7 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
                       onSwitch: (t) => _useRemote(t.url),
                     ),
                   ),
-                if (prefs.builtin) _LocalNodeLine(view: view),
-                if (_chainInUse) _chainRow(context),
+                if (prefs.builtin) LocalNodePanel(initialTab: widget.arg == NodeDemo.peers ? LocalTab.peers : LocalTab.status),
                 if (prefs.builtin && DeskFeatures.nodeBackground)
                   ESetRow(
                     title: 'Sync in background',
@@ -432,79 +430,6 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
                       onChanged: (v) => p.set(prefs.copyWith(nodeBackground: v)),
                     ),
                   ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _chainRow(BuildContext context) {
-    final ts = context.ts;
-    const dir = '~/.epic/main/chain_data';
-    return ESetRow(
-      title: 'Blockchain data',
-      text: 'The local node uses blockchain data from this folder, which an older Epic Wallet made.',
-      stacked: _chainAsk,
-      control: _chainAsk
-          ? null
-          : EButton(label: 'Download again…', icon: EIcons.download, size: EBtnSize.sm, onPressed: () => setState(() => _chainAsk = true)),
-      below: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Text(dir, style: ts.mono(size: Fs.sm, color: context.dc.dim), overflow: TextOverflow.ellipsis),
-          if (_chainAsk) ...[
-            SizedBox(height: Sp.x3),
-            ENotice(
-              title: 'Download the blockchain again?',
-              text: 'The local node will use its own folder and download the whole chain. The data above stays where it is: nothing is deleted.',
-              tone: ETone.gold,
-              actions: [
-                EButton(label: 'Cancel', size: EBtnSize.inline, kind: EBtnKind.ghost, onPressed: () => setState(() => _chainAsk = false)),
-                EButton.primary(
-                  label: 'Download again',
-                  size: EBtnSize.inline,
-                  onPressed: () {
-                    setState(() {
-                      _chainAsk = false;
-                      _chainInUse = false;
-                    });
-                    showEToast(context, 'Downloading the blockchain again', text: 'The older data stays in $dir.');
-                  },
-                ),
-              ],
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-}
-
-/// The local node's line until the panel of §19 lands: the word and the tooltip lines.
-class _LocalNodeLine extends StatelessWidget {
-  const _LocalNodeLine({required this.view});
-
-  final NodeView view;
-
-  @override
-  Widget build(BuildContext context) {
-    final c = context.dc;
-    final ts = context.ts;
-    return Padding(
-      padding: EdgeInsets.fromLTRB(Sp.x5, Sp.x4, Sp.x5, Sp.x4),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(padding: EdgeInsets.only(top: 3.u), child: ESignalBars(view.state)),
-          SizedBox(width: Sp.x2),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(view.word, style: ts.body.copyWith(fontWeight: FontWeight.w600, color: stateColor(c, view.state))),
-                for (final l in view.lines) Text(l, style: ts.small.copyWith(color: c.dim)),
               ],
             ),
           ),

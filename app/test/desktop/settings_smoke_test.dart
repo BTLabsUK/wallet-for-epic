@@ -42,7 +42,6 @@ void main() {
     ('node typed', const DeskLocation(DeskRoute.settingsNode, NodeDemo.typed)),
     ('node failed', const DeskLocation(DeskRoute.settingsNode, NodeDemo.pickFailed)),
     ('node builtin', const DeskLocation(DeskRoute.settingsNode, NodeDemo.builtin)),
-    ('node chain', const DeskLocation(DeskRoute.settingsNode, NodeDemo.chainInUse)),
     ('receiving', const DeskLocation(DeskRoute.settingsReceiving)),
     ('receiving combo', const DeskLocation(DeskRoute.settingsReceiving, ReceivingDemo.comboOpen)),
     ('receiving tor', const DeskLocation(DeskRoute.settingsReceiving, ReceivingDemo.torOn)),

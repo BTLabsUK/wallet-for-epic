@@ -23,6 +23,7 @@ import 'src/data_folder.dart';
 import 'src/desktop/app/desk_app.dart';
 import 'src/desktop/app/shell.dart' show deskVersion;
 import 'src/desktop/data/desk_node.dart';
+import 'src/desktop/screens/settings/local_node_dialogs.dart' show deskPickFolder;
 import 'src/desktop/data/desk_store.dart';
 import 'src/desktop/data/files.dart';
 import 'src/desktop/data/lepic_desk_wallet.dart';
@@ -50,6 +51,7 @@ Future<void> main() async {
   }
   await runZonedGuarded(() async {
     WidgetsFlutterBinding.ensureInitialized();
+    deskPickFolder = () => FilePicker.getDirectoryPath(dialogTitle: 'Choose the data folder');
     // Before the logs and wallets ask for the support folder: Linux's own, never a stray one.
     await settleDataFolder();
     await startLogging();

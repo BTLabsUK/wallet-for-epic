@@ -211,7 +211,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text('Epicbox delivers payments to the Epic address and holds them until the wallet is online.', style: ts.body),
+        Text('Epicbox delivers payments to the Epicbox address and holds them until the wallet is online.', style: ts.body),
         SizedBox(height: Sp.x2),
         Text('It does not hide the IP address from the Epicbox server. Use a VPN if that matters.', style: ts.bodyDim),
         SizedBox(height: Sp.x6),

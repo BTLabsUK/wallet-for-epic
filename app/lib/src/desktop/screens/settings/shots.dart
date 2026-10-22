@@ -3,8 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../app/app_dialogs.dart';
 import '../../app/shots.dart';
 import '../../app/tour.dart';
+import '../../data/desk_node.dart';
 import '../../widgets/kit.dart';
 import 'dialogs.dart';
+import 'local_node_dialogs.dart';
 import 'prefs.dart';
 import 'report_problem.dart';
 import 'settings_node.dart';
@@ -22,6 +24,17 @@ Future<void> resetSettingsDemo(ProviderContainer c) async {
   final n = c.read(deskProvider.notifier);
   await n.saveSettings(c.read(deskProvider).settings.copyWith(tor: false, publicMode: false));
   await n.setHttp(false);
+  final node = c.read(deskNodeProvider);
+  if (node is MockDeskNode) node.show(mockLocalNode(LocalNodePhase.stopped));
+}
+
+/// The local node panel in [state] with the fallback [consent], through the mock node layer.
+Future<void> showLocalNode(ProviderContainer c, LocalNodeState state, FallbackConsent consent) async {
+  final node = c.read(deskNodeProvider);
+  if (node is MockDeskNode) node.show(state);
+  await c.read(deskFallbackProvider.notifier).set(FallbackChoice(consent, nodeUrl: defaultFallbackNodeUrl, at: consent == FallbackConsent.unasked ? null : DateTime(2026, 10, 22, 13)));
+  fallbackAskedThisSession = true; // the question is its own shot
+  await Future<void>.delayed(const Duration(milliseconds: 50));
 }
 
 /// Screenshot tour entries of this group (see app/shots.dart). Ids match the Electron
@@ -37,8 +50,69 @@ final List<DeskShot> settingsShots = [
   const DeskShot(id: '22b-node-combobox-open', title: 'Node combobox open', route: DeskRoute.settingsNode, arg: NodeDemo.comboOpen),
   const DeskShot(id: '22c-node-typed', title: 'Node combobox, typed address', route: DeskRoute.settingsNode, arg: NodeDemo.typed),
   const DeskShot(id: '22d-node-pick-failed', title: 'Node pick failed', route: DeskRoute.settingsNode, arg: NodeDemo.pickFailed),
-  const DeskShot(id: '22e-node-builtin', title: 'Built-in node in use', route: DeskRoute.settingsNode, arg: NodeDemo.builtin),
-  const DeskShot(id: '22f-node-chain-in-use', title: 'Built-in node on older chain data', route: DeskRoute.settingsNode, arg: NodeDemo.chainInUse),
+  for (final (id, title, state, consent) in [
+    ('21-local-starting', 'Local node, starting', mockLocalNode(LocalNodePhase.starting), FallbackConsent.accepted),
+    ('21-local-syncing', 'Local node, syncing headers with the fallback', mockLocalNode(LocalNodePhase.syncing, overall: 0.12, done: 1480200, total: 3764975, eta: const Duration(hours: 3)), FallbackConsent.accepted),
+    ('21-local-syncing-download', 'Local node, chain state download', mockLocalNode(LocalNodePhase.syncing, stage: SyncStage.chainStateDownload, overall: 0.46, done: 1900000000, total: 4100000000, eta: const Duration(minutes: 40)), FallbackConsent.accepted),
+    ('21-local-syncing-kernels', 'Local node, checking kernels', mockLocalNode(LocalNodePhase.syncing, stage: SyncStage.chainStateKernels, overall: 0.7, done: 2100000, total: 3400000), FallbackConsent.accepted),
+    ('21-local-syncing-nofallback', 'Local node, syncing without the fallback', mockLocalNode(LocalNodePhase.syncing, stage: SyncStage.blocks, overall: 0.96, done: 3702100, total: 3764975, eta: const Duration(minutes: 12)), FallbackConsent.declined),
+    ('21-local-synced', 'Local node, synced', mockLocalNode(LocalNodePhase.synced), FallbackConsent.accepted),
+    ('21-local-stalled', 'Local node, stalled', mockLocalNode(LocalNodePhase.error, stalled: true), FallbackConsent.accepted),
+    ('21-local-failed-port', 'Local node, port in use', mockLocalNode(LocalNodePhase.error, failure: NodeFailure.portInUse), FallbackConsent.accepted),
+    ('21-local-failed-disk', 'Local node, disk low', mockLocalNode(LocalNodePhase.error, failure: NodeFailure.diskLow), FallbackConsent.accepted),
+    ('21-local-failed-binary', 'Local node, program missing', mockLocalNode(LocalNodePhase.error, failure: NodeFailure.binaryMissing), FallbackConsent.accepted),
+    ('21-local-failed-exited', 'Local node, stopped by itself', mockLocalNode(LocalNodePhase.error, failure: NodeFailure.exited, reason: 'exit code 101'), FallbackConsent.accepted),
+    ('21-local-stopped', 'Local node, stopped', mockLocalNode(LocalNodePhase.stopped), FallbackConsent.accepted),
+    ('21-local-restart-needed', 'Local node, settings changed', mockLocalNode(LocalNodePhase.synced, restartNeeded: true, userToml: true), FallbackConsent.accepted),
+  ])
+    DeskShot(id: id, title: title, route: DeskRoute.settingsNode, arg: NodeDemo.builtin, prepare: (c, _) => showLocalNode(c, state, consent)),
+  DeskShot(
+    id: '21-local-peers',
+    title: 'Local node, Peers tab',
+    route: DeskRoute.settingsNode,
+    arg: NodeDemo.peers,
+    prepare: (c, _) => showLocalNode(c, mockLocalNode(LocalNodePhase.synced), FallbackConsent.accepted),
+  ),
+  DeskShot(
+    id: '21b-dlg-fallback-ask',
+    title: 'Use the public node until synced? (D-7)',
+    route: DeskRoute.settingsNode,
+    arg: NodeDemo.builtin,
+    prepare: (c, _) => showLocalNode(c, mockLocalNode(LocalNodePhase.syncing, overall: 0.12, done: 1480200, total: 3764975), FallbackConsent.unasked),
+    dialog: (ctx) => showFallbackAskDialog(ctx, host: 'node.epiccash.com'),
+  ),
+  DeskShot(
+    id: '21c-dlg-delete-chain',
+    title: 'Delete chain data',
+    route: DeskRoute.settingsNode,
+    arg: NodeDemo.builtin,
+    prepare: (c, _) => showLocalNode(c, mockLocalNode(LocalNodePhase.synced), FallbackConsent.accepted),
+    dialog: (ctx) => showEDialog<void>(ctx, builder: (_) => DeleteChainDataDialog(api: MockDeskNode(), state: mockLocalNode(LocalNodePhase.synced))),
+  ),
+  DeskShot(
+    id: '21d-dlg-reuse-chain',
+    title: 'Chain data found on this computer',
+    route: DeskRoute.settingsNode,
+    arg: NodeDemo.builtin,
+    prepare: (c, _) => showLocalNode(c, mockLocalNode(LocalNodePhase.stopped), FallbackConsent.accepted),
+    dialog: (ctx) => showReuseChainDataDialog(ctx, MockDeskNode()),
+  ),
+  DeskShot(
+    id: '21e-dlg-node-log',
+    title: 'Node log',
+    route: DeskRoute.settingsNode,
+    arg: NodeDemo.builtin,
+    prepare: (c, _) => showLocalNode(c, mockLocalNode(LocalNodePhase.synced), FallbackConsent.accepted),
+    dialog: (ctx) => showNodeLogDialog(ctx, MockDeskNode()),
+  ),
+  DeskShot(
+    id: '21f-dlg-fallback-picker',
+    title: 'Node while syncing: the list',
+    route: DeskRoute.settingsNode,
+    arg: NodeDemo.builtin,
+    prepare: (c, _) => showLocalNode(c, mockLocalNode(LocalNodePhase.syncing, overall: 0.12), FallbackConsent.accepted),
+    dialog: (ctx) => showFallbackPickerDialog(ctx, current: defaultFallbackNodeUrl),
+  ),
   DeskShot(id: '22i-dlg-local-node-confirm', title: 'Local node: before it starts', route: DeskRoute.settingsNode, dialog: confirmLocalNode),
   DeskShot(id: '22g-dlg-chain-offer', title: 'Existing blockchain data', route: DeskRoute.settingsNode, dialog: showChainOfferDialog),
   DeskShot(id: '22h-dlg-chain-offer-in-use', title: 'Existing blockchain data, in use', route: DeskRoute.settingsNode, dialog: (c) => showChainOfferDialog(c, inUse: true)),

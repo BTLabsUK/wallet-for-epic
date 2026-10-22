@@ -1,0 +1,751 @@
+/// The local node panel of Settings › Node (spec §19): the Status and Peers tabs, the
+/// controls, the sync bar and step strip, the notices of every phase, the tiles, and the rows
+/// under the panel (start with the app, the fallback while syncing, the data folder, the chain
+/// data). Everything goes through [DeskNodeApi]; nothing here starts a node or downloads
+/// anything without the user pressing Start.
+library;
+
+import 'dart:async';
+
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../data/desk_node.dart';
+import '../../data/files.dart' show deskOpenFolderProvider;
+import '../../data/node_view.dart';
+import '../../widgets/kit.dart';
+import '../../widgets/motion.dart';
+import 'local_node_dialogs.dart';
+import 'local_node_peers.dart';
+
+enum LocalTab { status, peers }
+
+/// Starts the node at launch (the switch under the panel).
+final localAutostartProvider = FutureProvider.autoDispose<bool>((ref) => ref.watch(deskNodeProvider).startWithApp());
+
+/// The node's peer options (preferred peers, the two maxima).
+final localNodeOptionsProvider = FutureProvider.autoDispose<NodeTomlOptions>((ref) => ref.watch(deskNodeProvider).options());
+
+/// The host of the fallback node as the rows print it (no port).
+String fallbackHost(FallbackChoice? c) => nodeHost(c?.nodeUrl ?? defaultFallbackNodeUrl);
+
+/// A sample of the Status tab's tiles, every 30 s while the tab is open.
+class _Sample {
+  const _Sample(this.at, this.value);
+
+  final DateTime at;
+  final double value;
+}
+
+/// How often the tiles sample while the page is open.
+const Duration tileSampleEvery = Duration(seconds: 30);
+
+class LocalNodePanel extends ConsumerStatefulWidget {
+  const LocalNodePanel({super.key, this.initialTab = LocalTab.status, this.clock});
+
+  final LocalTab initialTab;
+
+  /// For tests; the clock otherwise.
+  final DateTime Function()? clock;
+
+  @override
+  ConsumerState<LocalNodePanel> createState() => _LocalNodePanelState();
+}
+
+class _LocalNodePanelState extends ConsumerState<LocalNodePanel> {
+  late LocalTab _tab = widget.initialTab;
+
+  /// The control pressed and still running: 'start', 'stop' or 'restart'.
+  String? _busy;
+  Timer? _sampler;
+  final List<_Sample> _sync = [];
+  final List<_Sample> _download = [];
+  final List<_Sample> _disk = [];
+
+  /// A folder move in progress: bytes done and total.
+  (int, int)? _moving;
+
+  DateTime get _now => (widget.clock ?? DateTime.now)();
+
+  @override
+  void initState() {
+    super.initState();
+    _sampler = Timer.periodic(tileSampleEvery, (_) => _sample());
+    WidgetsBinding.instance.addPostFrameCallback((_) => _sample());
+  }
+
+  @override
+  void dispose() {
+    _sampler?.cancel();
+    super.dispose();
+  }
+
+  void _sample() {
+    if (!mounted) return;
+    final s = ref.read(deskLocalNodeProvider).value;
+    if (s == null) return;
+    final at = _now;
+    void push(List<_Sample> l, double? v) {
+      if (v == null) return;
+      l.add(_Sample(at, v));
+      if (l.length > 120) l.removeAt(0);
+    }
+
+    push(_sync, s.progress?.overall);
+    push(_download, s.stageRate);
+    push(_disk, s.chainDataBytes?.toDouble());
+    setState(() {});
+  }
+
+  Future<void> _run(String what, Future<void> Function() go) async {
+    setState(() => _busy = what);
+    try {
+      await go();
+    } on Object catch (e) {
+      if (mounted) showEToast(context, 'The node did not ${what == 'restart' ? 'restart' : what}', text: '$e', tone: ETone.risk);
+    } finally {
+      if (mounted) setState(() => _busy = null);
+    }
+  }
+
+  Future<void> _changeFolder(LocalNodeState s) async {
+    final api = ref.read(deskNodeProvider);
+    final how = await showChangeFolderDialog(context, api, s);
+    if (how == null || !mounted) return;
+    setState(() => _moving = (0, s.chainDataBytes ?? 0));
+    try {
+      await api.changeDataFolder(how.$1, how.$2, progress: (d, t) {
+        if (mounted) setState(() => _moving = (d, t));
+      });
+      if (mounted) showEToast(context, how.$2 == FolderChange.move ? 'Chain data moved' : 'Data folder changed', text: how.$1);
+    } on Object catch (e) {
+      if (mounted) showEToast(context, 'The folder did not change', text: '$e', tone: ETone.risk);
+    } finally {
+      if (mounted) setState(() => _moving = null);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.dc;
+    final ts = context.ts;
+    final api = ref.read(deskNodeProvider);
+    // The D-7 question, once, when the node first syncs and nothing was answered.
+    ref.listen(deskFallbackDecisionProvider, (_, d) {
+      if (d?.action == FallbackAction.ask) WidgetsBinding.instance.addPostFrameCallback((_) => mounted ? maybeAskFallback(context, ref) : null);
+    });
+    final s = ref.watch(deskLocalNodeProvider).value;
+    final choice = ref.watch(deskFallbackProvider).value;
+    final fallback = fallbackHost(choice);
+    final accepted = choice?.consent == FallbackConsent.accepted;
+    if (s == null) {
+      return Padding(
+        padding: EdgeInsets.all(Sp.x5),
+        child: Text('Local node', style: ts.body.copyWith(color: c.dim)),
+      );
+    }
+    final running = s.phase != LocalNodePhase.stopped && s.phase != LocalNodePhase.error;
+    final noBinary = s.phase == LocalNodePhase.error && s.failure == NodeFailure.binaryMissing;
+    final controls = <Widget>[
+      if (!running && !noBinary)
+        EButton.primary(
+          label: 'Start',
+          icon: Icons.play_arrow_rounded,
+          size: EBtnSize.sm,
+          busy: _busy == 'start',
+          onPressed: _busy == null ? () => _run('start', api.start) : null,
+        ),
+      if (running) ...[
+        EButton(label: 'Stop', icon: EIcons.stop, size: EBtnSize.sm, busy: _busy == 'stop', onPressed: _busy == null ? () => _run('stop', api.stop) : null),
+        SizedBox(width: Sp.x2),
+        EButton(label: 'Restart', icon: EIcons.refresh, size: EBtnSize.sm, busy: _busy == 'restart', onPressed: _busy == null ? () => _run('restart', api.restart) : null),
+      ],
+    ];
+
+    final Widget tab = switch (_tab) {
+      LocalTab.status => _StatusTab(
+        key: const ValueKey('status'),
+        state: s,
+        fallback: fallback,
+        accepted: accepted,
+        sync: _sync,
+        download: _download,
+        disk: _disk,
+        peerHistory: api.peerHistory(),
+        moving: _moving,
+        onUseFallback: () => ref.read(deskFallbackProvider.notifier).answer(true),
+        onRestart: _busy == null ? () => _run('restart', api.restart) : null,
+        onLog: () => showNodeLogDialog(context, api),
+        onChangeFolder: () => _changeFolder(s),
+        now: _now,
+      ),
+      LocalTab.peers => PeersTab(key: const ValueKey('peers'), restartNeeded: s.restartNeeded, onRestart: _busy == null ? () => _run('restart', api.restart) : null),
+    };
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Padding(
+          padding: EdgeInsets.fromLTRB(Sp.x5, Sp.x4, Sp.x5, Sp.x5),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                children: [
+                  ESegmented<LocalTab>(
+                    segments: const [ESegment(LocalTab.status, 'Status'), ESegment(LocalTab.peers, 'Peers')],
+                    value: _tab,
+                    onChanged: (t) => setState(() => _tab = t),
+                  ),
+                  const Spacer(),
+                  ...controls,
+                ],
+              ),
+              SizedBox(height: Sp.x4),
+              AnimatedSwitcher(
+                duration: Motion.cross,
+                switchInCurve: Motion.easeOut,
+                switchOutCurve: Motion.easeIn,
+                layoutBuilder: (current, previous) => Stack(alignment: Alignment.topLeft, children: [...previous, ?current]),
+                child: tab,
+              ),
+            ],
+          ),
+        ),
+        Divider(height: 1, thickness: 1, color: c.line),
+        _AutostartRow(api: api),
+        Divider(height: 1, thickness: 1, color: c.line),
+        ESetRow(
+          title: 'While syncing',
+          text: 'Use $fallback until the local node is synced. The local node takes over by itself.',
+          control: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              EButton(
+                label: 'Change…',
+                size: EBtnSize.sm,
+                onPressed: () async {
+                  final url = await showFallbackPickerDialog(context, current: choice?.nodeUrl ?? defaultFallbackNodeUrl);
+                  if (url != null) await ref.read(deskFallbackProvider.notifier).node(url);
+                },
+              ),
+              SizedBox(width: Sp.x3),
+              ESwitch(value: accepted, semanticLabel: 'Use $fallback while syncing', onChanged: (v) => ref.read(deskFallbackProvider.notifier).answer(v)),
+            ],
+          ),
+        ),
+        Divider(height: 1, thickness: 1, color: c.line),
+        ESetRow(
+          title: 'Data folder',
+          stacked: true,
+          control: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    EMiddleEllipsis(s.dataFolder, style: ts.mono(size: Fs.sm, color: c.text)),
+                    SizedBox(height: 2.u),
+                    Text(
+                      [if (s.chainDataBytes != null) '${bytesText(s.chainDataBytes!)} used', s.freeBytes == null ? 'free space unknown' : '${bytesText(s.freeBytes!)} free'].join(' · '),
+                      style: ts.caption.copyWith(color: c.dim),
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(width: Sp.x3),
+              EButton(
+                label: 'Open',
+                size: EBtnSize.sm,
+                onPressed: () async {
+                  final ok = await ref.read(deskOpenFolderProvider)(s.dataFolder);
+                  if (!ok && context.mounted) showEToast(context, 'Folder not opened', text: s.dataFolder);
+                },
+              ),
+              SizedBox(width: Sp.x2),
+              EButton(label: 'Change…', size: EBtnSize.sm, onPressed: _moving == null ? () => _changeFolder(s) : null),
+            ],
+          ),
+        ),
+        Divider(height: 1, thickness: 1, color: c.line),
+        ESetRow(
+          title: 'Chain data',
+          text: s.chainDataOrigin == ChainDataOrigin.pointed
+              ? 'This node reads another program’s folder; delete it there.'
+              : 'Use chain data another Epic node left on this computer, or delete this node’s data and download the chain again.',
+          control: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              EButton(label: 'Reuse existing…', size: EBtnSize.sm, onPressed: () => showReuseChainDataDialog(context, api)),
+              SizedBox(width: Sp.x2),
+              EButton(
+                label: 'Delete…',
+                size: EBtnSize.sm,
+                onPressed: s.chainDataOrigin == ChainDataOrigin.pointed ? null : () => showDeleteChainDataDialog(context, api, s),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _AutostartRow extends ConsumerWidget {
+  const _AutostartRow({required this.api});
+
+  final DeskNodeApi api;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final on = ref.watch(localAutostartProvider).value ?? false;
+    return ESetRow(
+      title: 'Start with the app',
+      text: 'Starts the node at launch and keeps it syncing while the app is open.',
+      control: ESwitch(
+        value: on,
+        semanticLabel: 'Start with the app',
+        onChanged: (v) async {
+          await api.setStartWithApp(v);
+          ref.invalidate(localAutostartProvider);
+        },
+      ),
+    );
+  }
+}
+
+/// What the Status tab says for a state (the table of §19): the detail after the word, and the
+/// notice (tone, title, text, action label) if any.
+class StatusWords {
+  const StatusWords({required this.detail, this.notice});
+
+  final String detail;
+  final ({ETone tone, String title, String? text, String? action})? notice;
+}
+
+StatusWords statusWords(LocalNodeState s, {required String fallback, required bool accepted}) {
+  switch (s.phase) {
+    case LocalNodePhase.starting:
+      return const StatusWords(detail: 'waiting for peers');
+    case LocalNodePhase.syncing:
+      final stage = s.progress == null ? 'syncing' : stageName(s.progress!.stage);
+      if (accepted) return StatusWords(detail: '$stage · using $fallback meanwhile');
+      return StatusWords(
+        detail: stage,
+        notice: (tone: ETone.neutral, title: 'Nothing can be sent or received until the local node is synced.', text: null, action: 'Use $fallback meanwhile'),
+      );
+    case LocalNodePhase.synced:
+      return StatusWords(detail: [if (s.height != null) digits(s.height!), 'at tip'].join(' · '));
+    case LocalNodePhase.error:
+      if (s.stalled) {
+        return const StatusWords(
+          detail: 'no progress for 5 min; restarted once already',
+          notice: (tone: ETone.risk, title: 'The node makes no progress.', text: 'Restarting usually helps; if not, the log says why.', action: 'Restart'),
+        );
+      }
+      return StatusWords(
+        detail: failureLine(s),
+        notice: switch (s.failure) {
+          NodeFailure.portInUse => (
+            tone: ETone.risk,
+            title: 'Port 3413 is used by another program.',
+            text: 'Close it (another Epic node?) or pick the node already running there under Node server.',
+            action: 'View node log',
+          ),
+          NodeFailure.diskLow => (tone: ETone.risk, title: 'Less than 2 GB free on this volume.', text: 'Free space or change the data folder.', action: 'Change folder…'),
+          NodeFailure.binaryMissing => (tone: ETone.risk, title: 'The node program is missing from this installation.', text: 'Reinstall the wallet.', action: null),
+          _ => (tone: ETone.risk, title: 'The node stopped by itself.', text: 'The last log lines may say why.', action: 'View node log'),
+        },
+      );
+    case LocalNodePhase.stopped:
+      return StatusWords(detail: accepted ? 'the wallet uses $fallback meanwhile' : 'nothing can be sent until it runs');
+  }
+}
+
+class _StatusTab extends StatelessWidget {
+  const _StatusTab({
+    super.key,
+    required this.state,
+    required this.fallback,
+    required this.accepted,
+    required this.sync,
+    required this.download,
+    required this.disk,
+    required this.peerHistory,
+    required this.moving,
+    required this.onUseFallback,
+    required this.onRestart,
+    required this.onLog,
+    required this.onChangeFolder,
+    required this.now,
+  });
+
+  final LocalNodeState state;
+  final String fallback;
+  final bool accepted;
+  final List<_Sample> sync;
+  final List<_Sample> download;
+  final List<_Sample> disk;
+  final List<PeerCountSample> peerHistory;
+  final (int, int)? moving;
+  final VoidCallback onUseFallback;
+  final VoidCallback? onRestart;
+  final VoidCallback onLog;
+  final VoidCallback onChangeFolder;
+  final DateTime now;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.dc;
+    final ts = context.ts;
+    final s = state;
+    final v = localNodeView(s);
+    final words = statusWords(s, fallback: fallback, accepted: accepted);
+    final p = s.progress;
+    final syncing = s.phase == LocalNodePhase.syncing || s.phase == LocalNodePhase.starting;
+    final live = s.phase != LocalNodePhase.stopped && s.phase != LocalNodePhase.error;
+    final overall = p?.overall;
+    final pct = overall == null ? null : percent(overall);
+    final left = p == null ? null : timeLeft(p.stage, s.eta);
+    final startedAgo = s.startedAt == null ? null : now.difference(s.startedAt!);
+
+    VoidCallback? actionOf(String? label) => switch (label) {
+      'Restart' || 'Restart now' => onRestart,
+      'View node log' => onLog,
+      'Change folder…' => onChangeFolder,
+      null => null,
+      _ => onUseFallback,
+    };
+
+    Widget notice(({ETone tone, String title, String? text, String? action}) n) => ENotice(
+      tone: n.tone,
+      title: n.title,
+      text: n.text,
+      actions: [if (n.action != null) EButton(label: n.action!, size: EBtnSize.inline, onPressed: actionOf(n.action))],
+    );
+
+    final tiles = <Widget>[
+      _Tile(
+        label: 'Peers',
+        value: s.peers == null ? '–' : '${s.peers}',
+        series: [for (final h in peerHistory) (h.inbound + h.outbound).toDouble()],
+      ),
+      _Tile(label: 'Sync', value: pct ?? (s.phase == LocalNodePhase.synced ? '100 %' : '–'), suffix: left, series: [for (final x in sync) x.value]),
+      if (p?.stage == SyncStage.chainStateDownload)
+        _Tile(
+          label: 'Download',
+          value: s.stageRate == null ? '–' : '${bytesText(s.stageRate!.round())}/s',
+          suffix: p?.done == null ? null : '${bytesText(p!.done!)} so far',
+          series: [for (final x in download) x.value],
+        )
+      else
+        _Tile(
+          label: 'Chain data on disk',
+          value: s.chainDataBytes == null ? '–' : bytesText(s.chainDataBytes!),
+          suffix: s.chainDataBytes != null && s.chainDataBytesAtStart != null && s.chainDataBytes! > s.chainDataBytesAtStart!
+              ? '+${bytesText(s.chainDataBytes! - s.chainDataBytesAtStart!)} this session'
+              : null,
+          series: [for (final x in disk) x.value],
+        ),
+    ];
+
+    final meta = [
+      if (s.version != null) 'Version ${s.version}',
+      if (live && s.uptime != null) 'running ${duration(s.uptime!)}',
+      if (!live) 'stopped ${hhmm(s.at)}',
+      if (live && s.peers != null) '${s.peers} peers',
+    ].join(' · ');
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Row(
+          children: [
+            ESignalBars(v.state),
+            SizedBox(width: Sp.x2),
+            Expanded(
+              child: Text.rich(
+                TextSpan(
+                  children: [
+                    TextSpan(text: v.word, style: ts.body.copyWith(fontWeight: FontWeight.w600, color: stateColor(c, v.state))),
+                    TextSpan(text: ' · ', style: ts.body.copyWith(color: c.faint)),
+                    TextSpan(text: words.detail, style: ts.small.copyWith(color: c.dim)),
+                  ],
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
+        if (moving != null) ...[
+          SizedBox(height: Sp.x4),
+          _Bar(value: moving!.$2 == 0 ? null : moving!.$1 / moving!.$2),
+          SizedBox(height: Sp.x2),
+          Text('Moving the chain data · ${bytesText(moving!.$1)} of ${bytesText(moving!.$2)}', style: ts.small),
+        ] else if (syncing) ...[
+          SizedBox(height: Sp.x4),
+          _Bar(value: overall),
+          SizedBox(height: Sp.x2),
+          Row(
+            children: [
+              Expanded(child: Text(p == null ? 'Connecting to peers' : stageLine(p), style: ts.small)),
+              SizedBox(width: Sp.x3),
+              Text(
+                p?.stage == SyncStage.waitingForPeers || p == null
+                    ? (startedAgo == null ? '' : 'started ${startedAgo.inSeconds < 90 ? '${startedAgo.inSeconds} s' : duration(startedAgo)} ago')
+                    : [?pct, ?left].join(' · '),
+                style: ts.small.copyWith(color: c.dim),
+              ),
+            ],
+          ),
+          SizedBox(height: Sp.x3),
+          StageStrip(step: p == null ? null : stripStep(p.stage)),
+        ],
+        ExpandFade(
+          open: words.notice != null,
+          child: Padding(padding: EdgeInsets.only(top: Sp.x4), child: words.notice == null ? const SizedBox.shrink() : notice(words.notice!)),
+        ),
+        ExpandFade(
+          open: s.restartNeeded && live,
+          child: Padding(
+            padding: EdgeInsets.only(top: Sp.x4),
+            child: ENotice(
+              tone: ETone.warn,
+              title: 'Settings changed.',
+              text: 'They apply at the next restart.',
+              actions: [EButton(label: 'Restart now', size: EBtnSize.inline, onPressed: onRestart)],
+            ),
+          ),
+        ),
+        if (live) ...[
+          SizedBox(height: Sp.x4),
+          LayoutBuilder(
+            builder: (context, box) {
+              final n = tiles.length;
+              final gap = Sp.x3;
+              final per = (box.maxWidth - gap * (n - 1)) / n;
+              final w = per < 170.u ? (box.maxWidth - gap) / 2 : per;
+              return Wrap(spacing: gap, runSpacing: gap, children: [for (final t in tiles) SizedBox(width: w.clamp(150.u, box.maxWidth), child: t)]);
+            },
+          ),
+          SizedBox(height: Sp.x2),
+          Text('Sampled every 30 s while this page is open.', style: ts.caption.copyWith(color: c.faint)),
+        ],
+        SizedBox(height: Sp.x4),
+        Row(
+          children: [
+            Expanded(child: Text(meta, style: ts.small.copyWith(color: c.dim), overflow: TextOverflow.ellipsis)),
+            SizedBox(width: Sp.x3),
+            EButton(label: 'View node log', icon: EIcons.log, size: EBtnSize.sm, onPressed: onLog),
+          ],
+        ),
+        if (s.userToml) ...[
+          SizedBox(height: Sp.x2),
+          Text('epic-server.toml was edited by hand; peer and folder settings here do not apply.', style: ts.caption.copyWith(color: c.warn)),
+        ],
+      ],
+    );
+  }
+}
+
+class _Bar extends StatelessWidget {
+  const _Bar({required this.value});
+
+  final double? value;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.dc;
+    final reduced = MediaQuery.disableAnimationsOf(context);
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(3.u),
+      child: SizedBox(
+        height: 6.u,
+        child: LinearProgressIndicator(
+          value: value,
+          backgroundColor: c.s3,
+          color: c.accent,
+          semanticsLabel: 'Sync progress',
+          semanticsValue: value == null ? null : '${(value! * 100).floor()} %',
+          // Reduced motion: the bar steps instead of sliding.
+          valueColor: reduced ? AlwaysStoppedAnimation(c.accent) : null,
+        ),
+      ),
+    );
+  }
+}
+
+/// Headers → Chain state → Blocks → Synced: done = ok dot, current = accent dot and text,
+/// to-do = outline. [step] null: everything to do (waiting for peers).
+class StageStrip extends StatelessWidget {
+  const StageStrip({super.key, required this.step});
+
+  final int? step;
+
+  static const names = ['Headers', 'Chain state', 'Blocks', 'Synced'];
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.dc;
+    final ts = context.ts;
+    return Semantics(
+      label: step == null ? 'Sync steps: none started' : 'Sync step ${step! + 1} of 4: ${names[step!]}',
+      excludeSemantics: true,
+      child: Row(
+        children: [
+          for (var i = 0; i < names.length; i++) ...[
+            if (i > 0) Expanded(child: Container(height: 1, color: step != null && i <= step! ? c.ok : c.line)),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 8.u,
+                  height: 8.u,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: step == null || i > step! ? null : (i == step ? c.accent : c.ok),
+                    border: Border.all(color: step == null || i > step! ? c.lineStrong : (i == step ? c.accent : c.ok)),
+                  ),
+                ),
+                SizedBox(width: Sp.x1),
+                Text(names[i], style: ts.caption.copyWith(color: step != null && i == step ? c.accentText : (step != null && i < step! ? c.dim : c.faint))),
+              ],
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+/// A tile: label, value (+ a small dim suffix), a 32 u sparkline of one series.
+class _Tile extends StatelessWidget {
+  const _Tile({required this.label, required this.value, this.suffix, required this.series});
+
+  final String label;
+  final String value;
+  final String? suffix;
+  final List<double> series;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.dc;
+    final ts = context.ts;
+    return Semantics(
+      label: '$label: $value${suffix == null ? '' : ', $suffix'}',
+      excludeSemantics: true,
+      child: Container(
+        padding: EdgeInsets.all(Sp.x3),
+        decoration: BoxDecoration(color: c.s2, borderRadius: BorderRadius.circular(Rad.sm), border: Border.all(color: c.line)),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(label, style: ts.caption.copyWith(color: c.faint)),
+            SizedBox(height: 2.u),
+            Text.rich(
+              TextSpan(
+                children: [
+                  TextSpan(text: value, style: ts.body.copyWith(fontSize: 15.u, fontWeight: FontWeight.w500, fontFeatures: const [FontFeature.tabularFigures()])),
+                  if (suffix != null) TextSpan(text: '  $suffix', style: ts.caption.copyWith(color: c.dim)),
+                ],
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+            SizedBox(height: Sp.x2),
+            SizedBox(height: 32.u, width: double.infinity, child: CustomPaint(painter: Sparkline(series, c.accent))),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// One series: a 2 u accent line over a 12 % accent fill; no axes, no legend.
+class Sparkline extends CustomPainter {
+  const Sparkline(this.values, this.color);
+
+  final List<double> values;
+  final Color color;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (values.length < 2) {
+      if (values.length == 1) {
+        canvas.drawLine(Offset(0, size.height / 2), Offset(size.width, size.height / 2), Paint()..color = color.withValues(alpha: 0.4)..strokeWidth = 2.u);
+      }
+      return;
+    }
+    var lo = values.reduce((a, b) => a < b ? a : b), hi = values.reduce((a, b) => a > b ? a : b);
+    if (hi == lo) {
+      lo -= 1;
+      hi += 1;
+    }
+    final pts = <Offset>[];
+    for (var i = 0; i < values.length; i++) {
+      final x = size.width * i / (values.length - 1);
+      final y = size.height - (values[i] - lo) / (hi - lo) * (size.height - 2.u) - 1.u;
+      pts.add(Offset(x, y));
+    }
+    final line = Path()..moveTo(pts.first.dx, pts.first.dy);
+    for (final p in pts.skip(1)) {
+      line.lineTo(p.dx, p.dy);
+    }
+    final fill = Path.from(line)
+      ..lineTo(size.width, size.height)
+      ..lineTo(0, size.height)
+      ..close();
+    canvas.drawPath(fill, Paint()..color = color.withValues(alpha: 0.12));
+    canvas.drawPath(
+      line,
+      Paint()
+        ..color = color
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2.u
+        ..strokeJoin = StrokeJoin.round,
+    );
+  }
+
+  @override
+  bool shouldRepaint(Sparkline old) => old.values != values || old.color != color;
+}
+
+/// A path on one line: when it does not fit, the middle gives way (its end matters more).
+class EMiddleEllipsis extends StatelessWidget {
+  const EMiddleEllipsis(this.text, {super.key, required this.style});
+
+  final String text;
+  final TextStyle style;
+
+  @override
+  Widget build(BuildContext context) => LayoutBuilder(
+    builder: (context, box) {
+      final scaler = MediaQuery.textScalerOf(context);
+      final dir = Directionality.of(context);
+      bool fits(String t) {
+        final p = TextPainter(text: TextSpan(text: t, style: style), textDirection: dir, textScaler: scaler, maxLines: 1)..layout();
+        return p.width <= box.maxWidth;
+      }
+
+      var shown = text;
+      if (!fits(shown) && text.length > 4) {
+        var lo = 0, hi = text.length;
+        // The longest text that fits, cut in the middle.
+        while (hi - lo > 1) {
+          final mid = (lo + hi) ~/ 2;
+          final keep = text.length - mid;
+          final head = keep ~/ 2, tail = keep - head;
+          final t = '${text.substring(0, head)}…${text.substring(text.length - tail)}';
+          if (fits(t)) {
+            hi = mid;
+            shown = t;
+          } else {
+            lo = mid;
+          }
+        }
+      }
+      return Tooltip(message: text, waitDuration: const Duration(milliseconds: 600), child: Text(shown, maxLines: 1, softWrap: false, style: style, semanticsLabel: text));
+    },
+  );
+}

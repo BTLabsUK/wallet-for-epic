@@ -209,7 +209,7 @@ class _Steps extends StatelessWidget {
           step(_StepState.done, 'Wallet unlocked'),
           step(_StepState.done, 'Connected to node'),
           step(_StepState.now, 'Updating balances'),
-          step(_StepState.wait, 'Starting listener'),
+          step(_StepState.wait, 'Turning on Epicbox receiving'),
         ],
       ),
     );
