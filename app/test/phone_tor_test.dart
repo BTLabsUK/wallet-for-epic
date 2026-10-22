@@ -40,6 +40,7 @@ class _Harness {
             ],
             sendWait: Duration(milliseconds: 600),
             networkSettle: Duration(milliseconds: 30),
+            awayRenew: Duration(milliseconds: 50),
           ),
         ),
       ],
@@ -338,6 +339,23 @@ void main() {
     expect(h.session.torStarts, hasLength(1));
     expect(h.state.phase, PhoneTorPhase.ready);
     expect(h.session.torRefreshes, [false]);
+  });
+
+  test('back after a long time away renews the tor connections', () async {
+    h.store.values[h.key] = 'true';
+    await h.unlock();
+    h.emit(TorEventKind.ready);
+    await h.until((s) => s.phase == PhoneTorPhase.ready);
+    h.session.torStatusValue = TorStatus(
+      kind: TorStatusKind.ready,
+      onion: h.session.onion,
+    );
+    _background();
+    await h.settle(80);
+    _foreground();
+    await h.settle(60);
+    expect(h.session.torRefreshes, [true]);
+    expect(h.session.torStarts, hasLength(1));
   });
 
   test('network regained while tor runs refreshes its connections', () async {

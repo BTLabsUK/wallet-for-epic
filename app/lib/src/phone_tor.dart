@@ -136,6 +136,7 @@ class PhoneTorTiming {
     ],
     this.sendWait = const Duration(minutes: 3),
     this.networkSettle = const Duration(milliseconds: 1500),
+    this.awayRenew = const Duration(seconds: 30),
   });
 
   /// Before each restart in a row; the last one repeats. A start that stalls is LEPIC's to
@@ -147,6 +148,11 @@ class PhoneTorTiming {
 
   /// The network must stay back this long before tor is refreshed: a flap refreshes once.
   final Duration networkSettle;
+
+  /// Away from the screen this long, the app may have lost its network meanwhile (Android 15
+  /// and later cut a backgrounded app's network after about 50 s): on return tor renews its
+  /// connections, as after a network change, instead of only waking.
+  final Duration awayRenew;
 }
 
 final phoneTorTimingProvider = Provider<PhoneTorTiming>(
@@ -175,6 +181,9 @@ class PhoneTor extends Notifier<PhoneTorState> {
   bool _stopAfterSends = false;
   int _restarts = 0;
   bool _foreground = true;
+
+  /// Runs while the app is off screen; null on screen.
+  Stopwatch? _away;
   Timer? _restartTimer;
   Timer? _networkTimer;
 
@@ -503,9 +512,14 @@ class PhoneTor extends Notifier<PhoneTorState> {
     switch (s) {
       case AppLifecycleState.resumed:
         _foreground = true;
-        _wake('resume');
+        final away = _away?.elapsed;
+        _away = null;
+        final renew =
+            away != null && away >= ref.read(phoneTorTimingProvider).awayRenew;
+        _wake('resume', renew: renew);
       case AppLifecycleState.paused || AppLifecycleState.hidden:
         _foreground = false;
+        _away ??= Stopwatch()..start();
         // A restart waiting in the background would run frozen; resume starts it.
         _restartTimer?.cancel();
       case AppLifecycleState.inactive || AppLifecycleState.detached:
@@ -515,25 +529,26 @@ class PhoneTor extends Notifier<PhoneTorState> {
 
   /// Back on screen, or the network returned: a tor that should run but does not is started
   /// again; one that runs is checked ([_nudge]).
-  void _wake(String why) {
+  void _wake(String why, {bool renew = false}) {
     if (_session == null || _bundle == null || !_wanted) return;
     if (_running) {
-      unawaited(_nudge(why));
+      unawaited(_nudge(why, renew: renew || why == 'network'));
     } else {
       _scheduleRestart();
     }
   }
 
   /// Wakes a running tor after a freeze, and renews its connections after a network change
-  /// (LEPIC's `refreshTor`). A tor that no longer runs or answers ends, and is restarted.
-  Future<void> _nudge(String why) async {
+  /// or a long time away (LEPIC's `refreshTor`). A tor that no longer runs or answers ends,
+  /// and is restarted.
+  Future<void> _nudge(String why, {required bool renew}) async {
     final session = _session;
     final generation = _generation;
     // The tor checked: if it ended and another started meanwhile, that one is left alone.
     final sub = _tor;
     if (session == null) return;
     try {
-      await session.refreshTor(networkChanged: why == 'network');
+      await session.refreshTor(networkChanged: renew);
       return;
     } on WalletError catch (e) {
       if (e.kind != WalletErrorKind.torNotRunning) {
