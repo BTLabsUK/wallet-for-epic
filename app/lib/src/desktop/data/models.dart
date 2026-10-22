@@ -137,6 +137,7 @@ class Tx {
     this.foundByScan = false,
     this.foundDuring,
     this.datedByBlock = true,
+    this.fromBackup = false,
     this.confirmedAt,
     this.detail,
   });
@@ -173,6 +174,9 @@ class Tx {
 
   /// False when [created] is the time of the scan: the block's time could not be read.
   final bool datedByBlock;
+
+  /// A payment only an imported history backup knows (F34): the chain was not asked about it.
+  final bool fromBackup;
   final DateTime? confirmedAt;
 
   /// Why the state is what it is, when that is not obvious: where an imported transaction came
@@ -350,6 +354,71 @@ class ScanCounts {
   final int unlocked;
   final int deleted;
   final bool resumed;
+}
+
+/// The history backup record of the open wallet (F34), for the Backup rows, the export dialog
+/// and the Overview reminder (F33).
+@immutable
+class HistoryBackupState {
+  const HistoryBackupState({this.lastExport, this.unbacked = 0, this.reminder, this.payments = 0, this.contacts = 0, this.network = 'mainnet'});
+
+  /// The last export saved; null: never.
+  final DateTime? lastExport;
+
+  /// Payments a backup would keep that the last export does not have.
+  final int unbacked;
+
+  /// The count the Overview reminder names; null while it stays hidden (the F33 rule).
+  final int? reminder;
+
+  /// What an export holds now.
+  final int payments, contacts;
+
+  /// The chain's name, as in the file name (`mainnet`, `floonet`).
+  final String network;
+}
+
+/// What an import of a history backup did.
+@immutable
+class HistoryImport {
+  const HistoryImport({this.merged = 0, this.added = 0, this.skipped = 0, this.contactsAdded = 0});
+
+  /// Payments already here that got details back.
+  final int merged;
+
+  /// Payments only the file knew, now shown as From backup.
+  final int added;
+
+  /// Records already here, unchanged.
+  final int skipped;
+  final int contactsAdded;
+
+  bool get nothingNew => merged == 0 && added == 0 && contactsAdded == 0;
+}
+
+/// Why a history backup file was refused.
+enum HistoryFileProblem {
+  otherWallet("Another wallet's backup"),
+  otherChain('Wrong network'),
+  notOurs('Not a history backup'),
+  newer('Newer file'),
+  damaged('File damaged'),
+  tooLarge('Not a history backup');
+
+  const HistoryFileProblem(this.title);
+
+  final String title;
+}
+
+/// A refused history backup file: [problem]'s title, and [text] saying why.
+class HistoryFileError implements Exception {
+  const HistoryFileError(this.problem, this.text);
+
+  final HistoryFileProblem problem;
+  final String text;
+
+  @override
+  String toString() => text;
 }
 
 /// A wallet error, in a short sentence for the screen.

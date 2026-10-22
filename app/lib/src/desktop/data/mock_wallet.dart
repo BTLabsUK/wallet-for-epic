@@ -3,7 +3,10 @@
 /// is anything but "wrong"; "wrong" fails the unlock.
 library;
 
+import 'dart:convert';
 import 'dart:math';
+import 'dart:typed_data';
+
 
 import '../../wallet_service.dart' show onionAddressFormat;
 import 'api.dart';
@@ -569,6 +572,60 @@ class MockDeskWallet implements DeskWalletApi {
     await _wait(2);
     if (password == 'wrong') throw StateError('Wrong password');
     return _words;
+  }
+
+  /// The history backup record the Backup rows and the reminder show; tours and tests set it.
+  HistoryBackupState backup = HistoryBackupState(lastExport: DateTime(2026, 10, 3, 14, 2), unbacked: 12, payments: 48, contacts: 6);
+
+  /// What the next [importHistory] answers: a [HistoryImport] or a [HistoryFileError]. After a
+  /// good import the same file again adds nothing.
+  Object? nextImport;
+  bool _historyImported = false;
+
+  @override
+  Future<HistoryBackupState> historyBackupState() async {
+    await _wait(0.5);
+    return backup;
+  }
+
+  @override
+  Future<Uint8List> exportHistory() async {
+    await _wait(2);
+    return Uint8List.fromList(utf8.encode('WFEH mock history backup'));
+  }
+
+  @override
+  Future<String> exportHistoryCsv({DateTime? from, DateTime? to}) async {
+    await _wait();
+    final rows = [
+      for (final t in _txs)
+        if ((from == null || !t.created.isBefore(DateTime(from.year, from.month, from.day))) &&
+            (to == null || t.created.isBefore(DateTime(to.year, to.month, to.day + 1))))
+          '${t.created.toUtc().toIso8601String()},${t.incoming ? 'Received' : 'Sent'},${t.state.name},'
+              '${t.incoming ? '' : '-'}${t.amount / nanoPerEpic},${t.fee / nanoPerEpic},${t.counterparty ?? ''},,${t.slateId},${t.kernel ?? ''},${t.height ?? ''}',
+    ];
+    return ['date,type,status,amount_epic,fee_epic,counterparty,note,slate_id,kernel,block_height', ...rows].join('\n');
+  }
+
+  @override
+  Future<HistoryImport> importHistory(Uint8List data) async {
+    await _wait(2);
+    final next = nextImport;
+    if (next is HistoryFileError) throw next;
+    if (next is HistoryImport) return next;
+    if (_historyImported) return const HistoryImport(skipped: 46);
+    _historyImported = true;
+    return const HistoryImport(merged: 3, added: 2, skipped: 41, contactsAdded: 1);
+  }
+
+  @override
+  Future<void> markHistoryExported(DateTime when) async {
+    backup = HistoryBackupState(lastExport: when, payments: backup.payments, contacts: backup.contacts, network: backup.network);
+  }
+
+  @override
+  Future<void> dismissHistoryReminder(DateTime when) async {
+    backup = HistoryBackupState(lastExport: backup.lastExport, unbacked: backup.unbacked, payments: backup.payments, contacts: backup.contacts, network: backup.network);
   }
 
   @override

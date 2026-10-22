@@ -61,6 +61,7 @@ const Set<String> _reads = {
   'checkPhrase',
   'walletWithPhrase',
   'changes',
+  'historyBackupState',
 };
 
 /// The mock wallet, with every call recorded by name.
@@ -203,6 +204,18 @@ class _Recorder implements DeskWalletApi {
   Future<List<String>> revealPhrase(String password) => _r('revealPhrase', () => _m.revealPhrase(password));
   @override
   Future<void> changePassword(String current, String next) => _r('changePassword', () => _m.changePassword(current, next));
+  @override
+  Future<HistoryBackupState> historyBackupState() => _r('historyBackupState', _m.historyBackupState);
+  @override
+  Future<Uint8List> exportHistory() => _r('exportHistory', _m.exportHistory);
+  @override
+  Future<String> exportHistoryCsv({DateTime? from, DateTime? to}) => _r('exportHistoryCsv', () => _m.exportHistoryCsv(from: from, to: to));
+  @override
+  Future<HistoryImport> importHistory(Uint8List data) => _r('importHistory', () => _m.importHistory(data));
+  @override
+  Future<void> markHistoryExported(DateTime when) => _r('markHistoryExported', () => _m.markHistoryExported(when));
+  @override
+  Future<void> dismissHistoryReminder(DateTime when) => _r('dismissHistoryReminder', () => _m.dismissHistoryReminder(when));
 }
 
 /// One pressable control: its kind and label, found again by them on a fresh app.
