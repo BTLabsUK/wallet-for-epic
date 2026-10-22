@@ -141,10 +141,7 @@ Future<List<Override>> deskOverrides() async {
           chain: wallet.preset.chain,
           onDecision: (d) => wallet.applyNodeFallback(usePublic: d.action == FallbackAction.usePublic, publicUrl: d.nodeUrl),
         );
-        wallet.nodeWhileSyncing = () async {
-          final c = await node.fallbackChoice();
-          return c.consent == FallbackConsent.accepted ? c.nodeUrl : null;
-        };
+        wallet.nodeWhileSyncing = node.nodeWhileSyncing;
         return node;
       }),
     deskStoreProvider.overrideWithValue(store),
