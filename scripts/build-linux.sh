@@ -7,6 +7,7 @@
 # Env:   WFE_TARGET=lib/main_desktop.dart   entry point
 #        WFE_NODE_BIN=<path to epic>        bundle the built-in node's binary as usr/bin/bin/epic
 #        WFE_BUILD_LEPIC=0                  skip the LEPIC build (the mock build does not use it)
+#        WFE_TOR=0                          leave out the Tor bundle (tools/fetch-tor.sh, in by default)
 #        LEPIC_REPO=../lepic                 where the pinned LEPIC commit is read from
 # Output: build-linux/WalletForEpic-<version>-x86_64.AppImage
 # Caches: docker volumes wfe-linux-{pub,cargo,home,lepic-target} keep rebuilds fast.
@@ -55,6 +56,14 @@ if [[ -n "${WFE_NODE_BIN:-}" ]]; then
   echo "node binary: $(sha256sum "$work/node-bin/epic" | cut -d' ' -f1)"
 else
   : > "$work/node-bin/epic"
+fi
+# Tor (tools/fetch-tor.sh, checked against tools/tor-bundle.json) goes in as tor-bundle/ and ends up
+# at usr/bin/bin/tor-bundle, where lib/src/tor_location.dart looks. Fetched on the host: it needs
+# curl and jq, and keeps the tarball in ~/.cache/epic-gui-tor between builds.
+rm -rf "$work/tor-bundle"
+mkdir -p "$work/tor-bundle"
+if [[ "${WFE_TOR:-1}" = 1 ]]; then
+  "$root/tools/fetch-tor.sh" linux "$work/tor-bundle"
 fi
 # Fresh named volumes are root-owned; hand the build-cache ones to the host user once.
 docker run --rm -v wfe-linux-lepic-target:/t -v wfe-linux-build:/b -v wfe-linux-pub:/p -v wfe-linux-home:/h "$image" \
