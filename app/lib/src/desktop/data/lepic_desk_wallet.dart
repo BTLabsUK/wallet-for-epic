@@ -20,6 +20,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:crypto/crypto.dart';
+import 'package:path_provider/path_provider.dart';
 
 import '../../bip39_words.dart';
 import '../../builtin_node.dart';
@@ -40,6 +41,7 @@ import 'desk_store.dart';
 import 'features.dart';
 import 'http_address.dart';
 import 'models.dart';
+import 'remember.dart';
 
 /// Built-in public nodes offered in Settings › Node, the default first; status.btlabs.uk can add more.
 final List<NodeServer> deskPublicNodes = [
@@ -115,10 +117,20 @@ class LepicDeskWallet implements DeskWalletApi {
     this._listProcesses,
     this._torBundle,
     bool? torFeature,
+    Future<Directory> Function()? rememberDir,
+    DateTime Function()? now,
   }) : _torFeature = torFeature ?? DeskFeatures.tor,
        _legacyRoots = legacyRoots ?? legacy.LegacyRoots.current,
        _minConfFallback = minimumConfirmations ?? BigInt.from(defaultMinimumConfirmations),
-       _registryGiven = registry;
+       _registryGiven = registry,
+       _remember = RememberedPasswords(
+         secrets: _secrets,
+         dir: rememberDir ?? () async => Directory('${(await getApplicationSupportDirectory()).path}${Platform.pathSeparator}remember'),
+         now: now,
+       );
+
+  /// Passwords remembered on this computer, per wallet (F6).
+  final RememberedPasswords _remember;
 
   /// Whether this build offers Tor ([DeskFeatures.tor]); tests turn it on.
   final bool _torFeature;
@@ -461,6 +473,7 @@ class LepicDeskWallet implements DeskWalletApi {
           if (entry.isLegacy) await _setMeta({'unlisted': true}, _metaKey(null));
         case WalletRemoval.delete:
           await r.delete(id, service: _service, config: config);
+          await _remember.forget(id);
           await _store.delete(_metaKey(entry.walletId));
           await _store.delete(DeskStore.favouritesKeyOf(entry.walletId));
           if (entry.walletId != null) {
@@ -519,11 +532,48 @@ class LepicDeskWallet implements DeskWalletApi {
   // ---- Opening a wallet.
 
   @override
-  Future<bool> unlock(String password) async {
+  Future<bool> unlock(String password, {bool remember = false}) => _unlock(password, remember: remember);
+
+  @override
+  Future<bool> unlockRemembered() async {
+    final entry = _pick(await _wallets(), await _lastUsed());
+    if (entry == null) return false;
+    final password = await _remember.recall(entry.id);
+    if (password == null) return false;
+    final ok = await _unlock(password);
+    if (!ok) await _remember.forget(entry.id);
+    logInfo('desk', ok ? 'unlocked with the remembered password' : 'remembered password refused');
+    return ok;
+  }
+
+  @override
+  Future<bool> isRemembered(String id) => _remember.isRemembered(id);
+
+  @override
+  Future<void> forgetRemembered(String id) => _remember.forget(id);
+
+  /// Opens the selected wallet. [remember]: keep the password, forget it, or (null, for the
+  /// remembered password itself) leave it and its expiry as they are.
+  Future<bool> _unlock(String password, {bool? remember}) async {
     await lock();
     final all = await _wallets();
     final entry = _pick(all, await _lastUsed());
     if (entry == null) throw const DeskError('No wallet found');
+    final ok = await _openEntryWith(entry, password);
+    if (!ok) {
+      await _remember.failed(entry.id);
+    } else if (remember == true) {
+      await _remember.remember(entry.id, password);
+    } else if (remember == false) {
+      await _remember.forget(entry.id, quiet: true);
+    } else {
+      await _remember.succeeded(entry.id);
+    }
+    if (ok) _startOpenWallet();
+    return ok;
+  }
+
+  Future<bool> _openEntryWith(reg.WalletEntry entry, String password) async {
     final config = await _configOf(entry);
     final metaKey = _metaKey(entry.walletId);
     core.WalletSession session;
@@ -565,12 +615,16 @@ class LepicDeskWallet implements DeskWalletApi {
     } on Object catch (e) {
       logWarn('desk', 'wallet list not saved: ${e.runtimeType}');
     }
+    return true;
+  }
+
+  /// After an unlock: the node poll, the first sync and, when this wallet has it on, tor.
+  void _startOpenWallet() {
     _poll = Timer.periodic(nodePoll, (_) => unawaited(_checkTip()));
     unawaited(_checkTip());
     unawaited(sync());
     _torAutoRetried = false;
-    if (tor) unawaited(_startTor());
-    return true;
+    if (_settings.tor) unawaited(_startTor());
   }
 
   @override
@@ -2084,6 +2138,7 @@ class LepicDeskWallet implements DeskWalletApi {
   }
 
   @override
+  // When this is built: forget the remembered password (`_remember.forget`) once it changed.
   Future<void> changePassword(String current, String next) =>
       throw UnsupportedError('password change (DeskFeatures.changePassword)');
 

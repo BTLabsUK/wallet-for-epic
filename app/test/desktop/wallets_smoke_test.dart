@@ -24,9 +24,9 @@ class _Recorder extends MockDeskWallet {
   }
 
   @override
-  Future<bool> unlock(String password) {
+  Future<bool> unlock(String password, {bool remember = false}) {
     calls.add('unlock');
-    return super.unlock(password);
+    return super.unlock(password, remember: remember);
   }
 
   @override

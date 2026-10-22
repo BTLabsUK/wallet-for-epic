@@ -117,6 +117,7 @@ class MockDeskWallet implements DeskWalletApi {
     await _wait(2);
     if (password == 'wrong') throw const DeskError('Wrong password', wrongPassword: true);
     _wallets.removeWhere((w) => w.id == id);
+    _remembered.remove(id);
     if (_current == id && _wallets.isNotEmpty) _current = _wallets.first.id;
   }
 
@@ -190,11 +191,35 @@ class MockDeskWallet implements DeskWalletApi {
     _imported.clear();
   }
 
+  /// Wallets remembered on this computer, and the wrong passwords counted against them.
+  final Set<String> _remembered = {};
+  int _fails = 0;
+  String get _selected => _current;
+
   @override
-  Future<bool> unlock(String password) async {
+  Future<bool> unlock(String password, {bool remember = false}) async {
     await _wait(2);
-    return password.isNotEmpty && password != 'wrong';
+    final ok = password.isNotEmpty && password != 'wrong';
+    if (!ok && ++_fails >= 5) _remembered.remove(_selected);
+    if (ok) {
+      _fails = 0;
+      remember ? _remembered.add(_selected) : _remembered.remove(_selected);
+    }
+    return ok;
   }
+
+  @override
+  Future<bool> unlockRemembered() async {
+    if (!_remembered.contains(_selected)) return false;
+    await _wait(2);
+    return true;
+  }
+
+  @override
+  Future<bool> isRemembered(String id) async => _remembered.contains(id.isEmpty ? _current : id);
+
+  @override
+  Future<void> forgetRemembered(String id) async => _remembered.remove(id.isEmpty ? _current : id);
 
   @override
   Future<void> lock() => _wait(0.5);
