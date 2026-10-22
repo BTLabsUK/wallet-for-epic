@@ -54,9 +54,10 @@ abstract final class Rad {
 
 /// Control sizes. Three heights, one rule: the height says how big the action is.
 ///  - [inline] 28: actions inside text, rows and notices; icon buttons (copy, QR, help); tags.
-///  - [sm] 36: a row's control: Settings switches' row height, Reachable segments, Port field,
-///    server picker, toolbar and dialog-secondary buttons, "Open" in list rows.
-///  - [md] 44: every form field, the page's primary button, the Send method selector.
+///  - [sm] 36: a row's control: Settings row controls ([ERowControl] widths), Reachable segments,
+///    server picker, toolbar and dialog-secondary buttons, "Open" in list rows, the tabs and the
+///    Send method selector in a panel's header band.
+///  - [md] 44: every form field and the page's primary button.
 /// Nothing is taller than 44: the Electron app's 52 px "large" button is gone.
 abstract final class Ctl {
   static double get inline => _px(28);
