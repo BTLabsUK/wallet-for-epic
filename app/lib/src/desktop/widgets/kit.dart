@@ -12,4 +12,5 @@ export 'data.dart';
 export 'dialogs.dart';
 export 'fields.dart';
 export 'frames.dart';
+export 'password_hint.dart';
 export 'surfaces.dart';
