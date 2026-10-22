@@ -11,6 +11,8 @@ import 'package:epic_wallet/src/desktop/app/tour.dart';
 import 'package:epic_wallet/src/desktop/data/api.dart';
 import 'package:epic_wallet/src/desktop/data/files.dart';
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
+import 'package:epic_wallet/src/desktop/data/desk_node.dart';
+import 'package:epic_wallet/src/desktop/screens/settings/local_node_dialogs.dart' show deskPickFolder;
 import 'package:epic_wallet/src/desktop/screens/settings/prefs.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/shots.dart';
 import 'package:epic_wallet/src/desktop/screens/transfer/shots.dart';
@@ -37,6 +39,7 @@ final Map<RegExp, String> _allowed = {
   RegExp(r'^35-dlg-tx-proof\|Export$'): 'Behind DeskFeatures.paymentProofs (off): the dialog cannot be opened in the app.',
   RegExp(r'^settingsHelp\|(Getting started|How Epic Cash works|Keeping the wallet safe|Nodes and Epicbox|When something goes wrong)$'):
       'A section chip scrolls to its section (help_test checks it); the sweep compares what is shown, not where.',
+  RegExp(r'^21d-dlg-reuse-chain\|Use it$'): 'The mock lists a folder another program holds: its card is dimmed and says so, and cannot be picked.',
   RegExp(r'^25j-dlg-export-csv\|This year$'): 'Every mock payment is from this year, so the count stays; Last year changes it.',
 };
 
@@ -83,6 +86,10 @@ class _Recorder implements DeskWalletApi {
 
   @override
   Future<List<WalletEntry>> wallets() => _r('wallets', _m.wallets);
+  @override
+  Future<bool> setupPending(String id) => _m.setupPending(id);
+  @override
+  Future<void> setSetupPending(String id, bool pending) => _m.setSetupPending(id, pending);
   @override
   Future<void> selectWallet(String id) => _r('selectWallet', () => _m.selectWallet(id));
   @override
@@ -320,6 +327,9 @@ String _shown() {
   for (final e in find.byType(ECheckbox).evaluate()) {
     b.writeln('check ${(e.widget as ECheckbox).value}');
   }
+  for (final e in find.byType(EChoiceCard).evaluate()) {
+    b.writeln('choice ${(e.widget as EChoiceCard).title} ${(e.widget as EChoiceCard).selected}');
+  }
   b.writeln('busy ${find.byType(ESpinner).evaluate().length}');
   return b.toString();
 }
@@ -332,6 +342,8 @@ void main() {
   // presses run whole wallet flows that end in another app start.
   final shots = [...walletShots, ...transferShots, ...settingsShots];
   final failures = <String>[];
+  // The OS folder picker answers with a folder, as a user would pick one.
+  setUpAll(() => deskPickFolder = () async => '/media/data/epic');
 
   tearDownAll(() {
     // One list at the end, as well as each shot's own failure.
@@ -445,6 +457,8 @@ void main() {
           return true;
         });
         final copies = clipboard.length;
+        final node = container.read(deskNodeProvider);
+        final nodeCalls = node is MockDeskNode ? node.calls.length : 0;
 
         // Not awaited: a press that opens a dialog completes when it closes.
         matches[n].press();
@@ -462,6 +476,7 @@ void main() {
         });
         final changed =
             acts.isNotEmpty ||
+            (node is MockDeskNode && node.calls.length != nodeCalls) ||
             container.read(deskNavProvider) != at ||
             container.read(deskTourProvider) != tour ||
             container.read(deskProvider).settings != settings ||

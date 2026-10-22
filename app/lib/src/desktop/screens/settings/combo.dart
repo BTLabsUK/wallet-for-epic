@@ -4,9 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../widgets/kit.dart';
+import '../../widgets/server_row.dart';
 import 'settings_frame.dart';
 
-/// One row of [ServiceCombo].
+export '../../widgets/server_row.dart' show ServerInfo, ServerKind, neutralOrder;
+
+/// One row of [ServiceCombo]: a server ([server], spec §18), the local node ([local]) or a
+/// plain row (host, sub, word) for typed addresses and old callers.
 class ComboOption {
   const ComboOption({
     required this.value,
@@ -20,6 +24,9 @@ class ComboOption {
     this.group,
     this.icon,
     this.actions = const [],
+    this.server,
+    this.local = false,
+    this.onStar,
   });
 
   final String value;
@@ -42,21 +49,32 @@ class ComboOption {
   final String? tip;
   final String? group;
 
-  /// Instead of the status dot (the built-in node's monitor).
+  /// Instead of the status dot (the local node's monitor).
   final IconData? icon;
 
   /// Small icon buttons at the row's end (☆ add to My nodes, ✎ edit).
   final List<Widget> actions;
 
-  bool matches(String q) => '$host ${sub ?? ''}'.toLowerCase().contains(q);
+  /// The §18 row: bars, tip, latency, version, star.
+  final ServerInfo? server;
+
+  /// The This computer row: [host] is its name, [sub] its state text.
+  final bool local;
+
+  /// The star of a [server] row.
+  final VoidCallback? onStar;
+
+  bool matches(String q) => '$host ${sub ?? ''} ${server?.operator ?? ''}'.toLowerCase().contains(q);
 }
 
-/// The node and Epicbox field of Settings (6.1.6 NodeCombo / EpicboxCombo): a text field that
-/// shows the server in use and opens the list under it. Typing filters the list; a typed
-/// address that is not listed is offered first ([typedRow]). A pick, or Enter on a typed
-/// address or on the only match, calls [onPicked]. ↓ moves into the list, Esc closes it.
-/// While [busy] the field says [busyLabel] beside the server and the chevron stays; after
-/// [busyTimeout] it says "No answer yet" and the field works again.
+/// The node and Epicbox field of Settings (6.1.6 NodeCombo / EpicboxCombo; spec §2.4): a
+/// button that shows the server in use and opens the list under it, with a search field at
+/// the top of the list. Typing filters; a typed address that is not listed is offered first
+/// ([typedRow]). A pick, or Enter on a typed address or on the only match, calls [onPicked].
+/// Click, Space, Enter or ↓ opens; ↓ moves into the list; Esc closes. The closed field never
+/// holds a text field, so nothing is ever painted as selected (F27). While [busy] the field
+/// says [busyLabel] beside the server and the chevron stays; after [busyTimeout] it says
+/// "No answer yet" and the field works again.
 class ServiceCombo extends StatefulWidget {
   const ServiceCombo({
     super.key,
@@ -68,6 +86,7 @@ class ServiceCombo extends StatefulWidget {
     required this.onPicked,
     this.fieldSub,
     this.tone = ETone.ok,
+    this.kind = ServerKind.relay,
     this.typedRow,
     this.typedNote,
     this.onTyped,
@@ -83,23 +102,28 @@ class ServiceCombo extends StatefulWidget {
   });
 
   final String label;
+
+  /// The search field's hint ("Find or type a node address").
   final String hint;
   final List<ComboOption> options;
 
   /// The value in use.
   final String value;
 
-  /// What the field shows when not typing: the host in use.
+  /// What the field shows: the host in use.
   final String fieldText;
   final String? fieldSub;
   final ETone tone;
+
+  /// Which columns the §18 rows show.
+  final ServerKind kind;
   final ValueChanged<String> onPicked;
 
   /// The row for a typed text that is not listed, or null when it is not an address.
   final ComboOption? Function(String typed)? typedRow;
   final String? Function(String typed)? typedNote;
 
-  /// Every edit of the field's text (the node page checks a typed address live).
+  /// Every edit of the search text (the node page checks a typed address live).
   final ValueChanged<String>? onTyped;
   final String? listNote;
   final String emptyNote;
@@ -107,7 +131,7 @@ class ServiceCombo extends StatefulWidget {
   final String busyLabel;
   final Duration busyTimeout;
 
-  /// Under the field (a failed pick); the field keeps the typed text.
+  /// Under the field (a failed pick); the list keeps the typed text.
   final String? error;
 
   /// Rows after the list: (label, icon, action).
@@ -122,11 +146,11 @@ class ServiceCombo extends StatefulWidget {
 class ServiceComboState extends State<ServiceCombo> {
   final _portal = OverlayPortalController();
   final _link = LayerLink();
-  final _field = FocusNode(debugLabel: 'combo field');
+  final _button = FocusNode(debugLabel: 'combo button');
+  final _search = FocusNode(debugLabel: 'combo search');
   final _listScope = FocusScopeNode(debugLabel: 'combo list');
   final _group = Object();
-  late final _text = TextEditingController(text: widget.fieldText);
-  bool _editing = false;
+  final _text = TextEditingController();
   double _width = 400;
   Timer? _busyTimer;
 
@@ -135,20 +159,20 @@ class ServiceComboState extends State<ServiceCombo> {
 
   bool get _busy => widget.busy && !_slow;
 
-  String get _q => _editing ? _text.text.trim().toLowerCase().replaceFirst(RegExp('^https?://'), '').replaceFirst(RegExp(r'/+$'), '') : '';
+  String get _q => _text.text.trim().toLowerCase().replaceFirst(RegExp('^https?://'), '').replaceFirst(RegExp(r'/+$'), '');
+
+  /// The list is open.
+  bool get isOpen => _portal.isShowing;
 
   @override
   void initState() {
     super.initState();
     final q = widget.initialQuery;
-    if (q != null) {
-      _text.text = q;
-      _editing = true;
-    }
+    if (q != null) _text.text = q;
     if (widget.busy) _startBusy();
     if (widget.openInitially || q != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) setState(_portal.show);
+        if (mounted) _open();
       });
     }
   }
@@ -156,7 +180,6 @@ class ServiceComboState extends State<ServiceCombo> {
   @override
   void didUpdateWidget(ServiceCombo oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (!_editing && oldWidget.fieldText != widget.fieldText) _show(widget.fieldText);
     if (widget.busy && !oldWidget.busy) _startBusy();
     if (!widget.busy && oldWidget.busy) {
       _busyTimer?.cancel();
@@ -172,55 +195,49 @@ class ServiceComboState extends State<ServiceCombo> {
     });
   }
 
-  /// Shows [t] with the cursor at its end: the host never paints as selected text.
-  void _show(String t) => _text.value = TextEditingValue(
-    text: t,
-    selection: TextSelection.collapsed(offset: t.length),
-  );
-
   @override
   void dispose() {
     _busyTimer?.cancel();
-    _field.dispose();
+    _button.dispose();
+    _search.dispose();
     _listScope.dispose();
     _text.dispose();
     super.dispose();
   }
 
   void _open() {
-    if (_busy || _portal.isShowing) return;
+    if (_busy || _portal.isShowing || !mounted) return;
     setState(_portal.show);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && _portal.isShowing) _search.requestFocus();
+    });
   }
 
-  /// Back to showing the server in use.
+  /// Back to the closed button; the search text is dropped.
   void collapse() {
     if (!mounted) return;
     setState(() {
       _portal.hide();
-      _editing = false;
-      _show(widget.fieldText);
+      _text.clear();
     });
+    _button.requestFocus();
   }
 
-  /// After a failed pick: the typed text stays in the field.
+  /// After a failed pick: the list opens again with the typed text.
   void keepTyped(String text) {
-    setState(() {
-      _editing = true;
-      _show(text);
-    });
+    _text.text = text;
+    _open();
+    setState(() {});
   }
 
   void _pick(String v) {
     if (_busy) return;
-    final typed = _text.text.trim();
-    setState(() => _portal.hide());
-    _field.requestFocus();
-    if (v == widget.value) {
-      collapse();
-      return;
-    }
-    _editing = false;
-    _show(v == typed ? typed : widget.fieldText);
+    setState(() {
+      _portal.hide();
+      _text.clear();
+    });
+    _button.requestFocus();
+    if (v == widget.value) return;
     widget.onPicked(v);
   }
 
@@ -230,14 +247,13 @@ class ServiceComboState extends State<ServiceCombo> {
   ];
 
   ComboOption? get _typed {
-    final t = _editing ? _text.text.trim() : '';
+    final t = _text.text.trim();
     if (t.isEmpty || widget.typedRow == null) return null;
     if (widget.options.any((o) => o.value == t || o.host == _q)) return null;
     return widget.typedRow!(t);
   }
 
   void _enter() {
-    if (!_portal.isShowing) return _open();
     final typed = _typed;
     if (typed != null) return _pick(typed.value);
     final shown = _shown;
@@ -249,116 +265,82 @@ class ServiceComboState extends State<ServiceCombo> {
     final c = context.dc;
     final ts = context.ts;
     final open = _portal.isShowing;
-    final field = CallbackShortcuts(
-      bindings: {
-        const SingleActivator(LogicalKeyboardKey.arrowDown): () {
-          _open();
-          WidgetsBinding.instance.addPostFrameCallback((_) => _listScope.nextFocus());
-        },
+    final field = FocusableActionDetector(
+      focusNode: _button,
+      enabled: !_busy,
+      mouseCursor: SystemMouseCursors.click,
+      shortcuts: const {
+        SingleActivator(LogicalKeyboardKey.arrowDown): ActivateIntent(),
+        SingleActivator(LogicalKeyboardKey.space): ActivateIntent(),
+        SingleActivator(LogicalKeyboardKey.enter): ActivateIntent(),
       },
-      child: Focus(
-        canRequestFocus: false,
-        skipTraversal: true,
-        // Esc closes the list or drops the typing; with neither it goes on up (a dialog).
-        onKeyEvent: (_, e) {
-          if (e is! KeyDownEvent || e.logicalKey != LogicalKeyboardKey.escape || !(_portal.isShowing || _editing)) return KeyEventResult.ignored;
-          collapse();
-          return KeyEventResult.handled;
-        },
-        child: Semantics(
-          textField: true,
-          label: widget.label,
-          expanded: open,
-          child: Container(
-            height: Ctl.md,
-            padding: EdgeInsets.only(left: Sp.x3, right: Sp.x1),
-            decoration: BoxDecoration(
-              color: c.s2,
-              borderRadius: BorderRadius.circular(Rad.sm),
-              border: Border.all(color: widget.error != null ? c.risk : (open ? c.accent : c.lineField)),
-            ),
-            child: Row(
-              children: [
-                EStatusDot(_editing && _typed != null ? _typed!.tone : widget.tone),
-                SizedBox(width: Sp.x3),
-                Expanded(
-                  flex: 2,
-                  child: TextField(
-                    controller: _text,
-                    focusNode: _field,
-                    readOnly: _busy,
-                    // A focus gain (after a pick, Esc or Tab) never selects the host.
-                    selectAllOnFocus: false,
-                    autocorrect: false,
-                    enableSuggestions: false,
-                    style: ts.mono(size: Fs.md, color: c.text),
-                    cursorColor: c.accent,
-                    decoration: InputDecoration.collapsed(
-                      hintText: widget.hint,
-                      hintStyle: ts.body.copyWith(color: c.faint),
-                    ),
-                    onTap: _open,
-                    onChanged: (t) {
-                      setState(() {
-                        _editing = true;
-                        _portal.show();
-                      });
-                      widget.onTyped?.call(t.trim());
-                    },
-                    onSubmitted: (_) {
-                      _enter();
-                      _field.requestFocus();
-                    },
-                  ),
-                ),
-                if (widget.busy) ...[
-                  SizedBox(width: Sp.x2),
-                  if (!_slow) ...[ESpinner(size: Ctl.iconSm), SizedBox(width: Sp.x2)],
-                  Flexible(
-                    flex: 1,
-                    child: Semantics(
-                      liveRegion: true,
-                      child: Text(
-                        _slow ? 'No answer yet' : widget.busyLabel,
-                        style: ts.small.copyWith(color: _slow ? c.warn : c.dim),
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 1,
-                      ),
-                    ),
-                  ),
-                ] else if (!_editing && widget.fieldSub != null) ...[
-                  SizedBox(width: Sp.x2),
-                  Flexible(
-                    flex: 1,
-                    child: Text(
-                      widget.fieldSub!,
-                      style: ts.small.copyWith(color: c.faint),
-                      overflow: TextOverflow.ellipsis,
-                      maxLines: 1,
-                    ),
-                  ),
-                ],
-                SizedBox(width: Sp.x1),
-                // The chevron stays while a check runs; the list opens again once it ends.
-                ExcludeFocus(
-                  child: EIconButton(
-                    icon: EIcons.chevronDown,
-                    label: widget.label,
-                    size: EBtnSize.inline,
-                    onPressed: () {
-                      if (open) {
-                        collapse();
-                      } else {
-                        _open();
-                        _field.requestFocus();
-                      }
-                    },
-                  ),
-                ),
-              ],
-            ),
-          ),
+      actions: {
+        ActivateIntent: CallbackAction<ActivateIntent>(
+          onInvoke: (_) {
+            _open();
+            return null;
+          },
         ),
+      },
+      child: Builder(
+        builder: (context) {
+          final focused = _button.hasFocus;
+          return Semantics(
+            button: true,
+            label: '${widget.label}: ${widget.fieldText}${widget.fieldSub != null ? ', ${widget.fieldSub}' : ''}',
+            hint: 'Opens the list',
+            expanded: open,
+            excludeSemantics: true,
+            child: InkWell(
+              onTap: open ? collapse : _open,
+              borderRadius: BorderRadius.circular(Rad.sm),
+              child: Container(
+                height: 36.u,
+                padding: EdgeInsets.only(left: Sp.x3, right: Sp.x2),
+                decoration: BoxDecoration(
+                  color: c.s2,
+                  borderRadius: BorderRadius.circular(Rad.sm),
+                  border: Border.all(color: widget.error != null ? c.risk : (open || focused ? c.accent : c.lineField)),
+                ),
+                child: Row(
+                  children: [
+                    EStatusDot(widget.tone, size: 8.u),
+                    SizedBox(width: Sp.x3),
+                    Flexible(
+                      flex: 2,
+                      child: Text(widget.fieldText, maxLines: 1, overflow: TextOverflow.ellipsis, softWrap: false, style: ts.mono(size: 13.u, color: c.text)),
+                    ),
+                    if (widget.busy) ...[
+                      SizedBox(width: Sp.x2),
+                      Flexible(
+                        flex: 1,
+                        child: Semantics(
+                          liveRegion: true,
+                          child: Text(
+                            _slow ? 'No answer yet' : widget.busyLabel,
+                            style: ts.small.copyWith(color: _slow ? c.warn : c.dim),
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                          ),
+                        ),
+                      ),
+                    ] else if (widget.fieldSub != null) ...[
+                      SizedBox(width: Sp.x2),
+                      Flexible(
+                        flex: 1,
+                        child: Text(widget.fieldSub!, style: ts.caption.copyWith(color: c.dim), overflow: TextOverflow.ellipsis, maxLines: 1),
+                      ),
+                    ],
+                    const Spacer(),
+                    SizedBox(width: Sp.x2),
+                    // The chevron stays while a check runs; the list opens again once it ends.
+                    Icon(EIcons.chevronDown, size: 16.u, color: c.dim),
+                  ],
+                ),
+              ),
+            ),
+          );
+        },
       ),
     );
     return TapRegion(
@@ -389,13 +371,11 @@ class ServiceComboState extends State<ServiceCombo> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Padding(
-                    padding: EdgeInsets.only(top: 2),
+                    padding: const EdgeInsets.only(top: 2),
                     child: Icon(EIcons.error, size: Ctl.iconSm, color: c.risk),
                   ),
                   SizedBox(width: 6.u),
-                  Expanded(
-                    child: Text(widget.error!, style: ts.small.copyWith(color: c.risk)),
-                  ),
+                  Expanded(child: Text(widget.error!, style: ts.small.copyWith(color: c.risk))),
                 ],
               ),
             ),
@@ -418,16 +398,7 @@ class ServiceComboState extends State<ServiceCombo> {
     }
     String? lastGroup;
     for (final o in shown) {
-      if (o.group != null && o.group != lastGroup) {
-        children.add(
-          Padding(
-            padding: EdgeInsets.fromLTRB(Sp.x3, Sp.x3, Sp.x3, Sp.x1),
-            child: ExcludeSemantics(
-              child: Text(o.group!.toUpperCase(), style: ts.caption.copyWith(letterSpacing: 0.6, fontWeight: FontWeight.w600)),
-            ),
-          ),
-        );
-      }
+      if (o.group != null && o.group != lastGroup) children.add(ListGroupHead(o.group!));
       lastGroup = o.group;
       children.add(_row(context, o));
     }
@@ -444,8 +415,8 @@ class ServiceComboState extends State<ServiceCombo> {
           },
           borderRadius: BorderRadius.circular(Rad.sm),
           child: Container(
-            height: 40.u,
-            padding: EdgeInsets.symmetric(horizontal: Sp.x3),
+            height: 36.u,
+            padding: EdgeInsets.symmetric(horizontal: 12.u),
             child: Row(
               children: [
                 Icon(icon, size: Ctl.iconSm, color: c.accentText),
@@ -457,6 +428,27 @@ class ServiceComboState extends State<ServiceCombo> {
         ),
       );
     }
+    final search = Padding(
+      padding: EdgeInsets.fromLTRB(Sp.x2, Sp.x2, Sp.x2, Sp.x1),
+      child: CallbackShortcuts(
+        bindings: {
+          const SingleActivator(LogicalKeyboardKey.arrowDown): () => _listScope.nextFocus(),
+        },
+        child: EInput(
+          controller: _text,
+          focusNode: _search,
+          hint: widget.hint,
+          leading: EIcons.search,
+          mono: true,
+          semanticLabel: widget.hint,
+          onChanged: (t) {
+            setState(() {});
+            widget.onTyped?.call(t.trim());
+          },
+          onSubmitted: (_) => _enter(),
+        ),
+      ),
+    );
     return CompositedTransformFollower(
       link: _link,
       targetAnchor: Alignment.bottomLeft,
@@ -467,28 +459,37 @@ class ServiceComboState extends State<ServiceCombo> {
           groupId: _group,
           child: CallbackShortcuts(
             bindings: {
-              const SingleActivator(LogicalKeyboardKey.escape): () {
-                collapse();
-                _field.requestFocus();
-              },
-              const SingleActivator(LogicalKeyboardKey.arrowDown): () => _listScope.nextFocus(),
-              const SingleActivator(LogicalKeyboardKey.arrowUp): () => _listScope.previousFocus(),
+              const SingleActivator(LogicalKeyboardKey.escape): collapse,
             },
-            child: FocusScope(
-              node: _listScope,
-              child: Material(
-                color: c.s4,
-                elevation: 8,
-                shadowColor: c.scrim,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(Rad.sm),
-                  side: BorderSide(color: c.lineStrong),
-                ),
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(maxWidth: _width, minWidth: _width, maxHeight: 420.u),
-                  child: Semantics(
-                    label: widget.label,
-                    child: ListView(padding: EdgeInsets.all(Sp.x2), shrinkWrap: true, children: children),
+            child: Material(
+              color: c.s4,
+              elevation: 8,
+              shadowColor: c.scrim,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(Rad.sm),
+                side: BorderSide(color: c.lineStrong),
+              ),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(maxWidth: _width, minWidth: _width, maxHeight: 440.u),
+                child: Semantics(
+                  label: widget.label,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      search,
+                      Flexible(
+                        child: CallbackShortcuts(
+                          bindings: {
+                            const SingleActivator(LogicalKeyboardKey.arrowDown): () => _listScope.nextFocus(),
+                            const SingleActivator(LogicalKeyboardKey.arrowUp): () => _listScope.previousFocus(),
+                          },
+                          child: FocusScope(
+                            node: _listScope,
+                            child: ListView(padding: EdgeInsets.all(Sp.x2), shrinkWrap: true, children: children),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
@@ -500,7 +501,7 @@ class ServiceComboState extends State<ServiceCombo> {
   }
 
   Widget _note(BuildContext context, String text) => Padding(
-    padding: EdgeInsets.symmetric(horizontal: Sp.x3, vertical: Sp.x2),
+    padding: EdgeInsets.symmetric(horizontal: 12.u, vertical: Sp.x2),
     child: Text(text, style: context.ts.caption),
   );
 
@@ -508,14 +509,20 @@ class ServiceComboState extends State<ServiceCombo> {
     final c = context.dc;
     final ts = context.ts;
     final selected = o.value == widget.value;
+    if (o.local) return LocalNodeRow(stateText: o.sub ?? '', selected: selected, onTap: () => _pick(o.value));
+    final server = o.server;
+    if (server != null) {
+      final row = ServerRow(kind: widget.kind, info: server, selected: selected, onTap: () => _pick(o.value), onStar: o.onStar);
+      return o.tip == null ? row : Tooltip(message: o.tip!, waitDuration: const Duration(milliseconds: 500), child: row);
+    }
     final row = InkWell(
       onTap: () => _pick(o.value),
       borderRadius: BorderRadius.circular(Rad.sm),
       focusColor: c.s3,
       hoverColor: c.s3,
       child: Container(
-        constraints: BoxConstraints(minHeight: 40.u),
-        padding: EdgeInsets.symmetric(horizontal: Sp.x3, vertical: 6.u),
+        constraints: BoxConstraints(minHeight: 36.u),
+        padding: EdgeInsets.symmetric(horizontal: 12.u, vertical: 4.u),
         decoration: BoxDecoration(color: selected ? c.s3 : null, borderRadius: BorderRadius.circular(Rad.sm)),
         child: Row(
           children: [
@@ -523,27 +530,17 @@ class ServiceComboState extends State<ServiceCombo> {
               width: Ctl.iconSm,
               child: o.icon != null ? Icon(o.icon, size: Ctl.iconSm, color: c.dim) : Center(child: EStatusDot(o.tone)),
             ),
-            SizedBox(width: Sp.x2),
+            SizedBox(width: 10.u),
             Expanded(
               child: Text.rich(
                 TextSpan(
                   children: [
-                    TextSpan(
-                      text: o.host,
-                      style: o.icon != null ? ts.body : ts.mono(size: Fs.sm, color: c.text),
-                    ),
-                    if (o.word != null)
-                      TextSpan(
-                        text: '  ${o.word}',
-                        style: ts.caption.copyWith(color: o.tone == ETone.risk ? c.risk : c.warn),
-                      ),
+                    TextSpan(text: o.host, style: o.icon != null ? ts.body : ts.mono(size: Fs.sm, color: c.text)),
+                    if (o.word != null) TextSpan(text: '  ${o.word}', style: ts.caption.copyWith(color: o.tone == ETone.risk ? c.risk : c.warn)),
                     if (o.isDefault)
                       TextSpan(text: '  default', style: ts.caption)
                     else if (o.sub != null)
-                      TextSpan(
-                        text: '  ${o.sub}',
-                        style: ts.small.copyWith(color: c.faint),
-                      ),
+                      TextSpan(text: '  ${o.sub}', style: ts.small.copyWith(color: c.faint)),
                   ],
                 ),
                 maxLines: 1,
@@ -552,21 +549,9 @@ class ServiceComboState extends State<ServiceCombo> {
             ),
             if (o.height != null) ...[
               SizedBox(width: Sp.x2),
-              Text(
-                groupDigits(o.height!),
-                style: ts.mono(size: Fs.xs, color: c.dim),
-              ),
+              Text(groupDigits(o.height!), style: ts.mono(size: Fs.xs, color: c.dim)),
             ],
             ...o.actions,
-            SizedBox(
-              width: Ctl.iconSm + Sp.x1,
-              child: selected
-                  ? Align(
-                      alignment: Alignment.centerRight,
-                      child: Icon(EIcons.check, size: Ctl.iconSm, color: c.accentText),
-                    )
-                  : null,
-            ),
           ],
         ),
       ),

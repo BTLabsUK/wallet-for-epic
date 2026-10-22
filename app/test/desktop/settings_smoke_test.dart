@@ -42,7 +42,6 @@ void main() {
     ('node typed', const DeskLocation(DeskRoute.settingsNode, NodeDemo.typed)),
     ('node failed', const DeskLocation(DeskRoute.settingsNode, NodeDemo.pickFailed)),
     ('node builtin', const DeskLocation(DeskRoute.settingsNode, NodeDemo.builtin)),
-    ('node chain', const DeskLocation(DeskRoute.settingsNode, NodeDemo.chainInUse)),
     ('receiving', const DeskLocation(DeskRoute.settingsReceiving)),
     ('receiving combo', const DeskLocation(DeskRoute.settingsReceiving, ReceivingDemo.comboOpen)),
     ('receiving tor', const DeskLocation(DeskRoute.settingsReceiving, ReceivingDemo.torOn)),
@@ -199,7 +198,7 @@ void main() {
       ),
     ));
     await tester.pump(const Duration(seconds: 1));
-    await tester.tap(find.bySemanticsLabel(RegExp('^Open Receiving settings')));
+    await tester.tap(find.bySemanticsLabel(RegExp('^Open Epicbox receiving')));
     await tester.pump(const Duration(milliseconds: 500));
     expect(container.read(deskNavProvider).route, DeskRoute.settingsReceiving);
     expect(container.read(settingsPrefsProvider).jump?.section, SettingsJump.epicbox);

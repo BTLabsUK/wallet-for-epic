@@ -124,6 +124,17 @@ Future<UnlockAdded> addedWallet(DeskWalletApi api, Set<String> before, String fa
   return UnlockAdded(fallback, notice: notice);
 }
 
+/// Remembers that wallet [id] still has its first-run setup to do (null: the list could not
+/// name it, then Unlock offers the wallet opened last and the setup is skipped).
+Future<void> markSetupPending(DeskWalletApi api, String? id) async {
+  if (id == null) return;
+  try {
+    await api.setSetupPending(id, true);
+  } on Object {
+    // The setup still runs now; only a quit halfway would skip it.
+  }
+}
+
 /// What Welcome chose for the flows after it: the network (Welcome › Advanced) and the app
 /// data folder. Mock state, kept for the session.
 class OnbFlow {

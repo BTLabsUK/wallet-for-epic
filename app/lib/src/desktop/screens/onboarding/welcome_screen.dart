@@ -157,7 +157,7 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
           Semantics(
             liveRegion: true,
             child: Text(
-              'With the built-in node, the blockchain is kept here too. A new folder must be empty: the app makes its folders there and keeps using it.',
+              'With the local node, the blockchain is kept here too. A new folder must be empty: the app makes its folders there and keeps using it.',
               style: ts.small,
             ),
           ),
