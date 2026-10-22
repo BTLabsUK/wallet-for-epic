@@ -113,12 +113,56 @@ void main() {
     expect(cli.inApp, isFalse);
   });
 
+  test('the old history is imported with the seed and shown in the proof', () async {
+    service.session.legacyImport = const core.LegacyHistoryImport(status: core.LegacyHistoryStatus.imported, transactions: 41);
+    final savings = byName(await wallet.findOldWallets(), 'Savings');
+    final r = await wallet.importOldWallet(savings.id, oldPassword: _old);
+    expect(r.proof.map((p) => p.text), contains('History: 41 transactions'));
+    final meta = jsonDecode((await secrets.read('desk.wallet.mainnet.${r.id}'))!) as Map<String, dynamic>;
+    expect(meta['historyImport'], 'imported');
+    expect(await wallet.unlock(_old), isTrue);
+    await wallet.sync();
+    expect(service.session.legacyImports, hasLength(1), reason: 'imported once, not again at the sync');
+  });
+
+  test('a history the core cannot read is a warning in the proof, never a failed import', () async {
+    service.session.legacyImport = const core.LegacyHistoryImport(status: core.LegacyHistoryStatus.oldFormat);
+    final savings = byName(await wallet.findOldWallets(), 'Savings');
+    final r = await wallet.importOldWallet(savings.id, oldPassword: _old);
+    final history = r.proof.firstWhere((p) => p.text.contains('5.3 or older'));
+    expect(history.ok, isFalse);
+    expect((await wallet.wallets()).single.name, 'Savings');
+  });
+
+  test('a wallet an earlier build imported gets its history at the next sync, once', () async {
+    final savings = byName(await wallet.findOldWallets(), 'Savings');
+    final r = await wallet.importOldWallet(savings.id, oldPassword: _old);
+    // As 0.1.0 left it: imported from the folder, no history import recorded.
+    final key = 'desk.wallet.mainnet.${r.id}';
+    final meta = jsonDecode((await secrets.read(key))!) as Map<String, dynamic>..remove('historyImport');
+    await secrets.write(key, jsonEncode(meta));
+    service.session.legacyImports.clear();
+    service.session.legacyImport = const core.LegacyHistoryImport(status: core.LegacyHistoryStatus.imported, transactions: 7);
+    expect(await wallet.unlock(_old), isTrue);
+    await wallet.sync();
+    await wallet.sync();
+    expect(service.session.legacyImports, [savings.folder]);
+    final after = jsonDecode((await secrets.read(key))!) as Map<String, dynamic>;
+    expect(after['historyImport'], 'imported');
+  });
+
   test('success: a new list entry with walletId, scan due, fingerprint; the old folder is unchanged', () async {
     final before = await folderHash(home);
     final savings = byName(await wallet.findOldWallets(), 'Savings');
     final r = await wallet.importOldWallet(savings.id, oldPassword: _old);
     expect(r.name, 'Savings');
-    expect(r.proof.map((p) => (p.text, p.ok)), [('Seed read', true), ('Wallet created', true), ('Old folder unchanged', true)]);
+    expect(r.proof.map((p) => (p.text, p.ok)), [
+      ('Seed read', true),
+      ('Wallet created', true),
+      ('No history in the old folder; the scan restores the balance', true),
+      ('Old folder unchanged', true),
+    ]);
+    expect(service.session.legacyImports, [savings.folder], reason: 'the history is read from the old folder');
     expect(service.seeds, ['{"seed":"alpha"}']);
     expect(service.importedSeedPassword, _old);
     expect(service.password, _old, reason: 'the old password has 8+ characters: it stays');
@@ -129,6 +173,7 @@ void main() {
     expect(meta['scanPending'], isTrue);
     expect(meta['name'], 'Savings');
     expect(meta['seedFingerprint'], sha256.convert(utf8.encode('{"seed":"alpha"}')).toString());
+    expect(meta['historyImport'], 'noHistory');
     expect((await wallet.wallets()).map((e) => (e.id, e.name, e.current)), [(id, 'Savings', true)]);
     expect(await secrets.read('desk.wallet.mainnet'), isNull, reason: 'wallet 1 keys untouched');
     expect(await folderHash(home), before);

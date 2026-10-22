@@ -101,6 +101,7 @@ class _IssuerWallet implements lepic.EpicWallet {
     releasable: false,
     messages: messages,
     flow: flow,
+    origin: lepic.TxOrigin.wallet,
   );
 
   void setStatus(int txId, lepic.TxStatus status) {

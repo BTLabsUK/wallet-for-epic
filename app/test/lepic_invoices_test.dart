@@ -183,6 +183,7 @@ class _InvoiceWallet implements lepic.EpicWallet {
             lepic.SlateMessage(role: lepic.SlateRole.receiver, text: text),
         ],
         flow: lepic.TxFlow.invoice,
+        origin: lepic.TxOrigin.wallet,
       ),
     );
     if (payError != null) throw _lepicError(payError!);

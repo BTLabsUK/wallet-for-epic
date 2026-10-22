@@ -395,6 +395,14 @@ class GatedWalletSession implements WalletSession {
   Future<ImportReport> importHistory({required Uint8List data}) =>
       _inner.importHistory(data: data);
 
+  // The server's disk is not the visitor's to read.
+  @override
+  Future<LegacyHistoryImport> importLegacyHistory({required String sourceDir}) async =>
+      throw const WalletError(
+        kind: WalletErrorKind.invalidArgument,
+        message: 'Importing an old wallet is not offered remotely',
+      );
+
   @override
   Future<FeeEstimate> estimateMax({required BigInt minimumConfirmations}) =>
       _inner.estimateMax(minimumConfirmations: minimumConfirmations);

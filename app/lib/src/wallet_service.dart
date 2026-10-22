@@ -291,6 +291,11 @@ abstract interface class WalletSession {
   /// file from another wallet throws [WalletError] with [WalletErrorKind.invalidArgument].
   Future<ImportReport> importHistory({required Uint8List data});
 
+  /// Brings across the transaction history of the epic-wallet wallet (GUI or CLI) in
+  /// [sourceDir], the folder holding `wallet_data`, that this wallet was made from. Nothing in
+  /// [sourceDir] is written. A history that cannot be imported is a status, not an error.
+  Future<LegacyHistoryImport> importLegacyHistory({required String sourceDir});
+
   /// Largest amount that can be sent now, with its fee.
   Future<FeeEstimate> estimateMax({required BigInt minimumConfirmations});
 
@@ -1372,6 +1377,18 @@ class FakeWalletSession implements WalletSession {
         ].map((v) => '"${'$v'.replaceAll('"', '""')}"').join(','),
     ];
     return '${rows.join('\n')}\n';
+  }
+
+  /// The folders [importLegacyHistory] was given, and what it answers.
+  final List<String> legacyImports = [];
+  LegacyHistoryImport legacyImport = const LegacyHistoryImport(
+    status: LegacyHistoryStatus.noHistory,
+  );
+
+  @override
+  Future<LegacyHistoryImport> importLegacyHistory({required String sourceDir}) async {
+    legacyImports.add(sourceDir);
+    return legacyImport;
   }
 
   @override

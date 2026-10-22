@@ -35,6 +35,7 @@ class _SendingWallet extends _NoNativeWallet {
         if (m != null)
           lepic.SlateMessage(role: lepic.SlateRole.sender, text: m),
     ],
+    origin: lepic.TxOrigin.wallet,
   );
 
   @override
@@ -326,6 +327,8 @@ void main() {
       bool releasable = false,
       List<lepic.SlateMessage> messages = const [],
       lepic.TxFlow flow = lepic.TxFlow.payment,
+      lepic.TxOrigin origin = lepic.TxOrigin.wallet,
+      lepic.ImportedTx? imported,
     }) => lepic.TransactionDetails(
       txId: 7,
       direction: direction,
@@ -343,6 +346,8 @@ void main() {
       releasable: releasable,
       messages: messages,
       flow: flow,
+      origin: origin,
+      imported: imported,
     );
 
     test('a send waiting for its answer can be cancelled', () {
@@ -406,11 +411,85 @@ void main() {
           direction: lepic.TxDirection.incoming,
           status: lepic.TxStatus.confirmed,
           slateId: null,
+          origin: lepic.TxOrigin.foundByScan,
         ),
       );
       expect(row.kind, TxKind.received);
       expect(row.source, TxSource.restored);
       expect(row.messages, isEmpty);
+    });
+
+    lepic.ImportedTx imported(lepic.ImportedTxKind kind, lepic.ChainCheck check) =>
+        lepic.ImportedTx(sourceId: 31, kind: kind, inputCount: 2, outputCount: 1, check: check);
+
+    test('an imported send keeps its counts and says where it came from', () {
+      final row = lepicTxEntry(
+        details(
+          status: lepic.TxStatus.confirmed,
+          origin: lepic.TxOrigin.imported,
+          imported: imported(lepic.ImportedTxKind.sent, lepic.ChainCheck.onChain),
+        ),
+      );
+      expect(row.source, TxSource.wallet);
+      expect(row.kind, TxKind.sent);
+      expect((row.numInputs, row.numOutputs), (2, 1));
+      expect(row.statusDetail, contains('transaction 31'));
+    });
+
+    test('an imported receipt the old wallet restored shows as found by a scan', () {
+      final row = lepicTxEntry(
+        details(
+          direction: lepic.TxDirection.incoming,
+          status: lepic.TxStatus.confirmed,
+          slateId: null,
+          origin: lepic.TxOrigin.imported,
+          imported: imported(lepic.ImportedTxKind.received, lepic.ChainCheck.onChain),
+        ),
+      );
+      expect(row.source, TxSource.restored);
+    });
+
+    test('imported coinbase is a mining reward, and chain checks are explained', () {
+      final coinbase = lepicTxEntry(
+        details(
+          direction: lepic.TxDirection.incoming,
+          status: lepic.TxStatus.confirmed,
+          slateId: null,
+          origin: lepic.TxOrigin.imported,
+          imported: imported(lepic.ImportedTxKind.coinbase, lepic.ChainCheck.unspentNotOnChain),
+        ),
+      );
+      expect(coinbase.kind, TxKind.coinbase);
+      expect(coinbase.statusDetail, contains('not in the balance'));
+      final cancelled = lepicTxEntry(
+        details(
+          status: lepic.TxStatus.confirmed,
+          origin: lepic.TxOrigin.imported,
+          imported: imported(lepic.ImportedTxKind.sentCancelled, lepic.ChainCheck.cancelledButOnChain),
+        ),
+      );
+      expect(cancelled.statusDetail, contains('had cancelled'));
+      final open = lepicTxEntry(
+        details(
+          status: lepic.TxStatus.sent,
+          origin: lepic.TxOrigin.imported,
+          imported: imported(lepic.ImportedTxKind.sent, lepic.ChainCheck.unchecked),
+        ),
+      );
+      expect(open.statusDetail, contains('Finish or cancel it in the older wallet'));
+    });
+
+    test('an output a scan restored is told by its origin', () {
+      final row = lepicTxEntry(
+        details(
+          direction: lepic.TxDirection.incoming,
+          status: lepic.TxStatus.confirmed,
+          slateId: null,
+          origin: lepic.TxOrigin.foundByScan,
+        ),
+      );
+      expect(row.source, TxSource.restored);
+      expect(row.statusDetail, isNull);
     });
 
     test('flow tells a request and a paid invoice from payments', () {

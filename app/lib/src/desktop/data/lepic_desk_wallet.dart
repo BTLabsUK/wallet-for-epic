@@ -23,6 +23,7 @@ import 'package:crypto/crypto.dart';
 
 import '../../bip39_words.dart';
 import '../../builtin_node.dart';
+import '../../legacy_gui_profile.dart' as gui;
 import '../../legacy_wallets.dart' as legacy;
 import '../../log.dart';
 import '../../network.dart';
@@ -870,12 +871,23 @@ class LepicDeskWallet implements DeskWalletApi {
     final fingerprint = sha256.convert(bytes).toString();
     final held = (await _inAppSeeds())[fingerprint];
     if (held != null) throw DeskError('Already in the app as $held');
+    // What the older app kept beside the wallet: contacts, node, Epicbox server. Read only.
+    final profile = await gui.readGuiImport(_legacyRoots(), w);
+    final global = await gui.readGuiGlobal(_legacyRoots());
+    core.LegacyHistoryImport? history;
+    var contactsAdded = 0;
     reg.WalletEntry? made;
     try {
-      // The scan at the first unlock brings the history: only the seed is taken (B14).
+      // The seed makes the wallet; the old log brings its history, which the scan at the first
+      // unlock then reconciles with the chain.
       await _make(name, {'scanPending': true, 'seedFingerprint': fingerprint, 'importedFrom': w.path}, (config) async {
         final session = await _service.importWalletSeed(config: config, seedFile: seed, seedPassword: oldPassword, password: next);
-        session.dispose();
+        try {
+          history = await _importHistory(session, w.path);
+          contactsAdded = await _importContacts(session, profile.contacts);
+        } finally {
+          session.dispose();
+        }
       }, ownEntry: true);
       made = (await registry()).byId(_selectedId ?? '');
     } on core.WalletError catch (e) {
@@ -884,18 +896,100 @@ class LepicDeskWallet implements DeskWalletApi {
     }
     if (made == null) throw const DeskError('Wallet list not saved');
     _imported.add(made.id);
+    final done = history;
+    if (done != null) await _setMeta({'historyImport': done.status.name}, _metaKey(made.walletId));
+    final nodes = await _importNodes(profile.nodeUrl, global.myNodes['mainnet'] ?? const []);
     final unchanged = await legacy.folderHash(walletData) == before;
     if (!unchanged) logWarn('desk', 'import: the old folder changed during the import');
     logInfo('desk', 'import: wallet made');
+    final relay = await _relay();
+    final box = profile.epicboxDomain;
     return ImportedWallet(
       id: made.id,
       name: made.label,
       proof: [
         const ImportProof('Seed read'),
         const ImportProof('Wallet created'),
+        _historyProof(done),
+        if (contactsAdded > 0) ImportProof(contactsAdded == 1 ? '1 contact added' : '$contactsAdded contacts added'),
+        for (final n in nodes) ImportProof('Node ${n.label} added to the node list'),
+        if (box != null && box != relay.host) ImportProof('The older app used the Epicbox server $box; this app uses ${relay.host}'),
         unchanged ? const ImportProof('Old folder unchanged') : const ImportProof('Old folder changed by another program', ok: false),
       ],
     );
+  }
+
+  /// The old wallet's history, or null when the core failed; a failure never fails the import.
+  Future<core.LegacyHistoryImport?> _importHistory(core.WalletSession session, String from) async {
+    try {
+      final r = await session.importLegacyHistory(sourceDir: from);
+      logInfo('desk', 'import: history ${r.status.name}, ${r.transactions} transactions, ${r.skipped} skipped');
+      return r;
+    } on core.WalletError catch (e) {
+      logWarn('desk', 'import: history not imported: ${e.kind.name}');
+      return null;
+    }
+  }
+
+  static ImportProof _historyProof(core.LegacyHistoryImport? r) => switch (r?.status) {
+    core.LegacyHistoryStatus.imported => ImportProof(
+      r!.transactions == 1 ? 'History: 1 transaction' : 'History: ${r.transactions} transactions',
+    ),
+    core.LegacyHistoryStatus.alreadyImported => const ImportProof('History already imported'),
+    core.LegacyHistoryStatus.noHistory => const ImportProof('No history in the old folder; the scan restores the balance'),
+    core.LegacyHistoryStatus.oldFormat =>
+      const ImportProof('History of Epic Wallet 5.3 or older is not readable; the scan restores the balance', ok: false),
+    core.LegacyHistoryStatus.sourceBusy =>
+      const ImportProof('History not imported: the older wallet is running. It is imported at the next unlock', ok: false),
+    core.LegacyHistoryStatus.otherWallet ||
+    core.LegacyHistoryStatus.otherHistory =>
+      const ImportProof('History not imported: it belongs to another wallet', ok: false),
+    core.LegacyHistoryStatus.unreadable ||
+    core.LegacyHistoryStatus.tooLarge ||
+    null =>
+      const ImportProof('History not imported: the old database could not be read; the scan restores the balance', ok: false),
+  };
+
+  /// Adds the older app's contacts of this wallet that the address book lacks. Returns how many.
+  Future<int> _importContacts(core.WalletSession session, List<gui.LegacyContact> contacts) async {
+    if (contacts.isEmpty) return 0;
+    try {
+      final have = {for (final c in await session.contacts()) c.address.toLowerCase()};
+      var added = 0;
+      for (final c in contacts) {
+        final address = c.epicboxAddress ?? c.httpAddress;
+        final name = c.name.trim();
+        if (address == null || name.isEmpty || !have.add(address.toLowerCase())) continue;
+        final extra = c.epicboxAddress != null && c.httpAddress != null ? 'HTTP: ${c.httpAddress}' : null;
+        final note = [c.note?.trim() ?? '', extra ?? ''].where((t) => t.isNotEmpty).join('\n');
+        await session.saveContact(contact: core.Contact(id: '', name: name, address: address, note: note.isEmpty ? null : note));
+        added++;
+      }
+      return added;
+    } on core.WalletError catch (e) {
+      logWarn('desk', 'import: contacts not added: ${e.kind.name}');
+      return 0;
+    }
+  }
+
+  /// Adds the old wallet's node and the older app's own nodes to the node list without switching
+  /// to them: the node is app-wide here and would move every wallet. Returns those added.
+  Future<List<NodeServer>> _importNodes(String? walletNode, List<gui.LegacyNode> myNodes) async {
+    final listed = {for (final n in await _listed()) n.url, preset.nodeUrl};
+    final added = <NodeServer>[];
+    final wanted = [
+      if (walletNode != null) (address: walletNode, label: Uri.tryParse(walletNode)?.host ?? walletNode),
+      for (final n in myNodes) (address: n.address, label: n.label.trim().isNotEmpty ? n.label.trim() : (Uri.tryParse(n.address)?.host ?? n.address)),
+    ];
+    for (final n in wanted) {
+      final uri = Uri.tryParse(n.address);
+      if (uri == null || !(uri.scheme == 'https' || uri.scheme == 'http') || uri.host.isEmpty) continue;
+      if (!listed.add(n.address)) continue;
+      final node = NodeServer(url: n.address, label: n.label);
+      await addNode(node);
+      added.add(node);
+    }
+    return added;
   }
 
   /// A list name of at most 32 characters.
@@ -979,6 +1073,7 @@ class LepicDeskWallet implements DeskWalletApi {
         }
         _changed();
       }
+      await _importHistoryOnce(session, key);
       _entries = await session.transactions(refresh: false);
       _lastUpdate = DateTime.now();
       _syncError = _nodeHealth == ServiceHealth.down ? const DeskError('The node did not answer') : null;
@@ -998,6 +1093,17 @@ class LepicDeskWallet implements DeskWalletApi {
     await sync();
     final e = _syncError;
     if (e != null) throw e;
+  }
+
+  /// Brings the history across for a wallet an earlier build imported with its seed only.
+  /// Retried at the next sync while the older wallet is running or the core fails.
+  Future<void> _importHistoryOnce(core.WalletSession session, String key) async {
+    final meta = await _meta(key);
+    final from = meta['importedFrom'];
+    if (from is! String || meta['historyImport'] != null) return;
+    final r = await _importHistory(session, from);
+    if (r == null || r.status == core.LegacyHistoryStatus.sourceBusy) return;
+    await _setMeta({'historyImport': r.status.name}, key);
   }
 
   Future<void> _checkTip() async {
@@ -1949,5 +2055,6 @@ Tx deskTx(core.TxEntry e, {required int tip, required int minConf, required int 
     coinbase: e.kind == core.TxKind.coinbase,
     foundByScan: e.source == core.TxSource.restored,
     confirmedAt: e.blockTimeUnix == null ? null : DateTime.fromMillisecondsSinceEpoch(e.blockTimeUnix! * 1000),
+    detail: e.statusDetail,
   );
 }

@@ -803,6 +803,14 @@ class RemoteWalletSession implements WalletSession {
     {'data': bytesWire.encode(data)},
   );
 
+  // An old wallet's folder is on the server's disk, which a remote client does not choose.
+  @override
+  Future<LegacyHistoryImport> importLegacyHistory({required String sourceDir}) async =>
+      throw const WalletError(
+        kind: WalletErrorKind.invalidArgument,
+        message: 'Importing an old wallet is not offered remotely',
+      );
+
   @override
   Future<FeeEstimate> estimateMax({required BigInt minimumConfirmations}) =>
       _call(SessionMember.estimateMax, feeEstimateWire, {

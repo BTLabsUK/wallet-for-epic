@@ -92,6 +92,8 @@ const Set<String> localSessionMembers = {
   'torStatus',
   'sendTor',
   'resendTor',
+  // Reads an old wallet's folder on the server's disk; refused by the client.
+  'importLegacyHistory',
 };
 
 /// The largest frame the dispatcher reads, in UTF-8 bytes.

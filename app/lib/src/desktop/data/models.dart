@@ -106,6 +106,7 @@ class Tx {
     this.coinbase = false,
     this.foundByScan = false,
     this.confirmedAt,
+    this.detail,
   });
 
   final int id;
@@ -132,6 +133,10 @@ class Tx {
   /// A received output a scan found with no transaction record (another copy of the seed).
   final bool foundByScan;
   final DateTime? confirmedAt;
+
+  /// Why the state is what it is, when that is not obvious: where an imported transaction came
+  /// from, or what the blockchain says against the older wallet.
+  final String? detail;
 
   bool get immature => coinbase && state != TxState.cancelled && confirmations > 0 && confirmations < coinbaseMaturity;
 

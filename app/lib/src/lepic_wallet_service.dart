@@ -402,21 +402,28 @@ TxEntry lepicTxEntry(lepic.TransactionDetails d) {
   };
   final createdAt = d.createdAtMs ~/ 1000;
   final confirmedAt = d.confirmedAtMs == null ? null : d.confirmedAtMs! ~/ 1000;
+  final imported = d.imported;
+  // An output a scan found with no record; also one the old wallet's own scan found, which it
+  // knew no more about.
+  final foundByScan =
+      d.origin == lepic.TxOrigin.foundByScan ||
+      (imported != null &&
+          imported.kind == lepic.ImportedTxKind.received &&
+          d.slateId == null);
   return TxEntry(
     key: 'l:${d.txId}',
     id: d.txId,
     slateId: d.slateId,
-    kind: switch ((outgoing, ended)) {
-      (true, false) => TxKind.sent,
-      (true, true) => TxKind.sentCancelled,
-      (false, false) => TxKind.received,
-      (false, true) => TxKind.receivedCancelled,
-    },
+    kind: imported?.kind == lepic.ImportedTxKind.coinbase
+        ? TxKind.coinbase
+        : switch ((outgoing, ended)) {
+            (true, false) => TxKind.sent,
+            (true, true) => TxKind.sentCancelled,
+            (false, false) => TxKind.received,
+            (false, true) => TxKind.receivedCancelled,
+          },
     status: status,
-    // A scan rebuilds a received output without its slate.
-    source: !outgoing && d.slateId == null
-        ? TxSource.restored
-        : TxSource.wallet,
+    source: foundByScan ? TxSource.restored : TxSource.wallet,
     createdAtUnix: createdAt,
     timeUnix: confirmedAt ?? createdAt,
     confirmed: status == TxStatus.confirmed,
@@ -425,8 +432,8 @@ TxEntry lepicTxEntry(lepic.TransactionDetails d) {
     amountCredited: d.amountCredited,
     amountDebited: d.amountDebited,
     fee: d.fee,
-    numInputs: 0,
-    numOutputs: 0,
+    numInputs: imported?.inputCount ?? 0,
+    numOutputs: imported?.outputCount ?? 0,
     kernelExcess: d.kernelExcess,
     outputCommits: const [],
     counterparty: d.counterparty,
@@ -441,11 +448,32 @@ TxEntry lepicTxEntry(lepic.TransactionDetails d) {
     cancelReason: d.status == lepic.TxStatus.expired
         ? CancelReason.expiry
         : null,
+    statusDetail: imported == null ? null : importedDetail(d, imported),
     flow: switch (d.flow) {
       lepic.TxFlow.payment => TxFlow.payment,
       lepic.TxFlow.invoice => TxFlow.invoice,
     },
   );
+}
+
+/// Where an imported transaction came from and how the blockchain judged it, in words.
+String importedDetail(lepic.TransactionDetails d, lepic.ImportedTx imported) {
+  final open =
+      d.status == lepic.TxStatus.sent ||
+      d.status == lepic.TxStatus.received ||
+      d.status == lepic.TxStatus.finalized ||
+      d.status == lepic.TxStatus.posted;
+  return switch (imported.check) {
+    lepic.ChainCheck.cancelledButOnChain =>
+      'The older wallet had cancelled this, but the blockchain has it, so the funds count.',
+    lepic.ChainCheck.unspentNotOnChain =>
+      'The older wallet showed these funds as unspent, but the blockchain does not have them, '
+          'so they are not in the balance.',
+    _ when open =>
+      'Started in the older wallet and not finished there. Finish or cancel it in the older '
+          'wallet; cancelling it here only hides it.',
+    _ => 'Imported from the older wallet, where it was transaction ${imported.sourceId}.',
+  };
 }
 
 /// Prefixes every key, so each wallet's LEPIC vault stays apart from the app's other secrets.
@@ -1202,6 +1230,30 @@ class LepicWalletSession implements WalletSession {
         // The file may carry the invoice index from before a restore.
         await restoreInvoiceIndex();
         return report;
+      });
+
+  @override
+  Future<LegacyHistoryImport> importLegacyHistory({required String sourceDir}) =>
+      _guard(() async {
+        final r = await _wallet.importLegacyHistory(sourceDir: sourceDir);
+        return LegacyHistoryImport(
+          status: switch (r.status) {
+            lepic.LegacyImportStatus.imported => LegacyHistoryStatus.imported,
+            lepic.LegacyImportStatus.alreadyImported =>
+              LegacyHistoryStatus.alreadyImported,
+            lepic.LegacyImportStatus.noHistory => LegacyHistoryStatus.noHistory,
+            lepic.LegacyImportStatus.oldFormat => LegacyHistoryStatus.oldFormat,
+            lepic.LegacyImportStatus.unreadable => LegacyHistoryStatus.unreadable,
+            lepic.LegacyImportStatus.sourceBusy => LegacyHistoryStatus.sourceBusy,
+            lepic.LegacyImportStatus.tooLarge => LegacyHistoryStatus.tooLarge,
+            lepic.LegacyImportStatus.otherWallet => LegacyHistoryStatus.otherWallet,
+            lepic.LegacyImportStatus.otherHistory =>
+              LegacyHistoryStatus.otherHistory,
+          },
+          transactions: r.transactions,
+          linked: r.linked,
+          skipped: r.skipped,
+        );
       });
 
   /// LEPIC's answer for a history file, in the old core's sentences the UI translates.

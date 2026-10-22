@@ -80,6 +80,65 @@ class FeeEstimate {
 }
 
 /// What `import_history` did.
+/// Why [WalletSession.importLegacyHistory] imported nothing, or that it did.
+enum LegacyHistoryStatus {
+  imported,
+
+  /// Imported before; links and dates were brought up to date.
+  alreadyImported,
+
+  /// The folder holds no wallet database.
+  noHistory,
+
+  /// A wallet of epic-wallet before 3.3 (GUI 5.3 or older), whose database is not read.
+  oldFormat,
+
+  /// The database is encrypted, damaged or not an epic-wallet database.
+  unreadable,
+
+  /// The database kept changing while it was copied: the old wallet is running.
+  sourceBusy,
+  tooLarge,
+
+  /// The history belongs to a wallet with another recovery phrase.
+  otherWallet,
+
+  /// This wallet already holds a different imported history.
+  otherHistory,
+}
+
+/// What [WalletSession.importLegacyHistory] did. Counts are of records, not of money.
+class LegacyHistoryImport {
+  final LegacyHistoryStatus status;
+  final int transactions;
+
+  /// Payments a scan had already found, now shown under the old wallet's transaction.
+  final int linked;
+
+  /// Records of the old wallet left out.
+  final int skipped;
+
+  const LegacyHistoryImport({
+    required this.status,
+    this.transactions = 0,
+    this.linked = 0,
+    this.skipped = 0,
+  });
+
+  @override
+  int get hashCode =>
+      status.hashCode ^ transactions.hashCode ^ linked.hashCode ^ skipped.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is LegacyHistoryImport &&
+          status == other.status &&
+          transactions == other.transactions &&
+          linked == other.linked &&
+          skipped == other.skipped;
+}
+
 class ImportReport {
   /// Records that matched a transaction already shown and filled in its details.
   final int merged;
