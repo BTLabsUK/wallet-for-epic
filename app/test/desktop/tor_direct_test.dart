@@ -81,7 +81,7 @@ void main() {
       expect(torStatusLine(st), 'Off');
     });
 
-    test('on starts tor from the bundle; unlock starts it again only while on', () async {
+    test('on starts tor from the bundle; unlock starts it again only with Start with the wallet', () async {
       await wallet.setTor(true);
       expect(session().torStarts.single, (torBinary: _bundle.binary, libDir: _bundle.libDir));
       await wallet.lock();
@@ -89,14 +89,25 @@ void main() {
       expect((await wallet.status()).tor, ServiceHealth.off);
 
       expect(await wallet.unlock(_password), isTrue);
-      expect((await wallet.settings()).tor, isTrue);
+      expect((await wallet.settings()).tor, isFalse, reason: 'Tor is now-only (W4 §3.3)');
+      await wallet.startAutostart();
+      await pumpEventQueue();
+      expect(session().torStarts, hasLength(1), reason: 'Start with the wallet is off');
+
+      await wallet.saveSettings((await wallet.settings()).copyWith(torAutostart: true));
+      await wallet.lock();
+      expect(await wallet.unlock(_password), isTrue);
+      await wallet.startAutostart();
       await pumpEventQueue();
       expect(session().torStarts, hasLength(2), reason: 'started again after unlock');
+      expect((await wallet.settings()).tor, isTrue);
 
       await wallet.setTor(false);
       expect(session().torStops, 2);
+      await wallet.saveSettings((await wallet.settings()).copyWith(torAutostart: false));
       await wallet.lock();
       expect(await wallet.unlock(_password), isTrue);
+      await wallet.startAutostart();
       await pumpEventQueue();
       expect(session().torStarts, hasLength(2), reason: 'off: not started');
     });
@@ -126,11 +137,13 @@ void main() {
 
     test('per wallet: a second wallet does not inherit it, the first keeps it', () async {
       await wallet.setTor(true);
+      await wallet.saveSettings((await wallet.settings()).copyWith(torAutostart: true));
       await wallet.createWallet(name: 'Savings', password: _password);
       await wallet.lock();
       final all = await wallet.wallets();
       await wallet.selectWallet(all.firstWhere((w) => w.name == 'Savings').id);
       expect(await wallet.unlock(_password), isTrue);
+      await wallet.startAutostart();
       await pumpEventQueue();
       expect((await wallet.settings()).tor, isFalse);
       expect(session().torStarts, hasLength(1), reason: 'Savings has Tor off');
@@ -138,6 +151,7 @@ void main() {
       await wallet.lock();
       await wallet.selectWallet(all.firstWhere((w) => w.name == 'Main').id);
       expect(await wallet.unlock(_password), isTrue);
+      await wallet.startAutostart();
       await pumpEventQueue();
       expect((await wallet.settings()).tor, isTrue);
       expect(session().torStarts, hasLength(2));
@@ -161,8 +175,14 @@ void main() {
       expect(container.read(deskProvider).settings.tor, isTrue);
       await desk.lock();
       expect(await wallet.unlock(_password), isTrue);
-      await desk.startLive(listen: false);
-      expect(container.read(deskProvider).settings.tor, isTrue);
+      await desk.startLive();
+      expect(container.read(deskProvider).settings.tor, isFalse, reason: 'now-only: off again at unlock');
+      await desk.saveSettings(container.read(deskProvider).settings.copyWith(torAutostart: true));
+      await desk.lock();
+      expect(await wallet.unlock(_password), isTrue);
+      await desk.startLive();
+      expect(container.read(deskProvider).settings.tor, isTrue, reason: 'Start with the wallet');
+      expect(container.read(deskProvider).settings.torAutostart, isTrue);
       // Saving another setting leaves Tor alone.
       await desk.saveSettings(container.read(deskProvider).settings.copyWith(tor: false, hideAmounts: true));
       expect((await wallet.settings()).tor, isTrue);
