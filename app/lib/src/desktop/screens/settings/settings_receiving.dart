@@ -76,8 +76,13 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
 
   Future<void> _switch(String domain) async {
     setState(() => _switching = true);
-    await ref.read(deskProvider.notifier).useEpicbox(domain);
-    if (mounted) setState(() => _switching = false);
+    try {
+      await ref.read(deskProvider.notifier).useEpicbox(domain);
+    } on Object catch (e) {
+      if (mounted) showEToast(context, 'Server not changed', text: deskErrorText(e), tone: ETone.risk);
+    } finally {
+      if (mounted) setState(() => _switching = false);
+    }
   }
 
   @override

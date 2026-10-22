@@ -97,9 +97,14 @@ class _MyNodeDialogState extends ConsumerState<MyNodeDialog> {
     if (widget.editing && url != widget.initial) prefs.forgetNode(widget.initial);
     if (!known) {
       final r = _check;
-      await ref.read(deskProvider.notifier).addNode(
-        NodeServer(url: url, label: label, own: true, health: r?.health ?? ServiceHealth.down, height: r?.height, version: r?.version, latencyMs: r?.latencyMs),
-      );
+      try {
+        await ref.read(deskProvider.notifier).addNode(
+          NodeServer(url: url, label: label, own: true, health: r?.health ?? ServiceHealth.down, height: r?.height, version: r?.version, latencyMs: r?.latencyMs),
+        );
+      } on Object catch (e) {
+        if (mounted) showEToast(context, 'Node not added', text: deskErrorText(e), tone: ETone.risk);
+        return;
+      }
     }
     prefs.restoreNode(url);
     prefs.label(url, label);
