@@ -5,7 +5,6 @@ import 'dart:io';
 
 import 'package:epic_wallet/src/desktop/widgets/kit.dart' show ESeedGrid;
 import 'package:epic_wallet/src/desktop/data/state.dart' show deskApiProvider;
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
