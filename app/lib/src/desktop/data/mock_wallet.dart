@@ -305,7 +305,7 @@ class MockDeskWallet implements DeskWalletApi {
     return _outputs;
   }
 
-  late final List<Output> _outputs = _cannedOutputs();
+  late List<Output> _outputs = _cannedOutputs();
 
   List<Output> _cannedOutputs() {
     String cmt(int i) => '08${List.generate(64, (k) => '0123456789abcdef'[(i * 7 + k * 13 + k * k) % 16]).join()}';
@@ -381,7 +381,30 @@ class MockDeskWallet implements DeskWalletApi {
   Future<SelfSend> splitOutputs(int outputs) async {
     final e = await estimateSplit(outputs);
     await _wait(3);
-    return SelfSend(txId: _nextId++, receivedTxId: _nextId++, amount: e.amount, fee: e.fee, inputCount: e.inputCount, outputCount: outputs);
+    return _selfSent(e, outputs);
+  }
+
+  /// Locks the spendable outputs and adds [count] unconfirmed ones sharing their value less
+  /// the fee, as a posted split or consolidate leaves the wallet.
+  SelfSend _selfSent(SendEstimate e, int count) {
+    final txId = _nextId++;
+    final receivedTxId = _nextId++;
+    final total = e.locked - e.fee;
+    final part = total ~/ count;
+    _outputs = [
+      for (final o in _outputs)
+        o.spendable
+            ? Output(commitment: o.commitment, value: o.value, status: OutputStatus.locked, height: o.height, confirmations: o.confirmations, txId: txId)
+            : o,
+      for (var i = 0; i < count; i++)
+        Output(
+          commitment: '09${(txId * 31 + i).toRadixString(16).padLeft(64, '0')}',
+          value: i == count - 1 ? total - part * (count - 1) : part,
+          status: OutputStatus.unconfirmed,
+          txId: i == 0 ? receivedTxId : txId,
+        ),
+    ];
+    return SelfSend(txId: txId, receivedTxId: receivedTxId, amount: e.amount, fee: e.fee, inputCount: e.inputCount, outputCount: count);
   }
 
   @override
@@ -391,7 +414,7 @@ class MockDeskWallet implements DeskWalletApi {
   Future<SelfSend> consolidateOutputs() async {
     final e = await estimateConsolidate();
     await _wait(3);
-    return SelfSend(txId: _nextId++, receivedTxId: _nextId++, amount: e.amount, fee: e.fee, inputCount: e.inputCount, outputCount: 1);
+    return _selfSent(e, 1);
   }
 
   @override

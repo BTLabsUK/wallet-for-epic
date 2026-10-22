@@ -67,6 +67,18 @@ void main() {
       expect(pending.lockHeight, isNull);
       expect(pending.mmrIndex, isNull);
     });
+
+    test('the word each output shows', () {
+      OutputWord w(core.WalletOutputStatus s, core.OutputCategory? c, {bool coinbase = false}) =>
+          deskOutput(_out('c', 1, status: s, category: c, coinbase: coinbase), minConf: 3).word;
+      expect(w(core.WalletOutputStatus.unspent, core.OutputCategory.spendable), OutputWord.spendable);
+      expect(w(core.WalletOutputStatus.unspent, core.OutputCategory.awaitingConfirmation), OutputWord.confirming);
+      expect(w(core.WalletOutputStatus.unconfirmed, core.OutputCategory.awaitingFinalization), OutputWord.finalizing);
+      expect(w(core.WalletOutputStatus.unconfirmed, null, coinbase: true), OutputWord.mining);
+      expect(w(core.WalletOutputStatus.unspent, core.OutputCategory.immature, coinbase: true), OutputWord.immature);
+      expect(w(core.WalletOutputStatus.locked, core.OutputCategory.locked), OutputWord.locked);
+      expect(w(core.WalletOutputStatus.spent, null), OutputWord.spent);
+    });
   });
 
   group('LepicDeskWallet', () {
@@ -232,8 +244,14 @@ void main() {
       expect(all.inputCount, (await m.outputs()).where((o) => o.spendable).length);
       final split = await m.estimateSplit(4);
       expect(split.changeOutputs, 3);
+      final spendable = (await m.outputs()).where((o) => o.spendable).length;
       expect((await m.splitOutputs(4)).outputCount, 4);
-      expect((await m.consolidateOutputs()).outputCount, 1);
+      final after = await m.outputs();
+      expect(after.where((o) => o.spendable), isEmpty);
+      expect(after.where((o) => o.status == OutputStatus.locked).length, spendable + 1);
+      expect(after.where((o) => o.word == OutputWord.finalizing).length, 4 + (await MockDeskWallet(delay: Duration.zero).outputs()).where((o) => o.word == OutputWord.finalizing).length);
+      // Nothing spendable until the split confirms.
+      await expectLater(m.consolidateOutputs(), throwsA(isA<DeskError>()));
       expect(await m.outputPrefs(), const OutputPrefs());
     });
   });

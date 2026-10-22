@@ -110,6 +110,20 @@ SmartOutputsDecision smartOutputs({
   return SmartOutputsDecision(n, SmartOutputsReason.split, outputsLeft: outputsLeft);
 }
 
+/// [smartOutputs]' count alone, in the design spec's terms (§3.1): [spendableOutputsLeft]
+/// spendable outputs the send does not spend, [changeNano] its change with one change output.
+int smartChangeOutputs({
+  required int spendableOutputsLeft,
+  required int changeNano,
+  required bool enabled,
+  SmartOutputsRule rule = SmartOutputsRule.standard,
+}) => smartOutputs(
+  enabled: enabled,
+  spendableOutputs: spendableOutputsLeft,
+  base: SendEstimate(amount: 0, fee: 0, change: changeNano),
+  rule: rule,
+).changeOutputs;
+
 /// How many [outputs] count as spendable now.
 int spendableCount(Iterable<WalletOutput> outputs) =>
     outputs.where((o) => o.category == OutputCategory.spendable).length;

@@ -102,6 +102,9 @@ const int coinbaseMaturity = 1440;
 
 enum OutputStatus { unconfirmed, confirming, unspent, immature, locked, spent }
 
+/// The word the Outputs page shows for an output, one place (design spec §2.2, §5.5).
+enum OutputWord { spendable, confirming, finalizing, immature, mining, locked, spent }
+
 /// One coin of the balance (an output and its commitment).
 @immutable
 class Output {
@@ -141,6 +144,17 @@ class Output {
 
   /// Can be spent now.
   bool get spendable => status == OutputStatus.unspent;
+
+  /// Not on chain yet is finalizing (a send's change, a payment coming in) or, for a mining
+  /// reward, mining; on chain under the confirmations needed is confirming.
+  OutputWord get word => switch (status) {
+    OutputStatus.unspent => OutputWord.spendable,
+    OutputStatus.confirming => OutputWord.confirming,
+    OutputStatus.unconfirmed => isCoinbase ? OutputWord.mining : OutputWord.finalizing,
+    OutputStatus.immature => OutputWord.immature,
+    OutputStatus.locked => OutputWord.locked,
+    OutputStatus.spent => OutputWord.spent,
+  };
 }
 
 /// A split or consolidate, finalized and posted: [txId] spent the inputs and holds the

@@ -155,6 +155,22 @@ void main() {
 
     test('the default is on', () => expect(smartOutputsDefault, true));
 
+    test('the design spec\'s table (§3.2)', () {
+      int e(num v) => (v * epic).round();
+      for (final (left, change, enabled, n) in [
+        (0, e(98.98), true, 4),
+        (0, e(0.49), true, 1),
+        (1, e(1.992), true, 3),
+        (4, e(9.72), true, 1),
+        (2, e(100), true, 2),
+        (0, e(1.2), true, 2),
+        (0, e(98.98), false, 1),
+        (0, 0, true, 1),
+      ]) {
+        expect(smartChangeOutputs(spendableOutputsLeft: left, changeNano: change, enabled: enabled), n, reason: 'left $left, change $change, enabled $enabled');
+      }
+    });
+
     test('counts spendable outputs only', () {
       WalletOutput out(OutputCategory? c) => WalletOutput(
         commitment: 'c',
