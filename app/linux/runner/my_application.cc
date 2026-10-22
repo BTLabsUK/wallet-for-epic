@@ -59,7 +59,12 @@ static void my_application_activate(GApplication* application) {
     gtk_window_set_title(window, "Epic Wallet");
   }
 
-  gtk_window_set_default_size(window, 1280, 720);
+  // The first size; the smallest keeps the sidebar a rail (as windows/runner/window_placement.cpp).
+  gtk_window_set_default_size(window, 1280, 820);
+  GdkGeometry hints{};
+  hints.min_width = 800;
+  hints.min_height = 640;
+  gtk_window_set_geometry_hints(window, nullptr, &hints, GDK_HINT_MIN_SIZE);
 
   g_autoptr(FlDartProject) project = fl_dart_project_new();
   fl_dart_project_set_dart_entrypoint_arguments(
