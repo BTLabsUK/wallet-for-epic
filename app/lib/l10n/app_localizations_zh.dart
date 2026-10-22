@@ -1815,6 +1815,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get updateUpToDate => '已是最新版本。';
 
   @override
+  String get updateNoInformation => '没有可用的更新信息。';
+
+  @override
   String updateAvailable(String version) {
     return '版本 $version 已可用。';
   }

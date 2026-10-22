@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:crypto/crypto.dart';
+import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:epic_wallet/src/network.dart';
 import 'package:epic_wallet/src/relay_directory.dart';
 import 'package:epic_wallet/src/secret_store.dart';
@@ -479,6 +480,8 @@ void main() {
             response.write(manifest(2002));
           case 'same':
             response.write(manifest(2001));
+          case 'missing':
+            response.statusCode = HttpStatus.notFound;
           default:
             response.statusCode = HttpStatus.internalServerError;
         }
@@ -546,6 +549,17 @@ void main() {
       await updates.check();
       expect(container.read(updateProvider).phase, UpdatePhase.failed);
       expect(container.read(updateProvider).update?.versionName, '1.0.1');
+    });
+
+    test('no manifest at the feed says so, not an HTTP error', () async {
+      reply = 'missing';
+      final updates = container.read(updateProvider.notifier);
+      await updates.check();
+      final state = container.read(updateProvider);
+      expect(state.phase, UpdatePhase.upToDate);
+      expect(state.text?.call(englishStrings), 'No update information available.');
+      await updates.checkOnOpening();
+      expect(container.read(updateProvider).phase, UpdatePhase.idle);
     });
 
     test('a quiet failure with nothing known stays idle', () async {

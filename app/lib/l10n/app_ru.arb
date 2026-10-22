@@ -440,6 +440,7 @@
   "receivePasteEmpty": "Сначала скопируйте текст платежа, затем нажмите «Вставить».",
   "updateChecking": "Проверка обновлений…",
   "updateUpToDate": "Установлена последняя версия.",
+  "updateNoInformation": "Нет сведений об обновлениях.",
   "updateAvailable": "Доступна версия {version}.",
   "updateDownloading": "Загрузка версии {version}… {percent}%",
   "updateInstalling": "Установка версии {version}…",

@@ -1958,6 +1958,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get updateUpToDate => 'Dies ist die neueste Version.';
 
   @override
+  String get updateNoInformation => 'Keine Update-Informationen verfügbar.';
+
+  @override
   String updateAvailable(String version) {
     return 'Version $version ist verfügbar.';
   }

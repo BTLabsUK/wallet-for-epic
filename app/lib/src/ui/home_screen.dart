@@ -702,7 +702,10 @@ void showUpdateNotice(
     case UpdatePhase.checking:
       break;
     case UpdatePhase.upToDate:
-      show(l.updateUpToDate, NoticeLevel.success);
+      final text = state.text;
+      text == null
+          ? show(l.updateUpToDate, NoticeLevel.success)
+          : show(text(l), NoticeLevel.info);
     case UpdatePhase.available:
       show(
         state.text?.call(l) ?? l.updateAvailable(version),

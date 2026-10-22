@@ -2224,6 +2224,10 @@
   "@updateUpToDate": {
     "description": "Notice at the top of the screen after a check found no new version."
   },
+  "updateNoInformation": "No update information available.",
+  "@updateNoInformation": {
+    "description": "Notice at the top of the screen after a check: the update server has no information about releases for this app (none published there), so the app cannot say whether a newer version exists."
+  },
   "updateAvailable": "Version {version} is available.",
   "@updateAvailable": {
     "description": "Notice under the app bar; beside it is the Update button.",

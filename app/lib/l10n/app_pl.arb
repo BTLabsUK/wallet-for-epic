@@ -440,6 +440,7 @@
   "receivePasteEmpty": "Najpierw skopiuj tekst płatności, a potem dotknij Wklej.",
   "updateChecking": "Sprawdzanie aktualizacji…",
   "updateUpToDate": "To najnowsza wersja.",
+  "updateNoInformation": "Brak informacji o aktualizacjach.",
   "updateAvailable": "Dostępna jest wersja {version}.",
   "updateDownloading": "Pobieranie wersji {version}… {percent}%",
   "updateInstalling": "Instalowanie wersji {version}…",

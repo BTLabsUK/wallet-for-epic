@@ -2780,6 +2780,12 @@ abstract class AppLocalizations {
   /// **'This is the latest version.'**
   String get updateUpToDate;
 
+  /// Notice at the top of the screen after a check: the update server has no information about releases for this app (none published there), so the app cannot say whether a newer version exists.
+  ///
+  /// In en, this message translates to:
+  /// **'No update information available.'**
+  String get updateNoInformation;
+
   /// Notice under the app bar; beside it is the Update button.
   ///
   /// In en, this message translates to:

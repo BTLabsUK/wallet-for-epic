@@ -2046,6 +2046,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get updateUpToDate => 'Установлена последняя версия.';
 
   @override
+  String get updateNoInformation => 'Нет сведений об обновлениях.';
+
+  @override
   String updateAvailable(String version) {
     return 'Доступна версия $version.';
   }

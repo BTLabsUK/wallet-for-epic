@@ -2055,6 +2055,9 @@ class AppLocalizationsPl extends AppLocalizations {
   String get updateUpToDate => 'To najnowsza wersja.';
 
   @override
+  String get updateNoInformation => 'Brak informacji o aktualizacjach.';
+
+  @override
   String updateAvailable(String version) {
     return 'Dostępna jest wersja $version.';
   }

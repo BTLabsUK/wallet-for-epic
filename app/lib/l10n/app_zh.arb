@@ -440,6 +440,7 @@
   "receivePasteEmpty": "请先复制付款文本，再点按粘贴。",
   "updateChecking": "正在检查更新…",
   "updateUpToDate": "已是最新版本。",
+  "updateNoInformation": "没有可用的更新信息。",
   "updateAvailable": "版本 {version} 已可用。",
   "updateDownloading": "正在下载版本 {version}… {percent}%",
   "updateInstalling": "正在安装版本 {version}…",

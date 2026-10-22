@@ -379,6 +379,21 @@ class UpdateNotifier extends Notifier<UpdateState> {
       final response = await request.close().timeout(
         const Duration(seconds: 30),
       );
+      if (response.statusCode == HttpStatus.notFound) {
+        // No manifest published at the feed: nothing is known about a newer version, which
+        // is no error. A known update stays offered.
+        await response.drain<void>();
+        if (!ref.mounted) return;
+        state = known != null
+            ? UpdateState(UpdatePhase.available, update: known)
+            : quiet
+            ? const UpdateState(UpdatePhase.idle)
+            : UpdateState(
+                UpdatePhase.upToDate,
+                text: (l) => l.updateNoInformation,
+              );
+        return;
+      }
       if (response.statusCode != HttpStatus.ok) {
         await response.drain<void>();
         final code = response.statusCode;

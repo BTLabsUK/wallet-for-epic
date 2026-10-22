@@ -1939,6 +1939,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get updateUpToDate => 'This is the latest version.';
 
   @override
+  String get updateNoInformation => 'No update information available.';
+
+  @override
   String updateAvailable(String version) {
     return 'Version $version is available.';
   }

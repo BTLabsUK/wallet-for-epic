@@ -440,6 +440,7 @@
   "receivePasteEmpty": "Kopieren Sie zuerst den Zahlungstext und tippen Sie dann auf Einfügen.",
   "updateChecking": "Suche nach Updates…",
   "updateUpToDate": "Dies ist die neueste Version.",
+  "updateNoInformation": "Keine Update-Informationen verfügbar.",
   "updateAvailable": "Version {version} ist verfügbar.",
   "updateDownloading": "Version {version} wird heruntergeladen… {percent} %",
   "updateInstalling": "Version {version} wird installiert…",
