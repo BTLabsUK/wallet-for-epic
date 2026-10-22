@@ -111,7 +111,7 @@ class SupportReport {
 
   Map<String, Object> toJson({List<String> dropped = const []}) => {
     'v': 1,
-    'created': created.toUtc().toIso8601String(),
+    'created': _iso(created),
     'app': app,
     'description': description,
     'contact': contact,
@@ -122,7 +122,7 @@ class SupportReport {
   /// Everything the report carries, as the preview shows it.
   String get text {
     final out = StringBuffer()
-      ..writeln('Created: ${created.toUtc().toIso8601String()}')
+      ..writeln('Created: ${_iso(created)}')
       ..writeln('Contact: ${contact.isEmpty ? 'none' : contact}')
       ..writeln();
     for (final MapEntry(:key, :value) in app.entries) {
@@ -147,6 +147,12 @@ class SupportReport {
     return out.toString();
   }
 }
+
+/// UTC to the millisecond, as JavaScript's `toISOString`.
+String _iso(DateTime at) => DateTime.fromMillisecondsSinceEpoch(
+  at.millisecondsSinceEpoch,
+  isUtc: true,
+).toIso8601String();
 
 /// Raw bytes of a base64 X25519 public key.
 Uint8List rawSupportKey(String base64Key) {
