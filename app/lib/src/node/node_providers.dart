@@ -54,8 +54,9 @@ final localNodeControllerProvider = FutureProvider.family<LocalNodeController, C
     directoryTip: directory is NetworkDirectory && statusChain != null
         ? () async => (await (directory as NetworkDirectory).network(statusChain)).tipHeight
         : null,
-    // The peers' heights, from the last read of the peers table (null while it was never open).
-    peersMaxHeight: () async => (await ref.read(peerServiceProvider(chain).future)).last?.maxHeight,
+    // The peers' heights: the network tip the headers are measured against (one owner call on
+    // loopback, once a minute while the node runs).
+    peersMaxHeight: () async => maxPeerHeight(await (await ref.read(localNodeApiProvider(chain).future)).connectedPeers()),
   );
   await controller.load();
   ref.onDispose(controller.dispose);

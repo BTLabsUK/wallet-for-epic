@@ -226,7 +226,12 @@ LocalNodeState deriveLocalNodeState(
   final since = live || s.kind == NodeStatusKind.stalled ? startedAt : null;
   return LocalNodeState(
     phase: phase,
-    progress: status == null ? null : progressOf(status),
+    progress: status == null
+        ? null
+        : progressOf(
+            status,
+            networkHeight: networkTipOf(peersMaxHeight: peersMaxHeight, directoryTip: directoryTip),
+          ),
     eta: phase == LocalNodePhase.syncing ? eta : null,
     stageRate: phase == LocalNodePhase.syncing ? stageRate : null,
     height: height,

@@ -131,9 +131,12 @@ class LocalNodeController {
     if (_disposed) return;
     final status = s.status;
     if (status != null) {
-      final p = progressOf(status);
-      if (p.done != null && p.total != null) {
-        _eta.add(_clock(), p.stage, p.done!, p.total!);
+      final p = progressOf(
+        status,
+        networkHeight: networkTipOf(peersMaxHeight: _peersHeight, directoryTip: _directoryHeight),
+      );
+      if (p.done != null) {
+        _eta.add(_clock(), p.stage, p.done!, p.total);
       } else {
         _eta.reset();
       }

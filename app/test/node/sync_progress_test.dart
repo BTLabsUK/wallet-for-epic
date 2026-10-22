@@ -42,17 +42,25 @@ void main() {
   });
 
   group('progressOf', () {
-    test('headers: heights', () {
-      final p = progressOf(
-        status(
-          'header_sync',
-          info: const NodeSyncInfo(currentHeight: 250, highestHeight: 1000),
-        ),
-      );
+    test('headers: heights against the network tip', () {
+      // The node's highest_height is only its batch target (seen live: 332288 of 336896).
+      const info = NodeSyncInfo(currentHeight: 250, highestHeight: 300);
+      final p = progressOf(status('header_sync', info: info), networkHeight: 1000);
       expect(p.stage, SyncStage.headers);
       expect(p.stageFraction, 0.25);
       expect(p.overall, closeTo(0.075, 1e-9));
       expect((p.done, p.total), (250, 1000));
+      final unknown = progressOf(status('header_sync', info: info));
+      expect((unknown.done, unknown.total), (250, null), reason: 'no tip known: no fraction, not 83 %');
+      expect(unknown.stageFraction, isNull);
+      expect(unknown.overall, isNull);
+    });
+
+    test('blocks: the higher of the node\'s highest and the network tip', () {
+      const info = NodeSyncInfo(currentHeight: 500, highestHeight: 1000);
+      expect(progressOf(status('body_sync', info: info)).total, 1000);
+      expect(progressOf(status('body_sync', info: info), networkHeight: 2000).total, 2000);
+      expect(progressOf(status('body_sync', info: info), networkHeight: 900).total, 1000);
     });
 
     test('chain state download: bytes', () {
@@ -132,6 +140,7 @@ void main() {
             'header_sync',
             info: const NodeSyncInfo(currentHeight: 12, highestHeight: 10),
           ),
+          networkHeight: 10,
         ).stageFraction,
         1,
       );
@@ -144,9 +153,9 @@ void main() {
       final ok = (json is Map && json['result'] is Map)
           ? (json['result'] as Map)['Ok']
           : json;
-      final p = progressOf(parseStatus(ok));
+      final p = progressOf(parseStatus(ok), networkHeight: 3764980);
       expect(p.stage, SyncStage.headers);
-      expect((p.done, p.total), (7168, 8704));
+      expect((p.done, p.total), (7168, 3764980));
     });
   });
 
@@ -184,7 +193,7 @@ void main() {
       expect(e.eta(), isNull);
     });
 
-    test('a new stage, a new total or a step back starts over', () {
+    test('a new stage or a step back starts over; a moving total does not', () {
       final e = EtaEstimator()
         ..add(at(0), SyncStage.headers, 0, 1000)
         ..add(at(30), SyncStage.headers, 300, 1000);
@@ -193,10 +202,21 @@ void main() {
       expect(e.eta(), isNull);
       e.add(at(60), SyncStage.chainStateDownload, 1000, 5000);
       expect(e.ratePerSecond(), closeTo(1000 / 29, 1e-9));
-      e.add(at(61), SyncStage.chainStateDownload, 1000, 6000);
-      expect(e.eta(), isNull);
+      // The total moves (the tip grows, or becomes known): the rate stays, the ETA follows it.
+      e.add(at(61), SyncStage.chainStateDownload, 1100, 6000);
+      expect(e.eta(), isNotNull);
       e.add(at(90), SyncStage.chainStateDownload, 500, 6000);
+      expect(e.eta(), isNull, reason: 'a step back');
+    });
+
+    test('an unknown total gives a rate but no ETA', () {
+      final e = EtaEstimator()
+        ..add(at(0), SyncStage.headers, 0, null)
+        ..add(at(30), SyncStage.headers, 3000, null);
+      expect(e.ratePerSecond(), 100);
       expect(e.eta(), isNull);
+      e.add(at(40), SyncStage.headers, 4000, 14000);
+      expect(e.eta(), const Duration(seconds: 100));
     });
 
     test('the window slides: old samples stop counting', () {

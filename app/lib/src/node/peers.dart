@@ -10,6 +10,10 @@ library;
 import 'node_api.dart';
 import 'node_api_types.dart';
 
+/// The highest height [peers] advertise (unverified), or null without peers.
+int? maxPeerHeight(List<ConnectedPeer> peers) =>
+    peers.isEmpty ? null : peers.map((p) => p.height).reduce((a, b) => a > b ? a : b);
+
 /// One connected peer, with what the node's peer store adds.
 class PeerView {
   const PeerView(this.peer, {this.stored, this.firstSeen});
@@ -39,8 +43,7 @@ class PeerSnapshot {
   int get outbound => connected.where((p) => p.peer.direction == PeerDirection.outbound).length;
 
   /// The highest height a connected peer advertises (unverified), or null without peers.
-  int? get maxHeight =>
-      connected.isEmpty ? null : connected.map((p) => p.peer.height).reduce((a, b) => a > b ? a : b);
+  int? get maxHeight => maxPeerHeight([for (final p in connected) p.peer]);
 }
 
 /// One point of the peer graph.

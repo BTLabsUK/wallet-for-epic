@@ -118,14 +118,23 @@ class SyncProgress {
       'SyncProgress(${stage.name}, stage: $stageFraction, overall: $overall, $done/$total)';
 }
 
-/// The progress of a node by its status.
-SyncProgress progressOf(NodeStatusInfo s) {
+/// The progress of a node by its status. [networkHeight] is the network's tip as known from
+/// the peers or the monitor ([networkTipOf] without the node's own highest height): during
+/// header sync the node's `highest_height` is only the target of the batch it asks for (a few
+/// thousand ahead), so headers are measured against [networkHeight] and have no fraction until it
+/// is known. Blocks use the higher of the two.
+SyncProgress progressOf(NodeStatusInfo s, {int? networkHeight}) {
   final stage = stageOf(s.syncStatus);
   final i = s.syncInfo;
+  int? atLeast(int? a, int? b) => a == null ? b : (b == null ? a : max(a, b));
   final (done, total) = switch (stage) {
-    SyncStage.headers || SyncStage.blocks => (
+    SyncStage.headers => (
       i?.currentHeight,
-      i?.highestHeight,
+      networkHeight == null ? null : atLeast(networkHeight, i?.highestHeight),
+    ),
+    SyncStage.blocks => (
+      i?.currentHeight,
+      atLeast(i?.highestHeight, networkHeight),
     ),
     SyncStage.chainStateDownload => (i?.downloadedBytes, i?.totalBytes),
     SyncStage.chainStateKernels => (i?.kernels, i?.kernelsTotal),
@@ -171,7 +180,7 @@ int? networkTipOf({int? highestHeight, int? peersMaxHeight, int? directoryTip}) 
 /// The time left in a stage, from the rate over a sliding window of samples.
 class EtaEstimator {
   EtaEstimator({
-    this.window = const Duration(minutes: 5),
+    this.window = const Duration(minutes: 2),
     this.minSpan = const Duration(seconds: 20),
   });
 
@@ -185,16 +194,16 @@ class EtaEstimator {
   SyncStage? _stage;
   int? _total;
 
-  /// One reading of the stage. A new stage, a new total or a count that went back starts over.
-  void add(DateTime at, SyncStage stage, int done, int total) {
+  /// One reading of the stage; [total] may be unknown (no ETA then, the rate still counts) and
+  /// may move (the network grows, the node learns the tip). A new stage or a count that went back
+  /// starts over.
+  void add(DateTime at, SyncStage stage, int done, int? total) {
     final last = _samples.isEmpty ? null : _samples.last;
-    if (stage != _stage ||
-        total != _total ||
-        (last != null && (done < last.done || at.isBefore(last.at)))) {
+    if (stage != _stage || (last != null && (done < last.done || at.isBefore(last.at)))) {
       _samples.clear();
       _stage = stage;
-      _total = total;
     }
+    _total = total;
     _samples.add((at: at, done: done));
     final from = at.subtract(window);
     while (_samples.length > 2 && _samples.first.at.isBefore(from)) {
