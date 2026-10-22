@@ -193,15 +193,34 @@ class LepicDeskWallet implements DeskWalletApi {
     try {
       final legacyDir = await _walletDir(preset.chain);
       final r = _registryGiven ?? reg.WalletRegistry(Directory(legacyDir).parent.parent.path);
-      await r.load();
       // Removed from the list only: it stays off until All wallets adds it back.
-      if ((await _meta(_metaKey(null)))['unlisted'] != true) await _adoptFirst(r);
+      final unlisted = await _firstUnlisted();
+      await r.load(skipLegacy: unlisted ? {preset.chain} : const {});
+      if (!unlisted) {
+        try {
+          await _adoptFirst(r);
+        } on reg.WalletRegistryException catch (e) {
+          // A list this version may not write (newer file): read-only, _wallets adds wallet 1.
+          logWarn('desk', 'first wallet not listed: ${e.runtimeType}');
+        }
+      }
       return r;
     } on Object {
       _registry = null;
       rethrow;
     }
   }
+
+  Future<bool> _firstUnlisted() async => (await _meta(_metaKey(null)))['unlisted'] == true;
+
+  /// The first wallet as an entry that is not in the file.
+  Future<reg.WalletEntry> _firstEntry(core.WalletConfig config) async => reg.WalletEntry(
+    id: '${reg.WalletRegistry.legacyPrefix}$_chain',
+    label: ((await _meta(_metaKey(null)))['name'] as String?) ?? 'Main wallet',
+    chain: preset.chain,
+    dataDir: config.dataDir,
+    createdAt: DateTime.now(),
+  );
 
   /// Lists the first wallet when LEPIC finds one in its folder, under the name it had.
   Future<reg.WalletEntry?> _adoptFirst(reg.WalletRegistry r, {bool known = false}) async {
@@ -232,23 +251,19 @@ class LepicDeskWallet implements DeskWalletApi {
   /// Without a readable list, the first wallet alone, as 0.1.0 showed it: it always opens.
   Future<List<reg.WalletEntry>> _wallets() async {
     final listed = await _inList();
-    if (listed != null) return listed;
+    final legacyId = '${reg.WalletRegistry.legacyPrefix}$_chain';
+    if (listed != null && listed.any((e) => e.id == legacyId)) return listed;
+    // Not listed (a list this version cannot write, or unreadable): the first wallet still
+    // opens, unless it was taken off the list on purpose.
+    if (await _firstUnlisted()) return listed ?? const [];
     final config = await _configOf(null);
-    if (!await _service.walletExists(config: config)) return const [];
-    return [
-      reg.WalletEntry(
-        id: '${reg.WalletRegistry.legacyPrefix}$_chain',
-        label: ((await _meta(_metaKey(null)))['name'] as String?) ?? 'Main wallet',
-        chain: preset.chain,
-        dataDir: config.dataDir,
-        createdAt: DateTime.now(),
-      ),
-    ];
+    if (!await _service.walletExists(config: config)) return listed ?? const [];
+    return [await _firstEntry(config), ...?listed];
   }
 
-  /// The wallet [unlock] opens: the selected one, else the open one, else the one opened last.
+  /// The wallet [unlock] opens: the open one, else the selected one, else the one opened last.
   reg.WalletEntry? _pick(List<reg.WalletEntry> all, String? lastUsed) {
-    for (final id in [_selectedId, _openEntry?.id, lastUsed]) {
+    for (final id in [_openEntry?.id, _selectedId, lastUsed]) {
       final e = all.where((e) => e.id == id).firstOrNull;
       if (e != null) return e;
     }
@@ -260,13 +275,17 @@ class LepicDeskWallet implements DeskWalletApi {
   Future<reg.WalletEntry> _entry(String id) async =>
       (await _wallets()).where((e) => e.id == id).firstOrNull ?? (throw const DeskError('Wallet not in the list'));
 
-  DeskError _listError(reg.WalletRegistryException e) =>
-      DeskError(e.message.isEmpty ? 'Wallet list not changed' : '${e.message[0].toUpperCase()}${e.message.substring(1)}');
+  DeskError _listError(reg.WalletRegistryException e) => e is reg.WalletRegistryVersionException
+      ? const DeskError('Update the app to change the list')
+      : e is reg.WalletNotListedException
+      ? const DeskError('Wallet not in the list')
+      : DeskError(e.message.isEmpty ? 'Wallet list not changed' : '${e.message[0].toUpperCase()}${e.message.substring(1)}');
 
   @override
   Future<List<WalletEntry>> wallets() async {
     final all = await _wallets();
-    final current = _pick(all, await _lastUsed());
+    final open = _openEntry;
+    final current = open != null && all.any((e) => e.id == open.id) ? open : _pick(all, await _lastUsed());
     final missing = _registry == null ? null : await _registry!;
     return [
       for (final e in all)
@@ -306,7 +325,10 @@ class LepicDeskWallet implements DeskWalletApi {
     final r = await registry();
     final entry = r.byId(id);
     if (entry == null || entry.chain != preset.chain) throw const DeskError('Wallet not in the list');
-    if (_session != null && _openEntry?.id == id) {
+    final open = _session != null && _openEntry?.id == id;
+    // Deleting asks for the wallet's password, so only the open wallet can be deleted.
+    if (mode == WalletRemoval.delete && !open) throw const DeskError('Open the wallet to delete it');
+    if (open) {
       if (mode == WalletRemoval.delete) {
         if (password == null || password.isEmpty) throw const DeskError('Enter the password');
         try {
@@ -315,10 +337,10 @@ class LepicDeskWallet implements DeskWalletApi {
           throw _deskError(e);
         }
       }
-      await lock();
     }
     final config = await _configOf(entry);
     try {
+      // The wallet locks even when the removal fails, so the screen and the wallet agree.
       switch (mode) {
         case WalletRemoval.list:
           await r.forget(id);
@@ -332,6 +354,8 @@ class LepicDeskWallet implements DeskWalletApi {
       throw _listError(e);
     } on core.WalletError catch (e) {
       throw _deskError(e);
+    } finally {
+      if (open) await lock();
     }
     if (_selectedId == id) _selectedId = null;
     logInfo('desk', 'wallet ${mode == WalletRemoval.list ? 'removed from the list' : 'deleted'}');
@@ -547,10 +571,18 @@ class LepicDeskWallet implements DeskWalletApi {
     return result;
   }
 
-  /// Takes back an entry whose wallet was not made: the entry, and its folder while empty.
+  /// Takes back an entry whose wallet was not made: the entry, a half-made `lepic` folder
+  /// (through the registry's checked delete path), and the folders while empty.
   Future<void> _unlist(reg.WalletEntry entry) async {
     try {
-      await (await registry()).forget(entry.id);
+      final r = await registry();
+      try {
+        await r.delete(entry.id, service: _service, config: await _configOf(entry));
+        return;
+      } on Object catch (e) {
+        logWarn('desk', 'half-made wallet folder not removed: ${e.runtimeType}');
+      }
+      await r.forget(entry.id);
       for (final dir in [Directory(entry.dataDir), Directory(entry.dataDir).parent]) {
         await dir.delete(); // only when empty
       }
@@ -619,16 +651,17 @@ class LepicDeskWallet implements DeskWalletApi {
   Future<void> _sync() async {
     final session = _session;
     if (session == null) return;
+    final key = _metaKey(_openEntry?.walletId);
     _syncProgress = 0;
     _changed();
     try {
-      if ((await _meta())['scanPending'] == true) {
+      if ((await _meta(key))['scanPending'] == true) {
         await for (final p in session.scan()) {
           if (_session != session) return;
           if (p.percent != null) _syncProgress = p.percent! / 200;
           _changed();
         }
-        await _setMeta({'scanPending': false});
+        await _setMeta({'scanPending': false}, key);
         _notice = null;
       }
       await for (final p in session.refresh(minimumConfirmations: _minConf)) {
@@ -1088,6 +1121,7 @@ class LepicDeskWallet implements DeskWalletApi {
   @override
   Stream<ScanStep> rescan() async* {
     final session = _open;
+    final key = _metaKey(_openEntry?.walletId);
     try {
       await for (final p in session.scan()) {
         yield ScanStep(p.message, percent: p.percent);
@@ -1095,7 +1129,7 @@ class LepicDeskWallet implements DeskWalletApi {
     } on core.WalletError catch (e) {
       throw _deskError(e);
     }
-    await _setMeta({'scanPending': false});
+    await _setMeta({'scanPending': false}, key);
     _notice = null;
     await sync();
   }

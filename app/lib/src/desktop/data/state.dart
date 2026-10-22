@@ -134,9 +134,13 @@ class DeskController extends Notifier<DeskState> {
   /// Unlock or Welcome after.
   Future<void> removeWallet(String id, WalletRemoval mode, {String? password}) async {
     final open = state.account != null && state.account?.id == id;
-    await api.removeWallet(id, mode, password: password);
-    if (open) await lock();
-    await loadWallets();
+    try {
+      await api.removeWallet(id, mode, password: password);
+    } finally {
+      // The adapter locks the open wallet even when the removal fails; the screen follows.
+      if (open) await lock();
+      await loadWallets();
+    }
   }
 
   Future<void> _loadStatus() async {

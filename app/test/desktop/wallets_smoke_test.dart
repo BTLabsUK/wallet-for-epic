@@ -1,5 +1,7 @@
 // Several wallets on the desktop (D9): Unlock's Wallet select and the Remove wallet dialog's two
 // modes, on the mock with its calls recorded.
+import 'dart:async';
+
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/screens/onboarding/unlock_screen.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/dialogs.dart';
@@ -31,6 +33,23 @@ class _Recorder extends MockDeskWallet {
   Future<void> removeWallet(String id, WalletRemoval mode, {String? password}) {
     calls.add('remove $id ${mode.name}');
     return super.removeWallet(id, mode, password: password);
+  }
+}
+
+/// Fails every removal, as when the disk refuses; the adapter locks the open wallet anyway.
+class _FailingRemove extends _Recorder {
+  bool locked = false;
+
+  @override
+  Future<void> lock() {
+    locked = true;
+    return super.lock();
+  }
+
+  @override
+  Future<void> removeWallet(String id, WalletRemoval mode, {String? password}) async {
+    await super.removeWallet(id, mode, password: password);
+    throw const DeskError('Disk refused');
   }
 }
 
@@ -76,32 +95,55 @@ void main() {
     await _end(tester);
   });
 
-  testWidgets('remove dialog: two modes; delete needs the typed name and the tick', (tester) async {
+  testWidgets('remove dialog for a wallet that is not open offers only Remove from list', (tester) async {
     final api = _Recorder();
     await _pump(tester, api, Builder(builder: (c) => TextButton(onPressed: () => showRemoveWalletDialog(c, demoOtherWallet), child: const Text('open'))));
     await tester.tap(find.text('open'));
     await tester.pump(const Duration(milliseconds: 500));
     expect(find.text('Remove from list'), findsWidgets);
-    expect(find.text('Delete wallet'), findsOneWidget);
-    expect(find.textContaining('this app’s files'), findsNothing);
-
-    await tester.tap(find.text('Delete wallet'));
-    await tester.pump(const Duration(milliseconds: 300));
-    final button = find.widgetWithText(EButton, 'Delete wallet');
-    expect(tester.widget<EButton>(button).onPressed, isNull);
-    await tester.enterText(find.byType(EditableText).last, 'Savings');
-    await tester.pump();
-    expect(tester.widget<EButton>(button).onPressed, isNull, reason: 'the tick is still missing');
-    await tester.tap(find.text('The recovery phrase is written down'));
-    await tester.pump();
-    expect(tester.widget<EButton>(button).onPressed, isNotNull);
-
-    await tester.tap(find.text('Remove from list').first);
-    await tester.pump(const Duration(milliseconds: 300));
+    expect(find.text('Delete wallet'), findsNothing);
+    expect(find.text('Nothing changes until confirmed.'), findsOneWidget);
     await tester.tap(find.widgetWithText(EButton, 'Remove from list'));
     await _wait(tester);
     expect(api.calls, ['remove ${demoOtherWallet.id} list']);
     expect(find.text('Savings removed from the list'), findsOneWidget);
     await _end(tester);
+  });
+
+  testWidgets('remove dialog for the open wallet: delete needs the typed name, the password and the tick', (tester) async {
+    final api = _Recorder();
+    const open = WalletEntry(id: 'legacy-mainnet', name: 'Main wallet', folder: '~/x', network: 'mainnet');
+    await _pump(tester, api, Builder(builder: (c) => TextButton(onPressed: () => showRemoveWalletDialog(c, open), child: const Text('open'))));
+    final container = ProviderScope.containerOf(tester.element(find.text('open')));
+    unawaited(container.read(deskProvider.notifier).refresh());
+    await _wait(tester, 4000);
+    await tester.tap(find.text('open'));
+    await tester.pump(const Duration(milliseconds: 500));
+    expect(find.text('Delete wallet'), findsOneWidget);
+    await tester.tap(find.text('Delete wallet'));
+    await tester.pump(const Duration(milliseconds: 300));
+    final button = find.widgetWithText(EButton, 'Delete wallet');
+    expect(tester.widget<EButton>(button).onPressed, isNull);
+    final fields = find.byType(EditableText);
+    await tester.enterText(fields.at(0), 'Main wallet');
+    await tester.tap(find.text('The recovery phrase is written down'));
+    await tester.pump();
+    expect(tester.widget<EButton>(button).onPressed, isNull, reason: 'the password is still missing');
+    await tester.enterText(fields.at(1), 'test-pass-1234');
+    await tester.pump();
+    expect(tester.widget<EButton>(button).onPressed, isNotNull);
+    await _end(tester);
+  });
+
+  test('a failed removal of the open wallet still leaves the app locked', () async {
+    final api = _FailingRemove();
+    final container = ProviderContainer(overrides: [deskApiProvider.overrideWithValue(api)]);
+    addTearDown(container.dispose);
+    final desk = container.read(deskProvider.notifier);
+    await desk.refresh();
+    expect(container.read(deskProvider).account?.id, 'legacy-mainnet');
+    await expectLater(desk.removeWallet('legacy-mainnet', WalletRemoval.delete, password: 'x'), throwsA(isA<DeskError>()));
+    expect(api.locked, isTrue);
+    expect(container.read(deskProvider).account, isNull);
   });
 }

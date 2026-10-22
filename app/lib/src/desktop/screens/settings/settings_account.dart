@@ -35,7 +35,11 @@ class _SettingsAccountScreenState extends ConsumerState<SettingsAccountScreen> {
   Future<void> _save() async {
     final t = _label.text.trim();
     final id = ref.read(deskProvider).account?.id;
-    if (id != null && t.isNotEmpty) {
+    if (t.isEmpty) {
+      showEToast(context, 'Label not saved', text: 'Enter a label');
+      return;
+    }
+    if (id != null) {
       try {
         await ref.read(deskProvider.notifier).renameWallet(id, t);
       } on Object catch (e) {
@@ -47,7 +51,7 @@ class _SettingsAccountScreenState extends ConsumerState<SettingsAccountScreen> {
     // The wallet's own name wins; the old app-wide label stays empty.
     final p = ref.read(settingsPrefsProvider.notifier);
     p.set(ref.read(settingsPrefsProvider).copyWith(walletLabel: id == null ? t : ''));
-    showEToast(context, 'Label saved', text: t.isEmpty ? null : t);
+    showEToast(context, 'Label saved', text: t);
   }
 
   @override
@@ -120,7 +124,7 @@ class _SettingsAccountScreenState extends ConsumerState<SettingsAccountScreen> {
                 ),
               ESetRow(
                   title: 'Delete wallet',
-                  text: 'Removes it and its seed from this computer.',
+                  text: 'Deletes its keys and database.',
                   control: EButton(label: 'Delete…', size: EBtnSize.sm, icon: EIcons.trash, kind: EBtnKind.danger, onPressed: () => showDeleteWalletDialog(context)),
                 ),
             ],

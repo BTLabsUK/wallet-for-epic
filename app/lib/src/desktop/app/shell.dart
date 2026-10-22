@@ -208,11 +208,10 @@ class _Sidebar extends ConsumerWidget {
     final pending = ref.watch(deskProvider.select((s) => s.pendingFiles));
     final account = ref.watch(deskProvider.select((s) => s.account));
     final label = ref.watch(settingsPrefsProvider.select((p) => p.walletLabel));
-    final removed = ref.watch(settingsPrefsProvider.select((p) => p.removedWallets));
     final wallets = ref.watch(deskProvider.select((s) => s.wallets));
     final locking = ref.watch(deskLockingProvider);
-    final canSwitch = DeskFeatures.multiWallet && (wallets ?? const []).where((w) => !removed.contains(w.folder)).length > 1;
-    final name = (label == null || label.isEmpty) ? (account?.name ?? '') : label;
+    final canSwitch = DeskFeatures.multiWallet && (wallets ?? const []).length > 1;
+    final name = account?.id != null || (label ?? '').isEmpty ? (account?.name ?? '') : label!;
     final lockLabel = 'Lock wallet (${deskKeys('L')})';
     final lockButton = locking
         ? SizedBox.square(dimension: Ctl.inline, child: Center(child: ESpinner(size: Ctl.iconSm)))

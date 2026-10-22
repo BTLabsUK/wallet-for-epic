@@ -422,18 +422,23 @@ class RemoveWalletDialog extends ConsumerStatefulWidget {
 
 class _RemoveWalletDialogState extends ConsumerState<RemoveWalletDialog> {
   final _typed = TextEditingController();
+  final _password = TextEditingController();
   bool _busy = false;
   bool _ack = false;
   String? _error;
+  // Deleting asks for the wallet's password, so only the open wallet can be deleted here.
+  late final bool _isOpen = ref.read(deskProvider).account?.id == widget.wallet.id;
   late WalletRemoval? _mode = switch (widget.initialMode) {
-    null => null,
+    null => _isOpen ? null : WalletRemoval.list,
     RemoveMode.list => WalletRemoval.list,
-    RemoveMode.app || RemoveMode.everything => WalletRemoval.delete,
+    RemoveMode.app || RemoveMode.everything => _isOpen ? WalletRemoval.delete : WalletRemoval.list,
   };
 
   @override
   void dispose() {
     _typed.dispose();
+    _password.clear();
+    _password.dispose();
     super.dispose();
   }
 
@@ -441,7 +446,7 @@ class _RemoveWalletDialogState extends ConsumerState<RemoveWalletDialog> {
 
   bool get _nameOk => _typed.text.trim() == w.name;
 
-  bool get _ready => !_busy && _mode != null && (_mode != WalletRemoval.delete || (_nameOk && _ack));
+  bool get _ready => !_busy && _mode != null && (_mode != WalletRemoval.delete || (_nameOk && _ack && _password.text.isNotEmpty));
 
   Future<void> _remove() async {
     final mode = _mode;
@@ -451,7 +456,11 @@ class _RemoveWalletDialogState extends ConsumerState<RemoveWalletDialog> {
       _error = null;
     });
     try {
-      await ref.read(deskProvider.notifier).removeWallet(w.id, mode);
+      await ref.read(deskProvider.notifier).removeWallet(
+        w.id,
+        mode,
+        password: mode == WalletRemoval.delete ? _password.text : null,
+      );
     } on Object catch (e) {
       if (mounted) {
         setState(() {
@@ -492,7 +501,7 @@ class _RemoveWalletDialogState extends ConsumerState<RemoveWalletDialog> {
       canPop: !_busy,
       child: EDialog(
         title: 'Remove ${w.name}?',
-        description: 'Nothing changes until the button below is pressed.',
+        description: 'Nothing changes until confirmed.',
         icon: EIcons.trash,
         tone: ETone.risk,
         dismissible: !_busy,
@@ -505,11 +514,12 @@ class _RemoveWalletDialogState extends ConsumerState<RemoveWalletDialog> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   choice(WalletRemoval.list, 'Remove from list', 'Files stay in ${w.folder}. All wallets can add it back.'),
-                  choice(
-                    WalletRemoval.delete,
-                    'Delete wallet',
-                    'Deletes its keys and database from ${w.folder}. Only the recovery phrase restores it; without it the coins are lost.',
-                  ),
+                  if (_isOpen)
+                    choice(
+                      WalletRemoval.delete,
+                      'Delete wallet',
+                      'Deletes its keys and database from ${w.folder}. Only the recovery phrase restores it; without it the coins are lost.',
+                    ),
                 ],
               ),
             ),
@@ -532,6 +542,11 @@ class _RemoveWalletDialogState extends ConsumerState<RemoveWalletDialog> {
                   semanticLabel: 'Wallet name',
                   onChanged: (_) => setState(() {}),
                 ),
+              ),
+              SizedBox(height: Sp.x3),
+              EField(
+                label: 'Password',
+                child: EPasswordInput(controller: _password, onChanged: (_) => setState(() => _error = null)),
               ),
               SizedBox(height: Sp.x3),
               ECheckbox(value: _ack, onChanged: (v) => setState(() => _ack = v), label: 'The recovery phrase is written down'),

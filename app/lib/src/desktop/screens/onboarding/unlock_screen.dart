@@ -92,7 +92,11 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
       _missing = _selected?.missing ?? false;
       _error = null;
     });
-    await ref.read(deskApiProvider).selectWallet(id);
+    try {
+      await ref.read(deskApiProvider).selectWallet(id);
+    } on Object catch (e) {
+      if (mounted) setState(() => _error = deskErrorText(e));
+    }
   }
 
   Future<void> _removeMissing(WalletEntry w) async {
