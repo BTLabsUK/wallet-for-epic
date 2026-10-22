@@ -3021,7 +3021,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get helpStillStuck => '仍未解决？';
 
   @override
-  String get helpTellUs => '告诉我们发生了什么，或哪里不清楚。';
+  String get helpTellUs => '描述发生了什么，或哪里不清楚。';
 
   @override
   String get helpSendFeedback => '发送反馈';
@@ -3030,7 +3030,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get feedbackTitle => '发送反馈';
 
   @override
-  String get feedbackIntro => '告诉我们哪里出了问题，或哪些地方可以改进。';
+  String get feedbackIntro => '描述哪里出了问题，或哪些地方可以改进。';
 
   @override
   String get feedbackMessageLabel => '反馈内容';
@@ -3048,7 +3048,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get feedbackAttachLogs => '附加诊断日志';
 
   @override
-  String get feedbackAttachLogsHint => '有助于我们找到问题。你的助记词、PIN 码和其他机密信息会先被移除。';
+  String get feedbackAttachLogsHint => '日志有助于找到问题。助记词、PIN 码和其他机密信息会先被移除。';
 
   @override
   String get feedbackPreviewButton => '预览发送内容';

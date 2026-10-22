@@ -4793,7 +4793,7 @@ abstract class AppLocalizations {
   /// Under the Still stuck? heading.
   ///
   /// In en, this message translates to:
-  /// **'Tell us what happened or what is unclear.'**
+  /// **'Describe what happened or what is unclear.'**
   String get helpTellUs;
 
   /// Button at the end of the help page that opens the feedback form.
@@ -4811,7 +4811,7 @@ abstract class AppLocalizations {
   /// First line of the feedback form.
   ///
   /// In en, this message translates to:
-  /// **'Tell us what went wrong or what could be better.'**
+  /// **'Describe what went wrong or what could be better.'**
   String get feedbackIntro;
 
   /// Label of the message field.
@@ -4847,7 +4847,7 @@ abstract class AppLocalizations {
   /// Under the Attach diagnostic logs switch.
   ///
   /// In en, this message translates to:
-  /// **'Helps us find the problem. Your recovery phrase, PIN and other secrets are removed first.'**
+  /// **'Logs help find the problem. The recovery phrase, PIN and other secrets are removed first.'**
   String get feedbackAttachLogsHint;
 
   /// Button that shows the report's full text. The report itself stays in English.
