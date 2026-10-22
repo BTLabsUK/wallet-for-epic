@@ -1,5 +1,6 @@
 // The Outputs page's cards and its Split and Consolidate dialogs (design spec §5.3, §6.5).
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
+import 'package:epic_wallet/src/models.dart' show nothingToConsolidate;
 import 'package:epic_wallet/src/desktop/screens/wallet/outputs_dialogs.dart';
 import 'package:epic_wallet/src/desktop/screens/wallet/outputs_screen.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
@@ -37,8 +38,14 @@ class _Wallet extends MockDeskWallet {
     return _est(outputs);
   }
 
+  /// What [estimateConsolidate] throws instead, when set.
+  Object? consolidateThrows;
+
   @override
-  Future<SendEstimate> estimateConsolidate() async => _est(1);
+  Future<SendEstimate> estimateConsolidate() async {
+    if (consolidateThrows != null) throw consolidateThrows!;
+    return _est(1);
+  }
 
   @override
   Future<SelfSend> splitOutputs(int outputs) async {
@@ -201,6 +208,16 @@ void main() {
     testWidgets('one output: nothing to do', (tester) async {
       await open(tester, (c) => showConsolidateDialog(c, spendableCount: 1));
       expect(find.textContaining('Nothing to consolidate'), findsOneWidget);
+      await tester.tap(find.text('OK'));
+      await tester.pumpAndSettle();
+      expect(find.text('Consolidate outputs'), findsNothing);
+    });
+
+    testWidgets('the wallet core finds nothing to merge: said, not an error', (tester) async {
+      wallet.consolidateThrows = const DeskError(nothingToConsolidate);
+      await open(tester, (c) => showConsolidateDialog(c, spendableCount: 2));
+      expect(find.textContaining('fewer than two spendable outputs', findRichText: true), findsOneWidget);
+      expect(find.text('No estimate'), findsNothing);
       await tester.tap(find.text('OK'));
       await tester.pumpAndSettle();
       expect(find.text('Consolidate outputs'), findsNothing);
