@@ -542,15 +542,18 @@ class LepicWalletService implements WalletService {
     _chain = config.chain;
     final dir = Directory('${config.dataDir}${Platform.pathSeparator}lepic')
       ..createSync(recursive: true);
-    return lepic.WalletConfig(
-      dataDir: dir.path,
+    return _lepicConfig(config, dir.path);
+  }
+
+  static lepic.WalletConfig _lepicConfig(WalletConfig config, String dataDir) =>
+    lepic.WalletConfig(
+      dataDir: dataDir,
       chain: _lepicChain(config.chain),
       nodeUrl: config.nodeUrl,
       nodeApiSecret: config.nodeApiSecret,
       epicboxDomain: config.epicboxDomain,
       epicboxPort: config.epicboxPort,
     );
-  }
 
   /// `<anything>/wallets/<32 hex>/<chain>`, the folder of a registry wallet.
   static final RegExp _registryFolder = RegExp(
@@ -657,7 +660,12 @@ class LepicWalletService implements WalletService {
 
   @override
   Future<NodeTip> nodeTip({required WalletConfig config}) => _guard(() async {
-    final tip = await lepic.nodeTip(runtime: _runtime, config: _config(config));
+    // LEPIC asks the node only: no wallet folder is made (the setup screen's test passes an
+    // empty one, which made `/lepic` and failed) and the open wallet's chain stays.
+    final tip = await lepic.nodeTip(
+      runtime: _runtime,
+      config: _lepicConfig(config, config.dataDir),
+    );
     return NodeTip(height: tip.height, nodeVersion: tip.nodeVersion);
   });
 
