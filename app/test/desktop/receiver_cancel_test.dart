@@ -31,7 +31,7 @@ class _Desk extends MockDeskWallet {
   }
 }
 
-Tx _tx({required bool incoming, TxState state = TxState.posted, bool cancellable = true, bool fromBackup = false, TxMethod method = TxMethod.epicbox}) => Tx(
+Tx _tx({required bool incoming, TxState state = TxState.posted, bool cancellable = true, bool fromBackup = false, TxMethod method = TxMethod.epicbox, bool notPosted = false}) => Tx(
   id: 77,
   slateId: 'f0e1d2c3-b4a5-4697-8879-9f3a7c21a0b1',
   direction: incoming ? TxDirection.received : TxDirection.sent,
@@ -43,6 +43,7 @@ Tx _tx({required bool incoming, TxState state = TxState.posted, bool cancellable
   counterparty: 'esAlice@epicbox.example',
   cancellable: cancellable,
   fromBackup: fromBackup,
+  notPosted: notPosted,
 );
 
 Future<void> _pump(WidgetTester tester, Tx tx, _Desk desk) async {
@@ -96,6 +97,11 @@ void main() {
 
     // A Direct send (HTTP or Tor) is finalized and posted in one step: once out, it is a sent
     // payment like any other, never cancelled in the wallet while the recipient has the coins.
+    testWidgets('a send the node refused stays cancellable', (tester) async {
+      await _pump(tester, _tx(incoming: false, method: TxMethod.tor, cancellable: false, notPosted: true), _Desk());
+      expect(_cancelButton, findsOneWidget, reason: 'its outputs stay locked otherwise');
+    });
+
     for (final method in [TxMethod.http, TxMethod.tor, TxMethod.epicbox]) {
       testWidgets('a posted ${method.name} send has no Cancel', (tester) async {
         await _pump(tester, _tx(incoming: false, method: method), _Desk());

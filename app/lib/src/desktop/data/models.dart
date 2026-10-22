@@ -226,6 +226,7 @@ class Tx {
     this.datedByBlock = true,
     this.fromBackup = false,
     this.cancellable = false,
+    this.notPosted = false,
     this.confirmedAt,
     this.detail,
   });
@@ -269,6 +270,10 @@ class Tx {
   /// The core allows cancelling this payment. An incoming one is cancelled only while the node has
   /// not seen it: the core asks the node and refuses otherwise. False for an issued invoice request.
   final bool cancellable;
+
+  /// Our send, finalized but refused by the node (or never answered): stored for a repost, its
+  /// outputs locked. It can still be cancelled; the core asks the node first.
+  final bool notPosted;
   final DateTime? confirmedAt;
 
   /// Why the state is what it is, when that is not obvious: where an imported transaction came
