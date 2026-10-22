@@ -28,7 +28,19 @@ class SetupDemo {
   final bool localChosen;
 }
 
-/// The setup steps. [arg] is a [SetupStep] or a [SetupDemo].
+/// The first run of a wallet just made or restored (spec §21: password, phrase, Node, Epicbox,
+/// Review, Unlock): setup starts on the node step with no way back to the phrase, and Save goes
+/// to Unlock with [added]. [second] marks one more wallet on a computer that has one: the node
+/// is app-wide, so it starts as the current one.
+@immutable
+class SetupFirstRun {
+  const SetupFirstRun(this.added, {this.second = false});
+
+  final UnlockAdded added;
+  final bool second;
+}
+
+/// The setup steps. [arg] is a [SetupStep], a [SetupDemo] or a [SetupFirstRun].
 class SetupScreen extends ConsumerStatefulWidget {
   const SetupScreen({super.key, this.arg});
 
@@ -40,11 +52,13 @@ class SetupScreen extends ConsumerStatefulWidget {
 
 class _SetupScreenState extends ConsumerState<SetupScreen> {
   final _domain = TextEditingController(text: defaultEpicboxHost);
-  static final _steps = [if (DeskFeatures.languages) SetupStep.prefs, SetupStep.node, SetupStep.epicbox, SetupStep.review];
+  SetupFirstRun? get _first => widget.arg is SetupFirstRun ? widget.arg! as SetupFirstRun : null;
+  late final List<SetupStep> _steps = [if (DeskFeatures.languages && _first == null) SetupStep.prefs, SetupStep.node, SetupStep.epicbox, SetupStep.review];
 
   SetupDemo? get _demo => widget.arg is SetupDemo ? widget.arg! as SetupDemo : null;
   SetupStep get _startStep => _demo?.step ?? (widget.arg is SetupStep ? widget.arg! as SetupStep : _steps.first);
 
+  // Lazy: [_steps] needs the widget.
   late SetupStep _step = _startStep == SetupStep.local || _steps.contains(_startStep) ? _startStep : _steps.first;
   String _language = 'English';
 
@@ -62,6 +76,9 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
   /// nothing; Save changes the node only when the choice changed.
   late final bool _rerun;
   late final bool _wasBuiltin;
+
+  /// The node in use before this run (a second wallet's first run: the app-wide one).
+  String? _currentNode;
   List<NodeServer>? _fetched;
   List<EpicboxServer>? _boxes;
   bool _busy = false;
@@ -71,9 +88,22 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
   void initState() {
     super.initState();
     final st = ref.read(deskProvider);
+    final api0 = ref.read(deskApiProvider);
     _domain.text = st.status?.epicbox.domain ?? _domain.text;
     _rerun = ref.read(deskNavProvider.notifier).canBack;
     _wasBuiltin = ref.read(settingsPrefsProvider).builtin;
+    final first = _first;
+    if (first != null && first.second) {
+      // The node is app-wide: start from the current one; nothing is preselected over it.
+      _picked = true;
+      _local = _wasBuiltin;
+      api0.status().then((x) {
+        if (!mounted) return;
+        _currentNode = x.node.url;
+        if (!_wasBuiltin && _nodeUrl == null) setState(() => _nodeUrl = x.node.url);
+        if (_domain.text == defaultEpicboxHost) setState(() => _domain.text = x.epicbox.domain);
+      });
+    }
     if (_rerun) {
       if (_demo == null && widget.arg is! SetupStep) _local = _wasBuiltin;
       if (!_wasBuiltin) _nodeUrl = st.status?.node.url;
@@ -133,7 +163,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
     setState(() => _busy = true);
     final domain = _domain.text.trim();
     prefs.set(ref.read(settingsPrefsProvider).copyWith(epicboxOnStart: domain.isNotEmpty));
-    if (DeskFeatures.languages) await c.saveSettings(st.settings.copyWith(language: _language));
+    if (_steps.contains(SetupStep.prefs)) await c.saveSettings(st.settings.copyWith(language: _language));
     try {
       if (bundled) {
         if (!_wasBuiltin) await c.useBuiltInNode(true);
@@ -141,12 +171,15 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
       } else {
         final url = local != null ? local.existingUrl : _nodeUrl;
         // Unchanged (same node, local node not in use before): nothing moves.
-        if (url != null && (_wasBuiltin || url != st.status?.node.url)) await c.useNode(url);
+        if (url != null && (_wasBuiltin || url != (st.status?.node.url ?? _currentNode))) await c.useNode(url);
         prefs.set(ref.read(settingsPrefsProvider).copyWith(builtin: false));
       }
       if (domain.isNotEmpty && domain != st.status?.epicbox.domain) await c.useEpicbox(domain);
-      await c.setListening(domain.isNotEmpty);
-      await c.refresh();
+      // A first run's wallet is locked: it listens once Unlock opens it (the epicboxOnStart choice).
+      if (_first == null) {
+        await c.setListening(domain.isNotEmpty);
+        await c.refresh();
+      }
     } on Object catch (e) {
       if (!mounted) return;
       setState(() => _busy = false);
@@ -154,7 +187,8 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
       return;
     }
     if (!mounted) return;
-    ref.read(deskNavProvider.notifier).reset(DeskRoute.overview);
+    final first = _first;
+    ref.read(deskNavProvider.notifier).reset(first == null ? DeskRoute.overview : DeskRoute.unlock, first?.added);
   }
 
   void _to(SetupStep s) => setState(() => _step = s);
@@ -192,7 +226,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
     final nav = ref.read(deskNavProvider.notifier);
     final ts = context.ts;
     final railIndex = _step == SetupStep.local ? _steps.indexOf(SetupStep.node) : _steps.indexOf(_step);
-    final rail = railOf([if (DeskFeatures.languages) 'Preferences', 'Node', 'Epicbox', 'Review'], railIndex);
+    final rail = railOf([if (_steps.contains(SetupStep.prefs)) 'Preferences', 'Node', 'Epicbox', 'Review'], railIndex);
     final last = _step == SetupStep.review;
     final again = nav.canBack ? 'Running setup again. Nothing changes until Save on the last step.' : null;
     final (title, lead, body) = switch (_step) {
@@ -394,7 +428,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          if (DeskFeatures.languages) ...[
+          if (_steps.contains(SetupStep.prefs)) ...[
             _section(context, 'Preferences', [('Language', Text(_language, style: ts.body))], SetupStep.prefs),
             EDivider(space: Sp.x2),
           ],
