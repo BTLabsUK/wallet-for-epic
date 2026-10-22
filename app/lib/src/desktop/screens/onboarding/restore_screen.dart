@@ -163,7 +163,7 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
           sideTitle: 'Restore wallet',
           steps: railOf(['Recovery phrase', 'Password'], 1),
           title: 'Choose a password',
-          lead: 'The phrase checks out. Set the password that unlocks this wallet on this computer. The wallet opens when it is restored.',
+          lead: 'The ${_entry.length}-word phrase checks out. Set the password that unlocks this wallet on this computer. The wallet opens when it is restored.',
           actions: [
             backButton(() => setState(() => _step = RestoreStep.words)),
             EButton.primary(label: 'Restore wallet', onPressed: _accountOk ? _restore : null),
@@ -198,6 +198,7 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
     final length = e.length;
     final bad = e.firstInvalid;
     final complete = e.complete;
+    final narrow = MediaQuery.sizeOf(context).width < 760.u;
     final (String status, Color? tone) = switch (e) {
       _ when _clipboardEmpty => ('Nothing to paste: the clipboard holds no words.', c.warn),
       _ when e.pasteError != null => (e.pasteError!, c.risk),
@@ -220,9 +221,11 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
       lead: 'Type the words in order, or paste the whole phrase into any box. Line breaks, commas and numbering are ignored.',
       actions: [
         backButton(() => nav.back()),
-        EButton.ghost(label: 'Paste', icon: EIcons.paste, onPressed: _pasteClipboard),
-        EButton.ghost(label: 'Clear', icon: EIcons.trash, onPressed: filled == 0 ? null : e.clear),
-        EButton.primary(label: 'Continue', onPressed: complete ? _toAccount : null),
+        // Words only on a narrow window, so the row fits "Use 24 words".
+        EButton.ghost(label: 'Paste', icon: narrow ? null : EIcons.paste, onPressed: _pasteClipboard),
+        EButton.ghost(label: 'Clear', icon: narrow ? null : EIcons.trash, onPressed: filled == 0 ? null : e.clear),
+        // Names the length, so a typed 12-word phrase is never taken for 24 by mistake.
+        EButton.primary(label: complete ? 'Use $length words' : 'Continue', onPressed: complete ? _toAccount : null),
       ],
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,

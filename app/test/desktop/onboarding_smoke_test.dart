@@ -99,7 +99,7 @@ void flows() {
     await _wait(tester, 500);
     expect(find.text('12 of 12 words'), findsOneWidget);
     expect(find.text('All 12 words check out.'), findsOneWidget);
-    await tester.tap(find.text('Continue'));
+    await tester.tap(find.text('Use 12 words'));
     await tester.pump();
     expect(find.text('Choose a password'), findsOneWidget);
     expect(find.text('Name'), findsNothing);

@@ -79,10 +79,23 @@ class PhraseEntry extends ChangeNotifier {
   bool? get checksumOk {
     final c = count;
     if (c != null) {
-      return span == c && contiguous && _listed(c) ? check(words.take(c).toList()) : null;
+      return span == c && contiguous && _listed(c) ? _check(words.take(c).toList()) : null;
     }
     final n = _typedLength;
-    return n == null ? null : check(words.take(n).toList());
+    return n == null ? null : _check(words.take(n).toList());
+  }
+
+  /// [check] of the last word list asked about, kept: the grid asks on every rebuild.
+  String? _checked;
+  bool _checkedOk = false;
+
+  bool _check(List<String> ws) {
+    final key = ws.join(' ');
+    if (key != _checked) {
+      _checked = key;
+      _checkedOk = check(ws);
+    }
+    return _checkedOk;
   }
 
   /// The length the phrase is taken to have: the pasted count, else the typed length when its
@@ -95,21 +108,32 @@ class PhraseEntry extends ChangeNotifier {
 
   bool get complete => checksumOk == true;
 
+  /// Whether Enter may leave the phrase step: a pasted phrase that checks out, or all 24
+  /// fields typed and checking out. A shorter typed phrase goes on with the Continue button,
+  /// so Enter after each word of a 24-word phrase never stops at a 12-word prefix that happens
+  /// to pass the checksum.
+  bool get submittable => complete && (count != null || span == max);
+
   List<String> get phrase => words.take(length).toList();
 
   /// The first bad field, or null.
   int? get firstInvalid => invalid.isEmpty ? null : (invalid.toList()..sort()).first;
 
-  static final _numbering = RegExp(r'(^|\s)\d+[.):]?(?=\s|$)');
   static final _separators = RegExp(r'[\s,;]+');
+  static final _numbering = RegExp(r'^\d+[.):-]?');
+  static final _letter = RegExp('[a-z]');
 
-  /// Words of a pasted text: line breaks, commas and numbering like "1." or "1)" are dropped.
-  static List<String> split(String text) => text
-      .replaceAll(_numbering, ' ')
-      .split(_separators)
-      .map((w) => w.trim().toLowerCase())
-      .where((w) => w.isNotEmpty)
-      .toList();
+  /// Words of a pasted text: line breaks, commas and numbering like "1.", "2)ability" or
+  /// "3 - able" are dropped, and a full stop after a word; a piece with no letter is no word.
+  static List<String> split(String text) => [
+    for (final piece in text.toLowerCase().split(_separators))
+      if (_word(piece) case final w when _letter.hasMatch(w)) w,
+  ];
+
+  static String _word(String piece) {
+    final w = piece.replaceFirst(_numbering, '');
+    return w.endsWith('.') ? w.substring(0, w.length - 1) : w;
+  }
 
   /// A paste: fills from field 1 and sets [count] when the number of words is one a wallet
   /// accepts. Every pasted word is checked at once. Returns the words placed.
@@ -134,12 +158,27 @@ class PhraseEntry extends ChangeNotifier {
     return ws;
   }
 
-  /// A field's text changed by typing or a paste into it.
-  void changed(int i, String text) {
-    if (_separators.hasMatch(text.trim()) || _numbering.hasMatch(text)) {
-      // Several words at once: a paste. It fills from field 1 whichever field took it.
-      final ws = paste(text);
+  /// The clipboard's [text] pasted into field [i], in place of what the field held: several
+  /// words fill from field 1 ([paste]), one word goes into field [i].
+  void pasteInto(int i, String text) {
+    final ws = split(text);
+    if (ws.isEmpty) return;
+    if (ws.length > 1) {
+      paste(text);
       _focusAfter(ws.length);
+      return;
+    }
+    controllers[i].value = TextEditingValue(text: ws.first, selection: TextSelection.collapsed(offset: ws.first.length));
+    changed(i, ws.first);
+    validate(i);
+  }
+
+  /// A field's text changed by typing (or text arriving some other way than the clipboard).
+  void changed(int i, String text) {
+    // Several words at once: a paste. It fills from field 1 whichever field took it. A digit
+    // or a single word is typing and leaves the focus where it is.
+    if (split(text).length > 1) {
+      _focusAfter(paste(text).length);
       return;
     }
     final c = count;
@@ -159,7 +198,8 @@ class PhraseEntry extends ChangeNotifier {
   }
 
   /// The dim completion for field [i]: the first list word starting with the typed letters, when
-  /// two or more are typed and they are not a word already.
+  /// two or more are typed and they are not a word already. Tab takes it; Enter only from four
+  /// letters on ([acceptsOnEnter]).
   String? suggestion(int i) {
     final typed = controllers[i].text.toLowerCase();
     if (typed.length < 2 || bip39Words.contains(typed)) return null;
@@ -168,6 +208,9 @@ class PhraseEntry extends ChangeNotifier {
     }
     return null;
   }
+
+  /// Whether Enter takes field [i]'s completion: four letters start one BIP-39 word only.
+  bool acceptsOnEnter(int i) => controllers[i].text.trim().length >= 4;
 
   /// Puts the suggestion into field [i]; false when there is none.
   bool accept(int i) {
@@ -212,7 +255,8 @@ class PhraseEntry extends ChangeNotifier {
   }
 }
 
-/// Lower-cases and turns line breaks into spaces, so a pasted list arrives as one line.
+/// Lower-cases and turns line breaks and tabs into spaces (text from the keyboard; a paste reads
+/// the clipboard itself).
 class _WordFormatter extends TextInputFormatter {
   const _WordFormatter();
 
@@ -226,8 +270,9 @@ class _WordFormatter extends TextInputFormatter {
 
 /// Twenty-four numbered word fields, as the phrase is written on paper. Space, Comma, Tab and
 /// Enter commit a word and move on; Backspace in an empty field goes back; Tab takes the dim
-/// completion; Enter on a complete phrase calls [onSubmit]. Fields past [PhraseEntry.length]
-/// are dimmed, never marked.
+/// completion, Enter from four letters; Enter on a [PhraseEntry.submittable] phrase calls
+/// [onSubmit]. A paste (keys or menu) takes the clipboard, never the field's text joined with
+/// it. Fields past [PhraseEntry.length] are dimmed, never marked.
 class PhraseGrid extends StatefulWidget {
   const PhraseGrid({super.key, required this.entry, this.onSubmit, this.autofocus = false});
 
@@ -310,9 +355,9 @@ class _PhraseGridState extends State<PhraseGrid> {
       return KeyEventResult.handled;
     }
     if (key == LogicalKeyboardKey.enter || key == LogicalKeyboardKey.numpadEnter) {
-      entry.accept(i);
+      if (entry.acceptsOnEnter(i)) entry.accept(i);
       entry.validate(i);
-      if (entry.complete) {
+      if (entry.submittable) {
         widget.onSubmit?.call();
       } else if (c.text.trim().isNotEmpty) {
         _next(i);
@@ -324,6 +369,12 @@ class _PhraseGridState extends State<PhraseGrid> {
       return KeyEventResult.handled;
     }
     return KeyEventResult.ignored;
+  }
+
+  Future<void> _paste(int i) async {
+    final data = await Clipboard.getData(Clipboard.kTextPlain);
+    if (!mounted) return;
+    entry.pasteInto(i, data?.text ?? '');
   }
 
   void _commit(int i) {
@@ -362,6 +413,7 @@ class _PhraseGridState extends State<PhraseGrid> {
                   invalid: entry.invalid.contains(i),
                   unused: i >= length,
                   autofocus: widget.autofocus && i == 0,
+                  onPaste: () => _paste(i),
                   colors: c,
                   text: ts,
                 ),
@@ -381,6 +433,7 @@ class _Cell extends StatelessWidget {
     required this.invalid,
     required this.unused,
     required this.autofocus,
+    required this.onPaste,
     required this.colors,
     required this.text,
   });
@@ -388,6 +441,7 @@ class _Cell extends StatelessWidget {
   final int index;
   final PhraseEntry entry;
   final bool focused, invalid, unused, autofocus;
+  final VoidCallback onPaste;
   final DeskColors colors;
   final DeskText text;
 
@@ -445,21 +499,45 @@ class _Cell extends StatelessWidget {
                           ),
                         ),
                       ),
-                    TextField(
-                      controller: controller,
-                      focusNode: entry.focus[index],
-                      autofocus: autofocus,
-                      maxLines: null,
-                      minLines: 1,
-                      textInputAction: TextInputAction.next,
-                      keyboardType: TextInputType.text,
-                      autocorrect: false,
-                      enableSuggestions: false,
-                      inputFormatters: const [_WordFormatter()],
-                      style: style,
-                      cursorColor: c.accent,
-                      decoration: const InputDecoration(isCollapsed: true, border: InputBorder.none, contentPadding: EdgeInsets.zero),
-                      onChanged: (v) => entry.changed(index, v),
+                    // Ctrl+V and the menu's Paste read the clipboard themselves (F29).
+                    Actions(
+                      actions: {
+                        PasteTextIntent: CallbackAction<PasteTextIntent>(
+                          onInvoke: (_) {
+                            onPaste();
+                            return null;
+                          },
+                        ),
+                      },
+                      child: TextField(
+                        controller: controller,
+                        focusNode: entry.focus[index],
+                        autofocus: autofocus,
+                        maxLines: 1,
+                        textInputAction: TextInputAction.next,
+                        keyboardType: TextInputType.text,
+                        autocorrect: false,
+                        enableSuggestions: false,
+                        inputFormatters: const [_WordFormatter()],
+                        style: style,
+                        cursorColor: c.accent,
+                        decoration: const InputDecoration(isCollapsed: true, border: InputBorder.none, contentPadding: EdgeInsets.zero),
+                        contextMenuBuilder: (context, state) => AdaptiveTextSelectionToolbar.buttonItems(
+                          anchors: state.contextMenuAnchors,
+                          buttonItems: [
+                            for (final b in state.contextMenuButtonItems)
+                              b.type == ContextMenuButtonType.paste
+                                  ? b.copyWith(
+                                      onPressed: () {
+                                        state.hideToolbar();
+                                        onPaste();
+                                      },
+                                    )
+                                  : b,
+                          ],
+                        ),
+                        onChanged: (v) => entry.changed(index, v),
+                      ),
                     ),
                   ],
                 ),
