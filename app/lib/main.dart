@@ -9,6 +9,7 @@ import 'src/app_log.dart';
 import 'src/data_folder.dart';
 import 'src/demo_web_platform.dart';
 import 'src/password_lists.dart';
+import 'src/phone_tor.dart';
 import 'src/ui/theme/fonts.dart';
 import 'src/wallet_backend.dart';
 import 'src/web/splash.dart';
@@ -41,7 +42,11 @@ Future<void> main() async {
     runApp(
       ProviderScope(
         retry: (_, _) => null,
-        overrides: webDemoOverrides(),
+        overrides: [
+          ...webDemoOverrides(),
+          // The phone's Tor controller restarts tor when the network returns.
+          networkChangesProvider.overrideWithValue(androidNetworkChanges()),
+        ],
         child: const WalletApp(),
       ),
     );

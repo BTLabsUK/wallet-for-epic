@@ -4,7 +4,6 @@
 library;
 
 import 'dart:async';
-import 'dart:io' show Platform;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
@@ -107,20 +106,24 @@ final torBundleFinderProvider = Provider<Future<TorBundle?> Function()>(
   (ref) => kIsWeb ? () async => null : findTorBundle,
 );
 
-/// Network regained (true) and lost (false) on Android (`NetworkWatch.kt`); nothing elsewhere.
-/// Tests override it. Under `flutter test` the platform reads as Android but no plugin answers
-/// the channel, and its failure is reported through [FlutterError], not thrown: empty there.
-final networkChangesProvider = Provider<Stream<bool>>((ref) {
-  if (kIsWeb ||
-      defaultTargetPlatform != TargetPlatform.android ||
-      Platform.environment['FLUTTER_TEST'] == 'true') {
+/// Network regained (true) and lost (false). Empty by default: `main.dart` overrides it with
+/// [androidNetworkChanges], and tests leave it or give their own stream. (Under `flutter test`
+/// the platform reads as Android but no plugin answers the channel, and its failure is
+/// reported through [FlutterError], not thrown: the app, not the provider, wires it.)
+final networkChangesProvider = Provider<Stream<bool>>(
+  (ref) => const Stream<bool>.empty(),
+);
+
+/// The Android app's network events (`NetworkWatch.kt`); nothing elsewhere.
+Stream<bool> androidNetworkChanges() {
+  if (kIsWeb || defaultTargetPlatform != TargetPlatform.android) {
     return const Stream<bool>.empty();
   }
   return const EventChannel('epic_wallet/network')
       .receiveBroadcastStream()
       .map((e) => e == 'available')
       .handleError((Object _) {});
-});
+}
 
 /// How long [PhoneTor] waits. Tests shorten them.
 class PhoneTorTiming {

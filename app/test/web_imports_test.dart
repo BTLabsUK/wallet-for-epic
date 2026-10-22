@@ -65,6 +65,8 @@ void main() {
       'lib/src/ui/feedback_screen.dart',
       // gzip for the sealed report, sent only from the feedback screen above.
       'lib/src/support_report.dart',
+      // The bundled tor's path; the phone's Tor controller asks for it off the web only.
+      'lib/src/tor_location.dart',
     };
     final withIo = {
       for (final MapEntry(key: file, value: uris) in _webGraph().entries)
