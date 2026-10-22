@@ -48,3 +48,7 @@ Name: "{userprograms}\Epic Wallet 0.1"; Filename: "{app}\epic_wallet.exe"; Worki
 ; Same app on Impeller instead of the default Skia, to compare renderers.
 Name: "{userprograms}\Epic Wallet 0.1 (Impeller)"; Filename: "{app}\epic_wallet.exe"; Parameters: "--impeller"; WorkingDir: "{app}"
 Name: "{userdesktop}\Epic Wallet 0.1"; Filename: "{app}\epic_wallet.exe"; WorkingDir: "{app}"; Tasks: desktopicon
+
+[InstallDelete]
+; 0.1.0's renderer shortcut; Skia is the default now (the plain shortcut).
+Type: files; Name: "{userprograms}\Epic Wallet 0.1 (Skia).lnk"
