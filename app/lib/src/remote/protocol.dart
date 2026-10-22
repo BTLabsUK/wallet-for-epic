@@ -76,7 +76,15 @@ const Set<String> localServiceMembers = {
   // Reads a file on the app's own computer; refused by the client.
   'importWalletSeed',
 };
-const Set<String> localSessionMembers = {'supportsInvoices'};
+const Set<String> localSessionMembers = {
+  'supportsInvoices',
+  // Reach other computers or open a port on the server; refused by the client.
+  'sendHttp',
+  'resendHttp',
+  'startHttpListener',
+  'stopHttpListener',
+  'httpListenerStatus',
+};
 
 /// The largest frame the dispatcher reads, in UTF-8 bytes.
 const int defaultMaxFrameBytes = 256 * 1024;

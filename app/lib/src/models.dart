@@ -192,6 +192,139 @@ enum ListenerEventKind {
   stopped,
 }
 
+/// Who can reach the HTTP listener.
+enum HttpExposure {
+  /// This computer only, on `127.0.0.1`.
+  localOnly,
+
+  /// Every network interface, on `0.0.0.0`, for a port forwarded from the internet. Anyone
+  /// who reaches the port can send this wallet payments.
+  internet,
+}
+
+enum HttpListenerEventKind {
+  /// Listening on `port`.
+  started,
+
+  /// Another program holds `port`. The listener did not start; no more events follow.
+  portInUse,
+
+  /// `port` could not be listened on. The listener did not start; no more events follow.
+  bindFailed,
+
+  /// Signed a payment and answered it; `repeated` when the same payment came again and got
+  /// the first answer, which is not a second payment.
+  received,
+
+  /// Refused a payment for `refusal`. Nothing was stored.
+  refused,
+
+  /// The listener stopped and its port is free; no more events follow.
+  stopped,
+}
+
+/// Why the HTTP listener refused a payment.
+enum HttpRefusal {
+  /// The slate was checked and refused for good.
+  rejected,
+
+  /// The wallet could not take it now (locked, node unreachable, scan pending).
+  unavailable,
+}
+
+/// What the HTTP listener did. Never names the sender, its address or the slate.
+class HttpListenerEvent {
+  final HttpListenerEventKind kind;
+
+  /// For `started`, `portInUse` and `bindFailed`.
+  final int? port;
+
+  /// For `received`.
+  final int? txId;
+
+  /// For `received`, in the smallest unit.
+  final BigInt? amount;
+
+  /// For `received`.
+  final bool repeated;
+
+  /// For `refused`.
+  final HttpRefusal? refusal;
+
+  const HttpListenerEvent({
+    required this.kind,
+    this.port,
+    this.txId,
+    this.amount,
+    this.repeated = false,
+    this.refusal,
+  });
+
+  @override
+  int get hashCode =>
+      kind.hashCode ^
+      port.hashCode ^
+      txId.hashCode ^
+      amount.hashCode ^
+      repeated.hashCode ^
+      refusal.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is HttpListenerEvent &&
+          kind == other.kind &&
+          port == other.port &&
+          txId == other.txId &&
+          amount == other.amount &&
+          repeated == other.repeated &&
+          refusal == other.refusal;
+}
+
+/// The running HTTP listener.
+class HttpListenerInfo {
+  final int port;
+  final HttpExposure exposure;
+
+  const HttpListenerInfo({required this.port, required this.exposure});
+
+  @override
+  int get hashCode => port.hashCode ^ exposure.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is HttpListenerInfo &&
+          port == other.port &&
+          exposure == other.exposure;
+}
+
+/// A send over HTTP the other wallet answered and this wallet finalized.
+class HttpSent {
+  final int txId;
+  final String slateId;
+
+  /// The node accepted it. False: finalized and stored, but the node refused it; repost it.
+  final bool posted;
+
+  const HttpSent({
+    required this.txId,
+    required this.slateId,
+    required this.posted,
+  });
+
+  @override
+  int get hashCode => txId.hashCode ^ slateId.hashCode ^ posted.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is HttpSent &&
+          txId == other.txId &&
+          slateId == other.slateId &&
+          posted == other.posted;
+}
+
 class NodeTip {
   final BigInt height;
   final String nodeVersion;
@@ -720,6 +853,13 @@ enum WalletErrorKind {
   /// The wallet database was damaged; the core set it aside. Opening the wallet again rebuilds
   /// it, then a scan brings the funds back. History, labels and messages are not in the new one.
   damagedDatabase,
+
+  /// The address given to an HTTP send is not an `http(s)://host[:port][/path]` URL, or
+  /// names a `.onion` host. Nothing was stored.
+  httpUrlInvalid,
+
+  /// Plain `http` to another computer without the user's consent. Nothing was stored.
+  plainHttpNotAllowed,
   io,
   other,
 }

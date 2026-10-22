@@ -178,6 +178,42 @@ abstract interface class WalletSession {
 
   Future<void> stopListener();
 
+  /// Sends to the wallet listening at [url], `http(s)://host[:port][/path]`, then finalizes
+  /// its answer and posts. Plain `http` to another computer needs [allowPlainHttp], set only
+  /// after the user agreed to send unencrypted. Throws [WalletErrorKind.httpUrlInvalid] or
+  /// [WalletErrorKind.plainHttpNotAllowed], storing nothing; [WalletErrorKind.transportFailed]
+  /// when the other wallet did not answer, with the send stored as waiting and its inputs
+  /// locked: [resendHttp] or [cancelTransaction] it. [message] as for [createSendSlate].
+  Future<HttpSent> sendHttp({
+    required BigInt amount,
+    required BigInt minimumConfirmations,
+    required String url,
+    required bool allowPlainHttp,
+    String? message,
+  });
+
+  /// Delivers send [txId] again over HTTP, to [url] (the same or another address), then
+  /// finalizes and posts as [sendHttp]. A wallet that answered before answers the same way.
+  Future<HttpSent> resendHttp({
+    required int txId,
+    required String url,
+    required bool allowPlainHttp,
+  });
+
+  /// Starts the HTTP listener on [port] and streams what it does until [stopHttpListener],
+  /// lock or [dispose]. The first event is `started`, `portInUse` or `bindFailed`; after a
+  /// start the last is `stopped`. Start it only on the user's choice, and [HttpExposure.internet]
+  /// only after they chose it.
+  Stream<HttpListenerEvent> startHttpListener({
+    required HttpExposure exposure,
+    required int port,
+  });
+
+  Future<void> stopHttpListener();
+
+  /// The running HTTP listener, or null.
+  Future<HttpListenerInfo?> httpListenerStatus();
+
   /// Signs an incoming send. The same slate again returns the answer given the first time with
   /// [ReceivedSlate.repeated] set; nothing is stored or signed again.
   Future<ReceivedSlate> receiveSlate({required String slateJson});
@@ -848,6 +884,128 @@ class FakeWalletSession implements WalletSession {
 
   @override
   Future<void> stopListener() async => listenerStops++;
+
+  /// Every [sendHttp] and [resendHttp] call that passed the URL checks.
+  final List<({BigInt? amount, int? txId, String url, bool allowPlainHttp})>
+  httpSends = [];
+
+  /// When false, a send that reached the other wallet comes back unposted.
+  bool httpPosted = true;
+
+  /// Events the HTTP listener emits; tests add to them. [stopHttpListener] adds `stopped`.
+  final StreamController<HttpListenerEvent> httpListenerEvents =
+      StreamController<HttpListenerEvent>.broadcast();
+  final List<({HttpExposure exposure, int port})> httpListenerStarts = [];
+  int httpListenerStops = 0;
+
+  /// What [httpListenerStatus] answers; [startHttpListener] sets it, [stopHttpListener] clears it.
+  HttpListenerInfo? httpListenerInfo;
+
+  /// LEPIC's URL rule: `http(s)://host[:port][/path]`, no `.onion`, and plain `http` only to
+  /// this computer unless [allowPlainHttp].
+  void _checkHttpUrl(String url, bool allowPlainHttp) {
+    final uri = Uri.tryParse(url.trim());
+    final scheme = uri?.scheme.toLowerCase();
+    if (uri == null ||
+        (scheme != 'http' && scheme != 'https') ||
+        uri.host.isEmpty ||
+        uri.host.toLowerCase().endsWith('.onion')) {
+      throw const WalletError(
+        kind: WalletErrorKind.httpUrlInvalid,
+        message: 'not an http(s) address',
+      );
+    }
+    final local = {'localhost', '127.0.0.1', '::1'}.contains(uri.host);
+    if (scheme == 'http' && !local && !allowPlainHttp) {
+      throw const WalletError(
+        kind: WalletErrorKind.plainHttpNotAllowed,
+        message: 'plain http to another computer',
+      );
+    }
+  }
+
+  @override
+  Future<HttpSent> sendHttp({
+    required BigInt amount,
+    required BigInt minimumConfirmations,
+    required String url,
+    required bool allowPlainHttp,
+    String? message,
+  }) async {
+    _checkHttpUrl(url, allowPlainHttp);
+    final error = sendError;
+    if (error != null && error.kind != WalletErrorKind.transportFailed) {
+      throw error;
+    }
+    _checkFunds(amount);
+    httpSends.add((
+      amount: amount,
+      txId: null,
+      url: url,
+      allowPlainHttp: allowPlainHttp,
+    ));
+    sentMessages.add(message);
+    final pending = _pendingSend(amount, to: url, message: message);
+    transactionsValue.add(pending);
+    _lock(amount + fee);
+    if (error != null) {
+      _undelivered.add(pending.id!);
+      throw error;
+    }
+    return HttpSent(
+      txId: pending.id!,
+      slateId: pending.slateId!,
+      posted: httpPosted,
+    );
+  }
+
+  @override
+  Future<HttpSent> resendHttp({
+    required int txId,
+    required String url,
+    required bool allowPlainHttp,
+  }) async {
+    _checkHttpUrl(url, allowPlainHttp);
+    final tx = transactionsValue.where((t) => t.id == txId).firstOrNull;
+    if (tx == null || !_undelivered.contains(txId)) {
+      throw const WalletError(
+        kind: WalletErrorKind.invalidArgument,
+        message: 'not a send waiting for its answer',
+      );
+    }
+    httpSends.add((
+      amount: null,
+      txId: txId,
+      url: url,
+      allowPlainHttp: allowPlainHttp,
+    ));
+    final error = sendError;
+    if (error != null) throw error;
+    _undelivered.remove(txId);
+    return HttpSent(txId: txId, slateId: tx.slateId!, posted: httpPosted);
+  }
+
+  @override
+  Stream<HttpListenerEvent> startHttpListener({
+    required HttpExposure exposure,
+    required int port,
+  }) {
+    httpListenerStarts.add((exposure: exposure, port: port));
+    httpListenerInfo = HttpListenerInfo(port: port, exposure: exposure);
+    return httpListenerEvents.stream;
+  }
+
+  @override
+  Future<void> stopHttpListener() async {
+    httpListenerStops++;
+    httpListenerInfo = null;
+    httpListenerEvents.add(
+      const HttpListenerEvent(kind: HttpListenerEventKind.stopped),
+    );
+  }
+
+  @override
+  Future<HttpListenerInfo?> httpListenerStatus() async => httpListenerInfo;
 
   @override
   Stream<ScanProgress> scan({BigInt? startHeight}) {

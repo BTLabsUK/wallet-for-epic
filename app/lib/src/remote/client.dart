@@ -656,6 +656,41 @@ class RemoteWalletSession implements WalletSession {
   @override
   Future<void> stopListener() => _call(SessionMember.stopListener, voidWire);
 
+  // HTTP sends and the HTTP listener reach other computers or open a port on the server:
+  // not offered here.
+  static const WalletError _noHttp = WalletError(
+    kind: WalletErrorKind.other,
+    message: 'direct HTTP is not offered remotely',
+  );
+
+  @override
+  Future<HttpSent> sendHttp({
+    required BigInt amount,
+    required BigInt minimumConfirmations,
+    required String url,
+    required bool allowPlainHttp,
+    String? message,
+  }) async => throw _noHttp;
+
+  @override
+  Future<HttpSent> resendHttp({
+    required int txId,
+    required String url,
+    required bool allowPlainHttp,
+  }) async => throw _noHttp;
+
+  @override
+  Stream<HttpListenerEvent> startHttpListener({
+    required HttpExposure exposure,
+    required int port,
+  }) => Stream.error(_noHttp);
+
+  @override
+  Future<void> stopHttpListener() async {}
+
+  @override
+  Future<HttpListenerInfo?> httpListenerStatus() async => null;
+
   @override
   Future<ReceivedSlate> receiveSlate({required String slateJson}) => _call(
     SessionMember.receiveSlate,

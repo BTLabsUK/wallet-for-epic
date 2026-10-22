@@ -38,6 +38,10 @@ String describeError(AppLocalizations l, Object error) {
         l.errorIo,
         error.message,
       ),
+      // The phone has no HTTP send; the core's sentence names what is wrong with the URL.
+      WalletErrorKind.httpUrlInvalid || WalletErrorKind.plainHttpNotAllowed =>
+        _coreSentence(l, error.message) ??
+            _withDetail(l.errorInvalidInput, error.message),
       WalletErrorKind.other => _withDetail(l.errorOther, error.message),
     };
   }

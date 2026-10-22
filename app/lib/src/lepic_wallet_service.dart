@@ -79,6 +79,9 @@ WalletError mapLepicError(lepic.WalletError error) {
     lepic.WalletErrorKind.paymentExpired => WalletErrorKind.paymentExpired,
     lepic.WalletErrorKind.io => WalletErrorKind.io,
     lepic.WalletErrorKind.damagedDatabase => WalletErrorKind.damagedDatabase,
+    lepic.WalletErrorKind.httpUrlInvalid => WalletErrorKind.httpUrlInvalid,
+    lepic.WalletErrorKind.plainHttpNotAllowed =>
+      WalletErrorKind.plainHttpNotAllowed,
     lepic.WalletErrorKind.secretStore => WalletErrorKind.io,
     lepic.WalletErrorKind.foreignWallet => WalletErrorKind.invalidArgument,
     // The old core refused a cancel of a payment on chain, and a history file of another
@@ -147,6 +150,32 @@ WalletSummary _summary(lepic.WalletSummary s) => WalletSummary(
   immature: s.immature,
   locked: s.locked,
   validatedWithNode: s.validatedWithNode,
+);
+
+lepic.HttpExposure _lepicExposure(HttpExposure e) => switch (e) {
+  HttpExposure.localOnly => lepic.HttpExposure.localOnly,
+  HttpExposure.internet => lepic.HttpExposure.internet,
+};
+
+/// LEPIC's HTTP listener event as the app's.
+HttpListenerEvent lepicHttpEvent(lepic.HttpListenerEvent e) => HttpListenerEvent(
+  kind: switch (e.kind) {
+    lepic.HttpListenerEventKind.started => HttpListenerEventKind.started,
+    lepic.HttpListenerEventKind.portInUse => HttpListenerEventKind.portInUse,
+    lepic.HttpListenerEventKind.bindFailed => HttpListenerEventKind.bindFailed,
+    lepic.HttpListenerEventKind.received => HttpListenerEventKind.received,
+    lepic.HttpListenerEventKind.refused => HttpListenerEventKind.refused,
+    lepic.HttpListenerEventKind.stopped => HttpListenerEventKind.stopped,
+  },
+  port: e.port,
+  txId: e.txId,
+  amount: e.amount,
+  repeated: e.repeated,
+  refusal: switch (e.refusal) {
+    lepic.HttpRefusal.rejected => HttpRefusal.rejected,
+    lepic.HttpRefusal.unavailable => HttpRefusal.unavailable,
+    null => null,
+  },
 );
 
 /// LEPIC's listener event as the app's, or null for `invoiceBounced`, which is an issuer
@@ -880,6 +909,68 @@ class LepicWalletSession implements WalletSession {
   @override
   Future<void> stopListener() async {
     if (!_wallet.isDisposed) _guardSync(_wallet.stopListener);
+  }
+
+  @override
+  Future<HttpSent> sendHttp({
+    required BigInt amount,
+    required BigInt minimumConfirmations,
+    required String url,
+    required bool allowPlainHttp,
+    String? message,
+  }) => _guard(() async {
+    final tx = await _wallet.sendHttp(
+      amount: amount,
+      minimumConfirmations: minimumConfirmations,
+      url: url,
+      allowPlainHttp: allowPlainHttp,
+      message: _message(message),
+    );
+    return HttpSent(txId: tx.txId, slateId: tx.slateId, posted: tx.posted);
+  });
+
+  @override
+  Future<HttpSent> resendHttp({
+    required int txId,
+    required String url,
+    required bool allowPlainHttp,
+  }) => _guard(() async {
+    final tx = await _wallet.resendHttp(
+      txId: txId,
+      url: url,
+      allowPlainHttp: allowPlainHttp,
+    );
+    return HttpSent(txId: tx.txId, slateId: tx.slateId, posted: tx.posted);
+  });
+
+  @override
+  Stream<HttpListenerEvent> startHttpListener({
+    required HttpExposure exposure,
+    required int port,
+  }) => _guardStream(
+    _wallet
+        .startHttpListener(exposure: _lepicExposure(exposure), port: port)
+        .map(lepicHttpEvent),
+  );
+
+  @override
+  Future<void> stopHttpListener() async {
+    if (!_wallet.isDisposed) _guardSync(_wallet.stopHttpListener);
+  }
+
+  @override
+  Future<HttpListenerInfo?> httpListenerStatus() async {
+    if (_wallet.isDisposed) return null;
+    final info = _guardSync(_wallet.httpListenerStatus);
+    return info == null
+        ? null
+        : HttpListenerInfo(
+            port: info.port,
+            exposure: switch (info.exposure) {
+              lepic.HttpExposure.localOnly => HttpExposure.localOnly,
+              lepic.HttpExposure.internet => HttpExposure.internet,
+            },
+          );
   }
 
   @override
