@@ -8,6 +8,7 @@ import 'dart:math';
 import '../../wallet_service.dart' show onionAddressFormat;
 import 'api.dart';
 import 'http_address.dart';
+import 'phrase_check.dart';
 import 'models.dart';
 
 const _epicboxAddr = 'esWnT8kBf3yXqPZ2r9cLhVd7JmK4uA6gYsN1pQeRtC5vD8xHwF2b@epicbox.epiccash.com';
@@ -218,7 +219,7 @@ class MockDeskWallet implements DeskWalletApi {
   }
 
   @override
-  Future<bool> checkPhraseWord(String word) async => word.length >= 3 && !word.contains(RegExp('[^a-z]'));
+  bool checkPhrase(List<String> words) => bip39PhraseValid(words);
 
   @override
   Future<void> restoreWallet({String name = '', required String password, required List<String> phrase}) async {
@@ -360,7 +361,7 @@ class MockDeskWallet implements DeskWalletApi {
       message: r.message,
     );
     _txs.insert(0, tx);
-    if (r.method == TxMethod.file) return SendFileReady(tx, 'send_${formatEpic(r.amount)}_${tx.slateId.substring(0, 8)}.slate.json');
+    if (r.method == TxMethod.file) return SendFileReady(tx, 'send_${formatEpic(r.amount, minDecimals: 0)}_${tx.slateId.substring(0, 8)}.slate.json');
     return SendDone(tx);
   }
 

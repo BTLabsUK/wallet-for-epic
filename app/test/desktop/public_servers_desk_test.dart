@@ -10,6 +10,7 @@ import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:epic_wallet/src/net/http.dart';
 import 'package:epic_wallet/src/network.dart';
+import 'package:epic_wallet/src/public_servers.dart';
 import 'package:epic_wallet/src/relay_directory.dart';
 import 'package:epic_wallet/src/secret_store_api.dart';
 import 'package:epic_wallet/src/wallet_service.dart' as core;
@@ -46,7 +47,7 @@ class _Sample implements RelayDirectory, NodeDirectory {
 }
 
 const _hosts = ['node.btlabs.uk', 'node.epicnet.us:3413', 'node.epiccash.com:3413', 'epic.stackwallet.com:3413', 'epic-node.iniaku.my.id'];
-const _boxes = ['epicbox.stackwallet.com', 'epicbox.epicnet.us', 'epicbox.epiccash.com', 'epicbox.iniaku.my.id'];
+const _boxes = ['epicbox.epiccash.com', 'epicbox.stackwallet.com', 'epicbox.epicnet.us', 'epicbox.iniaku.my.id'];
 
 void main() {
   late Directory support;
@@ -76,7 +77,14 @@ void main() {
     expect(nodes.map((n) => n.operator), ['BT Labs', 'EpicNet', 'Epic Cash', 'Cypher Stack', 'Iniaku pool']);
     final boxes = await w.epicboxes();
     expect(boxes.map((b) => b.domain), _boxes);
-    expect((await w.status()).epicbox.domain, 'epicbox.stackwallet.com');
+    expect((await w.status()).epicbox.domain, defaultEpicboxHost);
+  });
+
+  test('the default Epicbox server is one constant: preset, first relay, status (D-13)', () {
+    expect(defaultEpicboxHost, 'epicbox.epiccash.com');
+    expect(mainnetPreset.epicboxDomain, defaultEpicboxHost);
+    expect(builtInRelays.first.relay.host, defaultEpicboxHost);
+    expect(deskEpicboxes.first.domain, defaultEpicboxHost);
   });
 
   test('a node and a relay the monitor adds show after the built-in ones', () async {

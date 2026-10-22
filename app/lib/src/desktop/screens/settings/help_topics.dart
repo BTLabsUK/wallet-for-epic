@@ -98,8 +98,8 @@ List<HelpTopic> helpTopicsFor(int confirmations) => <HelpTopic>[
     const HelpTopic(
       'network',
       'Tor',
-      'Tor lets two wallets pay each other privately at a .onion address, without opening any ports. It is off by default.',
-      'Turn it on in Settings › Receiving, for each wallet. The first connection can take a minute or two, and a send over Tor up to about two minutes.',
+      'Tor lets two wallets pay each other privately at a .onion address. Slower than Epicbox, more private, and no ports to open. Off by default.',
+      'Turn it on in Settings › Receiving, for each wallet. Tor is blocked or not allowed in some countries; there it does not connect.',
     ),
   HelpTopic(
     'trouble',

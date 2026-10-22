@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../widgets/kit.dart';
 
-/// The healthiest other public relay to offer while ours does not answer, or null.
+/// The healthiest other public Epicbox server to offer while ours does not answer, or null.
 EpicboxServer? healthiestOtherEpicbox(DeskState st) {
   final current = st.status?.epicbox.domain;
   final ok = [
@@ -17,8 +17,8 @@ EpicboxServer? healthiestOtherEpicbox(DeskState st) {
   return ok.isEmpty ? null : ok.first;
 }
 
-/// Our Epicbox relay does not answer: one line, and a one-click switch to the healthiest other
-/// relay. Never switched by itself. The same words on Send and Receive.
+/// Our Epicbox server does not answer: one line, and a one-click switch to the healthiest other
+/// server. Never switched by itself. The same words on Send and Receive.
 class EpicboxDownNotice extends ConsumerStatefulWidget {
   const EpicboxDownNotice({super.key});
 
@@ -46,7 +46,7 @@ class _EpicboxDownNoticeState extends ConsumerState<EpicboxDownNotice> {
     final st = ref.watch(deskProvider);
     final other = healthiestOtherEpicbox(st);
     return ENotice(
-      title: 'Epicbox relay not answering',
+      title: 'Epicbox server not answering',
       text: other == null ? 'Payments wait until it is back.' : 'Switch to ${other.domain}?',
       tone: ETone.warn,
       icon: EIcons.antenna,

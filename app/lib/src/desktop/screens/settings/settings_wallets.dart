@@ -183,13 +183,6 @@ class _SettingsWalletsScreenState extends ConsumerState<SettingsWalletsScreen> {
                     );
                   },
                 ),
-                if (DeskFeatures.importWizard) ...[
-                  SizedBox(height: Sp.x3),
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: EButton(label: 'Import wallets…', icon: EIcons.fileDown, size: EBtnSize.sm, kind: EBtnKind.ghost, onPressed: () => nav.go(DeskRoute.importWallets)),
-                  ),
-                ],
               ],
             ),
     );

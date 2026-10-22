@@ -26,7 +26,7 @@ String whoOf(Tx t) {
 /// A line explaining [whoOf] where it needs one.
 String? whoTip(Tx t) =>
     t.detail ??
-    (t.foundByScan && t.contactName == null ? 'A scan found this payment; the wallet has no record of who sent it. The time is that of its block.' : null);
+    (t.foundByScan && t.contactName == null ? 'Found on the chain by a scan. The sender is not recorded. The time is the block time.' : null);
 
 /// Whether the name is an address (shown in mono).
 bool whoIsAddress(Tx t) => t.contactName == null && t.counterparty != null && t.method != TxMethod.file;

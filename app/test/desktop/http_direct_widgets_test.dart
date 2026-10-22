@@ -61,7 +61,7 @@ void main() {
       await tester.tap(find.text('Send anyway'));
       await tester.pumpAndSettle();
       expect(find.text('Check and send'), findsOneWidget);
-      await tester.tap(find.text('Send 1 EPIC'));
+      await tester.tap(find.text('Send 1.0000 EPIC'));
       await tester.pumpAndSettle();
       expect(wallet.sent.single.method, TxMethod.http);
       expect(wallet.sent.single.allowPlainHttp, isTrue);

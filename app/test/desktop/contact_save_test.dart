@@ -77,7 +77,7 @@ void main() {
     await _open(tester, api);
     await _fill(tester, 'lol', 'http://');
     expect(api.saved, isEmpty);
-    expect(find.textContaining('This is not an HTTP address'), findsOneWidget);
+    expect(find.text('Not a recognised address'), findsOneWidget);
     expect(find.byType(ESpinner), findsNothing);
   });
 }

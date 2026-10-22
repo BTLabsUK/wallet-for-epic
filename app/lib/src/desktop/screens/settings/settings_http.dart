@@ -99,8 +99,17 @@ class _HttpListenerRowState extends ConsumerState<HttpListenerRow> {
 
   Future<void> _openGuide() async {
     final s = ref.read(deskProvider).settings;
-    final public = await showEDialog<bool>(context, builder: (_) => InternetGuide(port: s.httpPort, isPublic: s.publicMode));
-    if (public != null) await _setPublic(public);
+    final choice = await showEDialog<InternetGuideChoice>(context, builder: (_) => InternetGuide(port: s.httpPort, isPublic: s.publicMode));
+    switch (choice) {
+      case InternetGuideChoice.public:
+        await _setPublic(true);
+      case InternetGuideChoice.local:
+        await _setPublic(false);
+      case InternetGuideChoice.tor:
+        await _run(() => ref.read(deskProvider.notifier).setTor(true));
+      case null:
+        break;
+    }
   }
 
   @override
@@ -222,8 +231,11 @@ class _HttpListenerRowState extends ConsumerState<HttpListenerRow> {
 }
 
 /// Receive from the internet (G04, G05): Local only or From the internet, how to forward the
-/// port, and Tor as the way with nothing to set up. Pops true for "Receive from the internet",
-/// false for "Back to local only", null on Close.
+/// port, and Tor as the way with nothing to set up. Pops an [InternetGuideChoice], null on Close.
+/// What the guide was closed with: "Receive from the internet", "Back to local only" or
+/// "Turn on Tor receiving".
+enum InternetGuideChoice { public, local, tor }
+
 class InternetGuide extends StatelessWidget {
   const InternetGuide({super.key, required this.port, required this.isPublic});
 
@@ -261,14 +273,18 @@ class InternetGuide extends StatelessWidget {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          step(1, 'Listen on all interfaces', 'The listener answers on 0.0.0.0, port $port. Other devices and the internet can then send payments to this wallet. The firewall may ask to allow it.'),
+          step(1, 'Listen on all interfaces', 'The wallet answers on 0.0.0.0, port $port. Other devices and the internet can then send payments to this wallet. The firewall may ask to allow it.'),
           step(2, 'Forward the port', 'On the router’s page (often 10.0.1.1), find Port forwarding and forward TCP $port to this computer.'),
           step(3, 'Share the public address', 'Senders use http://<public IP>:$port. The public IP can change.'),
           if (DeskFeatures.tor) ...[
             ENotice(
               icon: EIcons.tor,
               title: 'No router setup?',
-              text: 'Tor works from anywhere with nothing to forward. Turn it on under Advanced.',
+              text: 'Tor works from anywhere with nothing to forward.',
+              actionsBelow: true,
+              actions: [
+                EButton(label: 'Turn on Tor receiving', size: EBtnSize.inline, onPressed: () => Navigator.of(context).pop(InternetGuideChoice.tor)),
+              ],
             ),
             SizedBox(height: Sp.x3),
           ],
@@ -278,9 +294,9 @@ class InternetGuide extends StatelessWidget {
       actions: [
         EButton(label: 'Close', onPressed: () => Navigator.of(context).pop()),
         if (isPublic)
-          EButton(label: 'Back to local only', onPressed: () => Navigator.of(context).pop(false))
+          EButton(label: 'Back to local only', onPressed: () => Navigator.of(context).pop(InternetGuideChoice.local))
         else
-          EButton.primary(label: 'Receive from the internet', icon: EIcons.web, onPressed: () => Navigator.of(context).pop(true)),
+          EButton.primary(label: 'Receive from the internet', icon: EIcons.web, onPressed: () => Navigator.of(context).pop(InternetGuideChoice.public)),
       ],
     );
   }

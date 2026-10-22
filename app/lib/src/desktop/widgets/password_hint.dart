@@ -1,13 +1,13 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../password_estimate.dart';
 import '../../password_lists.dart';
 import '../theme/icons.dart';
 import '../theme/tokens.dart';
-import 'buttons.dart' show FocusRing;
 
 /// The estimator while a screen with a [PasswordHint] is open; released after it closes.
 /// Loading until the lists are ranked (a fraction of a second, in the background).
@@ -124,8 +124,10 @@ class _PasswordHintState extends ConsumerState<PasswordHint> {
   }
 }
 
-/// The info icon whose tooltip says how the time is estimated. Focusable; the tooltip also
-/// opens on focus and on Enter or Space, and screen readers read it with the label.
+/// The info icon whose note says how the time is estimated. A click opens the note and a
+/// second click, Esc, an outside click or leaving the field closes it; hovering 400 ms opens it
+/// too, until the pointer leaves. Not a Tab stop (a screen reader reads the note from the
+/// icon's tooltip); a click on it never takes focus from the password field.
 class _EstimateInfo extends StatefulWidget {
   const _EstimateInfo();
 
@@ -134,41 +136,122 @@ class _EstimateInfo extends StatefulWidget {
 }
 
 class _EstimateInfoState extends State<_EstimateInfo> {
-  final _tip = GlobalKey<TooltipState>();
-  bool _focused = false;
+  final _portal = OverlayPortalController();
+  final _link = LayerLink();
+  Timer? _hoverTimer;
 
-  void _show() => _tip.currentState?.ensureTooltipVisible();
+  /// Opened by a click: stays until a click, Esc or an outside click.
+  bool _pinned = false;
+
+  bool get _open => _portal.isShowing;
+
+  void _show({required bool pin}) {
+    _hoverTimer?.cancel();
+    if (pin) _pinned = true;
+    if (!_portal.isShowing) {
+      _portal.show();
+      HardwareKeyboard.instance.addHandler(_onKey);
+    }
+    if (mounted) setState(() {});
+  }
+
+  void _hide() {
+    _hoverTimer?.cancel();
+    _pinned = false;
+    if (_portal.isShowing) {
+      _portal.hide();
+      HardwareKeyboard.instance.removeHandler(_onKey);
+    }
+    if (mounted) setState(() {});
+  }
+
+  bool _onKey(KeyEvent event) {
+    if (event is KeyDownEvent && event.logicalKey == LogicalKeyboardKey.escape) {
+      _hide();
+      return true;
+    }
+    return false;
+  }
+
+  void _toggle() => _open && _pinned ? _hide() : _show(pin: true);
+
+  @override
+  void dispose() {
+    _hoverTimer?.cancel();
+    if (_portal.isShowing) HardwareKeyboard.instance.removeHandler(_onKey);
+    super.dispose();
+  }
+
+  Widget _note(BuildContext context) {
+    final tip = TooltipTheme.of(context);
+    return CompositedTransformFollower(
+      link: _link,
+      targetAnchor: Alignment.bottomLeft,
+      followerAnchor: Alignment.topLeft,
+      offset: Offset(0, Sp.x1),
+      showWhenUnlinked: false,
+      child: Align(
+        alignment: Alignment.topLeft,
+        child: TapRegion(
+          groupId: _EstimateInfo,
+          child: TextFieldTapRegion(
+            child: Material(
+              type: MaterialType.transparency,
+              child: Container(
+                key: const ValueKey('password-hint-note'),
+                constraints: BoxConstraints(maxWidth: 320.u),
+                padding: tip.padding ?? EdgeInsets.symmetric(horizontal: Sp.x3, vertical: Sp.x2),
+                decoration: tip.decoration,
+                child: Text(passwordHintNote, style: tip.textStyle),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     final c = context.dc;
-    return Tooltip(
-      key: _tip,
-      message: passwordHintNote,
-      excludeFromSemantics: true,
-      triggerMode: TooltipTriggerMode.tap,
-      constraints: BoxConstraints(maxWidth: 320.u),
-      child: Semantics(
-        button: true,
-        label: 'How the time is estimated',
-        tooltip: passwordHintNote,
-        excludeSemantics: true,
-        child: FocusableActionDetector(
-          mouseCursor: SystemMouseCursors.help,
-          onFocusChange: (v) {
-            setState(() => _focused = v);
-            if (v) {
-              _show();
-            } else {
-              Tooltip.dismissAllToolTips();
-            }
-          },
-          actions: {ActivateIntent: CallbackAction<ActivateIntent>(onInvoke: (_) => _show())},
-          child: FocusRing(
-            focused: _focused,
-            child: SizedBox.square(
-              dimension: Ctl.inline,
-              child: Icon(EIcons.info, size: Ctl.iconSm, color: c.dim),
+    return TextFieldTapRegion(
+      child: TapRegion(
+        groupId: _EstimateInfo,
+        onTapOutside: (_) {
+          if (_open) _hide();
+        },
+        child: CompositedTransformTarget(
+          link: _link,
+          child: OverlayPortal(
+            controller: _portal,
+            overlayChildBuilder: _note,
+            child: MouseRegion(
+              cursor: SystemMouseCursors.help,
+              onEnter: (_) {
+                _hoverTimer?.cancel();
+                _hoverTimer = Timer(TooltipTheme.of(context).waitDuration ?? const Duration(milliseconds: 400), () {
+                  if (mounted) _show(pin: false);
+                });
+              },
+              onExit: (_) {
+                _hoverTimer?.cancel();
+                if (!_pinned) _hide();
+              },
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: _toggle,
+                child: Semantics(
+                  button: true,
+                  label: 'How the time is estimated',
+                  tooltip: passwordHintNote,
+                  excludeSemantics: true,
+                  onTap: _toggle,
+                  child: SizedBox.square(
+                    dimension: Ctl.inline,
+                    child: Icon(EIcons.info, size: Ctl.iconSm, color: _open ? c.text : c.dim),
+                  ),
+                ),
+              ),
             ),
           ),
         ),

@@ -53,6 +53,7 @@ final List<DeskShot> walletShots = [
   DeskShot(id: '35b-dlg-cancel-tx', title: 'Cancel a send', route: DeskRoute.activity, arg: 37, dialog: (c) => showCancelTxDialog(c, _tx(c, 37))),
   const DeskShot(id: '21-contacts', title: 'Contacts', route: DeskRoute.contacts),
   const DeskShot(id: '21b-contacts-empty', title: 'Contacts, empty', route: DeskRoute.contacts, arg: ContactsArgs(empty: true)),
+  const DeskShot(id: '21d-contacts-empty-add', title: 'Contacts, empty, adding the first', route: DeskRoute.contacts, arg: ContactsArgs(empty: true, adding: true)),
   const DeskShot(
     id: '21c-contacts-selected',
     title: 'Contacts, one selected',

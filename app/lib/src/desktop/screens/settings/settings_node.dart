@@ -41,6 +41,45 @@ ETone nodeTone(ServiceHealth h) => switch (h) {
 
 const _portNote = 'Check the address and the port (usually 3413).';
 
+/// Before the local node starts: what that means for this computer. True to go on.
+Future<bool> confirmLocalNode(BuildContext context) async {
+  final yes = await showEDialog<bool>(
+    context,
+    builder: (context) {
+      final ts = context.ts;
+      Widget line(String text) => Padding(
+        padding: EdgeInsets.only(bottom: Sp.x2),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('•', style: ts.small),
+            SizedBox(width: Sp.x2),
+            Expanded(child: Text(text, style: ts.small)),
+          ],
+        ),
+      );
+      return EDialog(
+        title: 'Start the local node?',
+        description: 'A separate program syncs the Epic chain on this computer.',
+        icon: EIcons.server,
+        body: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            line('Downloads the whole chain: several GB of disk space and bandwidth.'),
+            line('The first sync takes hours. Until it is done the node shows Syncing.'),
+            line('The firewall may ask to allow the node program.'),
+          ],
+        ),
+        actions: [
+          EButton(label: 'Cancel', onPressed: () => Navigator.of(context).pop(false)),
+          EButton.primary(label: 'Start local node', onPressed: () => Navigator.of(context).pop(true)),
+        ],
+      );
+    },
+  );
+  return yes ?? false;
+}
+
 class SettingsNodeScreen extends ConsumerStatefulWidget {
   const SettingsNodeScreen({super.key, this.arg});
 
@@ -103,6 +142,8 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
     final prefs = ref.read(settingsPrefsProvider.notifier);
     final p = ref.read(settingsPrefsProvider);
     if (value == builtinNode) {
+      if (!p.builtin && !await confirmLocalNode(context)) return;
+      if (!mounted) return;
       setState(() {
         _saving = true;
         _error = null;
@@ -362,7 +403,10 @@ class _StatusLine extends StatelessWidget {
             TextSpan(text: nodeWord(health), style: ts.small.copyWith(color: fg, fontWeight: FontWeight.w600)),
             if (answers) ...[
               sep,
-              TextSpan(text: groupDigits(height), style: ts.mono(size: Fs.sm, color: c.text)),
+              if (builtin && height == 0)
+                const TextSpan(text: 'downloading the chain')
+              else
+                TextSpan(text: groupDigits(height), style: ts.mono(size: Fs.sm, color: c.text)),
               if (DeskFeatures.nodeBlockTime) ...[sep, const TextSpan(text: 'last block 40 s ago')],
             ] else ...[
               sep,

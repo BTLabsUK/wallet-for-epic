@@ -11,6 +11,7 @@ import 'package:epic_wallet/src/desktop/screens/settings/prefs.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:epic_wallet/src/secret_store_api.dart';
+import 'package:epic_wallet/src/network.dart' show defaultEpicboxHost;
 import 'package:epic_wallet/src/wallet_service.dart' as core;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -181,9 +182,9 @@ void main() {
       expect(service.session.scanCalls, 1);
     });
 
-    test('words are checked against the BIP-39 list', () async {
-      expect(await wallet.checkPhraseWord('abandon'), isTrue);
-      expect(await wallet.checkPhraseWord('h4rbor'), isFalse);
+    test('the phrase check asks the wallet core, lower-cased and trimmed', () {
+      expect(wallet.checkPhrase(service.phrase.toUpperCase().split(' ')), isTrue);
+      expect(wallet.checkPhrase(['abandon', 'h4rbor']), isFalse);
     });
   });
 
@@ -264,7 +265,7 @@ void main() {
       expect(st.node.url, 'https://node.btlabs.uk');
       expect(st.nodeHeight, 2500000);
       expect(st.nodeHealth, ServiceHealth.ok);
-      expect(st.epicbox.domain, 'epicbox.stackwallet.com');
+      expect(st.epicbox.domain, defaultEpicboxHost);
       expect(st.epicboxHealth, ServiceHealth.off);
       expect(st.syncProgress, isNull);
       expect(await wallet.outputs(), isEmpty);

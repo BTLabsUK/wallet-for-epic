@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../log.dart';
+import '../../../network.dart' show defaultEpicboxHost;
 import '../../data/http_address.dart';
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../widgets/kit.dart';
@@ -307,7 +308,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
         _amountEdited = true;
         _fee = fee;
         _feeFor = n;
-        _amount.text = formatEpic(n).replaceAll(',', '');
+        _amount.text = formatEpic(n, minDecimals: 0).replaceAll(',', '');
       });
     } catch (_) {
       if (mounted) setState(() => _allError = 'Could not work out how much can be sent. Try again in a moment.');
@@ -376,6 +377,15 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     }
   }
 
+  /// "This is the wallet's own address." when the Epicbox recipient is this wallet (M18).
+  String? _ownAddressError(DeskState st) {
+    final own = st.epicboxAddress;
+    if (_method != TxMethod.epicbox || own == null || own.isEmpty) return null;
+    return _to.text.trim().toLowerCase() == own.trim().toLowerCase() ? "This is the wallet's own address." : null;
+  }
+
+  String? _toError(DeskState st) => _ownAddressError(st) ?? _recipientError(_method, _to.text);
+
   Future<void> _review() async {
     final st = ref.read(deskProvider);
     if (!_canSend(st) || _reviewing) return;
@@ -391,7 +401,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       if (mounted) setState(() => _reviewing = false);
     }
     if (!mounted) return;
-    if (_recipientError(_method, _to.text) != null || _amountError(st.balance?.spendable) != null) return;
+    if (_toError(st) != null || _amountError(st.balance?.spendable) != null) return;
     await _openReview();
   }
 
@@ -567,7 +577,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     final contact = _contactOf(st.contacts);
     final file = _method == TxMethod.file;
     final direct = _method == TxMethod.http || _method == TxMethod.tor;
-    final toErr = _submitted && !_toEdited ? _recipientError(_method, _to.text) : null;
+    final toErr = _submitted && !_toEdited ? _toError(st) : null;
     final amErr = _allError ?? (_submitted && !_amountEdited ? _amountError(spendable) : null);
     final res = _result;
     final block = _blockNotice(st);
@@ -659,7 +669,11 @@ class _SendScreenState extends ConsumerState<SendScreen> {
               controller: _to,
               mono: true,
               invalid: toErr != null,
-              hint: switch (_method) { TxMethod.epicbox => 'es…@epicbox.epiccash.com', TxMethod.http => 'http://host:3415', _ => 'xxxxxxxx.onion' },
+              hint: switch (_method) {
+                TxMethod.epicbox => 'es…@${st.status?.epicbox.domain ?? defaultEpicboxHost}',
+                TxMethod.http => 'http://host:3415',
+                _ => 'xxxxxxxx.onion',
+              },
               semanticLabel: 'Recipient',
               leading: EIcons.user,
               onChanged: (_) => _changed(to: true),
@@ -803,7 +817,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       child: Row(
         children: [
           Expanded(child: Text(label, style: strong ? ts.strong : ts.bodyDim)),
-          if (v == null || v == 0 && label != 'Left to spend')
+          if (v == null || v == 0 && label != 'Balance after')
             Text('—', style: ts.mono(size: Fs.md, color: c.faint))
           else
             EMoney(v, size: strong ? Fs.lg : Fs.md, color: risk ? c.risk : (dim ? c.dim : null), weight: strong ? FontWeight.w600 : null),
@@ -816,7 +830,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       _ when nodeBlocked => 'Waiting for the node to sync.',
       _ when _epicboxBlocked(st) => 'Waiting for Epicbox to connect.',
       _ when _torBlocked(st) => st.settings.tor ? 'Waiting for Tor to connect.' : 'Turn on Tor to send to an .onion address.',
-      _ when _submitted && !_toEdited && _recipientError(_method, _to.text) != null => 'Fix the fields marked in red.',
+      _ when _submitted && !_toEdited && _toError(st) != null => 'Fix the fields marked in red.',
       _ when _submitted && !_amountEdited && _amountError(spendable) != null => 'Fix the fields marked in red.',
       _ when _reviewing => 'Checking the fee for this amount.',
       _ => 'Nothing is sent until confirmed.',
@@ -831,7 +845,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
           line('Network fee', fee > 0 ? fee : null),
           Divider(height: Sp.x4, color: c.line),
           line('Total', ready ? n + fee : null, strong: true),
-          line('Left to spend', ready && spendable != null ? spendable - n - fee : null, dim: true),
+          line('Balance after', ready && spendable != null ? spendable - n - fee : null, dim: true),
           if (updating) Text('Balance updating while the wallet scans.', style: ts.caption),
           SizedBox(height: Sp.x4),
           EButton.primary(
@@ -1015,7 +1029,7 @@ class _ReviewDialogState extends State<_ReviewDialog> {
                   child: Text(
                     switch (d.method) {
                       TxMethod.file => 'Creating the file.',
-                      TxMethod.tor => 'Reaching the recipient over Tor… This can take up to about 2 minutes; keep this window open.',
+                      TxMethod.tor => 'Reaching the recipient over Tor… keep this window open.',
                       _ => 'Sending. This can take a few seconds; keep this window open.',
                     },
                     style: ts.small.copyWith(color: c.dim),

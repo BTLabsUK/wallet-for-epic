@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../network.dart' show defaultEpicboxHost;
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../widgets/kit.dart';
 import '../settings/prefs.dart' show settingsPrefsProvider;
+import '../settings/settings_node.dart' show confirmLocalNode;
 import 'onboarding_parts.dart';
 
 enum SetupStep { prefs, node, epicbox, review }
@@ -20,7 +22,7 @@ class SetupScreen extends ConsumerStatefulWidget {
 }
 
 class _SetupScreenState extends ConsumerState<SetupScreen> {
-  final _domain = TextEditingController(text: 'epicbox.epiccash.com');
+  final _domain = TextEditingController(text: defaultEpicboxHost);
   static final _steps = [if (DeskFeatures.languages) SetupStep.prefs, SetupStep.node, SetupStep.epicbox, SetupStep.review];
 
   late SetupStep _step = widget.arg is SetupStep && _steps.contains(widget.arg) ? widget.arg as SetupStep : _steps.first;
@@ -51,6 +53,8 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
   }
 
   Future<void> _save() async {
+    if (_builtIn && !ref.read(settingsPrefsProvider).builtin && !await confirmLocalNode(context)) return;
+    if (!mounted) return;
     setState(() => _busy = true);
     final c = ref.read(deskProvider.notifier);
     final st = ref.read(deskProvider);

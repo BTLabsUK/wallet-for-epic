@@ -1,12 +1,14 @@
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/screens/onboarding/create_screen.dart';
 import 'package:epic_wallet/src/desktop/screens/onboarding/import_wallets_screen.dart';
+import 'package:epic_wallet/src/desktop/screens/onboarding/onboarding_parts.dart';
 import 'package:epic_wallet/src/desktop/screens/onboarding/restore_screen.dart';
 import 'package:epic_wallet/src/desktop/screens/onboarding/unlock_screen.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/dialogs.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:epic_wallet/src/password_estimate.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
@@ -194,17 +196,82 @@ void main() {
     });
   });
 
-  testWidgets('the info icon is focusable, labelled and opens the note', (tester) async {
+  testWidgets('the info icon opens on click, closes on a second click, Esc or an outside click, and is no Tab stop', (tester) async {
     final handle = tester.ensureSemantics();
     final c = TextEditingController(text: 'abc');
     addTearDown(c.dispose);
     await _pump(tester, Column(children: [TextField(controller: c), PasswordHint(controller: c)]));
     expect(find.bySemanticsLabel('How the time is estimated'), findsOneWidget);
+    final note = find.byKey(const ValueKey('password-hint-note'));
+    final field = find.byType(TextField).first;
+    await tester.tap(field);
+    await tester.pump();
+    expect(tester.widget<EditableText>(find.byType(EditableText).first).focusNode.hasFocus, isTrue);
+    // One click opens, every time, and the field keeps its focus.
+    await tester.tap(find.byIcon(EIcons.info));
+    await tester.pump();
+    expect(note, findsOneWidget);
+    expect(tester.widget<EditableText>(find.byType(EditableText).first).focusNode.hasFocus, isTrue, reason: 'the click takes no focus');
+    await tester.enterText(field, 'abcd');
+    await tester.pump();
+    expect(c.text, 'abcd', reason: 'typing after the click still lands in the field');
+    // A second click closes.
+    await tester.tap(find.byIcon(EIcons.info));
+    await tester.pump();
+    expect(note, findsNothing);
+    // Esc closes.
+    await tester.tap(find.byIcon(EIcons.info));
+    await tester.pump();
+    expect(note, findsOneWidget);
+    await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+    await tester.pump();
+    expect(note, findsNothing);
+    // An outside click closes.
+    await tester.tap(find.byIcon(EIcons.info));
+    await tester.pump();
+    expect(note, findsOneWidget);
+    await tester.tapAt(const Offset(600, 700));
+    await tester.pump();
+    expect(note, findsNothing);
+    // Tab from the field never lands on the icon.
+    await tester.tap(field);
+    await tester.pump();
     await tester.sendKeyEvent(LogicalKeyboardKey.tab);
-    await tester.sendKeyEvent(LogicalKeyboardKey.tab);
-    await tester.pump(const Duration(milliseconds: 500));
-    expect(find.text(passwordHintNote), findsOneWidget);
+    await tester.pump();
+    final focused = FocusManager.instance.primaryFocus;
+    expect(find.ancestor(of: find.byIcon(EIcons.info), matching: find.byType(Focus)).evaluate().any((e) => (e.widget as Focus).focusNode == focused), isFalse);
     handle.dispose();
+    await _end(tester);
+  });
+
+  testWidgets('hovering the icon opens the note after the wait and leaving closes it', (tester) async {
+    final c = TextEditingController(text: 'abc');
+    addTearDown(c.dispose);
+    await _pump(tester, Column(children: [TextField(controller: c), PasswordHint(controller: c)]));
+    final note = find.byKey(const ValueKey('password-hint-note'));
+    final mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+    await mouse.addPointer(location: Offset.zero);
+    addTearDown(mouse.removePointer);
+    await mouse.moveTo(tester.getCenter(find.byIcon(EIcons.info)));
+    await tester.pump(const Duration(milliseconds: 200));
+    expect(note, findsNothing);
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(note, findsOneWidget);
+    await mouse.moveTo(const Offset(600, 700));
+    await tester.pump();
+    expect(note, findsNothing);
+    await _end(tester);
+  });
+
+  testWidgets('the Confirm field stays put while the hint and its error line change', (tester) async {
+    await _pump(tester, const CreateScreen(arg: CreateStep.account));
+    final confirm = find.byType(PasswordBox).at(1);
+    final at = tester.getTopLeft(confirm);
+    for (final t in ['a', 'abc', 'abcdefgh', 'abcdefghijkl', '']) {
+      await _type(tester, _field('Password'), t);
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(tester.getTopLeft(confirm), at, reason: 'after typing "$t"');
+    }
     await _end(tester);
   });
 }
