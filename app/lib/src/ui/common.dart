@@ -210,6 +210,13 @@ String shortAddress(String address, {String? ownServer}) {
   final text = address.trim();
   final lower = text.toLowerCase();
   if (lower.startsWith('http://') || lower.startsWith('https://')) return text;
+  // An onion: the ends of its 56 characters, then `.onion`, which says what it is.
+  if (lower.endsWith('.onion')) {
+    final name = text.substring(0, text.length - '.onion'.length);
+    return name.length <= 14
+        ? text
+        : '${name.substring(0, 6)}…${name.substring(name.length - 6)}.onion';
+  }
   final at = text.indexOf('@');
   final key = at < 0 ? text : text.substring(0, at);
   var relay = at < 0 ? '' : text.substring(at);

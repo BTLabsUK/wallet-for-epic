@@ -1,4 +1,5 @@
-/// Recipients and the address book: names for epicbox addresses and wallet URLs.
+/// Recipients and the address book: names for epicbox addresses, Tor addresses and wallet
+/// URLs.
 library;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -10,23 +11,29 @@ import 'wallet_service.dart';
 export 'wallet_service.dart' show Contact;
 
 /// Where a payment goes.
-enum RecipientKind { epicbox, http }
+enum RecipientKind { epicbox, tor, http }
 
 class Recipient {
   const Recipient(this.kind, this.address);
 
   final RecipientKind kind;
 
-  /// `<address>@<relay>` for epicbox, the full URL for HTTP.
+  /// `<address>@<relay>` for epicbox, `<56 characters>.onion` for Tor, the full URL for HTTP.
   final String address;
 }
 
-/// Reads a bare epicbox address, `epicbox://<address>`, or an `http(s)://` wallet URL from
-/// typed, pasted or scanned text. Removes whitespace, which QR codes and chat apps sometimes
-/// add. Does not validate; see [checkRecipient].
+/// Reads a bare epicbox address, `epicbox://<address>`, an onion address in any of its forms,
+/// or an `http(s)://` wallet URL from typed, pasted or scanned text. Removes whitespace, which
+/// QR codes and chat apps sometimes add. An onion (F9: with or without `.onion`, with
+/// `http://`, a port, a trailing slash, in upper case) comes back as `<56 characters>.onion`
+/// in lower case, the one form the app shows. Does not validate; see [checkRecipient].
 Recipient parseRecipient(String text) {
   final clean = text.replaceAll(RegExp(r'\s'), '');
   final lower = clean.toLowerCase();
+  // Before the URL check: `http://<onion>` goes over Tor, not HTTP.
+  if (onionAddressFormat(clean)) {
+    return Recipient(RecipientKind.tor, onionHost(clean));
+  }
   if (lower.startsWith('http://') || lower.startsWith('https://')) {
     return Recipient(RecipientKind.http, clean);
   }
@@ -141,12 +148,16 @@ String? contactNameFor(Iterable<Contact> contacts, String? address) =>
     contactFor(contacts, address)?.name;
 
 /// Checks that [text] is something the wallet can send to: a full epicbox address valid on the
-/// open wallet's chain, or an `http(s)` wallet URL. Returns a sentence for the user in [l]'s
-/// language, or null.
+/// open wallet's chain, an onion address whose checksum holds, or an `http(s)` wallet URL.
+/// Returns a sentence for the user in [l]'s language, or null.
 String? checkRecipient(AppLocalizations l, WalletService service, String text) {
   if (text.trim().isEmpty) return l.contactsAddressMissing;
   final recipient = parseRecipient(text);
   switch (recipient.kind) {
+    case RecipientKind.tor:
+      return service.validateOnionAddress(address: recipient.address)
+          ? null
+          : l.sendOnionIncomplete;
     case RecipientKind.http:
       final uri = Uri.tryParse(recipient.address);
       if (uri == null || uri.host.isEmpty) {
