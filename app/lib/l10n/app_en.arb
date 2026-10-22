@@ -3826,7 +3826,7 @@
   "@helpStillStuck": {
     "description": "Heading at the end of the help page."
   },
-  "helpTellUs": "Tell us what happened or what is unclear.",
+  "helpTellUs": "Describe what happened or what is unclear.",
   "@helpTellUs": {
     "description": "Under the Still stuck? heading."
   },
@@ -3838,7 +3838,7 @@
   "@feedbackTitle": {
     "description": "Title of the feedback form."
   },
-  "feedbackIntro": "Tell us what went wrong or what could be better.",
+  "feedbackIntro": "Describe what went wrong or what could be better.",
   "@feedbackIntro": {
     "description": "First line of the feedback form."
   },
@@ -3862,7 +3862,7 @@
   "@feedbackAttachLogs": {
     "description": "Switch: add the app's log to the report."
   },
-  "feedbackAttachLogsHint": "Helps us find the problem. Your recovery phrase, PIN and other secrets are removed first.",
+  "feedbackAttachLogsHint": "Logs help find the problem. The recovery phrase, PIN and other secrets are removed first.",
   "@feedbackAttachLogsHint": {
     "description": "Under the Attach diagnostic logs switch."
   },

@@ -280,7 +280,7 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
             ),
           )
         else
-          _panel(Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [const _ListHead(), ...rows])),
+          _panel(Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [const ActivityListHead(), ...rows])),
         _Pager(pages: pages, page: page, onPage: (p) => setState(() => _page = p)),
       ],
     );
@@ -450,8 +450,8 @@ class _Pager extends StatelessWidget {
   }
 }
 
-class _ListHead extends StatelessWidget {
-  const _ListHead();
+class ActivityListHead extends StatelessWidget {
+  const ActivityListHead({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -474,11 +474,14 @@ class _ListHead extends StatelessWidget {
               Expanded(flex: 10, child: Text('Status', style: style)),
               SizedBox(width: Sp.x4),
               SizedBox(
-                width: 52.u,
-                child: Text('Time', style: style),
+                width: txTimeWidth,
+                child: Text('Time', textAlign: TextAlign.right, style: style),
               ),
               SizedBox(width: Sp.x4),
-              Text('Amount', style: style),
+              SizedBox(
+                width: txAmountWidth,
+                child: Text('Amount', textAlign: TextAlign.right, style: style),
+              ),
             ],
           ),
         );
@@ -644,7 +647,7 @@ class _OutputHead extends StatelessWidget {
     final style = context.ts.caption.copyWith(fontWeight: FontWeight.w600);
     return LayoutBuilder(
       builder: (context, box) {
-        final roomy = box.maxWidth >= 640.u;
+        final roomy = box.maxWidth >= 600.u;
         return Container(
           height: 36.u,
           padding: EdgeInsets.symmetric(horizontal: Sp.x5),
@@ -663,7 +666,7 @@ class _OutputHead extends StatelessWidget {
               ],
               SizedBox(width: Sp.x4),
               SizedBox(
-                width: 120.u,
+                width: txAmountWidth,
                 child: Text('Value', style: style, textAlign: TextAlign.right),
               ),
               if (roomy) ...[
@@ -721,7 +724,7 @@ class _OutputRow extends StatelessWidget {
     };
     final status = Row(
       children: [
-        mark,
+        SizedBox(width: 18.u, height: 18.u, child: Center(child: mark)),
         SizedBox(width: Sp.x2),
         Flexible(
           child: Text.rich(
@@ -784,7 +787,7 @@ class _OutputRow extends StatelessWidget {
                     ),
                   ),
                   SizedBox(width: Sp.x4),
-                  SizedBox(width: 120.u, child: value),
+                  SizedBox(width: txAmountWidth, child: value),
                   SizedBox(width: Sp.x4),
                   SizedBox(width: 200.u, child: status),
                 ],

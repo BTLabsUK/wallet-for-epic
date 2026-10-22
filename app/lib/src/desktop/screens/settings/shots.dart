@@ -6,6 +6,7 @@ import '../../app/tour.dart';
 import '../../widgets/kit.dart';
 import 'dialogs.dart';
 import 'prefs.dart';
+import 'report_problem.dart';
 import 'settings_node.dart';
 import 'settings_phrase.dart';
 import 'settings_receiving.dart';
@@ -62,6 +63,7 @@ final List<DeskShot> settingsShots = [
   const DeskShot(id: '29-settings-about', title: 'About', route: DeskRoute.settingsAbout),
   const DeskShot(id: '30-settings-help', title: 'Help', route: DeskRoute.settingsHelp),
   const DeskShot(id: '30b-settings-help-search', title: 'Help, search', route: DeskRoute.settingsHelp, arg: 'file'),
+  DeskShot(id: '30c-dlg-report-problem', title: 'Report a problem', route: DeskRoute.settingsHelp, dialog: showReportProblemDialog),
   DeskShot(id: '31-dlg-my-node', title: 'Add to my nodes', route: DeskRoute.settingsNode, dialog: (c) => showMyNodeDialog(c, adding: true)),
   DeskShot(
     id: '31b-dlg-my-node-error',

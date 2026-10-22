@@ -391,10 +391,10 @@ class _BalancePanel extends ConsumerWidget {
           LayoutBuilder(
             builder: (context, box) {
               final items = <(String, int?, Widget?)>[
-                ('Total', b?.total, null),
-                ('Confirming', b?.awaitingConfirmation, ERing(confirmations: 1, size: 15.u)),
+                ('Total', b?.total, Icon(EIcons.wallet, size: Ctl.iconSm, color: c.dim)),
+                ('Confirming', b?.awaitingConfirmation, ERing(confirmations: 1, size: Ctl.iconSm)),
                 if (b == null || b.immature > 0) ('Immature', b?.immature, Icon(EIcons.clock, size: Ctl.iconSm, color: c.dim)),
-                ('Awaiting finalization', b?.awaitingFinalization, null),
+                ('Awaiting finalization', b?.awaitingFinalization, Icon(EIcons.pencil, size: Ctl.iconSm, color: c.dim)),
                 ('Locked in sends', b?.locked, Icon(EIcons.lock, size: Ctl.iconSm, color: c.dim)),
               ];
               // Two columns on a narrow panel, one row otherwise.
@@ -577,9 +577,9 @@ class _Break extends StatelessWidget {
         children: [
           Row(
             children: [
-              if (lead != null) ...[lead!, SizedBox(width: 6.u)],
+              if (lead != null) ...[SizedBox(width: Ctl.iconSm, height: Ctl.iconSm, child: Center(child: lead!)), SizedBox(width: 6.u)],
               Flexible(
-                child: Text(label, style: ts.small, overflow: TextOverflow.ellipsis),
+                child: Text(label, style: ts.small, maxLines: 2, overflow: TextOverflow.ellipsis),
               ),
             ],
           ),

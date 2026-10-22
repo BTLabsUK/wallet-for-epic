@@ -45,6 +45,8 @@ dependencies:
   flutter_secure_storage: 11.2.0
   local_auth: 3.0.2
   crypto: 3.0.7
+  # X25519, HKDF and AES-GCM for sealed support reports (support_report.dart), pure Dart.
+  cryptography: 2.9.0
   # The password crack-time hint (lib/src/password_estimate.dart). Exact: the wrapper there
   # imports its src/. Its compiled-in word lists are not imported (13 MB); the lists ship as
   # gzipped assets instead (assets/passwords, tool/password_lists.sh).

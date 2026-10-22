@@ -5,12 +5,31 @@
 #include "flutter_window.h"
 #include "utils.h"
 
+namespace {
+// The window's title, also how a second start finds the first window.
+constexpr const wchar_t kWindowTitle[] = L"Epic Cash Wallet";
+// Named after the data folder (%APPDATA%\com.blacktyger\EpicWallet).
+constexpr const wchar_t kSingleInstanceMutex[] = L"Local\\com.blacktyger.EpicWallet.single";
+}  // namespace
+
 int APIENTRY wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prev,
                       _In_ wchar_t *command_line, _In_ int show_command) {
   // Attach to console when present (e.g., 'flutter run') or create a
   // new console when running with a debugger.
   if (!::AttachConsole(ATTACH_PARENT_PROCESS) && ::IsDebuggerPresent()) {
     CreateAndAttachConsole();
+  }
+
+  // One window per user session: a second start brings the first window to the front and
+  // ends, so two processes never open the same wallet files.
+  ::CreateMutexW(nullptr, TRUE, kSingleInstanceMutex);
+  if (::GetLastError() == ERROR_ALREADY_EXISTS) {
+    HWND first = ::FindWindowW(L"FLUTTER_RUNNER_WIN32_WINDOW", kWindowTitle);
+    if (first != nullptr) {
+      if (::IsIconic(first)) ::ShowWindow(first, SW_RESTORE);
+      ::SetForegroundWindow(first);
+    }
+    return EXIT_SUCCESS;
   }
 
   // Initialize COM, so that it is available for use in the library and/or
@@ -40,7 +59,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prev,
   FlutterWindow window(project);
   Win32Window::Point origin(10, 10);
   Win32Window::Size size(1280, 720);
-  if (!window.Create(L"Epic Cash Wallet", origin, size)) {
+  if (!window.Create(kWindowTitle, origin, size)) {
     return EXIT_FAILURE;
   }
   window.SetQuitOnClose(true);

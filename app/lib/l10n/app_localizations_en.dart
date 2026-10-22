@@ -3212,7 +3212,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get helpStillStuck => 'Still stuck?';
 
   @override
-  String get helpTellUs => 'Tell us what happened or what is unclear.';
+  String get helpTellUs => 'Describe what happened or what is unclear.';
 
   @override
   String get helpSendFeedback => 'Send feedback';
@@ -3222,7 +3222,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get feedbackIntro =>
-      'Tell us what went wrong or what could be better.';
+      'Describe what went wrong or what could be better.';
 
   @override
   String get feedbackMessageLabel => 'Your message';
@@ -3242,7 +3242,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get feedbackAttachLogsHint =>
-      'Helps us find the problem. Your recovery phrase, PIN and other secrets are removed first.';
+      'Logs help find the problem. The recovery phrase, PIN and other secrets are removed first.';
 
   @override
   String get feedbackPreviewButton => 'Preview what is sent';

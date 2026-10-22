@@ -3254,7 +3254,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get helpTellUs =>
-      'Schreiben Sie uns, was passiert ist oder was unklar ist.';
+      'Beschreiben Sie, was passiert ist oder was unklar ist.';
 
   @override
   String get helpSendFeedback => 'Feedback senden';
@@ -3264,7 +3264,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get feedbackIntro =>
-      'Schreiben Sie uns, was schiefgelaufen ist oder was besser sein könnte.';
+      'Beschreiben Sie, was schiefgelaufen ist oder was besser sein könnte.';
 
   @override
   String get feedbackMessageLabel => 'Ihre Nachricht';
@@ -3285,7 +3285,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get feedbackAttachLogsHint =>
-      'Hilft uns, das Problem zu finden. Ihre Wiederherstellungsphrase, PIN und andere Geheimnisse werden vorher entfernt.';
+      'Protokolle helfen, das Problem zu finden. Wiederherstellungsphrase, PIN und andere Geheimnisse werden vorher entfernt.';
 
   @override
   String get feedbackPreviewButton => 'Vorschau der gesendeten Daten';
