@@ -523,6 +523,8 @@ void main() {
             response.write(manifests[2001]);
           case 'unsigned':
             response.write(jsonEncode(testUpdatePayload()));
+          case 'huge':
+            response.write(' ' * 70000);
           case 'missing':
             response.statusCode = HttpStatus.notFound;
           default:
@@ -698,6 +700,20 @@ void main() {
         englishStrings.updateServerUnreachable,
       );
     });
+
+    test(
+      'a manifest over 64 KiB is not read and means no information',
+      () async {
+        reply = 'huge';
+        await container.read(updateProvider.notifier).check();
+        final state = container.read(updateProvider);
+        expect(state.phase, UpdatePhase.upToDate);
+        expect(
+          state.text?.call(englishStrings),
+          'No update information available.',
+        );
+      },
+    );
 
     test('a quiet failure with nothing known stays idle', () async {
       reply = 'error';
