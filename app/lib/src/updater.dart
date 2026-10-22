@@ -159,7 +159,8 @@ AvailableUpdate? parseUpdateManifest(
 abstract interface class UpdatePlatform {
   Future<InstalledApp> installedApp();
 
-  /// Installs [apk]. Returns `started`, `needsPermission`, or throws [UpdateError].
+  /// Installs [apk]. Returns `started`, `needsPermission`, `keyMismatch` (signed with another
+  /// key than this app, so Android never installs it over it), or throws [UpdateError].
   Future<String> install(File apk);
 
   /// Results the installer reports later: `pendingUserAction`, `success`, `cancelled` or
@@ -222,6 +223,11 @@ class AndroidUpdatePlatform implements UpdatePlatform {
     return status;
   }
 }
+
+/// Whether Android's installer refused an update because it is signed with another key than
+/// the installed app ([message] is the installer's own, in English).
+bool isKeyMismatch(String? message) =>
+    message != null && message.contains('INSTALL_FAILED_UPDATE_INCOMPATIBLE');
 
 /// Downloads [apk] to [target], checking size and SHA-256. Reports progress from 0 to 1.
 Future<void> downloadApk(
@@ -310,6 +316,11 @@ final updatePlatformProvider = Provider<UpdatePlatform?>((ref) {
   return AndroidUpdatePlatform();
 });
 
+/// Where downloads go: an `updates` folder inside it, emptied before each download.
+final updateTempDirProvider = Provider<Future<Directory> Function()>(
+  (ref) => getTemporaryDirectory,
+);
+
 final updateManifestUrlProvider = Provider<Uri>(
   (ref) => Uri.parse(updateManifestUrl),
 );
@@ -333,6 +344,8 @@ class UpdateNotifier extends Notifier<UpdateState> {
 
   void _onInstallEvent(({String status, String? message}) event) {
     switch (event.status) {
+      case 'failed' when isKeyMismatch(event.message):
+        _needsReinstall(state.update);
       case 'failed':
         // The installer's own message stays English, inside the translated sentence.
         final detail = event.message ?? '';
@@ -427,7 +440,7 @@ class UpdateNotifier extends Notifier<UpdateState> {
       ..userAgent = null;
     try {
       final dir = Directory(
-        '${(await getTemporaryDirectory()).path}${Platform.pathSeparator}updates',
+        '${(await ref.read(updateTempDirProvider)()).path}${Platform.pathSeparator}updates',
       );
       if (await dir.exists()) await dir.delete(recursive: true);
       await dir.create(recursive: true);
@@ -452,7 +465,9 @@ class UpdateNotifier extends Notifier<UpdateState> {
       state = UpdateState(UpdatePhase.installing, update: update);
       final status = await platform.install(apk);
       if (!ref.mounted) return;
-      if (status == 'needsPermission') {
+      if (status == 'keyMismatch') {
+        _needsReinstall(update);
+      } else if (status == 'needsPermission') {
         state = UpdateState(
           UpdatePhase.available,
           update: update,
@@ -471,6 +486,20 @@ class UpdateNotifier extends Notifier<UpdateState> {
     } finally {
       client.close(force: true);
     }
+  }
+
+  /// The update is signed with another key than this app. Android refuses to install it over
+  /// this one, so the only way to it is a reinstall, which removes this wallet from the device.
+  void _needsReinstall(AvailableUpdate? update) {
+    logWarn(
+      'update',
+      'the update is signed with another key; a reinstall is needed',
+    );
+    state = UpdateState(
+      UpdatePhase.failed,
+      update: update,
+      text: (l) => l.updateNeedsReinstall,
+    );
   }
 
   static String Function(AppLocalizations l) _describe(Object error) =>

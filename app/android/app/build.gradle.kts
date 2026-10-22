@@ -1,7 +1,41 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
+}
+
+// Release signing. Release builds are signed with the release key only, never the debug key.
+// The keystore and its passwords live outside every repository, in a key.properties file
+// (storeFile, storePassword, keyAlias, keyPassword) found at WFE_ANDROID_KEY_PROPERTIES, else
+// -PwfeKeyProperties=<path>, else ~/.config/btlabs/android/key.properties. Without a usable one,
+// checkReleaseSigning stops every release build; debug builds never read it.
+val releaseKeyProperties: File = file(
+    System.getenv("WFE_ANDROID_KEY_PROPERTIES")
+        ?: (findProperty("wfeKeyProperties") as String?)
+        ?: "${System.getProperty("user.home")}/.config/btlabs/android/key.properties",
+)
+val releaseKey: Properties? = releaseKeyProperties.takeIf { it.isFile }
+    ?.let { f -> Properties().apply { f.inputStream().use { load(it) } } }
+
+// Why the release key cannot be used, or null when it can.
+val releaseSigningProblem: String? = run {
+    val props = releaseKey ?: return@run "$releaseKeyProperties is missing"
+    val missing = listOf("storeFile", "storePassword", "keyAlias", "keyPassword")
+        .filter { props.getProperty(it).isNullOrBlank() }
+    if (missing.isNotEmpty()) return@run "$releaseKeyProperties lacks ${missing.joinToString()}"
+    val store = file(props.getProperty("storeFile"))
+    // app/android is the Gradle root; the repository is two levels up.
+    val repo = rootProject.projectDir.canonicalFile.parentFile.parentFile
+    when {
+        !store.isFile -> "the keystore named in $releaseKeyProperties is missing"
+        store.canonicalPath.startsWith(repo.path + File.separator) ->
+            "the keystore is inside the repository; keep it outside"
+        store.name == "debug.keystore" || props.getProperty("keyAlias") == "androiddebugkey" ->
+            "$releaseKeyProperties names the debug key"
+        else -> null
+    }
 }
 
 android {
@@ -40,14 +74,38 @@ android {
         }
     }
 
+    signingConfigs {
+        create("release") {
+            if (releaseSigningProblem == null) {
+                val props = releaseKey!!
+                storeFile = file(props.getProperty("storeFile"))
+                storePassword = props.getProperty("storePassword")
+                keyAlias = props.getProperty("keyAlias")
+                keyPassword = props.getProperty("keyPassword")
+            }
+        }
+    }
+
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig = signingConfigs.getByName("release")
         }
     }
 }
+
+val checkReleaseSigning by tasks.registering {
+    val problem = releaseSigningProblem
+    doLast {
+        if (problem != null) {
+            throw GradleException(
+                "Release builds are signed with the release key only, and it cannot be used: " +
+                    "$problem. Set WFE_ANDROID_KEY_PROPERTIES to the release key.properties " +
+                    "(app/README.md, \"Release signing\").",
+            )
+        }
+    }
+}
+tasks.matching { it.name == "preReleaseBuild" }.configureEach { dependsOn(checkReleaseSigning) }
 
 kotlin {
     compilerOptions {

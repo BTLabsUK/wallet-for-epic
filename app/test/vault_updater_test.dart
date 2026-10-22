@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -452,6 +453,9 @@ void main() {
     // What the manifest says next: a newer version, the installed one, or a server error.
     var reply = 'newer';
     HttpHeaders? headers;
+    // The APK the feed serves, and what the installer answers for it.
+    final apkBytes = utf8.encode('not an apk');
+    late _FakeUpdatePlatform platform;
 
     String manifest(int versionCode) => jsonEncode({
       'schema': 1,
@@ -463,8 +467,8 @@ void main() {
           'abi': 'arm64-v8a',
           'versionCode': versionCode,
           'url': 'app.apk',
-          'sha256': 'a' * 64,
-          'size': 10,
+          'sha256': sha256.convert(apkBytes).toString(),
+          'size': apkBytes.length,
         },
       ],
     });
@@ -477,6 +481,11 @@ void main() {
         requests++;
         headers = request.headers;
         final response = request.response;
+        if (request.uri.path.endsWith('/app.apk')) {
+          response.add(apkBytes);
+          response.close();
+          return;
+        }
         switch (reply) {
           case 'newer':
             response.write(manifest(2002));
@@ -489,9 +498,14 @@ void main() {
         }
         response.close();
       });
+      platform = _FakeUpdatePlatform();
+      // install() downloads into a temporary directory of its own.
+      final temp = await Directory.systemTemp.createTemp('wfe_update_test');
+      addTearDown(() => temp.delete(recursive: true));
       container = ProviderContainer(
         overrides: [
-          updatePlatformProvider.overrideWithValue(_FakeUpdatePlatform()),
+          updatePlatformProvider.overrideWithValue(platform),
+          updateTempDirProvider.overrideWithValue(() async => temp),
           updateManifestUrlProvider.overrideWithValue(
             Uri.parse('http://127.0.0.1:${server.port}/update.json'),
           ),
@@ -501,6 +515,7 @@ void main() {
 
     tearDown(() async {
       container.dispose();
+      await platform.events.close();
       await server.close(force: true);
     });
 
@@ -559,7 +574,10 @@ void main() {
       await updates.check();
       final state = container.read(updateProvider);
       expect(state.phase, UpdatePhase.upToDate);
-      expect(state.text?.call(englishStrings), 'No update information available.');
+      expect(
+        state.text?.call(englishStrings),
+        'No update information available.',
+      );
       await updates.checkOnOpening();
       expect(container.read(updateProvider).phase, UpdatePhase.idle);
     });
@@ -575,8 +593,69 @@ void main() {
       await container.read(updateProvider.notifier).check();
       final state = container.read(updateProvider);
       expect(state.phase, UpdatePhase.failed);
-      expect(state.text?.call(englishStrings), englishStrings.updateServerUnreachable);
+      expect(
+        state.text?.call(englishStrings),
+        englishStrings.updateServerUnreachable,
+      );
     });
+
+    test(
+      'an update signed with another key asks for a reinstall after the phrase',
+      () async {
+        final updates = container.read(updateProvider.notifier);
+        await updates.check();
+        platform.installStatus = 'keyMismatch';
+        await updates.install();
+        final state = container.read(updateProvider);
+        expect(platform.installs, 1);
+        expect(state.phase, UpdatePhase.failed);
+        expect(state.update?.versionName, '1.0.1');
+        expect(
+          state.text?.call(englishStrings),
+          englishStrings.updateNeedsReinstall,
+        );
+        expect(
+          englishStrings.updateNeedsReinstall,
+          contains('write down your recovery phrase first'),
+        );
+      },
+    );
+
+    test(
+      "the installer's refusal of another key asks for a reinstall too",
+      () async {
+        final updates = container.read(updateProvider.notifier);
+        await updates.check();
+        await updates.install();
+        expect(container.read(updateProvider).phase, UpdatePhase.installing);
+        platform.events.add((
+          status: 'failed',
+          message:
+              'INSTALL_FAILED_UPDATE_INCOMPATIBLE: Existing package '
+              'com.blacktyger.epic_wallet signatures do not match newer version; ignoring!',
+        ));
+        await pumpEventQueue();
+        var state = container.read(updateProvider);
+        expect(state.phase, UpdatePhase.failed);
+        expect(
+          state.text?.call(englishStrings),
+          englishStrings.updateNeedsReinstall,
+        );
+        // Any other refusal still shows the installer's own reason.
+        platform.events.add((
+          status: 'failed',
+          message: 'INSTALL_FAILED_INSUFFICIENT_STORAGE',
+        ));
+        await pumpEventQueue();
+        state = container.read(updateProvider);
+        expect(
+          state.text?.call(englishStrings),
+          englishStrings.updateNotInstalled(
+            'INSTALL_FAILED_INSUFFICIENT_STORAGE',
+          ),
+        );
+      },
+    );
 
     test('a quiet failure with nothing known stays idle', () async {
       reply = 'error';
@@ -637,8 +716,14 @@ void main() {
   });
 }
 
-/// An installed 1.0.0 (2001) on arm64 that never installs anything.
+/// An installed 1.0.0 (2001) on arm64 that never installs anything: [install] answers
+/// [installStatus], and [events] stands for the installer's later results.
 class _FakeUpdatePlatform implements UpdatePlatform {
+  String installStatus = 'started';
+  int installs = 0;
+  final events =
+      StreamController<({String status, String? message})>.broadcast();
+
   @override
   Future<InstalledApp> installedApp() async => const InstalledApp(
     packageName: 'com.blacktyger.epic_wallet',
@@ -648,9 +733,11 @@ class _FakeUpdatePlatform implements UpdatePlatform {
   );
 
   @override
-  Future<String> install(File apk) async => 'started';
+  Future<String> install(File apk) async {
+    installs++;
+    return installStatus;
+  }
 
   @override
-  Stream<({String status, String? message})> get installEvents =>
-      const Stream.empty();
+  Stream<({String status, String? message})> get installEvents => events.stream;
 }

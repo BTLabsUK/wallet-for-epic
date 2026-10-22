@@ -1867,6 +1867,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get updateCannotInstallUnknown => '无法安装更新：未知错误。';
 
   @override
+  String get updateNeedsReinstall =>
+      '此更新使用新的密钥签名，无法覆盖安装当前版本。需要重新安装，而卸载会从设备上删除此钱包：请先抄下你的助记词，然后卸载此应用并安装新版本。';
+
+  @override
   String get updateManifestNotJson => '更新信息不是有效的 JSON。';
 
   @override
