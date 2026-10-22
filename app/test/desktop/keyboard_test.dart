@@ -318,6 +318,7 @@ void main() {
       expect(_focused(), 'details');
       expect(find.text('Inside'), findsOneWidget);
       await _key(tester, LogicalKeyboardKey.escape);
+      await tester.pumpAndSettle(); // the fold-out closes over Motion.expand (ExpandFade)
       expect(find.text('Inside'), findsNothing);
 
       showEDialog(

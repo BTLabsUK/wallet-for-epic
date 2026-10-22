@@ -6,6 +6,7 @@ import '../../ui/theme/protocol.dart' show CornerTicksPainter, GridFieldPainter;
 import '../theme/icons.dart';
 import '../theme/tokens.dart';
 import 'buttons.dart';
+import 'motion.dart';
 
 /// A panel: s1 fill, hairline edge, 8 px radius. [head] and [foot] get their own bands.
 class EPanel extends StatelessWidget {
@@ -670,11 +671,13 @@ class _EDetailsState extends State<EDetails> {
               ),
             ),
           ),
-          if (_open)
-            Padding(
+          ExpandFade(
+            open: _open,
+            child: Padding(
               padding: EdgeInsets.fromLTRB(Sp.x4, 0, Sp.x4, Sp.x4),
               child: widget.child,
             ),
+          ),
         ],
       ),
     );
