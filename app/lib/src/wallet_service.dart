@@ -232,6 +232,12 @@ abstract interface class WalletSession {
 
   Future<TorStatus> torStatus();
 
+  /// Wakes a running tor after the app was paused, and after a network change
+  /// ([networkChanged]) drops its connections and builds new ones; the onion stays the same.
+  /// Throws [WalletErrorKind.torNotRunning] when no tor runs or tor no longer answers (its
+  /// stream then ends with `failed` and `stopped`).
+  Future<void> refreshTor({required bool networkChanged});
+
   /// Sends to the wallet at [onion] over Tor, then finalizes its answer and posts, as
   /// [sendHttp]. Needs tor connected, else [WalletErrorKind.torNotRunning] and nothing is
   /// stored. Reaching an onion that is not online takes up to about 150 seconds before
@@ -1127,6 +1133,17 @@ class FakeWalletSession implements WalletSession {
 
   @override
   Future<TorStatus> torStatus() async => torStatusValue;
+
+  /// Every [refreshTor] call, by `networkChanged`.
+  final List<bool> torRefreshes = [];
+
+  @override
+  Future<void> refreshTor({required bool networkChanged}) async {
+    torRefreshes.add(networkChanged);
+    if (torStatusValue.kind == TorStatusKind.off) {
+      throw const WalletError(kind: WalletErrorKind.torNotRunning, message: 'tor is not running');
+    }
+  }
 
   void _checkOnion(String onion) {
     if (!onionAddressFormat(onion)) {

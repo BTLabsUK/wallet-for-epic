@@ -523,23 +523,29 @@ class PhoneTor extends Notifier<PhoneTorState> {
     }
   }
 
-  /// Checks a running tor after a freeze or a network change. Today it asks [torStatus] and
-  /// treats `off` as ended; LEPIC's refresh call goes here once it has one.
+  /// Wakes a running tor after a freeze, and renews its connections after a network change
+  /// (LEPIC's `refreshTor`). A tor that no longer runs or answers ends, and is restarted.
   Future<void> _nudge(String why) async {
     final session = _session;
     final generation = _generation;
     if (session == null) return;
-    TorStatus status;
     try {
-      status = await session.torStatus();
-    } catch (_) {
+      await session.refreshTor(networkChanged: why == 'network');
+      return;
+    } on WalletError catch (e) {
+      if (e.kind != WalletErrorKind.torNotRunning) {
+        logWarn('tor', 'refresh after $why: ${e.kind.name}');
+        return;
+      }
+    } catch (e) {
+      logWarn('tor', 'refresh after $why: ${e.runtimeType}');
       return;
     }
     if (!_current(generation) || !_running) return;
-    if (status.kind == TorStatusKind.off) {
-      logInfo('tor', 'not running after $why');
-      _ended(TorFailure.stopped);
-    }
+    // While tor still starts there is nothing to refresh, and LEPIC says so without an
+    // error; torNotRunning here is a tor that ended.
+    logInfo('tor', 'not running after $why');
+    _ended(TorFailure.stopped);
   }
 
   void _completeWaiters() {
