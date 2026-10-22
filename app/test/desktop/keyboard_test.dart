@@ -133,13 +133,11 @@ void main() {
       await _end(tester);
     });
 
-    testWidgets('Unlock: Wallet, Password, Unlock, wrap; never the eye or Add a wallet', (tester) async {
+    testWidgets('Unlock: Wallet, Password, Unlock, Add a wallet, wrap; never the eye', (tester) async {
       await _open(tester, DeskRoute.unlock);
-      final tabs = await _tabs(tester, _edit('Password'), 3);
-      expect(tabs.first, 'button:Unlock');
-      expect(tabs.last, 'field:Password');
-      expect(tabs, _noSecondary);
-      expect(tabs, isNot(contains('link:Add a wallet')));
+      final tabs = await _tabs(tester, _edit('Password'), 4);
+      // Add a wallet stays reachable for keyboard-only users, after the main button.
+      expect(tabs, ['button:Unlock', 'link:Add a wallet', 'select:Wallet', 'field:Password']);
       await _end(tester);
     });
 
