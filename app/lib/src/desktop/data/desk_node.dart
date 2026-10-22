@@ -110,10 +110,75 @@ String nodeHost(String url) {
   return u == null || u.host.isEmpty ? url : u.host;
 }
 
+/// How long the local node is not synced, without a break, before the wallet leaves it for the
+/// public node (D-7). A synced node can drop out of "synced" for a moment (no peers, a few
+/// blocks behind); each move reopens the wallet.
+const Duration fallbackLeaveAfter = Duration(seconds: 60);
+
+/// The fallback decisions as the wallet acts on them (D-7): to the local node as soon as it is
+/// synced, to the public node only once it has been wanted for [leaveAfter] without a break.
+/// [FallbackAction.ask] moves nothing. [apply] gets each decision that moves the wallet.
+class FallbackSwitch {
+  FallbackSwitch(this._apply, {this.leaveAfter = fallbackLeaveAfter, Timer Function(Duration, void Function())? timer})
+    : _timer = timer ?? Timer.new;
+
+  final void Function(FallbackDecision d) _apply;
+  final Duration leaveAfter;
+  final Timer Function(Duration, void Function()) _timer;
+
+  /// The last decision handed on.
+  FallbackDecision? _sent;
+  FallbackDecision? _pending;
+  Timer? _wait;
+
+  void update(FallbackDecision d) {
+    switch (d.action) {
+      case FallbackAction.ask:
+        _stopWaiting();
+      case FallbackAction.useLocal:
+        _stopWaiting();
+        if (_sent?.action != FallbackAction.useLocal) _send(d);
+      case FallbackAction.usePublic:
+        // Already there: only another public node moves it.
+        if (_sent?.action == FallbackAction.usePublic) {
+          _stopWaiting();
+          if (_sent?.nodeUrl != d.nodeUrl) _send(d);
+          return;
+        }
+        _pending = d;
+        _wait ??= _timer(leaveAfter, () {
+          _wait = null;
+          final p = _pending;
+          _pending = null;
+          if (p != null) _send(p);
+        });
+    }
+  }
+
+  void _send(FallbackDecision d) {
+    _sent = d;
+    _apply(d);
+  }
+
+  void _stopWaiting() {
+    _wait?.cancel();
+    _wait = null;
+    _pending = null;
+  }
+
+  void dispose() => _stopWaiting();
+}
+
 /// The real node layer, on the app's providers. [onDecision] moves the wallet's node when the
-/// fallback decision changes (D-7).
+/// fallback decision changes (D-7), through [FallbackSwitch].
 class LepicDeskNode implements DeskNodeApi {
-  LepicDeskNode(this._ref, {required this.chain, this.onDecision});
+  /// [fallbackTimer] is for tests (a fake clock).
+  LepicDeskNode(this._ref, {required this.chain, this.onDecision, Timer Function(Duration, void Function())? fallbackTimer})
+    : _switchTimer = fallbackTimer {
+    _ref.onDispose(_switch.dispose);
+  }
+
+  final Timer Function(Duration, void Function())? _switchTimer;
 
   final Ref _ref;
   @override
@@ -123,6 +188,7 @@ class LepicDeskNode implements DeskNodeApi {
   FallbackChoice? _choice;
   LocalNodeState? _state;
   FallbackDecision? _decision;
+  late final FallbackSwitch _switch = FallbackSwitch((d) => unawaited(onDecision?.call(d)), timer: _switchTimer);
 
   Future<LocalNodeController> get _c => _ref.read(localNodeControllerProvider(chain).future);
   Future<NodeMaintenance> get _m => _ref.read(nodeMaintenanceProvider(chain).future);
@@ -133,11 +199,15 @@ class LepicDeskNode implements DeskNodeApi {
     if (s == null || c == null) return;
     final d = decideFallback(s, c);
     if (d == _decision) return;
-    final before = _decision;
     _decision = d;
-    // Only a move between the local and the public node changes the wallet.
-    if (before?.action == d.action && before?.nodeUrl == d.nodeUrl) return;
-    if (d.action != FallbackAction.ask) unawaited(onDecision?.call(d));
+    _switch.update(d);
+  }
+
+  /// The public node for a wallet moving to the local node now, or null for the local node:
+  /// the decision on the node's state and the answer as they are (D-7).
+  Future<String?> nodeWhileSyncing() async {
+    final d = decideFallback((await _c).state, await fallbackChoice());
+    return d.action == FallbackAction.usePublic ? d.nodeUrl : null;
   }
 
   @override
