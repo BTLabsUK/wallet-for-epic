@@ -5,23 +5,31 @@
 ///
 /// The hidden spots, by flag (gap ids from LEPIC's `docs/reviews/feature-gap-2026-10/gui-parity.md`):
 ///
-/// multiWallet (A06–A13): several wallets, one open at a time.
+/// multiWallet (A06–A13, D9, on): several wallets of one network, one open at a time, desktop
+///   only (phones keep one). The adapter lists them in `WalletRegistry`.
 ///   - Unlock: the Wallet select, "Add a wallet", the missing-folder notice and its Remove.
 ///   - Welcome: "Add a wallet" heading and "Back to unlock" for a later visit.
-///   - Settings: the "All wallets" section (settingsWallets route).
+///   - Settings: the "All wallets" section (settingsWallets route), with Add back.
 ///   - Sidebar: "Switch wallet".
-///   - Remove wallet dialog: "Remove from the list only" and "Remove this app's files" modes.
-/// importWizard (B01–B32, A01's third door, A19): existing wallets from a folder or 6.1.x.
-///   - Welcome: "Add an existing wallet". Routes found and importWallets.
-///   - All wallets: "Import wallets…".
+///   - Remove wallet dialog: "Remove from list" and "Delete wallet".
+/// importWizard (B01–B25 as LEPIC takes them, A01's third door, on): wallets of older Epic
+///   Wallets and the epic program, found or from a chosen folder. Old folders are only read:
+///   each wallet.seed opens once with its old password (B18) and becomes a new wallet whose
+///   history a scan rebuilds (B14, B09). Mainnet only; no settings carried over, no old-folder
+///   delete (B26–B29) and no blockchain data copy (B21).
+///   - Welcome: "Import wallets". Route importWallets.
+///   - All wallets: "Import" and "Import wallets…".
 /// dataFolder (A15): Welcome › Advanced › App data folder.
 /// testNetworks (A06 "any network each"): Welcome › Advanced › Network. Mainnet only.
 /// httpDirect (G01–G06, F07, J04): Send › Direct (HTTP), Receive's HTTP address, Settings ›
 ///   Receiving › HTTP listener and Start with the wallet, the status card's HTTP line.
 /// tor (G07–G12): Send › Direct › Tor, Receive's onion address, Settings › Receiving ›
 ///   Advanced › Tor, the status card's Tor line.
-/// builtInNode (D09–D14): Setup › Node's "Built-in node" card (Remote is the only choice),
-///   Settings › Node's "This computer" option, Sync in background, Blockchain data row.
+/// builtInNode (D09–D14, on): Setup › Node's "Built-in node" card (off by default, D10),
+///   Settings › Node's "This computer" option, Overview's "Start node". Needs the bundled `epic`
+///   (bin/epic beside the app); without it turning the node on says so. The blockchain data
+///   offer (D12) and the head start (D14) are not built.
+/// nodeBackground (D09): Settings › Node's "Sync in background" for the built-in node.
 /// coins (I05): Activity › Outputs tab.
 /// dandelion (F05, H04): Send's Dandelion++ switch and the review's Privacy line.
 /// rescanRepair (A16): Rescan's "Delete unconfirmed transactions".
@@ -39,13 +47,14 @@
 library;
 
 abstract final class DeskFeatures {
-  static const bool multiWallet = false;
-  static const bool importWizard = false;
+  static const bool multiWallet = true;
+  static const bool importWizard = true;
   static const bool dataFolder = false;
   static const bool testNetworks = false;
   static const bool httpDirect = false;
   static const bool tor = false;
-  static const bool builtInNode = false;
+  static const bool builtInNode = true;
+  static const bool nodeBackground = false;
   static const bool coins = false;
   static const bool dandelion = false;
   static const bool rescanRepair = false;

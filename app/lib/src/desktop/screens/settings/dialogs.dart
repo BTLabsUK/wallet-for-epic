@@ -401,11 +401,12 @@ class _ChangePasswordDialogState extends ConsumerState<ChangePasswordDialog> {
 
 // ---- Remove wallet -------------------------------------------------------------------------
 
-/// What to remove of a wallet that is not open.
+/// What to remove of a wallet. [app] and [everything] both delete the wallet (the app keeps no
+/// files of its own for a wallet): its keys and database. `wallet_data` stays.
 enum RemoveMode { list, app, everything }
 
-/// Remove [wallet] from this computer (6.1.6 RemoveWalletDialog): from the list only, this
-/// app's files for it too, or everything including the seed (typed name and a tick).
+/// Remove [wallet] from this computer: from the list only, or delete it (typed name and a
+/// tick). The open wallet is locked first.
 Future<void> showRemoveWalletDialog(BuildContext context, WalletEntry wallet, {RemoveMode? mode}) =>
     showEDialog(context, builder: (_) => RemoveWalletDialog(wallet: wallet, initialMode: mode));
 
@@ -421,69 +422,78 @@ class RemoveWalletDialog extends ConsumerStatefulWidget {
 
 class _RemoveWalletDialogState extends ConsumerState<RemoveWalletDialog> {
   final _typed = TextEditingController();
-  bool _checking = true;
+  final _password = TextEditingController();
   bool _busy = false;
   bool _ack = false;
-  late RemoveMode? _mode = widget.initialMode;
-
-  @override
-  void initState() {
-    super.initState();
-    Future<void>.delayed(const Duration(milliseconds: 500), () {
-      if (mounted) setState(() => _checking = false);
-    });
-  }
+  String? _error;
+  // Deleting asks for the wallet's password, so only the open wallet can be deleted here.
+  late final bool _isOpen = ref.read(deskProvider).account?.id == widget.wallet.id;
+  late WalletRemoval? _mode = switch (widget.initialMode) {
+    null => _isOpen ? null : WalletRemoval.list,
+    RemoveMode.list => WalletRemoval.list,
+    RemoveMode.app || RemoveMode.everything => _isOpen ? WalletRemoval.delete : WalletRemoval.list,
+  };
 
   @override
   void dispose() {
     _typed.dispose();
+    _password.clear();
+    _password.dispose();
     super.dispose();
   }
 
   WalletEntry get w => widget.wallet;
 
-  /// Why "everything" can't be used for this wallet (the mock: a folder this app didn't make).
-  String? get _everythingOff => w.folder.contains('floo')
-      ? 'This wallet’s files are in a folder this app didn’t create: ${w.folder}. They stay where they are.'
-      : null;
-
   bool get _nameOk => _typed.text.trim() == w.name;
 
-  bool get _ready =>
-      !_checking && !_busy && _mode != null && (_mode != RemoveMode.everything || (_nameOk && _ack));
+  bool get _ready => !_busy && _mode != null && (_mode != WalletRemoval.delete || (_nameOk && _ack && _password.text.isNotEmpty));
 
   Future<void> _remove() async {
     final mode = _mode;
     if (mode == null || !_ready) return;
-    setState(() => _busy = true);
-    await Future<void>.delayed(const Duration(milliseconds: 700));
+    setState(() {
+      _busy = true;
+      _error = null;
+    });
+    try {
+      await ref.read(deskProvider.notifier).removeWallet(
+        w.id,
+        mode,
+        password: mode == WalletRemoval.delete ? _password.text : null,
+      );
+    } on Object catch (e) {
+      if (mounted) {
+        setState(() {
+          _busy = false;
+          _error = deskErrorText(e);
+        });
+      }
+      return;
+    }
     if (!mounted) return;
-    ref.read(settingsPrefsProvider.notifier).removeWallet(w.folder);
     Navigator.of(context).pop();
     showEToast(context, switch (mode) {
-      RemoveMode.list => '${w.name} was removed from the list',
-      RemoveMode.app => '${w.name} was removed, with this app’s files for it',
-      RemoveMode.everything => '${w.name} was deleted from this computer',
-    }, text: mode == RemoveMode.list ? 'Its files were not touched.' : null);
+      WalletRemoval.list => '${w.name} removed from the list',
+      WalletRemoval.delete => '${w.name} deleted',
+    }, text: mode == WalletRemoval.list ? 'Files kept.' : null);
   }
 
   @override
   Widget build(BuildContext context) {
     final c = context.dc;
     final ts = context.ts;
-    final off = _everythingOff;
-    Widget choice(RemoveMode m, String title, String hint, {String? reason}) => Padding(
+    Widget choice(WalletRemoval m, String title, String hint) => Padding(
       padding: EdgeInsets.only(bottom: Sp.x2),
-      child: Opacity(
-        opacity: reason != null ? 0.6 : 1,
-        child: IgnorePointer(
-          ignoring: reason != null || _busy || _checking,
-          child: EChoiceCard(
-            title: title,
-            description: reason == null ? hint : '$hint\n$reason',
-            selected: _mode == m,
-            onTap: () => setState(() => _mode = m),
-          ),
+      child: IgnorePointer(
+        ignoring: _busy,
+        child: EChoiceCard(
+          title: title,
+          description: hint,
+          selected: _mode == m,
+          onTap: () => setState(() {
+            _mode = m;
+            _error = null;
+          }),
         ),
       ),
     );
@@ -491,7 +501,7 @@ class _RemoveWalletDialogState extends ConsumerState<RemoveWalletDialog> {
       canPop: !_busy,
       child: EDialog(
         title: 'Remove ${w.name}?',
-        description: 'Choose what to remove. Nothing happens until the button below is pressed.',
+        description: 'Nothing changes until confirmed.',
         icon: EIcons.trash,
         tone: ETone.risk,
         dismissible: !_busy,
@@ -499,44 +509,32 @@ class _RemoveWalletDialogState extends ConsumerState<RemoveWalletDialog> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Semantics(
-              liveRegion: true,
-              child: Row(
-                children: [
-                  if (_checking) ...[ESpinner(size: Ctl.iconSm), SizedBox(width: Sp.x2)],
-                  Expanded(child: Text(_checking ? 'Checking this wallet’s files…' : 'Choose one of the options below.', style: ts.small)),
-                ],
-              ),
-            ),
-            SizedBox(height: Sp.x3),
-            Semantics(
               label: 'What to remove',
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  choice(RemoveMode.list, 'Remove from the list only', 'All files stay where they are. The wallet can be added back later with Add existing.'),
-                  choice(RemoveMode.app, 'Remove this app’s files for it', 'Also deletes its settings and contacts in this app. The wallet itself, with its seed, stays in ${w.folder}.'),
-                  choice(
-                    RemoveMode.everything,
-                    'Remove everything, including the seed',
-                    off != null
-                        ? 'Deletes this wallet from this computer. Only the recovery phrase restores it.'
-                        : 'Deletes this wallet from this computer: ${w.folder}. Only the recovery phrase restores it; without it the coins are lost.',
-                    reason: off,
-                  ),
+                  choice(WalletRemoval.list, 'Remove from list', 'Files stay in ${w.folder}. All wallets can add it back.'),
+                  if (_isOpen)
+                    choice(
+                      WalletRemoval.delete,
+                      'Delete wallet',
+                      'Deletes its keys and database from ${w.folder}. Only the recovery phrase restores it; without it the coins are lost.',
+                    ),
                 ],
               ),
             ),
-            if (_mode == RemoveMode.everything) ...[
+            if (_mode == WalletRemoval.delete) ...[
               SizedBox(height: Sp.x2),
               const ENotice(
-                title: 'This can’t be undone',
-                text: 'The wallet seed is deleted from this computer. Only the recovery phrase restores the wallet; without it the coins are lost for good.',
+                title: 'Cannot be undone',
+                text: 'Only the recovery phrase restores the wallet; without it the coins are lost for good.',
                 tone: ETone.risk,
               ),
               SizedBox(height: Sp.x4),
               EField(
-                label: 'To confirm, type the wallet’s name: ${w.name}',
-                error: _typed.text.isNotEmpty && !_nameOk ? 'The name doesn’t match yet.' : null,
+                label: 'Wallet name',
+                help: 'Type ${w.name} to confirm.',
+                error: _typed.text.isNotEmpty && !_nameOk ? 'Name does not match' : null,
                 child: EInput(
                   controller: _typed,
                   enabled: !_busy,
@@ -546,20 +544,27 @@ class _RemoveWalletDialogState extends ConsumerState<RemoveWalletDialog> {
                 ),
               ),
               SizedBox(height: Sp.x3),
+              EField(
+                label: 'Password',
+                child: EPasswordInput(controller: _password, onChanged: (_) => setState(() => _error = null)),
+              ),
+              SizedBox(height: Sp.x3),
               ECheckbox(value: _ack, onChanged: (v) => setState(() => _ack = v), label: 'The recovery phrase is written down'),
             ],
-            if (_mode == RemoveMode.everything && _busy) SizedBox(height: Sp.x2),
-            if (_busy) Text('Removing…', style: ts.small.copyWith(color: c.dim)),
+            if (_error != null) ...[
+              SizedBox(height: Sp.x3),
+              Semantics(liveRegion: true, child: Text(_error!, style: ts.small.copyWith(color: c.risk))),
+            ],
+            if (_busy) ...[
+              SizedBox(height: Sp.x2),
+              Text('Removing…', style: ts.small.copyWith(color: c.dim)),
+            ],
           ],
         ),
         actions: [
           EButton(label: 'Cancel', size: EBtnSize.sm, kind: EBtnKind.ghost, onPressed: _busy ? null : () => Navigator.of(context).pop()),
           EButton(
-            label: switch (_mode) {
-              RemoveMode.app => 'Remove files',
-              RemoveMode.everything => 'Delete everything',
-              _ => 'Remove from list',
-            },
+            label: _mode == WalletRemoval.delete ? 'Delete wallet' : 'Remove from list',
             icon: EIcons.trash,
             size: EBtnSize.sm,
             kind: EBtnKind.danger,
@@ -574,8 +579,8 @@ class _RemoveWalletDialogState extends ConsumerState<RemoveWalletDialog> {
 
 // ---- Delete this wallet --------------------------------------------------------------------
 
-/// Deletes the open wallet from this computer after its password (one wallet per network:
-/// the wallet list's three modes need [DeskFeatures.multiWallet]). Then Welcome opens.
+/// Deletes the open wallet from this computer after its password. Then Unlock opens, or
+/// Welcome when no wallet is left.
 Future<void> showDeleteWalletDialog(BuildContext context) => showEDialog(context, builder: (_) => const DeleteWalletDialog());
 
 class DeleteWalletDialog extends ConsumerStatefulWidget {
@@ -606,8 +611,12 @@ class _DeleteWalletDialogState extends ConsumerState<DeleteWalletDialog> {
       _busy = true;
       _error = null;
     });
+    final desk = ref.read(deskProvider.notifier);
+    final nav = ref.read(deskNavProvider.notifier);
+    final id = ref.read(deskProvider).account?.id;
     try {
-      await ref.read(deskApiProvider).removeWallet(_password.text);
+      if (id == null) throw const DeskError('The wallet is locked');
+      await desk.removeWallet(id, WalletRemoval.delete, password: _password.text);
     } on Object catch (e) {
       if (mounted) {
         setState(() {
@@ -617,12 +626,10 @@ class _DeleteWalletDialogState extends ConsumerState<DeleteWalletDialog> {
       }
       return;
     }
-    if (!mounted) return;
-    final nav = ref.read(deskNavProvider.notifier);
-    await ref.read(deskProvider.notifier).lock();
+    final left = ref.read(deskProvider).wallets ?? const [];
     if (!mounted) return;
     Navigator.of(context).pop();
-    nav.reset(DeskRoute.welcome);
+    nav.reset(left.isEmpty ? DeskRoute.welcome : DeskRoute.unlock);
   }
 
   @override

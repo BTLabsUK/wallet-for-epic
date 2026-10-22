@@ -1,7 +1,6 @@
 import '../../app/shots.dart';
 import '../../widgets/kit.dart';
 import 'create_screen.dart';
-import 'found_screen.dart';
 import 'import_wallets_screen.dart';
 import 'kill_process_dialog.dart';
 import 'onboarding_parts.dart';
@@ -42,50 +41,18 @@ final List<DeskShot> onboardingShots = [
     route: DeskRoute.unlock,
     dialog: (context) => showKillProcessDialog(context),
   ),
-  const DeskShot(id: '06-found', title: 'Wallets found', route: DeskRoute.found, arg: FoundVariant.found),
-  const DeskShot(id: '06b-found-failed', title: 'Wallets found: some failed', route: DeskRoute.found, arg: FoundVariant.failed),
-  const DeskShot(id: '07-add-existing', title: 'Add existing wallet', route: DeskRoute.found, arg: FoundVariant.addExisting),
-  const DeskShot(
-    id: '07b-add-existing-folder',
-    title: 'Add existing: wallets in the folder',
-    route: DeskRoute.found,
-    arg: FoundVariant.addExistingPicked,
-  ),
-  const DeskShot(id: '08-settings-error', title: 'Settings file error', route: DeskRoute.found, arg: FoundVariant.settingsError),
   const DeskShot(id: '09a-import-finding', title: 'Import: finding', route: DeskRoute.importWallets, arg: ImportStep.find),
   const DeskShot(id: '09b-import-found', title: 'Import: found', route: DeskRoute.importWallets, arg: ImportStep.found),
   const DeskShot(id: '09c-import-choose', title: 'Import: choose', route: DeskRoute.importWallets, arg: ImportStep.choose),
   const DeskShot(id: '09d-import-check', title: 'Import: check for use', route: DeskRoute.importWallets, arg: ImportStep.check),
-  const DeskShot(id: '09e-import-copying', title: 'Import: copying', route: DeskRoute.importWallets, arg: ImportStep.copy),
-  const DeskShot(id: '09f-import-settings', title: 'Import: settings', route: DeskRoute.importWallets, arg: ImportStep.settings),
+  const DeskShot(id: '09e-import-passwords', title: 'Import: old passwords', route: DeskRoute.importWallets, arg: ImportStep.import),
   const DeskShot(id: '09g-import-done', title: 'Import: done', route: DeskRoute.importWallets, arg: ImportStep.done),
   DeskShot(
     id: '09h-dlg-import-stop',
     title: 'Stop the import?',
     route: DeskRoute.importWallets,
-    arg: ImportStep.copy,
+    arg: ImportStep.import,
     dialog: (context) => showImportStopDialog(context),
   ),
-  DeskShot(
-    id: '09i-dlg-import-same-wallet',
-    title: 'Same wallet as …',
-    route: DeskRoute.importWallets,
-    arg: ImportStep.choose,
-    dialog: (context) => showImportSameWalletDialog(context, 'Wallet (epic program)', 'Everyday'),
-  ),
   const DeskShot(id: '09j-import-none', title: 'Import: none found', route: DeskRoute.importWallets, arg: ImportStep.none),
-  DeskShot(
-    id: '09k-dlg-import-delete',
-    title: 'Delete the old folder?',
-    route: DeskRoute.importWallets,
-    arg: ImportStep.done,
-    dialog: (context) => showImportDeleteDialog(context, 'Savings', '~/EpicWallet-old/Savings'),
-  ),
-  DeskShot(
-    id: '09l-dlg-import-picker',
-    title: 'Choose a folder',
-    route: DeskRoute.importWallets,
-    arg: ImportStep.found,
-    dialog: (context) => showImportPickerDialog(context),
-  ),
 ];

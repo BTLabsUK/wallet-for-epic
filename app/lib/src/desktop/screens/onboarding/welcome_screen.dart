@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../widgets/kit.dart';
-import 'found_screen.dart' show FoundVariant;
 import 'onboarding_parts.dart';
 
 const _defaultFolder = '~/.config/Epic Wallet';
@@ -55,7 +54,7 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
             SizedBox(height: Sp.x5),
             Semantics(
               header: true,
-              child: Text(hasWallets ? 'Add a wallet' : 'Epic Cash wallet', style: ts.h1, textAlign: TextAlign.center),
+              child: Text(hasWallets ? 'Add a wallet' : 'Epic Cash Wallet', style: ts.h1, textAlign: TextAlign.center),
             ),
             if (!hasWallets) ...[
               SizedBox(height: Sp.x2),
@@ -72,11 +71,11 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
             if (DeskFeatures.importWizard) ...[
               SizedBox(height: Sp.x3),
               EChoiceCard(
-                title: 'Add an existing wallet',
-                description: 'From a folder or an older version',
+                title: 'Import wallets',
+                description: 'From an older Epic Wallet or a folder',
                 icon: EIcons.folderOpen,
                 selected: false,
-                onTap: () => nav.go(DeskRoute.found, FoundVariant.addExisting),
+                onTap: () => nav.go(DeskRoute.importWallets),
               ),
             ],
             SizedBox(height: Sp.x3),

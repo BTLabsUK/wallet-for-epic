@@ -7,9 +7,17 @@ import '../../widgets/kit.dart';
 /// The way a contact's address is sent to.
 TxMethod contactMethod(Contact c) {
   final a = c.address.toLowerCase();
-  if (a.contains('.onion')) return TxMethod.tor;
-  if (a.startsWith('http')) return TxMethod.http;
+  if (a.contains('.onion') && DeskFeatures.tor) return TxMethod.tor;
+  if (a.startsWith('http') && DeskFeatures.httpDirect) return TxMethod.http;
   return TxMethod.epicbox;
+}
+
+/// Whether Send can reach the contact: HTTP and .onion addresses need their feature on.
+bool contactSendable(Contact c) {
+  final a = c.address.toLowerCase();
+  if (a.contains('.onion')) return DeskFeatures.tor;
+  if (a.startsWith('http')) return DeskFeatures.httpDirect;
+  return true;
 }
 
 String shortAddress(String a) => a.length > 28 ? '${a.substring(0, 12)}…${a.substring(a.length - 14)}' : a;
@@ -51,7 +59,7 @@ class _ContactPickerDialogState extends ConsumerState<ContactPickerDialog> {
     final q = _q.text.trim().toLowerCase();
     final shown = contacts == null
         ? const <Contact>[]
-        : ([...contacts].where((x) => q.isEmpty || x.name.toLowerCase().contains(q) || x.address.toLowerCase().contains(q)).toList()
+        : ([...contacts].where(contactSendable).where((x) => q.isEmpty || x.name.toLowerCase().contains(q) || x.address.toLowerCase().contains(q)).toList()
             ..sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase())));
     final Widget list;
     if (contacts == null) {

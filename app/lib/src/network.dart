@@ -30,6 +30,7 @@ class NetworkPreset {
     required String dataDir,
     required String nodeUrl,
     EpicboxRelay? relay,
+    String? walletId,
   }) {
     final r = relay ?? defaultRelay;
     return WalletConfig(
@@ -38,6 +39,7 @@ class NetworkPreset {
       nodeUrl: nodeUrl,
       epicboxDomain: r.host,
       epicboxPort: r.port,
+      walletId: walletId,
     );
   }
 }

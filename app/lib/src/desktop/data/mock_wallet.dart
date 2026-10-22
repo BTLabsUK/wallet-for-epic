@@ -81,14 +81,107 @@ class MockDeskWallet implements DeskWalletApi {
     EpicboxServer(domain: 'epicbox.epicnet.us', operator: 'EpicNet', health: ServiceHealth.slow, latencyMs: 1210),
   ];
 
+  final List<WalletEntry> _wallets = [
+    WalletEntry(id: 'legacy-mainnet', name: 'Main wallet', folder: '~/.epic/main/wallet_data', network: 'mainnet', lastOpened: _ago(minutes: 20)),
+    WalletEntry(id: '5a1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f', name: 'Savings', folder: '~/.epic/main/savings', network: 'mainnet', lastOpened: _ago(days: 30)),
+    WalletEntry(id: '0a1b2c3d4e5f60718293a4b5c6d7e8f9', name: 'Test', folder: '~/.epic/floo/test', network: 'floonet', lastOpened: _ago(days: 60)),
+  ];
+  String _current = 'legacy-mainnet';
+
+  WalletEntry _with(WalletEntry w, {String? name}) =>
+      WalletEntry(id: w.id, name: name ?? w.name, folder: w.folder, network: w.network, current: w.id == _current, lastOpened: w.lastOpened, missing: w.missing);
+
   @override
   Future<List<WalletEntry>> wallets() async {
     await _wait(0.5);
-    return [
-      WalletEntry(name: 'Main wallet', folder: '~/.epic/main/wallet_data', network: 'mainnet', current: true, lastOpened: _ago(minutes: 20)),
-      WalletEntry(name: 'Savings', folder: '~/.epic/main/savings', network: 'mainnet', lastOpened: _ago(days: 30)),
-      WalletEntry(name: 'Test', folder: '~/.epic/floo/test', network: 'floonet', lastOpened: _ago(days: 60)),
-    ];
+    return [for (final w in _wallets) _with(w)];
+  }
+
+  @override
+  Future<void> selectWallet(String id) async => _current = id;
+
+  @override
+  Future<void> renameWallet(String id, String label) async {
+    await _wait(0.5);
+    final i = _wallets.indexWhere((w) => w.id == id);
+    if (i >= 0) _wallets[i] = _with(_wallets[i], name: label.trim());
+  }
+
+  @override
+  Future<void> removeWallet(String id, WalletRemoval mode, {String? password}) async {
+    await _wait(2);
+    if (password == 'wrong') throw const DeskError('Wrong password', wrongPassword: true);
+    _wallets.removeWhere((w) => w.id == id);
+    if (_current == id && _wallets.isNotEmpty) _current = _wallets.first.id;
+  }
+
+  @override
+  Future<List<WalletEntry>> findRemoved() async => const [];
+
+  @override
+  Future<void> addBack(String id) async {}
+
+  // Import: four old wallets; the epic program's is in use until checked again. An old
+  // password starting with "wrong" is wrong.
+  static final List<OldWallet> _oldWallets = [
+    OldWallet(id: 'sav', name: 'Savings', folder: '~/.epic/main/Savings', group: OldWalletGroup.gui, lastUsed: _ago(days: 39), sizeBytes: 38 << 20),
+    OldWallet(id: 'eve', name: 'Everyday', folder: '~/.epic/Everyday/main', group: OldWalletGroup.gui, lastUsed: _ago(days: 19), sizeBytes: 112 << 20),
+    OldWallet(
+      id: 'tst',
+      name: 'Testing',
+      folder: '~/.epic/floo',
+      group: OldWalletGroup.gui,
+      network: 'floonet',
+      lastUsed: _ago(days: 21),
+      sizeBytes: 3 << 20,
+      blocked: 'Test network wallet. Only mainnet wallets can be imported.',
+    ),
+    OldWallet(id: 'cli', name: 'Wallet (epic program)', folder: '~/.epic/main', group: OldWalletGroup.cli, lastUsed: _ago(days: 54), sizeBytes: 21 << 20, sameAs: 'Same wallet as Everyday'),
+  ];
+  final Set<String> _checked = {};
+  final List<String> _imported = [];
+
+  @override
+  Future<List<OldWallet>> findOldWallets() async {
+    await _wait(3);
+    _imported.clear();
+    return _oldWallets;
+  }
+
+  @override
+  Future<FolderFind?> pickFolder() async {
+    await _wait();
+    return FolderFind(
+      folder: '~/Documents/old-wallet-backup',
+      wallets: [OldWallet(id: 'bak', name: 'Backup 2024', folder: '~/Documents/old-wallet-backup', group: OldWalletGroup.picked, lastUsed: _ago(days: 232), sizeBytes: 19 << 20)],
+    );
+  }
+
+  @override
+  Future<OldWalletUse> checkOldWallet(String id) async {
+    await _wait(2);
+    return id == 'cli' && _checked.add(id) ? OldWalletUse.inUse : OldWalletUse.free;
+  }
+
+  @override
+  Future<ImportedWallet> importOldWallet(String id, {required String oldPassword, String? newPassword}) async {
+    await _wait(3);
+    if (oldPassword.startsWith('wrong')) throw const DeskError('Wrong old password', wrongPassword: true);
+    if ((newPassword ?? oldPassword).length < minPasswordLength) {
+      throw const DeskError('The old password is short. Choose a new one of at least $minPasswordLength characters.', newPasswordNeeded: true);
+    }
+    final name = _oldWallets.where((w) => w.id == id).firstOrNull?.name ?? 'Backup 2024';
+    final entry = WalletEntry(id: 'imp-$id', name: name, folder: '~/.local/share/epic-wallet/wallets/imp-$id/mainnet', network: 'mainnet');
+    _wallets.add(entry);
+    _imported.add(entry.id);
+    return ImportedWallet(id: entry.id, name: name, proof: const [ImportProof('Seed read'), ImportProof('Wallet created'), ImportProof('Old folder unchanged')]);
+  }
+
+  @override
+  Future<void> cancelImport() async {
+    await _wait();
+    _wallets.removeWhere((w) => _imported.contains(w.id));
+    _imported.clear();
   }
 
   @override
@@ -125,7 +218,7 @@ class MockDeskWallet implements DeskWalletApi {
 
   @override
   Future<WalletAccount> account() async =>
-      WalletAccount(name: 'Main wallet', network: 'mainnet', folder: '~/.epic/main/wallet_data', created: DateTime(2024, 3, 14));
+      WalletAccount(id: 'legacy-mainnet', name: _wallets.where((w) => w.id == 'legacy-mainnet').firstOrNull?.name ?? 'Main wallet', network: 'mainnet', folder: '~/.epic/main/wallet_data', created: DateTime(2024, 3, 14));
 
   @override
   Future<Balance> balance() async {
@@ -284,6 +377,12 @@ class MockDeskWallet implements DeskWalletApi {
   }
 
   @override
+  Future<void> useBuiltInNode(bool on) async {
+    await _wait();
+    _node = on ? 'http://127.0.0.1:3413' : 'https://node.epiccash.com';
+  }
+
+  @override
   Future<NodeServer> checkNode(String url) async {
     await _wait(3);
     final known = _nodes.where((n) => n.url == url);
@@ -341,11 +440,5 @@ class MockDeskWallet implements DeskWalletApi {
   Future<void> changePassword(String current, String next) async {
     await _wait(2);
     if (current == 'wrong') throw StateError('Wrong password');
-  }
-
-  @override
-  Future<void> removeWallet(String password) async {
-    await _wait(2);
-    if (password == 'wrong') throw StateError('Wrong password');
   }
 }

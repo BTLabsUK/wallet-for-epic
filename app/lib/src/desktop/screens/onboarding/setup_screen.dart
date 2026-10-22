@@ -24,7 +24,8 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
   final _domain = TextEditingController(text: 'epicbox.epiccash.com');
   late SetupStep _step = widget.arg is SetupStep ? widget.arg as SetupStep : SetupStep.prefs;
   String _language = 'English';
-  bool _builtIn = DeskFeatures.builtInNode;
+  // A public or own node stays the default (D10); the built-in node is opt-in.
+  bool _builtIn = false;
   String _nodeUrl = 'https://node.epiccash.com';
   List<NodeServer>? _nodes;
   List<EpicboxServer>? _boxes;
@@ -35,7 +36,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
   void initState() {
     super.initState();
     final st = ref.read(deskProvider);
-    _name.text = ref.read(settingsPrefsProvider).walletLabel ?? '';
+    _name.text = st.account?.name ?? '';
     _domain.text = st.status?.epicbox.domain ?? _domain.text;
     _nodeUrl = st.status?.node.url ?? _nodeUrl;
     final api = ref.read(deskApiProvider);
@@ -56,10 +57,25 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
     final st = ref.read(deskProvider);
     final prefs = ref.read(settingsPrefsProvider.notifier);
     final domain = _domain.text.trim();
-    prefs.set(ref.read(settingsPrefsProvider).copyWith(walletLabel: _name.text.trim(), epicboxOnStart: domain.isNotEmpty));
+    final name = _name.text.trim();
+    final id = st.account?.id;
+    final rename = id != null && name.isNotEmpty && name != st.account?.name;
+    prefs.set(ref.read(settingsPrefsProvider).copyWith(walletLabel: id == null ? name : '', epicboxOnStart: domain.isNotEmpty));
+    if (rename) {
+      try {
+        await c.renameWallet(id, name);
+      } on Object catch (e) {
+        if (mounted) showEToast(context, 'Name not saved', text: deskErrorText(e));
+      }
+    }
     if (DeskFeatures.languages) await c.saveSettings(st.settings.copyWith(language: _language));
     try {
-      if (!_builtIn && _nodeUrl != st.status?.node.url) await c.useNode(_nodeUrl);
+      if (_builtIn) {
+        await c.useBuiltInNode(true);
+      } else if (_nodeUrl != st.status?.node.url) {
+        await c.useNode(_nodeUrl);
+      }
+      prefs.set(ref.read(settingsPrefsProvider).copyWith(builtin: _builtIn));
       if (domain.isNotEmpty && domain != st.status?.epicbox.domain) await c.useEpicbox(domain);
       await c.setListening(domain.isNotEmpty);
       await c.refresh();
@@ -96,7 +112,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
     final again = nav.canBack ? 'Running setup again. Nothing changes until Save on the last step.' : null;
     final (title, lead, body) = switch (_step) {
       SetupStep.prefs => ('Preferences', again ?? (DeskFeatures.languages ? 'Wallet name and app language. Both can be changed later.' : 'Wallet name. It can be changed later.'), _prefs(context)),
-      SetupStep.node => ('Choose a node', again ?? 'The wallet reads the chain and sends through an Epic node.', _node(context)),
+      SetupStep.node => ('Choose a node', again ?? 'The wallet reads the chain and sends through a remote Epic node. Its operator sees the IP address and which outputs the wallet asks about.', _node(context)),
       SetupStep.epicbox => ('Receive when offline', again, _epicbox(context)),
       SetupStep.review => ('Check settings', again ?? 'Change anything that is not right, then save.', _review(context)),
     };
@@ -166,6 +182,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
           ),
           SizedBox(height: Sp.x3),
         ],
+        if (DeskFeatures.builtInNode) ...[
         EChoiceCard(
           title: 'Remote node',
           description: 'Starts faster. The operator sees the IP address and which outputs the wallet asks about.',
@@ -173,8 +190,9 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
           selected: !_builtIn,
           onTap: () => setState(() => _builtIn = false),
         ),
-        if (!_builtIn) ...[
           SizedBox(height: Sp.x5),
+        ],
+        if (!_builtIn) ...[
           EField(
             label: 'Server',
             child: nodes == null

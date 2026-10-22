@@ -12,7 +12,7 @@ import 'settings_receiving.dart';
 import 'settings_rescan.dart';
 
 /// A wallet that is not open, for the remove dialog's shots.
-const demoOtherWallet = WalletEntry(name: 'Savings', folder: '~/.epic/main/savings', network: 'mainnet');
+const demoOtherWallet = WalletEntry(id: '5a1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f', name: 'Savings', folder: '~/.epic/main/savings', network: 'mainnet');
 
 /// Back to the settings the mock starts with (a demo state turned something on).
 Future<void> resetSettingsDemo(ProviderContainer c) async {

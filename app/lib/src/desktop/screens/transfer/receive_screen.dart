@@ -137,7 +137,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
             ESectionHead('Other ways to receive', top: Sp.x8),
             _direct(st, nav, listening),
           ],
-          ESectionHead('Transaction files', top: DeskFeatures.httpDirect || DeskFeatures.tor ? null : Sp.x8),
+          ESectionHead('Transaction files', top: DeskFeatures.httpDirect || DeskFeatures.tor ? 0 : null),
           ESetGroup(
             rows: [
               ESetRow(
@@ -153,7 +153,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
             ],
           ),
           if (listening) ...[
-            const ESectionHead('Listener'),
+            const ESectionHead('Listener', top: 0),
             ESetGroup(
               rows: [
                 ESetRow(
@@ -192,7 +192,9 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
               Semantics(header: true, child: Text('Start the listener to receive online', style: ts.h3)),
               SizedBox(height: Sp.x2),
               Text(
-                'Epicbox and HTTP payments need the listener running. Payments already sent to the Epic address wait on the relay and arrive once it starts. Files work either way.',
+                DeskFeatures.httpDirect
+                    ? 'Epicbox and HTTP payments need the listener running. Payments already sent to the Epic address wait on the relay and arrive once it starts. Files work either way.'
+                    : 'Epicbox payments need the listener running. Payments already sent to the Epic address wait on the relay and arrive once it starts. Files work either way.',
                 style: ts.bodyDim,
               ),
             ],

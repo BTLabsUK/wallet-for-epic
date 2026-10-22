@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../widgets/kit.dart';
 import 'dialogs.dart';
 import 'prefs.dart';
@@ -31,11 +32,26 @@ class _SettingsAccountScreenState extends ConsumerState<SettingsAccountScreen> {
     super.dispose();
   }
 
-  void _save() {
-    final p = ref.read(settingsPrefsProvider.notifier);
+  Future<void> _save() async {
     final t = _label.text.trim();
-    p.set(ref.read(settingsPrefsProvider).copyWith(walletLabel: t));
-    showEToast(context, 'Label saved', text: t.isEmpty ? null : t);
+    final id = ref.read(deskProvider).account?.id;
+    if (t.isEmpty) {
+      showEToast(context, 'Label not saved', text: 'Enter a label');
+      return;
+    }
+    if (id != null) {
+      try {
+        await ref.read(deskProvider.notifier).renameWallet(id, t);
+      } on Object catch (e) {
+        if (mounted) showEToast(context, 'Label not saved', text: deskErrorText(e));
+        return;
+      }
+    }
+    if (!mounted) return;
+    // The wallet's own name wins; the old app-wide label stays empty.
+    final p = ref.read(settingsPrefsProvider.notifier);
+    p.set(ref.read(settingsPrefsProvider).copyWith(walletLabel: id == null ? t : ''));
+    showEToast(context, 'Label saved', text: t);
   }
 
   @override
@@ -45,7 +61,7 @@ class _SettingsAccountScreenState extends ConsumerState<SettingsAccountScreen> {
     if (a == null) return const SettingsFrame(route: DeskRoute.settingsAccount, child: SettingsLoading());
     if (!_filled) {
       _filled = true;
-      _label.text = label ?? a.name;
+      _label.text = label == null || label.isEmpty || a.id != null ? a.name : label;
     }
     final nav = ref.read(deskNavProvider.notifier);
     return SettingsFrame(
@@ -106,10 +122,9 @@ class _SettingsAccountScreenState extends ConsumerState<SettingsAccountScreen> {
                   text: 'Unlocks this wallet.',
                   control: EButton(label: 'Change password…', size: EBtnSize.sm, icon: EIcons.lock, onPressed: () => showChangePasswordDialog(context)),
                 ),
-              if (!DeskFeatures.multiWallet)
-                ESetRow(
+              ESetRow(
                   title: 'Delete wallet',
-                  text: 'Removes it and its seed from this computer.',
+                  text: 'Deletes its keys and database.',
                   control: EButton(label: 'Delete…', size: EBtnSize.sm, icon: EIcons.trash, kind: EBtnKind.danger, onPressed: () => showDeleteWalletDialog(context)),
                 ),
             ],

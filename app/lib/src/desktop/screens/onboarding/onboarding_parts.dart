@@ -10,7 +10,7 @@ class AuthFoot extends StatelessWidget {
   const AuthFoot({super.key});
 
   @override
-  Widget build(BuildContext context) => Text('Epic Wallet $deskVersion');
+  Widget build(BuildContext context) => Text('Epic Cash Wallet $deskVersion');
 }
 
 /// 0..4 for a password: length and variety.

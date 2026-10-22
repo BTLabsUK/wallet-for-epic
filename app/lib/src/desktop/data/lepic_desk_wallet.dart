@@ -1,8 +1,13 @@
 /// [DeskWalletApi] over the app's wallet core ([WalletService], LEPIC on a computer).
 ///
-/// Desktop wallets are password wallets, as in the Electron wallet: no PIN vault. One wallet
-/// per chain in `<app support>/wallets/<chain>` ([WalletDirResolver]), mainnet. The node and
-/// Epicbox server are saved under the phone's keys (`NetworkChoiceNotifier`), so both UIs agree.
+/// Desktop wallets are password wallets, as in the Electron wallet: no PIN vault. Several
+/// named wallets of one network (mainnet), listed in the [registry] (D9): the first one at
+/// `<app support>/wallets/<chain>` ([WalletDirResolver]) with a null [core.WalletConfig.walletId],
+/// as 0.1.0 made it, each later one at `<app support>/wallets/<id>/<chain>` with walletId = id.
+/// Each wallet's own data (name, scan due, favourites) is saved under its own keys
+/// ([DeskStore.walletMetaKey], [DeskStore.favouritesKeyOf]), the first wallet's unchanged from
+/// 0.1.0. The node and Epicbox server are shared by all wallets of the network, saved under the
+/// phone's keys (`NetworkChoiceNotifier`), so both UIs agree.
 ///
 /// While unlocked the adapter keeps the session, the password (to reopen the wallet when the
 /// node or the Epicbox server changes; never logged, dropped on lock), the last summary and
@@ -11,15 +16,21 @@
 library;
 
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
+import 'package:crypto/crypto.dart';
+
 import '../../bip39_words.dart';
+import '../../builtin_node.dart';
+import '../../legacy_wallets.dart' as legacy;
 import '../../log.dart';
 import '../../network.dart';
 import '../../providers.dart' show WalletDirResolver;
 import '../../relay_directory.dart';
 import '../../secret_store_api.dart';
 import '../../slate_files.dart' show decodeSlateFile, responseFileName, sendFileName;
+import '../../wallet_registry.dart' as reg;
 import '../../wallet_service.dart' as core;
 import 'api.dart';
 import 'desk_store.dart';
@@ -78,7 +89,14 @@ class LepicDeskWallet implements DeskWalletApi {
     BigInt? minimumConfirmations,
     this.nodePoll = const Duration(seconds: 30),
     this.nodeTimeout = const Duration(seconds: 15),
-  }) : _minConf = minimumConfirmations ?? BigInt.from(10);
+    reg.WalletRegistry? registry,
+    this._builtInNode,
+    legacy.LegacyRoots Function()? legacyRoots,
+    this._pickDirectory,
+    this._listProcesses,
+  }) : _legacyRoots = legacyRoots ?? legacy.LegacyRoots.current,
+       _minConf = minimumConfirmations ?? BigInt.from(10),
+       _registryGiven = registry;
 
   final core.WalletService _service;
   final WalletDirResolver _walletDir;
@@ -95,11 +113,36 @@ class LepicDeskWallet implements DeskWalletApi {
   final BigInt _minConf;
   final Duration nodePoll;
   final Duration nodeTimeout;
+
+  /// Makes the built-in node of a network (desktop builds with the bundled `epic`, D10); null
+  /// where there is none.
+  final Future<BuiltInNode> Function(core.Chain chain)? _builtInNode;
+  BuiltInNode? _node;
   DeskSettings _settings;
 
   core.WalletSession? _session;
   core.WalletConfig? _config;
   String? _password;
+
+  final reg.WalletRegistry? _registryGiven;
+
+  /// Where the import looks for old wallets; the real home folder in the app.
+  final legacy.LegacyRoots Function() _legacyRoots;
+
+  /// The system's folder dialog; null leaves "Choose a folder" with nothing to show.
+  final Future<String?> Function()? _pickDirectory;
+  final legacy.ProcessLister? _listProcesses;
+
+  /// Old wallets of this import run by [OldWallet.id], and the wallets it made (list ids).
+  final Map<String, legacy.LegacyWallet> _old = {};
+  final List<String> _imported = [];
+  Future<reg.WalletRegistry>? _registry;
+
+  /// The wallet open now; null while locked.
+  reg.WalletEntry? _openEntry;
+
+  /// The wallet [unlock] opens; null is the one opened last.
+  String? _selectedId;
 
   /// Bumped by [lock]: a session opened under an older value is closed at once.
   int _generation = 0;
@@ -139,39 +182,266 @@ class LepicDeskWallet implements DeskWalletApi {
     return (saved == null ? null : EpicboxRelay.parse(saved)) ?? EpicboxRelay(host: deskEpicboxes.first.domain);
   }
 
-  Future<core.WalletConfig> _makeConfig({String? nodeUrl, EpicboxRelay? relay}) async =>
-      preset.config(dataDir: await _walletDir(preset.chain), nodeUrl: nodeUrl ?? await _nodeUrl(), relay: relay ?? await _relay());
+  /// The config of [entry]; null is the first wallet. The first wallet's folder is exactly
+  /// what [WalletDirResolver] answers, as in 0.1.0, and its walletId null.
+  /// An added wallet's folder is always `<support>/wallets/<id>/<chain>`, rebuilt from its id:
+  /// a folder written into wallets.json by hand is never opened.
+  Future<core.WalletConfig> _configOf(reg.WalletEntry? entry, {String? nodeUrl, EpicboxRelay? relay}) async => preset.config(
+    dataDir: entry == null || entry.isLegacy ? await _walletDir(preset.chain) : await _addedDir(entry),
+    nodeUrl: nodeUrl ?? await _nodeUrl(),
+    relay: relay ?? await _relay(),
+    walletId: entry?.walletId,
+  );
 
-  Future<Map<String, dynamic>> _meta() async {
-    final j = await _store.readJson(DeskStore.walletKey(_chain));
+  Future<String> _addedDir(reg.WalletEntry entry) async {
+    final sep = Platform.pathSeparator;
+    final wallets = Directory(await _walletDir(preset.chain)).parent.path;
+    return '$wallets$sep${entry.id}$sep${entry.chain.name}';
+  }
+
+  /// The open wallet's config (the first wallet's while locked).
+  Future<core.WalletConfig> _makeConfig({String? nodeUrl, EpicboxRelay? relay}) => _configOf(_openEntry, nodeUrl: nodeUrl, relay: relay);
+
+  String _metaKey(String? walletId) => DeskStore.walletMetaKey(_chain, walletId);
+
+  /// The saved data of the wallet with [walletId]; the open one by default.
+  Future<Map<String, dynamic>> _meta([String? key]) async {
+    final j = await _store.readJson(key ?? _metaKey(_openEntry?.walletId));
     return j is Map<String, dynamic> ? j : <String, dynamic>{};
   }
 
-  Future<void> _setMeta(Map<String, Object?> changes) async =>
-      _store.writeJson(DeskStore.walletKey(_chain), {...await _meta(), ...changes});
+  Future<void> _setMeta(Map<String, Object?> changes, [String? key]) async {
+    key ??= _metaKey(_openEntry?.walletId);
+    await _store.writeJson(key, {...await _meta(key), ...changes});
+  }
 
-  // ---- Wallets and opening one.
+  String get _favouritesKey => DeskStore.favouritesKeyOf(_openEntry?.walletId);
+
+  // ---- The wallet list.
+
+  /// The desktop's wallet list, read once, with the wallet a 0.1.0 install made listed as the
+  /// first one. The only way into the registry: Unlock, All wallets and the import all use it.
+  Future<reg.WalletRegistry> registry() => _registry ??= _loadRegistry();
+
+  Future<reg.WalletRegistry> _loadRegistry() async {
+    try {
+      final legacyDir = await _walletDir(preset.chain);
+      final r = _registryGiven ?? reg.WalletRegistry(Directory(legacyDir).parent.parent.path);
+      // Removed from the list only: it stays off until All wallets adds it back.
+      final unlisted = await _firstUnlisted();
+      await r.load(skipLegacy: unlisted ? {preset.chain} : const {});
+      if (!unlisted) {
+        try {
+          await _adoptFirst(r);
+        } on reg.WalletRegistryException catch (e) {
+          // A list this version may not write (newer file): read-only, _wallets adds wallet 1.
+          logWarn('desk', 'first wallet not listed: ${e.runtimeType}');
+        }
+      }
+      return r;
+    } on Object {
+      _registry = null;
+      rethrow;
+    }
+  }
+
+  Future<bool> _firstUnlisted() async => (await _meta(_metaKey(null)))['unlisted'] == true;
+
+  /// The first wallet as an entry that is not in the file.
+  Future<reg.WalletEntry> _firstEntry(core.WalletConfig config) async => reg.WalletEntry(
+    id: '${reg.WalletRegistry.legacyPrefix}$_chain',
+    label: ((await _meta(_metaKey(null)))['name'] as String?) ?? 'Main wallet',
+    chain: preset.chain,
+    dataDir: config.dataDir,
+    createdAt: DateTime.now(),
+  );
+
+  /// Lists the first wallet when LEPIC finds one in its folder, under the name it had.
+  Future<reg.WalletEntry?> _adoptFirst(reg.WalletRegistry r, {bool known = false}) async {
+    final config = await _configOf(null);
+    final added = await r.adoptLegacy(preset.chain, exists: (_) async => known || await _service.walletExists(config: config));
+    if (added == null) return null;
+    final name = (await _meta(_metaKey(null)))['name'];
+    if (name is String) {
+      try {
+        return await r.rename(added.id, name);
+      } on reg.WalletRegistryException {
+        // An old name the list does not take; "Wallet 1" stays.
+      }
+    }
+    return added;
+  }
+
+  /// [registry]'s wallets of this network, or null when the list cannot be read.
+  Future<List<reg.WalletEntry>?> _inList() async {
+    try {
+      return [for (final e in (await registry()).list()) if (e.chain == preset.chain) e];
+    } on Object catch (e) {
+      logWarn('desk', 'wallet list not readable: ${e.runtimeType}');
+      return null;
+    }
+  }
+
+  /// Without a readable list, the first wallet alone, as 0.1.0 showed it: it always opens.
+  Future<List<reg.WalletEntry>> _wallets() async {
+    final listed = await _inList();
+    final legacyId = '${reg.WalletRegistry.legacyPrefix}$_chain';
+    if (listed != null && listed.any((e) => e.id == legacyId)) return listed;
+    // Not listed (a list this version cannot write, or unreadable): the first wallet still
+    // opens, unless it was taken off the list on purpose.
+    if (await _firstUnlisted()) return listed ?? const [];
+    final config = await _configOf(null);
+    if (!await _service.walletExists(config: config)) return listed ?? const [];
+    return [await _firstEntry(config), ...?listed];
+  }
+
+  /// The wallet [unlock] opens: the open one, else the selected one, else the one opened last.
+  reg.WalletEntry? _pick(List<reg.WalletEntry> all, String? lastUsed) {
+    for (final id in [_openEntry?.id, _selectedId, lastUsed]) {
+      final e = all.where((e) => e.id == id).firstOrNull;
+      if (e != null) return e;
+    }
+    return all.firstOrNull;
+  }
+
+  Future<String?> _lastUsed() async => _registry == null ? null : (await _registry!).lastUsedId;
+
+  Future<reg.WalletEntry> _entry(String id) async =>
+      (await _wallets()).where((e) => e.id == id).firstOrNull ?? (throw const DeskError('Wallet not in the list'));
+
+  DeskError _listError(reg.WalletRegistryException e) => e is reg.WalletRegistryVersionException
+      ? const DeskError('Update the app to change the list')
+      : e is reg.WalletNotListedException
+      ? const DeskError('Wallet not in the list')
+      : DeskError(e.message.isEmpty ? 'Wallet list not changed' : '${e.message[0].toUpperCase()}${e.message.substring(1)}');
 
   @override
   Future<List<WalletEntry>> wallets() async {
-    final config = await _makeConfig();
-    if (!await _service.walletExists(config: config)) return const [];
-    final meta = await _meta();
+    final all = await _wallets();
+    final open = _openEntry;
+    final current = open != null && all.any((e) => e.id == open.id) ? open : _pick(all, await _lastUsed());
+    final missing = _registry == null ? null : await _registry!;
     return [
-      WalletEntry(
-        name: (meta['name'] as String?) ?? 'Main wallet',
-        folder: config.dataDir,
-        network: _chain,
-        current: true,
-        lastOpened: _time(meta['opened']),
-      ),
+      for (final e in all)
+        WalletEntry(
+          id: e.id,
+          name: e.label,
+          folder: e.isLegacy ? (await _configOf(null)).dataDir : e.dataDir,
+          network: _chain,
+          current: e.id == current?.id,
+          lastOpened: e.lastOpenedAt ?? (e.isLegacy ? _time((await _meta(_metaKey(null)))['opened']) : null),
+          missing: missing != null && missing.folderMissing(e),
+        ),
     ];
   }
 
   @override
+  Future<void> selectWallet(String id) async {
+    await _entry(id);
+    _selectedId = id;
+  }
+
+  @override
+  Future<void> renameWallet(String id, String label) async {
+    final r = await registry();
+    final reg.WalletEntry entry;
+    try {
+      entry = await r.rename(id, label);
+    } on reg.WalletRegistryException catch (e) {
+      throw _listError(e);
+    }
+    await _setMeta({'name': entry.label}, _metaKey(entry.walletId));
+    if (_openEntry?.id == id) _openEntry = entry;
+  }
+
+  @override
+  Future<void> removeWallet(String id, WalletRemoval mode, {String? password}) async {
+    final r = await registry();
+    final entry = r.byId(id);
+    if (entry == null || entry.chain != preset.chain) throw const DeskError('Wallet not in the list');
+    final open = _session != null && _openEntry?.id == id;
+    // Deleting asks for the wallet's password, so only the open wallet can be deleted.
+    if (mode == WalletRemoval.delete && !open) throw const DeskError('Open the wallet to delete it');
+    if (open) {
+      if (mode == WalletRemoval.delete) {
+        if (password == null || password.isEmpty) throw const DeskError('Enter the password');
+        try {
+          await _open.mnemonic(password: password);
+        } on core.WalletError catch (e) {
+          throw _deskError(e);
+        }
+      }
+    }
+    final config = await _configOf(entry);
+    try {
+      // The wallet locks even when the removal fails, so the screen and the wallet agree.
+      switch (mode) {
+        case WalletRemoval.list:
+          await r.forget(id);
+          if (entry.isLegacy) await _setMeta({'unlisted': true}, _metaKey(null));
+        case WalletRemoval.delete:
+          await r.delete(id, service: _service, config: config);
+          await _store.delete(_metaKey(entry.walletId));
+          await _store.delete(DeskStore.favouritesKeyOf(entry.walletId));
+      }
+    } on reg.WalletRegistryException catch (e) {
+      throw _listError(e);
+    } on core.WalletError catch (e) {
+      throw _deskError(e);
+    } finally {
+      if (open) await lock();
+    }
+    if (_selectedId == id) _selectedId = null;
+    logInfo('desk', 'wallet ${mode == WalletRemoval.list ? 'removed from the list' : 'deleted'}');
+  }
+
+  @override
+  Future<List<WalletEntry>> findRemoved() async {
+    final r = await registry();
+    final first = await _configOf(null);
+    return [
+      if (r.byId('${reg.WalletRegistry.legacyPrefix}$_chain') == null && await _service.walletExists(config: first))
+        WalletEntry(
+          id: '${reg.WalletRegistry.legacyPrefix}$_chain',
+          name: ((await _meta(_metaKey(null)))['name'] as String?) ?? 'Wallet 1',
+          folder: first.dataDir,
+          network: _chain,
+        ),
+      for (final e in await r.rescan())
+        if (e.chain == preset.chain)
+          WalletEntry(id: e.id, name: ((await _meta(_metaKey(e.walletId)))['name'] as String?) ?? e.label, folder: e.dataDir, network: _chain),
+    ];
+  }
+
+  @override
+  Future<void> addBack(String id) async {
+    final r = await registry();
+    try {
+      if (id == '${reg.WalletRegistry.legacyPrefix}$_chain') {
+        await _setMeta({'unlisted': false}, _metaKey(null));
+        await _adoptFirst(r);
+        return;
+      }
+      final found = (await r.rescan()).where((e) => e.id == id).firstOrNull;
+      if (found == null) throw const DeskError('Wallet folder not found');
+      final added = await r.restore(found);
+      final name = (await _meta(_metaKey(added.walletId)))['name'];
+      if (name is String) await r.rename(added.id, name);
+    } on reg.WalletRegistryException catch (e) {
+      throw _listError(e);
+    }
+  }
+
+  // ---- Opening a wallet.
+
+  @override
   Future<bool> unlock(String password) async {
     await lock();
-    final config = await _makeConfig();
+    final all = await _wallets();
+    final entry = _pick(all, await _lastUsed());
+    if (entry == null) throw const DeskError('No wallet found');
+    final config = await _configOf(entry);
+    final metaKey = _metaKey(entry.walletId);
     core.WalletSession session;
     try {
       session = await _service.open(config: config, password: password);
@@ -182,7 +452,7 @@ class LepicDeskWallet implements DeskWalletApi {
       // scan brings the funds back.
       logWarn('desk', 'wallet database damaged; rebuilding');
       _notice = 'Wallet database damaged, rebuilding';
-      await _setMeta({'scanPending': true});
+      await _setMeta({'scanPending': true}, metaKey);
       try {
         session = await _service.open(config: config, password: password);
       } on core.WalletError catch (e2) {
@@ -193,7 +463,14 @@ class LepicDeskWallet implements DeskWalletApi {
     _session = session;
     _config = config;
     _password = password;
+    _openEntry = entry;
+    _selectedId = null;
     await _setMeta({'opened': DateTime.now().millisecondsSinceEpoch ~/ 1000});
+    try {
+      if (_registry != null) _openEntry = await (await _registry!).markOpened(entry.id);
+    } on Object catch (e) {
+      logWarn('desk', 'wallet list not saved: ${e.runtimeType}');
+    }
     _poll = Timer.periodic(nodePoll, (_) => unawaited(_checkTip()));
     unawaited(_checkTip());
     unawaited(sync());
@@ -209,6 +486,10 @@ class LepicDeskWallet implements DeskWalletApi {
     final session = _session;
     _session = null;
     _password = null;
+    // The next unlock offers the wallet that was open.
+    _selectedId ??= _openEntry?.id;
+    _openEntry = null;
+    _config = null;
     _summary = null;
     _entries = null;
     _syncProgress = null;
@@ -285,23 +566,80 @@ class LepicDeskWallet implements DeskWalletApi {
     }
   }
 
+  /// Where a new wallet goes: the first wallet's folder when this computer has none (a null
+  /// entry), else a new list entry with its own folder. The open wallet stays open.
+  Future<reg.WalletEntry?> _newWallet(String name, {bool ownEntry = false}) async {
+    final label = name.trim().isEmpty ? null : name.trim();
+    if (!ownEntry && (await _wallets()).isEmpty && !await _service.walletExists(config: await _configOf(null))) return null;
+    try {
+      return await (await registry()).add(chain: preset.chain, label: label);
+    } on reg.WalletRegistryException catch (e) {
+      throw _listError(e);
+    }
+  }
+
+  /// Makes the wallet in [create] at [_newWallet]'s place, lists it and selects it. A wallet
+  /// that was not made leaves no entry.
+  /// [ownEntry]: always a new entry, never the first wallet's folder (imports).
+  Future<T> _make<T>(String name, Map<String, Object?> meta, Future<T> Function(core.WalletConfig config) create, {bool ownEntry = false}) async {
+    final entry = await _newWallet(name, ownEntry: ownEntry);
+    final config = await _configOf(entry);
+    final T result;
+    try {
+      result = await create(config);
+    } on Object {
+      if (entry != null) await _unlist(entry);
+      rethrow;
+    }
+    final label = name.trim().isEmpty ? null : name.trim();
+    await _store.writeJson(_metaKey(entry?.walletId), {'name': label, 'created': DateTime.now().millisecondsSinceEpoch ~/ 1000, ...meta});
+    var listed = entry;
+    if (entry == null) {
+      try {
+        final r = await registry();
+        listed = await _adoptFirst(r, known: true) ?? r.byId('${reg.WalletRegistry.legacyPrefix}$_chain');
+      } on Object catch (e) {
+        logWarn('desk', 'wallet list not saved: ${e.runtimeType}');
+      }
+    }
+    _selectedId = listed?.id;
+    return result;
+  }
+
+  /// Takes back an entry whose wallet was not made: the entry, a half-made `lepic` folder
+  /// (through the registry's checked delete path), and the folders while empty.
+  Future<void> _unlist(reg.WalletEntry entry) async {
+    try {
+      final r = await registry();
+      try {
+        await r.delete(entry.id, service: _service, config: await _configOf(entry));
+        return;
+      } on Object catch (e) {
+        logWarn('desk', 'half-made wallet folder not removed: ${e.runtimeType}');
+      }
+      await r.forget(entry.id);
+      final made = await _addedDir(entry);
+      for (final dir in [Directory(made), Directory(made).parent]) {
+        await dir.delete(); // only when empty
+      }
+    } on Object catch (e) {
+      logWarn('desk', 'new wallet entry not taken back: ${e.runtimeType}');
+    }
+  }
+
   @override
   Future<List<String>> createWallet({required String name, required String password}) async {
     _checkPassword(password);
-    await lock();
-    final config = await _makeConfig();
     try {
-      final session = await _service.create(config: config, password: password);
-      try {
-        final phrase = await session.mnemonic(password: password);
-        await _store.writeJson(DeskStore.walletKey(_chain), {
-          'name': name.trim().isEmpty ? null : name.trim(),
-          'created': DateTime.now().millisecondsSinceEpoch ~/ 1000,
-        });
-        return phrase.split(RegExp(r'\s+'));
-      } finally {
-        session.dispose();
-      }
+      return await _make(name, const {}, (config) async {
+        final session = await _service.create(config: config, password: password);
+        try {
+          final phrase = await session.mnemonic(password: password);
+          return phrase.split(RegExp(r'\s+'));
+        } finally {
+          session.dispose();
+        }
+      });
     } on core.WalletError catch (e) {
       throw _deskError(e);
     }
@@ -315,20 +653,190 @@ class LepicDeskWallet implements DeskWalletApi {
     _checkPassword(password);
     final mnemonic = phrase.map((w) => w.trim().toLowerCase()).join(' ');
     if (!_service.validateMnemonic(phrase: mnemonic)) throw const DeskError('Recovery phrase not valid');
-    await lock();
-    final config = await _makeConfig();
     try {
-      final session = await _service.create(config: config, mnemonic: mnemonic, password: password);
-      session.dispose();
+      // The scan runs after unlock, in the background, with its progress in the status.
+      await _make(name, const {'scanPending': true}, (config) async {
+        final session = await _service.create(config: config, mnemonic: mnemonic, password: password);
+        session.dispose();
+      });
     } on core.WalletError catch (e) {
       throw _deskError(e);
     }
-    // The scan runs after unlock, in the background, with its progress in the status.
-    await _store.writeJson(DeskStore.walletKey(_chain), {
-      'name': name.trim().isEmpty ? null : name.trim(),
-      'created': DateTime.now().millisecondsSinceEpoch ~/ 1000,
-      'scanPending': true,
-    });
+  }
+
+  // ---- Import (B01–B32 as LEPIC takes them: wallet.seed only, history from a scan).
+
+  static const _testNetText = 'Test network wallet. Only mainnet wallets can be imported.';
+
+  OldWallet _oldOf(legacy.LegacyWallet w, Map<String, legacy.SameWallet> same) {
+    final s = same[w.path];
+    return OldWallet(
+      id: w.path,
+      name: w.displayLabel,
+      folder: w.path,
+      group: switch (w.source) {
+        legacy.LegacySource.gui => OldWalletGroup.gui,
+        legacy.LegacySource.cli => OldWalletGroup.cli,
+        legacy.LegacySource.picked => OldWalletGroup.picked,
+      },
+      network: w.network.guiName,
+      lastUsed: w.lastUsed,
+      sizeBytes: w.sizeBytes,
+      sameAs: s?.text,
+      inApp: s?.inApp ?? false,
+      blocked: w.refusal?.text ?? (w.network == legacy.LegacyNetwork.main ? null : _testNetText),
+    );
+  }
+
+  /// Seed fingerprint → name of each wallet in the list that an import made.
+  Future<Map<String, String>> _inAppSeeds() async {
+    final out = <String, String>{};
+    for (final e in await _inList() ?? const <reg.WalletEntry>[]) {
+      final fp = (await _meta(_metaKey(e.walletId)))['seedFingerprint'];
+      if (fp is String) out[fp] = e.label;
+    }
+    return out;
+  }
+
+  /// The app's own folder: never offered as an old wallet.
+  Future<String> _appRoot() async => Directory(await _walletDir(preset.chain)).parent.parent.path;
+
+  Future<List<OldWallet>> _describeOld(List<legacy.LegacyWallet> found) async {
+    final root = await _appRoot();
+    final own = [
+      for (final w in found)
+        if (!await legacy.isWithin(w.path, root)) w,
+    ];
+    for (final w in own) {
+      _old[w.path] = w;
+    }
+    final same = legacy.findSameWallets([..._old.values], inApp: await _inAppSeeds());
+    return [for (final w in own) _oldOf(w, same)];
+  }
+
+  @override
+  Future<List<OldWallet>> findOldWallets() async {
+    _old.clear();
+    _imported.clear();
+    final scan = await legacy.findLegacyWallets(roots: _legacyRoots());
+    logInfo('desk', 'import: ${scan.wallets.length} old wallets found');
+    return _describeOld(scan.wallets);
+  }
+
+  @override
+  Future<FolderFind?> pickFolder() async {
+    final pick = _pickDirectory;
+    if (pick == null) return null;
+    final path = await pick();
+    if (path == null) return null;
+    final found = await legacy.inspectFolder(path);
+    final wallets = await _describeOld(found.wallets);
+    return FolderFind(
+      folder: found.picked,
+      wallets: wallets,
+      message: found.wallets.isNotEmpty && wallets.isEmpty ? 'This wallet is in the app already.' : found.message,
+    );
+  }
+
+  legacy.LegacyWallet _oldWallet(String id) => _old[id] ?? (throw const DeskError('Wallet not found. Search again.'));
+
+  @override
+  Future<OldWalletUse> checkOldWallet(String id) async =>
+      switch (await legacy.checkInUse(_oldWallet(id), listProcesses: _listProcesses)) {
+        legacy.InUse.free => OldWalletUse.free,
+        legacy.InUse.inUse => OldWalletUse.inUse,
+        legacy.InUse.unknown => OldWalletUse.unknown,
+      };
+
+  @override
+  Future<ImportedWallet> importOldWallet(String id, {required String oldPassword, String? newPassword}) async {
+    final w = _oldWallet(id);
+    final refusal = w.refusal;
+    if (refusal != null) throw DeskError(refusal.text);
+    if (w.network != legacy.LegacyNetwork.main) throw const DeskError(_testNetText);
+    if (oldPassword.isEmpty) throw const DeskError('Enter the old password');
+    final next = newPassword ?? oldPassword;
+    if (next.length < minPasswordLength) {
+      throw DeskError(
+        newPassword == null ? 'The old password is short. Choose a new one of at least $minPasswordLength characters.' : 'Use at least $minPasswordLength characters',
+        newPasswordNeeded: true,
+      );
+    }
+    // The wallet's own files: a node running in the same folder changes its chain_data.
+    final walletData = '${w.path}${Platform.pathSeparator}wallet_data';
+    final before = await legacy.folderHash(walletData);
+    final List<int> bytes;
+    try {
+      bytes = await File(w.seedPath).readAsBytes();
+    } on FileSystemException {
+      throw const DeskError('The wallet.seed file could not be read');
+    }
+    if (bytes.isEmpty || bytes.length > legacy.maxSeedBytes) throw const DeskError(legacy.seedTooLargeText);
+    final String seed;
+    try {
+      seed = utf8.decode(bytes);
+    } on FormatException {
+      throw const DeskError('Not a wallet.seed file');
+    }
+    final name = _importName(w.displayLabel);
+    final fingerprint = sha256.convert(bytes).toString();
+    final held = (await _inAppSeeds())[fingerprint];
+    if (held != null) throw DeskError('Already in the app as $held');
+    reg.WalletEntry? made;
+    try {
+      // The scan at the first unlock brings the history: only the seed is taken (B14).
+      await _make(name, {'scanPending': true, 'seedFingerprint': fingerprint, 'importedFrom': w.path}, (config) async {
+        final session = await _service.importWalletSeed(config: config, seedFile: seed, seedPassword: oldPassword, password: next);
+        session.dispose();
+      }, ownEntry: true);
+      made = (await registry()).byId(_selectedId ?? '');
+    } on core.WalletError catch (e) {
+      if (e.kind == core.WalletErrorKind.wrongPassword) throw const DeskError('Wrong old password', wrongPassword: true);
+      throw _deskError(e);
+    }
+    if (made == null) throw const DeskError('Wallet list not saved');
+    _imported.add(made.id);
+    final unchanged = await legacy.folderHash(walletData) == before;
+    if (!unchanged) logWarn('desk', 'import: the old folder changed during the import');
+    logInfo('desk', 'import: wallet made');
+    return ImportedWallet(
+      id: made.id,
+      name: made.label,
+      proof: [
+        const ImportProof('Seed read'),
+        const ImportProof('Wallet created'),
+        unchanged ? const ImportProof('Old folder unchanged') : const ImportProof('Old folder changed by another program', ok: false),
+      ],
+    );
+  }
+
+  /// A list name of at most 32 characters.
+  static String _importName(String label) {
+    final t = label.trim();
+    return t.length <= 32 ? t : t.substring(0, 32).trim();
+  }
+
+  @override
+  Future<void> cancelImport() async {
+    final r = await registry();
+    for (final id in [..._imported]) {
+      final entry = r.byId(id);
+      if (entry == null) {
+        _imported.remove(id);
+        continue;
+      }
+      if (_openEntry?.id == id) await lock();
+      try {
+        await r.delete(id, service: _service, config: await _configOf(entry));
+        await _store.delete(_metaKey(entry.walletId));
+        await _store.delete(DeskStore.favouritesKeyOf(entry.walletId));
+        // Kept on failure, so Cancel can try again.
+        _imported.remove(id);
+      } on Object catch (e) {
+        logWarn('desk', 'import: wallet not removed: ${e.runtimeType}');
+      }
+      if (_selectedId == id) _selectedId = null;
+    }
   }
 
   // ---- Background work.
@@ -354,16 +862,17 @@ class LepicDeskWallet implements DeskWalletApi {
   Future<void> _sync() async {
     final session = _session;
     if (session == null) return;
+    final key = _metaKey(_openEntry?.walletId);
     _syncProgress = 0;
     _changed();
     try {
-      if ((await _meta())['scanPending'] == true) {
+      if ((await _meta(key))['scanPending'] == true) {
         await for (final p in session.scan()) {
           if (_session != session) return;
           if (p.percent != null) _syncProgress = p.percent! / 200;
           _changed();
         }
-        await _setMeta({'scanPending': false});
+        await _setMeta({'scanPending': false}, key);
         _notice = null;
       }
       await for (final p in session.refresh(minimumConfirmations: _minConf)) {
@@ -420,13 +929,14 @@ class LepicDeskWallet implements DeskWalletApi {
   @override
   Future<WalletAccount> account() async {
     final meta = await _meta();
-    final folder = _config?.dataDir ?? await _walletDir(preset.chain);
+    final folder = _config?.dataDir ?? (await _makeConfig()).dataDir;
     return WalletAccount(
-      name: (meta['name'] as String?) ?? 'Main wallet',
+      id: _openEntry?.id,
+      name: _openEntry?.label ?? (meta['name'] as String?) ?? 'Main wallet',
       network: _chain,
       folder: folder,
       created: _time(meta['created']) ?? DateTime.now(),
-      appFolder: Directory(folder).parent.parent.path,
+      appFolder: Directory(await _walletDir(preset.chain)).parent.parent.path,
     );
   }
 
@@ -472,7 +982,7 @@ class LepicDeskWallet implements DeskWalletApi {
   }
 
   Future<Set<String>> _favourites() async {
-    final j = await _store.readJson(DeskStore.favouritesKey);
+    final j = await _store.readJson(_favouritesKey);
     return j is List ? {for (final v in j) '$v'} : <String>{};
   }
 
@@ -713,7 +1223,7 @@ class LepicDeskWallet implements DeskWalletApi {
       final stored = await _open.saveContact(contact: core.Contact(id: contact.id, name: contact.name, address: contact.address, note: contact.note));
       final favourites = await _favourites();
       contact.favourite ? favourites.add(stored.id) : favourites.remove(stored.id);
-      await _store.writeJson(DeskStore.favouritesKey, favourites.toList());
+      await _store.writeJson(_favouritesKey, favourites.toList());
     } on core.WalletError catch (e) {
       throw _deskError(e);
     }
@@ -723,7 +1233,7 @@ class LepicDeskWallet implements DeskWalletApi {
   Future<void> deleteContact(String id) async {
     await _open.deleteContact(id: id);
     final favourites = await _favourites();
-    if (favourites.remove(id)) await _store.writeJson(DeskStore.favouritesKey, favourites.toList());
+    if (favourites.remove(id)) await _store.writeJson(_favouritesKey, favourites.toList());
   }
 
   @override
@@ -733,6 +1243,79 @@ class LepicDeskWallet implements DeskWalletApi {
   Future<void> useNode(String url) async {
     logInfo('desk', 'node ${Uri.tryParse(url)?.host ?? '?'}');
     await _switchTo(nodeUrl: url, relay: await _relay());
+    if (await _builtInOn()) {
+      await _secrets.write(builtInNodeSettingKey(preset.chain), 'false');
+      await _node?.stop();
+    }
+  }
+
+  String get _beforeBuiltInKey => 'app.node.$_chain.beforeBuiltIn';
+
+  Future<bool> _builtInOn() async =>
+      _builtInNode != null && await _secrets.read(builtInNodeSettingKey(preset.chain)) == 'true';
+
+  Future<BuiltInNode> _theNode() async {
+    final make = _builtInNode;
+    if (make == null) throw const DeskError('No built-in node in this build');
+    return _node ??= await make(preset.chain);
+  }
+
+  @override
+  Future<void> useBuiltInNode(bool on) async {
+    // The setting and the saved node change only once the wallet runs on the new node, so a
+    // failed start or move leaves both as they were.
+    if (on) {
+      final node = await _theNode();
+      try {
+        await node.start();
+      } on NodeStartException catch (e) {
+        throw DeskError(e.message);
+      }
+      // A stop that came in while it was starting wins.
+      if (!node.wantsRunning) throw const DeskError('Built-in node stopped');
+      final current = await _nodeUrl();
+      if (current != node.url) {
+        try {
+          await _switchTo(nodeUrl: node.url, relay: await _relay());
+        } on Object {
+          if (!await _builtInOn()) await node.stop();
+          rethrow;
+        }
+        // A lock while reopening returns without moving; a stop while moving undoes it.
+        if (await _nodeUrl() != node.url) throw const DeskError('Not changed: the wallet was locked');
+        if (!node.wantsRunning) {
+          await _switchTo(nodeUrl: current, relay: await _relay());
+          throw const DeskError('Built-in node stopped');
+        }
+        await _secrets.write(_beforeBuiltInKey, current);
+      }
+      await _secrets.write(builtInNodeSettingKey(preset.chain), 'true');
+      logInfo('desk', 'built-in node on');
+      return;
+    }
+    // Not on yet (a start still pending): only the node stops; the wallet never moved.
+    if (!await _builtInOn()) {
+      await _node?.stop();
+      return;
+    }
+    final back = await _secrets.read(_beforeBuiltInKey) ?? preset.nodeUrl;
+    if (await _nodeUrl() != back) await _switchTo(nodeUrl: back, relay: await _relay());
+    await _secrets.write(builtInNodeSettingKey(preset.chain), 'false');
+    logInfo('desk', 'built-in node off');
+    await _node?.stop();
+  }
+
+  /// At launch: starts the built-in node again when it was left on. A failure is logged and
+  /// shown as a notice; the wallet then reports its node as not responding.
+  Future<void> resumeBuiltInNode() async {
+    if (!await _builtInOn()) return;
+    try {
+      await (await _theNode()).start();
+    } on Object catch (e) {
+      logWarn('desk', 'built-in node did not start: ${e is NodeStartException ? e.failure.name : e.runtimeType}');
+      _notice = 'Built-in node not started: ${e is NodeStartException ? e.message : 'unknown error'}';
+      _changed();
+    }
   }
 
   @override
@@ -822,6 +1405,7 @@ class LepicDeskWallet implements DeskWalletApi {
   @override
   Stream<ScanStep> rescan() async* {
     final session = _open;
+    final key = _metaKey(_openEntry?.walletId);
     try {
       await for (final p in session.scan()) {
         yield ScanStep(p.message, percent: p.percent);
@@ -829,7 +1413,7 @@ class LepicDeskWallet implements DeskWalletApi {
     } on core.WalletError catch (e) {
       throw _deskError(e);
     }
-    await _setMeta({'scanPending': false});
+    await _setMeta({'scanPending': false}, key);
     _notice = null;
     await sync();
   }
@@ -847,27 +1431,6 @@ class LepicDeskWallet implements DeskWalletApi {
   @override
   Future<void> changePassword(String current, String next) =>
       throw UnsupportedError('password change (DeskFeatures.changePassword)');
-
-  /// Deletes this wallet's own folder, after the password is checked. Only the recovery phrase
-  /// brings it back.
-  @override
-  Future<void> removeWallet(String password) async {
-    try {
-      await _open.mnemonic(password: password);
-    } on core.WalletError catch (e) {
-      throw _deskError(e);
-    }
-    final config = _config ?? await _makeConfig();
-    await lock();
-    try {
-      await _service.deleteWallet(config: config);
-    } on core.WalletError catch (e) {
-      throw _deskError(e);
-    }
-    await _store.delete(DeskStore.walletKey(_chain));
-    await _store.delete(DeskStore.favouritesKey);
-    logInfo('desk', 'wallet deleted');
-  }
 
   // ---- Helpers.
 
@@ -893,6 +1456,7 @@ class LepicDeskWallet implements DeskWalletApi {
   /// Stops background work for good (the app is closing).
   Future<void> dispose() async {
     await lock();
+    await _node?.stop();
     await _changes.close();
   }
 }

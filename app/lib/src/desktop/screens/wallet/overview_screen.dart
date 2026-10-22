@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/tour.dart';
+import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../widgets/kit.dart';
+import '../settings/prefs.dart' show settingsPrefsProvider;
+import '../settings/settings_frame.dart' show groupDigits;
 import 'tx_display.dart';
 
 /// States the tour can start Overview in.
@@ -37,9 +40,14 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
     if (mounted) setState(() => _refreshing = false);
   }
 
+  /// Starts the built-in node again when it stopped; a running one is left as it is.
   Future<void> _restartNode() async {
     setState(() => _restarting = true);
-    await Future<void>.delayed(const Duration(milliseconds: 1500));
+    try {
+      await ref.read(deskProvider.notifier).useBuiltInNode(true);
+    } on Object catch (e) {
+      if (mounted) showEToast(context, 'Node not started', text: deskErrorText(e));
+    }
     if (mounted) setState(() => _restarting = false);
   }
 
@@ -119,9 +127,9 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
           text: 'Check that it is running and reachable. Balances may be out of date and sending is paused.',
           actionsBelow: true,
           actions: [
-            if (DeskFeatures.builtInNode)
+            if (DeskFeatures.builtInNode && ref.watch(settingsPrefsProvider).builtin)
             EButton(
-              label: _restarting ? 'Restarting' : 'Restart node',
+              label: _restarting ? 'Starting' : 'Start node',
               icon: EIcons.refresh,
               size: EBtnSize.inline,
               busy: _restarting,
@@ -410,20 +418,20 @@ class _BalancePanel extends ConsumerWidget {
                 ('Locked in sends', b?.locked, Icon(EIcons.lock, size: Ctl.iconSm, color: c.dim)),
               ];
               // Two columns on a narrow panel, one row otherwise.
-              if (box.maxWidth < 640.u) {
+              if (box.maxWidth < items.length * 180.u) {
                 final half = (box.maxWidth / 2).floorToDouble();
                 return Wrap(
                   children: [
                     for (final (i, it) in items.indexed)
                       SizedBox(
-                        width: half,
+                        width: i == items.length - 1 && items.length.isOdd ? box.maxWidth : half,
                         child: _Break(
-                          width: half,
+                          width: i == items.length - 1 && items.length.isOdd ? box.maxWidth : half,
                           label: it.$1,
                           nano: it.$2,
                           lead: it.$3,
                           dim: updating,
-                          right: i.isEven,
+                          right: i.isEven && !(i == items.length - 1 && items.length.isOdd),
                           bottom: i < items.length - (items.length.isEven ? 2 : 1),
                         ),
                       ),
@@ -759,7 +767,7 @@ class _StatusCard extends ConsumerWidget {
               'Node',
               nodeDown ? ServiceHealth.down : st.nodeHealth,
               st.node.url.replaceFirst(RegExp(r'^https?://'), ''),
-              sub: nodeDown ? 'Not answering' : 'Height ${st.nodeHeight}',
+              sub: nodeDown ? 'Not answering' : 'Height ${groupDigits(st.nodeHeight)}',
               mono: true,
             ),
             _SRow(EIcons.epicbox, 'Epicbox', st.epicboxHealth, st.epicbox.domain, mono: true),
@@ -833,7 +841,7 @@ class _StatusCard extends ConsumerWidget {
                 padding: EdgeInsets.fromLTRB(Sp.x5, Sp.x2, Sp.x5, Sp.x3),
                 child: Align(
                   alignment: Alignment.centerLeft,
-                  child: EButton(label: 'More options', size: EBtnSize.sm, onPressed: () => nav.go(DeskRoute.receive)),
+                  child: EButton(label: DeskFeatures.httpDirect || DeskFeatures.tor ? 'More options' : 'Open Receive', size: EBtnSize.sm, onPressed: () => nav.go(DeskRoute.receive)),
                 ),
               ),
             ],

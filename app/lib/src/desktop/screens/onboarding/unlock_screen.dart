@@ -31,7 +31,7 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
   final _password = TextEditingController();
   final _passwordFocus = FocusNode();
   List<WalletEntry>? _wallets;
-  String? _folder;
+  String? _id;
   String? _error;
   bool _missing = false;
 
@@ -61,13 +61,49 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
       case final String reason:
         _error = reason;
     }
-    ref.read(deskApiProvider).wallets().then((w) {
-      if (!mounted) return;
-      setState(() {
-        _wallets = w;
-        _folder = w.where((e) => e.current).firstOrNull?.folder ?? w.firstOrNull?.folder;
-      });
+    _loadWallets();
+  }
+
+  Future<void> _loadWallets() async {
+    final List<WalletEntry> w;
+    try {
+      w = await ref.read(deskApiProvider).wallets();
+    } on Object catch (e) {
+      if (mounted) setState(() => _error = deskErrorText(e));
+      return;
+    }
+    if (!mounted) return;
+    if (w.isEmpty) {
+      ref.read(deskNavProvider.notifier).reset(DeskRoute.welcome);
+      return;
+    }
+    final pick = w.where((e) => e.current).firstOrNull ?? w.first;
+    setState(() {
+      _wallets = w;
+      _id = pick.id;
+      if (pick.missing) _missing = true;
     });
+  }
+
+  Future<void> _select(String? id) async {
+    if (id == null) return;
+    setState(() {
+      _id = id;
+      _missing = _selected?.missing ?? false;
+      _error = null;
+    });
+    try {
+      await ref.read(deskApiProvider).selectWallet(id);
+    } on Object catch (e) {
+      if (mounted) setState(() => _error = deskErrorText(e));
+    }
+  }
+
+  Future<void> _removeMissing(WalletEntry w) async {
+    await showRemoveWalletDialog(context, w, mode: RemoveMode.list);
+    if (!mounted) return;
+    setState(() => _missing = false);
+    await _loadWallets();
   }
 
   @override
@@ -77,7 +113,7 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
     super.dispose();
   }
 
-  WalletEntry? get _selected => _wallets?.where((w) => w.folder == _folder).firstOrNull;
+  WalletEntry? get _selected => _wallets?.where((w) => w.id == _id).firstOrNull;
 
   List<Stage> get _stages => [
     const Stage('check', 'Checking wallet files'),
@@ -143,6 +179,7 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
     setState(() => _stage = 'unlock');
     final bool ok;
     try {
+      if (_id != null) await ref.read(deskApiProvider).selectWallet(_id!);
       ok = await ref.read(deskApiProvider).unlock(password);
     } on Object catch (e) {
       if (!mounted) return;
@@ -223,15 +260,12 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
                 label: 'Wallet',
                 child: ESelect<String>(
                   semanticLabel: 'Wallet',
-                  value: _folder ?? wallets.first.folder,
-                  onChanged: (v) => setState(() {
-                    _folder = v;
-                    _missing = false;
-                  }),
+                  value: _id ?? wallets.first.id,
+                  onChanged: _select,
                   items: [
                     for (final w in wallets)
                       ESelectItem(
-                        w.folder,
+                        w.id,
                         w.name,
                         subtitle: w.folder,
                         trailing: w.network == 'mainnet' ? null : ETag(networkName(w.network), tone: ETone.warn),
@@ -277,7 +311,7 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
               SizedBox(height: Sp.x5),
               ENotice(
                 title: 'This wallet’s folder is missing',
-                text: 'It was at ${selected?.folder ?? _folder ?? ''}',
+                text: 'It was at ${selected?.folder ?? ''}',
                 tone: ETone.risk,
                 icon: EIcons.alert,
               ),
@@ -291,7 +325,7 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
                     icon: EIcons.trash,
                     kind: EBtnKind.danger,
                     size: EBtnSize.sm,
-                    onPressed: selected == null ? null : () => showRemoveWalletDialog(context, selected, mode: RemoveMode.list),
+                    onPressed: selected == null ? null : () => _removeMissing(selected),
                   ),
                   EButton(
                     label: 'Try again',

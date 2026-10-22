@@ -117,6 +117,32 @@ class DeskController extends Notifier<DeskState> {
     state = DeskState(settings: state.settings, nodes: state.nodes, epicboxes: state.epicboxes);
   }
 
+  /// Re-reads the wallet list (Unlock, All wallets).
+  Future<List<WalletEntry>> loadWallets() async {
+    final wallets = await api.wallets();
+    state = state.copyWith(wallets: wallets);
+    return wallets;
+  }
+
+  Future<void> renameWallet(String id, String label) async {
+    await api.renameWallet(id, label);
+    final open = state.account?.id == id;
+    state = state.copyWith(account: open ? await api.account() : null, wallets: await api.wallets());
+  }
+
+  /// Removes a wallet ([WalletRemoval]); the open one is locked first, and the app shows
+  /// Unlock or Welcome after.
+  Future<void> removeWallet(String id, WalletRemoval mode, {String? password}) async {
+    final open = state.account != null && state.account?.id == id;
+    try {
+      await api.removeWallet(id, mode, password: password);
+    } finally {
+      // The adapter locks the open wallet even when the removal fails; the screen follows.
+      if (open) await lock();
+      await loadWallets();
+    }
+  }
+
   Future<void> _loadStatus() async {
     if (_statusPoll == null && _changes == null) return;
     try {
@@ -191,6 +217,8 @@ class DeskController extends Notifier<DeskState> {
   }
 
   Future<void> useNode(String url) => _reopening(() => api.useNode(url));
+
+  Future<void> useBuiltInNode(bool on) => _reopening(() => api.useBuiltInNode(on));
 
   Future<void> useEpicbox(String domain) => _reopening(() => api.useEpicbox(domain));
 

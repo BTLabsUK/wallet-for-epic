@@ -41,6 +41,11 @@ class WalletRegistryVersionException extends WalletRegistryException {
   const WalletRegistryVersionException(super.message);
 }
 
+/// No wallet with that id is listed.
+class WalletNotListedException extends WalletRegistryException {
+  const WalletNotListedException(super.message);
+}
+
 /// One wallet in the list.
 class WalletEntry {
   const WalletEntry({
@@ -165,6 +170,17 @@ class WalletRegistry {
   String? get lastUsedId =>
       _lastUsedId != null && byId(_lastUsedId!) != null ? _lastUsedId : null;
 
+  /// Throws before a mutation touches anything when the file is from a newer version.
+  void _requireWritable() {
+    final newer = _newerVersion;
+    if (newer != null) {
+      throw WalletRegistryVersionException(
+        'wallets.json is from a newer version of the app (version $newer); '
+        'update the app to change the wallet list',
+      );
+    }
+  }
+
   /// Runs [action] after every earlier call, so writes never interleave.
   Future<T> _locked<T>(Future<T> Function() action) {
     final done = _queue.then((_) => action());
@@ -175,10 +191,11 @@ class WalletRegistry {
   /// Reads `wallets.json`. A missing file is an empty list. A file that does not parse (or is
   /// not UTF-8) is renamed to `wallets.json.damaged-<millis>` (never removed) and the list
   /// rebuilt from the folders on disk ([rescan]) and the 0.1.0 wallets ([adoptLegacy]), so no
-  /// wallet is lost from view. One bad entry does not damage the file: it is skipped, kept as
+  /// wallet is lost from view (except a legacy wallet in [skipLegacy], which the user took off
+  /// the list). One bad entry does not damage the file: it is skipped, kept as
   /// it was, and written back unchanged. A file with a newer `version` is read as far as
   /// possible but never written: saving throws [WalletRegistryVersionException].
-  Future<void> load() => _locked(() async {
+  Future<void> load({Set<Chain> skipLegacy = const {}}) => _locked(() async {
     _entries.clear();
     _foreign = [];
     _newerVersion = null;
@@ -189,7 +206,7 @@ class WalletRegistry {
     try {
       text = utf8.decode(await file.readAsBytes());
     } on FormatException {
-      return _rebuild(file);
+      return _rebuild(file, skipLegacy);
     } on FileSystemException catch (e) {
       throw WalletRegistryException(
         'wallets.json could not be read (${e.osError?.message ?? e.message})',
@@ -213,11 +230,11 @@ class WalletRegistry {
       final last = json['lastUsedId'];
       _lastUsedId = last is String ? last : null;
     } on FormatException {
-      await _rebuild(file);
+      await _rebuild(file, skipLegacy);
     }
   });
 
-  Future<void> _rebuild(File file) async {
+  Future<void> _rebuild(File file, Set<Chain> skipLegacy) async {
     _entries.clear();
     _foreign = [];
     _lastUsedId = null;
@@ -226,6 +243,7 @@ class WalletRegistry {
     logWarn('wallets', 'wallets.json did not parse; kept as $aside');
     final entries = [...await _scan()];
     for (final chain in Chain.values) {
+      if (skipLegacy.contains(chain)) continue;
       final found = await _hasLepicFolder(_legacyDir(chain));
       final legacy = _legacyEntry(chain, found);
       if (legacy != null) entries.add(legacy);
@@ -238,6 +256,7 @@ class WalletRegistry {
   /// Without [label] the entry is called "Wallet N", N the lowest free number.
   Future<WalletEntry> add({required Chain chain, String? label}) =>
       _locked(() async {
+        _requireWritable();
         final name = label == null ? _nextLabel() : _checkLabel(label);
         final id = _newId();
         final dir = Directory('$_wallets$_sep$id$_sep${chain.name}')
@@ -262,6 +281,7 @@ class WalletRegistry {
     Chain chain, {
     Future<bool> Function(String dataDir)? exists,
   }) => _locked(() async {
+    _requireWritable();
     final found = await (exists ?? _hasLepicFolder)(_legacyDir(chain));
     final entry = _legacyEntry(chain, found);
     if (entry == null) return null;
@@ -291,6 +311,7 @@ class WalletRegistry {
 
   /// Renames to [label], trimmed, 1 to 32 characters. Duplicates are allowed.
   Future<WalletEntry> rename(String id, String label) => _locked(() async {
+    _requireWritable();
     final name = _checkLabel(label);
     final i = _indexOf(id);
     final entry = _entries[i].copyWith(label: name);
@@ -301,6 +322,7 @@ class WalletRegistry {
 
   /// Records that [id] was opened now, and that it is the one to open next time.
   Future<WalletEntry> markOpened(String id) => _locked(() async {
+    _requireWritable();
     final i = _indexOf(id);
     final entry = _entries[i].copyWith(lastOpenedAt: _now());
     await _save([..._entries]..[i] = entry, id);
@@ -312,6 +334,7 @@ class WalletRegistry {
   /// "Remove from list": drops the entry only. Files and store keys stay, and [rescan] finds
   /// an id wallet again.
   Future<void> forget(String id) => _locked(() async {
+    _requireWritable();
     final i = _indexOf(id);
     final last = _lastUsedId == id ? null : _lastUsedId;
     await _save([..._entries]..removeAt(i), last);
@@ -329,6 +352,7 @@ class WalletRegistry {
 
   /// Puts a [rescan] candidate in the list.
   Future<WalletEntry> restore(WalletEntry candidate) => _locked(() async {
+    _requireWritable();
     final existing = byId(candidate.id);
     if (existing != null) return existing;
     await _save([..._entries, candidate], _lastUsedId);
@@ -350,6 +374,7 @@ class WalletRegistry {
     required WalletService service,
     required WalletConfig config,
   }) => _locked(() async {
+    _requireWritable();
     final i = _indexOf(id);
     final entry = _entries[i];
     final expected = entry.isLegacy
@@ -467,7 +492,7 @@ class WalletRegistry {
 
   int _indexOf(String id) {
     final i = _entries.indexWhere((e) => e.id == id);
-    if (i < 0) throw WalletRegistryException('no wallet with id $id');
+    if (i < 0) throw WalletNotListedException('no wallet with id $id');
     return i;
   }
 
@@ -513,13 +538,7 @@ class WalletRegistry {
   /// list. Memory is only changed by the caller, after this returns. Entries this code could
   /// not read are written back unchanged.
   Future<void> _save(List<WalletEntry> entries, String? lastUsedId) async {
-    final newer = _newerVersion;
-    if (newer != null) {
-      throw WalletRegistryVersionException(
-        'wallets.json is from a newer version of the app (version $newer); '
-        'update the app to change the wallet list',
-      );
-    }
+    _requireWritable();
     Directory(root).createSync(recursive: true);
     final tmp = File('${_file.path}.tmp');
     final json = const JsonEncoder.withIndent('  ').convert({

@@ -16,7 +16,9 @@ param(
     [string]$LepicCache,
     [string]$OutDir,
     [string]$Flutter = "$env:USERPROFILE\flutter\bin",
-    [string]$Iscc = "$env:LOCALAPPDATA\Programs\Inno Setup 6\ISCC.exe"
+    [string]$Iscc = "$env:LOCALAPPDATA\Programs\Inno Setup 6\ISCC.exe",
+    # The built-in node's epic.exe (optional), bundled as bin\epic.exe next to epic_wallet.exe.
+    [string]$NodeBin
 )
 $ErrorActionPreference = 'Stop'
 $Source = (Resolve-Path $Source).Path
@@ -104,6 +106,12 @@ Step 'VC runtime'
 foreach ($d in 'msvcp140.dll', 'vcruntime140.dll', 'vcruntime140_1.dll') {
     Copy-Item "$env:SystemRoot\System32\$d" $rel -Force
     Write-Output "bundled $d $((Get-Item "$rel\$d").VersionInfo.FileVersion)"
+}
+
+if ($NodeBin) {
+    New-Item -ItemType Directory -Force "$rel\bin" | Out-Null
+    Copy-Item $NodeBin "$rel\bin\epic.exe" -Force
+    Write-Output "bundled bin\epic.exe $((Get-FileHash "$rel\bin\epic.exe" -Algorithm SHA256).Hash.ToLower())"
 }
 
 # --- installer
