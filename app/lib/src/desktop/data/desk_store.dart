@@ -61,12 +61,13 @@ class DeskStore {
   }
 
   Future<void> saveHttpPrefs(String? walletId, HttpPrefs p) async {
-    if (walletId != null)
+    if (walletId != null) {
       return writeJson(httpKeyOf(walletId), {
         'publicMode': p.publicMode,
         'httpPort': p.port,
         'autostart': p.autostart,
       });
+    }
     final settings = await readJson(settingsKey);
     final prefs = await readJson(prefsKey);
     await writeJson(settingsKey, {

@@ -395,8 +395,9 @@ class LepicDeskWallet implements DeskWalletApi {
           await r.delete(id, service: _service, config: config);
           await _store.delete(_metaKey(entry.walletId));
           await _store.delete(DeskStore.favouritesKeyOf(entry.walletId));
-          if (entry.walletId != null)
+          if (entry.walletId != null) {
             await _store.delete(DeskStore.httpKeyOf(entry.walletId));
+          }
       }
     } on reg.WalletRegistryException catch (e) {
       throw _listError(e);
@@ -855,8 +856,9 @@ class LepicDeskWallet implements DeskWalletApi {
         await r.delete(id, service: _service, config: await _configOf(entry));
         await _store.delete(_metaKey(entry.walletId));
         await _store.delete(DeskStore.favouritesKeyOf(entry.walletId));
-        if (entry.walletId != null)
+        if (entry.walletId != null) {
           await _store.delete(DeskStore.httpKeyOf(entry.walletId));
+        }
         // Kept on failure, so Cancel can try again.
         _imported.remove(id);
       } on Object catch (e) {
@@ -1172,7 +1174,7 @@ class LepicDeskWallet implements DeskWalletApi {
           if (problem != null) return SendFailed(problem);
           // Send asks before plain HTTP leaves this computer; LEPIC refuses it otherwise.
           if (plainHttpNeedsConsent(to) && !r.allowPlainHttp) return const SendFailed('Plain HTTP not confirmed');
-          before = {for (final e in _entries ?? await session.transactions(refresh: false)) e.id};
+          before = {for (final e in await session.transactions(refresh: false)) e.id};
           final sent = await session.sendHttp(
             amount: BigInt.from(amount),
             minimumConfirmations: _minConf,
@@ -1183,8 +1185,11 @@ class LepicDeskWallet implements DeskWalletApi {
           await _reload();
           final tx = _txs().where((t) => t.id == sent.txId).firstOrNull ??
               Tx(id: sent.txId, slateId: sent.slateId, direction: TxDirection.sent, state: TxState.posted, method: TxMethod.http, amount: amount, fee: 0, created: DateTime.now(), counterparty: to);
-          if (!sent.posted && !await _repost(session, sent.txId)) {
-            return const SendFailed('Signed by both wallets, but the node refused it. Cancel it in Activity to unlock the funds.', inActivity: true);
+          if (!sent.posted) {
+            if (!await _repost(session, sent.txId)) {
+              return const SendFailed('Signed by both wallets, but the node refused it. Cancel it in Activity to unlock the funds.', inActivity: true);
+            }
+            return SendDone(_txs().where((t) => t.id == sent.txId).firstOrNull ?? tx);
           }
           return SendDone(tx);
         case TxMethod.tor:
@@ -1195,10 +1200,23 @@ class LepicDeskWallet implements DeskWalletApi {
       // LEPIC stores an HTTP send and locks its inputs before it delivers: whatever fails after
       // that leaves the payment in Activity.
       final seen = before;
-      final stored = seen != null && (_entries ?? const <core.TxEntry>[]).any((t) => !seen.contains(t.id) && t.kind == core.TxKind.sent);
+      var stored = false;
+      if (seen != null) {
+        try {
+          stored = (await session.transactions(refresh: false)).any((t) => !seen.contains(t.id) && t.kind == core.TxKind.sent);
+        } on core.WalletError {
+          // Unknown: say what is safe, that it may wait in Activity.
+          stored = true;
+        }
+      }
       const waits = 'The payment waits in Activity; cancel it there to unlock the funds.';
       if (e.kind == core.WalletErrorKind.transportFailed) {
-        return SendFailed(r.method == TxMethod.http ? 'The recipient’s wallet did not answer or refused. $waits' : 'Not delivered. $waits', inActivity: true);
+        if (r.method == TxMethod.http) {
+          return stored
+              ? const SendFailed('The recipient’s wallet did not answer or refused. $waits', inActivity: true)
+              : const SendFailed('The recipient’s wallet did not answer or refused.');
+        }
+        return const SendFailed('Not delivered. $waits', inActivity: true);
       }
       if (stored) return SendFailed('${deskErrorText(e).replaceFirst(RegExp(r'\.$'), '')}. $waits', inActivity: true);
       return SendFailed(deskErrorText(e));
@@ -1207,10 +1225,13 @@ class LepicDeskWallet implements DeskWalletApi {
 
   /// Posts a finished HTTP send again, once, when the node did not take it. True when it did.
   Future<bool> _repost(core.WalletSession session, int txId) async {
-    final key = (_entries ?? const <core.TxEntry>[])
-        .where((t) => t.id == txId)
-        .firstOrNull
-        ?.key;
+    final String? key;
+    try {
+      key = (await session.transactions(refresh: false)).where((t) => t.id == txId).firstOrNull?.key;
+    } on core.WalletError catch (e) {
+      logWarn('desk', 'repost: ${e.kind.name}');
+      return false;
+    }
     if (key == null) return false;
     try {
       await session.repostTransaction(key: key);
