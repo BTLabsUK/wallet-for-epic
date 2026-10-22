@@ -251,7 +251,15 @@ abstract interface class WalletSession {
   /// [ReceivedSlate.repeated] set; nothing is stored or signed again.
   Future<ReceivedSlate> receiveSlate({required String slateJson});
 
-  Stream<ScanProgress> scan({BigInt? startHeight});
+  /// Scans the chain from [startHeight] (the wallet's birth when null). With
+  /// [deleteUnconfirmed], a scan that completes also cancels unconfirmed transactions,
+  /// deleting their outputs, and unlocks locked outputs found on chain. A stopped scan resumes
+  /// when started again with the same start and flag.
+  Stream<ScanProgress> scan({BigInt? startHeight, bool deleteUnconfirmed = false});
+
+  /// Stops a running [scan] at its next page; its stream then ends without a `finished`
+  /// event. Pages stored so far stay. Nothing happens when no scan runs.
+  void cancelScan();
 
   Future<WalletSummary> summary({
     required bool refresh,
@@ -1208,11 +1216,24 @@ class FakeWalletSession implements WalletSession {
     return HttpSent(txId: txId, slateId: tx.slateId!, posted: httpPosted);
   }
 
+  /// When set, [scan] answers this stream instead of [scanEvents].
+  Stream<ScanProgress>? scanStream;
+
+  /// How often [cancelScan] was called.
+  int scanCancels = 0;
+
+  /// [scan]'s last deleteUnconfirmed.
+  bool? scanDeleteUnconfirmed;
+
   @override
-  Stream<ScanProgress> scan({BigInt? startHeight}) {
+  Stream<ScanProgress> scan({BigInt? startHeight, bool deleteUnconfirmed = false}) {
     scanCalls++;
-    return Stream.fromIterable(scanEvents);
+    scanDeleteUnconfirmed = deleteUnconfirmed;
+    return scanStream ?? Stream.fromIterable(scanEvents);
   }
+
+  @override
+  void cancelScan() => scanCancels++;
 
   @override
   Future<WalletSummary> summary({

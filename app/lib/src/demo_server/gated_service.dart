@@ -347,8 +347,16 @@ class GatedWalletSession implements WalletSession {
       _inner.receiveSlate(slateJson: slateJson);
 
   @override
-  Stream<ScanProgress> scan({BigInt? startHeight}) =>
-      _inner.scan(startHeight: startHeight);
+  Stream<ScanProgress> scan({
+    BigInt? startHeight,
+    bool deleteUnconfirmed = false,
+  }) => _inner.scan(
+    startHeight: startHeight,
+    deleteUnconfirmed: deleteUnconfirmed,
+  );
+
+  @override
+  void cancelScan() => _inner.cancelScan();
 
   @override
   Future<WalletSummary> summary({

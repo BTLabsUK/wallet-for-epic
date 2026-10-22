@@ -1126,17 +1126,43 @@ class LepicWalletSession implements WalletSession {
   );
 
   @override
-  Stream<ScanProgress> scan({BigInt? startHeight}) => _guardStream(
+  Stream<ScanProgress> scan({
+    BigInt? startHeight,
+    bool deleteUnconfirmed = false,
+  }) => _guardStream(
     _wallet
-        .scan(startHeight: startHeight)
+        .scan(startHeight: startHeight, deleteUnconfirmed: deleteUnconfirmed)
+        // cancelScan ends the stream with `cancelled`: a stop, not a failure.
+        .handleError(
+          (Object _) {},
+          test: (e) =>
+              e is lepic.WalletError &&
+              e.kind == lepic.WalletErrorKind.cancelled,
+        )
         .map(
           (p) => ScanProgress(
             percent: p.percent,
             message: p.message,
             finished: p.finished,
+            result: switch (p.result) {
+              final r? => ScanResult(
+                resumed: r.resumed,
+                found: r.found.toInt(),
+                restored: r.restored.toInt(),
+                revived: r.revived.toInt(),
+                unlocked: r.unlocked.toInt(),
+                deleted: r.deleted.toInt(),
+              ),
+              null => null,
+            },
           ),
         ),
   );
+
+  @override
+  void cancelScan() {
+    if (!_wallet.isDisposed) _guardSync(_wallet.cancelScan);
+  }
 
   /// LEPIC counts balances with its own confirmations and reports them in the summary
   /// (`countedConfirmationsProvider`), so [minimumConfirmations] changes nothing.

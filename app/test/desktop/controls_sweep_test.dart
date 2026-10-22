@@ -175,7 +175,9 @@ class _Recorder implements DeskWalletApi {
   @override
   Future<void> syncNow() => _r('syncNow', _m.syncNow);
   @override
-  Stream<ScanStep> rescan() => _r('rescan', _m.rescan);
+  Stream<ScanStep> rescan({bool deleteUnconfirmed = false}) => _r('rescan', () => _m.rescan(deleteUnconfirmed: deleteUnconfirmed));
+  @override
+  Future<void> stopRescan() => _r('stopRescan', _m.stopRescan);
   @override
   Stream<void> changes() => _m.changes();
   @override

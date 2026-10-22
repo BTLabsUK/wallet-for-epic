@@ -2034,19 +2034,43 @@ class LepicDeskWallet implements DeskWalletApi {
   }
 
   @override
-  Stream<ScanStep> rescan() async* {
+  Stream<ScanStep> rescan({bool deleteUnconfirmed = false}) async* {
     final session = _open;
     final key = _metaKey(_openEntry?.walletId);
+    var finished = false;
     try {
-      await for (final p in session.scan()) {
-        yield ScanStep(p.message, percent: p.percent);
+      await for (final p in session.scan(deleteUnconfirmed: deleteUnconfirmed)) {
+        finished = finished || p.finished;
+        final r = p.result;
+        yield ScanStep(
+          p.message,
+          percent: p.percent,
+          finished: p.finished,
+          counts: r == null
+              ? null
+              : ScanCounts(found: r.found, restored: r.restored, revived: r.revived, unlocked: r.unlocked, deleted: r.deleted, resumed: r.resumed),
+        );
       }
     } on core.WalletError catch (e) {
       throw _deskError(e);
     }
-    await _setMeta({'scanPending': false}, key);
-    _notice = null;
+    // A stopped scan leaves a due scan due; either way the balance is read again.
+    if (finished) {
+      await _setMeta({'scanPending': false}, key);
+      _notice = null;
+    }
+    logInfo('desk', finished ? 'rescan finished' : 'rescan stopped');
     await sync();
+  }
+
+  @override
+  Future<void> stopRescan() async {
+    logInfo('desk', 'rescan stop asked');
+    try {
+      _session?.cancelScan();
+    } on core.WalletError catch (e) {
+      logWarn('desk', 'stop rescan: ${e.kind.name}');
+    }
   }
 
   @override

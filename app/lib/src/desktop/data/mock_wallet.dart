@@ -467,15 +467,27 @@ class MockDeskWallet implements DeskWalletApi {
     'Scanning for outputs, 41% complete',
   ];
 
+  bool _scanStop = false;
+
   @override
-  Stream<ScanStep> rescan() async* {
-    for (final line in _scanLog) {
+  Stream<ScanStep> rescan({bool deleteUnconfirmed = false}) async* {
+    _scanStop = false;
+    for (final (i, line) in _scanLog.indexed) {
       await _wait(2.5);
-      yield ScanStep(line);
+      if (_scanStop) return;
+      yield ScanStep(line, percent: (i + 1) * 100 ~/ (_scanLog.length + 1));
     }
     await _wait(2);
-    yield const ScanStep('Scan complete', percent: 100);
+    yield ScanStep(
+      'Scan complete',
+      percent: 100,
+      finished: true,
+      counts: ScanCounts(found: 6, restored: 1, unlocked: deleteUnconfirmed ? 1 : 0, deleted: deleteUnconfirmed ? 1 : 0),
+    );
   }
+
+  @override
+  Future<void> stopRescan() async => _scanStop = true;
 
   @override
   Future<void> syncNow() => _wait(3);

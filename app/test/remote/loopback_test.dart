@@ -42,7 +42,7 @@ class ArgsSession extends FakeWalletSession {
   final Map<String, Object?> args = {};
 
   @override
-  Stream<ScanProgress> scan({BigInt? startHeight}) {
+  Stream<ScanProgress> scan({BigInt? startHeight, bool deleteUnconfirmed = false}) {
     args['scan.startHeight'] = startHeight;
     return super.scan(startHeight: startHeight);
   }
