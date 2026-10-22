@@ -96,27 +96,27 @@ void main() {
   group('Send to an onion', () {
     testWidgets('Tor off: Turn on Tor, then the send goes over Tor', (tester) async {
       await show(tester, const SendScreen(arg: SendArgs(method: TxMethod.http, recipient: _onion, amount: '1')));
-      // Given under Direct › HTTP, routed to Tor.
+      // Given under HTTP, the method follows the onion to Tor.
       expect(find.text('Tor is off'), findsOneWidget);
       expect(tester.widget<EButton>(find.widgetWithText(EButton, 'Review send')).onPressed, isNull);
-      await tester.tap(find.widgetWithText(EButton, 'Turn on Tor'));
+      await tester.tap(find.widgetWithText(EButton, 'Turn on Tor receiving'));
       await tester.pumpAndSettle();
       expect(find.text('Tor is off'), findsNothing);
       await tester.tap(find.text('Review send'));
       await tester.pumpAndSettle();
-      expect(find.text('Direct over Tor (the recipient’s wallet must be online)'), findsOneWidget);
+      expect(find.text('Tor (their wallet must be open)'), findsOneWidget);
       await tester.tap(find.text('Send 1.0000 EPIC'));
       await tester.pumpAndSettle();
       expect(wallet.sent.single.method, TxMethod.tor);
       expect(wallet.sent.single.to, _onion);
     }, skip: _skip);
 
-    testWidgets('an onion typed under Epicbox goes to Direct › Tor', (tester) async {
+    testWidgets('an onion pasted under Epicbox switches to Tor', (tester) async {
       await show(tester, const SendScreen(arg: SendArgs(amount: '1')));
       await tester.enterText(find.byType(EditableText).first, _onion);
       await tester.pumpAndSettle();
-      expect(find.text('Through Tor to an .onion address. The recipient’s wallet must be online.'), findsOneWidget);
-      expect(find.widgetWithText(EButton, 'Turn on Tor'), findsOneWidget);
+      expect(find.text('Straight to their wallet, over Tor.'), findsOneWidget);
+      expect(find.widgetWithText(EButton, 'Turn on Tor receiving'), findsOneWidget);
     }, skip: _skip);
   });
 }

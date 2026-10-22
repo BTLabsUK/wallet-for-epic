@@ -8,7 +8,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../widgets/kit.dart';
-import '../../widgets/motion.dart';
 
 String _outputs(int n) => n == 1 ? '1 output' : '$n outputs';
 

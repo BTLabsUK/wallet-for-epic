@@ -31,9 +31,10 @@ final Map<RegExp, String> _allowed = {
   RegExp(r'^settingsAbout\|Check now$'): 'Asks the update server again; in tests it answers as before, so the line stays.',
   RegExp(r'^settingsHelp\|Open log folder$'): 'In tests the log is in memory, with no folder: says so. The real log folder opens.',
   RegExp(r'^31b-dlg-my-node-error\|Save$'): 'Refuses the bad address; its error is on screen already.',
-  RegExp(r'^receive\|Show QR code of the HTTP address$'): 'Enabled first on 17d, which shows the HTTP QR already (live_controls_test presses it from the Epic one).',
+  RegExp(r'^receive\|[\u{E000}-\u{10FFFF}]*$', unicode: true):
+      'The header\'s method icons scroll to their panel; on these shots every panel is in view (receive_test checks the jump).',
   RegExp(r'^outputs\|Smallest spends '): 'A help icon: its text shows on hover and, pressed, in a toast.',
-  RegExp(r'^35-dlg-tx-proof\|Export$'):'Behind DeskFeatures.paymentProofs (off): the dialog cannot be opened in the app.',
+  RegExp(r'^35-dlg-tx-proof\|Export$'): 'Behind DeskFeatures.paymentProofs (off): the dialog cannot be opened in the app.',
 };
 
 /// What the real wallet only stubs (throws UnsupportedError); a visible control must not reach them.

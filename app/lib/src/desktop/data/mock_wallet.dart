@@ -37,9 +37,9 @@ class MockDeskWallet implements DeskWalletApi {
   final List<Contact> _contacts = [
     Contact(id: 'c1', name: 'Anna Kowalska', address: 'esYb3kq9TzWmR8uPfVc2LdN6hJx4gA7sKeQ1oBnC5vD9rHtF3w@epicbox.epiccash.com', favourite: true, lastUsed: _ago(days: 1), hasPicture: true),
     Contact(id: 'c2', name: 'Mining pool payouts', address: 'esZr8mQ2pVtW5kNcY7uLfB3hJd9gA4sXeR6oTnC1vK8xHwP2b@epicbox.epicnet.us', note: 'Weekly payouts', lastUsed: _ago(days: 3)),
-    Contact(id: 'c3', name: 'Exchange deposit', address: 'esQa1nB7cVxZ3mL9kJ5hG2fD8sA6pO4iU1yT7rE3wQ9eR5tY@epicbox.epiccash.com', lastUsed: _ago(days: 12)),
+    Contact(id: 'c3', name: 'Exchange deposit', address: 'esQa1nB7cVxZ3mL9kJ5hG2fD8sA6pP4iU1yT7rE3wQ9eR5tY@epicbox.epiccash.com', lastUsed: _ago(days: 12)),
     Contact(id: 'c4', name: 'Tom', address: 'http://10.0.1.24:3415', note: 'Home server'),
-    Contact(id: 'c5', name: 'Merchant: Coffee', address: 'esP9oI8uY7tR6eW5qA4sD3fG2hJ1kL0zX9cV8bN7mQ6wE5rT@epicbox.stackwallet.com'),
+    Contact(id: 'c5', name: 'Merchant: Coffee', address: 'esP9o78uY7tR6eW5qA4sD3fG2hJ1kL9zX9cV8bN7mQ6wE5rT@epicbox.stackwallet.com'),
   ];
 
   late final List<Tx> _txs = [
