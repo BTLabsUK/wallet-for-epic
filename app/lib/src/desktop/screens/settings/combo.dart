@@ -135,7 +135,7 @@ class ServiceCombo extends StatefulWidget {
   final String? error;
 
   /// Rows after the list: (label, icon, action).
-  final List<(String, IconData, VoidCallback)> footer;
+  final List<(String, IconData, void Function(String typed))> footer;
   final bool openInitially;
   final String? initialQuery;
 
@@ -410,8 +410,9 @@ class ServiceComboState extends State<ServiceCombo> {
       children.add(
         InkWell(
           onTap: () {
+            final typed = _text.text.trim();
             collapse();
-            run();
+            run(typed);
           },
           borderRadius: BorderRadius.circular(Rad.sm),
           child: Container(

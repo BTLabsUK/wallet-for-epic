@@ -279,6 +279,19 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
     await _useRemote(value);
   }
 
+  /// "Add to my nodes" with [typed] in the picker's field: the dialog starts from that address
+  /// (scheme added as a pick would) and the label; Cancel puts the typed text back in the field.
+  Future<void> _addTyped(String typed) async {
+    final t = typed.trim();
+    if (!_addressLike.hasMatch(t)) {
+      await showMyNodeDialog(context, adding: true);
+      return;
+    }
+    _combo.currentState?.collapse();
+    final saved = await showMyNodeDialog(context, initial: nodeUrlOf(t), adding: true);
+    if (saved != true && mounted) _combo.currentState?.keepTyped(t);
+  }
+
   Future<void> _useRemote(String value) async {
     setState(() {
       _saving = true;
@@ -364,7 +377,7 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
         height: checking ? null : r.height,
         actions: [
           if (!mine.any((n) => n.url == t))
-            EIconButton(icon: EIcons.starOutline, label: 'Add to my nodes', size: EBtnSize.inline, tabStop: false, onPressed: () => showMyNodeDialog(context, initial: t, adding: true)),
+            EIconButton(icon: EIcons.starOutline, label: 'Add to my nodes', size: EBtnSize.inline, tabStop: false, onPressed: () => _addTyped(t)),
         ],
       );
     }
@@ -436,8 +449,8 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
                     listNote: nodeListNote,
                     onPicked: _pick,
                     footer: [
-                      ('Add to my nodes…', EIcons.plus, () => showMyNodeDialog(context, adding: true)),
-                      ('Node directory…', EIcons.book, () => showNodeDirectoryDialog(context)),
+                      ('Add to my nodes…', EIcons.plus, _addTyped),
+                      ('Node directory…', EIcons.book, (_) => showNodeDirectoryDialog(context)),
                     ],
                   ),
                 ),

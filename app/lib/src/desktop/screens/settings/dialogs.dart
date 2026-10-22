@@ -13,8 +13,9 @@ import 'settings_node.dart' show hostOf, minNodeVersion, nodeTone, versionOld;
 
 /// Add a node to My nodes, or edit one: address (checked as it is typed) and an optional
 /// label. A node can be saved while it is offline. [showError] opens with a bad address.
-Future<void> showMyNodeDialog(BuildContext context, {String initial = '', String label = '', bool adding = false, bool showError = false}) =>
-    showEDialog(
+/// Adding with an [initial] address starts in the label field. Answers true once saved.
+Future<bool?> showMyNodeDialog(BuildContext context, {String initial = '', String label = '', bool adding = false, bool showError = false}) =>
+    showEDialog<bool>(
       context,
       builder: (_) => MyNodeDialog(initial: initial, label: label, editing: !adding && initial.isNotEmpty, showError: showError),
     );
@@ -111,7 +112,7 @@ class _MyNodeDialogState extends ConsumerState<MyNodeDialog> {
     prefs.restoreNode(url);
     prefs.label(url, label);
     if (!mounted) return;
-    Navigator.of(context).pop();
+    Navigator.of(context).pop(true);
     showEToast(context, widget.editing ? 'Node saved' : 'Added to my nodes', text: label.isEmpty ? hostOf(url) : label);
   }
 
@@ -157,7 +158,7 @@ class _MyNodeDialogState extends ConsumerState<MyNodeDialog> {
               hint: 'http://10.0.1.24:3413',
               mono: true,
               invalid: problem != null,
-              autofocus: true,
+              autofocus: widget.editing || widget.initial.isEmpty,
               semanticLabel: 'Node address',
               onChanged: (_) => _recheck(),
             ),
@@ -167,7 +168,7 @@ class _MyNodeDialogState extends ConsumerState<MyNodeDialog> {
           EField(
             label: 'Label',
             optional: true,
-            child: EInput(controller: _label, hint: 'e.g. Home node', semanticLabel: 'Label'),
+            child: EInput(controller: _label, hint: 'e.g. Home node', autofocus: !widget.editing && widget.initial.isNotEmpty, semanticLabel: 'Label'),
           ),
         ],
       ),
