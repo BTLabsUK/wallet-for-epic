@@ -95,11 +95,12 @@ void main() {
     ));
     await tester.pumpAndSettle();
     expect(find.text('Current size 600 KB of 2.0 MB. Keeps one older file.'), findsOneWidget);
+    expect(find.textContaining('Detailed keeps more lines on disk for 24 hours; addresses may appear in the file, reports leave them out.'), findsOneWidget);
 
     await tester.tap(find.text('Detailed'));
     await tester.pumpAndSettle();
     expect(AppLog.detailed, isTrue);
-    expect(find.textContaining('Detailed until tomorrow 09:30, then Normal.'), findsOneWidget);
+    expect(find.textContaining('Detailed until tomorrow 09:30, then Normal. Addresses may appear in the file; reports leave them out.'), findsOneWidget);
     expect((await store.readJson(logsKey) as Map)['until'], now.add(detailedFor).millisecondsSinceEpoch);
     expect(container.read(logsProvider).label, 'detailed (app only)');
 

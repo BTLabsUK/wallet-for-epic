@@ -74,8 +74,8 @@ class _LogsGroupState extends ConsumerState<LogsGroup> {
         ESetRow(
           title: 'Log level',
           text: level == null
-              ? 'Normal. Detailed adds more lines for troubleshooting, for 24 hours.'
-              : 'Detailed until ${_until(level)}, then Normal.'
+              ? 'Normal. Detailed keeps more lines on disk for 24 hours; addresses may appear in the file, reports leave them out.'
+              : 'Detailed until ${_until(level)}, then Normal. Addresses may appear in the file; reports leave them out.'
                     '${logs.coreDetailed ? '' : ' Wallet core lines get detailed from the next app start.'}',
           control: ESegmented<bool>(
             value: logs.detailed,
