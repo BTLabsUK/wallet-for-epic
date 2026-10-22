@@ -61,9 +61,6 @@ void logLepicEntry(lepic.LogEntry entry) {
   AppLog.record(level, entry.target, line.toString());
 }
 
-/// What a send LEPIC cannot build from the coins at hand (ChangeTooSmall, TooHeavy) says.
-const String sendUnbuildable = 'This send cannot be built from the coins available.';
-
 /// LEPIC's error as the app's. The switch is exhaustive, so a kind LEPIC adds breaks the build
 /// here instead of reaching the UI unmapped.
 WalletError mapLepicError(lepic.WalletError error) {

@@ -25,7 +25,6 @@ import 'package:path_provider/path_provider.dart';
 import '../../builtin_node.dart';
 import '../../legacy_gui_profile.dart' as gui;
 import '../../legacy_wallets.dart' as legacy;
-import '../../lepic_wallet_service.dart' show sendUnbuildable;
 import '../../log.dart';
 import '../../network.dart';
 import '../../providers.dart' show WalletDirResolver, defaultMinimumConfirmations;
@@ -82,7 +81,7 @@ String deskErrorText(Object error) {
     core.WalletErrorKind.chainBusy || core.WalletErrorKind.walletBusy => 'Wallet busy. Try again in a moment.',
     core.WalletErrorKind.damagedDatabase => 'Wallet database damaged, rebuilding',
     core.WalletErrorKind.paymentExpired => detail.isEmpty ? 'Payment expired' : detail,
-    core.WalletErrorKind.invalidArgument => detail == sendUnbuildable ? detail : detail.isEmpty ? 'Not accepted' : 'Not accepted: $detail',
+    core.WalletErrorKind.invalidArgument => detail == core.sendUnbuildable ? detail : detail.isEmpty ? 'Not accepted' : 'Not accepted: $detail',
     core.WalletErrorKind.io => detail.isEmpty ? 'Disk error' : 'Disk error: $detail',
     core.WalletErrorKind.other => detail.isEmpty ? 'Something went wrong' : detail,
   };
@@ -101,6 +100,7 @@ String torFailureText(core.TorFailure? f) => switch (f) {
 DeskError _deskError(Object error) => DeskError(
   deskErrorText(error),
   wrongPassword: error is core.WalletError && error.kind == core.WalletErrorKind.wrongPassword,
+  unbuildable: error is core.WalletError && error.kind == core.WalletErrorKind.invalidArgument && error.message == core.sendUnbuildable,
 );
 
 class LepicDeskWallet implements DeskWalletApi {
@@ -532,6 +532,7 @@ class LepicDeskWallet implements DeskWalletApi {
             await _store.delete(DeskStore.httpKeyOf(entry.walletId));
           }
           await _store.delete(DeskStore.torKeyOf(entry.walletId));
+          await _store.delete(DeskStore.outputsKeyOf(entry.walletId));
       }
     } on reg.WalletRegistryException catch (e) {
       throw _listError(e);
@@ -1360,9 +1361,16 @@ class LepicDeskWallet implements DeskWalletApi {
     return [for (final (i, e) in entries.indexed) deskTx(e, tip: _tip, minConf: _minConf.toInt(), fallbackId: -1 - i, contactName: names[e.counterparty])];
   }
 
-  /// Outputs are not in LEPIC's API yet ([DeskFeatures.coins]).
+  /// Every output, spent ones included, from the wallet's database (as of the last refresh).
   @override
-  Future<List<Output>> outputs() async => const [];
+  Future<List<Output>> outputs() async {
+    try {
+      final list = await _open.outputs();
+      return [for (final o in list) deskOutput(o, minConf: _minConf.toInt())];
+    } on core.WalletError catch (e) {
+      throw _deskError(e);
+    }
+  }
 
   @override
   Future<List<Contact>> contacts() async {
@@ -1551,6 +1559,56 @@ class LepicDeskWallet implements DeskWalletApi {
   }
 
   @override
+  Future<SendEstimate> estimateSend(int amount, {SendOptions? options}) async {
+    try {
+      final f = await _open.estimateFee(amount: BigInt.from(amount), minimumConfirmations: _minConf, options: options);
+      return SendEstimate.fromFee(f);
+    } on core.WalletError catch (e) {
+      throw _deskError(e);
+    }
+  }
+
+  @override
+  Future<OutputPrefs> outputPrefs() => _store.outputPrefs(_openEntry?.walletId);
+
+  @override
+  Future<SendEstimate> estimateSplit(int outputs) async {
+    try {
+      return SendEstimate.fromFee(await _open.estimateSplit(outputs: outputs, minimumConfirmations: _minConf));
+    } on core.WalletError catch (e) {
+      throw _deskError(e);
+    }
+  }
+
+  @override
+  Future<SelfSend> splitOutputs(int outputs) => _selfSend(() => _open.splitOutputs(outputs: outputs, minimumConfirmations: _minConf));
+
+  @override
+  Future<SendEstimate> estimateConsolidate() async {
+    try {
+      return SendEstimate.fromFee(await _open.estimateConsolidate(minimumConfirmations: _minConf));
+    } on core.WalletError catch (e) {
+      throw _deskError(e);
+    }
+  }
+
+  @override
+  Future<SelfSend> consolidateOutputs() => _selfSend(() => _open.consolidateOutputs(minimumConfirmations: _minConf));
+
+  /// Runs a split or consolidate and brings balance and history up to date, failed or not:
+  /// a self-send the node did not take is stored with its inputs locked.
+  Future<SelfSend> _selfSend(Future<core.SelfSentTx> Function() run) async {
+    try {
+      final t = await run();
+      return SelfSend(txId: t.txId, receivedTxId: t.receivedTxId, amount: t.amount.toInt(), fee: t.fee.toInt(), inputCount: t.inputCount, outputCount: t.outputCount);
+    } on core.WalletError catch (e) {
+      throw _deskError(e);
+    } finally {
+      await _reload();
+    }
+  }
+
+  @override
   Future<(int, int)> estimateMax() async {
     try {
       final f = await _open.estimateMax(minimumConfirmations: _minConf);
@@ -1576,11 +1634,11 @@ class LepicDeskWallet implements DeskWalletApi {
         case TxMethod.epicbox:
           final to = (r.to ?? '').trim();
           if (!_service.validateEpicboxAddress(address: to)) return const SendFailed('Not an Epicbox address');
-          final e = await session.sendEpicbox(amount: BigInt.from(amount), minimumConfirmations: _minConf, address: to, message: message);
+          final e = await session.sendEpicbox(amount: BigInt.from(amount), minimumConfirmations: _minConf, address: to, message: message, options: r.options);
           await _reload();
           return SendDone(_txFor(e));
         case TxMethod.file:
-          final slate = await session.createSendSlate(amount: BigInt.from(amount), minimumConfirmations: _minConf, message: message);
+          final slate = await session.createSendSlate(amount: BigInt.from(amount), minimumConfirmations: _minConf, message: message, options: r.options);
           final File file;
           try {
             final dir = await _filesDir();
@@ -1610,6 +1668,7 @@ class LepicDeskWallet implements DeskWalletApi {
             url: to,
             allowPlainHttp: r.allowPlainHttp && plainHttpNeedsConsent(to),
             message: message,
+            options: r.options,
           );
           return await _directDone(session, sent, method, amount, to);
         case TxMethod.tor:
@@ -2298,6 +2357,37 @@ class LepicDeskWallet implements DeskWalletApi {
 }
 
 DateTime? _time(Object? unix) => unix is int ? DateTime.fromMillisecondsSinceEpoch(unix * 1000) : null;
+
+/// One output as the Outputs tab shows it. An unspent output under [minConf] confirmations
+/// is confirming, a mining reward below its lock height immature; an unconfirmed one (not on
+/// chain yet, or a reward still being mined) is unconfirmed.
+Output deskOutput(core.WalletOutput o, {required int minConf}) {
+  final status = switch (o.status) {
+    core.WalletOutputStatus.spent => OutputStatus.spent,
+    core.WalletOutputStatus.locked => OutputStatus.locked,
+    core.WalletOutputStatus.unconfirmed => OutputStatus.unconfirmed,
+    core.WalletOutputStatus.unspent => switch (o.category) {
+      core.OutputCategory.spendable => OutputStatus.unspent,
+      core.OutputCategory.immature => OutputStatus.immature,
+      core.OutputCategory.awaitingConfirmation => OutputStatus.confirming,
+      core.OutputCategory.locked => OutputStatus.locked,
+      core.OutputCategory.awaitingFinalization || null => OutputStatus.unconfirmed,
+    },
+  };
+  final onChain = o.status != core.WalletOutputStatus.unconfirmed;
+  return Output(
+    commitment: o.commitment,
+    value: o.value.toInt(),
+    status: status,
+    height: onChain ? o.height.toInt() : null,
+    confirmations: o.confirmations.toInt(),
+    confirmationsNeeded: minConf,
+    lockHeight: o.isCoinbase ? o.lockHeight.toInt() : null,
+    isCoinbase: o.isCoinbase,
+    mmrIndex: o.mmrIndex?.toInt(),
+    txId: o.txId,
+  );
+}
 
 /// One history row as the desktop UI shows it. [tip] is the node's height, for confirmations.
 /// Rows without a local id (imported, restored) get [fallbackId], below 0.

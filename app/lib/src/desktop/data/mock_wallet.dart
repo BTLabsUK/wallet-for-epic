@@ -302,6 +302,12 @@ class MockDeskWallet implements DeskWalletApi {
   @override
   Future<List<Output>> outputs() async {
     await _wait(0.5);
+    return _outputs;
+  }
+
+  late final List<Output> _outputs = _cannedOutputs();
+
+  List<Output> _cannedOutputs() {
     String cmt(int i) => '08${List.generate(64, (k) => '0123456789abcdef'[(i * 7 + k * 13 + k * k) % 16]).join()}';
     return [
       Output(commitment: cmt(1), value: _epic(25), status: OutputStatus.confirming, height: 2914410, confirmations: 2),
@@ -322,6 +328,66 @@ class MockDeskWallet implements DeskWalletApi {
           confirmations: 34414 + i * 5760,
         ),
     ];
+  }
+
+  /// What one change or split output past the first adds to the fee.
+  static final int _outputFee = _epic(0.001);
+
+  List<Output> get _spendable => _outputs.where((o) => o.spendable).toList()..sort((a, b) => a.value.compareTo(b.value));
+
+  @override
+  Future<SendEstimate> estimateSend(int amount, {SendOptions? options}) async {
+    final o = options ?? const SendOptions();
+    final n = o.changeOutputs;
+    if (n < 1 || n > 10) throw const DeskError('Not accepted: change outputs 1 to 10');
+    final fee = await estimateFee(amount) + _outputFee * (n - 1);
+    var sum = 0;
+    var count = 0;
+    for (final out in _spendable) {
+      if (o.strategy == SelectionStrategy.smallest && sum >= amount + fee) break;
+      sum += out.value;
+      count++;
+    }
+    if (sum < amount + fee) throw const DeskError('Not enough funds');
+    final change = sum - amount - fee;
+    if (change > 0 && change < n) throw const DeskError('This send cannot be built from the coins available.', unbuildable: true);
+    return SendEstimate(amount: amount, fee: fee, inputCount: count, change: change, locked: sum, changeOutputs: change == 0 ? 0 : n);
+  }
+
+  @override
+  Future<OutputPrefs> outputPrefs() async => const OutputPrefs();
+
+  Future<SendEstimate> _selfEstimate(int outputs) async {
+    await _wait(0.4);
+    final all = _spendable;
+    final sum = all.fold(0, (a, o) => a + o.value);
+    final fee = _epic(0.006) + _outputFee * (outputs - 1);
+    if (sum < fee + outputs) throw const DeskError('Not enough funds');
+    final part = (sum - fee) ~/ outputs;
+    return SendEstimate(amount: part, fee: fee, inputCount: all.length, change: sum - fee - part, locked: sum, changeOutputs: outputs - 1);
+  }
+
+  @override
+  Future<SendEstimate> estimateSplit(int outputs) {
+    if (outputs < 2 || outputs > 10) throw const DeskError('Not accepted: 2 to 10 outputs');
+    return _selfEstimate(outputs);
+  }
+
+  @override
+  Future<SelfSend> splitOutputs(int outputs) async {
+    final e = await estimateSplit(outputs);
+    await _wait(3);
+    return SelfSend(txId: _nextId++, receivedTxId: _nextId++, amount: e.amount, fee: e.fee, inputCount: e.inputCount, outputCount: outputs);
+  }
+
+  @override
+  Future<SendEstimate> estimateConsolidate() => _selfEstimate(1);
+
+  @override
+  Future<SelfSend> consolidateOutputs() async {
+    final e = await estimateConsolidate();
+    await _wait(3);
+    return SelfSend(txId: _nextId++, receivedTxId: _nextId++, amount: e.amount, fee: e.fee, inputCount: e.inputCount, outputCount: 1);
   }
 
   @override

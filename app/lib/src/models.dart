@@ -106,6 +106,10 @@ class FeeEstimate {
           changeOutputs == other.changeOutputs;
 }
 
+/// What a send the core cannot build from the coins at hand (change too small for the change
+/// outputs asked for, too heavy) says, with [WalletErrorKind.invalidArgument].
+const String sendUnbuildable = 'This send cannot be built from the coins available.';
+
 /// How a send chooses the outputs it spends, as `epic-wallet send --selection_strategy`.
 enum SelectionStrategy {
   /// The fewest of the smallest outputs that cover amount and fee: the rest of the balance

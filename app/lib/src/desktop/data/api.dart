@@ -120,6 +120,27 @@ abstract interface class DeskWalletApi {
 
   /// The largest amount that can be sent now and its fee (Send › All).
   Future<(int, int)> estimateMax();
+
+  /// What a send of [amount] with [options] would spend, pay and get back now (F11's summary,
+  /// F12's SmartOutputs: `planSend` in `smart_outputs.dart`); nothing is locked. Null
+  /// [options] is the wallet's default. A split the coins cannot build throws a [DeskError]
+  /// with [DeskError.unbuildable].
+  Future<SendEstimate> estimateSend(int amount, {SendOptions? options});
+
+  /// The open wallet's Outputs choices: default strategy and SmartOutputs (F13, D-5).
+  Future<OutputPrefs> outputPrefs();
+
+  // Outputs (F13, only when [DeskFeatures.coins]). A split and a consolidate are normal
+  // network transactions to the wallet itself; each spends every spendable output, so the
+  // whole balance is locked until it confirms.
+
+  /// The fee and inputs of splitting the spendable balance into [outputs] outputs (2 to 10).
+  Future<SendEstimate> estimateSplit(int outputs);
+  Future<SelfSend> splitOutputs(int outputs);
+
+  /// The fee and inputs of merging every spendable output into one.
+  Future<SendEstimate> estimateConsolidate();
+  Future<SelfSend> consolidateOutputs();
   Future<SendResult> send(SendRequest request);
   Future<ReceivedFile> receiveFile(String fileName);
   Future<Tx> finalizeFile(String fileName);

@@ -157,6 +157,18 @@ class _Recorder implements DeskWalletApi {
   @override
   Future<(int, int)> estimateMax() => _r('estimateMax', _m.estimateMax);
   @override
+  Future<SendEstimate> estimateSend(int amount, {SendOptions? options}) => _r('estimateSend', () => _m.estimateSend(amount, options: options));
+  @override
+  Future<OutputPrefs> outputPrefs() => _r('outputPrefs', _m.outputPrefs);
+  @override
+  Future<SendEstimate> estimateSplit(int outputs) => _r('estimateSplit', () => _m.estimateSplit(outputs));
+  @override
+  Future<SelfSend> splitOutputs(int outputs) => _r('splitOutputs', () => _m.splitOutputs(outputs));
+  @override
+  Future<SendEstimate> estimateConsolidate() => _r('estimateConsolidate', _m.estimateConsolidate);
+  @override
+  Future<SelfSend> consolidateOutputs() => _r('consolidateOutputs', _m.consolidateOutputs);
+  @override
   Future<SendResult> send(SendRequest request) => _r('send', () => _m.send(request));
   @override
   Future<ReceivedFile> receiveFile(String fileName) => _r('receiveFile', () => _m.receiveFile(fileName));

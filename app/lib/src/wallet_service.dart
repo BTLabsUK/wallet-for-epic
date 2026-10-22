@@ -1619,7 +1619,7 @@ class FakeWalletSession implements WalletSession {
     if (change > BigInt.zero && change < BigInt.from(n)) {
       throw const WalletError(
         kind: WalletErrorKind.invalidArgument,
-        message: 'change too small to split',
+        message: sendUnbuildable,
       );
     }
     return FeeEstimate(
