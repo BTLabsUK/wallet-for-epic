@@ -112,7 +112,6 @@ class _Harness {
           phoneTorTimingProvider.overrideWithValue(
             const PhoneTorTiming(
               backoff: [Duration(hours: 1)],
-              stall: Duration(hours: 1),
               sendWait: Duration(hours: 1),
             ),
           ),

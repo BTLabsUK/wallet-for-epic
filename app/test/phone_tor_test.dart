@@ -38,8 +38,8 @@ class _Harness {
               Duration(milliseconds: 60),
               Duration(milliseconds: 120),
             ],
-            stall: Duration(milliseconds: 150),
             sendWait: Duration(milliseconds: 600),
+            networkSettle: Duration(milliseconds: 30),
           ),
         ),
       ],
@@ -307,18 +307,21 @@ void main() {
     expect(h.session.torStarts, hasLength(2));
   });
 
-  test('resume finds tor off (torStatus) and restarts it', () async {
-    h.store.values[h.key] = 'true';
-    await h.unlock();
-    h.emit(TorEventKind.ready);
-    await h.until((s) => s.phase == PhoneTorPhase.ready);
-    _background();
-    // Tor died while frozen and said nothing.
-    h.session.torStatusValue = TorStatus.off;
-    _foreground();
-    await h.until((s) => s.phase == PhoneTorPhase.starting);
-    expect(h.session.torStarts, hasLength(2));
-  });
+  test(
+    'resume: refreshTor says tor is not running, so it is restarted',
+    () async {
+      h.store.values[h.key] = 'true';
+      await h.unlock();
+      h.emit(TorEventKind.ready);
+      await h.until((s) => s.phase == PhoneTorPhase.ready);
+      _background();
+      // Tor died while frozen and said nothing.
+      h.session.torStatusValue = TorStatus.off;
+      _foreground();
+      await h.until((s) => s.phase == PhoneTorPhase.starting);
+      expect(h.session.torStarts, hasLength(2));
+    },
+  );
 
   test('resume with tor running and fine leaves it alone', () async {
     h.store.values[h.key] = 'true';
@@ -347,7 +350,7 @@ void main() {
       onion: h.session.onion,
     );
     h.network.add(true);
-    await h.settle(60);
+    await h.settle(100);
     expect(h.session.torRefreshes, [true]);
     expect(h.session.torStarts, hasLength(1));
     expect(h.state.phase, PhoneTorPhase.ready);
@@ -363,7 +366,7 @@ void main() {
     _lifecycle(const [AppLifecycleState.hidden, AppLifecycleState.inactive]);
     // Not resumed yet; the network event alone does not run while in background.
     h.network.add(true);
-    await h.settle(60);
+    await h.settle(100);
     expect(h.session.torStarts, hasLength(1));
     _lifecycle(const [AppLifecycleState.resumed]);
     await h.until((s) => s.phase == PhoneTorPhase.starting);
@@ -375,19 +378,113 @@ void main() {
     expect(h.session.torStarts, hasLength(3));
   });
 
-  test('a stalled start is retried once by itself', () async {
+  test(
+    'a slow start is left to LEPIC; when it gives up, tor is restarted',
+    () async {
+      h.store.values[h.key] = 'true';
+      await h.unlock();
+      h.emit(TorEventKind.starting, progress: 10);
+      await h.until((s) => s.progress == 10);
+      // No progress for a while: the app does not stop it (LEPIC's deadlines decide).
+      await h.settle(250);
+      expect(h.session.torStops, 0);
+      expect(h.session.torStarts, hasLength(1));
+      expect(h.state.phase, PhoneTorPhase.starting);
+      // LEPIC's deadline passed: failed (network) and stopped, then the backoff restart.
+      h.emit(TorEventKind.failed, failure: TorFailure.network);
+      h.emit(TorEventKind.stopped);
+      await h.until((s) => s.phase == PhoneTorPhase.failed);
+      await h.until((s) => s.phase == PhoneTorPhase.starting);
+      expect(h.session.torStarts, hasLength(2));
+    },
+  );
+
+  test('a start while tor is still stopping waits for the stop', () async {
     h.store.values[h.key] = 'true';
     await h.unlock();
-    h.emit(TorEventKind.starting, progress: 10);
-    await h.until((s) => s.progress == 10);
-    // No progress past the stall time: stopped and started again.
-    await h.settle(250);
-    expect(h.session.torStops, 1);
+    h.emit(TorEventKind.ready);
+    await h.until((s) => s.phase == PhoneTorPhase.ready);
+    final gate = h.session.torStopGate = Completer<void>();
+    final stopping = h.tor.setReceiving(false);
+    await h.until((s) => s.phase == PhoneTorPhase.off);
+    final send = h.tor.ensureForSend();
+    await h.settle();
+    expect(h.session.torStarts, hasLength(1));
+    expect(h.state.phase, PhoneTorPhase.starting);
+    gate.complete();
+    await stopping;
+    await h.until((_) => h.session.torStarts.length == 2);
+    // The old tor's `stopped` did not end the new start.
+    expect(h.state.phase, PhoneTorPhase.starting);
+    h.emit(TorEventKind.bootstrapped);
+    await send;
+    expect(h.state.phase, PhoneTorPhase.connected);
+  });
+
+  test('a refresh that answers late leaves a newer tor alone', () async {
+    h.store.values[h.key] = 'true';
+    await h.unlock();
+    h.emit(TorEventKind.ready);
+    await h.until((s) => s.phase == PhoneTorPhase.ready);
+    final gate = h.session.torRefreshGate = Completer<void>();
+    _background();
+    _foreground();
+    await h.settle();
+    expect(h.session.torRefreshes, [false]);
+    // The tor ends while the refresh waits, and is restarted.
+    h.emit(TorEventKind.stopped);
+    await h.until((_) => h.session.torStarts.length == 2);
+    h.session.torStatusValue = TorStatus.off;
+    gate.complete();
+    await h.settle(100);
     expect(h.session.torStarts, hasLength(2));
     expect(h.state.phase, PhoneTorPhase.starting);
-    // A second stall is left to the user (Retry).
-    await h.settle(300);
-    expect(h.session.torStarts, hasLength(2));
+  });
+
+  test('a send from before a lock does not upset the count after it', () async {
+    h.store.values[h.key] = 'true';
+    await h.unlock();
+    h.emit(TorEventKind.ready);
+    await h.until((s) => s.phase == PhoneTorPhase.ready);
+    final old = Completer<void>();
+    final oldSend = h.tor.whileSending(() => old.future);
+    await h.settle();
+    h.container.read(sessionProvider.notifier).lock();
+    await h.unlock();
+    h.emit(TorEventKind.ready);
+    await h.until((s) => s.phase == PhoneTorPhase.ready);
+    old.complete();
+    await oldSend;
+    final gate = Completer<void>();
+    final sending = h.tor.whileSending(() => gate.future);
+    await h.settle();
+    final stops = h.session.torStops;
+    await h.tor.setReceiving(false);
+    // A send runs: tor stops only after it.
+    expect(h.session.torStops, stops);
+    gate.complete();
+    await sending;
+    expect(h.session.torStops, stops + 1);
+    expect(h.state.phase, PhoneTorPhase.off);
+  });
+
+  test('a network flap refreshes tor once', () async {
+    h.store.values[h.key] = 'true';
+    await h.unlock();
+    h.emit(TorEventKind.ready);
+    await h.until((s) => s.phase == PhoneTorPhase.ready);
+    h.session.torStatusValue = TorStatus(
+      kind: TorStatusKind.ready,
+      onion: h.session.onion,
+    );
+    h.network
+      ..add(true)
+      ..add(false)
+      ..add(true);
+    await h.settle(10);
+    expect(h.session.torRefreshes, isEmpty);
+    await h.settle(100);
+    expect(h.session.torRefreshes, [true]);
   });
 
   test('retry stops and starts again', () async {

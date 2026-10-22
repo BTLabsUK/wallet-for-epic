@@ -134,18 +134,19 @@ class PhoneTorTiming {
       Duration(seconds: 30),
       Duration(seconds: 60),
     ],
-    this.stall = const Duration(seconds: 45),
     this.sendWait = const Duration(minutes: 3),
+    this.networkSettle = const Duration(milliseconds: 1500),
   });
 
-  /// Before each restart in a row; the last one repeats.
+  /// Before each restart in a row; the last one repeats. A start that stalls is LEPIC's to
+  /// end (its own deadlines, longer on a first start); it ends as failed and comes back here.
   final List<Duration> backoff;
-
-  /// Starting with no progress for this long is a stall: stopped and started again, once.
-  final Duration stall;
 
   /// [PhoneTor.ensureForSend] gives up after this.
   final Duration sendWait;
+
+  /// The network must stay back this long before tor is refreshed: a flap refreshes once.
+  final Duration networkSettle;
 }
 
 final phoneTorTimingProvider = Provider<PhoneTorTiming>(
@@ -173,10 +174,12 @@ class PhoneTor extends Notifier<PhoneTorState> {
   /// Receiving was turned off while a send ran: stop once the sends end.
   bool _stopAfterSends = false;
   int _restarts = 0;
-  bool _stallRetried = false;
   bool _foreground = true;
   Timer? _restartTimer;
-  Timer? _stallTimer;
+  Timer? _networkTimer;
+
+  /// A [_stop] waiting on LEPIC; a start waits for it, or its stream would end at once.
+  Future<void>? _stopping;
   final List<Completer<void>> _sendWaiters = [];
 
   static String receivingKey(WalletConfig config) =>
@@ -194,14 +197,17 @@ class PhoneTor extends Notifier<PhoneTorState> {
     _sendsInFlight = 0;
     _stopAfterSends = false;
     _restarts = 0;
-    _stallRetried = false;
     // A plain observer, not an AppLifecycleListener: on `paused` the app locks first, which
     // rebuilds this notifier and removes the observer while the binding is still dispatching
     // to its copy of the list; a disposed AppLifecycleListener asserts on that call.
     final lifecycle = _LifecycleObserver(_onLifecycle);
     WidgetsBinding.instance.addObserver(lifecycle);
     final network = ref.watch(networkChangesProvider).listen((available) {
-      if (available) _wake('network');
+      _networkTimer?.cancel();
+      if (!available) return;
+      _networkTimer = Timer(ref.read(phoneTorTimingProvider).networkSettle, () {
+        if (_current(generation)) _wake('network');
+      });
     });
     ref.onDispose(() {
       // LEPIC stops tor when the session is disposed (lock); only our side ends here.
@@ -209,7 +215,7 @@ class PhoneTor extends Notifier<PhoneTorState> {
       _tor = null;
       unawaited(sub?.cancel());
       _restartTimer?.cancel();
-      _stallTimer?.cancel();
+      _networkTimer?.cancel();
       _failWaiters('wallet locked');
       WidgetsBinding.instance.removeObserver(lifecycle);
       unawaited(network.cancel());
@@ -309,13 +315,18 @@ class PhoneTor extends Notifier<PhoneTorState> {
   /// Runs [send] (a `sendTor` or `resendTor`) once tor is up ([ensureForSend]), so turning
   /// receiving off meanwhile stops tor only after it.
   Future<T> whileSending<T>(Future<T> Function() send) async {
+    // A lock or another wallet resets the count: a send of an older one leaves it alone.
+    final generation = _generation;
     _sendsInFlight++;
     try {
       await ensureForSend();
       return await send();
     } finally {
-      _sendsInFlight--;
-      if (_sendsInFlight == 0 && _stopAfterSends && ref.mounted) {
+      if (generation == _generation) _sendsInFlight--;
+      if (generation == _generation &&
+          _sendsInFlight == 0 &&
+          _stopAfterSends &&
+          ref.mounted) {
         _stopAfterSends = false;
         if (!_wanted) await _stop();
       }
@@ -327,7 +338,6 @@ class PhoneTor extends Notifier<PhoneTorState> {
     if (_session == null || state.phase == PhoneTorPhase.unavailable) return;
     _restartTimer?.cancel();
     _restarts = 0;
-    _stallRetried = false;
     await _stop(keepFailure: false);
     if (ref.mounted && _session != null) _start();
   }
@@ -338,13 +348,21 @@ class PhoneTor extends Notifier<PhoneTorState> {
     if (session == null || bundle == null || _running) return;
     _restartTimer?.cancel();
     final generation = _generation;
-    logInfo('tor', 'start');
     state = state.copyWith(
       phase: PhoneTorPhase.starting,
       progress: () => 0,
       failure: () => null,
     );
-    _armStall();
+    final stopping = _stopping;
+    if (stopping != null) {
+      unawaited(
+        stopping.whenComplete(() {
+          if (_current(generation) && _wanted) _start();
+        }),
+      );
+      return;
+    }
+    logInfo('tor', 'start');
     late final StreamSubscription<TorEvent> sub;
     sub = session
         .startTor(torBinary: bundle.binary, libDir: bundle.libDir)
@@ -373,12 +391,9 @@ class PhoneTor extends Notifier<PhoneTorState> {
       case TorEventKind.starting:
         if (state.phase != PhoneTorPhase.starting) break;
         final progress = e.progress ?? state.progress;
-        if (progress != state.progress) _armStall();
         state = state.copyWith(progress: () => progress);
       case TorEventKind.bootstrapped || TorEventKind.publishing:
-        _stallTimer?.cancel();
         _restarts = 0;
-        _stallRetried = false;
         // A listener or keys failure stays shown: tor runs for sends only.
         state = state.copyWith(
           phase: PhoneTorPhase.connected,
@@ -386,9 +401,7 @@ class PhoneTor extends Notifier<PhoneTorState> {
         );
         _completeWaiters();
       case TorEventKind.ready:
-        _stallTimer?.cancel();
         _restarts = 0;
-        _stallRetried = false;
         state = state.copyWith(
           phase: PhoneTorPhase.ready,
           progress: () => null,
@@ -401,7 +414,6 @@ class PhoneTor extends Notifier<PhoneTorState> {
         final forSends =
             e.failure == TorFailure.listener || e.failure == TorFailure.keys;
         if (forSends) {
-          _stallTimer?.cancel();
           state = state.copyWith(
             phase: PhoneTorPhase.connected,
             progress: () => null,
@@ -426,7 +438,6 @@ class PhoneTor extends Notifier<PhoneTorState> {
     final sub = _tor;
     _tor = null;
     unawaited(sub?.cancel());
-    _stallTimer?.cancel();
     state = state.copyWith(
       phase: PhoneTorPhase.failed,
       progress: () => null,
@@ -452,50 +463,40 @@ class PhoneTor extends Notifier<PhoneTorState> {
     });
   }
 
-  /// A start with no progress for a while is stopped and started again, once per run of
-  /// starts (the first start sometimes stalls, a second one goes through).
-  void _armStall() {
-    _stallTimer?.cancel();
-    if (_stallRetried) return;
-    final generation = _generation;
-    _stallTimer = Timer(ref.read(phoneTorTimingProvider).stall, () {
-      if (!_current(generation) || state.phase != PhoneTorPhase.starting) {
-        return;
-      }
-      _stallRetried = true;
-      logInfo('tor', 'start stalled at ${state.progress}%, starting again');
-      unawaited(_restartNow(generation));
-    });
-  }
-
-  Future<void> _restartNow(int generation) async {
-    await _stop(keepFailure: false, quiet: true);
-    if (_current(generation)) _start();
-  }
-
   /// Stops tor (and its listener) and shows off.
-  Future<void> _stop({bool keepFailure = false, bool quiet = false}) async {
+  Future<void> _stop({bool keepFailure = false}) async {
     final sub = _tor;
     _tor = null;
     _restartTimer?.cancel();
-    _stallTimer?.cancel();
     final session = _session;
-    if (!quiet) {
-      state = state.copyWith(
-        phase: PhoneTorPhase.off,
-        progress: () => null,
-        failure: keepFailure ? null : () => null,
-      );
-      _failWaiters('stopped');
-    }
+    state = state.copyWith(
+      phase: PhoneTorPhase.off,
+      progress: () => null,
+      failure: keepFailure ? null : () => null,
+    );
+    _failWaiters('stopped');
     if (sub == null) return;
     logInfo('tor', 'stop');
-    await sub.cancel();
+    final stopping = _stopTor(session, sub);
+    _stopping = stopping;
+    try {
+      await stopping;
+    } finally {
+      if (identical(_stopping, stopping)) _stopping = null;
+    }
+  }
+
+  /// LEPIC's stop first: a start meanwhile waits on [_stopping], not on our cancel.
+  Future<void> _stopTor(
+    WalletSession? session,
+    StreamSubscription<TorEvent> sub,
+  ) async {
     try {
       await session?.stopTor();
     } on WalletError catch (e) {
       logWarn('tor', 'stop: ${e.kind.name}');
     }
+    await sub.cancel();
   }
 
   void _onLifecycle(AppLifecycleState s) {
@@ -528,6 +529,8 @@ class PhoneTor extends Notifier<PhoneTorState> {
   Future<void> _nudge(String why) async {
     final session = _session;
     final generation = _generation;
+    // The tor checked: if it ended and another started meanwhile, that one is left alone.
+    final sub = _tor;
     if (session == null) return;
     try {
       await session.refreshTor(networkChanged: why == 'network');
@@ -541,7 +544,7 @@ class PhoneTor extends Notifier<PhoneTorState> {
       logWarn('tor', 'refresh after $why: ${e.runtimeType}');
       return;
     }
-    if (!_current(generation) || !_running) return;
+    if (!_current(generation) || sub == null || _tor != sub) return;
     // While tor still starts there is nothing to refresh, and LEPIC says so without an
     // error; torNotRunning here is a tor that ended.
     logInfo('tor', 'not running after $why');

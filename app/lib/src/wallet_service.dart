@@ -1124,8 +1124,12 @@ class FakeWalletSession implements WalletSession {
     return torEvents.stream;
   }
 
+  /// Holds [stopTor] until completed, as LEPIC taking a while to stop tor.
+  Completer<void>? torStopGate;
+
   @override
   Future<void> stopTor() async {
+    await torStopGate?.future;
     torStops++;
     torStatusValue = TorStatus.off;
     torEvents.add(const TorEvent(kind: TorEventKind.stopped));
@@ -1137,11 +1141,18 @@ class FakeWalletSession implements WalletSession {
   /// Every [refreshTor] call, by `networkChanged`.
   final List<bool> torRefreshes = [];
 
+  /// Holds [refreshTor] until completed; it then answers by [torStatusValue] as it is then.
+  Completer<void>? torRefreshGate;
+
   @override
   Future<void> refreshTor({required bool networkChanged}) async {
     torRefreshes.add(networkChanged);
+    await torRefreshGate?.future;
     if (torStatusValue.kind == TorStatusKind.off) {
-      throw const WalletError(kind: WalletErrorKind.torNotRunning, message: 'tor is not running');
+      throw const WalletError(
+        kind: WalletErrorKind.torNotRunning,
+        message: 'tor is not running',
+      );
     }
   }
 
@@ -1403,7 +1414,9 @@ class FakeWalletSession implements WalletSession {
   );
 
   @override
-  Future<LegacyHistoryImport> importLegacyHistory({required String sourceDir}) async {
+  Future<LegacyHistoryImport> importLegacyHistory({
+    required String sourceDir,
+  }) async {
     legacyImports.add(sourceDir);
     return legacyImport;
   }
