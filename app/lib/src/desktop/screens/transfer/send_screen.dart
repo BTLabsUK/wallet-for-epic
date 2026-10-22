@@ -361,12 +361,12 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     return contacts.where(contactSendable).where((c) => c.name.toLowerCase().contains(q) || c.address.toLowerCase().contains(q)).take(4).toList();
   }
 
-  Future<void> _startListener() async {
+  Future<void> _startEpicbox() async {
     setState(() => _starting = true);
     try {
-      await ref.read(deskProvider.notifier).setListening(true);
+      await ref.read(deskProvider.notifier).setEpicboxListening(true);
     } on Object catch (e) {
-      if (mounted) showEToast(context, 'Listener not started', text: deskErrorText(e), tone: ETone.risk);
+      if (mounted) showEToast(context, 'Epicbox not turned on', text: deskErrorText(e), tone: ETone.risk);
     } finally {
       if (mounted) setState(() => _starting = false);
     }
@@ -582,12 +582,12 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     if (_epicboxBlocked(st)) {
       return ENotice(
         title: 'Epicbox not connected',
-        text: 'Epicbox sends are possible once the listener runs. Send by file meanwhile.',
+        text: 'Epicbox sends work once Epicbox receiving is on. Send by file meanwhile.',
         tone: ETone.warn,
         icon: EIcons.antenna,
         actions: [
           if (eb == ServiceHealth.off)
-            EButton(label: 'Start listener', icon: EIcons.antenna, size: EBtnSize.inline, busy: _starting, onPressed: _starting ? null : _startListener),
+            EButton(label: 'Turn on Epicbox receiving', icon: EIcons.epicbox, size: EBtnSize.inline, busy: _starting, onPressed: _starting ? null : _startEpicbox),
         ],
       );
     }

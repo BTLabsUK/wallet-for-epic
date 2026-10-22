@@ -42,7 +42,7 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
     Future.microtask(() async {
       final n = ref.read(deskProvider.notifier);
       final s = ref.read(deskProvider).settings;
-      if ((arg == ReceivingDemo.torOn || arg == ReceivingDemo.torStopped) && !s.tor) await n.setTor(true);
+      if (arg == ReceivingDemo.torOn || arg == ReceivingDemo.torStopped) await n.setTor(true);
       if (arg == ReceivingDemo.httpOn || arg == ReceivingDemo.httpFailed || arg == ReceivingDemo.httpPublic) await n.setHttp(true);
       if (arg == ReceivingDemo.httpPublic && !s.publicMode) await n.saveSettings(ref.read(deskProvider).settings.copyWith(publicMode: true));
     });
@@ -76,9 +76,8 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
     final n = ref.read(deskProvider.notifier);
     try {
       switch (m) {
-        // TODO(w4 step D): setEpicboxListening once the per-method data lands.
         case TxMethod.epicbox:
-          await n.setListening(on);
+          await n.setEpicboxListening(on);
         case TxMethod.http:
           await n.setHttp(on);
         case TxMethod.tor:
@@ -153,6 +152,14 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
     );
   }
 
+  Future<void> _saveAutostart(DeskSettings s) async {
+    try {
+      await ref.read(deskProvider.notifier).saveSettings(s);
+    } on Object catch (e) {
+      if (mounted) showEToast(context, 'Not saved', text: deskErrorText(e), tone: ETone.risk);
+    }
+  }
+
   Widget _autostart(TxMethod m, bool value, ValueChanged<bool>? onChanged) => ESetRow(
     title: 'Start with the wallet',
     text: 'Turns on at unlock.',
@@ -173,8 +180,6 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
   @override
   Widget build(BuildContext context) {
     final st = ref.watch(deskProvider);
-    final prefs = ref.watch(settingsPrefsProvider);
-    final p = ref.read(settingsPrefsProvider.notifier);
     final boxes = st.epicboxes;
     final raw = st.status;
     if (boxes == null || raw == null) {
@@ -201,8 +206,7 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
               ebLine,
               notice: status.epicboxHealth == ServiceHealth.down ? const EpicboxDownNotice() : null,
             ),
-            // TODO(w4 step D): DeskSettings.epicboxAutostart replaces the app-wide pref.
-            _autostart(TxMethod.epicbox, prefs.epicboxOnStart, (v) => p.set(prefs.copyWith(epicboxOnStart: v))),
+            _autostart(TxMethod.epicbox, s.epicboxAutostart, (v) => _saveAutostart(s.copyWith(epicboxAutostart: v))),
             ESetRow(
               title: 'Epicbox server',
               text: 'Which server holds payments for this address. Both wallets can use different servers.',
@@ -244,7 +248,7 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
           if (DeskFeatures.httpDirect)
             _group(TxMethod.http, SettingsJump.http, 'HTTP receiving', httpLine, [
               _receivingRow(TxMethod.http, 'Straight from another wallet while this one is open.', status.httpListener != ServiceHealth.off, httpLine),
-              _autostart(TxMethod.http, s.httpAutostart, (v) => ref.read(deskProvider.notifier).saveSettings(s.copyWith(httpAutostart: v))),
+              _autostart(TxMethod.http, s.httpAutostart, (v) => _saveAutostart(s.copyWith(httpAutostart: v))),
               const HttpOptions(),
             ]),
           if (DeskFeatures.tor)
@@ -256,9 +260,7 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
                 torLine,
                 enabled: status.torIncluded,
               ),
-              // TODO(w4 step D): DeskSettings.torAutostart; until then Tor starts at unlock
-              // exactly when it is on, so the row shows that and cannot differ.
-              _autostart(TxMethod.tor, s.tor && status.torIncluded, null),
+              _autostart(TxMethod.tor, s.torAutostart && status.torIncluded, status.torIncluded ? (v) => _saveAutostart(s.copyWith(torAutostart: v)) : null),
             ]),
         ],
       ),

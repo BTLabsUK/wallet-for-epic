@@ -102,7 +102,7 @@ void main() {
       expect(find.text('http://127.0.0.1:3415'), findsNothing, reason: 'the address lives on Receive');
     });
 
-    testWidgets('From the internet only through the guide', (tester) async {
+    testWidgets('From the internet: the guide the first time, then straight', (tester) async {
       await show(tester, const SettingsReceivingScreen());
       await tester.tap(httpSwitch());
       await tester.pumpAndSettle();
@@ -114,10 +114,10 @@ void main() {
       await tester.pumpAndSettle();
       expect(container.read(deskProvider).settings.publicMode, isFalse);
 
+      // Seen once: the next pick switches straight (the guide stays behind the (?)).
       await tester.tap(find.text('From the internet'));
       await tester.pumpAndSettle();
-      await tester.tap(find.widgetWithText(EButton, 'Receive from the internet'));
-      await tester.pumpAndSettle();
+      expect(find.byType(InternetGuide), findsNothing);
       expect(container.read(deskProvider).settings.publicMode, isTrue);
       expect(httpState(tester), 'On · from the internet, port 3415');
       expect(find.textContaining('must forward TCP 3415'), findsOneWidget);

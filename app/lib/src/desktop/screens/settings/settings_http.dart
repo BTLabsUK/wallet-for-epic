@@ -72,8 +72,17 @@ class _HttpOptionsState extends ConsumerState<HttpOptions> {
     if (s.httpPort != port) await _run(() => n.saveSettings(s.copyWith(httpPort: port)));
   }
 
+  /// From the internet: the guide the first time, then straight to it.
+  Future<void> _pickPublic() async {
+    if (ref.read(deskProvider).settings.internetGuideSeen) return _setPublic(true);
+    return _openGuide();
+  }
+
+  /// The guide; opening it changes nothing, only its buttons do. Shown once is seen.
   Future<void> _openGuide() async {
+    final n = ref.read(deskProvider.notifier);
     final s = ref.read(deskProvider).settings;
+    if (!s.internetGuideSeen) unawaited(_run(() => n.saveSettings(s.copyWith(internetGuideSeen: true))));
     final choice = await showEDialog<InternetGuideChoice>(context, builder: (_) => InternetGuide(port: s.httpPort, isPublic: s.publicMode));
     switch (choice) {
       case InternetGuideChoice.public:
@@ -108,8 +117,9 @@ class _HttpOptionsState extends ConsumerState<HttpOptions> {
               ESegmented<bool>(
                 segments: const [ESegment(false, 'Local only'), ESegment(true, 'From the internet')],
                 value: s.publicMode,
-                // From the internet opens the guide; only its button makes the address public.
-                onChanged: (v) => v ? unawaited(_openGuide()) : unawaited(_setPublic(false)),
+                // The first From the internet opens the guide; only its button makes the
+                // address public. Once seen, the guide is behind the (?).
+                onChanged: (v) => v ? unawaited(_pickPublic()) : unawaited(_setPublic(false)),
               ),
               SizedBox(width: Sp.x2),
               EIconButton(icon: EIcons.help, label: 'Receive from the internet: how it works', size: EBtnSize.sm, tabStop: false, onPressed: _openGuide),

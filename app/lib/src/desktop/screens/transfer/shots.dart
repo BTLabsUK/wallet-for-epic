@@ -49,7 +49,7 @@ final List<DeskShot> transferShots = [
       final n = c.read(deskProvider.notifier);
       await n.setHttp(false);
       await n.setTor(false);
-      await n.setListening(true);
+      await n.setEpicboxListening(true);
     },
   ),
   const DeskShot(id: '19b-import-done', title: 'Response saved', route: DeskRoute.importTx, arg: ImportArgs(done: true)),

@@ -61,7 +61,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
     if (args != null) {
       final n = ref.read(deskProvider.notifier);
       Future.microtask(() async {
-        await n.setListening(args.epicbox != RxEpicbox.off);
+        await n.setEpicboxListening(args.epicbox != RxEpicbox.off);
         if (DeskFeatures.httpDirect) await n.setHttp(args.http != RxHttp.off);
         if (DeskFeatures.tor) await n.setTor(args.tor != RxTor.off);
       });
@@ -113,9 +113,8 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
     final n = ref.read(deskProvider.notifier);
     try {
       switch (m) {
-        // TODO(w4 step D): setEpicboxListening once the per-method data lands.
         case TxMethod.epicbox:
-          await n.setListening(on);
+          await n.setEpicboxListening(on);
         case TxMethod.http:
           await n.setHttp(on);
         case TxMethod.tor:
