@@ -6,6 +6,7 @@ import 'package:epic_wallet/src/desktop/app/desk_app.dart';
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/screens/onboarding/create_screen.dart';
 import 'package:epic_wallet/src/desktop/screens/onboarding/import_wallets_screen.dart';
+import 'package:epic_wallet/src/desktop/screens/onboarding/restore_screen.dart';
 import 'package:epic_wallet/src/desktop/screens/onboarding/setup_screen.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/combo.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/dialogs.dart';
@@ -415,6 +416,24 @@ void main() {
       await _mouse(tester, kBackMouseButton);
       expect(container.read(deskNavProvider).route, DeskRoute.create);
       expect(find.text('Recovery phrase'), findsWidgets);
+      await _end(tester);
+    });
+
+    testWidgets('Restore: typed words hold Back', (tester) async {
+      final container = await _open(tester, DeskRoute.overview);
+      container.read(deskNavProvider.notifier).go(DeskRoute.restore, RestoreStep.wordsFilled);
+      await _settle(tester);
+      await _mouse(tester, kBackMouseButton);
+      expect(container.read(deskNavProvider).route, DeskRoute.restore, reason: 'typed words are not thrown away');
+      await _end(tester);
+    });
+
+    testWidgets('Restore: Back on the password step goes back to the phrase', (tester) async {
+      final container = await _open(tester, DeskRoute.restore, arg: RestoreStep.account);
+      expect(find.text('Choose a password'), findsOneWidget);
+      await _mouse(tester, kBackMouseButton);
+      expect(container.read(deskNavProvider).route, DeskRoute.restore);
+      expect(find.text('Choose a password'), findsNothing, reason: 'back on the phrase step');
       await _end(tester);
     });
   });

@@ -140,7 +140,10 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
     final flow = ref.watch(onbFlowProvider);
     switch (_step) {
       case RestoreStep.restoring || RestoreStep.failed:
-        return ProgressView(
+        // Back (mouse, Alt+Left) never leaves a restore that is running or has failed.
+        return DeskStepBack(
+          onBack: () {},
+          child: ProgressView(
           title: _failure != null ? 'Wallet not restored' : 'Restoring the wallet',
           failureTitle: 'The wallet could not be restored',
           stages: [
@@ -156,10 +159,14 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
             _failure = null;
           }),
           onRetry: _restore,
+          ),
         );
       case RestoreStep.account:
         final (pe, ce) = accountErrors(_password.text, _confirm.text);
-        return EOnbFrame(
+        // Back goes to the phrase, which stays filled in.
+        return DeskStepBack(
+          onBack: () => setState(() => _step = RestoreStep.words),
+          child: EOnbFrame(
           sideTitle: 'Restore wallet',
           steps: railOf(['Recovery phrase', 'Password'], 1),
           title: 'Choose a password',
@@ -181,12 +188,15 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
                 passwordError: pe,
                 confirmError: ce,
                 onChanged: () => setState(() {}),
+                onSubmit: _accountOk ? _restore : null,
               ),
             ],
           ),
+          ),
         );
       case RestoreStep.words || RestoreStep.wordsFilled:
-        return _wordsStep(context, nav);
+        // Typed words hold Back, so a thumb button never throws them away.
+        return DeskStepBack(onBack: _entry.filled > 0 ? () {} : null, child: _wordsStep(context, nav));
     }
   }
 

@@ -32,7 +32,7 @@ void main() {
     await shot(tester, '20-restore-words');
     await typeIn(tester, 0, phrase);
     await settle(tester, ms: 1500);
-    record('restore: 24 words accepted', hasText('All 24 words are in the word list'), texts().where((t) => t.contains('word list')).join());
+    record('restore: 24 words accepted', hasText('All 24 words check out.'), texts().where((t) => t.contains('check out')).join());
     await shot(tester, '21-restore-words-checked');
     await tapText(tester, 'Use 24 words', last: true);
     await settle(tester);
