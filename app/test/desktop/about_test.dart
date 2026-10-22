@@ -52,6 +52,14 @@ void main() {
     expect(find.text('Telegram'), findsOneWidget);
   });
 
+  testWidgets('Licences opens the licence page', (tester) async {
+    await pump(tester, (_) async => (404, ''));
+    await tester.ensureVisible(find.widgetWithText(EButton, 'View'));
+    await tester.tap(find.widgetWithText(EButton, 'View'));
+    await tester.pumpAndSettle();
+    expect(find.byType(LicensePage), findsOneWidget);
+  });
+
   testWidgets('no manifest published: Could not check, with the reason; Check now asks again', (tester) async {
     var calls = 0;
     await pump(tester, (_) async {
