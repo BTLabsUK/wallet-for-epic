@@ -185,6 +185,10 @@ abstract final class AppLog {
   }
 }
 
+/// Written only while Detailed is on ([AppLog.detailed]).
+void logDebug(String tag, String message) =>
+    AppLog.write(LogLevel.debug, tag, message);
+
 void logInfo(String tag, String message) =>
     AppLog.write(LogLevel.info, tag, message);
 

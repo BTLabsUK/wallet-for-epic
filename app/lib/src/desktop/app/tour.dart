@@ -14,6 +14,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../log.dart';
+import '../data/desk_store.dart';
 import '../widgets/kit.dart';
 
 /// One step: [target] is a [TourTarget] id; a step whose target is not on screen shows its
@@ -105,27 +106,75 @@ class DeskTourState {
   final bool seen;
 }
 
-/// [DeskTourState.seen] is saved with the app's settings ([DeskSettings.tourSeen]), so the tour
+/// Whether the tour was seen, saved with the app's settings ([DeskSettings.tourSeen]), so it
 /// opens by itself once, not on every start.
+///
+/// - [seen]: shown (or skipped) before, in this run or a saved one;
+/// - [openIfUnseen]: the automatic first open; never when the saved flag says seen;
+/// - [open]: opens it now (Show the tour, the screenshots), seen from then on;
+/// - [markSeen]: saves the flag; [open] and closing an open tour call it;
+/// - [close]: closes it (Done, Skip, Esc, lock);
+/// - [reset]: this run forgets it was seen; the saved flag stays.
 class DeskTourController extends Notifier<DeskTourState> {
   @override
-  DeskTourState build() => DeskTourState(seen: ref.read(deskProvider).settings.tourSeen);
-
-  void open({int at = 0}) {
-    state = DeskTourState(open: true, seen: true, start: at);
-    final settings = ref.read(deskProvider).settings;
-    if (settings.tourSeen) return;
-    unawaited(
-      ref.read(deskProvider.notifier).saveSettings(settings.copyWith(tourSeen: true)).catchError((Object e) {
-        logWarn('desk', 'tour seen not saved: $e');
-      }),
-    );
+  DeskTourState build() {
+    final seen = ref.read(deskBootProvider).settings.tourSeen || ref.read(deskProvider).settings.tourSeen;
+    logDebug('tour', 'seen=$seen at start');
+    return DeskTourState(seen: seen);
   }
 
-  /// Closes it; a tour that never opened (locked before it showed) still counts as unseen.
-  void close() => state = DeskTourState(seen: state.seen);
+  bool get seen => state.seen;
 
-  /// Forget that it was seen (Settings › Appearance › Show the tour, which opens it again).
+  /// Opens it unless it was seen: in this run, or by the flag saved now (read again, as what
+  /// the app holds in memory may be older). True when it opened.
+  Future<bool> openIfUnseen() async {
+    if (state.seen) return false;
+    final store = ref.read(deskStoreProvider);
+    try {
+      if (store != null && (await store.settings()).tourSeen) {
+        logDebug('tour', 'saved as seen; not opened');
+        state = DeskTourState(seen: true, open: state.open, start: state.start);
+        return false;
+      }
+    } on Object catch (e) {
+      // An unreadable store: the boot value decides.
+      logWarn('tour', 'seen flag not read: ${e.runtimeType}');
+    }
+    if (state.seen || state.open) return false;
+    open();
+    return true;
+  }
+
+  void open({int at = 0}) {
+    logDebug('tour', 'open at step $at');
+    state = DeskTourState(open: true, seen: true, start: at);
+    unawaited(markSeen());
+  }
+
+  /// Closes it; closing an open tour (Done, Skip, Esc) saves it as seen. A tour that never
+  /// opened (locked before it showed) still counts as unseen.
+  void close() {
+    final wasOpen = state.open;
+    state = DeskTourState(seen: state.seen);
+    if (wasOpen) unawaited(markSeen());
+  }
+
+  /// Saves the seen flag: in the store directly, and in the app's settings so a later save of
+  /// any setting carries it.
+  Future<void> markSeen() async {
+    state = DeskTourState(open: state.open, seen: true, start: state.start);
+    final desk = ref.read(deskProvider.notifier);
+    if (!ref.read(deskProvider).settings.tourSeen) desk.holdTourSeen();
+    try {
+      await ref.read(deskStoreProvider)?.saveTourSeen();
+      logDebug('tour', 'seen saved');
+    } on Object catch (e) {
+      logWarn('desk', 'tour seen not saved: ${e.runtimeType}');
+    }
+  }
+
+  /// Forget that it was seen in this run (Settings › Appearance › Show the tour, which opens it
+  /// again). The saved flag stays: the tour still does not open by itself at the next start.
   void reset() => state = const DeskTourState();
 }
 
