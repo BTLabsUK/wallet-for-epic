@@ -1,12 +1,12 @@
 /// Feedback reports: what the user wrote, a few facts about the app, and optionally the
-/// newest part of the log. The report is plain text, and the preview shows exactly the text that
-/// is shared, saved or posted.
+/// newest part of the log, cleaned of secrets and addresses (`support_clean.dart`). The preview
+/// shows exactly what is shared, saved or sent.
 ///
-/// No feedback server exists. Share or save always works. "Send" appears only in builds made
-/// with `--dart-define=WFE_FEEDBACK_URL=https://...`, and posts the same text there.
+/// "Send" seals the report to the developer and posts it to the support intake, the same format
+/// as the Electron GUI's "Report a problem" (`support_report.dart`). Share or save hands over the
+/// same text as a file.
 library;
 
-import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 
@@ -14,22 +14,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'app_log.dart';
 import 'l10n.dart';
-import 'net/http.dart';
-import 'redact.dart';
 import 'slate_files.dart';
+import 'support_clean.dart';
+import 'support_report.dart';
 
-/// Where "Send" posts reports. Empty in normal builds.
-const String feedbackUrlSetting = String.fromEnvironment('WFE_FEEDBACK_URL');
-
-/// How much of the log a report attaches: the newest 256 KB, days of normal use, and small
-/// enough for any mail app to attach.
-const int feedbackLogBytes = 256 * 1024;
-
-/// Longest message the form takes.
-const int maxFeedbackMessageChars = 5000;
-
-/// [text] as a feedback URL: https, or http to this machine only, for the dev receiver in
-/// `tool/feedback_receiver.py`. Null for anything else.
+/// [text] as a support URL: https, or http to this machine only, for a local intake. Null for
+/// anything else.
 Uri? parseFeedbackUrl(String text) {
   final uri = Uri.tryParse(text.trim());
   if (uri == null || uri.host.isEmpty) return null;
@@ -39,9 +29,18 @@ Uri? parseFeedbackUrl(String text) {
   return null;
 }
 
+/// Where "Send" posts reports: the support intake. Null only in a build made with an empty or
+/// bad `WFE_SUPPORT_URL`, which leaves share or save.
 final feedbackUrlProvider = Provider<Uri?>(
-  (ref) => parseFeedbackUrl(feedbackUrlSetting),
+  (ref) => parseFeedbackUrl(supportUrlSetting),
 );
+
+/// How much of the log a report attaches: the newest 256 KB, days of normal use, and small
+/// enough for any mail app to attach.
+const int feedbackLogBytes = 256 * 1024;
+
+/// Longest message the form takes.
+const int maxFeedbackMessageChars = 5000;
 
 /// The log a report attaches. Tests hand in a [MemoryLogSink].
 final feedbackLogProvider = Provider<LogSink>((ref) => AppLog.sink);
@@ -72,59 +71,40 @@ class FeedbackDetails {
 bool isValidFeedbackEmail(String email) =>
     RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(email.trim());
 
-/// [text] cut to at most [maxBytes] of UTF-8, keeping the end and starting on a whole line.
-String keepLastBytes(String text, int maxBytes) {
-  final bytes = utf8.encode(text);
-  if (bytes.length <= maxBytes) return text;
-  var cut = utf8.decode(
-    bytes.sublist(bytes.length - maxBytes),
-    allowMalformed: true,
-  );
-  final line = cut.indexOf('\n');
-  if (line >= 0) cut = cut.substring(line + 1);
-  return cut;
-}
-
-/// The report text. [log] is the attached log tail, or null when the user turned it off.
-/// The message and the log are redacted here, whatever the caller did.
-String buildFeedbackReport({
+/// The report. [log] is the attached log tail, or null when the user turned it off. The
+/// message, the facts and the log are cleaned here, whatever the caller did; the email is the
+/// user's own, for a reply, and stays as written.
+SupportReport buildFeedbackReport({
   required String message,
   String? email,
   required FeedbackDetails details,
   String? log,
   required DateTime at,
+  String ui = 'phone',
+  CleanContext context = const CleanContext(),
 }) {
-  final reply = email?.trim() ?? '';
-  final out = StringBuffer()
-    ..writeln('Epic Cash Wallet feedback')
-    ..writeln('Written: ${at.toUtc().toIso8601String()}')
-    ..writeln()
-    ..writeln('Message')
-    ..writeln('-------')
-    ..writeln(redact(message.trim()))
-    ..writeln()
-    ..writeln('Reply to: ${reply.isEmpty ? 'not given' : reply}')
-    ..writeln()
-    ..writeln('About the app')
-    ..writeln('-------------')
-    ..writeln('Version: ${details.appVersion}')
-    ..writeln('Platform: ${redact(details.platform)}')
-    ..writeln('Network: ${details.network}')
-    ..writeln('Node: ${details.node}')
-    ..writeln('Epicbox server: ${details.relay}')
-    ..writeln('Sync: ${redact(details.sync)}')
-    ..writeln();
-  if (log == null) {
-    out.writeln('Diagnostic log: not attached');
-  } else {
-    final tail = keepLastBytes(redact(log), feedbackLogBytes);
-    out
-      ..writeln('Diagnostic log (newest part, secrets removed)')
-      ..writeln('---------------------------------------------')
-      ..write(tail);
-    if (!tail.endsWith('\n')) out.writeln();
-  }
-  return out.toString();
+  // One set of names for the facts and the log, so the node is the same <host-n> in both; the
+  // message gets its own, as in the GUI.
+  final ids = CleanIds();
+  String clean(String text) => cleanForReport(text, context: context, ids: ids);
+  return SupportReport(
+    created: at,
+    description: cleanForReport(message.trim(), context: context),
+    contact: email?.trim() ?? '',
+    app: {
+      'version': details.appVersion,
+      'ui': ui,
+      'platform': clean(details.platform),
+      'network': details.network,
+      'node': cleanHost(details.node, ids),
+      'epicbox': cleanHost(details.relay, ids),
+      'sync': clean(details.sync),
+    },
+    files: [
+      if (log != null)
+        tailFile('app/wfe.log', clean(log), max: feedbackLogBytes),
+    ],
+  );
 }
 
 /// `epic-wallet-feedback-<yyyyMMdd-HHmm>.txt`, in local time.
@@ -138,6 +118,13 @@ String feedbackFileName(DateTime at) {
 /// English, for logs.
 class FeedbackSendError implements Exception {
   FeedbackSendError(this.text) : message = text(englishStrings);
+
+  /// [error] in the screen's words.
+  factory FeedbackSendError.from(SupportSendError error) => switch (error.reason) {
+    SupportFailure.timeout => FeedbackSendError((l) => l.feedbackServerNoAnswer),
+    SupportFailure.offline => FeedbackSendError((l) => l.feedbackServerUnreachable),
+    _ => FeedbackSendError((l) => l.feedbackServerAnswered(error.status ?? 0)),
+  };
 
   final String Function(AppLocalizations l) text;
   final String message;
@@ -162,12 +149,13 @@ abstract interface class FeedbackOutlet {
   /// Hands the report to another app as a file. False if dismissed.
   Future<bool> share({required String name, required String report});
 
-  /// Posts the report to [url] as `text/plain`. Throws [FeedbackSendError] if it was not taken.
-  Future<void> post(Uri url, String report);
+  /// Seals the report and posts it to the support intake at [url]; answers the report id.
+  /// Throws [FeedbackSendError] if it was not taken.
+  Future<String> post(Uri url, SupportReport report);
 }
 
 class PlatformFeedbackOutlet implements FeedbackOutlet {
-  const PlatformFeedbackOutlet({this.timeout = const Duration(seconds: 30)});
+  const PlatformFeedbackOutlet({this.timeout = supportTimeout});
 
   final Duration timeout;
 
@@ -190,22 +178,14 @@ class PlatformFeedbackOutlet implements FeedbackOutlet {
       shareBytes(name: name, bytes: Uint8List.fromList(utf8.encode(report)));
 
   @override
-  Future<void> post(Uri url, String report) async {
+  Future<String> post(Uri url, SupportReport report) async {
     try {
-      final reply = await httpPost(
-        url,
-        body: utf8.encode(report),
-        contentType: 'text/plain; charset=utf-8',
-        timeout: timeout,
+      return await HttpSupportSender(url, timeout: timeout).send(
+        report,
+        appVersion: supportAppTag(report.app['version'] ?? ''),
       );
-      if (!reply.ok) {
-        final status = reply.status;
-        throw FeedbackSendError((l) => l.feedbackServerAnswered(status));
-      }
-    } on TimeoutException {
-      throw FeedbackSendError((l) => l.feedbackServerNoAnswer);
-    } on NetError {
-      throw FeedbackSendError((l) => l.feedbackServerUnreachable);
+    } on SupportSendError catch (error) {
+      throw FeedbackSendError.from(error);
     }
   }
 }
@@ -214,7 +194,7 @@ class PlatformFeedbackOutlet implements FeedbackOutlet {
 class FakeFeedbackOutlet implements FeedbackOutlet {
   final List<({String name, String report})> saved = [];
   final List<({String name, String report})> shared = [];
-  final List<({Uri url, String report})> posted = [];
+  final List<({Uri url, SupportReport report})> posted = [];
 
   /// When set, [post] throws it.
   FeedbackSendError? postError;
@@ -239,9 +219,10 @@ class FakeFeedbackOutlet implements FeedbackOutlet {
   }
 
   @override
-  Future<void> post(Uri url, String report) async {
+  Future<String> post(Uri url, SupportReport report) async {
     if (postError case final error?) throw error;
     posted.add((url: url, report: report));
+    return 'ab12cd34';
   }
 }
 
