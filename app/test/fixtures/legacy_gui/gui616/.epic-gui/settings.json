@@ -1,0 +1,35 @@
+{
+  "schema": 1,
+  "app": { "ui": "modern", "theme": "dark", "scale": 100, "locale": "de" },
+  "legacy": {},
+  "node": {},
+  "myNodes": {
+    "mainnet": [
+      { "address": "https://node.example.com:3413/", "label": "Home\u0007node", "addedAt": "2026-01-01T00:00:00.000Z" },
+      { "address": "HTTPS://Node.Example.com:3413", "label": "the same node again" },
+      { "address": "10.0.1.5:3413", "label": "LAN" },
+      { "address": "ftp://not-a-node.example", "label": "dropped" },
+      "not an entry"
+    ],
+    "floonet": [{ "address": "http://127.0.0.1:13413", "label": "" }],
+    "laternet": [{ "address": "https://kept-by-the-gui.example", "label": "unknown network" }]
+  },
+  "defaultWallet": "w1",
+  "nextId": 3,
+  "wallets": [
+    {
+      "id": "w1", "label": "  Główny‮ portfel  ", "network": "mainnet",
+      "configDir": "@ROOT@/wallets/w1", "dataDir": "@ROOT@/wallets/w1",
+      "origin": "created", "importedFrom": null, "createdAt": "2026-01-01T00:00:00.000Z",
+      "settings": { "check_node_api_http_addr": "https://node.epiccash.com:3413", "nodeInternal": false,
+        "epicbox_domain": "epicbox.epiccash.com", "walletlisten_on_startup": true }
+    },
+    {
+      "id": "w2", "label": "", "network": "floonet",
+      "configDir": "@ROOT@/wallets/w2", "dataDir": "@ROOT@/wallets/w2",
+      "origin": "restored", "importedFrom": null, "createdAt": "2026-01-02T00:00:00.000Z",
+      "settings": { "check_node_api_http_addr": "node.epiccash.com:3413/", "nodeInternal": true,
+        "epicbox_domain": " EPICBOX.EPIC.TECH " }
+    }
+  ]
+}

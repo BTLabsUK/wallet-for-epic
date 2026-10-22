@@ -1,0 +1,3 @@
+[wallet]
+chain_type = "Mainnet"
+check_node_api_http_addr = "http://10.100.10.20:3413"

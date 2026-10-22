@@ -49,3 +49,6 @@ app.*.map.json
 
 # Rust build output from manual cargo runs
 /rust/target/
+
+# LevelDB write-ahead logs of the legacy GUI fixtures (tool/legacy_gui_fixtures.py)
+!test/fixtures/legacy_gui/**/*.log

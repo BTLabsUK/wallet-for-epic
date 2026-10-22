@@ -1,0 +1,10 @@
+[wallet]
+chain_type = "Mainnet"
+check_node_api_http_addr = "http://fastepic.eu:3413"
+
+#########################################
+### EPICBOX CONFIGURATION ###
+#########################################
+[epicbox]
+epicbox_domain = "epicbox.epiccash.com"
+epicbox_port = 443

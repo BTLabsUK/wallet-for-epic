@@ -1,0 +1,8 @@
+[wallet]
+chain_type = "Floonet"
+owner_api_interface = "127.0.0.1"
+check_node_api_http_addr = "http://127.0.0.1:13413"
+
+[epicbox]
+epicbox_domain = "epicbox.epiccash.com"
+epicbox_port = 8443 # a test server

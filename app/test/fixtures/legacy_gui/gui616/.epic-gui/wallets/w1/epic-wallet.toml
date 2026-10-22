@@ -1,0 +1,5 @@
+[wallet]
+chain_type = "Mainnet"
+api_listen_interface = "127.0.0.1"
+owner_api_interface = "127.0.0.1"
+check_node_api_http_addr = "https://node.epiccash.com:3413"

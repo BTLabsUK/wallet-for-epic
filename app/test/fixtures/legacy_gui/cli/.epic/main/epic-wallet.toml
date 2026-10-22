@@ -1,0 +1,11 @@
+# Generated Configuration File for Epic Wallet
+
+[wallet]
+chain_type = "Mainnet"
+api_listen_interface = "127.0.0.1"
+api_listen_port = 3415
+check_node_api_http_addr = "https://mynode.example:3413/"
+
+[epicbox]
+epicbox_domain = 'epicbox.epic.tech'
+epicbox_port = 1443
