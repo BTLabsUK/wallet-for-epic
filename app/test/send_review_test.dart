@@ -145,7 +145,7 @@ class _RaceSession extends FakeWalletSession {
 
 final WalletSummary _forty = WalletSummary(
   lastConfirmedHeight: BigInt.from(2499990),
-  minimumConfirmations: BigInt.from(10),
+  minimumConfirmations: BigInt.from(3),
   total: _epic(50),
   spendable: _epic(40),
   awaitingConfirmation: BigInt.zero,

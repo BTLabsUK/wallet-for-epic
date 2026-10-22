@@ -26,7 +26,7 @@ final String _bob = '${'b' * 52}@epicbox.epiccash.com';
 
 WalletSummary _summary({BigInt? spendable, BigInt? onHold}) => WalletSummary(
   lastConfirmedHeight: BigInt.from(2499990),
-  minimumConfirmations: BigInt.from(10),
+  minimumConfirmations: BigInt.from(3),
   total: (spendable ?? BigInt.zero) + (onHold ?? BigInt.zero),
   spendable: spendable ?? BigInt.zero,
   awaitingConfirmation: onHold ?? BigInt.zero,

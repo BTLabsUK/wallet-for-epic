@@ -13,7 +13,7 @@ import 'package:flutter_test/flutter_test.dart';
 WalletSummary _summary({bool validated = true, int height = 2499990}) =>
     WalletSummary(
       lastConfirmedHeight: BigInt.from(height),
-      minimumConfirmations: BigInt.from(10),
+      minimumConfirmations: BigInt.from(3),
       total: BigInt.from(100),
       spendable: BigInt.from(100),
       awaitingConfirmation: BigInt.zero,

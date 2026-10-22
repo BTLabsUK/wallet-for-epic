@@ -85,7 +85,7 @@ WalletSummary _summary({
   BigInt? height,
 }) => WalletSummary(
   lastConfirmedHeight: height ?? _tip,
-  minimumConfirmations: BigInt.from(10),
+  minimumConfirmations: BigInt.from(3),
   total: _epic(spendable + confirming + locked + immature),
   spendable: _epic(spendable),
   awaitingConfirmation: _epic(confirming),
@@ -315,13 +315,13 @@ void main() {
         await _pump(tester, session, demo: demo);
         expect(_rowLabel(tester), isNot(contains('completed')));
         expect(find.text(l.txStatusCompleted), findsNothing);
-        expect(find.text(l.txStatusConfirming(0, 10)), findsOneWidget);
+        expect(find.text(l.txStatusConfirming(0, 3)), findsOneWidget);
         expect(_inLine('+2.5 coming in'), findsOneWidget);
 
-        // The next refresh reaches block 229: ten confirmations, both say so.
+        // The next refresh reaches block 228: three confirmations, both say so.
         session.summaryValue = _summary(
           spendable: 12.5,
-          height: _tip + BigInt.from(9),
+          height: _tip + BigInt.from(2),
         );
         await tester.pump(autoRefreshInterval);
         await tester.pumpAndSettle();
@@ -334,17 +334,17 @@ void main() {
       tester,
     ) async {
       // The node is 3 blocks past the refresh: counted at the node's tip the row would be
-      // 10 deep, at the summary's height it is 7, which is what the balance says.
+      // 4 deep, at the summary's height it is 1, which is what the balance says.
       final session = FakeWalletSession(
         summary: _summary(
           spendable: 10,
           confirming: 2.5,
           height: _tip - BigInt.from(3),
         ),
-        transactions: [received(height: _tip - BigInt.from(9))],
+        transactions: [received(height: _tip - BigInt.from(3))],
       );
       await _pump(tester, session);
-      expect(find.text(l.txStatusConfirming(7, 10)), findsOneWidget);
+      expect(find.text(l.txStatusConfirming(1, 3)), findsOneWidget);
       expect(find.text(l.txStatusCompleted), findsNothing);
     });
   });

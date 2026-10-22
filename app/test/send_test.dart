@@ -40,7 +40,7 @@ final String _carol = '${'c' * 52}@epicbox.epicnet.us';
 _GatedSession _funded() => _GatedSession(
   summary: WalletSummary(
     lastConfirmedHeight: BigInt.from(2499990),
-    minimumConfirmations: BigInt.from(10),
+    minimumConfirmations: BigInt.from(3),
     total: _epic(50),
     spendable: _epic(40),
     awaitingConfirmation: BigInt.zero,
@@ -54,7 +54,7 @@ _GatedSession _funded() => _GatedSession(
 /// A wallet holding 10 EPIC, still confirming or [confirmed] and spendable.
 WalletSummary _tenEpic({required bool confirmed}) => WalletSummary(
   lastConfirmedHeight: BigInt.from(2499990),
-  minimumConfirmations: BigInt.from(10),
+  minimumConfirmations: BigInt.from(3),
   total: _epic(10),
   spendable: confirmed ? _epic(10) : BigInt.zero,
   awaitingConfirmation: confirmed ? BigInt.zero : _epic(10),
@@ -1057,7 +1057,7 @@ void main() {
       final fees = h.session.estimateCalls;
       h.session.summaryValue = WalletSummary(
         lastConfirmedHeight: BigInt.from(2499990),
-        minimumConfirmations: BigInt.from(10),
+        minimumConfirmations: BigInt.from(3),
         total: _epic(30),
         spendable: _epic(30),
         awaitingConfirmation: BigInt.zero,
@@ -1085,7 +1085,7 @@ void main() {
       await _tap(tester, find.text('Max'));
       h.session.summaryValue = WalletSummary(
         lastConfirmedHeight: BigInt.from(2499990),
-        minimumConfirmations: BigInt.from(10),
+        minimumConfirmations: BigInt.from(3),
         total: _epic(30),
         spendable: _epic(30),
         awaitingConfirmation: BigInt.zero,
@@ -2054,7 +2054,7 @@ void main() {
         );
         await _tap(tester, title);
       }
-      final confirmations = find.text('What are confirmations and why 10?');
+      final confirmations = find.text('What are confirmations and why 3?');
       await tester.scrollUntilVisible(
         confirmations,
         -200,
@@ -2062,7 +2062,7 @@ void main() {
       );
       await _tap(tester, confirmations);
       expect(
-        find.textContaining('After 10 confirmations, about 10 minutes'),
+        find.textContaining('After 3 confirmations, about 3 minutes'),
         findsOneWidget,
       );
     });

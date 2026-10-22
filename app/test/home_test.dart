@@ -82,7 +82,7 @@ class _Config extends WalletConfigNotifier {
 
 WalletSummary _summary({BigInt? spendable}) => WalletSummary(
   lastConfirmedHeight: _tip,
-  minimumConfirmations: BigInt.from(10),
+  minimumConfirmations: BigInt.from(3),
   total: (spendable ?? _epic(12.5)) + _epic(2),
   spendable: spendable ?? _epic(12.5),
   awaitingConfirmation: BigInt.zero,
@@ -441,7 +441,7 @@ WalletSummary _balances({
   num immature = 0,
 }) => WalletSummary(
   lastConfirmedHeight: _tip,
-  minimumConfirmations: BigInt.from(10),
+  minimumConfirmations: BigInt.from(3),
   total: _epic(spendable + confirming + waiting + locked + immature),
   spendable: _epic(spendable),
   awaitingConfirmation: _epic(confirming),
@@ -3051,7 +3051,7 @@ void main() {
         // Nothing pending: no line, the figure alone.
         h.session.summaryValue = WalletSummary(
           lastConfirmedHeight: _tip,
-          minimumConfirmations: BigInt.from(10),
+          minimumConfirmations: BigInt.from(3),
           total: _epic(12.5),
           spendable: _epic(12.5),
           awaitingConfirmation: BigInt.zero,
@@ -4078,7 +4078,7 @@ void main() {
 
     WalletSummary summaryOf(BigInt spendable) => WalletSummary(
       lastConfirmedHeight: _tip,
-      minimumConfirmations: BigInt.from(10),
+      minimumConfirmations: BigInt.from(3),
       total: spendable + _epic(2),
       spendable: spendable,
       awaitingConfirmation: BigInt.zero,

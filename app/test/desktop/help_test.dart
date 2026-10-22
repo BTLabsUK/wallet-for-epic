@@ -62,7 +62,7 @@ void main() {
       }
     }
     // The confirmations count follows the wallet's.
-    expect(helpTopicsFor(10).firstWhere((t) => t.title == 'Confirmations').short, contains('10 confirmations'));
+    expect(helpTopicsFor(3).firstWhere((t) => t.title == 'Confirmations').short, contains('3 confirmations'));
   });
 
   test('inline marks: terms and places lose their markers', () {

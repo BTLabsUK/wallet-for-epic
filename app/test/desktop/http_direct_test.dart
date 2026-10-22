@@ -37,7 +37,7 @@ void main() {
     await wallet.sync();
     session().summaryValue = core.WalletSummary(
       lastConfirmedHeight: BigInt.from(2500000),
-      minimumConfirmations: BigInt.from(10),
+      minimumConfirmations: BigInt.from(3),
       total: BigInt.from(100000000),
       spendable: BigInt.from(100000000),
       awaitingConfirmation: BigInt.zero,

@@ -158,8 +158,8 @@ TxEntry _payment(TxPhase phase) => switch (phase) {
     flow: TxFlow.invoice,
     cancellable: true,
   ),
-  TxPhase.confirming => _confirming(4),
-  TxPhase.completed => _confirming(10),
+  TxPhase.confirming => _confirming(1),
+  TxPhase.completed => _confirming(3),
   TxPhase.cancelled => fakeTx(
     slateId: 'pay',
     kind: TxKind.receivedCancelled,
@@ -179,7 +179,7 @@ TxEntry _payment(TxPhase phase) => switch (phase) {
 /// The payment from Bob with [confirmations] at [_tip].
 TxEntry _confirming(int confirmations) => fakeTx(
   slateId: 'pay',
-  status: confirmations >= 10
+  status: confirmations >= 3
       ? TxStatus.confirmed
       : TxStatus.awaitingConfirmation,
   amountCredited: BigInt.from(250000000),
@@ -227,19 +227,19 @@ void main() {
   });
 
   group('confirming', () {
-    testWidgets('fills to the confirmations: 0, 4/10 and 10/10', (
+    testWidgets('fills to the confirmations: 0, 1/3 and 3/3', (
       tester,
     ) async {
-      for (final (n, share) in [(0, 0.0), (4, 0.4), (10, 1.0)]) {
+      for (final (n, share) in [(0, 0.0), (1, 1 / 3), (3, 1.0)]) {
         await tester.pumpWidget(
           _square(
             phase: TxPhase.confirming,
-            fraction: txConfirmedShare(n, 10),
+            fraction: txConfirmedShare(n, 3),
             payment: 'p$n',
           ),
         );
         final p = _painter(tester);
-        expect(p.extent, closeTo(share, 1e-9), reason: '$n/10');
+        expect(p.extent, closeTo(share, 1e-9), reason: '$n/3');
         expect(p.start, 0, reason: 'from the top centre');
         expect(p.edge, currentMarkEdge(_t));
         expect(p.halo, currentMarkHalo(_t));
@@ -297,12 +297,12 @@ void main() {
       expect(tester.binding.transientCallbackCount, 0);
     });
 
-    testWidgets('a real row reads 0 and 4 of 10 from the chain', (
+    testWidgets('a real row reads 0 and 1 of 3 from the chain', (
       tester,
     ) async {
-      await _pumpRow(tester, TxIcon(tx: _confirming(4), tip: _tip));
+      await _pumpRow(tester, TxIcon(tx: _confirming(1), tip: _tip));
       await tester.pumpAndSettle();
-      expect(_painter(tester).extent, closeTo(0.4, 1e-9));
+      expect(_painter(tester).extent, closeTo(1 / 3, 1e-9));
       final unmined = fakeTx(
         slateId: 'unmined',
         kind: TxKind.sent,
@@ -619,15 +619,15 @@ void main() {
           // Confirming, then landing: mid-flash and after.
           await _pumpRow(
             tester,
-            TxTile(tx: _confirming(9)),
+            TxTile(tx: _confirming(2)),
             width: width,
             textScale: scale,
           );
           await tester.pumpAndSettle();
-          await check('9/10');
+          await check('2/3');
           await _pumpRow(
             tester,
-            TxTile(tx: _confirming(10)),
+            TxTile(tx: _confirming(3)),
             width: width,
             textScale: scale,
           );
@@ -688,9 +688,9 @@ void main() {
     });
 
     testWidgets('the chip counts in tabular figures', (tester) async {
-      await _pumpRow(tester, TxStatusChip(tx: _confirming(4), tip: _tip));
+      await _pumpRow(tester, TxStatusChip(tx: _confirming(1), tip: _tip));
       await tester.pumpAndSettle();
-      final text = tester.widget<Text>(find.text(_l.txStatusConfirming(4, 10)));
+      final text = tester.widget<Text>(find.text(_l.txStatusConfirming(1, 3)));
       expect(
         text.style?.fontFeatures,
         contains(const FontFeature.tabularFigures()),
