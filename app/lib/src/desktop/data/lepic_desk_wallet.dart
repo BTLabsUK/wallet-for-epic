@@ -2536,7 +2536,8 @@ Tx deskTx(core.TxEntry e, {required int tip, required int minConf, required int 
     confirmations: confirmations,
     confirmationsNeeded: minConf,
     counterparty: to,
-    contactName: contactName,
+    // A split or consolidate: both sides are this wallet (F13).
+    contactName: e.transport == 'self' ? 'This wallet' : contactName,
     message: core.messageBy(e.messages, core.SlateRole.sender) ?? core.messageBy(e.messages, core.SlateRole.receiver),
     height: height,
     kernel: e.kernelExcess,

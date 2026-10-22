@@ -7,6 +7,7 @@ import 'package:epic_wallet/src/desktop/screens/settings/settings_http.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/settings_receiving.dart';
 import 'package:epic_wallet/src/desktop/screens/transfer/send_screen.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
+import 'package:epic_wallet/src/desktop/screens/wallet/tx_display.dart' show whoOf;
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:epic_wallet/src/wallet_service.dart' as core;
 import 'package:flutter/material.dart';
@@ -46,6 +47,10 @@ void main() {
     expect(deskTx(_entry(transport: 'tor'), tip: 10, minConf: 10, fallbackId: -1).method, TxMethod.tor);
     expect(deskTx(_entry(transport: 'file'), tip: 10, minConf: 10, fallbackId: -1).method, TxMethod.file);
     expect(deskTx(_entry(transport: 'epicbox', counterparty: 'esA@epicbox.example'), tip: 10, minConf: 10, fallbackId: -1).method, TxMethod.epicbox);
+  });
+
+  test('a split or consolidate is with this wallet', () {
+    expect(whoOf(deskTx(_entry(transport: 'self'), tip: 10, minConf: 10, fallbackId: -1)), 'This wallet');
   });
 
   group('Send result', () {
