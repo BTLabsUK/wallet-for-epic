@@ -2,8 +2,9 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../data/files.dart' show openInFileManager;
+import '../../data/files.dart' show deskOpenFolderProvider;
 import '../../widgets/kit.dart';
 
 /// A square outlined glyph with a status tone, as the original's `e-glyph-sq`.
@@ -33,15 +34,15 @@ class ResultGlyph extends StatelessWidget {
   }
 }
 
-/// The file a flow produced: name in mono with Save and Copy. A file the wallet wrote to disk
-/// (a path) gets Open folder instead of Save.
-class FileChip extends StatelessWidget {
+/// The file a flow produced: name in mono with Copy, and Open folder while it is on disk (the
+/// wallet writes every file it makes; the mock's names are not).
+class FileChip extends ConsumerWidget {
   const FileChip(this.name, {super.key});
 
   final String name;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final c = context.dc;
     final ts = context.ts;
     return Container(
@@ -57,23 +58,17 @@ class FileChip extends StatelessWidget {
           SizedBox(width: Sp.x3),
           Expanded(child: SelectableText(name, style: ts.mono(size: Fs.sm), maxLines: 1)),
           SizedBox(width: Sp.x2),
-          if (File(name).existsSync())
+          if (File(name).existsSync()) ...[
             EButton(
               label: 'Open folder',
               icon: EIcons.folderOpen,
               size: EBtnSize.inline,
               onPressed: () async {
-                if (!await openInFileManager(File(name).parent.path) && context.mounted) showEToast(context, 'Folder not opened', text: name);
+                if (!await ref.read(deskOpenFolderProvider)(File(name).parent.path) && context.mounted) showEToast(context, 'Folder not opened', text: name);
               },
-            )
-          else
-            EButton(
-              label: 'Save',
-              icon: EIcons.download,
-              size: EBtnSize.inline,
-              onPressed: () => showEToast(context, 'File saved', text: name),
             ),
-          SizedBox(width: Sp.x2),
+            SizedBox(width: Sp.x2),
+          ],
           EButton(
             label: 'Copy',
             icon: EIcons.copy,

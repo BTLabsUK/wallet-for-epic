@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../data/files.dart' show deskOpenFolderProvider;
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../widgets/kit.dart';
 import 'dialogs.dart';
@@ -136,7 +137,7 @@ class _SettingsAccountScreenState extends ConsumerState<SettingsAccountScreen> {
 }
 
 /// A folder: its path in mono with a copy button, and Open folder.
-class _FolderRow extends StatelessWidget {
+class _FolderRow extends ConsumerWidget {
   const _FolderRow({required this.title, required this.path, this.text});
 
   final String title;
@@ -144,27 +145,22 @@ class _FolderRow extends StatelessWidget {
   final String path;
 
   /// Opens [path] in the system's file manager; a path that is not on disk (the mock) toasts.
-  Future<void> _open(BuildContext context) async {
+  Future<void> _open(BuildContext context, WidgetRef ref) async {
     if (!Directory(path).existsSync()) {
       showEToast(context, 'Folder not found', text: path);
       return;
     }
-    final (cmd, args) = Platform.isWindows ? ('explorer', [path]) : Platform.isMacOS ? ('open', [path]) : ('xdg-open', [path]);
-    try {
-      await Process.start(cmd, args, mode: ProcessStartMode.detached);
-    } on ProcessException {
-      if (context.mounted) showEToast(context, 'Folder not opened', text: path);
-    }
+    if (!await ref.read(deskOpenFolderProvider)(path) && context.mounted) showEToast(context, 'Folder not opened', text: path);
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final c = context.dc;
     final ts = context.ts;
     return ESetRow(
       title: title,
       text: text,
-      control: EButton(label: 'Open folder', icon: EIcons.folderOpen, size: EBtnSize.sm, onPressed: () => _open(context)),
+      control: EButton(label: 'Open folder', icon: EIcons.folderOpen, size: EBtnSize.sm, onPressed: () => _open(context, ref)),
       below: Row(
         children: [
           Flexible(
