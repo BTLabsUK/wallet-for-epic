@@ -20,6 +20,23 @@ const _demoWords = [
 
 Timer? _clipboardTimer;
 
+/// Copies a recovery phrase and clears the clipboard 30 s later if the phrase is still there.
+/// One timer for the app, outliving the page.
+Future<void> copyPhrase(BuildContext context, String phrase) async {
+  try {
+    await Clipboard.setData(ClipboardData(text: phrase));
+  } on Object {
+    if (context.mounted) showEToast(context, 'Not copied', text: 'The clipboard refused the text.', tone: ETone.risk);
+    return;
+  }
+  _clipboardTimer?.cancel();
+  _clipboardTimer = Timer(const Duration(seconds: 30), () async {
+    final now = await Clipboard.getData(Clipboard.kTextPlain);
+    if (now?.text == phrase) await Clipboard.setData(const ClipboardData(text: ''));
+  });
+  if (context.mounted) showEToast(context, 'Phrase copied', text: 'The clipboard is cleared in 30 s.');
+}
+
 class SettingsPhraseScreen extends ConsumerStatefulWidget {
   const SettingsPhraseScreen({super.key, this.arg});
 
@@ -102,17 +119,7 @@ class _SettingsPhraseScreenState extends ConsumerState<SettingsPhraseScreen> {
     }
   }
 
-  void _copy() {
-    final phrase = _words!.join(' ');
-    Clipboard.setData(ClipboardData(text: phrase));
-    // One timer for the app, outliving the page: cleared only if the phrase is still there.
-    _clipboardTimer?.cancel();
-    _clipboardTimer = Timer(const Duration(seconds: 30), () async {
-      final now = await Clipboard.getData(Clipboard.kTextPlain);
-      if (now?.text == phrase) await Clipboard.setData(const ClipboardData(text: ''));
-    });
-    showEToast(context, 'Phrase copied', text: 'The clipboard is cleared in 30 s.');
-  }
+  void _copy() => copyPhrase(context, _words!.join(' '));
 
   @override
   Widget build(BuildContext context) {

@@ -45,6 +45,12 @@ dependencies:
   flutter_secure_storage: 11.2.0
   local_auth: 3.0.2
   crypto: 3.0.7
+  # X25519, HKDF and AES-GCM for sealed support reports (support_report.dart), pure Dart.
+  cryptography: 2.9.0
+  # The password crack-time hint (lib/src/password_estimate.dart). Exact: the wrapper there
+  # imports its src/. Its compiled-in word lists are not imported (13 MB); the lists ship as
+  # gzipped assets instead (assets/passwords, tool/password_lists.sh).
+  zxcvbnm: 1.1.1
   # The wallet core (lepic_wallet_service.dart and what it imports) runs without Flutter, in
   # the demo server and bin/core_check.dart, so it takes these from their packages rather than
   # through Flutter. web is for the browser build. All three at the versions Flutter locks.
@@ -96,6 +102,8 @@ flutter:
   assets:
     - assets/fonts/OFL-Montserrat.txt
     - assets/fonts/OFL-JetBrainsMono.txt
+    # Word lists for the password estimate, from zxcvbn-ts (MIT; NOTICE.txt has the notices).
+    - assets/passwords/
   fonts:
     # Display only: the balance, screen titles and section heads. Body text is the platform font.
     - family: Montserrat

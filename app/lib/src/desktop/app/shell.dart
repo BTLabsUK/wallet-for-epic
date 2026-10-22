@@ -18,7 +18,6 @@ import 'tour.dart';
 /// The app version the sidebar shows.
 const String deskVersion = '0.1.0'; // pubspec's version (v0.1)
 
-const _releasesUrl = 'https://github.com/EpicCash/epic-gui-wallet/releases';
 
 /// "Ctrl+L", or "⌘L" on macOS.
 String deskKeys(String key) => defaultTargetPlatform == TargetPlatform.macOS ? '⌘$key' : 'Ctrl+$key';
@@ -241,22 +240,7 @@ class _Sidebar extends ConsumerWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text('Epic Cash Wallet', maxLines: 1, overflow: TextOverflow.ellipsis, style: ts.h3.copyWith(fontSize: 15, letterSpacing: -0.15)),
-                          Tooltip(
-                            message: 'Release notes on GitHub: copies the link',
-                            child: Semantics(
-                              link: true,
-                              label: 'Wallet $deskVersion, release notes on GitHub',
-                              excludeSemantics: true,
-                              child: InkWell(
-                                onTap: () {
-                                  Clipboard.setData(const ClipboardData(text: _releasesUrl));
-                                  showEToast(context, 'Link copied', text: _releasesUrl);
-                                },
-                                borderRadius: BorderRadius.circular(Rad.xs),
-                                child: Text('Wallet $deskVersion', style: ts.caption.copyWith(decoration: TextDecoration.underline, decorationColor: c.line)),
-                              ),
-                            ),
-                          ),
+                          Text('Wallet $deskVersion', style: ts.caption),
                         ],
                       ),
                       ),

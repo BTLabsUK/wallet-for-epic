@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../widgets/kit.dart';
 import 'help_topics.dart';
+import 'report_problem.dart';
 import 'settings_frame.dart';
 
 /// The query's words, lower case, longest first; none under two letters in all.
@@ -163,6 +164,17 @@ class _SettingsHelpScreenState extends ConsumerState<SettingsHelpScreen> {
               list([for (final t in helpTopics.where((t) => t.section == id)) (topic: t, inBody: false)]),
               SizedBox(height: Sp.x4),
             ],
+          SizedBox(height: Sp.x2),
+          ESetGroup(
+            title: 'Support',
+            rows: [
+              ESetRow(
+                title: 'Report a problem',
+                text: 'Describe what went wrong. The app log can go with it, cleaned of secrets and encrypted to the developer.',
+                control: EButton(label: 'Report a problem', icon: EIcons.bug, size: EBtnSize.sm, onPressed: () => showReportProblemDialog(context)),
+              ),
+            ],
+          ),
         ],
       ),
     );

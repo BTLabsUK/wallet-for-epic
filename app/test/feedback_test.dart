@@ -12,6 +12,8 @@ import 'package:epic_wallet/src/relay_directory.dart';
 import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/settings.dart';
 import 'package:epic_wallet/src/slate_files.dart';
+import 'package:epic_wallet/src/support_clean.dart';
+import 'package:epic_wallet/src/support_report.dart';
 import 'package:epic_wallet/src/ui/feedback_screen.dart';
 import 'package:epic_wallet/src/ui/help_screen.dart';
 import 'package:epic_wallet/src/ui/settings_history.dart';
@@ -88,6 +90,7 @@ class _Harness {
           feedbackLogProvider.overrideWithValue(log),
           feedbackUrlProvider.overrideWithValue(url),
           feedbackPlatformProvider.overrideWithValue('android 14'),
+          feedbackCleanContextProvider.overrideWithValue(const CleanContext()),
         ],
         child: const WalletApp(),
       ),
@@ -160,25 +163,46 @@ void main() {
         details: _details,
         log: 'INFO dart.unlock: PIN 654321\nWARN x: sent to $_address\n',
         at: DateTime.utc(2026, 10, 1, 8, 5),
-      );
-      expect(report, contains('Written: 2026-10-01T08:05:00.000Z'));
+      ).text;
+      expect(report, contains('Created: 2026-10-01T08:05:00.000Z'));
       expect(
         report,
         contains(
-          'Restore failed with [words] and PIN [redacted], paid esWn9r…@epicbox.epiccash.com',
+          'Restore failed with [recovery phrase removed] and PIN [redacted], paid <address-1>@epicbox.epiccash.com',
         ),
       );
-      expect(report, contains('Reply to: me@example.com'));
-      expect(report, contains('Version: 1.1.2 (12)'));
-      expect(report, contains('Platform: android 14'));
-      expect(report, contains('Network: Mainnet'));
-      expect(report, contains('Node: node.btlabs.uk'));
-      expect(report, contains('Epicbox server: epicbox.epiccash.com'));
-      expect(report, contains('Sync: Up to date at height 3600000'));
+      expect(report, contains('Contact: me@example.com'));
+      expect(report, contains('version: 1.1.2 (12)'));
+      expect(report, contains('ui: phone'));
+      expect(report, contains('platform: android 14'));
+      expect(report, contains('network: Mainnet'));
+      expect(report, contains('node: node.btlabs.uk'));
+      expect(report, contains('epicbox: epicbox.epiccash.com'));
+      expect(report, contains('sync: Up to date at height 3600000'));
+      expect(report, contains('== app/wfe.log =='));
       expect(report, contains('INFO dart.unlock: PIN [redacted]'));
-      for (final secret in ['abandon', '123456', '654321', 'esWn9r2zQj5']) {
+      expect(report, contains('WARN x: sent to <address-1>@epicbox.epiccash.com'));
+      for (final secret in ['abandon', '123456', '654321', 'esWn9r']) {
         expect(report, isNot(contains(secret)), reason: secret);
       }
+    });
+
+    test('names a private node by a stand-in, the same in the facts and the log', () {
+      final report = buildFeedbackReport(
+        message: 'Sync stuck',
+        details: const FeedbackDetails(
+          appVersion: '0.1.0',
+          platform: 'android 14',
+          network: 'Mainnet',
+          node: '10.0.1.24',
+          relay: 'epicbox.epiccash.com',
+          sync: 'Syncing',
+        ),
+        log: 'WARN node: http://10.0.1.24:3413 timed out\n',
+        at: DateTime.utc(2026),
+      );
+      expect(report.app['node'], '<ip-1>');
+      expect(report.files.single.text, contains('http://<ip-1>:3413 timed out'));
     });
 
     test('says when no log is attached and no email was given', () {
@@ -186,9 +210,9 @@ void main() {
         message: 'Nice app',
         details: _details,
         at: DateTime.utc(2026, 10, 1),
-      );
-      expect(report, contains('Reply to: not given'));
-      expect(report, contains('Diagnostic log: not attached'));
+      ).text;
+      expect(report, contains('Contact: none'));
+      expect(report, contains('Logs: none attached'));
     });
 
     test('caps the log at 256 KB, keeping the newest whole lines', () {
@@ -197,17 +221,26 @@ void main() {
         log.writeln('line ${i.toString().padLeft(6, '0')} ${'lorem ' * 9}');
       }
       final text = log.toString();
-      final report = buildFeedbackReport(
+      final file = buildFeedbackReport(
         message: 'm',
         details: _details,
         log: text,
         at: DateTime.utc(2026),
-      );
-      final tail = report.substring(report.indexOf('-\nline ') + 2);
+      ).files.single;
+      expect(file.cut, isTrue);
+      final tail = file.text.substring(file.text.indexOf('\n') + 1);
       expect(tail.length, lessThanOrEqualTo(feedbackLogBytes));
       expect(tail.startsWith('line '), isTrue);
       expect(text.endsWith(tail), isTrue);
-      expect(keepLastBytes('é' * 10, 5), hasLength(lessThanOrEqualTo(3)));
+    });
+
+    test('sends to the support intake unless the build says otherwise', () {
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+      expect(
+        container.read(feedbackUrlProvider),
+        Uri.parse('https://support.btlabs.uk/v1/report'),
+      );
     });
 
     test('takes https feedback URLs, and http only to this machine', () {
@@ -219,7 +252,7 @@ void main() {
       expect(parseFeedbackUrl('ftp://x'), isNull);
     });
 
-    test('posts the report as UTF-8 text and reports a refusal', () {
+    test('seals and posts the report as the GUI does, and reports a refusal', () {
       // flutter_test answers every HttpClient with 400; this test needs a real one.
       return HttpOverrides.runWithHttpOverrides(_postsToLoopback, _RealHttp());
     });
@@ -249,14 +282,14 @@ void main() {
       await enter(tester, 'Your message', 'My phrase $_phrase does not work');
       await tap(tester, find.text('Preview what is sent'));
       final preview = previewText(tester);
-      expect(preview, contains('[words] does not work'));
-      expect(preview, contains('Network: Mainnet'));
-      expect(preview, contains('Node: node.btlabs.uk'));
-      expect(preview, contains('Epicbox server: epicbox.epiccash.com'));
-      expect(preview, contains('Platform: android 14'));
+      expect(preview, contains('[recovery phrase removed] does not work'));
+      expect(preview, contains('network: Mainnet'));
+      expect(preview, contains('node: node.btlabs.uk'));
+      expect(preview, contains('epicbox: epicbox.epiccash.com'));
+      expect(preview, contains('platform: android 14'));
       expect(preview, contains('dart.unlock: PIN [redacted] accepted'));
-      expect(preview, contains('to esWn9r…@epicbox.epiccash.com'));
-      for (final secret in ['abandon', '123456', 'esWn9r2zQj5']) {
+      expect(preview, contains('to <address-1>@epicbox.epiccash.com'));
+      for (final secret in ['abandon', '123456', 'esWn9r']) {
         expect(preview, isNot(contains(secret)), reason: secret);
       }
       await tester.pageBack();
@@ -300,8 +333,8 @@ void main() {
         await tap(tester, find.text('Share or save'));
         await tap(tester, find.text('Save to device'));
         final saved = h.outlet.saved.single.report;
-        expect(saved, contains('Reply to: me@example.com'));
-        expect(saved, contains('Diagnostic log: not attached'));
+        expect(saved, contains('Contact: me@example.com'));
+        expect(saved, contains('Logs: none attached'));
         expect(saved, isNot(contains('dart.app: start')));
         expect(
           find.text('Saved epic-wallet-feedback-20261001-0905.txt'),
@@ -328,8 +361,8 @@ void main() {
       await tap(tester, find.widgetWithText(FilledButton, 'Send'));
       final post = h.outlet.posted.single;
       expect(post.url.host, 'feedback.example.com');
-      expect(post.report, contains('Please add dark mode'));
-      expect(post.report, contains('Sync: '));
+      expect(post.report.description, 'Please add dark mode');
+      expect(post.report.app['sync'], isNotEmpty);
       expect(find.text('Thank you. Your feedback was sent.'), findsOneWidget);
     });
 
@@ -356,28 +389,43 @@ class _RealHttp extends HttpOverrides {}
 Future<void> _postsToLoopback() async {
   final server = await HttpServer.bind(InternetAddress.loopbackIPv4, 0);
   addTearDown(() => server.close(force: true));
-  final received = <({String? type, int length, String body})>[];
-  var status = HttpStatus.noContent;
+  final received = <({String? type, String body})>[];
+  var status = HttpStatus.ok;
   server.listen((request) async {
     received.add((
       type: request.headers.contentType?.mimeType,
-      length: request.headers.contentLength,
       body: await utf8.decodeStream(request),
     ));
     request.response.statusCode = status;
+    request.response.write('{"ok":true,"id":"ab12cd34"}');
     await request.response.close();
   });
-  final url = Uri.parse('http://127.0.0.1:${server.port}/');
+  final url = Uri.parse('http://127.0.0.1:${server.port}/v1/report');
   const outlet = PlatformFeedbackOutlet();
-  await outlet.post(url, 'Café report\n');
-  expect(received.single.type, 'text/plain');
-  // Declared, not chunked: tool/feedback_receiver.py and other simple receivers need it.
-  expect(received.single.length, utf8.encode('Café report\n').length);
-  expect(received.single.body, 'Café report\n');
+  final report = buildFeedbackReport(
+    message: 'Café report',
+    details: _details,
+    at: DateTime.utc(2026),
+  );
+  expect(await outlet.post(url, report), 'ab12cd34');
+  expect(received.single.type, 'application/json');
+  final body = jsonDecode(received.single.body) as Map<String, dynamic>;
+  // The intake takes exactly these keys.
+  expect(body.keys.toList()..sort(), ['app', 'bundle', 'v']);
+  expect(body['v'], 2);
+  expect(body['app'], 'wfe-1.1.2');
+  final bundle = base64.decode(body['bundle'] as String);
+  expect(ascii.decode(bundle.sublist(0, 8)), 'EPICSUP1');
+  expect(
+    bundle.sublist(8, 16).map((b) => b.toRadixString(16).padLeft(2, '0')).join(),
+    supportKeyId,
+  );
+  // Sealed: the message is not readable on the wire.
+  expect(received.single.body, isNot(contains('Caf')));
 
   status = HttpStatus.serviceUnavailable;
   await expectLater(
-    outlet.post(url, 'again'),
+    outlet.post(url, report),
     throwsA(
       isA<FeedbackSendError>().having(
         (e) => e.message,

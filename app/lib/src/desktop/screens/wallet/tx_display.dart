@@ -242,6 +242,11 @@ class TxAmount extends StatelessWidget {
   }
 }
 
+/// Fixed widths of the Time and Amount columns, shared by [TxRow] and the Activity header so
+/// every row lines up whatever its amount says.
+double get txTimeWidth => 52.u;
+double get txAmountWidth => 150.u;
+
 /// Narrower than this, [TxRow] uses its compact form.
 double get txRowFullWidth => 560.u;
 
@@ -307,7 +312,7 @@ class _TxRowState extends ConsumerState<TxRow> {
           overflow: TextOverflow.ellipsis,
           style: widget.title == null && whoIsAddress(t) ? ts.mono(size: 12.5, weight: FontWeight.w500) : ts.strong,
         ),
-        const SizedBox(height: 2),
+        if (compact || meta.isNotEmpty) const SizedBox(height: 2),
         if (compact)
           Row(
             children: [
@@ -323,7 +328,7 @@ class _TxRowState extends ConsumerState<TxRow> {
               ),
             ],
           )
-        else
+        else if (meta.isNotEmpty)
           Text.rich(
             TextSpan(children: meta),
             maxLines: 1,
@@ -364,15 +369,21 @@ class _TxRowState extends ConsumerState<TxRow> {
           ),
           SizedBox(width: Sp.x4),
           SizedBox(
-            width: 52.u,
+            width: txTimeWidth,
             child: Text(
               timeOf(t),
+              textAlign: TextAlign.right,
               style: ts.mono(size: Fs.xs, color: c.faint),
             ),
           ),
         ],
         SizedBox(width: Sp.x4),
-        TxAmount(t, sub: compact ? compactTime(t) : null),
+        compact
+            ? TxAmount(t, sub: compactTime(t))
+            : SizedBox(
+                width: txAmountWidth,
+                child: Align(alignment: Alignment.centerRight, child: FittedBox(fit: BoxFit.scaleDown, alignment: Alignment.centerRight, child: TxAmount(t))),
+              ),
       ],
     );
     return Semantics(

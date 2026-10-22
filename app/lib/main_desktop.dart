@@ -25,6 +25,7 @@ import 'src/desktop/data/desk_store.dart';
 import 'src/desktop/data/files.dart';
 import 'src/desktop/data/lepic_desk_wallet.dart';
 import 'src/desktop/widgets/kit.dart';
+import 'src/password_lists.dart';
 import 'src/providers.dart';
 import 'src/relay_directory.dart';
 import 'src/tor_location.dart';
@@ -58,6 +59,7 @@ Future<void> main() async {
       return false;
     };
     await initWalletBackend();
+    registerPasswordListLicences();
     const build = String.fromEnvironment('FLUTTER_BUILD_NAME');
     logInfo('app', 'desktop start ${build.isEmpty ? 'dev' : build}, $platformLabel');
     final overrides = await deskOverrides();
@@ -73,13 +75,15 @@ Future<List<Override>> deskOverrides() async {
   final secrets = container.read(secretStoreProvider);
   final store = DeskStore(secrets);
   final boot = await DeskBoot.load(store);
+  final directory = container.read(relayDirectoryProvider);
   final wallet = LepicDeskWallet(
     service: container.read(walletServiceProvider),
     walletDir: container.read(walletDirProvider),
     secrets: secrets,
     filesDir: () async => await getDownloadsDirectory() ?? await getApplicationDocumentsDirectory(),
     settings: boot.settings,
-    relayDirectory: container.read(relayDirectoryProvider),
+    relayDirectory: directory,
+    nodeDirectory: directory is NodeDirectory ? directory as NodeDirectory : null,
     builtInNode: builtInNodeSupported
         ? (chain) async {
             final where = await container.read(builtInNodeLocationProvider.future);

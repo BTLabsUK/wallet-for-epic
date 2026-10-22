@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/files.dart' show deskOpenFolderProvider;
@@ -69,15 +68,7 @@ class FileChip extends ConsumerWidget {
             ),
             SizedBox(width: Sp.x2),
           ],
-          EButton(
-            label: 'Copy',
-            icon: EIcons.copy,
-            size: EBtnSize.inline,
-            onPressed: () {
-              Clipboard.setData(ClipboardData(text: name));
-              showEToast(context, 'Copied');
-            },
-          ),
+          ECopyButton(text: name, label: 'Copy', withLabel: true, kind: EBtnKind.secondary),
         ],
       ),
     );

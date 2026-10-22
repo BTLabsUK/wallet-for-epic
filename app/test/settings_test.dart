@@ -250,6 +250,7 @@ Future<void> _tapText(WidgetTester tester, String text) async {
 
 Future<void> _enter(WidgetTester tester, String label, String text) async {
   final field = find.widgetWithText(TextField, label);
+  await _reveal(tester, field);
   await tester.enterText(field, text);
   await tester.pumpAndSettle();
 }
@@ -1339,8 +1340,13 @@ void main() {
         ),
         findsOneWidget,
       );
+      // Back up to the node field, above the relay list.
+      await tester.drag(find.byType(Scrollable).last, const Offset(0, 2000));
+      await tester.pumpAndSettle();
       await _enter(tester, 'Node URL', 'not a url');
       await _tapText(tester, 'Test connection');
+      await tester.drag(find.byType(Scrollable).last, const Offset(0, 2000));
+      await tester.pumpAndSettle();
       expect(find.textContaining('Enter a full URL'), findsOneWidget);
     });
   });

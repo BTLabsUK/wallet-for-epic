@@ -27,6 +27,7 @@ import '../../legacy_wallets.dart' as legacy;
 import '../../log.dart';
 import '../../network.dart';
 import '../../providers.dart' show WalletDirResolver;
+import '../../public_servers.dart';
 import '../../relay_directory.dart';
 import '../../secret_store_api.dart';
 import '../../slate_files.dart' show decodeSlateFile, responseFileName, sendFileName;
@@ -39,17 +40,14 @@ import 'features.dart';
 import 'http_address.dart';
 import 'models.dart';
 
-/// Public nodes offered in Settings › Node, the default first.
-const List<NodeServer> deskPublicNodes = [
-  NodeServer(url: 'https://node.btlabs.uk', label: 'BT Labs', operator: 'BT Labs', health: ServiceHealth.checking),
-  NodeServer(url: 'https://node.epicnet.us:3413', label: 'EpicNet', operator: 'EpicNet', health: ServiceHealth.checking),
+/// Built-in public nodes offered in Settings › Node, the default first; status.btlabs.uk can add more.
+final List<NodeServer> deskPublicNodes = [
+  for (final n in builtInNodes) NodeServer(url: n.url, label: n.operator, operator: n.operator, health: ServiceHealth.checking),
 ];
 
-/// Public Epicbox servers, the default first.
-const List<EpicboxServer> deskEpicboxes = [
-  EpicboxServer(domain: 'epicbox.stackwallet.com', operator: 'Cypher Stack', health: ServiceHealth.checking),
-  EpicboxServer(domain: 'epicbox.epicnet.us', operator: 'EpicNet', health: ServiceHealth.checking),
-  EpicboxServer(domain: 'epicbox.epiccash.com', operator: 'Epic Cash team', health: ServiceHealth.checking),
+/// Built-in public Epicbox servers, the default first; status.btlabs.uk can add more.
+final List<EpicboxServer> deskEpicboxes = [
+  for (final r in builtInRelays) EpicboxServer(domain: r.relay.host, port: r.relay.port, operator: r.operator, health: ServiceHealth.checking),
 ];
 
 /// A short sentence for a wallet error.
@@ -102,6 +100,7 @@ class LepicDeskWallet implements DeskWalletApi {
     required this._secrets,
     required this._filesDir,
     this.relayDirectory,
+    this.nodeDirectory,
     this.preset = mainnetPreset,
     this._settings = const DeskSettings(),
     BigInt? minimumConfirmations,
@@ -133,6 +132,12 @@ class LepicDeskWallet implements DeskWalletApi {
   final RelayDirectory? relayDirectory;
   List<EpicboxServer>? _boxes;
   DateTime? _boxesAt;
+
+  /// Public nodes from status.btlabs.uk; null keeps the built-in list.
+  final NodeDirectory? nodeDirectory;
+  List<NodeStatus>? _dirNodes;
+  DateTime? _dirNodesAt;
+  bool _dirNodesLoading = false;
   final Set<String> _checking = {};
   final BigInt _minConf;
   final Duration nodePoll;
@@ -679,6 +684,13 @@ class LepicDeskWallet implements DeskWalletApi {
       }
     }
     _selectedId = listed?.id;
+    if (listed != null) {
+      try {
+        await (await registry()).setLastUsed(listed.id);
+      } on Object catch (e) {
+        logWarn('desk', 'wallet list not saved: ${e.runtimeType}');
+      }
+    }
     return result;
   }
 
@@ -704,7 +716,7 @@ class LepicDeskWallet implements DeskWalletApi {
   }
 
   @override
-  Future<List<String>> createWallet({required String name, required String password}) async {
+  Future<List<String>> createWallet({String name = '', required String password}) async {
     _checkPassword(password);
     try {
       return await _make(name, const {}, (config) async {
@@ -725,7 +737,7 @@ class LepicDeskWallet implements DeskWalletApi {
   Future<bool> checkPhraseWord(String word) async => bip39Words.contains(word.trim().toLowerCase());
 
   @override
-  Future<void> restoreWallet({required String name, required String password, required List<String> phrase}) async {
+  Future<void> restoreWallet({String name = '', required String password, required List<String> phrase}) async {
     _checkPassword(password);
     final mnemonic = phrase.map((w) => w.trim().toLowerCase()).join(' ');
     if (!_service.validateMnemonic(phrase: mnemonic)) throw const DeskError('Recovery phrase not valid');
@@ -1082,7 +1094,7 @@ class LepicDeskWallet implements DeskWalletApi {
     final nodeUrl = config?.nodeUrl ?? await _nodeUrl();
     final relay = config == null ? await _relay() : EpicboxRelay(host: config.epicboxDomain, port: config.epicboxPort);
     final node = (await _listed()).where((n) => n.url == nodeUrl).firstOrNull ?? NodeServer(url: nodeUrl, label: Uri.tryParse(nodeUrl)?.host ?? nodeUrl);
-    final box = deskEpicboxes.where((b) => b.domain == relay.host).firstOrNull ?? EpicboxServer(domain: relay.host, port: relay.port);
+    final box = (_boxes ?? deskEpicboxes).where((b) => b.domain == relay.host).firstOrNull ?? EpicboxServer(domain: relay.host, port: relay.port);
     return ServiceStatus(
       node: node,
       nodeHealth: _nodeHealth,
@@ -1125,11 +1137,43 @@ class LepicDeskWallet implements DeskWalletApi {
     }
 
     return [
-      for (final n in deskPublicNodes) withCheck(n),
+      for (final n in _publicNodes()) withCheck(n),
       if (own is List)
         for (final o in own.whereType<Map<String, dynamic>>())
           if (o['url'] is String) withCheck(NodeServer(url: o['url'] as String, label: (o['label'] as String?) ?? '', own: true, health: ServiceHealth.checking)),
     ];
+  }
+
+  /// The built-in public nodes, then any only status.btlabs.uk lists. The directory is read in
+  /// the background; the lists update when it answers.
+  List<NodeServer> _publicNodes() {
+    _readNodeDirectory();
+    return [
+      for (final n in mergePublicNodes(_dirNodes))
+        NodeServer(url: n.url, label: n.operator, operator: n.operator, health: ServiceHealth.checking),
+    ];
+  }
+
+  void _readNodeDirectory() {
+    final dir = nodeDirectory;
+    final chain = preset.statusChain;
+    final at = _dirNodesAt;
+    if (dir == null || chain == null || _dirNodesLoading) return;
+    if (at != null && DateTime.now().difference(at) < const Duration(minutes: 5)) return;
+    _dirNodesLoading = true;
+    unawaited(
+      dir
+          .nodes(chain)
+          .timeout(nodeTimeout)
+          .then((list) {
+            _dirNodes = list;
+            _changed();
+          }, onError: (Object e) => logWarn('desk', 'node directory: ${e.runtimeType}'))
+          .whenComplete(() {
+            _dirNodesLoading = false;
+            _dirNodesAt = DateTime.now();
+          }),
+    );
   }
 
   @override
@@ -1139,15 +1183,15 @@ class LepicDeskWallet implements DeskWalletApi {
     if (dir == null || preset.statusChain == null) return deskEpicboxes;
     if (_boxes != null && at != null && DateTime.now().difference(at) < const Duration(minutes: 5)) return _boxes!;
     try {
-      final seen = {for (final r in await dir.relays(preset.statusChain!).timeout(nodeTimeout)) r.relay.host: r};
+      final listed = await dir.relays(preset.statusChain!).timeout(nodeTimeout);
       _boxes = [
-        for (final b in deskEpicboxes)
+        for (final r in mergePublicRelays(listed))
           EpicboxServer(
-            domain: b.domain,
-            port: b.port,
-            operator: b.operator,
-            health: switch (seen[b.domain]?.healthy) { true => ServiceHealth.ok, false => ServiceHealth.down, null => ServiceHealth.checking },
-            latencyMs: seen[b.domain]?.latencyMs,
+            domain: r.relay.host,
+            port: r.relay.port,
+            operator: r.operator,
+            health: switch (r.status?.healthy) { true => ServiceHealth.ok, false => ServiceHealth.down, null => ServiceHealth.checking },
+            latencyMs: r.status?.latencyMs,
           ),
       ];
       _boxesAt = DateTime.now();

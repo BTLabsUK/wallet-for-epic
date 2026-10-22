@@ -381,7 +381,18 @@ class _ChangePasswordDialogState extends ConsumerState<ChangePasswordDialog> {
             child: EPasswordInput(controller: _current, autofocus: true, invalid: _wrong != null, onChanged: (_) => setState(() => _wrong = null)),
           ),
           SizedBox(height: Sp.x4),
-          EField(label: 'New password', error: _nextError, child: EPasswordInput(controller: _next, invalid: _nextError != null)),
+          EField(
+            label: 'New password',
+            error: _nextError,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                EPasswordInput(controller: _next, invalid: _nextError != null),
+                SizedBox(height: Sp.x2),
+                PasswordHint(controller: _next),
+              ],
+            ),
+          ),
           SizedBox(height: Sp.x4),
           EField(
             label: 'Repeat new password',

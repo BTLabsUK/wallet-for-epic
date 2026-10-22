@@ -1,0 +1,112 @@
+// Copy and paste on the desktop: every copy control sets the clipboard and says "Copied",
+// Receive has one copy control for its address, and text fields paste with Ctrl+V and from the
+// right-click menu (password fields: paste only).
+import 'package:flutter/gestures.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:epic_wallet/src/desktop/screens/transfer/receive_screen.dart';
+import 'package:epic_wallet/src/desktop/theme/theme.dart';
+import 'package:epic_wallet/src/desktop/widgets/kit.dart';
+
+/// The platform clipboard, as a map the test reads.
+String? _clip;
+
+void _fakeClipboard(WidgetTester tester) {
+  _clip = null;
+  tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, (call) async {
+    switch (call.method) {
+      case 'Clipboard.setData':
+        _clip = (call.arguments as Map)['text'] as String?;
+        return null;
+      case 'Clipboard.getData':
+        return _clip == null ? null : {'text': _clip};
+      case 'Clipboard.hasStrings':
+        return {'value': _clip?.isNotEmpty ?? false};
+    }
+    return null;
+  });
+  addTearDown(() => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, null));
+}
+
+Future<void> _pump(WidgetTester tester, Widget child) async {
+  tester.view.physicalSize = const Size(1280, 900);
+  tester.view.devicePixelRatio = 1;
+  addTearDown(tester.view.reset);
+  final container = ProviderContainer();
+  addTearDown(container.dispose);
+  await tester.runAsync(() => container.read(deskProvider.notifier).refresh());
+  await tester.pumpWidget(
+    UncontrolledProviderScope(
+      container: container,
+      child: MaterialApp(theme: buildDeskTheme(Brightness.dark), home: Scaffold(body: child)),
+    ),
+  );
+  await tester.pump(const Duration(milliseconds: 600));
+}
+
+void main() {
+  testWidgets('Receive: one copy control for the address; it copies and says so', (tester) async {
+    _fakeClipboard(tester);
+    await _pump(tester, const ReceiveScreen());
+    final box = find.byType(EAddress).first;
+    expect(find.descendant(of: box, matching: find.byType(ECopyButton)), findsNothing, reason: 'the button under it copies');
+    await tester.tap(find.text('Copy address'));
+    await tester.pump();
+    expect(_clip, isNotNull);
+    expect(_clip, contains('@'));
+    expect(find.text('Copied'), findsOneWidget);
+    await tester.pump(const Duration(milliseconds: 1600));
+    expect(find.text('Copied'), findsNothing);
+    expect(find.text('Copy address'), findsOneWidget);
+  });
+
+  testWidgets('a refused copy says "Not copied"', (tester) async {
+    tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, (call) async {
+      if (call.method == 'Clipboard.setData') throw PlatformException(code: 'Clipboard error');
+      return null;
+    });
+    addTearDown(() => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, null));
+    await _pump(tester, const ECopyButton(text: 'x', label: 'Copy id', withLabel: true));
+    await tester.tap(find.text('Copy id'));
+    await tester.pump();
+    expect(find.text('Not copied'), findsOneWidget);
+    await tester.pump(const Duration(milliseconds: 1600));
+  });
+
+  testWidgets('text fields paste with Ctrl+V and from the right-click menu', (tester) async {
+    _fakeClipboard(tester);
+    final ctl = TextEditingController();
+    addTearDown(ctl.dispose);
+    await _pump(tester, Center(child: SizedBox(width: 400, child: EInput(controller: ctl, mono: true))));
+    _clip = 'esA@epicbox.epiccash.com';
+    await tester.tap(find.byType(EditableText));
+    await tester.pump();
+    await tester.sendKeyDownEvent(LogicalKeyboardKey.controlLeft);
+    await tester.sendKeyEvent(LogicalKeyboardKey.keyV);
+    await tester.sendKeyUpEvent(LogicalKeyboardKey.controlLeft);
+    await tester.pump();
+    expect(ctl.text, 'esA@epicbox.epiccash.com');
+    ctl.clear();
+    _clip = 'http://203.0.113.5:3415';
+    await tester.tap(find.byType(EditableText), buttons: kSecondaryMouseButton);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Paste'));
+    await tester.pumpAndSettle();
+    expect(ctl.text, 'http://203.0.113.5:3415');
+  }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
+
+  testWidgets('a password field offers paste but never copy or cut', (tester) async {
+    _fakeClipboard(tester);
+    final ctl = TextEditingController(text: 'secret-pass');
+    addTearDown(ctl.dispose);
+    await _pump(tester, Center(child: SizedBox(width: 400, child: EPasswordInput(controller: ctl))));
+    _clip = 'pasted';
+    await tester.tap(find.byType(EditableText), buttons: kSecondaryMouseButton);
+    await tester.pumpAndSettle();
+    expect(find.text('Paste'), findsOneWidget);
+    expect(find.text('Copy'), findsNothing);
+    expect(find.text('Cut'), findsNothing);
+  }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
+}

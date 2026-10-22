@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../log.dart' show logWarn;
 import '../../ui/theme/protocol.dart' show CornerTicksPainter, GridFieldPainter;
 import '../theme/icons.dart';
 import '../theme/tokens.dart';
@@ -318,10 +319,14 @@ class EMonoText extends StatelessWidget {
 
 /// An address to read and copy: the first and last six characters in the accent.
 class EAddress extends StatelessWidget {
-  const EAddress(this.address, {super.key, this.large = false, this.onCopied, this.copyLabel = 'Copy'});
+  const EAddress(this.address, {super.key, this.large = false, this.onCopied, this.copyLabel = 'Copy', this.copy = true});
 
   final String address;
   final bool large;
+
+  /// The copy icon inside the box. Off where a "Copy …" button under it copies the same text:
+  /// one copy control per value.
+  final bool copy;
 
   /// The copy button's tooltip and screen-reader label.
   final String copyLabel;
@@ -355,22 +360,35 @@ class EAddress extends StatelessWidget {
       child: Row(
         children: [
           Expanded(child: SelectableText.rich(TextSpan(style: base, children: spans))),
-          SizedBox(width: Sp.x2),
-          ECopyButton(text: address, label: copyLabel, onCopied: onCopied),
+          if (copy) ...[SizedBox(width: Sp.x2), ECopyButton(text: address, label: copyLabel, onCopied: onCopied)],
         ],
       ),
     );
   }
 }
 
-/// Copy to the clipboard; the icon turns into a check for a moment.
+/// Copy to the clipboard. For 1.5 s the button shows a check and "Copied" (read out by screen
+/// readers); a clipboard that refuses the text says so instead. Every copy control in the
+/// desktop UI is one of these, so each copy confirms the same way.
 class ECopyButton extends StatefulWidget {
-  const ECopyButton({super.key, required this.text, this.label = 'Copy', this.onCopied, this.withLabel = false});
+  const ECopyButton({
+    super.key,
+    required this.text,
+    this.label = 'Copy',
+    this.onCopied,
+    this.withLabel = false,
+    this.kind = EBtnKind.ghost,
+    this.size = EBtnSize.inline,
+  });
 
   final String text;
   final String label;
   final VoidCallback? onCopied;
+
+  /// A button with [label] in words, in [kind] and [size]; otherwise an icon.
   final bool withLabel;
+  final EBtnKind kind;
+  final EBtnSize size;
 
   @override
   State<ECopyButton> createState() => _ECopyButtonState();
@@ -378,33 +396,31 @@ class ECopyButton extends StatefulWidget {
 
 class _ECopyButtonState extends State<ECopyButton> {
   bool _done = false;
+  bool _failed = false;
 
   Future<void> _copy() async {
-    await Clipboard.setData(ClipboardData(text: widget.text));
-    widget.onCopied?.call();
+    try {
+      await Clipboard.setData(ClipboardData(text: widget.text));
+      _failed = false;
+    } on Object catch (e) {
+      logWarn('desk', 'copy refused: ${e.runtimeType}');
+      _failed = true;
+    }
+    if (!_failed) widget.onCopied?.call();
     if (!mounted) return;
     setState(() => _done = true);
-    await Future<void>.delayed(const Duration(milliseconds: 1400));
+    await Future<void>.delayed(const Duration(milliseconds: 1500));
     if (mounted) setState(() => _done = false);
   }
 
   @override
   Widget build(BuildContext context) {
-    if (widget.withLabel) {
-      return EButton(
-        label: _done ? 'Copied' : widget.label,
-        icon: _done ? EIcons.check : EIcons.copy,
-        size: EBtnSize.inline,
-        kind: EBtnKind.ghost,
-        onPressed: _copy,
-      );
-    }
-    return EIconButton(
-      icon: _done ? EIcons.check : EIcons.copy,
-      label: _done ? 'Copied' : widget.label,
-      color: _done ? context.dc.ok : null,
-      onPressed: _copy,
-    );
+    final label = !_done ? widget.label : (_failed ? 'Not copied' : 'Copied');
+    final icon = !_done ? EIcons.copy : (_failed ? EIcons.alert : EIcons.check);
+    final Widget button = widget.withLabel
+        ? EButton(label: label, icon: icon, size: widget.size, kind: widget.kind, onPressed: _copy)
+        : EIconButton(icon: icon, label: label, color: _done ? (_failed ? context.dc.risk : context.dc.ok) : null, onPressed: _copy);
+    return Semantics(liveRegion: true, child: button);
   }
 }
 

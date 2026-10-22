@@ -3372,7 +3372,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get helpStillStuck => 'Nadal masz problem?';
 
   @override
-  String get helpTellUs => 'Napisz nam, co się stało lub co jest niejasne.';
+  String get helpTellUs => 'Opisz, co się stało lub co jest niejasne.';
 
   @override
   String get helpSendFeedback => 'Wyślij opinię';
@@ -3381,8 +3381,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get feedbackTitle => 'Wyślij opinię';
 
   @override
-  String get feedbackIntro =>
-      'Napisz nam, co poszło nie tak lub co można poprawić.';
+  String get feedbackIntro => 'Opisz, co poszło nie tak lub co można poprawić.';
 
   @override
   String get feedbackMessageLabel => 'Twoja wiadomość';
@@ -3401,7 +3400,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get feedbackAttachLogsHint =>
-      'Pomaga nam znaleźć problem. Fraza odzyskiwania, PIN i inne poufne dane są wcześniej usuwane.';
+      'Logi pomagają znaleźć problem. Fraza odzyskiwania, PIN i inne poufne dane są wcześniej usuwane.';
 
   @override
   String get feedbackPreviewButton => 'Podgląd wysyłanych danych';

@@ -5,7 +5,6 @@ import '../../app/shell.dart' show deskVersion;
 import '../../widgets/kit.dart';
 import 'settings_frame.dart';
 
-const _github = 'https://github.com/EpicCash/epic-gui-wallet';
 const _community = 'https://epiccash.com/';
 
 class SettingsAboutScreen extends ConsumerWidget {
@@ -58,7 +57,6 @@ class SettingsAboutScreen extends ConsumerWidget {
                   ],
                 ),
               ),
-              linkRow('Source code on GitHub', 'github.com/EpicCash/epic-gui-wallet', _github, icon: EIcons.github),
               linkRow('Epic Cash community', 'epiccash.com', _community, text: 'News about Epic Cash, questions and the community’s social media.'),
             ],
           ),

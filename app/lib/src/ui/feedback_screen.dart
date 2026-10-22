@@ -10,6 +10,8 @@ import '../l10n.dart';
 import '../network.dart';
 import '../providers.dart';
 import '../settings.dart';
+import '../support_clean.dart';
+import '../support_report.dart';
 import 'common.dart';
 import 'contacts_screen.dart' show LiveFieldError;
 import 'settings_screen.dart' show appVersionProvider;
@@ -17,6 +19,15 @@ import 'settings_screen.dart' show appVersionProvider;
 /// `android 14 (…)`: the OS and its version, as Dart reports them. Tests pin it.
 final feedbackPlatformProvider = Provider<String>(
   (ref) => '${Platform.operatingSystem} ${Platform.operatingSystemVersion}',
+);
+
+/// The user's home folder and names, which a report leaves out. Tests pin it.
+final feedbackCleanContextProvider = Provider<CleanContext>(
+  (ref) => CleanContext(
+    home: Platform.environment['HOME'] ?? Platform.environment['USERPROFILE'],
+    username: Platform.environment['USER'] ?? Platform.environment['USERNAME'],
+    hostname: Platform.localHostname,
+  ),
 );
 
 /// Plain words for what the wallet is doing, for a feedback report. English, like the rest of
@@ -111,7 +122,7 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
   }
 
   /// The report as it would leave now.
-  Future<String> _report() async {
+  Future<SupportReport> _report() async {
     final details = await _details();
     String? log;
     if (_attachLogs) {
@@ -127,6 +138,7 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
       details: details,
       log: log,
       at: ref.read(clockProvider)(),
+      context: ref.read(feedbackCleanContextProvider),
     );
   }
 
@@ -149,7 +161,7 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
     if (!mounted) return;
     await Navigator.of(context).push(
       MaterialPageRoute<void>(
-        builder: (_) => FeedbackPreviewScreen(report: report),
+        builder: (_) => FeedbackPreviewScreen(report: report.text),
       ),
     );
   }
@@ -182,8 +194,8 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
 
   Future<void> _send(Uri url) => _run(() async {
     final report = await _report();
-    await ref.read(feedbackOutletProvider).post(url, report);
-    logInfo('feedback', 'sent to ${url.host}');
+    final id = await ref.read(feedbackOutletProvider).post(url, report);
+    logInfo('feedback', 'sent to ${url.host}, report $id');
     if (mounted) _done(context.l10n.feedbackSent);
   });
 
@@ -224,7 +236,7 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
     }
     final dialogTitle = context.l10n.feedbackSaveDialogTitle;
     await _run(() async {
-      final report = await _report();
+      final report = (await _report()).text;
       final name = feedbackFileName(ref.read(clockProvider)());
       final done = await ref
           .read(autoLockHoldProvider.notifier)

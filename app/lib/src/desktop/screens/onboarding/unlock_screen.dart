@@ -77,7 +77,15 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
       ref.read(deskNavProvider.notifier).reset(DeskRoute.welcome);
       return;
     }
-    final pick = w.where((e) => e.current).firstOrNull ?? w.first;
+    final added = widget.arg is UnlockAdded ? (widget.arg as UnlockAdded).id : null;
+    final pick = w.where((e) => e.id == added).firstOrNull ?? w.where((e) => e.current).firstOrNull ?? w.first;
+    if (pick.id == added) {
+      try {
+        await ref.read(deskApiProvider).selectWallet(pick.id);
+      } on Object catch (e) {
+        if (mounted) setState(() => _error = deskErrorText(e));
+      }
+    }
     setState(() {
       _wallets = w;
       _id = pick.id;
