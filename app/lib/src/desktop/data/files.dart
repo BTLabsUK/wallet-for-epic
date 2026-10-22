@@ -1,4 +1,5 @@
-/// Picking a transaction file from disk through the system's file dialog.
+/// Picking a transaction file from disk through the system's file dialog, and opening folders and
+/// links in the system's file manager and browser.
 library;
 
 import 'dart:io';
@@ -29,6 +30,25 @@ Future<bool> openInFileManager(String dir) async {
   final cmd = Platform.isWindows ? 'explorer' : (Platform.isMacOS ? 'open' : 'xdg-open');
   try {
     await Process.start(cmd, [dir], mode: ProcessStartMode.detached);
+    return true;
+  } on ProcessException {
+    return false;
+  }
+}
+
+/// Link buttons: [openInBrowser]; tests record the address instead.
+final deskOpenUrlProvider = Provider<Future<bool> Function(String url)>((ref) => openInBrowser);
+
+/// Opens the https address [url] in the default browser. False when it is not https or the
+/// browser could not be started.
+Future<bool> openInBrowser(String url) async {
+  if (Uri.tryParse(url)?.scheme != 'https') return false;
+  // Windows: the URL handler, which needs no shell, so nothing in the address is interpreted.
+  final (cmd, args) = Platform.isWindows
+      ? ('rundll32', ['url.dll,FileProtocolHandler', url])
+      : (Platform.isMacOS ? 'open' : 'xdg-open', [url]);
+  try {
+    await Process.start(cmd, args, mode: ProcessStartMode.detached);
     return true;
   } on ProcessException {
     return false;
