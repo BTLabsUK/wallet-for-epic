@@ -157,6 +157,7 @@ class _CreateScreenState extends ConsumerState<CreateScreen> {
                 passwordError: pe,
                 confirmError: ce,
                 onChanged: () => setState(() {}),
+                onSubmit: _accountOk ? _create : null,
               ),
             ],
           ),
@@ -169,7 +170,10 @@ class _CreateScreenState extends ConsumerState<CreateScreen> {
   Widget _phraseStep(BuildContext context, List<ERailStep> rail) {
     final phrase = _phrase;
     final ts = context.ts;
-    return EOnbFrame(
+    // The wallet exists now: Back (mouse, Alt+Left) must not leave its phrase unseen.
+    return DeskStepBack(
+      onBack: () {},
+      child: EOnbFrame(
       sideTitle: 'New wallet',
       steps: rail,
       title: 'Recovery phrase',
@@ -258,6 +262,7 @@ class _CreateScreenState extends ConsumerState<CreateScreen> {
           ],
         ],
       ),
+    ),
     );
   }
 }

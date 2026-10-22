@@ -252,7 +252,7 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
         title: 'Unlock wallet',
         lead: 'Keys stay on this computer.',
         alternatives: [
-          if (DeskFeatures.multiWallet) ELink(label: 'Add a wallet', dim: true, onPressed: () => nav.go(DeskRoute.welcome, 'add')),
+          if (DeskFeatures.multiWallet) ELink(label: 'Add a wallet', dim: true, tabStop: false, onPressed: () => nav.go(DeskRoute.welcome, 'add')),
         ],
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
