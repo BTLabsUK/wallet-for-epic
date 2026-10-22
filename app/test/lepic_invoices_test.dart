@@ -64,6 +64,23 @@ class _InvoiceWallet implements lepic.EpicWallet {
   @override
   Stream<lepic.WalletEvent> events() => eventSink.stream;
 
+  /// The balance's count, which an invoice is paid with.
+  BigInt balanceConfirmations = BigInt.from(10);
+
+  @override
+  Future<lepic.WalletSummary> summary({required bool refresh}) async =>
+      lepic.WalletSummary(
+        lastConfirmedHeight: BigInt.from(100),
+        minimumConfirmations: balanceConfirmations,
+        total: BigInt.zero,
+        spendable: BigInt.zero,
+        awaitingConfirmation: BigInt.zero,
+        awaitingFinalization: BigInt.zero,
+        immature: BigInt.zero,
+        locked: BigInt.zero,
+        validatedWithNode: false,
+      );
+
   @override
   Future<String> epicboxAddress() async => _payments;
 
@@ -385,8 +402,9 @@ void main() {
 
   group('pay, decline and resend', () {
     test(
-      'a matching amount pays with 10 confirmations and no message',
+      'a matching amount pays with the balance\'s confirmations and no message',
       () async {
+        wallet.balanceConfirmations = BigInt.from(3);
         wallet.park('inv-1', BigInt.from(500), message: 'order 42');
         final paid = await session.payInvoice(
           slateId: 'inv-1',
@@ -403,7 +421,7 @@ void main() {
             txId: 9,
           ),
         );
-        expect(wallet.payments.single.minConf, BigInt.from(10));
+        expect(wallet.payments.single.minConf, BigInt.from(3));
         expect(wallet.payments.single.message, isNull);
         expect(await session.paidInvoice(slateId: 'inv-1'), paid);
       },

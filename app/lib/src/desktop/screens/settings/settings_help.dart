@@ -112,6 +112,7 @@ class _SettingsHelpScreenState extends ConsumerState<SettingsHelpScreen> {
     final ts = context.ts;
     final words = queryWords(_query.text);
     final searching = words.isNotEmpty;
+    final helpTopics = helpTopicsFor(deskMinConfirmations(ref));
     final hits = searching ? searchTopics(helpTopics, words) : const <({HelpTopic topic, bool inBody})>[];
     Widget list(Iterable<({HelpTopic topic, bool inBody})> topics) => Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -257,33 +258,33 @@ class _TopicState extends State<_Topic> {
   }
 }
 
-const _epicboxSteps = [
+List<String> _epicboxSteps(int confirmations) => [
   'The sending wallet passes the payment to Epicbox and locks the coins.',
   'Epicbox delivers it when the receiving wallet is online. That wallet adds its part and signs.',
   'The receiving wallet sends it back to Epicbox.',
   'Epicbox passes it back to the sending wallet.',
   'The sending wallet signs too, finishes the transaction and posts it to the network.',
-  'The network puts it in a block. After 10 confirmations it is final.',
+  'The network puts it in a block. After $confirmations confirmations it is final.',
 ];
 
-const _fileSteps = [
+List<String> _fileSteps(int confirmations) => [
   'The sending wallet saves a transaction file and locks the coins. The file goes to the recipient by any means.',
   'The recipient opens it. Their wallet adds its part, signs and saves a response file.',
   'The response file comes back to the sender.',
   'The sender opens the response file under Finalize.',
   'The sending wallet signs too, finishes the transaction and posts it to the network.',
-  'The network puts it in a block. After 10 confirmations it is final.',
+  'The network puts it in a block. After $confirmations confirmations it is final.',
 ];
 
 /// "How a transaction travels": the steps over Epicbox or with a file, one at a time.
-class HelpHandshake extends StatefulWidget {
+class HelpHandshake extends ConsumerStatefulWidget {
   const HelpHandshake({super.key});
 
   @override
-  State<HelpHandshake> createState() => _HelpHandshakeState();
+  ConsumerState<HelpHandshake> createState() => _HelpHandshakeState();
 }
 
-class _HelpHandshakeState extends State<HelpHandshake> {
+class _HelpHandshakeState extends ConsumerState<HelpHandshake> {
   bool _file = false;
   int _i = 0;
 
@@ -291,7 +292,8 @@ class _HelpHandshakeState extends State<HelpHandshake> {
   Widget build(BuildContext context) {
     final c = context.dc;
     final ts = context.ts;
-    final steps = _file ? _fileSteps : _epicboxSteps;
+    final confirmations = deskMinConfirmations(ref);
+    final steps = _file ? _fileSteps(confirmations) : _epicboxSteps(confirmations);
     // Who holds the slate at each step: 0 sender, 1 middle (Epicbox / file), 2 recipient, 3 network.
     const at = [1, 2, 1, 0, 3, 3];
     final names = ['Sender', _file ? 'File' : 'Epicbox', 'Recipient', 'Network'];

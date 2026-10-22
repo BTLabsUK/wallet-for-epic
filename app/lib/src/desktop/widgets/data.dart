@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../ui/theme/brand.dart' show MarkedQr;
+import '../../providers.dart' show defaultMinimumConfirmations;
 import '../data/models.dart';
 import '../data/state.dart';
 import '../theme/icons.dart';
@@ -52,7 +53,7 @@ class EAvatar extends StatelessWidget {
 /// Confirmation ring: an arc for the count out of [needed], a check when done, a dashed
 /// faint ring when [off] (cancelled).
 class ERing extends StatelessWidget {
-  const ERing({super.key, required this.confirmations, this.needed = 10, this._size, this.off = false});
+  const ERing({super.key, required this.confirmations, this.needed = defaultMinimumConfirmations, this._size, this.off = false});
 
   final int confirmations;
   final int needed;

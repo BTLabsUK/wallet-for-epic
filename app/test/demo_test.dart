@@ -624,7 +624,7 @@ void main() {
         (await phone.read(networkChoiceProvider.future)).preset,
         mainnetPreset,
       );
-      expect(phone.read(minimumConfirmationsProvider), BigInt.from(10));
+      expect(phone.read(minimumConfirmationsProvider), BigInt.from(3));
     });
 
     for (final demo in [true, false]) {
@@ -644,11 +644,12 @@ void main() {
           await h.pump(tester);
           await h.unlock(tester);
           expect(h.session.confirmations, isNotEmpty);
+          // Balance calls ask with the fallback, which LEPIC ignores.
           expect(h.session.confirmations.toSet(), {
-            demo ? BigInt.one : BigInt.from(10),
+            demo ? BigInt.one : BigInt.from(3),
           });
-          // Rows count with what the balance counted (10 here, as LEPIC always does), so a
-          // row never says Completed under coins the balance still has as confirming.
+          // Rows count with what the balance counted (10 here, as the fake LEPIC reports),
+          // so a row never says Completed under coins the balance still has as confirming.
           expect(find.text(l.txStatusConfirming(1, 10)), findsWidgets);
           expect(find.text(l.txStatusCompleted), findsNothing);
         },

@@ -9,6 +9,7 @@ import 'api.dart';
 import 'desk_store.dart';
 import 'mock_wallet.dart';
 import 'models.dart';
+import '../../providers.dart' show defaultMinimumConfirmations;
 import '../widgets/kit.dart' show DeskFeatures;
 
 /// The wallet behind the desktop UI. Override with a LEPIC adapter to go live.
@@ -327,6 +328,11 @@ class DeskController extends Notifier<DeskState> {
 }
 
 final deskProvider = NotifierProvider<DeskController, DeskState>(DeskController.new);
+
+/// The confirmations the open wallet's balance counts a coin spendable with (LEPIC's), or the
+/// app's default before there is a balance.
+int deskMinConfirmations(WidgetRef ref) =>
+    ref.watch(deskProvider.select((s) => s.balance?.minConfirmations)) ?? defaultMinimumConfirmations;
 
 /// The wallet's outputs (Activity › Outputs). Invalidate to reload.
 final deskOutputsProvider = FutureProvider<List<Output>>((ref) => ref.read(deskApiProvider).outputs());

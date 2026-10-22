@@ -1126,8 +1126,8 @@ class LepicWalletSession implements WalletSession {
         ),
   );
 
-  /// LEPIC counts balances with its own 10 confirmations, the app's value too
-  /// (`providers.dart`), so [minimumConfirmations] changes nothing.
+  /// LEPIC counts balances with its own confirmations and reports them in the summary
+  /// (`countedConfirmationsProvider`), so [minimumConfirmations] changes nothing.
   @override
   Future<WalletSummary> summary({
     required bool refresh,
@@ -1278,8 +1278,10 @@ class LepicWalletSession implements WalletSession {
   // invoice it paid, in `wfe_meta.json`. Nothing here pays but [payInvoice], which only the
   // review screen calls after the PIN or biometric gate; no event leads to it.
 
-  /// LEPIC's balance rule, the app's `minimumConfirmations` too (`providers.dart`).
-  static final BigInt _minimumConfirmations = BigInt.from(10);
+  /// The confirmations LEPIC's balance counts a coin spendable with, so an invoice is paid
+  /// from what the balance shows as spendable.
+  Future<BigInt> _balanceConfirmations() async =>
+      (await _wallet.summary(refresh: false)).minimumConfirmations;
 
   BigInt get _expirySecs => BigInt.from(invoiceExpiry.inSeconds);
 
@@ -1523,7 +1525,7 @@ class LepicWalletSession implements WalletSession {
       final tx = await _wallet.payInvoice(
         slateId: slateId,
         amount: amount,
-        minimumConfirmations: _minimumConfirmations,
+        minimumConfirmations: await _balanceConfirmations(),
       );
       result = paid(status: InvoiceStatus.replied, txId: tx.txId);
     } on lepic.WalletError catch (error) {

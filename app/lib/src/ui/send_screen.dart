@@ -475,7 +475,7 @@ class _SendViewState extends ConsumerState<SendView> {
     try {
       final estimate = await session.estimateFee(
         amount: amount,
-        minimumConfirmations: ref.read(minimumConfirmationsProvider),
+        minimumConfirmations: ref.read(countedConfirmationsProvider),
       );
       if (mounted && _parsedAmount == amount) {
         setState(() => _estimate = estimate);
@@ -526,7 +526,7 @@ class _SendViewState extends ConsumerState<SendView> {
     });
     try {
       final estimate = await session.estimateMax(
-        minimumConfirmations: ref.read(minimumConfirmationsProvider),
+        minimumConfirmations: ref.read(countedConfirmationsProvider),
       );
       if (!mounted) return;
       _amount.text = localDecimal(context.l10n, formatEpic(estimate.amount));
@@ -586,7 +586,7 @@ class _SendViewState extends ConsumerState<SendView> {
       _cancelFailed = false;
     });
     try {
-      final minimum = ref.read(minimumConfirmationsProvider);
+      final minimum = ref.read(countedConfirmationsProvider);
       final estimate = _maxUsed
           ? await session.estimateMax(minimumConfirmations: minimum)
           : await session.estimateFee(
@@ -661,7 +661,7 @@ class _SendViewState extends ConsumerState<SendView> {
     final note = _noteText;
     return _run((session) async {
       // What the wallet held before, to tell the payment a failed send leaves behind.
-      final minimum = ref.read(minimumConfirmationsProvider);
+      final minimum = ref.read(countedConfirmationsProvider);
       final before = {
         for (final t in await session.transactions(refresh: false)) t.key,
       };
@@ -674,7 +674,7 @@ class _SendViewState extends ConsumerState<SendView> {
         tx = await hold.during(
           () => session.sendEpicbox(
             amount: amount,
-            minimumConfirmations: ref.read(minimumConfirmationsProvider),
+            minimumConfirmations: ref.read(countedConfirmationsProvider),
             address: to.address,
             message: note.isEmpty ? null : note,
           ),
@@ -832,7 +832,7 @@ class _SendViewState extends ConsumerState<SendView> {
       final message = _noteText;
       final slate = await session.createSendSlate(
         amount: amount,
-        minimumConfirmations: ref.read(minimumConfirmationsProvider),
+        minimumConfirmations: ref.read(countedConfirmationsProvider),
         message: message.isEmpty ? null : message,
       );
       // The sender keeps the message as the private note too. The file is made, so a note

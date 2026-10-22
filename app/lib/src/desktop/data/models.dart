@@ -5,6 +5,8 @@ library;
 
 import 'package:flutter/foundation.dart';
 
+import '../../providers.dart' show defaultMinimumConfirmations;
+
 /// Amounts are kept in nanoepic (1 EPIC = 10^8), as the wallet does.
 const int nanoPerEpic = 100000000;
 
@@ -26,6 +28,7 @@ class Balance {
     required this.locked,
     required this.awaitingFinalization,
     this.immature = 0,
+    this.minConfirmations = defaultMinimumConfirmations,
   });
 
   final int spendable;
@@ -37,6 +40,10 @@ class Balance {
 
   /// Mining rewards below their lock height.
   final int immature;
+
+  /// Confirmations a coin needs to count as [spendable]: the count LEPIC worked this balance
+  /// out with. Sends ask for the same, so they can spend exactly [spendable].
+  final int minConfirmations;
 
   int get total => spendable + awaitingConfirmation + locked + immature;
 }
@@ -72,6 +79,7 @@ class Output {
     required this.status,
     this.height,
     this.confirmations = 0,
+    this.confirmationsNeeded = defaultMinimumConfirmations,
     this.lockHeight,
   });
 
@@ -80,6 +88,9 @@ class Output {
   final OutputStatus status;
   final int? height;
   final int confirmations;
+
+  /// Confirmations before it is spendable ([Balance.minConfirmations]).
+  final int confirmationsNeeded;
 
   /// Height a mining reward unlocks at.
   final int? lockHeight;
@@ -97,6 +108,7 @@ class Tx {
     required this.fee,
     required this.created,
     this.confirmations = 0,
+    this.confirmationsNeeded = defaultMinimumConfirmations,
     this.counterparty,
     this.contactName,
     this.message,
@@ -118,6 +130,9 @@ class Tx {
   final int fee;
   final DateTime created;
   final int confirmations;
+
+  /// Confirmations before it is final and its coins spendable ([Balance.minConfirmations]).
+  final int confirmationsNeeded;
 
   /// Address, URL or file name of the other side.
   final String? counterparty;

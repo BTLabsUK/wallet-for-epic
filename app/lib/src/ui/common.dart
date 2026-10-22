@@ -389,21 +389,16 @@ int? txConfirmations(TxEntry tx, BigInt? tip) {
 }
 
 /// Confirmations after which the list calls a transaction completed, when no balance says
-/// otherwise. Screens pass [confirmationsTargetOf] as `target`: the balance's own count, 10 as
+/// otherwise. Screens pass [confirmationsTargetOf] as `target`: the balance's own count, as
 /// LEPIC counts, in the web demo too.
 final int confirmationsTarget = minimumConfirmations.toInt();
 
 /// The confirmations a payment needs before its row says Completed: the count the balance
 /// was worked out with ([WalletSummary.minimumConfirmations]), so a row never says Completed
-/// while the balance still has its coins as confirming. LEPIC counts 10 whatever the app asks
-/// for, the web demo too. Before the first balance, [minimumConfirmationsProvider].
-int confirmationsTargetOf(WidgetRef ref) {
-  final counted = ref.watch(
-    homeProvider.select((h) => h.value?.summary.minimumConfirmations),
-  );
-  if (counted != null && counted > BigInt.zero) return counted.toInt();
-  return ref.watch(minimumConfirmationsProvider).toInt();
-}
+/// while the balance still has its coins as confirming. LEPIC counts with its own number
+/// whatever the app asks for. Before the first balance, [minimumConfirmationsProvider].
+int confirmationsTargetOf(WidgetRef ref) =>
+    ref.watch(countedConfirmationsProvider).toInt();
 
 /// Where a transaction stands, in the words its status chip uses.
 enum TxPhase {
@@ -441,7 +436,7 @@ TxPhase txPhase(TxEntry tx, BigInt? tip, {int? target}) {
   };
 }
 
-/// `Waiting for recipient`, `Confirming 3/10`, `Completed`, …
+/// `Waiting for recipient`, `Confirming 1/3`, `Completed`, …
 String txStatusLabel(
   AppLocalizations l,
   TxEntry tx,

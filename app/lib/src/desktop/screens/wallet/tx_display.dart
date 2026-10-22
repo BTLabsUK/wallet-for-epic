@@ -4,9 +4,6 @@ import 'package:intl/intl.dart' hide TextDirection;
 
 import '../../widgets/kit.dart';
 
-/// Confirmations after which received funds are spendable.
-const int minConfirmations = 10;
-
 String methodLabel(TxMethod m) => switch (m) {
   TxMethod.epicbox => 'Epicbox',
   TxMethod.http => 'Direct HTTP',
@@ -63,7 +60,7 @@ IconData iconOf(Tx t) => switch (t.method) {
           ETone.warn,
         ),
         TxState.posted => ('Waiting for a block', ETone.neutral),
-        TxState.confirming => ('Confirming ${t.confirmations}/$minConfirmations', ETone.gold),
+        TxState.confirming => ('Confirming ${t.confirmations}/${t.confirmationsNeeded}', ETone.gold),
         TxState.confirmed => (t.incoming ? 'Received' : 'Sent', ETone.ok),
         TxState.cancelled => ('Cancelled', ETone.neutral),
       };
@@ -208,7 +205,7 @@ class TxStateMark extends StatelessWidget {
       TxState.cancelled => ERing(confirmations: 0, size: size, off: true),
       TxState.waitingRecipient => Icon(EIcons.sand, size: size * 0.75, color: c.warn),
       TxState.posted => ERing(confirmations: 0, size: size),
-      _ => ERing(confirmations: tx.confirmations, needed: minConfirmations, size: size),
+      _ => ERing(confirmations: tx.confirmations, needed: tx.confirmationsNeeded, size: size),
     };
   }
 }

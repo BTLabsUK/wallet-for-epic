@@ -508,6 +508,7 @@ class _Learn extends ConsumerWidget {
     final ts = context.ts;
     final c = context.dc;
     final nav = ref.read(deskNavProvider.notifier);
+    final needed = deskMinConfirmations(ref);
     Widget stage(Widget mark, String title, String text) => Padding(
       padding: EdgeInsets.symmetric(vertical: Sp.x2),
       child: Row(
@@ -540,8 +541,8 @@ class _Learn extends ConsumerWidget {
                 text: 'Every payment sent or received is listed here, newest first, with who it was with and how far along it is.',
               ),
               stage(Icon(EIcons.sand, size: 20.u, color: c.warn), 'Waiting', 'Both wallets sign it. Over Epicbox this is automatic.'),
-              stage(const ERing(confirmations: 2), 'Confirming', 'On the chain. About one block a minute.'),
-              stage(const ERing(confirmations: 10), 'Spendable', 'After $minConfirmations confirmations, about $minConfirmations minutes.'),
+              stage(ERing(confirmations: 1, needed: needed), 'Confirming', 'On the chain. About one block a minute.'),
+              stage(ERing(confirmations: needed, needed: needed), 'Spendable', 'After $needed confirmations, about $needed minutes.'),
               SizedBox(height: Sp.x5),
               Wrap(
                 spacing: Sp.x2,
@@ -702,7 +703,7 @@ class _OutputRow extends StatelessWidget {
   (String, String?, ETone) _status() {
     final o = output;
     return switch (o.status) {
-      OutputStatus.confirming => ('Confirming ${o.confirmations}/$minConfirmations', null, ETone.warn),
+      OutputStatus.confirming => ('Confirming ${o.confirmations}/${o.confirmationsNeeded}', null, ETone.warn),
       OutputStatus.unconfirmed => ('Unconfirmed', null, ETone.neutral),
       OutputStatus.unspent => ('Unspent', null, ETone.ok),
       OutputStatus.immature => ('Immature', o.lockHeight != null && o.lockHeight! > tip ? '${_group(o.lockHeight! - tip)} blocks to go' : null, ETone.warn),
@@ -724,7 +725,7 @@ class _OutputRow extends StatelessWidget {
       _ => c.dim,
     };
     final mark = switch (o.status) {
-      OutputStatus.confirming => ERing(confirmations: o.confirmations, needed: minConfirmations, size: 18.u),
+      OutputStatus.confirming => ERing(confirmations: o.confirmations, needed: o.confirmationsNeeded, size: 18.u),
       OutputStatus.unconfirmed => ERing(confirmations: 0, size: 18.u),
       OutputStatus.unspent => Icon(EIcons.okCircle, size: Ctl.iconSm, color: c.ok),
       OutputStatus.immature => Icon(EIcons.sand, size: Ctl.iconSm, color: c.warn),

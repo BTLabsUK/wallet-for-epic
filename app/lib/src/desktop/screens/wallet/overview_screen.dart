@@ -697,7 +697,7 @@ class _Recent extends StatelessWidget {
           builder: (context, ref, _) => EEmpty(
             icon: EIcons.receive,
             title: 'No transactions yet',
-            text: 'Received EPIC shows here first as confirming, then as spendable after $minConfirmations blocks.',
+            text: 'Received EPIC shows here first as confirming, then as spendable after ${deskMinConfirmations(ref)} blocks.',
             actions: [
               EButton.primary(label: 'Show address', onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.receive)),
               EButton.ghost(label: 'Receive a file', size: EBtnSize.md, onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.importTx)),

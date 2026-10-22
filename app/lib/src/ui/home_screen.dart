@@ -109,7 +109,7 @@ String paymentNotice(
           ? l.homeNoticeRepeated
           : l.homeNoticeRepeatedFrom(contactName);
     case ListenerEventKind.finalized:
-      // Finished and posted, not yet confirmed: "Completed" is kept for 10 confirmations.
+      // Finished and posted, not yet confirmed: "Completed" is kept for the balance's confirmations.
       return who == null ? l.homeNoticeFinished : l.homeNoticeFinishedTo(who);
     case ListenerEventKind.expired:
       // The core says whether the funds are unlocked yet or unlock at the next refresh, in

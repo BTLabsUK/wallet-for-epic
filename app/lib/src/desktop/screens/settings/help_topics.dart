@@ -19,12 +19,14 @@ const helpSections = <(String, String)>[
   ('trouble', 'When something goes wrong'),
 ];
 
-final helpTopics = <HelpTopic>[
+/// The topics, with [confirmations] as the open wallet's balance counts them
+/// (`deskMinConfirmations`).
+List<HelpTopic> helpTopicsFor(int confirmations) => <HelpTopic>[
   HelpTopic(
     'start',
     'Receive your first EPIC',
     'Open Receive, copy the Epic address and give it to the sender. The payment arrives by itself.',
-    'The Epic address ends in @ and the Epicbox server name. It is safe to share. The payment shows up in Activity on its own; after 10 confirmations, about 10 minutes, it can be spent. If the wallet is closed, Epicbox holds the payment until the next unlock.',
+    'The Epic address ends in @ and the Epicbox server name. It is safe to share. The payment shows up in Activity on its own; after $confirmations confirmations, about $confirmations minutes, it can be spent. If the wallet is closed, Epicbox holds the payment until the next unlock.',
   ),
   HelpTopic(
     'start',
@@ -47,8 +49,8 @@ final helpTopics = <HelpTopic>[
   HelpTopic(
     'how',
     'Confirmations',
-    'A transaction is final after 10 confirmations, usually about 10 minutes.',
-    'Each new block on top of the transaction is one confirmation. Until 10, the amount shows as awaiting confirmation and cannot be spent.',
+    'A transaction is final after $confirmations confirmations, usually about $confirmations minutes.',
+    'Each new block on top of the transaction is one confirmation. Until $confirmations, the amount shows as awaiting confirmation and cannot be spent.',
   ),
   HelpTopic(
     'how',

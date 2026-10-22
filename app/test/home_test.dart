@@ -558,20 +558,17 @@ void main() {
       );
       expect(
         label(fakeTx(kind: TxKind.sent, status: TxStatus.awaitingConfirmation)),
-        'Confirming 0/10',
+        'Confirming 0/3',
+      );
+      expect(
+        label(
+          fakeTx(status: TxStatus.confirmed, blockHeight: _tip - BigInt.one),
+        ),
+        'Confirming 2/3',
       );
       expect(
         label(
           fakeTx(status: TxStatus.confirmed, blockHeight: _tip - BigInt.two),
-        ),
-        'Confirming 3/10',
-      );
-      expect(
-        label(
-          fakeTx(
-            status: TxStatus.confirmed,
-            blockHeight: _tip - BigInt.from(9),
-          ),
         ),
         'Completed',
       );

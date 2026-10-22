@@ -29,7 +29,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
                 ? 'Waiting for the response file. Finalize when it arrives.'
                 : 'Waiting for the recipient to sign. Nothing leaves the wallet until it is finalized.',
           TxState.posted => 'Posted to the network, waiting for a block.',
-          TxState.confirming => 'In a block, ${t.confirmations} of $minConfirmations confirmations.',
+          TxState.confirming => 'In a block, ${t.confirmations} of ${t.confirmationsNeeded} confirmations.',
           TxState.confirmed => 'Confirmed, ${t.confirmations} confirmations.',
           TxState.cancelled => 'Cancelled.',
         };
@@ -236,7 +236,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
         'Confirming',
         done ? _S.done : (inBlock ? _S.now : _S.todo),
         inBlock ? hm(const Duration(minutes: 2)) : '',
-        sub: t.state == TxState.confirming ? '${t.confirmations} of $minConfirmations' : null,
+        sub: t.state == TxState.confirming ? '${t.confirmations} of ${t.confirmationsNeeded}' : null,
       ),
       _Step('Spendable', done ? _S.done : _S.todo, done ? hm(const Duration(minutes: 12)) : ''),
     ];

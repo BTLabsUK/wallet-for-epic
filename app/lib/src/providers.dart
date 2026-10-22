@@ -12,14 +12,29 @@ import 'vault.dart';
 import 'wallet_backend.dart' as backend;
 import 'wallet_service.dart';
 
-/// Confirmations before an output counts as spendable. epic-wallet's CLI default.
-final BigInt minimumConfirmations = BigInt.from(10);
+/// Confirmations before an output counts as spendable, until a balance says otherwise: the
+/// count LEPIC's balance uses (3, as the GUI 6.1.6). The app never counts with its own number
+/// once a balance is there; see [countedConfirmationsProvider].
+const int defaultMinimumConfirmations = 3;
+final BigInt minimumConfirmations = BigInt.from(defaultMinimumConfirmations);
 
-/// The confirmations the app counts with: [minimumConfirmations], and 1 in the web demo, so
-/// test coins can be spent about a block after they land.
+/// The fallback the app counts with before the first balance: [minimumConfirmations], and 1 in
+/// the web demo, so test coins can be spent about a block after they land.
 final minimumConfirmationsProvider = Provider<BigInt>(
   (ref) => ref.watch(demoModeProvider) ? BigInt.one : minimumConfirmations,
 );
+
+/// The confirmations a coin needs to be spent and a payment to count as completed: the count
+/// the balance was worked out with ([WalletSummary.minimumConfirmations], LEPIC's), so Send
+/// spends exactly what the balance calls spendable and a row never says Completed while its
+/// coins are still confirming. Before the first balance, [minimumConfirmationsProvider].
+final countedConfirmationsProvider = Provider.autoDispose<BigInt>((ref) {
+  final counted = ref.watch(
+    homeProvider.select((h) => h.value?.summary.minimumConfirmations),
+  );
+  if (counted != null && counted > BigInt.zero) return counted;
+  return ref.watch(minimumConfirmationsProvider);
+});
 
 /// Resolves, and creates if missing, the data directory of the wallet for [chain].
 typedef WalletDirResolver = Future<String> Function(Chain chain);

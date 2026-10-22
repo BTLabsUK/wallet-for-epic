@@ -27,7 +27,7 @@ import '../../legacy_gui_profile.dart' as gui;
 import '../../legacy_wallets.dart' as legacy;
 import '../../log.dart';
 import '../../network.dart';
-import '../../providers.dart' show WalletDirResolver;
+import '../../providers.dart' show WalletDirResolver, defaultMinimumConfirmations;
 import '../../public_servers.dart';
 import '../../relay_directory.dart';
 import '../../secret_store_api.dart';
@@ -116,7 +116,7 @@ class LepicDeskWallet implements DeskWalletApi {
     bool? torFeature,
   }) : _torFeature = torFeature ?? DeskFeatures.tor,
        _legacyRoots = legacyRoots ?? legacy.LegacyRoots.current,
-       _minConf = minimumConfirmations ?? BigInt.from(10),
+       _minConfFallback = minimumConfirmations ?? BigInt.from(defaultMinimumConfirmations),
        _registryGiven = registry;
 
   /// Whether this build offers Tor ([DeskFeatures.tor]); tests turn it on.
@@ -143,7 +143,14 @@ class LepicDeskWallet implements DeskWalletApi {
   DateTime? _dirNodesAt;
   bool _dirNodesLoading = false;
   final Set<String> _checking = {};
-  final BigInt _minConf;
+  final BigInt _minConfFallback;
+
+  /// The confirmations sends, estimates and the list count with: the balance's own (LEPIC's),
+  /// so Send spends exactly what the balance calls spendable; before a balance, the fallback.
+  BigInt get _minConf {
+    final counted = _summary?.minimumConfirmations;
+    return counted != null && counted > BigInt.zero ? counted : _minConfFallback;
+  }
   final Duration nodePoll;
   final Duration nodeTimeout;
 
@@ -1174,6 +1181,7 @@ class LepicDeskWallet implements DeskWalletApi {
       locked: s.locked.toInt(),
       awaitingFinalization: s.awaitingFinalization.toInt(),
       immature: s.immature.toInt(),
+      minConfirmations: _minConf.toInt(),
     );
   }
 
@@ -2071,6 +2079,7 @@ Tx deskTx(core.TxEntry e, {required int tip, required int minConf, required int 
     fee: sent ? fee : 0,
     created: DateTime.fromMillisecondsSinceEpoch(e.timeUnix * 1000),
     confirmations: confirmations,
+    confirmationsNeeded: minConf,
     counterparty: to,
     contactName: contactName,
     message: core.messageBy(e.messages, core.SlateRole.sender) ?? core.messageBy(e.messages, core.SlateRole.receiver),

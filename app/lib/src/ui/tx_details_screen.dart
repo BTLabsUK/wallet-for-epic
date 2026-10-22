@@ -70,7 +70,7 @@ bool _isEpicboxAddress(String? address) =>
     address.contains('@') &&
     !address.toLowerCase().startsWith('http');
 
-/// `In block 2,500,120. 3 of 10 confirmations; final in about 7 minutes.`
+/// `In block 2,500,120. 1 of 3 confirmations; final in about 2 minutes.`
 String _confirmingLine(AppLocalizations l, BigInt height, int n, int target) {
   final block = groupDigits(l, height);
   final (:unit, :count) = _roughDuration((target - n) * _minutesPerBlock);
