@@ -59,7 +59,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
     final ts = context.ts;
     final t = widget.tx;
     final total = t.amount + (t.incoming ? 0 : t.fee);
-    final cancelable = !t.fromBackup && !t.incoming && (t.state == TxState.waitingRecipient || t.state == TxState.posted);
+    final cancelable = !t.fromBackup && (t.incoming ? t.cancellable && t.state != TxState.cancelled && t.state != TxState.confirmed : (t.state == TxState.waitingRecipient || t.state == TxState.posted));
     final finalizable = !t.fromBackup && !t.incoming && t.method == TxMethod.file && t.state == TxState.waitingRecipient;
     final steps = _steps(t);
     return Column(
@@ -352,19 +352,21 @@ class _Sub extends StatelessWidget {
   );
 }
 
-/// Asks before cancelling an unfinished send.
+/// Asks before cancelling an unfinished send, or an incoming payment the node has not seen.
 Future<bool?> showCancelTxDialog(BuildContext context, Tx t) => showEDialog<bool>(
   context,
   builder: (context) => EDialog(
-    title: 'Cancel this send?',
+    title: t.incoming ? 'Cancel this payment?' : 'Cancel this send?',
     icon: EIcons.cancel,
     tone: ETone.risk,
-    description:
-        '${formatEpic(t.amount)} EPIC to ${whoOf(t)}. The locked amount returns to the balance. '
-        'If the recipient already finalized it, it may still confirm.',
+    description: t.incoming
+        ? '${formatEpic(t.amount)} EPIC from ${whoOf(t)} leaves your balance. The wallet asks the node first and '
+              'refuses if the payment is already in the node’s pool or a block. If the sender posts it later, it may still arrive.'
+        : '${formatEpic(t.amount)} EPIC to ${whoOf(t)}. The locked amount returns to the balance. '
+              'If the recipient already finalized it, it may still confirm.',
     actions: [
       EButton(label: 'Keep', size: EBtnSize.sm, onPressed: () => Navigator.pop(context, false)),
-      EButton(label: 'Cancel send', kind: EBtnKind.danger, size: EBtnSize.sm, onPressed: () => Navigator.pop(context, true)),
+      EButton(label: t.incoming ? 'Cancel payment' : 'Cancel send', kind: EBtnKind.danger, size: EBtnSize.sm, onPressed: () => Navigator.pop(context, true)),
     ],
   ),
 );

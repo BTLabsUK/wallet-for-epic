@@ -225,6 +225,7 @@ class Tx {
     this.foundDuring,
     this.datedByBlock = true,
     this.fromBackup = false,
+    this.cancellable = false,
     this.confirmedAt,
     this.detail,
   });
@@ -264,6 +265,10 @@ class Tx {
 
   /// A payment only an imported history backup knows (F34): the chain was not asked about it.
   final bool fromBackup;
+
+  /// The core allows cancelling this payment. An incoming one is cancelled only while the node has
+  /// not seen it: the core asks the node and refuses otherwise. False for an issued invoice request.
+  final bool cancellable;
   final DateTime? confirmedAt;
 
   /// Why the state is what it is, when that is not obvious: where an imported transaction came

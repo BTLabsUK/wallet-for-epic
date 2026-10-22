@@ -70,6 +70,9 @@ final List<EpicboxServer> deskEpicboxes = [
 /// A second scan asked while one runs.
 const String scanRunning = 'A scan is already running.';
 
+/// Why a cancel was refused: LEPIC reports a payment in the pool or on chain as invalid input.
+const String cancelRefusedText = 'Not cancelled: the node already has this payment.';
+
 String deskErrorText(Object error) {
   if (error is DeskError) return error.message;
   if (error is! core.WalletError) return 'Something went wrong';
@@ -2070,6 +2073,8 @@ class LepicDeskWallet implements DeskWalletApi {
     try {
       await _open.cancelTransaction(txId: id);
     } on core.WalletError catch (e) {
+      // The core asks the node first and refuses a payment it already has (in its pool or a block).
+      if (e.kind == core.WalletErrorKind.invalidArgument) throw const DeskError(cancelRefusedText);
       throw _deskError(e);
     }
     await _reload();
@@ -3055,6 +3060,7 @@ Tx deskTx(core.TxEntry e, {required int tip, required int minConf, required int 
     },
     datedByBlock: e.datedByBlock,
     fromBackup: e.source == core.TxSource.imported,
+    cancellable: e.cancellable && !e.isRequest,
     confirmedAt: e.blockTimeUnix == null ? null : DateTime.fromMillisecondsSinceEpoch(e.blockTimeUnix! * 1000),
     detail: e.statusDetail,
   );
