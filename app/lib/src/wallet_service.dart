@@ -25,6 +25,10 @@ abstract interface class WalletService {
   /// True for `<address>@<relay>[:port]` valid on the chain of the open wallet.
   bool validateEpicboxAddress({required String address});
 
+  /// True for an onion v3 address: 56 characters, with or without `.onion`, an `http://`
+  /// prefix, a port or a path, whose version and checksum hold.
+  bool validateOnionAddress({required String address});
+
   Future<bool> walletExists({required WalletConfig config});
 
   Future<NodeTip> nodeTip({required WalletConfig config});
@@ -214,6 +218,35 @@ abstract interface class WalletSession {
   /// The running HTTP listener, or null.
   Future<HttpListenerInfo?> httpListenerStatus();
 
+  /// This wallet's onion, `<56 characters>.onion`, known before tor runs.
+  Future<String> onionAddress();
+
+  /// Starts the wallet's own tor from [torBinary] (the bundled Tor Expert Bundle) and streams
+  /// what it does until [stopTor], lock or [dispose]; [libDir] goes on the library path
+  /// (Linux), null elsewhere. The events go `starting`, `bootstrapped`, `publishing`,
+  /// `ready`; the last is `stopped`. A second start gets a stream that ends at once.
+  Stream<TorEvent> startTor({required String torBinary, String? libDir});
+
+  /// Stops tor, then its listener; [startTor]'s stream ends with `stopped`.
+  Future<void> stopTor();
+
+  Future<TorStatus> torStatus();
+
+  /// Sends to the wallet at [onion] over Tor, then finalizes its answer and posts, as
+  /// [sendHttp]. Needs tor connected, else [WalletErrorKind.torNotRunning] and nothing is
+  /// stored. Reaching an onion that is not online takes up to about 150 seconds before
+  /// [WalletErrorKind.onionUnreachable]; that, `torNotRunning` after the start and
+  /// `transportFailed` leave the send stored as waiting: [resendTor] or cancel it.
+  Future<HttpSent> sendTor({
+    required BigInt amount,
+    required BigInt minimumConfirmations,
+    required String onion,
+    String? message,
+  });
+
+  /// Delivers send [txId] again over Tor, to [onion], then finalizes and posts.
+  Future<HttpSent> resendTor({required int txId, required String onion});
+
   /// Signs an incoming send. The same slate again returns the answer given the first time with
   /// [ReceivedSlate.repeated] set; nothing is stored or signed again.
   Future<ReceivedSlate> receiveSlate({required String slateJson});
@@ -373,6 +406,20 @@ WalletError invoicesUnsupported(String call) => WalletError(
 bool fakeEpicboxAddress(String address) =>
     RegExp(r'^[1-9A-HJ-NP-Za-km-z]{52}@[a-z0-9.]+(:\d+)?$').hasMatch(address);
 
+/// The syntax of an onion v3 address, as LEPIC reads it: optional `http://`, 56 base32
+/// characters ending in the version `d`, optional `.onion`, port and path. The checksum is
+/// LEPIC's to check.
+bool onionAddressFormat(String address) => RegExp(
+  r'^(?:http://)?[a-z2-7]{55}d(?:\.onion)?(?::\d+)?(?:/.*)?$',
+  caseSensitive: false,
+).hasMatch(address.trim());
+
+/// The host part of an onion address, `<56 characters>.onion`, in lower case.
+String onionHost(String address) {
+  final m = RegExp(r'[a-z2-7]{56}', caseSensitive: false).firstMatch(address);
+  return m == null ? address.trim() : '${m[0]!.toLowerCase()}.onion';
+}
+
 /// In-memory wallet for widget tests. Holds at most one wallet per data directory.
 ///
 /// Nothing here touches disk, the network or the native library.
@@ -436,6 +483,10 @@ class FakeWalletService implements WalletService {
   @override
   bool validateEpicboxAddress({required String address}) =>
       fakeEpicboxAddress(address);
+
+  @override
+  bool validateOnionAddress({required String address}) =>
+      onionAddressFormat(address);
 
   @override
   Future<bool> walletExists({required WalletConfig config}) async =>
@@ -849,8 +900,8 @@ class FakeWalletSession implements WalletSession {
     String? message,
     bool repostable = false,
   }) => fakeTx(
-    id: 100 + epicboxSends.length + httpSends.length,
-    slateId: 'send-${epicboxSends.length + httpSends.length}',
+    id: 100 + epicboxSends.length + httpSends.length + torSends.length,
+    slateId: 'send-${epicboxSends.length + httpSends.length + torSends.length}',
     kind: TxKind.sent,
     status: TxStatus.awaitingRecipient,
     createdAtUnix: 1790000200,
@@ -1033,6 +1084,124 @@ class FakeWalletSession implements WalletSession {
 
   @override
   Future<HttpListenerInfo?> httpListenerStatus() async => httpListenerInfo;
+
+  /// What [onionAddress] answers.
+  String onion =
+      'wfe7q3k2mz5xr4tbv6ld5yhnpjc7sgo2a3ue6iwq4fk7tr3mxzabcdid.onion';
+
+  /// Events tor emits; tests add to them. [stopTor] adds `stopped`.
+  final StreamController<TorEvent> torEvents =
+      StreamController<TorEvent>.broadcast();
+  final List<({String torBinary, String? libDir})> torStarts = [];
+  int torStops = 0;
+
+  /// What [torStatus] answers; tests set it. [stopTor] sets it off.
+  TorStatus torStatusValue = TorStatus.off;
+
+  /// Every [sendTor] and [resendTor] call that passed the address check.
+  final List<({BigInt? amount, int? txId, String onion})> torSends = [];
+
+  /// Holds [sendTor] until completed, as a send that takes a while over Tor.
+  Completer<void>? torSendGate;
+
+  @override
+  Future<String> onionAddress() async => onion;
+
+  @override
+  Stream<TorEvent> startTor({required String torBinary, String? libDir}) {
+    torStarts.add((torBinary: torBinary, libDir: libDir));
+    return torEvents.stream;
+  }
+
+  @override
+  Future<void> stopTor() async {
+    torStops++;
+    torStatusValue = TorStatus.off;
+    torEvents.add(const TorEvent(kind: TorEventKind.stopped));
+  }
+
+  @override
+  Future<TorStatus> torStatus() async => torStatusValue;
+
+  void _checkOnion(String onion) {
+    if (!onionAddressFormat(onion)) {
+      throw const WalletError(
+        kind: WalletErrorKind.onionAddressInvalid,
+        message: 'not an onion address',
+      );
+    }
+  }
+
+  bool get _torUp => const {
+    TorStatusKind.bootstrapped,
+    TorStatusKind.publishing,
+    TorStatusKind.ready,
+  }.contains(torStatusValue.kind);
+
+  @override
+  Future<HttpSent> sendTor({
+    required BigInt amount,
+    required BigInt minimumConfirmations,
+    required String onion,
+    String? message,
+  }) async {
+    _checkOnion(onion);
+    if (!_torUp) {
+      throw const WalletError(
+        kind: WalletErrorKind.torNotRunning,
+        message: 'tor is not running',
+      );
+    }
+    final error = sendError;
+    // Like LEPIC: only a failure at delivery leaves the send stored.
+    const stores = {
+      WalletErrorKind.onionUnreachable,
+      WalletErrorKind.transportFailed,
+      WalletErrorKind.torNotRunning,
+    };
+    if (error != null && !stores.contains(error.kind) && !storeBeforeError) {
+      throw error;
+    }
+    _checkFunds(amount);
+    torSends.add((amount: amount, txId: null, onion: onion));
+    sentMessages.add(message);
+    final pending = _pendingSend(
+      amount,
+      to: 'http://${onionHost(onion)}',
+      message: message,
+      repostable: !httpPosted,
+    );
+    transactionsValue.add(pending);
+    _lock(amount + fee);
+    torEvents.add(const TorEvent(kind: TorEventKind.sending));
+    await torSendGate?.future;
+    if (error != null) {
+      _undelivered.add(pending.id!);
+      throw error;
+    }
+    return HttpSent(
+      txId: pending.id!,
+      slateId: pending.slateId!,
+      posted: httpPosted,
+    );
+  }
+
+  @override
+  Future<HttpSent> resendTor({required int txId, required String onion}) async {
+    _checkOnion(onion);
+    final tx = transactionsValue.where((t) => t.id == txId).firstOrNull;
+    if (tx == null || !_undelivered.contains(txId)) {
+      throw const WalletError(
+        kind: WalletErrorKind.invalidArgument,
+        message: 'not a send waiting for its answer',
+      );
+    }
+    torSends.add((amount: null, txId: txId, onion: onion));
+    final error = sendError;
+    if (error != null) throw error;
+    _undelivered.remove(txId);
+    return HttpSent(txId: txId, slateId: tx.slateId!, posted: httpPosted);
+  }
 
   @override
   Stream<ScanProgress> scan({BigInt? startHeight}) {

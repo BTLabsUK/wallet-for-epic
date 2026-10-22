@@ -6,7 +6,8 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import '../models.dart';
-import '../wallet_service.dart' show PinWallet, WalletService, WalletSession;
+import '../wallet_service.dart'
+    show PinWallet, WalletService, WalletSession, onionAddressFormat;
 import 'channel.dart';
 import 'codec.dart';
 import 'local_checks.dart';
@@ -443,6 +444,11 @@ class RemoteWalletService implements WalletService {
   bool validateEpicboxAddress({required String address}) =>
       epicboxAddressFormat(address);
 
+  /// The address syntax only.
+  @override
+  bool validateOnionAddress({required String address}) =>
+      onionAddressFormat(address);
+
   @override
   Future<SlateInfo> inspectSlate({required String json}) =>
       _call(ServiceMember.inspectSlate.name, {'json': json}, slateInfoWire);
@@ -690,6 +696,39 @@ class RemoteWalletSession implements WalletSession {
 
   @override
   Future<HttpListenerInfo?> httpListenerStatus() async => null;
+
+  // Tor runs a process and reaches other computers from the server: not offered here.
+  static const WalletError _noTor = WalletError(
+    kind: WalletErrorKind.other,
+    message: 'Tor is not offered remotely',
+  );
+
+  @override
+  Future<String> onionAddress() async => throw _noTor;
+
+  @override
+  Stream<TorEvent> startTor({required String torBinary, String? libDir}) =>
+      Stream.error(_noTor);
+
+  @override
+  Future<void> stopTor() async {}
+
+  @override
+  Future<TorStatus> torStatus() async => TorStatus.off;
+
+  @override
+  Future<HttpSent> sendTor({
+    required BigInt amount,
+    required BigInt minimumConfirmations,
+    required String onion,
+    String? message,
+  }) async => throw _noTor;
+
+  @override
+  Future<HttpSent> resendTor({
+    required int txId,
+    required String onion,
+  }) async => throw _noTor;
 
   @override
   Future<ReceivedSlate> receiveSlate({required String slateJson}) => _call(

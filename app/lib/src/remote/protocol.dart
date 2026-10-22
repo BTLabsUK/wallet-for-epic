@@ -73,6 +73,7 @@ enum SessionMember {
 const Set<String> localServiceMembers = {
   'validateMnemonic',
   'validateEpicboxAddress',
+  'validateOnionAddress',
   // Reads a file on the app's own computer; refused by the client.
   'importWalletSeed',
 };
@@ -84,6 +85,13 @@ const Set<String> localSessionMembers = {
   'startHttpListener',
   'stopHttpListener',
   'httpListenerStatus',
+  // Run a tor process and reach other computers from the server; refused by the client.
+  'onionAddress',
+  'startTor',
+  'stopTor',
+  'torStatus',
+  'sendTor',
+  'resendTor',
 };
 
 /// The largest frame the dispatcher reads, in UTF-8 bytes.

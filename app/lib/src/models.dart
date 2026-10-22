@@ -325,6 +325,173 @@ class HttpSent {
           posted == other.posted;
 }
 
+/// What the wallet's tor did. Never names a sender, the slate or a key.
+enum TorEventKind {
+  /// Starting and connecting to the Tor network, [TorEvent.progress] percent done.
+  starting,
+
+  /// Connected to the Tor network: sends to onions work from now on.
+  bootstrapped,
+
+  /// The onion is being published.
+  publishing,
+
+  /// Other wallets can reach this one at [TorEvent.onion].
+  ready,
+
+  /// Tor failed for [TorEvent.failure]. After [TorFailure.listener] or [TorFailure.keys] tor
+  /// keeps running for sends; after any other `stopped` follows.
+  failed,
+
+  /// A send or resend over Tor started to reach the other wallet; up to about 150 seconds.
+  sending,
+
+  /// Signed a payment that came in over Tor and answered it.
+  received,
+
+  /// Refused a payment that came in over Tor for [TorEvent.refusal].
+  refused,
+
+  /// Tor and its listener stopped; no more events follow.
+  stopped,
+}
+
+/// Why the wallet's tor is not working.
+enum TorFailure {
+  /// No tor binary at the path given to `startTor`.
+  missing,
+
+  /// Tor did not start, or its control port did not answer.
+  start,
+
+  /// No progress connecting: no network, or the network blocks Tor.
+  network,
+
+  /// The computer's clock is wrong.
+  clock,
+
+  /// The wallet's own listener did not start, so the onion would lead nowhere.
+  listener,
+
+  /// Tor exited after it had connected.
+  stopped,
+
+  /// The onion was not published in time.
+  publish,
+
+  /// Tor refused the onion key or published another onion.
+  keys,
+}
+
+class TorEvent {
+  final TorEventKind kind;
+
+  /// For `starting`, 0 to 100.
+  final int? progress;
+
+  /// For `ready`: `<56 characters>.onion`.
+  final String? onion;
+
+  /// For `failed`.
+  final TorFailure? failure;
+
+  /// For `received`.
+  final int? txId;
+
+  /// For `received`, in the smallest unit.
+  final BigInt? amount;
+
+  /// For `received`.
+  final bool repeated;
+
+  /// For `refused`.
+  final HttpRefusal? refusal;
+
+  const TorEvent({
+    required this.kind,
+    this.progress,
+    this.onion,
+    this.failure,
+    this.txId,
+    this.amount,
+    this.repeated = false,
+    this.refusal,
+  });
+
+  @override
+  int get hashCode =>
+      kind.hashCode ^
+      progress.hashCode ^
+      onion.hashCode ^
+      failure.hashCode ^
+      txId.hashCode ^
+      amount.hashCode ^
+      repeated.hashCode ^
+      refusal.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is TorEvent &&
+          kind == other.kind &&
+          progress == other.progress &&
+          onion == other.onion &&
+          failure == other.failure &&
+          txId == other.txId &&
+          amount == other.amount &&
+          repeated == other.repeated &&
+          refusal == other.refusal;
+}
+
+enum TorStatusKind {
+  /// Not started, stopped, or ended after a failure.
+  off,
+  starting,
+
+  /// Sends work; the onion is not published, or could not be ([TorStatus.failure]).
+  bootstrapped,
+  publishing,
+
+  /// Sends work and other wallets can reach this one at [TorStatus.onion].
+  ready,
+}
+
+/// The wallet's tor now.
+class TorStatus {
+  final TorStatusKind kind;
+
+  /// For `starting`, 0 to 100.
+  final int? progress;
+
+  /// For `ready`.
+  final String? onion;
+
+  /// Why the onion is not published while tor runs for sends: `listener` or `keys`.
+  final TorFailure? failure;
+
+  const TorStatus({
+    required this.kind,
+    this.progress,
+    this.onion,
+    this.failure,
+  });
+
+  static const off = TorStatus(kind: TorStatusKind.off);
+
+  @override
+  int get hashCode =>
+      kind.hashCode ^ progress.hashCode ^ onion.hashCode ^ failure.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is TorStatus &&
+          kind == other.kind &&
+          progress == other.progress &&
+          onion == other.onion &&
+          failure == other.failure;
+}
+
 class NodeTip {
   final BigInt height;
   final String nodeVersion;
@@ -860,6 +1027,18 @@ enum WalletErrorKind {
 
   /// Plain `http` to another computer without the user's consent. Nothing was stored.
   plainHttpNotAllowed,
+
+  /// The address given to a Tor send is not an onion v3 address, or has a typo. Nothing was
+  /// stored.
+  onionAddressInvalid,
+
+  /// The wallet's tor is not running or not yet connected. Before the send nothing was
+  /// stored; when tor stopped during the delivery the send is stored and waits.
+  torNotRunning,
+
+  /// The other wallet is not online with Tor on, or was not reached in time. The send is
+  /// stored and waits with its inputs locked: resend it later or cancel it.
+  onionUnreachable,
   io,
   other,
 }

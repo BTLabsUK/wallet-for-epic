@@ -82,6 +82,10 @@ WalletError mapLepicError(lepic.WalletError error) {
     lepic.WalletErrorKind.httpUrlInvalid => WalletErrorKind.httpUrlInvalid,
     lepic.WalletErrorKind.plainHttpNotAllowed =>
       WalletErrorKind.plainHttpNotAllowed,
+    lepic.WalletErrorKind.onionAddressInvalid =>
+      WalletErrorKind.onionAddressInvalid,
+    lepic.WalletErrorKind.torNotRunning => WalletErrorKind.torNotRunning,
+    lepic.WalletErrorKind.onionUnreachable => WalletErrorKind.onionUnreachable,
     lepic.WalletErrorKind.secretStore => WalletErrorKind.io,
     lepic.WalletErrorKind.foreignWallet => WalletErrorKind.invalidArgument,
     // The old core refused a cancel of a payment on chain, and a history file of another
@@ -176,6 +180,46 @@ HttpListenerEvent lepicHttpEvent(lepic.HttpListenerEvent e) => HttpListenerEvent
     lepic.HttpRefusal.unavailable => HttpRefusal.unavailable,
     null => null,
   },
+);
+
+HttpRefusal? _refusal(lepic.HttpRefusal? r) => switch (r) {
+  lepic.HttpRefusal.rejected => HttpRefusal.rejected,
+  lepic.HttpRefusal.unavailable => HttpRefusal.unavailable,
+  null => null,
+};
+
+TorFailure? _torFailure(lepic.TorFailureKind? f) => switch (f) {
+  lepic.TorFailureKind.missing => TorFailure.missing,
+  lepic.TorFailureKind.start => TorFailure.start,
+  lepic.TorFailureKind.network => TorFailure.network,
+  lepic.TorFailureKind.clock => TorFailure.clock,
+  lepic.TorFailureKind.listener => TorFailure.listener,
+  lepic.TorFailureKind.stopped => TorFailure.stopped,
+  lepic.TorFailureKind.publish => TorFailure.publish,
+  lepic.TorFailureKind.keys => TorFailure.keys,
+  null => null,
+};
+
+/// LEPIC's tor event as the app's.
+TorEvent lepicTorEvent(lepic.TorEvent e) => TorEvent(
+  kind: switch (e.kind) {
+    lepic.TorEventKind.starting => TorEventKind.starting,
+    lepic.TorEventKind.bootstrapped => TorEventKind.bootstrapped,
+    lepic.TorEventKind.publishing => TorEventKind.publishing,
+    lepic.TorEventKind.ready => TorEventKind.ready,
+    lepic.TorEventKind.failed => TorEventKind.failed,
+    lepic.TorEventKind.sending => TorEventKind.sending,
+    lepic.TorEventKind.received => TorEventKind.received,
+    lepic.TorEventKind.refused => TorEventKind.refused,
+    lepic.TorEventKind.stopped => TorEventKind.stopped,
+  },
+  progress: e.progress,
+  onion: e.onion,
+  failure: _torFailure(e.failure),
+  txId: e.txId,
+  amount: e.amount,
+  repeated: e.repeated,
+  refusal: _refusal(e.refusal),
 );
 
 /// LEPIC's listener event as the app's, or null for `invoiceBounced`, which is an issuer
@@ -573,6 +617,10 @@ class LepicWalletService implements WalletService {
       .validateEpicboxAddress(address: address, chain: _lepicChain(_chain));
 
   @override
+  bool validateOnionAddress({required String address}) =>
+      lepic.validateOnionAddress(address: address);
+
+  @override
   Future<bool> walletExists({required WalletConfig config}) => _guard(
     () async =>
         lepic.walletExists(runtime: _runtime, store: await _store(config)),
@@ -957,6 +1005,63 @@ class LepicWalletSession implements WalletSession {
   Future<void> stopHttpListener() async {
     if (!_wallet.isDisposed) _guardSync(_wallet.stopHttpListener);
   }
+
+  @override
+  Future<String> onionAddress() => _guard(_wallet.onionAddress);
+
+  @override
+  Stream<TorEvent> startTor({required String torBinary, String? libDir}) =>
+      _guardStream(
+        _wallet
+            .startTor(torBinary: torBinary, libDir: libDir)
+            .map(lepicTorEvent),
+      );
+
+  @override
+  Future<void> stopTor() async {
+    if (!_wallet.isDisposed) _guardSync(_wallet.stopTor);
+  }
+
+  @override
+  Future<TorStatus> torStatus() async {
+    if (_wallet.isDisposed) return TorStatus.off;
+    final s = _guardSync(_wallet.torStatus);
+    return TorStatus(
+      kind: switch (s.kind) {
+        lepic.TorStatusKind.off => TorStatusKind.off,
+        lepic.TorStatusKind.starting => TorStatusKind.starting,
+        lepic.TorStatusKind.bootstrapped => TorStatusKind.bootstrapped,
+        lepic.TorStatusKind.publishing => TorStatusKind.publishing,
+        lepic.TorStatusKind.ready => TorStatusKind.ready,
+      },
+      progress: s.progress,
+      onion: s.onion,
+      failure: _torFailure(s.failure),
+    );
+  }
+
+  @override
+  Future<HttpSent> sendTor({
+    required BigInt amount,
+    required BigInt minimumConfirmations,
+    required String onion,
+    String? message,
+  }) => _guard(() async {
+    final tx = await _wallet.sendTor(
+      amount: amount,
+      minimumConfirmations: minimumConfirmations,
+      onion: onion,
+      message: _message(message),
+    );
+    return HttpSent(txId: tx.txId, slateId: tx.slateId, posted: tx.posted);
+  });
+
+  @override
+  Future<HttpSent> resendTor({required int txId, required String onion}) =>
+      _guard(() async {
+        final tx = await _wallet.resendTor(txId: txId, onion: onion);
+        return HttpSent(txId: tx.txId, slateId: tx.slateId, posted: tx.posted);
+      });
 
   @override
   Future<HttpListenerInfo?> httpListenerStatus() async {
