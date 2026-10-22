@@ -549,6 +549,7 @@ class PhoneTor extends Notifier<PhoneTorState> {
     if (session == null) return;
     try {
       await session.refreshTor(networkChanged: renew);
+      logInfo('tor', 'refreshed after $why${renew ? ', connections renewed' : ''}');
       return;
     } on WalletError catch (e) {
       if (e.kind != WalletErrorKind.torNotRunning) {
