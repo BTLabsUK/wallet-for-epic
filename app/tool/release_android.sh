@@ -7,6 +7,11 @@
 #   download-base-url  where the APKs will be served, e.g.
 #                      https://github.com/<owner>/<repo>/releases/download/v1.0.1
 #
+# WFE_DESKTOP_RELEASE=1 adds the `desktop` entry the desktop update check reads
+# (lib/src/desktop/data/desk_update.dart): set it only when this release also ships desktop
+# builds, else the desktop would offer a release that has none. Its page is the release's tag
+# page, derived from download-base-url.
+#
 # Bump `version:` in pubspec.yaml first: Android installs an update only when its version code
 # is higher, and only when it is signed with the same key as the installed app.
 set -euo pipefail
@@ -55,8 +60,14 @@ for abi in arm64-v8a; do
     '{abi: $abi, versionCode: $code, url: $url, sha256: $sha, size: $size}')")
 done
 
+desktop_page=""
+if [[ "${WFE_DESKTOP_RELEASE:-}" == 1 ]]; then
+  desktop_page="${base_url/\/releases\/download\//\/releases\/tag\/}"
+fi
 printf '%s\n' "${entries[@]}" | jq -s --arg package "$package" --arg name "$version_name" --arg notes "$notes" \
-  '{schema: 1, packageName: $package, versionName: $name, notes: $notes, apks: .}' >"$out/update.json"
+  --arg page "$desktop_page" \
+  '{schema: 1, packageName: $package, versionName: $name, notes: $notes, apks: .}
+   + (if $page == "" then {} else {desktop: {version: $name, page: $page}} end)' >"$out/update.json"
 
 echo "Wrote $out/update.json for $package $version_name:"
 jq -r '.apks[] | "  \(.abi) versionCode \(.versionCode) \(.size) bytes"' "$out/update.json"
