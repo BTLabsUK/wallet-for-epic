@@ -355,7 +355,27 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
       actions: [
         if (stat != null) Expanded(child: Text(stat, style: ts.small)) else const SizedBox.shrink(),
         if (canBack) Padding(padding: EdgeInsets.only(right: Sp.x3), child: EButton(label: 'Back', tabStop: false, onPressed: _back)),
-        EButton.primary(label: label, busy: _busy && _step == ImportStep.import, onPressed: enabled ? _next : null),
+        if (_step == ImportStep.import && current != null)
+          // Tab: Import, then Skip (Skip sits left of the main button).
+          FocusTraversalGroup(
+            policy: OrderedTraversalPolicy(),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                FocusTraversalOrder(
+                  order: const NumericFocusOrder(2),
+                  child: EButton.ghost(label: 'Skip', size: EBtnSize.inline, onPressed: _busy ? null : _skipCurrent),
+                ),
+                SizedBox(width: Sp.x3),
+                FocusTraversalOrder(
+                  order: const NumericFocusOrder(1),
+                  child: EButton.primary(label: label, busy: _busy, onPressed: enabled ? _next : null),
+                ),
+              ],
+            ),
+          )
+        else
+          EButton.primary(label: label, busy: _busy && _step == ImportStep.import, onPressed: enabled ? _next : null),
       ],
       child: _body(context),
     ),
@@ -706,11 +726,6 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
               ),
             ),
           ],
-          SizedBox(height: Sp.x3),
-          Align(
-            alignment: Alignment.centerLeft,
-            child: EButton.ghost(label: 'Skip', size: EBtnSize.inline, tabStop: false, onPressed: _busy ? null : _skipCurrent),
-          ),
         ],
       ),
       ),

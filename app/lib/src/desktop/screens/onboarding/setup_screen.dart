@@ -92,6 +92,13 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
     _to(SetupStep.epicbox);
   }
 
+  /// The main button's action on the current step; Enter in a field runs the same one.
+  VoidCallback get _continue => _step == SetupStep.review
+      ? _save
+      : _step == SetupStep.node
+      ? _nodeNext
+      : () => _to(_steps[_steps.indexOf(_step) + 1]);
+
   @override
   Widget build(BuildContext context) {
     final nav = ref.read(deskNavProvider.notifier);
@@ -125,11 +132,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
         EButton.primary(
           label: last ? 'Save settings' : 'Continue',
           busy: _busy || _checking,
-          onPressed: last
-              ? _save
-              : _step == SetupStep.node
-              ? _nodeNext
-              : () => _to(_steps[_steps.indexOf(_step) + 1]),
+          onPressed: _continue,
         ),
       ],
       child: body,
@@ -213,7 +216,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
           help: 'Leave empty to turn receiving through Epicbox off.',
           // Enter is Continue.
           child: EForm(
-            onSubmit: () => _to(SetupStep.review),
+            onSubmit: _continue,
             child: EInput(controller: _domain, mono: true, semanticLabel: 'Epicbox server', onChanged: (_) => setState(() {})),
           ),
         ),
