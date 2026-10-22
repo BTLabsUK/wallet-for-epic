@@ -50,6 +50,23 @@ void main() {
       expect(epicDecimal(BigInt.from(5)), '0.00000005');
     });
 
+    test('the CSV of a receipt with one confirmation says Confirming 1/3', () {
+      final receipt = fakeTx(
+        key: 'r:1',
+        id: 2,
+        slateId: '2',
+        kind: TxKind.received,
+        status: TxStatus.confirmed,
+        createdAtUnix: 1790000000,
+        blockHeight: BigInt.from(12),
+        amountCredited: BigInt.from(100000000),
+      );
+      // Tip 12 is the block holding it: one confirmation.
+      final line = historyCsv([receipt], BigInt.from(12)).split('\n')[1];
+      expect(line, contains('Confirming 1/3'));
+      expect(line, isNot(contains('/10')));
+    });
+
     test('status words follow the app status chip', () {
       String words(TxEntry t, int? tip) =>
           statusWords(t, tip == null ? null : BigInt.from(tip));
