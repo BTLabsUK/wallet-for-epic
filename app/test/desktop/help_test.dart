@@ -37,7 +37,7 @@ void main() {
       'Nodes and Epicbox',
       'When something goes wrong',
     ]);
-    expect(topics, hasLength(DeskFeatures.tor ? 14 : 13));
+    expect(topics, hasLength(DeskFeatures.tor ? 16 : 15));
     for (final t in topics) {
       expect(helpSections.map((s) => s.id), contains(t.section));
       expect(t.body, isNotEmpty, reason: t.title);
