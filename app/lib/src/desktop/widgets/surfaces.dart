@@ -530,17 +530,20 @@ class EEmpty extends StatelessWidget {
 
 /// A settings group: section head, then rows in one enclosure.
 class ESetGroup extends StatelessWidget {
-  const ESetGroup({super.key, this.title, required this.rows, this.trailing});
+  const ESetGroup({super.key, this.title, required this.rows, this.trailing, this.gap = true});
 
   final String? title;
   final List<Widget> rows;
   final Widget? trailing;
 
+  /// The space below the group; off when the caller sets it (a tour target ends at the box).
+  final bool gap;
+
   @override
   Widget build(BuildContext context) {
     final c = context.dc;
     return Padding(
-      padding: EdgeInsets.only(bottom: Sp.x8),
+      padding: EdgeInsets.only(bottom: gap ? Sp.x8 : 0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [

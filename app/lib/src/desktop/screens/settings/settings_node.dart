@@ -415,9 +415,13 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
         children: [
           JumpSection(
             section: SettingsJump.node,
-            child: TourTarget(
+            // The gap below the group stays outside the tour's target, so its ring ends at the box.
+            child: Padding(
+              padding: EdgeInsets.only(bottom: Sp.x8),
+              child: TourTarget(
               id: 'node-server',
               child: ESetGroup(
+              gap: false,
               title: 'Node',
               trailing: head,
               rows: [
@@ -479,6 +483,7 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
                     ),
                   ),
               ],
+            ),
             ),
             ),
           ),
