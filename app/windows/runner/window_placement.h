@@ -1,0 +1,26 @@
+#ifndef RUNNER_WINDOW_PLACEMENT_H_
+#define RUNNER_WINDOW_PLACEMENT_H_
+
+#include <windows.h>
+
+// Where the window opens and what it remembers: its size, position and maximised state, kept in
+// HKCU\Software\com.blacktyger\EpicWallet (value "WindowPlacement"), all in physical pixels.
+
+struct WindowStart {
+  RECT frame;
+  bool maximized;
+};
+
+// The saved placement, moved onto the work area of its monitor; without one (first run) or when
+// its monitor is gone, 1280x820 logical px (or 80% of a smaller work area) centred on the primary.
+WindowStart InitialWindowPlacement();
+
+// Saves |normal| (the window's frame when neither maximised nor minimised, in screen
+// coordinates) and whether |window| is maximised or restores to maximised.
+void SaveWindowPlacement(HWND window, const RECT& normal);
+
+// The smallest window that keeps the desktop layout (800x640 logical px), at |window|'s DPI and
+// never larger than its monitor's work area.
+POINT MinimumWindowSize(HWND window);
+
+#endif  // RUNNER_WINDOW_PLACEMENT_H_

@@ -401,6 +401,7 @@ class DeskSettings {
     this.autoLockMinutes = 15,
     this.fiat = 'USD',
     this.newLookSeen = false,
+    this.tourSeen = false,
   });
 
   final ThemeChoice theme;
@@ -435,6 +436,9 @@ class DeskSettings {
   /// The one-time "new look" notice on Overview was closed.
   final bool newLookSeen;
 
+  /// The tour was shown once (opened, closed or skipped): it does not open by itself again.
+  final bool tourSeen;
+
   DeskSettings copyWith({
     ThemeChoice? theme,
     int? scale,
@@ -450,6 +454,7 @@ class DeskSettings {
     int? autoLockMinutes,
     String? fiat,
     bool? newLookSeen,
+    bool? tourSeen,
   }) => DeskSettings(
     theme: theme ?? this.theme,
     scale: scale ?? this.scale,
@@ -465,6 +470,7 @@ class DeskSettings {
     autoLockMinutes: autoLockMinutes ?? this.autoLockMinutes,
     fiat: fiat ?? this.fiat,
     newLookSeen: newLookSeen ?? this.newLookSeen,
+    tourSeen: tourSeen ?? this.tourSeen,
   );
 }
 
