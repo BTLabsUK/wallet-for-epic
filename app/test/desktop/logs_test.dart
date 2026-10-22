@@ -13,7 +13,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  tearDown(() => AppLog.detailed = false);
+  tearDown(() => AppLog.detailedUntil = null);
 
   test('a report takes the newest 256 KB across the files, and says how much of each', () {
     const kb = 1024;
@@ -50,7 +50,7 @@ void main() {
   test('Detailed lets debug and every target through', () {
     expect(logPasses(LogLevel.debug, 'dart.x'), isFalse);
     expect(logPasses(LogLevel.info, 'hyper::client'), isFalse);
-    AppLog.detailed = true;
+    AppLog.detailedUntil = DateTime.now().add(const Duration(hours: 1));
     expect(logPasses(LogLevel.debug, 'dart.x'), isTrue);
     expect(logPasses(LogLevel.info, 'hyper::client'), isTrue);
   });
@@ -62,7 +62,7 @@ void main() {
     await store.writeJson(logsKey, {'until': set.add(detailedFor).millisecondsSinceEpoch});
     await applySavedLogLevel(store, now: set.add(const Duration(hours: 23)));
     expect(AppLog.detailed, isTrue);
-    AppLog.detailed = false;
+    AppLog.detailedUntil = null;
     await applySavedLogLevel(store, now: set.add(const Duration(hours: 25)));
     expect(AppLog.detailed, isFalse);
     expect(await store.readJson(logsKey), {'until': null});

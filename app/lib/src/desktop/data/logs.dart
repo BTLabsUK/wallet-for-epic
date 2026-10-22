@@ -40,7 +40,7 @@ Future<void> applySavedLogLevel(DeskStore store, {DateTime? now}) async {
   final at = now ?? DateTime.now();
   _coreDetailed = false;
   if (until != null && until.isAfter(at)) {
-    AppLog.detailed = true;
+    AppLog.detailedUntil = until;
     _coreDetailed = true;
     logInfo('log', 'detailed logging until ${until.toUtc().toIso8601String()}');
   } else if (until != null) {
@@ -62,14 +62,12 @@ Future<DateTime?> _savedUntil(DeskStore store) async {
   }
 }
 
-/// The level, the timer that ends Detailed, and the log's files.
+/// The level. Detailed ends by itself at its time ([AppLog.detailed]); the screen shows it
+/// as Normal from the next time it is built.
 class LogsController extends Notifier<LogsState> {
-  Timer? _end;
-
   @override
   LogsState build() {
-    ref.onDispose(() => _end?.cancel());
-    final until = AppLog.detailed ? DateTime.now().add(detailedFor) : null;
+    final until = AppLog.detailed ? AppLog.detailedUntil : null;
     unawaited(_load());
     return LogsState(until: until, coreDetailed: _coreDetailed);
   }
@@ -88,10 +86,8 @@ class LogsController extends Notifier<LogsState> {
   }
 
   void _apply(DateTime? until) {
-    _end?.cancel();
-    AppLog.detailed = until != null;
+    AppLog.detailedUntil = until;
     state = LogsState(until: until, coreDetailed: _coreDetailed);
-    if (until != null) _end = Timer(until.difference(_now()), () => unawaited(setDetailed(false)));
   }
 
   /// Detailed for [detailedFor] from now, or back to Normal.

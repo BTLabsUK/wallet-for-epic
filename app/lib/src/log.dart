@@ -141,9 +141,15 @@ class MemoryLogSink extends LogSink {
 abstract final class AppLog {
   static LogSink _sink = MemoryLogSink();
 
-  /// Detailed logging, for troubleshooting: `debug` lines and `info` from every target. The
-  /// app's lines switch at once; LEPIC's runtime takes its level when it starts.
-  static bool detailed = false;
+  /// Until when detailed logging is on, for troubleshooting: `debug` lines and `info` from
+  /// every target; null is off. The app's lines switch at once and back by themselves at that
+  /// time; LEPIC's runtime takes its level when it starts.
+  static DateTime? detailedUntil;
+
+  static bool get detailed {
+    final until = detailedUntil;
+    return until != null && DateTime.now().isBefore(until);
+  }
 
   static LogSink get sink => _sink;
 
