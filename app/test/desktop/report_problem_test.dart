@@ -164,6 +164,28 @@ void main() {
     expect(h.outlet.posted, isEmpty);
   });
 
+  testWidgets('Esc closes the dialog with the focus on What is sent', (tester) async {
+    final h = _Harness();
+    await h.pump(tester);
+    await tester.tap(find.text('What is sent'));
+    await settle(tester);
+    Focus.of(tester.element(find.text('What is sent'))).requestFocus();
+    await tester.pump();
+    await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+    await tester.pumpAndSettle();
+    expect(find.byType(ReportProblemDialog), findsNothing);
+  });
+
+  testWidgets('Esc closes the dialog after the focus was lost (the system Save dialog took it)', (tester) async {
+    final h = _Harness();
+    await h.pump(tester);
+    FocusManager.instance.primaryFocus?.unfocus();
+    await tester.pump();
+    await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+    await tester.pumpAndSettle();
+    expect(find.byType(ReportProblemDialog), findsNothing);
+  });
+
   testWidgets('opened in full, the dialog fits an 800 px window; Esc closes it', (tester) async {
     await tester.runAsync(_loadFonts);
     final h = _Harness();
