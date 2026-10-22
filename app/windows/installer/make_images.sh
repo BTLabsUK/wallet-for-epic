@@ -3,7 +3,7 @@
 #   images/back-<w>x<h>.png  the landing-page hero, cropped to Inno's 497:360 wizard area with the
 #                            left and bottom fade baked in, at the three sizes Inno picks from
 #                            (100 %, 150 %, 200 % DPI; it stretches to the rest)
-#   images/sheet.png         the Options sheet background (90 % black, hairline border, alpha), 2x
+#   images/sheet*.png        the Options sheet background (90 % black, hairline border, alpha), 2x
 #   images/icon.png          the app icon, 256 px layer of windows/runner/resources/app_icon.ico
 # Usage: app/windows/installer/make_images.sh <path to landing-page/img/hero.webp>
 set -euo pipefail
@@ -22,8 +22,12 @@ for size in 596x432 994x720 1272x922; do
     -gravity south -compose over -composite \
     -strip -define png:compression-level=9 "$out/back-$size.png"
 done
-# Options sheet: 424x138 CSS px at 2x, 90 % #0D0D10, 1 px #33333D border, 8 px radius.
-magick -size 848x276 xc:none -fill 'rgba(13,13,16,0.90)' -stroke '#33333D' -strokewidth 2 \
-  -draw 'roundrectangle 1,1 846,274 16,16' -strip "$out/sheet.png"
+# Options sheet: 424x104 CSS px (first install) and 424x122 (update, one more line), at 2x,
+# 90 % #0D0D10, 1 px #33333D border, 8 px radius.
+for spec in sheet:208 sheet-update:244; do
+  name=${spec%:*}; h=${spec#*:}
+  magick -size 848x$h xc:none -fill 'rgba(13,13,16,0.90)' -stroke '#33333D' -strokewidth 2 \
+    -draw "roundrectangle 1,1 846,$((h-2)) 16,16" -strip "$out/$name.png"
+done
 magick "$here/../runner/resources/app_icon.ico[6]" -strip "$out/icon.png"
 ls -la "$out"
