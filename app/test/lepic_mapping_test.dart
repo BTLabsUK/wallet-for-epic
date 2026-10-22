@@ -541,6 +541,7 @@ void main() {
       lepic.TxFlow flow = lepic.TxFlow.payment,
       lepic.TxOrigin origin = lepic.TxOrigin.wallet,
       lepic.ImportedTx? imported,
+      lepic.ScanFound? found,
     }) => lepic.TransactionDetails(
       txId: 7,
       direction: direction,
@@ -560,6 +561,7 @@ void main() {
       flow: flow,
       origin: origin,
       imported: imported,
+      found: found,
     );
 
     test('a send waiting for its answer can be cancelled', () {
@@ -629,6 +631,24 @@ void main() {
       expect(row.kind, TxKind.received);
       expect(row.source, TxSource.restored);
       expect(row.messages, isEmpty);
+      expect(row.foundDuring, isNull);
+      expect(row.datedByBlock, isTrue);
+    });
+
+    test('F17: which scan found an output, and whether its time is the block\'s', () {
+      TxEntry found(lepic.FoundDuring during, bool byBlock) => lepicTxEntry(
+        details(
+          direction: lepic.TxDirection.incoming,
+          status: lepic.TxStatus.confirmed,
+          slateId: null,
+          origin: lepic.TxOrigin.foundByScan,
+          found: lepic.ScanFound(during: during, datedByBlock: byBlock),
+        ),
+      );
+      final restored = found(lepic.FoundDuring.restore, true);
+      expect((restored.foundDuring, restored.datedByBlock), (TxFoundDuring.restore, true));
+      final rescan = found(lepic.FoundDuring.rescan, false);
+      expect((rescan.foundDuring, rescan.datedByBlock), (TxFoundDuring.rescan, false));
     });
 
     lepic.ImportedTx imported(lepic.ImportedTxKind kind, lepic.ChainCheck check) =>

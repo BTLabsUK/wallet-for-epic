@@ -4,7 +4,10 @@
 library;
 
 import 'dart:async';
+import 'dart:convert';
 import 'dart:math';
+import 'dart:typed_data';
+
 
 import '../../wallet_service.dart' show onionAddressFormat;
 import 'api.dart';
@@ -50,11 +53,15 @@ class MockDeskWallet implements DeskWalletApi {
     Tx(id: 35, slateId: 'e5f60718-2a3b-44c5-d6e7-f8091a2b3c4d', direction: TxDirection.sent, state: TxState.confirmed, method: TxMethod.http, amount: _epic(40), fee: _epic(0.008), created: _ago(days: 2, hours: 6), confirmations: 2810, counterparty: 'http://10.0.1.24:3415', contactName: 'Tom', height: 2911600, kernel: '08b2d4f6a8c0e2b4d6f8a0c2e4b6d8f0a2c4e6b8d0f2a4c6e8b0d2f4a6c8e0b2d4', hasProof: true),
     Tx(id: 34, slateId: 'f6071829-3b4c-45d6-e7f8-091a2b3c4d5e', direction: TxDirection.sent, state: TxState.cancelled, method: TxMethod.epicbox, amount: _epic(5), fee: _epic(0.006), created: _ago(days: 3), counterparty: _contacts[2].address, contactName: 'Exchange deposit'),
     Tx(id: 101, slateId: '', direction: TxDirection.received, state: TxState.confirmed, method: TxMethod.epicbox, amount: _epic(2), fee: 0, created: _ago(days: 4), confirmations: 620, height: 2913794, coinbase: true, confirmedAt: _ago(days: 4)),
-    Tx(id: 102, slateId: '', direction: TxDirection.received, state: TxState.confirmed, method: TxMethod.epicbox, amount: _epic(7.5), fee: 0, created: _ago(days: 4, hours: 6), confirmations: 900, height: 2913500, foundByScan: true, confirmedAt: _ago(days: 4, hours: 6)),
+    Tx(id: 102, slateId: '', direction: TxDirection.received, state: TxState.confirmed, method: TxMethod.epicbox, amount: _epic(7.5), fee: 0, created: _ago(days: 4, hours: 6), confirmations: 900, height: 2913500, foundByScan: true, foundDuring: FoundDuring.restore, confirmedAt: _ago(days: 4, hours: 6)),
     Tx(id: 33, slateId: '0718293a-4c5d-46e7-f809-1a2b3c4d5e6f', direction: TxDirection.received, state: TxState.confirmed, method: TxMethod.tor, amount: _epic(0.5), fee: 0, created: _ago(days: 5), confirmations: 5700, counterparty: 'http://3fz7k2mq9xr4tbv6.onion', height: 2908700, kernel: '07c3e5a7b9d1f3e5a7c9b1d3f5e7a9c1b3d5e7f9a1c3b5d7e9f1a3c5b7d9e1f3a5'),
+    Tx(id: 103, slateId: '', direction: TxDirection.received, state: TxState.confirmed, method: TxMethod.epicbox, amount: _epic(4.25), fee: 0, created: _ago(days: 6), confirmations: 8600, height: 2905800, foundByScan: true, foundDuring: FoundDuring.rescan, confirmedAt: _ago(days: 6)),
+    Tx(id: 104, slateId: '', direction: TxDirection.received, state: TxState.confirmed, method: TxMethod.epicbox, amount: _epic(1.1), fee: 0, created: _ago(days: 7), confirmations: 10000, height: 2904400, foundByScan: true, foundDuring: FoundDuring.rescan, datedByBlock: false),
+    Tx(id: 105, slateId: '', direction: TxDirection.received, state: TxState.confirmed, method: TxMethod.epicbox, amount: _epic(0.8), fee: 0, created: _ago(days: 8), confirmations: 11400, height: 2903000, foundByScan: true, confirmedAt: _ago(days: 8)),
     Tx(id: 32, slateId: '18293a4b-5d6e-47f8-091a-2b3c4d5e6f70', direction: TxDirection.received, state: TxState.confirmed, method: TxMethod.file, amount: _epic(1000), fee: 0, created: _ago(days: 9), confirmations: 11500, counterparty: 'receive_1000.slate.json', height: 2902900, kernel: '06d4f6b8a0c2e4f6b8d0a2c4e6f8b0d2a4c6e8f0b2d4a6c8e0f2b4d6a8c0e2f4b6'),
     Tx(id: 31, slateId: '293a4b5c-6e7f-4809-1a2b-3c4d5e6f7081', direction: TxDirection.sent, state: TxState.confirmed, method: TxMethod.epicbox, amount: _epic(250), fee: _epic(0.012), created: _ago(days: 14), confirmations: 18700, counterparty: _contacts[2].address, contactName: 'Exchange deposit', height: 2895700, hasProof: true, kernel: '05e5a7c9b1d3f5a7e9c1b3d5f7a9e1c3b5d7f9a1e3c5b7d9f1a3e5c7b9d1f3a5e7'),
     Tx(id: 30, slateId: '3a4b5c6d-7f80-491a-2b3c-4d5e6f708192', direction: TxDirection.received, state: TxState.confirmed, method: TxMethod.epicbox, amount: _epic(132.1), fee: 0, created: _ago(days: 21), confirmations: 28800, counterparty: _contacts[1].address, contactName: 'Mining pool payouts', height: 2885600, kernel: '04f6b8d0a2c4e6f8b0d2a4c6e8f0b2d4a6c8e0f2b4d6a8c0e2f4b6d8a0c2e4f6b8'),
+    Tx(id: -106, slateId: '', direction: TxDirection.received, state: TxState.confirmed, method: TxMethod.epicbox, amount: _epic(12.5), fee: 0, created: _ago(days: 22), fromBackup: true),
     for (var i = 0; i < 18; i++)
       Tx(
         id: 29 - i,
@@ -714,6 +721,60 @@ class MockDeskWallet implements DeskWalletApi {
     await _wait(2);
     if (password == 'wrong') throw StateError('Wrong password');
     return _words;
+  }
+
+  /// The history backup record the Backup rows and the reminder show; tours and tests set it.
+  HistoryBackupState backup = HistoryBackupState(lastExport: DateTime(2026, 10, 3, 14, 2), unbacked: 12, payments: 48, contacts: 6);
+
+  /// What the next [importHistory] answers: a [HistoryImport] or a [HistoryFileError]. After a
+  /// good import the same file again adds nothing.
+  Object? nextImport;
+  bool _historyImported = false;
+
+  @override
+  Future<HistoryBackupState> historyBackupState() async {
+    await _wait(0.5);
+    return backup;
+  }
+
+  @override
+  Future<Uint8List> exportHistory() async {
+    await _wait(2);
+    return Uint8List.fromList(utf8.encode('WFEH mock history backup'));
+  }
+
+  @override
+  Future<String> exportHistoryCsv({DateTime? from, DateTime? to}) async {
+    await _wait();
+    final rows = [
+      for (final t in _txs)
+        if ((from == null || !t.created.isBefore(DateTime(from.year, from.month, from.day))) &&
+            (to == null || t.created.isBefore(DateTime(to.year, to.month, to.day + 1))))
+          '${t.created.toUtc().toIso8601String()},${t.incoming ? 'Received' : 'Sent'},${t.state.name},'
+              '${t.incoming ? '' : '-'}${t.amount / nanoPerEpic},${t.fee / nanoPerEpic},${t.counterparty ?? ''},,${t.slateId},${t.kernel ?? ''},${t.height ?? ''}',
+    ];
+    return ['date,type,status,amount_epic,fee_epic,counterparty,note,slate_id,kernel,block_height', ...rows].join('\n');
+  }
+
+  @override
+  Future<HistoryImport> importHistory(Uint8List data) async {
+    await _wait(2);
+    final next = nextImport;
+    if (next is HistoryFileError) throw next;
+    if (next is HistoryImport) return next;
+    if (_historyImported) return const HistoryImport(skipped: 46);
+    _historyImported = true;
+    return const HistoryImport(merged: 3, added: 2, skipped: 41, contactsAdded: 1);
+  }
+
+  @override
+  Future<void> markHistoryExported(DateTime when) async {
+    backup = HistoryBackupState(lastExport: when, payments: backup.payments, contacts: backup.contacts, network: backup.network);
+  }
+
+  @override
+  Future<void> dismissHistoryReminder(DateTime when) async {
+    backup = HistoryBackupState(lastExport: backup.lastExport, unbacked: backup.unbacked, payments: backup.payments, contacts: backup.contacts, network: backup.network);
   }
 
   @override

@@ -66,7 +66,7 @@ final List<TourStep> deskTourSteps = [
   TourStep(
     'settings',
     'Settings',
-    'Node, receiving, recovery phrase and rescan; theme and interface scale under Appearance.',
+    'Node, receiving, recovery phrase and balance recheck; theme and interface scale under Appearance.',
   ),
 ];
 

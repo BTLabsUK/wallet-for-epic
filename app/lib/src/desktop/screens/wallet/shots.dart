@@ -2,7 +2,9 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/shots.dart';
+import '../../data/mock_wallet.dart';
 import '../../widgets/kit.dart';
+import '../settings/backup.dart' show historyBackupProvider;
 import 'activity_screen.dart';
 import 'contacts_screen.dart';
 import 'outputs_dialogs.dart';
@@ -26,6 +28,16 @@ final List<DeskShot> walletShots = [
   const DeskShot(id: '10e-overview-starting', title: 'Overview, just unlocked', route: DeskRoute.overview, arg: OverviewDemo.starting),
   const DeskShot(id: '10f-overview-syncing', title: 'Overview, node syncing', route: DeskRoute.overview, arg: OverviewDemo.syncing),
   const DeskShot(id: '10g-overview-node-problem', title: 'Overview, node problem', route: DeskRoute.overview, arg: OverviewDemo.nodeProblem),
+  DeskShot(
+    id: '10h-overview-backup-reminder',
+    title: 'Overview, history backup reminder',
+    route: DeskRoute.overview,
+    prepare: (c, _) async {
+      final api = c.read(deskApiProvider);
+      if (api is MockDeskWallet) api.backup = const HistoryBackupState(unbacked: 12, reminder: 12, payments: 48, contacts: 6);
+      c.invalidate(historyBackupProvider);
+    },
+  ),
   const DeskShot(id: '11-activity', title: 'Activity', route: DeskRoute.activity),
   const DeskShot(id: '11b-activity-empty', title: 'Activity, empty', route: DeskRoute.activity, arg: ActivityArgs(empty: true)),
   const DeskShot(id: '11d-activity-waiting', title: 'Activity, waiting for the node', route: DeskRoute.activity, arg: ActivityArgs(waitingNode: true)),
@@ -36,6 +48,9 @@ final List<DeskShot> walletShots = [
     arg: ActivityArgs(query: 'zzz'),
   ),
   const DeskShot(id: '12d-tx-detail-mining', title: 'Transaction detail, mining reward', route: DeskRoute.activity, arg: 101),
+  const DeskShot(id: '12e-tx-detail-restored', title: 'Transaction detail, restored', route: DeskRoute.activity, arg: 102),
+  const DeskShot(id: '12f-tx-detail-found-by-scan', title: 'Transaction detail, found by a balance recheck', route: DeskRoute.activity, arg: 103),
+  const DeskShot(id: '12g-tx-detail-from-backup', title: 'Transaction detail, from a history backup', route: DeskRoute.activity, arg: -106),
   const DeskShot(id: '12-tx-detail', title: 'Transaction detail', route: DeskRoute.activity, arg: 36),
   const DeskShot(id: '12b-tx-detail-file', title: 'Transaction detail, file send', route: DeskRoute.activity, arg: 38),
   DeskShot(id: '12c-tx-detail-narrow', title: 'Transaction detail, narrow', route: DeskRoute.activity, arg: 39, width: 900, height: 760),

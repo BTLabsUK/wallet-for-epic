@@ -3,6 +3,8 @@
 /// a LEPIC adapter over `WalletService` replaces it by overriding [deskApiProvider].
 library;
 
+import 'dart:typed_data';
+
 import 'models.dart';
 
 abstract interface class DeskWalletApi {
@@ -226,4 +228,26 @@ abstract interface class DeskWalletApi {
   /// Re-encrypts the open wallet under [next] and forgets its remembered password. A wrong
   /// [current] throws a [DeskError] with `wrongPassword`. Only when [DeskFeatures.changePassword].
   Future<void> changePassword(String current, String next);
+
+  // History backup (F34) and its reminder (F33).
+  /// The open wallet's history backup record. Notes the first time there was something to
+  /// remind of (the start of the reminder's 30 days).
+  Future<HistoryBackupState> historyBackupState();
+
+  /// The sealed `.wfeh` bytes of the open wallet's history: only a wallet with the same
+  /// recovery phrase opens them.
+  Future<Uint8List> exportHistory();
+
+  /// The payments as CSV, newest first; with [from]/[to] only those on those local days
+  /// (inclusive).
+  Future<String> exportHistoryCsv({DateTime? from, DateTime? to});
+
+  /// Merges a `.wfeh` of this wallet. A refused file throws a [HistoryFileError].
+  Future<HistoryImport> importHistory(Uint8List data);
+
+  /// Records an export saved at [when], with what it held.
+  Future<void> markHistoryExported(DateTime when);
+
+  /// "Not now" on the reminder, at [when].
+  Future<void> dismissHistoryReminder(DateTime when);
 }

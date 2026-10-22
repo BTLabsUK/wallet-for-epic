@@ -522,6 +522,12 @@ TxEntry lepicTxEntry(lepic.TransactionDetails d) {
       lepic.TxFlow.payment => TxFlow.payment,
       lepic.TxFlow.invoice => TxFlow.invoice,
     },
+    foundDuring: switch (d.found?.during) {
+      lepic.FoundDuring.restore => TxFoundDuring.restore,
+      lepic.FoundDuring.rescan => TxFoundDuring.rescan,
+      null => null,
+    },
+    datedByBlock: d.found?.datedByBlock ?? true,
   );
 }
 

@@ -24,7 +24,7 @@ import 'package:flutter_test/flutter_test.dart';
 /// Controls that may only toast or change nothing visible here, matched on `<scope>|<label>`
 /// (scope: the route's name, `shell`, or the shot id for a dialog shot), each with its reason.
 final Map<RegExp, String> _allowed = {
-  RegExp(r'^shell\|Overview$|^(settingsNode\|Node|settingsReceiving\|Receiving|settingsAppearance\|Appearance|settingsAccount\|This wallet|settingsWallets\|All wallets|settingsPhrase\|Recovery phrase|settingsRescan\|Rescan|settingsAbout\|About|settingsHelp\|Help)$'):
+  RegExp(r'^shell\|Overview$|^(settingsNode\|Node|settingsReceiving\|Receiving|settingsAppearance\|Appearance|settingsAccount\|This wallet|settingsWallets\|All wallets|settingsPhrase\|Recovery phrase|settingsRescan\|Recheck balance|settingsAbout\|About|settingsHelp\|Help)$'):
       'The place already shown: going there again adds nothing to the history (F16).',
   RegExp(r'^settingsAccount\|Open folder$'): 'The mock wallet folder is not on disk: says "Folder not found". A real one opens.',
   RegExp(r'^settingsWallets\|Show .* in its folder$'): 'The mock wallet folders are not on disk: says "Folder not opened". A real one opens.',
@@ -35,6 +35,9 @@ final Map<RegExp, String> _allowed = {
       'The header\'s method icons scroll to their panel; on these shots every panel is in view (receive_test checks the jump).',
   RegExp(r'^outputs\|Smallest spends '): 'A help icon: its text shows on hover and, pressed, in a toast.',
   RegExp(r'^35-dlg-tx-proof\|Export$'): 'Behind DeskFeatures.paymentProofs (off): the dialog cannot be opened in the app.',
+  RegExp(r'^settingsHelp\|(Getting started|How Epic Cash works|Keeping the wallet safe|Nodes and Epicbox|When something goes wrong)$'):
+      'A section chip scrolls to its section (help_test checks it); the sweep compares what is shown, not where.',
+  RegExp(r'^25j-dlg-export-csv\|This year$'): 'Every mock payment is from this year, so the count stays; Last year changes it.',
 };
 
 /// What the real wallet only stubs (throws UnsupportedError); a visible control must not reach them.
@@ -63,6 +66,7 @@ const Set<String> _reads = {
   'checkPhrase',
   'walletWithPhrase',
   'changes',
+  'historyBackupState',
 };
 
 /// The mock wallet, with every call recorded by name.
@@ -227,6 +231,18 @@ class _Recorder implements DeskWalletApi {
   Future<List<String>> revealPhrase(String password) => _r('revealPhrase', () => _m.revealPhrase(password));
   @override
   Future<void> changePassword(String current, String next) => _r('changePassword', () => _m.changePassword(current, next));
+  @override
+  Future<HistoryBackupState> historyBackupState() => _r('historyBackupState', _m.historyBackupState);
+  @override
+  Future<Uint8List> exportHistory() => _r('exportHistory', _m.exportHistory);
+  @override
+  Future<String> exportHistoryCsv({DateTime? from, DateTime? to}) => _r('exportHistoryCsv', () => _m.exportHistoryCsv(from: from, to: to));
+  @override
+  Future<HistoryImport> importHistory(Uint8List data) => _r('importHistory', () => _m.importHistory(data));
+  @override
+  Future<void> markHistoryExported(DateTime when) => _r('markHistoryExported', () => _m.markHistoryExported(when));
+  @override
+  Future<void> dismissHistoryReminder(DateTime when) => _r('dismissHistoryReminder', () => _m.dismissHistoryReminder(when));
 }
 
 /// One pressable control: its kind and label, found again by them on a fresh app.

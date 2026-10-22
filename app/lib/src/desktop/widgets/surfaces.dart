@@ -533,9 +533,10 @@ class ESetGroup extends StatelessWidget {
 /// A settings row: title and one line on the left, the control on the right; [stacked] puts
 /// the control under the text (wide controls such as a combobox).
 class ESetRow extends StatelessWidget {
-  const ESetRow({super.key, required this.title, this.text, this.control, this.stacked = false, this.below});
+  const ESetRow({super.key, this.title, this.text, this.control, this.stacked = false, this.below});
 
-  final String title;
+  /// Null when the group's title already names the row: the text is then the row's head.
+  final String? title;
   final String? text;
   final Widget? control;
   final bool stacked;
@@ -550,12 +551,12 @@ class ESetRow extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text(title, style: ts.strong),
+        if (title != null) Text(title!, style: ts.strong),
         if (text != null) ...[
-          const SizedBox(height: 2),
+          if (title != null) const SizedBox(height: 2),
           ConstrainedBox(
             constraints: BoxConstraints(maxWidth: 560.u),
-            child: Text(text!, style: ts.small),
+            child: Text(text!, style: title == null ? ts.bodyDim : ts.small),
           ),
         ],
       ],

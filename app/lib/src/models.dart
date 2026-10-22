@@ -1079,6 +1079,14 @@ class TxEntry {
   /// ([TxFlow.invoice]). Imported and restored rows are payments.
   final TxFlow flow;
 
+  /// For a row a scan found with no record ([TxSource.restored]): which scan, when LEPIC says.
+  /// Null for other rows and for entries stored before LEPIC recorded it.
+  final TxFoundDuring? foundDuring;
+
+  /// False when [timeUnix] is the time of the scan, not of the output's block (LEPIC could
+  /// not read the block header). True for every other row.
+  final bool datedByBlock;
+
   const TxEntry({
     required this.key,
     this.id,
@@ -1110,6 +1118,8 @@ class TxEntry {
     this.finalizedAtUnix,
     this.cancelReason,
     this.flow = TxFlow.payment,
+    this.foundDuring,
+    this.datedByBlock = true,
   });
 
   /// A request this wallet sent: an invoice it issued, paid or not. LEPIC keeps it as an
@@ -1157,7 +1167,9 @@ class TxEntry {
       releasable.hashCode ^
       finalizedAtUnix.hashCode ^
       cancelReason.hashCode ^
-      flow.hashCode;
+      flow.hashCode ^
+      foundDuring.hashCode ^
+      datedByBlock.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -1193,7 +1205,18 @@ class TxEntry {
           releasable == other.releasable &&
           finalizedAtUnix == other.finalizedAtUnix &&
           cancelReason == other.cancelReason &&
-          flow == other.flow;
+          flow == other.flow &&
+          foundDuring == other.foundDuring &&
+          datedByBlock == other.datedByBlock;
+}
+
+/// Which scan found an output with no record (LEPIC `FoundDuring`).
+enum TxFoundDuring {
+  /// The first scan after a restore from the recovery phrase: the wallet held it before.
+  restore,
+
+  /// Any later scan (a balance recheck), or the first scan of a new wallet.
+  rescan,
 }
 
 enum TxKind { coinbase, received, sent, receivedCancelled, sentCancelled }

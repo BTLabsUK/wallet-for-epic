@@ -8,6 +8,7 @@ import '../../data/files.dart' show deskOpenFolderProvider;
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../widgets/kit.dart';
 import '../onboarding/unlock_screen.dart' show rememberWho;
+import 'backup.dart';
 import 'dialogs.dart';
 import 'prefs.dart';
 import 'settings_frame.dart';
@@ -146,11 +147,12 @@ class _SettingsAccountScreenState extends ConsumerState<SettingsAccountScreen> {
               ),
               ESetRow(
                 title: 'Recheck balance',
-                text: 'Scans the chain again when the balance looks wrong.',
+                text: 'Reads the chain again when the balance looks wrong.',
                 control: EButton(label: 'Recheck…', icon: EIcons.scan, size: EBtnSize.sm, onPressed: () => nav.go(DeskRoute.settingsRescan)),
               ),
             ],
           ),
+          BackupGroup(demo: widget.arg is BackupDemo ? widget.arg as BackupDemo : null),
           ESetGroup(
             title: 'Files',
             rows: [
