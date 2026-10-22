@@ -57,6 +57,9 @@ final List<EpicboxServer> deskEpicboxes = [
 ];
 
 /// A short sentence for a wallet error.
+/// A second scan asked while one runs.
+const String scanRunning = 'A scan is already running.';
+
 String deskErrorText(Object error) {
   if (error is DeskError) return error.message;
   if (error is! core.WalletError) return 'Something went wrong';
@@ -1206,14 +1209,25 @@ class LepicDeskWallet implements DeskWalletApi {
     _syncError = null;
     _changed();
     try {
-      if ((await _meta(key))['scanPending'] == true) {
-        await for (final p in session.scan()) {
-          if (_session != session) return;
-          if (p.percent != null) _syncProgress = p.percent! / 200;
-          _changed();
+      // The scan due since a restore or a rebuilt database; not while Recheck balance scans.
+      if (!_rescanning && (await _meta(key))['scanPending'] == true) {
+        var finished = false;
+        try {
+          await for (final p in session.scan()) {
+            if (_session != session) return;
+            finished = finished || p.finished;
+            if (p.percent != null) _syncProgress = p.percent! / 200;
+            _changed();
+          }
+        } on core.WalletError catch (e) {
+          if (e.kind != core.WalletErrorKind.walletBusy) rethrow;
+          logInfo('desk', 'due scan skipped: a scan is already running');
         }
-        await _setMeta({'scanPending': false}, key);
-        _notice = null;
+        // A scan stopped before its end stays due.
+        if (finished) {
+          await _setMeta({'scanPending': false}, key);
+          _notice = null;
+        }
       }
       await for (final p in session.refresh(minimumConfirmations: _minConf)) {
         if (_session != session) return;
@@ -2161,10 +2175,15 @@ class LepicDeskWallet implements DeskWalletApi {
     _changed();
   }
 
+  /// Set while Recheck balance scans: the due scan in [_sync] waits for the next sync.
+  bool _rescanning = false;
+
   @override
   Stream<ScanStep> rescan({bool deleteUnconfirmed = false}) async* {
     final session = _open;
     final key = _metaKey(_openEntry?.walletId);
+    if (_rescanning) throw const DeskError(scanRunning);
+    _rescanning = true;
     var finished = false;
     try {
       await for (final p in session.scan(deleteUnconfirmed: deleteUnconfirmed)) {
@@ -2180,7 +2199,11 @@ class LepicDeskWallet implements DeskWalletApi {
         );
       }
     } on core.WalletError catch (e) {
+      // LEPIC refuses a second scan of the same wallet (the due scan of a sync, say).
+      if (e.kind == core.WalletErrorKind.walletBusy) throw const DeskError(scanRunning);
       throw _deskError(e);
+    } finally {
+      _rescanning = false;
     }
     // A stopped scan leaves a due scan due; either way the balance is read again.
     if (finished) {
@@ -2188,7 +2211,12 @@ class LepicDeskWallet implements DeskWalletApi {
       _notice = null;
     }
     logInfo('desk', finished ? 'rescan finished' : 'rescan stopped');
-    await sync();
+    // The scan itself ended; a sync that breaks afterwards is not a failed scan.
+    try {
+      await sync();
+    } on Object catch (e) {
+      logWarn('desk', 'sync after rescan: ${e.runtimeType}');
+    }
   }
 
   @override

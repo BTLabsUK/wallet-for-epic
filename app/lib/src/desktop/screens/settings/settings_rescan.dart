@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../data/api.dart' show DeskWalletApi;
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../widgets/kit.dart';
 import 'settings_frame.dart';
@@ -44,6 +45,12 @@ class _SettingsRescanScreenState extends ConsumerState<SettingsRescanScreen> {
   final List<String> _log = [];
   StreamSubscription<ScanStep>? _scan;
 
+  /// The scan answered once: before that a Stop reaches no scan, so Stop waits.
+  bool _live = false;
+
+  /// The wallet the scan runs on, kept to stop it when the screen goes.
+  DeskWalletApi? _api;
+
   @override
   void initState() {
     super.initState();
@@ -52,6 +59,8 @@ class _SettingsRescanScreenState extends ConsumerState<SettingsRescanScreen> {
 
   @override
   void dispose() {
+    // Leaving the screen ends the scan: nothing would show its result.
+    if (_running) unawaited(_api?.stopRescan());
     _scan?.cancel();
     super.dispose();
   }
@@ -77,15 +86,19 @@ class _SettingsRescanScreenState extends ConsumerState<SettingsRescanScreen> {
       _counts = null;
       _before = null;
       _after = null;
+      _live = false;
       _log.clear();
     });
     final before = await _total();
     if (!mounted) return;
     setState(() => _before = before);
-    _scan = ref.read(deskApiProvider).rescan(deleteUnconfirmed: delete).listen(
+    final api = ref.read(deskApiProvider);
+    _api = api;
+    _scan = api.rescan(deleteUnconfirmed: delete).listen(
       (step) {
         if (!mounted) return;
         setState(() {
+          _live = true;
           _percent = step.percent ?? _percent;
           _finished = _finished || step.finished;
           _counts = step.counts ?? _counts;
@@ -193,7 +206,7 @@ class _SettingsRescanScreenState extends ConsumerState<SettingsRescanScreen> {
                             ),
                           ),
                           if (DeskFeatures.stopScan)
-                            EButton(label: 'Stop', icon: EIcons.stop, size: EBtnSize.sm, busy: _stopping, onPressed: _stopping ? null : _stop),
+                            EButton(label: 'Stop', icon: EIcons.stop, size: EBtnSize.sm, busy: _stopping, onPressed: _stopping || !_live ? null : _stop),
                         ],
                       ),
                       SizedBox(height: Sp.x3),
