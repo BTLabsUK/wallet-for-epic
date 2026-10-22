@@ -47,7 +47,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
     _args = a is ReceiveArgs ? a : const ReceiveArgs();
     _httpFailed = _args.httpFailed;
     final api = ref.read(deskApiProvider);
-    if (DeskFeatures.tor) unawaited(api.torAddress().then((v) => mounted ? setState(() => _tor = v) : null));
+    if (DeskFeatures.tor) unawaited(api.torAddress().then((v) => mounted ? setState(() => _tor = v) : null, onError: (Object _) => null));
     final n = ref.read(deskProvider.notifier);
     if (_args.stopped) {
       Future.microtask(() => n.setListening(false));

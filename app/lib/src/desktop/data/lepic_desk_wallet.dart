@@ -35,6 +35,7 @@ import '../../wallet_registry.dart' as reg;
 import '../../wallet_service.dart' as core;
 import 'api.dart';
 import 'desk_store.dart';
+import 'features.dart';
 import 'http_address.dart';
 import 'models.dart';
 
@@ -112,9 +113,14 @@ class LepicDeskWallet implements DeskWalletApi {
     this._pickDirectory,
     this._listProcesses,
     this._torBundle,
-  }) : _legacyRoots = legacyRoots ?? legacy.LegacyRoots.current,
+    bool? torFeature,
+  }) : _torFeature = torFeature ?? DeskFeatures.tor,
+       _legacyRoots = legacyRoots ?? legacy.LegacyRoots.current,
        _minConf = minimumConfirmations ?? BigInt.from(10),
        _registryGiven = registry;
+
+  /// Whether this build offers Tor ([DeskFeatures.tor]); tests turn it on.
+  final bool _torFeature;
 
   final core.WalletService _service;
   final WalletDirResolver _walletDir;
@@ -516,7 +522,7 @@ class LepicDeskWallet implements DeskWalletApi {
     // The HTTP listener's reach, port and autostart are this wallet's own.
     final http = await _store.httpPrefs(entry.walletId);
     // Tor too: off unless this wallet turned it on.
-    final tor = await _store.torOn(entry.walletId);
+    final tor = _torFeature && await _store.torOn(entry.walletId);
     _settings = _settings.copyWith(
       publicMode: http.publicMode,
       httpPort: http.port,
@@ -1195,7 +1201,7 @@ class LepicDeskWallet implements DeskWalletApi {
     // funds) and the user reviews again, rather than paying an amount they did not see.
     final amount = r.amount;
     // An onion pasted under Direct goes over Tor.
-    final method = r.method == TxMethod.http && isOnionAddress(r.to ?? '') ? TxMethod.tor : r.method;
+    final method = _torFeature && r.method == TxMethod.http && isOnionAddress(r.to ?? '') ? TxMethod.tor : r.method;
     // The rows before a direct send, to tell a send LEPIC stored from one it refused.
     Set<int?>? before;
     try {
@@ -1673,8 +1679,8 @@ class LepicDeskWallet implements DeskWalletApi {
     if (_tor != null || session == null) return;
     final generation = _generation;
     final bundle = await _findTor();
-    // Locked, switched or started meanwhile.
-    if (generation != _generation || _session != session || _tor != null) return;
+    // Locked, switched, turned off or started meanwhile.
+    if (generation != _generation || _session != session || _tor != null || !_settings.tor) return;
     _torCanSend = false;
     _torProgress = null;
     if (bundle == null) {

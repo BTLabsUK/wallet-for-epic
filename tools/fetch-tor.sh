@@ -32,18 +32,18 @@ if [[ ! -f "$file" || "$(hash_of "$file")" != "$want" ]]; then
   ok=
   for base in $(jq -r '.baseUrls[]' "$pins"); do
     echo "downloading $base$version/$tarball"
-    if curl -fsSL --retry 2 --connect-timeout 20 -o "$part" "$base$version/$tarball"; then
+    if curl -fsSL --proto '=https' --proto-redir '=https' --retry 2 --connect-timeout 20 -o "$part" "$base$version/$tarball"; then
       ok=1
       break
     fi
   done
-  [[ -n "$ok" ]] || { echo "download failed" >&2; exit 1; }
+  [[ -n "$ok" ]] || { rm -f -- "$part"; echo "download failed" >&2; exit 1; }
   mv -f "$part" "$file"
 fi
 got="$(hash_of "$file")"
 if [[ "$got" != "$want" ]]; then
-  mv -f "$file" "$file.bad"
-  echo "tarball hash mismatch: $got, pinned $want (moved to $file.bad)" >&2
+  rm -f -- "$file"
+  echo "tarball hash mismatch: $got, pinned $want (removed)" >&2
   exit 1
 fi
 echo "tarball ok $got"

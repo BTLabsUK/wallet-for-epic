@@ -33,6 +33,7 @@ void main() {
     filesDir: () async => support,
     nodePoll: const Duration(hours: 1),
     torBundle: () async => bundle,
+    torFeature: true,
   );
 
   Future<void> tor(core.TorEvent e) async {
@@ -98,6 +99,29 @@ void main() {
       expect(await wallet.unlock(_password), isTrue);
       await pumpEventQueue();
       expect(session().torStarts, hasLength(2), reason: 'off: not started');
+    });
+
+    test('turned off while the bundle is looked up: tor does not start', () async {
+      final found = Completer<TorBundle?>();
+      final slow = LepicDeskWallet(
+        service: service,
+        walletDir: (chain) async => '${support.path}/wallets/${chain.name}',
+        secrets: MemorySecretStore(),
+        filesDir: () async => support,
+        nodePoll: const Duration(hours: 1),
+        torBundle: () => found.future,
+        torFeature: true,
+      );
+      addTearDown(slow.dispose);
+      expect(await slow.unlock(_password), isTrue);
+      final before = session().torStarts.length;
+      final on = slow.setTor(true);
+      await pumpEventQueue();
+      await slow.setTor(false);
+      found.complete(_bundle);
+      await on;
+      await pumpEventQueue();
+      expect(session().torStarts.length, before);
     });
 
     test('per wallet: a second wallet does not inherit it, the first keeps it', () async {
@@ -251,6 +275,26 @@ void main() {
       expect(session().torSends.single.onion, _onion);
       expect(session().httpSends, isEmpty);
       expect(session().sentMessages.single, 'rent');
+    });
+
+    test('a build without Tor sends an onion under HTTP as HTTP and never starts tor', () async {
+      final plain = LepicDeskWallet(
+        service: service,
+        walletDir: (chain) async => '${support.path}/wallets/${chain.name}',
+        secrets: MemorySecretStore(),
+        filesDir: () async => support,
+        nodePoll: const Duration(hours: 1),
+        torBundle: () async => bundle,
+        torFeature: false,
+      );
+      addTearDown(plain.dispose);
+      expect(await plain.unlock(_password), isTrue);
+      await pumpEventQueue();
+      final starts = session().torStarts.length;
+      final r = await plain.send(const SendRequest(method: TxMethod.http, amount: 1000, to: _onion));
+      expect(r is SendFailed ? r.message : '', isNot(contains('Turn on Tor')), reason: 'no pointer to a hidden switch');
+      expect(session().torSends, isEmpty);
+      expect(session().torStarts.length, starts);
     });
 
     test('Tor off: refused before LEPIC with Turn on Tor', () async {

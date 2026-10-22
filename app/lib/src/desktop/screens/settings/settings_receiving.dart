@@ -49,7 +49,9 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
   @override
   void initState() {
     super.initState();
-    if (DeskFeatures.tor) ref.read(deskApiProvider).torAddress().then((v) => mounted ? setState(() => _onion = v) : null);
+    if (DeskFeatures.tor) {
+      ref.read(deskApiProvider).torAddress().then((v) => mounted ? setState(() => _onion = v) : null, onError: (Object _) => null);
+    }
     final arg = widget.arg;
     Future.microtask(() {
       final n = ref.read(deskProvider.notifier);
