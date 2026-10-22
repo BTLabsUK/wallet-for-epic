@@ -208,8 +208,14 @@ class _DeskTourOverlayState extends ConsumerState<DeskTourOverlay> {
         final gap = Sp.x3;
         final w = math.min(cardW, size.width - 2 * gap);
         final r = _rect;
+        final forward = last ? _end : () => _go(_i + 1);
+        // Enter is Next (Done on the last step) unless a focused button takes it.
         return CallbackShortcuts(
-          bindings: {const SingleActivator(LogicalKeyboardKey.escape): _end},
+          bindings: {
+            const SingleActivator(LogicalKeyboardKey.escape): _end,
+            const SingleActivator(LogicalKeyboardKey.enter): forward,
+            const SingleActivator(LogicalKeyboardKey.numpadEnter): forward,
+          },
           child: FocusScope(
             autofocus: true,
             child: Stack(
@@ -305,9 +311,7 @@ class _DeskTourOverlayState extends ConsumerState<DeskTourOverlay> {
                                         child: EButton.primary(
                                           label: last ? 'Done' : 'Next',
                                           size: EBtnSize.sm,
-                                          onPressed: last
-                                              ? _end
-                                              : () => _go(_i + 1),
+                                          onPressed: forward,
                                         ),
                                       ),
                                     ],
