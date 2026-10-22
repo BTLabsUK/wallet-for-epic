@@ -74,7 +74,7 @@ class _Config extends WalletConfigNotifier {
   WalletConfig? build() => config;
 }
 
-/// A summary as LEPIC reports it: it counts 10 confirmations whatever the app asks for, at
+/// A summary as LEPIC reports it: it counts 3 confirmations whatever the app asks for, at
 /// the height of its last refresh.
 WalletSummary _summary({
   num spendable = 0,
