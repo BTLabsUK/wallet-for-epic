@@ -674,12 +674,7 @@ class _OutputRow extends StatelessWidget {
     );
     final commitment = Row(
       children: [
-        Flexible(
-          child: Tooltip(
-            message: o.commitment,
-            child: Text(shortCommitment(o.commitment), maxLines: 1, overflow: TextOverflow.ellipsis, style: ts.mono(size: Fs.xs, color: spent ? c.faint : c.dim)),
-          ),
-        ),
+        Flexible(child: EShortAddress(o.commitment, style: ts.mono(size: Fs.xs, color: spent ? c.faint : c.dim))),
         ECopyButton(text: o.commitment, label: 'Copy commitment ${shortCommitment(o.commitment)}'),
       ],
     );
