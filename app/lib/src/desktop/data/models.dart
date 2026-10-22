@@ -135,6 +135,8 @@ class Tx {
     this.hasProof = false,
     this.coinbase = false,
     this.foundByScan = false,
+    this.foundDuring,
+    this.datedByBlock = true,
     this.confirmedAt,
     this.detail,
   });
@@ -165,6 +167,12 @@ class Tx {
 
   /// A received output a scan found with no transaction record (another copy of the seed).
   final bool foundByScan;
+
+  /// For [foundByScan]: which scan found it; null when the core did not record that.
+  final FoundDuring? foundDuring;
+
+  /// False when [created] is the time of the scan: the block's time could not be read.
+  final bool datedByBlock;
   final DateTime? confirmedAt;
 
   /// Why the state is what it is, when that is not obvious: where an imported transaction came
@@ -176,6 +184,9 @@ class Tx {
   bool get incoming => direction == TxDirection.received;
   bool get pending => state == TxState.waitingRecipient || state == TxState.posted || state == TxState.confirming;
 }
+
+/// Which scan found an output with no record: the one after a restore, or a later one.
+enum FoundDuring { restore, rescan }
 
 @immutable
 class Contact {

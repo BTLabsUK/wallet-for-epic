@@ -2397,6 +2397,12 @@ Tx deskTx(core.TxEntry e, {required int tip, required int minConf, required int 
     kernel: e.kernelExcess,
     coinbase: e.kind == core.TxKind.coinbase,
     foundByScan: e.source == core.TxSource.restored,
+    foundDuring: switch (e.foundDuring) {
+      core.TxFoundDuring.restore => FoundDuring.restore,
+      core.TxFoundDuring.rescan => FoundDuring.rescan,
+      null => null,
+    },
+    datedByBlock: e.datedByBlock,
     confirmedAt: e.blockTimeUnix == null ? null : DateTime.fromMillisecondsSinceEpoch(e.blockTimeUnix! * 1000),
     detail: e.statusDetail,
   );

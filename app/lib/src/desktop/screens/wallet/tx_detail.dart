@@ -80,18 +80,21 @@ class _TxDetailState extends ConsumerState<TxDetail> {
                     color: t.incoming && t.state != TxState.cancelled ? c.ok : c.text,
                   ),
                   const SizedBox(height: 2),
-                  Text.rich(
-                    TextSpan(
-                      children: [
-                        TextSpan(text: t.incoming ? 'from ' : 'to '),
-                        TextSpan(
-                          text: whoOf(t),
-                          style: whoIsAddress(t) ? ts.mono(size: Fs.xs, color: c.text) : TextStyle(color: c.text),
-                        ),
-                      ],
+                  if (t.foundByScan && t.contactName == null)
+                    Text(t.foundDuring == FoundDuring.restore ? 'restored' : 'found on the chain', style: ts.small)
+                  else
+                    Text.rich(
+                      TextSpan(
+                        children: [
+                          TextSpan(text: t.incoming ? 'from ' : 'to '),
+                          TextSpan(
+                            text: whoOf(t),
+                            style: whoIsAddress(t) ? ts.mono(size: Fs.xs, color: c.text) : TextStyle(color: c.text),
+                          ),
+                        ],
+                      ),
+                      style: ts.small,
                     ),
-                    style: ts.small,
-                  ),
                   if (whoTip(t) != null) ...[const SizedBox(height: 2), Text(whoTip(t)!, style: ts.small.copyWith(color: c.faint))],
                 ],
               ),
@@ -135,7 +138,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
                 ],
               ),
             ),
-          ('Method', Text(methodLabel(t.method))),
+          ('Method', Text(t.foundByScan ? '–' : methodLabel(t.method))),
           ('Amount', EMoney(t.amount)),
           if (!t.incoming) ...[('Fee', EMoney(t.fee)), ('Total', EMoney(total, weight: FontWeight.w600))],
           if (t.message != null) ('Message', Text(t.message!)),
@@ -212,7 +215,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
     if (t.coinbase || t.foundByScan) {
       final left = coinbaseMaturity - t.confirmations;
       return [
-        _Step(t.coinbase ? 'Mined in a block' : 'Found by a scan', _S.done, hm(Duration.zero), sub: t.coinbase ? null : 'Block time. The sender is not recorded.'),
+        _Step(t.coinbase ? 'Mined in a block' : foundTexts(t).step, _S.done, hm(Duration.zero), sub: t.coinbase ? null : foundTexts(t).note),
         if (t.coinbase)
           _Step('Spendable', t.immature ? _S.now : _S.done, '', sub: t.immature ? '$left blocks to go' : null)
         else
