@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:epic_wallet/src/btlabs_keys.dart';
-import 'package:epic_wallet/src/btlabs_public.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
