@@ -94,7 +94,7 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
       return;
     }
     _clipboardEmpty = false;
-    _entry.paste(text);
+    _entry.pasteAndFocus(text);
   }
 
   bool _clipboardEmpty = false;
@@ -214,6 +214,7 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
       _ when e.pasteError != null => (e.pasteError!, c.risk),
       _ when bad != null => ('Word ${bad + 1}, "${e.words[bad]}", is not in the word list.', c.risk),
       _ when complete => ('All $length words check out.', c.ok),
+      _ when e.checksumOk == false && e.typingLast => ('The phrase never leaves this computer.', null),
       _ when e.checksumOk == false && e.checksumFirm => (
         "This phrase's check number does not match. Compare every word with the paper.",
         c.risk,

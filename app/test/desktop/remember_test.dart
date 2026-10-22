@@ -347,6 +347,32 @@ void unlockScreenTests() {
     await done(tester);
   });
 
+  testWidgets('the wrong password that forgets the remembered one unticks the box', (tester) async {
+    final api = _Wallet();
+    await rememberOnce(tester, api);
+    // All but the last allowed wrong password, straight to the wallet.
+    await tester.runAsync(() async {
+      for (var i = 0; i < maxRememberFails - 1; i++) {
+        await api.unlock('wrong');
+      }
+    });
+    expect(await tester.runAsync(() => api.isRemembered('')), isTrue);
+    rememberAutoTried = true;
+    await pump(tester, api);
+    await run(tester);
+    ECheckbox box() => tester.widget<ECheckbox>(find.widgetWithText(ECheckbox, 'Remember on this computer'));
+    expect(box().value, isTrue, reason: 'a remembered wallet shows the box ticked');
+    await tester.enterText(find.byType(EditableText).first, 'wrong');
+    await tester.tap(find.widgetWithText(EButton, 'Unlock'));
+    for (var w = 0; w < 30 && find.widgetWithText(EButton, 'Unlock').evaluate().isEmpty; w++) {
+      await run(tester);
+    }
+    await run(tester);
+    expect(await tester.runAsync(() => api.isRemembered('')), isFalse);
+    expect(box().value, isFalse, reason: 'the next right password must not remember it again unasked');
+    await done(tester);
+  });
+
   testWidgets('the open at start is tried on the first load only, even when that load failed', (tester) async {
     final api = _Wallet()..listFails = 1;
     await rememberOnce(tester, api);

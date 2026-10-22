@@ -55,6 +55,10 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
   /// Remember on this computer: off unless the selected wallet is remembered already.
   bool _remember = false;
 
+  /// Whether the user ticked the box on this screen (rather than it showing a wallet already
+  /// remembered): kept when a wrong password forgets the remembered one.
+  bool _rememberChosen = false;
+
   /// The stage running now; null while the form shows.
   String? _stage;
   bool _closingStage = false;
@@ -146,7 +150,12 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
       if (mounted) setState(() => _error = deskErrorText(e));
     }
     final remembered = await _isRemembered(id);
-    if (mounted && _id == id) setState(() => _remember = remembered);
+    if (mounted && _id == id) {
+      setState(() {
+        _remember = remembered;
+        _rememberChosen = false;
+      });
+    }
   }
 
   Future<void> _removeMissing(WalletEntry w) async {
@@ -253,6 +262,12 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
         _backToForm(error: 'The remembered password was forgotten. Enter the password.');
       } else {
         _backToForm(error: _wrongPassword);
+        // The wrong password that forgot a remembered one (the last allowed try) unticks the
+        // box, so the next right password does not remember it again unasked.
+        final id = _id;
+        if (_remember && id != null && !await _isRemembered(id) && mounted && _id == id) {
+          setState(() => _remember = _rememberChosen);
+        }
       }
       return;
     }
@@ -379,7 +394,7 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
               child: ECheckbox(
                 value: _remember,
                 label: 'Remember on this computer',
-                onChanged: (v) => setState(() => _remember = v),
+                onChanged: (v) => setState(() => _remember = _rememberChosen = v),
               ),
             ),
             if (_remember) ...[
