@@ -418,8 +418,8 @@ class _ECopyButtonState extends State<ECopyButton> {
     final label = !_done ? widget.label : (_failed ? 'Not copied' : 'Copied');
     final icon = !_done ? EIcons.copy : (_failed ? EIcons.alert : EIcons.check);
     final Widget button = widget.withLabel
-        ? EButton(label: label, icon: icon, size: widget.size, kind: widget.kind, onPressed: _copy)
-        : EIconButton(icon: icon, label: label, color: _done ? (_failed ? context.dc.risk : context.dc.ok) : null, onPressed: _copy);
+        ? EButton(label: label, icon: icon, size: widget.size, kind: widget.kind, tabStop: false, onPressed: _copy)
+        : EIconButton(icon: icon, label: label, color: _done ? (_failed ? context.dc.risk : context.dc.ok) : null, tabStop: false, onPressed: _copy);
     return Semantics(liveRegion: true, child: button);
   }
 }
@@ -624,10 +624,12 @@ class EDetails extends StatefulWidget {
 class _EDetailsState extends State<EDetails> {
   late bool _open = widget.initiallyOpen;
 
+  void _fold() => setState(() => _open = false);
+
   @override
   Widget build(BuildContext context) {
     final c = context.dc;
-    return Container(
+    final box = Container(
       decoration: BoxDecoration(
         border: Border.all(color: c.line),
         borderRadius: BorderRadius.circular(Rad.sm),
@@ -662,5 +664,22 @@ class _EDetailsState extends State<EDetails> {
         ],
       ),
     );
+    // Esc with the focus in an open panel on the page folds it. In a dialog Esc closes the
+    // dialog instead (the dialog is the top-most thing).
+    return Actions(actions: {DismissIntent: _FoldAction(this)}, child: box);
   }
+}
+
+/// Esc in an open [EDetails] on the page; disabled otherwise, so Esc goes on up.
+class _FoldAction extends DismissAction {
+  _FoldAction(this.details);
+
+  final _EDetailsState details;
+
+  @override
+  bool isEnabled(DismissIntent intent) =>
+      details.mounted && details._open && (ModalRoute.of(details.context)?.isFirst ?? true);
+
+  @override
+  void invoke(DismissIntent intent) => details._fold();
 }

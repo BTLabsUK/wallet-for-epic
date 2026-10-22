@@ -2,6 +2,7 @@ import '../../app_info.dart';
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart' show PointerDeviceKind, kBackMouseButton, kForwardMouseButton;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -118,7 +119,7 @@ class _DeskShellState extends ConsumerState<DeskShell> {
     if (width < Bp.phone) {
       frame = Scaffold(
         backgroundColor: c.bg,
-        body: SafeArea(child: Column(children: [_PhoneTopBar(section: at.route.section), Expanded(child: main)])),
+        body: SafeArea(child: Column(children: [_PhoneTopBar(section: at.route.section), Expanded(child: FocusTraversalGroup(child: main))])),
         bottomNavigationBar: _PhoneNav(section: at.route.section),
       );
     } else {
@@ -128,8 +129,9 @@ class _DeskShellState extends ConsumerState<DeskShell> {
         body: Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            _Sidebar(section: at.route.section, compact: compact),
-            Expanded(child: main),
+            // Two groups: Tab finishes the page before it moves to the sidebar.
+            FocusTraversalGroup(child: _Sidebar(section: at.route.section, compact: compact)),
+            Expanded(child: FocusTraversalGroup(child: main)),
           ],
         ),
       );
@@ -145,6 +147,80 @@ class _DeskShellState extends ConsumerState<DeskShell> {
       ),
     );
   }
+}
+
+/// Back: an open dialog or the tour holds it (Esc closes those); then the screen's inner step
+/// ([DeskStepBack]); then the previous place, until Overview.
+void deskBack(WidgetRef ref) {
+  if (_navHeld(ref)) return;
+  if (DeskStepBack.tryStepBack()) return;
+  ref.read(deskNavProvider.notifier).back();
+}
+
+void deskForward(WidgetRef ref) {
+  if (_navHeld(ref)) return;
+  ref.read(deskNavProvider.notifier).forward();
+}
+
+bool _navHeld(WidgetRef ref) => (deskNavigatorKey.currentState?.canPop() ?? false) || ref.read(deskTourProvider).open;
+
+/// The app-wide Back, Forward and Esc keys, around every screen (bare and in the shell); the
+/// rules are in keyboard.dart. Mouse Back/Forward (buttons 8/16), Alt+Left/Right, Backspace
+/// outside a text field; Esc first closes a visible tooltip.
+class DeskNavKeys extends ConsumerStatefulWidget {
+  const DeskNavKeys({super.key, required this.child});
+
+  final Widget child;
+
+  @override
+  ConsumerState<DeskNavKeys> createState() => _DeskNavKeysState();
+}
+
+class _DeskNavKeysState extends ConsumerState<DeskNavKeys> {
+  @override
+  void initState() {
+    super.initState();
+    HardwareKeyboard.instance.addHandler(_onKey);
+  }
+
+  @override
+  void dispose() {
+    HardwareKeyboard.instance.removeHandler(_onKey);
+    super.dispose();
+  }
+
+  bool _onKey(KeyEvent e) {
+    if (e is! KeyDownEvent || !mounted) return false;
+    final hw = HardwareKeyboard.instance;
+    final key = e.logicalKey;
+    // A tooltip is the top-most thing: one Esc closes it, the next one what is under it.
+    if (key == LogicalKeyboardKey.escape) return !hw.isShiftPressed && Tooltip.dismissAllToolTips();
+    if (hw.isControlPressed || hw.isMetaPressed || hw.isShiftPressed) return false;
+    if (hw.isAltPressed) {
+      if (key != LogicalKeyboardKey.arrowLeft && key != LogicalKeyboardKey.arrowRight) return false;
+      // On macOS Option+arrow moves by word in a text field.
+      if (defaultTargetPlatform == TargetPlatform.macOS && deskTextFocused()) return false;
+      if (_navHeld(ref)) return false;
+      key == LogicalKeyboardKey.arrowLeft ? deskBack(ref) : deskForward(ref);
+      return true;
+    }
+    if (key == LogicalKeyboardKey.backspace && !deskTextFocused() && !_navHeld(ref)) {
+      deskBack(ref);
+      return true;
+    }
+    return false;
+  }
+
+  @override
+  Widget build(BuildContext context) => Listener(
+    behavior: HitTestBehavior.translucent,
+    onPointerDown: (e) {
+      if (e.kind != PointerDeviceKind.mouse) return;
+      if (e.buttons & kBackMouseButton != 0) deskBack(ref);
+      if (e.buttons & kForwardMouseButton != 0) deskForward(ref);
+    },
+    child: widget.child,
+  );
 }
 
 /// True while the wallet locks (the lock button spins, Ctrl+L waits).

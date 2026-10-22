@@ -69,7 +69,7 @@ class EDialog extends StatelessWidget {
       ETone.gold => c.accentText,
       ETone.neutral => c.dim,
     };
-    return Dialog(
+    final dialog = Dialog(
       backgroundColor: c.s4,
       insetPadding: EdgeInsets.all(Sp.x6),
       shape: RoundedRectangleBorder(
@@ -115,7 +115,8 @@ class EDialog extends StatelessWidget {
                     if (dismissible)
                       EIconButton(
                         icon: EIcons.close,
-                        label: 'Close',
+                        label: 'Close (Esc)',
+                        tabStop: false,
                         onPressed: () => Navigator.of(context).maybePop(),
                       ),
                   ],
@@ -141,6 +142,14 @@ class EDialog extends StatelessWidget {
           ),
         ),
       ),
+    );
+    if (!dismissible) return dialog;
+    // Esc closes a dialog that shows Close, also one opened with a barrier that does not
+    // dismiss (a click outside must not lose the typing, Esc is deliberate). A PopScope in the
+    // dialog still holds it while busy.
+    return Actions(
+      actions: {DismissIntent: CallbackAction<DismissIntent>(onInvoke: (_) => Navigator.of(context).maybePop())},
+      child: dialog,
     );
   }
 }
@@ -173,7 +182,7 @@ class EDrawer extends StatelessWidget {
               child: Row(
                 children: [
                   Expanded(child: Semantics(header: true, child: Text(title, style: context.ts.h3))),
-                  EIconButton(icon: EIcons.close, label: 'Close', onPressed: () => Navigator.of(context).maybePop()),
+                  EIconButton(icon: EIcons.close, label: 'Close (Esc)', tabStop: false, onPressed: () => Navigator.of(context).maybePop()),
                 ],
               ),
             ),
