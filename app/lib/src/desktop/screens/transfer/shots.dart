@@ -27,21 +27,31 @@ final List<DeskShot> transferShots = [
   const DeskShot(id: '16c-send-done', title: 'Send, done', route: DeskRoute.send, arg: SendArgs(step: SendStep.done, recipient: _anna, amount: '12.5')),
   const DeskShot(id: '16d-send-file-ready', title: 'Send, file ready', route: DeskRoute.send, arg: SendArgs(step: SendStep.fileReady, amount: '12.5')),
   const DeskShot(id: '16e-send-failed', title: 'Send, failed', route: DeskRoute.send, arg: SendArgs(step: SendStep.failed, recipient: 'esOffline9TzWmR8uPfVc2LdN6hJx4gA7sKeQ1oBnC5vD9r@epicbox.offline.example', amount: '3')),
-  const DeskShot(id: '17-receive', title: 'Receive', route: DeskRoute.receive),
-  const DeskShot(id: '17b-receive-stopped', title: 'Receive, listener stopped', route: DeskRoute.receive, arg: ReceiveArgs(stopped: true)),
-  const DeskShot(id: '17c-receive-http-failed', title: 'Receive, HTTP failed', route: DeskRoute.receive, arg: ReceiveArgs(httpFailed: true)),
-  const DeskShot(id: '17d-receive-qr-http', title: 'Receive, HTTP QR code', route: DeskRoute.receive, arg: ReceiveArgs(qrHttp: true)),
-  DeskShot(
-    id: '17e-receive-epicbox-down',
-    title: 'Receive, Epicbox down',
+  const DeskShot(id: '17-receive', title: 'Receive', route: DeskRoute.receive, arg: ReceiveArgs()),
+  const DeskShot(id: '17b-receive-all-off', title: 'Receive, all off', route: DeskRoute.receive, arg: ReceiveArgs(epicbox: RxEpicbox.off)),
+  const DeskShot(id: '17c-receive-http-tor-on', title: 'Receive, HTTP and Tor on', route: DeskRoute.receive, arg: ReceiveArgs(http: RxHttp.on, tor: RxTor.on)),
+  const DeskShot(id: '17d-receive-connecting', title: 'Receive, connecting', route: DeskRoute.receive, arg: ReceiveArgs(http: RxHttp.starting, tor: RxTor.connecting)),
+  const DeskShot(
+    id: '17e-receive-errors',
+    title: 'Receive, errors',
     route: DeskRoute.receive,
-    arg: const ReceiveArgs(epicboxDown: true),
-    // 17d turned HTTP on: put it back for the shots after.
+    arg: ReceiveArgs(epicbox: RxEpicbox.down, http: RxHttp.failed, tor: RxTor.failed),
+  ),
+  const DeskShot(id: '17f-receive-wide', title: 'Receive at 1440x900', route: DeskRoute.receive, arg: ReceiveArgs(http: RxHttp.on, tor: RxTor.on), width: 1440, height: 900),
+  const DeskShot(id: '17g-receive-qr-epicbox', title: 'Receive, Epicbox QR shown', route: DeskRoute.receive, arg: ReceiveArgs(qr: RxQr.epicbox), width: 1440, height: 900),
+  const DeskShot(id: '17h-receive-qr-http', title: 'Receive, HTTP QR shown', route: DeskRoute.receive, arg: ReceiveArgs(http: RxHttp.on, qr: RxQr.http), width: 1280, height: 900),
+  DeskShot(
+    id: '19-import',
+    title: 'Sign a transaction file',
+    route: DeskRoute.importTx,
+    // The Receive shots turned HTTP on: put the methods back as the wallet opens.
     prepare: (c, _) async {
-      await c.read(deskProvider.notifier).setHttp(false);
+      final n = c.read(deskProvider.notifier);
+      await n.setHttp(false);
+      await n.setTor(false);
+      await n.setListening(true);
     },
   ),
-  const DeskShot(id: '19-import', title: 'Sign a transaction file', route: DeskRoute.importTx),
   const DeskShot(id: '19b-import-done', title: 'Response saved', route: DeskRoute.importTx, arg: ImportArgs(done: true)),
   const DeskShot(id: '19c-import-error', title: 'Sign, wrong file', route: DeskRoute.importTx, arg: ImportArgs(error: ImportError.wrongType)),
   const DeskShot(id: '20-finalize', title: 'Finalize a response file', route: DeskRoute.finalize),

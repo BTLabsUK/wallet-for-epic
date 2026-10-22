@@ -89,8 +89,8 @@ String? _recipientError(TxMethod m, String v, DeskWalletApi api) {
     case TxMethod.epicbox:
       return p.kind == AddressKind.epicbox && p.complete ? null : 'This is not a valid Epicbox address.';
     case TxMethod.http:
-      if (p.kind != AddressKind.http) return 'This is not an HTTP address.';
-      final problem = httpAddressProblem(p.canonical);
+      if (p.kind == AddressKind.epicbox || p.kind == AddressKind.tor) return 'This is not an HTTP address.';
+      final problem = httpAddressProblem(p.kind == AddressKind.http ? p.canonical : t);
       return problem == null ? null : '$problem.';
     case TxMethod.tor:
       return p.kind == AddressKind.tor && p.complete ? null : 'This is not a valid Tor address.';

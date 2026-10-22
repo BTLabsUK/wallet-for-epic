@@ -105,7 +105,7 @@ void main() {
     expect(find.byType(DeskTourOverlay), findsOneWidget);
   });
 
-  testWidgets("Receive's HTTP QR button shows that QR at the top, scrolled into view", (tester) async {
+  testWidgets("Receive's HTTP QR button expands that QR under the address and hides it again", (tester) async {
     final container = await _open(tester, _Wallet(), DeskRoute.overview);
     await tester.runAsync(() async {
       await container.read(deskProvider.notifier).setListening(true);
@@ -113,17 +113,16 @@ void main() {
     });
     container.read(deskNavProvider.notifier).go(DeskRoute.receive);
     await _settle(tester);
-    expect(find.text('QR code of the Epic address'), findsOneWidget);
-
-    final button = find.byWidgetPredicate((w) => w is EIconButton && w.label == 'Show QR code of the HTTP address');
+    expect(find.byKey(const ValueKey('rx-qr-image-http')), findsNothing, reason: 'no QR on open');
+    final button = find.byKey(const ValueKey('rx-qr-http'));
     await tester.ensureVisible(button);
     await _settle(tester);
     await tester.tap(button);
     await _settle(tester);
-    final caption = find.text('QR code of the HTTP address');
-    expect(caption, findsOneWidget);
-    final view = tester.getRect(find.ancestor(of: caption, matching: find.byType(Scrollable)).first);
-    expect(view.contains(tester.getCenter(caption)), isTrue, reason: 'the QR is scrolled into view');
+    expect(find.byKey(const ValueKey('rx-qr-image-http')), findsOneWidget);
+    await tester.tap(button);
+    await _settle(tester);
+    expect(find.byKey(const ValueKey('rx-qr-image-http')), findsNothing);
   });
 
   testWidgets('Enter in the tour is Next', (tester) async {

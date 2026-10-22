@@ -7,19 +7,25 @@ import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../widgets/kit.dart';
 import 'epicbox_notice.dart';
 
-/// Argument of the Receive route, for the tour: [stopped] opens with the listener stopped,
-/// [httpFailed] with the HTTP listener failed on a busy port, [qrHttp] with the HTTP address's QR
-/// code, [epicboxDown] with our Epicbox server not answering.
+enum RxEpicbox { on, off, down }
+
+enum RxHttp { off, on, starting, failed }
+
+enum RxTor { off, on, connecting, failed }
+
+enum RxQr { none, epicbox, http }
+
+/// Argument of the Receive route, for the tour (spec 4.3): which method is on, starting or
+/// failed, and which QR code is revealed. The page sets the methods on or off as asked and
+/// shows the starting and failed states over the real status.
 class ReceiveArgs {
-  const ReceiveArgs({this.stopped = false, this.httpFailed = false, this.qrHttp = false, this.epicboxDown = false});
+  const ReceiveArgs({this.epicbox = RxEpicbox.on, this.http = RxHttp.off, this.tor = RxTor.off, this.qr = RxQr.none});
 
-  final bool stopped;
-  final bool httpFailed;
-  final bool qrHttp;
-  final bool epicboxDown;
+  final RxEpicbox epicbox;
+  final RxHttp http;
+  final RxTor tor;
+  final RxQr qr;
 }
-
-enum _Qr { epic, http, tor }
 
 class ReceiveScreen extends ConsumerStatefulWidget {
   const ReceiveScreen({super.key, this.arg});
@@ -31,79 +37,69 @@ class ReceiveScreen extends ConsumerStatefulWidget {
 }
 
 class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
-  late final ReceiveArgs _args;
+  ReceiveArgs? _args;
   String? _http;
   String? _tor;
-  _Qr _qr = _Qr.epic;
-  final _qrKey = GlobalKey();
-  bool _listenBusy = false;
-  bool _httpBusy = false;
-  // The tour's "port in use" state; a real failure comes with the status.
-  bool _httpFailed = false;
+  final Set<TxMethod> _busy = {};
+  final Map<TxMethod, GlobalKey> _panels = {for (final m in TxMethod.values) m: GlobalKey()};
 
   @override
   void initState() {
     super.initState();
     final a = widget.arg;
-    _args = a is ReceiveArgs ? a : const ReceiveArgs();
-    _httpFailed = _args.httpFailed;
+    _args = a is ReceiveArgs ? a : null;
     final api = ref.read(deskApiProvider);
-    if (DeskFeatures.tor) unawaited(api.torAddress().then((v) => mounted ? setState(() => _tor = v) : null, onError: (Object _) => null));
-    final n = ref.read(deskProvider.notifier);
-    if (_args.stopped) {
-      Future.microtask(() => n.setListening(false));
-    } else if (_args.httpFailed || _args.qrHttp || _args.epicboxDown) {
-      // The HTTP row needs the listener running (an earlier tour shot may have stopped it).
+    if (DeskFeatures.tor) {
+      unawaited(
+        api.torAddress().then(
+          (v) => mounted ? setState(() => _tor = v.isEmpty ? v : parseAddress(v, api).canonical) : null,
+          onError: (Object _) => null,
+        ),
+      );
+    }
+    final args = _args;
+    if (args != null) {
+      final n = ref.read(deskProvider.notifier);
       Future.microtask(() async {
-        await n.setListening(true);
-        if (_args.qrHttp) await n.setHttp(true);
+        await n.setListening(args.epicbox != RxEpicbox.off);
+        if (DeskFeatures.httpDirect) await n.setHttp(args.http != RxHttp.off);
+        if (DeskFeatures.tor) await n.setTor(args.tor != RxTor.off);
       });
     }
-    if (_args.qrHttp) _qr = _Qr.http;
   }
 
-  bool _listening(ServiceStatus? s) => s != null && (s.epicboxHealth != ServiceHealth.off || s.httpListener != ServiceHealth.off);
-
-  Future<void> _setListening(bool on) async {
-    setState(() => _listenBusy = true);
-    try {
-      await ref.read(deskProvider.notifier).setListening(on);
-      if (!mounted) return;
-      if (!on) {
-        _httpFailed = false;
-        _qr = _Qr.epic;
-      }
-      showEToast(context, on ? 'Listener started' : 'Listener stopped');
-    } on Object catch (e) {
-      if (mounted) showEToast(context, on ? 'Listener not started' : 'Listener not stopped', text: deskErrorText(e), tone: ETone.risk);
-    } finally {
-      if (mounted) setState(() => _listenBusy = false);
-    }
-  }
-
-  Future<void> _setHttp(bool on) async {
-    setState(() => _httpBusy = true);
-    try {
-      await ref.read(deskProvider.notifier).setHttp(on);
-      if (!mounted) return;
-      setState(() {
-        _httpFailed = false;
-        if (!on && _qr == _Qr.http) _qr = _Qr.epic;
-      });
-    } on Object catch (e) {
-      if (mounted) showEToast(context, on ? 'HTTP not started' : 'HTTP not stopped', text: deskErrorText(e), tone: ETone.risk);
-    } finally {
-      if (mounted) setState(() => _httpBusy = false);
-    }
-  }
-
-  /// Shows [which] in the QR at the top, scrolled into view: the HTTP and onion rows sit below it.
-  void _showQr(_Qr which) {
-    setState(() => _qr = which);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final at = _qrKey.currentContext;
-      if (at != null && at.mounted) Scrollable.ensureVisible(at, duration: Dur.base, alignmentPolicy: ScrollPositionAlignmentPolicy.keepVisibleAtStart);
-    });
+  /// The real status with the tour's starting and failed states laid over it.
+  ServiceStatus? _status(ServiceStatus? s) {
+    final a = _args;
+    if (s == null || a == null) return s;
+    final epicbox = a.epicbox == RxEpicbox.down ? ServiceHealth.down : s.epicboxHealth;
+    final http = switch (a.http) {
+      RxHttp.starting => ServiceHealth.checking,
+      RxHttp.failed => ServiceHealth.down,
+      _ => s.httpListener,
+    };
+    final tor = switch (a.tor) {
+      RxTor.connecting => ServiceHealth.checking,
+      RxTor.failed => ServiceHealth.down,
+      _ => s.tor,
+    };
+    return ServiceStatus(
+      node: s.node,
+      nodeHealth: s.nodeHealth,
+      nodeHeight: s.nodeHeight,
+      epicbox: s.epicbox,
+      epicboxHealth: epicbox,
+      httpListener: http,
+      tor: tor,
+      httpProblem: a.http == RxHttp.failed ? 'Port 3415 in use' : s.httpProblem,
+      torProgress: a.tor == RxTor.connecting ? 45 : s.torProgress,
+      torProblem: a.tor == RxTor.failed ? 'Tor could not connect to the network.' : s.torProblem,
+      torCanSend: a.tor == RxTor.connecting ? false : s.torCanSend,
+      torIncluded: s.torIncluded,
+      syncProgress: s.syncProgress,
+      lastUpdate: s.lastUpdate,
+      notice: s.notice,
+    );
   }
 
   /// The HTTP address follows the listener: read again whenever it runs.
@@ -112,388 +108,427 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
     if (mounted && a != _http) setState(() => _http = a);
   }
 
+  Future<void> _toggle(TxMethod m, bool on) async {
+    setState(() => _busy.add(m));
+    final n = ref.read(deskProvider.notifier);
+    try {
+      switch (m) {
+        // TODO(w4 step D): setEpicboxListening once the per-method data lands.
+        case TxMethod.epicbox:
+          await n.setListening(on);
+        case TxMethod.http:
+          await n.setHttp(on);
+        case TxMethod.tor:
+          await n.setTor(on);
+        case TxMethod.file:
+          break;
+      }
+    } on Object catch (e) {
+      if (mounted) showEToast(context, '${_name(m)} not turned ${on ? 'on' : 'off'}', text: deskErrorText(e), tone: ETone.risk);
+    } finally {
+      if (mounted) setState(() => _busy.remove(m));
+    }
+  }
+
+  static String _name(TxMethod m) => switch (m) {
+    TxMethod.epicbox => 'Epicbox',
+    TxMethod.http => 'HTTP',
+    TxMethod.tor => 'Tor',
+    TxMethod.file => 'File',
+  };
+
+  List<TxMethod> get _methods => [TxMethod.epicbox, if (DeskFeatures.httpDirect) TxMethod.http, if (DeskFeatures.tor) TxMethod.tor];
+
+  bool _switchOn(TxMethod m, ServiceStatus? s, DeskSettings settings) => switch (m) {
+    TxMethod.epicbox => s != null && s.epicboxHealth != ServiceHealth.off,
+    TxMethod.http => s != null && s.httpListener != ServiceHealth.off,
+    TxMethod.tor => settings.tor,
+    TxMethod.file => false,
+  };
+
+  void _jump(TxMethod m) {
+    final at = _panels[m]?.currentContext;
+    if (at != null) Scrollable.ensureVisible(at, duration: MediaQuery.disableAnimationsOf(context) ? Duration.zero : Dur.base, alignmentPolicy: ScrollPositionAlignmentPolicy.explicit);
+  }
+
   @override
   Widget build(BuildContext context) {
     final st = ref.watch(deskProvider);
-    final nav = ref.read(deskNavProvider.notifier);
-    final ts = context.ts;
-    final c = context.dc;
-    final status = st.status;
-    final listening = _listening(status);
+    final status = _status(st.status);
     if (DeskFeatures.httpDirect && status?.httpListener == ServiceHealth.ok) unawaited(_readHttp());
+    final nav = ref.read(deskNavProvider.notifier);
+    final epicbox = _epicboxPanel(st, status);
+    final others = [
+      if (DeskFeatures.httpDirect) _httpPanel(st, status),
+      if (DeskFeatures.tor) _torPanel(st, status),
+    ];
+    final files = _filesPanel(nav);
+    final head = ESectionHead(
+      'Other ways to receive',
+      top: 0,
+      trailing: EButton.ghost(label: 'Settings', icon: EIcons.settings, size: EBtnSize.inline, onPressed: () => nav.go(DeskRoute.settingsReceiving)),
+    );
+    List<Widget> gap(List<Widget> xs) => [
+      for (var i = 0; i < xs.length; i++) ...[if (i > 0) SizedBox(height: Sp.x3), xs[i]],
+    ];
     return EPage(
       title: 'Receive',
-      width: EPageWidth.mid,
-      actions: [
-        Semantics(
-          liveRegion: true,
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(listening ? EIcons.okCircle : EIcons.minusCircle, size: Ctl.iconSm, color: listening ? c.ok : c.faint),
-              SizedBox(width: Sp.x2),
-              Text(status == null ? 'Checking' : (listening ? 'Receiving is on' : 'Receiving is off'), style: ts.small),
-            ],
-          ),
+      width: EPageWidth.full,
+      actions: [_indicator(st, status)],
+      child: ConstrainedBox(
+        constraints: BoxConstraints(maxWidth: 1180.u),
+        child: LayoutBuilder(
+          builder: (context, box) {
+            if (box.maxWidth >= 1040.u) {
+              return Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    flex: 7,
+                    child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: gap([epicbox, files])),
+                  ),
+                  if (others.isNotEmpty) ...[
+                    SizedBox(width: Sp.x6),
+                    Expanded(
+                      flex: 5,
+                      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [head, ...gap(others)]),
+                    ),
+                  ],
+                ],
+              );
+            }
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                epicbox,
+                if (others.isNotEmpty) ...[
+                  SizedBox(height: Sp.x8),
+                  head,
+                  ...gap(others),
+                ],
+                SizedBox(height: Sp.x3),
+                files,
+              ],
+            );
+          },
         ),
+      ),
+    );
+  }
+
+  /// "Receiving" and one icon per method in its state colour; a click scrolls to its panel.
+  Widget _indicator(DeskState st, ServiceStatus? status) {
+    final ts = context.ts;
+    final c = context.dc;
+    final lines = {for (final m in _methods) m: status == null ? null : methodStateLine(m, status, st.settings)};
+    String word(TxMethod m) => lines[m] == null ? 'checking' : (lines[m]!.state == EState.off ? 'off' : (lines[m]!.word == 'On' ? 'on' : lines[m]!.word.toLowerCase()));
+    return Semantics(
+      liveRegion: true,
+      label: [for (final m in _methods) '${_name(m)} ${word(m)}'].join(', '),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ExcludeSemantics(child: Text('Receiving', style: ts.small.copyWith(color: c.dim))),
+          for (final m in _methods) ...[
+            SizedBox(width: Sp.x2),
+            Tooltip(
+              message: lines[m] == null ? '${_name(m)} · Checking' : '${_name(m)} · ${lines[m]!.word}${lines[m]!.detail == null ? '' : '\n${lines[m]!.detail}'}',
+              child: Semantics(
+                button: true,
+                label: '${_name(m)}: ${word(m)}',
+                excludeSemantics: true,
+                onTap: () => _jump(m),
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(Rad.sm),
+                  onTap: () => _jump(m),
+                  child: Padding(
+                    padding: EdgeInsets.all(2.u),
+                    child: EMethodIcon(m, lines[m]?.state ?? EState.off, size: 20.u),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget? _retry(TxMethod m, MethodLine line) {
+    if (!line.retry) return null;
+    final busy = _busy.contains(m);
+    return EButton(
+      label: m == TxMethod.http ? 'Try again' : 'Retry',
+      icon: EIcons.refresh,
+      size: EBtnSize.sm,
+      busy: busy,
+      onPressed: busy ? null : () => _toggle(m, true),
+    );
+  }
+
+  Widget _epicboxPanel(DeskState st, ServiceStatus? status) {
+    const m = TxMethod.epicbox;
+    final ts = context.ts;
+    final addr = st.epicboxAddress;
+    final on = _switchOn(m, status, st.settings);
+    final line = status == null ? null : methodStateLine(m, status, st.settings);
+    final health = status?.epicboxHealth;
+    final tag = !on
+        ? 'Paused'
+        : health == ServiceHealth.checking
+        ? 'Starting'
+        : null;
+    final Widget addressBox = addr == null
+        ? Padding(padding: EdgeInsets.symmetric(vertical: Sp.x4), child: ESpinner(size: 20.u))
+        : addr.isEmpty
+        ? Text('The address could not be read. Open Receive again in a moment.', style: ts.small)
+        : Opacity(
+            opacity: on ? 1 : 0.6,
+            child: EAddress(addr, large: true, copyLabel: 'Copy Epicbox address'),
+          );
+    final info = Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text('Share it to get paid. Works while the wallet is closed: the Epicbox server holds payments until the wallet is back.', style: ts.bodyDim),
+        SizedBox(height: Sp.x4),
+        addressBox,
+        SizedBox(height: Sp.x2),
+        Text('When reading it out, check the first six and last six characters.', style: ts.caption),
+        SizedBox(height: Sp.x4),
+        if (line == null) const Align(alignment: Alignment.centerLeft, child: ESpinner()) else EStateLine(line, key: const ValueKey('rx-state-epicbox')),
+        if (health == ServiceHealth.down) ...[SizedBox(height: Sp.x3), const EpicboxDownNotice()],
       ],
+    );
+    final qr = addr == null || addr.isEmpty
+        ? SizedBox(width: 184.u, height: 184.u)
+        : EQrReveal(
+            address: addr,
+            form: QrRevealForm.covered,
+            title: 'Epicbox address',
+            tag: tag,
+            method: 'epicbox',
+            initiallyShown: _args?.qr == RxQr.epicbox,
+          );
+    return _MethodPanel(
+      key: _panels[m],
+      method: m,
+      title: 'Epicbox address',
+      state: line?.state ?? EState.off,
+      switchOn: on,
+      busy: _busy.contains(m) || status == null,
+      onSwitch: status == null ? null : (v) => _toggle(m, v),
+      grown: true,
+      small: const SizedBox.shrink(),
+      body: LayoutBuilder(
+        builder: (context, box) => box.maxWidth < 520.u
+            ? Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [info, SizedBox(height: Sp.x5), Center(child: qr)])
+            : Row(crossAxisAlignment: CrossAxisAlignment.start, children: [Expanded(child: info), SizedBox(width: Sp.x6), qr]),
+      ),
+    );
+  }
+
+  Widget _httpPanel(DeskState st, ServiceStatus? status) {
+    const m = TxMethod.http;
+    final ts = context.ts;
+    final on = _switchOn(m, status, st.settings);
+    final line = status == null ? null : methodStateLine(m, status, st.settings);
+    final ok = status?.httpListener == ServiceHealth.ok;
+    final failed = status?.httpListener == ServiceHealth.down;
+    final addr = _http != null && _http!.isNotEmpty ? _http : null;
+    final caption = Text(
+      st.settings.publicMode
+          ? 'Senders on the internet use this address once the router forwards port ${st.settings.httpPort}.'
+          : 'Programs on this computer can pay this address. For other devices, see Settings › Receiving.',
+      style: ts.caption,
+    );
+    return _MethodPanel(
+      key: _panels[m],
+      method: m,
+      title: 'HTTP address',
+      state: line?.state ?? EState.off,
+      switchOn: on,
+      busy: _busy.contains(m) || status == null,
+      onSwitch: status == null ? null : (v) => _toggle(m, v),
+      grown: on,
+      small: line == null ? const SizedBox.shrink() : EStateLine(line, key: const ValueKey('rx-state-http')),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text('Straight from another wallet while this one is open. On this computer only unless Settings says otherwise.', style: ts.bodyDim),
+          SizedBox(height: Sp.x4),
+          if (addr != null) ...[
+            EQrReveal(
+              address: addr,
+              form: QrRevealForm.compact,
+              title: 'HTTP address',
+              copyLabel: 'Copy HTTP address',
+              addressOpacity: ok ? 1 : 0.6,
+              tag: failed ? 'Not reachable' : (ok ? null : 'Starting'),
+              caption: caption,
+              method: 'http',
+              initiallyShown: _args?.qr == RxQr.http,
+            ),
+            SizedBox(height: Sp.x4),
+          ],
+          if (line != null) EStateLine(line, key: const ValueKey('rx-state-http'), trailing: _retry(m, line)),
+        ],
+      ),
+    );
+  }
+
+  Widget _torPanel(DeskState st, ServiceStatus? status) {
+    const m = TxMethod.tor;
+    final ts = context.ts;
+    final on = _switchOn(m, status, st.settings);
+    final line = status == null ? null : methodStateLine(m, status, st.settings);
+    final ready = status?.tor == ServiceHealth.ok;
+    final failed = status?.tor == ServiceHealth.down || status?.tor == ServiceHealth.slow;
+    final addr = _tor;
+    final included = status?.torIncluded ?? true;
+    return _MethodPanel(
+      key: _panels[m],
+      method: m,
+      title: 'Tor address',
+      state: line?.state ?? EState.off,
+      switchOn: on && included,
+      busy: _busy.contains(m) || status == null,
+      onSwitch: status == null || !included ? null : (v) => _toggle(m, v),
+      grown: on && included,
+      small: line == null ? const SizedBox.shrink() : EStateLine(line, key: const ValueKey('rx-state-tor')),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text('Slower and more private. Blocked or not allowed in some countries.', style: ts.bodyDim),
+          SizedBox(height: Sp.x4),
+          if (addr == null)
+            Align(alignment: Alignment.centerLeft, child: ESpinner(size: 20.u))
+          else if (addr.isEmpty)
+            Text('The address could not be read. Open Receive again in a moment.', style: ts.small)
+          else
+            EQrReveal(
+              address: addr,
+              form: QrRevealForm.compact,
+              title: 'Tor address',
+              copyLabel: 'Copy Tor address',
+              addressOpacity: ready ? 1 : 0.6,
+              tag: failed ? 'Not reachable' : (ready ? null : 'Starting'),
+              caption: Text('Some wallets show the address without .onion; both are the same address.', style: ts.caption),
+              method: 'tor',
+            ),
+          SizedBox(height: Sp.x4),
+          if (line != null) EStateLine(line, key: const ValueKey('rx-state-tor'), trailing: _retry(m, line)),
+        ],
+      ),
+    );
+  }
+
+  Widget _filesPanel(DeskNav nav) {
+    final c = context.dc;
+    final ts = context.ts;
+    return EPanel(
+      padding: EdgeInsets.zero,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          if (status != null && !listening) ...[_start(), SizedBox(height: Sp.x5)],
-          _hero(st, listening),
-          if (DeskFeatures.httpDirect || DeskFeatures.tor) ...[
-            ESectionHead('Other ways to receive', top: Sp.x8),
-            _direct(st, nav, listening),
-          ],
-          ESectionHead('Transaction files', top: DeskFeatures.httpDirect || DeskFeatures.tor ? 0 : null),
-          ESetGroup(
-            rows: [
-              ESetRow(
-                title: 'Sign a transaction file',
-                text: 'A sender gave a transaction file. The wallet signs it and saves a response for them.',
-                control: EButton(label: 'Open', icon: EIcons.fileDown, size: EBtnSize.sm, onPressed: () => nav.go(DeskRoute.importTx)),
-              ),
-              ESetRow(
-                title: 'Finalize a response file',
-                text: 'A file send got a response back. Finalizing posts the payment.',
-                control: EButton(label: 'Open', icon: EIcons.fileUp, size: EBtnSize.sm, onPressed: () => nav.go(DeskRoute.finalize)),
-              ),
-            ],
-          ),
-          if (listening) ...[
-            const ESectionHead('Listener', top: 0),
-            ESetGroup(
-              rows: [
-                ESetRow(
-                  title: 'Receiving is on',
-                  text: status?.httpListener == ServiceHealth.ok
-                      ? 'Epicbox and HTTP are listening. Once stopped, Epicbox payments wait on the Epicbox server for a while, HTTP payments fail, and transaction files still work.'
-                      : 'Epicbox is listening. Once stopped, payments to the Epic address wait on the Epicbox server for a while, and transaction files still work.',
-                  control: EButton(
-                    label: 'Stop receiving',
-                    icon: EIcons.stop,
-                    size: EBtnSize.sm,
-                    busy: _listenBusy,
-                    onPressed: _listenBusy ? null : () => _setListening(false),
-                  ),
-                ),
+          Padding(
+            padding: EdgeInsets.fromLTRB(Sp.x6, 20.u, Sp.x6, Sp.x2),
+            child: Row(
+              children: [
+                Icon(EIcons.file, size: 20.u, color: c.dim),
+                SizedBox(width: 10.u),
+                Semantics(header: true, child: Text('Transaction files', style: ts.h3)),
               ],
             ),
-          ],
-        ],
-      ),
-    );
-  }
-
-  Widget _start() {
-    final ts = context.ts;
-    final c = context.dc;
-    final text = Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Icon(EIcons.antenna, size: Ctl.iconLg, color: c.accentText),
-        SizedBox(width: Sp.x4),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Semantics(header: true, child: Text('Start the listener to receive online', style: ts.h3)),
-              SizedBox(height: Sp.x2),
-              Text(
-                DeskFeatures.httpDirect
-                    ? 'Epicbox and HTTP payments need the listener running. Payments already sent to the Epic address wait on the Epicbox server and arrive once it starts. Files work either way.'
-                    : 'Epicbox payments need the listener running. Payments already sent to the Epic address wait on the Epicbox server and arrive once it starts. Files work either way.',
-                style: ts.bodyDim,
-              ),
-            ],
           ),
-        ),
-      ],
-    );
-    final button = EButton.primary(label: 'Start listener', icon: EIcons.antenna, busy: _listenBusy, onPressed: _listenBusy ? null : () => _setListening(true));
-    return EPanel(
-      padding: EdgeInsets.all(Sp.x6),
-      child: LayoutBuilder(
-        builder: (context, box) => box.maxWidth < 560.u
-            ? Column(crossAxisAlignment: CrossAxisAlignment.start, children: [text, SizedBox(height: Sp.x4), button])
-            : Row(children: [Expanded(child: text), SizedBox(width: Sp.x6), button]),
-      ),
-    );
-  }
-
-  Widget _hero(DeskState st, bool listening) {
-    final ts = context.ts;
-    final c = context.dc;
-    final addr = st.epicboxAddress;
-    final status = st.status;
-    final domain = status?.epicbox.domain;
-    final health = _args.epicboxDown && listening ? ServiceHealth.down : status?.epicboxHealth;
-    final httpOn = status?.httpListener == ServiceHealth.ok;
-    final (icon, color, text) = switch (health) {
-      null => (EIcons.sync, c.faint, 'Connecting'),
-      _ when !listening => (EIcons.minusCircle, c.faint, 'Receiving is off. Payments wait on the Epicbox server until the listener starts.'),
-      ServiceHealth.ok || ServiceHealth.slow => (EIcons.okCircle, c.ok, 'Listening via $domain'),
-      ServiceHealth.checking => (EIcons.sync, c.faint, 'Connecting to $domain'),
-      ServiceHealth.down => (EIcons.alert, c.warn, '$domain is not answering. Payments wait on the Epicbox server.'),
-      ServiceHealth.off => (EIcons.alert, c.warn, httpOn ? 'The listener is on, but Epicbox is not running.' : 'Epicbox is not running.'),
-    };
-    final tor = _tor;
-    final qrData = _qr == _Qr.http && _http != null && _http!.isNotEmpty && httpOn
-        ? _http!
-        : _qr == _Qr.tor && tor != null && st.settings.tor
-        ? tor
-        : addr;
-    final qrSize = 184.u;
-    final Widget qr = qrData == null
-        ? SizedBox(width: qrSize, height: qrSize)
-        : Column(
-            key: _qrKey,
-            children: [
-              Stack(
-                alignment: Alignment.center,
-                children: [
-                  Opacity(opacity: listening ? 1 : 0.35, child: EQr(qrData, size: qrSize)),
-                  if (!listening)
-                    Container(
-                      padding: EdgeInsets.symmetric(horizontal: Sp.x3, vertical: Sp.x1),
-                      decoration: BoxDecoration(color: c.s1, borderRadius: BorderRadius.circular(Rad.sm), border: Border.all(color: c.lineStrong)),
-                      child: Text('Paused', style: ts.small.copyWith(color: c.text, fontWeight: FontWeight.w600)),
-                    ),
-                ],
-              ),
-              SizedBox(height: Sp.x2),
-              Text(qrData == addr ? 'QR code of the Epic address' : (qrData == tor ? 'QR code of the onion address' : 'QR code of the HTTP address'), style: ts.caption),
-            ],
-          );
-    return EPanel(
-      padding: EdgeInsets.all(Sp.x6),
-      child: LayoutBuilder(
-        builder: (context, box) {
-          final info = Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Semantics(header: true, child: Text('Epic address', style: ts.h3)),
-              SizedBox(height: Sp.x2),
-              Text('Share it to get paid. It works while this wallet is closed: the Epicbox server holds payments until the wallet is back.', style: ts.bodyDim),
-              SizedBox(height: Sp.x4),
-              if (addr == null)
-                Padding(padding: EdgeInsets.symmetric(vertical: Sp.x4), child: ESpinner(size: 20.u))
-              else if (addr.isEmpty)
-                Text('The Epic address could not be read. Open Receive again in a moment.', style: ts.small)
-              else ...[
-                Opacity(opacity: listening ? 1 : 0.6, child: EAddress(addr, large: true, copy: false)),
-                SizedBox(height: Sp.x2),
-                Text('When reading it out, check the first six and last six characters.', style: ts.caption),
-                SizedBox(height: Sp.x4),
-                Wrap(
-                  spacing: Sp.x3,
-                  runSpacing: Sp.x2,
-                  children: [
-                    ECopyButton(
-                      text: addr,
-                      label: 'Copy address',
-                      withLabel: true,
-                      kind: listening ? EBtnKind.primary : EBtnKind.secondary,
-                      size: EBtnSize.sm,
-                    ),
-                    if (qrData != addr) EButton.ghost(label: 'Show QR code', icon: EIcons.qr, onPressed: () => setState(() => _qr = _Qr.epic)),
-                  ],
-                ),
-              ],
-              SizedBox(height: Sp.x4),
-              Semantics(
-                liveRegion: true,
-                child: Row(
-                  children: [
-                    Icon(icon, size: Ctl.iconSm, color: color),
-                    SizedBox(width: Sp.x2),
-                    Expanded(child: Text(text, style: ts.small)),
-                  ],
-                ),
-              ),
-              if (health == ServiceHealth.down && listening) ...[SizedBox(height: Sp.x3), const EpicboxDownNotice()],
-            ],
-          );
-          if (box.maxWidth < 560.u) {
-            return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [info, SizedBox(height: Sp.x5), Center(child: qr)]);
-          }
-          return Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [Expanded(child: info), SizedBox(width: Sp.x6), qr],
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _direct(DeskState st, DeskNav nav, bool listening) {
-    final status = st.status;
-    final ts = context.ts;
-    final c = context.dc;
-    final httpOn = !_httpFailed && status?.httpListener == ServiceHealth.ok;
-    final failed = _httpFailed || status?.httpListener == ServiceHealth.down;
-    final port = st.settings.httpPort;
-    // The onion is known before tor runs; the line under it says whether others reach it yet.
-    final torOn = st.settings.tor;
-    final http = httpOn && _http != null && _http!.isNotEmpty ? _http : null;
-    final Widget httpLine;
-    if (status == null) {
-      httpLine = const Align(alignment: Alignment.centerLeft, child: ESpinner());
-    } else if (failed) {
-      httpLine = Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(padding: EdgeInsets.only(top: Sp.x1), child: const EStatusDot(ETone.risk)),
-          SizedBox(width: Sp.x2),
-          Expanded(
-            child: Text.rich(
-              TextSpan(
-                children: [
-                  TextSpan(text: 'HTTP is not receiving. ', style: ts.small.copyWith(fontWeight: FontWeight.w600, color: c.text)),
-                  TextSpan(
-                    text: _httpFailed || status.httpProblem == 'Port $port in use'
-                        ? 'Port $port is used by another program. Close that program or pick another port, then try again.'
-                        : '${status.httpProblem ?? 'It stopped'}. Try again.',
-                  ),
-                ],
-              ),
-              style: ts.small,
-            ),
+          ESetRow(
+            title: 'Sign a transaction file',
+            text: 'A sender gave a transaction file. The wallet signs it and saves a response for them.',
+            control: EButton(label: 'Open', icon: EIcons.fileDown, size: EBtnSize.sm, onPressed: () => nav.go(DeskRoute.importTx)),
+          ),
+          Divider(height: 1, thickness: 1, color: c.line),
+          ESetRow(
+            title: 'Finalize a response file',
+            text: 'A file send got a response back. Finalizing posts the payment.',
+            control: EButton(label: 'Open', icon: EIcons.fileUp, size: EBtnSize.sm, onPressed: () => nav.go(DeskRoute.finalize)),
           ),
         ],
-      );
-    } else {
-      httpLine = Row(
-        children: [
-          EStatusDot(httpOn ? ETone.ok : ETone.neutral),
-          SizedBox(width: Sp.x2),
-          Expanded(
-            child: Text(
-              switch (status.httpListener) {
-                ServiceHealth.ok => st.settings.publicMode
-                    ? 'On, port $port. Senders on the internet use http://<public IP>:$port once the router forwards the port.'
-                    : 'On, port $port. This computer only (127.0.0.1).',
-                ServiceHealth.checking => 'Starting…',
-                _ => 'Off.',
-              },
-              style: ts.small,
-            ),
-          ),
-        ],
-      );
-    }
-    return ESetGroup(
-      rows: [
-        if (DeskFeatures.httpDirect)
-        ESetRow(
-          title: 'HTTP address',
-          stacked: true,
-          below: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              if (http != null && st.settings.publicMode) Text('This network', style: ts.caption),
-              Text(http ?? (httpOn ? '…' : 'Off'), style: ts.mono(size: Fs.sm, color: httpOn ? c.dim : c.faint), maxLines: 1, overflow: TextOverflow.ellipsis),
-              SizedBox(height: Sp.x2),
-              httpLine,
-              SizedBox(height: Sp.x3),
-              Wrap(
-                spacing: Sp.x2,
-                runSpacing: Sp.x2,
-                crossAxisAlignment: WrapCrossAlignment.center,
-                children: [
-                  if (failed)
-                    EButton(label: 'Try again', icon: EIcons.refresh, size: EBtnSize.sm, busy: _httpBusy, onPressed: _httpBusy ? null : () => _setHttp(true)),
-                  if (httpOn || failed)
-                    EButton(label: 'Turn off', icon: EIcons.stop, size: EBtnSize.sm, busy: _httpBusy && !failed, onPressed: _httpBusy ? null : () => _setHttp(false))
-                  else
-                    EButton(label: 'Turn on', icon: EIcons.antenna, size: EBtnSize.sm, busy: _httpBusy, onPressed: _httpBusy || status == null ? null : () => _setHttp(true)),
-                  if (http != null)
-                    ECopyButton(text: http, label: 'Copy HTTP address')
-                  else
-                    EIconButton(icon: EIcons.copy, label: 'Copy HTTP address', size: EBtnSize.sm, onPressed: null),
-                  EIconButton(icon: EIcons.qr, label: 'Show QR code of the HTTP address', size: EBtnSize.sm, onPressed: http != null ? () => _showQr(_Qr.http) : null),
-                  EButton(label: 'Settings', size: EBtnSize.inline, onPressed: () => nav.go(DeskRoute.settingsReceiving)),
-                ],
-              ),
-            ],
-          ),
-        ),
-        if (DeskFeatures.tor)
-        _AddrRow(
-          title: 'Tor address',
-          on: torOn,
-          loading: status == null,
-          address: torOn ? _tor : null,
-          line: status == null ? null : torStatusLine(status),
-          onQr: () => _showQr(_Qr.tor),
-          offText: 'Off. Turn it on to receive through Tor.',
-          action: EButton(label: 'Receiving settings', size: EBtnSize.inline, onPressed: () => nav.go(DeskRoute.settingsReceiving)),
-          showAction: !torOn && status != null,
-        ),
-      ],
+      ),
     );
   }
 }
 
-class _AddrRow extends StatelessWidget {
-  const _AddrRow({
+/// One receiving method (spec 4.2): the title row with its switch, then the state line alone
+/// ([small]) or the whole [body] when [grown]; the change runs through [ExpandFade].
+class _MethodPanel extends StatelessWidget {
+  const _MethodPanel({
+    super.key,
+    required this.method,
     required this.title,
-    required this.on,
-    required this.loading,
-    required this.address,
-    required this.offText,
-    required this.action,
-    required this.showAction,
-    this.line,
-    this.onQr,
+    required this.state,
+    required this.switchOn,
+    required this.busy,
+    required this.onSwitch,
+    required this.grown,
+    required this.small,
+    required this.body,
   });
 
+  final TxMethod method;
   final String title;
-  final bool on;
-  final bool loading;
-  final String? address;
-  final String offText;
-  final Widget action;
-  final bool showAction;
-
-  /// Under the address: what the service is doing now.
-  final String? line;
-
-  /// Shows the address's QR code.
-  final VoidCallback? onQr;
+  final EState state;
+  final bool switchOn;
+  final bool busy;
+  final ValueChanged<bool>? onSwitch;
+  final bool grown;
+  final Widget small;
+  final Widget body;
 
   @override
   Widget build(BuildContext context) {
-    final c = context.dc;
     final ts = context.ts;
-    return ESetRow(
-      title: title,
-      stacked: true,
-      below: loading
-          ? const Align(alignment: Alignment.centerLeft, child: ESpinner())
-          : on && address != null
-          ? Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
+    return EPanel(
+      key: ValueKey('rx-panel-${method.name}'),
+      padding: EdgeInsets.zero,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Padding(
+            padding: EdgeInsets.fromLTRB(Sp.x6, 20.u, Sp.x6, 0),
+            child: Row(
               children: [
-                Row(
-                  children: [
-                    Expanded(child: SelectableText(address!, style: ts.mono(size: Fs.sm, color: c.dim), maxLines: 1)),
-                    ECopyButton(text: address!, label: 'Copy $title'),
-                    if (onQr != null) EIconButton(icon: EIcons.qr, label: 'Show QR code of the $title', size: EBtnSize.sm, onPressed: onQr),
-                  ],
+                EMethodIcon(method, state, size: 20.u),
+                SizedBox(width: 10.u),
+                Expanded(
+                  child: Semantics(header: true, child: Text(title, style: ts.h3, maxLines: 1, overflow: TextOverflow.ellipsis)),
                 ),
-                if (line != null) Semantics(liveRegion: true, child: Text(line!, style: ts.small)),
-              ],
-            )
-          : Row(
-              children: [
-                const EStatusDot(ETone.neutral),
-                SizedBox(width: Sp.x2),
-                Expanded(child: Text(offText, style: ts.small)),
-                if (showAction) action,
+                ExcludeSemantics(child: Text('Receiving', style: ts.body)),
+                SizedBox(width: Sp.x3),
+                SizedBox(
+                  width: 40.u,
+                  height: 24.u,
+                  child: busy
+                      ? Center(child: ESpinner(size: 18.u))
+                      : ESwitch(
+                          key: ValueKey('rx-switch-${method.name}'),
+                          value: switchOn,
+                          onChanged: onSwitch,
+                          semanticLabel: '$title, receiving',
+                        ),
+                ),
               ],
             ),
+          ),
+          if (method != TxMethod.epicbox)
+            ExpandFade(
+              open: !grown,
+              child: Padding(padding: EdgeInsets.fromLTRB(Sp.x6, 6.u, Sp.x6, Sp.x4), child: small),
+            ),
+          ExpandFade(
+            open: grown,
+            child: Padding(padding: EdgeInsets.fromLTRB(Sp.x6, Sp.x3, Sp.x6, Sp.x6), child: body),
+          ),
+        ],
+      ),
     );
   }
 }

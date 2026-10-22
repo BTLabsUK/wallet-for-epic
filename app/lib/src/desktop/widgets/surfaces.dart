@@ -320,7 +320,7 @@ class EMonoText extends StatelessWidget {
 
 /// An address to read and copy: the first and last six characters in the accent.
 class EAddress extends StatelessWidget {
-  const EAddress(this.address, {super.key, this.large = false, this.onCopied, this.copyLabel = 'Copy', this.copy = true});
+  const EAddress(this.address, {super.key, this.large = false, this.onCopied, this.copyLabel = 'Copy', this.copy = true, this.extra});
 
   final String address;
   final bool large;
@@ -333,16 +333,21 @@ class EAddress extends StatelessWidget {
   final String copyLabel;
   final VoidCallback? onCopied;
 
+  /// A small control before the copy icon (Receive's QR button).
+  final Widget? extra;
+
   @override
   Widget build(BuildContext context) {
     final c = context.dc;
     final ts = context.ts;
     final base = ts.mono(size: large ? 14.5 : Fs.sm);
     final hl = base.copyWith(color: c.accentText, fontWeight: FontWeight.w600);
-    // The highlight marks the address itself, not the relay after "@" or a URL.
+    // The highlight marks the address itself, not the server after "@", ".onion" or a URL.
     final at = address.indexOf('@');
-    final a = at > 0 ? address.substring(0, at) : address;
-    final rest = at > 0 ? address.substring(at) : '';
+    final onion = at < 0 && address.toLowerCase().endsWith('.onion');
+    final cut = at > 0 ? at : (onion ? address.length - 6 : address.length);
+    final a = address.substring(0, cut);
+    final rest = address.substring(cut);
     final spans = a.length > 14 && !a.startsWith('http')
         ? [
             TextSpan(text: a.substring(0, 6), style: hl),
@@ -361,6 +366,7 @@ class EAddress extends StatelessWidget {
       child: Row(
         children: [
           Expanded(child: SelectableText.rich(TextSpan(style: base, children: spans))),
+          if (extra != null) ...[SizedBox(width: Sp.x2), extra!],
           if (copy) ...[SizedBox(width: Sp.x2), ECopyButton(text: address, label: copyLabel, onCopied: onCopied)],
         ],
       ),
