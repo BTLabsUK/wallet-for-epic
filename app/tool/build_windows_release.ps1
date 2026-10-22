@@ -18,7 +18,10 @@ param(
     [string]$Flutter = "$env:USERPROFILE\flutter\bin",
     [string]$Iscc = "$env:LOCALAPPDATA\Programs\Inno Setup 6\ISCC.exe",
     # The built-in node's epic.exe (optional), bundled as bin\epic.exe next to epic_wallet.exe.
-    [string]$NodeBin
+    [string]$NodeBin,
+    # The Tor bundle from tools/fetch-tor.sh win (tor.exe, LICENSE.tor.txt, VERSION), bundled as
+    # bin\tor-bundle next to epic_wallet.exe. Without it the app shows Tor as not included.
+    [string]$TorBundle
 )
 $ErrorActionPreference = 'Stop'
 $Source = (Resolve-Path $Source).Path
@@ -112,6 +115,16 @@ if ($NodeBin) {
     New-Item -ItemType Directory -Force "$rel\bin" | Out-Null
     Copy-Item $NodeBin "$rel\bin\epic.exe" -Force
     Write-Output "bundled bin\epic.exe $((Get-FileHash "$rel\bin\epic.exe" -Algorithm SHA256).Hash.ToLower())"
+}
+
+if ($TorBundle) {
+    if (-not (Test-Path "$TorBundle\tor.exe")) { throw "$TorBundle\tor.exe is missing" }
+    if (Test-Path "$rel\bin\tor-bundle") { Remove-Item -Recurse -Force "$rel\bin\tor-bundle" }
+    New-Item -ItemType Directory -Force "$rel\bin\tor-bundle" | Out-Null
+    Copy-Item "$TorBundle\*" "$rel\bin\tor-bundle" -Force
+    Write-Output "bundled bin\tor-bundle: $((Get-Content "$rel\bin\tor-bundle\VERSION" -Raw).Trim()), tor.exe $((Get-FileHash "$rel\bin\tor-bundle\tor.exe" -Algorithm SHA256).Hash.ToLower())"
+} else {
+    Write-Output 'no -TorBundle: Tor shows as not included in this build'
 }
 
 # --- installer
