@@ -30,6 +30,7 @@ import '../../providers.dart' show WalletDirResolver;
 import '../../relay_directory.dart';
 import '../../secret_store_api.dart';
 import '../../slate_files.dart' show decodeSlateFile, responseFileName, sendFileName;
+import '../../tor_location.dart';
 import '../../wallet_registry.dart' as reg;
 import '../../wallet_service.dart' as core;
 import 'api.dart';
@@ -78,6 +79,16 @@ String deskErrorText(Object error) {
   };
 }
 
+/// Why tor is down or the onion is not published, for the Tor line.
+String torFailureText(core.TorFailure? f) => switch (f) {
+  core.TorFailure.missing => 'Tor not included in this build',
+  core.TorFailure.network => 'Can’t reach the Tor network',
+  core.TorFailure.clock => 'The computer’s clock is wrong',
+  core.TorFailure.publish || core.TorFailure.keys || core.TorFailure.listener => 'Onion address not published',
+  core.TorFailure.start => 'Tor did not start',
+  core.TorFailure.stopped || null => 'Tor stopped',
+};
+
 DeskError _deskError(Object error) => DeskError(
   deskErrorText(error),
   wrongPassword: error is core.WalletError && error.kind == core.WalletErrorKind.wrongPassword,
@@ -100,6 +111,7 @@ class LepicDeskWallet implements DeskWalletApi {
     legacy.LegacyRoots Function()? legacyRoots,
     this._pickDirectory,
     this._listProcesses,
+    this._torBundle,
   }) : _legacyRoots = legacyRoots ?? legacy.LegacyRoots.current,
        _minConf = minimumConfirmations ?? BigInt.from(10),
        _registryGiven = registry;
@@ -125,6 +137,12 @@ class LepicDeskWallet implements DeskWalletApi {
   final Future<BuiltInNode> Function(core.Chain chain)? _builtInNode;
   BuiltInNode? _node;
   DeskSettings _settings;
+
+  /// Finds the bundled tor (`tor_location.dart`); null, or an answer of null, is a build
+  /// without it: Tor cannot be turned on.
+  final Future<TorBundle?> Function()? _torBundle;
+  Future<TorBundle?>? _torBundleFound;
+  Future<TorBundle?> _findTor() => _torBundleFound ??= _torBundle?.call() ?? Future<TorBundle?>.value();
 
   core.WalletSession? _session;
   core.WalletConfig? _config;
@@ -173,6 +191,17 @@ class LepicDeskWallet implements DeskWalletApi {
   /// The port and reach the running HTTP listener started with.
   int? _httpPort;
   core.HttpExposure? _httpExposure;
+
+  /// The wallet's tor while it runs or starts: its health, progress, whether sends work, and,
+  /// when down or not published, why.
+  StreamSubscription<core.TorEvent>? _tor;
+  ServiceHealth _torHealth = ServiceHealth.off;
+  int? _torProgress;
+  String? _torProblem;
+  bool _torCanSend = false;
+
+  /// The open wallet's onion, `<56 characters>.onion`.
+  String? _onion;
   Timer? _poll;
   Future<void>? _syncing;
   bool _syncAgain = false;
@@ -401,6 +430,7 @@ class LepicDeskWallet implements DeskWalletApi {
           if (entry.walletId != null) {
             await _store.delete(DeskStore.httpKeyOf(entry.walletId));
           }
+          await _store.delete(DeskStore.torKeyOf(entry.walletId));
       }
     } on reg.WalletRegistryException catch (e) {
       throw _listError(e);
@@ -485,10 +515,13 @@ class LepicDeskWallet implements DeskWalletApi {
     _selectedId = null;
     // The HTTP listener's reach, port and autostart are this wallet's own.
     final http = await _store.httpPrefs(entry.walletId);
+    // Tor too: off unless this wallet turned it on.
+    final tor = await _store.torOn(entry.walletId);
     _settings = _settings.copyWith(
       publicMode: http.publicMode,
       httpPort: http.port,
       httpAutostart: http.autostart,
+      tor: tor,
     );
     await _setMeta({'opened': DateTime.now().millisecondsSinceEpoch ~/ 1000});
     try {
@@ -499,6 +532,7 @@ class LepicDeskWallet implements DeskWalletApi {
     _poll = Timer.periodic(nodePoll, (_) => unawaited(_checkTip()));
     unawaited(_checkTip());
     unawaited(sync());
+    if (tor) unawaited(_startTor());
     return true;
   }
 
@@ -509,9 +543,11 @@ class LepicDeskWallet implements DeskWalletApi {
     _poll = null;
     await _stopListener();
     await _stopHttp();
+    await _stopTor();
     final session = _session;
     _session = null;
     _password = null;
+    _onion = null;
     // The next unlock offers the wallet that was open.
     _selectedId ??= _openEntry?.id;
     _openEntry = null;
@@ -539,9 +575,11 @@ class LepicDeskWallet implements DeskWalletApi {
     final generation = _generation;
     final listening = _listener != null;
     final http = _http != null;
+    final tor = _tor != null;
     final config = await _makeConfig(nodeUrl: nodeUrl, relay: relay);
     await _stopListener();
     await _stopHttp();
+    await _stopTor();
     _session?.dispose();
     _session = null;
     // A lock() while opening wins: the new session closes at once.
@@ -568,17 +606,18 @@ class LepicDeskWallet implements DeskWalletApi {
         await lock();
         throw DeskError('Wallet closed: ${deskErrorText(e2)}. Unlock again.', locked: true);
       }
-      await _afterReopen(listening, http);
+      await _afterReopen(listening, http, tor);
       throw DeskError('Not changed: ${deskErrorText(e)}');
     }
     await save();
-    await _afterReopen(listening, http);
+    await _afterReopen(listening, http, tor);
   }
 
-  Future<void> _afterReopen(bool listening, bool http) async {
+  Future<void> _afterReopen(bool listening, bool http, bool tor) async {
     _nodeHealth = ServiceHealth.checking;
     if (listening) await setListening(true);
     if (http) await setHttpListening(true);
+    if (tor) unawaited(_startTor());
     unawaited(_checkTip());
     unawaited(sync());
   }
@@ -1033,7 +1072,11 @@ class LepicDeskWallet implements DeskWalletApi {
       epicboxHealth: _epicboxHealth,
       httpListener: _httpHealth,
       httpProblem: _httpHealth == ServiceHealth.down ? _httpProblem : null,
-      tor: ServiceHealth.off,
+      tor: _torHealth,
+      torProgress: _torHealth == ServiceHealth.checking && !_torCanSend ? _torProgress : null,
+      torProblem: _torHealth == ServiceHealth.down || _torHealth == ServiceHealth.slow ? _torProblem : null,
+      torCanSend: _torCanSend,
+      torIncluded: await _findTor() != null,
       syncProgress: _syncProgress,
       lastUpdate: _lastUpdate,
       notice: _notice,
@@ -1112,7 +1155,16 @@ class LepicDeskWallet implements DeskWalletApi {
   }
 
   @override
-  Future<String> torAddress() => throw UnsupportedError('Tor (DeskFeatures.tor)');
+  Future<String> torAddress() async {
+    try {
+      return 'http://${_onion ??= core.onionHost(await _open.onionAddress())}';
+    } on core.WalletError catch (e) {
+      throw _deskError(e);
+    }
+  }
+
+  @override
+  bool isOnionAddress(String to) => _service.validateOnionAddress(address: to.trim());
 
   // ---- Acting.
 
@@ -1142,11 +1194,13 @@ class LepicDeskWallet implements DeskWalletApi {
     // Send all sends the reviewed amount: when it no longer fits, LEPIC refuses (not enough
     // funds) and the user reviews again, rather than paying an amount they did not see.
     final amount = r.amount;
-    // The rows before an HTTP send, to tell a send LEPIC stored from one it refused.
+    // An onion pasted under Direct goes over Tor.
+    final method = r.method == TxMethod.http && isOnionAddress(r.to ?? '') ? TxMethod.tor : r.method;
+    // The rows before a direct send, to tell a send LEPIC stored from one it refused.
     Set<int?>? before;
     try {
       final message = r.message?.trim().isEmpty ?? true ? null : r.message!.trim();
-      switch (r.method) {
+      switch (method) {
         case TxMethod.epicbox:
           final to = (r.to ?? '').trim();
           if (!_service.validateEpicboxAddress(address: to)) return const SendFailed('Not an Epicbox address');
@@ -1185,18 +1239,15 @@ class LepicDeskWallet implements DeskWalletApi {
             allowPlainHttp: r.allowPlainHttp && plainHttpNeedsConsent(to),
             message: message,
           );
-          await _reload();
-          final tx = _txs().where((t) => t.id == sent.txId).firstOrNull ??
-              Tx(id: sent.txId, slateId: sent.slateId, direction: TxDirection.sent, state: TxState.posted, method: TxMethod.http, amount: amount, fee: 0, created: DateTime.now(), counterparty: to);
-          if (!sent.posted) {
-            if (!await _repost(session, sent.txId)) {
-              return const SendFailed('Signed by both wallets, but the node refused it. Cancel it in Activity to unlock the funds.', inActivity: true);
-            }
-            return SendDone(_txs().where((t) => t.id == sent.txId).firstOrNull ?? tx);
-          }
-          return SendDone(tx);
+          return await _directDone(session, sent, method, amount, to);
         case TxMethod.tor:
-          throw UnsupportedError('Tor send (DeskFeatures.tor)');
+          final to = (r.to ?? '').trim();
+          if (!isOnionAddress(to)) return const SendFailed('Not an onion address');
+          if (!_settings.tor) return const SendFailed('Tor is off. Turn on Tor to send to an onion address.');
+          if (!_torCanSend) return const SendFailed('Tor is still connecting. Try again in a moment.');
+          before = {for (final e in await session.transactions(refresh: false)) e.id};
+          final sent = await session.sendTor(amount: BigInt.from(amount), minimumConfirmations: _minConf, onion: to, message: message);
+          return await _directDone(session, sent, method, amount, to);
       }
     } on core.WalletError catch (e) {
       await _reload();
@@ -1214,7 +1265,7 @@ class LepicDeskWallet implements DeskWalletApi {
       }
       const waits = 'The payment waits in Activity; cancel it there to unlock the funds.';
       if (e.kind == core.WalletErrorKind.transportFailed) {
-        if (r.method == TxMethod.http) {
+        if (method == TxMethod.http || method == TxMethod.tor) {
           return stored
               ? const SendFailed('The recipient’s wallet did not answer or refused. $waits', inActivity: true)
               : const SendFailed('The recipient’s wallet did not answer or refused.');
@@ -1224,6 +1275,21 @@ class LepicDeskWallet implements DeskWalletApi {
       if (stored) return SendFailed('${deskErrorText(e).replaceFirst(RegExp(r'\.$'), '')}. $waits', inActivity: true);
       return SendFailed(deskErrorText(e));
     }
+  }
+
+  /// A direct send the other wallet answered: done, or posted again once when the node did not
+  /// take it.
+  Future<SendResult> _directDone(core.WalletSession session, core.HttpSent sent, TxMethod method, int amount, String to) async {
+    await _reload();
+    final tx = _txs().where((t) => t.id == sent.txId).firstOrNull ??
+        Tx(id: sent.txId, slateId: sent.slateId, direction: TxDirection.sent, state: TxState.posted, method: method, amount: amount, fee: 0, created: DateTime.now(), counterparty: to);
+    if (!sent.posted) {
+      if (!await _repost(session, sent.txId)) {
+        return const SendFailed('Signed by both wallets, but the node refused it. Cancel it in Activity to unlock the funds.', inActivity: true);
+      }
+      return SendDone(_txs().where((t) => t.id == sent.txId).firstOrNull ?? tx);
+    }
+    return SendDone(tx);
   }
 
   /// Posts a finished HTTP send again, once, when the node did not take it. True when it did.
@@ -1345,7 +1411,8 @@ class LepicDeskWallet implements DeskWalletApi {
   @override
   Future<void> saveSettings(DeskSettings settings) async {
     final old = _settings;
-    _settings = settings;
+    // Tor is the open wallet's, changed only through setTor.
+    _settings = settings.copyWith(tor: old.tor);
     final moved = settings.httpPort != old.httpPort || settings.publicMode != old.publicMode;
     if (_session != null && (moved || settings.httpAutostart != old.httpAutostart)) {
       await _store.saveHttpPrefs(_openEntry?.walletId, HttpPrefs(publicMode: settings.publicMode, port: settings.httpPort, autostart: settings.httpAutostart));
@@ -1586,6 +1653,120 @@ class LepicDeskWallet implements DeskWalletApi {
     _changed();
   }
 
+  @override
+  Future<void> setTor(bool on) async {
+    _open;
+    _settings = _settings.copyWith(tor: on);
+    await _store.saveTorOn(_openEntry?.walletId, on);
+    logInfo('desk', 'tor ${on ? 'on' : 'off'}');
+    if (!on) return _stopTor();
+    // On again after a failure is Retry.
+    if (_torHealth == ServiceHealth.down) await _stopTor();
+    await _startTor();
+  }
+
+  /// Starts the open wallet's tor from the bundle, unless it runs. Without the bundle the
+  /// Tor line says so and nothing starts.
+  Future<void> _startTor() async {
+    if (_tor != null) return;
+    final session = _open;
+    final generation = _generation;
+    final bundle = await _findTor();
+    // Locked, switched or started meanwhile.
+    if (generation != _generation || _session != session || _tor != null) return;
+    _torCanSend = false;
+    _torProgress = null;
+    if (bundle == null) {
+      _torHealth = ServiceHealth.down;
+      _torProblem = torFailureText(core.TorFailure.missing);
+      _changed();
+      return;
+    }
+    _torHealth = ServiceHealth.checking;
+    _torProgress = 0;
+    _torProblem = null;
+    _changed();
+    logInfo('desk', 'tor start');
+    late final StreamSubscription<core.TorEvent> sub;
+    void ended(String? problem) {
+      if (_tor != sub) return;
+      _tor = null;
+      _torHealth = ServiceHealth.down;
+      _torProblem = problem ?? 'Tor stopped';
+      _torCanSend = false;
+      _torProgress = null;
+    }
+
+    sub = session.startTor(torBinary: bundle.binary, libDir: bundle.libDir).listen(
+      (e) {
+        if (_tor != sub) return;
+        switch (e.kind) {
+          case core.TorEventKind.starting:
+            _torHealth = ServiceHealth.checking;
+            _torProgress = e.progress ?? _torProgress;
+          case core.TorEventKind.bootstrapped || core.TorEventKind.publishing:
+            _torCanSend = true;
+            if (_torHealth != ServiceHealth.slow) _torHealth = ServiceHealth.checking;
+          case core.TorEventKind.ready:
+            _torHealth = ServiceHealth.ok;
+            _torCanSend = true;
+            _torProblem = null;
+            final onion = e.onion;
+            if (onion != null) _onion = core.onionHost(onion);
+          case core.TorEventKind.failed:
+            logWarn('desk', 'tor failed: ${e.failure?.name ?? '?'}');
+            // Listener and keys leave tor running for sends; any other failure stops it.
+            final forSends = e.failure == core.TorFailure.listener || e.failure == core.TorFailure.keys;
+            _torHealth = forSends ? ServiceHealth.slow : ServiceHealth.down;
+            _torProblem = torFailureText(e.failure);
+            if (!forSends) _torCanSend = false;
+          case core.TorEventKind.sending:
+            return;
+          case core.TorEventKind.received:
+            unawaited(_reload());
+          case core.TorEventKind.refused:
+            // Never the sender or its address: only that a payment was refused, and why.
+            logInfo('desk', 'tor refused: ${e.refusal?.name ?? '?'}');
+          case core.TorEventKind.stopped:
+            ended(_torHealth == ServiceHealth.down ? _torProblem : null);
+        }
+        _changed();
+      },
+      onError: (Object e) {
+        logWarn('desk', 'tor ended: ${e is core.WalletError ? e.kind.name : e.runtimeType}');
+        ended(null);
+        _changed();
+      },
+      onDone: () {
+        if (_tor != sub) return;
+        ended(_torHealth == ServiceHealth.down ? _torProblem : null);
+        _changed();
+      },
+    );
+    _tor = sub;
+  }
+
+  Future<void> _stopTor() async {
+    final sub = _tor;
+    _tor = null;
+    final was = _torHealth;
+    _torHealth = ServiceHealth.off;
+    _torProblem = null;
+    _torProgress = null;
+    _torCanSend = false;
+    if (sub == null) {
+      if (was != ServiceHealth.off) _changed();
+      return;
+    }
+    try {
+      await _session?.stopTor();
+    } on core.WalletError catch (e) {
+      logWarn('desk', 'stop tor: ${e.kind.name}');
+    }
+    await sub.cancel();
+    _changed();
+  }
+
   Future<void> _stopListener() async {
     final sub = _listener;
     if (sub == null) return;
@@ -1675,11 +1856,14 @@ Tx deskTx(core.TxEntry e, {required int tip, required int minConf, required int 
     core.TxStatus.confirmed => confirmations > 0 && confirmations < minConf ? TxState.confirming : TxState.confirmed,
   };
   final to = e.counterparty;
-  final method = to == null
-      ? (e.source == core.TxSource.wallet && e.kind != core.TxKind.coinbase ? TxMethod.file : TxMethod.epicbox)
-      : to.startsWith('http')
-      ? TxMethod.http
-      : TxMethod.epicbox;
+  final method = switch (e.transport) {
+    'tor' => TxMethod.tor,
+    'http' => TxMethod.http,
+    _ when to != null && to.toLowerCase().contains('.onion') => TxMethod.tor,
+    _ when to == null => e.source == core.TxSource.wallet && e.kind != core.TxKind.coinbase ? TxMethod.file : TxMethod.epicbox,
+    _ when to.startsWith('http') => TxMethod.http,
+    _ => TxMethod.epicbox,
+  };
   final amount = sent ? e.amountDebited.toInt() - e.amountCredited.toInt() - fee : e.amountCredited.toInt() - e.amountDebited.toInt();
   return Tx(
     id: e.id ?? fallbackId,

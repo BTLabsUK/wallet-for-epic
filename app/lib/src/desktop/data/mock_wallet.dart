@@ -5,6 +5,7 @@ library;
 
 import 'dart:math';
 
+import '../../wallet_service.dart' show onionAddressFormat;
 import 'api.dart';
 import 'http_address.dart';
 import 'models.dart';
@@ -274,6 +275,7 @@ class MockDeskWallet implements DeskWalletApi {
       epicboxHealth: _listening ? box.health : ServiceHealth.off,
       httpListener: _http ? ServiceHealth.ok : ServiceHealth.off,
       tor: _settings.tor ? ServiceHealth.ok : ServiceHealth.off,
+      torCanSend: _settings.tor,
       lastUpdate: _ago(minutes: 1),
     );
   }
@@ -294,7 +296,10 @@ class MockDeskWallet implements DeskWalletApi {
   Future<String> httpAddress() async => !_http ? '' : 'http://${_settings.publicMode ? '10.0.1.24' : '127.0.0.1'}:${_settings.httpPort}';
 
   @override
-  Future<String> torAddress() async => 'http://wfe7q3k2mz9xr4tbv6ld5yhnpjc8sgo2a1ue6iwq4fk7tr3mxz.onion';
+  Future<String> torAddress() async => 'http://wfe7q3k2mz5xr4tbv6ld5yhnpjc7sgo2a3ue6iwq4fk7tr3mxzabcdid.onion';
+
+  @override
+  bool isOnionAddress(String to) => onionAddressFormat(to);
 
   @override
   Future<int> estimateFee(int amount) async {
@@ -418,6 +423,12 @@ class MockDeskWallet implements DeskWalletApi {
   Future<void> setHttpListening(bool on) async {
     await _wait();
     _http = on;
+  }
+
+  @override
+  Future<void> setTor(bool on) async {
+    await _wait();
+    _settings = _settings.copyWith(tor: on);
   }
 
   static const _scanLog = [

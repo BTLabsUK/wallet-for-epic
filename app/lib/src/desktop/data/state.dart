@@ -94,10 +94,10 @@ class DeskController extends Notifier<DeskState> {
       _reload = Timer(const Duration(milliseconds: 400), () => unawaited(_refreshQuietly()));
     });
     _statusPoll = Timer.periodic(const Duration(seconds: 5), (_) => unawaited(_loadStatus()));
-    // The reach, port and autostart are the opened wallet's own: read them from it.
+    // The reach, port, autostart and Tor are the opened wallet's own: read them from it.
     final own = await api.settings();
     final http = DeskFeatures.httpDirect && own.httpAutostart;
-    final s = state.settings.copyWith(publicMode: own.publicMode, httpPort: own.httpPort, httpAutostart: own.httpAutostart, directHttp: http);
+    final s = state.settings.copyWith(publicMode: own.publicMode, httpPort: own.httpPort, httpAutostart: own.httpAutostart, directHttp: http, tor: own.tor);
     state = state.copyWith(settings: s);
     await api.saveSettings(s);
     try {
@@ -261,6 +261,14 @@ class DeskController extends Notifier<DeskState> {
     state = state.copyWith(settings: s);
     await api.saveSettings(s);
     await api.setHttpListening(on);
+    state = state.copyWith(status: await api.status());
+  }
+
+  /// The Tor switch (Settings › Receiving, Send's Turn on Tor) and Retry: saved for the open
+  /// wallet as [DeskSettings.tor], tor started or stopped with it.
+  Future<void> setTor(bool on) async {
+    state = state.copyWith(settings: state.settings.copyWith(tor: on));
+    await api.setTor(on);
     state = state.copyWith(status: await api.status());
   }
 

@@ -1,0 +1,330 @@
+// Tor on the desktop: LepicDeskWallet over FakeWalletSession, which records each startTor,
+// stopTor and sendTor call (one session for every open, so the counts run on). The password is a throwaway test value; no tor runs.
+import 'dart:async';
+import 'dart:io';
+
+import 'package:epic_wallet/src/desktop/data/lepic_desk_wallet.dart';
+import 'package:epic_wallet/src/desktop/widgets/kit.dart';
+import 'package:epic_wallet/src/secret_store_api.dart';
+import 'package:epic_wallet/src/tor_location.dart';
+import 'package:epic_wallet/src/wallet_service.dart' as core;
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+const _password = 'test-pass-1234';
+const _bundle = TorBundle(binary: '/app/bin/tor-bundle/tor', libDir: '/app/bin/tor-bundle');
+const _onion = 'http://pg6mmjiyjmcrsslvykfwnntlaru7p5svn6y2ymmju6nubxndf4pscryd.onion';
+
+void main() {
+  late Directory support;
+  late core.FakeWalletService service;
+  late LepicDeskWallet wallet;
+  TorBundle? bundle;
+  core.FakeWalletSession session() => service.session;
+
+  LepicDeskWallet make() => LepicDeskWallet(
+    service: service,
+    walletDir: (chain) async {
+      final dir = Directory('${support.path}/wallets/${chain.name}');
+      await dir.create(recursive: true);
+      return dir.path;
+    },
+    secrets: MemorySecretStore(),
+    filesDir: () async => support,
+    nodePoll: const Duration(hours: 1),
+    torBundle: () async => bundle,
+  );
+
+  Future<void> tor(core.TorEvent e) async {
+    session().torEvents.add(e);
+    await pumpEventQueue();
+  }
+
+  Future<void> connected() async {
+    await tor(const core.TorEvent(kind: core.TorEventKind.bootstrapped));
+    session().torStatusValue = const core.TorStatus(kind: core.TorStatusKind.bootstrapped);
+  }
+
+  setUp(() async {
+    bundle = _bundle;
+    support = await Directory.systemTemp.createTemp('desk-tor-test-');
+    service = core.FakeWalletService(password: _password);
+    wallet = make();
+    await wallet.createWallet(name: 'Main', password: _password);
+    expect(await wallet.unlock(_password), isTrue);
+    await wallet.sync();
+    session().summaryValue = core.WalletSummary(
+      lastConfirmedHeight: BigInt.from(2500000),
+      minimumConfirmations: BigInt.from(10),
+      total: BigInt.from(100000000),
+      spendable: BigInt.from(100000000),
+      awaitingConfirmation: BigInt.zero,
+      awaitingFinalization: BigInt.zero,
+      immature: BigInt.zero,
+      locked: BigInt.zero,
+      validatedWithNode: true,
+    );
+  });
+
+  tearDown(() async {
+    await wallet.dispose();
+    await support.delete(recursive: true);
+  });
+
+  group('the setting', () {
+    test('off by default: nothing starts, the line says Off', () async {
+      expect((await wallet.settings()).tor, isFalse);
+      expect(session().torStarts, isEmpty);
+      final st = await wallet.status();
+      expect(st.tor, ServiceHealth.off);
+      expect(torStatusLine(st), 'Off');
+    });
+
+    test('on starts tor from the bundle; unlock starts it again only while on', () async {
+      await wallet.setTor(true);
+      expect(session().torStarts.single, (torBinary: _bundle.binary, libDir: _bundle.libDir));
+      await wallet.lock();
+      expect(session().torStops, 1, reason: 'lock stops tor');
+      expect((await wallet.status()).tor, ServiceHealth.off);
+
+      expect(await wallet.unlock(_password), isTrue);
+      expect((await wallet.settings()).tor, isTrue);
+      await pumpEventQueue();
+      expect(session().torStarts, hasLength(2), reason: 'started again after unlock');
+
+      await wallet.setTor(false);
+      expect(session().torStops, 2);
+      await wallet.lock();
+      expect(await wallet.unlock(_password), isTrue);
+      await pumpEventQueue();
+      expect(session().torStarts, hasLength(2), reason: 'off: not started');
+    });
+
+    test('per wallet: a second wallet does not inherit it, the first keeps it', () async {
+      await wallet.setTor(true);
+      await wallet.createWallet(name: 'Savings', password: _password);
+      await wallet.lock();
+      final all = await wallet.wallets();
+      await wallet.selectWallet(all.firstWhere((w) => w.name == 'Savings').id);
+      expect(await wallet.unlock(_password), isTrue);
+      await pumpEventQueue();
+      expect((await wallet.settings()).tor, isFalse);
+      expect(session().torStarts, hasLength(1), reason: 'Savings has Tor off');
+
+      await wallet.lock();
+      await wallet.selectWallet(all.firstWhere((w) => w.name == 'Main').id);
+      expect(await wallet.unlock(_password), isTrue);
+      await pumpEventQueue();
+      expect((await wallet.settings()).tor, isTrue);
+      expect(session().torStarts, hasLength(2));
+    });
+
+    test('switching wallets stops the first one’s tor', () async {
+      await wallet.setTor(true);
+      final first = session();
+      await wallet.createWallet(name: 'Savings', password: _password);
+      final all = await wallet.wallets();
+      await wallet.selectWallet(all.firstWhere((w) => w.name == 'Savings').id);
+      expect(await wallet.unlock(_password), isTrue);
+      expect(first.torStops, 1);
+    });
+
+    test('the controller and startLive carry the wallet’s own setting', () async {
+      final container = ProviderContainer(overrides: [deskApiProvider.overrideWithValue(wallet)]);
+      addTearDown(container.dispose);
+      final desk = container.read(deskProvider.notifier);
+      await desk.setTor(true);
+      expect(container.read(deskProvider).settings.tor, isTrue);
+      await desk.lock();
+      expect(await wallet.unlock(_password), isTrue);
+      await desk.startLive(listen: false);
+      expect(container.read(deskProvider).settings.tor, isTrue);
+      // Saving another setting leaves Tor alone.
+      await desk.saveSettings(container.read(deskProvider).settings.copyWith(tor: false, hideAmounts: true));
+      expect((await wallet.settings()).tor, isTrue);
+      await desk.lock();
+    });
+
+    test('without the bundle the switch is disabled and nothing starts', () async {
+      await wallet.dispose();
+      bundle = null;
+      wallet = make();
+      await wallet.createWallet(name: 'Main', password: _password);
+      expect(await wallet.unlock(_password), isTrue);
+      final st = await wallet.status();
+      expect(st.torIncluded, isFalse);
+      expect(torStatusLine(st), 'Tor not included in this build');
+      await wallet.setTor(true);
+      expect(session().torStarts, isEmpty);
+      expect((await wallet.status()).torProblem, 'Tor not included in this build');
+    });
+  });
+
+  group('status from events', () {
+    setUp(() => wallet.setTor(true));
+
+    test('progress, connected, publishing, ready', () async {
+      expect(torStatusLine(await wallet.status()), 'Connecting to Tor… 0 %');
+      await tor(const core.TorEvent(kind: core.TorEventKind.starting, progress: 45));
+      var st = await wallet.status();
+      expect((st.tor, st.torProgress, st.torCanSend), (ServiceHealth.checking, 45, false));
+      expect(torStatusLine(st), 'Connecting to Tor… 45 %');
+      await tor(const core.TorEvent(kind: core.TorEventKind.bootstrapped));
+      st = await wallet.status();
+      expect(st.torCanSend, isTrue);
+      expect(torStatusLine(st), 'Publishing the onion address…');
+      await tor(const core.TorEvent(kind: core.TorEventKind.ready, onion: 'pg6mmjiyjmcrsslvykfwnntlaru7p5svn6y2ymmju6nubxndf4pscryd.onion'));
+      st = await wallet.status();
+      expect(st.tor, ServiceHealth.ok);
+      expect(torStatusLine(st), 'Ready');
+      expect(await wallet.torAddress(), _onion);
+    });
+
+    for (final (failure, text) in [
+      (core.TorFailure.network, 'Can’t reach the Tor network'),
+      (core.TorFailure.clock, 'The computer’s clock is wrong'),
+      (core.TorFailure.missing, 'Tor not included in this build'),
+      (core.TorFailure.stopped, 'Tor stopped'),
+    ]) {
+      test('${failure.name} stops tor with “$text”; on again is Retry', () async {
+        await tor(core.TorEvent(kind: core.TorEventKind.failed, failure: failure));
+        await tor(const core.TorEvent(kind: core.TorEventKind.stopped));
+        final st = await wallet.status();
+        expect(st.tor, ServiceHealth.down);
+        expect(st.torProblem, text);
+        expect(torStatusLine(st), text);
+        await wallet.setTor(true);
+        expect(session().torStarts, hasLength(2));
+        expect((await wallet.status()).tor, ServiceHealth.checking);
+      });
+    }
+
+    for (final failure in [core.TorFailure.publish, core.TorFailure.keys, core.TorFailure.listener]) {
+      test('${failure.name}: “Onion address not published”', () async {
+        await connected();
+        await tor(core.TorEvent(kind: core.TorEventKind.failed, failure: failure));
+        final st = await wallet.status();
+        expect(st.torProblem, 'Onion address not published');
+        expect(torStatusLine(st), startsWith('Onion address not published'));
+      });
+    }
+
+    test('listener and keys leave sends working', () async {
+      await connected();
+      await tor(const core.TorEvent(kind: core.TorEventKind.failed, failure: core.TorFailure.keys));
+      final st = await wallet.status();
+      expect((st.tor, st.torCanSend), (ServiceHealth.slow, true));
+      expect(torStatusLine(st), 'Onion address not published. Sends work.');
+    });
+
+    test('a stop nobody asked for reads “Tor stopped”', () async {
+      await connected();
+      await tor(const core.TorEvent(kind: core.TorEventKind.stopped));
+      expect(torStatusLine(await wallet.status()), 'Tor stopped');
+    });
+
+    test('a payment over Tor reloads the history', () async {
+      final before = session().transactionsCalls;
+      await tor(core.TorEvent(kind: core.TorEventKind.received, txId: 7, amount: BigInt.one));
+      expect(session().transactionsCalls, greaterThan(before));
+    });
+
+    test('a reopen on another node restarts tor', () async {
+      await connected();
+      await wallet.useNode('https://node.example.org');
+      expect(session().torStops, 1);
+      expect(session().torStarts, hasLength(2), reason: 'started again on the new session');
+    });
+  });
+
+  group('send', () {
+    const waits = 'The payment waits in Activity; cancel it there to unlock the funds.';
+
+    test('an onion under Direct goes over Tor', () async {
+      await wallet.setTor(true);
+      await connected();
+      expect(wallet.isOnionAddress(_onion), isTrue);
+      expect(wallet.isOnionAddress('https://wallet.example.org'), isFalse);
+      final r = await wallet.send(const SendRequest(method: TxMethod.http, amount: 1000, to: _onion, message: 'rent'));
+      expect(r, isA<SendDone>(), reason: r is SendFailed ? r.message : '');
+      expect((r as SendDone).tx.method, TxMethod.tor);
+      expect(session().torSends.single.onion, _onion);
+      expect(session().httpSends, isEmpty);
+      expect(session().sentMessages.single, 'rent');
+    });
+
+    test('Tor off: refused before LEPIC with Turn on Tor', () async {
+      final r = await wallet.send(const SendRequest(method: TxMethod.tor, amount: 1000, to: _onion));
+      expect((r as SendFailed).message, contains('Turn on Tor'));
+      expect(r.inActivity, isFalse);
+      expect(session().torSends, isEmpty);
+    });
+
+    test('Tor still connecting: refused before LEPIC', () async {
+      await wallet.setTor(true);
+      final r = await wallet.send(const SendRequest(method: TxMethod.tor, amount: 1000, to: _onion));
+      expect((r as SendFailed).message, 'Tor is still connecting. Try again in a moment.');
+      expect(session().torSends, isEmpty);
+    });
+
+    test('not an onion: refused before LEPIC', () async {
+      await wallet.setTor(true);
+      await connected();
+      final r = await wallet.send(const SendRequest(method: TxMethod.tor, amount: 1000, to: 'abc.onion'));
+      expect((r as SendFailed).message, 'Not an onion address');
+      expect(session().torSends, isEmpty);
+    });
+
+    test('a send takes its time; the result comes when it ends', () async {
+      await wallet.setTor(true);
+      await connected();
+      session().torSendGate = Completer<void>();
+      var done = false;
+      final pending = wallet.send(const SendRequest(method: TxMethod.tor, amount: 1000, to: _onion)).then((r) {
+        done = true;
+        return r;
+      });
+      await pumpEventQueue();
+      expect(done, isFalse);
+      session().torSendGate!.complete();
+      expect(await pending, isA<SendDone>());
+    });
+
+    test('not reached: stored, waits in Activity', () async {
+      await wallet.setTor(true);
+      await connected();
+      session().sendError = const core.WalletError(kind: core.WalletErrorKind.onionUnreachable, message: 'not reached');
+      final r = await wallet.send(const SendRequest(method: TxMethod.tor, amount: 1000, to: _onion));
+      expect((r as SendFailed).inActivity, isTrue);
+      expect(r.message, 'The recipient’s wallet is not reachable over Tor. $waits');
+      final waiting = (await wallet.transactions()).where((t) => t.state == TxState.waitingRecipient && !t.incoming);
+      expect(waiting.single.method, TxMethod.tor);
+    });
+
+    test('refused by LEPIC before storing: not in Activity', () async {
+      await wallet.setTor(true);
+      await connected();
+      session().sendError = const core.WalletError(kind: core.WalletErrorKind.notEnoughFunds, message: 'short');
+      final r = await wallet.send(const SendRequest(method: TxMethod.tor, amount: 1000, to: _onion));
+      expect((r as SendFailed).inActivity, isFalse);
+      expect(r.message, 'Not enough funds');
+      expect((await wallet.transactions()).where((t) => !t.incoming), isEmpty);
+    });
+
+    test('tor down when LEPIC checks: not stored, not in Activity', () async {
+      await wallet.setTor(true);
+      await connected();
+      session().torStatusValue = core.TorStatus.off;
+      final r = await wallet.send(const SendRequest(method: TxMethod.tor, amount: 1000, to: _onion));
+      expect((r as SendFailed).inActivity, isFalse);
+      expect(r.message, 'Tor is not connected');
+    });
+  });
+
+  test('Activity names a Tor receipt by its transport', () {
+    final e = core.fakeTx(id: 3, slateId: 's', transport: 'tor', amountCredited: BigInt.from(5));
+    expect(deskTx(e, tip: 0, minConf: 10, fallbackId: -1).method, TxMethod.tor);
+    final h = core.fakeTx(id: 4, slateId: 't', counterparty: _onion, amountCredited: BigInt.from(5));
+    expect(deskTx(h, tip: 0, minConf: 10, fallbackId: -1).method, TxMethod.tor);
+  });
+}

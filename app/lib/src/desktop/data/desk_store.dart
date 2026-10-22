@@ -39,6 +39,18 @@ class DeskStore {
   static const httpKey = 'desk.http';
   static String httpKeyOf(String? walletId) => '$httpKey.$walletId';
 
+  /// Whether Tor is on for the wallet with registry [walletId]; off unless set. The first
+  /// wallet (null) has [torKey], an added one its own key.
+  static const torKey = 'desk.tor';
+  static String torKeyOf(String? walletId) => walletId == null ? torKey : '$torKey.$walletId';
+
+  Future<bool> torOn(String? walletId) async {
+    final j = await readJson(torKeyOf(walletId));
+    return j is Map<String, dynamic> && j['on'] == true;
+  }
+
+  Future<void> saveTorOn(String? walletId, bool on) => writeJson(torKeyOf(walletId), {'on': on});
+
   Future<HttpPrefs> httpPrefs(String? walletId) async {
     const d = HttpPrefs();
     if (walletId != null) {

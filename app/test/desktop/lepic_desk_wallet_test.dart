@@ -302,11 +302,10 @@ void main() {
       expect(await wallet.contacts(), isEmpty);
     });
 
+    // Tor is real now (tor_direct_test.dart).
     test('hidden features throw instead of faking', () async {
-      expect(() => wallet.torAddress(), throwsUnsupportedError);
       expect(() => wallet.exportProof(1), throwsUnsupportedError);
       expect(() => wallet.changePassword(_password, 'another-pass'), throwsUnsupportedError);
-      expect(() => wallet.send(const SendRequest(method: TxMethod.tor, amount: 1, to: 'http://x.onion')), throwsUnsupportedError);
     });
   });
 

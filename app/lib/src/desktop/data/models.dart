@@ -206,6 +206,10 @@ class ServiceStatus {
     required this.httpListener,
     required this.tor,
     this.httpProblem,
+    this.torProgress,
+    this.torProblem,
+    this.torCanSend = false,
+    this.torIncluded = true,
     this.syncProgress,
     this.lastUpdate,
     this.notice,
@@ -223,7 +227,24 @@ class ServiceStatus {
 
   /// Why the HTTP listener is down, in a few words ("Port 3415 in use"); null otherwise.
   final String? httpProblem;
+
+  /// The wallet's tor: off, connecting ([ServiceHealth.checking], with [torProgress] until
+  /// connected, then publishing the onion), ready, running for sends only
+  /// ([ServiceHealth.slow], with [torProblem]), or stopped by a failure ([ServiceHealth.down],
+  /// with [torProblem]).
   final ServiceHealth tor;
+
+  /// 0 to 100 while tor connects to the Tor network; null otherwise.
+  final int? torProgress;
+
+  /// Why tor is down or the onion is not published, in a few words; null otherwise.
+  final String? torProblem;
+
+  /// Tor is connected: sends to an onion work.
+  final bool torCanSend;
+
+  /// This build has the bundled tor; without it Tor cannot be turned on.
+  final bool torIncluded;
 
   /// 0..1 while the wallet scans; null when idle.
   final double? syncProgress;
@@ -231,6 +252,18 @@ class ServiceStatus {
 
   /// A one-line state the wallet is in, e.g. a database being rebuilt; null when none.
   final String? notice;
+}
+
+/// The Tor line of the status card and Settings › Receiving: what tor is doing now.
+String torStatusLine(ServiceStatus s) {
+  if (!s.torIncluded) return 'Tor not included in this build';
+  return switch (s.tor) {
+    ServiceHealth.off => 'Off',
+    ServiceHealth.ok => 'Ready',
+    ServiceHealth.down => s.torProblem ?? 'Tor stopped',
+    ServiceHealth.slow => '${s.torProblem ?? 'Onion address not published'}. Sends work.',
+    ServiceHealth.checking => s.torCanSend ? 'Publishing the onion address…' : 'Connecting to Tor… ${s.torProgress ?? 0} %',
+  };
 }
 
 /// New wallet passwords must have at least this many characters (LEPIC refuses shorter ones).

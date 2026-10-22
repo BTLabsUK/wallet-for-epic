@@ -27,6 +27,7 @@ import 'src/desktop/data/lepic_desk_wallet.dart';
 import 'src/desktop/widgets/kit.dart';
 import 'src/providers.dart';
 import 'src/relay_directory.dart';
+import 'src/tor_location.dart';
 import 'src/wallet_backend.dart';
 import 'src/web/splash.dart';
 
@@ -86,6 +87,8 @@ Future<List<Override>> deskOverrides() async {
           }
         : null,
     pickDirectory: () => FilePicker.getDirectoryPath(dialogTitle: 'Choose the wallet folder'),
+    // bin/tor-bundle beside the app (tools/fetch-tor.sh); without it Tor cannot be turned on.
+    torBundle: findTorBundle,
   );
   // Off by default (D10): this starts a node only when the user turned it on before.
   unawaited(wallet.resumeBuiltInNode());

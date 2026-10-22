@@ -78,7 +78,13 @@ abstract interface class DeskWalletApi {
   /// Local only, `http://<this computer's LAN address>:<port>` when From the internet (the
   /// router forwards the port to it); empty while it is off. Only when [DeskFeatures.httpDirect].
   Future<String> httpAddress();
+  /// This wallet's onion, `http://<56 characters>.onion`, the address senders use over Tor.
+  /// Known before tor runs; screens show it only while [DeskSettings.tor] is on. Only when
+  /// [DeskFeatures.tor].
   Future<String> torAddress();
+
+  /// Whether [to] is an onion v3 address (version and checksum), for Send's Direct.
+  bool isOnionAddress(String to);
 
   // Acting.
   Future<int> estimateFee(int amount);
@@ -109,6 +115,11 @@ abstract interface class DeskWalletApi {
   /// [DeskSettings.publicMode] says. A start that fails shows in [ServiceStatus.httpProblem].
   /// Only when [DeskFeatures.httpDirect].
   Future<void> setHttpListening(bool on);
+
+  /// Turns Tor on or off for the open wallet, saved per wallet ([DeskSettings.tor]): on starts
+  /// the wallet's tor now and at each unlock; off stops it. On again after a failure is Retry.
+  /// Progress and failures show in [ServiceStatus.tor]. Only when [DeskFeatures.tor].
+  Future<void> setTor(bool on);
   /// Scans the chain again, with progress; the stream ends when the scan does.
   Stream<ScanStep> rescan();
 

@@ -430,6 +430,7 @@ TxEntry lepicTxEntry(lepic.TransactionDetails d) {
     kernelExcess: d.kernelExcess,
     outputCommits: const [],
     counterparty: d.counterparty,
+    transport: d.transport,
     messages: lepicMessages(d.messages),
     ttlCutoffHeight: d.ttlCutoffHeight,
     cancellable:

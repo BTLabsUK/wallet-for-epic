@@ -725,6 +725,10 @@ class TxEntry {
   /// Epicbox address or URL of the other side, when known.
   final String? counterparty;
 
+  /// What carried the slate, as LEPIC names it (`epicbox`, `file`, `http`, `tor`), when known.
+  /// Not sent over the remote protocol.
+  final String? transport;
+
   /// The user's private note. It stays on this device and in history backups.
   final String? note;
 
@@ -778,6 +782,7 @@ class TxEntry {
     this.kernelExcess,
     required this.outputCommits,
     this.counterparty,
+    this.transport,
     this.note,
     this.messages = const [],
     this.ttlCutoffHeight,
@@ -825,6 +830,7 @@ class TxEntry {
       kernelExcess.hashCode ^
       outputCommits.hashCode ^
       counterparty.hashCode ^
+      transport.hashCode ^
       note.hashCode ^
       Object.hashAll(messages) ^
       ttlCutoffHeight.hashCode ^
@@ -860,6 +866,7 @@ class TxEntry {
           kernelExcess == other.kernelExcess &&
           outputCommits == other.outputCommits &&
           counterparty == other.counterparty &&
+          transport == other.transport &&
           note == other.note &&
           _listEquals(messages, other.messages) &&
           ttlCutoffHeight == other.ttlCutoffHeight &&

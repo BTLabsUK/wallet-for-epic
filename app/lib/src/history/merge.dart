@@ -101,6 +101,7 @@ class MergedTx {
       kernelExcess = e.kernelExcess,
       outputCommits = [...e.outputCommits],
       counterparty = e.counterparty,
+      transport = e.transport,
       note = e.note,
       messages = e.messages,
       ttlCutoffHeight = e.ttlCutoffHeight,
@@ -131,6 +132,7 @@ class MergedTx {
   String? kernelExcess;
   List<String> outputCommits;
   String? counterparty;
+  String? transport;
   String? note;
 
   /// The live row's slate messages, shown in details. Not exported: a backup's `messages` is
@@ -175,6 +177,7 @@ class MergedTx {
     kernelExcess: kernelExcess,
     outputCommits: List.unmodifiable(outputCommits),
     counterparty: counterparty,
+    transport: transport,
     note: note,
     messages: messages,
     ttlCutoffHeight: ttlCutoffHeight,
