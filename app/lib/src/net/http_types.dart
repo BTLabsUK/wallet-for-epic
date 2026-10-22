@@ -22,5 +22,10 @@ class NetError implements Exception {
   String toString() => 'NetError: $message';
 }
 
+/// The answer was longer than the caller's `maxBytes`; it was not read to its end.
+class NetTooLarge extends NetError {
+  const NetTooLarge(int maxBytes) : super('body over $maxBytes bytes');
+}
+
 /// The time a call gets when the caller names none.
 const Duration defaultHttpTimeout = Duration(seconds: 15);

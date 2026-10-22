@@ -11,8 +11,8 @@
 # WFE_EMULATOR_X86_64=1 also builds an x86_64 APK for our own emulator tests, into
 # <output-dir>/emulator/: never published, not in SHA256SUMS.
 #
-# No WFE_UPDATE_URL is passed: the default feed is the project's GitHub update.json, and the
-# updater ignores any manifest whose packageName differs from the installed app's
+# No WFE_UPDATE_URL is passed: the default feed is BT Labs' signed update.json, and the
+# updater refuses a verified manifest whose packageName differs from the installed app's
 # (lib/src/updater.dart), so this build never offers the 1.x builds (com.blacktyger.epic_wallet).
 set -euo pipefail
 

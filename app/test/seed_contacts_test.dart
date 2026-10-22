@@ -1,9 +1,13 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:epic_wallet/src/btlabs_keys.dart';
+import 'package:epic_wallet/src/btlabs_public.dart';
 import 'package:epic_wallet/src/network.dart' show defaultEpicboxHost;
 import 'package:epic_wallet/src/seed_contacts.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+import 'support/btlabs_public_file.dart';
 
 bool _epicbox(String a) => RegExp(r'^es[0-9A-Za-z]{50}@[\w.-]+$').hasMatch(a);
 
@@ -14,41 +18,48 @@ void main() {
     expect(btLabsContact.address.split('@').last, defaultEpicboxHost);
   });
 
-  test('the website file reads into contacts', () {
-    final body = jsonEncode({
-      'version': 1,
-      'contacts': [
-        {'id': 'btlabs', 'name': ' BT Labs ', 'address': btLabsContact.address, 'note': btLabsContact.note},
-      ],
-    });
-    expect(parseSeedContacts(body, validAddress: _epicbox), [btLabsContact]);
+  test('the signed file reads into the bundled contact, keeping its name and note', () async {
+    final file = await verified(await signedPublicFile([donation('btlabs', btLabsContact.address, name: 'Other', note: 'Send me money')]));
+    expect(seedContactsFrom(file, validAddress: _epicbox), [btLabsContact]);
   });
 
-  test('entries with a bad address, a missing field or a repeated id are left out', () {
-    final body = jsonEncode({
-      'version': 1,
-      'contacts': [
-        {'id': 'btlabs', 'name': 'BT Labs', 'address': btLabsContact.address, 'note': ''},
-        {'id': 'btlabs', 'name': 'Again', 'address': btLabsContact.address, 'note': ''},
-        {'id': 'bad', 'name': 'Bad', 'address': 'not an address', 'note': ''},
-        {'id': 'nonote', 'name': 'No note', 'address': btLabsContact.address},
-        'text',
-      ],
-    });
-    final got = parseSeedContacts(body, validAddress: _epicbox)!;
-    expect(got.map((c) => c.id), ['btlabs']);
-    expect(got.single.name, 'BT Labs');
-  });
-
-  test('a file that is not version 1 JSON changes nothing (null)', () {
-    for (final body in ['', '<html>404</html>', '[]', '{"version":2,"contacts":[]}', '{"version":1}']) {
-      expect(parseSeedContacts(body, validAddress: _epicbox), isNull, reason: body);
+  group('a donation that does not qualify is left out', () {
+    final cases = <String, Map<String, Object?>>{
+      'a bad address': donation('btlabs', 'notanaddress'),
+      'another coin': donation('btlabs', btLabsContact.address, coin: 'btc'),
+      'another network': donation('btlabs', btLabsContact.address, network: 'floonet'),
+      'another method': donation('btlabs', btLabsContact.address, method: 'other'),
+    };
+    for (final e in cases.entries) {
+      test(e.key, () async {
+        final file = await verified(await signedPublicFile([e.value]));
+        expect(seedContactsFrom(file, validAddress: _epicbox), isEmpty);
+      });
     }
   });
 
-  test('the site file prepared for GitHub Pages matches the bundled list', () {
-    final f = File('${Platform.environment['HOME']}/btlabs-epic-pages/contacts.json');
-    if (!f.existsSync()) return; // Only on the machine that prepares the site.
-    expect(parseSeedContacts(f.readAsStringSync(), validAddress: _epicbox), bundledSeedContacts);
+  test('an id the app does not ship is ignored, even with a valid address', () async {
+    final file = await verified(
+      await signedPublicFile([donation('someone', btLabsContact.address), donation('btlabs', btLabsContact.address)]),
+    );
+    expect(seedContactsFrom(file, validAddress: _epicbox), [btLabsContact]);
+  });
+
+  test('the address is checked with the validator it is given', () async {
+    final file = await verified(await signedPublicFile([donation('btlabs', btLabsContact.address)]));
+    expect(seedContactsFrom(file, validAddress: (_) => false), isEmpty);
+  });
+
+  test('the bundled keyring parses and holds the keys of rank 1 and 2', () {
+    expect(btlabsKeyring.keys.map((k) => k.rank).toList()..sort(), [1, 2]);
+    expect(jsonDecode(btlabsKeyringJson)['keys'], hasLength(2));
+  });
+
+  test('the prepared site file verifies against the bundled keyring and yields the bundled list', () async {
+    final f = File('${Platform.environment['HOME']}/code/btlabs-public/site/btlabs.json');
+    if (!f.existsSync()) return markTestSkipped('btlabs-public is not on this machine');
+    final r = await verifyBtlabsPublic(f.readAsStringSync(), keyring: btlabsKeyring, now: DateTime.now().toUtc());
+    expect(r, isA<Accepted<BtlabsPublic>>());
+    expect(seedContactsFrom((r as Accepted<BtlabsPublic>).manifest, validAddress: _epicbox), bundledSeedContacts);
   });
 }

@@ -1,11 +1,18 @@
 #!/usr/bin/env bash
-# Builds the split-per-ABI release APKs and writes update.json, the manifest the in-app updater
-# reads (lib/src/updater.dart). Publish the APKs and update.json together, for example as the
-# assets of one GitHub release, so .../releases/latest/download/update.json names this release.
-#
+# Builds the split-per-ABI release APKs and writes the signed update.json, the manifest the
+# in-app updater reads (lib/src/updater.dart; btlabs-public FORMAT.md section 6). The APKs go
+# to the GitHub release; update.json goes to BT Labs' Pages repo, BTLabs-EPIC/btlabs-epic.github.io,
+# served as https://btlabs-epic.github.io/update.json. Publish the APKs first.
 # Usage: tool/release_android.sh <download-base-url> [notes]
-#   download-base-url  where the APKs will be served, e.g.
-#                      https://github.com/<owner>/<repo>/releases/download/v1.0.1
+#   download-base-url  where the APKs will be served (https), e.g.
+#                      https://github.com/BTLabs-EPIC/wallet-for-epic/releases/download/v1.0.1
+#   notes              plain text; line feeds allowed, no tabs or carriage returns
+#
+# It writes update.payload.json (unsigned; serial = issued_at in Unix seconds, expiry in 182
+# days) and signs it with btlabs-public's tool when the signing key is on this machine:
+#   BTLABS_PUBLIC       the btlabs-public checkout (default ~/code/btlabs-public)
+#   BTLABS_SIGNING_KEY  the rank-1 key (default ~/.config/btlabs/signing/btlabs-2026-a.key)
+# Without them it stops after the payload and prints the signing command.
 #
 # WFE_DESKTOP_RELEASE=1 adds the `desktop` entry the desktop update check reads
 # (lib/src/desktop/data/desk_update.dart): set it only when this release also ships desktop
@@ -26,6 +33,12 @@ if [[ $# -lt 1 || $# -gt 2 ]]; then
 fi
 base_url="${1%/}"
 notes="${2:-}"
+if [[ "$notes" == *$'\r'* || "$notes" == *$'\t'* ]]; then
+  echo "notes: no tabs or carriage returns (FORMAT.md section 6)" >&2
+  exit 64
+fi
+btlabs_public="${BTLABS_PUBLIC:-$HOME/code/btlabs-public}"
+signing_key="${BTLABS_SIGNING_KEY:-$HOME/.config/btlabs/signing/btlabs-2026-a.key}"
 
 aapt2="$(find "$ANDROID_HOME/build-tools" -maxdepth 2 -name aapt2 -type f | sort -V | tail -1)"
 [[ -x "$aapt2" ]] || { echo "aapt2 not found under $ANDROID_HOME/build-tools" >&2; exit 1; }
@@ -64,11 +77,53 @@ desktop_page=""
 if [[ "${WFE_DESKTOP_RELEASE:-}" == 1 ]]; then
   desktop_page="${base_url/\/releases\/download\//\/releases\/tag\/}"
 fi
+issued_epoch="$(date -u +%s)"
+issued_at="$(date -u -d "@$issued_epoch" +%Y-%m-%dT%H:%M:%SZ)"
+expires_at="$(date -u -d "@$((issued_epoch + 182 * 86400))" +%Y-%m-%dT%H:%M:%SZ)"
+payload="$out/update.payload.json"
+manifest="$out/update.json"
+rm -f "$manifest"
 printf '%s\n' "${entries[@]}" | jq -s --arg package "$package" --arg name "$version_name" --arg notes "$notes" \
-  --arg page "$desktop_page" \
-  '{schema: 1, packageName: $package, versionName: $name, notes: $notes, apks: .}
-   + (if $page == "" then {} else {desktop: {version: $name, page: $page}} end)' >"$out/update.json"
+  --arg page "$desktop_page" --argjson serial "$issued_epoch" --arg issued "$issued_at" --arg expires "$expires_at" \
+  '($notes | sub("^\\s+"; "") | sub("\\s+$"; "")) as $n
+   | {schema: 1, serial: $serial, issued_at: $issued, expires_at: $expires,
+      packageName: $package, versionName: $name, apks: .}
+   + (if $n == "" then {} else {notes: $n} end)
+   + (if $page == "" then {} else {desktop: {version: $name, page: $page}} end)' >"$payload"
 
-echo "Wrote $out/update.json for $package $version_name:"
-jq -r '.apks[] | "  \(.abi) versionCode \(.versionCode) \(.size) bytes"' "$out/update.json"
-echo "Publish app-arm64-v8a-release.apk and update.json at $base_url"
+echo "Wrote $payload for $package $version_name (serial $issued_epoch, expires $expires_at):"
+jq -r '.apks[] | "  \(.abi) versionCode \(.versionCode) \(.size) bytes"' "$payload"
+
+tool="$btlabs_public/tool/btlabs_sign.py"
+keyring="$btlabs_public/keys/btlabs-keyring.json"
+sign=(python3 "$tool" sign --type update --key "$signing_key" --keyring "$keyring" --payload "$payload" --out "$manifest")
+if [[ ! -f "$tool" || ! -f "$keyring" || ! -f "$signing_key" ]]; then
+  echo "Not signed: needs $tool, $keyring and the signing key $signing_key." >&2
+  echo "On the signing machine run:" >&2
+  printf '  %q' "${sign[@]}" >&2
+  echo >&2
+  exit 1
+fi
+# The keys installed apps trust (lib/src/btlabs_keys.dart) must be the keyring the file is
+# signed against, or the script succeeds and every phone rejects the file.
+python3 - "$app_dir/lib/src/btlabs_keys.dart" "$keyring" <<'PY' || exit 1
+import json, sys
+app = open(sys.argv[1], encoding="utf-8").read().split("'''")[1]
+if json.loads(app) != json.load(open(sys.argv[2], encoding="utf-8")):
+    sys.exit("lib/src/btlabs_keys.dart and %s hold different keys: ship the new keyring first" % sys.argv[2])
+PY
+# The tool refuses a payload that does not validate and an envelope that does not verify; with
+# the published manifest as --prev, also a serial that is not above it (a slow clock here).
+published="$out/update.published.json"
+rm -f "$published"
+status="$(curl -sS --max-time 20 -o "$published" -w '%{http_code}' https://btlabs-epic.github.io/update.json || true)"
+case "$status" in
+  200) sign+=(--prev "$published") ;;
+  404) rm -f "$published"; echo "No update.json published yet: signing without --prev." ;;
+  *) echo "Cannot read the published update.json (HTTP ${status:-none}); not signing." >&2; exit 1 ;;
+esac
+"${sign[@]}"
+python3 "$tool" verify --type update --keyring "$keyring" --envelope "$manifest"
+echo "1. Publish app-arm64-v8a-release.apk at $base_url (the GitHub release)."
+echo "2. Then publish $manifest as update.json in BTLabs-EPIC/btlabs-epic.github.io"
+echo "   (btlabs-public docs/hosting.md, \"Publishing a release manifest\")."

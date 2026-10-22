@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:crypto/crypto.dart';
+import 'package:epic_wallet/src/btlabs_public.dart';
 import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:epic_wallet/src/network.dart';
 import 'package:epic_wallet/src/relay_directory.dart';
@@ -12,6 +13,8 @@ import 'package:epic_wallet/src/vault.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+import 'support/signed_update.dart';
 
 void main() {
   group('WalletVault', () {
@@ -284,111 +287,148 @@ void main() {
     });
   });
 
-  group('parseUpdateManifest', () {
+  group('readUpdateManifest', () {
     const app = InstalledApp(
       packageName: 'com.blacktyger.epic_wallet',
       versionCode: 2001,
       versionName: '1.0.0',
       abis: ['arm64-v8a', 'armeabi-v7a'],
     );
-    final url = Uri.parse('https://example.org/releases/latest/update.json');
-    final hash = 'a' * 64;
+    final now = DateTime.utc(2026, 11, 1);
 
-    String manifest({
-      String package = 'com.blacktyger.epic_wallet',
-      List<Map<String, Object?>>? apks,
-    }) => jsonEncode({
-      'schema': 1,
-      'packageName': package,
-      'versionName': '1.0.1',
-      'notes': 'Fixes',
-      'apks':
-          apks ??
-          [
-            {
-              'abi': 'x86_64',
-              'versionCode': 4002,
-              'url': 'app-x86_64-release.apk',
-              'sha256': hash,
-              'size': 10,
-            },
-            {
-              'abi': 'arm64-v8a',
-              'versionCode': 2002,
-              'url': 'app-arm64-v8a-release.apk',
-              'sha256': hash,
-              'size': 10,
-            },
-          ],
-    });
+    Future<UpdateManifestRead> read(String envelope, {ManifestState? state}) =>
+        readUpdateManifest(
+          envelope,
+          app,
+          keyring: testUpdateKeyring,
+          now: now,
+          state: state,
+        );
 
-    test('picks the APK for the preferred ABI and resolves its URL', () {
-      final update = parseUpdateManifest(manifest(), app, url)!;
+    final twoApks = [
+      testApk(
+        abi: 'x86_64',
+        versionCode: 4002,
+        url: 'https://example.org/v1.0.1/app-x86_64-release.apk',
+      ),
+      testApk(),
+    ];
+
+    test('picks the APK for the preferred ABI of a signed manifest', () async {
+      final r = await read(
+        await signedUpdate(testUpdatePayload(apks: twoApks)),
+      );
+      expect(r.rejected, isNull);
+      final update = r.update!;
       expect(update.versionName, '1.0.1');
       expect(update.notes, 'Fixes');
       expect(update.apk.abi, 'arm64-v8a');
+      expect(update.apk.versionCode, 2002);
+      expect(update.apk.sha256, 'a' * 64);
       expect(
         update.apk.url.toString(),
-        'https://example.org/releases/latest/app-arm64-v8a-release.apk',
+        'https://example.org/releases/v1.0.1/app-arm64-v8a-release.apk',
       );
+      expect(r.state!.serial, 1790000000);
     });
 
-    test('returns null when not newer or no ABI fits', () {
-      final same = manifest(
-        apks: [
-          {
-            'abi': 'arm64-v8a',
-            'versionCode': 2001,
-            'url': 'a.apk',
-            'sha256': hash,
-            'size': 1,
-          },
-        ],
+    test('offers nothing when not newer or no ABI fits', () async {
+      final same = await read(
+        await signedUpdate(
+          testUpdatePayload(apks: [testApk(versionCode: 2001)]),
+        ),
       );
-      expect(parseUpdateManifest(same, app, url), isNull);
-      final other = manifest(
-        apks: [
-          {
-            'abi': 'x86_64',
-            'versionCode': 4009,
-            'url': 'a.apk',
-            'sha256': hash,
-            'size': 1,
-          },
-        ],
+      expect(same.rejected, isNull);
+      expect(same.update, isNull);
+      final other = await read(
+        await signedUpdate(
+          testUpdatePayload(apks: [testApk(abi: 'x86_64', versionCode: 4009)]),
+        ),
       );
-      expect(parseUpdateManifest(other, app, url), isNull);
+      expect(other.update, isNull);
     });
 
-    test('refuses other apps, bad JSON, bad hashes and plain http', () {
-      expect(
-        () => parseUpdateManifest(manifest(package: 'evil.app'), app, url),
-        throwsA(isA<UpdateError>()),
+    test('refuses a signed manifest for another app', () async {
+      final env = await signedUpdate(
+        testUpdatePayload(packageName: 'evil.app'),
       );
-      expect(
-        () => parseUpdateManifest('{', app, url),
-        throwsA(isA<UpdateError>()),
-      );
-      final bad = manifest(
-        apks: [
-          {
-            'abi': 'arm64-v8a',
-            'versionCode': 2002,
-            'url': 'a.apk',
-            'sha256': 'nothex',
-            'size': 1,
-          },
-          {
-            'abi': 'universal',
-            'versionCode': 2002,
-            'url': 'http://example.org/a.apk',
-            'sha256': hash,
-            'size': 1,
-          },
-        ],
-      );
-      expect(parseUpdateManifest(bad, app, url), isNull);
+      await expectLater(read(env), throwsA(isA<UpdateError>()));
     });
+
+    test('the old unsigned update.json is not used', () async {
+      final plain = jsonEncode(testUpdatePayload());
+      expect((await read(plain)).rejected, RejectReason.malformed);
+      expect((await read('{')).rejected, RejectReason.malformed);
+    });
+
+    test(
+      'a key outside the keyring, a tampered payload, another type: not used',
+      () async {
+        final stranger = await signedUpdate(
+          testUpdatePayload(),
+          keys: [await testUpdateStrangerKey()],
+        );
+        expect((await read(stranger)).rejected, RejectReason.unknownKey);
+
+        // Swap in another APK hash after signing: the signature no longer matches.
+        final env = jsonDecode(
+          await signedUpdate(testUpdatePayload()),
+        ) as Map<String, Object?>;
+        final forged = testUpdatePayload(apks: [testApk(sha256: 'b' * 64)]);
+        env['payload'] = base64.encode(utf8.encode(jsonEncode(forged)));
+        expect(
+          (await read(jsonEncode(env))).rejected,
+          RejectReason.badSignature,
+        );
+
+        final public = await signedUpdate(
+          testUpdatePayload(),
+          payloadType: btlabsPublicType,
+        );
+        expect((await read(public)).rejected, RejectReason.wrongType);
+      },
+    );
+
+    test('an expired manifest is not used', () async {
+      final env = await signedUpdate(
+        testUpdatePayload(
+          issuedAt: '2026-01-01T00:00:00Z',
+          expiresAt: '2026-07-01T00:00:00Z',
+        ),
+      );
+      expect((await read(env)).rejected, RejectReason.expired);
+    });
+
+    test('an http APK URL or a bad hash makes the manifest unusable', () async {
+      final http = await signedUpdate(
+        testUpdatePayload(apks: [testApk(url: 'http://example.org/a.apk')]),
+      );
+      expect((await read(http)).rejected, RejectReason.malformed);
+      final hash = await signedUpdate(
+        testUpdatePayload(apks: [testApk(sha256: 'nothex')]),
+      );
+      expect((await read(hash)).rejected, RejectReason.malformed);
+    });
+
+    test(
+      'an older manifest after a newer one in the same run is refused',
+      () async {
+        final newer = await read(
+          await signedUpdate(testUpdatePayload(serial: 1790000100)),
+        );
+        final older = await read(
+          await signedUpdate(testUpdatePayload(serial: 1790000000)),
+          state: newer.state,
+        );
+        expect(older.rejected, RejectReason.rollback);
+        final again = await read(
+          await signedUpdate(testUpdatePayload(serial: 1790000100)),
+          state: newer.state,
+        );
+        expect(again.rejected, isNull);
+        expect(again.update, isNotNull);
+      },
+    );
   });
 
   group('downloadApk', () {
@@ -457,25 +497,24 @@ void main() {
     final apkBytes = utf8.encode('not an apk');
     late _FakeUpdatePlatform platform;
 
-    String manifest(int versionCode) => jsonEncode({
-      'schema': 1,
-      'packageName': 'com.blacktyger.epic_wallet',
-      'versionName': versionCode == 2002 ? '1.0.1' : '1.0.0',
-      'notes': '',
-      'apks': [
-        {
-          'abi': 'arm64-v8a',
-          'versionCode': versionCode,
-          'url': 'app.apk',
-          'sha256': sha256.convert(apkBytes).toString(),
-          'size': apkBytes.length,
-        },
-      ],
-    });
+    // Signed with test key A in setUp (the handler below cannot wait for it). The "same"
+    // manifest is the later one, as when the installed release is the newest.
+    final manifests = <int, String>{};
+    Future<String> manifest(int versionCode) => signedUpdate(
+      testUpdatePayload(
+        versionName: versionCode == 2002 ? '1.0.1' : '1.0.0',
+        notes: null,
+        apks: [testApk(versionCode: versionCode, sha256: sha256.convert(apkBytes).toString(), size: apkBytes.length)],
+        serial: versionCode == 2002 ? 1790000100 : 1790000200,
+      ),
+    );
 
     setUp(() async {
       requests = 0;
       reply = 'newer';
+      for (final code in [2001, 2002]) {
+        manifests[code] = await manifest(code);
+      }
       server = await HttpServer.bind(InternetAddress.loopbackIPv4, 0);
       server.listen((request) {
         requests++;
@@ -488,9 +527,13 @@ void main() {
         }
         switch (reply) {
           case 'newer':
-            response.write(manifest(2002));
+            response.write(manifests[2002]);
           case 'same':
-            response.write(manifest(2001));
+            response.write(manifests[2001]);
+          case 'unsigned':
+            response.write(jsonEncode(testUpdatePayload()));
+          case 'huge':
+            response.write(' ' * 70000);
           case 'missing':
             response.statusCode = HttpStatus.notFound;
           default:
@@ -508,6 +551,14 @@ void main() {
           updateTempDirProvider.overrideWithValue(() async => temp),
           updateManifestUrlProvider.overrideWithValue(
             Uri.parse('http://127.0.0.1:${server.port}/update.json'),
+          ),
+          updateKeyringProvider.overrideWithValue(testUpdateKeyring),
+          updateClockProvider.overrideWithValue(
+            () => DateTime.utc(2026, 11, 1),
+          ),
+          // The manifest names its https URL; the APK comes from the local server.
+          updateApkUrlProvider.overrideWithValue(
+            (url) => Uri.parse('http://127.0.0.1:${server.port}/app.apk'),
           ),
         ],
       );
@@ -582,6 +633,77 @@ void main() {
       expect(container.read(updateProvider).phase, UpdatePhase.idle);
     });
 
+    test(
+      'an unsigned manifest offers nothing and says no information',
+      () async {
+        reply = 'unsigned';
+        final updates = container.read(updateProvider.notifier);
+        await updates.check();
+        final state = container.read(updateProvider);
+        expect(state.phase, UpdatePhase.upToDate);
+        expect(state.update, isNull);
+        expect(
+          state.text?.call(englishStrings),
+          'No update information available.',
+        );
+      },
+    );
+
+    test(
+      'an unsigned manifest after a signed one keeps the known update',
+      () async {
+        final updates = container.read(updateProvider.notifier);
+        await updates.checkOnOpening();
+        reply = 'unsigned';
+        await updates.checkOnOpening();
+        expect(container.read(updateProvider).phase, UpdatePhase.available);
+        expect(container.read(updateProvider).update?.versionName, '1.0.1');
+      },
+    );
+
+    test(
+      'the APK comes from the signed URL, through the download seam',
+      () async {
+        final seen = <Uri>[];
+        container.updateOverrides([
+          updatePlatformProvider.overrideWithValue(_FakeUpdatePlatform()),
+          updateTempDirProvider.overrideWithValue(() async => Directory.systemTemp),
+          updateManifestUrlProvider.overrideWithValue(
+            Uri.parse('http://127.0.0.1:${server.port}/update.json'),
+          ),
+          updateKeyringProvider.overrideWithValue(testUpdateKeyring),
+          updateClockProvider.overrideWithValue(
+            () => DateTime.utc(2026, 11, 1),
+          ),
+          updateApkUrlProvider.overrideWithValue((url) {
+            seen.add(url);
+            return Uri.parse('http://127.0.0.1:${server.port}/app.apk');
+          }),
+        ]);
+        await container.read(updateProvider.notifier).check();
+        final apk = container.read(updateProvider).update!.apk;
+        expect(seen.single.toString(), testApk()['url']);
+        expect(apk.url.toString(), 'http://127.0.0.1:${server.port}/app.apk');
+        expect(apk.sha256, sha256.convert(apkBytes).toString());
+      },
+    );
+
+    test('a manifest past the expiry offers nothing', () async {
+      container.updateOverrides([
+        updatePlatformProvider.overrideWithValue(_FakeUpdatePlatform()),
+        updateTempDirProvider.overrideWithValue(() async => Directory.systemTemp),
+        updateManifestUrlProvider.overrideWithValue(
+          Uri.parse('http://127.0.0.1:${server.port}/update.json'),
+        ),
+        updateKeyringProvider.overrideWithValue(testUpdateKeyring),
+        updateClockProvider.overrideWithValue(() => DateTime.utc(2027, 5, 1)),
+        updateApkUrlProvider.overrideWithValue((url) => url),
+      ]);
+      await container.read(updateProvider.notifier).check();
+      expect(container.read(updateProvider).phase, UpdatePhase.upToDate);
+      expect(container.read(updateProvider).update, isNull);
+    });
+
     test('the manifest request carries no User-Agent and no cookie', () async {
       await container.read(updateProvider.notifier).check();
       expect(headers!.value(HttpHeaders.userAgentHeader), isNull);
@@ -653,6 +775,20 @@ void main() {
           englishStrings.updateNotInstalled(
             'INSTALL_FAILED_INSUFFICIENT_STORAGE',
           ),
+        );
+      },
+    );
+
+    test(
+      'a manifest over 64 KiB is not read and means no information',
+      () async {
+        reply = 'huge';
+        await container.read(updateProvider.notifier).check();
+        final state = container.read(updateProvider);
+        expect(state.phase, UpdatePhase.upToDate);
+        expect(
+          state.text?.call(englishStrings),
+          'No update information available.',
         );
       },
     );

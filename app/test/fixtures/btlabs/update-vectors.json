@@ -1,0 +1,1114 @@
+{
+  "keyring": {
+    "keys": [
+      {
+        "keyid": "940f8a1d8b2e098a",
+        "rank": 1,
+        "public_key": "nDN7jjhlGSqgfZm2fOK59TJy8GFBN6Xg5COSndSzVxc=",
+        "label": "test-a"
+      },
+      {
+        "keyid": "226312fd8a0428a2",
+        "rank": 2,
+        "public_key": "CkVQsI3kK+RMxwKRc9wqWpxoj/Fv3KlluSFkW0NfJWw=",
+        "label": "test-b"
+      }
+    ]
+  },
+  "cases": [
+    {
+      "name": "valid-signed-by-a",
+      "payloadType": "application/vnd.btlabs.wallet-for-epic.update+json",
+      "now": "2026-11-01T00:00:00Z",
+      "state": null,
+      "envelope": "{\n  \"payloadType\": \"application/vnd.btlabs.wallet-for-epic.update+json\",\n  \"payload\": \"ewogICJzY2hlbWEiOiAxLAogICJzZXJpYWwiOiAxNzkwMDAwMDAwLAogICJpc3N1ZWRfYXQiOiAiMjAyNi0xMC0wMVQwMDowMDowMFoiLAogICJleHBpcmVzX2F0IjogIjIwMjctMDQtMDFUMDA6MDA6MDBaIiwKICAicGFja2FnZU5hbWUiOiAiY29tLmJsYWNrdHlnZXIuZXBpY3dhbGxldCIsCiAgInZlcnNpb25OYW1lIjogIjAuMS4xIiwKICAibm90ZXMiOiAiRXhhbXBsZSBvbmx5OiBub3QgYSByZWFsIHJlbGVhc2UuXG5TaWduZWQgdXBkYXRlIGluZm9ybWF0aW9uLiIsCiAgImFwa3MiOiBbCiAgICB7CiAgICAgICJhYmkiOiAiYXJtNjQtdjhhIiwKICAgICAgInZlcnNpb25Db2RlIjogMiwKICAgICAgInVybCI6ICJodHRwczovL2dpdGh1Yi5jb20vQlRMYWJzLUVQSUMvd2FsbGV0LWZvci1lcGljL3JlbGVhc2VzL2Rvd25sb2FkL3YwLjEuMS9hcHAtYXJtNjQtdjhhLXJlbGVhc2UuYXBrIiwKICAgICAgInNoYTI1NiI6ICIwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwIiwKICAgICAgInNpemUiOiA1MjQyODgwMAogICAgfQogIF0sCiAgImRlc2t0b3AiOiB7CiAgICAidmVyc2lvbiI6ICIwLjEuMSIsCiAgICAicGFnZSI6ICJodHRwczovL2dpdGh1Yi5jb20vQlRMYWJzLUVQSUMvd2FsbGV0LWZvci1lcGljL3JlbGVhc2VzL3RhZy92MC4xLjEiCiAgfQp9Cg==\",\n  \"signatures\": [\n    {\n      \"keyid\": \"940f8a1d8b2e098a\",\n      \"sig\": \"GbKuSUiRQym3B2/Wb+P2VXhzsnOXwiKnLAazL3Bkutt8oZjn5II+zSuuqjAZwV4UNPtJK/x7vGBJOAnLStWkCQ==\"\n    }\n  ]\n}\n",
+      "expect": {
+        "outcome": "accepted",
+        "reason": null,
+        "state": {
+          "serial": 1790000000,
+          "keyid": "940f8a1d8b2e098a",
+          "digest": "aa222120a515619281e9666211708427e3dbbae946a46dc4a6609f94764e2bab",
+          "revoked": []
+        }
+      }
+    },
+    {
+      "name": "valid-signed-by-b",
+      "payloadType": "application/vnd.btlabs.wallet-for-epic.update+json",
+      "now": "2026-11-01T00:00:00Z",
+      "state": null,
+      "envelope": "{\n  \"payloadType\": \"application/vnd.btlabs.wallet-for-epic.update+json\",\n  \"payload\": \"ewogICJzY2hlbWEiOiAxLAogICJzZXJpYWwiOiAxNzkwMDAwMDAwLAogICJpc3N1ZWRfYXQiOiAiMjAyNi0xMC0wMVQwMDowMDowMFoiLAogICJleHBpcmVzX2F0IjogIjIwMjctMDQtMDFUMDA6MDA6MDBaIiwKICAicGFja2FnZU5hbWUiOiAiY29tLmJsYWNrdHlnZXIuZXBpY3dhbGxldCIsCiAgInZlcnNpb25OYW1lIjogIjAuMS4xIiwKICAibm90ZXMiOiAiRXhhbXBsZSBvbmx5OiBub3QgYSByZWFsIHJlbGVhc2UuXG5TaWduZWQgdXBkYXRlIGluZm9ybWF0aW9uLiIsCiAgImFwa3MiOiBbCiAgICB7CiAgICAgICJhYmkiOiAiYXJtNjQtdjhhIiwKICAgICAgInZlcnNpb25Db2RlIjogMiwKICAgICAgInVybCI6ICJodHRwczovL2dpdGh1Yi5jb20vQlRMYWJzLUVQSUMvd2FsbGV0LWZvci1lcGljL3JlbGVhc2VzL2Rvd25sb2FkL3YwLjEuMS9hcHAtYXJtNjQtdjhhLXJlbGVhc2UuYXBrIiwKICAgICAgInNoYTI1NiI6ICIwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwIiwKICAgICAgInNpemUiOiA1MjQyODgwMAogICAgfQogIF0sCiAgImRlc2t0b3AiOiB7CiAgICAidmVyc2lvbiI6ICIwLjEuMSIsCiAgICAicGFnZSI6ICJodHRwczovL2dpdGh1Yi5jb20vQlRMYWJzLUVQSUMvd2FsbGV0LWZvci1lcGljL3JlbGVhc2VzL3RhZy92MC4xLjEiCiAgfQp9Cg==\",\n  \"signatures\": [\n    {\n      \"keyid\": \"226312fd8a0428a2\",\n      \"sig\": \"6MnyKK3/TtLAvuJURwFYQ8LLRTCXpBi5ySOOEex7uU6wQ3GPSq48HGwE6NOE8gRhd97m839wnYtfY3WYIzHHDQ==\"\n    }\n  ]\n}\n",
+      "expect": {
+        "outcome": "accepted",
+        "reason": null,
+        "state": {
+          "serial": 1790000000,
+          "keyid": "226312fd8a0428a2",
+          "digest": "aa222120a515619281e9666211708427e3dbbae946a46dc4a6609f94764e2bab",
+          "revoked": []
+        }
+      }
+    },
+    {
+      "name": "unchanged",
+      "payloadType": "application/vnd.btlabs.wallet-for-epic.update+json",
+      "now": "2026-11-01T00:00:00Z",
+      "state": {
+        "serial": 1790000000,
+        "keyid": "940f8a1d8b2e098a",
+        "digest": "aa222120a515619281e9666211708427e3dbbae946a46dc4a6609f94764e2bab",
+        "revoked": []
+      },
+      "envelope": "{\n  \"payloadType\": \"application/vnd.btlabs.wallet-for-epic.update+json\",\n  \"payload\": \"ewogICJzY2hlbWEiOiAxLAogICJzZXJpYWwiOiAxNzkwMDAwMDAwLAogICJpc3N1ZWRfYXQiOiAiMjAyNi0xMC0wMVQwMDowMDowMFoiLAogICJleHBpcmVzX2F0IjogIjIwMjctMDQtMDFUMDA6MDA6MDBaIiwKICAicGFja2FnZU5hbWUiOiAiY29tLmJsYWNrdHlnZXIuZXBpY3dhbGxldCIsCiAgInZlcnNpb25OYW1lIjogIjAuMS4xIiwKICAibm90ZXMiOiAiRXhhbXBsZSBvbmx5OiBub3QgYSByZWFsIHJlbGVhc2UuXG5TaWduZWQgdXBkYXRlIGluZm9ybWF0aW9uLiIsCiAgImFwa3MiOiBbCiAgICB7CiAgICAgICJhYmkiOiAiYXJtNjQtdjhhIiwKICAgICAgInZlcnNpb25Db2RlIjogMiwKICAgICAgInVybCI6ICJodHRwczovL2dpdGh1Yi5jb20vQlRMYWJzLUVQSUMvd2FsbGV0LWZvci1lcGljL3JlbGVhc2VzL2Rvd25sb2FkL3YwLjEuMS9hcHAtYXJtNjQtdjhhLXJlbGVhc2UuYXBrIiwKICAgICAgInNoYTI1NiI6ICIwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwIiwKICAgICAgInNpemUiOiA1MjQyODgwMAogICAgfQogIF0sCiAgImRlc2t0b3AiOiB7CiAgICAidmVyc2lvbiI6ICIwLjEuMSIsCiAgICAicGFnZSI6ICJodHRwczovL2dpdGh1Yi5jb20vQlRMYWJzLUVQSUMvd2FsbGV0LWZvci1lcGljL3JlbGVhc2VzL3RhZy92MC4xLjEiCiAgfQp9Cg==\",\n  \"signatures\": [\n    {\n      \"keyid\": \"940f8a1d8b2e098a\",\n      \"sig\": \"GbKuSUiRQym3B2/Wb+P2VXhzsnOXwiKnLAazL3Bkutt8oZjn5II+zSuuqjAZwV4UNPtJK/x7vGBJOAnLStWkCQ==\"\n    }\n  ]\n}\n",
+      "expect": {
+        "outcome": "unchanged",
+        "reason": null,
+        "state": {
+          "serial": 1790000000,
+          "keyid": "940f8a1d8b2e098a",
+          "digest": "aa222120a515619281e9666211708427e3dbbae946a46dc4a6609f94764e2bab",
+          "revoked": []
+        }
+      }
+    },
+    {
+      "name": "rollback-lower-serial",
+      "payloadType": "application/vnd.btlabs.wallet-for-epic.update+json",
+      "now": "2026-11-01T00:00:00Z",
+      "state": {
+        "serial": 1790000001,
+        "keyid": "940f8a1d8b2e098a",
+        "digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "revoked": []
+      },
+      "envelope": "{\n  \"payloadType\": \"application/vnd.btlabs.wallet-for-epic.update+json\",\n  \"payload\": \"ewogICJzY2hlbWEiOiAxLAogICJzZXJpYWwiOiAxNzkwMDAwMDAwLAogICJpc3N1ZWRfYXQiOiAiMjAyNi0xMC0wMVQwMDowMDowMFoiLAogICJleHBpcmVzX2F0IjogIjIwMjctMDQtMDFUMDA6MDA6MDBaIiwKICAicGFja2FnZU5hbWUiOiAiY29tLmJsYWNrdHlnZXIuZXBpY3dhbGxldCIsCiAgInZlcnNpb25OYW1lIjogIjAuMS4xIiwKICAibm90ZXMiOiAiRXhhbXBsZSBvbmx5OiBub3QgYSByZWFsIHJlbGVhc2UuXG5TaWduZWQgdXBkYXRlIGluZm9ybWF0aW9uLiIsCiAgImFwa3MiOiBbCiAgICB7CiAgICAgICJhYmkiOiAiYXJtNjQtdjhhIiwKICAgICAgInZlcnNpb25Db2RlIjogMiwKICAgICAgInVybCI6ICJodHRwczovL2dpdGh1Yi5jb20vQlRMYWJzLUVQSUMvd2FsbGV0LWZvci1lcGljL3JlbGVhc2VzL2Rvd25sb2FkL3YwLjEuMS9hcHAtYXJtNjQtdjhhLXJlbGVhc2UuYXBrIiwKICAgICAgInNoYTI1NiI6ICIwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwIiwKICAgICAgInNpemUiOiA1MjQyODgwMAogICAgfQogIF0sCiAgImRlc2t0b3AiOiB7CiAgICAidmVyc2lvbiI6ICIwLjEuMSIsCiAgICAicGFnZSI6ICJodHRwczovL2dpdGh1Yi5jb20vQlRMYWJzLUVQSUMvd2FsbGV0LWZvci1lcGljL3JlbGVhc2VzL3RhZy92MC4xLjEiCiAgfQp9Cg==\",\n  \"signatures\": [\n    {\n      \"keyid\": \"940f8a1d8b2e098a\",\n      \"sig\": \"GbKuSUiRQym3B2/Wb+P2VXhzsnOXwiKnLAazL3Bkutt8oZjn5II+zSuuqjAZwV4UNPtJK/x7vGBJOAnLStWkCQ==\"\n    }\n  ]\n}\n",
+      "expect": {
+        "outcome": "rejected",
+        "reason": "rollback",
+        "state": null
+      }
+    },
+    {
+      "name": "rollback-same-serial-different-digest",
+      "payloadType": "application/vnd.btlabs.wallet-for-epic.update+json",
+      "now": "2026-11-01T00:00:00Z",
+      "state": {
+        "serial": 1790000000,
+        "keyid": "940f8a1d8b2e098a",
+        "digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "revoked": []
+      },
+      "envelope": "{\n  \"payloadType\": \"application/vnd.btlabs.wallet-for-epic.update+json\",\n  \"payload\": \"ewogICJzY2hlbWEiOiAxLAogICJzZXJpYWwiOiAxNzkwMDAwMDAwLAogICJpc3N1ZWRfYXQiOiAiMjAyNi0xMC0wMVQwMDowMDowMFoiLAogICJleHBpcmVzX2F0IjogIjIwMjctMDQtMDFUMDA6MDA6MDBaIiwKICAicGFja2FnZU5hbWUiOiAiY29tLmJsYWNrdHlnZXIuZXBpY3dhbGxldCIsCiAgInZlcnNpb25OYW1lIjogIjAuMS4xIiwKICAibm90ZXMiOiAiRXhhbXBsZSBvbmx5OiBub3QgYSByZWFsIHJlbGVhc2UuXG5TaWduZWQgdXBkYXRlIGluZm9ybWF0aW9uLiIsCiAgImFwa3MiOiBbCiAgICB7CiAgICAgICJhYmkiOiAiYXJtNjQtdjhhIiwKICAgICAgInZlcnNpb25Db2RlIjogMiwKICAgICAgInVybCI6ICJodHRwczovL2dpdGh1Yi5jb20vQlRMYWJzLUVQSUMvd2FsbGV0LWZvci1lcGljL3JlbGVhc2VzL2Rvd25sb2FkL3YwLjEuMS9hcHAtYXJtNjQtdjhhLXJlbGVhc2UuYXBrIiwKICAgICAgInNoYTI1NiI6ICIwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwIiwKICAgICAgInNpemUiOiA1MjQyODgwMAogICAgfQogIF0sCiAgImRlc2t0b3AiOiB7CiAgICAidmVyc2lvbiI6ICIwLjEuMSIsCiAgICAicGFnZSI6ICJodHRwczovL2dpdGh1Yi5jb20vQlRMYWJzLUVQSUMvd2FsbGV0LWZvci1lcGljL3JlbGVhc2VzL3RhZy92MC4xLjEiCiAgfQp9Cg==\",\n  \"signatures\": [\n    {\n      \"keyid\": \"940f8a1d8b2e098a\",\n      \"sig\": \"GbKuSUiRQym3B2/Wb+P2VXhzsnOXwiKnLAazL3Bkutt8oZjn5II+zSuuqjAZwV4UNPtJK/x7vGBJOAnLStWkCQ==\"\n    }\n  ]\n}\n",
+      "expect": {
+        "outcome": "rejected",
+        "reason": "rollback",
+        "state": null
+      }
+    },
+    {
+      "name": "newer-serial-over-older-state",
+      "payloadType": "application/vnd.btlabs.wallet-for-epic.update+json",
+      "now": "2026-11-01T00:00:00Z",
+      "state": {
+        "serial": 1789999999,
+        "keyid": "940f8a1d8b2e098a",
+        "digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "revoked": []
+      },
+      "envelope": "{\n  \"payloadType\": \"application/vnd.btlabs.wallet-for-epic.update+json\",\n  \"payload\": \"ewogICJzY2hlbWEiOiAxLAogICJzZXJpYWwiOiAxNzkwMDAwMDAwLAogICJpc3N1ZWRfYXQiOiAiMjAyNi0xMC0wMVQwMDowMDowMFoiLAogICJleHBpcmVzX2F0IjogIjIwMjctMDQtMDFUMDA6MDA6MDBaIiwKICAicGFja2FnZU5hbWUiOiAiY29tLmJsYWNrdHlnZXIuZXBpY3dhbGxldCIsCiAgInZlcnNpb25OYW1lIjogIjAuMS4xIiwKICAibm90ZXMiOiAiRXhhbXBsZSBvbmx5OiBub3QgYSByZWFsIHJlbGVhc2UuXG5TaWduZWQgdXBkYXRlIGluZm9ybWF0aW9uLiIsCiAgImFwa3MiOiBbCiAgICB7CiAgICAgICJhYmkiOiAiYXJtNjQtdjhhIiwKICAgICAgInZlcnNpb25Db2RlIjogMiwKICAgICAgInVybCI6ICJodHRwczovL2dpdGh1Yi5jb20vQlRMYWJzLUVQSUMvd2FsbGV0LWZvci1lcGljL3JlbGVhc2VzL2Rvd25sb2FkL3YwLjEuMS9hcHAtYXJtNjQtdjhhLXJlbGVhc2UuYXBrIiwKICAgICAgInNoYTI1NiI6ICIwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwIiwKICAgICAgInNpemUiOiA1MjQyODgwMAogICAgfQogIF0sCiAgImRlc2t0b3AiOiB7CiAgICAidmVyc2lvbiI6ICIwLjEuMSIsCiAgICAicGFnZSI6ICJodHRwczovL2dpdGh1Yi5jb20vQlRMYWJzLUVQSUMvd2FsbGV0LWZvci1lcGljL3JlbGVhc2VzL3RhZy92MC4xLjEiCiAgfQp9Cg==\",\n  \"signatures\": [\n    {\n      \"keyid\": \"940f8a1d8b2e098a\",\n      \"sig\": \"GbKuSUiRQym3B2/Wb+P2VXhzsnOXwiKnLAazL3Bkutt8oZjn5II+zSuuqjAZwV4UNPtJK/x7vGBJOAnLStWkCQ==\"\n    }\n  ]\n}\n",
+      "expect": {
+        "outcome": "accepted",
+        "reason": null,
+        "state": {
+          "serial": 1790000000,
+          "keyid": "940f8a1d8b2e098a",
+          "digest": "aa222120a515619281e9666211708427e3dbbae946a46dc4a6609f94764e2bab",
+          "revoked": []
+        }
+      }
+    },
+    {
+      "name": "expired",
+      "payloadType": "application/vnd.btlabs.wallet-for-epic.update+json",
+      "now": "2027-04-02T00:00:00Z",
+      "state": null,
+      "envelope": "{\n  \"payloadType\": \"application/vnd.btlabs.wallet-for-epic.update+json\",\n  \"payload\": \"ewogICJzY2hlbWEiOiAxLAogICJzZXJpYWwiOiAxNzkwMDAwMDAwLAogICJpc3N1ZWRfYXQiOiAiMjAyNi0xMC0wMVQwMDowMDowMFoiLAogICJleHBpcmVzX2F0IjogIjIwMjctMDQtMDFUMDA6MDA6MDBaIiwKICAicGFja2FnZU5hbWUiOiAiY29tLmJsYWNrdHlnZXIuZXBpY3dhbGxldCIsCiAgInZlcnNpb25OYW1lIjogIjAuMS4xIiwKICAibm90ZXMiOiAiRXhhbXBsZSBvbmx5OiBub3QgYSByZWFsIHJlbGVhc2UuXG5TaWduZWQgdXBkYXRlIGluZm9ybWF0aW9uLiIsCiAgImFwa3MiOiBbCiAgICB7CiAgICAgICJhYmkiOiAiYXJtNjQtdjhhIiwKICAgICAgInZlcnNpb25Db2RlIjogMiwKICAgICAgInVybCI6ICJodHRwczovL2dpdGh1Yi5jb20vQlRMYWJzLUVQSUMvd2FsbGV0LWZvci1lcGljL3JlbGVhc2VzL2Rvd25sb2FkL3YwLjEuMS9hcHAtYXJtNjQtdjhhLXJlbGVhc2UuYXBrIiwKICAgICAgInNoYTI1NiI6ICIwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwIiwKICAgICAgInNpemUiOiA1MjQyODgwMAogICAgfQogIF0sCiAgImRlc2t0b3AiOiB7CiAgICAidmVyc2lvbiI6ICIwLjEuMSIsCiAgICAicGFnZSI6ICJodHRwczovL2dpdGh1Yi5jb20vQlRMYWJzLUVQSUMvd2FsbGV0LWZvci1lcGljL3JlbGVhc2VzL3RhZy92MC4xLjEiCiAgfQp9Cg==\",\n  \"signatures\": [\n    {\n      \"keyid\": \"940f8a1d8b2e098a\",\n      \"sig\": \"GbKuSUiRQym3B2/Wb+P2VXhzsnOXwiKnLAazL3Bkutt8oZjn5II+zSuuqjAZwV4UNPtJK/x7vGBJOAnLStWkCQ==\"\n    }\n  ]\n}\n",
+      "expect": {
+        "outcome": "rejected",
+        "reason": "expired",
+        "state": null
+      }
+    },
+    {
+      "name": "expires-exactly-now",
+      "payloadType": "application/vnd.btlabs.wallet-for-epic.update+json",
+      "now": "2027-04-01T00:00:00Z",
+      "state": null,
+      "envelope": "{\n  \"payloadType\": \"application/vnd.btlabs.wallet-for-epic.update+json\",\n  \"payload\": \"ewogICJzY2hlbWEiOiAxLAogICJzZXJpYWwiOiAxNzkwMDAwMDAwLAogICJpc3N1ZWRfYXQiOiAiMjAyNi0xMC0wMVQwMDowMDowMFoiLAogICJleHBpcmVzX2F0IjogIjIwMjctMDQtMDFUMDA6MDA6MDBaIiwKICAicGFja2FnZU5hbWUiOiAiY29tLmJsYWNrdHlnZXIuZXBpY3dhbGxldCIsCiAgInZlcnNpb25OYW1lIjogIjAuMS4xIiwKICAibm90ZXMiOiAiRXhhbXBsZSBvbmx5OiBub3QgYSByZWFsIHJlbGVhc2UuXG5TaWduZWQgdXBkYXRlIGluZm9ybWF0aW9uLiIsCiAgImFwa3MiOiBbCiAgICB7CiAgICAgICJhYmkiOiAiYXJtNjQtdjhhIiwKICAgICAgInZlcnNpb25Db2RlIjogMiwKICAgICAgInVybCI6ICJodHRwczovL2dpdGh1Yi5jb20vQlRMYWJzLUVQSUMvd2FsbGV0LWZvci1lcGljL3JlbGVhc2VzL2Rvd25sb2FkL3YwLjEuMS9hcHAtYXJtNjQtdjhhLXJlbGVhc2UuYXBrIiwKICAgICAgInNoYTI1NiI6ICIwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwIiwKICAgICAgInNpemUiOiA1MjQyODgwMAogICAgfQogIF0sCiAgImRlc2t0b3AiOiB7CiAgICAidmVyc2lvbiI6ICIwLjEuMSIsCiAgICAicGFnZSI6ICJodHRwczovL2dpdGh1Yi5jb20vQlRMYWJzLUVQSUMvd2FsbGV0LWZvci1lcGljL3JlbGVhc2VzL3RhZy92MC4xLjEiCiAgfQp9Cg==\",\n  \"signatures\": [\n    {\n      \"keyid\": \"940f8a1d8b2e098a\",\n      \"sig\": \"GbKuSUiRQym3B2/Wb+P2VXhzsnOXwiKnLAazL3Bkutt8oZjn5II+zSuuqjAZwV4UNPtJK/x7vGBJOAnLStWkCQ==\"\n    }\n  ]\n}\n",
+      "expect": {
+        "outcome": "rejected",
+        "reason": "expired",
+        "state": null
+      }
+    },
+    {
+      "name": "public-envelope-verified-as-update",
+      "payloadType": "application/vnd.btlabs.wallet-for-epic.update+json",
+      "now": "2026-11-01T00:00:00Z",
+      "state": null,
+      "envelope": "{\n  \"payloadType\": \"application/vnd.btlabs.public+json\",\n  \"payload\": \"ewogICJzY2hlbWEiOiAxLAogICJzZXJpYWwiOiA1LAogICJpc3N1ZWRfYXQiOiAiMjAyNi0xMC0wMVQwMDowMDowMFoiLAogICJleHBpcmVzX2F0IjogIjIwMjctMDQtMDFUMDA6MDA6MDBaIiwKICAicHVibGlzaGVyIjogewogICAgIm5hbWUiOiAiQlQgTGFicyIsCiAgICAibGVnYWxfbmFtZSI6ICJCVCBMYWJzIEx0ZCIsCiAgICAid2Vic2l0ZSI6ICJodHRwczovL2J0bGFicy51ayIKICB9LAogICJkb25hdGlvbnMiOiBbCiAgICB7CiAgICAgICJpZCI6ICJidGxhYnMiLAogICAgICAiY29pbiI6ICJlcGljIiwKICAgICAgIm5ldHdvcmsiOiAibWFpbm5ldCIsCiAgICAgICJtZXRob2QiOiAiZXBpY2JveCIsCiAgICAgICJhZGRyZXNzIjogImVzV3hib0JQTWdMNFJxdWZSWWNHVUo3dDZZVldHdnl1aWQ2eFJNNjJVa1J6U2IzalVjTktAZXBpY2JveC5lcGljY2FzaC5jb20iLAogICAgICAibmFtZSI6ICJCVCBMYWJzIiwKICAgICAgIm5vdGUiOiAiRG9uYXRpb25zIHN1cHBvcnQgZGV2ZWxvcG1lbnQgb2YgdGhpcyB3YWxsZXQuIgogICAgfQogIF0sCiAgImxpbmtzIjogWwogICAgewogICAgICAiaWQiOiAid2Vic2l0ZSIsCiAgICAgICJraW5kIjogIndlYnNpdGUiLAogICAgICAibGFiZWwiOiAiQlQgTGFicyIsCiAgICAgICJ1cmwiOiAiaHR0cHM6Ly9idGxhYnMudWsiCiAgICB9LAogICAgewogICAgICAiaWQiOiAiZ2l0aHViIiwKICAgICAgImtpbmQiOiAiZ2l0aHViIiwKICAgICAgImxhYmVsIjogIkJUIExhYnMgb24gR2l0SHViIiwKICAgICAgInVybCI6ICJodHRwczovL2dpdGh1Yi5jb20vQlRMYWJzLUVQSUMiCiAgICB9LAogICAgewogICAgICAiaWQiOiAic3RhdHVzIiwKICAgICAgImtpbmQiOiAic3RhdHVzIiwKICAgICAgImxhYmVsIjogIkVwaWMgbmV0d29yayBzdGF0dXMiLAogICAgICAidXJsIjogImh0dHBzOi8vc3RhdHVzLmJ0bGFicy51ayIKICAgIH0sCiAgICB7CiAgICAgICJpZCI6ICJ0ZWxlZ3JhbS1lcGljIiwKICAgICAgImtpbmQiOiAidGVsZWdyYW0iLAogICAgICAibGFiZWwiOiAiRXBpYyBDYXNoIGNvbW11bml0eSAoVGVsZWdyYW0pIiwKICAgICAgInVybCI6ICJodHRwczovL3QubWUvRXBpY0Nhc2giCiAgICB9CiAgXSwKICAiaW5mcmFzdHJ1Y3R1cmUiOiB7CiAgICAibm9kZXMiOiBbCiAgICAgIHsKICAgICAgICAiaWQiOiAiYnRsYWJzLW1haW5uZXQiLAogICAgICAgICJjaGFpbiI6ICJtYWlubmV0IiwKICAgICAgICAidXJsIjogImh0dHBzOi8vbm9kZS5idGxhYnMudWsiLAogICAgICAgICJvcGVyYXRvciI6ICJCVCBMYWJzIgogICAgICB9LAogICAgICB7CiAgICAgICAgImlkIjogImJ0bGFicy1mbG9vbmV0IiwKICAgICAgICAiY2hhaW4iOiAiZmxvb25ldCIsCiAgICAgICAgInVybCI6ICJodHRwczovL2Zsb28tbm9kZS5idGxhYnMudWsiLAogICAgICAgICJvcGVyYXRvciI6ICJCVCBMYWJzIgogICAgICB9CiAgICBdLAogICAgImVwaWNib3hfcmVsYXlzIjogWwogICAgICB7CiAgICAgICAgImNoYWluIjogIm1haW5uZXQiLAogICAgICAgICJob3N0IjogImVwaWNib3guZXBpY2Nhc2guY29tIiwKICAgICAgICAicG9ydCI6IDQ0MywKICAgICAgICAib3BlcmF0b3IiOiAiRXBpYyBDYXNoIgogICAgICB9LAogICAgICB7CiAgICAgICAgImNoYWluIjogIm1haW5uZXQiLAogICAgICAgICJob3N0IjogImVwaWNib3guc3RhY2t3YWxsZXQuY29tIiwKICAgICAgICAicG9ydCI6IDQ0MywKICAgICAgICAib3BlcmF0b3IiOiAiQ3lwaGVyIFN0YWNrIgogICAgICB9LAogICAgICB7CiAgICAgICAgImNoYWluIjogIm1haW5uZXQiLAogICAgICAgICJob3N0IjogImVwaWNib3guZXBpY25ldC51cyIsCiAgICAgICAgInBvcnQiOiA0NDMsCiAgICAgICAgIm9wZXJhdG9yIjogIkVwaWNOZXQiCiAgICAgIH0sCiAgICAgIHsKICAgICAgICAiY2hhaW4iOiAibWFpbm5ldCIsCiAgICAgICAgImhvc3QiOiAiZXBpY2JveC5pbmlha3UubXkuaWQiLAogICAgICAgICJwb3J0IjogNDQzLAogICAgICAgICJvcGVyYXRvciI6ICJJbmlha3UgcG9vbCIKICAgICAgfSwKICAgICAgewogICAgICAgICJjaGFpbiI6ICJmbG9vbmV0IiwKICAgICAgICAiaG9zdCI6ICJmbG9vZXBpY2JveC5idGxhYnMudWsiLAogICAgICAgICJwb3J0IjogNDQzLAogICAgICAgICJvcGVyYXRvciI6ICJCVCBMYWJzIgogICAgICB9CiAgICBdLAogICAgInNlcnZpY2VzIjogWwogICAgICB7CiAgICAgICAgImlkIjogInN0YXR1cyIsCiAgICAgICAgImtpbmQiOiAic3RhdHVzIiwKICAgICAgICAidXJsIjogImh0dHBzOi8vc3RhdHVzLmJ0bGFicy51ayIKICAgICAgfSwKICAgICAgewogICAgICAgICJpZCI6ICJleHBsb3Jlci1mbG9vbmV0IiwKICAgICAgICAia2luZCI6ICJleHBsb3JlciIsCiAgICAgICAgImNoYWluIjogImZsb29uZXQiLAogICAgICAgICJ1cmwiOiAiaHR0cHM6Ly9mbG9vLWV4cGxvcmVyLmJ0bGFicy51ayIKICAgICAgfQogICAgXQogIH0sCiAgIm5vdGljZXMiOiBbXQp9Cg==\",\n  \"signatures\": [\n    {\n      \"keyid\": \"940f8a1d8b2e098a\",\n      \"sig\": \"mILfEObmjhx35uyY7qXcSfM4gFTGSeYQS9kcN/2JOUIXXByu1wyumq/VF7kMJsxY5shr96TQcygqvGv1ULJOCg==\"\n    }\n  ]\n}\n",
+      "expect": {
+        "outcome": "rejected",
+        "reason": "wrong_type",
+        "state": null
+      }
+    },
+    {
+      "name": "update-envelope-verified-as-public",
+      "payloadType": "application/vnd.btlabs.public+json",
+      "now": "2026-11-01T00:00:00Z",
+      "state": null,
+      "envelope": "{\n  \"payloadType\": \"application/vnd.btlabs.wallet-for-epic.update+json\",\n  \"payload\": \"ewogICJzY2hlbWEiOiAxLAogICJzZXJpYWwiOiAxNzkwMDAwMDAwLAogICJpc3N1ZWRfYXQiOiAiMjAyNi0xMC0wMVQwMDowMDowMFoiLAogICJleHBpcmVzX2F0IjogIjIwMjctMDQtMDFUMDA6MDA6MDBaIiwKICAicGFja2FnZU5hbWUiOiAiY29tLmJsYWNrdHlnZXIuZXBpY3dhbGxldCIsCiAgInZlcnNpb25OYW1lIjogIjAuMS4xIiwKICAibm90ZXMiOiAiRXhhbXBsZSBvbmx5OiBub3QgYSByZWFsIHJlbGVhc2UuXG5TaWduZWQgdXBkYXRlIGluZm9ybWF0aW9uLiIsCiAgImFwa3MiOiBbCiAgICB7CiAgICAgICJhYmkiOiAiYXJtNjQtdjhhIiwKICAgICAgInZlcnNpb25Db2RlIjogMiwKICAgICAgInVybCI6ICJodHRwczovL2dpdGh1Yi5jb20vQlRMYWJzLUVQSUMvd2FsbGV0LWZvci1lcGljL3JlbGVhc2VzL2Rvd25sb2FkL3YwLjEuMS9hcHAtYXJtNjQtdjhhLXJlbGVhc2UuYXBrIiwKICAgICAgInNoYTI1NiI6ICIwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwIiwKICAgICAgInNpemUiOiA1MjQyODgwMAogICAgfQogIF0sCiAgImRlc2t0b3AiOiB7CiAgICAidmVyc2lvbiI6ICIwLjEuMSIsCiAgICAicGFnZSI6ICJodHRwczovL2dpdGh1Yi5jb20vQlRMYWJzLUVQSUMvd2FsbGV0LWZvci1lcGljL3JlbGVhc2VzL3RhZy92MC4xLjEiCiAgfQp9Cg==\",\n  \"signatures\": [\n    {\n      \"keyid\": \"940f8a1d8b2e098a\",\n      \"sig\": \"GbKuSUiRQym3B2/Wb+P2VXhzsnOXwiKnLAazL3Bkutt8oZjn5II+zSuuqjAZwV4UNPtJK/x7vGBJOAnLStWkCQ==\"\n    }\n  ]\n}\n",
+      "expect": {
+        "outcome": "rejected",
+        "reason": "wrong_type",
+        "state": null
+      }
+    },
+    {
+      "name": "unknown-key",
+      "payloadType": "application/vnd.btlabs.wallet-for-epic.update+json",
+      "now": "2026-11-01T00:00:00Z",
+      "state": null,
+      "envelope": "{\n  \"payloadType\": \"application/vnd.btlabs.wallet-for-epic.update+json\",\n  \"payload\": \"ewogICJzY2hlbWEiOiAxLAogICJzZXJpYWwiOiAxNzkwMDAwMDAwLAogICJpc3N1ZWRfYXQiOiAiMjAyNi0xMC0wMVQwMDowMDowMFoiLAogICJleHBpcmVzX2F0IjogIjIwMjctMDQtMDFUMDA6MDA6MDBaIiwKICAicGFja2FnZU5hbWUiOiAiY29tLmJsYWNrdHlnZXIuZXBpY3dhbGxldCIsCiAgInZlcnNpb25OYW1lIjogIjAuMS4xIiwKICAibm90ZXMiOiAiRXhhbXBsZSBvbmx5OiBub3QgYSByZWFsIHJlbGVhc2UuXG5TaWduZWQgdXBkYXRlIGluZm9ybWF0aW9uLiIsCiAgImFwa3MiOiBbCiAgICB7CiAgICAgICJhYmkiOiAiYXJtNjQtdjhhIiwKICAgICAgInZlcnNpb25Db2RlIjogMiwKICAgICAgInVybCI6ICJodHRwczovL2dpdGh1Yi5jb20vQlRMYWJzLUVQSUMvd2FsbGV0LWZvci1lcGljL3JlbGVhc2VzL2Rvd25sb2FkL3YwLjEuMS9hcHAtYXJtNjQtdjhhLXJlbGVhc2UuYXBrIiwKICAgICAgInNoYTI1NiI6ICIwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwIiwKICAgICAgInNpemUiOiA1MjQyODgwMAogICAgfQogIF0sCiAgImRlc2t0b3AiOiB7CiAgICAidmVyc2lvbiI6ICIwLjEuMSIsCiAgICAicGFnZSI6ICJodHRwczovL2dpdGh1Yi5jb20vQlRMYWJzLUVQSUMvd2FsbGV0LWZvci1lcGljL3JlbGVhc2VzL3RhZy92MC4xLjEiCiAgfQp9Cg==\",\n  \"signatures\": [\n    {\n      \"keyid\": \"99dcfaba5fc54c38\",\n      \"sig\": \"JM5yoBDMfP8jdT4QxRxuWjrU/P6ARCiTvl4GBJSplGZcxygMyKaEOHzAOtG663sgjGaZlbwNc5I/ogSqXChdCw==\"\n    }\n  ]\n}\n",
+      "expect": {
+        "outcome": "rejected",
+        "reason": "unknown_key",
+        "state": null
+      }
+    },
+    {
+      "name": "bad-signature",
+      "payloadType": "application/vnd.btlabs.wallet-for-epic.update+json",
+      "now": "2026-11-01T00:00:00Z",
+      "state": null,
+      "envelope": "{\n  \"payloadType\": \"application/vnd.btlabs.wallet-for-epic.update+json\",\n  \"payload\": \"ewogICJzY2hlbWEiOiAxLAogICJzZXJpYWwiOiAxNzkwMDAwMDAwLAogICJpc3N1ZWRfYXQiOiAiMjAyNi0xMC0wMVQwMDowMDowMFoiLAogICJleHBpcmVzX2F0IjogIjIwMjctMDQtMDFUMDA6MDA6MDBaIiwKICAicGFja2FnZU5hbWUiOiAiY29tLmJsYWNrdHlnZXIuZXBpY3dhbGxldCIsCiAgInZlcnNpb25OYW1lIjogIjAuMS4xIiwKICAibm90ZXMiOiAiRXhhbXBsZSBvbmx5OiBub3QgYSByZWFsIHJlbGVhc2UuXG5TaWduZWQgdXBkYXRlIGluZm9ybWF0aW9uLiIsCiAgImFwa3MiOiBbCiAgICB7CiAgICAgICJhYmkiOiAiYXJtNjQtdjhhIiwKICAgICAgInZlcnNpb25Db2RlIjogMiwKICAgICAgInVybCI6ICJodHRwczovL2dpdGh1Yi5jb20vQlRMYWJzLUVQSUMvd2FsbGV0LWZvci1lcGljL3JlbGVhc2VzL2Rvd25sb2FkL3YwLjEuMS9hcHAtYXJtNjQtdjhhLXJlbGVhc2UuYXBrIiwKICAgICAgInNoYTI1NiI6ICIwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwIiwKICAgICAgInNpemUiOiA1MjQyODgwMAogICAgfQogIF0sCiAgImRlc2t0b3AiOiB7CiAgICAidmVyc2lvbiI6ICIwLjEuMSIsCiAgICAicGFnZSI6ICJodHRwczovL2dpdGh1Yi5jb20vQlRMYWJzLUVQSUMvd2FsbGV0LWZvci1lcGljL3JlbGVhc2VzL3RhZy92MC4xLjEiCiAgfQp9Cg==\",\n  \"signatures\": [\n    {\n      \"keyid\": \"940f8a1d8b2e098a\",\n      \"sig\": \"GLKuSUiRQym3B2/Wb+P2VXhzsnOXwiKnLAazL3Bkutt8oZjn5II+zSuuqjAZwV4UNPtJK/x7vGBJOAnLStWkCQ==\"\n    }\n  ]\n}\n",
+      "expect": {
+        "outcome": "rejected",
+        "reason": "bad_signature",
+        "state": null
+      }
+    },
+    {
+      "name": "payload-tampered-after-signing",
+      "payloadType": "application/vnd.btlabs.wallet-for-epic.update+json",
+      "now": "2026-11-01T00:00:00Z",
+      "state": null,
+      "envelope": "{\n  \"payloadType\": \"application/vnd.btlabs.wallet-for-epic.update+json\",\n  \"payload\": \"ewogICJzY2hlbWEiOiAxLAogICJzZXJpYWwiOiAxNzkwMDAwMDAxLAogICJpc3N1ZWRfYXQiOiAiMjAyNi0xMC0wMVQwMDowMDowMFoiLAogICJleHBpcmVzX2F0IjogIjIwMjctMDQtMDFUMDA6MDA6MDBaIiwKICAicGFja2FnZU5hbWUiOiAiY29tLmJsYWNrdHlnZXIuZXBpY3dhbGxldCIsCiAgInZlcnNpb25OYW1lIjogIjAuMS4xIiwKICAibm90ZXMiOiAiRXhhbXBsZSBvbmx5OiBub3QgYSByZWFsIHJlbGVhc2UuXG5TaWduZWQgdXBkYXRlIGluZm9ybWF0aW9uLiIsCiAgImFwa3MiOiBbCiAgICB7CiAgICAgICJhYmkiOiAiYXJtNjQtdjhhIiwKICAgICAgInZlcnNpb25Db2RlIjogMiwKICAgICAgInVybCI6ICJodHRwczovL2dpdGh1Yi5jb20vQlRMYWJzLUVQSUMvd2FsbGV0LWZvci1lcGljL3JlbGVhc2VzL2Rvd25sb2FkL3YwLjEuMS9hcHAtYXJtNjQtdjhhLXJlbGVhc2UuYXBrIiwKICAgICAgInNoYTI1NiI6ICIwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwIiwKICAgICAgInNpemUiOiA1MjQyODgwMAogICAgfQogIF0sCiAgImRlc2t0b3AiOiB7CiAgICAidmVyc2lvbiI6ICIwLjEuMSIsCiAgICAicGFnZSI6ICJodHRwczovL2dpdGh1Yi5jb20vQlRMYWJzLUVQSUMvd2FsbGV0LWZvci1lcGljL3JlbGVhc2VzL3RhZy92MC4xLjEiCiAgfQp9Cg==\",\n  \"signatures\": [\n    {\n      \"keyid\": \"940f8a1d8b2e098a\",\n      \"sig\": \"GbKuSUiRQym3B2/Wb+P2VXhzsnOXwiKnLAazL3Bkutt8oZjn5II+zSuuqjAZwV4UNPtJK/x7vGBJOAnLStWkCQ==\"\n    }\n  ]\n}\n",
+      "expect": {
+        "outcome": "rejected",
+        "reason": "bad_signature",
+        "state": null
+      }
+    },
+    {
+      "name": "signer-is-highest-rank-a-then-b",
+      "payloadType": "application/vnd.btlabs.wallet-for-epic.update+json",
+      "now": "2026-11-01T00:00:00Z",
+      "state": null,
+      "envelope": "{\n  \"payloadType\": \"application/vnd.btlabs.wallet-for-epic.update+json\",\n  \"payload\": \"ewogICJzY2hlbWEiOiAxLAogICJzZXJpYWwiOiAxNzkwMDAwMDAwLAogICJpc3N1ZWRfYXQiOiAiMjAyNi0xMC0wMVQwMDowMDowMFoiLAogICJleHBpcmVzX2F0IjogIjIwMjctMDQtMDFUMDA6MDA6MDBaIiwKICAicGFja2FnZU5hbWUiOiAiY29tLmJsYWNrdHlnZXIuZXBpY3dhbGxldCIsCiAgInZlcnNpb25OYW1lIjogIjAuMS4xIiwKICAibm90ZXMiOiAiRXhhbXBsZSBvbmx5OiBub3QgYSByZWFsIHJlbGVhc2UuXG5TaWduZWQgdXBkYXRlIGluZm9ybWF0aW9uLiIsCiAgImFwa3MiOiBbCiAgICB7CiAgICAgICJhYmkiOiAiYXJtNjQtdjhhIiwKICAgICAgInZlcnNpb25Db2RlIjogMiwKICAgICAgInVybCI6ICJodHRwczovL2dpdGh1Yi5jb20vQlRMYWJzLUVQSUMvd2FsbGV0LWZvci1lcGljL3JlbGVhc2VzL2Rvd25sb2FkL3YwLjEuMS9hcHAtYXJtNjQtdjhhLXJlbGVhc2UuYXBrIiwKICAgICAgInNoYTI1NiI6ICIwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwIiwKICAgICAgInNpemUiOiA1MjQyODgwMAogICAgfQogIF0sCiAgImRlc2t0b3AiOiB7CiAgICAidmVyc2lvbiI6ICIwLjEuMSIsCiAgICAicGFnZSI6ICJodHRwczovL2dpdGh1Yi5jb20vQlRMYWJzLUVQSUMvd2FsbGV0LWZvci1lcGljL3JlbGVhc2VzL3RhZy92MC4xLjEiCiAgfQp9Cg==\",\n  \"signatures\": [\n    {\n      \"keyid\": \"940f8a1d8b2e098a\",\n      \"sig\": \"GbKuSUiRQym3B2/Wb+P2VXhzsnOXwiKnLAazL3Bkutt8oZjn5II+zSuuqjAZwV4UNPtJK/x7vGBJOAnLStWkCQ==\"\n    },\n    {\n      \"keyid\": \"226312fd8a0428a2\",\n      \"sig\": \"6MnyKK3/TtLAvuJURwFYQ8LLRTCXpBi5ySOOEex7uU6wQ3GPSq48HGwE6NOE8gRhd97m839wnYtfY3WYIzHHDQ==\"\n    }\n  ]\n}\n",
+      "expect": {
+        "outcome": "accepted",
+        "reason": null,
+        "state": {
+          "serial": 1790000000,
+          "keyid": "226312fd8a0428a2",
+          "digest": "aa222120a515619281e9666211708427e3dbbae946a46dc4a6609f94764e2bab",
+          "revoked": []
+        }
+      }
+    },
+    {
+      "name": "signer-is-highest-rank-b-then-a",
+      "payloadType": "application/vnd.btlabs.wallet-for-epic.update+json",
+      "now": "2026-11-01T00:00:00Z",
+      "state": null,
+      "envelope": "{\n  \"payloadType\": \"application/vnd.btlabs.wallet-for-epic.update+json\",\n  \"payload\": \"ewogICJzY2hlbWEiOiAxLAogICJzZXJpYWwiOiAxNzkwMDAwMDAwLAogICJpc3N1ZWRfYXQiOiAiMjAyNi0xMC0wMVQwMDowMDowMFoiLAogICJleHBpcmVzX2F0IjogIjIwMjctMDQtMDFUMDA6MDA6MDBaIiwKICAicGFja2FnZU5hbWUiOiAiY29tLmJsYWNrdHlnZXIuZXBpY3dhbGxldCIsCiAgInZlcnNpb25OYW1lIjogIjAuMS4xIiwKICAibm90ZXMiOiAiRXhhbXBsZSBvbmx5OiBub3QgYSByZWFsIHJlbGVhc2UuXG5TaWduZWQgdXBkYXRlIGluZm9ybWF0aW9uLiIsCiAgImFwa3MiOiBbCiAgICB7CiAgICAgICJhYmkiOiAiYXJtNjQtdjhhIiwKICAgICAgInZlcnNpb25Db2RlIjogMiwKICAgICAgInVybCI6ICJodHRwczovL2dpdGh1Yi5jb20vQlRMYWJzLUVQSUMvd2FsbGV0LWZvci1lcGljL3JlbGVhc2VzL2Rvd25sb2FkL3YwLjEuMS9hcHAtYXJtNjQtdjhhLXJlbGVhc2UuYXBrIiwKICAgICAgInNoYTI1NiI6ICIwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwIiwKICAgICAgInNpemUiOiA1MjQyODgwMAogICAgfQogIF0sCiAgImRlc2t0b3AiOiB7CiAgICAidmVyc2lvbiI6ICIwLjEuMSIsCiAgICAicGFnZSI6ICJodHRwczovL2dpdGh1Yi5jb20vQlRMYWJzLUVQSUMvd2FsbGV0LWZvci1lcGljL3JlbGVhc2VzL3RhZy92MC4xLjEiCiAgfQp9Cg==\",\n  \"signatures\": [\n    {\n      \"keyid\": \"226312fd8a0428a2\",\n      \"sig\": \"6MnyKK3/TtLAvuJURwFYQ8LLRTCXpBi5ySOOEex7uU6wQ3GPSq48HGwE6NOE8gRhd97m839wnYtfY3WYIzHHDQ==\"\n    },\n    {\n      \"keyid\": \"940f8a1d8b2e098a\",\n      \"sig\": \"GbKuSUiRQym3B2/Wb+P2VXhzsnOXwiKnLAazL3Bkutt8oZjn5II+zSuuqjAZwV4UNPtJK/x7vGBJOAnLStWkCQ==\"\n    }\n  ]\n}\n",
+      "expect": {
+        "outcome": "accepted",
+        "reason": null,
+        "state": {
+          "serial": 1790000000,
+          "keyid": "226312fd8a0428a2",
+          "digest": "aa222120a515619281e9666211708427e3dbbae946a46dc4a6609f94764e2bab",
+          "revoked": []
+        }
+      }
+    },
+    {
+      "name": "b-revokes-a",
+      "payloadType": "application/vnd.btlabs.wallet-for-epic.update+json",
+      "now": "2026-11-01T00:00:00Z",
+      "state": {
+        "serial": 9007199254740991,
+        "keyid": "940f8a1d8b2e098a",
+        "digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "revoked": []
+      },
+      "envelope": "{\n  \"payloadType\": \"application/vnd.btlabs.wallet-for-epic.update+json\",\n  \"payload\": \"ewogICJzY2hlbWEiOiAxLAogICJzZXJpYWwiOiAxNzkwMDAwMDAxLAogICJpc3N1ZWRfYXQiOiAiMjAyNi0xMC0wMVQwMDowMDowMFoiLAogICJleHBpcmVzX2F0IjogIjIwMjctMDQtMDFUMDA6MDA6MDBaIiwKICAicGFja2FnZU5hbWUiOiAiY29tLmJsYWNrdHlnZXIuZXBpY3dhbGxldCIsCiAgInZlcnNpb25OYW1lIjogIjAuMS4xIiwKICAibm90ZXMiOiAiRXhhbXBsZSBvbmx5OiBub3QgYSByZWFsIHJlbGVhc2UuXG5TaWduZWQgdXBkYXRlIGluZm9ybWF0aW9uLiIsCiAgImFwa3MiOiBbCiAgICB7CiAgICAgICJhYmkiOiAiYXJtNjQtdjhhIiwKICAgICAgInZlcnNpb25Db2RlIjogMiwKICAgICAgInVybCI6ICJodHRwczovL2dpdGh1Yi5jb20vQlRMYWJzLUVQSUMvd2FsbGV0LWZvci1lcGljL3JlbGVhc2VzL2Rvd25sb2FkL3YwLjEuMS9hcHAtYXJtNjQtdjhhLXJlbGVhc2UuYXBrIiwKICAgICAgInNoYTI1NiI6ICIwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwIiwKICAgICAgInNpemUiOiA1MjQyODgwMAogICAgfQogIF0sCiAgImRlc2t0b3AiOiB7CiAgICAidmVyc2lvbiI6ICIwLjEuMSIsCiAgICAicGFnZSI6ICJodHRwczovL2dpdGh1Yi5jb20vQlRMYWJzLUVQSUMvd2FsbGV0LWZvci1lcGljL3JlbGVhc2VzL3RhZy92MC4xLjEiCiAgfSwKICAicmV2b2tlZF9rZXlzIjogWwogICAgIjk0MGY4YTFkOGIyZTA5OGEiCiAgXQp9Cg==\",\n  \"signatures\": [\n    {\n      \"keyid\": \"226312fd8a0428a2\",\n      \"sig\": \"nJTcBdfqGK1x0EepLA7OfEnqY4tNAQ9wBTujIfweQKJ6UA48XtgQxIG7WWXjLz2OI5J2xewNqFYgF1sL/cKADg==\"\n    }\n  ]\n}\n",
+      "expect": {
+        "outcome": "accepted",
+        "reason": null,
+        "state": {
+          "serial": 1790000001,
+          "keyid": "226312fd8a0428a2",
+          "digest": "4d7d217c1d2e01214aa175255a4c283dbb43eeef65efdf6a333658ce19e859a9",
+          "revoked": [
+            "940f8a1d8b2e098a"
+          ]
+        }
+      }
+    },
+    {
+      "name": "revocation-not-masked-by-lower-rank-sig-first",
+      "payloadType": "application/vnd.btlabs.wallet-for-epic.update+json",
+      "now": "2026-11-01T00:00:00Z",
+      "state": {
+        "serial": 9007199254740991,
+        "keyid": "940f8a1d8b2e098a",
+        "digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "revoked": []
+      },
+      "envelope": "{\n  \"payloadType\": \"application/vnd.btlabs.wallet-for-epic.update+json\",\n  \"payload\": \"ewogICJzY2hlbWEiOiAxLAogICJzZXJpYWwiOiAxNzkwMDAwMDAxLAogICJpc3N1ZWRfYXQiOiAiMjAyNi0xMC0wMVQwMDowMDowMFoiLAogICJleHBpcmVzX2F0IjogIjIwMjctMDQtMDFUMDA6MDA6MDBaIiwKICAicGFja2FnZU5hbWUiOiAiY29tLmJsYWNrdHlnZXIuZXBpY3dhbGxldCIsCiAgInZlcnNpb25OYW1lIjogIjAuMS4xIiwKICAibm90ZXMiOiAiRXhhbXBsZSBvbmx5OiBub3QgYSByZWFsIHJlbGVhc2UuXG5TaWduZWQgdXBkYXRlIGluZm9ybWF0aW9uLiIsCiAgImFwa3MiOiBbCiAgICB7CiAgICAgICJhYmkiOiAiYXJtNjQtdjhhIiwKICAgICAgInZlcnNpb25Db2RlIjogMiwKICAgICAgInVybCI6ICJodHRwczovL2dpdGh1Yi5jb20vQlRMYWJzLUVQSUMvd2FsbGV0LWZvci1lcGljL3JlbGVhc2VzL2Rvd25sb2FkL3YwLjEuMS9hcHAtYXJtNjQtdjhhLXJlbGVhc2UuYXBrIiwKICAgICAgInNoYTI1NiI6ICIwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwIiwKICAgICAgInNpemUiOiA1MjQyODgwMAogICAgfQogIF0sCiAgImRlc2t0b3AiOiB7CiAgICAidmVyc2lvbiI6ICIwLjEuMSIsCiAgICAicGFnZSI6ICJodHRwczovL2dpdGh1Yi5jb20vQlRMYWJzLUVQSUMvd2FsbGV0LWZvci1lcGljL3JlbGVhc2VzL3RhZy92MC4xLjEiCiAgfSwKICAicmV2b2tlZF9rZXlzIjogWwogICAgIjk0MGY4YTFkOGIyZTA5OGEiCiAgXQp9Cg==\",\n  \"signatures\": [\n    {\n      \"keyid\": \"940f8a1d8b2e098a\",\n      \"sig\": \"QpFr1vM16+kQoWPRKt/dyXjqQmCl0lHMBLzJo6NtfOvd5qBT3KLeCv+P4BUuEsFFVURzTb69mrXW0fqlyU3wAg==\"\n    },\n    {\n      \"keyid\": \"226312fd8a0428a2\",\n      \"sig\": \"nJTcBdfqGK1x0EepLA7OfEnqY4tNAQ9wBTujIfweQKJ6UA48XtgQxIG7WWXjLz2OI5J2xewNqFYgF1sL/cKADg==\"\n    }\n  ]\n}\n",
+      "expect": {
+        "outcome": "accepted",
+        "reason": null,
+        "state": {
+          "serial": 1790000001,
+          "keyid": "226312fd8a0428a2",
+          "digest": "4d7d217c1d2e01214aa175255a4c283dbb43eeef65efdf6a333658ce19e859a9",
+          "revoked": [
+            "940f8a1d8b2e098a"
+          ]
+        }
+      }
+    },
+    {
+      "name": "no-desktop-accepted",
+      "payloadType": "application/vnd.btlabs.wallet-for-epic.update+json",
+      "now": "2026-11-01T00:00:00Z",
+      "state": null,
+      "envelope": "{\n  \"payloadType\": \"application/vnd.btlabs.wallet-for-epic.update+json\",\n  \"payload\": \"ewogICJzY2hlbWEiOiAxLAogICJzZXJpYWwiOiAxNzkwMDAwMDAwLAogICJpc3N1ZWRfYXQiOiAiMjAyNi0xMC0wMVQwMDowMDowMFoiLAogICJleHBpcmVzX2F0IjogIjIwMjctMDQtMDFUMDA6MDA6MDBaIiwKICAicGFja2FnZU5hbWUiOiAiY29tLmJsYWNrdHlnZXIuZXBpY3dhbGxldCIsCiAgInZlcnNpb25OYW1lIjogIjAuMS4xIiwKICAibm90ZXMiOiAiRXhhbXBsZSBvbmx5OiBub3QgYSByZWFsIHJlbGVhc2UuXG5TaWduZWQgdXBkYXRlIGluZm9ybWF0aW9uLiIsCiAgImFwa3MiOiBbCiAgICB7CiAgICAgICJhYmkiOiAiYXJtNjQtdjhhIiwKICAgICAgInZlcnNpb25Db2RlIjogMiwKICAgICAgInVybCI6ICJodHRwczovL2dpdGh1Yi5jb20vQlRMYWJzLUVQSUMvd2FsbGV0LWZvci1lcGljL3JlbGVhc2VzL2Rvd25sb2FkL3YwLjEuMS9hcHAtYXJtNjQtdjhhLXJlbGVhc2UuYXBrIiwKICAgICAgInNoYTI1NiI6ICIwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwIiwKICAgICAgInNpemUiOiA1MjQyODgwMAogICAgfQogIF0KfQo=\",\n  \"signatures\": [\n    {\n      \"keyid\": \"940f8a1d8b2e098a\",\n      \"sig\": \"BVMe2fX/lEg4Oyk7VOc17lBF49qB00SFR4TKXkvJdSNRklyq1eyE+VZ2lK3zXAXibh8NdwxK+BwO7TWoQXhxCg==\"\n    }\n  ]\n}\n",
+      "expect": {
+        "outcome": "accepted",
+        "reason": null,
+        "state": {
+          "serial": 1790000000,
+          "keyid": "940f8a1d8b2e098a",
+          "digest": "69d750dda1138213f424670e2cf85738828e8f7d8622529395400d014f31eadb",
+          "revoked": []
+        }
+      }
+    },
+    {
+      "name": "desktop-per-system-accepted",
+      "payloadType": "application/vnd.btlabs.wallet-for-epic.update+json",
+      "now": "2026-11-01T00:00:00Z",
+      "state": null,
+      "envelope": "{\n  \"payloadType\": \"application/vnd.btlabs.wallet-for-epic.update+json\",\n  \"payload\": \"ewogICJzY2hlbWEiOiAxLAogICJzZXJpYWwiOiAxNzkwMDAwMDAwLAogICJpc3N1ZWRfYXQiOiAiMjAyNi0xMC0wMVQwMDowMDowMFoiLAogICJleHBpcmVzX2F0IjogIjIwMjctMDQtMDFUMDA6MDA6MDBaIiwKICAicGFja2FnZU5hbWUiOiAiY29tLmJsYWNrdHlnZXIuZXBpY3dhbGxldCIsCiAgInZlcnNpb25OYW1lIjogIjAuMS4xIiwKICAibm90ZXMiOiAiRXhhbXBsZSBvbmx5OiBub3QgYSByZWFsIHJlbGVhc2UuXG5TaWduZWQgdXBkYXRlIGluZm9ybWF0aW9uLiIsCiAgImFwa3MiOiBbCiAgICB7CiAgICAgICJhYmkiOiAiYXJtNjQtdjhhIiwKICAgICAgInZlcnNpb25Db2RlIjogMiwKICAgICAgInVybCI6ICJodHRwczovL2dpdGh1Yi5jb20vQlRMYWJzLUVQSUMvd2FsbGV0LWZvci1lcGljL3JlbGVhc2VzL2Rvd25sb2FkL3YwLjEuMS9hcHAtYXJtNjQtdjhhLXJlbGVhc2UuYXBrIiwKICAgICAgInNoYTI1NiI6ICIwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwIiwKICAgICAgInNpemUiOiA1MjQyODgwMAogICAgfQogIF0sCiAgImRlc2t0b3AiOiB7CiAgICAid2luZG93cyI6IHsKICAgICAgInZlcnNpb24iOiAiMC4xLjEiLAogICAgICAicGFnZSI6ICJodHRwczovL2dpdGh1Yi5jb20vYmxhY2t0eWdlci9lcGljLXdhbGxldC9yZWxlYXNlcyIKICAgIH0sCiAgICAibGludXgiOiB7CiAgICAgICJ2ZXJzaW9uIjogIjAuMS4xIgogICAgfQogIH0KfQo=\",\n  \"signatures\": [\n    {\n      \"keyid\": \"940f8a1d8b2e098a\",\n      \"sig\": \"YpcCiEHIAFqCvoVvogiJTDtA95TAvWeDAmS0idSZHPkfqjlHgIN7hhFdTM8RI/ZRxGFsRxxDmY2lLfGNFgU8Cg==\"\n    }\n  ]\n}\n",
+      "expect": {
+        "outcome": "accepted",
+        "reason": null,
+        "state": {
+          "serial": 1790000000,
+          "keyid": "940f8a1d8b2e098a",
+          "digest": "1cd4907cdcca6b73b9dfda8b2af20e5f5dda55c8c674b198c1f3d7067b9d0a44",
+          "revoked": []
+        }
+      }
+    },
+    {
+      "name": "desktop-single-entry-accepted",
+      "payloadType": "application/vnd.btlabs.wallet-for-epic.update+json",
+      "now": "2026-11-01T00:00:00Z",
+      "state": null,
+      "envelope": "{\n  \"payloadType\": \"application/vnd.btlabs.wallet-for-epic.update+json\",\n  \"payload\": \"ewogICJzY2hlbWEiOiAxLAogICJzZXJpYWwiOiAxNzkwMDAwMDAwLAogICJpc3N1ZWRfYXQiOiAiMjAyNi0xMC0wMVQwMDowMDowMFoiLAogICJleHBpcmVzX2F0IjogIjIwMjctMDQtMDFUMDA6MDA6MDBaIiwKICAicGFja2FnZU5hbWUiOiAiY29tLmJsYWNrdHlnZXIuZXBpY3dhbGxldCIsCiAgInZlcnNpb25OYW1lIjogIjAuMS4xIiwKICAibm90ZXMiOiAiRXhhbXBsZSBvbmx5OiBub3QgYSByZWFsIHJlbGVhc2UuXG5TaWduZWQgdXBkYXRlIGluZm9ybWF0aW9uLiIsCiAgImFwa3MiOiBbCiAgICB7CiAgICAgICJhYmkiOiAiYXJtNjQtdjhhIiwKICAgICAgInZlcnNpb25Db2RlIjogMiwKICAgICAgInVybCI6ICJodHRwczovL2dpdGh1Yi5jb20vQlRMYWJzLUVQSUMvd2FsbGV0LWZvci1lcGljL3JlbGVhc2VzL2Rvd25sb2FkL3YwLjEuMS9hcHAtYXJtNjQtdjhhLXJlbGVhc2UuYXBrIiwKICAgICAgInNoYTI1NiI6ICIwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwIiwKICAgICAgInNpemUiOiA1MjQyODgwMAogICAgfQogIF0sCiAgImRlc2t0b3AiOiB7CiAgICAidmVyc2lvbiI6ICIwLjEuMSIsCiAgICAicGFnZSI6ICJodHRwczovL2dpdGh1Yi5jb20vYmxhY2t0eWdlci9lcGljLXdhbGxldC9yZWxlYXNlcyIKICB9Cn0K\",\n  \"signatures\": [\n    {\n      \"keyid\": \"940f8a1d8b2e098a\",\n      \"sig\": \"QM610HSN9ZH94VhUcoXFLyOiPUxnGyKa+PtflghXcpxBH5voy/8wsAsD2kKQFbcFB5fJrSYtuUFfPTPLt7oaBA==\"\n    }\n  ]\n}\n",
+      "expect": {
+        "outcome": "accepted",
+        "reason": null,
+        "state": {
+          "serial": 1790000000,
+          "keyid": "940f8a1d8b2e098a",
+          "digest": "5e7fe6a0b4201240d169bcad9bd0179849a42fd7647feef6ecefda7c85aedf1b",
+          "revoked": []
+        }
+      }
+    },
+    {
+      "name": "desktop-entry-without-page-accepted",
+      "payloadType": "application/vnd.btlabs.wallet-for-epic.update+json",
+      "now": "2026-11-01T00:00:00Z",
+      "state": null,
+      "envelope": "{\n  \"payloadType\": \"application/vnd.btlabs.wallet-for-epic.update+json\",\n  \"payload\": \"ewogICJzY2hlbWEiOiAxLAogICJzZXJpYWwiOiAxNzkwMDAwMDAwLAogICJpc3N1ZWRfYXQiOiAiMjAyNi0xMC0wMVQwMDowMDowMFoiLAogICJleHBpcmVzX2F0IjogIjIwMjctMDQtMDFUMDA6MDA6MDBaIiwKICAicGFja2FnZU5hbWUiOiAiY29tLmJsYWNrdHlnZXIuZXBpY3dhbGxldCIsCiAgInZlcnNpb25OYW1lIjogIjAuMS4xIiwKICAibm90ZXMiOiAiRXhhbXBsZSBvbmx5OiBub3QgYSByZWFsIHJlbGVhc2UuXG5TaWduZWQgdXBkYXRlIGluZm9ybWF0aW9uLiIsCiAgImFwa3MiOiBbCiAgICB7CiAgICAgICJhYmkiOiAiYXJtNjQtdjhhIiwKICAgICAgInZlcnNpb25Db2RlIjogMiwKICAgICAgInVybCI6ICJodHRwczovL2dpdGh1Yi5jb20vQlRMYWJzLUVQSUMvd2FsbGV0LWZvci1lcGljL3JlbGVhc2VzL2Rvd25sb2FkL3YwLjEuMS9hcHAtYXJtNjQtdjhhLXJlbGVhc2UuYXBrIiwKICAgICAgInNoYTI1NiI6ICIwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwIiwKICAgICAgInNpemUiOiA1MjQyODgwMAogICAgfQogIF0sCiAgImRlc2t0b3AiOiB7CiAgICAidmVyc2lvbiI6ICIwLjEuMSIKICB9Cn0K\",\n  \"signatures\": [\n    {\n      \"keyid\": \"940f8a1d8b2e098a\",\n      \"sig\": \"yKTVNsoeKWy/4ZI3ely2H22v9qtC/SNuvFrnJhx814FUwRbOI4ggmaDxbop5dLB2H39qfPZ3fSAXAty2KwlQAw==\"\n    }\n  ]\n}\n",
+      "expect": {
+        "outcome": "accepted",
+        "reason": null,
+        "state": {
+          "serial": 1790000000,
+          "keyid": "940f8a1d8b2e098a",
+          "digest": "b3a128e3c6cd4eaaaf01c6a5214690fcc7f78f969ea675cd87798fb029e45438",
+          "revoked": []
+        }
+      }
+    },
+    {
+      "name": "desktop-page-other-host",
+      "payloadType": "application/vnd.btlabs.wallet-for-epic.update+json",
+      "now": "2026-11-01T00:00:00Z",
+      "state": null,
+      "envelope": "{\n  \"payloadType\": \"application/vnd.btlabs.wallet-for-epic.update+json\",\n  \"payload\": \"ewogICJzY2hlbWEiOiAxLAogICJzZXJpYWwiOiAxNzkwMDAwMDAwLAogICJpc3N1ZWRfYXQiOiAiMjAyNi0xMC0wMVQwMDowMDowMFoiLAogICJleHBpcmVzX2F0IjogIjIwMjctMDQtMDFUMDA6MDA6MDBaIiwKICAicGFja2FnZU5hbWUiOiAiY29tLmJsYWNrdHlnZXIuZXBpY3dhbGxldCIsCiAgInZlcnNpb25OYW1lIjogIjAuMS4xIiwKICAibm90ZXMiOiAiRXhhbXBsZSBvbmx5OiBub3QgYSByZWFsIHJlbGVhc2UuXG5TaWduZWQgdXBkYXRlIGluZm9ybWF0aW9uLiIsCiAgImFwa3MiOiBbCiAgICB7CiAgICAgICJhYmkiOiAiYXJtNjQtdjhhIiwKICAgICAgInZlcnNpb25Db2RlIjogMiwKICAgICAgInVybCI6ICJodHRwczovL2dpdGh1Yi5jb20vQlRMYWJzLUVQSUMvd2FsbGV0LWZvci1lcGljL3JlbGVhc2VzL2Rvd25sb2FkL3YwLjEuMS9hcHAtYXJtNjQtdjhhLXJlbGVhc2UuYXBrIiwKICAgICAgInNoYTI1NiI6ICIwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwIiwKICAgICAgInNpemUiOiA1MjQyODgwMAogICAgfQogIF0sCiAgImRlc2t0b3AiOiB7CiAgICAidmVyc2lvbiI6ICIwLjEuMSIsCiAgICAicGFnZSI6ICJodHRwczovL2V4YW1wbGUuY29tL0JUTGFicy1FUElDL3giCiAgfQp9Cg==\",\n  \"signatures\": [\n    {\n      \"keyid\": \"940f8a1d8b2e098a\",\n      \"sig\": \"iy46HWcBLBQx1gNXhWx8FOsVHKu6rE2oeGT4x8JEMeCB/KpNQ9AKKqIRXf2mwtH0Im+4X2vIaqEhp4QB1gsOAg==\"\n    }\n  ]\n}\n",
+      "expect": {
+        "outcome": "rejected",
+        "reason": "malformed",
+        "state": null
+      }
+    },
+    {
+      "name": "desktop-page-http",
+      "payloadType": "application/vnd.btlabs.wallet-for-epic.update+json",
+      "now": "2026-11-01T00:00:00Z",
+      "state": null,
+      "envelope": "{\n  \"payloadType\": \"application/vnd.btlabs.wallet-for-epic.update+json\",\n  \"payload\": \"ewogICJzY2hlbWEiOiAxLAogICJzZXJpYWwiOiAxNzkwMDAwMDAwLAogICJpc3N1ZWRfYXQiOiAiMjAyNi0xMC0wMVQwMDowMDowMFoiLAogICJleHBpcmVzX2F0IjogIjIwMjctMDQtMDFUMDA6MDA6MDBaIiwKICAicGFja2FnZU5hbWUiOiAiY29tLmJsYWNrdHlnZXIuZXBpY3dhbGxldCIsCiAgInZlcnNpb25OYW1lIjogIjAuMS4xIiwKICAibm90ZXMiOiAiRXhhbXBsZSBvbmx5OiBub3QgYSByZWFsIHJlbGVhc2UuXG5TaWduZWQgdXBkYXRlIGluZm9ybWF0aW9uLiIsCiAgImFwa3MiOiBbCiAgICB7CiAgICAgICJhYmkiOiAiYXJtNjQtdjhhIiwKICAgICAgInZlcnNpb25Db2RlIjogMiwKICAgICAgInVybCI6ICJodHRwczovL2dpdGh1Yi5jb20vQlRMYWJzLUVQSUMvd2FsbGV0LWZvci1lcGljL3JlbGVhc2VzL2Rvd25sb2FkL3YwLjEuMS9hcHAtYXJtNjQtdjhhLXJlbGVhc2UuYXBrIiwKICAgICAgInNoYTI1NiI6ICIwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwIiwKICAgICAgInNpemUiOiA1MjQyODgwMAogICAgfQogIF0sCiAgImRlc2t0b3AiOiB7CiAgICAidmVyc2lvbiI6ICIwLjEuMSIsCiAgICAicGFnZSI6ICJodHRwOi8vZ2l0aHViLmNvbS9CVExhYnMtRVBJQy94IgogIH0KfQo=\",\n  \"signatures\": [\n    {\n      \"keyid\": \"940f8a1d8b2e098a\",\n      \"sig\": \"jM/8mfug4IKnQXUiGJnRRkHEkOnGaFBwgMgBhBHH8L2UgCKbLpdMOIoazkirjfKC36EsvxFU0KHDHL+AV9p3Cg==\"\n    }\n  ]\n}\n",
+      "expect": {
+        "outcome": "rejected",
+        "reason": "malformed",
+        "state": null
+      }
+    },
+    {
+      "name": "desktop-page-other-github-org",
+      "payloadType": "application/vnd.btlabs.wallet-for-epic.update+json",
+      "now": "2026-11-01T00:00:00Z",
+      "state": null,
+      "envelope": "{\n  \"payloadType\": \"application/vnd.btlabs.wallet-for-epic.update+json\",\n  \"payload\": \"ewogICJzY2hlbWEiOiAxLAogICJzZXJpYWwiOiAxNzkwMDAwMDAwLAogICJpc3N1ZWRfYXQiOiAiMjAyNi0xMC0wMVQwMDowMDowMFoiLAogICJleHBpcmVzX2F0IjogIjIwMjctMDQtMDFUMDA6MDA6MDBaIiwKICAicGFja2FnZU5hbWUiOiAiY29tLmJsYWNrdHlnZXIuZXBpY3dhbGxldCIsCiAgInZlcnNpb25OYW1lIjogIjAuMS4xIiwKICAibm90ZXMiOiAiRXhhbXBsZSBvbmx5OiBub3QgYSByZWFsIHJlbGVhc2UuXG5TaWduZWQgdXBkYXRlIGluZm9ybWF0aW9uLiIsCiAgImFwa3MiOiBbCiAgICB7CiAgICAgICJhYmkiOiAiYXJtNjQtdjhhIiwKICAgICAgInZlcnNpb25Db2RlIjogMiwKICAgICAgInVybCI6ICJodHRwczovL2dpdGh1Yi5jb20vQlRMYWJzLUVQSUMvd2FsbGV0LWZvci1lcGljL3JlbGVhc2VzL2Rvd25sb2FkL3YwLjEuMS9hcHAtYXJtNjQtdjhhLXJlbGVhc2UuYXBrIiwKICAgICAgInNoYTI1NiI6ICIwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwIiwKICAgICAgInNpemUiOiA1MjQyODgwMAogICAgfQogIF0sCiAgImRlc2t0b3AiOiB7CiAgICAidmVyc2lvbiI6ICIwLjEuMSIsCiAgICAicGFnZSI6ICJodHRwczovL2dpdGh1Yi5jb20vc29tZW9uZS94IgogIH0KfQo=\",\n  \"signatures\": [\n    {\n      \"keyid\": \"940f8a1d8b2e098a\",\n      \"sig\": \"K9kOvBOObvF0SWxew5KKjXLP5Jok9OKYRx+YtC8PYkbzqKc34kmegBuhR/KyJGKdxGDkNOvSfDVzZlvvYRknBw==\"\n    }\n  ]\n}\n",
+      "expect": {
+        "outcome": "rejected",
+        "reason": "malformed",
+        "state": null
+      }
+    },
+    {
+      "name": "desktop-entry-without-version",
+      "payloadType": "application/vnd.btlabs.wallet-for-epic.update+json",
+      "now": "2026-11-01T00:00:00Z",
+      "state": null,
+      "envelope": "{\n  \"payloadType\": \"application/vnd.btlabs.wallet-for-epic.update+json\",\n  \"payload\": \"ewogICJzY2hlbWEiOiAxLAogICJzZXJpYWwiOiAxNzkwMDAwMDAwLAogICJpc3N1ZWRfYXQiOiAiMjAyNi0xMC0wMVQwMDowMDowMFoiLAogICJleHBpcmVzX2F0IjogIjIwMjctMDQtMDFUMDA6MDA6MDBaIiwKICAicGFja2FnZU5hbWUiOiAiY29tLmJsYWNrdHlnZXIuZXBpY3dhbGxldCIsCiAgInZlcnNpb25OYW1lIjogIjAuMS4xIiwKICAibm90ZXMiOiAiRXhhbXBsZSBvbmx5OiBub3QgYSByZWFsIHJlbGVhc2UuXG5TaWduZWQgdXBkYXRlIGluZm9ybWF0aW9uLiIsCiAgImFwa3MiOiBbCiAgICB7CiAgICAgICJhYmkiOiAiYXJtNjQtdjhhIiwKICAgICAgInZlcnNpb25Db2RlIjogMiwKICAgICAgInVybCI6ICJodHRwczovL2dpdGh1Yi5jb20vQlRMYWJzLUVQSUMvd2FsbGV0LWZvci1lcGljL3JlbGVhc2VzL2Rvd25sb2FkL3YwLjEuMS9hcHAtYXJtNjQtdjhhLXJlbGVhc2UuYXBrIiwKICAgICAgInNoYTI1NiI6ICIwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwIiwKICAgICAgInNpemUiOiA1MjQyODgwMAogICAgfQogIF0sCiAgImRlc2t0b3AiOiB7CiAgICAicGFnZSI6ICJodHRwczovL2dpdGh1Yi5jb20vYmxhY2t0eWdlci9lcGljLXdhbGxldC9yZWxlYXNlcyIKICB9Cn0K\",\n  \"signatures\": [\n    {\n      \"keyid\": \"940f8a1d8b2e098a\",\n      \"sig\": \"PEIQ2JNDo0sakT8Kq5XkwplbLsK/rrg1KSFZZGaXnXO3VubrWVXnxV+JPTNhq4p+g836QKbrITLZwrUxHNDSDw==\"\n    }\n  ]\n}\n",
+      "expect": {
+        "outcome": "rejected",
+        "reason": "malformed",
+        "state": null
+      }
+    },
+    {
+      "name": "desktop-per-system-entry-without-version",
+      "payloadType": "application/vnd.btlabs.wallet-for-epic.update+json",
+      "now": "2026-11-01T00:00:00Z",
+      "state": null,
+      "envelope": "{\n  \"payloadType\": \"application/vnd.btlabs.wallet-for-epic.update+json\",\n  \"payload\": \"ewogICJzY2hlbWEiOiAxLAogICJzZXJpYWwiOiAxNzkwMDAwMDAwLAogICJpc3N1ZWRfYXQiOiAiMjAyNi0xMC0wMVQwMDowMDowMFoiLAogICJleHBpcmVzX2F0IjogIjIwMjctMDQtMDFUMDA6MDA6MDBaIiwKICAicGFja2FnZU5hbWUiOiAiY29tLmJsYWNrdHlnZXIuZXBpY3dhbGxldCIsCiAgInZlcnNpb25OYW1lIjogIjAuMS4xIiwKICAibm90ZXMiOiAiRXhhbXBsZSBvbmx5OiBub3QgYSByZWFsIHJlbGVhc2UuXG5TaWduZWQgdXBkYXRlIGluZm9ybWF0aW9uLiIsCiAgImFwa3MiOiBbCiAgICB7CiAgICAgICJhYmkiOiAiYXJtNjQtdjhhIiwKICAgICAgInZlcnNpb25Db2RlIjogMiwKICAgICAgInVybCI6ICJodHRwczovL2dpdGh1Yi5jb20vQlRMYWJzLUVQSUMvd2FsbGV0LWZvci1lcGljL3JlbGVhc2VzL2Rvd25sb2FkL3YwLjEuMS9hcHAtYXJtNjQtdjhhLXJlbGVhc2UuYXBrIiwKICAgICAgInNoYTI1NiI6ICIwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwIiwKICAgICAgInNpemUiOiA1MjQyODgwMAogICAgfQogIF0sCiAgImRlc2t0b3AiOiB7CiAgICAid2luZG93cyI6IHsKICAgICAgInBhZ2UiOiAiaHR0cHM6Ly9naXRodWIuY29tL2JsYWNrdHlnZXIvZXBpYy13YWxsZXQvcmVsZWFzZXMiCiAgICB9CiAgfQp9Cg==\",\n  \"signatures\": [\n    {\n      \"keyid\": \"940f8a1d8b2e098a\",\n      \"sig\": \"Bg7S0fH4eb3z6rRQymBpI3Pw6p4YWm0XFldO5zDHz6lzJvHCJf/Use2dRaRK4eHOX5OFAryjlClXKwJsxraZBA==\"\n    }\n  ]\n}\n",
+      "expect": {
+        "outcome": "rejected",
+        "reason": "malformed",
+        "state": null
+      }
+    },
+    {
+      "name": "desktop-empty-object",
+      "payloadType": "application/vnd.btlabs.wallet-for-epic.update+json",
+      "now": "2026-11-01T00:00:00Z",
+      "state": null,
+      "envelope": "{\n  \"payloadType\": \"application/vnd.btlabs.wallet-for-epic.update+json\",\n  \"payload\": \"ewogICJzY2hlbWEiOiAxLAogICJzZXJpYWwiOiAxNzkwMDAwMDAwLAogICJpc3N1ZWRfYXQiOiAiMjAyNi0xMC0wMVQwMDowMDowMFoiLAogICJleHBpcmVzX2F0IjogIjIwMjctMDQtMDFUMDA6MDA6MDBaIiwKICAicGFja2FnZU5hbWUiOiAiY29tLmJsYWNrdHlnZXIuZXBpY3dhbGxldCIsCiAgInZlcnNpb25OYW1lIjogIjAuMS4xIiwKICAibm90ZXMiOiAiRXhhbXBsZSBvbmx5OiBub3QgYSByZWFsIHJlbGVhc2UuXG5TaWduZWQgdXBkYXRlIGluZm9ybWF0aW9uLiIsCiAgImFwa3MiOiBbCiAgICB7CiAgICAgICJhYmkiOiAiYXJtNjQtdjhhIiwKICAgICAgInZlcnNpb25Db2RlIjogMiwKICAgICAgInVybCI6ICJodHRwczovL2dpdGh1Yi5jb20vQlRMYWJzLUVQSUMvd2FsbGV0LWZvci1lcGljL3JlbGVhc2VzL2Rvd25sb2FkL3YwLjEuMS9hcHAtYXJtNjQtdjhhLXJlbGVhc2UuYXBrIiwKICAgICAgInNoYTI1NiI6ICIwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwIiwKICAgICAgInNpemUiOiA1MjQyODgwMAogICAgfQogIF0sCiAgImRlc2t0b3AiOiB7fQp9Cg==\",\n  \"signatures\": [\n    {\n      \"keyid\": \"940f8a1d8b2e098a\",\n      \"sig\": \"lrNzNl0zE2jtU42FCBRESXHzcrlpFAy6nAaqbOV8IwquDY2DL5vAy3hKF6ILnZXXFpIEHgw3RiKzbCXCJACLBQ==\"\n    }\n  ]\n}\n",
+      "expect": {
+        "outcome": "rejected",
+        "reason": "malformed",
+        "state": null
+      }
+    },
+    {
+      "name": "desktop-per-system-unknown-system",
+      "payloadType": "application/vnd.btlabs.wallet-for-epic.update+json",
+      "now": "2026-11-01T00:00:00Z",
+      "state": null,
+      "envelope": "{\n  \"payloadType\": \"application/vnd.btlabs.wallet-for-epic.update+json\",\n  \"payload\": \"ewogICJzY2hlbWEiOiAxLAogICJzZXJpYWwiOiAxNzkwMDAwMDAwLAogICJpc3N1ZWRfYXQiOiAiMjAyNi0xMC0wMVQwMDowMDowMFoiLAogICJleHBpcmVzX2F0IjogIjIwMjctMDQtMDFUMDA6MDA6MDBaIiwKICAicGFja2FnZU5hbWUiOiAiY29tLmJsYWNrdHlnZXIuZXBpY3dhbGxldCIsCiAgInZlcnNpb25OYW1lIjogIjAuMS4xIiwKICAibm90ZXMiOiAiRXhhbXBsZSBvbmx5OiBub3QgYSByZWFsIHJlbGVhc2UuXG5TaWduZWQgdXBkYXRlIGluZm9ybWF0aW9uLiIsCiAgImFwa3MiOiBbCiAgICB7CiAgICAgICJhYmkiOiAiYXJtNjQtdjhhIiwKICAgICAgInZlcnNpb25Db2RlIjogMiwKICAgICAgInVybCI6ICJodHRwczovL2dpdGh1Yi5jb20vQlRMYWJzLUVQSUMvd2FsbGV0LWZvci1lcGljL3JlbGVhc2VzL2Rvd25sb2FkL3YwLjEuMS9hcHAtYXJtNjQtdjhhLXJlbGVhc2UuYXBrIiwKICAgICAgInNoYTI1NiI6ICIwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwIiwKICAgICAgInNpemUiOiA1MjQyODgwMAogICAgfQogIF0sCiAgImRlc2t0b3AiOiB7CiAgICAid2luZG93cyI6IHsKICAgICAgInZlcnNpb24iOiAiMC4xLjEiLAogICAgICAicGFnZSI6ICJodHRwczovL2dpdGh1Yi5jb20vYmxhY2t0eWdlci9lcGljLXdhbGxldC9yZWxlYXNlcyIKICAgIH0sCiAgICAiYnNkIjogewogICAgICAidmVyc2lvbiI6ICIwLjEuMSIsCiAgICAgICJwYWdlIjogImh0dHBzOi8vZ2l0aHViLmNvbS9ibGFja3R5Z2VyL2VwaWMtd2FsbGV0L3JlbGVhc2VzIgogICAgfQogIH0KfQo=\",\n  \"signatures\": [\n    {\n      \"keyid\": \"940f8a1d8b2e098a\",\n      \"sig\": \"W0oIzQEnseMS6t8LHwjIErkvayY4bS+NGYUlFuZJq97gCvOpZee6MufJcDK6/dU/CNJ2VMIzQ8Rr1iaI3Y3nBw==\"\n    }\n  ]\n}\n",
+      "expect": {
+        "outcome": "rejected",
+        "reason": "malformed",
+        "state": null
+      }
+    },
+    {
+      "name": "desktop-version-bad",
+      "payloadType": "application/vnd.btlabs.wallet-for-epic.update+json",
+      "now": "2026-11-01T00:00:00Z",
+      "state": null,
+      "envelope": "{\n  \"payloadType\": \"application/vnd.btlabs.wallet-for-epic.update+json\",\n  \"payload\": \"ewogICJzY2hlbWEiOiAxLAogICJzZXJpYWwiOiAxNzkwMDAwMDAwLAogICJpc3N1ZWRfYXQiOiAiMjAyNi0xMC0wMVQwMDowMDowMFoiLAogICJleHBpcmVzX2F0IjogIjIwMjctMDQtMDFUMDA6MDA6MDBaIiwKICAicGFja2FnZU5hbWUiOiAiY29tLmJsYWNrdHlnZXIuZXBpY3dhbGxldCIsCiAgInZlcnNpb25OYW1lIjogIjAuMS4xIiwKICAibm90ZXMiOiAiRXhhbXBsZSBvbmx5OiBub3QgYSByZWFsIHJlbGVhc2UuXG5TaWduZWQgdXBkYXRlIGluZm9ybWF0aW9uLiIsCiAgImFwa3MiOiBbCiAgICB7CiAgICAgICJhYmkiOiAiYXJtNjQtdjhhIiwKICAgICAgInZlcnNpb25Db2RlIjogMiwKICAgICAgInVybCI6ICJodHRwczovL2dpdGh1Yi5jb20vQlRMYWJzLUVQSUMvd2FsbGV0LWZvci1lcGljL3JlbGVhc2VzL2Rvd25sb2FkL3YwLjEuMS9hcHAtYXJtNjQtdjhhLXJlbGVhc2UuYXBrIiwKICAgICAgInNoYTI1NiI6ICIwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwIiwKICAgICAgInNpemUiOiA1MjQyODgwMAogICAgfQogIF0sCiAgImRlc2t0b3AiOiB7CiAgICAidmVyc2lvbiI6ICIwLjEiCiAgfQp9Cg==\",\n  \"signatures\": [\n    {\n      \"keyid\": \"940f8a1d8b2e098a\",\n      \"sig\": \"3ZIGN0ygZRHUwTOGjDK7SIyXa2zlGMo3l0yCURG8peL2PebozgAGSCAHuXMr5MzO84WePU+eKmY5dBPc+wKZCQ==\"\n    }\n  ]\n}\n",
+      "expect": {
+        "outcome": "rejected",
+        "reason": "malformed",
+        "state": null
+      }
+    },
+    {
+      "name": "apks-empty",
+      "payloadType": "application/vnd.btlabs.wallet-for-epic.update+json",
+      "now": "2026-11-01T00:00:00Z",
+      "state": null,
+      "envelope": "{\n  \"payloadType\": \"application/vnd.btlabs.wallet-for-epic.update+json\",\n  \"payload\": \"ewogICJzY2hlbWEiOiAxLAogICJzZXJpYWwiOiAxNzkwMDAwMDAwLAogICJpc3N1ZWRfYXQiOiAiMjAyNi0xMC0wMVQwMDowMDowMFoiLAogICJleHBpcmVzX2F0IjogIjIwMjctMDQtMDFUMDA6MDA6MDBaIiwKICAicGFja2FnZU5hbWUiOiAiY29tLmJsYWNrdHlnZXIuZXBpY3dhbGxldCIsCiAgInZlcnNpb25OYW1lIjogIjAuMS4xIiwKICAibm90ZXMiOiAiRXhhbXBsZSBvbmx5OiBub3QgYSByZWFsIHJlbGVhc2UuXG5TaWduZWQgdXBkYXRlIGluZm9ybWF0aW9uLiIsCiAgImFwa3MiOiBbXSwKICAiZGVza3RvcCI6IHsKICAgICJ2ZXJzaW9uIjogIjAuMS4xIiwKICAgICJwYWdlIjogImh0dHBzOi8vZ2l0aHViLmNvbS9CVExhYnMtRVBJQy93YWxsZXQtZm9yLWVwaWMvcmVsZWFzZXMvdGFnL3YwLjEuMSIKICB9Cn0K\",\n  \"signatures\": [\n    {\n      \"keyid\": \"940f8a1d8b2e098a\",\n      \"sig\": \"774PFMlwnO5SvnZxzc+pThJ80U4dJ5J+VUKOkMD6oZgyPIYH+UKsZ364uQZIXIrVqktQ1MIpJ5udYRY6piZKBg==\"\n    }\n  ]\n}\n",
+      "expect": {
+        "outcome": "rejected",
+        "reason": "malformed",
+        "state": null
+      }
+    },
+    {
+      "name": "apks-missing",
+      "payloadType": "application/vnd.btlabs.wallet-for-epic.update+json",
+      "now": "2026-11-01T00:00:00Z",
+      "state": null,
+      "envelope": "{\n  \"payloadType\": \"application/vnd.btlabs.wallet-for-epic.update+json\",\n  \"payload\": \"ewogICJzY2hlbWEiOiAxLAogICJzZXJpYWwiOiAxNzkwMDAwMDAwLAogICJpc3N1ZWRfYXQiOiAiMjAyNi0xMC0wMVQwMDowMDowMFoiLAogICJleHBpcmVzX2F0IjogIjIwMjctMDQtMDFUMDA6MDA6MDBaIiwKICAicGFja2FnZU5hbWUiOiAiY29tLmJsYWNrdHlnZXIuZXBpY3dhbGxldCIsCiAgInZlcnNpb25OYW1lIjogIjAuMS4xIiwKICAibm90ZXMiOiAiRXhhbXBsZSBvbmx5OiBub3QgYSByZWFsIHJlbGVhc2UuXG5TaWduZWQgdXBkYXRlIGluZm9ybWF0aW9uLiIsCiAgImRlc2t0b3AiOiB7CiAgICAidmVyc2lvbiI6ICIwLjEuMSIsCiAgICAicGFnZSI6ICJodHRwczovL2dpdGh1Yi5jb20vQlRMYWJzLUVQSUMvd2FsbGV0LWZvci1lcGljL3JlbGVhc2VzL3RhZy92MC4xLjEiCiAgfQp9Cg==\",\n  \"signatures\": [\n    {\n      \"keyid\": \"940f8a1d8b2e098a\",\n      \"sig\": \"4uPhYvRC4uSs0+JjWW9dI/HHsyvsLlkSQjv8EzRSJH1bysDymjuWyppswBv/cCW19dMPgMLEBaug2KtzfsFUCg==\"\n    }\n  ]\n}\n",
+      "expect": {
+        "outcome": "rejected",
+        "reason": "malformed",
+        "state": null
+      }
+    },
+    {
+      "name": "apks-nine",
+      "payloadType": "application/vnd.btlabs.wallet-for-epic.update+json",
+      "now": "2026-11-01T00:00:00Z",
+      "state": null,
+      "envelope": "{\n  \"payloadType\": \"application/vnd.btlabs.wallet-for-epic.update+json\",\n  \"payload\": \"ewogICJzY2hlbWEiOiAxLAogICJzZXJpYWwiOiAxNzkwMDAwMDAwLAogICJpc3N1ZWRfYXQiOiAiMjAyNi0xMC0wMVQwMDowMDowMFoiLAogICJleHBpcmVzX2F0IjogIjIwMjctMDQtMDFUMDA6MDA6MDBaIiwKICAicGFja2FnZU5hbWUiOiAiY29tLmJsYWNrdHlnZXIuZXBpY3dhbGxldCIsCiAgInZlcnNpb25OYW1lIjogIjAuMS4xIiwKICAibm90ZXMiOiAiRXhhbXBsZSBvbmx5OiBub3QgYSByZWFsIHJlbGVhc2UuXG5TaWduZWQgdXBkYXRlIGluZm9ybWF0aW9uLiIsCiAgImFwa3MiOiBbCiAgICB7CiAgICAgICJhYmkiOiAiYXJtNjQtdjhhIiwKICAgICAgInZlcnNpb25Db2RlIjogMiwKICAgICAgInVybCI6ICJodHRwczovL2dpdGh1Yi5jb20vQlRMYWJzLUVQSUMvd2FsbGV0LWZvci1lcGljL3JlbGVhc2VzL2Rvd25sb2FkL3YwLjEuMS9hcHAtYXJtNjQtdjhhLXJlbGVhc2UuYXBrIiwKICAgICAgInNoYTI1NiI6ICIwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwIiwKICAgICAgInNpemUiOiA1MjQyODgwMAogICAgfSwKICAgIHsKICAgICAgImFiaSI6ICJhcm1lYWJpLXY3YSIsCiAgICAgICJ2ZXJzaW9uQ29kZSI6IDIsCiAgICAgICJ1cmwiOiAiaHR0cHM6Ly9naXRodWIuY29tL0JUTGFicy1FUElDL3dhbGxldC1mb3ItZXBpYy9yZWxlYXNlcy9kb3dubG9hZC92MC4xLjEvYXBwLWFybTY0LXY4YS1yZWxlYXNlLmFwayIsCiAgICAgICJzaGEyNTYiOiAiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMCIsCiAgICAgICJzaXplIjogNTI0Mjg4MDAKICAgIH0sCiAgICB7CiAgICAgICJhYmkiOiAieDg2XzY0IiwKICAgICAgInZlcnNpb25Db2RlIjogMiwKICAgICAgInVybCI6ICJodHRwczovL2dpdGh1Yi5jb20vQlRMYWJzLUVQSUMvd2FsbGV0LWZvci1lcGljL3JlbGVhc2VzL2Rvd25sb2FkL3YwLjEuMS9hcHAtYXJtNjQtdjhhLXJlbGVhc2UuYXBrIiwKICAgICAgInNoYTI1NiI6ICIwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwIiwKICAgICAgInNpemUiOiA1MjQyODgwMAogICAgfSwKICAgIHsKICAgICAgImFiaSI6ICJ1bml2ZXJzYWwiLAogICAgICAidmVyc2lvbkNvZGUiOiAyLAogICAgICAidXJsIjogImh0dHBzOi8vZ2l0aHViLmNvbS9CVExhYnMtRVBJQy93YWxsZXQtZm9yLWVwaWMvcmVsZWFzZXMvZG93bmxvYWQvdjAuMS4xL2FwcC1hcm02NC12OGEtcmVsZWFzZS5hcGsiLAogICAgICAic2hhMjU2IjogIjAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAiLAogICAgICAic2l6ZSI6IDUyNDI4ODAwCiAgICB9LAogICAgewogICAgICAiYWJpIjogImExIiwKICAgICAgInZlcnNpb25Db2RlIjogMiwKICAgICAgInVybCI6ICJodHRwczovL2dpdGh1Yi5jb20vQlRMYWJzLUVQSUMvd2FsbGV0LWZvci1lcGljL3JlbGVhc2VzL2Rvd25sb2FkL3YwLjEuMS9hcHAtYXJtNjQtdjhhLXJlbGVhc2UuYXBrIiwKICAgICAgInNoYTI1NiI6ICIwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwIiwKICAgICAgInNpemUiOiA1MjQyODgwMAogICAgfSwKICAgIHsKICAgICAgImFiaSI6ICJhMiIsCiAgICAgICJ2ZXJzaW9uQ29kZSI6IDIsCiAgICAgICJ1cmwiOiAiaHR0cHM6Ly9naXRodWIuY29tL0JUTGFicy1FUElDL3dhbGxldC1mb3ItZXBpYy9yZWxlYXNlcy9kb3dubG9hZC92MC4xLjEvYXBwLWFybTY0LXY4YS1yZWxlYXNlLmFwayIsCiAgICAgICJzaGEyNTYiOiAiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMCIsCiAgICAgICJzaXplIjogNTI0Mjg4MDAKICAgIH0sCiAgICB7CiAgICAgICJhYmkiOiAiYTMiLAogICAgICAidmVyc2lvbkNvZGUiOiAyLAogICAgICAidXJsIjogImh0dHBzOi8vZ2l0aHViLmNvbS9CVExhYnMtRVBJQy93YWxsZXQtZm9yLWVwaWMvcmVsZWFzZXMvZG93bmxvYWQvdjAuMS4xL2FwcC1hcm02NC12OGEtcmVsZWFzZS5hcGsiLAogICAgICAic2hhMjU2IjogIjAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAiLAogICAgICAic2l6ZSI6IDUyNDI4ODAwCiAgICB9LAogICAgewogICAgICAiYWJpIjogImE0IiwKICAgICAgInZlcnNpb25Db2RlIjogMiwKICAgICAgInVybCI6ICJodHRwczovL2dpdGh1Yi5jb20vQlRMYWJzLUVQSUMvd2FsbGV0LWZvci1lcGljL3JlbGVhc2VzL2Rvd25sb2FkL3YwLjEuMS9hcHAtYXJtNjQtdjhhLXJlbGVhc2UuYXBrIiwKICAgICAgInNoYTI1NiI6ICIwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwIiwKICAgICAgInNpemUiOiA1MjQyODgwMAogICAgfSwKICAgIHsKICAgICAgImFiaSI6ICJhNSIsCiAgICAgICJ2ZXJzaW9uQ29kZSI6IDIsCiAgICAgICJ1cmwiOiAiaHR0cHM6Ly9naXRodWIuY29tL0JUTGFicy1FUElDL3dhbGxldC1mb3ItZXBpYy9yZWxlYXNlcy9kb3dubG9hZC92MC4xLjEvYXBwLWFybTY0LXY4YS1yZWxlYXNlLmFwayIsCiAgICAgICJzaGEyNTYiOiAiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMCIsCiAgICAgICJzaXplIjogNTI0Mjg4MDAKICAgIH0KICBdLAogICJkZXNrdG9wIjogewogICAgInZlcnNpb24iOiAiMC4xLjEiLAogICAgInBhZ2UiOiAiaHR0cHM6Ly9naXRodWIuY29tL0JUTGFicy1FUElDL3dhbGxldC1mb3ItZXBpYy9yZWxlYXNlcy90YWcvdjAuMS4xIgogIH0KfQo=\",\n  \"signatures\": [\n    {\n      \"keyid\": \"940f8a1d8b2e098a\",\n      \"sig\": \"0iOfiXycnudJYPy/rI010QMl0MaQ3uH5imVho2WM3RdRJEN2kS061VyklJ3wbW8aP7xNWQDAn0AOrtRs71+KAQ==\"\n    }\n  ]\n}\n",
+      "expect": {
+        "outcome": "rejected",
+        "reason": "malformed",
+        "state": null
+      }
+    },
+    {
+      "name": "apks-duplicate-abi",
+      "payloadType": "application/vnd.btlabs.wallet-for-epic.update+json",
+      "now": "2026-11-01T00:00:00Z",
+      "state": null,
+      "envelope": "{\n  \"payloadType\": \"application/vnd.btlabs.wallet-for-epic.update+json\",\n  \"payload\": \"ewogICJzY2hlbWEiOiAxLAogICJzZXJpYWwiOiAxNzkwMDAwMDAwLAogICJpc3N1ZWRfYXQiOiAiMjAyNi0xMC0wMVQwMDowMDowMFoiLAogICJleHBpcmVzX2F0IjogIjIwMjctMDQtMDFUMDA6MDA6MDBaIiwKICAicGFja2FnZU5hbWUiOiAiY29tLmJsYWNrdHlnZXIuZXBpY3dhbGxldCIsCiAgInZlcnNpb25OYW1lIjogIjAuMS4xIiwKICAibm90ZXMiOiAiRXhhbXBsZSBvbmx5OiBub3QgYSByZWFsIHJlbGVhc2UuXG5TaWduZWQgdXBkYXRlIGluZm9ybWF0aW9uLiIsCiAgImFwa3MiOiBbCiAgICB7CiAgICAgICJhYmkiOiAiYXJtNjQtdjhhIiwKICAgICAgInZlcnNpb25Db2RlIjogMiwKICAgICAgInVybCI6ICJodHRwczovL2dpdGh1Yi5jb20vQlRMYWJzLUVQSUMvd2FsbGV0LWZvci1lcGljL3JlbGVhc2VzL2Rvd25sb2FkL3YwLjEuMS9hcHAtYXJtNjQtdjhhLXJlbGVhc2UuYXBrIiwKICAgICAgInNoYTI1NiI6ICIwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwIiwKICAgICAgInNpemUiOiA1MjQyODgwMAogICAgfSwKICAgIHsKICAgICAgImFiaSI6ICJhcm02NC12OGEiLAogICAgICAidmVyc2lvbkNvZGUiOiAyLAogICAgICAidXJsIjogImh0dHBzOi8vZ2l0aHViLmNvbS9CVExhYnMtRVBJQy93YWxsZXQtZm9yLWVwaWMvcmVsZWFzZXMvZG93bmxvYWQvdjAuMS4xL2FwcC1hcm02NC12OGEtcmVsZWFzZS5hcGsiLAogICAgICAic2hhMjU2IjogIjAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAiLAogICAgICAic2l6ZSI6IDUyNDI4ODAwCiAgICB9CiAgXSwKICAiZGVza3RvcCI6IHsKICAgICJ2ZXJzaW9uIjogIjAuMS4xIiwKICAgICJwYWdlIjogImh0dHBzOi8vZ2l0aHViLmNvbS9CVExhYnMtRVBJQy93YWxsZXQtZm9yLWVwaWMvcmVsZWFzZXMvdGFnL3YwLjEuMSIKICB9Cn0K\",\n  \"signatures\": [\n    {\n      \"keyid\": \"940f8a1d8b2e098a\",\n      \"sig\": \"E/eRL7ZXpbonOG94Y15D0lx6HHWsPhvwB43Q2UcNS414mkn9svw5Ts7MDCiUqLeWt/CVjQATXg4urxOHIo7TBg==\"\n    }\n  ]\n}\n",
+      "expect": {
+        "outcome": "rejected",
+        "reason": "malformed",
+        "state": null
+      }
+    },
+    {
+      "name": "apks-two-distinct-abis-accepted",
+      "payloadType": "application/vnd.btlabs.wallet-for-epic.update+json",
+      "now": "2026-11-01T00:00:00Z",
+      "state": null,
+      "envelope": "{\n  \"payloadType\": \"application/vnd.btlabs.wallet-for-epic.update+json\",\n  \"payload\": \"ewogICJzY2hlbWEiOiAxLAogICJzZXJpYWwiOiAxNzkwMDAwMDAwLAogICJpc3N1ZWRfYXQiOiAiMjAyNi0xMC0wMVQwMDowMDowMFoiLAogICJleHBpcmVzX2F0IjogIjIwMjctMDQtMDFUMDA6MDA6MDBaIiwKICAicGFja2FnZU5hbWUiOiAiY29tLmJsYWNrdHlnZXIuZXBpY3dhbGxldCIsCiAgInZlcnNpb25OYW1lIjogIjAuMS4xIiwKICAibm90ZXMiOiAiRXhhbXBsZSBvbmx5OiBub3QgYSByZWFsIHJlbGVhc2UuXG5TaWduZWQgdXBkYXRlIGluZm9ybWF0aW9uLiIsCiAgImFwa3MiOiBbCiAgICB7CiAgICAgICJhYmkiOiAiYXJtNjQtdjhhIiwKICAgICAgInZlcnNpb25Db2RlIjogMiwKICAgICAgInVybCI6ICJodHRwczovL2dpdGh1Yi5jb20vQlRMYWJzLUVQSUMvd2FsbGV0LWZvci1lcGljL3JlbGVhc2VzL2Rvd25sb2FkL3YwLjEuMS9hcHAtYXJtNjQtdjhhLXJlbGVhc2UuYXBrIiwKICAgICAgInNoYTI1NiI6ICIwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwIiwKICAgICAgInNpemUiOiA1MjQyODgwMAogICAgfSwKICAgIHsKICAgICAgImFiaSI6ICJ4ODZfNjQiLAogICAgICAidmVyc2lvbkNvZGUiOiAyLAogICAgICAidXJsIjogImh0dHBzOi8vZ2l0aHViLmNvbS9CVExhYnMtRVBJQy93YWxsZXQtZm9yLWVwaWMvcmVsZWFzZXMvZG93bmxvYWQvdjAuMS4xL2FwcC1hcm02NC12OGEtcmVsZWFzZS5hcGsiLAogICAgICAic2hhMjU2IjogIjAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAiLAogICAgICAic2l6ZSI6IDUyNDI4ODAwCiAgICB9CiAgXSwKICAiZGVza3RvcCI6IHsKICAgICJ2ZXJzaW9uIjogIjAuMS4xIiwKICAgICJwYWdlIjogImh0dHBzOi8vZ2l0aHViLmNvbS9CVExhYnMtRVBJQy93YWxsZXQtZm9yLWVwaWMvcmVsZWFzZXMvdGFnL3YwLjEuMSIKICB9Cn0K\",\n  \"signatures\": [\n    {\n      \"keyid\": \"940f8a1d8b2e098a\",\n      \"sig\": \"QGQtdYRyrEbfrJNIBfHgwYqKqqIJ4fMPzWytp21dNjllzphDKhGEvbeo3uS1EoabeYag+uvCDD3VQRVtu9r+DQ==\"\n    }\n  ]\n}\n",
+      "expect": {
+        "outcome": "accepted",
+        "reason": null,
+        "state": {
+          "serial": 1790000000,
+          "keyid": "940f8a1d8b2e098a",
+          "digest": "2c94bfb9217962659b7b2272e1a2f59e4ec5ef6315b80dd6062189f738c069bc",
+          "revoked": []
+        }
+      }
+    },
+    {
+      "name": "apk-abi-mips",
+      "payloadType": "application/vnd.btlabs.wallet-for-epic.update+json",
+      "now": "2026-11-01T00:00:00Z",
+      "state": null,
+      "envelope": "{\n  \"payloadType\": \"application/vnd.btlabs.wallet-for-epic.update+json\",\n  \"payload\": \"ewogICJzY2hlbWEiOiAxLAogICJzZXJpYWwiOiAxNzkwMDAwMDAwLAogICJpc3N1ZWRfYXQiOiAiMjAyNi0xMC0wMVQwMDowMDowMFoiLAogICJleHBpcmVzX2F0IjogIjIwMjctMDQtMDFUMDA6MDA6MDBaIiwKICAicGFja2FnZU5hbWUiOiAiY29tLmJsYWNrdHlnZXIuZXBpY3dhbGxldCIsCiAgInZlcnNpb25OYW1lIjogIjAuMS4xIiwKICAibm90ZXMiOiAiRXhhbXBsZSBvbmx5OiBub3QgYSByZWFsIHJlbGVhc2UuXG5TaWduZWQgdXBkYXRlIGluZm9ybWF0aW9uLiIsCiAgImFwa3MiOiBbCiAgICB7CiAgICAgICJhYmkiOiAibWlwcyIsCiAgICAgICJ2ZXJzaW9uQ29kZSI6IDIsCiAgICAgICJ1cmwiOiAiaHR0cHM6Ly9naXRodWIuY29tL0JUTGFicy1FUElDL3dhbGxldC1mb3ItZXBpYy9yZWxlYXNlcy9kb3dubG9hZC92MC4xLjEvYXBwLWFybTY0LXY4YS1yZWxlYXNlLmFwayIsCiAgICAgICJzaGEyNTYiOiAiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMCIsCiAgICAgICJzaXplIjogNTI0Mjg4MDAKICAgIH0KICBdLAogICJkZXNrdG9wIjogewogICAgInZlcnNpb24iOiAiMC4xLjEiLAogICAgInBhZ2UiOiAiaHR0cHM6Ly9naXRodWIuY29tL0JUTGFicy1FUElDL3dhbGxldC1mb3ItZXBpYy9yZWxlYXNlcy90YWcvdjAuMS4xIgogIH0KfQo=\",\n  \"signatures\": [\n    {\n      \"keyid\": \"940f8a1d8b2e098a\",\n      \"sig\": \"0RlOtUT/PCF4H/XWIbsmn6ih/rQmccc48F1RY2WKUXa9EIVrEN2n2bOztR/YzTJDN2zBewJ8GGMUN7aI4XQfAg==\"\n    }\n  ]\n}\n",
+      "expect": {
+        "outcome": "rejected",
+        "reason": "malformed",
+        "state": null
+      }
+    },
+    {
+      "name": "apk-sha256-uppercase",
+      "payloadType": "application/vnd.btlabs.wallet-for-epic.update+json",
+      "now": "2026-11-01T00:00:00Z",
+      "state": null,
+      "envelope": "{\n  \"payloadType\": \"application/vnd.btlabs.wallet-for-epic.update+json\",\n  \"payload\": \"ewogICJzY2hlbWEiOiAxLAogICJzZXJpYWwiOiAxNzkwMDAwMDAwLAogICJpc3N1ZWRfYXQiOiAiMjAyNi0xMC0wMVQwMDowMDowMFoiLAogICJleHBpcmVzX2F0IjogIjIwMjctMDQtMDFUMDA6MDA6MDBaIiwKICAicGFja2FnZU5hbWUiOiAiY29tLmJsYWNrdHlnZXIuZXBpY3dhbGxldCIsCiAgInZlcnNpb25OYW1lIjogIjAuMS4xIiwKICAibm90ZXMiOiAiRXhhbXBsZSBvbmx5OiBub3QgYSByZWFsIHJlbGVhc2UuXG5TaWduZWQgdXBkYXRlIGluZm9ybWF0aW9uLiIsCiAgImFwa3MiOiBbCiAgICB7CiAgICAgICJhYmkiOiAiYXJtNjQtdjhhIiwKICAgICAgInZlcnNpb25Db2RlIjogMiwKICAgICAgInVybCI6ICJodHRwczovL2dpdGh1Yi5jb20vQlRMYWJzLUVQSUMvd2FsbGV0LWZvci1lcGljL3JlbGVhc2VzL2Rvd25sb2FkL3YwLjEuMS9hcHAtYXJtNjQtdjhhLXJlbGVhc2UuYXBrIiwKICAgICAgInNoYTI1NiI6ICJBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBIiwKICAgICAgInNpemUiOiA1MjQyODgwMAogICAgfQogIF0sCiAgImRlc2t0b3AiOiB7CiAgICAidmVyc2lvbiI6ICIwLjEuMSIsCiAgICAicGFnZSI6ICJodHRwczovL2dpdGh1Yi5jb20vQlRMYWJzLUVQSUMvd2FsbGV0LWZvci1lcGljL3JlbGVhc2VzL3RhZy92MC4xLjEiCiAgfQp9Cg==\",\n  \"signatures\": [\n    {\n      \"keyid\": \"940f8a1d8b2e098a\",\n      \"sig\": \"+WZeaEFARqHBHtbrLNgvNIVFRLuxRK+RicdLKvpmFCoPlhit17Egv9hXzOsyQlVUFfw6P7KBPiLxK2z8lVbVAg==\"\n    }\n  ]\n}\n",
+      "expect": {
+        "outcome": "rejected",
+        "reason": "malformed",
+        "state": null
+      }
+    },
+    {
+      "name": "apk-sha256-short",
+      "payloadType": "application/vnd.btlabs.wallet-for-epic.update+json",
+      "now": "2026-11-01T00:00:00Z",
+      "state": null,
+      "envelope": "{\n  \"payloadType\": \"application/vnd.btlabs.wallet-for-epic.update+json\",\n  \"payload\": \"ewogICJzY2hlbWEiOiAxLAogICJzZXJpYWwiOiAxNzkwMDAwMDAwLAogICJpc3N1ZWRfYXQiOiAiMjAyNi0xMC0wMVQwMDowMDowMFoiLAogICJleHBpcmVzX2F0IjogIjIwMjctMDQtMDFUMDA6MDA6MDBaIiwKICAicGFja2FnZU5hbWUiOiAiY29tLmJsYWNrdHlnZXIuZXBpY3dhbGxldCIsCiAgInZlcnNpb25OYW1lIjogIjAuMS4xIiwKICAibm90ZXMiOiAiRXhhbXBsZSBvbmx5OiBub3QgYSByZWFsIHJlbGVhc2UuXG5TaWduZWQgdXBkYXRlIGluZm9ybWF0aW9uLiIsCiAgImFwa3MiOiBbCiAgICB7CiAgICAgICJhYmkiOiAiYXJtNjQtdjhhIiwKICAgICAgInZlcnNpb25Db2RlIjogMiwKICAgICAgInVybCI6ICJodHRwczovL2dpdGh1Yi5jb20vQlRMYWJzLUVQSUMvd2FsbGV0LWZvci1lcGljL3JlbGVhc2VzL2Rvd25sb2FkL3YwLjEuMS9hcHAtYXJtNjQtdjhhLXJlbGVhc2UuYXBrIiwKICAgICAgInNoYTI1NiI6ICJhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWEiLAogICAgICAic2l6ZSI6IDUyNDI4ODAwCiAgICB9CiAgXSwKICAiZGVza3RvcCI6IHsKICAgICJ2ZXJzaW9uIjogIjAuMS4xIiwKICAgICJwYWdlIjogImh0dHBzOi8vZ2l0aHViLmNvbS9CVExhYnMtRVBJQy93YWxsZXQtZm9yLWVwaWMvcmVsZWFzZXMvdGFnL3YwLjEuMSIKICB9Cn0K\",\n  \"signatures\": [\n    {\n      \"keyid\": \"940f8a1d8b2e098a\",\n      \"sig\": \"lK5tPW09k65gihsCTC7/5diiBMruTwaU1mSWOqxaknxQLUhF6URE+prqxR3T9k32ntExAVObyq1et7DAzSfACQ==\"\n    }\n  ]\n}\n",
+      "expect": {
+        "outcome": "rejected",
+        "reason": "malformed",
+        "state": null
+      }
+    },
+    {
+      "name": "apk-size-zero",
+      "payloadType": "application/vnd.btlabs.wallet-for-epic.update+json",
+      "now": "2026-11-01T00:00:00Z",
+      "state": null,
+      "envelope": "{\n  \"payloadType\": \"application/vnd.btlabs.wallet-for-epic.update+json\",\n  \"payload\": \"ewogICJzY2hlbWEiOiAxLAogICJzZXJpYWwiOiAxNzkwMDAwMDAwLAogICJpc3N1ZWRfYXQiOiAiMjAyNi0xMC0wMVQwMDowMDowMFoiLAogICJleHBpcmVzX2F0IjogIjIwMjctMDQtMDFUMDA6MDA6MDBaIiwKICAicGFja2FnZU5hbWUiOiAiY29tLmJsYWNrdHlnZXIuZXBpY3dhbGxldCIsCiAgInZlcnNpb25OYW1lIjogIjAuMS4xIiwKICAibm90ZXMiOiAiRXhhbXBsZSBvbmx5OiBub3QgYSByZWFsIHJlbGVhc2UuXG5TaWduZWQgdXBkYXRlIGluZm9ybWF0aW9uLiIsCiAgImFwa3MiOiBbCiAgICB7CiAgICAgICJhYmkiOiAiYXJtNjQtdjhhIiwKICAgICAgInZlcnNpb25Db2RlIjogMiwKICAgICAgInVybCI6ICJodHRwczovL2dpdGh1Yi5jb20vQlRMYWJzLUVQSUMvd2FsbGV0LWZvci1lcGljL3JlbGVhc2VzL2Rvd25sb2FkL3YwLjEuMS9hcHAtYXJtNjQtdjhhLXJlbGVhc2UuYXBrIiwKICAgICAgInNoYTI1NiI6ICIwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwIiwKICAgICAgInNpemUiOiAwCiAgICB9CiAgXSwKICAiZGVza3RvcCI6IHsKICAgICJ2ZXJzaW9uIjogIjAuMS4xIiwKICAgICJwYWdlIjogImh0dHBzOi8vZ2l0aHViLmNvbS9CVExhYnMtRVBJQy93YWxsZXQtZm9yLWVwaWMvcmVsZWFzZXMvdGFnL3YwLjEuMSIKICB9Cn0K\",\n  \"signatures\": [\n    {\n      \"keyid\": \"940f8a1d8b2e098a\",\n      \"sig\": \"cQl4D2Cw8xzLD2YBUzei2g1yosqJPgl4bMYyDrNjetvMne1Pk6C4/idNnnua1BhleuAA3NVFD9kstqfrkuYLBw==\"\n    }\n  ]\n}\n",
+      "expect": {
+        "outcome": "rejected",
+        "reason": "malformed",
+        "state": null
+      }
+    },
+    {
+      "name": "apk-size-too-big",
+      "payloadType": "application/vnd.btlabs.wallet-for-epic.update+json",
+      "now": "2026-11-01T00:00:00Z",
+      "state": null,
+      "envelope": "{\n  \"payloadType\": \"application/vnd.btlabs.wallet-for-epic.update+json\",\n  \"payload\": \"ewogICJzY2hlbWEiOiAxLAogICJzZXJpYWwiOiAxNzkwMDAwMDAwLAogICJpc3N1ZWRfYXQiOiAiMjAyNi0xMC0wMVQwMDowMDowMFoiLAogICJleHBpcmVzX2F0IjogIjIwMjctMDQtMDFUMDA6MDA6MDBaIiwKICAicGFja2FnZU5hbWUiOiAiY29tLmJsYWNrdHlnZXIuZXBpY3dhbGxldCIsCiAgInZlcnNpb25OYW1lIjogIjAuMS4xIiwKICAibm90ZXMiOiAiRXhhbXBsZSBvbmx5OiBub3QgYSByZWFsIHJlbGVhc2UuXG5TaWduZWQgdXBkYXRlIGluZm9ybWF0aW9uLiIsCiAgImFwa3MiOiBbCiAgICB7CiAgICAgICJhYmkiOiAiYXJtNjQtdjhhIiwKICAgICAgInZlcnNpb25Db2RlIjogMiwKICAgICAgInVybCI6ICJodHRwczovL2dpdGh1Yi5jb20vQlRMYWJzLUVQSUMvd2FsbGV0LWZvci1lcGljL3JlbGVhc2VzL2Rvd25sb2FkL3YwLjEuMS9hcHAtYXJtNjQtdjhhLXJlbGVhc2UuYXBrIiwKICAgICAgInNoYTI1NiI6ICIwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwIiwKICAgICAgInNpemUiOiA0Mjk0OTY3Mjk3CiAgICB9CiAgXSwKICAiZGVza3RvcCI6IHsKICAgICJ2ZXJzaW9uIjogIjAuMS4xIiwKICAgICJwYWdlIjogImh0dHBzOi8vZ2l0aHViLmNvbS9CVExhYnMtRVBJQy93YWxsZXQtZm9yLWVwaWMvcmVsZWFzZXMvdGFnL3YwLjEuMSIKICB9Cn0K\",\n  \"signatures\": [\n    {\n      \"keyid\": \"940f8a1d8b2e098a\",\n      \"sig\": \"BZAcnv1whDRFYfJFZ1lb1oKFEt1t5xRkC0Obth8EU2haFfOjVaUi5RBkEjNvuVt0XdoZUbOKqbAqbL499CksAA==\"\n    }\n  ]\n}\n",
+      "expect": {
+        "outcome": "rejected",
+        "reason": "malformed",
+        "state": null
+      }
+    },
+    {
+      "name": "apk-size-max-accepted",
+      "payloadType": "application/vnd.btlabs.wallet-for-epic.update+json",
+      "now": "2026-11-01T00:00:00Z",
+      "state": null,
+      "envelope": "{\n  \"payloadType\": \"application/vnd.btlabs.wallet-for-epic.update+json\",\n  \"payload\": \"ewogICJzY2hlbWEiOiAxLAogICJzZXJpYWwiOiAxNzkwMDAwMDAwLAogICJpc3N1ZWRfYXQiOiAiMjAyNi0xMC0wMVQwMDowMDowMFoiLAogICJleHBpcmVzX2F0IjogIjIwMjctMDQtMDFUMDA6MDA6MDBaIiwKICAicGFja2FnZU5hbWUiOiAiY29tLmJsYWNrdHlnZXIuZXBpY3dhbGxldCIsCiAgInZlcnNpb25OYW1lIjogIjAuMS4xIiwKICAibm90ZXMiOiAiRXhhbXBsZSBvbmx5OiBub3QgYSByZWFsIHJlbGVhc2UuXG5TaWduZWQgdXBkYXRlIGluZm9ybWF0aW9uLiIsCiAgImFwa3MiOiBbCiAgICB7CiAgICAgICJhYmkiOiAiYXJtNjQtdjhhIiwKICAgICAgInZlcnNpb25Db2RlIjogMiwKICAgICAgInVybCI6ICJodHRwczovL2dpdGh1Yi5jb20vQlRMYWJzLUVQSUMvd2FsbGV0LWZvci1lcGljL3JlbGVhc2VzL2Rvd25sb2FkL3YwLjEuMS9hcHAtYXJtNjQtdjhhLXJlbGVhc2UuYXBrIiwKICAgICAgInNoYTI1NiI6ICIwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwIiwKICAgICAgInNpemUiOiA0Mjk0OTY3Mjk2CiAgICB9CiAgXSwKICAiZGVza3RvcCI6IHsKICAgICJ2ZXJzaW9uIjogIjAuMS4xIiwKICAgICJwYWdlIjogImh0dHBzOi8vZ2l0aHViLmNvbS9CVExhYnMtRVBJQy93YWxsZXQtZm9yLWVwaWMvcmVsZWFzZXMvdGFnL3YwLjEuMSIKICB9Cn0K\",\n  \"signatures\": [\n    {\n      \"keyid\": \"940f8a1d8b2e098a\",\n      \"sig\": \"8c14dp69d6PBn/NQNyUHQtQg1ggpvC4eXdFLaNx/dpr6kgcGi0tap4Ro+5SxiMUV9nloVjlZiHxwaf5eJ9UZAA==\"\n    }\n  ]\n}\n",
+      "expect": {
+        "outcome": "accepted",
+        "reason": null,
+        "state": {
+          "serial": 1790000000,
+          "keyid": "940f8a1d8b2e098a",
+          "digest": "03ddd0b0b5aac149ca2430af81acfa4a95a07af6b6c380dd4932cc56fc22a51c",
+          "revoked": []
+        }
+      }
+    },
+    {
+      "name": "apk-size-float",
+      "payloadType": "application/vnd.btlabs.wallet-for-epic.update+json",
+      "now": "2026-11-01T00:00:00Z",
+      "state": null,
+      "envelope": "{\n  \"payloadType\": \"application/vnd.btlabs.wallet-for-epic.update+json\",\n  \"payload\": \"ewogICJzY2hlbWEiOiAxLAogICJzZXJpYWwiOiAxNzkwMDAwMDAwLAogICJpc3N1ZWRfYXQiOiAiMjAyNi0xMC0wMVQwMDowMDowMFoiLAogICJleHBpcmVzX2F0IjogIjIwMjctMDQtMDFUMDA6MDA6MDBaIiwKICAicGFja2FnZU5hbWUiOiAiY29tLmJsYWNrdHlnZXIuZXBpY3dhbGxldCIsCiAgInZlcnNpb25OYW1lIjogIjAuMS4xIiwKICAibm90ZXMiOiAiRXhhbXBsZSBvbmx5OiBub3QgYSByZWFsIHJlbGVhc2UuXG5TaWduZWQgdXBkYXRlIGluZm9ybWF0aW9uLiIsCiAgImFwa3MiOiBbCiAgICB7CiAgICAgICJhYmkiOiAiYXJtNjQtdjhhIiwKICAgICAgInZlcnNpb25Db2RlIjogMiwKICAgICAgInVybCI6ICJodHRwczovL2dpdGh1Yi5jb20vQlRMYWJzLUVQSUMvd2FsbGV0LWZvci1lcGljL3JlbGVhc2VzL2Rvd25sb2FkL3YwLjEuMS9hcHAtYXJtNjQtdjhhLXJlbGVhc2UuYXBrIiwKICAgICAgInNoYTI1NiI6ICIwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwIiwKICAgICAgInNpemUiOiA1MjQyODgwMC4wCiAgICB9CiAgXSwKICAiZGVza3RvcCI6IHsKICAgICJ2ZXJzaW9uIjogIjAuMS4xIiwKICAgICJwYWdlIjogImh0dHBzOi8vZ2l0aHViLmNvbS9CVExhYnMtRVBJQy93YWxsZXQtZm9yLWVwaWMvcmVsZWFzZXMvdGFnL3YwLjEuMSIKICB9Cn0K\",\n  \"signatures\": [\n    {\n      \"keyid\": \"940f8a1d8b2e098a\",\n      \"sig\": \"woTMu6gobZvPf0cO9y4F2zSX8w+BlVMD/XZ/uw8Ro4/h5qdAKyAjZKX6S1dC4nvjt1ENxNX5e28RDo5uGfnzCA==\"\n    }\n  ]\n}\n",
+      "expect": {
+        "outcome": "rejected",
+        "reason": "malformed",
+        "state": null
+      }
+    },
+    {
+      "name": "apk-versioncode-2-pow-31",
+      "payloadType": "application/vnd.btlabs.wallet-for-epic.update+json",
+      "now": "2026-11-01T00:00:00Z",
+      "state": null,
+      "envelope": "{\n  \"payloadType\": \"application/vnd.btlabs.wallet-for-epic.update+json\",\n  \"payload\": \"ewogICJzY2hlbWEiOiAxLAogICJzZXJpYWwiOiAxNzkwMDAwMDAwLAogICJpc3N1ZWRfYXQiOiAiMjAyNi0xMC0wMVQwMDowMDowMFoiLAogICJleHBpcmVzX2F0IjogIjIwMjctMDQtMDFUMDA6MDA6MDBaIiwKICAicGFja2FnZU5hbWUiOiAiY29tLmJsYWNrdHlnZXIuZXBpY3dhbGxldCIsCiAgInZlcnNpb25OYW1lIjogIjAuMS4xIiwKICAibm90ZXMiOiAiRXhhbXBsZSBvbmx5OiBub3QgYSByZWFsIHJlbGVhc2UuXG5TaWduZWQgdXBkYXRlIGluZm9ybWF0aW9uLiIsCiAgImFwa3MiOiBbCiAgICB7CiAgICAgICJhYmkiOiAiYXJtNjQtdjhhIiwKICAgICAgInZlcnNpb25Db2RlIjogMjE0NzQ4MzY0OCwKICAgICAgInVybCI6ICJodHRwczovL2dpdGh1Yi5jb20vQlRMYWJzLUVQSUMvd2FsbGV0LWZvci1lcGljL3JlbGVhc2VzL2Rvd25sb2FkL3YwLjEuMS9hcHAtYXJtNjQtdjhhLXJlbGVhc2UuYXBrIiwKICAgICAgInNoYTI1NiI6ICIwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwIiwKICAgICAgInNpemUiOiA1MjQyODgwMAogICAgfQogIF0sCiAgImRlc2t0b3AiOiB7CiAgICAidmVyc2lvbiI6ICIwLjEuMSIsCiAgICAicGFnZSI6ICJodHRwczovL2dpdGh1Yi5jb20vQlRMYWJzLUVQSUMvd2FsbGV0LWZvci1lcGljL3JlbGVhc2VzL3RhZy92MC4xLjEiCiAgfQp9Cg==\",\n  \"signatures\": [\n    {\n      \"keyid\": \"940f8a1d8b2e098a\",\n      \"sig\": \"SVy23IBKxHprzJelsfeREI5MQyVgrECV3mdVopJuSwl2trYcK4VUbj4GyOnIMg5g+eeF5Np/16xwWe/nbgqcDg==\"\n    }\n  ]\n}\n",
+      "expect": {
+        "outcome": "rejected",
+        "reason": "malformed",
+        "state": null
+      }
+    },
+    {
+      "name": "apk-versioncode-max-accepted",
+      "payloadType": "application/vnd.btlabs.wallet-for-epic.update+json",
+      "now": "2026-11-01T00:00:00Z",
+      "state": null,
+      "envelope": "{\n  \"payloadType\": \"application/vnd.btlabs.wallet-for-epic.update+json\",\n  \"payload\": \"ewogICJzY2hlbWEiOiAxLAogICJzZXJpYWwiOiAxNzkwMDAwMDAwLAogICJpc3N1ZWRfYXQiOiAiMjAyNi0xMC0wMVQwMDowMDowMFoiLAogICJleHBpcmVzX2F0IjogIjIwMjctMDQtMDFUMDA6MDA6MDBaIiwKICAicGFja2FnZU5hbWUiOiAiY29tLmJsYWNrdHlnZXIuZXBpY3dhbGxldCIsCiAgInZlcnNpb25OYW1lIjogIjAuMS4xIiwKICAibm90ZXMiOiAiRXhhbXBsZSBvbmx5OiBub3QgYSByZWFsIHJlbGVhc2UuXG5TaWduZWQgdXBkYXRlIGluZm9ybWF0aW9uLiIsCiAgImFwa3MiOiBbCiAgICB7CiAgICAgICJhYmkiOiAiYXJtNjQtdjhhIiwKICAgICAgInZlcnNpb25Db2RlIjogMjE0NzQ4MzY0NywKICAgICAgInVybCI6ICJodHRwczovL2dpdGh1Yi5jb20vQlRMYWJzLUVQSUMvd2FsbGV0LWZvci1lcGljL3JlbGVhc2VzL2Rvd25sb2FkL3YwLjEuMS9hcHAtYXJtNjQtdjhhLXJlbGVhc2UuYXBrIiwKICAgICAgInNoYTI1NiI6ICIwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwIiwKICAgICAgInNpemUiOiA1MjQyODgwMAogICAgfQogIF0sCiAgImRlc2t0b3AiOiB7CiAgICAidmVyc2lvbiI6ICIwLjEuMSIsCiAgICAicGFnZSI6ICJodHRwczovL2dpdGh1Yi5jb20vQlRMYWJzLUVQSUMvd2FsbGV0LWZvci1lcGljL3JlbGVhc2VzL3RhZy92MC4xLjEiCiAgfQp9Cg==\",\n  \"signatures\": [\n    {\n      \"keyid\": \"940f8a1d8b2e098a\",\n      \"sig\": \"muC+pEIqAwxb55SFRiDl+SREuUSFjhiVFjpAU8Uu6s8oLhxfTGDLGvMpKdTqdyBM/XfPjOIWvBLtgIzBRs8eCg==\"\n    }\n  ]\n}\n",
+      "expect": {
+        "outcome": "accepted",
+        "reason": null,
+        "state": {
+          "serial": 1790000000,
+          "keyid": "940f8a1d8b2e098a",
+          "digest": "9165818ba9e56df19c8fc714954bf112ec0825268defe1cc6e43e2462ac0db1c",
+          "revoked": []
+        }
+      }
+    },
+    {
+      "name": "apk-versioncode-zero",
+      "payloadType": "application/vnd.btlabs.wallet-for-epic.update+json",
+      "now": "2026-11-01T00:00:00Z",
+      "state": null,
+      "envelope": "{\n  \"payloadType\": \"application/vnd.btlabs.wallet-for-epic.update+json\",\n  \"payload\": \"ewogICJzY2hlbWEiOiAxLAogICJzZXJpYWwiOiAxNzkwMDAwMDAwLAogICJpc3N1ZWRfYXQiOiAiMjAyNi0xMC0wMVQwMDowMDowMFoiLAogICJleHBpcmVzX2F0IjogIjIwMjctMDQtMDFUMDA6MDA6MDBaIiwKICAicGFja2FnZU5hbWUiOiAiY29tLmJsYWNrdHlnZXIuZXBpY3dhbGxldCIsCiAgInZlcnNpb25OYW1lIjogIjAuMS4xIiwKICAibm90ZXMiOiAiRXhhbXBsZSBvbmx5OiBub3QgYSByZWFsIHJlbGVhc2UuXG5TaWduZWQgdXBkYXRlIGluZm9ybWF0aW9uLiIsCiAgImFwa3MiOiBbCiAgICB7CiAgICAgICJhYmkiOiAiYXJtNjQtdjhhIiwKICAgICAgInZlcnNpb25Db2RlIjogMCwKICAgICAgInVybCI6ICJodHRwczovL2dpdGh1Yi5jb20vQlRMYWJzLUVQSUMvd2FsbGV0LWZvci1lcGljL3JlbGVhc2VzL2Rvd25sb2FkL3YwLjEuMS9hcHAtYXJtNjQtdjhhLXJlbGVhc2UuYXBrIiwKICAgICAgInNoYTI1NiI6ICIwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwIiwKICAgICAgInNpemUiOiA1MjQyODgwMAogICAgfQogIF0sCiAgImRlc2t0b3AiOiB7CiAgICAidmVyc2lvbiI6ICIwLjEuMSIsCiAgICAicGFnZSI6ICJodHRwczovL2dpdGh1Yi5jb20vQlRMYWJzLUVQSUMvd2FsbGV0LWZvci1lcGljL3JlbGVhc2VzL3RhZy92MC4xLjEiCiAgfQp9Cg==\",\n  \"signatures\": [\n    {\n      \"keyid\": \"940f8a1d8b2e098a\",\n      \"sig\": \"/9xpttBSWdHHvwF89OLPNVcyirbeL6g97SbKt7wh3R6NGjaCdhgvrBXapc90LiYdTs7cy7LL2itrl9b2fmvyDw==\"\n    }\n  ]\n}\n",
+      "expect": {
+        "outcome": "rejected",
+        "reason": "malformed",
+        "state": null
+      }
+    },
+    {
+      "name": "apk-versioncode-float",
+      "payloadType": "application/vnd.btlabs.wallet-for-epic.update+json",
+      "now": "2026-11-01T00:00:00Z",
+      "state": null,
+      "envelope": "{\n  \"payloadType\": \"application/vnd.btlabs.wallet-for-epic.update+json\",\n  \"payload\": \"ewogICJzY2hlbWEiOiAxLAogICJzZXJpYWwiOiAxNzkwMDAwMDAwLAogICJpc3N1ZWRfYXQiOiAiMjAyNi0xMC0wMVQwMDowMDowMFoiLAogICJleHBpcmVzX2F0IjogIjIwMjctMDQtMDFUMDA6MDA6MDBaIiwKICAicGFja2FnZU5hbWUiOiAiY29tLmJsYWNrdHlnZXIuZXBpY3dhbGxldCIsCiAgInZlcnNpb25OYW1lIjogIjAuMS4xIiwKICAibm90ZXMiOiAiRXhhbXBsZSBvbmx5OiBub3QgYSByZWFsIHJlbGVhc2UuXG5TaWduZWQgdXBkYXRlIGluZm9ybWF0aW9uLiIsCiAgImFwa3MiOiBbCiAgICB7CiAgICAgICJhYmkiOiAiYXJtNjQtdjhhIiwKICAgICAgInZlcnNpb25Db2RlIjogMS4wLAogICAgICAidXJsIjogImh0dHBzOi8vZ2l0aHViLmNvbS9CVExhYnMtRVBJQy93YWxsZXQtZm9yLWVwaWMvcmVsZWFzZXMvZG93bmxvYWQvdjAuMS4xL2FwcC1hcm02NC12OGEtcmVsZWFzZS5hcGsiLAogICAgICAic2hhMjU2IjogIjAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAiLAogICAgICAic2l6ZSI6IDUyNDI4ODAwCiAgICB9CiAgXSwKICAiZGVza3RvcCI6IHsKICAgICJ2ZXJzaW9uIjogIjAuMS4xIiwKICAgICJwYWdlIjogImh0dHBzOi8vZ2l0aHViLmNvbS9CVExhYnMtRVBJQy93YWxsZXQtZm9yLWVwaWMvcmVsZWFzZXMvdGFnL3YwLjEuMSIKICB9Cn0K\",\n  \"signatures\": [\n    {\n      \"keyid\": \"940f8a1d8b2e098a\",\n      \"sig\": \"Ma9k0vi0rna0GKVTjGNq/rUcqETBZ+m7/2LukZUF9WxgF/KsapxrIleygyFCmeHBq/g2NXs/o4P4d7+pD++2DQ==\"\n    }\n  ]\n}\n",
+      "expect": {
+        "outcome": "rejected",
+        "reason": "malformed",
+        "state": null
+      }
+    },
+    {
+      "name": "apk-versioncode-bool",
+      "payloadType": "application/vnd.btlabs.wallet-for-epic.update+json",
+      "now": "2026-11-01T00:00:00Z",
+      "state": null,
+      "envelope": "{\n  \"payloadType\": \"application/vnd.btlabs.wallet-for-epic.update+json\",\n  \"payload\": \"ewogICJzY2hlbWEiOiAxLAogICJzZXJpYWwiOiAxNzkwMDAwMDAwLAogICJpc3N1ZWRfYXQiOiAiMjAyNi0xMC0wMVQwMDowMDowMFoiLAogICJleHBpcmVzX2F0IjogIjIwMjctMDQtMDFUMDA6MDA6MDBaIiwKICAicGFja2FnZU5hbWUiOiAiY29tLmJsYWNrdHlnZXIuZXBpY3dhbGxldCIsCiAgInZlcnNpb25OYW1lIjogIjAuMS4xIiwKICAibm90ZXMiOiAiRXhhbXBsZSBvbmx5OiBub3QgYSByZWFsIHJlbGVhc2UuXG5TaWduZWQgdXBkYXRlIGluZm9ybWF0aW9uLiIsCiAgImFwa3MiOiBbCiAgICB7CiAgICAgICJhYmkiOiAiYXJtNjQtdjhhIiwKICAgICAgInZlcnNpb25Db2RlIjogdHJ1ZSwKICAgICAgInVybCI6ICJodHRwczovL2dpdGh1Yi5jb20vQlRMYWJzLUVQSUMvd2FsbGV0LWZvci1lcGljL3JlbGVhc2VzL2Rvd25sb2FkL3YwLjEuMS9hcHAtYXJtNjQtdjhhLXJlbGVhc2UuYXBrIiwKICAgICAgInNoYTI1NiI6ICIwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwIiwKICAgICAgInNpemUiOiA1MjQyODgwMAogICAgfQogIF0sCiAgImRlc2t0b3AiOiB7CiAgICAidmVyc2lvbiI6ICIwLjEuMSIsCiAgICAicGFnZSI6ICJodHRwczovL2dpdGh1Yi5jb20vQlRMYWJzLUVQSUMvd2FsbGV0LWZvci1lcGljL3JlbGVhc2VzL3RhZy92MC4xLjEiCiAgfQp9Cg==\",\n  \"signatures\": [\n    {\n      \"keyid\": \"940f8a1d8b2e098a\",\n      \"sig\": \"JpX8AFP/LUbl6FEVFKRmIKsp+QqtoWk+8GyB6lipKnpw4OHE1RZX5pzeUSUPZDLwU2APYDnuQZGsC4UfcgHwDQ==\"\n    }\n  ]\n}\n",
+      "expect": {
+        "outcome": "rejected",
+        "reason": "malformed",
+        "state": null
+      }
+    },
+    {
+      "name": "apk-url-http",
+      "payloadType": "application/vnd.btlabs.wallet-for-epic.update+json",
+      "now": "2026-11-01T00:00:00Z",
+      "state": null,
+      "envelope": "{\n  \"payloadType\": \"application/vnd.btlabs.wallet-for-epic.update+json\",\n  \"payload\": \"ewogICJzY2hlbWEiOiAxLAogICJzZXJpYWwiOiAxNzkwMDAwMDAwLAogICJpc3N1ZWRfYXQiOiAiMjAyNi0xMC0wMVQwMDowMDowMFoiLAogICJleHBpcmVzX2F0IjogIjIwMjctMDQtMDFUMDA6MDA6MDBaIiwKICAicGFja2FnZU5hbWUiOiAiY29tLmJsYWNrdHlnZXIuZXBpY3dhbGxldCIsCiAgInZlcnNpb25OYW1lIjogIjAuMS4xIiwKICAibm90ZXMiOiAiRXhhbXBsZSBvbmx5OiBub3QgYSByZWFsIHJlbGVhc2UuXG5TaWduZWQgdXBkYXRlIGluZm9ybWF0aW9uLiIsCiAgImFwa3MiOiBbCiAgICB7CiAgICAgICJhYmkiOiAiYXJtNjQtdjhhIiwKICAgICAgInZlcnNpb25Db2RlIjogMiwKICAgICAgInVybCI6ICJodHRwOi8vZ2l0aHViLmNvbS9CVExhYnMtRVBJQy94LmFwayIsCiAgICAgICJzaGEyNTYiOiAiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMCIsCiAgICAgICJzaXplIjogNTI0Mjg4MDAKICAgIH0KICBdLAogICJkZXNrdG9wIjogewogICAgInZlcnNpb24iOiAiMC4xLjEiLAogICAgInBhZ2UiOiAiaHR0cHM6Ly9naXRodWIuY29tL0JUTGFicy1FUElDL3dhbGxldC1mb3ItZXBpYy9yZWxlYXNlcy90YWcvdjAuMS4xIgogIH0KfQo=\",\n  \"signatures\": [\n    {\n      \"keyid\": \"940f8a1d8b2e098a\",\n      \"sig\": \"VyZoPiRGm82AV+JwBBRwK5S07Lhs410NlnvY6U8jsYhCw0QxsucBF+ut/CsFPv1G0y+ifpCLJkRFvp94tGH2Bg==\"\n    }\n  ]\n}\n",
+      "expect": {
+        "outcome": "rejected",
+        "reason": "malformed",
+        "state": null
+      }
+    },
+    {
+      "name": "apk-url-upper-host",
+      "payloadType": "application/vnd.btlabs.wallet-for-epic.update+json",
+      "now": "2026-11-01T00:00:00Z",
+      "state": null,
+      "envelope": "{\n  \"payloadType\": \"application/vnd.btlabs.wallet-for-epic.update+json\",\n  \"payload\": \"ewogICJzY2hlbWEiOiAxLAogICJzZXJpYWwiOiAxNzkwMDAwMDAwLAogICJpc3N1ZWRfYXQiOiAiMjAyNi0xMC0wMVQwMDowMDowMFoiLAogICJleHBpcmVzX2F0IjogIjIwMjctMDQtMDFUMDA6MDA6MDBaIiwKICAicGFja2FnZU5hbWUiOiAiY29tLmJsYWNrdHlnZXIuZXBpY3dhbGxldCIsCiAgInZlcnNpb25OYW1lIjogIjAuMS4xIiwKICAibm90ZXMiOiAiRXhhbXBsZSBvbmx5OiBub3QgYSByZWFsIHJlbGVhc2UuXG5TaWduZWQgdXBkYXRlIGluZm9ybWF0aW9uLiIsCiAgImFwa3MiOiBbCiAgICB7CiAgICAgICJhYmkiOiAiYXJtNjQtdjhhIiwKICAgICAgInZlcnNpb25Db2RlIjogMiwKICAgICAgInVybCI6ICJodHRwczovL0dpdEh1Yi5jb20veC5hcGsiLAogICAgICAic2hhMjU2IjogIjAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAiLAogICAgICAic2l6ZSI6IDUyNDI4ODAwCiAgICB9CiAgXSwKICAiZGVza3RvcCI6IHsKICAgICJ2ZXJzaW9uIjogIjAuMS4xIiwKICAgICJwYWdlIjogImh0dHBzOi8vZ2l0aHViLmNvbS9CVExhYnMtRVBJQy93YWxsZXQtZm9yLWVwaWMvcmVsZWFzZXMvdGFnL3YwLjEuMSIKICB9Cn0K\",\n  \"signatures\": [\n    {\n      \"keyid\": \"940f8a1d8b2e098a\",\n      \"sig\": \"iz568kCaPjOqgh2LIKUa0XVd16bFVjdwWANsuHhpW+m7VbGkrx+KWvV3KJOExd0Z860gEEDTiTMBzo8uZC/6CA==\"\n    }\n  ]\n}\n",
+      "expect": {
+        "outcome": "rejected",
+        "reason": "malformed",
+        "state": null
+      }
+    },
+    {
+      "name": "apk-missing-sha256",
+      "payloadType": "application/vnd.btlabs.wallet-for-epic.update+json",
+      "now": "2026-11-01T00:00:00Z",
+      "state": null,
+      "envelope": "{\n  \"payloadType\": \"application/vnd.btlabs.wallet-for-epic.update+json\",\n  \"payload\": \"ewogICJzY2hlbWEiOiAxLAogICJzZXJpYWwiOiAxNzkwMDAwMDAwLAogICJpc3N1ZWRfYXQiOiAiMjAyNi0xMC0wMVQwMDowMDowMFoiLAogICJleHBpcmVzX2F0IjogIjIwMjctMDQtMDFUMDA6MDA6MDBaIiwKICAicGFja2FnZU5hbWUiOiAiY29tLmJsYWNrdHlnZXIuZXBpY3dhbGxldCIsCiAgInZlcnNpb25OYW1lIjogIjAuMS4xIiwKICAibm90ZXMiOiAiRXhhbXBsZSBvbmx5OiBub3QgYSByZWFsIHJlbGVhc2UuXG5TaWduZWQgdXBkYXRlIGluZm9ybWF0aW9uLiIsCiAgImFwa3MiOiBbCiAgICB7CiAgICAgICJhYmkiOiAiYXJtNjQtdjhhIiwKICAgICAgInZlcnNpb25Db2RlIjogMiwKICAgICAgInVybCI6ICJodHRwczovL2dpdGh1Yi5jb20vQlRMYWJzLUVQSUMvd2FsbGV0LWZvci1lcGljL3JlbGVhc2VzL2Rvd25sb2FkL3YwLjEuMS9hcHAtYXJtNjQtdjhhLXJlbGVhc2UuYXBrIiwKICAgICAgInNpemUiOiA1MjQyODgwMAogICAgfQogIF0sCiAgImRlc2t0b3AiOiB7CiAgICAidmVyc2lvbiI6ICIwLjEuMSIsCiAgICAicGFnZSI6ICJodHRwczovL2dpdGh1Yi5jb20vQlRMYWJzLUVQSUMvd2FsbGV0LWZvci1lcGljL3JlbGVhc2VzL3RhZy92MC4xLjEiCiAgfQp9Cg==\",\n  \"signatures\": [\n    {\n      \"keyid\": \"940f8a1d8b2e098a\",\n      \"sig\": \"79NlCjZjJ1oUdOyUlwSHCXvK9La7VsIuFGFDXWLWNRfdnun2DPL8HhTFyo57xFiv0DQlud//fmdiihxaFF4DBg==\"\n    }\n  ]\n}\n",
+      "expect": {
+        "outcome": "rejected",
+        "reason": "malformed",
+        "state": null
+      }
+    },
+    {
+      "name": "package-name-uppercase",
+      "payloadType": "application/vnd.btlabs.wallet-for-epic.update+json",
+      "now": "2026-11-01T00:00:00Z",
+      "state": null,
+      "envelope": "{\n  \"payloadType\": \"application/vnd.btlabs.wallet-for-epic.update+json\",\n  \"payload\": \"ewogICJzY2hlbWEiOiAxLAogICJzZXJpYWwiOiAxNzkwMDAwMDAwLAogICJpc3N1ZWRfYXQiOiAiMjAyNi0xMC0wMVQwMDowMDowMFoiLAogICJleHBpcmVzX2F0IjogIjIwMjctMDQtMDFUMDA6MDA6MDBaIiwKICAicGFja2FnZU5hbWUiOiAiQ29tLngiLAogICJ2ZXJzaW9uTmFtZSI6ICIwLjEuMSIsCiAgIm5vdGVzIjogIkV4YW1wbGUgb25seTogbm90IGEgcmVhbCByZWxlYXNlLlxuU2lnbmVkIHVwZGF0ZSBpbmZvcm1hdGlvbi4iLAogICJhcGtzIjogWwogICAgewogICAgICAiYWJpIjogImFybTY0LXY4YSIsCiAgICAgICJ2ZXJzaW9uQ29kZSI6IDIsCiAgICAgICJ1cmwiOiAiaHR0cHM6Ly9naXRodWIuY29tL0JUTGFicy1FUElDL3dhbGxldC1mb3ItZXBpYy9yZWxlYXNlcy9kb3dubG9hZC92MC4xLjEvYXBwLWFybTY0LXY4YS1yZWxlYXNlLmFwayIsCiAgICAgICJzaGEyNTYiOiAiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMCIsCiAgICAgICJzaXplIjogNTI0Mjg4MDAKICAgIH0KICBdLAogICJkZXNrdG9wIjogewogICAgInZlcnNpb24iOiAiMC4xLjEiLAogICAgInBhZ2UiOiAiaHR0cHM6Ly9naXRodWIuY29tL0JUTGFicy1FUElDL3dhbGxldC1mb3ItZXBpYy9yZWxlYXNlcy90YWcvdjAuMS4xIgogIH0KfQo=\",\n  \"signatures\": [\n    {\n      \"keyid\": \"940f8a1d8b2e098a\",\n      \"sig\": \"x3QJRxSvZ4DPjxkeU4opCitls2HkUVHJZt1HcY4F5FXI3SpHsUpZySRhyfykfpYa8qknDIuxR/ZEXS/aPyXCAw==\"\n    }\n  ]\n}\n",
+      "expect": {
+        "outcome": "rejected",
+        "reason": "malformed",
+        "state": null
+      }
+    },
+    {
+      "name": "package-name-single-label",
+      "payloadType": "application/vnd.btlabs.wallet-for-epic.update+json",
+      "now": "2026-11-01T00:00:00Z",
+      "state": null,
+      "envelope": "{\n  \"payloadType\": \"application/vnd.btlabs.wallet-for-epic.update+json\",\n  \"payload\": \"ewogICJzY2hlbWEiOiAxLAogICJzZXJpYWwiOiAxNzkwMDAwMDAwLAogICJpc3N1ZWRfYXQiOiAiMjAyNi0xMC0wMVQwMDowMDowMFoiLAogICJleHBpcmVzX2F0IjogIjIwMjctMDQtMDFUMDA6MDA6MDBaIiwKICAicGFja2FnZU5hbWUiOiAiZXBpY3dhbGxldCIsCiAgInZlcnNpb25OYW1lIjogIjAuMS4xIiwKICAibm90ZXMiOiAiRXhhbXBsZSBvbmx5OiBub3QgYSByZWFsIHJlbGVhc2UuXG5TaWduZWQgdXBkYXRlIGluZm9ybWF0aW9uLiIsCiAgImFwa3MiOiBbCiAgICB7CiAgICAgICJhYmkiOiAiYXJtNjQtdjhhIiwKICAgICAgInZlcnNpb25Db2RlIjogMiwKICAgICAgInVybCI6ICJodHRwczovL2dpdGh1Yi5jb20vQlRMYWJzLUVQSUMvd2FsbGV0LWZvci1lcGljL3JlbGVhc2VzL2Rvd25sb2FkL3YwLjEuMS9hcHAtYXJtNjQtdjhhLXJlbGVhc2UuYXBrIiwKICAgICAgInNoYTI1NiI6ICIwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwIiwKICAgICAgInNpemUiOiA1MjQyODgwMAogICAgfQogIF0sCiAgImRlc2t0b3AiOiB7CiAgICAidmVyc2lvbiI6ICIwLjEuMSIsCiAgICAicGFnZSI6ICJodHRwczovL2dpdGh1Yi5jb20vQlRMYWJzLUVQSUMvd2FsbGV0LWZvci1lcGljL3JlbGVhc2VzL3RhZy92MC4xLjEiCiAgfQp9Cg==\",\n  \"signatures\": [\n    {\n      \"keyid\": \"940f8a1d8b2e098a\",\n      \"sig\": \"85pY+Lh+Cq7JvCyAk6AHehaKMGuFLLCd9GqQNr6Pjl+Zn0stWM59OWtz9ambbkfzwjpjPGkCkD3aOSwmAKmNAA==\"\n    }\n  ]\n}\n",
+      "expect": {
+        "outcome": "rejected",
+        "reason": "malformed",
+        "state": null
+      }
+    },
+    {
+      "name": "version-name-two-parts",
+      "payloadType": "application/vnd.btlabs.wallet-for-epic.update+json",
+      "now": "2026-11-01T00:00:00Z",
+      "state": null,
+      "envelope": "{\n  \"payloadType\": \"application/vnd.btlabs.wallet-for-epic.update+json\",\n  \"payload\": \"ewogICJzY2hlbWEiOiAxLAogICJzZXJpYWwiOiAxNzkwMDAwMDAwLAogICJpc3N1ZWRfYXQiOiAiMjAyNi0xMC0wMVQwMDowMDowMFoiLAogICJleHBpcmVzX2F0IjogIjIwMjctMDQtMDFUMDA6MDA6MDBaIiwKICAicGFja2FnZU5hbWUiOiAiY29tLmJsYWNrdHlnZXIuZXBpY3dhbGxldCIsCiAgInZlcnNpb25OYW1lIjogIjAuMSIsCiAgIm5vdGVzIjogIkV4YW1wbGUgb25seTogbm90IGEgcmVhbCByZWxlYXNlLlxuU2lnbmVkIHVwZGF0ZSBpbmZvcm1hdGlvbi4iLAogICJhcGtzIjogWwogICAgewogICAgICAiYWJpIjogImFybTY0LXY4YSIsCiAgICAgICJ2ZXJzaW9uQ29kZSI6IDIsCiAgICAgICJ1cmwiOiAiaHR0cHM6Ly9naXRodWIuY29tL0JUTGFicy1FUElDL3dhbGxldC1mb3ItZXBpYy9yZWxlYXNlcy9kb3dubG9hZC92MC4xLjEvYXBwLWFybTY0LXY4YS1yZWxlYXNlLmFwayIsCiAgICAgICJzaGEyNTYiOiAiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMCIsCiAgICAgICJzaXplIjogNTI0Mjg4MDAKICAgIH0KICBdLAogICJkZXNrdG9wIjogewogICAgInZlcnNpb24iOiAiMC4xLjEiLAogICAgInBhZ2UiOiAiaHR0cHM6Ly9naXRodWIuY29tL0JUTGFicy1FUElDL3dhbGxldC1mb3ItZXBpYy9yZWxlYXNlcy90YWcvdjAuMS4xIgogIH0KfQo=\",\n  \"signatures\": [\n    {\n      \"keyid\": \"940f8a1d8b2e098a\",\n      \"sig\": \"uZTc91uJkAK2BCMwbc1/E5/e+chPhgGHqwGQHjnpOHxyzX83YjtwIUKCZ7xBr8RJlRQ4KMgSVlzi8WE3HsTmAg==\"\n    }\n  ]\n}\n",
+      "expect": {
+        "outcome": "rejected",
+        "reason": "malformed",
+        "state": null
+      }
+    },
+    {
+      "name": "version-name-v-prefix",
+      "payloadType": "application/vnd.btlabs.wallet-for-epic.update+json",
+      "now": "2026-11-01T00:00:00Z",
+      "state": null,
+      "envelope": "{\n  \"payloadType\": \"application/vnd.btlabs.wallet-for-epic.update+json\",\n  \"payload\": \"ewogICJzY2hlbWEiOiAxLAogICJzZXJpYWwiOiAxNzkwMDAwMDAwLAogICJpc3N1ZWRfYXQiOiAiMjAyNi0xMC0wMVQwMDowMDowMFoiLAogICJleHBpcmVzX2F0IjogIjIwMjctMDQtMDFUMDA6MDA6MDBaIiwKICAicGFja2FnZU5hbWUiOiAiY29tLmJsYWNrdHlnZXIuZXBpY3dhbGxldCIsCiAgInZlcnNpb25OYW1lIjogInYwLjEuMSIsCiAgIm5vdGVzIjogIkV4YW1wbGUgb25seTogbm90IGEgcmVhbCByZWxlYXNlLlxuU2lnbmVkIHVwZGF0ZSBpbmZvcm1hdGlvbi4iLAogICJhcGtzIjogWwogICAgewogICAgICAiYWJpIjogImFybTY0LXY4YSIsCiAgICAgICJ2ZXJzaW9uQ29kZSI6IDIsCiAgICAgICJ1cmwiOiAiaHR0cHM6Ly9naXRodWIuY29tL0JUTGFicy1FUElDL3dhbGxldC1mb3ItZXBpYy9yZWxlYXNlcy9kb3dubG9hZC92MC4xLjEvYXBwLWFybTY0LXY4YS1yZWxlYXNlLmFwayIsCiAgICAgICJzaGEyNTYiOiAiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMCIsCiAgICAgICJzaXplIjogNTI0Mjg4MDAKICAgIH0KICBdLAogICJkZXNrdG9wIjogewogICAgInZlcnNpb24iOiAiMC4xLjEiLAogICAgInBhZ2UiOiAiaHR0cHM6Ly9naXRodWIuY29tL0JUTGFicy1FUElDL3dhbGxldC1mb3ItZXBpYy9yZWxlYXNlcy90YWcvdjAuMS4xIgogIH0KfQo=\",\n  \"signatures\": [\n    {\n      \"keyid\": \"940f8a1d8b2e098a\",\n      \"sig\": \"15VlbrPJR4Zy+9NzWc+N/WGSZ0Rwc2el9urDj8gLjLgMJwh2hvyxng//58zlCtp/wVQO09d1LD1RpmIGSg15Ag==\"\n    }\n  ]\n}\n",
+      "expect": {
+        "outcome": "rejected",
+        "reason": "malformed",
+        "state": null
+      }
+    },
+    {
+      "name": "version-name-trailing-newline",
+      "payloadType": "application/vnd.btlabs.wallet-for-epic.update+json",
+      "now": "2026-11-01T00:00:00Z",
+      "state": null,
+      "envelope": "{\n  \"payloadType\": \"application/vnd.btlabs.wallet-for-epic.update+json\",\n  \"payload\": \"ewogICJzY2hlbWEiOiAxLAogICJzZXJpYWwiOiAxNzkwMDAwMDAwLAogICJpc3N1ZWRfYXQiOiAiMjAyNi0xMC0wMVQwMDowMDowMFoiLAogICJleHBpcmVzX2F0IjogIjIwMjctMDQtMDFUMDA6MDA6MDBaIiwKICAicGFja2FnZU5hbWUiOiAiY29tLmJsYWNrdHlnZXIuZXBpY3dhbGxldCIsCiAgInZlcnNpb25OYW1lIjogIjAuMS4xXG4iLAogICJub3RlcyI6ICJFeGFtcGxlIG9ubHk6IG5vdCBhIHJlYWwgcmVsZWFzZS5cblNpZ25lZCB1cGRhdGUgaW5mb3JtYXRpb24uIiwKICAiYXBrcyI6IFsKICAgIHsKICAgICAgImFiaSI6ICJhcm02NC12OGEiLAogICAgICAidmVyc2lvbkNvZGUiOiAyLAogICAgICAidXJsIjogImh0dHBzOi8vZ2l0aHViLmNvbS9CVExhYnMtRVBJQy93YWxsZXQtZm9yLWVwaWMvcmVsZWFzZXMvZG93bmxvYWQvdjAuMS4xL2FwcC1hcm02NC12OGEtcmVsZWFzZS5hcGsiLAogICAgICAic2hhMjU2IjogIjAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAiLAogICAgICAic2l6ZSI6IDUyNDI4ODAwCiAgICB9CiAgXSwKICAiZGVza3RvcCI6IHsKICAgICJ2ZXJzaW9uIjogIjAuMS4xIiwKICAgICJwYWdlIjogImh0dHBzOi8vZ2l0aHViLmNvbS9CVExhYnMtRVBJQy93YWxsZXQtZm9yLWVwaWMvcmVsZWFzZXMvdGFnL3YwLjEuMSIKICB9Cn0K\",\n  \"signatures\": [\n    {\n      \"keyid\": \"940f8a1d8b2e098a\",\n      \"sig\": \"HU2GOiVbvXeqr4VIR3S6TCe7GauC2uU8QZWwEUAfhruAXVhnOUmxjvhlV8rLeiKHiFhK+hGSyy6d1rgkeh89AA==\"\n    }\n  ]\n}\n",
+      "expect": {
+        "outcome": "rejected",
+        "reason": "malformed",
+        "state": null
+      }
+    },
+    {
+      "name": "notes-newline-inside-accepted",
+      "payloadType": "application/vnd.btlabs.wallet-for-epic.update+json",
+      "now": "2026-11-01T00:00:00Z",
+      "state": null,
+      "envelope": "{\n  \"payloadType\": \"application/vnd.btlabs.wallet-for-epic.update+json\",\n  \"payload\": \"ewogICJzY2hlbWEiOiAxLAogICJzZXJpYWwiOiAxNzkwMDAwMDAwLAogICJpc3N1ZWRfYXQiOiAiMjAyNi0xMC0wMVQwMDowMDowMFoiLAogICJleHBpcmVzX2F0IjogIjIwMjctMDQtMDFUMDA6MDA6MDBaIiwKICAicGFja2FnZU5hbWUiOiAiY29tLmJsYWNrdHlnZXIuZXBpY3dhbGxldCIsCiAgInZlcnNpb25OYW1lIjogIjAuMS4xIiwKICAibm90ZXMiOiAibGluZSBvbmVcbmxpbmUgdHdvIiwKICAiYXBrcyI6IFsKICAgIHsKICAgICAgImFiaSI6ICJhcm02NC12OGEiLAogICAgICAidmVyc2lvbkNvZGUiOiAyLAogICAgICAidXJsIjogImh0dHBzOi8vZ2l0aHViLmNvbS9CVExhYnMtRVBJQy93YWxsZXQtZm9yLWVwaWMvcmVsZWFzZXMvZG93bmxvYWQvdjAuMS4xL2FwcC1hcm02NC12OGEtcmVsZWFzZS5hcGsiLAogICAgICAic2hhMjU2IjogIjAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAiLAogICAgICAic2l6ZSI6IDUyNDI4ODAwCiAgICB9CiAgXSwKICAiZGVza3RvcCI6IHsKICAgICJ2ZXJzaW9uIjogIjAuMS4xIiwKICAgICJwYWdlIjogImh0dHBzOi8vZ2l0aHViLmNvbS9CVExhYnMtRVBJQy93YWxsZXQtZm9yLWVwaWMvcmVsZWFzZXMvdGFnL3YwLjEuMSIKICB9Cn0K\",\n  \"signatures\": [\n    {\n      \"keyid\": \"940f8a1d8b2e098a\",\n      \"sig\": \"YSaqPQ2oMhQ+16uYb4DInMywkg9+J0EsCAmn6+36BvSc/Vn4eUYEjmNwU7Ej+iqRjnodfkPed9ihIiph+eKBCw==\"\n    }\n  ]\n}\n",
+      "expect": {
+        "outcome": "accepted",
+        "reason": null,
+        "state": {
+          "serial": 1790000000,
+          "keyid": "940f8a1d8b2e098a",
+          "digest": "4d58c1f027a0b2c2b26318f9285e8a63dbdd09fa5344a42c88cb09bf7092cd5f",
+          "revoked": []
+        }
+      }
+    },
+    {
+      "name": "notes-absent-accepted",
+      "payloadType": "application/vnd.btlabs.wallet-for-epic.update+json",
+      "now": "2026-11-01T00:00:00Z",
+      "state": null,
+      "envelope": "{\n  \"payloadType\": \"application/vnd.btlabs.wallet-for-epic.update+json\",\n  \"payload\": \"ewogICJzY2hlbWEiOiAxLAogICJzZXJpYWwiOiAxNzkwMDAwMDAwLAogICJpc3N1ZWRfYXQiOiAiMjAyNi0xMC0wMVQwMDowMDowMFoiLAogICJleHBpcmVzX2F0IjogIjIwMjctMDQtMDFUMDA6MDA6MDBaIiwKICAicGFja2FnZU5hbWUiOiAiY29tLmJsYWNrdHlnZXIuZXBpY3dhbGxldCIsCiAgInZlcnNpb25OYW1lIjogIjAuMS4xIiwKICAiYXBrcyI6IFsKICAgIHsKICAgICAgImFiaSI6ICJhcm02NC12OGEiLAogICAgICAidmVyc2lvbkNvZGUiOiAyLAogICAgICAidXJsIjogImh0dHBzOi8vZ2l0aHViLmNvbS9CVExhYnMtRVBJQy93YWxsZXQtZm9yLWVwaWMvcmVsZWFzZXMvZG93bmxvYWQvdjAuMS4xL2FwcC1hcm02NC12OGEtcmVsZWFzZS5hcGsiLAogICAgICAic2hhMjU2IjogIjAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAiLAogICAgICAic2l6ZSI6IDUyNDI4ODAwCiAgICB9CiAgXSwKICAiZGVza3RvcCI6IHsKICAgICJ2ZXJzaW9uIjogIjAuMS4xIiwKICAgICJwYWdlIjogImh0dHBzOi8vZ2l0aHViLmNvbS9CVExhYnMtRVBJQy93YWxsZXQtZm9yLWVwaWMvcmVsZWFzZXMvdGFnL3YwLjEuMSIKICB9Cn0K\",\n  \"signatures\": [\n    {\n      \"keyid\": \"940f8a1d8b2e098a\",\n      \"sig\": \"Zq7cpFW4X27spdDlunRB0uspXkxiZtOing5lFQ8EfDwf1pkCXLK0aruAwQ+AKkKOv5mEOLXsaKss9brooM3MDA==\"\n    }\n  ]\n}\n",
+      "expect": {
+        "outcome": "accepted",
+        "reason": null,
+        "state": {
+          "serial": 1790000000,
+          "keyid": "940f8a1d8b2e098a",
+          "digest": "6b50110e3bef0a8a75253e7b15cf4a14bd6ed6f161879678c0611ca8fc31a9cf",
+          "revoked": []
+        }
+      }
+    },
+    {
+      "name": "notes-carriage-return",
+      "payloadType": "application/vnd.btlabs.wallet-for-epic.update+json",
+      "now": "2026-11-01T00:00:00Z",
+      "state": null,
+      "envelope": "{\n  \"payloadType\": \"application/vnd.btlabs.wallet-for-epic.update+json\",\n  \"payload\": \"ewogICJzY2hlbWEiOiAxLAogICJzZXJpYWwiOiAxNzkwMDAwMDAwLAogICJpc3N1ZWRfYXQiOiAiMjAyNi0xMC0wMVQwMDowMDowMFoiLAogICJleHBpcmVzX2F0IjogIjIwMjctMDQtMDFUMDA6MDA6MDBaIiwKICAicGFja2FnZU5hbWUiOiAiY29tLmJsYWNrdHlnZXIuZXBpY3dhbGxldCIsCiAgInZlcnNpb25OYW1lIjogIjAuMS4xIiwKICAibm90ZXMiOiAibGluZSBvbmVcclxubGluZSB0d28iLAogICJhcGtzIjogWwogICAgewogICAgICAiYWJpIjogImFybTY0LXY4YSIsCiAgICAgICJ2ZXJzaW9uQ29kZSI6IDIsCiAgICAgICJ1cmwiOiAiaHR0cHM6Ly9naXRodWIuY29tL0JUTGFicy1FUElDL3dhbGxldC1mb3ItZXBpYy9yZWxlYXNlcy9kb3dubG9hZC92MC4xLjEvYXBwLWFybTY0LXY4YS1yZWxlYXNlLmFwayIsCiAgICAgICJzaGEyNTYiOiAiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMCIsCiAgICAgICJzaXplIjogNTI0Mjg4MDAKICAgIH0KICBdLAogICJkZXNrdG9wIjogewogICAgInZlcnNpb24iOiAiMC4xLjEiLAogICAgInBhZ2UiOiAiaHR0cHM6Ly9naXRodWIuY29tL0JUTGFicy1FUElDL3dhbGxldC1mb3ItZXBpYy9yZWxlYXNlcy90YWcvdjAuMS4xIgogIH0KfQo=\",\n  \"signatures\": [\n    {\n      \"keyid\": \"940f8a1d8b2e098a\",\n      \"sig\": \"mSsaZBfsCOgZ0O5K1p2zbghD4Mqlw4HlEh8WhOT1bz6rwBxbPEKTkJ7kzuDeAqynEcEVv3sV0bQEphpRNasyBQ==\"\n    }\n  ]\n}\n",
+      "expect": {
+        "outcome": "rejected",
+        "reason": "malformed",
+        "state": null
+      }
+    },
+    {
+      "name": "notes-trailing-newline",
+      "payloadType": "application/vnd.btlabs.wallet-for-epic.update+json",
+      "now": "2026-11-01T00:00:00Z",
+      "state": null,
+      "envelope": "{\n  \"payloadType\": \"application/vnd.btlabs.wallet-for-epic.update+json\",\n  \"payload\": \"ewogICJzY2hlbWEiOiAxLAogICJzZXJpYWwiOiAxNzkwMDAwMDAwLAogICJpc3N1ZWRfYXQiOiAiMjAyNi0xMC0wMVQwMDowMDowMFoiLAogICJleHBpcmVzX2F0IjogIjIwMjctMDQtMDFUMDA6MDA6MDBaIiwKICAicGFja2FnZU5hbWUiOiAiY29tLmJsYWNrdHlnZXIuZXBpY3dhbGxldCIsCiAgInZlcnNpb25OYW1lIjogIjAuMS4xIiwKICAibm90ZXMiOiAibGluZSBvbmVcbiIsCiAgImFwa3MiOiBbCiAgICB7CiAgICAgICJhYmkiOiAiYXJtNjQtdjhhIiwKICAgICAgInZlcnNpb25Db2RlIjogMiwKICAgICAgInVybCI6ICJodHRwczovL2dpdGh1Yi5jb20vQlRMYWJzLUVQSUMvd2FsbGV0LWZvci1lcGljL3JlbGVhc2VzL2Rvd25sb2FkL3YwLjEuMS9hcHAtYXJtNjQtdjhhLXJlbGVhc2UuYXBrIiwKICAgICAgInNoYTI1NiI6ICIwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwIiwKICAgICAgInNpemUiOiA1MjQyODgwMAogICAgfQogIF0sCiAgImRlc2t0b3AiOiB7CiAgICAidmVyc2lvbiI6ICIwLjEuMSIsCiAgICAicGFnZSI6ICJodHRwczovL2dpdGh1Yi5jb20vQlRMYWJzLUVQSUMvd2FsbGV0LWZvci1lcGljL3JlbGVhc2VzL3RhZy92MC4xLjEiCiAgfQp9Cg==\",\n  \"signatures\": [\n    {\n      \"keyid\": \"940f8a1d8b2e098a\",\n      \"sig\": \"QsR65Cbgdv1wpfq+OoyzOacfMnLDq3YAhh/0PQlw7AYyELSztGQ+6qwFVuEkCVAEHVZq99om4GNVGUUx2+iSDA==\"\n    }\n  ]\n}\n",
+      "expect": {
+        "outcome": "rejected",
+        "reason": "malformed",
+        "state": null
+      }
+    },
+    {
+      "name": "notes-leading-newline",
+      "payloadType": "application/vnd.btlabs.wallet-for-epic.update+json",
+      "now": "2026-11-01T00:00:00Z",
+      "state": null,
+      "envelope": "{\n  \"payloadType\": \"application/vnd.btlabs.wallet-for-epic.update+json\",\n  \"payload\": \"ewogICJzY2hlbWEiOiAxLAogICJzZXJpYWwiOiAxNzkwMDAwMDAwLAogICJpc3N1ZWRfYXQiOiAiMjAyNi0xMC0wMVQwMDowMDowMFoiLAogICJleHBpcmVzX2F0IjogIjIwMjctMDQtMDFUMDA6MDA6MDBaIiwKICAicGFja2FnZU5hbWUiOiAiY29tLmJsYWNrdHlnZXIuZXBpY3dhbGxldCIsCiAgInZlcnNpb25OYW1lIjogIjAuMS4xIiwKICAibm90ZXMiOiAiXG5saW5lIG9uZSIsCiAgImFwa3MiOiBbCiAgICB7CiAgICAgICJhYmkiOiAiYXJtNjQtdjhhIiwKICAgICAgInZlcnNpb25Db2RlIjogMiwKICAgICAgInVybCI6ICJodHRwczovL2dpdGh1Yi5jb20vQlRMYWJzLUVQSUMvd2FsbGV0LWZvci1lcGljL3JlbGVhc2VzL2Rvd25sb2FkL3YwLjEuMS9hcHAtYXJtNjQtdjhhLXJlbGVhc2UuYXBrIiwKICAgICAgInNoYTI1NiI6ICIwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwIiwKICAgICAgInNpemUiOiA1MjQyODgwMAogICAgfQogIF0sCiAgImRlc2t0b3AiOiB7CiAgICAidmVyc2lvbiI6ICIwLjEuMSIsCiAgICAicGFnZSI6ICJodHRwczovL2dpdGh1Yi5jb20vQlRMYWJzLUVQSUMvd2FsbGV0LWZvci1lcGljL3JlbGVhc2VzL3RhZy92MC4xLjEiCiAgfQp9Cg==\",\n  \"signatures\": [\n    {\n      \"keyid\": \"940f8a1d8b2e098a\",\n      \"sig\": \"HU/TLX0hfWG9OMD2oZgGN0iF/eiFaaYNEg4C8LTHaZK6nINX4TzPUJ3JEQNYportvKiptTp3I8gEDi3pW88uDg==\"\n    }\n  ]\n}\n",
+      "expect": {
+        "outcome": "rejected",
+        "reason": "malformed",
+        "state": null
+      }
+    },
+    {
+      "name": "notes-tab",
+      "payloadType": "application/vnd.btlabs.wallet-for-epic.update+json",
+      "now": "2026-11-01T00:00:00Z",
+      "state": null,
+      "envelope": "{\n  \"payloadType\": \"application/vnd.btlabs.wallet-for-epic.update+json\",\n  \"payload\": \"ewogICJzY2hlbWEiOiAxLAogICJzZXJpYWwiOiAxNzkwMDAwMDAwLAogICJpc3N1ZWRfYXQiOiAiMjAyNi0xMC0wMVQwMDowMDowMFoiLAogICJleHBpcmVzX2F0IjogIjIwMjctMDQtMDFUMDA6MDA6MDBaIiwKICAicGFja2FnZU5hbWUiOiAiY29tLmJsYWNrdHlnZXIuZXBpY3dhbGxldCIsCiAgInZlcnNpb25OYW1lIjogIjAuMS4xIiwKICAibm90ZXMiOiAiYVx0YiIsCiAgImFwa3MiOiBbCiAgICB7CiAgICAgICJhYmkiOiAiYXJtNjQtdjhhIiwKICAgICAgInZlcnNpb25Db2RlIjogMiwKICAgICAgInVybCI6ICJodHRwczovL2dpdGh1Yi5jb20vQlRMYWJzLUVQSUMvd2FsbGV0LWZvci1lcGljL3JlbGVhc2VzL2Rvd25sb2FkL3YwLjEuMS9hcHAtYXJtNjQtdjhhLXJlbGVhc2UuYXBrIiwKICAgICAgInNoYTI1NiI6ICIwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwIiwKICAgICAgInNpemUiOiA1MjQyODgwMAogICAgfQogIF0sCiAgImRlc2t0b3AiOiB7CiAgICAidmVyc2lvbiI6ICIwLjEuMSIsCiAgICAicGFnZSI6ICJodHRwczovL2dpdGh1Yi5jb20vQlRMYWJzLUVQSUMvd2FsbGV0LWZvci1lcGljL3JlbGVhc2VzL3RhZy92MC4xLjEiCiAgfQp9Cg==\",\n  \"signatures\": [\n    {\n      \"keyid\": \"940f8a1d8b2e098a\",\n      \"sig\": \"0hY0WlKtMWLofwV3WZx1cop2XUUs+Xgc8NZyANtG3MYjjYiYXhDBvJFk2NI+qo3bDOKh6lybdZp0PvFIOBKlAw==\"\n    }\n  ]\n}\n",
+      "expect": {
+        "outcome": "rejected",
+        "reason": "malformed",
+        "state": null
+      }
+    },
+    {
+      "name": "notes-bidi-override",
+      "payloadType": "application/vnd.btlabs.wallet-for-epic.update+json",
+      "now": "2026-11-01T00:00:00Z",
+      "state": null,
+      "envelope": "{\n  \"payloadType\": \"application/vnd.btlabs.wallet-for-epic.update+json\",\n  \"payload\": \"ewogICJzY2hlbWEiOiAxLAogICJzZXJpYWwiOiAxNzkwMDAwMDAwLAogICJpc3N1ZWRfYXQiOiAiMjAyNi0xMC0wMVQwMDowMDowMFoiLAogICJleHBpcmVzX2F0IjogIjIwMjctMDQtMDFUMDA6MDA6MDBaIiwKICAicGFja2FnZU5hbWUiOiAiY29tLmJsYWNrdHlnZXIuZXBpY3dhbGxldCIsCiAgInZlcnNpb25OYW1lIjogIjAuMS4xIiwKICAibm90ZXMiOiAiYVx1MjAyZWIiLAogICJhcGtzIjogWwogICAgewogICAgICAiYWJpIjogImFybTY0LXY4YSIsCiAgICAgICJ2ZXJzaW9uQ29kZSI6IDIsCiAgICAgICJ1cmwiOiAiaHR0cHM6Ly9naXRodWIuY29tL0JUTGFicy1FUElDL3dhbGxldC1mb3ItZXBpYy9yZWxlYXNlcy9kb3dubG9hZC92MC4xLjEvYXBwLWFybTY0LXY4YS1yZWxlYXNlLmFwayIsCiAgICAgICJzaGEyNTYiOiAiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMCIsCiAgICAgICJzaXplIjogNTI0Mjg4MDAKICAgIH0KICBdLAogICJkZXNrdG9wIjogewogICAgInZlcnNpb24iOiAiMC4xLjEiLAogICAgInBhZ2UiOiAiaHR0cHM6Ly9naXRodWIuY29tL0JUTGFicy1FUElDL3dhbGxldC1mb3ItZXBpYy9yZWxlYXNlcy90YWcvdjAuMS4xIgogIH0KfQo=\",\n  \"signatures\": [\n    {\n      \"keyid\": \"940f8a1d8b2e098a\",\n      \"sig\": \"zg0brlxSKdallVL1bIstmv6HLn5d5PKlCnSD06uQi3qYF+9zfpL8+e/GPtyULrtgVmeoDuiqOTmzQcy14bbzDA==\"\n    }\n  ]\n}\n",
+      "expect": {
+        "outcome": "rejected",
+        "reason": "malformed",
+        "state": null
+      }
+    },
+    {
+      "name": "notes-empty",
+      "payloadType": "application/vnd.btlabs.wallet-for-epic.update+json",
+      "now": "2026-11-01T00:00:00Z",
+      "state": null,
+      "envelope": "{\n  \"payloadType\": \"application/vnd.btlabs.wallet-for-epic.update+json\",\n  \"payload\": \"ewogICJzY2hlbWEiOiAxLAogICJzZXJpYWwiOiAxNzkwMDAwMDAwLAogICJpc3N1ZWRfYXQiOiAiMjAyNi0xMC0wMVQwMDowMDowMFoiLAogICJleHBpcmVzX2F0IjogIjIwMjctMDQtMDFUMDA6MDA6MDBaIiwKICAicGFja2FnZU5hbWUiOiAiY29tLmJsYWNrdHlnZXIuZXBpY3dhbGxldCIsCiAgInZlcnNpb25OYW1lIjogIjAuMS4xIiwKICAibm90ZXMiOiAiIiwKICAiYXBrcyI6IFsKICAgIHsKICAgICAgImFiaSI6ICJhcm02NC12OGEiLAogICAgICAidmVyc2lvbkNvZGUiOiAyLAogICAgICAidXJsIjogImh0dHBzOi8vZ2l0aHViLmNvbS9CVExhYnMtRVBJQy93YWxsZXQtZm9yLWVwaWMvcmVsZWFzZXMvZG93bmxvYWQvdjAuMS4xL2FwcC1hcm02NC12OGEtcmVsZWFzZS5hcGsiLAogICAgICAic2hhMjU2IjogIjAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAiLAogICAgICAic2l6ZSI6IDUyNDI4ODAwCiAgICB9CiAgXSwKICAiZGVza3RvcCI6IHsKICAgICJ2ZXJzaW9uIjogIjAuMS4xIiwKICAgICJwYWdlIjogImh0dHBzOi8vZ2l0aHViLmNvbS9CVExhYnMtRVBJQy93YWxsZXQtZm9yLWVwaWMvcmVsZWFzZXMvdGFnL3YwLjEuMSIKICB9Cn0K\",\n  \"signatures\": [\n    {\n      \"keyid\": \"940f8a1d8b2e098a\",\n      \"sig\": \"W1t5dvlY5buxS1h6xEFQTEghB8wqItnIWKy2AwUeahd4OGLpHGZ/tkRz1f70GG2nIs0LjaSKoB20MSbkj5t1Dg==\"\n    }\n  ]\n}\n",
+      "expect": {
+        "outcome": "rejected",
+        "reason": "malformed",
+        "state": null
+      }
+    },
+    {
+      "name": "notes-2000-code-points-accepted",
+      "payloadType": "application/vnd.btlabs.wallet-for-epic.update+json",
+      "now": "2026-11-01T00:00:00Z",
+      "state": null,
+      "envelope": "{\n  \"payloadType\": \"application/vnd.btlabs.wallet-for-epic.update+json\",\n  \"payload\": \"ewogICJzY2hlbWEiOiAxLAogICJzZXJpYWwiOiAxNzkwMDAwMDAwLAogICJpc3N1ZWRfYXQiOiAiMjAyNi0xMC0wMVQwMDowMDowMFoiLAogICJleHBpcmVzX2F0IjogIjIwMjctMDQtMDFUMDA6MDA6MDBaIiwKICAicGFja2FnZU5hbWUiOiAiY29tLmJsYWNrdHlnZXIuZXBpY3dhbGxldCIsCiAgInZlcnNpb25OYW1lIjogIjAuMS4xIiwKICAibm90ZXMiOiAiXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwIiwKICAiYXBrcyI6IFsKICAgIHsKICAgICAgImFiaSI6ICJhcm02NC12OGEiLAogICAgICAidmVyc2lvbkNvZGUiOiAyLAogICAgICAidXJsIjogImh0dHBzOi8vZ2l0aHViLmNvbS9CVExhYnMtRVBJQy93YWxsZXQtZm9yLWVwaWMvcmVsZWFzZXMvZG93bmxvYWQvdjAuMS4xL2FwcC1hcm02NC12OGEtcmVsZWFzZS5hcGsiLAogICAgICAic2hhMjU2IjogIjAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAiLAogICAgICAic2l6ZSI6IDUyNDI4ODAwCiAgICB9CiAgXSwKICAiZGVza3RvcCI6IHsKICAgICJ2ZXJzaW9uIjogIjAuMS4xIiwKICAgICJwYWdlIjogImh0dHBzOi8vZ2l0aHViLmNvbS9CVExhYnMtRVBJQy93YWxsZXQtZm9yLWVwaWMvcmVsZWFzZXMvdGFnL3YwLjEuMSIKICB9Cn0K\",\n  \"signatures\": [\n    {\n      \"keyid\": \"940f8a1d8b2e098a\",\n      \"sig\": \"s502Ks5f/IG9Ir66824sSavIYnp0vNUQjH33nAwrx1/izMuLg7WnPGbKt8Kh6SyIyn5BiQ1/2M5hw7eiauJACw==\"\n    }\n  ]\n}\n",
+      "expect": {
+        "outcome": "accepted",
+        "reason": null,
+        "state": {
+          "serial": 1790000000,
+          "keyid": "940f8a1d8b2e098a",
+          "digest": "6fff19d3e8e5a633385c8c7cf9efd2c142f1727d473072c01e87759c7daa6362",
+          "revoked": []
+        }
+      }
+    },
+    {
+      "name": "notes-2001-code-points",
+      "payloadType": "application/vnd.btlabs.wallet-for-epic.update+json",
+      "now": "2026-11-01T00:00:00Z",
+      "state": null,
+      "envelope": "{\n  \"payloadType\": \"application/vnd.btlabs.wallet-for-epic.update+json\",\n  \"payload\": \"ewogICJzY2hlbWEiOiAxLAogICJzZXJpYWwiOiAxNzkwMDAwMDAwLAogICJpc3N1ZWRfYXQiOiAiMjAyNi0xMC0wMVQwMDowMDowMFoiLAogICJleHBpcmVzX2F0IjogIjIwMjctMDQtMDFUMDA6MDA6MDBaIiwKICAicGFja2FnZU5hbWUiOiAiY29tLmJsYWNrdHlnZXIuZXBpY3dhbGxldCIsCiAgInZlcnNpb25OYW1lIjogIjAuMS4xIiwKICAibm90ZXMiOiAiXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwXHVkODNkXHVkZTAwIiwKICAiYXBrcyI6IFsKICAgIHsKICAgICAgImFiaSI6ICJhcm02NC12OGEiLAogICAgICAidmVyc2lvbkNvZGUiOiAyLAogICAgICAidXJsIjogImh0dHBzOi8vZ2l0aHViLmNvbS9CVExhYnMtRVBJQy93YWxsZXQtZm9yLWVwaWMvcmVsZWFzZXMvZG93bmxvYWQvdjAuMS4xL2FwcC1hcm02NC12OGEtcmVsZWFzZS5hcGsiLAogICAgICAic2hhMjU2IjogIjAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAiLAogICAgICAic2l6ZSI6IDUyNDI4ODAwCiAgICB9CiAgXSwKICAiZGVza3RvcCI6IHsKICAgICJ2ZXJzaW9uIjogIjAuMS4xIiwKICAgICJwYWdlIjogImh0dHBzOi8vZ2l0aHViLmNvbS9CVExhYnMtRVBJQy93YWxsZXQtZm9yLWVwaWMvcmVsZWFzZXMvdGFnL3YwLjEuMSIKICB9Cn0K\",\n  \"signatures\": [\n    {\n      \"keyid\": \"940f8a1d8b2e098a\",\n      \"sig\": \"DGAiUkD8+rtURCBudF1nEzk0jHNYSHQqE7w85PuoaXIbTIx/KATn6QVGLzEWABCcZ6lOinW8bepmATU67W0iCw==\"\n    }\n  ]\n}\n",
+      "expect": {
+        "outcome": "rejected",
+        "reason": "malformed",
+        "state": null
+      }
+    },
+    {
+      "name": "unsupported-schema-2",
+      "payloadType": "application/vnd.btlabs.wallet-for-epic.update+json",
+      "now": "2026-11-01T00:00:00Z",
+      "state": null,
+      "envelope": "{\n  \"payloadType\": \"application/vnd.btlabs.wallet-for-epic.update+json\",\n  \"payload\": \"ewogICJzY2hlbWEiOiAyLAogICJzZXJpYWwiOiAxNzkwMDAwMDAwLAogICJpc3N1ZWRfYXQiOiAiMjAyNi0xMC0wMVQwMDowMDowMFoiLAogICJleHBpcmVzX2F0IjogIjIwMjctMDQtMDFUMDA6MDA6MDBaIiwKICAicGFja2FnZU5hbWUiOiAiY29tLmJsYWNrdHlnZXIuZXBpY3dhbGxldCIsCiAgInZlcnNpb25OYW1lIjogIjAuMS4xIiwKICAibm90ZXMiOiAiRXhhbXBsZSBvbmx5OiBub3QgYSByZWFsIHJlbGVhc2UuXG5TaWduZWQgdXBkYXRlIGluZm9ybWF0aW9uLiIsCiAgImFwa3MiOiBbCiAgICB7CiAgICAgICJhYmkiOiAiYXJtNjQtdjhhIiwKICAgICAgInZlcnNpb25Db2RlIjogMiwKICAgICAgInVybCI6ICJodHRwczovL2dpdGh1Yi5jb20vQlRMYWJzLUVQSUMvd2FsbGV0LWZvci1lcGljL3JlbGVhc2VzL2Rvd25sb2FkL3YwLjEuMS9hcHAtYXJtNjQtdjhhLXJlbGVhc2UuYXBrIiwKICAgICAgInNoYTI1NiI6ICIwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwIiwKICAgICAgInNpemUiOiA1MjQyODgwMAogICAgfQogIF0sCiAgImRlc2t0b3AiOiB7CiAgICAidmVyc2lvbiI6ICIwLjEuMSIsCiAgICAicGFnZSI6ICJodHRwczovL2dpdGh1Yi5jb20vQlRMYWJzLUVQSUMvd2FsbGV0LWZvci1lcGljL3JlbGVhc2VzL3RhZy92MC4xLjEiCiAgfQp9Cg==\",\n  \"signatures\": [\n    {\n      \"keyid\": \"940f8a1d8b2e098a\",\n      \"sig\": \"XcAqnSqKnWXA27QI2pGcIJiy+0TxgvdNuTHs220ObvDaBa/BfZxnwDTRDuIuLpaJhiYqbCXXSt6mR0a/ek/KAQ==\"\n    }\n  ]\n}\n",
+      "expect": {
+        "outcome": "rejected",
+        "reason": "unsupported_schema",
+        "state": null
+      }
+    },
+    {
+      "name": "schema-float-1.0",
+      "payloadType": "application/vnd.btlabs.wallet-for-epic.update+json",
+      "now": "2026-11-01T00:00:00Z",
+      "state": null,
+      "envelope": "{\n  \"payloadType\": \"application/vnd.btlabs.wallet-for-epic.update+json\",\n  \"payload\": \"ewogICJzY2hlbWEiOiAxLjAsCiAgInNlcmlhbCI6IDE3OTAwMDAwMDAsCiAgImlzc3VlZF9hdCI6ICIyMDI2LTEwLTAxVDAwOjAwOjAwWiIsCiAgImV4cGlyZXNfYXQiOiAiMjAyNy0wNC0wMVQwMDowMDowMFoiLAogICJwYWNrYWdlTmFtZSI6ICJjb20uYmxhY2t0eWdlci5lcGljd2FsbGV0IiwKICAidmVyc2lvbk5hbWUiOiAiMC4xLjEiLAogICJub3RlcyI6ICJFeGFtcGxlIG9ubHk6IG5vdCBhIHJlYWwgcmVsZWFzZS5cblNpZ25lZCB1cGRhdGUgaW5mb3JtYXRpb24uIiwKICAiYXBrcyI6IFsKICAgIHsKICAgICAgImFiaSI6ICJhcm02NC12OGEiLAogICAgICAidmVyc2lvbkNvZGUiOiAyLAogICAgICAidXJsIjogImh0dHBzOi8vZ2l0aHViLmNvbS9CVExhYnMtRVBJQy93YWxsZXQtZm9yLWVwaWMvcmVsZWFzZXMvZG93bmxvYWQvdjAuMS4xL2FwcC1hcm02NC12OGEtcmVsZWFzZS5hcGsiLAogICAgICAic2hhMjU2IjogIjAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAiLAogICAgICAic2l6ZSI6IDUyNDI4ODAwCiAgICB9CiAgXSwKICAiZGVza3RvcCI6IHsKICAgICJ2ZXJzaW9uIjogIjAuMS4xIiwKICAgICJwYWdlIjogImh0dHBzOi8vZ2l0aHViLmNvbS9CVExhYnMtRVBJQy93YWxsZXQtZm9yLWVwaWMvcmVsZWFzZXMvdGFnL3YwLjEuMSIKICB9Cn0K\",\n  \"signatures\": [\n    {\n      \"keyid\": \"940f8a1d8b2e098a\",\n      \"sig\": \"8N+1H/bVT7G6M6K/5IwJrW4bF3zZvDj1GgWj9I1RR16ncJvUVJI6Kt94b3/F+hELXzfin4SnUQ0kBw8tjDdQDw==\"\n    }\n  ]\n}\n",
+      "expect": {
+        "outcome": "rejected",
+        "reason": "malformed",
+        "state": null
+      }
+    },
+    {
+      "name": "schema-bool-true",
+      "payloadType": "application/vnd.btlabs.wallet-for-epic.update+json",
+      "now": "2026-11-01T00:00:00Z",
+      "state": null,
+      "envelope": "{\n  \"payloadType\": \"application/vnd.btlabs.wallet-for-epic.update+json\",\n  \"payload\": \"ewogICJzY2hlbWEiOiB0cnVlLAogICJzZXJpYWwiOiAxNzkwMDAwMDAwLAogICJpc3N1ZWRfYXQiOiAiMjAyNi0xMC0wMVQwMDowMDowMFoiLAogICJleHBpcmVzX2F0IjogIjIwMjctMDQtMDFUMDA6MDA6MDBaIiwKICAicGFja2FnZU5hbWUiOiAiY29tLmJsYWNrdHlnZXIuZXBpY3dhbGxldCIsCiAgInZlcnNpb25OYW1lIjogIjAuMS4xIiwKICAibm90ZXMiOiAiRXhhbXBsZSBvbmx5OiBub3QgYSByZWFsIHJlbGVhc2UuXG5TaWduZWQgdXBkYXRlIGluZm9ybWF0aW9uLiIsCiAgImFwa3MiOiBbCiAgICB7CiAgICAgICJhYmkiOiAiYXJtNjQtdjhhIiwKICAgICAgInZlcnNpb25Db2RlIjogMiwKICAgICAgInVybCI6ICJodHRwczovL2dpdGh1Yi5jb20vQlRMYWJzLUVQSUMvd2FsbGV0LWZvci1lcGljL3JlbGVhc2VzL2Rvd25sb2FkL3YwLjEuMS9hcHAtYXJtNjQtdjhhLXJlbGVhc2UuYXBrIiwKICAgICAgInNoYTI1NiI6ICIwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwIiwKICAgICAgInNpemUiOiA1MjQyODgwMAogICAgfQogIF0sCiAgImRlc2t0b3AiOiB7CiAgICAidmVyc2lvbiI6ICIwLjEuMSIsCiAgICAicGFnZSI6ICJodHRwczovL2dpdGh1Yi5jb20vQlRMYWJzLUVQSUMvd2FsbGV0LWZvci1lcGljL3JlbGVhc2VzL3RhZy92MC4xLjEiCiAgfQp9Cg==\",\n  \"signatures\": [\n    {\n      \"keyid\": \"940f8a1d8b2e098a\",\n      \"sig\": \"uRp/D/rWZX3b0uI0h959nareTykvKcZAcEjLdG12NsJerA157iD7HqOwm+RexZ6mQBdN/eYtoMYiVbl23FEzBQ==\"\n    }\n  ]\n}\n",
+      "expect": {
+        "outcome": "rejected",
+        "reason": "malformed",
+        "state": null
+      }
+    },
+    {
+      "name": "serial-float",
+      "payloadType": "application/vnd.btlabs.wallet-for-epic.update+json",
+      "now": "2026-11-01T00:00:00Z",
+      "state": null,
+      "envelope": "{\n  \"payloadType\": \"application/vnd.btlabs.wallet-for-epic.update+json\",\n  \"payload\": \"ewogICJzY2hlbWEiOiAxLAogICJzZXJpYWwiOiAxNzkwMDAwMDAwLjAsCiAgImlzc3VlZF9hdCI6ICIyMDI2LTEwLTAxVDAwOjAwOjAwWiIsCiAgImV4cGlyZXNfYXQiOiAiMjAyNy0wNC0wMVQwMDowMDowMFoiLAogICJwYWNrYWdlTmFtZSI6ICJjb20uYmxhY2t0eWdlci5lcGljd2FsbGV0IiwKICAidmVyc2lvbk5hbWUiOiAiMC4xLjEiLAogICJub3RlcyI6ICJFeGFtcGxlIG9ubHk6IG5vdCBhIHJlYWwgcmVsZWFzZS5cblNpZ25lZCB1cGRhdGUgaW5mb3JtYXRpb24uIiwKICAiYXBrcyI6IFsKICAgIHsKICAgICAgImFiaSI6ICJhcm02NC12OGEiLAogICAgICAidmVyc2lvbkNvZGUiOiAyLAogICAgICAidXJsIjogImh0dHBzOi8vZ2l0aHViLmNvbS9CVExhYnMtRVBJQy93YWxsZXQtZm9yLWVwaWMvcmVsZWFzZXMvZG93bmxvYWQvdjAuMS4xL2FwcC1hcm02NC12OGEtcmVsZWFzZS5hcGsiLAogICAgICAic2hhMjU2IjogIjAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAiLAogICAgICAic2l6ZSI6IDUyNDI4ODAwCiAgICB9CiAgXSwKICAiZGVza3RvcCI6IHsKICAgICJ2ZXJzaW9uIjogIjAuMS4xIiwKICAgICJwYWdlIjogImh0dHBzOi8vZ2l0aHViLmNvbS9CVExhYnMtRVBJQy93YWxsZXQtZm9yLWVwaWMvcmVsZWFzZXMvdGFnL3YwLjEuMSIKICB9Cn0K\",\n  \"signatures\": [\n    {\n      \"keyid\": \"940f8a1d8b2e098a\",\n      \"sig\": \"hYhAZfSAsuoSpsuKxR1W4dMtYuZtDv6SuIHDQfxMtEW569KuaXo1AqFywxjUFAO3BOFjd2v3Dfwck32r2yVOBg==\"\n    }\n  ]\n}\n",
+      "expect": {
+        "outcome": "rejected",
+        "reason": "malformed",
+        "state": null
+      }
+    },
+    {
+      "name": "serial-zero",
+      "payloadType": "application/vnd.btlabs.wallet-for-epic.update+json",
+      "now": "2026-11-01T00:00:00Z",
+      "state": null,
+      "envelope": "{\n  \"payloadType\": \"application/vnd.btlabs.wallet-for-epic.update+json\",\n  \"payload\": \"ewogICJzY2hlbWEiOiAxLAogICJzZXJpYWwiOiAwLAogICJpc3N1ZWRfYXQiOiAiMjAyNi0xMC0wMVQwMDowMDowMFoiLAogICJleHBpcmVzX2F0IjogIjIwMjctMDQtMDFUMDA6MDA6MDBaIiwKICAicGFja2FnZU5hbWUiOiAiY29tLmJsYWNrdHlnZXIuZXBpY3dhbGxldCIsCiAgInZlcnNpb25OYW1lIjogIjAuMS4xIiwKICAibm90ZXMiOiAiRXhhbXBsZSBvbmx5OiBub3QgYSByZWFsIHJlbGVhc2UuXG5TaWduZWQgdXBkYXRlIGluZm9ybWF0aW9uLiIsCiAgImFwa3MiOiBbCiAgICB7CiAgICAgICJhYmkiOiAiYXJtNjQtdjhhIiwKICAgICAgInZlcnNpb25Db2RlIjogMiwKICAgICAgInVybCI6ICJodHRwczovL2dpdGh1Yi5jb20vQlRMYWJzLUVQSUMvd2FsbGV0LWZvci1lcGljL3JlbGVhc2VzL2Rvd25sb2FkL3YwLjEuMS9hcHAtYXJtNjQtdjhhLXJlbGVhc2UuYXBrIiwKICAgICAgInNoYTI1NiI6ICIwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwIiwKICAgICAgInNpemUiOiA1MjQyODgwMAogICAgfQogIF0sCiAgImRlc2t0b3AiOiB7CiAgICAidmVyc2lvbiI6ICIwLjEuMSIsCiAgICAicGFnZSI6ICJodHRwczovL2dpdGh1Yi5jb20vQlRMYWJzLUVQSUMvd2FsbGV0LWZvci1lcGljL3JlbGVhc2VzL3RhZy92MC4xLjEiCiAgfQp9Cg==\",\n  \"signatures\": [\n    {\n      \"keyid\": \"940f8a1d8b2e098a\",\n      \"sig\": \"qPaqCVY70ufRqG4At1x1z0FGZhpC/+wkdFOQHWIAVsQ+tjy53EBvuc8iNuNh0sBLGFXok4sDL9ZwoDeUj5dvCw==\"\n    }\n  ]\n}\n",
+      "expect": {
+        "outcome": "rejected",
+        "reason": "malformed",
+        "state": null
+      }
+    },
+    {
+      "name": "serial-too-big",
+      "payloadType": "application/vnd.btlabs.wallet-for-epic.update+json",
+      "now": "2026-11-01T00:00:00Z",
+      "state": null,
+      "envelope": "{\n  \"payloadType\": \"application/vnd.btlabs.wallet-for-epic.update+json\",\n  \"payload\": \"ewogICJzY2hlbWEiOiAxLAogICJzZXJpYWwiOiA5MDA3MTk5MjU0NzQwOTkyLAogICJpc3N1ZWRfYXQiOiAiMjAyNi0xMC0wMVQwMDowMDowMFoiLAogICJleHBpcmVzX2F0IjogIjIwMjctMDQtMDFUMDA6MDA6MDBaIiwKICAicGFja2FnZU5hbWUiOiAiY29tLmJsYWNrdHlnZXIuZXBpY3dhbGxldCIsCiAgInZlcnNpb25OYW1lIjogIjAuMS4xIiwKICAibm90ZXMiOiAiRXhhbXBsZSBvbmx5OiBub3QgYSByZWFsIHJlbGVhc2UuXG5TaWduZWQgdXBkYXRlIGluZm9ybWF0aW9uLiIsCiAgImFwa3MiOiBbCiAgICB7CiAgICAgICJhYmkiOiAiYXJtNjQtdjhhIiwKICAgICAgInZlcnNpb25Db2RlIjogMiwKICAgICAgInVybCI6ICJodHRwczovL2dpdGh1Yi5jb20vQlRMYWJzLUVQSUMvd2FsbGV0LWZvci1lcGljL3JlbGVhc2VzL2Rvd25sb2FkL3YwLjEuMS9hcHAtYXJtNjQtdjhhLXJlbGVhc2UuYXBrIiwKICAgICAgInNoYTI1NiI6ICIwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwIiwKICAgICAgInNpemUiOiA1MjQyODgwMAogICAgfQogIF0sCiAgImRlc2t0b3AiOiB7CiAgICAidmVyc2lvbiI6ICIwLjEuMSIsCiAgICAicGFnZSI6ICJodHRwczovL2dpdGh1Yi5jb20vQlRMYWJzLUVQSUMvd2FsbGV0LWZvci1lcGljL3JlbGVhc2VzL3RhZy92MC4xLjEiCiAgfQp9Cg==\",\n  \"signatures\": [\n    {\n      \"keyid\": \"940f8a1d8b2e098a\",\n      \"sig\": \"lKnqKjeGhLlJAylqPmJKfkfFgsTILcAPMgAlsTUMVecxQkP8VlqjClNxkKK0nLeVWAdz7WgCL+oJXyZ1HMOSDQ==\"\n    }\n  ]\n}\n",
+      "expect": {
+        "outcome": "rejected",
+        "reason": "malformed",
+        "state": null
+      }
+    },
+    {
+      "name": "duplicate-key-serial",
+      "payloadType": "application/vnd.btlabs.wallet-for-epic.update+json",
+      "now": "2026-11-01T00:00:00Z",
+      "state": null,
+      "envelope": "{\n  \"payloadType\": \"application/vnd.btlabs.wallet-for-epic.update+json\",\n  \"payload\": \"ewogICJzY2hlbWEiOiAxLAogICJzZXJpYWwiOiAxNzkwMDAwMDAwLAogICJzZXJpYWwiOiAxNzkwMDAwMDAxLAogICJpc3N1ZWRfYXQiOiAiMjAyNi0xMC0wMVQwMDowMDowMFoiLAogICJleHBpcmVzX2F0IjogIjIwMjctMDQtMDFUMDA6MDA6MDBaIiwKICAicGFja2FnZU5hbWUiOiAiY29tLmJsYWNrdHlnZXIuZXBpY3dhbGxldCIsCiAgInZlcnNpb25OYW1lIjogIjAuMS4xIiwKICAibm90ZXMiOiAiRXhhbXBsZSBvbmx5OiBub3QgYSByZWFsIHJlbGVhc2UuXG5TaWduZWQgdXBkYXRlIGluZm9ybWF0aW9uLiIsCiAgImFwa3MiOiBbCiAgICB7CiAgICAgICJhYmkiOiAiYXJtNjQtdjhhIiwKICAgICAgInZlcnNpb25Db2RlIjogMiwKICAgICAgInVybCI6ICJodHRwczovL2dpdGh1Yi5jb20vQlRMYWJzLUVQSUMvd2FsbGV0LWZvci1lcGljL3JlbGVhc2VzL2Rvd25sb2FkL3YwLjEuMS9hcHAtYXJtNjQtdjhhLXJlbGVhc2UuYXBrIiwKICAgICAgInNoYTI1NiI6ICIwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwIiwKICAgICAgInNpemUiOiA1MjQyODgwMAogICAgfQogIF0sCiAgImRlc2t0b3AiOiB7CiAgICAidmVyc2lvbiI6ICIwLjEuMSIsCiAgICAicGFnZSI6ICJodHRwczovL2dpdGh1Yi5jb20vQlRMYWJzLUVQSUMvd2FsbGV0LWZvci1lcGljL3JlbGVhc2VzL3RhZy92MC4xLjEiCiAgfQp9Cg==\",\n  \"signatures\": [\n    {\n      \"keyid\": \"940f8a1d8b2e098a\",\n      \"sig\": \"Bo/5qqWdgdWVAAxxYe6cRnNBR0+n8oBvscMNCKMUTdclMZ8Wuo1Ycbkuk9WNqqZYjpCOiA9Q/9w0VGH4Vr3/AQ==\"\n    }\n  ]\n}\n",
+      "expect": {
+        "outcome": "rejected",
+        "reason": "malformed",
+        "state": null
+      }
+    },
+    {
+      "name": "payload-json-array",
+      "payloadType": "application/vnd.btlabs.wallet-for-epic.update+json",
+      "now": "2026-11-01T00:00:00Z",
+      "state": null,
+      "envelope": "{\n  \"payloadType\": \"application/vnd.btlabs.wallet-for-epic.update+json\",\n  \"payload\": \"W10K\",\n  \"signatures\": [\n    {\n      \"keyid\": \"940f8a1d8b2e098a\",\n      \"sig\": \"Mrlc4VWbe8mqb8VXb+KDMCRfA00TMB3f8ie/YzzGt2cADkDqDXyicOJ4dY8wCkwvfPhST5vEjQ0HR/+IEb7EAg==\"\n    }\n  ]\n}\n",
+      "expect": {
+        "outcome": "rejected",
+        "reason": "malformed",
+        "state": null
+      }
+    },
+    {
+      "name": "payload-utf8-bom",
+      "payloadType": "application/vnd.btlabs.wallet-for-epic.update+json",
+      "now": "2026-11-01T00:00:00Z",
+      "state": null,
+      "envelope": "{\n  \"payloadType\": \"application/vnd.btlabs.wallet-for-epic.update+json\",\n  \"payload\": \"77u/ewogICJzY2hlbWEiOiAxLAogICJzZXJpYWwiOiAxNzkwMDAwMDAwLAogICJpc3N1ZWRfYXQiOiAiMjAyNi0xMC0wMVQwMDowMDowMFoiLAogICJleHBpcmVzX2F0IjogIjIwMjctMDQtMDFUMDA6MDA6MDBaIiwKICAicGFja2FnZU5hbWUiOiAiY29tLmJsYWNrdHlnZXIuZXBpY3dhbGxldCIsCiAgInZlcnNpb25OYW1lIjogIjAuMS4xIiwKICAibm90ZXMiOiAiRXhhbXBsZSBvbmx5OiBub3QgYSByZWFsIHJlbGVhc2UuXG5TaWduZWQgdXBkYXRlIGluZm9ybWF0aW9uLiIsCiAgImFwa3MiOiBbCiAgICB7CiAgICAgICJhYmkiOiAiYXJtNjQtdjhhIiwKICAgICAgInZlcnNpb25Db2RlIjogMiwKICAgICAgInVybCI6ICJodHRwczovL2dpdGh1Yi5jb20vQlRMYWJzLUVQSUMvd2FsbGV0LWZvci1lcGljL3JlbGVhc2VzL2Rvd25sb2FkL3YwLjEuMS9hcHAtYXJtNjQtdjhhLXJlbGVhc2UuYXBrIiwKICAgICAgInNoYTI1NiI6ICIwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwIiwKICAgICAgInNpemUiOiA1MjQyODgwMAogICAgfQogIF0sCiAgImRlc2t0b3AiOiB7CiAgICAidmVyc2lvbiI6ICIwLjEuMSIsCiAgICAicGFnZSI6ICJodHRwczovL2dpdGh1Yi5jb20vQlRMYWJzLUVQSUMvd2FsbGV0LWZvci1lcGljL3JlbGVhc2VzL3RhZy92MC4xLjEiCiAgfQp9Cg==\",\n  \"signatures\": [\n    {\n      \"keyid\": \"940f8a1d8b2e098a\",\n      \"sig\": \"8woTsZ7RxPCZcX6D7SfFzuuLxlGkKZY2vcFpTe8yF2G4/TuNiY3dnvYkbSUWZ5yFtXY5xiDJH0/myQO8bBtFAw==\"\n    }\n  ]\n}\n",
+      "expect": {
+        "outcome": "rejected",
+        "reason": "malformed",
+        "state": null
+      }
+    },
+    {
+      "name": "validity-401-days",
+      "payloadType": "application/vnd.btlabs.wallet-for-epic.update+json",
+      "now": "2026-11-01T00:00:00Z",
+      "state": null,
+      "envelope": "{\n  \"payloadType\": \"application/vnd.btlabs.wallet-for-epic.update+json\",\n  \"payload\": \"ewogICJzY2hlbWEiOiAxLAogICJzZXJpYWwiOiAxNzkwMDAwMDAwLAogICJpc3N1ZWRfYXQiOiAiMjAyNi0xMC0wMVQwMDowMDowMFoiLAogICJleHBpcmVzX2F0IjogIjIwMjctMTEtMDZUMDA6MDA6MDBaIiwKICAicGFja2FnZU5hbWUiOiAiY29tLmJsYWNrdHlnZXIuZXBpY3dhbGxldCIsCiAgInZlcnNpb25OYW1lIjogIjAuMS4xIiwKICAibm90ZXMiOiAiRXhhbXBsZSBvbmx5OiBub3QgYSByZWFsIHJlbGVhc2UuXG5TaWduZWQgdXBkYXRlIGluZm9ybWF0aW9uLiIsCiAgImFwa3MiOiBbCiAgICB7CiAgICAgICJhYmkiOiAiYXJtNjQtdjhhIiwKICAgICAgInZlcnNpb25Db2RlIjogMiwKICAgICAgInVybCI6ICJodHRwczovL2dpdGh1Yi5jb20vQlRMYWJzLUVQSUMvd2FsbGV0LWZvci1lcGljL3JlbGVhc2VzL2Rvd25sb2FkL3YwLjEuMS9hcHAtYXJtNjQtdjhhLXJlbGVhc2UuYXBrIiwKICAgICAgInNoYTI1NiI6ICIwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwIiwKICAgICAgInNpemUiOiA1MjQyODgwMAogICAgfQogIF0sCiAgImRlc2t0b3AiOiB7CiAgICAidmVyc2lvbiI6ICIwLjEuMSIsCiAgICAicGFnZSI6ICJodHRwczovL2dpdGh1Yi5jb20vQlRMYWJzLUVQSUMvd2FsbGV0LWZvci1lcGljL3JlbGVhc2VzL3RhZy92MC4xLjEiCiAgfQp9Cg==\",\n  \"signatures\": [\n    {\n      \"keyid\": \"940f8a1d8b2e098a\",\n      \"sig\": \"LX2XR7GjZO2QTWBvKmASkjfVitmV6H8U9P08tvvDkVHkIs7XrpbECVtHqgKNF8rnqj9t7zkKwE4IfvdthpiZAw==\"\n    }\n  ]\n}\n",
+      "expect": {
+        "outcome": "rejected",
+        "reason": "malformed",
+        "state": null
+      }
+    },
+    {
+      "name": "validity-exactly-400-days",
+      "payloadType": "application/vnd.btlabs.wallet-for-epic.update+json",
+      "now": "2026-11-01T00:00:00Z",
+      "state": null,
+      "envelope": "{\n  \"payloadType\": \"application/vnd.btlabs.wallet-for-epic.update+json\",\n  \"payload\": \"ewogICJzY2hlbWEiOiAxLAogICJzZXJpYWwiOiAxNzkwMDAwMDAwLAogICJpc3N1ZWRfYXQiOiAiMjAyNi0xMC0wMVQwMDowMDowMFoiLAogICJleHBpcmVzX2F0IjogIjIwMjctMTEtMDVUMDA6MDA6MDBaIiwKICAicGFja2FnZU5hbWUiOiAiY29tLmJsYWNrdHlnZXIuZXBpY3dhbGxldCIsCiAgInZlcnNpb25OYW1lIjogIjAuMS4xIiwKICAibm90ZXMiOiAiRXhhbXBsZSBvbmx5OiBub3QgYSByZWFsIHJlbGVhc2UuXG5TaWduZWQgdXBkYXRlIGluZm9ybWF0aW9uLiIsCiAgImFwa3MiOiBbCiAgICB7CiAgICAgICJhYmkiOiAiYXJtNjQtdjhhIiwKICAgICAgInZlcnNpb25Db2RlIjogMiwKICAgICAgInVybCI6ICJodHRwczovL2dpdGh1Yi5jb20vQlRMYWJzLUVQSUMvd2FsbGV0LWZvci1lcGljL3JlbGVhc2VzL2Rvd25sb2FkL3YwLjEuMS9hcHAtYXJtNjQtdjhhLXJlbGVhc2UuYXBrIiwKICAgICAgInNoYTI1NiI6ICIwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwIiwKICAgICAgInNpemUiOiA1MjQyODgwMAogICAgfQogIF0sCiAgImRlc2t0b3AiOiB7CiAgICAidmVyc2lvbiI6ICIwLjEuMSIsCiAgICAicGFnZSI6ICJodHRwczovL2dpdGh1Yi5jb20vQlRMYWJzLUVQSUMvd2FsbGV0LWZvci1lcGljL3JlbGVhc2VzL3RhZy92MC4xLjEiCiAgfQp9Cg==\",\n  \"signatures\": [\n    {\n      \"keyid\": \"940f8a1d8b2e098a\",\n      \"sig\": \"nb1cKxSd/9bURn8qgdZgMPA2+Q/2JOO2tMdOPu0/g/sT/goWmDwolcivXrAL4AUecZ9ob3kzmuLP7SH/rMh/Bw==\"\n    }\n  ]\n}\n",
+      "expect": {
+        "outcome": "accepted",
+        "reason": null,
+        "state": {
+          "serial": 1790000000,
+          "keyid": "940f8a1d8b2e098a",
+          "digest": "c18cb3e87ada30f4acbced23490fd63ac924bb58ffee63e8659e013a37580ac2",
+          "revoked": []
+        }
+      }
+    },
+    {
+      "name": "expires-before-issued",
+      "payloadType": "application/vnd.btlabs.wallet-for-epic.update+json",
+      "now": "2026-11-01T00:00:00Z",
+      "state": null,
+      "envelope": "{\n  \"payloadType\": \"application/vnd.btlabs.wallet-for-epic.update+json\",\n  \"payload\": \"ewogICJzY2hlbWEiOiAxLAogICJzZXJpYWwiOiAxNzkwMDAwMDAwLAogICJpc3N1ZWRfYXQiOiAiMjAyNi0xMC0wMVQwMDowMDowMFoiLAogICJleHBpcmVzX2F0IjogIjIwMjYtMDktMDFUMDA6MDA6MDBaIiwKICAicGFja2FnZU5hbWUiOiAiY29tLmJsYWNrdHlnZXIuZXBpY3dhbGxldCIsCiAgInZlcnNpb25OYW1lIjogIjAuMS4xIiwKICAibm90ZXMiOiAiRXhhbXBsZSBvbmx5OiBub3QgYSByZWFsIHJlbGVhc2UuXG5TaWduZWQgdXBkYXRlIGluZm9ybWF0aW9uLiIsCiAgImFwa3MiOiBbCiAgICB7CiAgICAgICJhYmkiOiAiYXJtNjQtdjhhIiwKICAgICAgInZlcnNpb25Db2RlIjogMiwKICAgICAgInVybCI6ICJodHRwczovL2dpdGh1Yi5jb20vQlRMYWJzLUVQSUMvd2FsbGV0LWZvci1lcGljL3JlbGVhc2VzL2Rvd25sb2FkL3YwLjEuMS9hcHAtYXJtNjQtdjhhLXJlbGVhc2UuYXBrIiwKICAgICAgInNoYTI1NiI6ICIwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwIiwKICAgICAgInNpemUiOiA1MjQyODgwMAogICAgfQogIF0sCiAgImRlc2t0b3AiOiB7CiAgICAidmVyc2lvbiI6ICIwLjEuMSIsCiAgICAicGFnZSI6ICJodHRwczovL2dpdGh1Yi5jb20vQlRMYWJzLUVQSUMvd2FsbGV0LWZvci1lcGljL3JlbGVhc2VzL3RhZy92MC4xLjEiCiAgfQp9Cg==\",\n  \"signatures\": [\n    {\n      \"keyid\": \"940f8a1d8b2e098a\",\n      \"sig\": \"scx/nZLgMEcImsecZbHXDWRjTIE2aEQNu8vjLarMWM355EedqejaczBPUFOtBWFDKTSxzu3/X5xK1reuMG69Cw==\"\n    }\n  ]\n}\n",
+      "expect": {
+        "outcome": "rejected",
+        "reason": "malformed",
+        "state": null
+      }
+    },
+    {
+      "name": "expires-equals-issued",
+      "payloadType": "application/vnd.btlabs.wallet-for-epic.update+json",
+      "now": "2026-11-01T00:00:00Z",
+      "state": null,
+      "envelope": "{\n  \"payloadType\": \"application/vnd.btlabs.wallet-for-epic.update+json\",\n  \"payload\": \"ewogICJzY2hlbWEiOiAxLAogICJzZXJpYWwiOiAxNzkwMDAwMDAwLAogICJpc3N1ZWRfYXQiOiAiMjAyNi0xMC0wMVQwMDowMDowMFoiLAogICJleHBpcmVzX2F0IjogIjIwMjYtMTAtMDFUMDA6MDA6MDBaIiwKICAicGFja2FnZU5hbWUiOiAiY29tLmJsYWNrdHlnZXIuZXBpY3dhbGxldCIsCiAgInZlcnNpb25OYW1lIjogIjAuMS4xIiwKICAibm90ZXMiOiAiRXhhbXBsZSBvbmx5OiBub3QgYSByZWFsIHJlbGVhc2UuXG5TaWduZWQgdXBkYXRlIGluZm9ybWF0aW9uLiIsCiAgImFwa3MiOiBbCiAgICB7CiAgICAgICJhYmkiOiAiYXJtNjQtdjhhIiwKICAgICAgInZlcnNpb25Db2RlIjogMiwKICAgICAgInVybCI6ICJodHRwczovL2dpdGh1Yi5jb20vQlRMYWJzLUVQSUMvd2FsbGV0LWZvci1lcGljL3JlbGVhc2VzL2Rvd25sb2FkL3YwLjEuMS9hcHAtYXJtNjQtdjhhLXJlbGVhc2UuYXBrIiwKICAgICAgInNoYTI1NiI6ICIwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwIiwKICAgICAgInNpemUiOiA1MjQyODgwMAogICAgfQogIF0sCiAgImRlc2t0b3AiOiB7CiAgICAidmVyc2lvbiI6ICIwLjEuMSIsCiAgICAicGFnZSI6ICJodHRwczovL2dpdGh1Yi5jb20vQlRMYWJzLUVQSUMvd2FsbGV0LWZvci1lcGljL3JlbGVhc2VzL3RhZy92MC4xLjEiCiAgfQp9Cg==\",\n  \"signatures\": [\n    {\n      \"keyid\": \"940f8a1d8b2e098a\",\n      \"sig\": \"OJdQkgHKXTomCqsFuB2Xnl4zvOuasGFYeh7lnmWsLIvQHC63Kt8Y5pGn+v8mrKeIGd+R9FlZepYmRoHhGl7bAg==\"\n    }\n  ]\n}\n",
+      "expect": {
+        "outcome": "rejected",
+        "reason": "malformed",
+        "state": null
+      }
+    },
+    {
+      "name": "impossible-date",
+      "payloadType": "application/vnd.btlabs.wallet-for-epic.update+json",
+      "now": "2026-11-01T00:00:00Z",
+      "state": null,
+      "envelope": "{\n  \"payloadType\": \"application/vnd.btlabs.wallet-for-epic.update+json\",\n  \"payload\": \"ewogICJzY2hlbWEiOiAxLAogICJzZXJpYWwiOiAxNzkwMDAwMDAwLAogICJpc3N1ZWRfYXQiOiAiMjAyNi0wMi0zMFQwMDowMDowMFoiLAogICJleHBpcmVzX2F0IjogIjIwMjctMDQtMDFUMDA6MDA6MDBaIiwKICAicGFja2FnZU5hbWUiOiAiY29tLmJsYWNrdHlnZXIuZXBpY3dhbGxldCIsCiAgInZlcnNpb25OYW1lIjogIjAuMS4xIiwKICAibm90ZXMiOiAiRXhhbXBsZSBvbmx5OiBub3QgYSByZWFsIHJlbGVhc2UuXG5TaWduZWQgdXBkYXRlIGluZm9ybWF0aW9uLiIsCiAgImFwa3MiOiBbCiAgICB7CiAgICAgICJhYmkiOiAiYXJtNjQtdjhhIiwKICAgICAgInZlcnNpb25Db2RlIjogMiwKICAgICAgInVybCI6ICJodHRwczovL2dpdGh1Yi5jb20vQlRMYWJzLUVQSUMvd2FsbGV0LWZvci1lcGljL3JlbGVhc2VzL2Rvd25sb2FkL3YwLjEuMS9hcHAtYXJtNjQtdjhhLXJlbGVhc2UuYXBrIiwKICAgICAgInNoYTI1NiI6ICIwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwIiwKICAgICAgInNpemUiOiA1MjQyODgwMAogICAgfQogIF0sCiAgImRlc2t0b3AiOiB7CiAgICAidmVyc2lvbiI6ICIwLjEuMSIsCiAgICAicGFnZSI6ICJodHRwczovL2dpdGh1Yi5jb20vQlRMYWJzLUVQSUMvd2FsbGV0LWZvci1lcGljL3JlbGVhc2VzL3RhZy92MC4xLjEiCiAgfQp9Cg==\",\n  \"signatures\": [\n    {\n      \"keyid\": \"940f8a1d8b2e098a\",\n      \"sig\": \"U9FD59N3wAIHDQXX0wVC0FcnnSBgu6InhdWa1me+Jt30gylJZd0rfv9dra/aHuJrEojfudwTfNFz+k5C5D6ZAQ==\"\n    }\n  ]\n}\n",
+      "expect": {
+        "outcome": "rejected",
+        "reason": "malformed",
+        "state": null
+      }
+    },
+    {
+      "name": "year-zero",
+      "payloadType": "application/vnd.btlabs.wallet-for-epic.update+json",
+      "now": "2026-11-01T00:00:00Z",
+      "state": null,
+      "envelope": "{\n  \"payloadType\": \"application/vnd.btlabs.wallet-for-epic.update+json\",\n  \"payload\": \"ewogICJzY2hlbWEiOiAxLAogICJzZXJpYWwiOiAxNzkwMDAwMDAwLAogICJpc3N1ZWRfYXQiOiAiMDAwMC0wMS0wMVQwMDowMDowMFoiLAogICJleHBpcmVzX2F0IjogIjAwMDAtMDYtMDFUMDA6MDA6MDBaIiwKICAicGFja2FnZU5hbWUiOiAiY29tLmJsYWNrdHlnZXIuZXBpY3dhbGxldCIsCiAgInZlcnNpb25OYW1lIjogIjAuMS4xIiwKICAibm90ZXMiOiAiRXhhbXBsZSBvbmx5OiBub3QgYSByZWFsIHJlbGVhc2UuXG5TaWduZWQgdXBkYXRlIGluZm9ybWF0aW9uLiIsCiAgImFwa3MiOiBbCiAgICB7CiAgICAgICJhYmkiOiAiYXJtNjQtdjhhIiwKICAgICAgInZlcnNpb25Db2RlIjogMiwKICAgICAgInVybCI6ICJodHRwczovL2dpdGh1Yi5jb20vQlRMYWJzLUVQSUMvd2FsbGV0LWZvci1lcGljL3JlbGVhc2VzL2Rvd25sb2FkL3YwLjEuMS9hcHAtYXJtNjQtdjhhLXJlbGVhc2UuYXBrIiwKICAgICAgInNoYTI1NiI6ICIwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwIiwKICAgICAgInNpemUiOiA1MjQyODgwMAogICAgfQogIF0sCiAgImRlc2t0b3AiOiB7CiAgICAidmVyc2lvbiI6ICIwLjEuMSIsCiAgICAicGFnZSI6ICJodHRwczovL2dpdGh1Yi5jb20vQlRMYWJzLUVQSUMvd2FsbGV0LWZvci1lcGljL3JlbGVhc2VzL3RhZy92MC4xLjEiCiAgfQp9Cg==\",\n  \"signatures\": [\n    {\n      \"keyid\": \"940f8a1d8b2e098a\",\n      \"sig\": \"4lLbQOjJpeW7CC4rRFkU9zsRyxYfwHB+ZFwU/GUp53kRXdzwQKaqy+wkfNTt2+L4wLiUS13Lrpcar48PYi8yCQ==\"\n    }\n  ]\n}\n",
+      "expect": {
+        "outcome": "rejected",
+        "reason": "malformed",
+        "state": null
+      }
+    },
+    {
+      "name": "unknown-extra-fields-accepted",
+      "payloadType": "application/vnd.btlabs.wallet-for-epic.update+json",
+      "now": "2026-11-01T00:00:00Z",
+      "state": null,
+      "envelope": "{\n  \"payloadType\": \"application/vnd.btlabs.wallet-for-epic.update+json\",\n  \"payload\": \"ewogICJzY2hlbWEiOiAxLAogICJzZXJpYWwiOiAxNzkwMDAwMDAwLAogICJpc3N1ZWRfYXQiOiAiMjAyNi0xMC0wMVQwMDowMDowMFoiLAogICJleHBpcmVzX2F0IjogIjIwMjctMDQtMDFUMDA6MDA6MDBaIiwKICAicGFja2FnZU5hbWUiOiAiY29tLmJsYWNrdHlnZXIuZXBpY3dhbGxldCIsCiAgInZlcnNpb25OYW1lIjogIjAuMS4xIiwKICAibm90ZXMiOiAiRXhhbXBsZSBvbmx5OiBub3QgYSByZWFsIHJlbGVhc2UuXG5TaWduZWQgdXBkYXRlIGluZm9ybWF0aW9uLiIsCiAgImFwa3MiOiBbCiAgICB7CiAgICAgICJhYmkiOiAiYXJtNjQtdjhhIiwKICAgICAgInZlcnNpb25Db2RlIjogMiwKICAgICAgInVybCI6ICJodHRwczovL2dpdGh1Yi5jb20vQlRMYWJzLUVQSUMvd2FsbGV0LWZvci1lcGljL3JlbGVhc2VzL2Rvd25sb2FkL3YwLjEuMS9hcHAtYXJtNjQtdjhhLXJlbGVhc2UuYXBrIiwKICAgICAgInNoYTI1NiI6ICIwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwIiwKICAgICAgInNpemUiOiA1MjQyODgwMCwKICAgICAgImV4dHJhIjogImlnbm9yZWQiCiAgICB9CiAgXSwKICAiZGVza3RvcCI6IHsKICAgICJ2ZXJzaW9uIjogIjAuMS4xIiwKICAgICJwYWdlIjogImh0dHBzOi8vZ2l0aHViLmNvbS9CVExhYnMtRVBJQy93YWxsZXQtZm9yLWVwaWMvcmVsZWFzZXMvdGFnL3YwLjEuMSIKICB9LAogICJmdXR1cmVfZmllbGQiOiB7CiAgICAieCI6IFsKICAgICAgMQogICAgXQogIH0KfQo=\",\n  \"signatures\": [\n    {\n      \"keyid\": \"940f8a1d8b2e098a\",\n      \"sig\": \"rcIXmTC0u72r+2p1GrmBNIbGcyaqwZ2diApgnD/ld6wNmV+B2iB83s9yfXPUcFNsUyT0LomgvZxhdMOoFhXkCw==\"\n    }\n  ]\n}\n",
+      "expect": {
+        "outcome": "accepted",
+        "reason": null,
+        "state": {
+          "serial": 1790000000,
+          "keyid": "940f8a1d8b2e098a",
+          "digest": "2a3976295e52abc0b0f0fc8594a529fedece0094f91488c8242e2e892d460349",
+          "revoked": []
+        }
+      }
+    }
+  ]
+}

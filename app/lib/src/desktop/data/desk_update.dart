@@ -1,20 +1,22 @@
 /// Settings › About › Updates: whether a newer Epic Wallet is out. Check only: the desktop
-/// never downloads or installs. Reads the manifest the phone's updater reads
-/// ([updateManifestUrl], one constant for both), but only its `desktop` entry: the phone's
-/// `versionName` is the Android build's. The entry is `{"version": "0.1.1", "page": "…"}`, or
-/// per system `{"windows": {…}, "linux": {…}}`; a manifest without it offers nothing.
+/// never downloads or installs. Reads the signed manifest the phone's updater reads
+/// ([updateManifestUrl], one constant for both), verified with the same bundled keys
+/// ([updateKeyringProvider]) before anything is read from it, and only its `desktop` entry:
+/// the phone's `versionName` is the Android build's. The entry is
+/// `{"version": "0.1.1", "page": "…"}`, or per system `{"windows": {…}, "linux": {…}}`; a
+/// manifest without it offers nothing, and one that does not verify means no information.
 /// The page opens only on [deskUpdatePageHosts]; any other falls back to [deskReleasesUrl].
 library;
 
 import 'dart:async';
-import 'dart:convert';
 import 'dart:io' show Platform;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app_log.dart';
+import '../../btlabs_public.dart';
 import '../../net/http.dart';
-import '../../updater.dart' show updateManifestUrl;
+import '../../updater.dart' show updateKeyringProvider, updateManifestUrl;
 
 /// This build's version, without the build id (pubspec's version); the sidebar, About and
 /// the support report show it with the build id (`shell.dart`).
@@ -24,7 +26,7 @@ const String deskAppVersion = '0.1.0';
 const List<String> deskUpdatePageHosts = ['https://github.com/BTLabs-EPIC/', 'https://github.com/blacktyger/'];
 
 /// Where an update is downloaded, when the manifest names no page of its own.
-const String deskReleasesUrl = 'https://github.com/blacktyger/wallet-for-epic/releases/latest';
+const String deskReleasesUrl = 'https://github.com/BTLabs-EPIC/wallet-for-epic/releases/latest';
 
 enum DeskUpdatePhase { idle, checking, latest, available, failed }
 
@@ -49,11 +51,20 @@ class DeskUpdateState {
 /// The manifest's HTTP status and body; tests replace it.
 typedef ManifestFetch = Future<(int, String)> Function(Uri url);
 
-/// A plain GET ([httpGet]): no User-Agent, no cookies, nothing about this wallet.
+/// A plain GET ([httpGet]): no User-Agent, no cookies, nothing about this wallet. A body
+/// over the envelope limit is not read; it answers as [deskManifestTooLarge], which
+/// [DeskUpdateController] treats as a manifest that does not verify.
 Future<(int, String)> _fetch(Uri url) async {
-  final reply = await httpGet(url, timeout: const Duration(seconds: 30));
-  return (reply.status, reply.body);
+  try {
+    final reply = await httpGet(url, timeout: const Duration(seconds: 30), maxBytes: btlabsMaxEnvelopeBytes);
+    return (reply.status, reply.body);
+  } on NetTooLarge {
+    return (deskManifestTooLarge, '');
+  }
 }
+
+/// The status [ManifestFetch] reports for a body over the envelope limit (no HTTP status).
+const int deskManifestTooLarge = -1;
 
 final deskManifestFetchProvider = Provider<ManifestFetch>((ref) => _fetch);
 final deskUpdateClockProvider = Provider<DateTime Function()>((ref) => DateTime.now);
@@ -97,7 +108,7 @@ class DeskUpdateController extends Notifier<DeskUpdateState> {
     DeskUpdateState next;
     try {
       final (status, body) = await ref.read(deskManifestFetchProvider)(url);
-      next = _read(status, body);
+      next = await _read(status, body);
     } on TimeoutException {
       next = const DeskUpdateState(DeskUpdatePhase.failed, reason: 'The update server did not answer.');
     } on Object catch (e) {
@@ -109,28 +120,46 @@ class DeskUpdateController extends Notifier<DeskUpdateState> {
     state = DeskUpdateState(next.phase, version: next.version, page: next.page, reason: next.reason, checkedAt: now);
   }
 
-  DeskUpdateState _read(int status, String body) {
+  /// The last manifest accepted in this run; a later, older one is refused (FORMAT.md §6).
+  ManifestState? _manifestState;
+
+  /// The update the last accepted manifest offered, if any: it stays offered when a later
+  /// manifest does not verify or none is published (FORMAT.md §5: keep what you have).
+  DeskUpdateState? _known;
+
+  Future<DeskUpdateState> _read(int status, String body) async {
     // No manifest published: nothing newer is known, which is no error.
-    if (status == 404) return const DeskUpdateState(DeskUpdatePhase.latest);
+    if (status == 404) return _known ?? const DeskUpdateState(DeskUpdatePhase.latest);
+    if (status == deskManifestTooLarge) return _notVerified(RejectReason.tooLarge);
     if (status != 200) return DeskUpdateState(DeskUpdatePhase.failed, reason: 'The update server answered $status.');
-    final Object? json;
-    try {
-      json = jsonDecode(body);
-    } on FormatException {
-      return const DeskUpdateState(DeskUpdatePhase.failed, reason: 'The update information is not readable.');
-    }
-    final desktop = json is Map<String, Object?> ? json['desktop'] : null;
-    final mine = desktop is Map<String, Object?> && desktop[_system] is Map<String, Object?> ? desktop[_system] : desktop;
-    if (mine is! Map<String, Object?>) {
+    final result = await verifyWalletUpdate(
+      body,
+      keyring: ref.read(updateKeyringProvider),
+      state: _manifestState,
+      now: ref.read(deskUpdateClockProvider)().toUtc(),
+    );
+    if (result is! Accepted<WalletUpdate>) return _notVerified((result as Rejected<WalletUpdate>).reason);
+    _manifestState = result.state;
+    _known = null;
+    final mine = result.manifest.desktop?.forSystem(_system);
+    if (mine == null) {
       return const DeskUpdateState(DeskUpdatePhase.failed, reason: 'No desktop update information is published yet.');
     }
-    final version = mine['version'];
-    if (version is! String || version.isEmpty) {
-      return const DeskUpdateState(DeskUpdatePhase.failed, reason: 'The update information has no version.');
-    }
-    if (!isNewerVersion(version, deskAppVersion)) return const DeskUpdateState(DeskUpdatePhase.latest);
-    final page = mine['page'];
-    return DeskUpdateState(DeskUpdatePhase.available, version: version, page: page is String && isDeskUpdatePage(page) ? page : deskReleasesUrl);
+    if (!isNewerVersion(mine.version, deskAppVersion)) return const DeskUpdateState(DeskUpdatePhase.latest);
+    final page = mine.page;
+    return _known = DeskUpdateState(
+      DeskUpdatePhase.available,
+      version: mine.version,
+      page: page != null && isDeskUpdatePage(page) ? page : deskReleasesUrl,
+    );
+  }
+
+  /// A manifest that is unsigned, forged, expired or older than one seen in this run: no
+  /// information, like no manifest at all; an update an earlier manifest offered stays
+  /// offered. The reason goes to the log only (FORMAT.md §5).
+  DeskUpdateState _notVerified(RejectReason reason) {
+    logInfo('update', 'desktop: update.json not used: ${reason.code}');
+    return _known ?? const DeskUpdateState(DeskUpdatePhase.latest);
   }
 
   static String get _system => Platform.isWindows ? 'windows' : Platform.isMacOS ? 'macos' : 'linux';

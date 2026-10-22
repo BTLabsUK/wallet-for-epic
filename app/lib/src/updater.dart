@@ -1,13 +1,16 @@
 /// In-app updates for Android builds distributed outside an app store.
 ///
-/// A release publishes `update.json` (written by `tool/release_android.sh`) next to its split
-/// APKs. The app fetches it, picks the APK for this device's ABI, downloads it, checks its size
-/// and SHA-256, and hands it to Android's PackageInstaller (`AppUpdater.kt`), which also insists
-/// on the same package name, a higher version code and the same signing key.
+/// A release publishes `update.json` (written and signed by `tool/release_android.sh`) on BT
+/// Labs' Pages site; the split APKs stay on the GitHub release. `update.json` is a signed
+/// envelope (btlabs-public FORMAT.md §6): the app verifies it with the bundled keys
+/// ([btlabsKeyring]) before it shows or downloads anything, and an unsigned, forged, expired or
+/// older one means "no update information". Then it picks the APK for this device's ABI,
+/// downloads it, checks its size and SHA-256, and hands it to Android's PackageInstaller
+/// (`AppUpdater.kt`), which also insists on the same package name, a higher version code and
+/// the same signing key.
 library;
 
 import 'dart:async';
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:crypto/crypto.dart';
@@ -17,13 +20,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
 
 import 'app_log.dart';
+import 'btlabs_keys.dart';
+import 'btlabs_public.dart';
 import 'l10n.dart';
 import 'net/http.dart';
 
-/// Where releases publish `update.json`. Override with `--dart-define=WFE_UPDATE_URL=...`.
+/// Where releases publish the signed `update.json`. Override with
+/// `--dart-define=WFE_UPDATE_URL=...`; an override must still be signed with the bundled keys.
 const String updateManifestUrl = String.fromEnvironment(
   'WFE_UPDATE_URL',
-  defaultValue: 'https://github.com/blacktyger/wallet-for-epic/releases/latest/download/update.json',
+  defaultValue: 'https://btlabs-epic.github.io/update.json',
 );
 
 /// The installed app, as Android reports it.
@@ -86,72 +92,74 @@ class UpdateError implements Exception {
   String toString() => message;
 }
 
-/// Picks the update for [app] from manifest [json], or null when it is up to date.
-///
-/// [manifestUrl] resolves relative APK URLs. APKs must be https unless the manifest itself was
-/// served over http, which only a developer override does.
-AvailableUpdate? parseUpdateManifest(
-  String json,
-  InstalledApp app,
-  Uri manifestUrl,
-) {
-  final Object? decoded;
-  try {
-    decoded = jsonDecode(json);
-  } on FormatException {
-    throw UpdateError((l) => l.updateManifestNotJson);
-  }
-  if (decoded is! Map<String, Object?>) {
-    throw UpdateError((l) => l.updateManifestWrongShape);
-  }
-  if (decoded['packageName'] != app.packageName) {
+/// What [readUpdateManifest] made of a fetched `update.json`.
+class UpdateManifestRead {
+  const UpdateManifestRead.rejected(RejectReason this.rejected)
+    : update = null,
+      state = null;
+  const UpdateManifestRead.accepted(this.update, ManifestState this.state)
+    : rejected = null;
+
+  /// Why the manifest was not used (no update information); null when it verified.
+  final RejectReason? rejected;
+
+  /// The update for this device; null when it verified but offers nothing newer.
+  final AvailableUpdate? update;
+
+  /// What to pass as `state` to the next read in this run (FORMAT.md §5, §6).
+  final ManifestState? state;
+}
+
+/// Verifies [envelope] (FORMAT.md §5 and §6) with [keyring] before reading anything from it,
+/// then picks the update for [app] ([pickUpdate]). [state] is what the last read in this run
+/// accepted, so an older manifest replayed later in the run is refused. [now] is the clock.
+Future<UpdateManifestRead> readUpdateManifest(
+  String envelope,
+  InstalledApp app, {
+  required Keyring keyring,
+  required DateTime now,
+  ManifestState? state,
+}) async {
+  final result = await verifyWalletUpdate(
+    envelope,
+    keyring: keyring,
+    state: state,
+    now: now.toUtc(),
+  );
+  return switch (result) {
+    Rejected(:final reason) => UpdateManifestRead.rejected(reason),
+    Accepted(:final manifest, :final state) => UpdateManifestRead.accepted(
+      pickUpdate(manifest, app),
+      state,
+    ),
+  };
+}
+
+/// Picks the update for [app] from a verified [manifest], or null when it is up to date or
+/// no APK fits this device's ABIs. A manifest for another app is an [UpdateError].
+AvailableUpdate? pickUpdate(WalletUpdate manifest, InstalledApp app) {
+  if (manifest.packageName != app.packageName) {
     throw UpdateError((l) => l.updateManifestOtherApp);
   }
-  final apks = decoded['apks'];
-  if (apks is! List) {
-    throw UpdateError((l) => l.updateManifestNoApks);
-  }
-  final byAbi = <String, ReleaseApk>{};
-  for (final entry in apks) {
-    if (entry is! Map<String, Object?>) continue;
-    final abi = entry['abi'];
-    final code = entry['versionCode'];
-    final url = entry['url'];
-    final hash = entry['sha256'];
-    final size = entry['size'];
-    if (abi is! String ||
-        code is! int ||
-        url is! String ||
-        hash is! String ||
-        size is! int ||
-        !RegExp(r'^[0-9a-f]{64}$').hasMatch(hash)) {
-      continue;
-    }
-    final resolved = manifestUrl.resolve(url);
-    final secure =
-        resolved.scheme == 'https' ||
-        (resolved.scheme == 'http' && manifestUrl.scheme == 'http');
-    if (!secure) continue;
-    byAbi[abi] = ReleaseApk(
-      abi: abi,
-      versionCode: code,
-      url: resolved,
-      sha256: hash,
-      size: size,
-    );
-  }
-  ReleaseApk? chosen;
+  // The signed manifest's URLs are https and its hashes 64 lowercase hex (the verifier's
+  // schema); unique ABIs.
+  final byAbi = {for (final a in manifest.apks) a.abi: a};
+  WalletApk? chosen;
   for (final abi in [...app.abis, 'universal']) {
     chosen = byAbi[abi];
     if (chosen != null) break;
   }
   if (chosen == null || chosen.versionCode <= app.versionCode) return null;
-  final name = decoded['versionName'];
-  final notes = decoded['notes'];
   return AvailableUpdate(
-    versionName: name is String ? name : '${chosen.versionCode}',
-    notes: notes is String ? notes : '',
-    apk: chosen,
+    versionName: manifest.versionName,
+    notes: manifest.notes,
+    apk: ReleaseApk(
+      abi: chosen.abi,
+      versionCode: chosen.versionCode,
+      url: chosen.url,
+      sha256: chosen.sha256,
+      size: chosen.size,
+    ),
   );
 }
 
@@ -325,12 +333,30 @@ final updateManifestUrlProvider = Provider<Uri>(
   (ref) => Uri.parse(updateManifestUrl),
 );
 
+/// The keys `update.json` must be signed with; tests use the test keyring.
+final updateKeyringProvider = Provider<Keyring>((ref) => btlabsKeyring);
+
+/// The clock the manifest's expiry is checked against.
+final updateClockProvider = Provider<DateTime Function()>(
+  (ref) => DateTime.now,
+);
+
+/// Where an APK named by the verified manifest is downloaded from: the manifest's own https
+/// URL. Tests point it at a local server.
+final updateApkUrlProvider = Provider<Uri Function(Uri url)>(
+  (ref) =>
+      (url) => url,
+);
+
 final updateProvider = NotifierProvider<UpdateNotifier, UpdateState>(
   UpdateNotifier.new,
 );
 
 class UpdateNotifier extends Notifier<UpdateState> {
   StreamSubscription<({String status, String? message})>? _events;
+
+  /// The last manifest accepted in this run; a later, older one is refused (FORMAT.md §6).
+  ManifestState? _manifestState;
 
   @override
   UpdateState build() {
@@ -387,12 +413,9 @@ class UpdateNotifier extends Notifier<UpdateState> {
     final url = ref.read(updateManifestUrlProvider);
     try {
       final app = await platform.installedApp();
-      // A plain GET: no User-Agent, no cookies, nothing about this wallet.
-      final response = await httpGet(url, timeout: const Duration(seconds: 30));
-      if (response.status == HttpStatus.notFound) {
-        // No manifest published at the feed: nothing is known about a newer version, which
-        // is no error. A known update stays offered.
-        if (!ref.mounted) return;
+      // No manifest published at the feed, or one that does not verify: nothing is known
+      // about a newer version, which is no error. A known update stays offered.
+      void noInformation() {
         state = known != null
             ? UpdateState(UpdatePhase.available, update: known)
             : quiet
@@ -401,14 +424,62 @@ class UpdateNotifier extends Notifier<UpdateState> {
                 UpdatePhase.upToDate,
                 text: (l) => l.updateNoInformation,
               );
+      }
+
+      // A plain GET: no User-Agent, no cookies, nothing about this wallet.
+      final HttpReply response;
+      try {
+        response = await httpGet(
+          url,
+          timeout: const Duration(seconds: 30),
+          maxBytes: btlabsMaxEnvelopeBytes,
+        );
+      } on NetTooLarge {
+        logInfo(
+          'update',
+          'update.json not used: ${RejectReason.tooLarge.code}',
+        );
+        if (ref.mounted) noInformation();
+        return;
+      }
+      if (response.status == HttpStatus.notFound) {
+        if (ref.mounted) noInformation();
         return;
       }
       if (response.status != HttpStatus.ok) {
         final code = response.status;
         throw UpdateError((l) => l.updateServerHttpStatus(code));
       }
-      final update = parseUpdateManifest(response.body, app, url);
+      final read = await readUpdateManifest(
+        response.body,
+        app,
+        keyring: ref.read(updateKeyringProvider),
+        now: ref.read(updateClockProvider)(),
+        state: _manifestState,
+      );
       if (!ref.mounted) return;
+      if (read.rejected case final reason?) {
+        // Never shown as an error: the user cannot act on it (FORMAT.md §5).
+        logInfo('update', 'update.json not used: ${reason.code}');
+        noInformation();
+        return;
+      }
+      _manifestState = read.state;
+      final apkUrl = ref.read(updateApkUrlProvider);
+      final picked = read.update;
+      final update = picked == null
+          ? null
+          : AvailableUpdate(
+              versionName: picked.versionName,
+              notes: picked.notes,
+              apk: ReleaseApk(
+                abi: picked.apk.abi,
+                versionCode: picked.apk.versionCode,
+                url: apkUrl(picked.apk.url),
+                sha256: picked.apk.sha256,
+                size: picked.apk.size,
+              ),
+            );
       state = update == null
           ? UpdateState(quiet ? UpdatePhase.idle : UpdatePhase.upToDate)
           : UpdateState(UpdatePhase.available, update: update);

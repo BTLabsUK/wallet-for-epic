@@ -1,0 +1,16 @@
+{
+  "keys": [
+    {
+      "keyid": "940f8a1d8b2e098a",
+      "rank": 1,
+      "public_key": "nDN7jjhlGSqgfZm2fOK59TJy8GFBN6Xg5COSndSzVxc=",
+      "label": "test-a"
+    },
+    {
+      "keyid": "226312fd8a0428a2",
+      "rank": 2,
+      "public_key": "CkVQsI3kK+RMxwKRc9wqWpxoj/Fv3KlluSFkW0NfJWw=",
+      "label": "test-b"
+    }
+  ]
+}
