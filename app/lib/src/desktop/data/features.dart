@@ -21,17 +21,17 @@
 ///   - All wallets: the "Import" card.
 /// dataFolder (A15): Welcome › Advanced › App data folder.
 /// testNetworks (A06 "any network each"): Welcome › Advanced › Network. Mainnet only.
-/// httpDirect (G01–G06, F07, J04, on): Send › Direct (HTTP), with a question before plain HTTP
-///   to another computer; Receive's HTTP address; Settings › Receiving › HTTP listener (off by
+/// httpDirect (G01–G06, F07, J04, on): Send › HTTP, with a question before plain HTTP
+///   to another computer; Receive's HTTP address; Settings › Receiving › HTTP receiving (off by
 ///   default), Reachable (Local only / From the internet, through its guide), Port and Start with
 ///   the wallet; the status card's HTTP line; HTTP addresses in contacts. No resend over HTTP
 ///   yet: a send nobody answered waits in Activity to be cancelled.
-/// tor (G07–G12): Send › Direct › Tor (an onion pasted anywhere goes there; Turn on Tor while
-///   off; a send can take about two minutes), Receive's onion address with Copy and QR,
-///   Settings › Receiving › Advanced › Tor (per wallet, off by default, its state and Retry),
+/// tor (G07–G12): Send › Tor (an onion pasted anywhere switches there; Turn on Tor receiving
+///   while off), Receive's Tor address with Copy and QR,
+///   Settings › Receiving › Tor receiving (per wallet, off by default, its state and Retry),
 ///   the status card's and Overview's Tor line, .onion addresses in contacts, the Help topic.
 ///   Needs the bundled tor (bin/tor-bundle beside the app, tools/fetch-tor.sh); without it
-///   the row says "Tor not included in this build" and its switch is disabled.
+///   the row says "Not in this build" and its switch is disabled.
 /// builtInNode (D09–D14, on): Setup › Node's "Built-in node" card (off by default, D10),
 ///   Settings › Node's "This computer" option, Overview's "Start node". Needs the bundled `epic`
 ///   (bin/epic beside the app); without it turning the node on says so. The blockchain data
