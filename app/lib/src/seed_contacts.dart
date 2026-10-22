@@ -1,10 +1,10 @@
-/// Contacts every new wallet starts with (F31, D-10): the bundled list, and the small JSON on
-/// the BTLabs-EPIC website that may replace it later. Pure Dart, shared by the phone and the
+/// Contacts every new wallet starts with (F31, D-10): the bundled list, and BT Labs' signed
+/// `btlabs.json` that may update its address later. Pure Dart, shared by the phone and the
 /// desktop; the seeding rule (insert once, never re-add a deleted one, leave an edited one
 /// alone) lives with each app's contacts store.
 library;
 
-import 'dart:convert';
+import 'btlabs_public.dart';
 
 /// One contact a new wallet starts with. [id] stays the same when the website changes the
 /// address, so an update can find the contact it seeded.
@@ -38,30 +38,23 @@ const btLabsContact = SeedContact(
 /// What the app ships with; used whenever the website cannot be read.
 const List<SeedContact> bundledSeedContacts = [btLabsContact];
 
-/// The website's copy: `{"version": 1, "contacts": [{"id", "name", "address", "note"}]}`.
-const String seedContactsUrl = 'https://btlabs-epic.github.io/contacts.json';
+/// BT Labs' signed public file (btlabs-public FORMAT.md): the donation address may change
+/// there; nothing else is read from it yet. The keys that may sign it are in `btlabs_keys.dart`.
+const String btlabsPublicUrl = 'https://btlabs-epic.github.io/btlabs.json';
 
-/// The contacts in [body], the website's JSON, keeping only entries with every field and an
-/// address [validAddress] accepts (the caller checks it with the wallet core, e.g. the Epicbox
-/// checksum). Null when [body] is not that format, so the caller keeps what it has: a bad or
-/// unknown file never removes a contact.
-List<SeedContact>? parseSeedContacts(String body, {required bool Function(String address) validAddress}) {
-  final Object? json;
-  try {
-    json = jsonDecode(body);
-  } on FormatException {
-    return null;
-  }
-  if (json is! Map || json['version'] != 1 || json['contacts'] is! List) return null;
+/// The seed contacts in a verified file: for each bundled seed id, the address of its Epic
+/// mainnet Epicbox donation when [validAddress] accepts it (the wallet core's checksum). Only
+/// the address comes from the file; name and note stay the bundled ones, so even a stolen
+/// signing key cannot put text of its choosing into users' contact lists.
+List<SeedContact> seedContactsFrom(BtlabsPublic file, {required bool Function(String address) validAddress}) {
+  final bundled = {for (final c in bundledSeedContacts) c.id: c};
   final out = <SeedContact>[];
   final seen = <String>{};
-  for (final c in json['contacts'] as List) {
-    if (c is! Map) continue;
-    final id = c['id'], name = c['name'], address = c['address'], note = c['note'];
-    if (id is! String || name is! String || address is! String || note is! String) continue;
-    final a = address.trim();
-    if (id.isEmpty || name.trim().isEmpty || !validAddress(a) || !seen.add(id)) continue;
-    out.add(SeedContact(id: id, name: name.trim(), address: a, note: note.trim()));
+  for (final d in file.donationsFor(coin: 'epic', network: 'mainnet', method: 'epicbox')) {
+    final b = bundled[d.id];
+    final a = d.address.trim();
+    if (b == null || !validAddress(a) || !seen.add(d.id)) continue;
+    out.add(SeedContact(id: b.id, name: b.name, address: a, note: b.note));
   }
   return out;
 }

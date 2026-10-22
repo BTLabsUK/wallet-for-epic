@@ -23,6 +23,8 @@ import 'dart:typed_data';
 import 'package:crypto/crypto.dart';
 import 'package:path_provider/path_provider.dart';
 
+import '../../btlabs_keys.dart' show btlabsKeyring;
+import '../../btlabs_public.dart';
 import '../../builtin_node.dart';
 import '../../legacy_gui_profile.dart' as gui;
 import '../../legacy_wallets.dart' as legacy;
@@ -31,7 +33,7 @@ import '../../node/node_settings.dart' show NodeSettings;
 import '../../network.dart';
 import '../../providers.dart' show WalletDirResolver, defaultMinimumConfirmations;
 import '../../public_servers.dart';
-import '../../net/http.dart' show httpGet;
+import '../../net/http.dart' show NetError, httpGet;
 import '../../relay_directory.dart';
 import '../../secret_store_api.dart';
 import '../../seed_contacts.dart';
@@ -141,7 +143,9 @@ class LepicDeskWallet implements DeskWalletApi {
     Future<Directory> Function()? rememberDir,
     DateTime Function()? now,
     this._seedFetch,
-  }) : _torFeature = torFeature ?? DeskFeatures.tor,
+    Keyring? keyring,
+  }) : _keyring = keyring ?? btlabsKeyring,
+        _torFeature = torFeature ?? DeskFeatures.tor,
        _legacyRoots = legacyRoots ?? legacy.LegacyRoots.current,
        _minConfFallback = minimumConfirmations ?? BigInt.from(defaultMinimumConfirmations),
        _registryGiven = registry,
@@ -2026,6 +2030,9 @@ class LepicDeskWallet implements DeskWalletApi {
   /// Reads the website's list ([fetchSeeds] in the app); null reads nothing (tests).
   final Future<String?> Function(Uri url)? _seedFetch;
 
+  /// The keys that may sign btlabs.json (the test keyring in tests).
+  final Keyring _keyring;
+
   /// The website's list, read once per app start (or from the 7-day cache); null until then.
   List<SeedContact>? _webSeeds;
   bool _seedFetchStarted = false;
@@ -2053,8 +2060,12 @@ class LepicDeskWallet implements DeskWalletApi {
 
   /// The website's seed contacts file, or null when it did not answer with one.
   static Future<String?> fetchSeeds(Uri url) async {
-    final r = await httpGet(url, timeout: const Duration(seconds: 5));
-    return r.status == 200 ? r.body : null;
+    try {
+      final r = await httpGet(url, timeout: const Duration(seconds: 5), maxBytes: btlabsMaxEnvelopeBytes);
+      return r.status == 200 ? r.body : null;
+    } on NetError {
+      return null; // Over the size cap, or no answer.
+    }
   }
 
   /// Per wallet: seed id → the contact it made, its name, address and note as last written,
@@ -2145,31 +2156,55 @@ class LepicDeskWallet implements DeskWalletApi {
     });
   }
 
-  static const _seedCacheKey = 'desk.seedContacts';
+  static const _btlabsCacheKey = 'desk.btlabsPublic';
 
+  /// The last accepted file's seed contacts, re-checked (signer still trusted, signature and
+  /// digest as stored); null when there is none or it no longer checks out.
   Future<List<SeedContact>?> _cachedWebSeeds() async {
     if (_webSeeds != null) return _webSeeds;
-    final j = await _store.readJson(_seedCacheKey);
-    if (j is! Map || j['body'] is! String) return null;
-    return parseSeedContacts(j['body'] as String, validAddress: isEpicboxAddress);
+    final j = await _store.readJson(_btlabsCacheKey);
+    if (j is! Map || j['envelope'] is! String) return null;
+    final state = ManifestState.fromJson(j['state']);
+    if (state == null) return null;
+    final file = await loadCachedBtlabsPublic(j['envelope'] as String, keyring: _keyring, state: state);
+    return file == null ? null : seedContactsFrom(file, validAddress: isEpicboxAddress);
   }
 
-  /// Reads the website's list unless the cache is under 7 days old, then applies it to the
-  /// open wallet.
+  /// Reads btlabs.json unless the last good read is under 7 days old (or the last try under a
+  /// day); applies it to the open wallet when it verifies and is newer than what the app has.
+  /// Anything else changes nothing.
   Future<void> _refreshWebSeeds() async {
     try {
-      final j = await _store.readJson(_seedCacheKey);
-      final at = j is Map && j['at'] is int ? DateTime.fromMillisecondsSinceEpoch(j['at'] as int) : null;
-      if (at != null && DateTime.now().difference(at) < const Duration(days: 7)) return;
-      final body = await _seedFetch!(Uri.parse(seedContactsUrl));
+      final raw = await _store.readJson(_btlabsCacheKey);
+      final j = raw is Map ? Map<String, Object?>.from(raw) : <String, Object?>{};
+      bool fresh(Object? ms, Duration d) {
+        if (ms is! int) return false;
+        final age = DateTime.now().difference(DateTime.fromMillisecondsSinceEpoch(ms));
+        return !age.isNegative && age < d; // a clock set back counts as stale
+      }
+
+      if (fresh(j['at'], const Duration(days: 7)) || fresh(j['tried'], const Duration(days: 1))) return;
+      // One refresher per app run (_seedFetchStarted), so this read-modify-write cannot race.
+      await _store.writeJson(_btlabsCacheKey, {...j, 'tried': DateTime.now().millisecondsSinceEpoch});
+      final body = await _seedFetch!(Uri.parse(btlabsPublicUrl));
       if (body == null) return;
-      final list = parseSeedContacts(body, validAddress: isEpicboxAddress);
-      if (list == null) return;
-      _webSeeds = list;
-      await _store.writeJson(_seedCacheKey, {'at': DateTime.now().millisecondsSinceEpoch, 'body': body});
-      await _applySeeds([...bundledSeedContacts, ..._knownSeeds(list)]);
+      final stored = ManifestState.fromJson(j['state']);
+      final r = await verifyBtlabsPublic(body, keyring: _keyring, state: stored, now: DateTime.now().toUtc());
+      switch (r) {
+        case Rejected(:final reason):
+          logInfo('desk', 'btlabs.json not used: ${reason.code}');
+          return;
+        case Accepted(:final manifest, :final state):
+          // Also when unchanged: the payload is byte-identical and just verified, so storing
+          // this body repairs a cached envelope that no longer checks out.
+          final now = DateTime.now().millisecondsSinceEpoch;
+          await _store.writeJson(_btlabsCacheKey, {'at': now, 'tried': now, 'envelope': body, 'state': state.toJson()});
+          final list = seedContactsFrom(manifest, validAddress: isEpicboxAddress);
+          _webSeeds = list;
+          await _applySeeds([...bundledSeedContacts, ..._knownSeeds(list)]);
+      }
     } on Object catch (e) {
-      logInfo('desk', 'seed contacts not read: ${e.runtimeType}');
+      logInfo('desk', 'btlabs.json not read: ${e.runtimeType}');
     }
   }
 
