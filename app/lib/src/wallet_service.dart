@@ -266,6 +266,7 @@ abstract interface class WalletSession {
     required BigInt minimumConfirmations,
     required String onion,
     String? message,
+    SendOptions? options,
   });
 
   /// Delivers send [txId] again over Tor, to [onion], then finalizes and posts.
@@ -1269,6 +1270,7 @@ class FakeWalletSession implements WalletSession {
     required BigInt minimumConfirmations,
     required String onion,
     String? message,
+    SendOptions? options,
   }) async {
     _checkOnion(onion);
     if (!_torUp) {

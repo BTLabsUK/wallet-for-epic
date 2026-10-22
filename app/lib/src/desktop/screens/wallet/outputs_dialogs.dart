@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../models.dart' show nothingToConsolidate;
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../widgets/kit.dart';
 
@@ -114,6 +115,9 @@ class _SelfSendDialogState extends ConsumerState<_SelfSendDialog> {
   int? get _each => _est == null ? null : (_est!.locked - _est!.fee) ~/ _count;
 
   bool get _tooSmall => _notEnough || (_split && _each != null && _each! < _minEach);
+
+  /// LEPIC found fewer than two spendable outputs: nothing to merge, not an error.
+  bool get _nothing => !_split && (_estError == nothingToConsolidate || _error == nothingToConsolidate);
 
   bool get _canGo => _phase == SelfSendPhase.choose && _est != null && !_tooSmall && !_estimating;
 
@@ -226,6 +230,9 @@ class _SelfSendDialogState extends ConsumerState<_SelfSendDialog> {
 
     final List<Widget> body;
     final List<Widget> actions;
+    if (_nothing && (_phase == SelfSendPhase.choose || _phase == SelfSendPhase.failed)) {
+      return const _NothingToConsolidate(several: true);
+    }
     switch (_phase) {
       case SelfSendPhase.choose:
         body = [
@@ -249,7 +256,7 @@ class _SelfSendDialogState extends ConsumerState<_SelfSendDialog> {
             facts
           else if (_estimating)
             Row(children: [const ESpinner(), SizedBox(width: Sp.x3), Text('Working out the fee', style: ts.bodyDim)])
-          else if (!_notEnough)
+          else if (!_notEnough && !_nothing)
             ENotice(title: 'No estimate', text: _estError, tone: ETone.risk),
           if (_tooSmall) ...[
             SizedBox(height: Sp.x2),
@@ -356,7 +363,10 @@ class _SelfSendDialogState extends ConsumerState<_SelfSendDialog> {
 }
 
 class _NothingToConsolidate extends StatelessWidget {
-  const _NothingToConsolidate();
+  const _NothingToConsolidate({this.several = false});
+
+  /// Said by the wallet core (fewer than two spendable), not counted here (one).
+  final bool several;
 
   @override
   Widget build(BuildContext context) {
@@ -369,7 +379,7 @@ class _NothingToConsolidate extends StatelessWidget {
         TextSpan(
           children: [
             const TextSpan(text: 'Nothing to consolidate: the wallet has '),
-            TextSpan(text: 'one spendable output', style: TextStyle(color: c.text, fontWeight: FontWeight.w600)),
+            TextSpan(text: several ? 'fewer than two spendable outputs' : 'one spendable output', style: TextStyle(color: c.text, fontWeight: FontWeight.w600)),
             const TextSpan(text: '. Consolidate merges several outputs into one.'),
           ],
         ),

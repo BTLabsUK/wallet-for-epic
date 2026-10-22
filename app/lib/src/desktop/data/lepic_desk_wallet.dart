@@ -83,7 +83,7 @@ String deskErrorText(Object error) {
     core.WalletErrorKind.chainBusy || core.WalletErrorKind.walletBusy => 'Wallet busy. Try again in a moment.',
     core.WalletErrorKind.damagedDatabase => 'Wallet database damaged, rebuilding',
     core.WalletErrorKind.paymentExpired => detail.isEmpty ? 'Payment expired' : detail,
-    core.WalletErrorKind.invalidArgument => detail == core.sendUnbuildable ? detail : detail.isEmpty ? 'Not accepted' : 'Not accepted: $detail',
+    core.WalletErrorKind.invalidArgument => detail == core.sendUnbuildable || detail == core.nothingToConsolidate ? detail : detail.isEmpty ? 'Not accepted' : 'Not accepted: $detail',
     core.WalletErrorKind.io => detail.isEmpty ? 'Disk error' : 'Disk error: $detail',
     core.WalletErrorKind.other => detail.isEmpty ? 'Something went wrong' : detail,
   };
@@ -98,6 +98,9 @@ String torFailureText(core.TorFailure? f) => switch (f) {
   core.TorFailure.start => 'Tor did not start',
   core.TorFailure.stopped || null => 'Tor stopped',
 };
+
+/// A call LEPIC ended at a lock ("… was cancelled"); its effect may still be stored.
+bool lepicCancelled(Object error) => error is core.WalletError && error.kind == core.WalletErrorKind.other && error.message.endsWith('was cancelled');
 
 DeskError _deskError(Object error) => DeskError(
   deskErrorText(error),
@@ -734,6 +737,8 @@ class LepicDeskWallet implements DeskWalletApi {
 
   @override
   Future<void> lock() async {
+    // A send, finalize or split under way finishes first ([busy]).
+    await whenIdle();
     _generation++;
     _poll?.cancel();
     _poll = null;
@@ -1663,7 +1668,7 @@ class LepicDeskWallet implements DeskWalletApi {
   /// a self-send the node did not take is stored with its inputs locked.
   /// One the node did not take is stored as a new send: the error then names it
   /// ([DeskError.notPostedTx]) so it can be posted again or cancelled.
-  Future<SelfSend> _selfSend(Future<core.SelfSentTx> Function() run) async {
+  Future<SelfSend> _selfSend(Future<core.SelfSentTx> Function() run) => _running(() async {
     final session = _open;
     Set<int?>? before;
     try {
@@ -1679,11 +1684,35 @@ class LepicDeskWallet implements DeskWalletApi {
       if (stored != null) throw DeskError('Not posted', notPostedTx: stored);
       throw _deskError(e);
     }
-  }
+  });
 
   @override
-  Future<void> repostTx(int id) async {
+  Future<void> repostTx(int id) => _running(() async {
     if (!await _repost(_open, id)) throw const DeskError('Node not answering');
+  });
+
+  /// Calls that change the wallet (send, receive and finalize a file, split, consolidate,
+  /// repost, cancel) running now. LEPIC ends running calls at lock, maybe after storing their
+  /// effect, so [lock] waits for them instead.
+  int _busy = 0;
+  Completer<void>? _idle;
+
+  @override
+  bool get busy => _busy > 0;
+
+  /// Done once no such call runs.
+  Future<void> whenIdle() => _busy == 0 ? Future<void>.value() : (_idle ??= Completer<void>()).future;
+
+  Future<T> _running<T>(Future<T> Function() call) async {
+    _busy++;
+    try {
+      return await call();
+    } finally {
+      if (--_busy == 0) {
+        _idle?.complete();
+        _idle = null;
+      }
+    }
   }
 
   @override
@@ -1696,7 +1725,9 @@ class LepicDeskWallet implements DeskWalletApi {
   }
 
   @override
-  Future<SendResult> send(SendRequest r) async {
+  Future<SendResult> send(SendRequest r) => _running(() => _send(r));
+
+  Future<SendResult> _send(SendRequest r) async {
     final session = _open;
     // Send all sends the reviewed amount: when it no longer fits, LEPIC refuses (not enough
     // funds) and the user reviews again, rather than paying an amount they did not see.
@@ -1754,7 +1785,7 @@ class LepicDeskWallet implements DeskWalletApi {
           if (!_settings.tor) return const SendFailed('Tor is off. Turn on Tor to send to an onion address.');
           if (!_torCanSend) return const SendFailed('Tor is still connecting. Try again in a moment.');
           before = {for (final e in await session.transactions(refresh: false)) e.id};
-          final sent = await session.sendTor(amount: BigInt.from(amount), minimumConfirmations: _minConf, onion: to, message: message);
+          final sent = await session.sendTor(amount: BigInt.from(amount), minimumConfirmations: _minConf, onion: to, message: message, options: r.options);
           return await _directDone(session, sent, method, amount, to);
       }
     } on core.WalletError catch (e) {
@@ -1780,6 +1811,9 @@ class LepicDeskWallet implements DeskWalletApi {
         }
         return const SendFailed('Not delivered. $waits', inActivity: true);
       }
+      // Ended by a lock (the app's own lock waits; the wallet can still close under it): the
+      // send may have been stored as sent, so the next unlock's Activity tells.
+      if (lepicCancelled(e)) return const SendFailed('Interrupted by the lock. It may have gone out: check Activity after unlocking.', inActivity: true);
       if (stored) return SendFailed('${deskErrorText(e).replaceFirst(RegExp(r'\.$'), '')}. $waits', inActivity: true);
       return SendFailed(deskErrorText(e));
     }
@@ -1834,7 +1868,9 @@ class LepicDeskWallet implements DeskWalletApi {
   /// `<name>.response` (epic-wallet's `receive -i`); in the app's files folder when that folder
   /// cannot be written.
   @override
-  Future<ReceivedFile> receiveFile(String fileName) async {
+  Future<ReceivedFile> receiveFile(String fileName) => _running(() => _receiveFile(fileName));
+
+  Future<ReceivedFile> _receiveFile(String fileName) async {
     final json = await _readSlate(fileName);
     try {
       final answer = await _open.receiveSlate(slateJson: json);
@@ -1870,7 +1906,7 @@ class LepicDeskWallet implements DeskWalletApi {
   }
 
   @override
-  Future<Tx> finalizeFile(String fileName) async {
+  Future<Tx> finalizeFile(String fileName) => _running(() async {
     final json = await _readSlate(fileName);
     try {
       final e = await _open.finalizeAndPost(slateJson: json);
@@ -1879,10 +1915,10 @@ class LepicDeskWallet implements DeskWalletApi {
     } on core.WalletError catch (e) {
       throw _deskError(e);
     }
-  }
+  });
 
   @override
-  Future<void> cancelTx(int id) async {
+  Future<void> cancelTx(int id) => _running(() async {
     if (id < 0) throw const DeskError('This payment cannot be cancelled');
     try {
       await _open.cancelTransaction(txId: id);
@@ -1890,7 +1926,7 @@ class LepicDeskWallet implements DeskWalletApi {
       throw _deskError(e);
     }
     await _reload();
-  }
+  });
 
   @override
   Future<String> exportProof(int id) => throw UnsupportedError('payment proofs (DeskFeatures.paymentProofs)');

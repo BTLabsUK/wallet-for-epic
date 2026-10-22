@@ -148,6 +148,8 @@ class _OutputsScreenState extends ConsumerState<OutputsScreen> {
   @override
   Widget build(BuildContext context) {
     final s = ref.watch(deskProvider);
+    // A payment, a block or a self-send moved the balance: the list follows.
+    ref.listen(deskProvider.select((s) => s.balance), (_, _) => ref.invalidate(deskOutputsProvider));
     final hidden = s.settings.hideAmounts;
     final AsyncValue<List<Output>> value = _args.error
         ? AsyncValue.error('demo', StackTrace.empty)

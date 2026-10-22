@@ -148,7 +148,8 @@ void main() {
         final mapped = mapLepicError(error(kind));
         // The split errors carry the app's own sentence (tested below).
         if (kind != lepic.WalletErrorKind.changeTooSmall &&
-            kind != lepic.WalletErrorKind.tooHeavy) {
+            kind != lepic.WalletErrorKind.tooHeavy &&
+            kind != lepic.WalletErrorKind.nothingToConsolidate) {
           expect(mapped.message, 'm');
         }
         if (shared.containsKey(kind.name)) {
@@ -405,6 +406,18 @@ void main() {
         final e = mapLepicError(lepic.WalletError(kind: kind, code: 45, message: 'x'));
         expect(e.message, sendUnbuildable);
       }
+    });
+
+    test('nothing to consolidate (code 47) reads as its own sentence', () {
+      final e = mapLepicError(lepic.WalletError(kind: lepic.WalletErrorKind.nothingToConsolidate, code: 47, message: 'x'));
+      expect(e.kind, WalletErrorKind.invalidArgument);
+      expect(e.message, nothingToConsolidate);
+    });
+
+    test('a self-send event is neither an invoice nor an issuer event', () {
+      final e = lepic.WalletEvent(kind: lepic.WalletEventKind.selfSend, txId: 7, slateId: 's');
+      expect(lepicInvoiceEvent(e), isNull);
+      expect(lepicIssuerEvent(e), isNull);
     });
   });
 

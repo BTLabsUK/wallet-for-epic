@@ -355,6 +355,7 @@ class GatedWalletSession implements WalletSession {
     required BigInt minimumConfirmations,
     required String onion,
     String? message,
+    SendOptions? options,
   }) async => throw _noTor;
 
   @override

@@ -37,7 +37,14 @@ abstract interface class DeskWalletApi {
 
   /// Whether [password] is the open wallet's password.
   Future<bool> checkPassword(String password);
+
+  /// Closes the open wallet. A send, finalize, split or consolidate under way finishes first
+  /// ([busy]): the lock waits for it, never ends it mid-way.
   Future<void> lock();
+
+  /// Whether a call that changes the wallet runs now (a send, a file received or finalized, a
+  /// split, a consolidate, a repost or a cancel): [lock] waits for it.
+  bool get busy;
 
   /// Renames the wallet [id] (1 to 32 characters).
   Future<void> renameWallet(String id, String label);

@@ -3,6 +3,7 @@
 /// is anything but "wrong"; "wrong" fails the unlock.
 library;
 
+import 'dart:async';
 import 'dart:math';
 
 import '../../wallet_service.dart' show onionAddressFormat;
@@ -250,7 +251,31 @@ class MockDeskWallet implements DeskWalletApi {
   Future<void> forgetRemembered(String id) async => _remembered.remove(id.isEmpty ? _current : id);
 
   @override
-  Future<void> lock() => _wait(0.5);
+  Future<void> lock() async {
+    // A send or split under way finishes first, as in the real wallet.
+    while (_busy > 0) {
+      await (_idle ??= Completer<void>()).future;
+    }
+    await _wait(0.5);
+  }
+
+  int _busy = 0;
+  Completer<void>? _idle;
+
+  @override
+  bool get busy => _busy > 0;
+
+  Future<T> _running<T>(Future<T> Function() call) async {
+    _busy++;
+    try {
+      return await call();
+    } finally {
+      if (--_busy == 0) {
+        _idle?.complete();
+        _idle = null;
+      }
+    }
+  }
 
   static const _words = [
     'orbit', 'hazard', 'velvet', 'cabin', 'sudden', 'meadow', 'brick', 'gesture', 'lunar', 'invest', 'pledge', 'saddle',
@@ -407,7 +432,9 @@ class MockDeskWallet implements DeskWalletApi {
   }
 
   @override
-  Future<SelfSend> splitOutputs(int outputs) async {
+  Future<SelfSend> splitOutputs(int outputs) => _running(() => _split(outputs));
+
+  Future<SelfSend> _split(int outputs) async {
     final e = await estimateSplit(outputs);
     await _wait(3);
     return _selfSent(e, outputs);
@@ -441,7 +468,9 @@ class MockDeskWallet implements DeskWalletApi {
   Future<SendEstimate> estimateConsolidate() => _selfEstimate(1);
 
   @override
-  Future<SelfSend> consolidateOutputs() async {
+  Future<SelfSend> consolidateOutputs() => _running(_consolidate);
+
+  Future<SelfSend> _consolidate() async {
     final e = await estimateConsolidate();
     await _wait(3);
     return _selfSent(e, 1);
@@ -505,7 +534,9 @@ class MockDeskWallet implements DeskWalletApi {
   }
 
   @override
-  Future<SendResult> send(SendRequest r) async {
+  Future<SendResult> send(SendRequest r) => _running(() => _send(r));
+
+  Future<SendResult> _send(SendRequest r) async {
     await _wait(4);
     if (r.to != null && r.to!.contains('offline')) {
       return const SendFailed('The recipient did not answer. Nothing was sent.');
@@ -540,7 +571,9 @@ class MockDeskWallet implements DeskWalletApi {
   }
 
   @override
-  Future<Tx> finalizeFile(String fileName) async {
+  Future<Tx> finalizeFile(String fileName) => _running(() => _finalize(fileName));
+
+  Future<Tx> _finalize(String fileName) async {
     await _wait(2);
     return _txs.firstWhere((t) => t.id == 38);
   }

@@ -76,7 +76,8 @@ WalletError mapLepicError(lepic.WalletError error) {
     lepic.WalletErrorKind.invalidArgument => WalletErrorKind.invalidArgument,
     // A split that cannot be built from the coins at hand; one short error for both.
     lepic.WalletErrorKind.changeTooSmall ||
-    lepic.WalletErrorKind.tooHeavy => WalletErrorKind.invalidArgument,
+    lepic.WalletErrorKind.tooHeavy ||
+    lepic.WalletErrorKind.nothingToConsolidate => WalletErrorKind.invalidArgument,
     lepic.WalletErrorKind.transportFailed => WalletErrorKind.transportFailed,
     lepic.WalletErrorKind.chainBusy => WalletErrorKind.chainBusy,
     lepic.WalletErrorKind.walletBusy => WalletErrorKind.walletBusy,
@@ -118,7 +119,11 @@ WalletError mapLepicError(lepic.WalletError error) {
       error.kind == lepic.WalletErrorKind.tooHeavy;
   return WalletError(
     kind: kind,
-    message: split ? sendUnbuildable : error.message,
+    message: split
+        ? sendUnbuildable
+        : error.kind == lepic.WalletErrorKind.nothingToConsolidate
+        ? nothingToConsolidate
+        : error.message,
   );
 }
 
@@ -1262,12 +1267,14 @@ class LepicWalletSession implements WalletSession {
     required BigInt minimumConfirmations,
     required String onion,
     String? message,
+    SendOptions? options,
   }) => _guard(() async {
     final tx = await _wallet.sendTor(
       amount: amount,
       minimumConfirmations: minimumConfirmations,
       onion: onion,
       message: _message(message),
+      options: await _optionsFor(amount, minimumConfirmations, options),
     );
     return HttpSent(txId: tx.txId, slateId: tx.slateId, posted: tx.posted);
   });

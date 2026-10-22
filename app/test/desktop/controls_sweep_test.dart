@@ -91,6 +91,8 @@ class _Recorder implements DeskWalletApi {
   @override
   bool get notRemembered => _m.notRemembered;
   @override
+  bool get busy => _m.busy;
+  @override
   bool get openedRemembered => _m.openedRemembered;
   @override
   Future<bool> checkPassword(String password) => _r('checkPassword', () => _m.checkPassword(password));

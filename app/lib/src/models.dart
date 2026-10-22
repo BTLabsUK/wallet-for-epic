@@ -110,6 +110,10 @@ class FeeEstimate {
 /// outputs asked for, too heavy) says, with [WalletErrorKind.invalidArgument].
 const String sendUnbuildable = 'This send cannot be built from the coins available.';
 
+/// What a consolidation with fewer than two spendable outputs says (LEPIC's
+/// `nothingToConsolidate`), with [WalletErrorKind.invalidArgument]. Nothing was stored.
+const String nothingToConsolidate = 'Nothing to consolidate: fewer than two spendable outputs.';
+
 /// How a send chooses the outputs it spends, as `epic-wallet send --selection_strategy`.
 enum SelectionStrategy {
   /// The fewest of the smallest outputs that cover amount and fee: the rest of the balance
