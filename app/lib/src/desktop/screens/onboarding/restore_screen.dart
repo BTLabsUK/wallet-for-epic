@@ -32,7 +32,6 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
   final _words = [for (var i = 0; i < _max; i++) TextEditingController()];
   final _focus = [for (var i = 0; i < _max; i++) FocusNode()];
   late RestoreStep _step = widget.arg is RestoreStep ? widget.arg as RestoreStep : RestoreStep.words;
-  int _length = 24;
   final Set<int> _invalid = {};
   bool _locking = false;
   String? _failure;
@@ -63,6 +62,15 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
   }
 
   bool get _accountOk => _password.text.length >= 8 && _password.text == _confirm.text;
+  /// Up to the last word typed; the phrase is the next valid length from there (12 to 24).
+  int get _length {
+    var span = 0;
+    for (var i = 0; i < _max; i++) {
+      if (_words[i].text.trim().isNotEmpty) span = i + 1;
+    }
+    return _lengths.firstWhere((n) => n >= span, orElse: () => _max);
+  }
+
   int get _filled => _words.where((c) => c.text.trim().isNotEmpty).length;
   int get _badCount => _invalid.where((i) => i < _length).length;
   bool get _complete =>
@@ -75,14 +83,9 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
       .where((w) => w.isNotEmpty)
       .toList();
 
-  /// Spreads the words of [text] over the boxes; a phrase of a valid length sets the length.
+  /// Spreads the words of [text] over the boxes; their count sets the length.
   void _fromText(String text) {
     final ws = _split(text);
-    if (_lengths.contains(ws.length)) {
-      _length = ws.length;
-    } else if (ws.length > _length) {
-      _length = _lengths.firstWhere((n) => n >= ws.length, orElse: () => _max);
-    }
     for (var i = 0; i < _max; i++) {
       _words[i].text = i < ws.length ? ws[i] : '';
     }
@@ -226,7 +229,7 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
     final c = context.dc;
     final filled = _filled;
     final bad = _badCount;
-    final tooMany = filled > _length;
+    final tooMany = _split(_paste.text).length > _max;
     final firstBad = bad == 0 ? null : (_invalid.where((i) => i < _length).toList()..sort()).first;
     final hint = _complete
         ? null
@@ -290,22 +293,6 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
               hint: 'word1 word2 word3 …',
               semanticLabel: 'Recovery phrase',
               onChanged: _fromText,
-            ),
-          ),
-          SizedBox(height: Sp.x4),
-          Align(
-            alignment: Alignment.centerLeft,
-            child: SizedBox(
-              width: 200.u,
-              child: EField(
-                label: 'Length',
-                child: ESelect<int>(
-                  semanticLabel: 'Phrase length',
-                  value: _length,
-                  onChanged: (v) => setState(() => _length = v),
-                  items: [for (final n in _lengths) ESelectItem(n, '$n words')],
-                ),
-              ),
             ),
           ),
           SizedBox(height: Sp.x5),

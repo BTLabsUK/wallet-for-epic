@@ -107,6 +107,24 @@ void flows() {
     await _end(tester);
   });
 
+  testWidgets('restore: no Length field; the word count sets 12, 15 or 24 boxes', (tester) async {
+    await _pump(tester, const RestoreScreen());
+    expect(find.text('Length'), findsNothing);
+    for (final n in [15, 12, 21]) {
+      await tester.enterText(_field(0), List.filled(n, 'abandon').join(' '));
+      await _wait(tester, 500);
+      expect(find.text('$n of $n words'), findsWidgets);
+      expect(find.text('All $n words are in the word list'), findsOneWidget);
+      expect(find.byType(EditableText), findsNWidgets(n + 1), reason: 'the paste field and $n boxes');
+    }
+    // Thirteen words are not a phrase yet: 15 boxes, two empty.
+    await tester.enterText(_field(0), List.filled(13, 'abandon').join(' '));
+    await _wait(tester, 500);
+    expect(find.text('13 of 15 words'), findsWidgets);
+    expect(find.text('Continue').hitTestable(), findsOneWidget);
+    await _end(tester);
+  });
+
   testWidgets('import: find, choose, check, one old password per wallet, done opens Unlock', (tester) async {
     final container = await _pump(tester, const ImportWalletsScreen());
     await _wait(tester, 1500);
