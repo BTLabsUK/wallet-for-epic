@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../widgets/help_art.dart';
 import '../../widgets/kit.dart';
+import '../../widgets/motion.dart';
 import 'help_topics.dart';
 import 'report_problem.dart';
 import 'settings_frame.dart';
@@ -87,6 +88,7 @@ class _SettingsHelpScreenState extends ConsumerState<SettingsHelpScreen> {
     super.initState();
     HardwareKeyboard.instance.addHandler(_onKey);
     if (widget.arg == HelpDemo.bottom) WidgetsBinding.instance.addPostFrameCallback((_) => _show(_logsKey, 1));
+    if (widget.arg == HelpDemo.open) WidgetsBinding.instance.addPostFrameCallback((_) => _show(_sectionKeys['how']!));
   }
 
   @override
@@ -118,7 +120,7 @@ class _SettingsHelpScreenState extends ConsumerState<SettingsHelpScreen> {
   void _show(GlobalKey key, [double alignment = 0]) {
     final ctx = key.currentContext;
     if (ctx == null) return;
-    final instant = MediaQuery.of(context).disableAnimations || widget.arg == HelpDemo.bottom;
+    final instant = MediaQuery.of(context).disableAnimations || widget.arg is HelpDemo;
     Scrollable.ensureVisible(ctx, alignment: alignment, duration: instant ? Duration.zero : Dur.slow, curve: Curves.easeOut);
   }
 
@@ -394,14 +396,9 @@ class _TopicState extends State<_Topic> {
               ),
             ],
           ),
-          AnimatedCrossFade(
-            duration: instant ? Duration.zero : const Duration(milliseconds: 240),
-            firstCurve: Curves.easeOut,
-            secondCurve: Curves.easeOut,
-            sizeCurve: Curves.easeOut,
-            crossFadeState: _open ? CrossFadeState.showSecond : CrossFadeState.showFirst,
-            firstChild: const SizedBox(width: double.infinity),
-            secondChild: Padding(
+          ExpandFade(
+            open: _open,
+            child: Padding(
               padding: EdgeInsets.only(top: 10.u),
               child: Align(
                 alignment: Alignment.centerLeft,

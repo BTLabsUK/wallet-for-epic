@@ -11,6 +11,7 @@ import 'settings_node.dart';
 import 'settings_phrase.dart';
 import 'settings_http.dart' show InternetGuide, InternetGuideChoice;
 import 'settings_receiving.dart';
+import 'settings_help.dart' show HelpDemo;
 import 'settings_rescan.dart';
 
 /// A wallet that is not open, for the remove dialog's shots.
@@ -64,8 +65,10 @@ final List<DeskShot> settingsShots = [
   const DeskShot(id: '28-settings-rescan', title: 'Recheck balance', route: DeskRoute.settingsRescan),
   const DeskShot(id: '28b-settings-rescan-running', title: 'Recheck balance, running', route: DeskRoute.settingsRescan, arg: RescanDemo.running),
   const DeskShot(id: '29-settings-about', title: 'About', route: DeskRoute.settingsAbout),
-  const DeskShot(id: '30-settings-help', title: 'Help', route: DeskRoute.settingsHelp),
+  const DeskShot(id: '30-settings-help', title: 'Help', route: DeskRoute.settingsHelp, height: 1000),
   const DeskShot(id: '30b-settings-help-search', title: 'Help, search', route: DeskRoute.settingsHelp, arg: 'file'),
+  const DeskShot(id: '30d-settings-help-open', title: 'Help, a topic open', route: DeskRoute.settingsHelp, arg: HelpDemo.open),
+  const DeskShot(id: '30e-settings-help-bottom', title: 'Help, the end: Tor and Logs', route: DeskRoute.settingsHelp, arg: HelpDemo.bottom),
   DeskShot(
     id: '23g-dlg-internet-guide',
     title: 'Receive from the internet: the guide',
