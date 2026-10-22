@@ -238,7 +238,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
         inBlock ? hm(const Duration(minutes: 2)) : '',
         sub: t.state == TxState.confirming ? '${t.confirmations} of ${t.confirmationsNeeded}' : null,
       ),
-      _Step('Spendable', done ? _S.done : _S.todo, done ? hm(const Duration(minutes: 12)) : ''),
+      _Step('Spendable', done ? _S.done : _S.todo, done ? hm(Duration(minutes: 2 + t.confirmationsNeeded)) : ''),
     ];
   }
 }
