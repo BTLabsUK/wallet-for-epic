@@ -1349,6 +1349,7 @@ class LepicDeskWallet implements DeskWalletApi {
       awaitingFinalization: s.awaitingFinalization.toInt(),
       immature: s.immature.toInt(),
       minConfirmations: _minConf.toInt(),
+      reportedTotal: s.total.toInt(),
     );
   }
 

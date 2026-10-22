@@ -52,6 +52,7 @@ class Balance {
     required this.awaitingFinalization,
     this.immature = 0,
     this.minConfirmations = defaultMinimumConfirmations,
+    this.reportedTotal,
   });
 
   final int spendable;
@@ -68,7 +69,15 @@ class Balance {
   /// out with. Sends ask for the same, so they can spend exactly [spendable].
   final int minConfirmations;
 
-  int get total => spendable + awaitingConfirmation + locked + immature;
+  /// The core's total; null where none was reported (the mock, an empty Overview).
+  final int? reportedTotal;
+
+  /// The wallet's total as the core reports it (LEPIC's `WalletSummary.total`, as
+  /// `epic-wallet info`): every unspent and locked output, not what awaits finalization. A
+  /// pending send's change awaits finalization until the same refresh that marks its locked
+  /// inputs spent confirms it, so nothing counts twice. Without the core's figure, the same
+  /// sum of the parts.
+  int get total => reportedTotal ?? spendable + awaitingConfirmation + locked + immature;
 }
 
 enum TxDirection { received, sent }
