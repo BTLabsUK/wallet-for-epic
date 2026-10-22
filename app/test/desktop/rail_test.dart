@@ -58,7 +58,7 @@ final _fixtures = <String, ServiceStatus?>{
 };
 
 void main() {
-  Future<ProviderContainer> show(WidgetTester tester, ServiceStatus? status, {bool compact = false, bool refresh = true}) async {
+  Future<ProviderContainer> show(WidgetTester tester, ServiceStatus? status, {bool compact = false, bool refresh = true, double textScale = 1}) async {
     tester.view.physicalSize = const Size(1280, 800);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
@@ -70,6 +70,7 @@ void main() {
         container: container,
         child: MaterialApp(
           theme: buildDeskTheme(Brightness.dark),
+          builder: (context, child) => MediaQuery(data: MediaQuery.of(context).copyWith(textScaler: TextScaler.linear(textScale)), child: child!),
           home: Scaffold(body: Align(alignment: Alignment.topLeft, child: SizedBox(width: compact ? 72 : 200, child: ServiceRows(compact: compact)))),
         ),
       ),
@@ -139,6 +140,65 @@ void main() {
       expect(find.text('btlabs.uk'), findsOneWidget);
       expect(find.text('stackwallet.com'), findsOneWidget);
     });
+
+    testWidgets('at 1.5× OS text scale the rows stay 40 u and nothing overflows', (tester) async {
+      await show(tester, _status(http: ServiceHealth.ok, tor: ServiceHealth.checking, torProgress: 40), textScale: 1.5);
+      for (final r in find.byType(RailRow).evaluate()) {
+        expect(tester.getSize(find.byWidget(r.widget)).height, 40.u);
+      }
+      expect(tester.takeException(), isNull);
+      await show(tester, _status(), compact: true, textScale: 1.5);
+      for (final r in find.byType(RailRow).evaluate()) {
+        expect(tester.getSize(find.byWidget(r.widget)).height, 40.u);
+      }
+      expect(tester.takeException(), isNull);
+      await tester.pumpWidget(const SizedBox());
+      await tester.pump(const Duration(milliseconds: 1));
+    });
+
+    testWidgets('a node down for under 30 s is not yet Not answering; after 30 s it is, since HH:MM', (tester) async {
+      var now = DateTime(2026, 10, 22, 14, 2, 0);
+      railClock = () => now;
+      addTearDown(() => railClock = DateTime.now);
+      await show(tester, _status(node: ServiceHealth.down));
+      RailItem node() => tester.widget<RailRow>(find.byType(RailRow).first).item;
+      expect(node().word, isNot('Not answering'), reason: 'a blip never flashes red');
+      expect(node().marker, isNull);
+      now = now.add(const Duration(seconds: 31));
+      await tester.pump(const Duration(seconds: 31));
+      expect(node().word, 'Not answering');
+      expect(node().marker, 'no answer');
+      expect(node().lines.first, 'node.btlabs.uk · since 14:02');
+      await tester.pumpWidget(const SizedBox());
+      await tester.pump(const Duration(milliseconds: 1));
+    });
+  });
+
+  group('the local node with the wallet on a public node', () {
+    const public = 'https://node.epiccash.com:3413';
+    test('starting, stopped and failed name the node in use; the local address does not', () {
+      for (final phase in [LocalNodePhase.starting, LocalNodePhase.stopped, LocalNodePhase.error]) {
+        final v = localNodeView(mockLocalNode(phase, failure: phase == LocalNodePhase.error ? NodeFailure.exited : null), fallbackUrl: public);
+        expect(v.host, 'epiccash.com', reason: phase.name);
+        expect(v.marker, isNotNull, reason: phase.name);
+        expect(v.lines.last, anyOf('Using node.epiccash.com until it is synced.', 'Using node.epiccash.com meanwhile.'), reason: phase.name);
+        expect(localNodeView(mockLocalNode(phase), fallbackUrl: 'http://127.0.0.1:3413').host, 'Local node', reason: phase.name);
+      }
+      expect(localNodeView(mockLocalNode(LocalNodePhase.synced), fallbackUrl: 'http://127.0.0.1:3413').lines.length, 2);
+    });
+
+    testWidgets('the rail reads the wallet’s actual node URL from the status', (tester) async {
+      final c = await show(tester, _status(node: ServiceHealth.slow));
+      c.read(settingsPrefsProvider.notifier).set(c.read(settingsPrefsProvider).copyWith(builtin: true));
+      await tester.pump();
+      // The local node's stream yields its first state a microtask later.
+      await tester.pump();
+      final node = tester.widget<RailRow>(find.byType(RailRow).first).item;
+      expect(node.second, startsWith('btlabs.uk'), reason: 'the status says the wallet reads node.btlabs.uk');
+      expect(node.lines, contains('Using node.btlabs.uk meanwhile.'));
+      await tester.pumpWidget(const SizedBox());
+      await tester.pump(const Duration(milliseconds: 1));
+    });
   });
 
   group('the Node row (§16)', () {
@@ -154,7 +214,7 @@ void main() {
       'local syncing, fallback': (
         localNodeView(
           mockLocalNode(LocalNodePhase.syncing, overall: 0.12, done: 1480200, total: 3764975, eta: const Duration(hours: 3)),
-          decision: const FallbackDecision(FallbackAction.usePublic, nodeUrl: defaultFallbackNodeUrl, localPhase: LocalNodePhase.syncing),
+          fallbackUrl: defaultFallbackNodeUrl,
         ),
         'Syncing',
         EState.warn,

@@ -340,7 +340,7 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
 
     // The word and state of the head: the same the rail shows.
     final NodeView view = prefs.builtin
-        ? localNodeView(local, decision: ref.watch(deskFallbackDecisionProvider))
+        ? localNodeView(local, fallbackUrl: status.node.url)
         : remoteNodeView(current.url, info, health: status.nodeHealth);
     final down = view.state == EState.risk && !prefs.builtin;
     // The Switch action's target: the healthy node with the lowest latency, My nodes first.

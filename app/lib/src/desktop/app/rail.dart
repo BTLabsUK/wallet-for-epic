@@ -169,9 +169,22 @@ class ServiceRows extends ConsumerStatefulWidget {
   ConsumerState<ServiceRows> createState() => _ServiceRowsState();
 }
 
+/// How long the wallet's node must stay down before the row says Not answering.
+const Duration railDownAfter = Duration(seconds: 30);
+
+/// The OS text scale the rail follows before its rows would outgrow 40 u.
+const double railMaxTextScale = 1.2;
+
+/// The rail's clock (tests set it).
+DateTime Function() railClock = DateTime.now;
+
 class _ServiceRowsState extends ConsumerState<ServiceRows> {
   Timer? _refresh;
+  Timer? _downTimer;
   String? _url;
+
+  /// When the wallet's node stopped answering; null while it answers.
+  DateTime? _downSince;
 
   @override
   void initState() {
@@ -185,7 +198,27 @@ class _ServiceRowsState extends ConsumerState<ServiceRows> {
   @override
   void dispose() {
     _refresh?.cancel();
+    _downTimer?.cancel();
     super.dispose();
+  }
+
+  /// The wallet's view of its node, once it has been down for [railDownAfter]: before that the
+  /// row keeps what the node's own info says (a blip never flashes red).
+  ServiceHealth? _settledHealth(ServiceHealth h) {
+    if (h != ServiceHealth.down) {
+      _downSince = null;
+      _downTimer?.cancel();
+      _downTimer = null;
+      return h;
+    }
+    final since = _downSince ??= railClock();
+    final left = railDownAfter - railClock().difference(since);
+    if (left <= Duration.zero) return h;
+    _downTimer ??= Timer(left, () {
+      _downTimer = null;
+      if (mounted) setState(() {});
+    });
+    return null;
   }
 
   @override
@@ -197,14 +230,17 @@ class _ServiceRowsState extends ConsumerState<ServiceRows> {
     final NodeView node;
     if (prefs.builtin) {
       _url = null;
-      node = localNodeView(ref.watch(deskLocalNodeProvider).value, decision: ref.watch(deskFallbackDecisionProvider));
+      // The node the wallet actually reads through: the public fallback until the local node
+      // takes over (D-7), whatever the local node's phase.
+      node = localNodeView(ref.watch(deskLocalNodeProvider).value, fallbackUrl: status?.node.url);
     } else if (status == null) {
       _url = null;
       node = const NodeView(word: 'Checking', state: EState.off, host: '–');
     } else {
       final url = (prefs.typedNode ?? status.node).url;
       _url = url;
-      node = remoteNodeView(url, ref.watch(deskNodeInfoProvider(url)).value, health: status.nodeHealth);
+      final health = _settledHealth(status.nodeHealth);
+      node = remoteNodeView(url, ref.watch(deskNodeInfoProvider(url)).value, health: health, downSince: health == ServiceHealth.down ? _downSince : null);
     }
     final items = [nodeRailItem(node), ...receivingRailItems(status, settings)];
     Widget row(RailItem i) => RailRow(item: i, compact: widget.compact, onTap: () => p.jumpTo(i.jump));
@@ -326,7 +362,9 @@ class _RailRowState extends State<RailRow> {
             height: 40.u,
             padding: EdgeInsets.symmetric(horizontal: widget.compact ? 0 : 8.u),
             decoration: BoxDecoration(color: _hover ? c.hover : null, borderRadius: BorderRadius.circular(Rad.sm)),
-            child: content,
+            // The row is 40 u in every state; the OS text scale follows up to the size where
+            // the two lines still fit (the interface scale is already in `u`).
+            child: MediaQuery.withClampedTextScaling(maxScaleFactor: railMaxTextScale * deskScale, child: content),
           ),
         ),
       ),

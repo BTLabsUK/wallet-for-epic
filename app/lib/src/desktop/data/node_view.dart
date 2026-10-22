@@ -89,22 +89,37 @@ NodeView remoteNodeView(String url, NodeInfo? info, {ServiceHealth? health, Date
   );
 }
 
-/// The local node, with the fallback in use when [decision] says so (§16).
-NodeView localNodeView(LocalNodeState? s, {FallbackDecision? decision}) {
+/// A node URL on this computer (the local node's own address).
+bool isLocalNodeUrl(String url) {
+  final h = nodeHost(url).toLowerCase();
+  return h == '127.0.0.1' || h == 'localhost' || h == '::1' || h == '[::1]' || h == '0.0.0.0';
+}
+
+/// The local node (§16). [fallbackUrl] is the public node the wallet actually reads through
+/// meanwhile (the wallet's own node URL when it is not the local one): the second line then
+/// names that node, whatever the local node's phase, and the tooltip says which is which.
+NodeView localNodeView(LocalNodeState? s, {String? fallbackUrl}) {
   const name = 'Local node';
-  if (s == null) return const NodeView(word: 'Checking', state: EState.off, host: name, lines: [name]);
+  final fallback = fallbackUrl == null || isLocalNodeUrl(fallbackUrl) ? null : nodeHost(fallbackUrl);
+  final host = fallback != null ? railHost('Node', fallback) : name;
+  if (s == null) return NodeView(word: 'Checking', state: EState.off, host: host, lines: const [name]);
   final p = s.progress;
   switch (s.phase) {
     case LocalNodePhase.starting:
-      return const NodeView(word: 'Starting', state: EState.warn, host: name, marker: 'starting', lines: [name, 'Connecting to peers']);
+      return NodeView(
+        word: 'Starting',
+        state: EState.warn,
+        host: host,
+        marker: 'starting',
+        lines: [name, 'Connecting to peers', if (fallback != null) 'Using $fallback until it is synced.'],
+      );
     case LocalNodePhase.syncing:
       final pct = p?.overall == null ? null : percent(p!.overall!);
-      final fallback = decision?.active == true && decision?.nodeUrl != null ? nodeHost(decision!.nodeUrl!) : null;
       final left = p == null ? null : timeLeft(p.stage, s.eta);
       return NodeView(
         word: 'Syncing',
         state: EState.warn,
-        host: fallback != null ? railHost('Node', fallback) : name,
+        host: host,
         marker: pct,
         lines: [
           [name, ?pct, ?left].join(' · '),
@@ -116,10 +131,11 @@ NodeView localNodeView(LocalNodeState? s, {FallbackDecision? decision}) {
       return NodeView(
         word: 'Synced',
         state: EState.ok,
-        host: name,
+        host: host,
         lines: [
           [name, if (s.height != null) digits(s.height!), 'at tip'].join(' · '),
           [if (s.peers != null) '${s.peers} peers', if (s.version != null) 'v${s.version}', if (s.uptime != null) 'running ${duration(s.uptime!)}'].join(' · '),
+          if (fallback != null) 'Still using $fallback; the local node takes over shortly.',
         ],
       );
     case LocalNodePhase.error:
@@ -127,14 +143,24 @@ NodeView localNodeView(LocalNodeState? s, {FallbackDecision? decision}) {
         return NodeView(
           word: 'Stalled',
           state: EState.risk,
-          host: name,
+          host: host,
           marker: 'stalled',
-          lines: [[name, if (s.height != null) digits(s.height!)].join(' · '), 'No progress for 5 min. Restarted once already.'],
+          lines: [
+            [name, if (s.height != null) digits(s.height!)].join(' · '),
+            'No progress for 5 min. Restarted once already.',
+            if (fallback != null) 'Using $fallback meanwhile.',
+          ],
         );
       }
-      return NodeView(word: 'Failed', state: EState.risk, host: name, marker: 'failed', lines: [name, failureLine(s)]);
+      return NodeView(word: 'Failed', state: EState.risk, host: host, marker: 'failed', lines: [name, failureLine(s), if (fallback != null) 'Using $fallback meanwhile.']);
     case LocalNodePhase.stopped:
-      return const NodeView(word: 'Stopped', state: EState.off, host: name, marker: 'stopped', lines: [name, 'Start it under Settings › Node.']);
+      return NodeView(
+        word: 'Stopped',
+        state: EState.off,
+        host: host,
+        marker: 'stopped',
+        lines: [name, 'Start it under Settings › Node.', if (fallback != null) 'Using $fallback meanwhile.'],
+      );
   }
 }
 
