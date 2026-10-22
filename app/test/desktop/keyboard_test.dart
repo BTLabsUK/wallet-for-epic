@@ -155,9 +155,10 @@ void main() {
       await _open(tester, DeskRoute.send);
       await _type(tester, 'Recipient', 'esWxboBPMgL4RqufRYcGUJ7t6YVWGvyuid6xRM62UkRzSb3jUcNK@epicbox.epiccash.com');
       await _type(tester, 'Amount', '1');
-      final tabs = await _tabs(tester, _edit('Recipient'), 6);
-      // Contacts and All are the stops right after their fields; paste and clear are not.
-      expect(tabs.take(5), ['button:Contacts', 'field:Amount in EPIC', 'button:All', 'field:Message', 'button:Review send']);
+      final tabs = await _tabs(tester, _edit('Recipient'), 7);
+      // Contacts and All are the stops right after their fields; paste and clear are not. The
+      // address is the BT Labs contact: its card's Clear comes next.
+      expect(tabs.take(6), ['button:Contacts', 'button:Clear', 'field:Amount in EPIC', 'button:All', 'field:Message', 'button:Review send']);
       expect(tabs.last, startsWith('nav:'), reason: 'the sidebar comes after the form');
       expect(tabs, _noSecondary);
       await _end(tester);

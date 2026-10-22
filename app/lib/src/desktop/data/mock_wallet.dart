@@ -5,6 +5,7 @@ library;
 
 import 'dart:math';
 
+import '../../seed_contacts.dart';
 import '../../wallet_service.dart' show onionAddressFormat;
 import 'api.dart';
 import 'http_address.dart';
@@ -39,6 +40,8 @@ class MockDeskWallet implements DeskWalletApi {
     Contact(id: 'c3', name: 'Exchange deposit', address: 'esQa1nB7cVxZ3mL9kJ5hG2fD8sA6pP4iU1yT7rE3wQ9eR5tY@epicbox.epiccash.com', lastUsed: _ago(days: 12)),
     Contact(id: 'c4', name: 'Tom', address: 'http://10.0.1.24:3415', note: 'Home server'),
     Contact(id: 'c5', name: 'Merchant: Coffee', address: 'esP9o78uY7tR6eW5qA4sD3fG2hJ1kL9zX9cV8bN7mQ6wE5rT@epicbox.stackwallet.com'),
+    // Seeded into every new wallet (spec 9).
+    Contact(id: 'btlabs', name: btLabsContact.name, address: btLabsContact.address, note: btLabsContact.note),
   ];
 
   late final List<Tx> _txs = [

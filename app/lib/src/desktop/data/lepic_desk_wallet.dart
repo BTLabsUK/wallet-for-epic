@@ -31,8 +31,10 @@ import '../../node/node_settings.dart' show NodeSettings;
 import '../../network.dart';
 import '../../providers.dart' show WalletDirResolver, defaultMinimumConfirmations;
 import '../../public_servers.dart';
+import '../../net/http.dart' show httpGet;
 import '../../relay_directory.dart';
 import '../../secret_store_api.dart';
+import '../../seed_contacts.dart';
 import '../../slate_files.dart' show decodeSlateFile, responseFileName, sendFileName;
 import '../../tor_location.dart';
 import '../../wallet_registry.dart' as reg;
@@ -129,6 +131,7 @@ class LepicDeskWallet implements DeskWalletApi {
     bool? torFeature,
     Future<Directory> Function()? rememberDir,
     DateTime Function()? now,
+    this._seedFetch,
   }) : _torFeature = torFeature ?? DeskFeatures.tor,
        _legacyRoots = legacyRoots ?? legacy.LegacyRoots.current,
        _minConfFallback = minimumConfirmations ?? BigInt.from(defaultMinimumConfirmations),
@@ -691,6 +694,7 @@ class LepicDeskWallet implements DeskWalletApi {
       torAutostart: _torFeature && autostart.tor,
     );
     await _setMeta({'opened': DateTime.now().millisecondsSinceEpoch ~/ 1000});
+    await _seedContacts();
     try {
       if (_registry != null) _openEntry = await (await _registry!).markOpened(entry.id);
     } on Object catch (e) {
@@ -1837,8 +1841,113 @@ class LepicDeskWallet implements DeskWalletApi {
   @override
   Future<void> deleteContact(String id) async {
     await _open.deleteContact(id: id);
+    // A seeded contact the user deleted never comes back on this computer.
+    final seeds = await _seedRecords();
+    final seeded = seeds.entries.where((e) => e.value['contact'] == id).map((e) => e.key).toList();
+    if (seeded.isNotEmpty) {
+      for (final k in seeded) {
+        seeds[k] = {...seeds[k]!, 'deleted': true};
+      }
+      await _setMeta({'seeds': seeds});
+    }
     final favourites = await _favourites();
     if (favourites.remove(id)) await _store.writeJson(_favouritesKey, favourites.toList());
+  }
+
+  // ---- Seed contacts (F31, spec 9).
+
+  /// Reads the website's list ([fetchSeeds] in the app); null reads nothing (tests).
+  final Future<String?> Function(Uri url)? _seedFetch;
+
+  /// The website's list, read once per app start (or from the 7-day cache); null until then.
+  List<SeedContact>? _webSeeds;
+  bool _seedFetchStarted = false;
+
+  /// The website's seed contacts file, or null when it did not answer with one.
+  static Future<String?> fetchSeeds(Uri url) async {
+    final r = await httpGet(url, timeout: const Duration(seconds: 5));
+    return r.status == 200 ? r.body : null;
+  }
+
+  /// Per wallet: seed id → the contact it made, the address as inserted, deleted.
+  Future<Map<String, Map<String, dynamic>>> _seedRecords() async {
+    final j = (await _meta())['seeds'];
+    return {
+      if (j is Map)
+        for (final e in j.entries)
+          if (e.value is Map) '${e.key}': Map<String, dynamic>.from(e.value as Map),
+    };
+  }
+
+  /// On every open: a seed contact the wallet never had is added now (the bundled one at
+  /// once, never waiting for the network); one the user did not edit follows the website's
+  /// copy; one the user deleted or edited is left alone. A failure changes nothing.
+  Future<void> _seedContacts() async {
+    try {
+      await _applySeeds([...bundledSeedContacts, ...?await _cachedWebSeeds()]);
+    } on Object catch (e) {
+      logWarn('desk', 'seed contacts not applied: ${e.runtimeType}');
+    }
+    if (!_seedFetchStarted && _seedFetch != null) {
+      _seedFetchStarted = true;
+      unawaited(_refreshWebSeeds());
+    }
+  }
+
+  Future<void> _applySeeds(List<SeedContact> list) async {
+    // A later entry (the website's) wins over an earlier one (the bundled) with the same id.
+    final byId = {for (final c in list) c.id: c};
+    final seeds = await _seedRecords();
+    final stored = {for (final c in await _open.contacts()) c.id: c};
+    var changed = false;
+    for (final s in byId.values) {
+      final rec = seeds[s.id];
+      if (rec == null) {
+        final saved = await _open.saveContact(contact: core.Contact(id: '', name: s.name, address: s.address, note: s.note));
+        seeds[s.id] = {'contact': saved.id, 'address': s.address, 'deleted': false};
+        changed = true;
+      } else if (rec['deleted'] != true) {
+        final c = stored[rec['contact']];
+        final untouched = c != null && c.address == rec['address'];
+        if (untouched && (c.address != s.address || c.name != s.name || c.note != s.note)) {
+          await _open.saveContact(contact: core.Contact(id: c.id, name: s.name, address: s.address, note: s.note));
+          seeds[s.id] = {...rec, 'address': s.address};
+          changed = true;
+        }
+      }
+    }
+    if (changed) {
+      await _setMeta({'seeds': seeds});
+      _changed();
+    }
+  }
+
+  static const _seedCacheKey = 'desk.seedContacts';
+
+  Future<List<SeedContact>?> _cachedWebSeeds() async {
+    if (_webSeeds != null) return _webSeeds;
+    final j = await _store.readJson(_seedCacheKey);
+    if (j is! Map || j['body'] is! String) return null;
+    return parseSeedContacts(j['body'] as String, validAddress: isEpicboxAddress);
+  }
+
+  /// Reads the website's list unless the cache is under 7 days old, then applies it to the
+  /// open wallet.
+  Future<void> _refreshWebSeeds() async {
+    try {
+      final j = await _store.readJson(_seedCacheKey);
+      final at = j is Map && j['at'] is int ? DateTime.fromMillisecondsSinceEpoch(j['at'] as int) : null;
+      if (at != null && DateTime.now().difference(at) < const Duration(days: 7)) return;
+      final body = await _seedFetch!(Uri.parse(seedContactsUrl));
+      if (body == null) return;
+      final list = parseSeedContacts(body, validAddress: isEpicboxAddress);
+      if (list == null) return;
+      _webSeeds = list;
+      await _store.writeJson(_seedCacheKey, {'at': DateTime.now().millisecondsSinceEpoch, 'body': body});
+      if (_session != null) await _applySeeds([...bundledSeedContacts, ...list]);
+    } on Object catch (e) {
+      logInfo('desk', 'seed contacts not read: ${e.runtimeType}');
+    }
   }
 
   /// A change of the HTTP listener's port or reach restarts it when it runs or failed; the

@@ -419,11 +419,11 @@ void main() {
 
     test('contacts round trip, favourites kept by the app', () async {
       await wallet.saveContact(const Contact(id: '', name: 'Ann', address: 'esA@epicbox.epiccash.com', favourite: true));
-      final cs = await wallet.contacts();
+      final cs = (await wallet.contacts()).where((c) => c.name != 'BT Labs');
       expect(cs.single.name, 'Ann');
       expect(cs.single.favourite, isTrue);
       await wallet.deleteContact(cs.single.id);
-      expect(await wallet.contacts(), isEmpty);
+      expect((await wallet.contacts()).map((c) => c.name), ['BT Labs']);
     });
 
     test('Refresh asks the node now and says when it did not answer', () async {
@@ -947,14 +947,15 @@ void main() {
       await w.selectWallet('legacy-mainnet');
       expect(await w.unlock(_password), isTrue);
       await w.saveContact(const Contact(id: '', name: 'Ann', address: 'esA@epicbox.epiccash.com', favourite: true));
-      expect((await w.contacts()).single.favourite, isTrue);
+      Future<Contact> ann() async => (await w.contacts()).singleWhere((c) => c.name == 'Ann');
+      expect((await ann()).favourite, isTrue);
       expect(await secrets.read('desk.favourites'), isNotNull);
       await w.selectWallet(id);
       expect(await w.unlock(_password), isTrue);
-      expect((await w.contacts()).single.favourite, isFalse, reason: 'wallet 2 has not marked it');
+      expect((await w.contacts()).where((c) => c.name == 'Ann').single.favourite, isFalse, reason: 'wallet 2 has not marked it');
       expect(await secrets.read('desk.favourites.$id'), isNull);
       final firstFavourites = await secrets.read('desk.favourites');
-      await w.saveContact(Contact(id: (await w.contacts()).single.id, name: 'Ann', address: 'esA@epicbox.epiccash.com', favourite: true));
+      await w.saveContact(Contact(id: (await ann()).id, name: 'Ann', address: 'esA@epicbox.epiccash.com', favourite: true));
       expect(await secrets.read('desk.favourites.$id'), isNotNull);
       expect(await secrets.read('desk.favourites'), firstFavourites);
     });
