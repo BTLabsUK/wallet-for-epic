@@ -105,6 +105,8 @@ flutter:
     - assets/fonts/OFL-JetBrainsMono.txt
     # Word lists for the password estimate, from zxcvbn-ts (MIT; NOTICE.txt has the notices).
     - assets/passwords/
+    # Tor's licence; the tor binary itself ships beside the app (tools/fetch-tor.sh).
+    - assets/licenses/tor.txt
   fonts:
     # Display only: the balance, screen titles and section heads. Body text is the platform font.
     - family: Montserrat
