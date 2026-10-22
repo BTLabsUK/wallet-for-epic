@@ -6,6 +6,7 @@ import '../errors.dart';
 import '../l10n.dart';
 import '../network.dart';
 import '../providers.dart';
+import '../public_servers.dart';
 import '../relay_directory.dart';
 import '../wallet_service.dart';
 import 'common.dart';
@@ -311,8 +312,8 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
   }
 }
 
-/// The relays `status.btlabs.uk` knows for this network, with their health, plus the selected
-/// relay if the monitor does not list it.
+/// The relays `status.btlabs.uk` knows for this network, with their health, then the built-in
+/// mainnet relays it does not list (all of them when it is down), plus the selected relay.
 class _RelayPicker extends ConsumerWidget {
   const _RelayPicker({
     required this.preset,
@@ -329,9 +330,21 @@ class _RelayPicker extends ConsumerWidget {
     final l = context.l10n;
     final status = ref.watch(relayStatusProvider(preset));
     final listed = status.value ?? const <RelayStatus>[];
+    final builtIn = [
+      if (preset.statusChain == 'mainnet')
+        for (final r in builtInRelays)
+          if (!listed.any((s) => s.relay == r.relay))
+            RelayStatus(
+              relay: r.relay,
+              healthy: false,
+              verified: false,
+              operator: r.operator,
+            ),
+    ];
     final entries = [
       ...listed,
-      if (!listed.any((s) => s.relay == selected))
+      ...builtIn,
+      if (![...listed, ...builtIn].any((s) => s.relay == selected))
         RelayStatus(relay: selected, healthy: false, verified: false),
     ];
     final small = Theme.of(context).textTheme.bodySmall;
@@ -382,7 +395,7 @@ class _RelayPicker extends ConsumerWidget {
 
   /// A list of separate facts, so each is its own message and the separator joins them.
   static String _describe(AppLocalizations l, RelayStatus s, bool listed) {
-    if (!listed) return l.setupRelayNotMonitored;
+    if (!listed) return s.operator ?? l.setupRelayNotMonitored;
     final parts = [
       s.healthy ? l.setupRelayUp : l.setupRelayDown,
       if (s.operator != null) s.operator!,
