@@ -96,7 +96,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
     final again = nav.canBack ? 'Running setup again. Nothing changes until Save on the last step.' : null;
     final (title, lead, body) = switch (_step) {
       SetupStep.prefs => ('Preferences', again ?? (DeskFeatures.languages ? 'Wallet name and app language. Both can be changed later.' : 'Wallet name. It can be changed later.'), _prefs(context)),
-      SetupStep.node => ('Choose a node', again ?? 'The wallet reads the chain and sends through an Epic node.', _node(context)),
+      SetupStep.node => ('Choose a node', again ?? 'The wallet reads the chain and sends through a remote Epic node. Its operator sees the IP address and which outputs the wallet asks about.', _node(context)),
       SetupStep.epicbox => ('Receive when offline', again, _epicbox(context)),
       SetupStep.review => ('Check settings', again ?? 'Change anything that is not right, then save.', _review(context)),
     };
@@ -166,6 +166,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
           ),
           SizedBox(height: Sp.x3),
         ],
+        if (DeskFeatures.builtInNode) ...[
         EChoiceCard(
           title: 'Remote node',
           description: 'Starts faster. The operator sees the IP address and which outputs the wallet asks about.',
@@ -173,8 +174,9 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
           selected: !_builtIn,
           onTap: () => setState(() => _builtIn = false),
         ),
-        if (!_builtIn) ...[
           SizedBox(height: Sp.x5),
+        ],
+        if (!_builtIn) ...[
           EField(
             label: 'Server',
             child: nodes == null

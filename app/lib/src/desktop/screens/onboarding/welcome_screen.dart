@@ -55,7 +55,7 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
             SizedBox(height: Sp.x5),
             Semantics(
               header: true,
-              child: Text(hasWallets ? 'Add a wallet' : 'Epic Cash wallet', style: ts.h1, textAlign: TextAlign.center),
+              child: Text(hasWallets ? 'Add a wallet' : 'Epic Cash Wallet', style: ts.h1, textAlign: TextAlign.center),
             ),
             if (!hasWallets) ...[
               SizedBox(height: Sp.x2),
