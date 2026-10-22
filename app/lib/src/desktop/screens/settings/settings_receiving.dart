@@ -199,7 +199,7 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
                           ),
                           if (s.tor && status.torIncluded && _onion != null) ...[
                             SizedBox(height: Sp.x2),
-                            Row(children: [Expanded(child: EAddress(_onion!)), SizedBox(width: Sp.x2), ECopyButton(text: _onion!, label: 'Copy Tor address')]),
+                            EAddress(_onion!),
                           ],
                         ],
                       )
