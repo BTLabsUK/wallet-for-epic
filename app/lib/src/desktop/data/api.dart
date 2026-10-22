@@ -42,7 +42,7 @@ abstract interface class DeskWalletApi {
   /// The largest amount that can be sent now and its fee (Send › All).
   Future<(int, int)> estimateMax();
   Future<SendResult> send(SendRequest request);
-  Future<Tx> receiveFile(String fileName);
+  Future<ReceivedFile> receiveFile(String fileName);
   Future<Tx> finalizeFile(String fileName);
   Future<void> cancelTx(int id);
   Future<String> exportProof(int id);

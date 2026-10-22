@@ -16,6 +16,7 @@ import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:path_provider/path_provider.dart';
 
 import 'src/app_log.dart';
+import 'src/data_folder.dart';
 import 'src/desktop/app/desk_app.dart';
 import 'src/desktop/data/desk_store.dart';
 import 'src/desktop/data/files.dart';
@@ -36,6 +37,8 @@ Future<void> main() async {
   }
   await runZonedGuarded(() async {
     WidgetsFlutterBinding.ensureInitialized();
+    // Before the logs and wallets ask for the support folder: Linux's own, never a stray one.
+    await settleDataFolder();
     await startLogging();
     final previous = FlutterError.onError;
     FlutterError.onError = (details) {

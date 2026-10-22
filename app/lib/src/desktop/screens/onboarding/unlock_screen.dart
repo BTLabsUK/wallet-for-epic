@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/mock_wallet.dart' show MockDeskWallet;
+import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../widgets/kit.dart';
 import '../settings/prefs.dart' show settingsPrefsProvider;
 import '../settings/dialogs.dart' show RemoveMode, showRemoveWalletDialog;
@@ -56,6 +57,9 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
         _failedStage = 'wallet';
       case UnlockShow.missing:
         _missing = true;
+      // The wallet closed by itself (a server change could not reopen it).
+      case final String reason:
+        _error = reason;
     }
     ref.read(deskApiProvider).wallets().then((w) {
       if (!mounted) return;
@@ -143,7 +147,7 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
     } on Object catch (e) {
       if (!mounted) return;
       setState(() {
-        _failure = '$e';
+        _failure = deskErrorText(e);
         _failedStage = 'unlock';
         _stage = null;
       });

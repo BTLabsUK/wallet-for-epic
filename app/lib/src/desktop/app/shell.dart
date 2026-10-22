@@ -175,6 +175,11 @@ Future<void> lockWallet(WidgetRef ref) async {
 /// Quit (the app menu's Ctrl+Q): locks, then closes the app. The mock only locks.
 Future<void> quitWallet(BuildContext context, WidgetRef ref) async {
   final quit = ref.read(deskQuitProvider);
+  // Quitting mid-send would leave the payment's outcome unknown.
+  if (ref.read(deskProvider.notifier).sending > 0) {
+    showEToast(context, 'Not quit', text: 'A send is in progress. Quit again once it finishes.');
+    return;
+  }
   if (quit == null) showEToast(context, 'Wallet locked', text: 'Quit closes the app once the wallet core is connected.');
   await lockWallet(ref);
   await quit?.call();

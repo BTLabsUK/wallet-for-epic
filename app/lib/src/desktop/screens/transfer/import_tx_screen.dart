@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../slate_files.dart' show responseFileName;
 import '../../data/files.dart';
 import '../../widgets/kit.dart';
 import 'file_panels.dart';
@@ -63,11 +62,11 @@ class _ImportTxScreenState extends ConsumerState<ImportTxScreen> {
       _detail = null;
     });
     try {
-      final tx = await ref.read(deskApiProvider).receiveFile(path);
+      final r = await ref.read(deskApiProvider).receiveFile(path);
       if (!mounted) return;
       setState(() {
-        _tx = tx;
-        _response = files == null ? 'invoice_0042.response.slate' : responseFileName(path);
+        _tx = r.tx;
+        _response = files == null ? 'invoice_0042.response.slate' : r.response;
       });
     } on DeskError catch (e) {
       if (mounted) {

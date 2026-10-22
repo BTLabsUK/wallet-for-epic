@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../widgets/kit.dart';
 import '../settings/prefs.dart' show settingsPrefsProvider;
 import 'onboarding_parts.dart';
@@ -65,7 +66,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
     } on Object catch (e) {
       if (!mounted) return;
       setState(() => _busy = false);
-      showEToast(context, 'Not saved', text: '$e');
+      showEToast(context, 'Not saved', text: deskErrorText(e));
       return;
     }
     if (!mounted) return;

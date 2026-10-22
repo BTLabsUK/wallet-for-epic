@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../widgets/kit.dart';
 import 'settings_frame.dart';
 
@@ -65,7 +66,7 @@ class _SettingsRescanScreenState extends ConsumerState<SettingsRescanScreen> {
         if (mounted) {
           setState(() {
             _running = false;
-            _failure = '$e';
+            _failure = deskErrorText(e);
           });
         }
       },

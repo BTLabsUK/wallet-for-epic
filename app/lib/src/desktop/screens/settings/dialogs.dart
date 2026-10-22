@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../widgets/kit.dart';
 import 'prefs.dart';
 import 'settings_frame.dart';
@@ -611,7 +612,7 @@ class _DeleteWalletDialogState extends ConsumerState<DeleteWalletDialog> {
       if (mounted) {
         setState(() {
           _busy = false;
-          _error = '$e';
+          _error = deskErrorText(e);
         });
       }
       return;

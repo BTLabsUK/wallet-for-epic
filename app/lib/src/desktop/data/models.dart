@@ -242,10 +242,13 @@ class ScanStep {
 
 /// A wallet error, in a short sentence for the screen.
 class DeskError implements Exception {
-  const DeskError(this.message, {this.wrongPassword = false});
+  const DeskError(this.message, {this.wrongPassword = false, this.locked = false});
 
   final String message;
   final bool wrongPassword;
+
+  /// The wallet closed (a node or Epicbox change could not reopen it): back to Unlock.
+  final bool locked;
 
   @override
   String toString() => message;
@@ -374,8 +377,22 @@ final class SendFileReady extends SendResult {
 }
 
 final class SendFailed extends SendResult {
-  const SendFailed(this.message);
+  const SendFailed(this.message, {this.inActivity = false});
   final String message;
+
+  /// The payment may exist already (waiting in Activity): sending again could pay twice.
+  final bool inActivity;
+}
+
+/// A signed transaction file: the payment and where its response was written.
+@immutable
+class ReceivedFile {
+  const ReceivedFile(this.tx, this.response);
+
+  final Tx tx;
+
+  /// Beside the picked file, or in the app's files folder when that folder is read-only.
+  final String response;
 }
 
 /// A wallet folder found on this computer (switching, import, "found" screen).
