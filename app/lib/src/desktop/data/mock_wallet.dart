@@ -330,24 +330,28 @@ class MockDeskWallet implements DeskWalletApi {
     ];
   }
 
-  /// What one change or split output past the first adds to the fee.
-  static final int _outputFee = _epic(0.001);
+  /// Epic's fee: 0.001 EPIC × (4 × outputs + inputs − 1).
+  static int _fee(int inputs, int outputs) => _epic(0.001) * max(1, 4 * outputs + inputs - 1);
 
   List<Output> get _spendable => _outputs.where((o) => o.spendable).toList()..sort((a, b) => a.value.compareTo(b.value));
 
   @override
   Future<SendEstimate> estimateSend(int amount, {SendOptions? options}) async {
+    await _wait(0.4);
     final o = options ?? const SendOptions();
     final n = o.changeOutputs;
     if (n < 1 || n > 10) throw const DeskError('Not accepted: change outputs 1 to 10');
-    final fee = await estimateFee(amount) + _outputFee * (n - 1);
     var sum = 0;
     var count = 0;
     for (final out in _spendable) {
-      if (o.strategy == SelectionStrategy.smallest && sum >= amount + fee) break;
+      if (o.strategy == SelectionStrategy.smallest && sum >= amount + _fee(count, 1 + n)) break;
       sum += out.value;
       count++;
     }
+    // Inputs that cover amount and fee exactly make no change output.
+    final exact = _fee(count, 1);
+    if (sum == amount + exact) return SendEstimate(amount: amount, fee: exact, inputCount: count, locked: sum);
+    final fee = _fee(count, 1 + n);
     if (sum < amount + fee) throw const DeskError('Not enough funds');
     final change = sum - amount - fee;
     if (change > 0 && change < n) throw const DeskError('This send cannot be built from the coins available.', unbuildable: true);
@@ -361,7 +365,7 @@ class MockDeskWallet implements DeskWalletApi {
     await _wait(0.4);
     final all = _spendable;
     final sum = all.fold(0, (a, o) => a + o.value);
-    final fee = _epic(0.006) + _outputFee * (outputs - 1);
+    final fee = _fee(all.length, outputs);
     if (sum < fee + outputs) throw const DeskError('Not enough funds');
     final part = (sum - fee) ~/ outputs;
     return SendEstimate(amount: part, fee: fee, inputCount: all.length, change: sum - fee - part, locked: sum, changeOutputs: outputs - 1);

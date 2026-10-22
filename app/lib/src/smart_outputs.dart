@@ -16,6 +16,7 @@ class SmartOutputsRule {
     this.minChange = nanoEpic,
     this.outputStep = nanoEpic ~/ 2,
     this.maxOutputs = 4,
+    this.targetOutputs = 4,
     this.minPerOutput = nanoEpic ~/ 4,
   });
 
@@ -30,6 +31,10 @@ class SmartOutputsRule {
 
   /// ...up to this many.
   final int maxOutputs;
+
+  /// ...and no more than bring the spendable outputs, once the change confirms, to this
+  /// many (the outputs the send leaves plus the change outputs).
+  final int targetOutputs;
 
   /// Never an output below this (0.25 EPIC).
   final int minPerOutput;
@@ -75,10 +80,12 @@ class SmartOutputsDecision {
 }
 
 /// The change outputs for a send of [base] (estimated with one change output) from a wallet
-/// with [spendableOutputs] spendable outputs: min([SmartOutputsRule.maxOutputs],
-/// change / [SmartOutputsRule.outputStep]) when fewer than [SmartOutputsRule.minOutputsLeft]
-/// stay and the change is at least [SmartOutputsRule.minChange], never below
-/// [SmartOutputsRule.minPerOutput] each; else 1.
+/// with [spendableOutputs] spendable outputs: when fewer than
+/// [SmartOutputsRule.minOutputsLeft] stay and the change is at least
+/// [SmartOutputsRule.minChange], n = min([SmartOutputsRule.maxOutputs],
+/// [SmartOutputsRule.targetOutputs] − left, change / [SmartOutputsRule.outputStep]), never
+/// below [SmartOutputsRule.minPerOutput] each, applied when n ≥ 2; else 1. With the
+/// standard rule: min(4, 4 − left, floor(change / 0.5 EPIC)).
 SmartOutputsDecision smartOutputs({
   required bool enabled,
   required int spendableOutputs,
@@ -94,6 +101,7 @@ SmartOutputsDecision smartOutputs({
   if (base.change < rule.minChange) return one(SmartOutputsReason.smallChange);
   var n = base.change ~/ rule.outputStep;
   if (n > rule.maxOutputs) n = rule.maxOutputs;
+  if (n > rule.targetOutputs - outputsLeft) n = rule.targetOutputs - outputsLeft;
   if (n > maxChangeOutputs) n = maxChangeOutputs;
   while (n > 1 && base.change ~/ n < rule.minPerOutput) {
     n--;

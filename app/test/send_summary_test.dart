@@ -110,9 +110,24 @@ void main() {
       expect(d.outputsLeft, 10);
     });
 
-    test('exactly the minimum left: no split; one fewer: split', () {
+    test('exactly the minimum left: no split; fewer: up to four spendable outputs in all', () {
       expect(smartOutputs(enabled: true, spendableOutputs: 4, base: base(inputs: 1, change: 9 * epic)).changeOutputs, 1);
-      expect(smartOutputs(enabled: true, spendableOutputs: 3, base: base(inputs: 1, change: 9 * epic)).changeOutputs, 4);
+      // Two left: two change outputs make four.
+      expect(smartOutputs(enabled: true, spendableOutputs: 3, base: base(inputs: 1, change: 9 * epic)).changeOutputs, 2);
+      expect(smartOutputs(enabled: true, spendableOutputs: 2, base: base(inputs: 1, change: 9 * epic)).changeOutputs, 3);
+    });
+
+    test('the design\'s worked examples', () {
+      // One output of 100, send 1: 4 × 24.745.
+      expect(smartOutputs(enabled: true, spendableOutputs: 1, base: base(inputs: 1, change: 98.992e8.round())).changeOutputs, 4);
+      // One output of 100, send 99.5: change 0.49, none.
+      expect(smartOutputs(enabled: true, spendableOutputs: 1, base: base(inputs: 1, change: 0.49e8.round())).changeOutputs, 1);
+      // Outputs of 3 and 0.8, send 1: one left, change 1.992 → 3.
+      expect(smartOutputs(enabled: true, spendableOutputs: 2, base: base(inputs: 1, change: 1.992e8.round())).changeOutputs, 3);
+      // Five outputs, send 25 with Smallest: 4 left, none.
+      expect(smartOutputs(enabled: true, spendableOutputs: 5, base: base(inputs: 1, change: 9.72e8.round())).changeOutputs, 1);
+      // Five outputs, Strategy All: none left, 4.
+      expect(smartOutputs(enabled: true, spendableOutputs: 5, base: base(inputs: 5, change: 1259.72e8.round())).changeOutputs, 4);
     });
 
     test('small change: one change output', () {
@@ -132,7 +147,7 @@ void main() {
     });
 
     test('never below the minimum per output', () {
-      const rule = SmartOutputsRule(outputStep: epic ~/ 10, maxOutputs: 8, minPerOutput: epic ~/ 4);
+      const rule = SmartOutputsRule(outputStep: epic ~/ 10, maxOutputs: 8, targetOutputs: 10, minPerOutput: epic ~/ 4);
       // 1 EPIC in 0.1 EPIC steps would be 8 outputs; 0.25 EPIC each allows 4.
       final d = smartOutputs(enabled: true, spendableOutputs: 1, base: base(inputs: 1, change: epic), rule: rule);
       expect(d.changeOutputs, 4);

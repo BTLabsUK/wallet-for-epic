@@ -1564,7 +1564,7 @@ class FakeWalletSession implements WalletSession {
   List<WalletOutput> outputsValue = [];
 
   /// What one change or split output past the first adds to [fee].
-  BigInt changeOutputFee = BigInt.from(100000);
+  BigInt changeOutputFee = BigInt.from(400000);
 
   /// The options of every [estimateFee] call, and of every send, null when none were given.
   final List<SendOptions?> estimateOptions = [];
