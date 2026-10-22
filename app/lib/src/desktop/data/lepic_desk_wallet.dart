@@ -1177,7 +1177,8 @@ class LepicDeskWallet implements DeskWalletApi {
       final grew = h > _tip;
       _tip = h;
       // The local node answers from its first second, at height 0 while it downloads the
-      // chain: that is "Syncing" (slow), never "Online · 0" (O2).
+      // chain: that is "Syncing" (slow), never "Online · 0" (O2). Its sync progress past
+      // height 0 (headers, then blocks, against the network's tip) is wave 6.
       final health = h == 0 && await _builtInOn() ? ServiceHealth.slow : ServiceHealth.ok;
       if (_nodeHealth != health) {
         _nodeHealth = health;

@@ -28,6 +28,25 @@ class _Wallet extends MockDeskWallet {
   }
 }
 
+/// The local node just started: answering, at height 0 (O2).
+class _NodeAtZero extends _Wallet {
+  @override
+  Future<ServiceStatus> status() async {
+    final s = await super.status();
+    return ServiceStatus(
+      node: s.node,
+      nodeHealth: ServiceHealth.slow,
+      nodeHeight: 0,
+      epicbox: s.epicbox,
+      epicboxHealth: s.epicboxHealth,
+      httpListener: s.httpListener,
+      tor: s.tor,
+      torCanSend: s.torCanSend,
+      lastUpdate: s.lastUpdate,
+    );
+  }
+}
+
 Future<ProviderContainer> _pump(WidgetTester tester, Widget child, {MockDeskWallet? api, bool refresh = true}) async {
   tester.view.physicalSize = const Size(1280, 900);
   tester.view.devicePixelRatio = 1;
@@ -163,6 +182,39 @@ void main() {
     await tester.pump(const Duration(milliseconds: 600));
     expect(find.text("This is the wallet's own address."), findsOneWidget);
     expect(find.text('Send 1.0000 EPIC'), findsNothing, reason: 'no review dialog');
+  });
+
+  // The own-address check: the key exactly, the server this one, missing or with :443 (M18).
+  const ownKey = 'esWnT8kBf3yXqPZ2r9cLhVd7JmK4uA6gYsN1pQeRtC5vD8xHwF2b';
+  for (final (to, refused) in [
+    (ownKey, true),
+    ('$ownKey@epicbox.epiccash.com:443', true),
+    ('$ownKey@EPICBOX.epiccash.com', true),
+    ('${ownKey.toLowerCase()}@epicbox.epiccash.com', false),
+    ('$ownKey@epicbox.stackwallet.com', false),
+  ]) {
+    testWidgets('"$to" is ${refused ? '' : 'not '}the wallet\'s own address (M18)', (tester) async {
+      final api = _Wallet();
+      expect((await api.epicboxAddress()).split('@').first, ownKey);
+      await _pump(tester, SendScreen(arg: SendArgs(recipient: to, amount: '1')), api: api);
+      await tester.tap(find.text('Review send'));
+      await tester.pump(const Duration(milliseconds: 600));
+      expect(find.text("This is the wallet's own address."), refused ? findsOneWidget : findsNothing);
+    });
+  }
+
+  testWidgets('no send while the local node is at height 0 (O2)', (tester) async {
+    await _pump(tester, const SendScreen(arg: SendArgs(recipient: 'abc.onion', amount: '1')), api: _NodeAtZero());
+    expect(find.text('Node not synced'), findsOneWidget);
+    expect(find.text('Waiting for the node to sync.'), findsOneWidget);
+  });
+
+  testWidgets('an empty contact address says "Add an address."', (tester) async {
+    await _pump(tester, const ContactsScreen(arg: ContactsArgs(adding: true)));
+    await tester.enterText(_input('Name'), 'Ann');
+    await tester.tap(find.text('Save contact'));
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(find.text('Add an address.'), findsOneWidget);
   });
 
   testWidgets('the local node asks before it starts (O2)', (tester) async {
