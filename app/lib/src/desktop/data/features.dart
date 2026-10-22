@@ -5,12 +5,13 @@
 ///
 /// The hidden spots, by flag (gap ids from LEPIC's `docs/reviews/feature-gap-2026-10/gui-parity.md`):
 ///
-/// multiWallet (A06–A13): several wallets, one open at a time.
+/// multiWallet (A06–A13, D9, on): several wallets of one network, one open at a time, desktop
+///   only (phones keep one). The adapter lists them in `WalletRegistry`.
 ///   - Unlock: the Wallet select, "Add a wallet", the missing-folder notice and its Remove.
 ///   - Welcome: "Add a wallet" heading and "Back to unlock" for a later visit.
-///   - Settings: the "All wallets" section (settingsWallets route).
+///   - Settings: the "All wallets" section (settingsWallets route), with Add back.
 ///   - Sidebar: "Switch wallet".
-///   - Remove wallet dialog: "Remove from the list only" and "Remove this app's files" modes.
+///   - Remove wallet dialog: "Remove from list" and "Delete wallet".
 /// importWizard (B01–B32, A01's third door, A19): existing wallets from a folder or 6.1.x.
 ///   - Welcome: "Add an existing wallet". Routes found and importWallets.
 ///   - All wallets: "Import wallets…".
@@ -39,7 +40,7 @@
 library;
 
 abstract final class DeskFeatures {
-  static const bool multiWallet = false;
+  static const bool multiWallet = true;
   static const bool importWizard = false;
   static const bool dataFolder = false;
   static const bool testNetworks = false;
