@@ -673,7 +673,12 @@ void main() {
     });
 
     for (final (name, exe, cmd) in [
-      ('another executable', '/usr/bin/vim', ['vim', 'server', 'run']),
+      // Our exact command line, so only the executable tells it apart.
+      (
+        'another executable',
+        '/usr/bin/vim',
+        ['epic', 'server', '--config_file', 'TOML', 'run'],
+      ),
       (
         'another config file',
         null,
