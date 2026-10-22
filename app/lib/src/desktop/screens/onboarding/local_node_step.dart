@@ -73,6 +73,8 @@ class _LocalNodeStepState extends ConsumerState<LocalNodeStep> {
     api.facts().then((f) => mounted ? setState(() => _facts = f) : null);
     // Something already answering on this computer, that is not the wallet's own node?
     () async {
+      // Never inside the first build: the parent gets the choice a microtask later.
+      await Future<void>.delayed(Duration.zero);
       final p = switch (widget.demo) {
         LocalNodeDemo.found => LocalNodeProbe(url: 'http://127.0.0.1:3413', answers: true, version: '4.1.1', height: mockTip, readyForTxs: true, latencyMs: 3),
         LocalNodeDemo.notFound => const LocalNodeProbe(url: 'http://127.0.0.1:3413', answers: false),

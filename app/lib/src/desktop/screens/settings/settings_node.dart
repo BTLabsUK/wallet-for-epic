@@ -8,9 +8,11 @@ import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../data/node_view.dart';
 import '../../widgets/kit.dart';
 import '../../widgets/node_card.dart';
+import '../onboarding/local_node_step.dart' show showLocalNodeSetupDialog, LocalNodeHow;
 import 'combo.dart';
 import 'dialogs.dart';
 import 'local_node.dart';
+import 'local_node_dialogs.dart' show showReuseChainDataDialog, fallbackAskedThisSession;
 import 'prefs.dart';
 import 'settings_frame.dart';
 
@@ -221,7 +223,19 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
     final prefs = ref.read(settingsPrefsProvider.notifier);
     final p = ref.read(settingsPrefsProvider);
     if (value == builtinNode) {
-      if (!p.builtin && !await confirmLocalNode(context)) return;
+      if (!p.builtin) {
+        // The same content as the first run's Local node step (§21): nothing starts before
+        // the primary action; the fallback checkbox answers D-7 for good.
+        final choice = await showLocalNodeSetupDialog(context);
+        if (choice == null || !mounted) return;
+        if (choice.how == LocalNodeHow.existing) return _useRemote(choice.existingUrl);
+        final node = ref.read(deskNodeProvider);
+        await ref.read(deskFallbackProvider.notifier).set(FallbackChoice(choice.useFallback ? FallbackConsent.accepted : FallbackConsent.declined, at: DateTime.now()));
+        fallbackAskedThisSession = true;
+        final found = await node.chainDataCandidates();
+        if (!mounted) return;
+        if (found.isNotEmpty && await showReuseChainDataDialog(context, node) == null) return;
+      }
       if (!mounted) return;
       setState(() {
         _saving = true;

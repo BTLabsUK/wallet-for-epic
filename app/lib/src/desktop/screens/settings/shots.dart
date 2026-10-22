@@ -8,6 +8,7 @@ import '../../data/mock_wallet.dart';
 import '../../widgets/kit.dart';
 import 'backup.dart';
 import 'dialogs.dart';
+import '../onboarding/local_node_step.dart' show showLocalNodeSetupDialog;
 import 'local_node_dialogs.dart';
 import 'prefs.dart';
 import 'report_problem.dart';
@@ -116,7 +117,7 @@ final List<DeskShot> settingsShots = [
     prepare: (c, _) => showLocalNode(c, mockLocalNode(LocalNodePhase.syncing, overall: 0.12), FallbackConsent.accepted),
     dialog: (ctx) => showFallbackPickerDialog(ctx, current: defaultFallbackNodeUrl),
   ),
-  DeskShot(id: '22i-dlg-local-node-confirm', title: 'Local node: before it starts', route: DeskRoute.settingsNode, dialog: confirmLocalNode),
+  DeskShot(id: '22-node-local-dialog', title: 'Local node: the dialog from Settings', route: DeskRoute.settingsNode, dialog: (c) => showLocalNodeSetupDialog(c)),
   DeskShot(id: '22g-dlg-chain-offer', title: 'Existing blockchain data', route: DeskRoute.settingsNode, dialog: showChainOfferDialog),
   DeskShot(id: '22h-dlg-chain-offer-in-use', title: 'Existing blockchain data, in use', route: DeskRoute.settingsNode, dialog: (c) => showChainOfferDialog(c, inUse: true)),
   DeskShot(
