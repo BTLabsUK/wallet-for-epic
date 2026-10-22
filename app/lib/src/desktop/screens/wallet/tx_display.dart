@@ -6,7 +6,7 @@ import '../../widgets/kit.dart';
 
 String methodLabel(TxMethod m) => switch (m) {
   TxMethod.epicbox => 'Epicbox',
-  TxMethod.http => 'Direct HTTP',
+  TxMethod.http => 'HTTP',
   TxMethod.tor => 'Tor',
   TxMethod.file => 'File',
 };
@@ -16,17 +16,43 @@ String methodLabel(TxMethod m) => switch (m) {
 String whoOf(Tx t) {
   if (t.contactName != null) return t.contactName!;
   if (t.coinbase) return 'Mining reward';
-  if (t.foundByScan) return 'Found by scan';
+  if (t.foundByScan) return foundTexts(t).label;
   final cp = t.counterparty;
+  if (cp == null && t.fromBackup) return t.incoming ? 'Received' : 'Sent';
   if (cp == null) return t.incoming ? 'Unknown sender' : 'Unknown recipient';
   if (t.method == TxMethod.file) return cp;
   return shortAddress(cp);
 }
 
+/// The words for a payment a scan found with no record (F17), by which scan found it. An
+/// entry stored before the core recorded the scan makes no claim about it.
+typedef FoundTexts = ({String label, String line, String step, String note, String tip});
+
+FoundTexts foundTexts(Tx t) {
+  const unknown = 'The sender is not recorded.';
+  final note = t.datedByBlock ? 'Block time. $unknown' : "Time of the scan; the block's time could not be read. $unknown";
+  return switch (t.foundDuring) {
+    FoundDuring.restore => (
+      label: 'Restored',
+      line: 'Found while restoring',
+      step: 'Found while restoring this wallet',
+      note: note,
+      tip: 'Found on the chain while restoring this wallet. $unknown',
+    ),
+    FoundDuring.rescan => (
+      label: 'Found by scan',
+      line: 'Found by a balance recheck',
+      step: 'Found by a balance recheck',
+      note: note,
+      tip: 'Found on the chain by a balance recheck. $unknown',
+    ),
+    null => (label: 'Found by scan', line: 'Found by a scan', step: 'Found by a scan', note: unknown, tip: 'Found on the chain by a scan. $unknown'),
+  };
+}
+
 /// A line explaining [whoOf] where it needs one.
 String? whoTip(Tx t) =>
-    t.detail ??
-    (t.foundByScan && t.contactName == null ? 'Found on the chain by a scan. The sender is not recorded. The time is the block time.' : null);
+    t.detail ?? (t.foundByScan && t.contactName == null ? foundTexts(t).tip : (t.fromBackup ? 'Added from a history backup.' : null));
 
 /// Whether the name is an address (shown in mono).
 bool whoIsAddress(Tx t) => t.contactName == null && t.counterparty != null && t.method != TxMethod.file;
@@ -34,25 +60,15 @@ bool whoIsAddress(Tx t) => t.contactName == null && t.counterparty != null && t.
 /// How it travelled, or null when that is not known (mining rewards, scan finds).
 String? methodOf(Tx t) => t.coinbase || t.foundByScan ? null : methodLabel(t.method);
 
-String shortAddress(String a) {
-  if (a.startsWith('http')) {
-    final host = a.replaceFirst(RegExp(r'^https?://'), '');
-    if (host.contains('.onion')) return '${host.substring(0, 8)}….onion';
-    return host;
-  }
-  final at = a.indexOf('@');
-  final core = at > 0 ? a.substring(0, at) : a;
-  if (core.length <= 18) return a;
-  return '${core.substring(0, 8)}…${core.substring(core.length - 6)}${at > 0 ? a.substring(at) : ''}';
-}
-
 IconData iconOf(Tx t) => switch (t.method) {
   TxMethod.file => t.incoming ? EIcons.fileDown : EIcons.fileUp,
   _ => t.incoming ? EIcons.receive : EIcons.send,
 };
 
 /// The state in words, with a tone for its colour.
-(String, ETone) statusOf(Tx t) => t.immature
+(String, ETone) statusOf(Tx t) => t.fromBackup
+    ? ('From backup', ETone.neutral)
+    : t.immature
     ? ('Immature', ETone.warn)
     : switch (t.state) {
         TxState.waitingRecipient => (
@@ -201,6 +217,8 @@ class TxStateMark extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.dc;
     if (tx.immature) return Icon(EIcons.sand, size: size * 0.75, color: c.warn);
+    // The chain was not asked about a payment only a backup knows: no count to show.
+    if (tx.fromBackup) return Icon(EIcons.archive, size: size * 0.75, color: c.dim);
     return switch (tx.state) {
       TxState.cancelled => ERing(confirmations: 0, size: size, off: true),
       TxState.waitingRecipient => Icon(EIcons.sand, size: size * 0.75, color: c.warn),
@@ -287,7 +305,7 @@ class _TxRowState extends ConsumerState<TxRow> {
       _ => c.faint,
     };
     final hidden = ref.watch(deskProvider.select((s) => s.settings.hideAmounts));
-    final method = methodOf(t);
+    final method = t.foundByScan ? foundTexts(t).line : (t.fromBackup ? 'From backup' : methodOf(t));
     final extra = t.message ?? (DeskFeatures.paymentProofs && t.hasProof ? 'Payment proof' : null);
     final meta = <InlineSpan>[
       if (method != null) TextSpan(text: method),
@@ -304,11 +322,11 @@ class _TxRowState extends ConsumerState<TxRow> {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text(
-          widget.title ?? whoOf(t),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: widget.title == null && whoIsAddress(t) ? ts.mono(size: 12.5, weight: FontWeight.w500) : ts.strong,
+        _Tip(
+          message: widget.title == null && (t.foundByScan || t.fromBackup) ? whoTip(t) : null,
+          child: widget.title == null && whoIsAddress(t)
+              ? EShortAddress(t.counterparty!, style: ts.mono(size: 12.5, weight: FontWeight.w500), tooltip: false)
+              : Text(widget.title ?? whoOf(t), maxLines: 1, overflow: TextOverflow.ellipsis, style: ts.strong),
         ),
         if (compact || meta.isNotEmpty) const SizedBox(height: 2),
         if (compact)
@@ -401,4 +419,15 @@ class _TxRowState extends ConsumerState<TxRow> {
       ),
     );
   }
+}
+
+/// A tooltip when there is something to say, else the child alone.
+class _Tip extends StatelessWidget {
+  const _Tip({required this.message, required this.child});
+
+  final String? message;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => message == null ? child : Tooltip(message: message, child: child);
 }

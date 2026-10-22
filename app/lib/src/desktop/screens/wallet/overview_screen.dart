@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../app/tour.dart';
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../widgets/kit.dart';
+import '../settings/backup.dart' show HistoryReminder, historyBackupProvider;
 import '../settings/prefs.dart' show settingsPrefsProvider;
 import 'tx_display.dart';
 
@@ -80,6 +81,7 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
 
     final notices = <Widget>[
       if (s.status?.notice != null) ENotice(tone: ETone.warn, icon: EIcons.alert, title: s.status!.notice!),
+      if (ref.watch(historyBackupProvider).value case final backup? when backup.reminder != null) HistoryReminder(state: backup),
       if (starting) const _Steps(),
       if (demo == OverviewDemo.nodeProblem && !_addressNoteHidden)
         ENotice(

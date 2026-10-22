@@ -191,7 +191,7 @@ void main() {
 
     for (final (route, label) in [
       (DeskRoute.settingsAccount, 'Label'),
-      (DeskRoute.settingsReceiving, 'HTTP listener port'),
+      (DeskRoute.settingsReceiving, 'HTTP port'),
     ]) {
       testWidgets('Settings ${route.name}: no icon is a Tab stop', (tester) async {
         await _open(tester, route);

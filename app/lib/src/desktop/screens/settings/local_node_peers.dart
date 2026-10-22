@@ -9,7 +9,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/desk_node.dart';
 import '../../data/node_view.dart' show hhmm, digits;
 import '../../widgets/kit.dart';
-import '../../widgets/motion.dart';
 import 'local_node.dart' show localNodeOptionsProvider;
 
 /// `MW/Epic 4.1.1` → `4.1.1`; an unknown agent stays whole.

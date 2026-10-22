@@ -9,7 +9,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../address_format.dart' show railHost;
 import '../data/desk_node.dart';
 import '../data/node_view.dart';
 import '../screens/settings/prefs.dart';

@@ -19,7 +19,9 @@ class TxDetail extends ConsumerStatefulWidget {
 class _TxDetailState extends ConsumerState<TxDetail> {
   bool _cancelling = false;
 
-  String _now(Tx t) => t.immature
+  String _now(Tx t) => t.fromBackup
+      ? 'From backup; the chain was not asked.'
+      : t.immature
       ? 'Confirmed, but a mining reward is spendable only after $coinbaseMaturity confirmations.'
       : switch (t.state) {
           TxState.waitingRecipient =>
@@ -57,8 +59,8 @@ class _TxDetailState extends ConsumerState<TxDetail> {
     final ts = context.ts;
     final t = widget.tx;
     final total = t.amount + (t.incoming ? 0 : t.fee);
-    final cancelable = !t.incoming && (t.state == TxState.waitingRecipient || t.state == TxState.posted);
-    final finalizable = !t.incoming && t.method == TxMethod.file && t.state == TxState.waitingRecipient;
+    final cancelable = !t.fromBackup && !t.incoming && (t.state == TxState.waitingRecipient || t.state == TxState.posted);
+    final finalizable = !t.fromBackup && !t.incoming && t.method == TxMethod.file && t.state == TxState.waitingRecipient;
     final steps = _steps(t);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -80,19 +82,24 @@ class _TxDetailState extends ConsumerState<TxDetail> {
                     color: t.incoming && t.state != TxState.cancelled ? c.ok : c.text,
                   ),
                   const SizedBox(height: 2),
-                  Text.rich(
-                    TextSpan(
-                      children: [
-                        TextSpan(text: t.incoming ? 'from ' : 'to '),
-                        TextSpan(
-                          text: whoOf(t),
-                          style: whoIsAddress(t) ? ts.mono(size: Fs.xs, color: c.text) : TextStyle(color: c.text),
-                        ),
-                      ],
+                  if (t.foundByScan && t.contactName == null)
+                    Text(t.foundDuring == FoundDuring.restore ? 'restored' : 'found on the chain', style: ts.small)
+                  else if (t.fromBackup && t.counterparty == null)
+                    Text('added from a history backup', style: ts.small)
+                  else
+                    Text.rich(
+                      TextSpan(
+                        children: [
+                          TextSpan(text: t.incoming ? 'from ' : 'to '),
+                          TextSpan(
+                            text: whoOf(t),
+                            style: whoIsAddress(t) ? ts.mono(size: Fs.xs, color: c.text) : TextStyle(color: c.text),
+                          ),
+                        ],
+                      ),
+                      style: ts.small,
                     ),
-                    style: ts.small,
-                  ),
-                  if (whoTip(t) != null) ...[const SizedBox(height: 2), Text(whoTip(t)!, style: ts.small.copyWith(color: c.faint))],
+                  if (whoTip(t) != null && !(t.fromBackup && t.counterparty == null)) ...[const SizedBox(height: 2), Text(whoTip(t)!, style: ts.small.copyWith(color: c.faint))],
                 ],
               ),
             ),
@@ -114,7 +121,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
             ],
           ),
         ),
-        if (t.state != TxState.cancelled) ...[_Sub('Progress'), for (final (i, st) in steps.indexed) _TimelineStep(step: st, last: i == steps.length - 1)],
+        if (t.state != TxState.cancelled && !t.fromBackup) ...[_Sub('Progress'), for (final (i, st) in steps.indexed) _TimelineStep(step: st, last: i == steps.length - 1)],
         _Sub('Details'),
         EFacts(labelWidth: 96.u, [
           ('Date', Text(dateTimeOf(t))),
@@ -135,7 +142,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
                 ],
               ),
             ),
-          ('Method', Text(methodLabel(t.method))),
+          ('Method', Text(t.foundByScan ? '–' : methodLabel(t.method))),
           ('Amount', EMoney(t.amount)),
           if (!t.incoming) ...[('Fee', EMoney(t.fee)), ('Total', EMoney(total, weight: FontWeight.w600))],
           if (t.message != null) ('Message', Text(t.message!)),
@@ -212,7 +219,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
     if (t.coinbase || t.foundByScan) {
       final left = coinbaseMaturity - t.confirmations;
       return [
-        _Step(t.coinbase ? 'Mined in a block' : 'Found by a scan', _S.done, hm(Duration.zero), sub: t.coinbase ? null : 'Block time. The sender is not recorded.'),
+        _Step(t.coinbase ? 'Mined in a block' : foundTexts(t).step, _S.done, hm(Duration.zero), sub: t.coinbase ? null : foundTexts(t).note),
         if (t.coinbase)
           _Step('Spendable', t.immature ? _S.now : _S.done, '', sub: t.immature ? '$left blocks to go' : null)
         else

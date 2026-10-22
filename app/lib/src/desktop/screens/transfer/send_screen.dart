@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../log.dart';
 import '../../../network.dart' show defaultEpicboxHost;
+import '../../data/api.dart' show DeskWalletApi;
 import '../../data/http_address.dart';
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../widgets/kit.dart';
@@ -76,29 +77,28 @@ class _Draft {
 const int _tooLong = epicTooLong;
 int? _parseAmount(String raw) => parseEpic(raw);
 
-String? _recipientError(TxMethod m, String v) {
+/// What is wrong with the recipient for method [m], or null (spec 7: one parser for every kind).
+String? _recipientError(TxMethod m, String v, DeskWalletApi api) {
   final t = v.trim();
+  if (m == TxMethod.file) return null;
+  if (t.isEmpty) return 'Add an address to send to.';
+  final p = parseAddress(t, api);
   switch (m) {
     case TxMethod.file:
       return null;
     case TxMethod.epicbox:
-      if (t.isEmpty) return 'Add an address to send to.';
-      if (RegExp(r'^https?://', caseSensitive: false).hasMatch(t) || t.contains('.onion')) return 'This is not a valid Epicbox address.';
-      if (!(t.contains('@') || t.startsWith('es') || t.startsWith('epicbox'))) return 'This is not a valid Epicbox address.';
-      return null;
+      return p.kind == AddressKind.epicbox && p.complete ? null : 'This is not a valid Epicbox address.';
     case TxMethod.http:
-      if (t.isEmpty) return 'Add an address to send to.';
-      final problem = httpAddressProblem(t);
+      if (p.kind == AddressKind.epicbox || p.kind == AddressKind.tor) return 'This is not an HTTP address.';
+      final problem = httpAddressProblem(p.kind == AddressKind.http ? p.canonical : t);
       return problem == null ? null : '$problem.';
     case TxMethod.tor:
-      if (t.isEmpty) return 'Add an address to send to.';
-      if (!RegExp(r'^(https?://)?[^\s/@]+\.onion(:\d+)?(/\S*)?$', caseSensitive: false).hasMatch(t)) return 'Enter a .onion address.';
-      return null;
+      return p.kind == AddressKind.tor && p.complete ? null : 'This is not a valid Tor address.';
   }
 }
 
 String _kindLabel(TxMethod m) => switch (m) { TxMethod.epicbox => 'Epicbox', TxMethod.tor => 'Tor', TxMethod.file => 'File', TxMethod.http => 'HTTP' };
-IconData _kindIcon(TxMethod m) => switch (m) { TxMethod.epicbox => EIcons.antenna, TxMethod.tor => EIcons.shield, TxMethod.file => EIcons.file, TxMethod.http => EIcons.web };
+IconData _kindIcon(TxMethod m) => switch (m) { TxMethod.epicbox => EIcons.epicbox, TxMethod.tor => EIcons.tor, TxMethod.file => EIcons.file, TxMethod.http => EIcons.http };
 
 class SendScreen extends ConsumerStatefulWidget {
   const SendScreen({super.key, this.arg});
@@ -244,10 +244,10 @@ class _SendScreenState extends ConsumerState<SendScreen> {
   /// under Tor goes over HTTP.
   void _route() {
     if (!DeskFeatures.tor || _method == TxMethod.file) return;
-    final t = _to.text.trim();
-    if (ref.read(deskApiProvider).isOnionAddress(t)) {
+    final p = parseAddress(_to.text, ref.read(deskApiProvider));
+    if (p.kind == AddressKind.tor && p.complete) {
       _method = TxMethod.tor;
-    } else if (_method == TxMethod.tor && DeskFeatures.httpDirect && httpAddressProblem(t) == null) {
+    } else if (_method == TxMethod.tor && DeskFeatures.httpDirect && p.kind == AddressKind.http && p.complete) {
       _method = TxMethod.http;
     }
   }
@@ -361,12 +361,12 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     return contacts.where(contactSendable).where((c) => c.name.toLowerCase().contains(q) || c.address.toLowerCase().contains(q)).take(4).toList();
   }
 
-  Future<void> _startListener() async {
+  Future<void> _startEpicbox() async {
     setState(() => _starting = true);
     try {
-      await ref.read(deskProvider.notifier).setListening(true);
+      await ref.read(deskProvider.notifier).setEpicboxListening(true);
     } on Object catch (e) {
-      if (mounted) showEToast(context, 'Listener not started', text: deskErrorText(e), tone: ETone.risk);
+      if (mounted) showEToast(context, 'Epicbox not turned on', text: deskErrorText(e), tone: ETone.risk);
     } finally {
       if (mounted) setState(() => _starting = false);
     }
@@ -393,7 +393,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     return (a.substring(0, at), host.isEmpty ? null : host);
   }
 
-  String? _toError(DeskState st) => _ownAddressError(st) ?? _recipientError(_method, _to.text);
+  String? _toError(DeskState st) => _ownAddressError(st) ?? _recipientError(_method, _to.text, ref.read(deskApiProvider));
 
   Future<void> _review() async {
     final st = ref.read(deskProvider);
@@ -582,12 +582,12 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     if (_epicboxBlocked(st)) {
       return ENotice(
         title: 'Epicbox not connected',
-        text: 'Epicbox sends are possible once the listener runs. Send by file meanwhile.',
+        text: 'Epicbox sends work once Epicbox receiving is on. Send by file meanwhile.',
         tone: ETone.warn,
         icon: EIcons.antenna,
         actions: [
           if (eb == ServiceHealth.off)
-            EButton(label: 'Start listener', icon: EIcons.antenna, size: EBtnSize.inline, busy: _starting, onPressed: _starting ? null : _startListener),
+            EButton(label: 'Turn on Epicbox receiving', icon: EIcons.epicbox, size: EBtnSize.inline, busy: _starting, onPressed: _starting ? null : _startEpicbox),
         ],
       );
     }
@@ -915,7 +915,7 @@ class _Suggestions extends StatelessWidget {
               if (i > 0) Divider(height: 1, color: c.line),
               Semantics(
                 button: true,
-                label: '${x.name}, ${shortAddress(x.address)}',
+                label: '${x.name}, ${x.address}',
                 excludeSemantics: true,
                 child: InkWell(
                   onTap: () => onPick(x),
@@ -930,7 +930,7 @@ class _Suggestions extends StatelessWidget {
                         ETag(_kindLabel(contactMethod(x)), tone: contactMethod(x) == TxMethod.epicbox ? ETone.gold : ETone.neutral, icon: _kindIcon(contactMethod(x))),
                         SizedBox(width: Sp.x3),
                         Expanded(
-                          child: Text(shortAddress(x.address), style: ts.mono(size: Fs.xs, color: c.dim), maxLines: 1, overflow: TextOverflow.ellipsis, textAlign: TextAlign.end),
+                          child: Align(alignment: Alignment.centerRight, child: EShortAddress(x.address, tooltip: false)),
                         ),
                       ],
                     ),

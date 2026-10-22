@@ -38,6 +38,14 @@ class _Stops extends MockDeskWallet {
   }
 }
 
+/// The mock, failing its scan.
+class _Fails extends MockDeskWallet {
+  _Fails() : super(delay: const Duration(milliseconds: 10));
+
+  @override
+  Stream<ScanStep> rescan({bool deleteUnconfirmed = false}) => Stream.error(const DeskError('The node did not answer.'));
+}
+
 void main() {
   Future<void> pump(WidgetTester tester, [MockDeskWallet? api]) async {
     tester.view.physicalSize = const Size(1280, 1400);
@@ -65,6 +73,10 @@ void main() {
   testWidgets('a full scan shows the balance before and after and the counts', (tester) async {
     await pump(tester);
     expect(find.textContaining('Reads the chain again and rebuilds the balance'), findsOneWidget);
+    // F18: one name (Recheck balance), and the row does not repeat the group's title.
+    expect(find.text('Recheck balance'), findsNWidgets(2)); // the section chip and the group head
+    expect(find.textContaining('Rescan'), findsNothing);
+    expect(find.textContaining('coins'), findsNothing);
     await tester.tap(find.text('Delete unconfirmed'));
     await tester.pump();
     await tester.tap(find.widgetWithText(EButton, 'Start'));
@@ -75,7 +87,23 @@ void main() {
     expect(find.text('Balance after'), findsOneWidget);
     expect(find.text('Outputs found'), findsOneWidget);
     expect(find.text('Deleted'), findsOneWidget);
+    expect(find.text('Unlocked'), findsOneWidget);
+    expect(find.text('The balance is up to date. Unconfirmed transactions were cancelled and their outputs unlocked.'), findsOneWidget);
     expect(find.widgetWithText(EButton, 'Start again'), findsOneWidget);
+  });
+
+  testWidgets('running and finished without Delete unconfirmed', (tester) async {
+    await pump(tester);
+    await tester.tap(find.widgetWithText(EButton, 'Start'));
+    await run(tester, const Duration(milliseconds: 40));
+    expect(find.textContaining('Checking…'), findsOneWidget);
+    expect(find.text('Scanning the chain. The wallet stays usable; the balance updates when the scan ends.'), findsOneWidget);
+    expect(find.text('Scan log'), findsOneWidget);
+    await run(tester, const Duration(milliseconds: 400));
+    await tester.pumpAndSettle();
+    expect(find.text('Scan finished'), findsOneWidget);
+    expect(find.text('The balance is up to date.'), findsOneWidget);
+    expect(find.text('Deleted'), findsNothing);
   });
 
   testWidgets('Stop ends the scan; with Delete unconfirmed it says nothing was deleted', (tester) async {
@@ -106,6 +134,17 @@ void main() {
     await tester.pumpWidget(const SizedBox());
     expect(api.stops, 1);
     await run(tester, const Duration(milliseconds: 400));
+  });
+
+  testWidgets('a failed scan says so, with the error, and offers Start again', (tester) async {
+    await pump(tester, _Fails());
+    await tester.tap(find.widgetWithText(EButton, 'Start'));
+    await run(tester, const Duration(milliseconds: 40));
+    await tester.pumpAndSettle();
+    expect(find.text('Scan failed'), findsOneWidget);
+    expect(find.text('The node did not answer.'), findsOneWidget);
+    expect(find.widgetWithText(EButton, 'Start again'), findsOneWidget);
+    expect(find.text('Scan finished'), findsNothing);
   });
 
   group('LepicDeskWallet', () {

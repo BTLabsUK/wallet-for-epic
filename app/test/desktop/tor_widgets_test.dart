@@ -70,26 +70,26 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  Finder torSwitch() => find.descendant(of: find.widgetWithText(ESetRow, 'Tor'), matching: find.byType(ESwitch));
+  Finder torSwitch() => find.byKey(const ValueKey('st-switch-tor'));
+  String torState(WidgetTester tester) => tester.widget<EStateLine>(find.byKey(const ValueKey('st-state-tor'))).line.text;
 
   group('Settings › Receiving › Tor', () {
-    testWidgets('off by default; the switch turns it on and shows the state and the onion', (tester) async {
+    testWidgets('off by default; the switch turns it on and shows the state', (tester) async {
       await show(tester, const SettingsReceivingScreen());
       expect(tester.widget<ESwitch>(torSwitch()).value, isFalse);
-      expect(find.byType(EAddress), findsNothing);
+      await tester.ensureVisible(torSwitch());
       await tester.tap(torSwitch());
       await tester.pumpAndSettle();
       expect(container.read(deskProvider).settings.tor, isTrue);
-      expect(find.text('Ready'), findsOneWidget);
-      expect(find.byType(EAddress), findsOneWidget);
-      expect(find.bySemanticsLabel('Copy Tor address'), findsOneWidget);
+      expect(torState(tester), 'On · reachable at the Tor address');
+      expect(find.byType(EAddress), findsNothing, reason: 'the address lives on Receive');
     }, skip: _skip);
 
     testWidgets('without the bundle the switch is disabled and says so', (tester) async {
       wallet.included = false;
       await show(tester, const SettingsReceivingScreen());
       expect(tester.widget<ESwitch>(torSwitch()).onChanged, isNull);
-      expect(find.text('Tor not included in this build'), findsOneWidget);
+      expect(torState(tester), 'Not in this build');
     }, skip: _skip);
   });
 

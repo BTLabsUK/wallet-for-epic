@@ -135,6 +135,9 @@ class Tx {
     this.hasProof = false,
     this.coinbase = false,
     this.foundByScan = false,
+    this.foundDuring,
+    this.datedByBlock = true,
+    this.fromBackup = false,
     this.confirmedAt,
     this.detail,
   });
@@ -165,6 +168,15 @@ class Tx {
 
   /// A received output a scan found with no transaction record (another copy of the seed).
   final bool foundByScan;
+
+  /// For [foundByScan]: which scan found it; null when the core did not record that.
+  final FoundDuring? foundDuring;
+
+  /// False when [created] is the time of the scan: the block's time could not be read.
+  final bool datedByBlock;
+
+  /// A payment only an imported history backup knows (F34): the chain was not asked about it.
+  final bool fromBackup;
   final DateTime? confirmedAt;
 
   /// Why the state is what it is, when that is not obvious: where an imported transaction came
@@ -176,6 +188,9 @@ class Tx {
   bool get incoming => direction == TxDirection.received;
   bool get pending => state == TxState.waitingRecipient || state == TxState.posted || state == TxState.confirming;
 }
+
+/// Which scan found an output with no record: the one after a restore, or a later one.
+enum FoundDuring { restore, rescan }
 
 @immutable
 class Contact {
@@ -341,6 +356,71 @@ class ScanCounts {
   final bool resumed;
 }
 
+/// The history backup record of the open wallet (F34), for the Backup rows, the export dialog
+/// and the Overview reminder (F33).
+@immutable
+class HistoryBackupState {
+  const HistoryBackupState({this.lastExport, this.unbacked = 0, this.reminder, this.payments = 0, this.contacts = 0, this.network = 'mainnet'});
+
+  /// The last export saved; null: never.
+  final DateTime? lastExport;
+
+  /// Payments a backup would keep that the last export does not have.
+  final int unbacked;
+
+  /// The count the Overview reminder names; null while it stays hidden (the F33 rule).
+  final int? reminder;
+
+  /// What an export holds now.
+  final int payments, contacts;
+
+  /// The chain's name, as in the file name (`mainnet`, `floonet`).
+  final String network;
+}
+
+/// What an import of a history backup did.
+@immutable
+class HistoryImport {
+  const HistoryImport({this.merged = 0, this.added = 0, this.skipped = 0, this.contactsAdded = 0});
+
+  /// Payments already here that got details back.
+  final int merged;
+
+  /// Payments only the file knew, now shown as From backup.
+  final int added;
+
+  /// Records already here, unchanged.
+  final int skipped;
+  final int contactsAdded;
+
+  bool get nothingNew => merged == 0 && added == 0 && contactsAdded == 0;
+}
+
+/// Why a history backup file was refused.
+enum HistoryFileProblem {
+  otherWallet("Another wallet's backup"),
+  otherChain('Wrong network'),
+  notOurs('Not a history backup'),
+  newer('Newer file'),
+  damaged('File damaged'),
+  tooLarge('Not a history backup');
+
+  const HistoryFileProblem(this.title);
+
+  final String title;
+}
+
+/// A refused history backup file: [problem]'s title, and [text] saying why.
+class HistoryFileError implements Exception {
+  const HistoryFileError(this.problem, this.text);
+
+  final HistoryFileProblem problem;
+  final String text;
+
+  @override
+  String toString() => text;
+}
+
 /// A wallet error, in a short sentence for the screen.
 class DeskError implements Exception {
   const DeskError(this.message, {this.wrongPassword = false, this.locked = false, this.newPasswordNeeded = false, this.sameWallet});
@@ -403,6 +483,7 @@ class DeskSettings {
     this.autoLockMinutes = 15,
     this.fiat = 'USD',
     this.newLookSeen = false,
+    this.internetGuideSeen = false,
     this.tourSeen = false,
   });
 
@@ -444,6 +525,9 @@ class DeskSettings {
   /// The one-time "new look" notice on Overview was closed.
   final bool newLookSeen;
 
+  /// The Receive from the internet guide was shown once: From the internet then switches
+  /// straight away; the guide stays behind the (?) next to it. App-wide.
+  final bool internetGuideSeen;
   /// The tour was shown once (opened, closed or skipped): it does not open by itself again.
   final bool tourSeen;
 
@@ -464,6 +548,7 @@ class DeskSettings {
     int? autoLockMinutes,
     String? fiat,
     bool? newLookSeen,
+    bool? internetGuideSeen,
     bool? tourSeen,
   }) => DeskSettings(
     theme: theme ?? this.theme,
@@ -482,6 +567,7 @@ class DeskSettings {
     autoLockMinutes: autoLockMinutes ?? this.autoLockMinutes,
     fiat: fiat ?? this.fiat,
     newLookSeen: newLookSeen ?? this.newLookSeen,
+    internetGuideSeen: internetGuideSeen ?? this.internetGuideSeen,
     tourSeen: tourSeen ?? this.tourSeen,
   );
 }

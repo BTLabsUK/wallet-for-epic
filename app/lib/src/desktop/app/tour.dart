@@ -35,23 +35,23 @@ final List<TourStep> deskTourSteps = [
   TourStep(
     'send',
     'Send EPIC',
-    'To an Epic address or a contact. A review shows everything before anything leaves the wallet.',
+    'To an Epicbox address or a contact. A review shows everything before anything leaves the wallet.',
   ),
   TourStep(
     'receive',
     'Receive',
-    'The Epic address and its QR code, the listener, and transaction files to sign or finalize.',
+    'The Epicbox address and its QR code, the other ways to receive, and transaction files to sign or finalize.',
   ),
   TourStep(
     'receive',
     'Epicbox',
-    'Starts with the wallet. The usual way: payments to the Epic address wait while the wallet is offline.',
+    'On by default. The usual way: payments to the Epicbox address wait on the Epicbox server while the wallet is offline.',
   ),
   if (DeskFeatures.httpDirect)
     const TourStep(
       'receive',
       'HTTP(S)',
-      'Straight from wallet to wallet. Turn the HTTP listener on only when a payment is expected.',
+      'Straight from wallet to wallet. Turn HTTP receiving on only when a payment is expected.',
     ),
   TourStep(
     'receive',
@@ -66,7 +66,7 @@ final List<TourStep> deskTourSteps = [
   TourStep(
     'settings',
     'Settings',
-    'Node, receiving, recovery phrase and rescan; theme and interface scale under Appearance.',
+    'Node, receiving, recovery phrase and balance recheck; theme and interface scale under Appearance.',
   ),
 ];
 

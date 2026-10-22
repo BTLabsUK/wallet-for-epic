@@ -14,7 +14,6 @@ import '../../data/desk_node.dart';
 import '../../data/files.dart' show deskOpenFolderProvider;
 import '../../data/node_view.dart';
 import '../../widgets/kit.dart';
-import '../../widgets/motion.dart';
 import 'local_node_dialogs.dart';
 import 'local_node_peers.dart';
 
