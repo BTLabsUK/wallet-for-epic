@@ -12,8 +12,9 @@ import '../builtin_node.dart' show DiskProbe;
 import '../legacy_wallets.dart' show LegacyRoots;
 import 'chain_data.dart';
 import 'data_folder_ops.dart' as ops;
-import 'data_folder_ops.dart' show DataFolderException, DataFolderFailure, MovePlan, VolumeCheck;
+import 'data_folder_ops.dart' show DataFolderException, DataFolderFailure, MovePlan, MoveProblem, VolumeCheck;
 import 'local_node_controller.dart';
+import 'node_settings.dart' show ChainDataOrigin;
 
 /// How a new folder is taken into use.
 enum FolderChange {
@@ -70,10 +71,11 @@ class NodeMaintenance {
     freeBytes: freeBytes,
     sameVolume: sameVolume,
     probe: probe,
+    roots: roots,
   );
 
   /// Moves the chain data into [folder] ([chainDataIn]), or points the node at it
-  /// ([FolderChange.point]: its chain data, or a fresh sync when it holds none).
+  /// ([FolderChange.point]: its chain data, used in place, or a fresh sync when it holds none).
   Future<void> changeDataFolder(
     String folder, {
     required FolderChange how,
@@ -84,25 +86,25 @@ class NodeMaintenance {
     switch (how) {
       case FolderChange.move:
         final plan = await planMove(folder);
-        if (plan.problems.isNotEmpty) {
-          throw DataFolderException(DataFolderFailure.problems, 'cannot move: ${plan.problems.map((p) => p.name).join(', ')}', problems: plan.problems);
-        }
-        await ops.moveChainData(plan, nodeStopped: true, progress: progress, cancelled: cancelled, roots: roots, probe: probe);
+        if (plan.problems.isNotEmpty) throw _problems('cannot move', plan.problems);
+        await ops.moveChainData(plan, nodeStopped: true, progress: progress, cancelled: _or(cancelled), roots: roots, probe: probe);
+        await _controller.setChainDataPath(target, origin: ChainDataOrigin.moved);
       case FolderChange.point:
         final info = await inspectChainData(target, chain: _controller.chain, source: ChainDataSource.custom);
-        if (info != null) {
+        final hasData = await _hasFiles(target);
+        if (info != null && hasData) {
+          // A folder with chain data must be whole and free; it is another node's from now on.
           final problems = await ops.checkPointTarget(info, probe: probe);
-          // An empty or new folder is a fresh sync; a folder with chain data must be whole.
-          if (problems.isNotEmpty && await _hasFiles(target)) {
-            throw DataFolderException(DataFolderFailure.problems, 'cannot use it: ${problems.map((p) => p.name).join(', ')}', problems: problems);
-          }
+          if (problems.isNotEmpty) throw _problems('cannot use it', problems);
         }
+        // Empty or new: a fresh sync of the node's own. With data: used in place, never deleted.
+        await _controller.setChainDataPath(target, origin: hasData ? ChainDataOrigin.pointed : ChainDataOrigin.moved);
     }
-    await _controller.setChainDataPath(target);
   });
 
   /// Reuses another node's chain data ([findChainData]). Copying goes into the node's own
-  /// folder (`<node folder>/chain_data`), which must be empty: delete its chain data first.
+  /// folder (`<node folder>/chain_data`), which must be empty: delete its chain data first. The
+  /// other node's folder is only read.
   Future<void> reuseChainData(
     ChainDataInfo source, {
     required ReuseMode how,
@@ -116,30 +118,67 @@ class NodeMaintenance {
           _ownChainData,
           nodeStopped: true,
           progress: progress,
-          cancelled: cancelled,
+          cancelled: _or(cancelled),
           freeBytes: freeBytes,
           probe: probe,
+          roots: roots,
         );
         await _controller.setChainDataPath(null);
       case ReuseMode.point:
         final problems = await ops.checkPointTarget(source, probe: probe);
-        if (problems.isNotEmpty) {
-          throw DataFolderException(DataFolderFailure.problems, 'cannot use it: ${problems.map((p) => p.name).join(', ')}', problems: problems);
-        }
-        await _controller.setChainDataPath(source.path);
+        if (problems.isNotEmpty) throw _problems('cannot use it', problems);
+        await _controller.setChainDataPath(source.path, origin: ChainDataOrigin.pointed);
     }
   });
 
-  /// Deletes the node's chain data (its own folder only; never another node's), with the node
-  /// stopped; it stays stopped. Returns the bytes freed. The next start syncs from scratch.
+  /// Deletes the node's chain data, with the node stopped; it stays stopped. Only the node's own
+  /// data: its `<node folder>/chain_data`, or the folder the app moved it to. Never a folder of
+  /// another node it runs on in place ([ChainDataOrigin.pointed]), never with a hand-edited toml.
+  /// Returns the bytes freed. The next start syncs from scratch.
   Future<int> deleteChainData() async {
     await _controller.stop();
-    final freed = await ops.deleteChainData(chainDataPath, managedPath: chainDataPath, nodeStopped: true, roots: roots, probe: probe);
+    await _checkStopped();
+    final origin = _controller.state.chainDataOrigin;
+    if (origin == ChainDataOrigin.pointed) {
+      throw DataFolderException(
+        DataFolderFailure.foreignFolder,
+        '$chainDataPath is another node\'s chain data, used in place; it is never deleted here',
+      );
+    }
+    final managed = origin == ChainDataOrigin.own ? _ownChainData : chainDataPath;
+    final freed = await ops.deleteChainData(chainDataPath, managedPath: managed, nodeStopped: true, roots: roots, probe: probe);
     await _controller.refreshDisk();
     return freed;
   }
 
   String get _ownChainData => chainDataIn(_controller.node.folder);
+
+  /// The user's cancel, or the node being started meanwhile (the wallet may start it): a copy
+  /// must not run while a node writes to its source.
+  bool Function() _or(bool Function()? cancelled) =>
+      () => _controller.node.wantsRunning || (cancelled?.call() ?? false);
+
+  /// After the stop: nothing started the node again, and the toml is the app's (a hand-edited
+  /// one names its own db_root, which no setting here changes).
+  Future<void> _checkStopped() async {
+    final node = _controller.node;
+    if (node.wantsRunning) {
+      throw const DataFolderException(DataFolderFailure.cancelled, 'the node was started meanwhile');
+    }
+    await node.prepareFolder();
+    if (node.userToml) {
+      throw DataFolderException(
+        DataFolderFailure.userToml,
+        '${node.tomlPath} was edited by hand; change its db_root there',
+      );
+    }
+  }
+
+  static DataFolderException _problems(String what, List<MoveProblem> problems) => DataFolderException(
+    DataFolderFailure.problems,
+    '$what: ${problems.map((p) => p.name).join(', ')}',
+    problems: problems,
+  );
 
   /// Runs [work] with the node stopped and starts it again when it ran before, also after a
   /// failure (then on the old folder).
@@ -148,9 +187,10 @@ class NodeMaintenance {
     final wasRunning = _controller.node.wantsRunning;
     await _controller.stop();
     try {
+      await _checkStopped();
       await work();
     } on Object {
-      if (wasRunning) {
+      if (wasRunning && !_controller.node.wantsRunning) {
         try {
           await _controller.start();
         } on Object {

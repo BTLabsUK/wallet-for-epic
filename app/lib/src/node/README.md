@@ -31,8 +31,8 @@ screens `watch` and tests `listen`.
 
 `LocalNodeState.phase`: `stopped`, `starting`, `syncing`, `synced`, `error`. `online` is true
 only when synced: the node answered `ready_for_txs == true` (or, for a node older than 4.1.0, its
-status says `no_sync`), its height is above 0, and it is at most 10 blocks behind the network tip
-when that is known (O2: never "Online · 0"). A stalled node is `error` with `stalled`, its reason
+status says `no_sync`), its height is above 0, it has peers, and it is at most 10 blocks behind
+the network tip when that is known (O2: never "Online · 0"). A stalled node is `error` with `stalled`, its reason
 kept. A failed one is `error` with `failure` (`NodeFailure`: binaryMissing, portInUse, diskLow,
 spawnFailed, exited, restartFailed, orphanStuck) and `reason`.
 
@@ -44,14 +44,16 @@ processing 5 %, blocks 20 %). `overall` is null in the node's catch-all `syncing
 the last value on screen. `eta` and `stageRate` (units per second; bytes/s during the download)
 come from a sliding window and are null until there is enough data.
 
-Also: `height`, `networkHeight` (max of the node's highest, peers' heights and the monitor's
-tip), `blocksBehind`, `readyForTxs`, `version`, `startedAt`, `uptime`, `peers`, `dataFolder`,
+Also: `height`, `networkHeight` (the monitor's tip when it answered, else the peers' median
+height; never below the node's own highest), `blocksBehind`, `readyForTxs`, `version`, `startedAt`, `uptime`, `peers`, `dataFolder`,
 `chainDataPath`, `chainDataBytes` (and `chainDataBytesAtStart` for growth this session),
 `freeBytes`, `restartNeeded` (options changed while running), `userToml` (the toml was edited by
-hand: the app's options do not apply), `chainDataReused` (the chain data is outside the node's
-folder).
+hand: the app's options do not apply, and maintenance refuses with `userToml`),
+`chainDataOrigin` (`own`, `moved` by the app, or `pointed`: another node's folder used in place)
+and `chainDataReused` (= pointed: Delete is off).
 
-`LocalNodeController`: `start()`, `stop()`, `restart()`, `setMaxPeers(inbound:, outbound:)` (the
+`LocalNodeController`: `start()`, `stop()`, `restart()` (the state is up to date when they
+return), `setMaxPeers(inbound:, outbound:)` (the
 node's default is 128 each), `setPreferredPeers([...])` ("ip:port" only), `setOptions(...)`,
 `setChainDataPath(...)`, `logPath`, `logTail(lines: 200)`, `refreshDisk()`. Option changes apply
 at the next start and set `restartNeeded`; the node never restarts by itself.
@@ -66,10 +68,16 @@ old folder stays in use):
   crash leaves one whole copy.
 - `reuseChainData(candidate, how: ReuseMode.copy | point)`. A copy only reads the other folder.
   A point uses it in place (the other node must not run; its lock refuses).
-- `deleteChainData()`: the node's own `chain_data` only, never a CLI/GUI node's folder, never
-  while a node holds its lock. It returns the bytes freed. The node stays stopped.
+- `deleteChainData()`: the node's own data only (`<node folder>/chain_data`, or where the app
+  moved it). Never a pointed folder, never a CLI/GUI node's folder, never with a hand-edited toml,
+  never while a node holds its lock. It returns the bytes freed. The node stays stopped.
+- Every operation refuses with `userToml` when the toml was edited by hand, and stops a copy
+  (`cancelled`) when the node is started meanwhile (the wallet can start it). A CLI/GUI node's
+  folder is never a move or copy target (`MoveProblem.targetForeign`).
 
-Errors are `DataFolderException(reason, message, problems)`.
+Errors are `DataFolderException(reason, message, problems)`. On Linux and macOS the lock probe
+uses `flock` or `perl`. Without them the lock is `unknown` and Delete refuses (`lockUnknown`), so
+say "could not check whether another program uses it".
 
 ## Peers
 
@@ -105,7 +113,8 @@ latencyMs, ours/otherNode). `localNodeFacts` → `LocalNodeFacts` (chainBytes: a
 - a synced local node → `useLocal`;
 - accepted → `usePublic` with the agreed node until synced (`active` for the status row);
 - declined → `useLocal` (the wallet waits);
-- unasked while starting or syncing → `ask` once.
+- unasked while starting or syncing → `ask`. The rule asks on every state until an answer is
+  saved, so the UI must save a dismissed dialog as declined to ask only once.
 
 Save the answer with `NodeSettings.setFallbackChoice(FallbackChoice(...))`. Switching the
 wallet's node on `usePublic`/`useLocal` belongs to the wallet (`lepic_desk_wallet.dart`), wired

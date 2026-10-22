@@ -6,7 +6,7 @@ library;
 import 'dart:math';
 
 import '../builtin_node.dart';
-import 'chain_data.dart' show isInside;
+import 'node_settings.dart' show ChainDataOrigin;
 import 'sync_progress.dart';
 
 enum LocalNodePhase { stopped, starting, syncing, synced, error }
@@ -39,6 +39,7 @@ class LocalNodeState {
     this.stalled = false,
     this.restartNeeded = false,
     this.userToml = false,
+    this.chainDataOrigin = ChainDataOrigin.own,
   });
 
   final LocalNodePhase phase;
@@ -104,9 +105,12 @@ class LocalNodeState {
   /// The node can be used for the wallet: synced to the network and ready for transactions.
   bool get online => phase == LocalNodePhase.synced;
 
-  /// The chain data lies outside the node's own folder: another node's, reused in place, or a
-  /// folder the user moved it to. "Delete chain data" is off for another node's folder.
-  bool get chainDataReused => !isInside(chainDataPath, dataFolder);
+  /// Whose chain data the node runs on.
+  final ChainDataOrigin chainDataOrigin;
+
+  /// The node runs on another node's folder in place: "Delete chain data" is off for it (and
+  /// refused by [NodeMaintenance.deleteChainData]).
+  bool get chainDataReused => chainDataOrigin == ChainDataOrigin.pointed;
 
   @override
   bool operator ==(Object other) =>
@@ -133,6 +137,7 @@ class LocalNodeState {
       other.stalled == stalled &&
       other.restartNeeded == restartNeeded &&
       other.userToml == userToml &&
+      other.chainDataOrigin == chainDataOrigin &&
       other.at == at;
 
   @override
@@ -159,6 +164,7 @@ class LocalNodeState {
     stalled,
     restartNeeded,
     userToml,
+    chainDataOrigin,
     at,
   ]);
 
@@ -177,7 +183,8 @@ class LocalNodeState {
 /// | starting          |                                                            | starting |
 /// | syncing           |                                                            | syncing  |
 /// | running           | ready (true, or null with sync status no_sync), height > 0 | synced   |
-/// |                   | and network height unknown or at most 10 blocks behind     |          |
+/// |                   | peers > 0 (when known), and network height unknown or at   |          |
+/// |                   | most 10 blocks behind                                      |          |
 /// | running           | otherwise                                                  | syncing  |
 /// | stalled           | stalled = true, reason kept                                | error    |
 /// | failed            | failure and reason                                         | error    |
@@ -187,7 +194,7 @@ LocalNodeState deriveLocalNodeState(
   required String dataFolder,
   required String chainDataPath,
   int? directoryTip,
-  int? peersMaxHeight,
+  int? peersHeight,
   Duration? eta,
   double? stageRate,
   int? chainDataBytes,
@@ -196,17 +203,19 @@ LocalNodeState deriveLocalNodeState(
   DateTime? startedAt,
   bool restartNeeded = false,
   bool userToml = false,
+  ChainDataOrigin chainDataOrigin = ChainDataOrigin.own,
 }) {
   final status = s.status;
   final height = s.height ?? status?.tip.height;
   final networkHeight = networkTipOf(
     highestHeight: s.highest ?? status?.syncInfo?.highestHeight,
-    peersMaxHeight: peersMaxHeight,
+    peersHeight: peersHeight,
     directoryTip: directoryTip,
   );
   final behind = height != null && networkHeight != null
       ? max(0, networkHeight - height)
       : null;
+  final connections = s.connections ?? status?.connections;
   final ready =
       s.readyForTxs == true ||
       (s.readyForTxs == null && status?.syncStatus == 'no_sync');
@@ -214,9 +223,11 @@ LocalNodeState deriveLocalNodeState(
     NodeStatusKind.off || NodeStatusKind.stopped => LocalNodePhase.stopped,
     NodeStatusKind.starting => LocalNodePhase.starting,
     NodeStatusKind.syncing => LocalNodePhase.syncing,
+    // A node without peers says no_sync (and ready) at whatever height it had: not synced.
     NodeStatusKind.running =>
       ready &&
               (height ?? 0) > 0 &&
+              (connections == null || connections > 0) &&
               (behind == null || behind <= syncedWithinBlocks)
           ? LocalNodePhase.synced
           : LocalNodePhase.syncing,
@@ -230,7 +241,7 @@ LocalNodeState deriveLocalNodeState(
         ? null
         : progressOf(
             status,
-            networkHeight: networkTipOf(peersMaxHeight: peersMaxHeight, directoryTip: directoryTip),
+            networkHeight: networkTipOf(peersHeight: peersHeight, directoryTip: directoryTip),
           ),
     eta: phase == LocalNodePhase.syncing ? eta : null,
     stageRate: phase == LocalNodePhase.syncing ? stageRate : null,
@@ -252,6 +263,7 @@ LocalNodeState deriveLocalNodeState(
     stalled: s.kind == NodeStatusKind.stalled,
     restartNeeded: restartNeeded,
     userToml: userToml,
+    chainDataOrigin: chainDataOrigin,
     at: now,
   );
 }

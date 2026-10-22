@@ -108,7 +108,7 @@ void main() {
         return 42 << 30;
       },
       directoryTip: () async => directoryTip,
-      peersMaxHeight: () async => null,
+      peersHeight: () async => null,
       clock: () => now,
       diskEvery: diskEvery,
     );

@@ -52,8 +52,9 @@ class NodeInfo {
   final NodeInfoSource source;
   final DateTime at;
 
-  /// The monitor's verdict; for limited info: healthy when the node answers and is ready,
-  /// degraded when it answers but syncs, down when it does not answer.
+  /// The monitor's verdict; for limited info: healthy when the node answers, is ready and at the
+  /// tip (10 blocks of the monitor's tip, or a last block under 30 min old), degraded when it
+  /// answers otherwise, down when it does not answer.
   final NodeHealthState? state;
 
   /// The monitor's reason ("ok", "behind", ...).
@@ -278,14 +279,21 @@ class NodeInfoService {
       quiet(() => api.headerTime(tip.height)),
     ).wait;
     final netTip = net?.tipHeight;
+    final behind = netTip != null ? netTip - tip.height : null;
+    // Healthy: ready, past 0, and at the tip as far as it can be told: within 10 blocks of the
+    // monitor's tip, else (no tip known) a last block under 30 minutes old. A node before 4.1.0
+    // says nothing about readiness, so the age is all there is.
+    final stale = behind != null
+        ? behind > 10
+        : (time != null && _clock().toUtc().difference(time) > const Duration(minutes: 30));
     return NodeInfo(
       url: url,
       source: NodeInfoSource.limited,
       at: _clock(),
-      state: ready == false || tip.height == 0 ? NodeHealthState.degraded : NodeHealthState.healthy,
+      state: ready == false || tip.height == 0 || stale ? NodeHealthState.degraded : NodeHealthState.healthy,
       height: tip.height,
       networkHeight: netTip,
-      blocksBehind: netTip != null ? netTip - tip.height : null,
+      blocksBehind: behind,
       version: version,
       releasedVersion: net?.releasedNodeVersion,
       latencyMs: measuredLatency(url),

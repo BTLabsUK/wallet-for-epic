@@ -91,15 +91,26 @@ void main() {
     expect(i.blocksBehind, isNull);
   });
 
-  test('a syncing node is degraded, an old node has no ready flag', () async {
+  test('a syncing node is degraded, an old node has no ready flag and is judged by its tip age', () async {
     final m = _Monitor()..down = true;
-    var i = await NodeInfoService(nodes: m, clientFor: _node(ready: false)).info('http://127.0.0.1:3413', chain: 'mainnet');
+    NodeInfoService service(NodeApiClient Function(String) node, {DateTime? now}) =>
+        NodeInfoService(nodes: m, clientFor: node, clock: () => now ?? at);
+    var i = await service(_node(ready: false)).info('http://127.0.0.1:3413', chain: 'mainnet');
     expect(i.state, NodeHealthState.degraded);
-    i = await NodeInfoService(nodes: m, clientFor: _node(height: 0)).info('http://127.0.0.1:3413', chain: 'mainnet');
+    i = await service(_node(height: 0)).info('http://127.0.0.1:3413', chain: 'mainnet');
     expect(i.state, NodeHealthState.degraded);
-    i = await NodeInfoService(nodes: m, clientFor: _node(ready: null)).info('http://127.0.0.1:3413', chain: 'mainnet');
+    // The fake's last block is 14:16:03; the clock is 14:20.
+    i = await service(_node(ready: null)).info('http://127.0.0.1:3413', chain: 'mainnet');
     expect(i.readyForTxs, isNull);
     expect(i.state, NodeHealthState.healthy);
+    i = await service(_node(ready: null), now: at.add(const Duration(hours: 1))).info('http://127.0.0.1:3413', chain: 'mainnet');
+    expect(i.state, NodeHealthState.degraded, reason: 'last block over 30 min old');
+  });
+
+  test('limited info with the network tip: more than 10 behind is degraded', () async {
+    final tip = parseNetworkStatus(_status).tipHeight!;
+    final s = NodeInfoService(nodes: _Monitor(), network: _Monitor(), clientFor: _node(height: tip - 11), clock: () => at);
+    expect((await s.info('http://127.0.0.1:3413', chain: 'mainnet')).state, NodeHealthState.degraded);
   });
 
   test('nothing answers: source none, state down', () async {

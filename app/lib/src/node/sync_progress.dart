@@ -166,13 +166,14 @@ SyncProgress progressOf(NodeStatusInfo s, {int? networkHeight}) {
   );
 }
 
-/// The network's tip as best known while syncing: the highest of the node's own highest height,
-/// its peers' and the directory's. Null when none is known.
-int? networkTipOf({int? highestHeight, int? peersMaxHeight, int? directoryTip}) {
+/// The network's tip as best known while syncing: the monitor's tip when it answered (peers'
+/// heights are unverified, and one peer advertising a wrong height must not keep the node
+/// "syncing"), else the peers' typical height ([medianPeerHeight]); and never below the node's
+/// own highest height. Null when none is known.
+int? networkTipOf({int? highestHeight, int? peersHeight, int? directoryTip}) {
   final known = [
     highestHeight,
-    peersMaxHeight,
-    directoryTip,
+    directoryTip ?? peersHeight,
   ].whereType<int>().where((h) => h > 0);
   return known.isEmpty ? null : known.reduce(max);
 }
@@ -219,9 +220,11 @@ class EtaEstimator {
   }
 
   /// Units of the stage per second over the window, or null with fewer than 2 samples, a span
-  /// under [minSpan] or no progress.
-  double? ratePerSecond() {
+  /// under [minSpan], no progress, or (given [now]) no new sample for a whole window: a node that
+  /// stopped moving has no rate, not its last one.
+  double? ratePerSecond({DateTime? now}) {
     if (_samples.length < 2) return null;
+    if (now != null && now.difference(_samples.last.at) > window) return null;
     final first = _samples.first;
     final last = _samples.last;
     final span = last.at.difference(first.at);
@@ -231,8 +234,8 @@ class EtaEstimator {
   }
 
   /// The time left at [ratePerSecond], or null when there is none.
-  Duration? eta() {
-    final rate = ratePerSecond();
+  Duration? eta({DateTime? now}) {
+    final rate = ratePerSecond(now: now);
     final total = _total;
     if (rate == null || total == null) return null;
     final left = max(0, total - _samples.last.done);

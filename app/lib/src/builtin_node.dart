@@ -1600,6 +1600,7 @@ Future<Map<String, dynamic>?> _realApi(
         )
         .timeout(const Duration(seconds: 5));
     request.headers.contentType = ContentType.json;
+    request.followRedirects = false; // never carry the secret elsewhere
     if (owner && secret != null) {
       request.headers.set(
         HttpHeaders.authorizationHeader,

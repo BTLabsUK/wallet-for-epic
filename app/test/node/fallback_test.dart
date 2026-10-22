@@ -3,6 +3,7 @@ import 'package:epic_wallet/src/builtin_node.dart';
 import 'package:epic_wallet/src/node/fallback.dart';
 import 'package:epic_wallet/src/node/local_node_state.dart';
 import 'package:epic_wallet/src/node/node_maintenance.dart';
+import 'package:epic_wallet/src/node/node_settings.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 LocalNodeState _local(NodeStatusKind kind, {bool? ready, int height = 3764980}) => deriveLocalNodeState(
@@ -69,12 +70,14 @@ void main() {
     expect(NodeMaintenance.chainDataIn('/data/epic/'), '/data/epic/chain_data');
     expect(NodeMaintenance.chainDataIn('/data/chain_data'), '/data/chain_data');
     expect(_local(NodeStatusKind.running).chainDataReused, isFalse);
-    final reused = deriveLocalNodeState(
+    LocalNodeState at(ChainDataOrigin o) => deriveLocalNodeState(
       const BuiltInNodeState(NodeStatusKind.stopped),
       now: DateTime.utc(2026),
       dataFolder: '/n/main',
-      chainDataPath: '/home/u/.epic/main/chain_data',
+      chainDataPath: '/elsewhere/chain_data',
+      chainDataOrigin: o,
     );
-    expect(reused.chainDataReused, isTrue);
+    expect(at(ChainDataOrigin.pointed).chainDataReused, isTrue);
+    expect(at(ChainDataOrigin.moved).chainDataReused, isFalse, reason: 'moved by the app: still its own');
   });
 }

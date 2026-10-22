@@ -10,6 +10,20 @@ import '../models.dart' show Chain;
 import '../secret_store_api.dart';
 import 'fallback.dart';
 
+/// Whose chain data the node runs on.
+enum ChainDataOrigin {
+  /// The node's own `chain_data` in its folder.
+  own,
+
+  /// The app moved it, or started a fresh sync, in a folder the user picked: still the node's
+  /// own data.
+  moved,
+
+  /// Another node's folder (the CLI node, the Epic GUI, or one the user pointed at), used in
+  /// place: never deleted by this app.
+  pointed,
+}
+
 class NodeSettings {
   NodeSettings(this.store, this.chain);
 
@@ -37,6 +51,14 @@ class NodeSettings {
     'chainDataPath',
     path == null || path.trim().isEmpty ? null : path.trim(),
   );
+
+  /// Whose chain data the node runs on. Default [ChainDataOrigin.own].
+  Future<ChainDataOrigin> chainDataOrigin() async {
+    final v = await _read('chainDataOrigin');
+    return ChainDataOrigin.values.where((o) => o.name == v).firstOrNull ?? ChainDataOrigin.own;
+  }
+
+  Future<void> setChainDataOrigin(ChainDataOrigin origin) => store.write(key('chainDataOrigin'), origin.name);
 
   /// `peers_preferred`, as saved (invalid entries are dropped when the toml is written).
   Future<List<String>> preferredPeers() async {

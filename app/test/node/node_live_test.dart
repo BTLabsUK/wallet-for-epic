@@ -83,7 +83,7 @@ void main() {
         dirSize: dirSize,
         diskEvery: const Duration(seconds: 10),
         networkEvery: const Duration(seconds: 15),
-        peersMaxHeight: () async => maxPeerHeight(await api.connectedPeers()),
+        peersHeight: () async => medianPeerHeight(await api.connectedPeers()),
       );
       addTearDown(controller.dispose);
       await controller.load();

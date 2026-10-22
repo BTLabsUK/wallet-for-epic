@@ -22,7 +22,7 @@ void main() {
   LocalNodeState derive(
     BuiltInNodeState s, {
     int? directoryTip,
-    int? peersMaxHeight,
+    int? peersHeight,
     DateTime? startedAt,
   }) => deriveLocalNodeState(
     s,
@@ -30,7 +30,7 @@ void main() {
     dataFolder: '/n/main',
     chainDataPath: '/n/main/chain_data',
     directoryTip: directoryTip,
-    peersMaxHeight: peersMaxHeight,
+    peersHeight: peersHeight,
     startedAt: startedAt,
   );
 
@@ -164,14 +164,36 @@ void main() {
     expect(d.stalled, isFalse);
   });
 
-  test('network height is the highest of node, peers and directory', () {
+  test('network height: the directory tip over the peers, never below the node\'s highest', () {
     final d = derive(
       const BuiltInNodeState(NodeStatusKind.syncing, height: 100, highest: 900),
-      peersMaxHeight: 950,
+      peersHeight: 950,
       directoryTip: 940,
     );
-    expect(d.networkHeight, 950);
-    expect(d.blocksBehind, 850);
+    expect(d.networkHeight, 940, reason: 'peer heights are unverified');
+    expect(d.blocksBehind, 840);
+    expect(
+      derive(const BuiltInNodeState(NodeStatusKind.syncing, height: 100, highest: 900), peersHeight: 950).networkHeight,
+      950,
+      reason: 'no directory: the peers',
+    );
+    expect(
+      derive(const BuiltInNodeState(NodeStatusKind.syncing, height: 100, highest: 990), directoryTip: 940).networkHeight,
+      990,
+    );
+  });
+
+  test('running without peers is not synced, whatever it says', () {
+    final d = derive(
+      const BuiltInNodeState(NodeStatusKind.running, height: 3764980, readyForTxs: true, connections: 0),
+      directoryTip: 3764980,
+    );
+    expect(d.phase, LocalNodePhase.syncing);
+    expect(d.online, isFalse);
+    expect(
+      derive(const BuiltInNodeState(NodeStatusKind.running, height: 3764980, readyForTxs: true, connections: 3)).online,
+      isTrue,
+    );
   });
 
   test('progress, peers and version come from the status', () {

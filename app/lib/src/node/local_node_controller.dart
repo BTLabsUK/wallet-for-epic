@@ -22,7 +22,7 @@ class LocalNodeController {
     Future<int> Function(String dir)? dirSize,
     DiskProbe? freeBytes,
     this.directoryTip,
-    this.peersMaxHeight,
+    this.peersHeight,
     DateTime Function()? clock,
     this.diskEvery = const Duration(minutes: 5),
     this.networkEvery = const Duration(minutes: 1),
@@ -46,8 +46,8 @@ class LocalNodeController {
   final DiskProbe _freeBytes;
   /// The network tip by the node directory (status.btlabs.uk), when known.
   final Future<int?> Function()? directoryTip;
-  /// The highest height the connected peers report.
-  final Future<int?> Function()? peersMaxHeight;
+  /// The connected peers' typical height (their median; see peers.dart).
+  final Future<int?> Function()? peersHeight;
   final DateTime Function() _clock;
 
   final StreamController<LocalNodeState> _out =
@@ -65,6 +65,7 @@ class LocalNodeController {
   int? _free;
   int? _directoryHeight;
   int? _peersHeight;
+  ChainDataOrigin _origin = ChainDataOrigin.own;
 
   /// The current state; [states] streams every new one.
   LocalNodeState get state => _state;
@@ -76,6 +77,7 @@ class LocalNodeController {
   /// Reads the settings into the node's options and starts measuring the disk. Starts no node.
   Future<void> load() async {
     final options = await settings.toOptions();
+    _origin = await settings.chainDataOrigin();
     if (_disposed) return;
     node.options = options;
     _emit();
@@ -107,9 +109,13 @@ class LocalNodeController {
   /// Measures the chain data size and the free disk space now (after a delete, move or reuse).
   Future<void> refreshDisk() => _measure();
 
-  /// The chain data folder from the next start; null is the node's own `chain_data`. The size
-  /// measured so far belonged to the old folder, so the session's growth starts again.
-  Future<void> setChainDataPath(String? path) async {
+  /// The chain data folder from the next start; null is the node's own `chain_data`. [origin]
+  /// says whose data it is (another node's folder is never deleted). The size measured so far
+  /// belonged to the old folder, so the session's growth starts again.
+  Future<void> setChainDataPath(String? path, {ChainDataOrigin? origin}) async {
+    final o = path == null ? ChainDataOrigin.own : (origin ?? ChainDataOrigin.moved);
+    await settings.setChainDataOrigin(o);
+    _origin = o;
     await setOptions(node.options.copyWith(chainDataPath: () => path));
     _chainDataBytes = null;
     _chainDataBytesAtStart = null;
@@ -142,7 +148,7 @@ class LocalNodeController {
     if (status != null) {
       final p = progressOf(
         status,
-        networkHeight: networkTipOf(peersMaxHeight: _peersHeight, directoryTip: _directoryHeight),
+        networkHeight: networkTipOf(peersHeight: _peersHeight, directoryTip: _directoryHeight),
       );
       if (p.done != null) {
         _eta.add(_clock(), p.stage, p.done!, p.total);
@@ -203,7 +209,7 @@ class LocalNodeController {
 
       final (dir, peers) = await (
         ask(directoryTip),
-        ask(peersMaxHeight),
+        ask(peersHeight),
       ).wait;
       if (_disposed) return;
       _directoryHeight = dir ?? _directoryHeight;
@@ -231,15 +237,16 @@ class LocalNodeController {
     dataFolder: node.folder,
     chainDataPath: node.chainDataPath,
     directoryTip: _directoryHeight,
-    peersMaxHeight: _peersHeight,
-    eta: _eta.eta(),
-    stageRate: _eta.ratePerSecond(),
+    peersHeight: _peersHeight,
+    eta: _eta.eta(now: _clock()),
+    stageRate: _eta.ratePerSecond(now: _clock()),
     chainDataBytes: _chainDataBytes,
     chainDataBytesAtStart: _chainDataBytesAtStart,
     freeBytes: _free,
     startedAt: node.startedAt,
     restartNeeded: node.restartNeeded,
     userToml: node.userToml,
+    chainDataOrigin: _origin,
   );
 
   void _emit() {

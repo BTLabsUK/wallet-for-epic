@@ -29,6 +29,9 @@ enum MoveProblem {
 
   /// The folder lacks files every node writes (see [chainDataLayout]).
   layoutIncomplete,
+
+  /// The target is where the CLI node or the Epic GUI keeps its chain data.
+  targetForeign,
 }
 
 /// Why an operation refused or failed.
@@ -68,6 +71,10 @@ enum DataFolderFailure {
 
   /// The file system refused (see the message).
   io,
+
+  /// The node's toml was edited by hand: it names its own `db_root`, which the app does not
+  /// change, so moving or pointing would not take effect.
+  userToml,
 }
 
 class DataFolderException implements Exception {
@@ -132,10 +139,15 @@ Future<MovePlan> planMove(
   DiskProbe? freeBytes,
   VolumeCheck? sameVolume,
   LockProbe? probe,
+  LegacyRoots? roots,
 }) async {
   final src = await canonicalPath(from);
   final dst = await canonicalPath(to);
   final problems = <MoveProblem>[];
+  // Nothing more is looked at there, not even a write probe.
+  if (await _isForeign(dst, roots ?? LegacyRoots.current())) {
+    return MovePlan(from: src, to: dst, bytesNeeded: 0, freeOnTarget: null, sameVolume: false, problems: const [MoveProblem.targetForeign]);
+  }
   final srcExists = await FileSystemEntity.isDirectory(src);
   if (!srcExists) problems.add(MoveProblem.sourceMissing);
   if (samePath(src, dst) || isInside(dst, src)) {
@@ -200,10 +212,17 @@ Future<void> moveChainData(
   if (!nodeStopped) throw _nodeRunning();
   final from = plan.from;
   final to = plan.to;
-  if (await _isForeign(from, roots ?? LegacyRoots.current())) {
+  final r = roots ?? LegacyRoots.current();
+  if (await _isForeign(from, r)) {
     throw DataFolderException(
       DataFolderFailure.foreignFolder,
       '$from belongs to another Epic node; it is never moved',
+    );
+  }
+  if (await _isForeign(to, r)) {
+    throw DataFolderException(
+      DataFolderFailure.foreignFolder,
+      '$to is where another Epic node keeps its data; not a target',
     );
   }
   // A crash after the rename into place: the copy is complete; delete what is left of the source.
@@ -215,10 +234,8 @@ Future<void> moveChainData(
     await _deleteFile(_join(to, copyMarkerName));
     return;
   }
-  // Done before: the source is gone and the target is there.
-  if (!await Directory(from).exists() &&
-      await Directory(to).exists() &&
-      !await _emptyOrAbsent(to)) {
+  // Done before: the source is gone and whole chain data is at the target.
+  if (!await Directory(from).exists() && await chainLayoutComplete(to)) {
     await _removeOurPartial(to);
     return;
   }
@@ -249,10 +266,17 @@ Future<void> copyChainDataFrom(
   bool Function()? cancelled,
   DiskProbe? freeBytes,
   LockProbe? probe,
+  LegacyRoots? roots,
 }) async {
   if (!nodeStopped) throw _nodeRunning();
   final src = await canonicalPath(source.path);
   final dst = await canonicalPath(to);
+  if (await _isForeign(dst, roots ?? LegacyRoots.current())) {
+    throw DataFolderException(
+      DataFolderFailure.foreignFolder,
+      '$to is where another Epic node keeps its data; not a target',
+    );
+  }
   final marker = _join(dst, copyMarkerName);
   if (await _markerOf(dst, 'copy', src)) {
     await _deleteFile(marker);

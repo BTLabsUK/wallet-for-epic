@@ -14,6 +14,14 @@ import 'node_api_types.dart';
 int? maxPeerHeight(List<ConnectedPeer> peers) =>
     peers.isEmpty ? null : peers.map((p) => p.height).reduce((a, b) => a > b ? a : b);
 
+/// The typical height of [peers] (the median of what they advertise, unverified), or null
+/// without peers: one peer with a wrong height does not move it.
+int? medianPeerHeight(List<ConnectedPeer> peers) {
+  if (peers.isEmpty) return null;
+  final h = [for (final p in peers) p.height]..sort();
+  return h[h.length ~/ 2];
+}
+
 /// One connected peer, with what the node's peer store adds.
 class PeerView {
   const PeerView(this.peer, {this.stored, this.firstSeen});

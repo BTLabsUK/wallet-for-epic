@@ -159,14 +159,22 @@ void main() {
     });
   });
 
-  test('networkTipOf takes the highest known, ignoring 0', () {
+  test('networkTipOf: the directory over the peers, not below the node, ignoring 0', () {
     expect(networkTipOf(), isNull);
     expect(networkTipOf(highestHeight: 0), isNull);
-    expect(
-      networkTipOf(highestHeight: 10, peersMaxHeight: 30, directoryTip: 20),
-      30,
-    );
+    expect(networkTipOf(highestHeight: 10, peersHeight: 30, directoryTip: 20), 20);
+    expect(networkTipOf(highestHeight: 10, peersHeight: 30), 30);
+    expect(networkTipOf(highestHeight: 25, directoryTip: 20), 25);
     expect(networkTipOf(directoryTip: 5), 5);
+  });
+
+  test('EtaEstimator gives nothing once the node stopped moving for a window', () {
+    final t0 = DateTime(2026, 1, 1);
+    final e = EtaEstimator()
+      ..add(t0, SyncStage.headers, 0, 1000)
+      ..add(t0.add(const Duration(seconds: 30)), SyncStage.headers, 300, 1000);
+    expect(e.eta(now: t0.add(const Duration(seconds: 40))), isNotNull);
+    expect(e.eta(now: t0.add(const Duration(minutes: 3))), isNull);
   });
 
   group('EtaEstimator', () {
