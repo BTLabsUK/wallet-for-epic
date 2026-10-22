@@ -1992,7 +1992,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get restorePhraseLabel => '助记词';
 
   @override
-  String get restorePhraseHelper => '12 或 24 个单词，以空格分隔。';
+  String get restorePhraseHelper => '全部单词（12 至 24 个），以空格分隔。';
 
   @override
   String get restoreStartHeading => '从何处开始扫描';

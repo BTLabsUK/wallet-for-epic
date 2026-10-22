@@ -2129,7 +2129,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get restorePhraseLabel => 'Recovery phrase';
 
   @override
-  String get restorePhraseHelper => 'The 12 or 24 words, separated by spaces.';
+  String get restorePhraseHelper =>
+      'All the words (12 to 24), separated by spaces.';
 
   @override
   String get restoreStartHeading => 'Where to start scanning';

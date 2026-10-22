@@ -492,7 +492,7 @@
   "setupRelayUptime": "近一天在线率 {percent}%",
   "restoreTitle": "恢复钱包",
   "restorePhraseLabel": "助记词",
-  "restorePhraseHelper": "12 或 24 个单词，以空格分隔。",
+  "restorePhraseHelper": "全部单词（12 至 24 个），以空格分隔。",
   "restoreStartHeading": "从何处开始扫描",
   "restoreStartByDate": "日期",
   "restoreStartByHeight": "区块高度",

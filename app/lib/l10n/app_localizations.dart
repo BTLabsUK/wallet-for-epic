@@ -3095,7 +3095,7 @@ abstract class AppLocalizations {
   /// Help under the recovery phrase field. The words themselves are always English.
   ///
   /// In en, this message translates to:
-  /// **'The 12 or 24 words, separated by spaces.'**
+  /// **'All the words (12 to 24), separated by spaces.'**
   String get restorePhraseHelper;
 
   /// Heading above the choice of a start date or a start block for the scan of the blockchain for the wallet's funds.

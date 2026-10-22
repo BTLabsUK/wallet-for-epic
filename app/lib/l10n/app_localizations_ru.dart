@@ -2239,7 +2239,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get restorePhraseLabel => 'Фраза восстановления';
 
   @override
-  String get restorePhraseHelper => '12 или 24 слова через пробел.';
+  String get restorePhraseHelper => 'Все слова (от 12 до 24) через пробел.';
 
   @override
   String get restoreStartHeading => 'Начало сканирования';

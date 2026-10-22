@@ -492,7 +492,7 @@
   "setupRelayUptime": "{percent} % erreichbar in den letzten 24 h",
   "restoreTitle": "Wallet wiederherstellen",
   "restorePhraseLabel": "Wiederherstellungsphrase",
-  "restorePhraseHelper": "Die 12 oder 24 Wörter, durch Leerzeichen getrennt.",
+  "restorePhraseHelper": "Alle Wörter (12 bis 24), durch Leerzeichen getrennt.",
   "restoreStartHeading": "Beginn des Scans",
   "restoreStartByDate": "Datum",
   "restoreStartByHeight": "Blockhöhe",

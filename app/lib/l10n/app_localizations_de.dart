@@ -2153,7 +2153,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get restorePhraseHelper =>
-      'Die 12 oder 24 Wörter, durch Leerzeichen getrennt.';
+      'Alle Wörter (12 bis 24), durch Leerzeichen getrennt.';
 
   @override
   String get restoreStartHeading => 'Beginn des Scans';

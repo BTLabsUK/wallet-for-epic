@@ -2476,7 +2476,7 @@
   "@restorePhraseLabel": {
     "description": "Label of the field where the user types the 12 or 24 words."
   },
-  "restorePhraseHelper": "The 12 or 24 words, separated by spaces.",
+  "restorePhraseHelper": "All the words (12 to 24), separated by spaces.",
   "@restorePhraseHelper": {
     "description": "Help under the recovery phrase field. The words themselves are always English."
   },

@@ -2248,7 +2248,8 @@ class AppLocalizationsPl extends AppLocalizations {
   String get restorePhraseLabel => 'Fraza odzyskiwania';
 
   @override
-  String get restorePhraseHelper => '12 lub 24 słowa oddzielone spacjami.';
+  String get restorePhraseHelper =>
+      'Wszystkie słowa (od 12 do 24) oddzielone spacjami.';
 
   @override
   String get restoreStartHeading => 'Początek skanowania';

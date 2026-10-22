@@ -492,7 +492,7 @@
   "setupRelayUptime": "{percent}% dostępności w ostatniej dobie",
   "restoreTitle": "Przywróć portfel",
   "restorePhraseLabel": "Fraza odzyskiwania",
-  "restorePhraseHelper": "12 lub 24 słowa oddzielone spacjami.",
+  "restorePhraseHelper": "Wszystkie słowa (od 12 do 24) oddzielone spacjami.",
   "restoreStartHeading": "Początek skanowania",
   "restoreStartByDate": "Data",
   "restoreStartByHeight": "Wysokość bloku",

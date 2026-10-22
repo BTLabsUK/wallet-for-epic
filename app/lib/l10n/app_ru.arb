@@ -492,7 +492,7 @@
   "setupRelayUptime": "доступность {percent}% за сутки",
   "restoreTitle": "Восстановление кошелька",
   "restorePhraseLabel": "Фраза восстановления",
-  "restorePhraseHelper": "12 или 24 слова через пробел.",
+  "restorePhraseHelper": "Все слова (от 12 до 24) через пробел.",
   "restoreStartHeading": "Начало сканирования",
   "restoreStartByDate": "Дата",
   "restoreStartByHeight": "Высота блока",
