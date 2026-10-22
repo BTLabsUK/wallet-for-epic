@@ -83,14 +83,14 @@ void main() {
     test('no Tor text states a duration (F21)', () {
       final tor = helpTopicsFor(3).where((t) => t.title == 'Tor');
       for (final t in tor) {
-        expect('${t.short} ${t.body}'.toLowerCase(), isNot(contains('minute')));
+        expect('${t.short} ${t.bodyText}'.toLowerCase(), isNot(contains('minute')));
         expect(t.short, contains('Slower'));
         expect(t.short, contains('no ports to open'));
-        expect(t.body, contains('blocked or not allowed in some countries'));
+        expect(t.bodyText, contains('blocked or not allowed in some countries'));
       }
     });
 
-    test('a payment found by a scan says so and dates it by its block (F17)', () {
+    test('a payment found by a scan says so; an older entry makes no time claim (F17)', () {
       final t = Tx(
         id: 1,
         slateId: '',
@@ -103,7 +103,7 @@ void main() {
         foundByScan: true,
       );
       expect(whoOf(t), 'Found by scan');
-      expect(whoTip(t), 'Found on the chain by a scan. The sender is not recorded. The time is the block time.');
+      expect(whoTip(t), 'Found on the chain by a scan. The sender is not recorded.');
       expect(whoTip(t), isNot(contains('scan found')));
     });
   });

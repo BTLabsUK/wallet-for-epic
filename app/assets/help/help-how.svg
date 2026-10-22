@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 96" width="160" height="96" role="img" aria-label="How Epic Cash works: two wallets build a transaction together, then the chain confirms it">
+<g stroke="#A4A4AD" stroke-width="1.6" fill="none" stroke-linecap="round"><circle cx="26" cy="30" r="7"/><path d="M12 56c0-8.5 6.3-14 14-14s14 5.5 14 14"/><circle cx="134" cy="30" r="7"/><path d="M120 56c0-8.5 6.3-14 14-14s14 5.5 14 14"/></g>
+<g stroke="#F6D471" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M46 36h66" stroke-dasharray="3 4"/><path d="M108 32l4 4-4 4"/>
+  <path d="M114 48H48" stroke-dasharray="3 4"/><path d="M52 44l-4 4 4 4"/>
+</g>
+<g stroke="#A4A4AD" stroke-width="1.6" fill="none" stroke-linejoin="round">
+  <rect x="52" y="66" width="16" height="14" rx="2"/><rect x="72" y="66" width="16" height="14" rx="2"/><rect x="92" y="66" width="16" height="14" rx="2" stroke="#F6D471"/>
+  <path d="M68 73h4M88 73h4"/>
+</g>
+<path d="M96 73l3 3 6-6" stroke="#F6D471" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

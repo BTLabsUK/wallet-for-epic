@@ -67,6 +67,8 @@ abstract final class EIcons {
   static const bell = Icons.notifications_none;
   static const upload = Icons.upload;
   static const download = Icons.download;
+  static const table = Icons.table_chart_outlined;
+  static const archive = Icons.inventory_2_outlined;
   static const history = Icons.history;
   static const star = Icons.star;
   static const starOutline = Icons.star_outline;

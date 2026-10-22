@@ -22,6 +22,8 @@ Tx _tx(
   TxState state = TxState.confirmed,
   int fee = 0,
   bool scan = false,
+  FoundDuring? during,
+  bool byBlock = true,
 }) => Tx(
   id: id,
   slateId: 's$id',
@@ -34,6 +36,8 @@ Tx _tx(
   confirmations: 10,
   counterparty: scan ? null : 'someone@epicbox.example',
   foundByScan: scan,
+  foundDuring: during,
+  datedByBlock: byBlock,
 );
 
 final _txs = [
@@ -42,6 +46,14 @@ final _txs = [
   _tx(3, TxDirection.received, 238243300, scan: true),
   _tx(4, TxDirection.sent, 1234567891234, fee: 8000000),
   _tx(5, TxDirection.received, 88000000, scan: true),
+];
+
+// F17: the four origins of a scan find.
+final _found = [
+  _tx(1, TxDirection.received, _nano, scan: true, during: FoundDuring.restore),
+  _tx(2, TxDirection.received, 238243300, scan: true, during: FoundDuring.rescan),
+  _tx(3, TxDirection.received, 88000000, scan: true, during: FoundDuring.rescan, byBlock: false),
+  _tx(4, TxDirection.received, 4100000000, scan: true),
 ];
 
 Future<void> _loadFonts() async {
@@ -69,7 +81,7 @@ Future<void> _loadFonts() async {
   )..addFont(read('$dir/MaterialIcons-Regular.otf'))).load();
 }
 
-Future<void> _pump(WidgetTester tester, double scale, bool compact) async {
+Future<void> _pump(WidgetTester tester, double scale, bool compact, [List<Tx>? txs]) async {
   tester.view.physicalSize = const Size(1000, 640);
   tester.view.devicePixelRatio = 1;
   deskScale = scale * deskBase;
@@ -107,7 +119,7 @@ Future<void> _pump(WidgetTester tester, double scale, bool compact) async {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       if (!compact) const ActivityListHead(),
-                      for (final t in _txs)
+                      for (final t in txs ?? _txs)
                         TxRow(tx: t, compact: compact, onTap: () {}),
                     ],
                   ),
@@ -124,6 +136,11 @@ Future<void> _pump(WidgetTester tester, double scale, bool compact) async {
 
 void main() {
   setUpAll(_loadFonts);
+  testWidgets('Activity rows found by a scan', (tester) async {
+    await _pump(tester, 1, false, _found);
+    expect(tester.takeException(), isNull);
+    await expectLater(find.byType(Scaffold), matchesGoldenFile('goldens/activity_found.png'));
+  });
   for (final scale in [1.0, 1.5]) {
     final pct = (scale * 100).round();
     testWidgets('Activity table at $pct%', (tester) async {
