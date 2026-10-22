@@ -67,6 +67,7 @@ class MainActivity : FlutterFragmentActivity() {
             }
         val channel = MethodChannel(messenger, "epic_wallet/updater")
         updater = AppUpdater(this, channel).also { channel.setMethodCallHandler(it) }
+        NetworkWatch.register(applicationContext, messenger)
     }
 
     /** The channel background pushes land in, named in AndroidManifest.xml. */
