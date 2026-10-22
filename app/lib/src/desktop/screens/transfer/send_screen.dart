@@ -12,7 +12,6 @@ import '../../../smart_outputs.dart';
 import '../../widgets/kit.dart';
 import 'contact_picker.dart';
 import 'epicbox_notice.dart';
-import '../settings/prefs.dart' show settingsPrefsProvider;
 import 'file_panels.dart';
 import 'send_advanced.dart';
 import 'send_summary_rows.dart';
@@ -578,17 +577,15 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       if (!mounted || ok != true) return;
     }
     final notifier = ref.read(deskProvider.notifier);
-    // F6: opened with the remembered password, a send above the set amount asks the password.
+    // Every send asks the wallet's password, also when it was opened with the remembered one.
     final api = ref.read(deskApiProvider);
-    final askAbove = ref.read(settingsPrefsProvider).askAboveOf(ref.read(deskProvider).account?.id);
-    final ask = api.openedRemembered && draft.amount > askAbove;
     final res = await showEDialog<SendResult>(
       context,
       dismissible: false,
       builder: (_) => _ReviewDialog(
         draft: draft,
         startBusy: startBusy,
-        checkPassword: ask ? api.checkPassword : null,
+        checkPassword: api.checkPassword,
         onConfirm: () => notifier.send(
           SendRequest(
             method: draft.method,

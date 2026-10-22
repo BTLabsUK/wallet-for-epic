@@ -71,6 +71,9 @@ class DeskState {
   );
 }
 
+/// Every write awaits what it reads first and then copies the current [state]: a copy taken
+/// before an await would undo whatever changed meanwhile (a settings save, such as the tour's
+/// seen flag, which the next save of any setting would then write back to the store).
 class DeskController extends Notifier<DeskState> {
   DeskWalletApi get api => ref.read(deskApiProvider);
 
@@ -121,7 +124,8 @@ class DeskController extends Notifier<DeskState> {
       // The status rows show what did not start; Receive offers to start it again.
     }
     // Tor's now-state may have changed with its autostart.
-    state = state.copyWith(settings: state.settings.copyWith(tor: (await api.settings()).tor));
+    final tor = (await api.settings()).tor;
+    state = state.copyWith(settings: state.settings.copyWith(tor: tor));
   }
 
   void _stopLive() {
@@ -150,7 +154,9 @@ class DeskController extends Notifier<DeskState> {
   Future<void> renameWallet(String id, String label) async {
     await api.renameWallet(id, label);
     final open = state.account?.id == id;
-    state = state.copyWith(account: open ? await api.account() : null, wallets: await api.wallets());
+    final account = open ? await api.account() : null;
+    final wallets = await api.wallets();
+    state = state.copyWith(account: account, wallets: wallets);
   }
 
   /// Removes a wallet ([WalletRemoval]); the open one is locked first, and the app shows
@@ -185,7 +191,8 @@ class DeskController extends Notifier<DeskState> {
       final contacts = await a.contacts();
       final nodes = await a.nodes();
       final boxes = await a.epicboxes();
-      if (_changes != null) state = state.copyWith(balance: balance, txs: txs, contacts: contacts, nodes: nodes, epicboxes: boxes, status: await a.status());
+      final status = await a.status();
+      if (_changes != null) state = state.copyWith(balance: balance, txs: txs, contacts: contacts, nodes: nodes, epicboxes: boxes, status: status);
     } on Object {
       // Locked meanwhile.
     }
@@ -202,10 +209,11 @@ class DeskController extends Notifier<DeskState> {
       a.status(),
       a.nodes(),
       a.epicboxes(),
-      a.settings(),
       a.epicboxAddress(),
       a.wallets(),
     ]);
+    // Read last: a save made while the lists loaded (the tour's seen flag) is in it.
+    final settings = await a.settings();
     state = DeskState(
       account: results[0] as WalletAccount,
       balance: results[1] as Balance,
@@ -214,9 +222,9 @@ class DeskController extends Notifier<DeskState> {
       status: results[4] as ServiceStatus,
       nodes: results[5] as List<NodeServer>,
       epicboxes: results[6] as List<EpicboxServer>,
-      settings: results[7] as DeskSettings,
-      epicboxAddress: results[8] as String,
-      wallets: results[9] as List<WalletEntry>,
+      settings: _keepTourSeen(settings),
+      epicboxAddress: results[7] as String,
+      wallets: results[8] as List<WalletEntry>,
     );
   }
 
@@ -235,7 +243,9 @@ class DeskController extends Notifier<DeskState> {
   Future<void> loadSettings() async {
     if (ref.read(deskStoreProvider) != null) {
       // Read before the first frame (DeskBoot); the API was given them.
-      state = state.copyWith(nodes: await api.nodes(), epicboxes: await api.epicboxes());
+      final nodes = await api.nodes();
+      final epicboxes = await api.epicboxes();
+      state = state.copyWith(nodes: nodes, epicboxes: epicboxes);
       return;
     }
     final s = await api.settings();
@@ -243,12 +253,23 @@ class DeskController extends Notifier<DeskState> {
   }
 
   Future<void> saveSettings(DeskSettings s) async {
+    s = _keepTourSeen(s);
     state = state.copyWith(settings: s);
     statusSite.on = s.useStatusSite;
     await api.saveSettings(s);
     await ref.read(deskStoreProvider)?.saveSettings(s);
-    if (state.account != null) state = state.copyWith(status: await api.status());
+    if (state.account != null) {
+      final status = await api.status();
+      state = state.copyWith(status: status);
+    }
   }
+
+  /// The tour was seen ([DeskTourController.markSeen], which saves it): the settings held here
+  /// say so, and the next save of any setting carries it.
+  void holdTourSeen() => state = state.copyWith(settings: state.settings.copyWith(tourSeen: true));
+
+  /// [DeskSettings.tourSeen] once true stays true: a copy without it is older than the tour.
+  DeskSettings _keepTourSeen(DeskSettings s) => state.settings.tourSeen && !s.tourSeen ? s.copyWith(tourSeen: true) : s;
 
   Future<void> useNode(String url) => _reopening(() => api.useNode(url));
 
@@ -269,21 +290,24 @@ class DeskController extends Notifier<DeskState> {
       }
       rethrow;
     }
-    state = state.copyWith(status: await api.status());
+    final status = await api.status();
+    state = state.copyWith(status: status);
   }
 
   /// Starts or stops receiving (Receive › Start listener / Stop receiving). Transitional: the
   /// screens move to [setEpicboxListening].
   Future<void> setListening(bool on) async {
     await api.setListening(on);
-    state = state.copyWith(status: await api.status());
+    final status = await api.status();
+    state = state.copyWith(status: status);
   }
 
   /// The Epicbox switch (Receive, Settings › Receiving): Epicbox receiving alone, HTTP and Tor
   /// untouched.
   Future<void> setEpicboxListening(bool on) async {
     await api.setEpicboxListening(on);
-    state = state.copyWith(status: await api.status());
+    final status = await api.status();
+    state = state.copyWith(status: status);
   }
 
   /// The HTTP listener switch (Settings › Receiving, Receive's Turn on / Turn off / Try again):
@@ -293,7 +317,8 @@ class DeskController extends Notifier<DeskState> {
     state = state.copyWith(settings: s);
     await api.saveSettings(s);
     await api.setHttpListening(on);
-    state = state.copyWith(status: await api.status());
+    final status = await api.status();
+    state = state.copyWith(status: status);
   }
 
   /// The Tor switch (Settings › Receiving, Send's Turn on Tor) and Retry: saved for the open
@@ -301,12 +326,14 @@ class DeskController extends Notifier<DeskState> {
   Future<void> setTor(bool on) async {
     state = state.copyWith(settings: state.settings.copyWith(tor: on));
     await api.setTor(on);
-    state = state.copyWith(status: await api.status());
+    final status = await api.status();
+    state = state.copyWith(status: status);
   }
 
   Future<void> addNode(NodeServer node) async {
     await api.addNode(node);
-    state = state.copyWith(nodes: await api.nodes());
+    final nodes = await api.nodes();
+    state = state.copyWith(nodes: nodes);
   }
 
   /// Sends in flight: Quit waits for them.
@@ -323,7 +350,9 @@ class DeskController extends Notifier<DeskState> {
     }
     // The lists catch up; a failure here does not change what happened to the payment.
     try {
-      state = state.copyWith(txs: await api.transactions(), balance: await api.balance());
+      final txs = await api.transactions();
+      final balance = await api.balance();
+      state = state.copyWith(txs: txs, balance: balance);
     } on Object {
       // Locked meanwhile; the next refresh shows it.
     }
@@ -332,19 +361,22 @@ class DeskController extends Notifier<DeskState> {
 
   Future<void> cancelTx(int id) async {
     await api.cancelTx(id);
-    state = state.copyWith(txs: await api.transactions());
+    final txs = await api.transactions();
+    state = state.copyWith(txs: txs);
   }
 
   /// The contact's id as stored.
   Future<String> saveContact(Contact c) async {
     final id = await api.saveContact(c);
-    state = state.copyWith(contacts: await api.contacts());
+    final contacts = await api.contacts();
+    state = state.copyWith(contacts: contacts);
     return id;
   }
 
   Future<void> deleteContact(String id) async {
     await api.deleteContact(id);
-    state = state.copyWith(contacts: await api.contacts());
+    final contacts = await api.contacts();
+    state = state.copyWith(contacts: contacts);
   }
 }
 

@@ -158,10 +158,21 @@ class DeskStore {
   }
 
   /// The app-wide settings. The HTTP reach and port belong to the open wallet ([saveHttpPrefs]),
-  /// so what is saved for the first wallet stays as it is.
+  /// so what is saved for the first wallet stays as it is. [DeskSettings.tourSeen], once saved,
+  /// stays: Show the tour opens it without clearing the flag, so a false here is a stale copy.
   Future<void> saveSettings(DeskSettings s) async {
     final saved = await settings();
-    await writeJson(settingsKey, deskSettingsToJson(s.copyWith(publicMode: saved.publicMode, httpPort: saved.httpPort)));
+    if (saved.tourSeen && !s.tourSeen) logDebug('desk', 'settings save kept tourSeen=true over a stale false');
+    await writeJson(
+      settingsKey,
+      deskSettingsToJson(s.copyWith(publicMode: saved.publicMode, httpPort: saved.httpPort, tourSeen: s.tourSeen || saved.tourSeen)),
+    );
+  }
+
+  /// Saves [DeskSettings.tourSeen] alone, over what is stored now.
+  Future<void> saveTourSeen() async {
+    final json = await readJson(settingsKey);
+    await writeJson(settingsKey, {...?(json is Map<String, dynamic> ? json : null), 'tourSeen': true});
   }
 
   /// The settings screens' choices ([SettingsPrefs.toJson]); Start HTTP with the wallet is the
@@ -268,7 +279,9 @@ class DeskBoot {
 
   static Future<DeskBoot> load(DeskStore store) async {
     final prefs = await store.readJson(DeskStore.prefsKey);
-    return DeskBoot(settings: await store.settings(), prefs: prefs is Map<String, dynamic> ? prefs : null);
+    final settings = await store.settings();
+    logDebug('desk', 'settings read at start: tourSeen=${settings.tourSeen}');
+    return DeskBoot(settings: settings, prefs: prefs is Map<String, dynamic> ? prefs : null);
   }
 }
 

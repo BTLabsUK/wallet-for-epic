@@ -1,5 +1,6 @@
-// F6: a wallet opened with the remembered password asks the password for sends above the amount
-// set in Settings › This wallet (0, the default: every send). A typed unlock asks nothing.
+// Every send asks the wallet's password at Review, whether the wallet was opened with a typed
+// password or with the one remembered on this computer; there is no amount below which it does
+// not ask.
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/prefs.dart';
 import 'package:epic_wallet/src/desktop/screens/transfer/send_screen.dart';
@@ -65,13 +66,16 @@ void main() {
   Finder sendButton() => find.widgetWithText(EButton, 'Send 1.0000 EPIC');
   Finder password() => find.descendant(of: find.widgetWithText(EField, 'Password'), matching: find.byType(TextField));
 
-  testWidgets('a typed unlock: no password asked', (tester) async {
+  testWidgets('a typed unlock: the send asks the password too', (tester) async {
     await review(tester);
-    expect(find.widgetWithText(EField, 'Password'), findsNothing);
+    expect(password(), findsOneWidget);
+    expect(tester.widget<EButton>(sendButton()).onPressed, isNull);
+    await tester.enterText(password(), 'secret-pass');
+    await tester.pump();
     await tester.tap(sendButton());
     await tester.pumpAndSettle();
+    expect(wallet.checked, ['secret-pass']);
     expect(wallet.sends, 1);
-    expect(wallet.checked, isEmpty);
   });
 
   testWidgets('opened with the remembered password: every send asks; Enter sends only when filled', (tester) async {
@@ -103,23 +107,27 @@ void main() {
     expect(find.text('Check and send'), findsNothing);
   });
 
-  testWidgets('opened with the remembered password: a send up to the set amount asks nothing', (tester) async {
+  testWidgets('remembered on this computer, a small send still asks the password', (tester) async {
     wallet.openedRemembered = true;
-    final prefs = container.read(settingsPrefsProvider);
-    container.read(settingsPrefsProvider.notifier).set(prefs.copyWith(askAbove: {'legacy-mainnet': nanoPerEpic}));
-    await review(tester);
-    expect(find.widgetWithText(EField, 'Password'), findsNothing);
+    // Saved by an earlier build: "Ask password above" 5 EPIC for this wallet.
+    container.read(settingsPrefsProvider.notifier).set(SettingsPrefs.fromJson({'askAbove': {'legacy-mainnet': 5 * nanoPerEpic}}));
+    await review(tester, amount: '1');
+    expect(password(), findsOneWidget);
     await tester.tap(sendButton());
     await tester.pumpAndSettle();
+    expect(wallet.sends, 0);
+    expect(find.text('Check and send'), findsOneWidget);
+    await tester.enterText(password(), 'secret-pass');
+    await tester.pump();
+    await tester.tap(sendButton());
+    await tester.pumpAndSettle();
+    expect(wallet.checked, ['secret-pass']);
     expect(wallet.sends, 1);
-    expect(wallet.checked, isEmpty);
   });
 
-  test('the amount is saved per wallet and comes back', () {
-    const p = SettingsPrefs(askAbove: {'w1': 5 * nanoPerEpic});
-    final back = SettingsPrefs.fromJson(p.toJson());
-    expect(back.askAboveOf('w1'), 5 * nanoPerEpic);
-    expect(back.askAboveOf('w2'), 0);
-    expect(back.askAboveOf(null), 0);
+  test("an older 'askAbove' amount is ignored and dropped at the next save", () {
+    final p = SettingsPrefs.fromJson({'askAbove': {'w1': 5 * nanoPerEpic}, 'walletLabel': 'Main'});
+    expect(p.walletLabel, 'Main');
+    expect(p.toJson().containsKey('askAbove'), isFalse);
   });
 }

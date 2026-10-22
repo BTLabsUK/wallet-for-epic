@@ -102,8 +102,8 @@ class _DeskShellState extends ConsumerState<DeskShell> {
     if (!deskTourAuto || widget.at.route != DeskRoute.overview || ref.read(deskTourProvider).seen) return;
     _tourTimer?.cancel();
     _tourTimer = Timer(const Duration(milliseconds: 900), () {
-      if (mounted && ref.read(deskNavProvider).route == DeskRoute.overview && !ref.read(deskTourProvider).seen) {
-        ref.read(deskTourProvider.notifier).open();
+      if (mounted && ref.read(deskNavProvider).route == DeskRoute.overview) {
+        unawaited(ref.read(deskTourProvider.notifier).openIfUnseen());
       }
     });
   }

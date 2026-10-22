@@ -39,8 +39,8 @@ abstract interface class DeskWalletApi {
   /// password (the OS store refused).
   bool get notRemembered;
 
-  /// Whether the open wallet was opened with the remembered password (F6: sends above the
-  /// set amount ask the password then).
+  /// Whether the open wallet was opened with the remembered password. Sends ask the password
+  /// either way.
   bool get openedRemembered;
 
   /// Whether [password] is the open wallet's password.

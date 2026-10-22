@@ -12,6 +12,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'review_password.dart';
+
 class _Wallet extends MockDeskWallet {
   _Wallet() : super(delay: Duration.zero);
 
@@ -110,6 +112,7 @@ void main() {
     wallet.hold = null;
     await tester.pumpAndSettle();
     expect(find.text('Check and send'), findsOneWidget);
+    await enterReviewPassword(tester);
     await tester.tap(find.byWidgetPredicate((w) => w is EButton && w.label.startsWith('Send 25')));
     await tester.pumpAndSettle();
     expect(wallet.sent.single.options?.strategy, SelectionStrategy.all);

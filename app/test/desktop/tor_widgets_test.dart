@@ -10,6 +10,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'review_password.dart';
+
 const _onion = 'http://pg6mmjiyjmcrsslvykfwnntlaru7p5svn6y2ymmju6nubxndf4pscryd.onion';
 // testWidgets takes a bool only.
 const _skip = !DeskFeatures.tor;
@@ -105,6 +107,7 @@ void main() {
       await tester.tap(find.text('Review send'));
       await tester.pumpAndSettle();
       expect(find.text('Tor (their wallet must be open)'), findsOneWidget);
+      await enterReviewPassword(tester);
       await tester.tap(find.text('Send 1.0000 EPIC'));
       await tester.pumpAndSettle();
       expect(wallet.sent.single.method, TxMethod.tor);
