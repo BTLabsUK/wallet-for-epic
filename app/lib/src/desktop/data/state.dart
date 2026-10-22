@@ -207,6 +207,16 @@ class DeskController extends Notifier<DeskState> {
     );
   }
 
+  /// Refresh (Overview, Activity): asks the node now, then reloads everything. Rethrows why the
+  /// node could not be asked; the lists are reloaded either way.
+  Future<void> syncNow() async {
+    try {
+      await api.syncNow();
+    } finally {
+      await refresh();
+    }
+  }
+
   /// The app-wide settings (theme, interface scale) before any wallet is open: they apply
   /// from the first screen.
   Future<void> loadSettings() async {

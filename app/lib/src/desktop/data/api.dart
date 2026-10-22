@@ -121,6 +121,10 @@ abstract interface class DeskWalletApi {
   /// the wallet's tor now and at each unlock; off stops it. On again after a failure is Retry.
   /// Progress and failures show in [ServiceStatus.tor]. Only when [DeskFeatures.tor].
   Future<void> setTor(bool on);
+  /// Refresh (Overview, Activity): brings the balance and history up to date with the node
+  /// now and returns when that is done. Throws a [DeskError] when the node did not answer.
+  Future<void> syncNow();
+
   /// Scans the chain again, with progress; the stream ends when the scan does.
   Stream<ScanStep> rescan();
 

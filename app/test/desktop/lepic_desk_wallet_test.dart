@@ -302,6 +302,34 @@ void main() {
       expect(await wallet.contacts(), isEmpty);
     });
 
+    test('Refresh asks the node now and says when it did not answer', () async {
+      final s = service.session;
+      final before = s.refreshCalls;
+      s.summaryValue = core.WalletSummary(
+        lastConfirmedHeight: BigInt.from(2500001),
+        minimumConfirmations: BigInt.from(10),
+        total: BigInt.from(900),
+        spendable: BigInt.from(900),
+        awaitingConfirmation: BigInt.zero,
+        awaitingFinalization: BigInt.zero,
+        immature: BigInt.zero,
+        locked: BigInt.zero,
+        validatedWithNode: true,
+      );
+      await wallet.syncNow();
+      expect(s.refreshCalls, before + 1);
+      expect((await wallet.balance()).spendable, 900);
+
+      s.refreshError = const core.WalletError(kind: core.WalletErrorKind.nodeUnreachable, message: 'down');
+      await expectLater(wallet.syncNow(), throwsA(isA<DeskError>()));
+      expect((await wallet.status()).nodeHealth, ServiceHealth.down);
+
+      s.refreshError = null;
+      await wallet.syncNow();
+      await wallet.lock();
+      await expectLater(wallet.syncNow(), throwsA(isA<DeskError>()));
+    });
+
     // Tor is real now (tor_direct_test.dart).
     test('hidden features throw instead of faking', () async {
       expect(() => wallet.exportProof(1), throwsUnsupportedError);

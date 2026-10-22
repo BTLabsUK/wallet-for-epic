@@ -34,10 +34,16 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
   bool _problemHidden = false;
   bool _addressNoteHidden = false;
 
+  /// Asks the node now, as 6.1.6's refresh does; says so when it could not.
   Future<void> _refresh() async {
     setState(() => _refreshing = true);
-    await ref.read(deskProvider.notifier).refresh();
-    if (mounted) setState(() => _refreshing = false);
+    try {
+      await ref.read(deskProvider.notifier).syncNow();
+    } on Object catch (e) {
+      if (mounted) showEToast(context, 'Not updated', text: deskErrorText(e), tone: ETone.risk);
+    } finally {
+      if (mounted) setState(() => _refreshing = false);
+    }
   }
 
   /// Starts the built-in node again when it stopped; a running one is left as it is.

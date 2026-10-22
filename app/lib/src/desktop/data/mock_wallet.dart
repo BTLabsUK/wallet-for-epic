@@ -456,6 +456,9 @@ class MockDeskWallet implements DeskWalletApi {
   }
 
   @override
+  Future<void> syncNow() => _wait(3);
+
+  @override
   Stream<void> changes() => const Stream.empty();
 
   @override
