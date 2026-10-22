@@ -904,6 +904,17 @@ class LepicWalletSession implements WalletSession {
       _guard(() => _wallet.mnemonic(password: password));
 
   @override
+  Future<void> changePassword({
+    required String currentPassword,
+    required String newPassword,
+  }) => _guard(
+    () => _wallet.changePassword(
+      currentPassword: currentPassword,
+      newPassword: newPassword,
+    ),
+  );
+
+  @override
   Future<String> mnemonicWithPin({
     required String pin,
     required String sealedPassword,

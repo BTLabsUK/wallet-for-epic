@@ -332,6 +332,15 @@ void main() {
       );
       await s.confirmPinChange(sealedPassword: 'new-sealed');
       expect(fake.confirmedPinChanges, ['new-sealed']);
+      await expectLater(
+        s.changePassword(currentPassword: 'not it', newPassword: 'new password'),
+        throwsKind(WalletErrorKind.wrongPassword),
+      );
+      await s.changePassword(
+        currentPassword: fake.password,
+        newPassword: 'new password',
+      );
+      expect(fake.password, 'new password');
     });
 
     test('cancel, repost, release', () async {
