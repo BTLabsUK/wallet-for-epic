@@ -38,6 +38,7 @@ class AccountForm extends StatelessWidget {
       EField(
         label: 'Password',
         error: passwordError,
+        reserveError: true,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [

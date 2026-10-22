@@ -15,6 +15,7 @@ class EField extends StatelessWidget {
     this.help,
     this.error,
     this.aside,
+    this.reserveError = false,
   });
 
   final String label;
@@ -23,6 +24,10 @@ class EField extends StatelessWidget {
   final String? help;
   final String? error;
   final Widget? aside;
+
+  /// Keeps the error line's height when there is no error (and no help), so the controls
+  /// below do not move when one appears.
+  final bool reserveError;
 
   @override
   Widget build(BuildContext context) {
@@ -73,6 +78,9 @@ class EField extends StatelessWidget {
         ] else if (help != null) ...[
           SizedBox(height: 6.u),
           Text(help!, style: ts.small),
+        ] else if (reserveError) ...[
+          SizedBox(height: 6.u),
+          Text('', style: ts.small),
         ],
       ],
     );
