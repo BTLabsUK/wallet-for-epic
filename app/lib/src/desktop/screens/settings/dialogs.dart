@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../widgets/kit.dart';
+import '../onboarding/onboarding_parts.dart' show accountErrors;
 import '../onboarding/unlock_screen.dart' show UnlockPick;
 import 'prefs.dart';
 import 'settings_frame.dart';
@@ -332,8 +333,8 @@ class _ChangePasswordDialogState extends ConsumerState<ChangePasswordDialog> {
   final _next = TextEditingController();
   final _repeat = TextEditingController();
   bool _busy = false;
-  bool _tried = false;
-  String? _wrong;
+  bool _wrong = false;
+  String? _error;
 
   @override
   void dispose() {
@@ -343,64 +344,76 @@ class _ChangePasswordDialogState extends ConsumerState<ChangePasswordDialog> {
     super.dispose();
   }
 
-  String? get _nextError => !_tried
-      ? null
-      : _next.text.length < 8
-      ? 'At least 8 characters.'
-      : null;
-  String? get _repeatError => _tried && _repeat.text != _next.text ? 'The passwords differ.' : null;
+  // The same rules and words as Create's password (onboarding_parts.dart).
+  bool get _valid => _current.text.isNotEmpty && _next.text.length >= 8 && _repeat.text == _next.text;
 
   Future<void> _save() async {
+    if (!_valid || _busy) return;
     setState(() {
-      _tried = true;
-      _wrong = null;
+      _busy = true;
+      _wrong = false;
+      _error = null;
     });
-    if (_current.text.isEmpty || _next.text.length < 8 || _repeat.text != _next.text) return;
-    setState(() => _busy = true);
     try {
       await ref.read(deskApiProvider).changePassword(_current.text, _next.text);
       if (!mounted) return;
       Navigator.of(context).pop();
-      showEToast(context, 'Password changed');
-    } catch (_) {
-      if (mounted) {
-        setState(() {
-          _busy = false;
-          _wrong = 'Wrong password.';
-        });
-      }
+      showEToast(context, 'Password changed.');
+    } on Object catch (e) {
+      if (!mounted) return;
+      final wrong = e is DeskError && e.wrongPassword;
+      setState(() {
+        _busy = false;
+        _wrong = wrong;
+        _error = wrong ? null : deskErrorText(e);
+      });
     }
   }
 
+  void _edited() => setState(() => _error = null);
+
   @override
   Widget build(BuildContext context) {
+    final c = context.dc;
+    final ts = context.ts;
+    final (nextError, repeatError) = accountErrors(_next.text, _repeat.text);
     return PopScope(
       canPop: !_busy,
       child: EDialog(
       title: 'Change password',
       dismissible: !_busy,
-      description: 'The new password unlocks this wallet from now on.',
+      description: 'The new password unlocks this wallet from now on. A remembered password is forgotten.',
       icon: EIcons.lock,
-      // Enter: Current → New → Repeat, then Change password.
+      // Enter: Current → New → Repeat, then Change password once all three are valid.
       body: EForm(
-        onSubmit: _busy ? null : _save,
+        onSubmit: _busy || !_valid ? null : _save,
         child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           EField(
             label: 'Current password',
-            error: _wrong ?? (_tried && _current.text.isEmpty ? 'Enter the current password.' : null),
-            child: EPasswordInput(controller: _current, autofocus: true, invalid: _wrong != null, onChanged: (_) => setState(() => _wrong = null)),
+            error: _wrong ? 'Wrong password' : null,
+            child: EPasswordInput(
+              controller: _current,
+              autofocus: true,
+              invalid: _wrong,
+              semanticLabel: 'Current password',
+              onChanged: (_) => setState(() {
+                _wrong = false;
+                _error = null;
+              }),
+            ),
           ),
           SizedBox(height: Sp.x4),
           EField(
             label: 'New password',
-            error: _nextError,
+            error: nextError,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                EPasswordInput(controller: _next, invalid: _nextError != null),
+                EPasswordInput(controller: _next, invalid: nextError != null, semanticLabel: 'New password', onChanged: (_) => _edited()),
                 SizedBox(height: Sp.x2),
+                // Informs only; its info icon is not a Tab stop.
                 ExcludeFocusTraversal(child: PasswordHint(controller: _next)),
               ],
             ),
@@ -408,15 +421,19 @@ class _ChangePasswordDialogState extends ConsumerState<ChangePasswordDialog> {
           SizedBox(height: Sp.x4),
           EField(
             label: 'Repeat new password',
-            error: _repeatError,
-            child: EPasswordInput(controller: _repeat, invalid: _repeatError != null),
+            error: repeatError,
+            child: EPasswordInput(controller: _repeat, invalid: repeatError != null, semanticLabel: 'Repeat new password', onChanged: (_) => _edited()),
           ),
+          if (_error != null) ...[
+            SizedBox(height: Sp.x3),
+            Semantics(liveRegion: true, child: Text(_error!, style: ts.small.copyWith(color: c.risk))),
+          ],
         ],
       ),
       ),
       actions: [
         EButton(label: 'Cancel', size: EBtnSize.sm, tabStop: false, onPressed: _busy ? null : () => Navigator.of(context).pop()),
-        EButton.primary(label: 'Change password', size: EBtnSize.sm, busy: _busy, onPressed: _save),
+        EButton.primary(label: 'Change password', size: EBtnSize.sm, busy: _busy, onPressed: _valid ? _save : null),
       ],
     ),
     );

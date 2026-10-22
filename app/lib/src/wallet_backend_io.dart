@@ -10,6 +10,8 @@ import 'lepic_wallet_service.dart';
 import 'secret_store.dart';
 import 'vault.dart' show LegacyFiles, setAsideLegacyWalletFiles;
 import 'wallet_service.dart';
+import 'windows_dpapi.dart';
+import 'windows_secret_store.dart';
 
 /// Loads LEPIC's native library. Before any [createWalletService] call.
 Future<void> initWalletBackend() => initLepic();
@@ -17,7 +19,16 @@ Future<void> initWalletBackend() => initLepic();
 WalletService createWalletService(SecretStore secrets) =>
     LepicWalletService(secrets: secrets, oneWalletPerChain: true);
 
-SecretStore createSecretStore() => const PlatformSecretStore();
+/// The platform keystore; on Windows the crash-safe store over the plugin's file
+/// (windows_secret_store.dart), one per process so its writes share one lock.
+SecretStore createSecretStore() =>
+    Platform.isWindows ? _windowsSecrets : const PlatformSecretStore();
+
+final SecretStore _windowsSecrets = WindowsSecretStore(
+  directory: () async => (await getApplicationSupportDirectory()).path,
+  cipher: const DpapiCipher(),
+  files: const Win32StoreFiles(),
+);
 
 /// `<application support>/wallets/<chain>`. One wallet per chain.
 Future<String> defaultWalletDir(Chain chain) async {

@@ -8,6 +8,7 @@ import 'dart:io';
 import 'package:epic_wallet/src/builtin_node.dart';
 import 'package:epic_wallet/src/desktop/data/lepic_desk_wallet.dart';
 import 'package:epic_wallet/src/desktop/data/models.dart' show DeskError, ServiceHealth;
+import 'package:epic_wallet/src/node/node_settings.dart';
 import 'package:epic_wallet/src/models.dart' show Chain;
 import 'package:epic_wallet/src/secret_store_api.dart';
 import 'package:epic_wallet/src/wallet_service.dart' as core;
@@ -245,6 +246,29 @@ void main() {
     expect(spawned, hasLength(1));
     await on.dispose();
     expect(spawned.single.terminated, 1);
+  });
+
+  test('at launch it does not start when "Start with the app" is off', () async {
+    await secrets.write(builtInNodeSettingKey(Chain.mainnet), 'true');
+    await NodeSettings(secrets, Chain.mainnet).setStartWithApp(false);
+    final w = make();
+    await w.resumeBuiltInNode();
+    expect(spawned, isEmpty);
+    await w.dispose();
+  });
+
+  test('the saved node settings (data folder, peers) apply to the start at launch', () async {
+    await secrets.write(builtInNodeSettingKey(Chain.mainnet), 'true');
+    final s = NodeSettings(secrets, Chain.mainnet);
+    await s.setChainDataPath('${dir.path}/elsewhere/chain_data');
+    await s.setPreferredPeers(['203.0.113.9:3414']);
+    final w = make();
+    await w.resumeBuiltInNode();
+    expect(spawned, hasLength(1));
+    final toml = File('${dir.path}/node/main/epic-server.toml').readAsStringSync();
+    expect(toml, contains('db_root = "${dir.path}/elsewhere/chain_data"'));
+    expect(toml, contains('peers_preferred = ["203.0.113.9:3414"]'));
+    await w.dispose();
   });
 
   test('a build without the node refuses to turn it on', () async {

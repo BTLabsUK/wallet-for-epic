@@ -1,6 +1,7 @@
 // Restore's phrase grid (F29): 24 numbered fields, a paste sets the count, words are checked on
 // blur or commit only, the checksum once the phrase is complete. The mock wallet answers the
 // checksum with the real BIP-39 rule, so the standard vectors apply.
+import 'package:epic_wallet/src/bip39_words.dart';
 import 'package:epic_wallet/src/desktop/data/phrase_check.dart';
 import 'package:epic_wallet/src/desktop/screens/onboarding/phrase_grid.dart';
 import 'package:epic_wallet/src/desktop/screens/onboarding/restore_screen.dart';
@@ -148,6 +149,34 @@ void main() {
       expect(_focusedOn(tester, 0), isTrue, reason: 'focus stays while typing "$t"');
     }
     expect(find.text('1 of 24 words'), findsOneWidget);
+  });
+
+  testWidgets('typing the last word: no checksum error while its prefix is a word of its own', (tester) async {
+    // 23 words, then a last word that checks out and has a shorter list word as its prefix
+    // ("fat" of "fatigue"): typing that prefix must not show the checksum error yet.
+    final head = List.filled(23, 'abandon');
+    final last = bip39List.firstWhere((w) {
+      if (!bip39PhraseValid([...head, w])) return false;
+      return [for (var n = 3; n < w.length; n++) w.substring(0, n)]
+          .any((p) => bip39Words.contains(p) && !bip39PhraseValid([...head, p]));
+    });
+    final prefix = [for (var n = 3; n < last.length; n++) last.substring(0, n)]
+        .firstWhere((p) => bip39Words.contains(p) && !bip39PhraseValid([...head, p]));
+    await _pump(tester);
+    for (var i = 0; i < 23; i++) {
+      await _type(tester, i, head[i]);
+    }
+    _entry(tester).focusField(23);
+    await tester.pump();
+    await _type(tester, 23, prefix);
+    expect(find.textContaining('check number does not match'), findsNothing, reason: '"$prefix" of "$last" is being typed');
+    await _type(tester, 23, last);
+    expect(find.text('All 24 words check out.'), findsOneWidget);
+    // A wrong last word shows the error once the field is left.
+    await _type(tester, 23, prefix);
+    _entry(tester).focusField(0);
+    await tester.pump();
+    expect(find.textContaining('check number does not match'), findsOneWidget);
   });
 
   testWidgets('a wrong word is marked when focus leaves it and cleared once corrected', (tester) async {
@@ -345,6 +374,8 @@ void main() {
     await tester.tap(find.text('Paste'));
     await tester.pump();
     expect(find.text('12 of 12 words'), findsOneWidget);
+    // The focus is in the grid, not on the button, so Enter goes on rather than pasting again.
+    expect(_entry(tester).focus.any((f) => f.hasFocus), isTrue);
     await tester.tap(find.text('Clear'));
     await tester.pump();
     expect(find.text('0 of 24 words'), findsOneWidget);

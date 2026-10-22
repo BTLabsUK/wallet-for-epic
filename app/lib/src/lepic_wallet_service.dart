@@ -955,6 +955,17 @@ class LepicWalletSession implements WalletSession {
       _guard(() => _wallet.mnemonic(password: password));
 
   @override
+  Future<void> changePassword({
+    required String currentPassword,
+    required String newPassword,
+  }) => _guard(
+    () => _wallet.changePassword(
+      currentPassword: currentPassword,
+      newPassword: newPassword,
+    ),
+  );
+
+  @override
   Future<String> mnemonicWithPin({
     required String pin,
     required String sealedPassword,
@@ -991,20 +1002,33 @@ class LepicWalletSession implements WalletSession {
   Future<void> releaseStuckSend({required String key}) =>
       _guard(() async => _wallet.releaseTransaction(txId: await _txIdOf(key)));
 
-  /// The amount [estimateMax] last returned. A send of exactly that amount is a send-all and
-  /// takes every coin into one change output, as the estimate did, so fee and amount match.
+  /// The amount [estimateMax] last returned. A send of exactly the wallet's current maximum is
+  /// a send-all and takes every coin into one change output, as the max estimate did, so fee
+  /// and amount match.
   BigInt? _maxAmount;
 
-  /// The caller's [options], else every coin for a send-all, else LEPIC's default.
-  lepic.SendOptions? _optionsFor(BigInt amount, [SendOptions? options]) =>
-      options != null
-      ? lepicSendOptions(options)
-      : amount == _maxAmount
-      ? const lepic.SendOptions(
-          strategy: lepic.SelectionStrategy.all,
-          changeOutputs: 1,
-        )
-      : null;
+  static const _sendAll = lepic.SendOptions(
+    strategy: lepic.SelectionStrategy.all,
+    changeOutputs: 1,
+  );
+
+  /// The caller's [options] when given. Else send-all when [amount] is still the wallet's
+  /// maximum, checked again now: a max remembered from before the balance changed must not
+  /// turn a typed amount into a send-all. Null (LEPIC's default) otherwise.
+  Future<lepic.SendOptions?> _optionsFor(
+    BigInt amount,
+    BigInt minimumConfirmations, [
+    SendOptions? options,
+  ]) async {
+    if (options != null) return lepicSendOptions(options);
+    if (_maxAmount == null || amount != _maxAmount) return null;
+    final now = await _wallet.estimateMax(
+      minimumConfirmations: minimumConfirmations,
+      options: _sendAll,
+    );
+    _maxAmount = now.amount;
+    return now.amount == amount ? _sendAll : null;
+  }
 
   @override
   Future<Slate> createSendSlate({
@@ -1017,7 +1041,7 @@ class LepicWalletSession implements WalletSession {
       amount: amount,
       minimumConfirmations: minimumConfirmations,
       message: _message(message),
-      options: _optionsFor(amount, options),
+      options: await _optionsFor(amount, minimumConfirmations, options),
     );
     return Slate(slateId: slate.slateId, json: slate.json);
   });
@@ -1034,7 +1058,7 @@ class LepicWalletSession implements WalletSession {
     final e = await _wallet.estimateFee(
       amount: amount,
       minimumConfirmations: minimumConfirmations,
-      options: _optionsFor(amount, options),
+      options: await _optionsFor(amount, minimumConfirmations, options),
     );
     return lepicFeeEstimate(e);
   });
@@ -1044,10 +1068,7 @@ class LepicWalletSession implements WalletSession {
       _guard(() async {
         final e = await _wallet.estimateMax(
           minimumConfirmations: minimumConfirmations,
-          options: const lepic.SendOptions(
-            strategy: lepic.SelectionStrategy.all,
-            changeOutputs: 1,
-          ),
+          options: _sendAll,
         );
         _maxAmount = e.amount;
         return lepicFeeEstimate(e);
@@ -1127,7 +1148,7 @@ class LepicWalletSession implements WalletSession {
       minimumConfirmations: minimumConfirmations,
       address: address,
       message: _message(message),
-      options: _optionsFor(amount, options),
+      options: await _optionsFor(amount, minimumConfirmations, options),
     );
     return _entry(tx.txId);
   });
@@ -1162,7 +1183,7 @@ class LepicWalletSession implements WalletSession {
       url: url,
       allowPlainHttp: allowPlainHttp,
       message: _message(message),
-      options: _optionsFor(amount, options),
+      options: await _optionsFor(amount, minimumConfirmations, options),
     );
     return HttpSent(txId: tx.txId, slateId: tx.slateId, posted: tx.posted);
   });

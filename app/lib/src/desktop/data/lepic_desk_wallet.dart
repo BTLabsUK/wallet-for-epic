@@ -26,6 +26,7 @@ import '../../builtin_node.dart';
 import '../../legacy_gui_profile.dart' as gui;
 import '../../legacy_wallets.dart' as legacy;
 import '../../log.dart';
+import '../../node/node_settings.dart' show NodeSettings;
 import '../../network.dart';
 import '../../providers.dart' show WalletDirResolver, defaultMinimumConfirmations;
 import '../../public_servers.dart';
@@ -1874,7 +1875,10 @@ class LepicDeskWallet implements DeskWalletApi {
   Future<BuiltInNode> _theNode() async {
     final make = _builtInNode;
     if (make == null) throw const DeskError('No built-in node in this build');
-    return _node ??= await make(preset.chain);
+    final node = _node ??= await make(preset.chain);
+    // The user's node settings (data folder, peers) apply to every start, also at launch.
+    node.options = await NodeSettings(_secrets, preset.chain).toOptions();
+    return node;
   }
 
   @override
@@ -1928,6 +1932,8 @@ class LepicDeskWallet implements DeskWalletApi {
   /// shown as a notice; the wallet then reports its node as not responding.
   Future<void> resumeBuiltInNode() async {
     if (!await _builtInOn()) return;
+    // "Start with the app" off: the user starts it from Settings › Node.
+    if (!await NodeSettings(_secrets, preset.chain).startWithApp()) return;
     try {
       await (await _theNode()).start();
     } on Object catch (e) {
@@ -2323,10 +2329,29 @@ class LepicDeskWallet implements DeskWalletApi {
     }
   }
 
+  /// Re-encrypts the open wallet under [next], then forgets its remembered password (F6). A
+  /// wrong [current] throws a [DeskError] with `wrongPassword`; any other failure leaves the
+  /// old password working.
   @override
-  // When this is built: forget the remembered password (`_remember.forget`) once it changed.
-  Future<void> changePassword(String current, String next) =>
-      throw UnsupportedError('password change (DeskFeatures.changePassword)');
+  Future<void> changePassword(String current, String next) async {
+    _checkPassword(next);
+    final session = _open;
+    final id = _openEntry?.id;
+    logInfo('desk', 'password change asked');
+    try {
+      await session.changePassword(currentPassword: current, newPassword: next);
+    } on core.WalletError catch (e) {
+      logWarn('desk', 'password change: ${e.kind.name}');
+      throw switch (e.kind) {
+        core.WalletErrorKind.wrongPassword => _deskError(e),
+        core.WalletErrorKind.invalidArgument => const DeskError('Use at least $minPasswordLength characters'),
+        core.WalletErrorKind.chainBusy || core.WalletErrorKind.walletBusy => _deskError(e),
+        _ => const DeskError('Password not changed. The current password still opens the wallet.'),
+      };
+    }
+    logInfo('desk', 'password changed');
+    if (id != null) await _remember.forget(id);
+  }
 
   // ---- Helpers.
 

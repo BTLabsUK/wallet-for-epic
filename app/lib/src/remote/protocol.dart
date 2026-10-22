@@ -21,6 +21,7 @@ enum ServiceMember {
 enum SessionMember {
   dispose,
   mnemonic,
+  changePassword,
   mnemonicWithPin,
   changePin,
   confirmPinChange,

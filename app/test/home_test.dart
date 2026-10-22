@@ -92,6 +92,27 @@ WalletSummary _summary({BigInt? spendable}) => WalletSummary(
   validatedWithNode: true,
 );
 
+/// [_transactions] plus [extra] older confirmed payments, so the history reminder has enough
+/// to count (3 wallet payments in [_transactions]).
+List<TxEntry> _backlog([int extra = 8]) => [
+  ..._transactions(),
+  for (var i = 0; i < extra; i++)
+    fakeTx(
+      id: 100 + i,
+      slateId: 'old-$i',
+      kind: TxKind.received,
+      status: TxStatus.confirmed,
+      createdAtUnix: _at(DateTime(2026, 9, 1, 10 + i)),
+      amountCredited: _epic(1),
+    ),
+];
+
+/// A store state with the reminder first seen 40 days before [_now].
+void _reminderDue(_Harness h) {
+  h.store.values['app.history_reminder_first_seen.mainnet'] =
+      '${_at(_now.subtract(const Duration(days: 40)))}';
+}
+
 /// A pending epicbox send to Bob, today; a confirmed receive yesterday; a cancelled send and a
 /// restored output earlier.
 List<TxEntry> _transactions() => [
@@ -273,6 +294,9 @@ class _Harness {
        prices = _FakePrice(price),
        scanner = FakeQrScanner(supported: scanSupported) {
     store.values['wallet.${chain.name}.backedUp'] = '1';
+    // The reminder is already tracked from today, so home does not write the setting.
+    store.values['app.history_reminder_first_seen.${chain.name}'] =
+        '${_at(_now)}';
   }
 
   final Chain chain;
@@ -1615,7 +1639,8 @@ void main() {
     testWidgets('the phrase card closes for good on this wallet', (
       tester,
     ) async {
-      final h = _Harness();
+      final h = _Harness(transactions: _backlog());
+      _reminderDue(h);
       h.store.values.remove('wallet.mainnet.backedUp');
       await h.pump(tester);
       expect(find.text('Back up your recovery phrase.'), findsOneWidget);
@@ -2417,45 +2442,149 @@ void main() {
     test('counts payments made since the last history export', () {
       final txs = _transactions();
       // Three made by this wallet; the restored one comes back with a restore anyway.
-      expect(paymentsNotInBackup(txs, now: _now), 3);
+      expect(unbackedPayments(txs), 3);
       expect(
-        paymentsNotInBackup(
-          txs,
-          now: _now,
-          exportedAt: _at(DateTime(2026, 9, 29, 12)),
-        ),
+        unbackedPayments(txs, exportedAt: _at(DateTime(2026, 9, 29, 12))),
         2,
       );
-      expect(
-        paymentsNotInBackup(txs, now: _now, exportedAt: _at(_now)),
-        isNull,
+      expect(unbackedPayments(txs, exportedAt: _at(_now)), 0);
+      expect(unbackedPayments(const []), 0);
+    });
+
+    group('when to remind', () {
+      final long = _at(_now.subtract(const Duration(days: 31)));
+      int? remind(
+        List<TxEntry> txs, {
+        int? exportedAt,
+        int? dismissedAt,
+        int? firstSeenAt,
+        DateTime? at,
+      }) => paymentsNotInBackup(
+        txs,
+        now: at ?? _now,
+        exportedAt: exportedAt,
+        dismissedAt: dismissedAt,
+        firstSeenAt: firstSeenAt,
       );
-      expect(paymentsNotInBackup(const [], now: _now), isNull);
-      // A dismissal holds for 7 days.
-      expect(
-        paymentsNotInBackup(
-          txs,
-          now: _now,
-          dismissedAt: _at(_now.subtract(const Duration(days: 3))),
-        ),
-        isNull,
+      int daysAgo(int d, [Duration extra = Duration.zero]) =>
+          _at(_now.subtract(Duration(days: d)).add(extra));
+
+      test('the constants', () {
+        expect(historyReminderMinPayments, 10);
+        expect(historyReminderPause, const Duration(days: 30));
+      });
+
+      test('needs 10 payments, 9 are not enough', () {
+        expect(remind(_backlog(6), firstSeenAt: long), isNull); // 9
+        expect(remind(_backlog(7), firstSeenAt: long), 10);
+        expect(remind(_backlog(8), firstSeenAt: long), 11);
+      });
+
+      test('30 days since the export, 29 are not enough', () {
+        // The export is older than every payment here, so all still count.
+        final txs = _backlog(8);
+        final early = _at(DateTime(2026, 7, 1));
+        expect(early, lessThan(daysAgo(40)));
+        expect(
+          remind(txs, exportedAt: daysAgo(29, const Duration(hours: 1))),
+          isNull,
+        );
+        expect(remind(txs, exportedAt: daysAgo(30)), 11);
+        expect(remind(txs, exportedAt: early), 11);
+      });
+
+      test('30 days since the dismissal, 29 are not enough', () {
+        final txs = _backlog(8);
+        expect(
+          remind(
+            txs,
+            dismissedAt: daysAgo(29, const Duration(hours: 1)),
+            firstSeenAt: long,
+          ),
+          isNull,
+        );
+        expect(remind(txs, dismissedAt: daysAgo(30), firstSeenAt: long), 11);
+      });
+
+      test('the later of export and dismissal decides', () {
+        final txs = _backlog(8);
+        // Old export, fresh dismissal: held.
+        expect(
+          remind(txs, exportedAt: daysAgo(60), dismissedAt: daysAgo(5)),
+          isNull,
+        );
+        // Fresh export (before the payments above would count) with an old dismissal: held.
+        expect(
+          remind(txs, exportedAt: daysAgo(5), dismissedAt: daysAgo(60)),
+          isNull,
+        );
+        // Both old: shown.
+        expect(
+          remind(txs, exportedAt: daysAgo(45), dismissedAt: daysAgo(40)),
+          11,
+        );
+      });
+
+      test(
+        'a never exported, never dismissed wallet counts from first seen',
+        () {
+          final txs = _backlog(8);
+          expect(remind(txs), isNull); // first seen not stored yet
+          expect(remind(txs, firstSeenAt: daysAgo(1)), isNull);
+          expect(
+            remind(txs, firstSeenAt: daysAgo(29, const Duration(hours: 1))),
+            isNull,
+          );
+          expect(remind(txs, firstSeenAt: daysAgo(30)), 11);
+          // An export or dismissal later than first seen restarts the wait.
+          expect(
+            remind(txs, firstSeenAt: daysAgo(60), dismissedAt: daysAgo(2)),
+            isNull,
+          );
+        },
       );
-      expect(
-        paymentsNotInBackup(
-          txs,
-          now: _now,
-          dismissedAt: _at(_now.subtract(const Duration(days: 8))),
-        ),
-        3,
-      );
+
+      test('never right after a payment', () {
+        TxEntry fresh(Duration age) => fakeTx(
+          id: 999,
+          slateId: 'fresh',
+          kind: TxKind.received,
+          status: TxStatus.awaitingConfirmation,
+          createdAtUnix: _at(_now.subtract(age)),
+          amountCredited: _epic(1),
+        );
+        final base = _backlog(8);
+        expect(
+          remind([
+            ...base,
+            fresh(const Duration(minutes: 2)),
+          ], firstSeenAt: long),
+          isNull,
+        );
+        expect(
+          remind([
+            ...base,
+            fresh(const Duration(minutes: 9)),
+          ], firstSeenAt: long),
+          isNull,
+        );
+        expect(
+          remind([
+            ...base,
+            fresh(const Duration(minutes: 11)),
+          ], firstSeenAt: long),
+          12,
+        );
+      });
     });
 
     const reminder =
-        '3 payments are not in a history backup. A restore from your recovery '
+        '11 payments are not in a history backup. A restore from your recovery '
         'phrase brings back only your balance.';
 
     testWidgets('home reminds to export, and export clears it', (tester) async {
-      final h = _Harness();
+      final h = _Harness(transactions: _backlog());
+      _reminderDue(h);
       await h.pump(tester);
       expect(find.text(reminder), findsOneWidget);
       await _tap(tester, find.text('Export history backup'));
@@ -2464,8 +2593,9 @@ void main() {
       expect(h.store.values['app.history_exported.mainnet'], '${_at(_now)}');
     });
 
-    testWidgets('not now hides it for a week', (tester) async {
-      final h = _Harness();
+    testWidgets('not now hides it for 30 days', (tester) async {
+      final h = _Harness(transactions: _backlog());
+      _reminderDue(h);
       await h.pump(tester);
       await _tap(tester, find.text('Not now'));
       expect(find.text(reminder), findsNothing);
@@ -2478,17 +2608,32 @@ void main() {
     testWidgets('stored export and dismissal times are read back', (
       tester,
     ) async {
-      final h = _Harness();
+      final h = _Harness(transactions: _backlog());
+      _reminderDue(h);
       h.store.values['app.history_reminder_dismissed.mainnet'] =
-          '${_at(_now.subtract(const Duration(days: 3)))}';
+          '${_at(_now.subtract(const Duration(days: 29)))}';
       // The floonet wallet's export does not count for mainnet.
       h.store.values['app.history_exported.floonet'] = '${_at(_now)}';
       await h.pump(tester);
       expect(find.text(reminder), findsNothing);
     });
 
+    testWidgets('a new wallet is not reminded; its first-seen time is stored', (
+      tester,
+    ) async {
+      final h = _Harness(transactions: _backlog());
+      h.store.values.remove('app.history_reminder_first_seen.mainnet');
+      await h.pump(tester);
+      expect(find.text(reminder), findsNothing);
+      expect(
+        h.store.values['app.history_reminder_first_seen.mainnet'],
+        '${_at(_now)}',
+      );
+    });
+
     testWidgets('the phrase card comes first', (tester) async {
-      final h = _Harness();
+      final h = _Harness(transactions: _backlog());
+      _reminderDue(h);
       h.store.values.remove('wallet.mainnet.backedUp');
       await h.pump(tester);
       expect(find.text('Back up your recovery phrase.'), findsOneWidget);
@@ -2553,22 +2698,16 @@ void main() {
         row('s:new', TxStatus.confirmed, note: 'New', at: exportedAt + 60),
       ];
       expect(
-        paymentsNotInBackup(
-          now,
-          now: _now,
-          exportedAt: exportedAt,
-          snapshot: snapshot,
-        ),
+        unbackedPayments(now, exportedAt: exportedAt, snapshot: snapshot),
         3,
       );
       // A cancelled one has settled too, and a removed note is a change.
       expect(
-        paymentsNotInBackup(
+        unbackedPayments(
           [
             row('s:was-pending', TxStatus.cancelled),
             row('s:noted', TxStatus.confirmed),
           ],
-          now: _now,
           exportedAt: exportedAt,
           snapshot: snapshot,
         ),
@@ -2576,16 +2715,15 @@ void main() {
       );
       // Nothing changed.
       expect(
-        paymentsNotInBackup(
+        unbackedPayments(
           [
             row('s:still-pending', TxStatus.awaitingConfirmation),
             row('s:same', TxStatus.confirmed, note: 'Gift'),
           ],
-          now: _now,
           exportedAt: exportedAt,
           snapshot: snapshot,
         ),
-        isNull,
+        0,
       );
     });
 
@@ -2646,7 +2784,8 @@ void main() {
     testWidgets('after an export, a payment that settled asks for a new one', (
       tester,
     ) async {
-      final h = _Harness();
+      final h = _Harness(transactions: _backlog());
+      _reminderDue(h);
       await h.pump(tester);
       await _tap(tester, find.text('Export history backup'));
       expect(find.textContaining('history backup.'), findsNothing);
@@ -2668,13 +2807,10 @@ void main() {
       ];
       await tester.pump(autoRefreshInterval);
       await tester.pumpAndSettle();
-      expect(
-        find.text(
-          '1 payment is new or changed since your last history backup. A '
-          'restore from your recovery phrase brings back only your balance.',
-        ),
-        findsOneWidget,
-      );
+      // One changed payment is far below the 10 the reminder waits for.
+      expect(find.textContaining('changed since your last'), findsNothing);
+      final snapshot = h.store.values['app.history_export_snapshot.mainnet'];
+      expect(snapshot, isNotNull);
     });
   });
 
@@ -2682,7 +2818,8 @@ void main() {
     testWidgets(
       'the balance stays on top; the reminder sits by the waiting card',
       (tester) async {
-        final h = _Harness();
+        final h = _Harness(transactions: _backlog());
+        _reminderDue(h);
         await h.pump(tester);
         double top(Finder f) => tester.getTopLeft(f).dy;
         final balance = top(find.byKey(balanceFigureKey));

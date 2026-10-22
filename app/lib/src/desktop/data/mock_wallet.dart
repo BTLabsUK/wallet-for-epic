@@ -643,6 +643,8 @@ class MockDeskWallet implements DeskWalletApi {
   @override
   Future<void> changePassword(String current, String next) async {
     await _wait(2);
-    if (current == 'wrong') throw StateError('Wrong password');
+    if (current == 'wrong') throw const DeskError('Wrong password', wrongPassword: true);
+    if (next.length < 8) throw const DeskError('Use at least 8 characters');
+    _remembered.remove(_current);
   }
 }

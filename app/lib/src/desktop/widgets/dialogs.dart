@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -173,10 +175,26 @@ class _EscClosesState extends State<_EscCloses> {
     Future<void>.delayed(Duration.zero, () {
       if (mounted && !_node.hasFocus && (ModalRoute.of(context)?.isCurrent ?? false)) _node.requestFocus();
     });
+    FocusManager.instance.addListener(_refocus);
+  }
+
+  /// When the focus falls back to nothing or to a scope around the dialog (a system window,
+  /// such as the Save dialog, took it and gave it back; a focused control went away), the
+  /// dialog takes it again so Esc and Tab still work. Focus inside the dialog or in a menu it
+  /// opened is left alone.
+  void _refocus() {
+    if (!mounted || _node.hasFocus) return;
+    final f = FocusManager.instance.primaryFocus;
+    final lost = f == null || (f is FocusScopeNode && _node.ancestors.contains(f));
+    if (!lost || !(ModalRoute.of(context)?.isCurrent ?? false)) return;
+    scheduleMicrotask(() {
+      if (mounted && !_node.hasFocus) _node.requestFocus();
+    });
   }
 
   @override
   void dispose() {
+    FocusManager.instance.removeListener(_refocus);
     _node.dispose();
     super.dispose();
   }

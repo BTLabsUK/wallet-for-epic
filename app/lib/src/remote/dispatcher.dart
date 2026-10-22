@@ -355,6 +355,13 @@ class WalletDispatcher {
       s.mnemonic(password: p.of('password', stringWire)),
       stringWire,
     ),
+    SessionMember.changePassword => _once(
+      s.changePassword(
+        currentPassword: p.of('currentPassword', stringWire),
+        newPassword: p.of('newPassword', stringWire),
+      ),
+      voidWire,
+    ),
     SessionMember.mnemonicWithPin => _once(
       s.mnemonicWithPin(
         pin: p.of('pin', stringWire),

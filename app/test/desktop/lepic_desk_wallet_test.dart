@@ -396,10 +396,9 @@ void main() {
       await expectLater(wallet.syncNow(), throwsA(isA<DeskError>()));
     });
 
-    // Tor is real now (tor_direct_test.dart).
+    // Tor is real now (tor_direct_test.dart), and the password change (change_password_test.dart).
     test('hidden features throw instead of faking', () async {
       expect(() => wallet.exportProof(1), throwsUnsupportedError);
-      expect(() => wallet.changePassword(_password, 'another-pass'), throwsUnsupportedError);
     });
   });
 
@@ -1046,12 +1045,12 @@ void main() {
       await done(tester);
     });
 
-    testWidgets('activity has no Outputs tab; account no password change', (tester) async {
+    testWidgets('activity has no Outputs tab; account changes the password as DeskFeatures says', (tester) async {
       await pump(tester, DeskRoute.activity);
       expect(find.text('Outputs'), findsNothing);
       await done(tester);
       await pump(tester, DeskRoute.settingsAccount);
-      expect(find.text('Change password…'), findsNothing);
+      expect(find.text('Change password…'), DeskFeatures.changePassword ? findsOneWidget : findsNothing);
       expect(find.text('Delete…'), findsOneWidget);
       await done(tester);
     });
