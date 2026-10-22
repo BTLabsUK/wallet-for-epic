@@ -71,7 +71,11 @@ class _ExpandFadeState extends State<ExpandFade> with SingleTickerProviderStateM
       animation: _c,
       builder: (context, child) => Offstage(
         offstage: _c.isDismissed,
-        child: TickerMode(enabled: !_c.isDismissed, child: child!),
+        // Offstage alone keeps the folded controls in the Tab order.
+        child: ExcludeFocus(
+          excluding: !widget.open,
+          child: TickerMode(enabled: !_c.isDismissed, child: child!),
+        ),
       ),
       child: SizeTransition(
         sizeFactor: _size,
