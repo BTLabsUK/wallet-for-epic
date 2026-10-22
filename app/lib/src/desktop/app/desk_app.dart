@@ -98,7 +98,7 @@ class DeskTextScaler extends TextScaler {
   final double factor;
 
   @override
-  double scale(double fontSize) => base.scale((fontSize * factor).roundToDouble());
+  double scale(double fontSize) => base.scale(fontSize * factor).roundToDouble();
 
   @Deprecated('Use scale() instead.')
   @override

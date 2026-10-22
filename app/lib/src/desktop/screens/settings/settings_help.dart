@@ -251,7 +251,7 @@ const _epicboxSteps = [
   'The receiving wallet sends it back to Epicbox.',
   'Epicbox passes it back to the sending wallet.',
   'The sending wallet signs too, finishes the transaction and posts it to the network.',
-  'The network puts it in a block. After 3 confirmations it is final.',
+  'The network puts it in a block. After 10 confirmations it is final.',
 ];
 
 const _fileSteps = [
@@ -260,7 +260,7 @@ const _fileSteps = [
   'The response file comes back to the sender.',
   'The sender opens the response file under Finalize.',
   'The sending wallet signs too, finishes the transaction and posts it to the network.',
-  'The network puts it in a block. After 3 confirmations it is final.',
+  'The network puts it in a block. After 10 confirmations it is final.',
 ];
 
 /// "How a transaction travels": the steps over Epicbox or with a file, one at a time.

@@ -218,7 +218,12 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
     return EPage(
       title: 'Contacts',
       width: EPageWidth.full,
-      actions: [EButton.primary(label: 'Add contact', icon: EIcons.userPlus, size: EBtnSize.sm, onPressed: _add)],
+      actions: [
+        if (_adding || _editing)
+          EButton.ghost(label: 'Add contact', icon: EIcons.userPlus, size: EBtnSize.sm, onPressed: _add)
+        else
+          EButton.primary(label: 'Add contact', icon: EIcons.userPlus, size: EBtnSize.sm, onPressed: _add),
+      ],
       child: split
           ? Row(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -278,14 +283,7 @@ class _Empty extends ConsumerWidget {
       padding: EdgeInsets.symmetric(horizontal: Sp.x6, vertical: Sp.x10),
       child: Column(
         children: [
-          ExcludeSemantics(
-            child: Wrap(
-              spacing: Sp.x2,
-              children: [
-                for (final n in const ['Mara Okafor', 'Juno Reyes', 'Leo Hartmann']) EAvatar(n, size: 48.u),
-              ],
-            ),
-          ),
+          ExcludeSemantics(child: Icon(EIcons.contacts, size: Ctl.iconLg, color: c.faint)),
           SizedBox(height: Sp.x5),
           Semantics(
             header: true,
@@ -563,7 +561,11 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
   String? get _nameError => _name.text.trim().isEmpty ? 'Give the contact a name.' : null;
   String? get _addressError {
     final a = _address.text.trim();
-    if (a.isEmpty) return 'Add an Epicbox or an HTTP address to send to.';
+    final epicboxOnly = !DeskFeatures.httpDirect && !DeskFeatures.tor;
+    if (a.isEmpty) return epicboxOnly ? 'Add an Epicbox address to send to.' : 'Add an Epicbox or an HTTP address to send to.';
+    if (epicboxOnly && (RegExp(r'^https?:', caseSensitive: false).hasMatch(a) || a.toLowerCase().contains('.onion'))) {
+      return 'Enter an Epicbox address.';
+    }
     if (RegExp(r'^https?:', caseSensitive: false).hasMatch(a)) {
       return RegExp(r'^https?://[^\s/]+', caseSensitive: false).hasMatch(a) ? null : 'This is not an HTTP address. It starts with http:// or https://.';
     }
@@ -656,7 +658,9 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
         SizedBox(height: Sp.x5),
         EField(
           label: 'Address',
-          help: 'Epicbox: starts with “es”, then @ and the server, e.g. @epicbox.epiccash.com. Or an http(s) or .onion address.',
+          help: DeskFeatures.httpDirect || DeskFeatures.tor
+              ? 'Epicbox: starts with “es”, then @ and the server, e.g. @epicbox.epiccash.com. Or an http(s) or .onion address.'
+              : 'Starts with “es”, then @ and the server, e.g. @epicbox.epiccash.com.',
           error: addressError,
           child: EInput(controller: _address, focusNode: _addressFocus, mono: true, invalid: addressError != null, onChanged: (_) => setState(() {})),
         ),
