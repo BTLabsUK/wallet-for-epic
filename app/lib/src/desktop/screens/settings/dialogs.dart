@@ -141,7 +141,10 @@ class _MyNodeDialogState extends ConsumerState<MyNodeDialog> {
       title: widget.editing ? 'Edit node' : 'Add to my nodes',
       description: 'Save a node address to find it again later. It can be saved while it is offline.',
       icon: EIcons.server,
-      body: Column(
+      // Enter: Address → Label, then Save.
+      body: EForm(
+        onSubmit: _address.text.trim().isEmpty ? null : _save,
+        child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           EField(
@@ -155,7 +158,6 @@ class _MyNodeDialogState extends ConsumerState<MyNodeDialog> {
               autofocus: true,
               semanticLabel: 'Node address',
               onChanged: (_) => _recheck(),
-              onSubmitted: (_) => _save(),
             ),
           ),
           if (status != null) ...[SizedBox(height: Sp.x2), Semantics(liveRegion: true, child: status)],
@@ -163,12 +165,13 @@ class _MyNodeDialogState extends ConsumerState<MyNodeDialog> {
           EField(
             label: 'Label',
             optional: true,
-            child: EInput(controller: _label, hint: 'e.g. Home node', semanticLabel: 'Label', onSubmitted: (_) => _save()),
+            child: EInput(controller: _label, hint: 'e.g. Home node', semanticLabel: 'Label'),
           ),
         ],
       ),
+      ),
       actions: [
-        EButton(label: 'Cancel', size: EBtnSize.sm, onPressed: () => Navigator.of(context).pop()),
+        EButton(label: 'Cancel', size: EBtnSize.sm, tabStop: false, onPressed: () => Navigator.of(context).pop()),
         EButton.primary(label: 'Save', icon: EIcons.check, size: EBtnSize.sm, onPressed: _address.text.trim().isEmpty ? null : _save),
       ],
     );
@@ -377,7 +380,10 @@ class _ChangePasswordDialogState extends ConsumerState<ChangePasswordDialog> {
       dismissible: !_busy,
       description: 'The new password unlocks this wallet from now on.',
       icon: EIcons.lock,
-      body: Column(
+      // Enter: Current → New → Repeat, then Change password.
+      body: EForm(
+        onSubmit: _busy ? null : _save,
+        child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           EField(
@@ -394,7 +400,7 @@ class _ChangePasswordDialogState extends ConsumerState<ChangePasswordDialog> {
               children: [
                 EPasswordInput(controller: _next, invalid: _nextError != null),
                 SizedBox(height: Sp.x2),
-                PasswordHint(controller: _next),
+                ExcludeFocusTraversal(child: PasswordHint(controller: _next)),
               ],
             ),
           ),
@@ -402,12 +408,13 @@ class _ChangePasswordDialogState extends ConsumerState<ChangePasswordDialog> {
           EField(
             label: 'Repeat new password',
             error: _repeatError,
-            child: EPasswordInput(controller: _repeat, invalid: _repeatError != null, onSubmitted: (_) => _save()),
+            child: EPasswordInput(controller: _repeat, invalid: _repeatError != null),
           ),
         ],
       ),
+      ),
       actions: [
-        EButton(label: 'Cancel', size: EBtnSize.sm, onPressed: _busy ? null : () => Navigator.of(context).pop()),
+        EButton(label: 'Cancel', size: EBtnSize.sm, tabStop: false, onPressed: _busy ? null : () => Navigator.of(context).pop()),
         EButton.primary(label: 'Change password', size: EBtnSize.sm, busy: _busy, onPressed: _save),
       ],
     ),
@@ -521,7 +528,10 @@ class _RemoveWalletDialogState extends ConsumerState<RemoveWalletDialog> {
         icon: EIcons.trash,
         tone: ETone.risk,
         dismissible: !_busy,
-        body: Column(
+        // Enter: Wallet name → Password, then the danger button once everything is filled.
+        body: EForm(
+          onSubmit: _ready ? _remove : null,
+          child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Semantics(
@@ -577,8 +587,9 @@ class _RemoveWalletDialogState extends ConsumerState<RemoveWalletDialog> {
             ],
           ],
         ),
+        ),
         actions: [
-          EButton(label: 'Cancel', size: EBtnSize.sm, kind: EBtnKind.ghost, onPressed: _busy ? null : () => Navigator.of(context).pop()),
+          EButton(label: 'Cancel', size: EBtnSize.sm, kind: EBtnKind.ghost, tabStop: false, onPressed: _busy ? null : () => Navigator.of(context).pop()),
           EButton(
             label: _mode == WalletRemoval.delete ? 'Delete wallet' : 'Remove from list',
             icon: EIcons.trash,
@@ -676,7 +687,7 @@ class _DeleteWalletDialogState extends ConsumerState<DeleteWalletDialog> {
         ],
       ),
       actions: [
-        EButton(label: 'Cancel', size: EBtnSize.sm, kind: EBtnKind.ghost, onPressed: _busy ? null : () => Navigator.of(context).pop()),
+        EButton(label: 'Cancel', size: EBtnSize.sm, kind: EBtnKind.ghost, tabStop: false, onPressed: _busy ? null : () => Navigator.of(context).pop()),
         EButton(label: 'Delete wallet', icon: EIcons.trash, size: EBtnSize.sm, kind: EBtnKind.danger, busy: _busy, onPressed: _ready ? _delete : null),
       ],
     ),
