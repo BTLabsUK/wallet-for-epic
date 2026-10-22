@@ -114,6 +114,8 @@ Future<List<Override>> deskOverrides() async {
     pickDirectory: () => FilePicker.getDirectoryPath(dialogTitle: 'Choose the wallet folder'),
     // bin/tor-bundle beside the app (tools/fetch-tor.sh); without it Tor cannot be turned on.
     torBundle: findTorBundle,
+    // The BT Labs contact's website copy (F31); the bundled one is used until it answers.
+    seedFetch: LepicDeskWallet.fetchSeeds,
   );
   // Off by default (D10): this starts a node only when the user turned it on before.
   unawaited(wallet.resumeBuiltInNode());

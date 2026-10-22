@@ -15,6 +15,7 @@ export 'data.dart';
 export 'dialogs.dart';
 export 'fields.dart';
 export 'frames.dart';
+export 'hero_art.dart';
 export 'keyboard.dart';
 export 'password_hint.dart';
 export 'motion.dart';

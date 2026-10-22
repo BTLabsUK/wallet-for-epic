@@ -6,17 +6,12 @@ import '../../widgets/kit.dart';
 import 'tx_detail.dart';
 import 'tx_display.dart';
 
-enum ActivityTab { transactions, outputs }
-
 enum _Filter { all, received, sent }
 
-enum _OutFilter { all, unspent, unconfirmed }
-
-/// Starts Activity on a tab, a selected transaction, or the empty state.
+/// Starts Activity on a selected transaction, a search, or the empty state.
 class ActivityArgs {
-  const ActivityArgs({this.tab = ActivityTab.transactions, this.txId, this.empty = false, this.waitingNode = false, this.query});
+  const ActivityArgs({this.txId, this.empty = false, this.waitingNode = false, this.query});
 
-  final ActivityTab tab;
   final int? txId;
   final bool empty;
 
@@ -28,7 +23,7 @@ class ActivityArgs {
 const int _pageSize = 12;
 
 /// Activity: every transaction (filter, search, pages) with the selected one in a detail pane
-/// beside the list at desktop width, or in its place below. Outputs on the second tab.
+/// beside the list at desktop width, or in its place below. Outputs have their own page.
 class ActivityScreen extends ConsumerStatefulWidget {
   const ActivityScreen({super.key, this.arg});
 
@@ -45,14 +40,10 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
     final ActivityArgs a => a,
     _ => const ActivityArgs(),
   };
-  late ActivityTab _tab = _args.tab;
   late int? _selected = _args.txId;
   late final _query = TextEditingController(text: _args.query);
-  final _outQuery = TextEditingController();
   _Filter _filter = _Filter.all;
-  _OutFilter _outFilter = _OutFilter.all;
   int _page = 0;
-  int _outPage = 0;
   bool _refreshing = false;
 
   bool get _noTxs => _args.empty || _args.waitingNode;
@@ -60,7 +51,6 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
   @override
   void dispose() {
     _query.dispose();
-    _outQuery.dispose();
     super.dispose();
   }
 
@@ -72,10 +62,7 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
     } on Object catch (e) {
       if (mounted) showEToast(context, 'Not updated', text: deskErrorText(e), tone: ETone.risk);
     } finally {
-      if (mounted) {
-        ref.invalidate(deskOutputsProvider);
-        setState(() => _refreshing = false);
-      }
+      if (mounted) setState(() => _refreshing = false);
     }
   }
 
@@ -94,19 +81,17 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
     ];
   }
 
-  /// The search of the tab that shows. [full] fills its row (narrow layout).
+  /// The search. [full] fills its row (narrow layout).
   Widget _search({required bool full, required bool hasItems}) {
     final width = MediaQuery.sizeOf(context).width;
-    final outputs = _tab == ActivityTab.outputs;
-    final ctl = outputs ? _outQuery : _query;
     final input = EInput(
-      controller: ctl,
+      controller: _query,
       enabled: hasItems,
-      hint: hasItems ? (outputs ? 'Commitment' : 'Address or slate id') : 'Nothing to search yet',
+      hint: hasItems ? 'Address or slate id' : 'Nothing to search yet',
       leading: EIcons.search,
-      semanticLabel: outputs ? 'Search outputs' : 'Search transactions',
-      onChanged: (_) => setState(() => outputs ? _outPage = 0 : _page = 0),
-      trailing: ctl.text.isEmpty ? null : EIconButton(icon: EIcons.close, label: 'Clear search', size: EBtnSize.inline, onPressed: () => setState(ctl.clear)),
+      semanticLabel: 'Search transactions',
+      onChanged: (_) => setState(() => _page = 0),
+      trailing: _query.text.isEmpty ? null : EIconButton(icon: EIcons.close, label: 'Clear search', size: EBtnSize.inline, onPressed: () => setState(_query.clear)),
     );
     if (full) return input;
     return SizedBox(width: width >= 1280.u ? 280.u : 200.u, child: input);
@@ -121,17 +106,10 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
     // Below this the tabs and the search move out of the header into the page.
     final roomy = width >= 900.u;
     final all = _noTxs ? const <Tx>[] : s.txs;
-    final outputs = _noTxs ? const AsyncValue<List<Output>>.data([]) : ref.watch(deskOutputsProvider);
     final selectedTx = all?.where((t) => t.id == _selected).firstOrNull;
-    final hasItems = _tab == ActivityTab.outputs ? (outputs.value?.isNotEmpty ?? false) : (all?.isNotEmpty ?? false);
-
-    final tabs = ESegmented<ActivityTab>(
-      segments: const [ESegment(ActivityTab.transactions, 'Transactions'), ESegment(ActivityTab.outputs, 'Outputs')],
-      value: _tab,
-      onChanged: (v) => setState(() => _tab = v),
-    );
+    final hasItems = all?.isNotEmpty ?? false;
     final actions = <Widget>[
-      if (roomy) ...[if (DeskFeatures.coins) ...[tabs, SizedBox(width: Sp.x2)], _search(full: false, hasItems: hasItems)],
+      if (roomy) _search(full: false, hasItems: hasItems),
       EIconButton(
         icon: hidden ? EIcons.eyeOff : EIcons.eye,
         label: hidden ? 'Show amounts' : 'Hide amounts',
@@ -156,13 +134,12 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
       );
     }
 
-    final body = _tab == ActivityTab.outputs ? _outputs(outputs, s.balance) : _txList(all);
+    final body = _txList(all);
     final list = roomy
         ? body
         : Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              if (DeskFeatures.coins) ...[Align(alignment: Alignment.centerLeft, child: tabs), SizedBox(height: Sp.x3)],
               _search(full: true, hasItems: hasItems),
               SizedBox(height: Sp.x4),
               body,
@@ -173,7 +150,7 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
       width: EPageWidth.full,
       scroll: false,
       actions: actions,
-      child: split && selectedTx != null && _tab == ActivityTab.transactions
+      child: split && selectedTx != null
           ? Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -290,7 +267,7 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
           )
         else
           _panel(Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [const ActivityListHead(), ...rows])),
-        _Pager(pages: pages, page: page, onPage: (p) => setState(() => _page = p)),
+        ListPager(pages: pages, page: page, onPage: (p) => setState(() => _page = p)),
       ],
     );
   }
@@ -307,102 +284,12 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
       child: child,
     );
   }
-
-  Widget _outputs(AsyncValue<List<Output>> value, Balance? balance) {
-    final ts = context.ts;
-    final head = <Widget>[
-      if (balance != null) ...[_OutputSummary(balance: balance), SizedBox(height: Sp.x4)],
-      Text('Outputs are the coins the balance is made of. A send spends whole outputs and returns the change as a new one.', style: ts.bodyDim),
-      SizedBox(height: Sp.x4),
-    ];
-    Widget column(List<Widget> rest) => Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [...head, ...rest]);
-    final all = value.value;
-    if (all == null) {
-      if (value.hasError) {
-        return column([_panel(EEmpty(icon: EIcons.coins, title: 'Outputs not loaded', text: 'Refresh to try again.'))]);
-      }
-      return column([_waiting('Loading wallet data')]);
-    }
-    if (all.isEmpty) {
-      if (_args.waitingNode) return column([_waiting('Waiting for the node to be synced.')]);
-      return column([_panel(EEmpty(icon: EIcons.coins, title: 'No outputs yet', text: 'Coins appear here once the wallet receives its first payment.'))]);
-    }
-    final q = _outQuery.text.trim().toLowerCase();
-    final shown = [
-      for (final o in all)
-        if ((_outFilter == _OutFilter.all ||
-                (_outFilter == _OutFilter.unspent && o.status == OutputStatus.unspent) ||
-                (_outFilter == _OutFilter.unconfirmed && o.status == OutputStatus.unconfirmed)) &&
-            (q.isEmpty || o.commitment.contains(q)))
-          o,
-    ];
-    final pages = (shown.length / _pageSize).ceil();
-    final page = _outPage.clamp(0, (pages - 1).clamp(0, 999));
-    final slice = shown.skip(page * _pageSize).take(_pageSize).toList();
-    final c = context.dc;
-    return column([
-      Align(
-        alignment: Alignment.centerLeft,
-        child: SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: ESegmented<_OutFilter>(
-            segments: [
-              ESegment(_OutFilter.all, 'All', count: all.length),
-              ESegment(_OutFilter.unspent, 'Unspent', count: all.where((o) => o.status == OutputStatus.unspent).length),
-              ESegment(_OutFilter.unconfirmed, 'Unconfirmed', count: all.where((o) => o.status == OutputStatus.unconfirmed).length),
-            ],
-            value: _outFilter,
-            onChanged: (v) => setState(() {
-              _outFilter = v;
-              _outPage = 0;
-            }),
-          ),
-        ),
-      ),
-      SizedBox(height: Sp.x3),
-      if (shown.isEmpty)
-        _panel(
-          EEmpty(
-            icon: EIcons.search,
-            title: 'No outputs match',
-            text: 'Try another commitment, or clear the filter.',
-            actions: [
-              EButton.ghost(
-                label: 'Clear search',
-                onPressed: () => setState(() {
-                  _outQuery.clear();
-                  _outFilter = _OutFilter.all;
-                }),
-              ),
-            ],
-          ),
-        )
-      else
-        _panel(
-          Semantics(
-            label: 'Outputs',
-            container: true,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const _OutputHead(),
-                for (final (i, o) in slice.indexed) ...[if (i > 0) Divider(height: 1, color: c.line), _OutputRow(output: o, tip: _tipHeight(ref))],
-              ],
-            ),
-          ),
-        ),
-      _Pager(pages: pages, page: page, onPage: (p) => setState(() => _outPage = p)),
-    ]);
-  }
 }
-
-/// The chain tip, for "blocks to go".
-int _tipHeight(WidgetRef ref) => ref.read(deskProvider).status?.nodeHeight ?? 0;
 
 /// Page buttons: the first and last pages with the current one in the middle, "Page X of Y".
 /// Wraps instead of overflowing; on a narrow row only previous, "Page X of Y" and next.
-class _Pager extends StatelessWidget {
-  const _Pager({required this.pages, required this.page, required this.onPage});
+class ListPager extends StatelessWidget {
+  const ListPager({super.key, required this.pages, required this.page, required this.onPage});
 
   final int pages;
 
@@ -601,233 +488,6 @@ class _DetailPane extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-/// The balance lines above the outputs.
-class _OutputSummary extends StatelessWidget {
-  const _OutputSummary({required this.balance});
-
-  final Balance balance;
-
-  @override
-  Widget build(BuildContext context) {
-    final ts = context.ts;
-    final c = context.dc;
-    Widget item(String label, int nano, {bool unit = false}) => Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(label, style: ts.small),
-        SizedBox(height: 2),
-        EMoney(nano, unit: unit, size: Fs.md, color: nano == 0 ? c.faint : c.text),
-      ],
-    );
-    return Semantics(
-      container: true,
-      label: 'Balance',
-      child: Wrap(
-        spacing: Sp.x8,
-        runSpacing: Sp.x3,
-        children: [
-          item('Spendable', balance.spendable, unit: true),
-          item('Confirming', balance.awaitingConfirmation),
-          item('Awaiting finalization', balance.awaitingFinalization),
-          if (balance.immature > 0) item('Immature', balance.immature),
-          item('Locked', balance.locked),
-        ],
-      ),
-    );
-  }
-}
-
-/// "08c7a1e9f0…b2d4a6c8e0": both ends of a long id.
-String _mid(String s, int keep) => s.length <= keep * 2 + 1 ? s : '${s.substring(0, keep)}…${s.substring(s.length - keep)}';
-
-String _group(int n) => n.toString().replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (_) => ',');
-
-class _OutputHead extends StatelessWidget {
-  const _OutputHead();
-
-  @override
-  Widget build(BuildContext context) {
-    final c = context.dc;
-    final style = context.ts.caption.copyWith(fontWeight: FontWeight.w600);
-    return LayoutBuilder(
-      builder: (context, box) {
-        final roomy = box.maxWidth >= 600.u;
-        return Container(
-          height: 36.u,
-          padding: EdgeInsets.symmetric(horizontal: Sp.x5),
-          decoration: BoxDecoration(
-            border: Border(bottom: BorderSide(color: c.line)),
-          ),
-          child: Row(
-            children: [
-              Expanded(child: Text('Commitment', style: style)),
-              if (roomy) ...[
-                SizedBox(width: Sp.x4),
-                SizedBox(
-                  width: 96.u,
-                  child: Text('Height', style: style),
-                ),
-              ],
-              SizedBox(width: Sp.x4),
-              SizedBox(
-                width: txAmountWidth,
-                child: Text('Value', style: style, textAlign: TextAlign.right),
-              ),
-              if (roomy) ...[
-                SizedBox(width: Sp.x4),
-                SizedBox(
-                  width: 200.u,
-                  child: Text('Status', style: style),
-                ),
-              ],
-            ],
-          ),
-        );
-      },
-    );
-  }
-}
-
-class _OutputRow extends StatelessWidget {
-  const _OutputRow({required this.output, required this.tip});
-
-  final Output output;
-  final int tip;
-
-  (String, String?, ETone) _status() {
-    final o = output;
-    return switch (o.status) {
-      OutputStatus.confirming => ('Confirming ${o.confirmations}/${o.confirmationsNeeded}', null, ETone.warn),
-      OutputStatus.unconfirmed => ('Unconfirmed', null, ETone.neutral),
-      OutputStatus.unspent => ('Unspent', null, ETone.ok),
-      OutputStatus.immature => ('Immature', o.lockHeight != null && o.lockHeight! > tip ? '${_group(o.lockHeight! - tip)} blocks to go' : null, ETone.warn),
-      OutputStatus.locked => ('Locked', null, ETone.neutral),
-      OutputStatus.spent => ('Spent', null, ETone.neutral),
-    };
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final c = context.dc;
-    final ts = context.ts;
-    final o = output;
-    final spent = o.status == OutputStatus.spent;
-    final (word, note, tone) = _status();
-    final toneColor = switch (tone) {
-      ETone.ok => c.ok,
-      ETone.warn => c.warn,
-      _ => c.dim,
-    };
-    final mark = switch (o.status) {
-      OutputStatus.confirming => ERing(confirmations: o.confirmations, needed: o.confirmationsNeeded, size: 18.u),
-      OutputStatus.unconfirmed => ERing(confirmations: 0, size: 18.u),
-      OutputStatus.unspent => Icon(EIcons.okCircle, size: Ctl.iconSm, color: c.ok),
-      OutputStatus.immature => Icon(EIcons.sand, size: Ctl.iconSm, color: c.warn),
-      OutputStatus.locked => Icon(EIcons.lock, size: Ctl.iconSm, color: c.dim),
-      OutputStatus.spent => Icon(EIcons.minusCircle, size: Ctl.iconSm, color: c.faint),
-    };
-    final status = Row(
-      children: [
-        SizedBox(width: 18.u, height: 18.u, child: Center(child: mark)),
-        SizedBox(width: Sp.x2),
-        Flexible(
-          child: Text.rich(
-            TextSpan(
-              children: [
-                TextSpan(
-                  text: word,
-                  style: TextStyle(color: toneColor),
-                ),
-                if (note != null)
-                  TextSpan(
-                    text: ' · $note',
-                    style: TextStyle(color: c.faint),
-                  ),
-              ],
-            ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: ts.small,
-          ),
-        ),
-      ],
-    );
-    final commitment = Row(
-      children: [
-        Flexible(
-          child: Tooltip(
-            message: o.commitment,
-            child: Text(
-              _mid(o.commitment, 10),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: ts.mono(size: Fs.xs, color: spent ? c.faint : c.dim),
-            ),
-          ),
-        ),
-        ECopyButton(text: o.commitment, label: 'Copy commitment ${_mid(o.commitment, 8)}'),
-      ],
-    );
-    final value = Align(
-      alignment: Alignment.centerRight,
-      child: EMoney(o.value, unit: false, color: spent ? c.faint : c.text),
-    );
-    return Opacity(
-      opacity: spent ? 0.7 : 1,
-      child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: Sp.x5, vertical: Sp.x2),
-        child: LayoutBuilder(
-          builder: (context, box) {
-            if (box.maxWidth >= 600.u) {
-              return Row(
-                children: [
-                  Expanded(child: commitment),
-                  SizedBox(width: Sp.x4),
-                  SizedBox(
-                    width: 96.u,
-                    child: Text(
-                      o.height == null ? '-' : _group(o.height!),
-                      style: ts.mono(size: Fs.xs, color: c.faint),
-                    ),
-                  ),
-                  SizedBox(width: Sp.x4),
-                  SizedBox(width: txAmountWidth, child: value),
-                  SizedBox(width: Sp.x4),
-                  SizedBox(width: 200.u, child: status),
-                ],
-              );
-            }
-            // Narrow: commitment and value on the first line, status and height under them.
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Row(
-                  children: [
-                    Expanded(child: commitment),
-                    SizedBox(width: Sp.x3),
-                    value,
-                  ],
-                ),
-                Row(
-                  children: [
-                    Expanded(child: status),
-                    if (o.height != null)
-                      Text(
-                        _group(o.height!),
-                        style: ts.mono(size: Fs.xs, color: c.faint),
-                      ),
-                  ],
-                ),
-              ],
-            );
-          },
-        ),
       ),
     );
   }

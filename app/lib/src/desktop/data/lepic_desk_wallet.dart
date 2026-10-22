@@ -26,14 +26,15 @@ import 'package:path_provider/path_provider.dart';
 import '../../builtin_node.dart';
 import '../../legacy_gui_profile.dart' as gui;
 import '../../legacy_wallets.dart' as legacy;
-import '../../lepic_wallet_service.dart' show sendUnbuildable;
 import '../../log.dart';
 import '../../node/node_settings.dart' show NodeSettings;
 import '../../network.dart';
 import '../../providers.dart' show WalletDirResolver, defaultMinimumConfirmations;
 import '../../public_servers.dart';
+import '../../net/http.dart' show httpGet;
 import '../../relay_directory.dart';
 import '../../secret_store_api.dart';
+import '../../seed_contacts.dart';
 import '../../slate_files.dart' show decodeSlateFile, responseFileName, sendFileName;
 import '../../tor_location.dart';
 import '../../wallet_registry.dart' as reg;
@@ -90,7 +91,7 @@ String deskErrorText(Object error) {
     core.WalletErrorKind.chainBusy || core.WalletErrorKind.walletBusy => 'Wallet busy. Try again in a moment.',
     core.WalletErrorKind.damagedDatabase => 'Wallet database damaged, rebuilding',
     core.WalletErrorKind.paymentExpired => detail.isEmpty ? 'Payment expired' : detail,
-    core.WalletErrorKind.invalidArgument => detail == sendUnbuildable ? detail : detail.isEmpty ? 'Not accepted' : 'Not accepted: $detail',
+    core.WalletErrorKind.invalidArgument => detail == core.sendUnbuildable || detail == core.nothingToConsolidate ? detail : detail.isEmpty ? 'Not accepted' : 'Not accepted: $detail',
     core.WalletErrorKind.io => detail.isEmpty ? 'Disk error' : 'Disk error: $detail',
     core.WalletErrorKind.other => detail.isEmpty ? 'Something went wrong' : detail,
   };
@@ -106,9 +107,13 @@ String torFailureText(core.TorFailure? f) => switch (f) {
   core.TorFailure.stopped || null => 'Tor stopped',
 };
 
+/// A call LEPIC ended at a lock ("… was cancelled"); its effect may still be stored.
+bool lepicCancelled(Object error) => error is core.WalletError && error.kind == core.WalletErrorKind.other && error.message.endsWith('was cancelled');
+
 DeskError _deskError(Object error) => DeskError(
   deskErrorText(error),
   wrongPassword: error is core.WalletError && error.kind == core.WalletErrorKind.wrongPassword,
+  unbuildable: error is core.WalletError && error.kind == core.WalletErrorKind.invalidArgument && error.message == core.sendUnbuildable,
 );
 
 class LepicDeskWallet implements DeskWalletApi {
@@ -125,6 +130,7 @@ class LepicDeskWallet implements DeskWalletApi {
     this.nodePoll = const Duration(seconds: 30),
     this.nodeTimeout = const Duration(seconds: 15),
     this.torRetryAfter = const Duration(seconds: 60),
+    this.closeWait = const Duration(seconds: 30),
     reg.WalletRegistry? registry,
     this._builtInNode,
     legacy.LegacyRoots Function()? legacyRoots,
@@ -134,6 +140,7 @@ class LepicDeskWallet implements DeskWalletApi {
     bool? torFeature,
     Future<Directory> Function()? rememberDir,
     DateTime Function()? now,
+    this._seedFetch,
   }) : _torFeature = torFeature ?? DeskFeatures.tor,
        _legacyRoots = legacyRoots ?? legacy.LegacyRoots.current,
        _minConfFallback = minimumConfirmations ?? BigInt.from(defaultMinimumConfirmations),
@@ -187,6 +194,9 @@ class LepicDeskWallet implements DeskWalletApi {
   /// How long tor may connect before Retry is offered beside "Connecting to Tor…".
   final Duration torRetryAfter;
 
+  /// How long closing the app waits for a payment under way before it locks anyway.
+  final Duration closeWait;
+
   /// Makes the built-in node of a network (desktop builds with the bundled `epic`, D10); null
   /// where there is none.
   final Future<BuiltInNode> Function(core.Chain chain)? _builtInNode;
@@ -210,11 +220,6 @@ class LepicDeskWallet implements DeskWalletApi {
   /// Set while [_switchTo] reopens the wallet: a send or a scan starting then waits for it.
   Completer<void>? _switching;
 
-  /// Sends, finalizes, receives, cancels and scans running on the session ([_walletOp]); the
-  /// fallback never moves the node under them.
-  int _ops = 0;
-  Completer<void>? _opsDone;
-
   /// The latest fallback decision ([applyNodeFallback]) and its number: an older one still
   /// queued is dropped.
   ({bool usePublic, String? publicUrl})? _fallback;
@@ -226,33 +231,18 @@ class LepicDeskWallet implements DeskWalletApi {
     return r;
   }
 
-  /// Runs [op] on the session once no switch is under way; counted while it runs.
-  Future<T> _walletOp<T>(Future<T> Function() op) async {
-    await _switchEnded();
-    _ops++;
-    try {
-      return await op();
-    } finally {
-      _opEnded();
-    }
-  }
-
+  /// Done once no switch is under way.
   Future<void> _switchEnded() async {
     while (_switching != null) {
       await _switching!.future;
     }
   }
 
+  /// A scan counts as a running operation like a payment: the lock and the node moves wait.
   void _opEnded() {
-    if (--_ops == 0) {
-      _opsDone?.complete();
-      _opsDone = null;
-    }
-  }
-
-  Future<void> _opsIdle() async {
-    while (_ops > 0) {
-      await (_opsDone ??= Completer<void>()).future;
+    if (--_busy == 0) {
+      _idle?.complete();
+      _idle = null;
     }
   }
 
@@ -611,6 +601,7 @@ class LepicDeskWallet implements DeskWalletApi {
             await _store.delete(DeskStore.httpKeyOf(entry.walletId));
           }
           await _store.delete(DeskStore.torKeyOf(entry.walletId));
+          await _store.delete(DeskStore.outputsKeyOf(entry.walletId));
       }
     } on reg.WalletRegistryException catch (e) {
       throw _listError(e);
@@ -767,6 +758,7 @@ class LepicDeskWallet implements DeskWalletApi {
       torAutostart: _torFeature && autostart.tor,
     );
     await _setMeta({'opened': DateTime.now().millisecondsSinceEpoch ~/ 1000});
+    await _seedContacts();
     try {
       if (_registry != null) _openEntry = await (await _registry!).markOpened(entry.id);
     } on Object catch (e) {
@@ -809,7 +801,26 @@ class LepicDeskWallet implements DeskWalletApi {
   }
 
   @override
-  Future<void> lock() async {
+  Future<void> lock() => _lock();
+
+  /// [waitAtMost]: how long a running send may hold the lock up (the app closing); past it
+  /// the lock goes ahead and the core ends the call.
+  Future<void> _lock({Duration? waitAtMost}) async {
+    // A send, finalize or split under way finishes first ([busy]); none starts meanwhile.
+    _locking = true;
+    try {
+      if (waitAtMost == null) {
+        await whenIdle();
+      } else {
+        await whenIdle().timeout(waitAtMost, onTimeout: () => logWarn('desk', 'closing: a payment still ran after ${waitAtMost.inSeconds} s; locking anyway'));
+      }
+      await _lockNow();
+    } finally {
+      _locking = false;
+    }
+  }
+
+  Future<void> _lockNow() async {
     _generation++;
     _poll?.cancel();
     _poll = null;
@@ -835,8 +846,12 @@ class LepicDeskWallet implements DeskWalletApi {
   /// them, the listener kept as it was. When it does not open, the wallet opens again on the
   /// old ones and the error says so; when even that fails, the wallet locks
   /// ([DeskError.locked]). Locked: only saved. Callers hold [_nodeLock]; [_switching] is set
-  /// before the first await, so a caller that saw no [_ops] running is not overtaken by one.
+  /// before the first await, so a caller that saw no [_busy] running is not overtaken by one.
   Future<void> _switchTo({required String nodeUrl, required EpicboxRelay relay}) async {
+    // Payments and scans under way end first; the check and the mark follow with no await.
+    while (_busy > 0) {
+      await whenIdle();
+    }
     final switching = _switching = Completer<void>();
     try {
       await _reopenOn(nodeUrl: nodeUrl, relay: relay);
@@ -1498,6 +1513,7 @@ class LepicDeskWallet implements DeskWalletApi {
       awaitingFinalization: s.awaitingFinalization.toInt(),
       immature: s.immature.toInt(),
       minConfirmations: _minConf.toInt(),
+      reportedTotal: s.total.toInt(),
     );
   }
 
@@ -1510,9 +1526,16 @@ class LepicDeskWallet implements DeskWalletApi {
     return [for (final (i, e) in entries.indexed) deskTx(e, tip: _tip, minConf: _minConf.toInt(), fallbackId: -1 - i, contactName: names[e.counterparty])];
   }
 
-  /// Outputs are not in LEPIC's API yet ([DeskFeatures.coins]).
+  /// Every output, spent ones included, from the wallet's database (as of the last refresh).
   @override
-  Future<List<Output>> outputs() async => const [];
+  Future<List<Output>> outputs() async {
+    try {
+      final list = await _open.outputs();
+      return [for (final o in list) deskOutput(o, minConf: _minConf.toInt())];
+    } on core.WalletError catch (e) {
+      throw _deskError(e);
+    }
+  }
 
   @override
   Future<List<Contact>> contacts() async {
@@ -1703,17 +1726,114 @@ class LepicDeskWallet implements DeskWalletApi {
   }
 
   @override
-  Future<(int, int)> estimateMax() async {
+  Future<SendEstimate> estimateSend(int amount, {SendOptions? options}) async {
     try {
-      final f = await _open.estimateMax(minimumConfirmations: _minConf);
-      return (f.amount.toInt(), f.fee.toInt());
+      final f = await _open.estimateFee(amount: BigInt.from(amount), minimumConfirmations: _minConf, options: options);
+      return SendEstimate.fromFee(f);
     } on core.WalletError catch (e) {
       throw _deskError(e);
     }
   }
 
   @override
-  Future<SendResult> send(SendRequest r) => _walletOp(() => _send(r));
+  Future<OutputPrefs> outputPrefs() => _store.outputPrefs(_openEntry?.walletId);
+
+  @override
+  Future<void> saveOutputPrefs(OutputPrefs prefs) => _store.saveOutputPrefs(_openEntry?.walletId, prefs);
+
+  @override
+  Future<SendEstimate> estimateSplit(int outputs) async {
+    try {
+      return SendEstimate.fromFee(await _open.estimateSplit(outputs: outputs, minimumConfirmations: _minConf));
+    } on core.WalletError catch (e) {
+      throw _deskError(e);
+    }
+  }
+
+  @override
+  Future<SelfSend> splitOutputs(int outputs) => _selfSend(() => _open.splitOutputs(outputs: outputs, minimumConfirmations: _minConf));
+
+  @override
+  Future<SendEstimate> estimateConsolidate() async {
+    try {
+      return SendEstimate.fromFee(await _open.estimateConsolidate(minimumConfirmations: _minConf));
+    } on core.WalletError catch (e) {
+      throw _deskError(e);
+    }
+  }
+
+  @override
+  Future<SelfSend> consolidateOutputs() => _selfSend(() => _open.consolidateOutputs(minimumConfirmations: _minConf));
+
+  /// Runs a split or consolidate and brings balance and history up to date, failed or not:
+  /// a self-send the node did not take is stored with its inputs locked.
+  /// One the node did not take is stored as a new send: the error then names it
+  /// ([DeskError.notPostedTx]) so it can be posted again or cancelled.
+  Future<SelfSend> _selfSend(Future<core.SelfSentTx> Function() run) => _running(() async {
+    final session = _open;
+    Set<int?>? before;
+    try {
+      before = {for (final e in await session.transactions(refresh: false)) e.id};
+      final t = await run();
+      await _reload();
+      return SelfSend(txId: t.txId, receivedTxId: t.receivedTxId, amount: t.amount.toInt(), fee: t.fee.toInt(), inputCount: t.inputCount, outputCount: t.outputCount);
+    } on core.WalletError catch (e) {
+      await _reload();
+      final stored = before == null
+          ? null
+          : (await session.transactions(refresh: false)).where((x) => !before!.contains(x.id) && x.id != null).map((x) => x.id!).fold<int?>(null, (a, b) => a == null || b < a ? b : a);
+      if (stored != null) throw DeskError('Not posted', notPostedTx: stored);
+      throw _deskError(e);
+    }
+  });
+
+  @override
+  Future<void> repostTx(int id) => _running(() async {
+    if (!await _repost(_open, id)) throw const DeskError('Node not answering');
+  });
+
+  /// Calls that change the wallet (send, receive and finalize a file, split, consolidate,
+  /// repost, cancel, scan) running now; the fallback and the user's node moves wait for them too. LEPIC ends running calls at lock, maybe after storing their
+  /// effect, so [lock] waits for them instead.
+  int _busy = 0;
+  Completer<void>? _idle;
+
+  /// A lock waits for [_busy]: no new payment starts until it is done.
+  bool _locking = false;
+
+  @override
+  bool get busy => _busy > 0;
+
+  /// Done once no such call runs.
+  Future<void> whenIdle() => _busy == 0 ? Future<void>.value() : (_idle ??= Completer<void>()).future;
+
+  /// Runs [call] on the session once no switch is under way; counted while it runs. The check
+  /// and the count follow each other with no await, so a switch or a lock never overtakes it.
+  Future<T> _running<T>(Future<T> Function() call) async {
+    if (_locking) throw const DeskError('The wallet is locking', locked: true);
+    while (_switching != null) {
+      await _switching!.future;
+      if (_locking) throw const DeskError('The wallet is locking', locked: true);
+    }
+    _busy++;
+    try {
+      return await call();
+    } finally {
+      _opEnded();
+    }
+  }
+
+  @override
+  Future<SendEstimate> estimateMax() async {
+    try {
+      return SendEstimate.fromFee(await _open.estimateMax(minimumConfirmations: _minConf));
+    } on core.WalletError catch (e) {
+      throw _deskError(e);
+    }
+  }
+
+  @override
+  Future<SendResult> send(SendRequest r) => _running(() => _send(r));
 
   Future<SendResult> _send(SendRequest r) async {
     final session = _open;
@@ -1730,11 +1850,11 @@ class LepicDeskWallet implements DeskWalletApi {
         case TxMethod.epicbox:
           final to = (r.to ?? '').trim();
           if (!_service.validateEpicboxAddress(address: to)) return const SendFailed('Not an Epicbox address');
-          final e = await session.sendEpicbox(amount: BigInt.from(amount), minimumConfirmations: _minConf, address: to, message: message);
+          final e = await session.sendEpicbox(amount: BigInt.from(amount), minimumConfirmations: _minConf, address: to, message: message, options: r.options);
           await _reload();
           return SendDone(_txFor(e));
         case TxMethod.file:
-          final slate = await session.createSendSlate(amount: BigInt.from(amount), minimumConfirmations: _minConf, message: message);
+          final slate = await session.createSendSlate(amount: BigInt.from(amount), minimumConfirmations: _minConf, message: message, options: r.options);
           final File file;
           try {
             final dir = await _filesDir();
@@ -1764,6 +1884,7 @@ class LepicDeskWallet implements DeskWalletApi {
             url: to,
             allowPlainHttp: r.allowPlainHttp && plainHttpNeedsConsent(to),
             message: message,
+            options: r.options,
           );
           return await _directDone(session, sent, method, amount, to);
         case TxMethod.tor:
@@ -1772,7 +1893,7 @@ class LepicDeskWallet implements DeskWalletApi {
           if (!_settings.tor) return const SendFailed('Tor is off. Turn on Tor to send to an onion address.');
           if (!_torCanSend) return const SendFailed('Tor is still connecting. Try again in a moment.');
           before = {for (final e in await session.transactions(refresh: false)) e.id};
-          final sent = await session.sendTor(amount: BigInt.from(amount), minimumConfirmations: _minConf, onion: to, message: message);
+          final sent = await session.sendTor(amount: BigInt.from(amount), minimumConfirmations: _minConf, onion: to, message: message, options: r.options);
           return await _directDone(session, sent, method, amount, to);
       }
     } on core.WalletError catch (e) {
@@ -1798,6 +1919,9 @@ class LepicDeskWallet implements DeskWalletApi {
         }
         return const SendFailed('Not delivered. $waits', inActivity: true);
       }
+      // Ended by a lock (the app's own lock waits; the wallet can still close under it): the
+      // send may have been stored as sent, so the next unlock's Activity tells.
+      if (lepicCancelled(e)) return const SendFailed('Interrupted by the lock. It may have gone out: check Activity after unlocking.', inActivity: true);
       if (stored) return SendFailed('${deskErrorText(e).replaceFirst(RegExp(r'\.$'), '')}. $waits', inActivity: true);
       return SendFailed(deskErrorText(e));
     }
@@ -1852,7 +1976,7 @@ class LepicDeskWallet implements DeskWalletApi {
   /// `<name>.response` (epic-wallet's `receive -i`); in the app's files folder when that folder
   /// cannot be written.
   @override
-  Future<ReceivedFile> receiveFile(String fileName) => _walletOp(() => _receiveFile(fileName));
+  Future<ReceivedFile> receiveFile(String fileName) => _running(() => _receiveFile(fileName));
 
   Future<ReceivedFile> _receiveFile(String fileName) async {
     final json = await _readSlate(fileName);
@@ -1890,7 +2014,7 @@ class LepicDeskWallet implements DeskWalletApi {
   }
 
   @override
-  Future<Tx> finalizeFile(String fileName) => _walletOp(() async {
+  Future<Tx> finalizeFile(String fileName) => _running(() async {
     final json = await _readSlate(fileName);
     try {
       final e = await _open.finalizeAndPost(slateJson: json);
@@ -1902,17 +2026,15 @@ class LepicDeskWallet implements DeskWalletApi {
   });
 
   @override
-  Future<void> cancelTx(int id) async {
+  Future<void> cancelTx(int id) => _running(() async {
     if (id < 0) throw const DeskError('This payment cannot be cancelled');
-    await _walletOp(() async {
-      try {
-        await _open.cancelTransaction(txId: id);
-      } on core.WalletError catch (e) {
-        throw _deskError(e);
-      }
-      await _reload();
-    });
-  }
+    try {
+      await _open.cancelTransaction(txId: id);
+    } on core.WalletError catch (e) {
+      throw _deskError(e);
+    }
+    await _reload();
+  });
 
   @override
   Future<String> exportProof(int id) => throw UnsupportedError('payment proofs (DeskFeatures.paymentProofs)');
@@ -1933,8 +2055,173 @@ class LepicDeskWallet implements DeskWalletApi {
   @override
   Future<void> deleteContact(String id) async {
     await _open.deleteContact(id: id);
+    // A seeded contact the user deleted never comes back on this computer.
+    final session = _session;
+    final key = _metaKey(_openEntry?.walletId);
+    await _seedLocked(() async {
+      if (_session != session) return;
+      final seeds = await _seedRecords(key);
+      final seeded = seeds.entries.where((e) => e.value['contact'] == id).map((e) => e.key).toList();
+      if (seeded.isEmpty) return;
+      for (final k in seeded) {
+        seeds[k] = {...seeds[k]!, 'deleted': true};
+      }
+      await _setMeta({'seeds': seeds}, key);
+    });
     final favourites = await _favourites();
     if (favourites.remove(id)) await _store.writeJson(_favouritesKey, favourites.toList());
+  }
+
+  // ---- Seed contacts (F31, spec 9).
+
+  /// Reads the website's list ([fetchSeeds] in the app); null reads nothing (tests).
+  final Future<String?> Function(Uri url)? _seedFetch;
+
+  /// The website's list, read once per app start (or from the 7-day cache); null until then.
+  List<SeedContact>? _webSeeds;
+  bool _seedFetchStarted = false;
+
+  /// One seed read-modify-write at a time (open, the website's refresh, a delete), so two
+  /// never interleave and none writes into a wallet opened after it started.
+  /// The running one, null when idle. Nothing is chained onto a future made at construction:
+  /// that one belongs to whatever zone built the wallet (a widget test's fake clock), and a
+  /// callback on it would wait for that clock.
+  Future<void>? _seedRunning;
+
+  Future<void> _seedLocked(Future<void> Function() body) async {
+    while (_seedRunning != null) {
+      await _seedRunning;
+    }
+    final done = Completer<void>();
+    _seedRunning = done.future;
+    try {
+      await body();
+    } finally {
+      _seedRunning = null;
+      done.complete();
+    }
+  }
+
+  /// The website's seed contacts file, or null when it did not answer with one.
+  static Future<String?> fetchSeeds(Uri url) async {
+    final r = await httpGet(url, timeout: const Duration(seconds: 5));
+    return r.status == 200 ? r.body : null;
+  }
+
+  /// Per wallet: seed id → the contact it made, its name, address and note as last written,
+  /// deleted.
+  Future<Map<String, Map<String, dynamic>>> _seedRecords([String? key]) async {
+    final j = (await _meta(key))['seeds'];
+    return {
+      if (j is Map)
+        for (final e in j.entries)
+          if (e.value is Map) '${e.key}': Map<String, dynamic>.from(e.value as Map),
+    };
+  }
+
+  /// The website may update only the contacts the app ships with (by id); it never adds one.
+  static List<SeedContact> _knownSeeds(List<SeedContact>? web) {
+    final ids = {for (final c in bundledSeedContacts) c.id};
+    return [...?web?.where((c) => ids.contains(c.id))];
+  }
+
+  /// On every open: a seed contact the wallet never had is added now (the bundled one at
+  /// once, never waiting for the network); one the user did not edit follows the website's
+  /// copy; one the user deleted or edited is left alone. A failure changes nothing.
+  Future<void> _seedContacts() async {
+    try {
+      final web = await _cachedWebSeeds();
+      await _applySeeds([...bundledSeedContacts, ..._knownSeeds(web)]);
+    } on Object catch (e) {
+      logWarn('desk', 'seed contacts not applied: ${e.runtimeType}');
+    }
+    if (!_seedFetchStarted && _seedFetch != null) {
+      _seedFetchStarted = true;
+      unawaited(_refreshWebSeeds());
+    }
+  }
+
+  static Map<String, Object?> _seedRecord(String contact, SeedContact s) =>
+      {'contact': contact, 'name': s.name, 'address': s.address, 'note': s.note, 'deleted': false};
+
+  /// Applies [list] to the wallet open now; stops without writing when another one opens or
+  /// the wallet locks meanwhile.
+  Future<void> _applySeeds(List<SeedContact> list) {
+    final session = _session;
+    if (session == null) return Future.value();
+    final key = _metaKey(_openEntry?.walletId);
+    return _seedLocked(() async {
+      if (_session != session) return;
+      // A later entry (the website's) wins over an earlier one (the bundled) with the same id.
+      final byId = {for (final c in list) c.id: c};
+      final seeds = await _seedRecords(key);
+      final stored = {for (final c in await session.contacts()) c.id: c};
+      final claimed = {for (final r in seeds.values) r['contact']};
+      var changed = false;
+      for (final s in byId.values) {
+        if (_session != session) return;
+        final rec = seeds[s.id];
+        if (rec == null) {
+          // A contact with this address already (the user's, or one a failed earlier write
+          // inserted) becomes the seed's: no second row.
+          final same = stored.values.where((c) => c.address == s.address && !claimed.contains(c.id)).firstOrNull;
+          if (same != null) {
+            // Recorded with the seed's values: a name or note the user chose counts as edited.
+            seeds[s.id] = _seedRecord(same.id, s);
+          } else {
+            final saved = await session.saveContact(contact: core.Contact(id: '', name: s.name, address: s.address, note: s.note));
+            seeds[s.id] = _seedRecord(saved.id, s);
+          }
+          claimed.add(seeds[s.id]!['contact']);
+          changed = true;
+        } else if (rec['deleted'] != true) {
+          final c = stored[rec['contact']];
+          // Untouched: every field as the app last wrote it (a record without name and note
+          // predates them and is judged by its address).
+          final untouched = c != null &&
+              c.address == rec['address'] &&
+              (!rec.containsKey('name') || c.name == rec['name']) &&
+              (!rec.containsKey('note') || c.note == rec['note']);
+          if (untouched && (c.address != s.address || c.name != s.name || c.note != s.note)) {
+            await session.saveContact(contact: core.Contact(id: c.id, name: s.name, address: s.address, note: s.note));
+            seeds[s.id] = _seedRecord(c.id, s);
+            changed = true;
+          }
+        }
+      }
+      if (changed && _session == session) {
+        await _setMeta({'seeds': seeds}, key);
+        _changed();
+      }
+    });
+  }
+
+  static const _seedCacheKey = 'desk.seedContacts';
+
+  Future<List<SeedContact>?> _cachedWebSeeds() async {
+    if (_webSeeds != null) return _webSeeds;
+    final j = await _store.readJson(_seedCacheKey);
+    if (j is! Map || j['body'] is! String) return null;
+    return parseSeedContacts(j['body'] as String, validAddress: isEpicboxAddress);
+  }
+
+  /// Reads the website's list unless the cache is under 7 days old, then applies it to the
+  /// open wallet.
+  Future<void> _refreshWebSeeds() async {
+    try {
+      final j = await _store.readJson(_seedCacheKey);
+      final at = j is Map && j['at'] is int ? DateTime.fromMillisecondsSinceEpoch(j['at'] as int) : null;
+      if (at != null && DateTime.now().difference(at) < const Duration(days: 7)) return;
+      final body = await _seedFetch!(Uri.parse(seedContactsUrl));
+      if (body == null) return;
+      final list = parseSeedContacts(body, validAddress: isEpicboxAddress);
+      if (list == null) return;
+      _webSeeds = list;
+      await _store.writeJson(_seedCacheKey, {'at': DateTime.now().millisecondsSinceEpoch, 'body': body});
+      await _applySeeds([...bundledSeedContacts, ..._knownSeeds(list)]);
+    } on Object catch (e) {
+      logInfo('desk', 'seed contacts not read: ${e.runtimeType}');
+    }
   }
 
   /// A change of the HTTP listener's port or reach restarts it when it runs or failed; the
@@ -2051,7 +2338,7 @@ class LepicDeskWallet implements DeskWalletApi {
 
   Future<void> _applyFallback(int seq) async {
     while (true) {
-      await _opsIdle();
+      await whenIdle();
       final done = await _nodeLock(() async {
         final want = _fallback;
         if (seq != _fallbackSeq || want == null) return true;
@@ -2062,7 +2349,7 @@ class LepicDeskWallet implements DeskWalletApi {
         if (await _nodeUrl() == target) return true;
         final relay = await _relay();
         // Checked with no await before _switchTo marks the switch: no send slips in between.
-        if (_ops > 0) return false;
+        if (_busy > 0) return false;
         logInfo('desk', want.usePublic ? 'node fallback on' : 'node fallback off');
         try {
           await _switchTo(nodeUrl: target, relay: relay);
@@ -2428,7 +2715,7 @@ class LepicDeskWallet implements DeskWalletApi {
     final ended = _rescanEnded = Completer<void>();
     var finished = false;
     // A scan counts as a running operation: the fallback waits for it (D-7).
-    _ops++;
+    _busy++;
     try {
       await for (final p in session.scan(deleteUnconfirmed: deleteUnconfirmed)) {
         finished = finished || p.finished;
@@ -2621,13 +2908,46 @@ class LepicDeskWallet implements DeskWalletApi {
   /// Stops background work for good (the app is closing).
   Future<void> dispose() async {
     statusSite.removeListener(_statusSiteChanged);
-    await lock();
+    await _lock(waitAtMost: closeWait);
     await _node?.stop();
     await _changes.close();
   }
 }
 
 DateTime? _time(Object? unix) => unix is int ? DateTime.fromMillisecondsSinceEpoch(unix * 1000) : null;
+
+/// One output as the Outputs page shows it. An unspent output under [minConf] confirmations
+/// is confirming, a mining reward below its lock height immature; an unconfirmed one (not on
+/// chain yet, or a reward still being mined) is unconfirmed.
+Output deskOutput(core.WalletOutput o, {required int minConf}) {
+  final status = switch (o.status) {
+    core.WalletOutputStatus.spent => OutputStatus.spent,
+    core.WalletOutputStatus.locked => OutputStatus.locked,
+    core.WalletOutputStatus.unconfirmed => OutputStatus.unconfirmed,
+    core.WalletOutputStatus.unspent => switch (o.category) {
+      core.OutputCategory.spendable => OutputStatus.unspent,
+      core.OutputCategory.immature => OutputStatus.immature,
+      core.OutputCategory.awaitingConfirmation => OutputStatus.confirming,
+      core.OutputCategory.locked => OutputStatus.locked,
+      core.OutputCategory.awaitingFinalization || null => OutputStatus.unconfirmed,
+    },
+  };
+  final onChain = o.status != core.WalletOutputStatus.unconfirmed;
+  return Output(
+    commitment: o.commitment,
+    value: o.value.toInt(),
+    status: status,
+    height: onChain ? o.height.toInt() : null,
+    confirmations: o.confirmations.toInt(),
+    confirmationsNeeded: minConf,
+    lockHeight: o.isCoinbase ? o.lockHeight.toInt() : null,
+    isCoinbase: o.isCoinbase,
+    awaitingFinalization: o.category == core.OutputCategory.awaitingFinalization,
+    hasCategory: o.category != null,
+    mmrIndex: o.mmrIndex?.toInt(),
+    txId: o.txId,
+  );
+}
 
 /// One history row as the desktop UI shows it. [tip] is the node's height, for confirmations.
 /// Rows without a local id (imported, restored) get [fallbackId], below 0.
@@ -2664,7 +2984,8 @@ Tx deskTx(core.TxEntry e, {required int tip, required int minConf, required int 
     confirmations: confirmations,
     confirmationsNeeded: minConf,
     counterparty: to,
-    contactName: contactName,
+    // A split or consolidate: both sides are this wallet (F13).
+    contactName: e.transport == 'self' ? 'This wallet' : contactName,
     message: core.messageBy(e.messages, core.SlateRole.sender) ?? core.messageBy(e.messages, core.SlateRole.receiver),
     height: height,
     kernel: e.kernelExcess,

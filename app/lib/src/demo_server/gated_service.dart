@@ -244,10 +244,12 @@ class GatedWalletSession implements WalletSession {
     required BigInt amount,
     required BigInt minimumConfirmations,
     String? message,
+    SendOptions? options,
   }) => _inner.createSendSlate(
     amount: amount,
     minimumConfirmations: minimumConfirmations,
     message: message,
+    options: options,
   );
 
   @override
@@ -257,9 +259,11 @@ class GatedWalletSession implements WalletSession {
   Future<FeeEstimate> estimateFee({
     required BigInt amount,
     required BigInt minimumConfirmations,
+    SendOptions? options,
   }) => _inner.estimateFee(
     amount: amount,
     minimumConfirmations: minimumConfirmations,
+    options: options,
   );
 
   @override
@@ -272,11 +276,13 @@ class GatedWalletSession implements WalletSession {
     required BigInt minimumConfirmations,
     required String address,
     String? message,
+    SendOptions? options,
   }) => _inner.sendEpicbox(
     amount: amount,
     minimumConfirmations: minimumConfirmations,
     address: address,
     message: message,
+    options: options,
   );
 
   @override
@@ -299,6 +305,7 @@ class GatedWalletSession implements WalletSession {
     required String url,
     required bool allowPlainHttp,
     String? message,
+    SendOptions? options,
   }) async => throw _noHttp;
 
   @override
@@ -348,6 +355,7 @@ class GatedWalletSession implements WalletSession {
     required BigInt minimumConfirmations,
     required String onion,
     String? message,
+    SendOptions? options,
   }) async => throw _noTor;
 
   @override
@@ -428,6 +436,37 @@ class GatedWalletSession implements WalletSession {
   @override
   Future<FeeEstimate> estimateMax({required BigInt minimumConfirmations}) =>
       _inner.estimateMax(minimumConfirmations: minimumConfirmations);
+
+  @override
+  Future<List<WalletOutput>> outputs() => _inner.outputs();
+
+  @override
+  Future<FeeEstimate> estimateSplit({
+    required int outputs,
+    required BigInt minimumConfirmations,
+  }) => _inner.estimateSplit(
+    outputs: outputs,
+    minimumConfirmations: minimumConfirmations,
+  );
+
+  @override
+  Future<SelfSentTx> splitOutputs({
+    required int outputs,
+    required BigInt minimumConfirmations,
+  }) => _inner.splitOutputs(
+    outputs: outputs,
+    minimumConfirmations: minimumConfirmations,
+  );
+
+  @override
+  Future<FeeEstimate> estimateConsolidate({
+    required BigInt minimumConfirmations,
+  }) => _inner.estimateConsolidate(minimumConfirmations: minimumConfirmations);
+
+  @override
+  Future<SelfSentTx> consolidateOutputs({
+    required BigInt minimumConfirmations,
+  }) => _inner.consolidateOutputs(minimumConfirmations: minimumConfirmations);
 
   @override
   bool get supportsInvoices => _inner.supportsInvoices;

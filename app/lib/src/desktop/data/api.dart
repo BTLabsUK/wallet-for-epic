@@ -39,7 +39,14 @@ abstract interface class DeskWalletApi {
 
   /// Whether [password] is the open wallet's password.
   Future<bool> checkPassword(String password);
+
+  /// Closes the open wallet. A send, finalize, split or consolidate under way finishes first
+  /// ([busy]): the lock waits for it, never ends it mid-way.
   Future<void> lock();
+
+  /// Whether a call that changes the wallet runs now (a send, a file received or finalized, a
+  /// split, a consolidate, a repost or a cancel): [lock] waits for it.
+  bool get busy;
 
   /// Renames the wallet [id] (1 to 32 characters).
   Future<void> renameWallet(String id, String label);
@@ -129,8 +136,37 @@ abstract interface class DeskWalletApi {
   // Acting.
   Future<int> estimateFee(int amount);
 
-  /// The largest amount that can be sent now and its fee (Send › All).
-  Future<(int, int)> estimateMax();
+  /// The largest amount that can be sent now, with its fee and lock figures (Send › All).
+  /// Send it with `SendOptions(strategy: SelectionStrategy.all)`.
+  Future<SendEstimate> estimateMax();
+
+  /// What a send of [amount] with [options] would spend, pay and get back now (F11's summary,
+  /// F12's SmartOutputs: `planSend` in `smart_outputs.dart`); nothing is locked. Null
+  /// [options] is the wallet's default. A split the coins cannot build throws a [DeskError]
+  /// with [DeskError.unbuildable].
+  Future<SendEstimate> estimateSend(int amount, {SendOptions? options});
+
+  /// The open wallet's Outputs choices: default strategy and SmartOutputs (F13, D-5).
+  Future<OutputPrefs> outputPrefs();
+
+  /// Keeps the open wallet's Outputs choices; Send uses them from its next estimate.
+  Future<void> saveOutputPrefs(OutputPrefs prefs);
+
+  // Outputs (F13, the Outputs page). A split and a consolidate are normal
+  // network transactions to the wallet itself; each spends every spendable output, so the
+  // whole balance is locked until it confirms.
+
+  /// The fee and inputs of splitting the spendable balance into [outputs] outputs (2 to 10).
+  Future<SendEstimate> estimateSplit(int outputs);
+  Future<SelfSend> splitOutputs(int outputs);
+
+  /// The fee and inputs of merging every spendable output into one.
+  Future<SendEstimate> estimateConsolidate();
+  Future<SelfSend> consolidateOutputs();
+
+  /// Posts again a split or consolidate the node did not take ([DeskError.notPostedTx]).
+  /// Throws a [DeskError] when the node refuses it again.
+  Future<void> repostTx(int id);
   Future<SendResult> send(SendRequest request);
   Future<ReceivedFile> receiveFile(String fileName);
   Future<Tx> finalizeFile(String fileName);

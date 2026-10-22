@@ -51,6 +51,23 @@ class DeskStore {
 
   Future<void> saveTorOn(String? walletId, bool on) => writeJson(torKeyOf(walletId), {'on': on});
 
+  /// The Outputs choices of the wallet with registry [walletId] (strategy, SmartOutputs);
+  /// [OutputPrefs]' defaults unless set. The first wallet (null) has [outputsKey].
+  static const outputsKey = 'desk.outputs';
+  static String outputsKeyOf(String? walletId) => walletId == null ? outputsKey : '$outputsKey.$walletId';
+
+  Future<OutputPrefs> outputPrefs(String? walletId) async {
+    const d = OutputPrefs();
+    final j = await readJson(outputsKeyOf(walletId));
+    if (j is! Map<String, dynamic>) return d;
+    final strategy = SelectionStrategy.values.asNameMap()[j['strategy']];
+    final smart = j['smartOutputs'];
+    return OutputPrefs(strategy: strategy ?? d.strategy, smartOutputs: smart is bool ? smart : d.smartOutputs);
+  }
+
+  Future<void> saveOutputPrefs(String? walletId, OutputPrefs p) =>
+      writeJson(outputsKeyOf(walletId), {'strategy': p.strategy.name, 'smartOutputs': p.smartOutputs});
+
   /// Start with the wallet for Epicbox and Tor, per wallet (W4 §3.2). The first wallet (null)
   /// has [autostartKey], an added one its own key.
   static const autostartKey = 'desk.autostart';

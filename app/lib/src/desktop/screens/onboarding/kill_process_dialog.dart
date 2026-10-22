@@ -115,7 +115,7 @@ class _KillProcessDialogState extends State<_KillProcessDialog> {
             ),
             SizedBox(height: Sp.x3),
             Text(
-              'Closing them stops what they were doing, such as a node sync or a running listener. They start again from this app after unlock.',
+              'Closing them stops what they were doing, such as a node sync or receiving payments. They start again from this app after unlock.',
               style: ts.small,
             ),
           ],

@@ -306,7 +306,7 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
         stages: _stages,
         current: _stage!,
         note:
-            'Then the overview opens and finishes in the background: connecting to the node, updating balances, starting the listener.',
+            'Then the overview opens and finishes in the background: connecting to the node, updating balances, turning on receiving.',
       );
     }
     return _form(context);

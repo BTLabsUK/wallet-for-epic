@@ -26,7 +26,7 @@ class _Session extends core.FakeWalletSession {
   int sendsStarted = 0;
 
   @override
-  Future<core.TxEntry> sendEpicbox({required BigInt amount, required BigInt minimumConfirmations, required String address, String? message}) async {
+  Future<core.TxEntry> sendEpicbox({required BigInt amount, required BigInt minimumConfirmations, required String address, String? message, core.SendOptions? options}) async {
     sendsStarted++;
     await sendGate?.future;
     throw const core.WalletError(kind: core.WalletErrorKind.transportFailed, message: 'relay down');
