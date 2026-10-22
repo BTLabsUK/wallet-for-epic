@@ -153,4 +153,77 @@ void main() {
       expect(calls, 1);
     });
   });
+
+  group('monitor detail', () {
+    test('a node entry keeps the monitor fields', () {
+      final n = parseNodeStatus(_sample).firstWhere((n) => n.url == 'https://node.epiccash.com:3413');
+      expect(n.state, NodeHealthState.healthy);
+      expect(n.reason, 'ok');
+      expect(n.nodeVersion, '4.1.1');
+      expect(n.tipLag, 0);
+      expect(n.peers, 54);
+      expect([n.uptime1h, n.uptime24h, n.uptime30d], [1.0, 0.999, 0.9864]);
+      expect(n.listing, 'official');
+      expect(n.country, 'US');
+      expect(n.syncStatus, 'no_sync');
+      expect(n.tipAgrees, isTrue);
+      expect(n.lastCheckedAt, DateTime.utc(2026, 10, 22, 3, 30, 46));
+    });
+
+    test('states, and missing fields stay null', () {
+      final nodes = parseNodeStatus(jsonEncode({
+        'nodes': [
+          {'endpoint': 'https://a.example', 'state': 'degraded'},
+          {'endpoint': 'https://b.example', 'state': 'down', 'uptime': {'1h': null}, 'location': 'x', 'node_status': 5},
+          {'endpoint': 'https://c.example', 'state': 'weird'},
+        ],
+      }));
+      expect(nodes.map((n) => n.state), [NodeHealthState.degraded, NodeHealthState.down, NodeHealthState.unknown]);
+      expect(nodes[1].uptime1h, isNull);
+      expect(nodes[1].country, isNull);
+      expect(nodes[1].syncStatus, isNull);
+      expect(nodes[1].lastCheckedAt, isNull);
+    });
+
+    test('parseNetworkStatus reads the network object', () {
+      final n = parseNetworkStatus(_sample);
+      expect(n.tipHeight, 3764357);
+      expect(n.tipHash, startsWith('0a1b30ff'));
+      expect(n.tipMinedAt, DateTime.utc(2026, 10, 22, 3, 29, 15));
+      expect(n.tipAgeSeconds, 91);
+      expect(n.releasedNodeVersion, '4.1.1');
+      expect(n.releasedWalletVersion, '4.1.0');
+      expect([n.nodesHealthy, n.nodesTotal, n.epicboxHealthy, n.epicboxTotal], [5, 5, 4, 4]);
+      expect(n.medianNodeLatencyMs, 726);
+      expect(n.forked, isFalse);
+      expect(n.healthScore, 90);
+    });
+
+    test('parseNetworkStatus rejects other shapes', () {
+      expect(() => parseNetworkStatus('[]'), throwsFormatException);
+      expect(() => parseNetworkStatus('{}'), throwsFormatException);
+      expect(parseNetworkStatus('{"network":{}}').tipHeight, isNull);
+    });
+
+    test('nodeStatusFor matches scheme, host and port with default ports', () {
+      final nodes = [_node('https://node.example'), _node('https://other.example:3413')];
+      expect(nodeStatusFor(nodes, 'https://node.example:443')?.url, 'https://node.example');
+      expect(nodeStatusFor(nodes, 'https://NODE.example/')?.url, 'https://node.example');
+      expect(nodeStatusFor(nodes, 'https://other.example:3413')?.url, 'https://other.example:3413');
+      expect(nodeStatusFor(nodes, 'https://other.example'), isNull);
+      expect(nodeStatusFor(nodes, 'http://node.example'), isNull);
+      expect(nodeStatusFor(nodes, 'nonsense'), isNull);
+    });
+
+    test('the directory serves network() from the same cached fetch', () async {
+      var calls = 0;
+      final dir = HttpRelayDirectory(get: (url, {timeout = const Duration(seconds: 4)}) async {
+        calls++;
+        return HttpReply(200, _sample);
+      });
+      expect((await dir.network('mainnet')).healthScore, 90);
+      expect((await dir.nodes('mainnet')), hasLength(5));
+      expect(calls, 1);
+    });
+  });
 }

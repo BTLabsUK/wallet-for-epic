@@ -955,6 +955,387 @@ void main() {
     });
   });
 
+  group('toml options', () {
+    test('without options the toml is as it always was', () async {
+      final node = make();
+      final toml = node.renderToml();
+      expect(toml, isNot(contains('peers_preferred')));
+      expect(toml, isNot(contains('peer_max_')));
+      expect(toml, isNot(contains('{{')));
+      expect(
+        toml,
+        contains(
+          'capabilities = "HEADER_HIST | TXHASHSET_HIST | PEER_LIST | TX_KERNEL_HASH | HEADER_FASTSYNC"\n\n[server.pool_config]',
+        ),
+      );
+    });
+
+    test('peers, peer counts and the chain data folder are written', () {
+      final node = make()
+        ..options = const NodeTomlOptions(
+          chainDataPath: '/data/epic chain',
+          preferredPeers: [
+            '1.2.3.4:3414',
+            ' [2001:db8::1]:3414 ',
+            'example.com:3414',
+            '1.2.3.4',
+            '1.2.3.4:99999',
+            '[1.2.3.4]:3414',
+            '1.2.3.4:3414',
+          ],
+          maxInbound: 12,
+          maxOutbound: 8,
+        );
+      final toml = node.renderToml();
+      final p2p = toml.substring(
+        toml.indexOf('[server.p2p_config]'),
+        toml.indexOf('[server.pool_config]'),
+      );
+      expect(
+        p2p,
+        contains('peers_preferred = ["1.2.3.4:3414", "[2001:db8::1]:3414"]\n'),
+      );
+      expect(p2p, contains('peer_max_inbound_count = 12\n'));
+      expect(p2p, contains('peer_max_outbound_count = 8\n'));
+      expect(toml, contains('db_root = "/data/epic chain"'));
+      expect(node.chainDataPath, '/data/epic chain');
+      expect(logs.where((l) => l.contains('left out')), hasLength(4));
+    });
+
+    test('peer addresses', () {
+      for (final ok in ['1.2.3.4:1', '[::1]:3414', '[2001:db8::1]:65535']) {
+        expect(isPeerAddress(ok), isTrue, reason: ok);
+      }
+      for (final bad in [
+        '',
+        '1.2.3.4',
+        '1.2.3.4:0',
+        '1.2.3.4:65536',
+        '999.2.3.4:3414',
+        '::1:3414',
+        '[1.2.3.4]:3414',
+        'host:3414',
+        '1.2.3.4:34a',
+      ]) {
+        expect(isPeerAddress(bad), isFalse, reason: bad);
+      }
+    });
+
+    test('options equality', () {
+      expect(
+        const NodeTomlOptions(preferredPeers: ['1.2.3.4:1'], maxInbound: 3),
+        NodeTomlOptions(preferredPeers: ['1.2.3.4:1'], maxInbound: 3),
+      );
+      expect(
+        const NodeTomlOptions(preferredPeers: ['1.2.3.4:1']),
+        isNot(const NodeTomlOptions(preferredPeers: ['1.2.3.4:2'])),
+      );
+      expect(
+        const NodeTomlOptions(maxOutbound: 1).copyWith(maxOutbound: () => null),
+        const NodeTomlOptions(),
+      );
+    });
+
+    test('changed options rewrite our toml at the next start', () async {
+      final node = make();
+      await node.start();
+      expect(node.appliedOptions, const NodeTomlOptions());
+      expect(node.restartNeeded, isFalse);
+      node.options = const NodeTomlOptions(maxOutbound: 4);
+      expect(node.restartNeeded, isTrue);
+      expect(
+        File(node.tomlPath).readAsStringSync(),
+        isNot(contains('peer_max_outbound_count')),
+      );
+      await node.restart();
+      expect(
+        File(node.tomlPath).readAsStringSync(),
+        contains('peer_max_outbound_count = 4'),
+      );
+      expect(node.appliedOptions, const NodeTomlOptions(maxOutbound: 4));
+      expect(node.restartNeeded, isFalse);
+      expect(node.userToml, isFalse);
+      await node.stop();
+      expect(node.restartNeeded, isFalse);
+      expect(node.appliedOptions, isNull);
+    });
+
+    test('a toml the user edited is kept and its db_root followed', () async {
+      final node = make();
+      await node.prepareFolder();
+      final edited = File(node.tomlPath).readAsStringSync().replaceFirst(
+        RegExp(r'db_root = .*'),
+        "db_root = '/elsewhere/chain'",
+      );
+      File(node.tomlPath).writeAsStringSync(edited);
+      node.options = const NodeTomlOptions(preferredPeers: ['1.2.3.4:3414']);
+      await node.start();
+      expect(node.userToml, isTrue);
+      expect(File(node.tomlPath).readAsStringSync(), edited);
+      expect(node.chainDataPath, '/elsewhere/chain');
+      expect(node.restartNeeded, isFalse);
+      await node.stop();
+    });
+  });
+
+  group('readiness and detail', () {
+    Map<String, dynamic> full(String phase, int height, [int? highest]) => {
+      ...status(phase, height, highest),
+      'protocol_version': 2,
+      'user_agent': 'MW/Epic 4.1.0',
+    };
+
+    test('ready_for_txs decides running over the sync status', () async {
+      final node = make();
+      await node.start();
+      answer = (m, owner) => switch (m) {
+        'ready_for_txs' => {'ready_for_txs': true},
+        'get_status' => full('header_sync', 10, 500),
+        _ => null,
+      };
+      await node.poll();
+      expect(node.state.kind, NodeStatusKind.running);
+      expect(node.state.readyForTxs, isTrue);
+
+      answer = (m, owner) => switch (m) {
+        'ready_for_txs' => {'ready_for_txs': false},
+        'get_status' => full('no_sync', 500),
+        _ => null,
+      };
+      await node.poll();
+      expect(node.state.kind, NodeStatusKind.syncing);
+      expect(node.state.readyForTxs, isFalse);
+      await node.stop();
+    });
+
+    test('an older node without ready_for_txs is judged as before', () async {
+      final node = make();
+      await node.start();
+      answer = (m, owner) => m == 'get_status' ? full('no_sync', 500) : null;
+      await node.poll();
+      expect(node.state.kind, NodeStatusKind.running);
+      expect(node.state.readyForTxs, isNull);
+      await node.stop();
+    });
+
+    test('ready_for_txs alone, without the secret, is enough', () async {
+      final node = make();
+      await node.start();
+      File(node.secretPath).writeAsStringSync('');
+      answer = (m, owner) => switch (m) {
+        'ready_for_txs' => {'ready_for_txs': true},
+        'get_tip' => {'height': 700},
+        _ => null,
+      };
+      await node.poll();
+      expect(node.state.kind, NodeStatusKind.running);
+      expect(node.state.height, 700);
+      expect(node.state.status, isNull);
+      await node.stop();
+    });
+
+    test('the parsed status and the version are in the state', () async {
+      final node = make();
+      await node.start();
+      var versionCalls = 0;
+      answer = (m, owner) {
+        if (m == 'get_version') {
+          versionCalls++;
+          return {'node_version': '4.1.0', 'block_header_version': 6};
+        }
+        return m == 'get_status' ? full('txhashset_download', 0) : null;
+      };
+      await node.poll();
+      await node.poll();
+      expect(node.state.status?.syncStatus, 'txhashset_download');
+      expect(node.state.status?.userAgent, 'MW/Epic 4.1.0');
+      expect(node.state.version, '4.1.0');
+      expect(versionCalls, 1);
+      await node.stop();
+    });
+
+    test('the version falls back to the user agent', () async {
+      final node = make();
+      await node.start();
+      answer = (m, owner) => m == 'get_status'
+          ? {...full('no_sync', 5), 'user_agent': 'MW/Epic 3.9.1'}
+          : null;
+      await node.poll();
+      expect(node.state.version, '3.9.1');
+      await node.stop();
+    });
+
+    test('the same answer twice is no new state', () async {
+      final node = make();
+      final seen = <BuiltInNodeState>[];
+      node.states.listen(seen.add);
+      await node.start();
+      answer = (m, owner) => m == 'get_status' ? full('header_sync', 5, 9) : null;
+      await node.poll();
+      await node.poll();
+      await Future<void>.delayed(Duration.zero);
+      expect(seen.map((s) => s.kind), [
+        NodeStatusKind.starting,
+        NodeStatusKind.syncing,
+      ]);
+      await node.stop();
+    });
+
+    test('startedAt is the spawn time and survives polls', () async {
+      final node = make();
+      expect(node.startedAt, isNull);
+      final t0 = now;
+      await node.start();
+      expect(node.startedAt, t0);
+      now = now.add(const Duration(minutes: 1));
+      answer = (m, owner) => m == 'get_status' ? full('no_sync', 5) : null;
+      await node.poll();
+      expect(node.startedAt, t0);
+      await node.restart();
+      expect(node.startedAt, now);
+      await node.stop();
+      expect(node.startedAt, isNull);
+    });
+
+    test('the secret is public for the peer client', () async {
+      final node = make();
+      expect(await node.readSecret(), isNull);
+      await node.prepareFolder();
+      expect(node.secretPath, '${node.folder}/.api_secret');
+      final secret = await node.readSecret();
+      expect(secret, hasLength(20));
+      File(node.secretPath).writeAsStringSync('abc\r\nsecond\n');
+      expect(await node.readSecret(), 'abc');
+    });
+  });
+
+  group('restart', () {
+    test('stops, then starts a new process', () async {
+      final node = make();
+      await node.start();
+      await node.restart();
+      expect(spawned, hasLength(2));
+      expect(spawned.first.terminated, 1);
+      expect(node.pid, spawned.last.pid);
+      expect(node.state.kind, NodeStatusKind.starting);
+      await node.stop();
+    });
+
+    test('concurrent restarts collapse into one', () async {
+      final node = make();
+      await node.start();
+      gate = Completer<void>();
+      final a = node.restart();
+      final b = node.restart();
+      expect(identical(a, b), isTrue);
+      await until(() => spawnArgs.length == 2);
+      gate!.complete();
+      await Future.wait([a, b]);
+      expect(spawned, hasLength(2));
+      await node.stop();
+    });
+
+    test('a stop during the stop part wins', () async {
+      final node = make();
+      await node.start();
+      final restarted = node.restart();
+      final stopped = node.stop();
+      await Future.wait([restarted, stopped]);
+      expect(spawned, hasLength(1));
+      expect(node.pid, isNull);
+      expect(node.state.kind, NodeStatusKind.stopped);
+    });
+
+    test('a stop during the start part wins', () async {
+      final node = make();
+      await node.start();
+      gate = Completer<void>();
+      final restarted = node.restart();
+      await until(() => spawnArgs.length == 2);
+      final stopped = node.stop();
+      gate!.complete();
+      await Future.wait([restarted, stopped]);
+      expect(spawned, hasLength(2));
+      expect(spawned.every((p) => p.terminated == 1), isTrue);
+      expect(node.pid, isNull);
+      expect(node.state.kind, NodeStatusKind.stopped);
+    });
+
+    test('a poll landing after the stop changes nothing', () async {
+      final node = make();
+      await node.start();
+      final reply = Completer<Map<String, dynamic>?>();
+      final node2 = BuiltInNode(
+        root: '${dir.path}/node2',
+        binary: binary,
+        chain: Chain.floonet,
+        autoPoll: false,
+        killAfter: const Duration(milliseconds: 50),
+        killWait: const Duration(milliseconds: 50),
+        clock: () => now,
+        inspector: inspector,
+        log: logs.add,
+        portInUse: (_) async => false,
+        freeBytes: (_) async => free,
+        api: (port, method, {required owner, secret}) => reply.future,
+        startProcess: (exe, args, {required workingDirectory}) async =>
+            FakeProcess(++pidCounter),
+      );
+      await node2.start();
+      final polled = node2.poll();
+      await node2.stop();
+      reply.complete({'ready_for_txs': true});
+      await polled;
+      expect(node2.state.kind, NodeStatusKind.stopped);
+      await node.stop();
+    });
+
+    test('restart while stopped starts it', () async {
+      final node = make();
+      await node.restart();
+      expect(spawned, hasLength(1));
+      await node.stop();
+    });
+  });
+
+  group('shared instance', () {
+    tearDown(resetBuiltInNodes);
+
+    test('one node per root and chain', () {
+      final where = BuiltInNodeLocation(root: '${dir.path}/r', binary: binary);
+      final a = builtInNodeFor(where, Chain.mainnet);
+      expect(identical(builtInNodeFor(where, Chain.mainnet), a), isTrue);
+      expect(identical(builtInNodeFor(where, Chain.floonet), a), isFalse);
+      final other = BuiltInNodeLocation(root: '${dir.path}/s', binary: binary);
+      expect(identical(builtInNodeFor(other, Chain.mainnet), a), isFalse);
+    });
+
+    test('a disposed node is replaced', () async {
+      final where = BuiltInNodeLocation(root: '${dir.path}/r', binary: binary);
+      final a = builtInNodeFor(where, Chain.mainnet);
+      await a.dispose();
+      expect(a.isDisposed, isTrue);
+      expect(identical(builtInNodeFor(where, Chain.mainnet), a), isFalse);
+    });
+
+    test('the provider gives the shared node and never disposes it', () async {
+      final where = BuiltInNodeLocation(root: '${dir.path}/r', binary: binary);
+      final container = ProviderContainer(
+        overrides: [
+          builtInNodeSupportedProvider.overrideWithValue(true),
+          builtInNodeLocationProvider.overrideWith((ref) async => where),
+        ],
+      );
+      final node = await container.read(
+        builtInNodeProvider(Chain.mainnet).future,
+      );
+      expect(identical(node, builtInNodeFor(where, Chain.mainnet)), isTrue);
+      container.dispose();
+      await Future<void>.delayed(Duration.zero);
+      expect(node.isDisposed, isFalse);
+    });
+  });
+
   group('provider', () {
     test('refuses where the built-in node is unsupported', () async {
       final container = ProviderContainer(

@@ -1,0 +1,53 @@
+{
+  "id": 1,
+  "jsonrpc": "2.0",
+  "result": {
+    "Ok": [
+      {
+        "addr": "203.0.113.10:3414",
+        "capabilities": "HEADER_HIST | TXHASHSET_HIST | PEER_LIST | TX_KERNEL_HASH | HEADER_FASTSYNC",
+        "direction": "Outbound",
+        "height": 3764980,
+        "onion_addr": null,
+        "total_difficulty": {
+          "cuckaroo": 1174963242979,
+          "cuckatoo": 142857091407239,
+          "progpow": 8159013528374826400,
+          "randomx": 4603001186758211
+        },
+        "user_agent": "MW/Epic 4.1.0",
+        "version": 2
+      },
+      {
+        "addr": "203.0.113.11:3414",
+        "capabilities": "HEADER_HIST | TXHASHSET_HIST | PEER_LIST | TX_KERNEL_HASH | HEADER_FASTSYNC",
+        "direction": "Outbound",
+        "height": 3764980,
+        "onion_addr": null,
+        "total_difficulty": {
+          "cuckaroo": 1174963242979,
+          "cuckatoo": 142857091407239,
+          "progpow": 8159013528374826400,
+          "randomx": 4603001186758211
+        },
+        "user_agent": "MW/Epic 4.1.0",
+        "version": 2
+      },
+      {
+        "addr": "203.0.113.12:3414",
+        "capabilities": "HEADER_HIST | TXHASHSET_HIST | PEER_LIST | TX_KERNEL_HASH | HEADER_FASTSYNC",
+        "direction": "Outbound",
+        "height": 3764980,
+        "onion_addr": null,
+        "total_difficulty": {
+          "cuckaroo": 1174963242979,
+          "cuckatoo": 142857091407239,
+          "progpow": 8159013528374826400,
+          "randomx": 4603001186758211
+        },
+        "user_agent": "MW/Epic 4.0.3",
+        "version": 2
+      }
+    ]
+  }
+}

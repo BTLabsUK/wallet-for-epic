@@ -1,0 +1,24 @@
+{
+  "protocol_version": 2,
+  "user_agent": "MW/Epic 4.1.0",
+  "connections": 5,
+  "tip": {
+    "height": 0,
+    "last_block_pushed": "454018a56d86e37611bdcabc7de670305c3f3dc9675e314b437f1adc29430851",
+    "prev_block_to_last": "0000000000000000000000000000000000000000000000000000000000000000",
+    "total_difficulty": {
+      "randomx": 4194304,
+      "cuckaroo": 4,
+      "cuckatoo": 16384,
+      "progpow": 1073741824
+    }
+  },
+  "sync_status": "header_sync",
+  "sync_info": {
+    "current_height": 7168,
+    "highest_height": 8704
+  },
+  "supply": 0,
+  "max_supply": 21000000,
+  "blocks_to_next_halving": 480960
+}
