@@ -55,7 +55,7 @@ final List<DeskShot> walletShots = [
   const DeskShot(id: '12b-tx-detail-file', title: 'Transaction detail, file send', route: DeskRoute.activity, arg: 38),
   DeskShot(id: '12c-tx-detail-narrow', title: 'Transaction detail, narrow', route: DeskRoute.activity, arg: 39, width: 900, height: 760),
   DeskShot(id: '35-dlg-tx-proof', title: 'Payment proof', route: DeskRoute.activity, arg: 36, dialog: (c) => showTxProofDialog(c, _tx(c, 36))),
-  DeskShot(id: '35b-dlg-cancel-tx', title: 'Cancel a send', route: DeskRoute.activity, arg: 37, dialog: (c) => showCancelTxDialog(c, _tx(c, 37))),
+  DeskShot(id: '35b-dlg-cancel-tx', title: 'Cancel a send', route: DeskRoute.activity, arg: 38, dialog: (c) => showCancelTxDialog(c, _tx(c, 38))),
   DeskShot(
     id: '35c-dlg-cancel-incoming',
     title: 'Cancel an incoming payment',
