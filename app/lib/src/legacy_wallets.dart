@@ -193,6 +193,7 @@ class LegacyWallet {
     required this.app,
     this.chain,
     this.incomplete = false,
+    this.account = '',
   });
 
   final String path;
@@ -233,6 +234,10 @@ class LegacyWallet {
   /// Which program wrote it, as far as its files say: '3.0.x', '4.x–5.x', '6.x' or '6.1' / 'CLI'.
   final String app;
   final LegacyChain? chain;
+
+  /// The older GUIs' account name ('default' for `~/.epic/<net>`); '' when the folder does not say.
+  /// Their Electron profile keys a wallet's contacts and settings by it.
+  final String account;
 
   bool get seedTooLarge => seedBytes > maxSeedBytes;
 
@@ -402,23 +407,7 @@ class _Scanner {
     }
   }
 
-  Future<List<String>> _guiRoots() async {
-    final out = <String>[];
-    void add(String? p) {
-      if (p != null && p.isNotEmpty && !out.contains(p)) out.add(p);
-    }
-
-    add(roots.guiHome);
-    for (final h in roots._homes) {
-      final def = _join(h, '.epic-gui');
-      try {
-        final j = jsonDecode(await File(_join(def, 'location.json')).readAsString());
-        if (j is Map && j['root'] is String && _isAbs(j['root'] as String)) add(j['root'] as String);
-      } catch (_) {/* no location file: the default */}
-      add(def);
-    }
-    return out;
-  }
+  Future<List<String>> _guiRoots() => legacyGuiRoots(roots);
 
   Future<void> _readGuiSettings(String root) async {
     Object? j;
@@ -556,6 +545,7 @@ class _Scanner {
       legacyDb: legacyDb,
       app: isCli ? 'CLI' : await _guessApp(dir, lay30),
       chain: chain,
+      account: acc,
     );
   }
 
@@ -575,6 +565,25 @@ class _Scanner {
     }
     return '4.x–5.x';
   }
+}
+
+/// GUI 6.1's root folders, first match first: EPIC_GUI_HOME, location.json's root, ~/.epic-gui.
+Future<List<String>> legacyGuiRoots(LegacyRoots roots) async {
+  final out = <String>[];
+  void add(String? p) {
+    if (p != null && p.isNotEmpty && !out.contains(p)) out.add(p);
+  }
+
+  add(roots.guiHome);
+  for (final h in roots._homes) {
+    final def = _join(h, '.epic-gui');
+    try {
+      final j = jsonDecode(await File(_join(def, 'location.json')).readAsString());
+      if (j is Map && j['root'] is String && _isAbs(j['root'] as String)) add(j['root'] as String);
+    } catch (_) {/* no location file: the default */}
+    add(def);
+  }
+  return out;
 }
 
 // ---------------------------------------------------------------------------------------------
