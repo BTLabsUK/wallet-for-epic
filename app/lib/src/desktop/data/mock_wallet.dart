@@ -94,6 +94,14 @@ class MockDeskWallet implements DeskWalletApi {
   ];
   String _current = 'legacy-mainnet';
 
+  /// The first wallet's phrase in the mock (the BIP-39 vector of 23 "zoo" and "vote"):
+  /// restoring it shows "This wallet is already here".
+  static const String samePhrase =
+      'zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo vote';
+
+  /// Phrase fingerprint → wallet id, for the wallets this session made and [samePhrase].
+  final Map<String, String> _phrases = {phraseFingerprint(samePhrase): 'legacy-mainnet'};
+
   WalletEntry _with(WalletEntry w, {String? name}) =>
       WalletEntry(id: w.id, name: name ?? w.name, folder: w.folder, network: w.network, current: w.id == _current, lastOpened: w.lastOpened, missing: w.missing);
 
@@ -263,16 +271,28 @@ class MockDeskWallet implements DeskWalletApi {
   }
 
   @override
+  Future<WalletEntry?> walletWithPhrase(List<String> words) async {
+    // Instant, as the list lookup is.
+    if (!checkPhrase(words)) return null;
+    final id = _phrases[phraseFingerprint(words.join(' '))];
+    final w = _wallets.where((w) => w.id == id).firstOrNull;
+    return w == null ? null : _with(w);
+  }
+
+  @override
   bool checkPhrase(List<String> words) => bip39PhraseValid(words);
 
   @override
   Future<void> restoreWallet({String name = '', required String password, required List<String> phrase}) async {
+    final same = await walletWithPhrase(phrase);
+    if (same != null) throw DeskError('This wallet is already here: ${same.name}', sameWallet: same);
     await _wait(3);
-    _addWallet(name);
+    _phrases[phraseFingerprint(phrase.join(' '))] = _addWallet(name);
   }
 
   /// The new wallet is listed as the next free "Wallet N" (or [name]) and is the selected one.
-  void _addWallet(String name) {
+  /// Returns its id.
+  String _addWallet(String name) {
     var n = 1;
     while (_wallets.any((w) => w.name == 'Wallet $n')) {
       n++;
@@ -281,6 +301,7 @@ class MockDeskWallet implements DeskWalletApi {
     final id = 'new-${_wallets.length}-${DateTime.now().microsecondsSinceEpoch}';
     _wallets.add(WalletEntry(id: id, name: label, folder: '~/.local/share/epic-wallet/wallets/$id/mainnet', network: 'mainnet'));
     _current = id;
+    return id;
   }
 
   @override

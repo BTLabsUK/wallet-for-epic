@@ -6,6 +6,8 @@ import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../widgets/kit.dart';
 import 'onboarding_parts.dart';
 import 'phrase_grid.dart';
+import 'same_wallet_dialog.dart';
+import 'unlock_screen.dart' show UnlockPick;
 
 enum RestoreStep { words, wordsFilled, account, restoring, failed }
 
@@ -41,6 +43,9 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
   RestoreSample? get _sampleArg => widget.arg is RestoreSample ? widget.arg as RestoreSample : null;
   bool _locking = false;
   String? _failure;
+
+  /// The phrase is being looked up in the wallet list (Use N words pressed).
+  bool _checking = false;
 
   @override
   void initState() {
@@ -99,7 +104,39 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
 
   bool _clipboardEmpty = false;
 
-  void _toAccount() => setState(() => _step = RestoreStep.account);
+  /// Use N words: the phrase of a wallet already in the list opens that wallet instead (O1);
+  /// any other goes on to the password step. A list that cannot be read goes on too: restore
+  /// checks again before it makes anything.
+  Future<void> _toAccount() async {
+    if (_checking) return;
+    setState(() => _checking = true);
+    WalletEntry? same;
+    try {
+      same = await ref.read(deskApiProvider).walletWithPhrase(_entry.phrase);
+    } on Object {
+      same = null;
+    }
+    if (!mounted) return;
+    setState(() => _checking = false);
+    if (same == null) {
+      setState(() => _step = RestoreStep.account);
+      return;
+    }
+    await _offerExisting(same);
+  }
+
+  /// "This wallet is already here": Open it goes to Unlock with [wallet] selected (the open
+  /// wallet, if any, is locked first); Cancel leaves the phrase on the grid.
+  Future<void> _offerExisting(WalletEntry wallet) async {
+    setState(() => _step = RestoreStep.words);
+    final open = await showSameWalletDialog(context, wallet);
+    if (!open || !mounted) return;
+    if (ref.read(deskProvider).account != null) {
+      await ref.read(deskProvider.notifier).lock();
+      if (!mounted) return;
+    }
+    ref.read(deskNavProvider.notifier).reset(DeskRoute.unlock, UnlockPick(wallet.id));
+  }
 
   Future<void> _restore() async {
     final open = ref.read(deskProvider).account != null;
@@ -125,12 +162,15 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
       if (!mounted) return;
       ref.read(deskNavProvider.notifier).reset(DeskRoute.unlock, added);
     } catch (e) {
-      if (mounted) {
-        setState(() {
-          _step = RestoreStep.failed;
-          _failure = deskErrorText(e);
-        });
+      if (!mounted) return;
+      if (e is DeskError && e.sameWallet != null) {
+        await _offerExisting(e.sameWallet!);
+        return;
       }
+      setState(() {
+        _step = RestoreStep.failed;
+        _failure = deskErrorText(e);
+      });
     }
   }
 
@@ -236,7 +276,11 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
         EButton.ghost(label: 'Paste', icon: narrow ? null : EIcons.paste, onPressed: _pasteClipboard),
         EButton.ghost(label: 'Clear', icon: narrow ? null : EIcons.trash, onPressed: filled == 0 ? null : e.clear),
         // Names the length, so a typed 12-word phrase is never taken for 24 by mistake.
-        EButton.primary(label: complete ? 'Use $length words' : 'Continue', onPressed: complete ? _toAccount : null),
+        EButton.primary(
+          label: complete ? 'Use $length words' : 'Continue',
+          busy: _checking,
+          onPressed: complete && !_checking ? _toAccount : null,
+        ),
       ],
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,

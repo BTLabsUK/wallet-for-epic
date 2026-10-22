@@ -65,6 +65,15 @@ abstract interface class DeskWalletApi {
   /// Whether [words] is a recovery phrase: 12, 15, 18, 21 or 24 words of the list whose check
   /// bits match. Answers at once; the restore grid calls it after every change.
   bool checkPhrase(List<String> words);
+
+  /// The listed wallet of this network that [words] is the recovery phrase of, by the
+  /// fingerprint the app kept when it made the wallet; null when none, or when [words] is not
+  /// a phrase. Wallets made before the app kept fingerprints are never matched. Restore asks
+  /// before the password step, so a phrase already here opens that wallet instead.
+  Future<WalletEntry?> walletWithPhrase(List<String> words);
+
+  /// Restores a wallet from [phrase]. A phrase [walletWithPhrase] knows throws a [DeskError]
+  /// with [DeskError.sameWallet] set and makes nothing.
   Future<void> restoreWallet({String name = '', required String password, required List<String> phrase});
 
   // Import (only when [DeskFeatures.importWizard]). Old folders are only read.

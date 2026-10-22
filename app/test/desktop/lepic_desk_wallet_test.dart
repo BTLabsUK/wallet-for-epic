@@ -7,11 +7,13 @@ import 'dart:io';
 import 'package:epic_wallet/src/desktop/app/screens.dart';
 import 'package:epic_wallet/src/desktop/data/desk_store.dart';
 import 'package:epic_wallet/src/desktop/data/lepic_desk_wallet.dart';
+import 'package:epic_wallet/src/desktop/data/phrase_check.dart' show phraseFingerprint;
 import 'package:epic_wallet/src/desktop/screens/settings/prefs.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:epic_wallet/src/secret_store_api.dart';
 import 'package:epic_wallet/src/network.dart' show defaultEpicboxHost;
+import 'package:epic_wallet/src/wallet_registry.dart' as reg;
 import 'package:epic_wallet/src/wallet_service.dart' as core;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -60,9 +62,27 @@ class _Opens extends core.FakeWalletService {
   }
 }
 
+/// Accepts a second phrase besides [phrase], as LEPIC accepts any valid one.
+class _TwoPhrases extends core.FakeWalletService {
+  _TwoPhrases({core.FakeWalletSession? session}) : super(password: _password, session: session ?? _StrictSession());
+
+  static const other = 'legal winner thank year wave sausage worth useful legal winner thank yellow';
+
+  int creates = 0;
+
+  @override
+  bool validateMnemonic({required String phrase}) => phrase == this.phrase || phrase == other;
+
+  @override
+  Future<core.WalletSession> create({required core.WalletConfig config, String? mnemonic, required String password}) {
+    creates++;
+    return super.create(config: config, mnemonic: mnemonic, password: password);
+  }
+}
+
 /// Records every config [open] was given.
-class _Recording extends core.FakeWalletService {
-  _Recording() : super(password: _password, session: _StrictSession());
+class _Recording extends _TwoPhrases {
+  _Recording();
 
   final List<core.WalletConfig> opened = [];
 
@@ -185,6 +205,76 @@ void main() {
     test('the phrase check asks the wallet core, lower-cased and trimmed', () {
       expect(wallet.checkPhrase(service.phrase.toUpperCase().split(' ')), isTrue);
       expect(wallet.checkPhrase(['abandon', 'h4rbor']), isFalse);
+    });
+
+    group('a phrase that is already here (O1)', () {
+      late _TwoPhrases two;
+      final words = core.FakeWalletService().phrase.split(' ');
+      final fp = phraseFingerprint(words.join(' '));
+
+      setUp(() async {
+        await wallet.dispose();
+        two = _TwoPhrases();
+        wallet = make(two);
+      });
+
+      Future<List<reg.WalletEntry>> listed() async => (await wallet.registry()).list();
+
+      test('create keeps the fingerprint in the list; restoring that phrase finds the wallet and makes nothing', () async {
+        await wallet.createWallet(name: 'Main', password: _password);
+        expect((await listed()).single.phraseFingerprint, fp);
+        expect(two.creates, 1);
+        final same = await wallet.walletWithPhrase([for (final w in words) ' ${w.toUpperCase()}']);
+        expect(same?.name, 'Main');
+        expect(same?.id, (await listed()).single.id);
+        final error = await wallet.restoreWallet(password: _password, phrase: words).then<Object?>((_) => null, onError: (Object e) => e);
+        expect(error, isA<DeskError>());
+        expect((error as DeskError).sameWallet?.name, 'Main');
+        expect(error.message, isNot(contains(fp)), reason: 'the fingerprint is never shown');
+        expect(two.creates, 1, reason: 'nothing was made');
+        expect(await listed(), hasLength(1));
+        expect(await wallet.wallets(), hasLength(1));
+      });
+
+      test('restore keeps the fingerprint; the same phrase again is refused, a different one restores', () async {
+        await wallet.restoreWallet(name: 'Old', password: _password, phrase: words);
+        expect((await listed()).single.phraseFingerprint, fp);
+        await expectLater(
+          wallet.restoreWallet(password: _password, phrase: words),
+          throwsA(isA<DeskError>().having((e) => e.sameWallet?.name, 'sameWallet', 'Old')),
+        );
+        expect(await wallet.walletWithPhrase(_TwoPhrases.other.split(' ')), isNull);
+        await wallet.restoreWallet(name: 'Other', password: _password, phrase: _TwoPhrases.other.split(' '));
+        expect(two.creates, 2);
+        final all = await listed();
+        expect(all.map((e) => e.label), ['Old', 'Other']);
+        expect(all.map((e) => e.phraseFingerprint).toSet(), hasLength(2));
+        expect(all.last.phraseFingerprint, phraseFingerprint(_TwoPhrases.other));
+        expect((await wallet.wallets()).last.current, isTrue, reason: 'the new wallet is the selected one');
+      });
+
+      test('a phrase that is not valid is never looked up', () async {
+        await wallet.createWallet(name: 'Main', password: _password);
+        expect(await wallet.walletWithPhrase(['abandon', 'h4rbor']), isNull);
+      });
+
+      test('a wallet listed before fingerprints were kept is not matched: the known gap', () async {
+        await wallet.createWallet(name: 'Main', password: _password);
+        await wallet.dispose();
+        // As the list of a build before this fix: the entry without the field.
+        final file = File('${support.path}${Platform.pathSeparator}${reg.WalletRegistry.fileName}');
+        final json = jsonDecode(await file.readAsString()) as Map<String, dynamic>;
+        for (final w in (json['wallets'] as List).cast<Map<String, dynamic>>()) {
+          expect(w.remove('phraseFingerprint'), fp);
+        }
+        await file.writeAsString(jsonEncode(json));
+        wallet = make(two);
+        expect((await listed()).single.phraseFingerprint, isNull);
+        expect(await wallet.walletWithPhrase(words), isNull, reason: 'no fingerprint, no address helper in the core: not caught');
+        await wallet.restoreWallet(name: 'Again', password: _password, phrase: words);
+        expect(two.creates, 2, reason: 'the duplicate is made, as before the fix');
+        expect((await listed()).last.phraseFingerprint, fp, reason: 'the restored copy carries one from now on');
+      });
     });
   });
 
@@ -685,7 +775,7 @@ void main() {
     test('wallets made without a name are Wallet 1, 2, 3, the next free number after a rename or removal', () async {
       await w.createWallet(password: _password);
       await w.createWallet(password: _password);
-      await w.restoreWallet(password: _password, phrase: rec.phrase.split(' '));
+      await w.restoreWallet(password: _password, phrase: _TwoPhrases.other.split(' '));
       expect((await w.wallets()).map((e) => e.name), ['Wallet 1', 'Wallet 2', 'Wallet 3']);
       final second = (await w.wallets())[1].id;
       await w.renameWallet(second, 'Savings');
@@ -834,7 +924,7 @@ void main() {
       final ws = await w.wallets();
       expect(ws.map((e) => e.name), ['Main', 'Savings']);
       expect(ws.where((e) => e.current).single.id, 'legacy-mainnet');
-      await w.restoreWallet(name: 'Third', password: _password, phrase: rec.phrase.split(' '));
+      await w.restoreWallet(name: 'Third', password: _password, phrase: _TwoPhrases.other.split(' '));
       expect((await w.wallets()).where((e) => e.current).single.id, 'legacy-mainnet');
     });
 
@@ -871,11 +961,10 @@ void main() {
 
     test('a scan that ends after a switch clears the flag of the wallet it ran for', () async {
       final session = _GatedScan();
-      final g = _Recording();
-      final gw = make(core.FakeWalletService(password: _password, session: session));
+      final gw = make(_TwoPhrases(session: session));
       addTearDown(gw.dispose);
       await gw.createWallet(name: 'Main', password: _password);
-      await gw.restoreWallet(name: 'Savings', password: _password, phrase: g.phrase.split(' '));
+      await gw.restoreWallet(name: 'Savings', password: _password, phrase: _TwoPhrases.other.split(' '));
       final id = (await gw.wallets()).last.id;
       expect(jsonDecode((await secrets.read('desk.wallet.mainnet.$id'))!), containsPair('scanPending', true));
       expect(await gw.unlock(_password), isTrue); // Savings: the scan starts and waits

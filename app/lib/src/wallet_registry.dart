@@ -55,6 +55,7 @@ class WalletEntry {
     required this.dataDir,
     required this.createdAt,
     this.lastOpenedAt,
+    this.phraseFingerprint,
   });
 
   /// Random 16-byte hex, or `legacy-<chain>` for the wallet a 0.1.0 install made.
@@ -67,18 +68,25 @@ class WalletEntry {
   final DateTime createdAt;
   final DateTime? lastOpenedAt;
 
+  /// A one-way fingerprint of the recovery phrase (64 lowercase hex), written when the app
+  /// creates or restores the wallet; null for wallets made before the app kept one. Restore
+  /// compares it to find a wallet that is already listed. The phrase cannot be recovered from
+  /// it (see `phraseFingerprint` in the desktop data layer).
+  final String? phraseFingerprint;
+
   bool get isLegacy => id.startsWith(WalletRegistry.legacyPrefix);
 
   /// The [WalletConfig.walletId] for this wallet: null for wallet 1 (`legacy-<chain>`).
   String? get walletId => isLegacy ? null : id;
 
-  WalletEntry copyWith({String? label, DateTime? lastOpenedAt}) => WalletEntry(
+  WalletEntry copyWith({String? label, DateTime? lastOpenedAt, String? phraseFingerprint}) => WalletEntry(
     id: id,
     label: label ?? this.label,
     chain: chain,
     dataDir: dataDir,
     createdAt: createdAt,
     lastOpenedAt: lastOpenedAt ?? this.lastOpenedAt,
+    phraseFingerprint: phraseFingerprint ?? this.phraseFingerprint,
   );
 
   Map<String, Object?> toJson() => {
@@ -89,9 +97,11 @@ class WalletEntry {
     'createdAt': createdAt.toUtc().toIso8601String(),
     if (lastOpenedAt != null)
       'lastOpenedAt': lastOpenedAt!.toUtc().toIso8601String(),
+    if (phraseFingerprint != null) 'phraseFingerprint': phraseFingerprint,
   };
 
   static final RegExp _idPattern = RegExp(r'^[0-9a-f]{32}$');
+  static final RegExp _fingerprintPattern = RegExp(r'^[0-9a-f]{64}$');
 
   /// Null when [json] is not a well-formed entry: the id is 32 lowercase hex characters, or
   /// `legacy-<chain>` of the entry's own chain.
@@ -102,6 +112,7 @@ class WalletEntry {
     final dataDir = json['dataDir'];
     final created = json['createdAt'];
     final opened = json['lastOpenedAt'];
+    final fingerprint = json['phraseFingerprint'];
     final chain = Chain.values.asNameMap()[json['chain']];
     if (id is! String || label is! String || chain == null) return null;
     if (!_idPattern.hasMatch(id) &&
@@ -120,6 +131,8 @@ class WalletEntry {
       dataDir: dataDir,
       createdAt: createdAt,
       lastOpenedAt: opened is String ? DateTime.tryParse(opened) : null,
+      // A malformed fingerprint is left out, never matched.
+      phraseFingerprint: fingerprint is String && _fingerprintPattern.hasMatch(fingerprint) ? fingerprint : null,
     );
   }
 }
@@ -330,6 +343,23 @@ class WalletRegistry {
     _lastUsedId = id;
     return entry;
   });
+
+  /// Keeps the recovery phrase fingerprint of [id] ([WalletEntry.phraseFingerprint]).
+  Future<WalletEntry> setPhraseFingerprint(String id, String fingerprint) => _locked(() async {
+    _requireWritable();
+    if (!WalletEntry._fingerprintPattern.hasMatch(fingerprint)) {
+      throw const WalletRegistryException('fingerprint is not 64 lowercase hex characters');
+    }
+    final i = _indexOf(id);
+    final entry = _entries[i].copyWith(phraseFingerprint: fingerprint);
+    await _save([..._entries]..[i] = entry, _lastUsedId);
+    _entries[i] = entry;
+    return entry;
+  });
+
+  /// The listed wallet whose [WalletEntry.phraseFingerprint] is [fingerprint], if any.
+  WalletEntry? byPhraseFingerprint(String fingerprint) =>
+      _entries.where((e) => e.phraseFingerprint == fingerprint).firstOrNull;
 
   /// Makes [id] the wallet to open next time, without touching its last-opened time.
   Future<void> setLastUsed(String id) => _locked(() async {

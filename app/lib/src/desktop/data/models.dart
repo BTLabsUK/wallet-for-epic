@@ -343,10 +343,14 @@ class ScanCounts {
 
 /// A wallet error, in a short sentence for the screen.
 class DeskError implements Exception {
-  const DeskError(this.message, {this.wrongPassword = false, this.locked = false, this.newPasswordNeeded = false});
+  const DeskError(this.message, {this.wrongPassword = false, this.locked = false, this.newPasswordNeeded = false, this.sameWallet});
 
   final String message;
   final bool wrongPassword;
+
+  /// A restore whose phrase belongs to this listed wallet (O1): nothing was made. The restore
+  /// flow offers to open it instead.
+  final WalletEntry? sameWallet;
 
   /// An import whose old password is too short for the app: it needs a new one.
   final bool newPasswordNeeded;
