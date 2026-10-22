@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:epic_wallet/src/desktop/screens/settings/report_problem.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/settings_help.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
@@ -7,6 +9,7 @@ import 'package:epic_wallet/src/log.dart';
 import 'package:epic_wallet/src/support_clean.dart';
 import 'package:epic_wallet/src/ui/feedback_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -15,11 +18,11 @@ const _address = 'esWn9r2zQj5eKkVh3sT4YpX7cBdF8gHmNaLuRvS6tE1iPo2wZxC9';
 
 class _Harness {
   final outlet = FakeFeedbackOutlet();
-  final log = MemoryLogSink();
+  MemoryLogSink log = MemoryLogSink();
   late ProviderContainer container;
 
-  Future<void> pump(WidgetTester tester, {Widget? home}) async {
-    tester.view.physicalSize = const Size(1280, 900);
+  Future<void> pump(WidgetTester tester, {Widget? home, double height = 900}) async {
+    tester.view.physicalSize = Size(1280, height);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
     container = ProviderContainer(overrides: [
@@ -50,6 +53,7 @@ Future<void> describe(WidgetTester tester, String text) async {
 }
 
 Future<void> send(WidgetTester tester) async {
+  await tester.ensureVisible(find.widgetWithText(EButton, 'Send'));
   await tester.tap(find.widgetWithText(EButton, 'Send'));
   await settle(tester);
 }
@@ -130,4 +134,71 @@ void main() {
     await send(tester);
     expect(h.outlet.posted.single.report.text.trimRight(), preview.trimRight());
   });
+
+  testWidgets('What is sent names each log file and how much of it goes', (tester) async {
+    final h = _Harness();
+    h.log = _FilesLog([const LogFileInfo('wfe.log', 100 * 1024), const LogFileInfo('wfe.log.1', 1024 * 1024)]);
+    await h.pump(tester);
+    await tester.tap(find.text('What is sent'));
+    await settle(tester);
+    expect(find.text('Report text · wfe.log (all, 100 KB) · wfe.log.1 (last 156 KB of 1.0 MB)'), findsOneWidget);
+    expect(previewText(tester), contains('log level: normal'));
+  });
+
+  testWidgets('Save to file writes the same cleaned report as the preview', (tester) async {
+    final h = _Harness();
+    h.log.record(LogLevel.info, 'dart.restore', 'words $_phrase');
+    await h.pump(tester);
+    await describe(tester, 'Sending to $_address fails');
+    await tester.tap(find.text('What is sent'));
+    await settle(tester);
+    final preview = previewText(tester);
+    await tester.ensureVisible(find.widgetWithText(EButton, 'Save to file'));
+    await tester.tap(find.widgetWithText(EButton, 'Save to file'));
+    await settle(tester);
+    final saved = h.outlet.saved.single;
+    expect(saved.name, startsWith('epic-wallet-feedback-'));
+    expect(saved.report.trimRight(), preview.trimRight());
+    expect(saved.report, isNot(contains('abandon')));
+    expect(find.text('Saved. Cleaned of secrets, not encrypted.'), findsOneWidget);
+    expect(h.outlet.posted, isEmpty);
+  });
+
+  testWidgets('opened in full, the dialog fits an 800 px window; Esc closes it', (tester) async {
+    await tester.runAsync(_loadFonts);
+    final h = _Harness();
+    await h.pump(tester, height: 800);
+    await tester.tap(find.text('What is sent'));
+    await settle(tester);
+    final scroll = find.descendant(of: find.byType(EDialog), matching: find.byType(Scrollable)).first;
+    expect(tester.state<ScrollableState>(scroll).position.maxScrollExtent, 0);
+    expect(tester.getTopLeft(find.text('Report a problem')).dy, greaterThan(0));
+    await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+    await tester.pumpAndSettle();
+    expect(find.byType(ReportProblemDialog), findsNothing);
+  });
+}
+
+/// A memory log that reports files, as the file log does.
+class _FilesLog extends MemoryLogSink {
+  _FilesLog(this.list);
+
+  final List<LogFileInfo> list;
+
+  @override
+  Future<List<LogFileInfo>> files() async => list;
+}
+
+/// The app's fonts, so text wraps as it does in the app (the test font is wider).
+Future<void> _loadFonts() async {
+  final dir = '${Platform.environment['FLUTTER_ROOT'] ?? '${Platform.environment['HOME']}/flutter'}/bin/cache/artifacts/material_fonts';
+  Future<ByteData> read(String path) async => ByteData.sublistView(Uint8List.fromList(await File(path).readAsBytes()));
+  final roboto = FontLoader('Roboto');
+  for (final face in ['Roboto-Regular.ttf', 'Roboto-Medium.ttf', 'Roboto-Bold.ttf']) {
+    roboto.addFont(read('$dir/$face'));
+  }
+  await roboto.load();
+  for (final (family, file) in [('Montserrat', 'assets/fonts/Montserrat-SemiBold.ttf'), ('JetBrainsMonoNL', 'assets/fonts/JetBrainsMonoNL-Regular.ttf')]) {
+    await (FontLoader(family)..addFont(read(file))).load();
+  }
 }

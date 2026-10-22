@@ -37,14 +37,15 @@ Future<void> initLepic({String? libraryPath}) => lepic.RustLib.init(
 );
 
 /// Logs one entry of `LepicRuntime.logs()` under its own target:
-/// `lepic_wallet::send: slate received in send slate_id=… height=…`. Debug and trace entries
-/// are dropped.
+/// `lepic_wallet::send: slate received in send slate_id=… height=…`. Trace entries are
+/// dropped; debug ones reach the log only while [AppLog.detailed] is on.
 void logLepicEntry(lepic.LogEntry entry) {
   final level = switch (entry.level) {
     lepic.LogLevel.error => LogLevel.error,
     lepic.LogLevel.warn => LogLevel.warn,
     lepic.LogLevel.info => LogLevel.info,
-    lepic.LogLevel.debug || lepic.LogLevel.trace => null,
+    lepic.LogLevel.debug => LogLevel.debug,
+    lepic.LogLevel.trace => null,
   };
   if (level == null) return;
   final line = StringBuffer(entry.message);
@@ -525,7 +526,10 @@ class LepicWalletService implements WalletService {
   static lepic.LepicRuntime _defaultRuntime() => _shared ??= _newRuntime();
 
   static lepic.LepicRuntime _newRuntime() {
-    final runtime = lepic.LepicRuntime(logLevel: lepic.LogLevel.info);
+    // LEPIC has no level setter: Detailed logging reaches it when the runtime starts.
+    final runtime = lepic.LepicRuntime(
+      logLevel: AppLog.detailed ? lepic.LogLevel.debug : lepic.LogLevel.info,
+    );
     // The stream's error reaches the zone instead (UP-11); onError covers a future pin.
     runtime.logs().listen(
       logLepicEntry,
