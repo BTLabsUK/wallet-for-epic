@@ -449,7 +449,9 @@ class ESubnav extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.dc;
-    return Column(
+    // One group: Tab does not interleave the sub-pages with the page's controls.
+    return FocusTraversalGroup(
+      child: Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         for (final item in items)
@@ -463,6 +465,7 @@ class ESubnav extends StatelessWidget {
               onTap: () => onTap(item.$1),
             ),
       ],
+    ),
     );
   }
 }

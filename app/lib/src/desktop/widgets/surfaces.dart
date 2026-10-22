@@ -670,16 +670,19 @@ class _EDetailsState extends State<EDetails> {
   }
 }
 
-/// Esc in an open [EDetails] on the page; disabled otherwise, so Esc goes on up.
+/// Esc in an [EDetails]: folds it when it is open on the page; otherwise hands Esc on up (a
+/// disabled action would stop the search for one, so this one passes it along itself).
 class _FoldAction extends DismissAction {
   _FoldAction(this.details);
 
   final _EDetailsState details;
 
   @override
-  bool isEnabled(DismissIntent intent) =>
-      details.mounted && details._open && (ModalRoute.of(details.context)?.isFirst ?? true);
-
-  @override
-  void invoke(DismissIntent intent) => details._fold();
+  Object? invoke(DismissIntent intent) {
+    if (details.mounted && details._open && (ModalRoute.of(details.context)?.isFirst ?? true)) {
+      details._fold();
+      return null;
+    }
+    return details.mounted ? Actions.maybeInvoke(details.context, intent) : null;
+  }
 }

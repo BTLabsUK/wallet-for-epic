@@ -144,14 +144,46 @@ class EDialog extends StatelessWidget {
       ),
     );
     if (!dismissible) return dialog;
-    // Esc closes a dialog that shows Close, also one opened with a barrier that does not
-    // dismiss (a click outside must not lose the typing, Esc is deliberate). A PopScope in the
-    // dialog still holds it while busy.
-    return Actions(
-      actions: {DismissIntent: CallbackAction<DismissIntent>(onInvoke: (_) => Navigator.of(context).maybePop())},
-      child: dialog,
-    );
+    return _EscCloses(child: dialog);
   }
+}
+
+/// Esc closes a dialog that shows Close, also one opened with a barrier that does not dismiss
+/// (a click outside must not lose the typing; Esc is deliberate). A PopScope in the dialog
+/// still holds it while busy. With no field focused the dialog itself takes the focus, so Esc
+/// reaches it.
+class _EscCloses extends StatefulWidget {
+  const _EscCloses({required this.child});
+
+  final Widget child;
+
+  @override
+  State<_EscCloses> createState() => _EscClosesState();
+}
+
+class _EscClosesState extends State<_EscCloses> {
+  final _node = FocusNode(debugLabel: 'dialog', skipTraversal: true);
+
+  @override
+  void initState() {
+    super.initState();
+    // After the dialog's own autofocus has had its turn.
+    Future<void>.delayed(Duration.zero, () {
+      if (mounted && !_node.hasFocus && (ModalRoute.of(context)?.isCurrent ?? false)) _node.requestFocus();
+    });
+  }
+
+  @override
+  void dispose() {
+    _node.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => Actions(
+    actions: {DismissIntent: CallbackAction<DismissIntent>(onInvoke: (_) => Navigator.of(context).maybePop())},
+    child: Focus(focusNode: _node, child: widget.child),
+  );
 }
 
 /// A side sheet: 420 wide, head with title and close, scrolling body, foot with actions.
