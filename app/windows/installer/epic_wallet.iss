@@ -45,6 +45,6 @@ Source: "{#SourceDir}\*"; DestDir: "{app}"; Excludes: "*.lib,*.exp,*.pdb,*.ilk";
 
 [Icons]
 Name: "{userprograms}\Epic Wallet 0.1"; Filename: "{app}\epic_wallet.exe"; WorkingDir: "{app}"
-; Same app with Skia instead of Impeller, to compare renderers.
-Name: "{userprograms}\Epic Wallet 0.1 (Skia)"; Filename: "{app}\epic_wallet.exe"; Parameters: "--skia"; WorkingDir: "{app}"
+; Same app on Impeller instead of the default Skia, to compare renderers.
+Name: "{userprograms}\Epic Wallet 0.1 (Impeller)"; Filename: "{app}\epic_wallet.exe"; Parameters: "--impeller"; WorkingDir: "{app}"
 Name: "{userdesktop}\Epic Wallet 0.1"; Filename: "{app}\epic_wallet.exe"; WorkingDir: "{app}"; Tasks: desktopicon
