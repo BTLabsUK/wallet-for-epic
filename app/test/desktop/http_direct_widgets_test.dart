@@ -10,6 +10,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'review_password.dart';
+
 /// The mock wallet, recording each send.
 class _Wallet extends MockDeskWallet {
   _Wallet() : super(delay: Duration.zero);
@@ -61,6 +63,7 @@ void main() {
       await tester.tap(find.text('Send anyway'));
       await tester.pumpAndSettle();
       expect(find.text('Check and send'), findsOneWidget);
+      await enterReviewPassword(tester);
       await tester.tap(find.text('Send 1.0000 EPIC'));
       await tester.pumpAndSettle();
       expect(wallet.sent.single.method, TxMethod.http);

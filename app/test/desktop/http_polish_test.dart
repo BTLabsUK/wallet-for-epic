@@ -13,6 +13,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'review_password.dart';
+
 core.TxEntry _entry({String? transport, String? counterparty, core.TxStatus status = core.TxStatus.awaitingConfirmation}) => core.TxEntry(
   key: 'l:7',
   id: 7,
@@ -72,6 +74,7 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(find.text('Review send'));
       await tester.pumpAndSettle();
+      await enterReviewPassword(tester);
       await tester.tap(find.textContaining(RegExp(r'^Send \d')));
       await tester.pumpAndSettle();
     }
