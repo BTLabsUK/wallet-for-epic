@@ -575,6 +575,21 @@ void main() {
       expect(ws.where((e) => e.current).single.id, id);
     });
 
+    test('a folder written into wallets.json by hand is never opened', () async {
+      await w.createWallet(name: 'Main', password: _password);
+      await w.createWallet(name: 'Savings', password: _password);
+      final id = rec.createdConfig!.walletId!;
+      final list = File('${support.path}/wallets.json');
+      final elsewhere = '${support.path}/elsewhere/.epic/main';
+      list.writeAsStringSync(list.readAsStringSync().replaceAll('${support.path}/wallets/$id/mainnet', elsewhere));
+      final again = make(rec);
+      addTearDown(again.dispose);
+      await again.selectWallet(id);
+      expect(await again.unlock(_password), isTrue);
+      expect(rec.opened.last.dataDir, '${support.path}/wallets/$id/mainnet');
+      expect(Directory(elsewhere).existsSync(), isFalse);
+    });
+
     test('unlock opens the selected wallet and remembers it', () async {
       await w.createWallet(name: 'Main', password: _password);
       await w.createWallet(name: 'Savings', password: _password);

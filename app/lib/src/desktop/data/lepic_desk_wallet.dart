@@ -196,12 +196,20 @@ class LepicDeskWallet implements DeskWalletApi {
 
   /// The config of [entry]; null is the first wallet. The first wallet's folder is exactly
   /// what [WalletDirResolver] answers, as in 0.1.0, and its walletId null.
+  /// An added wallet's folder is always `<support>/wallets/<id>/<chain>`, rebuilt from its id:
+  /// a folder written into wallets.json by hand is never opened.
   Future<core.WalletConfig> _configOf(reg.WalletEntry? entry, {String? nodeUrl, EpicboxRelay? relay}) async => preset.config(
-    dataDir: entry == null || entry.isLegacy ? await _walletDir(preset.chain) : entry.dataDir,
+    dataDir: entry == null || entry.isLegacy ? await _walletDir(preset.chain) : await _addedDir(entry),
     nodeUrl: nodeUrl ?? await _nodeUrl(),
     relay: relay ?? await _relay(),
     walletId: entry?.walletId,
   );
+
+  Future<String> _addedDir(reg.WalletEntry entry) async {
+    final sep = Platform.pathSeparator;
+    final wallets = Directory(await _walletDir(preset.chain)).parent.path;
+    return '$wallets$sep${entry.id}$sep${entry.chain.name}';
+  }
 
   /// The open wallet's config (the first wallet's while locked).
   Future<core.WalletConfig> _makeConfig({String? nodeUrl, EpicboxRelay? relay}) => _configOf(_openEntry, nodeUrl: nodeUrl, relay: relay);
@@ -626,7 +634,8 @@ class LepicDeskWallet implements DeskWalletApi {
         logWarn('desk', 'half-made wallet folder not removed: ${e.runtimeType}');
       }
       await r.forget(entry.id);
-      for (final dir in [Directory(entry.dataDir), Directory(entry.dataDir).parent]) {
+      final made = await _addedDir(entry);
+      for (final dir in [Directory(made), Directory(made).parent]) {
         await dir.delete(); // only when empty
       }
     } on Object catch (e) {
