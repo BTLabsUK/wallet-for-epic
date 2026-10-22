@@ -201,7 +201,7 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
                                 EStatusDot(status.torIncluded ? torTone(status.tor) : ETone.neutral),
                                 SizedBox(width: Sp.x2),
                                 Expanded(child: Text(torStatusLine(status), style: ts.small)),
-                                if (s.tor && status.torIncluded && status.tor == ServiceHealth.down)
+                                if (s.tor && status.torIncluded && (status.tor == ServiceHealth.down || status.torSlowStart))
                                   EButton(label: 'Retry', icon: EIcons.refresh, size: EBtnSize.inline, busy: _torBusy, onPressed: _torBusy ? null : () => _setTor(true)),
                               ],
                             ),

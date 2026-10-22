@@ -13,8 +13,19 @@ abstract interface class DeskWalletApi {
   /// Picks the wallet [unlock] opens next (Unlock's Wallet select). The open one stays open.
   Future<void> selectWallet(String id);
 
-  /// Opens the selected wallet; false on a wrong password.
-  Future<bool> unlock(String password);
+  /// Opens the selected wallet; false on a wrong password. [remember] keeps the password on
+  /// this computer for that wallet (`remember.dart`); off forgets one kept before.
+  Future<bool> unlock(String password, {bool remember = false});
+
+  /// Opens the selected wallet with the password remembered on this computer; false when
+  /// none is kept, it expired, or it no longer opens the wallet (then it is forgotten).
+  Future<bool> unlockRemembered();
+
+  /// Whether a password is remembered on this computer for the wallet [id].
+  Future<bool> isRemembered(String id);
+
+  /// "Forget this computer": drops the remembered password of the wallet [id].
+  Future<void> forgetRemembered(String id);
   Future<void> lock();
 
   /// Renames the wallet [id] (1 to 32 characters).
@@ -132,8 +143,14 @@ abstract interface class DeskWalletApi {
   /// now and returns when that is done. Throws a [DeskError] when the node did not answer.
   Future<void> syncNow();
 
-  /// Scans the chain again, with progress; the stream ends when the scan does.
-  Stream<ScanStep> rescan();
+  /// Scans the chain again, with progress; the stream ends when the scan does, after the
+  /// balance is brought up to date. [deleteUnconfirmed] also cancels unconfirmed
+  /// transactions and unlocks their coins (only when [DeskFeatures.rescanRepair]).
+  Stream<ScanStep> rescan({bool deleteUnconfirmed = false});
+
+  /// Ends a running [rescan] at the core's next page; its stream then ends without a
+  /// finished step.
+  Future<void> stopRescan();
 
   /// Fires when something the screens show changed in the background (a payment arrived, a
   /// sync finished, the listener connected). [DeskController] reloads on it.

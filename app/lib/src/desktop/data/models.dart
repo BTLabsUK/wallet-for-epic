@@ -233,6 +233,7 @@ class ServiceStatus {
     this.torProblem,
     this.torCanSend = false,
     this.torIncluded = true,
+    this.torSlowStart = false,
     this.syncProgress,
     this.lastUpdate,
     this.notice,
@@ -269,6 +270,10 @@ class ServiceStatus {
   /// This build has the bundled tor; without it Tor cannot be turned on.
   final bool torIncluded;
 
+  /// Tor has been connecting for a minute without progress to show: Retry is offered while
+  /// it still tries.
+  final bool torSlowStart;
+
   /// 0..1 while the wallet scans; null when idle.
   final double? syncProgress;
   final DateTime? lastUpdate;
@@ -293,12 +298,32 @@ String torStatusLine(ServiceStatus s) {
 const int minPasswordLength = 8;
 
 /// One step of a rescan: the core's message and, when it gives one, the percentage.
+/// [finished] is set on the last step of a scan that ran to its end (not on a stopped one),
+/// with what it found in [counts] when the core reports them.
 @immutable
 class ScanStep {
-  const ScanStep(this.message, {this.percent});
+  const ScanStep(this.message, {this.percent, this.finished = false, this.counts});
 
   final String message;
   final int? percent;
+  final bool finished;
+  final ScanCounts? counts;
+}
+
+/// What a finished rescan did: outputs found on the chain, restored to the wallet, back to
+/// unspent (stored as spent), unlocked (locked by a send that never completed) and deleted
+/// (unconfirmed); the last two only with "Delete unconfirmed". [resumed]: it continued a
+/// stopped scan, and the counts cover only that part.
+@immutable
+class ScanCounts {
+  const ScanCounts({this.found = 0, this.restored = 0, this.revived = 0, this.unlocked = 0, this.deleted = 0, this.resumed = false});
+
+  final int found;
+  final int restored;
+  final int revived;
+  final int unlocked;
+  final int deleted;
+  final bool resumed;
 }
 
 /// A wallet error, in a short sentence for the screen.

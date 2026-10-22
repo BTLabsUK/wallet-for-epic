@@ -20,6 +20,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:crypto/crypto.dart';
+import 'package:path_provider/path_provider.dart';
 
 import '../../builtin_node.dart';
 import '../../legacy_gui_profile.dart' as gui;
@@ -39,6 +40,7 @@ import 'desk_store.dart';
 import 'features.dart';
 import 'http_address.dart';
 import 'models.dart';
+import 'remember.dart';
 
 /// Built-in public nodes offered in Settings › Node, the default first; status.btlabs.uk can add more.
 final List<NodeServer> deskPublicNodes = [
@@ -110,6 +112,7 @@ class LepicDeskWallet implements DeskWalletApi {
     BigInt? minimumConfirmations,
     this.nodePoll = const Duration(seconds: 30),
     this.nodeTimeout = const Duration(seconds: 15),
+    this.torRetryAfter = const Duration(seconds: 60),
     reg.WalletRegistry? registry,
     this._builtInNode,
     legacy.LegacyRoots Function()? legacyRoots,
@@ -117,10 +120,20 @@ class LepicDeskWallet implements DeskWalletApi {
     this._listProcesses,
     this._torBundle,
     bool? torFeature,
+    Future<Directory> Function()? rememberDir,
+    DateTime Function()? now,
   }) : _torFeature = torFeature ?? DeskFeatures.tor,
        _legacyRoots = legacyRoots ?? legacy.LegacyRoots.current,
        _minConfFallback = minimumConfirmations ?? BigInt.from(defaultMinimumConfirmations),
-       _registryGiven = registry;
+       _registryGiven = registry,
+       _remember = RememberedPasswords(
+         secrets: _secrets,
+         dir: rememberDir ?? () async => Directory('${(await getApplicationSupportDirectory()).path}${Platform.pathSeparator}remember'),
+         now: now,
+       );
+
+  /// Passwords remembered on this computer, per wallet (F6).
+  final RememberedPasswords _remember;
 
   /// Whether this build offers Tor ([DeskFeatures.tor]); tests turn it on.
   final bool _torFeature;
@@ -156,6 +169,9 @@ class LepicDeskWallet implements DeskWalletApi {
   }
   final Duration nodePoll;
   final Duration nodeTimeout;
+
+  /// How long tor may connect before Retry is offered beside "Connecting to Tor…".
+  final Duration torRetryAfter;
 
   /// Makes the built-in node of a network (desktop builds with the bundled `epic`, D10); null
   /// where there is none.
@@ -224,6 +240,14 @@ class LepicDeskWallet implements DeskWalletApi {
   int? _torProgress;
   String? _torProblem;
   bool _torCanSend = false;
+
+  /// When this tor start began; null once it connected, failed or stopped.
+  DateTime? _torStartedAt;
+  Timer? _torSlowTimer;
+
+  /// A start that stalled on its first bootstrap is retried once by itself (a cold Tor cache
+  /// can sit at one percent past LEPIC's stall limit); this is set once that retry ran.
+  bool _torAutoRetried = false;
 
   /// The open wallet's onion, `<56 characters>.onion`.
   String? _onion;
@@ -492,6 +516,7 @@ class LepicDeskWallet implements DeskWalletApi {
           if (entry.isLegacy) await _setMeta({'unlisted': true}, _metaKey(null));
         case WalletRemoval.delete:
           await r.delete(id, service: _service, config: config);
+          await _remember.forget(id);
           await _store.delete(_metaKey(entry.walletId));
           await _store.delete(DeskStore.favouritesKeyOf(entry.walletId));
           if (entry.walletId != null) {
@@ -550,11 +575,48 @@ class LepicDeskWallet implements DeskWalletApi {
   // ---- Opening a wallet.
 
   @override
-  Future<bool> unlock(String password) async {
+  Future<bool> unlock(String password, {bool remember = false}) => _unlock(password, remember: remember);
+
+  @override
+  Future<bool> unlockRemembered() async {
+    final entry = _pick(await _wallets(), await _lastUsed());
+    if (entry == null) return false;
+    final password = await _remember.recall(entry.id);
+    if (password == null) return false;
+    final ok = await _unlock(password);
+    if (!ok) await _remember.forget(entry.id);
+    logInfo('desk', ok ? 'unlocked with the remembered password' : 'remembered password refused');
+    return ok;
+  }
+
+  @override
+  Future<bool> isRemembered(String id) => _remember.isRemembered(id);
+
+  @override
+  Future<void> forgetRemembered(String id) => _remember.forget(id);
+
+  /// Opens the selected wallet. [remember]: keep the password, forget it, or (null, for the
+  /// remembered password itself) leave it and its expiry as they are.
+  Future<bool> _unlock(String password, {bool? remember}) async {
     await lock();
     final all = await _wallets();
     final entry = _pick(all, await _lastUsed());
     if (entry == null) throw const DeskError('No wallet found');
+    final ok = await _openEntryWith(entry, password);
+    if (!ok) {
+      await _remember.failed(entry.id);
+    } else if (remember == true) {
+      await _remember.remember(entry.id, password);
+    } else if (remember == false) {
+      await _remember.forget(entry.id, quiet: true);
+    } else {
+      await _remember.succeeded(entry.id);
+    }
+    if (ok) _startOpenWallet();
+    return ok;
+  }
+
+  Future<bool> _openEntryWith(reg.WalletEntry entry, String password) async {
     final config = await _configOf(entry);
     final metaKey = _metaKey(entry.walletId);
     core.WalletSession session;
@@ -596,11 +658,16 @@ class LepicDeskWallet implements DeskWalletApi {
     } on Object catch (e) {
       logWarn('desk', 'wallet list not saved: ${e.runtimeType}');
     }
+    return true;
+  }
+
+  /// After an unlock: the node poll, the first sync and, when this wallet has it on, tor.
+  void _startOpenWallet() {
     _poll = Timer.periodic(nodePoll, (_) => unawaited(_checkTip()));
     unawaited(_checkTip());
     unawaited(sync());
-    if (tor) unawaited(_startTor());
-    return true;
+    _torAutoRetried = false;
+    if (_settings.tor) unawaited(_startTor());
   }
 
   @override
@@ -1286,6 +1353,10 @@ class LepicDeskWallet implements DeskWalletApi {
       torProblem: _torHealth == ServiceHealth.down || _torHealth == ServiceHealth.slow ? _torProblem : null,
       torCanSend: _torCanSend,
       torIncluded: await _findTor() != null,
+      torSlowStart: _torHealth == ServiceHealth.checking &&
+          !_torCanSend &&
+          _torStartedAt != null &&
+          DateTime.now().difference(_torStartedAt!) >= torRetryAfter,
       syncProgress: _syncProgress,
       lastUpdate: _lastUpdate,
       notice: _notice,
@@ -1913,8 +1984,9 @@ class LepicDeskWallet implements DeskWalletApi {
     await _store.saveTorOn(_openEntry?.walletId, on);
     logInfo('desk', 'tor ${on ? 'on' : 'off'}');
     if (!on) return _stopTor();
-    // On again after a failure is Retry.
-    if (_torHealth == ServiceHealth.down) await _stopTor();
+    // On again after a failure, or while a start hangs, is Retry.
+    if (_torHealth == ServiceHealth.down || (_torHealth == ServiceHealth.checking && !_torCanSend)) await _stopTor();
+    _torAutoRetried = false;
     await _startTor();
   }
 
@@ -1939,6 +2011,10 @@ class LepicDeskWallet implements DeskWalletApi {
     _torHealth = ServiceHealth.checking;
     _torProgress = 0;
     _torProblem = null;
+    _torStartedAt = DateTime.now();
+    _torSlowTimer?.cancel();
+    // Nothing else changes while a start hangs; this shows Retry when it is due.
+    _torSlowTimer = Timer(torRetryAfter, _changed);
     _changed();
     logInfo('desk', 'tor start');
     late final StreamSubscription<core.TorEvent> sub;
@@ -1949,6 +2025,7 @@ class LepicDeskWallet implements DeskWalletApi {
       _torProblem = problem ?? 'Tor stopped';
       _torCanSend = false;
       _torProgress = null;
+      _torStartedAt = null;
     }
 
     sub = session.startTor(torBinary: bundle.binary, libDir: bundle.libDir).listen(
@@ -1960,6 +2037,7 @@ class LepicDeskWallet implements DeskWalletApi {
             _torProgress = e.progress ?? _torProgress;
           case core.TorEventKind.bootstrapped || core.TorEventKind.publishing:
             _torCanSend = true;
+            _torStartedAt = null;
             if (_torHealth != ServiceHealth.slow) _torHealth = ServiceHealth.checking;
           case core.TorEventKind.ready:
             _torHealth = ServiceHealth.ok;
@@ -1969,6 +2047,14 @@ class LepicDeskWallet implements DeskWalletApi {
             if (onion != null) _onion = core.onionHost(onion);
           case core.TorEventKind.failed:
             logWarn('desk', 'tor failed: ${e.failure?.name ?? '?'}');
+            if (e.failure == core.TorFailure.network && !_torCanSend && !_torAutoRetried) {
+              // A stall on the first bootstrap: one more try before "failed".
+              _torAutoRetried = true;
+              logInfo('desk', 'tor stalled connecting; starting it once more');
+              unawaited(_restartTor(session, sub));
+              return;
+            }
+            _torStartedAt = null;
             // Listener and keys leave tor running for sends; any other failure stops it.
             final forSends = e.failure == core.TorFailure.listener || e.failure == core.TorFailure.keys;
             _torHealth = forSends ? ServiceHealth.slow : ServiceHealth.down;
@@ -2000,9 +2086,25 @@ class LepicDeskWallet implements DeskWalletApi {
     _tor = sub;
   }
 
+  /// Stops the tor that [sub] watches and starts it again, showing "Connecting" throughout.
+  Future<void> _restartTor(core.WalletSession session, StreamSubscription<core.TorEvent> sub) async {
+    if (_tor != sub) return;
+    _tor = null;
+    try {
+      await session.stopTor();
+    } on core.WalletError catch (e) {
+      logWarn('desk', 'stop tor: ${e.kind.name}');
+    }
+    await sub.cancel();
+    if (_session != session || !_settings.tor) return;
+    await _startTor();
+  }
+
   Future<void> _stopTor() async {
     final sub = _tor;
     _tor = null;
+    _torStartedAt = null;
+    _torSlowTimer?.cancel();
     final was = _torHealth;
     _torHealth = ServiceHealth.off;
     _torProblem = null;
@@ -2036,19 +2138,43 @@ class LepicDeskWallet implements DeskWalletApi {
   }
 
   @override
-  Stream<ScanStep> rescan() async* {
+  Stream<ScanStep> rescan({bool deleteUnconfirmed = false}) async* {
     final session = _open;
     final key = _metaKey(_openEntry?.walletId);
+    var finished = false;
     try {
-      await for (final p in session.scan()) {
-        yield ScanStep(p.message, percent: p.percent);
+      await for (final p in session.scan(deleteUnconfirmed: deleteUnconfirmed)) {
+        finished = finished || p.finished;
+        final r = p.result;
+        yield ScanStep(
+          p.message,
+          percent: p.percent,
+          finished: p.finished,
+          counts: r == null
+              ? null
+              : ScanCounts(found: r.found, restored: r.restored, revived: r.revived, unlocked: r.unlocked, deleted: r.deleted, resumed: r.resumed),
+        );
       }
     } on core.WalletError catch (e) {
       throw _deskError(e);
     }
-    await _setMeta({'scanPending': false}, key);
-    _notice = null;
+    // A stopped scan leaves a due scan due; either way the balance is read again.
+    if (finished) {
+      await _setMeta({'scanPending': false}, key);
+      _notice = null;
+    }
+    logInfo('desk', finished ? 'rescan finished' : 'rescan stopped');
     await sync();
+  }
+
+  @override
+  Future<void> stopRescan() async {
+    logInfo('desk', 'rescan stop asked');
+    try {
+      _session?.cancelScan();
+    } on core.WalletError catch (e) {
+      logWarn('desk', 'stop rescan: ${e.kind.name}');
+    }
   }
 
   @override
@@ -2062,6 +2188,7 @@ class LepicDeskWallet implements DeskWalletApi {
   }
 
   @override
+  // When this is built: forget the remembered password (`_remember.forget`) once it changed.
   Future<void> changePassword(String current, String next) =>
       throw UnsupportedError('password change (DeskFeatures.changePassword)');
 

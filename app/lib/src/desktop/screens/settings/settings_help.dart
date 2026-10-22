@@ -6,6 +6,7 @@ import '../../widgets/kit.dart';
 import 'help_topics.dart';
 import 'report_problem.dart';
 import 'settings_frame.dart';
+import 'settings_logs.dart';
 
 /// The query's words, lower case, longest first; none under two letters in all.
 List<String> queryWords(String q) {
@@ -176,6 +177,8 @@ class _SettingsHelpScreenState extends ConsumerState<SettingsHelpScreen> {
               list([for (final t in helpTopics.where((t) => t.section == id)) (topic: t, inBody: false)]),
               SizedBox(height: Sp.x4),
             ],
+          SizedBox(height: Sp.x2),
+          const LogsGroup(),
         ],
       ),
     );

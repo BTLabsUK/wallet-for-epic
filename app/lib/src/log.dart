@@ -13,8 +13,8 @@ import 'dart:convert';
 
 import 'redact.dart';
 
-/// Severity of a log line. Nothing below `info` is written.
-enum LogLevel { error, warn, info }
+/// Severity of a log line. `debug` is written only while [AppLog.detailed] is on.
+enum LogLevel { error, warn, info, debug }
 
 /// Longer messages are cut.
 const int maxLogMessageBytes = 4096;
@@ -29,6 +29,9 @@ abstract class LogSink {
   /// The newest [maxBytes] of the log, from a whole line on.
   Future<String> tail(int maxBytes);
 
+  /// The log's files, newest first, with their sizes; none for a sink without files.
+  Future<List<LogFileInfo>> files() async => const [];
+
   void write(LogLevel level, String tag, String message) =>
       record(level, '$dartTarget.${_cleanTag(tag)}', message);
 }
@@ -39,8 +42,19 @@ String _cleanTag(String tag) {
   return kept.length > 32 ? kept.substring(0, 32) : kept;
 }
 
-/// Whether [level] lines from [target] are written.
+/// One file of the log: `wfe.log` or `wfe.log.1`, and its size.
+class LogFileInfo {
+  const LogFileInfo(this.name, this.bytes);
+
+  final String name;
+  final int bytes;
+}
+
+/// Whether [level] lines from [target] are written. While [AppLog.detailed] is on, everything
+/// is; otherwise `info` only from the app and LEPIC, and no `debug`.
 bool logPasses(LogLevel level, String target) {
+  if (AppLog.detailed) return true;
+  if (level == LogLevel.debug) return false;
   bool ours(String prefix) =>
       target == prefix ||
       target.startsWith('$prefix.') ||
@@ -126,6 +140,16 @@ class MemoryLogSink extends LogSink {
 /// than a provider; `feedbackLogProvider` hands the sink to the feedback screen.
 abstract final class AppLog {
   static LogSink _sink = MemoryLogSink();
+
+  /// Until when detailed logging is on, for troubleshooting: `debug` lines and `info` from
+  /// every target; null is off. The app's lines switch at once and back by themselves at that
+  /// time; LEPIC's runtime takes its level when it starts.
+  static DateTime? detailedUntil;
+
+  static bool get detailed {
+    final until = detailedUntil;
+    return until != null && DateTime.now().isBefore(until);
+  }
 
   static LogSink get sink => _sink;
 

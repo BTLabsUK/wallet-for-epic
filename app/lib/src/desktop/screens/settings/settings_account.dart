@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/files.dart' show deskOpenFolderProvider;
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../widgets/kit.dart';
+import '../onboarding/unlock_screen.dart' show rememberWho;
 import 'dialogs.dart';
 import 'prefs.dart';
 import 'settings_frame.dart';
@@ -26,6 +27,39 @@ class SettingsAccountScreen extends ConsumerStatefulWidget {
 class _SettingsAccountScreenState extends ConsumerState<SettingsAccountScreen> {
   final _label = TextEditingController();
   bool _filled = false;
+
+  /// Whether this wallet opens at start without its password (Unlock's Remember).
+  bool _remembered = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _readRemembered();
+  }
+
+  /// The open wallet's list id; empty in the mock, which answers for its selected wallet.
+  String get _walletId => ref.read(deskProvider).account?.id ?? '';
+
+  Future<void> _readRemembered() async {
+    try {
+      final r = await ref.read(deskApiProvider).isRemembered(_walletId);
+      if (mounted) setState(() => _remembered = r);
+    } on Object {
+      // Unknown: the row stays hidden.
+    }
+  }
+
+  Future<void> _forget() async {
+    try {
+      await ref.read(deskApiProvider).forgetRemembered(_walletId);
+    } on Object catch (e) {
+      if (mounted) showEToast(context, 'Not forgotten', text: deskErrorText(e), tone: ETone.risk);
+      return;
+    }
+    if (!mounted) return;
+    setState(() => _remembered = false);
+    showEToast(context, 'Forgotten on this computer', text: 'The next start asks the password.');
+  }
 
   @override
   void dispose() {
@@ -117,6 +151,12 @@ class _SettingsAccountScreenState extends ConsumerState<SettingsAccountScreen> {
           ESetGroup(
             title: 'Security',
             rows: [
+              if (_remembered)
+                ESetRow(
+                  title: 'Remembered on this computer',
+                  text: 'Opens at start without the password, for 30 days from when it was set. $rememberWho',
+                  control: EButton(label: 'Forget this computer', icon: EIcons.lock, size: EBtnSize.sm, onPressed: _forget),
+                ),
               if (DeskFeatures.changePassword)
                 ESetRow(
                   title: 'Password',

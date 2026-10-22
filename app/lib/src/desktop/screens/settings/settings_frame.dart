@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../log.dart';
 import '../../widgets/kit.dart';
 import 'prefs.dart';
 
@@ -208,9 +209,19 @@ String ago(DateTime? t) {
   return '${d.inDays} d ago';
 }
 
-void copyLink(BuildContext context, String url) {
-  Clipboard.setData(ClipboardData(text: url));
-  showEToast(context, 'Link copied', text: url);
+/// Copies [url]; false when the clipboard refused it twice. On Windows another program can
+/// hold the clipboard for a moment (PlatformException), so a refusal is tried once more.
+Future<bool> copyLink(String url) async {
+  for (var attempt = 1; ; attempt++) {
+    try {
+      await Clipboard.setData(ClipboardData(text: url));
+      return true;
+    } on PlatformException catch (e) {
+      logWarn('desk', 'copy refused (attempt $attempt): ${e.code}');
+      if (attempt == 2) return false;
+      await Future<void>.delayed(const Duration(milliseconds: 150));
+    }
+  }
 }
 
 /// A strip entry for the narrow layout.

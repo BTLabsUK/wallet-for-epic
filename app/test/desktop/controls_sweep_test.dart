@@ -28,6 +28,8 @@ final Map<RegExp, String> _allowed = {
       'The place already shown: going there again adds nothing to the history (F16).',
   RegExp(r'^settingsAccount\|Open folder$'): 'The mock wallet folder is not on disk: says "Folder not found". A real one opens.',
   RegExp(r'^settingsWallets\|Show .* in its folder$'): 'The mock wallet folders are not on disk: says "Folder not opened". A real one opens.',
+  RegExp(r'^settingsAbout\|Check now$'): 'Asks the update server again; in tests it answers as before, so the line stays.',
+  RegExp(r'^settingsHelp\|Open log folder$'): 'In tests the log is in memory, with no folder: says so. The real log folder opens.',
   RegExp(r'^31b-dlg-my-node-error\|Save$'): 'Refuses the bad address; its error is on screen already.',
   RegExp(r'^receive\|Show QR code of the HTTP address$'): 'Enabled first on 17d, which shows the HTTP QR already (live_controls_test presses it from the Epic one).',
   RegExp(r'^35-dlg-tx-proof\|Export$'): 'Behind DeskFeatures.paymentProofs (off): the dialog cannot be opened in the app.',
@@ -77,7 +79,13 @@ class _Recorder implements DeskWalletApi {
   @override
   Future<void> selectWallet(String id) => _r('selectWallet', () => _m.selectWallet(id));
   @override
-  Future<bool> unlock(String password) => _r('unlock', () => _m.unlock(password));
+  Future<bool> unlock(String password, {bool remember = false}) => _r('unlock', () => _m.unlock(password, remember: remember));
+  @override
+  Future<bool> unlockRemembered() => _r('unlockRemembered', _m.unlockRemembered);
+  @override
+  Future<bool> isRemembered(String id) => _m.isRemembered(id);
+  @override
+  Future<void> forgetRemembered(String id) => _r('forgetRemembered', () => _m.forgetRemembered(id));
   @override
   Future<void> lock() => _r('lock', _m.lock);
   @override
@@ -177,7 +185,9 @@ class _Recorder implements DeskWalletApi {
   @override
   Future<void> syncNow() => _r('syncNow', _m.syncNow);
   @override
-  Stream<ScanStep> rescan() => _r('rescan', _m.rescan);
+  Stream<ScanStep> rescan({bool deleteUnconfirmed = false}) => _r('rescan', () => _m.rescan(deleteUnconfirmed: deleteUnconfirmed));
+  @override
+  Future<void> stopRescan() => _r('stopRescan', _m.stopRescan);
   @override
   Stream<void> changes() => _m.changes();
   @override
@@ -308,6 +318,10 @@ void main() {
             deskApiProvider.overrideWithValue(api),
             deskOpenFolderProvider.overrideWithValue((dir) async {
               folders.add(dir);
+              return true;
+            }),
+            deskOpenUrlProvider.overrideWithValue((url) async {
+              folders.add(url);
               return true;
             }),
           ],

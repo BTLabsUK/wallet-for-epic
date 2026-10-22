@@ -738,11 +738,20 @@ class RemoteWalletSession implements WalletSession {
   );
 
   @override
-  Stream<ScanProgress> scan({BigInt? startHeight}) => _stream(
-    SessionMember.scan,
-    scanProgressWire,
-    {'startHeight': optBigInt.encode(startHeight)},
-  );
+  /// The remote protocol carries no deleteUnconfirmed; asking for it is refused.
+  @override
+  Stream<ScanProgress> scan({
+    BigInt? startHeight,
+    bool deleteUnconfirmed = false,
+  }) => deleteUnconfirmed
+      ? Stream.error(UnsupportedError('deleteUnconfirmed over the remote wallet'))
+      : _stream(SessionMember.scan, scanProgressWire, {
+          'startHeight': optBigInt.encode(startHeight),
+        });
+
+  /// The remote wallet has no call for this; cancelling the [scan] stream ends it there.
+  @override
+  void cancelScan() {}
 
   @override
   Future<WalletSummary> summary({

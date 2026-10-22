@@ -87,9 +87,9 @@ class _GatedScan extends _StrictSession {
   final Completer<void> gate = Completer<void>();
 
   @override
-  Stream<core.ScanProgress> scan({BigInt? startHeight}) async* {
+  Stream<core.ScanProgress> scan({BigInt? startHeight, bool deleteUnconfirmed = false}) async* {
     await gate.future;
-    yield* super.scan(startHeight: startHeight);
+    yield* super.scan(startHeight: startHeight, deleteUnconfirmed: deleteUnconfirmed);
   }
 }
 

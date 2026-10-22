@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:isolate';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../feedback.dart';
@@ -9,11 +10,13 @@ import '../../../log.dart';
 import '../../../support_report.dart';
 import '../../../ui/feedback_screen.dart' show feedbackCleanContextProvider, feedbackPlatformProvider;
 import '../../app/shell.dart' show deskVersion;
+import '../../data/logs.dart';
 import '../../widgets/kit.dart';
 
 /// Settings › Help › Report a problem: what happened, an optional contact and the app log,
 /// cleaned, previewed, sealed to the developer and sent to the support intake. The same report
 /// as the phone's Send feedback and the Electron GUI's Report a problem (`support_report.dart`).
+/// Save to file writes the same cleaned text, not sealed, where the user picks.
 Future<void> showReportProblemDialog(BuildContext context) =>
     showEDialog(context, dismissible: false, builder: (_) => const ReportProblemDialog());
 
@@ -32,6 +35,11 @@ class _ReportProblemDialogState extends ConsumerState<ReportProblemDialog> {
   bool _busy = false;
   String? _error;
   String? _sentId;
+  bool _saving = false;
+  String? _saved;
+
+  /// The log's files as they were when the log was read, for "What is sent".
+  List<LogFileInfo> _files = const [];
 
   // Read once, so the preview and the report sent are the same text.
   String? _log;
@@ -71,7 +79,9 @@ class _ReportProblemDialogState extends ConsumerState<ReportProblemDialog> {
 
   Future<void> _readLog() async {
     try {
-      _log = await ref.read(feedbackLogProvider).tail(feedbackLogBytes);
+      final sink = ref.read(feedbackLogProvider);
+      _files = await sink.files();
+      _log = await sink.tail(feedbackLogBytes);
     } catch (error) {
       _log = 'The log could not be read: $error\n';
     }
@@ -95,6 +105,7 @@ class _ReportProblemDialogState extends ConsumerState<ReportProblemDialog> {
               'node ${status.nodeHealth.name} at height ${status.nodeHeight}',
               'epicbox ${status.epicboxHealth.name}',
             ].join(', '),
+      logLevel: ref.read(logsProvider).label,
     );
   }
 
@@ -136,6 +147,36 @@ class _ReportProblemDialogState extends ConsumerState<ReportProblemDialog> {
     }
   }
 
+  /// Writes the cleaned report, not sealed, through the system Save dialog.
+  Future<void> _save() async {
+    if (_busy || _saving) return;
+    setState(() {
+      _saving = true;
+      _saved = null;
+      _error = null;
+    });
+    try {
+      await _logRead;
+      final saved = await ref
+          .read(feedbackOutletProvider)
+          .save(name: feedbackFileName(_at), report: (await _report()).text, dialogTitle: 'Save the report');
+      if (saved) logInfo('support', 'report saved to a file');
+      if (mounted && saved) setState(() => _saved = 'Saved. Cleaned of secrets, not encrypted.');
+    } catch (error) {
+      logWarn('support', 'report not saved: $error');
+      if (mounted) setState(() => _error = 'The file was not saved. Try again.');
+    } finally {
+      if (mounted) setState(() => _saving = false);
+    }
+  }
+
+  /// "What is sent": the report text and each log file with how much of it goes along.
+  List<String> get _parts => [
+    'Report text',
+    if (_attachLogs)
+      if (_files.isEmpty) 'App log (last ${logSize((_log ?? '').length)})' else ...describeLogFiles(_files, feedbackLogBytes),
+  ];
+
   @override
   Widget build(BuildContext context) {
     final ts = context.ts;
@@ -151,13 +192,18 @@ class _ReportProblemDialogState extends ConsumerState<ReportProblemDialog> {
     }
     final canSend = ref.watch(feedbackUrlProvider) != null;
     final emptyError = _tried && _empty ? 'Describe what happened.' : null;
-    return PopScope(
+    return CallbackShortcuts(
+      // The barrier does not close the dialog (a stray click would lose the text); Esc does.
+      bindings: {const SingleActivator(LogicalKeyboardKey.escape): () => _busy ? null : nav.maybePop()},
+      child: PopScope(
       canPop: !_busy,
       child: EDialog(
         title: 'Report a problem',
         width: 560.u,
         dismissible: !_busy,
-        description: 'The report is encrypted so only the developer can read it. Nothing is sent before Send.',
+        description:
+            'The report is encrypted so only the developer can read it. Nothing is sent before Send. '
+            'Save to file keeps the same cleaned report, not encrypted.',
         body: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -167,7 +213,7 @@ class _ReportProblemDialogState extends ConsumerState<ReportProblemDialog> {
               child: EInput(
                 controller: _description,
                 autofocus: true,
-                maxLines: 5,
+                maxLines: 4,
                 invalid: emptyError != null,
                 hint: 'What you did, what you expected, what happened instead',
                 semanticLabel: 'What happened',
@@ -178,8 +224,12 @@ class _ReportProblemDialogState extends ConsumerState<ReportProblemDialog> {
             EField(
               label: 'Contact',
               optional: true,
-              help: 'An email address or other handle, for a reply.',
-              child: EInput(controller: _contact, semanticLabel: 'Contact', onChanged: (_) => setState(() {})),
+              child: EInput(
+                controller: _contact,
+                hint: 'An email address or other handle, for a reply',
+                semanticLabel: 'Contact',
+                onChanged: (_) => setState(() {}),
+              ),
             ),
             SizedBox(height: Sp.x4),
             ECheckbox(
@@ -192,11 +242,25 @@ class _ReportProblemDialogState extends ConsumerState<ReportProblemDialog> {
             ),
             SizedBox(height: Sp.x1),
             Text(
-              'The newest part of the app log. Recovery phrases, passwords, addresses, IPs and home folders are removed first.',
+              'The newest part of the app log, cleaned of phrases, passwords, addresses, IPs and home folders.',
               style: ts.small,
             ),
             SizedBox(height: Sp.x3),
-            EDetails(title: 'What is sent', child: ReportPreview(text: _log == null && _attachLogs ? null : _preview)),
+            EDetails(
+              title: 'What is sent',
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(_parts.join(' · '), style: ts.small),
+                  SizedBox(height: Sp.x2),
+                  ReportPreview(text: _log == null && _attachLogs ? null : _preview),
+                ],
+              ),
+            ),
+            if (_saved != null) ...[
+              SizedBox(height: Sp.x3),
+              Semantics(liveRegion: true, child: ENotice(title: _saved!, tone: ETone.ok, icon: EIcons.check)),
+            ],
             if (_error != null) ...[
               SizedBox(height: Sp.x3),
               Semantics(liveRegion: true, child: ENotice(title: 'Not sent', text: _error, tone: ETone.risk, icon: EIcons.alert)),
@@ -209,8 +273,10 @@ class _ReportProblemDialogState extends ConsumerState<ReportProblemDialog> {
         ),
         actions: [
           EButton(label: 'Cancel', size: EBtnSize.sm, onPressed: _busy ? null : nav.pop),
+          EButton(label: 'Save to file', icon: EIcons.download, size: EBtnSize.sm, busy: _saving, onPressed: _busy ? null : _save),
           EButton.primary(label: 'Send', icon: EIcons.send, size: EBtnSize.sm, busy: _busy, onPressed: canSend ? _send : null),
         ],
+      ),
       ),
     );
   }
@@ -231,8 +297,10 @@ class ReportPreview extends StatelessWidget {
     if (t == null) return Padding(padding: EdgeInsets.all(Sp.x3), child: const ESpinner());
     final lines = t.split('\n');
     final style = ts.mono(size: Fs.xs, color: c.dim);
+    // Short enough that the whole dialog, opened, fits an 800 px window.
+    final height = (MediaQuery.sizeOf(context).height - 640.u).clamp(96.u, 220.u);
     return Container(
-      height: 220.u,
+      height: height,
       decoration: BoxDecoration(color: c.s1, border: Border.all(color: c.line), borderRadius: BorderRadius.circular(Rad.sm)),
       child: SelectionArea(
         child: Scrollbar(

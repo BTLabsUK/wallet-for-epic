@@ -184,6 +184,31 @@ void main() {
     });
   });
 
+  test('Retry shows while tor connects past the limit, and restarts it', () async {
+    await wallet.dispose();
+    wallet = LepicDeskWallet(
+      service: service,
+      walletDir: (chain) async => '${support.path}/wallets/${chain.name}',
+      secrets: MemorySecretStore(),
+      filesDir: () async => support,
+      nodePoll: const Duration(hours: 1),
+      torBundle: () async => bundle,
+      torFeature: true,
+      torRetryAfter: const Duration(milliseconds: 50),
+    );
+    await wallet.createWallet(name: 'Main', password: _password);
+    expect(await wallet.unlock(_password), isTrue);
+    final starts = session().torStarts.length;
+    await wallet.setTor(true);
+    expect((await wallet.status()).torSlowStart, isFalse);
+    await Future<void>.delayed(const Duration(milliseconds: 80));
+    expect((await wallet.status()).torSlowStart, isTrue);
+    await wallet.setTor(true);
+    expect(session().torStarts, hasLength(starts + 2));
+    final st = await wallet.status();
+    expect((st.tor, st.torSlowStart), (ServiceHealth.checking, false));
+  });
+
   group('status from events', () {
     setUp(() => wallet.setTor(true));
 
@@ -211,14 +236,18 @@ void main() {
       (core.TorFailure.stopped, 'Tor stopped'),
     ]) {
       test('${failure.name} stops tor with “$text”; on again is Retry', () async {
+        // A network stall before connecting is retried once by itself first.
+        final tries = failure == core.TorFailure.network ? 2 : 1;
+        if (tries == 2) await tor(core.TorEvent(kind: core.TorEventKind.failed, failure: failure));
         await tor(core.TorEvent(kind: core.TorEventKind.failed, failure: failure));
         await tor(const core.TorEvent(kind: core.TorEventKind.stopped));
+        expect(session().torStarts, hasLength(tries));
         final st = await wallet.status();
         expect(st.tor, ServiceHealth.down);
         expect(st.torProblem, text);
         expect(torStatusLine(st), text);
         await wallet.setTor(true);
-        expect(session().torStarts, hasLength(2));
+        expect(session().torStarts, hasLength(tries + 1));
         expect((await wallet.status()).tor, ServiceHealth.checking);
       });
     }
@@ -232,6 +261,28 @@ void main() {
         expect(torStatusLine(st), startsWith('Onion address not published'));
       });
     }
+
+    test('a stall before connecting is retried once, showing Connecting throughout', () async {
+      await tor(const core.TorEvent(kind: core.TorEventKind.failed, failure: core.TorFailure.network));
+      expect(session().torStarts, hasLength(2));
+      expect(session().torStops, 1);
+      var st = await wallet.status();
+      expect((st.tor, st.torProblem), (ServiceHealth.checking, null));
+      // The stop of the first try does not end the second.
+      await tor(const core.TorEvent(kind: core.TorEventKind.starting, progress: 10));
+      expect((await wallet.status()).tor, ServiceHealth.checking);
+      await connected();
+      await tor(const core.TorEvent(kind: core.TorEventKind.ready, onion: 'pg6mmjiyjmcrsslvykfwnntlaru7p5svn6y2ymmju6nubxndf4pscryd.onion'));
+      st = await wallet.status();
+      expect(st.tor, ServiceHealth.ok);
+    });
+
+    test('a network failure after connecting is not retried', () async {
+      await connected();
+      await tor(const core.TorEvent(kind: core.TorEventKind.failed, failure: core.TorFailure.network));
+      expect(session().torStarts, hasLength(1));
+      expect((await wallet.status()).tor, ServiceHealth.down);
+    });
 
     test('listener and keys leave sends working', () async {
       await connected();

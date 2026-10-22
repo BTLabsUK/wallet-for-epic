@@ -24,6 +24,7 @@ import 'src/desktop/app/desk_app.dart';
 import 'src/desktop/data/desk_store.dart';
 import 'src/desktop/data/files.dart';
 import 'src/desktop/data/lepic_desk_wallet.dart';
+import 'src/desktop/data/logs.dart';
 import 'src/desktop/widgets/kit.dart';
 import 'src/password_lists.dart';
 import 'src/providers.dart';
@@ -74,6 +75,8 @@ Future<List<Override>> deskOverrides() async {
   final container = ProviderContainer();
   final secrets = container.read(secretStoreProvider);
   final store = DeskStore(secrets);
+  // Before the wallet core starts: its runtime takes the log level once.
+  await applySavedLogLevel(store);
   final boot = await DeskBoot.load(store);
   final directory = container.read(relayDirectoryProvider);
   final wallet = LepicDeskWallet(
