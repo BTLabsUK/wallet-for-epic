@@ -75,13 +75,15 @@ Future<List<Override>> deskOverrides() async {
   final secrets = container.read(secretStoreProvider);
   final store = DeskStore(secrets);
   final boot = await DeskBoot.load(store);
+  final directory = container.read(relayDirectoryProvider);
   final wallet = LepicDeskWallet(
     service: container.read(walletServiceProvider),
     walletDir: container.read(walletDirProvider),
     secrets: secrets,
     filesDir: () async => await getDownloadsDirectory() ?? await getApplicationDocumentsDirectory(),
     settings: boot.settings,
-    relayDirectory: container.read(relayDirectoryProvider),
+    relayDirectory: directory,
+    nodeDirectory: directory is NodeDirectory ? directory as NodeDirectory : null,
     builtInNode: builtInNodeSupported
         ? (chain) async {
             final where = await container.read(builtInNodeLocationProvider.future);

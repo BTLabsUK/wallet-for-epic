@@ -26,7 +26,7 @@ class MockDeskWallet implements DeskWalletApi {
   Future<void> _wait([double factor = 1]) => Future<void>.delayed(delay * factor);
 
   DeskSettings _settings = const DeskSettings();
-  String _node = 'https://node.epiccash.com';
+  String _node = 'https://node.btlabs.uk';
   String _epicbox = 'epicbox.epiccash.com';
   bool _listening = true;
   bool _http = false;
@@ -71,17 +71,19 @@ class MockDeskWallet implements DeskWalletApi {
   ];
 
   final List<NodeServer> _nodes = [
-    NodeServer(url: 'https://node.epiccash.com', label: 'Epic Cash', operator: 'Epic Cash team', health: ServiceHealth.ok, latencyMs: 84, height: 2914414, version: '3.6.0'),
-    NodeServer(url: 'https://epic.stackwallet.com', label: 'Stack Wallet', operator: 'Cypher Stack', health: ServiceHealth.ok, latencyMs: 132, height: 2914414, version: '3.6.0'),
-    NodeServer(url: 'https://node.btlabs.uk', label: 'BT Labs', operator: 'BT Labs', health: ServiceHealth.slow, latencyMs: 940, height: 2914413, version: '3.6.0'),
-    NodeServer(url: 'https://epic-node.epicnet.us', label: 'EpicNet', operator: 'EpicNet', health: ServiceHealth.down, version: '3.5.2'),
-    NodeServer(url: 'http://10.0.1.24:3413', label: 'Home node', health: ServiceHealth.ok, latencyMs: 6, height: 2914414, version: '3.6.0', own: true),
+    NodeServer(url: 'https://node.btlabs.uk', label: 'BT Labs', operator: 'BT Labs', health: ServiceHealth.ok, latencyMs: 18, height: 2914414, version: '4.1.1'),
+    NodeServer(url: 'https://node.epicnet.us:3413', label: 'EpicNet', operator: 'EpicNet', health: ServiceHealth.ok, latencyMs: 132, height: 2914414, version: '4.1.1'),
+    NodeServer(url: 'https://node.epiccash.com:3413', label: 'Epic Cash', operator: 'Epic Cash', health: ServiceHealth.slow, latencyMs: 940, height: 2914413, version: '4.1.1'),
+    NodeServer(url: 'https://epic.stackwallet.com:3413', label: 'Cypher Stack', operator: 'Cypher Stack', health: ServiceHealth.ok, latencyMs: 210, height: 2914414, version: '4.1.0'),
+    NodeServer(url: 'https://epic-node.iniaku.my.id', label: 'Iniaku pool', operator: 'Iniaku pool', health: ServiceHealth.down, version: '4.1.1'),
+    NodeServer(url: 'http://10.0.1.24:3413', label: 'Home node', health: ServiceHealth.ok, latencyMs: 6, height: 2914414, version: '4.1.1', own: true),
   ];
 
   final List<EpicboxServer> _epicboxes = [
-    EpicboxServer(domain: 'epicbox.epiccash.com', operator: 'Epic Cash team', health: ServiceHealth.ok, latencyMs: 96),
     EpicboxServer(domain: 'epicbox.stackwallet.com', operator: 'Cypher Stack', health: ServiceHealth.ok, latencyMs: 141),
     EpicboxServer(domain: 'epicbox.epicnet.us', operator: 'EpicNet', health: ServiceHealth.slow, latencyMs: 1210),
+    EpicboxServer(domain: 'epicbox.epiccash.com', operator: 'Epic Cash', health: ServiceHealth.ok, latencyMs: 96),
+    EpicboxServer(domain: 'epicbox.iniaku.my.id', operator: 'Iniaku pool', health: ServiceHealth.ok, latencyMs: 360),
   ];
 
   final List<WalletEntry> _wallets = [
@@ -412,7 +414,7 @@ class MockDeskWallet implements DeskWalletApi {
   @override
   Future<void> useBuiltInNode(bool on) async {
     await _wait();
-    _node = on ? 'http://127.0.0.1:3413' : 'https://node.epiccash.com';
+    _node = on ? 'http://127.0.0.1:3413' : 'https://node.btlabs.uk';
   }
 
   @override
