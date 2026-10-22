@@ -1993,6 +1993,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Cannot install the update: unknown error.';
 
   @override
+  String get updateNeedsReinstall =>
+      'This update is signed with a new key, so it cannot install over this version. A reinstall is needed, and uninstalling removes this wallet from the device: write down your recovery phrase first, then uninstall this app and install the new version.';
+
+  @override
   String get updateManifestNotJson =>
       'The update information is not valid JSON.';
 

@@ -2864,6 +2864,12 @@ abstract class AppLocalizations {
   /// **'Cannot install the update: unknown error.'**
   String get updateCannotInstallUnknown;
 
+  /// The update is signed with another key than the installed app, so Android cannot install it over it. The user must write down the recovery phrase, uninstall and install the new version; uninstalling deletes the wallet from the device.
+  ///
+  /// In en, this message translates to:
+  /// **'This update is signed with a new key, so it cannot install over this version. A reinstall is needed, and uninstalling removes this wallet from the device: write down your recovery phrase first, then uninstall this app and install the new version.'**
+  String get updateNeedsReinstall;
+
   /// The file that describes the new version could not be read.
   ///
   /// In en, this message translates to:

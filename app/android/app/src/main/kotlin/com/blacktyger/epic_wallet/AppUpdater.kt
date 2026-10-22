@@ -106,7 +106,8 @@ class AppUpdater(
         val theirs = signers(archive)
         val ours = signers(installed)
         if (theirs != null && ours != null && theirs.intersect(ours).isEmpty()) {
-            return failed("the APK is signed with a different key, so Android would refuse it")
+            // Android never installs it over this app: Dart asks for a reinstall instead.
+            return mapOf("status" to "keyMismatch", "message" to null)
         }
         if (Build.VERSION.SDK_INT >= 26 && !pm.canRequestPackageInstalls()) {
             val settings = Intent(

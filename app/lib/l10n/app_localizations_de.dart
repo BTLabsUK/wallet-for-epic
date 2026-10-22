@@ -2013,6 +2013,10 @@ class AppLocalizationsDe extends AppLocalizations {
       'Das Update kann nicht installiert werden: unbekannter Fehler.';
 
   @override
+  String get updateNeedsReinstall =>
+      'Dieses Update ist mit einem neuen Schlüssel signiert und kann diese Version nicht ersetzen. Eine Neuinstallation ist nötig, und beim Deinstallieren wird diese Wallet vom Gerät entfernt: Schreiben Sie zuerst Ihre Wiederherstellungsphrase auf, deinstallieren Sie dann diese App und installieren Sie die neue Version.';
+
+  @override
   String get updateManifestNotJson =>
       'Die Update-Informationen sind kein gültiges JSON.';
 

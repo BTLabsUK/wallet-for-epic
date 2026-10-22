@@ -2110,6 +2110,10 @@ class AppLocalizationsPl extends AppLocalizations {
       'Nie można zainstalować aktualizacji: nieznany błąd.';
 
   @override
+  String get updateNeedsReinstall =>
+      'Ta aktualizacja jest podpisana nowym kluczem, więc nie może zastąpić tej wersji. Potrzebna jest ponowna instalacja, a odinstalowanie usuwa ten portfel z urządzenia: najpierw zapisz swoją frazę odzyskiwania, potem odinstaluj tę aplikację i zainstaluj nową wersję.';
+
+  @override
   String get updateManifestNotJson =>
       'Informacje o aktualizacji nie są poprawnym plikiem JSON.';
 
