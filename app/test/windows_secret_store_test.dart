@@ -237,6 +237,28 @@ void main() {
     },
   );
 
+  test('the very first write stopped before its move is kept, not dropped', () async {
+    final store = open();
+    files.crashAt = 'move:$tmp->$dat';
+    await expectLater(store.write('lepic.vault', 'v'), throwsA(isA<Crash>()));
+    expect(files.disk.containsKey(dat), isFalse);
+
+    // The app starts again: the complete first write becomes the store file.
+    final again = open();
+    expect(await again.read('lepic.vault'), 'v');
+    expect(files.disk.containsKey(dat), isTrue);
+    expect(files.disk.containsKey(tmp), isFalse);
+  });
+
+  test('a first write that stopped while writing leaves an empty store', () async {
+    final store = open();
+    files.crashAt = 'write:$tmp';
+    await expectLater(store.write('a', '1'), throwsA(isA<Crash>()));
+    final again = open();
+    expect(await again.read('a'), isNull);
+    expect(files.disk.containsKey(tmp), isFalse);
+  });
+
   test('a truncated store file opens the backup', () async {
     final store = open();
     await store.write('a', '1');

@@ -187,7 +187,15 @@ class WindowsSecretStore implements SecretStore {
           'store file unreadable ($mainProblem), no backup',
         );
       }
-      // A fresh install, or a first write that never finished.
+      // A fresh install, or the very first write stopped before its move. A complete first
+      // write is kept (it may hold a new wallet's vault): it becomes the store file.
+      final first = await _files.read(tmpPath);
+      final firstMap = first == null ? null : _decode(first).$1;
+      if (firstMap != null) {
+        await _files.replace(tmpPath, mainPath);
+        logWarn('secrets', 'store file missing, kept the first write that had not been moved');
+        return (firstMap, _Source.main);
+      }
       await _dropTmp(tmpPath);
       return (<String, String>{}, _Source.none);
     }
