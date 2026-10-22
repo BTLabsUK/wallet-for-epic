@@ -26,6 +26,7 @@ import 'src/desktop/data/files.dart';
 import 'src/desktop/data/lepic_desk_wallet.dart';
 import 'src/desktop/widgets/kit.dart';
 import 'src/password_lists.dart';
+import 'src/tor_licence.dart';
 import 'src/providers.dart';
 import 'src/relay_directory.dart';
 import 'src/tor_location.dart';
@@ -60,6 +61,7 @@ Future<void> main() async {
     };
     await initWalletBackend();
     registerPasswordListLicences();
+    registerTorLicence();
     const build = String.fromEnvironment('FLUTTER_BUILD_NAME');
     logInfo('app', 'desktop start ${build.isEmpty ? 'dev' : build}, $platformLabel');
     final overrides = await deskOverrides();

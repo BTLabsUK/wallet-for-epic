@@ -1060,6 +1060,11 @@ class LepicWalletSession implements WalletSession {
   }
 
   @override
+  Future<void> refreshTor({required bool networkChanged}) => _guard(
+    () => _wallet.refreshTor(networkChanged: networkChanged),
+  );
+
+  @override
   Future<TorStatus> torStatus() async {
     if (_wallet.isDisposed) return TorStatus.off;
     final s = _guardSync(_wallet.torStatus);

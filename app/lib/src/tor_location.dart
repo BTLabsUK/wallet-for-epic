@@ -3,6 +3,10 @@ library;
 
 import 'dart:io';
 
+import 'package:flutter/services.dart';
+
+const _channel = MethodChannel('epic_wallet/tor');
+
 /// The tor binary and the folder of its libraries, as `WalletSession.startTor` takes them.
 class TorBundle {
   const TorBundle({required this.binary, this.libDir});
@@ -15,8 +19,19 @@ class TorBundle {
 
 /// `bin/tor-bundle/tor` beside the executable on Linux, `bin\tor-bundle\tor.exe` on Windows,
 /// `Contents/Resources/bin/tor-bundle/tor` on macOS, as the built-in node's `bin/epic`. Null
-/// when this build has no tor there, and on phones.
+/// when this build has no tor there. On Android it is `libtor.so` in the app's native library
+/// folder (the Tor Project's tor, extracted at install), asked of `MainActivity`; null on iOS.
 Future<TorBundle?> findTorBundle() async {
+  if (Platform.isAndroid) {
+    try {
+      final path = await _channel.invokeMethod<String>('binary');
+      return path == null ? null : TorBundle(binary: path);
+    } on PlatformException {
+      return null;
+    } on MissingPluginException {
+      return null;
+    }
+  }
   if (!(Platform.isLinux || Platform.isWindows || Platform.isMacOS)) return null;
   final sep = Platform.pathSeparator;
   final exeDir = File(Platform.resolvedExecutable).parent.path;

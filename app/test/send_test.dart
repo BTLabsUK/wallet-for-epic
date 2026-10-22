@@ -1581,7 +1581,7 @@ void main() {
       final h = _AppHarness(advanced: true);
       await h.pumpUnlocked(tester);
       await h.open(tester, _receiveTab());
-      await _tap(tester, find.text('Payment file'));
+      await _tap(tester, find.text('File'));
       await _tap(tester, find.text('Open file'));
       expect(h.container.read(autoLockHoldProvider), 1);
       await h.awayAndBack(tester, const Duration(minutes: 10));
@@ -1813,6 +1813,32 @@ void main() {
         );
         expect(text, isNot(contains('unlock')));
       }
+    });
+
+    test('a failed Tor send is not "Invalid input"', () {
+      String say(WalletErrorKind kind, String message) => describeError(
+        englishStrings,
+        WalletError(kind: kind, message: message),
+      );
+      for (final message in [
+        'tor did not connect in time',
+        'tor is not available',
+        '',
+      ]) {
+        expect(
+          say(WalletErrorKind.torNotRunning, message),
+          'Tor is not connected.',
+        );
+      }
+      expect(
+        say(WalletErrorKind.onionUnreachable, 'not reached'),
+        'Their wallet was not reached over Tor.',
+      );
+      // A bad address still carries the core's sentence about it.
+      expect(
+        say(WalletErrorKind.onionAddressInvalid, 'the address has no host'),
+        'Invalid input. the address has no host',
+      );
     });
 
     test('a bad transaction text does not say "slate" or "JSON"', () {

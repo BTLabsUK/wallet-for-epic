@@ -13,6 +13,7 @@ import '../demo.dart' show demoModeProvider;
 import '../errors.dart';
 import '../l10n.dart';
 import '../network.dart';
+import '../phone_tor.dart';
 import '../price.dart';
 import '../providers.dart';
 import '../send_preflight.dart';
@@ -33,6 +34,7 @@ import 'slate_file_screen.dart';
 import 'theme/brand.dart';
 import 'theme/protocol.dart' show TimelineState, TimelineStep;
 import 'theme/tokens.dart';
+import 'tor_ui.dart';
 
 // Sending, in three steps: the recipient, the amount, a review with quiet checks; then a
 // tracker that follows the payment as both wallets finish it. A payment file is the
@@ -129,6 +131,10 @@ const Key sendFileAmountFieldKey = ValueKey('send-file-amount-field');
 const Key sendNoteFieldKey = ValueKey('send-note-field');
 const Key sendFileNoteFieldKey = ValueKey('send-file-note-field');
 const Key sendReplyFieldKey = ValueKey('send-reply-field');
+
+/// Try again and Cancel payment on the review after a failed Tor send, for tests.
+const Key sendTryAgainKey = ValueKey('send-try-again');
+const Key sendCancelPaymentKey = ValueKey('send-cancel-payment');
 
 /// The payment Send's tracker is showing, while it shows one, so home does not repeat the
 /// tracker's news in a notice.
@@ -252,6 +258,10 @@ class _SendViewState extends ConsumerState<SendView> {
   /// Cancelling [_undelivered] failed and it did not go ahead either: only Done is left.
   bool _cancelFailed = false;
 
+  /// The recipient is an onion address: the payment goes over Tor.
+  bool get _overTor =>
+      parseRecipient(_recipient.text).kind == RecipientKind.tor;
+
   /// A recipient handed over while the tracker or a file screen shows, for the next form.
   String? _laterRecipient;
 
@@ -306,11 +316,16 @@ class _SendViewState extends ConsumerState<SendView> {
     final l = context.l10n;
     if (text.trim().isEmpty) return required ? l.sendAddressMissing : null;
     final to = parseRecipient(text);
-    // The wallet pays over epicbox and by file only (OD-2).
+    // The wallet pays over epicbox, over Tor and by file (OD-2: no HTTP).
     if (to.kind == RecipientKind.http) return l.sendAddressWebLink;
-    if (checkRecipient(l, ref.read(walletServiceProvider), text) == null) {
-      return null;
+    if (to.kind == RecipientKind.tor &&
+        ref.read(phoneTorProvider).phase == PhoneTorPhase.unavailable) {
+      return l.sendTorUnavailable;
     }
+    final problem = checkRecipient(l, ref.read(walletServiceProvider), text);
+    if (problem == null) return null;
+    // An onion with a typo: the check's own sentence says so.
+    if (to.kind == RecipientKind.tor) return problem;
     final at = to.address.indexOf('@');
     final key = at < 0 ? to.address : to.address.substring(0, at);
     final looksLikeKey = RegExp(r'^[1-9A-HJ-NP-Za-km-z]+$').hasMatch(key);
@@ -653,6 +668,7 @@ class _SendViewState extends ConsumerState<SendView> {
     // A second tap can land on the old button after the first send already finished.
     if (reviewed == null || _stage != SendStage.review) return Future.value();
     final to = parseRecipient(_recipient.text);
+    if (to.kind == RecipientKind.tor) return _sendTor(reviewed, to);
     // Captured now: after the await the screen may be gone, and home must still refresh.
     final container = ProviderScope.containerOf(context, listen: false);
     // A slow send must not lock the wallet under the user and lose the tracker.
@@ -749,9 +765,208 @@ class _SendViewState extends ConsumerState<SendView> {
     });
   }
 
+  /// Failures that leave a Tor send stored and waiting (LEPIC): the review offers Try again
+  /// and Cancel payment. Before anything was sent, `torNotRunning` stores nothing.
+  static bool _torStores(WalletErrorKind kind) => const {
+    WalletErrorKind.torNotRunning,
+    WalletErrorKind.onionUnreachable,
+    WalletErrorKind.transportFailed,
+  }.contains(kind);
+
+  /// Sends that were not in [before], to [to] for [amount], waiting for their wallet: what
+  /// a failed Tor send left behind, newest first.
+  Future<List<TxEntry>> _waitingSendsLeft(
+    WalletSession session,
+    Set<String> before,
+    Recipient to,
+    BigInt amount,
+  ) async {
+    final after = await session.transactions(refresh: false);
+    final host = to.address.toLowerCase();
+    return after
+        .where(
+          (t) =>
+              !before.contains(t.key) &&
+              t.kind == TxKind.sent &&
+              t.status == TxStatus.awaitingRecipient &&
+              t.id != null &&
+              txAmount(t).amount == amount &&
+              (t.counterparty == null ||
+                  t.counterparty!.toLowerCase().contains(host)),
+        )
+        .toList()
+      ..sort((a, b) => b.createdAtUnix.compareTo(a.createdAtUnix));
+  }
+
+  /// A payment over Tor: tor starts if it is off (the review shows it connecting), then the
+  /// other wallet is reached, which can take a while. Reaching it is the whole exchange, so
+  /// a success lands on the tracker past "signed". A failure to reach it leaves the payment
+  /// stored and waiting: the review offers Try again ([_resendTor]) and Cancel payment.
+  Future<void> _sendTor(FeeEstimate reviewed, Recipient to) {
+    final container = ProviderScope.containerOf(context, listen: false);
+    final hold = ref.read(autoLockHoldProvider.notifier);
+    final tor = ref.read(phoneTorProvider.notifier);
+    final amount = reviewed.amount;
+    final note = _noteText;
+    return _run((session) async {
+      final minimum = ref.read(countedConfirmationsProvider);
+      final before = {
+        for (final t in await session.transactions(refresh: false)) t.key,
+      };
+      final HttpSent sent;
+      try {
+        sent = await hold.during(
+          () => tor.whileSending(
+            () => session.sendTor(
+              amount: amount,
+              minimumConfirmations: minimum,
+              onion: to.address,
+              message: note.isEmpty ? null : note,
+            ),
+          ),
+        );
+      } on WalletError catch (error) {
+        if (!_torStores(error.kind)) rethrow;
+        logWarn(
+          'send',
+          'not delivered over Tor: ${describeError(englishStrings, error)}',
+        );
+        container.invalidate(homeProvider);
+        final left = await _waitingSendsLeft(session, before, to, amount);
+        final stuck = left.firstOrNull;
+        // The note is the sender's own record; a resend sends the stored message again.
+        if (stuck != null && note.isNotEmpty) {
+          try {
+            await session.setTxNote(key: stuck.key, note: note);
+          } catch (error) {
+            logWarn(
+              'send',
+              'saving the note failed: ${describeError(englishStrings, error)}',
+            );
+          }
+        }
+        if (mounted) {
+          setState(() {
+            _sendFailed = true;
+            _undelivered = stuck;
+            _nothingStored = stuck == null;
+          });
+        }
+        return;
+      }
+      await _torSent(
+        session,
+        container,
+        slateId: sent.slateId,
+        amount: amount,
+        to: to,
+        reviewedFee: reviewed.fee,
+        note: note,
+      );
+    });
+  }
+
+  /// Delivers the waiting Tor payment [_undelivered] again.
+  Future<void> _resendTor() {
+    final stuck = _undelivered;
+    if (stuck == null) return Future.value();
+    final to = parseRecipient(_recipient.text);
+    final container = ProviderScope.containerOf(context, listen: false);
+    final hold = ref.read(autoLockHoldProvider.notifier);
+    final tor = ref.read(phoneTorProvider.notifier);
+    return _run((session) async {
+      final HttpSent sent;
+      try {
+        sent = await hold.during(
+          () => tor.whileSending(
+            () => session.resendTor(txId: stuck.id!, onion: to.address),
+          ),
+        );
+      } on WalletError catch (error) {
+        if (!_torStores(error.kind)) rethrow;
+        logWarn(
+          'send',
+          'not delivered over Tor again: '
+              '${describeError(englishStrings, error)}',
+        );
+        // Still stored and waiting: the review keeps its offer.
+        container.invalidate(homeProvider);
+        return;
+      }
+      await _torSent(
+        session,
+        container,
+        slateId: sent.slateId,
+        amount: txAmount(stuck).amount,
+        to: to,
+        reviewedFee: _estimate?.fee,
+        note: '',
+      );
+    });
+  }
+
+  /// The other wallet answered over Tor and the payment is finalized: the tracker follows it
+  /// from the wallet's own record of [slateId].
+  Future<void> _torSent(
+    WalletSession session,
+    ProviderContainer container, {
+    required String slateId,
+    required BigInt amount,
+    required Recipient to,
+    required BigInt? reviewedFee,
+    required String note,
+  }) async {
+    final tx = (await session.transactions(refresh: false))
+        .where((t) => t.slateId == slateId)
+        .firstOrNull;
+    container.invalidate(homeProvider);
+    if (tx == null) {
+      // Sent, but not found by its id: Wallet shows it. Nothing to track from here.
+      logWarn('send', 'tor send $slateId not in the wallet\'s payments');
+      if (mounted) _done();
+      return;
+    }
+    var noteSaved = true;
+    if (note.isNotEmpty) {
+      try {
+        await session.setTxNote(key: tx.key, note: note);
+      } catch (error) {
+        logWarn(
+          'send',
+          'saving the note failed: ${describeError(englishStrings, error)}',
+        );
+        noteSaved = false;
+      }
+    }
+    container.read(trackedSendProvider.notifier).track(tx.key);
+    if (mounted) {
+      _closeChecks();
+      setState(() {
+        _sent = _Sent(
+          tx: tx,
+          amount: amount,
+          to: to,
+          reviewedFee: reviewedFee,
+          noteSaved: noteSaved,
+        );
+        _sendFailed = false;
+        _undelivered = null;
+        _stage = SendStage.sent;
+      });
+    }
+  }
+
   /// Cancels the payment a failed send left behind, then the file route with the amount and
   /// the note. After Max the maximum is asked again, now that the coins are free.
-  Future<void> _cancelAndFile() async {
+  Future<void> _cancelAndFile() =>
+      _cancelUndelivered(then: SendStage.fileAmount);
+
+  /// Cancels the waiting Tor payment, back to the amount with the recipient kept.
+  Future<void> _cancelTorSend() => _cancelUndelivered(then: SendStage.amount);
+
+  /// Cancels [_undelivered], then shows [then] with the amount and the note. After Max the
+  /// maximum is asked again, now that the coins are free.
+  Future<void> _cancelUndelivered({required SendStage then}) async {
     final stuck = _undelivered;
     final session = ref.read(sessionProvider);
     if (stuck == null || session == null || _busy) return;
@@ -768,7 +983,7 @@ class _SendViewState extends ConsumerState<SendView> {
       setState(() {
         _sendFailed = false;
         _undelivered = null;
-        _stage = SendStage.fileAmount;
+        _stage = then;
       });
     } catch (error) {
       // Their reply may have come first: then the payment is going ahead, not held.
@@ -809,7 +1024,7 @@ class _SendViewState extends ConsumerState<SendView> {
     } finally {
       if (mounted) setState(() => _busy = false);
     }
-    if (!mounted || _stage != SendStage.fileAmount) return;
+    if (!mounted || _stage != then) return;
     final amount = _parsedAmount;
     if (_maxUsed) {
       await _max();
@@ -1353,6 +1568,27 @@ class _SendViewState extends ConsumerState<SendView> {
         ref.watch(appSettingsProvider).value?.fiatCurrency ?? 'usd';
     final to = parseRecipient(_recipient.text);
     final checks = ref.watch(sendPreflightProvider(_relay));
+    final overTor = to.kind == RecipientKind.tor;
+    final tor = overTor ? ref.watch(phoneTorProvider) : null;
+    final String? failed;
+    if (!_sendFailed) {
+      failed = null;
+    } else if (overTor) {
+      // Nothing stored: tor itself did not connect, for the reason it shows.
+      failed = _nothingStored
+          ? l.sendTorNothingSent(
+              tor!.failure == null
+                  ? l.torFailureNetwork
+                  : torFailureText(l, tor.failure!),
+            )
+          : l.sendTorNotReached(sendTtlDays);
+    } else {
+      failed = _nothingStored
+          ? l.sendRelayDown
+          : _undelivered == null
+          ? l.sendRelayRefusedLost
+          : l.sendRelayRefused(sendTtlDays);
+    }
     return [
       // After a failed send the payment exists: no way back to send it again.
       _header(
@@ -1385,17 +1621,7 @@ class _SendViewState extends ConsumerState<SendView> {
       const SizedBox(height: 8),
       Divider(color: t.line, height: 1),
       const SizedBox(height: 8),
-      _ReadyLine(
-        checks: checks,
-        sending: _busy,
-        failed: !_sendFailed
-            ? null
-            : _nothingStored
-            ? l.sendRelayDown
-            : _undelivered == null
-            ? l.sendRelayRefusedLost
-            : l.sendRelayRefused(sendTtlDays),
-      ),
+      _ReadyLine(checks: checks, sending: _busy, failed: failed, tor: tor),
     ];
   }
 
@@ -1414,7 +1640,36 @@ class _SendViewState extends ConsumerState<SendView> {
         // The send failed and LEPIC holds the payment: never a second send from here.
         if (_sendFailed && _cancelFailed)
           BusyButton(label: l.commonDone, onPressed: _done)
-        else if (_sendFailed && _undelivered != null) ...[
+        // Over Tor the waiting payment is delivered again, or cancelled.
+        else if (_sendFailed && _overTor && _undelivered != null) ...[
+          BusyButton(
+            key: sendTryAgainKey,
+            label: l.sendTryAgain,
+            busy: _busy,
+            onPressed: _resendTor,
+          ),
+          const SizedBox(height: 4),
+          TextButton(
+            key: sendCancelPaymentKey,
+            style: quiet,
+            onPressed: _busy ? null : _cancelTorSend,
+            child: Text(l.sendCancelPayment),
+          ),
+        ] else if (_sendFailed && _overTor) ...[
+          // Tor did not connect, nothing was sent: the same send again.
+          BusyButton(
+            key: sendTryAgainKey,
+            label: l.sendTryAgain,
+            busy: _busy,
+            onPressed: _send,
+          ),
+          const SizedBox(height: 4),
+          TextButton(
+            style: quiet,
+            onPressed: _busy ? null : _done,
+            child: Text(l.commonDone),
+          ),
+        ] else if (_sendFailed && _undelivered != null) ...[
           BusyButton(
             label: l.sendCancelAndFile,
             busy: _busy,
@@ -1777,11 +2032,21 @@ class RecipientCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      name ?? l.sendNewRecipient,
-                      style: theme.textTheme.titleSmall?.copyWith(
-                        color: t.text,
-                      ),
+                    Row(
+                      children: [
+                        Flexible(
+                          child: Text(
+                            name ?? l.sendNewRecipient,
+                            style: theme.textTheme.titleSmall?.copyWith(
+                              color: t.text,
+                            ),
+                          ),
+                        ),
+                        if (isOnionAddress(address)) ...[
+                          const SizedBox(width: 8),
+                          const _TorPill(),
+                        ],
+                      ],
                     ),
                     const SizedBox(height: 4),
                     AddressEnds(address: address),
@@ -1807,8 +2072,11 @@ class RecipientCard extends StatelessWidget {
   }
 }
 
+/// The address is an onion address, `<56 characters>.onion`, as [parseRecipient] gives it.
+bool isOnionAddress(String address) => address.toLowerCase().endsWith('.onion');
+
 /// An address in the mono face with the first and last 6 characters of its key strong and
-/// the rest dim, and the relay on its own line.
+/// the rest dim, and the relay on its own line; an onion keeps `.onion` dim at its end.
 class AddressEnds extends StatelessWidget {
   const AddressEnds({super.key, required this.address});
 
@@ -1820,8 +2088,13 @@ class AddressEnds extends StatelessWidget {
     final base = Theme.of(context).textTheme.bodySmall
         ?.copyWith(fontFamily: t.monoFamily, color: t.dim, height: 1.45);
     final strong = base?.copyWith(color: t.text, fontWeight: FontWeight.w700);
-    final at = address.indexOf('@');
-    final key = at < 0 ? address : address.substring(0, at);
+    final onion = isOnionAddress(address);
+    final at = onion ? -1 : address.indexOf('@');
+    final key = onion
+        ? address.substring(0, address.length - '.onion'.length)
+        : at < 0
+        ? address
+        : address.substring(0, at);
     final relay = at < 0 ? null : address.substring(at);
     final spans = key.length <= 12
         ? [TextSpan(text: key, style: strong)]
@@ -1835,7 +2108,38 @@ class AddressEnds extends StatelessWidget {
         style: base,
         children: [
           ...spans,
+          if (onion) const TextSpan(text: '.onion'),
           if (relay != null) TextSpan(text: '\n$relay'),
+        ],
+      ),
+    );
+  }
+}
+
+/// "Over Tor" beside a recipient whose address is an onion: the method the payment takes,
+/// since there is no method to pick.
+class _TorPill extends StatelessWidget {
+  const _TorPill();
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    return Container(
+      padding: const EdgeInsetsDirectional.fromSTEB(6, 2, 8, 2),
+      decoration: BoxDecoration(
+        color: t.accentSoft,
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(torIcon, size: 14, color: t.accentText),
+          const SizedBox(width: 4),
+          Text(
+            context.l10n.sendOverTor,
+            style: Theme.of(context).textTheme.labelSmall
+                ?.copyWith(color: t.accentText),
+          ),
         ],
       ),
     );
@@ -1949,12 +2253,15 @@ class _RecentRow extends StatelessWidget {
 }
 
 /// The review's checks of [SendPreflight] as one quiet line: "Ready to send" when they
-/// pass, else the one that matters most. Only the node blocks.
+/// pass, else the one that matters most. Only the node blocks. Over Tor ([tor] given) the
+/// line says what tor is doing instead of the epicbox checks: it connects when Send is
+/// tapped, then reaches the other wallet, which can take a while.
 class _ReadyLine extends ConsumerWidget {
   const _ReadyLine({
     required this.checks,
     required this.sending,
     required this.failed,
+    this.tor,
   });
 
   final SendPreflight checks;
@@ -1964,6 +2271,9 @@ class _ReadyLine extends ConsumerWidget {
 
   /// What a send that failed at their relay left behind, in words; null when none failed.
   final String? failed;
+
+  /// Tor's state when the payment goes over Tor; null for an epicbox payment.
+  final PhoneTorState? tor;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -1981,40 +2291,81 @@ class _ReadyLine extends ConsumerWidget {
     final running =
         checks.node == CheckOutcome.running ||
         checks.relayOutcome == CheckOutcome.running;
-    final (Widget icon, String text, Color color, bool retry) = switch (()) {
-      _ when sending => (spinner, l.sendSending, t.dim, false),
+    final tor = this.tor;
+    void retryNode() => ref.invalidate(sendNodeCheckProvider);
+    void retryTor() => ref.read(phoneTorProvider.notifier).retry();
+    final (
+      Widget icon,
+      String text,
+      Color color,
+      VoidCallback? retry,
+    ) = switch (()) {
+      _ when sending && tor != null => (
+        spinner,
+        tor.canSend ? l.sendTorReaching : l.torStateStarting(tor.progress ?? 0),
+        t.dim,
+        null,
+      ),
+      _ when sending => (spinner, l.sendSending, t.dim, null),
       _ when failed != null => (
         Icon(Icons.warning_amber, size: 18, color: t.warn),
         failed,
         t.text,
-        false,
+        null,
       ),
       _ when checks.node == CheckOutcome.failed => (
         Icon(Icons.error_outline, size: 18, color: t.risk),
         l.sendNodeDown,
         t.text,
-        true,
+        retryNode,
       ),
       _ when relayDown => (
         Icon(Icons.warning_amber, size: 18, color: t.warn),
         l.sendRelayDown,
         t.text,
-        false,
+        null,
       ),
       // A still icon under reduced motion, where a spinner would be an animation.
-      _ when running => (spinner, l.sendChecking, t.dim, false),
+      _ when running => (spinner, l.sendChecking, t.dim, null),
+      _ when tor != null => switch (tor.phase) {
+        PhoneTorPhase.unavailable => (
+          Icon(Icons.error_outline, size: 18, color: t.risk),
+          l.sendTorUnavailable,
+          t.text,
+          null,
+        ),
+        PhoneTorPhase.off => (
+          Icon(torIcon, size: 18, color: t.dim),
+          l.sendTorConnectsOnSend,
+          t.dim,
+          null,
+        ),
+        PhoneTorPhase.starting => (
+          spinner,
+          l.torStateStarting(tor.progress ?? 0),
+          t.dim,
+          null,
+        ),
+        PhoneTorPhase.failed => (
+          Icon(Icons.error_outline, size: 18, color: t.risk),
+          torFailureText(l, tor.failure ?? TorFailure.stopped),
+          t.text,
+          retryTor,
+        ),
+        PhoneTorPhase.connected || PhoneTorPhase.ready => (
+          Icon(Icons.check, size: 18, color: t.ok),
+          l.sendTorReady,
+          t.dim,
+          null,
+        ),
+      },
       _ when checks.listener == CheckOutcome.failed => (
         Icon(Icons.sync, size: 18, color: t.dim),
         l.sendListenerDown,
         t.dim,
-        false,
+        null,
       ),
-      _ => (
-        Icon(Icons.check, size: 18, color: t.ok),
-        l.sendReady,
-        t.dim,
-        false,
-      ),
+      _ => (Icon(Icons.check, size: 18, color: t.ok), l.sendReady, t.dim, null),
     };
     return Semantics(
       liveRegion: true,
@@ -2032,11 +2383,8 @@ class _ReadyLine extends ConsumerWidget {
                 style: theme.textTheme.bodyMedium?.copyWith(color: color),
               ),
             ),
-            if (retry)
-              TextButton(
-                onPressed: () => ref.invalidate(sendNodeCheckProvider),
-                child: Text(l.commonRetry),
-              ),
+            if (retry != null)
+              TextButton(onPressed: retry, child: Text(l.commonRetry)),
           ],
         ),
       ),
