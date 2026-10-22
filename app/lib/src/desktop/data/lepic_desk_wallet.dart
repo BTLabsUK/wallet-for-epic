@@ -1895,12 +1895,23 @@ class LepicDeskWallet implements DeskWalletApi {
 
   /// One seed read-modify-write at a time (open, the website's refresh, a delete), so two
   /// never interleave and none writes into a wallet opened after it started.
-  Future<void> _seedQueue = Future.value();
+  /// The running one, null when idle. Nothing is chained onto a future made at construction:
+  /// that one belongs to whatever zone built the wallet (a widget test's fake clock), and a
+  /// callback on it would wait for that clock.
+  Future<void>? _seedRunning;
 
-  Future<void> _seedLocked(Future<void> Function() body) {
-    final run = _seedQueue.then((_) => body());
-    _seedQueue = run.catchError((Object _) {});
-    return run;
+  Future<void> _seedLocked(Future<void> Function() body) async {
+    while (_seedRunning != null) {
+      await _seedRunning;
+    }
+    final done = Completer<void>();
+    _seedRunning = done.future;
+    try {
+      await body();
+    } finally {
+      _seedRunning = null;
+      done.complete();
+    }
   }
 
   /// The website's seed contacts file, or null when it did not answer with one.
