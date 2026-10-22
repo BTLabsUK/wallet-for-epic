@@ -272,12 +272,10 @@ void main() {
     await c.setOptions(const NodeTomlOptions(maxInbound: 9));
     expect(c.state.restartNeeded, isTrue);
     await c.restart();
-    await settle();
-    expect(c.state.restartNeeded, isFalse);
+    expect(c.state.restartNeeded, isFalse, reason: 'up to date when restart returns');
     expect(node.appliedOptions, const NodeTomlOptions(maxInbound: 9));
     await c.stop();
-    await settle();
-    expect(c.state.phase, LocalNodePhase.stopped);
+    expect(c.state.phase, LocalNodePhase.stopped, reason: 'up to date when stop returns');
   });
 
   group('logTail', () {

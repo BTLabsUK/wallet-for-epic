@@ -87,11 +87,20 @@ class LocalNodeController {
     if (node.state.isActive) unawaited(_askNetwork());
   }
 
-  Future<void> start() => node.start();
+  /// [state] is up to date when these return (the node's own event follows a moment later).
+  Future<void> start() => _then(node.start());
 
-  Future<void> stop() => node.stop();
+  Future<void> stop() => _then(node.stop());
 
-  Future<void> restart() => node.restart();
+  Future<void> restart() => _then(node.restart());
+
+  Future<void> _then(Future<void> f) async {
+    try {
+      await f;
+    } finally {
+      _emit();
+    }
+  }
 
   Chain get chain => node.chain;
 
