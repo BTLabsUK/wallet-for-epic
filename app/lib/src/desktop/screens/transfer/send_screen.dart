@@ -11,6 +11,7 @@ import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../widgets/kit.dart';
 import 'contact_picker.dart';
 import 'epicbox_notice.dart';
+import '../settings/prefs.dart' show settingsPrefsProvider;
 import 'file_panels.dart';
 
 /// Where the Send page is, so the tour reaches every state without taps.
@@ -72,16 +73,8 @@ class _Draft {
 }
 
 /// Amount text to nanoepic: null when it is not a number, [_tooLong] for more than 8 decimals.
-const int _tooLong = -1;
-int? _parseAmount(String raw) {
-  final s = raw.trim().replaceAll(',', '.');
-  if (s.isEmpty) return null;
-  final m = RegExp(r'^(\d*)(?:\.(\d*))?$').firstMatch(s);
-  if (m == null || (m.group(1)!.isEmpty && (m.group(2) ?? '').isEmpty)) return null;
-  final frac = m.group(2) ?? '';
-  if (frac.length > 8) return _tooLong;
-  return (int.tryParse(m.group(1)!.isEmpty ? '0' : m.group(1)!) ?? 0) * nanoPerEpic + (int.tryParse(frac.padRight(8, '0')) ?? 0);
-}
+const int _tooLong = epicTooLong;
+int? _parseAmount(String raw) => parseEpic(raw);
 
 String? _recipientError(TxMethod m, String v) {
   final t = v.trim();
@@ -458,12 +451,17 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       if (!mounted || ok != true) return;
     }
     final notifier = ref.read(deskProvider.notifier);
+    // F6: opened with the remembered password, a send above the set amount asks the password.
+    final api = ref.read(deskApiProvider);
+    final askAbove = ref.read(settingsPrefsProvider).askAboveOf(ref.read(deskProvider).account?.id);
+    final ask = api.openedRemembered && draft.amount > askAbove;
     final res = await showEDialog<SendResult>(
       context,
       dismissible: false,
       builder: (_) => _ReviewDialog(
         draft: draft,
         startBusy: startBusy,
+        checkPassword: ask ? api.checkPassword : null,
         onConfirm: () => notifier.send(
           SendRequest(
             method: draft.method,
@@ -948,11 +946,14 @@ class _Suggestions extends StatelessWidget {
 }
 
 class _ReviewDialog extends StatefulWidget {
-  const _ReviewDialog({required this.draft, required this.onConfirm, this.startBusy = false});
+  const _ReviewDialog({required this.draft, required this.onConfirm, this.startBusy = false, this.checkPassword});
 
   final _Draft draft;
   final Future<SendResult> Function() onConfirm;
   final bool startBusy;
+
+  /// Set when this send asks the wallet's password first (F6); true when it is right.
+  final Future<bool> Function(String password)? checkPassword;
 
   @override
   State<_ReviewDialog> createState() => _ReviewDialogState();
@@ -960,10 +961,43 @@ class _ReviewDialog extends StatefulWidget {
 
 class _ReviewDialogState extends State<_ReviewDialog> {
   late bool _busy = widget.startBusy;
+  final _password = TextEditingController();
+  String? _wrong;
+
+  bool get _asks => widget.checkPassword != null && !widget.startBusy;
+
+  /// Send is ready: no password asked, or one typed.
+  bool get _ready => !_busy && (!_asks || _password.text.isNotEmpty);
+
+  @override
+  void dispose() {
+    _password.clear();
+    _password.dispose();
+    super.dispose();
+  }
 
   Future<void> _go() async {
-    if (_busy) return;
+    if (!_ready) return;
     setState(() => _busy = true);
+    if (_asks) {
+      bool ok;
+      try {
+        ok = await widget.checkPassword!(_password.text);
+      } on Object catch (e) {
+        logWarn('desk', 'send password check ended with ${e.runtimeType}');
+        ok = false;
+      }
+      if (!mounted) return;
+      if (!ok) {
+        setState(() {
+          _busy = false;
+          _wrong = 'Wrong password.';
+        });
+        _password.selection = TextSelection(baseOffset: 0, extentOffset: _password.text.length);
+        return;
+      }
+      _password.clear();
+    }
     SendResult r;
     try {
       r = await widget.onConfirm();
@@ -1046,6 +1080,24 @@ class _ReviewDialogState extends State<_ReviewDialog> {
             if (DeskFeatures.dandelion && d.method != TxMethod.file) ('Privacy', Text(d.dandelion ? 'Dandelion++ on' : 'Dandelion++ off', style: ts.body)),
             if (d.message.isNotEmpty) ('Message', Text(d.message, style: ts.body)),
           ], labelWidth: 100.u),
+          if (_asks && !_busy) ...[
+            SizedBox(height: Sp.x4),
+            // Enter in the password sends once it is filled (wave 2 rules).
+            EForm(
+              onSubmit: _ready ? _go : null,
+              child: EField(
+                label: 'Password',
+                help: 'Opened with the remembered password: this send asks it.',
+                error: _wrong,
+                child: EPasswordInput(
+                  controller: _password,
+                  autofocus: true,
+                  invalid: _wrong != null,
+                  onChanged: (_) => setState(() => _wrong = null),
+                ),
+              ),
+            ),
+          ],
           if (_busy) ...[
             SizedBox(height: Sp.x4),
             Row(
@@ -1069,7 +1121,7 @@ class _ReviewDialogState extends State<_ReviewDialog> {
       ),
       actions: [
         EButton(label: 'Back', kind: EBtnKind.ghost, size: EBtnSize.sm, onPressed: _busy ? null : () => Navigator.of(context).pop()),
-        EButton.primary(label: _busy ? 'Sending' : 'Send ${formatEpic(d.amount)} EPIC', icon: EIcons.send, busy: _busy, onPressed: _busy ? null : _go),
+        EButton.primary(label: _busy ? 'Sending' : 'Send ${formatEpic(d.amount)} EPIC', icon: EIcons.send, busy: _busy, onPressed: _ready ? _go : null),
       ],
     );
   }

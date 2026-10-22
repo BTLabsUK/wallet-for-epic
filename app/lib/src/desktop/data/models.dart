@@ -23,6 +23,21 @@ String formatEpic(int nano, {int decimals = 8, bool trim = true, int minDecimals
   return '${neg ? '-' : ''}$w${frac.isEmpty ? '' : '.$frac'}';
 }
 
+/// [parseEpic]'s answer for more than 8 decimals.
+const int epicTooLong = -1;
+
+/// Amount text ("12.5", "12,5") to nanoepic: null when it is not a number, [epicTooLong]
+/// for more than 8 decimals.
+int? parseEpic(String raw) {
+  final s = raw.trim().replaceAll(',', '.');
+  if (s.isEmpty) return null;
+  final m = RegExp(r'^(\d*)(?:\.(\d*))?$').firstMatch(s);
+  if (m == null || (m.group(1)!.isEmpty && (m.group(2) ?? '').isEmpty)) return null;
+  final frac = m.group(2) ?? '';
+  if (frac.length > 8) return epicTooLong;
+  return (int.tryParse(m.group(1)!.isEmpty ? '0' : m.group(1)!) ?? 0) * nanoPerEpic + (int.tryParse(frac.padRight(8, '0')) ?? 0);
+}
+
 @immutable
 class Balance {
   const Balance({
