@@ -318,10 +318,13 @@ class EMonoText extends StatelessWidget {
 
 /// An address to read and copy: the first and last six characters in the accent.
 class EAddress extends StatelessWidget {
-  const EAddress(this.address, {super.key, this.large = false, this.onCopied});
+  const EAddress(this.address, {super.key, this.large = false, this.onCopied, this.copyLabel = 'Copy'});
 
   final String address;
   final bool large;
+
+  /// The copy button's tooltip and screen-reader label.
+  final String copyLabel;
   final VoidCallback? onCopied;
 
   @override
@@ -353,7 +356,7 @@ class EAddress extends StatelessWidget {
         children: [
           Expanded(child: SelectableText.rich(TextSpan(style: base, children: spans))),
           SizedBox(width: Sp.x2),
-          ECopyButton(text: address, onCopied: onCopied),
+          ECopyButton(text: address, label: copyLabel, onCopied: onCopied),
         ],
       ),
     );

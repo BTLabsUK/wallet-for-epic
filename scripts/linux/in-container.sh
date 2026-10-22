@@ -24,6 +24,12 @@ if [[ -s /work/node-bin/epic ]]; then
   mkdir -p "$appdir/usr/bin/bin"
   install -m 755 /work/node-bin/epic "$appdir/usr/bin/bin/epic"
 fi
+# Tor (lib/src/tor_location.dart) runs <exe dir>/bin/tor-bundle/tor; its licence goes with it.
+if [[ -x /work/tor-bundle/tor ]]; then
+  mkdir -p "$appdir/usr/bin/bin/tor-bundle"
+  cp -a /work/tor-bundle/. "$appdir/usr/bin/bin/tor-bundle/"
+  echo "tor bundle: $(cat /work/tor-bundle/VERSION)"
+fi
 cat > "$appdir/AppRun" <<'RUN'
 #!/bin/sh
 HERE="$(dirname "$(readlink -f "$0")")"

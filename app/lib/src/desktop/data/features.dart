@@ -59,7 +59,7 @@ abstract final class DeskFeatures {
   static const bool dataFolder = false;
   static const bool testNetworks = false;
   static const bool httpDirect = true;
-  static const bool tor = false;
+  static const bool tor = true;
   static const bool builtInNode = true;
   static const bool nodeBackground = false;
   static const bool coins = false;
