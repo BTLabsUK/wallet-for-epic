@@ -197,14 +197,26 @@ class MockDeskWallet implements DeskWalletApi {
   int _fails = 0;
   String get _selected => _current;
 
+  /// Tests: the OS store refuses to keep a password ([notRemembered]).
+  bool storeRefuses = false;
+
+  @override
+  bool notRemembered = false;
+
+  @override
+  bool openedRemembered = false;
+
   @override
   Future<bool> unlock(String password, {bool remember = false}) async {
     await _wait(2);
     final ok = password.isNotEmpty && password != 'wrong';
     if (!ok && ++_fails >= 5) _remembered.remove(_selected);
+    notRemembered = false;
     if (ok) {
       _fails = 0;
-      remember ? _remembered.add(_selected) : _remembered.remove(_selected);
+      openedRemembered = false;
+      notRemembered = remember && storeRefuses;
+      remember && !storeRefuses ? _remembered.add(_selected) : _remembered.remove(_selected);
     }
     return ok;
   }
@@ -213,7 +225,14 @@ class MockDeskWallet implements DeskWalletApi {
   Future<bool> unlockRemembered() async {
     if (!_remembered.contains(_selected)) return false;
     await _wait(2);
+    openedRemembered = true;
     return true;
+  }
+
+  @override
+  Future<bool> checkPassword(String password) async {
+    await _wait(1);
+    return password.isNotEmpty && password != 'wrong';
   }
 
   @override

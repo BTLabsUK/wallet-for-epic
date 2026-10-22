@@ -46,12 +46,16 @@ class RememberedPasswords {
 
   static List<int> _aad(String id, int until) => utf8.encode('wfe-remember-v1|$id|$until');
 
-  /// Keeps [password] for the wallet [id] for [rememberFor]. False when the OS store or the
-  /// disk refused; nothing is kept then.
+  /// Keeps [password] for the wallet [id] for [rememberFor] from when it was first set: kept
+  /// again while still valid, it keeps its expiry. False when the OS store or the disk
+  /// refused; nothing is kept then.
   Future<bool> remember(String id, String password) async {
     try {
       final key = List<int>.generate(32, (_) => _random.nextInt(256));
-      final until = _now().add(rememberFor).millisecondsSinceEpoch;
+      final keptUntil = (await _record(id))?['until'] as int?;
+      final until = keptUntil != null && DateTime.fromMillisecondsSinceEpoch(keptUntil).isAfter(_now())
+          ? keptUntil
+          : _now().add(rememberFor).millisecondsSinceEpoch;
       final box = await _aes.encrypt(
         utf8.encode(password),
         secretKey: SecretKey(key),
@@ -91,7 +95,9 @@ class RememberedPasswords {
     return r != null && DateTime.fromMillisecondsSinceEpoch(r['until'] as int).isAfter(_now());
   }
 
-  /// The password kept for [id]; null when none, expired or damaged (then it is forgotten).
+  /// The password kept for [id]; null when none, expired, its key is gone or it does not
+  /// open (then it is forgotten). Throws [RememberUnavailable] when the OS store does not
+  /// answer (a locked keyring, a slow D-Bus): the seal is kept for the next try.
   Future<String?> recall(String id) async {
     final r = await _record(id);
     if (r == null) return null;
@@ -101,8 +107,14 @@ class RememberedPasswords {
       await forget(id, quiet: true);
       return null;
     }
+    final String? key;
     try {
-      final key = await _secrets.read(_keyName(id));
+      key = await _secrets.read(_keyName(id));
+    } on Object catch (e) {
+      logWarn('remember', 'key store unavailable: ${e.runtimeType}');
+      throw const RememberUnavailable();
+    }
+    try {
       if (key == null) throw const FormatException('no key');
       final box = SecretBox.fromConcatenation(
         base64.decode(r['box'] as String),
@@ -161,6 +173,14 @@ class RememberedPasswords {
   }
 
   static final _random = Random.secure();
+}
+
+/// The OS store did not answer: the remembered password is kept but cannot be read now.
+class RememberUnavailable implements Exception {
+  const RememberUnavailable();
+
+  @override
+  String toString() => 'Remembered password unavailable';
 }
 
 /// Set once the first Unlock screen of this run tried the remembered password: Unlock after a

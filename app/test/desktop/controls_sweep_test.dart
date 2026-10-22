@@ -87,6 +87,12 @@ class _Recorder implements DeskWalletApi {
   @override
   Future<void> forgetRemembered(String id) => _r('forgetRemembered', () => _m.forgetRemembered(id));
   @override
+  bool get notRemembered => _m.notRemembered;
+  @override
+  bool get openedRemembered => _m.openedRemembered;
+  @override
+  Future<bool> checkPassword(String password) => _r('checkPassword', () => _m.checkPassword(password));
+  @override
   Future<void> lock() => _r('lock', _m.lock);
   @override
   Future<void> renameWallet(String id, String label) => _r('renameWallet', () => _m.renameWallet(id, label));

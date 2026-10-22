@@ -85,6 +85,10 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
   }
 
   Future<void> _loadWallets() async {
+    // At start only: Unlock after a Lock, after adding a wallet, or a second load of this
+    // screen (a wallet removed from the list) always asks.
+    final tryRemembered = !rememberAutoTried && widget.arg == null;
+    rememberAutoTried = true;
     final List<WalletEntry> w;
     try {
       w = await ref.read(deskApiProvider).wallets();
@@ -118,12 +122,7 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
       _remember = remembered;
       if (pick.missing) _missing = true;
     });
-    // At start only: Unlock after a Lock, or after adding a wallet, always asks.
-    if (!rememberAutoTried && widget.arg == null && remembered && !pick.missing) {
-      rememberAutoTried = true;
-      await _unlock(remembered: true);
-    }
-    rememberAutoTried = true;
+    if (tryRemembered && remembered && !pick.missing) await _unlock(remembered: true);
   }
 
   Future<bool> _isRemembered(String id) async {
@@ -234,6 +233,10 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
       final api = ref.read(deskApiProvider);
       if (_id != null) await api.selectWallet(_id!);
       ok = remembered ? await api.unlockRemembered() : await api.unlock(password, remember: _remember);
+    } on RememberUnavailable {
+      // The OS store did not answer: the password stays remembered for the next start.
+      if (mounted) _backToForm(error: 'Remembered password unavailable. Enter the password.');
+      return;
     } on Object catch (e) {
       if (!mounted) return;
       setState(() {
@@ -253,6 +256,7 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
       }
       return;
     }
+    final notRemembered = !remembered && _remember && ref.read(deskApiProvider).notRemembered;
     final desk = ref.read(deskProvider.notifier);
     await desk.refresh();
     final prefs = ref.read(settingsPrefsProvider);
@@ -261,6 +265,8 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
     _password.clear();
     final then = widget.arg is UnlockPick ? (widget.arg as UnlockPick).then : null;
     ref.read(deskNavProvider.notifier).reset(then ?? DeskRoute.overview);
+    // After the move: a toast closes when its screen goes.
+    if (notRemembered) showEToast(context, 'Not remembered', text: "This computer's key store is unavailable.", tone: ETone.risk);
   }
 
   @override

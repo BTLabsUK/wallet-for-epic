@@ -26,6 +26,17 @@ abstract interface class DeskWalletApi {
 
   /// "Forget this computer": drops the remembered password of the wallet [id].
   Future<void> forgetRemembered(String id);
+
+  /// Whether the last [unlock] with remember on opened the wallet but could not keep the
+  /// password (the OS store refused).
+  bool get notRemembered;
+
+  /// Whether the open wallet was opened with the remembered password (F6: sends above the
+  /// set amount ask the password then).
+  bool get openedRemembered;
+
+  /// Whether [password] is the open wallet's password.
+  Future<bool> checkPassword(String password);
   Future<void> lock();
 
   /// Renames the wallet [id] (1 to 32 characters).

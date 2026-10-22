@@ -513,6 +513,7 @@ class LepicDeskWallet implements DeskWalletApi {
       switch (mode) {
         case WalletRemoval.list:
           await r.forget(id);
+          await _remember.forget(id);
           if (entry.isLegacy) await _setMeta({'unlisted': true}, _metaKey(null));
         case WalletRemoval.delete:
           await r.delete(id, service: _service, config: config);
@@ -585,12 +586,33 @@ class LepicDeskWallet implements DeskWalletApi {
     if (password == null) return false;
     final ok = await _unlock(password);
     if (!ok) await _remember.forget(entry.id);
+    _openedRemembered = ok;
     logInfo('desk', ok ? 'unlocked with the remembered password' : 'remembered password refused');
     return ok;
   }
 
   @override
   Future<bool> isRemembered(String id) => _remember.isRemembered(id);
+
+  bool _notRemembered = false;
+  bool _openedRemembered = false;
+
+  @override
+  bool get notRemembered => _notRemembered;
+
+  @override
+  bool get openedRemembered => _session != null && _openedRemembered;
+
+  @override
+  Future<bool> checkPassword(String password) async {
+    try {
+      await _open.mnemonic(password: password);
+      return true;
+    } on core.WalletError catch (e) {
+      if (e.kind == core.WalletErrorKind.wrongPassword) return false;
+      throw _deskError(e);
+    }
+  }
 
   @override
   Future<void> forgetRemembered(String id) => _remember.forget(id);
@@ -603,10 +625,12 @@ class LepicDeskWallet implements DeskWalletApi {
     final entry = _pick(all, await _lastUsed());
     if (entry == null) throw const DeskError('No wallet found');
     final ok = await _openEntryWith(entry, password);
+    _notRemembered = false;
+    _openedRemembered = false;
     if (!ok) {
       await _remember.failed(entry.id);
     } else if (remember == true) {
-      await _remember.remember(entry.id, password);
+      _notRemembered = !await _remember.remember(entry.id, password);
     } else if (remember == false) {
       await _remember.forget(entry.id, quiet: true);
     } else {
