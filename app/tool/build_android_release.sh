@@ -2,7 +2,7 @@
 # Builds the 0.1.0 Android release from the checkout: LEPIC at the pin (tools/lepic.rev), the
 # split-per-ABI APKs (arm64-v8a, x86_64) and a universal APK, copies them to an output dir with
 # release names, writes SHA256SUMS and verifies each APK (signing cert, package, version, label,
-# LEPIC library, Tor's libtor.so, 16 KB-aligned ELF segments, no Firebase config). The signing key is the debug keystore, as for every earlier
+# LEPIC library, Tor's libtor.so and licence, 16 KB-aligned ELF segments, no Firebase config). The signing key is the debug keystore, as for every earlier
 # build (release buildType in android/app/build.gradle.kts).
 #
 # Usage: tool/build_android_release.sh [output-dir]      default: app/build/release-0.1.0/
@@ -77,6 +77,9 @@ for apk in "$out_dir"/epic-wallet-$version-*.apk; do
     grep -q "^lib/$a/liblepic_ffi.so$" <<<"$libs" && r=0 || r=1; check "lib/$a/liblepic_ffi.so" $r
     grep -q "^lib/$a/libtor.so$" <<<"$libs" && r=0 || r=1; check "lib/$a/libtor.so" $r
   done
+  # Tor's GPL licence, shown in the app's licences (lib/src/tor_licence.dart).
+  tor_licence=assets/flutter_assets/assets/licenses/tor.txt
+  grep -q "^$tor_licence$" <<<"$libs" && r=0 || r=1; check "$tor_licence" $r
   # Devices with 16 KB pages (Android 15+) need every ELF LOAD segment aligned to 0x4000 or
   # more. The libraries are packed compressed (useLegacyPackaging, so tor can be extracted as a
   # file), so zipalign cannot vouch for them; the ELF headers are what count.
