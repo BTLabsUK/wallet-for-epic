@@ -4,7 +4,8 @@
 # host: its newer glibc would stop the app starting on older distros.
 #
 # Usage: scripts/build-linux.sh [flutter build args...]
-# Env:   WFE_TARGET=lib/main_desktop.dart   entry point (default: the mock-data desktop interface)
+# Env:   WFE_TARGET=lib/main_desktop.dart   entry point
+#        WFE_NODE_BIN=<path to epic>        bundle the built-in node's binary as usr/bin/bin/epic
 #        WFE_BUILD_LEPIC=0                  skip the LEPIC build (the mock build does not use it)
 #        LEPIC_REPO=../lepic                 where the pinned LEPIC commit is read from
 # Output: build-linux/WalletForEpic-<version>-x86_64.AppImage
@@ -47,6 +48,14 @@ rsync -a --delete --exclude=/app/build --exclude=/app/.dart_tool --exclude=/app/
   --exclude=/app/linux/flutter/ephemeral --exclude=/build-linux "$stage/" "$work/"
 rm -rf "$stage"
 mkdir -p "$work/app/build" "$work/app/third_party/lepic" "$work/build-linux"
+# The built-in node's epic binary (WFE_NODE_BIN, optional) goes in as node-bin/epic.
+mkdir -p "$work/node-bin"
+if [[ -n "${WFE_NODE_BIN:-}" ]]; then
+  cp "$WFE_NODE_BIN" "$work/node-bin/epic"
+  echo "node binary: $(sha256sum "$work/node-bin/epic" | cut -d' ' -f1)"
+else
+  : > "$work/node-bin/epic"
+fi
 # Fresh named volumes are root-owned; hand the build-cache ones to the host user once.
 docker run --rm -v wfe-linux-lepic-target:/t -v wfe-linux-build:/b -v wfe-linux-pub:/p -v wfe-linux-home:/h "$image" \
   chown "$(id -u):$(id -g)" /t /b /p /h
