@@ -433,6 +433,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   _Header(l.settingsSectionReceiving),
                   const TorReceivingBlock(leading: true),
                 ],
+                _Header(l.settingsSectionPrivacy),
+                SwitchListTile(
+                  secondary: const Icon(Icons.travel_explore),
+                  title: Text(l.settingsUseStatusSite),
+                  subtitle: Text(l.settingsUseStatusSiteSubtitle),
+                  value: s.useStatusSite,
+                  onChanged: _settings.setUseStatusSite,
+                ),
                 if (!demo &&
                     (ref.watch(pushConfiguredProvider).value ?? false)) ...[
                   _Header(l.settingsSectionNotifications),

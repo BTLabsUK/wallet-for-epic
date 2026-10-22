@@ -90,6 +90,8 @@ Future<List<Override>> deskOverrides() async {
     logError('desk', 'settings not read: ${e.runtimeType}', stack);
     boot = const DeskBoot();
   }
+  // Before anything asks status.btlabs.uk: off, nothing is asked.
+  statusSite.on = boot.settings.useStatusSite;
   final directory = container.read(relayDirectoryProvider);
   final wallet = LepicDeskWallet(
     service: container.read(walletServiceProvider),
