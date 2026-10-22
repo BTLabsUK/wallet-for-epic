@@ -44,7 +44,6 @@ class SettingsPrefs {
     this.removedNodes = const {},
     this.walletLabel,
     this.removedWallets = const {},
-    this.askAbove = const {},
     this.jump,
   });
 
@@ -65,13 +64,7 @@ class SettingsPrefs {
   /// Folders of wallets taken off the list.
   final Set<String> removedWallets;
 
-  /// Per wallet id ('' when the account has none): sends above this many nanoepic ask the password when
-  /// the wallet was opened with the remembered password (F6). None set = 0: every send asks.
-  final Map<String, int> askAbove;
   final JumpTo? jump;
-
-  /// The ask-password amount of the wallet [id].
-  int askAboveOf(String? id) => askAbove[id ?? ''] ?? 0;
 
   /// The part that is saved: choices, not run state.
   Map<String, Object?> toJson() => {
@@ -82,7 +75,6 @@ class SettingsPrefs {
     'removedNodes': removedNodes.toList(),
     'walletLabel': walletLabel,
     'removedWallets': removedWallets.toList(),
-    'askAbove': askAbove,
   };
 
   factory SettingsPrefs.fromJson(Map<String, dynamic> j) {
@@ -90,7 +82,6 @@ class SettingsPrefs {
     bool flag(String k, bool fallback) => j[k] is bool ? j[k] as bool : fallback;
     Set<String> names(String k) => {for (final v in (j[k] is List ? j[k] as List : const [])) '$v'};
     final labels = j['nodeLabels'];
-    final ask = j['askAbove'];
     return SettingsPrefs(
       epicboxOnStart: flag('epicboxOnStart', d.epicboxOnStart),
       nodeBackground: flag('nodeBackground', d.nodeBackground),
@@ -99,7 +90,6 @@ class SettingsPrefs {
       removedNodes: names('removedNodes'),
       walletLabel: j['walletLabel'] is String ? j['walletLabel'] as String : null,
       removedWallets: names('removedWallets'),
-      askAbove: ask is Map ? {for (final e in ask.entries) if (e.value is int && (e.value as int) >= 0) '${e.key}': e.value as int} : const {},
     );
   }
 
@@ -113,7 +103,6 @@ class SettingsPrefs {
     Set<String>? removedNodes,
     String? walletLabel,
     Set<String>? removedWallets,
-    Map<String, int>? askAbove,
     JumpTo? jump,
   }) => SettingsPrefs(
     epicboxOnStart: epicboxOnStart ?? this.epicboxOnStart,
@@ -124,7 +113,6 @@ class SettingsPrefs {
     removedNodes: removedNodes ?? this.removedNodes,
     walletLabel: walletLabel ?? this.walletLabel,
     removedWallets: removedWallets ?? this.removedWallets,
-    askAbove: askAbove ?? this.askAbove,
     jump: jump ?? this.jump,
   );
 }

@@ -27,7 +27,6 @@ class SettingsAccountScreen extends ConsumerStatefulWidget {
 
 class _SettingsAccountScreenState extends ConsumerState<SettingsAccountScreen> {
   final _label = TextEditingController();
-  final _askAbove = TextEditingController();
   bool _filled = false;
 
   /// Whether this wallet opens at start without its password (Unlock's Remember).
@@ -66,7 +65,6 @@ class _SettingsAccountScreenState extends ConsumerState<SettingsAccountScreen> {
   @override
   void dispose() {
     _label.dispose();
-    _askAbove.dispose();
     super.dispose();
   }
 
@@ -92,20 +90,6 @@ class _SettingsAccountScreenState extends ConsumerState<SettingsAccountScreen> {
     showEToast(context, 'Label saved', text: t);
   }
 
-  /// Saves "Ask password above" for this wallet (F6).
-  void _saveAskAbove() {
-    final nano = parseEpic(_askAbove.text.isEmpty ? '0' : _askAbove.text);
-    if (nano == null || nano == epicTooLong) {
-      showEToast(context, 'Amount not saved', text: 'Enter an amount, at most 8 decimals.', tone: ETone.risk);
-      return;
-    }
-    final prefs = ref.read(settingsPrefsProvider);
-    final id = ref.read(deskProvider).account?.id ?? '';
-    ref.read(settingsPrefsProvider.notifier).set(prefs.copyWith(askAbove: {...prefs.askAbove, id: nano}));
-    _askAbove.text = formatEpic(nano, minDecimals: 0);
-    showEToast(context, 'Amount saved', text: nano == 0 ? 'Every send asks the password.' : 'Above ${formatEpic(nano)} EPIC.');
-  }
-
   @override
   Widget build(BuildContext context) {
     final a = ref.watch(deskProvider.select((s) => s.account));
@@ -114,7 +98,6 @@ class _SettingsAccountScreenState extends ConsumerState<SettingsAccountScreen> {
     if (!_filled) {
       _filled = true;
       _label.text = label == null || label.isEmpty || a.id != null ? a.name : label;
-      _askAbove.text = formatEpic(ref.read(settingsPrefsProvider).askAboveOf(a.id), minDecimals: 0);
     }
     final nav = ref.read(deskNavProvider.notifier);
     return SettingsFrame(
@@ -173,25 +156,9 @@ class _SettingsAccountScreenState extends ConsumerState<SettingsAccountScreen> {
               if (_remembered)
                 ESetRow(
                   title: 'Remembered on this computer',
-                  text: 'Opens at start without the password, for 30 days from when it was set. $rememberWho',
+                  text: 'Opens at start without the password, for 30 days from when it was set. Sends still ask the password. $rememberWho',
                   control: EButton(label: 'Forget this computer', icon: EIcons.lock, size: EBtnSize.sm, onPressed: _forget),
                 ),
-              ESetRow(
-                title: 'Ask password above',
-                text: 'Opened with the remembered password, sends above this amount ask the password. 0: every send.',
-                control: SizedBox(
-                  width: 180.u,
-                  child: EInput(
-                    controller: _askAbove,
-                    hint: '0',
-                    semanticLabel: 'Ask password above, EPIC',
-                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                    inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')), LengthLimitingTextInputFormatter(20)],
-                    onSubmitted: (_) => _saveAskAbove(),
-                    trailing: EIconButton(icon: EIcons.check, label: 'Save amount', size: EBtnSize.inline, onPressed: _saveAskAbove),
-                  ),
-                ),
-              ),
               if (DeskFeatures.changePassword)
                 ESetRow(
                   title: 'Password',
