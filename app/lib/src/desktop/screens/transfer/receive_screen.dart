@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../widgets/kit.dart';
 import 'epicbox_notice.dart';
 
@@ -34,6 +35,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
   String? _http;
   String? _tor;
   _Qr _qr = _Qr.epic;
+  final _qrKey = GlobalKey();
   bool _listenBusy = false;
   bool _httpBusy = false;
   // The tour's "port in use" state; a real failure comes with the status.
@@ -72,6 +74,8 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
         _qr = _Qr.epic;
       }
       showEToast(context, on ? 'Listener started' : 'Listener stopped');
+    } on Object catch (e) {
+      if (mounted) showEToast(context, on ? 'Listener not started' : 'Listener not stopped', text: deskErrorText(e), tone: ETone.risk);
     } finally {
       if (mounted) setState(() => _listenBusy = false);
     }
@@ -86,9 +90,20 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
         _httpFailed = false;
         if (!on && _qr == _Qr.http) _qr = _Qr.epic;
       });
+    } on Object catch (e) {
+      if (mounted) showEToast(context, on ? 'HTTP not started' : 'HTTP not stopped', text: deskErrorText(e), tone: ETone.risk);
     } finally {
       if (mounted) setState(() => _httpBusy = false);
     }
+  }
+
+  /// Shows [which] in the QR at the top, scrolled into view: the HTTP and onion rows sit below it.
+  void _showQr(_Qr which) {
+    setState(() => _qr = which);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final at = _qrKey.currentContext;
+      if (at != null && at.mounted) Scrollable.ensureVisible(at, duration: Dur.base, alignmentPolicy: ScrollPositionAlignmentPolicy.keepVisibleAtStart);
+    });
   }
 
   /// The HTTP address follows the listener: read again whenever it runs.
@@ -233,6 +248,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
     final Widget qr = qrData == null
         ? SizedBox(width: qrSize, height: qrSize)
         : Column(
+            key: _qrKey,
             children: [
               Stack(
                 alignment: Alignment.center,
@@ -247,7 +263,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
                 ],
               ),
               SizedBox(height: Sp.x2),
-              Text(qrData == addr ? 'QR code of the Epic address' : 'QR code of the HTTP address', style: ts.caption),
+              Text(qrData == addr ? 'QR code of the Epic address' : (qrData == tor ? 'QR code of the onion address' : 'QR code of the HTTP address'), style: ts.caption),
             ],
           );
     return EPanel(
@@ -396,7 +412,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
                     ECopyButton(text: http, label: 'Copy HTTP address')
                   else
                     EIconButton(icon: EIcons.copy, label: 'Copy HTTP address', size: EBtnSize.sm, onPressed: null),
-                  EIconButton(icon: EIcons.qr, label: 'Show QR code of the HTTP address', size: EBtnSize.sm, onPressed: http != null ? () => setState(() => _qr = _Qr.http) : null),
+                  EIconButton(icon: EIcons.qr, label: 'Show QR code of the HTTP address', size: EBtnSize.sm, onPressed: http != null ? () => _showQr(_Qr.http) : null),
                   EButton(label: 'Settings', size: EBtnSize.inline, onPressed: () => nav.go(DeskRoute.settingsReceiving)),
                 ],
               ),
@@ -410,7 +426,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
           loading: status == null,
           address: torOn ? _tor : null,
           line: status == null ? null : torStatusLine(status),
-          onQr: () => setState(() => _qr = _Qr.tor),
+          onQr: () => _showQr(_Qr.tor),
           offText: 'Off. Turn it on to receive through Tor.',
           action: EButton(label: 'Receiving settings', size: EBtnSize.inline, onPressed: () => nav.go(DeskRoute.settingsReceiving)),
           showAction: !torOn && status != null,

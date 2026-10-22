@@ -68,7 +68,7 @@ class SettingsAppearanceScreen extends ConsumerWidget {
           ),
           ESetRow(
             title: 'Hide amounts',
-            text: 'Blurs balances and amounts until pointed at.',
+            text: 'Shows dots in place of balances and amounts.',
             control: ESwitch(value: s.hideAmounts, semanticLabel: 'Hide amounts', onChanged: (v) => n.saveSettings(s.copyWith(hideAmounts: v))),
           ),
           ESetRow(

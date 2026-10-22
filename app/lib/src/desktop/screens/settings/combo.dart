@@ -295,6 +295,8 @@ class ServiceComboState extends State<ServiceCombo> {
     );
     return TapRegion(
       groupId: _group,
+      // A click outside only closes the list: it does not also press what is under it.
+      consumeOutsideTaps: open,
       onTapOutside: (_) {
         if (_portal.isShowing) collapse();
       },

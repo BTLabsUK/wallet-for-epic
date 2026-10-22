@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../ui/theme/brand.dart' show MarkedQr;
@@ -341,6 +342,8 @@ class ESelect<T> extends StatelessWidget {
     final current = items.where((i) => i.value == value).firstOrNull;
     return LayoutBuilder(
       builder: (context, box) => MenuAnchor(
+        // A click outside only closes the list: it does not also press what is under it.
+        consumeOutsideTap: true,
         style: MenuStyle(
           backgroundColor: WidgetStatePropertyAll(c.s4),
           surfaceTintColor: const WidgetStatePropertyAll(Colors.transparent),
@@ -381,34 +384,49 @@ class ESelect<T> extends StatelessWidget {
             ),
           if (footer != null) ...[Divider(height: Sp.x3, color: c.line), footer!],
         ],
-        builder: (context, controller, _) => Semantics(
-          button: true,
-          label: semanticLabel,
-          value: current?.title,
-          child: InkWell(
-            onTap: () => controller.isOpen ? controller.close() : controller.open(),
-            borderRadius: BorderRadius.circular(Rad.sm),
-            child: Container(
-              height: Ctl.md,
-              padding: EdgeInsets.only(left: Sp.x3, right: Sp.x2),
-              decoration: BoxDecoration(
-                color: c.s2,
+        // Escape closes the list without choosing; the field keeps the focus while it is open.
+        builder: (context, controller, _) => Focus(
+          skipTraversal: true,
+          onKeyEvent: (_, e) {
+            if (e is! KeyDownEvent || e.logicalKey != LogicalKeyboardKey.escape || !controller.isOpen) return KeyEventResult.ignored;
+            controller.close();
+            return KeyEventResult.handled;
+          },
+          child: Builder(
+            builder: (context) => Semantics(
+              button: true,
+              label: semanticLabel,
+              value: current?.title,
+              child: InkWell(
+                onTap: () {
+                  if (controller.isOpen) return controller.close();
+                  Focus.of(context).requestFocus();
+                  controller.open();
+                },
                 borderRadius: BorderRadius.circular(Rad.sm),
-                border: Border.all(color: controller.isOpen ? c.accent : c.lineField),
-              ),
-              child: Row(
-                children: [
-                  if (current?.leading != null) ...[current!.leading!, SizedBox(width: Sp.x2)],
-                  Expanded(
-                    child: Text(
-                      current?.title ?? '',
-                      style: mono ? ts.mono(size: Fs.sm) : ts.body,
-                      overflow: TextOverflow.ellipsis,
-                    ),
+                child: Container(
+                  height: Ctl.md,
+                  padding: EdgeInsets.only(left: Sp.x3, right: Sp.x2),
+                  decoration: BoxDecoration(
+                    color: c.s2,
+                    borderRadius: BorderRadius.circular(Rad.sm),
+                    border: Border.all(color: controller.isOpen ? c.accent : c.lineField),
                   ),
-                  if (current?.trailing != null) ...[current!.trailing!, SizedBox(width: Sp.x2)],
-                  Icon(EIcons.chevronDown, size: Ctl.icon, color: c.dim),
-                ],
+                  child: Row(
+                    children: [
+                      if (current?.leading != null) ...[current!.leading!, SizedBox(width: Sp.x2)],
+                      Expanded(
+                        child: Text(
+                          current?.title ?? '',
+                          style: mono ? ts.mono(size: Fs.sm) : ts.body,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      if (current?.trailing != null) ...[current!.trailing!, SizedBox(width: Sp.x2)],
+                      Icon(EIcons.chevronDown, size: Ctl.icon, color: c.dim),
+                    ],
+                  ),
+                ),
               ),
             ),
           ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../widgets/kit.dart';
 import 'tx_detail.dart';
 import 'tx_display.dart';
@@ -63,11 +64,19 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
     super.dispose();
   }
 
+  /// Asks the node now, as 6.1.6's refresh does; says so when it could not.
   Future<void> _refresh() async {
     setState(() => _refreshing = true);
-    ref.invalidate(deskOutputsProvider);
-    await ref.read(deskProvider.notifier).refresh();
-    if (mounted) setState(() => _refreshing = false);
+    try {
+      await ref.read(deskProvider.notifier).syncNow();
+    } on Object catch (e) {
+      if (mounted) showEToast(context, 'Not updated', text: deskErrorText(e), tone: ETone.risk);
+    } finally {
+      if (mounted) {
+        ref.invalidate(deskOutputsProvider);
+        setState(() => _refreshing = false);
+      }
+    }
   }
 
   List<Tx> _filtered(List<Tx> all) {
