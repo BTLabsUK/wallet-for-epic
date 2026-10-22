@@ -2,7 +2,7 @@
 # Builds the 0.1.0 Android release from the checkout: LEPIC at the pin (tools/lepic.rev), the
 # split-per-ABI APKs (arm64-v8a, x86_64) and a universal APK, copies them to an output dir with
 # release names, writes SHA256SUMS and verifies each APK (signing cert, package, version, label,
-# LEPIC library, no Firebase config). The signing key is the debug keystore, as for every earlier
+# LEPIC library, Tor's libtor.so, 16 KB-aligned ELF segments, no Firebase config). The signing key is the debug keystore, as for every earlier
 # build (release buildType in android/app/build.gradle.kts).
 #
 # Usage: tool/build_android_release.sh [output-dir]      default: app/build/release-0.1.0/
@@ -25,14 +25,18 @@ out_dir="$(realpath -m "${1:-$app_dir/build/release-$version}")"
 build_id="$(git -C "$app_dir" rev-parse --short=7 HEAD)"
 
 bt="$(find "$ANDROID_HOME/build-tools" -maxdepth 1 -mindepth 1 -type d | sort -V | tail -1)"
-aapt2="$bt/aapt2" apksigner="$bt/apksigner"
-[[ -x "$aapt2" && -x "$apksigner" ]] || { echo "aapt2/apksigner not found in $bt" >&2; exit 1; }
+aapt2="$bt/aapt2" apksigner="$bt/apksigner" zipalign="$bt/zipalign"
+[[ -x "$aapt2" && -x "$apksigner" && -x "$zipalign" ]] \
+  || { echo "aapt2/apksigner/zipalign not found in $bt" >&2; exit 1; }
+readelf="$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-readelf"
+[[ -x "$readelf" ]] || { echo "llvm-readelf not found in $ANDROID_NDK_HOME" >&2; exit 1; }
 
 [[ ! -e "$app_dir/android/app/google-services.json" ]] \
   || { echo "android/app/google-services.json exists: 0.1.0 ships without Firebase" >&2; exit 1; }
 
 cd "$app_dir"
 flutter pub get
+"$app_dir/../tools/fetch-tor.sh" android "$app_dir/android/app/src/main/tor-jniLibs"
 "$app_dir/../tools/lepic.sh" sync
 "$app_dir/../tools/lepic.sh" build android
 
@@ -71,7 +75,27 @@ for apk in "$out_dir"/epic-wallet-$version-*.apk; do
   if [[ "$abi" == universal ]]; then abis=(arm64-v8a x86_64); else abis=("$abi"); fi
   for a in "${abis[@]}"; do
     grep -q "^lib/$a/liblepic_ffi.so$" <<<"$libs" && r=0 || r=1; check "lib/$a/liblepic_ffi.so" $r
+    grep -q "^lib/$a/libtor.so$" <<<"$libs" && r=0 || r=1; check "lib/$a/libtor.so" $r
   done
+  # Devices with 16 KB pages (Android 15+) need every ELF LOAD segment aligned to 0x4000 or
+  # more. The libraries are packed compressed (useLegacyPackaging, so tor can be extracted as a
+  # file), so zipalign cannot vouch for them; the ELF headers are what count.
+  unpacked="$(mktemp -d)"
+  # Only the ABIs we ship: the QR scanner's AAR also carries a 32-bit ARM libbarhopper_v3.so
+  # that is not 16 KB aligned, in the universal APK as in every earlier build.
+  for a in "${abis[@]}"; do unzip -q "$apk" "lib/$a/*.so" -d "$unpacked"; done
+  while IFS= read -r so; do
+    r=0
+    while read -r align; do (( align >= 16384 )) || r=1; done \
+      < <("$readelf" -lW "$so" | awk '$1 == "LOAD" { print $NF }')
+    check "${so#"$unpacked"/} LOAD align >= 0x4000" $r
+  done < <(find "$unpacked" -name '*.so' | sort)
+  rm -r -- "$unpacked"
+  "$zipalign" -c -P 16 4 "$apk" >/dev/null && r=0 || r=1; check "zipalign -c -P 16 4" $r
+  # The merged manifest must let Android extract the libraries at install.
+  manifest="$("$aapt2" dump xmltree --file AndroidManifest.xml "$apk")"
+  grep -q 'extractNativeLibs.*=true' <<<"$manifest" && r=0 || r=1
+  check "manifest extractNativeLibs=true" $r
   grep -qiE 'google-services|firebase|google_app_id' <<<"$("$aapt2" dump resources "$apk" 2>/dev/null | grep -iE 'google_app_id|firebase_database_url|gcm_defaultSenderId' || true)" \
     && r=1 || r=0
   check "no Firebase config" $r
