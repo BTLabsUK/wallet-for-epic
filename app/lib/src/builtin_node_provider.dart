@@ -2,6 +2,7 @@
 /// itself: with the setting off (the default) no provider is read and behaviour is unchanged.
 library;
 
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -14,6 +15,11 @@ import 'providers.dart';
 /// Whether the platform can have a built-in node at all: desktop only, never phones.
 bool get builtInNodeSupported =>
     Platform.isLinux || Platform.isWindows || Platform.isMacOS;
+
+/// [builtInNodeSupported] as a provider, so tests can stand in for a phone.
+final builtInNodeSupportedProvider = Provider<bool>(
+  (ref) => builtInNodeSupported,
+);
 
 /// Where the node's folders and the bundled binary are. Tests and the desktop shell override it.
 class BuiltInNodeLocation {
@@ -68,22 +74,32 @@ class BuiltInNodeEnabledNotifier extends AsyncNotifier<bool> {
   }
 }
 
-/// The node object of a chain. Reading it starts nothing; call `start()` (and `stop()`). It is
-/// stopped when the provider is disposed, which is the app exiting.
+/// The node object of a chain. Reading it starts nothing; call `start()` (and `stop()`). Throws
+/// [UnsupportedError] where there is no built-in node (phones). When the provider is disposed the
+/// node is stopped, but a dispose callback cannot be awaited: the app's exit hook should await
+/// [stopAllBuiltInNodes] (`AppLifecycleListener(onExitRequested: ...)`).
 final builtInNodeProvider = FutureProvider.family<BuiltInNode, Chain>((
   ref,
   chain,
 ) async {
+  if (!ref.watch(builtInNodeSupportedProvider)) {
+    throw UnsupportedError('The built-in node is only available on desktop');
+  }
   final where = await ref.watch(builtInNodeLocationProvider.future);
-  final node = BuiltInNode(root: where.root, binary: where.binary, chain: chain);
-  ref.onDispose(node.dispose);
+  final node = BuiltInNode(
+    root: where.root,
+    binary: where.binary,
+    chain: chain,
+  );
+  ref.onDispose(() => unawaited(node.dispose()));
   return node;
 });
 
 /// The node's state as it changes.
-final builtInNodeStateProvider =
-    StreamProvider.family<BuiltInNodeState, Chain>((ref, chain) async* {
-      final node = await ref.watch(builtInNodeProvider(chain).future);
-      yield node.state;
-      yield* node.states;
-    });
+final builtInNodeStateProvider = StreamProvider.family<BuiltInNodeState, Chain>(
+  (ref, chain) async* {
+    final node = await ref.watch(builtInNodeProvider(chain).future);
+    yield node.state;
+    yield* node.states;
+  },
+);

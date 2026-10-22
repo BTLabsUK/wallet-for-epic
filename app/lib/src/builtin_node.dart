@@ -24,9 +24,20 @@ enum NodeFailure {
   spawnFailed,
   exited,
   restartFailed,
+
+  /// A node left by an earlier run holds the ports and will not stop.
+  orphanStuck,
 }
 
-enum NodeStatusKind { off, starting, syncing, running, stalled, stopped, failed }
+enum NodeStatusKind {
+  off,
+  starting,
+  syncing,
+  running,
+  stalled,
+  stopped,
+  failed,
+}
 
 /// One state of the built-in node, as streamed by [BuiltInNode.states].
 class BuiltInNodeState {
@@ -37,6 +48,8 @@ class BuiltInNodeState {
     this.phase,
     this.failure,
     this.reason,
+    this.connections,
+    this.diskUnknown = false,
   });
 
   const BuiltInNodeState.off() : this(NodeStatusKind.off);
@@ -51,6 +64,13 @@ class BuiltInNodeState {
 
   /// The node's sync phase (`header_sync`, `txhashset_download`, `body_sync`, ...), while syncing.
   final String? phase;
+
+  /// The peers the node is connected to, when it said.
+  final int? connections;
+
+  /// The free disk space could not be read (a UNC or relative path on Windows), so the low-disk
+  /// check is off for this node.
+  final bool diskUnknown;
 
   final NodeFailure? failure;
 
@@ -71,16 +91,27 @@ class BuiltInNodeState {
       other.highest == highest &&
       other.phase == phase &&
       other.failure == failure &&
-      other.reason == reason;
+      other.reason == reason &&
+      other.connections == connections &&
+      other.diskUnknown == diskUnknown;
 
   @override
-  int get hashCode =>
-      Object.hash(kind, height, highest, phase, failure, reason);
+  int get hashCode => Object.hash(
+    kind,
+    height,
+    highest,
+    phase,
+    failure,
+    reason,
+    connections,
+    diskUnknown,
+  );
 
   @override
   String toString() =>
       'BuiltInNodeState($kind, height: $height, highest: $highest, phase: $phase, '
-      'failure: $failure, reason: $reason)';
+      'failure: $failure, reason: $reason, connections: $connections, '
+      'diskUnknown: $diskUnknown)';
 }
 
 /// Thrown by [BuiltInNode.start] when it refuses to start. The node is left in
@@ -114,12 +145,11 @@ abstract interface class NodeProcess {
   void kill();
 }
 
-typedef ProcessStarter =
-    Future<NodeProcess> Function(
-      String executable,
-      List<String> arguments, {
-      required String workingDirectory,
-    });
+typedef ProcessStarter = Future<NodeProcess> Function(
+  String executable,
+  List<String> arguments, {
+  required String workingDirectory,
+});
 
 /// True when something answers on 127.0.0.1:[port].
 typedef PortChecker = Future<bool> Function(int port);
@@ -130,13 +160,12 @@ typedef DiskProbe = Future<int?> Function(String directory);
 /// One JSON-RPC call to the node's own API on loopback. Returns the `Ok` payload, or null when the
 /// node does not answer, answers an error, or refuses the secret. [owner] calls `/v2/owner` with
 /// Basic auth (user `epic`, [secret]); otherwise `/v2/foreign`.
-typedef NodeApi =
-    Future<Map<String, dynamic>?> Function(
-      int port,
-      String method, {
-      required bool owner,
-      String? secret,
-    });
+typedef NodeApi = Future<Map<String, dynamic>?> Function(
+  int port,
+  String method, {
+  required bool owner,
+  String? secret,
+});
 
 /// The ports a chain's node uses, as the Electron GUI 6.1 used them.
 class NodePorts {
@@ -165,7 +194,6 @@ const String nodeTomlTemplate = '''
 db_root = {{DB_ROOT}}
 api_http_addr = {{API_ADDR}}
 api_secret_path = {{API_SECRET}}
-foundation_path = {{FOUNDATION}}
 chain_type = {{CHAIN_TYPE}}
 chain_validation_mode = "Disabled"
 archive_mode = false
@@ -225,12 +253,47 @@ const String _secretName = '.api_secret';
 const String _pidName = 'node.pid';
 
 /// Sync phases in which a node is working even when its height stands still: never restarted.
+/// The same list as the Electron GUI's nodeService.js (safeSyncStates).
 const Set<String> safeSyncStates = {
   'txhashset_download',
   'syncing',
   'txhashset_rangeproofs_validation',
   'txhashset_kernels_validation',
 };
+
+/// What the node needs to know about, and do to, a process it did not start: a node left over by
+/// a crashed or closed app. Injectable so tests need no real processes.
+abstract interface class ProcessInspector {
+  /// True when a process with [pid] runs.
+  Future<bool> isAlive(int pid);
+
+  /// Absolute path of the executable of [pid], or null when it cannot be told.
+  Future<String?> executable(int pid);
+
+  /// The command line of [pid]: one element per argument where the OS gives them separately
+  /// (Linux), else one element holding the whole line. Null when it cannot be told.
+  Future<List<String>?> commandLine(int pid);
+
+  /// Asks [pid] to stop: SIGINT on Unix, `taskkill /PID` without /F on Windows.
+  void terminate(int pid);
+
+  /// Ends [pid] now (SIGKILL; TerminateProcess on Windows).
+  void kill(int pid);
+}
+
+/// Thrown inside a launch that [BuiltInNode.stop] has overtaken.
+class _LaunchCancelled implements Exception {
+  const _LaunchCancelled();
+}
+
+final Set<BuiltInNode> _liveNodes = {};
+
+/// Stops every built-in node this process started and waits until they have exited. For the
+/// desktop shell's exit hook (`AppLifecycleListener(onExitRequested: ...)`): a node left running
+/// by a closing app is only found again by the next start's pid-file check.
+Future<void> stopAllBuiltInNodes() async {
+  await Future.wait([for (final n in _liveNodes.toList()) n.stop()]);
+}
 
 class BuiltInNode {
   BuiltInNode({
@@ -241,21 +304,28 @@ class BuiltInNode {
     this.pollInterval = const Duration(seconds: 5),
     this.maxPollInterval = const Duration(seconds: 30),
     this.stallAfter = const Duration(minutes: 3),
-    this.diskCheckEvery = const Duration(seconds: 30),
+    this.diskCheckEvery = const Duration(minutes: 5),
     this.killAfter = const Duration(seconds: 15),
+    this.killWait = const Duration(seconds: 5),
+    this.exitPoll = const Duration(milliseconds: 100),
     this.autoPoll = true,
     ProcessStarter? startProcess,
     DateTime Function()? clock,
     PortChecker? portInUse,
     DiskProbe? freeBytes,
     NodeApi? api,
+    ProcessInspector? inspector,
+    void Function(String message)? log,
     bool? isWindows,
   }) : _start = startProcess ?? _startRealProcess,
        _clock = clock ?? DateTime.now,
        _portInUse = portInUse ?? _realPortInUse,
        _freeBytes = freeBytes ?? _realFreeBytes,
        _api = api ?? _realApi,
-       _windows = isWindows ?? Platform.isWindows;
+       _windows = isWindows ?? Platform.isWindows,
+       _inspector =
+           inspector ?? _RealInspector(isWindows ?? Platform.isWindows),
+       _log = log ?? ((m) => stderr.writeln('[node] $m'));
 
   /// `<app support>/node`; the chain's folder is below it.
   final String root;
@@ -269,9 +339,24 @@ class BuiltInNode {
   final int minFreeBytes;
   final Duration pollInterval;
   final Duration maxPollInterval;
+
+  /// How long a restart condition must hold (or the node stay silent) before the node is restarted.
   final Duration stallAfter;
+
+  /// How often the free disk space is probed while running. On Windows each probe is a PowerShell
+  /// process, which is why it is not frequent.
   final Duration diskCheckEvery;
+
+  /// How long a polite stop is given before the process is killed. On Windows at most 10 s:
+  /// `taskkill /PID` without /F is sent once, then the process is terminated (LMDB, the node's
+  /// store, recovers from that).
   final Duration killAfter;
+
+  /// How long to wait for the exit after a kill.
+  final Duration killWait;
+
+  /// How often an exit is looked for while waiting for one.
+  final Duration exitPoll;
 
   /// Poll on a timer after [start]. Tests turn it off and call [poll].
   final bool autoPoll;
@@ -282,6 +367,8 @@ class BuiltInNode {
   final DiskProbe _freeBytes;
   final NodeApi _api;
   final bool _windows;
+  final ProcessInspector _inspector;
+  final void Function(String) _log;
 
   final StreamController<BuiltInNodeState> _controller =
       StreamController<BuiltInNodeState>.broadcast();
@@ -292,18 +379,30 @@ class BuiltInNode {
   bool _stopping = false;
   bool _polling = false;
   bool _restarted = false;
+
+  /// The launch (or watchdog restart) in flight, which [start] returns and [stop] awaits.
+  Future<void>? _launching;
+
+  /// Cleared by [stop]; a launch that finds it cleared kills what it spawned.
+  bool _wantRunning = false;
+
+  /// Bumped by every [start] and [stop]; a launch of an older generation is cancelled.
+  int _gen = 0;
   int _failures = 0;
-  int? _lastHeight;
-  DateTime? _lastChange;
+  DateTime? _badSince;
   DateTime? _lastAnswer;
   DateTime? _lastDiskCheck;
   String? _secret;
+  bool _diskUnknown = false;
+  bool _diskUnknownLogged = false;
+  late int _apiPort = NodePorts.of(chain).api;
+  late int _p2pPort = NodePorts.of(chain).p2p;
 
   NodePorts get ports => NodePorts.of(chain);
 
   /// The node's API on loopback, for the wallet's node setting. LEPIC accepts plain http on
-  /// loopback only, which is where this is.
-  String get url => 'http://127.0.0.1:${ports.api}';
+  /// loopback only, which is where this is. Follows the port of a toml the user edited.
+  String get url => 'http://127.0.0.1:$_apiPort';
 
   String get folderName => switch (chain) {
     Chain.mainnet => 'main',
@@ -335,14 +434,15 @@ class BuiltInNode {
     if (!_controller.isClosed) _controller.add(s);
   }
 
-  /// The toml for this chain with the folder's absolute paths.
+  /// The toml for this chain with the folder's absolute paths. `foundation_path` is left out: the
+  /// node then uses the foundation data built into the binary (the GUI shipped a foundation.json
+  /// next to it; this build ships none, and a path to a missing file is wrong).
   String renderToml() {
     final p = ports;
     final values = <String, String>{
       'DB_ROOT': _q(chainDataPath),
       'API_ADDR': _q('127.0.0.1:${p.api}'),
       'API_SECRET': _q(_join(folder, _secretName)),
-      'FOUNDATION': _q(_join(folder, 'foundation.json')),
       'CHAIN_TYPE': _q(switch (chain) {
         Chain.mainnet => 'Mainnet',
         Chain.floonet => 'Floonet',
@@ -365,11 +465,16 @@ class BuiltInNode {
   static String _hash(String text) =>
       sha256.convert(utf8.encode(text)).toString();
 
-  /// Creates the folder, the toml and the API secret. The toml is rewritten (atomically) only when
-  /// it is still what this class wrote last; a toml the user edited is kept as it is. Returns true
-  /// when the user's own toml is in use.
+  /// Creates the folder (owner only on Unix), the toml and the API secret. The toml is rewritten
+  /// (atomically) only when it is still what this class wrote; a toml the user edited is kept as
+  /// it is. Returns true when the user's own toml is in use.
+  ///
+  /// The hash file lists every text this class may have written: before the toml is replaced the
+  /// new hash is added to it, after that the old one is dropped. A crash in between leaves a toml
+  /// that is still recognised as ours.
   Future<bool> prepareFolder() async {
     await Directory(folder).create(recursive: true);
+    await _chmod('700', folder);
     final toml = File(tomlPath);
     final hashFile = File(_join(folder, _tomlHashName));
     final wanted = renderToml();
@@ -377,35 +482,71 @@ class BuiltInNode {
     if (await toml.exists()) {
       final current = await toml.readAsString();
       final written = await hashFile.exists()
-          ? (await hashFile.readAsString()).trim()
-          : null;
-      if (written == null || written != _hash(current)) {
+          ? (await hashFile.readAsString())
+                .split('\n')
+                .map((l) => l.trim())
+                .where((l) => l.isNotEmpty)
+                .toSet()
+          : <String>{};
+      if (!written.contains(_hash(current))) {
         userEdited = true;
       } else if (current != wanted) {
+        await _writeAtomic(hashFile, '${_hash(current)}\n${_hash(wanted)}\n');
         await _writeAtomic(toml, wanted);
-        await hashFile.writeAsString(_hash(wanted));
+        await _writeAtomic(hashFile, _hash(wanted));
+      } else if (written.length != 1) {
+        await _writeAtomic(hashFile, _hash(wanted));
       }
     } else {
+      await _writeAtomic(hashFile, _hash(wanted));
       await _writeAtomic(toml, wanted);
-      await hashFile.writeAsString(_hash(wanted));
     }
     final secret = File(_join(folder, _secretName));
     if (!await secret.exists()) {
-      await _writeAtomic(secret, _randomSecret());
-      if (!_windows) {
-        try {
-          await Process.run('chmod', ['600', secret.path]);
-        } on Object {
-          // best effort: the folder is the user's own
-        }
-      }
+      await _writeAtomic(secret, _randomSecret(), mode: '600');
     }
+    await _readPorts();
     return userEdited;
   }
 
-  static Future<void> _writeAtomic(File file, String text) async {
+  /// The API and P2P ports of the toml in use (a user's toml may move them).
+  Future<void> _readPorts() async {
+    final defaults = ports;
+    _apiPort = defaults.api;
+    _p2pPort = defaults.p2p;
+    try {
+      final text = await File(tomlPath).readAsString();
+      final api = RegExp(
+        r'^\s*api_http_addr\s*=\s*"[^"]*:(\d+)"',
+        multiLine: true,
+      ).firstMatch(text);
+      if (api != null) _apiPort = int.parse(api[1]!);
+      final p2p = text.indexOf('[server.p2p_config]');
+      if (p2p >= 0) {
+        final m = RegExp(
+          r'^\s*port\s*=\s*(\d+)',
+          multiLine: true,
+        ).firstMatch(text.substring(p2p));
+        if (m != null) _p2pPort = int.parse(m[1]!);
+      }
+    } on Object {
+      // unreadable or odd: the defaults
+    }
+  }
+
+  Future<void> _chmod(String mode, String path) async {
+    if (_windows) return;
+    try {
+      await Process.run('chmod', [mode, path]);
+    } on Object {
+      // best effort: the folder is the user's own
+    }
+  }
+
+  Future<void> _writeAtomic(File file, String text, {String? mode}) async {
     final tmp = File('${file.path}.tmp');
     await tmp.writeAsString(text, flush: true);
+    if (mode != null) await _chmod(mode, tmp.path);
     await tmp.rename(file.path);
   }
 
@@ -418,72 +559,53 @@ class BuiltInNode {
     );
   }
 
-  /// Starts the node. Throws [NodeStartException] when the binary is missing, the API port is
-  /// already answering (another node: it is left alone) or the disk is under the floor.
-  Future<void> start() async {
-    if (_process != null) return;
+  /// Starts the node. While a start is pending, calls return that same start. Throws
+  /// [NodeStartException] when the binary is missing, a port is already answering (another node: it
+  /// is left alone) or the disk is under the floor. A [stop] that overtakes the start ends it
+  /// quietly with nothing left running.
+  Future<void> start() {
+    final pending = _launching;
+    if (pending != null && _wantRunning) return pending;
+    if (_process != null && _wantRunning) return Future.value();
+    _liveNodes.add(this);
+    _wantRunning = true;
+    final gen = ++_gen;
     _restarted = false;
-    await _launch();
+    return _track(() async {
+      if (pending != null) {
+        try {
+          await pending;
+        } on Object {
+          // the cancelled launch is over either way
+        }
+      }
+      await _launch(gen);
+    });
   }
 
-  Future<void> _launch() async {
+  Future<void> _track(Future<void> Function() body) {
+    late final Future<void> f;
+    f = body().whenComplete(() {
+      if (identical(_launching, f)) _launching = null;
+    });
+    _launching = f;
+    return f;
+  }
+
+  bool _cancelled(int gen) => gen != _gen || !_wantRunning;
+
+  void _check(int gen) {
+    if (_cancelled(gen)) throw const _LaunchCancelled();
+  }
+
+  Future<void> _launch(int gen) async {
     _set(const BuiltInNodeState(NodeStatusKind.starting));
     try {
-      if (!await File(binary).exists()) {
-        throw NodeStartException(
-          NodeFailure.binaryMissing,
-          'The built-in node is missing: $binary',
-        );
-      }
-      final port = ports.api;
-      if (await _portInUse(port)) {
-        throw NodeStartException(
-          NodeFailure.portInUse,
-          'Port $port in use',
-          port: port,
-        );
-      }
-      await prepareFolder();
-      final free = await _freeBytes(folder);
-      if (free != null && free < minFreeBytes) {
-        throw NodeStartException(
-          NodeFailure.diskLow,
-          _lowDiskMessage(free),
-        );
-      }
-      final args = [
-        if (chain != Chain.mainnet) '--${chain.name}',
-        'server',
-        '--config_file',
-        tomlPath,
-        'run',
-      ];
-      final NodeProcess process;
-      try {
-        process = await _start(binary, args, workingDirectory: folder);
-      } on Object catch (e) {
-        throw NodeStartException(
-          NodeFailure.spawnFailed,
-          'The built-in node did not start: $e',
-        );
-      }
-      _stopping = false;
-      _process = process;
-      _failures = 0;
-      _lastHeight = null;
-      final now = _clock();
-      _lastChange = now;
-      _lastAnswer = now;
-      _lastDiskCheck = now;
-      _secret = null;
-      try {
-        await File(_join(folder, _pidName)).writeAsString('${process.pid}\n');
-      } on Object {
-        // the pid file is a courtesy to a person looking at the folder
-      }
-      unawaited(process.exitCode.then((code) => _onExit(process, code)));
-      if (autoPoll) _schedule();
+      await _launchSteps(gen);
+    } on _LaunchCancelled {
+      return;
     } on NodeStartException catch (e) {
+      if (_cancelled(gen)) return;
       _set(
         BuiltInNodeState(
           NodeStatusKind.failed,
@@ -492,6 +614,182 @@ class BuiltInNode {
         ),
       );
       rethrow;
+    }
+  }
+
+  Future<void> _launchSteps(int gen) async {
+    final exists = await File(binary).exists();
+    _check(gen);
+    if (!exists) {
+      throw NodeStartException(
+        NodeFailure.binaryMissing,
+        'The built-in node is missing: $binary',
+      );
+    }
+    await prepareFolder();
+    _check(gen);
+    await _reclaimOrphan(gen);
+    for (final port in [_apiPort, _p2pPort]) {
+      final busy = await _portInUse(port);
+      _check(gen);
+      if (busy) {
+        throw NodeStartException(
+          NodeFailure.portInUse,
+          'Port $port in use',
+          port: port,
+        );
+      }
+    }
+    final free = await _freeBytes(folder);
+    _check(gen);
+    _noteDisk(free);
+    if (free != null && free < minFreeBytes) {
+      throw NodeStartException(NodeFailure.diskLow, _lowDiskMessage(free));
+    }
+    final args = [
+      if (chain != Chain.mainnet) '--${chain.name}',
+      'server',
+      '--config_file',
+      tomlPath,
+      'run',
+    ];
+    final NodeProcess process;
+    try {
+      process = await _start(binary, args, workingDirectory: folder);
+    } on Object catch (e) {
+      throw NodeStartException(
+        NodeFailure.spawnFailed,
+        'The built-in node did not start: $e',
+      );
+    }
+    if (_cancelled(gen)) {
+      // stop() came while it was spawning: leave nothing running
+      await _terminate(process);
+      throw const _LaunchCancelled();
+    }
+    _stopping = false;
+    _process = process;
+    _failures = 0;
+    _badSince = null;
+    final now = _clock();
+    _lastAnswer = now;
+    _lastDiskCheck = now;
+    _secret = null;
+    try {
+      await _writeAtomic(File(_join(folder, _pidName)), '${process.pid}\n');
+    } on Object {
+      // without it a leftover node is only found by its port
+    }
+    unawaited(process.exitCode.then((code) => _onExit(process, code)));
+    if (autoPoll) _schedule();
+  }
+
+  /// Free space unknown (a UNC or relative path on Windows): the node starts anyway, the state
+  /// says so and it is logged once.
+  void _noteDisk(int? free) {
+    _diskUnknown = free == null;
+    if (_diskUnknown && !_diskUnknownLogged) {
+      _diskUnknownLogged = true;
+      _log('free disk space of $folder is unknown; the low-disk check is off');
+    }
+  }
+
+  // -- a node left over by an earlier run ----------------------------------------------------
+
+  /// Reads node.pid. A pid that is alive and is our binary running our toml is an orphan of an
+  /// earlier run: it is stopped (politely, then killed after re-checking it is still the same
+  /// process), so that the start is not blocked by it. Any other pid is not ours: only the stale
+  /// pid file goes.
+  Future<void> _reclaimOrphan(int gen) async {
+    final file = File(_join(folder, _pidName));
+    int? orphan;
+    try {
+      orphan = int.tryParse((await file.readAsString()).trim());
+    } on Object {
+      return;
+    }
+    _check(gen);
+    if (orphan == null || orphan <= 0) {
+      await _deleteQuietly(file);
+      return;
+    }
+    if (orphan == _process?.pid || !await _inspector.isAlive(orphan)) {
+      await _deleteQuietly(file);
+      return;
+    }
+    if (!await _isOurs(orphan)) {
+      // someone else's process under a reused pid: touch nothing but the stale file
+      await _deleteQuietly(file);
+      return;
+    }
+    _log('stopping a built-in node left by an earlier run (pid $orphan)');
+    _inspector.terminate(orphan);
+    var gone = await _waitGone(orphan, _grace);
+    _check(gen);
+    if (!gone) {
+      if (!await _isOurs(orphan)) {
+        // it exited and its pid was reused meanwhile
+        await _deleteQuietly(file);
+        return;
+      }
+      _inspector.kill(orphan);
+      gone = await _waitGone(orphan, killWait);
+      _check(gen);
+    }
+    if (!gone) {
+      throw NodeStartException(
+        NodeFailure.orphanStuck,
+        'A built-in node left by an earlier run (pid $orphan) will not stop',
+      );
+    }
+    await _deleteQuietly(file);
+  }
+
+  Duration get _grace => _windows && killAfter > const Duration(seconds: 10)
+      ? const Duration(seconds: 10)
+      : killAfter;
+
+  Future<bool> _waitGone(int pid, Duration limit) async {
+    final until = DateTime.now().add(limit);
+    while (true) {
+      if (!await _inspector.isAlive(pid)) return true;
+      if (!DateTime.now().isBefore(until)) return false;
+      await Future<void>.delayed(exitPoll);
+    }
+  }
+
+  Future<bool> _isOurs(int pid) async {
+    final exe = await _inspector.executable(pid);
+    if (exe == null || !_sameFile(exe, binary)) return false;
+    final cmd = await _inspector.commandLine(pid);
+    if (cmd == null) return false;
+    final tokens = cmd.expand((a) => a.split(RegExp(r'\s+'))).toSet();
+    if (!tokens.contains('server') || !tokens.contains('run')) return false;
+    final joined = cmd.join(' ');
+    return joined.contains('--config_file $tomlPath') ||
+        joined.contains('--config_file "$tomlPath"');
+  }
+
+  bool _sameFile(String a, String b) {
+    String norm(String p) {
+      var s = p;
+      try {
+        s = File(p).resolveSymbolicLinksSync();
+      } on Object {
+        // as given
+      }
+      if (_windows) s = s.replaceAll('/', r'\').toLowerCase();
+      return s;
+    }
+
+    return a == b || norm(a) == norm(b);
+  }
+
+  static Future<void> _deleteQuietly(File f) async {
+    try {
+      await f.delete();
+    } on Object {
+      // already gone
     }
   }
 
@@ -505,6 +803,7 @@ class BuiltInNode {
     if (!identical(_process, process) || _stopping) return;
     _process = null;
     _timer?.cancel();
+    unawaited(_deleteQuietly(File(_join(folder, _pidName))));
     final tail = process.tail.isEmpty ? '' : ': ${process.tail.last}';
     _set(
       BuiltInNodeState(
@@ -533,6 +832,21 @@ class BuiltInNode {
     });
   }
 
+  BuiltInNodeState _running(
+    NodeStatusKind kind, {
+    int? height,
+    int? highest,
+    String? phase,
+    int? connections,
+  }) => BuiltInNodeState(
+    kind,
+    height: height,
+    highest: highest,
+    phase: phase,
+    connections: connections,
+    diskUnknown: _diskUnknown,
+  );
+
   /// One status check: the disk floor, the node's API, the stall watchdog. The timer calls it
   /// every [pollInterval] while the node runs.
   Future<void> poll() async {
@@ -545,6 +859,8 @@ class BuiltInNode {
           now.difference(_lastDiskCheck!) >= diskCheckEvery) {
         _lastDiskCheck = now;
         final free = await _freeBytes(folder);
+        _noteDisk(free);
+        if (!identical(_process, process) || _stopping) return;
         if (free != null && free < minFreeBytes) {
           await _stopProcess();
           _set(
@@ -567,23 +883,28 @@ class BuiltInNode {
       }
       _failures = 0;
       _lastAnswer = at;
-      if (reading.height != _lastHeight) {
-        _lastHeight = reading.height;
-        _lastChange = at;
-      }
-      if (safeSyncStates.contains(reading.phase)) _lastChange = at;
-      if (at.difference(_lastChange!) >= stallAfter) {
-        await _stalled();
-        return;
+      if (reading.wantsRestart) {
+        _badSince ??= at;
+        if (at.difference(_badSince!) >= stallAfter) {
+          await _stalled();
+          return;
+        }
+      } else {
+        _badSince = null;
       }
       _set(
         reading.phase == 'no_sync'
-            ? BuiltInNodeState(NodeStatusKind.running, height: reading.height)
-            : BuiltInNodeState(
+            ? _running(
+                NodeStatusKind.running,
+                height: reading.height,
+                connections: reading.connections,
+              )
+            : _running(
                 NodeStatusKind.syncing,
                 height: reading.height,
                 highest: reading.highest,
                 phase: reading.phase,
+                connections: reading.connections,
               ),
       );
     } finally {
@@ -591,43 +912,48 @@ class BuiltInNode {
     }
   }
 
-  /// A stalled node is restarted once per [start]; the second time it is only reported.
-  Future<void> _stalled() async {
+  /// A stalled node is restarted once per [start]; the second time it is only reported. The
+  /// restart is the pending launch, so [stop] and [dispose] wait for it.
+  Future<void> _stalled() {
     if (_restarted) {
-      _set(BuiltInNodeState(NodeStatusKind.stalled, height: _lastHeight));
-      return;
+      _set(_running(NodeStatusKind.stalled, height: _state.height));
+      return Future.value();
     }
     _restarted = true;
-    await _stopProcess();
-    try {
-      await _launch();
-    } on NodeStartException catch (e) {
-      _set(
-        BuiltInNodeState(
-          NodeStatusKind.failed,
-          failure: NodeFailure.restartFailed,
-          reason: 'Restarting the built-in node failed: ${e.message}',
-        ),
-      );
-    }
+    final gen = _gen;
+    return _track(() async {
+      await _stopProcess();
+      if (_cancelled(gen)) return;
+      try {
+        await _launch(gen);
+      } on NodeStartException catch (e) {
+        _set(
+          BuiltInNodeState(
+            NodeStatusKind.failed,
+            failure: NodeFailure.restartFailed,
+            reason: 'Restarting the built-in node failed: ${e.message}',
+          ),
+        );
+      }
+    });
   }
 
   Future<_Reading?> _read() async {
-    final port = ports.api;
+    final port = _apiPort;
     _secret ??= await _readSecret();
     if (_secret != null) {
       final s = await _api(port, 'get_status', owner: true, secret: _secret);
       if (s != null) {
         final info = s['sync_info'];
         final tip = s['tip'];
-        final height =
-            _int(tip is Map ? tip['height'] : null) ??
-            _int(info is Map ? info['current_height'] : null) ??
-            0;
+        final current = _int(info is Map ? info['current_height'] : null);
+        final height = _int(tip is Map ? tip['height'] : null) ?? current ?? 0;
         return _Reading(
           height,
           _int(info is Map ? info['highest_height'] : null),
           s['sync_status'] as String?,
+          connections: _int(s['connections']),
+          currentHeight: current,
         );
       }
     }
@@ -640,18 +966,30 @@ class BuiltInNode {
 
   Future<String?> _readSecret() async {
     try {
-      final text = (await File(_join(folder, _secretName)).readAsString())
-          .trim();
+      final text = (await File(
+        _join(folder, _secretName),
+      ).readAsString()).trim();
       return text.isEmpty ? null : text;
     } on Object {
       return null;
     }
   }
 
-  /// Stops the node this object started: asks it to stop, kills it after [killAfter]. Never touches
-  /// any other process, and does nothing when this object started none.
+  /// Stops the node this object started: waits for a start or restart in flight (a process it
+  /// spawned is stopped), asks the node to stop, kills it after [killAfter]. Never touches any
+  /// other process, and does nothing when this object started none.
   Future<void> stop() async {
+    _wantRunning = false;
+    _gen++;
     _timer?.cancel();
+    final pending = _launching;
+    if (pending != null) {
+      try {
+        await pending;
+      } on Object {
+        // a failed start has nothing to stop
+      }
+    }
     if (_process == null) {
       if (_state.isActive) _set(const BuiltInNodeState(NodeStatusKind.stopped));
       return;
@@ -660,48 +998,193 @@ class BuiltInNode {
     _set(const BuiltInNodeState(NodeStatusKind.stopped));
   }
 
+  /// Stops [_process] and removes the pid file once the exit is confirmed.
   Future<void> _stopProcess() async {
     final process = _process;
     _timer?.cancel();
     if (process == null) return;
     _stopping = true;
     _process = null;
-    try {
-      process.terminate();
-      await process.exitCode.timeout(
-        killAfter,
-        onTimeout: () {
-          process.kill();
-          return -1;
-        },
-      );
-    } on Object {
-      process.kill();
-    }
-    try {
-      await File(_join(folder, _pidName)).delete();
-    } on Object {
-      // already gone
+    final exited = await _terminate(process);
+    if (exited) {
+      await _deleteQuietly(File(_join(folder, _pidName)));
+    } else {
+      _log('the built-in node (pid ${process.pid}) did not exit after a kill');
     }
     _stopping = false;
+  }
+
+  /// Polite stop, then (after [killAfter], at most 10 s on Windows) a kill; waits [killWait] for
+  /// the exit. True when the process is confirmed gone.
+  Future<bool> _terminate(NodeProcess process) async {
+    var exited = false;
+    try {
+      process.terminate();
+      await process.exitCode.timeout(_grace);
+      exited = true;
+    } on TimeoutException {
+      // fall through to the kill
+    } on Object {
+      // fall through to the kill
+    }
+    if (exited) return true;
+    try {
+      process.kill();
+      await process.exitCode.timeout(killWait);
+      return true;
+    } on Object {
+      return false;
+    }
   }
 
   /// Stops the node and closes the state stream. For app exit.
   Future<void> dispose() async {
     await stop();
+    _liveNodes.remove(this);
     await _controller.close();
   }
 }
 
 class _Reading {
-  const _Reading(this.height, this.highest, this.phase);
+  const _Reading(
+    this.height,
+    this.highest,
+    this.phase, {
+    this.connections,
+    this.currentHeight,
+  });
 
   final int height;
   final int? highest;
   final String? phase;
+  final int? connections;
+  final int? currentHeight;
+
+  /// The Electron GUI's watchdog rules (nodeService.js, watchdog()). Never in a safe sync state;
+  /// else: no peers outside awaiting_peers, synced with tip 0, no highest height outside
+  /// awaiting_peers, or body_sync at the tip that does not finish. A height that stands still
+  /// (header sync keeps the tip at 0 for a long time) is not a reason by itself.
+  bool get wantsRestart {
+    final p = phase;
+    if (p == null || safeSyncStates.contains(p)) return false;
+    if (connections == 0 && p != 'awaiting_peers') return true;
+    if (p == 'no_sync' && height == 0) return true;
+    if (highest == 0 && p != 'awaiting_peers') return true;
+    if (p == 'body_sync' &&
+        currentHeight != null &&
+        height == currentHeight &&
+        highest == currentHeight) {
+      return true;
+    }
+    return false;
+  }
 }
 
 // -- the real implementations ------------------------------------------------------------------
+
+class _RealInspector implements ProcessInspector {
+  _RealInspector(this._windows);
+
+  final bool _windows;
+
+  /// ExecutablePath and CommandLine of [pid] (one per line), or null when it does not run.
+  Future<List<String>?> _win(int pid) async {
+    try {
+      final r = await Process.run('powershell', [
+        '-NoProfile',
+        '-NonInteractive',
+        '-WindowStyle',
+        'Hidden',
+        '-Command',
+        '\$p = Get-CimInstance Win32_Process -Filter "ProcessId=$pid"; '
+            'if (\$p) { \$p.ExecutablePath; \$p.CommandLine }',
+      ]);
+      final lines = (r.stdout as String)
+          .split(RegExp(r'\r?\n'))
+          .where((l) => l.trim().isNotEmpty)
+          .toList();
+      return lines.isEmpty ? null : lines;
+    } on Object {
+      return null;
+    }
+  }
+
+  Future<bool> _psOk(int pid) async {
+    try {
+      return (await Process.run('ps', ['-p', '$pid'])).exitCode == 0;
+    } on Object {
+      return false;
+    }
+  }
+
+  @override
+  Future<bool> isAlive(int pid) async {
+    if (_windows) return await _win(pid) != null;
+    if (Platform.isLinux) return Directory('/proc/$pid').exists();
+    return _psOk(pid);
+  }
+
+  @override
+  Future<String?> executable(int pid) async {
+    try {
+      if (_windows) return (await _win(pid))?.first.trim();
+      if (Platform.isLinux) {
+        final t = await Link('/proc/$pid/exe').target();
+        return t.endsWith(' (deleted)') ? null : t;
+      }
+      final r = await Process.run('ps', ['-o', 'comm=', '-p', '$pid']);
+      final out = (r.stdout as String).trim();
+      return r.exitCode == 0 && out.isNotEmpty ? out : null;
+    } on Object {
+      return null;
+    }
+  }
+
+  @override
+  Future<List<String>?> commandLine(int pid) async {
+    try {
+      if (_windows) {
+        final l = await _win(pid);
+        return l != null && l.length > 1 ? [l[1].trim()] : null;
+      }
+      if (Platform.isLinux) {
+        final bytes = await File('/proc/$pid/cmdline').readAsBytes();
+        return utf8
+            .decode(bytes, allowMalformed: true)
+            .split('\u0000')
+            .where((a) => a.isNotEmpty)
+            .toList();
+      }
+      final r = await Process.run('ps', [
+        '-ww',
+        '-o',
+        'command=',
+        '-p',
+        '$pid',
+      ]);
+      final out = (r.stdout as String).trim();
+      return r.exitCode == 0 && out.isNotEmpty ? [out] : null;
+    } on Object {
+      return null;
+    }
+  }
+
+  @override
+  void terminate(int pid) {
+    if (_windows) {
+      // Without /F: asks the process to close, as Ctrl+C would. Sent once.
+      Process.run('taskkill', ['/PID', '$pid']);
+    } else {
+      Process.killPid(pid, ProcessSignal.sigint);
+    }
+  }
+
+  @override
+  void kill(int pid) {
+    // TerminateProcess on Windows, SIGKILL elsewhere
+    Process.killPid(pid, ProcessSignal.sigkill);
+  }
+}
 
 class _IoNodeProcess implements NodeProcess {
   _IoNodeProcess(this._process, this._windows) {
@@ -740,11 +1223,8 @@ class _IoNodeProcess implements NodeProcess {
 
   @override
   void kill() {
-    if (_windows) {
-      Process.run('taskkill', ['/PID', '$pid', '/F', '/T']);
-    } else {
-      Process.killPid(pid, ProcessSignal.sigkill);
-    }
+    // TerminateProcess on Windows, SIGKILL elsewhere
+    _process.kill(ProcessSignal.sigkill);
   }
 }
 
@@ -786,6 +1266,8 @@ Future<int?> _realFreeBytes(String directory) async {
       final r = await Process.run('powershell', [
         '-NoProfile',
         '-NonInteractive',
+        '-WindowStyle',
+        'Hidden',
         '-Command',
         '(Get-PSDrive -Name $drive).Free',
       ]);
@@ -813,9 +1295,7 @@ Future<Map<String, dynamic>?> _realApi(
   try {
     final request = await client
         .postUrl(
-          Uri.parse(
-            'http://127.0.0.1:$port/v2/${owner ? 'owner' : 'foreign'}',
-          ),
+          Uri.parse('http://127.0.0.1:$port/v2/${owner ? 'owner' : 'foreign'}'),
         )
         .timeout(const Duration(seconds: 5));
     request.headers.contentType = ContentType.json;
