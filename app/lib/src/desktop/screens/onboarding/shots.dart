@@ -1,10 +1,12 @@
 import '../../app/shots.dart';
+import '../../data/mock_wallet.dart' show MockDeskWallet;
 import '../../widgets/kit.dart';
 import 'create_screen.dart';
 import 'import_wallets_screen.dart';
 import 'kill_process_dialog.dart';
 import 'onboarding_parts.dart';
 import 'restore_screen.dart';
+import 'same_wallet_dialog.dart';
 import 'setup_screen.dart';
 import 'unlock_screen.dart';
 
@@ -53,6 +55,16 @@ final List<DeskShot> onboardingShots = [
     title: 'Restore: 13 words pasted',
     route: DeskRoute.restore,
     arg: RestoreSample('abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon'),
+  ),
+  DeskShot(
+    id: '03b7-dlg-restore-same-wallet',
+    title: 'Restore: the phrase is already here',
+    route: DeskRoute.restore,
+    arg: const RestoreSample(MockDeskWallet.samePhrase),
+    dialog: (c) => showSameWalletDialog(
+      c,
+      const WalletEntry(id: '5a1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f', name: 'Savings', folder: '~/.epic/main/savings', network: 'mainnet'),
+    ),
   ),
   const DeskShot(id: '03c-restore-password', title: 'Restore: password', route: DeskRoute.restore, arg: RestoreStep.account),
   const DeskShot(id: '03d-restore-restoring', title: 'Restore: restoring', route: DeskRoute.restore, arg: RestoreStep.restoring),

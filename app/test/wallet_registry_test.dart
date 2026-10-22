@@ -61,6 +61,30 @@ void main() {
     expect(c.label, 'Wallet 1', reason: 'the lowest free number');
   });
 
+  test('the phrase fingerprint is kept, found and survives a reload; a malformed one is ignored (O1)', () async {
+    final fp = 'ab' * 32;
+    final a = await registry.add(chain: Chain.mainnet);
+    final b = await registry.add(chain: Chain.mainnet);
+    expect(a.phraseFingerprint, isNull, reason: 'none until the app writes one');
+    expect(registry.byPhraseFingerprint(fp), isNull);
+    await registry.setPhraseFingerprint(a.id, fp);
+    expect(registry.byPhraseFingerprint(fp)!.id, a.id);
+    expect(registry.list().firstWhere((e) => e.id == b.id).phraseFingerprint, isNull);
+    await expectLater(registry.setPhraseFingerprint(b.id, 'AB' * 32), throwsA(isA<WalletRegistryException>()));
+    await expectLater(registry.setPhraseFingerprint('0' * 32, fp), throwsA(isA<WalletNotListedException>()));
+    final again = WalletRegistry(tmp.path);
+    await again.load();
+    expect(again.byPhraseFingerprint(fp)!.id, a.id);
+    // A fingerprint the file holds in a shape this code never writes is left out, not matched.
+    final file = File('${tmp.path}$sep${WalletRegistry.fileName}');
+    final json = jsonDecode(file.readAsStringSync()) as Map<String, dynamic>;
+    (json['wallets'] as List).cast<Map<String, dynamic>>().firstWhere((w) => w['id'] == a.id)['phraseFingerprint'] = 'short';
+    file.writeAsStringSync(jsonEncode(json));
+    final third = WalletRegistry(tmp.path);
+    await third.load();
+    expect(third.list().firstWhere((e) => e.id == a.id).phraseFingerprint, isNull);
+  });
+
   test('the list survives a reload', () async {
     final a = await registry.add(chain: Chain.floonet, label: '  Savings ');
     await registry.markOpened(a.id);

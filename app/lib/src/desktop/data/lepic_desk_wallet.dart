@@ -42,6 +42,7 @@ import 'desk_store.dart';
 import 'features.dart';
 import 'http_address.dart';
 import 'models.dart';
+import 'phrase_check.dart' show phraseFingerprint;
 import 'remember.dart';
 
 /// Built-in public nodes offered in Settings › Node, the default first; status.btlabs.uk can add more.
@@ -816,7 +817,15 @@ class LepicDeskWallet implements DeskWalletApi {
   /// Makes the wallet in [create] at [_newWallet]'s place, lists it and selects it. A wallet
   /// that was not made leaves no entry.
   /// [ownEntry]: always a new entry, never the first wallet's folder (imports).
-  Future<T> _make<T>(String name, Map<String, Object?> meta, Future<T> Function(core.WalletConfig config) create, {bool ownEntry = false}) async {
+  /// [fingerprintOf]: the phrase fingerprint of the made wallet, kept in its list entry
+  /// ([reg.WalletEntry.phraseFingerprint]) so a later restore of the same phrase finds it.
+  Future<T> _make<T>(
+    String name,
+    Map<String, Object?> meta,
+    Future<T> Function(core.WalletConfig config) create, {
+    bool ownEntry = false,
+    String Function(T result)? fingerprintOf,
+  }) async {
     final entry = await _newWallet(name, ownEntry: ownEntry);
     final config = await _configOf(entry);
     final T result;
@@ -840,7 +849,9 @@ class LepicDeskWallet implements DeskWalletApi {
     _selectedId = listed?.id;
     if (listed != null) {
       try {
-        await (await registry()).setLastUsed(listed.id);
+        final r = await registry();
+        if (fingerprintOf != null) await r.setPhraseFingerprint(listed.id, fingerprintOf(result));
+        await r.setLastUsed(listed.id);
       } on Object catch (e) {
         logWarn('desk', 'wallet list not saved: ${e.runtimeType}');
       }
@@ -881,7 +892,7 @@ class LepicDeskWallet implements DeskWalletApi {
         } finally {
           session.dispose();
         }
-      });
+      }, fingerprintOf: (words) => phraseFingerprint(words.join(' ')));
     } on core.WalletError catch (e) {
       throw _deskError(e);
     }
@@ -891,17 +902,38 @@ class LepicDeskWallet implements DeskWalletApi {
   bool checkPhrase(List<String> words) =>
       _service.validateMnemonic(phrase: words.map((w) => w.trim().toLowerCase()).join(' '));
 
+  String _mnemonicOf(List<String> phrase) => phrase.map((w) => w.trim().toLowerCase()).join(' ');
+
+  /// The listed wallet of this network whose kept fingerprint is [mnemonic]'s (O1). Wallets
+  /// made before the app kept one (no [reg.WalletEntry.phraseFingerprint]) are never matched:
+  /// the wallet core has no way to derive their address from a phrase without making a store.
+  Future<WalletEntry?> _sameWallet(String mnemonic) async {
+    final fp = phraseFingerprint(mnemonic);
+    final same = (await _wallets()).where((e) => e.phraseFingerprint == fp).firstOrNull;
+    if (same == null) return null;
+    return (await wallets()).where((w) => w.id == same.id).firstOrNull;
+  }
+
+  @override
+  Future<WalletEntry?> walletWithPhrase(List<String> words) async {
+    final mnemonic = _mnemonicOf(words);
+    if (!_service.validateMnemonic(phrase: mnemonic)) return null;
+    return _sameWallet(mnemonic);
+  }
+
   @override
   Future<void> restoreWallet({String name = '', required String password, required List<String> phrase}) async {
     _checkPassword(password);
-    final mnemonic = phrase.map((w) => w.trim().toLowerCase()).join(' ');
+    final mnemonic = _mnemonicOf(phrase);
     if (!_service.validateMnemonic(phrase: mnemonic)) throw const DeskError('Recovery phrase not valid');
+    final same = await _sameWallet(mnemonic);
+    if (same != null) throw DeskError('This wallet is already here: ${same.name}', sameWallet: same);
     try {
       // The scan runs after unlock, in the background, with its progress in the status.
       await _make(name, const {'scanPending': true}, (config) async {
         final session = await _service.create(config: config, mnemonic: mnemonic, password: password);
         session.dispose();
-      });
+      }, fingerprintOf: (_) => phraseFingerprint(mnemonic));
     } on core.WalletError catch (e) {
       throw _deskError(e);
     }

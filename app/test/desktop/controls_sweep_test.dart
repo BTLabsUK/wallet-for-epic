@@ -59,6 +59,7 @@ const Set<String> _reads = {
   'estimateMax',
   'findRemoved',
   'checkPhrase',
+  'walletWithPhrase',
   'changes',
 };
 
@@ -109,6 +110,8 @@ class _Recorder implements DeskWalletApi {
       _r('createWallet', () => _m.createWallet(name: name, password: password));
   @override
   bool checkPhrase(List<String> words) => _r('checkPhrase', () => _m.checkPhrase(words));
+  @override
+  Future<WalletEntry?> walletWithPhrase(List<String> words) => _r('walletWithPhrase', () => _m.walletWithPhrase(words));
   @override
   Future<void> restoreWallet({String name = '', required String password, required List<String> phrase}) =>
       _r('restoreWallet', () => _m.restoreWallet(name: name, password: password, phrase: phrase));
