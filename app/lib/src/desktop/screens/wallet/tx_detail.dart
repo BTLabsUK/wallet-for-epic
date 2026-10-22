@@ -59,9 +59,13 @@ class _TxDetailState extends ConsumerState<TxDetail> {
     final ts = context.ts;
     final t = widget.tx;
     final total = t.amount + (t.incoming ? 0 : t.fee);
-    // A send can be cancelled only while it waits for the recipient: once finalized and posted
-    // (a Direct HTTP or Tor send is, in one step) it has gone out and shows as sent.
-    final cancelable = !t.fromBackup && t.cancellable && (t.incoming ? t.state != TxState.cancelled && t.state != TxState.confirmed : t.state == TxState.waitingRecipient);
+    // A send can be cancelled while it waits for the recipient, or when the node refused its
+    // post (its outputs stay locked otherwise). Once posted (a Direct HTTP or Tor send is
+    // finalized and posted in one step) it has gone out and shows as sent, never cancellable.
+    final cancelable = !t.fromBackup &&
+        (t.incoming
+            ? t.cancellable && t.state != TxState.cancelled && t.state != TxState.confirmed
+            : (t.cancellable && t.state == TxState.waitingRecipient) || t.notPosted);
     final finalizable = !t.fromBackup && !t.incoming && t.method == TxMethod.file && t.state == TxState.waitingRecipient;
     final steps = _steps(t);
     return Column(

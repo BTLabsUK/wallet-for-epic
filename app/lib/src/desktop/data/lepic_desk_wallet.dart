@@ -3096,6 +3096,7 @@ Tx deskTx(core.TxEntry e, {required int tip, required int minConf, required int 
     datedByBlock: e.datedByBlock,
     fromBackup: e.source == core.TxSource.imported,
     cancellable: e.cancellable && !e.isRequest,
+    notPosted: e.repostable,
     confirmedAt: e.blockTimeUnix == null ? null : DateTime.fromMillisecondsSinceEpoch(e.blockTimeUnix! * 1000),
     detail: e.statusDetail,
   );
