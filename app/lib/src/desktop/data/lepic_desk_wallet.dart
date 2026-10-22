@@ -1867,15 +1867,17 @@ class LepicDeskWallet implements DeskWalletApi {
       // A stop that came in while it was starting wins.
       if (!node.wantsRunning) throw const DeskError('Built-in node stopped');
       final current = await _nodeUrl();
-      if (current != node.url) {
+      // While it syncs, the public node the user agreed to (D-7).
+      final target = await nodeWhileSyncing?.call() ?? node.url;
+      if (current != target) {
         try {
-          await _switchTo(nodeUrl: node.url, relay: await _relay());
+          await _switchTo(nodeUrl: target, relay: await _relay());
         } on Object {
           if (!await _builtInOn()) await node.stop();
           rethrow;
         }
         // A lock while reopening returns without moving; a stop while moving undoes it.
-        if (await _nodeUrl() != node.url) throw const DeskError('Not changed: the wallet was locked');
+        if (await _nodeUrl() != target) throw const DeskError('Not changed: the wallet was locked');
         if (!node.wantsRunning) {
           await _switchTo(nodeUrl: current, relay: await _relay());
           throw const DeskError('Built-in node stopped');
@@ -1898,6 +1900,25 @@ class LepicDeskWallet implements DeskWalletApi {
     await _secrets.write(builtInNodeSettingKey(preset.chain), 'false');
     logInfo('desk', 'built-in node off');
     await _node?.stop();
+  }
+
+  /// The public node to use until the local node is synced (D-7), or null for the local node.
+  /// Set by the node layer (main_desktop.dart).
+  Future<String?> Function()? nodeWhileSyncing;
+
+  /// D-7: the fallback decision changed. With the local node in use, the wallet moves to the
+  /// agreed public node while it syncs and back to the local node once it is synced.
+  Future<void> applyNodeFallback({required bool usePublic, String? publicUrl}) async {
+    if (!await _builtInOn()) return;
+    final node = await _theNode();
+    final target = usePublic && publicUrl != null ? publicUrl : node.url;
+    if (await _nodeUrl() == target) return;
+    logInfo('desk', usePublic ? 'node fallback on' : 'node fallback off');
+    try {
+      await _switchTo(nodeUrl: target, relay: await _relay());
+    } on Object catch (e) {
+      logWarn('desk', 'node fallback: ${e.runtimeType}');
+    }
   }
 
   /// At launch: starts the built-in node again when it was left on. A failure is logged and

@@ -21,6 +21,7 @@ import 'src/builtin_node.dart';
 import 'src/builtin_node_provider.dart';
 import 'src/data_folder.dart';
 import 'src/desktop/app/desk_app.dart';
+import 'src/desktop/data/desk_node.dart';
 import 'src/desktop/data/desk_store.dart';
 import 'src/desktop/data/files.dart';
 import 'src/desktop/data/lepic_desk_wallet.dart';
@@ -133,6 +134,19 @@ Future<List<Override>> deskOverrides() async {
   }
   return [
     deskApiProvider.overrideWithValue(wallet),
+    if (builtInNodeSupported)
+      deskNodeProvider.overrideWith((ref) {
+        final node = LepicDeskNode(
+          ref,
+          chain: wallet.preset.chain,
+          onDecision: (d) => wallet.applyNodeFallback(usePublic: d.action == FallbackAction.usePublic, publicUrl: d.nodeUrl),
+        );
+        wallet.nodeWhileSyncing = () async {
+          final c = await node.fallbackChoice();
+          return c.consent == FallbackConsent.accepted ? c.nodeUrl : null;
+        };
+        return node;
+      }),
     deskStoreProvider.overrideWithValue(store),
     deskBootProvider.overrideWithValue(boot),
     deskFilesProvider.overrideWithValue(const SystemDeskFiles()),
