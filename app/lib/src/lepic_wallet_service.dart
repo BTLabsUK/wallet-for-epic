@@ -61,9 +61,6 @@ void logLepicEntry(lepic.LogEntry entry) {
   AppLog.record(level, entry.target, line.toString());
 }
 
-/// What a send LEPIC cannot build from the coins at hand (ChangeTooSmall, TooHeavy) says.
-const String sendUnbuildable = 'This send cannot be built from the coins available.';
-
 /// LEPIC's error as the app's. The switch is exhaustive, so a kind LEPIC adds breaks the build
 /// here instead of reaching the UI unmapped.
 WalletError mapLepicError(lepic.WalletError error) {
@@ -261,6 +258,60 @@ String? lepicListenerBounce(lepic.ListenerEvent e) =>
     e.kind == lepic.ListenerEventKind.invoiceBounced ? e.slateId : null;
 
 /// LEPIC's view of a peer as the app's.
+/// The app's send options as LEPIC's.
+lepic.SendOptions lepicSendOptions(SendOptions o) => lepic.SendOptions(
+  strategy: switch (o.strategy) {
+    SelectionStrategy.smallest => lepic.SelectionStrategy.smallest,
+    SelectionStrategy.all => lepic.SelectionStrategy.all,
+  },
+  changeOutputs: o.changeOutputs,
+);
+
+FeeEstimate lepicFeeEstimate(lepic.FeeEstimate e) => FeeEstimate(
+  amount: e.amount,
+  fee: e.fee,
+  inputCount: e.inputCount,
+  change: e.change,
+  locked: e.locked,
+  changeOutputs: e.changeOutputs,
+);
+
+WalletOutput lepicWalletOutput(lepic.WalletOutput o) => WalletOutput(
+  commitment: o.commitment,
+  value: o.value,
+  status: switch (o.status) {
+    lepic.OutputStatus.unconfirmed => WalletOutputStatus.unconfirmed,
+    lepic.OutputStatus.unspent => WalletOutputStatus.unspent,
+    lepic.OutputStatus.locked => WalletOutputStatus.locked,
+    lepic.OutputStatus.spent => WalletOutputStatus.spent,
+  },
+  category: switch (o.category) {
+    null => null,
+    lepic.OutputCategory.spendable => OutputCategory.spendable,
+    lepic.OutputCategory.awaitingConfirmation =>
+      OutputCategory.awaitingConfirmation,
+    lepic.OutputCategory.awaitingFinalization =>
+      OutputCategory.awaitingFinalization,
+    lepic.OutputCategory.immature => OutputCategory.immature,
+    lepic.OutputCategory.locked => OutputCategory.locked,
+  },
+  isCoinbase: o.isCoinbase,
+  height: o.height,
+  lockHeight: o.lockHeight,
+  mmrIndex: o.mmrIndex,
+  confirmations: o.confirmations,
+  txId: o.txId,
+);
+
+SelfSentTx lepicSelfSentTx(lepic.SelfSentTx t) => SelfSentTx(
+  txId: t.txId,
+  receivedTxId: t.receivedTxId,
+  amount: t.amount,
+  fee: t.fee,
+  inputCount: t.inputCount,
+  outputCount: t.outputCount,
+);
+
 PeerCapability lepicPeerCapability(lepic.PeerCapability c) => switch (c) {
   lepic.PeerCapability.unknown => PeerCapability.unknown,
   lepic.PeerCapability.lepic => PeerCapability.lepic,
@@ -961,13 +1012,15 @@ class LepicWalletSession implements WalletSession {
     changeOutputs: 1,
   );
 
-  /// Send-all options when [amount] is still the wallet's maximum, checked again now: a max
-  /// remembered from before the balance changed must not turn a typed amount into a
-  /// send-all. Null (Smallest, the default) otherwise.
+  /// The caller's [options] when given. Else send-all when [amount] is still the wallet's
+  /// maximum, checked again now: a max remembered from before the balance changed must not
+  /// turn a typed amount into a send-all. Null (LEPIC's default) otherwise.
   Future<lepic.SendOptions?> _optionsFor(
     BigInt amount,
-    BigInt minimumConfirmations,
-  ) async {
+    BigInt minimumConfirmations, [
+    SendOptions? options,
+  ]) async {
+    if (options != null) return lepicSendOptions(options);
     if (_maxAmount == null || amount != _maxAmount) return null;
     final now = await _wallet.estimateMax(
       minimumConfirmations: minimumConfirmations,
@@ -982,12 +1035,13 @@ class LepicWalletSession implements WalletSession {
     required BigInt amount,
     required BigInt minimumConfirmations,
     String? message,
+    SendOptions? options,
   }) => _guard(() async {
     final slate = await _wallet.createSendSlate(
       amount: amount,
       minimumConfirmations: minimumConfirmations,
       message: _message(message),
-      options: await _optionsFor(amount, minimumConfirmations),
+      options: await _optionsFor(amount, minimumConfirmations, options),
     );
     return Slate(slateId: slate.slateId, json: slate.json);
   });
@@ -999,13 +1053,14 @@ class LepicWalletSession implements WalletSession {
   Future<FeeEstimate> estimateFee({
     required BigInt amount,
     required BigInt minimumConfirmations,
+    SendOptions? options,
   }) => _guard(() async {
     final e = await _wallet.estimateFee(
       amount: amount,
       minimumConfirmations: minimumConfirmations,
-      options: await _optionsFor(amount, minimumConfirmations),
+      options: await _optionsFor(amount, minimumConfirmations, options),
     );
-    return FeeEstimate(amount: e.amount, fee: e.fee);
+    return lepicFeeEstimate(e);
   });
 
   @override
@@ -1016,8 +1071,62 @@ class LepicWalletSession implements WalletSession {
           options: _sendAll,
         );
         _maxAmount = e.amount;
-        return FeeEstimate(amount: e.amount, fee: e.fee);
+        return lepicFeeEstimate(e);
       });
+
+  @override
+  Future<List<WalletOutput>> outputs() => _guard(() async {
+    final list = await _wallet.outputs();
+    return [for (final o in list) lepicWalletOutput(o)];
+  });
+
+  @override
+  Future<FeeEstimate> estimateSplit({
+    required int outputs,
+    required BigInt minimumConfirmations,
+  }) => _guard(
+    () async => lepicFeeEstimate(
+      await _wallet.estimateSplit(
+        outputs: outputs,
+        minimumConfirmations: minimumConfirmations,
+      ),
+    ),
+  );
+
+  @override
+  Future<SelfSentTx> splitOutputs({
+    required int outputs,
+    required BigInt minimumConfirmations,
+  }) => _guard(
+    () async => lepicSelfSentTx(
+      await _wallet.splitOutputs(
+        outputs: outputs,
+        minimumConfirmations: minimumConfirmations,
+      ),
+    ),
+  );
+
+  @override
+  Future<FeeEstimate> estimateConsolidate({
+    required BigInt minimumConfirmations,
+  }) => _guard(
+    () async => lepicFeeEstimate(
+      await _wallet.estimateConsolidate(
+        minimumConfirmations: minimumConfirmations,
+      ),
+    ),
+  );
+
+  @override
+  Future<SelfSentTx> consolidateOutputs({
+    required BigInt minimumConfirmations,
+  }) => _guard(
+    () async => lepicSelfSentTx(
+      await _wallet.consolidateOutputs(
+        minimumConfirmations: minimumConfirmations,
+      ),
+    ),
+  );
 
   @override
   Future<TxEntry> finalizeAndPost({required String slateJson}) =>
@@ -1032,13 +1141,14 @@ class LepicWalletSession implements WalletSession {
     required BigInt minimumConfirmations,
     required String address,
     String? message,
+    SendOptions? options,
   }) => _guard(() async {
     final tx = await _wallet.sendEpicbox(
       amount: amount,
       minimumConfirmations: minimumConfirmations,
       address: address,
       message: _message(message),
-      options: await _optionsFor(amount, minimumConfirmations),
+      options: await _optionsFor(amount, minimumConfirmations, options),
     );
     return _entry(tx.txId);
   });
@@ -1065,6 +1175,7 @@ class LepicWalletSession implements WalletSession {
     required String url,
     required bool allowPlainHttp,
     String? message,
+    SendOptions? options,
   }) => _guard(() async {
     final tx = await _wallet.sendHttp(
       amount: amount,
@@ -1072,7 +1183,7 @@ class LepicWalletSession implements WalletSession {
       url: url,
       allowPlainHttp: allowPlainHttp,
       message: _message(message),
-      options: await _optionsFor(amount, minimumConfirmations),
+      options: await _optionsFor(amount, minimumConfirmations, options),
     );
     return HttpSent(txId: tx.txId, slateId: tx.slateId, posted: tx.posted);
   });

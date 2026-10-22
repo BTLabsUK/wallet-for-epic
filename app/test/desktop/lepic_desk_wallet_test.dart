@@ -345,6 +345,38 @@ void main() {
   group('reading', () {
     setUp(created);
 
+    test('Total is the core\'s: one 100 EPIC output sending 1 is 100, then 98.99, never 199', () async {
+      const epic = 100000000;
+      final s = service.session;
+      core.WalletSummary summary({required int total, int spendable = 0, int confirming = 0, int finalizing = 0, int locked = 0}) => core.WalletSummary(
+        lastConfirmedHeight: BigInt.from(2500000),
+        minimumConfirmations: BigInt.from(3),
+        total: BigInt.from(total),
+        spendable: BigInt.from(spendable),
+        awaitingConfirmation: BigInt.from(confirming),
+        awaitingFinalization: BigInt.from(finalizing),
+        immature: BigInt.zero,
+        locked: BigInt.from(locked),
+        validatedWithNode: true,
+      );
+      // As LEPIC reports a pending send: the input locked, the change awaiting finalization
+      // (not in the total) until the refresh that finds it on chain marks the input spent.
+      s.summaryValue = summary(total: 100 * epic, locked: 100 * epic, finalizing: 99 * epic - 800000);
+      await wallet.syncNow();
+      final pending = await wallet.balance();
+      expect(pending.total, 100 * epic);
+      expect(pending.total, lessThan(199 * epic));
+      // Mined: the input spent, the change confirming.
+      s.summaryValue = summary(total: 99 * epic - 800000, confirming: 99 * epic - 800000);
+      await wallet.syncNow();
+      expect((await wallet.balance()).total, 99 * epic - 800000);
+      // The core's figure wins over the parts.
+      s.summaryValue = summary(total: 7, spendable: 5);
+      await wallet.syncNow();
+      expect((await wallet.balance()).total, 7);
+      expect(const Balance(spendable: 5, awaitingConfirmation: 1, locked: 2, awaitingFinalization: 9, immature: 3).total, 11);
+    });
+
     test('balance and history map onto the UI types', () async {
       final s = service.session;
       s.summaryValue = core.WalletSummary(
@@ -478,8 +510,9 @@ void main() {
 
     test('fee, max and an Epicbox send', () async {
       expect(await wallet.estimateFee(1000), service.session.fee.toInt());
-      final (max, fee) = await wallet.estimateMax();
-      expect(max + fee, 100000000);
+      final max = await wallet.estimateMax();
+      expect(max.amount + max.fee, 100000000);
+      expect(max.locked, greaterThan(0));
       final to = '${'1' * 52}@epicbox.epiccash.com';
       expect(await wallet.send(const SendRequest(method: TxMethod.epicbox, amount: 1000, to: 'nope')), isA<SendFailed>());
       final r = await wallet.send(SendRequest(method: TxMethod.epicbox, amount: 1000, to: to, message: ' lunch '));

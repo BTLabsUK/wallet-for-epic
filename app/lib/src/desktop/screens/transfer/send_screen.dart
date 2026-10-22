@@ -292,7 +292,8 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       _allError = null;
     });
     try {
-      final (n, fee) = spendable > 0 ? await ref.read(deskApiProvider).estimateMax() : (0, 0);
+      final max = spendable > 0 ? await ref.read(deskApiProvider).estimateMax() : null;
+      final (n, fee) = (max?.amount ?? 0, max?.fee ?? 0);
       if (!mounted) return;
       if (n <= 0) {
         setState(() => _allError = 'Nothing spendable to send.');
@@ -471,6 +472,8 @@ class _SendScreenState extends ConsumerState<SendScreen> {
             sendAll: draft.sendAll,
             dandelion: draft.dandelion,
             allowPlainHttp: plain,
+            // A send-all takes every coin into one change output, as its estimate did.
+            options: draft.sendAll && draft.method != TxMethod.tor ? const SendOptions(strategy: SelectionStrategy.all) : null,
           ),
         ),
       ),

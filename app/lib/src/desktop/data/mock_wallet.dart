@@ -323,10 +323,16 @@ class MockDeskWallet implements DeskWalletApi {
   @override
   Future<List<Output>> outputs() async {
     await _wait(0.5);
+    return _outputs;
+  }
+
+  late List<Output> _outputs = _cannedOutputs();
+
+  List<Output> _cannedOutputs() {
     String cmt(int i) => '08${List.generate(64, (k) => '0123456789abcdef'[(i * 7 + k * 13 + k * k) % 16]).join()}';
     return [
       Output(commitment: cmt(1), value: _epic(25), status: OutputStatus.confirming, height: 2914410, confirmations: 2),
-      Output(commitment: cmt(2), value: _epic(12.5), status: OutputStatus.unconfirmed),
+      Output(commitment: cmt(2), value: _epic(12.5), status: OutputStatus.unconfirmed, awaitingFinalization: true),
       Output(commitment: cmt(3), value: _epic(15.713), status: OutputStatus.locked, height: 2911600, confirmations: 2810),
       Output(commitment: cmt(4), value: _epic(2), status: OutputStatus.immature, height: 2913794, confirmations: 620, lockHeight: 2915234),
       Output(commitment: cmt(5), value: _epic(148.73215), status: OutputStatus.unspent, height: 2913020, confirmations: 1394),
@@ -343,6 +349,94 @@ class MockDeskWallet implements DeskWalletApi {
           confirmations: 34414 + i * 5760,
         ),
     ];
+  }
+
+  /// Epic's fee: 0.001 EPIC × (4 × outputs + inputs − 1).
+  static int _fee(int inputs, int outputs) => _epic(0.001) * max(1, 4 * outputs + inputs - 1);
+
+  List<Output> get _spendable => _outputs.where((o) => o.spendable).toList()..sort((a, b) => a.value.compareTo(b.value));
+
+  @override
+  Future<SendEstimate> estimateSend(int amount, {SendOptions? options}) async {
+    await _wait(0.4);
+    final o = options ?? const SendOptions();
+    final n = o.changeOutputs;
+    if (n < 1 || n > 10) throw const DeskError('Not accepted: change outputs 1 to 10');
+    var sum = 0;
+    var count = 0;
+    for (final out in _spendable) {
+      if (o.strategy == SelectionStrategy.smallest && sum >= amount + _fee(count, 1 + n)) break;
+      sum += out.value;
+      count++;
+    }
+    // Inputs that cover amount and fee exactly make no change output.
+    final exact = _fee(count, 1);
+    if (sum == amount + exact) return SendEstimate(amount: amount, fee: exact, inputCount: count, locked: sum);
+    final fee = _fee(count, 1 + n);
+    if (sum < amount + fee) throw const DeskError('Not enough funds');
+    final change = sum - amount - fee;
+    if (change > 0 && change < n) throw const DeskError('This send cannot be built from the coins available.', unbuildable: true);
+    return SendEstimate(amount: amount, fee: fee, inputCount: count, change: change, locked: sum, changeOutputs: change == 0 ? 0 : n);
+  }
+
+  @override
+  Future<OutputPrefs> outputPrefs() async => const OutputPrefs();
+
+  Future<SendEstimate> _selfEstimate(int outputs) async {
+    await _wait(0.4);
+    final all = _spendable;
+    final sum = all.fold(0, (a, o) => a + o.value);
+    final fee = _fee(all.length, outputs);
+    if (sum < fee + outputs) throw const DeskError('Not enough funds');
+    final part = (sum - fee) ~/ outputs;
+    return SendEstimate(amount: part, fee: fee, inputCount: all.length, change: sum - fee - part, locked: sum, changeOutputs: outputs - 1);
+  }
+
+  @override
+  Future<SendEstimate> estimateSplit(int outputs) {
+    if (outputs < 2 || outputs > 10) throw const DeskError('Not accepted: 2 to 10 outputs');
+    return _selfEstimate(outputs);
+  }
+
+  @override
+  Future<SelfSend> splitOutputs(int outputs) async {
+    final e = await estimateSplit(outputs);
+    await _wait(3);
+    return _selfSent(e, outputs);
+  }
+
+  /// Locks the spendable outputs and adds [count] unconfirmed ones sharing their value less
+  /// the fee, as a posted split or consolidate leaves the wallet.
+  SelfSend _selfSent(SendEstimate e, int count) {
+    final txId = _nextId++;
+    final receivedTxId = _nextId++;
+    final total = e.locked - e.fee;
+    final part = total ~/ count;
+    _outputs = [
+      for (final o in _outputs)
+        o.spendable
+            ? Output(commitment: o.commitment, value: o.value, status: OutputStatus.locked, height: o.height, confirmations: o.confirmations, txId: txId)
+            : o,
+      for (var i = 0; i < count; i++)
+        Output(
+          commitment: '09${(txId * 31 + i).toRadixString(16).padLeft(64, '0')}',
+          value: i == count - 1 ? total - part * (count - 1) : part,
+          status: OutputStatus.unconfirmed,
+          awaitingFinalization: true,
+          txId: i == 0 ? receivedTxId : txId,
+        ),
+    ];
+    return SelfSend(txId: txId, receivedTxId: receivedTxId, amount: e.amount, fee: e.fee, inputCount: e.inputCount, outputCount: count);
+  }
+
+  @override
+  Future<SendEstimate> estimateConsolidate() => _selfEstimate(1);
+
+  @override
+  Future<SelfSend> consolidateOutputs() async {
+    final e = await estimateConsolidate();
+    await _wait(3);
+    return _selfSent(e, 1);
   }
 
   @override
@@ -396,10 +490,10 @@ class MockDeskWallet implements DeskWalletApi {
   }
 
   @override
-  Future<(int, int)> estimateMax() async {
+  Future<SendEstimate> estimateMax() async {
     final spendable = (await balance()).spendable;
     final fee = await estimateFee(spendable);
-    return (spendable - fee, fee);
+    return SendEstimate(amount: spendable - fee, fee: fee, inputCount: _spendable.length, locked: spendable);
   }
 
   @override

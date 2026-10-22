@@ -61,14 +61,37 @@ class Contact {
 }
 
 /// `amount` is the amount to send, as requested; `fee` comes on top of it.
+///
+/// The rest is what the send would spend and get back: [inputCount] of the wallet's outputs
+/// worth [locked] (`amount + fee + change`), locked from the send until it confirms, and
+/// [change] in [changeOutputs] outputs (zero when there is no change). A core that does not
+/// report them leaves them zero.
 class FeeEstimate {
   final BigInt amount;
   final BigInt fee;
+  final int inputCount;
+  final BigInt change;
+  final BigInt locked;
+  final int changeOutputs;
 
-  const FeeEstimate({required this.amount, required this.fee});
+  FeeEstimate({
+    required this.amount,
+    required this.fee,
+    this.inputCount = 0,
+    BigInt? change,
+    BigInt? locked,
+    this.changeOutputs = 0,
+  }) : change = change ?? BigInt.zero,
+       locked = locked ?? BigInt.zero;
 
   @override
-  int get hashCode => amount.hashCode ^ fee.hashCode;
+  int get hashCode =>
+      amount.hashCode ^
+      fee.hashCode ^
+      inputCount.hashCode ^
+      change.hashCode ^
+      locked.hashCode ^
+      changeOutputs.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -76,7 +99,194 @@ class FeeEstimate {
       other is FeeEstimate &&
           runtimeType == other.runtimeType &&
           amount == other.amount &&
-          fee == other.fee;
+          fee == other.fee &&
+          inputCount == other.inputCount &&
+          change == other.change &&
+          locked == other.locked &&
+          changeOutputs == other.changeOutputs;
+}
+
+/// What a send the core cannot build from the coins at hand (change too small for the change
+/// outputs asked for, too heavy) says, with [WalletErrorKind.invalidArgument].
+const String sendUnbuildable = 'This send cannot be built from the coins available.';
+
+/// How a send chooses the outputs it spends, as `epic-wallet send --selection_strategy`.
+enum SelectionStrategy {
+  /// The fewest of the smallest outputs that cover amount and fee: the rest of the balance
+  /// stays spendable while the send confirms. The default.
+  smallest,
+
+  /// Every spendable output: the whole balance is locked until the send confirms, and one
+  /// larger output comes back. Suits sending everything.
+  all,
+}
+
+/// The fewest and most outputs a send's change, or a split, may be cut into.
+const int minChangeOutputs = 1;
+const int maxChangeOutputs = 10;
+const int minSplitOutputs = 2;
+const int maxSplitOutputs = 10;
+
+/// How a send chooses its inputs and change. Calls given none use [SendOptions.standard].
+class SendOptions {
+  final SelectionStrategy strategy;
+
+  /// The outputs the change is split into, in equal parts, [minChangeOutputs] to
+  /// [maxChangeOutputs]; each one adds to the fee. No change makes no change output.
+  final int changeOutputs;
+
+  const SendOptions({
+    this.strategy = SelectionStrategy.smallest,
+    this.changeOutputs = 1,
+  });
+
+  /// Smallest, one change output.
+  static const SendOptions standard = SendOptions();
+
+  @override
+  int get hashCode => strategy.hashCode ^ changeOutputs.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is SendOptions &&
+          strategy == other.strategy &&
+          changeOutputs == other.changeOutputs;
+
+  @override
+  String toString() => 'SendOptions(${strategy.name}, $changeOutputs)';
+}
+
+/// An output's state, as `epic-wallet outputs` shows it.
+enum WalletOutputStatus {
+  /// Not on chain yet: change or a received output of a transaction in progress.
+  unconfirmed,
+  unspent,
+
+  /// An input of a send that is not confirmed yet.
+  locked,
+  spent,
+}
+
+/// Where an output counts in [WalletSummary].
+enum OutputCategory {
+  spendable,
+  awaitingConfirmation,
+  awaitingFinalization,
+  immature,
+  locked,
+}
+
+/// One output (coin) of the wallet, from [WalletSession.outputs].
+class WalletOutput {
+  /// The Pedersen commitment, 66 lowercase hex characters.
+  final String commitment;
+  final BigInt value;
+  final WalletOutputStatus status;
+
+  /// Where it counts in the summary; null for a spent output and an unconfirmed coinbase.
+  final OutputCategory? category;
+
+  /// A mining reward, spendable only from [lockHeight].
+  final bool isCoinbase;
+
+  /// The height it was mined at, or for an output not on chain yet, the tip it was made at.
+  final BigInt height;
+
+  /// The first height at which it may be spent.
+  final BigInt lockHeight;
+
+  /// Its position in the chain's output set, once found there.
+  final BigInt? mmrIndex;
+
+  /// Zero while unconfirmed.
+  final BigInt confirmations;
+
+  /// The transaction that made it or, once a send locks or spends it, that send.
+  final int? txId;
+
+  const WalletOutput({
+    required this.commitment,
+    required this.value,
+    required this.status,
+    this.category,
+    required this.isCoinbase,
+    required this.height,
+    required this.lockHeight,
+    this.mmrIndex,
+    required this.confirmations,
+    this.txId,
+  });
+
+  @override
+  int get hashCode => Object.hash(
+    commitment,
+    value,
+    status,
+    category,
+    isCoinbase,
+    height,
+    lockHeight,
+    mmrIndex,
+    confirmations,
+    txId,
+  );
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is WalletOutput &&
+          commitment == other.commitment &&
+          value == other.value &&
+          status == other.status &&
+          category == other.category &&
+          isCoinbase == other.isCoinbase &&
+          height == other.height &&
+          lockHeight == other.lockHeight &&
+          mmrIndex == other.mmrIndex &&
+          confirmations == other.confirmations &&
+          txId == other.txId;
+}
+
+/// A send to the wallet itself (split or consolidate), finalized and posted.
+class SelfSentTx {
+  /// The outgoing transaction: it spent the inputs and holds the change outputs.
+  final int txId;
+
+  /// The incoming transaction: it holds the output of [amount].
+  final int receivedTxId;
+  final BigInt amount;
+  final BigInt fee;
+
+  /// How many outputs it spent.
+  final int inputCount;
+
+  /// How many outputs it made: the received one and the change.
+  final int outputCount;
+
+  const SelfSentTx({
+    required this.txId,
+    required this.receivedTxId,
+    required this.amount,
+    required this.fee,
+    required this.inputCount,
+    required this.outputCount,
+  });
+
+  @override
+  int get hashCode =>
+      Object.hash(txId, receivedTxId, amount, fee, inputCount, outputCount);
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is SelfSentTx &&
+          txId == other.txId &&
+          receivedTxId == other.receivedTxId &&
+          amount == other.amount &&
+          fee == other.fee &&
+          inputCount == other.inputCount &&
+          outputCount == other.outputCount;
 }
 
 /// What `import_history` did.

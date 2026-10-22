@@ -225,10 +225,96 @@ final WireCodec<FeeEstimate> feeEstimateWire = _object<FeeEstimate>(
   (v) => {
     'amount': bigIntWire.encode(v.amount),
     'fee': bigIntWire.encode(v.fee),
+    'inputCount': v.inputCount,
+    'change': bigIntWire.encode(v.change),
+    'locked': bigIntWire.encode(v.locked),
+    'changeOutputs': v.changeOutputs,
   },
+  // A server from before the lock fields sends amount and fee only.
   (r) => FeeEstimate(
     amount: r.of('amount', bigIntWire),
     fee: r.of('fee', bigIntWire),
+    inputCount: r.of('inputCount', optInt) ?? 0,
+    change: r.of('change', optBigInt),
+    locked: r.of('locked', optBigInt),
+    changeOutputs: r.of('changeOutputs', optInt) ?? 0,
+  ),
+);
+
+final WireCodec<SelectionStrategy> selectionStrategyWire = enumWire(
+  'SelectionStrategy',
+  SelectionStrategy.values,
+);
+
+final WireCodec<SendOptions> sendOptionsWire = _object<SendOptions>(
+  'SendOptions',
+  (v) => {
+    'strategy': selectionStrategyWire.encode(v.strategy),
+    'changeOutputs': v.changeOutputs,
+  },
+  (r) => SendOptions(
+    strategy: r.of('strategy', selectionStrategyWire),
+    changeOutputs: r.of('changeOutputs', intWire),
+  ),
+);
+
+final WireCodec<SendOptions?> optSendOptions = nullable(sendOptionsWire);
+
+final WireCodec<WalletOutputStatus> walletOutputStatusWire = enumWire(
+  'WalletOutputStatus',
+  WalletOutputStatus.values,
+);
+
+final WireCodec<OutputCategory> outputCategoryWire = enumWire(
+  'OutputCategory',
+  OutputCategory.values,
+);
+
+final WireCodec<WalletOutput> walletOutputWire = _object<WalletOutput>(
+  'WalletOutput',
+  (v) => {
+    'commitment': v.commitment,
+    'value': bigIntWire.encode(v.value),
+    'status': walletOutputStatusWire.encode(v.status),
+    'category': nullable(outputCategoryWire).encode(v.category),
+    'isCoinbase': v.isCoinbase,
+    'height': bigIntWire.encode(v.height),
+    'lockHeight': bigIntWire.encode(v.lockHeight),
+    'mmrIndex': optBigInt.encode(v.mmrIndex),
+    'confirmations': bigIntWire.encode(v.confirmations),
+    'txId': v.txId,
+  },
+  (r) => WalletOutput(
+    commitment: r.of('commitment', stringWire),
+    value: r.of('value', bigIntWire),
+    status: r.of('status', walletOutputStatusWire),
+    category: r.of('category', nullable(outputCategoryWire)),
+    isCoinbase: r.of('isCoinbase', boolWire),
+    height: r.of('height', bigIntWire),
+    lockHeight: r.of('lockHeight', bigIntWire),
+    mmrIndex: r.of('mmrIndex', optBigInt),
+    confirmations: r.of('confirmations', bigIntWire),
+    txId: r.of('txId', optInt),
+  ),
+);
+
+final WireCodec<SelfSentTx> selfSentTxWire = _object<SelfSentTx>(
+  'SelfSentTx',
+  (v) => {
+    'txId': v.txId,
+    'receivedTxId': v.receivedTxId,
+    'amount': bigIntWire.encode(v.amount),
+    'fee': bigIntWire.encode(v.fee),
+    'inputCount': v.inputCount,
+    'outputCount': v.outputCount,
+  },
+  (r) => SelfSentTx(
+    txId: r.of('txId', intWire),
+    receivedTxId: r.of('receivedTxId', intWire),
+    amount: r.of('amount', bigIntWire),
+    fee: r.of('fee', bigIntWire),
+    inputCount: r.of('inputCount', intWire),
+    outputCount: r.of('outputCount', intWire),
   ),
 );
 
