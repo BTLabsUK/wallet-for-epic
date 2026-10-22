@@ -21,8 +21,8 @@ enum HttpRun { off, busy, on, failed }
 /// The built-in node's address in the node field.
 const String builtinNode = 'internal';
 
-/// Where a jump into Settings lands: the node or the receiving section.
-enum SettingsJump { node, epicbox }
+/// Where a jump into Settings lands: the node or one receiving group.
+enum SettingsJump { node, epicbox, http, tor }
 
 /// A jump request: [n] changes on every request so the same section flashes again.
 @immutable

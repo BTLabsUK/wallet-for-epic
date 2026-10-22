@@ -46,8 +46,10 @@ final List<DeskShot> settingsShots = [
   const DeskShot(id: '23b-epicbox-combobox-open', title: 'Epicbox combobox open', route: DeskRoute.settingsReceiving, arg: ReceivingDemo.comboOpen),
   const DeskShot(id: '23c-receiving-tor-on', title: 'Receiving, Tor on', route: DeskRoute.settingsReceiving, arg: ReceivingDemo.torOn),
   const DeskShot(id: '23d-receiving-epicbox-down', title: 'Receiving, Epicbox down', route: DeskRoute.settingsReceiving, arg: ReceivingDemo.epicboxDown),
-  const DeskShot(id: '23e-receiving-http-on', title: 'Receiving, HTTP listener on', route: DeskRoute.settingsReceiving, arg: ReceivingDemo.httpOn),
-  const DeskShot(id: '23f-receiving-http-failed', title: 'Receiving, HTTP listener failed', route: DeskRoute.settingsReceiving, arg: ReceivingDemo.httpFailed),
+  const DeskShot(id: '23e-receiving-http-on', title: 'Receiving, HTTP on', route: DeskRoute.settingsReceiving, arg: ReceivingDemo.httpOn),
+  const DeskShot(id: '23f-receiving-http-failed', title: 'Receiving, HTTP failed', route: DeskRoute.settingsReceiving, arg: ReceivingDemo.httpFailed),
+  const DeskShot(id: '23g-receiving-tor-stopped', title: 'Receiving, Tor stopped', route: DeskRoute.settingsReceiving, arg: ReceivingDemo.torStopped),
+  const DeskShot(id: '23h-receiving-http-public', title: 'Receiving, HTTP from the internet', route: DeskRoute.settingsReceiving, arg: ReceivingDemo.httpPublic, height: 1000),
   DeskShot(
     id: '24-settings-appearance',
     title: 'Settings, appearance',

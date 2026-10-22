@@ -3,6 +3,7 @@
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/help_topics.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/settings_help.dart';
+import 'package:epic_wallet/src/desktop/screens/settings/prefs.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/settings_http.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/settings_node.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/settings_receiving.dart';
@@ -140,7 +141,7 @@ void main() {
   testWidgets('the Receiving page turns Tor on from the guide (F30)', (tester) async {
     final api = _Wallet();
     final container = await _pump(tester, const SettingsReceivingScreen(), api: api);
-    await tester.tap(find.descendant(of: find.byType(HttpListenerRow), matching: find.byType(ESwitch)).first);
+    await tester.tap(find.byKey(const ValueKey('st-switch-http')));
     await tester.pump(const Duration(milliseconds: 600));
     await tester.tap(find.text('From the internet'));
     await tester.pump(const Duration(milliseconds: 400));
@@ -150,6 +151,8 @@ void main() {
     expect(api.torOn, 1);
     expect(container.read(deskProvider).settings.tor, isTrue);
     expect(container.read(deskProvider).settings.publicMode, isFalse, reason: 'the HTTP mode is unchanged');
+    expect(container.read(settingsPrefsProvider).jump?.section, SettingsJump.tor, reason: 'lands on the Tor group');
+    await tester.pump(const Duration(seconds: 2));
   });
 
   testWidgets('a contact form has no format hint and one error, "Not a recognised address" (F31)', (tester) async {

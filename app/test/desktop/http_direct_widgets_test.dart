@@ -89,16 +89,17 @@ void main() {
   });
 
   group('Settings › Receiving', () {
-    Finder httpSwitch() => find.descendant(of: find.byType(HttpListenerRow), matching: find.byType(ESwitch));
+    Finder httpSwitch() => find.byKey(const ValueKey('st-switch-http'));
+    String httpState(WidgetTester tester) => tester.widget<EStateLine>(find.byKey(const ValueKey('st-state-http'))).line.text;
 
-    testWidgets('the HTTP listener is off by default and turns on local only', (tester) async {
+    testWidgets('HTTP receiving is off by default and turns on local only', (tester) async {
       await show(tester, const SettingsReceivingScreen());
-      expect(find.text('Off · most payments come via Epicbox'), findsOneWidget);
-      expect(find.text('Start with the wallet'), findsOneWidget);
+      expect(httpState(tester), 'Off');
+      expect(find.text('Start with the wallet'), findsWidgets);
       await tester.tap(httpSwitch());
       await tester.pumpAndSettle();
-      expect(find.text('On · port 3415, this computer only'), findsOneWidget);
-      expect(find.text('http://127.0.0.1:3415'), findsOneWidget);
+      expect(httpState(tester), 'On · this computer only (127.0.0.1)');
+      expect(find.text('http://127.0.0.1:3415'), findsNothing, reason: 'the address lives on Receive');
     });
 
     testWidgets('From the internet only through the guide', (tester) async {
@@ -118,13 +119,13 @@ void main() {
       await tester.tap(find.widgetWithText(EButton, 'Receive from the internet'));
       await tester.pumpAndSettle();
       expect(container.read(deskProvider).settings.publicMode, isTrue);
-      expect(find.text('On · port 3415, from the internet'), findsOneWidget);
+      expect(httpState(tester), 'On · from the internet, port 3415');
       expect(find.textContaining('must forward TCP 3415'), findsOneWidget);
     });
 
     testWidgets('a port outside 1 to 65535 is refused', (tester) async {
       await show(tester, const SettingsReceivingScreen());
-      final field = find.descendant(of: find.byType(HttpListenerRow), matching: find.byType(EditableText));
+      final field = find.descendant(of: find.byType(HttpOptions), matching: find.byType(EditableText));
       await tester.enterText(field, '70000');
       await tester.testTextInput.receiveAction(TextInputAction.done);
       await tester.pumpAndSettle();
@@ -137,7 +138,7 @@ void main() {
 
     testWidgets('the tour’s port-in-use state names the port', (tester) async {
       await show(tester, const SettingsReceivingScreen(arg: ReceivingDemo.httpFailed));
-      expect(find.textContaining('Port 3415 in use'), findsOneWidget);
+      expect(httpState(tester), contains('Port 3415 is used by another program'));
       expect(find.text('Try again'), findsOneWidget);
     });
   });
