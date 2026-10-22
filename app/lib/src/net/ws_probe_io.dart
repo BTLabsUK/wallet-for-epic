@@ -7,7 +7,10 @@ import 'dart:io';
 /// Opens a WebSocket to [url] and closes it again; true when the handshake succeeded within
 /// [timeout].
 Future<bool> probeWebSocket(Uri url, {required Duration timeout}) async {
-  final client = HttpClient()..connectionTimeout = timeout;
+  // No User-Agent: nothing that names the app or its version (F35).
+  final client = HttpClient()
+    ..connectionTimeout = timeout
+    ..userAgent = null;
   try {
     final socket = await WebSocket.connect(
       url.toString(),
