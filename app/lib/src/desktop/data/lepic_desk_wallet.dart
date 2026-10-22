@@ -2584,7 +2584,11 @@ Future<void> writeWalletTxt(String dir, {required String label, required String 
     '',
   ].join('\n');
   try {
-    await File('$dir${Platform.pathSeparator}WALLET.txt').writeAsString(text, flush: true);
+    // Whole or not at all: a temporary file renamed over it.
+    final target = '$dir${Platform.pathSeparator}WALLET.txt';
+    final tmp = File('$target.tmp');
+    await tmp.writeAsString(text, flush: true);
+    await tmp.rename(target);
   } on Object catch (e) {
     logWarn('desk', 'WALLET.txt not written: ${e.runtimeType}');
   }

@@ -10,6 +10,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
+import '../../../log.dart';
 import '../../data/files.dart' show deskOpenFolderProvider;
 import '../../data/history_files.dart';
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
@@ -354,10 +355,15 @@ class _ImportHistoryDialogState extends ConsumerState<ImportHistoryDialog> {
       if (file == null || !mounted) return;
       setState(() => _reading = file.name);
       final result = await ref.read(deskApiProvider).importHistory(file.bytes);
-      // The archive rows now merge into Activity, and contacts may have come.
-      await ref.read(deskProvider.notifier).refresh();
-      ref.invalidate(historyBackupProvider);
       if (mounted) setState(() => _done = (name: file.name, result: result));
+      ref.invalidate(historyBackupProvider);
+      // The archive rows now merge into Activity, and contacts may have come. The import is
+      // done either way: a failed reload must not read as "Not imported".
+      try {
+        await ref.read(deskProvider.notifier).refresh();
+      } on Object catch (e) {
+        logWarn('desk', 'refresh after history import: ${e.runtimeType}');
+      }
     } on HistoryFileError catch (e) {
       if (mounted) setState(() => _refused = e);
     } on Object catch (e) {
