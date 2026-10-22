@@ -677,7 +677,14 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
             SizedBox(height: Sp.x3),
             EField(
               label: 'New password',
-              child: EPasswordInput(controller: _new, semanticLabel: 'New password', onChanged: (_) => setState(() => _error = null)),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  EPasswordInput(controller: _new, semanticLabel: 'New password', onChanged: (_) => setState(() => _error = null)),
+                  SizedBox(height: Sp.x2),
+                  PasswordHint(controller: _new),
+                ],
+              ),
             ),
             SizedBox(height: Sp.x3),
             EField(

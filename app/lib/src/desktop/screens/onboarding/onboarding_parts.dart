@@ -13,53 +13,6 @@ class AuthFoot extends StatelessWidget {
   Widget build(BuildContext context) => Text('Epic Cash Wallet $deskVersion');
 }
 
-/// 0..4 for a password: length and variety.
-int passwordStrength(String p) {
-  if (p.isEmpty) return 0;
-  var s = 0;
-  if (p.length >= 8) s++;
-  if (p.length >= 12) s++;
-  if (RegExp('[a-z]').hasMatch(p) && RegExp('[A-Z]').hasMatch(p)) s++;
-  if (RegExp('[0-9]').hasMatch(p) && RegExp('[^A-Za-z0-9]').hasMatch(p)) s++;
-  return s.clamp(1, 4);
-}
-
-/// Four bars and a word under the password field.
-class PasswordMeter extends StatelessWidget {
-  const PasswordMeter(this.password, {super.key});
-
-  final String password;
-
-  @override
-  Widget build(BuildContext context) {
-    final c = context.dc;
-    final s = passwordStrength(password);
-    final color = s <= 1 ? c.risk : (s == 2 ? c.warn : c.ok);
-    const words = ['', 'Weak', 'Fair', 'Good', 'Strong'];
-    return Semantics(
-      label: password.isEmpty ? 'Password strength' : 'Password strength: ${words[s]}',
-      child: Row(
-        children: [
-          for (var i = 0; i < 4; i++) ...[
-            Expanded(
-              child: Container(
-                height: 4.u,
-                decoration: BoxDecoration(
-                  color: i < s ? color : c.s3,
-                  borderRadius: BorderRadius.circular(Rad.xs),
-                ),
-              ),
-            ),
-            if (i < 3) SizedBox(width: Sp.x1),
-          ],
-          SizedBox(width: Sp.x3),
-          SizedBox(width: 48.u, child: Text(words[s], style: context.ts.caption)),
-        ],
-      ),
-    );
-  }
-}
-
 /// Name, password and confirmation: the first step of create and restore.
 class AccountForm extends StatelessWidget {
   const AccountForm({
@@ -102,7 +55,7 @@ class AccountForm extends StatelessWidget {
           children: [
             PasswordBox(controller: password, invalid: passwordError != null, semanticLabel: 'Password', onChanged: (_) => onChanged()),
             SizedBox(height: Sp.x2),
-            PasswordMeter(password.text),
+            PasswordHint(controller: password),
           ],
         ),
       ),
