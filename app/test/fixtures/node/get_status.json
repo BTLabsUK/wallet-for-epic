@@ -1,0 +1,30 @@
+{
+  "id": 1,
+  "jsonrpc": "2.0",
+  "result": {
+    "Ok": {
+      "blocks_to_next_halving": 480960,
+      "connections": 5,
+      "max_supply": 21000000,
+      "protocol_version": 2,
+      "supply": 0,
+      "sync_info": {
+        "current_height": 7168,
+        "highest_height": 8704
+      },
+      "sync_status": "header_sync",
+      "tip": {
+        "height": 0,
+        "last_block_pushed": "454018a56d86e37611bdcabc7de670305c3f3dc9675e314b437f1adc29430851",
+        "prev_block_to_last": "0000000000000000000000000000000000000000000000000000000000000000",
+        "total_difficulty": {
+          "cuckaroo": 4,
+          "cuckatoo": 16384,
+          "progpow": 1073741824,
+          "randomx": 4194304
+        }
+      },
+      "user_agent": "MW/Epic 4.1.0"
+    }
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "id": 1,
+  "jsonrpc": "2.0",
+  "result": {
+    "Ok": [
+      {
+        "addr": "203.0.113.10:3414",
+        "ban_reason": "None",
+        "capabilities": "HEADER_HIST | TXHASHSET_HIST | PEER_LIST | TX_KERNEL_HASH | HEADER_FASTSYNC",
+        "flags": "Healthy",
+        "last_banned": 0,
+        "last_connected": 1792678689,
+        "local_timestamp": 1792678689,
+        "user_agent": "MW/Epic 4.1.1"
+      },
+      {
+        "addr": "203.0.113.11:3414",
+        "ban_reason": "None",
+        "capabilities": "HEADER_HIST | TXHASHSET_HIST | PEER_LIST | TX_KERNEL_HASH | HEADER_FASTSYNC",
+        "flags": "Healthy",
+        "last_banned": 0,
+        "last_connected": 1792678695,
+        "local_timestamp": 1792678695,
+        "user_agent": "MW/Epic 4.0.3"
+      },
+      {
+        "addr": "203.0.113.12:3414",
+        "ban_reason": "None",
+        "capabilities": "HEADER_HIST | TXHASHSET_HIST | PEER_LIST | TX_KERNEL_HASH | HEADER_FASTSYNC",
+        "flags": "Healthy",
+        "last_banned": 0,
+        "last_connected": 1792678695,
+        "local_timestamp": 1792678695,
+        "user_agent": "MW/Epic 4.1.0"
+      },
+      {
+        "addr": "203.0.113.13:4414",
+        "ban_reason": "None",
+        "capabilities": "",
+        "flags": "Unknown",
+        "last_banned": 0,
+        "last_connected": 0,
+        "local_timestamp": 0,
+        "user_agent": ""
+      },
+      {
+        "addr": "203.0.113.14:3414",
+        "ban_reason": "None",
+        "capabilities": "",
+        "flags": "Unknown",
+        "last_banned": 0,
+        "last_connected": 0,
+        "local_timestamp": 0,
+        "user_agent": ""
+      }
+    ]
+  }
+}
