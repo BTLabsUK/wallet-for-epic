@@ -18,6 +18,7 @@ class EField extends StatelessWidget {
     this.error,
     this.aside,
     this.reserveError = false,
+    this.labelTrailing,
   });
 
   final String label;
@@ -26,6 +27,9 @@ class EField extends StatelessWidget {
   final String? help;
   final String? error;
   final Widget? aside;
+
+  /// Right after the label (Send's "Over Tor" tag).
+  final Widget? labelTrailing;
 
   /// Keeps the error line's height when there is no error (and no help), so the controls
   /// below do not move when one appears.
@@ -55,6 +59,7 @@ class EField extends StatelessWidget {
                   SizedBox(width: Sp.x2),
                   Text('Optional', style: ts.small.copyWith(color: c.faint)),
                 ],
+                ?labelTrailing,
               ],
             ),
             ?aside,

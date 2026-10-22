@@ -136,6 +136,18 @@ void main() {
     expect(tester.getRect(find.text('Other ways to receive')).top, greaterThan(hero2.bottom));
   });
 
+  testWidgets("a header icon scrolls to its method's panel", (tester) async {
+    await _pump(tester, const ReceiveArgs(http: RxHttp.on, tor: RxTor.on), width: 1200);
+    final panel = find.byKey(const ValueKey('rx-panel-tor'));
+    final view = tester.getRect(find.byType(Scrollable).first);
+    final before = tester.getRect(panel).top;
+    expect(view.contains(tester.getRect(panel).bottomLeft), isFalse, reason: 'below the fold in one column');
+    await tester.tap(find.bySemanticsLabel(RegExp(r'^Tor: ')));
+    await tester.pumpAndSettle();
+    expect(tester.getRect(panel).top, lessThan(before));
+    expect(view.contains(tester.getRect(panel).topLeft), isTrue);
+  });
+
   testWidgets('the header says each method in words for screen readers', (tester) async {
     final handle = tester.ensureSemantics();
     await _pump(tester, const ReceiveArgs(http: RxHttp.on));

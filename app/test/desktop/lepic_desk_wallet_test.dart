@@ -1088,9 +1088,10 @@ void main() {
       await done(tester);
     });
 
-    testWidgets('send has Direct (HTTP only), no Dandelion++', (tester) async {
+    testWidgets('send has HTTP, Tor as DeskFeatures.tor says, no Dandelion++', (tester) async {
       await pump(tester, DeskRoute.send);
-      expect(find.text('Direct'), findsOneWidget);
+      expect(find.text('HTTP'), findsOneWidget);
+      expect(find.text('Tor'), DeskFeatures.tor ? findsOneWidget : findsNothing);
       expect(find.textContaining('Dandelion'), findsNothing);
       await done(tester);
     });
