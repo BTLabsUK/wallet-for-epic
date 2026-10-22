@@ -427,6 +427,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   value: s.advancedOptions,
                   onChanged: _settings.setAdvancedOptions,
                 ),
+                _Header(l.settingsSectionPrivacy),
+                SwitchListTile(
+                  secondary: const Icon(Icons.travel_explore),
+                  title: Text(l.settingsUseStatusSite),
+                  subtitle: Text(l.settingsUseStatusSiteSubtitle),
+                  value: s.useStatusSite,
+                  onChanged: _settings.setUseStatusSite,
+                ),
                 // Tor receiving: the same switch as on Receive, one source of truth
                 // (phoneTorProvider). An equal receive method, so no Advanced placement.
                 if (walletOpen && torAvailable) ...[

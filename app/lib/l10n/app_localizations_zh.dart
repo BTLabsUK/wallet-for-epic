@@ -3121,6 +3121,15 @@ class AppLocalizationsZh extends AppLocalizations {
   String get settingsAdvancedOptionsSubtitle => '网络、节点、epicbox 服务器、文件和日志';
 
   @override
+  String get settingsSectionPrivacy => '隐私';
+
+  @override
+  String get settingsUseStatusSite => '使用 status.btlabs.uk';
+
+  @override
+  String get settingsUseStatusSiteSubtitle => '服务器状态和节点列表。关闭：只询问服务器本身。';
+
+  @override
   String get txStepStarted => '付款已发起';
 
   @override
