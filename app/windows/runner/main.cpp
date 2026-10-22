@@ -4,6 +4,7 @@
 
 #include "flutter_window.h"
 #include "utils.h"
+#include "window_placement.h"
 
 namespace {
 // The window's title, also how a second start finds the first window. The app keeps it:
@@ -58,9 +59,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prev,
   project.set_dart_entrypoint_arguments(std::move(command_line_arguments));
 
   FlutterWindow window(project);
-  Win32Window::Point origin(10, 10);
-  Win32Window::Size size(1280, 720);
-  if (!window.Create(kWindowTitle, origin, size)) {
+  // Where it was last time, or a first-run size centred on the primary monitor.
+  const WindowStart start = InitialWindowPlacement();
+  if (!window.Create(kWindowTitle, start.frame, start.maximized)) {
     return EXIT_FAILURE;
   }
   window.SetQuitOnClose(true);
