@@ -20,12 +20,13 @@ class NetworkWatch(private val context: Context) : EventChannel.StreamHandler {
     override fun onListen(arguments: Any?, events: EventChannel.EventSink) {
         val manager = context.getSystemService(ConnectivityManager::class.java) ?: return
         val cb = object : ConnectivityManager.NetworkCallback() {
-            override fun onAvailable(network: Network) {
-                main.post { events.success("available") }
-            }
+            override fun onAvailable(network: Network) = post("available")
 
-            override fun onLost(network: Network) {
-                main.post { events.success("lost") }
+            override fun onLost(network: Network) = post("lost")
+
+            // Not after Dart stopped listening.
+            private fun post(event: String) {
+                main.post { if (callback === this) events.success(event) }
             }
         }
         try {
