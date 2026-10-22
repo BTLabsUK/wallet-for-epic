@@ -216,7 +216,10 @@ class PhoneTor extends Notifier<PhoneTorState> {
     try {
       onion = await session.onionAddress();
     } catch (e) {
-      logWarn('tor', 'onion address: ${e is WalletError ? e.kind.name : e.runtimeType}');
+      logWarn(
+        'tor',
+        'onion address: ${e is WalletError ? e.kind.name : e.runtimeType}',
+      );
     }
     final config = _config;
     final saved = config == null
@@ -340,7 +343,10 @@ class PhoneTor extends Notifier<PhoneTorState> {
           },
           onError: (Object e) {
             if (_tor != sub || !_current(generation)) return;
-            logWarn('tor', 'ended: ${e is WalletError ? e.kind.name : e.runtimeType}');
+            logWarn(
+              'tor',
+              'ended: ${e is WalletError ? e.kind.name : e.runtimeType}',
+            );
             _ended(TorFailure.stopped);
           },
           onDone: () {
