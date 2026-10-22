@@ -31,12 +31,12 @@ class _Desk extends MockDeskWallet {
   }
 }
 
-Tx _tx({required bool incoming, TxState state = TxState.posted, bool cancellable = true, bool fromBackup = false}) => Tx(
+Tx _tx({required bool incoming, TxState state = TxState.posted, bool cancellable = true, bool fromBackup = false, TxMethod method = TxMethod.epicbox}) => Tx(
   id: 77,
   slateId: 'f0e1d2c3-b4a5-4697-8879-9f3a7c21a0b1',
   direction: incoming ? TxDirection.received : TxDirection.sent,
   state: state,
-  method: TxMethod.epicbox,
+  method: method,
   amount: 250000000,
   fee: incoming ? 0 : 7000000,
   created: DateTime(2026, 10, 20),
@@ -85,12 +85,25 @@ void main() {
       expect(_cancelButton, findsNothing);
     });
 
-    testWidgets('a send keeps its own rule', (tester) async {
-      await _pump(tester, _tx(incoming: false, cancellable: false), _Desk());
-      expect(_cancelButton, findsOneWidget, reason: 'a posted send is cancellable whatever the flag');
+    testWidgets('a send only while it waits for the recipient', (tester) async {
+      await _pump(tester, _tx(incoming: false, state: TxState.waitingRecipient), _Desk());
+      expect(_cancelButton, findsOneWidget);
+      await _pump(tester, _tx(incoming: false, state: TxState.waitingRecipient, cancellable: false), _Desk());
+      expect(_cancelButton, findsNothing, reason: 'the core says no');
       await _pump(tester, _tx(incoming: false, state: TxState.confirming), _Desk());
       expect(_cancelButton, findsNothing);
     });
+
+    // A Direct send (HTTP or Tor) is finalized and posted in one step: once out, it is a sent
+    // payment like any other, never cancelled in the wallet while the recipient has the coins.
+    for (final method in [TxMethod.http, TxMethod.tor, TxMethod.epicbox]) {
+      testWidgets('a posted ${method.name} send has no Cancel', (tester) async {
+        await _pump(tester, _tx(incoming: false, method: method), _Desk());
+        expect(_cancelButton, findsNothing);
+        await _pump(tester, _tx(incoming: false, method: method, cancellable: false), _Desk());
+        expect(_cancelButton, findsNothing);
+      });
+    }
   });
 
   group('the dialog', () {
@@ -112,7 +125,7 @@ void main() {
 
     testWidgets('for a send is unchanged', (tester) async {
       final desk = _Desk();
-      await _pump(tester, _tx(incoming: false), desk);
+      await _pump(tester, _tx(incoming: false, state: TxState.waitingRecipient), desk);
       await tester.tap(_cancelButton);
       await tester.pumpAndSettle();
       expect(find.text('Cancel this send?'), findsOneWidget);
