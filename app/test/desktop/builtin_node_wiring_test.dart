@@ -83,6 +83,7 @@ void main() {
   late _Opens service;
   late List<_Process> spawned;
   late bool portBusy;
+  Completer<void>? gate;
 
   BuiltInNode node(Chain chain) => BuiltInNode(
     root: '${dir.path}/node',
@@ -96,6 +97,8 @@ void main() {
     freeBytes: (_) async => 100 * 1024 * 1024 * 1024,
     api: (port, method, {required owner, secret}) async => null,
     startProcess: (exe, args, {required workingDirectory}) async {
+      final g = gate;
+      if (g != null) await g.future;
       final p = _Process(4000 + spawned.length);
       spawned.add(p);
       return p;
@@ -119,6 +122,7 @@ void main() {
     service = _Opens()..existingWallets.add('${dir.path}/wallets/mainnet');
     spawned = [];
     portBusy = false;
+    gate = null;
   });
 
   tearDown(() async {
@@ -229,6 +233,22 @@ void main() {
     await expectLater(wallet.useBuiltInNode(false), throwsA(isA<DeskError>()));
     expect(await secrets.read(builtInNodeSettingKey(Chain.mainnet)), 'true');
     expect(spawned.single.terminated, 0);
+    await wallet.dispose();
+  });
+
+  test('turning it off while it starts leaves the wallet where it was', () async {
+    final wallet = make();
+    expect(await wallet.unlock(_password), isTrue);
+    final g = gate = Completer<void>();
+    final on = wallet.useBuiltInNode(true);
+    await Future<void>.delayed(const Duration(milliseconds: 20));
+    final off = wallet.useBuiltInNode(false);
+    g.complete();
+    await expectLater(on, throwsA(isA<DeskError>()));
+    await off;
+    expect(await secrets.read(builtInNodeSettingKey(Chain.mainnet)), isNot('true'));
+    expect(await secrets.read('app.node.mainnet'), _remote);
+    expect(service.nodeUrls.last, _remote);
     await wallet.dispose();
   });
 }

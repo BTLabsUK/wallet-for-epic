@@ -1263,9 +1263,7 @@ class LepicDeskWallet implements DeskWalletApi {
         throw DeskError(e.message);
       }
       // A stop that came in while it was starting wins.
-      if (const {NodeStatusKind.off, NodeStatusKind.stopped, NodeStatusKind.failed}.contains(node.state.kind)) {
-        throw const DeskError('Built-in node stopped');
-      }
+      if (!node.wantsRunning) throw const DeskError('Built-in node stopped');
       final current = await _nodeUrl();
       if (current != node.url) {
         try {
@@ -1274,10 +1272,21 @@ class LepicDeskWallet implements DeskWalletApi {
           if (!await _builtInOn()) await node.stop();
           rethrow;
         }
+        // A lock while reopening returns without moving; a stop while moving undoes it.
+        if (await _nodeUrl() != node.url) throw const DeskError('Not changed: the wallet was locked');
+        if (!node.wantsRunning) {
+          await _switchTo(nodeUrl: current, relay: await _relay());
+          throw const DeskError('Built-in node stopped');
+        }
         await _secrets.write(_beforeBuiltInKey, current);
       }
       await _secrets.write(builtInNodeSettingKey(preset.chain), 'true');
       logInfo('desk', 'built-in node on');
+      return;
+    }
+    // Not on yet (a start still pending): only the node stops; the wallet never moved.
+    if (!await _builtInOn()) {
+      await _node?.stop();
       return;
     }
     final back = await _secrets.read(_beforeBuiltInKey) ?? preset.nodeUrl;

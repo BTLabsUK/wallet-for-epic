@@ -92,8 +92,11 @@ Future<List<Override>> deskOverrides() async {
   // Closing the window must not leave the node running.
   _exitListener = AppLifecycleListener(
     onExitRequested: () async {
-      await wallet.dispose();
-      await stopAllBuiltInNodes();
+      try {
+        await wallet.dispose();
+      } finally {
+        await stopAllBuiltInNodes();
+      }
       return AppExitResponse.exit;
     },
   );

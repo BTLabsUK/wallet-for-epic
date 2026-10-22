@@ -386,6 +386,9 @@ class BuiltInNode {
   /// Cleared by [stop]; a launch that finds it cleared kills what it spawned.
   bool _wantRunning = false;
 
+  /// False once [stop] was asked for, even while a start it cancels is still unwinding.
+  bool get wantsRunning => _wantRunning;
+
   /// Bumped by every [start] and [stop]; a launch of an older generation is cancelled.
   int _gen = 0;
   int _failures = 0;
