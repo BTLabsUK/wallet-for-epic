@@ -87,6 +87,10 @@ class _Recorder implements DeskWalletApi {
   @override
   Future<List<WalletEntry>> wallets() => _r('wallets', _m.wallets);
   @override
+  Future<bool> setupPending(String id) => _m.setupPending(id);
+  @override
+  Future<void> setSetupPending(String id, bool pending) => _m.setSetupPending(id, pending);
+  @override
   Future<void> selectWallet(String id) => _r('selectWallet', () => _m.selectWallet(id));
   @override
   Future<bool> unlock(String password, {bool remember = false}) => _r('unlock', () => _m.unlock(password, remember: remember));

@@ -7,7 +7,7 @@ import 'dart:io';
 
 import 'package:epic_wallet/src/builtin_node.dart';
 import 'package:epic_wallet/src/desktop/data/lepic_desk_wallet.dart';
-import 'package:epic_wallet/src/desktop/data/models.dart' show SendRequest, SendFailed, TxMethod;
+import 'package:epic_wallet/src/desktop/data/models.dart' show DeskError, ScanStep, SendRequest, SendFailed, TxMethod;
 import 'package:epic_wallet/src/models.dart' show Chain;
 import 'package:epic_wallet/src/secret_store_api.dart';
 import 'package:epic_wallet/src/wallet_service.dart' as core;
@@ -24,6 +24,22 @@ class _Session extends core.FakeWalletSession {
   /// Holds every Epicbox send until completed.
   Completer<void>? sendGate;
   int sendsStarted = 0;
+
+  /// A scan that runs until [cancelScan].
+  StreamController<core.ScanProgress>? scanning;
+  int cancelScans = 0;
+
+  @override
+  Stream<core.ScanProgress> scan({BigInt? startHeight, bool deleteUnconfirmed = false}) {
+    final c = scanning = StreamController<core.ScanProgress>();
+    return c.stream;
+  }
+
+  @override
+  void cancelScan() {
+    cancelScans++;
+    scanning?.close();
+  }
 
   @override
   Future<core.TxEntry> sendEpicbox({required BigInt amount, required BigInt minimumConfirmations, required String address, String? message, core.SendOptions? options}) async {
@@ -270,6 +286,62 @@ void main() {
     await fallback;
     expect(await send, isA<SendFailed>());
     expect(session.sendsStarted, 1);
+    await w.dispose();
+  });
+
+  test('a lock stops a balance scan instead of waiting for it; the payment toast is not for scans', () async {
+    final w = make();
+    expect(await w.unlock(_password), isTrue);
+    final steps = <ScanStep>[];
+    final scan = w.rescan().listen(steps.add);
+    await _settle();
+    expect(session.scanning, isNotNull);
+    expect(w.busy, isFalse, reason: 'a scan is not a payment');
+    await w.lock().timeout(const Duration(seconds: 2));
+    expect(session.cancelScans, 1);
+    await scan.cancel();
+    await w.dispose();
+  });
+
+  test('a node pick during a scan stops the scan and moves at once', () async {
+    final w = make();
+    expect(await w.unlock(_password), isTrue);
+    final scan = w.rescan().listen((_) {});
+    await _settle();
+    final opens = service.nodeUrls.length;
+    await w.useNode(_other).timeout(const Duration(seconds: 2));
+    expect(session.cancelScans, 1);
+    expect(service.nodeUrls.sublist(opens), [_other]);
+    await scan.cancel();
+    await w.dispose();
+  });
+
+  test('a scan is refused while the wallet locks, and does not slip in during a switch', () async {
+    final w = await onLocal();
+    final g = session.sendGate = Completer<void>();
+    final send = w.send(SendRequest(method: TxMethod.epicbox, amount: 1000, to: _epicbox));
+    await _settle();
+    final lock = w.lock();
+    await expectLater(w.rescan().first, throwsA(isA<DeskError>().having((e) => e.locked, 'locked', isTrue)));
+    g.complete();
+    await send;
+    await lock;
+    await w.dispose();
+  });
+
+  test('two locks at once share one: the second does not end the first’s refusal early', () async {
+    final w = await onLocal();
+    final g = session.sendGate = Completer<void>();
+    final send = w.send(SendRequest(method: TxMethod.epicbox, amount: 1000, to: _epicbox));
+    await _settle();
+    final first = w.lock();
+    final second = w.lock();
+    g.complete();
+    await send;
+    await Future.wait([first, second]);
+    final disposed = session.disposeCalls;
+    await w.lock();
+    expect(session.disposeCalls, disposed, reason: 'locked once, not twice');
     await w.dispose();
   });
 }

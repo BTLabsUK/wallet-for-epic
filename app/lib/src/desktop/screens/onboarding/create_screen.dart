@@ -103,6 +103,8 @@ class _CreateScreenState extends ConsumerState<CreateScreen> {
     }
     final added = await addedWallet(ref.read(deskApiProvider), _before, 'New wallet');
     if (!mounted) return;
+    await markSetupPending(ref.read(deskApiProvider), added.id);
+    if (!mounted) return;
     ref.read(deskNavProvider.notifier).reset(DeskRoute.setup, SetupFirstRun(added, second: _before.isNotEmpty));
   }
 

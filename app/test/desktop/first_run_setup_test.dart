@@ -2,10 +2,10 @@
 // Node → Epicbox → Review → Unlock. Setup starts on the node step with no way back to the
 // phrase, preselects only a healthy node, and Save goes to Unlock. A second wallet starts from
 // the current node.
-import 'package:epic_wallet/src/desktop/app/routes.dart';
+import 'dart:async';
+
 import 'package:epic_wallet/src/desktop/data/desk_node.dart';
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
-import 'package:epic_wallet/src/desktop/data/state.dart';
 import 'package:epic_wallet/src/desktop/screens/onboarding/create_screen.dart';
 import 'package:epic_wallet/src/desktop/screens/onboarding/onboarding_parts.dart';
 import 'package:epic_wallet/src/desktop/screens/onboarding/restore_screen.dart';
@@ -61,6 +61,26 @@ class _Wallet extends MockDeskWallet {
     calls.add('listening $on');
     return super.setListening(on);
   }
+}
+
+/// The real wallet's first answer while locked: every node still being checked, and no refresh
+/// from the app; the checks finish later and [changes] says so.
+class _Checking extends _Wallet {
+  final _changes = StreamController<void>.broadcast();
+  bool answered = false;
+
+  @override
+  Stream<void> changes() => _changes.stream;
+
+  void finish() {
+    answered = true;
+    _changes.add(null);
+  }
+
+  @override
+  Future<List<NodeServer>> nodes() async => answered
+      ? super.nodes()
+      : [for (final n in await super.nodes()) NodeServer(url: n.url, label: n.label, operator: n.operator, health: ServiceHealth.checking)];
 }
 
 class _Router extends ConsumerWidget {
@@ -194,6 +214,68 @@ void main() {
     await wait(tester, 800);
     await throughSetup(tester, node: 'https://current.example:3413');
     expect(wallet.calls.where((c) => c.startsWith('node ')), isEmpty, reason: 'the node is unchanged');
+    await end(tester);
+  });
+
+  testWidgets('the checks finish after Setup opened on a locked wallet: the fastest healthy node is preselected from changes alone', (tester) async {
+    final checking = _Checking();
+    wallet = checking;
+    container.dispose();
+    container = ProviderContainer(overrides: [deskApiProvider.overrideWithValue(checking), deskNodeProvider.overrideWithValue(MockDeskNode())]);
+    await pumpApp(tester, DeskRoute.setup, const SetupFirstRun(UnlockAdded('Wallet 1', id: 'x')));
+    var combo = tester.widget<ServiceCombo>(find.byType(ServiceCombo));
+    expect(combo.value, '', reason: 'a node being checked is not healthy');
+    expect(tester.widget<EButton>(find.widgetWithText(EButton, 'Continue')).onPressed, isNull);
+    checking.finish();
+    await wait(tester, 800);
+    combo = tester.widget<ServiceCombo>(find.byType(ServiceCombo));
+    expect(combo.value, 'https://fast.example:3413');
+    expect(tester.widget<EButton>(find.widgetWithText(EButton, 'Continue')).onPressed, isNotNull);
+    await end(tester);
+  });
+
+  testWidgets('a wallet whose setup was not saved goes to Setup at Unlock, also after a restart; Save clears it', (tester) async {
+    final added = (await tester.runAsync(() async {
+      await wallet.createWallet(password: 'longpassword');
+      final a = (await wallet.wallets()).last;
+      await wallet.setSetupPending(a.id, true);
+      return a;
+    }))!;
+    // A new start: nothing in memory but the wallet's own record.
+    await pumpApp(tester, DeskRoute.unlock);
+    await wait(tester, 800);
+    expect(container.read(deskNavProvider).route, DeskRoute.setup);
+    final arg = container.read(deskNavProvider).arg! as SetupFirstRun;
+    expect(arg.added.id, added.id);
+    await tester.pump(const Duration(seconds: 1));
+    await tester.tap(find.text('Continue'));
+    await wait(tester, 1000);
+    await tester.tap(find.text('Continue'));
+    await wait(tester, 300);
+    await tester.tap(find.text('Save settings'));
+    await wait(tester, 800);
+    expect(await tester.runAsync(() => wallet.setupPending(added.id)), isFalse);
+    expect(container.read(deskNavProvider).route, DeskRoute.unlock);
+    await wait(tester, 800);
+    expect(container.read(deskNavProvider).route, DeskRoute.unlock, reason: 'cleared: Unlock stays');
+    await end(tester);
+  });
+
+  testWidgets('create marks the wallet pending until Save', (tester) async {
+    await pumpApp(tester, DeskRoute.create);
+    await tester.enterText(field(0), 'longpassword');
+    await tester.enterText(field(1), 'longpassword');
+    await tester.pump();
+    await tester.tap(find.text('Create wallet').last);
+    await wait(tester, 4000);
+    await tester.tap(find.text('Reveal phrase'));
+    await tester.pump();
+    await tester.tap(find.textContaining('Written down'));
+    await tester.pump();
+    await tester.tap(find.text('Continue'));
+    await wait(tester, 800);
+    final id = (container.read(deskNavProvider).arg! as SetupFirstRun).added.id!;
+    expect(await tester.runAsync(() => wallet.setupPending(id)), isTrue);
     await end(tester);
   });
 }

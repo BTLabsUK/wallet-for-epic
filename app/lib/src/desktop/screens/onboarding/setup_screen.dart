@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -79,7 +81,10 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
 
   /// The node in use before this run (a second wallet's first run: the app-wide one).
   String? _currentNode;
-  List<NodeServer>? _fetched;
+  /// The newest node list, from the wallet's changes or the first fetch.
+  List<NodeServer>? _nodes;
+  StreamSubscription<void>? _changes;
+  Timer? _refetch;
   List<EpicboxServer>? _boxes;
   bool _busy = false;
   bool _checking = false;
@@ -111,12 +116,13 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
     final api = ref.read(deskApiProvider);
     // The node list refreshes as each node's check comes in (the wallet's changes).
     ref.listenManual(deskProvider.select((s) => s.nodes), (_, n) {
-      if (n != null) _preselect(n);
+      if (n != null) _setNodes(n);
     });
-    api.nodes().then((n) {
-      if (!mounted) return;
-      setState(() => _fetched = n);
-      _preselect(ref.read(deskProvider).nodes ?? n);
+    api.nodes().then(_setNodes);
+    // A locked wallet has no live loop: the checks that finish meanwhile arrive as changes.
+    _changes = api.changes().listen((_) {
+      _refetch?.cancel();
+      _refetch = Timer(const Duration(milliseconds: 400), () => api.nodes().then(_setNodes, onError: (Object _) {}));
     });
     api.epicboxes().then((b) => mounted ? setState(() => _boxes = b) : null);
   }
@@ -130,8 +136,16 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
     if (best != _nodeUrl) setState(() => _nodeUrl = best);
   }
 
+  void _setNodes(List<NodeServer> n) {
+    if (!mounted) return;
+    setState(() => _nodes = n);
+    _preselect(n);
+  }
+
   @override
   void dispose() {
+    _changes?.cancel();
+    _refetch?.cancel();
     _domain.dispose();
     super.dispose();
   }
@@ -188,6 +202,17 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
     }
     if (!mounted) return;
     final first = _first;
+    if (first?.added.id case final id?) {
+      try {
+        await ref.read(deskApiProvider).setSetupPending(id, false);
+      } on Object catch (e) {
+        if (!mounted) return;
+        setState(() => _busy = false);
+        showEToast(context, 'Not saved', text: deskErrorText(e));
+        return;
+      }
+    }
+    if (!mounted) return;
     ref.read(deskNavProvider.notifier).reset(first == null ? DeskRoute.overview : DeskRoute.unlock, first?.added);
   }
 
@@ -280,7 +305,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
   );
 
   Widget _node(BuildContext context) {
-    final nodes = ref.watch(deskProvider.select((s) => s.nodes)) ?? _fetched;
+    final nodes = _nodes;
     final rows = nodes == null ? const <ServerInfo>[] : serverRows(nodes.where((n) => !n.own).toList());
     final current = rows.where((r) => r.value == _nodeUrl).firstOrNull;
     final picker = ServiceCombo(

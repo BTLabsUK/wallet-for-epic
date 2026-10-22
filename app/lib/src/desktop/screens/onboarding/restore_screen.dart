@@ -161,6 +161,8 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
       }
       final added = await addedWallet(api, before, 'Restored wallet', notice: 'Wallet restored.');
       if (!mounted) return;
+      await markSetupPending(api, added.id);
+      if (!mounted) return;
       ref.read(deskNavProvider.notifier).reset(DeskRoute.setup, SetupFirstRun(added, second: before.isNotEmpty));
     } catch (e) {
       if (!mounted) return;

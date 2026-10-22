@@ -231,13 +231,6 @@ class LepicDeskWallet implements DeskWalletApi {
     return r;
   }
 
-  /// Done once no switch is under way.
-  Future<void> _switchEnded() async {
-    while (_switching != null) {
-      await _switching!.future;
-    }
-  }
-
   /// A scan counts as a running operation like a payment: the lock and the node moves wait.
   void _opEnded() {
     if (--_busy == 0) {
@@ -542,6 +535,18 @@ class LepicDeskWallet implements DeskWalletApi {
   }
 
   @override
+  Future<bool> setupPending(String id) async {
+    final e = await _entry(id);
+    return (await _meta(_metaKey(e.walletId)))['setupPending'] == true;
+  }
+
+  @override
+  Future<void> setSetupPending(String id, bool pending) async {
+    final e = await _entry(id);
+    await _setMeta({'setupPending': pending}, _metaKey(e.walletId));
+  }
+
+  @override
   Future<void> selectWallet(String id) async {
     await _entry(id);
     _selectedId = id;
@@ -803,21 +808,55 @@ class LepicDeskWallet implements DeskWalletApi {
   @override
   Future<void> lock() => _lock();
 
-  /// [waitAtMost]: how long a running send may hold the lock up (the app closing); past it
-  /// the lock goes ahead and the core ends the call.
-  Future<void> _lock({Duration? waitAtMost}) async {
-    // A send, finalize or split under way finishes first ([busy]); none starts meanwhile.
-    _locking = true;
-    try {
-      if (waitAtMost == null) {
-        await whenIdle();
-      } else {
-        await whenIdle().timeout(waitAtMost, onTimeout: () => logWarn('desk', 'closing: a payment still ran after ${waitAtMost.inSeconds} s; locking anyway'));
-      }
-      await _lockNow();
-    } finally {
-      _locking = false;
+  /// One lock at a time: a second call joins the first. [waitAtMost]: how long a running
+  /// payment may hold the lock up (the app closing); past it the lock goes ahead and the core
+  /// ends the call. A scan is stopped first: it has no effect worth waiting for.
+  Future<void> _lock({Duration? waitAtMost}) {
+    void cap() {
+      if (waitAtMost == null) return;
+      _lockTimer?.cancel();
+      _lockTimer = Timer(waitAtMost, () {
+        final force = _lockForce;
+        if (force != null && !force.isCompleted) {
+          logWarn('desk', 'closing: a payment still ran after ${waitAtMost.inSeconds} s; locking anyway');
+          force.complete();
+        }
+      });
     }
+
+    final running = _lockRun;
+    if (running != null) {
+      cap();
+      return running;
+    }
+    // Set before the first await: no payment starts meanwhile.
+    _locking = true;
+    _lockForce = Completer<void>();
+    cap();
+    return _lockRun = _runLock().whenComplete(() {
+      _lockTimer?.cancel();
+      _lockTimer = null;
+      _lockForce = null;
+      _lockRun = null;
+      _locking = false;
+    });
+  }
+
+  Future<void>? _lockRun;
+  Completer<void>? _lockForce;
+  Timer? _lockTimer;
+
+  Future<void> _runLock() async {
+    await _stopScanForUser();
+    // A send, finalize or split under way finishes first ([busy]); none starts meanwhile.
+    await Future.any<void>([whenIdle(), _lockForce!.future]);
+    await _lockNow();
+  }
+
+  /// A balance scan can run for minutes and its effect is only a read: a lock or a node move
+  /// the user asked for ends it instead of waiting.
+  Future<void> _stopScanForUser() async {
+    if (_rescanning) await stopRescan();
   }
 
   Future<void> _lockNow() async {
@@ -1802,7 +1841,7 @@ class LepicDeskWallet implements DeskWalletApi {
   bool _locking = false;
 
   @override
-  bool get busy => _busy > 0;
+  bool get busy => _busy - (_rescanning ? 1 : 0) > 0;
 
   /// Done once no such call runs.
   Future<void> whenIdle() => _busy == 0 ? Future<void>.value() : (_idle ??= Completer<void>()).future;
@@ -2245,7 +2284,12 @@ class LepicDeskWallet implements DeskWalletApi {
   }
 
   @override
-  Future<void> useNode(String url) => _nodeLock(() async {
+  Future<void> useNode(String url) async {
+    await _stopScanForUser();
+    await _useNode(url);
+  }
+
+  Future<void> _useNode(String url) => _nodeLock(() async {
     logInfo('desk', 'node ${Uri.tryParse(url)?.host ?? '?'}');
     await _switchTo(nodeUrl: url, relay: await _relay());
     if (await _builtInOn()) {
@@ -2270,6 +2314,7 @@ class LepicDeskWallet implements DeskWalletApi {
 
   @override
   Future<void> useBuiltInNode(bool on) async {
+    await _stopScanForUser();
     // The setting and the saved node change only once the wallet runs on the new node, so a
     // failed start or move leaves both as they were.
     if (on) {
@@ -2411,6 +2456,7 @@ class LepicDeskWallet implements DeskWalletApi {
     final relay = EpicboxRelay.parse(domain);
     if (relay == null) throw const DeskError('Not a server name');
     logInfo('desk', 'epicbox ${relay.label}');
+    await _stopScanForUser();
     await _nodeLock(() async => _switchTo(nodeUrl: await _nodeUrl(), relay: relay));
   }
 
@@ -2701,15 +2747,26 @@ class LepicDeskWallet implements DeskWalletApi {
 
   @override
   Stream<ScanStep> rescan({bool deleteUnconfirmed = false}) async* {
-    await _switchEnded();
-    final session = _open;
-    final key = _metaKey(_openEntry?.walletId);
-    // A scan LEPIC was told to stop still holds the wallet until its stream ends: wait for that.
-    final old = _rescanEnded;
-    if (_rescanning && _rescanStopAsked && old != null) {
-      await old.future.timeout(const Duration(seconds: 30), onTimeout: () {});
+    // Admitted like [_running]: the checks and the count follow each other with no await.
+    var waitedForStop = false;
+    while (true) {
+      if (_locking) throw const DeskError('The wallet is locking', locked: true);
+      if (_switching != null) {
+        await _switching!.future;
+        continue;
+      }
+      // A scan LEPIC was told to stop still holds the wallet until its stream ends: wait for that.
+      final old = _rescanEnded;
+      if (_rescanning && _rescanStopAsked && old != null && !waitedForStop) {
+        waitedForStop = true;
+        await old.future.timeout(const Duration(seconds: 30), onTimeout: () {});
+        continue;
+      }
+      break;
     }
     if (_rescanning) throw const DeskError(scanRunning);
+    final session = _open;
+    final key = _metaKey(_openEntry?.walletId);
     _rescanning = true;
     _rescanStopAsked = false;
     final ended = _rescanEnded = Completer<void>();
