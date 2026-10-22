@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 
 const node = String.fromEnvironment('WFE_CHECK_NODE', defaultValue: 'https://node.btlabs.uk');
@@ -33,7 +34,7 @@ String randomPassword() {
 
 final shotKey = GlobalKey();
 
-Future<void> boot(WidgetTester tester, {Size size = const Size(1280, 860)}) async {
+Future<void> boot(WidgetTester tester, {Size size = const Size(1280, 860), List<Override> extra = const []}) async {
   tester.view.physicalSize = size;
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
@@ -45,7 +46,10 @@ Future<void> boot(WidgetTester tester, {Size size = const Size(1280, 860)}) asyn
     ProviderScope(
       retry: (_, _) => null,
       overrides: overrides!,
-      child: RepaintBoundary(key: shotKey, child: const DeskApp()),
+      child: extra.isEmpty
+          ? RepaintBoundary(key: shotKey, child: const DeskApp())
+          // A nested scope so [extra] can replace what deskOverrides() already set.
+          : ProviderScope(overrides: extra, child: RepaintBoundary(key: shotKey, child: const DeskApp())),
     ),
   );
   await settle(tester);
