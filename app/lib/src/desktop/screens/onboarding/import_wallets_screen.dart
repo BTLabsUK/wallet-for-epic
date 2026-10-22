@@ -220,7 +220,14 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
     } on Object {
       // Unlock offers the wallet opened last.
     }
-    nav.reset(DeskRoute.unlock, UnlockAdded(done.length == 1 ? last.name : '${done.length} wallets', id: last.id));
+    nav.reset(
+      DeskRoute.unlock,
+      UnlockAdded(
+        done.length == 1 ? last.name : '${done.length} wallets',
+        id: last.id,
+        notice: done.length == 1 ? 'Wallet imported.' : '${done.length} wallets imported.',
+      ),
+    );
   }
 
   void _next() {
@@ -337,7 +344,11 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
       ImportStep.done => ('Open wallet', true, null),
     };
     final canBack = _step == ImportStep.choose || _step == ImportStep.check || (_step == ImportStep.import && _done.isEmpty && !_busy);
-    return EOnbFrame(
+    final leaveSafe = _step == ImportStep.find || _step == ImportStep.found || _step == ImportStep.none;
+    // Back (mouse, Alt+Left) goes one step back; held once a wallet is imported (Cancel asks).
+    return DeskStepBack(
+      onBack: canBack ? _back : (leaveSafe && !_busy ? null : () {}),
+      child: EOnbFrame(
       sideTitle: 'Import wallets',
       steps: railOf(['Find', 'Choose', 'Check', 'Import', 'Done'], _railIndex),
       title: h.title,
@@ -346,14 +357,35 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
           ? null
           : Align(
               alignment: Alignment.centerLeft,
-              child: EButton.ghost(label: 'Cancel', icon: EIcons.close, onPressed: _busy ? null : _cancel),
+              child: EButton.ghost(label: 'Cancel', icon: EIcons.close, tabStop: false, onPressed: _busy ? null : _cancel),
             ),
       actions: [
         if (stat != null) Expanded(child: Text(stat, style: ts.small)) else const SizedBox.shrink(),
-        if (canBack) Padding(padding: EdgeInsets.only(right: Sp.x3), child: EButton(label: 'Back', onPressed: _back)),
-        EButton.primary(label: label, busy: _busy && _step == ImportStep.import, onPressed: enabled ? _next : null),
+        if (canBack) Padding(padding: EdgeInsets.only(right: Sp.x3), child: EButton(label: 'Back', tabStop: false, onPressed: _back)),
+        if (_step == ImportStep.import && current != null)
+          // Tab: Import, then Skip (Skip sits left of the main button).
+          FocusTraversalGroup(
+            policy: OrderedTraversalPolicy(),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                FocusTraversalOrder(
+                  order: const NumericFocusOrder(2),
+                  child: EButton.ghost(label: 'Skip', size: EBtnSize.inline, onPressed: _busy ? null : _skipCurrent),
+                ),
+                SizedBox(width: Sp.x3),
+                FocusTraversalOrder(
+                  order: const NumericFocusOrder(1),
+                  child: EButton.primary(label: label, busy: _busy, onPressed: enabled ? _next : null),
+                ),
+              ],
+            ),
+          )
+        else
+          EButton.primary(label: label, busy: _busy && _step == ImportStep.import, onPressed: enabled ? _next : null),
       ],
       child: _body(context),
+    ),
     );
   }
 
@@ -653,9 +685,12 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
   Widget _passwordForm(BuildContext context, OldWallet f) {
     final ts = context.ts;
     final short = _shortOld;
+    // Enter: Old → New → Repeat, then Import.
     return Padding(
       padding: EdgeInsets.only(top: Sp.x4),
-      child: Column(
+      child: EForm(
+        onSubmit: _busy ? null : _importCurrent,
+        child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           EField(
@@ -669,7 +704,6 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
               invalid: _error != null && !short,
               semanticLabel: 'Old password of ${f.name}',
               onChanged: (_) => setState(() => _error = null),
-              onSubmitted: (_) => _importCurrent(),
             ),
           ),
           if (short) ...[
@@ -683,7 +717,7 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
                 children: [
                   EPasswordInput(controller: _new, semanticLabel: 'New password', onChanged: (_) => setState(() => _error = null)),
                   SizedBox(height: Sp.x2),
-                  PasswordHint(controller: _new),
+                  ExcludeFocusTraversal(child: PasswordHint(controller: _new)),
                 ],
               ),
             ),
@@ -696,16 +730,11 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
                 semanticLabel: 'Repeat the new password',
                 invalid: _error != null,
                 onChanged: (_) => setState(() => _error = null),
-                onSubmitted: (_) => _importCurrent(),
               ),
             ),
           ],
-          SizedBox(height: Sp.x3),
-          Align(
-            alignment: Alignment.centerLeft,
-            child: EButton.ghost(label: 'Skip', size: EBtnSize.inline, onPressed: _busy ? null : _skipCurrent),
-          ),
         ],
+      ),
       ),
     );
   }

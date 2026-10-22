@@ -55,6 +55,7 @@ class FeedbackDetails {
     required this.node,
     required this.relay,
     required this.sync,
+    this.logLevel,
   });
 
   final String appVersion;
@@ -65,6 +66,9 @@ class FeedbackDetails {
   final String node;
   final String relay;
   final String sync;
+
+  /// The log level while the log was written (`normal`, `detailed`); the desktop only.
+  final String? logLevel;
 }
 
 /// A loose check that [email] can be replied to.
@@ -99,6 +103,7 @@ SupportReport buildFeedbackReport({
       'node': cleanHost(details.node, ids),
       'epicbox': cleanHost(details.relay, ids),
       'sync': clean(details.sync),
+      'log level': ?details.logLevel,
     },
     files: [
       if (log != null)

@@ -120,6 +120,15 @@ abstract interface class WalletSession {
 
   Future<String> mnemonic({required String password});
 
+  /// Re-encrypts the wallet under [newPassword]; then only it opens the wallet. A wrong
+  /// [currentPassword] throws [WalletErrorKind.wrongPassword], counted and delayed like a wrong
+  /// unlock; a [newPassword] under eight characters [WalletErrorKind.invalidArgument]. A wallet
+  /// from [WalletService.createWithPin] has no password to change: use [changePin].
+  Future<void> changePassword({
+    required String currentPassword,
+    required String newPassword,
+  });
+
   /// The recovery phrase of a wallet from [WalletService.createWithPin], for the backup screen.
   /// The PIN attempt counts as in [WalletService.openWithPin].
   Future<String> mnemonicWithPin({
@@ -257,7 +266,15 @@ abstract interface class WalletSession {
   /// [ReceivedSlate.repeated] set; nothing is stored or signed again.
   Future<ReceivedSlate> receiveSlate({required String slateJson});
 
-  Stream<ScanProgress> scan({BigInt? startHeight});
+  /// Scans the chain from [startHeight] (the wallet's birth when null). With
+  /// [deleteUnconfirmed], a scan that completes also cancels unconfirmed transactions,
+  /// deleting their outputs, and unlocks locked outputs found on chain. A stopped scan resumes
+  /// when started again with the same start and flag.
+  Stream<ScanProgress> scan({BigInt? startHeight, bool deleteUnconfirmed = false});
+
+  /// Stops a running [scan] at its next page; its stream then ends without a `finished`
+  /// event. Pages stored so far stay. Nothing happens when no scan runs.
+  void cancelScan();
 
   Future<WalletSummary> summary({
     required bool refresh,
@@ -524,7 +541,7 @@ class FakeWalletService implements WalletService {
     this.password = password;
     createdConfig = config;
     createdMnemonic = mnemonic;
-    return session;
+    return session..owner = this;
   }
 
   /// The seed text and its password [importWalletSeed] was given last.
@@ -578,7 +595,7 @@ class FakeWalletService implements WalletService {
         message: 'wrong password',
       );
     }
-    return session;
+    return session..owner = this;
   }
 
   @override
@@ -722,6 +739,33 @@ class FakeWalletSession implements WalletSession {
 
   @override
   Future<String> mnemonic({required String password}) async => phrase;
+
+  /// The [changePassword] calls, in order.
+  final List<({String current, String next})> passwordChanges = [];
+
+  /// Checks [currentPassword] against the owner's [FakeWalletService.password] when there is
+  /// an owner, and sets the new one there.
+  @override
+  Future<void> changePassword({
+    required String currentPassword,
+    required String newPassword,
+  }) async {
+    if (newPassword.length < 8) {
+      throw const WalletError(
+        kind: WalletErrorKind.invalidArgument,
+        message: 'password has fewer than 8 characters',
+      );
+    }
+    final o = owner;
+    if (o != null && o.password != currentPassword) {
+      throw const WalletError(
+        kind: WalletErrorKind.wrongPassword,
+        message: 'wrong password',
+      );
+    }
+    passwordChanges.add((current: currentPassword, next: newPassword));
+    o?.password = newPassword;
+  }
 
   /// The service that last handed this session out, which holds the PIN state.
   FakeWalletService? owner;
@@ -1236,11 +1280,24 @@ class FakeWalletSession implements WalletSession {
     return HttpSent(txId: txId, slateId: tx.slateId!, posted: httpPosted);
   }
 
+  /// When set, [scan] answers this stream instead of [scanEvents].
+  Stream<ScanProgress>? scanStream;
+
+  /// How often [cancelScan] was called.
+  int scanCancels = 0;
+
+  /// [scan]'s last deleteUnconfirmed.
+  bool? scanDeleteUnconfirmed;
+
   @override
-  Stream<ScanProgress> scan({BigInt? startHeight}) {
+  Stream<ScanProgress> scan({BigInt? startHeight, bool deleteUnconfirmed = false}) {
     scanCalls++;
-    return Stream.fromIterable(scanEvents);
+    scanDeleteUnconfirmed = deleteUnconfirmed;
+    return scanStream ?? Stream.fromIterable(scanEvents);
   }
+
+  @override
+  void cancelScan() => scanCancels++;
 
   @override
   Future<WalletSummary> summary({

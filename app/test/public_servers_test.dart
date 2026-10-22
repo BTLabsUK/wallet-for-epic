@@ -64,7 +64,7 @@ void main() {
   });
 
   group('merge', () {
-    test('the monitor down: the built-in lists, BT Labs and Stack Wallet first', () {
+    test('the monitor down: the built-in lists, BT Labs and Epic Cash first (D-13)', () {
       final nodes = mergePublicNodes(null);
       expect(nodes.map((n) => n.url), builtInNodes.map((n) => n.url));
       expect(nodes, hasLength(5));
@@ -72,7 +72,7 @@ void main() {
       expect(nodes.every((n) => n.status == null), isTrue);
       final relays = mergePublicRelays(null);
       expect(relays, hasLength(4));
-      expect(relays.first.relay.host, 'epicbox.stackwallet.com');
+      expect(relays.first.relay.host, 'epicbox.epiccash.com');
     });
 
     test('the sample matches every built-in server, one row each', () {
@@ -108,7 +108,7 @@ void main() {
       expect(relays, hasLength(5));
       expect(relays.last.relay, const EpicboxRelay(host: 'box.example', port: 8443));
       expect(relays.last.operator, 'Box op');
-      expect(relays[2].status?.healthy, isFalse);
+      expect(relays.first.status?.healthy, isFalse);
     });
   });
 

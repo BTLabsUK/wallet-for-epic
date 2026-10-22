@@ -87,7 +87,9 @@ class _DeskRootState extends ConsumerState<DeskRoot> {
         // A Scaffold, so toasts (showEToast) show on the first-run screens too.
         ? Scaffold(backgroundColor: context.dc.bg, body: KeyedSubtree(key: ValueKey(at.route), child: deskScreen(at)))
         : DeskShell(at: at);
-    return AnimatedSwitcher(duration: Dur.base, child: KeyedSubtree(key: ValueKey(at.route.bare), child: child));
+    return DeskNavKeys(
+      child: AnimatedSwitcher(duration: Dur.base, child: KeyedSubtree(key: ValueKey(at.route.bare), child: child)),
+    );
   }
 }
 

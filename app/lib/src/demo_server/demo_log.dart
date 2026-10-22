@@ -38,7 +38,7 @@ class DemoLogSink extends LogSink {
     serverLog(switch (level) {
       LogLevel.error => ServerLogLevel.error,
       LogLevel.warn => ServerLogLevel.warn,
-      LogLevel.info => ServerLogLevel.info,
+      LogLevel.info || LogLevel.debug => ServerLogLevel.info,
     }, '$target: $message');
   }
 

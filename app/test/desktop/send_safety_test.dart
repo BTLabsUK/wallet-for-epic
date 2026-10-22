@@ -67,7 +67,7 @@ void main() {
   testWidgets('a send that throws closes the review and points to Activity', (tester) async {
     wallet.sendThrows = StateError('socket closed');
     await review(tester);
-    await tester.tap(find.text('Send 1 EPIC'));
+    await tester.tap(find.text('Send 1.0000 EPIC'));
     await tester.pumpAndSettle();
     expect(find.text('Check and send'), findsNothing);
     expect(find.text('Not confirmed. Check Activity before sending again.'), findsOneWidget);
@@ -79,7 +79,7 @@ void main() {
   testWidgets('a payment waiting in Activity offers no second review', (tester) async {
     wallet.sendReturns = const SendFailed('Not delivered. The payment waits in Activity; cancel it there to unlock the funds.', inActivity: true);
     await review(tester);
-    await tester.tap(find.text('Send 1 EPIC'));
+    await tester.tap(find.text('Send 1.0000 EPIC'));
     await tester.pumpAndSettle();
     expect(find.text('View in Activity'), findsOneWidget);
     expect(find.text('Review again'), findsNothing);
@@ -88,7 +88,7 @@ void main() {
   testWidgets('a plain refusal still offers Review again', (tester) async {
     wallet.sendReturns = const SendFailed('Not enough funds');
     await review(tester);
-    await tester.tap(find.text('Send 1 EPIC'));
+    await tester.tap(find.text('Send 1.0000 EPIC'));
     await tester.pumpAndSettle();
     expect(find.text('Review again'), findsOneWidget);
   });

@@ -189,6 +189,7 @@ class _IssuerWallet implements lepic.EpicWallet {
     required BigInt amount,
     required BigInt minimumConfirmations,
     String? message,
+    lepic.SendOptions? options,
   }) async {
     spends.add('payInvoice');
     throw StateError('an issuer path paid');
@@ -200,6 +201,7 @@ class _IssuerWallet implements lepic.EpicWallet {
     required BigInt minimumConfirmations,
     required String address,
     String? message,
+    lepic.SendOptions? options,
   }) async {
     spends.add('sendEpicbox');
     throw StateError('an issuer path sent');
@@ -210,6 +212,7 @@ class _IssuerWallet implements lepic.EpicWallet {
     required BigInt amount,
     required BigInt minimumConfirmations,
     String? message,
+    lepic.SendOptions? options,
   }) async {
     spends.add('createSendSlate');
     throw StateError('an issuer path made a send');

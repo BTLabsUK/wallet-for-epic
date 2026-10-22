@@ -20,11 +20,12 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:crypto/crypto.dart';
+import 'package:path_provider/path_provider.dart';
 
-import '../../bip39_words.dart';
 import '../../builtin_node.dart';
 import '../../legacy_gui_profile.dart' as gui;
 import '../../legacy_wallets.dart' as legacy;
+import '../../lepic_wallet_service.dart' show sendUnbuildable;
 import '../../log.dart';
 import '../../network.dart';
 import '../../providers.dart' show WalletDirResolver, defaultMinimumConfirmations;
@@ -40,6 +41,7 @@ import 'desk_store.dart';
 import 'features.dart';
 import 'http_address.dart';
 import 'models.dart';
+import 'remember.dart';
 
 /// Built-in public nodes offered in Settings › Node, the default first; status.btlabs.uk can add more.
 final List<NodeServer> deskPublicNodes = [
@@ -47,11 +49,18 @@ final List<NodeServer> deskPublicNodes = [
 ];
 
 /// Built-in public Epicbox servers, the default first; status.btlabs.uk can add more.
+/// The Epicbox server 0.1.0 used when none was saved (the desktop's first relay then). An
+/// install with a wallet keeps it (D-13); see [LepicDeskWallet._settleRelay].
+const String oldDefaultEpicboxHost = 'epicbox.stackwallet.com';
+
 final List<EpicboxServer> deskEpicboxes = [
   for (final r in builtInRelays) EpicboxServer(domain: r.relay.host, port: r.relay.port, operator: r.operator, health: ServiceHealth.checking),
 ];
 
 /// A short sentence for a wallet error.
+/// A second scan asked while one runs.
+const String scanRunning = 'A scan is already running.';
+
 String deskErrorText(Object error) {
   if (error is DeskError) return error.message;
   if (error is! core.WalletError) return 'Something went wrong';
@@ -73,7 +82,7 @@ String deskErrorText(Object error) {
     core.WalletErrorKind.chainBusy || core.WalletErrorKind.walletBusy => 'Wallet busy. Try again in a moment.',
     core.WalletErrorKind.damagedDatabase => 'Wallet database damaged, rebuilding',
     core.WalletErrorKind.paymentExpired => detail.isEmpty ? 'Payment expired' : detail,
-    core.WalletErrorKind.invalidArgument => detail.isEmpty ? 'Not accepted' : 'Not accepted: $detail',
+    core.WalletErrorKind.invalidArgument => detail == sendUnbuildable ? detail : detail.isEmpty ? 'Not accepted' : 'Not accepted: $detail',
     core.WalletErrorKind.io => detail.isEmpty ? 'Disk error' : 'Disk error: $detail',
     core.WalletErrorKind.other => detail.isEmpty ? 'Something went wrong' : detail,
   };
@@ -107,6 +116,7 @@ class LepicDeskWallet implements DeskWalletApi {
     BigInt? minimumConfirmations,
     this.nodePoll = const Duration(seconds: 30),
     this.nodeTimeout = const Duration(seconds: 15),
+    this.torRetryAfter = const Duration(seconds: 60),
     reg.WalletRegistry? registry,
     this._builtInNode,
     legacy.LegacyRoots Function()? legacyRoots,
@@ -114,10 +124,20 @@ class LepicDeskWallet implements DeskWalletApi {
     this._listProcesses,
     this._torBundle,
     bool? torFeature,
+    Future<Directory> Function()? rememberDir,
+    DateTime Function()? now,
   }) : _torFeature = torFeature ?? DeskFeatures.tor,
        _legacyRoots = legacyRoots ?? legacy.LegacyRoots.current,
        _minConfFallback = minimumConfirmations ?? BigInt.from(defaultMinimumConfirmations),
-       _registryGiven = registry;
+       _registryGiven = registry,
+       _remember = RememberedPasswords(
+         secrets: _secrets,
+         dir: rememberDir ?? () async => Directory('${(await getApplicationSupportDirectory()).path}${Platform.pathSeparator}remember'),
+         now: now,
+       );
+
+  /// Passwords remembered on this computer, per wallet (F6).
+  final RememberedPasswords _remember;
 
   /// Whether this build offers Tor ([DeskFeatures.tor]); tests turn it on.
   final bool _torFeature;
@@ -153,6 +173,9 @@ class LepicDeskWallet implements DeskWalletApi {
   }
   final Duration nodePoll;
   final Duration nodeTimeout;
+
+  /// How long tor may connect before Retry is offered beside "Connecting to Tor…".
+  final Duration torRetryAfter;
 
   /// Makes the built-in node of a network (desktop builds with the bundled `epic`, D10); null
   /// where there is none.
@@ -197,6 +220,10 @@ class LepicDeskWallet implements DeskWalletApi {
   List<core.TxEntry>? _entries;
   int _tip = 0;
   ServiceHealth _nodeHealth = ServiceHealth.checking;
+
+  /// The node's last answer said it is not ready for transactions (O2): a sync that reached it
+  /// does not turn that back into Online.
+  bool _nodeNotReady = false;
   ServiceHealth _epicboxHealth = ServiceHealth.off;
   double? _syncProgress;
   DateTime? _lastUpdate;
@@ -222,6 +249,14 @@ class LepicDeskWallet implements DeskWalletApi {
   String? _torProblem;
   bool _torCanSend = false;
 
+  /// When this tor start began; null once it connected, failed or stopped.
+  DateTime? _torStartedAt;
+  Timer? _torSlowTimer;
+
+  /// A start that stalled on its first bootstrap is retried once by itself (a cold Tor cache
+  /// can sit at one percent past LEPIC's stall limit); this is set once that retry ran.
+  bool _torAutoRetried = false;
+
   /// The open wallet's onion, `<56 characters>.onion`.
   String? _onion;
   Timer? _poll;
@@ -246,8 +281,48 @@ class LepicDeskWallet implements DeskWalletApi {
   Future<String> _nodeUrl() async => await _secrets.read(_nodeKey) ?? preset.nodeUrl;
 
   Future<EpicboxRelay> _relay() async {
+    await (_relaySettled ??= _settleRelay());
     final saved = await _secrets.read(_relayKey);
-    return (saved == null ? null : EpicboxRelay.parse(saved)) ?? EpicboxRelay(host: deskEpicboxes.first.domain);
+    return (saved == null ? null : EpicboxRelay.parse(saved)) ??
+        EpicboxRelay(host: _settledHost ?? deskEpicboxes.first.domain);
+  }
+
+  Future<void>? _relaySettled;
+
+  /// What [_settleRelay] chose this run, used when saving it failed.
+  String? _settledHost;
+
+  /// Once per run: an install that never saved its Epicbox server keeps the one 0.1.0 used
+  /// ([oldDefaultEpicboxHost]) when it already holds a wallet, since the server is part of the
+  /// wallet's address; only an install without a wallet starts on the new default (D-13). The
+  /// choice is saved either way, so a wallet made later keeps it too.
+  Future<void> _settleRelay() async {
+    try {
+      if (await _secrets.read(_relayKey) != null) return;
+      final host = await _hadWallet() ? oldDefaultEpicboxHost : deskEpicboxes.first.domain;
+      _settledHost = host;
+      await _secrets.write(_relayKey, EpicboxRelay(host: host).label);
+      logInfo('desk', 'epicbox server settled: $host');
+    } on Object catch (e) {
+      // Not saved: the next run tries again; this one uses what was chosen, if anything.
+      logWarn('desk', 'epicbox server not settled: ${e.runtimeType}');
+    }
+  }
+
+  /// Whether a wallet was made before this run: the first wallet's folder, or any entry in
+  /// `wallets.json` (read directly: [registry] needs [_relay]). An unreadable list counts as one.
+  Future<bool> _hadWallet() async {
+    final first = await _walletDir(preset.chain);
+    if (await _service.walletExists(config: preset.config(dataDir: first, nodeUrl: preset.nodeUrl))) return true;
+    final root = _registryGiven?.root ?? Directory(first).parent.parent.path;
+    final file = File('$root${Platform.pathSeparator}${reg.WalletRegistry.fileName}');
+    if (!await file.exists()) return false;
+    try {
+      final json = jsonDecode(await file.readAsString());
+      return json is! Map || json['wallets'] is! List || (json['wallets'] as List).isNotEmpty;
+    } on Object {
+      return true;
+    }
   }
 
   /// The config of [entry]; null is the first wallet. The first wallet's folder is exactly
@@ -446,9 +521,11 @@ class LepicDeskWallet implements DeskWalletApi {
       switch (mode) {
         case WalletRemoval.list:
           await r.forget(id);
+          await _remember.forget(id);
           if (entry.isLegacy) await _setMeta({'unlisted': true}, _metaKey(null));
         case WalletRemoval.delete:
           await r.delete(id, service: _service, config: config);
+          await _remember.forget(id);
           await _store.delete(_metaKey(entry.walletId));
           await _store.delete(DeskStore.favouritesKeyOf(entry.walletId));
           if (entry.walletId != null) {
@@ -507,11 +584,71 @@ class LepicDeskWallet implements DeskWalletApi {
   // ---- Opening a wallet.
 
   @override
-  Future<bool> unlock(String password) async {
+  Future<bool> unlock(String password, {bool remember = false}) => _unlock(password, remember: remember);
+
+  @override
+  Future<bool> unlockRemembered() async {
+    final entry = _pick(await _wallets(), await _lastUsed());
+    if (entry == null) return false;
+    final password = await _remember.recall(entry.id);
+    if (password == null) return false;
+    final ok = await _unlock(password);
+    if (!ok) await _remember.forget(entry.id);
+    _openedRemembered = ok;
+    logInfo('desk', ok ? 'unlocked with the remembered password' : 'remembered password refused');
+    return ok;
+  }
+
+  @override
+  Future<bool> isRemembered(String id) => _remember.isRemembered(id);
+
+  bool _notRemembered = false;
+  bool _openedRemembered = false;
+
+  @override
+  bool get notRemembered => _notRemembered;
+
+  @override
+  bool get openedRemembered => _session != null && _openedRemembered;
+
+  @override
+  Future<bool> checkPassword(String password) async {
+    try {
+      await _open.mnemonic(password: password);
+      return true;
+    } on core.WalletError catch (e) {
+      if (e.kind == core.WalletErrorKind.wrongPassword) return false;
+      throw _deskError(e);
+    }
+  }
+
+  @override
+  Future<void> forgetRemembered(String id) => _remember.forget(id);
+
+  /// Opens the selected wallet. [remember]: keep the password, forget it, or (null, for the
+  /// remembered password itself) leave it and its expiry as they are.
+  Future<bool> _unlock(String password, {bool? remember}) async {
     await lock();
     final all = await _wallets();
     final entry = _pick(all, await _lastUsed());
     if (entry == null) throw const DeskError('No wallet found');
+    final ok = await _openEntryWith(entry, password);
+    _notRemembered = false;
+    _openedRemembered = false;
+    if (!ok) {
+      await _remember.failed(entry.id);
+    } else if (remember == true) {
+      _notRemembered = !await _remember.remember(entry.id, password);
+    } else if (remember == false) {
+      await _remember.forget(entry.id, quiet: true);
+    } else {
+      await _remember.succeeded(entry.id);
+    }
+    if (ok) _startOpenWallet();
+    return ok;
+  }
+
+  Future<bool> _openEntryWith(reg.WalletEntry entry, String password) async {
     final config = await _configOf(entry);
     final metaKey = _metaKey(entry.walletId);
     core.WalletSession session;
@@ -553,11 +690,16 @@ class LepicDeskWallet implements DeskWalletApi {
     } on Object catch (e) {
       logWarn('desk', 'wallet list not saved: ${e.runtimeType}');
     }
+    return true;
+  }
+
+  /// After an unlock: the node poll, the first sync and, when this wallet has it on, tor.
+  void _startOpenWallet() {
     _poll = Timer.periodic(nodePoll, (_) => unawaited(_checkTip()));
     unawaited(_checkTip());
     unawaited(sync());
-    if (tor) unawaited(_startTor());
-    return true;
+    _torAutoRetried = false;
+    if (_settings.tor) unawaited(_startTor());
   }
 
   @override
@@ -745,7 +887,8 @@ class LepicDeskWallet implements DeskWalletApi {
   }
 
   @override
-  Future<bool> checkPhraseWord(String word) async => bip39Words.contains(word.trim().toLowerCase());
+  bool checkPhrase(List<String> words) =>
+      _service.validateMnemonic(phrase: words.map((w) => w.trim().toLowerCase()).join(' '));
 
   @override
   Future<void> restoreWallet({String name = '', required String password, required List<String> phrase}) async {
@@ -1071,14 +1214,25 @@ class LepicDeskWallet implements DeskWalletApi {
     _syncError = null;
     _changed();
     try {
-      if ((await _meta(key))['scanPending'] == true) {
-        await for (final p in session.scan()) {
-          if (_session != session) return;
-          if (p.percent != null) _syncProgress = p.percent! / 200;
-          _changed();
+      // The scan due since a restore or a rebuilt database; not while Recheck balance scans.
+      if (!_rescanning && (await _meta(key))['scanPending'] == true) {
+        var finished = false;
+        try {
+          await for (final p in session.scan()) {
+            if (_session != session) return;
+            finished = finished || p.finished;
+            if (p.percent != null) _syncProgress = p.percent! / 200;
+            _changed();
+          }
+        } on core.WalletError catch (e) {
+          if (e.kind != core.WalletErrorKind.walletBusy) rethrow;
+          logInfo('desk', 'due scan skipped: a scan is already running');
         }
-        await _setMeta({'scanPending': false}, key);
-        _notice = null;
+        // A scan stopped before its end stays due.
+        if (finished) {
+          await _setMeta({'scanPending': false}, key);
+          _notice = null;
+        }
       }
       await for (final p in session.refresh(minimumConfirmations: _minConf)) {
         if (_session != session) return;
@@ -1086,7 +1240,11 @@ class LepicDeskWallet implements DeskWalletApi {
         final summary = p.summary;
         if (summary != null) {
           _summary = summary;
-          _nodeHealth = summary.validatedWithNode ? ServiceHealth.ok : ServiceHealth.down;
+          _nodeHealth = !summary.validatedWithNode
+              ? ServiceHealth.down
+              : _nodeNotReady
+              ? ServiceHealth.slow
+              : ServiceHealth.ok;
           final h = summary.lastConfirmedHeight.toInt();
           if (h > _tip) _tip = h;
         }
@@ -1137,8 +1295,16 @@ class LepicDeskWallet implements DeskWalletApi {
       final h = tip.height.toInt();
       final grew = h > _tip;
       _tip = h;
-      if (_nodeHealth != ServiceHealth.ok) {
-        _nodeHealth = ServiceHealth.ok;
+      // The local node answers from its first second, at height 0 while it downloads the
+      // chain: that is "Syncing" (slow), never "Online · 0" (O2). Its sync progress past
+      // height 0 (headers, then blocks, against the network's tip) is wave 6.
+      // A node that says it is not ready for transactions is syncing too, whatever its height;
+      // one that does not say (null) is judged as before.
+      _nodeNotReady = tip.readyForTxs == false;
+      final syncing = _nodeNotReady || (h == 0 && await _builtInOn());
+      final health = syncing ? ServiceHealth.slow : ServiceHealth.ok;
+      if (_nodeHealth != health) {
+        _nodeHealth = health;
         _changed();
       }
       // A new block: confirmations move, payments may have landed.
@@ -1238,6 +1404,10 @@ class LepicDeskWallet implements DeskWalletApi {
       torProblem: _torHealth == ServiceHealth.down || _torHealth == ServiceHealth.slow ? _torProblem : null,
       torCanSend: _torCanSend,
       torIncluded: await _findTor() != null,
+      torSlowStart: _torHealth == ServiceHealth.checking &&
+          !_torCanSend &&
+          _torStartedAt != null &&
+          DateTime.now().difference(_torStartedAt!) >= torRetryAfter,
       syncProgress: _syncProgress,
       lastUpdate: _lastUpdate,
       notice: _notice,
@@ -1678,6 +1848,8 @@ class LepicDeskWallet implements DeskWalletApi {
       }
       await _secrets.write(builtInNodeSettingKey(preset.chain), 'true');
       logInfo('desk', 'built-in node on');
+      // The status reads "Syncing" from now on while the node is at height 0 (O2).
+      unawaited(_checkTip());
       return;
     }
     // Not on yet (a start still pending): only the node stops; the wallet never moved.
@@ -1863,8 +2035,9 @@ class LepicDeskWallet implements DeskWalletApi {
     await _store.saveTorOn(_openEntry?.walletId, on);
     logInfo('desk', 'tor ${on ? 'on' : 'off'}');
     if (!on) return _stopTor();
-    // On again after a failure is Retry.
-    if (_torHealth == ServiceHealth.down) await _stopTor();
+    // On again after a failure, or while a start hangs, is Retry.
+    if (_torHealth == ServiceHealth.down || (_torHealth == ServiceHealth.checking && !_torCanSend)) await _stopTor();
+    _torAutoRetried = false;
     await _startTor();
   }
 
@@ -1889,6 +2062,10 @@ class LepicDeskWallet implements DeskWalletApi {
     _torHealth = ServiceHealth.checking;
     _torProgress = 0;
     _torProblem = null;
+    _torStartedAt = DateTime.now();
+    _torSlowTimer?.cancel();
+    // Nothing else changes while a start hangs; this shows Retry when it is due.
+    _torSlowTimer = Timer(torRetryAfter, _changed);
     _changed();
     logInfo('desk', 'tor start');
     late final StreamSubscription<core.TorEvent> sub;
@@ -1899,6 +2076,7 @@ class LepicDeskWallet implements DeskWalletApi {
       _torProblem = problem ?? 'Tor stopped';
       _torCanSend = false;
       _torProgress = null;
+      _torStartedAt = null;
     }
 
     sub = session.startTor(torBinary: bundle.binary, libDir: bundle.libDir).listen(
@@ -1910,6 +2088,7 @@ class LepicDeskWallet implements DeskWalletApi {
             _torProgress = e.progress ?? _torProgress;
           case core.TorEventKind.bootstrapped || core.TorEventKind.publishing:
             _torCanSend = true;
+            _torStartedAt = null;
             if (_torHealth != ServiceHealth.slow) _torHealth = ServiceHealth.checking;
           case core.TorEventKind.ready:
             _torHealth = ServiceHealth.ok;
@@ -1919,6 +2098,14 @@ class LepicDeskWallet implements DeskWalletApi {
             if (onion != null) _onion = core.onionHost(onion);
           case core.TorEventKind.failed:
             logWarn('desk', 'tor failed: ${e.failure?.name ?? '?'}');
+            if (e.failure == core.TorFailure.network && !_torCanSend && !_torAutoRetried) {
+              // A stall on the first bootstrap: one more try before "failed".
+              _torAutoRetried = true;
+              logInfo('desk', 'tor stalled connecting; starting it once more');
+              unawaited(_restartTor(session, sub));
+              return;
+            }
+            _torStartedAt = null;
             // Listener and keys leave tor running for sends; any other failure stops it.
             final forSends = e.failure == core.TorFailure.listener || e.failure == core.TorFailure.keys;
             _torHealth = forSends ? ServiceHealth.slow : ServiceHealth.down;
@@ -1950,9 +2137,25 @@ class LepicDeskWallet implements DeskWalletApi {
     _tor = sub;
   }
 
+  /// Stops the tor that [sub] watches and starts it again, showing "Connecting" throughout.
+  Future<void> _restartTor(core.WalletSession session, StreamSubscription<core.TorEvent> sub) async {
+    if (_tor != sub) return;
+    _tor = null;
+    try {
+      await session.stopTor();
+    } on core.WalletError catch (e) {
+      logWarn('desk', 'stop tor: ${e.kind.name}');
+    }
+    await sub.cancel();
+    if (_session != session || !_settings.tor) return;
+    await _startTor();
+  }
+
   Future<void> _stopTor() async {
     final sub = _tor;
     _tor = null;
+    _torStartedAt = null;
+    _torSlowTimer?.cancel();
     final was = _torHealth;
     _torHealth = ServiceHealth.off;
     _torProblem = null;
@@ -1985,20 +2188,69 @@ class LepicDeskWallet implements DeskWalletApi {
     _changed();
   }
 
+  /// Set while Recheck balance scans: the due scan in [_sync] waits for the next sync.
+  bool _rescanning = false;
+  bool _rescanStopAsked = false;
+  Completer<void>? _rescanEnded;
+
   @override
-  Stream<ScanStep> rescan() async* {
+  Stream<ScanStep> rescan({bool deleteUnconfirmed = false}) async* {
     final session = _open;
     final key = _metaKey(_openEntry?.walletId);
+    // A scan LEPIC was told to stop still holds the wallet until its stream ends: wait for that.
+    final old = _rescanEnded;
+    if (_rescanning && _rescanStopAsked && old != null) {
+      await old.future.timeout(const Duration(seconds: 30), onTimeout: () {});
+    }
+    if (_rescanning) throw const DeskError(scanRunning);
+    _rescanning = true;
+    _rescanStopAsked = false;
+    final ended = _rescanEnded = Completer<void>();
+    var finished = false;
     try {
-      await for (final p in session.scan()) {
-        yield ScanStep(p.message, percent: p.percent);
+      await for (final p in session.scan(deleteUnconfirmed: deleteUnconfirmed)) {
+        finished = finished || p.finished;
+        final r = p.result;
+        yield ScanStep(
+          p.message,
+          percent: p.percent,
+          finished: p.finished,
+          counts: r == null
+              ? null
+              : ScanCounts(found: r.found, restored: r.restored, revived: r.revived, unlocked: r.unlocked, deleted: r.deleted, resumed: r.resumed),
+        );
       }
     } on core.WalletError catch (e) {
+      // LEPIC refuses a second scan of the same wallet (the due scan of a sync, say).
+      if (e.kind == core.WalletErrorKind.walletBusy) throw const DeskError(scanRunning);
       throw _deskError(e);
+    } finally {
+      _rescanning = false;
+      if (!ended.isCompleted) ended.complete();
     }
-    await _setMeta({'scanPending': false}, key);
-    _notice = null;
-    await sync();
+    // A stopped scan leaves a due scan due; either way the balance is read again.
+    if (finished) {
+      await _setMeta({'scanPending': false}, key);
+      _notice = null;
+    }
+    logInfo('desk', finished ? 'rescan finished' : 'rescan stopped');
+    // The scan itself ended; a sync that breaks afterwards is not a failed scan.
+    try {
+      await sync();
+    } on Object catch (e) {
+      logWarn('desk', 'sync after rescan: ${e.runtimeType}');
+    }
+  }
+
+  @override
+  Future<void> stopRescan() async {
+    logInfo('desk', 'rescan stop asked');
+    _rescanStopAsked = _rescanning;
+    try {
+      _session?.cancelScan();
+    } on core.WalletError catch (e) {
+      logWarn('desk', 'stop rescan: ${e.kind.name}');
+    }
   }
 
   @override
@@ -2011,9 +2263,29 @@ class LepicDeskWallet implements DeskWalletApi {
     }
   }
 
+  /// Re-encrypts the open wallet under [next], then forgets its remembered password (F6). A
+  /// wrong [current] throws a [DeskError] with `wrongPassword`; any other failure leaves the
+  /// old password working.
   @override
-  Future<void> changePassword(String current, String next) =>
-      throw UnsupportedError('password change (DeskFeatures.changePassword)');
+  Future<void> changePassword(String current, String next) async {
+    _checkPassword(next);
+    final session = _open;
+    final id = _openEntry?.id;
+    logInfo('desk', 'password change asked');
+    try {
+      await session.changePassword(currentPassword: current, newPassword: next);
+    } on core.WalletError catch (e) {
+      logWarn('desk', 'password change: ${e.kind.name}');
+      throw switch (e.kind) {
+        core.WalletErrorKind.wrongPassword => _deskError(e),
+        core.WalletErrorKind.invalidArgument => const DeskError('Use at least $minPasswordLength characters'),
+        core.WalletErrorKind.chainBusy || core.WalletErrorKind.walletBusy => _deskError(e),
+        _ => const DeskError('Password not changed. The current password still opens the wallet.'),
+      };
+    }
+    logInfo('desk', 'password changed');
+    if (id != null) await _remember.forget(id);
+  }
 
   // ---- Helpers.
 

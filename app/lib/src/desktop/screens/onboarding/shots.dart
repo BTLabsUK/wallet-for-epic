@@ -20,7 +20,40 @@ final List<DeskShot> onboardingShots = [
   const DeskShot(id: '02e-create-failed', title: 'Create: failed', route: DeskRoute.create, arg: CreateStep.failed),
   const DeskShot(id: '02f-create-locking', title: 'Create: locking the open wallet', route: DeskRoute.create, arg: CreateStep.locking),
   const DeskShot(id: '03-restore', title: 'Restore: phrase', route: DeskRoute.restore, arg: RestoreStep.words),
-  const DeskShot(id: '03b-restore-words', title: 'Restore: words', route: DeskRoute.restore, arg: RestoreStep.wordsFilled),
+  const DeskShot(id: '03b-restore-words', title: 'Restore: a word off the list', route: DeskRoute.restore, arg: RestoreStep.wordsFilled),
+  const DeskShot(
+    id: '03b2-restore-typing',
+    title: 'Restore: typing, the completion dim',
+    route: DeskRoute.restore,
+    arg: RestoreSample('abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abo', typing: true),
+  ),
+  const DeskShot(
+    id: '03b3-restore-pasted-24',
+    title: 'Restore: 24 words pasted',
+    route: DeskRoute.restore,
+    arg: RestoreSample(
+      'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon '
+      'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon art',
+    ),
+  ),
+  const DeskShot(
+    id: '03b4-restore-pasted-12',
+    title: 'Restore: 12 words pasted',
+    route: DeskRoute.restore,
+    arg: RestoreSample('abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about'),
+  ),
+  const DeskShot(
+    id: '03b5-restore-bad-checksum',
+    title: 'Restore: the check number does not match',
+    route: DeskRoute.restore,
+    arg: RestoreSample('abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon'),
+  ),
+  const DeskShot(
+    id: '03b6-restore-13-words',
+    title: 'Restore: 13 words pasted',
+    route: DeskRoute.restore,
+    arg: RestoreSample('abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon'),
+  ),
   const DeskShot(id: '03c-restore-password', title: 'Restore: password', route: DeskRoute.restore, arg: RestoreStep.account),
   const DeskShot(id: '03d-restore-restoring', title: 'Restore: restoring', route: DeskRoute.restore, arg: RestoreStep.restoring),
   const DeskShot(id: '03e-restore-failed', title: 'Restore: failed', route: DeskRoute.restore, arg: RestoreStep.failed),

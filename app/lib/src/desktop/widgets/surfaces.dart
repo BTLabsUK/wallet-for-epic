@@ -379,6 +379,7 @@ class ECopyButton extends StatefulWidget {
     this.withLabel = false,
     this.kind = EBtnKind.ghost,
     this.size = EBtnSize.inline,
+    this.tabStop,
   });
 
   final String text;
@@ -390,6 +391,9 @@ class ECopyButton extends StatefulWidget {
   final EBtnKind kind;
   final EBtnSize size;
 
+  /// Whether the button is a Tab stop; by default a labelled button is, an icon is not.
+  final bool? tabStop;
+
   @override
   State<ECopyButton> createState() => _ECopyButtonState();
 }
@@ -398,13 +402,23 @@ class _ECopyButtonState extends State<ECopyButton> {
   bool _done = false;
   bool _failed = false;
 
+  /// One retry on a [PlatformException]: on Windows another program may hold the clipboard
+  /// for a moment (O7). Every refusal is logged.
   Future<void> _copy() async {
-    try {
-      await Clipboard.setData(ClipboardData(text: widget.text));
-      _failed = false;
-    } on Object catch (e) {
-      logWarn('desk', 'copy refused: ${e.runtimeType}');
-      _failed = true;
+    for (var attempt = 1; attempt <= 2; attempt++) {
+      try {
+        await Clipboard.setData(ClipboardData(text: widget.text));
+        _failed = false;
+        break;
+      } on PlatformException catch (e) {
+        logWarn('desk', 'copy refused (try $attempt): ${e.code} ${e.message ?? ''}');
+        _failed = true;
+        if (attempt == 1) await Future<void>.delayed(const Duration(milliseconds: 150));
+      } on Object catch (e) {
+        logWarn('desk', 'copy refused: ${e.runtimeType}');
+        _failed = true;
+        break;
+      }
     }
     if (!_failed) widget.onCopied?.call();
     if (!mounted) return;
@@ -418,8 +432,8 @@ class _ECopyButtonState extends State<ECopyButton> {
     final label = !_done ? widget.label : (_failed ? 'Not copied' : 'Copied');
     final icon = !_done ? EIcons.copy : (_failed ? EIcons.alert : EIcons.check);
     final Widget button = widget.withLabel
-        ? EButton(label: label, icon: icon, size: widget.size, kind: widget.kind, onPressed: _copy)
-        : EIconButton(icon: icon, label: label, color: _done ? (_failed ? context.dc.risk : context.dc.ok) : null, onPressed: _copy);
+        ? EButton(label: label, icon: icon, size: widget.size, kind: widget.kind, tabStop: widget.tabStop ?? true, onPressed: _copy)
+        : EIconButton(icon: icon, label: label, color: _done ? (_failed ? context.dc.risk : context.dc.ok) : null, tabStop: widget.tabStop ?? false, onPressed: _copy);
     return Semantics(liveRegion: true, child: button);
   }
 }
@@ -624,10 +638,12 @@ class EDetails extends StatefulWidget {
 class _EDetailsState extends State<EDetails> {
   late bool _open = widget.initiallyOpen;
 
+  void _fold() => setState(() => _open = false);
+
   @override
   Widget build(BuildContext context) {
     final c = context.dc;
-    return Container(
+    final box = Container(
       decoration: BoxDecoration(
         border: Border.all(color: c.line),
         borderRadius: BorderRadius.circular(Rad.sm),
@@ -662,5 +678,25 @@ class _EDetailsState extends State<EDetails> {
         ],
       ),
     );
+    // Esc with the focus in an open panel on the page folds it. In a dialog Esc closes the
+    // dialog instead (the dialog is the top-most thing).
+    return Actions(actions: {DismissIntent: _FoldAction(this)}, child: box);
+  }
+}
+
+/// Esc in an [EDetails]: folds it when it is open on the page; otherwise hands Esc on up (a
+/// disabled action would stop the search for one, so this one passes it along itself).
+class _FoldAction extends DismissAction {
+  _FoldAction(this.details);
+
+  final _EDetailsState details;
+
+  @override
+  Object? invoke(DismissIntent intent) {
+    if (details.mounted && details._open && (ModalRoute.of(details.context)?.isFirst ?? true)) {
+      details._fold();
+      return null;
+    }
+    return details.mounted ? Actions.maybeInvoke(details.context, intent) : null;
   }
 }

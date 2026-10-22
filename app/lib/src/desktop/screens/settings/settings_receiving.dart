@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../network.dart' show defaultEpicboxHost;
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../widgets/kit.dart';
 import 'combo.dart';
@@ -124,7 +125,7 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
                 value: b.domain,
                 host: b.domain,
                 sub: b.operator,
-                isDefault: b.domain == boxes.first.domain,
+                isDefault: b.domain == defaultEpicboxHost,
                 tone: epicboxTone(b.health),
                 word: b.health == ServiceHealth.down ? 'Not responding' : null,
                 tip: tip(b),
@@ -200,7 +201,7 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
                                 EStatusDot(status.torIncluded ? torTone(status.tor) : ETone.neutral),
                                 SizedBox(width: Sp.x2),
                                 Expanded(child: Text(torStatusLine(status), style: ts.small)),
-                                if (s.tor && status.torIncluded && status.tor == ServiceHealth.down)
+                                if (s.tor && status.torIncluded && (status.tor == ServiceHealth.down || status.torSlowStart))
                                   EButton(label: 'Retry', icon: EIcons.refresh, size: EBtnSize.inline, busy: _torBusy, onPressed: _torBusy ? null : () => _setTor(true)),
                               ],
                             ),

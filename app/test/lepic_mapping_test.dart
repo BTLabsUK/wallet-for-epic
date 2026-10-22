@@ -18,6 +18,10 @@ class _NoNativeWallet implements lepic.EpicWallet {
 /// Records the message of each send and answers with one stored transaction.
 class _SendingWallet extends _NoNativeWallet {
   final List<String?> messages = [];
+  final List<lepic.SendOptions?> options = [];
+
+  /// What [estimateMax] answers; a test raises it to stand for a balance that grew.
+  BigInt maxAmount = BigInt.from(90);
 
   lepic.TransactionDetails get _stored => lepic.TransactionDetails(
     txId: 5,
@@ -43,8 +47,10 @@ class _SendingWallet extends _NoNativeWallet {
     required BigInt amount,
     required BigInt minimumConfirmations,
     String? message,
+    lepic.SendOptions? options,
   }) async {
     messages.add(message);
+    this.options.add(options);
     return const lepic.Slate(txId: 5, slateId: 'sent-1', json: '{}');
   }
 
@@ -54,6 +60,7 @@ class _SendingWallet extends _NoNativeWallet {
     required BigInt minimumConfirmations,
     required String address,
     String? message,
+    lepic.SendOptions? options,
   }) async {
     messages.add(message);
     return lepic.SentTx(
@@ -61,6 +68,22 @@ class _SendingWallet extends _NoNativeWallet {
       slateId: 'sent-1',
       amount: amount,
       fee: BigInt.one,
+    );
+  }
+
+  @override
+  Future<lepic.FeeEstimate> estimateMax({
+    required BigInt minimumConfirmations,
+    lepic.SendOptions? options,
+  }) async {
+    this.options.add(options);
+    return lepic.FeeEstimate(
+      amount: maxAmount,
+      fee: BigInt.from(10),
+      locked: BigInt.from(100),
+      changeOutputs: 0,
+      change: BigInt.zero,
+      inputCount: 1,
     );
   }
 
@@ -81,7 +104,11 @@ void main() {
       final shared = {for (final k in WalletErrorKind.values) k.name: k};
       for (final kind in lepic.WalletErrorKind.values) {
         final mapped = mapLepicError(error(kind));
-        expect(mapped.message, 'm');
+        // The split errors carry the app's own sentence (tested below).
+        if (kind != lepic.WalletErrorKind.changeTooSmall &&
+            kind != lepic.WalletErrorKind.tooHeavy) {
+          expect(mapped.message, 'm');
+        }
         if (shared.containsKey(kind.name)) {
           expect(mapped.kind, shared[kind.name], reason: kind.name);
         }
@@ -207,6 +234,50 @@ void main() {
       SlateMessage(role: SlateRole.receiver, text: 'thanks'),
     ]);
     expect(messageBy(info.messages, SlateRole.receiver), 'thanks');
+  });
+
+  group('send options', () {
+    test('send all uses every coin and one change output, others none', () async {
+      final wallet = _SendingWallet();
+      final session = LepicWalletSession(wallet);
+      final max = await session.estimateMax(minimumConfirmations: BigInt.from(10));
+      await session.createSendSlate(
+        amount: max.amount,
+        minimumConfirmations: BigInt.from(10),
+      );
+      await session.createSendSlate(
+        amount: BigInt.from(5),
+        minimumConfirmations: BigInt.from(10),
+      );
+      const all = lepic.SendOptions(
+        strategy: lepic.SelectionStrategy.all,
+        changeOutputs: 1,
+      );
+      // estimateMax, its re-check before the send, the send; the small send has none.
+      expect(wallet.options, [all, all, all, null]);
+    });
+
+    test('a max remembered from before the balance grew does not make a typed amount a send-all', () async {
+      final wallet = _SendingWallet();
+      final session = LepicWalletSession(wallet);
+      final max = await session.estimateMax(minimumConfirmations: BigInt.from(10));
+      wallet.maxAmount = BigInt.from(150);
+      await session.createSendSlate(
+        amount: max.amount,
+        minimumConfirmations: BigInt.from(10),
+      );
+      expect(wallet.options.last, isNull);
+    });
+
+    test('a split LEPIC cannot build reads as one short error', () {
+      for (final kind in [
+        lepic.WalletErrorKind.changeTooSmall,
+        lepic.WalletErrorKind.tooHeavy,
+      ]) {
+        final e = mapLepicError(lepic.WalletError(kind: kind, code: 45, message: 'x'));
+        expect(e.message, sendUnbuildable);
+      }
+    });
   });
 
   group('send messages reach LEPIC', () {

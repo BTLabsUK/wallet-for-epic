@@ -24,9 +24,9 @@ class _Recorder extends MockDeskWallet {
   }
 
   @override
-  Future<bool> unlock(String password) {
+  Future<bool> unlock(String password, {bool remember = false}) {
     calls.add('unlock');
-    return super.unlock(password);
+    return super.unlock(password, remember: remember);
   }
 
   @override
@@ -110,6 +110,30 @@ void main() {
     await _end(tester);
   });
 
+  testWidgets('remove dialog for a wallet that is not open: the delete line and "Unlock this wallet" (F15)', (tester) async {
+    final api = _FailingRemove();
+    await _pump(tester, api, Builder(builder: (c) => TextButton(onPressed: () => showRemoveWalletDialog(c, demoOtherWallet), child: const Text('open'))));
+    final container = ProviderScope.containerOf(tester.element(find.text('open')));
+    await tester.runAsync(() => container.read(deskProvider.notifier).refresh());
+    await tester.pump();
+    expect(container.read(deskProvider).account, isNotNull, reason: 'a wallet is open');
+    await tester.tap(find.text('open'));
+    await tester.pump(const Duration(milliseconds: 500));
+    expect(find.text('To delete its files as well, unlock this wallet and use Delete wallet under Settings › This wallet.'), findsOneWidget);
+    await tester.tap(find.text('Unlock this wallet'));
+    await _wait(tester);
+    expect(api.locked, isTrue, reason: 'the open wallet is locked first');
+    expect(api.calls, contains('select ${demoOtherWallet.id}'));
+    expect(find.byType(RemoveWalletDialog), findsNothing);
+    final nav = container.read(deskNavProvider);
+    expect(nav.route, DeskRoute.unlock);
+    final pick = nav.arg;
+    expect(pick, isA<UnlockPick>());
+    expect((pick! as UnlockPick).id, demoOtherWallet.id);
+    expect((pick as UnlockPick).then, DeskRoute.settingsAccount);
+    await _end(tester);
+  });
+
   testWidgets('remove dialog for the open wallet: delete needs the typed name, the password and the tick', (tester) async {
     final api = _Recorder();
     const open = WalletEntry(id: 'legacy-mainnet', name: 'Main wallet', folder: '~/x', network: 'mainnet');
@@ -120,6 +144,7 @@ void main() {
     await tester.tap(find.text('open'));
     await tester.pump(const Duration(milliseconds: 500));
     expect(find.text('Delete wallet'), findsOneWidget);
+    expect(find.text('Unlock this wallet'), findsNothing, reason: 'the open wallet can be deleted here');
     await tester.tap(find.text('Delete wallet'));
     await tester.pump(const Duration(milliseconds: 300));
     final button = find.widgetWithText(EButton, 'Delete wallet');

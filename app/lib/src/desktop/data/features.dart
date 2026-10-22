@@ -18,7 +18,7 @@
 ///   history a scan rebuilds (B14, B09). Mainnet only; no settings carried over, no old-folder
 ///   delete (B26–B29) and no blockchain data copy (B21).
 ///   - Welcome: "Import wallets". Route importWallets.
-///   - All wallets: "Import" and "Import wallets…".
+///   - All wallets: the "Import" card.
 /// dataFolder (A15): Welcome › Advanced › App data folder.
 /// testNetworks (A06 "any network each"): Welcome › Advanced › Network. Mainnet only.
 /// httpDirect (G01–G06, F07, J04, on): Send › Direct (HTTP), with a question before plain HTTP
@@ -39,11 +39,13 @@
 /// nodeBackground (D09): Settings › Node's "Sync in background" for the built-in node.
 /// coins (I05): Activity › Outputs tab.
 /// dandelion (F05, H04): Send's Dandelion++ switch and the review's Privacy line.
-/// rescanRepair (A16): Rescan's "Delete unconfirmed transactions".
-/// stopScan: Rescan's Stop (a LEPIC scan runs to its end).
+/// rescanRepair (A16, on): Rescan's "Delete unconfirmed" (LEPIC's scan delete_unconfirmed)
+///   and the result's counts.
+/// stopScan (on): Rescan's Stop, which ends the LEPIC scan at its next page (cancel_scan).
 /// nodeBlockTime (C04): "last block … ago" on the node status line.
 /// paymentProofs (I08, D6): Transaction details › Export proof.
-/// changePassword: Settings › This wallet › Change password (LEPIC has no password change).
+/// changePassword (F32, on): Settings › This wallet › Change password (LEPIC's change_password);
+///   forgets the wallet's remembered password.
 /// walletProcesses (A20, dropped): Unlock's "Looking for wallet processes" stage and the
 ///   kill-process dialog (LEPIC runs in-process).
 ///
@@ -64,11 +66,11 @@ abstract final class DeskFeatures {
   static const bool nodeBackground = false;
   static const bool coins = false;
   static const bool dandelion = false;
-  static const bool rescanRepair = false;
-  static const bool stopScan = false;
+  static const bool rescanRepair = true;
+  static const bool stopScan = true;
   static const bool nodeBlockTime = false;
   static const bool paymentProofs = false;
-  static const bool changePassword = false;
+  static const bool changePassword = true;
   static const bool walletProcesses = false;
   static const bool languages = false;
   static const bool fiatPrice = false;

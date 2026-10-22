@@ -42,7 +42,7 @@ class ArgsSession extends FakeWalletSession {
   final Map<String, Object?> args = {};
 
   @override
-  Stream<ScanProgress> scan({BigInt? startHeight}) {
+  Stream<ScanProgress> scan({BigInt? startHeight, bool deleteUnconfirmed = false}) {
     args['scan.startHeight'] = startHeight;
     return super.scan(startHeight: startHeight);
   }
@@ -332,6 +332,15 @@ void main() {
       );
       await s.confirmPinChange(sealedPassword: 'new-sealed');
       expect(fake.confirmedPinChanges, ['new-sealed']);
+      await expectLater(
+        s.changePassword(currentPassword: 'not it', newPassword: 'new password'),
+        throwsKind(WalletErrorKind.wrongPassword),
+      );
+      await s.changePassword(
+        currentPassword: fake.password,
+        newPassword: 'new password',
+      );
+      expect(fake.password, 'new password');
     });
 
     test('cancel, repost, release', () async {
@@ -639,6 +648,31 @@ void main() {
   });
 
   group('streams', () {
+    test('cancelScan ends the scan stream here and stops the scan on the server', () async {
+      final s = await openSession();
+      final scan = StreamController<ScanProgress>();
+      session.scanStream = scan.stream;
+      final got = <ScanProgress>[];
+      final done = s.scan().listen(got.add).asFuture<void>();
+      scan.add(const ScanProgress(percent: 10, message: 'Scanning', finished: false));
+      await settle();
+      expect(got.map((e) => e.finished), [false]);
+      s.cancelScan();
+      await done;
+      await settle();
+      expect(session.scanCancels, 1);
+      expect(got.map((e) => e.finished), [false]);
+      // No scan running: nothing to stop.
+      s.cancelScan();
+      expect(session.scanCancels, 1);
+      // A scan that ran to its end stops nothing on the server.
+      session.scanStream = null;
+      await s.scan().drain<void>();
+      await settle();
+      expect(session.scanCancels, 1);
+      await scan.close();
+    });
+
     test('deliver and end', () async {
       final s = await openSession();
       expect(

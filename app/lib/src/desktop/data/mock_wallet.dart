@@ -8,6 +8,7 @@ import 'dart:math';
 import '../../wallet_service.dart' show onionAddressFormat;
 import 'api.dart';
 import 'http_address.dart';
+import 'phrase_check.dart';
 import 'models.dart';
 
 const _epicboxAddr = 'esWnT8kBf3yXqPZ2r9cLhVd7JmK4uA6gYsN1pQeRtC5vD8xHwF2b@epicbox.epiccash.com';
@@ -117,6 +118,7 @@ class MockDeskWallet implements DeskWalletApi {
     await _wait(2);
     if (password == 'wrong') throw const DeskError('Wrong password', wrongPassword: true);
     _wallets.removeWhere((w) => w.id == id);
+    _remembered.remove(id);
     if (_current == id && _wallets.isNotEmpty) _current = _wallets.first.id;
   }
 
@@ -190,11 +192,54 @@ class MockDeskWallet implements DeskWalletApi {
     _imported.clear();
   }
 
+  /// Wallets remembered on this computer, and the wrong passwords counted against them.
+  final Set<String> _remembered = {};
+  int _fails = 0;
+  String get _selected => _current;
+
+  /// Tests: the OS store refuses to keep a password ([notRemembered]).
+  bool storeRefuses = false;
+
   @override
-  Future<bool> unlock(String password) async {
+  bool notRemembered = false;
+
+  @override
+  bool openedRemembered = false;
+
+  @override
+  Future<bool> unlock(String password, {bool remember = false}) async {
     await _wait(2);
+    final ok = password.isNotEmpty && password != 'wrong';
+    if (!ok && ++_fails >= 5) _remembered.remove(_selected);
+    notRemembered = false;
+    if (ok) {
+      _fails = 0;
+      openedRemembered = false;
+      notRemembered = remember && storeRefuses;
+      remember && !storeRefuses ? _remembered.add(_selected) : _remembered.remove(_selected);
+    }
+    return ok;
+  }
+
+  @override
+  Future<bool> unlockRemembered() async {
+    if (!_remembered.contains(_selected)) return false;
+    await _wait(2);
+    openedRemembered = true;
+    return true;
+  }
+
+  @override
+  Future<bool> checkPassword(String password) async {
+    await _wait(1);
     return password.isNotEmpty && password != 'wrong';
   }
+
+  @override
+  Future<bool> isRemembered(String id) async => _remembered.contains(id.isEmpty ? _current : id);
+
+  @override
+  Future<void> forgetRemembered(String id) async => _remembered.remove(id.isEmpty ? _current : id);
 
   @override
   Future<void> lock() => _wait(0.5);
@@ -218,7 +263,7 @@ class MockDeskWallet implements DeskWalletApi {
   }
 
   @override
-  Future<bool> checkPhraseWord(String word) async => word.length >= 3 && !word.contains(RegExp('[^a-z]'));
+  bool checkPhrase(List<String> words) => bip39PhraseValid(words);
 
   @override
   Future<void> restoreWallet({String name = '', required String password, required List<String> phrase}) async {
@@ -360,7 +405,7 @@ class MockDeskWallet implements DeskWalletApi {
       message: r.message,
     );
     _txs.insert(0, tx);
-    if (r.method == TxMethod.file) return SendFileReady(tx, 'send_${formatEpic(r.amount)}_${tx.slateId.substring(0, 8)}.slate.json');
+    if (r.method == TxMethod.file) return SendFileReady(tx, 'send_${formatEpic(r.amount, minDecimals: 0)}_${tx.slateId.substring(0, 8)}.slate.json');
     return SendDone(tx);
   }
 
@@ -467,15 +512,27 @@ class MockDeskWallet implements DeskWalletApi {
     'Scanning for outputs, 41% complete',
   ];
 
+  bool _scanStop = false;
+
   @override
-  Stream<ScanStep> rescan() async* {
-    for (final line in _scanLog) {
+  Stream<ScanStep> rescan({bool deleteUnconfirmed = false}) async* {
+    _scanStop = false;
+    for (final (i, line) in _scanLog.indexed) {
       await _wait(2.5);
-      yield ScanStep(line);
+      if (_scanStop) return;
+      yield ScanStep(line, percent: (i + 1) * 100 ~/ (_scanLog.length + 1));
     }
     await _wait(2);
-    yield const ScanStep('Scan complete', percent: 100);
+    yield ScanStep(
+      'Scan complete',
+      percent: 100,
+      finished: true,
+      counts: ScanCounts(found: 6, restored: 1, unlocked: deleteUnconfirmed ? 1 : 0, deleted: deleteUnconfirmed ? 1 : 0),
+    );
   }
+
+  @override
+  Future<void> stopRescan() async => _scanStop = true;
 
   @override
   Future<void> syncNow() => _wait(3);
@@ -493,6 +550,8 @@ class MockDeskWallet implements DeskWalletApi {
   @override
   Future<void> changePassword(String current, String next) async {
     await _wait(2);
-    if (current == 'wrong') throw StateError('Wrong password');
+    if (current == 'wrong') throw const DeskError('Wrong password', wrongPassword: true);
+    if (next.length < 8) throw const DeskError('Use at least 8 characters');
+    _remembered.remove(_current);
   }
 }

@@ -1,5 +1,9 @@
-import 'package:flutter/material.dart';
+import 'dart:async';
 
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../app/routes.dart' show deskNavProvider, DeskLocation;
 import '../theme/icons.dart';
 import '../theme/tokens.dart';
 import 'buttons.dart';
@@ -69,7 +73,7 @@ class EDialog extends StatelessWidget {
       ETone.gold => c.accentText,
       ETone.neutral => c.dim,
     };
-    return Dialog(
+    final dialog = Dialog(
       backgroundColor: c.s4,
       insetPadding: EdgeInsets.all(Sp.x6),
       shape: RoundedRectangleBorder(
@@ -115,7 +119,8 @@ class EDialog extends StatelessWidget {
                     if (dismissible)
                       EIconButton(
                         icon: EIcons.close,
-                        label: 'Close',
+                        label: 'Close (Esc)',
+                        tabStop: false,
                         onPressed: () => Navigator.of(context).maybePop(),
                       ),
                   ],
@@ -142,7 +147,63 @@ class EDialog extends StatelessWidget {
         ),
       ),
     );
+    if (!dismissible) return dialog;
+    return _EscCloses(child: dialog);
   }
+}
+
+/// Esc closes a dialog that shows Close, also one opened with a barrier that does not dismiss
+/// (a click outside must not lose the typing; Esc is deliberate). A PopScope in the dialog
+/// still holds it while busy. With no field focused the dialog itself takes the focus, so Esc
+/// reaches it.
+class _EscCloses extends StatefulWidget {
+  const _EscCloses({required this.child});
+
+  final Widget child;
+
+  @override
+  State<_EscCloses> createState() => _EscClosesState();
+}
+
+class _EscClosesState extends State<_EscCloses> {
+  final _node = FocusNode(debugLabel: 'dialog', skipTraversal: true);
+
+  @override
+  void initState() {
+    super.initState();
+    // After the dialog's own autofocus has had its turn.
+    Future<void>.delayed(Duration.zero, () {
+      if (mounted && !_node.hasFocus && (ModalRoute.of(context)?.isCurrent ?? false)) _node.requestFocus();
+    });
+    FocusManager.instance.addListener(_refocus);
+  }
+
+  /// When the focus falls back to nothing or to a scope around the dialog (a system window,
+  /// such as the Save dialog, took it and gave it back; a focused control went away), the
+  /// dialog takes it again so Esc and Tab still work. Focus inside the dialog or in a menu it
+  /// opened is left alone.
+  void _refocus() {
+    if (!mounted || _node.hasFocus) return;
+    final f = FocusManager.instance.primaryFocus;
+    final lost = f == null || (f is FocusScopeNode && _node.ancestors.contains(f));
+    if (!lost || !(ModalRoute.of(context)?.isCurrent ?? false)) return;
+    scheduleMicrotask(() {
+      if (mounted && !_node.hasFocus) _node.requestFocus();
+    });
+  }
+
+  @override
+  void dispose() {
+    FocusManager.instance.removeListener(_refocus);
+    _node.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => Actions(
+    actions: {DismissIntent: CallbackAction<DismissIntent>(onInvoke: (_) => Navigator.of(context).maybePop())},
+    child: Focus(focusNode: _node, child: widget.child),
+  );
 }
 
 /// A side sheet: 420 wide, head with title and close, scrolling body, foot with actions.
@@ -173,7 +234,7 @@ class EDrawer extends StatelessWidget {
               child: Row(
                 children: [
                   Expanded(child: Semantics(header: true, child: Text(title, style: context.ts.h3))),
-                  EIconButton(icon: EIcons.close, label: 'Close', onPressed: () => Navigator.of(context).maybePop()),
+                  EIconButton(icon: EIcons.close, label: 'Close (Esc)', tabStop: false, onPressed: () => Navigator.of(context).maybePop()),
                 ],
               ),
             ),
@@ -204,7 +265,7 @@ void showEToast(BuildContext context, String title, {String? text, ETone tone = 
     ETone.warn => c.warn,
     _ => c.accentText,
   };
-  messenger.showSnackBar(
+  final shown = messenger.showSnackBar(
     SnackBar(
       behavior: SnackBarBehavior.floating,
       width: 380.u,
@@ -233,4 +294,24 @@ void showEToast(BuildContext context, String title, {String? text, ETone tone = 
       ),
     ),
   );
+  // A toast belongs to the screen it was shown on: leaving the screen closes it (B11).
+  ProviderContainer? container;
+  try {
+    container = ProviderScope.containerOf(context, listen: false);
+  } on Object {
+    container = null;
+  }
+  if (container == null) return;
+  ProviderSubscription<DeskLocation>? sub;
+  sub = container.listen(deskNavProvider, (prev, next) {
+    if (prev?.route != next.route) {
+      shown.close();
+      sub?.close();
+      sub = null;
+    }
+  });
+  shown.closed.then((_) {
+    sub?.close();
+    sub = null;
+  });
 }

@@ -150,6 +150,25 @@ class FileLogSink extends LogSink {
     );
   }
 
+  @override
+  Future<List<LogFileInfo>> files() async => [
+    for (final f in [file, previous])
+      if (f.existsSync()) LogFileInfo(f.uri.pathSegments.last, f.lengthSync()),
+  ];
+
+  /// Empties `wfe.log` and deletes `wfe.log.1`. The next line starts a new file.
+  void clear() {
+    _file.closeSync();
+    try {
+      if (previous.existsSync()) previous.deleteSync();
+    } on FileSystemException catch (_) {
+      // Held by another program (Windows); it goes at the next rotation.
+    } finally {
+      _file = file.openSync(mode: FileMode.write);
+      _size = 0;
+    }
+  }
+
   void close() => _file.closeSync();
 }
 
@@ -210,6 +229,7 @@ final class _Logcat {
       LogLevel.error => 6,
       LogLevel.warn => 5,
       LogLevel.info => 4,
+      LogLevel.debug => 3,
     };
     final tag = _cString('wfe');
     final body = _cString(text);

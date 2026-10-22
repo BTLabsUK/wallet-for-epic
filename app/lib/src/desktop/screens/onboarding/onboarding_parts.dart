@@ -15,35 +15,50 @@ class AuthFoot extends StatelessWidget {
   Widget build(BuildContext context) => Text('$appName $deskVersion');
 }
 
-/// Password and confirmation: the first step of create and restore.
+/// Password and confirmation: the first step of create and restore. Enter in Password goes to
+/// Confirm; Enter in Confirm runs [onSubmit] (null while the two are not valid).
 class AccountForm extends StatelessWidget {
   const AccountForm({
     super.key,
     required this.password,
     required this.confirm,
     required this.onChanged,
+    this.onSubmit,
     this.passwordError,
     this.confirmError,
   });
 
   final TextEditingController password, confirm;
   final VoidCallback onChanged;
+
+  /// The step's main button; null while the form is not valid.
+  final VoidCallback? onSubmit;
   final String? passwordError;
   final String? confirmError;
 
   @override
-  Widget build(BuildContext context) => Column(
+  Widget build(BuildContext context) => EForm(
+    onSubmit: onSubmit,
+    child: Column(
     crossAxisAlignment: CrossAxisAlignment.stretch,
     children: [
       EField(
         label: 'Password',
         error: passwordError,
+        reserveError: true,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            PasswordBox(controller: password, invalid: passwordError != null, semanticLabel: 'Password', onChanged: (_) => onChanged()),
+            PasswordBox(
+              controller: password,
+              invalid: passwordError != null,
+              semanticLabel: 'Password',
+              textInputAction: TextInputAction.next,
+              onChanged: (_) => onChanged(),
+            ),
             SizedBox(height: Sp.x2),
-            PasswordHint(controller: password),
+            // Its info icon is not a Tab stop (keyboard.dart); the hint text is on screen.
+            ExcludeFocusTraversal(child: PasswordHint(controller: password)),
           ],
         ),
       ),
@@ -55,10 +70,12 @@ class AccountForm extends StatelessWidget {
           controller: confirm,
           invalid: confirmError != null,
           semanticLabel: 'Confirm password',
+          textInputAction: TextInputAction.done,
           onChanged: (_) => onChanged(),
         ),
       ),
     ],
+  ),
   );
 }
 
@@ -76,31 +93,35 @@ List<ERailStep> railOf(List<String> labels, int current) => [
   for (var i = 0; i < labels.length; i++) ERailStep(labels[i], done: i < current, current: i == current),
 ];
 
-/// Back button used in the foot of the first-run frames.
+/// Back button used in the foot of the first-run frames. Not a Tab stop: Alt+Left and the
+/// mouse Back button do the same (keyboard.dart).
 Widget backButton(VoidCallback onTap, {String label = 'Back'}) =>
-    EButton.ghost(label: label, icon: EIcons.arrowLeft, onPressed: onTap);
+    EButton.ghost(label: label, icon: EIcons.arrowLeft, tabStop: false, onPressed: onTap);
 
 /// The languages the app has: Setup › Preferences.
 const deskLanguages = ['English', 'Deutsch', 'Polski', 'Русский', '中文'];
 
 /// Unlock's argument after a flow added a wallet: [id] is chosen and "{name} added." shows.
 class UnlockAdded {
-  const UnlockAdded(this.name, {this.id});
+  const UnlockAdded(this.name, {this.id, this.notice = 'New wallet added.'});
 
   final String name;
   final String? id;
+
+  /// Unlock's notice: "New wallet added." / "Wallet restored." / "Wallet imported." (no name).
+  final String notice;
 }
 
 /// The wallet a flow added: the entry the list has now and did not have in [before] (ids), as
 /// Unlock's argument. [fallback] names it when the list cannot say.
-Future<UnlockAdded> addedWallet(DeskWalletApi api, Set<String> before, String fallback) async {
+Future<UnlockAdded> addedWallet(DeskWalletApi api, Set<String> before, String fallback, {String notice = 'New wallet added.'}) async {
   try {
     final added = (await api.wallets()).where((w) => !before.contains(w.id)).lastOrNull;
-    if (added != null) return UnlockAdded(added.name, id: added.id);
+    if (added != null) return UnlockAdded(added.name, id: added.id, notice: notice);
   } on Object {
     // Unlock offers the wallet opened last.
   }
-  return UnlockAdded(fallback);
+  return UnlockAdded(fallback, notice: notice);
 }
 
 /// What Welcome chose for the flows after it: the network (Welcome › Advanced) and the app
@@ -223,6 +244,7 @@ class PasswordBox extends StatefulWidget {
     this.autofocus = false,
     this.focusNode,
     this.semanticLabel,
+    this.textInputAction,
   });
 
   final TextEditingController controller;
@@ -232,6 +254,7 @@ class PasswordBox extends StatefulWidget {
   final bool autofocus;
   final FocusNode? focusNode;
   final String? semanticLabel;
+  final TextInputAction? textInputAction;
 
   @override
   State<PasswordBox> createState() => _PasswordBoxState();
@@ -261,6 +284,7 @@ class _PasswordBoxState extends State<PasswordBox> {
         autofocus: widget.autofocus,
         focusNode: _focus,
         semanticLabel: widget.semanticLabel,
+        textInputAction: widget.textInputAction,
       ),
       CapsLockNote(focus: _focus),
     ],
@@ -390,7 +414,10 @@ class ProgressView extends StatelessWidget {
   Widget build(BuildContext context) {
     final ts = context.ts;
     final failure = this.failure;
-    return EHeroScreen(
+    // Back goes to [onBack] after a failure; while the action runs it is held.
+    return DeskStepBack(
+      onBack: (failure != null ? onBack : null) ?? () {},
+      child: EHeroScreen(
       footer: const AuthFoot(),
       child: ConstrainedBox(
         constraints: BoxConstraints(maxWidth: 480.u),
@@ -453,6 +480,7 @@ class ProgressView extends StatelessWidget {
           ],
         ),
       ),
+    ),
     );
   }
 }

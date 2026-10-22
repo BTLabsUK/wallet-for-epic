@@ -192,6 +192,17 @@ class GatedWalletSession implements WalletSession {
       _gate.run(() => _inner.mnemonic(password: password));
 
   @override
+  Future<void> changePassword({
+    required String currentPassword,
+    required String newPassword,
+  }) => _gate.run(
+    () => _inner.changePassword(
+      currentPassword: currentPassword,
+      newPassword: newPassword,
+    ),
+  );
+
+  @override
   Future<String> mnemonicWithPin({
     required String pin,
     required String sealedPassword,
@@ -350,8 +361,16 @@ class GatedWalletSession implements WalletSession {
       _inner.receiveSlate(slateJson: slateJson);
 
   @override
-  Stream<ScanProgress> scan({BigInt? startHeight}) =>
-      _inner.scan(startHeight: startHeight);
+  Stream<ScanProgress> scan({
+    BigInt? startHeight,
+    bool deleteUnconfirmed = false,
+  }) => _inner.scan(
+    startHeight: startHeight,
+    deleteUnconfirmed: deleteUnconfirmed,
+  );
+
+  @override
+  void cancelScan() => _inner.cancelScan();
 
   @override
   Future<WalletSummary> summary({

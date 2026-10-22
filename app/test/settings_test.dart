@@ -73,7 +73,7 @@ class _ScanSession extends FakeWalletSession {
   BigInt? lastStart;
 
   @override
-  Stream<ScanProgress> scan({BigInt? startHeight}) {
+  Stream<ScanProgress> scan({BigInt? startHeight, bool deleteUnconfirmed = false}) {
     lastStart = startHeight;
     final c = controller;
     return c == null ? super.scan(startHeight: startHeight) : c.stream;

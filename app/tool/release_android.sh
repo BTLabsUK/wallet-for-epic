@@ -7,6 +7,11 @@
 #   download-base-url  where the APKs will be served, e.g.
 #                      https://github.com/<owner>/<repo>/releases/download/v1.0.1
 #
+# WFE_DESKTOP_RELEASE=1 adds the `desktop` entry the desktop update check reads
+# (lib/src/desktop/data/desk_update.dart): set it only when this release also ships desktop
+# builds, else the desktop would offer a release that has none. Its page is the release's tag
+# page, derived from download-base-url.
+#
 # Bump `version:` in pubspec.yaml first: Android installs an update only when its version code
 # is higher, and only when it is signed with the same key as the installed app.
 set -euo pipefail
@@ -32,13 +37,14 @@ flutter pub get
 # package:lepic's build hook bundles prebuilt libraries and fails without them, whichever core
 # the build selects. Up to date, this is a no-op build.
 "$app_dir/../tools/lepic.sh" build android
-flutter build apk --release --target-platform android-arm64,android-x64 --split-per-abi \
+flutter build apk --release --target-platform android-arm64 --split-per-abi \
   ${WFE_UPDATE_URL:+--dart-define=WFE_UPDATE_URL="$WFE_UPDATE_URL"} \
   ${WFE_CORE:+--dart-define=WFE_CORE="$WFE_CORE"}
 
 out="$app_dir/build/app/outputs/flutter-apk"
 package="" version_name="" entries=()
-for abi in arm64-v8a x86_64; do
+# The phone download is arm64-v8a only; x86_64 builds are for our own emulators, never published.
+for abi in arm64-v8a; do
   apk="$out/app-$abi-release.apk"
   [[ -f "$apk" ]] || { echo "missing $apk" >&2; exit 1; }
   # Keep only the first line in bash: `| head -1` would SIGPIPE aapt2 under pipefail.
@@ -54,9 +60,15 @@ for abi in arm64-v8a x86_64; do
     '{abi: $abi, versionCode: $code, url: $url, sha256: $sha, size: $size}')")
 done
 
+desktop_page=""
+if [[ "${WFE_DESKTOP_RELEASE:-}" == 1 ]]; then
+  desktop_page="${base_url/\/releases\/download\//\/releases\/tag\/}"
+fi
 printf '%s\n' "${entries[@]}" | jq -s --arg package "$package" --arg name "$version_name" --arg notes "$notes" \
-  '{schema: 1, packageName: $package, versionName: $name, notes: $notes, apks: .}' >"$out/update.json"
+  --arg page "$desktop_page" \
+  '{schema: 1, packageName: $package, versionName: $name, notes: $notes, apks: .}
+   + (if $page == "" then {} else {desktop: {version: $name, page: $page}} end)' >"$out/update.json"
 
 echo "Wrote $out/update.json for $package $version_name:"
 jq -r '.apks[] | "  \(.abi) versionCode \(.versionCode) \(.size) bytes"' "$out/update.json"
-echo "Publish app-arm64-v8a-release.apk, app-x86_64-release.apk and update.json at $base_url"
+echo "Publish app-arm64-v8a-release.apk and update.json at $base_url"

@@ -9,6 +9,7 @@ import 'prefs.dart';
 import 'report_problem.dart';
 import 'settings_node.dart';
 import 'settings_phrase.dart';
+import 'settings_http.dart' show InternetGuide, InternetGuideChoice;
 import 'settings_receiving.dart';
 import 'settings_rescan.dart';
 
@@ -33,6 +34,7 @@ final List<DeskShot> settingsShots = [
   const DeskShot(id: '22d-node-pick-failed', title: 'Node pick failed', route: DeskRoute.settingsNode, arg: NodeDemo.pickFailed),
   const DeskShot(id: '22e-node-builtin', title: 'Built-in node in use', route: DeskRoute.settingsNode, arg: NodeDemo.builtin),
   const DeskShot(id: '22f-node-chain-in-use', title: 'Built-in node on older chain data', route: DeskRoute.settingsNode, arg: NodeDemo.chainInUse),
+  DeskShot(id: '22i-dlg-local-node-confirm', title: 'Local node: before it starts', route: DeskRoute.settingsNode, dialog: confirmLocalNode),
   DeskShot(id: '22g-dlg-chain-offer', title: 'Existing blockchain data', route: DeskRoute.settingsNode, dialog: showChainOfferDialog),
   DeskShot(id: '22h-dlg-chain-offer-in-use', title: 'Existing blockchain data, in use', route: DeskRoute.settingsNode, dialog: (c) => showChainOfferDialog(c, inUse: true)),
   DeskShot(
@@ -54,6 +56,7 @@ final List<DeskShot> settingsShots = [
     prepare: (c, _) => resetSettingsDemo(c),
   ),
   const DeskShot(id: '25-settings-account', title: 'Settings, this wallet', route: DeskRoute.settingsAccount),
+  DeskShot(id: '25b-dlg-change-password', title: 'Change password', route: DeskRoute.settingsAccount, dialog: showChangePasswordDialog),
   const DeskShot(id: '26-settings-wallets', title: 'Settings, all wallets', route: DeskRoute.settingsWallets),
   const DeskShot(id: '27-settings-phrase', title: 'Recovery phrase', route: DeskRoute.settingsPhrase),
   const DeskShot(id: '27b-settings-phrase-shown', title: 'Recovery phrase, shown', route: DeskRoute.settingsPhrase, arg: PhraseDemo.shown),
@@ -63,6 +66,12 @@ final List<DeskShot> settingsShots = [
   const DeskShot(id: '29-settings-about', title: 'About', route: DeskRoute.settingsAbout),
   const DeskShot(id: '30-settings-help', title: 'Help', route: DeskRoute.settingsHelp),
   const DeskShot(id: '30b-settings-help-search', title: 'Help, search', route: DeskRoute.settingsHelp, arg: 'file'),
+  DeskShot(
+    id: '23g-dlg-internet-guide',
+    title: 'Receive from the internet: the guide',
+    route: DeskRoute.settingsReceiving,
+    dialog: (c) => showEDialog<InternetGuideChoice>(c, builder: (_) => const InternetGuide(port: 3415, isPublic: false)),
+  ),
   DeskShot(id: '30c-dlg-report-problem', title: 'Report a problem', route: DeskRoute.settingsHelp, dialog: showReportProblemDialog),
   DeskShot(id: '31-dlg-my-node', title: 'Add to my nodes', route: DeskRoute.settingsNode, dialog: (c) => showMyNodeDialog(c, adding: true)),
   DeskShot(

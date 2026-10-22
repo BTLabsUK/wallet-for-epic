@@ -1,7 +1,10 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/mock_wallet.dart' show MockDeskWallet;
+import '../../data/remember.dart';
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../widgets/kit.dart';
 import '../settings/prefs.dart' show settingsPrefsProvider;
@@ -12,7 +15,16 @@ import 'onboarding_parts.dart';
 /// What [UnlockScreen] starts on, for the screenshot tour.
 enum UnlockShow { wrongPassword, progress, failed, missing }
 
-/// Opens the app. [arg] is an [UnlockShow] or an [UnlockAdded].
+/// Unlock with the wallet [id] selected, then [then] instead of Overview: Settings › This
+/// wallet when "Unlock this wallet" was chosen in the remove dialog of another wallet.
+class UnlockPick {
+  const UnlockPick(this.id, {this.then});
+
+  final String id;
+  final DeskRoute? then;
+}
+
+/// Opens the app. [arg] is an [UnlockShow], an [UnlockAdded] or an [UnlockPick].
 ///
 /// Mock passwords: `wrong` is refused, `busy` finds old processes (the kill-process dialog),
 /// `fail` stops at the wallet service.
@@ -27,6 +39,11 @@ class UnlockScreen extends ConsumerStatefulWidget {
 
 const _wrongPassword = 'Wrong password. Check Caps Lock and the keyboard layout.';
 
+/// Who else can open a remembered wallet: the truth, in the checkbox's tooltip.
+String get rememberWho => Platform.isWindows
+    ? 'Anyone using this Windows account can open this wallet.'
+    : 'Anyone using this account can open this wallet.';
+
 class _UnlockScreenState extends ConsumerState<UnlockScreen> {
   final _password = TextEditingController();
   final _passwordFocus = FocusNode();
@@ -34,6 +51,13 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
   String? _id;
   String? _error;
   bool _missing = false;
+
+  /// Remember on this computer: off unless the selected wallet is remembered already.
+  bool _remember = false;
+
+  /// Whether the user ticked the box on this screen (rather than it showing a wallet already
+  /// remembered): kept when a wrong password forgets the remembered one.
+  bool _rememberChosen = false;
 
   /// The stage running now; null while the form shows.
   String? _stage;
@@ -65,6 +89,10 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
   }
 
   Future<void> _loadWallets() async {
+    // At start only: Unlock after a Lock, after adding a wallet, or a second load of this
+    // screen (a wallet removed from the list) always asks.
+    final tryRemembered = !rememberAutoTried && widget.arg == null;
+    rememberAutoTried = true;
     final List<WalletEntry> w;
     try {
       w = await ref.read(deskApiProvider).wallets();
@@ -77,7 +105,11 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
       ref.read(deskNavProvider.notifier).reset(DeskRoute.welcome);
       return;
     }
-    final added = widget.arg is UnlockAdded ? (widget.arg as UnlockAdded).id : null;
+    final added = switch (widget.arg) {
+      UnlockAdded(:final id) => id,
+      UnlockPick(:final id) => id,
+      _ => null,
+    };
     final pick = w.where((e) => e.id == added).firstOrNull ?? w.where((e) => e.current).firstOrNull ?? w.first;
     if (pick.id == added) {
       try {
@@ -86,11 +118,23 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
         if (mounted) setState(() => _error = deskErrorText(e));
       }
     }
+    final remembered = await _isRemembered(pick.id);
+    if (!mounted) return;
     setState(() {
       _wallets = w;
       _id = pick.id;
+      _remember = remembered;
       if (pick.missing) _missing = true;
     });
+    if (tryRemembered && remembered && !pick.missing) await _unlock(remembered: true);
+  }
+
+  Future<bool> _isRemembered(String id) async {
+    try {
+      return await ref.read(deskApiProvider).isRemembered(id);
+    } on Object {
+      return false;
+    }
   }
 
   Future<void> _select(String? id) async {
@@ -104,6 +148,13 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
       await ref.read(deskApiProvider).selectWallet(id);
     } on Object catch (e) {
       if (mounted) setState(() => _error = deskErrorText(e));
+    }
+    final remembered = await _isRemembered(id);
+    if (mounted && _id == id) {
+      setState(() {
+        _remember = remembered;
+        _rememberChosen = false;
+      });
     }
   }
 
@@ -151,10 +202,11 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
     });
   }
 
-  Future<void> _unlock() async {
+  /// Opens the wallet with the typed password, or with the one remembered on this computer.
+  Future<void> _unlock({bool remembered = false}) async {
     if (_stage != null) return;
     final password = _password.text;
-    if (password.isEmpty) {
+    if (password.isEmpty && !remembered) {
       setState(() => _error = 'Enter the password');
       return;
     }
@@ -165,7 +217,7 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
     });
     if (!await _run('check') || (DeskFeatures.walletProcesses && !await _run('processes'))) return;
     final mock = ref.read(deskApiProvider) is MockDeskWallet;
-    if (DeskFeatures.walletProcesses && mock && password == 'busy' && mounted) {
+    if (DeskFeatures.walletProcesses && mock && !remembered && password == 'busy' && mounted) {
       final closed = await showKillProcessDialog(context);
       if (!mounted) return;
       if (!closed) {
@@ -176,7 +228,7 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
       if (!await _run('closing')) return;
     }
     if (!await _run('wallet')) return;
-    if (mock && password == 'fail') {
+    if (mock && !remembered && password == 'fail') {
       setState(() {
         _failure = 'The wallet service did not start: port 3415 is in use by another program.';
         _failedStage = 'wallet';
@@ -187,8 +239,13 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
     setState(() => _stage = 'unlock');
     final bool ok;
     try {
-      if (_id != null) await ref.read(deskApiProvider).selectWallet(_id!);
-      ok = await ref.read(deskApiProvider).unlock(password);
+      final api = ref.read(deskApiProvider);
+      if (_id != null) await api.selectWallet(_id!);
+      ok = remembered ? await api.unlockRemembered() : await api.unlock(password, remember: _remember);
+    } on RememberUnavailable {
+      // The OS store did not answer: the password stays remembered for the next start.
+      if (mounted) _backToForm(error: 'Remembered password unavailable. Enter the password.');
+      return;
     } on Object catch (e) {
       if (!mounted) return;
       setState(() {
@@ -200,16 +257,31 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
     }
     if (!mounted) return;
     if (!ok) {
-      _backToForm(error: _wrongPassword);
+      if (remembered) {
+        setState(() => _remember = false);
+        _backToForm(error: 'The remembered password was forgotten. Enter the password.');
+      } else {
+        _backToForm(error: _wrongPassword);
+        // The wrong password that forgot a remembered one (the last allowed try) unticks the
+        // box, so the next right password does not remember it again unasked.
+        final id = _id;
+        if (_remember && id != null && !await _isRemembered(id) && mounted && _id == id) {
+          setState(() => _remember = _rememberChosen);
+        }
+      }
       return;
     }
+    final notRemembered = !remembered && _remember && ref.read(deskApiProvider).notRemembered;
     final desk = ref.read(deskProvider.notifier);
     await desk.refresh();
     final prefs = ref.read(settingsPrefsProvider);
     await desk.startLive(listen: prefs.epicboxOnStart);
     if (!mounted) return;
     _password.clear();
-    ref.read(deskNavProvider.notifier).reset(DeskRoute.overview);
+    final then = widget.arg is UnlockPick ? (widget.arg as UnlockPick).then : null;
+    ref.read(deskNavProvider.notifier).reset(then ?? DeskRoute.overview);
+    // After the move: a toast closes when its screen goes.
+    if (notRemembered) showEToast(context, 'Not remembered', text: "This computer's key store is unavailable.", tone: ETone.risk);
   }
 
   @override
@@ -245,7 +317,7 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
     final ts = context.ts;
     final wallets = _wallets;
     final selected = _selected;
-    final added = widget.arg is UnlockAdded ? (widget.arg as UnlockAdded).name : null;
+    final added = widget.arg is UnlockAdded ? (widget.arg as UnlockAdded).notice : null;
     return EHeroScreen(
       footer: const AuthFoot(),
       child: EAuthCard(
@@ -260,7 +332,7 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
             if (added != null) ...[
               Semantics(
                 liveRegion: true,
-                child: ENotice(title: '$added added.', tone: ETone.ok, icon: EIcons.check),
+                child: ENotice(title: added, tone: ETone.ok, icon: EIcons.check),
               ),
               SizedBox(height: Sp.x5),
             ],
@@ -316,6 +388,22 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
                 onSubmitted: (_) => _unlock(),
               ),
             ),
+            SizedBox(height: Sp.x4),
+            Tooltip(
+              message: rememberWho,
+              child: ECheckbox(
+                value: _remember,
+                label: 'Remember on this computer',
+                onChanged: (v) => setState(() => _remember = _rememberChosen = v),
+              ),
+            ),
+            if (_remember) ...[
+              SizedBox(height: Sp.x1),
+              Padding(
+                padding: EdgeInsets.only(left: Sp.x8),
+                child: Text('For 30 days. $rememberWho', style: ts.caption),
+              ),
+            ],
             if (DeskFeatures.multiWallet && _missing) ...[
               SizedBox(height: Sp.x5),
               ENotice(

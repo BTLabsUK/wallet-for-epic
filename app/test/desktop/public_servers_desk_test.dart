@@ -10,6 +10,7 @@ import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:epic_wallet/src/net/http.dart';
 import 'package:epic_wallet/src/network.dart';
+import 'package:epic_wallet/src/public_servers.dart';
 import 'package:epic_wallet/src/relay_directory.dart';
 import 'package:epic_wallet/src/secret_store_api.dart';
 import 'package:epic_wallet/src/wallet_service.dart' as core;
@@ -46,7 +47,7 @@ class _Sample implements RelayDirectory, NodeDirectory {
 }
 
 const _hosts = ['node.btlabs.uk', 'node.epicnet.us:3413', 'node.epiccash.com:3413', 'epic.stackwallet.com:3413', 'epic-node.iniaku.my.id'];
-const _boxes = ['epicbox.stackwallet.com', 'epicbox.epicnet.us', 'epicbox.epiccash.com', 'epicbox.iniaku.my.id'];
+const _boxes = ['epicbox.epiccash.com', 'epicbox.stackwallet.com', 'epicbox.epicnet.us', 'epicbox.iniaku.my.id'];
 
 void main() {
   late Directory support;
@@ -54,8 +55,8 @@ void main() {
   setUp(() async => support = await Directory.systemTemp.createTemp('desk-public-servers-'));
   tearDown(() => support.delete(recursive: true));
 
-  LepicDeskWallet make(Object directory) => LepicDeskWallet(
-    service: core.FakeWalletService(password: _password),
+  LepicDeskWallet make(Object directory, {Set<String>? existing}) => LepicDeskWallet(
+    service: core.FakeWalletService(password: _password, existingWallets: existing),
     walletDir: (chain) async => (await Directory('${support.path}/wallets/${chain.name}').create(recursive: true)).path,
     secrets: MemorySecretStore(),
     filesDir: () async => support,
@@ -76,7 +77,21 @@ void main() {
     expect(nodes.map((n) => n.operator), ['BT Labs', 'EpicNet', 'Epic Cash', 'Cypher Stack', 'Iniaku pool']);
     final boxes = await w.epicboxes();
     expect(boxes.map((b) => b.domain), _boxes);
+    // A fresh install: the new default (D-13).
+    expect((await w.status()).epicbox.domain, defaultEpicboxHost);
+  });
+
+  test('an install with a wallet and no saved server keeps the server 0.1.0 used (D-13)', () async {
+    final w = make(_Down(), existing: {'${support.path}/wallets/mainnet'});
+    addTearDown(w.dispose);
     expect((await w.status()).epicbox.domain, 'epicbox.stackwallet.com');
+  });
+
+  test('the default Epicbox server is one constant: preset, first relay, status (D-13)', () {
+    expect(defaultEpicboxHost, 'epicbox.epiccash.com');
+    expect(mainnetPreset.epicboxDomain, defaultEpicboxHost);
+    expect(builtInRelays.first.relay.host, defaultEpicboxHost);
+    expect(deskEpicboxes.first.domain, defaultEpicboxHost);
   });
 
   test('a node and a relay the monitor adds show after the built-in ones', () async {

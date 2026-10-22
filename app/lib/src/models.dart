@@ -555,10 +555,18 @@ class NodeTip {
   final BigInt height;
   final String nodeVersion;
 
-  const NodeTip({required this.height, required this.nodeVersion});
+  /// Whether the node says it can take transactions; null for nodes that do not say (before
+  /// 4.1.0), which are judged by their height alone.
+  final bool? readyForTxs;
+
+  const NodeTip({
+    required this.height,
+    required this.nodeVersion,
+    this.readyForTxs,
+  });
 
   @override
-  int get hashCode => height.hashCode ^ nodeVersion.hashCode;
+  int get hashCode => height.hashCode ^ nodeVersion.hashCode ^ readyForTxs.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -566,7 +574,8 @@ class NodeTip {
       other is NodeTip &&
           runtimeType == other.runtimeType &&
           height == other.height &&
-          nodeVersion == other.nodeVersion;
+          nodeVersion == other.nodeVersion &&
+          readyForTxs == other.readyForTxs;
 }
 
 /// Progress of `EpicWallet::refresh`. Only the last event of a successful refresh has `summary`.
@@ -606,10 +615,14 @@ class ScanProgress {
   final String message;
   final bool finished;
 
+  /// What the scan did; on the `finished` event of a core that reports it, else null.
+  final ScanResult? result;
+
   const ScanProgress({
     this.percent,
     required this.message,
     required this.finished,
+    this.result,
   });
 
   @override
@@ -623,6 +636,37 @@ class ScanProgress {
           percent == other.percent &&
           message == other.message &&
           finished == other.finished;
+}
+
+/// What a completed scan did, as LEPIC counts it. [resumed]: it continued a stopped scan, and
+/// the counts cover only the part scanned this time. [unlocked] and [deleted] come only with
+/// `deleteUnconfirmed`.
+class ScanResult {
+  const ScanResult({
+    this.resumed = false,
+    this.found = 0,
+    this.restored = 0,
+    this.revived = 0,
+    this.unlocked = 0,
+    this.deleted = 0,
+  });
+
+  final bool resumed;
+
+  /// Outputs found on the chain, stored before or not.
+  final int found;
+
+  /// Found but not stored; now stored, each with a received transaction.
+  final int restored;
+
+  /// Stored as spent but unspent on the chain; their transactions were cancelled.
+  final int revived;
+
+  /// Locked but on the chain; spendable again, their transactions cancelled.
+  final int unlocked;
+
+  /// Unconfirmed and not on the chain; deleted, their transactions cancelled.
+  final int deleted;
 }
 
 /// A transaction slate travelling between two wallets as JSON.

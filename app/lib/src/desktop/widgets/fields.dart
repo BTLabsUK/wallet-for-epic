@@ -1,9 +1,11 @@
+import 'package:flutter/foundation.dart' show TargetPlatform, defaultTargetPlatform;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../theme/icons.dart';
 import '../theme/tokens.dart';
 import 'buttons.dart';
+import 'keyboard.dart';
 
 /// Label, control, then help or error. [aside] sits at the label's right (e.g. "Available …").
 class EField extends StatelessWidget {
@@ -15,6 +17,7 @@ class EField extends StatelessWidget {
     this.help,
     this.error,
     this.aside,
+    this.reserveError = false,
   });
 
   final String label;
@@ -23,6 +26,10 @@ class EField extends StatelessWidget {
   final String? help;
   final String? error;
   final Widget? aside;
+
+  /// Keeps the error line's height when there is no error (and no help), so the controls
+  /// below do not move when one appears.
+  final bool reserveError;
 
   @override
   Widget build(BuildContext context) {
@@ -73,6 +80,9 @@ class EField extends StatelessWidget {
         ] else if (help != null) ...[
           SizedBox(height: 6.u),
           Text(help!, style: ts.small),
+        ] else if (reserveError) ...[
+          SizedBox(height: 6.u),
+          Text('', style: ts.small),
         ],
       ],
     );
@@ -92,6 +102,7 @@ class EInput extends StatefulWidget {
     this.enabled = true,
     this.leading,
     this.trailing,
+    this.trailingTabStop = false,
     this.onChanged,
     this.onSubmitted,
     this.keyboardType,
@@ -100,6 +111,7 @@ class EInput extends StatefulWidget {
     this.maxLines = 1,
     this.focusNode,
     this.semanticLabel,
+    this.textInputAction,
   });
 
   final TextEditingController? controller;
@@ -110,6 +122,9 @@ class EInput extends StatefulWidget {
   final bool enabled;
   final IconData? leading;
   final Widget? trailing;
+
+  /// Lets [trailing] hold Tab stops (a button such as "All"); its icons opt out themselves.
+  final bool trailingTabStop;
   final ValueChanged<String>? onChanged;
   final ValueChanged<String>? onSubmitted;
   final TextInputType? keyboardType;
@@ -121,6 +136,9 @@ class EInput extends StatefulWidget {
   final FocusNode? focusNode;
   final String? semanticLabel;
 
+  /// The soft keyboard's action; in an [EForm] "next", or "done" in its last field.
+  final TextInputAction? textInputAction;
+
   @override
   State<EInput> createState() => _EInputState();
 }
@@ -128,6 +146,9 @@ class EInput extends StatefulWidget {
 class _EInputState extends State<EInput> {
   late final FocusNode _focus = widget.focusNode ?? FocusNode();
   bool _hover = false;
+  EFormState? _form;
+
+  bool get _multi => widget.maxLines > 1 && !widget.obscure;
 
   @override
   void initState() {
@@ -135,10 +156,27 @@ class _EInputState extends State<EInput> {
     _focus.addListener(_onFocus);
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final form = EForm.maybeOf(context);
+    if (form == _form) return;
+    _form?.unregister(_focus);
+    _form = form;
+    if (!_multi) _form?.register(_focus);
+  }
+
   void _onFocus() => setState(() {});
+
+  /// Enter: the field's own action, else the form's next field or main action.
+  void _submitted(String text) {
+    if (widget.onSubmitted != null) return widget.onSubmitted!(text);
+    _form?.enter(_focus);
+  }
 
   @override
   void dispose() {
+    _form?.unregister(_focus);
     _focus.removeListener(_onFocus);
     if (widget.focusNode == null) _focus.dispose();
     super.dispose();
@@ -194,7 +232,11 @@ class _EInputState extends State<EInput> {
                   keyboardType: widget.keyboardType,
                   inputFormatters: widget.inputFormatters,
                   onChanged: widget.onChanged,
-                  onSubmitted: widget.onSubmitted,
+                  onSubmitted: _submitted,
+                  // Enter keeps the focus in the field (a wrong password can be retyped);
+                  // the form moves it when there is a next field.
+                  onEditingComplete: widget.onSubmitted != null || _form != null ? () {} : null,
+                  textInputAction: widget.textInputAction ?? (_form == null || _multi ? null : TextInputAction.next),
                   style: style,
                   cursorColor: c.accent,
                   decoration: InputDecoration(
@@ -212,7 +254,8 @@ class _EInputState extends State<EInput> {
               if (widget.trailing != null)
                 Padding(
                   padding: EdgeInsets.only(right: Sp.x1),
-                  child: widget.trailing,
+                  // Icons inside a field (eye, clear, paste) are never Tab stops.
+                  child: ExcludeFocusTraversal(excluding: !widget.trailingTabStop, child: widget.trailing!),
                 ),
             ],
           ),
@@ -222,7 +265,8 @@ class _EInputState extends State<EInput> {
   }
 }
 
-/// A password field with a show/hide toggle.
+/// A password field with a show/hide toggle. The eye is not a Tab stop; Alt+F8 (Ctrl+Shift+P off
+/// Windows) in the field shows or hides the password.
 class EPasswordInput extends StatefulWidget {
   const EPasswordInput({
     super.key,
@@ -234,6 +278,7 @@ class EPasswordInput extends StatefulWidget {
     this.autofocus = false,
     this.focusNode,
     this.semanticLabel,
+    this.textInputAction,
   });
 
   final TextEditingController? controller;
@@ -244,6 +289,7 @@ class EPasswordInput extends StatefulWidget {
   final bool autofocus;
   final FocusNode? focusNode;
   final String? semanticLabel;
+  final TextInputAction? textInputAction;
 
   @override
   State<EPasswordInput> createState() => _EPasswordInputState();
@@ -252,21 +298,34 @@ class EPasswordInput extends StatefulWidget {
 class _EPasswordInputState extends State<EPasswordInput> {
   bool _show = false;
 
+  void _toggle() => setState(() => _show = !_show);
+
+  /// Alt+F8 is the Windows sign-in key; GNOME takes it (resize window), so other systems use
+  /// Ctrl+Shift+P.
+  static bool get _windows => defaultTargetPlatform == TargetPlatform.windows;
+
   @override
-  Widget build(BuildContext context) => EInput(
-    controller: widget.controller,
-    hint: widget.hint,
-    obscure: !_show,
-    invalid: widget.invalid,
-    onSubmitted: widget.onSubmitted,
-    onChanged: widget.onChanged,
-    autofocus: widget.autofocus,
-    focusNode: widget.focusNode,
-    semanticLabel: widget.semanticLabel,
-    trailing: EIconButton(
-      icon: _show ? EIcons.eyeOff : EIcons.eye,
-      label: _show ? 'Hide' : 'Show',
-      onPressed: () => setState(() => _show = !_show),
+  Widget build(BuildContext context) => CallbackShortcuts(
+    bindings: {
+      _windows ? const SingleActivator(LogicalKeyboardKey.f8, alt: true) : const SingleActivator(LogicalKeyboardKey.keyP, control: true, shift: true): _toggle,
+    },
+    child: EInput(
+      controller: widget.controller,
+      hint: widget.hint,
+      obscure: !_show,
+      invalid: widget.invalid,
+      onSubmitted: widget.onSubmitted,
+      onChanged: widget.onChanged,
+      autofocus: widget.autofocus,
+      focusNode: widget.focusNode,
+      semanticLabel: widget.semanticLabel,
+      textInputAction: widget.textInputAction,
+      trailing: EIconButton(
+        icon: _show ? EIcons.eyeOff : EIcons.eye,
+        label: '${_show ? 'Hide' : 'Show'} (${_windows ? 'Alt+F8' : 'Ctrl+Shift+P'})',
+        tabStop: false,
+        onPressed: _toggle,
+      ),
     ),
   );
 }

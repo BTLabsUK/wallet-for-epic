@@ -72,28 +72,54 @@ final deskStartProvider = Provider<DeskRoute>((ref) => deskRouteNamed(_start));
 DeskRoute deskRouteNamed(String name) =>
     DeskRoute.values.firstWhere((r) => r.name == name, orElse: () => DeskRoute.unlock);
 
+/// The place and its history: Back and Forward like a browser. Going to the place already
+/// shown adds nothing; going somewhere new drops the forward places.
 class DeskNav extends Notifier<DeskLocation> {
   final List<DeskLocation> _history = [];
+  final List<DeskLocation> _forward = [];
+
+  /// Older places beyond this are forgotten.
+  static const _keep = 50;
 
   @override
   DeskLocation build() => DeskLocation(ref.read(deskStartProvider));
 
   void go(DeskRoute route, [Object? arg]) {
+    if (route == state.route && arg == state.arg) return;
     _history.add(state);
+    if (_history.length > _keep) _history.removeAt(0);
+    _forward.clear();
     state = DeskLocation(route, arg);
   }
 
   /// Replaces the place without history (after unlock, lock, finishing a flow).
   void reset(DeskRoute route, [Object? arg]) {
     _history.clear();
+    _forward.clear();
     state = DeskLocation(route, arg);
   }
 
   bool get canBack => _history.isNotEmpty;
 
+  bool get canForward => _forward.isNotEmpty;
+
+  /// The previous place; an in-app page with no history goes to Overview.
   void back() {
-    if (_history.isEmpty) return;
+    if (_history.isEmpty) {
+      if (!state.route.bare && state.route != DeskRoute.overview) {
+        _forward.add(state);
+        state = const DeskLocation(DeskRoute.overview);
+      }
+      return;
+    }
+    _forward.add(state);
     state = _history.removeLast();
+  }
+
+  void forward() {
+    if (_forward.isEmpty) return;
+    _history.add(state);
+    state = _forward.removeLast();
   }
 }
 

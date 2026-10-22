@@ -9,7 +9,7 @@ import 'epicbox_notice.dart';
 
 /// Argument of the Receive route, for the tour: [stopped] opens with the listener stopped,
 /// [httpFailed] with the HTTP listener failed on a busy port, [qrHttp] with the HTTP address's QR
-/// code, [epicboxDown] with our relay not answering.
+/// code, [epicboxDown] with our Epicbox server not answering.
 class ReceiveArgs {
   const ReceiveArgs({this.stopped = false, this.httpFailed = false, this.qrHttp = false, this.epicboxDown = false});
 
@@ -168,8 +168,8 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
                 ESetRow(
                   title: 'Receiving is on',
                   text: status?.httpListener == ServiceHealth.ok
-                      ? 'Epicbox and HTTP are listening. Once stopped, Epicbox payments wait on the relay for a while, HTTP payments fail, and transaction files still work.'
-                      : 'Epicbox is listening. Once stopped, payments to the Epic address wait on the relay for a while, and transaction files still work.',
+                      ? 'Epicbox and HTTP are listening. Once stopped, Epicbox payments wait on the Epicbox server for a while, HTTP payments fail, and transaction files still work.'
+                      : 'Epicbox is listening. Once stopped, payments to the Epic address wait on the Epicbox server for a while, and transaction files still work.',
                   control: EButton(
                     label: 'Stop receiving',
                     icon: EIcons.stop,
@@ -202,8 +202,8 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
               SizedBox(height: Sp.x2),
               Text(
                 DeskFeatures.httpDirect
-                    ? 'Epicbox and HTTP payments need the listener running. Payments already sent to the Epic address wait on the relay and arrive once it starts. Files work either way.'
-                    : 'Epicbox payments need the listener running. Payments already sent to the Epic address wait on the relay and arrive once it starts. Files work either way.',
+                    ? 'Epicbox and HTTP payments need the listener running. Payments already sent to the Epic address wait on the Epicbox server and arrive once it starts. Files work either way.'
+                    : 'Epicbox payments need the listener running. Payments already sent to the Epic address wait on the Epicbox server and arrive once it starts. Files work either way.',
                 style: ts.bodyDim,
               ),
             ],
@@ -232,10 +232,10 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
     final httpOn = status?.httpListener == ServiceHealth.ok;
     final (icon, color, text) = switch (health) {
       null => (EIcons.sync, c.faint, 'Connecting'),
-      _ when !listening => (EIcons.minusCircle, c.faint, 'Receiving is off. Payments wait on the relay until the listener starts.'),
+      _ when !listening => (EIcons.minusCircle, c.faint, 'Receiving is off. Payments wait on the Epicbox server until the listener starts.'),
       ServiceHealth.ok || ServiceHealth.slow => (EIcons.okCircle, c.ok, 'Listening via $domain'),
       ServiceHealth.checking => (EIcons.sync, c.faint, 'Connecting to $domain'),
-      ServiceHealth.down => (EIcons.alert, c.warn, '$domain is not answering. Payments wait on the relay.'),
+      ServiceHealth.down => (EIcons.alert, c.warn, '$domain is not answering. Payments wait on the Epicbox server.'),
       ServiceHealth.off => (EIcons.alert, c.warn, httpOn ? 'The listener is on, but Epicbox is not running.' : 'Epicbox is not running.'),
     };
     final tor = _tor;
@@ -275,7 +275,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
             children: [
               Semantics(header: true, child: Text('Epic address', style: ts.h3)),
               SizedBox(height: Sp.x2),
-              Text('Share it to get paid. It works while this wallet is closed: the relay holds payments until the wallet is back.', style: ts.bodyDim),
+              Text('Share it to get paid. It works while this wallet is closed: the Epicbox server holds payments until the wallet is back.', style: ts.bodyDim),
               SizedBox(height: Sp.x4),
               if (addr == null)
                 Padding(padding: EdgeInsets.symmetric(vertical: Sp.x4), child: ESpinner(size: 20.u))

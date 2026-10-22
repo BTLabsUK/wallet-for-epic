@@ -6,6 +6,7 @@ import '../../widgets/kit.dart';
 import 'help_topics.dart';
 import 'report_problem.dart';
 import 'settings_frame.dart';
+import 'settings_logs.dart';
 
 /// The query's words, lower case, longest first; none under two letters in all.
 List<String> queryWords(String q) {
@@ -132,6 +133,17 @@ class _SettingsHelpScreenState extends ConsumerState<SettingsHelpScreen> {
           ESectionHead('Help and FAQ', top: 0),
           Text('Short answers to common questions. Search, or open a topic.', style: ts.bodyDim),
           SizedBox(height: Sp.x4),
+          ESetGroup(
+            title: 'Support',
+            rows: [
+              ESetRow(
+                title: 'Report a problem',
+                text: 'Describe what went wrong. The app log can go with it, cleaned of secrets and encrypted to the developer.',
+                control: EButton(label: 'Report a problem', icon: EIcons.bug, size: EBtnSize.sm, onPressed: () => showReportProblemDialog(context)),
+              ),
+            ],
+          ),
+          SizedBox(height: Sp.x5),
           EField(
             label: 'Search help',
             help: 'Press / to search. Esc clears the search.',
@@ -166,16 +178,7 @@ class _SettingsHelpScreenState extends ConsumerState<SettingsHelpScreen> {
               SizedBox(height: Sp.x4),
             ],
           SizedBox(height: Sp.x2),
-          ESetGroup(
-            title: 'Support',
-            rows: [
-              ESetRow(
-                title: 'Report a problem',
-                text: 'Describe what went wrong. The app log can go with it, cleaned of secrets and encrypted to the developer.',
-                control: EButton(label: 'Report a problem', icon: EIcons.bug, size: EBtnSize.sm, onPressed: () => showReportProblemDialog(context)),
-              ),
-            ],
-          ),
+          const LogsGroup(),
         ],
       ),
     );

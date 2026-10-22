@@ -11,6 +11,7 @@ import 'package:epic_wallet/src/desktop/screens/settings/prefs.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:epic_wallet/src/secret_store_api.dart';
+import 'package:epic_wallet/src/network.dart' show defaultEpicboxHost;
 import 'package:epic_wallet/src/wallet_service.dart' as core;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -86,9 +87,9 @@ class _GatedScan extends _StrictSession {
   final Completer<void> gate = Completer<void>();
 
   @override
-  Stream<core.ScanProgress> scan({BigInt? startHeight}) async* {
+  Stream<core.ScanProgress> scan({BigInt? startHeight, bool deleteUnconfirmed = false}) async* {
     await gate.future;
-    yield* super.scan(startHeight: startHeight);
+    yield* super.scan(startHeight: startHeight, deleteUnconfirmed: deleteUnconfirmed);
   }
 }
 
@@ -181,9 +182,9 @@ void main() {
       expect(service.session.scanCalls, 1);
     });
 
-    test('words are checked against the BIP-39 list', () async {
-      expect(await wallet.checkPhraseWord('abandon'), isTrue);
-      expect(await wallet.checkPhraseWord('h4rbor'), isFalse);
+    test('the phrase check asks the wallet core, lower-cased and trimmed', () {
+      expect(wallet.checkPhrase(service.phrase.toUpperCase().split(' ')), isTrue);
+      expect(wallet.checkPhrase(['abandon', 'h4rbor']), isFalse);
     });
   });
 
@@ -216,6 +217,38 @@ void main() {
       expect(damaged.session.scanCalls, 1);
       expect((await w.status()).notice, isNull);
       await w.dispose();
+    });
+  });
+
+  group('the Epicbox server of an install that never saved one (D-13)', () {
+    test('a wallet in the first folder keeps the server 0.1.0 used, and it is saved', () async {
+      service.existingWallets.add(await walletDir(core.Chain.mainnet));
+      expect((await wallet.status()).epicbox.domain, 'epicbox.stackwallet.com');
+      expect(secrets.values['app.relay.mainnet'], 'epicbox.stackwallet.com');
+    });
+
+    test('a wallet in wallets.json keeps it too', () async {
+      await wallet.createWallet(name: 'Main', password: _password);
+      await wallet.createWallet(name: 'Second', password: _password);
+      secrets.values.remove('app.relay.mainnet');
+      service.existingWallets.remove(await walletDir(core.Chain.mainnet));
+      final again = make(service);
+      addTearDown(again.dispose);
+      expect((await again.status()).epicbox.domain, 'epicbox.stackwallet.com');
+    });
+
+    test('a fresh install starts on the new default and keeps it once a wallet exists', () async {
+      expect((await wallet.status()).epicbox.domain, 'epicbox.epiccash.com');
+      await wallet.createWallet(name: 'Main', password: _password);
+      final again = make(service);
+      addTearDown(again.dispose);
+      expect((await again.status()).epicbox.domain, 'epicbox.epiccash.com');
+    });
+
+    test('a saved server is left alone', () async {
+      secrets.values['app.relay.mainnet'] = 'epicbox.epicnet.us';
+      service.existingWallets.add(await walletDir(core.Chain.mainnet));
+      expect((await wallet.status()).epicbox.domain, 'epicbox.epicnet.us');
     });
   });
 
@@ -264,7 +297,8 @@ void main() {
       expect(st.node.url, 'https://node.btlabs.uk');
       expect(st.nodeHeight, 2500000);
       expect(st.nodeHealth, ServiceHealth.ok);
-      expect(st.epicbox.domain, 'epicbox.stackwallet.com');
+      // Made on a fresh install: the new default (D-13).
+      expect(st.epicbox.domain, defaultEpicboxHost);
       expect(st.epicboxHealth, ServiceHealth.off);
       expect(st.syncProgress, isNull);
       expect(await wallet.outputs(), isEmpty);
@@ -330,10 +364,9 @@ void main() {
       await expectLater(wallet.syncNow(), throwsA(isA<DeskError>()));
     });
 
-    // Tor is real now (tor_direct_test.dart).
+    // Tor is real now (tor_direct_test.dart), and the password change (change_password_test.dart).
     test('hidden features throw instead of faking', () async {
       expect(() => wallet.exportProof(1), throwsUnsupportedError);
-      expect(() => wallet.changePassword(_password, 'another-pass'), throwsUnsupportedError);
     });
   });
 
@@ -980,12 +1013,12 @@ void main() {
       await done(tester);
     });
 
-    testWidgets('activity has no Outputs tab; account no password change', (tester) async {
+    testWidgets('activity has no Outputs tab; account changes the password as DeskFeatures says', (tester) async {
       await pump(tester, DeskRoute.activity);
       expect(find.text('Outputs'), findsNothing);
       await done(tester);
       await pump(tester, DeskRoute.settingsAccount);
-      expect(find.text('Change password…'), findsNothing);
+      expect(find.text('Change password…'), DeskFeatures.changePassword ? findsOneWidget : findsNothing);
       expect(find.text('Delete…'), findsOneWidget);
       await done(tester);
     });

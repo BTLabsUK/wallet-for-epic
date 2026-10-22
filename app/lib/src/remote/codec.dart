@@ -268,10 +268,15 @@ final WireCodec<ListenerEvent> listenerEventWire = _object<ListenerEvent>(
 
 final WireCodec<NodeTip> nodeTipWire = _object<NodeTip>(
   'NodeTip',
-  (v) => {'height': bigIntWire.encode(v.height), 'nodeVersion': v.nodeVersion},
+  (v) => {
+    'height': bigIntWire.encode(v.height),
+    'nodeVersion': v.nodeVersion,
+    'readyForTxs': nullable(boolWire).encode(v.readyForTxs),
+  },
   (r) => NodeTip(
     height: r.of('height', bigIntWire),
     nodeVersion: r.of('nodeVersion', stringWire),
+    readyForTxs: r.of('readyForTxs', nullable(boolWire)),
   ),
 );
 

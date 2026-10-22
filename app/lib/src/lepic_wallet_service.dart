@@ -37,14 +37,15 @@ Future<void> initLepic({String? libraryPath}) => lepic.RustLib.init(
 );
 
 /// Logs one entry of `LepicRuntime.logs()` under its own target:
-/// `lepic_wallet::send: slate received in send slate_id=… height=…`. Debug and trace entries
-/// are dropped.
+/// `lepic_wallet::send: slate received in send slate_id=… height=…`. Trace entries are
+/// dropped; debug ones reach the log only while [AppLog.detailed] is on.
 void logLepicEntry(lepic.LogEntry entry) {
   final level = switch (entry.level) {
     lepic.LogLevel.error => LogLevel.error,
     lepic.LogLevel.warn => LogLevel.warn,
     lepic.LogLevel.info => LogLevel.info,
-    lepic.LogLevel.debug || lepic.LogLevel.trace => null,
+    lepic.LogLevel.debug => LogLevel.debug,
+    lepic.LogLevel.trace => null,
   };
   if (level == null) return;
   final line = StringBuffer(entry.message);
@@ -60,6 +61,9 @@ void logLepicEntry(lepic.LogEntry entry) {
   AppLog.record(level, entry.target, line.toString());
 }
 
+/// What a send LEPIC cannot build from the coins at hand (ChangeTooSmall, TooHeavy) says.
+const String sendUnbuildable = 'This send cannot be built from the coins available.';
+
 /// LEPIC's error as the app's. The switch is exhaustive, so a kind LEPIC adds breaks the build
 /// here instead of reaching the UI unmapped.
 WalletError mapLepicError(lepic.WalletError error) {
@@ -73,6 +77,9 @@ WalletError mapLepicError(lepic.WalletError error) {
     lepic.WalletErrorKind.notEnoughFunds => WalletErrorKind.notEnoughFunds,
     lepic.WalletErrorKind.invalidSlate => WalletErrorKind.invalidSlate,
     lepic.WalletErrorKind.invalidArgument => WalletErrorKind.invalidArgument,
+    // A split that cannot be built from the coins at hand; one short error for both.
+    lepic.WalletErrorKind.changeTooSmall ||
+    lepic.WalletErrorKind.tooHeavy => WalletErrorKind.invalidArgument,
     lepic.WalletErrorKind.transportFailed => WalletErrorKind.transportFailed,
     lepic.WalletErrorKind.chainBusy => WalletErrorKind.chainBusy,
     lepic.WalletErrorKind.walletBusy => WalletErrorKind.walletBusy,
@@ -109,7 +116,13 @@ WalletError mapLepicError(lepic.WalletError error) {
     lepic.WalletErrorKind.unsupported ||
     lepic.WalletErrorKind.panic => WalletErrorKind.other,
   };
-  return WalletError(kind: kind, message: error.message);
+  final split =
+      error.kind == lepic.WalletErrorKind.changeTooSmall ||
+      error.kind == lepic.WalletErrorKind.tooHeavy;
+  return WalletError(
+    kind: kind,
+    message: split ? sendUnbuildable : error.message,
+  );
 }
 
 Future<T> _guard<T>(Future<T> Function() call) async {
@@ -525,7 +538,10 @@ class LepicWalletService implements WalletService {
   static lepic.LepicRuntime _defaultRuntime() => _shared ??= _newRuntime();
 
   static lepic.LepicRuntime _newRuntime() {
-    final runtime = lepic.LepicRuntime(logLevel: lepic.LogLevel.info);
+    // LEPIC has no level setter: Detailed logging reaches it when the runtime starts.
+    final runtime = lepic.LepicRuntime(
+      logLevel: AppLog.detailed ? lepic.LogLevel.debug : lepic.LogLevel.info,
+    );
     // The stream's error reaches the zone instead (UP-11); onError covers a future pin.
     runtime.logs().listen(
       logLepicEntry,
@@ -666,7 +682,11 @@ class LepicWalletService implements WalletService {
       runtime: _runtime,
       config: _lepicConfig(config, config.dataDir),
     );
-    return NodeTip(height: tip.height, nodeVersion: tip.nodeVersion);
+    return NodeTip(
+      height: tip.height,
+      nodeVersion: tip.nodeVersion,
+      readyForTxs: tip.readyForTxs,
+    );
   });
 
   @override
@@ -884,6 +904,17 @@ class LepicWalletSession implements WalletSession {
       _guard(() => _wallet.mnemonic(password: password));
 
   @override
+  Future<void> changePassword({
+    required String currentPassword,
+    required String newPassword,
+  }) => _guard(
+    () => _wallet.changePassword(
+      currentPassword: currentPassword,
+      newPassword: newPassword,
+    ),
+  );
+
+  @override
   Future<String> mnemonicWithPin({
     required String pin,
     required String sealedPassword,
@@ -920,6 +951,32 @@ class LepicWalletSession implements WalletSession {
   Future<void> releaseStuckSend({required String key}) =>
       _guard(() async => _wallet.releaseTransaction(txId: await _txIdOf(key)));
 
+  /// The amount [estimateMax] last returned. A send of exactly the wallet's current maximum is
+  /// a send-all and takes every coin into one change output, as the max estimate did, so fee
+  /// and amount match.
+  BigInt? _maxAmount;
+
+  static const _sendAll = lepic.SendOptions(
+    strategy: lepic.SelectionStrategy.all,
+    changeOutputs: 1,
+  );
+
+  /// Send-all options when [amount] is still the wallet's maximum, checked again now: a max
+  /// remembered from before the balance changed must not turn a typed amount into a
+  /// send-all. Null (Smallest, the default) otherwise.
+  Future<lepic.SendOptions?> _optionsFor(
+    BigInt amount,
+    BigInt minimumConfirmations,
+  ) async {
+    if (_maxAmount == null || amount != _maxAmount) return null;
+    final now = await _wallet.estimateMax(
+      minimumConfirmations: minimumConfirmations,
+      options: _sendAll,
+    );
+    _maxAmount = now.amount;
+    return now.amount == amount ? _sendAll : null;
+  }
+
   @override
   Future<Slate> createSendSlate({
     required BigInt amount,
@@ -930,6 +987,7 @@ class LepicWalletSession implements WalletSession {
       amount: amount,
       minimumConfirmations: minimumConfirmations,
       message: _message(message),
+      options: await _optionsFor(amount, minimumConfirmations),
     );
     return Slate(slateId: slate.slateId, json: slate.json);
   });
@@ -945,6 +1003,7 @@ class LepicWalletSession implements WalletSession {
     final e = await _wallet.estimateFee(
       amount: amount,
       minimumConfirmations: minimumConfirmations,
+      options: await _optionsFor(amount, minimumConfirmations),
     );
     return FeeEstimate(amount: e.amount, fee: e.fee);
   });
@@ -954,7 +1013,9 @@ class LepicWalletSession implements WalletSession {
       _guard(() async {
         final e = await _wallet.estimateMax(
           minimumConfirmations: minimumConfirmations,
+          options: _sendAll,
         );
+        _maxAmount = e.amount;
         return FeeEstimate(amount: e.amount, fee: e.fee);
       });
 
@@ -977,6 +1038,7 @@ class LepicWalletSession implements WalletSession {
       minimumConfirmations: minimumConfirmations,
       address: address,
       message: _message(message),
+      options: await _optionsFor(amount, minimumConfirmations),
     );
     return _entry(tx.txId);
   });
@@ -1010,6 +1072,7 @@ class LepicWalletSession implements WalletSession {
       url: url,
       allowPlainHttp: allowPlainHttp,
       message: _message(message),
+      options: await _optionsFor(amount, minimumConfirmations),
     );
     return HttpSent(txId: tx.txId, slateId: tx.slateId, posted: tx.posted);
   });
@@ -1127,17 +1190,43 @@ class LepicWalletSession implements WalletSession {
   );
 
   @override
-  Stream<ScanProgress> scan({BigInt? startHeight}) => _guardStream(
+  Stream<ScanProgress> scan({
+    BigInt? startHeight,
+    bool deleteUnconfirmed = false,
+  }) => _guardStream(
     _wallet
-        .scan(startHeight: startHeight)
+        .scan(startHeight: startHeight, deleteUnconfirmed: deleteUnconfirmed)
+        // cancelScan ends the stream with `cancelled`: a stop, not a failure.
+        .handleError(
+          (Object _) {},
+          test: (e) =>
+              e is lepic.WalletError &&
+              e.kind == lepic.WalletErrorKind.cancelled,
+        )
         .map(
           (p) => ScanProgress(
             percent: p.percent,
             message: p.message,
             finished: p.finished,
+            result: switch (p.result) {
+              final r? => ScanResult(
+                resumed: r.resumed,
+                found: r.found.toInt(),
+                restored: r.restored.toInt(),
+                revived: r.revived.toInt(),
+                unlocked: r.unlocked.toInt(),
+                deleted: r.deleted.toInt(),
+              ),
+              null => null,
+            },
           ),
         ),
   );
+
+  @override
+  void cancelScan() {
+    if (!_wallet.isDisposed) _guardSync(_wallet.cancelScan);
+  }
 
   /// LEPIC counts balances with its own confirmations and reports them in the summary
   /// (`countedConfirmationsProvider`), so [minimumConfirmations] changes nothing.

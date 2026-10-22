@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../widgets/kit.dart';
+import '../onboarding/onboarding_parts.dart' show accountErrors;
+import '../onboarding/unlock_screen.dart' show UnlockPick;
 import 'prefs.dart';
 import 'settings_frame.dart';
 import 'settings_node.dart' show hostOf, minNodeVersion, nodeTone, versionOld;
@@ -141,7 +143,10 @@ class _MyNodeDialogState extends ConsumerState<MyNodeDialog> {
       title: widget.editing ? 'Edit node' : 'Add to my nodes',
       description: 'Save a node address to find it again later. It can be saved while it is offline.',
       icon: EIcons.server,
-      body: Column(
+      // Enter: Address → Label, then Save.
+      body: EForm(
+        onSubmit: _address.text.trim().isEmpty ? null : _save,
+        child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           EField(
@@ -155,7 +160,6 @@ class _MyNodeDialogState extends ConsumerState<MyNodeDialog> {
               autofocus: true,
               semanticLabel: 'Node address',
               onChanged: (_) => _recheck(),
-              onSubmitted: (_) => _save(),
             ),
           ),
           if (status != null) ...[SizedBox(height: Sp.x2), Semantics(liveRegion: true, child: status)],
@@ -163,12 +167,13 @@ class _MyNodeDialogState extends ConsumerState<MyNodeDialog> {
           EField(
             label: 'Label',
             optional: true,
-            child: EInput(controller: _label, hint: 'e.g. Home node', semanticLabel: 'Label', onSubmitted: (_) => _save()),
+            child: EInput(controller: _label, hint: 'e.g. Home node', semanticLabel: 'Label'),
           ),
         ],
       ),
+      ),
       actions: [
-        EButton(label: 'Cancel', size: EBtnSize.sm, onPressed: () => Navigator.of(context).pop()),
+        EButton(label: 'Cancel', size: EBtnSize.sm, tabStop: false, onPressed: () => Navigator.of(context).pop()),
         EButton.primary(label: 'Save', icon: EIcons.check, size: EBtnSize.sm, onPressed: _address.text.trim().isEmpty ? null : _save),
       ],
     );
@@ -328,8 +333,8 @@ class _ChangePasswordDialogState extends ConsumerState<ChangePasswordDialog> {
   final _next = TextEditingController();
   final _repeat = TextEditingController();
   bool _busy = false;
-  bool _tried = false;
-  String? _wrong;
+  bool _wrong = false;
+  String? _error;
 
   @override
   void dispose() {
@@ -339,76 +344,96 @@ class _ChangePasswordDialogState extends ConsumerState<ChangePasswordDialog> {
     super.dispose();
   }
 
-  String? get _nextError => !_tried
-      ? null
-      : _next.text.length < 8
-      ? 'At least 8 characters.'
-      : null;
-  String? get _repeatError => _tried && _repeat.text != _next.text ? 'The passwords differ.' : null;
+  // The same rules and words as Create's password (onboarding_parts.dart).
+  bool get _valid => _current.text.isNotEmpty && _next.text.length >= 8 && _repeat.text == _next.text;
 
   Future<void> _save() async {
+    if (!_valid || _busy) return;
     setState(() {
-      _tried = true;
-      _wrong = null;
+      _busy = true;
+      _wrong = false;
+      _error = null;
     });
-    if (_current.text.isEmpty || _next.text.length < 8 || _repeat.text != _next.text) return;
-    setState(() => _busy = true);
     try {
       await ref.read(deskApiProvider).changePassword(_current.text, _next.text);
       if (!mounted) return;
       Navigator.of(context).pop();
-      showEToast(context, 'Password changed');
-    } catch (_) {
-      if (mounted) {
-        setState(() {
-          _busy = false;
-          _wrong = 'Wrong password.';
-        });
-      }
+      showEToast(context, 'Password changed.');
+    } on Object catch (e) {
+      if (!mounted) return;
+      final wrong = e is DeskError && e.wrongPassword;
+      setState(() {
+        _busy = false;
+        _wrong = wrong;
+        _error = wrong ? null : deskErrorText(e);
+      });
     }
   }
 
+  void _edited() => setState(() => _error = null);
+
   @override
   Widget build(BuildContext context) {
+    final c = context.dc;
+    final ts = context.ts;
+    final (nextError, repeatError) = accountErrors(_next.text, _repeat.text);
     return PopScope(
       canPop: !_busy,
       child: EDialog(
       title: 'Change password',
       dismissible: !_busy,
-      description: 'The new password unlocks this wallet from now on.',
+      description: 'The new password unlocks this wallet from now on. A remembered password is forgotten.',
       icon: EIcons.lock,
-      body: Column(
+      // Enter: Current → New → Repeat, then Change password once all three are valid.
+      body: EForm(
+        onSubmit: _busy || !_valid ? null : _save,
+        child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           EField(
             label: 'Current password',
-            error: _wrong ?? (_tried && _current.text.isEmpty ? 'Enter the current password.' : null),
-            child: EPasswordInput(controller: _current, autofocus: true, invalid: _wrong != null, onChanged: (_) => setState(() => _wrong = null)),
+            error: _wrong ? 'Wrong password' : null,
+            child: EPasswordInput(
+              controller: _current,
+              autofocus: true,
+              invalid: _wrong,
+              semanticLabel: 'Current password',
+              onChanged: (_) => setState(() {
+                _wrong = false;
+                _error = null;
+              }),
+            ),
           ),
           SizedBox(height: Sp.x4),
           EField(
             label: 'New password',
-            error: _nextError,
+            error: nextError,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                EPasswordInput(controller: _next, invalid: _nextError != null),
+                EPasswordInput(controller: _next, invalid: nextError != null, semanticLabel: 'New password', onChanged: (_) => _edited()),
                 SizedBox(height: Sp.x2),
-                PasswordHint(controller: _next),
+                // Informs only; its info icon is not a Tab stop.
+                ExcludeFocusTraversal(child: PasswordHint(controller: _next)),
               ],
             ),
           ),
           SizedBox(height: Sp.x4),
           EField(
             label: 'Repeat new password',
-            error: _repeatError,
-            child: EPasswordInput(controller: _repeat, invalid: _repeatError != null, onSubmitted: (_) => _save()),
+            error: repeatError,
+            child: EPasswordInput(controller: _repeat, invalid: repeatError != null, semanticLabel: 'Repeat new password', onChanged: (_) => _edited()),
           ),
+          if (_error != null) ...[
+            SizedBox(height: Sp.x3),
+            Semantics(liveRegion: true, child: Text(_error!, style: ts.small.copyWith(color: c.risk))),
+          ],
         ],
       ),
+      ),
       actions: [
-        EButton(label: 'Cancel', size: EBtnSize.sm, onPressed: _busy ? null : () => Navigator.of(context).pop()),
-        EButton.primary(label: 'Change password', size: EBtnSize.sm, busy: _busy, onPressed: _save),
+        EButton(label: 'Cancel', size: EBtnSize.sm, tabStop: false, onPressed: _busy ? null : () => Navigator.of(context).pop()),
+        EButton.primary(label: 'Change password', size: EBtnSize.sm, busy: _busy, onPressed: _valid ? _save : null),
       ],
     ),
     );
@@ -463,6 +488,27 @@ class _RemoveWalletDialogState extends ConsumerState<RemoveWalletDialog> {
   bool get _nameOk => _typed.text.trim() == w.name;
 
   bool get _ready => !_busy && _mode != null && (_mode != WalletRemoval.delete || (_nameOk && _ack && _password.text.isNotEmpty));
+
+  /// Locks the open wallet and opens Unlock with this one selected, landing on Settings › This
+  /// wallet, where Delete wallet is.
+  Future<void> _unlockThis() async {
+    setState(() => _busy = true);
+    try {
+      if (ref.read(deskProvider).account != null) await ref.read(deskProvider.notifier).lock();
+      await ref.read(deskApiProvider).selectWallet(w.id);
+    } on Object catch (e) {
+      if (mounted) {
+        setState(() {
+          _busy = false;
+          _error = deskErrorText(e);
+        });
+      }
+      return;
+    }
+    if (!mounted) return;
+    Navigator.of(context).pop();
+    ref.read(deskNavProvider.notifier).reset(DeskRoute.unlock, UnlockPick(w.id, then: DeskRoute.settingsAccount));
+  }
 
   Future<void> _remove() async {
     final mode = _mode;
@@ -521,7 +567,10 @@ class _RemoveWalletDialogState extends ConsumerState<RemoveWalletDialog> {
         icon: EIcons.trash,
         tone: ETone.risk,
         dismissible: !_busy,
-        body: Column(
+        // Enter: Wallet name → Password, then the danger button once everything is filled.
+        body: EForm(
+          onSubmit: _ready ? _remove : null,
+          child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Semantics(
@@ -539,6 +588,18 @@ class _RemoveWalletDialogState extends ConsumerState<RemoveWalletDialog> {
                 ],
               ),
             ),
+            if (!_isOpen) ...[
+              SizedBox(height: Sp.x1),
+              Text(
+                'To delete its files as well, unlock this wallet and use Delete wallet under Settings › This wallet.',
+                style: ts.small,
+              ),
+              SizedBox(height: Sp.x1),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: ELink(label: 'Unlock this wallet', onPressed: _busy ? null : _unlockThis),
+              ),
+            ],
             if (_mode == WalletRemoval.delete) ...[
               SizedBox(height: Sp.x2),
               const ENotice(
@@ -577,8 +638,9 @@ class _RemoveWalletDialogState extends ConsumerState<RemoveWalletDialog> {
             ],
           ],
         ),
+        ),
         actions: [
-          EButton(label: 'Cancel', size: EBtnSize.sm, kind: EBtnKind.ghost, onPressed: _busy ? null : () => Navigator.of(context).pop()),
+          EButton(label: 'Cancel', size: EBtnSize.sm, kind: EBtnKind.ghost, tabStop: false, onPressed: _busy ? null : () => Navigator.of(context).pop()),
           EButton(
             label: _mode == WalletRemoval.delete ? 'Delete wallet' : 'Remove from list',
             icon: EIcons.trash,
@@ -676,7 +738,7 @@ class _DeleteWalletDialogState extends ConsumerState<DeleteWalletDialog> {
         ],
       ),
       actions: [
-        EButton(label: 'Cancel', size: EBtnSize.sm, kind: EBtnKind.ghost, onPressed: _busy ? null : () => Navigator.of(context).pop()),
+        EButton(label: 'Cancel', size: EBtnSize.sm, kind: EBtnKind.ghost, tabStop: false, onPressed: _busy ? null : () => Navigator.of(context).pop()),
         EButton(label: 'Delete wallet', icon: EIcons.trash, size: EBtnSize.sm, kind: EBtnKind.danger, busy: _busy, onPressed: _ready ? _delete : null),
       ],
     ),

@@ -92,14 +92,14 @@ void flows() {
     await _end(tester);
   });
 
-  testWidgets('restore: a pasted 12-word phrase sets the length and allows Continue', (tester) async {
+  testWidgets('restore: a pasted 12-word phrase sets the count and allows Continue', (tester) async {
     await _pump(tester, const RestoreScreen());
-    final words = List.filled(12, 'abandon').join(' ');
+    final words = [...List.filled(11, 'abandon'), 'about'].join(' ');
     await tester.enterText(_field(0), words);
     await _wait(tester, 500);
     expect(find.text('12 of 12 words'), findsOneWidget);
-    expect(find.text('All 12 words are in the word list'), findsOneWidget);
-    await tester.tap(find.text('Continue'));
+    expect(find.text('All 12 words check out.'), findsOneWidget);
+    await tester.tap(find.text('Use 12 words'));
     await tester.pump();
     expect(find.text('Choose a password'), findsOneWidget);
     expect(find.text('Name'), findsNothing);
@@ -107,21 +107,22 @@ void flows() {
     await _end(tester);
   });
 
-  testWidgets('restore: no Length field; the word count sets 12, 15 or 24 boxes', (tester) async {
+  testWidgets('restore: no Length field; 24 boxes always, a paste sets 12, 15 or 21', (tester) async {
     await _pump(tester, const RestoreScreen());
     expect(find.text('Length'), findsNothing);
-    for (final n in [15, 12, 21]) {
-      await tester.enterText(_field(0), List.filled(n, 'abandon').join(' '));
+    expect(find.byType(EditableText), findsNWidgets(24));
+    for (final (n, last) in [(15, 'address'), (12, 'about'), (21, 'admit')]) {
+      await tester.enterText(_field(0), [...List.filled(n - 1, 'abandon'), last].join(' '));
       await _wait(tester, 500);
-      expect(find.text('$n of $n words'), findsWidgets);
-      expect(find.text('All $n words are in the word list'), findsOneWidget);
-      expect(find.byType(EditableText), findsNWidgets(n + 1), reason: 'the paste field and $n boxes');
+      expect(find.text('$n of $n words'), findsOneWidget);
+      expect(find.text('All $n words check out.'), findsOneWidget);
+      expect(find.byType(EditableText), findsNWidgets(24), reason: 'the grid never changes size');
     }
-    // Thirteen words are not a phrase yet: 15 boxes, two empty.
+    // Thirteen words are not a phrase: the line says so.
     await tester.enterText(_field(0), List.filled(13, 'abandon').join(' '));
     await _wait(tester, 500);
-    expect(find.text('13 of 15 words'), findsWidgets);
-    expect(find.text('Continue').hitTestable(), findsOneWidget);
+    expect(find.text('13 words pasted; a phrase has 12, 15, 18, 21 or 24'), findsOneWidget);
+    expect(find.text('13 of 24 words'), findsOneWidget);
     await _end(tester);
   });
 
@@ -240,7 +241,8 @@ void flows() {
     );
     await _wait(tester, 1000);
     expect((await tester.runAsync(api.wallets))!.firstWhere((w) => w.current).id, added.id);
-    expect(find.text('Wallet 2 added.'), findsOneWidget);
+    expect(find.text('New wallet added.'), findsOneWidget);
+    expect(find.text('Wallet 2 added.'), findsNothing, reason: 'the notice names no wallet');
     await _end(tester);
   });
 }

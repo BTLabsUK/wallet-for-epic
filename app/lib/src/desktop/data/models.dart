@@ -10,14 +10,32 @@ import '../../providers.dart' show defaultMinimumConfirmations;
 /// Amounts are kept in nanoepic (1 EPIC = 10^8), as the wallet does.
 const int nanoPerEpic = 100000000;
 
-String formatEpic(int nano, {int decimals = 8, bool trim = true}) {
+/// "1,234.5000": thousands grouped, trailing zeros trimmed down to [minDecimals] (4, as the
+/// GUI shows amounts, so a zero balance reads 0.0000 and never a bare 0).
+String formatEpic(int nano, {int decimals = 8, bool trim = true, int minDecimals = 4}) {
   final neg = nano < 0;
   final v = nano.abs();
   final whole = v ~/ nanoPerEpic;
   var frac = (v % nanoPerEpic).toString().padLeft(8, '0').substring(0, decimals);
   if (trim) frac = frac.replaceFirst(RegExp(r'0+$'), '');
+  if (frac.length < minDecimals) frac = frac.padRight(minDecimals, '0');
   final w = whole.toString().replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (_) => ',');
   return '${neg ? '-' : ''}$w${frac.isEmpty ? '' : '.$frac'}';
+}
+
+/// [parseEpic]'s answer for more than 8 decimals.
+const int epicTooLong = -1;
+
+/// Amount text ("12.5", "12,5") to nanoepic: null when it is not a number, [epicTooLong]
+/// for more than 8 decimals.
+int? parseEpic(String raw) {
+  final s = raw.trim().replaceAll(',', '.');
+  if (s.isEmpty) return null;
+  final m = RegExp(r'^(\d*)(?:\.(\d*))?$').firstMatch(s);
+  if (m == null || (m.group(1)!.isEmpty && (m.group(2) ?? '').isEmpty)) return null;
+  final frac = m.group(2) ?? '';
+  if (frac.length > 8) return epicTooLong;
+  return (int.tryParse(m.group(1)!.isEmpty ? '0' : m.group(1)!) ?? 0) * nanoPerEpic + (int.tryParse(frac.padRight(8, '0')) ?? 0);
 }
 
 @immutable
@@ -230,6 +248,7 @@ class ServiceStatus {
     this.torProblem,
     this.torCanSend = false,
     this.torIncluded = true,
+    this.torSlowStart = false,
     this.syncProgress,
     this.lastUpdate,
     this.notice,
@@ -266,6 +285,10 @@ class ServiceStatus {
   /// This build has the bundled tor; without it Tor cannot be turned on.
   final bool torIncluded;
 
+  /// Tor has been connecting for a minute without progress to show: Retry is offered while
+  /// it still tries.
+  final bool torSlowStart;
+
   /// 0..1 while the wallet scans; null when idle.
   final double? syncProgress;
   final DateTime? lastUpdate;
@@ -290,12 +313,32 @@ String torStatusLine(ServiceStatus s) {
 const int minPasswordLength = 8;
 
 /// One step of a rescan: the core's message and, when it gives one, the percentage.
+/// [finished] is set on the last step of a scan that ran to its end (not on a stopped one),
+/// with what it found in [counts] when the core reports them.
 @immutable
 class ScanStep {
-  const ScanStep(this.message, {this.percent});
+  const ScanStep(this.message, {this.percent, this.finished = false, this.counts});
 
   final String message;
   final int? percent;
+  final bool finished;
+  final ScanCounts? counts;
+}
+
+/// What a finished rescan did: outputs found on the chain, restored to the wallet, back to
+/// unspent (stored as spent), unlocked (locked by a send that never completed) and deleted
+/// (unconfirmed); the last two only with "Delete unconfirmed". [resumed]: it continued a
+/// stopped scan, and the counts cover only that part.
+@immutable
+class ScanCounts {
+  const ScanCounts({this.found = 0, this.restored = 0, this.revived = 0, this.unlocked = 0, this.deleted = 0, this.resumed = false});
+
+  final int found;
+  final int restored;
+  final int revived;
+  final int unlocked;
+  final int deleted;
+  final bool resumed;
 }
 
 /// A wallet error, in a short sentence for the screen.

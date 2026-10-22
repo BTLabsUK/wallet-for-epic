@@ -21,6 +21,7 @@ enum ServiceMember {
 enum SessionMember {
   dispose,
   mnemonic,
+  changePassword,
   mnemonicWithPin,
   changePin,
   confirmPinChange,
@@ -95,6 +96,8 @@ const Set<String> localSessionMembers = {
   'resendTor',
   // Reads an old wallet's folder on the server's disk; refused by the client.
   'importLegacyHistory',
+  // Answered by the client: it cancels the scan stream, and the server stops the scan.
+  'cancelScan',
 };
 
 /// The largest frame the dispatcher reads, in UTF-8 bytes.
