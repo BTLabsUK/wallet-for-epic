@@ -2,8 +2,9 @@
 # Builds the 0.1.0 Android release from the checkout: LEPIC at the pin (tools/lepic.rev), the
 # arm64-v8a APK (the one phone download; no universal APK), copies it to an output dir with its
 # release name, writes SHA256SUMS and verifies it (signing cert, package, version, label,
-# LEPIC library, Tor's libtor.so and licence, 16 KB-aligned ELF segments, no Firebase config). The signing key is the debug keystore, as for every earlier
-# build (release buildType in android/app/build.gradle.kts).
+# LEPIC library, Tor's libtor.so and licence, 16 KB-aligned ELF segments, no Firebase config). The signing key is the release key named by
+# WFE_ANDROID_KEY_PROPERTIES (default ~/.config/btlabs/android/key.properties, never in a
+# repository); without it the build stops (android/app/build.gradle.kts, README "Release signing").
 #
 # Usage: tool/build_android_release.sh [output-dir]      default: app/build/release-0.1.0/
 #
@@ -22,7 +23,10 @@ app_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 version=0.1.0
 want_package=com.blacktyger.epicwallet
 want_label="Epic Wallet"
-want_cert=5fdcc602f907c83839b5b0a60d9ee15bb44d12411f8f1a67b28e92a95f259d0e
+# The release certificate. 0.1.0 (build 1) was signed with this host's debug key
+# (5fdcc602...259d0e); later builds never are.
+want_cert=59e4c290f3922d8e7d3b189eb98e7002dc50754c52d612ea91e82386390ec0aa
+debug_cert=5fdcc602f907c83839b5b0a60d9ee15bb44d12411f8f1a67b28e92a95f259d0e
 out_dir="$(realpath -m "${1:-$app_dir/build/release-$version}")"
 # The commit, shown beside the version in Settings (lib/src/app_info.dart).
 build_id="$(git -C "$app_dir" rev-parse --short=7 HEAD)"
@@ -72,6 +76,8 @@ for apk in "$out_dir"/epic-wallet-$version-*.apk "$out_dir"/emulator/epic-wallet
   certs="$("$apksigner" verify --print-certs "$apk")"
   grep -q "certificate SHA-256 digest: $want_cert" <<<"$certs" && r=0 || r=1
   check "signed by $want_cert" $r
+  grep -q "certificate SHA-256 digest: $debug_cert" <<<"$certs" && r=1 || r=0
+  check "not signed by the debug key" $r
   badging="$("$aapt2" dump badging "$apk")"
   head1="${badging%%$'\n'*}"
   grep -q "name='$want_package'" <<<"$head1" && r=0 || r=1; check "package $want_package" $r
