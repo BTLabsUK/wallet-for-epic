@@ -616,10 +616,12 @@ class RemoteWalletSession implements WalletSession {
     required BigInt amount,
     required BigInt minimumConfirmations,
     String? message,
+    SendOptions? options,
   }) => _call(SessionMember.createSendSlate, slateWire, {
     'amount': bigIntWire.encode(amount),
     'minimumConfirmations': bigIntWire.encode(minimumConfirmations),
     'message': message,
+    'options': optSendOptions.encode(options),
   });
 
   @override
@@ -630,9 +632,11 @@ class RemoteWalletSession implements WalletSession {
   Future<FeeEstimate> estimateFee({
     required BigInt amount,
     required BigInt minimumConfirmations,
+    SendOptions? options,
   }) => _call(SessionMember.estimateFee, feeEstimateWire, {
     'amount': bigIntWire.encode(amount),
     'minimumConfirmations': bigIntWire.encode(minimumConfirmations),
+    'options': optSendOptions.encode(options),
   });
 
   @override
@@ -648,11 +652,13 @@ class RemoteWalletSession implements WalletSession {
     required BigInt minimumConfirmations,
     required String address,
     String? message,
+    SendOptions? options,
   }) => _call(SessionMember.sendEpicbox, txEntryWire, {
     'amount': bigIntWire.encode(amount),
     'minimumConfirmations': bigIntWire.encode(minimumConfirmations),
     'address': address,
     'message': message,
+    'options': optSendOptions.encode(options),
   });
 
   @override
@@ -676,6 +682,7 @@ class RemoteWalletSession implements WalletSession {
     required String url,
     required bool allowPlainHttp,
     String? message,
+    SendOptions? options,
   }) async => throw _noHttp;
 
   @override
@@ -866,6 +873,42 @@ class RemoteWalletSession implements WalletSession {
       _call(SessionMember.estimateMax, feeEstimateWire, {
         'minimumConfirmations': bigIntWire.encode(minimumConfirmations),
       });
+
+  @override
+  Future<List<WalletOutput>> outputs() =>
+      _call(SessionMember.outputs, listOf(walletOutputWire));
+
+  @override
+  Future<FeeEstimate> estimateSplit({
+    required int outputs,
+    required BigInt minimumConfirmations,
+  }) => _call(SessionMember.estimateSplit, feeEstimateWire, {
+    'outputs': outputs,
+    'minimumConfirmations': bigIntWire.encode(minimumConfirmations),
+  });
+
+  @override
+  Future<SelfSentTx> splitOutputs({
+    required int outputs,
+    required BigInt minimumConfirmations,
+  }) => _call(SessionMember.splitOutputs, selfSentTxWire, {
+    'outputs': outputs,
+    'minimumConfirmations': bigIntWire.encode(minimumConfirmations),
+  });
+
+  @override
+  Future<FeeEstimate> estimateConsolidate({
+    required BigInt minimumConfirmations,
+  }) => _call(SessionMember.estimateConsolidate, feeEstimateWire, {
+    'minimumConfirmations': bigIntWire.encode(minimumConfirmations),
+  });
+
+  @override
+  Future<SelfSentTx> consolidateOutputs({
+    required BigInt minimumConfirmations,
+  }) => _call(SessionMember.consolidateOutputs, selfSentTxWire, {
+    'minimumConfirmations': bigIntWire.encode(minimumConfirmations),
+  });
 
   @override
   Future<String> invoiceAddress() =>

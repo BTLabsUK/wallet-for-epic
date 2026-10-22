@@ -103,6 +103,7 @@ class _LostSession extends FakeWalletSession {
     required BigInt minimumConfirmations,
     required String address,
     String? message,
+    SendOptions? options,
   }) async {
     epicboxSends.add((amount: amount, to: address));
     if (leaves case final tx?) transactionsValue.add(tx);
@@ -166,6 +167,7 @@ class _SlowSession extends FakeWalletSession {
     required BigInt minimumConfirmations,
     required String address,
     String? message,
+    SendOptions? options,
   }) async {
     await gate.future;
     return super.sendEpicbox(
@@ -173,6 +175,7 @@ class _SlowSession extends FakeWalletSession {
       minimumConfirmations: minimumConfirmations,
       address: address,
       message: message,
+      options: options,
     );
   }
 }

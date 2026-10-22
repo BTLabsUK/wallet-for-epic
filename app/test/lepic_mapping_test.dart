@@ -85,6 +85,48 @@ class _SendingWallet extends _NoNativeWallet {
   }
 
   @override
+  Future<lepic.FeeEstimate> estimateFee({
+    required BigInt amount,
+    required BigInt minimumConfirmations,
+    lepic.SendOptions? options,
+  }) async {
+    this.options.add(options);
+    return lepic.FeeEstimate(
+      amount: amount,
+      fee: BigInt.from(3),
+      locked: BigInt.from(100),
+      changeOutputs: 4,
+      change: BigInt.from(100) - amount - BigInt.from(3),
+      inputCount: 2,
+    );
+  }
+
+  @override
+  Future<List<lepic.WalletOutput>> outputs() async => [
+    lepic.WalletOutput(
+      commitment: '08ab',
+      value: BigInt.from(7),
+      status: lepic.OutputStatus.locked,
+      category: lepic.OutputCategory.locked,
+      isCoinbase: false,
+      height: BigInt.from(12),
+      lockHeight: BigInt.zero,
+      confirmations: BigInt.from(4),
+      txId: 9,
+    ),
+    lepic.WalletOutput(
+      commitment: '09cd',
+      value: BigInt.from(8),
+      status: lepic.OutputStatus.unconfirmed,
+      isCoinbase: true,
+      height: BigInt.from(13),
+      lockHeight: BigInt.from(1453),
+      mmrIndex: BigInt.from(77),
+      confirmations: BigInt.zero,
+    ),
+  ];
+
+  @override
   Future<List<lepic.TransactionDetails>> transactions() async => [_stored];
 
   @override
@@ -251,6 +293,75 @@ void main() {
         changeOutputs: 1,
       );
       expect(wallet.options, [all, all, null]);
+    });
+
+    test('given options reach LEPIC, and the whole estimate comes back', () async {
+      final wallet = _SendingWallet();
+      final session = LepicWalletSession(wallet);
+      final e = await session.estimateFee(
+        amount: BigInt.from(10),
+        minimumConfirmations: BigInt.from(10),
+        options: const SendOptions(changeOutputs: 4),
+      );
+      // Given options win over the send-all default.
+      final max = await session.estimateMax(minimumConfirmations: BigInt.from(10));
+      await session.createSendSlate(
+        amount: max.amount,
+        minimumConfirmations: BigInt.from(10),
+        options: const SendOptions(),
+      );
+      expect(wallet.options, [
+        const lepic.SendOptions(
+          strategy: lepic.SelectionStrategy.smallest,
+          changeOutputs: 4,
+        ),
+        const lepic.SendOptions(
+          strategy: lepic.SelectionStrategy.all,
+          changeOutputs: 1,
+        ),
+        const lepic.SendOptions(
+          strategy: lepic.SelectionStrategy.smallest,
+          changeOutputs: 1,
+        ),
+      ]);
+      expect(
+        e,
+        FeeEstimate(
+          amount: BigInt.from(10),
+          fee: BigInt.from(3),
+          inputCount: 2,
+          change: BigInt.from(87),
+          locked: BigInt.from(100),
+          changeOutputs: 4,
+        ),
+      );
+    });
+
+    test('outputs map field by field', () async {
+      final list = await LepicWalletSession(_SendingWallet()).outputs();
+      expect(list, [
+        WalletOutput(
+          commitment: '08ab',
+          value: BigInt.from(7),
+          status: WalletOutputStatus.locked,
+          category: OutputCategory.locked,
+          isCoinbase: false,
+          height: BigInt.from(12),
+          lockHeight: BigInt.zero,
+          confirmations: BigInt.from(4),
+          txId: 9,
+        ),
+        WalletOutput(
+          commitment: '09cd',
+          value: BigInt.from(8),
+          status: WalletOutputStatus.unconfirmed,
+          isCoinbase: true,
+          height: BigInt.from(13),
+          lockHeight: BigInt.from(1453),
+          mmrIndex: BigInt.from(77),
+          confirmations: BigInt.zero,
+        ),
+      ]);
     });
 
     test('a split LEPIC cannot build reads as one short error', () {

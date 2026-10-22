@@ -391,6 +391,7 @@ class WalletDispatcher {
         amount: p.of('amount', bigIntWire),
         minimumConfirmations: p.of('minimumConfirmations', bigIntWire),
         message: p.of('message', optString),
+        options: p.of('options', optSendOptions),
       ),
       slateWire,
     ),
@@ -399,6 +400,7 @@ class WalletDispatcher {
       s.estimateFee(
         amount: p.of('amount', bigIntWire),
         minimumConfirmations: p.of('minimumConfirmations', bigIntWire),
+        options: p.of('options', optSendOptions),
       ),
       feeEstimateWire,
     ),
@@ -412,6 +414,7 @@ class WalletDispatcher {
         minimumConfirmations: p.of('minimumConfirmations', bigIntWire),
         address: p.of('address', stringWire),
         message: p.of('message', optString),
+        options: p.of('options', optSendOptions),
       ),
       txEntryWire,
     ),
@@ -465,6 +468,33 @@ class WalletDispatcher {
         minimumConfirmations: p.of('minimumConfirmations', bigIntWire),
       ),
       feeEstimateWire,
+    ),
+    SessionMember.outputs => _once(s.outputs(), listOf(walletOutputWire)),
+    SessionMember.estimateSplit => _once(
+      s.estimateSplit(
+        outputs: p.of('outputs', intWire),
+        minimumConfirmations: p.of('minimumConfirmations', bigIntWire),
+      ),
+      feeEstimateWire,
+    ),
+    SessionMember.splitOutputs => _once(
+      s.splitOutputs(
+        outputs: p.of('outputs', intWire),
+        minimumConfirmations: p.of('minimumConfirmations', bigIntWire),
+      ),
+      selfSentTxWire,
+    ),
+    SessionMember.estimateConsolidate => _once(
+      s.estimateConsolidate(
+        minimumConfirmations: p.of('minimumConfirmations', bigIntWire),
+      ),
+      feeEstimateWire,
+    ),
+    SessionMember.consolidateOutputs => _once(
+      s.consolidateOutputs(
+        minimumConfirmations: p.of('minimumConfirmations', bigIntWire),
+      ),
+      selfSentTxWire,
     ),
     SessionMember.invoiceAddress => _once(s.invoiceAddress(), stringWire),
     SessionMember.rotateInvoiceAddress => _once(

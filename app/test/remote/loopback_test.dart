@@ -75,11 +75,13 @@ class ArgsSession extends FakeWalletSession {
   Future<FeeEstimate> estimateFee({
     required BigInt amount,
     required BigInt minimumConfirmations,
+    SendOptions? options,
   }) {
     args['estimateFee'] = (amount, minimumConfirmations);
     return super.estimateFee(
       amount: amount,
       minimumConfirmations: minimumConfirmations,
+      options: options,
     );
   }
 
@@ -95,6 +97,7 @@ class ArgsSession extends FakeWalletSession {
     required BigInt minimumConfirmations,
     required String address,
     String? message,
+    SendOptions? options,
   }) {
     args['sendEpicbox'] = minimumConfirmations;
     return super.sendEpicbox(
@@ -102,6 +105,7 @@ class ArgsSession extends FakeWalletSession {
       minimumConfirmations: minimumConfirmations,
       address: address,
       message: message,
+      options: options,
     );
   }
 }
@@ -354,6 +358,73 @@ void main() {
         s.releaseStuckSend(key: 's:r'),
         throwsKind(WalletErrorKind.invalidArgument),
       );
+    });
+
+    test('outputs, send options, split and consolidate', () async {
+      final s = await openSession();
+      WalletOutput out(String c, int value) => WalletOutput(
+        commitment: c,
+        value: BigInt.from(value),
+        status: WalletOutputStatus.unspent,
+        category: OutputCategory.spendable,
+        isCoinbase: false,
+        height: BigInt.from(90),
+        lockHeight: BigInt.zero,
+        mmrIndex: BigInt.from(7),
+        confirmations: BigInt.from(11),
+        txId: 3,
+      );
+      session.outputsValue = [out('c1', 5000000000), out('c2', 300000000)];
+      final ten = BigInt.from(10);
+      expect(await s.outputs(), session.outputsValue);
+
+      const options = SendOptions(
+        strategy: SelectionStrategy.all,
+        changeOutputs: 3,
+      );
+      final e = await s.estimateFee(
+        amount: BigInt.from(100000000),
+        minimumConfirmations: ten,
+        options: options,
+      );
+      expect(session.estimateOptions.last, options);
+      expect(e.inputCount, 2);
+      expect(e.locked, BigInt.from(5300000000));
+      expect(e.changeOutputs, 3);
+      expect(e.change, e.locked - e.amount - e.fee);
+
+      await s.createSendSlate(
+        amount: BigInt.from(100000000),
+        minimumConfirmations: ten,
+        options: options,
+      );
+      await s.sendEpicbox(
+        amount: BigInt.from(100000000),
+        minimumConfirmations: ten,
+        address: session.address,
+      );
+      expect(session.sentOptions, [options, null]);
+
+      final split = await s.estimateSplit(outputs: 4, minimumConfirmations: ten);
+      expect(split.inputCount, 2);
+      await expectLater(
+        s.estimateSplit(outputs: 11, minimumConfirmations: ten),
+        throwsKind(WalletErrorKind.invalidArgument),
+      );
+      final consolidate = await s.estimateConsolidate(minimumConfirmations: ten);
+      expect(consolidate.changeOutputs, 0);
+      final sent = await s.splitOutputs(outputs: 4, minimumConfirmations: ten);
+      expect(sent.outputCount, 4);
+      expect(session.splits, [4]);
+      // The split's own outputs are unconfirmed: nothing is left to consolidate.
+      await expectLater(
+        s.consolidateOutputs(minimumConfirmations: ten),
+        throwsKind(WalletErrorKind.notEnoughFunds),
+      );
+      session.outputsValue = [out('c3', 200000000), out('c4', 300000000)];
+      final merged = await s.consolidateOutputs(minimumConfirmations: ten);
+      expect(merged.inputCount, 2);
+      expect(session.consolidations, 1);
     });
 
     test('slates, fees and sends', () async {

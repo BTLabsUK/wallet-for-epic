@@ -67,6 +67,11 @@ enum SessionMember {
   drainPayments,
   issuerEvents,
   peerCapability,
+  outputs,
+  estimateSplit,
+  splitOutputs,
+  estimateConsolidate,
+  consolidateOutputs,
 }
 
 /// Interface members the client answers without the server.
