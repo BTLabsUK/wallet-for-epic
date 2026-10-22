@@ -524,6 +524,18 @@ abstract class AppLocalizations {
   /// **'Could not reach the recipient.'**
   String get errorTransportFailed;
 
+  /// A payment over Tor could not start because tor is not running or did not connect. Shown alone, without the core's detail.
+  ///
+  /// In en, this message translates to:
+  /// **'Tor is not connected.'**
+  String get errorTorNotRunning;
+
+  /// A payment over Tor did not reach the recipient's wallet at its Tor address. Same words as the start of sendTorNotReached.
+  ///
+  /// In en, this message translates to:
+  /// **'Their wallet was not reached over Tor.'**
+  String get errorOnionUnreachable;
+
   /// No description provided for @errorChainBusy.
   ///
   /// In en, this message translates to:
@@ -4616,6 +4628,18 @@ abstract class AppLocalizations {
   /// **'Source code'**
   String get settingsSourceCode;
 
+  /// Settings › About row that opens the list of licences of the open-source software the app includes (tor, fonts, word lists, packages).
+  ///
+  /// In en, this message translates to:
+  /// **'Licences'**
+  String get settingsLicences;
+
+  /// Under the Licences row. Not "app": the web demo shows this row too and never calls itself an app.
+  ///
+  /// In en, this message translates to:
+  /// **'Open-source software in this wallet'**
+  String get settingsLicencesHint;
+
   /// Screen-reader label of the copy icon on a link row.
   ///
   /// In en, this message translates to:
@@ -5702,10 +5726,10 @@ abstract class AppLocalizations {
   /// **'Tor receiving'**
   String get torReceivingTitle;
 
-  /// The one sentence that describes Tor, under the switch: only what is true. No time promises.
+  /// The lines that describe Tor receiving, under the switch: only what is true. No time promises. The last sentence: the phone cuts the app's network when it leaves the screen, so a payment over Tor reaches the wallet only while the app is open; nothing waits for it elsewhere.
   ///
   /// In en, this message translates to:
-  /// **'Slower and more private. Blocked or not allowed in some countries.'**
+  /// **'Slower and more private. Blocked or not allowed in some countries. Receives only while the app is open.'**
   String get torHonestLine;
 
   /// Tor status line on Receive: the switch is off, so other wallets cannot reach this one over Tor.

@@ -350,6 +350,14 @@
   "@errorTransportFailed": {
     "description": "Summary in front of a technical detail in English."
   },
+  "errorTorNotRunning": "Tor is not connected.",
+  "@errorTorNotRunning": {
+    "description": "A payment over Tor could not start because tor is not running or did not connect. Shown alone, without the core's detail."
+  },
+  "errorOnionUnreachable": "Their wallet was not reached over Tor.",
+  "@errorOnionUnreachable": {
+    "description": "A payment over Tor did not reach the recipient's wallet at its Tor address. Same words as the start of sendTorNotReached."
+  },
   "errorChainBusy": "The wallet is still busy on the other network. Wait a moment and try again, or close and reopen the app.",
   "errorWalletBusy": "The wallet is still finishing a task. Try again in a moment.",
   "errorPaymentExpired": "The answer to this payment came too late, so the payment was cancelled. Nothing was sent.",
@@ -3679,6 +3687,14 @@
   "@settingsSourceCode": {
     "description": "Settings row with the link to the app's source code."
   },
+  "settingsLicences": "Licences",
+  "@settingsLicences": {
+    "description": "Settings › About row that opens the list of licences of the open-source software the app includes (tor, fonts, word lists, packages)."
+  },
+  "settingsLicencesHint": "Open-source software in this wallet",
+  "@settingsLicencesHint": {
+    "description": "Under the Licences row. Not \"app\": the web demo shows this row too and never calls itself an app."
+  },
   "settingsCopyLink": "Copy link",
   "@settingsCopyLink": {
     "description": "Screen-reader label of the copy icon on a link row."
@@ -4554,9 +4570,9 @@
   "@torReceivingTitle": {
     "description": "Title of the on/off switch for receiving payments over Tor, on the Receive tab and in Settings. Same words in both places."
   },
-  "torHonestLine": "Slower and more private. Blocked or not allowed in some countries.",
+  "torHonestLine": "Slower and more private. Blocked or not allowed in some countries. Receives only while the app is open.",
   "@torHonestLine": {
-    "description": "The one sentence that describes Tor, under the switch: only what is true. No time promises."
+    "description": "The lines that describe Tor receiving, under the switch: only what is true. No time promises. The last sentence: the phone cuts the app's network when it leaves the screen, so a payment over Tor reaches the wallet only while the app is open; nothing waits for it elsewhere."
   },
   "torStateOff": "Tor receiving is off",
   "@torStateOff": {

@@ -261,6 +261,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get errorTransportFailed => '无法连接到接收方。';
 
   @override
+  String get errorTorNotRunning => 'Tor 未连接。';
+
+  @override
+  String get errorOnionUnreachable => '未能通过 Tor 联系到对方钱包。';
+
+  @override
   String get errorChainBusy => '钱包仍在另一个网络上处理任务。请稍后再试，或关闭并重新打开应用。';
 
   @override
@@ -2891,6 +2897,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get settingsSourceCode => '源代码';
 
   @override
+  String get settingsLicences => '许可证';
+
+  @override
+  String get settingsLicencesHint => '本钱包包含的开源软件';
+
+  @override
   String get settingsCopyLink => '复制链接';
 
   @override
@@ -3526,7 +3538,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get torReceivingTitle => 'Tor 接收';
 
   @override
-  String get torHonestLine => '更慢、更私密。在部分国家或地区被屏蔽或不被允许。';
+  String get torHonestLine => '更慢、更私密。在部分国家或地区被屏蔽或不被允许。仅在应用打开时接收。';
 
   @override
   String get torStateOff => 'Tor 接收已关闭';

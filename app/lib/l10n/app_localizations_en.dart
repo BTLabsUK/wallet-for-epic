@@ -267,6 +267,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get errorTransportFailed => 'Could not reach the recipient.';
 
   @override
+  String get errorTorNotRunning => 'Tor is not connected.';
+
+  @override
+  String get errorOnionUnreachable => 'Their wallet was not reached over Tor.';
+
+  @override
   String get errorChainBusy =>
       'The wallet is still busy on the other network. Wait a moment and try again, or close and reopen the app.';
 
@@ -3074,6 +3080,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsSourceCode => 'Source code';
 
   @override
+  String get settingsLicences => 'Licences';
+
+  @override
+  String get settingsLicencesHint => 'Open-source software in this wallet';
+
+  @override
   String get settingsCopyLink => 'Copy link';
 
   @override
@@ -3745,7 +3757,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get torHonestLine =>
-      'Slower and more private. Blocked or not allowed in some countries.';
+      'Slower and more private. Blocked or not allowed in some countries. Receives only while the app is open.';
 
   @override
   String get torStateOff => 'Tor receiving is off';

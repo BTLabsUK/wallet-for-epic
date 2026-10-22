@@ -270,6 +270,13 @@ class AppLocalizationsRu extends AppLocalizations {
   String get errorTransportFailed => 'Не удалось связаться с получателем.';
 
   @override
+  String get errorTorNotRunning => 'Tor не подключён.';
+
+  @override
+  String get errorOnionUnreachable =>
+      'Не удалось связаться с кошельком получателя через Tor.';
+
+  @override
   String get errorChainBusy =>
       'Кошелёк ещё занят в другой сети. Подождите немного и повторите попытку или перезапустите приложение.';
 
@@ -3202,6 +3209,12 @@ class AppLocalizationsRu extends AppLocalizations {
   String get settingsSourceCode => 'Исходный код';
 
   @override
+  String get settingsLicences => 'Лицензии';
+
+  @override
+  String get settingsLicencesHint => 'Открытое ПО в этом кошельке';
+
+  @override
   String get settingsCopyLink => 'Копировать ссылку';
 
   @override
@@ -3890,7 +3903,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get torHonestLine =>
-      'Медленнее и приватнее. В некоторых странах заблокирован или не разрешён.';
+      'Медленнее и приватнее. В некоторых странах заблокирован или не разрешён. Принимает только пока приложение открыто.';
 
   @override
   String get torStateOff => 'Приём через Tor выключен';

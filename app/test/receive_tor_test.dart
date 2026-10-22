@@ -169,6 +169,10 @@ class _Harness {
   }
 }
 
+/// The Tor address code's opacity: dim until the address is reachable.
+double _qrOpacity(WidgetTester tester) =>
+    tester.widget<AnimatedOpacity>(find.byKey(receiveTorQrKey)).opacity;
+
 Finder _status(String text) => find.descendant(
   of: find.byKey(torStatusKey),
   matching: find.textContaining(text),
@@ -237,11 +241,14 @@ void main() {
         expect(_status('Tor receiving is off'), findsOneWidget);
         expect(
           find.text(
-            'Slower and more private. Blocked or not allowed in some countries.',
+            'Slower and more private. Blocked or not allowed in some countries. '
+            'Receives only while the app is open.',
           ),
           findsOneWidget,
         );
         expect(find.byKey(torRetryKey), findsNothing);
+        // The code shows, dimmed: the address is not reachable until Tor receiving is on.
+        expect(_qrOpacity(tester), 0.4);
         // The whole method is "receiving": none of the struck-out words.
         for (final word in ['Listener', 'listener', 'Advanced', 'Direct']) {
           expect(find.textContaining(word), findsNothing);
@@ -286,6 +293,7 @@ void main() {
       await h.emit(tester, TorEventKind.ready);
       expect(_status('Tor receiving is on'), findsOneWidget);
       expect(find.byType(LinearProgressIndicator), findsNothing);
+      expect(_qrOpacity(tester), 1);
       // The switch is the one control: off stops tor.
       await tester.tap(find.byKey(torReceivingSwitchKey));
       await tester.pumpAndSettle();

@@ -123,6 +123,11 @@ class ReceiveView extends ConsumerWidget {
       below = const SizedBox.shrink();
     } else if (tab == ReceiveTab.tor) {
       final onion = ref.watch(phoneTorProvider.select((s) => s.onion));
+      // The code stays, scannable and the same address, but dimmed until the address is
+      // reachable: the status line under the switch says why. Full once Tor receiving is on.
+      final reachable = ref.watch(
+        phoneTorProvider.select((s) => s.phase == PhoneTorPhase.ready),
+      );
       above = column([
         if (onion != null) ...[
           _AddressRow(
@@ -139,17 +144,22 @@ class ReceiveView extends ConsumerWidget {
       code = onion == null
           ? null
           : LayoutBuilder(
-              builder: (context, room) => _AddressQr(
-                address: onion,
-                semanticsLabel: l.receiveTorQrLabel,
-                size:
-                    math
-                        .min(room.maxWidth, room.maxHeight)
-                        .clamp(
-                          receiveQrMinSize + _AddressQr.frame,
-                          receiveQrMaxSize + _AddressQr.frame,
-                        ) -
-                    _AddressQr.frame,
+              builder: (context, room) => AnimatedOpacity(
+                key: receiveTorQrKey,
+                opacity: reachable ? 1 : 0.4,
+                duration: const Duration(milliseconds: 300),
+                child: _AddressQr(
+                  address: onion,
+                  semanticsLabel: l.receiveTorQrLabel,
+                  size:
+                      math
+                          .min(room.maxWidth, room.maxHeight)
+                          .clamp(
+                            receiveQrMinSize + _AddressQr.frame,
+                            receiveQrMaxSize + _AddressQr.frame,
+                          ) -
+                      _AddressQr.frame,
+                ),
               ),
             );
       below = column([const SizedBox(height: 8), help]);
@@ -351,6 +361,9 @@ const Key receiveAddressKey = ValueKey('receive-address');
 
 /// The key of the Tor address card on the Tor tab, for tests.
 const Key receiveTorAddressKey = ValueKey('receive-tor-address');
+
+/// The key of the Tor address's QR code (its opacity: dim until reachable), for tests.
+const Key receiveTorQrKey = ValueKey('receive-tor-qr');
 
 /// The key of Share inside the address card, for tests.
 const Key receiveShareKey = ValueKey('receive-share');

@@ -592,6 +592,15 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     subtitle: Text(l.settingsSendFeedbackHint),
                     onTap: () => openFeedback(context),
                   ),
+                // Flutter's licence page: the packages', the fonts', the word lists' and the
+                // bundled tor's (GPL asks that it be shown), under the app's name and version.
+                ListTile(
+                  key: settingsLicencesKey,
+                  leading: const Icon(Icons.article_outlined),
+                  title: Text(l.settingsLicences),
+                  subtitle: Text(l.settingsLicencesHint),
+                  onTap: () => _openLicences(context, version.value),
+                ),
                 // A proper name, the same in every language.
                 const _LinkTile(title: 'Epic Cash', url: epicCashUrl),
                 _LinkTile(title: l.settingsSourceCode, url: projectRepoUrl),
@@ -685,6 +694,31 @@ class _Header extends StatelessWidget {
       ),
     );
   }
+}
+
+/// The key of the Licences row in About, for tests.
+const Key settingsLicencesKey = ValueKey('settings-licences');
+
+/// Flutter's licence page under the app's name and [version]. The app writes British English
+/// ("Licences", "Cancelled"), and Flutter's own strings for `en` are American ("Licenses"):
+/// in English the page takes the `en_GB` Material strings so its title matches the row.
+void _openLicences(BuildContext context, String? version) {
+  final locale = Localizations.localeOf(context);
+  final page = LicensePage(
+    applicationName: appName,
+    applicationVersion: version,
+  );
+  Navigator.of(context).push(
+    MaterialPageRoute<void>(
+      builder: (_) => locale.languageCode == 'en'
+          ? Localizations.override(
+              context: context,
+              locale: const Locale('en', 'GB'),
+              child: page,
+            )
+          : page,
+    ),
+  );
 }
 
 /// A web link. The app has no browser launcher, so tapping copies the address.

@@ -269,6 +269,13 @@ class AppLocalizationsDe extends AppLocalizations {
   String get errorTransportFailed => 'Der Empfänger war nicht erreichbar.';
 
   @override
+  String get errorTorNotRunning => 'Tor ist nicht verbunden.';
+
+  @override
+  String get errorOnionUnreachable =>
+      'Die Wallet der Gegenseite war über Tor nicht erreichbar.';
+
+  @override
   String get errorChainBusy =>
       'Die Wallet ist im anderen Netzwerk noch beschäftigt. Warten Sie einen Moment und versuchen Sie es erneut, oder schließen Sie die App und öffnen Sie sie wieder.';
 
@@ -3114,6 +3121,12 @@ class AppLocalizationsDe extends AppLocalizations {
   String get settingsSourceCode => 'Quellcode';
 
   @override
+  String get settingsLicences => 'Lizenzen';
+
+  @override
+  String get settingsLicencesHint => 'Open-Source-Software in dieser Wallet';
+
+  @override
   String get settingsCopyLink => 'Link kopieren';
 
   @override
@@ -3794,7 +3807,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get torHonestLine =>
-      'Langsamer und privater. In manchen Ländern blockiert oder nicht erlaubt.';
+      'Langsamer und privater. In manchen Ländern blockiert oder nicht erlaubt. Empfängt nur, solange die App geöffnet ist.';
 
   @override
   String get torStateOff => 'Empfang über Tor ist aus';

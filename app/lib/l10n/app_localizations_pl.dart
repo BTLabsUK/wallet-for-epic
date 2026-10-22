@@ -268,6 +268,13 @@ class AppLocalizationsPl extends AppLocalizations {
   String get errorTransportFailed => 'Nie udało się połączyć z odbiorcą.';
 
   @override
+  String get errorTorNotRunning => 'Tor nie jest połączony.';
+
+  @override
+  String get errorOnionUnreachable =>
+      'Nie udało się połączyć z portfelem odbiorcy przez Tor.';
+
+  @override
   String get errorChainBusy =>
       'Portfel jest jeszcze zajęty w drugiej sieci. Poczekaj chwilę i spróbuj ponownie albo zamknij i ponownie otwórz aplikację.';
 
@@ -3224,6 +3231,13 @@ class AppLocalizationsPl extends AppLocalizations {
   String get settingsSourceCode => 'Kod źródłowy';
 
   @override
+  String get settingsLicences => 'Licencje';
+
+  @override
+  String get settingsLicencesHint =>
+      'Oprogramowanie open source w tym portfelu';
+
+  @override
   String get settingsCopyLink => 'Kopiuj link';
 
   @override
@@ -3907,7 +3921,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get torHonestLine =>
-      'Wolniej i bardziej prywatnie. W niektórych krajach zablokowane lub niedozwolone.';
+      'Wolniej i bardziej prywatnie. W niektórych krajach zablokowane lub niedozwolone. Odbiera tylko wtedy, gdy aplikacja jest otwarta.';
 
   @override
   String get torStateOff => 'Odbieranie przez Tor jest wyłączone';
