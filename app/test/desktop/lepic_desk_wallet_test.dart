@@ -364,10 +364,9 @@ void main() {
       await expectLater(wallet.syncNow(), throwsA(isA<DeskError>()));
     });
 
-    // Tor is real now (tor_direct_test.dart).
+    // Tor is real now (tor_direct_test.dart), and the password change (change_password_test.dart).
     test('hidden features throw instead of faking', () async {
       expect(() => wallet.exportProof(1), throwsUnsupportedError);
-      expect(() => wallet.changePassword(_password, 'another-pass'), throwsUnsupportedError);
     });
   });
 
