@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../widgets/kit.dart';
 
 /// The healthiest other public relay to offer while ours does not answer, or null.
@@ -33,6 +34,8 @@ class _EpicboxDownNoticeState extends ConsumerState<EpicboxDownNotice> {
     try {
       await ref.read(deskProvider.notifier).useEpicbox(domain);
       if (mounted) showEToast(context, 'Switched to $domain', tone: ETone.ok);
+    } on Object catch (e) {
+      if (mounted) showEToast(context, 'Not switched', text: deskErrorText(e), tone: ETone.risk);
     } finally {
       if (mounted) setState(() => _busy = false);
     }

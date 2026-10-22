@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../widgets/kit.dart';
 import 'combo.dart';
 import 'prefs.dart';
@@ -66,6 +67,8 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
     setState(() => _torBusy = true);
     try {
       await ref.read(deskProvider.notifier).setTor(on);
+    } on Object catch (e) {
+      if (mounted) showEToast(context, on ? 'Tor not turned on' : 'Tor not turned off', text: deskErrorText(e), tone: ETone.risk);
     } finally {
       if (mounted) setState(() => _torBusy = false);
     }

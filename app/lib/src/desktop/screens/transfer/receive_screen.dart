@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../widgets/kit.dart';
 import 'epicbox_notice.dart';
 
@@ -73,6 +74,8 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
         _qr = _Qr.epic;
       }
       showEToast(context, on ? 'Listener started' : 'Listener stopped');
+    } on Object catch (e) {
+      if (mounted) showEToast(context, on ? 'Listener not started' : 'Listener not stopped', text: deskErrorText(e), tone: ETone.risk);
     } finally {
       if (mounted) setState(() => _listenBusy = false);
     }
@@ -87,6 +90,8 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
         _httpFailed = false;
         if (!on && _qr == _Qr.http) _qr = _Qr.epic;
       });
+    } on Object catch (e) {
+      if (mounted) showEToast(context, on ? 'HTTP not started' : 'HTTP not stopped', text: deskErrorText(e), tone: ETone.risk);
     } finally {
       if (mounted) setState(() => _httpBusy = false);
     }
