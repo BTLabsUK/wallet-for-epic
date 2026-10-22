@@ -63,6 +63,8 @@ void main() {
       'lib/src/history/meta_store.dart',
       'lib/src/updater.dart',
       'lib/src/ui/feedback_screen.dart',
+      // gzip for the sealed report, sent only from the feedback screen above.
+      'lib/src/support_report.dart',
     };
     final withIo = {
       for (final MapEntry(key: file, value: uris) in _webGraph().entries)

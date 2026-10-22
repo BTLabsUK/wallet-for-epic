@@ -40,7 +40,7 @@ void main() {
       });
     });
 
-    test('drops entries that are not a plain http(s) node', () {
+    test('drops entries that are not an https node, and cleans operator names', () {
       final nodes = parseNodeStatus(jsonEncode({
         'nodes': [
           {'endpoint': 'https://ok.example:3413', 'state': 'down'},
@@ -49,12 +49,15 @@ void main() {
           {'endpoint': 'https://x.example/path'},
           {'endpoint': 'https://pool.example', 'kind': 'pool'},
           'junk',
-          {'endpoint': 'http://plain.example:3413/', 'operator': '  '},
+          {'endpoint': 'http://plain.example:3413/', 'operator': 'Plain'},
+          {'endpoint': 'https://blank.example', 'operator': '  '},
+          {'endpoint': 'https://bidi.example', 'operator': 'Pool\u202e\u0007 A'},
         ],
       }));
-      expect(nodes.map((n) => n.url), ['https://ok.example:3413', 'http://plain.example:3413']);
+      expect(nodes.map((n) => n.url), ['https://ok.example:3413', 'https://blank.example', 'https://bidi.example'], reason: 'https only');
       expect(nodes.first.healthy, isFalse);
-      expect(nodes.last.operator, isNull);
+      expect(nodes[1].operator, isNull);
+      expect(nodes.last.operator, 'Pool A');
       expect(() => parseNodeStatus('[]'), throwsFormatException);
       expect(() => parseNodeStatus('{}'), throwsFormatException);
     });
