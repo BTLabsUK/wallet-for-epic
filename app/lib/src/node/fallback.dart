@@ -9,8 +9,9 @@ library;
 
 import 'local_node_state.dart';
 
-/// The public node the fallback offers.
-const String defaultFallbackNodeUrl = 'https://node.btlabs.uk';
+/// The public node the fallback offers by default while the local node syncs (the owner,
+/// 2026-10-22: node.epiccash.com, changeable; no node is the wallet's own).
+const String defaultFallbackNodeUrl = 'https://node.epiccash.com:3413';
 
 enum FallbackConsent {
   /// Not asked yet: the first time the local node syncs, the user is asked.
@@ -67,7 +68,7 @@ enum FallbackAction {
   /// The wallet uses [FallbackDecision.nodeUrl] until the local node is synced.
   usePublic,
 
-  /// Ask the user once ("Use node.btlabs.uk until the local node is synced?"); meanwhile the
+  /// Ask the user once ("Use node.epiccash.com until the local node is synced?"); meanwhile the
   /// wallet stays where it is.
   ask,
 }
