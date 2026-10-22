@@ -12,6 +12,7 @@ import 'package:epic_wallet/src/desktop/screens/settings/dialogs.dart';
 import 'package:epic_wallet/src/desktop/screens/wallet/contacts_screen.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
+import 'package:flutter/foundation.dart' show TargetPlatform, debugDefaultTargetPlatformOverride;
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -113,6 +114,14 @@ Future<void> _key(WidgetTester tester, LogicalKeyboardKey key, {bool alt = false
   await _settle(tester, 4);
 }
 
+/// A key the test key maps lack (the keyboard's Back / Forward), down and up straight to the handlers.
+Future<void> _hwKey(WidgetTester tester, LogicalKeyboardKey logical, PhysicalKeyboardKey physical) async {
+  final t = Duration.zero;
+  HardwareKeyboard.instance.handleKeyEvent(KeyDownEvent(physicalKey: physical, logicalKey: logical, timeStamp: t));
+  HardwareKeyboard.instance.handleKeyEvent(KeyUpEvent(physicalKey: physical, logicalKey: logical, timeStamp: t));
+  await _settle(tester, 4);
+}
+
 Future<void> _mouse(WidgetTester tester, int buttons) async {
   final g = await tester.createGesture(kind: PointerDeviceKind.mouse, buttons: buttons);
   await g.down(const Offset(640, 400));
@@ -145,8 +154,9 @@ void main() {
       await _open(tester, DeskRoute.send);
       await _type(tester, 'Recipient', 'esWxboBPMgL4RqufRYcGUJ7t6YVWGvyuid6xRM62UkRzSb3jUcNK@epicbox.epiccash.com');
       await _type(tester, 'Amount', '1');
-      final tabs = await _tabs(tester, _edit('Recipient'), 4);
-      expect(tabs.take(3), ['field:Amount in EPIC', 'field:Message', 'button:Review send']);
+      final tabs = await _tabs(tester, _edit('Recipient'), 6);
+      // Contacts and All are the stops right after their fields; paste and clear are not.
+      expect(tabs.take(5), ['button:Contacts', 'field:Amount in EPIC', 'button:All', 'field:Message', 'button:Review send']);
       expect(tabs.last, startsWith('nav:'), reason: 'the sidebar comes after the form');
       expect(tabs, _noSecondary);
       await _end(tester);
@@ -169,10 +179,12 @@ void main() {
       await _end(tester);
     });
 
-    testWidgets('Import › old password: the field, then Import, never Skip or Back', (tester) async {
+    testWidgets('Import › old password: the field, Import, then Skip; never Back', (tester) async {
       await _open(tester, DeskRoute.importWallets, arg: ImportStep.import);
       final tabs = await _tabs(tester, _edit('Old password'), 2);
-      expect(tabs, ['button:Import', 'field:Old password of ${_oldName(tester)}']);
+      // Skip comes after the main button.
+      expect(tabs.take(2), ['button:Import', 'button:Skip']);
+      expect(tabs, _noSecondary);
       await _end(tester);
     });
 
@@ -253,12 +265,14 @@ void main() {
     });
 
     testWidgets('Delete wallet: Enter in the password does nothing until the box is ticked', (tester) async {
-      await _open(tester, DeskRoute.settingsAccount);
+      final container = await _open(tester, DeskRoute.settingsAccount);
       showDeleteWalletDialog(tester.element(find.byType(EPage)));
       await _settle(tester);
       await tester.enterText(find.descendant(of: find.byType(Dialog), matching: find.byType(EditableText)), 'password');
       await _enter(tester);
       expect(find.text('Delete this wallet?'), findsOneWidget);
+      expect(container.read(deskNavProvider).route, DeskRoute.settingsAccount, reason: 'nothing was deleted, no place changed');
+      expect(container.read(deskProvider).account, isNotNull, reason: 'the wallet is still open');
       await _end(tester);
     });
   });
@@ -370,6 +384,7 @@ void main() {
       await _focus(tester, _edit('Amount'));
       await _key(tester, LogicalKeyboardKey.backspace);
       expect(container.read(deskNavProvider).route, DeskRoute.send);
+      expect(tester.widget<EditableText>(_edit('Amount')).controller.text, '1', reason: 'Backspace edited the text');
       await _end(tester);
     });
 
@@ -466,22 +481,214 @@ void main() {
     });
   });
 
-  testWidgets('Alt+F8 in a password field shows and hides it', (tester) async {
-    await tester.pumpWidget(MaterialApp(theme: buildDeskTheme(Brightness.dark), home: const Scaffold(body: EPasswordInput(semanticLabel: 'P'))));
-    await tester.tap(find.byType(EditableText));
-    await tester.pump();
-    bool obscured() => tester.widget<EditableText>(find.byType(EditableText)).obscureText;
-    expect(obscured(), isTrue);
-    await _key(tester, LogicalKeyboardKey.f8, alt: true);
-    expect(obscured(), isFalse);
-    await _key(tester, LogicalKeyboardKey.f8, alt: true);
-    expect(obscured(), isTrue);
-  });
-}
+  for (final (platform, key, shift, ctrl, alt, hint) in [
+    (TargetPlatform.windows, LogicalKeyboardKey.f8, false, false, true, 'Alt+F8'),
+    (TargetPlatform.linux, LogicalKeyboardKey.keyP, true, true, false, 'Ctrl+Shift+P'),
+  ]) {
+    testWidgets('${platform.name}: $hint in a password field shows and hides it; the eye tooltip names it', (tester) async {
+      debugDefaultTargetPlatformOverride = platform;
+      try {
+        await tester.pumpWidget(MaterialApp(theme: buildDeskTheme(Brightness.dark), home: const Scaffold(body: EPasswordInput(semanticLabel: 'P'))));
+        await tester.tap(find.byType(EditableText));
+        await tester.pump();
+        bool obscured() => tester.widget<EditableText>(find.byType(EditableText)).obscureText;
+        expect(find.byWidgetPredicate((w) => w is EIconButton && w.label == 'Show ($hint)'), findsOneWidget);
+        expect(obscured(), isTrue);
+        Future<void> press() async {
+          if (ctrl) await tester.sendKeyDownEvent(LogicalKeyboardKey.controlLeft);
+          if (shift) await tester.sendKeyDownEvent(LogicalKeyboardKey.shiftLeft);
+          if (alt) await tester.sendKeyDownEvent(LogicalKeyboardKey.altLeft);
+          await tester.sendKeyEvent(key);
+          if (alt) await tester.sendKeyUpEvent(LogicalKeyboardKey.altLeft);
+          if (shift) await tester.sendKeyUpEvent(LogicalKeyboardKey.shiftLeft);
+          if (ctrl) await tester.sendKeyUpEvent(LogicalKeyboardKey.controlLeft);
+          await tester.pump();
+        }
 
-String _oldName(WidgetTester tester) {
-  final w = tester.widget<EInput>(_input('Old password'));
-  return w.semanticLabel!.replaceFirst('Old password of ', '');
+        await press();
+        expect(obscured(), isFalse);
+        await press();
+        expect(obscured(), isTrue);
+      } finally {
+        debugDefaultTargetPlatformOverride = null;
+      }
+    });
+  }
+
+  group('Copy buttons, trailing buttons', () {
+    testWidgets('a labelled copy button is a Tab stop; an icon-only one is not', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: buildDeskTheme(Brightness.dark),
+          home: Scaffold(
+            body: FocusTraversalGroup(
+              child: Column(
+                children: [
+                  const EInput(semanticLabel: 'First'),
+                  const ECopyButton(text: 'x', label: 'Copy address', withLabel: true),
+                  const ECopyButton(text: 'y', label: 'Copy icon'),
+                  const ECopyButton(text: 'z', label: 'Copy forced', tabStop: true),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+      await _focus(tester, find.byType(EditableText));
+      final seen = <String>[];
+      for (var i = 0; i < 3; i++) {
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pump();
+        seen.add(_focused());
+      }
+      expect(seen, ['button:Copy address', 'icon:Copy forced', 'field:First']);
+      await _end(tester);
+    });
+  });
+
+  group('Back details', () {
+    testWidgets('Alt+Left in a text field does not go back; Backspace edits', (tester) async {
+      final container = await _open(tester, DeskRoute.overview);
+      container.read(deskNavProvider.notifier).go(DeskRoute.send);
+      await _settle(tester);
+      await _focus(tester, _edit('Amount'));
+      await _key(tester, LogicalKeyboardKey.arrowLeft, alt: true);
+      expect(container.read(deskNavProvider).route, DeskRoute.send);
+      await _end(tester);
+    });
+
+    testWidgets('a half-filled Send form holds mouse Back; an empty one lets it go', (tester) async {
+      final container = await _open(tester, DeskRoute.overview);
+      container.read(deskNavProvider.notifier).go(DeskRoute.send);
+      await _settle(tester);
+      await _mouse(tester, kBackMouseButton);
+      expect(container.read(deskNavProvider).route, DeskRoute.overview, reason: 'empty form: Back goes');
+      container.read(deskNavProvider.notifier).go(DeskRoute.send);
+      await _settle(tester);
+      await _type(tester, 'Amount', '3');
+      await _mouse(tester, kBackMouseButton);
+      expect(container.read(deskNavProvider).route, DeskRoute.send, reason: 'typed amount: Back stays');
+      expect(tester.widget<EditableText>(_edit('Amount')).controller.text, '3');
+      await _end(tester);
+    });
+
+    testWidgets('a typed Contact form holds Back', (tester) async {
+      final container = await _open(tester, DeskRoute.overview);
+      container.read(deskNavProvider.notifier).go(DeskRoute.contacts, const ContactsArgs(adding: true));
+      await _settle(tester);
+      final name = find.descendant(of: find.byType(EInput).at(1), matching: find.byType(EditableText));
+      await tester.enterText(name, 'Al');
+      await tester.pump();
+      await _mouse(tester, kBackMouseButton);
+      expect(container.read(deskNavProvider).route, DeskRoute.contacts);
+      await _end(tester);
+    });
+
+    testWidgets('typed passwords hold Back on Create', (tester) async {
+      final container = await _open(tester, DeskRoute.overview);
+      container.read(deskNavProvider.notifier).go(DeskRoute.create);
+      await _settle(tester);
+      await _type(tester, 'Password', 'abc');
+      await _mouse(tester, kBackMouseButton);
+      expect(container.read(deskNavProvider).route, DeskRoute.create);
+      await _end(tester);
+    });
+
+    testWidgets('the keyboard Back and Forward keys go through the history', (tester) async {
+      final container = await _open(tester, DeskRoute.overview);
+      container.read(deskNavProvider.notifier).go(DeskRoute.activity);
+      await _settle(tester);
+      await _hwKey(tester, LogicalKeyboardKey.browserBack, PhysicalKeyboardKey.browserBack);
+      await _settle(tester, 4);
+      expect(container.read(deskNavProvider).route, DeskRoute.overview);
+      await _hwKey(tester, LogicalKeyboardKey.browserForward, PhysicalKeyboardKey.browserForward);
+      await _settle(tester, 4);
+      expect(container.read(deskNavProvider).route, DeskRoute.activity);
+      await _end(tester);
+    });
+
+    testWidgets('the screen that holds the focus answers Back; a screen with tickers off never does', (tester) async {
+      final log = <String>[];
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: Column(
+              children: [
+                DeskStepBack(onBack: () => log.add('first'), child: const TextField(key: Key('a'))),
+                TickerMode(
+                  enabled: false,
+                  child: DeskStepBack(onBack: () => log.add('leaving'), child: const SizedBox()),
+                ),
+                DeskStepBack(onBack: () => log.add('last'), child: const TextField(key: Key('b'))),
+              ],
+            ),
+          ),
+        ),
+      );
+      await tester.tap(find.byKey(const Key('a')));
+      await tester.pump();
+      expect(DeskStepBack.tryStepBack(), isTrue);
+      expect(log, ['first'], reason: 'the focused screen, not the most recent one');
+      FocusManager.instance.primaryFocus?.unfocus();
+      await tester.pump();
+      expect(DeskStepBack.tryStepBack(), isTrue);
+      expect(log, ['first', 'last'], reason: 'no focus: the most recent running one');
+      await tester.pumpWidget(
+        MaterialApp(
+          home: TickerMode(enabled: false, child: DeskStepBack(onBack: () => log.add('leaving'), child: const SizedBox())),
+        ),
+      );
+      expect(DeskStepBack.tryStepBack(), isFalse, reason: 'a leaving screen catches nothing');
+      expect(log, ['first', 'last']);
+    });
+  });
+
+  group('Hardware Enter, Esc in combo', () {
+    // A plain Enter reaches a single-line field as the platform's text action (the tests above);
+    // Ctrl+Enter is a key event the form handles itself.
+    testWidgets('Setup › Epicbox: the Ctrl+Enter key event continues', (tester) async {
+      await _open(tester, DeskRoute.setup, arg: SetupStep.epicbox);
+      await _focus(tester, _edit('Epicbox server'));
+      await tester.sendKeyDownEvent(LogicalKeyboardKey.controlLeft);
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      await tester.sendKeyUpEvent(LogicalKeyboardKey.controlLeft);
+      await _settle(tester, 6);
+      expect(find.text('Check settings'), findsOneWidget);
+      await _end(tester);
+    });
+
+    testWidgets('Esc on an open combo in a dialog closes the combo first, then the dialog', (tester) async {
+      await tester.pumpWidget(MaterialApp(theme: buildDeskTheme(Brightness.dark), home: const Scaffold(body: SizedBox())));
+      final ctx = tester.element(find.byType(Scaffold));
+      showDialog<void>(
+        context: ctx,
+        builder: (_) => Dialog(
+          child: SizedBox(
+            width: 500,
+            height: 300,
+            child: ServiceCombo(
+              label: 'Node server',
+              hint: 'Find',
+              options: const [ComboOption(value: 'a', host: 'a.example'), ComboOption(value: 'b', host: 'b.example')],
+              value: 'a',
+              fieldText: 'a.example',
+              onPicked: (_) {},
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.byType(EditableText));
+      await tester.pump();
+      expect(find.text('b.example', findRichText: true), findsOneWidget, reason: 'the list is open');
+      await _key(tester, LogicalKeyboardKey.escape);
+      expect(find.text('b.example', findRichText: true), findsNothing, reason: 'the first Esc closed the list');
+      expect(find.byType(Dialog), findsOneWidget, reason: 'the dialog is still there');
+      await _key(tester, LogicalKeyboardKey.escape);
+      await tester.pumpAndSettle();
+      expect(find.byType(Dialog), findsNothing, reason: 'the second Esc closed the dialog');
+    });
+  });
 }
 
 /// The sequence with repeats after the first wrap dropped.
