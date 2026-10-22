@@ -737,21 +737,59 @@ class RemoteWalletSession implements WalletSession {
     {'slateJson': slateJson},
   );
 
-  @override
+  /// The running [scan]: [cancelScan] ends it.
+  StreamController<ScanProgress>? _scanning;
+  StreamSubscription<ScanProgress>? _scanSub;
+
   /// The remote protocol carries no deleteUnconfirmed; asking for it is refused.
   @override
   Stream<ScanProgress> scan({
     BigInt? startHeight,
     bool deleteUnconfirmed = false,
-  }) => deleteUnconfirmed
-      ? Stream.error(UnsupportedError('deleteUnconfirmed over the remote wallet'))
-      : _stream(SessionMember.scan, scanProgressWire, {
-          'startHeight': optBigInt.encode(startHeight),
-        });
+  }) {
+    if (deleteUnconfirmed) {
+      return Stream.error(UnsupportedError('deleteUnconfirmed over the remote wallet'));
+    }
+    late final StreamController<ScanProgress> out;
+    void end() {
+      if (identical(_scanning, out)) {
+        _scanning = null;
+        _scanSub = null;
+      }
+    }
 
-  /// The remote wallet has no call for this; cancelling the [scan] stream ends it there.
+    out = StreamController<ScanProgress>(
+      onListen: () {
+        _scanning = out;
+        _scanSub = _stream(SessionMember.scan, scanProgressWire, {
+          'startHeight': optBigInt.encode(startHeight),
+        }).listen(out.add, onError: out.addError, onDone: () {
+          end();
+          out.close();
+        });
+      },
+      onCancel: () {
+        final sub = identical(_scanning, out) ? _scanSub : null;
+        end();
+        return sub?.cancel();
+      },
+    );
+    return out.stream;
+  }
+
+  /// No call of its own in the protocol: the scan stream is cancelled, which sends the
+  /// server a cancel; the server stops its scan ([WalletSession.cancelScan]) when its scan
+  /// stream is cancelled. The stream here then ends without a `finished` event.
   @override
-  void cancelScan() {}
+  void cancelScan() {
+    final out = _scanning;
+    final sub = _scanSub;
+    if (out == null) return;
+    _scanning = null;
+    _scanSub = null;
+    unawaited(sub?.cancel());
+    unawaited(out.close());
+  }
 
   @override
   Future<WalletSummary> summary({

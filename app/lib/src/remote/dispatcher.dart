@@ -422,7 +422,7 @@ class WalletDispatcher {
       receivedSlateWire,
     ),
     SessionMember.scan => _many(
-      s.scan(startHeight: p.of('startHeight', optBigInt)),
+      _stopsOnCancel(s.scan(startHeight: p.of('startHeight', optBigInt)), s.cancelScan),
       scanProgressWire,
     ),
     SessionMember.summary => _once(
@@ -563,4 +563,23 @@ final class _Once extends _Outcome {
 final class _Many extends _Outcome {
   _Many(this.stream);
   final Stream<Object?> stream;
+}
+
+/// [source], whose early cancel (the client's Stop, or the channel ending) also calls [stop]:
+/// the wallet's scan goes on unless asked to stop.
+Stream<T> _stopsOnCancel<T>(Stream<T> source, void Function() stop) {
+  StreamSubscription<T>? sub;
+  var done = false;
+  late final StreamController<T> out;
+  out = StreamController<T>(
+    onListen: () => sub = source.listen(out.add, onError: out.addError, onDone: () {
+      done = true;
+      out.close();
+    }),
+    onCancel: () {
+      if (!done) stop();
+      return sub?.cancel();
+    },
+  );
+  return out.stream;
 }

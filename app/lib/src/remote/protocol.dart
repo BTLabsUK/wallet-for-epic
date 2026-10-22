@@ -94,7 +94,7 @@ const Set<String> localSessionMembers = {
   'resendTor',
   // Reads an old wallet's folder on the server's disk; refused by the client.
   'importLegacyHistory',
-  // Answered by the client: cancelling the scan stream ends the scan on the server.
+  // Answered by the client: it cancels the scan stream, and the server stops the scan.
   'cancelScan',
 };
 
