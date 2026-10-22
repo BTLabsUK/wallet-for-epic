@@ -52,8 +52,10 @@ class ServerInfo {
 
   bool get down => state == EState.risk;
 
-  /// The row's state from the facts: down → risk; behind or an older version → warn; else ok.
-  static EState stateFor({required bool down, int? behind, bool versionOld = false}) {
+  /// The row's state from the facts: still being checked → off (neutral, never healthy);
+  /// down → risk; behind or an older version → warn; else ok.
+  static EState stateFor({required bool down, int? behind, bool versionOld = false, bool checking = false}) {
+    if (checking) return EState.off;
     if (down) return EState.risk;
     if ((behind ?? 0) > 0 || versionOld) return EState.warn;
     return EState.ok;

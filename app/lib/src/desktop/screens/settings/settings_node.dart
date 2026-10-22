@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../legacy/gui_rules.dart' show isPrivateHost;
 import '../../data/desk_node.dart';
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../data/node_view.dart';
@@ -20,6 +21,15 @@ import 'settings_privacy.dart';
 /// Start states of Settings › Node. [behind], [old], [limited] and [down] put the node card
 /// in that state through the mock node layer (the tour); [builtin] shows the local node panel.
 enum NodeDemo { comboOpen, typed, pickFailed, builtin, peers, behind, old, limited, down }
+
+/// A typed node address as a URL: as typed when it has a scheme; else https, except this
+/// computer and the local network, where nodes answer plain http.
+String nodeUrlOf(String typed) {
+  final t = typed.trim();
+  if (t.contains('://')) return t;
+  final host = t.startsWith('[') ? t.substring(0, t.indexOf(']') + 1) : t.split(RegExp('[:/]')).first;
+  return '${isPrivateHost(host) ? 'http' : 'https'}://$t';
+}
 
 String hostOf(String url) => url.replaceFirst(RegExp('^https?://'), '').replaceFirst(RegExp(r'/+$'), '');
 
@@ -126,7 +136,12 @@ List<ServerInfo> serverRows(List<NodeServer> nodes, {String? released, bool? sta
           host: nodeHost(n.url),
           full: hostOf(n.url),
           operator: n.operator ?? (n.label.isEmpty ? null : n.label),
-          state: ServerInfo.stateFor(down: down, behind: n.health == ServiceHealth.slow ? (behind ?? 1) : behind, versionOld: old),
+          state: ServerInfo.stateFor(
+            down: down,
+            behind: n.health == ServiceHealth.slow ? (behind ?? 1) : behind,
+            versionOld: old,
+            checking: n.health == ServiceHealth.checking,
+          ),
           behind: behind,
           latencyMs: n.latencyMs,
           version: n.version,
@@ -214,7 +229,7 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
     });
     if (!_addressLike.hasMatch(t)) return;
     _debounce = Timer(const Duration(milliseconds: 400), () async {
-      final url = t.startsWith('http') ? t : 'http://$t';
+      final url = nodeUrlOf(t);
       final r = await ref.read(deskApiProvider).checkNode(url);
       if (mounted && _typed == t) setState(() => _typedCheck = r);
     });
@@ -231,11 +246,13 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
         if (choice == null || !mounted) return;
         if (choice.how == LocalNodeHow.existing) return _useRemote(choice.existingUrl);
         final node = ref.read(deskNodeProvider);
-        await ref.read(deskFallbackProvider.notifier).set(FallbackChoice(choice.useFallback ? FallbackConsent.accepted : FallbackConsent.declined, at: DateTime.now()));
-        fallbackAskedThisSession = true;
         final found = await node.chainDataCandidates();
         if (!mounted) return;
         if (found.isNotEmpty && await showReuseChainDataDialog(context, node) == null) return;
+        if (!mounted) return;
+        // Answered for good only once the node is going to start.
+        await ref.read(deskFallbackProvider.notifier).set(FallbackChoice(choice.useFallback ? FallbackConsent.accepted : FallbackConsent.declined, at: DateTime.now()));
+        fallbackAskedThisSession = true;
       }
       if (!mounted) return;
       setState(() {
@@ -267,7 +284,7 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
       _saving = true;
       _error = null;
     });
-    final url = value.startsWith('http') ? value : 'http://$value';
+    final url = nodeUrlOf(value);
     final known = (ref.read(deskProvider).nodes ?? const <NodeServer>[]).any((n) => n.url == url);
     final r = await ref.read(deskApiProvider).checkNode(url);
     if (!mounted) return;
