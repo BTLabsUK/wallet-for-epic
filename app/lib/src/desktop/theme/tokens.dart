@@ -87,6 +87,17 @@ abstract final class Dur {
   static const slow = Duration(milliseconds: 320);
 }
 
+/// The one expand/collapse motion (`widgets/motion.dart` [ExpandFade]). Same length both
+/// ways; the curve is mirrored: ease-out opening, ease-in closing. The content's fade trails
+/// the height by [fadeLag] ms so nothing jumps. `disableAnimations` swaps in one frame.
+abstract final class Motion {
+  static const expand = Duration(milliseconds: 240);
+  static const cross = Duration(milliseconds: 160); // crossfades (strip, state words)
+  static const easeOut = Curves.easeOutCubic; // forward: opening
+  static const easeIn = Curves.easeInCubic; // reverse: closing
+  static const fadeLag = 40; // ms the fade trails the height
+}
+
 /// Colours for one brightness. Read with `context.dc`.
 @immutable
 class DeskColors extends ThemeExtension<DeskColors> {
