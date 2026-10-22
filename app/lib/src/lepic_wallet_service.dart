@@ -951,17 +951,31 @@ class LepicWalletSession implements WalletSession {
   Future<void> releaseStuckSend({required String key}) =>
       _guard(() async => _wallet.releaseTransaction(txId: await _txIdOf(key)));
 
-  /// The amount [estimateMax] last returned. A send of exactly that amount is a send-all and
-  /// takes every coin into one change output, as the estimate did, so fee and amount match.
+  /// The amount [estimateMax] last returned. A send of exactly the wallet's current maximum is
+  /// a send-all and takes every coin into one change output, as the max estimate did, so fee
+  /// and amount match.
   BigInt? _maxAmount;
 
-  lepic.SendOptions? _optionsFor(BigInt amount) =>
-      amount == _maxAmount
-      ? const lepic.SendOptions(
-          strategy: lepic.SelectionStrategy.all,
-          changeOutputs: 1,
-        )
-      : null;
+  static const _sendAll = lepic.SendOptions(
+    strategy: lepic.SelectionStrategy.all,
+    changeOutputs: 1,
+  );
+
+  /// Send-all options when [amount] is still the wallet's maximum, checked again now: a max
+  /// remembered from before the balance changed must not turn a typed amount into a
+  /// send-all. Null (Smallest, the default) otherwise.
+  Future<lepic.SendOptions?> _optionsFor(
+    BigInt amount,
+    BigInt minimumConfirmations,
+  ) async {
+    if (_maxAmount == null || amount != _maxAmount) return null;
+    final now = await _wallet.estimateMax(
+      minimumConfirmations: minimumConfirmations,
+      options: _sendAll,
+    );
+    _maxAmount = now.amount;
+    return now.amount == amount ? _sendAll : null;
+  }
 
   @override
   Future<Slate> createSendSlate({
@@ -973,7 +987,7 @@ class LepicWalletSession implements WalletSession {
       amount: amount,
       minimumConfirmations: minimumConfirmations,
       message: _message(message),
-      options: _optionsFor(amount),
+      options: await _optionsFor(amount, minimumConfirmations),
     );
     return Slate(slateId: slate.slateId, json: slate.json);
   });
@@ -989,6 +1003,7 @@ class LepicWalletSession implements WalletSession {
     final e = await _wallet.estimateFee(
       amount: amount,
       minimumConfirmations: minimumConfirmations,
+      options: await _optionsFor(amount, minimumConfirmations),
     );
     return FeeEstimate(amount: e.amount, fee: e.fee);
   });
@@ -998,10 +1013,7 @@ class LepicWalletSession implements WalletSession {
       _guard(() async {
         final e = await _wallet.estimateMax(
           minimumConfirmations: minimumConfirmations,
-          options: const lepic.SendOptions(
-            strategy: lepic.SelectionStrategy.all,
-            changeOutputs: 1,
-          ),
+          options: _sendAll,
         );
         _maxAmount = e.amount;
         return FeeEstimate(amount: e.amount, fee: e.fee);
@@ -1026,7 +1038,7 @@ class LepicWalletSession implements WalletSession {
       minimumConfirmations: minimumConfirmations,
       address: address,
       message: _message(message),
-      options: _optionsFor(amount),
+      options: await _optionsFor(amount, minimumConfirmations),
     );
     return _entry(tx.txId);
   });
@@ -1060,7 +1072,7 @@ class LepicWalletSession implements WalletSession {
       url: url,
       allowPlainHttp: allowPlainHttp,
       message: _message(message),
-      options: _optionsFor(amount),
+      options: await _optionsFor(amount, minimumConfirmations),
     );
     return HttpSent(txId: tx.txId, slateId: tx.slateId, posted: tx.posted);
   });
