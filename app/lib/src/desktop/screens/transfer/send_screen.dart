@@ -488,7 +488,10 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     final st = ref.watch(deskProvider);
     final nav = ref.read(deskNavProvider.notifier);
     final res = _result;
-    return EPage(
+    // A half-filled form holds Back (mouse, Alt+Left).
+    return DeskStepBack(
+      onBack: res is! SendFileReady && (_to.text.isNotEmpty || _amount.text.isNotEmpty || _message.text.isNotEmpty) ? () {} : null,
+      child: EPage(
       title: 'Send',
       width: EPageWidth.mid,
       child: res is SendFileReady
@@ -517,6 +520,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
                 );
               },
             ),
+    ),
     );
   }
 
@@ -671,16 +675,17 @@ class _SendScreenState extends ConsumerState<SendScreen> {
               onChanged: (_) => _changed(to: true),
               // Enter picks the first matching contact, else goes on to Amount.
               onSubmitted: matches.isEmpty ? null : (_) => _use(matches.first),
+              trailingTabStop: true,
               trailing: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   if (_to.text.isNotEmpty)
-                    EIconButton(icon: EIcons.close, label: 'Clear recipient', size: EBtnSize.inline, onPressed: () {
+                    EIconButton(icon: EIcons.close, label: 'Clear recipient', size: EBtnSize.inline, tabStop: false, onPressed: () {
                       _to.clear();
                       _changed(to: true);
                     })
                   else
-                    EIconButton(icon: EIcons.paste, label: 'Paste', size: EBtnSize.inline, onPressed: _paste),
+                    EIconButton(icon: EIcons.paste, label: 'Paste', size: EBtnSize.inline, tabStop: false, onPressed: _paste),
                   SizedBox(width: Sp.x1),
                   EButton(label: 'Contacts', icon: EIcons.contacts, size: EBtnSize.inline, onPressed: _pick),
                 ],
@@ -750,6 +755,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
             inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]'))],
             onChanged: (_) => _changed(amount: true),
+            trailingTabStop: true,
             trailing: Row(
               mainAxisSize: MainAxisSize.min,
               children: [

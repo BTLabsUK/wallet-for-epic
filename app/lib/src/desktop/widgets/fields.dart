@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show TargetPlatform, defaultTargetPlatform;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -93,6 +94,7 @@ class EInput extends StatefulWidget {
     this.enabled = true,
     this.leading,
     this.trailing,
+    this.trailingTabStop = false,
     this.onChanged,
     this.onSubmitted,
     this.keyboardType,
@@ -112,6 +114,9 @@ class EInput extends StatefulWidget {
   final bool enabled;
   final IconData? leading;
   final Widget? trailing;
+
+  /// Lets [trailing] hold Tab stops (a button such as "All"); its icons opt out themselves.
+  final bool trailingTabStop;
   final ValueChanged<String>? onChanged;
   final ValueChanged<String>? onSubmitted;
   final TextInputType? keyboardType;
@@ -242,7 +247,7 @@ class _EInputState extends State<EInput> {
                 Padding(
                   padding: EdgeInsets.only(right: Sp.x1),
                   // Icons inside a field (eye, clear, paste) are never Tab stops.
-                  child: ExcludeFocusTraversal(child: widget.trailing!),
+                  child: ExcludeFocusTraversal(excluding: !widget.trailingTabStop, child: widget.trailing!),
                 ),
             ],
           ),
@@ -252,8 +257,8 @@ class _EInputState extends State<EInput> {
   }
 }
 
-/// A password field with a show/hide toggle. The eye is not a Tab stop; Alt+F8 in the field
-/// shows or hides the password (the Windows sign-in key).
+/// A password field with a show/hide toggle. The eye is not a Tab stop; Alt+F8 (Ctrl+Shift+P off
+/// Windows) in the field shows or hides the password.
 class EPasswordInput extends StatefulWidget {
   const EPasswordInput({
     super.key,
@@ -287,9 +292,15 @@ class _EPasswordInputState extends State<EPasswordInput> {
 
   void _toggle() => setState(() => _show = !_show);
 
+  /// Alt+F8 is the Windows sign-in key; GNOME takes it (resize window), so other systems use
+  /// Ctrl+Shift+P.
+  static bool get _windows => defaultTargetPlatform == TargetPlatform.windows;
+
   @override
   Widget build(BuildContext context) => CallbackShortcuts(
-    bindings: {const SingleActivator(LogicalKeyboardKey.f8, alt: true): _toggle},
+    bindings: {
+      _windows ? const SingleActivator(LogicalKeyboardKey.f8, alt: true) : const SingleActivator(LogicalKeyboardKey.keyP, control: true, shift: true): _toggle,
+    },
     child: EInput(
       controller: widget.controller,
       hint: widget.hint,
@@ -303,7 +314,7 @@ class _EPasswordInputState extends State<EPasswordInput> {
       textInputAction: widget.textInputAction,
       trailing: EIconButton(
         icon: _show ? EIcons.eyeOff : EIcons.eye,
-        label: _show ? 'Hide (Alt+F8)' : 'Show (Alt+F8)',
+        label: '${_show ? 'Hide' : 'Show'} (${_windows ? 'Alt+F8' : 'Ctrl+Shift+P'})',
         tabStop: false,
         onPressed: _toggle,
       ),

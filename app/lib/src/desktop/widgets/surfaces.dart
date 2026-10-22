@@ -379,6 +379,7 @@ class ECopyButton extends StatefulWidget {
     this.withLabel = false,
     this.kind = EBtnKind.ghost,
     this.size = EBtnSize.inline,
+    this.tabStop,
   });
 
   final String text;
@@ -389,6 +390,9 @@ class ECopyButton extends StatefulWidget {
   final bool withLabel;
   final EBtnKind kind;
   final EBtnSize size;
+
+  /// Whether the button is a Tab stop; by default a labelled button is, an icon is not.
+  final bool? tabStop;
 
   @override
   State<ECopyButton> createState() => _ECopyButtonState();
@@ -418,8 +422,8 @@ class _ECopyButtonState extends State<ECopyButton> {
     final label = !_done ? widget.label : (_failed ? 'Not copied' : 'Copied');
     final icon = !_done ? EIcons.copy : (_failed ? EIcons.alert : EIcons.check);
     final Widget button = widget.withLabel
-        ? EButton(label: label, icon: icon, size: widget.size, kind: widget.kind, tabStop: false, onPressed: _copy)
-        : EIconButton(icon: icon, label: label, color: _done ? (_failed ? context.dc.risk : context.dc.ok) : null, tabStop: false, onPressed: _copy);
+        ? EButton(label: label, icon: icon, size: widget.size, kind: widget.kind, tabStop: widget.tabStop ?? true, onPressed: _copy)
+        : EIconButton(icon: icon, label: label, color: _done ? (_failed ? context.dc.risk : context.dc.ok) : null, tabStop: widget.tabStop ?? false, onPressed: _copy);
     return Semantics(liveRegion: true, child: button);
   }
 }
