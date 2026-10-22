@@ -54,7 +54,7 @@ const Set<String> _reads = {
   'estimateFee',
   'estimateMax',
   'findRemoved',
-  'checkPhraseWord',
+  'checkPhrase',
   'changes',
 };
 
@@ -92,7 +92,7 @@ class _Recorder implements DeskWalletApi {
   Future<List<String>> createWallet({String name = '', required String password}) =>
       _r('createWallet', () => _m.createWallet(name: name, password: password));
   @override
-  Future<bool> checkPhraseWord(String word) => _r('checkPhraseWord', () => _m.checkPhraseWord(word));
+  bool checkPhrase(List<String> words) => _r('checkPhrase', () => _m.checkPhrase(words));
   @override
   Future<void> restoreWallet({String name = '', required String password, required List<String> phrase}) =>
       _r('restoreWallet', () => _m.restoreWallet(name: name, password: password, phrase: phrase));

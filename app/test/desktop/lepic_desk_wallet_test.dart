@@ -181,9 +181,9 @@ void main() {
       expect(service.session.scanCalls, 1);
     });
 
-    test('words are checked against the BIP-39 list', () async {
-      expect(await wallet.checkPhraseWord('abandon'), isTrue);
-      expect(await wallet.checkPhraseWord('h4rbor'), isFalse);
+    test('the phrase check asks the wallet core, lower-cased and trimmed', () {
+      expect(wallet.checkPhrase(service.phrase.toUpperCase().split(' ')), isTrue);
+      expect(wallet.checkPhrase(['abandon', 'h4rbor']), isFalse);
     });
   });
 

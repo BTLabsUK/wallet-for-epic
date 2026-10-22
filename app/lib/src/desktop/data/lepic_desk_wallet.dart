@@ -21,7 +21,6 @@ import 'dart:io';
 
 import 'package:crypto/crypto.dart';
 
-import '../../bip39_words.dart';
 import '../../builtin_node.dart';
 import '../../legacy_gui_profile.dart' as gui;
 import '../../legacy_wallets.dart' as legacy;
@@ -745,7 +744,8 @@ class LepicDeskWallet implements DeskWalletApi {
   }
 
   @override
-  Future<bool> checkPhraseWord(String word) async => bip39Words.contains(word.trim().toLowerCase());
+  bool checkPhrase(List<String> words) =>
+      _service.validateMnemonic(phrase: words.map((w) => w.trim().toLowerCase()).join(' '));
 
   @override
   Future<void> restoreWallet({String name = '', required String password, required List<String> phrase}) async {

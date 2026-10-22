@@ -39,7 +39,10 @@ abstract interface class DeskWalletApi {
   /// the first one on this computer, or one more in the list,
   /// which becomes the selected one. Passwords under [minPasswordLength] are refused.
   Future<List<String>> createWallet({String name = '', required String password});
-  Future<bool> checkPhraseWord(String word);
+
+  /// Whether [words] is a recovery phrase: 12, 15, 18, 21 or 24 words of the list whose check
+  /// bits match. Answers at once; the restore grid calls it after every change.
+  bool checkPhrase(List<String> words);
   Future<void> restoreWallet({String name = '', required String password, required List<String> phrase});
 
   // Import (only when [DeskFeatures.importWizard]). Old folders are only read.

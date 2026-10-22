@@ -1,15 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../widgets/kit.dart';
 import 'onboarding_parts.dart';
+import 'phrase_grid.dart';
 
 enum RestoreStep { words, wordsFilled, account, restoring, failed }
 
+/// A phrase step for the screenshot tour: [text] pasted into the grid, or, with [typing], its
+/// words typed up to a half-finished last one (the dim completion shows).
+class RestoreSample {
+  const RestoreSample(this.text, {this.typing = false});
+
+  final String text;
+  final bool typing;
+}
+
 /// Restore: the phrase, then name and password, then the wallet is restored and Unlock opens
-/// with it. [arg] is a [RestoreStep]; `wordsFilled` starts with a pasted phrase that has one
-/// word out of the list.
+/// with it. [arg] is a [RestoreStep] (`wordsFilled` starts with a pasted phrase that has one
+/// word out of the list) or a [RestoreSample].
 class RestoreScreen extends ConsumerStatefulWidget {
   const RestoreScreen({super.key, this.arg});
 
@@ -19,30 +30,38 @@ class RestoreScreen extends ConsumerStatefulWidget {
   ConsumerState<RestoreScreen> createState() => _RestoreScreenState();
 }
 
-const _lengths = [12, 15, 18, 21, 24];
-
 class _RestoreScreenState extends ConsumerState<RestoreScreen> {
   static const _sample =
       'orbit hazard velvet cabin sudden meadow brick gesture lunar invest pledge saddle timber crisp wander echo faculty notable ripple garlic stamp dwarf enjoy h4rbor';
-  static const _max = 24;
 
   final _password = TextEditingController();
   final _confirm = TextEditingController();
-  final _paste = TextEditingController();
-  final _words = [for (var i = 0; i < _max; i++) TextEditingController()];
-  final _focus = [for (var i = 0; i < _max; i++) FocusNode()];
+  late final PhraseEntry _entry;
   late RestoreStep _step = widget.arg is RestoreStep ? widget.arg as RestoreStep : RestoreStep.words;
-  final Set<int> _invalid = {};
+  RestoreSample? get _sampleArg => widget.arg is RestoreSample ? widget.arg as RestoreSample : null;
   bool _locking = false;
   String? _failure;
 
   @override
   void initState() {
     super.initState();
+    final api = ref.read(deskApiProvider);
+    _entry = PhraseEntry(check: api.checkPhrase)..addListener(_onEntry);
+    final sample = _sampleArg;
+    if (sample != null) {
+      if (sample.typing) {
+        final ws = PhraseEntry.split(sample.text);
+        for (var i = 0; i < ws.length; i++) {
+          _entry.controllers[i].text = ws[i];
+        }
+        WidgetsBinding.instance.addPostFrameCallback((_) => _entry.focusField(ws.length - 1));
+      } else {
+        _entry.paste(sample.text);
+      }
+    }
     switch (_step) {
       case RestoreStep.wordsFilled:
-        _paste.text = _sample;
-        _fromText(_sample);
+        _entry.paste(_sample);
       case RestoreStep.failed:
         _failure = 'The wallet files could not be written: permission denied in ~/.config/Epic Wallet.';
       case RestoreStep.words || RestoreStep.account || RestoreStep.restoring:
@@ -50,90 +69,37 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
     }
   }
 
+  void _onEntry() {
+    _clipboardEmpty = false;
+    if (mounted) setState(() {});
+  }
+
   @override
   void dispose() {
-    for (final c in [_password, _confirm, _paste, ..._words]) {
-      c.dispose();
-    }
-    for (final f in _focus) {
-      f.dispose();
-    }
+    _password.dispose();
+    _confirm.dispose();
+    _entry.removeListener(_onEntry);
+    _entry.dispose();
     super.dispose();
   }
 
   bool get _accountOk => _password.text.length >= 8 && _password.text == _confirm.text;
-  /// Up to the last word typed; the phrase is the next valid length from there (12 to 24).
-  int get _length {
-    var span = 0;
-    for (var i = 0; i < _max; i++) {
-      if (_words[i].text.trim().isNotEmpty) span = i + 1;
-    }
-    return _lengths.firstWhere((n) => n >= span, orElse: () => _max);
-  }
 
-  int get _filled => _words.where((c) => c.text.trim().isNotEmpty).length;
-  int get _badCount => _invalid.where((i) => i < _length).length;
-  bool get _complete =>
-      _filled == _length && _words.take(_length).every((c) => c.text.trim().isNotEmpty) && _badCount == 0;
-
-  List<String> _split(String text) => text
-      .replaceAll(RegExp(r'\d+[.)]'), ' ')
-      .split(RegExp(r'\s+'))
-      .map((w) => w.trim().toLowerCase())
-      .where((w) => w.isNotEmpty)
-      .toList();
-
-  /// Spreads the words of [text] over the boxes; their count sets the length.
-  void _fromText(String text) {
-    final ws = _split(text);
-    for (var i = 0; i < _max; i++) {
-      _words[i].text = i < ws.length ? ws[i] : '';
-    }
-    setState(_invalid.clear);
-    for (var i = 0; i < _max && i < ws.length; i++) {
-      _check(i);
-    }
-  }
-
-  Future<void> _check(int i) async {
-    final w = _words[i].text.trim();
-    final ok = w.isEmpty || await ref.read(deskApiProvider).checkPhraseWord(w);
+  Future<void> _pasteClipboard() async {
+    final data = await Clipboard.getData(Clipboard.kTextPlain);
+    final text = data?.text ?? '';
     if (!mounted) return;
-    setState(() => ok ? _invalid.remove(i) : _invalid.add(i));
-  }
-
-  void _syncPaste() {
-    final ws = [for (final c in _words) c.text.trim()];
-    while (ws.isNotEmpty && ws.last.isEmpty) {
-      ws.removeLast();
-    }
-    _paste.text = ws.join(' ');
-  }
-
-  void _onWord(int i, String v) {
-    final ws = _split(v);
-    if (ws.length > 1) {
-      _fromText([for (var j = 0; j < i; j++) _words[j].text, v].join(' '));
-      _syncPaste();
+    if (PhraseEntry.split(text).isEmpty) {
+      setState(() => _clipboardEmpty = true);
       return;
     }
-    // Space moves on to the next box.
-    if (v.endsWith(' ') && ws.length == 1) {
-      _words[i].text = ws.first;
-      if (i + 1 < _length) _focus[i + 1].requestFocus();
-    }
-    _check(i);
-    _syncPaste();
-    setState(() {});
+    _clipboardEmpty = false;
+    _entry.paste(text);
   }
 
-  void _clear() {
-    _paste.clear();
-    for (final c in _words) {
-      c.clear();
-    }
-    setState(_invalid.clear);
-  }
+  bool _clipboardEmpty = false;
+
+  void _toAccount() => setState(() => _step = RestoreStep.account);
 
   Future<void> _restore() async {
     final open = ref.read(deskProvider).account != null;
@@ -147,7 +113,7 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
       final before = {for (final w in await api.wallets()) w.id};
       await api.restoreWallet(
         password: _password.text,
-        phrase: [for (final c in _words.take(_length)) c.text.trim()],
+        phrase: _entry.phrase,
       );
       if (!mounted) return;
       if (open) {
@@ -227,140 +193,79 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
   Widget _wordsStep(BuildContext context, DeskNav nav) {
     final ts = context.ts;
     final c = context.dc;
-    final filled = _filled;
-    final bad = _badCount;
-    final tooMany = _split(_paste.text).length > _max;
-    final firstBad = bad == 0 ? null : (_invalid.where((i) => i < _length).toList()..sort()).first;
-    final hint = _complete
-        ? null
-        : filled == 0
-        ? 'Paste the phrase to continue'
-        : bad > 0
-        ? 'Fix the marked words to continue'
-        : '$filled of $_length words';
+    final e = _entry;
+    final filled = e.filled;
+    final length = e.length;
+    final bad = e.firstInvalid;
+    final complete = e.complete;
+    final (String status, Color? tone) = switch (e) {
+      _ when _clipboardEmpty => ('Nothing to paste: the clipboard holds no words.', c.warn),
+      _ when e.pasteError != null => (e.pasteError!, c.risk),
+      _ when bad != null => ('Word ${bad + 1}, "${e.words[bad]}", is not in the word list.', c.risk),
+      _ when complete => ('All $length words check out.', c.ok),
+      _ when e.checksumOk == false && e.checksumFirm => (
+        "This phrase's check number does not match. Compare every word with the paper.",
+        c.risk,
+      ),
+      _ when e.checksumOk == false => (
+        "${e.span} words so far; the check number does not match. Keep typing, or compare every word with the paper.",
+        c.warn,
+      ),
+      _ => ('The phrase never leaves this computer.', null),
+    };
     return EOnbFrame(
       sideTitle: 'Restore wallet',
       steps: railOf(['Recovery phrase', 'Password'], 0),
       title: 'Recovery phrase',
-      lead: 'Paste all the words at once, or type them with spaces in between. They appear below, numbered, to check against the paper.',
+      lead: 'Type the words in order, or paste the whole phrase into any box. Line breaks, commas and numbering are ignored.',
       actions: [
         backButton(() => nav.back()),
-        EButton.ghost(label: 'Clear', icon: EIcons.trash, onPressed: filled == 0 ? null : _clear),
-        if (hint != null) Flexible(child: Text(hint, style: ts.caption, textAlign: TextAlign.right)),
-        EButton.primary(label: 'Continue', onPressed: _complete ? () => setState(() => _step = RestoreStep.account) : null),
+        EButton.ghost(label: 'Paste', icon: EIcons.paste, onPressed: _pasteClipboard),
+        EButton.ghost(label: 'Clear', icon: EIcons.trash, onPressed: filled == 0 ? null : e.clear),
+        EButton.primary(label: 'Continue', onPressed: complete ? _toAccount : null),
       ],
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          if (firstBad != null)
-            ENotice(
-              title: 'Word ${firstBad + 1}, "${_words[firstBad].text.trim()}", is not in the word list',
-              text: 'Correct it in the numbered boxes below.',
-              tone: ETone.risk,
-            )
-          else if (_complete)
-            ENotice(
-              title: 'All $_length words are in the word list',
-              text: 'Next, set a password for this computer.',
-              tone: ETone.ok,
-              icon: EIcons.check,
-            ),
-          if (firstBad != null || _complete) SizedBox(height: Sp.x5),
-          EField(
-            label: 'Recovery phrase',
-            help: 'Line breaks, extra spaces and numbering like "1." are ignored. Pasting into any word box fills them all.',
-            aside: Semantics(
-              liveRegion: true,
-              child: Text.rich(
-                TextSpan(
-                  children: [
-                    TextSpan(
-                      text: '$filled of $_length words',
-                      style: ts.caption.copyWith(color: tooMany ? c.risk : (_complete ? c.ok : null)),
-                    ),
-                    if (bad > 0) TextSpan(text: ' · $bad not in the word list', style: ts.caption.copyWith(color: c.risk)),
-                    if (tooMany)
-                      TextSpan(text: ' · a phrase has 12, 15, 18, 21 or 24 words', style: ts.caption.copyWith(color: c.risk)),
-                  ],
-                ),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Expanded(child: Semantics(header: true, child: Text('Words', style: ts.label))),
+              Text(
+                '$filled of $length words',
+                style: ts.caption.copyWith(color: complete ? c.ok : null),
               ),
-            ),
-            child: EInput(
-              controller: _paste,
-              mono: true,
-              maxLines: 4,
-              invalid: bad > 0,
-              hint: 'word1 word2 word3 …',
-              semanticLabel: 'Recovery phrase',
-              onChanged: _fromText,
-            ),
+            ],
           ),
-          SizedBox(height: Sp.x5),
-          if (filled == 0)
-            Container(
-              padding: EdgeInsets.all(Sp.x6),
-              decoration: BoxDecoration(
-                border: Border.all(color: c.line),
-                borderRadius: BorderRadius.circular(Rad.sm),
-              ),
+          SizedBox(height: Sp.x3),
+          PhraseGrid(entry: e, autofocus: true, onSubmit: _toAccount),
+          SizedBox(height: Sp.x3),
+          // One line, always there, so the grid never moves when the verdict changes.
+          ConstrainedBox(
+            constraints: BoxConstraints(minHeight: 20.u),
+            child: Semantics(
+              liveRegion: true,
               child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(EIcons.paste, size: Ctl.iconLg, color: c.faint),
-                  SizedBox(width: Sp.x3),
-                  Expanded(child: Text('The words appear here, numbered, once they are pasted or typed.', style: ts.bodyDim)),
+                  Padding(
+                    padding: EdgeInsets.only(top: 2.u),
+                    child: Icon(
+                      tone == c.risk
+                          ? EIcons.error
+                          : tone == c.ok
+                          ? EIcons.check
+                          : EIcons.info,
+                      size: Ctl.iconSm,
+                      color: tone ?? c.faint,
+                    ),
+                  ),
+                  SizedBox(width: Sp.x2),
+                  Expanded(child: Text(status, style: ts.small.copyWith(color: tone))),
                 ],
               ),
-            )
-          else ...[
-            Row(
-              children: [
-                Semantics(header: true, child: Text('Check the words', style: ts.label)),
-                SizedBox(width: Sp.x2),
-                Flexible(child: Text('Click a word to correct it', style: ts.caption)),
-              ],
             ),
-            SizedBox(height: Sp.x3),
-            LayoutBuilder(
-              builder: (context, box) {
-                final cols = box.maxWidth < 440.u ? 2 : 3;
-                final w = (box.maxWidth - (cols - 1) * Sp.x3) / cols;
-                return Wrap(
-                  spacing: Sp.x3,
-                  runSpacing: Sp.x2,
-                  children: [
-                    for (var i = 0; i < _length; i++)
-                      SizedBox(
-                        width: w,
-                        child: Row(
-                          children: [
-                            SizedBox(width: 24.u, child: Text('${i + 1}', style: ts.caption, textAlign: TextAlign.right)),
-                            SizedBox(width: Sp.x2),
-                            Expanded(
-                              child: EInput(
-                                controller: _words[i],
-                                focusNode: _focus[i],
-                                mono: true,
-                                invalid: _invalid.contains(i),
-                                semanticLabel: 'Word ${i + 1}',
-                                onChanged: (v) => _onWord(i, v),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                  ],
-                );
-              },
-            ),
-            SizedBox(height: Sp.x4),
-            Row(
-              children: [
-                Icon(EIcons.info, size: Ctl.iconSm, color: c.faint),
-                SizedBox(width: Sp.x2),
-                Flexible(child: Text('The phrase never leaves this computer.', style: ts.small)),
-              ],
-            ),
-          ],
+          ),
         ],
       ),
     );
