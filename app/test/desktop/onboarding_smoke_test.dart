@@ -102,6 +102,26 @@ void flows() {
     await tester.tap(find.text('Continue'));
     await tester.pump();
     expect(find.text('Choose a password'), findsOneWidget);
+    expect(find.text('Name'), findsNothing);
+    expect(find.byType(EditableText), findsNWidgets(2), reason: 'password and repeat only');
+    await _end(tester);
+  });
+
+  testWidgets('restore: no Length field; the word count sets 12, 15 or 24 boxes', (tester) async {
+    await _pump(tester, const RestoreScreen());
+    expect(find.text('Length'), findsNothing);
+    for (final n in [15, 12, 21]) {
+      await tester.enterText(_field(0), List.filled(n, 'abandon').join(' '));
+      await _wait(tester, 500);
+      expect(find.text('$n of $n words'), findsWidgets);
+      expect(find.text('All $n words are in the word list'), findsOneWidget);
+      expect(find.byType(EditableText), findsNWidgets(n + 1), reason: 'the paste field and $n boxes');
+    }
+    // Thirteen words are not a phrase yet: 15 boxes, two empty.
+    await tester.enterText(_field(0), List.filled(13, 'abandon').join(' '));
+    await _wait(tester, 500);
+    expect(find.text('13 of 15 words'), findsWidgets);
+    expect(find.text('Continue').hitTestable(), findsOneWidget);
     await _end(tester);
   });
 
@@ -144,7 +164,11 @@ void flows() {
     await tester.tap(find.text('Open wallet'));
     await tester.pump();
     expect(container.read(deskNavProvider).route, DeskRoute.unlock);
-    expect((container.read(deskNavProvider).arg as UnlockAdded).name, '2 wallets');
+    final added = container.read(deskNavProvider).arg as UnlockAdded;
+    expect(added.name, '2 wallets');
+    expect(added.id, isNotNull, reason: 'the last wallet added is the one Unlock selects');
+    final api = container.read(deskApiProvider);
+    expect((await tester.runAsync(api.wallets))!.firstWhere((w) => w.current).id, added.id);
     await _end(tester);
   });
 
@@ -169,19 +193,55 @@ void flows() {
     await _end(tester);
   });
 
-  testWidgets('create: creating runs before the phrase, the end is Unlock with the added notice', (tester) async {
+  testWidgets('create: no name field, no quiz; Continue on the phrase goes to Unlock with the new wallet', (tester) async {
     final container = await _pump(tester, const CreateScreen());
-    await tester.enterText(_field(0), 'Daily');
+    expect(find.text('Name'), findsNothing);
+    expect(find.byType(EditableText), findsNWidgets(2), reason: 'password and repeat only');
+    await tester.enterText(_field(0), 'longpassword');
     await tester.enterText(_field(1), 'longpassword');
-    await tester.enterText(_field(2), 'longpassword');
     await tester.pump();
+    expect(find.text('Check phrase'), findsNothing);
     await tester.tap(find.text('Create wallet').last);
     await tester.pump(const Duration(milliseconds: 100));
     expect(find.text('Creating the wallet'), findsOneWidget);
-    await _wait(tester, 2500);
+    await _wait(tester, 4000);
     expect(find.text('Recovery phrase'), findsWidgets);
+    expect(find.text('Check phrase'), findsNothing);
+    await tester.tap(find.text('Reveal phrase'));
+    await tester.pump();
+    await tester.tap(find.textContaining('Written down'));
+    await tester.pump();
+    await tester.tap(find.text('Continue'));
+    await _wait(tester, 500);
+    expect(find.text('Check the phrase'), findsNothing);
+    final nav = container.read(deskNavProvider);
+    expect(nav.route, DeskRoute.unlock);
+    final added = nav.arg as UnlockAdded;
+    expect(added.name, 'Wallet 1');
+    expect(added.id, isNotNull);
     await _end(tester);
     expect(container.read(onbFlowProvider).network, 'mainnet');
+  });
+
+  testWidgets('unlock: the added wallet is the one selected, not the one that was current', (tester) async {
+    final container = await _pump(tester, const SizedBox());
+    final api = container.read(deskApiProvider);
+    await tester.runAsync(() => api.createWallet(password: 'longpassword'));
+    await tester.runAsync(() => api.createWallet(password: 'longpassword'));
+    final all = (await tester.runAsync(api.wallets))!;
+    expect(all.map((w) => w.name), containsAll(['Wallet 1', 'Wallet 2']));
+    final added = all.firstWhere((w) => w.name == 'Wallet 2');
+    await tester.runAsync(() => api.selectWallet('legacy-mainnet'));
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: MaterialApp(theme: buildDeskTheme(Brightness.dark), home: Scaffold(body: UnlockScreen(arg: UnlockAdded('Wallet 2', id: added.id)))),
+      ),
+    );
+    await _wait(tester, 1000);
+    expect((await tester.runAsync(api.wallets))!.firstWhere((w) => w.current).id, added.id);
+    expect(find.text('Wallet 2 added.'), findsOneWidget);
+    await _end(tester);
   });
 }
 

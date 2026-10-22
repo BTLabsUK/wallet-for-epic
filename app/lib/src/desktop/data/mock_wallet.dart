@@ -176,6 +176,7 @@ class MockDeskWallet implements DeskWalletApi {
     final name = _oldWallets.where((w) => w.id == id).firstOrNull?.name ?? 'Backup 2024';
     final entry = WalletEntry(id: 'imp-$id', name: name, folder: '~/.local/share/epic-wallet/wallets/imp-$id/mainnet', network: 'mainnet');
     _wallets.add(entry);
+    _current = entry.id;
     _imported.add(entry.id);
     return ImportedWallet(id: entry.id, name: name, proof: const [ImportProof('Seed read'), ImportProof('Wallet created'), ImportProof('Old folder unchanged')]);
   }
@@ -208,8 +209,9 @@ class MockDeskWallet implements DeskWalletApi {
   }
 
   @override
-  Future<List<String>> createWallet({required String name, required String password}) async {
+  Future<List<String>> createWallet({String name = '', required String password}) async {
     await _wait(3);
+    _addWallet(name);
     return _words;
   }
 
@@ -217,7 +219,22 @@ class MockDeskWallet implements DeskWalletApi {
   Future<bool> checkPhraseWord(String word) async => word.length >= 3 && !word.contains(RegExp('[^a-z]'));
 
   @override
-  Future<void> restoreWallet({required String name, required String password, required List<String> phrase}) => _wait(3);
+  Future<void> restoreWallet({String name = '', required String password, required List<String> phrase}) async {
+    await _wait(3);
+    _addWallet(name);
+  }
+
+  /// The new wallet is listed as the next free "Wallet N" (or [name]) and is the selected one.
+  void _addWallet(String name) {
+    var n = 1;
+    while (_wallets.any((w) => w.name == 'Wallet $n')) {
+      n++;
+    }
+    final label = name.trim().isEmpty ? 'Wallet $n' : name.trim();
+    final id = 'new-${_wallets.length}-${DateTime.now().microsecondsSinceEpoch}';
+    _wallets.add(WalletEntry(id: id, name: label, folder: '~/.local/share/epic-wallet/wallets/$id/mainnet', network: 'mainnet'));
+    _current = id;
+  }
 
   @override
   Future<WalletAccount> account() async =>

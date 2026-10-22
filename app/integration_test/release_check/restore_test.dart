@@ -36,9 +36,8 @@ void main() {
     await shot(tester, '21-restore-words-checked');
     await tapText(tester, 'Continue', last: true);
     await settle(tester);
-    await typeIn(tester, 0, 'Restored');
+    await typeIn(tester, 0, password);
     await typeIn(tester, 1, password);
-    await typeIn(tester, 2, password);
     await settle(tester);
     await tapText(tester, 'Restore wallet', last: true);
     await waitText(tester, 'Unlock wallet', timeout: const Duration(minutes: 4));

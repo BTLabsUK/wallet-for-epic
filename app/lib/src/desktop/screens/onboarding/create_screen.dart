@@ -6,9 +6,9 @@ import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../widgets/kit.dart';
 import 'onboarding_parts.dart';
 
-enum CreateStep { account, creating, failed, phrase, confirm, locking }
+enum CreateStep { account, creating, failed, phrase, locking }
 
-/// New wallet: name and password, the wallet is made, its phrase, a check of three words, then
+/// New wallet: password, the wallet is made, its phrase, then
 /// Unlock with the new wallet. [arg] is a [CreateStep] to start on.
 class CreateScreen extends ConsumerStatefulWidget {
   const CreateScreen({super.key, this.arg});
@@ -22,12 +22,8 @@ class CreateScreen extends ConsumerStatefulWidget {
 const _createStages = [Stage('create', 'Creating the wallet and its recovery phrase'), Stage('save', 'Saving the account')];
 
 class _CreateScreenState extends ConsumerState<CreateScreen> {
-  static const _asked = [3, 11, 19];
-
-  final _name = TextEditingController();
   final _password = TextEditingController();
   final _confirm = TextEditingController();
-  final _answers = [for (final _ in _asked) TextEditingController()];
   late CreateStep _step = widget.arg is CreateStep ? widget.arg as CreateStep : CreateStep.account;
   List<String>? _phrase;
   String _stage = 'create';
@@ -36,15 +32,15 @@ class _CreateScreenState extends ConsumerState<CreateScreen> {
   bool _written = false;
   bool _qr = false;
   bool _busy = false;
-  bool _wrong = false;
+  Set<String> _before = {};
 
   @override
   void initState() {
     super.initState();
     switch (_step) {
-      case CreateStep.phrase || CreateStep.confirm:
-        _revealed = _step == CreateStep.phrase;
-        _written = _step == CreateStep.phrase;
+      case CreateStep.phrase:
+        _revealed = true;
+        _written = true;
         ref.read(deskApiProvider).newPhrase().then((p) => mounted ? setState(() => _phrase = p) : null);
       case CreateStep.failed:
         _stage = 'save';
@@ -56,7 +52,7 @@ class _CreateScreenState extends ConsumerState<CreateScreen> {
 
   @override
   void dispose() {
-    for (final c in [_name, _password, _confirm, ..._answers]) {
+    for (final c in [_password, _confirm]) {
       c.dispose();
     }
     super.dispose();
@@ -67,10 +63,7 @@ class _CreateScreenState extends ConsumerState<CreateScreen> {
     return _password.text.length >= 8 && _confirm.text == _password.text && p == null && c == null;
   }
 
-  void _to(CreateStep s) => setState(() {
-    _step = s;
-    _wrong = false;
-  });
+  void _to(CreateStep s) => setState(() => _step = s);
 
   /// Makes the wallet and its phrase (Electron does this before showing the phrase).
   Future<void> _create() async {
@@ -81,7 +74,8 @@ class _CreateScreenState extends ConsumerState<CreateScreen> {
       _failure = null;
     });
     try {
-      final phrase = await api.createWallet(name: _name.text, password: _password.text);
+      _before = {for (final w in await api.wallets()) w.id};
+      final phrase = await api.createWallet(password: _password.text);
       if (!mounted) return;
       setState(() => _stage = 'save');
       setState(() {
@@ -98,31 +92,25 @@ class _CreateScreenState extends ConsumerState<CreateScreen> {
     }
   }
 
-  /// The check passed: a wallet open now is locked, then Unlock with the new one.
+  /// The phrase is written down: a wallet open now is locked, then Unlock with the new one.
   Future<void> _finish() async {
-    final phrase = _phrase!;
-    final given = [for (final c in _answers) c.text.trim().toLowerCase()];
-    if ([for (final i in _asked) phrase[i]].indexed.any((e) => e.$2 != given[e.$1])) {
-      setState(() => _wrong = true);
-      return;
-    }
     setState(() => _busy = true);
     if (ref.read(deskProvider).account != null) {
       _to(CreateStep.locking);
       await ref.read(deskProvider.notifier).lock();
       if (!mounted) return;
     }
-    final name = _name.text.trim();
-    ref.read(deskNavProvider.notifier).reset(DeskRoute.unlock, UnlockAdded(name.isEmpty ? 'New wallet' : name));
+    final added = await addedWallet(ref.read(deskApiProvider), _before, 'New wallet');
+    if (!mounted) return;
+    ref.read(deskNavProvider.notifier).reset(DeskRoute.unlock, added);
   }
 
   @override
   Widget build(BuildContext context) {
     final nav = ref.read(deskNavProvider.notifier);
     final flow = ref.watch(onbFlowProvider);
-    final rail = railOf(['Password', 'Recovery phrase', 'Check phrase'], switch (_step) {
-      CreateStep.phrase => 1,
-      CreateStep.confirm || CreateStep.locking => 2,
+    final rail = railOf(['Password', 'Recovery phrase'], switch (_step) {
+      CreateStep.phrase || CreateStep.locking => 1,
       _ => 0,
     });
     switch (_step) {
@@ -164,7 +152,6 @@ class _CreateScreenState extends ConsumerState<CreateScreen> {
                 SizedBox(height: Sp.x5),
               ],
               AccountForm(
-                name: _name,
                 password: _password,
                 confirm: _confirm,
                 passwordError: pe,
@@ -176,43 +163,6 @@ class _CreateScreenState extends ConsumerState<CreateScreen> {
         );
       case CreateStep.phrase:
         return _phraseStep(context, rail);
-      case CreateStep.confirm:
-        return EOnbFrame(
-          sideTitle: 'New wallet',
-          steps: rail,
-          title: 'Check the phrase',
-          lead: 'Type the words at these positions to confirm the paper copy.',
-          actions: [
-            backButton(() => _to(CreateStep.phrase)),
-            EButton.primary(
-              label: 'Continue',
-              busy: _busy,
-              onPressed: _answers.every((c) => c.text.trim().isNotEmpty) ? _finish : null,
-            ),
-          ],
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              if (_wrong) ...[
-                const ENotice(title: 'A word does not match', text: 'Check the paper copy and try again.', tone: ETone.risk),
-                SizedBox(height: Sp.x5),
-              ],
-              for (var i = 0; i < _asked.length; i++) ...[
-                EField(
-                  label: 'Word ${_asked[i] + 1}',
-                  child: EInput(
-                    controller: _answers[i],
-                    mono: true,
-                    invalid: _wrong,
-                    semanticLabel: 'Word ${_asked[i] + 1}',
-                    onChanged: (_) => setState(() => _wrong = false),
-                  ),
-                ),
-                SizedBox(height: Sp.x4),
-              ],
-            ],
-          ),
-        );
     }
   }
 
@@ -226,7 +176,7 @@ class _CreateScreenState extends ConsumerState<CreateScreen> {
       lead: 'These words are the only way to get the coins back if this computer breaks. Write them on paper, in order.',
       actions: [
         if (!_revealed) Flexible(child: Text('Reveal the phrase first', style: ts.caption, textAlign: TextAlign.right)),
-        EButton.primary(label: 'Continue', onPressed: _revealed && _written ? () => _to(CreateStep.confirm) : null),
+        EButton.primary(label: 'Continue', busy: _busy, onPressed: _revealed && _written ? _finish : null),
       ],
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,

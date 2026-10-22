@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/shell.dart' show deskVersion;
+import '../../data/api.dart' show DeskWalletApi;
 import '../../widgets/kit.dart';
 
 /// The version line under the full-window screens.
@@ -13,11 +14,10 @@ class AuthFoot extends StatelessWidget {
   Widget build(BuildContext context) => Text('Epic Cash Wallet $deskVersion');
 }
 
-/// Name, password and confirmation: the first step of create and restore.
+/// Password and confirmation: the first step of create and restore.
 class AccountForm extends StatelessWidget {
   const AccountForm({
     super.key,
-    required this.name,
     required this.password,
     required this.confirm,
     required this.onChanged,
@@ -25,7 +25,7 @@ class AccountForm extends StatelessWidget {
     this.confirmError,
   });
 
-  final TextEditingController name, password, confirm;
+  final TextEditingController password, confirm;
   final VoidCallback onChanged;
   final String? passwordError;
   final String? confirmError;
@@ -34,19 +34,6 @@ class AccountForm extends StatelessWidget {
   Widget build(BuildContext context) => Column(
     crossAxisAlignment: CrossAxisAlignment.stretch,
     children: [
-      EField(
-        label: 'Name',
-        optional: true,
-        help: 'Only shown in this app, to tell wallets apart.',
-        child: EInput(
-          controller: name,
-          hint: 'Main wallet',
-          semanticLabel: 'Wallet name',
-          inputFormatters: [LengthLimitingTextInputFormatter(32)],
-          onChanged: (_) => onChanged(),
-        ),
-      ),
-      SizedBox(height: Sp.x5),
       EField(
         label: 'Password',
         error: passwordError,
@@ -95,11 +82,24 @@ Widget backButton(VoidCallback onTap, {String label = 'Back'}) =>
 /// The languages the app has: Setup › Preferences.
 const deskLanguages = ['English', 'Deutsch', 'Polski', 'Русский', '中文'];
 
-/// Unlock's argument after a flow added a wallet: it is chosen and "{name} added." shows.
+/// Unlock's argument after a flow added a wallet: [id] is chosen and "{name} added." shows.
 class UnlockAdded {
-  const UnlockAdded(this.name);
+  const UnlockAdded(this.name, {this.id});
 
   final String name;
+  final String? id;
+}
+
+/// The wallet a flow added: the entry the list has now and did not have in [before] (ids), as
+/// Unlock's argument. [fallback] names it when the list cannot say.
+Future<UnlockAdded> addedWallet(DeskWalletApi api, Set<String> before, String fallback) async {
+  try {
+    final added = (await api.wallets()).where((w) => !before.contains(w.id)).lastOrNull;
+    if (added != null) return UnlockAdded(added.name, id: added.id);
+  } on Object {
+    // Unlock offers the wallet opened last.
+  }
+  return UnlockAdded(fallback);
 }
 
 /// What Welcome chose for the flows after it: the network (Welcome › Advanced) and the app

@@ -677,6 +677,13 @@ class LepicDeskWallet implements DeskWalletApi {
       }
     }
     _selectedId = listed?.id;
+    if (listed != null) {
+      try {
+        await (await registry()).setLastUsed(listed.id);
+      } on Object catch (e) {
+        logWarn('desk', 'wallet list not saved: ${e.runtimeType}');
+      }
+    }
     return result;
   }
 
@@ -702,7 +709,7 @@ class LepicDeskWallet implements DeskWalletApi {
   }
 
   @override
-  Future<List<String>> createWallet({required String name, required String password}) async {
+  Future<List<String>> createWallet({String name = '', required String password}) async {
     _checkPassword(password);
     try {
       return await _make(name, const {}, (config) async {
@@ -723,7 +730,7 @@ class LepicDeskWallet implements DeskWalletApi {
   Future<bool> checkPhraseWord(String word) async => bip39Words.contains(word.trim().toLowerCase());
 
   @override
-  Future<void> restoreWallet({required String name, required String password, required List<String> phrase}) async {
+  Future<void> restoreWallet({String name = '', required String password, required List<String> phrase}) async {
     _checkPassword(password);
     final mnemonic = phrase.map((w) => w.trim().toLowerCase()).join(' ');
     if (!_service.validateMnemonic(phrase: mnemonic)) throw const DeskError('Recovery phrase not valid');
