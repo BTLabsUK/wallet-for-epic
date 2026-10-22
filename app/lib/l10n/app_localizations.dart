@@ -4982,6 +4982,24 @@ abstract class AppLocalizations {
   /// **'Network, node, epicbox server, files and logs'**
   String get settingsAdvancedOptionsSubtitle;
 
+  /// Settings section header above the status.btlabs.uk switch.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy'**
+  String get settingsSectionPrivacy;
+
+  /// Settings switch: read server health and node lists from the status.btlabs.uk monitor. Keep status.btlabs.uk as it is.
+  ///
+  /// In en, this message translates to:
+  /// **'Use status.btlabs.uk'**
+  String get settingsUseStatusSite;
+
+  /// Under the Use status.btlabs.uk switch: what it gives, and what happens when it is off.
+  ///
+  /// In en, this message translates to:
+  /// **'Server health and node lists. Off: only the servers themselves are asked.'**
+  String get settingsUseStatusSiteSubtitle;
+
   /// Payment details timeline, first step of a send: we created it and set the funds aside.
   ///
   /// In en, this message translates to:

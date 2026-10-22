@@ -18,6 +18,7 @@ import 'package:path_provider/path_provider.dart';
 
 import 'app_log.dart';
 import 'l10n.dart';
+import 'net/http.dart';
 
 /// Where releases publish `update.json`. Override with `--dart-define=WFE_UPDATE_URL=...`.
 const String updateManifestUrl = String.fromEnvironment(
@@ -371,18 +372,13 @@ class UpdateNotifier extends Notifier<UpdateState> {
     final known = state.update;
     state = UpdateState(UpdatePhase.checking, update: known);
     final url = ref.read(updateManifestUrlProvider);
-    final client = HttpClient()
-      ..connectionTimeout = const Duration(seconds: 15);
     try {
       final app = await platform.installedApp();
-      final request = await client.getUrl(url);
-      final response = await request.close().timeout(
-        const Duration(seconds: 30),
-      );
-      if (response.statusCode == HttpStatus.notFound) {
+      // A plain GET: no User-Agent, no cookies, nothing about this wallet.
+      final response = await httpGet(url, timeout: const Duration(seconds: 30));
+      if (response.status == HttpStatus.notFound) {
         // No manifest published at the feed: nothing is known about a newer version, which
         // is no error. A known update stays offered.
-        await response.drain<void>();
         if (!ref.mounted) return;
         state = known != null
             ? UpdateState(UpdatePhase.available, update: known)
@@ -394,16 +390,11 @@ class UpdateNotifier extends Notifier<UpdateState> {
               );
         return;
       }
-      if (response.statusCode != HttpStatus.ok) {
-        await response.drain<void>();
-        final code = response.statusCode;
+      if (response.status != HttpStatus.ok) {
+        final code = response.status;
         throw UpdateError((l) => l.updateServerHttpStatus(code));
       }
-      final body = await response
-          .transform(utf8.decoder)
-          .join()
-          .timeout(const Duration(seconds: 30));
-      final update = parseUpdateManifest(body, app, url);
+      final update = parseUpdateManifest(response.body, app, url);
       if (!ref.mounted) return;
       state = update == null
           ? UpdateState(quiet ? UpdatePhase.idle : UpdatePhase.upToDate)
@@ -421,8 +412,6 @@ class UpdateNotifier extends Notifier<UpdateState> {
               update: known,
               text: _describe(error),
             );
-    } finally {
-      client.close(force: true);
     }
   }
 
@@ -432,8 +421,10 @@ class UpdateNotifier extends Notifier<UpdateState> {
     final update = state.update;
     if (platform == null || update == null) return;
     state = UpdateState(UpdatePhase.downloading, update: update, progress: 0);
+    // No User-Agent: the download says nothing about this app either.
     final client = HttpClient()
-      ..connectionTimeout = const Duration(seconds: 15);
+      ..connectionTimeout = const Duration(seconds: 15)
+      ..userAgent = null;
     try {
       final dir = Directory(
         '${(await getTemporaryDirectory()).path}${Platform.pathSeparator}updates',
@@ -485,7 +476,7 @@ class UpdateNotifier extends Notifier<UpdateState> {
   static String Function(AppLocalizations l) _describe(Object error) =>
       switch (error) {
         UpdateError(:final text) => text,
-        SocketException() => (l) => l.updateServerUnreachable,
+        SocketException() || NetError() => (l) => l.updateServerUnreachable,
         TimeoutException() => (l) => l.updateServerTimeout,
         HttpException() => (l) => l.updateConnectionFailed,
         _ => (l) => l.updateCheckFailed,
