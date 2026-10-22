@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../data/http_address.dart';
 import '../../widgets/kit.dart';
 import 'tx_display.dart';
 
@@ -567,7 +568,8 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
       return 'Enter an Epicbox address.';
     }
     if (RegExp(r'^https?:', caseSensitive: false).hasMatch(a)) {
-      return RegExp(r'^https?://[^\s/]+', caseSensitive: false).hasMatch(a) ? null : 'This is not an HTTP address. It starts with http:// or https://.';
+      final problem = httpAddressProblem(a);
+      return problem == null ? null : 'This is not an HTTP address: ${problem[0].toLowerCase()}${problem.substring(1)}.';
     }
     final epicbox = RegExp(r'^es[0-9A-Za-z]{38,58}(@[\w.-]+(:\d+)?)?$').hasMatch(a);
     return epicbox ? null : 'This is not a complete Epicbox address. Copy it again from the recipient’s Receive page.';
@@ -659,7 +661,7 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
         EField(
           label: 'Address',
           help: DeskFeatures.httpDirect || DeskFeatures.tor
-              ? 'Epicbox: starts with “es”, then @ and the server, e.g. @epicbox.epiccash.com. Or an http(s) or .onion address.'
+              ? 'Epicbox: starts with “es”, then @ and the server, e.g. @epicbox.epiccash.com. Or an ${DeskFeatures.tor ? 'http(s) or .onion' : 'http(s)'} address.'
               : 'Starts with “es”, then @ and the server, e.g. @epicbox.epiccash.com.',
           error: addressError,
           child: EInput(controller: _address, focusNode: _addressFocus, mono: true, invalid: addressError != null, onChanged: (_) => setState(() {})),

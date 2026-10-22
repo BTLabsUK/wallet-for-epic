@@ -758,6 +758,7 @@ class _StatusCard extends ConsumerWidget {
     final c = context.dc;
     final ts = context.ts;
     final st = ref.watch(deskProvider.select((s) => s.status));
+    final httpPort = ref.watch(deskProvider.select((s) => s.settings.httpPort));
     final nav = ref.read(deskNavProvider.notifier);
     final rows = st == null
         ? const <_SRow>[]
@@ -771,7 +772,17 @@ class _StatusCard extends ConsumerWidget {
               mono: true,
             ),
             _SRow(EIcons.epicbox, 'Epicbox', st.epicboxHealth, st.epicbox.domain, mono: true),
-            if (DeskFeatures.httpDirect) _SRow(EIcons.http, 'Direct HTTP', st.httpListener, st.httpListener == ServiceHealth.off ? '' : 'Port 3415'),
+            if (DeskFeatures.httpDirect)
+              _SRow(
+                EIcons.http,
+                'Direct HTTP',
+                st.httpListener,
+                switch (st.httpListener) {
+                  ServiceHealth.off => '',
+                  ServiceHealth.down => st.httpProblem ?? 'Didn’t start',
+                  _ => 'Port $httpPort',
+                },
+              ),
             if (DeskFeatures.tor) _SRow(EIcons.tor, 'Tor', st.tor, st.tor == ServiceHealth.off ? '' : 'Onion service ready'),
           ];
     return Column(

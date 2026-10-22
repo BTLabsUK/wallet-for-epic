@@ -1,0 +1,144 @@
+// Direct HTTP on the mock wallet: Send › Direct asks before plain HTTP leaves this computer, and
+// Settings › Receiving turns the HTTP listener on and makes it reachable only from the guide.
+import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
+import 'package:epic_wallet/src/desktop/screens/settings/settings_http.dart';
+import 'package:epic_wallet/src/desktop/screens/settings/settings_receiving.dart';
+import 'package:epic_wallet/src/desktop/screens/transfer/send_screen.dart';
+import 'package:epic_wallet/src/desktop/theme/theme.dart';
+import 'package:epic_wallet/src/desktop/widgets/kit.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+/// The mock wallet, recording each send.
+class _Wallet extends MockDeskWallet {
+  _Wallet() : super(delay: Duration.zero);
+
+  final List<SendRequest> sent = [];
+
+  @override
+  Future<SendResult> send(SendRequest request) {
+    sent.add(request);
+    return super.send(request);
+  }
+}
+
+void main() {
+  late _Wallet wallet;
+  late ProviderContainer container;
+
+  setUp(() {
+    wallet = _Wallet();
+    container = ProviderContainer(overrides: [deskApiProvider.overrideWithValue(wallet)]);
+  });
+
+  tearDown(() => container.dispose());
+
+  Future<void> show(WidgetTester tester, Widget screen) async {
+    tester.view.physicalSize = const Size(1280, 1000);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await tester.runAsync(() => container.read(deskProvider.notifier).refresh());
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: MaterialApp(theme: buildDeskTheme(Brightness.dark), home: Scaffold(body: screen)),
+      ),
+    );
+    await tester.pumpAndSettle();
+  }
+
+  Future<void> sendTo(WidgetTester tester, String to) async {
+    await show(tester, SendScreen(arg: SendArgs(method: TxMethod.http, recipient: to, amount: '1')));
+    await tester.tap(find.text('Review send'));
+    await tester.pumpAndSettle();
+  }
+
+  group('Send › Direct HTTP', () {
+    testWidgets('plain http to another computer asks first, then sends with consent', (tester) async {
+      await sendTo(tester, 'http://203.0.113.5:3415');
+      expect(find.text('Not encrypted. Send anyway?'), findsOneWidget);
+      await tester.tap(find.text('Send anyway'));
+      await tester.pumpAndSettle();
+      expect(find.text('Check and send'), findsOneWidget);
+      await tester.tap(find.text('Send 1 EPIC'));
+      await tester.pumpAndSettle();
+      expect(wallet.sent.single.method, TxMethod.http);
+      expect(wallet.sent.single.allowPlainHttp, isTrue);
+    });
+
+    testWidgets('Cancel on the question sends nothing', (tester) async {
+      await sendTo(tester, 'HTTP://203.0.113.5:3415');
+      await tester.tap(find.text('Cancel'));
+      await tester.pumpAndSettle();
+      expect(find.text('Check and send'), findsNothing);
+      expect(wallet.sent, isEmpty);
+    });
+
+    testWidgets('https and this computer go straight to the review', (tester) async {
+      await sendTo(tester, 'https://wallet.example.org');
+      expect(find.text('Not encrypted. Send anyway?'), findsNothing);
+      expect(find.text('Check and send'), findsOneWidget);
+    });
+
+    testWidgets('host:port without a scheme is refused with a reason', (tester) async {
+      await sendTo(tester, '203.0.113.5:3415');
+      expect(find.text('Start with https:// or http://.'), findsOneWidget);
+      expect(find.text('Check and send'), findsNothing);
+    });
+  });
+
+  group('Settings › Receiving', () {
+    Finder httpSwitch() => find.descendant(of: find.byType(HttpListenerRow), matching: find.byType(ESwitch));
+
+    testWidgets('the HTTP listener is off by default and turns on local only', (tester) async {
+      await show(tester, const SettingsReceivingScreen());
+      expect(find.text('Off · most payments come via Epicbox'), findsOneWidget);
+      expect(find.text('Start with the wallet'), findsOneWidget);
+      await tester.tap(httpSwitch());
+      await tester.pumpAndSettle();
+      expect(find.text('On · port 3415, this computer only'), findsOneWidget);
+      expect(find.text('http://127.0.0.1:3415'), findsOneWidget);
+    });
+
+    testWidgets('From the internet only through the guide', (tester) async {
+      await show(tester, const SettingsReceivingScreen());
+      await tester.tap(httpSwitch());
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('From the internet'));
+      await tester.pumpAndSettle();
+      expect(find.byType(InternetGuide), findsOneWidget);
+      // Close leaves it local only.
+      await tester.tap(find.widgetWithText(EButton, 'Close'));
+      await tester.pumpAndSettle();
+      expect(container.read(deskProvider).settings.publicMode, isFalse);
+
+      await tester.tap(find.text('From the internet'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(EButton, 'Receive from the internet'));
+      await tester.pumpAndSettle();
+      expect(container.read(deskProvider).settings.publicMode, isTrue);
+      expect(find.text('On · port 3415, from the internet'), findsOneWidget);
+      expect(find.textContaining('must forward TCP 3415'), findsOneWidget);
+    });
+
+    testWidgets('a port outside 1 to 65535 is refused', (tester) async {
+      await show(tester, const SettingsReceivingScreen());
+      final field = find.descendant(of: find.byType(HttpListenerRow), matching: find.byType(EditableText));
+      await tester.enterText(field, '70000');
+      await tester.testTextInput.receiveAction(TextInputAction.done);
+      await tester.pumpAndSettle();
+      expect(find.text('Port must be 1 to 65535'), findsOneWidget);
+      await tester.enterText(field, '3420');
+      await tester.testTextInput.receiveAction(TextInputAction.done);
+      await tester.pumpAndSettle();
+      expect(container.read(deskProvider).settings.httpPort, 3420);
+    });
+
+    testWidgets('the tour’s port-in-use state names the port', (tester) async {
+      await show(tester, const SettingsReceivingScreen(arg: ReceivingDemo.httpFailed));
+      expect(find.textContaining('Port 3415 in use'), findsOneWidget);
+      expect(find.text('Try again'), findsOneWidget);
+    });
+  });
+}

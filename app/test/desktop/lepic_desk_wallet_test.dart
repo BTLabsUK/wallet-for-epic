@@ -303,11 +303,10 @@ void main() {
     });
 
     test('hidden features throw instead of faking', () async {
-      expect(() => wallet.httpAddress(), throwsUnsupportedError);
       expect(() => wallet.torAddress(), throwsUnsupportedError);
       expect(() => wallet.exportProof(1), throwsUnsupportedError);
       expect(() => wallet.changePassword(_password, 'another-pass'), throwsUnsupportedError);
-      expect(() => wallet.send(const SendRequest(method: TxMethod.http, amount: 1, to: 'http://x')), throwsUnsupportedError);
+      expect(() => wallet.send(const SendRequest(method: TxMethod.tor, amount: 1, to: 'http://x.onion')), throwsUnsupportedError);
     });
   });
 
@@ -886,23 +885,23 @@ void main() {
       await done(tester);
     });
 
-    testWidgets('receiving has no HTTP listener or Tor', (tester) async {
+    testWidgets('receiving has the HTTP listener, no Tor', (tester) async {
       await pump(tester, DeskRoute.settingsReceiving);
-      expect(find.text('HTTP listener'), findsNothing);
+      expect(find.text('HTTP listener'), findsOneWidget);
       expect(find.text('Tor'), findsNothing);
       await done(tester);
     });
 
-    testWidgets('send has no Direct segment or Dandelion++', (tester) async {
+    testWidgets('send has Direct (HTTP only), no Dandelion++', (tester) async {
       await pump(tester, DeskRoute.send);
-      expect(find.text('Direct'), findsNothing);
+      expect(find.text('Direct'), findsOneWidget);
       expect(find.textContaining('Dandelion'), findsNothing);
       await done(tester);
     });
 
-    testWidgets('receive has no HTTP or Tor address', (tester) async {
+    testWidgets('receive has the HTTP address, no Tor address', (tester) async {
       await pump(tester, DeskRoute.receive);
-      expect(find.text('HTTP address'), findsNothing);
+      expect(find.text('HTTP address'), findsOneWidget);
       expect(find.text('Tor address'), findsNothing);
       await done(tester);
     });

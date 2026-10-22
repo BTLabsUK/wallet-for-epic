@@ -5,6 +5,7 @@ import '../../widgets/kit.dart';
 import 'combo.dart';
 import 'prefs.dart';
 import 'settings_frame.dart';
+import 'settings_http.dart';
 
 /// Start states of Settings › Receiving.
 enum ReceivingDemo { comboOpen, torOn, epicboxDown, httpOn, httpFailed }
@@ -22,16 +23,6 @@ String epicboxLine(ServiceHealth h, {required bool onStart}) => switch (h) {
   ServiceHealth.down => 'payments wait until it is back',
   ServiceHealth.off => onStart ? 'starts on unlock' : 'start it on the Receive page',
   _ => 'connecting to the server',
-};
-
-/// The HTTP listener as shown: a run in progress or a failure wins, else the saved switch.
-HttpRun httpShown(SettingsPrefs p, DeskSettings s) =>
-    p.http == HttpRun.busy || p.http == HttpRun.failed ? p.http : (s.directHttp ? HttpRun.on : HttpRun.off);
-
-String httpFailText(HttpFail? f) => switch (f) {
-  HttpFail.portInUse => 'Port 3415 is in use by another program.',
-  HttpFail.node => 'The node is not answering.',
-  _ => 'The listener stopped with an error.',
 };
 
 class SettingsReceivingScreen extends ConsumerStatefulWidget {
@@ -54,14 +45,9 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
     final arg = widget.arg;
     Future.microtask(() {
       final n = ref.read(deskProvider.notifier);
-      final p = ref.read(settingsPrefsProvider.notifier);
       final s = ref.read(deskProvider).settings;
       if (arg == ReceivingDemo.torOn) n.saveSettings(s.copyWith(tor: true));
-      if (arg == ReceivingDemo.httpOn) {
-        p.set(ref.read(settingsPrefsProvider).copyWith(http: HttpRun.on, clearFail: true));
-        n.saveSettings(s.copyWith(directHttp: true));
-      }
-      if (arg == ReceivingDemo.httpFailed) p.set(ref.read(settingsPrefsProvider).copyWith(http: HttpRun.failed, httpFail: HttpFail.portInUse));
+      if (arg == ReceivingDemo.httpOn) n.setHttp(true);
     });
   }
 
@@ -89,7 +75,6 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
     final boxHealth = widget.arg == ReceivingDemo.epicboxDown ? ServiceHealth.down : status.epicboxHealth;
     final healthy = boxes.where((b) => b.health == ServiceHealth.ok && b.domain != box.domain);
     final suggest = healthy.isEmpty ? null : healthy.first;
-    final http = httpShown(prefs, s);
     String? tip(EpicboxServer b) => b.latencyMs == null ? null : 'Response time ${b.latencyMs} ms. Measured from the status site.';
 
     final rows = <Widget>[
@@ -156,64 +141,7 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
           onChanged: (v) => p.set(prefs.copyWith(epicboxOnStart: v)),
         ),
       ),
-      if (DeskFeatures.httpDirect)
-      ESetRow(
-        title: 'HTTP listener',
-        text: 'For payments to the HTTP address. Off until needed.',
-        control: http == HttpRun.busy
-            ? Semantics(label: 'Switching the HTTP listener', child: ESpinner(size: Ctl.iconLg))
-            : ESwitch(
-                value: http == HttpRun.on,
-                semanticLabel: 'HTTP listener',
-                onChanged: (v) => p.setHttp(v, fail: widget.arg == ReceivingDemo.httpFailed ? HttpFail.portInUse : null),
-              ),
-        below: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Semantics(
-              liveRegion: true,
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: EdgeInsets.only(top: 6.u),
-                    child: EStatusDot(switch (http) {
-                      HttpRun.on => ETone.ok,
-                      HttpRun.failed => ETone.risk,
-                      HttpRun.busy => ETone.warn,
-                      HttpRun.off => ETone.neutral,
-                    }),
-                  ),
-                  SizedBox(width: Sp.x2),
-                  Expanded(
-                    child: Text.rich(
-                      TextSpan(style: ts.small, children: [
-                        if (http == HttpRun.failed) ...[
-                          TextSpan(text: 'The HTTP listener didn’t start. ', style: ts.small.copyWith(color: c.risk, fontWeight: FontWeight.w600)),
-                          TextSpan(text: httpFailText(prefs.httpFail)),
-                        ] else
-                          TextSpan(
-                            text: switch (http) {
-                              HttpRun.on => 'On · port 3415, this computer only',
-                              HttpRun.busy => 'Switching…',
-                              _ => 'Off · most payments come via Epicbox',
-                            },
-                          ),
-                      ]),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(height: Sp.x2),
-            ECheckbox(
-              value: prefs.httpAutostart,
-              label: 'Start with the wallet',
-              onChanged: (v) => p.set(prefs.copyWith(httpAutostart: v)),
-            ),
-          ],
-        ),
-      ),
+      if (DeskFeatures.httpDirect) HttpListenerRow(demoFailed: widget.arg == ReceivingDemo.httpFailed),
     ];
 
     return SettingsFrame(

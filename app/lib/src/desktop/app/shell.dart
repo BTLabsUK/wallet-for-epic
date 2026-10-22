@@ -9,7 +9,7 @@ import '../../ui/theme/brand.dart' show EpicMark;
 import '../screens/settings/prefs.dart';
 import '../screens/settings/settings_frame.dart' show epicboxWord, groupDigits, nodeWord;
 import '../screens/settings/settings_node.dart' show hostOf;
-import '../screens/settings/settings_receiving.dart' show httpShown;
+import '../screens/settings/settings_http.dart' show httpRun;
 import '../widgets/kit.dart';
 import 'desk_app.dart' show deskNavigatorKey;
 import 'screens.dart';
@@ -410,11 +410,12 @@ class ServiceRows extends ConsumerWidget {
     ];
 
     final eb = status.epicboxHealth;
-    final http = httpShown(prefs, settings);
+    final http = httpRun(status);
     final ebLine = eb == ServiceHealth.off ? 'Epicbox off' : 'Epicbox · ${status.epicbox.domain} · ${epicboxWord(eb)}';
     final httpLine = switch (http) {
       HttpRun.on => 'HTTP listener on',
-      HttpRun.failed => 'HTTP listener didn’t start',
+      HttpRun.busy => 'HTTP listener starting',
+      HttpRun.failed => status.httpProblem == null ? 'HTTP listener didn’t start' : 'HTTP listener: ${status.httpProblem}',
       _ => 'HTTP listener off',
     };
     var rcvHealth = eb;

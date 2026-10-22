@@ -6,6 +6,7 @@ library;
 import 'dart:math';
 
 import 'api.dart';
+import 'http_address.dart';
 import 'models.dart';
 
 const _epicboxAddr = 'esWnT8kBf3yXqPZ2r9cLhVd7JmK4uA6gYsN1pQeRtC5vD8xHwF2b@epicbox.epiccash.com';
@@ -27,6 +28,7 @@ class MockDeskWallet implements DeskWalletApi {
   String _node = 'https://node.epiccash.com';
   String _epicbox = 'epicbox.epiccash.com';
   bool _listening = true;
+  bool _http = false;
   int _nextId = 40;
 
   final List<Contact> _contacts = [
@@ -270,7 +272,7 @@ class MockDeskWallet implements DeskWalletApi {
       nodeHeight: 2914414,
       epicbox: box,
       epicboxHealth: _listening ? box.health : ServiceHealth.off,
-      httpListener: _listening && _settings.directHttp ? ServiceHealth.ok : ServiceHealth.off,
+      httpListener: _http ? ServiceHealth.ok : ServiceHealth.off,
       tor: _settings.tor ? ServiceHealth.ok : ServiceHealth.off,
       lastUpdate: _ago(minutes: 1),
     );
@@ -289,7 +291,7 @@ class MockDeskWallet implements DeskWalletApi {
   Future<String> epicboxAddress() async => _epicboxAddr;
 
   @override
-  Future<String> httpAddress() async => 'http://203.0.113.42:3415';
+  Future<String> httpAddress() async => !_http ? '' : 'http://${_settings.publicMode ? '10.0.1.24' : '127.0.0.1'}:${_settings.httpPort}';
 
   @override
   Future<String> torAddress() async => 'http://wfe7q3k2mz9xr4tbv6ld5yhnpjc8sgo2a1ue6iwq4fk7tr3mxz.onion';
@@ -312,6 +314,11 @@ class MockDeskWallet implements DeskWalletApi {
     await _wait(4);
     if (r.to != null && r.to!.contains('offline')) {
       return const SendFailed('The recipient did not answer. Nothing was sent.');
+    }
+    if (r.method == TxMethod.http) {
+      final problem = httpAddressProblem(r.to ?? '');
+      if (problem != null) return SendFailed(problem);
+      if (plainHttpNeedsConsent(r.to!) && !r.allowPlainHttp) return const SendFailed('Plain HTTP not confirmed');
     }
     final tx = Tx(
       id: _nextId++,
@@ -404,6 +411,13 @@ class MockDeskWallet implements DeskWalletApi {
   Future<void> setListening(bool on) async {
     await _wait(2);
     _listening = on;
+    _http = on && _settings.directHttp;
+  }
+
+  @override
+  Future<void> setHttpListening(bool on) async {
+    await _wait();
+    _http = on;
   }
 
   static const _scanLog = [

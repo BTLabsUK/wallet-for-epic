@@ -34,6 +34,7 @@ import '../../wallet_registry.dart' as reg;
 import '../../wallet_service.dart' as core;
 import 'api.dart';
 import 'desk_store.dart';
+import 'http_address.dart';
 import 'models.dart';
 
 /// Public nodes offered in Settings › Node, the default first.
@@ -63,6 +64,8 @@ String deskErrorText(Object error) {
     core.WalletErrorKind.notEnoughFunds => 'Not enough funds',
     core.WalletErrorKind.invalidSlate => 'Not a transaction file for this wallet',
     core.WalletErrorKind.transportFailed => 'Epicbox server not reachable',
+    core.WalletErrorKind.httpUrlInvalid => 'Not an http(s) address',
+    core.WalletErrorKind.plainHttpNotAllowed => 'Plain HTTP not confirmed',
     core.WalletErrorKind.chainBusy || core.WalletErrorKind.walletBusy => 'Wallet busy. Try again in a moment.',
     core.WalletErrorKind.damagedDatabase => 'Wallet database damaged, rebuilding',
     core.WalletErrorKind.paymentExpired => detail.isEmpty ? 'Payment expired' : detail,
@@ -158,6 +161,15 @@ class LepicDeskWallet implements DeskWalletApi {
   final Map<String, NodeServer> _checked = {};
 
   StreamSubscription<core.ListenerEvent>? _listener;
+
+  /// The HTTP listener's events while it runs or starts; its health and, when down, why.
+  StreamSubscription<core.HttpListenerEvent>? _http;
+  ServiceHealth _httpHealth = ServiceHealth.off;
+  String? _httpProblem;
+
+  /// The port and reach the running HTTP listener started with.
+  int? _httpPort;
+  core.HttpExposure? _httpExposure;
   Timer? _poll;
   Future<void>? _syncing;
   bool _syncAgain = false;
@@ -475,6 +487,7 @@ class LepicDeskWallet implements DeskWalletApi {
     _poll?.cancel();
     _poll = null;
     await _stopListener();
+    await _stopHttp();
     final session = _session;
     _session = null;
     _password = null;
@@ -504,8 +517,10 @@ class LepicDeskWallet implements DeskWalletApi {
     if (_session == null || password == null || old == null) return save();
     final generation = _generation;
     final listening = _listener != null;
+    final http = _http != null;
     final config = await _makeConfig(nodeUrl: nodeUrl, relay: relay);
     await _stopListener();
+    await _stopHttp();
     _session?.dispose();
     _session = null;
     // A lock() while opening wins: the new session closes at once.
@@ -532,16 +547,17 @@ class LepicDeskWallet implements DeskWalletApi {
         await lock();
         throw DeskError('Wallet closed: ${deskErrorText(e2)}. Unlock again.', locked: true);
       }
-      await _afterReopen(listening);
+      await _afterReopen(listening, http);
       throw DeskError('Not changed: ${deskErrorText(e)}');
     }
     await save();
-    await _afterReopen(listening);
+    await _afterReopen(listening, http);
   }
 
-  Future<void> _afterReopen(bool listening) async {
+  Future<void> _afterReopen(bool listening, bool http) async {
     _nodeHealth = ServiceHealth.checking;
     if (listening) await setListening(true);
+    if (http) await setHttpListening(true);
     unawaited(_checkTip());
     unawaited(sync());
   }
@@ -990,7 +1006,8 @@ class LepicDeskWallet implements DeskWalletApi {
       nodeHeight: _tip,
       epicbox: box,
       epicboxHealth: _epicboxHealth,
-      httpListener: ServiceHealth.off,
+      httpListener: _httpHealth,
+      httpProblem: _httpHealth == ServiceHealth.down ? _httpProblem : null,
       tor: ServiceHealth.off,
       syncProgress: _syncProgress,
       lastUpdate: _lastUpdate,
@@ -1061,7 +1078,13 @@ class LepicDeskWallet implements DeskWalletApi {
   Future<String> epicboxAddress() => _open.epicboxAddress();
 
   @override
-  Future<String> httpAddress() => throw UnsupportedError('HTTP receive (DeskFeatures.httpDirect)');
+  Future<String> httpAddress() async {
+    final port = _httpPort;
+    if (_httpHealth != ServiceHealth.ok || port == null) return '';
+    if (_httpExposure != core.HttpExposure.internet) return 'http://127.0.0.1:$port';
+    final lan = await lanAddress();
+    return lan == null ? '' : 'http://$lan:$port';
+  }
 
   @override
   Future<String> torAddress() => throw UnsupportedError('Tor (DeskFeatures.tor)');
@@ -1121,12 +1144,32 @@ class LepicDeskWallet implements DeskWalletApi {
           final tx = _txs().where((t) => t.slateId == slate.slateId).firstOrNull ??
               Tx(id: -1, slateId: slate.slateId, direction: TxDirection.sent, state: TxState.waitingRecipient, method: TxMethod.file, amount: amount, fee: 0, created: DateTime.now(), counterparty: file.path);
           return SendFileReady(tx, file.path);
-        case TxMethod.http || TxMethod.tor:
-          throw UnsupportedError('direct send (DeskFeatures.httpDirect, DeskFeatures.tor)');
+        case TxMethod.http:
+          final to = (r.to ?? '').trim();
+          final problem = httpAddressProblem(to);
+          if (problem != null) return SendFailed(problem);
+          // Send asks before plain HTTP leaves this computer; LEPIC refuses it otherwise.
+          if (plainHttpNeedsConsent(to) && !r.allowPlainHttp) return const SendFailed('Plain HTTP not confirmed');
+          final sent = await session.sendHttp(
+            amount: BigInt.from(amount),
+            minimumConfirmations: _minConf,
+            url: to,
+            allowPlainHttp: r.allowPlainHttp && plainHttpNeedsConsent(to),
+            message: message,
+          );
+          await _reload();
+          final tx = _txs().where((t) => t.id == sent.txId).firstOrNull ??
+              Tx(id: sent.txId, slateId: sent.slateId, direction: TxDirection.sent, state: TxState.posted, method: TxMethod.http, amount: amount, fee: 0, created: DateTime.now(), counterparty: to);
+          if (!sent.posted) return const SendFailed('Signed by both wallets, but the node did not take it yet. It waits in Activity.', inActivity: true);
+          return SendDone(tx);
+        case TxMethod.tor:
+          throw UnsupportedError('Tor send (DeskFeatures.tor)');
       }
     } on core.WalletError catch (e) {
       await _reload();
       return switch (e.kind) {
+        core.WalletErrorKind.transportFailed when r.method == TxMethod.http =>
+          const SendFailed('The recipient’s wallet did not answer. The payment waits in Activity; cancel it there to unlock the funds.', inActivity: true),
         core.WalletErrorKind.transportFailed => const SendFailed('Not delivered. The payment waits in Activity; cancel it there to unlock the funds.', inActivity: true),
         _ => SendFailed(deskErrorText(e)),
       };
@@ -1227,8 +1270,18 @@ class LepicDeskWallet implements DeskWalletApi {
     if (favourites.remove(id)) await _store.writeJson(_favouritesKey, favourites.toList());
   }
 
+  /// A change of the HTTP listener's port or reach restarts it when it runs or failed; the
+  /// switch itself goes through [setHttpListening].
   @override
-  Future<void> saveSettings(DeskSettings settings) async => _settings = settings;
+  Future<void> saveSettings(DeskSettings settings) async {
+    final old = _settings;
+    _settings = settings;
+    final moved = settings.httpPort != old.httpPort || settings.publicMode != old.publicMode;
+    if (moved && _session != null && (_http != null || _httpHealth == ServiceHealth.down)) {
+      await _stopHttp();
+      if (settings.directHttp) await setHttpListening(true);
+    }
+  }
 
   @override
   Future<void> useNode(String url) async {
@@ -1348,7 +1401,11 @@ class LepicDeskWallet implements DeskWalletApi {
 
   @override
   Future<void> setListening(bool on) async {
-    if (!on) return _stopListener();
+    if (!on) {
+      await _stopListener();
+      return _stopHttp();
+    }
+    if (_settings.directHttp) await setHttpListening(true);
     if (_listener != null) return;
     final session = _open;
     _epicboxHealth = ServiceHealth.checking;
@@ -1377,6 +1434,83 @@ class LepicDeskWallet implements DeskWalletApi {
         _changed();
       },
     );
+  }
+
+  @override
+  Future<void> setHttpListening(bool on) async {
+    if (!on) return _stopHttp();
+    if (_http != null) return;
+    final session = _open;
+    final port = _settings.httpPort;
+    // From the internet only after the user chose it in the guide (DeskSettings.publicMode).
+    final exposure = _settings.publicMode ? core.HttpExposure.internet : core.HttpExposure.localOnly;
+    _httpHealth = ServiceHealth.checking;
+    _httpProblem = null;
+    _httpPort = port;
+    _httpExposure = exposure;
+    _changed();
+    logInfo('desk', 'http listener start ${exposure.name}');
+    late final StreamSubscription<core.HttpListenerEvent> sub;
+    void ended(ServiceHealth health, String? problem) {
+      if (_http != sub) return;
+      _http = null;
+      _httpHealth = health;
+      _httpProblem = problem;
+    }
+
+    sub = session.startHttpListener(exposure: exposure, port: port).listen(
+      (e) {
+        if (_http != sub) return;
+        switch (e.kind) {
+          case core.HttpListenerEventKind.started:
+            _httpHealth = ServiceHealth.ok;
+            _httpPort = e.port ?? port;
+          case core.HttpListenerEventKind.portInUse:
+            ended(ServiceHealth.down, 'Port ${e.port ?? port} in use');
+          case core.HttpListenerEventKind.bindFailed:
+            ended(ServiceHealth.down, 'Port ${e.port ?? port} not available');
+          case core.HttpListenerEventKind.received:
+            unawaited(_reload());
+          case core.HttpListenerEventKind.refused:
+            // Never the sender or its address: only that a payment was refused, and why.
+            logInfo('desk', 'http listener refused: ${e.refusal?.name ?? '?'}');
+          case core.HttpListenerEventKind.stopped:
+            ended(ServiceHealth.off, null);
+        }
+        _changed();
+      },
+      onError: (Object e) {
+        logWarn('desk', 'http listener ended: ${e is core.WalletError ? e.kind.name : e.runtimeType}');
+        ended(ServiceHealth.down, 'Stopped with an error');
+        _changed();
+      },
+      onDone: () {
+        // A second start gets a stream that ends at once; a stop ends it after `stopped`.
+        if (_http != sub) return;
+        ended(_httpHealth == ServiceHealth.ok || _httpHealth == ServiceHealth.checking ? ServiceHealth.off : _httpHealth, _httpProblem);
+        _changed();
+      },
+    );
+    _http = sub;
+  }
+
+  Future<void> _stopHttp() async {
+    final sub = _http;
+    _http = null;
+    final was = _httpHealth;
+    _httpHealth = ServiceHealth.off;
+    _httpProblem = null;
+    if (sub == null) {
+      if (was != ServiceHealth.off) _changed();
+      return;
+    }
+    try {
+      await _session?.stopHttpListener();
+    } on core.WalletError catch (e) {
+      logWarn('desk', 'stop http listener: ${e.kind.name}');
+    }
+    await sub.cancel();
+    _changed();
   }
 
   Future<void> _stopListener() async {

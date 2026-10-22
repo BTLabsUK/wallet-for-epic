@@ -38,8 +38,7 @@ final List<DeskShot> transferShots = [
     arg: const ReceiveArgs(epicboxDown: true),
     // 17d turned HTTP on: put it back for the shots after.
     prepare: (c, _) async {
-      final n = c.read(deskProvider.notifier);
-      await n.saveSettings(c.read(deskProvider).settings.copyWith(directHttp: false));
+      await c.read(deskProvider.notifier).setHttp(false);
     },
   ),
   const DeskShot(id: '19-import', title: 'Sign a transaction file', route: DeskRoute.importTx),

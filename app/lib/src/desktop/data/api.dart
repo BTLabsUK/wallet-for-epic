@@ -74,6 +74,9 @@ abstract interface class DeskWalletApi {
   Future<List<EpicboxServer>> epicboxes();
   Future<DeskSettings> settings();
   Future<String> epicboxAddress();
+  /// The address senders use for the running HTTP listener: `http://127.0.0.1:<port>` when
+  /// Local only, `http://<this computer's LAN address>:<port>` when From the internet (the
+  /// router forwards the port to it); empty while it is off. Only when [DeskFeatures.httpDirect].
   Future<String> httpAddress();
   Future<String> torAddress();
 
@@ -99,8 +102,13 @@ abstract interface class DeskWalletApi {
   Future<void> addNode(NodeServer node);
   Future<void> useEpicbox(String domain);
 
-  /// Starts or stops the receive listener (Epicbox, and HTTP when it is on).
+  /// Starts or stops the receive listener (Epicbox, and HTTP when [DeskSettings.directHttp]).
   Future<void> setListening(bool on);
+
+  /// Starts or stops the HTTP listener alone, on [DeskSettings.httpPort], reachable as
+  /// [DeskSettings.publicMode] says. A start that fails shows in [ServiceStatus.httpProblem].
+  /// Only when [DeskFeatures.httpDirect].
+  Future<void> setHttpListening(bool on);
   /// Scans the chain again, with progress; the stream ends when the scan does.
   Stream<ScanStep> rescan();
 

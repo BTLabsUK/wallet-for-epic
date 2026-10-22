@@ -14,11 +14,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/desk_store.dart';
 import '../../widgets/kit.dart';
 
-/// The HTTP listener: off, starting or stopping, running, or failed to start.
+/// The HTTP listener: off, starting or stopping, running, or failed to start
+/// (`settings_http.dart` reads it from the status).
 enum HttpRun { off, busy, on, failed }
-
-/// Why the HTTP listener did not start.
-enum HttpFail { portInUse, node, error }
 
 /// The built-in node's address in the node field.
 const String builtinNode = 'internal';
@@ -43,8 +41,6 @@ class SettingsPrefs {
     this.nodeBackground = false,
     this.builtin = false,
     this.typedNode,
-    this.http = HttpRun.off,
-    this.httpFail,
     this.nodeLabels = const {},
     this.removedNodes = const {},
     this.walletLabel,
@@ -61,8 +57,6 @@ class SettingsPrefs {
 
   /// A remote node used by address that is in no list (the mock's status knows only listed ones).
   final NodeServer? typedNode;
-  final HttpRun http;
-  final HttpFail? httpFail;
 
   /// My nodes: address → label (empty = none).
   final Map<String, String> nodeLabels;
@@ -109,9 +103,6 @@ class SettingsPrefs {
     bool? builtin,
     NodeServer? typedNode,
     bool clearTyped = false,
-    HttpRun? http,
-    HttpFail? httpFail,
-    bool clearFail = false,
     Map<String, String>? nodeLabels,
     Set<String>? removedNodes,
     String? walletLabel,
@@ -123,8 +114,6 @@ class SettingsPrefs {
     nodeBackground: nodeBackground ?? this.nodeBackground,
     builtin: builtin ?? this.builtin,
     typedNode: clearTyped ? null : (typedNode ?? this.typedNode),
-    http: http ?? this.http,
-    httpFail: clearFail ? null : (httpFail ?? this.httpFail),
     nodeLabels: nodeLabels ?? this.nodeLabels,
     removedNodes: removedNodes ?? this.removedNodes,
     walletLabel: walletLabel ?? this.walletLabel,
@@ -148,20 +137,6 @@ class SettingsPrefsController extends Notifier<SettingsPrefs> {
   }
 
   void set(SettingsPrefs p) => state = p;
-
-  /// Starts or stops the HTTP listener (the mock takes a moment). [fail] makes the start fail.
-  Future<void> setHttp(bool on, {HttpFail? fail}) async {
-    state = state.copyWith(http: HttpRun.busy, clearFail: true);
-    await Future<void>.delayed(const Duration(milliseconds: 600));
-    final desk = ref.read(deskProvider.notifier);
-    final s = ref.read(deskProvider).settings;
-    if (on && fail != null) {
-      state = state.copyWith(http: HttpRun.failed, httpFail: fail);
-      return;
-    }
-    state = state.copyWith(http: on ? HttpRun.on : HttpRun.off);
-    await desk.saveSettings(s.copyWith(directHttp: on));
-  }
 
   void label(String address, String label) => state = state.copyWith(nodeLabels: {...state.nodeLabels, address: label});
 

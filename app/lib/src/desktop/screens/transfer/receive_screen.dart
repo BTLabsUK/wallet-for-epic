@@ -21,8 +21,6 @@ class ReceiveArgs {
 
 enum _Qr { epic, http }
 
-const _port = 3415;
-
 class ReceiveScreen extends ConsumerStatefulWidget {
   const ReceiveScreen({super.key, this.arg});
 
@@ -39,7 +37,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
   _Qr _qr = _Qr.epic;
   bool _listenBusy = false;
   bool _httpBusy = false;
-  // The HTTP listener did not start (a port another program holds).
+  // The tour's "port in use" state; a real failure comes with the status.
   bool _httpFailed = false;
 
   @override
@@ -49,17 +47,15 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
     _args = a is ReceiveArgs ? a : const ReceiveArgs();
     _httpFailed = _args.httpFailed;
     final api = ref.read(deskApiProvider);
-    if (DeskFeatures.httpDirect) unawaited(api.httpAddress().then((v) => mounted ? setState(() => _http = v) : null));
     if (DeskFeatures.tor) unawaited(api.torAddress().then((v) => mounted ? setState(() => _tor = v) : null));
     final n = ref.read(deskProvider.notifier);
-    final settings = ref.read(deskProvider).settings;
     if (_args.stopped) {
       Future.microtask(() => n.setListening(false));
     } else if (_args.httpFailed || _args.qrHttp || _args.epicboxDown) {
       // The HTTP row needs the listener running (an earlier tour shot may have stopped it).
       Future.microtask(() async {
         await n.setListening(true);
-        if (_args.qrHttp) await n.saveSettings(settings.copyWith(directHttp: true));
+        if (_args.qrHttp) await n.setHttp(true);
       });
     }
     if (_args.qrHttp) _qr = _Qr.http;
@@ -85,18 +81,21 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
   Future<void> _setHttp(bool on) async {
     setState(() => _httpBusy = true);
     try {
-      final n = ref.read(deskProvider.notifier);
-      if (on && !_listening(ref.read(deskProvider).status)) await n.setListening(true);
-      await n.saveSettings(ref.read(deskProvider).settings.copyWith(directHttp: on));
+      await ref.read(deskProvider.notifier).setHttp(on);
       if (!mounted) return;
       setState(() {
         _httpFailed = false;
         if (!on && _qr == _Qr.http) _qr = _Qr.epic;
       });
-      if (on) showEToast(context, 'HTTP listener started');
     } finally {
       if (mounted) setState(() => _httpBusy = false);
     }
+  }
+
+  /// The HTTP address follows the listener: read again whenever it runs.
+  Future<void> _readHttp() async {
+    final a = await ref.read(deskApiProvider).httpAddress();
+    if (mounted && a != _http) setState(() => _http = a);
   }
 
   void _copy(String text) {
@@ -112,6 +111,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
     final c = context.dc;
     final status = st.status;
     final listening = _listening(status);
+    if (DeskFeatures.httpDirect && status?.httpListener == ServiceHealth.ok) unawaited(_readHttp());
     return EPage(
       title: 'Receive',
       width: EPageWidth.mid,
@@ -229,7 +229,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
       ServiceHealth.down => (EIcons.alert, c.warn, '$domain is not answering. Payments wait on the relay.'),
       ServiceHealth.off => (EIcons.alert, c.warn, httpOn ? 'The listener is on, but Epicbox is not running.' : 'Epicbox is not running.'),
     };
-    final qrData = _qr == _Qr.http && _http != null && httpOn ? _http! : addr;
+    final qrData = _qr == _Qr.http && _http != null && _http!.isNotEmpty && httpOn ? _http! : addr;
     final qrSize = 184.u;
     final Widget qr = qrData == null
         ? SizedBox(width: qrSize, height: qrSize)
@@ -313,12 +313,14 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
     final ts = context.ts;
     final c = context.dc;
     final httpOn = !_httpFailed && status?.httpListener == ServiceHealth.ok;
+    final failed = _httpFailed || status?.httpListener == ServiceHealth.down;
+    final port = st.settings.httpPort;
     final torOn = st.settings.tor && status?.tor == ServiceHealth.ok;
-    final http = _http;
+    final http = httpOn && _http != null && _http!.isNotEmpty ? _http : null;
     final Widget httpLine;
     if (status == null) {
       httpLine = const Align(alignment: Alignment.centerLeft, child: ESpinner());
-    } else if (_httpFailed) {
+    } else if (failed) {
       httpLine = Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -329,7 +331,11 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
               TextSpan(
                 children: [
                   TextSpan(text: 'HTTP is not receiving. ', style: ts.small.copyWith(fontWeight: FontWeight.w600, color: c.text)),
-                  const TextSpan(text: 'Port $_port is used by another program. Close that program, then try again.'),
+                  TextSpan(
+                    text: _httpFailed || status.httpProblem == 'Port $port in use'
+                        ? 'Port $port is used by another program. Close that program or pick another port, then try again.'
+                        : '${status.httpProblem ?? 'It stopped'}. Try again.',
+                  ),
                 ],
               ),
               style: ts.small,
@@ -342,7 +348,18 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
         children: [
           EStatusDot(httpOn ? ETone.ok : ETone.neutral),
           SizedBox(width: Sp.x2),
-          Expanded(child: Text(httpOn ? 'On, port $_port. This computer only (127.0.0.1).' : 'Off.', style: ts.small)),
+          Expanded(
+            child: Text(
+              switch (status.httpListener) {
+                ServiceHealth.ok => st.settings.publicMode
+                    ? 'On, port $port. From the internet once the router forwards the port.'
+                    : 'On, port $port. This computer only (127.0.0.1).',
+                ServiceHealth.checking => 'Starting…',
+                _ => 'Off.',
+              },
+              style: ts.small,
+            ),
+          ),
         ],
       );
     }
@@ -355,7 +372,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
           below: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text(http ?? '…', style: ts.mono(size: Fs.sm, color: httpOn ? c.dim : c.faint), maxLines: 1, overflow: TextOverflow.ellipsis),
+              Text(http ?? (httpOn ? '…' : 'Off'), style: ts.mono(size: Fs.sm, color: httpOn ? c.dim : c.faint), maxLines: 1, overflow: TextOverflow.ellipsis),
               SizedBox(height: Sp.x2),
               httpLine,
               SizedBox(height: Sp.x3),
@@ -364,14 +381,15 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
                 runSpacing: Sp.x2,
                 crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
-                  if (_httpFailed)
+                  if (failed)
                     EButton(label: 'Try again', icon: EIcons.refresh, size: EBtnSize.sm, busy: _httpBusy, onPressed: _httpBusy ? null : () => _setHttp(true)),
-                  if (httpOn || _httpFailed)
-                    EButton(label: 'Turn off', icon: EIcons.stop, size: EBtnSize.sm, busy: _httpBusy && !_httpFailed, onPressed: _httpBusy ? null : () => _setHttp(false))
+                  if (httpOn || failed)
+                    EButton(label: 'Turn off', icon: EIcons.stop, size: EBtnSize.sm, busy: _httpBusy && !failed, onPressed: _httpBusy ? null : () => _setHttp(false))
                   else
                     EButton(label: 'Turn on', icon: EIcons.antenna, size: EBtnSize.sm, busy: _httpBusy, onPressed: _httpBusy || status == null ? null : () => _setHttp(true)),
-                  EIconButton(icon: EIcons.copy, label: 'Copy HTTP address', size: EBtnSize.sm, onPressed: httpOn && http != null ? () => _copy(http) : null),
-                  EIconButton(icon: EIcons.qr, label: 'Show QR code of the HTTP address', size: EBtnSize.sm, onPressed: httpOn && http != null ? () => setState(() => _qr = _Qr.http) : null),
+                  EIconButton(icon: EIcons.copy, label: 'Copy HTTP address', size: EBtnSize.sm, onPressed: http != null ? () => _copy(http) : null),
+                  EIconButton(icon: EIcons.qr, label: 'Show QR code of the HTTP address', size: EBtnSize.sm, onPressed: http != null ? () => setState(() => _qr = _Qr.http) : null),
+                  EButton(label: 'Settings', size: EBtnSize.inline, onPressed: () => nav.go(DeskRoute.settingsReceiving)),
                 ],
               ),
             ],

@@ -18,7 +18,8 @@ const demoOtherWallet = WalletEntry(id: '5a1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f', name
 Future<void> resetSettingsDemo(ProviderContainer c) async {
   c.read(settingsPrefsProvider.notifier).set(const SettingsPrefs());
   final n = c.read(deskProvider.notifier);
-  await n.saveSettings(c.read(deskProvider).settings.copyWith(tor: false, directHttp: false));
+  await n.saveSettings(c.read(deskProvider).settings.copyWith(tor: false, publicMode: false));
+  await n.setHttp(false);
 }
 
 /// Screenshot tour entries of this group (see app/shots.dart). Ids match the Electron

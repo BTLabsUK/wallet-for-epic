@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../log.dart';
+import '../../data/http_address.dart';
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../widgets/kit.dart';
 import 'contact_picker.dart';
@@ -93,8 +94,8 @@ String? _recipientError(TxMethod m, String v) {
       return null;
     case TxMethod.http:
       if (t.isEmpty) return 'Add an address to send to.';
-      if (!RegExp(r'^https?://\S+$', caseSensitive: false).hasMatch(t)) return 'Enter an http(s) address.';
-      return null;
+      final problem = httpAddressProblem(t);
+      return problem == null ? null : '$problem.';
     case TxMethod.tor:
       if (t.isEmpty) return 'Add an address to send to.';
       if (!RegExp(r'^(https?://)?[^\s/@]+\.onion(:\d+)?(/\S*)?$', caseSensitive: false).hasMatch(t)) return 'Enter a .onion address.';
@@ -392,6 +393,12 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       sendAll: _all,
       dandelion: _dandelion,
     );
+    // Plain HTTP to another computer: the slate travels unencrypted, so ask first.
+    final plain = draft.method == TxMethod.http && plainHttpNeedsConsent(draft.to!);
+    if (plain) {
+      final ok = await showEDialog<bool>(context, builder: (_) => const PlainHttpDialog());
+      if (!mounted || ok != true) return;
+    }
     final notifier = ref.read(deskProvider.notifier);
     final res = await showEDialog<SendResult>(
       context,
@@ -407,6 +414,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
             message: draft.message.isEmpty ? null : draft.message,
             sendAll: draft.sendAll,
             dandelion: draft.dandelion,
+            allowPlainHttp: plain,
           ),
         ),
       ),
@@ -965,4 +973,21 @@ class _ReviewDialogState extends State<_ReviewDialog> {
       ],
     );
   }
+}
+
+/// Asked before a send over plain `http` to another computer.
+class PlainHttpDialog extends StatelessWidget {
+  const PlainHttpDialog({super.key});
+
+  @override
+  Widget build(BuildContext context) => EDialog(
+    title: 'Not encrypted. Send anyway?',
+    description: 'Plain HTTP to another computer. Anyone on the way can read the transaction. https:// is encrypted.',
+    icon: EIcons.alert,
+    tone: ETone.warn,
+    actions: [
+      EButton(label: 'Cancel', onPressed: () => Navigator.of(context).pop(false)),
+      EButton.primary(label: 'Send anyway', onPressed: () => Navigator.of(context).pop(true)),
+    ],
+  );
 }

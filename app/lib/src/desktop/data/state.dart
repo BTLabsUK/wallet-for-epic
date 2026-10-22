@@ -81,9 +81,10 @@ class DeskController extends Notifier<DeskState> {
     return DeskState(settings: ref.read(deskBootProvider).settings);
   }
 
-  /// After unlock: starts the listener when [listen] (Settings › Start Epicbox with the wallet)
-  /// and keeps the status rows and lists live until [lock].
-  Future<void> startLive({required bool listen}) async {
+  /// After unlock: starts the listener when [listen] (Settings › Start Epicbox with the wallet),
+  /// the HTTP listener when [http] (its Start with the wallet), and keeps the status rows and
+  /// lists live until [lock]. The HTTP switch starts as [http] says on every unlock.
+  Future<void> startLive({required bool listen, bool http = false}) async {
     _stopLive();
     _changes = api.changes().listen((_) {
       // Bursts of events (sync progress) reload the lists once, the status at once.
@@ -92,12 +93,19 @@ class DeskController extends Notifier<DeskState> {
       _reload = Timer(const Duration(milliseconds: 400), () => unawaited(_refreshQuietly()));
     });
     _statusPoll = Timer.periodic(const Duration(seconds: 5), (_) => unawaited(_loadStatus()));
-    if (listen) {
-      try {
+    final s = state.settings;
+    if (s.directHttp != http) {
+      state = state.copyWith(settings: s.copyWith(directHttp: http));
+      await api.saveSettings(state.settings);
+    }
+    try {
+      if (listen) {
         await setListening(true);
-      } on Object {
-        // The status row shows the listener down; Receive offers to start it again.
+      } else if (http) {
+        await setHttp(true);
       }
+    } on Object {
+      // The status row shows the listener down; Receive offers to start it again.
     }
   }
 
@@ -241,6 +249,16 @@ class DeskController extends Notifier<DeskState> {
   /// Starts or stops receiving (Receive › Start listener / Stop receiving).
   Future<void> setListening(bool on) async {
     await api.setListening(on);
+    state = state.copyWith(status: await api.status());
+  }
+
+  /// The HTTP listener switch (Settings › Receiving, Receive's Turn on / Turn off / Try again):
+  /// saved as [DeskSettings.directHttp] and the listener started or stopped with it.
+  Future<void> setHttp(bool on) async {
+    final s = state.settings.copyWith(directHttp: on);
+    state = state.copyWith(settings: s);
+    await api.saveSettings(s);
+    await api.setHttpListening(on);
     state = state.copyWith(status: await api.status());
   }
 

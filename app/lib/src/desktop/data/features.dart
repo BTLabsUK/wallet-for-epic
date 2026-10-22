@@ -21,8 +21,11 @@
 ///   - All wallets: "Import" and "Import wallets…".
 /// dataFolder (A15): Welcome › Advanced › App data folder.
 /// testNetworks (A06 "any network each"): Welcome › Advanced › Network. Mainnet only.
-/// httpDirect (G01–G06, F07, J04): Send › Direct (HTTP), Receive's HTTP address, Settings ›
-///   Receiving › HTTP listener and Start with the wallet, the status card's HTTP line.
+/// httpDirect (G01–G06, F07, J04, on): Send › Direct (HTTP), with a question before plain HTTP
+///   to another computer; Receive's HTTP address; Settings › Receiving › HTTP listener (off by
+///   default), Reachable (Local only / From the internet, through its guide), Port and Start with
+///   the wallet; the status card's HTTP line; HTTP addresses in contacts. No resend over HTTP
+///   yet: a send nobody answered waits in Activity to be cancelled.
 /// tor (G07–G12): Send › Direct › Tor, Receive's onion address, Settings › Receiving ›
 ///   Advanced › Tor, the status card's Tor line.
 /// builtInNode (D09–D14, on): Setup › Node's "Built-in node" card (off by default, D10),
@@ -51,7 +54,7 @@ abstract final class DeskFeatures {
   static const bool importWizard = true;
   static const bool dataFolder = false;
   static const bool testNetworks = false;
-  static const bool httpDirect = false;
+  static const bool httpDirect = true;
   static const bool tor = false;
   static const bool builtInNode = true;
   static const bool nodeBackground = false;

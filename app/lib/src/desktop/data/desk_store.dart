@@ -62,6 +62,8 @@ Map<String, Object?> deskSettingsToJson(DeskSettings s) => {
   'hideAmounts': s.hideAmounts,
   'newLookSeen': s.newLookSeen,
   'autoLockMinutes': s.autoLockMinutes,
+  'publicMode': s.publicMode,
+  'httpPort': s.httpPort,
 };
 
 /// Each value of the wrong type falls back to its default, so bad saved data cannot block
@@ -72,11 +74,15 @@ DeskSettings deskSettingsFromJson(Map<String, dynamic> j) {
   final hide = j['hideAmounts'];
   final seen = j['newLookSeen'];
   final lock = j['autoLockMinutes'];
+  final public = j['publicMode'];
+  final port = j['httpPort'];
   return DeskSettings(
     theme: ThemeChoice.values.where((t) => t.name == j['theme']).firstOrNull ?? d.theme,
     scale: scale is int && deskScales.contains(scale) ? scale : d.scale,
     hideAmounts: hide is bool ? hide : d.hideAmounts,
     newLookSeen: seen is bool ? seen : d.newLookSeen,
+    publicMode: public is bool ? public : d.publicMode,
+    httpPort: port is int && port > 0 && port < 65536 ? port : d.httpPort,
     // A saved null stays null.
     autoLockMinutes: lock is int ? lock : (j.containsKey('autoLockMinutes') && lock == null ? null : d.autoLockMinutes),
   );

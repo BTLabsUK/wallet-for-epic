@@ -205,6 +205,7 @@ class ServiceStatus {
     required this.epicboxHealth,
     required this.httpListener,
     required this.tor,
+    this.httpProblem,
     this.syncProgress,
     this.lastUpdate,
     this.notice,
@@ -216,8 +217,12 @@ class ServiceStatus {
   final EpicboxServer epicbox;
   final ServiceHealth epicboxHealth;
 
-  /// Direct receive over HTTP (port 3415) on or off.
+  /// The HTTP listener: off, starting ([ServiceHealth.checking]), on, or failed to start or
+  /// stopped by itself ([ServiceHealth.down], with [httpProblem]).
   final ServiceHealth httpListener;
+
+  /// Why the HTTP listener is down, in a few words ("Port 3415 in use"); null otherwise.
+  final String? httpProblem;
   final ServiceHealth tor;
 
   /// 0..1 while the wallet scans; null when idle.
@@ -291,6 +296,7 @@ class DeskSettings {
     this.directHttp = false,
     this.tor = false,
     this.publicMode = false,
+    this.httpPort = 3415,
     this.autoLockMinutes = 15,
     this.fiat = 'USD',
     this.newLookSeen = false,
@@ -307,12 +313,17 @@ class DeskSettings {
   final bool nodeFailover;
   final bool epicboxFailover;
 
-  /// Receive directly over HTTP on port 3415.
+  /// The HTTP listener switch: on, it runs while receiving is on. Not saved: at unlock it is
+  /// what Start with the wallet says.
   final bool directHttp;
   final bool tor;
 
-  /// The HTTP listener answers on all interfaces, not only this computer.
+  /// Reachable "From the internet": the HTTP listener answers on all interfaces (0.0.0.0),
+  /// not only this computer. Set only from the guide's explicit choice.
   final bool publicMode;
+
+  /// The HTTP listener's port.
+  final int httpPort;
   final int? autoLockMinutes;
   final String fiat;
 
@@ -329,6 +340,7 @@ class DeskSettings {
     bool? directHttp,
     bool? tor,
     bool? publicMode,
+    int? httpPort,
     int? autoLockMinutes,
     String? fiat,
     bool? newLookSeen,
@@ -342,6 +354,7 @@ class DeskSettings {
     directHttp: directHttp ?? this.directHttp,
     tor: tor ?? this.tor,
     publicMode: publicMode ?? this.publicMode,
+    httpPort: httpPort ?? this.httpPort,
     autoLockMinutes: autoLockMinutes ?? this.autoLockMinutes,
     fiat: fiat ?? this.fiat,
     newLookSeen: newLookSeen ?? this.newLookSeen,
@@ -351,7 +364,7 @@ class DeskSettings {
 /// What Send hands over.
 @immutable
 class SendRequest {
-  const SendRequest({required this.method, required this.amount, this.to, this.message, this.sendAll = false, this.dandelion = true});
+  const SendRequest({required this.method, required this.amount, this.to, this.message, this.sendAll = false, this.dandelion = true, this.allowPlainHttp = false});
 
   final TxMethod method;
   final int amount;
@@ -363,6 +376,9 @@ class SendRequest {
 
   /// Broadcast through Dandelion++ (stem first); false fluffs it at once.
   final bool dandelion;
+
+  /// The user agreed to send over plain `http` to another computer, unencrypted.
+  final bool allowPlainHttp;
 }
 
 sealed class SendResult {
