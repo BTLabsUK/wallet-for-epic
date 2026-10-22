@@ -1014,12 +1014,12 @@ void main() {
       await done(tester);
     });
 
-    testWidgets('activity has no Outputs tab; account no password change', (tester) async {
+    testWidgets('activity has no Outputs tab; account changes the password as DeskFeatures says', (tester) async {
       await pump(tester, DeskRoute.activity);
       expect(find.text('Outputs'), findsNothing);
       await done(tester);
       await pump(tester, DeskRoute.settingsAccount);
-      expect(find.text('Change password…'), findsNothing);
+      expect(find.text('Change password…'), DeskFeatures.changePassword ? findsOneWidget : findsNothing);
       expect(find.text('Delete…'), findsOneWidget);
       await done(tester);
     });

@@ -2263,10 +2263,29 @@ class LepicDeskWallet implements DeskWalletApi {
     }
   }
 
+  /// Re-encrypts the open wallet under [next], then forgets its remembered password (F6). A
+  /// wrong [current] throws a [DeskError] with `wrongPassword`; any other failure leaves the
+  /// old password working.
   @override
-  // When this is built: forget the remembered password (`_remember.forget`) once it changed.
-  Future<void> changePassword(String current, String next) =>
-      throw UnsupportedError('password change (DeskFeatures.changePassword)');
+  Future<void> changePassword(String current, String next) async {
+    _checkPassword(next);
+    final session = _open;
+    final id = _openEntry?.id;
+    logInfo('desk', 'password change asked');
+    try {
+      await session.changePassword(currentPassword: current, newPassword: next);
+    } on core.WalletError catch (e) {
+      logWarn('desk', 'password change: ${e.kind.name}');
+      throw switch (e.kind) {
+        core.WalletErrorKind.wrongPassword => _deskError(e),
+        core.WalletErrorKind.invalidArgument => const DeskError('Use at least $minPasswordLength characters'),
+        core.WalletErrorKind.chainBusy || core.WalletErrorKind.walletBusy => _deskError(e),
+        _ => const DeskError('Password not changed. The current password still opens the wallet.'),
+      };
+    }
+    logInfo('desk', 'password changed');
+    if (id != null) await _remember.forget(id);
+  }
 
   // ---- Helpers.
 

@@ -44,7 +44,8 @@
 /// stopScan (on): Rescan's Stop, which ends the LEPIC scan at its next page (cancel_scan).
 /// nodeBlockTime (C04): "last block … ago" on the node status line.
 /// paymentProofs (I08, D6): Transaction details › Export proof.
-/// changePassword: Settings › This wallet › Change password (LEPIC has no password change).
+/// changePassword (F32, on): Settings › This wallet › Change password (LEPIC's change_password);
+///   forgets the wallet's remembered password.
 /// walletProcesses (A20, dropped): Unlock's "Looking for wallet processes" stage and the
 ///   kill-process dialog (LEPIC runs in-process).
 ///
@@ -69,7 +70,7 @@ abstract final class DeskFeatures {
   static const bool stopScan = true;
   static const bool nodeBlockTime = false;
   static const bool paymentProofs = false;
-  static const bool changePassword = false;
+  static const bool changePassword = true;
   static const bool walletProcesses = false;
   static const bool languages = false;
   static const bool fiatPrice = false;
