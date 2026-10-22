@@ -102,8 +102,9 @@ String epicboxWord(ServiceHealth h) => switch (h) {
 /// 2914414 → "2,914,414".
 String groupDigits(int n) => n.toString().replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (_) => ',');
 
-/// A section a sidebar status row jumps to: scrolled into view, flashed for 1.8 s, its
-/// heading focused; again on every new jump to it ([SettingsPrefsController.jumpTo]).
+/// A section a sidebar status row jumps to: scrolled into view, its heading focused and a thin
+/// gold outline that fades out over a second (none with reduced motion); again on every new
+/// jump to it ([SettingsPrefsController.jumpTo]). Opening the page any other way shows nothing.
 class JumpSection extends ConsumerStatefulWidget {
   const JumpSection({super.key, required this.section, required this.child});
 
@@ -117,9 +118,11 @@ class JumpSection extends ConsumerStatefulWidget {
 /// The last jump handled, so a page opened later does not flash again.
 int _jumpHandled = 0;
 
-class _JumpSectionState extends ConsumerState<JumpSection> {
+class _JumpSectionState extends ConsumerState<JumpSection> with SingleTickerProviderStateMixin {
   final _focus = FocusNode(debugLabel: 'jump target');
-  bool _flash = false;
+  // 1 → 0: the outline's strength. Held a moment, then eased out.
+  late final _cue = AnimationController(vsync: this, duration: const Duration(milliseconds: 1000), value: 0);
+  late final _fade = CurvedAnimation(parent: _cue, curve: const Interval(0, 0.75, curve: Curves.easeInCubic));
 
   @override
   void initState() {
@@ -129,6 +132,8 @@ class _JumpSectionState extends ConsumerState<JumpSection> {
 
   @override
   void dispose() {
+    _fade.dispose();
+    _cue.dispose();
     _focus.dispose();
     super.dispose();
   }
@@ -139,10 +144,7 @@ class _JumpSectionState extends ConsumerState<JumpSection> {
     final reduce = MediaQuery.of(context).disableAnimations;
     Scrollable.ensureVisible(context, duration: reduce ? Duration.zero : Dur.base, alignment: 0);
     _focus.requestFocus();
-    setState(() => _flash = true);
-    Future<void>.delayed(const Duration(milliseconds: 1800), () {
-      if (mounted) setState(() => _flash = false);
-    });
+    if (!reduce) _cue.reverse(from: 1);
   }
 
   @override
@@ -152,12 +154,17 @@ class _JumpSectionState extends ConsumerState<JumpSection> {
     return Focus(
       focusNode: _focus,
       skipTraversal: true,
-      child: AnimatedContainer(
-        duration: Dur.base,
-        decoration: BoxDecoration(
-          color: _flash ? c.accentFaint : null,
-          borderRadius: BorderRadius.circular(Rad.sm),
-          boxShadow: _flash ? [BoxShadow(color: c.accent, spreadRadius: 1)] : null,
+      child: AnimatedBuilder(
+        animation: _fade,
+        builder: (_, child) => DecoratedBox(
+          position: DecorationPosition.foreground,
+          decoration: _fade.value == 0
+              ? const BoxDecoration()
+              : BoxDecoration(
+                  borderRadius: BorderRadius.circular(Rad.sm),
+                  border: Border.all(color: c.accent.withValues(alpha: c.accent.a * 0.8 * _fade.value), width: 1.5),
+                ),
+          child: child,
         ),
         child: widget.child,
       ),

@@ -7,6 +7,7 @@ import 'package:epic_wallet/src/desktop/app/tour.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/dialogs.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/shots.dart' show demoOtherWallet;
 import 'package:epic_wallet/src/desktop/screens/settings/prefs.dart';
+import 'package:epic_wallet/src/desktop/screens/settings/settings_frame.dart' show JumpSection;
 import 'package:epic_wallet/src/desktop/screens/settings/settings_about.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/settings_account.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/settings_appearance.dart';
@@ -141,6 +142,45 @@ void main() {
         await tester.pump(const Duration(seconds: 10));
       });
     }
+  }
+
+  // The owner, build 6: the jump painted the whole section solid gold for seconds. Now a thin
+  // outline that is gone after a second, no fill, and nothing at all with reduced motion.
+  for (final reduce in [false, true]) {
+    testWidgets('a jump marks its section with a fading outline only (reduced motion: $reduce)', (tester) async {
+      tester.view.physicalSize = const Size(1280, 800);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+      await tester.runAsync(() => container.read(deskProvider.notifier).refresh());
+      container.read(deskNavProvider.notifier).reset(DeskRoute.settingsAbout);
+      await tester.pumpWidget(UncontrolledProviderScope(
+        container: container,
+        child: MaterialApp(
+          theme: buildDeskTheme(Brightness.dark),
+          builder: (context, child) => MediaQuery(data: MediaQuery.of(context).copyWith(disableAnimations: reduce), child: child!),
+          home: Consumer(builder: (_, ref, _) => DeskShell(at: ref.watch(deskNavProvider))),
+        ),
+      ));
+      await tester.pump(const Duration(seconds: 1));
+      BoxDecoration cue() => tester
+          .widget<DecoratedBox>(find.descendant(of: find.byType(JumpSection), matching: find.byType(DecoratedBox)).first)
+          .decoration as BoxDecoration;
+      container.read(settingsPrefsProvider.notifier).jumpTo(SettingsJump.node);
+      await tester.pump();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+      expect(find.byType(JumpSection), findsOneWidget);
+      expect(cue().color, isNull, reason: 'never a fill');
+      expect(cue().boxShadow, isNull);
+      expect(cue().border != null, !reduce);
+      await tester.pump(const Duration(milliseconds: 1000));
+      expect(cue().border, isNull, reason: 'gone after a second');
+      expect(tester.takeException(), isNull);
+      await tester.pumpWidget(const SizedBox());
+      await tester.pump(const Duration(seconds: 10));
+    });
   }
 
   testWidgets('a status row jumps into its settings section', (tester) async {
