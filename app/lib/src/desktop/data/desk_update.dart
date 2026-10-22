@@ -52,16 +52,19 @@ class DeskUpdateState {
 typedef ManifestFetch = Future<(int, String)> Function(Uri url);
 
 /// A plain GET ([httpGet]): no User-Agent, no cookies, nothing about this wallet. A body
-/// over the envelope limit is not read; it answers as 413, which [DeskUpdateController]
-/// treats as a manifest that does not verify.
+/// over the envelope limit is not read; it answers as [deskManifestTooLarge], which
+/// [DeskUpdateController] treats as a manifest that does not verify.
 Future<(int, String)> _fetch(Uri url) async {
   try {
     final reply = await httpGet(url, timeout: const Duration(seconds: 30), maxBytes: btlabsMaxEnvelopeBytes);
     return (reply.status, reply.body);
   } on NetTooLarge {
-    return (413, '');
+    return (deskManifestTooLarge, '');
   }
 }
+
+/// The status [ManifestFetch] reports for a body over the envelope limit (no HTTP status).
+const int deskManifestTooLarge = -1;
 
 final deskManifestFetchProvider = Provider<ManifestFetch>((ref) => _fetch);
 final deskUpdateClockProvider = Provider<DateTime Function()>((ref) => DateTime.now);
@@ -120,10 +123,14 @@ class DeskUpdateController extends Notifier<DeskUpdateState> {
   /// The last manifest accepted in this run; a later, older one is refused (FORMAT.md §6).
   ManifestState? _manifestState;
 
+  /// The update the last accepted manifest offered, if any: it stays offered when a later
+  /// manifest does not verify or none is published (FORMAT.md §5: keep what you have).
+  DeskUpdateState? _known;
+
   Future<DeskUpdateState> _read(int status, String body) async {
     // No manifest published: nothing newer is known, which is no error.
-    if (status == 404) return const DeskUpdateState(DeskUpdatePhase.latest);
-    if (status == 413) return _notVerified(RejectReason.tooLarge);
+    if (status == 404) return _known ?? const DeskUpdateState(DeskUpdatePhase.latest);
+    if (status == deskManifestTooLarge) return _notVerified(RejectReason.tooLarge);
     if (status != 200) return DeskUpdateState(DeskUpdatePhase.failed, reason: 'The update server answered $status.');
     final result = await verifyWalletUpdate(
       body,
@@ -133,13 +140,14 @@ class DeskUpdateController extends Notifier<DeskUpdateState> {
     );
     if (result is! Accepted<WalletUpdate>) return _notVerified((result as Rejected<WalletUpdate>).reason);
     _manifestState = result.state;
+    _known = null;
     final mine = result.manifest.desktop?.forSystem(_system);
     if (mine == null) {
       return const DeskUpdateState(DeskUpdatePhase.failed, reason: 'No desktop update information is published yet.');
     }
     if (!isNewerVersion(mine.version, deskAppVersion)) return const DeskUpdateState(DeskUpdatePhase.latest);
     final page = mine.page;
-    return DeskUpdateState(
+    return _known = DeskUpdateState(
       DeskUpdatePhase.available,
       version: mine.version,
       page: page != null && isDeskUpdatePage(page) ? page : deskReleasesUrl,
@@ -147,10 +155,11 @@ class DeskUpdateController extends Notifier<DeskUpdateState> {
   }
 
   /// A manifest that is unsigned, forged, expired or older than one seen in this run: no
-  /// information, like no manifest at all; the reason goes to the log only (FORMAT.md §5).
+  /// information, like no manifest at all; an update an earlier manifest offered stays
+  /// offered. The reason goes to the log only (FORMAT.md §5).
   DeskUpdateState _notVerified(RejectReason reason) {
     logInfo('update', 'desktop: update.json not used: ${reason.code}');
-    return const DeskUpdateState(DeskUpdatePhase.latest);
+    return _known ?? const DeskUpdateState(DeskUpdatePhase.latest);
   }
 
   static String get _system => Platform.isWindows ? 'windows' : Platform.isMacOS ? 'macos' : 'linux';

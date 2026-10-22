@@ -17,7 +17,7 @@ void main() {
 
   // Signed manifests (test key A; the test keyring stands in for the bundled one).
   const page = 'https://github.com/BTLabs-EPIC/epic-wallet/releases/tag/v0.1.1';
-  late String newer, same, phoneOnly, offAccounts, unsignedNewer, forgedNewer;
+  late String newer, same, phoneOnly, offAccounts, unsignedNewer, forgedNewer, olderLatest;
   setUpAll(() async {
     newer = await signedUpdate(testUpdatePayload(versionName: '9.0.0', desktop: {'version': '0.1.1', 'page': page}));
     same = await signedUpdate(testUpdatePayload(versionName: '9.0.0', desktop: {'version': '0.1.0'}, serial: 1790000100));
@@ -27,6 +27,8 @@ void main() {
     offAccounts = await signedUpdate(testUpdatePayload(desktop: {'version': '0.1.1', 'page': 'https://github.com.evil.example/BTLabs-EPIC/'}));
     unsignedNewer = '{"versionName": "9.0.0", "desktop": {"version": "0.1.1", "page": "$page"}}';
     forgedNewer = await signedUpdate(testUpdatePayload(desktop: {'version': '0.1.1', 'page': page}), keys: [await testUpdateStrangerKey()]);
+    // Older than [newer] (a replay): it says 0.1.0 is the latest, which must not win.
+    olderLatest = await signedUpdate(testUpdatePayload(desktop: {'version': '0.1.0'}, serial: 1789999000));
   });
 
   Future<(ProviderContainer, List<String>)> pump(WidgetTester tester, ManifestFetch fetch) async {
@@ -130,6 +132,18 @@ void main() {
       expect(find.text('Could not check'), findsNothing);
     });
   }
+
+  testWidgets('a known update stays offered when a later manifest is replayed, forged or too large', (tester) async {
+    var body = (200, newer);
+    await pump(tester, (_) async => body);
+    expect(find.text('Update available: 0.1.1'), findsOneWidget);
+    for (final next in [(200, olderLatest), (200, forgedNewer), (deskManifestTooLarge, ''), (404, '')]) {
+      body = next;
+      await tester.tap(find.widgetWithText(EButton, 'Check now'));
+      await tester.pumpAndSettle();
+      expect(find.text('Update available: 0.1.1'), findsOneWidget, reason: 'after ${next.$1}');
+    }
+  });
 
   test('the releases fallback is the project repo', () {
     expect(deskReleasesUrl, 'https://github.com/BTLabs-EPIC/wallet-for-epic/releases/latest');

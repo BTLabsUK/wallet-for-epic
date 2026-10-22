@@ -28,7 +28,7 @@ app_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 . "$app_dir/../tools/env.sh"
 
 if [[ $# -lt 1 || $# -gt 2 ]]; then
-  sed -n '5,8p' "${BASH_SOURCE[0]}" >&2
+  sed -n '6,9p' "${BASH_SOURCE[0]}" >&2
   exit 64
 fi
 base_url="${1%/}"
@@ -104,15 +104,24 @@ if [[ ! -f "$tool" || ! -f "$keyring" || ! -f "$signing_key" ]]; then
   echo >&2
   exit 1
 fi
+# The keys installed apps trust (lib/src/btlabs_keys.dart) must be the keyring the file is
+# signed against, or the script succeeds and every phone rejects the file.
+python3 - "$app_dir/lib/src/btlabs_keys.dart" "$keyring" <<'PY' || exit 1
+import json, sys
+app = open(sys.argv[1], encoding="utf-8").read().split("'''")[1]
+if json.loads(app) != json.load(open(sys.argv[2], encoding="utf-8")):
+    sys.exit("lib/src/btlabs_keys.dart and %s hold different keys: ship the new keyring first" % sys.argv[2])
+PY
 # The tool refuses a payload that does not validate and an envelope that does not verify; with
-# the published manifest as --prev, also a serial that is not above it.
+# the published manifest as --prev, also a serial that is not above it (a slow clock here).
 published="$out/update.published.json"
-if curl -fsS --max-time 20 -o "$published" https://btlabs-epic.github.io/update.json; then
-  sign+=(--prev "$published")
-else
-  rm -f "$published"
-  echo "No published update.json yet (or not reachable): signing without --prev."
-fi
+rm -f "$published"
+status="$(curl -sS --max-time 20 -o "$published" -w '%{http_code}' https://btlabs-epic.github.io/update.json || true)"
+case "$status" in
+  200) sign+=(--prev "$published") ;;
+  404) rm -f "$published"; echo "No update.json published yet: signing without --prev." ;;
+  *) echo "Cannot read the published update.json (HTTP ${status:-none}); not signing." >&2; exit 1 ;;
+esac
 "${sign[@]}"
 python3 "$tool" verify --type update --keyring "$keyring" --envelope "$manifest"
 echo "1. Publish app-arm64-v8a-release.apk at $base_url (the GitHub release)."
