@@ -7,7 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../theme/icons.dart';
 import 'package:flutter/widgets.dart' show IconData;
 
-enum DeskSection { overview, activity, send, receive, contacts, settings }
+enum DeskSection { overview, activity, send, receive, outputs, contacts, settings }
 
 enum DeskRoute {
   // Bare: the screens that open the app.
@@ -25,6 +25,7 @@ enum DeskRoute {
   receive(section: DeskSection.receive),
   importTx(section: DeskSection.receive),
   finalize(section: DeskSection.receive),
+  outputs(section: DeskSection.outputs),
   contacts(section: DeskSection.contacts),
   settingsNode(section: DeskSection.settings),
   settingsReceiving(section: DeskSection.settings),
@@ -56,6 +57,7 @@ const List<(DeskSection, DeskRoute, String, IconData)> deskNav = [
   (DeskSection.activity, DeskRoute.activity, 'Activity', EIcons.activity),
   (DeskSection.send, DeskRoute.send, 'Send', EIcons.send),
   (DeskSection.receive, DeskRoute.receive, 'Receive', EIcons.receive),
+  (DeskSection.outputs, DeskRoute.outputs, 'Outputs', EIcons.coins),
   (DeskSection.contacts, DeskRoute.contacts, 'Contacts', EIcons.contacts),
 ];
 

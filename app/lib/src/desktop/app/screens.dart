@@ -21,6 +21,7 @@ import '../screens/transfer/receive_screen.dart';
 import '../screens/transfer/send_screen.dart';
 import '../screens/wallet/activity_screen.dart';
 import '../screens/wallet/contacts_screen.dart';
+import '../screens/wallet/outputs_screen.dart';
 import '../screens/wallet/overview_screen.dart';
 import 'routes.dart';
 
@@ -40,6 +41,7 @@ Widget deskScreen(DeskLocation at) {
     DeskRoute.receive => ReceiveScreen(arg: a),
     DeskRoute.importTx => ImportTxScreen(arg: a),
     DeskRoute.finalize => FinalizeScreen(arg: a),
+    DeskRoute.outputs => OutputsScreen(arg: a),
     DeskRoute.contacts => ContactsScreen(arg: a),
     DeskRoute.settingsNode => SettingsNodeScreen(arg: a),
     DeskRoute.settingsReceiving => SettingsReceivingScreen(arg: a),

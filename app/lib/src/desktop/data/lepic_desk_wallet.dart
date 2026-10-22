@@ -1606,6 +1606,9 @@ class LepicDeskWallet implements DeskWalletApi {
   Future<OutputPrefs> outputPrefs() => _store.outputPrefs(_openEntry?.walletId);
 
   @override
+  Future<void> saveOutputPrefs(OutputPrefs prefs) => _store.saveOutputPrefs(_openEntry?.walletId, prefs);
+
+  @override
   Future<SendEstimate> estimateSplit(int outputs) async {
     try {
       return SendEstimate.fromFee(await _open.estimateSplit(outputs: outputs, minimumConfirmations: _minConf));
@@ -1631,15 +1634,29 @@ class LepicDeskWallet implements DeskWalletApi {
 
   /// Runs a split or consolidate and brings balance and history up to date, failed or not:
   /// a self-send the node did not take is stored with its inputs locked.
+  /// One the node did not take is stored as a new send: the error then names it
+  /// ([DeskError.notPostedTx]) so it can be posted again or cancelled.
   Future<SelfSend> _selfSend(Future<core.SelfSentTx> Function() run) async {
+    final session = _open;
+    Set<int?>? before;
     try {
+      before = {for (final e in await session.transactions(refresh: false)) e.id};
       final t = await run();
+      await _reload();
       return SelfSend(txId: t.txId, receivedTxId: t.receivedTxId, amount: t.amount.toInt(), fee: t.fee.toInt(), inputCount: t.inputCount, outputCount: t.outputCount);
     } on core.WalletError catch (e) {
-      throw _deskError(e);
-    } finally {
       await _reload();
+      final stored = before == null
+          ? null
+          : (await session.transactions(refresh: false)).where((x) => !before!.contains(x.id) && x.id != null).map((x) => x.id!).fold<int?>(null, (a, b) => a == null || b < a ? b : a);
+      if (stored != null) throw DeskError('Not posted', notPostedTx: stored);
+      throw _deskError(e);
     }
+  }
+
+  @override
+  Future<void> repostTx(int id) async {
+    if (!await _repost(_open, id)) throw const DeskError('Node not answering');
   }
 
   @override
@@ -2415,7 +2432,7 @@ class LepicDeskWallet implements DeskWalletApi {
 
 DateTime? _time(Object? unix) => unix is int ? DateTime.fromMillisecondsSinceEpoch(unix * 1000) : null;
 
-/// One output as the Outputs tab shows it. An unspent output under [minConf] confirmations
+/// One output as the Outputs page shows it. An unspent output under [minConf] confirmations
 /// is confirming, a mining reward below its lock height immature; an unconfirmed one (not on
 /// chain yet, or a reward still being mined) is unconfirmed.
 Output deskOutput(core.WalletOutput o, {required int minConf}) {

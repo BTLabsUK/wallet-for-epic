@@ -6,7 +6,7 @@ library;
 import 'models.dart';
 import 'send_summary.dart';
 
-/// SmartOutputs is on unless the user turned it off (Outputs tab).
+/// SmartOutputs is on unless the user turned it off (the Outputs page).
 const bool smartOutputsDefault = true;
 
 /// The rule's parameters, in one place so they can be tuned.

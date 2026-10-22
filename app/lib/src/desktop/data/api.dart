@@ -140,7 +140,10 @@ abstract interface class DeskWalletApi {
   /// The open wallet's Outputs choices: default strategy and SmartOutputs (F13, D-5).
   Future<OutputPrefs> outputPrefs();
 
-  // Outputs (F13, only when [DeskFeatures.coins]). A split and a consolidate are normal
+  /// Keeps the open wallet's Outputs choices; Send uses them from its next estimate.
+  Future<void> saveOutputPrefs(OutputPrefs prefs);
+
+  // Outputs (F13, the Outputs page). A split and a consolidate are normal
   // network transactions to the wallet itself; each spends every spendable output, so the
   // whole balance is locked until it confirms.
 
@@ -151,6 +154,10 @@ abstract interface class DeskWalletApi {
   /// The fee and inputs of merging every spendable output into one.
   Future<SendEstimate> estimateConsolidate();
   Future<SelfSend> consolidateOutputs();
+
+  /// Posts again a split or consolidate the node did not take ([DeskError.notPostedTx]).
+  /// Throws a [DeskError] when the node refuses it again.
+  Future<void> repostTx(int id);
   Future<SendResult> send(SendRequest request);
   Future<ReceivedFile> receiveFile(String fileName);
   Future<Tx> finalizeFile(String fileName);

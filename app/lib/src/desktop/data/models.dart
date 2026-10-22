@@ -185,7 +185,7 @@ class SelfSend {
   final int outputCount;
 }
 
-/// The Outputs tab's choices for one wallet (F13, D-5): the strategy sends use unless Send
+/// The Outputs page's choices for one wallet (F13, D-5): the strategy sends use unless Send
 /// overrides it, and whether SmartOutputs splits the change.
 @immutable
 class OutputPrefs {
@@ -430,7 +430,7 @@ class ScanCounts {
 
 /// A wallet error, in a short sentence for the screen.
 class DeskError implements Exception {
-  const DeskError(this.message, {this.wrongPassword = false, this.locked = false, this.newPasswordNeeded = false, this.sameWallet, this.unbuildable = false});
+  const DeskError(this.message, {this.wrongPassword = false, this.locked = false, this.newPasswordNeeded = false, this.sameWallet, this.unbuildable = false, this.notPostedTx});
 
   final String message;
   final bool wrongPassword;
@@ -442,6 +442,10 @@ class DeskError implements Exception {
   /// A send or split the coins at hand cannot build (change too small to split, too heavy):
   /// ask for fewer change outputs.
   final bool unbuildable;
+
+  /// A split or consolidate stored with its outputs locked that the node did not take: the
+  /// send's [Tx.id], to post again ([DeskWalletApi.repostTx]) or cancel.
+  final int? notPostedTx;
 
   /// An import whose old password is too short for the app: it needs a new one.
   final bool newPasswordNeeded;

@@ -32,7 +32,8 @@ final Map<RegExp, String> _allowed = {
   RegExp(r'^settingsHelp\|Open log folder$'): 'In tests the log is in memory, with no folder: says so. The real log folder opens.',
   RegExp(r'^31b-dlg-my-node-error\|Save$'): 'Refuses the bad address; its error is on screen already.',
   RegExp(r'^receive\|Show QR code of the HTTP address$'): 'Enabled first on 17d, which shows the HTTP QR already (live_controls_test presses it from the Epic one).',
-  RegExp(r'^35-dlg-tx-proof\|Export$'): 'Behind DeskFeatures.paymentProofs (off): the dialog cannot be opened in the app.',
+  RegExp(r'^outputs\|Smallest spends '): 'A help icon: its text shows on hover and, pressed, in a toast.',
+  RegExp(r'^35-dlg-tx-proof\|Export$'):'Behind DeskFeatures.paymentProofs (off): the dialog cannot be opened in the app.',
 };
 
 /// What the real wallet only stubs (throws UnsupportedError); a visible control must not reach them.
@@ -163,6 +164,10 @@ class _Recorder implements DeskWalletApi {
   Future<SendEstimate> estimateSend(int amount, {SendOptions? options}) => _r('estimateSend', () => _m.estimateSend(amount, options: options));
   @override
   Future<OutputPrefs> outputPrefs() => _r('outputPrefs', _m.outputPrefs);
+  @override
+  Future<void> saveOutputPrefs(OutputPrefs prefs) => _r('saveOutputPrefs', () => _m.saveOutputPrefs(prefs));
+  @override
+  Future<void> repostTx(int id) => _r('repostTx', () => _m.repostTx(id));
   @override
   Future<SendEstimate> estimateSplit(int outputs) => _r('estimateSplit', () => _m.estimateSplit(outputs));
   @override

@@ -380,7 +380,15 @@ class MockDeskWallet implements DeskWalletApi {
   }
 
   @override
-  Future<OutputPrefs> outputPrefs() async => const OutputPrefs();
+  Future<OutputPrefs> outputPrefs() async => _prefs;
+
+  OutputPrefs _prefs = const OutputPrefs();
+
+  @override
+  Future<void> saveOutputPrefs(OutputPrefs prefs) async => _prefs = prefs;
+
+  @override
+  Future<void> repostTx(int id) => _wait();
 
   Future<SendEstimate> _selfEstimate(int outputs) async {
     await _wait(0.4);

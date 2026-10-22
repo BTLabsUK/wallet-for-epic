@@ -58,6 +58,8 @@ abstract final class EIcons {
   static const keyboard = Icons.keyboard_outlined;
   static const wallet = Icons.account_balance_wallet_outlined;
   static const coins = Icons.toll_outlined;
+  static const split = Icons.call_split;
+  static const merge = Icons.merge;
   static const sync = Icons.sync;
   static const logout = Icons.logout;
   static const backup = Icons.backup_outlined;

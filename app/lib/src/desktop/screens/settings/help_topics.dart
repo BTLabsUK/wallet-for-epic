@@ -32,7 +32,7 @@ List<HelpTopic> helpTopicsFor(int confirmations) => <HelpTopic>[
     'start',
     'Send to someone',
     'Open Send, paste their Epic address, enter the amount, check the fee and send.',
-    'The recipient wallet has to answer. Over Epicbox it does not have to be online right now; the payment waits. Meanwhile the coins used are locked. A send that never gets an answer is cancelled in Activity, never by itself.',
+    'The recipient wallet has to answer. Over Epicbox it does not have to be online right now; the payment waits. Meanwhile the outputs it spends are locked; the summary says which part of the balance stays spendable. A send that never gets an answer is cancelled in Activity, never by itself.',
   ),
   HelpTopic(
     'start',
@@ -51,6 +51,24 @@ List<HelpTopic> helpTopicsFor(int confirmations) => <HelpTopic>[
     'Confirmations',
     'A transaction is final after $confirmations confirmations, usually about $confirmations minutes.',
     'Each new block on top of the transaction is one confirmation. Until $confirmations, the amount shows as awaiting confirmation and cannot be spent.',
+  ),
+  HelpTopic(
+    'how',
+    'Outputs and change',
+    'The balance is made of outputs. A send spends whole ones and returns the rest as a new output.',
+    'Every payment received is one output; a send spends one or more of them whole, pays the recipient, and the rest comes back as change: a new output that is confirming for $confirmations blocks. The spent outputs are locked until then. Overview shows the three parts (spendable, confirming, locked) and the Outputs page lists each output. More outputs mean more sends can run at the same time; fewer mean a slightly smaller fee.',
+  ),
+  HelpTopic(
+    'how',
+    'Smallest or All: which outputs a send spends',
+    'Smallest (the default) uses the fewest small outputs and leaves the rest spendable. All uses every output.',
+    'Smallest sorts the spendable outputs by value and takes the smallest ones until the amount and fee are covered, so only those are locked while the send confirms and the rest can be sent right away. All spends every spendable output and returns one change output: everything is locked for $confirmations blocks, the wallet ends up with fewer, larger outputs, and the fee is a little higher because each input costs. Sending the whole balance always uses All. The default is set on the Outputs page; Send can change it for one send under Advanced.',
+  ),
+  HelpTopic(
+    'how',
+    'Split and consolidate',
+    'Split makes more outputs so sends can follow each other; Consolidate merges them into one.',
+    'Both are normal network transactions from this wallet to itself, confirmed after $confirmations blocks like any send, and both lock every spendable output until then. Split takes the spendable balance and makes 2 to 10 outputs of nearly equal value; Consolidate takes every spendable output and makes one. Split change (on by default) does the same thing inside an ordinary send when few outputs would be left, for a fee of 0.004 EPIC per extra output. Activity shows each as two entries, a send and a receive, over "self".',
   ),
   HelpTopic(
     'how',

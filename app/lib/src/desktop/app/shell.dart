@@ -36,6 +36,7 @@ String deskPageTitle(DeskRoute r) {
       DeskRoute.finalize => 'Finalize transaction',
       _ => 'Receive',
     },
+    DeskSection.outputs => 'Outputs',
     DeskSection.contacts => 'Contacts',
     DeskSection.settings => 'Settings',
     null => '',
