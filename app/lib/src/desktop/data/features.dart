@@ -37,7 +37,7 @@
 ///   (bin/epic beside the app); without it turning the node on says so. The blockchain data
 ///   offer (D12) and the head start (D14) are not built.
 /// nodeBackground (D09): Settings › Node's "Sync in background" for the built-in node.
-/// coins (I05): Activity › Outputs tab.
+/// coins (I05, F13, on): the Outputs page (sidebar), Split and Consolidate.
 /// dandelion (F05, H04): Send's Dandelion++ switch and the review's Privacy line.
 /// rescanRepair (A16, on): Rescan's "Delete unconfirmed" (LEPIC's scan delete_unconfirmed)
 ///   and the result's counts.
@@ -64,7 +64,7 @@ abstract final class DeskFeatures {
   static const bool tor = true;
   static const bool builtInNode = true;
   static const bool nodeBackground = false;
-  static const bool coins = false;
+  static const bool coins = true;
   static const bool dandelion = false;
   static const bool rescanRepair = true;
   static const bool stopScan = true;

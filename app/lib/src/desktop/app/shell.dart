@@ -36,6 +36,7 @@ String deskPageTitle(DeskRoute r) {
       DeskRoute.finalize => 'Finalize transaction',
       _ => 'Receive',
     },
+    DeskSection.outputs => 'Outputs',
     DeskSection.contacts => 'Contacts',
     DeskSection.settings => 'Settings',
     null => '',
@@ -244,6 +245,9 @@ final deskLockingProvider = NotifierProvider<DeskLocking, bool>(DeskLocking.new)
 Future<void> lockWallet(WidgetRef ref) async {
   if (ref.read(deskLockingProvider)) return;
   ref.read(deskLockingProvider.notifier).set(true);
+  // A payment under way is never ended by the lock: the lock waits for it.
+  final shown = deskNavigatorKey.currentContext;
+  if (ref.read(deskApiProvider).busy && shown != null) showEToast(shown, 'Locks when the payment is sent', tone: ETone.neutral);
   try {
     await ref.read(deskProvider.notifier).lock();
   } finally {

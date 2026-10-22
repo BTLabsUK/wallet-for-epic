@@ -5,7 +5,12 @@ library;
 
 import 'package:flutter/foundation.dart';
 
+import '../../models.dart' show SelectionStrategy, SendOptions;
 import '../../providers.dart' show defaultMinimumConfirmations;
+import '../../smart_outputs.dart' show smartOutputsDefault;
+
+export '../../models.dart' show SelectionStrategy, SendOptions;
+export '../../send_summary.dart' show SendEstimate, SendSummary;
 
 /// Amounts are kept in nanoepic (1 EPIC = 10^8), as the wallet does.
 const int nanoPerEpic = 100000000;
@@ -47,6 +52,7 @@ class Balance {
     required this.awaitingFinalization,
     this.immature = 0,
     this.minConfirmations = defaultMinimumConfirmations,
+    this.reportedTotal,
   });
 
   final int spendable;
@@ -63,7 +69,15 @@ class Balance {
   /// out with. Sends ask for the same, so they can spend exactly [spendable].
   final int minConfirmations;
 
-  int get total => spendable + awaitingConfirmation + locked + immature;
+  /// The core's total; null where none was reported (the mock, an empty Overview).
+  final int? reportedTotal;
+
+  /// The wallet's total as the core reports it (LEPIC's `WalletSummary.total`, as
+  /// `epic-wallet info`): every unspent and locked output, not what awaits finalization. A
+  /// pending send's change awaits finalization until the same refresh that marks its locked
+  /// inputs spent confirms it, so nothing counts twice. Without the core's figure, the same
+  /// sum of the parts.
+  int get total => reportedTotal ?? spendable + awaitingConfirmation + locked + immature;
 }
 
 enum TxDirection { received, sent }
@@ -88,6 +102,9 @@ const int coinbaseMaturity = 1440;
 
 enum OutputStatus { unconfirmed, confirming, unspent, immature, locked, spent }
 
+/// The word the Outputs page shows for an output, one place (design spec §2.2, §5.5).
+enum OutputWord { spendable, confirming, finalizing, immature, mining, locked, spent }
+
 /// One coin of the balance (an output and its commitment).
 @immutable
 class Output {
@@ -99,6 +116,11 @@ class Output {
     this.confirmations = 0,
     this.confirmationsNeeded = defaultMinimumConfirmations,
     this.lockHeight,
+    this.isCoinbase = false,
+    this.awaitingFinalization = false,
+    this.hasCategory = true,
+    this.mmrIndex,
+    this.txId,
   });
 
   final String commitment;
@@ -112,6 +134,71 @@ class Output {
 
   /// Height a mining reward unlocks at.
   final int? lockHeight;
+
+  /// A mining reward.
+  final bool isCoinbase;
+
+  /// LEPIC's category is awaiting finalization (a send's change, a payment coming in).
+  final bool awaitingFinalization;
+
+  /// LEPIC gave the output a category; a reward still being mined has none.
+  final bool hasCategory;
+
+  /// Its position in the chain's output set, once found there.
+  final int? mmrIndex;
+
+  /// The transaction that made it or, once a send locks or spends it, that send ([Tx.id]).
+  final int? txId;
+
+  /// Can be spent now.
+  bool get spendable => status == OutputStatus.unspent;
+
+  /// Design spec §2.2, the one place: unconfirmed and awaiting finalization is finalizing; a
+  /// reward without a category, mining; any other unconfirmed output, like one on chain under
+  /// the confirmations needed, is confirming.
+  OutputWord get word => switch (status) {
+    OutputStatus.unspent => OutputWord.spendable,
+    OutputStatus.confirming => OutputWord.confirming,
+    OutputStatus.unconfirmed =>
+      awaitingFinalization
+          ? OutputWord.finalizing
+          : isCoinbase && !hasCategory
+          ? OutputWord.mining
+          : OutputWord.confirming,
+    OutputStatus.immature => OutputWord.immature,
+    OutputStatus.locked => OutputWord.locked,
+    OutputStatus.spent => OutputWord.spent,
+  };
+}
+
+/// A split or consolidate, finalized and posted: [txId] spent the inputs and holds the
+/// change, [receivedTxId] holds the output of [amount].
+@immutable
+class SelfSend {
+  const SelfSend({required this.txId, required this.receivedTxId, required this.amount, required this.fee, required this.inputCount, required this.outputCount});
+
+  final int txId;
+  final int receivedTxId;
+  final int amount;
+  final int fee;
+  final int inputCount;
+  final int outputCount;
+}
+
+/// The Outputs page's choices for one wallet (F13, D-5): the strategy sends use unless Send
+/// overrides it, and whether SmartOutputs splits the change.
+@immutable
+class OutputPrefs {
+  const OutputPrefs({this.strategy = SelectionStrategy.smallest, this.smartOutputs = smartOutputsDefault});
+
+  final SelectionStrategy strategy;
+  final bool smartOutputs;
+
+  @override
+  bool operator ==(Object other) => other is OutputPrefs && strategy == other.strategy && smartOutputs == other.smartOutputs;
+
+  @override
+  int get hashCode => Object.hash(strategy, smartOutputs);
 }
 
 @immutable
@@ -423,7 +510,7 @@ class HistoryFileError implements Exception {
 
 /// A wallet error, in a short sentence for the screen.
 class DeskError implements Exception {
-  const DeskError(this.message, {this.wrongPassword = false, this.locked = false, this.newPasswordNeeded = false, this.sameWallet});
+  const DeskError(this.message, {this.wrongPassword = false, this.locked = false, this.newPasswordNeeded = false, this.sameWallet, this.unbuildable = false, this.notPostedTx});
 
   final String message;
   final bool wrongPassword;
@@ -431,6 +518,14 @@ class DeskError implements Exception {
   /// A restore whose phrase belongs to this listed wallet (O1): nothing was made. The restore
   /// flow offers to open it instead.
   final WalletEntry? sameWallet;
+
+  /// A send or split the coins at hand cannot build (change too small to split, too heavy):
+  /// ask for fewer change outputs.
+  final bool unbuildable;
+
+  /// A split or consolidate stored with its outputs locked that the node did not take: the
+  /// send's [Tx.id], to post again ([DeskWalletApi.repostTx]) or cancel.
+  final int? notPostedTx;
 
   /// An import whose old password is too short for the app: it needs a new one.
   final bool newPasswordNeeded;
@@ -582,7 +677,7 @@ class DeskSettings {
 /// What Send hands over.
 @immutable
 class SendRequest {
-  const SendRequest({required this.method, required this.amount, this.to, this.message, this.sendAll = false, this.dandelion = true, this.allowPlainHttp = false});
+  const SendRequest({required this.method, required this.amount, this.to, this.message, this.sendAll = false, this.dandelion = true, this.allowPlainHttp = false, this.options});
 
   final TxMethod method;
   final int amount;
@@ -597,7 +692,14 @@ class SendRequest {
 
   /// The user agreed to send over plain `http` to another computer, unencrypted.
   final bool allowPlainHttp;
+
+  /// Strategy and change outputs, as estimated ([DeskWalletApi.estimateSend]); null keeps
+  /// the wallet's default. Not over Tor: LEPIC's Tor send takes none.
+  final SendOptions? options;
 }
+
+/// Whether [error] is a split the coins cannot build: retry with one change output.
+bool deskSplitRefused(Object error) => error is DeskError && error.unbuildable;
 
 sealed class SendResult {
   const SendResult();

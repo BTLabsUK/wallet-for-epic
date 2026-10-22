@@ -633,9 +633,12 @@ class EDivider extends StatelessWidget {
 
 /// Collapsible "technical details" block.
 class EDetails extends StatefulWidget {
-  const EDetails({super.key, required this.title, required this.child, this.initiallyOpen = false});
+  const EDetails({super.key, required this.title, required this.child, this.initiallyOpen = false, this.subtitle});
 
   final String title;
+
+  /// Beside the title, dim: what is chosen inside ("· Smallest outputs").
+  final String? subtitle;
   final Widget child;
   final bool initiallyOpen;
 
@@ -673,7 +676,17 @@ class _EDetailsState extends State<EDetails> {
                     child: Icon(EIcons.chevronRight, size: Ctl.icon, color: c.dim),
                   ),
                   SizedBox(width: Sp.x2),
-                  Expanded(child: Text(widget.title, style: context.ts.strong.copyWith(color: c.dim))),
+                  Expanded(
+                    child: Text.rich(
+                      TextSpan(
+                        children: [
+                          TextSpan(text: widget.title),
+                          if (widget.subtitle != null) TextSpan(text: ' ${widget.subtitle}', style: context.ts.bodyDim),
+                        ],
+                      ),
+                      style: context.ts.strong.copyWith(color: c.dim),
+                    ),
+                  ),
                 ],
               ),
             ),

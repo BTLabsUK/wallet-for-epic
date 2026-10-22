@@ -33,6 +33,7 @@ final Map<RegExp, String> _allowed = {
   RegExp(r'^31b-dlg-my-node-error\|Save$'): 'Refuses the bad address; its error is on screen already.',
   RegExp(r'^receive\|[\u{E000}-\u{10FFFF}]*$', unicode: true):
       'The header\'s method icons scroll to their panel; on these shots every panel is in view (receive_test checks the jump).',
+  RegExp(r'^outputs\|Smallest spends '): 'A help icon: its text shows on hover and, pressed, in a toast.',
   RegExp(r'^35-dlg-tx-proof\|Export$'): 'Behind DeskFeatures.paymentProofs (off): the dialog cannot be opened in the app.',
   RegExp(r'^settingsHelp\|(Getting started|How Epic Cash works|Keeping the wallet safe|Nodes and Epicbox|When something goes wrong)$'):
       'A section chip scrolls to its section (help_test checks it); the sweep compares what is shown, not where.',
@@ -94,6 +95,8 @@ class _Recorder implements DeskWalletApi {
   Future<void> forgetRemembered(String id) => _r('forgetRemembered', () => _m.forgetRemembered(id));
   @override
   bool get notRemembered => _m.notRemembered;
+  @override
+  bool get busy => _m.busy;
   @override
   bool get openedRemembered => _m.openedRemembered;
   @override
@@ -163,7 +166,23 @@ class _Recorder implements DeskWalletApi {
   @override
   Future<int> estimateFee(int amount) => _r('estimateFee', () => _m.estimateFee(amount));
   @override
-  Future<(int, int)> estimateMax() => _r('estimateMax', _m.estimateMax);
+  Future<SendEstimate> estimateMax() => _r('estimateMax', _m.estimateMax);
+  @override
+  Future<SendEstimate> estimateSend(int amount, {SendOptions? options}) => _r('estimateSend', () => _m.estimateSend(amount, options: options));
+  @override
+  Future<OutputPrefs> outputPrefs() => _r('outputPrefs', _m.outputPrefs);
+  @override
+  Future<void> saveOutputPrefs(OutputPrefs prefs) => _r('saveOutputPrefs', () => _m.saveOutputPrefs(prefs));
+  @override
+  Future<void> repostTx(int id) => _r('repostTx', () => _m.repostTx(id));
+  @override
+  Future<SendEstimate> estimateSplit(int outputs) => _r('estimateSplit', () => _m.estimateSplit(outputs));
+  @override
+  Future<SelfSend> splitOutputs(int outputs) => _r('splitOutputs', () => _m.splitOutputs(outputs));
+  @override
+  Future<SendEstimate> estimateConsolidate() => _r('estimateConsolidate', _m.estimateConsolidate);
+  @override
+  Future<SelfSend> consolidateOutputs() => _r('consolidateOutputs', _m.consolidateOutputs);
   @override
   Future<SendResult> send(SendRequest request) => _r('send', () => _m.send(request));
   @override

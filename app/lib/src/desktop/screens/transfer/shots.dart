@@ -19,6 +19,16 @@ final List<DeskShot> transferShots = [
   const DeskShot(id: '13e-send-privacy', title: 'Send, privacy open', route: DeskRoute.send, arg: SendArgs(privacyOpen: true, recipient: _anna, amount: '12.5')),
   const DeskShot(id: '13f-send-suggestions', title: 'Send, matching contacts', route: DeskRoute.send, arg: SendArgs(recipient: 'an', suggest: true)),
   const DeskShot(id: '13g-send-http', title: 'Send, HTTP', route: DeskRoute.send, arg: SendArgs(method: TxMethod.http, recipient: 'http://10.0.1.24:3415', amount: '5')),
+  const DeskShot(id: '13j-send-summary', title: 'Send, summary with what stays spendable', route: DeskRoute.send, arg: SendArgs(recipient: _anna, amount: '25'), height: 900),
+  const DeskShot(id: '13k-send-advanced', title: 'Send, Advanced open', route: DeskRoute.send, arg: SendArgs(recipient: _anna, amount: '25', advancedOpen: true), height: 1000),
+  const DeskShot(
+    id: '13l-send-all-strategy',
+    title: 'Send, strategy All for this send',
+    route: DeskRoute.send,
+    arg: SendArgs(recipient: _anna, amount: '25', strategy: SelectionStrategy.all, advancedOpen: true),
+    height: 1000,
+  ),
+  const DeskShot(id: '13n-review-lock', title: 'Send, review with the lock', route: DeskRoute.send, arg: SendArgs(recipient: _anna, amount: '25', step: SendStep.review)),
   const DeskShot(id: '13h-send-tor-off', title: 'Send, Tor off', route: DeskRoute.send, arg: SendArgs(method: TxMethod.tor)),
   const DeskShot(
     id: '13i-send-switched',

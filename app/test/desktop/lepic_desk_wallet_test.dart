@@ -47,6 +47,17 @@ class _StrictSession extends core.FakeWalletSession {
   }
 }
 
+/// Holds every split at [gate] until it is completed: a payment under way.
+class _SlowSplit extends _StrictSession {
+  Completer<void>? gate;
+
+  @override
+  Future<core.SelfSentTx> splitOutputs({required int outputs, required BigInt minimumConfirmations}) async {
+    await gate?.future;
+    return super.splitOutputs(outputs: outputs, minimumConfirmations: minimumConfirmations);
+  }
+}
+
 /// Opens like LEPIC, except: a config [refuse] picks fails, and [gate] holds every open.
 class _Opens extends core.FakeWalletService {
   _Opens() : super(password: _password, session: _StrictSession());
@@ -345,6 +356,38 @@ void main() {
   group('reading', () {
     setUp(created);
 
+    test('Total is the core\'s: one 100 EPIC output sending 1 is 100, then 98.99, never 199', () async {
+      const epic = 100000000;
+      final s = service.session;
+      core.WalletSummary summary({required int total, int spendable = 0, int confirming = 0, int finalizing = 0, int locked = 0}) => core.WalletSummary(
+        lastConfirmedHeight: BigInt.from(2500000),
+        minimumConfirmations: BigInt.from(3),
+        total: BigInt.from(total),
+        spendable: BigInt.from(spendable),
+        awaitingConfirmation: BigInt.from(confirming),
+        awaitingFinalization: BigInt.from(finalizing),
+        immature: BigInt.zero,
+        locked: BigInt.from(locked),
+        validatedWithNode: true,
+      );
+      // As LEPIC reports a pending send: the input locked, the change awaiting finalization
+      // (not in the total) until the refresh that finds it on chain marks the input spent.
+      s.summaryValue = summary(total: 100 * epic, locked: 100 * epic, finalizing: 99 * epic - 800000);
+      await wallet.syncNow();
+      final pending = await wallet.balance();
+      expect(pending.total, 100 * epic);
+      expect(pending.total, lessThan(199 * epic));
+      // Mined: the input spent, the change confirming.
+      s.summaryValue = summary(total: 99 * epic - 800000, confirming: 99 * epic - 800000);
+      await wallet.syncNow();
+      expect((await wallet.balance()).total, 99 * epic - 800000);
+      // The core's figure wins over the parts.
+      s.summaryValue = summary(total: 7, spendable: 5);
+      await wallet.syncNow();
+      expect((await wallet.balance()).total, 7);
+      expect(const Balance(spendable: 5, awaitingConfirmation: 1, locked: 2, awaitingFinalization: 9, immature: 3).total, 11);
+    });
+
     test('balance and history map onto the UI types', () async {
       final s = service.session;
       s.summaryValue = core.WalletSummary(
@@ -478,8 +521,9 @@ void main() {
 
     test('fee, max and an Epicbox send', () async {
       expect(await wallet.estimateFee(1000), service.session.fee.toInt());
-      final (max, fee) = await wallet.estimateMax();
-      expect(max + fee, 100000000);
+      final max = await wallet.estimateMax();
+      expect(max.amount + max.fee, 100000000);
+      expect(max.locked, greaterThan(0));
       final to = '${'1' * 52}@epicbox.epiccash.com';
       expect(await wallet.send(const SendRequest(method: TxMethod.epicbox, amount: 1000, to: 'nope')), isA<SendFailed>());
       final r = await wallet.send(SendRequest(method: TxMethod.epicbox, amount: 1000, to: to, message: ' lunch '));
@@ -1047,6 +1091,59 @@ void main() {
     });
   });
 
+  group('payments under way', () {
+    late _SlowSplit session;
+
+    setUp(() async {
+      session = _SlowSplit()..gate = Completer<void>();
+      service = core.FakeWalletService(password: _password, session: session);
+      await wallet.dispose();
+      wallet = make(service);
+      await created();
+    });
+
+    test('a lock waits for a split under way, and no payment starts while it waits', () async {
+      final disposed = session.disposeCalls;
+      final split = wallet.splitOutputs(2).then<Object?>((v) => v, onError: (Object e) => e);
+      await Future<void>.delayed(Duration.zero);
+      expect(wallet.busy, isTrue);
+      var locked = false;
+      final lock = wallet.lock().then((_) => locked = true);
+      await Future<void>.delayed(const Duration(milliseconds: 50));
+      expect(locked, isFalse, reason: 'the split still runs');
+      expect(session.disposeCalls, disposed);
+      await expectLater(
+        wallet.send(const SendRequest(method: TxMethod.file, amount: 100000000)),
+        throwsA(isA<DeskError>().having((e) => e.locked, 'locked', isTrue)),
+      );
+      session.gate!.complete();
+      await split;
+      await lock;
+      expect(locked, isTrue);
+      expect(wallet.busy, isFalse);
+      expect(session.disposeCalls, disposed + 1);
+    });
+
+    test('closing the app waits for a payment only up to closeWait', () async {
+      final quick = LepicDeskWallet(
+        service: service,
+        walletDir: walletDir,
+        secrets: secrets,
+        filesDir: () async => files,
+        nodePoll: const Duration(hours: 1),
+        closeWait: const Duration(milliseconds: 50),
+      );
+      expect(await quick.unlock(_password), isTrue);
+      final disposed = session.disposeCalls;
+      unawaited(quick.splitOutputs(2).then<Object?>((v) => v, onError: (Object e) => e));
+      await Future<void>.delayed(Duration.zero);
+      expect(quick.busy, isTrue);
+      await quick.dispose().timeout(const Duration(seconds: 5));
+      expect(session.disposeCalls, disposed + 1, reason: 'locked though the split never finished');
+      session.gate!.complete();
+    });
+  });
+
   group('hidden features', () {
     Future<void> pump(WidgetTester tester, DeskRoute route) async {
       tester.view.physicalSize = const Size(1280, 900);
@@ -1104,9 +1201,9 @@ void main() {
       await done(tester);
     });
 
-    testWidgets('activity has no Outputs tab; account changes the password as DeskFeatures says', (tester) async {
+    testWidgets('activity has one tab (Outputs is a page); account changes the password as DeskFeatures says', (tester) async {
       await pump(tester, DeskRoute.activity);
-      expect(find.text('Outputs'), findsNothing);
+      expect(find.text('Transactions'), findsNothing);
       await done(tester);
       await pump(tester, DeskRoute.settingsAccount);
       expect(find.text('Change password…'), DeskFeatures.changePassword ? findsOneWidget : findsNothing);

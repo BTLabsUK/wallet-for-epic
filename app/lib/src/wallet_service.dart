@@ -160,29 +160,36 @@ abstract interface class WalletSession {
   Future<void> releaseStuckSend({required String key});
 
   /// [message], when set, is signed into the slate for the recipient to see; LEPIC cuts it
-  /// to [slateMessageMaxBytes].
+  /// to [slateMessageMaxBytes]. [options] choose the inputs and change; without them a send
+  /// of the amount [estimateMax] last returned takes every output into one change output,
+  /// any other [SendOptions.standard].
   Future<Slate> createSendSlate({
     required BigInt amount,
     required BigInt minimumConfirmations,
     String? message,
+    SendOptions? options,
   });
 
   Future<String> epicboxAddress();
 
+  /// What a send of [amount] with [options] would spend, pay and get back now, with nothing
+  /// locked. Pass the [options] the send will get.
   Future<FeeEstimate> estimateFee({
     required BigInt amount,
     required BigInt minimumConfirmations,
+    SendOptions? options,
   });
 
   Future<TxEntry> finalizeAndPost({required String slateJson});
 
   /// Posts a send over epicbox. The listener finalizes it when the recipient answers.
-  /// [message] as for [createSendSlate].
+  /// [message] and [options] as for [createSendSlate].
   Future<TxEntry> sendEpicbox({
     required BigInt amount,
     required BigInt minimumConfirmations,
     required String address,
     String? message,
+    SendOptions? options,
   });
 
   /// Starts the epicbox listener and streams its events. It runs until [stopListener] or
@@ -196,13 +203,15 @@ abstract interface class WalletSession {
   /// after the user agreed to send unencrypted. Throws [WalletErrorKind.httpUrlInvalid] or
   /// [WalletErrorKind.plainHttpNotAllowed], storing nothing; [WalletErrorKind.transportFailed]
   /// when the other wallet did not answer, with the send stored as waiting and its inputs
-  /// locked: [resendHttp] or [cancelTransaction] it. [message] as for [createSendSlate].
+  /// locked: [resendHttp] or [cancelTransaction] it. [message] and [options] as for
+  /// [createSendSlate].
   Future<HttpSent> sendHttp({
     required BigInt amount,
     required BigInt minimumConfirmations,
     required String url,
     required bool allowPlainHttp,
     String? message,
+    SendOptions? options,
   });
 
   /// Delivers send [txId] again over HTTP, to [url] (the same or another address), then
@@ -257,6 +266,7 @@ abstract interface class WalletSession {
     required BigInt minimumConfirmations,
     required String onion,
     String? message,
+    SendOptions? options,
   });
 
   /// Delivers send [txId] again over Tor, to [onion], then finalizes and posts.
@@ -321,6 +331,34 @@ abstract interface class WalletSession {
 
   /// Largest amount that can be sent now, with its fee.
   Future<FeeEstimate> estimateMax({required BigInt minimumConfirmations});
+
+  // Outputs (F13). A split and a consolidate are normal network transactions to the wallet
+  // itself, never through its Epicbox address; each spends every output with
+  // [minimumConfirmations], so the whole balance is locked until it confirms.
+
+  /// Every output of the wallet, spent ones included, ordered by commitment, from the
+  /// wallet's database alone; refresh [summary] first for the node's view.
+  Future<List<WalletOutput>> outputs();
+
+  /// The fee and inputs of [splitOutputs] into [outputs] outputs now, with nothing locked.
+  Future<FeeEstimate> estimateSplit({
+    required int outputs,
+    required BigInt minimumConfirmations,
+  });
+
+  /// Splits the wallet's funds into [outputs] outputs of nearly equal value,
+  /// [minSplitOutputs] to [maxSplitOutputs]. [WalletErrorKind.invalidArgument] for a count
+  /// outside that, [WalletErrorKind.notEnoughFunds] when the outputs cannot pay the fee.
+  Future<SelfSentTx> splitOutputs({
+    required int outputs,
+    required BigInt minimumConfirmations,
+  });
+
+  /// The fee and inputs of [consolidateOutputs] now, with nothing locked.
+  Future<FeeEstimate> estimateConsolidate({required BigInt minimumConfirmations});
+
+  /// Merges every output with [minimumConfirmations] (up to 500) into one.
+  Future<SelfSentTx> consolidateOutputs({required BigInt minimumConfirmations});
 
   // Invoices over epicbox (I-01). Trusted services bill the user at a separate invoice
   // address; each invoice waits for the user. Capabilities, not LEPIC's names: I-04 adapts
@@ -896,10 +934,12 @@ class FakeWalletSession implements WalletSession {
     required BigInt amount,
     required BigInt minimumConfirmations,
     String? message,
+    SendOptions? options,
   }) async {
     _checkFunds(amount);
     sentAmounts.add(amount);
     sentMessages.add(message);
+    sentOptions.add(options);
     return sendSlate;
   }
 
@@ -910,7 +950,12 @@ class FakeWalletSession implements WalletSession {
   Future<FeeEstimate> estimateFee({
     required BigInt amount,
     required BigInt minimumConfirmations,
+    SendOptions? options,
   }) async {
+    estimateOptions.add(options);
+    if (outputsValue.isNotEmpty) {
+      return _select(amount, options ?? SendOptions.standard);
+    }
     _checkFunds(amount);
     return FeeEstimate(amount: amount, fee: fee);
   }
@@ -978,6 +1023,7 @@ class FakeWalletSession implements WalletSession {
     required BigInt minimumConfirmations,
     required String address,
     String? message,
+    SendOptions? options,
   }) async {
     final error = sendError;
     if (error != null && error.kind != WalletErrorKind.transportFailed) {
@@ -986,6 +1032,7 @@ class FakeWalletSession implements WalletSession {
     _checkFunds(amount);
     epicboxSends.add((amount: amount, to: address));
     sentMessages.add(message);
+    sentOptions.add(options);
     final tx = _pendingSend(amount, to: address, message: message);
     if (error != null) {
       // Like LEPIC: the payment is built and stored with its inputs locked before the relay
@@ -1057,8 +1104,10 @@ class FakeWalletSession implements WalletSession {
     required String url,
     required bool allowPlainHttp,
     String? message,
+    SendOptions? options,
   }) async {
     _checkHttpUrl(url, allowPlainHttp);
+    sentOptions.add(options);
     final error = sendError;
     if (error != null &&
         error.kind != WalletErrorKind.transportFailed &&
@@ -1221,6 +1270,7 @@ class FakeWalletSession implements WalletSession {
     required BigInt minimumConfirmations,
     required String onion,
     String? message,
+    SendOptions? options,
   }) async {
     _checkOnion(onion);
     if (!_torUp) {
@@ -1532,7 +1582,12 @@ class FakeWalletSession implements WalletSession {
         message: 'not enough funds',
       );
     }
-    return FeeEstimate(amount: summaryValue.spendable - fee, fee: fee);
+    return FeeEstimate(
+      amount: summaryValue.spendable - fee,
+      fee: fee,
+      locked: summaryValue.spendable,
+      inputCount: 1,
+    );
   }
 
   void _checkFunds(BigInt amount) {
@@ -1542,6 +1597,194 @@ class FakeWalletSession implements WalletSession {
         message: 'not enough funds',
       );
     }
+  }
+
+  // Outputs. With [outputsValue] set, estimates choose inputs from its spendable outputs as
+  // LEPIC does: smallest first until amount and fee are covered, or all of them; each change
+  // output past the first adds [changeOutputFee].
+
+  /// The wallet's outputs; empty keeps the estimates as they were (fee only).
+  List<WalletOutput> outputsValue = [];
+
+  /// What one change or split output past the first adds to [fee].
+  BigInt changeOutputFee = BigInt.from(400000);
+
+  /// The options of every [estimateFee] call, and of every send, null when none were given.
+  final List<SendOptions?> estimateOptions = [];
+  final List<SendOptions?> sentOptions = [];
+
+  /// The output count of every [splitOutputs] call, and the number of [consolidateOutputs]
+  /// calls.
+  final List<int> splits = [];
+  int consolidations = 0;
+
+  @override
+  Future<List<WalletOutput>> outputs() async => List.unmodifiable(outputsValue);
+
+  List<WalletOutput> get _spendableOutputs =>
+      outputsValue.where((o) => o.category == OutputCategory.spendable).toList()
+        ..sort((a, b) => a.value.compareTo(b.value));
+
+  static const WalletError _notEnough = WalletError(
+    kind: WalletErrorKind.notEnoughFunds,
+    message: 'not enough funds',
+  );
+
+  FeeEstimate _select(BigInt amount, SendOptions options) {
+    final n = options.changeOutputs;
+    if (n < minChangeOutputs || n > maxChangeOutputs) {
+      throw WalletError(
+        kind: WalletErrorKind.invalidArgument,
+        message: 'change outputs $n outside 1..=10',
+      );
+    }
+    final all = _spendableOutputs;
+    final extra = changeOutputFee * BigInt.from(n - 1);
+    final need = amount + fee + extra;
+    var sum = BigInt.zero;
+    var count = 0;
+    for (final o in all) {
+      if (options.strategy == SelectionStrategy.smallest && sum >= need) break;
+      sum += o.value;
+      count++;
+    }
+    // Inputs that pay amount and fee exactly make no change output, and no split fee.
+    if (sum == amount + fee) {
+      return FeeEstimate(
+        amount: amount,
+        fee: fee,
+        inputCount: count,
+        locked: sum,
+      );
+    }
+    if (sum < need) throw _notEnough;
+    final change = sum - need;
+    if (change > BigInt.zero && change < BigInt.from(n)) {
+      throw const WalletError(
+        kind: WalletErrorKind.invalidArgument,
+        message: sendUnbuildable,
+      );
+    }
+    return FeeEstimate(
+      amount: amount,
+      fee: fee + extra,
+      inputCount: count,
+      change: change,
+      locked: sum,
+      changeOutputs: change == BigInt.zero ? 0 : n,
+    );
+  }
+
+  FeeEstimate _selfSend(int outputs) {
+    final all = _spendableOutputs;
+    final sum = all.fold(BigInt.zero, (a, o) => a + o.value);
+    final total = fee + changeOutputFee * BigInt.from(outputs - 1);
+    if (all.isEmpty || sum < total + BigInt.from(outputs)) throw _notEnough;
+    return FeeEstimate(
+      amount: (sum - total) ~/ BigInt.from(outputs),
+      fee: total,
+      inputCount: all.length,
+      change: sum - total - (sum - total) ~/ BigInt.from(outputs),
+      locked: sum,
+      changeOutputs: outputs - 1,
+    );
+  }
+
+  void _checkSplit(int outputs) {
+    if (outputs < minSplitOutputs || outputs > maxSplitOutputs) {
+      throw WalletError(
+        kind: WalletErrorKind.invalidArgument,
+        message: 'outputs $outputs outside 2..=10',
+      );
+    }
+  }
+
+  /// Locks the spendable outputs and adds [count] unconfirmed ones sharing their value less
+  /// the fee, as a posted self-send leaves the wallet.
+  SelfSentTx _postSelf(FeeEstimate e, int count) {
+    final inputs = _spendableOutputs;
+    final id = 500 + splits.length + consolidations;
+    final made = <WalletOutput>[];
+    final total = e.locked - e.fee;
+    for (var i = 0; i < count; i++) {
+      final part = total ~/ BigInt.from(count);
+      made.add(
+        WalletOutput(
+          commitment: 'self-$id-$i',
+          value: i == count - 1 ? total - part * BigInt.from(count - 1) : part,
+          status: WalletOutputStatus.unconfirmed,
+          category: OutputCategory.awaitingConfirmation,
+          isCoinbase: false,
+          height: summaryValue.lastConfirmedHeight,
+          lockHeight: BigInt.zero,
+          confirmations: BigInt.zero,
+          txId: id,
+        ),
+      );
+    }
+    outputsValue = [
+      for (final o in outputsValue)
+        if (inputs.contains(o))
+          WalletOutput(
+            commitment: o.commitment,
+            value: o.value,
+            status: WalletOutputStatus.locked,
+            category: OutputCategory.locked,
+            isCoinbase: o.isCoinbase,
+            height: o.height,
+            lockHeight: o.lockHeight,
+            mmrIndex: o.mmrIndex,
+            confirmations: o.confirmations,
+            txId: id,
+          )
+        else
+          o,
+      ...made,
+    ];
+    return SelfSentTx(
+      txId: id,
+      receivedTxId: id + 1,
+      amount: e.amount,
+      fee: e.fee,
+      inputCount: e.inputCount,
+      outputCount: count,
+    );
+  }
+
+  @override
+  Future<FeeEstimate> estimateSplit({
+    required int outputs,
+    required BigInt minimumConfirmations,
+  }) async {
+    _checkSplit(outputs);
+    return _selfSend(outputs);
+  }
+
+  @override
+  Future<SelfSentTx> splitOutputs({
+    required int outputs,
+    required BigInt minimumConfirmations,
+  }) async {
+    _checkSplit(outputs);
+    final e = _selfSend(outputs);
+    final tx = _postSelf(e, outputs);
+    splits.add(outputs);
+    return tx;
+  }
+
+  @override
+  Future<FeeEstimate> estimateConsolidate({
+    required BigInt minimumConfirmations,
+  }) async => _selfSend(1);
+
+  @override
+  Future<SelfSentTx> consolidateOutputs({
+    required BigInt minimumConfirmations,
+  }) async {
+    final e = _selfSend(1);
+    final tx = _postSelf(e, 1);
+    consolidations++;
+    return tx;
   }
 
   // Invoices. The fake plays the wallet's half as UP-14 describes it: the allowlist and the

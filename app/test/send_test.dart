@@ -106,12 +106,14 @@ class _GatedSession extends FakeWalletSession {
   Future<FeeEstimate> estimateFee({
     required BigInt amount,
     required BigInt minimumConfirmations,
+    SendOptions? options,
   }) async {
     estimateCalls++;
     await estimateGate?.future;
     return super.estimateFee(
       amount: amount,
       minimumConfirmations: minimumConfirmations,
+      options: options,
     );
   }
 
@@ -121,6 +123,7 @@ class _GatedSession extends FakeWalletSession {
     required BigInt minimumConfirmations,
     required String address,
     String? message,
+    SendOptions? options,
   }) async {
     await sendGate?.future;
     return super.sendEpicbox(
@@ -128,6 +131,7 @@ class _GatedSession extends FakeWalletSession {
       minimumConfirmations: minimumConfirmations,
       address: address,
       message: message,
+      options: options,
     );
   }
 

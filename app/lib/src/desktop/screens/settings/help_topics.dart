@@ -138,6 +138,26 @@ List<HelpTopic> helpTopicsFor(int confirmations) => <HelpTopic>[
   ),
   HelpTopic(
     'how',
+    'Smallest or All: which outputs a send spends',
+    'Smallest (the default) uses the fewest small outputs and leaves the rest spendable. All uses every output.',
+    [
+      HelpBlock.p('**Smallest** sorts the spendable outputs by value and takes the smallest ones until the amount and fee are covered. Only those are locked while the send confirms; the rest can be sent right away.'),
+      HelpBlock.p('**All** spends every spendable output and returns one change output. Everything is locked for $confirmations blocks, the wallet ends up with fewer, larger outputs, and the fee is a little higher because each input costs. Sending the whole balance always uses All.'),
+      HelpBlock.p('The default is set under [[Outputs]]; Send can change it for one send under **Advanced**.'),
+    ],
+  ),
+  HelpTopic(
+    'how',
+    'Split and consolidate',
+    'Split makes more outputs so sends can follow each other; Consolidate merges them into one.',
+    [
+      HelpBlock.p('Both are normal network transactions from this wallet to itself, confirmed after $confirmations blocks like any send, and both lock every spendable output until then.'),
+      HelpBlock.ul(['**Split** takes the spendable balance and makes 2 to 10 outputs of nearly equal value.', '**Consolidate** takes every spendable output and makes one.', '**Split change** (on by default) does the same inside an ordinary send when few outputs would be left, for 0.004 EPIC per extra output.']),
+      HelpBlock.p('Activity shows each as two entries, a send and a receive, both with this wallet. Both are under [[Outputs]].'),
+    ],
+  ),
+  HelpTopic(
+    'how',
     'Fees',
     'Every transaction pays a small network fee, shown before sending. It goes to the miners.',
     [
