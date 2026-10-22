@@ -200,6 +200,8 @@ void main() {
       await tester.tap(find.text('Review send'));
       await tester.pump(const Duration(milliseconds: 600));
       expect(find.text("This is the wallet's own address."), refused ? findsOneWidget : findsNothing);
+      // The review dialog that opens for another address starts a timer of its own.
+      await tester.pumpAndSettle();
     });
   }
 
