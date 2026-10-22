@@ -6,21 +6,35 @@
 #
 # Usage: tools/fetch-tor.sh <linux|win> <out dir>
 #   Release builds copy <out dir> to bin/tor-bundle/ next to the app's executable.
+#        tools/fetch-tor.sh android <jniLibs dir>
+#   Android: only tor/libTor.so of each ABI is kept, as <jniLibs dir>/<abi>/libtor.so (the folder
+#   app/android/app/build.gradle.kts packs as jniLibs; a PIE executable that Android extracts to
+#   the app's native library folder) and Tor's licence as <jniLibs dir>/LICENSE.tor.txt.
 # Env:   TOR_CACHE=<dir>   where tarballs are kept (default ~/.cache/epic-gui-tor/<version>);
 #                          a cached tarball is used only when its hash matches.
+#        TOR_ANDROID_ABIS  ABIs for `android` (default "arm64-v8a x86_64", the ABIs the app ships;
+#                          the pins also cover armeabi-v7a and x86).
 set -euo pipefail
 
 root="$(cd "$(dirname "$0")/.." && pwd)"
 pins="$root/tools/tor-bundle.json"
 plat="${1:-}"
 out="${2:-}"
-case "$plat" in linux|win) ;; *) echo "usage: $0 <linux|win> <out dir>" >&2; exit 2 ;; esac
-[[ -n "$out" ]] || { echo "usage: $0 <linux|win> <out dir>" >&2; exit 2; }
+usage="usage: $0 <linux|win|android> <out dir>"
+case "$plat" in linux|win|android|android-arm64-v8a|android-x86_64|android-armeabi-v7a|android-x86) ;; *) echo "$usage" >&2; exit 2 ;; esac
+[[ -n "$out" ]] || { echo "$usage" >&2; exit 2; }
+
+if [[ "$plat" == android ]]; then
+  for abi in ${TOR_ANDROID_ABIS:-arm64-v8a x86_64}; do
+    "$0" "android-$abi" "$out"
+  done
+  exit 0
+fi
 
 version="$(jq -r .bundleVersion "$pins")"
-tarball="$(jq -r ".platforms.$plat.tarball" "$pins")"
-want="$(jq -r ".platforms.$plat.sha256" "$pins")"
-license="$(jq -r ".platforms.$plat.license" "$pins")"
+tarball="$(jq -r ".platforms[\"$plat\"].tarball" "$pins")"
+want="$(jq -r ".platforms[\"$plat\"].sha256" "$pins")"
+license="$(jq -r ".platforms[\"$plat\"].license" "$pins")"
 cache="${TOR_CACHE:-$HOME/.cache/epic-gui-tor/$version}"
 mkdir -p "$cache"
 
@@ -54,21 +68,33 @@ tar -xzf "$file" -C "$work" tor docs/tor.txt
 
 staged="$work/keep"
 mkdir -p "$staged"
-check() { # <source> <name> <pinned hash>
+check() { # <source> <name> <pinned hash> [<installed name>]
   local h
   h="$(hash_of "$1")"
   [[ "$h" == "$3" ]] || { echo "$2 hash mismatch: $h, pinned $3" >&2; exit 1; }
-  install -m 755 "$1" "$staged/$2"
+  install -m 755 "$1" "$staged/${4:-$2}"
   echo "$2 ok"
 }
 while IFS=$'\t' read -r name hash; do
-  check "$work/tor/$name" "$name" "$hash"
-done < <(jq -r ".platforms.$plat.files | to_entries[] | \"\(.key)\t\(.value)\"" "$pins")
+  if [[ "$plat" == android-* ]]; then
+    check "$work/tor/$name" "$name" "$hash" "${name,,}"   # libTor.so -> libtor.so
+  else
+    check "$work/tor/$name" "$name" "$hash"
+  fi
+done < <(jq -r ".platforms[\"$plat\"].files | to_entries[] | \"\(.key)\t\(.value)\"" "$pins")
 check "$work/docs/tor.txt" LICENSE.tor.txt "$license"
 chmod 644 "$staged/LICENSE.tor.txt"
 printf 'Tor Expert Bundle %s, tor %s\n' "$version" "$(jq -r .tor "$pins")" > "$staged/VERSION"
 
 # Only a fully checked set lands in <out dir>.
+if [[ "$plat" == android-* ]]; then
+  abi="${plat#android-}"
+  mkdir -p "$out/$abi"
+  install -m 755 "$staged/libtor.so" "$out/$abi/libtor.so"
+  install -m 644 "$staged/LICENSE.tor.txt" "$out/LICENSE.tor.txt"
+  echo "tor ($plat) in $out/$abi"
+  exit 0
+fi
 mkdir -p "$out"
 cp -a "$staged/." "$out/"
 echo "tor bundle ($plat) in $out"
