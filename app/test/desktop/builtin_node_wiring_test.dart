@@ -24,8 +24,11 @@ class _Opens extends core.FakeWalletService {
   /// The height the node reports; 0 while a local node still downloads the chain.
   BigInt tip = BigInt.from(2500000);
 
+  /// What the node says of being ready for transactions; null for nodes that do not say.
+  bool? ready;
+
   @override
-  Future<core.NodeTip> nodeTip({required core.WalletConfig config}) async => core.NodeTip(height: tip, nodeVersion: '3.6.0');
+  Future<core.NodeTip> nodeTip({required core.WalletConfig config}) async => core.NodeTip(height: tip, nodeVersion: '3.6.0', readyForTxs: ready);
 
   /// A node URL the wallet cannot open on.
   String? failOn;
@@ -161,6 +164,24 @@ void main() {
     await Future<void>.delayed(const Duration(milliseconds: 50));
     st = await wallet.status();
     expect(st.nodeHealth, ServiceHealth.ok);
+    await wallet.dispose();
+  });
+
+  test('a node that says it is not ready for transactions is Syncing, at any height (O2)', () async {
+    service.ready = false;
+    final wallet = make();
+    expect(await wallet.unlock(_password), isTrue);
+    await Future<void>.delayed(const Duration(milliseconds: 50));
+    expect((await wallet.status()).nodeHealth, ServiceHealth.slow);
+    await wallet.dispose();
+  });
+
+  test('a node that says it is ready, or says nothing, is judged by its height', () async {
+    service.ready = true;
+    final wallet = make();
+    expect(await wallet.unlock(_password), isTrue);
+    await Future<void>.delayed(const Duration(milliseconds: 50));
+    expect((await wallet.status()).nodeHealth, ServiceHealth.ok);
     await wallet.dispose();
   });
 

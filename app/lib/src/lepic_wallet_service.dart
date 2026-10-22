@@ -61,6 +61,9 @@ void logLepicEntry(lepic.LogEntry entry) {
   AppLog.record(level, entry.target, line.toString());
 }
 
+/// What a send LEPIC cannot build from the coins at hand (ChangeTooSmall, TooHeavy) says.
+const String sendUnbuildable = 'This send cannot be built from the coins available.';
+
 /// LEPIC's error as the app's. The switch is exhaustive, so a kind LEPIC adds breaks the build
 /// here instead of reaching the UI unmapped.
 WalletError mapLepicError(lepic.WalletError error) {
@@ -74,6 +77,9 @@ WalletError mapLepicError(lepic.WalletError error) {
     lepic.WalletErrorKind.notEnoughFunds => WalletErrorKind.notEnoughFunds,
     lepic.WalletErrorKind.invalidSlate => WalletErrorKind.invalidSlate,
     lepic.WalletErrorKind.invalidArgument => WalletErrorKind.invalidArgument,
+    // A split that cannot be built from the coins at hand; one short error for both.
+    lepic.WalletErrorKind.changeTooSmall ||
+    lepic.WalletErrorKind.tooHeavy => WalletErrorKind.invalidArgument,
     lepic.WalletErrorKind.transportFailed => WalletErrorKind.transportFailed,
     lepic.WalletErrorKind.chainBusy => WalletErrorKind.chainBusy,
     lepic.WalletErrorKind.walletBusy => WalletErrorKind.walletBusy,
@@ -110,7 +116,13 @@ WalletError mapLepicError(lepic.WalletError error) {
     lepic.WalletErrorKind.unsupported ||
     lepic.WalletErrorKind.panic => WalletErrorKind.other,
   };
-  return WalletError(kind: kind, message: error.message);
+  final split =
+      error.kind == lepic.WalletErrorKind.changeTooSmall ||
+      error.kind == lepic.WalletErrorKind.tooHeavy;
+  return WalletError(
+    kind: kind,
+    message: split ? sendUnbuildable : error.message,
+  );
 }
 
 Future<T> _guard<T>(Future<T> Function() call) async {
@@ -670,7 +682,11 @@ class LepicWalletService implements WalletService {
       runtime: _runtime,
       config: _lepicConfig(config, config.dataDir),
     );
-    return NodeTip(height: tip.height, nodeVersion: tip.nodeVersion);
+    return NodeTip(
+      height: tip.height,
+      nodeVersion: tip.nodeVersion,
+      readyForTxs: tip.readyForTxs,
+    );
   });
 
   @override
@@ -924,6 +940,18 @@ class LepicWalletSession implements WalletSession {
   Future<void> releaseStuckSend({required String key}) =>
       _guard(() async => _wallet.releaseTransaction(txId: await _txIdOf(key)));
 
+  /// The amount [estimateMax] last returned. A send of exactly that amount is a send-all and
+  /// takes every coin into one change output, as the estimate did, so fee and amount match.
+  BigInt? _maxAmount;
+
+  lepic.SendOptions? _optionsFor(BigInt amount) =>
+      amount == _maxAmount
+      ? const lepic.SendOptions(
+          strategy: lepic.SelectionStrategy.all,
+          changeOutputs: 1,
+        )
+      : null;
+
   @override
   Future<Slate> createSendSlate({
     required BigInt amount,
@@ -934,6 +962,7 @@ class LepicWalletSession implements WalletSession {
       amount: amount,
       minimumConfirmations: minimumConfirmations,
       message: _message(message),
+      options: _optionsFor(amount),
     );
     return Slate(slateId: slate.slateId, json: slate.json);
   });
@@ -958,7 +987,12 @@ class LepicWalletSession implements WalletSession {
       _guard(() async {
         final e = await _wallet.estimateMax(
           minimumConfirmations: minimumConfirmations,
+          options: const lepic.SendOptions(
+            strategy: lepic.SelectionStrategy.all,
+            changeOutputs: 1,
+          ),
         );
+        _maxAmount = e.amount;
         return FeeEstimate(amount: e.amount, fee: e.fee);
       });
 
@@ -981,6 +1015,7 @@ class LepicWalletSession implements WalletSession {
       minimumConfirmations: minimumConfirmations,
       address: address,
       message: _message(message),
+      options: _optionsFor(amount),
     );
     return _entry(tx.txId);
   });
@@ -1014,6 +1049,7 @@ class LepicWalletSession implements WalletSession {
       url: url,
       allowPlainHttp: allowPlainHttp,
       message: _message(message),
+      options: _optionsFor(amount),
     );
     return HttpSent(txId: tx.txId, slateId: tx.slateId, posted: tx.posted);
   });
