@@ -96,7 +96,8 @@ abstract interface class DeskWalletApi {
   Future<Tx> finalizeFile(String fileName);
   Future<void> cancelTx(int id);
   Future<String> exportProof(int id);
-  Future<void> saveContact(Contact contact);
+  /// Adds (empty id) or replaces [contact] and returns its id. Only stores: an address is never checked over the network.
+  Future<String> saveContact(Contact contact);
   Future<void> deleteContact(String id);
   Future<void> saveSettings(DeskSettings settings);
   Future<void> useNode(String url);

@@ -232,6 +232,12 @@ void main() {
           const Contact(id: '', name: 'Alice', address: 'a@relay'),
         );
         expect(history.contacts().map((c) => c.name), ['Alice', 'bob']);
+        // The desktop pays http(s) addresses too; the store keeps one as typed.
+        final web = await history.saveContact(
+          const Contact(id: '', name: 'lol', address: 'http://llol'),
+        );
+        expect(web.address, 'http://llol');
+        await history.deleteContact(web.id);
         await history.saveContact(
           Contact(id: bob.id, name: 'Bob', address: 'b@relay', note: 'x'),
         );

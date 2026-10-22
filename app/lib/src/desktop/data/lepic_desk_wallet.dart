@@ -1394,12 +1394,13 @@ class LepicDeskWallet implements DeskWalletApi {
   Future<String> exportProof(int id) => throw UnsupportedError('payment proofs (DeskFeatures.paymentProofs)');
 
   @override
-  Future<void> saveContact(Contact contact) async {
+  Future<String> saveContact(Contact contact) async {
     try {
       final stored = await _open.saveContact(contact: core.Contact(id: contact.id, name: contact.name, address: contact.address, note: contact.note));
       final favourites = await _favourites();
       contact.favourite ? favourites.add(stored.id) : favourites.remove(stored.id);
       await _store.writeJson(_favouritesKey, favourites.toList());
+      return stored.id;
     } on core.WalletError catch (e) {
       throw _deskError(e);
     }

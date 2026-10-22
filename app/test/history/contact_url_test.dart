@@ -1,5 +1,6 @@
-// Contacts hold epicbox addresses only: a wallet URL is refused on save, in the words Send
-// uses (OD-2), both by the contact form and by the archive underneath it.
+// Phone contacts hold epicbox addresses only: the contact form refuses a wallet URL on save, in
+// the words Send uses (OD-2). The archive underneath is shared with the desktop, which pays
+// http(s) addresses, so it stores one as typed and leaves the rule to each screen.
 import 'dart:io';
 
 import 'package:epic_wallet/l10n/app_localizations.dart';
@@ -78,23 +79,15 @@ void main() {
     expect(session.contactsValue, isEmpty);
   });
 
-  test('the archive refuses a wallet URL too', () async {
+  test('the archive keeps a wallet URL; the screens decide', () async {
     final dir = await Directory.systemTemp.createTemp('wfe-contact-');
     addTearDown(() => dir.delete(recursive: true));
     final history = await WalletHistory.open(dir.path, Chain.mainnet);
     addTearDown(history.close);
-    await expectLater(
-      history.saveContact(
-        const Contact(id: '', name: 'Shop', address: ' HTTP://x:3415 '),
-      ),
-      throwsA(
-        isA<WalletError>().having(
-          (e) => e.kind,
-          'kind',
-          WalletErrorKind.invalidArgument,
-        ),
-      ),
+    final shop = await history.saveContact(
+      const Contact(id: '', name: 'Shop', address: ' HTTP://x:3415 '),
     );
-    expect(history.contacts(), isEmpty);
+    expect(shop.address, 'HTTP://x:3415');
+    expect(history.contacts().single.name, 'Shop');
   });
 }

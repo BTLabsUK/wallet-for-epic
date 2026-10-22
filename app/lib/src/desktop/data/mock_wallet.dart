@@ -371,9 +371,13 @@ class MockDeskWallet implements DeskWalletApi {
   }
 
   @override
-  Future<void> saveContact(Contact contact) async {
-    _contacts.removeWhere((c) => c.id == contact.id);
-    _contacts.add(contact);
+  Future<String> saveContact(Contact contact) async {
+    final id = contact.id.isEmpty ? 'c${DateTime.now().microsecondsSinceEpoch}' : contact.id;
+    _contacts.removeWhere((c) => c.id == id);
+    _contacts.add(
+      Contact(id: id, name: contact.name, address: contact.address, note: contact.note, favourite: contact.favourite, lastUsed: contact.lastUsed, hasPicture: contact.hasPicture),
+    );
+    return id;
   }
 
   @override

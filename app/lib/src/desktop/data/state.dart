@@ -303,9 +303,11 @@ class DeskController extends Notifier<DeskState> {
     state = state.copyWith(txs: await api.transactions());
   }
 
-  Future<void> saveContact(Contact c) async {
-    await api.saveContact(c);
+  /// The contact's id as stored.
+  Future<String> saveContact(Contact c) async {
+    final id = await api.saveContact(c);
     state = state.copyWith(contacts: await api.contacts());
+    return id;
   }
 
   Future<void> deleteContact(String id) async {

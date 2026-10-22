@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/http_address.dart';
+import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../widgets/kit.dart';
 import 'tx_display.dart';
 
@@ -466,7 +467,10 @@ class _ContactDetail extends ConsumerWidget {
                   .read(deskProvider.notifier)
                   .saveContact(
                     Contact(id: x.id, name: x.name, address: x.address, note: x.note, favourite: !x.favourite, lastUsed: x.lastUsed, hasPicture: x.hasPicture),
-                  ),
+                  )
+                  .then<void>((_) {}, onError: (Object e) {
+                    if (context.mounted) showEToast(context, deskErrorText(e));
+                  }),
             ),
             EButton(
               label: 'Delete',
@@ -548,6 +552,7 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
   final Set<String> _touched = {};
   bool _tried = false;
   bool _saving = false;
+  String? _saveError;
 
   @override
   void initState() {
@@ -600,21 +605,35 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
     setState(() => _tried = true);
     if (_nameError != null) return _nameFocus.requestFocus();
     if (_addressError != null) return _addressFocus.requestFocus();
-    setState(() => _saving = true);
-    final id = widget.contact?.id ?? 'c${DateTime.now().microsecondsSinceEpoch}';
-    await ref
-        .read(deskProvider.notifier)
-        .saveContact(
-          Contact(
-            id: id,
-            name: _name.text.trim(),
-            address: _address.text.trim(),
-            note: _note.text.trim().isEmpty ? null : _note.text.trim(),
-            favourite: widget.contact?.favourite ?? false,
-            lastUsed: widget.contact?.lastUsed,
-            hasPicture: _picture,
-          ),
-        );
+    // The address was checked as text above; saving only stores it and never reaches out.
+    setState(() {
+      _saving = true;
+      _saveError = null;
+    });
+    final String id;
+    try {
+      id = await ref
+          .read(deskProvider.notifier)
+          .saveContact(
+            Contact(
+              id: widget.contact?.id ?? '',
+              name: _name.text.trim(),
+              address: _address.text.trim(),
+              note: _note.text.trim().isEmpty ? null : _note.text.trim(),
+              favourite: widget.contact?.favourite ?? false,
+              lastUsed: widget.contact?.lastUsed,
+              hasPicture: _picture,
+            ),
+          );
+    } on Object catch (e) {
+      if (mounted) {
+        setState(() {
+          _saving = false;
+          _saveError = deskErrorText(e);
+        });
+      }
+      return;
+    }
     if (mounted) widget.onDone(id);
   }
 
@@ -682,6 +701,10 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
           child: EInput(controller: _note, maxLines: 3),
         ),
         SizedBox(height: Sp.x6),
+        if (_saveError != null) ...[
+          ENotice(title: 'Contact not saved', text: _saveError, tone: ETone.risk),
+          SizedBox(height: Sp.x4),
+        ],
         Wrap(
           alignment: WrapAlignment.spaceBetween,
           spacing: Sp.x2,
