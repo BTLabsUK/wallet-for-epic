@@ -17,6 +17,13 @@ ETone epicboxTone(ServiceHealth h) => switch (h) {
   ServiceHealth.off => ETone.neutral,
 };
 
+ETone torTone(ServiceHealth h) => switch (h) {
+  ServiceHealth.ok => ETone.ok,
+  ServiceHealth.slow || ServiceHealth.checking => ETone.warn,
+  ServiceHealth.down => ETone.risk,
+  ServiceHealth.off => ETone.neutral,
+};
+
 /// The line after the Epicbox state word.
 String epicboxLine(ServiceHealth h, {required bool onStart}) => switch (h) {
   ServiceHealth.ok => 'delivers payments to the Epic address',
@@ -37,6 +44,7 @@ class SettingsReceivingScreen extends ConsumerStatefulWidget {
 class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScreen> {
   String? _onion;
   bool _switching = false;
+  bool _torBusy = false;
 
   @override
   void initState() {
@@ -46,9 +54,19 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
     Future.microtask(() {
       final n = ref.read(deskProvider.notifier);
       final s = ref.read(deskProvider).settings;
-      if (arg == ReceivingDemo.torOn) n.saveSettings(s.copyWith(tor: true));
+      if (arg == ReceivingDemo.torOn && !s.tor) n.setTor(true);
       if (arg == ReceivingDemo.httpOn) n.setHttp(true);
     });
+  }
+
+  /// The Tor switch, and Retry after a failure (on again).
+  Future<void> _setTor(bool on) async {
+    setState(() => _torBusy = true);
+    try {
+      await ref.read(deskProvider.notifier).setTor(on);
+    } finally {
+      if (mounted) setState(() => _torBusy = false);
+    }
   }
 
   Future<void> _switch(String domain) async {
@@ -61,7 +79,6 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
   Widget build(BuildContext context) {
     final st = ref.watch(deskProvider);
     final prefs = ref.watch(settingsPrefsProvider);
-    final notifier = ref.read(deskProvider.notifier);
     final p = ref.read(settingsPrefsProvider.notifier);
     final boxes = st.epicboxes;
     final status = st.status;
@@ -156,14 +173,34 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
             rows: [
               ESetRow(
                 title: 'Tor',
-                text: 'Receive at an .onion address and send to one.',
+                text: 'Receive at an .onion address and send to one. This wallet only.',
                 control: ESwitch(
-                  value: s.tor,
+                  value: s.tor && status.torIncluded,
                   semanticLabel: 'Tor',
-                  onChanged: (v) => notifier.saveSettings(s.copyWith(tor: v)),
+                  onChanged: status.torIncluded && !_torBusy ? _setTor : null,
                 ),
-                below: s.tor && _onion != null
-                    ? Row(children: [Expanded(child: EAddress(_onion!)), SizedBox(width: Sp.x2), ECopyButton(text: _onion!)])
+                below: s.tor || !status.torIncluded
+                    ? Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Semantics(
+                            liveRegion: true,
+                            child: Row(
+                              children: [
+                                EStatusDot(status.torIncluded ? torTone(status.tor) : ETone.neutral),
+                                SizedBox(width: Sp.x2),
+                                Expanded(child: Text(torStatusLine(status), style: ts.small)),
+                                if (s.tor && status.torIncluded && status.tor == ServiceHealth.down)
+                                  EButton(label: 'Retry', icon: EIcons.refresh, size: EBtnSize.inline, busy: _torBusy, onPressed: _torBusy ? null : () => _setTor(true)),
+                              ],
+                            ),
+                          ),
+                          if (s.tor && status.torIncluded && _onion != null) ...[
+                            SizedBox(height: Sp.x2),
+                            Row(children: [Expanded(child: EAddress(_onion!)), SizedBox(width: Sp.x2), ECopyButton(text: _onion!, label: 'Copy Tor address')]),
+                          ],
+                        ],
+                      )
                     : null,
               ),
             ],

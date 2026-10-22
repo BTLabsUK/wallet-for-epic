@@ -443,7 +443,7 @@ class ServiceRows extends ConsumerWidget {
           health: rcvHealth,
           word: rcvWord,
           compact: compact,
-          lines: [ebLine, if (DeskFeatures.httpDirect) httpLine, if (DeskFeatures.tor && settings.tor) 'Tor on'],
+          lines: [ebLine, if (DeskFeatures.httpDirect) httpLine, if (DeskFeatures.tor && settings.tor) 'Tor: ${torStatusLine(status)}'],
           open: 'Open Receiving settings',
           onTap: () => p.jumpTo(SettingsJump.epicbox),
         ),

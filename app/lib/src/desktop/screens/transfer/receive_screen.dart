@@ -19,7 +19,7 @@ class ReceiveArgs {
   final bool epicboxDown;
 }
 
-enum _Qr { epic, http }
+enum _Qr { epic, http, tor }
 
 class ReceiveScreen extends ConsumerStatefulWidget {
   const ReceiveScreen({super.key, this.arg});
@@ -229,7 +229,12 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
       ServiceHealth.down => (EIcons.alert, c.warn, '$domain is not answering. Payments wait on the relay.'),
       ServiceHealth.off => (EIcons.alert, c.warn, httpOn ? 'The listener is on, but Epicbox is not running.' : 'Epicbox is not running.'),
     };
-    final qrData = _qr == _Qr.http && _http != null && _http!.isNotEmpty && httpOn ? _http! : addr;
+    final tor = _tor;
+    final qrData = _qr == _Qr.http && _http != null && _http!.isNotEmpty && httpOn
+        ? _http!
+        : _qr == _Qr.tor && tor != null && st.settings.tor
+        ? tor
+        : addr;
     final qrSize = 184.u;
     final Widget qr = qrData == null
         ? SizedBox(width: qrSize, height: qrSize)
@@ -315,7 +320,8 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
     final httpOn = !_httpFailed && status?.httpListener == ServiceHealth.ok;
     final failed = _httpFailed || status?.httpListener == ServiceHealth.down;
     final port = st.settings.httpPort;
-    final torOn = st.settings.tor && status?.tor == ServiceHealth.ok;
+    // The onion is known before tor runs; the line under it says whether others reach it yet.
+    final torOn = st.settings.tor;
     final http = httpOn && _http != null && _http!.isNotEmpty ? _http : null;
     final Widget httpLine;
     if (status == null) {
@@ -402,7 +408,9 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
           on: torOn,
           loading: status == null,
           address: torOn ? _tor : null,
-          offText: st.settings.tor ? 'Tor is connecting.' : 'Off. Turn it on to receive through Tor.',
+          line: status == null ? null : torStatusLine(status),
+          onQr: () => setState(() => _qr = _Qr.tor),
+          offText: 'Off. Turn it on to receive through Tor.',
           action: EButton(label: 'Receiving settings', size: EBtnSize.inline, onPressed: () => nav.go(DeskRoute.settingsReceiving)),
           showAction: !torOn && status != null,
         ),
@@ -420,6 +428,8 @@ class _AddrRow extends StatelessWidget {
     required this.offText,
     required this.action,
     required this.showAction,
+    this.line,
+    this.onQr,
   });
 
   final String title;
@@ -429,6 +439,12 @@ class _AddrRow extends StatelessWidget {
   final String offText;
   final Widget action;
   final bool showAction;
+
+  /// Under the address: what the service is doing now.
+  final String? line;
+
+  /// Shows the address's QR code.
+  final VoidCallback? onQr;
 
   @override
   Widget build(BuildContext context) {
@@ -440,10 +456,17 @@ class _AddrRow extends StatelessWidget {
       below: loading
           ? const Align(alignment: Alignment.centerLeft, child: ESpinner())
           : on && address != null
-          ? Row(
+          ? Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Expanded(child: SelectableText(address!, style: ts.mono(size: Fs.sm, color: c.dim), maxLines: 1)),
-                ECopyButton(text: address!, label: 'Copy $title'),
+                Row(
+                  children: [
+                    Expanded(child: SelectableText(address!, style: ts.mono(size: Fs.sm, color: c.dim), maxLines: 1)),
+                    ECopyButton(text: address!, label: 'Copy $title'),
+                    if (onQr != null) EIconButton(icon: EIcons.qr, label: 'Show QR code of the $title', size: EBtnSize.sm, onPressed: onQr),
+                  ],
+                ),
+                if (line != null) Semantics(liveRegion: true, child: Text(line!, style: ts.small)),
               ],
             )
           : Row(

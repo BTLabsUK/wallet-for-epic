@@ -268,7 +268,7 @@ class InternetGuide extends StatelessWidget {
             ENotice(
               icon: EIcons.tor,
               title: 'No router setup?',
-              text: 'Tor works from anywhere with nothing to forward, once it is available here.',
+              text: 'Tor works from anywhere with nothing to forward. Turn it on under Advanced.',
             ),
             SizedBox(height: Sp.x3),
           ],

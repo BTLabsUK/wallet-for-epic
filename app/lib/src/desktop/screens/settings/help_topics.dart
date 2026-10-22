@@ -97,7 +97,7 @@ final helpTopics = <HelpTopic>[
       'network',
       'Tor',
       'Tor lets two wallets pay each other privately at a .onion address, without opening any ports. It is off by default.',
-      'Turn it on in Settings › Receiving. The first connection can take a minute or two.',
+      'Turn it on in Settings › Receiving, for each wallet. The first connection can take a minute or two, and a send over Tor up to about two minutes.',
     ),
   HelpTopic(
     'trouble',

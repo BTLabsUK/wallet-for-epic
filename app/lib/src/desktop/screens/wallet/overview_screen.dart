@@ -783,7 +783,7 @@ class _StatusCard extends ConsumerWidget {
                   _ => 'Port $httpPort',
                 },
               ),
-            if (DeskFeatures.tor) _SRow(EIcons.tor, 'Tor', st.tor, st.tor == ServiceHealth.off ? '' : 'Onion service ready'),
+            if (DeskFeatures.tor) _SRow(EIcons.tor, 'Tor', st.tor, st.tor == ServiceHealth.off && st.torIncluded ? '' : torStatusLine(st)),
           ];
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,

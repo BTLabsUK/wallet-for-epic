@@ -155,6 +155,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     final contact = args.contact;
     _method = contact != null ? contactMethod(contact) : args.method;
     _to.text = args.recipient ?? contact?.address ?? '';
+    _route();
     _suggestOff = _to.text.isNotEmpty && !args.suggest;
     _amount.text = args.amount ?? '';
     _message.text = args.message ?? '';
@@ -216,7 +217,10 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     return h == ServiceHealth.off || h == ServiceHealth.checking;
   }
 
-  bool _canSend(DeskState st) => _nodeBlock(st) == null && !_epicboxBlocked(st) && _result is! SendDone;
+  /// Tor is off or not connected yet: a send to an onion waits.
+  bool _torBlocked(DeskState st) => _method == TxMethod.tor && !(st.settings.tor && (st.status?.torCanSend ?? false));
+
+  bool _canSend(DeskState st) => _nodeBlock(st) == null && !_epicboxBlocked(st) && !_torBlocked(st) && _result is! SendDone;
 
   Future<void> _loadFee() async {
     final n = _amountNano;
@@ -240,6 +244,29 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     setState(() => _fee = fee);
   }
 
+  /// An onion goes over Tor, also when pasted under Epicbox or HTTP; an http(s) address
+  /// under Tor goes over HTTP.
+  void _route() {
+    if (!DeskFeatures.tor || _method == TxMethod.file) return;
+    final t = _to.text.trim();
+    if (ref.read(deskApiProvider).isOnionAddress(t)) {
+      _method = TxMethod.tor;
+    } else if (_method == TxMethod.tor && DeskFeatures.httpDirect && httpAddressProblem(t) == null) {
+      _method = TxMethod.http;
+    }
+  }
+
+  bool _torBusy = false;
+
+  Future<void> _turnOnTor() async {
+    setState(() => _torBusy = true);
+    try {
+      await ref.read(deskProvider.notifier).setTor(true);
+    } finally {
+      if (mounted) setState(() => _torBusy = false);
+    }
+  }
+
   void _changed({bool to = false, bool amount = false}) {
     setState(() {
       if (amount) {
@@ -250,6 +277,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       if (to) {
         _toEdited = true;
         _suggestOff = false;
+        _route();
       }
       if (_result is SendDone) _result = null;
       _failure = null;
@@ -546,7 +574,10 @@ class _SendScreenState extends ConsumerState<SendScreen> {
         if (res is SendDone) ...[
           ENotice(
             title: 'Sent',
-            text: 'Handed to Epicbox. Completes when the recipient answers.',
+            text: switch (res.tx.method) {
+              TxMethod.tor || TxMethod.http => 'Signed by both wallets and posted. Confirms in a few minutes.',
+              _ => 'Handed to Epicbox. Completes when the recipient answers.',
+            },
             tone: ETone.ok,
             icon: EIcons.okCircle,
             actions: [
@@ -651,20 +682,34 @@ class _SendScreenState extends ConsumerState<SendScreen> {
             SizedBox(height: Sp.x2),
             _Suggestions(contacts: matches, onPick: _use),
           ],
-          if (_method == TxMethod.tor && !st.settings.tor) ...[
+          if (_method == TxMethod.tor && (!st.settings.tor || !(st.status?.torIncluded ?? true))) ...[
             SizedBox(height: Sp.x3),
             ENotice(
               title: 'Tor is off',
-              text: 'Turn it on to send to an .onion address.',
+              text: st.status?.torIncluded ?? true ? 'Turn it on to send to an .onion address.' : 'Tor not included in this build.',
               tone: ETone.warn,
               icon: EIcons.shield,
               actions: [
-                EButton(
-                  label: 'Turn on Tor',
-                  size: EBtnSize.inline,
-                  onPressed: () => ref.read(deskProvider.notifier).saveSettings(st.settings.copyWith(tor: true)),
-                ),
+                if (st.status?.torIncluded ?? true)
+                  EButton(label: 'Turn on Tor', size: EBtnSize.inline, busy: _torBusy, onPressed: _torBusy ? null : _turnOnTor),
               ],
+            ),
+          ] else if (_method == TxMethod.tor && st.status != null && !st.status!.torCanSend) ...[
+            SizedBox(height: Sp.x3),
+            Semantics(
+              liveRegion: true,
+              child: ENotice(
+                title: st.status!.tor == ServiceHealth.down ? 'Tor is not connected' : 'Tor is connecting',
+                text: st.status!.tor == ServiceHealth.down
+                    ? '${torStatusLine(st.status!)}. Sending over Tor needs it.'
+                    : '${torStatusLine(st.status!)} Sending over Tor starts once it is connected.',
+                tone: st.status!.tor == ServiceHealth.down ? ETone.risk : ETone.neutral,
+                icon: EIcons.shield,
+                actions: [
+                  if (st.status!.tor == ServiceHealth.down)
+                    EButton(label: 'Retry', size: EBtnSize.inline, busy: _torBusy, onPressed: _torBusy ? null : _turnOnTor),
+                ],
+              ),
             ),
           ],
           if (contact != null) ...[
@@ -766,6 +811,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       _ when res is SendDone => 'Sent. Enter a new amount and recipient to send again.',
       _ when nodeBlocked => 'Waiting for the node to sync.',
       _ when _epicboxBlocked(st) => 'Waiting for Epicbox to connect.',
+      _ when _torBlocked(st) => st.settings.tor ? 'Waiting for Tor to connect.' : 'Turn on Tor to send to an .onion address.',
       _ when _submitted && !_toEdited && _recipientError(_method, _to.text) != null => 'Fix the fields marked in red.',
       _ when _submitted && !_amountEdited && _amountError(spendable) != null => 'Fix the fields marked in red.',
       _ when _reviewing => 'Checking the fee for this amount.',
@@ -961,7 +1007,16 @@ class _ReviewDialogState extends State<_ReviewDialog> {
               children: [
                 const ESpinner(),
                 SizedBox(width: Sp.x3),
-                Expanded(child: Text(d.method == TxMethod.file ? 'Creating the file.' : 'Sending. This can take a few seconds; keep this window open.', style: ts.small.copyWith(color: c.dim))),
+                Expanded(
+                  child: Text(
+                    switch (d.method) {
+                      TxMethod.file => 'Creating the file.',
+                      TxMethod.tor => 'Reaching the recipient over Tor… This can take up to about 2 minutes; keep this window open.',
+                      _ => 'Sending. This can take a few seconds; keep this window open.',
+                    },
+                    style: ts.small.copyWith(color: c.dim),
+                  ),
+                ),
               ],
             ),
           ],

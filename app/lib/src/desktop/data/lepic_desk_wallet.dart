@@ -1668,8 +1668,9 @@ class LepicDeskWallet implements DeskWalletApi {
   /// Starts the open wallet's tor from the bundle, unless it runs. Without the bundle the
   /// Tor line says so and nothing starts.
   Future<void> _startTor() async {
-    if (_tor != null) return;
-    final session = _open;
+    final session = _session;
+    // Locked before it started (it runs unawaited after unlock and reopen).
+    if (_tor != null || session == null) return;
     final generation = _generation;
     final bundle = await _findTor();
     // Locked, switched or started meanwhile.

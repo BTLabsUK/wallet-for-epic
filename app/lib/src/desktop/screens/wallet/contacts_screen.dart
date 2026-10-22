@@ -563,9 +563,18 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
   String? get _addressError {
     final a = _address.text.trim();
     final epicboxOnly = !DeskFeatures.httpDirect && !DeskFeatures.tor;
-    if (a.isEmpty) return epicboxOnly ? 'Add an Epicbox address to send to.' : 'Add an Epicbox or an HTTP address to send to.';
+    if (a.isEmpty) {
+      return epicboxOnly
+          ? 'Add an Epicbox address to send to.'
+          : DeskFeatures.tor
+          ? 'Add an Epicbox, HTTP or .onion address to send to.'
+          : 'Add an Epicbox or an HTTP address to send to.';
+    }
     if (epicboxOnly && (RegExp(r'^https?:', caseSensitive: false).hasMatch(a) || a.toLowerCase().contains('.onion'))) {
       return 'Enter an Epicbox address.';
+    }
+    if (DeskFeatures.tor && a.toLowerCase().contains('.onion')) {
+      return ref.read(deskApiProvider).isOnionAddress(a) ? null : 'This is not a complete .onion address. Copy it again from the recipient’s Receive page.';
     }
     if (RegExp(r'^https?:', caseSensitive: false).hasMatch(a)) {
       final problem = httpAddressProblem(a);

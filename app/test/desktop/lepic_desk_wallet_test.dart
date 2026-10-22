@@ -899,10 +899,10 @@ void main() {
       await done(tester);
     });
 
-    testWidgets('receiving has the HTTP listener, no Tor', (tester) async {
+    testWidgets('receiving has the HTTP listener, Tor as DeskFeatures.tor says', (tester) async {
       await pump(tester, DeskRoute.settingsReceiving);
       expect(find.text('HTTP listener'), findsOneWidget);
-      expect(find.text('Tor'), findsNothing);
+      expect(find.text('Tor'), DeskFeatures.tor ? findsOneWidget : findsNothing);
       await done(tester);
     });
 
@@ -913,10 +913,10 @@ void main() {
       await done(tester);
     });
 
-    testWidgets('receive has the HTTP address, no Tor address', (tester) async {
+    testWidgets('receive has the HTTP address, the Tor address as DeskFeatures.tor says', (tester) async {
       await pump(tester, DeskRoute.receive);
       expect(find.text('HTTP address'), findsOneWidget);
-      expect(find.text('Tor address'), findsNothing);
+      expect(find.text('Tor address'), DeskFeatures.tor ? findsOneWidget : findsNothing);
       await done(tester);
     });
 
