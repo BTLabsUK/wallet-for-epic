@@ -9,7 +9,7 @@ import 'onboarding_parts.dart';
 enum SetupStep { prefs, node, epicbox, review }
 
 
-/// The four setup steps: name and language, node, Epicbox, review. [arg] is a [SetupStep].
+/// The setup steps: language (only when the app offers one), node, Epicbox, review. [arg] is a [SetupStep].
 class SetupScreen extends ConsumerStatefulWidget {
   const SetupScreen({super.key, this.arg});
 
@@ -20,9 +20,10 @@ class SetupScreen extends ConsumerStatefulWidget {
 }
 
 class _SetupScreenState extends ConsumerState<SetupScreen> {
-  final _name = TextEditingController();
   final _domain = TextEditingController(text: 'epicbox.epiccash.com');
-  late SetupStep _step = widget.arg is SetupStep ? widget.arg as SetupStep : SetupStep.prefs;
+  static final _steps = [if (DeskFeatures.languages) SetupStep.prefs, SetupStep.node, SetupStep.epicbox, SetupStep.review];
+
+  late SetupStep _step = widget.arg is SetupStep && _steps.contains(widget.arg) ? widget.arg as SetupStep : _steps.first;
   String _language = 'English';
   // A public or own node stays the default (D10); the built-in node is opt-in.
   bool _builtIn = false;
@@ -36,7 +37,6 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
   void initState() {
     super.initState();
     final st = ref.read(deskProvider);
-    _name.text = st.account?.name ?? '';
     _domain.text = st.status?.epicbox.domain ?? _domain.text;
     _nodeUrl = st.status?.node.url ?? _nodeUrl;
     final api = ref.read(deskApiProvider);
@@ -46,7 +46,6 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
 
   @override
   void dispose() {
-    _name.dispose();
     _domain.dispose();
     super.dispose();
   }
@@ -57,17 +56,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
     final st = ref.read(deskProvider);
     final prefs = ref.read(settingsPrefsProvider.notifier);
     final domain = _domain.text.trim();
-    final name = _name.text.trim();
-    final id = st.account?.id;
-    final rename = id != null && name.isNotEmpty && name != st.account?.name;
-    prefs.set(ref.read(settingsPrefsProvider).copyWith(walletLabel: id == null ? name : '', epicboxOnStart: domain.isNotEmpty));
-    if (rename) {
-      try {
-        await c.renameWallet(id, name);
-      } on Object catch (e) {
-        if (mounted) showEToast(context, 'Name not saved', text: deskErrorText(e));
-      }
-    }
+    prefs.set(ref.read(settingsPrefsProvider).copyWith(epicboxOnStart: domain.isNotEmpty));
     if (DeskFeatures.languages) await c.saveSettings(st.settings.copyWith(language: _language));
     try {
       if (_builtIn) {
@@ -107,11 +96,11 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
   Widget build(BuildContext context) {
     final nav = ref.read(deskNavProvider.notifier);
     final ts = context.ts;
-    final rail = railOf(['Preferences', 'Node', 'Epicbox', 'Review'], _step.index);
+    final rail = railOf([if (DeskFeatures.languages) 'Preferences', 'Node', 'Epicbox', 'Review'], _steps.indexOf(_step));
     final last = _step == SetupStep.review;
     final again = nav.canBack ? 'Running setup again. Nothing changes until Save on the last step.' : null;
     final (title, lead, body) = switch (_step) {
-      SetupStep.prefs => ('Preferences', again ?? (DeskFeatures.languages ? 'Wallet name and app language. Both can be changed later.' : 'Wallet name. It can be changed later.'), _prefs(context)),
+      SetupStep.prefs => ('Preferences', again ?? 'App language. It can be changed later.', _prefs(context)),
       SetupStep.node => ('Choose a node', again ?? 'The wallet reads the chain and sends through a remote Epic node. Its operator sees the IP address and which outputs the wallet asks about.', _node(context)),
       SetupStep.epicbox => ('Receive when offline', again, _epicbox(context)),
       SetupStep.review => ('Check settings', again ?? 'Change anything that is not right, then save.', _review(context)),
@@ -121,14 +110,14 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
       steps: rail,
       title: title,
       lead: lead,
-      sideFoot: _step == SetupStep.prefs && nav.canBack
+      sideFoot: _step == _steps.first && nav.canBack
           ? Align(
               alignment: Alignment.centerLeft,
               child: EButton.ghost(label: 'Back to wallet', icon: EIcons.arrowLeft, onPressed: nav.back),
             )
           : Text('Everything here can be changed later in Settings.', style: ts.caption),
       actions: [
-        if (_step != SetupStep.prefs) backButton(() => _to(SetupStep.values[_step.index - 1])),
+        if (_step != _steps.first) backButton(() => _to(_steps[_steps.indexOf(_step) - 1])),
         EButton.primary(
           label: last ? 'Save settings' : 'Continue',
           busy: _busy || _checking,
@@ -136,7 +125,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
               ? _save
               : _step == SetupStep.node
               ? _nodeNext
-              : () => _to(SetupStep.values[_step.index + 1]),
+              : () => _to(_steps[_steps.indexOf(_step) + 1]),
         ),
       ],
       child: body,
@@ -147,14 +136,6 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
     crossAxisAlignment: CrossAxisAlignment.stretch,
     children: [
       EField(
-        label: 'Name',
-        optional: true,
-        help: 'Shown in the wallet list.',
-        child: EInput(controller: _name, hint: 'Main wallet', semanticLabel: 'Wallet name', onChanged: (_) => setState(() {})),
-      ),
-      if (DeskFeatures.languages) ...[
-      SizedBox(height: Sp.x5),
-      EField(
         label: 'Language',
         child: ESelect<String>(
           semanticLabel: 'Language',
@@ -163,7 +144,6 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
           items: [for (final l in deskLanguages) ESelectItem(l, l)],
         ),
       ),
-      ],
     ],
   );
 
@@ -285,11 +265,10 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          _section(context, 'Preferences', [
-            ('Name', Text(_name.text.isEmpty ? 'No name' : _name.text, style: ts.body)),
-            if (DeskFeatures.languages) ('Language', Text(_language, style: ts.body)),
-          ], SetupStep.prefs),
-          EDivider(space: Sp.x2),
+          if (DeskFeatures.languages) ...[
+            _section(context, 'Preferences', [('Language', Text(_language, style: ts.body))], SetupStep.prefs),
+            EDivider(space: Sp.x2),
+          ],
           _section(context, 'Node', [
             ('Type', Text(_builtIn ? 'Built-in node' : 'Remote node', style: ts.body)),
             if (!_builtIn) ('Address', Text(_nodeUrl, style: ts.mono())),

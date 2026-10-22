@@ -331,6 +331,14 @@ class WalletRegistry {
     return entry;
   });
 
+  /// Makes [id] the wallet to open next time, without touching its last-opened time.
+  Future<void> setLastUsed(String id) => _locked(() async {
+    _requireWritable();
+    _indexOf(id);
+    await _save([..._entries], id);
+    _lastUsedId = id;
+  });
+
   /// "Remove from list": drops the entry only. Files and store keys stay, and [rescan] finds
   /// an id wallet again.
   Future<void> forget(String id) => _locked(() async {

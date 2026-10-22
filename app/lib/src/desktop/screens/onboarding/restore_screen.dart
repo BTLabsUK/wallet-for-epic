@@ -26,7 +26,6 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
       'orbit hazard velvet cabin sudden meadow brick gesture lunar invest pledge saddle timber crisp wander echo faculty notable ripple garlic stamp dwarf enjoy h4rbor';
   static const _max = 24;
 
-  final _name = TextEditingController();
   final _password = TextEditingController();
   final _confirm = TextEditingController();
   final _paste = TextEditingController();
@@ -54,7 +53,7 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
 
   @override
   void dispose() {
-    for (final c in [_name, _password, _confirm, _paste, ..._words]) {
+    for (final c in [_password, _confirm, _paste, ..._words]) {
       c.dispose();
     }
     for (final f in _focus) {
@@ -141,8 +140,9 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
       _locking = open;
     });
     try {
-      await ref.read(deskApiProvider).restoreWallet(
-        name: _name.text,
+      final api = ref.read(deskApiProvider);
+      final before = {for (final w in await api.wallets()) w.id};
+      await api.restoreWallet(
         password: _password.text,
         phrase: [for (final c in _words.take(_length)) c.text.trim()],
       );
@@ -152,8 +152,9 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
         await ref.read(deskProvider.notifier).lock();
         if (!mounted) return;
       }
-      final name = _name.text.trim();
-      ref.read(deskNavProvider.notifier).reset(DeskRoute.unlock, UnlockAdded(name.isEmpty ? 'Restored wallet' : name));
+      final added = await addedWallet(api, before, 'Restored wallet');
+      if (!mounted) return;
+      ref.read(deskNavProvider.notifier).reset(DeskRoute.unlock, added);
     } catch (e) {
       if (mounted) {
         setState(() {
@@ -206,7 +207,6 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
                 SizedBox(height: Sp.x5),
               ],
               AccountForm(
-                name: _name,
                 password: _password,
                 confirm: _confirm,
                 passwordError: pe,

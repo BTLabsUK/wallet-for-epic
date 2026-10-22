@@ -214,12 +214,13 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
   Future<void> _openWallet() async {
     final done = _done.values.toList();
     final nav = ref.read(deskNavProvider.notifier);
+    final last = done.last;
     try {
-      await _api.selectWallet(done.first.id);
+      await _api.selectWallet(last.id);
     } on Object {
       // Unlock offers the wallet opened last.
     }
-    nav.reset(DeskRoute.unlock, UnlockAdded(done.length == 1 ? done.first.name : '${done.length} wallets'));
+    nav.reset(DeskRoute.unlock, UnlockAdded(done.length == 1 ? last.name : '${done.length} wallets', id: last.id));
   }
 
   void _next() {

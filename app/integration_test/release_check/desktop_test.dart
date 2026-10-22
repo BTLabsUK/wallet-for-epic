@@ -24,9 +24,8 @@ void main() {
     // Create.
     await tapText(tester, 'Create a new wallet');
     await shot(tester, '02-create-account');
-    await typeIn(tester, 0, 'Check wallet');
+    await typeIn(tester, 0, password);
     await typeIn(tester, 1, password);
-    await typeIn(tester, 2, password);
     await settle(tester);
     await tapText(tester, 'Create wallet', last: true);
     await waitText(tester, 'Recovery phrase', timeout: const Duration(minutes: 3));
@@ -42,15 +41,8 @@ void main() {
     }
     await tapText(tester, 'Written down');
     await tapText(tester, 'Continue', last: true);
-    await waitText(tester, 'Check the phrase');
-    await shot(tester, '03-check-phrase');
-    await typeIn(tester, 0, words[3]);
-    await typeIn(tester, 1, words[11]);
-    await typeIn(tester, 2, words[19]);
-    await settle(tester);
-    await tapText(tester, 'Continue', last: true);
     await waitText(tester, 'Unlock wallet');
-    record('phrase check passes, lands on Unlock', true, texts().take(5).join(' | '));
+    record('Continue on the phrase lands on Unlock', true, texts().take(5).join(' | '));
 
     // Unlock: wrong password first.
     await typeIn(tester, 0, '${password}x');
