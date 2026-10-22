@@ -153,9 +153,9 @@ void main() {
         core.fakeTx(id: 7, slateId: 'a1', kind: core.TxKind.received, cancellable: cancellable, flow: flow);
 
     test('carries the core flag; an issued invoice request is not offered', () {
-      expect(deskTx(entry(), tip: 10, minConf: 10, fallbackId: -1).cancellable, isTrue);
-      expect(deskTx(entry(cancellable: false), tip: 10, minConf: 10, fallbackId: -1).cancellable, isFalse);
-      expect(deskTx(entry(flow: core.TxFlow.invoice), tip: 10, minConf: 10, fallbackId: -1).cancellable, isFalse);
+      expect(deskTx(entry(), tip: 10, minConf: 3, fallbackId: -1).cancellable, isTrue);
+      expect(deskTx(entry(cancellable: false), tip: 10, minConf: 3, fallbackId: -1).cancellable, isFalse);
+      expect(deskTx(entry(flow: core.TxFlow.invoice), tip: 10, minConf: 3, fallbackId: -1).cancellable, isFalse);
     });
   });
 
