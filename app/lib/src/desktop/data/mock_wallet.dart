@@ -121,6 +121,69 @@ class MockDeskWallet implements DeskWalletApi {
   @override
   Future<void> addBack(String id) async {}
 
+  // Import: four old wallets; the epic program's is in use until checked again. An old
+  // password starting with "wrong" is wrong.
+  static final List<OldWallet> _oldWallets = [
+    OldWallet(id: 'sav', name: 'Savings', folder: '~/.epic/main/Savings', group: OldWalletGroup.gui, lastUsed: _ago(days: 39), sizeBytes: 38 << 20),
+    OldWallet(id: 'eve', name: 'Everyday', folder: '~/.epic/Everyday/main', group: OldWalletGroup.gui, lastUsed: _ago(days: 19), sizeBytes: 112 << 20),
+    OldWallet(
+      id: 'tst',
+      name: 'Testing',
+      folder: '~/.epic/floo',
+      group: OldWalletGroup.gui,
+      network: 'floonet',
+      lastUsed: _ago(days: 21),
+      sizeBytes: 3 << 20,
+      blocked: 'Test network wallet. Only mainnet wallets can be imported.',
+    ),
+    OldWallet(id: 'cli', name: 'Wallet (epic program)', folder: '~/.epic/main', group: OldWalletGroup.cli, lastUsed: _ago(days: 54), sizeBytes: 21 << 20, sameAs: 'Same wallet as Everyday'),
+  ];
+  final Set<String> _checked = {};
+  final List<String> _imported = [];
+
+  @override
+  Future<List<OldWallet>> findOldWallets() async {
+    await _wait(3);
+    _imported.clear();
+    return _oldWallets;
+  }
+
+  @override
+  Future<FolderFind?> pickFolder() async {
+    await _wait();
+    return FolderFind(
+      folder: '~/Documents/old-wallet-backup',
+      wallets: [OldWallet(id: 'bak', name: 'Backup 2024', folder: '~/Documents/old-wallet-backup', group: OldWalletGroup.picked, lastUsed: _ago(days: 232), sizeBytes: 19 << 20)],
+    );
+  }
+
+  @override
+  Future<OldWalletUse> checkOldWallet(String id) async {
+    await _wait(2);
+    return id == 'cli' && _checked.add(id) ? OldWalletUse.inUse : OldWalletUse.free;
+  }
+
+  @override
+  Future<ImportedWallet> importOldWallet(String id, {required String oldPassword, String? newPassword}) async {
+    await _wait(3);
+    if (oldPassword.startsWith('wrong')) throw const DeskError('Wrong old password', wrongPassword: true);
+    if ((newPassword ?? oldPassword).length < minPasswordLength) {
+      throw const DeskError('The old password is short. Choose a new one of at least $minPasswordLength characters.', newPasswordNeeded: true);
+    }
+    final name = _oldWallets.where((w) => w.id == id).firstOrNull?.name ?? 'Backup 2024';
+    final entry = WalletEntry(id: 'imp-$id', name: name, folder: '~/.local/share/epic-wallet/wallets/imp-$id/mainnet', network: 'mainnet');
+    _wallets.add(entry);
+    _imported.add(entry.id);
+    return ImportedWallet(id: entry.id, name: name, proof: const [ImportProof('Seed read'), ImportProof('Wallet created'), ImportProof('Old folder unchanged')]);
+  }
+
+  @override
+  Future<void> cancelImport() async {
+    await _wait();
+    _wallets.removeWhere((w) => _imported.contains(w.id));
+    _imported.clear();
+  }
+
   @override
   Future<bool> unlock(String password) async {
     await _wait(2);

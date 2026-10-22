@@ -10,6 +10,7 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:ui';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
@@ -72,6 +73,7 @@ Future<List<Override>> deskOverrides() async {
     filesDir: () async => await getDownloadsDirectory() ?? await getApplicationDocumentsDirectory(),
     settings: boot.settings,
     relayDirectory: container.read(relayDirectoryProvider),
+    pickDirectory: () => FilePicker.getDirectoryPath(dialogTitle: 'Choose the wallet folder'),
   );
   final hasWallet = (await wallet.wallets()).isNotEmpty;
   return [

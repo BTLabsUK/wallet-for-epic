@@ -16,7 +16,6 @@ enum DeskRoute {
   restore(bare: true),
   setup(bare: true),
   unlock(bare: true),
-  found(bare: true),
   importWallets(bare: true),
 
   // In the shell.

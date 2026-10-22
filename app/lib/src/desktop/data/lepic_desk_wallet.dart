@@ -16,9 +16,13 @@
 library;
 
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
+import 'package:crypto/crypto.dart';
+
 import '../../bip39_words.dart';
+import '../../legacy_wallets.dart' as legacy;
 import '../../log.dart';
 import '../../network.dart';
 import '../../providers.dart' show WalletDirResolver;
@@ -85,7 +89,11 @@ class LepicDeskWallet implements DeskWalletApi {
     this.nodePoll = const Duration(seconds: 30),
     this.nodeTimeout = const Duration(seconds: 15),
     reg.WalletRegistry? registry,
-  }) : _minConf = minimumConfirmations ?? BigInt.from(10),
+    legacy.LegacyRoots Function()? legacyRoots,
+    this._pickDirectory,
+    this._listProcesses,
+  }) : _legacyRoots = legacyRoots ?? legacy.LegacyRoots.current,
+       _minConf = minimumConfirmations ?? BigInt.from(10),
        _registryGiven = registry;
 
   final core.WalletService _service;
@@ -110,6 +118,17 @@ class LepicDeskWallet implements DeskWalletApi {
   String? _password;
 
   final reg.WalletRegistry? _registryGiven;
+
+  /// Where the import looks for old wallets; the real home folder in the app.
+  final legacy.LegacyRoots Function() _legacyRoots;
+
+  /// The system's folder dialog; null leaves "Choose a folder" with nothing to show.
+  final Future<String?> Function()? _pickDirectory;
+  final legacy.ProcessLister? _listProcesses;
+
+  /// Old wallets of this import run by [OldWallet.id], and the wallets it made (list ids).
+  final Map<String, legacy.LegacyWallet> _old = {};
+  final List<String> _imported = [];
   Future<reg.WalletRegistry>? _registry;
 
   /// The wallet open now; null while locked.
@@ -510,9 +529,9 @@ class LepicDeskWallet implements DeskWalletApi {
 
   /// Where a new wallet goes: the first wallet's folder when this computer has none (a null
   /// entry), else a new list entry with its own folder. The open wallet stays open.
-  Future<reg.WalletEntry?> _newWallet(String name) async {
+  Future<reg.WalletEntry?> _newWallet(String name, {bool ownEntry = false}) async {
     final label = name.trim().isEmpty ? null : name.trim();
-    if ((await _wallets()).isEmpty && !await _service.walletExists(config: await _configOf(null))) return null;
+    if (!ownEntry && (await _wallets()).isEmpty && !await _service.walletExists(config: await _configOf(null))) return null;
     try {
       return await (await registry()).add(chain: preset.chain, label: label);
     } on reg.WalletRegistryException catch (e) {
@@ -522,8 +541,9 @@ class LepicDeskWallet implements DeskWalletApi {
 
   /// Makes the wallet in [create] at [_newWallet]'s place, lists it and selects it. A wallet
   /// that was not made leaves no entry.
-  Future<T> _make<T>(String name, Map<String, Object?> meta, Future<T> Function(core.WalletConfig config) create) async {
-    final entry = await _newWallet(name);
+  /// [ownEntry]: always a new entry, never the first wallet's folder (imports).
+  Future<T> _make<T>(String name, Map<String, Object?> meta, Future<T> Function(core.WalletConfig config) create, {bool ownEntry = false}) async {
+    final entry = await _newWallet(name, ownEntry: ownEntry);
     final config = await _configOf(entry);
     final T result;
     try {
@@ -593,6 +613,173 @@ class LepicDeskWallet implements DeskWalletApi {
       });
     } on core.WalletError catch (e) {
       throw _deskError(e);
+    }
+  }
+
+  // ---- Import (B01–B32 as LEPIC takes them: wallet.seed only, history from a scan).
+
+  static const _testNetText = 'Test network wallet. Only mainnet wallets can be imported.';
+
+  OldWallet _oldOf(legacy.LegacyWallet w, Map<String, legacy.SameWallet> same) {
+    final s = same[w.path];
+    return OldWallet(
+      id: w.path,
+      name: w.displayLabel,
+      folder: w.path,
+      group: switch (w.source) {
+        legacy.LegacySource.gui => OldWalletGroup.gui,
+        legacy.LegacySource.cli => OldWalletGroup.cli,
+        legacy.LegacySource.picked => OldWalletGroup.picked,
+      },
+      network: w.network.guiName,
+      lastUsed: w.lastUsed,
+      sizeBytes: w.sizeBytes,
+      sameAs: s?.text,
+      inApp: s?.inApp ?? false,
+      blocked: w.refusal?.text ?? (w.network == legacy.LegacyNetwork.main ? null : _testNetText),
+    );
+  }
+
+  /// Seed fingerprint → name of each wallet in the list that an import made.
+  Future<Map<String, String>> _inAppSeeds() async {
+    final out = <String, String>{};
+    for (final e in await _inList() ?? const <reg.WalletEntry>[]) {
+      final fp = (await _meta(_metaKey(e.walletId)))['seedFingerprint'];
+      if (fp is String) out[fp] = e.label;
+    }
+    return out;
+  }
+
+  /// The app's own folder: never offered as an old wallet.
+  Future<String> _appRoot() async => Directory(await _walletDir(preset.chain)).parent.parent.path;
+
+  Future<List<OldWallet>> _describeOld(List<legacy.LegacyWallet> found) async {
+    final root = await _appRoot();
+    final own = [
+      for (final w in found)
+        if (!await legacy.isWithin(w.path, root)) w,
+    ];
+    for (final w in own) {
+      _old[w.path] = w;
+    }
+    final same = legacy.findSameWallets([..._old.values], inApp: await _inAppSeeds());
+    return [for (final w in own) _oldOf(w, same)];
+  }
+
+  @override
+  Future<List<OldWallet>> findOldWallets() async {
+    _old.clear();
+    _imported.clear();
+    final scan = await legacy.findLegacyWallets(roots: _legacyRoots());
+    logInfo('desk', 'import: ${scan.wallets.length} old wallets found');
+    return _describeOld(scan.wallets);
+  }
+
+  @override
+  Future<FolderFind?> pickFolder() async {
+    final pick = _pickDirectory;
+    if (pick == null) return null;
+    final path = await pick();
+    if (path == null) return null;
+    final found = await legacy.inspectFolder(path);
+    final wallets = await _describeOld(found.wallets);
+    return FolderFind(
+      folder: found.picked,
+      wallets: wallets,
+      message: found.wallets.isNotEmpty && wallets.isEmpty ? 'This wallet is in the app already.' : found.message,
+    );
+  }
+
+  legacy.LegacyWallet _oldWallet(String id) => _old[id] ?? (throw const DeskError('Wallet not found. Search again.'));
+
+  @override
+  Future<OldWalletUse> checkOldWallet(String id) async =>
+      switch (await legacy.checkInUse(_oldWallet(id), listProcesses: _listProcesses)) {
+        legacy.InUse.free => OldWalletUse.free,
+        legacy.InUse.inUse => OldWalletUse.inUse,
+        legacy.InUse.unknown => OldWalletUse.unknown,
+      };
+
+  @override
+  Future<ImportedWallet> importOldWallet(String id, {required String oldPassword, String? newPassword}) async {
+    final w = _oldWallet(id);
+    final refusal = w.refusal;
+    if (refusal != null) throw DeskError(refusal.text);
+    if (w.network != legacy.LegacyNetwork.main) throw const DeskError(_testNetText);
+    if (oldPassword.isEmpty) throw const DeskError('Enter the old password');
+    final next = newPassword ?? oldPassword;
+    if (next.length < minPasswordLength) {
+      throw DeskError(
+        newPassword == null ? 'The old password is short. Choose a new one of at least $minPasswordLength characters.' : 'Use at least $minPasswordLength characters',
+        newPasswordNeeded: true,
+      );
+    }
+    final before = await legacy.folderHash(w.path);
+    final List<int> bytes;
+    try {
+      bytes = await File(w.seedPath).readAsBytes();
+    } on FileSystemException {
+      throw const DeskError('The wallet.seed file could not be read');
+    }
+    if (bytes.isEmpty || bytes.length > legacy.maxSeedBytes) throw const DeskError(legacy.seedTooLargeText);
+    final String seed;
+    try {
+      seed = utf8.decode(bytes);
+    } on FormatException {
+      throw const DeskError('Not a wallet.seed file');
+    }
+    final name = _importName(w.displayLabel);
+    final fingerprint = sha256.convert(bytes).toString();
+    reg.WalletEntry? made;
+    try {
+      // The scan at the first unlock brings the history: only the seed is taken (B14).
+      await _make(name, {'scanPending': true, 'seedFingerprint': fingerprint, 'importedFrom': w.path}, (config) async {
+        final session = await _service.importWalletSeed(config: config, seedFile: seed, seedPassword: oldPassword, password: next);
+        session.dispose();
+      }, ownEntry: true);
+      made = (await registry()).byId(_selectedId ?? '');
+    } on core.WalletError catch (e) {
+      if (e.kind == core.WalletErrorKind.wrongPassword) throw const DeskError('Wrong old password', wrongPassword: true);
+      throw _deskError(e);
+    }
+    if (made == null) throw const DeskError('Wallet list not saved');
+    _imported.add(made.id);
+    final unchanged = await legacy.folderHash(w.path) == before;
+    if (!unchanged) logWarn('desk', 'import: the old folder changed during the import');
+    logInfo('desk', 'import: wallet made');
+    return ImportedWallet(
+      id: made.id,
+      name: made.label,
+      proof: [
+        const ImportProof('Seed read'),
+        const ImportProof('Wallet created'),
+        unchanged ? const ImportProof('Old folder unchanged') : const ImportProof('Old folder changed by another program', ok: false),
+      ],
+    );
+  }
+
+  /// A list name of at most 32 characters.
+  static String _importName(String label) {
+    final t = label.trim();
+    return t.length <= 32 ? t : t.substring(0, 32).trim();
+  }
+
+  @override
+  Future<void> cancelImport() async {
+    final r = await registry();
+    for (final id in [..._imported]) {
+      final entry = r.byId(id);
+      _imported.remove(id);
+      if (entry == null) continue;
+      if (_openEntry?.id == id) await lock();
+      try {
+        await r.delete(id, service: _service, config: await _configOf(entry));
+        await _store.delete(_metaKey(entry.walletId));
+        await _store.delete(DeskStore.favouritesKeyOf(entry.walletId));
+      } on Object catch (e) {
+        logWarn('desk', 'import: wallet not removed: ${e.runtimeType}');
+      }
+      if (_selectedId == id) _selectedId = null;
     }
   }
 

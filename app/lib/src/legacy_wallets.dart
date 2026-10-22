@@ -701,6 +701,9 @@ Future<InUse> checkInUse(LegacyWallet w, {ProcessLister? listProcesses}) async {
   return unclear ? InUse.unknown : InUse.free;
 }
 
+/// Whether [path] is [folder] or inside it, both resolved through links when they exist.
+Future<bool> isWithin(String path, String folder) async => _within(await _realKey(path), await _realKey(folder));
+
 bool _within(String candidate, String folder) =>
     candidate == folder || candidate.startsWith(folder.endsWith(_sep) ? folder : folder + _sep);
 

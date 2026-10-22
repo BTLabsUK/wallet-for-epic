@@ -242,10 +242,13 @@ class ScanStep {
 
 /// A wallet error, in a short sentence for the screen.
 class DeskError implements Exception {
-  const DeskError(this.message, {this.wrongPassword = false, this.locked = false});
+  const DeskError(this.message, {this.wrongPassword = false, this.locked = false, this.newPasswordNeeded = false});
 
   final String message;
   final bool wrongPassword;
+
+  /// An import whose old password is too short for the app: it needs a new one.
+  final bool newPasswordNeeded;
 
   /// The wallet closed (a node or Epicbox change could not reopen it): back to Unlock.
   final bool locked;
@@ -431,4 +434,87 @@ enum WalletRemoval {
 
   /// The wallet's keys and database (its `lepic` folder). `wallet_data` is kept.
   delete,
+}
+
+// ---- The import wizard (DeskFeatures.importWizard).
+
+/// Where the import wizard found an old wallet: the groups of its Find step.
+enum OldWalletGroup {
+  gui('Older Epic Wallet'),
+  cli('The epic program'),
+  picked('Chosen folders');
+
+  const OldWalletGroup(this.title);
+  final String title;
+}
+
+/// A wallet an older Epic Wallet or the epic program left on this computer. Only read: the
+/// import takes its wallet.seed, never changes its folder.
+@immutable
+class OldWallet {
+  const OldWallet({
+    required this.id,
+    required this.name,
+    required this.folder,
+    required this.group,
+    this.network = 'mainnet',
+    this.lastUsed,
+    this.sizeBytes = 0,
+    this.sameAs,
+    this.inApp = false,
+    this.blocked,
+  });
+
+  /// The key for [DeskWalletApi.checkOldWallet] and [DeskWalletApi.importOldWallet].
+  final String id;
+  final String name;
+  final String folder;
+  final OldWalletGroup group;
+
+  /// "mainnet", "floonet" or "usernet".
+  final String network;
+  final DateTime? lastUsed;
+  final int sizeBytes;
+
+  /// "Already in the app as Savings" or "Same wallet as Everyday"; null when unique.
+  final String? sameAs;
+
+  /// [sameAs] names a wallet the app already holds.
+  final bool inApp;
+
+  /// Why it cannot be imported (a test network, links in its folder); null when it can.
+  final String? blocked;
+
+  bool get importable => blocked == null;
+}
+
+/// What a folder chosen by hand holds: wallets, or [message] saying why there are none.
+@immutable
+class FolderFind {
+  const FolderFind({required this.folder, required this.wallets, this.message});
+  final String folder;
+  final List<OldWallet> wallets;
+  final String? message;
+}
+
+/// Whether another program uses an old wallet's folder now.
+enum OldWalletUse { free, inUse, unknown }
+
+/// One line of an import's proof: what was done and whether it held.
+@immutable
+class ImportProof {
+  const ImportProof(this.text, {this.ok = true});
+  final String text;
+  final bool ok;
+}
+
+/// A wallet the import made: listed, selected, its history due from a scan at the first unlock.
+@immutable
+class ImportedWallet {
+  const ImportedWallet({required this.id, required this.name, required this.proof});
+
+  /// The new wallet's list id ([WalletEntry.id]).
+  final String id;
+  final String name;
+  final List<ImportProof> proof;
 }
