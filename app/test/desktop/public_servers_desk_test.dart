@@ -140,7 +140,8 @@ void main() {
     await pumpScreen(tester, const SettingsNodeScreen(arg: NodeDemo.comboOpen), w);
     expect(tester.takeException(), isNull);
     for (final h in _hosts) {
-      expect(find.textContaining(h, findRichText: true), findsWidgets, reason: h);
+      // The §18 row shows the host without its port; the port is in the row's tooltip.
+      expect(find.textContaining(h.replaceFirst(RegExp(r':\d+$'), ''), findRichText: true), findsWidgets, reason: h);
     }
     expect(find.textContaining('Iniaku pool', findRichText: true), findsWidgets);
     await done(tester, w);

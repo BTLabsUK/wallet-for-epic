@@ -27,6 +27,11 @@ Future<void> resetSettingsDemo(ProviderContainer c) async {
 /// Screenshot tour entries of this group (see app/shots.dart). Ids match the Electron
 /// reference shots.
 final List<DeskShot> settingsShots = [
+  const DeskShot(id: '20-node', title: 'Settings › Node: the node card', route: DeskRoute.settingsNode),
+  const DeskShot(id: '20b-node-behind', title: 'Node card, behind', route: DeskRoute.settingsNode, arg: NodeDemo.behind),
+  const DeskShot(id: '20c-node-old', title: 'Node card, older version', route: DeskRoute.settingsNode, arg: NodeDemo.old),
+  const DeskShot(id: '20d-node-limited', title: 'Node card, limited info', route: DeskRoute.settingsNode, arg: NodeDemo.limited),
+  const DeskShot(id: '20e-node-down', title: 'Node card, not answering', route: DeskRoute.settingsNode, arg: NodeDemo.down),
   const DeskShot(id: '22-settings-node', title: 'Settings, node', route: DeskRoute.settingsNode),
   const DeskShot(id: '22-settings-node-narrow', title: 'Settings, node at 1000x700', route: DeskRoute.settingsNode, width: 1000, height: 700),
   const DeskShot(id: '22b-node-combobox-open', title: 'Node combobox open', route: DeskRoute.settingsNode, arg: NodeDemo.comboOpen),
