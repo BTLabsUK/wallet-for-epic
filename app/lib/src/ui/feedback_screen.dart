@@ -45,6 +45,14 @@ String describeSyncState(WidgetRef ref) {
   } else if (ref.exists(homeProvider)) {
     final home = ref.read(homeProvider);
     final data = home.value;
+    // As the balance header counts it (`walletStatus`): the balance's height, else the node's
+    // tip; LEPIC can answer 0 for the balance's.
+    final counted = data?.summary.lastConfirmedHeight;
+    final height = counted != null && counted > BigInt.zero
+        ? counted
+        : ref.exists(nodeTipProvider)
+        ? ref.read(nodeTipProvider).value?.height
+        : null;
     parts.add(
       home.hasError
           ? 'Last sync failed: ${describeError(englishStrings, home.error!)}'
@@ -53,7 +61,9 @@ String describeSyncState(WidgetRef ref) {
           : data.syncing
           ? 'Syncing'
           : data.summary.validatedWithNode
-          ? 'Up to date at height ${data.summary.lastConfirmedHeight}'
+          ? height == null
+                ? 'Up to date'
+                : 'Up to date at height $height'
           : 'Node not reached',
     );
   }
