@@ -199,13 +199,14 @@ void main() {
       final container = ProviderContainer(overrides: [deskApiProvider.overrideWithValue(wallet)]);
       addTearDown(container.dispose);
       final desk = container.read(deskProvider.notifier);
-      await desk.startLive(listen: true);
+      await desk.startLive();
       expect(session().httpListenerStarts, isEmpty);
       expect(container.read(deskProvider).settings.directHttp, isFalse);
+      expect(session().listenerStarts, 1, reason: 'Epicbox starts with the wallet by default');
       await desk.lock();
       expect(await wallet.unlock(_password), isTrue);
-      await wallet.saveSettings((await wallet.settings()).copyWith(httpAutostart: true));
-      await desk.startLive(listen: false);
+      await wallet.saveSettings((await wallet.settings()).copyWith(httpAutostart: true, epicboxAutostart: false));
+      await desk.startLive();
       expect(session().httpListenerStarts.single.exposure, core.HttpExposure.localOnly);
       expect(container.read(deskProvider).settings.directHttp, isTrue);
       expect(session().listenerStarts, 1, reason: 'Epicbox stayed off this time');
