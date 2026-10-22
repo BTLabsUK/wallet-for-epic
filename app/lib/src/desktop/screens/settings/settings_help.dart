@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../widgets/help_art.dart';
 import '../../widgets/kit.dart';
-import '../../widgets/motion.dart';
 import 'help_topics.dart';
 import 'report_problem.dart';
 import 'settings_frame.dart';
