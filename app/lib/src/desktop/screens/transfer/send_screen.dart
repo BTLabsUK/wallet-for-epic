@@ -181,7 +181,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     id: 36,
     slateId: 'f0e1d2c3-b4a5-4697-8879-9f3a7c21a0b1',
     direction: TxDirection.sent,
-    state: m == TxMethod.file ? TxState.waitingRecipient : TxState.posted,
+    state: m == TxMethod.file || m == TxMethod.epicbox ? TxState.waitingRecipient : TxState.posted,
     method: m,
     amount: _parseAmount(_amount.text) ?? 12 * nanoPerEpic,
     fee: 600000,
@@ -546,7 +546,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
         if (res is SendDone) ...[
           ENotice(
             title: 'Sent',
-            text: 'Handed to Epicbox. Completes when the recipient answers.',
+            text: res.tx.method == TxMethod.http ? 'Finalized and posted to the network.' : 'Handed to Epicbox. Completes when the recipient answers.',
             tone: ETone.ok,
             icon: EIcons.okCircle,
             actions: [

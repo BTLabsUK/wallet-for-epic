@@ -324,7 +324,7 @@ class MockDeskWallet implements DeskWalletApi {
       id: _nextId++,
       slateId: 'f0e1d2c3-b4a5-4697-8879-${_rng.nextInt(999999).toString().padLeft(6, '0')}a0b1c2',
       direction: TxDirection.sent,
-      state: r.method == TxMethod.file ? TxState.waitingRecipient : TxState.posted,
+      state: r.method == TxMethod.file || r.method == TxMethod.epicbox ? TxState.waitingRecipient : TxState.posted,
       method: r.method,
       amount: r.amount,
       fee: _epic(0.006),

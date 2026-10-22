@@ -163,7 +163,7 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
                   onChanged: (v) => notifier.saveSettings(s.copyWith(tor: v)),
                 ),
                 below: s.tor && _onion != null
-                    ? Row(children: [Expanded(child: EAddress(_onion!)), SizedBox(width: Sp.x2), ECopyButton(text: _onion!)])
+                    ? EAddress(_onion!)
                     : null,
               ),
             ],

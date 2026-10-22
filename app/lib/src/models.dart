@@ -558,6 +558,9 @@ class TxEntry {
   /// Epicbox address or URL of the other side, when known.
   final String? counterparty;
 
+  /// The transport that carried the slate (`epicbox`, `file`, `http`, `tor`), when LEPIC knows it.
+  final String? transport;
+
   /// The user's private note. It stays on this device and in history backups.
   final String? note;
 
@@ -611,6 +614,7 @@ class TxEntry {
     this.kernelExcess,
     required this.outputCommits,
     this.counterparty,
+    this.transport,
     this.note,
     this.messages = const [],
     this.ttlCutoffHeight,

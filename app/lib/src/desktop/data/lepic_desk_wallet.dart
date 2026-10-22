@@ -1672,11 +1672,16 @@ Tx deskTx(core.TxEntry e, {required int tip, required int minConf, required int 
     core.TxStatus.confirmed => confirmations > 0 && confirmations < minConf ? TxState.confirming : TxState.confirmed,
   };
   final to = e.counterparty;
-  final method = to == null
-      ? (e.source == core.TxSource.wallet && e.kind != core.TxKind.coinbase ? TxMethod.file : TxMethod.epicbox)
-      : to.startsWith('http')
-      ? TxMethod.http
-      : TxMethod.epicbox;
+  final method = switch (e.transport) {
+    'http' => TxMethod.http,
+    'tor' => TxMethod.tor,
+    _ =>
+      to == null
+          ? (e.source == core.TxSource.wallet && e.kind != core.TxKind.coinbase ? TxMethod.file : TxMethod.epicbox)
+          : to.startsWith('http')
+          ? TxMethod.http
+          : TxMethod.epicbox,
+  };
   final amount = sent ? e.amountDebited.toInt() - e.amountCredited.toInt() - fee : e.amountCredited.toInt() - e.amountDebited.toInt();
   return Tx(
     id: e.id ?? fallbackId,

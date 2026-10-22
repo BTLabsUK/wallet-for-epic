@@ -158,7 +158,7 @@ class _HttpListenerRowState extends ConsumerState<HttpListenerRow> {
           if (address != null && address.isNotEmpty) ...[
             SizedBox(height: Sp.x2),
             if (s.publicMode) Text('This network', style: ts.caption),
-            Row(children: [Expanded(child: EAddress(address)), SizedBox(width: Sp.x2), ECopyButton(text: address)]),
+            EAddress(address),
           ],
           if (s.publicMode) ...[
             SizedBox(height: Sp.x2),
