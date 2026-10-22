@@ -38,6 +38,14 @@ class _Stops extends MockDeskWallet {
   }
 }
 
+/// The mock, failing its scan.
+class _Fails extends MockDeskWallet {
+  _Fails() : super(delay: const Duration(milliseconds: 10));
+
+  @override
+  Stream<ScanStep> rescan({bool deleteUnconfirmed = false}) => Stream.error(const DeskError('The node did not answer.'));
+}
+
 void main() {
   Future<void> pump(WidgetTester tester, [MockDeskWallet? api]) async {
     tester.view.physicalSize = const Size(1280, 1400);
@@ -126,6 +134,17 @@ void main() {
     await tester.pumpWidget(const SizedBox());
     expect(api.stops, 1);
     await run(tester, const Duration(milliseconds: 400));
+  });
+
+  testWidgets('a failed scan says so, with the error, and offers Start again', (tester) async {
+    await pump(tester, _Fails());
+    await tester.tap(find.widgetWithText(EButton, 'Start'));
+    await run(tester, const Duration(milliseconds: 40));
+    await tester.pumpAndSettle();
+    expect(find.text('Scan failed'), findsOneWidget);
+    expect(find.text('The node did not answer.'), findsOneWidget);
+    expect(find.widgetWithText(EButton, 'Start again'), findsOneWidget);
+    expect(find.text('Scan finished'), findsNothing);
   });
 
   group('LepicDeskWallet', () {

@@ -166,7 +166,7 @@ class _SettingsRescanScreenState extends ConsumerState<SettingsRescanScreen> {
                       'Reads the chain again and rebuilds the balance from the outputs found. '
                       'Use it when the balance looks wrong, after a restore, or when outputs stay locked after a failed send. '
                       'The wallet stays usable meanwhile.',
-                  control: EButton.primary(label: _end != null ? 'Start again' : 'Start', icon: EIcons.scan, size: EBtnSize.sm, onPressed: _start),
+                  control: EButton.primary(label: _end != null || _failure != null ? 'Start again' : 'Start', icon: EIcons.scan, size: EBtnSize.sm, onPressed: _start),
                   below: DeskFeatures.rescanRepair
                       ? Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
