@@ -127,7 +127,10 @@ void main() {
       final desk = _Desk();
       await _pump(tester, _tx(incoming: false, state: TxState.waitingRecipient), desk);
       await tester.tap(_cancelButton);
-      await tester.pumpAndSettle();
+      // A waiting send's step animates for ever: pump the dialog in, no settle.
+      for (var i = 0; i < 10; i++) {
+        await tester.pump(const Duration(milliseconds: 60));
+      }
       expect(find.text('Cancel this send?'), findsOneWidget);
       expect(find.textContaining('The locked amount returns to the balance'), findsOneWidget);
       expect(find.text('Cancel send'), findsOneWidget);
