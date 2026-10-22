@@ -759,6 +759,8 @@ class LepicDeskWallet implements DeskWalletApi {
 
   @override
   Future<void> useBuiltInNode(bool on) async {
+    // The setting and the saved node change only once the wallet runs on the new node, so a
+    // failed start or move leaves both as they were.
     if (on) {
       final node = await _theNode();
       try {
@@ -766,21 +768,29 @@ class LepicDeskWallet implements DeskWalletApi {
       } on NodeStartException catch (e) {
         throw DeskError(e.message);
       }
+      // A stop that came in while it was starting wins.
+      if (const {NodeStatusKind.off, NodeStatusKind.stopped, NodeStatusKind.failed}.contains(node.state.kind)) {
+        throw const DeskError('Built-in node stopped');
+      }
       final current = await _nodeUrl();
-      if (current != node.url) await _secrets.write(_beforeBuiltInKey, current);
+      if (current != node.url) {
+        try {
+          await _switchTo(nodeUrl: node.url, relay: await _relay());
+        } on Object {
+          if (!await _builtInOn()) await node.stop();
+          rethrow;
+        }
+        await _secrets.write(_beforeBuiltInKey, current);
+      }
       await _secrets.write(builtInNodeSettingKey(preset.chain), 'true');
       logInfo('desk', 'built-in node on');
-      await _switchTo(nodeUrl: node.url, relay: await _relay());
       return;
     }
-    await _secrets.write(builtInNodeSettingKey(preset.chain), 'false');
     final back = await _secrets.read(_beforeBuiltInKey) ?? preset.nodeUrl;
+    if (await _nodeUrl() != back) await _switchTo(nodeUrl: back, relay: await _relay());
+    await _secrets.write(builtInNodeSettingKey(preset.chain), 'false');
     logInfo('desk', 'built-in node off');
-    try {
-      await _switchTo(nodeUrl: back, relay: await _relay());
-    } finally {
-      await _node?.stop();
-    }
+    await _node?.stop();
   }
 
   /// At launch: starts the built-in node again when it was left on. A failure is logged and

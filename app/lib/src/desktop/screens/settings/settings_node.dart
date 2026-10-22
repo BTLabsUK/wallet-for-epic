@@ -230,7 +230,7 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
       );
     }
 
-    final health = prefs.builtin ? ServiceHealth.ok : (current.health == ServiceHealth.ok ? status.nodeHealth : current.health);
+    final health = prefs.builtin ? status.nodeHealth : (current.health == ServiceHealth.ok ? status.nodeHealth : current.health);
     return SettingsFrame(
       route: DeskRoute.settingsNode,
       child: Column(

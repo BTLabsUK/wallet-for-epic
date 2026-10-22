@@ -21,9 +21,15 @@ class _Opens extends core.FakeWalletService {
 
   final List<String> nodeUrls = [];
 
+  /// A node URL the wallet cannot open on.
+  String? failOn;
+
   @override
   Future<core.WalletSession> open({required core.WalletConfig config, required String password}) {
     nodeUrls.add(config.nodeUrl);
+    if (config.nodeUrl == failOn) {
+      throw const core.WalletError(kind: core.WalletErrorKind.nodeUnreachable, message: 'down');
+    }
     return super.open(config: config, password: password);
   }
 }
@@ -189,6 +195,40 @@ void main() {
     await expectLater(wallet.useBuiltInNode(true), throwsA(isA<DeskError>()));
     await secrets.write(builtInNodeSettingKey(Chain.mainnet), 'true');
     await wallet.resumeBuiltInNode();
+    await wallet.dispose();
+  });
+
+  test('a wallet that cannot move to the node stops it and keeps the old setting', () async {
+    final wallet = make();
+    expect(await wallet.unlock(_password), isTrue);
+    service.failOn = 'http://127.0.0.1:3413';
+    await expectLater(wallet.useBuiltInNode(true), throwsA(isA<DeskError>()));
+    expect(spawned.single.terminated, 1);
+    expect(await secrets.read(builtInNodeSettingKey(Chain.mainnet)), isNull);
+    expect(await secrets.read('app.node.mainnet'), _remote);
+    expect(service.nodeUrls.last, _remote);
+    await wallet.dispose();
+  });
+
+  test('starting a node already in use does not reopen the wallet', () async {
+    final wallet = make();
+    expect(await wallet.unlock(_password), isTrue);
+    await wallet.useBuiltInNode(true);
+    final opens = service.nodeUrls.length;
+    await wallet.useBuiltInNode(true);
+    expect(service.nodeUrls.length, opens);
+    expect(spawned, hasLength(1));
+    await wallet.dispose();
+  });
+
+  test('a failed turn-off keeps the node on and the setting true', () async {
+    final wallet = make();
+    expect(await wallet.unlock(_password), isTrue);
+    await wallet.useBuiltInNode(true);
+    service.failOn = _remote;
+    await expectLater(wallet.useBuiltInNode(false), throwsA(isA<DeskError>()));
+    expect(await secrets.read(builtInNodeSettingKey(Chain.mainnet)), 'true');
+    expect(spawned.single.terminated, 0);
     await wallet.dispose();
   });
 }

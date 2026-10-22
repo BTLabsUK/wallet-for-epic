@@ -65,6 +65,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
       } else if (_nodeUrl != st.status?.node.url) {
         await c.useNode(_nodeUrl);
       }
+      prefs.set(ref.read(settingsPrefsProvider).copyWith(builtin: _builtIn));
       if (domain.isNotEmpty && domain != st.status?.epicbox.domain) await c.useEpicbox(domain);
       await c.setListening(domain.isNotEmpty);
       await c.refresh();
