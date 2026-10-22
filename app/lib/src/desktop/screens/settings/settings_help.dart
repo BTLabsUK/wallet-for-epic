@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../widgets/help_art.dart';
 import '../../widgets/kit.dart';
 import 'help_topics.dart';
 import 'report_problem.dart';
@@ -21,7 +22,7 @@ List<({HelpTopic topic, bool inBody})> searchTopics(List<HelpTopic> topics, List
   final hits = <({HelpTopic topic, bool inBody, int score, int order})>[];
   for (var i = 0; i < topics.length; i++) {
     final t = topics[i];
-    final title = t.title.toLowerCase(), short = t.short.toLowerCase(), body = t.body.toLowerCase();
+    final title = t.title.toLowerCase(), short = t.short.toLowerCase(), body = t.bodyText.toLowerCase();
     if (!words.every((w) => title.contains(w) || short.contains(w) || body.contains(w))) continue;
     var score = 0;
     for (final w in words) {
@@ -62,9 +63,13 @@ TextSpan marked(BuildContext context, String text, List<String> words, TextStyle
   return TextSpan(style: style, children: spans);
 }
 
+/// Start states of Help for the screenshots: a topic open, or the end of the page with Tor open.
+enum HelpDemo { open, bottom }
+
 class SettingsHelpScreen extends ConsumerStatefulWidget {
   const SettingsHelpScreen({super.key, this.arg});
 
+  /// A search to start with (String) or a [HelpDemo].
   final Object? arg;
 
   @override
@@ -74,11 +79,14 @@ class SettingsHelpScreen extends ConsumerStatefulWidget {
 class _SettingsHelpScreenState extends ConsumerState<SettingsHelpScreen> {
   late final _query = TextEditingController(text: widget.arg is String ? widget.arg as String : '');
   final _focus = FocusNode(debugLabel: 'help search');
+  final _sectionKeys = {for (final s in helpSections) s.id: GlobalKey(debugLabel: 'help ${s.id}')};
+  final _logsKey = GlobalKey(debugLabel: 'help logs');
 
   @override
   void initState() {
     super.initState();
     HardwareKeyboard.instance.addHandler(_onKey);
+    if (widget.arg == HelpDemo.bottom) WidgetsBinding.instance.addPostFrameCallback((_) => _show(_logsKey, 1));
   }
 
   @override
@@ -107,42 +115,33 @@ class _SettingsHelpScreenState extends ConsumerState<SettingsHelpScreen> {
     _focus.requestFocus();
   }
 
+  void _show(GlobalKey key, [double alignment = 0]) {
+    final ctx = key.currentContext;
+    if (ctx == null) return;
+    final instant = MediaQuery.of(context).disableAnimations || widget.arg == HelpDemo.bottom;
+    Scrollable.ensureVisible(ctx, alignment: alignment, duration: instant ? Duration.zero : Dur.slow, curve: Curves.easeOut);
+  }
+
+  /// The topic open at the start for the screenshots.
+  bool _openAtStart(HelpTopic t) => switch (widget.arg) {
+    HelpDemo.open => t.handshake,
+    HelpDemo.bottom => t.title == 'Tor',
+    _ => false,
+  };
+
   @override
   Widget build(BuildContext context) {
-    final c = context.dc;
     final ts = context.ts;
     final words = queryWords(_query.text);
     final searching = words.isNotEmpty;
     final helpTopics = helpTopicsFor(deskMinConfirmations(ref));
     final hits = searching ? searchTopics(helpTopics, words) : const <({HelpTopic topic, bool inBody})>[];
-    Widget list(Iterable<({HelpTopic topic, bool inBody})> topics) => Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        for (final h in topics)
-          Padding(
-            padding: EdgeInsets.only(bottom: Sp.x2),
-            child: _Topic(key: ValueKey('${h.topic.title}-${words.join(' ')}'), topic: h.topic, words: words, initiallyOpen: h.inBody),
-          ),
-      ],
-    );
     return SettingsFrame(
       route: DeskRoute.settingsHelp,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          ESectionHead('Help and FAQ', top: 0),
-          Text('Short answers to common questions. Search, or open a topic.', style: ts.bodyDim),
-          SizedBox(height: Sp.x4),
-          ESetGroup(
-            title: 'Support',
-            rows: [
-              ESetRow(
-                title: 'Report a problem',
-                text: 'Describe what went wrong. The app log can go with it, cleaned of secrets and encrypted to the developer.',
-                control: EButton(label: 'Report a problem', icon: EIcons.bug, size: EBtnSize.sm, onPressed: () => showReportProblemDialog(context)),
-              ),
-            ],
-          ),
+          const _SupportBar(),
           SizedBox(height: Sp.x5),
           EField(
             label: 'Search help',
@@ -160,37 +159,179 @@ class _SettingsHelpScreenState extends ConsumerState<SettingsHelpScreen> {
               ),
             ),
           ),
-          SizedBox(height: Sp.x5),
           if (searching) ...[
+            SizedBox(height: Sp.x5),
             Semantics(
               liveRegion: true,
               child: Text(hits.isEmpty ? 'No topic matches “${_query.text.trim()}”. Try another word.' : 'Topics found: ${hits.length}', style: ts.small),
             ),
             SizedBox(height: Sp.x3),
-            if (hits.isEmpty) const EEmpty(icon: EIcons.search, title: 'No topic matches') else list(hits),
-          ] else
-            for (final (id, name) in helpSections) ...[
-              Padding(
-                padding: EdgeInsets.only(bottom: Sp.x2, top: Sp.x2),
-                child: Semantics(header: true, child: Text(name.toUpperCase(), style: ts.caption.copyWith(letterSpacing: 0.9, fontWeight: FontWeight.w600, color: c.faint))),
+            if (hits.isEmpty)
+              const EEmpty(icon: EIcons.search, title: 'No topic matches')
+            else
+              _Box(
+                children: [
+                  for (final (i, h) in hits.indexed)
+                    _Topic(key: ValueKey('${h.topic.title}-${words.join(' ')}'), topic: h.topic, words: words, first: i == 0, initiallyOpen: h.inBody),
+                ],
               ),
-              list([for (final t in helpTopics.where((t) => t.section == id)) (topic: t, inBody: false)]),
-              SizedBox(height: Sp.x4),
-            ],
+          ] else ...[
+            SizedBox(height: Sp.x3),
+            Wrap(
+              spacing: Sp.x2,
+              runSpacing: Sp.x2,
+              children: [for (final s in helpSections) _Chip(s.title, onTap: () => _show(_sectionKeys[s.id]!))],
+            ),
+            SizedBox(height: Sp.x6),
+            for (final s in helpSections)
+              if (helpTopics.where((t) => t.section == s.id).toList() case final topics when topics.isNotEmpty)
+                Padding(
+                  key: _sectionKeys[s.id],
+                  padding: EdgeInsets.only(bottom: Sp.x5),
+                  child: _Box(
+                    children: [
+                      _SectionHead(section: s, count: topics.length),
+                      for (final (i, t) in topics.indexed) _Topic(key: ValueKey(t.title), topic: t, words: const [], first: i == 0, initiallyOpen: _openAtStart(t)),
+                    ],
+                  ),
+                ),
+          ],
           SizedBox(height: Sp.x2),
-          const LogsGroup(),
+          LogsGroup(key: _logsKey),
         ],
       ),
     );
   }
 }
 
-/// One topic: title and answer always shown; Read more opens the detail.
+/// Report a problem, first on the page.
+class _SupportBar extends StatelessWidget {
+  const _SupportBar();
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.dc;
+    final ts = context.ts;
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: Sp.x5, vertical: 14.u),
+      decoration: BoxDecoration(color: c.s1, border: Border.all(color: c.line), borderRadius: BorderRadius.circular(Rad.sm)),
+      child: Row(
+        children: [
+          HelpArt('help-support', width: 112.u),
+          SizedBox(width: Sp.x5),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Semantics(header: true, child: Text('Report a problem', style: ts.strong)),
+                SizedBox(height: 2.u),
+                Text(
+                  'Describe what went wrong. The app log can go with it, cleaned of secrets and encrypted to the developer. '
+                  'Save to file keeps a copy to send by hand.',
+                  style: ts.small,
+                ),
+              ],
+            ),
+          ),
+          SizedBox(width: Sp.x5),
+          EButton(label: 'Report a problem', icon: EIcons.bug, size: EBtnSize.sm, onPressed: () => showReportProblemDialog(context)),
+        ],
+      ),
+    );
+  }
+}
+
+/// A section chip: scrolls to its section; not a filter.
+class _Chip extends StatelessWidget {
+  const _Chip(this.label, {required this.onTap});
+
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.dc;
+    final radius = BorderRadius.circular(14.u);
+    return Semantics(
+      button: true,
+      child: Material(
+        color: c.s1,
+        shape: RoundedRectangleBorder(borderRadius: radius, side: BorderSide(color: c.lineStrong)),
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: radius,
+          child: Container(
+            height: 28.u,
+            padding: EdgeInsets.symmetric(horizontal: 10.u),
+            child: Center(widthFactor: 1, child: Text(label, style: TextStyle(fontSize: 12.5.u, fontWeight: FontWeight.w500, color: c.dim))),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// A section's box, or the box of search hits.
+class _Box extends StatelessWidget {
+  const _Box({required this.children});
+
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.dc;
+    return Container(
+      clipBehavior: Clip.antiAlias,
+      decoration: BoxDecoration(color: c.s1, border: Border.all(color: c.line), borderRadius: BorderRadius.circular(Rad.sm)),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: children),
+    );
+  }
+}
+
+class _SectionHead extends StatelessWidget {
+  const _SectionHead({required this.section, required this.count});
+
+  final HelpSection section;
+  final int count;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.dc;
+    final ts = context.ts;
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: Sp.x5, vertical: Sp.x4),
+      decoration: BoxDecoration(border: Border(bottom: BorderSide(color: c.line))),
+      child: Row(
+        children: [
+          HelpArt(section.art, width: 120.u),
+          SizedBox(width: Sp.x5),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Semantics(header: true, child: Text(section.title, style: ts.h3)),
+                SizedBox(height: 2.u),
+                Text(section.lede, style: ts.small),
+              ],
+            ),
+          ),
+          SizedBox(width: Sp.x4),
+          Text('$count ${count == 1 ? 'topic' : 'topics'}', style: ts.mono(size: Fs.xs, color: c.faint)),
+        ],
+      ),
+    );
+  }
+}
+
+/// One topic: title and answer always shown; Read more opens the body under them.
 class _Topic extends StatefulWidget {
-  const _Topic({super.key, required this.topic, required this.words, this.initiallyOpen = false});
+  const _Topic({super.key, required this.topic, required this.words, required this.first, this.initiallyOpen = false});
 
   final HelpTopic topic;
   final List<String> words;
+
+  /// The first row of its box: no line above it.
+  final bool first;
   final bool initiallyOpen;
 
   @override
@@ -205,53 +346,129 @@ class _TopicState extends State<_Topic> {
     final c = context.dc;
     final ts = context.ts;
     final t = widget.topic;
+    final instant = MediaQuery.of(context).disableAnimations;
+    final answer = ts.bodyDim.copyWith(fontSize: 13.5.u);
     return Container(
-      padding: EdgeInsets.fromLTRB(Sp.x4, Sp.x3, Sp.x4, Sp.x2),
-      decoration: BoxDecoration(
-        color: c.s1,
-        border: Border.all(color: _open ? c.lineStrong : c.line),
-        borderRadius: BorderRadius.circular(Rad.sm),
-      ),
+      padding: EdgeInsets.symmetric(horizontal: Sp.x5, vertical: 14.u),
+      decoration: BoxDecoration(border: widget.first ? null : Border(top: BorderSide(color: c.line))),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Semantics(header: true, child: Text.rich(marked(context, t.title, widget.words, ts.strong))),
-          SizedBox(height: Sp.x1),
-          Text.rich(marked(context, t.short, widget.words, ts.bodyDim)),
-          Semantics(
-            button: true,
-            expanded: _open,
-            child: InkWell(
-              onTap: () => setState(() => _open = !_open),
-              borderRadius: BorderRadius.circular(Rad.sm),
-              child: Padding(
-                padding: EdgeInsets.symmetric(vertical: 6.u),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    AnimatedRotation(
-                      turns: _open ? 0.25 : 0,
-                      duration: MediaQuery.of(context).disableAnimations ? Duration.zero : Dur.base,
-                      child: Icon(EIcons.chevronRight, size: Ctl.iconSm, color: c.accentText),
-                    ),
-                    SizedBox(width: Sp.x1),
-                    Text(_open ? 'Show less' : 'Read more', style: ts.small.copyWith(color: c.accentText)),
+                    Semantics(header: true, child: Text.rich(marked(context, t.title, widget.words, ts.strong))),
+                    SizedBox(height: 2.u),
+                    Text.rich(marked(context, t.short, widget.words, answer)),
                   ],
+                ),
+              ),
+              SizedBox(width: Sp.x4),
+              Semantics(
+                button: true,
+                expanded: _open,
+                child: InkWell(
+                  onTap: () => setState(() => _open = !_open),
+                  borderRadius: BorderRadius.circular(Rad.xs),
+                  child: Container(
+                    height: Ctl.inline,
+                    padding: EdgeInsets.symmetric(horizontal: Sp.x1),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        AnimatedRotation(
+                          turns: _open ? 0.25 : 0,
+                          duration: instant ? Duration.zero : Dur.base,
+                          child: Icon(EIcons.chevronRight, size: 14.u, color: c.accentText),
+                        ),
+                        SizedBox(width: Sp.x1),
+                        Text(_open ? 'Show less' : 'Read more', style: TextStyle(fontSize: 12.5.u, fontWeight: FontWeight.w500, color: c.accentText)),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          AnimatedCrossFade(
+            duration: instant ? Duration.zero : const Duration(milliseconds: 240),
+            firstCurve: Curves.easeOut,
+            secondCurve: Curves.easeOut,
+            sizeCurve: Curves.easeOut,
+            crossFadeState: _open ? CrossFadeState.showSecond : CrossFadeState.showFirst,
+            firstChild: const SizedBox(width: double.infinity),
+            secondChild: Padding(
+              padding: EdgeInsets.only(top: 10.u),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(maxWidth: 680.u),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      for (final b in t.body) _Block(block: b, words: widget.words, style: answer),
+                      if (t.handshake) ...[SizedBox(height: Sp.x2), const HelpHandshake()],
+                    ],
+                  ),
                 ),
               ),
             ),
           ),
-          if (_open)
+        ],
+      ),
+    );
+  }
+}
+
+/// A paragraph or a list of a topic's body, with its terms, places and search marks.
+class _Block extends StatelessWidget {
+  const _Block({required this.block, required this.words, required this.style});
+
+  final HelpBlock block;
+  final List<String> words;
+  final TextStyle style;
+
+  TextSpan _rich(BuildContext context, String text) {
+    final c = context.dc;
+    return TextSpan(
+      style: style,
+      children: [
+        for (final p in helpInline(text))
+          marked(
+            context,
+            p.text,
+            words,
+            p.term
+                ? style.copyWith(color: c.text, fontWeight: FontWeight.w600)
+                : p.place
+                ? style.copyWith(color: c.accentText, fontWeight: FontWeight.w500)
+                : style,
+          ),
+      ],
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final gap = EdgeInsets.only(bottom: Sp.x2);
+    if (block.kind == HelpBlockKind.p) return Padding(padding: gap, child: Text.rich(_rich(context, block.text)));
+    return Padding(
+      padding: gap,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          for (final (i, item) in block.items.indexed)
             Padding(
-              padding: EdgeInsets.only(bottom: Sp.x2),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
+              padding: EdgeInsets.symmetric(vertical: 2.u),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text.rich(marked(context, t.body, widget.words, ts.bodyDim)),
-                  if (t.title.startsWith('Why does a transaction need both sides')) ...[
-                    SizedBox(height: Sp.x4),
-                    const HelpHandshake(),
-                  ],
+                  SizedBox(width: 22.u, child: Text(block.kind == HelpBlockKind.ol ? '${i + 1}.' : '•', style: style)),
+                  Expanded(child: Text.rich(_rich(context, item))),
                 ],
               ),
             ),
@@ -262,7 +479,7 @@ class _TopicState extends State<_Topic> {
 }
 
 List<String> _epicboxSteps(int confirmations) => [
-  'The sending wallet passes the payment to Epicbox and locks the coins.',
+  'The sending wallet passes the payment to Epicbox and locks the outputs.',
   'Epicbox delivers it when the receiving wallet is online. That wallet adds its part and signs.',
   'The receiving wallet sends it back to Epicbox.',
   'Epicbox passes it back to the sending wallet.',
@@ -271,7 +488,7 @@ List<String> _epicboxSteps(int confirmations) => [
 ];
 
 List<String> _fileSteps(int confirmations) => [
-  'The sending wallet saves a transaction file and locks the coins. The file goes to the recipient by any means.',
+  'The sending wallet saves a transaction file and locks the outputs. The file goes to the recipient by any means.',
   'The recipient opens it. Their wallet adds its part, signs and saves a response file.',
   'The response file comes back to the sender.',
   'The sender opens the response file under Finalize.',

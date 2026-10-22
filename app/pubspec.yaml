@@ -74,6 +74,8 @@ dependencies:
   # tools/lepic.sh sync creates it and tools/lepic.sh build builds its libraries.
   lepic:
     path: third_party/lepic/bindings/flutter
+  # Help illustrations (assets/help); exact, as the lockfile resolves it.
+  flutter_svg: 2.3.0
 
 dev_dependencies:
   flutter_test:
@@ -111,6 +113,8 @@ flutter:
     - assets/passwords/
     # Tor's licence; the tor binary itself ships beside the app (tools/fetch-tor.sh).
     - assets/licenses/tor.txt
+    # Help illustrations (settings design, F20); drawn in the theme colours by HelpArt.
+    - assets/help/
   fonts:
     # Display only: the balance, screen titles and section heads. Body text is the platform font.
     - family: Montserrat
