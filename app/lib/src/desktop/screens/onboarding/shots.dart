@@ -33,7 +33,7 @@ final List<DeskShot> onboardingShots = [
   const DeskShot(id: '05c-unlock-progress', title: 'Unlock: unlocking', route: DeskRoute.unlock, arg: UnlockShow.progress),
   const DeskShot(id: '05d-unlock-failed', title: 'Unlock: failed', route: DeskRoute.unlock, arg: UnlockShow.failed),
   const DeskShot(id: '05e-unlock-missing', title: 'Unlock: folder missing', route: DeskRoute.unlock, arg: UnlockShow.missing),
-  const DeskShot(id: '05f-unlock-added', title: 'Unlock: wallet added', route: DeskRoute.unlock, arg: UnlockAdded('Savings')),
+  const DeskShot(id: '05f-unlock-added', title: 'Unlock: wallet added', route: DeskRoute.unlock, arg: UnlockAdded('Savings', id: '5a1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f')),
   DeskShot(
     id: '05g-dlg-kill-process',
     title: 'Epic is already running',
