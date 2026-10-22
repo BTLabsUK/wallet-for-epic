@@ -159,7 +159,7 @@ void main() {
       ),
     ));
     await tester.pump(const Duration(seconds: 1));
-    await tester.tap(find.bySemanticsLabel(RegExp('^Open Receiving settings')));
+    await tester.tap(find.bySemanticsLabel(RegExp('^Open Epicbox receiving')));
     await tester.pump(const Duration(milliseconds: 500));
     expect(container.read(deskNavProvider).route, DeskRoute.settingsReceiving);
     expect(container.read(settingsPrefsProvider).jump?.section, SettingsJump.epicbox);

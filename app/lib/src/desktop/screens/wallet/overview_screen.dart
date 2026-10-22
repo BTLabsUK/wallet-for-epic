@@ -5,7 +5,6 @@ import '../../app/tour.dart';
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../widgets/kit.dart';
 import '../settings/prefs.dart' show settingsPrefsProvider;
-import '../settings/settings_frame.dart' show groupDigits;
 import 'tx_display.dart';
 
 /// States the tour can start Overview in.
@@ -18,7 +17,7 @@ const double _usdPerEpic = 0.42;
 const double _syncPart = 0.62;
 const int _walletTip = 2903118;
 
-/// Overview: the balance (the one framed object), recent activity and the status card.
+/// Overview: the balance (the one framed object) and recent activity; the service state lives in the rail.
 class OverviewScreen extends ConsumerStatefulWidget {
   const OverviewScreen({super.key, this.arg});
 
@@ -73,13 +72,9 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
     final balance = empty ? const Balance(spendable: 0, awaitingConfirmation: 0, locked: 0, awaitingFinalization: 0) : s.balance;
     final txs = empty ? const <Tx>[] : (demo == OverviewDemo.loading ? null : s.txs);
     final nav = ref.read(deskNavProvider.notifier);
-    final width = MediaQuery.sizeOf(context).width;
-    final wide = width >= 1280.u;
-    final narrow = width < 900.u;
     final nodeUrl = (s.status?.node.url ?? 'https://node.epiccash.com').replaceFirst(RegExp(r'^https?://'), '');
 
     final recent = _Recent(txs: txs, onOpen: (t) => nav.go(DeskRoute.activity, t.id), onAll: () => nav.go(DeskRoute.activity));
-    final status = _StatusCard(nodeDown: nodeDown);
     final pending = empty ? 0 : s.pendingFiles;
     final gap = SizedBox(height: Sp.x4);
 
@@ -160,28 +155,8 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
             ),
           ),
           SizedBox(height: Sp.x2),
-          if (narrow) ...[
-            recent,
-            status,
-            if (pending > 0) _PendingFiles(count: pending),
-          ] else
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(child: recent),
-                SizedBox(width: Sp.x6),
-                SizedBox(
-                  width: wide ? 320.u : 264.u,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      status,
-                      if (pending > 0) _PendingFiles(count: pending),
-                    ],
-                  ),
-                ),
-              ],
-            ),
+          recent,
+          if (pending > 0) _PendingFiles(count: pending),
         ],
       ),
     );
@@ -732,140 +707,6 @@ class _Recent extends StatelessWidget {
       ],
     );
   }
-}
-
-class _StatusCard extends ConsumerWidget {
-  const _StatusCard({required this.nodeDown});
-
-  final bool nodeDown;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final c = context.dc;
-    final ts = context.ts;
-    final st = ref.watch(deskProvider.select((s) => s.status));
-    final httpPort = ref.watch(deskProvider.select((s) => s.settings.httpPort));
-    final nav = ref.read(deskNavProvider.notifier);
-    final rows = st == null
-        ? const <_SRow>[]
-        : [
-            _SRow(
-              EIcons.node,
-              'Node',
-              nodeDown ? ServiceHealth.down : st.nodeHealth,
-              st.node.url.replaceFirst(RegExp(r'^https?://'), ''),
-              sub: nodeDown ? 'Not answering' : 'Height ${groupDigits(st.nodeHeight)}',
-              mono: true,
-            ),
-            _SRow(EIcons.epicbox, 'Epicbox', st.epicboxHealth, st.epicbox.domain, mono: true),
-            if (DeskFeatures.httpDirect)
-              _SRow(
-                EIcons.http,
-                'Direct HTTP',
-                st.httpListener,
-                switch (st.httpListener) {
-                  ServiceHealth.off => '',
-                  ServiceHealth.down => st.httpProblem ?? 'Didn’t start',
-                  _ => 'Port $httpPort',
-                },
-              ),
-            if (DeskFeatures.tor) _SRow(EIcons.tor, 'Tor', st.tor, st.tor == ServiceHealth.off && st.torIncluded ? '' : torStatusLine(st)),
-          ];
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        ESectionHead('Status', top: Sp.x6),
-        Container(
-          decoration: BoxDecoration(
-            color: c.s1,
-            border: Border.all(color: c.line),
-            borderRadius: BorderRadius.circular(Rad.sm),
-          ),
-          padding: EdgeInsets.symmetric(vertical: Sp.x2),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              if (st == null)
-                Padding(
-                  padding: EdgeInsets.all(Sp.x6),
-                  child: Center(child: ESpinner()),
-                )
-              else
-                for (final r in rows)
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: Sp.x5, vertical: Sp.x3),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(top: 2),
-                          child: Stack(
-                            clipBehavior: Clip.none,
-                            children: [
-                              Icon(r.icon, size: Ctl.icon, color: c.dim),
-                              Positioned(
-                                right: -3.u,
-                                bottom: -2,
-                                child: EStatusDot(healthTone(r.health), size: 8.u),
-                              ),
-                            ],
-                          ),
-                        ),
-                        SizedBox(width: Sp.x3),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  Expanded(child: Text(r.label, style: ts.strong)),
-                                  Text(healthWord(r.health), style: ts.caption.copyWith(color: _toneColor(c, healthTone(r.health)))),
-                                ],
-                              ),
-                              if (r.value.isNotEmpty)
-                                Text(
-                                  r.value,
-                                  style: r.mono ? ts.mono(size: Fs.xs, color: c.dim) : ts.small,
-                                ),
-                              if (r.sub != null) Text(r.sub!, style: ts.caption),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-              Padding(
-                padding: EdgeInsets.fromLTRB(Sp.x5, Sp.x2, Sp.x5, Sp.x3),
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: EButton(label: DeskFeatures.httpDirect || DeskFeatures.tor ? 'More options' : 'Open Receive', size: EBtnSize.sm, onPressed: () => nav.go(DeskRoute.receive)),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-Color _toneColor(DeskColors c, ETone t) => switch (t) {
-  ETone.ok => c.ok,
-  ETone.warn => c.warn,
-  ETone.risk => c.risk,
-  ETone.gold => c.accentText,
-  ETone.neutral => c.faint,
-};
-
-class _SRow {
-  const _SRow(this.icon, this.label, this.health, this.value, {this.sub, this.mono = false});
-
-  final IconData icon;
-  final String label;
-  final ServiceHealth health;
-  final String value;
-  final String? sub;
-  final bool mono;
 }
 
 class _PendingFiles extends ConsumerWidget {

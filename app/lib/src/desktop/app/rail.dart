@@ -1,0 +1,335 @@
+/// The status rows of the sidebar (spec §5, §16): Node, a divider, then Epicbox, HTTP and Tor,
+/// each with signal bars, a name and one short line; the details in a hover card; a click
+/// opens that service's settings. Every row is 40 u tall in every state, so the rail never
+/// changes height.
+library;
+
+import 'dart:async';
+
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../address_format.dart' show railHost;
+import '../data/desk_node.dart';
+import '../data/node_view.dart';
+import '../screens/settings/prefs.dart';
+import '../screens/settings/settings_http.dart' show httpRun;
+import '../widgets/kit.dart';
+
+/// One row's content, whatever the service.
+class RailItem {
+  const RailItem({
+    required this.icon,
+    required this.name,
+    required this.word,
+    required this.state,
+    required this.second,
+    this.marker,
+    this.lines = const [],
+    required this.open,
+    required this.jump,
+  });
+
+  final IconData icon;
+  final String name;
+  final String word;
+  final EState state;
+
+  /// The line under the name: a host or a status word; "–" when off.
+  final String second;
+
+  /// After [second], never cut ("12 %", "no answer").
+  final String? marker;
+  final List<String> lines;
+
+  /// The hover card's last line: where a click goes.
+  final String open;
+  final SettingsJump jump;
+}
+
+/// The Epicbox, HTTP and Tor rows of a status (null: nothing known yet).
+List<RailItem> receivingRailItems(ServiceStatus? st, DeskSettings settings) {
+  final eb = st?.epicboxHealth ?? ServiceHealth.checking;
+  final ebHost = st?.epicbox.domain;
+  final ebWord = switch (eb) {
+    ServiceHealth.ok => 'On',
+    ServiceHealth.checking => 'Connecting',
+    ServiceHealth.slow => 'Slow',
+    ServiceHealth.down => 'Not answering',
+    ServiceHealth.off => 'Off',
+  };
+  final items = [
+    RailItem(
+      icon: EIcons.epicbox,
+      name: 'Epicbox',
+      word: st == null ? 'Checking' : ebWord,
+      state: st == null ? EState.off : stateOf(eb),
+      second: eb == ServiceHealth.off || ebHost == null ? '–' : railHost('Epicbox', ebHost),
+      lines: [
+        if (eb != ServiceHealth.off && ebHost != null) ebHost,
+        if (eb == ServiceHealth.down) 'Payments wait on the Epicbox server.',
+      ],
+      open: 'Open Epicbox receiving',
+      jump: SettingsJump.epicbox,
+    ),
+  ];
+  if (DeskFeatures.httpDirect) {
+    final run = httpRun(st);
+    final where = settings.publicMode ? 'internet' : 'local';
+    items.add(
+      RailItem(
+        icon: EIcons.http,
+        name: 'HTTP',
+        word: switch (run) {
+          HttpRun.on => 'On',
+          HttpRun.busy => 'Starting',
+          HttpRun.failed => 'Not receiving',
+          HttpRun.off => 'Off',
+        },
+        state: switch (run) {
+          HttpRun.on => EState.ok,
+          HttpRun.busy => EState.warn,
+          HttpRun.failed => EState.risk,
+          HttpRun.off => EState.off,
+        },
+        second: switch (run) {
+          HttpRun.on => 'On · $where',
+          HttpRun.busy => 'Starting',
+          HttpRun.failed => (st?.httpProblem ?? '').toLowerCase().contains('port') ? 'Port in use' : 'Stopped',
+          HttpRun.off => '–',
+        },
+        lines: [
+          if (run != HttpRun.off) 'Port ${settings.httpPort} · ${settings.publicMode ? 'from the internet' : 'this computer only'}',
+          if (run == HttpRun.failed && st?.httpProblem != null) st!.httpProblem!,
+        ],
+        open: 'Open HTTP receiving',
+        jump: SettingsJump.http,
+      ),
+    );
+  }
+  if (DeskFeatures.tor) {
+    final t = st?.tor ?? ServiceHealth.off;
+    final included = st?.torIncluded ?? true;
+    final publishing = t == ServiceHealth.checking && (st?.torCanSend ?? false);
+    final (word, second, state) = !included
+        ? ('Not in this build', '–', EState.off)
+        : switch (t) {
+            ServiceHealth.ok => ('On', 'On', EState.ok),
+            ServiceHealth.checking when publishing => ('Publishing', 'Publishing', EState.warn),
+            ServiceHealth.checking => ('Connecting', 'Connecting ${st?.torProgress ?? 0} %', EState.warn),
+            ServiceHealth.slow => ('Sends only', 'Sends only', EState.warn),
+            ServiceHealth.down => ('Stopped', 'Stopped', EState.risk),
+            ServiceHealth.off => ('Off', '–', EState.off),
+          };
+    items.add(
+      RailItem(
+        icon: EIcons.tor,
+        name: 'Tor',
+        word: word,
+        state: state,
+        second: second,
+        lines: [
+          if (t == ServiceHealth.checking && !publishing) '${st?.torProgress ?? 0} %',
+          if ((t == ServiceHealth.slow || t == ServiceHealth.down) && st?.torProblem != null) st!.torProblem!,
+          if (t == ServiceHealth.off) 'Slower and more private.',
+        ],
+        open: 'Open Tor receiving',
+        jump: SettingsJump.tor,
+      ),
+    );
+  }
+  return items;
+}
+
+/// The Node row from a [NodeView].
+RailItem nodeRailItem(NodeView v) => RailItem(
+  icon: EIcons.node,
+  name: 'Node',
+  word: v.word,
+  state: v.state,
+  second: v.host,
+  marker: v.marker,
+  lines: v.lines,
+  open: 'Open node settings',
+  jump: SettingsJump.node,
+);
+
+/// How often the rail asks about a remote node again.
+const Duration railNodeRefresh = Duration(seconds: 60);
+
+/// The rail: Node, a divider, Epicbox, HTTP, Tor. [horizontal] lays the compact rows side by
+/// side (the phone's top bar).
+class ServiceRows extends ConsumerStatefulWidget {
+  const ServiceRows({super.key, this.compact = false, this.horizontal = false});
+
+  final bool compact;
+  final bool horizontal;
+
+  @override
+  ConsumerState<ServiceRows> createState() => _ServiceRowsState();
+}
+
+class _ServiceRowsState extends ConsumerState<ServiceRows> {
+  Timer? _refresh;
+  String? _url;
+
+  @override
+  void initState() {
+    super.initState();
+    _refresh = Timer.periodic(railNodeRefresh, (_) {
+      final u = _url;
+      if (mounted && u != null) ref.invalidate(deskNodeInfoProvider(u));
+    });
+  }
+
+  @override
+  void dispose() {
+    _refresh?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final status = ref.watch(deskProvider.select((s) => s.status));
+    final settings = ref.watch(deskProvider.select((s) => s.settings));
+    final prefs = ref.watch(settingsPrefsProvider);
+    final p = ref.read(settingsPrefsProvider.notifier);
+    final NodeView node;
+    if (prefs.builtin) {
+      _url = null;
+      node = localNodeView(ref.watch(deskLocalNodeProvider).value, decision: ref.watch(deskFallbackDecisionProvider));
+    } else if (status == null) {
+      _url = null;
+      node = const NodeView(word: 'Checking', state: EState.off, host: '–');
+    } else {
+      final url = (prefs.typedNode ?? status.node).url;
+      _url = url;
+      node = remoteNodeView(url, ref.watch(deskNodeInfoProvider(url)).value, health: status.nodeHealth);
+    }
+    final items = [nodeRailItem(node), ...receivingRailItems(status, settings)];
+    Widget row(RailItem i) => RailRow(item: i, compact: widget.compact, onTap: () => p.jumpTo(i.jump));
+    if (widget.horizontal) {
+      return Row(mainAxisSize: MainAxisSize.min, children: [for (final i in items) SizedBox(width: Ctl.md, child: row(i))]);
+    }
+    final c = context.dc;
+    return Column(
+      key: const ValueKey('rail'),
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        row(items.first),
+        Padding(
+          padding: EdgeInsets.symmetric(vertical: 6.u, horizontal: 8.u),
+          child: Divider(height: 1, thickness: 1, color: c.line),
+        ),
+        for (final i in items.skip(1)) row(i),
+      ],
+    );
+  }
+}
+
+/// One rail row, 40 u tall: bars, the name over one line (compact: the service's icon and the
+/// bars). Hover shows the card; a click opens the service's settings.
+class RailRow extends StatefulWidget {
+  const RailRow({super.key, required this.item, required this.onTap, this.compact = false});
+
+  final RailItem item;
+  final VoidCallback onTap;
+  final bool compact;
+
+  @override
+  State<RailRow> createState() => _RailRowState();
+}
+
+class _RailRowState extends State<RailRow> {
+  bool _hover = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.dc;
+    final ts = context.ts;
+    final i = widget.item;
+    final off = i.second == '–';
+    // A host is mono; a status word is in the interface face.
+    final mono = i.name == 'Node' || i.name == 'Epicbox';
+    final secondStyle = off
+        ? ts.small.copyWith(color: c.faint, height: 15 / 12)
+        : (mono && !off ? ts.mono(size: Fs.xs, color: c.dim) : ts.caption.copyWith(color: c.dim)).copyWith(height: 15 / Fs.xs);
+    final card = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ESignalBars(i.state),
+            SizedBox(width: Sp.x2),
+            Text('${i.name} · ${i.word}', style: ts.small.copyWith(color: c.text, fontWeight: FontWeight.w600)),
+          ],
+        ),
+        SizedBox(height: Sp.x1),
+        for (final l in i.lines)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 1),
+            child: Text(l, style: ts.mono(size: Fs.xs, color: c.dim)),
+          ),
+        SizedBox(height: Sp.x2),
+        Text(i.open, style: ts.caption.copyWith(color: c.accentText)),
+      ],
+    );
+    final Widget content;
+    if (widget.compact) {
+      content = Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(i.icon, size: 16.u, color: c.dim),
+          SizedBox(width: 5.u),
+          ESignalBars(i.state),
+        ],
+      );
+    } else {
+      content = Row(
+        children: [
+          ESignalBars(i.state),
+          SizedBox(width: 10.u),
+          Expanded(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(i.name, maxLines: 1, style: ts.small.copyWith(color: c.text, fontWeight: FontWeight.w600, height: 17 / Fs.sm)),
+                Row(
+                  children: [
+                    Flexible(child: Text(i.second, maxLines: 1, overflow: TextOverflow.ellipsis, softWrap: false, style: secondStyle)),
+                    if (i.marker != null) Text(' · ${i.marker}', maxLines: 1, softWrap: false, style: ts.caption.copyWith(color: c.dim, height: 15 / Fs.xs)),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      );
+    }
+    return Tooltip(
+      richMessage: WidgetSpan(child: card),
+      preferBelow: false,
+      verticalOffset: 18.u,
+      child: Semantics(
+        button: true,
+        label: '${i.open}: ${i.word}',
+        hint: i.lines.join('. '),
+        excludeSemantics: true,
+        child: InkWell(
+          onTap: widget.onTap,
+          onHover: (v) => setState(() => _hover = v),
+          borderRadius: BorderRadius.circular(Rad.sm),
+          child: Container(
+            height: 40.u,
+            padding: EdgeInsets.symmetric(horizontal: widget.compact ? 0 : 8.u),
+            decoration: BoxDecoration(color: _hover ? c.hover : null, borderRadius: BorderRadius.circular(Rad.sm)),
+            child: content,
+          ),
+        ),
+      ),
+    );
+  }
+}
