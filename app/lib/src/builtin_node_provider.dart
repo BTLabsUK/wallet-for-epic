@@ -5,6 +5,7 @@ library;
 import 'dart:async';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -74,10 +75,31 @@ class BuiltInNodeEnabledNotifier extends AsyncNotifier<bool> {
   }
 }
 
-/// The node object of a chain. Reading it starts nothing; call `start()` (and `stop()`). Throws
-/// [UnsupportedError] where there is no built-in node (phones). When the provider is disposed the
-/// node is stopped, but a dispose callback cannot be awaited: the app's exit hook should await
-/// [stopAllBuiltInNodes] (`AppLifecycleListener(onExitRequested: ...)`).
+final Map<(String, Chain), BuiltInNode> _nodes = {};
+
+/// The one node object of [chain] under [where] for the whole process: the wallet and the
+/// providers share it, so they see the same process and state. A disposed node is replaced by a
+/// fresh one. Starts nothing.
+BuiltInNode builtInNodeFor(BuiltInNodeLocation where, Chain chain) {
+  final key = (where.root, chain);
+  final known = _nodes[key];
+  if (known != null && !known.isDisposed) return known;
+  return _nodes[key] = BuiltInNode(
+    root: where.root,
+    binary: where.binary,
+    chain: chain,
+  );
+}
+
+/// Forgets every node of [builtInNodeFor] (stops none). For tests.
+@visibleForTesting
+void resetBuiltInNodes() => _nodes.clear();
+
+/// The node object of a chain ([builtInNodeFor]). Reading it starts nothing; call `start()` (and
+/// `stop()`). Throws [UnsupportedError] where there is no built-in node (phones). Disposing the
+/// provider leaves the node alone (the wallet may still run on it): the node stops only by an
+/// explicit `stop()`, or by [stopAllBuiltInNodes] in the app's exit hook
+/// (`AppLifecycleListener(onExitRequested: ...)`).
 final builtInNodeProvider = FutureProvider.family<BuiltInNode, Chain>((
   ref,
   chain,
@@ -86,13 +108,7 @@ final builtInNodeProvider = FutureProvider.family<BuiltInNode, Chain>((
     throw UnsupportedError('The built-in node is only available on desktop');
   }
   final where = await ref.watch(builtInNodeLocationProvider.future);
-  final node = BuiltInNode(
-    root: where.root,
-    binary: where.binary,
-    chain: chain,
-  );
-  ref.onDispose(() => unawaited(node.dispose()));
-  return node;
+  return builtInNodeFor(where, chain);
 });
 
 /// The node's state as it changes.

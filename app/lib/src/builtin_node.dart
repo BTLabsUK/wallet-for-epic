@@ -12,6 +12,7 @@ import 'dart:math';
 import 'package:crypto/crypto.dart';
 
 import 'models.dart' show Chain;
+import 'node/node_api_types.dart';
 
 /// Settings-store key that holds whether the built-in node is on for [chain] ("true"/"false").
 String builtInNodeSettingKey(Chain chain) => 'node.builtin.${chain.name}';
@@ -50,6 +51,9 @@ class BuiltInNodeState {
     this.reason,
     this.connections,
     this.diskUnknown = false,
+    this.readyForTxs,
+    this.status,
+    this.version,
   });
 
   const BuiltInNodeState.off() : this(NodeStatusKind.off);
@@ -72,6 +76,17 @@ class BuiltInNodeState {
   /// check is off for this node.
   final bool diskUnknown;
 
+  /// The node's `ready_for_txs` answer: true only when it is fully synced. Null when it did not
+  /// answer it (a node before 4.1.0, or no answer at all).
+  final bool? readyForTxs;
+
+  /// The last owner `get_status`, parsed: the sync stage detail. Null when the node did not give
+  /// one (no secret yet) or it did not parse.
+  final NodeStatusInfo? status;
+
+  /// The node's version ("4.1.0"): foreign `get_version`, else the user agent of [status].
+  final String? version;
+
   final NodeFailure? failure;
 
   /// A short reason for [NodeStatusKind.failed], in English for the log and the screen.
@@ -93,7 +108,10 @@ class BuiltInNodeState {
       other.failure == failure &&
       other.reason == reason &&
       other.connections == connections &&
-      other.diskUnknown == diskUnknown;
+      other.diskUnknown == diskUnknown &&
+      other.readyForTxs == readyForTxs &&
+      _sameStatus(other.status, status) &&
+      other.version == version;
 
   @override
   int get hashCode => Object.hash(
@@ -105,13 +123,123 @@ class BuiltInNodeState {
     reason,
     connections,
     diskUnknown,
+    readyForTxs,
+    status?.syncStatus,
+    status?.tip.height,
+    version,
   );
 
   @override
   String toString() =>
       'BuiltInNodeState($kind, height: $height, highest: $highest, phase: $phase, '
       'failure: $failure, reason: $reason, connections: $connections, '
-      'diskUnknown: $diskUnknown)';
+      'diskUnknown: $diskUnknown, readyForTxs: $readyForTxs, '
+      'status: ${status?.syncStatus}, version: $version)';
+}
+
+/// Field by field: the parsed status has no `==` of its own, and a poll that reads the same
+/// status must not count as a change.
+bool _sameStatus(NodeStatusInfo? a, NodeStatusInfo? b) {
+  if (identical(a, b)) return true;
+  if (a == null || b == null) return false;
+  final x = a.syncInfo;
+  final y = b.syncInfo;
+  return a.syncStatus == b.syncStatus &&
+      a.connections == b.connections &&
+      a.protocolVersion == b.protocolVersion &&
+      a.userAgent == b.userAgent &&
+      a.tip.height == b.tip.height &&
+      a.tip.lastBlockHash == b.tip.lastBlockHash &&
+      (identical(x, y) ||
+          (x != null &&
+              y != null &&
+              x.currentHeight == y.currentHeight &&
+              x.highestHeight == y.highestHeight &&
+              x.downloadedBytes == y.downloadedBytes &&
+              x.totalBytes == y.totalBytes &&
+              x.kernels == y.kernels &&
+              x.kernelsTotal == y.kernelsTotal &&
+              x.rangeProofs == y.rangeProofs &&
+              x.rangeProofsTotal == y.rangeProofsTotal));
+}
+
+/// What the app may set in the node's toml; applied at the next start (the node reads its toml
+/// only then). Null and empty mean "the node's default".
+class NodeTomlOptions {
+  const NodeTomlOptions({
+    this.chainDataPath,
+    this.preferredPeers = const [],
+    this.maxInbound,
+    this.maxOutbound,
+  });
+
+  /// Where the chain data lives; null is `<node folder>/chain_data`.
+  final String? chainDataPath;
+
+  /// `peers_preferred`: "ip:port" or "[v6]:port". Invalid entries are dropped when rendered.
+  final List<String> preferredPeers;
+
+  /// `peer_max_inbound_count`.
+  final int? maxInbound;
+
+  /// `peer_max_outbound_count`.
+  final int? maxOutbound;
+
+  NodeTomlOptions copyWith({
+    String? Function()? chainDataPath,
+    List<String>? preferredPeers,
+    int? Function()? maxInbound,
+    int? Function()? maxOutbound,
+  }) => NodeTomlOptions(
+    chainDataPath: chainDataPath != null ? chainDataPath() : this.chainDataPath,
+    preferredPeers: preferredPeers ?? this.preferredPeers,
+    maxInbound: maxInbound != null ? maxInbound() : this.maxInbound,
+    maxOutbound: maxOutbound != null ? maxOutbound() : this.maxOutbound,
+  );
+
+  @override
+  bool operator ==(Object other) =>
+      other is NodeTomlOptions &&
+      other.chainDataPath == chainDataPath &&
+      other.maxInbound == maxInbound &&
+      other.maxOutbound == maxOutbound &&
+      _sameList(other.preferredPeers, preferredPeers);
+
+  @override
+  int get hashCode => Object.hash(
+    chainDataPath,
+    Object.hashAll(preferredPeers),
+    maxInbound,
+    maxOutbound,
+  );
+
+  @override
+  String toString() =>
+      'NodeTomlOptions(chainDataPath: $chainDataPath, preferredPeers: $preferredPeers, '
+      'maxInbound: $maxInbound, maxOutbound: $maxOutbound)';
+}
+
+bool _sameList(List<String> a, List<String> b) {
+  if (a.length != b.length) return false;
+  for (var i = 0; i < a.length; i++) {
+    if (a[i] != b[i]) return false;
+  }
+  return true;
+}
+
+/// True for a peer address the node accepts in `peers_preferred`: "1.2.3.4:3414" or
+/// "[2001:db8::1]:3414", port 1..65535. Host names are not (the node wants a socket address).
+bool isPeerAddress(String addr) {
+  final m = RegExp(r'^(?:\[([0-9A-Fa-f:.]+)\]|(\d{1,3}(?:\.\d{1,3}){3})):(\d{1,5})$')
+      .firstMatch(addr.trim());
+  if (m == null) return false;
+  final port = int.parse(m[3]!);
+  if (port < 1 || port > 65535) return false;
+  final ip = InternetAddress.tryParse(m[1] ?? m[2]!);
+  if (ip == null) return false;
+  return m[1] != null
+      ? ip.type == InternetAddressType.IPv6
+      : ip.type == InternetAddressType.IPv4;
 }
 
 /// Thrown by [BuiltInNode.start] when it refuses to start. The node is left in
@@ -188,7 +316,7 @@ class NodePorts {
 
 /// The node's `epic-server.toml`, ported from the Electron GUI's resources/epic-server.toml
 /// (comments dropped). `{{NAME}}` is replaced by [BuiltInNode.renderToml]; strings are quoted
-/// there. Disables the TUI, binds the API to loopback and keeps the log in the node folder.
+/// there. `{{P2P_EXTRA}}` holds the [NodeTomlOptions] p2p lines, and is empty without them. Disables the TUI, binds the API to loopback and keeps the log in the node folder.
 const String nodeTomlTemplate = '''
 [server]
 db_root = {{DB_ROOT}}
@@ -207,7 +335,7 @@ run_test_miner = false
 host = "0.0.0.0"
 port = {{P2P_PORT}}
 seeding_type = {{SEEDING}}
-capabilities = "HEADER_HIST | TXHASHSET_HIST | PEER_LIST | TX_KERNEL_HASH | HEADER_FASTSYNC"
+capabilities = "HEADER_HIST | TXHASHSET_HIST | PEER_LIST | TX_KERNEL_HASH | HEADER_FASTSYNC"{{P2P_EXTRA}}
 
 [server.pool_config]
 accept_fee_base = 100000
@@ -320,7 +448,7 @@ class BuiltInNode {
   }) : _start = startProcess ?? _startRealProcess,
        _clock = clock ?? DateTime.now,
        _portInUse = portInUse ?? _realPortInUse,
-       _freeBytes = freeBytes ?? _realFreeBytes,
+       _freeBytes = freeBytes ?? realFreeBytes,
        _api = api ?? _realApi,
        _windows = isWindows ?? Platform.isWindows,
        _inspector =
@@ -401,6 +529,37 @@ class BuiltInNode {
   late int _apiPort = NodePorts.of(chain).api;
   late int _p2pPort = NodePorts.of(chain).p2p;
 
+  /// What the app wants in the toml; a change applies at the next start (see [restartNeeded]).
+  NodeTomlOptions options = const NodeTomlOptions();
+
+  NodeTomlOptions? _applied;
+  bool _userToml = false;
+  String? _userDbRoot;
+  DateTime? _startedAt;
+  String? _version;
+  Future<void>? _restarting;
+  int _stopCalls = 0;
+  bool _disposed = false;
+
+  /// The options the running process was started with; null while none runs.
+  NodeTomlOptions? get appliedOptions => _process == null ? null : _applied;
+
+  /// The node runs with other [options] than the current ones: they apply after [restart]. Never
+  /// with the user's own toml, which no option changes.
+  bool get restartNeeded =>
+      _process != null && _wantRunning && !_userToml && options != _applied;
+
+  /// The toml in the folder is the user's own (edited by hand): kept as it is, so [options] do
+  /// not apply. Known once the folder was prepared (at the first start).
+  bool get userToml => _userToml;
+
+  /// When the running process was spawned (a watchdog restart or [restart] spawns a new one);
+  /// null while none runs.
+  DateTime? get startedAt => _process == null ? null : _startedAt;
+
+  /// True after [dispose]: the state stream is closed.
+  bool get isDisposed => _disposed;
+
   NodePorts get ports => NodePorts.of(chain);
 
   /// The node's API on loopback, for the wallet's node setting. LEPIC accepts plain http on
@@ -415,8 +574,24 @@ class BuiltInNode {
 
   String get folder => _join(root, folderName);
   String get tomlPath => _join(folder, _tomlName);
-  String get chainDataPath => _join(folder, 'chain_data');
+
+  /// The chain data folder: the `db_root` of the user's own toml, else [options]'
+  /// `chainDataPath`, else `<folder>/chain_data`. Follows [options] at once, also while the
+  /// node still runs on the old one ([appliedOptions]).
+  String get chainDataPath =>
+      _userToml && _userDbRoot != null ? _userDbRoot! : _dbRoot(options);
+
+  String _dbRoot(NodeTomlOptions o) {
+    final custom = o.chainDataPath;
+    return custom != null && custom.trim().isNotEmpty
+        ? custom
+        : _join(folder, 'chain_data');
+  }
+
   String get logPath => _join(folder, 'epic-server.log');
+
+  /// The node's API secret file (owner API, Basic auth `epic:<secret>`).
+  String get secretPath => _join(folder, _secretName);
 
   /// The pid of the node this object started and still runs, else null.
   int? get pid => _process?.pid;
@@ -440,12 +615,14 @@ class BuiltInNode {
   /// The toml for this chain with the folder's absolute paths. `foundation_path` is left out: the
   /// node then uses the foundation data built into the binary (the GUI shipped a foundation.json
   /// next to it; this build ships none, and a path to a missing file is wrong).
-  String renderToml() {
+  String renderToml() => _render(options);
+
+  String _render(NodeTomlOptions o) {
     final p = ports;
     final values = <String, String>{
-      'DB_ROOT': _q(chainDataPath),
+      'DB_ROOT': _q(_dbRoot(o)),
       'API_ADDR': _q('127.0.0.1:${p.api}'),
-      'API_SECRET': _q(_join(folder, _secretName)),
+      'API_SECRET': _q(secretPath),
       'CHAIN_TYPE': _q(switch (chain) {
         Chain.mainnet => 'Mainnet',
         Chain.floonet => 'Floonet',
@@ -456,11 +633,37 @@ class BuiltInNode {
       'STRATUM_ADDR': _q('127.0.0.1:${p.stratum}'),
       'WALLET_LISTENER': _q('http://127.0.0.1:${p.walletListener}'),
       'LOG_FILE': _q(logPath),
+      'P2P_EXTRA': _p2pExtra(o),
     };
     return nodeTomlTemplate.replaceAllMapped(
       RegExp(r'\{\{([A-Z0-9_]+)\}\}'),
       (m) => values[m[1]!] ?? m[0]!,
     );
+  }
+
+  /// The [options] lines of `[server.p2p_config]`, each starting with a newline; empty without
+  /// options, so the default toml stays as it always was.
+  String _p2pExtra(NodeTomlOptions o) {
+    final peers = <String>[];
+    for (final raw in o.preferredPeers) {
+      final addr = raw.trim();
+      if (isPeerAddress(addr)) {
+        if (!peers.contains(addr)) peers.add(addr);
+      } else {
+        _log('preferred peer "$raw" is not ip:port; left out');
+      }
+    }
+    final b = StringBuffer();
+    if (peers.isNotEmpty) {
+      b.write('\npeers_preferred = [${peers.map(_q).join(', ')}]');
+    }
+    if (o.maxInbound case final n? when n >= 0) {
+      b.write('\npeer_max_inbound_count = $n');
+    }
+    if (o.maxOutbound case final n? when n >= 0) {
+      b.write('\npeer_max_outbound_count = $n');
+    }
+    return b.toString();
   }
 
   static String _q(String s) => jsonEncode(s);
@@ -475,12 +678,14 @@ class BuiltInNode {
   /// The hash file lists every text this class may have written: before the toml is replaced the
   /// new hash is added to it, after that the old one is dropped. A crash in between leaves a toml
   /// that is still recognised as ours.
-  Future<bool> prepareFolder() async {
+  Future<bool> prepareFolder() => _prepare(options);
+
+  Future<bool> _prepare(NodeTomlOptions o) async {
     await Directory(folder).create(recursive: true);
     await _chmod('700', folder);
     final toml = File(tomlPath);
     final hashFile = File(_join(folder, _tomlHashName));
-    final wanted = renderToml();
+    final wanted = _render(o);
     var userEdited = false;
     if (await toml.exists()) {
       final current = await toml.readAsString();
@@ -504,11 +709,12 @@ class BuiltInNode {
       await _writeAtomic(hashFile, _hash(wanted));
       await _writeAtomic(toml, wanted);
     }
-    final secret = File(_join(folder, _secretName));
+    final secret = File(secretPath);
     if (!await secret.exists()) {
       await _writeAtomic(secret, _randomSecret(), mode: '600');
     }
     await _readPorts();
+    _userToml = userEdited;
     return userEdited;
   }
 
@@ -517,8 +723,23 @@ class BuiltInNode {
     final defaults = ports;
     _apiPort = defaults.api;
     _p2pPort = defaults.p2p;
+    _userDbRoot = null;
     try {
       final text = await File(tomlPath).readAsString();
+      final db = RegExp(
+        r'''^\s*db_root\s*=\s*("(?:[^"\\]|\\.)*"|'[^']*')''',
+        multiLine: true,
+      ).firstMatch(text);
+      if (db != null) {
+        final v = db[1]!;
+        try {
+          _userDbRoot = v.startsWith("'")
+              ? v.substring(1, v.length - 1)
+              : jsonDecode(v) as String;
+        } on Object {
+          // a TOML escape JSON does not know: not followed
+        }
+      }
       final api = RegExp(
         r'^\s*api_http_addr\s*=\s*"[^"]*:(\d+)"',
         multiLine: true,
@@ -629,7 +850,8 @@ class BuiltInNode {
         'The built-in node is missing: $binary',
       );
     }
-    await prepareFolder();
+    final applying = options;
+    await _prepare(applying);
     _check(gen);
     await _reclaimOrphan(gen);
     for (final port in [_apiPort, _p2pPort]) {
@@ -672,9 +894,12 @@ class BuiltInNode {
     }
     _stopping = false;
     _process = process;
+    _applied = applying;
     _failures = 0;
     _badSince = null;
     final now = _clock();
+    _startedAt = now;
+    _version = null;
     _lastAnswer = now;
     _lastDiskCheck = now;
     _secret = null;
@@ -841,6 +1066,7 @@ class BuiltInNode {
     int? highest,
     String? phase,
     int? connections,
+    _Reading? reading,
   }) => BuiltInNodeState(
     kind,
     height: height,
@@ -848,6 +1074,9 @@ class BuiltInNode {
     phase: phase,
     connections: connections,
     diskUnknown: _diskUnknown,
+    readyForTxs: reading?.readyForTxs,
+    status: reading?.status,
+    version: _version,
   );
 
   /// One status check: the disk floor, the node's API, the stall watchdog. The timer calls it
@@ -895,12 +1124,16 @@ class BuiltInNode {
       } else {
         _badSince = null;
       }
+      // ready_for_txs decides when the node says it; an older node (null) is judged by its
+      // sync status as before.
+      final synced = reading.readyForTxs ?? reading.phase == 'no_sync';
       _set(
-        reading.phase == 'no_sync'
+        synced
             ? _running(
                 NodeStatusKind.running,
                 height: reading.height,
                 connections: reading.connections,
+                reading: reading,
               )
             : _running(
                 NodeStatusKind.syncing,
@@ -908,6 +1141,7 @@ class BuiltInNode {
                 highest: reading.highest,
                 phase: reading.phase,
                 connections: reading.connections,
+                reading: reading,
               ),
       );
     } finally {
@@ -941,9 +1175,16 @@ class BuiltInNode {
     });
   }
 
+  /// Foreign `ready_for_txs` first (readiness), owner `get_status` for the sync detail and the
+  /// watchdog, foreign `get_tip` when there is no status; `get_version` once per process.
   Future<_Reading?> _read() async {
     final port = _apiPort;
-    _secret ??= await _readSecret();
+    final ready = _parsed(
+      await _api(port, 'ready_for_txs', owner: false),
+      parseReadyForTxs,
+    );
+    _secret ??= await readSecret();
+    _Reading? reading;
     if (_secret != null) {
       final s = await _api(port, 'get_status', owner: true, secret: _secret);
       if (s != null) {
@@ -951,28 +1192,55 @@ class BuiltInNode {
         final tip = s['tip'];
         final current = _int(info is Map ? info['current_height'] : null);
         final height = _int(tip is Map ? tip['height'] : null) ?? current ?? 0;
-        return _Reading(
+        reading = _Reading(
           height,
           _int(info is Map ? info['highest_height'] : null),
           s['sync_status'] as String?,
           connections: _int(s['connections']),
           currentHeight: current,
+          readyForTxs: ready,
+          status: _parsed(s, parseStatus),
         );
       }
     }
-    final tip = await _api(port, 'get_tip', owner: false);
-    if (tip == null) return null;
-    return _Reading(_int(tip['height']) ?? 0, null, null);
+    if (reading == null) {
+      final tip = await _api(port, 'get_tip', owner: false);
+      if (tip == null && ready == null) return null;
+      reading = _Reading(
+        _int(tip?['height']) ?? 0,
+        null,
+        null,
+        readyForTxs: ready,
+      );
+    }
+    _version ??=
+        _parsed(
+          await _api(port, 'get_version', owner: false),
+          parseVersion,
+        )?.nodeVersion ??
+        reading.status?.version;
+    return reading;
+  }
+
+  /// [parse] of an `Ok` payload, or null when there is none or it has another shape.
+  static T? _parsed<T>(Map<String, dynamic>? ok, T Function(Object?) parse) {
+    if (ok == null) return null;
+    try {
+      return parse(ok);
+    } on NodeRpcException {
+      return null;
+    }
   }
 
   static int? _int(Object? v) => v is num ? v.toInt() : null;
 
-  Future<String?> _readSecret() async {
+  /// The node's API secret ([secretPath], first line), or null while there is none. For the
+  /// owner API (peers); never logged.
+  Future<String?> readSecret() async {
     try {
-      final text = (await File(
-        _join(folder, _secretName),
-      ).readAsString()).trim();
-      return text.isEmpty ? null : text;
+      final text = (await File(secretPath).readAsString()).trim();
+      final line = text.split(RegExp(r'\r?\n')).first.trim();
+      return line.isEmpty ? null : line;
     } on Object {
       return null;
     }
@@ -981,7 +1249,30 @@ class BuiltInNode {
   /// Stops the node this object started: waits for a start or restart in flight (a process it
   /// spawned is stopped), asks the node to stop, kills it after [killAfter]. Never touches any
   /// other process, and does nothing when this object started none.
-  Future<void> stop() async {
+  Future<void> stop() {
+    _stopCalls++;
+    return _stop();
+  }
+
+  /// Stops the node, then starts it again (with the current [options]). Restarts asked for while
+  /// one is in flight join it. A [stop] that comes during the restart wins: nothing is started
+  /// after it, and a start already under way is cancelled as by any stop. Throws as [start].
+  Future<void> restart() {
+    final pending = _restarting;
+    if (pending != null) return pending;
+    late final Future<void> f;
+    f = () async {
+      final stops = _stopCalls;
+      await _stop();
+      if (_stopCalls != stops || _disposed) return;
+      await start();
+    }().whenComplete(() {
+      if (identical(_restarting, f)) _restarting = null;
+    });
+    return _restarting = f;
+  }
+
+  Future<void> _stop() async {
     _wantRunning = false;
     _gen++;
     _timer?.cancel();
@@ -1042,6 +1333,7 @@ class BuiltInNode {
 
   /// Stops the node and closes the state stream. For app exit.
   Future<void> dispose() async {
+    _disposed = true;
     await stop();
     _liveNodes.remove(this);
     await _controller.close();
@@ -1055,6 +1347,8 @@ class _Reading {
     this.phase, {
     this.connections,
     this.currentHeight,
+    this.readyForTxs,
+    this.status,
   });
 
   final int height;
@@ -1062,6 +1356,8 @@ class _Reading {
   final String? phase;
   final int? connections;
   final int? currentHeight;
+  final bool? readyForTxs;
+  final NodeStatusInfo? status;
 
   /// The Electron GUI's watchdog rules (nodeService.js, watchdog()). Never in a safe sync state;
   /// else: no peers outside awaiting_peers, synced with tip 0, no highest height outside
@@ -1259,7 +1555,9 @@ Future<bool> _realPortInUse(int port) async {
   }
 }
 
-Future<int?> _realFreeBytes(String directory) async {
+/// Free bytes on the volume of [directory] (`df` on Unix, the drive via PowerShell on Windows),
+/// or null when it cannot be told: the default [DiskProbe].
+Future<int?> realFreeBytes(String directory) async {
   try {
     if (Platform.isWindows) {
       final drive = directory.length > 1 && directory[1] == ':'
