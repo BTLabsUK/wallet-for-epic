@@ -24,7 +24,7 @@ import 'package:flutter_test/flutter_test.dart';
 /// Controls that may only toast or change nothing visible here, matched on `<scope>|<label>`
 /// (scope: the route's name, `shell`, or the shot id for a dialog shot), each with its reason.
 final Map<RegExp, String> _allowed = {
-  RegExp(r'^shell\|Overview$|^(settingsNode\|Node|settingsReceiving\|Receiving|settingsAppearance\|Appearance|settingsAccount\|This wallet|settingsWallets\|All wallets|settingsPhrase\|Recovery phrase|settingsRescan\|Rescan|settingsAbout\|About|settingsHelp\|Help)$'):
+  RegExp(r'^shell\|Overview$|^(settingsNode\|Node|settingsReceiving\|Receiving|settingsAppearance\|Appearance|settingsAccount\|This wallet|settingsWallets\|All wallets|settingsPhrase\|Recovery phrase|settingsRescan\|Recheck balance|settingsAbout\|About|settingsHelp\|Help)$'):
       'The place already shown: going there again adds nothing to the history (F16).',
   RegExp(r'^settingsAccount\|Open folder$'): 'The mock wallet folder is not on disk: says "Folder not found". A real one opens.',
   RegExp(r'^settingsWallets\|Show .* in its folder$'): 'The mock wallet folders are not on disk: says "Folder not opened". A real one opens.',
@@ -33,6 +33,9 @@ final Map<RegExp, String> _allowed = {
   RegExp(r'^31b-dlg-my-node-error\|Save$'): 'Refuses the bad address; its error is on screen already.',
   RegExp(r'^receive\|Show QR code of the HTTP address$'): 'Enabled first on 17d, which shows the HTTP QR already (live_controls_test presses it from the Epic one).',
   RegExp(r'^35-dlg-tx-proof\|Export$'): 'Behind DeskFeatures.paymentProofs (off): the dialog cannot be opened in the app.',
+  RegExp(r'^settingsHelp\|(Getting started|How Epic Cash works|Keeping the wallet safe|Nodes and Epicbox|When something goes wrong)$'):
+      'A section chip scrolls to its section (help_test checks it); the sweep compares what is shown, not where.',
+  RegExp(r'^25j-dlg-export-csv\|This year$'): 'Every mock payment is from this year, so the count stays; Last year changes it.',
 };
 
 /// What the real wallet only stubs (throws UnsupportedError); a visible control must not reach them.

@@ -111,6 +111,15 @@ void main() {
     expect(find.text('No topic matches “zebra”. Try another word.'), findsOneWidget);
   });
 
+  testWidgets('a section chip scrolls to its section', (tester) async {
+    await _pump(tester);
+    final head = find.text('Troubleshooting');
+    expect(tester.getTopLeft(head).dy, greaterThan(1000));
+    await tester.tap(find.text('When something goes wrong').first);
+    await tester.pumpAndSettle();
+    expect(tester.getTopLeft(head).dy, lessThan(1000));
+  });
+
   testWidgets('the demo states open their topic', (tester) async {
     await _pump(tester, arg: HelpDemo.open);
     expect(find.byType(HelpHandshake), findsOneWidget);
