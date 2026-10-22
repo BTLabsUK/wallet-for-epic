@@ -100,6 +100,19 @@ class NodeStatus {
     this.operator,
     this.height,
     this.latencyMs,
+    this.state = NodeHealthState.unknown,
+    this.reason,
+    this.nodeVersion,
+    this.tipLag,
+    this.peers,
+    this.uptime1h,
+    this.uptime24h,
+    this.uptime30d,
+    this.listing,
+    this.country,
+    this.syncStatus,
+    this.tipAgrees,
+    this.lastCheckedAt,
   });
 
   /// `scheme://host[:port]`, as the wallet stores a node address.
@@ -115,6 +128,130 @@ class NodeStatus {
 
   /// Measured from the monitor, not from this device.
   final int? latencyMs;
+
+  /// The monitor's verdict; [healthy] is `state == healthy`.
+  final NodeHealthState state;
+
+  /// Why the monitor gave that state ("ok", ...).
+  final String? reason;
+  final String? nodeVersion;
+
+  /// Blocks behind the highest tip the monitor has seen.
+  final int? tipLag;
+  final int? peers;
+
+  /// Fractions 0..1, null where the monitor has no history.
+  final double? uptime1h;
+  final double? uptime24h;
+  final double? uptime30d;
+
+  /// "official" or "community".
+  final String? listing;
+
+  /// ISO country code; a registry guess.
+  final String? country;
+
+  /// The node's own `sync_status`, when the monitor could read it.
+  final String? syncStatus;
+
+  /// The node's tip matches the network's.
+  final bool? tipAgrees;
+  final DateTime? lastCheckedAt;
+}
+
+/// The monitor's state of a node.
+enum NodeHealthState { healthy, degraded, down, unknown }
+
+NodeHealthState _healthState(Object? v) => switch (v) {
+  'healthy' => NodeHealthState.healthy,
+  'degraded' => NodeHealthState.degraded,
+  'down' => NodeHealthState.down,
+  _ => NodeHealthState.unknown,
+};
+
+/// The monitor's view of the chain as a whole.
+class NetworkStatus {
+  const NetworkStatus({
+    this.tipHeight,
+    this.tipHash,
+    this.tipMinedAt,
+    this.tipAgeSeconds,
+    this.releasedNodeVersion,
+    this.releasedWalletVersion,
+    this.nodesHealthy,
+    this.nodesTotal,
+    this.epicboxHealthy,
+    this.epicboxTotal,
+    this.medianNodeLatencyMs,
+    this.forked,
+    this.healthScore,
+  });
+
+  final int? tipHeight;
+  final String? tipHash;
+  final DateTime? tipMinedAt;
+  final int? tipAgeSeconds;
+  final String? releasedNodeVersion;
+  final String? releasedWalletVersion;
+  final int? nodesHealthy;
+  final int? nodesTotal;
+  final int? epicboxHealthy;
+  final int? epicboxTotal;
+  final int? medianNodeLatencyMs;
+  final bool? forked;
+
+  /// 0..100.
+  final int? healthScore;
+}
+
+/// Parses the monitor's `network` object; throws [FormatException] when there is none.
+NetworkStatus parseNetworkStatus(String json) {
+  final Object? decoded = jsonDecode(json);
+  if (decoded is! Map<String, Object?>) {
+    throw const FormatException('status: not an object');
+  }
+  final n = decoded['network'];
+  if (n is! Map<String, Object?>) {
+    throw const FormatException('status: no network object');
+  }
+  int? i(String k) => (n[k] as num?)?.toInt();
+  return NetworkStatus(
+    tipHeight: i('tip_height'),
+    tipHash: n['tip_hash'] as String?,
+    tipMinedAt: _time(n['tip_mined_at']),
+    tipAgeSeconds: i('tip_age_s'),
+    releasedNodeVersion: n['released_node_version'] as String?,
+    releasedWalletVersion: n['released_wallet_version'] as String?,
+    nodesHealthy: i('nodes_healthy'),
+    nodesTotal: i('nodes_total'),
+    epicboxHealthy: i('epicbox_healthy'),
+    epicboxTotal: i('epicbox_total'),
+    medianNodeLatencyMs: i('median_node_latency_ms'),
+    forked: n['forked'] as bool?,
+    healthScore: i('health_score'),
+  );
+}
+
+DateTime? _time(Object? v) => v is String ? DateTime.tryParse(v)?.toUtc() : null;
+
+/// The entry of [nodes] for a stored node address [url]: same scheme, host and port, where a
+/// missing port means the scheme's default (https 443, http 80). Null when none matches.
+NodeStatus? nodeStatusFor(List<NodeStatus> nodes, String url) {
+  final key = _originKey(url);
+  if (key == null) return null;
+  for (final n in nodes) {
+    if (_originKey(n.url) == key) return n;
+  }
+  return null;
+}
+
+String? _originKey(String url) {
+  final u = Uri.tryParse(url.trim());
+  if (u == null || u.host.isEmpty || (u.scheme != 'https' && u.scheme != 'http')) {
+    return null;
+  }
+  final port = u.hasPort ? u.port : (u.scheme == 'https' ? 443 : 80);
+  return '${u.scheme}://${u.host.toLowerCase()}:$port';
 }
 
 /// Parses the monitor's `nodes` list, in its order. Entries without a plain http(s) endpoint
@@ -149,6 +286,9 @@ List<NodeStatus> parseNodeStatus(String json) {
       continue;
     }
     final operator = cleanOperator(item['operator'] as String?);
+    final uptime = item['uptime'];
+    final location = item['location'];
+    final nodeStatus = item['node_status'];
     nodes.add(
       NodeStatus(
         url: endpoint.hasPort
@@ -159,6 +299,19 @@ List<NodeStatus> parseNodeStatus(String json) {
         operator: operator,
         height: (item['height'] as num?)?.toInt(),
         latencyMs: (item['latency_ms'] as num?)?.toInt(),
+        state: _healthState(item['state']),
+        reason: item['reason'] as String?,
+        nodeVersion: item['node_version'] as String?,
+        tipLag: (item['tip_lag'] as num?)?.toInt(),
+        peers: (item['peers'] as num?)?.toInt(),
+        uptime1h: uptime is Map ? (uptime['1h'] as num?)?.toDouble() : null,
+        uptime24h: uptime is Map ? (uptime['24h'] as num?)?.toDouble() : null,
+        uptime30d: uptime is Map ? (uptime['30d'] as num?)?.toDouble() : null,
+        listing: item['listing'] as String?,
+        country: location is Map ? location['country'] as String? : null,
+        syncStatus: nodeStatus is Map ? nodeStatus['sync_status'] as String? : null,
+        tipAgrees: nodeStatus is Map ? nodeStatus['tip_agrees'] as bool? : null,
+        lastCheckedAt: _time(item['last_checked_at']),
       ),
     );
   }
@@ -175,9 +328,14 @@ abstract interface class NodeDirectory {
   Future<List<NodeStatus>> nodes(String chain);
 }
 
+/// Fetches the monitor's view of the chain as a whole.
+abstract interface class NetworkDirectory {
+  Future<NetworkStatus> network(String chain);
+}
+
 /// Reads the monitor with a short [timeout] and keeps each answer, or failure, for [fresh], so
 /// the lists do not ask again on every screen.
-class HttpRelayDirectory implements RelayDirectory, NodeDirectory {
+class HttpRelayDirectory implements RelayDirectory, NodeDirectory, NetworkDirectory {
   HttpRelayDirectory({
     this.timeout = const Duration(seconds: 4),
     this.fresh = const Duration(minutes: 1),
@@ -215,6 +373,10 @@ class HttpRelayDirectory implements RelayDirectory, NodeDirectory {
   @override
   Future<List<NodeStatus>> nodes(String chain) async =>
       parseNodeStatus(await _status(chain));
+
+  @override
+  Future<NetworkStatus> network(String chain) async =>
+      parseNetworkStatus(await _status(chain));
 }
 
 final relayDirectoryProvider = Provider<RelayDirectory>(
