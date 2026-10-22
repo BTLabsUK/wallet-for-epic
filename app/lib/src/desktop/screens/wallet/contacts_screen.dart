@@ -231,13 +231,12 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
           EButton.primary(label: 'Add contact', icon: EIcons.userPlus, size: EBtnSize.sm, onPressed: _add),
       ],
       child: split
-          ? Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(width: 340.u, child: list),
-                SizedBox(width: Sp.x6),
-                Expanded(
-                  child: Container(
+          // The list and the detail are one unit (docs/plans/w7-layout.md R1): same top and bottom.
+          ? PanelRow(
+              sideFirst: true,
+              sideWidth: 340.u,
+              side: list,
+              main: Container(
                     padding: EdgeInsets.all(Sp.x6),
                     decoration: panel,
                     child: paneOpen
@@ -250,8 +249,6 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
                           )
                         : const _Idle(),
                   ),
-                ),
-              ],
             )
           : list,
     );

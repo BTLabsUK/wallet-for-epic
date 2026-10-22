@@ -42,7 +42,7 @@ class _SettingsAboutScreenState extends ConsumerState<SettingsAboutScreen> {
     final node = ref.watch(deskProvider.select((s) => s.status?.node.version));
     Widget linkRow(String title, String shown, String url) => ESetRow(
       title: title,
-      control: EButton(label: 'Open', icon: EIcons.external, size: EBtnSize.sm, onPressed: () => _open(url)),
+      control: ERowControl(child: EButton(label: 'Open', icon: EIcons.external, size: EBtnSize.sm, onPressed: () => _open(url))),
       below: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -105,10 +105,12 @@ class _SettingsAboutScreenState extends ConsumerState<SettingsAboutScreen> {
               ESetRow(
                 title: 'Licences',
                 text: 'The licence of each component.',
-                control: EButton(
-                  label: 'View',
-                  size: EBtnSize.sm,
-                  onPressed: () => showLicensePage(context: context, applicationName: appName, applicationVersion: deskAppVersion),
+                control: ERowControl(
+                  child: EButton(
+                    label: 'View',
+                    size: EBtnSize.sm,
+                    onPressed: () => showLicensePage(context: context, applicationName: appName, applicationVersion: deskAppVersion),
+                  ),
                 ),
               ),
             ],
@@ -139,33 +141,41 @@ class _Updates extends ConsumerWidget {
     return ESetGroup(
       title: 'Updates',
       rows: [
-        ESetRow(
+        // Two row buttons (an update to get): under the text when the card is narrow.
+        LayoutBuilder(
+          builder: (context, box) => ESetRow(
           title: title,
           text: text,
+          stacked: u.phase == DeskUpdatePhase.available && u.page != null && box.maxWidth < 720.u,
           control: Wrap(
             spacing: Sp.x2,
             runSpacing: Sp.x2,
             children: [
               if (u.phase == DeskUpdatePhase.available && u.page != null)
-                EButton.primary(
-                  label: 'Get ${u.version}',
-                  icon: EIcons.external,
-                  size: EBtnSize.sm,
-                  onPressed: () async {
-                    if (!await ref.read(deskOpenUrlProvider)(u.page!) && context.mounted) {
-                      showEToast(context, 'Browser not opened', text: u.page, tone: ETone.warn);
-                    }
-                  },
+                ERowControl(
+                  child: EButton.primary(
+                    label: 'Get ${u.version}',
+                    icon: EIcons.external,
+                    size: EBtnSize.sm,
+                    onPressed: () async {
+                      if (!await ref.read(deskOpenUrlProvider)(u.page!) && context.mounted) {
+                        showEToast(context, 'Browser not opened', text: u.page, tone: ETone.warn);
+                      }
+                    },
+                  ),
                 ),
-              EButton(
-                label: 'Check now',
-                icon: EIcons.refresh,
-                size: EBtnSize.sm,
-                busy: busy,
-                onPressed: busy ? null : () => ref.read(deskUpdateProvider.notifier).check(),
+              ERowControl(
+                child: EButton(
+                  label: 'Check now',
+                  icon: EIcons.refresh,
+                  size: EBtnSize.sm,
+                  busy: busy,
+                  onPressed: busy ? null : () => ref.read(deskUpdateProvider.notifier).check(),
+                ),
               ),
             ],
           ),
+        ),
         ),
       ],
     );

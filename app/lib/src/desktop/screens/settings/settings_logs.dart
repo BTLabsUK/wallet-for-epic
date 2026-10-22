@@ -77,14 +77,21 @@ class _LogsGroupState extends ConsumerState<LogsGroup> {
               ? 'Normal. Detailed keeps more lines on disk for 24 hours; addresses may appear in the file, reports leave them out.'
               : 'Detailed until ${_until(level)}, then Normal. Addresses may appear in the file; reports leave them out.'
                     '${logs.coreDetailed ? '' : ' Wallet core lines get detailed from the next app start.'}',
-          control: ESegmented<bool>(
-            value: logs.detailed,
-            onChanged: (v) => ref.read(logsProvider.notifier).setDetailed(v),
-            segments: const [ESegment(false, 'Normal'), ESegment(true, 'Detailed')],
+          control: ERowControl(
+            wide: true,
+            child: ESegmented<bool>(
+              stretch: true,
+              value: logs.detailed,
+              onChanged: (v) => ref.read(logsProvider.notifier).setDetailed(v),
+              segments: const [ESegment(false, 'Normal'), ESegment(true, 'Detailed')],
+            ),
           ),
         ),
-        ESetRow(
+        // Two row buttons: under the text when the card leaves the words too little room.
+        LayoutBuilder(
+          builder: (context, box) => ESetRow(
           title: 'Log files',
+          stacked: box.maxWidth < 720.u,
           text: total == null
               ? 'Reading…'
               : 'Current size ${logSize(total)} of ${logSize(2 * maxLogFileBytes)}. Keeps one older file.',
@@ -92,10 +99,11 @@ class _LogsGroupState extends ConsumerState<LogsGroup> {
             spacing: Sp.x2,
             runSpacing: Sp.x2,
             children: [
-              EButton(label: 'Open log folder', icon: EIcons.folder, size: EBtnSize.sm, onPressed: _open),
-              EButton(label: 'Clear logs', icon: EIcons.trash, size: EBtnSize.sm, onPressed: total == 0 ? null : _clear),
+              ERowControl(child: EButton(label: 'Open log folder', icon: EIcons.folder, size: EBtnSize.sm, onPressed: _open)),
+              ERowControl(child: EButton(label: 'Clear logs', icon: EIcons.trash, size: EBtnSize.sm, onPressed: total == 0 ? null : _clear)),
             ],
           ),
+        ),
         ),
       ],
     );

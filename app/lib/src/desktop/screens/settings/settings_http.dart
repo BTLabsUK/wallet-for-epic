@@ -114,12 +114,16 @@ class _HttpOptionsState extends ConsumerState<HttpOptions> {
           control: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              ESegmented<bool>(
-                segments: const [ESegment(false, 'Local only'), ESegment(true, 'From the internet')],
-                value: s.publicMode,
-                // The first From the internet opens the guide; only its button makes the
-                // address public. Once seen, the guide is behind the (?).
-                onChanged: (v) => v ? unawaited(_pickPublic()) : unawaited(_setPublic(false)),
+              ERowControl(
+                wide: true,
+                child: ESegmented<bool>(
+                  stretch: true,
+                  segments: const [ESegment(false, 'Local only'), ESegment(true, 'From the internet')],
+                  value: s.publicMode,
+                  // The first From the internet opens the guide; only its button makes the
+                  // address public. Once seen, the guide is behind the (?).
+                  onChanged: (v) => v ? unawaited(_pickPublic()) : unawaited(_setPublic(false)),
+                ),
               ),
               SizedBox(width: Sp.x2),
               EIconButton(icon: EIcons.help, label: 'Receive from the internet: how it works', size: EBtnSize.sm, tabStop: false, onPressed: _openGuide),
@@ -137,11 +141,11 @@ class _HttpOptionsState extends ConsumerState<HttpOptions> {
         ESetRow(
           title: 'Port',
           text: '1 to 65535. Used by the HTTP address.',
-          control: SizedBox(
-            width: 96.u,
+          control: ERowControl(
             child: Focus(
               onFocusChange: (f) => f ? null : unawaited(_applyPort()),
               child: EInput(
+                size: EBtnSize.sm,
                 controller: _port,
                 mono: true,
                 invalid: _portError != null,

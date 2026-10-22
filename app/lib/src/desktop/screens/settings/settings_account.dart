@@ -128,9 +128,9 @@ class _SettingsAccountScreenState extends ConsumerState<SettingsAccountScreen> {
               ESetRow(
                 title: 'Label',
                 text: 'Only shown in this app.',
-                control: SizedBox(
-                  width: 240.u,
+                control: ERowControl(
                   child: EInput(
+                    size: EBtnSize.sm,
                     controller: _label,
                     hint: a.name,
                     semanticLabel: 'Label',
@@ -143,12 +143,12 @@ class _SettingsAccountScreenState extends ConsumerState<SettingsAccountScreen> {
               ESetRow(
                 title: 'Recovery phrase',
                 text: 'The words that restore this wallet. Keep them private.',
-                control: EButton(label: 'Show phrase…', icon: EIcons.key, size: EBtnSize.sm, onPressed: () => nav.go(DeskRoute.settingsPhrase)),
+                control: ERowControl(child: EButton(label: 'Show phrase…', icon: EIcons.key, size: EBtnSize.sm, onPressed: () => nav.go(DeskRoute.settingsPhrase))),
               ),
               ESetRow(
                 title: 'Recheck balance',
                 text: 'Reads the chain again when the balance looks wrong.',
-                control: EButton(label: 'Recheck…', icon: EIcons.scan, size: EBtnSize.sm, onPressed: () => nav.go(DeskRoute.settingsRescan)),
+                control: ERowControl(child: EButton(label: 'Recheck…', icon: EIcons.scan, size: EBtnSize.sm, onPressed: () => nav.go(DeskRoute.settingsRescan))),
               ),
             ],
           ),
@@ -163,7 +163,7 @@ class _SettingsAccountScreenState extends ConsumerState<SettingsAccountScreen> {
               ESetRow(
                 title: 'Setup assistant',
                 text: 'Walk through node and receiving again. Nothing is lost.',
-                control: EButton(label: 'Run setup…', size: EBtnSize.sm, onPressed: () => nav.go(DeskRoute.setup)),
+                control: ERowControl(child: EButton(label: 'Run setup…', size: EBtnSize.sm, onPressed: () => nav.go(DeskRoute.setup))),
               ),
             ],
           ),
@@ -174,14 +174,14 @@ class _SettingsAccountScreenState extends ConsumerState<SettingsAccountScreen> {
                 ESetRow(
                   title: 'Remembered on this computer',
                   text: 'Opens at start without the password, for 30 days from when it was set. $rememberWho',
-                  control: EButton(label: 'Forget this computer', icon: EIcons.lock, size: EBtnSize.sm, onPressed: _forget),
+                  control: ERowControl(child: EButton(label: 'Forget this computer', icon: EIcons.lock, size: EBtnSize.sm, onPressed: _forget)),
                 ),
               ESetRow(
                 title: 'Ask password above',
                 text: 'Opened with the remembered password, sends above this amount ask the password. 0: every send.',
-                control: SizedBox(
-                  width: 180.u,
+                control: ERowControl(
                   child: EInput(
+                    size: EBtnSize.sm,
                     controller: _askAbove,
                     hint: '0',
                     semanticLabel: 'Ask password above, EPIC',
@@ -196,12 +196,12 @@ class _SettingsAccountScreenState extends ConsumerState<SettingsAccountScreen> {
                 ESetRow(
                   title: 'Password',
                   text: 'Unlocks this wallet.',
-                  control: EButton(label: 'Change password…', size: EBtnSize.sm, icon: EIcons.lock, onPressed: () => showChangePasswordDialog(context)),
+                  control: ERowControl(child: EButton(label: 'Change password…', size: EBtnSize.sm, icon: EIcons.lock, onPressed: () => showChangePasswordDialog(context))),
                 ),
               ESetRow(
                   title: 'Delete wallet',
                   text: 'Deletes its keys and database.',
-                  control: EButton(label: 'Delete…', size: EBtnSize.sm, icon: EIcons.trash, kind: EBtnKind.danger, onPressed: () => showDeleteWalletDialog(context)),
+                  control: ERowControl(child: EButton(label: 'Delete…', size: EBtnSize.sm, icon: EIcons.trash, kind: EBtnKind.danger, onPressed: () => showDeleteWalletDialog(context))),
                 ),
             ],
           ),
@@ -235,7 +235,7 @@ class _FolderRow extends ConsumerWidget {
     return ESetRow(
       title: title,
       text: text,
-      control: EButton(label: 'Open folder', icon: EIcons.folderOpen, size: EBtnSize.sm, onPressed: () => _open(context, ref)),
+      control: ERowControl(child: EButton(label: 'Open folder', icon: EIcons.folderOpen, size: EBtnSize.sm, onPressed: () => _open(context, ref))),
       below: Row(
         children: [
           Flexible(

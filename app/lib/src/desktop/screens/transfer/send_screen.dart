@@ -656,23 +656,28 @@ class _SendScreenState extends ConsumerState<SendScreen> {
           : LayoutBuilder(
               builder: (context, box) {
                 final wide = box.maxWidth >= 720.u;
-                // Tab: the form's fields first, then Review send; Enter in Amount reviews.
+                // Tab: the notices' actions, the form's fields, then Review send; Enter in Amount reviews.
+                final notices = _notices(st);
                 final form = FocusTraversalOrder(order: const NumericFocusOrder(1), child: FocusTraversalGroup(child: _form(st)));
                 final summary = FocusTraversalOrder(order: const NumericFocusOrder(2), child: FocusTraversalGroup(child: _summary(st, res)));
                 return EForm(
                   onSubmit: _canSend(st) && !_reviewing ? _review : null,
                   child: FocusTraversalGroup(
                     policy: OrderedTraversalPolicy(),
-                    child: !wide
-                        ? Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [form, SizedBox(height: Sp.x6), summary])
-                        : Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Expanded(child: form),
-                              SizedBox(width: Sp.x8),
-                              SizedBox(width: 300.u, child: summary),
-                            ],
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        if (notices.isNotEmpty)
+                          FocusTraversalOrder(
+                            order: const NumericFocusOrder(0),
+                            child: FocusTraversalGroup(
+                              child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: notices),
+                            ),
                           ),
+                        // Form and Summary are one unit (docs/plans/w7-layout.md R1, R2).
+                        if (!wide) ...[form, SizedBox(height: Sp.col), summary] else PanelRow(main: form, side: summary, sideWidth: Ctl.sideSm),
+                      ],
+                    ),
                   ),
                 );
               },
@@ -727,20 +732,11 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     return null;
   }
 
-  Widget _form(DeskState st) {
-    final ts = context.ts;
-    final c = context.dc;
-    final spendable = st.balance?.spendable;
-    final contact = _contactOf(st.contacts);
-    final file = _method == TxMethod.file;
-    final toErr = _submitted && !_toEdited ? _toError(st) : null;
-    final amErr = _allError ?? (_submitted && !_amountEdited ? _amountError(spendable) : null);
+  /// What happened and what blocks a send, above both columns (Send done, failed, node, Epicbox).
+  List<Widget> _notices(DeskState st) {
     final res = _result;
     final block = _blockNotice(st);
-    final matches = file ? const <Contact>[] : _matches(st);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
+    return [
         if (res is SendDone) ...[
           ENotice(
             title: 'Sent',
@@ -773,8 +769,25 @@ class _SendScreenState extends ConsumerState<SendScreen> {
           SizedBox(height: Sp.x5),
         ],
         if (block != null) ...[block, SizedBox(height: Sp.x5)],
-        ESegmented<TxMethod>(
-          size: EBtnSize.md,
+    ];
+  }
+
+  /// The form's panel: the method selector in its header band (level with the Summary's), the
+  /// method's strip, then the fields.
+  Widget _form(DeskState st) {
+    final ts = context.ts;
+    final c = context.dc;
+    final spendable = st.balance?.spendable;
+    final contact = _contactOf(st.contacts);
+    final file = _method == TxMethod.file;
+    final toErr = _submitted && !_toEdited ? _toError(st) : null;
+    final amErr = _allError ?? (_submitted && !_amountEdited ? _amountError(spendable) : null);
+    final matches = file ? const <Contact>[] : _matches(st);
+    return EPanel(
+      padding: EdgeInsets.zero,
+      head: Padding(
+        padding: EdgeInsetsDirectional.only(end: Sp.x3),
+        child: ESegmented<TxMethod>(
           stretch: true,
           segments: const [
             ESegment(TxMethod.epicbox, 'Epicbox', icon: EIcons.epicbox),
@@ -788,9 +801,17 @@ class _SendScreenState extends ConsumerState<SendScreen> {
             _failure = null;
           }),
         ),
-        SizedBox(height: Sp.x4),
-        _MethodStrip(_method),
-        SizedBox(height: Sp.x6),
+      ),
+      child: Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Padding(padding: EdgeInsets.all(Sp.panel), child: _MethodStrip(_method)),
+        Divider(height: 1, thickness: 1, color: c.line),
+        Padding(
+          padding: EdgeInsets.all(Sp.panel),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
         if (!file) ...[
           EField(
             label: 'To',
@@ -943,7 +964,11 @@ class _SendScreenState extends ConsumerState<SendScreen> {
             ),
           ),
         ],
+            ],
+          ),
+        ),
       ],
+      ),
     );
   }
 
@@ -1038,7 +1063,7 @@ class _SendSummary extends StatelessWidget {
     );
     return EPanel(
       title: 'Summary',
-      padding: EdgeInsets.all(Sp.x5),
+      padding: EdgeInsets.all(Sp.panel),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -1083,9 +1108,8 @@ class _MethodStrip extends StatelessWidget {
     final ts = context.ts;
     final reduce = MediaQuery.disableAnimationsOf(context);
     final (title, line) = words(method);
-    return EPanel(
-      padding: EdgeInsets.symmetric(horizontal: Sp.x4, vertical: Sp.x3),
-      child: AnimatedSwitcher(
+    // The first section of the form's panel: no frame of its own.
+    return AnimatedSwitcher(
         duration: reduce ? Duration.zero : Motion.cross,
         switchInCurve: Motion.easeOut,
         switchOutCurve: Motion.easeIn,
@@ -1108,7 +1132,6 @@ class _MethodStrip extends StatelessWidget {
             return Row(children: [HeroArt(method), SizedBox(width: 20.u), Expanded(child: text)]);
           },
         ),
-      ),
     );
   }
 }

@@ -134,35 +134,34 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
       );
     }
 
-    final body = _txList(all);
-    final list = roomy
-        ? body
-        : Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              _search(full: true, hasItems: hasItems),
-              SizedBox(height: Sp.x4),
-              body,
-            ],
-          );
+    // The list and the detail are one unit (docs/plans/w7-layout.md R1, R2): same top, same
+    // bottom, header bands of one height; each scrolls inside itself when the window is short.
+    final list = _txList(all);
     return EPage(
       title: 'Activity',
       width: EPageWidth.full,
       scroll: false,
       actions: actions,
-      child: split && selectedTx != null
-          ? Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(child: SingleChildScrollView(child: list)),
-                SizedBox(width: Sp.x6),
-                SizedBox(
-                  width: width >= 1400.u ? 440.u : 380.u,
-                  child: _DetailPane(tx: selectedTx, onClose: () => setState(() => _selected = null)),
-                ),
-              ],
-            )
-          : SingleChildScrollView(child: list),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (!roomy) ...[
+            _search(full: true, hasItems: hasItems),
+            SizedBox(height: Sp.x4),
+          ],
+          Flexible(
+            child: split && selectedTx != null
+                ? PanelRow(
+                    main: list,
+                    side: _DetailPane(tx: selectedTx, onClose: () => setState(() => _selected = null)),
+                    sideWidth: width >= 1400.u ? Ctl.sideWide : Ctl.side,
+                    // A large scale on a small window keeps room for the list's rows.
+                    maxSideFraction: 0.42,
+                  )
+                : list,
+          ),
+        ],
+      ),
     );
   }
 
@@ -226,31 +225,27 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
         ),
       );
     }
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Align(
-          alignment: Alignment.centerLeft,
-          child: SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: ESegmented<_Filter>(
-              segments: [
-                ESegment(_Filter.all, 'All', count: counts.$1),
-                ESegment(_Filter.received, 'Received', count: counts.$2),
-                ESegment(_Filter.sent, 'Sent', count: counts.$3),
-              ],
-              value: _filter,
-              onChanged: (v) => setState(() {
-                _filter = v;
-                _page = 0;
-              }),
-            ),
-          ),
-        ),
-        SizedBox(height: Sp.x3),
-        if (shown.isEmpty)
-          _panel(
-            EEmpty(
+    // The filter sits in the list's header band, level with the detail pane's title.
+    final tabs = SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: ESegmented<_Filter>(
+        segments: [
+          ESegment(_Filter.all, 'All', count: counts.$1),
+          ESegment(_Filter.received, 'Received', count: counts.$2),
+          ESegment(_Filter.sent, 'Sent', count: counts.$3),
+        ],
+        value: _filter,
+        onChanged: (v) => setState(() {
+          _filter = v;
+          _page = 0;
+        }),
+      ),
+    );
+    return _panel(
+      head: tabs,
+      foot: pages > 1 ? ListPager(pages: pages, page: page, top: 0, onPage: (p) => setState(() => _page = p)) : null,
+      shown.isEmpty
+          ? EEmpty(
               icon: EIcons.search,
               title: 'No transactions match',
               text: 'Try another address or slate id, or clear the filter.',
@@ -263,35 +258,26 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
                   }),
                 ),
               ],
-            ),
-          )
-        else
-          _panel(Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [const ActivityListHead(), ...rows])),
-        ListPager(pages: pages, page: page, onPage: (p) => setState(() => _page = p)),
-      ],
+            )
+          : Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [const ActivityListHead(), ...rows]),
     );
   }
 
-  Widget _panel(Widget child) {
-    final c = context.dc;
-    return Container(
-      clipBehavior: Clip.antiAlias,
-      decoration: BoxDecoration(
-        color: c.s1,
-        border: Border.all(color: c.line),
-        borderRadius: BorderRadius.circular(Rad.sm),
-      ),
-      child: child,
-    );
-  }
+  /// The list's panel: as tall as its content up to the page's height, then it scrolls inside;
+  /// stretched to the detail pane's height when that is taller.
+  Widget _panel(Widget child, {Widget? head, Widget? foot}) =>
+      EPanel(head: head, foot: foot, padding: EdgeInsets.zero, scroll: true, child: child);
 }
 
 /// Page buttons: the first and last pages with the current one in the middle, "Page X of Y".
 /// Wraps instead of overflowing; on a narrow row only previous, "Page X of Y" and next.
 class ListPager extends StatelessWidget {
-  const ListPager({super.key, required this.pages, required this.page, required this.onPage});
+  const ListPager({super.key, required this.pages, required this.page, required this.onPage, this.top});
 
   final int pages;
+
+  /// Space above it; [Sp.x4] by default, 0 in a panel's foot band.
+  final double? top;
 
   /// Zero-based.
   final int page;
@@ -312,7 +298,7 @@ class ListPager extends StatelessWidget {
     final prev = EIconButton(icon: EIcons.chevronLeft, label: 'Previous page', onPressed: page > 0 ? () => onPage(page - 1) : null);
     final next = EIconButton(icon: EIcons.chevronRight, label: 'Next page', onPressed: page < pages - 1 ? () => onPage(page + 1) : null);
     return Padding(
-      padding: EdgeInsets.only(top: Sp.x4),
+      padding: EdgeInsets.only(top: top ?? Sp.x4),
       child: Semantics(
         container: true,
         label: 'Pages',
@@ -454,41 +440,19 @@ class _DetailPane extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.dc;
-    return Container(
-      clipBehavior: Clip.antiAlias,
-      decoration: BoxDecoration(
-        color: c.s1,
-        border: Border.all(color: c.lineStrong),
-        borderRadius: BorderRadius.circular(Rad.sm),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        mainAxisSize: MainAxisSize.min,
+    return EPanel(
+      strong: true,
+      scroll: true,
+      padding: EdgeInsets.all(Sp.panel),
+      head: Row(
         children: [
-          Container(
-            height: 56.u,
-            padding: EdgeInsets.only(left: Sp.x5, right: Sp.x2),
-            decoration: BoxDecoration(
-              border: Border(bottom: BorderSide(color: c.line)),
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Semantics(header: true, child: Text(tx.incoming ? 'Received transaction' : 'Sent transaction', style: context.ts.h3)),
-                ),
-                EIconButton(icon: EIcons.close, label: 'Close', onPressed: onClose),
-              ],
-            ),
+          Expanded(
+            child: Semantics(header: true, child: Text(tx.incoming ? 'Received transaction' : 'Sent transaction', style: context.ts.h3)),
           ),
-          Flexible(
-            child: SingleChildScrollView(
-              padding: EdgeInsets.all(Sp.x5),
-              child: TxDetail(tx: tx),
-            ),
-          ),
+          EIconButton(icon: EIcons.close, label: 'Close', onPressed: onClose),
         ],
       ),
+      child: TxDetail(tx: tx),
     );
   }
 }

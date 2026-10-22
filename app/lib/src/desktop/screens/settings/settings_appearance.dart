@@ -22,7 +22,10 @@ class SettingsAppearanceScreen extends ConsumerWidget {
           ESetRow(
             title: 'Theme',
             text: 'System follows the computer’s setting.',
-            control: ESegmented<ThemeChoice>(
+            control: ERowControl(
+              wide: true,
+              child: ESegmented<ThemeChoice>(
+              stretch: true,
               segments: const [
                 ESegment(ThemeChoice.system, 'System', icon: EIcons.themeSystem),
                 ESegment(ThemeChoice.dark, 'Dark', icon: EIcons.moon),
@@ -31,13 +34,14 @@ class SettingsAppearanceScreen extends ConsumerWidget {
               value: s.theme,
               onChanged: (v) => n.saveSettings(s.copyWith(theme: v)),
             ),
+            ),
           ),
           ESetRow(
             title: 'Interface scale',
             text: 'Text and controls, larger or smaller. Applies at once.',
-            control: SizedBox(
-              width: 200.u,
+            control: ERowControl(
               child: ESelect<int>(
+                size: EBtnSize.sm,
                 semanticLabel: 'Interface scale',
                 value: s.scale,
                 items: [for (final v in deskScales) ESelectItem(v, '$v%')],
@@ -49,9 +53,9 @@ class SettingsAppearanceScreen extends ConsumerWidget {
           ESetRow(
             title: 'Language',
             text: 'Applies at once.',
-            control: SizedBox(
-              width: 200.u,
+            control: ERowControl(
               child: ESelect<String>(
+                size: EBtnSize.sm,
                 semanticLabel: 'Language',
                 value: s.language,
                 // The app's own translations (lib/l10n), as on Setup.
@@ -74,7 +78,7 @@ class SettingsAppearanceScreen extends ConsumerWidget {
           ESetRow(
             title: 'Tour',
             text: 'A short walk through balance, sending, receiving, activity and settings.',
-            control: EButton(label: 'Show the tour', size: EBtnSize.sm, icon: EIcons.restart, onPressed: () => startDeskTour(ref)),
+            control: ERowControl(child: EButton(label: 'Show the tour', size: EBtnSize.sm, icon: EIcons.restart, onPressed: () => startDeskTour(ref))),
           ),
         ],
       ),

@@ -117,6 +117,7 @@ class EInput extends StatefulWidget {
     this.focusNode,
     this.semanticLabel,
     this.textInputAction,
+    this.size = EBtnSize.md,
   });
 
   final TextEditingController? controller;
@@ -143,6 +144,9 @@ class EInput extends StatefulWidget {
 
   /// The soft keyboard's action; in an [EForm] "next", or "done" in its last field.
   final TextInputAction? textInputAction;
+
+  /// `md` (44, every form field) or `sm` ([Ctl.sm], a Settings row's field); one line only.
+  final EBtnSize size;
 
   @override
   State<EInput> createState() => _EInputState();
@@ -199,12 +203,14 @@ class _EInputState extends State<EInput> {
         : (_hover ? c.dim : c.lineField);
     final style = widget.mono ? ts.mono(size: Fs.sm) : ts.body;
     final multi = widget.maxLines > 1;
+    final sm = widget.size == EBtnSize.sm && !multi;
     return MouseRegion(
       onEnter: (_) => setState(() => _hover = true),
       onExit: (_) => setState(() => _hover = false),
       child: AnimatedContainer(
         duration: Dur.fast,
-        constraints: BoxConstraints(minHeight: multi ? 80.u : Ctl.md),
+        height: sm ? Ctl.sm : null,
+        constraints: sm ? null : BoxConstraints(minHeight: multi ? 80.u : Ctl.md),
         decoration: BoxDecoration(
           color: c.s2,
           borderRadius: BorderRadius.circular(Rad.sm),
@@ -251,7 +257,7 @@ class _EInputState extends State<EInput> {
                     hintStyle: ts.body.copyWith(color: c.faint),
                     contentPadding: EdgeInsets.symmetric(
                       horizontal: Sp.x3,
-                      vertical: multi ? Sp.x3 : 12,
+                      vertical: multi ? Sp.x3 : (sm ? 0 : 12),
                     ),
                   ),
                 ),
@@ -496,8 +502,8 @@ class _SegState<T> extends State<_Seg<T>> {
               radius: 6.u,
               child: AnimatedContainer(
                 duration: widget.md ? Dur.base : Dur.fast,
-                // md: the whole control (3 u padding and 1 px border each side) is Ctl.md tall.
-                height: widget.md ? Ctl.md - 2 * 3.u - 2 : 30.u,
+                // The whole control (3 u padding and 1 px border each side) is Ctl.md or Ctl.sm tall.
+                height: (widget.md ? Ctl.md : Ctl.sm) - 2 * 3.u - 2,
                 padding: EdgeInsets.symmetric(horizontal: Sp.x3),
                 decoration: BoxDecoration(
                   color: sel ? c.s3 : (_hover ? c.hover : Colors.transparent),
