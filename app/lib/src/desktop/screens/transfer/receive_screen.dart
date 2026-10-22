@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../widgets/kit.dart';
@@ -96,11 +95,6 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
   Future<void> _readHttp() async {
     final a = await ref.read(deskApiProvider).httpAddress();
     if (mounted && a != _http) setState(() => _http = a);
-  }
-
-  void _copy(String text) {
-    Clipboard.setData(ClipboardData(text: text));
-    showEToast(context, 'Copied');
   }
 
   @override
@@ -272,7 +266,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
               else if (addr.isEmpty)
                 Text('The Epic address could not be read. Open Receive again in a moment.', style: ts.small)
               else ...[
-                Opacity(opacity: listening ? 1 : 0.6, child: EAddress(addr, large: true)),
+                Opacity(opacity: listening ? 1 : 0.6, child: EAddress(addr, large: true, copy: false)),
                 SizedBox(height: Sp.x2),
                 Text('When reading it out, check the first six and last six characters.', style: ts.caption),
                 SizedBox(height: Sp.x4),
@@ -280,9 +274,13 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
                   spacing: Sp.x3,
                   runSpacing: Sp.x2,
                   children: [
-                    listening
-                        ? EButton.primary(label: 'Copy address', icon: EIcons.copy, size: EBtnSize.sm, onPressed: () => _copy(addr))
-                        : EButton(label: 'Copy address', icon: EIcons.copy, size: EBtnSize.sm, onPressed: () => _copy(addr)),
+                    ECopyButton(
+                      text: addr,
+                      label: 'Copy address',
+                      withLabel: true,
+                      kind: listening ? EBtnKind.primary : EBtnKind.secondary,
+                      size: EBtnSize.sm,
+                    ),
                     if (qrData != addr) EButton.ghost(label: 'Show QR code', icon: EIcons.qr, onPressed: () => setState(() => _qr = _Qr.epic)),
                   ],
                 ),
@@ -394,7 +392,10 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
                     EButton(label: 'Turn off', icon: EIcons.stop, size: EBtnSize.sm, busy: _httpBusy && !failed, onPressed: _httpBusy ? null : () => _setHttp(false))
                   else
                     EButton(label: 'Turn on', icon: EIcons.antenna, size: EBtnSize.sm, busy: _httpBusy, onPressed: _httpBusy || status == null ? null : () => _setHttp(true)),
-                  EIconButton(icon: EIcons.copy, label: 'Copy HTTP address', size: EBtnSize.sm, onPressed: http != null ? () => _copy(http) : null),
+                  if (http != null)
+                    ECopyButton(text: http, label: 'Copy HTTP address')
+                  else
+                    EIconButton(icon: EIcons.copy, label: 'Copy HTTP address', size: EBtnSize.sm, onPressed: null),
                   EIconButton(icon: EIcons.qr, label: 'Show QR code of the HTTP address', size: EBtnSize.sm, onPressed: http != null ? () => setState(() => _qr = _Qr.http) : null),
                   EButton(label: 'Settings', size: EBtnSize.inline, onPressed: () => nav.go(DeskRoute.settingsReceiving)),
                 ],

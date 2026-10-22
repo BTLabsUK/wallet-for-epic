@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 import '../../data/files.dart' show openInFileManager;
 import '../../widgets/kit.dart';
@@ -74,15 +73,7 @@ class FileChip extends StatelessWidget {
               onPressed: () => showEToast(context, 'File saved', text: name),
             ),
           SizedBox(width: Sp.x2),
-          EButton(
-            label: 'Copy',
-            icon: EIcons.copy,
-            size: EBtnSize.inline,
-            onPressed: () {
-              Clipboard.setData(ClipboardData(text: name));
-              showEToast(context, 'Copied');
-            },
-          ),
+          ECopyButton(text: name, label: 'Copy', withLabel: true, kind: EBtnKind.secondary),
         ],
       ),
     );

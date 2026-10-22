@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../widgets/kit.dart';
+import '../settings/settings_phrase.dart' show copyPhrase;
 import 'onboarding_parts.dart';
 
 enum CreateStep { account, creating, failed, phrase, locking }
@@ -223,10 +223,7 @@ class _CreateScreenState extends ConsumerState<CreateScreen> {
                 EButton.ghost(
                   label: 'Copy',
                   icon: EIcons.copy,
-                  onPressed: () {
-                    Clipboard.setData(ClipboardData(text: phrase.join(' ')));
-                    showEToast(context, 'Copied. The clipboard is cleared in 60 s.');
-                  },
+                  onPressed: () => copyPhrase(context, phrase.join(' ')),
                 ),
                 EButton.ghost(
                   label: _qr ? 'Hide QR code' : 'Show QR code',
