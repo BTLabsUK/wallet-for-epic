@@ -106,7 +106,12 @@ class _SelfSendDialogState extends ConsumerState<_SelfSendDialog> {
 
   void _setN(int n) {
     if (n == _n) return;
-    setState(() => _n = n);
+    // Go waits for the new count's estimate; one still on its way for the old count is dropped.
+    _asked++;
+    setState(() {
+      _n = n;
+      _estimating = true;
+    });
     _debounce?.cancel();
     _debounce = Timer(const Duration(milliseconds: 150), _estimate);
   }

@@ -292,6 +292,9 @@ class _SendScreenState extends ConsumerState<SendScreen> {
   /// Estimates again at once (Advanced changed, the defaults or the balance moved).
   void _replan() {
     _feeFor = -1;
+    // Review never reuses a plan made for other choices: it estimates again if this one
+    // has not arrived.
+    _plan = null;
     unawaited(_loadFee());
   }
 

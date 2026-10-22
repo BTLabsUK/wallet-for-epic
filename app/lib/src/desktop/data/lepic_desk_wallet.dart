@@ -128,6 +128,7 @@ class LepicDeskWallet implements DeskWalletApi {
     this.nodePoll = const Duration(seconds: 30),
     this.nodeTimeout = const Duration(seconds: 15),
     this.torRetryAfter = const Duration(seconds: 60),
+    this.closeWait = const Duration(seconds: 30),
     reg.WalletRegistry? registry,
     this._builtInNode,
     legacy.LegacyRoots Function()? legacyRoots,
@@ -189,6 +190,9 @@ class LepicDeskWallet implements DeskWalletApi {
 
   /// How long tor may connect before Retry is offered beside "Connecting to Tor…".
   final Duration torRetryAfter;
+
+  /// How long closing the app waits for a payment under way before it locks anyway.
+  final Duration closeWait;
 
   /// Makes the built-in node of a network (desktop builds with the bundled `epic`, D10); null
   /// where there is none.
@@ -760,9 +764,26 @@ class LepicDeskWallet implements DeskWalletApi {
   }
 
   @override
-  Future<void> lock() async {
-    // A send, finalize or split under way finishes first ([busy]).
-    await whenIdle();
+  Future<void> lock() => _lock();
+
+  /// [waitAtMost]: how long a running send may hold the lock up (the app closing); past it
+  /// the lock goes ahead and the core ends the call.
+  Future<void> _lock({Duration? waitAtMost}) async {
+    // A send, finalize or split under way finishes first ([busy]); none starts meanwhile.
+    _locking = true;
+    try {
+      if (waitAtMost == null) {
+        await whenIdle();
+      } else {
+        await whenIdle().timeout(waitAtMost, onTimeout: () => logWarn('desk', 'closing: a payment still ran after ${waitAtMost.inSeconds} s; locking anyway'));
+      }
+      await _lockNow();
+    } finally {
+      _locking = false;
+    }
+  }
+
+  Future<void> _lockNow() async {
     _generation++;
     _poll?.cancel();
     _poll = null;
@@ -1725,6 +1746,9 @@ class LepicDeskWallet implements DeskWalletApi {
   int _busy = 0;
   Completer<void>? _idle;
 
+  /// A lock waits for [_busy]: no new payment starts until it is done.
+  bool _locking = false;
+
   @override
   bool get busy => _busy > 0;
 
@@ -1732,6 +1756,7 @@ class LepicDeskWallet implements DeskWalletApi {
   Future<void> whenIdle() => _busy == 0 ? Future<void>.value() : (_idle ??= Completer<void>()).future;
 
   Future<T> _running<T>(Future<T> Function() call) async {
+    if (_locking) throw const DeskError('The wallet is locking', locked: true);
     _busy++;
     try {
       return await call();
@@ -2612,7 +2637,7 @@ class LepicDeskWallet implements DeskWalletApi {
   /// Stops background work for good (the app is closing).
   Future<void> dispose() async {
     statusSite.removeListener(_statusSiteChanged);
-    await lock();
+    await _lock(waitAtMost: closeWait);
     await _node?.stop();
     await _changes.close();
   }

@@ -1,6 +1,8 @@
 // Send with the outputs lines wired in (design spec §4.7): the summary rows, Advanced's
 // strategy re-estimating with the new options, Send all turning the radios off, and the
 // review dialog's Locks line.
+import 'dart:async';
+
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/screens/transfer/send_advanced.dart';
 import 'package:epic_wallet/src/desktop/screens/transfer/send_screen.dart';
@@ -14,11 +16,22 @@ class _Wallet extends MockDeskWallet {
   _Wallet() : super(delay: Duration.zero);
 
   final asked = <SendOptions?>[];
+  final sent = <SendRequest>[];
+
+  /// While set, estimates wait for it.
+  Completer<void>? hold;
 
   @override
-  Future<SendEstimate> estimateSend(int amount, {SendOptions? options}) {
+  Future<SendEstimate> estimateSend(int amount, {SendOptions? options}) async {
     asked.add(options);
+    await hold?.future;
     return super.estimateSend(amount, options: options);
+  }
+
+  @override
+  Future<SendResult> send(SendRequest r) {
+    sent.add(r);
+    return super.send(r);
   }
 }
 
@@ -82,5 +95,23 @@ void main() {
     expect(find.text('Check and send'), findsOneWidget);
     expect(find.text('Locks'), findsOneWidget);
     expect(find.textContaining('until the change confirms (3 blocks)'), findsOneWidget);
+  });
+
+  testWidgets('Review right after a new strategy sends with that strategy, not the last plan', (tester) async {
+    await pump(tester, const SendArgs(recipient: anna, amount: '25', advancedOpen: true));
+    expect(wallet.asked.last?.strategy, SelectionStrategy.smallest);
+    // The new strategy's estimate has not come back when Review is pressed.
+    wallet.hold = Completer<void>();
+    await tester.tap(find.descendant(of: find.byType(ERadioRow), matching: find.text('All')));
+    await tester.pump();
+    await tester.tap(find.widgetWithText(EButton, 'Review send'));
+    await tester.pump();
+    wallet.hold!.complete();
+    wallet.hold = null;
+    await tester.pumpAndSettle();
+    expect(find.text('Check and send'), findsOneWidget);
+    await tester.tap(find.byWidgetPredicate((w) => w is EButton && w.label.startsWith('Send 25')));
+    await tester.pumpAndSettle();
+    expect(wallet.sent.single.options?.strategy, SelectionStrategy.all);
   });
 }

@@ -135,6 +135,17 @@ void main() {
       expect(find.textContaining('Network fee'), findsOneWidget);
     });
 
+    testWidgets('a new count waits for its own estimate before Split can go', (tester) async {
+      await open(tester, (c) => showSplitDialog(c));
+      expect(pressed(tester, 'Split into 4'), isNotNull);
+      await tester.tap(find.byWidgetPredicate((w) => w is EIconButton && w.label == 'Fewer'));
+      await tester.pump();
+      expect(pressed(tester, 'Split into 3'), isNull, reason: 'the estimate is still for 4');
+      await tester.pumpAndSettle();
+      expect(wallet.splitAsks.last, 3);
+      expect(pressed(tester, 'Split into 3'), isNotNull);
+    });
+
     testWidgets('outputs under 0.5 EPIC each cannot be made', (tester) async {
       wallet.spendable = _nano(1.5);
       await open(tester, (c) => showSplitDialog(c));

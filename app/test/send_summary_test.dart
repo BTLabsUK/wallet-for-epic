@@ -260,6 +260,32 @@ void main() {
       );
     });
 
+    // The split's fee comes out of the change, so the 0.5 EPIC floor is checked after it.
+    Future<SendEstimate> Function(SendOptions) changeOf(int change, List<SendOptions> asked) => (o) async {
+      asked.add(o);
+      final f = fee + (o.changeOutputs - 1) * 100000;
+      return SendEstimate(amount: epic, fee: f, inputCount: 1, change: change + fee - f, locked: epic + change + fee, changeOutputs: o.changeOutputs);
+    };
+
+    test('1.0 EPIC of change is not split two ways: each would be under 0.5 EPIC after the fee', () async {
+      final asked = <SendOptions>[];
+      final plan = await planSend(estimate: changeOf(epic, asked), strategy: SelectionStrategy.smallest, smartOutputsOn: true, spendableOutputs: 1, splitRefused: coreRefusedSplit);
+      expect(asked, const [SendOptions(), SendOptions(changeOutputs: 2)]);
+      expect(plan.splits, false);
+      expect(plan.decision.reason, SmartOutputsReason.smallChange);
+      expect(plan.estimate, plan.base);
+      expect(plan.extraFee, 0);
+    });
+
+    test('2.0 EPIC of change steps down from four outputs to three', () async {
+      final asked = <SendOptions>[];
+      final plan = await planSend(estimate: changeOf(2 * epic, asked), strategy: SelectionStrategy.smallest, smartOutputsOn: true, spendableOutputs: 1, splitRefused: coreRefusedSplit);
+      expect(asked, const [SendOptions(), SendOptions(changeOutputs: 4), SendOptions(changeOutputs: 3)]);
+      expect(plan.options, const SendOptions(changeOutputs: 3));
+      expect(plan.decision.changeOutputs, 3);
+      expect(plan.estimate.change ~/ 3, greaterThanOrEqualTo(epic ~/ 2));
+    });
+
     test('with the wallet: one 100 EPIC output, send 1, change in 4 outputs', () async {
       final session = FakeWalletSession()
         ..outputsValue = [

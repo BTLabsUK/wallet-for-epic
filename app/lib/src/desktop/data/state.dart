@@ -355,8 +355,12 @@ final deskProvider = NotifierProvider<DeskController, DeskState>(DeskController.
 int deskMinConfirmations(WidgetRef ref) =>
     ref.watch(deskProvider.select((s) => s.balance?.minConfirmations)) ?? defaultMinimumConfirmations;
 
-/// The wallet's outputs (the Outputs page). Invalidate to reload.
-final deskOutputsProvider = FutureProvider<List<Output>>((ref) => ref.read(deskApiProvider).outputs());
+/// The open wallet's outputs (the Outputs page, SmartOutputs on Send). Reloads when another
+/// wallet opens or the balance moves; invalidate to reload otherwise.
+final deskOutputsProvider = FutureProvider<List<Output>>((ref) {
+  ref.watch(deskProvider.select((s) => (s.account?.id, s.balance)));
+  return ref.read(deskApiProvider).outputs();
+});
 
 /// The open wallet's Outputs choices (strategy, Split change): the Outputs page sets them,
 /// Send reads them. Reloads when another wallet opens.

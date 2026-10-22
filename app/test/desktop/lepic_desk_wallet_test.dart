@@ -47,6 +47,17 @@ class _StrictSession extends core.FakeWalletSession {
   }
 }
 
+/// Holds every split at [gate] until it is completed: a payment under way.
+class _SlowSplit extends _StrictSession {
+  Completer<void>? gate;
+
+  @override
+  Future<core.SelfSentTx> splitOutputs({required int outputs, required BigInt minimumConfirmations}) async {
+    await gate?.future;
+    return super.splitOutputs(outputs: outputs, minimumConfirmations: minimumConfirmations);
+  }
+}
+
 /// Opens like LEPIC, except: a config [refuse] picks fails, and [gate] holds every open.
 class _Opens extends core.FakeWalletService {
   _Opens() : super(password: _password, session: _StrictSession());
@@ -1076,6 +1087,59 @@ void main() {
       await expectLater(w.createWallet(name: 'Savings', password: _password), throwsA(isA<DeskError>()));
       expect((await w.wallets()).map((e) => e.name), ['Main']);
       expect(Directory('${support.path}/wallets').listSync().map((e) => e.path.split('/').last), ['mainnet']);
+    });
+  });
+
+  group('payments under way', () {
+    late _SlowSplit session;
+
+    setUp(() async {
+      session = _SlowSplit()..gate = Completer<void>();
+      service = core.FakeWalletService(password: _password, session: session);
+      await wallet.dispose();
+      wallet = make(service);
+      await created();
+    });
+
+    test('a lock waits for a split under way, and no payment starts while it waits', () async {
+      final disposed = session.disposeCalls;
+      final split = wallet.splitOutputs(2).then<Object?>((v) => v, onError: (Object e) => e);
+      await Future<void>.delayed(Duration.zero);
+      expect(wallet.busy, isTrue);
+      var locked = false;
+      final lock = wallet.lock().then((_) => locked = true);
+      await Future<void>.delayed(const Duration(milliseconds: 50));
+      expect(locked, isFalse, reason: 'the split still runs');
+      expect(session.disposeCalls, disposed);
+      await expectLater(
+        wallet.send(const SendRequest(method: TxMethod.file, amount: 100000000)),
+        throwsA(isA<DeskError>().having((e) => e.locked, 'locked', isTrue)),
+      );
+      session.gate!.complete();
+      await split;
+      await lock;
+      expect(locked, isTrue);
+      expect(wallet.busy, isFalse);
+      expect(session.disposeCalls, disposed + 1);
+    });
+
+    test('closing the app waits for a payment only up to closeWait', () async {
+      final quick = LepicDeskWallet(
+        service: service,
+        walletDir: walletDir,
+        secrets: secrets,
+        filesDir: () async => files,
+        nodePoll: const Duration(hours: 1),
+        closeWait: const Duration(milliseconds: 50),
+      );
+      expect(await quick.unlock(_password), isTrue);
+      final disposed = session.disposeCalls;
+      unawaited(quick.splitOutputs(2).then<Object?>((v) => v, onError: (Object e) => e));
+      await Future<void>.delayed(Duration.zero);
+      expect(quick.busy, isTrue);
+      await quick.dispose().timeout(const Duration(seconds: 5));
+      expect(session.disposeCalls, disposed + 1, reason: 'locked though the split never finished');
+      session.gate!.complete();
     });
   });
 

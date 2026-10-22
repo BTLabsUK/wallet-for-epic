@@ -174,17 +174,29 @@ Future<SmartSendPlan> planSend({
   if (!decision.splits) {
     return SmartSendPlan(base: base, decision: decision, estimate: base, options: plain);
   }
-  final split = SendOptions(strategy: strategy, changeOutputs: decision.changeOutputs);
-  try {
-    final e = await estimate(split);
-    return SmartSendPlan(base: base, decision: decision, estimate: e, options: split);
-  } catch (e) {
-    if (!splitRefused(e)) rethrow;
-    return SmartSendPlan(
-      base: base,
-      decision: SmartOutputsDecision(1, SmartOutputsReason.smallChange, outputsLeft: decision.outputsLeft),
-      estimate: base,
-      options: plain,
-    );
+  SmartSendPlan unsplit() => SmartSendPlan(
+    base: base,
+    decision: SmartOutputsDecision(1, SmartOutputsReason.smallChange, outputsLeft: decision.outputsLeft),
+    estimate: base,
+    options: plain,
+  );
+  // The split's own fee comes out of the change, so each output is checked against the floor
+  // again with the split's estimate, one output fewer each time it falls short.
+  var n = decision.changeOutputs;
+  while (n > 1) {
+    final split = SendOptions(strategy: strategy, changeOutputs: n);
+    final SendEstimate e;
+    try {
+      e = await estimate(split);
+    } catch (err) {
+      if (!splitRefused(err)) rethrow;
+      return unsplit();
+    }
+    if (e.change ~/ n >= rule.minPerOutput) {
+      final d = n == decision.changeOutputs ? decision : SmartOutputsDecision(n, SmartOutputsReason.split, outputsLeft: decision.outputsLeft);
+      return SmartSendPlan(base: base, decision: d, estimate: e, options: split);
+    }
+    n--;
   }
+  return unsplit();
 }
