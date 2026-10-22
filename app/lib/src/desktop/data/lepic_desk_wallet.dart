@@ -134,6 +134,9 @@ class LepicDeskWallet implements DeskWalletApi {
   List<EpicboxServer>? _boxes;
   DateTime? _boxesAt;
 
+  /// When [_importHistoryOnce] last read each wallet's old database (by meta key).
+  final Map<String, DateTime> _historyTried = {};
+
   /// Public nodes from status.btlabs.uk; null keeps the built-in list.
   final NodeDirectory? nodeDirectory;
   List<NodeStatus>? _dirNodes;
@@ -897,7 +900,10 @@ class LepicDeskWallet implements DeskWalletApi {
     if (made == null) throw const DeskError('Wallet list not saved');
     _imported.add(made.id);
     final done = history;
-    if (done != null) await _setMeta({'historyImport': done.status.name}, _metaKey(made.walletId));
+    // A busy source is not recorded, so the sync tries again, as the proof line says.
+    if (done != null && done.status != core.LegacyHistoryStatus.sourceBusy) {
+      await _setMeta({'historyImport': done.status.name}, _metaKey(made.walletId));
+    }
     final nodes = await _importNodes(profile.nodeUrl, global.myNodes['mainnet'] ?? const []);
     final unchanged = await legacy.folderHash(walletData) == before;
     if (!unchanged) logWarn('desk', 'import: the old folder changed during the import');
@@ -957,9 +963,9 @@ class LepicDeskWallet implements DeskWalletApi {
       final have = {for (final c in await session.contacts()) c.address.toLowerCase()};
       var added = 0;
       for (final c in contacts) {
-        final address = c.epicboxAddress ?? c.httpAddress;
-        final name = c.name.trim();
-        if (address == null || name.isEmpty || !have.add(address.toLowerCase())) continue;
+        final address = (c.epicboxAddress ?? c.httpAddress)?.trim();
+        final name = cleanOperator(c.name) ?? '';
+        if (address == null || name.isEmpty || !_contactAddressOk(address) || !have.add(address.toLowerCase())) continue;
         final extra = c.epicboxAddress != null && c.httpAddress != null ? 'HTTP: ${c.httpAddress}' : null;
         final note = [c.note?.trim() ?? '', extra ?? ''].where((t) => t.isNotEmpty).join('\n');
         await session.saveContact(contact: core.Contact(id: '', name: name, address: address, note: note.isEmpty ? null : note));
@@ -972,6 +978,12 @@ class LepicDeskWallet implements DeskWalletApi {
     }
   }
 
+  /// An address the contact form would take: epicbox, http(s) or, with Tor, an onion.
+  bool _contactAddressOk(String a) =>
+      RegExp(r'^es[0-9A-Za-z]{38,58}(@[\w.-]+(:\d+)?)?$').hasMatch(a) ||
+      (RegExp(r'^https?:', caseSensitive: false).hasMatch(a) && httpAddressProblem(a) == null) ||
+      (_torFeature && isOnionAddress(a));
+
   /// Adds the old wallet's node and the older app's own nodes to the node list without switching
   /// to them: the node is app-wide here and would move every wallet. Returns those added.
   Future<List<NodeServer>> _importNodes(String? walletNode, List<gui.LegacyNode> myNodes) async {
@@ -983,7 +995,7 @@ class LepicDeskWallet implements DeskWalletApi {
     ];
     for (final n in wanted) {
       final uri = Uri.tryParse(n.address);
-      if (uri == null || !(uri.scheme == 'https' || uri.scheme == 'http') || uri.host.isEmpty) continue;
+      if (uri == null || !(uri.scheme == 'https' || uri.scheme == 'http') || uri.host.isEmpty || isLoopbackHost(uri.host)) continue;
       if (!listed.add(n.address)) continue;
       final node = NodeServer(url: n.address, label: n.label);
       await addNode(node);
@@ -1101,6 +1113,10 @@ class LepicDeskWallet implements DeskWalletApi {
     final meta = await _meta(key);
     final from = meta['importedFrom'];
     if (from is! String || meta['historyImport'] != null) return;
+    // The sync runs at every block; the old database is read at most once an hour.
+    final last = _historyTried[key];
+    if (last != null && DateTime.now().difference(last) < const Duration(hours: 1)) return;
+    _historyTried[key] = DateTime.now();
     final r = await _importHistory(session, from);
     if (r == null || r.status == core.LegacyHistoryStatus.sourceBusy) return;
     await _setMeta({'historyImport': r.status.name}, key);
