@@ -729,9 +729,21 @@ void main() {
 
       testWidgets('home: history backup reminder ($mode)', (tester) async {
         final h = _Harness(demo: demo);
-        h.session.transactionsValue.add(
-          fakeTx(id: 1, amountCredited: BigInt.from(100000000)),
-        );
+        // The reminder waits for 10 older payments and 30 days.
+        final chain = demo ? Chain.floonet : Chain.mainnet;
+        int secondsAgo(Duration d) =>
+            h.now.subtract(d).millisecondsSinceEpoch ~/ 1000;
+        h.store.values['app.history_reminder_first_seen.${chain.name}'] =
+            '${secondsAgo(const Duration(days: 40))}';
+        for (var i = 0; i < 10; i++) {
+          h.session.transactionsValue.add(
+            fakeTx(
+              id: i + 1,
+              createdAtUnix: secondsAgo(const Duration(days: 5)),
+              amountCredited: BigInt.from(100000000),
+            ),
+          );
+        }
         await h.pump(tester);
         await h.unlock(tester);
         expect(find.text(l.homeHistoryExportButton), present);

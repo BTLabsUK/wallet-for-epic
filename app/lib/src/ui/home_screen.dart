@@ -41,28 +41,27 @@ const Duration autoRefreshInterval = Duration(seconds: 60);
 /// Transactions shown under "Recent activity".
 const int recentActivityCount = 5;
 
-/// How long a dismissed history backup reminder stays away.
-const Duration historyReminderPause = Duration(days: 7);
+/// The history backup reminder shows only with at least this many payments not in a backup.
+const int historyReminderMinPayments = 10;
 
-/// How many payments a history backup would keep that the last export does not have, or null
-/// when the reminder should stay hidden: nothing to keep, or it was dismissed less than
-/// [historyReminderPause] ago.
-///
-/// A payment counts once, when it is newer than the export ([exportedAt], Unix seconds), was
-/// pending in the export and has settled since, or has a different note than in the export
-/// ([snapshot]). Restored and imported rows are left out: a restore or an import brings them
-/// back anyway.
-int? paymentsNotInBackup(
+/// How long the history backup reminder stays away after the last export, the last "Not now",
+/// or (for a wallet never exported nor dismissed) the first time it had something to remind of.
+const Duration historyReminderPause = Duration(days: 30);
+
+/// The reminder never shows while a payment this recent is in the list, so it does not pop up
+/// right after a send or a receive.
+const Duration historyReminderQuiet = Duration(minutes: 10);
+
+/// How many payments a history backup would keep that the last export does not have, ignoring
+/// when to remind. A payment counts once, when it is newer than the export ([exportedAt], Unix
+/// seconds), was pending in the export and has settled since, or has a different note than in
+/// the export ([snapshot]). Restored and imported rows are left out: a restore or an import
+/// brings them back anyway.
+int unbackedPayments(
   Iterable<TxEntry> txs, {
-  required DateTime now,
   int? exportedAt,
-  int? dismissedAt,
   HistoryExportSnapshot? snapshot,
 }) {
-  if (dismissedAt != null &&
-      now.difference(localTime(dismissedAt)) < historyReminderPause) {
-    return null;
-  }
   bool changed(TxEntry t) {
     if (exportedAt == null || t.timeUnix > exportedAt) return true;
     if (snapshot == null) return false;
@@ -73,8 +72,35 @@ int? paymentsNotInBackup(
         snapshot.noteHashes[t.key] != HistoryExportSnapshot.noteHash(t.note);
   }
 
-  final n = txs.where((t) => t.source == TxSource.wallet && changed(t)).length;
-  return n == 0 ? null : n;
+  return txs.where((t) => t.source == TxSource.wallet && changed(t)).length;
+}
+
+/// How many payments the history backup reminder should name, or null when it stays hidden:
+/// fewer than [historyReminderMinPayments] not in a backup; a wallet payment from the last
+/// [historyReminderQuiet]; or less than [historyReminderPause] since the latest of the last
+/// export ([exportedAt]), the last dismissal ([dismissedAt]) and, as a start for a wallet with
+/// neither, [firstSeenAt] (when the reminder first had something to remind of). All Unix
+/// seconds. With none of the three known the reminder waits for [firstSeenAt] to be stored.
+int? paymentsNotInBackup(
+  Iterable<TxEntry> txs, {
+  required DateTime now,
+  int? exportedAt,
+  int? dismissedAt,
+  int? firstSeenAt,
+  HistoryExportSnapshot? snapshot,
+}) {
+  final n = unbackedPayments(txs, exportedAt: exportedAt, snapshot: snapshot);
+  if (n < historyReminderMinPayments) return null;
+  final nowSeconds = now.millisecondsSinceEpoch ~/ 1000;
+  final quietFrom = nowSeconds - historyReminderQuiet.inSeconds;
+  if (txs.any((t) => t.source == TxSource.wallet && t.timeUnix > quietFrom)) {
+    return null;
+  }
+  final marks = [exportedAt, dismissedAt, firstSeenAt].nonNulls;
+  if (marks.isEmpty) return null;
+  final since = marks.reduce((a, b) => a > b ? a : b);
+  if (now.difference(localTime(since)) < historyReminderPause) return null;
+  return n;
 }
 
 /// The notice for a listener event: what happened to which payment, never the raw message.
@@ -753,11 +779,24 @@ class _HistoryBackupCard extends ConsumerWidget {
     if (settings == null) return const SizedBox.shrink();
     final now = ref.watch(clockProvider)();
     final exportedAt = settings.historyExportedAt[chain.name];
+    final firstSeenAt = settings.historyReminderFirstSeenAt[chain.name];
+    if (firstSeenAt == null &&
+        unbackedPayments(
+              transactions,
+              exportedAt: exportedAt,
+              snapshot: settings.historyExportSnapshots[chain.name],
+            ) >
+            0) {
+      // The 30 days of a wallet with no export and no dismissal start here.
+      final notifier = ref.read(appSettingsProvider.notifier);
+      Future.microtask(() => notifier.markHistoryReminderSeen(chain, now));
+    }
     final count = paymentsNotInBackup(
       transactions,
       now: now,
       exportedAt: exportedAt,
       dismissedAt: settings.historyReminderDismissedAt[chain.name],
+      firstSeenAt: firstSeenAt,
       snapshot: settings.historyExportSnapshots[chain.name],
     );
     if (count == null) return const SizedBox.shrink();
