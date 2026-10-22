@@ -398,6 +398,8 @@ class DeskSettings {
     this.publicMode = false,
     this.httpPort = 3415,
     this.httpAutostart = false,
+    this.epicboxAutostart = true,
+    this.torAutostart = false,
     this.autoLockMinutes = 15,
     this.fiat = 'USD',
     this.newLookSeen = false,
@@ -430,6 +432,12 @@ class DeskSettings {
   /// The HTTP listener starts at unlock. Like [publicMode] and [httpPort] it is the open
   /// wallet's own, not app-wide.
   final bool httpAutostart;
+
+  /// Epicbox receiving starts at unlock. The open wallet's own, like [httpAutostart].
+  final bool epicboxAutostart;
+
+  /// Tor starts at unlock. The open wallet's own; [tor] alone is the now-state.
+  final bool torAutostart;
   final int? autoLockMinutes;
   final String fiat;
 
@@ -451,6 +459,8 @@ class DeskSettings {
     bool? publicMode,
     int? httpPort,
     bool? httpAutostart,
+    bool? epicboxAutostart,
+    bool? torAutostart,
     int? autoLockMinutes,
     String? fiat,
     bool? newLookSeen,
@@ -467,6 +477,8 @@ class DeskSettings {
     publicMode: publicMode ?? this.publicMode,
     httpPort: httpPort ?? this.httpPort,
     httpAutostart: httpAutostart ?? this.httpAutostart,
+    epicboxAutostart: epicboxAutostart ?? this.epicboxAutostart,
+    torAutostart: torAutostart ?? this.torAutostart,
     autoLockMinutes: autoLockMinutes ?? this.autoLockMinutes,
     fiat: fiat ?? this.fiat,
     newLookSeen: newLookSeen ?? this.newLookSeen,

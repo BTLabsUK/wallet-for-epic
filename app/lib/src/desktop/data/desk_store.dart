@@ -51,6 +51,33 @@ class DeskStore {
 
   Future<void> saveTorOn(String? walletId, bool on) => writeJson(torKeyOf(walletId), {'on': on});
 
+  /// Start with the wallet for Epicbox and Tor, per wallet (W4 §3.2). The first wallet (null)
+  /// has [autostartKey], an added one its own key.
+  static const autostartKey = 'desk.autostart';
+  static String autostartKeyOf(String? walletId) => walletId == null ? autostartKey : '$autostartKey.$walletId';
+
+  /// The wallet's Epicbox and Tor autostart. Never saved yet: Epicbox takes the 0.1.0 app-wide
+  /// `epicboxOnStart` choice (on unless turned off) and Tor the wallet's [torOn] (a wallet
+  /// that had Tor on keeps starting it), and that is saved so the choice is the wallet's own
+  /// from then on.
+  Future<AutostartPrefs> autostart(String? walletId) async {
+    final j = await readJson(autostartKeyOf(walletId));
+    if (j is Map<String, dynamic>) {
+      return AutostartPrefs(
+        epicbox: j['epicbox'] is bool ? j['epicbox'] as bool : true,
+        tor: j['tor'] is bool ? j['tor'] as bool : false,
+      );
+    }
+    final prefs = await readJson(prefsKey);
+    final onStart = prefs is Map<String, dynamic> ? prefs['epicboxOnStart'] : null;
+    final migrated = AutostartPrefs(epicbox: onStart is bool ? onStart : true, tor: await torOn(walletId));
+    await saveAutostart(walletId, migrated);
+    return migrated;
+  }
+
+  Future<void> saveAutostart(String? walletId, AutostartPrefs p) =>
+      writeJson(autostartKeyOf(walletId), {'epicbox': p.epicbox, 'tor': p.tor});
+
   Future<HttpPrefs> httpPrefs(String? walletId) async {
     const d = HttpPrefs();
     if (walletId != null) {
@@ -127,6 +154,21 @@ class DeskStore {
     final autostart = saved is Map<String, dynamic> ? saved['httpAutostart'] : null;
     await writeJson(prefsKey, {...json, 'httpAutostart': ?autostart});
   }
+}
+
+/// A wallet's Start with the wallet for Epicbox and Tor (HTTP's is in [HttpPrefs]).
+@immutable
+class AutostartPrefs {
+  const AutostartPrefs({this.epicbox = true, this.tor = false});
+
+  final bool epicbox;
+  final bool tor;
+
+  @override
+  bool operator ==(Object other) => other is AutostartPrefs && other.epicbox == epicbox && other.tor == tor;
+
+  @override
+  int get hashCode => Object.hash(epicbox, tor);
 }
 
 /// A wallet's HTTP listener settings.
