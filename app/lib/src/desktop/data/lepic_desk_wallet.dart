@@ -251,10 +251,14 @@ class LepicDeskWallet implements DeskWalletApi {
   Future<EpicboxRelay> _relay() async {
     await (_relaySettled ??= _settleRelay());
     final saved = await _secrets.read(_relayKey);
-    return (saved == null ? null : EpicboxRelay.parse(saved)) ?? EpicboxRelay(host: deskEpicboxes.first.domain);
+    return (saved == null ? null : EpicboxRelay.parse(saved)) ??
+        EpicboxRelay(host: _settledHost ?? deskEpicboxes.first.domain);
   }
 
   Future<void>? _relaySettled;
+
+  /// What [_settleRelay] chose this run, used when saving it failed.
+  String? _settledHost;
 
   /// Once per run: an install that never saved its Epicbox server keeps the one 0.1.0 used
   /// ([oldDefaultEpicboxHost]) when it already holds a wallet, since the server is part of the
@@ -264,10 +268,11 @@ class LepicDeskWallet implements DeskWalletApi {
     try {
       if (await _secrets.read(_relayKey) != null) return;
       final host = await _hadWallet() ? oldDefaultEpicboxHost : deskEpicboxes.first.domain;
+      _settledHost = host;
       await _secrets.write(_relayKey, EpicboxRelay(host: host).label);
       logInfo('desk', 'epicbox server settled: $host');
     } on Object catch (e) {
-      // Not saved: the next run tries again; this one uses the default.
+      // Not saved: the next run tries again; this one uses what was chosen, if anything.
       logWarn('desk', 'epicbox server not settled: ${e.runtimeType}');
     }
   }
