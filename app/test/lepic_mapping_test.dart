@@ -20,6 +20,9 @@ class _SendingWallet extends _NoNativeWallet {
   final List<String?> messages = [];
   final List<lepic.SendOptions?> options = [];
 
+  /// What [estimateMax] answers; a test raises it to stand for a balance that grew.
+  BigInt maxAmount = BigInt.from(90);
+
   lepic.TransactionDetails get _stored => lepic.TransactionDetails(
     txId: 5,
     direction: lepic.TxDirection.outgoing,
@@ -75,7 +78,7 @@ class _SendingWallet extends _NoNativeWallet {
   }) async {
     this.options.add(options);
     return lepic.FeeEstimate(
-      amount: BigInt.from(90),
+      amount: maxAmount,
       fee: BigInt.from(10),
       locked: BigInt.from(100),
       changeOutputs: 0,
@@ -250,7 +253,20 @@ void main() {
         strategy: lepic.SelectionStrategy.all,
         changeOutputs: 1,
       );
-      expect(wallet.options, [all, all, null]);
+      // estimateMax, its re-check before the send, the send; the small send has none.
+      expect(wallet.options, [all, all, all, null]);
+    });
+
+    test('a max remembered from before the balance grew does not make a typed amount a send-all', () async {
+      final wallet = _SendingWallet();
+      final session = LepicWalletSession(wallet);
+      final max = await session.estimateMax(minimumConfirmations: BigInt.from(10));
+      wallet.maxAmount = BigInt.from(150);
+      await session.createSendSlate(
+        amount: max.amount,
+        minimumConfirmations: BigInt.from(10),
+      );
+      expect(wallet.options.last, isNull);
     });
 
     test('a split LEPIC cannot build reads as one short error', () {

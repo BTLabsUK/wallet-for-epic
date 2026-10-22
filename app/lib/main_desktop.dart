@@ -79,7 +79,16 @@ Future<List<Override>> deskOverrides() async {
   final store = DeskStore(secrets);
   // Before the wallet core starts: its runtime takes the log level once.
   await applySavedLogLevel(store);
-  final boot = await DeskBoot.load(store);
+  // A store that cannot be read (damaged, held by another program) must not stop the app
+  // before its first frame: start with default settings and let Unlock show the error. The
+  // store itself never writes over what it could not read.
+  DeskBoot boot;
+  try {
+    boot = await DeskBoot.load(store);
+  } on Object catch (e, stack) {
+    logError('desk', 'settings not read: ${e.runtimeType}', stack);
+    boot = const DeskBoot();
+  }
   final directory = container.read(relayDirectoryProvider);
   final wallet = LepicDeskWallet(
     service: container.read(walletServiceProvider),
@@ -113,7 +122,15 @@ Future<List<Override>> deskOverrides() async {
       return AppExitResponse.exit;
     },
   );
-  final hasWallet = (await wallet.wallets()).isNotEmpty;
+  // Unreadable wallet list: open Unlock, which reads it again and shows why; never Welcome,
+  // which would offer to make a new wallet over an existing one.
+  bool hasWallet;
+  try {
+    hasWallet = (await wallet.wallets()).isNotEmpty;
+  } on Object catch (e, stack) {
+    logError('desk', 'wallet list not read: ${e.runtimeType}', stack);
+    hasWallet = true;
+  }
   return [
     deskApiProvider.overrideWithValue(wallet),
     deskStoreProvider.overrideWithValue(store),

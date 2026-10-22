@@ -107,6 +107,7 @@ class AppSettings {
     this.pushNotifications = false,
     this.historyExportedAt = const {},
     this.historyReminderDismissedAt = const {},
+    this.historyReminderFirstSeenAt = const {},
     this.historyExportSnapshots = const {},
     this.language,
     this.advancedOptions = false,
@@ -147,6 +148,10 @@ class AppSettings {
   /// When the history backup reminder was last dismissed, per network, in Unix seconds.
   final Map<String, int> historyReminderDismissedAt;
 
+  /// When the history backup reminder first had something to remind of, per network, in Unix
+  /// seconds. The pause of a wallet never exported nor dismissed counts from here.
+  final Map<String, int> historyReminderFirstSeenAt;
+
   /// What the last history backup export held, per network. Absent for exports made before
   /// snapshots were kept.
   final Map<String, HistoryExportSnapshot> historyExportSnapshots;
@@ -160,6 +165,7 @@ class AppSettings {
     bool? pushNotifications,
     Map<String, int>? historyExportedAt,
     Map<String, int>? historyReminderDismissedAt,
+    Map<String, int>? historyReminderFirstSeenAt,
     Map<String, HistoryExportSnapshot>? historyExportSnapshots,
     String? Function()? language,
     bool? advancedOptions,
@@ -175,6 +181,8 @@ class AppSettings {
     historyExportedAt: historyExportedAt ?? this.historyExportedAt,
     historyReminderDismissedAt:
         historyReminderDismissedAt ?? this.historyReminderDismissedAt,
+    historyReminderFirstSeenAt:
+        historyReminderFirstSeenAt ?? this.historyReminderFirstSeenAt,
     historyExportSnapshots:
         historyExportSnapshots ?? this.historyExportSnapshots,
     language: language != null ? language() : this.language,
@@ -200,6 +208,8 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
       'app.history_exported.${chain.name}';
   static String _dismissedKey(Chain chain) =>
       'app.history_reminder_dismissed.${chain.name}';
+  static String _firstSeenKey(Chain chain) =>
+      'app.history_reminder_first_seen.${chain.name}';
   static String _snapshotKey(Chain chain) =>
       'app.history_export_snapshot.${chain.name}';
   static const String _never = 'never';
@@ -222,6 +232,7 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
     };
     final exported = await perChain(_exportedKey);
     final dismissed = await perChain(_dismissedKey);
+    final firstSeen = await perChain(_firstSeenKey);
     final snapshots = <String, HistoryExportSnapshot>{};
     for (final chain in Chain.values) {
       final raw = await store.read(_snapshotKey(chain));
@@ -258,6 +269,7 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
           : push == 'true',
       historyExportedAt: exported,
       historyReminderDismissedAt: dismissed,
+      historyReminderFirstSeenAt: firstSeen,
       historyExportSnapshots: snapshots,
       // A code no translation has any more (a language removed) falls back to the system.
       language: appLanguages.any((a) => a.code == language) ? language : null,
@@ -351,11 +363,14 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
     final store = ref.read(secretStoreProvider);
     await store.delete(_exportedKey(chain));
     await store.delete(_dismissedKey(chain));
+    await store.delete(_firstSeenKey(chain));
     await store.delete(_snapshotKey(chain));
     state = AsyncData(
       current.copyWith(
         historyExportedAt: {...current.historyExportedAt}..remove(chain.name),
         historyReminderDismissedAt: {...current.historyReminderDismissedAt}
+          ..remove(chain.name),
+        historyReminderFirstSeenAt: {...current.historyReminderFirstSeenAt}
           ..remove(chain.name),
         historyExportSnapshots: {...current.historyExportSnapshots}
           ..remove(chain.name),
@@ -373,6 +388,24 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
       current.copyWith(
         historyReminderDismissedAt: {
           ...current.historyReminderDismissedAt,
+          chain.name: seconds,
+        },
+      ),
+    );
+  }
+
+  /// Records at [when] that the history backup reminder on [chain] first had something to
+  /// remind of. Keeps the first time: later calls change nothing.
+  Future<void> markHistoryReminderSeen(Chain chain, DateTime when) async {
+    final current = await _current();
+    if (current.historyReminderFirstSeenAt.containsKey(chain.name)) return;
+    final seconds = when.millisecondsSinceEpoch ~/ 1000;
+    await _put(
+      _firstSeenKey(chain),
+      '$seconds',
+      current.copyWith(
+        historyReminderFirstSeenAt: {
+          ...current.historyReminderFirstSeenAt,
           chain.name: seconds,
         },
       ),

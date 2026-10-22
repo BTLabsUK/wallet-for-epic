@@ -167,6 +167,7 @@ abstract interface class DeskWalletApi {
   /// sync finished, the listener connected). [DeskController] reloads on it.
   Stream<void> changes();
   Future<List<String>> revealPhrase(String password);
-  /// Only when [DeskFeatures.changePassword].
+  /// Re-encrypts the open wallet under [next] and forgets its remembered password. A wrong
+  /// [current] throws a [DeskError] with `wrongPassword`. Only when [DeskFeatures.changePassword].
   Future<void> changePassword(String current, String next);
 }

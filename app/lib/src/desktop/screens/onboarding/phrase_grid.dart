@@ -108,6 +108,10 @@ class PhraseEntry extends ChangeNotifier {
 
   bool get complete => checksumOk == true;
 
+  /// Whether the last filled field is still being typed (no paste set the count): its word
+  /// may be a prefix of the one meant ("fat" of "fatigue"), so no checksum verdict shows yet.
+  bool get typingLast => count == null && span > 0 && focus[span - 1].hasFocus;
+
   /// Whether Enter may leave the phrase step: a pasted phrase that checks out, or all 24
   /// fields typed and checking out. A shorter typed phrase goes on with the Continue button,
   /// so Enter after each word of a 24-word phrase never stops at a 12-word prefix that happens
@@ -191,6 +195,9 @@ class PhraseEntry extends ChangeNotifier {
   }
 
   /// Checks field [i] against the list (blur or commit).
+  /// Tells listeners the focus moved between fields (see [typingLast]).
+  void focusMoved() => _notify();
+
   void validate(int i) {
     final w = words[i];
     final bad = w.isNotEmpty && !bip39Words.contains(w);
@@ -231,6 +238,11 @@ class PhraseEntry extends ChangeNotifier {
     pasteError = null;
     _notify();
   }
+
+  /// [text] pasted from outside a field (the Paste button): fills like a paste and puts the
+  /// focus in the grid (the first marked word, else after the last word), so Enter goes on
+  /// from there instead of pressing the button again.
+  void pasteAndFocus(String text) => _focusAfter(paste(text).length);
 
   void focusField(int i) {
     if (i < 0 || i >= max) return;
@@ -311,6 +323,8 @@ class _PhraseGridState extends State<PhraseGrid> {
       final f = entry.focus[i];
       void onFocus() {
         if (!f.hasFocus) entry.validate(i);
+        // The status line ([PhraseEntry.typingLast]) depends on which field has the focus.
+        entry.focusMoved();
         if (mounted) setState(() {});
       }
 

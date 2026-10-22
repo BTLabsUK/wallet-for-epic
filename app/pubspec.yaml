@@ -43,6 +43,10 @@ dependencies:
   path_provider: 2.1.6
   pretty_qr_code: 3.6.0
   flutter_secure_storage: 11.2.0
+  # The crash-safe Windows secret store (windows_dpapi.dart): DPAPI and MoveFileEx. The versions
+  # flutter_secure_storage_windows already locks.
+  ffi: 2.2.0
+  win32: 6.4.0
   local_auth: 3.0.2
   crypto: 3.0.7
   # X25519, HKDF and AES-GCM for sealed support reports (support_report.dart), pure Dart.
