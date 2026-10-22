@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 96" width="160" height="96" role="img" aria-label="When something goes wrong: a lifebuoy, and a node still syncing">
+<g stroke="#F6D471" stroke-width="1.6" fill="none" stroke-linecap="round">
+  <circle cx="56" cy="48" r="24"/><circle cx="56" cy="48" r="11"/>
+  <path d="M56 24v13M56 59v13M32 48h13M67 48h13"/>
+</g>
+<g stroke="#A4A4AD" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M112 34a16 16 0 1 1-10 4"/><path d="M100 30v9h9"/>
+  <path d="M106 64h24M110 72h16" />
+</g>
+</svg>

@@ -3,7 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../app/app_dialogs.dart';
 import '../../app/shots.dart';
 import '../../app/tour.dart';
+import '../../data/mock_wallet.dart';
 import '../../widgets/kit.dart';
+import 'backup.dart';
 import 'dialogs.dart';
 import 'prefs.dart';
 import 'report_problem.dart';
@@ -11,6 +13,7 @@ import 'settings_node.dart';
 import 'settings_phrase.dart';
 import 'settings_http.dart' show InternetGuide, InternetGuideChoice;
 import 'settings_receiving.dart';
+import 'settings_help.dart' show HelpDemo;
 import 'settings_rescan.dart';
 
 /// A wallet that is not open, for the remove dialog's shots.
@@ -71,6 +74,47 @@ final List<DeskShot> settingsShots = [
   ),
   const DeskShot(id: '25-settings-account', title: 'Settings, this wallet', route: DeskRoute.settingsAccount),
   DeskShot(id: '25b-dlg-change-password', title: 'Change password', route: DeskRoute.settingsAccount, dialog: showChangePasswordDialog),
+  DeskShot(
+    id: '25c-settings-backup',
+    title: 'Settings, this wallet: Backup, never exported',
+    route: DeskRoute.settingsAccount,
+    height: 1100,
+    prepare: (c, _) async => _backup(c, const HistoryBackupState(unbacked: 12, payments: 48, contacts: 6)),
+  ),
+  const DeskShot(id: '25d-settings-backup-since', title: 'Settings, this wallet: Backup, payments since', route: DeskRoute.settingsAccount, height: 1100),
+  const DeskShot(
+    id: '25e-settings-backup-busy',
+    title: 'Settings, this wallet: Backup, exporting',
+    route: DeskRoute.settingsAccount,
+    arg: BackupDemo.busy,
+    height: 1100,
+  ),
+  DeskShot(id: '25f-dlg-export-history', title: 'Export history backup', route: DeskRoute.settingsAccount, dialog: showExportHistoryDialog),
+  DeskShot(
+    id: '25g-dlg-export-history-saved',
+    title: 'Export history backup, saved',
+    route: DeskRoute.settingsAccount,
+    dialog: (c) => showEDialog<void>(c, builder: (_) => const ExportHistoryDialog(savedDemo: '~/Documents/epic-history-mainnet-20261022.wfeh')),
+  ),
+  DeskShot(id: '25h-dlg-import-history', title: 'Import history backup', route: DeskRoute.settingsAccount, dialog: showImportHistoryDialog),
+  DeskShot(
+    id: '25i-dlg-import-history-done',
+    title: 'Import history backup, imported',
+    route: DeskRoute.settingsAccount,
+    dialog: (c) => showEDialog<void>(
+      c,
+      builder: (_) => const ImportHistoryDialog(
+        doneDemo: (name: 'epic-history-mainnet-20261003.wfeh', result: HistoryImport(merged: 12, added: 3, skipped: 33, contactsAdded: 2)),
+      ),
+    ),
+  ),
+  DeskShot(id: '25j-dlg-export-csv', title: 'Export CSV', route: DeskRoute.settingsAccount, dialog: showExportCsvDialog),
+  DeskShot(
+    id: '25k-dlg-export-csv-custom',
+    title: 'Export CSV, custom range',
+    route: DeskRoute.settingsAccount,
+    dialog: (c) => showEDialog<void>(c, builder: (_) => const ExportCsvDialog(initial: CsvRange.custom)),
+  ),
   const DeskShot(id: '26-settings-wallets', title: 'Settings, all wallets', route: DeskRoute.settingsWallets),
   const DeskShot(id: '27-settings-phrase', title: 'Recovery phrase', route: DeskRoute.settingsPhrase),
   const DeskShot(id: '27b-settings-phrase-shown', title: 'Recovery phrase, shown', route: DeskRoute.settingsPhrase, arg: PhraseDemo.shown),
@@ -78,8 +122,10 @@ final List<DeskShot> settingsShots = [
   const DeskShot(id: '28-settings-rescan', title: 'Recheck balance', route: DeskRoute.settingsRescan),
   const DeskShot(id: '28b-settings-rescan-running', title: 'Recheck balance, running', route: DeskRoute.settingsRescan, arg: RescanDemo.running),
   const DeskShot(id: '29-settings-about', title: 'About', route: DeskRoute.settingsAbout),
-  const DeskShot(id: '30-settings-help', title: 'Help', route: DeskRoute.settingsHelp),
+  const DeskShot(id: '30-settings-help', title: 'Help', route: DeskRoute.settingsHelp, height: 1000),
   const DeskShot(id: '30b-settings-help-search', title: 'Help, search', route: DeskRoute.settingsHelp, arg: 'file'),
+  const DeskShot(id: '30d-settings-help-open', title: 'Help, a topic open', route: DeskRoute.settingsHelp, arg: HelpDemo.open),
+  const DeskShot(id: '30e-settings-help-bottom', title: 'Help, the end: Tor and Logs', route: DeskRoute.settingsHelp, arg: HelpDemo.bottom),
   DeskShot(
     id: '23g-dlg-internet-guide',
     title: 'Receive from the internet: the guide',
@@ -132,3 +178,10 @@ final List<DeskShot> settingsShots = [
     prepare: (c, _) async => c.read(deskTourProvider.notifier).open(at: 1),
   ),
 ];
+
+/// The mock's backup record for a shot.
+void _backup(ProviderContainer c, HistoryBackupState state) {
+  final api = c.read(deskApiProvider);
+  if (api is MockDeskWallet) api.backup = state;
+  c.invalidate(historyBackupProvider);
+}

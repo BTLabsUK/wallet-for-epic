@@ -18,6 +18,7 @@ library;
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:crypto/crypto.dart';
 import 'package:path_provider/path_provider.dart';
@@ -36,10 +37,14 @@ import '../../secret_store_api.dart';
 import '../../slate_files.dart' show decodeSlateFile, responseFileName, sendFileName;
 import '../../tor_location.dart';
 import '../../wallet_registry.dart' as reg;
+import '../../history/export.dart' show historyCsv, historyDamaged, historyNewer, historyOtherWallet;
+import '../../settings.dart' show HistoryExportSnapshot;
 import '../../wallet_service.dart' as core;
 import 'addresses.dart';
 import 'api.dart';
+import 'backup_reminder.dart';
 import 'desk_store.dart';
+import 'desk_update.dart' show deskAppVersion;
 import 'features.dart';
 import 'http_address.dart';
 import 'models.dart';
@@ -498,6 +503,12 @@ class LepicDeskWallet implements DeskWalletApi {
     }
     await _setMeta({'name': entry.label}, _metaKey(entry.walletId));
     if (_openEntry?.id == id) _openEntry = entry;
+    await writeWalletTxt(
+      entry.isLegacy ? (await _configOf(null)).dataDir : entry.dataDir,
+      label: entry.label,
+      network: _chain,
+      created: _time((await _meta(_metaKey(entry.walletId)))['created']) ?? DateTime.now(),
+    );
   }
 
   @override
@@ -875,6 +886,7 @@ class LepicDeskWallet implements DeskWalletApi {
       }
     }
     _selectedId = listed?.id;
+    await writeWalletTxt(config.dataDir, label: listed?.label ?? label ?? 'Main wallet', network: _chain, created: DateTime.now());
     if (listed != null) {
       try {
         final r = await registry();
@@ -2363,6 +2375,93 @@ class LepicDeskWallet implements DeskWalletApi {
     if (id != null) await _remember.forget(id);
   }
 
+  // ---- History backup (F34) and its reminder (F33). The archive, the sealing and the merge
+  // are the shared ones (`history/`, the core session), so a phone file opens here and back.
+
+  @override
+  Future<HistoryBackupState> historyBackupState() async {
+    final session = _open;
+    final txs = await session.transactions(refresh: false);
+    final meta = await _meta();
+    int? secs(String k) => (meta[k] as num?)?.toInt();
+    final snap = meta['historyExportSnapshot'];
+    final snapshot = snap is Map<String, dynamic> ? HistoryExportSnapshot.fromJson(snap) : null;
+    final exportedAt = secs('historyExportedAt');
+    final now = DateTime.now();
+    var firstSeenAt = secs('historyReminderFirstSeenAt');
+    final unbacked = deskUnbackedPayments(txs, exportedAt: exportedAt, snapshot: snapshot);
+    if (firstSeenAt == null && unbacked > 0) {
+      // The 30 days of a wallet with no export and no dismissal start here.
+      firstSeenAt = now.millisecondsSinceEpoch ~/ 1000;
+      await _setMeta({'historyReminderFirstSeenAt': firstSeenAt});
+    }
+    return HistoryBackupState(
+      lastExport: exportedAt == null ? null : DateTime.fromMillisecondsSinceEpoch(exportedAt * 1000),
+      unbacked: unbacked,
+      reminder: deskPaymentsNotInBackup(
+        txs,
+        now: now,
+        exportedAt: exportedAt,
+        dismissedAt: secs('historyReminderDismissedAt'),
+        firstSeenAt: firstSeenAt,
+        snapshot: snapshot,
+      ),
+      payments: txs.where((t) => !(t.source == core.TxSource.restored && t.note == null)).length,
+      contacts: (await session.contacts()).length,
+      network: _chain,
+    );
+  }
+
+  @override
+  Future<Uint8List> exportHistory() async {
+    try {
+      return await _open.exportHistory();
+    } on core.WalletError catch (e) {
+      logWarn('desk', 'history export: ${e.kind.name}');
+      throw _deskError(e);
+    }
+  }
+
+  @override
+  Future<String> exportHistoryCsv({DateTime? from, DateTime? to}) async {
+    final txs = await _open.transactions(refresh: false);
+    final start = from == null ? null : DateTime(from.year, from.month, from.day).millisecondsSinceEpoch ~/ 1000;
+    final end = to == null ? null : DateTime(to.year, to.month, to.day + 1).millisecondsSinceEpoch ~/ 1000;
+    return historyCsv(
+      [
+        for (final t in txs)
+          if ((start == null || t.timeUnix >= start) && (end == null || t.timeUnix < end)) t,
+      ],
+      _tip > 0 ? BigInt.from(_tip) : null,
+    );
+  }
+
+  @override
+  Future<HistoryImport> importHistory(Uint8List data) async {
+    if (data.length > maxDeskHistoryBytes) throw const HistoryFileError(HistoryFileProblem.tooLarge, 'The file is too large to be one.');
+    try {
+      final r = await _open.importHistory(data: data);
+      logInfo('desk', 'history imported: ${r.merged} merged, ${r.added} added, ${r.contactsAdded} contacts');
+      await _reload();
+      return HistoryImport(merged: r.merged, added: r.added, skipped: r.skipped, contactsAdded: r.contactsAdded);
+    } on core.WalletError catch (e) {
+      logWarn('desk', 'history import refused: ${e.kind.name}');
+      throw historyFileError(e);
+    }
+  }
+
+  @override
+  Future<void> markHistoryExported(DateTime when) async {
+    final txs = await _open.transactions(refresh: false);
+    await _setMeta({
+      'historyExportedAt': when.millisecondsSinceEpoch ~/ 1000,
+      'historyExportSnapshot': HistoryExportSnapshot.of(txs).toJson(),
+    });
+  }
+
+  @override
+  Future<void> dismissHistoryReminder(DateTime when) => _setMeta({'historyReminderDismissedAt': when.millisecondsSinceEpoch ~/ 1000});
+
   // ---- Helpers.
 
   Future<void> _reload() async {
@@ -2435,7 +2534,58 @@ Tx deskTx(core.TxEntry e, {required int tip, required int minConf, required int 
     kernel: e.kernelExcess,
     coinbase: e.kind == core.TxKind.coinbase,
     foundByScan: e.source == core.TxSource.restored,
+    foundDuring: switch (e.foundDuring) {
+      core.TxFoundDuring.restore => FoundDuring.restore,
+      core.TxFoundDuring.rescan => FoundDuring.rescan,
+      null => null,
+    },
+    datedByBlock: e.datedByBlock,
+    fromBackup: e.source == core.TxSource.imported,
     confirmedAt: e.blockTimeUnix == null ? null : DateTime.fromMillisecondsSinceEpoch(e.blockTimeUnix! * 1000),
     detail: e.statusDetail,
   );
+}
+
+/// History backups are small; a file far larger is not one (the phone's limit).
+const int maxDeskHistoryBytes = 32 << 20;
+
+/// A history file the core refused, in the backup design's words (F34).
+Object historyFileError(core.WalletError e) {
+  if (e.kind != core.WalletErrorKind.invalidArgument) return _deskError(e);
+  final m = e.message;
+  final chains = RegExp(r'^This history file is from (\w+), but this wallet is on (\w+)').firstMatch(m);
+  if (chains != null) return HistoryFileError(HistoryFileProblem.otherChain, 'The file is from ${chains[1]}; this wallet is on ${chains[2]}.');
+  return switch (m) {
+    historyOtherWallet => const HistoryFileError(HistoryFileProblem.otherWallet, 'The file was exported from a wallet with a different recovery phrase.'),
+    historyNewer => const HistoryFileError(HistoryFileProblem.newer, 'A newer version of the app made this file. Update the app, then import it.'),
+    historyDamaged => const HistoryFileError(HistoryFileProblem.damaged, 'The file is incomplete or was changed.'),
+    _ => const HistoryFileError(HistoryFileProblem.notOurs, 'The file was not made by Epic Wallet.'),
+  };
+}
+
+/// Writes `WALLET.txt` into the wallet folder [dir] (M19): what the folder is and that it is
+/// not a backup. No address, no id, no path, no secret. A failure is logged, never shown.
+Future<void> writeWalletTxt(String dir, {required String label, required String network, required DateTime created}) async {
+  String two(int v) => v.toString().padLeft(2, '0');
+  final day = '${created.year}-${two(created.month)}-${two(created.day)}';
+  final text = [
+    'Epic Wallet (BT Labs) wallet folder',
+    'Label:     $label',
+    'Network:   $network',
+    'Created:   $day',
+    'App:       $deskAppVersion',
+    '',
+    'wallet.vault    the seed, encrypted with the wallet password (Argon2id)',
+    'wallet.sqlite3  outputs and payment history',
+    '',
+    'This folder is not a backup. Restore with the recovery phrase.',
+    'A copy of this folder is only as safe as the password.',
+    'Payment details and contacts: Settings > This wallet > Export history backup.',
+    '',
+  ].join('\n');
+  try {
+    await File('$dir${Platform.pathSeparator}WALLET.txt').writeAsString(text, flush: true);
+  } on Object catch (e) {
+    logWarn('desk', 'WALLET.txt not written: ${e.runtimeType}');
+  }
 }

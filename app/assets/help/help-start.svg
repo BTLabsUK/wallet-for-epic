@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 96" width="160" height="96" role="img" aria-label="Getting started: a wallet shows its address and QR code; a payment arrives">
+<g stroke="#A4A4AD" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <rect x="70" y="18" width="64" height="60" rx="6"/>
+  <path d="M80 30h26M80 38h18"/>
+  <rect x="106" y="48" width="18" height="18" rx="2"/><rect x="110" y="52" width="4" height="4"/><rect x="118" y="52" width="2" height="2"/><rect x="110" y="60" width="2" height="2"/><rect x="116" y="58" width="4" height="4"/>
+  <path d="M80 50h6v6h-6zM80 62h14"/>
+</g>
+<g stroke="#F6D471" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <circle cx="30" cy="48" r="11"/><path d="M30 41v14M26 44.5h7a2.5 2.5 0 0 1 0 5h-6a2.5 2.5 0 0 0 0 5h7"/>
+  <path d="M44 48h16" stroke-dasharray="3 4"/><path d="M58 44l4 4-4 4"/>
+</g>
+</svg>

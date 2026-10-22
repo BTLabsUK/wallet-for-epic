@@ -162,12 +162,11 @@ class _SettingsRescanScreenState extends ConsumerState<SettingsRescanScreen> {
             rows: [
               if (!_running)
                 ESetRow(
-                  title: 'Recheck balance',
                   text:
                       'Reads the chain again and rebuilds the balance from the outputs found. '
-                      'Use it when the balance looks wrong, after a restore, or when coins stay locked after a failed send. '
+                      'Use it when the balance looks wrong, after a restore, or when outputs stay locked after a failed send. '
                       'The wallet stays usable meanwhile.',
-                  control: EButton.primary(label: _end != null ? 'Start again' : 'Start', icon: EIcons.scan, size: EBtnSize.sm, onPressed: _start),
+                  control: EButton.primary(label: _end != null || _failure != null ? 'Start again' : 'Start', icon: EIcons.scan, size: EBtnSize.sm, onPressed: _start),
                   below: DeskFeatures.rescanRepair
                       ? Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -176,7 +175,7 @@ class _SettingsRescanScreenState extends ConsumerState<SettingsRescanScreen> {
                             Padding(
                               padding: EdgeInsets.only(left: Sp.x8),
                               child: Text(
-                                'Also cancels unconfirmed transactions and unlocks their coins. A payment already on its way may then fail.',
+                                'Also cancels unconfirmed transactions and unlocks their outputs. A payment already on its way may then fail.',
                                 style: ts.caption,
                               ),
                             ),
@@ -186,7 +185,6 @@ class _SettingsRescanScreenState extends ConsumerState<SettingsRescanScreen> {
                 )
               else
                 ESetRow(
-                  title: 'Recheck balance',
                   text: 'Scanning the chain. The wallet stays usable; the balance updates when the scan ends.',
                   stacked: true,
                   control: Column(
@@ -229,6 +227,12 @@ class _SettingsRescanScreenState extends ConsumerState<SettingsRescanScreen> {
     );
   }
 
+  /// The Delete unconfirmed outcome. The core counts outputs, not transactions (a send has
+  /// locked inputs and an unconfirmed change output), so no transaction count is claimed.
+  static String _cancelled(ScanCounts c) => c.unlocked + c.deleted == 0
+      ? 'No unconfirmed transaction was found.'
+      : 'Unconfirmed transactions were cancelled and their outputs unlocked.';
+
   Widget _result(BuildContext context) {
     final finished = _end == _End.finished;
     final counts = _counts;
@@ -245,7 +249,8 @@ class _SettingsRescanScreenState extends ConsumerState<SettingsRescanScreen> {
                 liveRegion: true,
                 child: Text(
                   finished
-                      ? 'The balance is up to date.${counts?.resumed == true ? ' The scan carried on from where it stopped; the counts cover that part.' : ''}'
+                      ? 'The balance is up to date.${_deleted && counts != null ? ' ${_cancelled(counts)}' : ''}'
+                            '${counts?.resumed == true ? ' The scan carried on from where it stopped; the counts cover that part.' : ''}'
                       : 'Stopped before the end. The balance was read again; start again to carry on.'
                             '${_deleted ? ' Unconfirmed transactions were not deleted: that runs only when a scan completes.' : ''}',
                   style: context.ts.bodyDim,

@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 96" width="160" height="96" role="img" aria-label="Keeping the wallet safe: the recovery phrase on paper, and a lock">
+<g stroke="#A4A4AD" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M34 14h40l14 14v54H34z"/><path d="M74 14v14h14"/>
+  <path d="M44 40h6M54 40h18M44 50h6M54 50h14M44 60h6M54 60h20M44 70h6M54 70h12"/>
+</g>
+<g stroke="#F6D471" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <rect x="104" y="46" width="30" height="24" rx="4"/><path d="M110 46v-8a9 9 0 0 1 18 0v8"/><circle cx="119" cy="58" r="2.5"/><path d="M119 60.5v4"/>
+</g>
+</svg>
