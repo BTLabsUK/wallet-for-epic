@@ -4,6 +4,7 @@
 #include <flutter_windows.h>
 
 #include "resource.h"
+#include "window_placement.h"
 
 namespace {
 
@@ -121,24 +122,19 @@ Win32Window::~Win32Window() {
 }
 
 bool Win32Window::Create(const std::wstring& title,
-                         const Point& origin,
-                         const Size& size) {
+                         const RECT& frame,
+                         bool maximized) {
   Destroy();
 
   const wchar_t* window_class =
       WindowClassRegistrar::GetInstance()->GetWindowClass();
 
-  const POINT target_point = {static_cast<LONG>(origin.x),
-                              static_cast<LONG>(origin.y)};
-  HMONITOR monitor = MonitorFromPoint(target_point, MONITOR_DEFAULTTONEAREST);
-  UINT dpi = FlutterDesktopGetDpiForMonitor(monitor);
-  double scale_factor = dpi / 96.0;
-
+  start_maximized_ = maximized;
+  normal_frame_ = frame;
   HWND window = CreateWindow(
-      window_class, title.c_str(), WS_OVERLAPPEDWINDOW,
-      Scale(origin.x, scale_factor), Scale(origin.y, scale_factor),
-      Scale(size.width, scale_factor), Scale(size.height, scale_factor),
-      nullptr, nullptr, GetModuleHandle(nullptr), this);
+      window_class, title.c_str(), WS_OVERLAPPEDWINDOW, frame.left, frame.top,
+      frame.right - frame.left, frame.bottom - frame.top, nullptr, nullptr,
+      GetModuleHandle(nullptr), this);
 
   if (!window) {
     return false;
@@ -150,7 +146,9 @@ bool Win32Window::Create(const std::wstring& title,
 }
 
 bool Win32Window::Show() {
-  return ShowWindow(window_handle_, SW_SHOWNORMAL);
+  const int show = start_maximized_ ? SW_SHOWMAXIMIZED : SW_SHOWNORMAL;
+  start_maximized_ = false;
+  return ShowWindow(window_handle_, show);
 }
 
 // static
@@ -158,6 +156,12 @@ LRESULT CALLBACK Win32Window::WndProc(HWND const window,
                                       UINT const message,
                                       WPARAM const wparam,
                                       LPARAM const lparam) noexcept {
+  // Sent before WM_NCCREATE too, so handled here for every window.
+  if (message == WM_GETMINMAXINFO) {
+    auto info = reinterpret_cast<MINMAXINFO*>(lparam);
+    info->ptMinTrackSize = MinimumWindowSize(window);
+    return 0;
+  }
   if (message == WM_NCCREATE) {
     auto window_struct = reinterpret_cast<CREATESTRUCT*>(lparam);
     SetWindowLongPtr(window, GWLP_USERDATA,
@@ -180,6 +184,8 @@ Win32Window::MessageHandler(HWND hwnd,
                             LPARAM const lparam) noexcept {
   switch (message) {
     case WM_DESTROY:
+      // Also saved as it changes: Quit (Ctrl+Q) ends the process without a WM_DESTROY.
+      SaveWindowPlacement(hwnd, normal_frame_);
       window_handle_ = nullptr;
       Destroy();
       if (quit_on_close_) {
@@ -197,7 +203,29 @@ Win32Window::MessageHandler(HWND hwnd,
 
       return 0;
     }
+    case WM_ENTERSIZEMOVE:
+      in_size_move_ = true;
+      break;
+
+    case WM_EXITSIZEMOVE:
+      in_size_move_ = false;
+      SaveWindowPlacement(hwnd, normal_frame_);
+      break;
+
+    case WM_MOVE:
+      if (!IsZoomed(hwnd) && !IsIconic(hwnd)) {
+        GetWindowRect(hwnd, &normal_frame_);
+      }
+      break;
+
     case WM_SIZE: {
+      if (wparam == SIZE_RESTORED) {
+        GetWindowRect(hwnd, &normal_frame_);
+      }
+      // Maximise, restore, snap: saved at once, while visible (not during Create).
+      if (!in_size_move_ && wparam != SIZE_MINIMIZED && IsWindowVisible(hwnd)) {
+        SaveWindowPlacement(hwnd, normal_frame_);
+      }
       RECT rect = GetClientArea();
       if (child_content_ != nullptr) {
         // Size and position the child window.
