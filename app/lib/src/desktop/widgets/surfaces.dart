@@ -22,6 +22,7 @@ class EPanel extends StatelessWidget {
     this.foot,
     this.padding,
     this.scroll = false,
+    this.expand = false,
     this.strong = false,
   });
 
@@ -40,6 +41,10 @@ class EPanel extends StatelessWidget {
   /// (a column of a [PanelRow] under a bounded height). Needs a bounded height.
   final bool scroll;
 
+  /// The body fills the panel's height (needs a bounded height), so its last item can sit at
+  /// the bottom: cards side by side with their buttons on one line.
+  final bool expand;
+
   /// The stronger edge of a selected item's pane.
   final bool strong;
 
@@ -47,7 +52,9 @@ class EPanel extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.dc;
     final pad = (padding ?? EdgeInsets.symmetric(horizontal: Sp.x6, vertical: Sp.x5)).resolve(Directionality.of(context));
-    final body = scroll ? Flexible(child: SingleChildScrollView(padding: pad, child: child)) : Padding(padding: pad, child: child);
+    final body = scroll
+        ? Flexible(child: SingleChildScrollView(padding: pad, child: child))
+        : (expand ? Expanded(child: Padding(padding: pad, child: child)) : Padding(padding: pad, child: child));
     final hasHead = head != null || title != null;
     return Container(
       clipBehavior: scroll ? Clip.antiAlias : Clip.none,

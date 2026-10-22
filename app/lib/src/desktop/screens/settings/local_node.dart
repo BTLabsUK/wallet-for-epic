@@ -147,17 +147,18 @@ class _LocalNodePanelState extends ConsumerState<LocalNodePanel> {
     final noBinary = s.phase == LocalNodePhase.error && s.failure == NodeFailure.binaryMissing;
     final controls = <Widget>[
       if (!running && !noBinary)
-        EButton.primary(
-          label: 'Start',
-          icon: Icons.play_arrow_rounded,
-          size: EBtnSize.sm,
-          busy: _busy == 'start',
-          onPressed: _busy == null ? () => _run('start', api.start) : null,
+        ERowControl(
+          child: EButton.primary(
+            label: 'Start',
+            icon: Icons.play_arrow_rounded,
+            size: EBtnSize.sm,
+            busy: _busy == 'start',
+            onPressed: _busy == null ? () => _run('start', api.start) : null,
+          ),
         ),
       if (running) ...[
-        EButton(label: 'Stop', icon: EIcons.stop, size: EBtnSize.sm, busy: _busy == 'stop', onPressed: _busy == null ? () => _run('stop', api.stop) : null),
-        SizedBox(width: Sp.x2),
-        EButton(label: 'Restart', icon: EIcons.refresh, size: EBtnSize.sm, busy: _busy == 'restart', onPressed: _busy == null ? () => _run('restart', api.restart) : null),
+        ERowControl(child: EButton(label: 'Stop', icon: EIcons.stop, size: EBtnSize.sm, busy: _busy == 'stop', onPressed: _busy == null ? () => _run('stop', api.stop) : null)),
+        ERowControl(child: EButton(label: 'Restart', icon: EIcons.refresh, size: EBtnSize.sm, busy: _busy == 'restart', onPressed: _busy == null ? () => _run('restart', api.restart) : null)),
       ],
     ];
 
@@ -196,8 +197,14 @@ class _LocalNodePanelState extends ConsumerState<LocalNodePanel> {
                     value: _tab,
                     onChanged: (t) => setState(() => _tab = t),
                   ),
-                  const Spacer(),
-                  ...controls,
+                  SizedBox(width: Sp.x3),
+                  // Row buttons at the card's right edge; under each other when the card is narrow.
+                  Expanded(
+                    child: Align(
+                      alignment: AlignmentDirectional.centerEnd,
+                      child: Wrap(alignment: WrapAlignment.end, spacing: Sp.x2, runSpacing: Sp.x2, children: controls),
+                    ),
+                  ),
                 ],
               ),
               SizedBox(height: Sp.x4),
@@ -220,13 +227,15 @@ class _LocalNodePanelState extends ConsumerState<LocalNodePanel> {
           control: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              EButton(
-                label: 'Change…',
-                size: EBtnSize.sm,
-                onPressed: () async {
-                  final url = await showFallbackPickerDialog(context, current: choice?.nodeUrl ?? defaultFallbackNodeUrl);
-                  if (url != null) await ref.read(deskFallbackProvider.notifier).node(url);
-                },
+              ERowControl(
+                child: EButton(
+                  label: 'Change…',
+                  size: EBtnSize.sm,
+                  onPressed: () async {
+                    final url = await showFallbackPickerDialog(context, current: choice?.nodeUrl ?? defaultFallbackNodeUrl);
+                    if (url != null) await ref.read(deskFallbackProvider.notifier).node(url);
+                  },
+                ),
               ),
               SizedBox(width: Sp.x3),
               ESwitch(value: accepted, semanticLabel: 'Use $fallback while syncing', onChanged: (v) => ref.read(deskFallbackProvider.notifier).answer(v)),
@@ -237,10 +246,10 @@ class _LocalNodePanelState extends ConsumerState<LocalNodePanel> {
         ESetRow(
           title: 'Data folder',
           stacked: true,
-          control: Row(
-            children: [
-              Expanded(
-                child: Column(
+          // The path with the two row buttons beside it, or under it when they leave it too little room.
+          control: LayoutBuilder(
+            builder: (context, box) {
+              final info = Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     EMiddleEllipsis(s.dataFolder, style: ts.mono(size: Fs.sm, color: c.text)),
@@ -250,40 +259,55 @@ class _LocalNodePanelState extends ConsumerState<LocalNodePanel> {
                       style: ts.caption.copyWith(color: c.dim),
                     ),
                   ],
+              );
+              final buttons = Wrap(
+                spacing: Sp.x2,
+                runSpacing: Sp.x2,
+                children: [
+              ERowControl(
+                child: EButton(
+                  label: 'Open',
+                  size: EBtnSize.sm,
+                  onPressed: () async {
+                    final ok = await ref.read(deskOpenFolderProvider)(s.dataFolder);
+                    if (!ok && context.mounted) showEToast(context, 'Folder not opened', text: s.dataFolder);
+                  },
                 ),
               ),
-              SizedBox(width: Sp.x3),
-              EButton(
-                label: 'Open',
-                size: EBtnSize.sm,
-                onPressed: () async {
-                  final ok = await ref.read(deskOpenFolderProvider)(s.dataFolder);
-                  if (!ok && context.mounted) showEToast(context, 'Folder not opened', text: s.dataFolder);
-                },
-              ),
-              SizedBox(width: Sp.x2),
-              EButton(label: 'Change…', size: EBtnSize.sm, onPressed: _moving == null ? () => _changeFolder(s) : null),
-            ],
+              ERowControl(child: EButton(label: 'Change…', size: EBtnSize.sm, onPressed: _moving == null ? () => _changeFolder(s) : null)),
+                ],
+              );
+              if (box.maxWidth - 2 * Ctl.rowW - Sp.x2 - Sp.x3 >= 240.u) {
+                return Row(children: [Expanded(child: info), SizedBox(width: Sp.x3), buttons]);
+              }
+              return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [info, SizedBox(height: Sp.x3), buttons]);
+            },
           ),
         ),
         Divider(height: 1, thickness: 1, color: c.line),
-        ESetRow(
+        // Two row buttons: under the text when the card leaves the words too little room.
+        LayoutBuilder(
+          builder: (context, box) => ESetRow(
           title: 'Chain data',
+          stacked: box.maxWidth < 720.u,
           text: s.chainDataOrigin == ChainDataOrigin.pointed
               ? 'This node reads another program’s folder; delete it there.'
               : 'Use chain data another Epic node left on this computer, or delete this node’s data and download the chain again.',
-          control: Row(
-            mainAxisSize: MainAxisSize.min,
+          control: Wrap(
+            spacing: Sp.x2,
+            runSpacing: Sp.x2,
             children: [
-              EButton(label: 'Reuse existing…', size: EBtnSize.sm, onPressed: () => showReuseChainDataDialog(context, api)),
-              SizedBox(width: Sp.x2),
-              EButton(
-                label: 'Delete…',
-                size: EBtnSize.sm,
-                onPressed: s.chainDataOrigin == ChainDataOrigin.pointed ? null : () => showDeleteChainDataDialog(context, api, s),
+              ERowControl(child: EButton(label: 'Reuse existing…', size: EBtnSize.sm, onPressed: () => showReuseChainDataDialog(context, api))),
+              ERowControl(
+                child: EButton(
+                  label: 'Delete…',
+                  size: EBtnSize.sm,
+                  onPressed: s.chainDataOrigin == ChainDataOrigin.pointed ? null : () => showDeleteChainDataDialog(context, api, s),
+                ),
               ),
             ],
           ),
+        ),
         ),
       ],
     );
@@ -543,7 +567,7 @@ class _StatusTab extends StatelessWidget {
           children: [
             Expanded(child: Text(meta, style: ts.small.copyWith(color: c.dim), overflow: TextOverflow.ellipsis)),
             SizedBox(width: Sp.x3),
-            EButton(label: 'View node log', icon: EIcons.log, size: EBtnSize.sm, onPressed: onLog),
+            ERowControl(child: EButton(label: 'View node log', icon: EIcons.log, size: EBtnSize.sm, onPressed: onLog)),
           ],
         ),
         if (s.userToml) ...[

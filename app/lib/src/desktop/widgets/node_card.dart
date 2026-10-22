@@ -220,9 +220,11 @@ class _Fact extends StatelessWidget {
     return Semantics(
       label: '$label: $value${sub == null ? '' : ', $sub'}',
       excludeSemantics: true,
-      child: SizedBox(
-        height: 60.u,
+      // At least 60 u; taller rather than cut when a large scale makes the text taller.
+      child: ConstrainedBox(
+        constraints: BoxConstraints(minHeight: 60.u),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(label, style: ts.caption.copyWith(color: c.faint), maxLines: 1, overflow: TextOverflow.ellipsis),

@@ -134,35 +134,39 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
     final long = all.length > _longList;
     final count = q.isEmpty ? '${all.length} contacts' : (shown.isEmpty ? 'No matches' : (shown.length == 1 ? '1 match' : '${shown.length} matches'));
 
-    final list = Container(
-      decoration: panel,
+    // The search in the list's header band, level with the detail's (docs/plans/w7-layout.md R2).
+    final list = EPanel(
+      padding: EdgeInsets.zero,
+      head: Padding(
+        padding: EdgeInsetsDirectional.only(end: Sp.x3),
+        child: CallbackShortcuts(
+          bindings: {
+            const SingleActivator(LogicalKeyboardKey.escape): () {
+              if (_query.text.isNotEmpty) setState(_query.clear);
+            },
+          },
+          child: EInput(
+            size: EBtnSize.sm,
+            controller: _query,
+            hint: 'Name or address',
+            leading: EIcons.search,
+            semanticLabel: 'Search contacts',
+            onChanged: (_) => setState(() {}),
+            trailing: _query.text.isEmpty
+                ? null
+                : EIconButton(icon: EIcons.close, label: 'Clear search', size: EBtnSize.inline, onPressed: () => setState(_query.clear)),
+          ),
+        ),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          if (long) ...[
           Padding(
             padding: EdgeInsets.all(Sp.x3),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                CallbackShortcuts(
-                  bindings: {
-                    const SingleActivator(LogicalKeyboardKey.escape): () {
-                      if (_query.text.isNotEmpty) setState(_query.clear);
-                    },
-                  },
-                  child: EInput(
-                    controller: _query,
-                    hint: 'Name or address',
-                    leading: EIcons.search,
-                    semanticLabel: 'Search contacts',
-                    onChanged: (_) => setState(() {}),
-                    trailing: _query.text.isEmpty
-                        ? null
-                        : EIconButton(icon: EIcons.close, label: 'Clear search', size: EBtnSize.inline, onPressed: () => setState(_query.clear)),
-                  ),
-                ),
-                if (long) ...[
-                  SizedBox(height: Sp.x3),
                   Wrap(
                     alignment: WrapAlignment.spaceBetween,
                     crossAxisAlignment: WrapCrossAlignment.center,
@@ -177,11 +181,11 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
                       ),
                     ],
                   ),
-                ],
               ],
             ),
           ),
           Divider(height: 1, color: c.line),
+          ],
           if (shown.isEmpty && _query.text.isEmpty)
             Padding(
               padding: EdgeInsets.all(Sp.x5),
@@ -236,9 +240,10 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
               sideFirst: true,
               sideWidth: 340.u,
               side: list,
-              main: Container(
+              // A header band like the list's: what the pane shows.
+              main: EPanel(
+                    title: _adding ? 'New contact' : (_editing ? 'Edit contact' : 'Details'),
                     padding: EdgeInsets.all(Sp.x6),
-                    decoration: panel,
                     child: paneOpen
                         ? Align(
                             alignment: Alignment.topLeft,

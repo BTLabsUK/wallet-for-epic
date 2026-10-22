@@ -5,6 +5,7 @@ import 'dart:io';
 
 import 'package:epic_wallet/src/desktop/app/desk_app.dart';
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
+import 'package:epic_wallet/src/desktop/screens/settings/settings_node.dart' show NodeDemo;
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -193,14 +194,32 @@ void main() {
         expect(a.top, moreOrLessEquals(b.top, epsilon: 0.5));
         expect(a.bottom, moreOrLessEquals(b.bottom, epsilon: 0.5));
         expect(a.right, lessThan(b.left), reason: 'the list comes first, at the start');
+        _expectOneUnit(tester, 'Contacts, $at');
+        expect(tester.takeException(), isNull);
+        await _done(tester);
+      });
+
+      testWidgets('Outputs: Split and Consolidate buttons on one line, one size, $at', (tester) async {
+        await _pump(tester, size, scale, DeskRoute.outputs);
+        final split = tester.getRect(find.widgetWithText(EButton, 'Split…'));
+        final cons = tester.getRect(find.widgetWithText(EButton, 'Consolidate…'));
+        expect(split.size.width, moreOrLessEquals(cons.size.width, epsilon: 0.5));
+        expect(split.size.height, moreOrLessEquals(cons.size.height, epsilon: 0.5));
+        // Side by side from 860 u of page: one line. Stacked below that.
+        if (split.right < cons.left) {
+          expect(split.top, moreOrLessEquals(cons.top, epsilon: 0.5), reason: 'side by side: one line');
+        } else {
+          expect(cons.top, greaterThan(split.bottom), reason: 'stacked');
+        }
+        if (size.width == 1920) expect(split.right, lessThan(cons.left), reason: 'side by side at $at');
         expect(tester.takeException(), isNull);
         await _done(tester);
       });
 
       testWidgets('Settings row controls share sizes and edges, $at', (tester) async {
-        for (final route in _settingsPages) {
-          await _pump(tester, size, scale, route);
-          _expectRowControls(tester, '${route.name}, $at');
+        for (final (route, arg) in [for (final r in _settingsPages) (r, null), (DeskRoute.settingsNode, null), (DeskRoute.settingsNode, NodeDemo.builtin)]) {
+          await _pump(tester, size, scale, route, arg: arg);
+          _expectRowControls(tester, '${route.name} ${arg ?? ''}, $at');
           expect(tester.takeException(), isNull, reason: route.name);
           await _done(tester);
         }
