@@ -36,7 +36,11 @@ Future<HttpReply> _send(
   List<int>? body,
   Duration timeout,
 ) async {
-  final client = HttpClient()..connectionTimeout = timeout;
+  // No User-Agent (Dart's default names Dart and its version) and no cookie jar: a request
+  // looks like any other client's.
+  final client = HttpClient()
+    ..connectionTimeout = timeout
+    ..userAgent = null;
   try {
     return await () async {
       final request = await client.openUrl(method, url);

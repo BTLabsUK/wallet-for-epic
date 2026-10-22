@@ -173,7 +173,7 @@ List<HelpTopic> helpTopicsFor(int confirmations) => <HelpTopic>[
     'A node connects the wallet to the Epic Cash network. A public node is quickest; a local one is your own.',
     [
       HelpBlock.p('The wallet needs a node to read the blockchain (the balance and confirmations) and to post transactions to the network.'),
-      HelpBlock.ul(['**Public node** (the default): such as node.btlabs.uk. It works right away. Whoever runs it can see the wallet\'s IP address and which outputs it asks about.', '**Local node**: runs on this computer. It first downloads the whole blockchain, which takes a while and needs disk space, and then it is yours. While it syncs, the wallet uses a public node.']),
+      HelpBlock.ul(['**Public node** (the default): one of the public nodes others run. It works right away. Whoever runs it can see the wallet\'s IP address and which outputs it asks about.', '**Local node**: runs on this computer. It first downloads the whole blockchain, which takes a while and needs disk space, and then it is yours. While it syncs, the wallet uses a public node.']),
       HelpBlock.p('Change it in [[Settings › Node]]: pick one of the public nodes, which are listed with their state, or type a node\'s address. Sending needs a synced node; if the node falls behind, the wallet offers another one.'),
     ],
   ),

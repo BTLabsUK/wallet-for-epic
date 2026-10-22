@@ -15,6 +15,7 @@ import 'local_node.dart';
 import 'local_node_dialogs.dart' show showReuseChainDataDialog, fallbackAskedThisSession;
 import 'prefs.dart';
 import 'settings_frame.dart';
+import 'settings_privacy.dart';
 
 /// Start states of Settings › Node. [behind], [old], [limited] and [down] put the node card
 /// in that state through the mock node layer (the tour); [builtin] shows the local node panel.
@@ -447,6 +448,7 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
               ],
             ),
           ),
+          const PrivacyGroup(),
         ],
       ),
     );

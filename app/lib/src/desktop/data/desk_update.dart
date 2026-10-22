@@ -8,11 +8,12 @@ library;
 
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
+import 'dart:io' show Platform;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app_log.dart';
+import '../../net/http.dart';
 import '../../updater.dart' show updateManifestUrl;
 
 /// This build's version, without the build id (pubspec's version); the sidebar, About and
@@ -48,15 +49,10 @@ class DeskUpdateState {
 /// The manifest's HTTP status and body; tests replace it.
 typedef ManifestFetch = Future<(int, String)> Function(Uri url);
 
+/// A plain GET ([httpGet]): no User-Agent, no cookies, nothing about this wallet.
 Future<(int, String)> _fetch(Uri url) async {
-  final client = HttpClient()..connectionTimeout = const Duration(seconds: 15);
-  try {
-    final response = await (await client.getUrl(url)).close().timeout(const Duration(seconds: 30));
-    final body = await response.transform(utf8.decoder).join().timeout(const Duration(seconds: 30));
-    return (response.statusCode, body);
-  } finally {
-    client.close(force: true);
-  }
+  final reply = await httpGet(url, timeout: const Duration(seconds: 30));
+  return (reply.status, reply.body);
 }
 
 final deskManifestFetchProvider = Provider<ManifestFetch>((ref) => _fetch);
@@ -114,10 +110,9 @@ class DeskUpdateController extends Notifier<DeskUpdateState> {
   }
 
   DeskUpdateState _read(int status, String body) {
-    if (status == HttpStatus.notFound) {
-      return const DeskUpdateState(DeskUpdatePhase.failed, reason: 'No update information is published yet.');
-    }
-    if (status != HttpStatus.ok) return DeskUpdateState(DeskUpdatePhase.failed, reason: 'The update server answered $status.');
+    // No manifest published: nothing newer is known, which is no error.
+    if (status == 404) return const DeskUpdateState(DeskUpdatePhase.latest);
+    if (status != 200) return DeskUpdateState(DeskUpdatePhase.failed, reason: 'The update server answered $status.');
     final Object? json;
     try {
       json = jsonDecode(body);

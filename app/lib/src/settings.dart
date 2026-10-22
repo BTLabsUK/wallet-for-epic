@@ -11,6 +11,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'app_log.dart';
 import 'l10n.dart' show appLanguages;
 import 'providers.dart';
+import 'relay_directory.dart' show statusSite;
+import 'secret_store.dart';
 import 'wallet_service.dart' show Chain, TxEntry, TxSource, TxStatus;
 
 /// What a history backup export held, beyond its time: the payments still pending then, and a
@@ -111,9 +113,14 @@ class AppSettings {
     this.historyExportSnapshots = const {},
     this.language,
     this.advancedOptions = false,
+    this.useStatusSite = true,
   });
 
   final ThemeMode themeMode;
+
+  /// Server health and node lists from status.btlabs.uk (`statusSite`). Off, only the servers
+  /// themselves are asked.
+  final bool useStatusSite;
 
   /// Show the technical controls: node, relay, block heights, transport, files and logs.
   /// Off by default, so the simple path never mentions them.
@@ -169,6 +176,7 @@ class AppSettings {
     Map<String, HistoryExportSnapshot>? historyExportSnapshots,
     String? Function()? language,
     bool? advancedOptions,
+    bool? useStatusSite,
   }) => AppSettings(
     themeMode: themeMode ?? this.themeMode,
     fiatCurrency: fiatCurrency ?? this.fiatCurrency,
@@ -187,8 +195,14 @@ class AppSettings {
         historyExportSnapshots ?? this.historyExportSnapshots,
     language: language != null ? language() : this.language,
     advancedOptions: advancedOptions ?? this.advancedOptions,
+    useStatusSite: useStatusSite ?? this.useStatusSite,
   );
 }
+
+/// The saved Use status.btlabs.uk choice, read before the first screen (`main.dart`), so an
+/// opted-out phone never asks the site while its settings load.
+Future<bool> readUseStatusSite(SecretStore store) async =>
+    await store.read(AppSettingsNotifier.statusSiteKey) != 'false';
 
 final appSettingsProvider =
     AsyncNotifierProvider<AppSettingsNotifier, AppSettings>(
@@ -204,6 +218,7 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
   static const String _pushKey = 'app.push';
   static const String _languageKey = 'app.language';
   static const String _advancedKey = 'app.advanced';
+  static const String statusSiteKey = 'app.status_site';
   static String _exportedKey(Chain chain) =>
       'app.history_exported.${chain.name}';
   static String _dismissedKey(Chain chain) =>
@@ -226,6 +241,8 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
     final push = await store.read(_pushKey);
     final language = await store.read(_languageKey);
     final advanced = await store.read(_advancedKey);
+    final site = await store.read(statusSiteKey) != 'false';
+    statusSite.on = site;
     Future<Map<String, int>> perChain(String Function(Chain) key) async => {
       for (final chain in Chain.values)
         chain.name: ?int.tryParse(await store.read(key(chain)) ?? ''),
@@ -276,6 +293,7 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
       advancedOptions: advanced == null
           ? defaults.advancedOptions
           : advanced == 'true',
+      useStatusSite: site,
     );
   }
 
@@ -309,6 +327,12 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
     '$on',
     (await _current()).copyWith(advancedOptions: on),
   );
+
+  /// Settings › Privacy › Use status.btlabs.uk; applies at once ([statusSite]).
+  Future<void> setUseStatusSite(bool on) async {
+    statusSite.on = on;
+    await _put(statusSiteKey, '$on', (await _current()).copyWith(useStatusSite: on));
+  }
 
   Future<void> setAutoLockMinutes(int? minutes) async => _put(
     _autoLockKey,

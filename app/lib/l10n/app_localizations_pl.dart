@@ -3479,6 +3479,16 @@ class AppLocalizationsPl extends AppLocalizations {
       'Sieć, węzeł, serwer epicbox, pliki i dzienniki';
 
   @override
+  String get settingsSectionPrivacy => 'Prywatność';
+
+  @override
+  String get settingsUseStatusSite => 'Używaj status.btlabs.uk';
+
+  @override
+  String get settingsUseStatusSiteSubtitle =>
+      'Stan serwerów i listy węzłów. Wyłączone: pytane są tylko same serwery.';
+
+  @override
   String get txStepStarted => 'Rozpoczęto płatność';
 
   @override

@@ -240,7 +240,7 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
                   return ComboOption(value: d, host: d, sub: 'not in the public list', tone: ETone.neutral);
                 },
                 typedNote: (_) => 'Enter uses it. Its status shows once the wallet connects.',
-                listNote: 'State from status.btlabs.uk, checked every few minutes.',
+                listNote: st.settings.useStatusSite ? 'State from status.btlabs.uk, checked every few minutes.' : null,
                 onPicked: _switch,
               ),
             ),

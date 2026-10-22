@@ -381,7 +381,8 @@ class _RelayPicker extends ConsumerWidget {
         ),
         switch (status) {
           AsyncLoading() => const LinearProgressIndicator(),
-          AsyncError() => Text(l.setupRelayHealthUnavailable, style: small),
+          // Turned off in Settings › Privacy: nothing to explain.
+          AsyncError() when ref.watch(useStatusSiteProvider) => Text(l.setupRelayHealthUnavailable, style: small),
           // Only under servers the monitor actually measured.
           _ when preset.statusChain != null && listed.isNotEmpty => Text(
             l.setupRelayHealthSource,

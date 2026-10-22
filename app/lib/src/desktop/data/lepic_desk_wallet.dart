@@ -142,7 +142,9 @@ class LepicDeskWallet implements DeskWalletApi {
          secrets: _secrets,
          dir: rememberDir ?? () async => Directory('${(await getApplicationSupportDirectory()).path}${Platform.pathSeparator}remember'),
          now: now,
-       );
+       ) {
+    statusSite.addListener(_statusSiteChanged);
+  }
 
   /// Passwords remembered on this computer, per wallet (F6).
   final RememberedPasswords _remember;
@@ -335,6 +337,16 @@ class LepicDeskWallet implements DeskWalletApi {
 
   void _changed() {
     if (!_changes.isClosed) _changes.add(null);
+  }
+
+  /// Settings › Privacy › Use status.btlabs.uk changed: what the site gave is dropped (off) or
+  /// read again (on); the lists reload.
+  void _statusSiteChanged() {
+    _dirNodes = null;
+    _dirNodesAt = null;
+    _boxes = null;
+    _boxesAt = null;
+    _changed();
   }
 
   // ---- Config and saved wallet data.
@@ -1605,6 +1617,7 @@ class LepicDeskWallet implements DeskWalletApi {
           .nodes(chain)
           .timeout(nodeTimeout)
           .then((list) {
+            if (!statusSite.on) return;
             _dirNodes = list;
             _changed();
           }, onError: (Object e) => logWarn('desk', 'node directory: ${e.runtimeType}'))
@@ -1623,6 +1636,7 @@ class LepicDeskWallet implements DeskWalletApi {
     if (_boxes != null && at != null && DateTime.now().difference(at) < const Duration(minutes: 5)) return _boxes!;
     try {
       final listed = await dir.relays(preset.statusChain!).timeout(nodeTimeout);
+      if (!statusSite.on) return deskEpicboxes;
       _boxes = [
         for (final r in mergePublicRelays(listed))
           EpicboxServer(
@@ -2606,6 +2620,7 @@ class LepicDeskWallet implements DeskWalletApi {
 
   /// Stops background work for good (the app is closing).
   Future<void> dispose() async {
+    statusSite.removeListener(_statusSiteChanged);
     await lock();
     await _node?.stop();
     await _changes.close();
