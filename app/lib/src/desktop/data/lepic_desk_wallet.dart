@@ -46,6 +46,10 @@ final List<NodeServer> deskPublicNodes = [
 ];
 
 /// Built-in public Epicbox servers, the default first; status.btlabs.uk can add more.
+/// The Epicbox server 0.1.0 used when none was saved (the desktop's first relay then). An
+/// install with a wallet keeps it (D-13); see [LepicDeskWallet._settleRelay].
+const String oldDefaultEpicboxHost = 'epicbox.stackwallet.com';
+
 final List<EpicboxServer> deskEpicboxes = [
   for (final r in builtInRelays) EpicboxServer(domain: r.relay.host, port: r.relay.port, operator: r.operator, health: ServiceHealth.checking),
 ];
@@ -245,8 +249,43 @@ class LepicDeskWallet implements DeskWalletApi {
   Future<String> _nodeUrl() async => await _secrets.read(_nodeKey) ?? preset.nodeUrl;
 
   Future<EpicboxRelay> _relay() async {
+    await (_relaySettled ??= _settleRelay());
     final saved = await _secrets.read(_relayKey);
     return (saved == null ? null : EpicboxRelay.parse(saved)) ?? EpicboxRelay(host: deskEpicboxes.first.domain);
+  }
+
+  Future<void>? _relaySettled;
+
+  /// Once per run: an install that never saved its Epicbox server keeps the one 0.1.0 used
+  /// ([oldDefaultEpicboxHost]) when it already holds a wallet, since the server is part of the
+  /// wallet's address; only an install without a wallet starts on the new default (D-13). The
+  /// choice is saved either way, so a wallet made later keeps it too.
+  Future<void> _settleRelay() async {
+    try {
+      if (await _secrets.read(_relayKey) != null) return;
+      final host = await _hadWallet() ? oldDefaultEpicboxHost : deskEpicboxes.first.domain;
+      await _secrets.write(_relayKey, EpicboxRelay(host: host).label);
+      logInfo('desk', 'epicbox server settled: $host');
+    } on Object catch (e) {
+      // Not saved: the next run tries again; this one uses the default.
+      logWarn('desk', 'epicbox server not settled: ${e.runtimeType}');
+    }
+  }
+
+  /// Whether a wallet was made before this run: the first wallet's folder, or any entry in
+  /// `wallets.json` (read directly: [registry] needs [_relay]). An unreadable list counts as one.
+  Future<bool> _hadWallet() async {
+    final first = await _walletDir(preset.chain);
+    if (await _service.walletExists(config: preset.config(dataDir: first, nodeUrl: preset.nodeUrl))) return true;
+    final root = _registryGiven?.root ?? Directory(first).parent.parent.path;
+    final file = File('$root${Platform.pathSeparator}${reg.WalletRegistry.fileName}');
+    if (!await file.exists()) return false;
+    try {
+      final json = jsonDecode(await file.readAsString());
+      return json is! Map || json['wallets'] is! List || (json['wallets'] as List).isNotEmpty;
+    } on Object {
+      return true;
+    }
   }
 
   /// The config of [entry]; null is the first wallet. The first wallet's folder is exactly

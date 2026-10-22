@@ -220,6 +220,38 @@ void main() {
     });
   });
 
+  group('the Epicbox server of an install that never saved one (D-13)', () {
+    test('a wallet in the first folder keeps the server 0.1.0 used, and it is saved', () async {
+      service.existingWallets.add(await walletDir(core.Chain.mainnet));
+      expect((await wallet.status()).epicbox.domain, 'epicbox.stackwallet.com');
+      expect(secrets.values['app.relay.mainnet'], 'epicbox.stackwallet.com');
+    });
+
+    test('a wallet in wallets.json keeps it too', () async {
+      await wallet.createWallet(name: 'Main', password: _password);
+      await wallet.createWallet(name: 'Second', password: _password);
+      secrets.values.remove('app.relay.mainnet');
+      service.existingWallets.remove(await walletDir(core.Chain.mainnet));
+      final again = make(service);
+      addTearDown(again.dispose);
+      expect((await again.status()).epicbox.domain, 'epicbox.stackwallet.com');
+    });
+
+    test('a fresh install starts on the new default and keeps it once a wallet exists', () async {
+      expect((await wallet.status()).epicbox.domain, 'epicbox.epiccash.com');
+      await wallet.createWallet(name: 'Main', password: _password);
+      final again = make(service);
+      addTearDown(again.dispose);
+      expect((await again.status()).epicbox.domain, 'epicbox.epiccash.com');
+    });
+
+    test('a saved server is left alone', () async {
+      secrets.values['app.relay.mainnet'] = 'epicbox.epicnet.us';
+      service.existingWallets.add(await walletDir(core.Chain.mainnet));
+      expect((await wallet.status()).epicbox.domain, 'epicbox.epicnet.us');
+    });
+  });
+
   group('reading', () {
     setUp(created);
 
@@ -265,6 +297,7 @@ void main() {
       expect(st.node.url, 'https://node.btlabs.uk');
       expect(st.nodeHeight, 2500000);
       expect(st.nodeHealth, ServiceHealth.ok);
+      // Made on a fresh install: the new default (D-13).
       expect(st.epicbox.domain, defaultEpicboxHost);
       expect(st.epicboxHealth, ServiceHealth.off);
       expect(st.syncProgress, isNull);
