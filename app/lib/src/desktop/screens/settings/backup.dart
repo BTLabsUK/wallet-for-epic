@@ -102,32 +102,38 @@ class _BackupGroupState extends ConsumerState<BackupGroup> {
             padding: EdgeInsets.only(top: Sp.x1),
             child: Text(state == null ? ' ' : backupStateLine(state), style: ts.caption),
           ),
-          control: EButton(
-            label: busy == _Busy.export ? 'Exporting…' : 'Export…',
-            icon: EIcons.download,
-            size: EBtnSize.sm,
-            busy: busy == _Busy.export,
-            onPressed: busy != null ? null : () => _run(_Busy.export, showExportHistoryDialog),
+          control: ERowControl(
+            child: EButton(
+              label: busy == _Busy.export ? 'Exporting…' : 'Export…',
+              icon: EIcons.download,
+              size: EBtnSize.sm,
+              busy: busy == _Busy.export,
+              onPressed: busy != null ? null : () => _run(_Busy.export, showExportHistoryDialog),
+            ),
           ),
         ),
         ESetRow(
           title: 'Import history backup',
           text: 'Merges a backup of this wallet into Activity. Nothing is removed; the same file twice changes nothing.',
-          control: EButton(
-            label: 'Import…',
-            icon: EIcons.upload,
-            size: EBtnSize.sm,
-            onPressed: busy != null ? null : () => _run(_Busy.import, showImportHistoryDialog),
+          control: ERowControl(
+            child: EButton(
+              label: 'Import…',
+              icon: EIcons.upload,
+              size: EBtnSize.sm,
+              onPressed: busy != null ? null : () => _run(_Busy.import, showImportHistoryDialog),
+            ),
           ),
         ),
         ESetRow(
           title: 'Payments as CSV',
           text: 'A plain table for spreadsheets. Not encrypted, not importable.',
-          control: EButton(
-            label: 'Export CSV…',
-            icon: EIcons.table,
-            size: EBtnSize.sm,
-            onPressed: busy != null ? null : () => _run(_Busy.csv, showExportCsvDialog),
+          control: ERowControl(
+            child: EButton(
+              label: 'Export CSV…',
+              icon: EIcons.table,
+              size: EBtnSize.sm,
+              onPressed: busy != null ? null : () => _run(_Busy.csv, showExportCsvDialog),
+            ),
           ),
         ),
       ],

@@ -136,7 +136,7 @@ class _SettingsWalletsScreenState extends ConsumerState<SettingsWalletsScreen> {
                         ESetRow(
                           title: w.name,
                           text: shortPath(w.folder),
-                          control: EButton(label: 'Add back', size: EBtnSize.sm, busy: _adding == w.id, onPressed: _adding == null ? () => _addBack(w) : null),
+                          control: ERowControl(child: EButton(label: 'Add back', size: EBtnSize.sm, busy: _adding == w.id, onPressed: _adding == null ? () => _addBack(w) : null)),
                         ),
                     ],
                   ),

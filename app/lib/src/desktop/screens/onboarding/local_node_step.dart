@@ -191,9 +191,10 @@ class _LocalNodeStepState extends ConsumerState<LocalNodeStep> {
               children: [
                 Row(
                   children: [
-                    SizedBox(
-                      width: 220.u,
+                    // Field and button one height and one of the row widths (R4).
+                    ERowControl(
                       child: EInput(
+                        size: EBtnSize.sm,
                         controller: _url,
                         mono: true,
                         hint: '127.0.0.1:3413',
@@ -203,7 +204,7 @@ class _LocalNodeStepState extends ConsumerState<LocalNodeStep> {
                       ),
                     ),
                     SizedBox(width: Sp.x2),
-                    EButton(label: 'Check', size: EBtnSize.sm, busy: _checking, onPressed: _checking ? null : _check),
+                    ERowControl(child: EButton(label: 'Check', size: EBtnSize.sm, busy: _checking, onPressed: _checking ? null : _check)),
                   ],
                 ),
                 if (stateLine != null) ...[SizedBox(height: Sp.x2), Semantics(liveRegion: true, child: stateLine)],

@@ -38,6 +38,11 @@ abstract final class Sp {
   static double get x10 => _px(40);
   static double get x12 => _px(48);
   static double get x16 => _px(64);
+
+  /// The one grid of a two-column page (Activity + detail, Send + Summary, Contacts + detail,
+  /// Outputs): the gap between the columns and the padding inside their panels.
+  static double get col => x6;
+  static double get panel => x5;
 }
 
 /// Radii: tags, controls and panels, dialogs. Nothing else.
@@ -49,9 +54,10 @@ abstract final class Rad {
 
 /// Control sizes. Three heights, one rule: the height says how big the action is.
 ///  - [inline] 28: actions inside text, rows and notices; icon buttons (copy, QR, help); tags.
-///  - [sm] 36: a row's control: Settings switches' row height, Reachable segments, Port field,
-///    server picker, toolbar and dialog-secondary buttons, "Open" in list rows.
-///  - [md] 44: every form field, the page's primary button, the Send method selector.
+///  - [sm] 36: a row's control: Settings row controls ([ERowControl] widths), Reachable segments,
+///    server picker, toolbar and dialog-secondary buttons, "Open" in list rows, the tabs and the
+///    Send method selector in a panel's header band.
+///  - [md] 44: every form field and the page's primary button.
 /// Nothing is taller than 44: the Electron app's 52 px "large" button is gone.
 abstract final class Ctl {
   static double get inline => _px(28);
@@ -70,6 +76,22 @@ abstract final class Ctl {
   /// Reading widths.
   static double get narrow => _px(720);
   static double get mid => _px(960);
+
+  /// A card's header bar ([EPanel]'s title, a list's tabs, a detail pane's title and close):
+  /// one height, so the headers' bottom lines and the first rows of panels side by side line up.
+  static double get header => _px(52);
+
+  /// The side column of a two-column page: the Send summary, and a detail pane ([sideWide]
+  /// from a 1400 px window at 100 %).
+  static double get sideSm => _px(300);
+  static double get side => _px(380);
+  static double get sideWide => _px(440);
+
+  /// The trailing control of a Settings row ([ERowControl]): [sm] tall and one of two widths,
+  /// [rowW] for buttons, dropdowns and fields, [rowWide] for segmented choices and server
+  /// pickers. The switch keeps its own size. Both fit the longest label at every scale.
+  static double get rowW => _px(200);
+  static double get rowWide => _px(300);
 }
 
 /// Breakpoints: phone below 600, tablet/narrow desktop to 1000, desktop from 1000 at 100 %, as

@@ -295,7 +295,7 @@ class ServiceComboState extends State<ServiceCombo> {
               onTap: open ? collapse : _open,
               borderRadius: BorderRadius.circular(Rad.sm),
               child: Container(
-                height: 36.u,
+                height: Ctl.sm,
                 padding: EdgeInsets.only(left: Sp.x3, right: Sp.x2),
                 decoration: BoxDecoration(
                   color: c.s2,
@@ -415,7 +415,7 @@ class ServiceComboState extends State<ServiceCombo> {
           },
           borderRadius: BorderRadius.circular(Rad.sm),
           child: Container(
-            height: 36.u,
+            height: Ctl.sm,
             padding: EdgeInsets.symmetric(horizontal: 12.u),
             child: Row(
               children: [

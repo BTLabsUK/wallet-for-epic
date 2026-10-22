@@ -9,50 +9,87 @@ import 'buttons.dart';
 import 'motion.dart';
 
 /// A panel: s1 fill, hairline edge, 8 px radius. [head] and [foot] get their own bands.
+/// A panel: s1 fill, hairline edge, 8 px radius. [title] (or a custom [head]) and [foot] get
+/// their own bands; the head band is [Ctl.header] tall and starts where the body starts, so
+/// panels side by side have their header lines and first rows level.
 class EPanel extends StatelessWidget {
   const EPanel({
     super.key,
     required this.child,
     this.title,
+    this.head,
     this.headTrailing,
     this.foot,
     this.padding,
+    this.scroll = false,
+    this.expand = false,
+    this.strong = false,
   });
 
   final Widget child;
   final String? title;
+
+  /// In place of [title]: anything that fits a header band (tabs, a title and a close button).
+  final Widget? head;
   final Widget? headTrailing;
   final Widget? foot;
 
   /// Defaults to 24 by 20.
   final EdgeInsetsGeometry? padding;
 
+  /// The body scrolls inside the panel when the panel is given less height than it needs
+  /// (a column of a [PanelRow] under a bounded height). Needs a bounded height.
+  final bool scroll;
+
+  /// The body fills the panel's height (needs a bounded height), so its last item can sit at
+  /// the bottom: cards side by side with their buttons on one line.
+  final bool expand;
+
+  /// The stronger edge of a selected item's pane.
+  final bool strong;
+
   @override
   Widget build(BuildContext context) {
     final c = context.dc;
+    final pad = (padding ?? EdgeInsets.symmetric(horizontal: Sp.x6, vertical: Sp.x5)).resolve(Directionality.of(context));
+    final body = scroll
+        ? Flexible(child: SingleChildScrollView(padding: pad, child: child))
+        : (expand ? Expanded(child: Padding(padding: pad, child: child)) : Padding(padding: pad, child: child));
+    final hasHead = head != null || title != null;
     return Container(
+      clipBehavior: scroll ? Clip.antiAlias : Clip.none,
       decoration: BoxDecoration(
         color: c.s1,
-        border: Border.all(color: c.line),
+        border: Border.all(color: strong ? c.lineStrong : c.line),
         borderRadius: BorderRadius.circular(Rad.sm),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (title != null)
+          if (hasHead)
             Container(
-              padding: EdgeInsets.symmetric(horizontal: Sp.x6, vertical: Sp.x3),
-              constraints: BoxConstraints(minHeight: 52.u),
-              decoration: BoxDecoration(border: Border(bottom: BorderSide(color: c.line))),
-              child: Row(
-                children: [
-                  Expanded(child: Text(title!, style: context.ts.label)),
-                  ?headTrailing,
-                ],
+              key: const ValueKey('epanel-head'),
+              // Starts where the body starts (Sp.x5 over an unpadded body); a custom head ends
+              // close to the edge for its icon button.
+              padding: EdgeInsets.fromLTRB(
+                pad.left < Sp.x4 ? Sp.x5 : pad.left,
+                head != null ? 0 : Sp.x2,
+                head != null ? Sp.x2 : (pad.right < Sp.x4 ? Sp.x5 : pad.right),
+                head != null ? 0 : Sp.x2,
               ),
+              constraints: BoxConstraints(minHeight: Ctl.header),
+              alignment: AlignmentDirectional.centerStart,
+              decoration: BoxDecoration(border: Border(bottom: BorderSide(color: c.line))),
+              child: head ??
+                  Row(
+                    children: [
+                      Expanded(child: Text(title!, style: context.ts.label)),
+                      ?headTrailing,
+                    ],
+                  ),
             ),
-          Padding(padding: padding ?? EdgeInsets.symmetric(horizontal: Sp.x6, vertical: Sp.x5), child: child),
+          body,
           if (foot != null)
             Container(
               padding: EdgeInsets.symmetric(horizontal: Sp.x6, vertical: Sp.x3),

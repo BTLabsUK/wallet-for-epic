@@ -278,7 +278,9 @@ class _BalancePanel extends ConsumerWidget {
     final ts = context.ts;
     final nav = ref.read(deskNavProvider.notifier);
     final b = balance;
-    final amount = b == null ? _Skeleton(width: 260.u, height: 40.u) : _BigAmount(nano: b.spendable, hidden: hidden, dim: updating);
+    final amount = b == null
+        ? Column(crossAxisAlignment: CrossAxisAlignment.start, children: [_Skeleton(width: 260.u, height: 40.u), SizedBox(height: Sp.x4), _Trace(width: 260.u)])
+        : _BigAmount(nano: b.spendable, hidden: hidden, dim: updating);
     final actions = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
@@ -362,13 +364,6 @@ class _BalancePanel extends ConsumerWidget {
                   ],
                 );
               },
-            ),
-          ),
-          Padding(
-            padding: EdgeInsets.fromLTRB(Sp.x8, Sp.x5, Sp.x8, 0),
-            child: SizedBox(
-              height: 26.u,
-              child: CustomPaint(painter: _TracePainter(c.accent)),
             ),
           ),
           SizedBox(height: Sp.x5),
@@ -484,43 +479,80 @@ class _BigAmount extends StatelessWidget {
         final unitW = unitPainter.width;
         unitPainter.dispose();
         final size = fitFontSize(context, hidden ? '••••••' : text, base, const [Fs.display, Fs.h1, Fs.h2], box.maxWidth, extra: unitW + 10.u);
-        return Semantics(
-          label: hidden ? 'Hidden amount' : '$text EPIC',
-          excludeSemantics: true,
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.baseline,
-            textBaseline: TextBaseline.alphabetic,
-            children: [
-              Flexible(
-                child: Text.rich(
-                  TextSpan(
-                    children: hidden
-                        ? [const TextSpan(text: '••••••')]
-                        : [
-                            TextSpan(text: whole),
-                            TextSpan(
-                              text: frac,
-                              style: TextStyle(color: c.dim),
-                            ),
-                          ],
-                  ),
-                  style: base.copyWith(fontSize: size, color: dim ? c.dim : null),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  softWrap: false,
+        final spans = hidden
+            ? [const TextSpan(text: '••••••')]
+            : [
+                TextSpan(text: whole),
+                TextSpan(
+                  text: frac,
+                  style: TextStyle(color: c.dim),
                 ),
+              ];
+        final style = base.copyWith(fontSize: size, color: dim ? c.dim : null);
+        // The row's width (amount, gap, unit) for the trace under it.
+        final amountPainter = TextPainter(
+          text: TextSpan(children: spans, style: style),
+          textDirection: TextDirection.ltr,
+          textScaler: MediaQuery.textScalerOf(context),
+          maxLines: 1,
+        )..layout();
+        final rowW = (amountPainter.width + 10.u + unitW).clamp(0.0, box.maxWidth);
+        amountPainter.dispose();
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Semantics(
+              label: hidden ? 'Hidden amount' : '$text EPIC',
+              excludeSemantics: true,
+              child: Row(
+                key: const ValueKey('balance-row'),
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.baseline,
+                textBaseline: TextBaseline.alphabetic,
+                children: [
+                  Flexible(
+                    child: Text.rich(
+                      TextSpan(children: spans),
+                      style: style,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      softWrap: false,
+                    ),
+                  ),
+                  SizedBox(width: 10.u),
+                  Text(
+                    'EPIC',
+                    style: ts.mono(size: Fs.md, color: c.dim, weight: FontWeight.w500),
+                  ),
+                ],
               ),
-              SizedBox(width: 10.u),
-              Text(
-                'EPIC',
-                style: ts.mono(size: Fs.md, color: c.dim, weight: FontWeight.w500),
-              ),
-            ],
-          ),
+            ),
+            SizedBox(height: Sp.x4),
+            _Trace(width: rowW),
+          ],
         );
       },
     );
   }
+}
+
+/// The gold signal trace under the balance (R5): as wide as the balance row, easing to a new
+/// width when the balance changes (at once under reduced motion).
+class _Trace extends StatelessWidget {
+  const _Trace({required this.width});
+
+  final double width;
+
+  @override
+  Widget build(BuildContext context) => AnimatedContainer(
+    key: const ValueKey('balance-trace'),
+    duration: MediaQuery.disableAnimationsOf(context) ? Duration.zero : Motion.expand,
+    curve: Motion.easeOut,
+    width: width,
+    height: 26.u,
+    child: CustomPaint(painter: _TracePainter(context.dc.accent)),
+  );
 }
 
 class _Break extends StatelessWidget {

@@ -327,7 +327,11 @@ class ESelect<T> extends StatelessWidget {
     this.footer,
     this.mono = false,
     this.semanticLabel,
+    this.size = EBtnSize.md,
   });
+
+  /// `md` (44, a form's field) or `sm` ([Ctl.sm], a Settings row's dropdown).
+  final EBtnSize size;
 
   final List<ESelectItem<T>> items;
   final T value;
@@ -406,7 +410,7 @@ class ESelect<T> extends StatelessWidget {
                 },
                 borderRadius: BorderRadius.circular(Rad.sm),
                 child: Container(
-                  height: Ctl.md,
+                  height: size == EBtnSize.sm ? Ctl.sm : Ctl.md,
                   padding: EdgeInsets.only(left: Sp.x3, right: Sp.x2),
                   decoration: BoxDecoration(
                     color: c.s2,

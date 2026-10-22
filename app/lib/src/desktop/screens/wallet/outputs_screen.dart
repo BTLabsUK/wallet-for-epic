@@ -258,9 +258,9 @@ class _OutputsScreenState extends ConsumerState<OutputsScreen> {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Expanded(child: split),
+                  Expanded(child: split.copyWith(fill: true)),
                   SizedBox(width: Sp.x4),
-                  Expanded(child: consolidate),
+                  Expanded(child: consolidate.copyWith(fill: true)),
                 ],
               ),
             )
@@ -475,7 +475,13 @@ class _Tiles extends StatelessWidget {
 }
 
 class _ActionCard extends StatelessWidget {
-  const _ActionCard({required this.icon, required this.title, required this.text, required this.note, required this.button, required this.enabled, required this.onPressed});
+  const _ActionCard({required this.icon, required this.title, required this.text, required this.note, required this.button, required this.enabled, required this.onPressed, this.fill = false});
+
+  /// Side by side at one height: the button at the bottom, level with the other card's.
+  final bool fill;
+
+  _ActionCard copyWith({bool? fill}) =>
+      _ActionCard(icon: icon, title: title, text: text, note: note, button: button, enabled: enabled, onPressed: onPressed, fill: fill ?? this.fill);
 
   final IconData icon;
   final String title;
@@ -489,6 +495,7 @@ class _ActionCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final ts = context.ts;
     return EPanel(
+      expand: fill,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -506,10 +513,11 @@ class _ActionCard extends StatelessWidget {
                   Semantics(liveRegion: true, child: Text(note, style: ts.caption)),
                 ],
                 SizedBox(height: 10.u),
+                if (fill) const Spacer(),
                 AnimatedOpacity(
                   duration: const Duration(milliseconds: 160),
                   opacity: enabled ? 1 : 0.6,
-                  child: EButton(label: button, icon: icon, size: EBtnSize.sm, onPressed: enabled ? onPressed : null),
+                  child: ERowControl(child: EButton(label: button, icon: icon, size: EBtnSize.sm, onPressed: enabled ? onPressed : null)),
                 ),
               ],
             ),
