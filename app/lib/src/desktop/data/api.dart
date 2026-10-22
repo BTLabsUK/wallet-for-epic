@@ -86,6 +86,10 @@ abstract interface class DeskWalletApi {
   /// Whether [to] is an onion v3 address (version and checksum), for Send's Direct.
   bool isOnionAddress(String to);
 
+  /// An Epicbox address whose key and checksum hold on this wallet's chain; with or without
+  /// `@server`.
+  bool isEpicboxAddress(String to);
+
   // Acting.
   Future<int> estimateFee(int amount);
 

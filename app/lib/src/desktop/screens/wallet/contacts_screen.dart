@@ -590,8 +590,7 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
       final problem = httpAddressProblem(a);
       return problem == null ? null : 'This is not an HTTP address: ${problem[0].toLowerCase()}${problem.substring(1)}.';
     }
-    final epicbox = RegExp(r'^es[0-9A-Za-z]{38,58}(@[\w.-]+(:\d+)?)?$').hasMatch(a);
-    return epicbox ? null : 'This is not a complete Epicbox address. Copy it again from the recipient’s Receive page.';
+    return ref.read(deskApiProvider).isEpicboxAddress(a) ? null : 'This is not a complete Epicbox address. Copy it again from the recipient’s Receive page.';
   }
 
   String? _shown(String key, String? error) => _tried || _touched.contains(key) ? error : null;

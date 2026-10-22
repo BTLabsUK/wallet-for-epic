@@ -980,7 +980,7 @@ class LepicDeskWallet implements DeskWalletApi {
 
   /// An address the contact form would take: epicbox, http(s) or, with Tor, an onion.
   bool _contactAddressOk(String a) =>
-      RegExp(r'^es[0-9A-Za-z]{38,58}(@[\w.-]+(:\d+)?)?$').hasMatch(a) ||
+      isEpicboxAddress(a) ||
       (RegExp(r'^https?:', caseSensitive: false).hasMatch(a) && httpAddressProblem(a) == null) ||
       (_torFeature && isOnionAddress(a));
 
@@ -1351,6 +1351,14 @@ class LepicDeskWallet implements DeskWalletApi {
 
   @override
   bool isOnionAddress(String to) => _service.validateOnionAddress(address: to.trim());
+
+  @override
+  bool isEpicboxAddress(String to) {
+    final t = to.trim();
+    if (!RegExp(r'^es[0-9A-Za-z]{38,58}(@[\w.-]+(:\d+)?)?$').hasMatch(t)) return false;
+    // LEPIC checks the key's checksum; it wants the server, any server will do for that.
+    return _service.validateEpicboxAddress(address: t.contains('@') ? t : '$t@epicbox.stackwallet.com');
+  }
 
   // ---- Acting.
 
