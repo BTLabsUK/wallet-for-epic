@@ -248,7 +248,10 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
       ImportStep.check || ImportStep.import => ImportStep.choose,
       _ => null,
     };
-    if (prev != null) setState(() => _step = prev);
+    if (prev == null) return;
+    // A typed password belongs to the wallet it was typed for.
+    if (_step == ImportStep.import) _clearPasswords();
+    setState(() => _step = prev);
   }
 
   Future<void> _cancel() async {

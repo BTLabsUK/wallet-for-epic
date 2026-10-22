@@ -169,6 +169,17 @@ void main() {
     expect(service.password, _password);
   });
 
+  test('the same seed is not imported twice in one run', () async {
+    final found = await wallet.findOldWallets();
+    await wallet.importOldWallet(byName(found, 'Savings').id, oldPassword: _old);
+    await expectLater(
+      wallet.importOldWallet(cliMain(found).id, oldPassword: _old),
+      throwsA(isA<DeskError>().having((e) => e.message, 'message', 'Already in the app as Savings')),
+    );
+    expect(service.seeds, hasLength(1));
+    expect((await wallet.wallets()).map((e) => e.name), ['Savings']);
+  });
+
   test('each wallet opens its seed once', () async {
     final found = await wallet.findOldWallets();
     await wallet.importOldWallet(byName(found, 'Savings').id, oldPassword: _old);

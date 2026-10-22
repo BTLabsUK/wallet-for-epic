@@ -714,7 +714,9 @@ class LepicDeskWallet implements DeskWalletApi {
         newPasswordNeeded: true,
       );
     }
-    final before = await legacy.folderHash(w.path);
+    // The wallet's own files: a node running in the same folder changes its chain_data.
+    final walletData = '${w.path}${Platform.pathSeparator}wallet_data';
+    final before = await legacy.folderHash(walletData);
     final List<int> bytes;
     try {
       bytes = await File(w.seedPath).readAsBytes();
@@ -730,6 +732,8 @@ class LepicDeskWallet implements DeskWalletApi {
     }
     final name = _importName(w.displayLabel);
     final fingerprint = sha256.convert(bytes).toString();
+    final held = (await _inAppSeeds())[fingerprint];
+    if (held != null) throw DeskError('Already in the app as $held');
     reg.WalletEntry? made;
     try {
       // The scan at the first unlock brings the history: only the seed is taken (B14).
@@ -744,7 +748,7 @@ class LepicDeskWallet implements DeskWalletApi {
     }
     if (made == null) throw const DeskError('Wallet list not saved');
     _imported.add(made.id);
-    final unchanged = await legacy.folderHash(w.path) == before;
+    final unchanged = await legacy.folderHash(walletData) == before;
     if (!unchanged) logWarn('desk', 'import: the old folder changed during the import');
     logInfo('desk', 'import: wallet made');
     return ImportedWallet(
@@ -769,13 +773,17 @@ class LepicDeskWallet implements DeskWalletApi {
     final r = await registry();
     for (final id in [..._imported]) {
       final entry = r.byId(id);
-      _imported.remove(id);
-      if (entry == null) continue;
+      if (entry == null) {
+        _imported.remove(id);
+        continue;
+      }
       if (_openEntry?.id == id) await lock();
       try {
         await r.delete(id, service: _service, config: await _configOf(entry));
         await _store.delete(_metaKey(entry.walletId));
         await _store.delete(DeskStore.favouritesKeyOf(entry.walletId));
+        // Kept on failure, so Cancel can try again.
+        _imported.remove(id);
       } on Object catch (e) {
         logWarn('desk', 'import: wallet not removed: ${e.runtimeType}');
       }
