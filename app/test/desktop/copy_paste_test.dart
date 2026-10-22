@@ -6,6 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:epic_wallet/src/desktop/app/desk_app.dart';
+import 'package:epic_wallet/src/desktop/app/routes.dart';
+import 'package:epic_wallet/src/desktop/screens/onboarding/create_screen.dart';
 import 'package:epic_wallet/src/desktop/screens/transfer/receive_screen.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
@@ -47,6 +50,7 @@ Future<void> _pump(WidgetTester tester, Widget child) async {
 }
 
 void main() {
+  phraseCopyOnboarding();
   testWidgets('Receive: one copy control for the address; it copies and says so', (tester) async {
     _fakeClipboard(tester);
     await _pump(tester, const ReceiveScreen());
@@ -109,4 +113,26 @@ void main() {
     expect(find.text('Copy'), findsNothing);
     expect(find.text('Cut'), findsNothing);
   }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
+}
+
+/// The phrase copy on Create confirms on the first-run screens too (they have no shell).
+void phraseCopyOnboarding() {
+  testWidgets('Create: copying the phrase shows "Phrase copied"', (tester) async {
+    _fakeClipboard(tester);
+    tester.view.physicalSize = const Size(1280, 900);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final container = ProviderContainer();
+    addTearDown(container.dispose);
+    container.read(deskNavProvider.notifier).reset(DeskRoute.create, CreateStep.phrase);
+    await tester.pumpWidget(UncontrolledProviderScope(container: container, child: const DeskApp()));
+    await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 100)));
+    await tester.pump(const Duration(seconds: 1));
+    await tester.tap(find.text('Copy'));
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(_clip, isNotNull);
+    expect(find.text('Phrase copied'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+    await tester.pump(const Duration(seconds: 31));
+  });
 }
