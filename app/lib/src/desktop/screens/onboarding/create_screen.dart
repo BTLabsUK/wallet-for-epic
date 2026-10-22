@@ -5,6 +5,7 @@ import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../widgets/kit.dart';
 import '../settings/settings_phrase.dart' show copyPhrase;
 import 'onboarding_parts.dart';
+import 'setup_screen.dart' show SetupFirstRun;
 
 enum CreateStep { account, creating, failed, phrase, locking }
 
@@ -102,7 +103,9 @@ class _CreateScreenState extends ConsumerState<CreateScreen> {
     }
     final added = await addedWallet(ref.read(deskApiProvider), _before, 'New wallet');
     if (!mounted) return;
-    ref.read(deskNavProvider.notifier).reset(DeskRoute.unlock, added);
+    await markSetupPending(ref.read(deskApiProvider), added.id);
+    if (!mounted) return;
+    ref.read(deskNavProvider.notifier).reset(DeskRoute.setup, SetupFirstRun(added, second: _before.isNotEmpty));
   }
 
   @override

@@ -75,16 +75,16 @@ class SettingsFrame extends ConsumerWidget {
 }
 
 String healthWord(ServiceHealth h) => switch (h) {
-  ServiceHealth.ok => 'Online',
+  ServiceHealth.ok => 'On',
   ServiceHealth.slow => 'Slow',
   ServiceHealth.down => 'Not responding',
   ServiceHealth.off => 'Off',
   ServiceHealth.checking => 'Checking…',
 };
 
-/// The node's state word (6.1.6 nodeBadge): Online, Syncing, Not responding.
+/// The node's state word (6.1.6 nodeBadge; O2: a synced node says Synced, never Online).
 String nodeWord(ServiceHealth h) => switch (h) {
-  ServiceHealth.ok => 'Online',
+  ServiceHealth.ok => 'Synced',
   ServiceHealth.slow => 'Syncing',
   ServiceHealth.down => 'Not responding',
   ServiceHealth.off => 'Off',
@@ -172,7 +172,7 @@ class _JumpSectionState extends ConsumerState<JumpSection> with SingleTickerProv
   }
 }
 
-/// Health dot, word and latency: "Online · 84 ms".
+/// Health dot, word and latency: "On · 84 ms".
 class HealthLine extends StatelessWidget {
   const HealthLine(this.health, {super.key, this.latencyMs});
 

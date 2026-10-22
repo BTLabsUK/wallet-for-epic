@@ -11,6 +11,7 @@ import '../settings/prefs.dart' show settingsPrefsProvider;
 import '../settings/dialogs.dart' show RemoveMode, showRemoveWalletDialog;
 import 'kill_process_dialog.dart';
 import 'onboarding_parts.dart';
+import 'setup_screen.dart' show SetupFirstRun;
 
 /// What [UnlockScreen] starts on, for the screenshot tour.
 enum UnlockShow { wrongPassword, progress, failed, missing }
@@ -118,6 +119,7 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
         if (mounted) setState(() => _error = deskErrorText(e));
       }
     }
+    if (await _toSetup(pick, w.length > 1)) return;
     final remembered = await _isRemembered(pick.id);
     if (!mounted) return;
     setState(() {
@@ -127,6 +129,21 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
       if (pick.missing) _missing = true;
     });
     if (tryRemembered && remembered && !pick.missing) await _unlock(remembered: true);
+  }
+
+  /// A wallet whose first-run setup was not saved (the app was closed halfway) goes to the
+  /// setup before it opens. True when it went there.
+  Future<bool> _toSetup(WalletEntry pick, bool second) async {
+    if (pick.missing || widget.arg is UnlockShow) return false;
+    final bool pending;
+    try {
+      pending = await ref.read(deskApiProvider).setupPending(pick.id);
+    } on Object {
+      return false;
+    }
+    if (!pending || !mounted) return false;
+    ref.read(deskNavProvider.notifier).reset(DeskRoute.setup, SetupFirstRun(UnlockAdded(pick.name, id: pick.id), second: second));
+    return true;
   }
 
   Future<bool> _isRemembered(String id) async {
@@ -149,6 +166,8 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
     } on Object catch (e) {
       if (mounted) setState(() => _error = deskErrorText(e));
     }
+    final entry = _selected;
+    if (entry != null && await _toSetup(entry, (_wallets?.length ?? 0) > 1)) return;
     final remembered = await _isRemembered(id);
     if (mounted && _id == id) {
       setState(() {
