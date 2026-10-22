@@ -56,6 +56,13 @@ final List<DeskShot> walletShots = [
   DeskShot(id: '12c-tx-detail-narrow', title: 'Transaction detail, narrow', route: DeskRoute.activity, arg: 39, width: 900, height: 760),
   DeskShot(id: '35-dlg-tx-proof', title: 'Payment proof', route: DeskRoute.activity, arg: 36, dialog: (c) => showTxProofDialog(c, _tx(c, 36))),
   DeskShot(id: '35b-dlg-cancel-tx', title: 'Cancel a send', route: DeskRoute.activity, arg: 37, dialog: (c) => showCancelTxDialog(c, _tx(c, 37))),
+  DeskShot(
+    id: '35c-dlg-cancel-incoming',
+    title: 'Cancel an incoming payment',
+    route: DeskRoute.activity,
+    arg: 36,
+    dialog: (c) => showCancelTxDialog(c, Tx(id: 36, slateId: '', direction: TxDirection.received, state: TxState.posted, method: TxMethod.epicbox, amount: 250000000, fee: 0, created: DateTime(2026, 10, 20), counterparty: 'esAlice@epicbox.example', cancellable: true)),
+  ),
   DeskShot(id: '19a-outputs', title: 'Outputs', route: DeskRoute.outputs, arg: _outputsSix, height: 1000),
   DeskShot(
     id: '19b-outputs-filter',
