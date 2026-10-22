@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:isolate';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -35,17 +38,35 @@ class _ReportProblemDialogState extends ConsumerState<ReportProblemDialog> {
   late final Future<void> _logRead = _readLog();
   late final DateTime _at = DateTime.now();
 
+  // The preview, built off the UI thread a moment after the last change: cleaning a 256 KB
+  // log takes most of a second, too long for every keystroke.
+  String? _preview;
+  Timer? _previewTimer;
+  int _previewRun = 0;
+
   @override
   void initState() {
     super.initState();
     _logRead;
+    _description.addListener(_refreshPreview);
+    _contact.addListener(_refreshPreview);
   }
 
   @override
   void dispose() {
+    _previewTimer?.cancel();
     _description.dispose();
     _contact.dispose();
     super.dispose();
+  }
+
+  void _refreshPreview() {
+    _previewTimer?.cancel();
+    _previewTimer = Timer(const Duration(milliseconds: 300), () async {
+      final run = ++_previewRun;
+      final text = (await _report()).text;
+      if (mounted && run == _previewRun) setState(() => _preview = text);
+    });
   }
 
   Future<void> _readLog() async {
@@ -55,6 +76,7 @@ class _ReportProblemDialogState extends ConsumerState<ReportProblemDialog> {
       _log = 'The log could not be read: $error\n';
     }
     if (mounted) setState(() {});
+    _refreshPreview();
   }
 
   FeedbackDetails _details() {
@@ -76,15 +98,18 @@ class _ReportProblemDialogState extends ConsumerState<ReportProblemDialog> {
     );
   }
 
-  SupportReport _report() => buildFeedbackReport(
-    message: _description.text,
-    email: _contact.text,
-    details: _details(),
-    log: _attachLogs ? (_log ?? '') : null,
-    at: _at,
-    ui: 'desktop',
-    context: ref.read(feedbackCleanContextProvider),
-  );
+  /// The report as it would be sent now, cleaned on another isolate.
+  Future<SupportReport> _report() {
+    final message = _description.text;
+    final email = _contact.text;
+    final details = _details();
+    final log = _attachLogs ? (_log ?? '') : null;
+    final at = _at;
+    final context = ref.read(feedbackCleanContextProvider);
+    return Isolate.run(
+      () => buildFeedbackReport(message: message, email: email, details: details, log: log, at: at, ui: 'desktop', context: context),
+    );
+  }
 
   bool get _empty => _description.text.trim().isEmpty;
 
@@ -98,7 +123,7 @@ class _ReportProblemDialogState extends ConsumerState<ReportProblemDialog> {
     setState(() => _busy = true);
     try {
       await _logRead;
-      final id = await ref.read(feedbackOutletProvider).post(url, _report());
+      final id = await ref.read(feedbackOutletProvider).post(url, await _report());
       logInfo('support', 'report sent, $id');
       if (mounted) setState(() => _sentId = id);
     } catch (error) {
@@ -153,14 +178,17 @@ class _ReportProblemDialogState extends ConsumerState<ReportProblemDialog> {
             EField(
               label: 'Contact',
               optional: true,
-              help: 'An email or Telegram handle, for a reply.',
+              help: 'An email address or other handle, for a reply.',
               child: EInput(controller: _contact, semanticLabel: 'Contact', onChanged: (_) => setState(() {})),
             ),
             SizedBox(height: Sp.x4),
             ECheckbox(
               value: _attachLogs,
               label: 'Attach logs (recommended)',
-              onChanged: (v) => setState(() => _attachLogs = v),
+              onChanged: (v) {
+                setState(() => _attachLogs = v);
+                _refreshPreview();
+              },
             ),
             SizedBox(height: Sp.x1),
             Text(
@@ -168,7 +196,7 @@ class _ReportProblemDialogState extends ConsumerState<ReportProblemDialog> {
               style: ts.small,
             ),
             SizedBox(height: Sp.x3),
-            EDetails(title: 'What is sent', child: ReportPreview(text: _log == null && _attachLogs ? null : _report().text)),
+            EDetails(title: 'What is sent', child: ReportPreview(text: _log == null && _attachLogs ? null : _preview)),
             if (_error != null) ...[
               SizedBox(height: Sp.x3),
               Semantics(liveRegion: true, child: ENotice(title: 'Not sent', text: _error, tone: ETone.risk, icon: EIcons.alert)),

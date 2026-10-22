@@ -1116,7 +1116,7 @@ class LepicDeskWallet implements DeskWalletApi {
 
   @override
   Future<List<NodeServer>> nodes() async {
-    final all = await _listed();
+    final all = await _listed(readDirectory: true);
     // Each node is checked once in the background; the lists show it when the check is in.
     for (final n in all) {
       if (_checked.containsKey(n.url) || !_checking.add(n.url)) continue;
@@ -1128,8 +1128,9 @@ class LepicDeskWallet implements DeskWalletApi {
     return all;
   }
 
-  /// Public nodes and My nodes, with the last check of each.
-  Future<List<NodeServer>> _listed() async {
+  /// Public nodes and My nodes, with the last check of each. Only the node list itself
+  /// ([readDirectory]) reads status.btlabs.uk; the status line uses what is known.
+  Future<List<NodeServer>> _listed({bool readDirectory = false}) async {
     final own = await _store.readJson(DeskStore.nodesKey);
     NodeServer withCheck(NodeServer n) {
       final c = _checked[n.url];
@@ -1137,7 +1138,7 @@ class LepicDeskWallet implements DeskWalletApi {
     }
 
     return [
-      for (final n in _publicNodes()) withCheck(n),
+      for (final n in _publicNodes(read: readDirectory)) withCheck(n),
       if (own is List)
         for (final o in own.whereType<Map<String, dynamic>>())
           if (o['url'] is String) withCheck(NodeServer(url: o['url'] as String, label: (o['label'] as String?) ?? '', own: true, health: ServiceHealth.checking)),
@@ -1146,8 +1147,8 @@ class LepicDeskWallet implements DeskWalletApi {
 
   /// The built-in public nodes, then any only status.btlabs.uk lists. The directory is read in
   /// the background; the lists update when it answers.
-  List<NodeServer> _publicNodes() {
-    _readNodeDirectory();
+  List<NodeServer> _publicNodes({bool read = true}) {
+    if (read) _readNodeDirectory();
     return [
       for (final n in mergePublicNodes(_dirNodes))
         NodeServer(url: n.url, label: n.operator, operator: n.operator, health: ServiceHealth.checking),

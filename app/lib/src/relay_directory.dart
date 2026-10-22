@@ -75,7 +75,7 @@ List<RelayStatus> parseRelayStatus(String json) {
         healthy: item['state'] == 'healthy',
         verified: item['verified'] == true,
         label: item['label'] as String?,
-        operator: item['operator'] as String?,
+        operator: cleanOperator(item['operator'] as String?),
         latencyMs: (item['latency_ms'] as num?)?.toInt(),
         uptime24h: uptime is Map ? (uptime['24h'] as num?)?.toDouble() : null,
         protocolVersion: item['protocol_version'] as String?,
@@ -119,6 +119,13 @@ class NodeStatus {
 
 /// Parses the monitor's `nodes` list, in its order. Entries without a plain http(s) endpoint
 /// are dropped.
+/// An operator name from the monitor, safe to show: control and bidi-override characters
+/// removed, at most 64 characters; null when nothing is left.
+String? cleanOperator(String? name) {
+  final t = name?.replaceAll(RegExp(r'[\u0000-\u001f\u007f-\u009f\u200b-\u200f\u202a-\u202e\u2066-\u2069\ufeff]'), '').trim();
+  return t == null || t.isEmpty || t.length > 64 ? null : t;
+}
+
 List<NodeStatus> parseNodeStatus(String json) {
   final Object? decoded = jsonDecode(json);
   if (decoded is! Map<String, Object?>) {
@@ -132,14 +139,16 @@ List<NodeStatus> parseNodeStatus(String json) {
     if (item['kind'] != null && item['kind'] != 'node') continue;
     final endpoint = Uri.tryParse(item['endpoint'] as String? ?? '');
     if (endpoint == null ||
-        (endpoint.scheme != 'https' && endpoint.scheme != 'http') ||
+        // https only: every public node answers on it, and plain http would carry the
+        // wallet's requests unencrypted.
+        endpoint.scheme != 'https' ||
         endpoint.host.isEmpty ||
         endpoint.userInfo.isNotEmpty ||
         endpoint.hasQuery ||
         (endpoint.path.isNotEmpty && endpoint.path != '/')) {
       continue;
     }
-    final operator = (item['operator'] as String?)?.trim();
+    final operator = cleanOperator(item['operator'] as String?);
     nodes.add(
       NodeStatus(
         url: endpoint.hasPort
@@ -147,9 +156,7 @@ List<NodeStatus> parseNodeStatus(String json) {
             : '${endpoint.scheme}://${endpoint.host}',
         healthy: item['state'] == 'healthy',
         verified: item['verified'] == true,
-        operator: operator == null || operator.isEmpty || operator.length > 64
-            ? null
-            : operator,
+        operator: operator,
         height: (item['height'] as num?)?.toInt(),
         latencyMs: (item['latency_ms'] as num?)?.toInt(),
       ),

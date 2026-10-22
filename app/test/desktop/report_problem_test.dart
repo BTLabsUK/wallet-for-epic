@@ -51,6 +51,13 @@ Future<void> describe(WidgetTester tester, String text) async {
 
 Future<void> send(WidgetTester tester) async {
   await tester.tap(find.widgetWithText(EButton, 'Send'));
+  await settle(tester);
+}
+
+/// Past the preview's pause, then the report built on its isolate.
+Future<void> settle(WidgetTester tester) async {
+  await tester.pump(const Duration(milliseconds: 400));
+  await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 800)));
   await tester.pumpAndSettle();
 }
 
@@ -100,7 +107,7 @@ void main() {
     await tester.enterText(find.descendant(of: find.byType(ReportProblemDialog), matching: find.byType(TextField)).at(1), 'me@example.com');
     await tester.pump();
     await tester.tap(find.text('What is sent'));
-    await tester.pumpAndSettle();
+    await settle(tester);
     final preview = previewText(tester);
     // The rows on screen are the text's first lines.
     expect(find.text(preview.split('\n').first), findsOneWidget);
@@ -115,10 +122,10 @@ void main() {
 
     // Without logs, the preview says so.
     await tester.tap(find.text('Attach logs (recommended)'));
-    await tester.pumpAndSettle();
+    await settle(tester);
     expect(previewText(tester), contains('Logs: none attached'));
     await tester.tap(find.text('Attach logs (recommended)'));
-    await tester.pumpAndSettle();
+    await settle(tester);
 
     await send(tester);
     expect(h.outlet.posted.single.report.text.trimRight(), preview.trimRight());
