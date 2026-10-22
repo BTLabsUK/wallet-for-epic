@@ -6,6 +6,7 @@ library;
 import 'dart:math';
 
 import '../builtin_node.dart';
+import 'chain_data.dart' show isInside;
 import 'sync_progress.dart';
 
 enum LocalNodePhase { stopped, starting, syncing, synced, error }
@@ -102,6 +103,10 @@ class LocalNodeState {
 
   /// The node can be used for the wallet: synced to the network and ready for transactions.
   bool get online => phase == LocalNodePhase.synced;
+
+  /// The chain data lies outside the node's own folder: another node's, reused in place, or a
+  /// folder the user moved it to. "Delete chain data" is off for another node's folder.
+  bool get chainDataReused => !isInside(chainDataPath, dataFolder);
 
   @override
   bool operator ==(Object other) =>

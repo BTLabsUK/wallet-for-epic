@@ -27,6 +27,7 @@ import '../../legacy_gui_profile.dart' as gui;
 import '../../legacy_wallets.dart' as legacy;
 import '../../lepic_wallet_service.dart' show sendUnbuildable;
 import '../../log.dart';
+import '../../node/node_settings.dart' show NodeSettings;
 import '../../network.dart';
 import '../../providers.dart' show WalletDirResolver, defaultMinimumConfirmations;
 import '../../public_servers.dart';
@@ -1814,7 +1815,10 @@ class LepicDeskWallet implements DeskWalletApi {
   Future<BuiltInNode> _theNode() async {
     final make = _builtInNode;
     if (make == null) throw const DeskError('No built-in node in this build');
-    return _node ??= await make(preset.chain);
+    final node = _node ??= await make(preset.chain);
+    // The user's node settings (data folder, peers) apply to every start, also at launch.
+    node.options = await NodeSettings(_secrets, preset.chain).toOptions();
+    return node;
   }
 
   @override
@@ -1868,6 +1872,8 @@ class LepicDeskWallet implements DeskWalletApi {
   /// shown as a notice; the wallet then reports its node as not responding.
   Future<void> resumeBuiltInNode() async {
     if (!await _builtInOn()) return;
+    // "Start with the app" off: the user starts it from Settings › Node.
+    if (!await NodeSettings(_secrets, preset.chain).startWithApp()) return;
     try {
       await (await _theNode()).start();
     } on Object catch (e) {

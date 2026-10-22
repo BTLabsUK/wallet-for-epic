@@ -91,8 +91,9 @@ Future<List<Override>> deskOverrides() async {
     nodeDirectory: directory is NodeDirectory ? directory as NodeDirectory : null,
     builtInNode: builtInNodeSupported
         ? (chain) async {
+            // The one node object of the chain, shared with the node providers.
             final where = await container.read(builtInNodeLocationProvider.future);
-            return BuiltInNode(root: where.root, binary: where.binary, chain: chain);
+            return builtInNodeFor(where, chain);
           }
         : null,
     pickDirectory: () => FilePicker.getDirectoryPath(dialogTitle: 'Choose the wallet folder'),

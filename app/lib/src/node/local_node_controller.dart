@@ -9,6 +9,7 @@ import 'dart:io';
 import 'dart:math';
 
 import '../builtin_node.dart';
+import '../models.dart' show Chain;
 import 'local_node_state.dart';
 import 'node_settings.dart';
 import 'sync_progress.dart';
@@ -91,6 +92,31 @@ class LocalNodeController {
   Future<void> stop() => node.stop();
 
   Future<void> restart() => node.restart();
+
+  Chain get chain => node.chain;
+
+  /// Measures the chain data size and the free disk space now (after a delete, move or reuse).
+  Future<void> refreshDisk() => _measure();
+
+  /// The chain data folder from the next start; null is the node's own `chain_data`. The size
+  /// measured so far belonged to the old folder, so the session's growth starts again.
+  Future<void> setChainDataPath(String? path) async {
+    await setOptions(node.options.copyWith(chainDataPath: () => path));
+    _chainDataBytes = null;
+    _chainDataBytesAtStart = null;
+    await _measure();
+  }
+
+  /// Max incoming and outgoing peers (`peer_max_inbound_count`, `peer_max_outbound_count`; the
+  /// node's default is 128 each); null is the default. Applies at the next start.
+  Future<void> setMaxPeers({int? inbound, int? outbound}) => setOptions(
+    node.options.copyWith(maxInbound: () => inbound, maxOutbound: () => outbound),
+  );
+
+  /// Preferred peers ("ip:port"); invalid ones are left out of the toml. Applies at the next
+  /// start.
+  Future<void> setPreferredPeers(List<String> peers) =>
+      setOptions(node.options.copyWith(preferredPeers: peers));
 
   /// Saves [options] and hands them to the node; a running node needs a restart to use them
   /// ([LocalNodeState.restartNeeded]).
