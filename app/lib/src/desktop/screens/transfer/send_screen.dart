@@ -8,11 +8,14 @@ import '../../../log.dart';
 import '../../data/api.dart' show DeskWalletApi;
 import '../../data/http_address.dart';
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
+import '../../../smart_outputs.dart';
 import '../../widgets/kit.dart';
 import 'contact_picker.dart';
 import 'epicbox_notice.dart';
 import '../settings/prefs.dart' show settingsPrefsProvider;
 import 'file_panels.dart';
+import 'send_advanced.dart';
+import 'send_summary_rows.dart';
 
 /// Where the Send page is, so the tour reaches every state without taps.
 enum SendStep { form, errors, review, sending, done, fileReady, failed }
@@ -32,6 +35,9 @@ class SendArgs {
     this.privacyOpen = false,
     this.suggest = false,
     this.switched = false,
+    this.strategy,
+    this.smart,
+    this.advancedOpen = false,
   });
 
   final TxMethod method;
@@ -49,6 +55,11 @@ class SendArgs {
 
   /// [recipient] was just pasted: the method follows it and the switch tag shows.
   final bool switched;
+
+  /// This send's strategy and Split change (Advanced); null is the Outputs default.
+  final SelectionStrategy? strategy;
+  final bool? smart;
+  final bool advancedOpen;
 }
 
 /// The summary of a send, shown in the review.
@@ -62,6 +73,11 @@ class _Draft {
     required this.message,
     required this.sendAll,
     required this.dandelion,
+    this.summary,
+    this.options,
+    this.strategy = SelectionStrategy.smallest,
+    this.defaultStrategy = SelectionStrategy.smallest,
+    this.extraFee = 0,
   });
 
   final TxMethod method;
@@ -72,6 +88,17 @@ class _Draft {
   final String message;
   final bool sendAll;
   final bool dandelion;
+
+  /// What the send spends, locks and leaves (F11); null without an estimate.
+  final SendSummary? summary;
+
+  /// The strategy and change outputs the estimate was made with; the send uses the same.
+  final SendOptions? options;
+  final SelectionStrategy strategy;
+  final SelectionStrategy defaultStrategy;
+
+  /// What splitting the change adds to the fee.
+  final int extraFee;
 
   int get total => amount + fee;
 }
@@ -130,6 +157,11 @@ class _SendScreenState extends ConsumerState<SendScreen> {
   bool _suggestOff = false;
   int? _fee;
   int _feeFor = -1;
+  // The estimate with this send's strategy and Split change (F11, F12): [_fee] is its fee.
+  SmartSendPlan? _plan;
+  // Advanced: this send's choices; null takes the Outputs default.
+  late SelectionStrategy? _strategyOverride = _args.strategy;
+  late bool? _smartOverride = _args.smart;
   // The auto-switch (spec 8.4): the To text before this change, and the tag's method while
   // it shows (3 s).
   String _lastTo = '';
@@ -226,26 +258,67 @@ class _SendScreenState extends ConsumerState<SendScreen> {
 
   bool _canSend(DeskState st) => _nodeBlock(st) == null && !_epicboxBlocked(st) && !_torBlocked(st) && _result is! SendDone;
 
+  OutputPrefs get _prefs => ref.read(deskOutputPrefsProvider).value ?? const OutputPrefs();
+
+  /// Sending everything spends every output.
+  SelectionStrategy get _strategy => _all ? SelectionStrategy.all : (_strategyOverride ?? _prefs.strategy);
+
+  bool get _smart => _smartOverride ?? _prefs.smartOutputs;
+
+  /// The send of [n] as it would go out now: LEPIC's estimate with the strategy, and again
+  /// with the change split when SmartOutputs says so (the app never works out a fee).
+  Future<SmartSendPlan> _planFor(int n) async {
+    final api = ref.read(deskApiProvider);
+    if (_all) {
+      const all = SendOptions(strategy: SelectionStrategy.all);
+      final e = await api.estimateSend(n, options: all);
+      return SmartSendPlan(base: e, decision: const SmartOutputsDecision(1, SmartOutputsReason.noChange, outputsLeft: 0), estimate: e, options: all);
+    }
+    int? spendable;
+    try {
+      spendable = (await ref.read(deskOutputsProvider.future)).where((o) => o.spendable).length;
+    } on Object {
+      // Without the list the change is not split.
+    }
+    return planSend(
+      estimate: (o) => api.estimateSend(n, options: o),
+      strategy: _strategy,
+      smartOutputsOn: _smart && spendable != null,
+      spendableOutputs: spendable ?? 0,
+      splitRefused: deskSplitRefused,
+    );
+  }
+
+  /// Estimates again at once (Advanced changed, the defaults or the balance moved).
+  void _replan() {
+    _feeFor = -1;
+    unawaited(_loadFee());
+  }
+
   Future<void> _loadFee() async {
     final n = _amountNano;
     if (n <= 0) {
       setState(() {
         _fee = null;
+        _plan = null;
         _feeFor = -1;
       });
       return;
     }
     if (n == _feeFor) return;
     _feeFor = n;
-    int? fee;
+    SmartSendPlan? plan;
     try {
-      fee = await ref.read(deskApiProvider).estimateFee(n);
+      plan = await _planFor(n);
     } on Object {
       // More than can be sent, or the wallet is busy: the amount check says which.
-      fee = null;
+      plan = null;
     }
     if (!mounted || _feeFor != n) return;
-    setState(() => _fee = fee);
+    setState(() {
+      _plan = plan;
+      _fee = plan?.estimate.fee;
+    });
   }
 
   /// The method follows the address (spec 8.4): a complete address of another kind, or any
@@ -333,6 +406,12 @@ class _SendScreenState extends ConsumerState<SendScreen> {
         _amountEdited = true;
         _fee = fee;
         _feeFor = n;
+        _plan = SmartSendPlan(
+          base: max!,
+          decision: const SmartOutputsDecision(1, SmartOutputsReason.noChange, outputsLeft: 0),
+          estimate: max,
+          options: const SendOptions(strategy: SelectionStrategy.all),
+        );
         _amount.text = formatEpic(n, minDecimals: 0).replaceAll(',', '');
       });
     } catch (_) {
@@ -451,10 +530,10 @@ class _SendScreenState extends ConsumerState<SendScreen> {
 
   Future<void> _openReview({bool startBusy = false}) async {
     // The summary's estimate may still be on its way: the review always shows the real fee.
-    if (_fee == null) {
-      final int fee;
+    if (_fee == null || _plan?.estimate.amount != _amountNano) {
+      final SmartSendPlan plan;
       try {
-        fee = await ref.read(deskApiProvider).estimateFee(_amountNano);
+        plan = await _planFor(_amountNano);
       } on Object catch (e) {
         if (mounted) {
           setState(() {
@@ -465,10 +544,15 @@ class _SendScreenState extends ConsumerState<SendScreen> {
         return;
       }
       if (!mounted) return;
-      setState(() => _fee = fee);
+      setState(() {
+        _plan = plan;
+        _fee = plan.estimate.fee;
+      });
     }
     final contacts = ref.read(deskProvider).contacts;
     final n = _amountNano;
+    final plan = _plan;
+    final balance = ref.read(deskProvider).balance;
     final draft = _Draft(
       method: _method,
       to: _method == TxMethod.file ? null : _to.text.trim(),
@@ -478,6 +562,11 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       message: _message.text.trim(),
       sendAll: _all,
       dandelion: _dandelion,
+      summary: plan == null || balance == null ? null : SendSummary.of(balance: balance.total, spendable: balance.spendable, estimate: plan.estimate),
+      options: plan?.options,
+      strategy: _strategy,
+      defaultStrategy: _prefs.strategy,
+      extraFee: plan == null ? 0 : plan.estimate.fee - plan.base.fee,
     );
     // Plain HTTP to another computer: the slate travels unencrypted, so ask first.
     final plain = draft.method == TxMethod.http && plainHttpNeedsConsent(draft.to!);
@@ -506,8 +595,8 @@ class _SendScreenState extends ConsumerState<SendScreen> {
             sendAll: draft.sendAll,
             dandelion: draft.dandelion,
             allowPlainHttp: plain,
-            // A send-all takes every coin into one change output, as its estimate did.
-            options: draft.sendAll && draft.method != TxMethod.tor ? const SendOptions(strategy: SelectionStrategy.all) : null,
+            // As estimated: the strategy, the change outputs; a send-all spends every output.
+            options: draft.options ?? (draft.sendAll ? const SendOptions(strategy: SelectionStrategy.all) : null),
           ),
         ),
       ),
@@ -549,6 +638,10 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     final st = ref.watch(deskProvider);
     final nav = ref.read(deskNavProvider.notifier);
     final res = _result;
+    // The Outputs defaults and the balance feed the estimate: a change estimates again.
+    ref.watch(deskOutputPrefsProvider);
+    ref.listen(deskOutputPrefsProvider, (_, _) => _replan());
+    ref.listen(deskProvider.select((s) => s.balance), (_, _) => _replan());
     // A half-filled form holds Back (mouse, Alt+Left).
     return DeskStepBack(
       onBack: res is! SendFileReady && (_to.text.isNotEmpty || _amount.text.isNotEmpty || _message.text.isNotEmpty) ? () {} : null,
@@ -818,6 +911,23 @@ class _SendScreenState extends ConsumerState<SendScreen> {
             onChanged: (_) => setState(() {}),
           ),
         ),
+        SizedBox(height: Sp.x5),
+        SendAdvanced(
+          strategy: _strategy,
+          defaultStrategy: _prefs.strategy,
+          split: _smart,
+          sendAll: _all,
+          initiallyOpen: _args.advancedOpen,
+          onStrategy: (v) {
+            setState(() => _strategyOverride = v);
+            _replan();
+          },
+          onSplit: (v) {
+            setState(() => _smartOverride = v);
+            _replan();
+          },
+          onOutputs: () => ref.read(deskNavProvider.notifier).go(DeskRoute.outputs),
+        ),
         if (DeskFeatures.dandelion && !file) ...[
           SizedBox(height: Sp.x5),
           EDetails(
@@ -850,10 +960,16 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       _ when _reviewing => 'Checking the fee for this amount.',
       _ => 'Nothing is sent until confirmed.',
     };
+    final plan = _plan?.estimate.amount == n && n > 0 ? _plan : null;
+    final balance = st.balance;
     return _SendSummary(
       amount: n,
       fee: fee,
       spendable: spendable,
+      summary: plan == null || balance == null ? null : SendSummary.of(balance: balance.total, spendable: balance.spendable, estimate: plan.estimate),
+      extraFee: plan == null ? 0 : plan.estimate.fee - plan.base.fee,
+      strategy: _strategy,
+      defaultStrategy: _prefs.strategy,
       updating: st.status?.syncProgress != null,
       hint: hint,
       reviewing: _reviewing,
@@ -873,7 +989,19 @@ class _SendSummary extends StatelessWidget {
     required this.hint,
     required this.reviewing,
     required this.onReview,
+    this.summary,
+    this.extraFee = 0,
+    this.strategy = SelectionStrategy.smallest,
+    this.defaultStrategy = SelectionStrategy.smallest,
   });
+
+  /// What the send spends, locks and leaves (F11, F12); null until it is estimated.
+  final SendSummary? summary;
+
+  /// What splitting the change adds to the fee.
+  final int extraFee;
+  final SelectionStrategy strategy;
+  final SelectionStrategy defaultStrategy;
 
   /// In nano EPIC; 0 when nothing valid is entered.
   final int amount;
@@ -913,9 +1041,15 @@ class _SendSummary extends StatelessWidget {
         children: [
           line('Amount', n > 0 ? n : null, risk: bad),
           line('Network fee', fee > 0 ? fee : null),
+          ExpandFade(
+            open: ready && (summary?.changeOutputs ?? 0) > 1,
+            child: summary == null || summary!.changeOutputs < 2
+                ? const SizedBox.shrink()
+                : SendSplitLine(outputs: summary!.changeOutputs, extraFee: extraFee, change: summary!.change),
+          ),
           Divider(height: Sp.x4, color: c.line),
           line('Total', ready ? n + fee : null, strong: true),
-          line('Balance after', ready && spendable != null ? spendable! - n - fee : null, dim: true),
+          SendLockRows(summary: ready ? summary : null, strategy: strategy, defaultStrategy: defaultStrategy),
           if (updating) Text('Balance updating while the wallet scans.', style: ts.caption),
           SizedBox(height: Sp.x4),
           EButton.primary(label: 'Review send', icon: EIcons.send, expand: true, busy: reviewing, onPressed: onReview),
@@ -1203,6 +1337,8 @@ class _ReviewDialogState extends State<_ReviewDialog> {
       TxMethod.tor => 'Tor (their wallet must be open)',
       TxMethod.file => 'Transaction file',
     };
+    final sum = d.summary;
+    final lines = sum == null ? null : reviewOutputLines(sum, strategy: d.strategy, defaultStrategy: d.defaultStrategy, extraFee: d.extraFee);
     return EDialog(
       title: 'Check and send',
       description: 'A send cannot be undone once it is posted.',
@@ -1236,8 +1372,18 @@ class _ReviewDialogState extends State<_ReviewDialog> {
                 ),
               ),
             ('Via', Text(via, style: ts.body)),
-            ('Network fee', EMoney(d.fee)),
+            (
+              'Network fee',
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  EMoney(d.fee),
+                  if (lines?.feeSecondLine != null) Text(lines!.feeSecondLine!, style: ts.small),
+                ],
+              ),
+            ),
             ('Total', EMoney(d.total, weight: FontWeight.w600)),
+            ...?lines?.facts,
             if (DeskFeatures.dandelion && d.method != TxMethod.file) ('Privacy', Text(d.dandelion ? 'Dandelion++ on' : 'Dandelion++ off', style: ts.body)),
             if (d.message.isNotEmpty) ('Message', Text(d.message, style: ts.body)),
           ], labelWidth: 100.u),
