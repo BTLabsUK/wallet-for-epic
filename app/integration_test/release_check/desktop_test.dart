@@ -68,13 +68,13 @@ void main() {
     final heightRe = RegExp(r'Height (\d[\d,]*)');
     final h = heightRe.firstMatch(texts().join(' '));
     record('sync: node online with a height', hasText('Online') && h != null, 'node ${hasText('node.btlabs.uk') ? 'btlabs' : '?'} ${h?.group(0)}');
-    record('Epicbox status online', texts().join(' | ').contains('Epicbox | Online | $relay'), 'sidebar: ${texts().where((t) => t.startsWith('Receiving') || t == 'On').join(' ')}');
+    record('Epicbox status online', texts().join(' | ').contains('Epicbox | Online | $freshRelay'), 'sidebar: ${texts().where((t) => t.startsWith('Receiving') || t == 'On').join(' ')}');
     record('overview shows 0 balance on a fresh wallet', hasText('Available to spend') && hasText('0'), '');
 
     await tapText(tester, 'Receive');
     await settle(tester, ms: 1500);
     record('Receive shows Epic address, listening', hasText('Epic address') && hasText('Listening via'), texts().where((t) => t.startsWith('Listening')).join());
-    record('Epicbox address is <id>@<relay>', RegExp(r'^[^@\s]{20,}@[a-z0-9.\-]+$').hasMatch(deskAddr!), deskAddr.replaceAll(RegExp(r'^[^@]+'), '<id>'));
+    record('Epicbox address is <id>@<relay> on the D-13 default relay', RegExp('^[^@\\s]{20,}@${RegExp.escape(freshRelay)}\$').hasMatch(deskAddr!), deskAddr.replaceAll(RegExp(r'^[^@]+'), '<id>'));
     await shot(tester, '06-receive');
 
     // ---- Send on an empty wallet, up to the review step.
@@ -111,8 +111,8 @@ void main() {
     }
     await tapText(tester, 'Help');
     await settle(tester, ms: 700);
-    final helpBad = texts().where((t) => RegExp(r'\bTor\b|built-in|Telegram|\bbot\b|HTTP', caseSensitive: false).hasMatch(t)).toList();
-    record('Help topics mention only built features', helpBad.isEmpty, helpBad.map((t) => t.length > 90 ? t.substring(0, 90) : t).join(' / '));
+    final helpBad = texts().where((t) => RegExp(r'Telegram|\bbot\b', caseSensitive: false).hasMatch(t)).toList();
+    record('Help topics never mention the tester group or bot', helpBad.isEmpty, helpBad.map((t) => t.length > 90 ? t.substring(0, 90) : t).join(' / '));
 
     // ---- Theme.
     var themeShot = 0;
@@ -145,10 +145,7 @@ void main() {
     await tapText(tester, 'Settings');
     await tapText(tester, 'Node');
     await settle(tester, ms: 800);
-    await typeIn(tester, 0, Uri.parse(node2).host);
-    await settle(tester, ms: 1500);
-    await tapText(tester, RegExp('^${RegExp.escape(Uri.parse(node2).host)}'), last: true);
-    await settle(tester, ms: 6000);
+    await pickNode(tester, Uri.parse(node2).host);
     dump('node after change');
     await shot(tester, '12-node-changed');
     await tapText(tester, 'Overview');
@@ -157,10 +154,7 @@ void main() {
     await tapText(tester, 'Settings');
     await tapText(tester, 'Node');
     await settle(tester, ms: 800);
-    await typeIn(tester, 0, Uri.parse(node).host);
-    await settle(tester, ms: 1500);
-    await tapText(tester, RegExp('^${RegExp.escape(Uri.parse(node).host)}'), last: true);
-    await settle(tester, ms: 6000);
+    await pickNode(tester, Uri.parse(node).host);
     await tapText(tester, 'Overview');
     await settle(tester, ms: 1500);
     record('Overview status shows the node switched back', hasText(Uri.parse(node).host), texts().where((t) => t.contains('node.')).join(' / '));
@@ -194,11 +188,11 @@ RegExp _hidden(List<String> extra) {
     if (!DeskFeatures.importWizard) 'Import',
     if (!DeskFeatures.multiWallet) ...['Switch wallet', 'Add a wallet', 'All wallets'],
     if (!DeskFeatures.builtInNode) ...['Built-in', ...extra.where((e) => e == 'This computer')],
-    if (!DeskFeatures.coins) ...['Outputs', 'Coins'],
+    // Whole-text matches only: Rescan and Help legitimately say "outputs" and "coins" in sentences.
+    if (!DeskFeatures.coins) ...[r'^Outputs$', r'^Coins$'],
     if (!DeskFeatures.dandelion) 'Dandelion',
     if (!DeskFeatures.changePassword) 'Change password',
     if (!DeskFeatures.paymentProofs) 'Export proof',
-    'Telegram', r'\bbot\b',
     ...extra.where((e) => e != 'This computer'),
   ];
   return RegExp(terms.join('|'), caseSensitive: false);

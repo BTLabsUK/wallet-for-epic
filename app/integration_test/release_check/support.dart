@@ -16,7 +16,8 @@ import 'package:flutter_test/flutter_test.dart';
 
 const node = String.fromEnvironment('WFE_CHECK_NODE', defaultValue: 'https://node.btlabs.uk');
 const node2 = String.fromEnvironment('WFE_CHECK_NODE2', defaultValue: 'https://node.epicnet.us:3413');
-const relay = String.fromEnvironment('WFE_CHECK_RELAY', defaultValue: 'epicbox.epiccash.com');
+/// D-13: a fresh install starts on this relay whatever relay the run picked for reachability.
+const freshRelay = 'epicbox.epiccash.com';
 
 final shotsDir = Platform.environment['RC_SHOTS'] ?? 'build/rc_shots';
 
@@ -56,6 +57,18 @@ Future<void> boot(WidgetTester tester, {Size size = const Size(1280, 860), List<
 }
 
 /// Lets real time pass (native calls, network) while pumping frames.
+/// Picks a node in Settings > Node: tap the combo field, type the host, tap the listed item
+/// (the way feedback_w123/ui_quick_test.dart does it).
+Future<void> pickNode(WidgetTester tester, String host) async {
+  final combo = find.byType(EditableText).first;
+  await tester.tap(combo, warnIfMissed: false);
+  await tester.pump();
+  await tester.enterText(combo, host);
+  await settle(tester, ms: 1500);
+  await tapText(tester, RegExp('^${RegExp.escape(host)}'), last: true);
+  await settle(tester, ms: 8000);
+}
+
 Future<void> settle(WidgetTester tester, {int ms = 400}) async {
   await tester.runAsync(() => Future<void>.delayed(Duration(milliseconds: ms)));
   await tester.pump(const Duration(milliseconds: 100));
