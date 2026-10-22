@@ -146,7 +146,7 @@ class _SettingsAccountScreenState extends ConsumerState<SettingsAccountScreen> {
               ),
               ESetRow(
                 title: 'Recheck balance',
-                text: 'Scans the chain again when the balance looks wrong.',
+                text: 'Reads the chain again when the balance looks wrong.',
                 control: EButton(label: 'Recheck…', icon: EIcons.scan, size: EBtnSize.sm, onPressed: () => nav.go(DeskRoute.settingsRescan)),
               ),
             ],
