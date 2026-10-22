@@ -270,6 +270,13 @@ class AppLocalizationsRu extends AppLocalizations {
   String get errorTransportFailed => 'Не удалось связаться с получателем.';
 
   @override
+  String get errorTorNotRunning => 'Tor не подключён.';
+
+  @override
+  String get errorOnionUnreachable =>
+      'Не удалось связаться с кошельком получателя через Tor.';
+
+  @override
   String get errorChainBusy =>
       'Кошелёк ещё занят в другой сети. Подождите немного и повторите попытку или перезапустите приложение.';
 
@@ -2010,7 +2017,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get receiveQrLabel => 'QR-код вашего адреса';
 
   @override
-  String get receiveAddressLabel => 'Ваш адрес';
+  String get receiveAddressLabel => 'Адрес Epicbox';
 
   @override
   String get receiveEpicboxOfflineBody =>
@@ -3202,6 +3209,12 @@ class AppLocalizationsRu extends AppLocalizations {
   String get settingsSourceCode => 'Исходный код';
 
   @override
+  String get settingsLicences => 'Лицензии';
+
+  @override
+  String get settingsLicencesHint => 'Открытое ПО в этом кошельке';
+
+  @override
   String get settingsCopyLink => 'Копировать ссылку';
 
   @override
@@ -3869,4 +3882,123 @@ class AppLocalizationsRu extends AppLocalizations {
   String demoGuideStepToDo(String step) {
     return '$step, ещё не сделано';
   }
+
+  @override
+  String get receiveTabEpicbox => 'Epicbox';
+
+  @override
+  String get receiveTabTor => 'Tor';
+
+  @override
+  String get receiveTabFile => 'Файл';
+
+  @override
+  String get receiveTorAddressLabel => 'Адрес Tor';
+
+  @override
+  String get receiveTorQrLabel => 'QR-код вашего адреса Tor';
+
+  @override
+  String get torReceivingTitle => 'Приём через Tor';
+
+  @override
+  String get torHonestLine =>
+      'Медленнее и приватнее. В некоторых странах заблокирован или не разрешён. Принимает только пока приложение открыто.';
+
+  @override
+  String get torStateOff => 'Приём через Tor выключен';
+
+  @override
+  String torStateStarting(int percent) {
+    return 'Подключение к Tor… $percent%';
+  }
+
+  @override
+  String get torStatePublishing => 'Публикация вашего адреса Tor…';
+
+  @override
+  String get torStateReady => 'Приём через Tor включён';
+
+  @override
+  String torStateNotReachable(String reason) {
+    return 'Ваш адрес Tor пока недоступен. $reason';
+  }
+
+  @override
+  String get torFailureMissing => 'Tor не входит в это приложение.';
+
+  @override
+  String get torFailureStart => 'Tor не запустился.';
+
+  @override
+  String get torFailureNetwork =>
+      'Не удалось подключиться к сети Tor. Проверьте соединение.';
+
+  @override
+  String get torFailureClock =>
+      'Часы телефона идут неверно. Tor нужно правильное время.';
+
+  @override
+  String get torFailureListener => 'Кошелёк не смог открыть свой адрес Tor.';
+
+  @override
+  String get torFailureStopped => 'Tor остановился.';
+
+  @override
+  String get torFailurePublish => 'Не удалось опубликовать адрес Tor.';
+
+  @override
+  String get torFailureKeys => 'Tor не принял ключ адреса кошелька.';
+
+  @override
+  String get sendOnionIncomplete =>
+      'Это неполный адрес Tor. Скопируйте его у получателя ещё раз.';
+
+  @override
+  String get sendTorUnavailable =>
+      'Это приложение не отправляет через Tor, поэтому заплатить на адрес Tor здесь нельзя.';
+
+  @override
+  String get sendOverTor => 'Через Tor';
+
+  @override
+  String get sendTorConnectsOnSend => 'Tor подключается при отправке.';
+
+  @override
+  String get sendTorReady => 'Готово к отправке через Tor';
+
+  @override
+  String get sendTorReaching =>
+      'Связываемся с кошельком получателя через Tor… Это может занять время. Не закрывайте приложение.';
+
+  @override
+  String sendTorNotReached(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other:
+          'Не удалось связаться с кошельком получателя через Tor. Сумма заблокирована, пока вы её не отмените, но не дольше $days дня.',
+      many:
+          'Не удалось связаться с кошельком получателя через Tor. Сумма заблокирована, пока вы её не отмените, но не дольше $days дней.',
+      few:
+          'Не удалось связаться с кошельком получателя через Tor. Сумма заблокирована, пока вы её не отмените, но не дольше $days дней.',
+      one:
+          'Не удалось связаться с кошельком получателя через Tor. Сумма заблокирована, пока вы её не отмените, но не дольше $days дня.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String sendTorNothingSent(String reason) {
+    return '$reason Ничего не отправлено.';
+  }
+
+  @override
+  String get sendTryAgain => 'Повторить';
+
+  @override
+  String get sendCancelPayment => 'Отменить платёж';
+
+  @override
+  String get settingsSectionReceiving => 'Приём';
 }

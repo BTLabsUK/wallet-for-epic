@@ -11,6 +11,7 @@ import 'package:epic_wallet/src/relay_directory.dart';
 import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/settings.dart';
 import 'package:epic_wallet/src/slate_files.dart';
+import 'package:epic_wallet/src/tor_licence.dart';
 import 'package:epic_wallet/src/ui/home_screen.dart';
 import 'package:epic_wallet/src/ui/restore_screen.dart';
 import 'package:epic_wallet/src/ui/scan_screen.dart';
@@ -1249,6 +1250,36 @@ void main() {
     );
   });
 
+  group('about', () {
+    testWidgets('Licences opens the licence page with the bundled tor in it', (
+      tester,
+    ) async {
+      registerTorLicence();
+      final h = _Harness();
+      await h.pump(tester);
+      await h.unlock(tester);
+      await h.openSettings(tester);
+      await _reveal(tester, find.byKey(settingsLicencesKey));
+      expect(find.text('Licences'), findsOneWidget);
+      await tester.tap(find.byKey(settingsLicencesKey));
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 1));
+      expect(find.byType(LicensePage), findsOneWidget);
+      expect(find.text('Epic Wallet'), findsWidgets);
+      // British, like the row and the rest of the app.
+      expect(find.text('Licences'), findsOneWidget);
+      expect(find.text('Licenses'), findsNothing);
+      // The registry reads the licences on real async.
+      for (var i = 0; i < 50 && find.text('tor').evaluate().isEmpty; i++) {
+        await tester.runAsync(
+          () => Future<void>.delayed(const Duration(milliseconds: 20)),
+        );
+        await tester.pump();
+      }
+      expect(find.text('tor'), findsOneWidget);
+    });
+  });
+
   group('wording', () {
     testWidgets('says where prices come from when they are turned on', (
       tester,
@@ -1415,27 +1446,28 @@ void main() {
       expect(await settingsTexts(tester), isNot(contains('Rescan the chain')));
     });
 
-    testWidgets('restore scans the whole chain and offers no start without it', (
-      tester,
-    ) async {
-      final h = _Harness(sealed: false, walletExists: false);
-      await h.pump(tester);
-      // The network choice shows without Advanced too, so a new install can reach floonet.
-      // By its semantics label, as label or icon: network_settings_button_test.dart checks
-      // which form shows, with the real faces.
-      expect(find.bySemanticsLabel('Network settings'), findsOneWidget);
-      await _tapText(tester, 'I already have a wallet: restore it');
-      expect(find.text('Where to start scanning'), findsNothing);
-      expect(find.text('Pick the date you created the wallet'), findsNothing);
-      expect(find.text('Block height'), findsNothing);
-      await _enter(tester, 'Recovery phrase', h.service.phrase);
-      await _tapText(tester, 'Continue');
-      await _enter(tester, 'PIN', _pin);
-      await _enter(tester, 'Repeat PIN', _pin);
-      expect(h.session.scanCalls, 1);
-      // No start height: the core scans a restored wallet from block 1.
-      expect(h.session.lastStart, isNull);
-    });
+    testWidgets(
+      'restore scans the whole chain and offers no start without it',
+      (tester) async {
+        final h = _Harness(sealed: false, walletExists: false);
+        await h.pump(tester);
+        // The network choice shows without Advanced too, so a new install can reach floonet.
+        // By its semantics label, as label or icon: network_settings_button_test.dart checks
+        // which form shows, with the real faces.
+        expect(find.bySemanticsLabel('Network settings'), findsOneWidget);
+        await _tapText(tester, 'I already have a wallet: restore it');
+        expect(find.text('Where to start scanning'), findsNothing);
+        expect(find.text('Pick the date you created the wallet'), findsNothing);
+        expect(find.text('Block height'), findsNothing);
+        await _enter(tester, 'Recovery phrase', h.service.phrase);
+        await _tapText(tester, 'Continue');
+        await _enter(tester, 'PIN', _pin);
+        await _enter(tester, 'Repeat PIN', _pin);
+        expect(h.session.scanCalls, 1);
+        // No start height: the core scans a restored wallet from block 1.
+        expect(h.session.lastStart, isNull);
+      },
+    );
 
     testWidgets('restore and first run offer the choices with it', (
       tester,

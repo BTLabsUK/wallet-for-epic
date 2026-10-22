@@ -524,6 +524,18 @@ abstract class AppLocalizations {
   /// **'Could not reach the recipient.'**
   String get errorTransportFailed;
 
+  /// A payment over Tor could not start because tor is not running or did not connect. Shown alone, without the core's detail.
+  ///
+  /// In en, this message translates to:
+  /// **'Tor is not connected.'**
+  String get errorTorNotRunning;
+
+  /// A payment over Tor did not reach the recipient's wallet at its Tor address. Same words as the start of sendTorNotReached.
+  ///
+  /// In en, this message translates to:
+  /// **'Their wallet was not reached over Tor.'**
+  String get errorOnionUnreachable;
+
   /// No description provided for @errorChainBusy.
   ///
   /// In en, this message translates to:
@@ -2717,7 +2729,7 @@ abstract class AppLocalizations {
   /// Caption above the wallet's full epicbox address on the Receive tab; a tap on the card copies the address.
   ///
   /// In en, this message translates to:
-  /// **'Your address'**
+  /// **'Epicbox address'**
   String get receiveAddressLabel;
 
   /// Shown under 'Epicbox offline' on the Receive tab, above a Retry button. epicbox is the relay service that carries payments (a proper name).
@@ -4616,6 +4628,18 @@ abstract class AppLocalizations {
   /// **'Source code'**
   String get settingsSourceCode;
 
+  /// Settings › About row that opens the list of licences of the open-source software the app includes (tor, fonts, word lists, packages).
+  ///
+  /// In en, this message translates to:
+  /// **'Licences'**
+  String get settingsLicences;
+
+  /// Under the Licences row. Not "app": the web demo shows this row too and never calls itself an app.
+  ///
+  /// In en, this message translates to:
+  /// **'Open-source software in this wallet'**
+  String get settingsLicencesHint;
+
   /// Screen-reader label of the copy icon on a link row.
   ///
   /// In en, this message translates to:
@@ -5665,6 +5689,192 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{step}, not done yet'**
   String demoGuideStepToDo(String step);
+
+  /// Receive, first tab: this wallet's epicbox address. epicbox is a proper name. Short: three tabs share one row on a phone.
+  ///
+  /// In en, this message translates to:
+  /// **'Epicbox'**
+  String get receiveTabEpicbox;
+
+  /// Receive, second tab (only when the app has Tor): this wallet's Tor address, an onion address. Tor is a proper name.
+  ///
+  /// In en, this message translates to:
+  /// **'Tor'**
+  String get receiveTabTor;
+
+  /// Receive, last tab: accepting a payment file. Short: three tabs share one row on a phone.
+  ///
+  /// In en, this message translates to:
+  /// **'File'**
+  String get receiveTabFile;
+
+  /// Caption above the wallet's full Tor address (the onion address) on the Receive tab; a tap on the card copies it.
+  ///
+  /// In en, this message translates to:
+  /// **'Tor address'**
+  String get receiveTorAddressLabel;
+
+  /// Screen reader label of the QR code of the wallet's Tor address.
+  ///
+  /// In en, this message translates to:
+  /// **'QR code of your Tor address'**
+  String get receiveTorQrLabel;
+
+  /// Title of the on/off switch for receiving payments over Tor, on the Receive tab and in Settings. Same words in both places.
+  ///
+  /// In en, this message translates to:
+  /// **'Tor receiving'**
+  String get torReceivingTitle;
+
+  /// The lines that describe Tor receiving, under the switch: only what is true. No time promises. The last sentence: the phone cuts the app's network when it leaves the screen, so a payment over Tor reaches the wallet only while the app is open; nothing waits for it elsewhere.
+  ///
+  /// In en, this message translates to:
+  /// **'Slower and more private. Blocked or not allowed in some countries. Receives only while the app is open.'**
+  String get torHonestLine;
+
+  /// Tor status line on Receive: the switch is off, so other wallets cannot reach this one over Tor.
+  ///
+  /// In en, this message translates to:
+  /// **'Tor receiving is off'**
+  String get torStateOff;
+
+  /// Tor status line while tor connects, with the percentage done. Also Send's status while it connects for a payment.
+  ///
+  /// In en, this message translates to:
+  /// **'Connecting to Tor… {percent}%'**
+  String torStateStarting(int percent);
+
+  /// Tor status line: connected, the wallet's onion address is being made reachable.
+  ///
+  /// In en, this message translates to:
+  /// **'Publishing your Tor address…'**
+  String get torStatePublishing;
+
+  /// Tor status line: other wallets can reach this one at its Tor address.
+  ///
+  /// In en, this message translates to:
+  /// **'Tor receiving is on'**
+  String get torStateReady;
+
+  /// Tor status line: tor is connected but the wallet's own address cannot be reached; {reason} is one of the torFailure sentences.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Tor address is not reachable yet. {reason}'**
+  String torStateNotReachable(String reason);
+
+  /// Why Tor is not working: this build has no tor binary.
+  ///
+  /// In en, this message translates to:
+  /// **'Tor is not included in this app.'**
+  String get torFailureMissing;
+
+  /// Why Tor is not working: the tor program did not start.
+  ///
+  /// In en, this message translates to:
+  /// **'Tor did not start.'**
+  String get torFailureStart;
+
+  /// Why Tor is not working: no progress connecting (offline, or Tor blocked). The line under the switch already says Tor is blocked in some countries, so this does not repeat it.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not reach the Tor network. Check the connection.'**
+  String get torFailureNetwork;
+
+  /// Why Tor is not working: the device's clock is off, which Tor refuses.
+  ///
+  /// In en, this message translates to:
+  /// **'The phone\'s clock is wrong. Tor needs the right time.'**
+  String get torFailureClock;
+
+  /// Why Tor is not working for receiving: the wallet's own Tor service did not start.
+  ///
+  /// In en, this message translates to:
+  /// **'The wallet could not open its Tor address.'**
+  String get torFailureListener;
+
+  /// Why Tor is not working: the tor program exited.
+  ///
+  /// In en, this message translates to:
+  /// **'Tor stopped.'**
+  String get torFailureStopped;
+
+  /// Why Tor is not working for receiving: the onion address was not published in time.
+  ///
+  /// In en, this message translates to:
+  /// **'The Tor address could not be published.'**
+  String get torFailurePublish;
+
+  /// Why Tor is not working for receiving: tor refused the wallet's onion key.
+  ///
+  /// In en, this message translates to:
+  /// **'Tor did not accept the wallet\'s address key.'**
+  String get torFailureKeys;
+
+  /// Send, step 1, and a contact's address: the text looks like a Tor (onion) address but its checksum fails: a typo or a cut.
+  ///
+  /// In en, this message translates to:
+  /// **'This is not a complete Tor address. Copy it again from the recipient.'**
+  String get sendOnionIncomplete;
+
+  /// Send, step 1: the recipient is a Tor address but this build or platform has no Tor.
+  ///
+  /// In en, this message translates to:
+  /// **'This app cannot send over Tor, so a Tor address cannot be paid here.'**
+  String get sendTorUnavailable;
+
+  /// Small label on the recipient card and the review when the payment goes over Tor (the address is an onion address).
+  ///
+  /// In en, this message translates to:
+  /// **'Over Tor'**
+  String get sendOverTor;
+
+  /// Send, review: the recipient is a Tor address and tor is not running yet; it starts when Send is tapped.
+  ///
+  /// In en, this message translates to:
+  /// **'Tor connects when you send.'**
+  String get sendTorConnectsOnSend;
+
+  /// Send, review: tor is connected; the payment can go.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready to send over Tor'**
+  String get sendTorReady;
+
+  /// Send, review, while sending over Tor: the recipient's wallet is being contacted. No time promise.
+  ///
+  /// In en, this message translates to:
+  /// **'Reaching their wallet over Tor… This can take a while. Keep the app open.'**
+  String get sendTorReaching;
+
+  /// Send, review: the recipient's wallet was not reached over Tor; the wallet keeps the payment with its coins on hold until it is cancelled, and cancels it by itself after {days} days. Try again and Cancel payment follow.
+  ///
+  /// In en, this message translates to:
+  /// **'{days, plural, =1{Their wallet was not reached over Tor. The amount is on hold until you cancel it, or for at most 1 day.} other{Their wallet was not reached over Tor. The amount is on hold until you cancel it, or for at most {days} days.}}'**
+  String sendTorNotReached(int days);
+
+  /// Send, review: tor did not connect before anything was sent; {reason} is one of the torFailure sentences.
+  ///
+  /// In en, this message translates to:
+  /// **'{reason} Nothing was sent.'**
+  String sendTorNothingSent(String reason);
+
+  /// Button: deliver the waiting payment again over Tor.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get sendTryAgain;
+
+  /// Button: cancel the waiting payment, freeing its coins.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel payment'**
+  String get sendCancelPayment;
+
+  /// Settings section header: how payments reach this wallet (Tor receiving).
+  ///
+  /// In en, this message translates to:
+  /// **'Receiving'**
+  String get settingsSectionReceiving;
 }
 
 class _AppLocalizationsDelegate
