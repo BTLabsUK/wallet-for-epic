@@ -4,6 +4,7 @@
 import 'dart:io';
 
 import 'package:epic_wallet/src/desktop/widgets/kit.dart' show ESeedGrid;
+import 'package:epic_wallet/src/desktop/data/features.dart';
 import 'package:epic_wallet/src/desktop/data/state.dart' show deskApiProvider;
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -106,14 +107,14 @@ void main() {
     for (final page in ['Overview', 'Activity', 'Send', 'Receive', 'Contacts', 'Settings']) {
       await tapText(tester, page);
       await settle(tester, ms: 600);
-      final bad = texts().where((t) => RegExp(r'\bTor\b|onion|HTTP|Direct|Import|Switch wallet|Add a wallet|Built-in|Outputs|Coins|Dandelion|Telegram|\bbot\b', caseSensitive: false).hasMatch(t)).toList();
+      final bad = texts().where((t) => _hidden(const []).hasMatch(t)).toList();
       record('hidden features absent on $page', bad.isEmpty, bad.join(' / '));
     }
     for (final sub in ['Node', 'Receiving', 'Appearance', 'Rescan', 'About']) {
       await tapText(tester, 'Settings');
       await tapText(tester, sub);
       await settle(tester, ms: 700);
-      final bad = texts().where((t) => RegExp(r'\bTor\b|onion|HTTP|Direct|Import|Switch wallet|All wallets|Built-in|This computer|Outputs|Change password|Export proof|Telegram|\bbot\b|we ', caseSensitive: false).hasMatch(t)).toList();
+      final bad = texts().where((t) => _hidden(const ['This computer', 'we ']).hasMatch(t)).toList();
       record('hidden features absent in Settings > $sub', bad.isEmpty, bad.join(' / '));
     }
     await tapText(tester, 'Help');
@@ -191,4 +192,22 @@ void main() {
 
     record('no Flutter exceptions during the run', flutterErrors.isEmpty, flutterErrors.take(3).join(' / '));
   }, timeout: const Timeout(Duration(minutes: 25)));
+}
+
+/// Words that must not show while their feature is off, plus copy that must never show.
+RegExp _hidden(List<String> extra) {
+  final terms = [
+    if (!DeskFeatures.tor) ...[r'\bTor\b', 'onion'],
+    if (!DeskFeatures.httpDirect) ...['HTTP', 'Direct'],
+    if (!DeskFeatures.importWizard) 'Import',
+    if (!DeskFeatures.multiWallet) ...['Switch wallet', 'Add a wallet', 'All wallets'],
+    if (!DeskFeatures.builtInNode) ...['Built-in', ...extra.where((e) => e == 'This computer')],
+    if (!DeskFeatures.coins) ...['Outputs', 'Coins'],
+    if (!DeskFeatures.dandelion) 'Dandelion',
+    if (!DeskFeatures.changePassword) 'Change password',
+    if (!DeskFeatures.paymentProofs) 'Export proof',
+    'Telegram', r'\bbot\b',
+    ...extra.where((e) => e != 'This computer'),
+  ];
+  return RegExp(terms.join('|'), caseSensitive: false);
 }
