@@ -49,17 +49,48 @@ bool plainHttpNeedsConsent(String text) {
   return uri != null && uri.scheme.toLowerCase() == 'http' && !isLoopbackHost(uri.host);
 }
 
-/// This computer's first IPv4 address on the local network, or null (no network).
-Future<String?> lanAddress() async {
+/// Interfaces that are not the local network: containers, bridges, VPNs and tunnels.
+final RegExp _virtualInterface = RegExp(
+  r'^(docker|br-|virbr|veth|tun|wg|tailscale|utun|zt)',
+  caseSensitive: false,
+);
+
+/// 10/8, 172.16/12 or 192.168/16.
+bool isPrivateLanAddress(InternetAddress a) {
+  final b = a.rawAddress;
+  if (b.length != 4) return false;
+  return b[0] == 10 ||
+      (b[0] == 172 && b[1] >= 16 && b[1] <= 31) ||
+      (b[0] == 192 && b[1] == 168);
+}
+
+/// This computer's address on the local network for Receive: a private (RFC 1918) address of a
+/// real interface when there is one, else any other non-virtual IPv4 address; null with none.
+/// [list] is the interfaces, for tests.
+Future<String?> lanAddress({
+  Future<List<({String name, List<InternetAddress> addresses})>> Function()?
+  list,
+}) async {
   try {
-    final interfaces = await NetworkInterface.list(type: InternetAddressType.IPv4);
-    for (final i in interfaces) {
-      for (final a in i.addresses) {
-        if (!a.isLoopback && !a.isLinkLocal) return a.address;
-      }
+    final interfaces = await (list ?? _systemInterfaces)();
+    final found = <InternetAddress>[
+      for (final i in interfaces)
+        if (!_virtualInterface.hasMatch(i.name))
+          for (final a in i.addresses)
+            if (a.type == InternetAddressType.IPv4 && !a.isLoopback && !a.isLinkLocal) a,
+    ];
+    for (final a in found) {
+      if (isPrivateLanAddress(a)) return a.address;
     }
+    if (found.isNotEmpty) return found.first.address;
   } on Object {
     // No address to show; Receive says so.
   }
   return null;
 }
+
+Future<List<({String name, List<InternetAddress> addresses})>>
+_systemInterfaces() async => [
+  for (final i in await NetworkInterface.list(type: InternetAddressType.IPv4))
+    (name: i.name, addresses: i.addresses),
+];

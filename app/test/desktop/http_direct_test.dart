@@ -204,11 +204,147 @@ void main() {
       expect(container.read(deskProvider).settings.directHttp, isFalse);
       await desk.lock();
       expect(await wallet.unlock(_password), isTrue);
-      await desk.startLive(listen: false, http: true);
+      await wallet.saveSettings((await wallet.settings()).copyWith(httpAutostart: true));
+      await desk.startLive(listen: false);
       expect(session().httpListenerStarts.single.exposure, core.HttpExposure.localOnly);
       expect(container.read(deskProvider).settings.directHttp, isTrue);
       expect(session().listenerStarts, 1, reason: 'Epicbox stayed off this time');
       await desk.lock();
+    });
+  });
+
+  group('send failures and reposts', () {
+    const to = 'https://wallet.example.org';
+    const waits = 'The payment waits in Activity; cancel it there to unlock the funds.';
+
+    test('an error after the send was stored leaves it in Activity, whatever its kind', () async {
+      session()
+        ..storeBeforeError = true
+        ..sendError = const core.WalletError(kind: core.WalletErrorKind.nodeUnreachable, message: 'finalize failed');
+      final r = await wallet.send(const SendRequest(method: TxMethod.http, amount: 1000, to: to));
+      expect((r as SendFailed).inActivity, isTrue);
+      expect(r.message, 'Node not answering. $waits');
+      expect((await wallet.transactions()).where((t) => t.state == TxState.waitingRecipient), hasLength(1));
+    });
+
+    test('an error that stored nothing is not in Activity', () async {
+      session().sendError = const core.WalletError(kind: core.WalletErrorKind.notEnoughFunds, message: 'short');
+      final r = await wallet.send(const SendRequest(method: TxMethod.http, amount: 1000, to: to));
+      expect((r as SendFailed).inActivity, isFalse);
+      expect(r.message, isNot(contains('Activity')));
+      expect((await wallet.transactions()).where((t) => !t.incoming), isEmpty);
+    });
+
+    test('no answer reads as one sentence', () async {
+      session().sendError = const core.WalletError(kind: core.WalletErrorKind.transportFailed, message: 'refused');
+      final r = await wallet.send(const SendRequest(method: TxMethod.http, amount: 1000, to: to));
+      expect((r as SendFailed).message, startsWith('The recipient’s wallet did not answer or refused. '));
+    });
+
+    test('a node that did not take the payment gets it again once', () async {
+      session().httpPosted = false;
+      final r = await wallet.send(const SendRequest(method: TxMethod.http, amount: 1000, to: to));
+      expect(r, isA<SendDone>(), reason: r is SendFailed ? r.message : '');
+      expect(session().repostedKeys, hasLength(1));
+    });
+
+    test('still refused: the funds stay locked and Activity can cancel it', () async {
+      session()
+        ..httpPosted = false
+        ..repostFailures = 3;
+      final r = await wallet.send(const SendRequest(method: TxMethod.http, amount: 1000, to: to));
+      expect((r as SendFailed).message, 'Signed by both wallets, but the node refused it. Cancel it in Activity to unlock the funds.');
+      expect(r.inActivity, isTrue);
+      expect(session().repostFailures, 2, reason: 'tried once');
+      expect(session().repostedKeys, isEmpty);
+    });
+
+    test('plain http asks on each send', () async {
+      const plain = 'http://203.0.113.5:3415';
+      for (var i = 0; i < 2; i++) {
+        final r = await wallet.send(const SendRequest(method: TxMethod.http, amount: 1000, to: plain));
+        expect((r as SendFailed).message, 'Plain HTTP not confirmed');
+      }
+      expect(await wallet.send(const SendRequest(method: TxMethod.http, amount: 1000, to: plain, allowPlainHttp: true)), isA<SendDone>());
+      final again = await wallet.send(const SendRequest(method: TxMethod.http, amount: 1000, to: plain));
+      expect((again as SendFailed).message, 'Plain HTTP not confirmed', reason: 'consent is not remembered');
+      expect(session().httpSends, hasLength(1));
+    });
+  });
+
+  group('own HTTP settings per wallet', () {
+    Future<ProviderContainer> live() async {
+      final container = ProviderContainer(overrides: [deskApiProvider.overrideWithValue(wallet)]);
+      addTearDown(container.dispose);
+      return container;
+    }
+
+    test('a second wallet does not inherit the first one’s reach, port or autostart', () async {
+      await wallet.saveSettings((await wallet.settings()).copyWith(publicMode: true, httpPort: 3420, httpAutostart: true));
+      await wallet.createWallet(name: 'Savings', password: _password);
+      await wallet.lock();
+      final all = await wallet.wallets();
+      await wallet.selectWallet(all.firstWhere((w) => w.name == 'Savings').id);
+      expect(await wallet.unlock(_password), isTrue);
+      final desk = (await live()).read(deskProvider.notifier);
+      await desk.startLive(listen: false);
+      expect(session().httpListenerStarts, isEmpty, reason: 'Savings has autostart off');
+      final own = await wallet.settings();
+      expect((own.publicMode, own.httpPort, own.httpAutostart), (false, 3415, false));
+
+      // Savings keeps its own, apart from the first wallet.
+      await wallet.saveSettings(own.copyWith(httpPort: 3500, httpAutostart: true));
+      await wallet.lock();
+      await wallet.selectWallet(all.firstWhere((w) => w.name == 'Main').id);
+      expect(await wallet.unlock(_password), isTrue);
+      var first = await wallet.settings();
+      expect((first.publicMode, first.httpPort, first.httpAutostart), (true, 3420, true));
+      await desk.startLive(listen: false);
+      expect(session().httpListenerStarts.single, (exposure: core.HttpExposure.internet, port: 3420));
+      await wallet.lock();
+      await wallet.selectWallet(all.firstWhere((w) => w.name == 'Savings').id);
+      expect(await wallet.unlock(_password), isTrue);
+      first = await wallet.settings();
+      expect((first.publicMode, first.httpPort, first.httpAutostart), (false, 3500, true));
+    });
+
+    test('a reopen on another node restarts HTTP with the same reach', () async {
+      await wallet.saveSettings((await wallet.settings()).copyWith(directHttp: true, publicMode: true, httpPort: 3420));
+      await wallet.setHttpListening(true);
+      session().httpListenerEvents.add(const core.HttpListenerEvent(kind: core.HttpListenerEventKind.started, port: 3420));
+      await pumpEventQueue();
+      await wallet.useNode('https://node.example.org');
+      expect(session().httpListenerStarts, hasLength(2));
+      expect(session().httpListenerStarts.last, (exposure: core.HttpExposure.internet, port: 3420));
+    });
+  });
+
+  group('lanAddress', () {
+    List<({String name, List<InternetAddress> addresses})> nics(Map<String, String> byName) => [
+      for (final e in byName.entries) (name: e.key, addresses: [InternetAddress(e.value)]),
+    ];
+
+    test('prefers a private address and skips containers, bridges and tunnels', () async {
+      final a = await lanAddress(
+        list: () async => nics({
+          'docker0': '172.17.0.1',
+          'br-1f2e': '172.18.0.1',
+          'virbr0': '10.0.122.1',
+          'veth9': '172.19.0.2',
+          'tun0': '10.8.0.2',
+          'wg0': '10.9.0.2',
+          'tailscale0': '10.64.0.5',
+          'wlp3s0': '203.0.113.9',
+          'enp2s0': '10.0.1.24',
+        }),
+      );
+      expect(a, '10.0.1.24');
+    });
+
+    test('a public address only when no private one is left; none with only virtual ones', () async {
+      expect(await lanAddress(list: () async => nics({'docker0': '172.17.0.1', 'eth0': '203.0.113.9'})), '203.0.113.9');
+      expect(await lanAddress(list: () async => nics({'docker0': '172.17.0.1', 'utun3': '10.0.0.2', 'zt0': '10.1.0.2'})), isNull);
+      expect(await lanAddress(list: () async => nics({'lo': '127.0.0.1', 'eth0': '169.254.1.2'})), isNull);
     });
   });
 }

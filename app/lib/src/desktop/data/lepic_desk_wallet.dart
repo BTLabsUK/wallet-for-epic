@@ -395,6 +395,8 @@ class LepicDeskWallet implements DeskWalletApi {
           await r.delete(id, service: _service, config: config);
           await _store.delete(_metaKey(entry.walletId));
           await _store.delete(DeskStore.favouritesKeyOf(entry.walletId));
+          if (entry.walletId != null)
+            await _store.delete(DeskStore.httpKeyOf(entry.walletId));
       }
     } on reg.WalletRegistryException catch (e) {
       throw _listError(e);
@@ -477,6 +479,13 @@ class LepicDeskWallet implements DeskWalletApi {
     _password = password;
     _openEntry = entry;
     _selectedId = null;
+    // The HTTP listener's reach, port and autostart are this wallet's own.
+    final http = await _store.httpPrefs(entry.walletId);
+    _settings = _settings.copyWith(
+      publicMode: http.publicMode,
+      httpPort: http.port,
+      httpAutostart: http.autostart,
+    );
     await _setMeta({'opened': DateTime.now().millisecondsSinceEpoch ~/ 1000});
     try {
       if (_registry != null) _openEntry = await (await _registry!).markOpened(entry.id);
@@ -846,6 +855,8 @@ class LepicDeskWallet implements DeskWalletApi {
         await r.delete(id, service: _service, config: await _configOf(entry));
         await _store.delete(_metaKey(entry.walletId));
         await _store.delete(DeskStore.favouritesKeyOf(entry.walletId));
+        if (entry.walletId != null)
+          await _store.delete(DeskStore.httpKeyOf(entry.walletId));
         // Kept on failure, so Cancel can try again.
         _imported.remove(id);
       } on Object catch (e) {
@@ -1126,6 +1137,8 @@ class LepicDeskWallet implements DeskWalletApi {
     // Send all sends the reviewed amount: when it no longer fits, LEPIC refuses (not enough
     // funds) and the user reviews again, rather than paying an amount they did not see.
     final amount = r.amount;
+    // The rows before an HTTP send, to tell a send LEPIC stored from one it refused.
+    Set<int?>? before;
     try {
       final message = r.message?.trim().isEmpty ?? true ? null : r.message!.trim();
       switch (r.method) {
@@ -1159,6 +1172,7 @@ class LepicDeskWallet implements DeskWalletApi {
           if (problem != null) return SendFailed(problem);
           // Send asks before plain HTTP leaves this computer; LEPIC refuses it otherwise.
           if (plainHttpNeedsConsent(to) && !r.allowPlainHttp) return const SendFailed('Plain HTTP not confirmed');
+          before = {for (final e in _entries ?? await session.transactions(refresh: false)) e.id};
           final sent = await session.sendHttp(
             amount: BigInt.from(amount),
             minimumConfirmations: _minConf,
@@ -1169,20 +1183,43 @@ class LepicDeskWallet implements DeskWalletApi {
           await _reload();
           final tx = _txs().where((t) => t.id == sent.txId).firstOrNull ??
               Tx(id: sent.txId, slateId: sent.slateId, direction: TxDirection.sent, state: TxState.posted, method: TxMethod.http, amount: amount, fee: 0, created: DateTime.now(), counterparty: to);
-          if (!sent.posted) return const SendFailed('Signed by both wallets, but the node did not take it yet. It waits in Activity.', inActivity: true);
+          if (!sent.posted && !await _repost(session, sent.txId)) {
+            return const SendFailed('Signed by both wallets, but the node refused it. Cancel it in Activity to unlock the funds.', inActivity: true);
+          }
           return SendDone(tx);
         case TxMethod.tor:
           throw UnsupportedError('Tor send (DeskFeatures.tor)');
       }
     } on core.WalletError catch (e) {
       await _reload();
-      return switch (e.kind) {
-        core.WalletErrorKind.transportFailed when r.method == TxMethod.http =>
-          const SendFailed('The recipient’s wallet did not answer. The payment waits in Activity; cancel it there to unlock the funds.', inActivity: true),
-        core.WalletErrorKind.transportFailed => const SendFailed('Not delivered. The payment waits in Activity; cancel it there to unlock the funds.', inActivity: true),
-        _ => SendFailed(deskErrorText(e)),
-      };
+      // LEPIC stores an HTTP send and locks its inputs before it delivers: whatever fails after
+      // that leaves the payment in Activity.
+      final seen = before;
+      final stored = seen != null && (_entries ?? const <core.TxEntry>[]).any((t) => !seen.contains(t.id) && t.kind == core.TxKind.sent);
+      const waits = 'The payment waits in Activity; cancel it there to unlock the funds.';
+      if (e.kind == core.WalletErrorKind.transportFailed) {
+        return SendFailed(r.method == TxMethod.http ? 'The recipient’s wallet did not answer or refused. $waits' : 'Not delivered. $waits', inActivity: true);
+      }
+      if (stored) return SendFailed('${deskErrorText(e).replaceFirst(RegExp(r'\.$'), '')}. $waits', inActivity: true);
+      return SendFailed(deskErrorText(e));
     }
+  }
+
+  /// Posts a finished HTTP send again, once, when the node did not take it. True when it did.
+  Future<bool> _repost(core.WalletSession session, int txId) async {
+    final key = (_entries ?? const <core.TxEntry>[])
+        .where((t) => t.id == txId)
+        .firstOrNull
+        ?.key;
+    if (key == null) return false;
+    try {
+      await session.repostTransaction(key: key);
+    } on core.WalletError catch (e) {
+      logWarn('desk', 'repost: ${e.kind.name}');
+      return false;
+    }
+    await _reload();
+    return true;
   }
 
   Future<String> _readSlate(String path) async {
@@ -1286,6 +1323,9 @@ class LepicDeskWallet implements DeskWalletApi {
     final old = _settings;
     _settings = settings;
     final moved = settings.httpPort != old.httpPort || settings.publicMode != old.publicMode;
+    if (_session != null && (moved || settings.httpAutostart != old.httpAutostart)) {
+      await _store.saveHttpPrefs(_openEntry?.walletId, HttpPrefs(publicMode: settings.publicMode, port: settings.httpPort, autostart: settings.httpAutostart));
+    }
     if (moved && _session != null && (_http != null || _httpHealth == ServiceHealth.down)) {
       await _stopHttp();
       if (settings.directHttp) await setHttpListening(true);

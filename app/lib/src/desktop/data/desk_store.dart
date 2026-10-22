@@ -33,6 +33,53 @@ class DeskStore {
   /// [favouritesKey] of the wallet with registry [walletId]: unchanged for the first wallet.
   static String favouritesKeyOf(String? walletId) => walletId == null ? favouritesKey : '$favouritesKey.$walletId';
 
+  /// The HTTP listener's settings of the wallet with registry [walletId]: reach, port and
+  /// Start with the wallet. The first wallet (null) keeps them where 0.1.0 wrote them
+  /// ([settingsKey], [prefsKey]); an added wallet has its own key.
+  static const httpKey = 'desk.http';
+  static String httpKeyOf(String? walletId) => '$httpKey.$walletId';
+
+  Future<HttpPrefs> httpPrefs(String? walletId) async {
+    const d = HttpPrefs();
+    if (walletId != null) {
+      final j = await readJson(httpKeyOf(walletId));
+      return j is Map<String, dynamic> ? _httpPrefsFromJson(j, d) : d;
+    }
+    final settings = await readJson(settingsKey);
+    final prefs = await readJson(prefsKey);
+    final fromSettings = settings is Map<String, dynamic>
+        ? _httpPrefsFromJson(settings, d)
+        : d;
+    final autostart = prefs is Map<String, dynamic>
+        ? prefs['httpAutostart']
+        : null;
+    return HttpPrefs(
+      publicMode: fromSettings.publicMode,
+      port: fromSettings.port,
+      autostart: autostart is bool ? autostart : d.autostart,
+    );
+  }
+
+  Future<void> saveHttpPrefs(String? walletId, HttpPrefs p) async {
+    if (walletId != null)
+      return writeJson(httpKeyOf(walletId), {
+        'publicMode': p.publicMode,
+        'httpPort': p.port,
+        'autostart': p.autostart,
+      });
+    final settings = await readJson(settingsKey);
+    final prefs = await readJson(prefsKey);
+    await writeJson(settingsKey, {
+      ...?(settings is Map<String, dynamic> ? settings : null),
+      'publicMode': p.publicMode,
+      'httpPort': p.port,
+    });
+    await writeJson(prefsKey, {
+      ...?(prefs is Map<String, dynamic> ? prefs : null),
+      'httpAutostart': p.autostart,
+    });
+  }
+
   Future<Object?> readJson(String key) async {
     final text = await _secrets.read(key);
     if (text == null) return null;
@@ -53,7 +100,47 @@ class DeskStore {
     return json is Map<String, dynamic> ? deskSettingsFromJson(json) : const DeskSettings();
   }
 
-  Future<void> saveSettings(DeskSettings s) => writeJson(settingsKey, deskSettingsToJson(s));
+  /// The app-wide settings. The HTTP reach and port belong to the open wallet ([saveHttpPrefs]),
+  /// so what is saved for the first wallet stays as it is.
+  Future<void> saveSettings(DeskSettings s) async {
+    final saved = await settings();
+    await writeJson(settingsKey, deskSettingsToJson(s.copyWith(publicMode: saved.publicMode, httpPort: saved.httpPort)));
+  }
+
+  /// The settings screens' choices ([SettingsPrefs.toJson]); Start HTTP with the wallet is the
+  /// open wallet's ([saveHttpPrefs]), so the saved one stays.
+  Future<void> savePrefs(Map<String, Object?> json) async {
+    final saved = await readJson(prefsKey);
+    final autostart = saved is Map<String, dynamic> ? saved['httpAutostart'] : null;
+    await writeJson(prefsKey, {...json, 'httpAutostart': ?autostart});
+  }
+}
+
+/// A wallet's HTTP listener settings.
+@immutable
+class HttpPrefs {
+  const HttpPrefs({this.publicMode = false, this.port = 3415, this.autostart = false});
+
+  final bool publicMode;
+  final int port;
+  final bool autostart;
+
+  @override
+  bool operator ==(Object other) => other is HttpPrefs && other.publicMode == publicMode && other.port == port && other.autostart == autostart;
+
+  @override
+  int get hashCode => Object.hash(publicMode, port, autostart);
+}
+
+HttpPrefs _httpPrefsFromJson(Map<String, dynamic> j, HttpPrefs d) {
+  final port = j['httpPort'];
+  final public = j['publicMode'];
+  final auto = j['autostart'];
+  return HttpPrefs(
+    publicMode: public is bool ? public : d.publicMode,
+    port: port is int && port > 0 && port < 65536 ? port : d.port,
+    autostart: auto is bool ? auto : d.autostart,
+  );
 }
 
 Map<String, Object?> deskSettingsToJson(DeskSettings s) => {

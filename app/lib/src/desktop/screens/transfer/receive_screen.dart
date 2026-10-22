@@ -352,7 +352,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
             child: Text(
               switch (status.httpListener) {
                 ServiceHealth.ok => st.settings.publicMode
-                    ? 'On, port $port. From the internet once the router forwards the port.'
+                    ? 'On, port $port. Senders on the internet use http://<public IP>:$port once the router forwards the port.'
                     : 'On, port $port. This computer only (127.0.0.1).',
                 ServiceHealth.checking => 'Starting…',
                 _ => 'Off.',
@@ -372,6 +372,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
           below: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              if (http != null && st.settings.publicMode) Text('This network', style: ts.caption),
               Text(http ?? (httpOn ? '…' : 'Off'), style: ts.mono(size: Fs.sm, color: httpOn ? c.dim : c.faint), maxLines: 1, overflow: TextOverflow.ellipsis),
               SizedBox(height: Sp.x2),
               httpLine,

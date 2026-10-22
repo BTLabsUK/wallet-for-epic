@@ -9,6 +9,7 @@ import 'api.dart';
 import 'desk_store.dart';
 import 'mock_wallet.dart';
 import 'models.dart';
+import '../widgets/kit.dart' show DeskFeatures;
 
 /// The wallet behind the desktop UI. Override with a LEPIC adapter to go live.
 final deskApiProvider = Provider<DeskWalletApi>((ref) => MockDeskWallet());
@@ -82,9 +83,9 @@ class DeskController extends Notifier<DeskState> {
   }
 
   /// After unlock: starts the listener when [listen] (Settings › Start Epicbox with the wallet),
-  /// the HTTP listener when [http] (its Start with the wallet), and keeps the status rows and
-  /// lists live until [lock]. The HTTP switch starts as [http] says on every unlock.
-  Future<void> startLive({required bool listen, bool http = false}) async {
+  /// the HTTP listener when the opened wallet's Start with the wallet is on, and keeps the status rows and
+  /// lists live until [lock]. The HTTP switch starts as that says on every unlock.
+  Future<void> startLive({required bool listen}) async {
     _stopLive();
     _changes = api.changes().listen((_) {
       // Bursts of events (sync progress) reload the lists once, the status at once.
@@ -93,11 +94,12 @@ class DeskController extends Notifier<DeskState> {
       _reload = Timer(const Duration(milliseconds: 400), () => unawaited(_refreshQuietly()));
     });
     _statusPoll = Timer.periodic(const Duration(seconds: 5), (_) => unawaited(_loadStatus()));
-    final s = state.settings;
-    if (s.directHttp != http) {
-      state = state.copyWith(settings: s.copyWith(directHttp: http));
-      await api.saveSettings(state.settings);
-    }
+    // The reach, port and autostart are the opened wallet's own: read them from it.
+    final own = await api.settings();
+    final http = DeskFeatures.httpDirect && own.httpAutostart;
+    final s = state.settings.copyWith(publicMode: own.publicMode, httpPort: own.httpPort, httpAutostart: own.httpAutostart, directHttp: http);
+    state = state.copyWith(settings: s);
+    await api.saveSettings(s);
     try {
       if (listen) {
         await setListening(true);

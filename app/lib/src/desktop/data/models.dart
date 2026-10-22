@@ -297,6 +297,7 @@ class DeskSettings {
     this.tor = false,
     this.publicMode = false,
     this.httpPort = 3415,
+    this.httpAutostart = false,
     this.autoLockMinutes = 15,
     this.fiat = 'USD',
     this.newLookSeen = false,
@@ -324,6 +325,10 @@ class DeskSettings {
 
   /// The HTTP listener's port.
   final int httpPort;
+
+  /// The HTTP listener starts at unlock. Like [publicMode] and [httpPort] it is the open
+  /// wallet's own, not app-wide.
+  final bool httpAutostart;
   final int? autoLockMinutes;
   final String fiat;
 
@@ -341,6 +346,7 @@ class DeskSettings {
     bool? tor,
     bool? publicMode,
     int? httpPort,
+    bool? httpAutostart,
     int? autoLockMinutes,
     String? fiat,
     bool? newLookSeen,
@@ -355,6 +361,7 @@ class DeskSettings {
     tor: tor ?? this.tor,
     publicMode: publicMode ?? this.publicMode,
     httpPort: httpPort ?? this.httpPort,
+    httpAutostart: httpAutostart ?? this.httpAutostart,
     autoLockMinutes: autoLockMinutes ?? this.autoLockMinutes,
     fiat: fiat ?? this.fiat,
     newLookSeen: newLookSeen ?? this.newLookSeen,

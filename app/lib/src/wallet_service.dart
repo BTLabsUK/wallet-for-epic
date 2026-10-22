@@ -746,9 +746,19 @@ class FakeWalletSession implements WalletSession {
   /// When set, [repostTransaction] throws it.
   WalletError? repostError;
 
+  /// The next this many [repostTransaction] calls fail with `transportFailed`.
+  int repostFailures = 0;
+
   @override
   Future<void> repostTransaction({required String key}) async {
     if (repostError != null) throw repostError!;
+    if (repostFailures > 0) {
+      repostFailures--;
+      throw const WalletError(
+        kind: WalletErrorKind.transportFailed,
+        message: 'node refused',
+      );
+    }
     final tx = transactionsValue.where((t) => t.key == key).firstOrNull;
     if (tx == null || !tx.repostable) {
       throw const WalletError(
@@ -833,9 +843,14 @@ class FakeWalletSession implements WalletSession {
     );
   }
 
-  TxEntry _pendingSend(BigInt amount, {String? to, String? message}) => fakeTx(
-    id: 100 + epicboxSends.length,
-    slateId: 'send-${epicboxSends.length}',
+  TxEntry _pendingSend(
+    BigInt amount, {
+    String? to,
+    String? message,
+    bool repostable = false,
+  }) => fakeTx(
+    id: 100 + epicboxSends.length + httpSends.length,
+    slateId: 'send-${epicboxSends.length + httpSends.length}',
     kind: TxKind.sent,
     status: TxStatus.awaitingRecipient,
     createdAtUnix: 1790000200,
@@ -848,6 +863,7 @@ class FakeWalletSession implements WalletSession {
       if (message != null) SlateMessage(role: SlateRole.sender, text: message),
     ],
     cancellable: true,
+    repostable: repostable,
   );
 
   @override
@@ -892,6 +908,10 @@ class FakeWalletSession implements WalletSession {
   /// When false, a send that reached the other wallet comes back unposted.
   bool httpPosted = true;
 
+  /// When true, a [sendError] of any kind comes after the send is stored and its inputs locked
+  /// (a failure at delivery or finalize), not only `transportFailed`.
+  bool storeBeforeError = false;
+
   /// Events the HTTP listener emits; tests add to them. [stopHttpListener] adds `stopped`.
   final StreamController<HttpListenerEvent> httpListenerEvents =
       StreamController<HttpListenerEvent>.broadcast();
@@ -934,7 +954,9 @@ class FakeWalletSession implements WalletSession {
   }) async {
     _checkHttpUrl(url, allowPlainHttp);
     final error = sendError;
-    if (error != null && error.kind != WalletErrorKind.transportFailed) {
+    if (error != null &&
+        error.kind != WalletErrorKind.transportFailed &&
+        !storeBeforeError) {
       throw error;
     }
     _checkFunds(amount);
@@ -945,7 +967,12 @@ class FakeWalletSession implements WalletSession {
       allowPlainHttp: allowPlainHttp,
     ));
     sentMessages.add(message);
-    final pending = _pendingSend(amount, to: url, message: message);
+    final pending = _pendingSend(
+      amount,
+      to: url,
+      message: message,
+      repostable: !httpPosted,
+    );
     transactionsValue.add(pending);
     _lock(amount + fee);
     if (error != null) {

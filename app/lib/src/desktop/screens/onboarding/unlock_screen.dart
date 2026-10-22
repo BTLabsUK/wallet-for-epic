@@ -198,7 +198,7 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
     final desk = ref.read(deskProvider.notifier);
     await desk.refresh();
     final prefs = ref.read(settingsPrefsProvider);
-    await desk.startLive(listen: prefs.epicboxOnStart, http: DeskFeatures.httpDirect && prefs.httpAutostart);
+    await desk.startLive(listen: prefs.epicboxOnStart);
     if (!mounted) return;
     _password.clear();
     ref.read(deskNavProvider.notifier).reset(DeskRoute.overview);

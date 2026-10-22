@@ -106,8 +106,6 @@ class _HttpListenerRowState extends ConsumerState<HttpListenerRow> {
   @override
   Widget build(BuildContext context) {
     final st = ref.watch(deskProvider);
-    final prefs = ref.watch(settingsPrefsProvider);
-    final p = ref.read(settingsPrefsProvider.notifier);
     final s = st.settings;
     final status = st.status;
     final c = context.dc;
@@ -159,11 +157,12 @@ class _HttpListenerRowState extends ConsumerState<HttpListenerRow> {
           ),
           if (address != null && address.isNotEmpty) ...[
             SizedBox(height: Sp.x2),
+            if (s.publicMode) Text('This network', style: ts.caption),
             Row(children: [Expanded(child: EAddress(address)), SizedBox(width: Sp.x2), ECopyButton(text: address)]),
           ],
           if (s.publicMode) ...[
             SizedBox(height: Sp.x2),
-            Text('Listening on all interfaces. The router must forward TCP ${s.httpPort} to this computer.', style: ts.caption),
+            Text('Listening on all interfaces. The router must forward TCP ${s.httpPort} to this computer. Senders on the internet use http://<public IP>:${s.httpPort}.', style: ts.caption),
           ],
           SizedBox(height: Sp.x3),
           Wrap(
@@ -208,9 +207,13 @@ class _HttpListenerRowState extends ConsumerState<HttpListenerRow> {
           ),
           SizedBox(height: Sp.x3),
           ECheckbox(
-            value: prefs.httpAutostart,
+            value: s.httpAutostart,
             label: 'Start with the wallet',
-            onChanged: (v) => p.set(prefs.copyWith(httpAutostart: v)),
+            onChanged: (v) => _run(
+              () => ref
+                  .read(deskProvider.notifier)
+                  .saveSettings(s.copyWith(httpAutostart: v)),
+            ),
           ),
         ],
       ),
@@ -261,12 +264,14 @@ class InternetGuide extends StatelessWidget {
           step(1, 'Listen on all interfaces', 'The listener answers on 0.0.0.0, port $port. Other devices and the internet can then send payments to this wallet. The firewall may ask to allow it.'),
           step(2, 'Forward the port', 'On the router’s page (often 10.0.1.1), find Port forwarding and forward TCP $port to this computer.'),
           step(3, 'Share the public address', 'Senders use http://<public IP>:$port. The public IP can change.'),
-          ENotice(
-            icon: EIcons.tor,
-            title: 'No router setup?',
-            text: 'Tor works from anywhere with nothing to forward, once it is available here.',
-          ),
-          SizedBox(height: Sp.x3),
+          if (DeskFeatures.tor) ...[
+            ENotice(
+              icon: EIcons.tor,
+              title: 'No router setup?',
+              text: 'Tor works from anywhere with nothing to forward, once it is available here.',
+            ),
+            SizedBox(height: Sp.x3),
+          ],
           Text('Only the receiving API is exposed. Plain HTTP is not encrypted.', style: ts.caption),
         ],
       ),

@@ -37,7 +37,6 @@ class JumpTo {
 class SettingsPrefs {
   const SettingsPrefs({
     this.epicboxOnStart = true,
-    this.httpAutostart = false,
     this.nodeBackground = false,
     this.builtin = false,
     this.typedNode,
@@ -49,7 +48,6 @@ class SettingsPrefs {
   });
 
   final bool epicboxOnStart;
-  final bool httpAutostart;
   final bool nodeBackground;
 
   /// The built-in node is in use instead of a remote one.
@@ -70,7 +68,6 @@ class SettingsPrefs {
   /// The part that is saved: choices, not run state.
   Map<String, Object?> toJson() => {
     'epicboxOnStart': epicboxOnStart,
-    'httpAutostart': httpAutostart,
     'nodeBackground': nodeBackground,
     'builtin': builtin,
     'nodeLabels': nodeLabels,
@@ -86,7 +83,6 @@ class SettingsPrefs {
     final labels = j['nodeLabels'];
     return SettingsPrefs(
       epicboxOnStart: flag('epicboxOnStart', d.epicboxOnStart),
-      httpAutostart: flag('httpAutostart', d.httpAutostart),
       nodeBackground: flag('nodeBackground', d.nodeBackground),
       builtin: DeskFeatures.builtInNode && flag('builtin', d.builtin),
       nodeLabels: labels is Map ? {for (final e in labels.entries) '${e.key}': '${e.value}'} : const {},
@@ -98,7 +94,6 @@ class SettingsPrefs {
 
   SettingsPrefs copyWith({
     bool? epicboxOnStart,
-    bool? httpAutostart,
     bool? nodeBackground,
     bool? builtin,
     NodeServer? typedNode,
@@ -110,7 +105,6 @@ class SettingsPrefs {
     JumpTo? jump,
   }) => SettingsPrefs(
     epicboxOnStart: epicboxOnStart ?? this.epicboxOnStart,
-    httpAutostart: httpAutostart ?? this.httpAutostart,
     nodeBackground: nodeBackground ?? this.nodeBackground,
     builtin: builtin ?? this.builtin,
     typedNode: clearTyped ? null : (typedNode ?? this.typedNode),
@@ -130,7 +124,7 @@ class SettingsPrefsController extends Notifier<SettingsPrefs> {
       if (store == null || prev == null) return;
       final json = next.toJson();
       if (jsonEncode(json) == jsonEncode(prev.toJson())) return;
-      unawaited(store.writeJson(DeskStore.prefsKey, json));
+      unawaited(store.savePrefs(json));
     });
     final saved = ref.read(deskBootProvider).prefs;
     return saved == null ? const SettingsPrefs() : SettingsPrefs.fromJson(saved);
