@@ -451,6 +451,7 @@ void main() {
     var requests = 0;
     // What the manifest says next: a newer version, the installed one, or a server error.
     var reply = 'newer';
+    HttpHeaders? headers;
 
     String manifest(int versionCode) => jsonEncode({
       'schema': 1,
@@ -474,6 +475,7 @@ void main() {
       server = await HttpServer.bind(InternetAddress.loopbackIPv4, 0);
       server.listen((request) {
         requests++;
+        headers = request.headers;
         final response = request.response;
         switch (reply) {
           case 'newer':
@@ -560,6 +562,20 @@ void main() {
       expect(state.text?.call(englishStrings), 'No update information available.');
       await updates.checkOnOpening();
       expect(container.read(updateProvider).phase, UpdatePhase.idle);
+    });
+
+    test('the manifest request carries no User-Agent and no cookie', () async {
+      await container.read(updateProvider.notifier).check();
+      expect(headers!.value(HttpHeaders.userAgentHeader), isNull);
+      expect(headers!.value(HttpHeaders.cookieHeader), isNull);
+    });
+
+    test('an unreachable feed says so', () async {
+      await server.close(force: true);
+      await container.read(updateProvider.notifier).check();
+      final state = container.read(updateProvider);
+      expect(state.phase, UpdatePhase.failed);
+      expect(state.text?.call(englishStrings), englishStrings.updateServerUnreachable);
     });
 
     test('a quiet failure with nothing known stays idle', () async {

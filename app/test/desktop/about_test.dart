@@ -60,14 +60,14 @@ void main() {
     expect(find.byType(LicensePage), findsOneWidget);
   });
 
-  testWidgets('no manifest published: Could not check, with the reason; Check now asks again', (tester) async {
+  testWidgets('no manifest published: no update and no error; Check now asks again', (tester) async {
     var calls = 0;
     await pump(tester, (_) async {
       calls++;
       return (404, 'Not Found');
     });
-    expect(find.text('Could not check'), findsOneWidget);
-    expect(find.text('No update information is published yet. Checked just now.'), findsOneWidget);
+    expect(find.text('0.1.0 is the latest'), findsOneWidget);
+    expect(find.text('Could not check'), findsNothing);
     await tester.tap(find.widgetWithText(EButton, 'Check now'));
     await tester.pumpAndSettle();
     expect(calls, 2);
