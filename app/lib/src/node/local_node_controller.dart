@@ -194,6 +194,13 @@ class LocalNodeController {
     }
   }
 
+  /// Drops the directory's tip (status.btlabs.uk turned off); the peers' height stays.
+  void forgetDirectoryTip() {
+    if (_directoryHeight == null || _disposed) return;
+    _directoryHeight = null;
+    _emit();
+  }
+
   Future<void> _askNetwork() async {
     if (_asking || _disposed) return;
     _asking = true;

@@ -10,6 +10,8 @@ import 'src/data_folder.dart';
 import 'src/demo_web_platform.dart';
 import 'src/password_lists.dart';
 import 'src/phone_tor.dart';
+import 'src/relay_directory.dart' show statusSite;
+import 'src/settings.dart' show readUseStatusSite;
 import 'src/tor_licence.dart';
 import 'src/ui/theme/fonts.dart';
 import 'src/wallet_backend.dart';
@@ -34,6 +36,8 @@ Future<void> main() async {
       return false;
     };
     await initWalletBackend();
+    // Before anything asks status.btlabs.uk: opted out, nothing is asked.
+    statusSite.loadFrom(readUseStatusSite(createSecretStore()));
     registerFontLicences();
     registerPasswordListLicences();
     registerTorLicence();
