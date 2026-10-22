@@ -73,7 +73,8 @@ void main() {
     addTearDown(() => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, null));
     await _pump(tester, const ECopyButton(text: 'x', label: 'Copy id', withLabel: true));
     await tester.tap(find.text('Copy id'));
-    await tester.pump();
+    // One retry after 150 ms (O7), then the refusal shows.
+    await tester.pump(const Duration(milliseconds: 300));
     expect(find.text('Not copied'), findsOneWidget);
     await tester.pump(const Duration(milliseconds: 1600));
   });

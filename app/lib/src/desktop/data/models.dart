@@ -10,12 +10,15 @@ import '../../providers.dart' show defaultMinimumConfirmations;
 /// Amounts are kept in nanoepic (1 EPIC = 10^8), as the wallet does.
 const int nanoPerEpic = 100000000;
 
-String formatEpic(int nano, {int decimals = 8, bool trim = true}) {
+/// "1,234.5000": thousands grouped, trailing zeros trimmed down to [minDecimals] (4, as the
+/// GUI shows amounts, so a zero balance reads 0.0000 and never a bare 0).
+String formatEpic(int nano, {int decimals = 8, bool trim = true, int minDecimals = 4}) {
   final neg = nano < 0;
   final v = nano.abs();
   final whole = v ~/ nanoPerEpic;
   var frac = (v % nanoPerEpic).toString().padLeft(8, '0').substring(0, decimals);
   if (trim) frac = frac.replaceFirst(RegExp(r'0+$'), '');
+  if (frac.length < minDecimals) frac = frac.padRight(minDecimals, '0');
   final w = whole.toString().replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (_) => ',');
   return '${neg ? '-' : ''}$w${frac.isEmpty ? '' : '.$frac'}';
 }

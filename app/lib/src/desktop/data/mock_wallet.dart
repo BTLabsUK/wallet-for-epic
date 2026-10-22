@@ -361,7 +361,7 @@ class MockDeskWallet implements DeskWalletApi {
       message: r.message,
     );
     _txs.insert(0, tx);
-    if (r.method == TxMethod.file) return SendFileReady(tx, 'send_${formatEpic(r.amount)}_${tx.slateId.substring(0, 8)}.slate.json');
+    if (r.method == TxMethod.file) return SendFileReady(tx, 'send_${formatEpic(r.amount, minDecimals: 0)}_${tx.slateId.substring(0, 8)}.slate.json');
     return SendDone(tx);
   }
 

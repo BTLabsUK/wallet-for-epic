@@ -11,6 +11,7 @@ import 'package:epic_wallet/src/desktop/screens/settings/prefs.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:epic_wallet/src/secret_store_api.dart';
+import 'package:epic_wallet/src/network.dart' show defaultEpicboxHost;
 import 'package:epic_wallet/src/wallet_service.dart' as core;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -264,7 +265,7 @@ void main() {
       expect(st.node.url, 'https://node.btlabs.uk');
       expect(st.nodeHeight, 2500000);
       expect(st.nodeHealth, ServiceHealth.ok);
-      expect(st.epicbox.domain, 'epicbox.stackwallet.com');
+      expect(st.epicbox.domain, defaultEpicboxHost);
       expect(st.epicboxHealth, ServiceHealth.off);
       expect(st.syncProgress, isNull);
       expect(await wallet.outputs(), isEmpty);

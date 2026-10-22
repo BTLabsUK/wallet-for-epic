@@ -183,7 +183,12 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
             ),
           ),
           Divider(height: 1, color: c.line),
-          if (shown.isEmpty)
+          if (shown.isEmpty && _query.text.isEmpty)
+            Padding(
+              padding: EdgeInsets.all(Sp.x5),
+              child: Text('No contacts yet.', style: ts.bodyDim, textAlign: TextAlign.center),
+            )
+          else if (shown.isEmpty)
             Padding(
               padding: EdgeInsets.all(Sp.x5),
               child: Column(
@@ -570,27 +575,22 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
   }
 
   String? get _nameError => _name.text.trim().isEmpty ? 'Give the contact a name.' : null;
+  /// One error for every form that is not an address: "Not a recognised address".
   String? get _addressError {
     final a = _address.text.trim();
+    if (a.isEmpty) return 'Add an address to send to.';
+    const notRecognised = 'Not a recognised address';
     final epicboxOnly = !DeskFeatures.httpDirect && !DeskFeatures.tor;
-    if (a.isEmpty) {
-      return epicboxOnly
-          ? 'Add an Epicbox address to send to.'
-          : DeskFeatures.tor
-          ? 'Add an Epicbox, HTTP or .onion address to send to.'
-          : 'Add an Epicbox or an HTTP address to send to.';
-    }
     if (epicboxOnly && (RegExp(r'^https?:', caseSensitive: false).hasMatch(a) || a.toLowerCase().contains('.onion'))) {
-      return 'Enter an Epicbox address.';
+      return notRecognised;
     }
     if (DeskFeatures.tor && a.toLowerCase().contains('.onion')) {
-      return ref.read(deskApiProvider).isOnionAddress(a) ? null : 'This is not a complete .onion address. Copy it again from the recipient’s Receive page.';
+      return ref.read(deskApiProvider).isOnionAddress(a) ? null : notRecognised;
     }
     if (RegExp(r'^https?:', caseSensitive: false).hasMatch(a)) {
-      final problem = httpAddressProblem(a);
-      return problem == null ? null : 'This is not an HTTP address: ${problem[0].toLowerCase()}${problem.substring(1)}.';
+      return httpAddressProblem(a) == null ? null : notRecognised;
     }
-    return ref.read(deskApiProvider).isEpicboxAddress(a) ? null : 'This is not a complete Epicbox address. Copy it again from the recipient’s Receive page.';
+    return ref.read(deskApiProvider).isEpicboxAddress(a) ? null : notRecognised;
   }
 
   String? _shown(String key, String? error) => _tried || _touched.contains(key) ? error : null;
@@ -692,9 +692,6 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
         SizedBox(height: Sp.x5),
         EField(
           label: 'Address',
-          help: DeskFeatures.httpDirect || DeskFeatures.tor
-              ? 'Epicbox: starts with “es”, then @ and the server, e.g. @epicbox.epiccash.com. Or an ${DeskFeatures.tor ? 'http(s) or .onion' : 'http(s)'} address.'
-              : 'Starts with “es”, then @ and the server, e.g. @epicbox.epiccash.com.',
           error: addressError,
           child: EInput(controller: _address, focusNode: _addressFocus, mono: true, invalid: addressError != null, onChanged: (_) => setState(() {})),
         ),

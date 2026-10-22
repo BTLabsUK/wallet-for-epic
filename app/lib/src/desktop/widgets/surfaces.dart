@@ -398,13 +398,23 @@ class _ECopyButtonState extends State<ECopyButton> {
   bool _done = false;
   bool _failed = false;
 
+  /// One retry on a [PlatformException]: on Windows another program may hold the clipboard
+  /// for a moment (O7). Every refusal is logged.
   Future<void> _copy() async {
-    try {
-      await Clipboard.setData(ClipboardData(text: widget.text));
-      _failed = false;
-    } on Object catch (e) {
-      logWarn('desk', 'copy refused: ${e.runtimeType}');
-      _failed = true;
+    for (var attempt = 1; attempt <= 2; attempt++) {
+      try {
+        await Clipboard.setData(ClipboardData(text: widget.text));
+        _failed = false;
+        break;
+      } on PlatformException catch (e) {
+        logWarn('desk', 'copy refused (try $attempt): ${e.code} ${e.message ?? ''}');
+        _failed = true;
+        if (attempt == 1) await Future<void>.delayed(const Duration(milliseconds: 150));
+      } on Object catch (e) {
+        logWarn('desk', 'copy refused: ${e.runtimeType}');
+        _failed = true;
+        break;
+      }
     }
     if (!_failed) widget.onCopied?.call();
     if (!mounted) return;

@@ -1137,8 +1137,11 @@ class LepicDeskWallet implements DeskWalletApi {
       final h = tip.height.toInt();
       final grew = h > _tip;
       _tip = h;
-      if (_nodeHealth != ServiceHealth.ok) {
-        _nodeHealth = ServiceHealth.ok;
+      // The local node answers from its first second, at height 0 while it downloads the
+      // chain: that is "Syncing" (slow), never "Online · 0" (O2).
+      final health = h == 0 && await _builtInOn() ? ServiceHealth.slow : ServiceHealth.ok;
+      if (_nodeHealth != health) {
+        _nodeHealth = health;
         _changed();
       }
       // A new block: confirmations move, payments may have landed.
@@ -1678,6 +1681,8 @@ class LepicDeskWallet implements DeskWalletApi {
       }
       await _secrets.write(builtInNodeSettingKey(preset.chain), 'true');
       logInfo('desk', 'built-in node on');
+      // The status reads "Syncing" from now on while the node is at height 0 (O2).
+      unawaited(_checkTip());
       return;
     }
     // Not on yet (a start still pending): only the node stops; the wallet never moved.

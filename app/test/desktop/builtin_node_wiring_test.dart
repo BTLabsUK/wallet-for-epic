@@ -7,7 +7,7 @@ import 'dart:io';
 
 import 'package:epic_wallet/src/builtin_node.dart';
 import 'package:epic_wallet/src/desktop/data/lepic_desk_wallet.dart';
-import 'package:epic_wallet/src/desktop/data/models.dart' show DeskError;
+import 'package:epic_wallet/src/desktop/data/models.dart' show DeskError, ServiceHealth;
 import 'package:epic_wallet/src/models.dart' show Chain;
 import 'package:epic_wallet/src/secret_store_api.dart';
 import 'package:epic_wallet/src/wallet_service.dart' as core;
@@ -20,6 +20,12 @@ class _Opens extends core.FakeWalletService {
   _Opens() : super(password: _password);
 
   final List<String> nodeUrls = [];
+
+  /// The height the node reports; 0 while a local node still downloads the chain.
+  BigInt tip = BigInt.from(2500000);
+
+  @override
+  Future<core.NodeTip> nodeTip({required core.WalletConfig config}) async => core.NodeTip(height: tip, nodeVersion: '3.6.0');
 
   /// A node URL the wallet cannot open on.
   String? failOn;
@@ -138,6 +144,32 @@ void main() {
     expect(service.nodeUrls.last, 'http://127.0.0.1:3413');
     expect(await secrets.read(builtInNodeSettingKey(Chain.mainnet)), 'true');
     expect(await secrets.read('app.node.mainnet'), 'http://127.0.0.1:3413');
+    await wallet.dispose();
+  });
+
+  test('a local node at height 0 is Syncing, never Online (O2)', () async {
+    service.tip = BigInt.zero;
+    final wallet = make();
+    expect(await wallet.unlock(_password), isTrue);
+    await wallet.useBuiltInNode(true);
+    await Future<void>.delayed(const Duration(milliseconds: 50));
+    var st = await wallet.status();
+    expect(st.nodeHeight, 0);
+    expect(st.nodeHealth, ServiceHealth.slow, reason: 'tip 0 on the local node reads as Syncing');
+    service.tip = BigInt.from(12);
+    await wallet.useBuiltInNode(true);
+    await Future<void>.delayed(const Duration(milliseconds: 50));
+    st = await wallet.status();
+    expect(st.nodeHealth, ServiceHealth.ok);
+    await wallet.dispose();
+  });
+
+  test('a public node at height 0 is still Online: only the local node syncs from nothing (O2)', () async {
+    service.tip = BigInt.zero;
+    final wallet = make();
+    expect(await wallet.unlock(_password), isTrue);
+    await Future<void>.delayed(const Duration(milliseconds: 50));
+    expect((await wallet.status()).nodeHealth, ServiceHealth.ok);
     await wallet.dispose();
   });
 

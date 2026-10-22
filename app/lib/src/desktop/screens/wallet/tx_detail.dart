@@ -212,7 +212,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
     if (t.coinbase || t.foundByScan) {
       final left = coinbaseMaturity - t.confirmations;
       return [
-        _Step(t.coinbase ? 'Mined in a block' : 'Found by a scan', _S.done, hm(Duration.zero)),
+        _Step(t.coinbase ? 'Mined in a block' : 'Found by a scan', _S.done, hm(Duration.zero), sub: t.coinbase ? null : 'Block time. The sender is not recorded.'),
         if (t.coinbase)
           _Step('Spendable', t.immature ? _S.now : _S.done, '', sub: t.immature ? '$left blocks to go' : null)
         else

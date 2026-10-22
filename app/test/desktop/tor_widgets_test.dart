@@ -105,7 +105,7 @@ void main() {
       await tester.tap(find.text('Review send'));
       await tester.pumpAndSettle();
       expect(find.text('Direct over Tor (the recipient’s wallet must be online)'), findsOneWidget);
-      await tester.tap(find.text('Send 1 EPIC'));
+      await tester.tap(find.text('Send 1.0000 EPIC'));
       await tester.pumpAndSettle();
       expect(wallet.sent.single.method, TxMethod.tor);
       expect(wallet.sent.single.to, _onion);

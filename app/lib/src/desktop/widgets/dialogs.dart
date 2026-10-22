@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../app/routes.dart' show deskNavProvider, DeskLocation;
 import '../theme/icons.dart';
 import '../theme/tokens.dart';
 import 'buttons.dart';
@@ -204,7 +206,7 @@ void showEToast(BuildContext context, String title, {String? text, ETone tone = 
     ETone.warn => c.warn,
     _ => c.accentText,
   };
-  messenger.showSnackBar(
+  final shown = messenger.showSnackBar(
     SnackBar(
       behavior: SnackBarBehavior.floating,
       width: 380.u,
@@ -233,4 +235,24 @@ void showEToast(BuildContext context, String title, {String? text, ETone tone = 
       ),
     ),
   );
+  // A toast belongs to the screen it was shown on: leaving the screen closes it (B11).
+  ProviderContainer? container;
+  try {
+    container = ProviderScope.containerOf(context, listen: false);
+  } on Object {
+    container = null;
+  }
+  if (container == null) return;
+  ProviderSubscription<DeskLocation>? sub;
+  sub = container.listen(deskNavProvider, (prev, next) {
+    if (prev?.route != next.route) {
+      shown.close();
+      sub?.close();
+      sub = null;
+    }
+  });
+  shown.closed.then((_) {
+    sub?.close();
+    sub = null;
+  });
 }
