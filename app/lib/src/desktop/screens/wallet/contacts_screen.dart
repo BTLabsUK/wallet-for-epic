@@ -646,7 +646,14 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
     final ts = context.ts;
     final nameError = _shown('name', _nameError);
     final addressError = _shown('address', _addressError);
-    return Column(
+    // Enter: Name → Address, then Save (the Note keeps Enter for a new line).
+    // A form with typed changes holds Back (mouse, Alt+Left).
+    final dirty = _name.text != (widget.contact?.name ?? '') || _address.text != (widget.contact?.address ?? '') || _note.text != (widget.contact?.note ?? '');
+    return DeskStepBack(
+      onBack: dirty ? () {} : null,
+      child: EForm(
+      onSubmit: _saving ? null : _save,
+      child: Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Row(
@@ -670,9 +677,10 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
                         icon: EIcons.camera,
                         kind: EBtnKind.ghost,
                         size: EBtnSize.inline,
+                        tabStop: false,
                         onPressed: () => setState(() => _picture = true),
                       ),
-                      if (_picture) EButton(label: 'Remove', icon: EIcons.trash, kind: EBtnKind.ghost, size: EBtnSize.inline, onPressed: () => setState(() => _picture = false)),
+                      if (_picture) EButton(label: 'Remove', icon: EIcons.trash, kind: EBtnKind.ghost, size: EBtnSize.inline, tabStop: false, onPressed: () => setState(() => _picture = false)),
                     ],
                   ),
                   SizedBox(height: Sp.x1),
@@ -711,11 +719,13 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
           spacing: Sp.x2,
           runSpacing: Sp.x2,
           children: [
-            EButton(label: 'Cancel', onPressed: () => widget.onDone(null)),
+            EButton(label: 'Cancel', tabStop: false, onPressed: () => widget.onDone(null)),
             EButton.primary(label: 'Save contact', icon: EIcons.check, busy: _saving, onPressed: _save),
           ],
         ),
       ],
+    ),
+    ),
     );
   }
 }

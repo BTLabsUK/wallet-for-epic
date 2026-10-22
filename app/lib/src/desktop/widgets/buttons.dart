@@ -27,6 +27,7 @@ class EButton extends StatefulWidget {
     this.busy = false,
     this.expand = false,
     this.tooltip,
+    this.tabStop = true,
   });
 
   const EButton.primary({
@@ -38,6 +39,7 @@ class EButton extends StatefulWidget {
     this.busy = false,
     this.expand = false,
     this.tooltip,
+    this.tabStop = true,
   }) : kind = EBtnKind.primary;
 
   const EButton.ghost({
@@ -49,6 +51,7 @@ class EButton extends StatefulWidget {
     this.busy = false,
     this.expand = false,
     this.tooltip,
+    this.tabStop = true,
   }) : kind = EBtnKind.ghost;
 
   final String label;
@@ -63,6 +66,9 @@ class EButton extends StatefulWidget {
   /// Full width of the parent.
   final bool expand;
   final String? tooltip;
+
+  /// False for a secondary action (Back, an inline helper): Tab skips it (see keyboard.dart).
+  final bool tabStop;
 
   @override
   State<EButton> createState() => _EButtonState();
@@ -157,7 +163,7 @@ class _EButtonState extends State<EButton> {
       ),
     );
     if (widget.tooltip != null) body = Tooltip(message: widget.tooltip!, child: body);
-    return body;
+    return ExcludeFocusTraversal(excluding: !widget.tabStop, child: body);
   }
 }
 
@@ -171,6 +177,7 @@ class EIconButton extends StatefulWidget {
     this.size = EBtnSize.sm,
     this.selected = false,
     this.color,
+    this.tabStop = true,
   });
 
   final IconData icon;
@@ -179,6 +186,10 @@ class EIconButton extends StatefulWidget {
   final EBtnSize size;
   final bool selected;
   final Color? color;
+
+  /// False for a secondary icon (eye, info, copy, QR, clear, close): Tab skips it; screen
+  /// readers still press it (see keyboard.dart). Icons inside an [EInput] are never stops.
+  final bool tabStop;
 
   @override
   State<EIconButton> createState() => _EIconButtonState();
@@ -201,13 +212,16 @@ class _EIconButtonState extends State<EIconButton> {
         : widget.selected
         ? c.accentText
         : (widget.color ?? (_hover ? c.text : c.dim));
-    return Tooltip(
+    return ExcludeFocusTraversal(
+      excluding: !widget.tabStop,
+      child: Tooltip(
       message: widget.label,
       child: Semantics(
         button: true,
         label: widget.label,
         selected: widget.selected,
         excludeSemantics: true,
+        onTap: widget.onPressed,
         child: FocusableActionDetector(
           enabled: enabled,
           mouseCursor: enabled ? SystemMouseCursors.click : SystemMouseCursors.basic,
@@ -237,16 +251,20 @@ class _EIconButtonState extends State<EIconButton> {
           ),
         ),
       ),
+      ),
     );
   }
 }
 
 /// A text link styled as the accent, underlined; for "Forgot password?" style actions.
 class ELink extends StatefulWidget {
-  const ELink({super.key, required this.label, this.onPressed, this.dim = false});
+  const ELink({super.key, required this.label, this.onPressed, this.dim = false, this.tabStop = true});
 
   final String label;
   final VoidCallback? onPressed;
+
+  /// False for a link beside a field ("Available …"): Tab skips it (see keyboard.dart).
+  final bool tabStop;
 
   /// Dim colour (auth screens' alternatives) instead of the accent.
   final bool dim;
@@ -262,8 +280,11 @@ class _ELinkState extends State<ELink> {
   Widget build(BuildContext context) {
     final c = context.dc;
     final color = widget.dim ? (_hover ? c.text : c.dim) : c.accentText;
-    return Semantics(
+    return ExcludeFocusTraversal(
+      excluding: !widget.tabStop,
+      child: Semantics(
       link: true,
+      onTap: widget.onPressed,
       child: FocusableActionDetector(
         mouseCursor: SystemMouseCursors.click,
         onShowHoverHighlight: (v) => setState(() => _hover = v),
@@ -286,6 +307,7 @@ class _ELinkState extends State<ELink> {
             ),
           ),
         ),
+      ),
       ),
     );
   }

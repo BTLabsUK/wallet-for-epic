@@ -24,6 +24,8 @@ import 'package:flutter_test/flutter_test.dart';
 /// Controls that may only toast or change nothing visible here, matched on `<scope>|<label>`
 /// (scope: the route's name, `shell`, or the shot id for a dialog shot), each with its reason.
 final Map<RegExp, String> _allowed = {
+  RegExp(r'^shell\|Overview$|^(settingsNode\|Node|settingsReceiving\|Receiving|settingsAppearance\|Appearance|settingsAccount\|This wallet|settingsWallets\|All wallets|settingsPhrase\|Recovery phrase|settingsRescan\|Rescan|settingsAbout\|About|settingsHelp\|Help)$'):
+      'The place already shown: going there again adds nothing to the history (F16).',
   RegExp(r'^settingsAccount\|Open folder$'): 'The mock wallet folder is not on disk: says "Folder not found". A real one opens.',
   RegExp(r'^settingsWallets\|Show .* in its folder$'): 'The mock wallet folders are not on disk: says "Folder not opened". A real one opens.',
   RegExp(r'^31b-dlg-my-node-error\|Save$'): 'Refuses the bad address; its error is on screen already.',

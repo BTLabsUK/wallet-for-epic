@@ -96,6 +96,13 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
     _to(SetupStep.epicbox);
   }
 
+  /// The main button's action on the current step; Enter in a field runs the same one.
+  VoidCallback get _continue => _step == SetupStep.review
+      ? _save
+      : _step == SetupStep.node
+      ? _nodeNext
+      : () => _to(_steps[_steps.indexOf(_step) + 1]);
+
   @override
   Widget build(BuildContext context) {
     final nav = ref.read(deskNavProvider.notifier);
@@ -109,7 +116,11 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
       SetupStep.epicbox => ('Receive when offline', again, _epicbox(context)),
       SetupStep.review => ('Check settings', again ?? 'Change anything that is not right, then save.', _review(context)),
     };
-    return EOnbFrame(
+    final first = _step == _steps.first;
+    // Back (mouse, Alt+Left) goes one step back first; held while saving.
+    return DeskStepBack(
+      onBack: _busy || _checking ? () {} : (first ? null : () => _to(_steps[_steps.indexOf(_step) - 1])),
+      child: EOnbFrame(
       sideTitle: 'Set up',
       steps: rail,
       title: title,
@@ -117,7 +128,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
       sideFoot: _step == _steps.first && nav.canBack
           ? Align(
               alignment: Alignment.centerLeft,
-              child: EButton.ghost(label: 'Back to wallet', icon: EIcons.arrowLeft, onPressed: nav.back),
+              child: EButton.ghost(label: 'Back to wallet', icon: EIcons.arrowLeft, tabStop: false, onPressed: nav.back),
             )
           : Text('Everything here can be changed later in Settings.', style: ts.caption),
       actions: [
@@ -125,14 +136,11 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
         EButton.primary(
           label: last ? 'Save settings' : 'Continue',
           busy: _busy || _checking,
-          onPressed: last
-              ? _save
-              : _step == SetupStep.node
-              ? _nodeNext
-              : () => _to(_steps[_steps.indexOf(_step) + 1]),
+          onPressed: _continue,
         ),
       ],
       child: body,
+    ),
     );
   }
 
@@ -210,7 +218,11 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
         EField(
           label: 'Epicbox server',
           help: 'Leave empty to turn receiving through Epicbox off.',
-          child: EInput(controller: _domain, mono: true, semanticLabel: 'Epicbox server', onChanged: (_) => setState(() {})),
+          // Enter is Continue.
+          child: EForm(
+            onSubmit: _continue,
+            child: EInput(controller: _domain, mono: true, semanticLabel: 'Epicbox server', onChanged: (_) => setState(() {})),
+          ),
         ),
         SizedBox(height: Sp.x3),
         if (boxes == null)
@@ -225,6 +237,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
                   label: b.domain,
                   icon: _domain.text.trim() == b.domain ? EIcons.check : null,
                   size: EBtnSize.inline,
+                  tabStop: false,
                   onPressed: () => setState(() => _domain.text = b.domain),
                 ),
             ],

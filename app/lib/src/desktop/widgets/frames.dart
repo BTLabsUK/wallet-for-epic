@@ -5,13 +5,15 @@ import '../../ui/theme/brand.dart' show EpicMark;
 import '../../ui/theme/protocol.dart' show CornerTicksPainter, GridFieldPainter;
 import '../theme/icons.dart';
 import '../theme/tokens.dart';
+import 'keyboard.dart';
 
 /// Content widths for [EPage].
 enum EPageWidth { narrow, mid, full }
 
 /// A page inside the app shell: a 64 px top bar with the title, optional crumb (back) and
 /// actions, then the scrolling content. [scroll] false hands the remaining height to [child]
-/// (list/detail panes that scroll themselves).
+/// (list/detail panes that scroll themselves). With [onBack], the app's Back (mouse, Alt+Left,
+/// Backspace) runs it before it changes the place.
 class EPage extends StatelessWidget {
   const EPage({
     super.key,
@@ -43,7 +45,7 @@ class EPage extends StatelessWidget {
       alignment: Alignment.topLeft,
       child: ConstrainedBox(constraints: BoxConstraints(maxWidth: maxW), child: child),
     );
-    return Column(
+    final page = Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Container(
@@ -72,6 +74,7 @@ class EPage extends StatelessWidget {
         ),
       ],
     );
+    return DeskStepBack(onBack: onBack, child: page);
   }
 }
 
@@ -81,8 +84,10 @@ class _BackButton extends StatelessWidget {
   final VoidCallback onBack;
 
   @override
-  Widget build(BuildContext context) => Tooltip(
-    message: 'Back',
+  // Not a Tab stop: Alt+Left and the mouse Back button do the same.
+  Widget build(BuildContext context) => ExcludeFocusTraversal(
+    child: Tooltip(
+    message: 'Back (Alt+Left)',
     child: IconButton(
       onPressed: onBack,
       icon: Icon(EIcons.arrowLeft, size: Ctl.icon, color: context.dc.dim),
@@ -91,6 +96,7 @@ class _BackButton extends StatelessWidget {
         minimumSize: Size.square(Ctl.sm),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(Rad.sm)),
       ),
+    ),
     ),
   );
 }

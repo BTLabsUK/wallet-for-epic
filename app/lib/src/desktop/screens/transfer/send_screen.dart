@@ -514,7 +514,10 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     final st = ref.watch(deskProvider);
     final nav = ref.read(deskNavProvider.notifier);
     final res = _result;
-    return EPage(
+    // A half-filled form holds Back (mouse, Alt+Left).
+    return DeskStepBack(
+      onBack: res is! SendFileReady && (_to.text.isNotEmpty || _amount.text.isNotEmpty || _message.text.isNotEmpty) ? () {} : null,
+      child: EPage(
       title: 'Send',
       width: EPageWidth.mid,
       child: res is SendFileReady
@@ -522,21 +525,28 @@ class _SendScreenState extends ConsumerState<SendScreen> {
           : LayoutBuilder(
               builder: (context, box) {
                 final wide = box.maxWidth >= 720.u;
-                final form = _form(st);
-                final summary = _summary(st, res);
-                if (!wide) {
-                  return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [form, SizedBox(height: Sp.x6), summary]);
-                }
-                return Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(child: form),
-                    SizedBox(width: Sp.x8),
-                    SizedBox(width: 300.u, child: summary),
-                  ],
+                // Tab: the form's fields first, then Review send; Enter in Amount reviews.
+                final form = FocusTraversalOrder(order: const NumericFocusOrder(1), child: FocusTraversalGroup(child: _form(st)));
+                final summary = FocusTraversalOrder(order: const NumericFocusOrder(2), child: FocusTraversalGroup(child: _summary(st, res)));
+                return EForm(
+                  onSubmit: _canSend(st) && !_reviewing ? _review : null,
+                  child: FocusTraversalGroup(
+                    policy: OrderedTraversalPolicy(),
+                    child: !wide
+                        ? Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [form, SizedBox(height: Sp.x6), summary])
+                        : Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(child: form),
+                              SizedBox(width: Sp.x8),
+                              SizedBox(width: 300.u, child: summary),
+                            ],
+                          ),
+                  ),
                 );
               },
             ),
+    ),
     );
   }
 
@@ -693,19 +703,19 @@ class _SendScreenState extends ConsumerState<SendScreen> {
               semanticLabel: 'Recipient',
               leading: EIcons.user,
               onChanged: (_) => _changed(to: true),
-              onSubmitted: (_) {
-                if (matches.isNotEmpty) _use(matches.first);
-              },
+              // Enter picks the first matching contact, else goes on to Amount.
+              onSubmitted: matches.isEmpty ? null : (_) => _use(matches.first),
+              trailingTabStop: true,
               trailing: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   if (_to.text.isNotEmpty)
-                    EIconButton(icon: EIcons.close, label: 'Clear recipient', size: EBtnSize.inline, onPressed: () {
+                    EIconButton(icon: EIcons.close, label: 'Clear recipient', size: EBtnSize.inline, tabStop: false, onPressed: () {
                       _to.clear();
                       _changed(to: true);
                     })
                   else
-                    EIconButton(icon: EIcons.paste, label: 'Paste', size: EBtnSize.inline, onPressed: _paste),
+                    EIconButton(icon: EIcons.paste, label: 'Paste', size: EBtnSize.inline, tabStop: false, onPressed: _paste),
                   SizedBox(width: Sp.x1),
                   EButton(label: 'Contacts', icon: EIcons.contacts, size: EBtnSize.inline, onPressed: _pick),
                 ],
@@ -765,7 +775,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
           error: amErr,
           aside: spendable == null
               ? Text('Available —', style: ts.small)
-              : ELink(label: 'Available ${st.settings.hideAmounts ? '••••••' : formatEpic(spendable)} EPIC', dim: st.status?.syncProgress != null, onPressed: _allBusy ? null : _sendAll),
+              : ELink(label: 'Available ${st.settings.hideAmounts ? '••••••' : formatEpic(spendable)} EPIC', dim: st.status?.syncProgress != null, tabStop: false, onPressed: _allBusy ? null : _sendAll),
           child: EInput(
             controller: _amount,
             mono: true,
@@ -775,6 +785,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
             inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]'))],
             onChanged: (_) => _changed(amount: true),
+            trailingTabStop: true,
             trailing: Row(
               mainAxisSize: MainAxisSize.min,
               children: [

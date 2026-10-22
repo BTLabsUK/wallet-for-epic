@@ -186,7 +186,7 @@ class _HttpListenerRowState extends ConsumerState<HttpListenerRow> {
                 // From the internet opens the guide; only its button makes the listener public.
                 onChanged: (v) => v ? unawaited(_openGuide()) : unawaited(_setPublic(false)),
               ),
-              EIconButton(icon: EIcons.help, label: 'Receive from the internet: how it works', size: EBtnSize.sm, onPressed: _openGuide),
+              EIconButton(icon: EIcons.help, label: 'Receive from the internet: how it works', size: EBtnSize.sm, tabStop: false, onPressed: _openGuide),
             ],
           ),
           SizedBox(height: Sp.x3),
