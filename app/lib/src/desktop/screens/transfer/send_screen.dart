@@ -209,6 +209,8 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     if (_args.nodeSync != null) return _args.nodeSync;
     final s = st.status;
     if (s == null) return -1;
+    // The local node at height 0 is still downloading the chain (O2): no send until it has it.
+    if (s.nodeHealth == ServiceHealth.slow && s.nodeHeight == 0) return -1;
     return s.nodeHealth == ServiceHealth.ok || s.nodeHealth == ServiceHealth.slow ? null : -1;
   }
 
@@ -377,11 +379,25 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     }
   }
 
-  /// "This is the wallet's own address." when the Epicbox recipient is this wallet (M18).
+  /// "This is the wallet's own address." when the Epicbox recipient is this wallet (M18): the
+  /// part before @ the same, exactly (it is case-sensitive), and the server this wallet's or
+  /// left out (":443" is the same server).
   String? _ownAddressError(DeskState st) {
     final own = st.epicboxAddress;
     if (_method != TxMethod.epicbox || own == null || own.isEmpty) return null;
-    return _to.text.trim().toLowerCase() == own.trim().toLowerCase() ? "This is the wallet's own address." : null;
+    final (key, host) = _epicboxParts(_to.text);
+    final (ownKey, ownHost) = _epicboxParts(own);
+    return key == ownKey && (host == null || host == ownHost) ? "This is the wallet's own address." : null;
+  }
+
+  /// The key and the server (lower-case, without ":443"; null when missing) of an Epicbox address.
+  static (String, String?) _epicboxParts(String address) {
+    final a = address.trim();
+    final at = a.indexOf('@');
+    if (at < 0) return (a, null);
+    var host = a.substring(at + 1).toLowerCase();
+    if (host.endsWith(':443')) host = host.substring(0, host.length - 4);
+    return (a.substring(0, at), host.isEmpty ? null : host);
   }
 
   String? _toError(DeskState st) => _ownAddressError(st) ?? _recipientError(_method, _to.text);

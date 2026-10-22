@@ -37,9 +37,34 @@ PhraseEntry _entry(WidgetTester tester) => _grid(tester).entry;
 
 bool _focusedOn(WidgetTester tester, int i) => _entry(tester).focus[i].hasFocus;
 
-bool _continueEnabled(WidgetTester tester) {
-  final b = tester.widget<EButton>(find.widgetWithText(EButton, 'Continue'));
-  return b.onPressed != null;
+/// The phrase step's primary button: "Continue" until the phrase checks out, then "Use N words".
+EButton _continue(WidgetTester tester) => tester.widget<EButton>(
+  find.byWidgetPredicate((w) => w is EButton && (w.label == 'Continue' || RegExp(r'^Use \d+ words$').hasMatch(w.label))),
+);
+
+bool _continueEnabled(WidgetTester tester) => _continue(tester).onPressed != null;
+
+/// Pastes [text] into field [i] with Ctrl+V, the clipboard holding it.
+Future<void> _paste(WidgetTester tester, int i, String text) async {
+  tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, (call) async {
+    if (call.method == 'Clipboard.getData') return {'text': text};
+    return null;
+  });
+  addTearDown(() => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, null));
+  _entry(tester).focusField(i);
+  await tester.pump();
+  await tester.sendKeyDownEvent(LogicalKeyboardKey.controlLeft);
+  await tester.sendKeyEvent(LogicalKeyboardKey.keyV);
+  await tester.sendKeyUpEvent(LogicalKeyboardKey.controlLeft);
+  await tester.pump();
+  await tester.pump();
+}
+
+/// 24 words that pass the checksum and whose first 12 do too (the 12-word vector, 11 more
+/// "abandon" and a last word found here), so a typed 12-word prefix "checks out" on the way.
+List<String> _v24With12Prefix() {
+  final head = [..._v12, ...List.filled(11, 'abandon')];
+  return [...head, bip39List.firstWhere((w) => bip39PhraseValid([...head, w]))];
 }
 
 Future<void> _type(WidgetTester tester, int i, String text) async {
@@ -78,6 +103,37 @@ void main() {
       expect(PhraseEntry.split('Abandon, ABILITY'), ['abandon', 'ability']);
       expect(PhraseEntry.split('   '), isEmpty);
     });
+
+    test('numbering glued to a word, dashes and full stops are dropped', () {
+      expect(PhraseEntry.split('1.abandon 2)ability 3:able'), ['abandon', 'ability', 'able']);
+      expect(PhraseEntry.split('1 - abandon\n2 - ability'), ['abandon', 'ability']);
+      expect(PhraseEntry.split('abandon ability able.'), ['abandon', 'ability', 'able']);
+      expect(PhraseEntry.split('12) about. - .'), ['about']);
+      expect(PhraseEntry.split('1'), isEmpty);
+    });
+  });
+
+  group('PhraseEntry.checksumOk', () {
+    test('asks the core once per word list', () {
+      var calls = 0;
+      final e = PhraseEntry(
+        check: (ws) {
+          calls++;
+          return bip39PhraseValid(ws);
+        },
+      );
+      addTearDown(e.dispose);
+      e.paste(_v12.join(' '));
+      for (var i = 0; i < 5; i++) {
+        expect(e.complete, isTrue);
+        expect(e.length, 12);
+      }
+      expect(calls, 1);
+      e.controllers[11].text = 'abandon';
+      e.changed(11, 'abandon');
+      expect(e.checksumOk, isFalse);
+      expect(calls, 2);
+    });
   });
 
   testWidgets('24 numbered fields from the start; nothing is red while a word is typed', (tester) async {
@@ -107,7 +163,7 @@ void main() {
     expect(find.textContaining('not in the word list'), findsNothing);
   });
 
-  testWidgets('the 12-word vector typed with spaces: Space moves on, Enter continues', (tester) async {
+  testWidgets('the 12-word vector typed with spaces: Space moves on, Enter moves on, the button continues', (tester) async {
     await _pump(tester);
     for (var i = 0; i < 12; i++) {
       await _type(tester, i, _v12[i]);
@@ -120,8 +176,72 @@ void main() {
     }
     expect(_continueEnabled(tester), isTrue, reason: 'the 12 typed words pass the checksum');
     expect(find.text('12 of 12 words'), findsOneWidget);
+    expect(_continue(tester).label, 'Use 12 words');
     await _key(tester, LogicalKeyboardKey.enter);
-    expect(find.text('Choose a password'), findsOneWidget, reason: 'Enter on a complete phrase continues');
+    expect(find.text('Choose a password'), findsNothing, reason: 'a typed phrase under 24 words goes on with the button only');
+    expect(_focusedOn(tester, 12), isTrue);
+    await tester.tap(find.text('Use 12 words'));
+    await tester.pump();
+    expect(find.text('Choose a password'), findsOneWidget);
+    expect(find.textContaining('The 12-word phrase checks out.'), findsOneWidget);
+  });
+
+  testWidgets('a 24-word phrase typed with Enter after each word never leaves early', (tester) async {
+    final words = _v24With12Prefix();
+    expect(bip39PhraseValid(words.take(12).toList()), isTrue, reason: 'the 12-word prefix checks out on its own');
+    await _pump(tester);
+    for (var i = 0; i < 24; i++) {
+      await _type(tester, i, words[i]);
+      await _key(tester, LogicalKeyboardKey.enter);
+      if (i < 23) {
+        expect(find.text('Choose a password'), findsNothing, reason: 'Enter after word ${i + 1}');
+        expect(_focusedOn(tester, i + 1), isTrue, reason: 'Enter after word ${i + 1} moves on');
+      }
+    }
+    expect(find.text('Choose a password'), findsOneWidget, reason: 'Enter on the 24th word continues');
+    expect(find.textContaining('The 24-word phrase checks out.'), findsOneWidget);
+  });
+
+  testWidgets('Enter takes the completion from four letters only; Tab always', (tester) async {
+    await _pump(tester);
+    await _type(tester, 0, 'aba');
+    expect(_entry(tester).suggestion(0), 'abandon');
+    await _key(tester, LogicalKeyboardKey.enter);
+    expect(_entry(tester).controllers[0].text, 'aba', reason: 'three letters: Enter leaves the completion');
+    expect(_entry(tester).invalid, {0});
+    expect(_focusedOn(tester, 1), isTrue);
+    await _type(tester, 1, 'abil');
+    await _key(tester, LogicalKeyboardKey.enter);
+    expect(_entry(tester).controllers[1].text, 'ability', reason: 'four letters start one word only');
+    await _type(tester, 2, 'ab');
+    await _key(tester, LogicalKeyboardKey.tab);
+    expect(_entry(tester).controllers[2].text, 'abandon', reason: 'Tab takes the completion');
+  });
+
+  testWidgets('a paste takes the clipboard, not the field joined with it', (tester) async {
+    await _pump(tester);
+    await _type(tester, 0, 't');
+    await _paste(tester, 0, ['able', ..._v12.skip(1)].join(' '));
+    expect(_entry(tester).controllers[0].text, 'able');
+    expect(_entry(tester).controllers[0].text, isNot('table'));
+    expect(_entry(tester).count, 12);
+    // One word pasted into a field replaces what it held, there only.
+    await _type(tester, 3, 'ab');
+    await _paste(tester, 3, 'zoo');
+    expect(_entry(tester).controllers[3].text, 'zoo');
+    expect(_entry(tester).controllers[0].text, 'able');
+  });
+
+  testWidgets('a typed digit stays in its field: no paste, no focus move', (tester) async {
+    await _pump(tester);
+    await _type(tester, 0, 'abandon');
+    await _key(tester, LogicalKeyboardKey.space);
+    expect(_focusedOn(tester, 1), isTrue);
+    await _type(tester, 1, '1');
+    expect(_focusedOn(tester, 1), isTrue);
+    expect(_entry(tester).controllers[1].text, '1');
+    expect(_entry(tester).controllers[0].text, 'abandon');
+    expect(_entry(tester).pasteError, isNull);
   });
 
   testWidgets('a typed 12-word phrase: 12 of 12, the rest dimmed, Continue on', (tester) async {
@@ -153,12 +273,12 @@ void main() {
   testWidgets('pasting a numbered 24-word phrase with line breaks into any field fills all 24', (tester) async {
     await _pump(tester);
     final text = [for (var i = 0; i < 24; i++) '${i + 1}. ${_v24[i]}'].join('\n');
-    await _type(tester, 5, text);
+    await _paste(tester, 5, text);
     expect([for (final c in _entry(tester).controllers) c.text], _v24);
     expect(find.text('24 of 24 words'), findsOneWidget);
     expect(find.text('All 24 words check out.'), findsOneWidget);
     expect(_continueEnabled(tester), isTrue);
-    await tester.tap(find.text('Continue'));
+    await tester.tap(find.text('Use 24 words'));
     await tester.pump();
     expect(find.text('Choose a password'), findsOneWidget);
     expect(find.byType(EditableText), findsNWidgets(2), reason: 'password and confirmation only');

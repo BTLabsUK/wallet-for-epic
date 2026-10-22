@@ -55,8 +55,8 @@ void main() {
   setUp(() async => support = await Directory.systemTemp.createTemp('desk-public-servers-'));
   tearDown(() => support.delete(recursive: true));
 
-  LepicDeskWallet make(Object directory) => LepicDeskWallet(
-    service: core.FakeWalletService(password: _password),
+  LepicDeskWallet make(Object directory, {Set<String>? existing}) => LepicDeskWallet(
+    service: core.FakeWalletService(password: _password, existingWallets: existing),
     walletDir: (chain) async => (await Directory('${support.path}/wallets/${chain.name}').create(recursive: true)).path,
     secrets: MemorySecretStore(),
     filesDir: () async => support,
@@ -77,7 +77,14 @@ void main() {
     expect(nodes.map((n) => n.operator), ['BT Labs', 'EpicNet', 'Epic Cash', 'Cypher Stack', 'Iniaku pool']);
     final boxes = await w.epicboxes();
     expect(boxes.map((b) => b.domain), _boxes);
+    // A fresh install: the new default (D-13).
     expect((await w.status()).epicbox.domain, defaultEpicboxHost);
+  });
+
+  test('an install with a wallet and no saved server keeps the server 0.1.0 used (D-13)', () async {
+    final w = make(_Down(), existing: {'${support.path}/wallets/mainnet'});
+    addTearDown(w.dispose);
+    expect((await w.status()).epicbox.domain, 'epicbox.stackwallet.com');
   });
 
   test('the default Epicbox server is one constant: preset, first relay, status (D-13)', () {

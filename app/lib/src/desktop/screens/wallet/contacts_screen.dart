@@ -578,7 +578,7 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
   /// One error for every form that is not an address: "Not a recognised address".
   String? get _addressError {
     final a = _address.text.trim();
-    if (a.isEmpty) return 'Add an address to send to.';
+    if (a.isEmpty) return 'Add an address.';
     const notRecognised = 'Not a recognised address';
     final epicboxOnly = !DeskFeatures.httpDirect && !DeskFeatures.tor;
     if (epicboxOnly && (RegExp(r'^https?:', caseSensitive: false).hasMatch(a) || a.toLowerCase().contains('.onion'))) {
