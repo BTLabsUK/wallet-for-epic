@@ -23,6 +23,7 @@ import 'src/data_folder.dart';
 import 'src/desktop/app/desk_app.dart';
 import 'src/desktop/data/desk_store.dart';
 import 'src/desktop/data/files.dart';
+import 'src/desktop/data/history_files.dart';
 import 'src/desktop/data/lepic_desk_wallet.dart';
 import 'src/desktop/data/logs.dart';
 import 'src/desktop/widgets/kit.dart';
@@ -136,6 +137,7 @@ Future<List<Override>> deskOverrides() async {
     deskStoreProvider.overrideWithValue(store),
     deskBootProvider.overrideWithValue(boot),
     deskFilesProvider.overrideWithValue(const SystemDeskFiles()),
+    deskHistoryFilesProvider.overrideWithValue(const SystemDeskHistoryFiles()),
     deskQuitProvider.overrideWithValue(() async {
       await wallet.dispose();
       await stopAllBuiltInNodes();

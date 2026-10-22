@@ -18,6 +18,7 @@ String whoOf(Tx t) {
   if (t.coinbase) return 'Mining reward';
   if (t.foundByScan) return foundTexts(t).label;
   final cp = t.counterparty;
+  if (cp == null && t.fromBackup) return t.incoming ? 'Received' : 'Sent';
   if (cp == null) return t.incoming ? 'Unknown sender' : 'Unknown recipient';
   if (t.method == TxMethod.file) return cp;
   return shortAddress(cp);
@@ -50,7 +51,8 @@ FoundTexts foundTexts(Tx t) {
 }
 
 /// A line explaining [whoOf] where it needs one.
-String? whoTip(Tx t) => t.detail ?? (t.foundByScan && t.contactName == null ? foundTexts(t).tip : null);
+String? whoTip(Tx t) =>
+    t.detail ?? (t.foundByScan && t.contactName == null ? foundTexts(t).tip : (t.fromBackup ? 'Added from a history backup.' : null));
 
 /// Whether the name is an address (shown in mono).
 bool whoIsAddress(Tx t) => t.contactName == null && t.counterparty != null && t.method != TxMethod.file;
@@ -76,7 +78,9 @@ IconData iconOf(Tx t) => switch (t.method) {
 };
 
 /// The state in words, with a tone for its colour.
-(String, ETone) statusOf(Tx t) => t.immature
+(String, ETone) statusOf(Tx t) => t.fromBackup
+    ? ('From backup', ETone.neutral)
+    : t.immature
     ? ('Immature', ETone.warn)
     : switch (t.state) {
         TxState.waitingRecipient => (
@@ -225,6 +229,8 @@ class TxStateMark extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.dc;
     if (tx.immature) return Icon(EIcons.sand, size: size * 0.75, color: c.warn);
+    // The chain was not asked about a payment only a backup knows: no count to show.
+    if (tx.fromBackup) return Icon(EIcons.archive, size: size * 0.75, color: c.dim);
     return switch (tx.state) {
       TxState.cancelled => ERing(confirmations: 0, size: size, off: true),
       TxState.waitingRecipient => Icon(EIcons.sand, size: size * 0.75, color: c.warn),
@@ -311,7 +317,7 @@ class _TxRowState extends ConsumerState<TxRow> {
       _ => c.faint,
     };
     final hidden = ref.watch(deskProvider.select((s) => s.settings.hideAmounts));
-    final method = t.foundByScan ? foundTexts(t).line : methodOf(t);
+    final method = t.foundByScan ? foundTexts(t).line : (t.fromBackup ? 'From backup' : methodOf(t));
     final extra = t.message ?? (DeskFeatures.paymentProofs && t.hasProof ? 'Payment proof' : null);
     final meta = <InlineSpan>[
       if (method != null) TextSpan(text: method),
@@ -329,7 +335,7 @@ class _TxRowState extends ConsumerState<TxRow> {
       mainAxisSize: MainAxisSize.min,
       children: [
         _Tip(
-          message: widget.title == null && t.foundByScan ? whoTip(t) : null,
+          message: widget.title == null && (t.foundByScan || t.fromBackup) ? whoTip(t) : null,
           child: Text(
             widget.title ?? whoOf(t),
             maxLines: 1,

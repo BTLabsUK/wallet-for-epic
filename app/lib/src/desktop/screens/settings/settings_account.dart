@@ -8,6 +8,7 @@ import '../../data/files.dart' show deskOpenFolderProvider;
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../widgets/kit.dart';
 import '../onboarding/unlock_screen.dart' show rememberWho;
+import 'backup.dart';
 import 'dialogs.dart';
 import 'prefs.dart';
 import 'settings_frame.dart';
@@ -151,6 +152,7 @@ class _SettingsAccountScreenState extends ConsumerState<SettingsAccountScreen> {
               ),
             ],
           ),
+          BackupGroup(demo: widget.arg is BackupDemo ? widget.arg as BackupDemo : null),
           ESetGroup(
             title: 'Files',
             rows: [

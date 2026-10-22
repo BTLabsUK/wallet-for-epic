@@ -19,7 +19,9 @@ class TxDetail extends ConsumerStatefulWidget {
 class _TxDetailState extends ConsumerState<TxDetail> {
   bool _cancelling = false;
 
-  String _now(Tx t) => t.immature
+  String _now(Tx t) => t.fromBackup
+      ? 'From backup; the chain was not asked.'
+      : t.immature
       ? 'Confirmed, but a mining reward is spendable only after $coinbaseMaturity confirmations.'
       : switch (t.state) {
           TxState.waitingRecipient =>
@@ -57,8 +59,8 @@ class _TxDetailState extends ConsumerState<TxDetail> {
     final ts = context.ts;
     final t = widget.tx;
     final total = t.amount + (t.incoming ? 0 : t.fee);
-    final cancelable = !t.incoming && (t.state == TxState.waitingRecipient || t.state == TxState.posted);
-    final finalizable = !t.incoming && t.method == TxMethod.file && t.state == TxState.waitingRecipient;
+    final cancelable = !t.fromBackup && !t.incoming && (t.state == TxState.waitingRecipient || t.state == TxState.posted);
+    final finalizable = !t.fromBackup && !t.incoming && t.method == TxMethod.file && t.state == TxState.waitingRecipient;
     final steps = _steps(t);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -82,6 +84,8 @@ class _TxDetailState extends ConsumerState<TxDetail> {
                   const SizedBox(height: 2),
                   if (t.foundByScan && t.contactName == null)
                     Text(t.foundDuring == FoundDuring.restore ? 'restored' : 'found on the chain', style: ts.small)
+                  else if (t.fromBackup && t.counterparty == null)
+                    Text('added from a history backup', style: ts.small)
                   else
                     Text.rich(
                       TextSpan(
@@ -95,7 +99,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
                       ),
                       style: ts.small,
                     ),
-                  if (whoTip(t) != null) ...[const SizedBox(height: 2), Text(whoTip(t)!, style: ts.small.copyWith(color: c.faint))],
+                  if (whoTip(t) != null && !(t.fromBackup && t.counterparty == null)) ...[const SizedBox(height: 2), Text(whoTip(t)!, style: ts.small.copyWith(color: c.faint))],
                 ],
               ),
             ),
@@ -117,7 +121,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
             ],
           ),
         ),
-        if (t.state != TxState.cancelled) ...[_Sub('Progress'), for (final (i, st) in steps.indexed) _TimelineStep(step: st, last: i == steps.length - 1)],
+        if (t.state != TxState.cancelled && !t.fromBackup) ...[_Sub('Progress'), for (final (i, st) in steps.indexed) _TimelineStep(step: st, last: i == steps.length - 1)],
         _Sub('Details'),
         EFacts(labelWidth: 96.u, [
           ('Date', Text(dateTimeOf(t))),
