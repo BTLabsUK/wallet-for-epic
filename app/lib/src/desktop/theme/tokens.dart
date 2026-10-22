@@ -47,11 +47,12 @@ abstract final class Rad {
   static double get lg => _px(14);
 }
 
-/// Control sizes. Three button heights, one rule: the height says how big the action is.
-///  - [inline] 28: an action inside a line of text, a row, a notice (Copy, Retry, Change).
-///  - [sm] 36: a row's control (settings column, list toolbar, dialog secondary).
-///  - [md] 44: the page's main action and every text field.
-/// The Electron app's 52 px "large" button is gone: primary actions are [md].
+/// Control sizes. Three heights, one rule: the height says how big the action is.
+///  - [inline] 28: actions inside text, rows and notices; icon buttons (copy, QR, help); tags.
+///  - [sm] 36: a row's control: Settings switches' row height, Reachable segments, Port field,
+///    server picker, toolbar and dialog-secondary buttons, "Open" in list rows.
+///  - [md] 44: every form field, the page's primary button, the Send method selector.
+/// Nothing is taller than 44: the Electron app's 52 px "large" button is gone.
 abstract final class Ctl {
   static double get inline => _px(28);
   static double get sm => _px(36);
@@ -84,6 +85,17 @@ abstract final class Dur {
   static const fast = Duration(milliseconds: 120);
   static const base = Duration(milliseconds: 200);
   static const slow = Duration(milliseconds: 320);
+}
+
+/// The one expand/collapse motion (`widgets/motion.dart` [ExpandFade]). Same length both
+/// ways; the curve is mirrored: ease-out opening, ease-in closing. The content's fade trails
+/// the height by [fadeLag] ms so nothing jumps. `disableAnimations` swaps in one frame.
+abstract final class Motion {
+  static const expand = Duration(milliseconds: 240);
+  static const cross = Duration(milliseconds: 160); // crossfades (strip, state words)
+  static const easeOut = Curves.easeOutCubic; // forward: opening
+  static const easeIn = Curves.easeInCubic; // reverse: closing
+  static const fadeLag = 40; // ms the fade trails the height
 }
 
 /// Colours for one brightness. Read with `context.dc`.

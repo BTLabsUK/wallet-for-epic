@@ -5,6 +5,7 @@ library;
 import '../../recipient.dart' show RecipientKind, parseRecipient;
 import 'api.dart' show DeskWalletApi;
 import 'http_address.dart';
+import 'models.dart' show TxMethod;
 
 enum AddressKind { epicbox, http, tor, none }
 
@@ -29,11 +30,24 @@ final RegExp _ipv4 = RegExp(r'^\d{1,3}(?:\.\d{1,3}){3}$');
 /// `http(s)://` with a host → http, canonical = the text; else epicbox when the text is 40+
 /// base58 characters with an optional `@host`, else none. A Tor address with a bad checksum
 /// or version is still Tor, but not [ParsedAddress.complete].
-ParsedAddress parseAddress(String text, DeskWalletApi api) {
+ParsedAddress parseAddress(String text, DeskWalletApi api) => _parse(text, api);
+
+/// The kind of [text] by its shape alone (no checksum): what a saved contact's address is.
+AddressKind addressKindOf(String text) => _parse(text, null).kind;
+
+/// The Send method for an address kind; null for [AddressKind.none].
+TxMethod? methodForKind(AddressKind k) => switch (k) {
+  AddressKind.epicbox => TxMethod.epicbox,
+  AddressKind.http => TxMethod.http,
+  AddressKind.tor => TxMethod.tor,
+  AddressKind.none => null,
+};
+
+ParsedAddress _parse(String text, DeskWalletApi? api) {
   final r = parseRecipient(text);
   switch (r.kind) {
     case RecipientKind.tor:
-      return ParsedAddress(AddressKind.tor, r.address, complete: api.isOnionAddress(r.address));
+      return ParsedAddress(AddressKind.tor, r.address, complete: api?.isOnionAddress(r.address) ?? false);
     case RecipientKind.http:
       final uri = Uri.tryParse(r.address);
       if (uri == null || uri.host.isEmpty) {
@@ -50,6 +64,6 @@ ParsedAddress parseAddress(String text, DeskWalletApi api) {
       if (!_epicboxShape.hasMatch(r.address)) {
         return ParsedAddress(AddressKind.none, r.address, complete: false);
       }
-      return ParsedAddress(AddressKind.epicbox, r.address, complete: api.isEpicboxAddress(r.address));
+      return ParsedAddress(AddressKind.epicbox, r.address, complete: api?.isEpicboxAddress(r.address) ?? false);
   }
 }

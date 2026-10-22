@@ -83,10 +83,13 @@ class DeskController extends Notifier<DeskState> {
     return DeskState(settings: ref.read(deskBootProvider).settings);
   }
 
-  /// After unlock: starts the listener when [listen] (Settings › Start Epicbox with the wallet),
-  /// the HTTP listener when the opened wallet's Start with the wallet is on, and keeps the status rows and
-  /// lists live until [lock]. The HTTP switch starts as that says on every unlock.
-  Future<void> startLive({required bool listen}) async {
+  /// After unlock: starts every receiving method whose Start with the wallet is on (the opened
+  /// wallet's own [DeskSettings.epicboxAutostart], [DeskSettings.httpAutostart] and
+  /// [DeskSettings.torAutostart], through [DeskApi.startAutostart]) and keeps the status rows
+  /// and lists live until [lock]. The HTTP switch starts as that says on every unlock. [listen]
+  /// is the old app-wide Start Epicbox choice; it is ignored now (the wallet's own setting took
+  /// it over on first read) and goes when the screens stop passing it.
+  Future<void> startLive({bool? listen}) async {
     _stopLive();
     _changes = api.changes().listen((_) {
       // Bursts of events (sync progress) reload the lists once, the status at once.
@@ -98,18 +101,24 @@ class DeskController extends Notifier<DeskState> {
     // The reach, port, autostart and Tor are the opened wallet's own: read them from it.
     final own = await api.settings();
     final http = DeskFeatures.httpDirect && own.httpAutostart;
-    final s = state.settings.copyWith(publicMode: own.publicMode, httpPort: own.httpPort, httpAutostart: own.httpAutostart, directHttp: http, tor: own.tor);
+    final s = state.settings.copyWith(
+      publicMode: own.publicMode,
+      httpPort: own.httpPort,
+      httpAutostart: own.httpAutostart,
+      epicboxAutostart: own.epicboxAutostart,
+      torAutostart: own.torAutostart,
+      directHttp: http,
+      tor: own.tor,
+    );
     state = state.copyWith(settings: s);
     await api.saveSettings(s);
     try {
-      if (listen) {
-        await setListening(true);
-      } else if (http) {
-        await setHttp(true);
-      }
+      await api.startAutostart();
     } on Object {
-      // The status row shows the listener down; Receive offers to start it again.
+      // The status rows show what did not start; Receive offers to start it again.
     }
+    // Tor's now-state may have changed with its autostart.
+    state = state.copyWith(settings: state.settings.copyWith(tor: (await api.settings()).tor));
   }
 
   void _stopLive() {
@@ -259,9 +268,17 @@ class DeskController extends Notifier<DeskState> {
     state = state.copyWith(status: await api.status());
   }
 
-  /// Starts or stops receiving (Receive › Start listener / Stop receiving).
+  /// Starts or stops receiving (Receive › Start listener / Stop receiving). Transitional: the
+  /// screens move to [setEpicboxListening].
   Future<void> setListening(bool on) async {
     await api.setListening(on);
+    state = state.copyWith(status: await api.status());
+  }
+
+  /// The Epicbox switch (Receive, Settings › Receiving): Epicbox receiving alone, HTTP and Tor
+  /// untouched.
+  Future<void> setEpicboxListening(bool on) async {
+    await api.setEpicboxListening(on);
     state = state.copyWith(status: await api.status());
   }
 

@@ -50,19 +50,21 @@ Future<void> _pump(WidgetTester tester, Widget child) async {
 
 void main() {
   phraseCopyOnboarding();
-  testWidgets('Receive: one copy control for the address; it copies and says so', (tester) async {
+  testWidgets('Receive: one copy icon in the address box; it copies and says so', (tester) async {
     _fakeClipboard(tester);
     await _pump(tester, const ReceiveScreen());
-    final box = find.byType(EAddress).first;
-    expect(find.descendant(of: box, matching: find.byType(ECopyButton)), findsNothing, reason: 'the button under it copies');
-    await tester.tap(find.text('Copy address'));
+    final panel = find.byKey(const ValueKey('rx-panel-epicbox'));
+    final copy = find.descendant(of: panel, matching: find.byType(ECopyButton));
+    expect(copy, findsOneWidget);
+    expect(find.descendant(of: find.byType(EAddress).first, matching: find.byType(ECopyButton)), findsOneWidget);
+    await tester.tap(copy);
     await tester.pump();
     expect(_clip, isNotNull);
     expect(_clip, contains('@'));
-    expect(find.text('Copied'), findsOneWidget);
+    final copied = find.byWidgetPredicate((w) => w is EIconButton && w.label == 'Copied');
+    expect(copied, findsOneWidget);
     await tester.pump(const Duration(milliseconds: 1600));
-    expect(find.text('Copied'), findsNothing);
-    expect(find.text('Copy address'), findsOneWidget);
+    expect(copied, findsNothing);
   });
 
   testWidgets('a refused copy says "Not copied"', (tester) async {

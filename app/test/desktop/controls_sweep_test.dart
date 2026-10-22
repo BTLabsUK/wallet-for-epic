@@ -188,6 +188,10 @@ class _Recorder implements DeskWalletApi {
   @override
   Future<void> setListening(bool on) => _r('setListening', () => _m.setListening(on));
   @override
+  Future<void> setEpicboxListening(bool on) => _r('setEpicboxListening', () => _m.setEpicboxListening(on));
+  @override
+  Future<void> startAutostart() => _r('startAutostart', _m.startAutostart);
+  @override
   Future<void> setHttpListening(bool on) => _r('setHttpListening', () => _m.setHttpListening(on));
   @override
   Future<void> setTor(bool on) => _r('setTor', () => _m.setTor(on));

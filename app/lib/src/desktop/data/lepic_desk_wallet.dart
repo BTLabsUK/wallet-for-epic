@@ -37,6 +37,7 @@ import '../../slate_files.dart' show decodeSlateFile, responseFileName, sendFile
 import '../../tor_location.dart';
 import '../../wallet_registry.dart' as reg;
 import '../../wallet_service.dart' as core;
+import 'addresses.dart';
 import 'api.dart';
 import 'desk_store.dart';
 import 'features.dart';
@@ -678,13 +679,16 @@ class LepicDeskWallet implements DeskWalletApi {
     _selectedId = null;
     // The HTTP listener's reach, port and autostart are this wallet's own.
     final http = await _store.httpPrefs(entry.walletId);
-    // Tor too: off unless this wallet turned it on.
-    final tor = _torFeature && await _store.torOn(entry.walletId);
+    // Start with the wallet for Epicbox and Tor are the wallet's own as well. Tor itself is
+    // off until startAutostart or the switch turns it on (DeskSettings.tor is the now-state).
+    final autostart = await _store.autostart(entry.walletId);
     _settings = _settings.copyWith(
       publicMode: http.publicMode,
       httpPort: http.port,
       httpAutostart: http.autostart,
-      tor: tor,
+      tor: false,
+      epicboxAutostart: autostart.epicbox,
+      torAutostart: _torFeature && autostart.tor,
     );
     await _setMeta({'opened': DateTime.now().millisecondsSinceEpoch ~/ 1000});
     try {
@@ -695,13 +699,37 @@ class LepicDeskWallet implements DeskWalletApi {
     return true;
   }
 
-  /// After an unlock: the node poll, the first sync and, when this wallet has it on, tor.
+  /// After an unlock: the node poll and the first sync. The receiving methods start with
+  /// [startAutostart], each as its Start with the wallet says.
   void _startOpenWallet() {
     _poll = Timer.periodic(nodePoll, (_) => unawaited(_checkTip()));
     unawaited(_checkTip());
     unawaited(sync());
     _torAutoRetried = false;
-    if (_settings.tor) unawaited(_startTor());
+  }
+
+  @override
+  Future<void> startAutostart() async {
+    _open;
+    if (_settings.epicboxAutostart) {
+      try {
+        await setEpicboxListening(true);
+      } on Object catch (e) {
+        logWarn('desk', 'epicbox autostart: ${e is core.WalletError ? e.kind.name : e.runtimeType}');
+      }
+    }
+    if (DeskFeatures.httpDirect && _settings.httpAutostart) {
+      try {
+        await setHttpListening(true);
+      } on Object catch (e) {
+        logWarn('desk', 'http autostart: ${e is core.WalletError ? e.kind.name : e.runtimeType}');
+      }
+    }
+    if (_torFeature && _settings.torAutostart) {
+      _settings = _settings.copyWith(tor: true);
+      _torAutoRetried = false;
+      unawaited(_startTor());
+    }
   }
 
   @override
@@ -1146,7 +1174,8 @@ class LepicDeskWallet implements DeskWalletApi {
       final have = {for (final c in await session.contacts()) c.address.toLowerCase()};
       var added = 0;
       for (final c in contacts) {
-        final address = (c.epicboxAddress ?? c.httpAddress)?.trim();
+        final raw = (c.epicboxAddress ?? c.httpAddress)?.trim();
+        final address = raw == null ? null : parseAddress(raw, this).canonical;
         final name = cleanOperator(c.name) ?? '';
         if (address == null || name.isEmpty || !_contactAddressOk(address) || !have.add(address.toLowerCase())) continue;
         final extra = c.epicboxAddress != null && c.httpAddress != null ? 'HTTP: ${c.httpAddress}' : null;
@@ -1162,10 +1191,10 @@ class LepicDeskWallet implements DeskWalletApi {
   }
 
   /// An address the contact form would take: epicbox, http(s) or, with Tor, an onion.
-  bool _contactAddressOk(String a) =>
-      isEpicboxAddress(a) ||
-      (RegExp(r'^https?:', caseSensitive: false).hasMatch(a) && httpAddressProblem(a) == null) ||
-      (_torFeature && isOnionAddress(a));
+  bool _contactAddressOk(String a) {
+    final p = parseAddress(a, this);
+    return p.complete && (p.kind != AddressKind.tor || _torFeature);
+  }
 
   /// Adds the old wallet's node and the older app's own nodes to the node list without switching
   /// to them: the node is app-wide here and would move every wallet. Returns those added.
@@ -1823,6 +1852,9 @@ class LepicDeskWallet implements DeskWalletApi {
     if (_session != null && (moved || settings.httpAutostart != old.httpAutostart)) {
       await _store.saveHttpPrefs(_openEntry?.walletId, HttpPrefs(publicMode: settings.publicMode, port: settings.httpPort, autostart: settings.httpAutostart));
     }
+    if (_session != null && (settings.epicboxAutostart != old.epicboxAutostart || settings.torAutostart != old.torAutostart)) {
+      await _store.saveAutostart(_openEntry?.walletId, AutostartPrefs(epicbox: settings.epicboxAutostart, tor: settings.torAutostart));
+    }
     if (moved && _session != null && (_http != null || _httpHealth == ServiceHealth.down)) {
       await _stopHttp();
       if (settings.directHttp) await setHttpListening(true);
@@ -1959,6 +1991,12 @@ class LepicDeskWallet implements DeskWalletApi {
       return _stopHttp();
     }
     if (_settings.directHttp) await setHttpListening(true);
+    await setEpicboxListening(true);
+  }
+
+  @override
+  Future<void> setEpicboxListening(bool on) async {
+    if (!on) return _stopListener();
     if (_listener != null) return;
     final session = _open;
     _epicboxHealth = ServiceHealth.checking;

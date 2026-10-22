@@ -191,7 +191,7 @@ void main() {
 
     for (final (route, label) in [
       (DeskRoute.settingsAccount, 'Label'),
-      (DeskRoute.settingsReceiving, 'HTTP listener port'),
+      (DeskRoute.settingsReceiving, 'HTTP port'),
     ]) {
       testWidgets('Settings ${route.name}: no icon is a Tab stop', (tester) async {
         await _open(tester, route);
@@ -318,6 +318,7 @@ void main() {
       expect(_focused(), 'details');
       expect(find.text('Inside'), findsOneWidget);
       await _key(tester, LogicalKeyboardKey.escape);
+      await tester.pumpAndSettle(); // the fold-out closes over Motion.expand (ExpandFade)
       expect(find.text('Inside'), findsNothing);
 
       showEDialog(

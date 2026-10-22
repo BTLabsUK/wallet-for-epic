@@ -512,6 +512,19 @@ class MockDeskWallet implements DeskWalletApi {
   }
 
   @override
+  Future<void> setEpicboxListening(bool on) async {
+    await _wait(2);
+    _listening = on;
+  }
+
+  @override
+  Future<void> startAutostart() async {
+    if (_settings.epicboxAutostart) await setEpicboxListening(true);
+    if (_settings.httpAutostart) await setHttpListening(true);
+    if (_settings.torAutostart) await setTor(true);
+  }
+
+  @override
   Future<void> setHttpListening(bool on) async {
     await _wait();
     _http = on;
