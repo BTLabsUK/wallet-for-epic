@@ -21,6 +21,9 @@ class SystemDeskFiles implements DeskFiles {
 /// The file dialog; null in the mock, whose screens use a fixed file name.
 final deskFilesProvider = Provider<DeskFiles?>((ref) => null);
 
+/// Open folder buttons: [openInFileManager]; tests record the folder instead.
+final deskOpenFolderProvider = Provider<Future<bool> Function(String dir)>((ref) => openInFileManager);
+
 /// Opens [dir] in the system's file manager. False when it could not be started.
 Future<bool> openInFileManager(String dir) async {
   final cmd = Platform.isWindows ? 'explorer' : (Platform.isMacOS ? 'open' : 'xdg-open');

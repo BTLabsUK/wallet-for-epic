@@ -216,6 +216,8 @@ class LepicDeskWallet implements DeskWalletApi {
   Timer? _poll;
   Future<void>? _syncing;
   bool _syncAgain = false;
+  /// Why the last sync did not reach the node; null when it did.
+  DeskError? _syncError;
   final _changes = StreamController<void>.broadcast();
 
   String get _chain => preset.chain.name;
@@ -953,6 +955,7 @@ class LepicDeskWallet implements DeskWalletApi {
     if (session == null) return;
     final key = _metaKey(_openEntry?.walletId);
     _syncProgress = 0;
+    _syncError = null;
     _changed();
     try {
       if ((await _meta(key))['scanPending'] == true) {
@@ -978,13 +981,23 @@ class LepicDeskWallet implements DeskWalletApi {
       }
       _entries = await session.transactions(refresh: false);
       _lastUpdate = DateTime.now();
+      _syncError = _nodeHealth == ServiceHealth.down ? const DeskError('The node did not answer') : null;
     } on core.WalletError catch (e) {
       logWarn('desk', 'sync: ${e.kind.name}');
       if (e.kind == core.WalletErrorKind.nodeUnreachable) _nodeHealth = ServiceHealth.down;
+      _syncError = _deskError(e);
     } finally {
       if (_session == session) _syncProgress = null;
       _changed();
     }
+  }
+
+  @override
+  Future<void> syncNow() async {
+    if (_session == null) throw const DeskError('The wallet is locked');
+    await sync();
+    final e = _syncError;
+    if (e != null) throw e;
   }
 
   Future<void> _checkTip() async {

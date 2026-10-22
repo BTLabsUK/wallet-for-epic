@@ -1,6 +1,9 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../data/files.dart' show deskOpenFolderProvider;
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../widgets/kit.dart';
 import 'dialogs.dart';
@@ -54,6 +57,11 @@ class _SettingsWalletsScreenState extends ConsumerState<SettingsWalletsScreen> {
     }
     if (mounted) setState(() => _adding = null);
     await _findRemoved();
+  }
+
+  Future<void> _openFolder(WalletEntry w) async {
+    final ok = Directory(w.folder).existsSync() && await ref.read(deskOpenFolderProvider)(w.folder);
+    if (!ok && mounted) showEToast(context, 'Folder not opened', text: w.folder);
   }
 
   Future<void> _remove(WalletEntry w) async {
@@ -110,7 +118,7 @@ class _SettingsWalletsScreenState extends ConsumerState<SettingsWalletsScreen> {
                             EIconButton(
                               icon: EIcons.folderOpen,
                               label: 'Show ${w.name} in its folder',
-                              onPressed: () => showEToast(context, 'Opening folder', text: w.folder),
+                              onPressed: () => _openFolder(w),
                             ),
                             w.current
                                 ? SizedBox(width: Ctl.sm)

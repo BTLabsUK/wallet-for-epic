@@ -262,6 +262,8 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     setState(() => _torBusy = true);
     try {
       await ref.read(deskProvider.notifier).setTor(true);
+    } on Object catch (e) {
+      if (mounted) showEToast(context, 'Tor not turned on', text: deskErrorText(e), tone: ETone.risk);
     } finally {
       if (mounted) setState(() => _torBusy = false);
     }
@@ -367,6 +369,8 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     setState(() => _starting = true);
     try {
       await ref.read(deskProvider.notifier).setListening(true);
+    } on Object catch (e) {
+      if (mounted) showEToast(context, 'Listener not started', text: deskErrorText(e), tone: ETone.risk);
     } finally {
       if (mounted) setState(() => _starting = false);
     }
@@ -731,7 +735,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
           error: amErr,
           aside: spendable == null
               ? Text('Available —', style: ts.small)
-              : ELink(label: 'Available ${formatEpic(spendable)} EPIC', dim: st.status?.syncProgress != null, onPressed: _allBusy ? null : _sendAll),
+              : ELink(label: 'Available ${st.settings.hideAmounts ? '••••••' : formatEpic(spendable)} EPIC', dim: st.status?.syncProgress != null, onPressed: _allBusy ? null : _sendAll),
           child: EInput(
             controller: _amount,
             mono: true,
@@ -753,7 +757,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
         ),
         if ((st.balance?.awaitingConfirmation ?? 0) > 0) ...[
           SizedBox(height: Sp.x2),
-          Text('${formatEpic(st.balance!.awaitingConfirmation)} EPIC is still confirming and cannot be sent yet.', style: ts.small),
+          Text('${st.settings.hideAmounts ? 'Part of the balance' : '${formatEpic(st.balance!.awaitingConfirmation)} EPIC'} is still confirming and cannot be sent yet.', style: ts.small),
         ],
         SizedBox(height: Sp.x5),
         EField(

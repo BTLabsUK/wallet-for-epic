@@ -480,7 +480,12 @@ class _ContactDetail extends ConsumerWidget {
               onPressed: () async {
                 final ok = await showDeleteContactDialog(context, x);
                 if (ok != true) return;
-                await ref.read(deskProvider.notifier).deleteContact(x.id);
+                try {
+                  await ref.read(deskProvider.notifier).deleteContact(x.id);
+                } on Object catch (e) {
+                  if (context.mounted) showEToast(context, 'Not deleted', text: deskErrorText(e), tone: ETone.risk);
+                  return;
+                }
                 if (context.mounted) showEToast(context, '${x.name} was deleted');
                 onDeleted();
               },
