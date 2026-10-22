@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../widgets/kit.dart';
 import 'dialogs.dart';
-import 'prefs.dart';
 import 'settings_frame.dart';
 
 /// Shortens a long folder path in the middle: "~/.epic/…/wallet_data".
@@ -14,19 +14,59 @@ String shortPath(String p, {int max = 40}) {
   return '${parts.take(2).join('/')}/…/${parts.last}';
 }
 
-class SettingsWalletsScreen extends ConsumerWidget {
+class SettingsWalletsScreen extends ConsumerStatefulWidget {
   const SettingsWalletsScreen({super.key, this.arg});
 
   final Object? arg;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final all = ref.watch(deskProvider.select((s) => s.wallets));
-    final removed = ref.watch(settingsPrefsProvider.select((p) => p.removedWallets));
+  ConsumerState<SettingsWalletsScreen> createState() => _SettingsWalletsScreenState();
+}
+
+class _SettingsWalletsScreenState extends ConsumerState<SettingsWalletsScreen> {
+  /// Wallet folders the list lost (removed from the list only).
+  List<WalletEntry> _removed = const [];
+  String? _adding;
+
+  @override
+  void initState() {
+    super.initState();
+    _findRemoved();
+  }
+
+  Future<void> _findRemoved() async {
+    try {
+      final found = await ref.read(deskApiProvider).findRemoved();
+      if (mounted) setState(() => _removed = found);
+    } on Object {
+      // Nothing to offer.
+    }
+  }
+
+  Future<void> _addBack(WalletEntry w) async {
+    setState(() => _adding = w.id);
+    try {
+      await ref.read(deskApiProvider).addBack(w.id);
+      await ref.read(deskProvider.notifier).loadWallets();
+      if (mounted) showEToast(context, '${w.name} added back');
+    } on Object catch (e) {
+      if (mounted) showEToast(context, 'Not added back', text: deskErrorText(e));
+    }
+    if (mounted) setState(() => _adding = null);
+    await _findRemoved();
+  }
+
+  Future<void> _remove(WalletEntry w) async {
+    await showRemoveWalletDialog(context, w);
+    await _findRemoved();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final wallets = ref.watch(deskProvider.select((s) => s.wallets));
     final nav = ref.read(deskNavProvider.notifier);
     final c = context.dc;
     final ts = context.ts;
-    final wallets = all?.where((w) => !removed.contains(w.folder)).toList();
     return SettingsFrame(
       route: DeskRoute.settingsWallets,
       child: wallets == null
@@ -56,6 +96,7 @@ class SettingsWalletsScreen extends ConsumerWidget {
                                       Text(w.name, style: ts.strong, overflow: TextOverflow.ellipsis),
                                       if (w.network != 'mainnet') ETag(w.network, tone: ETone.warn),
                                       if (w.current) const ETag('Open now', tone: ETone.ok),
+                                      if (w.missing) const ETag('Folder missing', tone: ETone.risk),
                                     ],
                                   ),
                                   Tooltip(
@@ -73,12 +114,24 @@ class SettingsWalletsScreen extends ConsumerWidget {
                             ),
                             w.current
                                 ? SizedBox(width: Ctl.sm)
-                                : EIconButton(icon: EIcons.trash, label: 'Remove ${w.name}…', onPressed: () => showRemoveWalletDialog(context, w)),
+                                : EIconButton(icon: EIcons.trash, label: 'Remove ${w.name}…', onPressed: () => _remove(w)),
                           ],
                         ),
                       ),
                   ],
                 ),
+                if (_removed.isNotEmpty)
+                  ESetGroup(
+                    title: 'Removed from list',
+                    rows: [
+                      for (final w in _removed)
+                        ESetRow(
+                          title: w.name,
+                          text: shortPath(w.folder),
+                          control: EButton(label: 'Add back', size: EBtnSize.sm, busy: _adding == w.id, onPressed: _adding == null ? () => _addBack(w) : null),
+                        ),
+                    ],
+                  ),
                 ESectionHead('Add a wallet', top: 0),
                 LayoutBuilder(
                   builder: (context, box) {
@@ -90,13 +143,14 @@ class SettingsWalletsScreen extends ConsumerWidget {
                         selected: false,
                         onTap: () => nav.go(DeskRoute.create),
                       ),
-                      EChoiceCard(
-                        title: 'Add existing',
-                        description: 'A wallet folder already on this computer.',
-                        icon: EIcons.folderOpen,
-                        selected: false,
-                        onTap: () => nav.go(DeskRoute.found),
-                      ),
+                      if (DeskFeatures.importWizard)
+                        EChoiceCard(
+                          title: 'Add existing',
+                          description: 'A wallet folder already on this computer.',
+                          icon: EIcons.folderOpen,
+                          selected: false,
+                          onTap: () => nav.go(DeskRoute.found),
+                        ),
                       EChoiceCard(
                         title: 'Restore',
                         description: 'From a recovery phrase.',
@@ -121,11 +175,13 @@ class SettingsWalletsScreen extends ConsumerWidget {
                     );
                   },
                 ),
-                SizedBox(height: Sp.x3),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: EButton(label: 'Import wallets…', icon: EIcons.fileDown, size: EBtnSize.sm, kind: EBtnKind.ghost, onPressed: () => nav.go(DeskRoute.importWallets)),
-                ),
+                if (DeskFeatures.importWizard) ...[
+                  SizedBox(height: Sp.x3),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: EButton(label: 'Import wallets…', icon: EIcons.fileDown, size: EBtnSize.sm, kind: EBtnKind.ghost, onPressed: () => nav.go(DeskRoute.importWallets)),
+                  ),
+                ],
               ],
             ),
     );

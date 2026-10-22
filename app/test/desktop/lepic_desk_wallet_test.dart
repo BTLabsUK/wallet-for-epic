@@ -59,15 +59,63 @@ class _Opens extends core.FakeWalletService {
   }
 }
 
+/// Records every config [open] was given.
+class _Recording extends core.FakeWalletService {
+  _Recording() : super(password: _password, session: _StrictSession());
+
+  final List<core.WalletConfig> opened = [];
+
+  /// Thrown by [create] when set.
+  core.WalletError? createError;
+
+  @override
+  Future<core.WalletSession> create({required core.WalletConfig config, String? mnemonic, required String password}) async {
+    if (createError != null) throw createError!;
+    return super.create(config: config, mnemonic: mnemonic, password: password);
+  }
+
+  @override
+  Future<core.WalletSession> open({required core.WalletConfig config, required String password}) async {
+    opened.add(config);
+    return super.open(config: config, password: password);
+  }
+}
+
+/// A session whose scan waits for [gate].
+class _GatedScan extends _StrictSession {
+  final Completer<void> gate = Completer<void>();
+
+  @override
+  Stream<core.ScanProgress> scan({BigInt? startHeight}) async* {
+    await gate.future;
+    yield* super.scan(startHeight: startHeight);
+  }
+}
+
+/// [deleteWallet] fails, as when the disk refuses.
+class _DeleteFails extends _Recording {
+  @override
+  Future<void> deleteWallet({required core.WalletConfig config}) async =>
+      throw const core.WalletError(kind: core.WalletErrorKind.io, message: 'disk refused');
+}
+
 void main() {
   late Directory files;
+  late Directory support;
   late MemorySecretStore secrets;
   late core.FakeWalletService service;
   late LepicDeskWallet wallet;
 
+  /// As `defaultWalletDir`: `<support>/wallets/<chain>`, made when asked for.
+  Future<String> walletDir(core.Chain chain) async {
+    final dir = Directory('${support.path}${Platform.pathSeparator}wallets${Platform.pathSeparator}${chain.name}');
+    await dir.create(recursive: true);
+    return dir.path;
+  }
+
   LepicDeskWallet make(core.FakeWalletService s) => LepicDeskWallet(
     service: s,
-    walletDir: (chain) async => '/fake/wallets/${chain.name}',
+    walletDir: walletDir,
     secrets: secrets,
     filesDir: () async => files,
     nodePoll: const Duration(hours: 1),
@@ -75,6 +123,7 @@ void main() {
 
   setUp(() async {
     files = await Directory.systemTemp.createTemp('desk-wallet-test-');
+    support = await Directory.systemTemp.createTemp('desk-wallet-support-');
     secrets = MemorySecretStore();
     service = core.FakeWalletService(password: _password, session: _StrictSession());
     wallet = make(service);
@@ -83,6 +132,7 @@ void main() {
   tearDown(() async {
     await wallet.dispose();
     await files.delete(recursive: true);
+    await support.delete(recursive: true);
   });
 
   Future<void> created() async {
@@ -100,7 +150,7 @@ void main() {
     test('creates a mainnet wallet in its own folder and returns its phrase', () async {
       final phrase = await wallet.createWallet(name: 'Main', password: _password);
       expect(phrase, hasLength(24));
-      expect(service.createdConfig!.dataDir, '/fake/wallets/mainnet');
+      expect(service.createdConfig!.dataDir, '${support.path}/wallets/mainnet');
       expect(service.createdConfig!.chain, core.Chain.mainnet);
       expect(service.createdMnemonic, isNull);
       expect(service.session.disposeCalls, 1, reason: 'the session closes until Unlock');
@@ -307,7 +357,7 @@ void main() {
       final blocker = File('${files.path}${Platform.pathSeparator}not-a-folder')..writeAsStringSync('x');
       final w = LepicDeskWallet(
         service: service,
-        walletDir: (chain) async => '/fake/wallets/${chain.name}',
+        walletDir: walletDir,
         secrets: secrets,
         filesDir: () async => Directory(blocker.path),
         nodePoll: const Duration(hours: 1),
@@ -352,15 +402,15 @@ void main() {
     });
 
     test('remove wallet checks the password, then deletes only its folder', () async {
-      await expectLater(wallet.removeWallet('wrong-pass-123'), throwsA(isA<DeskError>()));
+      await expectLater(wallet.removeWallet('legacy-mainnet', WalletRemoval.delete, password: 'wrong-pass-123'), throwsA(isA<DeskError>()));
       expect(service.deletedWallets, isEmpty);
     });
   });
 
   test('remove wallet with the right password deletes its folder and data', () async {
     await created();
-    await wallet.removeWallet(_password);
-    expect(service.deletedWallets, ['/fake/wallets/mainnet']);
+    await wallet.removeWallet('legacy-mainnet', WalletRemoval.delete, password: _password);
+    expect(service.deletedWallets, ['${support.path}/wallets/mainnet']);
     expect(await wallet.wallets(), isEmpty);
     expect(await secrets.read(DeskStore.walletKey('mainnet')), isNull);
   });
@@ -468,6 +518,339 @@ void main() {
   });
 
   // Every hidden feature stays hidden: no route, row, segment or menu item renders.
+  group('several wallets', () {
+    late _Recording rec;
+    late LepicDeskWallet w;
+    String first() => '${support.path}/wallets/mainnet';
+
+    setUp(() async {
+      rec = _Recording();
+      w = make(rec);
+    });
+
+    tearDown(() => w.dispose());
+
+    /// A wallet's lepic folder and an epic-wallet seed folder, as on a real disk.
+    void fill(String dir) {
+      File('$dir/lepic/wallet.db').createSync(recursive: true);
+      File('$dir/wallet_data/wallet.seed').createSync(recursive: true);
+    }
+
+    test('the first wallet keeps the 0.1.0 folder, a null walletId and the old store key', () async {
+      await w.createWallet(name: 'Main', password: _password);
+      expect(rec.createdConfig!.dataDir, first());
+      expect(rec.createdConfig!.walletId, isNull);
+      expect(jsonDecode((await secrets.read('desk.wallet.mainnet'))!), containsPair('name', 'Main'));
+      final ws = await w.wallets();
+      expect((ws.single.id, ws.single.name, ws.single.folder, ws.single.current), ('legacy-mainnet', 'Main', first(), true));
+      expect(File('${support.path}/wallets.json').readAsStringSync(), contains('"legacy-mainnet"'));
+      expect(await w.unlock(_password), isTrue);
+      expect(rec.opened.last.walletId, isNull);
+      expect(rec.opened.last.dataDir, first());
+    });
+
+    test('a 0.1.0 wallet is listed as the first one, under its saved name', () async {
+      rec.existingWallets.add(first());
+      await secrets.write('desk.wallet.mainnet', jsonEncode({'name': 'Tester', 'created': 1700000000}));
+      final before = await secrets.read('desk.wallet.mainnet');
+      final ws = await w.wallets();
+      expect((ws.single.id, ws.single.name, ws.single.folder), ('legacy-mainnet', 'Tester', first()));
+      expect(await w.unlock(_password), isTrue);
+      expect(rec.opened.single.dataDir, first());
+      expect(rec.opened.single.walletId, isNull);
+      expect(jsonDecode((await secrets.read('desk.wallet.mainnet'))!), containsPair('name', 'Tester'));
+      expect(jsonDecode(before!)['created'], 1700000000);
+    });
+
+    test('a second wallet gets its own folder, walletId and store key, and is selected', () async {
+      await w.createWallet(name: 'Main', password: _password);
+      final firstMeta = await secrets.read('desk.wallet.mainnet');
+      await w.createWallet(name: 'Savings', password: _password);
+      final id = rec.createdConfig!.walletId!;
+      expect(id, matches(RegExp(r'^[0-9a-f]{32}$')));
+      expect(rec.createdConfig!.dataDir, '${support.path}/wallets/$id/mainnet');
+      expect(jsonDecode((await secrets.read('desk.wallet.mainnet.$id'))!), containsPair('name', 'Savings'));
+      expect(await secrets.read('desk.wallet.mainnet'), firstMeta, reason: 'the first wallet is not touched');
+      final ws = await w.wallets();
+      expect(ws.map((e) => e.name), ['Main', 'Savings']);
+      expect(ws.where((e) => e.current).single.id, id);
+    });
+
+    test('unlock opens the selected wallet and remembers it', () async {
+      await w.createWallet(name: 'Main', password: _password);
+      await w.createWallet(name: 'Savings', password: _password);
+      final id = rec.createdConfig!.walletId!;
+      await w.selectWallet('legacy-mainnet');
+      expect(await w.unlock(_password), isTrue);
+      expect((rec.opened.last.dataDir, rec.opened.last.walletId), (first(), null));
+      expect((await w.account()).name, 'Main');
+      await w.selectWallet(id);
+      expect(await w.unlock(_password), isTrue);
+      expect((rec.opened.last.dataDir, rec.opened.last.walletId), ('${support.path}/wallets/$id/mainnet', id));
+      expect((await w.account()).id, id);
+      expect((await w.wallets()).where((e) => e.current).single.id, id);
+      await expectLater(w.selectWallet('nope'), throwsA(isA<DeskError>()));
+      // Next start: the wallet opened last comes first.
+      final again = make(rec);
+      addTearDown(again.dispose);
+      expect((await again.wallets()).where((e) => e.current).single.id, id);
+    });
+
+    test('rename changes the list and the wallet name, and refuses a bad label', () async {
+      await w.createWallet(name: '', password: _password);
+      await w.createWallet(name: '', password: _password);
+      final id = rec.createdConfig!.walletId!;
+      expect((await w.wallets()).map((e) => e.name), ['Wallet 1', 'Wallet 2']);
+      await w.renameWallet(id, '  Savings ');
+      expect((await w.wallets()).last.name, 'Savings');
+      expect(jsonDecode((await secrets.read('desk.wallet.mainnet.$id'))!), containsPair('name', 'Savings'));
+      await expectLater(w.renameWallet(id, ''), throwsA(isA<DeskError>()));
+      await expectLater(w.renameWallet(id, 'x' * 33), throwsA(isA<DeskError>()));
+    });
+
+    test('remove from list keeps every file; Add back returns it under its name', () async {
+      await w.createWallet(name: 'Main', password: _password);
+      await w.createWallet(name: 'Savings', password: _password);
+      final id = rec.createdConfig!.walletId!;
+      final dir = '${support.path}/wallets/$id/mainnet';
+      fill(dir);
+      await w.removeWallet(id, WalletRemoval.list);
+      expect(rec.deletedWallets, isEmpty);
+      expect(File('$dir/lepic/wallet.db').existsSync(), isTrue);
+      expect(await secrets.read('desk.wallet.mainnet.$id'), isNotNull);
+      expect((await w.wallets()).map((e) => e.id), ['legacy-mainnet']);
+      final removed = await w.findRemoved();
+      expect((removed.single.id, removed.single.name), (id, 'Savings'));
+      await w.addBack(id);
+      expect((await w.wallets()).map((e) => e.name), ['Main', 'Savings']);
+    });
+
+    test('the first wallet removed from the list stays off after a restart until added back', () async {
+      await w.createWallet(name: 'Main', password: _password);
+      await w.createWallet(name: 'Savings', password: _password);
+      await w.removeWallet('legacy-mainnet', WalletRemoval.list);
+      expect(rec.deletedWallets, isEmpty);
+      final again = make(rec);
+      addTearDown(again.dispose);
+      expect((await again.wallets()).map((e) => e.name), ['Savings']);
+      expect((await again.findRemoved()).single.id, 'legacy-mainnet');
+      await again.addBack('legacy-mainnet');
+      expect((await again.wallets()).map((e) => e.name), unorderedEquals(['Main', 'Savings']));
+    });
+
+    test('delete removes only that wallet\'s lepic folder, never wallet_data or the first wallet', () async {
+      await w.createWallet(name: 'Main', password: _password);
+      await w.createWallet(name: 'Savings', password: _password);
+      final id = rec.createdConfig!.walletId!;
+      final dir = '${support.path}/wallets/$id/mainnet';
+      fill(first());
+      fill(dir);
+      final firstMeta = await secrets.read('desk.wallet.mainnet');
+      await w.selectWallet(id);
+      expect(await w.unlock(_password), isTrue);
+      await w.removeWallet(id, WalletRemoval.delete, password: _password);
+      expect(rec.deletedWallets, [dir]);
+      expect(Directory('$dir/lepic').existsSync(), isFalse);
+      expect(File('$dir/wallet_data/wallet.seed').existsSync(), isTrue);
+      expect(File('${first()}/lepic/wallet.db').existsSync(), isTrue);
+      expect(File('${first()}/wallet_data/wallet.seed').existsSync(), isTrue);
+      expect(await secrets.read('desk.wallet.mainnet.$id'), isNull);
+      expect(await secrets.read('desk.wallet.mainnet'), firstMeta);
+      expect((await w.wallets()).map((e) => e.id), ['legacy-mainnet']);
+    });
+
+    test('removing the open wallet needs its password and locks it first', () async {
+      await w.createWallet(name: 'Main', password: _password);
+      await w.createWallet(name: 'Savings', password: _password);
+      final id = rec.createdConfig!.walletId!;
+      expect(await w.unlock(_password), isTrue);
+      await expectLater(w.removeWallet(id, WalletRemoval.delete), throwsA(isA<DeskError>()));
+      await expectLater(w.removeWallet(id, WalletRemoval.delete, password: 'wrong-pass-123'), throwsA(isA<DeskError>()));
+      expect(rec.deletedWallets, isEmpty);
+      expect(await w.epicboxAddress(), rec.session.address, reason: 'still open after a refused delete');
+      await w.removeWallet(id, WalletRemoval.delete, password: _password);
+      await expectLater(w.balance(), throwsA(isA<DeskError>()));
+      expect(rec.deletedWallets, ['${support.path}/wallets/$id/mainnet']);
+      expect((await w.wallets()).single.current, isTrue);
+    });
+
+    test('deleting the first wallet while it is open leaves the second one\'s keys and folder', () async {
+      await w.createWallet(name: 'Main', password: _password);
+      await w.createWallet(name: 'Savings', password: _password);
+      final id = rec.createdConfig!.walletId!;
+      final dir = '${support.path}/wallets/$id/mainnet';
+      fill(first());
+      fill(dir);
+      await w.selectWallet('legacy-mainnet');
+      expect(await w.unlock(_password), isTrue);
+      await w.removeWallet('legacy-mainnet', WalletRemoval.delete, password: _password);
+      expect(rec.deletedWallets, [first()]);
+      expect(await secrets.read('desk.wallet.mainnet'), isNull);
+      expect(await secrets.read('desk.wallet.mainnet.$id'), isNotNull);
+      expect(File('$dir/lepic/wallet.db').existsSync(), isTrue);
+      expect((await w.wallets()).map((e) => e.id), [id]);
+    });
+
+    test('a wallet that is not open cannot be deleted, but can be removed from the list', () async {
+      await w.createWallet(name: 'Main', password: _password);
+      await w.createWallet(name: 'Savings', password: _password);
+      final id = rec.createdConfig!.walletId!;
+      final dir = '${support.path}/wallets/$id/mainnet';
+      fill(dir);
+      expect(await w.unlock(_password), isTrue); // Savings is selected: it is the open one
+      await expectLater(
+        w.removeWallet('legacy-mainnet', WalletRemoval.delete, password: _password),
+        throwsA(isA<DeskError>().having((e) => e.message, 'message', 'Open the wallet to delete it')),
+      );
+      await expectLater(w.removeWallet('legacy-mainnet', WalletRemoval.delete), throwsA(isA<DeskError>()));
+      expect(rec.deletedWallets, isEmpty);
+      expect((await w.wallets()).map((e) => e.id), ['legacy-mainnet', id]);
+      await w.removeWallet('legacy-mainnet', WalletRemoval.list);
+      expect((await w.wallets()).map((e) => e.id), [id]);
+    });
+
+    test('a failed delete of the open wallet still locks it', () async {
+      final bad = _DeleteFails();
+      final f = make(bad);
+      addTearDown(f.dispose);
+      await f.createWallet(name: 'Main', password: _password);
+      await f.createWallet(name: 'Savings', password: _password);
+      final id = bad.createdConfig!.walletId!;
+      expect(await f.unlock(_password), isTrue);
+      await expectLater(f.removeWallet(id, WalletRemoval.delete, password: _password), throwsA(isA<DeskError>()));
+      await expectLater(f.balance(), throwsA(isA<DeskError>()), reason: 'locked, not open over a failed removal');
+    });
+
+    test('creating a wallet while another is open keeps the open one marked current', () async {
+      await w.createWallet(name: 'Main', password: _password);
+      expect(await w.unlock(_password), isTrue);
+      await w.createWallet(name: 'Savings', password: _password);
+      final ws = await w.wallets();
+      expect(ws.map((e) => e.name), ['Main', 'Savings']);
+      expect(ws.where((e) => e.current).single.id, 'legacy-mainnet');
+      await w.restoreWallet(name: 'Third', password: _password, phrase: rec.phrase.split(' '));
+      expect((await w.wallets()).where((e) => e.current).single.id, 'legacy-mainnet');
+    });
+
+    test('a node change with the second wallet open reopens that wallet, not the first', () async {
+      await w.createWallet(name: 'Main', password: _password);
+      await w.createWallet(name: 'Savings', password: _password);
+      final id = rec.createdConfig!.walletId!;
+      expect(await w.unlock(_password), isTrue);
+      await w.useNode('https://node.epicnet.us:3413');
+      expect((rec.opened.last.walletId, rec.opened.last.dataDir), (id, '${support.path}/wallets/$id/mainnet'));
+      await w.useEpicbox('epicbox.epicnet.us');
+      expect((rec.opened.last.walletId, rec.opened.last.dataDir), (id, '${support.path}/wallets/$id/mainnet'));
+      expect((await w.account()).id, id);
+    });
+
+    test('favourites are kept per wallet', () async {
+      await w.createWallet(name: 'Main', password: _password);
+      await w.createWallet(name: 'Savings', password: _password);
+      final id = rec.createdConfig!.walletId!;
+      await w.selectWallet('legacy-mainnet');
+      expect(await w.unlock(_password), isTrue);
+      await w.saveContact(const Contact(id: '', name: 'Ann', address: 'esA@epicbox.epiccash.com', favourite: true));
+      expect((await w.contacts()).single.favourite, isTrue);
+      expect(await secrets.read('desk.favourites'), isNotNull);
+      await w.selectWallet(id);
+      expect(await w.unlock(_password), isTrue);
+      expect((await w.contacts()).single.favourite, isFalse, reason: 'wallet 2 has not marked it');
+      expect(await secrets.read('desk.favourites.$id'), isNull);
+      final firstFavourites = await secrets.read('desk.favourites');
+      await w.saveContact(Contact(id: (await w.contacts()).single.id, name: 'Ann', address: 'esA@epicbox.epiccash.com', favourite: true));
+      expect(await secrets.read('desk.favourites.$id'), isNotNull);
+      expect(await secrets.read('desk.favourites'), firstFavourites);
+    });
+
+    test('a scan that ends after a switch clears the flag of the wallet it ran for', () async {
+      final session = _GatedScan();
+      final g = _Recording();
+      final gw = make(core.FakeWalletService(password: _password, session: session));
+      addTearDown(gw.dispose);
+      await gw.createWallet(name: 'Main', password: _password);
+      await gw.restoreWallet(name: 'Savings', password: _password, phrase: g.phrase.split(' '));
+      final id = (await gw.wallets()).last.id;
+      expect(jsonDecode((await secrets.read('desk.wallet.mainnet.$id'))!), containsPair('scanPending', true));
+      expect(await gw.unlock(_password), isTrue); // Savings: the scan starts and waits
+      await Future<void>.delayed(const Duration(milliseconds: 50));
+      await gw.lock();
+      await gw.selectWallet('legacy-mainnet');
+      expect(await gw.unlock(_password), isTrue);
+      session.gate.complete();
+      await Future<void>.delayed(const Duration(milliseconds: 200));
+      expect(jsonDecode((await secrets.read('desk.wallet.mainnet.$id'))!), containsPair('scanPending', false));
+      expect(jsonDecode((await secrets.read('desk.wallet.mainnet'))!).containsKey('scanPending'), isFalse);
+    });
+
+    group('a wallet list this version cannot write', () {
+      File list() => File('${support.path}/wallets.json');
+
+      test('a newer wallets.json still lists and opens the first wallet', () async {
+        rec.existingWallets.add(first());
+        await secrets.write('desk.wallet.mainnet', jsonEncode({'name': 'Tester'}));
+        list().writeAsStringSync(jsonEncode({'version': 2, 'wallets': []}));
+        final ws = await w.wallets();
+        expect((ws.single.id, ws.single.name), ('legacy-mainnet', 'Tester'));
+        expect(await w.unlock(_password), isTrue);
+        await expectLater(
+          w.renameWallet('legacy-mainnet', 'Other'),
+          throwsA(isA<DeskError>().having((e) => e.message, 'message', 'Update the app to change the list')),
+        );
+      });
+
+      test('a newer wallets.json does not bring back a first wallet removed from the list', () async {
+        rec.existingWallets.add(first());
+        await secrets.write('desk.wallet.mainnet', jsonEncode({'name': 'Tester', 'unlisted': true}));
+        list().writeAsStringSync(jsonEncode({'version': 2, 'wallets': []}));
+        expect(await w.wallets(), isEmpty);
+      });
+
+      test('an unreadable wallets.json lists the first wallet unless it was removed', () async {
+        rec.existingWallets.add(first());
+        await secrets.write('desk.wallet.mainnet', jsonEncode({'name': 'Tester'}));
+        Directory(list().path).createSync(); // a folder where the file goes
+        expect((await w.wallets()).single.id, 'legacy-mainnet');
+        await secrets.write('desk.wallet.mainnet', jsonEncode({'name': 'Tester', 'unlisted': true}));
+        expect(await w.wallets(), isEmpty);
+      });
+
+      test('a damaged wallets.json does not bring back a first wallet removed from the list', () async {
+        rec.existingWallets.add(first());
+        Directory('${first()}/lepic').createSync(recursive: true);
+        await secrets.write('desk.wallet.mainnet', jsonEncode({'name': 'Tester', 'unlisted': true}));
+        list().writeAsStringSync('not json');
+        expect(await w.wallets(), isEmpty);
+      });
+    });
+
+    test('a wallet that fails to be made leaves no half-made folder', () async {
+      await w.createWallet(name: 'Main', password: _password);
+      rec.createError = const core.WalletError(kind: core.WalletErrorKind.io, message: 'disk full');
+      await expectLater(w.createWallet(name: 'Savings', password: _password), throwsA(isA<DeskError>()));
+      expect(rec.deletedWallets.length, 1, reason: 'the new entry went through the registry delete path');
+      expect(rec.deletedWallets.single, isNot(first()));
+    });
+
+    test('a wallet whose folder is gone is flagged', () async {
+      await w.createWallet(name: 'Main', password: _password);
+      await w.createWallet(name: 'Savings', password: _password);
+      final id = rec.createdConfig!.walletId!;
+      await Directory('${support.path}/wallets/$id').delete(recursive: true);
+      final ws = await w.wallets();
+      expect(ws.firstWhere((e) => e.id == id).missing, isTrue);
+      expect(ws.firstWhere((e) => e.id == 'legacy-mainnet').missing, isFalse);
+    });
+
+    test('a wallet the core refuses to make leaves no entry', () async {
+      await w.createWallet(name: 'Main', password: _password);
+      rec.createError = const core.WalletError(kind: core.WalletErrorKind.io, message: 'disk full');
+      await expectLater(w.createWallet(name: 'Savings', password: _password), throwsA(isA<DeskError>()));
+      expect((await w.wallets()).map((e) => e.name), ['Main']);
+      expect(Directory('${support.path}/wallets').listSync().map((e) => e.path.split('/').last), ['mainnet']);
+    });
+  });
+
   group('hidden features', () {
     Future<void> pump(WidgetTester tester, DeskRoute route) async {
       tester.view.physicalSize = const Size(1280, 900);
@@ -495,9 +878,9 @@ void main() {
       await done(tester);
     });
 
-    testWidgets('settings list no All wallets; node has no built-in node', (tester) async {
+    testWidgets('settings list All wallets; node has no built-in node', (tester) async {
       await pump(tester, DeskRoute.settingsNode);
-      expect(find.text('All wallets'), findsNothing);
+      expect(find.text('All wallets'), findsOneWidget);
       expect(find.text('Sync in background'), findsNothing);
       expect(find.textContaining('last block'), findsNothing);
       await done(tester);

@@ -256,8 +256,10 @@ class DeskError implements Exception {
 
 @immutable
 class WalletAccount {
-  const WalletAccount({required this.name, required this.network, required this.folder, required this.created, this.appFolder});
+  const WalletAccount({this.id, required this.name, required this.network, required this.folder, required this.created, this.appFolder});
 
+  /// The registry id ([WalletEntry.id]); null in the mock.
+  final String? id;
   final String name;
 
   /// "mainnet" or "floonet".
@@ -395,14 +397,38 @@ class ReceivedFile {
   final String response;
 }
 
-/// A wallet folder found on this computer (switching, import, "found" screen).
+/// A wallet on this computer (Unlock's select, All wallets, Switch wallet).
 @immutable
 class WalletEntry {
-  const WalletEntry({required this.name, required this.folder, required this.network, this.current = false, this.lastOpened});
+  const WalletEntry({
+    required this.id,
+    required this.name,
+    required this.folder,
+    required this.network,
+    this.current = false,
+    this.lastOpened,
+    this.missing = false,
+  });
 
+  /// The registry id (`WalletRegistry`): `legacy-<chain>` for the first wallet, 32 hex after.
+  final String id;
   final String name;
   final String folder;
   final String network;
+
+  /// Open now, or the one Unlock opens.
   final bool current;
   final DateTime? lastOpened;
+
+  /// Its folder is gone (moved, or a drive unplugged).
+  final bool missing;
+}
+
+/// What [DeskWalletApi.removeWallet] removes.
+enum WalletRemoval {
+  /// The list entry only; every file stays and All wallets can add it back.
+  list,
+
+  /// The wallet's keys and database (its `lepic` folder). `wallet_data` is kept.
+  delete,
 }

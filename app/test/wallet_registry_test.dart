@@ -383,6 +383,42 @@ void main() {
       expect(listFile().readAsStringSync(), text);
     });
 
+    test('every change on a newer file is refused before anything is touched', () async {
+      final a = await registry.add(chain: Chain.floonet);
+      final dir = Directory(a.dataDir)..createSync(recursive: true);
+      File('${dir.path}${sep}lepic${sep}wallet.db').createSync(recursive: true);
+      final text = (jsonDecode(listFile().readAsStringSync()) as Map)..['version'] = 2;
+      listFile().writeAsStringSync(jsonEncode(text));
+      final again = WalletRegistry(tmp.path);
+      await again.load();
+      final service = _Service();
+      final before = Directory('${tmp.path}${sep}wallets').listSync(recursive: true).length;
+      final isVersion = throwsA(isA<WalletRegistryVersionException>());
+      await expectLater(again.delete(a.id, service: service, config: _config(a)), isVersion);
+      expect(service.deleted, isEmpty);
+      expect(File('${dir.path}${sep}lepic${sep}wallet.db').existsSync(), isTrue);
+      await expectLater(again.add(chain: Chain.floonet), isVersion);
+      await expectLater(again.rename(a.id, 'New'), isVersion);
+      await expectLater(again.forget(a.id), isVersion);
+      await expectLater(again.markOpened(a.id), isVersion);
+      await expectLater(again.restore(a), isVersion);
+      await expectLater(again.adoptLegacy(Chain.floonet, exists: (_) async => true), isVersion);
+      expect(Directory('${tmp.path}${sep}wallets').listSync(recursive: true).length, before, reason: 'no folder made or removed');
+      expect(again.list().single.label, a.label);
+    });
+
+    test('a wallet id that is not listed has its own exception', () async {
+      await expectLater(registry.rename(goodId, 'x'), throwsA(isA<WalletNotListedException>()));
+    });
+
+    test('a damaged file does not adopt a legacy wallet in skipLegacy', () async {
+      Directory('${tmp.path}${sep}wallets${sep}floonet${sep}lepic').createSync(recursive: true);
+      listFile().writeAsStringSync('not json');
+      final again = WalletRegistry(tmp.path);
+      await again.load(skipLegacy: {Chain.floonet});
+      expect(again.list(), isEmpty);
+    });
+
     test('memory is unchanged when the save fails', () async {
       final a = await registry.add(chain: Chain.floonet);
       // A directory where the temp file goes makes the write fail.

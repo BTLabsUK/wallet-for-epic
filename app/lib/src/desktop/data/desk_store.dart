@@ -22,8 +22,16 @@ class DeskStore {
   static const nodesKey = 'desk.nodes';
   static const favouritesKey = 'desk.favourites';
 
-  /// The wallet of [chain]: name, creation time, whether a scan is due.
+  /// The wallet of [chain]: name, creation time, whether a scan is due. The first wallet's
+  /// key; a wallet added later has [walletMetaKey].
   static String walletKey(String chain) => 'desk.wallet.$chain';
+
+  /// [walletKey] of the wallet with registry [walletId]: unchanged for the first wallet (null).
+  static String walletMetaKey(String chain, String? walletId) =>
+      walletId == null ? walletKey(chain) : 'desk.wallet.$chain.$walletId';
+
+  /// [favouritesKey] of the wallet with registry [walletId]: unchanged for the first wallet.
+  static String favouritesKeyOf(String? walletId) => walletId == null ? favouritesKey : '$favouritesKey.$walletId';
 
   Future<Object?> readJson(String key) async {
     final text = await _secrets.read(key);

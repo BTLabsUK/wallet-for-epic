@@ -35,7 +35,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
   void initState() {
     super.initState();
     final st = ref.read(deskProvider);
-    _name.text = ref.read(settingsPrefsProvider).walletLabel ?? '';
+    _name.text = st.account?.name ?? '';
     _domain.text = st.status?.epicbox.domain ?? _domain.text;
     _nodeUrl = st.status?.node.url ?? _nodeUrl;
     final api = ref.read(deskApiProvider);
@@ -56,7 +56,17 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
     final st = ref.read(deskProvider);
     final prefs = ref.read(settingsPrefsProvider.notifier);
     final domain = _domain.text.trim();
-    prefs.set(ref.read(settingsPrefsProvider).copyWith(walletLabel: _name.text.trim(), epicboxOnStart: domain.isNotEmpty));
+    final name = _name.text.trim();
+    final id = st.account?.id;
+    final rename = id != null && name.isNotEmpty && name != st.account?.name;
+    prefs.set(ref.read(settingsPrefsProvider).copyWith(walletLabel: id == null ? name : '', epicboxOnStart: domain.isNotEmpty));
+    if (rename) {
+      try {
+        await c.renameWallet(id, name);
+      } on Object catch (e) {
+        if (mounted) showEToast(context, 'Name not saved', text: deskErrorText(e));
+      }
+    }
     if (DeskFeatures.languages) await c.saveSettings(st.settings.copyWith(language: _language));
     try {
       if (!_builtIn && _nodeUrl != st.status?.node.url) await c.useNode(_nodeUrl);
