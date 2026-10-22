@@ -1,6 +1,6 @@
 {
   "@@locale": "ru",
-  "appTitle": "Кошелёк Epic Cash",
+  "appTitle": "Epic Wallet",
   "commonCancel": "Отмена",
   "commonClose": "Закрыть",
   "noticeLevelInfo": "Информация",
@@ -248,7 +248,7 @@
   "historyBackupImportAddedSkippedContacts": "{added, plural, one{{added} старый платёж добавлен} few{{added} старых платежа добавлены} many{{added} старых платежей добавлены} other{{added} старых платежа добавлены}}, {skipped, plural, one{{skipped} запись уже была в кошельке} few{{skipped} записи уже были в кошельке} many{{skipped} записей уже были в кошельке} other{{skipped} записи уже были в кошельке}}, {contacts, plural, one{{contacts} контакт добавлен} few{{contacts} контакта добавлены} many{{contacts} контактов добавлены} other{{contacts} контакта добавлены}}.",
   "historyBackupImportMergedAddedSkippedContacts": "{merged, plural, one{{merged} платёж дополнен данными из копии} few{{merged} платежа дополнены данными из копии} many{{merged} платежей дополнены данными из копии} other{{merged} платежа дополнены данными из копии}}, {added, plural, one{{added} старый платёж добавлен} few{{added} старых платежа добавлены} many{{added} старых платежей добавлены} other{{added} старых платежа добавлены}}, {skipped, plural, one{{skipped} запись уже была в кошельке} few{{skipped} записи уже были в кошельке} many{{skipped} записей уже были в кошельке} other{{skipped} записи уже были в кошельке}}, {contacts, plural, one{{contacts} контакт добавлен} few{{contacts} контакта добавлены} many{{contacts} контактов добавлены} other{{contacts} контакта добавлены}}.",
   "homeLockTooltip": "Заблокировать кошелёк",
-  "shellTitle": "Epic Cash",
+  "shellTitle": "Epic Wallet",
   "demoWelcomeTitle": "Попробуйте Epic Cash",
   "demoWelcomeLine": "Настоящий кошелёк с бесплатными тестовыми монетами, которые ничего не стоят. Он удаляется через 24 часа.",
   "demoStart": "Начать демо",

@@ -18,9 +18,11 @@ app_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 version=0.1.0
 want_package=com.blacktyger.epicwallet
-want_label="Epic Wallet 0.1"
+want_label="Epic Wallet"
 want_cert=5fdcc602f907c83839b5b0a60d9ee15bb44d12411f8f1a67b28e92a95f259d0e
 out_dir="$(realpath -m "${1:-$app_dir/build/release-$version}")"
+# The commit, shown beside the version in Settings (lib/src/app_info.dart).
+build_id="$(git -C "$app_dir" rev-parse --short=7 HEAD)"
 
 bt="$(find "$ANDROID_HOME/build-tools" -maxdepth 1 -mindepth 1 -type d | sort -V | tail -1)"
 aapt2="$bt/aapt2" apksigner="$bt/apksigner"
@@ -38,10 +40,12 @@ apks="$app_dir/build/app/outputs/flutter-apk"
 mkdir -p "$out_dir"
 rm -f "$out_dir"/epic-wallet-$version-*.apk "$out_dir/SHA256SUMS"
 
-flutter build apk --release --target-platform android-arm64,android-x64 --split-per-abi
+flutter build apk --release --target-platform android-arm64,android-x64 --split-per-abi \
+  --dart-define=WFE_BUILD_ID="$build_id"
 cp "$apks/app-arm64-v8a-release.apk" "$out_dir/epic-wallet-$version-arm64-v8a.apk"
 cp "$apks/app-x86_64-release.apk" "$out_dir/epic-wallet-$version-x86_64.apk"
-flutter build apk --release --target-platform android-arm64,android-x64
+flutter build apk --release --target-platform android-arm64,android-x64 \
+  --dart-define=WFE_BUILD_ID="$build_id"
 cp "$apks/app-release.apk" "$out_dir/epic-wallet-$version-universal.apk"
 
 (cd "$out_dir" && sha256sum epic-wallet-$version-*.apk >SHA256SUMS)
@@ -74,4 +78,4 @@ for apk in "$out_dir"/epic-wallet-$version-*.apk; do
 done
 echo "SHA256SUMS:"; cat "$out_dir/SHA256SUMS"
 [[ $fail == 0 ]] || { echo "verification FAILED" >&2; exit 1; }
-echo "Release $version built and verified in $out_dir"
+echo "Release $version ($build_id) built and verified in $out_dir"

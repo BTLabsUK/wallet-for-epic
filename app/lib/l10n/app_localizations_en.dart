@@ -10,7 +10,7 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
-  String get appTitle => 'Epic Cash Wallet';
+  String get appTitle => 'Epic Wallet';
 
   @override
   String get commonCancel => 'Cancel';
@@ -1203,7 +1203,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get homeLockTooltip => 'Lock wallet';
 
   @override
-  String get shellTitle => 'Epic Cash';
+  String get shellTitle => 'Epic Wallet';
 
   @override
   String get demoWelcomeTitle => 'Try Epic Cash';

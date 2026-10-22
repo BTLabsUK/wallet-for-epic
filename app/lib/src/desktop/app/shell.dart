@@ -1,3 +1,4 @@
+import '../../app_info.dart';
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
@@ -15,14 +16,14 @@ import 'desk_app.dart' show deskNavigatorKey;
 import 'screens.dart';
 import 'tour.dart';
 
-/// The app version the sidebar shows.
-const String deskVersion = '0.1.0'; // pubspec's version (v0.1)
+/// The app version the sidebar, About and the support report show, with the build's commit.
+final String deskVersion = withBuildId('0.1.0'); // pubspec's version (v0.1)
 
 
 /// "Ctrl+L", or "⌘L" on macOS.
 String deskKeys(String key) => defaultTargetPlatform == TargetPlatform.macOS ? '⌘$key' : 'Ctrl+$key';
 
-/// The window title of each in-app place: `<page> · Epic Cash wallet`.
+/// The window title of each in-app place: `<page> · Epic Wallet`.
 String deskPageTitle(DeskRoute r) {
   final page = switch (r.section) {
     DeskSection.overview => 'Overview',
@@ -37,7 +38,7 @@ String deskPageTitle(DeskRoute r) {
     DeskSection.settings => 'Settings',
     null => '',
   };
-  return page.isEmpty ? 'Epic Cash wallet' : '$page · Epic Cash wallet';
+  return page.isEmpty ? appName : '$page · $appName';
 }
 
 /// The frame of every in-app page. Three layouts by width:
@@ -239,8 +240,8 @@ class _Sidebar extends ConsumerWidget {
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('Epic Cash Wallet', maxLines: 1, overflow: TextOverflow.ellipsis, style: ts.h3.copyWith(fontSize: 15, letterSpacing: -0.15)),
-                          Text('Wallet $deskVersion', style: ts.caption),
+                          Text(appName, maxLines: 1, overflow: TextOverflow.ellipsis, style: ts.h3.copyWith(fontSize: 15, letterSpacing: -0.15)),
+                          Text('Version $deskVersion', style: ts.caption),
                         ],
                       ),
                       ),
@@ -559,7 +560,7 @@ class _PhoneTopBar extends ConsumerWidget {
         children: [
           EpicMark(size: 20.u, color: c.accent),
           SizedBox(width: Sp.x2),
-          Flexible(child: Text('Epic Cash Wallet', maxLines: 1, overflow: TextOverflow.ellipsis, style: context.ts.h3.copyWith(fontSize: 15))),
+          Flexible(child: Text(appName, maxLines: 1, overflow: TextOverflow.ellipsis, style: context.ts.h3.copyWith(fontSize: 15))),
           const Spacer(),
           const ServiceRows(compact: true, horizontal: true),
           TourTarget(

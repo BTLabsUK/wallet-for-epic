@@ -1,3 +1,4 @@
+import '../../../app_info.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -11,7 +12,7 @@ class AuthFoot extends StatelessWidget {
   const AuthFoot({super.key});
 
   @override
-  Widget build(BuildContext context) => Text('Epic Cash Wallet $deskVersion');
+  Widget build(BuildContext context) => Text('$appName $deskVersion');
 }
 
 /// Password and confirmation: the first step of create and restore.

@@ -1,8 +1,8 @@
 {
   "@@locale": "en",
-  "appTitle": "Epic Cash Wallet",
+  "appTitle": "Epic Wallet",
   "@appTitle": {
-    "description": "The app's name in the task switcher and window title."
+    "description": "The app's name in the task switcher and window title. A product name; do not translate."
   },
   "commonCancel": "Cancel",
   "commonClose": "Close",
@@ -1245,9 +1245,9 @@
   "@homeLockTooltip": {
     "description": "Tooltip of the app-bar button that closes the wallet and returns to the PIN screen."
   },
-  "shellTitle": "Epic Cash",
+  "shellTitle": "Epic Wallet",
   "@shellTitle": {
-    "description": "App-bar title of the wallet's main page. The coin's name; do not translate."
+    "description": "App-bar title of the wallet's main page: the app's name. A product name; do not translate."
   },
   "demoWelcomeTitle": "Try Epic Cash",
   "@demoWelcomeTitle": {

@@ -432,7 +432,7 @@ class PendingLine extends StatelessWidget {
 }
 
 /// The app bar's title on every tab, cross-faded by the page position ([openness], 1 on
-/// Wallet): Wallet's [ShellTitle] ("Epic Cash", or the demo's pill in [trailing]), and on
+/// Wallet): Wallet's [ShellTitle] ("Epic Wallet", or the demo's pill in [trailing]), and on
 /// Send and Receive the spendable figure with a small gold EPIC, and under it what is on hold
 /// or coming in. Each shrinks rather than overflows when the bar is narrow.
 class ShellBarTitle extends StatelessWidget {

@@ -1,3 +1,4 @@
+import '../app_info.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -52,13 +53,14 @@ final _biometricsProvider =
     });
 
 /// The app version: the installed package's on Android, else the one this build was made
-/// from (`pubspec.yaml`, passed in by `flutter build`). Null when neither is known.
+/// from (`pubspec.yaml`, passed in by `flutter build`), with the build's commit when the
+/// release script passed one: `0.1.0 (1, ba10dec)`. Null when neither is known.
 final appVersionProvider = FutureProvider<String?>((ref) async {
   final platform = ref.watch(updatePlatformProvider);
   if (platform != null) {
     try {
       final app = await platform.installedApp();
-      return '${app.versionName} (${app.versionCode})';
+      return _withBuild(app.versionName, '${app.versionCode}');
     } catch (error) {
       // Fall back to the build's own version.
       logInfo('app', 'installed version unknown: $error');
@@ -67,8 +69,13 @@ final appVersionProvider = FutureProvider<String?>((ref) async {
   const name = String.fromEnvironment('FLUTTER_BUILD_NAME');
   const number = String.fromEnvironment('FLUTTER_BUILD_NUMBER');
   if (name.isEmpty) return null;
-  return number.isEmpty ? name : '$name ($number)';
+  return _withBuild(name, number);
 });
+
+String _withBuild(String name, String number) {
+  final extra = [number, appBuildId].where((s) => s.isNotEmpty).join(', ');
+  return extra.isEmpty ? name : '$name ($extra)';
+}
 
 /// App settings: network, display, security, history backup, wallet and about.
 class SettingsScreen extends ConsumerStatefulWidget {

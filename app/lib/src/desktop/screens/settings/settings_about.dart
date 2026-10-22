@@ -1,3 +1,4 @@
+import '../../../app_info.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -42,7 +43,7 @@ class SettingsAboutScreen extends ConsumerWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('Epic Cash wallet $deskVersion', style: ts.h3),
+                          Text('$appName $deskVersion', style: ts.h3),
                           SizedBox(height: Sp.x1),
                           Wrap(
                             spacing: Sp.x4,

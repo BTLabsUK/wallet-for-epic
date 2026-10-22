@@ -2892,7 +2892,7 @@ void main() {
         await h.pump(tester);
         // On Wallet the title is the name; the figure title waits out of sight.
         expect(_titleOpacity(tester), (wallet: 1.0, tab: 0.0));
-        expect(find.text('Epic Cash'), findsOneWidget);
+        expect(find.text('Epic Wallet'), findsOneWidget);
         for (final tab in ['Send', 'Receive']) {
           await _tab(tester, tab, settle: false);
           expect(_titleOpacity(tester), (wallet: 0.0, tab: 1.0), reason: tab);
@@ -3642,7 +3642,7 @@ void main() {
           );
         }
         await _tab(tester, 'Wallet', settle: false);
-        expect(find.text('Epic Cash'), findsOneWidget);
+        expect(find.text('Epic Wallet'), findsOneWidget);
         expect(_statusTip(tester, nodeStatusKey), isNot(contains('Mainnet')));
         expect(
           _statusTip(tester, nodeStatusKey).split('\n').first,
@@ -3672,13 +3672,13 @@ void main() {
           );
         }
         await _tab(tester, 'Wallet', settle: false);
-        expect(find.text('Epic Cash'), findsOneWidget);
+        expect(find.text('Epic Wallet'), findsOneWidget);
         // The title is not cut.
         expect(
           tester
               .renderObject<RenderParagraph>(
                 find.descendant(
-                  of: find.text('Epic Cash'),
+                  of: find.text('Epic Wallet'),
                   matching: find.byType(RichText),
                 ),
               )

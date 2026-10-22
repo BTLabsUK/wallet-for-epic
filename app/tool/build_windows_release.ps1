@@ -21,7 +21,9 @@ param(
     [string]$NodeBin,
     # The Tor bundle from tools/fetch-tor.sh win (tor.exe, LICENSE.tor.txt, VERSION), bundled as
     # bin\tor-bundle next to epic_wallet.exe. Without it the app shows Tor as not included.
-    [string]$TorBundle
+    [string]$TorBundle,
+    # The commit shown beside the version in the app (WFE_BUILD_ID); default: -Source's HEAD.
+    [string]$BuildId
 )
 $ErrorActionPreference = 'Stop'
 $Source = (Resolve-Path $Source).Path
@@ -83,7 +85,9 @@ $name = $ver[1].Value; $number = $ver[2].Value
 Set-Location $app
 flutter pub get
 if ($LASTEXITCODE) { throw 'pub get failed' }
-flutter build windows --release --target lib/main_desktop.dart --build-name $name --build-number $number
+if (-not $BuildId) { $BuildId = (git -C $Source rev-parse --short=7 HEAD) }
+Write-Output "build id: $BuildId"
+flutter build windows --release --target lib/main_desktop.dart --build-name $name --build-number $number --dart-define=WFE_BUILD_ID=$BuildId
 if ($LASTEXITCODE) { throw 'flutter build windows failed' }
 $rel = Join-Path $app 'build\windows\x64\runner\Release'
 # A failed configure leaves only the exe here (install prefix pointed elsewhere): refuse that.

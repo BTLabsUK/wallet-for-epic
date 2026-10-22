@@ -6,8 +6,9 @@
 #include "utils.h"
 
 namespace {
-// The window's title, also how a second start finds the first window.
-constexpr const wchar_t kWindowTitle[] = L"Epic Cash Wallet";
+// The window's title, also how a second start finds the first window. The app keeps it:
+// MaterialApp's title (lib/src/app_info.dart appName) is the same text.
+constexpr const wchar_t kWindowTitle[] = L"Epic Wallet";
 // Named after the data folder (%APPDATA%\com.blacktyger\EpicWallet).
 constexpr const wchar_t kSingleInstanceMutex[] = L"Local\\com.blacktyger.EpicWallet.single";
 }  // namespace

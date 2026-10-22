@@ -10,7 +10,7 @@ class AppLocalizationsZh extends AppLocalizations {
   AppLocalizationsZh([String locale = 'zh']) : super(locale);
 
   @override
-  String get appTitle => 'Epic Cash 钱包';
+  String get appTitle => 'Epic Wallet';
 
   @override
   String get commonCancel => '取消';
@@ -1129,7 +1129,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get homeLockTooltip => '锁定钱包';
 
   @override
-  String get shellTitle => 'Epic Cash';
+  String get shellTitle => 'Epic Wallet';
 
   @override
   String get demoWelcomeTitle => '试用 Epic Cash';

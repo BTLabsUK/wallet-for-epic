@@ -12,11 +12,11 @@ fi
 echo "== flutter build linux --release -t $target"
 cd /work/app
 flutter pub get
-flutter build linux --release -t "$target" "$@"
+flutter build linux --release -t "$target" ${WFE_BUILD_ID:+--dart-define=WFE_BUILD_ID="$WFE_BUILD_ID"} "$@"
 
 echo "== AppImage"
 bundle=/work/app/build/linux/x64/release/bundle
-appdir="$(mktemp -d)/WalletForEpic.AppDir"
+appdir="$(mktemp -d)/EpicWallet.AppDir"
 mkdir -p "$appdir/usr/bin"
 cp -a "$bundle/." "$appdir/usr/bin/"
 # The built-in node (lib/src/builtin_node.dart) runs <exe dir>/bin/epic.
@@ -39,7 +39,7 @@ chmod +x "$appdir/AppRun"
 cat > "$appdir/epic-wallet.desktop" <<'DESK'
 [Desktop Entry]
 Type=Application
-Name=Wallet for Epic
+Name=Epic Wallet
 Exec=epic_wallet
 Icon=epic-wallet
 Categories=Finance;Utility;
@@ -54,5 +54,5 @@ PNG
 fi
 out=/work/build-linux
 mkdir -p "$out"
-ARCH=x86_64 /opt/appimagetool/AppRun --runtime-file /opt/runtime-x86_64 "$appdir" "$out/WalletForEpic-$version-x86_64.AppImage"
+ARCH=x86_64 /opt/appimagetool/AppRun --runtime-file /opt/runtime-x86_64 "$appdir" "$out/EpicWallet-$version-x86_64.AppImage"
 ls -l "$out"

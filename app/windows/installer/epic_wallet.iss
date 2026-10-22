@@ -3,7 +3,8 @@
 ; optionally /DAppVersion. Per-user: no admin rights, nothing outside the user's profile.
 ;
 ; The wallet's data (%APPDATA%\com.blacktyger\EpicWallet) is never touched: there is no
-; [UninstallDelete] and no [InstallDelete], and Inno removes only the files it installed.
+; [UninstallDelete], [InstallDelete] names only old shortcut files, and Inno removes only the
+; files it installed.
 
 #ifndef SourceDir
   #error Pass /DSourceDir=<Flutter Release folder>
@@ -44,11 +45,13 @@ Name: "desktopicon"; Description: "Create a desktop shortcut"; GroupDescription:
 Source: "{#SourceDir}\*"; DestDir: "{app}"; Excludes: "*.lib,*.exp,*.pdb,*.ilk"; Flags: recursesubdirs createallsubdirs ignoreversion
 
 [Icons]
-Name: "{userprograms}\Epic Wallet 0.1"; Filename: "{app}\epic_wallet.exe"; IconFilename: "{app}\epic_wallet.exe"; WorkingDir: "{app}"
-; Same app on Impeller instead of the default Skia, to compare renderers.
-Name: "{userprograms}\Epic Wallet 0.1 (Impeller)"; Filename: "{app}\epic_wallet.exe"; IconFilename: "{app}\epic_wallet.exe"; Parameters: "--impeller"; WorkingDir: "{app}"
-Name: "{userdesktop}\Epic Wallet 0.1"; Filename: "{app}\epic_wallet.exe"; IconFilename: "{app}\epic_wallet.exe"; WorkingDir: "{app}"; Tasks: desktopicon
+; One shortcut; the runner's --impeller and --skia flags stay for a hand-made one.
+Name: "{userprograms}\Epic Wallet"; Filename: "{app}\epic_wallet.exe"; IconFilename: "{app}\epic_wallet.exe"; WorkingDir: "{app}"
+Name: "{userdesktop}\Epic Wallet"; Filename: "{app}\epic_wallet.exe"; IconFilename: "{app}\epic_wallet.exe"; WorkingDir: "{app}"; Tasks: desktopicon
 
 [InstallDelete]
-; 0.1.0's renderer shortcut; Skia is the default now (the plain shortcut).
+; The 0.1.0 shortcuts, named by version and renderer. Only these exact files.
+Type: files; Name: "{userprograms}\Epic Wallet 0.1.lnk"
 Type: files; Name: "{userprograms}\Epic Wallet 0.1 (Skia).lnk"
+Type: files; Name: "{userprograms}\Epic Wallet 0.1 (Impeller).lnk"
+Type: files; Name: "{userdesktop}\Epic Wallet 0.1.lnk"

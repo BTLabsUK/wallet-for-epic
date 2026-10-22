@@ -104,10 +104,10 @@ abstract class AppLocalizations {
     Locale('zh'),
   ];
 
-  /// The app's name in the task switcher and window title.
+  /// The app's name in the task switcher and window title. A product name; do not translate.
   ///
   /// In en, this message translates to:
-  /// **'Epic Cash Wallet'**
+  /// **'Epic Wallet'**
   String get appTitle;
 
   /// No description provided for @commonCancel.
@@ -1628,10 +1628,10 @@ abstract class AppLocalizations {
   /// **'Lock wallet'**
   String get homeLockTooltip;
 
-  /// App-bar title of the wallet's main page. The coin's name; do not translate.
+  /// App-bar title of the wallet's main page: the app's name. A product name; do not translate.
   ///
   /// In en, this message translates to:
-  /// **'Epic Cash'**
+  /// **'Epic Wallet'**
   String get shellTitle;
 
   /// Heading of the web demo's welcome screen, under the mark.

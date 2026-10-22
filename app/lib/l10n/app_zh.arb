@@ -1,6 +1,6 @@
 {
   "@@locale": "zh",
-  "appTitle": "Epic Cash 钱包",
+  "appTitle": "Epic Wallet",
   "commonCancel": "取消",
   "commonClose": "关闭",
   "noticeLevelInfo": "提示",
@@ -248,7 +248,7 @@
   "historyBackupImportAddedSkippedContacts": "{added, plural, other{已添加 {added} 笔较早的付款}}，{skipped, plural, other{{skipped} 条记录已存在}}，{contacts, plural, other{已添加 {contacts} 个联系人}}。",
   "historyBackupImportMergedAddedSkippedContacts": "{merged, plural, other{{merged} 笔付款已恢复详情}}，{added, plural, other{已添加 {added} 笔较早的付款}}，{skipped, plural, other{{skipped} 条记录已存在}}，{contacts, plural, other{已添加 {contacts} 个联系人}}。",
   "homeLockTooltip": "锁定钱包",
-  "shellTitle": "Epic Cash",
+  "shellTitle": "Epic Wallet",
   "demoWelcomeTitle": "试用 Epic Cash",
   "demoWelcomeLine": "一个真正的钱包，附带免费的测试币，测试币没有价值。24 小时后删除。",
   "demoStart": "开始演示",

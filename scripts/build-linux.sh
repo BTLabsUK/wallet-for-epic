@@ -9,7 +9,7 @@
 #        WFE_BUILD_LEPIC=0                  skip the LEPIC build (the mock build does not use it)
 #        WFE_TOR=0                          leave out the Tor bundle (tools/fetch-tor.sh, in by default)
 #        LEPIC_REPO=../lepic                 where the pinned LEPIC commit is read from
-# Output: build-linux/WalletForEpic-<version>-x86_64.AppImage
+# Output: build-linux/EpicWallet-<version>-x86_64.AppImage
 # Caches: docker volumes wfe-linux-{pub,cargo,home,lepic-target} keep rebuilds fast.
 set -euo pipefail
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -28,6 +28,10 @@ if [[ ! -f "$src/.exported" ]]; then
 fi
 rust="$(sed -n 's/^channel *= *"\(.*\)"/\1/p' "$src/rust-toolchain.toml")"
 flutter_v="$(tr -d '[:space:]' < "$root/scripts/linux/flutter.version")"
+# The commit, shown beside the version in the app (WFE_BUILD_ID, lib/src/app_info.dart); a
+# WFE_WORKTREE=1 build of uncommitted changes says so.
+build_id="$(git -C "$root" rev-parse --short=7 HEAD)"
+if [[ "${WFE_WORKTREE:-0}" = 1 && -n "$(git -C "$root" status --porcelain)" ]]; then build_id+=-dirty; fi
 
 docker build -q -t "$image" --build-arg "RUST_VERSION=$rust" --build-arg "FLUTTER_VERSION=$flutter_v" \
   "$root/scripts/linux" >/dev/null
@@ -70,6 +74,7 @@ docker run --rm -v wfe-linux-lepic-target:/t -v wfe-linux-build:/b -v wfe-linux-
   chown "$(id -u):$(id -g)" /t /b /p /h
 docker run --rm --user "$(id -u):$(id -g)" \
   -e WFE_TARGET="${WFE_TARGET:-lib/main_desktop.dart}" -e WFE_BUILD_LEPIC="${WFE_BUILD_LEPIC:-1}" \
+  -e WFE_BUILD_ID="$build_id" \
   -v "$work:/work" \
   -v wfe-linux-build:/work/app/build \
   -v "$src:/work/app/third_party/lepic" \

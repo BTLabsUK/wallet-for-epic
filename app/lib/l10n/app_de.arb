@@ -1,6 +1,6 @@
 {
   "@@locale": "de",
-  "appTitle": "Epic Cash Wallet",
+  "appTitle": "Epic Wallet",
   "commonCancel": "Abbrechen",
   "commonClose": "Schließen",
   "noticeLevelInfo": "Hinweis",
@@ -248,7 +248,7 @@
   "historyBackupImportAddedSkippedContacts": "{added, plural, =1{1 ältere Zahlung hinzugefügt} other{{added} ältere Zahlungen hinzugefügt}}, {skipped, plural, =1{1 Eintrag war bereits vorhanden} other{{skipped} Einträge waren bereits vorhanden}}, {contacts, plural, =1{1 Kontakt hinzugefügt} other{{contacts} Kontakte hinzugefügt}}.",
   "historyBackupImportMergedAddedSkippedContacts": "{merged, plural, =1{Details von 1 Zahlung wiederhergestellt} other{Details von {merged} Zahlungen wiederhergestellt}}, {added, plural, =1{1 ältere Zahlung hinzugefügt} other{{added} ältere Zahlungen hinzugefügt}}, {skipped, plural, =1{1 Eintrag war bereits vorhanden} other{{skipped} Einträge waren bereits vorhanden}}, {contacts, plural, =1{1 Kontakt hinzugefügt} other{{contacts} Kontakte hinzugefügt}}.",
   "homeLockTooltip": "Wallet sperren",
-  "shellTitle": "Epic Cash",
+  "shellTitle": "Epic Wallet",
   "demoWelcomeTitle": "Epic Cash ausprobieren",
   "demoWelcomeLine": "Eine echte Wallet mit kostenlosen Test-Coins ohne Wert. Sie wird nach 24 Stunden gelöscht.",
   "demoStart": "Demo starten",

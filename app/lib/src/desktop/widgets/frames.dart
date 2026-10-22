@@ -1,3 +1,4 @@
+import '../../app_info.dart';
 import 'package:flutter/material.dart';
 
 import '../../ui/theme/brand.dart' show EpicMark;
@@ -395,7 +396,7 @@ class EOnbFrame extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('Epic Cash Wallet', maxLines: 1, overflow: TextOverflow.ellipsis, style: ts.h3.copyWith(fontSize: 15)),
+                            Text(appName, maxLines: 1, overflow: TextOverflow.ellipsis, style: ts.h3.copyWith(fontSize: 15)),
                             Text(sideTitle, style: ts.caption),
                           ],
                         ),

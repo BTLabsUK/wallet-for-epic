@@ -1,3 +1,4 @@
+import '../../app_info.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -24,7 +25,7 @@ class DeskApp extends ConsumerWidget {
     deskScale = (deskScales.contains(scale) ? scale : 100) / 100 * deskBase;
     return MaterialApp(
       navigatorKey: deskNavigatorKey,
-      title: 'Epic Cash Wallet',
+      title: appName,
       debugShowCheckedModeBanner: false,
       themeMode: switch (theme) {
         ThemeChoice.system => ThemeMode.system,
