@@ -10,6 +10,7 @@ import 'dart:typed_data';
 
 import 'history/wallet_history.dart';
 import 'models.dart';
+import 'providers.dart' show defaultMinimumConfirmations;
 
 export 'models.dart';
 
@@ -723,7 +724,7 @@ class FakeWalletSession implements WalletSession {
 
   static final WalletSummary emptySummary = WalletSummary(
     lastConfirmedHeight: BigInt.zero,
-    minimumConfirmations: BigInt.from(10),
+    minimumConfirmations: BigInt.from(defaultMinimumConfirmations),
     total: BigInt.zero,
     spendable: BigInt.zero,
     awaitingConfirmation: BigInt.zero,

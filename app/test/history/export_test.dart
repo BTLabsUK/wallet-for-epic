@@ -54,7 +54,9 @@ void main() {
       String words(TxEntry t, int? tip) =>
           statusWords(t, tip == null ? null : BigInt.from(tip));
       final t = _tx('', '');
-      expect(words(t, 15), 'Confirming 4/10');
+      // The sent fixture is in block 12: tip 13 is two confirmations of three.
+      expect(words(t, 13), 'Confirming 2/3');
+      expect(words(t, 14), 'Completed');
       expect(words(t, 21), 'Completed');
       expect(words(t, null), 'Completed');
       TxEntry with_({
@@ -72,7 +74,7 @@ void main() {
         words(with_(status: TxStatus.awaitingRecipient, height: 12), 21),
         'Waiting for recipient',
       );
-      expect(words(with_(), 21), 'Confirming 0/10');
+      expect(words(with_(), 21), 'Confirming 0/3');
       expect(words(with_(kind: TxKind.received), 21), 'Waiting for sender');
       expect(
         words(with_(kind: TxKind.received, id: null), 21),
