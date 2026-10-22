@@ -75,6 +75,10 @@ void main() {
       expect(w(core.WalletOutputStatus.unspent, core.OutputCategory.awaitingConfirmation), OutputWord.confirming);
       expect(w(core.WalletOutputStatus.unconfirmed, core.OutputCategory.awaitingFinalization), OutputWord.finalizing);
       expect(w(core.WalletOutputStatus.unconfirmed, null, coinbase: true), OutputWord.mining);
+      // Unconfirmed in any other category, a reward included, is confirming (spec §2.2).
+      expect(w(core.WalletOutputStatus.unconfirmed, core.OutputCategory.awaitingConfirmation), OutputWord.confirming);
+      expect(w(core.WalletOutputStatus.unconfirmed, null), OutputWord.confirming);
+      expect(w(core.WalletOutputStatus.unconfirmed, core.OutputCategory.awaitingConfirmation, coinbase: true), OutputWord.confirming);
       expect(w(core.WalletOutputStatus.unspent, core.OutputCategory.immature, coinbase: true), OutputWord.immature);
       expect(w(core.WalletOutputStatus.locked, core.OutputCategory.locked), OutputWord.locked);
       expect(w(core.WalletOutputStatus.spent, null), OutputWord.spent);

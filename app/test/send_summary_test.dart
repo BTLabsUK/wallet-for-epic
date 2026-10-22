@@ -74,6 +74,8 @@ void main() {
       final s = SendSummary.of(balance: 5 * epic, spendable: 4 * epic, estimate: const SendEstimate(amount: epic, fee: fee));
       expect(s.locked, epic + fee);
       expect(s.spendableMeanwhile, 3 * epic - fee);
+      expect(s.hasLockFigures, false);
+      expect(s.noChange, false);
     });
 
     test('from the core estimate', () {
@@ -147,10 +149,10 @@ void main() {
     });
 
     test('never below the minimum per output', () {
-      const rule = SmartOutputsRule(outputStep: epic ~/ 10, maxOutputs: 8, targetOutputs: 10, minPerOutput: epic ~/ 4);
-      // 1 EPIC in 0.1 EPIC steps would be 8 outputs; 0.25 EPIC each allows 4.
+      const rule = SmartOutputsRule(outputStep: epic ~/ 10, maxOutputs: 8, targetOutputs: 10, minPerOutput: epic ~/ 2);
+      // 1 EPIC in 0.1 EPIC steps would be 8 outputs; 0.5 EPIC each allows 2.
       final d = smartOutputs(enabled: true, spendableOutputs: 1, base: base(inputs: 1, change: epic), rule: rule);
-      expect(d.changeOutputs, 4);
+      expect(d.changeOutputs, 2);
     });
 
     test('the default is on', () => expect(smartOutputsDefault, true));
@@ -198,6 +200,7 @@ void main() {
         strategy: SelectionStrategy.smallest,
         smartOutputsOn: true,
         spendableOutputs: 1,
+        splitRefused: coreRefusedSplit,
       );
       expect(asked, const [SendOptions(), SendOptions(changeOutputs: 4)]);
       expect(plan.splits, true);
@@ -217,6 +220,7 @@ void main() {
         strategy: SelectionStrategy.all,
         smartOutputsOn: true,
         spendableOutputs: 20,
+        splitRefused: coreRefusedSplit,
       );
       expect(calls, 1);
       expect(plan.splits, false);
@@ -233,6 +237,7 @@ void main() {
         strategy: SelectionStrategy.smallest,
         smartOutputsOn: true,
         spendableOutputs: 1,
+        splitRefused: coreRefusedSplit,
       );
       expect(plan.splits, false);
       expect(plan.decision.reason, SmartOutputsReason.smallChange);
@@ -249,6 +254,7 @@ void main() {
           strategy: SelectionStrategy.smallest,
           smartOutputsOn: true,
           spendableOutputs: 1,
+          splitRefused: coreRefusedSplit,
         ),
         throwsA(isA<WalletError>()),
       );
@@ -276,6 +282,7 @@ void main() {
         strategy: SelectionStrategy.smallest,
         smartOutputsOn: true,
         spendableOutputs: spendableCount(outputs),
+        splitRefused: coreRefusedSplit,
       );
       expect(plan.estimate.changeOutputs, 4);
       expect(plan.extraFee, 3 * session.changeOutputFee.toInt());

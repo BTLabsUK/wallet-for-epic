@@ -117,6 +117,8 @@ class Output {
     this.confirmationsNeeded = defaultMinimumConfirmations,
     this.lockHeight,
     this.isCoinbase = false,
+    this.awaitingFinalization = false,
+    this.hasCategory = true,
     this.mmrIndex,
     this.txId,
   });
@@ -136,6 +138,12 @@ class Output {
   /// A mining reward.
   final bool isCoinbase;
 
+  /// LEPIC's category is awaiting finalization (a send's change, a payment coming in).
+  final bool awaitingFinalization;
+
+  /// LEPIC gave the output a category; a reward still being mined has none.
+  final bool hasCategory;
+
   /// Its position in the chain's output set, once found there.
   final int? mmrIndex;
 
@@ -145,12 +153,18 @@ class Output {
   /// Can be spent now.
   bool get spendable => status == OutputStatus.unspent;
 
-  /// Not on chain yet is finalizing (a send's change, a payment coming in) or, for a mining
-  /// reward, mining; on chain under the confirmations needed is confirming.
+  /// Design spec §2.2, the one place: unconfirmed and awaiting finalization is finalizing; a
+  /// reward without a category, mining; any other unconfirmed output, like one on chain under
+  /// the confirmations needed, is confirming.
   OutputWord get word => switch (status) {
     OutputStatus.unspent => OutputWord.spendable,
     OutputStatus.confirming => OutputWord.confirming,
-    OutputStatus.unconfirmed => isCoinbase ? OutputWord.mining : OutputWord.finalizing,
+    OutputStatus.unconfirmed =>
+      awaitingFinalization
+          ? OutputWord.finalizing
+          : isCoinbase && !hasCategory
+          ? OutputWord.mining
+          : OutputWord.confirming,
     OutputStatus.immature => OutputWord.immature,
     OutputStatus.locked => OutputWord.locked,
     OutputStatus.spent => OutputWord.spent,

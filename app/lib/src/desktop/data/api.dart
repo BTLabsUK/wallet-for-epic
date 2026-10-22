@@ -118,8 +118,9 @@ abstract interface class DeskWalletApi {
   // Acting.
   Future<int> estimateFee(int amount);
 
-  /// The largest amount that can be sent now and its fee (Send › All).
-  Future<(int, int)> estimateMax();
+  /// The largest amount that can be sent now, with its fee and lock figures (Send › All).
+  /// Send it with `SendOptions(strategy: SelectionStrategy.all)`.
+  Future<SendEstimate> estimateMax();
 
   /// What a send of [amount] with [options] would spend, pay and get back now (F11's summary,
   /// F12's SmartOutputs: `planSend` in `smart_outputs.dart`); nothing is locked. Null

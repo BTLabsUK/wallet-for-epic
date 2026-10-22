@@ -155,7 +155,7 @@ class _Recorder implements DeskWalletApi {
   @override
   Future<int> estimateFee(int amount) => _r('estimateFee', () => _m.estimateFee(amount));
   @override
-  Future<(int, int)> estimateMax() => _r('estimateMax', _m.estimateMax);
+  Future<SendEstimate> estimateMax() => _r('estimateMax', _m.estimateMax);
   @override
   Future<SendEstimate> estimateSend(int amount, {SendOptions? options}) => _r('estimateSend', () => _m.estimateSend(amount, options: options));
   @override

@@ -1580,7 +1580,12 @@ class FakeWalletSession implements WalletSession {
         message: 'not enough funds',
       );
     }
-    return FeeEstimate(amount: summaryValue.spendable - fee, fee: fee);
+    return FeeEstimate(
+      amount: summaryValue.spendable - fee,
+      fee: fee,
+      locked: summaryValue.spendable,
+      inputCount: 1,
+    );
   }
 
   void _checkFunds(BigInt amount) {

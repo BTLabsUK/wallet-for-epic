@@ -17,7 +17,7 @@ class SmartOutputsRule {
     this.outputStep = nanoEpic ~/ 2,
     this.maxOutputs = 4,
     this.targetOutputs = 4,
-    this.minPerOutput = nanoEpic ~/ 4,
+    this.minPerOutput = nanoEpic ~/ 2,
   });
 
   /// Split when the send leaves fewer spendable outputs than this.
@@ -36,7 +36,7 @@ class SmartOutputsRule {
   /// many (the outputs the send leaves plus the change outputs).
   final int targetOutputs;
 
-  /// Never an output below this (0.25 EPIC).
+  /// Never an output below this (0.5 EPIC, the design spec §3.1).
   final int minPerOutput;
 
   static const SmartOutputsRule standard = SmartOutputsRule();
@@ -124,7 +124,8 @@ int smartChangeOutputs({
   rule: rule,
 ).changeOutputs;
 
-/// How many [outputs] count as spendable now.
+/// How many [outputs] count as spendable now. The list must be refreshed with the balance
+/// before a send is planned from it: a stale list misjudges how many outputs a send leaves.
 int spendableCount(Iterable<WalletOutput> outputs) =>
     outputs.where((o) => o.category == OutputCategory.spendable).length;
 
@@ -156,7 +157,8 @@ bool coreRefusedSplit(Object error) => error is WalletError && error.kind == Wal
 
 /// Estimates a send with [strategy] and one change output, applies [smartOutputs], and when
 /// it splits estimates again with the split. A split error that [splitRefused] accepts falls
-/// back to one change output; any other error, and every error of the first estimate, is
+/// back to one change output (the core's refusal is [coreRefusedSplit], the desktop's
+/// `deskSplitRefused`; no default, so a caller cannot take the wrong one); any other error, and every error of the first estimate, is
 /// the caller's.
 Future<SmartSendPlan> planSend({
   required Future<SendEstimate> Function(SendOptions options) estimate,
@@ -164,7 +166,7 @@ Future<SmartSendPlan> planSend({
   required bool smartOutputsOn,
   required int spendableOutputs,
   SmartOutputsRule rule = SmartOutputsRule.standard,
-  bool Function(Object error) splitRefused = coreRefusedSplit,
+  required bool Function(Object error) splitRefused,
 }) async {
   final plain = SendOptions(strategy: strategy);
   final base = await estimate(plain);

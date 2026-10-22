@@ -69,6 +69,7 @@ class SendSummary {
     required this.change,
     required this.changeOutputs,
     required this.shortBy,
+    required this.hasLockFigures,
   });
 
   /// The rows for sending [estimate] from a wallet whose whole balance is [balance] and of
@@ -88,6 +89,7 @@ class SendSummary {
       change: estimate.change,
       changeOutputs: estimate.change > 0 ? estimate.changeOutputs : 0,
       shortBy: short > 0 ? short : 0,
+      hasLockFigures: estimate.locked > 0,
     );
   }
 
@@ -125,8 +127,13 @@ class SendSummary {
   /// Amount and fee fit in the spendable balance.
   bool get fits => shortBy == 0;
 
-  /// Nothing comes back: every spent output goes to amount and fee.
-  bool get noChange => change == 0;
+  /// The estimate carried lock figures ([SendEstimate.locked] above zero); an older core's
+  /// did not, and then [locked] is only amount and fee and [change] is unknown.
+  final bool hasLockFigures;
+
+  /// Nothing comes back: every spent output goes to amount and fee. Only known with
+  /// [hasLockFigures].
+  bool get noChange => hasLockFigures && change == 0;
 
   /// The send leaves nothing spendable until it confirms (a send-all, or Strategy All).
   bool get locksAll => spendableMeanwhile == 0;

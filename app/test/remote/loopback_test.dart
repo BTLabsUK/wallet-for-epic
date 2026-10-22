@@ -465,6 +465,8 @@ void main() {
         FeeEstimate(
           amount: session.summaryValue.spendable - session.fee,
           fee: session.fee,
+          locked: session.summaryValue.spendable,
+          inputCount: 1,
         ),
       );
       expect(session.args['estimateMax'], BigInt.one);

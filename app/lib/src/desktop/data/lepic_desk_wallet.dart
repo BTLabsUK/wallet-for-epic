@@ -1611,10 +1611,9 @@ class LepicDeskWallet implements DeskWalletApi {
   }
 
   @override
-  Future<(int, int)> estimateMax() async {
+  Future<SendEstimate> estimateMax() async {
     try {
-      final f = await _open.estimateMax(minimumConfirmations: _minConf);
-      return (f.amount.toInt(), f.fee.toInt());
+      return SendEstimate.fromFee(await _open.estimateMax(minimumConfirmations: _minConf));
     } on core.WalletError catch (e) {
       throw _deskError(e);
     }
@@ -2410,6 +2409,8 @@ Output deskOutput(core.WalletOutput o, {required int minConf}) {
     confirmationsNeeded: minConf,
     lockHeight: o.isCoinbase ? o.lockHeight.toInt() : null,
     isCoinbase: o.isCoinbase,
+    awaitingFinalization: o.category == core.OutputCategory.awaitingFinalization,
+    hasCategory: o.category != null,
     mmrIndex: o.mmrIndex?.toInt(),
     txId: o.txId,
   );

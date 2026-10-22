@@ -420,8 +420,9 @@ void main() {
 
     test('fee, max and an Epicbox send', () async {
       expect(await wallet.estimateFee(1000), service.session.fee.toInt());
-      final (max, fee) = await wallet.estimateMax();
-      expect(max + fee, 100000000);
+      final max = await wallet.estimateMax();
+      expect(max.amount + max.fee, 100000000);
+      expect(max.locked, greaterThan(0));
       final to = '${'1' * 52}@epicbox.epiccash.com';
       expect(await wallet.send(const SendRequest(method: TxMethod.epicbox, amount: 1000, to: 'nope')), isA<SendFailed>());
       final r = await wallet.send(SendRequest(method: TxMethod.epicbox, amount: 1000, to: to, message: ' lunch '));

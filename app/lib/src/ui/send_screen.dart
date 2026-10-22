@@ -206,8 +206,9 @@ class _Sent {
   }
 }
 
-/// Coins held back from spending: confirming, coming in, newly mined or in a pending send.
-BigInt _onHold(WalletSummary s) =>
+/// Whether any coins are held back from spending (confirming, coming in, newly mined or in a
+/// pending send): a gate for the empty state, not a money figure to show.
+BigInt _pending(WalletSummary s) =>
     s.awaitingConfirmation + s.awaitingFinalization + s.immature + s.locked;
 
 class _SendViewState extends ConsumerState<SendView> {
@@ -1174,7 +1175,7 @@ class _SendViewState extends ConsumerState<SendView> {
     if (starting &&
         summary != null &&
         summary.spendable == BigInt.zero &&
-        _onHold(summary) == BigInt.zero) {
+        _pending(summary) == BigInt.zero) {
       return _emptyState(context);
     }
 

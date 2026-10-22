@@ -311,7 +311,7 @@ class MockDeskWallet implements DeskWalletApi {
     String cmt(int i) => '08${List.generate(64, (k) => '0123456789abcdef'[(i * 7 + k * 13 + k * k) % 16]).join()}';
     return [
       Output(commitment: cmt(1), value: _epic(25), status: OutputStatus.confirming, height: 2914410, confirmations: 2),
-      Output(commitment: cmt(2), value: _epic(12.5), status: OutputStatus.unconfirmed),
+      Output(commitment: cmt(2), value: _epic(12.5), status: OutputStatus.unconfirmed, awaitingFinalization: true),
       Output(commitment: cmt(3), value: _epic(15.713), status: OutputStatus.locked, height: 2911600, confirmations: 2810),
       Output(commitment: cmt(4), value: _epic(2), status: OutputStatus.immature, height: 2913794, confirmations: 620, lockHeight: 2915234),
       Output(commitment: cmt(5), value: _epic(148.73215), status: OutputStatus.unspent, height: 2913020, confirmations: 1394),
@@ -401,6 +401,7 @@ class MockDeskWallet implements DeskWalletApi {
           commitment: '09${(txId * 31 + i).toRadixString(16).padLeft(64, '0')}',
           value: i == count - 1 ? total - part * (count - 1) : part,
           status: OutputStatus.unconfirmed,
+          awaitingFinalization: true,
           txId: i == 0 ? receivedTxId : txId,
         ),
     ];
@@ -468,10 +469,10 @@ class MockDeskWallet implements DeskWalletApi {
   }
 
   @override
-  Future<(int, int)> estimateMax() async {
+  Future<SendEstimate> estimateMax() async {
     final spendable = (await balance()).spendable;
     final fee = await estimateFee(spendable);
-    return (spendable - fee, fee);
+    return SendEstimate(amount: spendable - fee, fee: fee, inputCount: _spendable.length, locked: spendable);
   }
 
   @override

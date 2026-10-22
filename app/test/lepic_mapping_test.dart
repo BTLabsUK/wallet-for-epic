@@ -311,6 +311,23 @@ void main() {
       expect(wallet.options.last, isNull);
     });
 
+    test('after another amount was estimated, the old max is still not a send-all once the balance grew', () async {
+      final wallet = _SendingWallet();
+      final session = LepicWalletSession(wallet);
+      final max = await session.estimateMax(minimumConfirmations: BigInt.from(10));
+      await session.estimateFee(amount: BigInt.from(5), minimumConfirmations: BigInt.from(10));
+      wallet.maxAmount = BigInt.from(150);
+      await session.createSendSlate(amount: max.amount, minimumConfirmations: BigInt.from(10));
+      expect(wallet.options.last, isNull);
+      // A caller that knows it is a send-all says so, and is not second-guessed.
+      await session.createSendSlate(
+        amount: max.amount,
+        minimumConfirmations: BigInt.from(10),
+        options: const SendOptions(strategy: SelectionStrategy.all),
+      );
+      expect(wallet.options.last, const lepic.SendOptions(strategy: lepic.SelectionStrategy.all, changeOutputs: 1));
+    });
+
     test('given options reach LEPIC, and the whole estimate comes back', () async {
       final wallet = _SendingWallet();
       final session = LepicWalletSession(wallet);
