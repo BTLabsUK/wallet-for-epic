@@ -10,6 +10,7 @@ import 'desk_store.dart';
 import 'mock_wallet.dart';
 import 'models.dart';
 import '../../providers.dart' show defaultMinimumConfirmations;
+import '../../relay_directory.dart' show statusSite;
 import '../widgets/kit.dart' show DeskFeatures;
 
 /// The wallet behind the desktop UI. Override with a LEPIC adapter to go live.
@@ -80,7 +81,9 @@ class DeskController extends Notifier<DeskState> {
   @override
   DeskState build() {
     ref.onDispose(_stopLive);
-    return DeskState(settings: ref.read(deskBootProvider).settings);
+    final settings = ref.read(deskBootProvider).settings;
+    statusSite.on = settings.useStatusSite;
+    return DeskState(settings: settings);
   }
 
   /// After unlock: starts the listener when [listen] (Settings › Start Epicbox with the wallet),
@@ -232,6 +235,7 @@ class DeskController extends Notifier<DeskState> {
 
   Future<void> saveSettings(DeskSettings s) async {
     state = state.copyWith(settings: s);
+    statusSite.on = s.useStatusSite;
     await api.saveSettings(s);
     await ref.read(deskStoreProvider)?.saveSettings(s);
     if (state.account != null) state = state.copyWith(status: await api.status());

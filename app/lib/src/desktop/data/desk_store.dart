@@ -162,6 +162,7 @@ Map<String, Object?> deskSettingsToJson(DeskSettings s) => {
   'hideAmounts': s.hideAmounts,
   'newLookSeen': s.newLookSeen,
   'tourSeen': s.tourSeen,
+  'useStatusSite': s.useStatusSite,
   'autoLockMinutes': s.autoLockMinutes,
   'publicMode': s.publicMode,
   'httpPort': s.httpPort,
@@ -175,6 +176,7 @@ DeskSettings deskSettingsFromJson(Map<String, dynamic> j) {
   final hide = j['hideAmounts'];
   final seen = j['newLookSeen'];
   final tour = j['tourSeen'];
+  final site = j['useStatusSite'];
   final lock = j['autoLockMinutes'];
   final public = j['publicMode'];
   final port = j['httpPort'];
@@ -184,6 +186,7 @@ DeskSettings deskSettingsFromJson(Map<String, dynamic> j) {
     hideAmounts: hide is bool ? hide : d.hideAmounts,
     newLookSeen: seen is bool ? seen : d.newLookSeen,
     tourSeen: tour is bool ? tour : d.tourSeen,
+    useStatusSite: site is bool ? site : d.useStatusSite,
     publicMode: public is bool ? public : d.publicMode,
     httpPort: port is int && port > 0 && port < 65536 ? port : d.httpPort,
     // A saved null stays null.
