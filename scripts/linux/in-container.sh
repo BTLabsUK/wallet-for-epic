@@ -19,6 +19,11 @@ bundle=/work/app/build/linux/x64/release/bundle
 appdir="$(mktemp -d)/WalletForEpic.AppDir"
 mkdir -p "$appdir/usr/bin"
 cp -a "$bundle/." "$appdir/usr/bin/"
+# The built-in node (lib/src/builtin_node.dart) runs <exe dir>/bin/epic.
+if [[ -s /work/node-bin/epic ]]; then
+  mkdir -p "$appdir/usr/bin/bin"
+  install -m 755 /work/node-bin/epic "$appdir/usr/bin/bin/epic"
+fi
 cat > "$appdir/AppRun" <<'RUN'
 #!/bin/sh
 HERE="$(dirname "$(readlink -f "$0")")"
