@@ -668,7 +668,7 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
                         size: EBtnSize.inline,
                         onPressed: () => setState(() => _picture = true),
                       ),
-                      if (_picture) EButton(label: 'Remove', kind: EBtnKind.ghost, size: EBtnSize.inline, onPressed: () => setState(() => _picture = false)),
+                      if (_picture) EButton(label: 'Remove', icon: EIcons.trash, kind: EBtnKind.ghost, size: EBtnSize.inline, onPressed: () => setState(() => _picture = false)),
                     ],
                   ),
                   SizedBox(height: Sp.x1),
