@@ -151,6 +151,21 @@ void main() {
     expect(after['historyImport'], 'imported');
   });
 
+  test('a history the running old wallet held back is imported at the next unlock', () async {
+    service.session.legacyImport = const core.LegacyHistoryImport(status: core.LegacyHistoryStatus.sourceBusy);
+    final savings = byName(await wallet.findOldWallets(), 'Savings');
+    final r = await wallet.importOldWallet(savings.id, oldPassword: _old);
+    expect(r.proof.map((p) => p.text), contains(contains('imported at the next unlock')));
+    final key = 'desk.wallet.mainnet.${r.id}';
+    expect((jsonDecode((await secrets.read(key))!) as Map<String, dynamic>)['historyImport'], isNull);
+    service.session.legacyImport = const core.LegacyHistoryImport(status: core.LegacyHistoryStatus.imported, transactions: 3);
+    expect(await wallet.unlock(_old), isTrue);
+    await wallet.sync();
+    await wallet.sync();
+    expect(service.session.legacyImports, [savings.folder, savings.folder], reason: 'once at import, once after unlock');
+    expect((jsonDecode((await secrets.read(key))!) as Map<String, dynamic>)['historyImport'], 'imported');
+  });
+
   test('success: a new list entry with walletId, scan due, fingerprint; the old folder is unchanged', () async {
     final before = await folderHash(home);
     final savings = byName(await wallet.findOldWallets(), 'Savings');
