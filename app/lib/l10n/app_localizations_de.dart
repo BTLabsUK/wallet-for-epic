@@ -3363,6 +3363,16 @@ class AppLocalizationsDe extends AppLocalizations {
       'Netzwerk, Node, epicbox-Server, Dateien und Protokolle';
 
   @override
+  String get settingsSectionPrivacy => 'Datenschutz';
+
+  @override
+  String get settingsUseStatusSite => 'status.btlabs.uk nutzen';
+
+  @override
+  String get settingsUseStatusSiteSubtitle =>
+      'Serverstatus und Node-Listen. Aus: nur die Server selbst werden gefragt.';
+
+  @override
   String get txStepStarted => 'Zahlung gestartet';
 
   @override

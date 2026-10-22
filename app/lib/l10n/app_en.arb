@@ -3964,6 +3964,18 @@
   "@settingsAdvancedOptionsSubtitle": {
     "description": "Under the Advanced options switch: what it shows. epicbox is a proper name."
   },
+  "settingsSectionPrivacy": "Privacy",
+  "@settingsSectionPrivacy": {
+    "description": "Settings section header above the status.btlabs.uk switch."
+  },
+  "settingsUseStatusSite": "Use status.btlabs.uk",
+  "@settingsUseStatusSite": {
+    "description": "Settings switch: read server health and node lists from the status.btlabs.uk monitor. Keep status.btlabs.uk as it is."
+  },
+  "settingsUseStatusSiteSubtitle": "Server health and node lists. Off: only the servers themselves are asked.",
+  "@settingsUseStatusSiteSubtitle": {
+    "description": "Under the Use status.btlabs.uk switch: what it gives, and what happens when it is off."
+  },
   "txStepStarted": "Payment started",
   "@txStepStarted": {
     "description": "Payment details timeline, first step of a send: we created it and set the funds aside."

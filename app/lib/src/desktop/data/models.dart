@@ -485,6 +485,7 @@ class DeskSettings {
     this.newLookSeen = false,
     this.internetGuideSeen = false,
     this.tourSeen = false,
+    this.useStatusSite = true,
   });
 
   final ThemeChoice theme;
@@ -531,6 +532,10 @@ class DeskSettings {
   /// The tour was shown once (opened, closed or skipped): it does not open by itself again.
   final bool tourSeen;
 
+  /// Settings › Privacy: server health and node lists from status.btlabs.uk (`statusSite`).
+  /// Off, only the servers themselves are asked.
+  final bool useStatusSite;
+
   DeskSettings copyWith({
     ThemeChoice? theme,
     int? scale,
@@ -550,6 +555,7 @@ class DeskSettings {
     bool? newLookSeen,
     bool? internetGuideSeen,
     bool? tourSeen,
+    bool? useStatusSite,
   }) => DeskSettings(
     theme: theme ?? this.theme,
     scale: scale ?? this.scale,
@@ -569,6 +575,7 @@ class DeskSettings {
     newLookSeen: newLookSeen ?? this.newLookSeen,
     internetGuideSeen: internetGuideSeen ?? this.internetGuideSeen,
     tourSeen: tourSeen ?? this.tourSeen,
+    useStatusSite: useStatusSite ?? this.useStatusSite,
   );
 }
 

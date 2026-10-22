@@ -9,6 +9,7 @@ import 'combo.dart';
 import 'dialogs.dart';
 import 'prefs.dart';
 import 'settings_frame.dart';
+import 'settings_privacy.dart';
 
 /// Start states of Settings › Node.
 enum NodeDemo { comboOpen, typed, pickFailed, builtin, chainInUse }
@@ -325,6 +326,7 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
               ],
             ),
           ),
+          const PrivacyGroup(),
         ],
       ),
     );

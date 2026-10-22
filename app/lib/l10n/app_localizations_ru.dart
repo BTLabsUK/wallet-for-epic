@@ -3459,6 +3459,16 @@ class AppLocalizationsRu extends AppLocalizations {
       'Сеть, узел, сервер epicbox, файлы и журналы';
 
   @override
+  String get settingsSectionPrivacy => 'Конфиденциальность';
+
+  @override
+  String get settingsUseStatusSite => 'Использовать status.btlabs.uk';
+
+  @override
+  String get settingsUseStatusSiteSubtitle =>
+      'Состояние серверов и списки узлов. Выкл.: запросы только к самим серверам.';
+
+  @override
   String get txStepStarted => 'Платёж начат';
 
   @override

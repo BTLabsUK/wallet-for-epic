@@ -52,13 +52,21 @@ final localNodeControllerProvider = FutureProvider.family<LocalNodeController, C
     settings: settings,
     dirSize: dirSize,
     directoryTip: directory is NetworkDirectory && statusChain != null
-        ? () async => (await (directory as NetworkDirectory).network(statusChain)).tipHeight
+        ? () async {
+            final tip = (await (directory as NetworkDirectory).network(statusChain)).tipHeight;
+            // An answer that arrives after the switch went off is not used.
+            return statusSite.on ? tip : null;
+          }
         : null,
     // The peers' typical height: the network tip when the monitor does not answer (one owner
     // call on loopback, once a minute while the node runs).
     peersHeight: () async => medianPeerHeight(await (await ref.read(localNodeApiProvider(chain).future)).connectedPeers()),
   );
   await controller.load();
+  // Turning status.btlabs.uk off drops the tip it gave; the directory asks no more.
+  ref.listen(useStatusSiteProvider, (_, on) {
+    if (!on) controller.forgetDirectoryTip();
+  });
   ref.onDispose(controller.dispose);
   return controller;
 });
@@ -122,7 +130,11 @@ final nodeInfoServiceProvider = Provider<NodeInfoService>((ref) {
 
 /// [NodeInfo] of a node URL on a network preset's chain. Refresh with `ref.invalidate`.
 final nodeInfoProvider = FutureProvider.autoDispose.family<NodeInfo, ({String url, NetworkPreset preset})>(
-  (ref, key) => ref.watch(nodeInfoServiceProvider).info(key.url, chain: key.preset.statusChain),
+  (ref, key) {
+    // Read again when status.btlabs.uk is turned on or off.
+    ref.watch(useStatusSiteProvider);
+    return ref.watch(nodeInfoServiceProvider).info(key.url, chain: key.preset.statusChain);
+  },
 );
 
 /// Whether a node already answers on this computer's standard port (F24).

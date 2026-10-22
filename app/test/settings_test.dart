@@ -876,6 +876,8 @@ void main() {
         300,
         scrollable: find.byType(Scrollable).last,
       );
+      await tester.ensureVisible(tile);
+      await tester.pump();
       await tester.tap(tile);
       await tester.pump(const Duration(milliseconds: 300));
       expect(

@@ -10,6 +10,7 @@ library;
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'net/http.dart';
@@ -20,6 +21,61 @@ const String relayStatusUrl = String.fromEnvironment(
   'WFE_STATUS_URL',
   defaultValue: 'https://status.btlabs.uk/api/v1/status.json',
 );
+
+/// Settings › Privacy › Use status.btlabs.uk, on by default. Off, [HttpRelayDirectory] fails
+/// at once without a request, so every screen takes its site-down path: built-in lists, the
+/// servers' own answers ("limited info"), no error. Read on every request, so a change applies
+/// at once. The desktop and phone settings set it; the saved value is applied before the app
+/// asks anything ([loadFrom]).
+class StatusSiteSwitch extends ChangeNotifier {
+  bool _on = true;
+  int _changes = 0;
+  Future<bool>? _loading;
+
+  /// The site may be asked.
+  bool get on => _on;
+  set on(bool value) {
+    _loading = null;
+    if (value == _on) return;
+    _on = value;
+    _changes++;
+    notifyListeners();
+  }
+
+  /// Counts the changes, so a cache can tell it is from before one.
+  int get changes => _changes;
+
+  /// Takes the saved choice; until it is read, [allowed] waits for it. A failed read keeps the
+  /// default (on).
+  void loadFrom(Future<bool> saved) {
+    final loading = saved.catchError((Object _) => true);
+    _loading = loading;
+    unawaited(
+      loading.then((value) {
+        if (identical(_loading, loading)) on = value;
+      }),
+    );
+  }
+
+  /// Whether a request to the site may go out now.
+  Future<bool> allowed() async {
+    final loading = _loading;
+    if (loading != null) await loading;
+    return _on;
+  }
+}
+
+/// The app's one [StatusSiteSwitch].
+final StatusSiteSwitch statusSite = StatusSiteSwitch();
+
+/// [statusSite] for providers: those that watch it fetch again when it changes.
+final useStatusSiteProvider = Provider<bool>((ref) {
+  final s = statusSite;
+  void changed() => ref.invalidateSelf();
+  s.addListener(changed);
+  ref.onDispose(() => s.removeListener(changed));
+  return s.on;
+});
 
 /// One relay as the monitor last saw it.
 class RelayStatus {
@@ -334,23 +390,33 @@ abstract interface class NetworkDirectory {
 }
 
 /// Reads the monitor with a short [timeout] and keeps each answer, or failure, for [fresh], so
-/// the lists do not ask again on every screen.
+/// the lists do not ask again on every screen. The only way to the site: with [site] off it
+/// throws [NetError] without a request.
 class HttpRelayDirectory implements RelayDirectory, NodeDirectory, NetworkDirectory {
   HttpRelayDirectory({
     this.timeout = const Duration(seconds: 4),
     this.fresh = const Duration(minutes: 1),
     Future<HttpReply> Function(Uri url, {Duration timeout})? get,
     DateTime Function()? now,
+    StatusSiteSwitch? site,
   }) : _get = get ?? httpGet,
-       _now = now ?? DateTime.now;
+       _now = now ?? DateTime.now,
+       _site = site ?? statusSite;
 
   final Duration timeout;
   final Duration fresh;
   final Future<HttpReply> Function(Uri url, {Duration timeout}) _get;
   final DateTime Function() _now;
+  final StatusSiteSwitch _site;
   final Map<String, ({DateTime at, Future<String> body})> _cache = {};
+  int _cachedAt = 0;
 
   Future<String> _status(String chain) {
+    // A change of the switch drops the cache: neither state is answered from the other's.
+    if (_cachedAt != _site.changes) {
+      _cache.clear();
+      _cachedAt = _site.changes;
+    }
     final hit = _cache[chain];
     if (hit != null && _now().difference(hit.at) < fresh) return hit.body;
     final body = _fetch(chain);
@@ -359,6 +425,7 @@ class HttpRelayDirectory implements RelayDirectory, NodeDirectory, NetworkDirect
   }
 
   Future<String> _fetch(String chain) async {
+    if (!await _site.allowed()) throw const NetError('status site off');
     final url = Uri.parse(relayStatusUrl)
         .replace(queryParameters: chain == 'mainnet' ? null : {'chain': chain});
     final reply = await _get(url, timeout: timeout).timeout(timeout);
@@ -388,5 +455,6 @@ final relayStatusProvider = FutureProvider.autoDispose
     .family<List<RelayStatus>, NetworkPreset>((ref, preset) async {
       final chain = preset.statusChain;
       if (chain == null) return const [];
+      ref.watch(useStatusSiteProvider);
       return ref.watch(relayDirectoryProvider).relays(chain);
     });
