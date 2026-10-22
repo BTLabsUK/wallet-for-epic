@@ -18,7 +18,7 @@
 ///   history a scan rebuilds (B14, B09). Mainnet only; no settings carried over, no old-folder
 ///   delete (B26–B29) and no blockchain data copy (B21).
 ///   - Welcome: "Import wallets". Route importWallets.
-///   - All wallets: "Import" and "Import wallets…".
+///   - All wallets: the "Import" card.
 /// dataFolder (A15): Welcome › Advanced › App data folder.
 /// testNetworks (A06 "any network each"): Welcome › Advanced › Network. Mainnet only.
 /// httpDirect (G01–G06, F07, J04, on): Send › Direct (HTTP), with a question before plain HTTP

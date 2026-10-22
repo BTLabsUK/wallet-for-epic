@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../widgets/kit.dart';
+import '../onboarding/unlock_screen.dart' show UnlockPick;
 import 'prefs.dart';
 import 'settings_frame.dart';
 import 'settings_node.dart' show hostOf, minNodeVersion, nodeTone, versionOld;
@@ -464,6 +465,27 @@ class _RemoveWalletDialogState extends ConsumerState<RemoveWalletDialog> {
 
   bool get _ready => !_busy && _mode != null && (_mode != WalletRemoval.delete || (_nameOk && _ack && _password.text.isNotEmpty));
 
+  /// Locks the open wallet and opens Unlock with this one selected, landing on Settings › This
+  /// wallet, where Delete wallet is.
+  Future<void> _unlockThis() async {
+    setState(() => _busy = true);
+    try {
+      if (ref.read(deskProvider).account != null) await ref.read(deskProvider.notifier).lock();
+      await ref.read(deskApiProvider).selectWallet(w.id);
+    } on Object catch (e) {
+      if (mounted) {
+        setState(() {
+          _busy = false;
+          _error = deskErrorText(e);
+        });
+      }
+      return;
+    }
+    if (!mounted) return;
+    Navigator.of(context).pop();
+    ref.read(deskNavProvider.notifier).reset(DeskRoute.unlock, UnlockPick(w.id, then: DeskRoute.settingsAccount));
+  }
+
   Future<void> _remove() async {
     final mode = _mode;
     if (mode == null || !_ready) return;
@@ -539,6 +561,18 @@ class _RemoveWalletDialogState extends ConsumerState<RemoveWalletDialog> {
                 ],
               ),
             ),
+            if (!_isOpen) ...[
+              SizedBox(height: Sp.x1),
+              Text(
+                'To delete its files as well, unlock this wallet and use Delete wallet under Settings › This wallet.',
+                style: ts.small,
+              ),
+              SizedBox(height: Sp.x1),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: ELink(label: 'Unlock this wallet', onPressed: _busy ? null : _unlockThis),
+              ),
+            ],
             if (_mode == WalletRemoval.delete) ...[
               SizedBox(height: Sp.x2),
               const ENotice(

@@ -220,7 +220,14 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
     } on Object {
       // Unlock offers the wallet opened last.
     }
-    nav.reset(DeskRoute.unlock, UnlockAdded(done.length == 1 ? last.name : '${done.length} wallets', id: last.id));
+    nav.reset(
+      DeskRoute.unlock,
+      UnlockAdded(
+        done.length == 1 ? last.name : '${done.length} wallets',
+        id: last.id,
+        notice: done.length == 1 ? 'Wallet imported.' : '${done.length} wallets imported.',
+      ),
+    );
   }
 
   void _next() {

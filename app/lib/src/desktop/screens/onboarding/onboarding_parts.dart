@@ -86,22 +86,25 @@ const deskLanguages = ['English', 'Deutsch', 'Polski', 'Русский', '中文
 
 /// Unlock's argument after a flow added a wallet: [id] is chosen and "{name} added." shows.
 class UnlockAdded {
-  const UnlockAdded(this.name, {this.id});
+  const UnlockAdded(this.name, {this.id, this.notice = 'New wallet added.'});
 
   final String name;
   final String? id;
+
+  /// Unlock's notice: "New wallet added." / "Wallet restored." / "Wallet imported." (no name).
+  final String notice;
 }
 
 /// The wallet a flow added: the entry the list has now and did not have in [before] (ids), as
 /// Unlock's argument. [fallback] names it when the list cannot say.
-Future<UnlockAdded> addedWallet(DeskWalletApi api, Set<String> before, String fallback) async {
+Future<UnlockAdded> addedWallet(DeskWalletApi api, Set<String> before, String fallback, {String notice = 'New wallet added.'}) async {
   try {
     final added = (await api.wallets()).where((w) => !before.contains(w.id)).lastOrNull;
-    if (added != null) return UnlockAdded(added.name, id: added.id);
+    if (added != null) return UnlockAdded(added.name, id: added.id, notice: notice);
   } on Object {
     // Unlock offers the wallet opened last.
   }
-  return UnlockAdded(fallback);
+  return UnlockAdded(fallback, notice: notice);
 }
 
 /// What Welcome chose for the flows after it: the network (Welcome › Advanced) and the app

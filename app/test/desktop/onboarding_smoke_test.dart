@@ -241,7 +241,8 @@ void flows() {
     );
     await _wait(tester, 1000);
     expect((await tester.runAsync(api.wallets))!.firstWhere((w) => w.current).id, added.id);
-    expect(find.text('Wallet 2 added.'), findsOneWidget);
+    expect(find.text('New wallet added.'), findsOneWidget);
+    expect(find.text('Wallet 2 added.'), findsNothing, reason: 'the notice names no wallet');
     await _end(tester);
   });
 }

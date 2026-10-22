@@ -12,7 +12,16 @@ import 'onboarding_parts.dart';
 /// What [UnlockScreen] starts on, for the screenshot tour.
 enum UnlockShow { wrongPassword, progress, failed, missing }
 
-/// Opens the app. [arg] is an [UnlockShow] or an [UnlockAdded].
+/// Unlock with the wallet [id] selected, then [then] instead of Overview: Settings › This
+/// wallet when "Unlock this wallet" was chosen in the remove dialog of another wallet.
+class UnlockPick {
+  const UnlockPick(this.id, {this.then});
+
+  final String id;
+  final DeskRoute? then;
+}
+
+/// Opens the app. [arg] is an [UnlockShow], an [UnlockAdded] or an [UnlockPick].
 ///
 /// Mock passwords: `wrong` is refused, `busy` finds old processes (the kill-process dialog),
 /// `fail` stops at the wallet service.
@@ -77,7 +86,11 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
       ref.read(deskNavProvider.notifier).reset(DeskRoute.welcome);
       return;
     }
-    final added = widget.arg is UnlockAdded ? (widget.arg as UnlockAdded).id : null;
+    final added = switch (widget.arg) {
+      UnlockAdded(:final id) => id,
+      UnlockPick(:final id) => id,
+      _ => null,
+    };
     final pick = w.where((e) => e.id == added).firstOrNull ?? w.where((e) => e.current).firstOrNull ?? w.first;
     if (pick.id == added) {
       try {
@@ -209,7 +222,8 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
     await desk.startLive(listen: prefs.epicboxOnStart);
     if (!mounted) return;
     _password.clear();
-    ref.read(deskNavProvider.notifier).reset(DeskRoute.overview);
+    final then = widget.arg is UnlockPick ? (widget.arg as UnlockPick).then : null;
+    ref.read(deskNavProvider.notifier).reset(then ?? DeskRoute.overview);
   }
 
   @override
@@ -245,7 +259,7 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
     final ts = context.ts;
     final wallets = _wallets;
     final selected = _selected;
-    final added = widget.arg is UnlockAdded ? (widget.arg as UnlockAdded).name : null;
+    final added = widget.arg is UnlockAdded ? (widget.arg as UnlockAdded).notice : null;
     return EHeroScreen(
       footer: const AuthFoot(),
       child: EAuthCard(
@@ -260,7 +274,7 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
             if (added != null) ...[
               Semantics(
                 liveRegion: true,
-                child: ENotice(title: '$added added.', tone: ETone.ok, icon: EIcons.check),
+                child: ENotice(title: added, tone: ETone.ok, icon: EIcons.check),
               ),
               SizedBox(height: Sp.x5),
             ],
