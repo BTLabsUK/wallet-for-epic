@@ -60,6 +60,47 @@ void main() {
 
   String headText(WidgetTester tester) => tester.widget<ESignalBars>(find.byType(ESignalBars).last).state.name;
 
+  testWidgets('a notice that goes away eases out with its own words, not an empty box', (tester) async {
+    await show(tester, choice: const FallbackChoice(FallbackConsent.accepted), state: mockLocalNode(LocalNodePhase.error, failure: NodeFailure.diskLow));
+    expect(find.text('Less than 2 GB free on this volume.'), findsOneWidget);
+    node.show(mockLocalNode(LocalNodePhase.synced));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+    expect(find.text('Less than 2 GB free on this volume.'), findsOneWidget, reason: 'still the child while it closes');
+    await end(tester);
+  });
+
+  testWidgets('reduced motion: an unknown amount shows a still bar; a panel under 150 u lays out', (tester) async {
+    node.show(mockLocalNode(LocalNodePhase.starting));
+    await node.setFallbackChoice(const FallbackChoice(FallbackConsent.accepted));
+    for (final width in [900.0, 140.0]) {
+      // Rows overflow at 140 (the page is never that narrow); what matters is no thrown clamp.
+      final errors = <Object>[];
+      final was = FlutterError.onError;
+      FlutterError.onError = (d) => errors.add(d.exception);
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: container,
+          child: MaterialApp(
+            theme: buildDeskTheme(Brightness.dark),
+            home: MediaQuery(
+              data: const MediaQueryData(disableAnimations: true, size: Size(1280, 900)),
+              child: Scaffold(
+                body: SingleChildScrollView(child: Align(alignment: Alignment.topLeft, child: SizedBox(width: width, child: const LocalNodePanel()))),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pump(const Duration(milliseconds: 100));
+      FlutterError.onError = was;
+      expect(errors.whereType<ArgumentError>(), isEmpty);
+      if (width > 200) expect(errors, isEmpty);
+      if (width > 200) expect(tester.widget<LinearProgressIndicator>(find.byType(LinearProgressIndicator)).value, 1, reason: 'no sweep');
+    }
+    await end(tester);
+  });
+
   testWidgets('starting → headers → download → kernels → blocks → synced: word, stage line, %, strip, rail line', (tester) async {
     await show(tester, choice: const FallbackChoice(FallbackConsent.accepted), state: mockLocalNode(LocalNodePhase.starting));
     expect(find.textContaining('Starting', findRichText: true), findsWidgets);

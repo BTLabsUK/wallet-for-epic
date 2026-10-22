@@ -501,9 +501,14 @@ class _StatusTab extends StatelessWidget {
           SizedBox(height: Sp.x3),
           StageStrip(step: p == null ? null : stripStep(p.stage)),
         ],
-        ExpandFade(
-          open: words.notice != null,
-          child: Padding(padding: EdgeInsets.only(top: Sp.x4), child: words.notice == null ? const SizedBox.shrink() : notice(words.notice!)),
+        // The last notice stays the child while it closes, so the collapse eases out (240 ms
+        // both ways) instead of snapping.
+        _KeepLast(
+          value: words.notice,
+          builder: (n) => ExpandFade(
+            open: words.notice != null,
+            child: n == null ? const SizedBox.shrink() : Padding(padding: EdgeInsets.only(top: Sp.x4), child: notice(n)),
+          ),
         ),
         ExpandFade(
           open: s.restartNeeded && live,
@@ -525,7 +530,9 @@ class _StatusTab extends StatelessWidget {
               final gap = Sp.x3;
               final per = (box.maxWidth - gap * (n - 1)) / n;
               final w = per < 170.u ? (box.maxWidth - gap) / 2 : per;
-              return Wrap(spacing: gap, runSpacing: gap, children: [for (final t in tiles) SizedBox(width: w.clamp(150.u, box.maxWidth), child: t)]);
+              // Never wider than the box, even when that is under the 150 u minimum.
+              final tileW = w.clamp(150.u < box.maxWidth ? 150.u : box.maxWidth, box.maxWidth);
+              return Wrap(spacing: gap, runSpacing: gap, children: [for (final t in tiles) SizedBox(width: tileW, child: t)]);
             },
           ),
           SizedBox(height: Sp.x2),
@@ -548,6 +555,27 @@ class _StatusTab extends StatelessWidget {
   }
 }
 
+/// Builds with the last non-null [value] (null until there was one).
+class _KeepLast<T extends Object> extends StatefulWidget {
+  const _KeepLast({super.key, required this.value, required this.builder});
+
+  final T? value;
+  final Widget Function(T? last) builder;
+
+  @override
+  State<_KeepLast<T>> createState() => _KeepLastState<T>();
+}
+
+class _KeepLastState<T extends Object> extends State<_KeepLast<T>> {
+  T? _last;
+
+  @override
+  Widget build(BuildContext context) {
+    _last = widget.value ?? _last;
+    return widget.builder(_last);
+  }
+}
+
 class _Bar extends StatelessWidget {
   const _Bar({required this.value});
 
@@ -561,14 +589,13 @@ class _Bar extends StatelessWidget {
       borderRadius: BorderRadius.circular(3.u),
       child: SizedBox(
         height: 6.u,
+        // Reduced motion: no sweep for an unknown amount; a still, dimmed full bar instead.
         child: LinearProgressIndicator(
-          value: value,
+          value: value ?? (reduced ? 1 : null),
           backgroundColor: c.s3,
-          color: c.accent,
+          color: value == null && reduced ? c.accent.withValues(alpha: 0.35) : c.accent,
           semanticsLabel: 'Sync progress',
           semanticsValue: value == null ? null : '${(value! * 100).floor()} %',
-          // Reduced motion: the bar steps instead of sliding.
-          valueColor: reduced ? AlwaysStoppedAnimation(c.accent) : null,
         ),
       ),
     );

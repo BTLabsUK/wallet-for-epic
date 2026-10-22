@@ -53,7 +53,8 @@ Future<String?> showFallbackPickerDialog(BuildContext context, {required String 
   builder: (context) => Consumer(
     builder: (context, ref, _) {
       final nodes = ref.watch(deskProvider.select((s) => s.nodes)) ?? const <NodeServer>[];
-      final rows = serverRows(nodes.where((n) => !n.own).toList());
+      // The fallback is kept only for an https node (FallbackChoice.fromJson): list only those.
+      final rows = serverRows(nodes.where((n) => !n.own && n.url.startsWith('https://')).toList());
       return EDialog(
         title: 'Node while syncing',
         description: 'The public node the wallet uses until the local node is synced.',
@@ -382,7 +383,7 @@ class _NodeLogDialogState extends ConsumerState<NodeLogDialog> {
       ),
       actions: [
         EButton.ghost(
-          label: 'Open file',
+          label: 'Open folder',
           size: EBtnSize.md,
           onPressed: _path == null
               ? null

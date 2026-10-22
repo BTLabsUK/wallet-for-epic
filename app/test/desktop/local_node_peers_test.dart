@@ -1,6 +1,6 @@
 // The Peers tab (spec §20, §22): 14 fakes render 8 and "6 more"; Ban moves a row; a changed
 // maximum shows the restart notice; First seen is the app's first poll, not anything from the
-// node; the version column; host:port validation.
+// node; the version column; ip:port validation.
 import 'package:epic_wallet/src/desktop/data/desk_node.dart';
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/data/node_view.dart' show hhmm;
@@ -116,21 +116,38 @@ void main() {
     await end(tester);
   });
 
-  testWidgets('preferred peers: host:port only, listed with a count', (tester) async {
+  testWidgets('Max outgoing also saves when the field loses focus', (tester) async {
     await show(tester);
-    final field = find.descendant(of: find.widgetWithText(EInput, 'host:port'), matching: find.byType(EditableText));
+    final maxOut = find.descendant(of: find.byWidgetPredicate((w) => w is EInput && w.semanticLabel == 'Max outgoing peers'), matching: find.byType(EditableText));
+    await tester.enterText(maxOut, '40');
+    await tester.pump();
+    expect(node.calls.where((c) => c == 'options'), isEmpty);
+    FocusManager.instance.primaryFocus?.unfocus();
+    await tester.pump();
+    await tester.pump();
+    expect((await node.options()).maxOutbound, 40);
+    await end(tester);
+  });
+
+  testWidgets('preferred peers: ip:port only (the node keeps no host names), listed with a count', (tester) async {
+    await show(tester);
+    final field = find.descendant(of: find.widgetWithText(EInput, 'ip:port'), matching: find.byType(EditableText));
+    const refused = 'Not an IP address and port, such as 203.0.113.5:3414.';
     await tester.enterText(field, 'nonsense');
     await tester.tap(find.text('Add'));
     await tester.pump();
-    expect(find.text('Not a host and port.'), findsOneWidget);
+    expect(find.text(refused), findsOneWidget);
+    await tester.enterText(field, 'peer.example.org:3414');
+    await tester.tap(find.text('Add'));
+    await tester.pump();
+    expect(find.text(refused), findsOneWidget, reason: 'a host name never reaches the toml');
+    expect(node.calls.where((c) => c == 'options'), isEmpty);
     await tester.enterText(field, '95.216.14.77:3414');
     await tester.tap(find.text('Add'));
     await tester.pump();
     await tester.pump();
     expect(find.text('1 preferred:'), findsOneWidget);
     expect(find.text('95.216.14.77:3414'), findsOneWidget);
-    expect(isHostPort('[::1]:3414'), isTrue);
-    expect(isHostPort('host'), isFalse);
     await end(tester);
   });
 

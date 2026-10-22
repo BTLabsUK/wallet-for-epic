@@ -6,6 +6,7 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../builtin_node.dart' show isPeerAddress;
 import '../../data/desk_node.dart';
 import '../../data/node_view.dart' show hhmm, digits;
 import '../../widgets/kit.dart';
@@ -20,8 +21,6 @@ String peerVersion(String userAgent) {
 /// `BadBlock` → `bad block`.
 String banReasonText(String reason) => reason.replaceAllMapped(RegExp(r'(?<=[a-z])([A-Z])'), (m) => ' ${m[1]}').toLowerCase().trim();
 
-/// `host:port` with a port.
-bool isHostPort(String s) => RegExp(r'^[A-Za-z0-9.\-\[\]:]+:\d{1,5}$').hasMatch(s.trim()) && !s.trim().endsWith(':');
 
 const int peerMaxMin = 8;
 const int peerMaxMax = 500;
@@ -73,8 +72,9 @@ class _PeersTabState extends ConsumerState<PeersTab> {
 
   Future<void> _addPreferred(NodeTomlOptions o) async {
     final t = _preferred.text.trim();
-    if (!isHostPort(t)) {
-      setState(() => _preferredError = 'Not a host and port.');
+    // The node's peers_preferred takes socket addresses only, no host names.
+    if (!isPeerAddress(t)) {
+      setState(() => _preferredError = 'Not an IP address and port, such as 203.0.113.5:3414.');
       return;
     }
     if (o.preferredPeers.contains(t)) {
@@ -283,10 +283,10 @@ class _PeersTabState extends ConsumerState<PeersTab> {
               width: 220.u,
               child: EInput(
                 controller: _preferred,
-                hint: 'host:port',
+                hint: 'ip:port',
                 mono: true,
                 invalid: _preferredError != null,
-                semanticLabel: 'Preferred peer, host and port',
+                semanticLabel: 'Preferred peer, IP address and port',
                 onChanged: (_) => _preferredError == null ? null : setState(() => _preferredError = null),
                 onSubmitted: (_) => options == null ? null : _addPreferred(options),
               ),
@@ -295,25 +295,37 @@ class _PeersTabState extends ConsumerState<PeersTab> {
             Text('Max incoming', style: ts.small),
             SizedBox(
               width: 64.u,
-              child: EInput(
-                controller: _maxIn,
-                mono: true,
-                invalid: _maxError != null,
-                semanticLabel: 'Max incoming peers',
-                keyboardType: TextInputType.number,
-                onSubmitted: (_) => options == null ? null : _setMax(options, inbound: true),
+              // Saved on Enter and when the field loses focus.
+              child: Focus(
+                canRequestFocus: false,
+                skipTraversal: true,
+                onFocusChange: (f) => f || options == null ? null : _setMax(options, inbound: true),
+                child: EInput(
+                  controller: _maxIn,
+                  mono: true,
+                  invalid: _maxError != null,
+                  semanticLabel: 'Max incoming peers',
+                  keyboardType: TextInputType.number,
+                  onSubmitted: (_) => options == null ? null : _setMax(options, inbound: true),
+                ),
               ),
             ),
             Text('Max outgoing', style: ts.small),
             SizedBox(
               width: 64.u,
-              child: EInput(
-                controller: _maxOut,
-                mono: true,
-                invalid: _maxError != null,
-                semanticLabel: 'Max outgoing peers',
-                keyboardType: TextInputType.number,
-                onSubmitted: (_) => options == null ? null : _setMax(options, inbound: false),
+              // Saved on Enter and when the field loses focus.
+              child: Focus(
+                canRequestFocus: false,
+                skipTraversal: true,
+                onFocusChange: (f) => f || options == null ? null : _setMax(options, inbound: false),
+                child: EInput(
+                  controller: _maxOut,
+                  mono: true,
+                  invalid: _maxError != null,
+                  semanticLabel: 'Max outgoing peers',
+                  keyboardType: TextInputType.number,
+                  onSubmitted: (_) => options == null ? null : _setMax(options, inbound: false),
+                ),
               ),
             ),
           ],
