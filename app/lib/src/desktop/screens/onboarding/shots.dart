@@ -7,6 +7,7 @@ import 'kill_process_dialog.dart';
 import 'onboarding_parts.dart';
 import 'restore_screen.dart';
 import 'same_wallet_dialog.dart';
+import 'local_node_step.dart' show LocalNodeDemo;
 import 'setup_screen.dart';
 import 'unlock_screen.dart';
 
@@ -71,6 +72,11 @@ final List<DeskShot> onboardingShots = [
   const DeskShot(id: '03e-restore-failed', title: 'Restore: failed', route: DeskRoute.restore, arg: RestoreStep.failed),
   const DeskShot(id: '04-setup', title: 'Setup: preferences', route: DeskRoute.setup, arg: SetupStep.prefs),
   const DeskShot(id: '04b-setup-node', title: 'Setup: node', route: DeskRoute.setup, arg: SetupStep.node),
+  const DeskShot(id: '03-setup-node', title: 'Setup: choose a node', route: DeskRoute.setup, arg: SetupStep.node),
+  const DeskShot(id: '03b-setup-local', title: 'Setup: the local node step', route: DeskRoute.setup, arg: SetupDemo(SetupStep.local)),
+  const DeskShot(id: '03c-setup-existing', title: 'Setup: a node already running here', route: DeskRoute.setup, arg: SetupDemo(SetupStep.local, local: LocalNodeDemo.found)),
+  const DeskShot(id: '03d-setup-notfound', title: 'Setup: no node answers', route: DeskRoute.setup, arg: SetupDemo(SetupStep.local, local: LocalNodeDemo.notFound)),
+  const DeskShot(id: '03e-setup-review', title: 'Setup: review with the local node', route: DeskRoute.setup, arg: SetupDemo(SetupStep.review, localChosen: true)),
   const DeskShot(id: '04c-setup-epicbox', title: 'Setup: Epicbox', route: DeskRoute.setup, arg: SetupStep.epicbox),
   const DeskShot(id: '04d-setup-review', title: 'Setup: review', route: DeskRoute.setup, arg: SetupStep.review),
   const DeskShot(id: '05-unlock', title: 'Unlock', route: DeskRoute.unlock),

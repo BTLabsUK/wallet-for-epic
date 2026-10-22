@@ -1175,7 +1175,8 @@ void main() {
       await pump(tester, DeskRoute.settingsNode);
       expect(find.text('All wallets'), findsOneWidget);
       expect(find.text('Sync in background'), findsNothing);
-      expect(find.textContaining('last block'), findsNothing);
+      // "last block" is no longer hidden: the node card (W6 §17) prints it only from a real
+      // answer (the status directory's tip age, or a node's header time).
       await done(tester);
     });
 

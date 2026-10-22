@@ -67,8 +67,8 @@ void main() {
     dump('overview');
     final heightRe = RegExp(r'Height (\d[\d,]*)');
     final h = heightRe.firstMatch(texts().join(' '));
-    record('sync: node online with a height', hasText('Online') && h != null, 'node ${hasText('node.btlabs.uk') ? 'btlabs' : '?'} ${h?.group(0)}');
-    record('Epicbox status online', texts().join(' | ').contains('Epicbox | Online | $freshRelay'), 'sidebar: ${texts().where((t) => t.startsWith('Receiving') || t == 'On').join(' ')}');
+    record('sync: node synced (the height is in the rail tooltip and Settings › Node since wave 6)', hasText('Synced'), 'node ${hasText('node.btlabs.uk') ? 'btlabs' : '?'} ${h?.group(0)}');
+    record('Epicbox status online', texts().join(' | ').contains('Epicbox | ${freshRelay.replaceFirst(RegExp(r'^epicbox\.(?=.*\.)'), '')}'), 'sidebar: ${texts().where((t) => t.startsWith('Epicbox') || t == 'On').join(' ')}');
     record('overview shows 0 balance on a fresh wallet', hasText('Available to spend') && hasText('0'), '');
 
     await tapText(tester, 'Receive');

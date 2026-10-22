@@ -7,6 +7,7 @@ import '../../widgets/kit.dart';
 import 'onboarding_parts.dart';
 import 'phrase_grid.dart';
 import 'same_wallet_dialog.dart';
+import 'setup_screen.dart' show SetupFirstRun;
 import 'unlock_screen.dart' show UnlockPick;
 
 enum RestoreStep { words, wordsFilled, account, restoring, failed }
@@ -160,7 +161,9 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
       }
       final added = await addedWallet(api, before, 'Restored wallet', notice: 'Wallet restored.');
       if (!mounted) return;
-      ref.read(deskNavProvider.notifier).reset(DeskRoute.unlock, added);
+      await markSetupPending(api, added.id);
+      if (!mounted) return;
+      ref.read(deskNavProvider.notifier).reset(DeskRoute.setup, SetupFirstRun(added, second: before.isNotEmpty));
     } catch (e) {
       if (!mounted) return;
       if (e is DeskError && e.sameWallet != null) {

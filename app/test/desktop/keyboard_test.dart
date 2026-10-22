@@ -206,7 +206,17 @@ void main() {
 
     testWidgets('Settings › Node: from the node field no icon is a Tab stop', (tester) async {
       await _open(tester, DeskRoute.settingsNode);
-      final tabs = await _tabs(tester, find.descendant(of: find.byType(ServiceCombo), matching: find.byType(EditableText)).first, 12);
+      // The closed combo is a button (F27): no text field to focus.
+      expect(find.descendant(of: find.byType(ServiceCombo), matching: find.byType(EditableText)), findsNothing);
+      tester.widget<FocusableActionDetector>(find.descendant(of: find.byType(ServiceCombo), matching: find.byType(FocusableActionDetector)).first).focusNode!.requestFocus();
+      await tester.pump();
+      expect(_focused(), 'combo:Node server');
+      final tabs = <String>[];
+      for (var i = 0; i < 12; i++) {
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pump();
+        tabs.add(_focused());
+      }
       expect(tabs.takeWhile((t) => !t.startsWith('nav:')), _noSecondary);
       await _end(tester);
     });
@@ -471,35 +481,49 @@ void main() {
       return key;
     }
 
-    TextSelection selection(WidgetTester tester) =>
-        tester.widget<EditableText>(find.descendant(of: find.byType(ServiceCombo), matching: find.byType(EditableText))).controller.selection;
+    Finder closedField() => find.descendant(of: find.byType(ServiceCombo), matching: find.byType(EditableText));
 
-    testWidgets('after Esc and after a pick the host is not painted as selected', (tester) async {
+    testWidgets('the closed combo is a button with no text field; Esc and a pick leave nothing selected', (tester) async {
       String? picked;
       await pumpCombo(tester, onPicked: (v) => picked = v);
-      await tester.tap(find.byType(EditableText));
+      expect(closedField(), findsNothing, reason: 'no TextField in the closed state (F27)');
+      await tester.tap(find.text('a.example'));
       await tester.pump();
       expect(find.text('b.example', findRichText: true), findsOneWidget, reason: 'the list is open');
+      expect(find.byType(EditableText), findsOneWidget, reason: 'the search field at the top of the list');
       await _key(tester, LogicalKeyboardKey.escape);
       expect(find.text('b.example', findRichText: true), findsNothing, reason: 'Esc closed it');
-      expect(selection(tester).isCollapsed, isTrue);
+      expect(closedField(), findsNothing);
 
       await tester.pump(const Duration(milliseconds: 500)); // not a double tap
-      await tester.tap(find.byType(EditableText));
+      await tester.tap(find.text('a.example'));
       await tester.pump();
       await tester.tap(find.text('b.example', findRichText: true));
       await tester.pump();
       expect(picked, 'b');
-      expect(selection(tester).isCollapsed, isTrue);
+      expect(closedField(), findsNothing);
+    });
+
+    testWidgets('Space, Enter and ↓ on the focused button open the list', (tester) async {
+      for (final k in [LogicalKeyboardKey.space, LogicalKeyboardKey.enter, LogicalKeyboardKey.arrowDown]) {
+        await pumpCombo(tester);
+        tester.widget<FocusableActionDetector>(find.descendant(of: find.byType(ServiceCombo), matching: find.byType(FocusableActionDetector)).first).focusNode!.requestFocus();
+        await tester.pump();
+        await _key(tester, k);
+        await tester.pump();
+        expect(find.text('b.example', findRichText: true), findsOneWidget, reason: k.keyLabel);
+        await _key(tester, LogicalKeyboardKey.escape);
+      }
     });
 
     testWidgets('while busy the chevron stays and Checking… shows; after the timeout No answer yet', (tester) async {
       await pumpCombo(tester, busy: true);
-      expect(find.byWidgetPredicate((w) => w is EIconButton && w.icon == EIcons.chevronDown), findsOneWidget);
+      expect(find.byIcon(EIcons.chevronDown), findsOneWidget);
       expect(find.text('Checking…'), findsOneWidget);
+      expect(find.byType(ESpinner), findsNothing, reason: 'no spinner in the field (F27)');
       await tester.pump(const Duration(seconds: 3));
       expect(find.text('No answer yet'), findsOneWidget);
-      expect(find.byWidgetPredicate((w) => w is EIconButton && w.icon == EIcons.chevronDown), findsOneWidget);
+      expect(find.byIcon(EIcons.chevronDown), findsOneWidget);
     });
   });
 
@@ -700,7 +724,7 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      await tester.tap(find.byType(EditableText));
+      await tester.tap(find.text('a.example'));
       await tester.pump();
       expect(find.text('b.example', findRichText: true), findsOneWidget, reason: 'the list is open');
       await _key(tester, LogicalKeyboardKey.escape);

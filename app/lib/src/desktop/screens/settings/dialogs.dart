@@ -285,7 +285,7 @@ class ChainOfferDialog extends StatelessWidget {
     final nav = Navigator.of(context);
     return EDialog(
       title: 'Existing blockchain data found',
-      description: 'This computer already has Epic blockchain data that the built-in node can use.',
+      description: 'This computer already has Epic blockchain data that the local node can use.',
       icon: EIcons.node,
       tone: ETone.gold,
       body: Column(
@@ -300,7 +300,7 @@ class ChainOfferDialog extends StatelessWidget {
           Text('Other copies were found too (1). This one was updated most recently.', style: ts.small),
           SizedBox(height: Sp.x3),
           Text(
-            inUse ? 'Another Epic program is using this folder. Close it, then pick the built-in node again to use this data.' : 'Use it? That saves downloading and syncing the whole blockchain.',
+            inUse ? 'Another Epic program is using this folder. Close it, then pick the local node again to use this data.' : 'Use it? That saves downloading and syncing the whole blockchain.',
             style: ts.body.copyWith(fontWeight: FontWeight.w600),
           ),
           SizedBox(height: Sp.x2),

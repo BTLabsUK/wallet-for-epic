@@ -194,7 +194,7 @@ void flows() {
     await _end(tester);
   });
 
-  testWidgets('create: no name field, no quiz; Continue on the phrase goes to Unlock with the new wallet', (tester) async {
+  testWidgets('create: no name field, no quiz; Continue on the phrase goes to the first-run setup with the new wallet', (tester) async {
     final container = await _pump(tester, const CreateScreen());
     expect(find.text('Name'), findsNothing);
     expect(find.byType(EditableText), findsNWidgets(2), reason: 'password and repeat only');
@@ -216,8 +216,8 @@ void flows() {
     await _wait(tester, 500);
     expect(find.text('Check the phrase'), findsNothing);
     final nav = container.read(deskNavProvider);
-    expect(nav.route, DeskRoute.unlock);
-    final added = nav.arg as UnlockAdded;
+    expect(nav.route, DeskRoute.setup);
+    final added = (nav.arg as SetupFirstRun).added;
     expect(added.name, 'Wallet 1');
     expect(added.id, isNotNull);
     await _end(tester);

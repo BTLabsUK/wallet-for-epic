@@ -3,16 +3,33 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../legacy/gui_rules.dart' show isPrivateHost;
+import '../../data/desk_node.dart';
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
+import '../../data/node_view.dart';
 import '../../widgets/kit.dart';
+import '../../widgets/node_card.dart';
+import '../onboarding/local_node_step.dart' show showLocalNodeSetupDialog, LocalNodeHow;
 import 'combo.dart';
 import 'dialogs.dart';
+import 'local_node.dart';
+import 'local_node_dialogs.dart' show showReuseChainDataDialog, fallbackAskedThisSession;
 import 'prefs.dart';
 import 'settings_frame.dart';
 import 'settings_privacy.dart';
 
-/// Start states of Settings › Node.
-enum NodeDemo { comboOpen, typed, pickFailed, builtin, chainInUse }
+/// Start states of Settings › Node. [behind], [old], [limited] and [down] put the node card
+/// in that state through the mock node layer (the tour); [builtin] shows the local node panel.
+enum NodeDemo { comboOpen, typed, pickFailed, builtin, peers, behind, old, limited, down }
+
+/// A typed node address as a URL: as typed when it has a scheme; else https, except this
+/// computer and the local network, where nodes answer plain http.
+String nodeUrlOf(String typed) {
+  final t = typed.trim();
+  if (t.contains('://')) return t;
+  final host = t.startsWith('[') ? t.substring(0, t.indexOf(']') + 1) : t.split(RegExp('[:/]')).first;
+  return '${isPrivateHost(host) ? 'http' : 'https'}://$t';
+}
 
 String hostOf(String url) => url.replaceFirst(RegExp('^https?://'), '').replaceFirst(RegExp(r'/+$'), '');
 
@@ -41,6 +58,9 @@ ETone nodeTone(ServiceHealth h) => switch (h) {
 };
 
 const _portNote = 'Check the address and the port (usually 3413).';
+
+/// The picker's footer under the node list.
+const nodeListNote = 'State from status.btlabs.uk, checked every few minutes. Latency as measured from this computer.';
 
 /// Before the local node starts: what that means for this computer. True to go on.
 Future<bool> confirmLocalNode(BuildContext context) async {
@@ -81,6 +101,58 @@ Future<bool> confirmLocalNode(BuildContext context) async {
   return yes ?? false;
 }
 
+/// The local node's state as the picker's This computer row says it.
+String localNodeRowText(LocalNodeState? s) {
+  if (s == null) return 'Not set up';
+  return switch (s.phase) {
+    LocalNodePhase.stopped => (s.chainDataBytes ?? 0) == 0 ? 'Not set up' : 'Stopped',
+    LocalNodePhase.starting => 'Starting',
+    LocalNodePhase.syncing => s.progress?.overall == null ? 'Syncing' : 'Syncing ${percent(s.progress!.overall!)}',
+    LocalNodePhase.synced => 'Synced',
+    LocalNodePhase.error => s.stalled ? 'Stalled' : 'Failed',
+  };
+}
+
+/// The picker rows of the wallet's node list ([NodeServer]s), in the neutral order of §18.
+/// [released] is the released node version when known; else the newest in the list counts.
+List<ServerInfo> serverRows(List<NodeServer> nodes, {String? released, bool? starred}) {
+  final heights = [for (final n in nodes) if (n.height != null && n.health != ServiceHealth.down) n.height!];
+  final tip = heights.isEmpty ? null : heights.reduce((a, b) => a > b ? a : b);
+  var newest = released;
+  if (newest == null) {
+    for (final n in nodes) {
+      final v = n.version;
+      if (v != null && (newest == null || (compareVersions(v, newest) ?? 0) > 0)) newest = v;
+    }
+  }
+  final rows = [
+    for (final n in nodes)
+      () {
+        final down = n.health == ServiceHealth.down;
+        final behind = down || tip == null || n.height == null ? null : (tip - n.height!).clamp(0, 1 << 30);
+        final old = n.version != null && newest != null && (compareVersions(n.version!, newest) ?? 0) < 0;
+        return ServerInfo(
+          value: n.url,
+          host: nodeHost(n.url),
+          full: hostOf(n.url),
+          operator: n.operator ?? (n.label.isEmpty ? null : n.label),
+          state: ServerInfo.stateFor(
+            down: down,
+            behind: n.health == ServiceHealth.slow ? (behind ?? 1) : behind,
+            versionOld: old,
+            checking: n.health == ServiceHealth.checking,
+          ),
+          behind: behind,
+          latencyMs: n.latencyMs,
+          version: n.version,
+          versionOld: old,
+          starred: starred,
+        );
+      }(),
+  ];
+  return neutralOrder(rows, state: (r) => r.state, latency: (r) => r.latencyMs);
+}
+
 class SettingsNodeScreen extends ConsumerStatefulWidget {
   const SettingsNodeScreen({super.key, this.arg});
 
@@ -94,8 +166,6 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
   final _combo = GlobalKey<ServiceComboState>();
   bool _saving = false;
   String? _error;
-  bool _chainAsk = false;
-  late bool _chainInUse = widget.arg == NodeDemo.chainInUse;
 
   // The live check of a typed address.
   String _typed = '';
@@ -110,12 +180,38 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
     final arg = widget.arg;
     if (arg == NodeDemo.typed) _onTyped(_demoTyped);
     if (arg == NodeDemo.pickFailed) _error = _portNote;
-    if (arg == NodeDemo.builtin || arg == NodeDemo.chainInUse) {
+    if (arg == NodeDemo.builtin || arg == NodeDemo.peers) {
       Future.microtask(() {
         final p = ref.read(settingsPrefsProvider.notifier);
         p.set(ref.read(settingsPrefsProvider).copyWith(builtin: true, clearTyped: true));
       });
     }
+    Future.microtask(_demoCard);
+  }
+
+  /// The tour's card states, through the mock node layer; any other start puts the mock's
+  /// answer back (the shots run one after another).
+  void _demoCard() {
+    if (!mounted) return;
+    final api = ref.read(deskNodeProvider);
+    final status = ref.read(deskProvider).status;
+    if (api is! MockDeskNode || status == null) return;
+    final url = (ref.read(settingsPrefsProvider).typedNode ?? status.node).url;
+    final host = nodeHost(url);
+    final before = api.infos[host];
+    switch (widget.arg) {
+      case NodeDemo.behind:
+        api.infos[host] = mockNodeInfo(url, behind: 12, state: NodeHealthState.degraded);
+      case NodeDemo.old:
+        api.infos[host] = mockNodeInfo(url, version: '4.1.0', latencyMs: 1083);
+      case NodeDemo.limited:
+        api.infos[host] = mockNodeInfo(url, source: NodeInfoSource.limited);
+      case NodeDemo.down:
+        api.infos[host] = mockNodeInfo(url, state: NodeHealthState.down);
+      default:
+        api.infos.remove(host);
+    }
+    if (before != api.infos[host]) ref.invalidate(deskNodeInfoProvider(url));
   }
 
   @override
@@ -133,7 +229,7 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
     });
     if (!_addressLike.hasMatch(t)) return;
     _debounce = Timer(const Duration(milliseconds: 400), () async {
-      final url = t.startsWith('http') ? t : 'http://$t';
+      final url = nodeUrlOf(t);
       final r = await ref.read(deskApiProvider).checkNode(url);
       if (mounted && _typed == t) setState(() => _typedCheck = r);
     });
@@ -143,7 +239,21 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
     final prefs = ref.read(settingsPrefsProvider.notifier);
     final p = ref.read(settingsPrefsProvider);
     if (value == builtinNode) {
-      if (!p.builtin && !await confirmLocalNode(context)) return;
+      if (!p.builtin) {
+        // The same content as the first run's Local node step (§21): nothing starts before
+        // the primary action; the fallback checkbox answers D-7 for good.
+        final choice = await showLocalNodeSetupDialog(context);
+        if (choice == null || !mounted) return;
+        if (choice.how == LocalNodeHow.existing) return _useRemote(choice.existingUrl);
+        final node = ref.read(deskNodeProvider);
+        final found = await node.chainDataCandidates();
+        if (!mounted) return;
+        if (found.isNotEmpty && await showReuseChainDataDialog(context, node) == null) return;
+        if (!mounted) return;
+        // Answered for good only once the node is going to start.
+        await ref.read(deskFallbackProvider.notifier).set(FallbackChoice(choice.useFallback ? FallbackConsent.accepted : FallbackConsent.declined, at: DateTime.now()));
+        fallbackAskedThisSession = true;
+      }
       if (!mounted) return;
       setState(() {
         _saving = true;
@@ -163,14 +273,18 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
       prefs.set(p.copyWith(builtin: true, clearTyped: true));
       setState(() => _saving = false);
       _combo.currentState?.collapse();
-      showEToast(context, 'Built-in node in use', text: 'It downloads the whole chain. Needs 5 GB free.');
+      showEToast(context, 'Local node in use', text: 'It downloads the whole chain. Needs 5 GB free.');
       return;
     }
+    await _useRemote(value);
+  }
+
+  Future<void> _useRemote(String value) async {
     setState(() {
       _saving = true;
       _error = null;
     });
-    final url = value.startsWith('http') ? value : 'http://$value';
+    final url = nodeUrlOf(value);
     final known = (ref.read(deskProvider).nodes ?? const <NodeServer>[]).any((n) => n.url == url);
     final r = await ref.read(deskApiProvider).checkNode(url);
     if (!mounted) return;
@@ -184,13 +298,15 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
     }
     await ref.read(deskProvider.notifier).useNode(url);
     if (!mounted) return;
-    prefs.set(ref.read(settingsPrefsProvider).copyWith(builtin: false, typedNode: known ? null : r, clearTyped: known));
+    ref.read(settingsPrefsProvider.notifier).set(ref.read(settingsPrefsProvider).copyWith(builtin: false, typedNode: known ? null : r, clearTyped: known));
     setState(() => _saving = false);
     _combo.currentState?.collapse();
   }
 
   @override
   Widget build(BuildContext context) {
+    final c = context.dc;
+    final ts = context.ts;
     final st = ref.watch(deskProvider);
     final prefs = ref.watch(settingsPrefsProvider);
     final nodes = st.nodes;
@@ -201,57 +317,38 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
     final p = ref.read(settingsPrefsProvider.notifier);
     final visible = nodes.where((n) => !prefs.removedNodes.contains(n.url)).toList();
     final mine = visible.where((n) => n.own).toList();
+    final public = visible.where((n) => !n.own).toList();
     final current = prefs.typedNode ?? status.node;
     final value = prefs.builtin ? builtinNode : current.url;
-    final defaultUrl = nodes.first.url;
-    String labelOf(NodeServer n) => prefs.nodeLabels[n.url] ?? n.label;
-    String? tip(NodeServer n) => n.latencyMs == null ? null : 'Response time ${n.latencyMs} ms.';
+    final local = ref.watch(deskLocalNodeProvider).value;
+    final info = prefs.builtin ? null : ref.watch(deskNodeInfoProvider(current.url)).value;
+    final released = info?.releasedVersion ?? info?.network?.releasedNodeVersion;
 
+    final myRows = serverRows(mine, released: released, starred: true);
+    final publicRows = serverRows(public, released: released, starred: false);
     final options = <ComboOption>[
-      for (final n in mine)
+      if (DeskFeatures.builtInNode) ComboOption(value: builtinNode, host: 'Local node', sub: localNodeRowText(local), local: true, group: 'This computer'),
+      for (final r in myRows)
         ComboOption(
-          value: n.url,
-          host: hostOf(n.url),
-          sub: labelOf(n).isEmpty ? null : labelOf(n),
-          tone: nodeTone(n.health),
-          height: n.height,
-          tip: tip(n),
+          value: r.value,
+          host: r.host,
+          sub: prefs.nodeLabels[r.value],
+          server: r,
           group: 'My nodes',
-          actions: [
-            EIconButton(icon: EIcons.pencil, label: 'Edit ${labelOf(n)}', size: EBtnSize.inline, onPressed: () => showMyNodeDialog(context, initial: n.url, label: labelOf(n))),
-            EIconButton(
-              icon: EIcons.star,
-              label: 'Remove ${labelOf(n)} from my nodes',
-              size: EBtnSize.inline,
-              selected: true,
-              onPressed: () {
-                p.forgetNode(n.url);
-                showEToast(context, 'Removed from my nodes', text: hostOf(n.url));
-              },
-            ),
-          ],
+          onStar: () {
+            p.forgetNode(r.value);
+            showEToast(context, 'Removed from my nodes', text: r.host);
+          },
         ),
-      for (final n in visible.where((n) => !n.own))
+      for (final r in publicRows)
         ComboOption(
-          value: n.url,
-          host: hostOf(n.url),
-          sub: n.operator,
-          isDefault: n.url == defaultUrl,
-          tone: nodeTone(n.health),
-          word: n.health == ServiceHealth.ok ? null : nodeWord(n.health),
-          height: n.height,
-          tip: tip(n),
+          value: r.value,
+          host: r.host,
+          sub: r.operator,
+          server: r,
           group: 'Public nodes',
-          actions: [
-            EIconButton(
-              icon: EIcons.starOutline,
-              label: 'Add ${hostOf(n.url)} to my nodes',
-              size: EBtnSize.inline,
-              onPressed: () => showMyNodeDialog(context, initial: n.url, label: n.operator ?? '', adding: true),
-            ),
-          ],
+          onStar: () => showMyNodeDialog(context, initial: r.value, label: r.operator ?? '', adding: true),
         ),
-      if (DeskFeatures.builtInNode) const ComboOption(value: builtinNode, host: 'Built-in node', sub: 'downloads the whole chain', icon: EIcons.monitor, group: 'This computer'),
     ];
 
     ComboOption? typedRow(String t) {
@@ -261,18 +358,42 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
       return ComboOption(
         value: t,
         host: hostOf(t),
-        word: checking ? 'Checking…' : (r.health == ServiceHealth.down ? 'Not responding' : null),
+        word: checking ? 'Checking…' : (r.health == ServiceHealth.down ? 'Not answering' : null),
         sub: !checking && r.health != ServiceHealth.down ? (versionOld(r.version) ? 'Version older than $minNodeVersion' : nodeWord(r.health)) : null,
         tone: checking ? ETone.warn : nodeTone(r.health),
         height: checking ? null : r.height,
         actions: [
           if (!mine.any((n) => n.url == t))
-            EIconButton(icon: EIcons.starOutline, label: 'Add to my nodes', size: EBtnSize.inline, onPressed: () => showMyNodeDialog(context, initial: t, adding: true)),
+            EIconButton(icon: EIcons.starOutline, label: 'Add to my nodes', size: EBtnSize.inline, tabStop: false, onPressed: () => showMyNodeDialog(context, initial: t, adding: true)),
         ],
       );
     }
 
-    final health = prefs.builtin ? status.nodeHealth : (current.health == ServiceHealth.ok ? status.nodeHealth : current.health);
+    // The word and state of the head: the same the rail shows.
+    final NodeView view = prefs.builtin
+        ? localNodeView(local, fallbackUrl: status.node.url)
+        : remoteNodeView(current.url, info, health: status.nodeHealth);
+    final down = view.state == EState.risk && !prefs.builtin;
+    // The Switch action's target: the healthy node with the lowest latency, My nodes first.
+    SwitchTarget? best;
+    if (down) {
+      for (final r in [...myRows, ...publicRows]) {
+        if (r.state == EState.ok && r.value != current.url) {
+          best = SwitchTarget(host: r.host, url: r.value);
+          break;
+        }
+      }
+    }
+
+    final head = Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(EIcons.node, size: Ctl.iconSm, color: stateColor(c, view.state)),
+        SizedBox(width: Sp.x2),
+        Text(view.word, style: ts.small.copyWith(color: stateColor(c, view.state), fontWeight: FontWeight.w600)),
+      ],
+    );
+
     return SettingsFrame(
       route: DeskRoute.settingsNode,
       child: Column(
@@ -282,19 +403,27 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
             section: SettingsJump.node,
             child: ESetGroup(
               title: 'Node',
+              trailing: head,
               rows: [
                 ESetRow(
                   title: 'Node server',
+                  text: 'The node the wallet reads the chain through and sends with.',
                   stacked: true,
                   control: ServiceCombo(
                     key: _combo,
                     label: 'Node server',
                     hint: 'Find or type a node address',
+                    kind: ServerKind.node,
                     options: options,
                     value: value,
-                    fieldText: prefs.builtin ? 'Built-in node' : hostOf(current.url),
-                    fieldSub: prefs.builtin ? null : (prefs.nodeLabels[current.url] ?? current.operator),
-                    tone: nodeTone(health),
+                    fieldText: prefs.builtin ? 'Local node' : hostOf(current.url),
+                    fieldSub: prefs.builtin ? localNodeRowText(local) : (prefs.nodeLabels[current.url] ?? current.operator),
+                    tone: switch (view.state) {
+                      EState.ok => ETone.ok,
+                      EState.warn => ETone.warn,
+                      EState.risk => ETone.risk,
+                      EState.off => ETone.neutral,
+                    },
                     busy: _saving,
                     busyLabel: 'Checking the node…',
                     error: _error,
@@ -304,15 +433,25 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
                     typedRow: typedRow,
                     typedNote: (t) => _typedCheck?.health == ServiceHealth.down && _typed == t ? _portNote : 'Enter uses it. The star keeps it in My nodes.',
                     emptyNote: 'No nodes to show.',
+                    listNote: nodeListNote,
                     onPicked: _pick,
                     footer: [
                       ('Add to my nodes…', EIcons.plus, () => showMyNodeDialog(context, adding: true)),
                       ('Node directory…', EIcons.book, () => showNodeDirectoryDialog(context)),
                     ],
                   ),
-                  below: _error == null ? _StatusLine(node: current, health: health, height: status.nodeHeight, builtin: prefs.builtin) : null,
                 ),
-                if (_chainInUse) _chainRow(context),
+                if (!prefs.builtin)
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(Sp.x5, Sp.x4, Sp.x5, Sp.x5),
+                    child: NodeCard(
+                      url: current.url,
+                      info: info,
+                      switchTo: best,
+                      onSwitch: (t) => _useRemote(t.url),
+                    ),
+                  ),
+                if (prefs.builtin) LocalNodePanel(initialTab: widget.arg == NodeDemo.peers ? LocalTab.peers : LocalTab.status),
                 if (prefs.builtin && DeskFeatures.nodeBackground)
                   ESetRow(
                     title: 'Sync in background',
@@ -328,98 +467,6 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
           ),
           const PrivacyGroup(),
         ],
-      ),
-    );
-  }
-
-  Widget _chainRow(BuildContext context) {
-    final ts = context.ts;
-    const dir = '~/.epic/main/chain_data';
-    return ESetRow(
-      title: 'Blockchain data',
-      text: 'The built-in node uses blockchain data from this folder, which an older Epic Wallet made.',
-      stacked: _chainAsk,
-      control: _chainAsk
-          ? null
-          : EButton(label: 'Download again…', icon: EIcons.download, size: EBtnSize.sm, onPressed: () => setState(() => _chainAsk = true)),
-      below: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Text(dir, style: ts.mono(size: Fs.sm, color: context.dc.dim), overflow: TextOverflow.ellipsis),
-          if (_chainAsk) ...[
-            SizedBox(height: Sp.x3),
-            ENotice(
-              title: 'Download the blockchain again?',
-              text: 'The built-in node will use its own folder and download the whole chain. The data above stays where it is: nothing is deleted.',
-              tone: ETone.gold,
-              actions: [
-                EButton(label: 'Cancel', size: EBtnSize.inline, kind: EBtnKind.ghost, onPressed: () => setState(() => _chainAsk = false)),
-                EButton.primary(
-                  label: 'Download again',
-                  size: EBtnSize.inline,
-                  onPressed: () {
-                    setState(() {
-                      _chainAsk = false;
-                      _chainInUse = false;
-                    });
-                    showEToast(context, 'Downloading the blockchain again', text: 'The older data stays in $dir.');
-                  },
-                ),
-              ],
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-}
-
-/// The line under the node field: state · height · last block age · old version.
-class _StatusLine extends StatelessWidget {
-  const _StatusLine({required this.node, required this.health, required this.height, required this.builtin});
-
-  final NodeServer node;
-  final ServiceHealth health;
-  final int height;
-  final bool builtin;
-
-  @override
-  Widget build(BuildContext context) {
-    final c = context.dc;
-    final ts = context.ts;
-    final tone = nodeTone(health);
-    final fg = switch (tone) {
-      ETone.ok => c.ok,
-      ETone.warn => c.warn,
-      ETone.risk => c.risk,
-      _ => c.faint,
-    };
-    final answers = health != ServiceHealth.down;
-    final sep = TextSpan(text: '  ·  ', style: ts.small.copyWith(color: c.faint));
-    return Semantics(
-      liveRegion: true,
-      child: Text.rich(
-        TextSpan(
-          style: ts.small,
-          children: [
-            TextSpan(text: nodeWord(health), style: ts.small.copyWith(color: fg, fontWeight: FontWeight.w600)),
-            if (answers) ...[
-              sep,
-              if (builtin && height == 0)
-                const TextSpan(text: 'downloading the chain')
-              else
-                TextSpan(text: groupDigits(height), style: ts.mono(size: Fs.sm, color: c.text)),
-              if (DeskFeatures.nodeBlockTime) ...[sep, const TextSpan(text: 'last block 40 s ago')],
-            ] else ...[
-              sep,
-              const TextSpan(text: 'no answer from the node'),
-            ],
-            if (!builtin && versionOld(node.version)) ...[
-              sep,
-              TextSpan(text: 'Version older than $minNodeVersion', style: ts.small.copyWith(color: c.warn)),
-            ],
-          ],
-        ),
       ),
     );
   }

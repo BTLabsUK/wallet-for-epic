@@ -217,6 +217,32 @@ class LepicDeskWallet implements DeskWalletApi {
   core.WalletConfig? _config;
   String? _password;
 
+  /// Every move of the wallet's node runs alone, in call order ([_nodeLock]): the user's picks,
+  /// the built-in node on and off, the fallback (D-7).
+  Future<void> _nodeMoves = Future<void>.value();
+
+  /// Set while [_switchTo] reopens the wallet: a send or a scan starting then waits for it.
+  Completer<void>? _switching;
+
+  /// The latest fallback decision ([applyNodeFallback]) and its number: an older one still
+  /// queued is dropped.
+  ({bool usePublic, String? publicUrl})? _fallback;
+  int _fallbackSeq = 0;
+
+  Future<T> _nodeLock<T>(Future<T> Function() move) {
+    final r = _nodeMoves.then((_) => move());
+    _nodeMoves = r.then<void>((_) {}, onError: (Object _) {});
+    return r;
+  }
+
+  /// A scan counts as a running operation like a payment: the lock and the node moves wait.
+  void _opEnded() {
+    if (--_busy == 0) {
+      _idle?.complete();
+      _idle = null;
+    }
+  }
+
   final reg.WalletRegistry? _registryGiven;
 
   /// Where the import looks for old wallets; the real home folder in the app.
@@ -513,6 +539,18 @@ class LepicDeskWallet implements DeskWalletApi {
   }
 
   @override
+  Future<bool> setupPending(String id) async {
+    final e = await _entry(id);
+    return (await _meta(_metaKey(e.walletId)))['setupPending'] == true;
+  }
+
+  @override
+  Future<void> setSetupPending(String id, bool pending) async {
+    final e = await _entry(id);
+    await _setMeta({'setupPending': pending}, _metaKey(e.walletId));
+  }
+
+  @override
   Future<void> selectWallet(String id) async {
     await _entry(id);
     _selectedId = id;
@@ -774,21 +812,55 @@ class LepicDeskWallet implements DeskWalletApi {
   @override
   Future<void> lock() => _lock();
 
-  /// [waitAtMost]: how long a running send may hold the lock up (the app closing); past it
-  /// the lock goes ahead and the core ends the call.
-  Future<void> _lock({Duration? waitAtMost}) async {
-    // A send, finalize or split under way finishes first ([busy]); none starts meanwhile.
-    _locking = true;
-    try {
-      if (waitAtMost == null) {
-        await whenIdle();
-      } else {
-        await whenIdle().timeout(waitAtMost, onTimeout: () => logWarn('desk', 'closing: a payment still ran after ${waitAtMost.inSeconds} s; locking anyway'));
-      }
-      await _lockNow();
-    } finally {
-      _locking = false;
+  /// One lock at a time: a second call joins the first. [waitAtMost]: how long a running
+  /// payment may hold the lock up (the app closing); past it the lock goes ahead and the core
+  /// ends the call. A scan is stopped first: it has no effect worth waiting for.
+  Future<void> _lock({Duration? waitAtMost}) {
+    void cap() {
+      if (waitAtMost == null) return;
+      _lockTimer?.cancel();
+      _lockTimer = Timer(waitAtMost, () {
+        final force = _lockForce;
+        if (force != null && !force.isCompleted) {
+          logWarn('desk', 'closing: a payment still ran after ${waitAtMost.inSeconds} s; locking anyway');
+          force.complete();
+        }
+      });
     }
+
+    final running = _lockRun;
+    if (running != null) {
+      cap();
+      return running;
+    }
+    // Set before the first await: no payment starts meanwhile.
+    _locking = true;
+    _lockForce = Completer<void>();
+    cap();
+    return _lockRun = _runLock().whenComplete(() {
+      _lockTimer?.cancel();
+      _lockTimer = null;
+      _lockForce = null;
+      _lockRun = null;
+      _locking = false;
+    });
+  }
+
+  Future<void>? _lockRun;
+  Completer<void>? _lockForce;
+  Timer? _lockTimer;
+
+  Future<void> _runLock() async {
+    await _stopScanForUser();
+    // A send, finalize or split under way finishes first ([busy]); none starts meanwhile.
+    await Future.any<void>([whenIdle(), _lockForce!.future]);
+    await _lockNow();
+  }
+
+  /// A balance scan can run for minutes and its effect is only a read: a lock or a node move
+  /// the user asked for ends it instead of waiting.
+  Future<void> _stopScanForUser() async {
+    if (_rescanning) await stopRescan();
   }
 
   Future<void> _lockNow() async {
@@ -816,8 +888,23 @@ class LepicDeskWallet implements DeskWalletApi {
   /// Moves to [nodeUrl] and [relay]: saved under the phone's keys once the wallet opens on
   /// them, the listener kept as it was. When it does not open, the wallet opens again on the
   /// old ones and the error says so; when even that fails, the wallet locks
-  /// ([DeskError.locked]). Locked: only saved.
+  /// ([DeskError.locked]). Locked: only saved. Callers hold [_nodeLock]; [_switching] is set
+  /// before the first await, so a caller that saw no [_busy] running is not overtaken by one.
   Future<void> _switchTo({required String nodeUrl, required EpicboxRelay relay}) async {
+    // Payments and scans under way end first; the check and the mark follow with no await.
+    while (_busy > 0) {
+      await whenIdle();
+    }
+    final switching = _switching = Completer<void>();
+    try {
+      await _reopenOn(nodeUrl: nodeUrl, relay: relay);
+    } finally {
+      _switching = null;
+      switching.complete();
+    }
+  }
+
+  Future<void> _reopenOn({required String nodeUrl, required EpicboxRelay relay}) async {
     Future<void> save() async {
       await _secrets.write(_nodeKey, nodeUrl);
       await _secrets.write(_relayKey, relay.label);
@@ -1749,7 +1836,7 @@ class LepicDeskWallet implements DeskWalletApi {
   });
 
   /// Calls that change the wallet (send, receive and finalize a file, split, consolidate,
-  /// repost, cancel) running now. LEPIC ends running calls at lock, maybe after storing their
+  /// repost, cancel, scan) running now; the fallback and the user's node moves wait for them too. LEPIC ends running calls at lock, maybe after storing their
   /// effect, so [lock] waits for them instead.
   int _busy = 0;
   Completer<void>? _idle;
@@ -1758,21 +1845,24 @@ class LepicDeskWallet implements DeskWalletApi {
   bool _locking = false;
 
   @override
-  bool get busy => _busy > 0;
+  bool get busy => _busy - (_rescanning ? 1 : 0) > 0;
 
   /// Done once no such call runs.
   Future<void> whenIdle() => _busy == 0 ? Future<void>.value() : (_idle ??= Completer<void>()).future;
 
+  /// Runs [call] on the session once no switch is under way; counted while it runs. The check
+  /// and the count follow each other with no await, so a switch or a lock never overtakes it.
   Future<T> _running<T>(Future<T> Function() call) async {
     if (_locking) throw const DeskError('The wallet is locking', locked: true);
+    while (_switching != null) {
+      await _switching!.future;
+      if (_locking) throw const DeskError('The wallet is locking', locked: true);
+    }
     _busy++;
     try {
       return await call();
     } finally {
-      if (--_busy == 0) {
-        _idle?.complete();
-        _idle = null;
-      }
+      _opEnded();
     }
   }
 
@@ -2230,13 +2320,18 @@ class LepicDeskWallet implements DeskWalletApi {
 
   @override
   Future<void> useNode(String url) async {
+    await _stopScanForUser();
+    await _useNode(url);
+  }
+
+  Future<void> _useNode(String url) => _nodeLock(() async {
     logInfo('desk', 'node ${Uri.tryParse(url)?.host ?? '?'}');
     await _switchTo(nodeUrl: url, relay: await _relay());
     if (await _builtInOn()) {
       await _secrets.write(builtInNodeSettingKey(preset.chain), 'false');
       await _node?.stop();
     }
-  }
+  });
 
   String get _beforeBuiltInKey => 'app.node.$_chain.beforeBuiltIn';
 
@@ -2245,7 +2340,7 @@ class LepicDeskWallet implements DeskWalletApi {
 
   Future<BuiltInNode> _theNode() async {
     final make = _builtInNode;
-    if (make == null) throw const DeskError('No built-in node in this build');
+    if (make == null) throw const DeskError('No local node in this build');
     final node = _node ??= await make(preset.chain);
     // The user's node settings (data folder, peers) apply to every start, also at launch.
     node.options = await NodeSettings(_secrets, preset.chain).toOptions();
@@ -2254,49 +2349,97 @@ class LepicDeskWallet implements DeskWalletApi {
 
   @override
   Future<void> useBuiltInNode(bool on) async {
+    await _stopScanForUser();
     // The setting and the saved node change only once the wallet runs on the new node, so a
     // failed start or move leaves both as they were.
     if (on) {
+      // A fallback decision while it starts is applied once the setting is on (D-7).
+      final seq = _fallbackSeq;
       final node = await _theNode();
       try {
         await node.start();
       } on NodeStartException catch (e) {
         throw DeskError(e.message);
       }
-      // A stop that came in while it was starting wins.
-      if (!node.wantsRunning) throw const DeskError('Built-in node stopped');
-      final current = await _nodeUrl();
-      if (current != node.url) {
-        try {
-          await _switchTo(nodeUrl: node.url, relay: await _relay());
-        } on Object {
-          if (!await _builtInOn()) await node.stop();
-          rethrow;
+      await _nodeLock(() async {
+        // A stop that came in while it was starting wins.
+        if (!node.wantsRunning) throw const DeskError('Local node stopped');
+        final current = await _nodeUrl();
+        // While it syncs, the public node the user agreed to (D-7).
+        final target = await nodeWhileSyncing?.call() ?? node.url;
+        if (current != target) {
+          try {
+            await _switchTo(nodeUrl: target, relay: await _relay());
+          } on Object {
+            if (!await _builtInOn()) await node.stop();
+            rethrow;
+          }
+          // A lock while reopening returns without moving; a stop while moving undoes it.
+          if (await _nodeUrl() != target) throw const DeskError('Not changed: the wallet was locked');
+          if (!node.wantsRunning) {
+            await _switchTo(nodeUrl: current, relay: await _relay());
+            throw const DeskError('Local node stopped');
+          }
+          await _secrets.write(_beforeBuiltInKey, current);
         }
-        // A lock while reopening returns without moving; a stop while moving undoes it.
-        if (await _nodeUrl() != node.url) throw const DeskError('Not changed: the wallet was locked');
-        if (!node.wantsRunning) {
-          await _switchTo(nodeUrl: current, relay: await _relay());
-          throw const DeskError('Built-in node stopped');
-        }
-        await _secrets.write(_beforeBuiltInKey, current);
-      }
-      await _secrets.write(builtInNodeSettingKey(preset.chain), 'true');
-      logInfo('desk', 'built-in node on');
+        await _secrets.write(builtInNodeSettingKey(preset.chain), 'true');
+        logInfo('desk', 'built-in node on');
+      });
       // The status reads "Syncing" from now on while the node is at height 0 (O2).
       unawaited(_checkTip());
+      if (_fallbackSeq != seq) unawaited(_applyFallback(_fallbackSeq));
       return;
     }
-    // Not on yet (a start still pending): only the node stops; the wallet never moved.
-    if (!await _builtInOn()) {
+    await _nodeLock(() async {
+      // Not on yet (a start still pending): only the node stops; the wallet never moved.
+      if (!await _builtInOn()) {
+        await _node?.stop();
+        return;
+      }
+      final back = await _secrets.read(_beforeBuiltInKey) ?? preset.nodeUrl;
+      if (await _nodeUrl() != back) await _switchTo(nodeUrl: back, relay: await _relay());
+      await _secrets.write(builtInNodeSettingKey(preset.chain), 'false');
+      logInfo('desk', 'built-in node off');
       await _node?.stop();
-      return;
+    });
+  }
+
+  /// The public node to use until the local node is synced (D-7), or null for the local node.
+  /// Set by the node layer (main_desktop.dart).
+  Future<String?> Function()? nodeWhileSyncing;
+
+  /// D-7: the fallback decision changed. With the local node in use, the wallet moves to the
+  /// agreed public node while it syncs and back to the local node once it is synced. Only the
+  /// latest decision moves it, after any send, finalize or scan running has ended.
+  Future<void> applyNodeFallback({required bool usePublic, String? publicUrl}) {
+    _fallback = (usePublic: usePublic, publicUrl: publicUrl);
+    return _applyFallback(++_fallbackSeq);
+  }
+
+  Future<void> _applyFallback(int seq) async {
+    while (true) {
+      await whenIdle();
+      final done = await _nodeLock(() async {
+        final want = _fallback;
+        if (seq != _fallbackSeq || want == null) return true;
+        if (!await _builtInOn()) return true;
+        final node = await _theNode();
+        final publicUrl = want.publicUrl;
+        final target = want.usePublic && publicUrl != null ? publicUrl : node.url;
+        if (await _nodeUrl() == target) return true;
+        final relay = await _relay();
+        // Checked with no await before _switchTo marks the switch: no send slips in between.
+        if (_busy > 0) return false;
+        logInfo('desk', want.usePublic ? 'node fallback on' : 'node fallback off');
+        try {
+          await _switchTo(nodeUrl: target, relay: relay);
+        } on Object catch (e) {
+          logWarn('desk', 'node fallback: ${e.runtimeType}');
+        }
+        return true;
+      });
+      if (done) return;
     }
-    final back = await _secrets.read(_beforeBuiltInKey) ?? preset.nodeUrl;
-    if (await _nodeUrl() != back) await _switchTo(nodeUrl: back, relay: await _relay());
-    await _secrets.write(builtInNodeSettingKey(preset.chain), 'false');
-    logInfo('desk', 'built-in node off');
-    await _node?.stop();
   }
 
   /// At launch: starts the built-in node again when it was left on. A failure is logged and
@@ -2309,7 +2452,7 @@ class LepicDeskWallet implements DeskWalletApi {
       await (await _theNode()).start();
     } on Object catch (e) {
       logWarn('desk', 'built-in node did not start: ${e is NodeStartException ? e.failure.name : e.runtimeType}');
-      _notice = 'Built-in node not started: ${e is NodeStartException ? e.message : 'unknown error'}';
+      _notice = 'Local node not started: ${e is NodeStartException ? e.message : 'unknown error'}';
       _changed();
     }
   }
@@ -2348,7 +2491,8 @@ class LepicDeskWallet implements DeskWalletApi {
     final relay = EpicboxRelay.parse(domain);
     if (relay == null) throw const DeskError('Not a server name');
     logInfo('desk', 'epicbox ${relay.label}');
-    await _switchTo(nodeUrl: await _nodeUrl(), relay: relay);
+    await _stopScanForUser();
+    await _nodeLock(() async => _switchTo(nodeUrl: await _nodeUrl(), relay: relay));
   }
 
   @override
@@ -2638,18 +2782,32 @@ class LepicDeskWallet implements DeskWalletApi {
 
   @override
   Stream<ScanStep> rescan({bool deleteUnconfirmed = false}) async* {
-    final session = _open;
-    final key = _metaKey(_openEntry?.walletId);
-    // A scan LEPIC was told to stop still holds the wallet until its stream ends: wait for that.
-    final old = _rescanEnded;
-    if (_rescanning && _rescanStopAsked && old != null) {
-      await old.future.timeout(const Duration(seconds: 30), onTimeout: () {});
+    // Admitted like [_running]: the checks and the count follow each other with no await.
+    var waitedForStop = false;
+    while (true) {
+      if (_locking) throw const DeskError('The wallet is locking', locked: true);
+      if (_switching != null) {
+        await _switching!.future;
+        continue;
+      }
+      // A scan LEPIC was told to stop still holds the wallet until its stream ends: wait for that.
+      final old = _rescanEnded;
+      if (_rescanning && _rescanStopAsked && old != null && !waitedForStop) {
+        waitedForStop = true;
+        await old.future.timeout(const Duration(seconds: 30), onTimeout: () {});
+        continue;
+      }
+      break;
     }
     if (_rescanning) throw const DeskError(scanRunning);
+    final session = _open;
+    final key = _metaKey(_openEntry?.walletId);
     _rescanning = true;
     _rescanStopAsked = false;
     final ended = _rescanEnded = Completer<void>();
     var finished = false;
+    // A scan counts as a running operation: the fallback waits for it (D-7).
+    _busy++;
     try {
       await for (final p in session.scan(deleteUnconfirmed: deleteUnconfirmed)) {
         finished = finished || p.finished;
@@ -2669,6 +2827,7 @@ class LepicDeskWallet implements DeskWalletApi {
       throw _deskError(e);
     } finally {
       _rescanning = false;
+      _opEnded();
       if (!ended.isCompleted) ended.complete();
     }
     // A stopped scan leaves a due scan due; either way the balance is read again.

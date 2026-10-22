@@ -10,13 +10,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../ui/theme/brand.dart' show EpicMark;
 import '../data/desk_update.dart' show deskAppVersion;
 import '../screens/settings/prefs.dart';
-import '../screens/settings/settings_frame.dart' show epicboxWord, groupDigits, nodeWord;
-import '../screens/settings/settings_node.dart' show hostOf;
-import '../screens/settings/settings_http.dart' show httpRun;
 import '../widgets/kit.dart';
 import 'desk_app.dart' show deskNavigatorKey;
+import 'rail.dart';
 import 'screens.dart';
 import 'tour.dart';
+
+export 'rail.dart' show ServiceRows;
 
 /// The app version the sidebar, About and the support report show, with the build's commit.
 final String deskVersion = withBuildId(deskAppVersion);
@@ -380,7 +380,10 @@ class _Sidebar extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   ServiceRows(compact: compact),
-                  SizedBox(height: Sp.x2),
+                  Padding(
+                    padding: EdgeInsets.symmetric(vertical: Sp.x2),
+                    child: Divider(height: 1, thickness: 1, color: c.line),
+                  ),
                   if (compact) ...[
                     Center(child: lockButton),
                     SizedBox(height: Sp.x2),
@@ -432,7 +435,10 @@ class _Sidebar extends ConsumerWidget {
                       ],
                     ),
                   if (!compact) ...[
-                    SizedBox(height: Sp.x2),
+                    Padding(
+                      padding: EdgeInsets.symmetric(vertical: Sp.x2),
+                      child: Divider(height: 1, thickness: 1, color: c.line),
+                    ),
                     Text.rich(
                       TextSpan(
                         children: [
@@ -454,183 +460,6 @@ class _Sidebar extends ConsumerWidget {
 }
 
 Widget _tourWrap(String? id, Widget child) => id == null ? child : TourTarget(id: id, child: child);
-
-/// Connection status in the sidebar: Node and Receiving, one word each; the details in a
-/// hover card; a click opens that service's settings section.
-class ServiceRows extends ConsumerWidget {
-  const ServiceRows({super.key, this.compact = false, this.horizontal = false});
-
-  final bool compact;
-
-  /// Side by side (the phone's top bar).
-  final bool horizontal;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final status = ref.watch(deskProvider.select((s) => s.status));
-    final settings = ref.watch(deskProvider.select((s) => s.settings));
-    final prefs = ref.watch(settingsPrefsProvider);
-    final p = ref.read(settingsPrefsProvider.notifier);
-    if (status == null) return const SizedBox.shrink();
-
-    final node = prefs.typedNode ?? status.node;
-    final nodeHealth = status.nodeHealth;
-    final nodeLines = [
-      [prefs.builtin ? 'Built-in node' : hostOf(node.url), if (nodeHealth != ServiceHealth.down) groupDigits(status.nodeHeight)].join(' · '),
-      if (nodeHealth == ServiceHealth.down) 'The node is not answering.',
-      if (nodeHealth == ServiceHealth.slow) 'Behind the network; catching up.',
-    ];
-
-    final eb = status.epicboxHealth;
-    final http = httpRun(status);
-    final ebLine = eb == ServiceHealth.off ? 'Epicbox off' : 'Epicbox · ${status.epicbox.domain} · ${epicboxWord(eb)}';
-    final httpLine = switch (http) {
-      HttpRun.on => 'HTTP receiving on',
-      HttpRun.busy => 'HTTP receiving starting',
-      HttpRun.failed => status.httpProblem == null ? 'HTTP receiving didn’t start' : 'HTTP receiving: ${status.httpProblem}',
-      _ => 'HTTP receiving off',
-    };
-    var rcvHealth = eb;
-    var rcvWord = eb == ServiceHealth.ok ? 'On' : epicboxWord(eb);
-    if (eb == ServiceHealth.off && http == HttpRun.on) {
-      rcvHealth = ServiceHealth.ok;
-      rcvWord = 'HTTP only';
-    }
-    if (eb == ServiceHealth.ok && http == HttpRun.failed) rcvHealth = ServiceHealth.slow;
-
-    final rows = [
-        _ServiceRow(
-          icon: EIcons.node,
-          name: 'Node',
-          health: nodeHealth,
-          word: nodeWord(nodeHealth),
-          compact: compact,
-          lines: nodeLines,
-          open: 'Open node settings',
-          onTap: () => p.jumpTo(SettingsJump.node),
-        ),
-        _ServiceRow(
-          icon: EIcons.epicbox,
-          name: 'Receiving',
-          health: rcvHealth,
-          word: rcvWord,
-          compact: compact,
-          lines: [ebLine, if (DeskFeatures.httpDirect) httpLine, if (DeskFeatures.tor && settings.tor) 'Tor: ${torStatusLine(status)}'],
-          open: 'Open Receiving settings',
-          onTap: () => p.jumpTo(SettingsJump.epicbox),
-        ),
-    ];
-    if (horizontal) return Row(mainAxisSize: MainAxisSize.min, children: [for (final r in rows) SizedBox(width: Ctl.sm, child: r)]);
-    return Column(children: rows);
-  }
-}
-
-class _ServiceRow extends StatefulWidget {
-  const _ServiceRow({
-    required this.icon,
-    required this.name,
-    required this.health,
-    required this.word,
-    required this.lines,
-    required this.open,
-    required this.onTap,
-    required this.compact,
-  });
-
-  final IconData icon;
-  final String name;
-  final ServiceHealth health;
-  final String word;
-  final List<String> lines;
-
-  /// The card's last line: where a click goes.
-  final String open;
-  final VoidCallback onTap;
-  final bool compact;
-
-  @override
-  State<_ServiceRow> createState() => _ServiceRowState();
-}
-
-class _ServiceRowState extends State<_ServiceRow> {
-  bool _hover = false;
-
-  @override
-  Widget build(BuildContext context) {
-    final c = context.dc;
-    final ts = context.ts;
-    final tone = healthTone(widget.health);
-    final wordColor = switch (tone) {
-      ETone.ok => c.ok,
-      ETone.warn => c.warn,
-      ETone.risk => c.risk,
-      _ => c.faint,
-    };
-    final glyph = Stack(
-      clipBehavior: Clip.none,
-      children: [
-        Icon(widget.icon, size: Ctl.iconSm, color: c.dim),
-        Positioned(right: -3.u, bottom: -2, child: EStatusDot(tone, size: 7.u)),
-      ],
-    );
-    final card = Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            EStatusDot(tone),
-            SizedBox(width: Sp.x2),
-            Text('${widget.name} · ${widget.word}', style: ts.small.copyWith(color: c.text, fontWeight: FontWeight.w600)),
-          ],
-        ),
-        SizedBox(height: Sp.x1),
-        for (final l in widget.lines)
-          Padding(
-            padding: EdgeInsets.symmetric(vertical: 1),
-            child: Text(l, style: ts.mono(size: Fs.xs, color: c.dim)),
-          ),
-        SizedBox(height: Sp.x2),
-        Text(widget.open, style: ts.caption.copyWith(color: c.accentText)),
-      ],
-    );
-    return Tooltip(
-      richMessage: WidgetSpan(child: card),
-      preferBelow: false,
-      verticalOffset: 18.u,
-      child: Semantics(
-        button: true,
-        label: '${widget.open}: ${widget.word}',
-        hint: widget.lines.join('. '),
-        excludeSemantics: true,
-        child: InkWell(
-          onTap: widget.onTap,
-          onHover: (v) => setState(() => _hover = v),
-          borderRadius: BorderRadius.circular(Rad.sm),
-          child: Container(
-            height: 32.u,
-            padding: EdgeInsets.symmetric(horizontal: widget.compact ? 0 : Sp.x2),
-            decoration: BoxDecoration(
-              color: _hover ? c.hover : null,
-              borderRadius: BorderRadius.circular(Rad.sm),
-            ),
-            child: widget.compact
-                ? Center(child: glyph)
-                : Row(
-                    children: [
-                      glyph,
-                      SizedBox(width: Sp.x3),
-                      Expanded(child: Text(widget.name, style: ts.small.copyWith(color: c.text, fontWeight: FontWeight.w600))),
-                      Text(widget.word, style: ts.caption.copyWith(color: wordColor)),
-                    ],
-                  ),
-          ),
-        ),
-      ),
-    );
-  }
-}
 
 class _PhoneTopBar extends ConsumerWidget {
   const _PhoneTopBar({required this.section});

@@ -576,7 +576,7 @@ class EKbd extends StatelessWidget {
 
 /// Words for a health state, used by status rows, comboboxes and the status card.
 String healthWord(ServiceHealth h) => switch (h) {
-  ServiceHealth.ok => 'Online',
+  ServiceHealth.ok => 'On',
   ServiceHealth.slow => 'Slow',
   ServiceHealth.down => 'Offline',
   ServiceHealth.off => 'Off',

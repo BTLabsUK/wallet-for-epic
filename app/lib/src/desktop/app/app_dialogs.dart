@@ -17,8 +17,8 @@ class NodeSyncedDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     final nav = Navigator.of(context);
     return EDialog(
-      title: 'Built-in node synced',
-      description: 'The built-in node has the whole chain and can be used now. The app restarts to switch to it.',
+      title: 'Local node synced',
+      description: 'The local node has the whole chain and can be used now. The app restarts to switch to it.',
       icon: EIcons.server,
       tone: ETone.ok,
       actions: [

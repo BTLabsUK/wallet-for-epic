@@ -12,6 +12,12 @@ abstract interface class DeskWalletApi {
   /// The wallets of this network; [WalletEntry.current] is the one [unlock] opens.
   Future<List<WalletEntry>> wallets();
 
+  /// Whether the first-run setup (Node, Epicbox, Review) of wallet [id] is still to be done:
+  /// set when the wallet is created or restored, cleared by the setup's Save. Unlock of such a
+  /// wallet goes to the setup first, also after the app was closed halfway.
+  Future<bool> setupPending(String id);
+  Future<void> setSetupPending(String id, bool pending);
+
   /// Picks the wallet [unlock] opens next (Unlock's Wallet select). The open one stays open.
   Future<void> selectWallet(String id);
 
