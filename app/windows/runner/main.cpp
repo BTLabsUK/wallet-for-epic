@@ -22,13 +22,18 @@ int APIENTRY wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prev,
   std::vector<std::string> command_line_arguments =
       GetCommandLineArguments();
 
-  // --skia: draw with Skia instead of Impeller (Flutter's Windows default since 3.47), to
-  // compare text rendering on a given machine.
+  // Skia by default: on Flutter 3.47 Impeller (its Windows default) draws light text thinner than
+  // Skia, and neither renders ClearType (docs/desktop-ui.md, "Text on Windows"). --impeller opts
+  // in, to compare on a given machine; --skia is accepted and means the default.
+  flutter::ImpellerSwitch renderer = flutter::ImpellerSwitch::Disabled;
   for (const std::string& arg : command_line_arguments) {
-    if (arg == "--skia") {
-      project.set_impeller_switch(flutter::ImpellerSwitch::Disabled);
+    if (arg == "--impeller") {
+      renderer = flutter::ImpellerSwitch::Enabled;
+    } else if (arg == "--skia") {
+      renderer = flutter::ImpellerSwitch::Disabled;
     }
   }
+  project.set_impeller_switch(renderer);
 
   project.set_dart_entrypoint_arguments(std::move(command_line_arguments));
 
