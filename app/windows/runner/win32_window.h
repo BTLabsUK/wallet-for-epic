@@ -12,29 +12,14 @@
 // rendering and input handling
 class Win32Window {
  public:
-  struct Point {
-    unsigned int x;
-    unsigned int y;
-    Point(unsigned int x, unsigned int y) : x(x), y(y) {}
-  };
-
-  struct Size {
-    unsigned int width;
-    unsigned int height;
-    Size(unsigned int width, unsigned int height)
-        : width(width), height(height) {}
-  };
-
   Win32Window();
   virtual ~Win32Window();
 
-  // Creates a win32 window with |title| that is positioned and sized using
-  // |origin| and |size|. New windows are created on the default monitor. Window
-  // sizes are specified to the OS in physical pixels, hence to ensure a
-  // consistent size this function will scale the inputted width and height as
-  // as appropriate for the default monitor. The window is invisible until
-  // |Show| is called. Returns true if the window was created successfully.
-  bool Create(const std::wstring& title, const Point& origin, const Size& size);
+  // Creates a win32 window with |title| at |frame|, in physical pixels (window_placement.h
+  // works it out). The window is invisible until |Show| is called, which shows it maximised
+  // when |maximized|. Its size and position are saved as they change and when it closes.
+  // Returns true if the window was created successfully.
+  bool Create(const std::wstring& title, const RECT& frame, bool maximized);
 
   // Show the current window. Returns true if the window was successfully shown.
   bool Show();
@@ -91,6 +76,15 @@ class Win32Window {
   static void UpdateTheme(HWND const window);
 
   bool quit_on_close_ = false;
+
+  // Shown maximised on the first |Show|.
+  bool start_maximized_ = false;
+
+  // The frame when last neither maximised nor minimised, in screen coordinates: what is saved.
+  RECT normal_frame_{};
+
+  // Inside a move or resize by mouse: saved once it ends, not on every step.
+  bool in_size_move_ = false;
 
   // window handle for top level window.
   HWND window_handle_ = nullptr;

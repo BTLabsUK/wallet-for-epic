@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../data/http_address.dart';
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../widgets/kit.dart';
 import 'tx_display.dart';
@@ -320,13 +319,6 @@ class _Empty extends ConsumerWidget {
   }
 }
 
-/// The address's kind as a tag.
-(String, ETone) _kind(String address) {
-  if (address.contains('.onion')) return ('Tor', ETone.neutral);
-  if (address.startsWith('http')) return ('HTTP', ETone.neutral);
-  return ('Epicbox', ETone.gold);
-}
-
 /// The contact's picture (the mock draws a placeholder), else its initials.
 class _Pic extends StatelessWidget {
   const _Pic({required this.name, required this.picture, required this.size});
@@ -371,9 +363,7 @@ class _ContactRowState extends State<_ContactRow> {
   @override
   Widget build(BuildContext context) {
     final c = context.dc;
-    final ts = context.ts;
     final x = widget.contact;
-    final (kind, tone) = _kind(x.address);
     return Semantics(
       button: true,
       selected: widget.selected,
@@ -385,35 +375,26 @@ class _ContactRowState extends State<_ContactRow> {
           onHover: (v) => setState(() => _hover = v),
           borderRadius: BorderRadius.circular(Rad.sm),
           child: Container(
-            constraints: BoxConstraints(minHeight: 56.u),
-            padding: EdgeInsets.symmetric(horizontal: Sp.x3, vertical: Sp.x2),
+            constraints: BoxConstraints(minHeight: 64.u),
+            padding: EdgeInsets.symmetric(horizontal: Sp.x3, vertical: Sp.x3),
             decoration: BoxDecoration(color: widget.selected ? c.s3 : (_hover ? c.hover : null), borderRadius: BorderRadius.circular(Rad.sm)),
             child: Row(
               children: [
-                _Pic(name: x.name, picture: x.hasPicture, size: 36.u),
-                SizedBox(width: Sp.x3),
+                _Pic(name: x.name, picture: x.hasPicture, size: 40.u),
+                SizedBox(width: 14.u),
                 Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Flexible(
-                            child: Text(x.name, style: ts.strong, overflow: TextOverflow.ellipsis),
-                          ),
-                          if (x.favourite) ...[SizedBox(width: Sp.x1), Icon(EIcons.star, size: 14.u, color: c.accentText)],
-                        ],
-                      ),
-                      Text(
-                        shortAddress(x.address),
-                        style: ts.mono(size: Fs.xs, color: c.faint),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
+                  child: EAddressLines(
+                    name: x.name,
+                    address: x.address,
+                    note: x.note,
+                    nameTrailing: x.favourite
+                        ? Padding(
+                            padding: EdgeInsets.only(left: Sp.x1),
+                            child: Icon(EIcons.star, size: 14.u, color: c.accentText),
+                          )
+                        : null,
                   ),
                 ),
-                SizedBox(width: Sp.x2),
-                ETag(kind, tone: tone),
               ],
             ),
           ),
@@ -438,7 +419,11 @@ class _ContactDetail extends ConsumerWidget {
     final nav = ref.read(deskNavProvider.notifier);
     final mine = (ref.watch(deskProvider.select((s) => s.txs)) ?? const <Tx>[]).where((t) => t.counterparty == x.address).toList();
     final last = mine.isEmpty ? x.lastUsed : mine.first.created;
-    final (kind, _) = _kind(x.address);
+    final kind = switch (addressKindOf(x.address)) {
+      AddressKind.tor => 'Tor',
+      AddressKind.http => 'HTTP',
+      _ => 'Epicbox',
+    };
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -575,22 +560,18 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
   }
 
   String? get _nameError => _name.text.trim().isEmpty ? 'Give the contact a name.' : null;
-  /// One error for every form that is not an address: "Not a recognised address".
+  /// One error for every form that is not an address: "Not a recognised address" (spec 7).
   String? get _addressError {
     final a = _address.text.trim();
     if (a.isEmpty) return 'Add an address.';
-    const notRecognised = 'Not a recognised address';
-    final epicboxOnly = !DeskFeatures.httpDirect && !DeskFeatures.tor;
-    if (epicboxOnly && (RegExp(r'^https?:', caseSensitive: false).hasMatch(a) || a.toLowerCase().contains('.onion'))) {
-      return notRecognised;
-    }
-    if (DeskFeatures.tor && a.toLowerCase().contains('.onion')) {
-      return ref.read(deskApiProvider).isOnionAddress(a) ? null : notRecognised;
-    }
-    if (RegExp(r'^https?:', caseSensitive: false).hasMatch(a)) {
-      return httpAddressProblem(a) == null ? null : notRecognised;
-    }
-    return ref.read(deskApiProvider).isEpicboxAddress(a) ? null : notRecognised;
+    final p = parseAddress(a, ref.read(deskApiProvider));
+    final allowed = switch (p.kind) {
+      AddressKind.tor => DeskFeatures.tor,
+      AddressKind.http => DeskFeatures.httpDirect || DeskFeatures.tor,
+      AddressKind.epicbox => true,
+      AddressKind.none => false,
+    };
+    return allowed && p.complete ? null : 'Not a recognised address';
   }
 
   String? _shown(String key, String? error) => _tried || _touched.contains(key) ? error : null;
@@ -622,7 +603,7 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
             Contact(
               id: widget.contact?.id ?? '',
               name: _name.text.trim(),
-              address: _address.text.trim(),
+              address: parseAddress(_address.text, ref.read(deskApiProvider)).canonical,
               note: _note.text.trim().isEmpty ? null : _note.text.trim(),
               favourite: widget.contact?.favourite ?? false,
               lastUsed: widget.contact?.lastUsed,

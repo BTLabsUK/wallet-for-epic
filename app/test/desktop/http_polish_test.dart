@@ -3,7 +3,6 @@
 // waits for the recipient.
 import 'package:epic_wallet/src/desktop/data/lepic_desk_wallet.dart';
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
-import 'package:epic_wallet/src/desktop/screens/settings/settings_http.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/settings_receiving.dart';
 import 'package:epic_wallet/src/desktop/screens/transfer/send_screen.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
@@ -97,7 +96,7 @@ void main() {
     expect((http as SendDone).tx.state, TxState.posted);
   });
 
-  testWidgets('the HTTP listener address has one copy button', (tester) async {
+  testWidgets('Settings › Receiving shows no HTTP address: it lives on Receive', (tester) async {
     final container = ProviderContainer(overrides: [deskApiProvider.overrideWithValue(MockDeskWallet(delay: Duration.zero))]);
     addTearDown(container.dispose);
     tester.view.physicalSize = const Size(1280, 1000);
@@ -111,9 +110,9 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    await tester.tap(find.descendant(of: find.byType(HttpListenerRow), matching: find.byType(ESwitch)));
+    await tester.tap(find.byKey(const ValueKey('st-switch-http')));
     await tester.pumpAndSettle();
-    expect(find.text('http://127.0.0.1:3415'), findsOneWidget);
-    expect(find.descendant(of: find.byType(HttpListenerRow), matching: find.byType(ECopyButton)), findsOneWidget);
+    expect(find.text('http://127.0.0.1:3415'), findsNothing);
+    expect(find.byType(EAddress), findsNothing);
   });
 }

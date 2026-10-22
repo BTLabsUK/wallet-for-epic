@@ -5,6 +5,7 @@
 /// and [DeskShell] opens it once by itself the first time Overview shows after an unlock.
 library;
 
+import 'dart:async';
 import 'dart:io' show Platform;
 import 'dart:math' as math;
 
@@ -12,6 +13,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../log.dart';
 import '../widgets/kit.dart';
 
 /// One step: [target] is a [TourTarget] id; a step whose target is not on screen shows its
@@ -33,23 +35,23 @@ final List<TourStep> deskTourSteps = [
   TourStep(
     'send',
     'Send EPIC',
-    'To an Epic address or a contact. A review shows everything before anything leaves the wallet.',
+    'To an Epicbox address or a contact. A review shows everything before anything leaves the wallet.',
   ),
   TourStep(
     'receive',
     'Receive',
-    'The Epic address and its QR code, the listener, and transaction files to sign or finalize.',
+    'The Epicbox address and its QR code, the other ways to receive, and transaction files to sign or finalize.',
   ),
   TourStep(
     'receive',
     'Epicbox',
-    'Starts with the wallet. The usual way: payments to the Epic address wait while the wallet is offline.',
+    'On by default. The usual way: payments to the Epicbox address wait on the Epicbox server while the wallet is offline.',
   ),
   if (DeskFeatures.httpDirect)
     const TourStep(
       'receive',
       'HTTP(S)',
-      'Straight from wallet to wallet. Turn the HTTP listener on only when a payment is expected.',
+      'Straight from wallet to wallet. Turn HTTP receiving on only when a payment is expected.',
     ),
   TourStep(
     'receive',
@@ -103,16 +105,27 @@ class DeskTourState {
   final bool seen;
 }
 
+/// [DeskTourState.seen] is saved with the app's settings ([DeskSettings.tourSeen]), so the tour
+/// opens by itself once, not on every start.
 class DeskTourController extends Notifier<DeskTourState> {
   @override
-  DeskTourState build() => const DeskTourState();
+  DeskTourState build() => DeskTourState(seen: ref.read(deskProvider).settings.tourSeen);
 
-  void open({int at = 0}) =>
-      state = DeskTourState(open: true, seen: true, start: at);
+  void open({int at = 0}) {
+    state = DeskTourState(open: true, seen: true, start: at);
+    final settings = ref.read(deskProvider).settings;
+    if (settings.tourSeen) return;
+    unawaited(
+      ref.read(deskProvider.notifier).saveSettings(settings.copyWith(tourSeen: true)).catchError((Object e) {
+        logWarn('desk', 'tour seen not saved: $e');
+      }),
+    );
+  }
 
-  void close() => state = const DeskTourState(seen: true);
+  /// Closes it; a tour that never opened (locked before it showed) still counts as unseen.
+  void close() => state = DeskTourState(seen: state.seen);
 
-  /// Forget that it was seen (Settings › Appearance › Show the tour).
+  /// Forget that it was seen (Settings › Appearance › Show the tour, which opens it again).
   void reset() => state = const DeskTourState();
 }
 

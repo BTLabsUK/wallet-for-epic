@@ -153,3 +153,112 @@ class EMethodIcon extends StatelessWidget {
     );
   }
 }
+
+/// One receiving method's state line (spec 1.1): [word] bold in the state colour, then
+/// [detail]. [retry]: the line offers Try again (HTTP) or Retry (Tor).
+@immutable
+class MethodLine {
+  const MethodLine(this.word, this.state, {this.detail, this.retry = false});
+
+  final String word;
+  final String? detail;
+  final EState state;
+  final bool retry;
+
+  /// "Word · detail", for tooltips and screen readers.
+  String get text => detail == null ? word : '$word · $detail';
+}
+
+/// The state line of [m] for Receive, Settings › Receiving and the rail tooltip.
+MethodLine methodStateLine(TxMethod m, ServiceStatus s, DeskSettings settings) {
+  switch (m) {
+    case TxMethod.epicbox:
+      final host = s.epicbox.domain;
+      return switch (s.epicboxHealth) {
+        ServiceHealth.off => const MethodLine('Off', EState.off, detail: 'Payments to this address wait on the Epicbox server.'),
+        ServiceHealth.checking => MethodLine('Connecting', EState.warn, detail: host),
+        ServiceHealth.ok => MethodLine('On', EState.ok, detail: host),
+        ServiceHealth.slow => MethodLine('Slow', EState.warn, detail: host),
+        ServiceHealth.down => MethodLine('Not answering', EState.risk, detail: '$host. Payments wait on the Epicbox server.'),
+      };
+    case TxMethod.http:
+      final port = settings.httpPort;
+      return switch (s.httpListener) {
+        ServiceHealth.off => const MethodLine('Off', EState.off, detail: 'Straight from another wallet while this one is open.'),
+        ServiceHealth.checking => const MethodLine('Starting…', EState.warn),
+        ServiceHealth.ok || ServiceHealth.slow => MethodLine(
+          'On',
+          EState.ok,
+          detail: settings.publicMode ? 'from the internet, port $port' : 'this computer only (127.0.0.1)',
+        ),
+        ServiceHealth.down => MethodLine(
+          'Not receiving',
+          EState.risk,
+          retry: true,
+          detail: s.httpProblem == null || s.httpProblem!.toLowerCase().contains('in use')
+              ? 'Port $port is used by another program. Close it or pick another port in Settings.'
+              : '${s.httpProblem}.',
+        ),
+      };
+    case TxMethod.tor:
+      if (!s.torIncluded) return const MethodLine('Not in this build', EState.off);
+      return switch (s.tor) {
+        ServiceHealth.off => const MethodLine('Off', EState.off, detail: 'Slower and more private. Blocked or not allowed in some countries.'),
+        ServiceHealth.checking => s.torCanSend
+            ? const MethodLine('Publishing the Tor address…', EState.warn)
+            : MethodLine('Connecting to Tor…', EState.warn, detail: '${s.torProgress ?? 0} %', retry: s.torSlowStart),
+        ServiceHealth.ok => const MethodLine('On', EState.ok, detail: 'reachable at the Tor address'),
+        ServiceHealth.slow => MethodLine('Not published', EState.warn, detail: '${s.torProblem ?? 'The Tor address is not reachable yet'}. Sends work.', retry: true),
+        ServiceHealth.down => MethodLine('Stopped', EState.risk, detail: s.torProblem ?? 'Tor stopped.', retry: true),
+      };
+    case TxMethod.file:
+      return const MethodLine('Files', EState.off);
+  }
+}
+
+/// A [MethodLine] on one line: an 8 u dot, the word bold in the state colour, the detail.
+class EStateLine extends StatelessWidget {
+  const EStateLine(this.line, {super.key, this.trailing});
+
+  final MethodLine line;
+  final Widget? trailing;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.dc;
+    final ts = context.ts;
+    final color = stateColor(c, line.state);
+    return Semantics(
+      liveRegion: true,
+      label: line.text,
+      excludeSemantics: true,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Container(
+            width: 8.u,
+            height: 8.u,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: line.state == EState.off ? null : color,
+              border: line.state == EState.off ? Border.all(color: color, width: 1.2) : null,
+            ),
+          ),
+          SizedBox(width: Sp.x2),
+          Expanded(
+            child: Text.rich(
+              TextSpan(
+                children: [
+                  TextSpan(text: line.word, style: ts.small.copyWith(color: line.state == EState.off ? c.text : color, fontWeight: FontWeight.w600)),
+                  if (line.detail != null) TextSpan(text: ' · ${line.detail}'),
+                ],
+              ),
+              style: ts.small,
+            ),
+          ),
+          if (trailing != null) ...[SizedBox(width: Sp.x3), trailing!],
+        ],
+      ),
+    );
+  }
+}

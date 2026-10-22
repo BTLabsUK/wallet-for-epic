@@ -498,6 +498,8 @@ class DeskSettings {
     this.autoLockMinutes = 15,
     this.fiat = 'USD',
     this.newLookSeen = false,
+    this.internetGuideSeen = false,
+    this.tourSeen = false,
   });
 
   final ThemeChoice theme;
@@ -538,6 +540,12 @@ class DeskSettings {
   /// The one-time "new look" notice on Overview was closed.
   final bool newLookSeen;
 
+  /// The Receive from the internet guide was shown once: From the internet then switches
+  /// straight away; the guide stays behind the (?) next to it. App-wide.
+  final bool internetGuideSeen;
+  /// The tour was shown once (opened, closed or skipped): it does not open by itself again.
+  final bool tourSeen;
+
   DeskSettings copyWith({
     ThemeChoice? theme,
     int? scale,
@@ -555,6 +563,8 @@ class DeskSettings {
     int? autoLockMinutes,
     String? fiat,
     bool? newLookSeen,
+    bool? internetGuideSeen,
+    bool? tourSeen,
   }) => DeskSettings(
     theme: theme ?? this.theme,
     scale: scale ?? this.scale,
@@ -572,6 +582,8 @@ class DeskSettings {
     autoLockMinutes: autoLockMinutes ?? this.autoLockMinutes,
     fiat: fiat ?? this.fiat,
     newLookSeen: newLookSeen ?? this.newLookSeen,
+    internetGuideSeen: internetGuideSeen ?? this.internetGuideSeen,
+    tourSeen: tourSeen ?? this.tourSeen,
   );
 }
 
