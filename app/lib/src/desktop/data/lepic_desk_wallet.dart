@@ -107,6 +107,7 @@ class LepicDeskWallet implements DeskWalletApi {
     BigInt? minimumConfirmations,
     this.nodePoll = const Duration(seconds: 30),
     this.nodeTimeout = const Duration(seconds: 15),
+    this.torRetryAfter = const Duration(seconds: 60),
     reg.WalletRegistry? registry,
     this._builtInNode,
     legacy.LegacyRoots Function()? legacyRoots,
@@ -153,6 +154,9 @@ class LepicDeskWallet implements DeskWalletApi {
   }
   final Duration nodePoll;
   final Duration nodeTimeout;
+
+  /// How long tor may connect before Retry is offered beside "Connecting to Tor…".
+  final Duration torRetryAfter;
 
   /// Makes the built-in node of a network (desktop builds with the bundled `epic`, D10); null
   /// where there is none.
@@ -221,6 +225,14 @@ class LepicDeskWallet implements DeskWalletApi {
   int? _torProgress;
   String? _torProblem;
   bool _torCanSend = false;
+
+  /// When this tor start began; null once it connected, failed or stopped.
+  DateTime? _torStartedAt;
+  Timer? _torSlowTimer;
+
+  /// A start that stalled on its first bootstrap is retried once by itself (a cold Tor cache
+  /// can sit at one percent past LEPIC's stall limit); this is set once that retry ran.
+  bool _torAutoRetried = false;
 
   /// The open wallet's onion, `<56 characters>.onion`.
   String? _onion;
@@ -556,6 +568,7 @@ class LepicDeskWallet implements DeskWalletApi {
     _poll = Timer.periodic(nodePoll, (_) => unawaited(_checkTip()));
     unawaited(_checkTip());
     unawaited(sync());
+    _torAutoRetried = false;
     if (tor) unawaited(_startTor());
     return true;
   }
@@ -1238,6 +1251,10 @@ class LepicDeskWallet implements DeskWalletApi {
       torProblem: _torHealth == ServiceHealth.down || _torHealth == ServiceHealth.slow ? _torProblem : null,
       torCanSend: _torCanSend,
       torIncluded: await _findTor() != null,
+      torSlowStart: _torHealth == ServiceHealth.checking &&
+          !_torCanSend &&
+          _torStartedAt != null &&
+          DateTime.now().difference(_torStartedAt!) >= torRetryAfter,
       syncProgress: _syncProgress,
       lastUpdate: _lastUpdate,
       notice: _notice,
@@ -1863,8 +1880,9 @@ class LepicDeskWallet implements DeskWalletApi {
     await _store.saveTorOn(_openEntry?.walletId, on);
     logInfo('desk', 'tor ${on ? 'on' : 'off'}');
     if (!on) return _stopTor();
-    // On again after a failure is Retry.
-    if (_torHealth == ServiceHealth.down) await _stopTor();
+    // On again after a failure, or while a start hangs, is Retry.
+    if (_torHealth == ServiceHealth.down || (_torHealth == ServiceHealth.checking && !_torCanSend)) await _stopTor();
+    _torAutoRetried = false;
     await _startTor();
   }
 
@@ -1889,6 +1907,10 @@ class LepicDeskWallet implements DeskWalletApi {
     _torHealth = ServiceHealth.checking;
     _torProgress = 0;
     _torProblem = null;
+    _torStartedAt = DateTime.now();
+    _torSlowTimer?.cancel();
+    // Nothing else changes while a start hangs; this shows Retry when it is due.
+    _torSlowTimer = Timer(torRetryAfter, _changed);
     _changed();
     logInfo('desk', 'tor start');
     late final StreamSubscription<core.TorEvent> sub;
@@ -1899,6 +1921,7 @@ class LepicDeskWallet implements DeskWalletApi {
       _torProblem = problem ?? 'Tor stopped';
       _torCanSend = false;
       _torProgress = null;
+      _torStartedAt = null;
     }
 
     sub = session.startTor(torBinary: bundle.binary, libDir: bundle.libDir).listen(
@@ -1910,6 +1933,7 @@ class LepicDeskWallet implements DeskWalletApi {
             _torProgress = e.progress ?? _torProgress;
           case core.TorEventKind.bootstrapped || core.TorEventKind.publishing:
             _torCanSend = true;
+            _torStartedAt = null;
             if (_torHealth != ServiceHealth.slow) _torHealth = ServiceHealth.checking;
           case core.TorEventKind.ready:
             _torHealth = ServiceHealth.ok;
@@ -1919,6 +1943,14 @@ class LepicDeskWallet implements DeskWalletApi {
             if (onion != null) _onion = core.onionHost(onion);
           case core.TorEventKind.failed:
             logWarn('desk', 'tor failed: ${e.failure?.name ?? '?'}');
+            if (e.failure == core.TorFailure.network && !_torCanSend && !_torAutoRetried) {
+              // A stall on the first bootstrap: one more try before "failed".
+              _torAutoRetried = true;
+              logInfo('desk', 'tor stalled connecting; starting it once more');
+              unawaited(_restartTor(session, sub));
+              return;
+            }
+            _torStartedAt = null;
             // Listener and keys leave tor running for sends; any other failure stops it.
             final forSends = e.failure == core.TorFailure.listener || e.failure == core.TorFailure.keys;
             _torHealth = forSends ? ServiceHealth.slow : ServiceHealth.down;
@@ -1950,9 +1982,25 @@ class LepicDeskWallet implements DeskWalletApi {
     _tor = sub;
   }
 
+  /// Stops the tor that [sub] watches and starts it again, showing "Connecting" throughout.
+  Future<void> _restartTor(core.WalletSession session, StreamSubscription<core.TorEvent> sub) async {
+    if (_tor != sub) return;
+    _tor = null;
+    try {
+      await session.stopTor();
+    } on core.WalletError catch (e) {
+      logWarn('desk', 'stop tor: ${e.kind.name}');
+    }
+    await sub.cancel();
+    if (_session != session || !_settings.tor) return;
+    await _startTor();
+  }
+
   Future<void> _stopTor() async {
     final sub = _tor;
     _tor = null;
+    _torStartedAt = null;
+    _torSlowTimer?.cancel();
     final was = _torHealth;
     _torHealth = ServiceHealth.off;
     _torProblem = null;

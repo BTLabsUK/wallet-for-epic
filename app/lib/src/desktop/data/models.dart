@@ -230,6 +230,7 @@ class ServiceStatus {
     this.torProblem,
     this.torCanSend = false,
     this.torIncluded = true,
+    this.torSlowStart = false,
     this.syncProgress,
     this.lastUpdate,
     this.notice,
@@ -265,6 +266,10 @@ class ServiceStatus {
 
   /// This build has the bundled tor; without it Tor cannot be turned on.
   final bool torIncluded;
+
+  /// Tor has been connecting for a minute without progress to show: Retry is offered while
+  /// it still tries.
+  final bool torSlowStart;
 
   /// 0..1 while the wallet scans; null when idle.
   final double? syncProgress;
