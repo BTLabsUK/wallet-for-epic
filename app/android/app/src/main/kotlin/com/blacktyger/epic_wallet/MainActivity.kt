@@ -18,6 +18,7 @@ private const val MAX_BYTES = 1 shl 20
 class MainActivity : FlutterFragmentActivity() {
     private var updater: AppUpdater? = null
     private var incomingChannel: MethodChannel? = null
+    private var networkWatch: NetworkWatch? = null
 
     /** A transaction file another app handed us before Dart asked for it. */
     private var pendingFile: Map<String, String>? = null
@@ -65,8 +66,29 @@ class MainActivity : FlutterFragmentActivity() {
                     result.notImplemented()
                 }
             }
+        // --- tor binary (epic_wallet/tor) ---
+        // The Tor Project's tor ships as lib/<abi>/libtor.so and is extracted at install
+        // (useLegacyPackaging): the one place Android lets an app execute a file from.
+        MethodChannel(messenger, "epic_wallet/tor")
+            .setMethodCallHandler { call, result ->
+                if (call.method == "binary") {
+                    val file = java.io.File(applicationInfo.nativeLibraryDir, "libtor.so")
+                    result.success(if (file.isFile) file.path else null)
+                } else {
+                    result.notImplemented()
+                }
+            }
+        // --- end tor binary ---
         val channel = MethodChannel(messenger, "epic_wallet/updater")
         updater = AppUpdater(this, channel).also { channel.setMethodCallHandler(it) }
+        networkWatch?.dispose()
+        networkWatch = NetworkWatch.register(applicationContext, messenger)
+    }
+
+    override fun cleanUpFlutterEngine(flutterEngine: FlutterEngine) {
+        networkWatch?.dispose()
+        networkWatch = null
+        super.cleanUpFlutterEngine(flutterEngine)
     }
 
     /** The channel background pushes land in, named in AndroidManifest.xml. */
@@ -142,6 +164,8 @@ class MainActivity : FlutterFragmentActivity() {
     override fun onDestroy() {
         updater?.detach()
         updater = null
+        networkWatch?.dispose()
+        networkWatch = null
         super.onDestroy()
     }
 }

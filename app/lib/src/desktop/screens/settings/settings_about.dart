@@ -100,7 +100,16 @@ class _SettingsAboutScreenState extends ConsumerState<SettingsAboutScreen> {
             rows: [
               ESetRow(
                 title: 'Epic Wallet by BT Labs',
-                text: 'Built on open-source software, including Flutter (BSD-3-Clause), the Epic Cash wallet and node code (Apache-2.0) and Tor (BSD-3-Clause).',
+                text: 'Built on open-source software, including Flutter, the Epic Cash wallet and node code, and Tor.',
+              ),
+              ESetRow(
+                title: 'Licences',
+                text: 'The licence of each component.',
+                control: EButton(
+                  label: 'View',
+                  size: EBtnSize.sm,
+                  onPressed: () => showLicensePage(context: context, applicationName: appName, applicationVersion: deskAppVersion),
+                ),
               ),
             ],
           ),

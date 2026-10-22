@@ -1,41 +1,16 @@
-/// Recipients and the address book: names for epicbox addresses and wallet URLs.
+/// Recipients and the address book: names for epicbox addresses, Tor addresses and wallet
+/// URLs.
 library;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'l10n.dart';
 import 'providers.dart';
+import 'recipient.dart';
 import 'wallet_service.dart';
 
+export 'recipient.dart';
 export 'wallet_service.dart' show Contact;
-
-/// Where a payment goes.
-enum RecipientKind { epicbox, http }
-
-class Recipient {
-  const Recipient(this.kind, this.address);
-
-  final RecipientKind kind;
-
-  /// `<address>@<relay>` for epicbox, the full URL for HTTP.
-  final String address;
-}
-
-/// Reads a bare epicbox address, `epicbox://<address>`, or an `http(s)://` wallet URL from
-/// typed, pasted or scanned text. Removes whitespace, which QR codes and chat apps sometimes
-/// add. Does not validate; see [checkRecipient].
-Recipient parseRecipient(String text) {
-  final clean = text.replaceAll(RegExp(r'\s'), '');
-  final lower = clean.toLowerCase();
-  if (lower.startsWith('http://') || lower.startsWith('https://')) {
-    return Recipient(RecipientKind.http, clean);
-  }
-  const scheme = 'epicbox://';
-  final address = lower.startsWith(scheme)
-      ? clean.substring(scheme.length)
-      : clean;
-  return Recipient(RecipientKind.epicbox, address);
-}
 
 // `Contact` is the core's type, exported by wallet_service.dart. An empty id means not saved yet.
 
@@ -141,12 +116,16 @@ String? contactNameFor(Iterable<Contact> contacts, String? address) =>
     contactFor(contacts, address)?.name;
 
 /// Checks that [text] is something the wallet can send to: a full epicbox address valid on the
-/// open wallet's chain, or an `http(s)` wallet URL. Returns a sentence for the user in [l]'s
-/// language, or null.
+/// open wallet's chain, an onion address whose checksum holds, or an `http(s)` wallet URL.
+/// Returns a sentence for the user in [l]'s language, or null.
 String? checkRecipient(AppLocalizations l, WalletService service, String text) {
   if (text.trim().isEmpty) return l.contactsAddressMissing;
   final recipient = parseRecipient(text);
   switch (recipient.kind) {
+    case RecipientKind.tor:
+      return service.validateOnionAddress(address: recipient.address)
+          ? null
+          : l.sendOnionIncomplete;
     case RecipientKind.http:
       final uri = Uri.tryParse(recipient.address);
       if (uri == null || uri.host.isEmpty) {

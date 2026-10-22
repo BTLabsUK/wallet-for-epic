@@ -30,6 +30,16 @@ android {
         versionName = flutter.versionName
     }
 
+    // tools/fetch-tor.sh android puts the Tor Project's tor here as <abi>/libtor.so. It is an
+    // executable, and Android only runs files from the app's native library folder, so the
+    // libraries are extracted at install (extractNativeLibs) instead of being mapped from the APK.
+    sourceSets["main"].jniLibs.srcDir("src/main/tor-jniLibs")
+    packaging {
+        jniLibs {
+            useLegacyPackaging = true
+        }
+    }
+
     buildTypes {
         release {
             // TODO: Add your own signing config for the release build.

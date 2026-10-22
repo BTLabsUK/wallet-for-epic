@@ -499,7 +499,7 @@ void main() {
       final h = _Harness();
       await h.pump(tester);
       // No choice of method up front: one address field.
-      expect(find.byType(SegmentedButton<bool>), findsNothing);
+      expect(find.byWidgetPredicate((w) => w is SegmentedButton), findsNothing);
       expect(find.widgetWithText(TextField, 'Epic address'), findsOneWidget);
       expect(find.textContaining('epicbox', findRichText: true), findsNothing);
 

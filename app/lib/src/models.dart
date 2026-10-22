@@ -555,10 +555,18 @@ class NodeTip {
   final BigInt height;
   final String nodeVersion;
 
-  const NodeTip({required this.height, required this.nodeVersion});
+  /// Whether the node says it can take transactions; null for nodes that do not say (before
+  /// 4.1.0), which are judged by their height alone.
+  final bool? readyForTxs;
+
+  const NodeTip({
+    required this.height,
+    required this.nodeVersion,
+    this.readyForTxs,
+  });
 
   @override
-  int get hashCode => height.hashCode ^ nodeVersion.hashCode;
+  int get hashCode => height.hashCode ^ nodeVersion.hashCode ^ readyForTxs.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -566,7 +574,8 @@ class NodeTip {
       other is NodeTip &&
           runtimeType == other.runtimeType &&
           height == other.height &&
-          nodeVersion == other.nodeVersion;
+          nodeVersion == other.nodeVersion &&
+          readyForTxs == other.readyForTxs;
 }
 
 /// Progress of `EpicWallet::refresh`. Only the last event of a successful refresh has `summary`.

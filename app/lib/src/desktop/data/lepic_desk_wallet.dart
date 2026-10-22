@@ -25,6 +25,7 @@ import 'package:path_provider/path_provider.dart';
 import '../../builtin_node.dart';
 import '../../legacy_gui_profile.dart' as gui;
 import '../../legacy_wallets.dart' as legacy;
+import '../../lepic_wallet_service.dart' show sendUnbuildable;
 import '../../log.dart';
 import '../../network.dart';
 import '../../providers.dart' show WalletDirResolver, defaultMinimumConfirmations;
@@ -81,7 +82,7 @@ String deskErrorText(Object error) {
     core.WalletErrorKind.chainBusy || core.WalletErrorKind.walletBusy => 'Wallet busy. Try again in a moment.',
     core.WalletErrorKind.damagedDatabase => 'Wallet database damaged, rebuilding',
     core.WalletErrorKind.paymentExpired => detail.isEmpty ? 'Payment expired' : detail,
-    core.WalletErrorKind.invalidArgument => detail.isEmpty ? 'Not accepted' : 'Not accepted: $detail',
+    core.WalletErrorKind.invalidArgument => detail == sendUnbuildable ? detail : detail.isEmpty ? 'Not accepted' : 'Not accepted: $detail',
     core.WalletErrorKind.io => detail.isEmpty ? 'Disk error' : 'Disk error: $detail',
     core.WalletErrorKind.other => detail.isEmpty ? 'Something went wrong' : detail,
   };
@@ -219,6 +220,10 @@ class LepicDeskWallet implements DeskWalletApi {
   List<core.TxEntry>? _entries;
   int _tip = 0;
   ServiceHealth _nodeHealth = ServiceHealth.checking;
+
+  /// The node's last answer said it is not ready for transactions (O2): a sync that reached it
+  /// does not turn that back into Online.
+  bool _nodeNotReady = false;
   ServiceHealth _epicboxHealth = ServiceHealth.off;
   double? _syncProgress;
   DateTime? _lastUpdate;
@@ -1235,7 +1240,11 @@ class LepicDeskWallet implements DeskWalletApi {
         final summary = p.summary;
         if (summary != null) {
           _summary = summary;
-          _nodeHealth = summary.validatedWithNode ? ServiceHealth.ok : ServiceHealth.down;
+          _nodeHealth = !summary.validatedWithNode
+              ? ServiceHealth.down
+              : _nodeNotReady
+              ? ServiceHealth.slow
+              : ServiceHealth.ok;
           final h = summary.lastConfirmedHeight.toInt();
           if (h > _tip) _tip = h;
         }
@@ -1289,7 +1298,11 @@ class LepicDeskWallet implements DeskWalletApi {
       // The local node answers from its first second, at height 0 while it downloads the
       // chain: that is "Syncing" (slow), never "Online · 0" (O2). Its sync progress past
       // height 0 (headers, then blocks, against the network's tip) is wave 6.
-      final health = h == 0 && await _builtInOn() ? ServiceHealth.slow : ServiceHealth.ok;
+      // A node that says it is not ready for transactions is syncing too, whatever its height;
+      // one that does not say (null) is judged as before.
+      _nodeNotReady = tip.readyForTxs == false;
+      final syncing = _nodeNotReady || (h == 0 && await _builtInOn());
+      final health = syncing ? ServiceHealth.slow : ServiceHealth.ok;
       if (_nodeHealth != health) {
         _nodeHealth = health;
         _changed();
@@ -2177,13 +2190,22 @@ class LepicDeskWallet implements DeskWalletApi {
 
   /// Set while Recheck balance scans: the due scan in [_sync] waits for the next sync.
   bool _rescanning = false;
+  bool _rescanStopAsked = false;
+  Completer<void>? _rescanEnded;
 
   @override
   Stream<ScanStep> rescan({bool deleteUnconfirmed = false}) async* {
     final session = _open;
     final key = _metaKey(_openEntry?.walletId);
+    // A scan LEPIC was told to stop still holds the wallet until its stream ends: wait for that.
+    final old = _rescanEnded;
+    if (_rescanning && _rescanStopAsked && old != null) {
+      await old.future.timeout(const Duration(seconds: 30), onTimeout: () {});
+    }
     if (_rescanning) throw const DeskError(scanRunning);
     _rescanning = true;
+    _rescanStopAsked = false;
+    final ended = _rescanEnded = Completer<void>();
     var finished = false;
     try {
       await for (final p in session.scan(deleteUnconfirmed: deleteUnconfirmed)) {
@@ -2204,6 +2226,7 @@ class LepicDeskWallet implements DeskWalletApi {
       throw _deskError(e);
     } finally {
       _rescanning = false;
+      if (!ended.isCompleted) ended.complete();
     }
     // A stopped scan leaves a due scan due; either way the balance is read again.
     if (finished) {
@@ -2222,6 +2245,7 @@ class LepicDeskWallet implements DeskWalletApi {
   @override
   Future<void> stopRescan() async {
     logInfo('desk', 'rescan stop asked');
+    _rescanStopAsked = _rescanning;
     try {
       _session?.cancelScan();
     } on core.WalletError catch (e) {

@@ -34,18 +34,18 @@ String describeError(AppLocalizations l, Object error) {
       WalletErrorKind.paymentExpired =>
         (l.localeName == 'en' ? _plainSentence(error.message) : null) ??
             l.errorPaymentExpired,
-      WalletErrorKind.io || WalletErrorKind.damagedDatabase => _withDetail(
-        l.errorIo,
-        error.message,
-      ),
-      // The phone has no HTTP or Tor send; the core's sentence names what is wrong.
+      WalletErrorKind.io ||
+      WalletErrorKind.damagedDatabase => _withDetail(l.errorIo, error.message),
+      // A bad address or URL: the core's sentence names what is wrong with it.
       WalletErrorKind.httpUrlInvalid ||
       WalletErrorKind.plainHttpNotAllowed ||
-      WalletErrorKind.onionAddressInvalid ||
-      WalletErrorKind.torNotRunning ||
-      WalletErrorKind.onionUnreachable =>
+      WalletErrorKind.onionAddressInvalid =>
         _coreSentence(l, error.message) ??
             _withDetail(l.errorInvalidInput, error.message),
+      // A Tor send that did not happen or did not arrive: the input was fine, so no "Invalid
+      // input"; the detail ("tor did not connect in time", "not reached") is for the log.
+      WalletErrorKind.torNotRunning => l.errorTorNotRunning,
+      WalletErrorKind.onionUnreachable => l.errorOnionUnreachable,
       WalletErrorKind.other => _withDetail(l.errorOther, error.message),
     };
   }
@@ -84,13 +84,18 @@ _historyFileTranslations = [
     RegExp(r'^This history file was made by a newer version of the app\.?$'),
     (l, _) => l.errorHistoryNewer,
   ),
-  (RegExp(r'^This history file is damaged\.?$'), (l, _) => l.errorHistoryDamaged),
+  (
+    RegExp(r'^This history file is damaged\.?$'),
+    (l, _) => l.errorHistoryDamaged,
+  ),
   (
     RegExp(r'^This history file belongs to a different wallet\.?$'),
     (l, _) => l.errorHistoryOtherWallet,
   ),
   (
-    RegExp(r'^This history file is from (\w+), but this wallet is on (\w+)\.?$'),
+    RegExp(
+      r'^This history file is from (\w+), but this wallet is on (\w+)\.?$',
+    ),
     (l, m) => l.errorHistoryOtherNetwork(m.group(1)!, m.group(2)!),
   ),
 ];

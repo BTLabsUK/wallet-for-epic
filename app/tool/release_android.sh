@@ -32,13 +32,14 @@ flutter pub get
 # package:lepic's build hook bundles prebuilt libraries and fails without them, whichever core
 # the build selects. Up to date, this is a no-op build.
 "$app_dir/../tools/lepic.sh" build android
-flutter build apk --release --target-platform android-arm64,android-x64 --split-per-abi \
+flutter build apk --release --target-platform android-arm64 --split-per-abi \
   ${WFE_UPDATE_URL:+--dart-define=WFE_UPDATE_URL="$WFE_UPDATE_URL"} \
   ${WFE_CORE:+--dart-define=WFE_CORE="$WFE_CORE"}
 
 out="$app_dir/build/app/outputs/flutter-apk"
 package="" version_name="" entries=()
-for abi in arm64-v8a x86_64; do
+# The phone download is arm64-v8a only; x86_64 builds are for our own emulators, never published.
+for abi in arm64-v8a; do
   apk="$out/app-$abi-release.apk"
   [[ -f "$apk" ]] || { echo "missing $apk" >&2; exit 1; }
   # Keep only the first line in bash: `| head -1` would SIGPIPE aapt2 under pipefail.
@@ -59,4 +60,4 @@ printf '%s\n' "${entries[@]}" | jq -s --arg package "$package" --arg name "$vers
 
 echo "Wrote $out/update.json for $package $version_name:"
 jq -r '.apks[] | "  \(.abi) versionCode \(.versionCode) \(.size) bytes"' "$out/update.json"
-echo "Publish app-arm64-v8a-release.apk, app-x86_64-release.apk and update.json at $base_url"
+echo "Publish app-arm64-v8a-release.apk and update.json at $base_url"

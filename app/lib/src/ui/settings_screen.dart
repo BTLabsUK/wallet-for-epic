@@ -1,4 +1,5 @@
 import '../app_info.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -9,6 +10,7 @@ import '../errors.dart';
 import '../l10n.dart';
 import '../network.dart';
 import '../price.dart';
+import '../phone_tor.dart';
 import '../providers.dart';
 import '../push.dart';
 import '../settings.dart';
@@ -31,6 +33,7 @@ import 'settings_pin.dart';
 import 'theme/advanced.dart';
 import 'theme/tokens.dart';
 import 'setup_screen.dart';
+import 'tor_ui.dart';
 
 /// The project's source code.
 const String projectRepoUrl = 'https://github.com/blacktyger/wallet-for-epic';
@@ -340,6 +343,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final biometrics = ref.watch(_biometricsProvider).value;
     final version = ref.watch(appVersionProvider);
     final walletOpen = ref.watch(sessionProvider) != null;
+    final torAvailable = ref.watch(phoneTorProvider.select(torShown));
     // Invoices only on a core that has them (UP-14); until then no entry at all.
     final invoices = ref.watch(sessionProvider)?.supportsInvoices ?? false;
     // The web demo hides what makes no sense in a browser or on a temporary wallet: network
@@ -423,6 +427,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   value: s.advancedOptions,
                   onChanged: _settings.setAdvancedOptions,
                 ),
+                // Tor receiving: the same switch as on Receive, one source of truth
+                // (phoneTorProvider). An equal receive method, so no Advanced placement.
+                if (walletOpen && torAvailable) ...[
+                  _Header(l.settingsSectionReceiving),
+                  const TorReceivingBlock(leading: true),
+                ],
                 if (!demo &&
                     (ref.watch(pushConfiguredProvider).value ?? false)) ...[
                   _Header(l.settingsSectionNotifications),
@@ -582,6 +592,15 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     subtitle: Text(l.settingsSendFeedbackHint),
                     onTap: () => openFeedback(context),
                   ),
+                // Flutter's licence page: the packages', the fonts', the word lists' and the
+                // bundled tor's (GPL asks that it be shown), under the app's name and version.
+                ListTile(
+                  key: settingsLicencesKey,
+                  leading: const Icon(Icons.article_outlined),
+                  title: Text(l.settingsLicences),
+                  subtitle: Text(l.settingsLicencesHint),
+                  onTap: () => _openLicences(context, version.value),
+                ),
                 // A proper name, the same in every language.
                 const _LinkTile(title: 'Epic Cash', url: epicCashUrl),
                 _LinkTile(title: l.settingsSourceCode, url: projectRepoUrl),
@@ -675,6 +694,31 @@ class _Header extends StatelessWidget {
       ),
     );
   }
+}
+
+/// The key of the Licences row in About, for tests.
+const Key settingsLicencesKey = ValueKey('settings-licences');
+
+/// Flutter's licence page under the app's name and [version]. The app writes British English
+/// ("Licences", "Cancelled"), and Flutter's own strings for `en` are American ("Licenses"):
+/// in English the page takes the `en_GB` Material strings so its title matches the row.
+void _openLicences(BuildContext context, String? version) {
+  final locale = Localizations.localeOf(context);
+  final page = LicensePage(
+    applicationName: appName,
+    applicationVersion: version,
+  );
+  Navigator.of(context).push(
+    MaterialPageRoute<void>(
+      builder: (_) => locale.languageCode == 'en'
+          ? Localizations.override(
+              context: context,
+              locale: const Locale('en', 'GB'),
+              child: page,
+            )
+          : page,
+    ),
+  );
 }
 
 /// A web link. The app has no browser launcher, so tapping copies the address.

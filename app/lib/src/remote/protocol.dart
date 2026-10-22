@@ -90,6 +90,7 @@ const Set<String> localSessionMembers = {
   'startTor',
   'stopTor',
   'torStatus',
+  'refreshTor',
   'sendTor',
   'resendTor',
   // Reads an old wallet's folder on the server's disk; refused by the client.

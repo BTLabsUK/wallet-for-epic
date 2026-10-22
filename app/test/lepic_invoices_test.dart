@@ -168,6 +168,7 @@ class _InvoiceWallet implements lepic.EpicWallet {
     required BigInt amount,
     required BigInt minimumConfirmations,
     String? message,
+    lepic.SendOptions? options,
   }) async {
     payments.add((
       slateId: slateId,

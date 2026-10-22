@@ -3758,7 +3758,7 @@ void main() {
       await tester.tap(
         find.descendant(
           of: find.byKey(receiveTabsKey),
-          matching: find.text('Payment file'),
+          matching: find.text('File'),
         ),
       );
       await tester.pumpAndSettle();
@@ -3773,7 +3773,7 @@ void main() {
       await tester.tap(
         find.descendant(
           of: find.byKey(receiveTabsKey),
-          matching: find.text('Epicbox address'),
+          matching: find.text('Epicbox'),
         ),
       );
       await tester.pumpAndSettle();

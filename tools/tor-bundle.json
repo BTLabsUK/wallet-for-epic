@@ -44,6 +44,38 @@
         "libevent-2.1.7.dylib": "6dde3faf59255b7cf0cc20d0b3cdf78622266fbf13c534300b8884c76d89b739"
       },
       "license": "5dc29ea302cc75db6db4a7c88d7b5d4638b4e0f5f1d2e6d21ce71f707470b766"
+    },
+    "android-arm64-v8a": {
+      "tarball": "tor-expert-bundle-android-aarch64-15.0.25.tar.gz",
+      "sha256": "a1a67ec77ce0a7c4fca446fd9f915fbb0302c3107c2d56ab213196187cfd894a",
+      "files": {
+        "libTor.so": "73a99287bab545900b9fa41ccbd3ecd1e5b8fbb0d73ade849aeec390cbc9b2bb"
+      },
+      "license": "5dc29ea302cc75db6db4a7c88d7b5d4638b4e0f5f1d2e6d21ce71f707470b766"
+    },
+    "android-x86_64": {
+      "tarball": "tor-expert-bundle-android-x86_64-15.0.25.tar.gz",
+      "sha256": "11dbac44e2ee29df2cd6e3a5f38164d2630b2c85342f6a041b9cb57d7012d071",
+      "files": {
+        "libTor.so": "6ab5994b040f551d8a35042916cd20b01e7dfc03db7e034f1e7695fe7ff563ba"
+      },
+      "license": "5dc29ea302cc75db6db4a7c88d7b5d4638b4e0f5f1d2e6d21ce71f707470b766"
+    },
+    "android-armeabi-v7a": {
+      "tarball": "tor-expert-bundle-android-armv7-15.0.25.tar.gz",
+      "sha256": "4fcdb5540f7ea2f529b9063115d66dd7dfa61e5602bfaab96a78e8046bb4b8d5",
+      "files": {
+        "libTor.so": "77378e97fe83f9436895be82d380b466020f05f98638dbcaa356c006aacacad1"
+      },
+      "license": "5dc29ea302cc75db6db4a7c88d7b5d4638b4e0f5f1d2e6d21ce71f707470b766"
+    },
+    "android-x86": {
+      "tarball": "tor-expert-bundle-android-x86-15.0.25.tar.gz",
+      "sha256": "a76c881f1b7feb10994cacb4d0bc0b1ba388a25463b4f25985b7805af2091bbb",
+      "files": {
+        "libTor.so": "89767ab568a33c1193c89bb24727621db7b1f22c8c8227ee76382b54d1c534a5"
+      },
+      "license": "5dc29ea302cc75db6db4a7c88d7b5d4638b4e0f5f1d2e6d21ce71f707470b766"
     }
   }
 }
