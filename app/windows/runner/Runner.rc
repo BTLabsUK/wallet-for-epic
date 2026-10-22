@@ -90,10 +90,10 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
             VALUE "CompanyName", "com.blacktyger" "\0"
-            VALUE "FileDescription", "epic_wallet" "\0"
+            VALUE "FileDescription", "Epic Wallet" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
             VALUE "InternalName", "epic_wallet" "\0"
-            VALUE "LegalCopyright", "Copyright (C) 2026 com.blacktyger. All rights reserved." "\0"
+            VALUE "LegalCopyright", "Copyright (C) 2026 BT Labs. All rights reserved." "\0"
             VALUE "OriginalFilename", "epic_wallet.exe" "\0"
             // path_provider names the application support folder after CompanyName and
             // ProductName: %APPDATA%\com.blacktyger\EpicWallet. Never epic_wallet (the old

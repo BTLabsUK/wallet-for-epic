@@ -363,8 +363,6 @@ class _Sidebar extends ConsumerWidget {
                       TextSpan(
                         children: [
                           const TextSpan(text: 'Wallet by '),
-                          TextSpan(text: 'Johannes Hahn', style: TextStyle(color: c.dim)),
-                          const TextSpan(text: '\nTheme by '),
                           TextSpan(text: 'BT Labs', style: TextStyle(color: c.dim)),
                         ],
                       ),

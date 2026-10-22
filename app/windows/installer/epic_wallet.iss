@@ -20,7 +20,7 @@
 AppId={{8810835E-6EE5-4989-AE20-C0D60E23800E}
 AppName=Epic Wallet
 AppVersion={#AppVersion}
-AppPublisher=com.blacktyger
+AppPublisher=BT Labs
 DefaultDirName={%USERPROFILE}\Apps\EpicWallet
 DisableDirPage=yes
 DisableProgramGroupPage=yes

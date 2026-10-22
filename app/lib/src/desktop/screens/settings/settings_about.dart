@@ -70,8 +70,8 @@ class SettingsAboutScreen extends ConsumerWidget {
             title: 'Credits',
             rows: [
               ESetRow(
-                title: 'Wallet by Johannes Hahn',
-                text: 'BT Labs Theme by BT Labs. Thanks to everyone who tested this release and supports its development.',
+                title: 'Epic Wallet by BT Labs',
+                text: 'Built on open-source software, including Flutter (BSD-3-Clause), the Epic Cash wallet and node code (Apache-2.0) and Tor (BSD-3-Clause).',
               ),
             ],
           ),
