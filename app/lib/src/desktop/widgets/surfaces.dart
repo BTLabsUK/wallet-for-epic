@@ -8,7 +8,6 @@ import '../theme/tokens.dart';
 import 'buttons.dart';
 import 'motion.dart';
 
-/// A panel: s1 fill, hairline edge, 8 px radius. [head] and [foot] get their own bands.
 /// A panel: s1 fill, hairline edge, 8 px radius. [title] (or a custom [head]) and [foot] get
 /// their own bands; the head band is [Ctl.header] tall and starts where the body starts, so
 /// panels side by side have their header lines and first rows level.
