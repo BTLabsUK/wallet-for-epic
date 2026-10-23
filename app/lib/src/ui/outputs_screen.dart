@@ -30,7 +30,8 @@ bool _matches(OutputsFilter f, OutputLabel w) => switch (f) {
   OutputsFilter.confirming =>
     w == OutputLabel.confirming || w == OutputLabel.finalizing,
   OutputsFilter.locked => w == OutputLabel.locked,
-  OutputsFilter.immature => w == OutputLabel.immature || w == OutputLabel.mining,
+  OutputsFilter.immature =>
+    w == OutputLabel.immature || w == OutputLabel.mining,
 };
 
 String _wordText(AppLocalizations l, OutputLabel w) => switch (w) {
@@ -352,39 +353,37 @@ class _OutputsScreenState extends ConsumerState<OutputsScreen> {
                       ref.read(appSettingsProvider.notifier).setSplitChange(v),
           ),
           const SizedBox(height: 8),
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: SegmentedButton<OutputsFilter>(
-              showSelectedIcon: false,
-              emptySelectionAllowed: true,
-              style: SegmentedButton.styleFrom(
-                minimumSize: const Size(0, 44),
-                visualDensity: VisualDensity.compact,
-                textStyle: theme.textTheme.bodySmall,
+          SegmentedButton<OutputsFilter>(
+            showSelectedIcon: false,
+            emptySelectionAllowed: true,
+            style: SegmentedButton.styleFrom(
+              minimumSize: const Size(0, 44),
+              visualDensity: VisualDensity.compact,
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              textStyle: theme.textTheme.bodySmall,
+            ),
+            segments: [
+              ButtonSegment(
+                value: OutputsFilter.all,
+                label: _fit(l.outputsFilterAll(nAll)),
               ),
-              segments: [
-                ButtonSegment(
-                  value: OutputsFilter.all,
-                  label: Text(l.outputsFilterAll(nAll)),
-                ),
-                ButtonSegment(
-                  value: OutputsFilter.spendable,
-                  label: Text(l.outputsFilterSpendable(nSpendable)),
-                ),
-                ButtonSegment(
-                  value: OutputsFilter.confirming,
-                  label: Text(l.outputsFilterConfirming(nConfirming)),
-                ),
-                if (nLocked > 0 || _filter == OutputsFilter.locked)
-                  ButtonSegment(
-                    value: OutputsFilter.locked,
-                    label: Text(l.outputsFilterLocked(nLocked)),
-                  ),
-              ],
-              selected: {if (_filter != OutputsFilter.immature) _filter},
-              onSelectionChanged: (s) => setState(
-                () => _filter = s.isEmpty ? OutputsFilter.all : s.first,
+              ButtonSegment(
+                value: OutputsFilter.spendable,
+                label: _fit(l.outputsFilterSpendable(nSpendable)),
               ),
+              ButtonSegment(
+                value: OutputsFilter.confirming,
+                label: _fit(l.outputsFilterConfirming(nConfirming)),
+              ),
+              if (nLocked > 0 || _filter == OutputsFilter.locked)
+                ButtonSegment(
+                  value: OutputsFilter.locked,
+                  label: _fit(l.outputsFilterLocked(nLocked)),
+                ),
+            ],
+            selected: {if (_filter != OutputsFilter.immature) _filter},
+            onSelectionChanged: (s) => setState(
+              () => _filter = s.isEmpty ? OutputsFilter.all : s.first,
             ),
           ),
           if (nSpent > 0)
@@ -445,6 +444,9 @@ class _OutputsScreenState extends ConsumerState<OutputsScreen> {
 }
 
 /// A balance tile: label, value in mono, caption. [value] null shows a spinner.
+/// A segment's label: one line, shrunk to the segment instead of cut.
+Widget _fit(String text) => FittedBox(fit: BoxFit.scaleDown, child: Text(text));
+
 class _Tile extends StatelessWidget {
   const _Tile({required this.label, required this.value, this.caption});
 
