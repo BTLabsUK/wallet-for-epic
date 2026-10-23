@@ -242,7 +242,7 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
           // The list and the detail are one unit (docs/plans/w7-layout.md R1): same top and bottom.
           ? PanelRow(
               sideFirst: true,
-              sideWidth: 340.u,
+              sideWidth: Ctl.sideList,
               side: list,
               // A header band like the list's: what the pane shows.
               main: EPanel(

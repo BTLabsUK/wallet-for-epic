@@ -87,6 +87,14 @@ abstract final class Ctl {
   static double get side => _px(380);
   static double get sideWide => _px(440);
 
+  /// The Contacts list beside its detail pane.
+  static double get sideList => _px(340);
+
+  /// Activity's detail pane never takes more than this share of the row, and takes [sideWide]
+  /// from this window width (at 100 %).
+  static const double sideMaxFraction = 0.42;
+  static double get sideWideFrom => _px(1400);
+
   /// The trailing control of a Settings row ([ERowControl]): [sm] tall and one of two widths,
   /// [rowW] for buttons, dropdowns and fields, [rowWide] for segmented choices and server
   /// pickers. The switch keeps its own size. Both fit the longest label at every scale.
