@@ -5,6 +5,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:epic_wallet/src/btlabs_onions.dart';
 import 'package:epic_wallet/src/desktop/data/lepic_desk_wallet.dart';
 import 'package:epic_wallet/src/desktop/data/models.dart';
 import 'package:epic_wallet/src/secret_store_api.dart';
@@ -42,7 +43,7 @@ void main() {
   });
 
   /// A fresh app over the same folders and key store; [web] is what the website answers.
-  LepicDeskWallet app({Future<String?> Function(Uri url)? web}) {
+  LepicDeskWallet app({Future<String?> Function(Uri url)? web, OnionDirectory? onions}) {
     final w = LepicDeskWallet(
       service: service,
       walletDir: (chain) async {
@@ -55,6 +56,7 @@ void main() {
       nodePoll: const Duration(hours: 1),
       seedFetch: web,
       keyring: testKeyring(),
+      onions: onions,
     );
     opened.add(w);
     return w;
@@ -368,6 +370,62 @@ void main() {
         r.response.close();
       });
       expect(await LepicDeskWallet.fetchSeeds(Uri.parse('http://127.0.0.1:${server.port}/')), isNull);
+    });
+  });
+
+  group('onions', () {
+    final d = [donation(btLabsContact.id, btLabsContact.address)];
+
+    setUp(() async {
+      final w = app();
+      await w.createWallet(name: 'Main', password: _password);
+    });
+
+    Future<OnionDirectory> openAnswering(Future<String?> Function(Uri) web) async {
+      final o = OnionDirectory();
+      final w = app(web: web, onions: o);
+      expect(await w.unlock(_password), isTrue);
+      await pumpEventQueue(times: 50);
+      return o;
+    }
+
+    test('a fetched file with onions replaces the built-in copy, and the cache keeps it', () async {
+      final body = await signedPublicFile(d, serial: 3, onions: [onionEntry('node.btlabs.uk', service: 'node')]);
+      final o = await openAnswering((_) async => body);
+      expect(o.entries.map((e) => e.host), ['node.btlabs.uk']);
+      final cached = OnionDirectory();
+      final w = app(onions: cached);
+      expect(await w.unlock(_password), isTrue);
+      expect(cached.entries.map((e) => e.host), ['node.btlabs.uk']);
+    });
+
+    test('a file without the field keeps the built-in copy', () async {
+      final o = await openAnswering((_) async => signedPublicFile(d, serial: 3));
+      expect(o.entries, builtInOnions);
+    });
+
+    test('a forged or unsigned file changes nothing', () async {
+      final good = await signedPublicFile(d, serial: 3, onions: [onionEntry('node.btlabs.uk')]);
+      final forged = good.replaceFirst('"sig": "', '"sig": "Z');
+      expect((await openAnswering((_) async => forged)).entries, builtInOnions);
+      final unsigned = String.fromCharCodes(publicPayload(d, serial: 3, onions: [onionEntry('node.btlabs.uk')]));
+      expect((await openAnswering((_) async => unsigned)).entries, builtInOnions);
+    });
+
+    test('a rolled-back file never replaces what a newer one gave', () async {
+      final o = OnionDirectory();
+      var body = await signedPublicFile(d, serial: 4, onions: [onionEntry('new.btlabs.uk')]);
+      final w = app(web: (_) async => body, onions: o);
+      expect(await w.unlock(_password), isTrue);
+      await pumpEventQueue(times: 50);
+      expect(o.entries.single.host, 'new.btlabs.uk');
+      await w.lock();
+      setCache({...await cache(), 'at': 0, 'tried': 0});
+      body = await signedPublicFile(d, serial: 3, onions: [onionEntry('old.btlabs.uk')]);
+      final again = app(web: (_) async => body, onions: o);
+      expect(await again.unlock(_password), isTrue);
+      await pumpEventQueue(times: 50);
+      expect(o.entries.single.host, 'new.btlabs.uk');
     });
   });
 }
