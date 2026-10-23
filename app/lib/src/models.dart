@@ -754,6 +754,29 @@ enum TorStatusKind {
   ready,
 }
 
+/// A push registration signed with the wallet's Epicbox address key: [address] is the full
+/// Epicbox address, [signature] the DER hex over the text `services/push/PROTOCOL.md` fixes.
+class PushSignature {
+  const PushSignature({required this.address, required this.signature});
+
+  final String address;
+  final String signature;
+
+  @override
+  int get hashCode => address.hashCode ^ signature.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is PushSignature &&
+          address == other.address &&
+          signature == other.signature;
+
+  // Never the signature: it is only meant for the registration request.
+  @override
+  String toString() => 'PushSignature($address)';
+}
+
 /// The wallet's tor now.
 class TorStatus {
   final TorStatusKind kind;

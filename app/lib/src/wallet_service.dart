@@ -248,6 +248,15 @@ abstract interface class WalletSession {
   /// This wallet's onion, `<56 characters>.onion`, known before tor runs.
   Future<String> onionAddress();
 
+  /// Signs a push registration for [token] with the wallet's Epicbox address key. [action] is
+  /// `register` or `unregister`, [timestamp] unix seconds. LEPIC builds the signed text itself
+  /// (`services/push/PROTOCOL.md`), so this can never sign anything else.
+  Future<PushSignature> pushSignature({
+    required String action,
+    required String token,
+    required int timestamp,
+  });
+
   /// Starts the wallet's own tor from [torBinary] (the bundled Tor Expert Bundle) and streams
   /// what it does until [stopTor], lock or [dispose]; [libDir] goes on the library path
   /// (Linux), null elsewhere. The events go `starting`, `bootstrapped`, `publishing`,
@@ -1298,6 +1307,22 @@ class FakeWalletSession implements WalletSession {
 
   /// Holds [sendTor] until completed, as a send that takes a while over Tor.
   Completer<void>? torSendGate;
+
+  /// Every [pushSignature] call, in order.
+  final List<({String action, String token, int timestamp})> pushSignatures = [];
+
+  @override
+  Future<PushSignature> pushSignature({
+    required String action,
+    required String token,
+    required int timestamp,
+  }) async {
+    pushSignatures.add((action: action, token: token, timestamp: timestamp));
+    return PushSignature(
+      address: address,
+      signature: 'sig:$action:$token:$timestamp',
+    );
+  }
 
   @override
   Future<String> onionAddress() async => onion;

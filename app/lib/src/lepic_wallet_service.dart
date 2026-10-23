@@ -1262,6 +1262,20 @@ class LepicWalletSession implements WalletSession {
   }
 
   @override
+  Future<PushSignature> pushSignature({
+    required String action,
+    required String token,
+    required int timestamp,
+  }) => _guard(() async {
+    final signed = await _wallet.pushSignature(
+      action: action,
+      token: token,
+      timestamp: BigInt.from(timestamp),
+    );
+    return PushSignature(address: signed.address, signature: signed.signature);
+  });
+
+  @override
   Future<String> onionAddress() => _guard(_wallet.onionAddress);
 
   @override
