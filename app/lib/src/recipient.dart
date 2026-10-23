@@ -37,3 +37,49 @@ Recipient parseRecipient(String text) {
       : clean;
   return Recipient(RecipientKind.epicbox, address);
 }
+
+final RegExp _epicboxShape = RegExp(
+  r'^[1-9A-HJ-NP-Za-km-z]{40,}(?:@[^@\s]+)?$',
+);
+final RegExp _ipv4 = RegExp(r'^\d{1,3}(?:\.\d{1,3}){3}$');
+
+/// Whether [to] has the shape of its kind at all: an Epicbox key of 40 or more base58
+/// characters with an optional `@host`, a URL with a host, or an onion. Text that has none
+/// (a name, a stray word) is no kind, and never moves Send's method.
+bool recipientShaped(Recipient to) => switch (to.kind) {
+  RecipientKind.epicbox => _epicboxShape.hasMatch(to.address),
+  RecipientKind.http => Uri.tryParse(to.address)?.host.isNotEmpty ?? false,
+  RecipientKind.tor => true,
+};
+
+/// Whether [url] is a whole HTTP(S) address to send to: a host that is an IPv4 address,
+/// `localhost` or a name with a dot, no user part, and a port from 1 to 65535 when it has one.
+/// While `http://192.168` is still being typed it is not.
+bool httpAddressComplete(String url) {
+  final uri = Uri.tryParse(url.trim());
+  if (uri == null) return false;
+  final scheme = uri.scheme.toLowerCase();
+  if (scheme != 'http' && scheme != 'https') return false;
+  final host = uri.host.toLowerCase();
+  if (host.isEmpty || host.endsWith('.onion') || uri.userInfo.isNotEmpty) {
+    return false;
+  }
+  if (uri.hasPort && (uri.port < 1 || uri.port > 65535)) return false;
+  return _ipv4.hasMatch(host) || host == 'localhost' || host.contains('.');
+}
+
+/// Plain `http` to another device: the transaction travels unencrypted, so Send asks first,
+/// and LEPIC refuses it without that consent. `localhost`, 127.0.0.0/8 and ::1 are this device.
+bool plainHttpToOtherDevice(String url) {
+  final uri = Uri.tryParse(url.trim());
+  if (uri == null || uri.scheme.toLowerCase() != 'http' || uri.host.isEmpty) {
+    return false;
+  }
+  final host = uri.host.toLowerCase();
+  final loopback =
+      host == 'localhost' ||
+      host == '::1' ||
+      host == '[::1]' ||
+      (_ipv4.hasMatch(host) && host.startsWith('127.'));
+  return !loopback;
+}
