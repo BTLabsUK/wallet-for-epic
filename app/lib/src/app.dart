@@ -99,6 +99,7 @@ class _WalletAppState extends ConsumerState<WalletApp> {
           }
         } else {
           _drainPayments();
+          _wakeListener();
           // Only after the app was away: a system dialog (inactive) is not an opening.
           if (_leftAt != null) _checkForUpdate();
         }
@@ -114,6 +115,13 @@ class _WalletAppState extends ConsumerState<WalletApp> {
   void _drainPayments() {
     if (ref.read(sessionProvider) == null) return;
     unawaited(ref.read(paymentsDrainProvider.notifier).drain());
+  }
+
+  /// An Epicbox listener that dropped while the app was away reconnects now, not after
+  /// LEPIC's backoff (`ListenerNotifier.wake`).
+  void _wakeListener() {
+    if (!ref.exists(listenerProvider)) return;
+    unawaited(ref.read(listenerProvider.notifier).wake('resume'));
   }
 
   /// Opening the app again without an unlock looks for an update, as start and unlock do
