@@ -358,6 +358,13 @@ void main() {
       expect(session.pushSignatures, isEmpty);
     });
 
+    test('a wallet moved off the relay still unregisters, by its bare key', () async {
+      session.address = 'esKey@epicbox.epiccash.com';
+      expect(await make().unregister(session, 'tok-1'), PushOutcome.sent);
+      expect(posts.single.url.path, '/push/v1/unregister');
+      expect(posts.single.body['address'], 'esKey');
+    });
+
     test('the relay’s own address forms are accepted', () {
       expect(PushRegistration.onRelay('esKey@flooepicbox.btlabs.uk'), isTrue);
       expect(

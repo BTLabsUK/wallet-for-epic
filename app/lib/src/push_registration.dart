@@ -80,7 +80,10 @@ class PushRegistration {
     Duration timeout,
   ) async {
     try {
-      if (!onRelay(await session.epicboxAddress())) {
+      // A wallet moved off the BT Labs relay may still be registered there: an unregister
+      // goes anyway, naming the bare key (the service accepts it), a register does not.
+      final onPushRelay = onRelay(await session.epicboxAddress());
+      if (!onPushRelay && action == 'register') {
         logInfo('push', '$action skipped, the wallet is not on the push relay');
         return PushOutcome.skipped;
       }
@@ -95,7 +98,7 @@ class PushRegistration {
       if (!clearnet()) return PushOutcome.skipped;
       final status = await post(
         base.replace(path: '${base.path}/$action'),
-        _json(signed, token, stamp),
+        _json(signed, token, stamp, bareKey: !onPushRelay),
         timeout,
       );
       if (status == 204) {
@@ -107,16 +110,23 @@ class PushRegistration {
       logWarn('push', '$action timed out');
     } catch (e) {
       // The type only: a message could carry the address.
-      logWarn('push', '$action failed, ${e is WalletError ? e.kind.name : e.runtimeType}');
+      logWarn(
+        'push',
+        '$action failed, ${e is WalletError ? e.kind.name : e.runtimeType}',
+      );
     }
     return PushOutcome.failed;
   }
 
-  static String _json(PushSignature signed, String token, int stamp) =>
-      jsonEncode({
-        'address': signed.address,
-        'token': token,
-        'timestamp': stamp,
-        'signature': signed.signature,
-      });
+  static String _json(
+    PushSignature signed,
+    String token,
+    int stamp, {
+    bool bareKey = false,
+  }) => jsonEncode({
+    'address': bareKey ? signed.address.split('@').first : signed.address,
+    'token': token,
+    'timestamp': stamp,
+    'signature': signed.signature,
+  });
 }
