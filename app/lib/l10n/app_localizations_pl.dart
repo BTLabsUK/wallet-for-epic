@@ -3606,7 +3606,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get sendAddressIncomplete => 'Ten adres wygląda na niepełny.';
 
   @override
-  String get sendAddressNotEpic => 'To nie jest adres Epic.';
+  String get sendAddressNotEpic => 'To nie jest adres Epicbox.';
 
   @override
   String get sendNewRecipient => 'Nowy odbiorca';
@@ -3935,7 +3935,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get torHonestLine =>
-      'Wolniej i bardziej prywatnie. W niektórych krajach zablokowane lub niedozwolone. Odbiera tylko wtedy, gdy aplikacja jest otwarta.';
+      'Odbiór przez Tor działa, gdy aplikacja jest otwarta lub krótko w tle.';
 
   @override
   String get torStateOff => 'Odbieranie przez Tor jest wyłączone';
@@ -4770,5 +4770,195 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String serverRowLabel(String host, String facts) {
     return '$host, $facts';
+  }
+
+  @override
+  String get methodEpicbox => 'Epicbox';
+
+  @override
+  String get methodHttp => 'HTTP';
+
+  @override
+  String get methodTor => 'Tor';
+
+  @override
+  String get methodFile => 'Plik';
+
+  @override
+  String get methodArtCaptionEpicbox => 'Serwer Epicbox ją trzyma';
+
+  @override
+  String get methodArtCaptionHttp => 'Prosto do portfela';
+
+  @override
+  String get methodArtCaptionTor => 'Prosto, przez Tor';
+
+  @override
+  String get methodArtCaptionFile => 'Plik tam, odpowiedź z powrotem';
+
+  @override
+  String get methodArtLabelEpicbox =>
+      'Epicbox: płatność trafia na serwer Epicbox, który trzyma ją, aż portfel odbiorcy wróci';
+
+  @override
+  String get methodArtLabelHttp =>
+      'HTTP: płatność trafia prosto do portfela odbiorcy, który musi być otwarty';
+
+  @override
+  String get methodArtLabelTor =>
+      'Tor: płatność trafia prosto do portfela odbiorcy, przez sieć Tor';
+
+  @override
+  String get methodArtLabelFile =>
+      'Plik: plik transakcji jest przekazywany, wraca plik odpowiedzi, potem nadawca finalizuje';
+
+  @override
+  String get methodSendEpicboxTitle => 'Odbiorca może być offline.';
+
+  @override
+  String get methodSendEpicboxLine =>
+      'Serwer Epicbox trzyma płatność, aż odbiorca otworzy portfel.';
+
+  @override
+  String get methodSendHttpTitle => 'Prosto do portfela odbiorcy.';
+
+  @override
+  String get methodSendHttpLine =>
+      'Musi być otwarty i osiągalny pod swoim adresem HTTP.';
+
+  @override
+  String get methodSendTorTitle => 'Prosto do portfela odbiorcy, przez Tor.';
+
+  @override
+  String get methodSendTorLine =>
+      'Wolniej i bardziej prywatnie. Portfel odbiorcy musi być otwarty.';
+
+  @override
+  String get methodSendFileTitle => 'Bez połączenia.';
+
+  @override
+  String get methodSendFileLine =>
+      'Przekaż plik, odbierz plik odpowiedzi, potem sfinalizuj go tutaj.';
+
+  @override
+  String get methodReceiveEpicboxTitle => 'Udostępnij go, aby dostać płatność.';
+
+  @override
+  String get methodReceiveEpicboxLine =>
+      'Działa przy zamkniętej aplikacji: serwer Epicbox trzyma płatności, aż portfel wróci.';
+
+  @override
+  String get methodReceiveTorTitle => 'Wolniej i bardziej prywatnie.';
+
+  @override
+  String get methodReceiveTorLine =>
+      'Działa tylko, gdy aplikacja jest otwarta lub krótko w tle.';
+
+  @override
+  String get methodReceiveFileTitle => 'Przekazujcie plik tam i z powrotem.';
+
+  @override
+  String get methodReceiveFileLine =>
+      'Działa bez połączenia między portfelami.';
+
+  @override
+  String get methodAddressKindsTooltip => 'Rodzaje adresów';
+
+  @override
+  String get sendMethodLabel => 'Metoda';
+
+  @override
+  String get sendToLabel => 'Do';
+
+  @override
+  String get sendToHint => 'Adres lub kontakt';
+
+  @override
+  String get sendSwitchedHttp => 'Przez HTTP';
+
+  @override
+  String get sendSwitchedEpicbox => 'Przez Epicbox';
+
+  @override
+  String get sendSwitchedTorAnnounce => 'Adres Tor. Ustawiono metodę Tor.';
+
+  @override
+  String get sendSwitchedHttpAnnounce => 'Adres HTTP. Ustawiono metodę HTTP.';
+
+  @override
+  String get sendSwitchedEpicboxAnnounce =>
+      'Adres Epicbox. Ustawiono metodę Epicbox.';
+
+  @override
+  String get sendReviewMethodHttp => 'HTTP, prosto do portfela';
+
+  @override
+  String get sendCancelRuleEpicbox =>
+      'Można anulować, dopóki czeka na odbiorcę.';
+
+  @override
+  String get sendCancelRuleDirect =>
+      'Nie można anulować, gdy portfel odbiorcy ją przyjmie.';
+
+  @override
+  String get sendCancelRuleFile =>
+      'Można anulować, dopóki plik odpowiedzi nie zostanie sfinalizowany.';
+
+  @override
+  String get sendHttpReaching =>
+      'Łączenie z portfelem odbiorcy… Nie zamykaj aplikacji.';
+
+  @override
+  String get sendDeliveredWaitingBlock => 'Dostarczono · Czeka na blok';
+
+  @override
+  String get sendHttpAddressShape =>
+      'Adres HTTP zaczyna się od http:// lub https://.';
+
+  @override
+  String get sendPlainHttpTitle => 'Bez szyfrowania. Wysłać mimo to?';
+
+  @override
+  String get sendPlainHttpBody =>
+      'Zwykłe HTTP do innego urządzenia. Każdy po drodze może odczytać transakcję. Adres https:// jest szyfrowany.';
+
+  @override
+  String get sendCancelPossibleWhileWaiting =>
+      'Możliwe, dopóki płatność czeka na odbiorcę.';
+
+  @override
+  String get sendHelpAddressKindsQuestion => 'Jak wygląda adres?';
+
+  @override
+  String get sendHelpAddressKindsAnswer =>
+      'Adres Epicbox zaczyna się od es i kończy na @ i serwerze. Adres HTTP to adres internetowy. Adres Tor kończy się na .onion.';
+
+  @override
+  String get receiveHelpNoHttp =>
+      'Odbiór przez HTTP nie jest dostępny na telefonie. Nadawcy używają adresu Epicbox lub Tor.';
+
+  @override
+  String get receiveEpicboxCaption =>
+      'Czytając go na głos, sprawdź pierwsze sześć i ostatnie sześć znaków.';
+
+  @override
+  String get receiveTorCaption =>
+      'Niektóre portfele pokazują adres bez .onion; to ten sam adres.';
+
+  @override
+  String sendHttpNotReached(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other:
+          'Nie udało się połączyć z portfelem odbiorcy. Kwota jest wstrzymana, dopóki jej nie anulujesz, najwyżej $days dnia.',
+      many:
+          'Nie udało się połączyć z portfelem odbiorcy. Kwota jest wstrzymana, dopóki jej nie anulujesz, najwyżej $days dni.',
+      few:
+          'Nie udało się połączyć z portfelem odbiorcy. Kwota jest wstrzymana, dopóki jej nie anulujesz, najwyżej $days dni.',
+      one:
+          'Nie udało się połączyć z portfelem odbiorcy. Kwota jest wstrzymana, dopóki jej nie anulujesz, najwyżej $days dzień.',
+    );
+    return '$_temp0';
   }
 }

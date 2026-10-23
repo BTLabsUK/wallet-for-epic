@@ -18,6 +18,7 @@ enum HelpTopic {
   fees,
   node,
   otherWaysToSend,
+  addressKinds,
 }
 
 /// Days after which a send that was never completed cancels itself: the core sets a time to
@@ -38,7 +39,7 @@ _Answer _answer(AppLocalizations l, HelpTopic topic, int confirmations) {
     ),
     HelpTopic.receiving => (
       question: l.helpReceivingQuestion,
-      answer: l.helpReceivingAnswer(sendTtlDays),
+      answer: '${l.helpReceivingAnswer(sendTtlDays)}\n\n${l.receiveHelpNoHttp}',
     ),
     HelpTopic.confirmations => (
       question: l.helpConfirmationsQuestion(confirmations),
@@ -61,6 +62,10 @@ _Answer _answer(AppLocalizations l, HelpTopic topic, int confirmations) {
     HelpTopic.otherWaysToSend => (
       question: l.helpOtherWaysQuestion,
       answer: l.helpOtherWaysAnswer,
+    ),
+    HelpTopic.addressKinds => (
+      question: l.sendHelpAddressKindsQuestion,
+      answer: l.sendHelpAddressKindsAnswer,
     ),
   };
 }

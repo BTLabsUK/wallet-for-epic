@@ -21,6 +21,7 @@ import 'demo_screens.dart' show TestCoinsButton;
 import 'file_exchange_help.dart';
 import 'help_screen.dart';
 import 'invoice_request_screen.dart' show InvoiceRequestScreen;
+import 'method_strip.dart';
 import 'slate_file_screen.dart';
 import 'theme/advanced.dart';
 import 'theme/brand.dart';
@@ -105,6 +106,10 @@ class ReceiveView extends ConsumerWidget {
       selected: {tab},
       showSelectedIcon: false,
       expandedInsets: EdgeInsets.zero,
+      style: const ButtonStyle(
+        minimumSize: WidgetStatePropertyAll(Size(0, 44)),
+      ),
+
       onSelectionChanged: (selected) =>
           ref.read(receiveTabProvider.notifier).choose(selected.first),
     );
@@ -113,12 +118,37 @@ class ReceiveView extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: children,
     );
+    // What the tab means, so the sender's side is plain: picture, title, one line.
+    final strip = Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: MethodStrip(
+        method: switch (tab) {
+          ReceiveTab.epicbox => TransferMethod.epicbox,
+          ReceiveTab.tor => TransferMethod.tor,
+          ReceiveTab.file => TransferMethod.file,
+        },
+        receiving: true,
+      ),
+    );
+    Widget caption(String text) => Padding(
+      padding: const EdgeInsets.only(top: 4),
+      child: Text(
+        text,
+        style: Theme.of(context).textTheme.bodySmall
+            ?.copyWith(color: context.tokens.dim),
+      ),
+    );
     final value = address.value;
     final Widget above;
     final Widget? code;
     final Widget below;
     if (tab == ReceiveTab.file) {
-      above = column([const _FileCard(), const SizedBox(height: 8), help]);
+      above = column([
+        strip,
+        const _FileCard(),
+        const SizedBox(height: 8),
+        help,
+      ]);
       code = null;
       below = const SizedBox.shrink();
     } else if (tab == ReceiveTab.tor) {
@@ -129,12 +159,14 @@ class ReceiveView extends ConsumerWidget {
         phoneTorProvider.select((s) => s.phase == PhoneTorPhase.ready),
       );
       above = column([
+        strip,
         if (onion != null) ...[
           _AddressRow(
             address: onion,
             label: l.receiveTorAddressLabel,
             cardKey: receiveTorAddressKey,
           ),
+          caption(l.receiveTorCaption),
           const SizedBox(height: 4),
         ] else
           const LinearProgressIndicator(),
@@ -165,12 +197,14 @@ class ReceiveView extends ConsumerWidget {
       below = column([const SizedBox(height: 8), help]);
     } else {
       above = column([
+        strip,
         if (value != null) ...[
           _AddressRow(
             address: value,
             label: l.receiveAddressLabel,
             cardKey: receiveAddressKey,
           ),
+          caption(l.receiveEpicboxCaption),
           const SizedBox(height: 8),
           const _EpicboxLine(),
           if (demo) const _KeepTabOpenLine(),

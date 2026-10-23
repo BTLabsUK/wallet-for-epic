@@ -537,14 +537,14 @@ ShellTab _selectedTab(WidgetTester tester) =>
 
 /// The text in Send's address field.
 String _toField(WidgetTester tester) => tester
-    .widget<TextField>(find.widgetWithText(TextField, 'Epic address'))
+    .widget<TextField>(find.widgetWithText(TextField, 'To'))
     .controller!
     .text;
 
 /// On the shell's Send tab: [to], 1 EPIC, review, Send.
 Future<void> _sendOne(WidgetTester tester, String to) async {
   await _tab(tester, 'Send');
-  await tester.enterText(find.widgetWithText(TextField, 'Epic address'), to);
+  await tester.enterText(find.widgetWithText(TextField, 'To'), to);
   await tester.pumpAndSettle();
   await _tap(tester, find.widgetWithText(FilledButton, 'Continue'));
   await tester.enterText(find.widgetWithText(TextField, 'Amount (EPIC)'), '1');
@@ -3876,7 +3876,7 @@ void main() {
       await h.pump(tester);
       await _tab(tester, 'Send');
       await tester.enterText(
-        find.widgetWithText(TextField, 'Epic address'),
+        find.widgetWithText(TextField, 'To'),
         payee,
       );
       await _tab(tester, 'Receive');
@@ -3951,7 +3951,7 @@ void main() {
         expect(_toField(tester), carol);
 
         // The same from the payment file screens.
-        await _tap(tester, find.text('No address? Use a payment file'));
+        await _tap(tester, find.text('File').last);
         await tester.enterText(
           find.widgetWithText(TextField, 'Amount (EPIC)'),
           '1',

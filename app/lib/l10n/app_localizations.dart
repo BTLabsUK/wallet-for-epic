@@ -5213,7 +5213,7 @@ abstract class AppLocalizations {
   /// Send, step 1: the text is not a valid Epic address for this network.
   ///
   /// In en, this message translates to:
-  /// **'This is not an Epic address.'**
+  /// **'This is not an Epicbox address.'**
   String get sendAddressNotEpic;
 
   /// Send: shown on the recipient card instead of a name when the address is not in the user's contacts.
@@ -5753,7 +5753,7 @@ abstract class AppLocalizations {
   /// The lines that describe Tor receiving, under the switch: only what is true. No time promises. The last sentence: the phone cuts the app's network when it leaves the screen, so a payment over Tor reaches the wallet only while the app is open; nothing waits for it elsewhere.
   ///
   /// In en, this message translates to:
-  /// **'Slower and more private. Blocked or not allowed in some countries. Receives only while the app is open.'**
+  /// **'Tor receiving works while the app is open or briefly in the background.'**
   String get torHonestLine;
 
   /// Tor status line on Receive: the switch is off, so other wallets cannot reach this one over Tor.
@@ -7002,6 +7002,312 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{host}, {facts}'**
   String serverRowLabel(String host, String facts);
+
+  /// Method name on Send and Receive segments.
+  ///
+  /// In en, this message translates to:
+  /// **'Epicbox'**
+  String get methodEpicbox;
+
+  /// Method name: straight to the other wallet over HTTP.
+  ///
+  /// In en, this message translates to:
+  /// **'HTTP'**
+  String get methodHttp;
+
+  /// Method name: straight to the other wallet over Tor.
+  ///
+  /// In en, this message translates to:
+  /// **'Tor'**
+  String get methodTor;
+
+  /// Method name: a transaction file handed over by hand.
+  ///
+  /// In en, this message translates to:
+  /// **'File'**
+  String get methodFile;
+
+  /// Caption under the Epicbox picture, a few words, shown in capitals.
+  ///
+  /// In en, this message translates to:
+  /// **'Epicbox server holds it'**
+  String get methodArtCaptionEpicbox;
+
+  /// Caption under the HTTP picture, a few words, shown in capitals.
+  ///
+  /// In en, this message translates to:
+  /// **'Straight to their wallet'**
+  String get methodArtCaptionHttp;
+
+  /// Caption under the Tor picture, a few words, shown in capitals.
+  ///
+  /// In en, this message translates to:
+  /// **'Straight, through Tor'**
+  String get methodArtCaptionTor;
+
+  /// Caption under the File picture, a few words, shown in capitals.
+  ///
+  /// In en, this message translates to:
+  /// **'File out, response back'**
+  String get methodArtCaptionFile;
+
+  /// Screen reader label of the Epicbox picture.
+  ///
+  /// In en, this message translates to:
+  /// **'Epicbox: the payment goes to the Epicbox server, which holds it until the recipient\'s wallet is back'**
+  String get methodArtLabelEpicbox;
+
+  /// Screen reader label of the HTTP picture.
+  ///
+  /// In en, this message translates to:
+  /// **'HTTP: the payment goes straight to the recipient\'s wallet, which must be open'**
+  String get methodArtLabelHttp;
+
+  /// Screen reader label of the Tor picture.
+  ///
+  /// In en, this message translates to:
+  /// **'Tor: the payment goes straight to the recipient\'s wallet, routed through the Tor network'**
+  String get methodArtLabelTor;
+
+  /// Screen reader label of the File picture.
+  ///
+  /// In en, this message translates to:
+  /// **'File: a transaction file is handed over, a response file comes back, then the sender finalizes'**
+  String get methodArtLabelFile;
+
+  /// Send strip title for Epicbox.
+  ///
+  /// In en, this message translates to:
+  /// **'The recipient can be offline.'**
+  String get methodSendEpicboxTitle;
+
+  /// Send strip line for Epicbox.
+  ///
+  /// In en, this message translates to:
+  /// **'The Epicbox server holds the payment until they open their wallet.'**
+  String get methodSendEpicboxLine;
+
+  /// Send strip title for HTTP.
+  ///
+  /// In en, this message translates to:
+  /// **'Straight to their wallet.'**
+  String get methodSendHttpTitle;
+
+  /// Send strip line for HTTP.
+  ///
+  /// In en, this message translates to:
+  /// **'It must be open and reachable at its HTTP address.'**
+  String get methodSendHttpLine;
+
+  /// Send strip title for Tor.
+  ///
+  /// In en, this message translates to:
+  /// **'Straight to their wallet, over Tor.'**
+  String get methodSendTorTitle;
+
+  /// Send strip line for Tor.
+  ///
+  /// In en, this message translates to:
+  /// **'Slower and more private. Their wallet must be open.'**
+  String get methodSendTorLine;
+
+  /// Send strip title for File.
+  ///
+  /// In en, this message translates to:
+  /// **'No connection needed.'**
+  String get methodSendFileTitle;
+
+  /// Send strip line for File.
+  ///
+  /// In en, this message translates to:
+  /// **'Hand the file over, get their response file back, then finalize it here.'**
+  String get methodSendFileLine;
+
+  /// Receive strip title for Epicbox.
+  ///
+  /// In en, this message translates to:
+  /// **'Share it to get paid.'**
+  String get methodReceiveEpicboxTitle;
+
+  /// Receive strip line for Epicbox.
+  ///
+  /// In en, this message translates to:
+  /// **'Works while the app is closed: the Epicbox server holds payments until the wallet is back.'**
+  String get methodReceiveEpicboxLine;
+
+  /// Receive strip title for Tor.
+  ///
+  /// In en, this message translates to:
+  /// **'Slower and more private.'**
+  String get methodReceiveTorTitle;
+
+  /// Receive strip line for Tor.
+  ///
+  /// In en, this message translates to:
+  /// **'Works only while the app is open or briefly in the background.'**
+  String get methodReceiveTorLine;
+
+  /// Receive strip title for File.
+  ///
+  /// In en, this message translates to:
+  /// **'Hand a file back and forth.'**
+  String get methodReceiveFileTitle;
+
+  /// Receive strip line for File.
+  ///
+  /// In en, this message translates to:
+  /// **'Works with no connection between the wallets.'**
+  String get methodReceiveFileLine;
+
+  /// Tooltip of the ? beside the address shape under Send's To field; opens help on address kinds.
+  ///
+  /// In en, this message translates to:
+  /// **'Address kinds'**
+  String get methodAddressKindsTooltip;
+
+  /// Screen reader name of Send's method selector, and the review row naming the method.
+  ///
+  /// In en, this message translates to:
+  /// **'Method'**
+  String get sendMethodLabel;
+
+  /// Label of Send's recipient field.
+  ///
+  /// In en, this message translates to:
+  /// **'To'**
+  String get sendToLabel;
+
+  /// Placeholder of Send's recipient field.
+  ///
+  /// In en, this message translates to:
+  /// **'Address or contact'**
+  String get sendToHint;
+
+  /// Tag beside the To label for 3 s after the method moved to HTTP because of the address.
+  ///
+  /// In en, this message translates to:
+  /// **'Over HTTP'**
+  String get sendSwitchedHttp;
+
+  /// Tag beside the To label for 3 s after the method moved to Epicbox because of the address.
+  ///
+  /// In en, this message translates to:
+  /// **'Via Epicbox'**
+  String get sendSwitchedEpicbox;
+
+  /// Read out when a Tor address moved the method to Tor.
+  ///
+  /// In en, this message translates to:
+  /// **'Tor address. Method set to Tor.'**
+  String get sendSwitchedTorAnnounce;
+
+  /// Read out when an HTTP address moved the method to HTTP.
+  ///
+  /// In en, this message translates to:
+  /// **'HTTP address. Method set to HTTP.'**
+  String get sendSwitchedHttpAnnounce;
+
+  /// Read out when an Epicbox address moved the method to Epicbox.
+  ///
+  /// In en, this message translates to:
+  /// **'Epicbox address. Method set to Epicbox.'**
+  String get sendSwitchedEpicboxAnnounce;
+
+  /// Review, Method row for an HTTP send.
+  ///
+  /// In en, this message translates to:
+  /// **'HTTP, straight to their wallet'**
+  String get sendReviewMethodHttp;
+
+  /// Review caption: when an Epicbox send can be cancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Can be cancelled while it waits for the recipient.'**
+  String get sendCancelRuleEpicbox;
+
+  /// Review caption: an HTTP or Tor send cannot be cancelled once the other wallet accepted it.
+  ///
+  /// In en, this message translates to:
+  /// **'Cannot be cancelled once their wallet accepts it.'**
+  String get sendCancelRuleDirect;
+
+  /// Caption on the payment file step: when a file payment can be cancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Can be cancelled until the response file is finalized.'**
+  String get sendCancelRuleFile;
+
+  /// Send, review: an HTTP send is under way.
+  ///
+  /// In en, this message translates to:
+  /// **'Reaching their wallet… Keep the app open.'**
+  String get sendHttpReaching;
+
+  /// Send tracker and payment details: an HTTP or Tor send the other wallet accepted, not in a block yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivered · Waiting for a block'**
+  String get sendDeliveredWaitingBlock;
+
+  /// Send: the text under the HTTP method is not a web address.
+  ///
+  /// In en, this message translates to:
+  /// **'An HTTP address starts with http:// or https://.'**
+  String get sendHttpAddressShape;
+
+  /// Dialog title before a send over plain http to another device.
+  ///
+  /// In en, this message translates to:
+  /// **'Not encrypted. Send anyway?'**
+  String get sendPlainHttpTitle;
+
+  /// Dialog text before a send over plain http to another device.
+  ///
+  /// In en, this message translates to:
+  /// **'Plain HTTP to another device. Anyone on the way can read the transaction. An https:// address is encrypted.'**
+  String get sendPlainHttpBody;
+
+  /// Payment details: caption under Cancel payment.
+  ///
+  /// In en, this message translates to:
+  /// **'Possible while the payment waits for the recipient.'**
+  String get sendCancelPossibleWhileWaiting;
+
+  /// Help question about the kinds of address Send takes.
+  ///
+  /// In en, this message translates to:
+  /// **'What does an address look like?'**
+  String get sendHelpAddressKindsQuestion;
+
+  /// Help answer: one line per address kind.
+  ///
+  /// In en, this message translates to:
+  /// **'An Epicbox address starts with es and ends in @ and the server. An HTTP address is a web address. A Tor address ends in .onion.'**
+  String get sendHelpAddressKindsAnswer;
+
+  /// Receiving help, last line: the phone has no HTTP receiving.
+  ///
+  /// In en, this message translates to:
+  /// **'Receiving over HTTP is not on the phone. Senders use the Epicbox or Tor address.'**
+  String get receiveHelpNoHttp;
+
+  /// Receive, Epicbox tab: caption under the address.
+  ///
+  /// In en, this message translates to:
+  /// **'When reading it out, check the first six and last six characters.'**
+  String get receiveEpicboxCaption;
+
+  /// Receive, Tor tab: caption under the address.
+  ///
+  /// In en, this message translates to:
+  /// **'Some wallets show the address without .onion; both are the same address.'**
+  String get receiveTorCaption;
+
+  /// Send, review: the recipient's wallet was not reached over HTTP; the payment is kept with its coins on hold until it is cancelled, and cancels itself after {days} days. Try again and Cancel payment follow.
+  ///
+  /// In en, this message translates to:
+  /// **'{days, plural, =1{Their wallet was not reached. The amount is on hold until you cancel it, or for at most 1 day.} other{Their wallet was not reached. The amount is on hold until you cancel it, or for at most {days} days.}}'**
+  String sendHttpNotReached(int days);
 }
 
 class _AppLocalizationsDelegate

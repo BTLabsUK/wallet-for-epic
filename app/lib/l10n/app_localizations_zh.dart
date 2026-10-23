@@ -3240,7 +3240,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get sendAddressIncomplete => '这个地址似乎不完整。';
 
   @override
-  String get sendAddressNotEpic => '这不是 Epic 地址。';
+  String get sendAddressNotEpic => '这不是 Epicbox 地址。';
 
   @override
   String get sendNewRecipient => '新收款人';
@@ -3551,7 +3551,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get torReceivingTitle => 'Tor 接收';
 
   @override
-  String get torHonestLine => '更慢、更私密。在部分国家或地区被屏蔽或不被允许。仅在应用打开时接收。';
+  String get torHonestLine => 'Tor 收款仅在应用打开或短暂处于后台时有效。';
 
   @override
   String get torStateOff => 'Tor 接收已关闭';
@@ -4331,5 +4331,168 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String serverRowLabel(String host, String facts) {
     return '$host，$facts';
+  }
+
+  @override
+  String get methodEpicbox => 'Epicbox';
+
+  @override
+  String get methodHttp => 'HTTP';
+
+  @override
+  String get methodTor => 'Tor';
+
+  @override
+  String get methodFile => '文件';
+
+  @override
+  String get methodArtCaptionEpicbox => 'Epicbox 服务器暂存';
+
+  @override
+  String get methodArtCaptionHttp => '直达对方钱包';
+
+  @override
+  String get methodArtCaptionTor => '直达，经由 Tor';
+
+  @override
+  String get methodArtCaptionFile => '发出文件，收回回复';
+
+  @override
+  String get methodArtLabelEpicbox =>
+      'Epicbox：付款发送到 Epicbox 服务器，服务器暂存它，直到对方钱包上线';
+
+  @override
+  String get methodArtLabelHttp => 'HTTP：付款直接发送到对方钱包，对方钱包必须处于打开状态';
+
+  @override
+  String get methodArtLabelTor => 'Tor：付款经由 Tor 网络直接发送到对方钱包';
+
+  @override
+  String get methodArtLabelFile => '文件：交出交易文件，收回回复文件，然后由发送方完成';
+
+  @override
+  String get methodSendEpicboxTitle => '对方可以不在线。';
+
+  @override
+  String get methodSendEpicboxLine => 'Epicbox 服务器会暂存付款，直到对方打开钱包。';
+
+  @override
+  String get methodSendHttpTitle => '直达对方钱包。';
+
+  @override
+  String get methodSendHttpLine => '对方钱包必须处于打开状态，并且可以通过其 HTTP 地址访问。';
+
+  @override
+  String get methodSendTorTitle => '经由 Tor 直达对方钱包。';
+
+  @override
+  String get methodSendTorLine => '更慢，也更私密。对方钱包必须处于打开状态。';
+
+  @override
+  String get methodSendFileTitle => '无需连接。';
+
+  @override
+  String get methodSendFileLine => '交出文件，收回对方的回复文件，然后在这里完成。';
+
+  @override
+  String get methodReceiveEpicboxTitle => '分享它即可收款。';
+
+  @override
+  String get methodReceiveEpicboxLine => '应用关闭时也可用：Epicbox 服务器会暂存付款，直到钱包重新上线。';
+
+  @override
+  String get methodReceiveTorTitle => '更慢，也更私密。';
+
+  @override
+  String get methodReceiveTorLine => '仅在应用打开或短暂处于后台时可用。';
+
+  @override
+  String get methodReceiveFileTitle => '来回传递一个文件。';
+
+  @override
+  String get methodReceiveFileLine => '两个钱包之间无需连接。';
+
+  @override
+  String get methodAddressKindsTooltip => '地址类型';
+
+  @override
+  String get sendMethodLabel => '方式';
+
+  @override
+  String get sendToLabel => '收款方';
+
+  @override
+  String get sendToHint => '地址或联系人';
+
+  @override
+  String get sendSwitchedHttp => '经由 HTTP';
+
+  @override
+  String get sendSwitchedEpicbox => '经由 Epicbox';
+
+  @override
+  String get sendSwitchedTorAnnounce => 'Tor 地址。方式已设为 Tor。';
+
+  @override
+  String get sendSwitchedHttpAnnounce => 'HTTP 地址。方式已设为 HTTP。';
+
+  @override
+  String get sendSwitchedEpicboxAnnounce => 'Epicbox 地址。方式已设为 Epicbox。';
+
+  @override
+  String get sendReviewMethodHttp => 'HTTP，直达对方钱包';
+
+  @override
+  String get sendCancelRuleEpicbox => '在等待对方期间可以取消。';
+
+  @override
+  String get sendCancelRuleDirect => '对方钱包接受后无法取消。';
+
+  @override
+  String get sendCancelRuleFile => '在回复文件完成之前可以取消。';
+
+  @override
+  String get sendHttpReaching => '正在联系对方钱包… 请保持应用打开。';
+
+  @override
+  String get sendDeliveredWaitingBlock => '已送达 · 等待区块';
+
+  @override
+  String get sendHttpAddressShape => 'HTTP 地址以 http:// 或 https:// 开头。';
+
+  @override
+  String get sendPlainHttpTitle => '未加密。仍要发送吗？';
+
+  @override
+  String get sendPlainHttpBody =>
+      '以明文 HTTP 发送到另一台设备。途中任何人都能读取这笔交易。https:// 地址是加密的。';
+
+  @override
+  String get sendCancelPossibleWhileWaiting => '在付款等待对方期间可以操作。';
+
+  @override
+  String get sendHelpAddressKindsQuestion => '地址是什么样的？';
+
+  @override
+  String get sendHelpAddressKindsAnswer =>
+      'Epicbox 地址以 es 开头，以 @ 和服务器结尾。HTTP 地址是网址。Tor 地址以 .onion 结尾。';
+
+  @override
+  String get receiveHelpNoHttp => '手机上不能通过 HTTP 收款。发送方请使用 Epicbox 或 Tor 地址。';
+
+  @override
+  String get receiveEpicboxCaption => '念出地址时，核对前六位和后六位字符。';
+
+  @override
+  String get receiveTorCaption => '有些钱包显示的地址不带 .onion；两者是同一个地址。';
+
+  @override
+  String sendHttpNotReached(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: '未能联系到对方钱包。在你取消之前，这笔金额处于冻结状态，最长 $days 天。',
+    );
+    return '$_temp0';
   }
 }

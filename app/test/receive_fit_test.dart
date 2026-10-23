@@ -183,70 +183,88 @@ void main() {
         '${size.width.toInt()} x ${size.height.toInt()} dp'
         '${demo ? ', demo' : ', invoices'}'
         '${insets ? ', status and gesture bars' : ''}';
-    testWidgets('the Epicbox tab fits without scrolling at $name', (
-      tester,
-    ) async {
-      await _pump(tester, size: size, demo: demo, insets: insets);
-      expect(tester.takeException(), isNull);
-      // Everything the tab holds is there.
-      expect(find.byKey(receiveAddressKey), findsOneWidget);
-      expect(find.byKey(receiveEpicboxKey), findsOneWidget);
-      expect(find.byType(MarkedQr), findsOneWidget);
-      expect(find.byKey(receiveRequestKey), findsOneWidget);
-      expect(find.byKey(testCoinsKey), demo ? findsOneWidget : findsNothing);
-      final help = find.text('How receiving works');
-      expect(help, findsOneWidget);
-      // No scroll, and the last of it ends above the tab bar.
-      expect(_receiveScroll(tester).maxScrollExtent, 0);
-      final bar = tester.getRect(find.byType(NavigationBar));
-      final helpButton = tester.getRect(
-        find.ancestor(of: help, matching: find.byType(TextButton)),
-      );
-      expect(helpButton.bottom, lessThanOrEqualTo(bar.top));
-      // The code and its frame stay in their slot: under the epicbox line, above the
-      // buttons. A code drawn past the room it was given would cover them.
-      final code = tester.getRect(
-        find.ancestor(
-          of: find.byType(MarkedQr),
-          matching: find.byWidgetPredicate(
-            (w) =>
-                w is CustomPaint && w.foregroundPainter is CornerTicksPainter,
-          ),
-        ),
-      );
-      expect(
-        code.top,
-        greaterThanOrEqualTo(
-          tester.getRect(find.byKey(receiveEpicboxKey)).bottom,
-        ),
-      );
-      for (final below in [receiveRequestKey, if (demo) testCoinsKey]) {
-        expect(
-          code.bottom,
-          lessThanOrEqualTo(tester.getRect(find.byKey(below)).top),
-          reason: '$below',
+    // The method strip and the caption under the address (spec 7.2) take the room a 780 dp
+    // phone had to spare with the Request or test coins buttons: there it scrolls a little,
+    // the code at its least size.
+    final fits = size.height >= 900;
+    testWidgets(
+      fits
+          ? 'the Epicbox tab fits without scrolling at $name'
+          : 'the Epicbox tab scrolls a little at $name',
+      (tester) async {
+        await _pump(tester, size: size, demo: demo, insets: insets);
+        expect(tester.takeException(), isNull);
+        // Everything the tab holds is there.
+        expect(find.byKey(receiveAddressKey), findsOneWidget);
+        expect(find.byKey(receiveEpicboxKey), findsOneWidget);
+        expect(find.byType(MarkedQr), findsOneWidget);
+        expect(find.byKey(receiveRequestKey), findsOneWidget);
+        expect(find.byKey(testCoinsKey), demo ? findsOneWidget : findsNothing);
+        final help = find.text('How receiving works');
+        expect(help, findsOneWidget);
+        final scroll = _receiveScroll(tester).maxScrollExtent;
+        if (fits) {
+          // No scroll, and the last of it ends above the tab bar.
+          expect(scroll, 0);
+        } else {
+          expect(scroll, lessThanOrEqualTo(160), reason: name);
+          expect(_qrSide(tester), receiveQrMinSize);
+          await tester.drag(find.byType(ReceiveView), const Offset(0, -400));
+          await tester.pumpAndSettle();
+        }
+        final bar = tester.getRect(find.byType(NavigationBar));
+        final helpButton = tester.getRect(
+          find.ancestor(of: help, matching: find.byType(TextButton)),
         );
-      }
-      final side = _qrSide(tester);
-      // The frame holds the whole code: its ticks' 12 dp and the white 16 dp on each side.
-      expect(code.height, closeTo(side + 56, 0.5));
-      expect(code.width, closeTo(side + 56, 0.5));
-      expect(
-        code.deflate(28).contains(tester.getCenter(find.byType(MarkedQr))),
-        isTrue,
-      );
-      expect(
-        tester.getRect(find.byType(MarkedQr)).top,
-        closeTo(code.top + 28, 0.5),
-      );
-      expect(
-        side,
-        inInclusiveRange(receiveQrMinSize, receiveQrMaxSize),
-        reason: name,
-      );
-      // ignore: avoid_print
-      print('$name: QR $side dp, ${bar.top - helpButton.bottom} dp to spare');
-    });
+        expect(helpButton.bottom, lessThanOrEqualTo(bar.top));
+        // The code and its frame stay in their slot: under the epicbox line, above the
+        // buttons. A code drawn past the room it was given would cover them.
+        final code = tester.getRect(
+          find.ancestor(
+            of: find.byType(MarkedQr),
+            matching: find.byWidgetPredicate(
+              (w) =>
+                  w is CustomPaint && w.foregroundPainter is CornerTicksPainter,
+            ),
+          ),
+        );
+        expect(
+          code.top,
+          greaterThanOrEqualTo(
+            tester.getRect(find.byKey(receiveEpicboxKey)).bottom,
+          ),
+        );
+        for (final below in [receiveRequestKey, if (demo) testCoinsKey]) {
+          expect(
+            code.bottom,
+            lessThanOrEqualTo(tester.getRect(find.byKey(below)).top),
+            reason: '$below',
+          );
+        }
+        final side = _qrSide(tester);
+        // The frame holds the whole code: its ticks' 12 dp and the white 16 dp on each side.
+        expect(code.height, closeTo(side + 56, 0.5));
+        expect(code.width, closeTo(side + 56, 0.5));
+        expect(
+          code.deflate(28).contains(tester.getCenter(find.byType(MarkedQr))),
+          isTrue,
+        );
+        expect(
+          tester.getRect(find.byType(MarkedQr)).top,
+          closeTo(code.top + 28, 0.5),
+        );
+        expect(
+          side,
+          inInclusiveRange(receiveQrMinSize, receiveQrMaxSize),
+          reason: name,
+        );
+        // ignore: avoid_print
+        print(
+          '$name: QR $side dp, ${bar.top - helpButton.bottom} dp to spare, '
+          '$scroll dp scrolled',
+        );
+      },
+    );
   }
 
   testWidgets('with no room for the least code, the page scrolls', (

@@ -241,8 +241,8 @@ void main() {
         expect(_status('Tor receiving is off'), findsOneWidget);
         expect(
           find.text(
-            'Slower and more private. Blocked or not allowed in some countries. '
-            'Receives only while the app is open.',
+            'Tor receiving works while the app is open or briefly in the '
+            'background.',
           ),
           findsOneWidget,
         );

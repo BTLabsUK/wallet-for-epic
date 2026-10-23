@@ -4,7 +4,6 @@ import 'package:epic_wallet/src/network.dart';
 import 'package:epic_wallet/src/price.dart';
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/relay_directory.dart';
-import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/send_preflight.dart';
 import 'package:epic_wallet/src/slate_files.dart';
 import 'package:epic_wallet/src/ui/common.dart';
@@ -19,6 +18,8 @@ import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+import 'support/send_pin.dart';
 
 BigInt _epic(num value) => BigInt.from((value * 100000000).round());
 
@@ -83,13 +84,14 @@ class _Harness {
     tester.view.physicalSize = size;
     tester.view.devicePixelRatio = 3;
     addTearDown(tester.view.reset);
+    allowPinCheck(session);
     await tester.pumpWidget(
       ProviderScope(
         retry: (_, _) => null,
         overrides: [
           relayProbeProvider.overrideWithValue(FakeRelayProbe()),
           walletServiceProvider.overrideWithValue(FakeWalletService()),
-          secretStoreProvider.overrideWithValue(MemorySecretStore()),
+          secretStoreProvider.overrideWithValue(sendPinStore()),
           slateFilesProvider.overrideWithValue(FakeSlateFiles()),
           qrScannerProvider.overrideWithValue(FakeQrScanner(supported: true)),
           priceSourceProvider.overrideWithValue(_NoPrice()),
@@ -150,10 +152,24 @@ Future<void> _tap(WidgetTester tester, Finder finder) async {
   await tester.pumpAndSettle();
   await tester.tap(finder);
   await tester.pumpAndSettle();
+  await answerPin(tester);
 }
 
 Future<void> _enter(WidgetTester tester, String label, String text) async {
   final field = find.widgetWithText(TextField, label);
+  // Screens are lazy lists: scroll until the field is built.
+  if (field.evaluate().isEmpty) {
+    await tester.scrollUntilVisible(
+      field,
+      200,
+      scrollable: find
+          .descendant(
+            of: find.byType(ListView).last,
+            matching: find.byType(Scrollable),
+          )
+          .first,
+    );
+  }
   await tester.ensureVisible(field);
   await tester.enterText(field, text);
   await tester.pump(const Duration(milliseconds: 500));
@@ -161,7 +177,7 @@ Future<void> _enter(WidgetTester tester, String label, String text) async {
 }
 
 Future<void> _send(WidgetTester tester) async {
-  await _enter(tester, 'Epic address', _bob);
+  await _enter(tester, 'To', _bob);
   await _tap(tester, _continue);
   await _enter(tester, 'Amount (EPIC)', '1');
   await _tap(tester, _continue);
@@ -243,7 +259,7 @@ void main() {
       expect(find.text('1 of 3'), findsOneWidget);
       expect(find.byTooltip('Back'), findsNothing);
 
-      await _enter(tester, 'Epic address', _bob);
+      await _enter(tester, 'To', _bob);
       await _tap(tester, _continue);
       expect(find.text('Amount'), findsOneWidget);
       expect(find.text('2 of 3'), findsOneWidget);
@@ -292,7 +308,7 @@ void main() {
       Navigator.of(tester.element(find.byType(HandshakeSheet))).pop();
       await tester.pumpAndSettle();
 
-      await _enter(tester, 'Epic address', _bob);
+      await _enter(tester, 'To', _bob);
       await _tap(tester, _continue);
       expect(info, findsOneWidget);
       await _enter(tester, 'Amount (EPIC)', '1');
@@ -430,11 +446,13 @@ void main() {
       await tester.pumpWidget(const SizedBox());
       final moving = _Harness();
       await moving.pump(tester);
-      await _enter(tester, 'Epic address', _bob);
+      await _enter(tester, 'To', _bob);
       await _tap(tester, _continue);
       await _enter(tester, 'Amount (EPIC)', '1');
       await _tap(tester, _continue);
       await tester.tap(find.text('Send 1 EPIC'));
+      await tester.pumpAndSettle();
+      await answerPin(tester, settle: false);
       for (var i = 0; i < 10; i++) {
         await tester.pump(const Duration(milliseconds: 100));
       }
@@ -458,7 +476,7 @@ void main() {
       final h = _Harness();
       await h.pump(tester);
       final recipient = editable(tester, sendRecipientFieldKey);
-      await _tap(tester, find.text('No address? Use a payment file'));
+      await _tap(tester, find.text('File'));
       expect(find.byKey(sendRecipientFieldKey), findsNothing);
       final fileAmount = editable(tester, sendFileAmountFieldKey);
       expect(identical(fileAmount, recipient), isFalse);
@@ -473,7 +491,7 @@ void main() {
       await _tap(tester, find.byTooltip('Back'));
       final again = editable(tester, sendRecipientFieldKey);
       expect(identical(again, fileAmount), isFalse);
-      await _enter(tester, 'Epic address', _bob);
+      await _enter(tester, 'To', _bob);
       await _tap(tester, _continue);
       final amount = editable(tester, sendAmountFieldKey);
       expect(identical(amount, again), isFalse);
@@ -498,7 +516,7 @@ void main() {
       final h = _Harness(summary: FakeWalletSession.emptySummary);
       await h.pump(tester);
       expect(find.text('No coins to send yet.'), findsOneWidget);
-      expect(find.widgetWithText(TextField, 'Epic address'), findsNothing);
+      expect(find.widgetWithText(TextField, 'To'), findsNothing);
       expect(find.byKey(testCoinsKey), findsNothing);
     });
 
@@ -515,7 +533,7 @@ void main() {
       final h = _Harness(summary: _summary(onHold: _epic(10)));
       await h.pump(tester);
       expect(find.text('No coins to send yet.'), findsNothing);
-      await _enter(tester, 'Epic address', _bob);
+      await _enter(tester, 'To', _bob);
       await _tap(tester, _continue);
       expect(find.text('+10 EPIC coming in'), findsOneWidget);
     });

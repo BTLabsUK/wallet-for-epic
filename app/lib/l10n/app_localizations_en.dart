@@ -3446,7 +3446,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sendAddressIncomplete => 'This address looks incomplete.';
 
   @override
-  String get sendAddressNotEpic => 'This is not an Epic address.';
+  String get sendAddressNotEpic => 'This is not an Epicbox address.';
 
   @override
   String get sendNewRecipient => 'New recipient';
@@ -3771,7 +3771,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get torHonestLine =>
-      'Slower and more private. Blocked or not allowed in some countries. Receives only while the app is open.';
+      'Tor receiving works while the app is open or briefly in the background.';
 
   @override
   String get torStateOff => 'Tor receiving is off';
@@ -4583,5 +4583,189 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String serverRowLabel(String host, String facts) {
     return '$host, $facts';
+  }
+
+  @override
+  String get methodEpicbox => 'Epicbox';
+
+  @override
+  String get methodHttp => 'HTTP';
+
+  @override
+  String get methodTor => 'Tor';
+
+  @override
+  String get methodFile => 'File';
+
+  @override
+  String get methodArtCaptionEpicbox => 'Epicbox server holds it';
+
+  @override
+  String get methodArtCaptionHttp => 'Straight to their wallet';
+
+  @override
+  String get methodArtCaptionTor => 'Straight, through Tor';
+
+  @override
+  String get methodArtCaptionFile => 'File out, response back';
+
+  @override
+  String get methodArtLabelEpicbox =>
+      'Epicbox: the payment goes to the Epicbox server, which holds it until the recipient\'s wallet is back';
+
+  @override
+  String get methodArtLabelHttp =>
+      'HTTP: the payment goes straight to the recipient\'s wallet, which must be open';
+
+  @override
+  String get methodArtLabelTor =>
+      'Tor: the payment goes straight to the recipient\'s wallet, routed through the Tor network';
+
+  @override
+  String get methodArtLabelFile =>
+      'File: a transaction file is handed over, a response file comes back, then the sender finalizes';
+
+  @override
+  String get methodSendEpicboxTitle => 'The recipient can be offline.';
+
+  @override
+  String get methodSendEpicboxLine =>
+      'The Epicbox server holds the payment until they open their wallet.';
+
+  @override
+  String get methodSendHttpTitle => 'Straight to their wallet.';
+
+  @override
+  String get methodSendHttpLine =>
+      'It must be open and reachable at its HTTP address.';
+
+  @override
+  String get methodSendTorTitle => 'Straight to their wallet, over Tor.';
+
+  @override
+  String get methodSendTorLine =>
+      'Slower and more private. Their wallet must be open.';
+
+  @override
+  String get methodSendFileTitle => 'No connection needed.';
+
+  @override
+  String get methodSendFileLine =>
+      'Hand the file over, get their response file back, then finalize it here.';
+
+  @override
+  String get methodReceiveEpicboxTitle => 'Share it to get paid.';
+
+  @override
+  String get methodReceiveEpicboxLine =>
+      'Works while the app is closed: the Epicbox server holds payments until the wallet is back.';
+
+  @override
+  String get methodReceiveTorTitle => 'Slower and more private.';
+
+  @override
+  String get methodReceiveTorLine =>
+      'Works only while the app is open or briefly in the background.';
+
+  @override
+  String get methodReceiveFileTitle => 'Hand a file back and forth.';
+
+  @override
+  String get methodReceiveFileLine =>
+      'Works with no connection between the wallets.';
+
+  @override
+  String get methodAddressKindsTooltip => 'Address kinds';
+
+  @override
+  String get sendMethodLabel => 'Method';
+
+  @override
+  String get sendToLabel => 'To';
+
+  @override
+  String get sendToHint => 'Address or contact';
+
+  @override
+  String get sendSwitchedHttp => 'Over HTTP';
+
+  @override
+  String get sendSwitchedEpicbox => 'Via Epicbox';
+
+  @override
+  String get sendSwitchedTorAnnounce => 'Tor address. Method set to Tor.';
+
+  @override
+  String get sendSwitchedHttpAnnounce => 'HTTP address. Method set to HTTP.';
+
+  @override
+  String get sendSwitchedEpicboxAnnounce =>
+      'Epicbox address. Method set to Epicbox.';
+
+  @override
+  String get sendReviewMethodHttp => 'HTTP, straight to their wallet';
+
+  @override
+  String get sendCancelRuleEpicbox =>
+      'Can be cancelled while it waits for the recipient.';
+
+  @override
+  String get sendCancelRuleDirect =>
+      'Cannot be cancelled once their wallet accepts it.';
+
+  @override
+  String get sendCancelRuleFile =>
+      'Can be cancelled until the response file is finalized.';
+
+  @override
+  String get sendHttpReaching => 'Reaching their wallet… Keep the app open.';
+
+  @override
+  String get sendDeliveredWaitingBlock => 'Delivered · Waiting for a block';
+
+  @override
+  String get sendHttpAddressShape =>
+      'An HTTP address starts with http:// or https://.';
+
+  @override
+  String get sendPlainHttpTitle => 'Not encrypted. Send anyway?';
+
+  @override
+  String get sendPlainHttpBody =>
+      'Plain HTTP to another device. Anyone on the way can read the transaction. An https:// address is encrypted.';
+
+  @override
+  String get sendCancelPossibleWhileWaiting =>
+      'Possible while the payment waits for the recipient.';
+
+  @override
+  String get sendHelpAddressKindsQuestion => 'What does an address look like?';
+
+  @override
+  String get sendHelpAddressKindsAnswer =>
+      'An Epicbox address starts with es and ends in @ and the server. An HTTP address is a web address. A Tor address ends in .onion.';
+
+  @override
+  String get receiveHelpNoHttp =>
+      'Receiving over HTTP is not on the phone. Senders use the Epicbox or Tor address.';
+
+  @override
+  String get receiveEpicboxCaption =>
+      'When reading it out, check the first six and last six characters.';
+
+  @override
+  String get receiveTorCaption =>
+      'Some wallets show the address without .onion; both are the same address.';
+
+  @override
+  String sendHttpNotReached(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other:
+          'Their wallet was not reached. The amount is on hold until you cancel it, or for at most $days days.',
+      one: 'Their wallet was not reached. The amount is on hold until you cancel it, or for at most 1 day.',
+    );
+    return '$_temp0';
   }
 }
