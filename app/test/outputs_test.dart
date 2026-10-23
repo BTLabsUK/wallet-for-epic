@@ -10,6 +10,7 @@ import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/settings.dart';
 import 'package:epic_wallet/src/smart_outputs.dart';
 import 'package:epic_wallet/src/ui/common.dart';
+import 'package:epic_wallet/src/ui/info_hint.dart';
 import 'package:epic_wallet/src/ui/outputs_screen.dart';
 import 'package:epic_wallet/src/ui/scan_screen.dart';
 import 'package:epic_wallet/src/ui/settings_history.dart';
@@ -207,18 +208,103 @@ void main() {
     });
   });
 
-  testWidgets('tiles show the balance and the counts', (tester) async {
+  testWidgets('tiles lead with the count and show the value below', (
+    tester,
+  ) async {
     final h = _Harness();
     await h.pump(tester, const OutputsScreen());
     expect(find.text(_l.outputsTitle), findsOneWidget);
     expect(find.text('17 EPIC'), findsOneWidget);
     expect(find.text('3 EPIC'), findsNWidgets(2)); // tile and row
-    expect(find.text('3 outputs'), findsNWidgets(1));
-    // Confirming and the empty Immature tile both count one.
+    expect(find.text('3 outputs'), findsOneWidget);
+    // Confirming and Locked both count one.
     expect(find.text('1 output'), findsNWidgets(2));
-    // Nothing locked in the balance: the tile stays, at zero.
+    // Nothing immature: the tile stays, at zero.
+    expect(find.text('0 outputs'), findsOneWidget);
     expect(find.text(_l.outputsLockedTile), findsOneWidget);
     expect(find.text(_l.outputsImmature), findsOneWidget);
+    // The label is the eyebrow, the count the main line, the value the last.
+    final label = tester.getTopLeft(find.text(_l.outputsSpendable).first).dy;
+    final count = tester.getTopLeft(find.text('3 outputs')).dy;
+    final value = tester.getTopLeft(find.text('17 EPIC')).dy;
+    expect(label, lessThan(count));
+    expect(count, lessThan(value));
+  });
+
+  testWidgets('the table sits under the tiles, Advanced below it', (
+    tester,
+  ) async {
+    final h = _Harness();
+    await h.pump(tester, const OutputsScreen());
+    // Filters, then the header, then the rows.
+    final filters = tester.getTopLeft(find.text(_l.outputsFilterAll(5))).dy;
+    final head = tester.getTopLeft(find.text(_l.outputsColState)).dy;
+    final row = tester.getTopLeft(find.text('10 EPIC')).dy;
+    expect(filters, lessThan(head));
+    expect(head, lessThan(row));
+    expect(find.text(_l.outputsColValue), findsOneWidget);
+    expect(find.text(_l.outputsColConfirmations), findsOneWidget);
+    expect(find.text('10 / 3'), findsNWidgets(4));
+    expect(find.text('1 / 3'), findsOneWidget);
+    // The advanced section follows the last row and holds the actions.
+    final advanced = find.text(_l.outputsAdvanced);
+    expect(advanced, findsOneWidget);
+    final lastRow = tester.getBottomLeft(find.text('4 EPIC').last).dy;
+    expect(tester.getTopLeft(advanced).dy, greaterThan(lastRow));
+    for (final label in [
+      _l.outputsSplitButton,
+      _l.outputsConsolidateButton,
+      _l.outputsStrategy,
+      _l.outputsSplitChange,
+    ]) {
+      expect(
+        tester.getTopLeft(find.text(label)).dy,
+        greaterThan(tester.getTopLeft(advanced).dy),
+        reason: label,
+      );
+    }
+  });
+
+  testWidgets('no explanation text in the main view', (tester) async {
+    final h = _Harness();
+    await h.pump(tester, const OutputsScreen());
+    expect(find.textContaining('pieces the balance is made of'), findsNothing);
+    // The Split change explanation sits behind the info icon, not under the switch.
+    expect(find.text(_l.outputsSplitChangeText), findsNothing);
+    final hint = find.byType(InfoHint);
+    expect(hint, findsOneWidget);
+    expect(
+      tester.widget<Tooltip>(
+        find.descendant(of: hint, matching: find.byType(Tooltip)),
+      ).message,
+      _l.outputsSplitChangeText,
+    );
+  });
+
+  testWidgets('a row with no height on chain shows a dash', (tester) async {
+    final h = _Harness(outputs: [
+      WalletOutput(
+        commitment: _commit('a'),
+        value: _epic(2),
+        status: WalletOutputStatus.unconfirmed,
+        category: OutputCategory.awaitingConfirmation,
+        isCoinbase: false,
+        height: BigInt.zero,
+        lockHeight: BigInt.zero,
+        confirmations: BigInt.zero,
+      ),
+    ]);
+    await h.pump(tester, const OutputsScreen());
+    expect(find.text('–'), findsOneWidget);
+  });
+
+  testWidgets('lays out at text scale 1.3 on a 360 dp phone', (tester) async {
+    final h = _Harness();
+    tester.platformDispatcher.textScaleFactorTestValue = 1.3;
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+    await h.pump(tester, const OutputsScreen());
+    expect(tester.takeException(), isNull);
+    expect(find.text(_l.outputsAdvanced), findsOneWidget);
   });
 
   testWidgets('the Locked tile shows the locked balance', (
@@ -271,7 +357,8 @@ void main() {
     expect(find.text(_l.outputsMeanSpendable), findsOneWidget);
     expect(find.text(_l.outputsFactHeight), findsOneWidget);
     expect(find.text('2499000'), findsOneWidget);
-    expect(find.text(_l.outputsFactConfirmations), findsOneWidget);
+    // The table header and the sheet's fact carry the same word.
+    expect(find.text(_l.outputsFactConfirmations), findsNWidgets(2));
     expect(find.text(_l.outputsCopy), findsOneWidget);
   });
 
