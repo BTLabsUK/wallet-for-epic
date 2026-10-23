@@ -178,7 +178,13 @@ void main() {
       expect(tabs.showSelectedIcon, isFalse);
       expect(tabs.expandedInsets, EdgeInsets.zero);
       expect(
-        [for (final s in tabs.segments) (s.value, (s.label! as Text).data)],
+        [
+          for (final s in tabs.segments)
+            (
+              s.value,
+              ((s.label! as FittedBox).child! as Text).data,
+            ),
+        ],
         [(ReceiveTab.epicbox, 'Epicbox'), (ReceiveTab.file, 'File')],
       );
       expect(

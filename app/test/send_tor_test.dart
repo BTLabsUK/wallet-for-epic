@@ -1,9 +1,9 @@
-// Send to a Tor address: an onion in any form (F9) switches the payment to Tor by itself
-// (F10): the recipient card says "Over Tor", the review says what tor is doing, Send starts
-// tor if it is off ("Connecting to Tor…"), reaches their wallet ("Reaching their wallet over
-// Tor…", no time promised), and lands on the tracker like any send. A failure to reach them
-// leaves the payment stored and waiting: Try again delivers it again, Cancel payment frees
-// the coins. Tor that does not connect before anything was sent: Try again or Done.
+// Send to a Tor address: an onion in any form (F9) is a Direct recipient (F10): the recipient
+// card says "Over Tor". With the Tor switch off it needs Tor: Turn on Tor, and the review
+// waits until Tor is on. Then it reaches their wallet ("Reaching their wallet over Tor…", no
+// time promised) and lands on the tracker like any send. A failure to reach them leaves the
+// payment stored and waiting: Try again delivers it again, Cancel payment frees the coins.
+// Tor that stops at the review: nothing sends, Retry is offered.
 
 import 'dart:async';
 
@@ -324,25 +324,35 @@ void main() {
   });
 
   group('send', () {
-    testWidgets('tor off: connects on Send, reaches them, then the tracker', (
+    testWidgets('tor off: Turn on Tor, then it reaches them and tracks', (
       tester,
     ) async {
       final h = _Harness();
       await h.pump(tester);
+      await _enter(tester, 'To', _onion);
+      expect(find.text('Needs Tor.'), findsOneWidget);
+      await _tap(tester, find.byKey(sendTurnOnTorKey));
+      expect(h.session.torStarts, hasLength(1));
+      expect(h.tor.phase, PhoneTorPhase.starting);
+      expect(h.tor.receiving, isTrue);
+      await h.emit(tester, TorEventKind.starting, progress: 60);
+      await h.emit(tester, TorEventKind.ready);
       await h.toReview(tester);
       expect(find.text('Over Tor'), findsOneWidget);
-      expect(find.text('Tor connects when you send.'), findsOneWidget);
+      expect(find.text('Ready to send over Tor'), findsOneWidget);
       // No epicbox check on a Tor payment.
       expect(find.text('Not connected yet. You can still send.'), findsNothing);
       expect(find.textContaining('minute'), findsNothing);
 
       h.session.torSendGate = Completer<void>();
       await _tap(tester, find.text('Send 1 EPIC'));
-      expect(h.session.torStarts, hasLength(1));
-      expect(h.tor.phase, PhoneTorPhase.starting);
-      expect(find.text('Connecting to Tor… 0%'), findsOneWidget);
-      await h.emit(tester, TorEventKind.starting, progress: 60);
-      expect(find.text('Connecting to Tor… 60%'), findsOneWidget);
+      expect(h.session.torSends, hasLength(1));
+      expect(h.session.torSends.single.onion, _onion);
+      expect(
+        find.textContaining('Reaching their wallet over Tor…'),
+        findsOneWidget,
+      );
+      expect(find.textContaining('minute'), findsNothing);
       // Back waits while it runs.
       expect(
         tester
@@ -352,15 +362,6 @@ void main() {
             .onPressed,
         isNull,
       );
-
-      await h.emit(tester, TorEventKind.bootstrapped);
-      expect(h.session.torSends, hasLength(1));
-      expect(h.session.torSends.single.onion, _onion);
-      expect(
-        find.textContaining('Reaching their wallet over Tor…'),
-        findsOneWidget,
-      );
-      expect(find.textContaining('minute'), findsNothing);
 
       h.answered();
       h.session.torSendGate!.complete();
@@ -450,30 +451,31 @@ void main() {
       expect(find.textContaining('wfe7q3…abcdid.onion'), findsOneWidget);
     });
 
-    testWidgets('tor did not connect: nothing sent, Try again or Done', (
+    testWidgets('tor stops at the review: nothing sends, Retry', (
       tester,
     ) async {
       final h = _Harness();
       await h.pump(tester);
+      await h.container.read(phoneTorProvider.notifier).setReceiving(true);
+      await h.emit(tester, TorEventKind.ready);
       await h.toReview(tester);
-      await _tap(tester, find.text('Send 1 EPIC'));
-      expect(find.text('Connecting to Tor… 0%'), findsOneWidget);
       await h.emit(tester, TorEventKind.failed, failure: TorFailure.network);
       await h.emit(tester, TorEventKind.stopped);
+      expect(h.tor.phase, PhoneTorPhase.failed);
+      expect(find.text('Tor is not connected.'), findsOneWidget);
+      expect(
+        tester
+            .widget<FilledButton>(
+              find.widgetWithText(FilledButton, 'Send 1 EPIC'),
+            )
+            .onPressed,
+        isNull,
+      );
       expect(h.session.torSends, isEmpty);
       expect(h.session.transactionsValue, isEmpty);
-      expect(
-        find.textContaining('Could not reach the Tor network.'),
-        findsOneWidget,
-      );
-      expect(find.textContaining('Nothing was sent.'), findsOneWidget);
-      expect(find.byKey(sendTryAgainKey), findsOneWidget);
-      expect(find.byKey(sendCancelPaymentKey), findsNothing);
-      expect(find.text('Done'), findsOneWidget);
-      // Try again starts tor again for the same send.
-      await _tap(tester, find.byKey(sendTryAgainKey));
-      expect(h.session.torStarts.length, greaterThanOrEqualTo(2));
-      expect(find.textContaining('Connecting to Tor…'), findsOneWidget);
+      final starts = h.session.torStarts.length;
+      await _tap(tester, find.text('Retry'));
+      expect(h.session.torStarts.length, greaterThan(starts));
     });
   });
 }

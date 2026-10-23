@@ -19,6 +19,8 @@ import '../providers.dart';
 import '../send_preflight.dart';
 import '../settings.dart';
 import '../slate_files.dart';
+import '../tor_phone.dart';
+import '../tor_routes.dart';
 import '../wallet_service.dart';
 import 'centered_body.dart';
 import 'common.dart';
@@ -144,19 +146,37 @@ const Key sendCancelPaymentKey = ValueKey('send-cancel-payment');
 const Key sendMethodsKey = ValueKey('send-methods');
 const Key sendSwitchedTagKey = ValueKey('send-switched-tag');
 
-/// The shape of an address of each kind, under the To field while it is empty.
-const Map<TransferMethod, String> sendAddressShapes = {
-  TransferMethod.epicbox: 'esXXXX…XXXX@epicbox.epiccash.com',
-  TransferMethod.http: 'http://host:3415',
-  TransferMethod.tor: 'xxxxxxxx…xxxx.onion',
-};
+/// The shape of an HTTP address, in the sentence about an incomplete one.
+const String sendHttpShape = 'http://host:3415';
 
-/// The method a recipient of [kind] is paid by.
+/// The shape of an address for [method], under the To field while it is empty.
+String? sendAddressShape(AppLocalizations l, TransferMethod method) =>
+    switch (method) {
+      TransferMethod.epicbox => 'esXXXX…XXXX@epicbox.epiccash.com',
+      TransferMethod.direct => l.methodDirectShape,
+      TransferMethod.file => null,
+    };
+
+/// The method a recipient of [kind] is paid by: an http(s) or onion address is Direct.
 TransferMethod methodForRecipient(RecipientKind kind) => switch (kind) {
   RecipientKind.epicbox => TransferMethod.epicbox,
-  RecipientKind.http => TransferMethod.http,
-  RecipientKind.tor => TransferMethod.tor,
+  RecipientKind.http || RecipientKind.tor => TransferMethod.direct,
 };
+
+/// The connection a payment to [to] takes, for the Tor switch ([torWay]).
+TorRoute sendRoute(Recipient to) => switch (to.kind) {
+  RecipientKind.epicbox => TorRoute.epicbox,
+  RecipientKind.http => TorRoute.httpDirect,
+  RecipientKind.tor => TorRoute.onionDirect,
+};
+
+/// Send's notice under To and the Tor buttons in it, for tests.
+const Key sendTorNoticeKey = ValueKey('send-tor-notice');
+const Key sendTurnOnTorKey = ValueKey('send-turn-on-tor');
+const Key sendTurnOffTorKey = ValueKey('send-turn-off-tor');
+
+/// The tag beside To that says whether the payment goes over Tor, for tests.
+const Key sendTorTagKey = ValueKey('send-tor-tag');
 
 /// The payment Send's tracker is showing, while it shows one, so home does not repeat the
 /// tracker's news in a notice.
@@ -367,16 +387,13 @@ class _SendViewState extends ConsumerState<SendView> {
     final to = parseRecipient(text);
     // A whole address of another kind has moved the method already; text that does not fit
     // the method chosen by hand gets that method's own sentence.
-    if (_method == TransferMethod.http && to.kind != RecipientKind.http) {
-      return l.sendHttpAddressShape;
-    }
-    if (_method == TransferMethod.tor && to.kind != RecipientKind.tor) {
-      return l.sendOnionIncomplete;
+    if (_method == TransferMethod.direct && to.kind == RecipientKind.epicbox) {
+      return l.sendDirectAddressShape;
     }
     if (to.kind == RecipientKind.http) {
       return httpAddressComplete(to.address)
           ? null
-          : l.contactsUrlIncomplete(sendAddressShapes[TransferMethod.http]!);
+          : l.contactsUrlIncomplete(sendHttpShape);
     }
     if (to.kind == RecipientKind.tor &&
         ref.read(phoneTorProvider).phase == PhoneTorPhase.unavailable) {
@@ -418,8 +435,22 @@ class _SendViewState extends ConsumerState<SendView> {
     };
   }
 
-  bool get _torOffered =>
-      ref.read(phoneTorProvider).phase != PhoneTorPhase.unavailable;
+  /// The connection the To text takes, for the Tor switch: Epicbox's whatever is typed, and
+  /// on Direct the address's own once it has a shape; null before that.
+  TorRoute? get _toRoute {
+    if (_method == TransferMethod.epicbox) return TorRoute.epicbox;
+    final to = parseRecipient(_recipient.text);
+    if (to.kind == RecipientKind.epicbox || !recipientShaped(to)) return null;
+    return sendRoute(to);
+  }
+
+  /// The Tor switch's state, watched: for build only.
+  TorState get _torState => phoneTorState(ref.watch(phoneTorProvider));
+
+  /// How [route] goes with the Tor switch at [state] (now, watched, by default); clearnet for
+  /// no route.
+  TorWay _wayOf(TorRoute? route, [TorState? state]) =>
+      route == null ? TorWay.clearnet : torWay(route, state ?? _torState);
 
   /// The method follows the address (desktop spec 8.4): a whole address of another kind, or
   /// any address that was pasted, scanned or picked ([forced], or one change adding 8 or more
@@ -433,7 +464,6 @@ class _SendViewState extends ConsumerState<SendView> {
     if (!recipientShaped(to)) return;
     final method = methodForRecipient(to.kind);
     if (method == _method) return;
-    if (method == TransferMethod.tor && !_torOffered) return;
     if (!(forced || added >= 8 || _complete(to))) return;
     _method = method;
     _switchedTo = method;
@@ -1537,13 +1567,10 @@ class _SendViewState extends ConsumerState<SendView> {
     return contactNameFor(contacts, address);
   }
 
-  /// Epicbox, HTTP, Tor and File, one segment each, icon over label so four fit a 320 dp
-  /// phone. Tor drops out where the app has no Tor.
+  /// Epicbox, Direct and File, one segment each, icon over label. Tor is not a method: the
+  /// one Tor switch (Settings › Privacy) changes how Epicbox and Direct connect.
   Widget _methodSelector(BuildContext context, TransferMethod selected) {
     final l = context.l10n;
-    final torOffered = ref.watch(
-      phoneTorProvider.select((s) => s.phase != PhoneTorPhase.unavailable),
-    );
     final labelStyle = Theme.of(context).textTheme.labelMedium;
     ButtonSegment<TransferMethod> segment(
       TransferMethod value,
@@ -1575,8 +1602,7 @@ class _SendViewState extends ConsumerState<SendView> {
             Icons.alternate_email,
             l.methodEpicbox,
           ),
-          segment(TransferMethod.http, Icons.link, l.methodHttp),
-          if (torOffered) segment(TransferMethod.tor, torIcon, l.methodTor),
+          segment(TransferMethod.direct, Icons.link, l.methodDirect),
           segment(
             TransferMethod.file,
             Icons.description_outlined,
@@ -1631,7 +1657,8 @@ class _SendViewState extends ConsumerState<SendView> {
       ref.watch(homeProvider).value?.transactions ?? const <TxEntry>[],
     );
     final matches = _nameMatches(text);
-    final shape = sendAddressShapes[_method];
+    final shape = sendAddressShape(l, _method);
+    final way = _wayOf(_toRoute);
     return [
       _header(context, l.sendStepRecipient, step: 1),
       ..._methodHead(context, _method),
@@ -1660,7 +1687,13 @@ class _SendViewState extends ConsumerState<SendView> {
             children: [
               Text(l.sendToLabel),
               const SizedBox(width: 8),
-              _SwitchTag(method: _switchedTo, shown: _tagOn),
+              Flexible(
+                child: _SwitchTag(method: _switchedTo, shown: _tagOn),
+              ),
+              if (_TorTag.shows(way, _torState)) ...[
+                const SizedBox(width: 8),
+                Flexible(child: _TorTag(way: way)),
+              ],
             ],
           ),
           hintText: l.sendToHint,
@@ -1673,6 +1706,7 @@ class _SendViewState extends ConsumerState<SendView> {
       ),
       if (_tagOn && _switchedTo != null)
         _SwitchAnnouncement(method: _switchedTo!),
+      _TorNotice(way: way),
       if (text.isEmpty && shape != null)
         Row(
           children: [
@@ -1933,7 +1967,17 @@ class _SendViewState extends ConsumerState<SendView> {
 
   void _submitAmount({required bool file}) {
     if (!_amountReady || _busy) return;
-    file ? _createFile() : _toReview();
+    if (file) {
+      _createFile();
+      return;
+    }
+    // A connection that waits for Tor, or needs it, goes no further than here.
+    final way = _wayOf(
+      sendRoute(parseRecipient(_recipient.text)),
+      phoneTorState(ref.read(phoneTorProvider)),
+    );
+    if (!torGoes(way)) return;
+    _toReview();
   }
 
   List<Widget> _amountStep(BuildContext context) {
@@ -1945,16 +1989,23 @@ class _SendViewState extends ConsumerState<SendView> {
         alignment: AlignmentDirectional.centerStart,
         child: _ToChip(address: address, name: _contactName(address)),
       ),
+      _TorNotice(way: _wayOf(sendRoute(parseRecipient(_recipient.text)))),
       const SizedBox(height: 20),
       ..._amountFields(context, file: false),
     ];
   }
 
-  Widget _amountAction() => BusyButton(
-    label: context.l10n.commonContinue,
-    busy: _estimating,
-    onPressed: _amountReady && !_busy ? _toReview : null,
-  );
+  /// Continue to the review; it waits while the payment's connection waits for Tor.
+  Widget _amountAction() {
+    final way = _wayOf(sendRoute(parseRecipient(_recipient.text)));
+    return BusyButton(
+      label: way == TorWay.wait
+          ? context.l10n.torWaiting
+          : context.l10n.commonContinue,
+      busy: _estimating,
+      onPressed: _amountReady && !_busy && torGoes(way) ? _toReview : null,
+    );
+  }
 
   List<Widget> _reviewStep(BuildContext context) {
     final l = context.l10n;
@@ -1973,6 +2024,8 @@ class _SendViewState extends ConsumerState<SendView> {
     final overTor = to.kind == RecipientKind.tor;
     final overHttp = to.kind == RecipientKind.http;
     final tor = overTor ? ref.watch(phoneTorProvider) : null;
+    final torState = _torState;
+    final way = _wayOf(sendRoute(to), torState);
     final String? failed;
     if (!_sendFailed) {
       failed = null;
@@ -2015,9 +2068,14 @@ class _SendViewState extends ConsumerState<SendView> {
       _Row(
         label: l.sendMethodLabel,
         value: switch (to.kind) {
+          RecipientKind.epicbox when way == TorWay.overTor =>
+            '${l.methodEpicbox} · ${l.sendOverTor}',
           RecipientKind.epicbox => l.methodEpicbox,
-          RecipientKind.http => l.sendReviewMethodHttp,
-          RecipientKind.tor => l.methodTor,
+          RecipientKind.http
+              when way == TorWay.clearnet && torState != TorState.off =>
+            '${l.methodDirect} · ${l.torNotOverTor}',
+          RecipientKind.http => l.methodDirect,
+          RecipientKind.tor => '${l.methodDirect} · ${l.sendOverTor}',
         },
         mono: false,
       ),
@@ -2056,6 +2114,7 @@ class _SendViewState extends ConsumerState<SendView> {
         failed: failed,
         tor: tor,
         http: overHttp,
+        way: way,
       ),
       const SizedBox(height: 4),
       Text(
@@ -2071,8 +2130,10 @@ class _SendViewState extends ConsumerState<SendView> {
     final l = context.l10n;
     final checks = ref.watch(sendPreflightProvider(_relay));
     final relayDown = checks.relayOutcome == CheckOutcome.failed;
-    // Without a node answer the send could not be built or posted.
-    final canSend = checks.ready && !_busy;
+    // Without a node answer the send could not be built or posted, and a connection that
+    // waits for Tor or needs it does not go.
+    final way = _wayOf(sendRoute(parseRecipient(_recipient.text)));
+    final canSend = checks.ready && !_busy && torGoes(way);
     final amount = epicExact(l, _estimate!.amount);
     final quiet = TextButton.styleFrom(minimumSize: const Size.fromHeight(44));
     return Column(
@@ -2586,9 +2647,50 @@ class AddressEnds extends StatelessWidget {
   }
 }
 
-/// "Over Tor" / "Over HTTP" / "Via Epicbox" beside the To label for 3 s after the address
-/// moved the method: fades in over 120 ms and out over 200 ms (at once with reduced motion),
-/// and is read out once as "Tor address. Method set to Tor."
+/// A small rounded tag in the accent: [icon] and a short [text], cut short when the row is
+/// narrow.
+class _Pill extends StatelessWidget {
+  const _Pill({required this.icon, required this.text, this.muted = false});
+
+  final IconData icon;
+  final String text;
+
+  /// Dim instead of the accent: a fact, not something the user gains.
+  final bool muted;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    final ink = muted ? t.dim : t.accentText;
+    return Container(
+      padding: const EdgeInsetsDirectional.fromSTEB(6, 2, 8, 2),
+      decoration: BoxDecoration(
+        color: muted ? t.surfaceHi : t.accentSoft,
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 14, color: ink),
+          const SizedBox(width: 4),
+          Flexible(
+            child: Text(
+              text,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: Theme.of(context).textTheme.labelSmall
+                  ?.copyWith(color: ink),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// "Direct address" / "Via Epicbox" beside the To label for 3 s after the address moved the
+/// method: fades in over 120 ms and out over 200 ms (at once with reduced motion), and is read
+/// out once as "Direct address. Method set to Direct."
 class _SwitchTag extends StatelessWidget {
   const _SwitchTag({required this.method, required this.shown});
 
@@ -2598,13 +2700,11 @@ class _SwitchTag extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
-    final t = context.tokens;
     final method = this.method;
     final still = MediaQuery.disableAnimationsOf(context);
     if (method == null) return const SizedBox.shrink();
     final (icon, text) = switch (method) {
-      TransferMethod.tor => (torIcon, l.sendOverTor),
-      TransferMethod.http => (Icons.link, l.sendSwitchedHttp),
+      TransferMethod.direct => (Icons.link, l.sendSwitchedDirect),
       _ => (Icons.alternate_email, l.sendSwitchedEpicbox),
     };
     // The text field merges its label: [_SwitchAnnouncement] says it out loud.
@@ -2615,32 +2715,14 @@ class _SwitchTag extends StatelessWidget {
         duration: still
             ? Duration.zero
             : Duration(milliseconds: shown ? 120 : 200),
-        child: Container(
-          padding: const EdgeInsetsDirectional.fromSTEB(6, 2, 8, 2),
-          decoration: BoxDecoration(
-            color: t.accentSoft,
-            borderRadius: BorderRadius.circular(999),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(icon, size: 14, color: t.accentText),
-              const SizedBox(width: 4),
-              Text(
-                text,
-                style: Theme.of(context).textTheme.labelSmall
-                    ?.copyWith(color: t.accentText),
-              ),
-            ],
-          ),
-        ),
+        child: _Pill(icon: icon, text: text),
       ),
     );
   }
 }
 
-/// "Tor address. Method set to Tor." read out once when the address moved the method: its own
-/// live region under the To field, outside the field's merged label.
+/// "Direct address. Method set to Direct." read out once when the address moved the method:
+/// its own live region under the To field, outside the field's merged label.
 class _SwitchAnnouncement extends StatelessWidget {
   const _SwitchAnnouncement({required this.method});
 
@@ -2653,8 +2735,7 @@ class _SwitchAnnouncement extends StatelessWidget {
       container: true,
       liveRegion: true,
       label: switch (method) {
-        TransferMethod.tor => l.sendSwitchedTorAnnounce,
-        TransferMethod.http => l.sendSwitchedHttpAnnounce,
+        TransferMethod.direct => l.sendSwitchedDirectAnnounce,
         _ => l.sendSwitchedEpicboxAnnounce,
       },
       child: const SizedBox(width: double.infinity, height: 1),
@@ -2662,34 +2743,122 @@ class _SwitchAnnouncement extends StatelessWidget {
   }
 }
 
-/// "Over Tor" beside a recipient whose address is an onion: the method the payment takes,
-/// since there is no method to pick.
+/// Beside the To label, from the Tor switch: "Over Tor" while the payment's connection goes
+/// through Tor, "Not over Tor" for one that stays on the clearnet while Tor is on, "Waiting
+/// for Tor" while Tor starts. Nothing with Tor off; [_TorNotice] covers needing and failing.
+class _TorTag extends StatelessWidget {
+  const _TorTag({required this.way});
+
+  final TorWay way;
+
+  /// Whether a tag shows for [way] with the switch at [state].
+  static bool shows(TorWay way, TorState state) => switch (way) {
+    TorWay.overTor || TorWay.wait => true,
+    TorWay.clearnet => state != TorState.off,
+    TorWay.needsTor || TorWay.blocked || TorWay.off => false,
+  };
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    final (text, muted) = switch (way) {
+      TorWay.overTor => (l.sendOverTor, false),
+      TorWay.wait => (l.torWaiting, true),
+      _ => (l.torNotOverTor, true),
+    };
+    // Read with the field's label: "To, Over Tor".
+    return KeyedSubtree(
+      key: sendTorTagKey,
+      child: _Pill(icon: torIcon, text: text, muted: muted),
+    );
+  }
+}
+
+/// Under To while the payment's connection cannot go: an onion address with Tor off ("Needs
+/// Tor." with Turn on Tor, which keeps the form), or Tor on but not connected ("Tor is not
+/// connected." with Retry and Turn Tor off). Nothing falls back to the clearnet.
+class _TorNotice extends ConsumerWidget {
+  const _TorNotice({required this.way});
+
+  final TorWay way;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = context.l10n;
+    final t = context.tokens;
+    // Without Tor in the app the address's own error says so.
+    final available = ref.watch(
+      phoneTorProvider.select((s) => s.phase != PhoneTorPhase.unavailable),
+    );
+    if (!available || (way != TorWay.needsTor && way != TorWay.blocked)) {
+      return const SizedBox.shrink();
+    }
+    final tor = ref.read(phoneTorProvider.notifier);
+    final blocked = way == TorWay.blocked;
+    final quiet = TextButton.styleFrom(minimumSize: const Size(48, 44));
+    return Semantics(
+      key: sendTorNoticeKey,
+      container: true,
+      liveRegion: true,
+      child: Padding(
+        padding: const EdgeInsets.only(top: 8),
+        child: Wrap(
+          crossAxisAlignment: WrapCrossAlignment.center,
+          spacing: 4,
+          children: [
+            Padding(
+              padding: const EdgeInsetsDirectional.only(start: 4, end: 4),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    blocked ? Icons.error_outline : torIcon,
+                    size: 18,
+                    color: blocked ? t.risk : t.dim,
+                  ),
+                  const SizedBox(width: 6),
+                  Flexible(
+                    child: Text(
+                      blocked ? l.torNotConnectedNotice : l.torNeeds,
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            if (blocked) ...[
+              TextButton(
+                style: quiet,
+                onPressed: tor.retry,
+                child: Text(l.commonRetry),
+              ),
+              TextButton(
+                key: sendTurnOffTorKey,
+                style: quiet,
+                onPressed: () => tor.setReceiving(false),
+                child: Text(l.torTurnOff),
+              ),
+            ] else
+              TextButton(
+                key: sendTurnOnTorKey,
+                style: quiet,
+                onPressed: () => tor.setReceiving(true),
+                child: Text(l.torTurnOn),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// "Over Tor" beside a recipient whose address is an onion: the payment always goes over Tor.
 class _TorPill extends StatelessWidget {
   const _TorPill();
 
   @override
-  Widget build(BuildContext context) {
-    final t = context.tokens;
-    return Container(
-      padding: const EdgeInsetsDirectional.fromSTEB(6, 2, 8, 2),
-      decoration: BoxDecoration(
-        color: t.accentSoft,
-        borderRadius: BorderRadius.circular(999),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(torIcon, size: 14, color: t.accentText),
-          const SizedBox(width: 4),
-          Text(
-            context.l10n.sendOverTor,
-            style: Theme.of(context).textTheme.labelSmall
-                ?.copyWith(color: t.accentText),
-          ),
-        ],
-      ),
-    );
-  }
+  Widget build(BuildContext context) =>
+      _Pill(icon: torIcon, text: context.l10n.sendOverTor);
 }
 
 /// A round tile with the contact's initial, or a person for a new recipient.
@@ -2809,7 +2978,11 @@ class _ReadyLine extends ConsumerWidget {
     required this.failed,
     this.tor,
     this.http = false,
+    this.way = TorWay.clearnet,
   });
+
+  /// How the payment's connection goes with the Tor switch as it is.
+  final TorWay way;
 
   /// The payment goes straight to a wallet URL: no epicbox checks, and its own words while
   /// it is under way.
@@ -2879,38 +3052,25 @@ class _ReadyLine extends ConsumerWidget {
       ),
       // A still icon under reduced motion, where a spinner would be an animation.
       _ when running => (spinner, l.sendChecking, t.dim, null),
-      _ when tor != null => switch (tor.phase) {
-        PhoneTorPhase.unavailable => (
-          Icon(Icons.error_outline, size: 18, color: t.risk),
-          l.sendTorUnavailable,
-          t.text,
-          null,
-        ),
-        PhoneTorPhase.off => (
-          Icon(torIcon, size: 18, color: t.dim),
-          l.sendTorConnectsOnSend,
-          t.dim,
-          null,
-        ),
-        PhoneTorPhase.starting => (
-          spinner,
-          l.torStateStarting(tor.progress ?? 0),
-          t.dim,
-          null,
-        ),
-        PhoneTorPhase.failed => (
-          Icon(Icons.error_outline, size: 18, color: t.risk),
-          torFailureText(l, tor.failure ?? TorFailure.stopped),
-          t.text,
-          retryTor,
-        ),
-        PhoneTorPhase.connected || PhoneTorPhase.ready => (
-          Icon(Icons.check, size: 18, color: t.ok),
-          l.sendTorReady,
-          t.dim,
-          null,
-        ),
-      },
+      _ when way == TorWay.wait => (spinner, l.torWaiting, t.dim, null),
+      _ when way == TorWay.blocked => (
+        Icon(Icons.error_outline, size: 18, color: t.risk),
+        l.torNotConnectedNotice,
+        t.text,
+        retryTor,
+      ),
+      _ when way == TorWay.needsTor => (
+        Icon(torIcon, size: 18, color: t.dim),
+        l.torNeeds,
+        t.text,
+        null,
+      ),
+      _ when tor != null => (
+        Icon(Icons.check, size: 18, color: t.ok),
+        l.sendTorReady,
+        t.dim,
+        null,
+      ),
       _ when http => (
         Icon(Icons.check, size: 18, color: t.ok),
         l.sendReady,

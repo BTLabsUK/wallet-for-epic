@@ -11,12 +11,19 @@ const Key methodStripKey = ValueKey('method-strip');
 
 /// What a method means, under Send's selector and at the top of each Receive tab: its picture
 /// on the left, a short title and one plain line on the right. [receiving] picks Receive's
-/// words. A new method fades in over 160 ms; with reduced motion it swaps at once.
+/// words; [overTor] adds "Over Tor." to the line while the method's connection goes through
+/// Tor. A new method fades in over 160 ms; with reduced motion it swaps at once.
 class MethodStrip extends StatelessWidget {
-  const MethodStrip({super.key, required this.method, this.receiving = false});
+  const MethodStrip({
+    super.key,
+    required this.method,
+    this.receiving = false,
+    this.overTor = false,
+  });
 
   final TransferMethod method;
   final bool receiving;
+  final bool overTor;
 
   /// The title and the line for [method], on Send or on Receive.
   static (String title, String line) words(
@@ -27,26 +34,26 @@ class MethodStrip extends StatelessWidget {
       ? switch (method) {
           TransferMethod.epicbox => (
             l.methodReceiveEpicboxTitle,
-            l.methodReceiveEpicboxLine,
+            l.methodReceiveEpicboxShort,
           ),
-          TransferMethod.tor => (
-            l.methodReceiveTorTitle,
-            l.methodReceiveTorLine,
+          TransferMethod.direct => (
+            l.methodReceiveDirectTitle,
+            l.methodReceiveDirectLine,
           ),
           TransferMethod.file => (
             l.methodReceiveFileTitle,
             l.methodReceiveFileLine,
           ),
-          // No HTTP receiving on the phone; the sender's words are the closest.
-          TransferMethod.http => (l.methodSendHttpTitle, l.methodSendHttpLine),
         }
       : switch (method) {
           TransferMethod.epicbox => (
             l.methodSendEpicboxTitle,
             l.methodSendEpicboxLine,
           ),
-          TransferMethod.http => (l.methodSendHttpTitle, l.methodSendHttpLine),
-          TransferMethod.tor => (l.methodSendTorTitle, l.methodSendTorLine),
+          TransferMethod.direct => (
+            l.methodSendHttpTitle,
+            l.methodSendDirectLine,
+          ),
           TransferMethod.file => (l.methodSendFileTitle, l.methodSendFileLine),
         };
 
@@ -54,7 +61,9 @@ class MethodStrip extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = context.tokens;
     final theme = Theme.of(context);
-    final (title, line) = words(context.l10n, method, receiving: receiving);
+    final l = context.l10n;
+    final (title, words) = MethodStrip.words(l, method, receiving: receiving);
+    final line = overTor ? l.methodLineOverTor(words) : words;
     final still = MediaQuery.disableAnimationsOf(context);
     final text = Column(
       crossAxisAlignment: CrossAxisAlignment.start,

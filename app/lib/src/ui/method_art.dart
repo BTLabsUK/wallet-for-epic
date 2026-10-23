@@ -6,15 +6,16 @@ import '../l10n.dart';
 import 'theme/tokens.dart';
 
 /// The ways a payment travels, on Send and Receive: Epicbox (held by the Epicbox server until
-/// the recipient's wallet is back), HTTP and Tor (straight to their wallet, which must be
-/// open), and a transaction file handed over by hand.
-enum TransferMethod { epicbox, http, tor, file }
+/// the recipient's wallet is back), Direct (straight to their wallet at an http(s) or onion
+/// address, which must be open), and a transaction file handed over by hand. Tor is not a
+/// method: the one Tor switch changes how Epicbox and Direct connect.
+enum TransferMethod { epicbox, direct, file }
 
 /// The strip's picture of [method] (the desktop's `HeroArt`, ported): the two people dim, the
 /// way the payment goes in the accent, a short caption in Montserrat under it. Drawn on a
 /// 160 × 96 grid and scaled to [width] × [height]; one label for screen readers.
 class MethodArt extends StatelessWidget {
-  const MethodArt(this.method, {super.key, this.width = 112, this.height = 66});
+  const MethodArt(this.method, {super.key, this.width = 88, this.height = 52});
 
   final TransferMethod method;
   final double width;
@@ -22,15 +23,13 @@ class MethodArt extends StatelessWidget {
 
   static String caption(AppLocalizations l, TransferMethod m) => switch (m) {
     TransferMethod.epicbox => l.methodArtCaptionEpicbox,
-    TransferMethod.http => l.methodArtCaptionHttp,
-    TransferMethod.tor => l.methodArtCaptionTor,
+    TransferMethod.direct => l.methodArtCaptionHttp,
     TransferMethod.file => l.methodArtCaptionFile,
   };
 
   static String label(AppLocalizations l, TransferMethod m) => switch (m) {
     TransferMethod.epicbox => l.methodArtLabelEpicbox,
-    TransferMethod.http => l.methodArtLabelHttp,
-    TransferMethod.tor => l.methodArtLabelTor,
+    TransferMethod.direct => l.methodArtLabelDirect,
     TransferMethod.file => l.methodArtLabelFile,
   };
 
@@ -174,7 +173,7 @@ class _MethodPainter extends CustomPainter {
           _poly(const [Offset(92, 32.5), Offset(92, 36), Offset(94.4, 37.8)]),
           clock,
         );
-      case TransferMethod.http:
+      case TransferMethod.direct:
         canvas.drawPath(_line(44, 50, 116, 50), a);
         canvas.drawPath(
           _poly(const [Offset(110, 45), Offset(116, 50), Offset(110, 55)]),
@@ -200,22 +199,6 @@ class _MethodPainter extends CustomPainter {
           a,
         );
         canvas.drawPath(_line(72, 50, 88, 50), a);
-      case TransferMethod.tor:
-        canvas.drawPath(_dashed(_line(44, 50, 60, 50), 3, 4), a);
-        canvas.drawPath(_dashed(_line(100, 50, 116, 50), 3, 4), a);
-        canvas.drawPath(
-          _poly(const [Offset(110, 45), Offset(116, 50), Offset(110, 55)]),
-          a,
-        );
-        for (final r in const [16.0, 10.5, 5.0]) {
-          canvas.drawCircle(const Offset(80, 50), r, a);
-        }
-        final route = Path()
-          ..moveTo(60, 50)
-          ..cubicTo(66, 38, 94, 38, 100, 50)
-          ..moveTo(60, 50)
-          ..cubicTo(66, 62, 94, 62, 100, 50);
-        canvas.drawPath(_dashed(route, 2, 3), _stroke(people, w * 0.9));
       case TransferMethod.file:
         canvas.drawPath(
           _poly(const [

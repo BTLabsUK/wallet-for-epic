@@ -1,7 +1,9 @@
-// Receive's Tor tab: an equal receiving method beside Epicbox (F8). The onion address in the
-// same card as the epicbox address, a QR code of it, one "Tor receiving" switch with its
-// status (off, connecting with progress, on, failed with Retry), and the one honest line
-// about Tor. Where the app has no Tor the tab does not exist.
+// Receive's Direct tab: receiving straight to this wallet at its onion address, over Tor
+// (F8). With the Tor switch off it says Direct receiving needs Tor, with Turn on Tor; with Tor
+// on, the onion address in the same card as the epicbox address, a QR code of it dimmed until
+// reachable, and Tor's state in the same words as everywhere (Starting…, On, Not connected
+// with the reason and Retry). The switch itself lives in Settings › Privacy. Where the app
+// has no Tor the tab does not exist.
 
 import 'dart:async';
 
@@ -118,7 +120,7 @@ class _Harness {
     await tester.tap(
       find.descendant(
         of: find.byKey(receiveTabsKey),
-        matching: find.text('Tor'),
+        matching: find.text('Direct'),
       ),
     );
     await tester.pumpAndSettle();
@@ -163,8 +165,9 @@ class _Harness {
     await tester.pumpAndSettle();
   }
 
+  /// Turn on Tor, on the Direct tab with Tor off.
   Future<void> switchOn(WidgetTester tester) async {
-    await tester.tap(find.byKey(torReceivingSwitchKey));
+    await tester.tap(find.byKey(receiveTurnOnTorKey));
     await tester.pumpAndSettle();
   }
 }
@@ -190,10 +193,23 @@ void main() {
       );
       expect(tabs.selected, {ReceiveTab.epicbox});
       expect(
-        [for (final s in tabs.segments) (s.value, (s.label! as Text).data)],
+        [
+          for (final s in tabs.segments)
+            (
+              s.value,
+              tester
+                  .widget<Text>(
+                    find.descendant(
+                      of: find.byWidget(s.label!),
+                      matching: find.byType(Text),
+                    ),
+                  )
+                  .data,
+            ),
+        ],
         [
           (ReceiveTab.epicbox, 'Epicbox'),
-          (ReceiveTab.tor, 'Tor'),
+          (ReceiveTab.direct, 'Direct'),
           (ReceiveTab.file, 'File'),
         ],
       );
@@ -202,7 +218,7 @@ void main() {
       expect(find.byKey(receiveTorAddressKey), findsNothing);
     });
 
-    testWidgets('no Tor tab where the app has no Tor', (tester) async {
+    testWidgets('no Direct tab where the app has no Tor', (tester) async {
       final h = _Harness(bundle: null);
       await h.pump(tester);
       expect(h.tor.phase, PhoneTorPhase.unavailable);
@@ -213,63 +229,41 @@ void main() {
         [for (final s in tabs.segments) s.value],
         [ReceiveTab.epicbox, ReceiveTab.file],
       );
-      expect(find.text('Tor'), findsNothing);
-      // A remembered Tor choice falls back to Epicbox.
-      h.container.read(receiveTabProvider.notifier).choose(ReceiveTab.tor);
+      expect(find.text('Direct'), findsNothing);
+      // A remembered Direct choice falls back to Epicbox.
+      h.container.read(receiveTabProvider.notifier).choose(ReceiveTab.direct);
       await tester.pumpAndSettle();
       expect(find.byKey(receiveAddressKey), findsOneWidget);
     });
   });
 
-  group('Tor tab', () {
-    testWidgets(
-      'off: the onion address, its QR code, the switch off, the line',
-      (tester) async {
-        final h = _Harness();
-        await h.pump(tester);
-        await h.torTab(tester);
-        expect(find.text('Tor address'), findsOneWidget);
-        expect(find.text(h.session.onion), findsOneWidget);
-        final qr = tester.widget<MarkedQr>(find.byType(MarkedQr));
-        expect(qr.data, h.session.onion);
-        expect(find.bySemanticsLabel('QR code of your Tor address'), findsOne);
-        final sw = tester.widget<SwitchListTile>(
-          find.byKey(torReceivingSwitchKey),
-        );
-        expect(sw.value, isFalse);
-        expect(find.text('Tor receiving'), findsOneWidget);
-        expect(_status('Tor receiving is off'), findsOneWidget);
-        expect(
-          find.text(
-            'Tor receiving works while the app is open or briefly in the '
-            'background.',
-          ),
-          findsOneWidget,
-        );
-        expect(find.byKey(torRetryKey), findsNothing);
-        // The code shows, dimmed: the address is not reachable until Tor receiving is on.
-        expect(_qrOpacity(tester), 0.4);
-        // The whole method is "receiving": none of the struck-out words.
-        for (final word in ['Listener', 'listener', 'Advanced', 'Direct']) {
-          expect(find.textContaining(word), findsNothing);
-        }
-        // No epicbox-only parts.
-        expect(find.byKey(receiveEpicboxKey), findsNothing);
-        expect(find.byKey(receiveRequestKey), findsNothing);
-      },
-    );
-
-    testWidgets('a tap on the card copies the address', (tester) async {
+  group('Direct tab', () {
+    testWidgets('Tor off: Direct receiving needs Tor; no switch on Receive', (
+      tester,
+    ) async {
       final h = _Harness();
       await h.pump(tester);
       await h.torTab(tester);
-      await tester.tap(find.byKey(receiveTorAddressKey));
-      await tester.pumpAndSettle();
-      expect(h.copied, [h.session.onion]);
-      expect(find.text('Address copied'), findsOneWidget);
+      expect(find.text('Direct receiving needs Tor.'), findsOneWidget);
+      expect(
+        find.text('Senders use the Epicbox address meanwhile.'),
+        findsOneWidget,
+      );
+      expect(find.byKey(receiveTurnOnTorKey), findsOneWidget);
+      expect(find.byKey(torSettingsLinkKey), findsOneWidget);
+      expect(find.byType(Switch), findsNothing);
+      expect(find.byKey(receiveTorAddressKey), findsNothing);
+      expect(find.byType(MarkedQr), findsNothing);
+      // None of the words the owner struck out.
+      for (final word in ['Listener', 'listener', 'Advanced', 'Epic address']) {
+        expect(find.textContaining(word), findsNothing);
+      }
+      // No epicbox-only parts.
+      expect(find.byKey(receiveEpicboxKey), findsNothing);
+      expect(find.byKey(receiveRequestKey), findsNothing);
     });
 
-    testWidgets('the switch starts tor; connecting shows progress; then on', (
+    testWidgets('Turn on Tor: starting, then on; the address and its code', (
       tester,
     ) async {
       final h = _Harness();
@@ -278,36 +272,47 @@ void main() {
       await h.switchOn(tester);
       expect(h.session.torStarts, hasLength(1));
       expect(h.tor.receiving, isTrue);
-      expect(_status('Connecting to Tor… 0%'), findsOneWidget);
-      await h.emit(tester, TorEventKind.starting, progress: 45);
-      expect(_status('Connecting to Tor… 45%'), findsOneWidget);
-      final bar = tester.widget<LinearProgressIndicator>(
-        find.descendant(
-          of: find.byKey(torReceivingSwitchKey),
-          matching: find.byType(LinearProgressIndicator),
+      expect(_status('Tor · Starting…'), findsOneWidget);
+      expect(find.text('Tor address'), findsOneWidget);
+      expect(find.text(h.session.onion), findsOneWidget);
+      final qr = tester.widget<MarkedQr>(find.byType(MarkedQr));
+      expect(qr.data, h.session.onion);
+      expect(find.bySemanticsLabel('QR code of your Tor address'), findsOne);
+      expect(find.text('Works while the app is open.'), findsOneWidget);
+      expect(
+        find.text(
+          'Some wallets show the address without .onion; both are the same '
+          'address.',
         ),
+        findsOneWidget,
       );
-      expect(bar.value, closeTo(0.45, 0.001));
+      // The code shows, dimmed: the address is not reachable yet.
+      expect(_qrOpacity(tester), 0.4);
+      await h.emit(tester, TorEventKind.starting, progress: 45);
+      expect(_status('Tor · Starting…'), findsOneWidget);
       await h.emit(tester, TorEventKind.bootstrapped);
-      expect(_status('Publishing your Tor address…'), findsOneWidget);
+      expect(_status('Tor · On'), findsOneWidget);
+      expect(_qrOpacity(tester), 0.4);
       await h.emit(tester, TorEventKind.ready);
-      expect(_status('Tor receiving is on'), findsOneWidget);
-      expect(find.byType(LinearProgressIndicator), findsNothing);
+      expect(_status('Tor · On'), findsOneWidget);
       expect(_qrOpacity(tester), 1);
-      // The switch is the one control: off stops tor.
-      await tester.tap(find.byKey(torReceivingSwitchKey));
-      await tester.pumpAndSettle();
-      // The controller awaits the stream's cancel, which completes on a root-zone microtask
-      // the test clock never flushes: a slice of real time lets it through.
-      await tester.runAsync(
-        () => Future<void>.delayed(const Duration(milliseconds: 20)),
-      );
-      await tester.pumpAndSettle();
-      expect(h.session.torStops, 1);
-      expect(_status('Tor receiving is off'), findsOneWidget);
+      expect(find.byKey(torRetryKey), findsNothing);
     });
 
-    testWidgets('failed: the reason in one line and Retry', (tester) async {
+    testWidgets('a tap on the card copies the address', (tester) async {
+      final h = _Harness();
+      await h.pump(tester);
+      await h.torTab(tester);
+      await h.switchOn(tester);
+      await tester.tap(find.byKey(receiveTorAddressKey));
+      await tester.pumpAndSettle();
+      expect(h.copied, [h.session.onion]);
+      expect(find.text('Address copied'), findsOneWidget);
+    });
+
+    testWidgets('not connected: the reason in one line and Retry', (
+      tester,
+    ) async {
       final h = _Harness();
       await h.pump(tester);
       await h.torTab(tester);
@@ -315,6 +320,7 @@ void main() {
       await h.emit(tester, TorEventKind.failed, failure: TorFailure.network);
       await h.emit(tester, TorEventKind.stopped);
       expect(h.tor.phase, PhoneTorPhase.failed);
+      expect(_status('Tor · Not connected'), findsOneWidget);
       expect(_status('Could not reach the Tor network'), findsOneWidget);
       expect(find.textContaining('minutes'), findsNothing);
       final retry = find.byKey(torRetryKey);
@@ -322,7 +328,7 @@ void main() {
       await tester.tap(retry);
       await tester.pumpAndSettle();
       expect(h.session.torStarts, hasLength(2));
-      expect(_status('Connecting to Tor'), findsOneWidget);
+      expect(_status('Tor · Starting…'), findsOneWidget);
     });
 
     testWidgets('connected but not reachable: the reason and Retry', (
@@ -342,14 +348,11 @@ void main() {
       final h = _Harness();
       await h.pump(tester, textScale: 2);
       await h.torTab(tester);
+      expect(tester.takeException(), isNull);
       await h.switchOn(tester);
       await h.emit(tester, TorEventKind.starting, progress: 30);
       expect(tester.takeException(), isNull);
-      expect(find.byKey(torReceivingSwitchKey), findsOneWidget);
-      final handle = tester.ensureSemantics();
-      final size = tester.getSize(find.byKey(torReceivingSwitchKey));
-      expect(size.height, greaterThanOrEqualTo(48));
-      handle.dispose();
+      expect(find.byKey(torStatusKey), findsOneWidget);
     });
   });
 }

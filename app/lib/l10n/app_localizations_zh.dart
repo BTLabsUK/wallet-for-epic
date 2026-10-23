@@ -1967,17 +1967,6 @@ class AppLocalizationsZh extends AppLocalizations {
       '更换 epicbox 服务器会改变你的地址。请把新地址告诉发送方。发送到旧地址的付款会留在旧服务器上，直到你切换回去。';
 
   @override
-  String get serverSwitchRelayTitle => '更换 epicbox 服务器？';
-
-  @override
-  String serverSwitchRelayBody(String relay) {
-    return 'epicbox 地址将变为 …@$relay。发送方需要新地址。发送到旧地址的付款会留在旧服务器上。';
-  }
-
-  @override
-  String get serverSwitchRelayConfirm => '更换';
-
-  @override
   String get setupWalletPerNetwork => '每个网络都有各自的钱包。尚无钱包的网络会创建一个新钱包。';
 
   @override
@@ -5386,6 +5375,17 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskInvSetRestoredHint => '此钱包是用助记词恢复的？请重新把这个发票地址提供给服务方。';
 
   @override
+  String get serverSwitchRelayTitle => '更换 epicbox 服务器？';
+
+  @override
+  String serverSwitchRelayBody(String relay) {
+    return 'epicbox 地址将变为 …@$relay。发送方需要新地址。发送到旧地址的付款会留在旧服务器上。';
+  }
+
+  @override
+  String get serverSwitchRelayConfirm => '更换';
+
+  @override
   String get helpButton => '帮助';
 
   @override
@@ -5429,4 +5429,91 @@ class AppLocalizationsZh extends AppLocalizations {
   String serverSwitched(String host) {
     return '已切换到 $host';
   }
+
+  @override
+  String get methodDirect => '直连';
+
+  @override
+  String get methodDirectShape => 'http://host:3415 或 xxxx….onion';
+
+  @override
+  String get methodSendDirectLine => '对方钱包必须处于打开状态。onion 地址经由 Tor。';
+
+  @override
+  String get methodArtLabelDirect => '直连：付款直接发送到收款人的钱包，该钱包必须处于打开状态';
+
+  @override
+  String get methodReceiveEpicboxShort => '钱包关闭时也可收款。';
+
+  @override
+  String get methodReceiveDirectTitle => '直接发送到此钱包。';
+
+  @override
+  String get methodReceiveDirectLine => '仅在应用打开时可用。';
+
+  @override
+  String methodLineOverTor(String line) {
+    return '$line 经由 Tor。';
+  }
+
+  @override
+  String get sendSwitchedDirect => '直连地址';
+
+  @override
+  String get sendSwitchedDirectAnnounce => '直连地址。方式已设为直连。';
+
+  @override
+  String get sendDirectAddressShape =>
+      '直连地址以 http:// 或 https:// 开头，或以 .onion 结尾。';
+
+  @override
+  String get torNotOverTor => '不经由 Tor';
+
+  @override
+  String get torNeeds => '需要 Tor。';
+
+  @override
+  String get torTurnOn => '开启 Tor';
+
+  @override
+  String get torTurnOff => '关闭 Tor';
+
+  @override
+  String get torNotConnectedNotice => 'Tor 未连接。';
+
+  @override
+  String get torWaiting => '正在等待 Tor';
+
+  @override
+  String get torWordStarting => '正在启动…';
+
+  @override
+  String get torWordNotConnected => '未连接';
+
+  @override
+  String get torCoversEpicbox => 'Epicbox 和发往 onion 地址的付款经由 Tor。';
+
+  @override
+  String get torCoversEpicboxNode => 'Epicbox、节点和发往 onion 地址的付款经由 Tor。';
+
+  @override
+  String get torCoversAll => '除本地节点外，所有连接都经由 Tor。';
+
+  @override
+  String get torSettingsLink => 'Tor 设置';
+
+  @override
+  String get receiveTabDirect => '直连';
+
+  @override
+  String get receiveDirectNeedsTor => '直连收款需要 Tor。';
+
+  @override
+  String get receiveDirectMeanwhile => '在此期间，付款方使用 Epicbox 地址。';
+
+  @override
+  String get settingsPushOffWhileTor => 'Tor 开启时关闭';
+
+  @override
+  String get netStatusOverTor => '经由 Tor';
 }

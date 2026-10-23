@@ -8,6 +8,7 @@ import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/relay_directory.dart' as dir;
 import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/ui/network_status.dart';
+import 'package:epic_wallet/src/ui/theme/tokens.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -246,9 +247,13 @@ void main() {
   });
 
   group('tor row', () {
-    testWidgets('hidden while Tor is off', (tester) async {
+    testWidgets('shown while Tor is off: Off, faint', (tester) async {
       await _pump(tester);
-      expect(find.byKey(netStatusTorKey), findsNothing);
+      expect(find.byKey(netStatusTorKey), findsOneWidget);
+      expect(_in(netStatusTorKey, 'Tor'), findsOneWidget);
+      final word = tester.widget<Text>(_in(netStatusTorKey, 'Off'));
+      final t = tester.element(find.byKey(netStatusTorKey)).tokens;
+      expect(word.style?.color, t.faint);
     });
 
     testWidgets('hidden where there is no Tor', (tester) async {
@@ -261,17 +266,16 @@ void main() {
 
     for (final (state, word) in [
       (
-        const PhoneTorState(phase: PhoneTorPhase.starting, progress: 40),
-        'Starting 40 %',
+        const PhoneTorState(receiving: true, phase: PhoneTorPhase.starting, progress: 40),
+        'Starting…',
       ),
-      (const PhoneTorState(phase: PhoneTorPhase.connected), 'On'),
-      (const PhoneTorState(phase: PhoneTorPhase.ready), 'On'),
+      (const PhoneTorState(receiving: true, phase: PhoneTorPhase.connected), 'On'),
+      (const PhoneTorState(receiving: true, phase: PhoneTorPhase.ready), 'On'),
       (
-        const PhoneTorState(
-          phase: PhoneTorPhase.failed,
+        const PhoneTorState(receiving: true, phase: PhoneTorPhase.failed,
           failure: TorFailure.network,
         ),
-        'Failed',
+        'Not connected',
       ),
     ]) {
       testWidgets('shown while ${state.phase.name}: $word', (tester) async {
@@ -279,11 +283,54 @@ void main() {
         expect(_in(netStatusTorKey, word), findsOneWidget);
       });
     }
+
+    for (final (state, word, ok) in [
+      (const PhoneTorState(receiving: true, phase: PhoneTorPhase.ready), 'On', true),
+      (
+        const PhoneTorState(receiving: true, phase: PhoneTorPhase.failed),
+        'Not connected',
+        false,
+      ),
+    ]) {
+      testWidgets('$word in the ${ok ? 'ok' : 'risk'} colour', (tester) async {
+        await _pump(tester, tor: state);
+        final t = tester.element(find.byKey(netStatusTorKey)).tokens;
+        expect(
+          tester.widget<Text>(_in(netStatusTorKey, word)).style?.color,
+          ok ? t.ok : t.risk,
+        );
+      });
+    }
+
+    testWidgets('Tor on: the Epicbox row is marked over Tor; the node is not', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      await _pump(tester, tor: const PhoneTorState(receiving: true, phase: PhoneTorPhase.ready));
+      expect(_in(netStatusEpicboxKey, 'Online · Tor'), findsOneWidget);
+      expect(
+        find.bySemanticsLabel(RegExp(r'^Epicbox.*, Online, over Tor$')),
+        findsOneWidget,
+      );
+      // The node is not covered in this build: no mark, its host as it is.
+      expect(_in(netStatusNodeKey, 'Synced'), findsOneWidget);
+      expect(find.bySemanticsLabel(RegExp(r'^Node.*over Tor$')), findsNothing);
+      handle.dispose();
+    });
+
+    testWidgets('Tor starting: no mark yet', (tester) async {
+      await _pump(
+        tester,
+        tor: const PhoneTorState(receiving: true, phase: PhoneTorPhase.starting),
+      );
+      expect(_in(netStatusEpicboxKey, 'Online'), findsOneWidget);
+      expect(find.textContaining('· Tor'), findsNothing);
+    });
   });
 
   testWidgets('every row meets the tap target guideline', (tester) async {
     final handle = tester.ensureSemantics();
-    await _pump(tester, tor: const PhoneTorState(phase: PhoneTorPhase.ready));
+    await _pump(tester, tor: const PhoneTorState(receiving: true, phase: PhoneTorPhase.ready));
     await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
     await expectLater(tester, meetsGuideline(labeledTapTargetGuideline));
     handle.dispose();

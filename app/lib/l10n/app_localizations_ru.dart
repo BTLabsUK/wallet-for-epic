@@ -2212,17 +2212,6 @@ class AppLocalizationsRu extends AppLocalizations {
       'При смене сервера epicbox меняется ваш адрес. Сообщите отправителям новый адрес. Платежи, отправленные на старый, будут ждать на старом сервере, пока вы не переключитесь обратно.';
 
   @override
-  String get serverSwitchRelayTitle => 'Сменить сервер epicbox?';
-
-  @override
-  String serverSwitchRelayBody(String relay) {
-    return 'Адрес epicbox изменится на …@$relay. Отправителям нужен новый адрес. Платежи, отправленные на старый адрес, остаются на старом сервере.';
-  }
-
-  @override
-  String get serverSwitchRelayConfirm => 'Сменить';
-
-  @override
   String get setupWalletPerNetwork =>
       'У каждой сети свой кошелёк. Для сети без кошелька будет создан новый.';
 
@@ -5905,6 +5894,17 @@ class AppLocalizationsRu extends AppLocalizations {
       'Восстановили кошелёк из фразы восстановления? Передайте сервисам этот адрес для счетов заново.';
 
   @override
+  String get serverSwitchRelayTitle => 'Сменить сервер epicbox?';
+
+  @override
+  String serverSwitchRelayBody(String relay) {
+    return 'Адрес epicbox изменится на …@$relay. Отправителям нужен новый адрес. Платежи, отправленные на старый адрес, остаются на старом сервере.';
+  }
+
+  @override
+  String get serverSwitchRelayConfirm => 'Сменить';
+
+  @override
   String get helpButton => 'Справка';
 
   @override
@@ -5951,4 +5951,97 @@ class AppLocalizationsRu extends AppLocalizations {
   String serverSwitched(String host) {
     return 'Переключено на $host';
   }
+
+  @override
+  String get methodDirect => 'Напрямую';
+
+  @override
+  String get methodDirectShape => 'http://host:3415 или xxxx….onion';
+
+  @override
+  String get methodSendDirectLine =>
+      'Их кошелёк должен быть открыт. Адрес onion идёт через Tor.';
+
+  @override
+  String get methodArtLabelDirect =>
+      'Напрямую: платёж идёт прямо в кошелёк получателя, который должен быть открыт';
+
+  @override
+  String get methodReceiveEpicboxShort => 'Работает при закрытом кошельке.';
+
+  @override
+  String get methodReceiveDirectTitle => 'Прямо в этот кошелёк.';
+
+  @override
+  String get methodReceiveDirectLine => 'Работает, пока приложение открыто.';
+
+  @override
+  String methodLineOverTor(String line) {
+    return '$line Через Tor.';
+  }
+
+  @override
+  String get sendSwitchedDirect => 'Прямой адрес';
+
+  @override
+  String get sendSwitchedDirectAnnounce => 'Прямой адрес. Способ: Напрямую.';
+
+  @override
+  String get sendDirectAddressShape =>
+      'Прямой адрес начинается с http:// или https:// либо заканчивается на .onion.';
+
+  @override
+  String get torNotOverTor => 'Не через Tor';
+
+  @override
+  String get torNeeds => 'Нужен Tor.';
+
+  @override
+  String get torTurnOn => 'Включить Tor';
+
+  @override
+  String get torTurnOff => 'Выключить Tor';
+
+  @override
+  String get torNotConnectedNotice => 'Tor не подключён.';
+
+  @override
+  String get torWaiting => 'Ожидание Tor';
+
+  @override
+  String get torWordStarting => 'Запуск…';
+
+  @override
+  String get torWordNotConnected => 'Нет подключения';
+
+  @override
+  String get torCoversEpicbox =>
+      'Epicbox и отправки на адреса onion идут через Tor.';
+
+  @override
+  String get torCoversEpicboxNode =>
+      'Epicbox, узел и отправки на адреса onion идут через Tor.';
+
+  @override
+  String get torCoversAll =>
+      'Все соединения, кроме локального узла, идут через Tor.';
+
+  @override
+  String get torSettingsLink => 'Настройки Tor';
+
+  @override
+  String get receiveTabDirect => 'Напрямую';
+
+  @override
+  String get receiveDirectNeedsTor => 'Прямое получение требует Tor.';
+
+  @override
+  String get receiveDirectMeanwhile =>
+      'Пока отправители используют адрес Epicbox.';
+
+  @override
+  String get settingsPushOffWhileTor => 'Выключено, пока включён Tor';
+
+  @override
+  String get netStatusOverTor => 'через Tor';
 }

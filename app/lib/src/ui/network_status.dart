@@ -1,5 +1,6 @@
-/// The network status card on Home: one row each for the node and Epicbox, and one for Tor
-/// while it starts or runs. A row's tap opens the server picker for it, or Settings for Tor.
+/// The network status card on Home: one row each for the node, Epicbox and Tor. A row's tap
+/// opens the server picker for it, or Settings › Privacy for Tor. A row whose connection goes
+/// through Tor says so after its state word.
 library;
 
 import 'package:flutter/material.dart';
@@ -10,10 +11,13 @@ import '../models.dart' show Chain;
 import '../network.dart';
 import '../phone_tor.dart';
 import '../providers.dart';
+import '../tor_phone.dart';
+import '../tor_routes.dart';
 import 'server_picker.dart';
 import 'settings_screen.dart';
 import 'status.dart';
 import 'theme/tokens.dart';
+import 'tor_ui.dart';
 
 /// The keys of the card's rows, for tests: the node and epicbox rows take the keys the
 /// header's status icons had.
@@ -21,41 +25,25 @@ const Key netStatusNodeKey = nodeStatusKey;
 const Key netStatusEpicboxKey = epicboxStatusKey;
 const Key netStatusTorKey = ValueKey('net-status-tor');
 
-/// Whether the card shows a Tor row: while phone Tor starts, runs or retries after a failure.
-bool torRowShown(PhoneTorState s) => switch (s.phase) {
-  PhoneTorPhase.starting ||
-  PhoneTorPhase.connected ||
-  PhoneTorPhase.ready ||
-  PhoneTorPhase.failed => true,
-  PhoneTorPhase.off || PhoneTorPhase.unavailable => false,
-};
+/// Whether the card shows a Tor row: always, where the app has Tor.
+bool torRowShown(PhoneTorState s) => s.phase != PhoneTorPhase.unavailable;
 
-/// Tor's face on the card.
+/// Tor's face on the card, in the switch's four words: Off (faint), Starting…, On (ok), Not
+/// connected (risk).
 NetFace torNetFace(BuildContext context, PhoneTorState s) {
   final l = context.l10n;
   final t = context.tokens;
-  return switch (s.phase) {
-    PhoneTorPhase.starting => (
-      level: SignalLevel.two,
-      color: t.dim,
-      word: l.netStatusStarting(s.progress ?? 0),
-    ),
-    PhoneTorPhase.connected || PhoneTorPhase.ready => (
-      level: SignalLevel.three,
-      color: t.ok,
-      word: l.netStatusOn,
-    ),
-    PhoneTorPhase.failed => (
-      level: SignalLevel.one,
-      color: t.risk,
-      word: l.netStatusFailed,
-    ),
-    PhoneTorPhase.off || PhoneTorPhase.unavailable => (
-      level: SignalLevel.none,
-      color: t.dim,
-      word: l.netStatusOff,
-    ),
-  };
+  final state = phoneTorState(s);
+  return (
+    level: switch (state) {
+      TorState.off => SignalLevel.none,
+      TorState.starting => SignalLevel.two,
+      TorState.on => SignalLevel.three,
+      TorState.failed => SignalLevel.one,
+    },
+    color: torWordColor(t, state),
+    word: torWord(l, state),
+  );
 }
 
 /// The node's lag behind the network's tip as status.btlabs.uk sees it, for a node that
@@ -83,6 +71,8 @@ class NetworkStatusCard extends ConsumerWidget {
     final config = ref.watch(walletConfigProvider);
     final choice = ref.watch(networkChoiceProvider).value;
     final tor = ref.watch(phoneTorProvider);
+    final torState = phoneTorState(tor);
+    bool overTor(TorRoute route) => torWay(route, torState) == TorWay.overTor;
     final preset = choice?.preset;
     final nodeUrl = config?.nodeUrl ?? choice?.nodeUrl;
     final chain = config?.chain ?? preset?.chain;
@@ -113,6 +103,7 @@ class NetworkStatusCard extends ConsumerWidget {
         spoken: nodeWords.label,
         detail: nodeWords.detail,
         pulse: status.node.state == NodeState.syncing,
+        overTor: overTor(TorRoute.node),
         onTap: () => showNodePicker(context),
       ),
       _StatusRow(
@@ -122,6 +113,7 @@ class NetworkStatusCard extends ConsumerWidget {
         face: epicbox,
         spoken: epicboxWords?.label,
         detail: epicboxWords?.detail,
+        overTor: overTor(TorRoute.epicbox),
         onTap: () => showEpicboxPicker(context),
       ),
       if (torRowShown(tor))
@@ -130,9 +122,7 @@ class NetworkStatusCard extends ConsumerWidget {
           title: l.netStatusTor,
           host: '',
           face: torNetFace(context, tor),
-          onTap: () => Navigator.of(context).push(
-            MaterialPageRoute<void>(builder: (_) => const SettingsScreen()),
-          ),
+          onTap: () => openPrivacySettings(context),
         ),
     ];
     return Semantics(
@@ -172,6 +162,7 @@ class _StatusRow extends StatelessWidget {
     this.spoken,
     this.detail,
     this.pulse = false,
+    this.overTor = false,
   });
 
   final String? spoken;
@@ -181,6 +172,9 @@ class _StatusRow extends StatelessWidget {
   final String host;
   final NetFace face;
   final bool pulse;
+
+  /// The connection goes through Tor: " · Tor" after the word, "over Tor" read out.
+  final bool overTor;
   final VoidCallback onTap;
 
   @override
@@ -190,7 +184,12 @@ class _StatusRow extends StatelessWidget {
     return Semantics(
       button: true,
       liveRegion: true,
-      label: [spoken ?? title, if (host.isNotEmpty) host, face.word].join(', '),
+      label: [
+        spoken ?? title,
+        if (host.isNotEmpty) host,
+        face.word,
+        if (overTor) context.l10n.netStatusOverTor,
+      ].join(', '),
       hint: detail ?? context.l10n.netStatusOpenHint,
       excludeSemantics: true,
       child: Material(
@@ -238,7 +237,9 @@ class _StatusRow extends StatelessWidget {
                   ConstrainedBox(
                     constraints: const BoxConstraints(maxWidth: 150),
                     child: Text(
-                      face.word,
+                      overTor
+                          ? '${face.word} · ${context.l10n.netStatusTor}'
+                          : face.word,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       textAlign: TextAlign.end,

@@ -3044,24 +3044,6 @@ abstract class AppLocalizations {
   /// **'Changing the epicbox server changes your address. Give senders the new address. Payments sent to the old one wait on the old server until you switch back.'**
   String get setupRelayChangeWarning;
 
-  /// Title of the confirm before the epicbox server of the open wallet changes.
-  ///
-  /// In en, this message translates to:
-  /// **'Switch epicbox server?'**
-  String get serverSwitchRelayTitle;
-
-  /// Body of that confirm: the address keeps its key and takes the new server.
-  ///
-  /// In en, this message translates to:
-  /// **'The epicbox address changes to …@{relay}. Senders need the new address. Payments sent to the old address stay on the old server.'**
-  String serverSwitchRelayBody(String relay);
-
-  /// Button of that confirm that switches the server.
-  ///
-  /// In en, this message translates to:
-  /// **'Switch'**
-  String get serverSwitchRelayConfirm;
-
   /// No description provided for @setupWalletPerNetwork.
   ///
   /// In en, this message translates to:
@@ -8899,6 +8881,24 @@ abstract class AppLocalizations {
   /// **'Restored this wallet from its recovery phrase? Give services this invoice address again.'**
   String get deskInvSetRestoredHint;
 
+  /// Title of the confirm before the epicbox server of the open wallet changes.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch epicbox server?'**
+  String get serverSwitchRelayTitle;
+
+  /// Body of that confirm: the address keeps its key and takes the new server.
+  ///
+  /// In en, this message translates to:
+  /// **'The epicbox address changes to …@{relay}. Senders need the new address. Payments sent to the old address stay on the old server.'**
+  String serverSwitchRelayBody(String relay);
+
+  /// Button of that confirm that switches the server.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch'**
+  String get serverSwitchRelayConfirm;
+
   /// Tooltip of the small ? button that opens one help topic.
   ///
   /// In en, this message translates to:
@@ -8964,6 +8964,174 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Switched to {host}'**
   String serverSwitched(String host);
+
+  /// Send and Receive method: straight to the other wallet, at an http(s) or onion address.
+  ///
+  /// In en, this message translates to:
+  /// **'Direct'**
+  String get methodDirect;
+
+  /// Under Send's empty To field on Direct: the two shapes a Direct address takes. Keep the addresses as they are.
+  ///
+  /// In en, this message translates to:
+  /// **'http://host:3415 or xxxx….onion'**
+  String get methodDirectShape;
+
+  /// Send's strip line for Direct.
+  ///
+  /// In en, this message translates to:
+  /// **'Their wallet must be open. An onion address goes over Tor.'**
+  String get methodSendDirectLine;
+
+  /// Screen reader label of the Direct picture.
+  ///
+  /// In en, this message translates to:
+  /// **'Direct: the payment goes straight to the recipient\'s wallet, which must be open'**
+  String get methodArtLabelDirect;
+
+  /// Receive's Epicbox strip line: payments arrive even while the wallet is closed (the Epicbox server holds them). No "app": the web demo shows it too.
+  ///
+  /// In en, this message translates to:
+  /// **'Works with the wallet closed.'**
+  String get methodReceiveEpicboxShort;
+
+  /// Receive's Direct strip title.
+  ///
+  /// In en, this message translates to:
+  /// **'Straight to this wallet.'**
+  String get methodReceiveDirectTitle;
+
+  /// Receive's Direct strip line: the onion address answers only while the app runs.
+  ///
+  /// In en, this message translates to:
+  /// **'Works while the app is open.'**
+  String get methodReceiveDirectLine;
+
+  /// A strip line followed by 'Over Tor.' when its connection goes through Tor.
+  ///
+  /// In en, this message translates to:
+  /// **'{line} Over Tor.'**
+  String methodLineOverTor(String line);
+
+  /// Tag beside Send's To label for 3 s after the address moved the method to Direct.
+  ///
+  /// In en, this message translates to:
+  /// **'Direct address'**
+  String get sendSwitchedDirect;
+
+  /// Read out once when the address moved Send's method to Direct.
+  ///
+  /// In en, this message translates to:
+  /// **'Direct address. Method set to Direct.'**
+  String get sendSwitchedDirectAnnounce;
+
+  /// Error under To when Direct is chosen and the text is not an http(s) or onion address.
+  ///
+  /// In en, this message translates to:
+  /// **'A Direct address starts with http:// or https://, or ends in .onion.'**
+  String get sendDirectAddressShape;
+
+  /// Tag on Send and Review: this connection stays on the clearnet although Tor is on.
+  ///
+  /// In en, this message translates to:
+  /// **'Not over Tor'**
+  String get torNotOverTor;
+
+  /// Notice under Send's To: an onion address needs Tor, which is off.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs Tor.'**
+  String get torNeeds;
+
+  /// Button that turns the Tor switch on.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on Tor'**
+  String get torTurnOn;
+
+  /// Button that turns the Tor switch off.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn Tor off'**
+  String get torTurnOff;
+
+  /// Notice on Send while Tor is on but not connected: nothing that needs it goes.
+  ///
+  /// In en, this message translates to:
+  /// **'Tor is not connected.'**
+  String get torNotConnectedNotice;
+
+  /// Send's Review button while Tor starts.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for Tor'**
+  String get torWaiting;
+
+  /// Tor state word: the switch is on and Tor is connecting.
+  ///
+  /// In en, this message translates to:
+  /// **'Starting…'**
+  String get torWordStarting;
+
+  /// Tor state word: Tor is on but could not connect.
+  ///
+  /// In en, this message translates to:
+  /// **'Not connected'**
+  String get torWordNotConnected;
+
+  /// Settings › Privacy › Tor subtitle: what the switch routes through Tor in this build.
+  ///
+  /// In en, this message translates to:
+  /// **'Epicbox and onion sends go through Tor.'**
+  String get torCoversEpicbox;
+
+  /// Settings › Privacy › Tor subtitle once the node is covered too.
+  ///
+  /// In en, this message translates to:
+  /// **'Epicbox, the node and onion sends go through Tor.'**
+  String get torCoversEpicboxNode;
+
+  /// Settings › Privacy › Tor subtitle once the node and the app's own requests are covered.
+  ///
+  /// In en, this message translates to:
+  /// **'All connections except a local node go through Tor.'**
+  String get torCoversAll;
+
+  /// Text link on Receive's Direct tab to Settings › Privacy.
+  ///
+  /// In en, this message translates to:
+  /// **'Tor settings'**
+  String get torSettingsLink;
+
+  /// Receive tab: receiving straight to this wallet at its onion address.
+  ///
+  /// In en, this message translates to:
+  /// **'Direct'**
+  String get receiveTabDirect;
+
+  /// Receive's Direct tab while Tor is off.
+  ///
+  /// In en, this message translates to:
+  /// **'Direct receiving needs Tor.'**
+  String get receiveDirectNeedsTor;
+
+  /// Caption under 'Direct receiving needs Tor.'
+  ///
+  /// In en, this message translates to:
+  /// **'Senders use the Epicbox address meanwhile.'**
+  String get receiveDirectMeanwhile;
+
+  /// Caption under the disabled notifications switch while Tor is on.
+  ///
+  /// In en, this message translates to:
+  /// **'Off while Tor is on'**
+  String get settingsPushOffWhileTor;
+
+  /// Status card: read out after a service whose connection goes through Tor.
+  ///
+  /// In en, this message translates to:
+  /// **'over Tor'**
+  String get netStatusOverTor;
 }
 
 class _AppLocalizationsDelegate
