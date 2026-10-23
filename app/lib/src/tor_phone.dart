@@ -4,6 +4,7 @@ library;
 
 import 'btlabs_onions.dart';
 import 'net/tor_net.dart';
+import 'net/tor_switch.dart';
 import 'phone_tor.dart';
 import 'tor_routes.dart';
 
@@ -20,8 +21,23 @@ TorState phoneTorState(PhoneTorState s) {
 
 /// For a `ref.listen(phoneTorProvider, …)` on a screen that is always up while a wallet is
 /// open: the app's requests and the price follow the switch, through tor's SOCKS port once tor
-/// has connected (LEPIC E-12), and wait while it has not.
-void phoneTorFollow(PhoneTorState s) => TorNet.follow(phoneTorState(s), proxy: phoneTorSocks(s));
+/// has connected (LEPIC E-12), and wait while it has not. Before the wallet's switch is read
+/// (locked, or opening) a switch that was on, saved at launch or the last one followed, keeps
+/// them waiting: never direct for a moment.
+void phoneTorFollow(PhoneTorState s) {
+  if (!s.settled) {
+    if (TorSwitch.on) TorNet.waitForTor();
+    return;
+  }
+  TorNet.follow(phoneTorState(s), proxy: phoneTorSocks(s));
+}
+
+/// At launch, before any request: the phone's saved Tor switch on holds the app's own
+/// requests waiting for tor (and the price on BT Labs' copy) until the wallet is open and tor
+/// has connected; [phoneTorFollow] takes over from there.
+void phoneTorAtLaunch({required bool savedOn}) {
+  if (savedOn) TorNet.follow(TorState.starting);
+}
 
 /// tor's SOCKS proxy while it can carry requests, else null (requests then wait).
 SocksProxy? phoneTorSocks(PhoneTorState s) {
