@@ -997,7 +997,6 @@
   "outputsMeanMining": "Награда за майнинг, ещё не подтверждена.",
   "outputsMeanLocked": "Тратится отправкой в процессе.",
   "outputsMeanSpent": "Уже потрачен.",
-  "outputsNoteConfirmations": "{conf} / {need}",
   "outputsNoteReceived": "Получено {date}",
   "outputsNoteSend": "Отправка: {who}",
   "outputsNoteSendPlain": "Отправка в процессе",

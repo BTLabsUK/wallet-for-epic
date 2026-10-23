@@ -6122,12 +6122,6 @@ abstract class AppLocalizations {
   /// **'Already spent.'**
   String get outputsMeanSpent;
 
-  /// Row note: confirmations so far of the needed.
-  ///
-  /// In en, this message translates to:
-  /// **'{conf} / {need}'**
-  String outputsNoteConfirmations(int conf, int need);
-
   /// Row note: when the output was received.
   ///
   /// In en, this message translates to:

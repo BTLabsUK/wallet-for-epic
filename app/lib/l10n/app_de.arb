@@ -997,7 +997,6 @@
   "outputsMeanMining": "Eine Mining-Belohnung, noch nicht bestätigt.",
   "outputsMeanLocked": "Wird von einer laufenden Zahlung ausgegeben.",
   "outputsMeanSpent": "Bereits ausgegeben.",
-  "outputsNoteConfirmations": "{conf} / {need}",
   "outputsNoteReceived": "Empfangen {date}",
   "outputsNoteSend": "Zahlung an {who}",
   "outputsNoteSendPlain": "Zahlung läuft",

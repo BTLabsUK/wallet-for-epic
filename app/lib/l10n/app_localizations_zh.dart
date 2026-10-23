@@ -3739,11 +3739,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get outputsMeanSpent => '已花费。';
 
   @override
-  String outputsNoteConfirmations(int conf, int need) {
-    return '$conf / $need';
-  }
-
-  @override
   String outputsNoteReceived(String date) {
     return '收到于 $date';
   }

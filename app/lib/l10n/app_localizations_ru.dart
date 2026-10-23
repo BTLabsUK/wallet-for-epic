@@ -4114,11 +4114,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get outputsMeanSpent => 'Уже потрачен.';
 
   @override
-  String outputsNoteConfirmations(int conf, int need) {
-    return '$conf / $need';
-  }
-
-  @override
   String outputsNoteReceived(String date) {
     return 'Получено $date';
   }

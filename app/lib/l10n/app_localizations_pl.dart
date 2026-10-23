@@ -4133,11 +4133,6 @@ class AppLocalizationsPl extends AppLocalizations {
   String get outputsMeanSpent => 'Już wydane.';
 
   @override
-  String outputsNoteConfirmations(int conf, int need) {
-    return '$conf / $need';
-  }
-
-  @override
   String outputsNoteReceived(String date) {
     return 'Odebrano $date';
   }

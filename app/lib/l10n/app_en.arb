@@ -4877,18 +4877,6 @@
   "@outputsMeanSpent": {
     "description": "One line in the output sheet."
   },
-  "outputsNoteConfirmations": "{conf} / {need}",
-  "@outputsNoteConfirmations": {
-    "description": "Row note: confirmations so far of the needed.",
-    "placeholders": {
-      "conf": {
-        "type": "int"
-      },
-      "need": {
-        "type": "int"
-      }
-    }
-  },
   "outputsNoteReceived": "Received {date}",
   "@outputsNoteReceived": {
     "description": "Row note: when the output was received.",

@@ -997,7 +997,6 @@
   "outputsMeanMining": "尚未确认的挖矿奖励。",
   "outputsMeanLocked": "正被进行中的发送花费。",
   "outputsMeanSpent": "已花费。",
-  "outputsNoteConfirmations": "{conf} / {need}",
   "outputsNoteReceived": "收到于 {date}",
   "outputsNoteSend": "发送至 {who}",
   "outputsNoteSendPlain": "发送进行中",
