@@ -155,6 +155,7 @@ class LepicDeskWallet implements DeskWalletApi {
     this._listProcesses,
     this._torBundle,
     bool? torFeature,
+    bool torSwitch = false,
     Future<Directory> Function()? rememberDir,
     DateTime Function()? now,
     this._seedFetch,
@@ -166,6 +167,7 @@ class LepicDeskWallet implements DeskWalletApi {
   }) : _keyring = keyring ?? btlabsKeyring,
         onions = onions ?? OnionDirectory(),
         _torFeature = torFeature ?? DeskFeatures.tor,
+        _torSaved = torSwitch,
        _legacyRoots = legacyRoots ?? legacy.LegacyRoots.current,
        _minConfFallback = minimumConfirmations ?? BigInt.from(defaultMinimumConfirmations),
        _registryGiven = registry,
@@ -175,6 +177,7 @@ class LepicDeskWallet implements DeskWalletApi {
          now: now,
        ) {
     statusSite.addListener(_statusSiteChanged);
+    _followTor();
   }
 
   /// Passwords remembered on this computer, per wallet (F6).
@@ -182,6 +185,11 @@ class LepicDeskWallet implements DeskWalletApi {
 
   /// Whether this build offers Tor ([DeskFeatures.tor]); tests turn it on.
   final bool _torFeature;
+
+  /// The Tor switch as saved ([DeskSettings.torAutostart]), known from launch: while it is on
+  /// and tor is not running yet (locked, or unlocked before tor starts), the app's own
+  /// requests wait for tor instead of going directly.
+  bool _torSaved;
 
   final core.WalletService _service;
   final WalletDirResolver _walletDir;
@@ -366,7 +374,7 @@ class LepicDeskWallet implements DeskWalletApi {
   /// The app's own requests follow the Tor switch (tor_routes.dart, `TorNet.follow`).
   void _followTor() {
     final state = !_settings.tor
-        ? TorState.off
+        ? (_torFeature && _torSaved ? TorState.starting : TorState.off)
         : switch (_torHealth) {
             ServiceHealth.down => TorState.failed,
             ServiceHealth.off => TorState.starting,
@@ -826,6 +834,10 @@ class LepicDeskWallet implements DeskWalletApi {
       epicboxAutostart: autostart.epicbox,
       torAutostart: _torFeature && torSwitch,
     );
+    _torSaved = torSwitch;
+    // Tor starts with startAutostart, after the first node check and sync: those wait for it
+    // instead of asking the node directly first.
+    if (_settings.torAutostart && await _findTor() != null) await _expectTor(session);
     await _setMeta({'opened': DateTime.now().millisecondsSinceEpoch ~/ 1000});
     await _seedContacts();
     try {
@@ -1570,7 +1582,8 @@ class LepicDeskWallet implements DeskWalletApi {
     final config = _config;
     if (config == null) return;
     try {
-      final tip = await _service.nodeTip(config: config).timeout(nodeTimeout);
+      final tip = await _nodeTip(config);
+      if (tip == null) return;
       final h = tip.height.toInt();
       final grew = h > _tip;
       _tip = h;
@@ -2405,6 +2418,8 @@ class LepicDeskWallet implements DeskWalletApi {
       await _store.saveAutostart(_openEntry?.walletId, AutostartPrefs(epicbox: settings.epicboxAutostart, tor: settings.torAutostart));
     }
     if (settings.torAutostart != old.torAutostart) await _store.saveTorSwitch(settings.torAutostart);
+    _torSaved = settings.torAutostart;
+    _followTor();
     if (moved && _session != null && (_http != null || _httpHealth == ServiceHealth.down)) {
       await _stopHttp();
       if (settings.directHttp) await setHttpListening(true);
@@ -2550,6 +2565,19 @@ class LepicDeskWallet implements DeskWalletApi {
     }
   }
 
+  /// The tip of the node [config] names. With a wallet open it is asked through the wallet
+  /// (LEPIC's nodeTipFor), which takes it over Tor while Tor is on. With none open, the core's
+  /// own nodeTip always goes directly, so with the Tor switch on nothing is asked (null, shown
+  /// as not known yet) unless the node is on this computer.
+  Future<core.NodeTip?> _nodeTip(core.WalletConfig config) async {
+    final session = _session;
+    if (session != null) return session.nodeTipFor(config: config).timeout(nodeTimeout);
+    if (_torFeature && (await _store.torSwitch() ?? _settings.torAutostart) && !isLoopbackUrl(Uri.tryParse(config.nodeUrl) ?? Uri())) {
+      return null;
+    }
+    return _service.nodeTip(config: config).timeout(nodeTimeout);
+  }
+
   @override
   Future<NodeServer> checkNode(String url) async {
     final known = (await _listed()).where((n) => n.url == url).firstOrNull;
@@ -2557,7 +2585,8 @@ class LepicDeskWallet implements DeskWalletApi {
     final watch = Stopwatch()..start();
     NodeServer r;
     try {
-      final tip = await _service.nodeTip(config: await _makeConfig(nodeUrl: url)).timeout(nodeTimeout);
+      final tip = await _nodeTip(await _makeConfig(nodeUrl: url));
+      if (tip == null) return NodeServer(url: url, label: base.label, operator: base.operator, health: ServiceHealth.checking, own: base.own);
       r = NodeServer(url: url, label: base.label, operator: base.operator, health: ServiceHealth.ok, latencyMs: watch.elapsedMilliseconds, height: tip.height.toInt(), version: tip.nodeVersion, own: base.own);
     } on Object {
       r = NodeServer(url: url, label: base.label, operator: base.operator, health: ServiceHealth.down, own: base.own);

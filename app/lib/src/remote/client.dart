@@ -949,6 +949,13 @@ class RemoteWalletSession implements WalletSession {
   );
 
   @override
+  Future<NodeTip> nodeTipFor({required WalletConfig config}) => _call(
+    SessionMember.nodeTipFor,
+    nodeTipWire,
+    {'config': walletConfigWire.encode(config)},
+  );
+
+  @override
   Future<String> invoiceAddress() =>
       _call(SessionMember.invoiceAddress, stringWire);
 

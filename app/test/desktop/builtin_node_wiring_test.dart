@@ -29,7 +29,7 @@ class _Opens extends core.FakeWalletService {
   bool? ready;
 
   @override
-  Future<core.NodeTip> nodeTip({required core.WalletConfig config}) async => core.NodeTip(height: tip, nodeVersion: '3.6.0', readyForTxs: ready);
+  Future<core.NodeTip> nodeAnswer(core.WalletConfig config) async => core.NodeTip(height: tip, nodeVersion: '3.6.0', readyForTxs: ready);
 
   /// A node URL the wallet cannot open on.
   String? failOn;

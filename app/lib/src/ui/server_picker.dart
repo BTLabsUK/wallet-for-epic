@@ -844,11 +844,11 @@ class _ServerPickerSheetState extends ConsumerState<ServerPickerSheet> {
     ({String text, bool ok}) result;
     try {
       // The node call needs no wallet, so no data directory.
-      final tip = await ref
-          .read(walletServiceProvider)
-          .nodeTip(
-            config: choice.preset.config(dataDir: '', nodeUrl: url),
-          );
+      final tip = await askNodeTip(
+        ref.read(walletServiceProvider),
+        ref.read(sessionProvider),
+        choice.preset.config(dataDir: '', nodeUrl: url),
+      );
       result = (
         text: l.serverTestAnswer(groupDigits(l, tip.height), tip.nodeVersion),
         ok: true,

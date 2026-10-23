@@ -485,6 +485,10 @@ class GatedWalletSession implements WalletSession {
       _inner.setServers(config: config);
 
   @override
+  Future<NodeTip> nodeTipFor({required WalletConfig config}) =>
+      _inner.nodeTipFor(config: config);
+
+  @override
   Future<SelfSentTx> spendOutputsToSelf({
     required List<String> commitments,
     required BigInt minimumConfirmations,
