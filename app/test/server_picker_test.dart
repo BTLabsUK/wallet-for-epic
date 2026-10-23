@@ -91,6 +91,11 @@ Future<void> _pump(
         homeProvider.overrideWith(_Home.new),
         listenerProvider.overrideWith(_Listener.new),
         walletConfigProvider.overrideWith(_Config.new),
+        // The current node's card shows the tip the open wallet asks through its Tor; these
+        // tests open no wallet, so the tip stands in for its answer.
+        nodeTipProvider.overrideWith(
+          (ref) async => NodeTip(height: BigInt.from(2500000), nodeVersion: '3.6.0'),
+        ),
       ],
       child: MaterialApp(
         localizationsDelegates: AppLocalizations.localizationsDelegates,
