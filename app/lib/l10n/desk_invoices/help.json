@@ -1,0 +1,184 @@
+{
+  "deskInvHelpTitle": "Invoices",
+  "@deskInvHelpTitle": {
+    "description": "Help section title: invoices."
+  },
+  "deskInvHelpLede": "Bills from trusted senders, paid only after approval.",
+  "@deskInvHelpLede": {
+    "description": "Help section lede under 'Invoices'."
+  },
+  "deskInvHelpFlowTitle": "How an invoice works",
+  "@deskInvHelpFlowTitle": {
+    "description": "Help topic title."
+  },
+  "deskInvHelpFlowShort": "The issuer sends an invoice to the payer's invoice address. Nothing is paid until the payer approves it.",
+  "@deskInvHelpFlowShort": {
+    "description": "One-line answer of the topic."
+  },
+  "deskInvHelpFlowIntro": "An invoice asks for a payment. The **issuer** is paid; the **payer** decides.",
+  "@deskInvHelpFlowIntro": {
+    "description": "Paragraph. **x** marks a term."
+  },
+  "deskInvHelpFlowStep1": "The issuer's wallet sends the invoice to the payer's **invoice address** over the Epicbox server.",
+  "@deskInvHelpFlowStep1": {
+    "description": "Step 1 of the invoice flow."
+  },
+  "deskInvHelpFlowStep2": "The payer opens it under [[Invoices › Pay]], checks the sender, the amount and the message, and chooses **Approve and pay** with the wallet password.",
+  "@deskInvHelpFlowStep2": {
+    "description": "Step 2. [[x]] marks a place in the app; keep the place name as the UI shows it."
+  },
+  "deskInvHelpFlowStep3": "The payer's wallet sends the payment to the issuer's **payments address**.",
+  "@deskInvHelpFlowStep3": {
+    "description": "Step 3."
+  },
+  "deskInvHelpFlowStep4": "The issuer's wallet finalizes the payment and posts it to the network. After {confirmations} confirmations it is final.",
+  "@deskInvHelpFlowStep4": {
+    "description": "Step 4.",
+    "placeholders": {
+      "confirmations": {
+        "type": "int"
+      }
+    }
+  },
+  "deskInvHelpFlowNever": "Nothing is paid without approval, and an invoice never adds money to the payer's wallet. Each invoice has a time to pay, at most 48 hours; after it, the invoice can no longer be paid.",
+  "@deskInvHelpFlowNever": {
+    "description": "Paragraph."
+  },
+  "deskInvHelpFlowIssued": "Invoices this wallet issued are under [[Invoices › Issue]].",
+  "@deskInvHelpFlowIssued": {
+    "description": "Paragraph."
+  },
+  "deskInvHelpTrustTitle": "Why only trusted senders",
+  "@deskInvHelpTrustTitle": {
+    "description": "Help topic title."
+  },
+  "deskInvHelpTrustShort": "Only senders on the trusted list can put an invoice in the inbox. That keeps out spam and fake bills.",
+  "@deskInvHelpTrustShort": {
+    "description": "One-line answer."
+  },
+  "deskInvHelpTrustP1": "The wallet accepts an invoice only at its invoice address and only from a sender on the trusted list, matched on the sender's address. Anything else is dropped unread, before it is opened, and never shows under [[Invoices › Pay]].",
+  "@deskInvHelpTrustP1": {
+    "description": "Paragraph."
+  },
+  "deskInvHelpTrustP2": "Without the list, anyone who learned the invoice address could fill the inbox with spam or with bills that look real.",
+  "@deskInvHelpTrustP2": {
+    "description": "Paragraph."
+  },
+  "deskInvHelpTrustP3": "Trust only lets a sender ask. A trusted sender cannot take anything: each invoice still waits for **Approve and pay**.",
+  "@deskInvHelpTrustP3": {
+    "description": "Paragraph."
+  },
+  "deskInvHelpTrustWhere1": "Trust a sender under [[Settings › Invoices]].",
+  "@deskInvHelpTrustWhere1": {
+    "description": "List item."
+  },
+  "deskInvHelpTrustWhere2": "Or switch on **Trusted for invoices** on a contact under [[Contacts]].",
+  "@deskInvHelpTrustWhere2": {
+    "description": "List item."
+  },
+  "deskInvHelpTrustWhere3": "A sender can be removed from the list at any time. Its new invoices are then dropped.",
+  "@deskInvHelpTrustWhere3": {
+    "description": "List item."
+  },
+  "deskInvHelpAddrTitle": "Why a separate invoice address",
+  "@deskInvHelpAddrTitle": {
+    "description": "Help topic title."
+  },
+  "deskInvHelpAddrShort": "Invoices arrive at their own address, apart from the payments address that people pay to.",
+  "@deskInvHelpAddrShort": {
+    "description": "One-line answer."
+  },
+  "deskInvHelpAddrP1": "The wallet has two Epicbox addresses. The **payments address**, under [[Receive]], receives payments. The **invoice address** receives only invoices.",
+  "@deskInvHelpAddrP1": {
+    "description": "Paragraph."
+  },
+  "deskInvHelpAddrP2": "Keeping them apart means the invoice address can be given to services, or replaced, without exposing or changing the address people pay to.",
+  "@deskInvHelpAddrP2": {
+    "description": "Paragraph."
+  },
+  "deskInvHelpAddrP3": "The invoice address does not receive payments: a payment sent to it is dropped. To be paid, give the payments address.",
+  "@deskInvHelpAddrP3": {
+    "description": "Paragraph."
+  },
+  "deskInvHelpAddrWhere1": "Find, copy or show the invoice address as a QR code under [[Settings › Invoices]].",
+  "@deskInvHelpAddrWhere1": {
+    "description": "List item."
+  },
+  "deskInvHelpAddrWhere2": "**New invoice address** replaces it. Services with the old one can no longer send invoices until they get the new one.",
+  "@deskInvHelpAddrWhere2": {
+    "description": "List item; 'New address' is the button's label."
+  },
+  "deskInvHelpDiagramTitle": "How an invoice travels",
+  "@deskInvHelpDiagramTitle": {
+    "description": "Caption over the invoice flow diagram."
+  },
+  "deskInvHelpDiagramIssuer": "Issuer",
+  "@deskInvHelpDiagramIssuer": {
+    "description": "Diagram lane: the side that issues the invoice and is paid."
+  },
+  "deskInvHelpDiagramPayer": "Payer",
+  "@deskInvHelpDiagramPayer": {
+    "description": "Diagram lane: the side that pays."
+  },
+  "deskInvHelpDiagramIssues": "Issues the invoice",
+  "@deskInvHelpDiagramIssues": {
+    "description": "Diagram box, issuer side. Short."
+  },
+  "deskInvHelpDiagramInvoice": "Invoice",
+  "@deskInvHelpDiagramInvoice": {
+    "description": "Diagram arrow label. Short."
+  },
+  "deskInvHelpDiagramGate": "Invoice address",
+  "@deskInvHelpDiagramGate": {
+    "description": "Diagram box: the payer's invoice address, a gate."
+  },
+  "deskInvHelpDiagramGateSub": "Trusted senders only",
+  "@deskInvHelpDiagramGateSub": {
+    "description": "Under the gate. Short."
+  },
+  "deskInvHelpDiagramDropped": "Other senders",
+  "@deskInvHelpDiagramDropped": {
+    "description": "Diagram: a sender not on the trusted list."
+  },
+  "deskInvHelpDiagramDroppedSub": "Dropped unread",
+  "@deskInvHelpDiagramDroppedSub": {
+    "description": "Under 'Other senders'. Short."
+  },
+  "deskInvHelpDiagramReview": "Reviews and approves",
+  "@deskInvHelpDiagramReview": {
+    "description": "Diagram box, payer side. Short."
+  },
+  "deskInvHelpDiagramReviewSub": "Approve and pay",
+  "@deskInvHelpDiagramReviewSub": {
+    "description": "Under it: the button's label."
+  },
+  "deskInvHelpDiagramPayment": "Payment",
+  "@deskInvHelpDiagramPayment": {
+    "description": "Diagram arrow label. Short."
+  },
+  "deskInvHelpDiagramPayAddr": "Payments address",
+  "@deskInvHelpDiagramPayAddr": {
+    "description": "Diagram box, issuer side: the normal receive address."
+  },
+  "deskInvHelpDiagramPayAddrSub": "Not the invoice address",
+  "@deskInvHelpDiagramPayAddrSub": {
+    "description": "Under 'Payments address'. Short."
+  },
+  "deskInvHelpDiagramFinal": "Finalizes and posts",
+  "@deskInvHelpDiagramFinal": {
+    "description": "Diagram box, issuer side: finalizes the payment and posts it to the network."
+  },
+  "deskInvHelpDiagramFinalSub": "Final after {confirmations} confirmations",
+  "@deskInvHelpDiagramFinalSub": {
+    "description": "Under it. Short.",
+    "placeholders": {
+      "confirmations": {
+        "type": "int"
+      }
+    }
+  },
+  "deskInvHelpDiagramSemantics": "The issuer sends an invoice to the payer's invoice address, which accepts trusted senders only and drops the rest; the payer reviews and approves it; the payment goes to the issuer's payments address; the issuer's wallet finalizes it and posts it to the network.",
+  "@deskInvHelpDiagramSemantics": {
+    "description": "Screen reader text for the whole diagram."
+  }
+}

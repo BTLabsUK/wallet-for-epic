@@ -42,6 +42,18 @@ Matcher invalidArgument(String text) => throwsA(
       .having((e) => e.message, 'message', contains(text)),
 );
 
+Matcher _kind(WalletErrorKind kind, String text) => throwsA(
+  isA<WalletError>()
+      .having((e) => e.kind, 'kind', kind)
+      .having((e) => e.message, 'message', contains(text)),
+);
+
+Matcher amountMismatch(String text) =>
+    _kind(WalletErrorKind.amountMismatch, text);
+
+Matcher invoiceNotFound(String text) =>
+    _kind(WalletErrorKind.invoiceNotFound, text);
+
 void main() {
   group('fake session', () {
     late FakeWalletSession s;
@@ -102,7 +114,7 @@ void main() {
 
       await expectLater(
         s.payInvoice(slateId: 'i1', amount: eight + BigInt.one),
-        invalidArgument('amount does not match'),
+        amountMismatch('amount does not match'),
       );
       expect(s.invoicePayments, 0);
       expect(await s.pendingInvoices(), hasLength(1), reason: 'still pending');
@@ -120,7 +132,7 @@ void main() {
       // Paid once: a second pay finds no pending invoice.
       await expectLater(
         s.payInvoice(slateId: 'i1', amount: eight),
-        invalidArgument('no pending invoice'),
+        invoiceNotFound('no pending invoice'),
       );
       expect(s.invoicePayments, 1);
     });
@@ -139,7 +151,7 @@ void main() {
       );
       await expectLater(
         s.declineInvoice(slateId: 'i1'),
-        invalidArgument('no pending invoice'),
+        invoiceNotFound('no pending invoice'),
       );
     });
 
@@ -168,7 +180,7 @@ void main() {
       );
       await expectLater(
         s.payInvoice(slateId: 'i1', amount: eight),
-        invalidArgument('no pending invoice'),
+        invoiceNotFound('no pending invoice'),
       );
       expect(s.invoicePayments, 0);
     });
@@ -328,9 +340,19 @@ void main() {
       // The same key on another relay replaces the entry and its label.
       final moved = addr('S', relay: 'epicbox.epicnet.us');
       await s.addTrustedService(address: moved, label: 'Shop US');
-      expect(await s.trustedServices(), [
-        TrustedService(address: moved, label: 'Shop US'),
+      final services = await s.trustedServices();
+      expect(services, [
+        TrustedService(
+          address: moved,
+          label: 'Shop US',
+          since: services.single.since,
+        ),
       ]);
+      expect(
+        services.single.since,
+        isNotNull,
+        reason: 'the fake dates the entry',
+      );
       expect(s.invoiceHistory.meta.serviceLabels.keys, [moved]);
 
       await s.removeTrustedService(address: shop);
@@ -600,9 +622,8 @@ void main() {
       final notifier = container.read(trustedServicesProvider.notifier);
       expect(await container.read(trustedServicesProvider.future), isEmpty);
       await notifier.add(address: shop, label: 'Shop');
-      expect(container.read(trustedServicesProvider).value, [
-        TrustedService(address: shop, label: 'Shop'),
-      ]);
+      final listed = container.read(trustedServicesProvider).value!;
+      expect([for (final t in listed) (t.address, t.label)], [(shop, 'Shop')]);
       await expectLater(
         notifier.add(address: 'nonsense', label: 'x'),
         invalidArgument('not an epicbox address'),
@@ -708,6 +729,8 @@ void main() {
         'lib',
       ).listSync(recursive: true).whereType<File>())
         if (f.path.endsWith('.dart') &&
+            // The desktop has its own check (test/desktop/lepic_desk_invoices_test.dart).
+            !f.path.replaceAll(r'\', '/').startsWith('lib/src/desktop/') &&
             f.readAsStringSync().contains('payInvoice(') &&
             !allowed.contains(f.path.replaceAll(r'\', '/')))
           f.path,

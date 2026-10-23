@@ -97,13 +97,16 @@ enum TxState {
 
 enum TxMethod { epicbox, http, tor, file }
 
+/// Who started a transaction: the sender ([payment]) or the receiver with a request ([invoice]).
+enum TxFlow { payment, invoice }
+
 /// Confirmations before a mining reward can be spent.
 const int coinbaseMaturity = 1440;
 
 enum OutputStatus { unconfirmed, confirming, unspent, immature, locked, spent }
 
 /// The word the Outputs page shows for an output, one place (design spec §2.2, §5.5).
-enum OutputWord { spendable, confirming, finalizing, immature, mining, locked, spent }
+enum OutputWord { spendable, confirming, finalizing, unpaidInvoice, immature, mining, locked, spent }
 
 /// One coin of the balance (an output and its commitment).
 @immutable
@@ -118,6 +121,7 @@ class Output {
     this.lockHeight,
     this.isCoinbase = false,
     this.awaitingFinalization = false,
+    this.unpaidInvoice = false,
     this.hasCategory = true,
     this.mmrIndex,
     this.txId,
@@ -141,6 +145,9 @@ class Output {
   /// LEPIC's category is awaiting finalization (a send's change, a payment coming in).
   final bool awaitingFinalization;
 
+  /// This wallet's output of an invoice it issued that is not paid yet: in no balance figure.
+  final bool unpaidInvoice;
+
   /// LEPIC gave the output a category; a reward still being mined has none.
   final bool hasCategory;
 
@@ -160,7 +167,9 @@ class Output {
     OutputStatus.unspent => OutputWord.spendable,
     OutputStatus.confirming => OutputWord.confirming,
     OutputStatus.unconfirmed =>
-      awaitingFinalization
+      unpaidInvoice
+          ? OutputWord.unpaidInvoice
+          : awaitingFinalization
           ? OutputWord.finalizing
           : isCoinbase && !hasCategory
           ? OutputWord.mining
@@ -229,6 +238,7 @@ class Tx {
     this.notPosted = false,
     this.confirmedAt,
     this.detail,
+    this.flow = TxFlow.payment,
   });
 
   final int id;
@@ -280,6 +290,13 @@ class Tx {
   /// from, or what the blockchain says against the older wallet.
   final String? detail;
 
+  /// Who started it: the sender (a payment) or the receiver with a request. An incoming
+  /// invoice transaction is a request this wallet sent; an outgoing one an invoice it paid
+  /// (`invoices.dart` holds their states).
+  final TxFlow flow;
+
+  bool get isInvoice => flow == TxFlow.invoice;
+
   bool get immature => coinbase && state != TxState.cancelled && confirmations > 0 && confirmations < coinbaseMaturity;
 
   bool get incoming => direction == TxDirection.received;
@@ -291,7 +308,16 @@ enum FoundDuring { restore, rescan }
 
 @immutable
 class Contact {
-  const Contact({required this.id, required this.name, required this.address, this.note, this.favourite = false, this.lastUsed, this.hasPicture = false});
+  const Contact({
+    required this.id,
+    required this.name,
+    required this.address,
+    this.note,
+    this.favourite = false,
+    this.lastUsed,
+    this.hasPicture = false,
+    this.invoiceAddress,
+  });
 
   final String id;
   final String name;
@@ -302,6 +328,10 @@ class Contact {
 
   /// A picture was added for the contact (the mock draws a placeholder).
   final bool hasPicture;
+
+  /// Their invoice address, where requests to them go (`invoices.dart`); null when not known.
+  /// Whether they may send this wallet invoices is the trusted list's, by [address]'s key.
+  final String? invoiceAddress;
 }
 
 enum ServiceHealth { ok, slow, down, off, checking }

@@ -1,0 +1,66 @@
+{
+  "deskInvActFrom": "Invoice from {label}",
+  "@deskInvActFrom": {
+    "description": "Activity row title of an invoice you paid; label is your name for the service.",
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "deskInvActFilter": "Invoices",
+  "@deskInvActFilter": {
+    "description": "Activity filter: requests you sent and invoices you paid."
+  },
+  "deskInvActBlock": "Invoice",
+  "@deskInvActBlock": {
+    "description": "Section title in a transaction's details: the request or invoice behind it."
+  },
+  "deskInvActOpen": "Open in Invoices",
+  "@deskInvActOpen": {
+    "description": "Link from a transaction to its invoice on the Invoices page."
+  },
+  "deskInvActBilledBy": "Billed by",
+  "@deskInvActBilledBy": {
+    "description": "Detail label: the service that sent the invoice."
+  },
+  "deskInvActOverviewTitle": "Invoices",
+  "@deskInvActOverviewTitle": {
+    "description": "Overview card title: invoices to pay and requests waiting."
+  },
+  "deskInvActOverviewToPay": "{count, plural, =0{Nothing to pay} =1{1 invoice to pay} other{{count} invoices to pay}}",
+  "@deskInvActOverviewToPay": {
+    "description": "Overview card line: invoices waiting for your answer.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deskInvActOverviewWaiting": "{count, plural, =0{No issued invoices waiting} =1{1 issued invoice waiting for its payer} other{{count} issued invoices waiting for their payers}}",
+  "@deskInvActOverviewWaiting": {
+    "description": "Overview card line: requests you sent, not answered yet.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deskInvActOverviewAttention": "{count, plural, =1{1 payment needs you: retry or cancel it} other{{count} payments need you: retry or cancel them}}",
+  "@deskInvActOverviewAttention": {
+    "description": "Overview card warning: paid invoices whose payment needs Retry or Cancel.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deskInvActReview": "Review",
+  "@deskInvActReview": {
+    "description": "Overview card button: open the invoices to pay."
+  },
+  "deskInvActOpenInvoices": "Open Invoices",
+  "@deskInvActOpenInvoices": {
+    "description": "Overview card button: open the Invoices page."
+  }
+}

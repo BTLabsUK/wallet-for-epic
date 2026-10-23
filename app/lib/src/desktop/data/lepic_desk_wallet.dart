@@ -21,8 +21,10 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:crypto/crypto.dart';
+import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:path_provider/path_provider.dart';
 
+import '../../address_format.dart' show shortAddress;
 import '../../btlabs_keys.dart' show btlabsKeyring;
 import '../../btlabs_public.dart';
 import '../../builtin_node.dart';
@@ -50,6 +52,8 @@ import 'desk_store.dart';
 import 'desk_update.dart' show deskAppVersion;
 import 'features.dart';
 import 'http_address.dart';
+import 'invoice_scheduler.dart';
+import 'invoices.dart';
 import 'models.dart';
 import 'phrase_check.dart' show phraseFingerprint;
 import 'remember.dart';
@@ -96,6 +100,11 @@ String deskErrorText(Object error) {
     core.WalletErrorKind.chainBusy || core.WalletErrorKind.walletBusy => 'Wallet busy. Try again in a moment.',
     core.WalletErrorKind.damagedDatabase => 'Wallet database damaged, rebuilding',
     core.WalletErrorKind.paymentExpired => detail.isEmpty ? 'Payment expired' : detail,
+    core.WalletErrorKind.invoiceNotFound => 'Invoice not found',
+    core.WalletErrorKind.amountMismatch => 'Amount differs from the invoice',
+    core.WalletErrorKind.invoiceAlreadyPaid => 'Invoice already paid',
+    core.WalletErrorKind.invoiceLockedAboveTip => 'Invoice locked until a later block',
+    core.WalletErrorKind.invoiceChanged => 'Invoice changed',
     core.WalletErrorKind.invalidArgument => detail == core.sendUnbuildable || detail == core.nothingToConsolidate ? detail : detail.isEmpty ? 'Not accepted' : 'Not accepted: $detail',
     core.WalletErrorKind.io => detail.isEmpty ? 'Disk error' : 'Disk error: $detail',
     core.WalletErrorKind.other => detail.isEmpty ? 'Something went wrong' : detail,
@@ -147,6 +156,9 @@ class LepicDeskWallet implements DeskWalletApi {
     DateTime Function()? now,
     this._seedFetch,
     Keyring? keyring,
+    this.invoicesEvery = const Duration(minutes: 2),
+    this.paymentsEvery = const Duration(seconds: 60),
+    this.invoiceFocus = true,
   }) : _keyring = keyring ?? btlabsKeyring,
         _torFeature = torFeature ?? DeskFeatures.tor,
        _legacyRoots = legacyRoots ?? legacy.LegacyRoots.current,
@@ -203,6 +215,14 @@ class LepicDeskWallet implements DeskWalletApi {
 
   /// How long closing the app waits for a payment under way before it locks anyway.
   final Duration closeWait;
+
+  /// How often the invoice address is drained, and the payments address while an issued
+  /// invoice waits and the listener is off ([InvoiceScheduler]).
+  final Duration invoicesEvery;
+  final Duration paymentsEvery;
+
+  /// Drain the invoice address when the window gains focus (off in tests).
+  final bool invoiceFocus;
 
   /// Makes the built-in node of a network (desktop builds with the bundled `epic`, D10); null
   /// where there is none.
@@ -786,6 +806,7 @@ class LepicDeskWallet implements DeskWalletApi {
     unawaited(_checkTip());
     unawaited(sync());
     _torAutoRetried = false;
+    _startInvoices();
   }
 
   @override
@@ -870,6 +891,7 @@ class LepicDeskWallet implements DeskWalletApi {
     _generation++;
     _poll?.cancel();
     _poll = null;
+    _stopInvoices(forget: true);
     await _stopListener();
     await _stopHttp();
     await _stopTor();
@@ -892,14 +914,15 @@ class LepicDeskWallet implements DeskWalletApi {
   /// them, the listener kept as it was. When it does not open, the wallet opens again on the
   /// old ones and the error says so; when even that fails, the wallet locks
   /// ([DeskError.locked]). Locked: only saved. Callers hold [_nodeLock]; [_switching] is set
-  /// before the first await, so a caller that saw no [_busy] running is not overtaken by one.
+  /// before the first await: new payments and scans wait for the switch, those running end first.
   Future<void> _switchTo({required String nodeUrl, required EpicboxRelay relay}) async {
-    // Payments and scans under way end first; the check and the mark follow with no await.
-    while (_busy > 0) {
-      await whenIdle();
-    }
+    // The mark comes first: no payment or scan starts from now on (the switch is preferred),
+    // so a steady stream of them cannot hold it off. Those under way end, then it runs.
     final switching = _switching = Completer<void>();
     try {
+      while (_busy > 0) {
+        await whenIdle();
+      }
       await _reopenOn(nodeUrl: nodeUrl, relay: relay);
     } finally {
       _switching = null;
@@ -924,6 +947,7 @@ class LepicDeskWallet implements DeskWalletApi {
     await _stopListener();
     await _stopHttp();
     await _stopTor();
+    _stopInvoices();
     _session?.dispose();
     _session = null;
     // A lock() while opening wins: the new session closes at once.
@@ -959,6 +983,7 @@ class LepicDeskWallet implements DeskWalletApi {
 
   Future<void> _afterReopen(bool listening, bool http, bool tor) async {
     _nodeHealth = ServiceHealth.checking;
+    _startInvoices();
     if (listening) await setListening(true);
     if (http) await setHttpListening(true);
     if (tor) unawaited(_startTor());
@@ -1556,6 +1581,7 @@ class LepicDeskWallet implements DeskWalletApi {
       spendable: s.spendable.toInt(),
       awaitingConfirmation: s.awaitingConfirmation.toInt(),
       locked: s.locked.toInt(),
+      // An unpaid issued invoice is in no figure: LEPIC files its output apart (P-1, W-25).
       awaitingFinalization: s.awaitingFinalization.toInt(),
       immature: s.immature.toInt(),
       minConfirmations: _minConf.toInt(),
@@ -1594,7 +1620,15 @@ class LepicDeskWallet implements DeskWalletApi {
 
     return [
       for (final c in await _open.contacts())
-        Contact(id: c.id, name: c.name, address: c.address, note: c.note, favourite: favourites.contains(c.id), lastUsed: lastUsed(c.address)),
+        Contact(
+          id: c.id,
+          name: c.name,
+          address: c.address,
+          note: c.note,
+          favourite: favourites.contains(c.id),
+          lastUsed: lastUsed(c.address),
+          invoiceAddress: c.invoiceAddress,
+        ),
     ];
   }
 
@@ -2090,7 +2124,7 @@ class LepicDeskWallet implements DeskWalletApi {
   @override
   Future<String> saveContact(Contact contact) async {
     try {
-      final stored = await _open.saveContact(contact: core.Contact(id: contact.id, name: contact.name, address: contact.address, note: contact.note));
+      final stored = await _open.saveContact(contact: core.Contact(id: contact.id, name: contact.name, address: contact.address, note: contact.note, invoiceAddress: contact.invoiceAddress));
       final favourites = await _favourites();
       contact.favourite ? favourites.add(stored.id) : favourites.remove(stored.id);
       await _store.writeJson(_favouritesKey, favourites.toList());
@@ -2238,7 +2272,7 @@ class LepicDeskWallet implements DeskWalletApi {
               (!rec.containsKey('name') || c.name == rec['name']) &&
               (!rec.containsKey('note') || c.note == rec['note']);
           if (untouched && (c.address != s.address || c.name != s.name || c.note != s.note)) {
-            await session.saveContact(contact: core.Contact(id: c.id, name: s.name, address: s.address, note: s.note));
+            await session.saveContact(contact: core.Contact(id: c.id, name: s.name, address: s.address, note: s.note, invoiceAddress: c.invoiceAddress));
             seeds[s.id] = _seedRecord(c.id, s);
             changed = true;
           }
@@ -2981,6 +3015,573 @@ class LepicDeskWallet implements DeskWalletApi {
   @override
   Future<void> dismissHistoryReminder(DateTime when) => _setMeta({'historyReminderDismissedAt': when.millisecondsSinceEpoch ~/ 1000});
 
+  // ---- Invoices over Epicbox (docs/invoices/flow.md). The shared session's invoice calls,
+  // mapped onto the desktop's own types (invoices.dart), not renamed. LEPIC keeps the invoice
+  // address, the trusted list and the waiting invoices; the session keeps labels and what
+  // became of each invoice in `wfe_meta.json`. Nothing here pays but [payInvoice], whose only
+  // caller is Review's Approve, after the password; no event, drain or timer leads to it (P-2).
+
+  /// Drains on a timer and on focus while a wallet is open ([_startInvoices]).
+  InvoiceScheduler? _invoiceTimers;
+  StreamSubscription<core.InvoiceEvent>? _invoiceSub;
+  StreamSubscription<core.IssuerEvent>? _issuerSub;
+  final _invoiceNotices = StreamController<InvoiceNotice>.broadcast();
+
+  /// How long invoices stay payable here (Settings › Invoices); kept per wallet in the
+  /// wallet's saved data under [_invoiceExpiryKey] and read back when the invoices start.
+  Duration _invoiceExpiry = defaultInvoiceExpiry;
+  static const _invoiceExpiryKey = 'invoiceExpirySecs';
+
+  Future<void> _loadInvoiceExpiry() async {
+    final session = _session;
+    final secs = (await _meta())[_invoiceExpiryKey];
+    if (_session != session) return;
+    _invoiceExpiry = secs is int && secs > 0 ? Duration(seconds: secs > maxInvoiceExpiry.inSeconds ? maxInvoiceExpiry.inSeconds : secs) : defaultInvoiceExpiry;
+  }
+
+  /// Messages from senders not on the trusted list ignored unread since the unlock.
+  int _invoiceDropped = 0;
+  DateTime? _invoiceCheckedAt;
+  InvoiceCheck _invoiceCheck = InvoiceCheck.ok;
+  String? _invoiceProblem;
+
+  /// The fee of paying each waiting invoice, estimated once per slate id: a book read does not
+  /// ask the core again.
+  final Map<String, int> _invoiceFees = {};
+
+  /// The waiting invoices as last read, so an event that ends one can still name it.
+  final Map<String, IncomingInvoice> _waitingSeen = {};
+
+  /// Invoices that ended here before they were paid (declined, withdrawn, expired): LEPIC
+  /// deletes them, so the answered list keeps them for this session.
+  final Map<String, IncomingInvoice> _endedUnpaid = {};
+
+  @override
+  bool get supportsInvoices => _session?.supportsInvoices ?? true;
+
+  @override
+  Stream<InvoiceNotice> invoiceNotices() => _invoiceNotices.stream;
+
+  /// After an unlock or a reopen on another server: the session's invoice events and the
+  /// scheduler, on that session only.
+  void _startInvoices() {
+    _stopInvoices();
+    final session = _session;
+    if (session == null || !session.supportsInvoices) return;
+    unawaited(_loadInvoiceExpiry().then((_) => _changed(), onError: (Object e) => logWarn('invoices', 'expiry not read: $e')));
+    _invoiceSub = session.invoiceEvents().listen((e) => unawaited(_onInvoiceEvent(session, e)));
+    _issuerSub = session.issuerEvents().listen((e) => unawaited(_onIssuerEvent(session, e)));
+    _invoiceTimers = InvoiceScheduler(
+      drainInvoices: () => _drainInvoices(session),
+      drainPayments: () => _drainPayments(session),
+      paymentsWanted: _paymentsWanted,
+      invoicesEvery: invoicesEvery,
+      paymentsEvery: paymentsEvery,
+      watchFocus: invoiceFocus,
+    )..start();
+  }
+
+  /// On lock and before a reopen: timers off, events dropped. [forget] (lock) also drops what
+  /// this session learned.
+  void _stopInvoices({bool forget = false}) {
+    _invoiceTimers?.stop();
+    _invoiceTimers = null;
+    unawaited(_invoiceSub?.cancel());
+    _invoiceSub = null;
+    unawaited(_issuerSub?.cancel());
+    _issuerSub = null;
+    if (!forget) return;
+    _invoiceDropped = 0;
+    _invoiceCheckedAt = null;
+    _invoiceCheck = InvoiceCheck.ok;
+    _invoiceProblem = null;
+    _waitingSeen.clear();
+    _endedUnpaid.clear();
+    _cancelledInputs.clear();
+    _invoiceFees.clear();
+  }
+
+  /// Whether the scheduler's timers run (tests).
+  @visibleForTesting
+  bool get invoiceTimersRunning => _invoiceTimers?.running ?? false;
+
+  /// An issued invoice waits for its payer and nothing listens on the payments address.
+  bool _paymentsWanted() => _listener == null && (_entries ?? const <core.TxEntry>[]).any((e) => e.awaitingPayer);
+
+  /// Drains the invoice address (the session sweeps after it) and records the check.
+  Future<void> _drainInvoices(core.WalletSession session) async {
+    final r = await session.drainInvoices();
+    if (_session != session) return;
+    _invoiceDropped += r.dropped;
+    _invoiceCheckedAt = DateTime.now();
+    if (r.parked > 0 || r.notices > 0 || r.finalized > 0) await _reload();
+    _changed();
+  }
+
+  /// Drains the payments address: payments for issued invoices are finalized and posted.
+  Future<void> _drainPayments(core.WalletSession session) async {
+    final r = await session.drainPayments();
+    if (_session != session) return;
+    if (r.received > 0 || r.finalized > 0 || r.bounced > 0) await _reload();
+    _changed();
+  }
+
+  /// A payer: an invoice parked, posted, withdrawn or expired. Never pays anything.
+  Future<void> _onInvoiceEvent(core.WalletSession session, core.InvoiceEvent e) async {
+    if (_session != session) return;
+    final seen = _waitingSeen[e.slateId];
+    final now = DateTime.now();
+    switch (e.kind) {
+      case core.InvoiceEventKind.withdrawn when seen != null:
+        _endedUnpaid[e.slateId] = seen.copyWith(state: PayState.withdrawn, answeredAt: now);
+        _invoiceNotices.add(InvoiceNotice(InvoiceNoticeKind.withdrawn, slateId: e.slateId, who: seen.label));
+      case core.InvoiceEventKind.expired when seen != null:
+        _endedUnpaid[e.slateId] = seen.copyWith(state: PayState.expired, answeredAt: now);
+        _invoiceNotices.add(InvoiceNotice(InvoiceNoticeKind.expired, slateId: e.slateId, who: seen.label));
+      case core.InvoiceEventKind.declined when seen != null:
+        _endedUnpaid[e.slateId] = seen.copyWith(state: PayState.declined, answeredAt: now);
+      // Unverified (the session tells each slate once): inform only, act on nothing.
+      case core.InvoiceEventKind.unknownInvoicePayment:
+        _invoiceNotices.add(InvoiceNotice(InvoiceNoticeKind.unknownPayment, slateId: e.slateId));
+        return;
+      case core.InvoiceEventKind.unknownSendAnswer:
+        _invoiceNotices.add(InvoiceNotice(InvoiceNoticeKind.unknownAnswer, slateId: e.slateId));
+        return;
+      case _:
+        break;
+    }
+    if (e.kind != core.InvoiceEventKind.received) _waitingSeen.remove(e.slateId);
+    await _reload();
+  }
+
+  /// An issuer: an issued invoice paid, declined, expired, sent back or withdrawn. The session
+  /// raises each once (a repeated bounce withdraws and tells once).
+  Future<void> _onIssuerEvent(core.WalletSession session, core.IssuerEvent e) async {
+    if (_session != session) return;
+    await _reload();
+    final kind = switch (e.kind) {
+      core.IssuerEventKind.paid => InvoiceNoticeKind.paid,
+      core.IssuerEventKind.declined => InvoiceNoticeKind.declined,
+      core.IssuerEventKind.expired => InvoiceNoticeKind.issuedExpired,
+      core.IssuerEventKind.bounced => InvoiceNoticeKind.bounced,
+      core.IssuerEventKind.withdrawn => null,
+    };
+    if (kind == null) return;
+    var amount = 0;
+    var payer = e.payerAddress ?? '';
+    try {
+      final issued = await session.issuedInvoice(slateId: e.slateId);
+      if (issued != null) {
+        amount = issued.amount.toInt();
+        if (payer.isEmpty) payer = issued.payerAddress;
+      }
+    } on core.WalletError catch (error) {
+      logWarn('invoices', 'issued invoice not read for a notice: ${error.kind.name}');
+    }
+    if (_session != session) return;
+    final who = _contactFor(await _contactsOr(), payer)?.name ?? (payer.isEmpty ? '' : shortAddress(payer, compact: true));
+    _invoiceNotices.add(InvoiceNotice(kind, slateId: e.slateId, who: who, amount: amount));
+  }
+
+  Future<List<Contact>> _contactsOr() async {
+    try {
+      return await contacts();
+    } on Object {
+      return const [];
+    }
+  }
+
+  /// The contact [address] belongs to, by key: their invoice address or their payments address.
+  static Contact? _contactFor(List<Contact> contacts, String address) {
+    if (address.isEmpty) return null;
+    final key = addressKey(address);
+    return contacts.where((c) => (c.invoiceAddress != null && addressKey(c.invoiceAddress!) == key) || addressKey(c.address) == key).firstOrNull;
+  }
+
+  @override
+  Future<InvoiceBook> invoices() async {
+    final session = _open;
+    try {
+      return await _invoiceBook(session);
+    } on core.WalletError catch (e) {
+      throw invoiceError(e);
+    }
+  }
+
+  Future<InvoiceBook> _invoiceBook(core.WalletSession session) async {
+    final now = DateTime.now();
+    var address = '';
+    try {
+      address = await session.invoiceAddress();
+    } on core.WalletError catch (e) {
+      // No relay set: LEPIC has no invoice address yet.
+      logWarn('invoices', 'invoice address: ${e.kind.name}');
+    }
+    int? index;
+    try {
+      index = await session.invoiceAddressIndex();
+    } on core.WalletError catch (e) {
+      logWarn('invoices', 'invoice address index: ${e.kind.name}');
+    }
+    final services = await session.trustedServices();
+    final people = await _contactsOr();
+    final entries = _entries ?? await session.transactions(refresh: false);
+    final minConf = _minConf.toInt();
+    // The label is the user's, from the trusted list by key; never a name from the invoice (P-6).
+    String labelOf(String sender) => core.serviceLabel(services, sender) ?? shortAddress(sender, compact: true);
+    String storedAddress(String sender) =>
+        services.where((s) => core.epicboxKey(s.address) == core.epicboxKey(sender)).firstOrNull?.address ?? sender;
+
+    final waiting = <IncomingInvoice>[];
+    for (final p in await session.pendingInvoices()) {
+      final amount = p.amount.toInt();
+      var fee = _invoiceFees[p.slateId];
+      if (fee == null) {
+        try {
+          fee = _invoiceFees[p.slateId] = (await session.estimateFee(amount: p.amount, minimumConfirmations: _minConf)).fee.toInt();
+        } on core.WalletError catch (e) {
+          // Not enough funds: Review says so from the balance; the next read asks again.
+          logDebug('invoices', 'fee not estimated: ${e.kind.name}');
+        }
+      }
+      waiting.add(
+        IncomingInvoice(
+          slateId: p.slateId,
+          senderAddress: storedAddress(p.senderAddress),
+          label: labelOf(p.senderAddress),
+          amount: amount,
+          fee: fee ?? 0,
+          message: _line(p.message),
+          receivedAt: p.receivedAt,
+          expiresAt: p.expiresAt,
+          state: PayState.waiting,
+        ),
+      );
+    }
+    _waitingSeen
+      ..clear()
+      ..addAll({for (final i in waiting) i.slateId: i});
+
+    final paid = <IncomingInvoice>[];
+    for (final e in entries) {
+      final slateId = e.slateId;
+      final outgoing = e.kind == core.TxKind.sent || e.kind == core.TxKind.sentCancelled;
+      if (e.flow != core.TxFlow.invoice || !outgoing || slateId == null) continue;
+      final record = await session.paidInvoice(slateId: slateId);
+      if (record == null) continue;
+      final tx = deskTx(e, tip: _tip, minConf: minConf, fallbackId: -1);
+      paid.add(
+        IncomingInvoice(
+          slateId: slateId,
+          senderAddress: storedAddress(record.senderAddress),
+          label: labelOf(record.senderAddress),
+          amount: record.amount.toInt(),
+          fee: tx.fee,
+          message: _line(record.message),
+          receivedAt: tx.created,
+          expiresAt: tx.created.add(_invoiceExpiry),
+          state: payState(e, record.status, tip: _tip, minConf: minConf),
+          confirmations: tx.confirmations,
+          txId: e.id,
+          answeredAt: tx.created,
+          kernel: record.kernelExcess,
+          spendToSelf: e.status == core.TxStatus.cancelled && (_cancelledInputs[slateId]?.isNotEmpty ?? false),
+        ),
+      );
+    }
+
+    final sent = [
+      for (final r in await session.issuedInvoices())
+        _request(r, entries.where((e) => e.id == r.txId).firstOrNull, people, minConf: minConf),
+    ];
+
+    return InvoiceBook(
+      now: now,
+      invoiceAddress: address,
+      invoiceIndex: index,
+      trusted: [
+        for (final s in services)
+          TrustedSender(
+            address: s.address,
+            label: s.label ?? shortAddress(s.address, compact: true),
+            since: s.since ?? DateTime.fromMillisecondsSinceEpoch(0),
+            contactId: _contactFor(people, s.address)?.id,
+          ),
+      ],
+      toPay: [...waiting, ...paid, for (final i in _endedUnpaid.values) if (!waiting.any((w) => w.slateId == i.slateId)) i],
+      sent: sent,
+      expiry: _invoiceExpiry,
+      dropped: _invoiceDropped,
+      lastCheck: _invoiceCheckedAt,
+      check: _invoiceCheck,
+      checkProblem: _invoiceProblem,
+    );
+  }
+
+  /// Untrusted text as one plain line, or null when nothing is left (P-14).
+  static String? _line(String? text) {
+    final s = cleanInvoiceText(text);
+    return s.isEmpty ? null : s;
+  }
+
+  IssuedRequest _request(core.IssuedInvoice r, core.TxEntry? e, List<Contact> people, {required int minConf}) {
+    final tx = e == null ? null : deskTx(e, tip: _tip, minConf: minConf, fallbackId: -1);
+    return IssuedRequest(
+      slateId: r.slateId,
+      txId: r.txId,
+      payerAddress: r.payerAddress,
+      payerName: _contactFor(people, r.payerAddress)?.name,
+      amount: r.amount.toInt(),
+      message: _line(r.message),
+      issuedAt: r.issuedAt,
+      expiresAt: r.issuedAt.add(_invoiceExpiry),
+      state: requestState(r.state, e, tip: _tip, minConf: minConf),
+      confirmations: tx?.confirmations ?? 0,
+    );
+  }
+
+  /// One check of the invoice address and, with the listener off, the payments address.
+  @override
+  Future<InvoiceBook> checkInvoices() async {
+    final session = _open;
+    _invoiceCheck = InvoiceCheck.checking;
+    try {
+      await _drainInvoices(session);
+      if (_listener == null) await _drainPayments(session);
+      _invoiceCheck = InvoiceCheck.ok;
+      _invoiceProblem = null;
+    } on core.WalletError catch (e) {
+      _invoiceCheck = InvoiceCheck.failed;
+      _invoiceProblem = deskErrorText(e);
+      throw invoiceError(e);
+    }
+    return invoices();
+  }
+
+  @override
+  Future<IssuedRequest> requestPayment(PaymentRequestDraft draft) async {
+    final session = _open;
+    try {
+      // A request the relay did not take is cancelled by the session: nothing was sent.
+      final r = await session.issueInvoice(amount: BigInt.from(draft.amount), address: draft.payerAddress.trim(), message: draft.message);
+      await _reload();
+      final e = (_entries ?? const <core.TxEntry>[]).where((t) => t.id == r.txId).firstOrNull;
+      final request = _request(r, e, await _contactsOr(), minConf: _minConf.toInt());
+      return draft.payerName == null || request.payerName != null
+          ? request
+          : IssuedRequest(
+              slateId: request.slateId,
+              txId: request.txId,
+              payerAddress: request.payerAddress,
+              payerName: draft.payerName,
+              amount: request.amount,
+              message: request.message,
+              issuedAt: request.issuedAt,
+              expiresAt: request.expiresAt,
+              state: request.state,
+            );
+    } on core.WalletError catch (e) {
+      throw invoiceError(e, issuing: true);
+    }
+  }
+
+  @override
+  Future<void> withdrawRequest(String slateId) async {
+    try {
+      await _open.withdrawInvoice(slateId: slateId);
+    } on core.WalletError catch (e) {
+      throw invoiceError(e);
+    }
+    await _reload();
+  }
+
+  @override
+  Future<void> repostRequest(String slateId) async {
+    final txId = (_entries ?? await _open.transactions(refresh: false)).where((e) => e.slateId == slateId && e.isRequest).firstOrNull?.id;
+    if (txId == null) throw const InvoiceError(InvoiceProblem.invalid, 'No such invoice');
+    try {
+      await repostTx(txId);
+    } on DeskError catch (e) {
+      throw InvoiceError(InvoiceProblem.nodeDown, e.message);
+    }
+  }
+
+  /// The receiver-side cancel of a paid request's payment that was never posted (flow §3.3):
+  /// LEPIC asks the node first and refuses one in the pool or on chain. Never automatic.
+  @override
+  Future<void> cancelRequestPayment(String slateId) async {
+    final entries = _entries ?? await _open.transactions(refresh: false);
+    final txId = entries.where((e) => e.slateId == slateId && e.isRequest).firstOrNull?.id;
+    if (txId == null) throw const InvoiceError(InvoiceProblem.invalid, 'No such invoice');
+    try {
+      await _running(() => _open.cancelTransaction(txId: txId));
+    } on core.WalletError catch (e) {
+      throw _cancelError(e);
+    }
+    await _reload();
+  }
+
+  /// A refused cancel in the screens' terms: the node has it, or the node cannot be asked.
+  static InvoiceError _cancelError(core.WalletError e) => switch (e.kind) {
+    core.WalletErrorKind.invalidArgument => const InvoiceError(InvoiceProblem.onItsWay, 'Already on its way: it cannot be cancelled.'),
+    core.WalletErrorKind.nodeUnreachable => const InvoiceError(InvoiceProblem.cannotCheck, 'Cannot check the network now.'),
+    _ => invoiceError(e),
+  };
+
+  /// The only call that pays an invoice (P-2): Review's Approve, after the password, which is
+  /// checked here first. [amount] is the invoice's own; LEPIC refuses any other.
+  @override
+  Future<IncomingInvoice> payInvoice(String slateId, {required int amount, required String password}) => _running(() async {
+    final session = _open;
+    if (!await checkPassword(password)) throw const InvoiceError(InvoiceProblem.wrongPassword, 'Wrong password');
+    final waiting = _waitingSeen[slateId];
+    final core.PaidInvoice paid;
+    try {
+      paid = await session.payInvoice(slateId: slateId, amount: BigInt.from(amount));
+    } on core.WalletError catch (e) {
+      throw invoiceError(e);
+    }
+    _waitingSeen.remove(slateId);
+    await _reload();
+    final e = (_entries ?? const <core.TxEntry>[]).where((t) => t.id == paid.txId).firstOrNull;
+    final state = e == null
+        ? (paid.status == core.InvoiceStatus.replyFailed ? PayState.notDelivered : PayState.delivered)
+        : payState(e, paid.status, tip: _tip, minConf: _minConf.toInt());
+    final now = DateTime.now();
+    return IncomingInvoice(
+      slateId: slateId,
+      senderAddress: waiting?.senderAddress ?? paid.senderAddress,
+      label: waiting?.label ?? shortAddress(paid.senderAddress, compact: true),
+      amount: paid.amount.toInt(),
+      fee: e?.fee?.toInt() ?? waiting?.fee ?? 0,
+      message: _line(paid.message),
+      receivedAt: waiting?.receivedAt ?? now,
+      expiresAt: waiting?.expiresAt ?? now,
+      state: state,
+      txId: paid.txId,
+      answeredAt: now,
+    );
+  });
+
+  @override
+  Future<IncomingInvoice> retryInvoiceReply(String slateId) async {
+    final session = _open;
+    try {
+      // Sends the stored reply again; signs nothing.
+      await session.resendInvoiceReply(slateId: slateId);
+    } on core.WalletError catch (e) {
+      throw e.kind == core.WalletErrorKind.transportFailed ? InvoiceError(InvoiceProblem.relayDown, deskErrorText(e)) : invoiceError(e);
+    }
+    await _reload();
+    final book = await invoices();
+    return book.invoice(slateId) ?? (throw const InvoiceError(InvoiceProblem.invalid, 'No such invoice'));
+  }
+
+  @override
+  Future<void> declineInvoice(String slateId) async {
+    try {
+      await _open.declineInvoice(slateId: slateId);
+    } on core.WalletError catch (e) {
+      throw invoiceError(e);
+    }
+    final seen = _waitingSeen.remove(slateId);
+    if (seen != null) _endedUnpaid[slateId] = seen.copyWith(state: PayState.declined, answeredAt: DateTime.now());
+    _changed();
+  }
+
+  /// The user's cancel of an invoice payment (P-3): LEPIC asks the node first and refuses one
+  /// in the pool or on chain. Never automatic.
+  @override
+  Future<void> cancelInvoicePayment(String slateId) async {
+    final entries = _entries ?? await _open.transactions(refresh: false);
+    final txId = entries
+        .where((e) => e.slateId == slateId && e.flow == core.TxFlow.invoice && (e.kind == core.TxKind.sent || e.kind == core.TxKind.sentCancelled))
+        .firstOrNull
+        ?.id;
+    if (txId == null) throw const InvoiceError(InvoiceProblem.invalid, 'No such payment');
+    // The coins it locks, read first: after the cancel they are this wallet's again, and
+    // "Spend them to myself now" spends exactly these (D-2).
+    var inputs = const <String>[];
+    try {
+      inputs = [
+        for (final o in await _open.outputs())
+          if (o.txId == txId && o.status == core.WalletOutputStatus.locked) o.commitment,
+      ];
+    } on core.WalletError catch (e) {
+      logWarn('invoices', 'locked outputs not read: ${e.kind.name}');
+    }
+    try {
+      await _running(() => _open.cancelTransaction(txId: txId));
+    } on core.WalletError catch (e) {
+      throw _cancelError(e);
+    }
+    _cancelledInputs[slateId] = inputs;
+    await _reload();
+  }
+
+  /// The coins of each invoice payment cancelled in this session, by slate id.
+  final Map<String, List<String>> _cancelledInputs = {};
+
+  @override
+  Future<SelfSend> spendCancelledToSelf(String slateId) async {
+    final commitments = _cancelledInputs[slateId];
+    if (commitments == null || commitments.isEmpty) throw const DeskError('Nothing to spend');
+    final sent = await _selfSend(() => _open.spendOutputsToSelf(commitments: commitments, minimumConfirmations: _minConf));
+    _cancelledInputs.remove(slateId);
+    return sent;
+  }
+
+  @override
+  Future<String> rotateInvoiceAddress() async {
+    try {
+      final address = await _open.rotateInvoiceAddress();
+      _changed();
+      return address;
+    } on core.WalletError catch (e) {
+      throw invoiceError(e);
+    }
+  }
+
+  @override
+  Future<void> trustSender(String address, String label, {String? contactId}) async {
+    try {
+      await _open.addTrustedService(address: address.trim(), label: label);
+    } on core.WalletError catch (e) {
+      throw invoiceError(e);
+    }
+    _changed();
+  }
+
+  @override
+  Future<void> untrustSender(String address) async {
+    try {
+      await _open.removeTrustedService(address: address.trim());
+    } on core.WalletError catch (e) {
+      throw invoiceError(e);
+    }
+    _changed();
+  }
+
+  @override
+  Future<void> setInvoiceExpiry(Duration expiry) async {
+    _invoiceExpiry = expiry > maxInvoiceExpiry ? maxInvoiceExpiry : expiry;
+    await _setMeta({_invoiceExpiryKey: _invoiceExpiry.inSeconds});
+    _changed();
+  }
+
+  @override
+  Future<PeerCapability> peerCapability(String address) async {
+    try {
+      return switch (await _open.peerCapability(address: address.trim())) {
+        core.PeerCapability.unknown => PeerCapability.unknown,
+        core.PeerCapability.lepic => PeerCapability.lepic,
+        core.PeerCapability.noInvoices => PeerCapability.noInvoices,
+      };
+    } on core.WalletError catch (e) {
+      throw invoiceError(e);
+    }
+  }
+
   // ---- Helpers.
 
   Future<void> _reload() async {
@@ -3008,6 +3609,7 @@ class LepicDeskWallet implements DeskWalletApi {
     await _lock(waitAtMost: closeWait);
     await _node?.stop();
     await _changes.close();
+    await _invoiceNotices.close();
   }
 }
 
@@ -3026,7 +3628,7 @@ Output deskOutput(core.WalletOutput o, {required int minConf}) {
       core.OutputCategory.immature => OutputStatus.immature,
       core.OutputCategory.awaitingConfirmation => OutputStatus.confirming,
       core.OutputCategory.locked => OutputStatus.locked,
-      core.OutputCategory.awaitingFinalization || null => OutputStatus.unconfirmed,
+      core.OutputCategory.awaitingFinalization || core.OutputCategory.unpaidInvoice || null => OutputStatus.unconfirmed,
     },
   };
   final onChain = o.status != core.WalletOutputStatus.unconfirmed;
@@ -3040,6 +3642,7 @@ Output deskOutput(core.WalletOutput o, {required int minConf}) {
     lockHeight: o.isCoinbase ? o.lockHeight.toInt() : null,
     isCoinbase: o.isCoinbase,
     awaitingFinalization: o.category == core.OutputCategory.awaitingFinalization,
+    unpaidInvoice: o.category == core.OutputCategory.unpaidInvoice,
     hasCategory: o.category != null,
     mmrIndex: o.mmrIndex?.toInt(),
     txId: o.txId,
@@ -3097,10 +3700,67 @@ Tx deskTx(core.TxEntry e, {required int tip, required int minConf, required int 
     fromBackup: e.source == core.TxSource.imported,
     cancellable: e.cancellable && !e.isRequest,
     notPosted: e.repostable,
+    flow: e.flow == core.TxFlow.invoice ? TxFlow.invoice : TxFlow.payment,
     confirmedAt: e.blockTimeUnix == null ? null : DateTime.fromMillisecondsSinceEpoch(e.blockTimeUnix! * 1000),
     detail: e.statusDetail,
   );
 }
+
+/// Where a paid invoice stands (flow.md §4.4), from its payment and what the session recorded
+/// of the reply and the service's notices.
+PayState payState(core.TxEntry e, core.InvoiceStatus status, {required int tip, required int minConf}) {
+  if (e.status == core.TxStatus.cancelled) return PayState.cancelled;
+  if (status == core.InvoiceStatus.replyFailed) return PayState.notDelivered;
+  final height = e.blockHeight?.toInt();
+  if (height != null) return (tip < height ? 0 : tip - height + 1) >= minConf ? PayState.completed : PayState.confirming;
+  if (e.status == core.TxStatus.confirmed) return PayState.completed;
+  if (status == core.InvoiceStatus.withdrawn) return PayState.withdrawnAfterPay;
+  // Its time to live passed without the kernel: the user may cancel it.
+  final ttl = e.ttlCutoffHeight?.toInt();
+  if (e.releasable || (ttl != null && tip > ttl)) return PayState.pastTtl;
+  if (status == core.InvoiceStatus.posted) return PayState.posted;
+  return PayState.delivered;
+}
+
+/// Where an issued invoice stands (flow.md §3.3), from the session's state and, once paid,
+/// its transaction.
+RequestState requestState(core.IssuedInvoiceState state, core.TxEntry? e, {required int tip, required int minConf}) {
+  switch (state) {
+    case core.IssuedInvoiceState.waiting:
+      return RequestState.waiting;
+    case core.IssuedInvoiceState.declined:
+      return RequestState.declined;
+    case core.IssuedInvoiceState.withdrawn:
+      return RequestState.withdrawn;
+    case core.IssuedInvoiceState.expired:
+      return RequestState.expired;
+    case core.IssuedInvoiceState.bounced:
+      return RequestState.bounced;
+    case core.IssuedInvoiceState.paid:
+      if (e == null) return RequestState.paid;
+      if (e.status == core.TxStatus.cancelled) return RequestState.cancelled;
+      if (e.repostable) return RequestState.notPosted;
+      final height = e.blockHeight?.toInt();
+      if (height != null) return (tip < height ? 0 : tip - height + 1) >= minConf ? RequestState.completed : RequestState.confirming;
+      if (e.status == core.TxStatus.confirmed) return RequestState.completed;
+      // Posted, in the pool.
+      if (e.status == core.TxStatus.awaitingConfirmation) return RequestState.confirming;
+      return RequestState.paid;
+  }
+}
+
+/// An invoice call's failure in the screens' terms. [issuing]: a relay that did not take a new
+/// invoice means nothing was sent.
+InvoiceError invoiceError(core.WalletError e, {bool issuing = false}) => InvoiceError(switch (e.kind) {
+  core.WalletErrorKind.wrongPassword => InvoiceProblem.wrongPassword,
+  core.WalletErrorKind.transportFailed => issuing ? InvoiceProblem.notDelivered : InvoiceProblem.relayDown,
+  core.WalletErrorKind.nodeUnreachable => InvoiceProblem.nodeDown,
+  core.WalletErrorKind.paymentExpired => InvoiceProblem.expired,
+  core.WalletErrorKind.invoiceNotFound || core.WalletErrorKind.invoiceAlreadyPaid => InvoiceProblem.alreadyAnswered,
+  core.WalletErrorKind.invoiceLockedAboveTip => InvoiceProblem.lockedAboveTip,
+  core.WalletErrorKind.amountMismatch => InvoiceProblem.amountMismatch,
+  _ => InvoiceProblem.invalid,
+}, deskErrorText(e));
 
 /// History backups are small; a file far larger is not one (the phone's limit).
 const int maxDeskHistoryBytes = 32 << 20;

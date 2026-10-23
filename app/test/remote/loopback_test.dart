@@ -434,6 +434,12 @@ void main() {
       final merged = await s.consolidateOutputs(minimumConfirmations: ten);
       expect(merged.inputCount, 2);
       expect(session.consolidations, 1);
+      // A cancelled payment's coins, spent to the wallet itself by name (D-2).
+      session.outputsValue = [out('c5', 200000000)];
+      await s.spendOutputsToSelf(commitments: ['c5'], minimumConfirmations: ten);
+      expect(session.spentToSelf, [
+        ['c5'],
+      ]);
     });
 
     test('slates, fees and sends', () async {
@@ -592,11 +598,16 @@ void main() {
         FakeWalletSession.fakeInvoiceAddress(index + 1),
       );
       expect(session.invoiceHistory.invoiceIndex, index + 1);
+      expect(await s.invoiceAddressIndex(), index + 1);
       final added = await s.addTrustedService(
         address: serviceAddress,
         label: 'Shop',
       );
-      expect(added, TrustedService(address: serviceAddress, label: 'Shop'));
+      expect(added.since, isNotNull, reason: 'the date it was trusted crosses too');
+      expect(
+        added,
+        TrustedService(address: serviceAddress, label: 'Shop', since: added.since),
+      );
       expect(await s.trustedServices(), [added]);
       await expectLater(
         s.addTrustedService(address: 'bad', label: 'x'),
@@ -632,7 +643,7 @@ void main() {
       );
       await expectLater(
         s.payInvoice(slateId: 'inv1', amount: BigInt.one),
-        throwsKind(WalletErrorKind.invalidArgument),
+        throwsKind(WalletErrorKind.amountMismatch),
       );
       session.replyError = const WalletError(
         kind: WalletErrorKind.transportFailed,

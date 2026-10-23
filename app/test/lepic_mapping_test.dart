@@ -173,8 +173,6 @@ void main() {
         lepic.WalletErrorKind.notReleasable,
         lepic.WalletErrorKind.foreignAppData,
         lepic.WalletErrorKind.damagedAppData,
-        lepic.WalletErrorKind.invoiceNotFound,
-        lepic.WalletErrorKind.amountMismatch,
       ]) {
         expect(
           mapLepicError(error(kind)).kind,
@@ -182,6 +180,27 @@ void main() {
           reason: kind.name,
         );
       }
+      expect(
+        mapLepicError(error(lepic.WalletErrorKind.invoiceNotFound)).kind,
+        WalletErrorKind.invoiceNotFound,
+      );
+      expect(
+        mapLepicError(error(lepic.WalletErrorKind.amountMismatch)).kind,
+        WalletErrorKind.amountMismatch,
+      );
+      // Wave 19: what came as invalidSlate has its own kinds.
+      expect(
+        mapLepicError(error(lepic.WalletErrorKind.invoiceAlreadyPaid)).kind,
+        WalletErrorKind.invoiceAlreadyPaid,
+      );
+      expect(
+        mapLepicError(error(lepic.WalletErrorKind.invoiceLockedAboveTip)).kind,
+        WalletErrorKind.invoiceLockedAboveTip,
+      );
+      expect(
+        mapLepicError(error(lepic.WalletErrorKind.invoiceChanged)).kind,
+        WalletErrorKind.invoiceChanged,
+      );
       expect(
         mapLepicError(error(lepic.WalletErrorKind.notDelivered)).kind,
         WalletErrorKind.transportFailed,

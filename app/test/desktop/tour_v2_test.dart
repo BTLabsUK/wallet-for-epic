@@ -5,6 +5,7 @@
 // exactly when the Invoices page is.
 import 'package:epic_wallet/src/desktop/app/desk_app.dart';
 import 'package:epic_wallet/src/desktop/app/tour.dart';
+import 'package:epic_wallet/src/desktop/data/api.dart';
 import 'package:epic_wallet/src/desktop/data/desk_store.dart';
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
@@ -14,13 +15,27 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-Future<ProviderContainer> _open(WidgetTester tester, DeskRoute route, {Size size = const Size(1280, 800), DeskStore? store}) async {
+/// A wallet that does not take invoices (the LEPIC adapter before it is wired).
+class _NoInvoices extends MockDeskWallet {
+  _NoInvoices() : super(delay: Duration.zero);
+
+  @override
+  bool get supportsInvoices => false;
+}
+
+Future<ProviderContainer> _open(
+  WidgetTester tester,
+  DeskRoute route, {
+  Size size = const Size(1280, 800),
+  DeskStore? store,
+  DeskWalletApi? api,
+}) async {
   tester.view.physicalSize = size;
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
   final container = ProviderContainer(
     overrides: [
-      deskApiProvider.overrideWithValue(MockDeskWallet(delay: Duration.zero)),
+      deskApiProvider.overrideWithValue(api ?? MockDeskWallet(delay: Duration.zero)),
       if (store != null) deskStoreProvider.overrideWithValue(store),
       if (store != null) deskBootProvider.overrideWithValue(await DeskBoot.load(store)),
     ],
@@ -125,6 +140,23 @@ void main() {
     expect(find.byType(DeskTourOverlay), findsNothing);
     expect(container.read(deskNavProvider).route, DeskRoute.settingsHelp, reason: 'Done leaves the person on Help');
     expect(find.text('Show the tour again'), findsOneWidget);
+  });
+
+  testWidgets('a wallet without invoices: no Invoices step even when the page is in the app', (tester) async {
+    expect(deskTourStepsFor(supportsInvoices: false).any((s) => s.title == 'Invoices'), isFalse);
+    expect(deskTourStepsFor(supportsInvoices: true), same(deskTourSteps));
+    final container = await _open(tester, DeskRoute.overview, api: _NoInvoices());
+    container.read(deskTourProvider.notifier).open();
+    await _settle(tester);
+    final steps = tourStepsFor(invoices: false);
+    expect(_inCard('1 of ${steps.length}'), findsOneWidget);
+    for (final (i, step) in steps.indexed) {
+      expect(container.read(deskNavProvider).route, step.route, reason: 'step ${i + 1}');
+      expect(_inCard(step.title), findsOneWidget);
+      await tester.tap(_inCard(i == steps.length - 1 ? 'Done' : 'Next'));
+      await _settle(tester);
+    }
+    expect(container.read(deskTourProvider).open, isFalse);
   });
 
   testWidgets('Back returns to the previous page; the arrow keys and Enter move too', (tester) async {
@@ -258,5 +290,40 @@ void main() {
     await _settle(tester);
     expect(find.byType(DeskTourOverlay), findsOneWidget);
     expect(second.read(deskNavProvider).route, DeskRoute.overview);
+  });
+
+  testWidgets('the rings follow a window resize', (tester) async {
+    final container = await _open(tester, DeskRoute.overview);
+    container.read(deskTourProvider.notifier).open();
+    await _settle(tester);
+    Rect first() {
+      final paint = tester.widget<CustomPaint>(find.descendant(of: find.byType(DeskTourOverlay), matching: find.byType(CustomPaint)).first);
+      return ((paint.painter as dynamic).holes as List).first.$1 as Rect;
+    }
+
+    final before = first();
+    tester.view.physicalSize = const Size(1100, 700);
+    await _settle(tester);
+    final after = first();
+    expect(after, isNot(before));
+    expect(after.right, lessThanOrEqualTo(1100));
+    expect(after.bottom, lessThanOrEqualTo(700));
+  });
+
+  testWidgets('the card buttons and the restart link have a 44 px hit target', (tester) async {
+    final container = await _open(tester, DeskRoute.overview);
+    container.read(deskTourProvider.notifier).open();
+    await _settle(tester);
+    // 20 px under the centre of the 36 px Skip button: outside the drawn button, inside 44.
+    await tester.tapAt(tester.getCenter(_inCard('Skip tour')) + const Offset(0, 20));
+    await _settle(tester);
+    expect(container.read(deskTourProvider).open, isFalse);
+
+    container.read(deskNavProvider.notifier).go(DeskRoute.settingsHelp);
+    await _settle(tester);
+    // 28 px drawn: 19 px under the centre is outside it, inside 44.
+    await tester.tapAt(tester.getCenter(find.text('Show the tour again')) + const Offset(0, 19));
+    await _settle(tester);
+    expect(container.read(deskTourProvider).open, isTrue);
   });
 }

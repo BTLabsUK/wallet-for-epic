@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart' hide TextDirection;
 
+import '../../desk_l10n.dart';
+import '../../data/invoice_state.dart';
 import '../../widgets/kit.dart';
+import '../invoices/invoice_parts.dart' show payStateWord, requestStateWord;
 
 String methodLabel(TxMethod m) => switch (m) {
   TxMethod.epicbox => 'Epicbox',
@@ -21,7 +24,8 @@ String whoOf(Tx t) {
   if (cp == null && t.fromBackup) return t.incoming ? 'Received' : 'Sent';
   if (cp == null) return t.incoming ? 'Unknown sender' : 'Unknown recipient';
   if (t.method == TxMethod.file) return cp;
-  return shortAddress(cp);
+  // An invoice's other side is an Epicbox address: first six and last six, no host.
+  return shortAddress(cp, compact: t.isInvoice);
 }
 
 /// The words for a payment a scan found with no record (F17), by which scan found it. An
@@ -192,7 +196,7 @@ class TxIcon extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.dc;
     final off = tx.state == TxState.cancelled;
-    final color = off ? c.faint : (tx.incoming ? c.ok : c.accentText);
+    final color = off ? c.faint : (txAsked(tx) ? c.dim : (tx.incoming ? c.ok : c.accentText));
     return Container(
       width: size,
       height: size,
@@ -200,7 +204,7 @@ class TxIcon extends StatelessWidget {
         borderRadius: BorderRadius.circular(Rad.sm),
         border: Border.all(color: off ? c.line : c.lineStrong),
       ),
-      child: Icon(iconOf(tx), size: Ctl.icon, color: color),
+      child: Icon(tx.isInvoice ? (tx.incoming ? EIcons.request : EIcons.invoice) : iconOf(tx), size: Ctl.icon, color: color),
     );
   }
 }
@@ -242,15 +246,17 @@ class TxAmount extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.dc;
     final off = tx.state == TxState.cancelled;
-    final color = off ? c.faint : (tx.incoming ? c.ok : c.text);
-    final line = sub ?? (showFee && !tx.incoming && tx.fee > 0 ? 'Fee ${formatEpic(tx.fee)}' : null);
+    // A request not paid yet is not money: neutral, no sign, "Requested" (flow.md §3.3).
+    final asked = txAsked(tx);
+    final color = off ? c.faint : (asked ? c.text : (tx.incoming ? c.ok : c.text));
+    final line = asked && tx.state == TxState.waitingRecipient ? context.l10n.deskInvUnpaid : sub ?? (showFee && !tx.incoming && tx.fee > 0 ? 'Fee ${formatEpic(tx.fee)}' : null);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.end,
       mainAxisSize: MainAxisSize.min,
       children: [
         DefaultTextStyle.merge(
           style: TextStyle(decoration: off ? TextDecoration.lineThrough : null, decorationColor: c.faint),
-          child: EMoney(tx.incoming ? tx.amount : -tx.amount, sign: true, unit: false, color: color, size: Fs.md),
+          child: EMoney(tx.incoming ? tx.amount : -tx.amount, sign: !asked, unit: false, color: color, size: Fs.md),
         ),
         if (line != null) ...[const SizedBox(height: 2), Text(line, style: context.ts.caption)],
       ],
@@ -297,7 +303,7 @@ class _TxRowState extends ConsumerState<TxRow> {
     final c = context.dc;
     final ts = context.ts;
     final t = widget.tx;
-    final (word, tone) = statusOf(t);
+    final (word, tone) = invoiceStatusOf(context, ref, t) ?? statusOf(t);
     final toneColor = switch (tone) {
       ETone.ok => c.dim,
       ETone.warn => c.warn,
@@ -324,9 +330,9 @@ class _TxRowState extends ConsumerState<TxRow> {
       children: [
         _Tip(
           message: widget.title == null && (t.foundByScan || t.fromBackup) ? whoTip(t) : null,
-          child: widget.title == null && whoIsAddress(t)
+          child: widget.title == null && whoIsAddress(t) && !t.isInvoice
               ? EShortAddress(t.counterparty!, style: ts.mono(size: 12.5, weight: FontWeight.w500), tooltip: false)
-              : Text(widget.title ?? whoOf(t), maxLines: 1, overflow: TextOverflow.ellipsis, style: ts.strong),
+              : Text(widget.title ?? invoiceTitleOf(context, t) ?? whoOf(t), maxLines: 1, overflow: TextOverflow.ellipsis, style: ts.strong),
         ),
         if (compact || meta.isNotEmpty) const SizedBox(height: 2),
         if (compact)
@@ -405,7 +411,9 @@ class _TxRowState extends ConsumerState<TxRow> {
     return Semantics(
       button: true,
       selected: widget.selected,
-      label: '${t.incoming ? 'Received' : 'Sent'} ${hidden ? 'hidden amount' : '${formatEpic(t.amount)} EPIC'}, ${whoOf(t)}, $word',
+      // A request is never read out as money received (flow.md §5, fake invoice dressed as income);
+      // it reads Unpaid only while it is, then its state word says what became of it.
+      label: '${t.isInvoice ? (txAsked(t) ? context.l10n.deskInvUnpaid : context.l10n.deskInvActBlock) : (t.incoming ? 'Received' : 'Sent')} ${hidden ? 'hidden amount' : '${formatEpic(t.amount)} EPIC'}, ${whoOf(t)}, $word',
       excludeSemantics: true,
       child: InkWell(
         onTap: widget.onTap,
@@ -431,3 +439,28 @@ class _Tip extends StatelessWidget {
   @override
   Widget build(BuildContext context) => message == null ? child : Tooltip(message: message, child: child);
 }
+
+
+/// An invoice transaction's state in the words of Requests (the request or the invoice behind
+/// it), or null for a plain payment.
+(String, ETone)? invoiceStatusOf(BuildContext context, WidgetRef ref, Tx t) {
+  if (!t.isInvoice) return null;
+  final book = ref.watch(deskInvoicesProvider);
+  if (book == null) return null;
+  if (t.incoming) {
+    final r = book.requestOfTx(t.id);
+    return r == null ? null : requestStateWord(context, r);
+  }
+  final i = book.invoiceOfTx(t.id);
+  return i == null ? null : payStateWord(context, i);
+}
+
+/// "Requested from Piotr", "Paid invoice — Coffee Roasters"; null for a plain payment.
+String? invoiceTitleOf(BuildContext context, Tx t) {
+  if (!t.isInvoice) return null;
+  final l = context.l10n;
+  return t.incoming ? l.deskInvIssuerTo(whoOf(t)) : l.deskInvActFrom(whoOf(t));
+}
+
+/// A request this wallet sent that is not paid, waiting or ended: never shown as money received.
+bool txAsked(Tx t) => t.isInvoice && t.incoming && (t.state == TxState.waitingRecipient || t.state == TxState.cancelled);

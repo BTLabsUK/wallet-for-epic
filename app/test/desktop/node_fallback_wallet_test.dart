@@ -274,6 +274,31 @@ void main() {
     await w.dispose();
   });
 
+  test('a pending node pick is not held off by sends that keep arriving', () async {
+    final w = await onLocal();
+    final opens = service.nodeUrls.length;
+    final g = session.sendGate = Completer<void>();
+    SendRequest req() => SendRequest(method: TxMethod.epicbox, amount: 1000, to: _epicbox);
+    final first = w.send(req());
+    await _settle();
+    final pick = w.useNode(_other);
+    await _settle();
+    // Sends arriving while the pick waits do not start: the pick goes first.
+    final later = [w.send(req()), w.send(req())];
+    await _settle();
+    expect(session.sendsStarted, 1);
+    expect(service.nodeUrls.length, opens);
+    g.complete();
+    await pick;
+    expect(service.nodeUrls.sublist(opens), [_other], reason: 'the switch ran before the later sends');
+    expect(await first, isA<SendFailed>());
+    for (final r in await Future.wait(later)) {
+      expect(r, isA<SendFailed>());
+    }
+    expect(session.sendsStarted, 3);
+    await w.dispose();
+  });
+
   test('a send started during a switch waits for the new session', () async {
     final w = await onLocal();
     final g = service.gates[_public] = Completer<void>();

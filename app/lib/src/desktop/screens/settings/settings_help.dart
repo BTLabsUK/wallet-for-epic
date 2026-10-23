@@ -3,8 +3,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/tour.dart';
+import '../../desk_l10n.dart';
 import '../../widgets/help_art.dart';
 import '../../widgets/kit.dart';
+import 'help_invoices.dart';
 import 'help_topics.dart';
 import 'report_problem.dart';
 import 'settings_frame.dart';
@@ -70,7 +72,7 @@ enum HelpDemo { open, bottom }
 class SettingsHelpScreen extends ConsumerStatefulWidget {
   const SettingsHelpScreen({super.key, this.arg});
 
-  /// A search to start with (String) or a [HelpDemo].
+  /// A search to start with (String), a [HelpDemo] or a [HelpAt].
   final Object? arg;
 
   @override
@@ -80,7 +82,7 @@ class SettingsHelpScreen extends ConsumerStatefulWidget {
 class _SettingsHelpScreenState extends ConsumerState<SettingsHelpScreen> {
   late final _query = TextEditingController(text: widget.arg is String ? widget.arg as String : '');
   final _focus = FocusNode(debugLabel: 'help search');
-  final _sectionKeys = {for (final s in helpSections) s.id: GlobalKey(debugLabel: 'help ${s.id}')};
+  final _sectionKeys = {for (final s in [...helpSections.map((s) => s.id), invoiceHelpSection]) s: GlobalKey(debugLabel: 'help $s')};
   final _logsKey = GlobalKey(debugLabel: 'help logs');
 
   @override
@@ -89,6 +91,9 @@ class _SettingsHelpScreenState extends ConsumerState<SettingsHelpScreen> {
     HardwareKeyboard.instance.addHandler(_onKey);
     if (widget.arg == HelpDemo.bottom) WidgetsBinding.instance.addPostFrameCallback((_) => _show(_logsKey, 1));
     if (widget.arg == HelpDemo.open) WidgetsBinding.instance.addPostFrameCallback((_) => _show(_sectionKeys['how']!));
+    if (widget.arg case HelpAt(:final section) when _sectionKeys.containsKey(section)) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _show(_sectionKeys[section]!));
+    }
   }
 
   @override
@@ -120,14 +125,15 @@ class _SettingsHelpScreenState extends ConsumerState<SettingsHelpScreen> {
   void _show(GlobalKey key, [double alignment = 0]) {
     final ctx = key.currentContext;
     if (ctx == null) return;
-    final instant = MediaQuery.of(context).disableAnimations || widget.arg is HelpDemo;
+    final instant = MediaQuery.of(context).disableAnimations || widget.arg is HelpDemo || widget.arg is HelpAt;
     Scrollable.ensureVisible(ctx, alignment: alignment, duration: instant ? Duration.zero : Dur.slow, curve: Curves.easeOut);
   }
 
   /// The topic open at the start for the screenshots.
-  bool _openAtStart(HelpTopic t) => switch (widget.arg) {
+  bool _openAtStart(HelpTopic t, int index) => switch (widget.arg) {
     HelpDemo.open => t.handshake,
     HelpDemo.bottom => t.title == 'Tor',
+    HelpAt(:final section, :final topic) => t.section == section && index == topic,
     _ => false,
   };
 
@@ -136,7 +142,18 @@ class _SettingsHelpScreenState extends ConsumerState<SettingsHelpScreen> {
     final ts = context.ts;
     final words = queryWords(_query.text);
     final searching = words.isNotEmpty;
-    final helpTopics = helpTopicsFor(deskMinConfirmations(ref));
+    final confirmations = deskMinConfirmations(ref);
+    final invoices = ref.watch(deskApiProvider).supportsInvoices;
+    final l = context.l10n;
+    final helpTopics = [...helpTopicsFor(confirmations), if (invoices) ...invoiceHelpTopics(l, confirmations)];
+    // The invoices section goes before "When something goes wrong".
+    final sections = <(HelpSection, Widget)>[
+      for (final s in helpSections) ...[
+        if (s.id == 'trouble' && invoices)
+          ((id: invoiceHelpSection, title: invoiceHelpTitle(l), lede: invoiceHelpLede(l), art: ''), InvoiceHelpMark(width: 120.u)),
+        (s, HelpArt(s.art, width: 120.u)),
+      ],
+    ];
     final hits = searching ? searchTopics(helpTopics, words) : const <({HelpTopic topic, bool inBody})>[];
     return SettingsFrame(
       route: DeskRoute.settingsHelp,
@@ -175,8 +192,8 @@ class _SettingsHelpScreenState extends ConsumerState<SettingsHelpScreen> {
                     runSpacing: Sp.x2,
                     crossAxisAlignment: WrapCrossAlignment.center,
                     children: [
-                      for (final s in helpSections) _Chip(s.title, onTap: () => _show(_sectionKeys[s.id]!)),
-                      EButton.ghost(label: 'Show the tour again', icon: EIcons.restart, size: EBtnSize.inline, onPressed: () => startDeskTour(ref)),
+                      for (final (s, _) in sections) _Chip(s.title, onTap: () => _show(_sectionKeys[s.id]!)),
+                      EButton.ghost(label: 'Show the tour again', icon: EIcons.restart, size: EBtnSize.inline, hit44: true, onPressed: () => startDeskTour(ref)),
                     ],
                   ),
                 ],
@@ -201,15 +218,15 @@ class _SettingsHelpScreenState extends ConsumerState<SettingsHelpScreen> {
               ),
           ] else ...[
             SizedBox(height: Sp.x6),
-            for (final s in helpSections)
+            for (final (s, art) in sections)
               if (helpTopics.where((t) => t.section == s.id).toList() case final topics when topics.isNotEmpty)
                 Padding(
                   key: _sectionKeys[s.id],
                   padding: EdgeInsets.only(bottom: Sp.x5),
                   child: _Box(
                     children: [
-                      _SectionHead(section: s, count: topics.length),
-                      for (final (i, t) in topics.indexed) _Topic(key: ValueKey(t.title), topic: t, words: const [], first: i == 0, initiallyOpen: _openAtStart(t)),
+                      _SectionHead(section: s, art: art, count: topics.length),
+                      for (final (i, t) in topics.indexed) _Topic(key: ValueKey(t.title), topic: t, words: const [], first: i == 0, initiallyOpen: _openAtStart(t, i)),
                     ],
                   ),
                 ),
@@ -307,9 +324,10 @@ class _Box extends StatelessWidget {
 }
 
 class _SectionHead extends StatelessWidget {
-  const _SectionHead({required this.section, required this.count});
+  const _SectionHead({required this.section, required this.art, required this.count});
 
   final HelpSection section;
+  final Widget art;
   final int count;
 
   @override
@@ -321,7 +339,7 @@ class _SectionHead extends StatelessWidget {
       decoration: BoxDecoration(border: Border(bottom: BorderSide(color: c.line))),
       child: Row(
         children: [
-          HelpArt(section.art, width: 120.u),
+          art,
           SizedBox(width: Sp.x5),
           Expanded(
             child: Column(
@@ -342,7 +360,7 @@ class _SectionHead extends StatelessWidget {
 }
 
 /// One topic: title and answer always shown; Read more opens the body under them.
-class _Topic extends StatefulWidget {
+class _Topic extends ConsumerStatefulWidget {
   const _Topic({super.key, required this.topic, required this.words, required this.first, this.initiallyOpen = false});
 
   final HelpTopic topic;
@@ -353,10 +371,10 @@ class _Topic extends StatefulWidget {
   final bool initiallyOpen;
 
   @override
-  State<_Topic> createState() => _TopicState();
+  ConsumerState<_Topic> createState() => _TopicState();
 }
 
-class _TopicState extends State<_Topic> {
+class _TopicState extends ConsumerState<_Topic> {
   late bool _open = widget.initiallyOpen;
 
   @override
@@ -425,6 +443,7 @@ class _TopicState extends State<_Topic> {
                     children: [
                       for (final b in t.body) _Block(block: b, words: widget.words, style: answer),
                       if (t.handshake) ...[SizedBox(height: Sp.x2), const HelpHandshake()],
+                      if (t.invoiceFlow) ...[SizedBox(height: Sp.x2), InvoiceFlowDiagram(confirmations: deskMinConfirmations(ref))],
                     ],
                   ),
                 ),

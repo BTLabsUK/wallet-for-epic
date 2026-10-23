@@ -311,6 +311,34 @@ void main() {
       }
     });
 
+    test('a slate this install does not know: a notice kind by stage, told once', () async {
+      lepic.WalletEvent unknown(String stage) => lepic.WalletEvent(
+        kind: lepic.WalletEventKind.unknownSlate,
+        slateId: 'other-1',
+        sender: 'esAnyoneKey@epicbox.example',
+        slateStage: stage,
+      );
+      expect(
+        lepicInvoiceEvent(unknown('I2'))?.kind,
+        InvoiceEventKind.unknownInvoicePayment,
+      );
+      expect(
+        lepicInvoiceEvent(unknown('S2'))?.kind,
+        InvoiceEventKind.unknownSendAnswer,
+      );
+      final seen = <InvoiceEvent>[];
+      final sub = session.invoiceEvents().listen(seen.add);
+      // A relay that did not settle the message delivers it again.
+      wallet.eventSink
+        ..add(unknown('I2'))
+        ..add(unknown('I2'));
+      await _settle();
+      await sub.cancel();
+      expect(seen.map((e) => e.kind), [InvoiceEventKind.unknownInvoicePayment]);
+      expect(wallet.payments, isEmpty);
+      expect(wallet.declined, isEmpty);
+    });
+
     test('a receipt is recorded before the app hears of it', () async {
       wallet.park('inv-1', BigInt.from(500));
       await session.payInvoice(slateId: 'inv-1', amount: BigInt.from(500));
@@ -436,7 +464,7 @@ void main() {
           isA<WalletError>().having(
             (e) => e.kind,
             'kind',
-            WalletErrorKind.invalidArgument,
+            WalletErrorKind.amountMismatch,
           ),
         ),
       );
@@ -517,11 +545,12 @@ void main() {
           address: ' $_shop ',
           label: long,
         );
-        expect(added, TrustedService(address: _shop, label: long));
+        final since = DateTime.fromMillisecondsSinceEpoch(1790000000000);
+        expect(added, TrustedService(address: _shop, label: long, since: since));
         expect(wallet.senders.single.address, _shop);
         expect(wallet.senders.single.label.length, 64);
         expect(await session.trustedServices(), [
-          TrustedService(address: _shop, label: long),
+          TrustedService(address: _shop, label: long, since: since),
         ]);
       },
     );
@@ -530,8 +559,12 @@ void main() {
       wallet.senders.add(
         const lepic.InvoiceSender(address: _shop, label: 'Shop', addedAtMs: 0),
       );
-      expect(await session.trustedServices(), const [
-        TrustedService(address: _shop, label: 'Shop'),
+      expect(await session.trustedServices(), [
+        TrustedService(
+          address: _shop,
+          label: 'Shop',
+          since: DateTime.fromMillisecondsSinceEpoch(0),
+        ),
       ]);
     });
 
@@ -541,8 +574,12 @@ void main() {
         address: 'shopKey@other.example',
         label: 'Shop 2',
       );
-      expect(await session.trustedServices(), const [
-        TrustedService(address: 'shopKey@other.example', label: 'Shop 2'),
+      expect(await session.trustedServices(), [
+        TrustedService(
+          address: 'shopKey@other.example',
+          label: 'Shop 2',
+          since: DateTime.fromMillisecondsSinceEpoch(1790000000000),
+        ),
       ]);
     });
 

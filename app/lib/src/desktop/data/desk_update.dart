@@ -8,6 +8,7 @@
 /// The page opens only on [deskUpdatePageHosts]; any other falls back to [deskReleasesUrl].
 library;
 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'dart:async';
 import 'dart:io' show Platform;
 
@@ -20,7 +21,7 @@ import '../../updater.dart' show updateKeyringProvider, updateManifestUrl;
 
 /// This build's version, without the build id (pubspec's version); the sidebar, About and
 /// the support report show it with the build id (`shell.dart`).
-const String deskAppVersion = '0.1.0';
+const String deskAppVersion = '0.1.1';
 
 /// Where a download page may be: the project's own GitHub accounts.
 const List<String> deskUpdatePageHosts = ['https://github.com/BTLabs-EPIC/', 'https://github.com/blacktyger/'];
@@ -162,7 +163,7 @@ class DeskUpdateController extends Notifier<DeskUpdateState> {
     return _known ?? const DeskUpdateState(DeskUpdatePhase.latest);
   }
 
-  static String get _system => Platform.isWindows ? 'windows' : Platform.isMacOS ? 'macos' : 'linux';
+  static String get _system => kIsWeb ? 'linux' : Platform.isWindows ? 'windows' : Platform.isMacOS ? 'macos' : 'linux';
 }
 
 final deskUpdateProvider = NotifierProvider<DeskUpdateController, DeskUpdateState>(DeskUpdateController.new);

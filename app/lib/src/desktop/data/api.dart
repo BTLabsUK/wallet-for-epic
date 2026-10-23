@@ -5,6 +5,7 @@ library;
 
 import 'dart:typed_data';
 
+import 'invoices.dart';
 import 'models.dart';
 
 abstract interface class DeskWalletApi {
@@ -256,4 +257,71 @@ abstract interface class DeskWalletApi {
 
   /// "Not now" on the reminder, at [when].
   Future<void> dismissHistoryReminder(DateTime when);
+
+  // Invoices over Epicbox (docs/invoices/flow.md on plan/invoices; types in invoices.dart).
+  // Everything shows only when [supportsInvoices].
+  bool get supportsInvoices;
+
+  /// What the wallet learned of invoices by itself (paid, declined, expired, sent back,
+  /// withdrawn), for a notice; the open wallet's only.
+  Stream<InvoiceNotice> invoiceNotices();
+
+  /// Requests sent, invoices received, the invoice address and the trusted list, as stored.
+  Future<InvoiceBook> invoices();
+
+  /// Drains the invoice address (invoices from trusted senders are parked, others ignored
+  /// unread) and the payments address (payments for requests are finalized and posted), then
+  /// sweeps expired ones. Throws a [DeskError] when the relay could not be reached; the stored
+  /// lists stay as they were.
+  Future<InvoiceBook> checkInvoices();
+
+  /// Sends the payer at [PaymentRequestDraft.payerAddress] (their invoice address) a request.
+  /// Nothing leaves the wallet, so no password. A request the relay did not take is cancelled at
+  /// once and throws a [DeskError]: nothing was sent.
+  Future<IssuedRequest> requestPayment(PaymentRequestDraft draft);
+
+  /// Withdraws a waiting request; a LEPIC payer is told.
+  Future<void> withdrawRequest(String slateId);
+
+  /// Posts a finalized request's payment again (the node refused it or was unreachable).
+  Future<void> repostRequest(String slateId);
+
+  /// Cancels the payment of a paid request that was never posted ([RequestState.notPosted]):
+  /// the core asks the node first and refuses one in the pool or on chain ([InvoiceError]
+  /// onItsWay, or cannotCheck when the node cannot be asked).
+  Future<void> cancelRequestPayment(String slateId);
+
+  /// Pays a waiting invoice: checks [password], signs for the invoice's own [amount] and sends
+  /// the reply to the sender's stored address. The only caller is Review's Approve. A reply
+  /// that did not reach the relay comes back as [PayState.notDelivered], stored and locked.
+  Future<IncomingInvoice> payInvoice(String slateId, {required int amount, required String password});
+
+  /// Sends the stored reply of a [PayState.notDelivered] payment again; signs nothing.
+  Future<IncomingInvoice> retryInvoiceReply(String slateId);
+
+  /// Declines a waiting invoice and tells the sender when its wallet can hear it.
+  Future<void> declineInvoice(String slateId);
+
+  /// Cancels an invoice's payment once the node says it is neither in the pool nor on the
+  /// chain; throws a [DeskError] when it is, or when the node cannot be asked.
+  Future<void> cancelInvoicePayment(String slateId);
+
+  /// After [cancelInvoicePayment]: spends the coins that payment had locked to this wallet
+  /// itself (D-2), so the service's signed copy can never complete. Costs a fee; asks no
+  /// password, as a consolidate does. Throws a [DeskError] when it did not go out.
+  Future<SelfSend> spendCancelledToSelf(String slateId);
+
+  /// Moves to the next invoice address; senders holding the old one can no longer bill.
+  Future<String> rotateInvoiceAddress();
+
+  /// Lets the payments address [address] send invoices, under [label].
+  Future<void> trustSender(String address, String label, {String? contactId});
+
+  /// Stops [address] (matched on the key) from sending invoices. Waiting ones stay.
+  Future<void> untrustSender(String address);
+
+  Future<void> setInvoiceExpiry(Duration expiry);
+
+  /// What the wallet learned of the payer at [address].
+  Future<PeerCapability> peerCapability(String address);
 }

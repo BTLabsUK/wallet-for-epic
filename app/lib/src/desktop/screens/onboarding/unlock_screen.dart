@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -41,7 +42,7 @@ class UnlockScreen extends ConsumerStatefulWidget {
 const _wrongPassword = 'Wrong password. Check Caps Lock and the keyboard layout.';
 
 /// Who else can open a remembered wallet: the truth, in the checkbox's tooltip.
-String get rememberWho => Platform.isWindows
+String get rememberWho => !kIsWeb && Platform.isWindows
     ? 'Anyone using this Windows account can open this wallet.'
     : 'Anyone using this account can open this wallet.';
 

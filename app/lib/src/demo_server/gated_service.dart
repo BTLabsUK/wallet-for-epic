@@ -469,6 +469,15 @@ class GatedWalletSession implements WalletSession {
   }) => _inner.consolidateOutputs(minimumConfirmations: minimumConfirmations);
 
   @override
+  Future<SelfSentTx> spendOutputsToSelf({
+    required List<String> commitments,
+    required BigInt minimumConfirmations,
+  }) => _inner.spendOutputsToSelf(
+    commitments: commitments,
+    minimumConfirmations: minimumConfirmations,
+  );
+
+  @override
   bool get supportsInvoices => _inner.supportsInvoices;
 
   @override
@@ -476,6 +485,9 @@ class GatedWalletSession implements WalletSession {
 
   @override
   Future<String> rotateInvoiceAddress() => _inner.rotateInvoiceAddress();
+
+  @override
+  Future<int> invoiceAddressIndex() => _inner.invoiceAddressIndex();
 
   @override
   Future<List<TrustedService>> trustedServices() => _inner.trustedServices();

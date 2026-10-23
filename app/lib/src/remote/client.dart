@@ -921,12 +921,25 @@ class RemoteWalletSession implements WalletSession {
   });
 
   @override
+  Future<SelfSentTx> spendOutputsToSelf({
+    required List<String> commitments,
+    required BigInt minimumConfirmations,
+  }) => _call(SessionMember.spendOutputsToSelf, selfSentTxWire, {
+    'commitments': listOf(stringWire).encode(commitments),
+    'minimumConfirmations': bigIntWire.encode(minimumConfirmations),
+  });
+
+  @override
   Future<String> invoiceAddress() =>
       _call(SessionMember.invoiceAddress, stringWire);
 
   @override
   Future<String> rotateInvoiceAddress() =>
       _call(SessionMember.rotateInvoiceAddress, stringWire);
+
+  @override
+  Future<int> invoiceAddressIndex() =>
+      _call(SessionMember.invoiceAddressIndex, intWire);
 
   @override
   Future<List<TrustedService>> trustedServices() =>

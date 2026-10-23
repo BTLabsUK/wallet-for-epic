@@ -10,6 +10,7 @@ import 'package:epic_wallet/src/desktop/app/shell.dart';
 import 'package:epic_wallet/src/desktop/app/tour.dart';
 import 'package:epic_wallet/src/desktop/data/api.dart';
 import 'package:epic_wallet/src/desktop/data/files.dart';
+import 'package:epic_wallet/src/desktop/data/invoices.dart';
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/data/desk_node.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/local_node_dialogs.dart' show deskPickFolder;
@@ -250,6 +251,46 @@ class _Recorder implements DeskWalletApi {
   Future<void> markHistoryExported(DateTime when) => _r('markHistoryExported', () => _m.markHistoryExported(when));
   @override
   Future<void> dismissHistoryReminder(DateTime when) => _r('dismissHistoryReminder', () => _m.dismissHistoryReminder(when));
+
+  // Invoices: hidden in the sweep (the prototype's screens have their own shots).
+  @override
+  bool get supportsInvoices => false;
+  @override
+  Stream<InvoiceNotice> invoiceNotices() => const Stream.empty();
+  @override
+  Future<InvoiceBook> invoices() => _r('invoices', _m.invoices);
+  @override
+  Future<InvoiceBook> checkInvoices() => _r('checkInvoices', _m.checkInvoices);
+  @override
+  Future<IssuedRequest> requestPayment(PaymentRequestDraft draft) => _r('requestPayment', () => _m.requestPayment(draft));
+  @override
+  Future<void> withdrawRequest(String slateId) => _r('withdrawRequest', () => _m.withdrawRequest(slateId));
+  @override
+  Future<void> cancelRequestPayment(String slateId) => _r('cancelRequestPayment', () => _m.cancelRequestPayment(slateId));
+  @override
+  Future<void> repostRequest(String slateId) => _r('repostRequest', () => _m.repostRequest(slateId));
+  @override
+  Future<IncomingInvoice> payInvoice(String slateId, {required int amount, required String password}) =>
+      _r('payInvoice', () => _m.payInvoice(slateId, amount: amount, password: password));
+  @override
+  Future<IncomingInvoice> retryInvoiceReply(String slateId) => _r('retryInvoiceReply', () => _m.retryInvoiceReply(slateId));
+  @override
+  Future<void> declineInvoice(String slateId) => _r('declineInvoice', () => _m.declineInvoice(slateId));
+  @override
+  Future<void> cancelInvoicePayment(String slateId) => _r('cancelInvoicePayment', () => _m.cancelInvoicePayment(slateId));
+  @override
+  Future<SelfSend> spendCancelledToSelf(String slateId) => _r('spendCancelledToSelf', () => _m.spendCancelledToSelf(slateId));
+  @override
+  Future<String> rotateInvoiceAddress() => _r('rotateInvoiceAddress', _m.rotateInvoiceAddress);
+  @override
+  Future<void> trustSender(String address, String label, {String? contactId}) =>
+      _r('trustSender', () => _m.trustSender(address, label, contactId: contactId));
+  @override
+  Future<void> untrustSender(String address) => _r('untrustSender', () => _m.untrustSender(address));
+  @override
+  Future<void> setInvoiceExpiry(Duration expiry) => _r('setInvoiceExpiry', () => _m.setInvoiceExpiry(expiry));
+  @override
+  Future<PeerCapability> peerCapability(String address) => _r('peerCapability', () => _m.peerCapability(address));
 }
 
 /// One pressable control: its kind and label, found again by them on a fresh app.

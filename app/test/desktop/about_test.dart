@@ -16,19 +16,19 @@ void main() {
   final now = DateTime(2026, 10, 22, 12);
 
   // Signed manifests (test key A; the test keyring stands in for the bundled one).
-  const page = 'https://github.com/BTLabs-EPIC/epic-wallet/releases/tag/v0.1.1';
+  const page = 'https://github.com/BTLabs-EPIC/epic-wallet/releases/tag/v0.1.2';
   late String newer, same, phoneOnly, offAccounts, unsignedNewer, forgedNewer, olderLatest;
   setUpAll(() async {
-    newer = await signedUpdate(testUpdatePayload(versionName: '9.0.0', desktop: {'version': '0.1.1', 'page': page}));
-    same = await signedUpdate(testUpdatePayload(versionName: '9.0.0', desktop: {'version': '0.1.0'}, serial: 1790000100));
+    newer = await signedUpdate(testUpdatePayload(versionName: '9.0.0', desktop: {'version': '0.1.2', 'page': page}));
+    same = await signedUpdate(testUpdatePayload(versionName: '9.0.0', desktop: {'version': deskAppVersion}, serial: 1790000100));
     phoneOnly = await signedUpdate(testUpdatePayload(versionName: '0.2.0'));
     // The verifier's schema only takes pages on the project's GitHub accounts, so a page
     // elsewhere is a manifest that does not verify, not one that opens a fallback.
-    offAccounts = await signedUpdate(testUpdatePayload(desktop: {'version': '0.1.1', 'page': 'https://github.com.evil.example/BTLabs-EPIC/'}));
-    unsignedNewer = '{"versionName": "9.0.0", "desktop": {"version": "0.1.1", "page": "$page"}}';
-    forgedNewer = await signedUpdate(testUpdatePayload(desktop: {'version': '0.1.1', 'page': page}), keys: [await testUpdateStrangerKey()]);
-    // Older than [newer] (a replay): it says 0.1.0 is the latest, which must not win.
-    olderLatest = await signedUpdate(testUpdatePayload(desktop: {'version': '0.1.0'}, serial: 1789999000));
+    offAccounts = await signedUpdate(testUpdatePayload(desktop: {'version': '0.1.2', 'page': 'https://github.com.evil.example/BTLabs-EPIC/'}));
+    unsignedNewer = '{"versionName": "9.0.0", "desktop": {"version": "0.1.2", "page": "$page"}}';
+    forgedNewer = await signedUpdate(testUpdatePayload(desktop: {'version': '0.1.2', 'page': page}), keys: [await testUpdateStrangerKey()]);
+    // Older than [newer] (a replay): it says 0.1.1 is the latest, which must not win.
+    olderLatest = await signedUpdate(testUpdatePayload(desktop: {'version': '0.1.1'}, serial: 1789999000));
   });
 
   Future<(ProviderContainer, List<String>)> pump(WidgetTester tester, ManifestFetch fetch) async {
@@ -86,7 +86,7 @@ void main() {
       calls++;
       return (404, 'Not Found');
     });
-    expect(find.text('0.1.0 is the latest'), findsOneWidget);
+    expect(find.text('$deskAppVersion is the latest'), findsOneWidget);
     expect(find.text('Could not check'), findsNothing);
     await tester.tap(find.widgetWithText(EButton, 'Check now'));
     await tester.pumpAndSettle();
@@ -95,8 +95,8 @@ void main() {
 
   testWidgets('a newer version offers its page; the same version is the latest', (tester) async {
     final (container, opened) = await pump(tester, (_) async => (200, newer));
-    expect(find.text('Update available: 0.1.1'), findsOneWidget);
-    await tester.tap(find.widgetWithText(EButton, 'Get 0.1.1'));
+    expect(find.text('Update available: 0.1.2'), findsOneWidget);
+    await tester.tap(find.widgetWithText(EButton, 'Get 0.1.2'));
     await tester.pumpAndSettle();
     expect(opened, [page]);
 
@@ -108,7 +108,7 @@ void main() {
     ]);
     await tester.tap(find.widgetWithText(EButton, 'Check now'));
     await tester.pumpAndSettle();
-    expect(find.text('0.1.0 is the latest'), findsOneWidget);
+    expect(find.text('$deskAppVersion is the latest'), findsOneWidget);
   });
 
   testWidgets("the phone's manifest alone offers nothing to the desktop", (tester) async {
@@ -120,14 +120,14 @@ void main() {
 
   testWidgets('a page off the project accounts: the manifest is not used', (tester) async {
     await pump(tester, (_) async => (200, offAccounts));
-    expect(find.text('0.1.0 is the latest'), findsOneWidget);
+    expect(find.text('$deskAppVersion is the latest'), findsOneWidget);
     expect(find.textContaining('Update available'), findsNothing);
   });
 
   for (final (name, body) in [('an unsigned', () => unsignedNewer), ('a forged', () => forgedNewer)]) {
     testWidgets('$name manifest offers no update and no error', (tester) async {
       await pump(tester, (_) async => (200, body()));
-      expect(find.text('0.1.0 is the latest'), findsOneWidget);
+      expect(find.text('$deskAppVersion is the latest'), findsOneWidget);
       expect(find.textContaining('Update available'), findsNothing);
       expect(find.text('Could not check'), findsNothing);
     });
@@ -136,12 +136,12 @@ void main() {
   testWidgets('a known update stays offered when a later manifest is replayed, forged or too large', (tester) async {
     var body = (200, newer);
     await pump(tester, (_) async => body);
-    expect(find.text('Update available: 0.1.1'), findsOneWidget);
+    expect(find.text('Update available: 0.1.2'), findsOneWidget);
     for (final next in [(200, olderLatest), (200, forgedNewer), (deskManifestTooLarge, ''), (404, '')]) {
       body = next;
       await tester.tap(find.widgetWithText(EButton, 'Check now'));
       await tester.pumpAndSettle();
-      expect(find.text('Update available: 0.1.1'), findsOneWidget, reason: 'after ${next.$1}');
+      expect(find.text('Update available: 0.1.2'), findsOneWidget, reason: 'after ${next.$1}');
     }
   });
 

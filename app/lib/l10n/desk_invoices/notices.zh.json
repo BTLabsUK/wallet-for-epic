@@ -1,0 +1,9 @@
+{
+  "deskInvNoticePaid": "{payer} 已支付 {amount} EPIC。",
+  "deskInvNoticeDeclined": "{payer} 拒绝了你的发票。",
+  "deskInvNoticeIssuedExpired": "你开具的一张发票已过期未付。",
+  "deskInvNoticeWithdrawn": "{service} 在你回复前撤回了一张发票。",
+  "deskInvNoticeExpired": "一张发票在你回复前已过期。",
+  "deskInvNoticeUnknownPayment": "收到一笔针对本设备未开具发票的付款，已被拒绝。如果是使用此钱包的另一台设备开具的，请让付款方取消后重新付款。",
+  "deskInvNoticeUnknownAnswer": "收到一条针对本设备未发送付款的回复，已被拒绝。如果是使用此钱包的另一台设备发送的，请在那里取消后重新发送。"
+}

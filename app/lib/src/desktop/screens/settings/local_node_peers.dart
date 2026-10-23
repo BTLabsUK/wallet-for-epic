@@ -48,6 +48,11 @@ class _PeersTabState extends ConsumerState<PeersTab> {
   final _maxIn = TextEditingController();
   final _maxOut = TextEditingController();
   String? _maxError;
+
+  /// The last maximum sent for each field: Enter and then the focus loss are one save, and the
+  /// options in hand are older than it until the provider reloads.
+  int? _sentIn;
+  int? _sentOut;
   bool _filled = false;
 
   @override
@@ -102,8 +107,22 @@ class _PeersTabState extends ConsumerState<PeersTab> {
       setState(() => _maxError = '$peerMaxMin to $peerMaxMax.');
       return;
     }
-    if (n == (inbound ? o.maxInbound : o.maxOutbound)) return;
-    await ref.read(deskNodeProvider).setPeerOptions(maxInbound: inbound ? n : null, maxOutbound: inbound ? null : n);
+    if (n == (inbound ? _sentIn ?? o.maxInbound : _sentOut ?? o.maxOutbound)) return;
+    if (inbound) {
+      _sentIn = n;
+    } else {
+      _sentOut = n;
+    }
+    try {
+      await ref.read(deskNodeProvider).setPeerOptions(maxInbound: inbound ? n : null, maxOutbound: inbound ? null : n);
+    } on Object {
+      if (inbound) {
+        _sentIn = null;
+      } else {
+        _sentOut = null;
+      }
+      rethrow;
+    }
     ref.invalidate(localNodeOptionsProvider);
     if (mounted) setState(() => _maxError = null);
   }

@@ -58,7 +58,7 @@ void main() {
   test('a saved Detailed holds for 24 hours, and an expired one is turned back to Normal', () async {
     final secrets = MemorySecretStore();
     final store = DeskStore(secrets);
-    final set = DateTime(2026, 10, 22, 12);
+    final set = DateTime(2099, 10, 22, 12); // AppLog.detailed reads the real clock: keep it ahead
     await store.writeJson(logsKey, {'until': set.add(detailedFor).millisecondsSinceEpoch});
     await applySavedLogLevel(store, now: set.add(const Duration(hours: 23)));
     expect(AppLog.detailed, isTrue);
@@ -75,7 +75,7 @@ void main() {
     final store = DeskStore(MemorySecretStore());
     final files = FakeLogFiles([const LogFileInfo('wfe.log', 600 * 1024)]);
     final opened = <String>[];
-    final now = DateTime(2026, 10, 22, 9, 30);
+    final now = DateTime(2099, 10, 22, 9, 30); // ahead of the real clock, which AppLog.detailed reads
     final container = ProviderContainer(overrides: [
       deskStoreProvider.overrideWithValue(store),
       logFilesProvider.overrideWithValue(files),

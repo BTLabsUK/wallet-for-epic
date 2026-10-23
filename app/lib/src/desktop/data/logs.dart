@@ -9,7 +9,7 @@ library;
 import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../app_log_io.dart';
+import '../../app_log.dart';
 import 'desk_store.dart';
 
 const String logsKey = 'desk.logs';

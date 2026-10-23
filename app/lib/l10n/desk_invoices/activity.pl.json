@@ -1,0 +1,13 @@
+{
+  "deskInvActFrom": "Faktura od: {label}",
+  "deskInvActFilter": "Faktury",
+  "deskInvActBlock": "Faktura",
+  "deskInvActOpen": "Otwórz w Fakturach",
+  "deskInvActBilledBy": "Wystawił",
+  "deskInvActOverviewTitle": "Faktury",
+  "deskInvActOverviewToPay": "{count, plural, =0{Nic do zapłaty} one{{count} faktura do zapłaty} few{{count} faktury do zapłaty} many{{count} faktur do zapłaty} other{{count} faktury do zapłaty}}",
+  "deskInvActOverviewWaiting": "{count, plural, =0{Żadna wystawiona faktura nie czeka} one{{count} wystawiona faktura czeka na płacącego} few{{count} wystawione faktury czekają na płacących} many{{count} wystawionych faktur czeka na płacących} other{{count} wystawione faktury czekają na płacących}}",
+  "deskInvActOverviewAttention": "{count, plural, one{{count} płatność wymaga działania: ponów lub anuluj} few{{count} płatności wymagają działania: ponów lub anuluj} many{{count} płatności wymaga działania: ponów lub anuluj} other{{count} płatności wymaga działania: ponów lub anuluj}}",
+  "deskInvActReview": "Sprawdź",
+  "deskInvActOpenInvoices": "Otwórz Faktury"
+}

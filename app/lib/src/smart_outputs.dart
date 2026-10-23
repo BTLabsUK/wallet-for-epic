@@ -226,7 +226,8 @@ OutputLabel outputWord(WalletOutput output) {
     case WalletOutputStatus.unconfirmed:
       return switch (output.category) {
         OutputCategory.spendable => OutputLabel.spendable,
-        OutputCategory.awaitingFinalization => OutputLabel.finalizing,
+        OutputCategory.awaitingFinalization ||
+        OutputCategory.unpaidInvoice => OutputLabel.finalizing,
         OutputCategory.immature => OutputLabel.immature,
         OutputCategory.locked => OutputLabel.locked,
         OutputCategory.awaitingConfirmation => OutputLabel.confirming,

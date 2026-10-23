@@ -411,12 +411,16 @@ class ESwitch extends StatelessWidget {
 
 /// A segment of [ESegmented].
 class ESegment<T> {
-  const ESegment(this.value, this.label, {this.icon, this.count});
+  const ESegment(this.value, this.label, {this.icon, this.count, this.enabled = true, this.tooltip});
 
   final T value;
   final String label;
   final IconData? icon;
   final int? count;
+
+  /// False: shown dimmed and not pressable (a choice that comes later); [tooltip] says why.
+  final bool enabled;
+  final String? tooltip;
 }
 
 /// Segmented control: the selected segment is raised with an accent underline.
@@ -455,9 +459,9 @@ class ESegmented<T> extends StatelessWidget {
           for (final s in segments) ...[
             if (s != segments.first) const SizedBox(width: 2),
             if (stretch)
-              Expanded(child: _Seg(seg: s, selected: s.value == value, md: md, stretch: true, onTap: () => onChanged(s.value)))
+              Expanded(child: _Seg(seg: s, selected: s.value == value, md: md, stretch: true, onTap: s.enabled ? () => onChanged(s.value) : null))
             else
-              _Seg(seg: s, selected: s.value == value, md: md, stretch: false, onTap: () => onChanged(s.value)),
+              _Seg(seg: s, selected: s.value == value, md: md, stretch: false, onTap: s.enabled ? () => onChanged(s.value) : null),
           ],
         ],
       ),
@@ -472,7 +476,9 @@ class _Seg<T> extends StatefulWidget {
   final bool selected;
   final bool md;
   final bool stretch;
-  final VoidCallback onTap;
+
+  /// Null for a segment that cannot be chosen.
+  final VoidCallback? onTap;
 
   @override
   State<_Seg<T>> createState() => _SegState<T>();
@@ -485,15 +491,19 @@ class _SegState<T> extends State<_Seg<T>> {
   Widget build(BuildContext context) {
     final c = context.dc;
     final sel = widget.selected;
-    final fg = sel ? c.accentText : (_hover ? c.text : c.dim);
+    final off = widget.onTap == null;
+    final fg = sel ? c.accentText : (off ? c.faint : (_hover ? c.text : c.dim));
     final label = TextStyle(fontSize: Fs.sm, fontWeight: FontWeight.w500, color: fg);
-    return Semantics(
+    final tip = widget.seg.tooltip;
+    final seg = Semantics(
       button: true,
       selected: sel,
+      enabled: !off,
       child: FocusableActionDetector(
-        mouseCursor: SystemMouseCursors.click,
-        onShowHoverHighlight: (v) => setState(() => _hover = v),
-        actions: {ActivateIntent: CallbackAction<ActivateIntent>(onInvoke: (_) => widget.onTap())},
+        enabled: !off,
+        mouseCursor: off ? SystemMouseCursors.basic : SystemMouseCursors.click,
+        onShowHoverHighlight: (v) => setState(() => _hover = v && !off),
+        actions: {ActivateIntent: CallbackAction<ActivateIntent>(onInvoke: (_) => widget.onTap?.call())},
         child: Builder(
           builder: (context) => GestureDetector(
             onTap: widget.onTap,
@@ -534,6 +544,7 @@ class _SegState<T> extends State<_Seg<T>> {
         ),
       ),
     );
+    return tip == null ? seg : Tooltip(message: tip, child: seg);
   }
 }
 

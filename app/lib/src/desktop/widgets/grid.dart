@@ -40,10 +40,7 @@ class PanelRow extends MultiChildRenderObjectWidget {
       ..gap = gap ?? Sp.col
       ..textDirection = Directionality.of(context)
       ..maxSideFraction = maxSideFraction
-      ..sideFirst = sideFirst
-      // A column at the full height is a relayout boundary (its constraints are tight), so a
-      // rebuild of the page measures both columns again.
-      ..markNeedsLayout();
+      ..sideFirst = sideFirst;
   }
 }
 

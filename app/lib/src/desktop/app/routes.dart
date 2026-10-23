@@ -7,7 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../theme/icons.dart';
 import 'package:flutter/widgets.dart' show IconData;
 
-enum DeskSection { overview, activity, send, receive, outputs, contacts, settings }
+enum DeskSection { overview, activity, send, receive, invoices, outputs, contacts, settings }
 
 enum DeskRoute {
   // Bare: the screens that open the app.
@@ -25,10 +25,20 @@ enum DeskRoute {
   receive(section: DeskSection.receive),
   importTx(section: DeskSection.receive),
   finalize(section: DeskSection.receive),
+
+  /// Invoices (docs/invoices/flow.md): the To pay and Sent tabs ([InvoicesTab] or a slate id
+  /// to select), the request form (a [Contact] or an invoice address to start from) and the
+  /// review of one invoice (its slate id).
+  invoices(section: DeskSection.invoices),
+  invoiceIssue(section: DeskSection.invoices),
+  invoiceReview(section: DeskSection.invoices),
   outputs(section: DeskSection.outputs),
   contacts(section: DeskSection.contacts),
   settingsNode(section: DeskSection.settings),
   settingsReceiving(section: DeskSection.settings),
+
+  /// Invoices (docs/invoices/flow.md §1, §2): the invoice address, trusted senders, a new address, time to pay.
+  settingsInvoices(section: DeskSection.settings),
   settingsAppearance(section: DeskSection.settings),
   settingsAccount(section: DeskSection.settings),
   settingsWallets(section: DeskSection.settings),
@@ -57,9 +67,14 @@ const List<(DeskSection, DeskRoute, String, IconData)> deskNav = [
   (DeskSection.activity, DeskRoute.activity, 'Activity', EIcons.activity),
   (DeskSection.send, DeskRoute.send, 'Send', EIcons.send),
   (DeskSection.receive, DeskRoute.receive, 'Receive', EIcons.receive),
+  // Shown only when the wallet supports invoices; the label comes from l10n (deskInvNav).
+  (DeskSection.invoices, DeskRoute.invoices, 'Invoices', EIcons.invoice),
   (DeskSection.outputs, DeskRoute.outputs, 'Outputs', EIcons.coins),
   (DeskSection.contacts, DeskRoute.contacts, 'Contacts', EIcons.contacts),
 ];
+
+/// The tabs of Invoices: Pay (invoices to pay) and Issue (invoices this wallet issued).
+enum InvoicesTab { pay, issue }
 
 /// Start place: `--dart-define=WFE_DESK_START=<route name>`, unlock by default.
 const String _start = String.fromEnvironment('WFE_DESK_START', defaultValue: 'unlock');

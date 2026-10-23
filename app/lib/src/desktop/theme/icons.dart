@@ -10,6 +10,13 @@ abstract final class EIcons {
   static const receive = Icons.south_west;
   static const contacts = Icons.people_outline;
   static const settings = Icons.settings_outlined;
+
+  // Invoices: a request this wallet sends, an invoice it pays, the invoice address, trust.
+  static const request = Icons.request_quote_outlined;
+  static const invoice = Icons.receipt_long_outlined;
+  static const invoiceAddress = Icons.mark_email_unread_outlined;
+  static const trusted = Icons.verified_user_outlined;
+  static const prototype = Icons.science_outlined;
   static const lock = Icons.lock_outline;
   static const lockOpen = Icons.lock_open_outlined;
   static const swap = Icons.swap_horiz;

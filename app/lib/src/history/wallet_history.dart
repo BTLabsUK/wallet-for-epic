@@ -34,7 +34,13 @@ WalletError _invalid(String message) =>
     WalletError(kind: WalletErrorKind.invalidArgument, message: message);
 
 Contact _contact(ContactRec c) =>
-    Contact(id: c.id, name: c.name, address: c.address, note: c.note);
+    Contact(
+      id: c.id,
+      name: c.name,
+      address: c.address,
+      note: c.note,
+      invoiceAddress: c.invoiceAddress,
+    );
 
 class WalletHistory {
   WalletHistory(this._store, {required this.chain});
@@ -96,11 +102,13 @@ class WalletHistory {
     // epicbox only (OD-2), the desktop also http(s) and .onion. Nothing here reaches out.
     final isNew = contact.id.trim().isEmpty;
     final note = contact.note?.trim();
+    final invoice = contact.invoiceAddress?.trim();
     final rec = ContactRec(
       id: isNew ? _randomHex(16) : contact.id.trim(),
       name: name,
       address: address,
       note: note == null || note.isEmpty ? null : note,
+      invoiceAddress: invoice == null || invoice.isEmpty ? null : invoice,
     );
     await _store.update((m) {
       final i = m.contacts.indexWhere((c) => c.id == rec.id);
@@ -288,7 +296,13 @@ class WalletHistory {
             ? _randomHex(16)
             : c.id;
         m.contacts.add(
-          ContactRec(id: id, name: c.name, address: c.address, note: c.note),
+          ContactRec(
+            id: id,
+            name: c.name,
+            address: c.address,
+            note: c.note,
+            invoiceAddress: c.invoiceAddress,
+          ),
         );
         contactsAdded++;
       }

@@ -4943,4 +4943,1076 @@ class AppLocalizationsRu extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String deskInvActFrom(String label) {
+    return 'Счёт от $label';
+  }
+
+  @override
+  String get deskInvActFilter => 'Счета';
+
+  @override
+  String get deskInvActBlock => 'Счёт';
+
+  @override
+  String get deskInvActOpen => 'Открыть в счетах';
+
+  @override
+  String get deskInvActBilledBy => 'Выставил';
+
+  @override
+  String get deskInvActOverviewTitle => 'Счета';
+
+  @override
+  String deskInvActOverviewToPay(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count счёта к оплате',
+      many: '$count счетов к оплате',
+      few: '$count счёта к оплате',
+      one: '$count счёт к оплате',
+      zero: 'Нечего оплачивать',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskInvActOverviewWaiting(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count выставленных счёта ждут плательщиков',
+      many: '$count выставленных счетов ждут плательщиков',
+      few: '$count выставленных счёта ждут плательщиков',
+      one: '$count выставленный счёт ждёт плательщика',
+      zero: 'Нет ожидающих выставленных счетов',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskInvActOverviewAttention(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count платежа требуют действия: повторите или отмените',
+      many: '$count платежей требуют действия: повторите или отмените',
+      few: '$count платежа требуют действия: повторите или отмените',
+      one: '$count платёж требует действия: повторите или отмените',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskInvActReview => 'Проверить';
+
+  @override
+  String get deskInvActOpenInvoices => 'Открыть счета';
+
+  @override
+  String get deskInvNav => 'Счета';
+
+  @override
+  String get deskInvTitle => 'Счета';
+
+  @override
+  String get deskInvTabPay => 'Оплатить';
+
+  @override
+  String get deskInvTabIssue => 'Выставить';
+
+  @override
+  String deskInvTabCount(String label, int count) {
+    return '$label ($count)';
+  }
+
+  @override
+  String get deskInvIssueAction => 'Выставить счёт';
+
+  @override
+  String get deskInvChecking => 'Проверка';
+
+  @override
+  String deskInvCheckedAt(String time) {
+    return 'Проверено в $time';
+  }
+
+  @override
+  String get deskInvCheckFailedTitle => 'Сервер Epicbox не отвечает';
+
+  @override
+  String get deskInvCheckFailedBody =>
+      'Списки показывают то, что пришло раньше. Ничего не потеряно; кошелёк повторяет попытку каждые 2 минуты.';
+
+  @override
+  String get deskInvReqWaiting => 'Ждёт плательщика';
+
+  @override
+  String get deskInvReqPaid => 'Оплачено, завершается';
+
+  @override
+  String get deskInvReqPosted => 'Отправлено в сеть';
+
+  @override
+  String deskInvConfirming(int count, int total) {
+    return 'Подтверждение $count из $total';
+  }
+
+  @override
+  String get deskInvCompleted => 'Завершено';
+
+  @override
+  String get deskInvReqNotPosted => 'Не отправлено';
+
+  @override
+  String get deskInvDeclined => 'Отклонено';
+
+  @override
+  String get deskInvExpired => 'Истёк';
+
+  @override
+  String get deskInvWithdrawn => 'Отозван';
+
+  @override
+  String get deskInvReqBounced => 'Возвращён';
+
+  @override
+  String get deskInvPayWaiting => 'К оплате';
+
+  @override
+  String get deskInvPayPaying => 'Оплата';
+
+  @override
+  String get deskInvPayNotDelivered => 'Не доставлено';
+
+  @override
+  String get deskInvPayDelivered => 'Ждёт отправки';
+
+  @override
+  String get deskInvPayPosted => 'Отправлено сервисом';
+
+  @override
+  String get deskInvPayWithdrawnAfterPay => 'Отозван после оплаты';
+
+  @override
+  String get deskInvPayPastTtl => 'Нет в блокчейне';
+
+  @override
+  String get deskInvPayCancelled => 'Отменено';
+
+  @override
+  String get deskInvUnpaid => 'Не оплачен';
+
+  @override
+  String get deskInvYouPay => 'Вы платите';
+
+  @override
+  String deskInvExpiresAt(String time) {
+    return 'Истекает $time';
+  }
+
+  @override
+  String get deskInvSlateId => 'ID слейта';
+
+  @override
+  String get deskInvAdvanced => 'Дополнительно';
+
+  @override
+  String get deskInvOneDevice =>
+      'Используйте счета только на одном устройстве. Другое устройство с этим кошельком может принять платёж, предназначенный для этого.';
+
+  @override
+  String get deskInvFailed =>
+      'Не получилось. Ничего не изменилось; попробуйте ещё раз.';
+
+  @override
+  String get deskInvHowItWorks => 'Как работают счета';
+
+  @override
+  String get deskInvAddressHint => 'es…@epicbox.epiccash.com';
+
+  @override
+  String get deskInvEpicboxAddress => 'Адрес Epicbox';
+
+  @override
+  String get deskInvHelpTitle => 'Счета';
+
+  @override
+  String get deskInvHelpLede =>
+      'Счета от доверенных отправителей, оплата только после одобрения.';
+
+  @override
+  String get deskInvHelpFlowTitle => 'Как работает счёт';
+
+  @override
+  String get deskInvHelpFlowShort =>
+      'Выставитель отправляет счёт на адрес для счетов плательщика. Ничего не оплачивается, пока плательщик не одобрит.';
+
+  @override
+  String get deskInvHelpFlowIntro =>
+      'Счёт — это просьба об оплате. **Выставитель** получает деньги; **плательщик** решает.';
+
+  @override
+  String get deskInvHelpFlowStep1 =>
+      'Кошелёк выставителя отправляет счёт через сервер Epicbox на **адрес для счетов** плательщика.';
+
+  @override
+  String get deskInvHelpFlowStep2 =>
+      'Плательщик открывает его в [[Счета › Оплатить]], проверяет отправителя, сумму и сообщение и выбирает **Одобрить и оплатить**, вводя пароль кошелька.';
+
+  @override
+  String get deskInvHelpFlowStep3 =>
+      'Кошелёк плательщика отправляет платёж на **адрес для платежей** выставителя.';
+
+  @override
+  String deskInvHelpFlowStep4(int confirmations) {
+    return 'Кошелёк выставителя завершает платёж и публикует его в сети. Подтверждений до окончательности: $confirmations.';
+  }
+
+  @override
+  String get deskInvHelpFlowNever =>
+      'Без одобрения ничего не оплачивается, а счёт никогда не добавляет деньги в кошелёк плательщика. У каждого счёта есть срок оплаты, не больше 48 часов; после него счёт оплатить нельзя.';
+
+  @override
+  String get deskInvHelpFlowIssued =>
+      'Счета, выставленные этим кошельком, — в [[Счета › Выставить]].';
+
+  @override
+  String get deskInvHelpTrustTitle => 'Почему только доверенные отправители';
+
+  @override
+  String get deskInvHelpTrustShort =>
+      'Только отправители из списка доверенных могут положить счёт во входящие. Это защищает от спама и поддельных счетов.';
+
+  @override
+  String get deskInvHelpTrustP1 =>
+      'Кошелёк принимает счёт только на свой адрес для счетов и только от отправителя из списка доверенных, которого узнаёт по адресу. Всё остальное отбрасывается непрочитанным, до открытия, и никогда не появляется в [[Счета › Оплатить]].';
+
+  @override
+  String get deskInvHelpTrustP2 =>
+      'Без списка любой, кто узнал адрес для счетов, мог бы заполнить входящие спамом или счетами, похожими на настоящие.';
+
+  @override
+  String get deskInvHelpTrustP3 =>
+      'Доверие позволяет отправителю только просить. Доверенный отправитель ничего не может взять: каждый счёт по-прежнему ждёт **Одобрить и оплатить**.';
+
+  @override
+  String get deskInvHelpTrustWhere1 =>
+      'Доверить отправителю можно в [[Настройки › Счета]].';
+
+  @override
+  String get deskInvHelpTrustWhere2 =>
+      'Или включить **Доверять счета** у контакта в [[Контакты]].';
+
+  @override
+  String get deskInvHelpTrustWhere3 =>
+      'Отправителя можно убрать из списка в любой момент. Его новые счета тогда отбрасываются.';
+
+  @override
+  String get deskInvHelpAddrTitle => 'Почему отдельный адрес для счетов';
+
+  @override
+  String get deskInvHelpAddrShort =>
+      'Счета приходят на свой адрес, отдельно от адреса для платежей, на который платят.';
+
+  @override
+  String get deskInvHelpAddrP1 =>
+      'У кошелька два адреса Epicbox. **Адрес для платежей** в [[Получить]] принимает платежи. **Адрес для счетов** принимает только счета.';
+
+  @override
+  String get deskInvHelpAddrP2 =>
+      'Раздельные адреса позволяют давать адрес для счетов сервисам или заменять его, не раскрывая и не меняя адрес, на который платят.';
+
+  @override
+  String get deskInvHelpAddrP3 =>
+      'Адрес для счетов не принимает платежи: платёж, отправленный на него, отбрасывается. Чтобы получить оплату, дайте адрес для платежей.';
+
+  @override
+  String get deskInvHelpAddrWhere1 =>
+      'Найти, скопировать или показать адрес для счетов QR-кодом можно в [[Настройки › Счета]].';
+
+  @override
+  String get deskInvHelpAddrWhere2 =>
+      '**Новый адрес для счетов** заменяет его. Сервисы со старым адресом не смогут присылать счета, пока не получат новый.';
+
+  @override
+  String get deskInvHelpDiagramTitle => 'Путь счёта';
+
+  @override
+  String get deskInvHelpDiagramIssuer => 'Выставитель';
+
+  @override
+  String get deskInvHelpDiagramPayer => 'Плательщик';
+
+  @override
+  String get deskInvHelpDiagramIssues => 'Выставляет счёт';
+
+  @override
+  String get deskInvHelpDiagramInvoice => 'Счёт';
+
+  @override
+  String get deskInvHelpDiagramGate => 'Адрес для счетов';
+
+  @override
+  String get deskInvHelpDiagramGateSub => 'Только доверенные';
+
+  @override
+  String get deskInvHelpDiagramDropped => 'Другие отправители';
+
+  @override
+  String get deskInvHelpDiagramDroppedSub => 'Отброшено непрочитанным';
+
+  @override
+  String get deskInvHelpDiagramReview => 'Проверяет и одобряет';
+
+  @override
+  String get deskInvHelpDiagramReviewSub => 'Одобрить и оплатить';
+
+  @override
+  String get deskInvHelpDiagramPayment => 'Платёж';
+
+  @override
+  String get deskInvHelpDiagramPayAddr => 'Адрес для платежей';
+
+  @override
+  String get deskInvHelpDiagramPayAddrSub => 'Не адрес для счетов';
+
+  @override
+  String get deskInvHelpDiagramFinal => 'Завершает и публикует';
+
+  @override
+  String deskInvHelpDiagramFinalSub(int confirmations) {
+    return 'Окончательно после подтверждений: $confirmations';
+  }
+
+  @override
+  String get deskInvHelpDiagramSemantics =>
+      'Выставитель отправляет счёт на адрес для счетов плательщика, который принимает только доверенных отправителей и отбрасывает остальных; плательщик проверяет и одобряет его; платёж идёт на адрес для платежей выставителя; кошелёк выставителя завершает его и публикует в сети.';
+
+  @override
+  String get deskInvIssuerFormTitle => 'Выставить счёт';
+
+  @override
+  String get deskInvIssuerFirstTitle => 'Перед первым счётом';
+
+  @override
+  String get deskInvIssuerYourAddress => 'Ваш адрес для платежей';
+
+  @override
+  String get deskInvIssuerMethod => 'Способ';
+
+  @override
+  String get deskInvIssuerEpicbox => 'Epicbox';
+
+  @override
+  String get deskInvIssuerFile => 'Файл';
+
+  @override
+  String get deskInvIssuerDirect => 'Напрямую';
+
+  @override
+  String get deskInvIssuerSoon => 'Скоро';
+
+  @override
+  String get deskInvIssuerPayer => 'Адрес для счетов плательщика';
+
+  @override
+  String get deskInvIssuerPayerHelp =>
+      'Кошелёк плательщика показывает его в разделе Настройки › Счета.';
+
+  @override
+  String get deskInvIssuerPayerMissing =>
+      'Вставьте адрес для счетов плательщика.';
+
+  @override
+  String get deskInvIssuerPayerInvalid =>
+      'Это не действительный адрес Epicbox.';
+
+  @override
+  String get deskInvIssuerPayerOwn =>
+      'Это один из ваших собственных адресов. Используйте адрес для счетов, который даст плательщик.';
+
+  @override
+  String get deskInvIssuerPayerHttp =>
+      'Счетам через Epicbox нужен адрес Epicbox, а не HTTP или Tor.';
+
+  @override
+  String get deskInvIssuerContacts => 'Контакты';
+
+  @override
+  String get deskInvIssuerNoContacts =>
+      'Пока ни у одного контакта нет адреса для счетов. Добавьте его в Контактах.';
+
+  @override
+  String get deskInvIssuerNoInvoices =>
+      'Этот кошелёк уже возвращал счёт: он не может оплачивать счета через Epicbox. Отправьте вместо этого файл счёта или попросите прислать платёж.';
+
+  @override
+  String get deskInvIssuerUseFile => 'Использовать файл';
+
+  @override
+  String get deskInvIssuerUnknown =>
+      'Только wallet-for-epic и другие кошельки LEPIC могут оплатить счёт через Epicbox. Epic GUI wallet и Stack Wallet вообще не оплачивают счета; командная строка epic-wallet может оплатить файл счёта.';
+
+  @override
+  String get deskInvIssuerAmount => 'Сумма';
+
+  @override
+  String get deskInvIssuerAmountMissing => 'Введите сумму.';
+
+  @override
+  String get deskInvIssuerAmountZero => 'Сумма должна быть больше 0.';
+
+  @override
+  String get deskInvIssuerAmountDecimals =>
+      'У EPIC не больше 8 знаков после запятой.';
+
+  @override
+  String get deskInvIssuerAmountCap =>
+      'Больше, чем всех EPIC, которые когда-либо будут.';
+
+  @override
+  String get deskInvIssuerAmountHelp =>
+      'Из вашего кошелька ничего не уходит: плательщик платит эту сумму плюс свою комиссию.';
+
+  @override
+  String get deskInvIssuerMessage => 'Сообщение плательщику';
+
+  @override
+  String deskInvIssuerMessageCount(int used, int max) {
+    return '$used из $max байт';
+  }
+
+  @override
+  String get deskInvIssuerMessageLong => 'Сообщение слишком длинное.';
+
+  @override
+  String deskInvIssuerExpiry(int hours) {
+    return 'У плательщика есть $hours ч на оплату.';
+  }
+
+  @override
+  String get deskInvIssuerIssue => 'Выставить';
+
+  @override
+  String get deskInvIssuerRelayDown =>
+      'Сервер Epicbox не отвечает, поэтому счёт сейчас не отправить.';
+
+  @override
+  String get deskInvIssuerFixFields => 'Исправьте поля, отмеченные красным.';
+
+  @override
+  String get deskInvIssuerNotDelivered =>
+      'Счёт не дошёл до сервера Epicbox. Ничего не отправлено. Попробуйте ещё раз.';
+
+  @override
+  String deskInvIssuerSent(String payer) {
+    return 'Счёт отправлен: $payer.';
+  }
+
+  @override
+  String get deskInvIssuerEmpty =>
+      'Счетов пока не выставлено. Счёт просит контакт или сервис заплатить вам; он ничего не тратит.';
+
+  @override
+  String deskInvIssuerTo(String payer) {
+    return 'Счёт для $payer';
+  }
+
+  @override
+  String deskInvIssuerIssued(String time) {
+    return 'Выставлен $time';
+  }
+
+  @override
+  String get deskInvIssuerPayerFact => 'Плательщик';
+
+  @override
+  String get deskInvIssuerAmountFact => 'Сумма';
+
+  @override
+  String get deskInvIssuerMessageFact => 'Сообщение';
+
+  @override
+  String get deskInvIssuerSentFact => 'Выставлен';
+
+  @override
+  String get deskInvIssuerExpiresFact => 'Истекает';
+
+  @override
+  String get deskInvIssuerAnsweredFact => 'Завершено';
+
+  @override
+  String get deskInvIssuerStepPaid => 'Оплачено';
+
+  @override
+  String get deskInvIssuerStepConfirming => 'Подтверждение';
+
+  @override
+  String get deskInvIssuerEnded =>
+      'Этот счёт завершился без оплаты. Ничего не поступило.';
+
+  @override
+  String get deskInvIssuerWithdraw => 'Отозвать';
+
+  @override
+  String get deskInvIssuerWithdrawTitle => 'Отозвать этот счёт?';
+
+  @override
+  String deskInvIssuerWithdrawBody(String payer) {
+    return '$payer больше не сможет его оплатить.';
+  }
+
+  @override
+  String get deskInvIssuerKeep => 'Оставить';
+
+  @override
+  String get deskInvIssuerWithdrawn => 'Счёт отозван.';
+
+  @override
+  String get deskInvIssuerRepost => 'Отправить снова';
+
+  @override
+  String get deskInvIssuerReposted => 'Платёж отправлен снова.';
+
+  @override
+  String get deskInvIssuerNodeDown =>
+      'Узел не отвечает. Попробуйте снова, когда он будет доступен.';
+
+  @override
+  String get deskInvIssuerNotPostedText =>
+      'Платёж готов, но его нет в сети: узел отклонил его или был недоступен.';
+
+  @override
+  String get deskInvIssuerCancel => 'Отменить платёж';
+
+  @override
+  String get deskInvIssuerCancelTitle => 'Отменить этот платёж?';
+
+  @override
+  String deskInvIssuerCancelBody(String payer) {
+    return 'Он не поступит. Средства $payer останутся заблокированными в его кошельке, пока он не отменит платёж у себя.';
+  }
+
+  @override
+  String deskInvIssuerBounced(String payer) {
+    return 'Кошелёк $payer вернул счёт: он не может оплачивать счета. Попросите вместо этого прислать платёж.';
+  }
+
+  @override
+  String get deskInvIssuerSendFile => 'Через файл';
+
+  @override
+  String get deskInvIssuerLate =>
+      'После завершения этого счёта пришёл платёж. Он отклонён; ничего не изменилось.';
+
+  @override
+  String deskInvIssuerPaidText(String payer) {
+    return '$payer оплатил. Ваш кошелёк завершил платёж и отправил его в сеть.';
+  }
+
+  @override
+  String deskInvIssuerWaitingText(String payer) {
+    return 'Доставлено на адрес для счетов $payer. Ничего не оплачено, пока плательщик не одобрит.';
+  }
+
+  @override
+  String get deskInvIssuerCopySlate => 'Копировать ID слейта';
+
+  @override
+  String get deskInvIssuerStepsIntro =>
+      'Кошелёк плательщика должен принимать счета. Перед первым счётом:';
+
+  @override
+  String get deskInvIssuerStepTrust =>
+      '1. Плательщик добавляет ваш адрес для платежей ниже в доверенные отправители.';
+
+  @override
+  String get deskInvIssuerStepAddress =>
+      '2. Плательщик даёт вам свой адрес для счетов.';
+
+  @override
+  String get deskInvIssuerStepIssued => 'Выставлен';
+
+  @override
+  String deskInvNoticePaid(String payer, String amount) {
+    return '$payer оплатил(а) $amount EPIC.';
+  }
+
+  @override
+  String deskInvNoticeDeclined(String payer) {
+    return '$payer отклонил(а) ваш счёт.';
+  }
+
+  @override
+  String get deskInvNoticeIssuedExpired =>
+      'Выставленный вами счёт истёк неоплаченным.';
+
+  @override
+  String deskInvNoticeWithdrawn(String service) {
+    return '$service отозвал(а) счёт до вашего ответа.';
+  }
+
+  @override
+  String get deskInvNoticeExpired => 'Счёт истёк до вашего ответа.';
+
+  @override
+  String get deskInvNoticeUnknownPayment =>
+      'Пришла оплата счёта, который это устройство не выставляло, и была отклонена. Если его выставило другое устройство с этим кошельком, попросите плательщика отменить и оплатить снова.';
+
+  @override
+  String get deskInvNoticeUnknownAnswer =>
+      'Пришёл ответ на платёж, который это устройство не отправляло, и был отклонён. Если его отправило другое устройство с этим кошельком, отмените его там и отправьте снова.';
+
+  @override
+  String get deskInvPayerWaitingHead => 'Ждёт вас';
+
+  @override
+  String get deskInvPayerNeedsHead => 'Платежи, требующие действия';
+
+  @override
+  String get deskInvPayerReview => 'Проверить';
+
+  @override
+  String get deskInvPayerView => 'Открыть';
+
+  @override
+  String get deskInvPayerNoMessage => 'Нет сообщения';
+
+  @override
+  String deskInvPayerDropped(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count сообщения от недоверенных отправителей проигнорированы.',
+      many: '$count сообщений от недоверенных отправителей проигнорированы.',
+      few: '$count сообщения от недоверенных отправителей проигнорированы.',
+      one: '$count сообщение от недоверенного отправителя проигнорировано.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskInvPayerTrustService => 'Доверять сервису…';
+
+  @override
+  String get deskInvPayerYourInvoiceAddress => 'Ваш адрес для счетов';
+
+  @override
+  String get deskInvPayerEmptyTitle => 'Нет ожидающих счетов';
+
+  @override
+  String get deskInvPayerEmptyText =>
+      'Когда доверенный сервис выставит вам счёт, он появится здесь. Ничего не оплачивается, пока вы не одобрите.';
+
+  @override
+  String deskInvPayerNotDeliveredTitle(String service) {
+    return 'Ваш платёж $service не доставлен';
+  }
+
+  @override
+  String get deskInvPayerNotDeliveredText =>
+      'Он подписан и хранится на этом устройстве; средства заблокированы. «Повторить» отправит его снова без повторного одобрения.';
+
+  @override
+  String deskInvPayerWithdrawnTitle(String service) {
+    return '$service отозвал оплаченный счёт';
+  }
+
+  @override
+  String get deskInvPayerWithdrawnText =>
+      'Платёж может так и не попасть в блокчейн. Отмените его, чтобы разблокировать средства.';
+
+  @override
+  String deskInvPayerPastTtlTitle(String service) {
+    return 'Вашего платежа $service нет в блокчейне';
+  }
+
+  @override
+  String get deskInvPayerPastTtlText =>
+      'Его срок истёк, и сеть его не видела. Отмените его, чтобы разблокировать средства.';
+
+  @override
+  String get deskInvPayerCancelPayment => 'Отменить платёж';
+
+  @override
+  String get deskInvPayerSafetyTitle => 'Оплачивайте только ожидаемые счета';
+
+  @override
+  String get deskInvPayerSafetyText =>
+      'Счёт никогда не добавляет деньги в кошелёк. Одобрив его, вы отправляете деньги.';
+
+  @override
+  String deskInvPayerSameBillTitle(String service, String ago) {
+    return 'Вы заплатили $service ту же сумму $ago назад';
+  }
+
+  @override
+  String get deskInvPayerSameBillText =>
+      'Убедитесь, что это новый счёт, прежде чем платить.';
+
+  @override
+  String deskInvPayerAgoHours(int hours, int minutes) {
+    return '$hours ч $minutes мин';
+  }
+
+  @override
+  String deskInvPayerAgoMinutes(int minutes) {
+    return '$minutes мин';
+  }
+
+  @override
+  String get deskInvPayerFee => 'Комиссия';
+
+  @override
+  String get deskInvPayerTotal => 'Итого';
+
+  @override
+  String get deskInvPayerBalanceAfter => 'Баланс после';
+
+  @override
+  String get deskInvPayerMessageCaption =>
+      'Написано сервисом. Кошелёк это не проверяет.';
+
+  @override
+  String get deskInvPayerPaysTo => 'Платёж для';
+
+  @override
+  String deskInvPayerTrustedSince(String service, String date) {
+    return '$service, в доверенных с $date';
+  }
+
+  @override
+  String get deskInvPayerExpires => 'Истекает';
+
+  @override
+  String get deskInvPayerLockHeight => 'Высота блокировки';
+
+  @override
+  String get deskInvPayerLockNone => 'Нет';
+
+  @override
+  String get deskInvPayerReceived => 'Получено';
+
+  @override
+  String get deskInvPayerShort => 'Недостаточно доступных средств';
+
+  @override
+  String deskInvPayerShortText(String total, String spendable) {
+    return 'Нужно $total EPIC доступных; у вас $spendable EPIC. Средства на подтверждении учитываются после 3 подтверждений.';
+  }
+
+  @override
+  String get deskInvPayerNodeDownTitle => 'Узел не отвечает';
+
+  @override
+  String get deskInvPayerNodeDownText =>
+      'Кошелёк не может проверить средства, поэтому не может заплатить. Одобрение снова заработает, когда узел ответит; другой узел можно выбрать в Настройки › Узел.';
+
+  @override
+  String get deskInvPayerPaid =>
+      'Этот счёт оплачен. По нему больше ничего нельзя заплатить.';
+
+  @override
+  String get deskInvPayerDeclinedText =>
+      'Вы отклонили этот счёт. Ничего не оплачено.';
+
+  @override
+  String get deskInvPayerBack => 'Назад к счетам';
+
+  @override
+  String deskInvPayerApproveTitle(String amount, String fee, String service) {
+    return 'Заплатить $amount EPIC + $fee комиссии $service?';
+  }
+
+  @override
+  String deskInvPayerApproveText(String total) {
+    return '$total EPIC уйдут из кошелька. Введите пароль кошелька для одобрения.';
+  }
+
+  @override
+  String get deskInvPayerPassword => 'Пароль кошелька';
+
+  @override
+  String get deskInvPayerWrongPassword =>
+      'Неверный пароль. Ничего не оплачено.';
+
+  @override
+  String get deskInvPayerEnterPassword => 'Введите пароль кошелька.';
+
+  @override
+  String get deskInvPayerPay => 'Оплатить';
+
+  @override
+  String get deskInvPayerCancel => 'Отмена';
+
+  @override
+  String get deskInvPayerClose => 'Закрыть';
+
+  @override
+  String get deskInvPayerNodeDownPay => 'Узел не отвечает. Ничего не оплачено.';
+
+  @override
+  String get deskInvPayerAlreadyAnswered =>
+      'На этот счёт уже ответили. Больше ничего не оплачено.';
+
+  @override
+  String get deskInvPayerCannotPay =>
+      'Этот счёт нельзя оплатить. Ничего не оплачено.';
+
+  @override
+  String get deskInvPayerNotDeliveredToast => 'Подписано, не доставлено';
+
+  @override
+  String get deskInvPayerNotDeliveredToastText =>
+      'Сервер Epicbox не отвечает. Повторите в разделе Счета › Оплатить; без повторного одобрения.';
+
+  @override
+  String get deskInvPayerRetryFailed => 'Всё ещё не доставлено';
+
+  @override
+  String get deskInvPayerRetryFailedText =>
+      'Сервер Epicbox не отвечает. Платёж остаётся подписанным на этом устройстве.';
+
+  @override
+  String get deskInvPayerCancelTitle => 'Отменить этот платёж?';
+
+  @override
+  String get deskInvPayerCancelText =>
+      'Отмена разблокирует средства здесь. У сервиса остаётся ваш подписанный платёж, и он может завершить его, пока эти средства не будут потрачены снова.';
+
+  @override
+  String deskInvPayerCancelWho(String amount, String service) {
+    return '$amount EPIC для $service';
+  }
+
+  @override
+  String get deskInvPayerKeepPayment => 'Оставить';
+
+  @override
+  String get deskInvPayerOnItsWay => 'Уже в пути: отменить нельзя.';
+
+  @override
+  String get deskInvPayerCannotCheck =>
+      'Сейчас нельзя проверить сеть; попробуйте снова, когда узел будет доступен.';
+
+  @override
+  String get deskInvPayerCancelled => 'Платёж отменён';
+
+  @override
+  String get deskInvPayerCancelledText => 'Ваши средства разблокированы.';
+
+  @override
+  String get deskInvPayerDeclined => 'Счёт отклонён. Ничего не оплачено.';
+
+  @override
+  String get deskInvPayerSpendToSelf => 'Отправить их себе сейчас';
+
+  @override
+  String get deskInvPayerSpendToSelfHelp =>
+      'Делает отмену окончательной: подписанная копия у сервиса больше не сможет завершиться. Требует сетевой комиссии.';
+
+  @override
+  String get deskInvPayerSpentText =>
+      'Ваши средства разблокированы и перемещены внутри этого кошелька. Отмена окончательная.';
+
+  @override
+  String get deskInvPayerSpendFailedText =>
+      'Ваши средства разблокированы, но переместить их не удалось. Отмена ещё не окончательная.';
+
+  @override
+  String get deskInvPayerLocked =>
+      'Этот счёт нельзя оплатить: он заблокирован до более позднего блока. Ничего не оплачено.';
+
+  @override
+  String get deskInvPayerRelayDownPay =>
+      'Сервер Epicbox не отвечает. Ничего не оплачено.';
+
+  @override
+  String get deskInvSetTitle => 'Счета';
+
+  @override
+  String get deskInvSetIntro =>
+      'Доверенные сервисы выставляют счета на адрес для счетов этого кошелька. Ничего не оплачивается, пока вы не одобрите каждый счёт.';
+
+  @override
+  String get deskInvSetAddressLabel => 'Адрес для счетов';
+
+  @override
+  String get deskInvSetAddressWarning =>
+      'Давайте его только доверенным сервисам. Он не принимает платежи.';
+
+  @override
+  String get deskInvSetCopy => 'Копировать';
+
+  @override
+  String get deskInvSetCopied =>
+      'Адрес для счетов скопирован. Давайте его только доверенным сервисам; он не принимает платежи.';
+
+  @override
+  String get deskInvSetQrShow => 'Показать QR';
+
+  @override
+  String get deskInvSetQrHide => 'Скрыть QR';
+
+  @override
+  String get deskInvSetQrLabel => 'QR-код вашего адреса для счетов';
+
+  @override
+  String deskInvSetIndex(int index) {
+    return 'Адрес для счетов $index';
+  }
+
+  @override
+  String get deskInvSetTrusted => 'Доверенные отправители';
+
+  @override
+  String get deskInvSetTrustedNone =>
+      'Нет доверенных отправителей. Счета от всех остальных игнорируются непрочитанными.';
+
+  @override
+  String deskInvSetSince(String date) {
+    return 'В доверенных с $date';
+  }
+
+  @override
+  String get deskInvSetContactTag => 'Контакт';
+
+  @override
+  String get deskInvSetRemove => 'Удалить';
+
+  @override
+  String deskInvSetRemoveTitle(String name) {
+    return 'Больше не доверять $name?';
+  }
+
+  @override
+  String deskInvSetRemoveBody(String name) {
+    return '$name больше не сможет присылать вам счета. Уже ожидающие счета останутся, пока вы не ответите или они не истекут.';
+  }
+
+  @override
+  String deskInvSetRemoved(String name) {
+    return '$name больше не может присылать вам счета.';
+  }
+
+  @override
+  String get deskInvSetKeep => 'Оставить';
+
+  @override
+  String get deskInvSetAdd => 'Доверять отправителю';
+
+  @override
+  String get deskInvSetAddBody =>
+      'Доверенный отправитель может выставлять счета на адрес для счетов этого кошелька. Ничего не оплачивается, пока вы не одобрите каждый счёт паролем кошелька.';
+
+  @override
+  String get deskInvSetName => 'Название';
+
+  @override
+  String get deskInvSetNameMissing => 'Дайте отправителю название.';
+
+  @override
+  String get deskInvSetSenderAddress => 'Его адрес для платежей';
+
+  @override
+  String get deskInvSetSenderMissing =>
+      'Вставьте адрес, который показывает сервис.';
+
+  @override
+  String get deskInvSetSenderInvalid => 'Это не действительный адрес Epicbox.';
+
+  @override
+  String get deskInvSetTrust => 'Доверять';
+
+  @override
+  String deskInvSetAdded(String name) {
+    return '$name теперь может присылать вам счета.';
+  }
+
+  @override
+  String deskInvSetDropped(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          '$count сообщения от недоверенных отправителей проигнорированы непрочитанными.',
+      many:
+          '$count сообщений от недоверенных отправителей проигнорированы непрочитанными.',
+      few:
+          '$count сообщения от недоверенных отправителей проигнорированы непрочитанными.',
+      one:
+          '$count сообщение от недоверенного отправителя проигнорировано непрочитанным.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskInvSetRotate => 'Новый адрес для счетов';
+
+  @override
+  String get deskInvSetRotateHint =>
+      'Сервисы со старым адресом больше не смогут присылать вам счета.';
+
+  @override
+  String get deskInvSetRotateTitle => 'Создать новый адрес для счетов?';
+
+  @override
+  String get deskInvSetRotateBody =>
+      'Сервисы со старым адресом больше не смогут присылать вам счета. Передайте новый каждому сервису, который выставляет вам счета.';
+
+  @override
+  String get deskInvSetRotateConfirm => 'Создать новый адрес';
+
+  @override
+  String get deskInvSetRotated =>
+      'Новый адрес для счетов готов. Передайте его своим сервисам.';
+
+  @override
+  String get deskInvSetExpiry => 'Срок оплаты';
+
+  @override
+  String get deskInvSetExpiryHint =>
+      'Сколько выставленный счёт остаётся оплачиваемым и сколько полученный ждёт вас. Не больше 48 часов.';
+
+  @override
+  String deskInvSetHours(int hours) {
+    return '$hours ч';
+  }
+
+  @override
+  String get deskInvSetCancel => 'Отмена';
+
+  @override
+  String get deskInvSetContactSection => 'Счета';
+
+  @override
+  String get deskInvSetTheirInvoice => 'Адрес для счетов контакта';
+
+  @override
+  String get deskInvSetTheirInvoiceNone =>
+      'Адрес для счетов не сохранён. Попросите его, чтобы выставлять счета.';
+
+  @override
+  String get deskInvSetTrustedSwitch => 'Доверенный для счетов';
+
+  @override
+  String get deskInvSetTrustedSwitchHelp =>
+      'Позволяет этому контакту выставлять вам счета. Ничего не оплачивается, пока вы не одобрите счёт.';
+
+  @override
+  String get deskInvSetIssueNeeds => 'Нужен адрес для счетов контакта.';
+
+  @override
+  String get deskInvSetShare => 'Поделиться адресом счетов';
+
+  @override
+  String get deskInvSetReceiveHint =>
+      'Попросите контакт или сервис заплатить вам. Его кошелёк должен принимать счета.';
+
+  @override
+  String get deskInvSetRestoredHint =>
+      'Восстановили кошелёк из фразы восстановления? Передайте сервисам этот адрес для счетов заново.';
 }

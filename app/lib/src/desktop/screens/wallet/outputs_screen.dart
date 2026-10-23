@@ -49,7 +49,8 @@ String _outputs(int n) => n == 1 ? '1 output' : '$n outputs';
         i++;
       case OutputWord.locked:
         l++;
-      case OutputWord.spent:
+      // An unpaid invoice's output is in no part of the balance.
+      case OutputWord.unpaidInvoice || OutputWord.spent:
         break;
     }
   }
@@ -631,6 +632,7 @@ class _OutputRow extends StatelessWidget {
       OutputWord.spendable => ('Spendable', null, c.ok),
       OutputWord.confirming => ('Confirming', '${o.confirmations} / ${o.confirmationsNeeded}', c.warn),
       OutputWord.finalizing => ('Awaiting finalization', 'waiting for the sender', c.dim),
+      OutputWord.unpaidInvoice => ('Unpaid invoice', 'not in the balance', c.dim),
       OutputWord.immature => ('Immature', o.lockHeight != null && o.lockHeight! > tip ? '${_group(o.lockHeight! - tip)} blocks to go' : null, c.warn),
       OutputWord.mining => ('Mining', null, c.warn),
       OutputWord.locked => ('Locked', o.txId == null ? null : 'by send #${o.txId}', c.dim),
@@ -655,6 +657,7 @@ class _OutputRow extends StatelessWidget {
       OutputWord.spendable => Icon(EIcons.okCircle, size: Ctl.iconSm, color: c.ok),
       OutputWord.confirming => ERing(confirmations: o.confirmations, needed: o.confirmationsNeeded, size: 18.u),
       OutputWord.finalizing => ERing(confirmations: 0, size: 18.u),
+      OutputWord.unpaidInvoice => Icon(EIcons.invoice, size: Ctl.iconSm, color: c.dim),
       OutputWord.immature || OutputWord.mining => Icon(EIcons.sand, size: Ctl.iconSm, color: c.warn),
       OutputWord.locked => Icon(EIcons.lock, size: Ctl.iconSm, color: c.dim),
       OutputWord.spent => Icon(EIcons.minusCircle, size: Ctl.iconSm, color: c.faint),

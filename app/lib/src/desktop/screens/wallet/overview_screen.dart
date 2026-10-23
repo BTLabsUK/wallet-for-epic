@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../app/tour.dart';
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../widgets/kit.dart';
+import '../invoices/overview_card.dart';
 import '../settings/backup.dart' show HistoryReminder, historyBackupProvider;
 import '../settings/prefs.dart' show settingsPrefsProvider;
 import 'tx_display.dart';
@@ -159,6 +160,7 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
           SizedBox(height: Sp.x2),
           recent,
           if (pending > 0) _PendingFiles(count: pending),
+          const OverviewInvoicesCard(),
         ],
       ),
     );
