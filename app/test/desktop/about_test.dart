@@ -66,14 +66,20 @@ void main() {
   testWidgets('Community opens Telegram and epiccash.com in the browser', (tester) async {
     final (_, opened) = await pump(tester, (_) async => (404, ''));
     await tester.tap(find.widgetWithText(EButton, 'Open').first);
-    await tester.tap(find.widgetWithText(EButton, 'Open').last);
+    await tester.tap(find.widgetWithText(EButton, 'Open').at(1));
     await tester.pumpAndSettle();
     expect(opened, ['https://t.me/EpicCash', 'https://epiccash.com']);
     expect(find.text('Telegram'), findsOneWidget);
   });
 
-  testWidgets('Licences opens the licence page', (tester) async {
+  testWidgets('Licences: one line per component, the tor source note, and View opens the full texts', (tester) async {
     await pump(tester, (_) async => (404, ''));
+    expect(find.text('Licences'), findsOneWidget);
+    expect(find.textContaining('Tor: GNU General Public License, version 3.'), findsOneWidget);
+    expect(find.textContaining('LEPIC, the Epic Cash wallet library: Apache 2.0'), findsOneWidget);
+    expect(find.textContaining('Flutter and its Dart packages'), findsOneWidget);
+    expect(find.textContaining('tor 0.4.9.14, unmodified'), findsOneWidget, reason: 'the GPL notice with the source');
+    expect(find.text('Credits'), findsNothing);
     await tester.ensureVisible(find.widgetWithText(EButton, 'View'));
     await tester.tap(find.widgetWithText(EButton, 'View'));
     await tester.pumpAndSettle();

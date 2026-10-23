@@ -11,7 +11,9 @@ import '../phone_tor.dart';
 import '../tor_phone.dart';
 import '../tor_routes.dart';
 import '../wallet_service.dart';
+import 'info_hint.dart';
 import 'theme/tokens.dart';
+
 
 /// Tor's icon wherever a method or a status needs one: a private connection.
 const IconData torIcon = Icons.private_connectivity;
@@ -123,18 +125,9 @@ Color torWordColor(WalletTokens t, TorState state) => switch (state) {
   TorState.failed => t.risk,
 };
 
-/// What the switch carries through Tor in this build, from [torCovered]: one line, so it
-/// stays true as more connections join.
-String torCoversLine(AppLocalizations l) {
-  if (torCovered.containsAll(const {TorRoute.node, TorRoute.appHttp})) {
-    return l.torCoversAll;
-  }
-  if (torCovered.contains(TorRoute.node)) return l.torCoversEpicboxNode;
-  return l.torCoversEpicbox;
-}
-
 /// Settings › Privacy's one Tor switch: the phone's per-wallet switch ([PhoneTor.setReceiving]).
-/// Its line says what it covers; with Tor not connected it reads "Not connected" with Retry.
+/// The row is the label "Tor Network" with the explanation behind its info icon; its line
+/// shows only a state that needs saying: "Starting…", or "Not connected" with Retry.
 /// No confirmation and no other change: Tor on routes, nothing the user chose moves.
 class TorSwitchTile extends ConsumerWidget {
   const TorSwitchTile({super.key});
@@ -154,22 +147,21 @@ class TorSwitchTile extends ConsumerWidget {
         SwitchListTile(
           key: torReceivingSwitchKey,
           secondary: const Icon(torIcon),
-          title: Text(l.netStatusTor),
-          subtitle: Semantics(
-            key: torStatusKey,
-            liveRegion: true,
-            container: true,
-            child: Text(
-              switch (state) {
-                TorState.failed => l.torWordNotConnected,
-                TorState.starting => '${l.torWordStarting} ${torCoversLine(l)}',
-                _ => torCoversLine(l),
-              },
-              style: failed
-                  ? theme.textTheme.bodyMedium?.copyWith(color: t.risk)
-                  : null,
+          title: TitleWithHint(l.torNetworkLabel, hint: l.torNetworkHint),
+          subtitle: switch (state) {
+            TorState.failed || TorState.starting => Semantics(
+              key: torStatusKey,
+              liveRegion: true,
+              container: true,
+              child: Text(
+                failed ? l.torWordNotConnected : l.torWordStarting,
+                style: failed
+                    ? theme.textTheme.bodyMedium?.copyWith(color: t.risk)
+                    : null,
+              ),
             ),
-          ),
+            _ => null,
+          },
           value: tor.receiving,
           onChanged: busy
               ? null

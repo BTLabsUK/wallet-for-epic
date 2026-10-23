@@ -3216,7 +3216,31 @@ class AppLocalizationsRu extends AppLocalizations {
   String get settingsLicences => 'Лицензии';
 
   @override
-  String get settingsLicencesHint => 'Открытое ПО в этом кошельке';
+  String get licencesLead =>
+      'Открытое ПО в этом кошельке. Каждый компонент сохраняет свою лицензию; полные тексты в одном касании.';
+
+  @override
+  String get licencesApp =>
+      'Epic Wallet от BT Labs, открытый код. Код на GitHub.';
+
+  @override
+  String get licencesFlutter =>
+      'Flutter и его пакеты Dart: BSD 3-Clause и похожие разрешительные лицензии.';
+
+  @override
+  String get licencesLepic =>
+      'LEPIC, библиотека кошелька Epic Cash: Apache 2.0, с форком secp256k1-zkp от Epic Cash (CC0) и крейтами Rust под MIT или Apache 2.0, среди них tokio, rustls, rusqlite и blake2.';
+
+  @override
+  String get licencesTor =>
+      'Tor: GNU General Public License, версия 3. Исходный код указан ниже.';
+
+  @override
+  String get licencesFonts =>
+      'Шрифты Montserrat и JetBrains Mono: SIL Open Font License 1.1.';
+
+  @override
+  String get licencesFull => 'Все тексты лицензий';
 
   @override
   String get settingsCopyLink => 'Копировать ссылку';
@@ -3358,7 +3382,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get settingsUseStatusSiteSubtitle =>
-      'Состояние серверов и списки узлов. Выкл.: запросы только к самим серверам.';
+      'Состояние сети и информация предоставляются status.btlabs.uk';
 
   @override
   String get txStepStarted => 'Платёж начат';
@@ -6015,19 +6039,14 @@ class AppLocalizationsRu extends AppLocalizations {
   String get torWordNotConnected => 'Нет подключения';
 
   @override
-  String get torCoversEpicbox =>
-      'Epicbox и отправки на адреса onion идут через Tor.';
-
-  @override
-  String get torCoversEpicboxNode =>
-      'Epicbox, узел и отправки на адреса onion идут через Tor.';
-
-  @override
-  String get torCoversAll =>
-      'Epicbox, узел, отправки onion и собственные запросы приложения идут через Tor.';
-
-  @override
   String get torSettingsLink => 'Настройки Tor';
+
+  @override
+  String get torNetworkLabel => 'Сеть Tor';
+
+  @override
+  String get torNetworkHint =>
+      'Сетевая активность идёт через сеть Tor. Tor скрывает интернет-адрес кошелька: каждое соединение проходит через несколько добровольческих узлов, и ни один сервер не узнаёт, где находится кошелёк.';
 
   @override
   String get receiveTabDirect => 'Напрямую';

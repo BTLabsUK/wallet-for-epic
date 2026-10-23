@@ -3402,7 +3402,7 @@
   },
   "settingsInvoicesSubtitle": "Let services you trust bill you. You approve every invoice.",
   "@settingsInvoicesSubtitle": {
-    "description": "Hint under the invoice settings row."
+    "description": "Tooltip of the Invoice address and trusted services row (its info icon)."
   },
   "invoiceSettingsTitle": "Invoices",
   "@invoiceSettingsTitle": {
@@ -3685,7 +3685,7 @@
   },
   "settingsSendFeedbackHint": "Report a problem or suggest an idea",
   "@settingsSendFeedbackHint": {
-    "description": "Under the Send feedback row."
+    "description": "Tooltip of the Send feedback row (its info icon)."
   },
   "settingsSourceCode": "Source code",
   "@settingsSourceCode": {
@@ -3693,11 +3693,35 @@
   },
   "settingsLicences": "Licences",
   "@settingsLicences": {
-    "description": "Settings › About row that opens the list of licences of the open-source software the app includes (tor, fonts, word lists, packages)."
+    "description": "Settings › About row that opens the short Licences screen: the app, Flutter, LEPIC, Tor and the fonts in one line each, with a link to every full text."
   },
-  "settingsLicencesHint": "Open-source software in this wallet",
-  "@settingsLicencesHint": {
-    "description": "Under the Licences row. Not \"app\": the web demo shows this row too and never calls itself an app."
+  "licencesLead": "Open-source software in this wallet. Each component keeps its own licence; the full texts are one tap away.",
+  "@licencesLead": {
+    "description": "Licences screen: the first paragraph."
+  },
+  "licencesApp": "Epic Wallet by BT Labs, open source. The code is on GitHub.",
+  "@licencesApp": {
+    "description": "Licences screen: the wallet itself. Not \"app\" on its own: the web demo shows this screen too."
+  },
+  "licencesFlutter": "Flutter and its Dart packages: BSD 3-Clause and similar permissive licences.",
+  "@licencesFlutter": {
+    "description": "Licences screen: one line for Flutter and the Dart packages."
+  },
+  "licencesLepic": "LEPIC, the Epic Cash wallet library: Apache 2.0, with the Epic Cash secp256k1-zkp fork (CC0) and Rust crates under MIT or Apache 2.0, among them tokio, rustls, rusqlite and blake2.",
+  "@licencesLepic": {
+    "description": "Licences screen: one line for LEPIC and its key Rust crates. Keep the crate names as they are."
+  },
+  "licencesTor": "Tor: GNU General Public License, version 3. Its source is named below.",
+  "@licencesTor": {
+    "description": "Licences screen: one line for Tor; the English source note with the version and URLs follows it."
+  },
+  "licencesFonts": "Fonts Montserrat and JetBrains Mono: SIL Open Font License 1.1.",
+  "@licencesFonts": {
+    "description": "Licences screen: one line for the bundled fonts. Keep the font names as they are."
+  },
+  "licencesFull": "All licence texts",
+  "@licencesFull": {
+    "description": "Licences screen button that opens the full texts of every licence (Flutter’s licence page)."
   },
   "settingsCopyLink": "Copy link",
   "@settingsCopyLink": {
@@ -3861,7 +3885,7 @@
   },
   "settingsAdvancedOptionsSubtitle": "Technical details, files and logs",
   "@settingsAdvancedOptionsSubtitle": {
-    "description": "Under the Advanced options switch: what it shows. epicbox is a proper name."
+    "description": "Tooltip of the Advanced options switch (its info icon)."
   },
   "settingsSectionPrivacy": "Privacy",
   "@settingsSectionPrivacy": {
@@ -3871,9 +3895,9 @@
   "@settingsUseStatusSite": {
     "description": "Settings switch: read server health and node lists from the status.btlabs.uk monitor. Keep status.btlabs.uk as it is."
   },
-  "settingsUseStatusSiteSubtitle": "Server health and node lists. Off: only the servers themselves are asked.",
+  "settingsUseStatusSiteSubtitle": "Network status and information provided by status.btlabs.uk",
   "@settingsUseStatusSiteSubtitle": {
-    "description": "Under the Use status.btlabs.uk switch: what it gives, and what happens when it is off."
+    "description": "Tooltip of the Use status.btlabs.uk switch (its info icon). Keep status.btlabs.uk as it is."
   },
   "txStepStarted": "Payment started",
   "@txStepStarted": {
@@ -7363,21 +7387,17 @@
   "@torWordNotConnected": {
     "description": "Tor state word: Tor is on but could not connect."
   },
-  "torCoversEpicbox": "Epicbox and onion sends go through Tor.",
-  "@torCoversEpicbox": {
-    "description": "Settings › Privacy › Tor subtitle: what the switch routes through Tor in this build."
-  },
-  "torCoversEpicboxNode": "Epicbox, the node and onion sends go through Tor.",
-  "@torCoversEpicboxNode": {
-    "description": "Settings › Privacy › Tor subtitle once the node is covered too."
-  },
-  "torCoversAll": "Epicbox, the node, onion sends and the app’s own requests go through Tor.",
-  "@torCoversAll": {
-    "description": "Settings › Privacy › Tor subtitle once the node and the app's own requests are covered."
-  },
   "torSettingsLink": "Tor settings",
   "@torSettingsLink": {
     "description": "Text link on Receive's Direct tab to Settings › Privacy."
+  },
+  "torNetworkLabel": "Tor Network",
+  "@torNetworkLabel": {
+    "description": "The one Tor switch (Settings › Privacy) and the status card’s Tor row: the label, with no description in the row."
+  },
+  "torNetworkHint": "Network activity goes through the Tor network. Tor hides the wallet’s internet address: each connection passes through several volunteer-run relays, so no server learns where the wallet is.",
+  "@torNetworkHint": {
+    "description": "Tooltip of the Tor Network switch and status row (its info icon): what the switch does and what Tor is, in plain words. Never list what does not go over Tor."
   },
   "receiveTabDirect": "Direct",
   "@receiveTabDirect": {

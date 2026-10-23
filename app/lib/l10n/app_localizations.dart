@@ -4250,7 +4250,7 @@ abstract class AppLocalizations {
   /// **'Invoice address and trusted services'**
   String get settingsInvoices;
 
-  /// Hint under the invoice settings row.
+  /// Tooltip of the Invoice address and trusted services row (its info icon).
   ///
   /// In en, this message translates to:
   /// **'Let services you trust bill you. You approve every invoice.'**
@@ -4622,7 +4622,7 @@ abstract class AppLocalizations {
   /// **'Send feedback'**
   String get settingsSendFeedback;
 
-  /// Under the Send feedback row.
+  /// Tooltip of the Send feedback row (its info icon).
   ///
   /// In en, this message translates to:
   /// **'Report a problem or suggest an idea'**
@@ -4634,17 +4634,53 @@ abstract class AppLocalizations {
   /// **'Source code'**
   String get settingsSourceCode;
 
-  /// Settings › About row that opens the list of licences of the open-source software the app includes (tor, fonts, word lists, packages).
+  /// Settings › About row that opens the short Licences screen: the app, Flutter, LEPIC, Tor and the fonts in one line each, with a link to every full text.
   ///
   /// In en, this message translates to:
   /// **'Licences'**
   String get settingsLicences;
 
-  /// Under the Licences row. Not "app": the web demo shows this row too and never calls itself an app.
+  /// Licences screen: the first paragraph.
   ///
   /// In en, this message translates to:
-  /// **'Open-source software in this wallet'**
-  String get settingsLicencesHint;
+  /// **'Open-source software in this wallet. Each component keeps its own licence; the full texts are one tap away.'**
+  String get licencesLead;
+
+  /// Licences screen: the wallet itself. Not "app" on its own: the web demo shows this screen too.
+  ///
+  /// In en, this message translates to:
+  /// **'Epic Wallet by BT Labs, open source. The code is on GitHub.'**
+  String get licencesApp;
+
+  /// Licences screen: one line for Flutter and the Dart packages.
+  ///
+  /// In en, this message translates to:
+  /// **'Flutter and its Dart packages: BSD 3-Clause and similar permissive licences.'**
+  String get licencesFlutter;
+
+  /// Licences screen: one line for LEPIC and its key Rust crates. Keep the crate names as they are.
+  ///
+  /// In en, this message translates to:
+  /// **'LEPIC, the Epic Cash wallet library: Apache 2.0, with the Epic Cash secp256k1-zkp fork (CC0) and Rust crates under MIT or Apache 2.0, among them tokio, rustls, rusqlite and blake2.'**
+  String get licencesLepic;
+
+  /// Licences screen: one line for Tor; the English source note with the version and URLs follows it.
+  ///
+  /// In en, this message translates to:
+  /// **'Tor: GNU General Public License, version 3. Its source is named below.'**
+  String get licencesTor;
+
+  /// Licences screen: one line for the bundled fonts. Keep the font names as they are.
+  ///
+  /// In en, this message translates to:
+  /// **'Fonts Montserrat and JetBrains Mono: SIL Open Font License 1.1.'**
+  String get licencesFonts;
+
+  /// Licences screen button that opens the full texts of every licence (Flutter’s licence page).
+  ///
+  /// In en, this message translates to:
+  /// **'All licence texts'**
+  String get licencesFull;
 
   /// Screen-reader label of the copy icon on a link row.
   ///
@@ -4862,7 +4898,7 @@ abstract class AppLocalizations {
   /// **'Advanced options'**
   String get settingsAdvancedOptions;
 
-  /// Under the Advanced options switch: what it shows. epicbox is a proper name.
+  /// Tooltip of the Advanced options switch (its info icon).
   ///
   /// In en, this message translates to:
   /// **'Technical details, files and logs'**
@@ -4880,10 +4916,10 @@ abstract class AppLocalizations {
   /// **'Use status.btlabs.uk'**
   String get settingsUseStatusSite;
 
-  /// Under the Use status.btlabs.uk switch: what it gives, and what happens when it is off.
+  /// Tooltip of the Use status.btlabs.uk switch (its info icon). Keep status.btlabs.uk as it is.
   ///
   /// In en, this message translates to:
-  /// **'Server health and node lists. Off: only the servers themselves are asked.'**
+  /// **'Network status and information provided by status.btlabs.uk'**
   String get settingsUseStatusSiteSubtitle;
 
   /// Payment details timeline, first step of a send: we created it and set the funds aside.
@@ -9079,29 +9115,23 @@ abstract class AppLocalizations {
   /// **'Not connected'**
   String get torWordNotConnected;
 
-  /// Settings › Privacy › Tor subtitle: what the switch routes through Tor in this build.
-  ///
-  /// In en, this message translates to:
-  /// **'Epicbox and onion sends go through Tor.'**
-  String get torCoversEpicbox;
-
-  /// Settings › Privacy › Tor subtitle once the node is covered too.
-  ///
-  /// In en, this message translates to:
-  /// **'Epicbox, the node and onion sends go through Tor.'**
-  String get torCoversEpicboxNode;
-
-  /// Settings › Privacy › Tor subtitle once the node and the app's own requests are covered.
-  ///
-  /// In en, this message translates to:
-  /// **'Epicbox, the node, onion sends and the app’s own requests go through Tor.'**
-  String get torCoversAll;
-
   /// Text link on Receive's Direct tab to Settings › Privacy.
   ///
   /// In en, this message translates to:
   /// **'Tor settings'**
   String get torSettingsLink;
+
+  /// The one Tor switch (Settings › Privacy) and the status card’s Tor row: the label, with no description in the row.
+  ///
+  /// In en, this message translates to:
+  /// **'Tor Network'**
+  String get torNetworkLabel;
+
+  /// Tooltip of the Tor Network switch and status row (its info icon): what the switch does and what Tor is, in plain words. Never list what does not go over Tor.
+  ///
+  /// In en, this message translates to:
+  /// **'Network activity goes through the Tor network. Tor hides the wallet’s internet address: each connection passes through several volunteer-run relays, so no server learns where the wallet is.'**
+  String get torNetworkHint;
 
   /// Receive tab: receiving straight to this wallet at its onion address.
   ///

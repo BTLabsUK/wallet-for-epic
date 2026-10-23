@@ -3087,7 +3087,31 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsLicences => 'Licences';
 
   @override
-  String get settingsLicencesHint => 'Open-source software in this wallet';
+  String get licencesLead =>
+      'Open-source software in this wallet. Each component keeps its own licence; the full texts are one tap away.';
+
+  @override
+  String get licencesApp =>
+      'Epic Wallet by BT Labs, open source. The code is on GitHub.';
+
+  @override
+  String get licencesFlutter =>
+      'Flutter and its Dart packages: BSD 3-Clause and similar permissive licences.';
+
+  @override
+  String get licencesLepic =>
+      'LEPIC, the Epic Cash wallet library: Apache 2.0, with the Epic Cash secp256k1-zkp fork (CC0) and Rust crates under MIT or Apache 2.0, among them tokio, rustls, rusqlite and blake2.';
+
+  @override
+  String get licencesTor =>
+      'Tor: GNU General Public License, version 3. Its source is named below.';
+
+  @override
+  String get licencesFonts =>
+      'Fonts Montserrat and JetBrains Mono: SIL Open Font License 1.1.';
+
+  @override
+  String get licencesFull => 'All licence texts';
 
   @override
   String get settingsCopyLink => 'Copy link';
@@ -3226,7 +3250,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsUseStatusSiteSubtitle =>
-      'Server health and node lists. Off: only the servers themselves are asked.';
+      'Network status and information provided by status.btlabs.uk';
 
   @override
   String get txStepStarted => 'Payment started';
@@ -5832,18 +5856,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get torWordNotConnected => 'Not connected';
 
   @override
-  String get torCoversEpicbox => 'Epicbox and onion sends go through Tor.';
-
-  @override
-  String get torCoversEpicboxNode =>
-      'Epicbox, the node and onion sends go through Tor.';
-
-  @override
-  String get torCoversAll =>
-      'Epicbox, the node, onion sends and the app’s own requests go through Tor.';
-
-  @override
   String get torSettingsLink => 'Tor settings';
+
+  @override
+  String get torNetworkLabel => 'Tor Network';
+
+  @override
+  String get torNetworkHint =>
+      'Network activity goes through the Tor network. Tor hides the wallet’s internet address: each connection passes through several volunteer-run relays, so no server learns where the wallet is.';
 
   @override
   String get receiveTabDirect => 'Direct';

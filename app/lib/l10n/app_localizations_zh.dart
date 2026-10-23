@@ -2904,7 +2904,26 @@ class AppLocalizationsZh extends AppLocalizations {
   String get settingsLicences => '许可证';
 
   @override
-  String get settingsLicencesHint => '本钱包包含的开源软件';
+  String get licencesLead => '本钱包包含的开源软件。每个组件保留各自的许可证；完整文本一键可达。';
+
+  @override
+  String get licencesApp => 'Epic Wallet，由 BT Labs 开发，开源。代码在 GitHub 上。';
+
+  @override
+  String get licencesFlutter => 'Flutter 及其 Dart 软件包：BSD 3-Clause 及类似的宽松许可证。';
+
+  @override
+  String get licencesLepic =>
+      'LEPIC，Epic Cash 钱包库：Apache 2.0，包含 Epic Cash 的 secp256k1-zkp 分支（CC0）以及 MIT 或 Apache 2.0 许可的 Rust crate，其中有 tokio、rustls、rusqlite 和 blake2。';
+
+  @override
+  String get licencesTor => 'Tor：GNU 通用公共许可证第 3 版。其源代码见下文。';
+
+  @override
+  String get licencesFonts => '字体 Montserrat 和 JetBrains Mono：SIL 开放字体许可证 1.1。';
+
+  @override
+  String get licencesFull => '全部许可证文本';
 
   @override
   String get settingsCopyLink => '复制链接';
@@ -3035,7 +3054,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get settingsUseStatusSite => '使用 status.btlabs.uk';
 
   @override
-  String get settingsUseStatusSiteSubtitle => '服务器状态和节点列表。关闭：只询问服务器本身。';
+  String get settingsUseStatusSiteSubtitle => '网络状态和信息由 status.btlabs.uk 提供';
 
   @override
   String get txStepStarted => '付款已发起';
@@ -5491,16 +5510,14 @@ class AppLocalizationsZh extends AppLocalizations {
   String get torWordNotConnected => '未连接';
 
   @override
-  String get torCoversEpicbox => 'Epicbox 和发往 onion 地址的付款经由 Tor。';
-
-  @override
-  String get torCoversEpicboxNode => 'Epicbox、节点和发往 onion 地址的付款经由 Tor。';
-
-  @override
-  String get torCoversAll => 'Epicbox、节点、onion 发送和应用自身的请求都通过 Tor。';
-
-  @override
   String get torSettingsLink => 'Tor 设置';
+
+  @override
+  String get torNetworkLabel => 'Tor 网络';
+
+  @override
+  String get torNetworkHint =>
+      '网络活动经由 Tor 网络。Tor 隐藏钱包的互联网地址：每个连接都经过多个志愿者运营的中继，因此没有服务器能得知钱包所在。';
 
   @override
   String get receiveTabDirect => '直连';

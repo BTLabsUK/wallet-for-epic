@@ -572,11 +572,18 @@ class ESetGroup extends StatelessWidget {
 /// A settings row: title and one line on the left, the control on the right; [stacked] puts
 /// the control under the text (wide controls such as a combobox).
 class ESetRow extends StatelessWidget {
-  const ESetRow({super.key, this.title, this.text, this.control, this.stacked = false, this.below});
+  const ESetRow({super.key, this.title, this.text, this.hint, this.control, this.stacked = false, this.below});
 
   /// Null when the group's title already names the row: the text is then the row's head.
   final String? title;
+
+  /// A line under the title: a value or a state. An explanation goes in [hint] instead, so
+  /// the main view shows labels only.
   final String? text;
+
+  /// The row's explanation, behind an info icon after the title (hover or focus shows it; a
+  /// screen reader reads it with the title).
+  final String? hint;
   final Widget? control;
   final bool stacked;
 
@@ -590,7 +597,16 @@ class ESetRow extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (title != null) Text(title!, style: ts.strong),
+        if (title != null && hint == null) Text(title!, style: ts.strong),
+        if (title != null && hint != null)
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Flexible(child: Text(title!, style: ts.strong)),
+              SizedBox(width: Sp.x1),
+              EInfoHint(hint!),
+            ],
+          ),
         if (text != null) ...[
           if (title != null) const SizedBox(height: 2),
           ConstrainedBox(
@@ -623,7 +639,49 @@ class ESetRow extends StatelessWidget {
   }
 }
 
+/// The info icon that carries an explanation: a tooltip on hover and on keyboard focus, and
+/// the text itself for a screen reader. Settings rows use it so the main view shows labels only.
+class EInfoHint extends StatefulWidget {
+  const EInfoHint(this.text, {super.key});
+
+  final String text;
+
+  @override
+  State<EInfoHint> createState() => _EInfoHintState();
+}
+
+class _EInfoHintState extends State<EInfoHint> {
+  final _tip = GlobalKey<TooltipState>();
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.dc;
+    return Tooltip(
+      key: _tip,
+      message: widget.text,
+      child: Focus(
+        onFocusChange: (f) {
+          if (f) _tip.currentState?.ensureTooltipVisible();
+        },
+        child: Semantics(
+          label: widget.text,
+          excludeSemantics: true,
+          child: MouseRegion(
+            cursor: SystemMouseCursors.help,
+            child: SizedBox(
+              width: 20.u,
+              height: 20.u,
+              child: Center(child: Icon(EIcons.info, size: Ctl.iconSm, color: c.dim)),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 /// A 4 px progress bar; null [value] runs indeterminate.
+
 class EProgress extends StatelessWidget {
   const EProgress({super.key, this.value});
 

@@ -138,7 +138,8 @@ List<RailItem> receivingRailItems(ServiceStatus? st, DeskSettings settings) {
         second: tor == TorState.starting ? 'Starting…' : word,
         marker: tor == TorState.starting ? '${st?.torProgress ?? 0} %' : null,
         lines: [
-          if (included) torCoverageText(),
+          if (included) torNetworkHint,
+
           if (tor == TorState.failed && st?.torProblem != null) st!.torProblem!,
           if (tor == TorState.on && st?.tor == ServiceHealth.slow) '${st?.torProblem ?? 'Tor address not published'}. Sends work.',
         ],

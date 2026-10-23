@@ -171,15 +171,20 @@ class WalletBalance extends ConsumerWidget {
       statusTarget,
       _lineHeight(fiatStyle, scaler, context),
     );
-    final eye = IconButton(
-      tooltip: hidden ? l.homeShowBalances : l.homeHideBalances,
-      iconSize: statusGlyph,
-      color: t.dim,
-      icon: Icon(
-        hidden ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+    // The tooltip opens above the eye, over the figure's own row, not over the tiles below.
+    final eye = Tooltip(
+      message: hidden ? l.homeShowBalances : l.homeHideBalances,
+      preferBelow: false,
+      child: IconButton(
+        iconSize: statusGlyph,
+        color: t.dim,
+        icon: Icon(
+          hidden ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+          semanticLabel: hidden ? l.homeShowBalances : l.homeHideBalances,
+        ),
+        onPressed: () =>
+            ref.read(appSettingsProvider.notifier).setHideBalances(!hidden),
       ),
-      onPressed: () =>
-          ref.read(appSettingsProvider.notifier).setHideBalances(!hidden),
     );
     return Semantics(
       container: true,

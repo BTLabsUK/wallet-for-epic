@@ -48,6 +48,9 @@ const Duration autoRefreshInterval = Duration(seconds: 60);
 /// Transactions shown under "Recent activity".
 const int recentActivityCount = 5;
 
+/// The space between the cards of the Wallet tab (tiles, status, destinations, reminders).
+const double homeCardGap = 12;
+
 /// The history backup reminder shows only with at least this many payments not in a backup.
 const int historyReminderMinPayments = 10;
 
@@ -602,33 +605,41 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   children: [
                     // The desktop Overview's tiles, status rows and sidebar, in that order.
                     // The tiles row runs edge to edge; the list's gutter is taken back.
+                    // One gap between every card on the tab, the tiles' own.
                     BalanceTiles(onTap: _openOutputs),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: homeCardGap),
                     const NetworkStatusCard(),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: homeCardGap),
                     HomeDestinations(onOpen: _openDestination),
                     if (scan.running || scan.error != null)
-                      Card(
-                        child: Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: ScanProgressView(scan: scan),
+                      Padding(
+                        padding: const EdgeInsets.only(top: homeCardGap),
+                        child: Card(
+                          margin: EdgeInsets.zero,
+                          child: Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: ScanProgressView(scan: scan),
+                          ),
                         ),
                       ),
                     // The recovery phrase guards the funds, so its card stays on top.
                     if (!backedUp && !backupDismissed && config != null)
                       Padding(
-                        padding: const EdgeInsets.only(bottom: 16),
+                        padding: const EdgeInsets.only(top: homeCardGap),
                         child: _BackupCard(
                           onBackup: _backup,
                           onDismiss: () => dismissBackupCard(ref, config.chain),
                         ),
                       ),
                     if (home.hasError && !home.isLoading)
-                      ErrorText(describeError(l, home.error!)),
+                      Padding(
+                        padding: const EdgeInsets.only(top: homeCardGap),
+                        child: ErrorText(describeError(l, home.error!)),
+                      ),
                     _PendingSendsCard(transactions: transactions, open: _open),
                     if (guide)
                       const Padding(
-                        padding: EdgeInsets.only(top: 16),
+                        padding: EdgeInsets.only(top: homeCardGap),
                         child: DemoGuide(),
                       ),
                     // It waits until the phrase card is gone, so the two backup cards never stack.
@@ -640,6 +651,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         transactions: transactions,
                       ),
                     const SizedBox(height: 16),
+
                     ProtocolSectionHead(
                       l.homeRecentActivity,
                       trailing: transactions.isEmpty
@@ -858,7 +870,7 @@ class _HistoryBackupCard extends ConsumerWidget {
         ? l.homeHistoryNotBackedUp(count)
         : l.homeHistoryChangedSinceBackup(count);
     return Padding(
-      padding: const EdgeInsets.only(top: 16),
+      padding: const EdgeInsets.only(top: homeCardGap),
       child: EdgeCard(
         edge: context.tokens.warn,
         child: Padding(
@@ -976,7 +988,7 @@ class _PendingSendsCard extends ConsumerWidget {
     final l = context.l10n;
     final count = waiting.length;
     return Padding(
-      padding: const EdgeInsets.only(top: 16),
+      padding: const EdgeInsets.only(top: homeCardGap),
       child: EdgeCard(
         edge: context.tokens.accent,
         child: Padding(

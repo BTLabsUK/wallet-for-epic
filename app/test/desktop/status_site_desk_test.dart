@@ -125,7 +125,9 @@ void main() {
     await tester.pump(const Duration(seconds: 1));
     expect(find.text('Status site'), findsOneWidget);
     expect(find.text('Use status.btlabs.uk'), findsOneWidget);
-    expect(find.text('Server health and node lists. Off: only the servers themselves are asked.'), findsOneWidget);
+    // Label only; the sentence is the info icon's tooltip.
+    expect(find.byTooltip('Network status and information provided by status.btlabs.uk'), findsOneWidget);
+    expect(find.textContaining('Server health'), findsNothing);
 
     final toggle = find.descendant(of: find.byType(PrivacyGroup), matching: find.byType(ESwitch));
     await tester.ensureVisible(toggle);

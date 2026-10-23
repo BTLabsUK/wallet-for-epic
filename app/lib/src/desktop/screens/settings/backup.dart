@@ -95,7 +95,7 @@ class _BackupGroupState extends ConsumerState<BackupGroup> {
       rows: [
         ESetRow(
           title: 'Export history backup',
-          text:
+          hint:
               'Payments with their details and contacts, in a file only a wallet with this recovery phrase opens. '
               'The phrase alone brings back the balance, not the records.',
           below: Padding(
@@ -114,7 +114,7 @@ class _BackupGroupState extends ConsumerState<BackupGroup> {
         ),
         ESetRow(
           title: 'Import history backup',
-          text: 'Merges a backup of this wallet into Activity. Nothing is removed; the same file twice changes nothing.',
+          hint: 'Merges a backup of this wallet into Activity. Nothing is removed; the same file twice changes nothing.',
           control: ERowControl(
             child: EButton(
               label: 'Import…',
@@ -126,7 +126,7 @@ class _BackupGroupState extends ConsumerState<BackupGroup> {
         ),
         ESetRow(
           title: 'Payments as CSV',
-          text: 'A plain table for spreadsheets. Not encrypted, not importable.',
+          hint: 'A plain table for spreadsheets. Not encrypted, not importable.',
           control: ERowControl(
             child: EButton(
               label: 'Export CSV…',

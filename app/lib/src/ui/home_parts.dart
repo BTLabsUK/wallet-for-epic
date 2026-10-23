@@ -106,16 +106,23 @@ const Key balanceTilesKey = ValueKey('balance-tiles');
 /// A tile's key, for tests.
 Key balanceTileKey(BalanceKind kind) => ValueKey('balance-tile-${kind.name}');
 
-/// The tiles of the open wallet's balance on one horizontally scrolling row, the leading edge
-/// at the page gutter and the trailing edge faded. A tap on a tile with a value calls [onTap]
-/// with its kind (Home opens Outputs with the matching filter).
+/// The tiles of the open wallet's balance in a grid that fits the width: as many columns as
+/// [width]-wide tiles fit (two on a phone), equal widths, and the last tile alone on its row
+/// takes the whole row, as the desktop Overview's breakdown does. Nothing scrolls sideways and
+/// no tile is ever cut. A tap on a tile with a value calls [onTap] with its kind (Home opens
+/// Outputs with the matching filter).
 class BalanceTiles extends ConsumerWidget {
   const BalanceTiles({super.key, required this.onTap});
 
   final void Function(BalanceKind kind) onTap;
 
-  /// A tile's least width, the row's least height and the gap between tiles.
-  static const double width = 120, height = 68, gap = 10;
+  /// A tile's least width, a row's least height and the gap between tiles.
+  static const double width = 150, height = 68, gap = 10;
+
+  /// How many columns [tiles] tiles take at [maxWidth]: as many [width]-wide tiles as fit,
+  /// at least one, never more than there are tiles.
+  static int columns(double maxWidth, int tiles) =>
+      ((maxWidth + gap) / (width + gap)).floor().clamp(1, math.max(1, tiles));
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -135,44 +142,55 @@ class BalanceTiles extends ConsumerWidget {
       height,
       24 + scaler.scale(12) * 1.4 + 4 + scaler.scale(15) * 1.2,
     );
-    return SizedBox(
+    Widget tile(BalanceTileData tile) {
+      final value = tile.value;
+      final text = value == null
+          ? null
+          : hidden
+          ? hiddenAmount
+          : localDigits(l, displayEpic(value));
+      return _BalanceTile(
+        key: balanceTileKey(tile.kind),
+        icon: tile.icon,
+        label: tile.label,
+        value: text,
+        accent: tile.kind == BalanceKind.confirming,
+        onTap: value == null ? null : () => onTap(tile.kind),
+        semanticsLabel: text == null
+            ? tile.label
+            : l.balanceHelpRow(tile.label, text),
+      );
+    }
+
+    return LayoutBuilder(
       key: balanceTilesKey,
-      height: rowHeight,
-      child: ShaderMask(
-        shaderCallback: (bounds) => LinearGradient(
-          begin: AlignmentDirectional.centerStart,
-          end: AlignmentDirectional.centerEnd,
-          colors: const [Colors.white, Colors.white, Colors.transparent],
-          stops: [0, 1 - 20 / bounds.width, 1],
-        ).createShader(bounds, textDirection: Directionality.of(context)),
-        blendMode: BlendMode.dstIn,
-        child: ListView.separated(
-          scrollDirection: Axis.horizontal,
-          padding: const EdgeInsetsDirectional.only(end: 24),
-          itemCount: tiles.length,
-          separatorBuilder: (_, _) => const SizedBox(width: gap),
-          itemBuilder: (context, i) {
-            final tile = tiles[i];
-            final value = tile.value;
-            final text = value == null
-                ? null
-                : hidden
-                ? hiddenAmount
-                : localDigits(l, displayEpic(value));
-            return _BalanceTile(
-              key: balanceTileKey(tile.kind),
-              icon: tile.icon,
-              label: tile.label,
-              value: text,
-              accent: tile.kind == BalanceKind.confirming,
-              onTap: value == null ? null : () => onTap(tile.kind),
-              semanticsLabel: text == null
-                  ? tile.label
-                  : l.balanceHelpRow(tile.label, text),
-            );
-          },
-        ),
-      ),
+      builder: (context, box) {
+        final cols = columns(box.maxWidth, tiles.length);
+        final rows = <List<BalanceTileData>>[
+          for (var i = 0; i < tiles.length; i += cols)
+            tiles.sublist(i, math.min(i + cols, tiles.length)),
+        ];
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            for (final (r, row) in rows.indexed) ...[
+              if (r > 0) const SizedBox(height: gap),
+              SizedBox(
+                height: rowHeight,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    for (final (i, t) in row.indexed) ...[
+                      if (i > 0) const SizedBox(width: gap),
+                      Expanded(child: tile(t)),
+                    ],
+                  ],
+                ),
+              ),
+            ],
+          ],
+        );
+      },
     );
   }
 }
@@ -226,13 +244,10 @@ class _BalanceTile extends StatelessWidget {
         clipBehavior: Clip.antiAlias,
         child: InkWell(
           onTap: onTap,
-          // As wide as its label, never narrower than [BalanceTiles.width]: a label is
-          // never cut.
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(
-              minWidth: BalanceTiles.width,
-              maxWidth: 220,
-            ),
+          // The grid gives every tile its column's width; the label fits it or shrinks a
+          // little before it would be cut.
+          child: SizedBox(
+            width: double.infinity,
             child: Padding(
               padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
               child: Column(
@@ -254,13 +269,17 @@ class _BalanceTile extends StatelessWidget {
                       ),
                       const SizedBox(width: 6),
                       Flexible(
-                        child: Text(
-                          label,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: labelStyle,
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          alignment: AlignmentDirectional.centerStart,
+                          child: Text(
+                            label,
+                            maxLines: 1,
+                            style: labelStyle,
+                          ),
                         ),
                       ),
+
                     ],
                   ),
                   if (value != null) ...[
