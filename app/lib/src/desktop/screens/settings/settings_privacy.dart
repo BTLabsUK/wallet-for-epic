@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -6,6 +8,9 @@ import '../../data/tor_view.dart';
 import '../../widgets/kit.dart';
 import 'prefs.dart';
 import 'settings_frame.dart';
+
+/// The tour's Tor states: on, starting, not connected (laid over the mock's status).
+enum PrivacyDemo { torOn, torStarting, torFailed }
 
 /// Settings › Privacy: the one Tor switch (what it covers is `tor_routes.dart`'s) and whether
 /// status.btlabs.uk is asked.
@@ -20,7 +25,7 @@ class SettingsPrivacyScreen extends ConsumerWidget {
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        if (DeskFeatures.tor) ...[const TorGroup(), SizedBox(height: Sp.x6)],
+        if (DeskFeatures.tor) ...[TorGroup(demo: arg is PrivacyDemo ? arg as PrivacyDemo : null), SizedBox(height: Sp.x6)],
         const PrivacyGroup(),
       ],
     ),
@@ -29,7 +34,9 @@ class SettingsPrivacyScreen extends ConsumerWidget {
 
 /// The Tor switch with its state line; Retry and Turn Tor off when it is not connected.
 class TorGroup extends ConsumerStatefulWidget {
-  const TorGroup({super.key});
+  const TorGroup({super.key, this.demo});
+
+  final PrivacyDemo? demo;
 
   @override
   ConsumerState<TorGroup> createState() => _TorGroupState();
@@ -37,6 +44,48 @@ class TorGroup extends ConsumerStatefulWidget {
 
 class _TorGroupState extends ConsumerState<TorGroup> {
   bool _busy = false;
+
+  DeskController? _demoNotifier;
+
+  @override
+  void initState() {
+    super.initState();
+    // The tour turns Tor on for the shot and off again after, for the shots that follow.
+    if (widget.demo != null) {
+      final n = ref.read(deskProvider.notifier);
+      _demoNotifier = n;
+      Future.microtask(() => n.setTor(true));
+    }
+  }
+
+  @override
+  void dispose() {
+    final n = _demoNotifier;
+    if (n != null) unawaited(n.setTor(false));
+    super.dispose();
+  }
+
+  /// The real status with the tour's starting and failed states laid over it.
+  ServiceStatus? _status(ServiceStatus? s) {
+    final d = widget.demo;
+    if (s == null || d == null || d == PrivacyDemo.torOn) return s;
+    final failed = d == PrivacyDemo.torFailed;
+    return ServiceStatus(
+      node: s.node,
+      nodeHealth: s.nodeHealth,
+      nodeHeight: s.nodeHeight,
+      epicbox: s.epicbox,
+      epicboxHealth: s.epicboxHealth,
+      httpListener: s.httpListener,
+      tor: failed ? ServiceHealth.down : ServiceHealth.checking,
+      torProgress: failed ? null : 45,
+      torProblem: failed ? 'Tor could not connect to the network' : null,
+      torIncluded: s.torIncluded,
+      syncProgress: s.syncProgress,
+      lastUpdate: s.lastUpdate,
+      notice: s.notice,
+    );
+  }
 
   Future<void> _set(bool on) async {
     setState(() => _busy = true);
@@ -52,9 +101,9 @@ class _TorGroupState extends ConsumerState<TorGroup> {
   @override
   Widget build(BuildContext context) {
     final st = ref.watch(deskProvider);
-    final status = st.status;
+    final status = _status(st.status);
     final included = status?.torIncluded ?? true;
-    final tor = deskTorState(st);
+    final tor = torStateOf(st.settings, status);
     final line = torStateLine(tor, status, included: included);
     return JumpSection(
       section: SettingsJump.tor,

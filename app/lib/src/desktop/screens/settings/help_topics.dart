@@ -221,7 +221,7 @@ List<HelpTopic> helpTopicsFor(int confirmations) => <HelpTopic>[
         'Turn it on under [[Settings › Privacy]]. The Tor row in the sidebar shows its state.',
         'While Tor starts or is not connected, what goes over Tor waits; nothing goes around it. Retry, or turn Tor off.',
         'Direct sends to an http(s) address do not go over Tor; Send says so.',
-        'The HTTP listener is off while Tor is on: Direct payments arrive at the Tor address.',
+        'HTTP receiving is off while Tor is on: payments straight from another wallet arrive at the Tor address.',
         'Tor is blocked or not allowed in some countries; there it does not connect.',
       ]),
       HelpBlock.p('Some wallets show the address without .onion; both are the same address.'),

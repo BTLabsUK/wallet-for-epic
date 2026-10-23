@@ -37,7 +37,7 @@ String _routeName(TorRoute r) => switch (r) {
   TorRoute.httpDirect => 'Direct to http(s)',
   TorRoute.node => 'the node',
   TorRoute.appHttp => 'status and update checks',
-  TorRoute.httpListener => 'the HTTP listener',
+  TorRoute.httpListener => 'HTTP receiving',
   TorRoute.push => 'push',
 };
 
