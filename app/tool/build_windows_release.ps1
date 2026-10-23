@@ -143,7 +143,8 @@ $iss = Join-Path $app 'windows\installer\epic_wallet.iss'
 & $Iscc /Qp "/DSourceDir=$rel" "/DOutputDir=$OutDir" "/DAppVersion=$name" $iss
 if ($LASTEXITCODE) { throw 'ISCC failed' }
 $setup = Join-Path $OutDir "epic-cash-desktop-$name-windows-x64-setup.exe"
-$setupVersion = (Get-Item $setup).VersionInfo.FileVersion
+# Inno Setup pads the string FileVersion with spaces (and a NUL): compare the trimmed text.
+$setupVersion = ((Get-Item $setup).VersionInfo.FileVersion -replace '[\s\x00]', '')
 if ($setupVersion -ne $fileVersion) { throw "the installer's file version is $setupVersion, not $fileVersion" }
 $hash = (Get-FileHash $setup -Algorithm SHA256).Hash.ToLower()
 "$hash  $(Split-Path $setup -Leaf)" | Set-Content -Encoding ascii "$setup.sha256"
