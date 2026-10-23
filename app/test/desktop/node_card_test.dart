@@ -7,6 +7,7 @@ import 'dart:io';
 
 import 'package:epic_wallet/src/desktop/data/desk_node.dart';
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
+import 'package:epic_wallet/src/desktop/data/node_view.dart' show remoteNodeView;
 import 'package:epic_wallet/src/desktop/screens/settings/settings_node.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
@@ -27,8 +28,8 @@ Future<void> _loadFonts() async {
 const _url = 'https://node.epiccash.com:3413';
 final _now = DateTime(2026, 10, 22, 14, 3);
 
-Widget _card(NodeInfo? info, {DateTime? downSince, SwitchTarget? switchTo, ValueChanged<SwitchTarget>? onSwitch}) =>
-    NodeCard(url: _url, info: info, downSince: downSince, switchTo: switchTo, onSwitch: onSwitch, now: _now);
+Widget _card(NodeInfo? info, {ServiceHealth? health, DateTime? downSince, SwitchTarget? switchTo, ValueChanged<SwitchTarget>? onSwitch}) =>
+    NodeCard(url: _url, info: info, health: health, downSince: downSince, switchTo: switchTo, onSwitch: onSwitch, now: _now);
 
 Future<void> _pump(WidgetTester tester, Widget child, {Size size = const Size(1280, 680)}) async {
   tester.view.physicalSize = size;
@@ -181,5 +182,18 @@ void main() {
     expect(find.text('over Tor'), findsOneWidget);
     expect(find.textContaining('from this computer'), findsNothing);
     expect(find.textContaining('latency measured over Tor'), findsOneWidget);
+  });
+
+  testWidgets('the wallet reaches the node over Tor: a failed info probe is not Not answering, nothing to switch', (tester) async {
+    // The info probe over Tor timed out while the wallet synced through the node.
+    final probe = NodeInfo(url: _url, source: NodeInfoSource.none, at: DateTime(2026, 10, 22, 14, 2), state: NodeHealthState.down);
+    await _pump(
+      tester,
+      _card(probe, health: ServiceHealth.ok, switchTo: const SwitchTarget(host: 'node.epicnet.us', url: 'https://node.epicnet.us'), onSwitch: (_) {}),
+    );
+    expect(find.textContaining('Not answering', findRichText: true), findsNothing);
+    expect(find.textContaining('Switch to'), findsNothing);
+    expect(remoteNodeView(_url, probe, health: ServiceHealth.ok).word, 'Synced', reason: 'the rail and the head say the same');
+    expect(remoteNodeView(_url, probe, health: ServiceHealth.down).word, 'Not answering');
   });
 }

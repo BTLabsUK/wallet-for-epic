@@ -466,6 +466,7 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
                     child: NodeCard(
                       url: current.url,
                       info: info,
+                      health: status.nodeHealth,
                       switchTo: best,
                       onSwitch: (t) => _useRemote(t.url),
                     ),

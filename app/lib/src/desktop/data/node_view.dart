@@ -43,11 +43,15 @@ String hhmm(DateTime t) => '${t.hour.toString().padLeft(2, '0')}:${t.minute.toSt
 String percent(double overall) => '${(overall * 100).floor().clamp(0, 99)} %';
 
 /// A remote node from its [NodeInfo] (null: nothing known yet). [health] is the wallet's own
-/// view when the info has not come in.
+/// view when the info has not come in. A node the wallet itself reaches ([health] ok: its tip
+/// check or a sync answered) is never "Not answering" because the info probe failed, as one
+/// over Tor can while the wallet syncs through it.
 NodeView remoteNodeView(String url, NodeInfo? info, {ServiceHealth? health, DateTime? downSince}) {
   final full = nodeHost(url);
   final host = railHost('Node', full);
-  final down = health == ServiceHealth.down || info?.state == NodeHealthState.down || info?.source == NodeInfoSource.none;
+  final probeFailed = info?.state == NodeHealthState.down || info?.source == NodeInfoSource.none;
+  if (probeFailed && health == ServiceHealth.ok) return NodeView(word: 'Synced', state: EState.ok, host: host, lines: [full]);
+  final down = health == ServiceHealth.down || probeFailed;
   if (down) {
     return NodeView(
       word: 'Not answering',

@@ -45,9 +45,12 @@ class SwitchTarget {
 }
 
 class NodeCard extends StatelessWidget {
-  const NodeCard({super.key, required this.url, this.info, this.downSince, this.switchTo, this.onSwitch, this.now});
+  const NodeCard({super.key, required this.url, this.info, this.health, this.downSince, this.switchTo, this.onSwitch, this.now});
 
   final String url;
+
+  /// The wallet's own view of the node: ok keeps a failed info probe from saying it is down.
+  final ServiceHealth? health;
 
   /// Null while nothing has come in yet: every value prints "–".
   final NodeInfo? info;
@@ -65,7 +68,8 @@ class NodeCard extends StatelessWidget {
     final c = context.dc;
     final ts = context.ts;
     final i = info;
-    final v = remoteNodeView(url, i, downSince: downSince);
+    // Only the wallet reaching the node counts here; a down of its own shows in the head and the rail.
+    final v = remoteNodeView(url, i, health: health == ServiceHealth.ok ? health : null, downSince: downSince);
     final host = nodeHost(url);
     final down = v.state == EState.risk;
     final limited = i != null && i.source == NodeInfoSource.limited;
