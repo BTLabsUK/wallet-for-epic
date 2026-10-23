@@ -7454,5 +7454,14 @@
   "torWayNotConnected": "Tor is not connected.",
   "@torWayNotConnected": {
     "description": "Detail after 'Waiting for Tor' when Tor failed: read out and shown as the row's hint."
+  },
+  "sendUsesAllOutputs": "{count, plural, =1{Uses its 1 output · change 1 output} other{Uses all {count} outputs · change 1 output}}",
+  "@sendUsesAllOutputs": {
+    "description": "Line in the payment review when the send spends every spendable output (strategy All) and change comes back: it is always one change output, whatever Split change says.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   }
 }

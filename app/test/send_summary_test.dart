@@ -228,6 +228,24 @@ void main() {
       expect(plan.options, const SendOptions(strategy: SelectionStrategy.all));
     });
 
+    test('All never splits its change, even with SmartOutputs on and few outputs left', () async {
+      final asked = <SendOptions>[];
+      final plan = await planSend(
+        estimate: (o) async {
+          asked.add(o);
+          return SendEstimate(amount: epic, fee: fee, inputCount: 3, change: 99 * epic - fee, locked: 100 * epic, changeOutputs: o.changeOutputs);
+        },
+        strategy: SelectionStrategy.all,
+        smartOutputsOn: true,
+        spendableOutputs: 3,
+        splitRefused: coreRefusedSplit,
+      );
+      expect(asked, const [SendOptions(strategy: SelectionStrategy.all)]);
+      expect(plan.options, const SendOptions(strategy: SelectionStrategy.all));
+      expect(plan.decision.reason, SmartOutputsReason.allStrategy);
+      expect(plan.splits, false);
+    });
+
     test('a split the core refuses falls back to one change output', () async {
       final plan = await planSend(
         estimate: (o) async {

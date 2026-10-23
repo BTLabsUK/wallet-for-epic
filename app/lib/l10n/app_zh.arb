@@ -1515,5 +1515,6 @@
   "pushNoticeAvailable": "通知可在设置中开启。",
   "torWayOver": "经由 Tor",
   "torWayWaiting": "正在等待 Tor",
-  "torWayNotConnected": "Tor 未连接。"
+  "torWayNotConnected": "Tor 未连接。",
+  "sendUsesAllOutputs": "{count, plural, other{使用全部 {count} 个输出 · 找零 1 个输出}}"
 }
