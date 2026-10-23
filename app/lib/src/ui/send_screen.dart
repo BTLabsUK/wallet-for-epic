@@ -1230,7 +1230,14 @@ class _SendViewState extends ConsumerState<SendView> {
           EmptyState(
             icon: const Icon(Icons.north_east),
             message: context.l10n.sendNoCoins,
-            action: demo ? const TestCoinsButton() : null,
+            // Never a dead end: the next step is the Receive tab.
+            action: demo
+                ? const TestCoinsButton()
+                : TextButton(
+                    onPressed: () =>
+                        ref.read(shellTabProvider.notifier).go(ShellTab.receive),
+                    child: Text(context.l10n.homeReceiveButton),
+                  ),
           ),
         ],
       ),
