@@ -638,11 +638,11 @@
   "contactsNewTitle": "Nowy kontakt",
   "contactsDeleteTooltip": "Usuń kontakt",
   "contactsNameLabel": "Nazwa",
-  "contactsAddressLabel": "Adres epicbox",
+  "contactsAddressLabel": "Adres",
   "contactsDuplicate": "Ten adres jest już zapisany jako {name}.",
   "contactsNoteLabel": "Notatka (opcjonalnie)",
   "contactsSave": "Zapisz kontakt",
-  "contactsAddressMissing": "Wpisz adres epicbox odbiorcy.",
+  "contactsAddressMissing": "Wpisz adres.",
   "contactsUrlIncomplete": "Wpisz pełny URL portfela, np. {example}",
   "contactsAddressInvalid": "To nie jest prawidłowy adres. Prawidłowy wygląda tak: {example}",
   "settingsTitle": "Ustawienia",
@@ -1462,5 +1462,8 @@
   "helpNoMatch": "Brak pomocy dla „{query}”",
   "helpMatchCount": "{count, plural, one{1 temat} few{{count} tematy} many{{count} tematów} other{{count} tematu}}",
   "helpShowHandshake": "Pokaż, jak to działa",
-  "helpMoreInSection": "Więcej w tej sekcji"
+  "helpMoreInSection": "Więcej w tej sekcji",
+  "sendBalanceAfter": "Saldo po wysłaniu",
+  "sendSpendableUntilChange": "Dostępne do potwierdzenia reszty",
+  "sendSpendableUntilChangeHint": "Reszta wraca, gdy wysyłka zostanie potwierdzona."
 }

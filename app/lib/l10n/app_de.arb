@@ -638,11 +638,11 @@
   "contactsNewTitle": "Neuer Kontakt",
   "contactsDeleteTooltip": "Kontakt löschen",
   "contactsNameLabel": "Name",
-  "contactsAddressLabel": "epicbox-Adresse",
+  "contactsAddressLabel": "Adresse",
   "contactsDuplicate": "Diese Adresse ist bereits als {name} gespeichert.",
   "contactsNoteLabel": "Notiz (optional)",
   "contactsSave": "Kontakt speichern",
-  "contactsAddressMissing": "Geben Sie die epicbox-Adresse ein.",
+  "contactsAddressMissing": "Geben Sie die Adresse ein.",
   "contactsUrlIncomplete": "Geben Sie die vollständige Wallet-URL ein, z. B. {example}",
   "contactsAddressInvalid": "Dies ist keine gültige Adresse. Eine Adresse sieht etwa so aus: {example}",
   "settingsTitle": "Einstellungen",
@@ -1462,5 +1462,8 @@
   "helpNoMatch": "Keine Hilfe zu „{query}“",
   "helpMatchCount": "{count, plural, =1{1 Thema} other{{count} Themen}}",
   "helpShowHandshake": "So funktioniert es",
-  "helpMoreInSection": "Mehr in diesem Abschnitt"
+  "helpMoreInSection": "Mehr in diesem Abschnitt",
+  "sendBalanceAfter": "Saldo danach",
+  "sendSpendableUntilChange": "Verfügbar, bis das Wechselgeld bestätigt ist",
+  "sendSpendableUntilChangeHint": "Das Wechselgeld kommt zurück, sobald die Zahlung bestätigt ist."
 }

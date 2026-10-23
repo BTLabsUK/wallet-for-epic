@@ -2743,7 +2743,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get contactsNameLabel => 'Name';
 
   @override
-  String get contactsAddressLabel => 'epicbox-Adresse';
+  String get contactsAddressLabel => 'Adresse';
 
   @override
   String contactsDuplicate(String name) {
@@ -2757,7 +2757,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get contactsSave => 'Kontakt speichern';
 
   @override
-  String get contactsAddressMissing => 'Geben Sie die epicbox-Adresse ein.';
+  String get contactsAddressMissing => 'Geben Sie die Adresse ein.';
 
   @override
   String contactsUrlIncomplete(String example) {
@@ -5813,4 +5813,15 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get helpMoreInSection => 'Mehr in diesem Abschnitt';
+
+  @override
+  String get sendBalanceAfter => 'Saldo danach';
+
+  @override
+  String get sendSpendableUntilChange =>
+      'Verfügbar, bis das Wechselgeld bestätigt ist';
+
+  @override
+  String get sendSpendableUntilChangeHint =>
+      'Das Wechselgeld kommt zurück, sobald die Zahlung bestätigt ist.';
 }

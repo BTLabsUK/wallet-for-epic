@@ -638,11 +638,11 @@
   "contactsNewTitle": "Новый контакт",
   "contactsDeleteTooltip": "Удалить контакт",
   "contactsNameLabel": "Имя",
-  "contactsAddressLabel": "Адрес epicbox",
+  "contactsAddressLabel": "Адрес",
   "contactsDuplicate": "Этот адрес уже сохранён как «{name}».",
   "contactsNoteLabel": "Заметка (необязательно)",
   "contactsSave": "Сохранить контакт",
-  "contactsAddressMissing": "Введите адрес epicbox.",
+  "contactsAddressMissing": "Введите адрес.",
   "contactsUrlIncomplete": "Введите полный URL кошелька, например {example}",
   "contactsAddressInvalid": "Это недействительный адрес. Правильный адрес выглядит так: {example}",
   "settingsTitle": "Настройки",
@@ -1462,5 +1462,8 @@
   "helpNoMatch": "Ничего не найдено по запросу «{query}»",
   "helpMatchCount": "{count, plural, one{{count} тема} few{{count} темы} many{{count} тем} other{{count} темы}}",
   "helpShowHandshake": "Показать, как это работает",
-  "helpMoreInSection": "Ещё в этом разделе"
+  "helpMoreInSection": "Ещё в этом разделе",
+  "sendBalanceAfter": "Баланс после",
+  "sendSpendableUntilChange": "Доступно до подтверждения сдачи",
+  "sendSpendableUntilChangeHint": "Сдача вернётся, когда отправка подтвердится."
 }

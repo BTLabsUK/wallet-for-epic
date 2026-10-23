@@ -240,6 +240,7 @@ class _OutputsScreenState extends ConsumerState<OutputsScreen> {
       label: label,
       value: value == null ? null : money(value),
       caption: n == null ? null : l.outputsCount(n),
+      dim: value == BigInt.zero,
     );
 
     final shown = [
@@ -254,6 +255,7 @@ class _OutputsScreenState extends ConsumerState<OutputsScreen> {
       appBar: AppBar(title: Text(l.outputsTitle)),
       body: ScreenBody(
         children: [
+          // The four balances as a 2 × 2 grid, zero ones dimmed, so the layout never jumps.
           Row(
             children: [
               Expanded(
@@ -276,18 +278,26 @@ class _OutputsScreenState extends ConsumerState<OutputsScreen> {
               ),
             ],
           ),
-          if (locked > BigInt.zero) ...[
-            const SizedBox(height: 12),
-            tile(l.outputsLockedTile, locked, list == null ? null : nLocked),
-          ],
-          if (summary != null && summary.immature > BigInt.zero) ...[
-            const SizedBox(height: 12),
-            tile(
-              l.outputsImmature,
-              summary.immature,
-              list == null ? null : nImmature,
-            ),
-          ],
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: tile(
+                  l.outputsLockedTile,
+                  summary == null ? null : locked,
+                  list == null ? null : nLocked,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: tile(
+                  l.outputsImmature,
+                  summary?.immature,
+                  list == null ? null : nImmature,
+                ),
+              ),
+            ],
+          ),
           const SizedBox(height: 16),
           Text(
             l.outputsExplainer,
@@ -463,11 +473,14 @@ class _OutputsScreenState extends ConsumerState<OutputsScreen> {
 Widget _fit(String text) => FittedBox(fit: BoxFit.scaleDown, child: Text(text));
 
 class _Tile extends StatelessWidget {
-  const _Tile({required this.label, required this.value, this.caption});
+  const _Tile({required this.label, required this.value, this.caption, this.dim = false});
 
   final String label;
   final String? value;
   final String? caption;
+
+  /// A zero balance: the value in the dim colour.
+  final bool dim;
 
   @override
   Widget build(BuildContext context) {
@@ -504,7 +517,7 @@ class _Tile extends StatelessWidget {
                       style: TextStyle(
                         fontFamily: t.monoFamily,
                         fontSize: 18,
-                        color: t.text,
+                        color: dim ? t.dim : t.text,
                       ),
                     ),
                   ),

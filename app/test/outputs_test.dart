@@ -214,12 +214,14 @@ void main() {
     expect(find.text('17 EPIC'), findsOneWidget);
     expect(find.text('3 EPIC'), findsNWidgets(2)); // tile and row
     expect(find.text('3 outputs'), findsNWidgets(1));
-    expect(find.text('1 output'), findsOneWidget);
-    // Nothing locked in the balance: no third tile.
-    expect(find.text(_l.outputsLockedTile), findsNothing);
+    // Confirming and the empty Immature tile both count one.
+    expect(find.text('1 output'), findsNWidgets(2));
+    // Nothing locked in the balance: the tile stays, at zero.
+    expect(find.text(_l.outputsLockedTile), findsOneWidget);
+    expect(find.text(_l.outputsImmature), findsOneWidget);
   });
 
-  testWidgets('a third tile appears when the balance has locked outputs', (
+  testWidgets('the Locked tile shows the locked balance', (
     tester,
   ) async {
     final h = _Harness();

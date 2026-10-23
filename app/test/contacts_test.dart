@@ -140,9 +140,9 @@ void main() {
 
   test('the tag says how the address is reached', () {
     expect(contactTag(_alice), 'Epicbox');
-    expect(contactTag(_onion), 'Tor');
-    expect(contactTag('http://${'t' * 55}d.onion'), 'Tor');
-    expect(contactTag(_http), 'HTTP');
+    expect(contactTag(_onion), 'Direct');
+    expect(contactTag('http://${'t' * 55}d.onion'), 'Direct');
+    expect(contactTag(_http), 'Direct');
   });
 
   group('list', () {
@@ -170,7 +170,7 @@ void main() {
       expect(find.text('BB'), findsOneWidget);
       expect(find.text('AL'), findsOneWidget);
       expect(find.text('Epicbox'), findsNWidgets(2));
-      expect(find.text('Tor'), findsOneWidget);
+      expect(find.text('Direct'), findsOneWidget);
       expect(
         find.textContaining(
           shortAddress(_bob).split('@').first,
@@ -285,6 +285,19 @@ void main() {
       expect(c.read(sendRecipientProvider)?.text, _alice);
       expect(find.byType(BottomSheet), findsNothing);
     });
+
+    for (final (name, address) in [('http', _http), ('onion', _onion)]) {
+      testWidgets('the edit screen saves a Direct $name address', (tester) async {
+        final h = _Harness();
+        await h.pump(tester, const ContactEditScreen());
+        await tester.enterText(find.widgetWithText(TextField, _l.contactsNameLabel), 'Dan');
+        await tester.enterText(find.widgetWithText(TextField, _l.contactsAddressLabel), address);
+        await tester.tap(find.text(_l.contactsSave));
+        await tester.pumpAndSettle();
+        expect(find.textContaining('not a valid'), findsNothing);
+        expect((await h.session.contacts()).map((c) => c.name), contains('Dan'));
+      });
+    }
 
     testWidgets('Edit opens the edit screen', (tester) async {
       await open(tester);

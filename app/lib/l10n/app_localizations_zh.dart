@@ -2540,7 +2540,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get contactsNameLabel => '名称';
 
   @override
-  String get contactsAddressLabel => 'epicbox 地址';
+  String get contactsAddressLabel => '地址';
 
   @override
   String contactsDuplicate(String name) {
@@ -2554,7 +2554,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get contactsSave => '保存联系人';
 
   @override
-  String get contactsAddressMissing => '请输入对方的 epicbox 地址。';
+  String get contactsAddressMissing => '请输入地址。';
 
   @override
   String contactsUrlIncomplete(String example) {
@@ -5404,4 +5404,13 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get helpMoreInSection => '本节更多内容';
+
+  @override
+  String get sendBalanceAfter => '发送后余额';
+
+  @override
+  String get sendSpendableUntilChange => '找零确认前可用';
+
+  @override
+  String get sendSpendableUntilChangeHint => '找零在发送确认后返回。';
 }

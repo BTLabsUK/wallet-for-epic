@@ -2707,7 +2707,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get contactsNameLabel => 'Name';
 
   @override
-  String get contactsAddressLabel => 'Epicbox address';
+  String get contactsAddressLabel => 'Address';
 
   @override
   String contactsDuplicate(String name) {
@@ -2721,7 +2721,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get contactsSave => 'Save contact';
 
   @override
-  String get contactsAddressMissing => 'Enter their epicbox address.';
+  String get contactsAddressMissing => 'Enter their address.';
 
   @override
   String contactsUrlIncomplete(String example) {
@@ -5741,4 +5741,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get helpMoreInSection => 'More in this section';
+
+  @override
+  String get sendBalanceAfter => 'Balance after';
+
+  @override
+  String get sendSpendableUntilChange => 'Spendable until change confirms';
+
+  @override
+  String get sendSpendableUntilChangeHint =>
+      'The change comes back once the send confirms.';
 }

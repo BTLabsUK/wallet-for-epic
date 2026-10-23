@@ -3971,7 +3971,7 @@ abstract class AppLocalizations {
   /// Label of the contact's address field, which holds an epicbox address. epicbox is a proper name.
   ///
   /// In en, this message translates to:
-  /// **'Epicbox address'**
+  /// **'Address'**
   String get contactsAddressLabel;
 
   /// No description provided for @contactsDuplicate.
@@ -3995,7 +3995,7 @@ abstract class AppLocalizations {
   /// Error under a recipient or contact address field left empty.
   ///
   /// In en, this message translates to:
-  /// **'Enter their epicbox address.'**
+  /// **'Enter their address.'**
   String get contactsAddressMissing;
 
   /// Error under an address field holding an incomplete web address.
@@ -8922,6 +8922,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'More in this section'**
   String get helpMoreInSection;
+
+  /// Send review row: the spendable balance once this send and its fee are out.
+  ///
+  /// In en, this message translates to:
+  /// **'Balance after'**
+  String get sendBalanceAfter;
+
+  /// Send review row: what stays spendable while the send's change confirms (spendable minus the outputs the send locks).
+  ///
+  /// In en, this message translates to:
+  /// **'Spendable until change confirms'**
+  String get sendSpendableUntilChange;
+
+  /// Caption under the Spendable until change confirms row.
+  ///
+  /// In en, this message translates to:
+  /// **'The change comes back once the send confirms.'**
+  String get sendSpendableUntilChangeHint;
 }
 
 class _AppLocalizationsDelegate

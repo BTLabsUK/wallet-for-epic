@@ -2837,7 +2837,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get contactsNameLabel => 'Имя';
 
   @override
-  String get contactsAddressLabel => 'Адрес epicbox';
+  String get contactsAddressLabel => 'Адрес';
 
   @override
   String contactsDuplicate(String name) {
@@ -2851,7 +2851,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get contactsSave => 'Сохранить контакт';
 
   @override
-  String get contactsAddressMissing => 'Введите адрес epicbox.';
+  String get contactsAddressMissing => 'Введите адрес.';
 
   @override
   String contactsUrlIncomplete(String example) {
@@ -5925,4 +5925,14 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get helpMoreInSection => 'Ещё в этом разделе';
+
+  @override
+  String get sendBalanceAfter => 'Баланс после';
+
+  @override
+  String get sendSpendableUntilChange => 'Доступно до подтверждения сдачи';
+
+  @override
+  String get sendSpendableUntilChangeHint =>
+      'Сдача вернётся, когда отправка подтвердится.';
 }

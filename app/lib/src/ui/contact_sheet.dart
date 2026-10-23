@@ -31,11 +31,11 @@ String contactInitials(String name) {
   return words.first.characters.take(2).toString().toUpperCase();
 }
 
-/// How the app reaches [address]: `Epicbox`, `Tor` or `HTTP`. Names, not translated.
+/// How the app reaches [address]: `Epicbox`, or `Direct` for an http(s) or onion address.
+/// Method names, not translated.
 String contactTag(String address) => switch (parseRecipient(address).kind) {
   RecipientKind.epicbox => 'Epicbox',
-  RecipientKind.tor => 'Tor',
-  RecipientKind.http => 'HTTP',
+  RecipientKind.tor || RecipientKind.http => 'Direct',
 };
 
 /// [contactInitials] in a [GlyphTile] of [size], in the display face.

@@ -3175,7 +3175,7 @@
   "@contactsNameLabel": {
     "description": "Label of the contact's name field."
   },
-  "contactsAddressLabel": "Epicbox address",
+  "contactsAddressLabel": "Address",
   "@contactsAddressLabel": {
     "description": "Label of the contact's address field, which holds an epicbox address. epicbox is a proper name."
   },
@@ -3196,7 +3196,7 @@
   "@contactsSave": {
     "description": "Button that saves the contact."
   },
-  "contactsAddressMissing": "Enter their epicbox address.",
+  "contactsAddressMissing": "Enter their address.",
   "@contactsAddressMissing": {
     "description": "Error under a recipient or contact address field left empty."
   },
@@ -7242,5 +7242,17 @@
   "helpMoreInSection": "More in this section",
   "@helpMoreInSection": {
     "description": "Heading over the other topics of the same section at the end of a help topic."
+  },
+  "sendBalanceAfter": "Balance after",
+  "sendSpendableUntilChange": "Spendable until change confirms",
+  "sendSpendableUntilChangeHint": "The change comes back once the send confirms.",
+  "@sendBalanceAfter": {
+    "description": "Send review row: the spendable balance once this send and its fee are out."
+  },
+  "@sendSpendableUntilChange": {
+    "description": "Send review row: what stays spendable while the send's change confirms (spendable minus the outputs the send locks)."
+  },
+  "@sendSpendableUntilChangeHint": {
+    "description": "Caption under the Spendable until change confirms row."
   }
 }

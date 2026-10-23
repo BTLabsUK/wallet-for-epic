@@ -638,11 +638,11 @@
   "contactsNewTitle": "新建联系人",
   "contactsDeleteTooltip": "删除联系人",
   "contactsNameLabel": "名称",
-  "contactsAddressLabel": "epicbox 地址",
+  "contactsAddressLabel": "地址",
   "contactsDuplicate": "此地址已保存为 {name}。",
   "contactsNoteLabel": "备注（可选）",
   "contactsSave": "保存联系人",
-  "contactsAddressMissing": "请输入对方的 epicbox 地址。",
+  "contactsAddressMissing": "请输入地址。",
   "contactsUrlIncomplete": "请输入完整的钱包 URL，例如 {example}",
   "contactsAddressInvalid": "这不是有效的地址。地址格式类似 {example}",
   "settingsTitle": "设置",
@@ -1462,5 +1462,8 @@
   "helpNoMatch": "没有与“{query}”匹配的帮助",
   "helpMatchCount": "{count, plural, =1{1 个主题} other{{count} 个主题}}",
   "helpShowHandshake": "查看运作方式",
-  "helpMoreInSection": "本节更多内容"
+  "helpMoreInSection": "本节更多内容",
+  "sendBalanceAfter": "发送后余额",
+  "sendSpendableUntilChange": "找零确认前可用",
+  "sendSpendableUntilChangeHint": "找零在发送确认后返回。"
 }

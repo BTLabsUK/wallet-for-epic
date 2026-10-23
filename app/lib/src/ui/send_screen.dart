@@ -1962,6 +1962,9 @@ class _SendViewState extends ConsumerState<SendView> {
     final t = context.tokens;
     final estimate = _estimate!;
     final total = estimate.amount + estimate.fee;
+    final spendable = ref.watch(
+      homeProvider.select((home) => home.value?.summary.spendable),
+    );
     final price = ref.watch(priceProvider).value;
     final currency =
         ref.watch(appSettingsProvider).value?.fiatCurrency ?? 'usd';
@@ -2029,6 +2032,21 @@ class _SendViewState extends ConsumerState<SendView> {
               ),
         strong: true,
       ),
+      // What stays after this send (outputs spec §4.6): the balance once it is out, and,
+      // while the change confirms, only the outputs the send does not lock.
+      if (spendable != null && spendable >= total) ...[
+        _Row(label: l.sendBalanceAfter, value: epicExact(l, spendable - total)),
+        if (estimate.locked > total && estimate.locked <= spendable) ...[
+          _Row(
+            label: l.sendSpendableUntilChange,
+            value: epicExact(l, spendable - estimate.locked),
+          ),
+          Text(
+            l.sendSpendableUntilChangeHint,
+            style: theme.textTheme.bodySmall?.copyWith(color: t.dim),
+          ),
+        ],
+      ],
       const SizedBox(height: 8),
       Divider(color: t.line, height: 1),
       const SizedBox(height: 8),

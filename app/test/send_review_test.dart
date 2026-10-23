@@ -645,6 +645,11 @@ void main() {
       expect(find.text('0.008 EPIC'), findsOneWidget);
       expect(find.text('Total'), findsOneWidget);
       expect(find.text('1.508 EPIC'), findsOneWidget);
+      // What stays: 40 spendable minus the total. The fake locks nothing beyond the total,
+      // so no "until change confirms" line.
+      expect(find.text('Balance after'), findsOneWidget);
+      expect(find.text('38.492 EPIC'), findsOneWidget);
+      expect(find.text('Spendable until change confirms'), findsNothing);
       // Two rows only: no note, no relay, no method.
       expect(find.text('For rent'), findsNothing);
       expect(find.textContaining('Goes through'), findsNothing);
