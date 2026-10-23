@@ -10,6 +10,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
+import '../net/tor_net.dart';
 import 'node_api_types.dart';
 
 /// One HTTP exchange: POST [body] to [url], or GET when [body] is empty. Answers with any
@@ -248,6 +249,8 @@ Future<({int status, String body})> _ioTransport(
     ..connectionTimeout = timeout
     ..userAgent = null;
   try {
+    // A remote node through tor while the Tor switch covers it; a node on this computer direct.
+    TorNet.configure(client, loopback: isLoopbackUrl(url));
     return await () async {
       final req = body.isEmpty ? await client.getUrl(url) : await client.postUrl(url);
       req.followRedirects = false; // never carry the secret to another address

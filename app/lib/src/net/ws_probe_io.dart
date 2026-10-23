@@ -4,6 +4,8 @@ library;
 import 'dart:async';
 import 'dart:io';
 
+import 'tor_net.dart';
+
 /// Opens a WebSocket to [url] and closes it again; true when the handshake succeeded within
 /// [timeout].
 Future<bool> probeWebSocket(Uri url, {required Duration timeout}) async {
@@ -12,6 +14,8 @@ Future<bool> probeWebSocket(Uri url, {required Duration timeout}) async {
     ..connectionTimeout = timeout
     ..userAgent = null;
   try {
+    // Through tor while the Tor switch covers the probes; none while it is not connected.
+    TorNet.configure(client, loopback: isLoopbackUrl(url));
     final socket = await WebSocket.connect(
       url.toString(),
       customClient: client,

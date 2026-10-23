@@ -12,6 +12,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'app_log.dart';
 import 'amount.dart';
 import 'net/http.dart';
+import 'net/tor_switch.dart';
 import 'providers.dart';
 import 'settings.dart';
 import 'wallet_service.dart' show Chain;
@@ -128,8 +129,17 @@ double? priceFromBtlabs(
 }
 
 final priceSourceProvider = Provider<PriceSource>(
-  (ref) => const CoinGeckoPriceSource(),
+  (ref) => const TorAwarePriceSource(),
 );
+
+/// CoinGecko with the Tor switch off; BT Labs' copy with it on ([TorSwitch.on]), asked at
+/// each fetch so a switch takes effect at the next refresh.
+class TorAwarePriceSource implements PriceSource {
+  const TorAwarePriceSource();
+
+  @override
+  Future<double?> price(String currency) => (TorSwitch.on ? BtlabsPriceSource() : const CoinGeckoPriceSource()).price(currency);
+}
 
 /// The price of one EPIC in the chosen currency, or null when prices are off or none has been
 /// fetched. Refreshes every [priceRefreshInterval] while the app runs. A failed refresh keeps the

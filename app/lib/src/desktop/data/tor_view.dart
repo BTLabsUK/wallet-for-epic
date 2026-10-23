@@ -59,3 +59,21 @@ String torCoverageText() {
 
 /// What waits while Tor starts or is not connected, e.g. "Epicbox and Tor addresses".
 String torWaitingText() => _cap(_list([for (final r in TorRoute.values) if (torCovered.contains(r)) _routeName(r), _routeName(TorRoute.onionDirect)]));
+
+/// A node on this computer: never over Tor ([torSkipsLocalNode]).
+bool isLocalNodeUrl(String url) {
+  final host = Uri.tryParse(url)?.host.toLowerCase() ?? '';
+  return host == 'localhost' || host == '127.0.0.1' || host == '::1' || host == '[::1]';
+}
+
+/// The node's lines about Tor, for the status card and Settings › Node: over Tor (and a plain
+/// http node is not encrypted past the exit), or waiting for it. Empty while the node is not
+/// covered, or is on this computer.
+List<String> torNodeLines(String url, TorState tor) {
+  if (torSkipsLocalNode && isLocalNodeUrl(url)) return const [];
+  return switch (torWay(TorRoute.node, tor)) {
+    TorWay.overTor => ['Over Tor', if (Uri.tryParse(url)?.scheme == 'http') 'Not encrypted past Tor'],
+    TorWay.wait || TorWay.blocked => const ['Waits until Tor is connected.'],
+    _ => const [],
+  };
+}

@@ -7,6 +7,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'http_types.dart';
+import 'tor_net.dart';
 
 /// With [maxBytes], a body longer than that is not read to its end: the call throws
 /// [NetTooLarge] as soon as it passes the limit.
@@ -47,6 +48,13 @@ Future<HttpReply> _send(
   final client = HttpClient()
     ..connectionTimeout = timeout
     ..userAgent = null;
+  // Through tor while the Tor switch covers these requests; none while it is not connected.
+  try {
+    TorNet.configure(client, loopback: isLoopbackUrl(url));
+  } on NetError {
+    client.close(force: true);
+    rethrow;
+  }
   try {
     return await () async {
       final request = await client.openUrl(method, url);

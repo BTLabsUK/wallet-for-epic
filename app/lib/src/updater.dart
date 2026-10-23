@@ -22,6 +22,7 @@ import 'package:path_provider/path_provider.dart';
 import 'app_log.dart';
 import 'btlabs_keys.dart';
 import 'btlabs_public.dart';
+import 'net/tor_net.dart';
 import 'l10n.dart';
 import 'net/http.dart';
 
@@ -510,6 +511,8 @@ class UpdateNotifier extends Notifier<UpdateState> {
       ..connectionTimeout = const Duration(seconds: 15)
       ..userAgent = null;
     try {
+      // Through tor while the Tor switch covers the app's requests.
+      TorNet.configure(client);
       final dir = Directory(
         '${(await ref.read(updateTempDirProvider)()).path}${Platform.pathSeparator}updates',
       );

@@ -36,6 +36,8 @@ import '../../network.dart';
 import '../../providers.dart' show WalletDirResolver, defaultMinimumConfirmations;
 import '../../public_servers.dart';
 import '../../net/http.dart' show NetError, httpGet;
+import '../../net/tor_net.dart';
+import '../../tor_routes.dart';
 import '../../relay_directory.dart';
 import '../../secret_store_api.dart';
 import '../../seed_contacts.dart';
@@ -346,7 +348,24 @@ class LepicDeskWallet implements DeskWalletApi {
   core.WalletSession get _open => _session ?? (throw const DeskError('The wallet is locked'));
 
   void _changed() {
+    _followTor();
     if (!_changes.isClosed) _changes.add(null);
+  }
+
+  /// tor's SOCKS port, once LEPIC tells it (E-12); null until then.
+  SocksProxy? _torSocks;
+
+  /// The app's own requests follow the Tor switch (tor_routes.dart, `TorNet.follow`).
+  void _followTor() {
+    final state = !_settings.tor
+        ? TorState.off
+        : switch (_torHealth) {
+            ServiceHealth.down => TorState.failed,
+            ServiceHealth.off => TorState.starting,
+            ServiceHealth.checking when !_torCanSend => TorState.starting,
+            _ => TorState.on,
+          };
+    TorNet.follow(state, proxy: _torSocks);
   }
 
   /// Settings › Privacy › Use status.btlabs.uk changed: what the site gave is dropped (off) or
