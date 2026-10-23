@@ -197,6 +197,14 @@ abstract interface class WalletSession {
   /// [dispose].
   Stream<ListenerEvent> startListener();
 
+  /// Moves the open wallet to the node and relay of [config], keeping it unlocked. Calls running
+  /// when it starts end first; calls made meanwhile wait for it. A running listener moves to a
+  /// new relay once the payment in hand is answered (at most 30 s) and its stream goes on. A new
+  /// relay changes [epicboxAddress] to `<key>@<new relay>`. [config] must name the wallet's own
+  /// data directory and chain: another chain is another wallet. A node URL or relay that is not
+  /// one throws [WalletErrorKind.invalidArgument] and keeps the servers in use.
+  Future<void> setServers({required WalletConfig config});
+
   Future<void> stopListener();
 
   /// Sends to the wallet listening at [url], `http(s)://host[:port][/path]`, then finalizes
@@ -594,6 +602,7 @@ class FakeWalletService implements WalletService {
     this.password = password;
     createdConfig = config;
     createdMnemonic = mnemonic;
+    session.openedConfig = config;
     return session..owner = this;
   }
 
@@ -628,6 +637,7 @@ class FakeWalletService implements WalletService {
     createdConfig = config;
     importedSeedFile = seedFile;
     importedSeedPassword = seedPassword;
+    session.openedConfig = config;
     return session;
   }
 
@@ -648,6 +658,7 @@ class FakeWalletService implements WalletService {
         message: 'wrong password',
       );
     }
+    session.openedConfig = config;
     return session..owner = this;
   }
 
@@ -698,6 +709,7 @@ class FakeWalletService implements WalletService {
     createdPin = pin;
     pinFailureCount = 0;
     session.owner = this;
+    session.openedConfig = config;
     return (session: session, sealedPassword: fakeSealedPassword(pin));
   }
 
@@ -715,6 +727,7 @@ class FakeWalletService implements WalletService {
     }
     _checkPin(pin, sealedPassword);
     session.owner = this;
+    session.openedConfig = config;
     return session;
   }
 
@@ -1068,6 +1081,44 @@ class FakeWalletSession implements WalletSession {
 
   @override
   Future<void> stopListener() async => listenerStops++;
+
+  /// Every [setServers] call, in order.
+  final List<WalletConfig> serverSwitches = [];
+
+  /// The config the wallet was opened with, set by [FakeWalletService]; [setServers] refuses
+  /// another directory or chain, as LEPIC does.
+  WalletConfig? openedConfig;
+
+  /// When set, [setServers] waits for it before switching, as a switch waits for calls running.
+  Completer<void>? serverSwitchGate;
+
+  @override
+  Future<void> setServers({required WalletConfig config}) async {
+    final opened = openedConfig;
+    if (opened != null &&
+        (opened.dataDir != config.dataDir || opened.chain != config.chain)) {
+      throw const WalletError(
+        kind: WalletErrorKind.invalidArgument,
+        message: 'servers are switched for the open wallet only',
+      );
+    }
+    final uri = Uri.tryParse(config.nodeUrl);
+    if (uri == null ||
+        !{'http', 'https'}.contains(uri.scheme) ||
+        uri.host.isEmpty ||
+        config.epicboxDomain.isEmpty ||
+        config.epicboxDomain.contains(RegExp(r'[\s/@:]'))) {
+      throw const WalletError(
+        kind: WalletErrorKind.invalidArgument,
+        message: 'not a node url or a relay',
+      );
+    }
+    await serverSwitchGate?.future;
+    serverSwitches.add(config);
+    openedConfig = config;
+    final port = config.epicboxPort == 443 ? '' : ':${config.epicboxPort}';
+    address = '${address.split('@').first}@${config.epicboxDomain}$port';
+  }
 
   /// Every [sendHttp] and [resendHttp] call that passed the URL checks.
   final List<({BigInt? amount, int? txId, String url, bool allowPlainHttp})>

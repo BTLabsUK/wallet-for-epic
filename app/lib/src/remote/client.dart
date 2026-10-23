@@ -930,6 +930,13 @@ class RemoteWalletSession implements WalletSession {
   });
 
   @override
+  Future<void> setServers({required WalletConfig config}) => _call(
+    SessionMember.setServers,
+    voidWire,
+    {'config': walletConfigWire.encode(config)},
+  );
+
+  @override
   Future<String> invoiceAddress() =>
       _call(SessionMember.invoiceAddress, stringWire);
 

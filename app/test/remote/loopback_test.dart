@@ -442,6 +442,20 @@ void main() {
       ]);
     });
 
+    test('a server switch reaches the open wallet with the new relay', () async {
+      final s = await openSession();
+      const moved = WalletConfig(
+        dataDir: '/wallets/a',
+        chain: Chain.floonet,
+        nodeUrl: 'https://node.example.org',
+        epicboxDomain: 'relay.example.org',
+        epicboxPort: 443,
+      );
+      await s.setServers(config: moved);
+      expect(session.serverSwitches, [moved]);
+      expect(await s.epicboxAddress(), endsWith('@relay.example.org'));
+    });
+
     test('slates, fees and sends', () async {
       final s = await openSession();
       final amount = BigInt.from(1000000000);

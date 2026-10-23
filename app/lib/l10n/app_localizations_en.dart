@@ -2101,6 +2101,17 @@ class AppLocalizationsEn extends AppLocalizations {
       'Changing the epicbox server changes your address. Give senders the new address. Payments sent to the old one wait on the old server until you switch back.';
 
   @override
+  String get serverSwitchRelayTitle => 'Switch epicbox server?';
+
+  @override
+  String serverSwitchRelayBody(String relay) {
+    return 'The epicbox address changes to …@$relay. Senders need the new address. Payments sent to the old address stay on the old server.';
+  }
+
+  @override
+  String get serverSwitchRelayConfirm => 'Switch';
+
+  @override
   String get setupWalletPerNetwork =>
       'Each network has its own wallet. A network without one gets a new wallet.';
 

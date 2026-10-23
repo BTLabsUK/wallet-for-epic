@@ -2441,6 +2441,24 @@
   "@setupRelayChangeWarning": {
     "description": "Warning shown once a different epicbox server is selected."
   },
+  "serverSwitchRelayTitle": "Switch epicbox server?",
+  "@serverSwitchRelayTitle": {
+    "description": "Title of the confirm before the epicbox server of the open wallet changes."
+  },
+  "serverSwitchRelayBody": "The epicbox address changes to …@{relay}. Senders need the new address. Payments sent to the old address stay on the old server.",
+  "@serverSwitchRelayBody": {
+    "description": "Body of that confirm: the address keeps its key and takes the new server.",
+    "placeholders": {
+      "relay": {
+        "type": "String",
+        "example": "epicbox.epiccash.com"
+      }
+    }
+  },
+  "serverSwitchRelayConfirm": "Switch",
+  "@serverSwitchRelayConfirm": {
+    "description": "Button of that confirm that switches the server."
+  },
   "setupWalletPerNetwork": "Each network has its own wallet. A network without one gets a new wallet.",
   "setupRelayHealthyIconLabel": "Healthy",
   "@setupRelayHealthyIconLabel": {
