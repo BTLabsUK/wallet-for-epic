@@ -9,7 +9,7 @@
 #        WFE_BUILD_LEPIC=0                  skip the LEPIC build (the mock build does not use it)
 #        WFE_TOR=0                          leave out the Tor bundle (tools/fetch-tor.sh, in by default)
 #        LEPIC_REPO=../lepic                 where the pinned LEPIC commit is read from
-# Output: build-linux/EpicWallet-<version>-x86_64.AppImage
+# Output: build-linux/EpicCashDesktop-<version>-x86_64.AppImage
 # Caches: docker volumes wfe-linux-{pub,cargo,home,lepic-target} keep rebuilds fast.
 set -euo pipefail
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"

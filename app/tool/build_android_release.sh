@@ -25,8 +25,8 @@ app_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 "$app_dir/../tools/version.sh" check >/dev/null || { "$app_dir/../tools/version.sh" check; exit 1; }
 version="$("$app_dir/../tools/version.sh" name)"
 want_code="$("$app_dir/../tools/version.sh" code)"
-want_package=com.blacktyger.epicwallet
-want_label="Epic Wallet"
+want_package=com.blacktyger.epiccashmobile
+want_label="Epic Cash Mobile"
 # The release certificate. 0.1.0 (build 1) was signed with this host's debug key
 # (5fdcc602...259d0e); later builds never are.
 want_cert=59e4c290f3922d8e7d3b189eb98e7002dc50754c52d612ea91e82386390ec0aa
@@ -53,7 +53,7 @@ flutter pub get
 
 apks="$app_dir/build/app/outputs/flutter-apk"
 mkdir -p "$out_dir"
-rm -f "$out_dir"/epic-wallet-$version-*.apk "$out_dir/SHA256SUMS" "$out_dir"/emulator/epic-wallet-$version-*.apk
+rm -f "$out_dir"/epic-cash-mobile-$version-*.apk "$out_dir/SHA256SUMS" "$out_dir"/emulator/epic-cash-mobile-$version-*.apk
 
 emulator=()
 [[ "${WFE_EMULATOR_X86_64:-}" == 1 ]] && emulator=(x86_64)
@@ -61,11 +61,11 @@ platforms=android-arm64
 [[ ${#emulator[@]} -gt 0 ]] && platforms=android-arm64,android-x64
 flutter build apk --release --target-platform "$platforms" --split-per-abi \
   --dart-define=WFE_BUILD_ID="$build_id"
-cp "$apks/app-arm64-v8a-release.apk" "$out_dir/epic-wallet-$version-arm64-v8a.apk"
-(cd "$out_dir" && sha256sum epic-wallet-$version-*.apk >SHA256SUMS)
+cp "$apks/app-arm64-v8a-release.apk" "$out_dir/epic-cash-mobile-$version-arm64-v8a.apk"
+(cd "$out_dir" && sha256sum epic-cash-mobile-$version-*.apk >SHA256SUMS)
 if [[ ${#emulator[@]} -gt 0 ]]; then
   mkdir -p "$out_dir/emulator"
-  cp "$apks/app-x86_64-release.apk" "$out_dir/emulator/epic-wallet-$version-x86_64.apk"
+  cp "$apks/app-x86_64-release.apk" "$out_dir/emulator/epic-cash-mobile-$version-x86_64.apk"
 fi
 
 fail=0
@@ -73,9 +73,9 @@ check() { # description, condition result (0 = ok)
   if [[ "$2" == 0 ]]; then echo "  ok   $1"; else echo "  FAIL $1"; fail=1; fi
 }
 shopt -s nullglob
-for apk in "$out_dir"/epic-wallet-$version-*.apk "$out_dir"/emulator/epic-wallet-$version-*.apk; do
+for apk in "$out_dir"/epic-cash-mobile-$version-*.apk "$out_dir"/emulator/epic-cash-mobile-$version-*.apk; do
   name="$(basename "$apk")"
-  abi="${name#epic-wallet-$version-}"; abi="${abi%.apk}"
+  abi="${name#epic-cash-mobile-$version-}"; abi="${abi%.apk}"
   echo "$name"
   certs="$("$apksigner" verify --print-certs "$apk")"
   grep -q "certificate SHA-256 digest: $want_cert" <<<"$certs" && r=0 || r=1
@@ -128,8 +128,8 @@ for apk in "$out_dir"/epic-wallet-$version-*.apk "$out_dir"/emulator/epic-wallet
   check "no Firebase config" $r
 done
 # The phone download is arm64-v8a only.
-published="$(cd "$out_dir" && ls epic-wallet-$version-*.apk)"
-[[ "$published" == "epic-wallet-$version-arm64-v8a.apk" ]] && r=0 || r=1
+published="$(cd "$out_dir" && ls epic-cash-mobile-$version-*.apk)"
+[[ "$published" == "epic-cash-mobile-$version-arm64-v8a.apk" ]] && r=0 || r=1
 check "only the arm64-v8a APK is published ($published)" $r
 echo "SHA256SUMS:"; cat "$out_dir/SHA256SUMS"
 [[ $fail == 0 ]] || { echo "verification FAILED" >&2; exit 1; }

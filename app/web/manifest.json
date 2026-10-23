@@ -1,6 +1,6 @@
 {
-    "name": "Epic Wallet",
-    "short_name": "Epic Wallet",
+    "name": "Epic Cash Mobile",
+    "short_name": "Epic Cash",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#08080A",

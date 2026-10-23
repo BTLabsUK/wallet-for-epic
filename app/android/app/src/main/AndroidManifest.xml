@@ -19,7 +19,7 @@
          and lower; dataExtractionRules covers 12+, where transfer ignores allowBackup. The
          recovery phrase is the backup. -->
     <application
-        android:label="Epic Wallet"
+        android:label="Epic Cash Mobile"
         android:name="${applicationName}"
         android:allowBackup="false"
         android:fullBackupContent="false"
