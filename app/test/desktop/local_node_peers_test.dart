@@ -129,6 +129,20 @@ void main() {
     await end(tester);
   });
 
+  testWidgets('Enter and then the focus loss save a maximum once', (tester) async {
+    await show(tester);
+    final maxIn = find.descendant(of: find.byWidgetPredicate((w) => w is EInput && w.semanticLabel == 'Max incoming peers'), matching: find.byType(EditableText));
+    await tester.enterText(maxIn, '200');
+    await tester.testTextInput.receiveAction(TextInputAction.done);
+    await tester.pump();
+    await tester.pump();
+    FocusManager.instance.primaryFocus?.unfocus();
+    await tester.pump();
+    await tester.pump();
+    expect(node.calls.where((c) => c == 'options'), hasLength(1));
+    await end(tester);
+  });
+
   testWidgets('preferred peers: ip:port only (the node keeps no host names), listed with a count', (tester) async {
     await show(tester);
     final field = find.descendant(of: find.widgetWithText(EInput, 'ip:port'), matching: find.byType(EditableText));

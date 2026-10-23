@@ -28,6 +28,7 @@ class EButton extends StatefulWidget {
     this.expand = false,
     this.tooltip,
     this.tabStop = true,
+    this.hit44 = false,
   });
 
   const EButton.primary({
@@ -40,6 +41,7 @@ class EButton extends StatefulWidget {
     this.expand = false,
     this.tooltip,
     this.tabStop = true,
+    this.hit44 = false,
   }) : kind = EBtnKind.primary;
 
   const EButton.ghost({
@@ -52,6 +54,7 @@ class EButton extends StatefulWidget {
     this.expand = false,
     this.tooltip,
     this.tabStop = true,
+    this.hit44 = false,
   }) : kind = EBtnKind.ghost;
 
   final String label;
@@ -69,6 +72,10 @@ class EButton extends StatefulWidget {
 
   /// False for a secondary action (Back, an inline helper): Tab skips it (see keyboard.dart).
   final bool tabStop;
+
+  /// Keeps the drawn size and pads the hit area to [Ctl.md] tall (a 28 or 36 px button that is
+  /// the only way on, as in the tour card). The layout height grows with it.
+  final bool hit44;
 
   @override
   State<EButton> createState() => _EButtonState();
@@ -156,7 +163,13 @@ class _EButtonState extends State<EButton> {
               onTapUp: enabled ? (_) => setState(() => _down = false) : null,
               onTapCancel: () => setState(() => _down = false),
               onTap: enabled ? widget.onPressed : null,
-              child: FocusRing(focused: focused, child: face),
+              behavior: widget.hit44 ? HitTestBehavior.opaque : HitTestBehavior.deferToChild,
+              child: widget.hit44
+                  ? ConstrainedBox(
+                      constraints: BoxConstraints(minHeight: Ctl.md),
+                      child: Center(widthFactor: 1, child: FocusRing(focused: focused, child: face)),
+                    )
+                  : FocusRing(focused: focused, child: face),
             );
           },
         ),

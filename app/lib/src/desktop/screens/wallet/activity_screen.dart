@@ -155,9 +155,9 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
                 ? PanelRow(
                     main: list,
                     side: _DetailPane(tx: selectedTx, onClose: () => setState(() => _selected = null)),
-                    sideWidth: width >= 1400.u ? Ctl.sideWide : Ctl.side,
+                    sideWidth: width >= Ctl.sideWideFrom ? Ctl.sideWide : Ctl.side,
                     // A large scale on a small window keeps room for the list's rows.
-                    maxSideFraction: 0.42,
+                    maxSideFraction: Ctl.sideMaxFraction,
                   )
                 : list,
           ),

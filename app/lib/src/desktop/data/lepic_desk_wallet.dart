@@ -892,14 +892,15 @@ class LepicDeskWallet implements DeskWalletApi {
   /// them, the listener kept as it was. When it does not open, the wallet opens again on the
   /// old ones and the error says so; when even that fails, the wallet locks
   /// ([DeskError.locked]). Locked: only saved. Callers hold [_nodeLock]; [_switching] is set
-  /// before the first await, so a caller that saw no [_busy] running is not overtaken by one.
+  /// before the first await: new payments and scans wait for the switch, those running end first.
   Future<void> _switchTo({required String nodeUrl, required EpicboxRelay relay}) async {
-    // Payments and scans under way end first; the check and the mark follow with no await.
-    while (_busy > 0) {
-      await whenIdle();
-    }
+    // The mark comes first: no payment or scan starts from now on (the switch is preferred),
+    // so a steady stream of them cannot hold it off. Those under way end, then it runs.
     final switching = _switching = Completer<void>();
     try {
+      while (_busy > 0) {
+        await whenIdle();
+      }
       await _reopenOn(nodeUrl: nodeUrl, relay: relay);
     } finally {
       _switching = null;
