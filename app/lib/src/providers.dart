@@ -206,6 +206,30 @@ class SessionNotifier extends Notifier<WalletSession?> {
   }
 }
 
+/// Why the wallet is locked, which decides whether the unlock screen starts biometrics by
+/// itself: on a cold start and after the auto-lock timeout it does, after a lock the user asked
+/// for it never does (the prompt would open the wallet again at once).
+enum LockReason { coldStart, timeout, manual }
+
+final lockReasonProvider = NotifierProvider<LockReasonNotifier, LockReason>(
+  LockReasonNotifier.new,
+);
+
+class LockReasonNotifier extends Notifier<LockReason> {
+  @override
+  LockReason build() => LockReason.coldStart;
+
+  void set(LockReason reason) => state = reason;
+
+  /// Whether the unlock screen may start biometrics itself. It answers true once per cold
+  /// start or auto-lock, so a dismissed prompt is not offered again until the next one.
+  bool takeAutoPrompt() {
+    final auto = state != LockReason.manual;
+    state = LockReason.manual;
+    return auto;
+  }
+}
+
 WalletSession _requireSession(Ref ref) {
   final session = ref.watch(sessionProvider);
   if (session == null) throw StateError('Wallet is locked');

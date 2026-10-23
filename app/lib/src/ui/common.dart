@@ -45,8 +45,14 @@ void showShellTab(BuildContext context, ShellTab tab, {String? recipient}) {
   Navigator.of(context).popUntil((route) => route.isFirst);
 }
 
-/// Closes the wallet and returns to the unlock screen.
-void lockWallet(BuildContext context, WidgetRef ref) {
+/// Closes the wallet and returns to the unlock screen. [reason] is manual unless the auto-lock
+/// locks it ([LockReason.timeout]), which lets the unlock screen start biometrics itself.
+void lockWallet(
+  BuildContext context,
+  WidgetRef ref, {
+  LockReason reason = LockReason.manual,
+}) {
+  ref.read(lockReasonProvider.notifier).set(reason);
   ref.read(sessionProvider.notifier).lock();
   Navigator.of(context).pushAndRemoveUntil(
     MaterialPageRoute<void>(builder: (_) => const LaunchScreen()),

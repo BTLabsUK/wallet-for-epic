@@ -636,6 +636,72 @@ void main() {
     });
   });
 
+  group('biometric unlock', () {
+    _Harness withBiometrics({bool succeed = true}) {
+      final h = _Harness();
+      h.bio
+        ..available = true
+        ..succeed = succeed
+        ..values['wallet.mainnet.pin'] = _pin;
+      h.store.values['wallet.mainnet.pinBiometrics'] = '1';
+      return h;
+    }
+
+    testWidgets('a cold start prompts once', (tester) async {
+      final h = withBiometrics();
+      await h.pump(tester);
+      expect(h.bio.prompts, 1);
+      expect(h.container.read(sessionProvider), isNotNull);
+    });
+
+    testWidgets('Lock wallet waits for a tap on Use biometrics', (
+      tester,
+    ) async {
+      final h = withBiometrics();
+      await h.pump(tester);
+      expect(h.bio.prompts, 1);
+
+      await tester.tap(find.byTooltip('Lock wallet'));
+      await tester.pumpAndSettle();
+      expect(h.container.read(sessionProvider), isNull);
+      expect(find.text('Unlock wallet'), findsOneWidget);
+      expect(find.widgetWithText(TextField, 'PIN'), findsOneWidget);
+      expect(h.bio.prompts, 1);
+
+      await tester.tap(find.text('Use biometrics'));
+      await tester.pumpAndSettle();
+      expect(h.bio.prompts, 2);
+      expect(h.container.read(sessionProvider), isNotNull);
+    });
+
+    testWidgets('a dismissed prompt is not offered again on a return', (
+      tester,
+    ) async {
+      final h = withBiometrics(succeed: false);
+      await h.pump(tester);
+      expect(h.bio.prompts, 1);
+      expect(find.text('Unlock wallet'), findsOneWidget);
+
+      await _leave(tester);
+      h.now = h.now.add(const Duration(minutes: 10));
+      await _return(tester);
+      expect(h.bio.prompts, 1);
+      expect(find.text('Unlock wallet'), findsOneWidget);
+    });
+
+    testWidgets('the auto-lock timeout prompts again', (tester) async {
+      final h = withBiometrics();
+      await h.pump(tester);
+      expect(h.bio.prompts, 1);
+
+      await _leave(tester);
+      h.now = h.now.add(const Duration(minutes: 5));
+      await _return(tester);
+      expect(h.bio.prompts, 2);
+      expect(h.container.read(sessionProvider), isNotNull);
+    });
+  });
+
   group('security', () {
     testWidgets('change PIN asks for the current PIN and a new one twice', (
       tester,

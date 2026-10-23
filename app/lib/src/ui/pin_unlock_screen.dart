@@ -82,6 +82,8 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
   Future<void> _prepareUnlock() async {
     final config = ref.read(walletConfigProvider);
     if (config == null) return;
+    // Only a cold start or the auto-lock starts biometrics; after Lock wallet the user taps.
+    final autoPrompt = ref.read(lockReasonProvider.notifier).takeAutoPrompt();
     final vault = ref.read(vaultProvider);
     // The count survives a restart; say what the next try costs before it is made.
     final failures = await ref
@@ -101,7 +103,7 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
         _pinError = describePinRejection(context.l10n, PinRejected(failures));
       }
     });
-    if (biometrics && !autoPin) await _unlockWithBiometrics();
+    if (biometrics && !autoPin && autoPrompt) await _unlockWithBiometrics();
   }
 
   /// Opens the demo wallet with [demoPin] once the dots are filled. A rejected PIN leaves the
