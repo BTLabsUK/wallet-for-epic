@@ -751,7 +751,7 @@
   "settingsSourceCode": "源代码",
   "settingsLicences": "许可证",
   "licencesLead": "本钱包包含的开源软件。每个组件保留各自的许可证；完整文本一键可达。",
-  "licencesApp": "Epic Wallet，由 BT Labs 开发，开源。代码在 GitHub 上。",
+  "licencesApp": "Epic Wallet，由 BT Labs 开发：Apache-2.0。代码在 GitHub 上。",
   "licencesFlutter": "Flutter 及其 Dart 软件包：BSD 3-Clause 及类似的宽松许可证。",
   "licencesLepic": "LEPIC，Epic Cash 钱包库：Apache 2.0，包含 Epic Cash 的 secp256k1-zkp 分支（CC0）以及 MIT 或 Apache 2.0 许可的 Rust crate，其中有 tokio、rustls、rusqlite 和 blake2。",
   "licencesTor": "Tor：GNU 通用公共许可证第 3 版。其源代码见下文。",

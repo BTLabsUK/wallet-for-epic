@@ -3243,7 +3243,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get licencesApp =>
-      'Epic Wallet od BT Labs, open source. Kod jest na GitHubie.';
+      'Epic Wallet od BT Labs: Apache-2.0. Kod jest na GitHubie.';
 
   @override
   String get licencesFlutter =>

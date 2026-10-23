@@ -541,7 +541,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         BalanceKind.confirming => OutputsFilter.confirming,
         BalanceKind.waitingSender => OutputsFilter.confirming,
         BalanceKind.locked => OutputsFilter.locked,
-        BalanceKind.immature => OutputsFilter.immature,
         BalanceKind.total || BalanceKind.calm => null,
       },
     ),
@@ -603,14 +602,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   physics: const AlwaysScrollableScrollPhysics(),
                   padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
                   children: [
-                    // The desktop Overview's tiles, status rows and sidebar, in that order.
+                    // The desktop Overview's tiles, then its sidebar's destinations, then the status rows.
                     // The tiles row runs edge to edge; the list's gutter is taken back.
                     // One gap between every card on the tab, the tiles' own.
+                    // Everyday destinations before the node and Epicbox status.
                     BalanceTiles(onTap: _openOutputs),
                     const SizedBox(height: homeCardGap),
-                    const NetworkStatusCard(),
-                    const SizedBox(height: homeCardGap),
                     HomeDestinations(onOpen: _openDestination),
+                    const SizedBox(height: homeCardGap),
+                    const NetworkStatusCard(),
                     if (scan.running || scan.error != null)
                       Padding(
                         padding: const EdgeInsets.only(top: homeCardGap),

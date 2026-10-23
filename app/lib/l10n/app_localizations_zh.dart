@@ -2907,7 +2907,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get licencesLead => '本钱包包含的开源软件。每个组件保留各自的许可证；完整文本一键可达。';
 
   @override
-  String get licencesApp => 'Epic Wallet，由 BT Labs 开发，开源。代码在 GitHub 上。';
+  String get licencesApp => 'Epic Wallet，由 BT Labs 开发：Apache-2.0。代码在 GitHub 上。';
 
   @override
   String get licencesFlutter => 'Flutter 及其 Dart 软件包：BSD 3-Clause 及类似的宽松许可证。';

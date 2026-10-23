@@ -219,10 +219,12 @@ void main() {
     expect(find.text('3 outputs'), findsOneWidget);
     // Confirming and Locked both count one.
     expect(find.text('1 output'), findsNWidgets(2));
-    // Nothing immature: the tile stays, at zero.
-    expect(find.text('0 outputs'), findsOneWidget);
+    // Total instead of Immature on a phone: every output not spent, the whole balance.
+    expect(find.text('5 outputs'), findsOneWidget);
+    expect(find.text('20 EPIC'), findsOneWidget);
     expect(find.text(_l.outputsLockedTile), findsOneWidget);
-    expect(find.text(_l.outputsImmature), findsOneWidget);
+    expect(find.text(_l.homeTileTotal), findsOneWidget);
+    expect(find.text(_l.outputsImmature), findsNothing);
     // The label is the eyebrow, the count the main line, the value the last.
     final label = tester.getTopLeft(find.text(_l.outputsSpendable).first).dy;
     final count = tester.getTopLeft(find.text('3 outputs')).dy;

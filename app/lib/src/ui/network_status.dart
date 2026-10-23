@@ -230,7 +230,12 @@ class _StatusRow extends StatelessWidget {
                         else
                           DefaultTextStyle.merge(
                             style: theme.textTheme.bodyMedium,
-                            child: TitleWithHint(title, hint: hint!),
+                            child: TitleWithHint(
+                              title,
+                              hint: hint!,
+                              sheetTitle: title,
+                              icon: torIcon,
+                            ),
                           ),
                         if (host.isNotEmpty)
                           Text(

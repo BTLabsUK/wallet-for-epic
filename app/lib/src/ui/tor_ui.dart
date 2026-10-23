@@ -147,7 +147,12 @@ class TorSwitchTile extends ConsumerWidget {
         SwitchListTile(
           key: torReceivingSwitchKey,
           secondary: const Icon(torIcon),
-          title: TitleWithHint(l.torNetworkLabel, hint: l.torNetworkHint),
+          title: TitleWithHint(
+            l.torNetworkLabel,
+            hint: l.torNetworkHint,
+            sheetTitle: l.torNetworkLabel,
+            icon: torIcon,
+          ),
           subtitle: switch (state) {
             TorState.failed || TorState.starting => Semantics(
               key: torStatusKey,
