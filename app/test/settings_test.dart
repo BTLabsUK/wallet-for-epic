@@ -1,10 +1,12 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:epic_wallet/src/app.dart';
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/price.dart';
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/push.dart';
+import 'package:epic_wallet/src/push_registration.dart';
 import 'package:epic_wallet/src/ui/common.dart';
 import 'package:epic_wallet/src/ui/contacts_screen.dart';
 import 'package:epic_wallet/src/relay_directory.dart';
@@ -34,6 +36,7 @@ const _pin = '123456';
 
 class _FakePush implements PushPlatform {
   int starts = 0;
+  int deleted = 0;
   bool permitted = true;
   bool configuredBuild = true;
   Object? failure;
@@ -50,6 +53,9 @@ class _FakePush implements PushPlatform {
 
   @override
   Future<String?> token() async => 'token';
+
+  @override
+  Future<void> deleteToken() async => deleted++;
 
   @override
   Stream<String> get tokenRefresh => const Stream.empty();
@@ -148,6 +154,7 @@ class _Harness {
   final files = FakeHistoryFiles();
   final session = _ScanSession();
   final push = _FakePush();
+  final posts = <({Uri url, String body, Duration timeout})>[];
   final FakeQrScanner scanner;
   final updates = _UpdateScript();
   int cleanups = 0;
@@ -177,6 +184,10 @@ class _Harness {
           priceSourceProvider.overrideWithValue(_FixedPrice()),
           clockProvider.overrideWithValue(() => now),
           pushPlatformProvider.overrideWithValue(push),
+          pushPostProvider.overrideWithValue((url, body, timeout) async {
+            posts.add((url: url, body: body, timeout: timeout));
+            return 204;
+          }),
           qrScannerProvider.overrideWithValue(scanner),
           sharedFilesCleanupProvider.overrideWithValue(() async => cleanups++),
         ],
@@ -892,28 +903,101 @@ void main() {
     });
   });
 
-  group('payment notifications', () {
-    testWidgets('are off by default and start only when turned on', (
+  group('notifications', () {
+    const relay = 'esPushKey@flooepicbox.btlabs.uk';
+
+    Finder row() => find.byKey(settingsPushKey);
+
+    Future<void> tapRow(WidgetTester tester) async {
+      await _reveal(tester, row());
+      await tester.tap(row());
+      await tester.pumpAndSettle();
+    }
+
+    Future<void> turnOn(WidgetTester tester) async {
+      await tapRow(tester);
+      await tester.tap(find.text(englishStrings.pushConfirmAction));
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('are off by default; turning on asks first and Cancel keeps them off', (
       tester,
     ) async {
       final h = _Harness();
+      h.session.address = relay;
       await h.pump(tester);
       await h.unlock(tester);
       expect(h.push.starts, 0);
       await h.openSettings(tester);
-      await _reveal(tester, find.text(englishStrings.settingsPushHint));
-      expect(find.text(englishStrings.settingsPushHint), findsOneWidget);
-      await _tapText(tester, 'Payment notifications');
-      expect(h.push.starts, 1);
-      expect(h.store.values['app.push'], 'true');
-      expect(find.text(englishStrings.settingsPushOnNotice), findsOneWidget);
-      await _tapText(tester, 'Payment notifications');
-      expect(h.store.values['app.push'], 'false');
+      // The label alone, with its explanation behind the info icon, and no state line.
+      await _reveal(tester, row());
       expect(
-        find.text('Notifications stop the next time the app starts.'),
+        find.descendant(of: row(), matching: find.text('Notifications')),
         findsOneWidget,
       );
+      expect(
+        find.descendant(
+          of: row(),
+          matching: find.byTooltip(
+            'A notice when a payment is waiting. Off while Tor is on.',
+          ),
+        ),
+        findsOneWidget,
+      );
+      expect(tester.widget<SwitchListTile>(row()).subtitle, isNull);
+
+      await tapRow(tester);
+      expect(find.text('Turn on notifications?'), findsOneWidget);
+      expect(
+        find.text(
+          'Notifications go through Google’s service. They never include amounts, addresses or names.',
+        ),
+        findsOneWidget,
+      );
+      await tester.tap(find.text('Cancel'));
+      await tester.pumpAndSettle();
+      expect(h.push.starts, 0);
+      expect(h.store.values['app.push'], isNot('true'));
+      expect(h.posts, isEmpty);
+      expect(tester.widget<SwitchListTile>(row()).value, isFalse);
+    });
+
+    testWidgets('Turn on registers; turning off unregisters, drops the token and says so', (
+      tester,
+    ) async {
+      final h = _Harness();
+      h.session.address = relay;
+      await h.pump(tester);
+      await h.unlock(tester);
+      await h.openSettings(tester);
+      await turnOn(tester);
       expect(h.push.starts, 1);
+      expect(h.store.values['app.push'], 'true');
+      expect(tester.widget<SwitchListTile>(row()).value, isTrue);
+      expect(h.posts, hasLength(1));
+      expect(h.posts.single.url.toString(),
+          'https://flooepicbox.btlabs.uk/push/v1/register');
+      final body = jsonDecode(h.posts.single.body) as Map<String, dynamic>;
+      expect(body['address'], relay);
+      expect(body['token'], 'token');
+      final stamp = h.now.millisecondsSinceEpoch ~/ 1000;
+      expect(body['timestamp'], stamp);
+      expect(body['signature'], 'sig:register:token:$stamp');
+      expect(h.session.pushSignatures.single.action, 'register');
+
+      await tapRow(tester);
+      expect(h.store.values['app.push'], 'false');
+      expect(h.posts, hasLength(2));
+      expect(h.posts.last.url.path, '/push/v1/unregister');
+      expect(h.push.deleted, 1);
+      expect(
+        find.descendant(
+          of: find.byKey(noticeKey),
+          matching: find.text('Notifications off'),
+        ),
+        findsOneWidget,
+      );
+      expect(tester.widget<SwitchListTile>(row()).value, isFalse);
     });
 
     testWidgets('turn back off and say so when the system blocks them', (
@@ -925,18 +1009,16 @@ void main() {
       await h.unlock(tester);
       await h.openSettings(tester);
       expect(find.text(englishStrings.settingsPushBlocked), findsNothing);
-      await _tapText(tester, 'Payment notifications');
+      await turnOn(tester);
       expect(h.push.starts, 1);
       expect(h.store.values['app.push'], 'false');
       expect(find.text(englishStrings.settingsPushBlocked), findsOneWidget);
-      final toggle = tester.widget<SwitchListTile>(
-        find.widgetWithText(SwitchListTile, 'Payment notifications'),
-      );
-      expect(toggle.value, isFalse);
+      expect(tester.widget<SwitchListTile>(row()).value, isFalse);
+      expect(h.posts, isEmpty);
 
       // Allowed now: turning them on asks again and the warning goes.
       h.push.permitted = true;
-      await _tapText(tester, 'Payment notifications');
+      await turnOn(tester);
       expect(h.push.starts, 2);
       expect(h.store.values['app.push'], 'true');
       expect(find.text(englishStrings.settingsPushBlocked), findsNothing);
@@ -950,20 +1032,22 @@ void main() {
       await h.pump(tester);
       await h.unlock(tester);
       await h.openSettings(tester);
-      await _tapText(tester, 'Payment notifications');
+      await turnOn(tester);
       expect(h.push.starts, 1);
       expect(h.store.values['app.push'], 'false');
       expect(find.text(englishStrings.settingsPushUnavailable), findsOneWidget);
       expect(find.text(englishStrings.settingsPushBlocked), findsNothing);
     });
 
-    testWidgets('turn off at launch when Firebase fails to start', (
+    testWidgets('turn off at unlock when Firebase fails to start', (
       tester,
     ) async {
       final h = _Harness();
       h.push.failure = Exception('no Firebase options');
       h.store.values['app.push'] = 'true';
       await h.pump(tester);
+      expect(h.push.starts, 0, reason: 'nothing before the wallet opens');
+      await h.unlock(tester);
       expect(h.push.starts, 1);
       expect(h.store.values['app.push'], 'false');
     });
@@ -976,15 +1060,63 @@ void main() {
       await h.pump(tester);
       await h.unlock(tester);
       await h.openSettings(tester);
-      expect(find.text('Payment notifications'), findsNothing);
+      expect(row(), findsNothing);
       expect(find.text('Notifications'), findsNothing);
+      expect(h.push.starts, 0);
     });
 
-    testWidgets('start at launch when saved on', (tester) async {
+    testWidgets('start and register after each unlock when saved on', (
+      tester,
+    ) async {
+      final h = _Harness();
+      h.session.address = relay;
+      h.store.values['app.push'] = 'true';
+      await h.pump(tester);
+      expect(h.push.starts, 0);
+      await h.unlock(tester);
+      expect(h.push.starts, 1);
+      expect(h.posts.map((p) => p.url.path), ['/push/v1/register']);
+    });
+
+    testWidgets('the one-time reminder comes a minute after unlock, once', (
+      tester,
+    ) async {
+      final h = _Harness();
+      await h.pump(tester);
+      await h.unlock(tester);
+      await tester.pump(const Duration(seconds: 59));
+      expect(find.byKey(noticeKey), findsNothing);
+      await tester.pump(const Duration(seconds: 2));
+      await tester.pumpAndSettle();
+      expect(
+        find.descendant(
+          of: find.byKey(noticeKey),
+          matching: find.text('Notifications are available in Settings.'),
+        ),
+        findsOneWidget,
+      );
+      expect(h.store.values['app.push_hint_shown'], 'true');
+    });
+
+    testWidgets('no reminder once it was shown', (tester) async {
+      final h = _Harness();
+      h.store.values['app.push_hint_shown'] = 'true';
+      await h.pump(tester);
+      await h.unlock(tester);
+      await tester.pump(const Duration(seconds: 90));
+      await tester.pumpAndSettle();
+      expect(find.byKey(noticeKey), findsNothing);
+    });
+
+    testWidgets('no reminder when they are on', (tester) async {
       final h = _Harness();
       h.store.values['app.push'] = 'true';
       await h.pump(tester);
-      expect(h.push.starts, 1);
+      await h.unlock(tester);
+      await tester.pump(const Duration(seconds: 90));
+      await tester.pumpAndSettle();
+      expect(find.byKey(noticeKey), findsNothing);
+      expect(h.store.values['app.push_hint_shown'], isNull);
     });
   });
 

@@ -51,6 +51,9 @@ class _NoPush implements PushPlatform {
   Future<String?> token() async => null;
 
   @override
+  Future<void> deleteToken() async {}
+
+  @override
   Stream<String> get tokenRefresh => const Stream.empty();
 
   @override

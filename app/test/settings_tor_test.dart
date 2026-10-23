@@ -1,6 +1,6 @@
 // Settings › Privacy: the one Tor switch, bound to the phone's Tor controller, with one line
 // saying what it covers ("Not connected" and Retry when Tor failed); not under Advanced (F28),
-// and absent where the app has no Tor. Push is off while Tor is on.
+// and absent where the app has no Tor. Notifications are not offered while Tor is on.
 
 import 'dart:async';
 
@@ -153,7 +153,7 @@ void main() {
       find.descendant(
         of: find.byKey(torReceivingSwitchKey),
         matching: find.byTooltip(
-          'Network activity goes through the Tor network. Tor hides the wallet’s internet address: each connection passes through several volunteer-run relays, so no server learns where the wallet is.',
+          'Network activity goes through the Tor network. Tor hides the wallet’s internet address: each connection passes through several volunteer-run relays, so no server learns where the wallet is. Notifications are off while Tor is on.',
         ),
       ),
       findsOneWidget,
@@ -217,12 +217,12 @@ void main() {
     expect(h.session.torStarts, hasLength(2));
   });
 
-  testWidgets('push is off while Tor is on', (tester) async {
+  testWidgets('notifications are not offered while Tor is on', (tester) async {
     final h = _Harness();
     await h.pump(tester);
     await _reach(tester, find.byKey(settingsPushKey));
     expect(_push(tester).onChanged, isNotNull);
-    expect(find.text('Off while Tor is on'), findsNothing);
+    expect(_push(tester).subtitle, isNull);
 
     await h.container.read(phoneTorProvider.notifier).setReceiving(true);
     await tester.pumpAndSettle();
@@ -230,7 +230,7 @@ void main() {
     await _reach(tester, find.byKey(settingsPushKey));
     expect(_push(tester).onChanged, isNull);
     expect(_push(tester).value, isFalse);
-    expect(find.text('Off while Tor is on'), findsOneWidget);
+    expect(find.text('Paused while Tor is on'), findsNothing);
   });
 
   testWidgets('opened for privacy, the Tor switch is in view', (tester) async {
