@@ -85,6 +85,8 @@ class _WalletAppState extends ConsumerState<WalletApp> {
           _leftAt = ref.read(clockProvider)();
         }
       case AppLifecycleState.resumed:
+        // An update that waited for the install permission carries on, lock or no lock.
+        unawaited(ref.read(updateProvider.notifier).resumed());
         if (ref.read(autoLockHoldProvider) > 0) {
           _leftAt = null;
           _drainPayments();

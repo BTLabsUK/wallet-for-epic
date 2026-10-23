@@ -2095,8 +2095,8 @@ class AppLocalizationsPl extends AppLocalizations {
   String get updateDownloadProgressLabel => 'Postęp pobierania';
 
   @override
-  String get updateNeedsPermission =>
-      'Na ekranie, który się otworzył, zezwól tej aplikacji na instalowanie aktualizacji, a potem ponownie dotknij „Aktualizuj”.';
+  String get updateAllowInstalls =>
+      'Zezwól na instalacje z Epic Cash Mobile, a potem wróć.';
 
   @override
   String updateNotInstalled(String detail) {

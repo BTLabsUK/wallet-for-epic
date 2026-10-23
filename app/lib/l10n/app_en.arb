@@ -2289,9 +2289,9 @@
   "@updateDownloadProgressLabel": {
     "description": "Screen-reader label of the progress bar while the new version downloads."
   },
-  "updateNeedsPermission": "Allow this app to install updates in the screen that opened, then tap Update again.",
-  "@updateNeedsPermission": {
-    "description": "Android opened its settings screen for installing apps from this source. 'Update' is the updateInstallButton label: use the same word."
+  "updateAllowInstalls": "Allow installs from Epic Cash Mobile, then return.",
+  "@updateAllowInstalls": {
+    "description": "Settings' update row while Android's screen for allowing installs from this app is open or was just opened; the update carries on by itself once the user allows and comes back. 'Epic Cash Mobile' is the app's name, never translated."
   },
   "updateNotInstalled": "The update was not installed: {detail}",
   "@updateNotInstalled": {
