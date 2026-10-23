@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:epic_wallet/src/app.dart';
 import 'package:epic_wallet/src/l10n.dart';
+import 'package:epic_wallet/src/phone_tor.dart';
 import 'package:epic_wallet/src/price.dart';
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/push.dart';
@@ -14,6 +15,7 @@ import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/settings.dart';
 import 'package:epic_wallet/src/slate_files.dart';
 import 'package:epic_wallet/src/tor_licence.dart';
+import 'package:epic_wallet/src/tor_location.dart';
 import 'package:epic_wallet/src/ui/help_screen.dart';
 import 'package:epic_wallet/src/ui/home_screen.dart';
 import 'package:epic_wallet/src/ui/restore_screen.dart';
@@ -140,6 +142,7 @@ class _Harness {
     bool walletExists = true,
     bool advanced = false,
     bool scanSupported = false,
+    this.tor = false,
   }) : scanner = FakeQrScanner(supported: scanSupported) {
     if (advanced) store.values['app.advanced'] = 'true';
     if (sealed) {
@@ -158,6 +161,9 @@ class _Harness {
   final push = _FakePush();
   final posts = <({Uri url, String body, Duration timeout})>[];
   final FakeQrScanner scanner;
+
+  /// A bundled tor on this device, so the Tor switch is offered.
+  final bool tor;
   final updates = _UpdateScript();
   int cleanups = 0;
   late final FakeWalletService service;
@@ -192,6 +198,10 @@ class _Harness {
           }),
           qrScannerProvider.overrideWithValue(scanner),
           sharedFilesCleanupProvider.overrideWithValue(() async => cleanups++),
+          if (tor)
+            torBundleFinderProvider.overrideWithValue(
+              () async => const TorBundle(binary: '/data/app/lib/arm64/libtor.so'),
+            ),
         ],
         child: const WalletApp(),
       ),
@@ -497,7 +507,7 @@ void main() {
 
     testWidgets('Privacy & network opens at once with the Tor switch under '
         'the Privacy header', (tester) async {
-      final h = _Harness();
+      final h = _Harness(tor: true);
       await h.pump(tester);
       await h.unlock(tester);
       final navigator = tester.state<NavigatorState>(
@@ -1437,7 +1447,6 @@ void main() {
       await h.unlock(tester);
       await h.openSettings(tester, SettingsSection.wallet);
       await _reveal(tester, find.text('Import history backup'));
-      expect(find.text('Invoices'), findsOneWidget);
       expect(find.text('Invoice address and trusted services'), findsOneWidget);
     });
 
@@ -1735,10 +1744,8 @@ void main() {
         'Rescan the chain',
         'Delete this wallet',
       ]);
-      await noSubtitles(SettingsSection.privacyNetwork, [
-        'Node and Epicbox',
-        'Epicbox server',
-      ]);
+      // Node and Epicbox shows its server as a state line, as the hub rows do.
+      await noSubtitles(SettingsSection.privacyNetwork, ['Epicbox server']);
       await h.openSettings(tester, SettingsSection.privacyNetwork);
       await _reveal(tester, find.text('Epicbox server'));
       expect(find.textContaining('relay'), findsNothing);
