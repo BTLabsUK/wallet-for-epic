@@ -775,6 +775,7 @@ class LepicDeskWallet implements DeskWalletApi {
       }
     }
     _session = session;
+    await _routeEpicbox(session);
     _config = config;
     _password = password;
     _openEntry = entry;
@@ -814,7 +815,9 @@ class LepicDeskWallet implements DeskWalletApi {
 
   @override
   Future<void> startAutostart() async {
-    _open;
+    final session = _open;
+    // Tor starts below: the first Epicbox connection waits for it, never going directly first.
+    if (_torFeature && _settings.torAutostart && await _findTor() != null) await _expectTor(session);
     if (_settings.epicboxAutostart) {
       try {
         await setEpicboxListening(true);
@@ -962,6 +965,7 @@ class LepicDeskWallet implements DeskWalletApi {
       }
       _session = session;
       _config = c;
+      await _routeEpicbox(session);
       return true;
     }
 
@@ -987,6 +991,8 @@ class LepicDeskWallet implements DeskWalletApi {
   Future<void> _afterReopen(bool listening, bool http, bool tor) async {
     _nodeHealth = ServiceHealth.checking;
     _startInvoices();
+    final session = _session;
+    if (tor && session != null) await _expectTor(session);
     if (listening) await setListening(true);
     if (http) await setHttpListening(true);
     if (tor) unawaited(_startTor());
@@ -1660,6 +1666,7 @@ class LepicDeskWallet implements DeskWalletApi {
       torProblem: _torHealth == ServiceHealth.down || _torHealth == ServiceHealth.slow ? _torProblem : null,
       torCanSend: _torCanSend,
       torIncluded: await _findTor() != null,
+      epicboxViaTor: _epicboxOverTor && _settings.tor && await _findTor() != null,
       torSlowStart: _torHealth == ServiceHealth.checking &&
           !_torCanSend &&
           _torStartedAt != null &&
@@ -2302,7 +2309,10 @@ class LepicDeskWallet implements DeskWalletApi {
     final state = ManifestState.fromJson(j['state']);
     if (state == null) return null;
     final file = await loadCachedBtlabsPublic(j['envelope'] as String, keyring: _keyring, state: state);
-    if (file != null) onions.adopt(file);
+    if (file != null) {
+      onions.adopt(file);
+      await _applyOnions(_session);
+    }
     return file == null ? null : seedContactsFrom(file, validAddress: isEpicboxAddress);
   }
 
@@ -2336,6 +2346,7 @@ class LepicDeskWallet implements DeskWalletApi {
           final now = DateTime.now().millisecondsSinceEpoch;
           await _store.writeJson(_btlabsCacheKey, {'at': now, 'tried': now, 'envelope': body, 'state': state.toJson()});
           onions.adopt(manifest);
+          await _applyOnions(_session);
           final list = seedContactsFrom(manifest, validAddress: isEpicboxAddress);
           _webSeeds = list;
           await _applySeeds([...bundledSeedContacts, ..._knownSeeds(list)]);
@@ -2662,6 +2673,32 @@ class LepicDeskWallet implements DeskWalletApi {
     _changed();
   }
 
+  /// Epicbox over Tor: on until set; every wallet opened takes it ([_routeEpicbox]).
+  bool _epicboxOverTor = true;
+
+  @override
+  Future<void> setEpicboxOverTor(bool on) async {
+    _epicboxOverTor = on;
+    await _session?.setEpicboxOverTor(on);
+    _changed();
+  }
+
+  /// Hands [session] the Epicbox over Tor choice and the onion routes in use.
+  Future<void> _routeEpicbox(core.WalletSession session) async {
+    await session.setEpicboxOverTor(_epicboxOverTor);
+    await _applyOnions(session);
+  }
+
+  /// Gives LEPIC the TLS hosts of [onions] that have an onion, for connections through tor.
+  Future<void> _applyOnions(core.WalletSession? session) async {
+    if (session == null) return;
+    try {
+      await session.setOnionRoutes(onionRoutesOf(onions));
+    } on core.WalletError catch (e) {
+      logWarn('desk', 'onion routes not set: ${e.kind.name}');
+    }
+  }
+
   @override
   Future<void> setTor(bool on) async {
     _open;
@@ -2669,8 +2706,13 @@ class LepicDeskWallet implements DeskWalletApi {
     await _store.saveTorOn(_openEntry?.walletId, on);
     logInfo('desk', 'tor ${on ? 'on' : 'off'}');
     if (!on) return _stopTor();
-    // On again after a failure, or while a start hangs, is Retry.
-    if (_torHealth == ServiceHealth.down || (_torHealth == ServiceHealth.checking && !_torCanSend)) await _stopTor();
+    // On again after a failure, or while a start hangs, is Retry; the Epicbox connection keeps
+    // waiting for the new tor.
+    if (_torHealth == ServiceHealth.down || (_torHealth == ServiceHealth.checking && !_torCanSend)) {
+      final session = _session;
+      if (session != null) await _expectTor(session);
+      await _stopTor();
+    }
     _torAutoRetried = false;
     await _startTor();
   }
@@ -2775,6 +2817,7 @@ class LepicDeskWallet implements DeskWalletApi {
   Future<void> _restartTor(core.WalletSession session, StreamSubscription<core.TorEvent> sub) async {
     if (_tor != sub) return;
     _tor = null;
+    await _expectTor(session);
     try {
       await session.stopTor();
     } on core.WalletError catch (e) {
@@ -2783,6 +2826,16 @@ class LepicDeskWallet implements DeskWalletApi {
     await sub.cancel();
     if (_session != session || !_settings.tor) return;
     await _startTor();
+  }
+
+  /// Tor (re)starts next: the Epicbox connection waits for it and a stop before it keeps it
+  /// waiting (LEPIC's `expectTor`).
+  Future<void> _expectTor(core.WalletSession session) async {
+    try {
+      await session.expectTor();
+    } on core.WalletError catch (e) {
+      logWarn('desk', 'expect tor: ${e.kind.name}');
+    }
   }
 
   Future<void> _stopTor() async {
@@ -2796,7 +2849,14 @@ class LepicDeskWallet implements DeskWalletApi {
     _torProgress = null;
     _torCanSend = false;
     if (sub == null) {
-      if (was != ServiceHealth.off) _changed();
+      if (was == ServiceHealth.off) return;
+      // Tor ended by itself: LEPIC keeps the Epicbox connection waiting for it until stopped.
+      try {
+        await _session?.stopTor();
+      } on core.WalletError catch (e) {
+        logWarn('desk', 'stop tor: ${e.kind.name}');
+      }
+      _changed();
       return;
     }
     try {
