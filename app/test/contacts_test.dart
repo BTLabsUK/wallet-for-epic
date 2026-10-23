@@ -279,6 +279,27 @@ void main() {
       expect(find.byType(MarkedQr), findsNothing);
     });
 
+    testWidgets('on a phone the actions sit above the navigation bar, 48 dp tall', (
+      tester,
+    ) async {
+      // A 24 dp status bar and a 48 dp navigation bar on the harness's 360 × 780 dp phone.
+      tester.view.padding = const FakeViewPadding(top: 24 * 3, bottom: 48 * 3);
+      tester.view.viewPadding = const FakeViewPadding(top: 24 * 3, bottom: 48 * 3);
+      await open(tester);
+      final limit = tester.view.physicalSize.height / tester.view.devicePixelRatio - 48;
+      for (final key in [contactSheetSendKey, contactSheetEditKey, contactSheetDeleteKey]) {
+        final rect = tester.getRect(find.byKey(key));
+        expect(rect.height, greaterThanOrEqualTo(48), reason: '$key');
+        expect(rect.bottom, lessThanOrEqualTo(limit), reason: '$key under the bar');
+        final hit = tester.hitTestOnBinding(rect.center);
+        expect(
+          hit.path.map((e) => e.target),
+          contains(tester.renderObject(find.byKey(key))),
+          reason: '$key is covered',
+        );
+      }
+    });
+
     testWidgets('Send hands the address to the Send tab', (tester) async {
       final h = await open(tester);
       await tester.tap(find.byKey(contactSheetSendKey));

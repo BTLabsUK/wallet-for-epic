@@ -8,6 +8,7 @@
 library;
 
 import 'dart:convert';
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -20,6 +21,8 @@ import '../server_switch.dart';
 import '../providers.dart';
 import '../public_servers.dart';
 import '../relay_directory.dart';
+import '../net/tor_net.dart' show isLoopbackUrl;
+import '../tor_routes.dart' show TorRoute, torSkipsLocalNode;
 import 'common.dart' show groupDigits;
 import 'notices.dart';
 import 'help_screen.dart' show HelpButton, HelpId;
@@ -27,6 +30,7 @@ import 'launch_screen.dart';
 import 'status.dart' hide NodeStatus;
 import 'theme/protocol.dart';
 import 'theme/tokens.dart';
+import 'tor_ui.dart' show TorWayLine;
 
 // Providers.
 
@@ -829,6 +833,8 @@ class _ServerPickerSheetState extends ConsumerState<ServerPickerSheet> {
   void _pick(String value, NetworkChoice choice) {
     final current = _node ? choice.nodeUrl : choice.relay.label;
     final same = _node ? _sameNode(value, current) : value == current;
+    // The keyboard (from the search or Other server field) would cover the confirm strip.
+    FocusManager.instance.primaryFocus?.unfocus();
     setState(() {
       _pending = same ? null : value;
       _error = null;
@@ -837,6 +843,7 @@ class _ServerPickerSheetState extends ConsumerState<ServerPickerSheet> {
 
   Future<void> _testTyped(String url, NetworkChoice choice) async {
     final l = context.l10n;
+    FocusManager.instance.primaryFocus?.unfocus();
     setState(() {
       _typed = (url: url, result: null);
       _pending = null;
@@ -929,6 +936,12 @@ class _ServerPickerSheetState extends ConsumerState<ServerPickerSheet> {
     final theme = Theme.of(context);
     final choice = ref.watch(networkChoiceProvider).value;
     final title = _node ? l.serverNodeTitle : l.serverEpicboxTitle;
+    // The modal sheet keeps the phone's bottom inset for its content (useSafeArea covers the
+    // top only) and ignores the keyboard: the foot below the strip takes the larger of the
+    // gesture or navigation bar and the keyboard, so the confirm strip is always in view and
+    // never under either. Android folds the bar into the keyboard's inset while it shows.
+    final media = MediaQuery.of(context);
+    final foot = math.max(media.padding.bottom, media.viewInsets.bottom);
     return Column(
       children: [
         Padding(
@@ -985,6 +998,7 @@ class _ServerPickerSheetState extends ConsumerState<ServerPickerSheet> {
                     }),
                   ),
           ),
+        SizedBox(height: foot),
       ],
     );
   }
@@ -1006,8 +1020,15 @@ class _ServerPickerSheetState extends ConsumerState<ServerPickerSheet> {
           choice.nodeUrl,
         ].any((u) => _sameNode(u, typed)));
     final test = _typed;
+    final nodeLocal =
+        torSkipsLocalNode && isLoopbackUrl(Uri.parse(choice.nodeUrl));
     return [
       _CurrentNodeCard(choice: choice),
+      // The node over Tor, or waiting for it, as the status card says (nothing otherwise).
+      if (!nodeLocal) ...[
+        const SizedBox(height: 8),
+        const TorWayLine(route: TorRoute.node),
+      ],
       const SizedBox(height: 16),
       TextField(
         controller: _query,
@@ -1066,6 +1087,11 @@ class _ServerPickerSheetState extends ConsumerState<ServerPickerSheet> {
             ],
           ),
         ),
+      ),
+      // Epicbox over Tor, or waiting for it, as the status card says (nothing otherwise).
+      const Padding(
+        padding: EdgeInsets.only(top: 8),
+        child: TorWayLine(route: TorRoute.epicbox),
       ),
       ServerList(
         kind: ServerKind.relay,
@@ -1171,7 +1197,8 @@ class _TypedRow extends StatelessWidget {
   }
 }
 
-/// The strip at the sheet's foot: what a switch does, `Switch to host` and Cancel.
+/// The strip at the sheet's foot: what a switch does with Cancel beside it, then
+/// `Switch to host` full width and 48 dp tall, the last thing above the phone's bottom edge.
 class _ConfirmStrip extends StatelessWidget {
   const _ConfirmStrip({
     required this.host,
@@ -1202,54 +1229,57 @@ class _ConfirmStrip extends StatelessWidget {
         color: t.surface,
         border: Border(top: BorderSide(color: t.line)),
       ),
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Semantics(
-            liveRegion: true,
-            child: Text(
-              error ?? note,
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: error != null
-                    ? t.risk
-                    : warn
-                    ? t.warn
-                    : t.dim,
-              ),
-            ),
-          ),
-          const SizedBox(height: 8),
           Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
+              Expanded(
+                child: Semantics(
+                  liveRegion: true,
+                  child: Text(
+                    error ?? note,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: error != null
+                          ? t.risk
+                          : warn
+                          ? t.warn
+                          : t.dim,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
               TextButton(
+                style: TextButton.styleFrom(minimumSize: const Size(64, 48)),
                 onPressed: busy ? null : onCancel,
                 child: Text(l.commonCancel),
               ),
-              const SizedBox(width: 8),
-              if (host != null)
-                Expanded(
-                  child: FilledButton(
-                    key: serverSwitchKey,
-                    style: FilledButton.styleFrom(
-                      minimumSize: const Size(0, 44),
-                    ),
-                    onPressed: busy ? null : onSwitch,
-                    child: busy
-                        ? const SizedBox.square(
-                            dimension: 18,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                        : Text(
-                            l.serverSwitchTo(host!),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                  ),
-                ),
             ],
           ),
+          if (host != null) ...[
+            const SizedBox(height: 4),
+            FilledButton(
+              key: serverSwitchKey,
+              style: FilledButton.styleFrom(
+                minimumSize: const Size.fromHeight(48),
+              ),
+              onPressed: busy ? null : onSwitch,
+              child: busy
+                  ? const SizedBox.square(
+                      dimension: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : Text(
+                      l.serverSwitchTo(host!),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+            ),
+          ],
         ],
       ),
     );

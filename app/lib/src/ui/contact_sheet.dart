@@ -182,8 +182,11 @@ class _ContactSheetState extends ConsumerState<ContactSheet> {
     final theme = Theme.of(context);
     final note = _contact.note?.trim();
     final label = TextStyle(color: t.dim, fontSize: 12);
+    // The modal sheet leaves the phone's bottom inset to its content: the action row stays
+    // above the gesture or navigation bar.
+    final foot = MediaQuery.paddingOf(context).bottom;
     return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+      padding: EdgeInsets.fromLTRB(16, 0, 16, 16 + foot),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -272,7 +275,7 @@ class _ContactSheetState extends ConsumerState<ContactSheet> {
                 child: FilledButton.icon(
                   key: contactSheetSendKey,
                   style: FilledButton.styleFrom(
-                    minimumSize: const Size.fromHeight(44),
+                    minimumSize: const Size.fromHeight(48),
                   ),
                   icon: const Icon(Icons.north_east, size: 18),
                   label: Text(l.contactsSendAction),
@@ -282,7 +285,7 @@ class _ContactSheetState extends ConsumerState<ContactSheet> {
               const SizedBox(width: 8),
               OutlinedButton(
                 key: contactSheetEditKey,
-                style: OutlinedButton.styleFrom(minimumSize: const Size(0, 44)),
+                style: OutlinedButton.styleFrom(minimumSize: const Size(0, 48)),
                 onPressed: _edit,
                 child: Text(l.contactsEditAction),
               ),
@@ -290,7 +293,7 @@ class _ContactSheetState extends ConsumerState<ContactSheet> {
               TextButton(
                 key: contactSheetDeleteKey,
                 style: TextButton.styleFrom(
-                  minimumSize: const Size(0, 44),
+                  minimumSize: const Size(0, 48),
                   foregroundColor: t.risk,
                 ),
                 onPressed: _delete,

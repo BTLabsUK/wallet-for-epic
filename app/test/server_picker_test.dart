@@ -69,6 +69,22 @@ MemorySecretStore _store() => MemorySecretStore({
   'app.relay.mainnet': 'epicbox.stackwallet.com',
 });
 
+/// The providers every pump replaces (Riverpod exports no name for the list's type).
+// ignore: strict_top_level_inference
+_overrides(MemorySecretStore store, _Directory? directory) => [
+  secretStoreProvider.overrideWithValue(store),
+  walletServiceProvider.overrideWithValue(FakeWalletService()),
+  relayDirectoryProvider.overrideWithValue(directory ?? _Directory()),
+  homeProvider.overrideWith(_Home.new),
+  listenerProvider.overrideWith(_Listener.new),
+  walletConfigProvider.overrideWith(_Config.new),
+  // The current node's card shows the tip the open wallet asks through its Tor; these
+  // tests open no wallet, so the tip stands in for its answer.
+  nodeTipProvider.overrideWith(
+    (ref) async => NodeTip(height: BigInt.from(2500000), nodeVersion: '3.6.0'),
+  ),
+];
+
 Future<void> _pump(
   WidgetTester tester,
   ServerKind kind, {
@@ -84,19 +100,7 @@ Future<void> _pump(
   await tester.pumpWidget(
     ProviderScope(
       retry: (_, _) => null,
-      overrides: [
-        secretStoreProvider.overrideWithValue(store),
-        walletServiceProvider.overrideWithValue(FakeWalletService()),
-        relayDirectoryProvider.overrideWithValue(directory ?? _Directory()),
-        homeProvider.overrideWith(_Home.new),
-        listenerProvider.overrideWith(_Listener.new),
-        walletConfigProvider.overrideWith(_Config.new),
-        // The current node's card shows the tip the open wallet asks through its Tor; these
-        // tests open no wallet, so the tip stands in for its answer.
-        nodeTipProvider.overrideWith(
-          (ref) async => NodeTip(height: BigInt.from(2500000), nodeVersion: '3.6.0'),
-        ),
-      ],
+      overrides: _overrides(store, directory),
       child: MaterialApp(
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
@@ -120,6 +124,75 @@ Future<void> _pump(
 }
 
 final Finder _list = find.byType(Scrollable).first;
+
+/// Opens the real sheet ([showNodePicker] or [showEpicboxPicker]) over a screen on a phone of
+/// [size] dp with a 24 dp status bar and a [bottom] dp gesture or navigation bar.
+Future<void> _pumpPhone(
+  WidgetTester tester,
+  ServerKind kind, {
+  required Size size,
+  required double bottom,
+}) async {
+  tester.view.physicalSize = size * 3;
+  tester.view.devicePixelRatio = 3;
+  tester.view.padding = FakeViewPadding(top: 24 * 3, bottom: bottom * 3);
+  tester.view.viewPadding = FakeViewPadding(top: 24 * 3, bottom: bottom * 3);
+  addTearDown(tester.view.reset);
+  await tester.pumpWidget(
+    ProviderScope(
+      retry: (_, _) => null,
+      overrides: _overrides(_store(), null),
+      child: MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: Scaffold(
+          body: Center(
+            child: Builder(
+              builder: (context) => TextButton(
+                onPressed: () => kind == ServerKind.node
+                    ? showNodePicker(context)
+                    : showEpicboxPicker(context),
+                child: const Text('open'),
+              ),
+            ),
+          ),
+        ),
+      ),
+    ),
+  );
+  await tester.pumpAndSettle();
+  await tester.tap(find.text('open'));
+  await tester.pumpAndSettle();
+}
+
+/// A keyboard [height] dp tall opens: Android folds the bar into its inset.
+Future<void> _keyboard(WidgetTester tester, double height) async {
+  tester.view.viewInsets = FakeViewPadding(bottom: height * 3);
+  tester.view.padding = const FakeViewPadding(top: 24 * 3, bottom: 0);
+  await tester.pumpAndSettle();
+}
+
+/// The sheet's own list, under the screen's.
+final Finder _sheetList = find
+    .descendant(of: find.byType(ServerPickerSheet), matching: find.byType(Scrollable))
+    .first;
+
+/// The Switch button is whole, full width, at least 48 dp tall, above the bottom [inset] (the
+/// bar or the keyboard), and the first thing under a tap at its centre; Cancel is above the
+/// inset too.
+void _expectReachable(WidgetTester tester, {required double inset}) {
+  final screen = tester.view.physicalSize / tester.view.devicePixelRatio;
+  final limit = screen.height - inset;
+  final button = find.byKey(serverSwitchKey);
+  final rect = tester.getRect(button);
+  expect(rect.height, greaterThanOrEqualTo(48));
+  expect(rect.width, greaterThanOrEqualTo(screen.width - 40));
+  expect(rect.top, greaterThanOrEqualTo(0));
+  expect(rect.bottom, lessThanOrEqualTo(limit));
+  expect(tester.getRect(find.text('Cancel')).bottom, lessThanOrEqualTo(limit));
+  final hit = tester.hitTestOnBinding(rect.center);
+  expect(hit.path.map((e) => e.target), contains(tester.renderObject(button)));
+}
 
 Finder _row(String value) => find.byKey(serverRowKey(value));
 
@@ -425,5 +498,72 @@ void main() {
     expect(typedNodeUrl('btlabs'), isNull);
     expect(typedNodeUrl('ftp://node.example.org'), isNull);
     expect(typedNodeUrl('https://u@node.example.org'), isNull);
+  });
+
+  group('on a phone the confirm strip is in reach', () {
+    for (final (name, size, bottom) in [
+      ('360×640 with a 48 dp navigation bar', const Size(360, 640), 48.0),
+      ('360×800 with a 24 dp gesture bar', const Size(360, 800), 24.0),
+      ('412×915 with a 48 dp navigation bar', const Size(412, 915), 48.0),
+    ]) {
+      testWidgets('Epicbox sheet, $name', (tester) async {
+        await _pumpPhone(tester, ServerKind.relay, size: size, bottom: bottom);
+        await tester.tap(_row('epicbox.epicnet.us'));
+        await tester.pumpAndSettle();
+        expect(find.text('Switch to epicbox.epicnet.us'), findsOneWidget);
+        _expectReachable(tester, inset: bottom);
+      });
+
+      testWidgets('Node sheet, $name', (tester) async {
+        await _pumpPhone(tester, ServerKind.node, size: size, bottom: bottom);
+        const url = 'https://node.epicnet.us:3413';
+        await tester.scrollUntilVisible(_row(url), 100, scrollable: _sheetList);
+        await tester.pumpAndSettle();
+        await tester.tap(_row(url));
+        await tester.pumpAndSettle();
+        expect(find.text('Switch to node.epicnet.us:3413'), findsOneWidget);
+        _expectReachable(tester, inset: bottom);
+      });
+    }
+
+    testWidgets('a pick closes the keyboard, and the strip stays above one that is open', (
+      tester,
+    ) async {
+      await _pumpPhone(tester, ServerKind.node, size: const Size(360, 640), bottom: 48);
+      final field = find.byType(TextField).first;
+      await tester.tap(field);
+      await _keyboard(tester, 260);
+      await tester.enterText(field, 'epicnet');
+      await tester.pumpAndSettle();
+      expect(tester.widget<EditableText>(find.byType(EditableText).first).focusNode.hasFocus,
+          isTrue);
+      const url = 'https://node.epicnet.us:3413';
+      await tester.scrollUntilVisible(_row(url), 100, scrollable: _sheetList);
+      await tester.pumpAndSettle();
+      await tester.tap(_row(url));
+      await tester.pumpAndSettle();
+      // The field let go of the keyboard; the test's view keeps the inset, as a phone would
+      // until the keyboard has gone, and the strip is above it either way.
+      expect(tester.widget<EditableText>(find.byType(EditableText).first).focusNode.hasFocus,
+          isFalse);
+      _expectReachable(tester, inset: 260);
+    });
+
+    testWidgets('the Other server field: Use closes the keyboard, the strip is in reach', (
+      tester,
+    ) async {
+      await _pumpPhone(tester, ServerKind.relay, size: const Size(360, 640), bottom: 48);
+      // The sheet's one field, built once the list is scrolled down to it.
+      final field = find.byType(TextField);
+      await tester.scrollUntilVisible(field, 100, scrollable: _sheetList);
+      await tester.pumpAndSettle();
+      await tester.tap(field);
+      await _keyboard(tester, 260);
+      await tester.enterText(field, 'relay.example.org');
+      await tester.testTextInput.receiveAction(TextInputAction.done);
+      await tester.pumpAndSettle();
+      expect(find.text('Switch to relay.example.org'), findsOneWidget);
+      _expectReachable(tester, inset: 260);
+    });
   });
 }
