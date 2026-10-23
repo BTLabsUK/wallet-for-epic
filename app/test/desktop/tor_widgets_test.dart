@@ -1,5 +1,5 @@
 // Tor on the mock wallet: Settings › Receiving turns it on per wallet and shows its state and
-// onion; Send routes an onion to Tor and offers Turn on Tor while it is off. Every screen spot
+// onion; Send routes an onion (a Direct send) to Tor and offers Turn on Tor while it is off. Every screen spot
 // is behind DeskFeatures.tor, so these run once the flag is on.
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/screens/transfer/send_screen.dart';
@@ -77,15 +77,15 @@ void main() {
   group('Send to an onion', () {
     testWidgets('Tor off: Turn on Tor, then the send goes over Tor', (tester) async {
       await show(tester, const SendScreen(arg: SendArgs(method: TxMethod.http, recipient: _onion, amount: '1')));
-      // Given under HTTP, the method follows the onion to Tor.
-      expect(find.text('Tor is off'), findsOneWidget);
+      // Under Direct, an onion needs Tor.
+      expect(find.text('Needs Tor'), findsOneWidget);
       expect(tester.widget<EButton>(find.widgetWithText(EButton, 'Review send')).onPressed, isNull);
-      await tester.tap(find.widgetWithText(EButton, 'Turn on Tor receiving'));
+      await tester.tap(find.widgetWithText(EButton, 'Turn on Tor'));
       await tester.pumpAndSettle();
-      expect(find.text('Tor is off'), findsNothing);
+      expect(find.text('Needs Tor'), findsNothing);
       await tester.tap(find.text('Review send'));
       await tester.pumpAndSettle();
-      expect(find.text('Tor (their wallet must be open)'), findsOneWidget);
+      expect(find.text('Direct, over Tor (their wallet must be open)'), findsOneWidget);
       await enterReviewPassword(tester);
       await tester.tap(find.text('Send 1.0000 EPIC'));
       await tester.pumpAndSettle();
@@ -93,12 +93,12 @@ void main() {
       expect(wallet.sent.single.to, _onion);
     }, skip: _skip);
 
-    testWidgets('an onion pasted under Epicbox switches to Tor', (tester) async {
+    testWidgets('an onion pasted under Epicbox switches to Direct', (tester) async {
       await show(tester, const SendScreen(arg: SendArgs(amount: '1')));
       await tester.enterText(find.byType(EditableText).first, _onion);
       await tester.pumpAndSettle();
-      expect(find.text('Straight to their wallet, over Tor.'), findsOneWidget);
-      expect(find.widgetWithText(EButton, 'Turn on Tor receiving'), findsOneWidget);
+      expect(tester.widget<ESegmented<TxMethod>>(find.byType(ESegmented<TxMethod>)).value, TxMethod.http);
+      expect(find.widgetWithText(EButton, 'Turn on Tor'), findsOneWidget);
     }, skip: _skip);
   });
 }

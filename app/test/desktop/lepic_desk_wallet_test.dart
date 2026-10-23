@@ -1190,10 +1190,10 @@ void main() {
       await done(tester);
     });
 
-    testWidgets('send has HTTP, Tor as DeskFeatures.tor says, no Dandelion++', (tester) async {
+    testWidgets('send has Epicbox, Direct and File (an onion is a Direct send), no Dandelion++', (tester) async {
       await pump(tester, DeskRoute.send);
-      expect(find.text('HTTP'), findsOneWidget);
-      expect(find.text('Tor'), DeskFeatures.tor ? findsOneWidget : findsNothing);
+      expect(find.text('Direct'), findsOneWidget);
+      expect(find.text('Tor'), findsNothing, reason: 'no Tor method of its own');
       expect(find.textContaining('Dandelion'), findsNothing);
       await done(tester);
     });
