@@ -6660,6 +6660,348 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Before you request'**
   String get invoicesRequestHowTitle;
+
+  /// Status card row title: the node the wallet uses.
+  ///
+  /// In en, this message translates to:
+  /// **'Node'**
+  String get netStatusNode;
+
+  /// Status card row title: the Epicbox relay.
+  ///
+  /// In en, this message translates to:
+  /// **'Epicbox'**
+  String get netStatusEpicbox;
+
+  /// Status card row title: Tor on the phone.
+  ///
+  /// In en, this message translates to:
+  /// **'Tor'**
+  String get netStatusTor;
+
+  /// Status card: the node is at the chain tip.
+  ///
+  /// In en, this message translates to:
+  /// **'Synced'**
+  String get netStatusSynced;
+
+  /// Status card: the wallet is syncing with the node, no percent known.
+  ///
+  /// In en, this message translates to:
+  /// **'Syncing'**
+  String get netStatusSyncing;
+
+  /// Status card: syncing with a percent.
+  ///
+  /// In en, this message translates to:
+  /// **'Syncing {percent} %'**
+  String netStatusSyncingPercent(int percent);
+
+  /// Status card: no answer yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Connecting'**
+  String get netStatusConnecting;
+
+  /// Status card: the node is {count} blocks behind the network.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{Behind {count}} other{Behind {count}}}'**
+  String netStatusBehind(int count);
+
+  /// Status card: the service does not answer.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline'**
+  String get netStatusOffline;
+
+  /// Status card: the Epicbox relay is connected.
+  ///
+  /// In en, this message translates to:
+  /// **'Online'**
+  String get netStatusOnline;
+
+  /// Status card: the service is turned off.
+  ///
+  /// In en, this message translates to:
+  /// **'Off'**
+  String get netStatusOff;
+
+  /// Status card: Tor is connected.
+  ///
+  /// In en, this message translates to:
+  /// **'On'**
+  String get netStatusOn;
+
+  /// Status card: Tor stopped with an error.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed'**
+  String get netStatusFailed;
+
+  /// Status card: Tor is starting, percent done.
+  ///
+  /// In en, this message translates to:
+  /// **'Starting {percent} %'**
+  String netStatusStarting(int percent);
+
+  /// Status card host line on a test network: the network name, then the host.
+  ///
+  /// In en, this message translates to:
+  /// **'{network} · {host}'**
+  String netStatusTestHost(String network, String host);
+
+  /// Screen reader name of the status card.
+  ///
+  /// In en, this message translates to:
+  /// **'Network status'**
+  String get netStatusTitle;
+
+  /// Screen reader hint on a status card row.
+  ///
+  /// In en, this message translates to:
+  /// **'Shows the servers'**
+  String get netStatusOpenHint;
+
+  /// Node picker sheet title.
+  ///
+  /// In en, this message translates to:
+  /// **'Node'**
+  String get serverNodeTitle;
+
+  /// Epicbox picker sheet title.
+  ///
+  /// In en, this message translates to:
+  /// **'Epicbox'**
+  String get serverEpicboxTitle;
+
+  /// Node picker search field.
+  ///
+  /// In en, this message translates to:
+  /// **'Find or type a node address'**
+  String get serverSearchHint;
+
+  /// Row offering a typed node address that matches no list row.
+  ///
+  /// In en, this message translates to:
+  /// **'Use {address}'**
+  String serverUseAddress(String address);
+
+  /// While a typed node address is being tested.
+  ///
+  /// In en, this message translates to:
+  /// **'Testing…'**
+  String get serverTesting;
+
+  /// The typed node answered: its block and version.
+  ///
+  /// In en, this message translates to:
+  /// **'Block {height} · v{version}'**
+  String serverTestAnswer(String height, String version);
+
+  /// The typed node did not answer; {error} says why.
+  ///
+  /// In en, this message translates to:
+  /// **'No answer. {error}'**
+  String serverTestFailed(String error);
+
+  /// Node picker section head: starred and typed nodes.
+  ///
+  /// In en, this message translates to:
+  /// **'My nodes'**
+  String get serverMyNodes;
+
+  /// Node picker section head: public nodes.
+  ///
+  /// In en, this message translates to:
+  /// **'Public nodes'**
+  String get serverPublicNodes;
+
+  /// Epicbox picker section head: public relays.
+  ///
+  /// In en, this message translates to:
+  /// **'Public servers'**
+  String get serverPublicRelays;
+
+  /// Caption under the lists when the monitor did not answer.
+  ///
+  /// In en, this message translates to:
+  /// **'status.btlabs.uk not reachable; health unknown'**
+  String get serverHealthUnknown;
+
+  /// Node row: the node is at the network tip.
+  ///
+  /// In en, this message translates to:
+  /// **'at tip'**
+  String get serverAtTip;
+
+  /// Node row: blocks behind the tip, as a short number with a minus sign.
+  ///
+  /// In en, this message translates to:
+  /// **'−{count}'**
+  String serverBehindShort(String count);
+
+  /// Screen reader: the node is behind the tip.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{{count} block behind} other{{count} blocks behind}}'**
+  String serverBehindLabel(int count);
+
+  /// Star button: add the node to My nodes.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to my nodes'**
+  String get serverAddMine;
+
+  /// Star button: remove the node from My nodes.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove from my nodes'**
+  String get serverRemoveMine;
+
+  /// Row: the server does not answer the monitor.
+  ///
+  /// In en, this message translates to:
+  /// **'Not responding'**
+  String get serverNotResponding;
+
+  /// Screen reader: the monitor saw the server healthy.
+  ///
+  /// In en, this message translates to:
+  /// **'Healthy'**
+  String get serverHealthy;
+
+  /// Screen reader: the monitor saw the server answer but lag or misbehave.
+  ///
+  /// In en, this message translates to:
+  /// **'Degraded'**
+  String get serverDegraded;
+
+  /// Screen reader: no health known for the server.
+  ///
+  /// In en, this message translates to:
+  /// **'Health unknown'**
+  String get serverHealthNone;
+
+  /// Row trailing word: the server in use.
+  ///
+  /// In en, this message translates to:
+  /// **'Current'**
+  String get serverCurrent;
+
+  /// Tag on the default Epicbox relay.
+  ///
+  /// In en, this message translates to:
+  /// **'Default'**
+  String get serverDefault;
+
+  /// Latency in milliseconds, measured by the monitor.
+  ///
+  /// In en, this message translates to:
+  /// **'{ms} ms'**
+  String serverLatency(String ms);
+
+  /// Relay uptime over the last day.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent} % up'**
+  String serverUptime(String percent);
+
+  /// Confirm strip button: switch to the chosen server.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch to {host}'**
+  String serverSwitchTo(String host);
+
+  /// Confirm strip caption: what switching the node does.
+  ///
+  /// In en, this message translates to:
+  /// **'The wallet reconnects. Balances are checked again against the new node.'**
+  String get serverNodeSwitchNote;
+
+  /// Epicbox picker warning above the list.
+  ///
+  /// In en, this message translates to:
+  /// **'Your address includes this server. Switching changes your address; senders need the new one.'**
+  String get serverRelayWarning;
+
+  /// Epicbox confirm strip caption.
+  ///
+  /// In en, this message translates to:
+  /// **'Your address changes; senders need the new one.'**
+  String get serverRelaySwitchNote;
+
+  /// Epicbox picker field for a relay not in the list.
+  ///
+  /// In en, this message translates to:
+  /// **'Other server, host or host:port'**
+  String get serverOtherRelay;
+
+  /// Current node card label: the node's block height.
+  ///
+  /// In en, this message translates to:
+  /// **'Height'**
+  String get serverFactHeight;
+
+  /// Current node card label: the node's version.
+  ///
+  /// In en, this message translates to:
+  /// **'Version'**
+  String get serverFactVersion;
+
+  /// Current node card label: peers the node is connected to.
+  ///
+  /// In en, this message translates to:
+  /// **'Peers'**
+  String get serverFactPeers;
+
+  /// Current node card label: uptime over the last 24 hours.
+  ///
+  /// In en, this message translates to:
+  /// **'Uptime 24 h'**
+  String get serverFactUptime;
+
+  /// Current node card: height and at tip.
+  ///
+  /// In en, this message translates to:
+  /// **'{height} · at tip'**
+  String serverHeightAtTip(String height);
+
+  /// Directory line: the height the nodes agree on.
+  ///
+  /// In en, this message translates to:
+  /// **'Nodes agree on {height}'**
+  String serverNodesAgree(String height);
+
+  /// Directory line: healthy nodes of all nodes.
+  ///
+  /// In en, this message translates to:
+  /// **'{total, plural, one{{up} of {total} node up} other{{up} of {total} nodes up}}'**
+  String serverNodesUp(int up, int total);
+
+  /// Directory line: age of the last block in seconds.
+  ///
+  /// In en, this message translates to:
+  /// **'{seconds, plural, one{last block {seconds} s ago} other{last block {seconds} s ago}}'**
+  String serverLastBlockSeconds(int seconds);
+
+  /// Directory line: age of the last block in minutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes, plural, one{last block {minutes} min ago} other{last block {minutes} min ago}}'**
+  String serverLastBlockMinutes(int minutes);
+
+  /// Directory source line with the time of the monitor's last check.
+  ///
+  /// In en, this message translates to:
+  /// **'status.btlabs.uk, checked {time}'**
+  String serverCheckedAt(String time);
+
+  /// Screen reader label of a server row: host, then its facts.
+  ///
+  /// In en, this message translates to:
+  /// **'{host}, {facts}'**
+  String serverRowLabel(String host, String facts);
 }
 
 class _AppLocalizationsDelegate

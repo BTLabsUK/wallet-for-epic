@@ -5388,5 +5388,340 @@
   "invoicesRequestHowTitle": "Before you request",
   "@invoicesRequestHowTitle": {
     "description": "Request form: heading of what the payer must do first."
+  },
+  "netStatusNode": "Node",
+  "@netStatusNode": {
+    "description": "Status card row title: the node the wallet uses."
+  },
+  "netStatusEpicbox": "Epicbox",
+  "@netStatusEpicbox": {
+    "description": "Status card row title: the Epicbox relay."
+  },
+  "netStatusTor": "Tor",
+  "@netStatusTor": {
+    "description": "Status card row title: Tor on the phone."
+  },
+  "netStatusSynced": "Synced",
+  "@netStatusSynced": {
+    "description": "Status card: the node is at the chain tip."
+  },
+  "netStatusSyncing": "Syncing",
+  "@netStatusSyncing": {
+    "description": "Status card: the wallet is syncing with the node, no percent known."
+  },
+  "netStatusSyncingPercent": "Syncing {percent} %",
+  "@netStatusSyncingPercent": {
+    "description": "Status card: syncing with a percent.",
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "netStatusConnecting": "Connecting",
+  "@netStatusConnecting": {
+    "description": "Status card: no answer yet."
+  },
+  "netStatusBehind": "{count, plural, one{Behind {count}} other{Behind {count}}}",
+  "@netStatusBehind": {
+    "description": "Status card: the node is {count} blocks behind the network.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "netStatusOffline": "Offline",
+  "@netStatusOffline": {
+    "description": "Status card: the service does not answer."
+  },
+  "netStatusOnline": "Online",
+  "@netStatusOnline": {
+    "description": "Status card: the Epicbox relay is connected."
+  },
+  "netStatusOff": "Off",
+  "@netStatusOff": {
+    "description": "Status card: the service is turned off."
+  },
+  "netStatusOn": "On",
+  "@netStatusOn": {
+    "description": "Status card: Tor is connected."
+  },
+  "netStatusFailed": "Failed",
+  "@netStatusFailed": {
+    "description": "Status card: Tor stopped with an error."
+  },
+  "netStatusStarting": "Starting {percent} %",
+  "@netStatusStarting": {
+    "description": "Status card: Tor is starting, percent done.",
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "netStatusTestHost": "{network} · {host}",
+  "@netStatusTestHost": {
+    "description": "Status card host line on a test network: the network name, then the host.",
+    "placeholders": {
+      "network": {
+        "type": "String"
+      },
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "netStatusTitle": "Network status",
+  "@netStatusTitle": {
+    "description": "Screen reader name of the status card."
+  },
+  "netStatusOpenHint": "Shows the servers",
+  "@netStatusOpenHint": {
+    "description": "Screen reader hint on a status card row."
+  },
+  "serverNodeTitle": "Node",
+  "@serverNodeTitle": {
+    "description": "Node picker sheet title."
+  },
+  "serverEpicboxTitle": "Epicbox",
+  "@serverEpicboxTitle": {
+    "description": "Epicbox picker sheet title."
+  },
+  "serverSearchHint": "Find or type a node address",
+  "@serverSearchHint": {
+    "description": "Node picker search field."
+  },
+  "serverUseAddress": "Use {address}",
+  "@serverUseAddress": {
+    "description": "Row offering a typed node address that matches no list row.",
+    "placeholders": {
+      "address": {
+        "type": "String"
+      }
+    }
+  },
+  "serverTesting": "Testing…",
+  "@serverTesting": {
+    "description": "While a typed node address is being tested."
+  },
+  "serverTestAnswer": "Block {height} · v{version}",
+  "@serverTestAnswer": {
+    "description": "The typed node answered: its block and version.",
+    "placeholders": {
+      "height": {
+        "type": "String"
+      },
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "serverTestFailed": "No answer. {error}",
+  "@serverTestFailed": {
+    "description": "The typed node did not answer; {error} says why.",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "serverMyNodes": "My nodes",
+  "@serverMyNodes": {
+    "description": "Node picker section head: starred and typed nodes."
+  },
+  "serverPublicNodes": "Public nodes",
+  "@serverPublicNodes": {
+    "description": "Node picker section head: public nodes."
+  },
+  "serverPublicRelays": "Public servers",
+  "@serverPublicRelays": {
+    "description": "Epicbox picker section head: public relays."
+  },
+  "serverHealthUnknown": "status.btlabs.uk not reachable; health unknown",
+  "@serverHealthUnknown": {
+    "description": "Caption under the lists when the monitor did not answer."
+  },
+  "serverAtTip": "at tip",
+  "@serverAtTip": {
+    "description": "Node row: the node is at the network tip."
+  },
+  "serverBehindShort": "−{count}",
+  "@serverBehindShort": {
+    "description": "Node row: blocks behind the tip, as a short number with a minus sign.",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "serverBehindLabel": "{count, plural, one{{count} block behind} other{{count} blocks behind}}",
+  "@serverBehindLabel": {
+    "description": "Screen reader: the node is behind the tip.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "serverAddMine": "Add to my nodes",
+  "@serverAddMine": {
+    "description": "Star button: add the node to My nodes."
+  },
+  "serverRemoveMine": "Remove from my nodes",
+  "@serverRemoveMine": {
+    "description": "Star button: remove the node from My nodes."
+  },
+  "serverNotResponding": "Not responding",
+  "@serverNotResponding": {
+    "description": "Row: the server does not answer the monitor."
+  },
+  "serverHealthy": "Healthy",
+  "@serverHealthy": {
+    "description": "Screen reader: the monitor saw the server healthy."
+  },
+  "serverDegraded": "Degraded",
+  "@serverDegraded": {
+    "description": "Screen reader: the monitor saw the server answer but lag or misbehave."
+  },
+  "serverHealthNone": "Health unknown",
+  "@serverHealthNone": {
+    "description": "Screen reader: no health known for the server."
+  },
+  "serverCurrent": "Current",
+  "@serverCurrent": {
+    "description": "Row trailing word: the server in use."
+  },
+  "serverDefault": "Default",
+  "@serverDefault": {
+    "description": "Tag on the default Epicbox relay."
+  },
+  "serverLatency": "{ms} ms",
+  "@serverLatency": {
+    "description": "Latency in milliseconds, measured by the monitor.",
+    "placeholders": {
+      "ms": {
+        "type": "String"
+      }
+    }
+  },
+  "serverUptime": "{percent} % up",
+  "@serverUptime": {
+    "description": "Relay uptime over the last day.",
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "serverSwitchTo": "Switch to {host}",
+  "@serverSwitchTo": {
+    "description": "Confirm strip button: switch to the chosen server.",
+    "placeholders": {
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "serverNodeSwitchNote": "The wallet reconnects. Balances are checked again against the new node.",
+  "@serverNodeSwitchNote": {
+    "description": "Confirm strip caption: what switching the node does."
+  },
+  "serverRelayWarning": "Your address includes this server. Switching changes your address; senders need the new one.",
+  "@serverRelayWarning": {
+    "description": "Epicbox picker warning above the list."
+  },
+  "serverRelaySwitchNote": "Your address changes; senders need the new one.",
+  "@serverRelaySwitchNote": {
+    "description": "Epicbox confirm strip caption."
+  },
+  "serverOtherRelay": "Other server, host or host:port",
+  "@serverOtherRelay": {
+    "description": "Epicbox picker field for a relay not in the list."
+  },
+  "serverFactHeight": "Height",
+  "@serverFactHeight": {
+    "description": "Current node card label: the node's block height."
+  },
+  "serverFactVersion": "Version",
+  "@serverFactVersion": {
+    "description": "Current node card label: the node's version."
+  },
+  "serverFactPeers": "Peers",
+  "@serverFactPeers": {
+    "description": "Current node card label: peers the node is connected to."
+  },
+  "serverFactUptime": "Uptime 24 h",
+  "@serverFactUptime": {
+    "description": "Current node card label: uptime over the last 24 hours."
+  },
+  "serverHeightAtTip": "{height} · at tip",
+  "@serverHeightAtTip": {
+    "description": "Current node card: height and at tip.",
+    "placeholders": {
+      "height": {
+        "type": "String"
+      }
+    }
+  },
+  "serverNodesAgree": "Nodes agree on {height}",
+  "@serverNodesAgree": {
+    "description": "Directory line: the height the nodes agree on.",
+    "placeholders": {
+      "height": {
+        "type": "String"
+      }
+    }
+  },
+  "serverNodesUp": "{total, plural, one{{up} of {total} node up} other{{up} of {total} nodes up}}",
+  "@serverNodesUp": {
+    "description": "Directory line: healthy nodes of all nodes.",
+    "placeholders": {
+      "up": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "serverLastBlockSeconds": "{seconds, plural, one{last block {seconds} s ago} other{last block {seconds} s ago}}",
+  "@serverLastBlockSeconds": {
+    "description": "Directory line: age of the last block in seconds.",
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "serverLastBlockMinutes": "{minutes, plural, one{last block {minutes} min ago} other{last block {minutes} min ago}}",
+  "@serverLastBlockMinutes": {
+    "description": "Directory line: age of the last block in minutes.",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "serverCheckedAt": "status.btlabs.uk, checked {time}",
+  "@serverCheckedAt": {
+    "description": "Directory source line with the time of the monitor's last check.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "serverRowLabel": "{host}, {facts}",
+  "@serverRowLabel": {
+    "description": "Screen reader label of a server row: host, then its facts.",
+    "placeholders": {
+      "host": {
+        "type": "String"
+      },
+      "facts": {
+        "type": "String"
+      }
+    }
   }
 }

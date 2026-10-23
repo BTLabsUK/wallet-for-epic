@@ -6,12 +6,10 @@ import '../errors.dart';
 import '../l10n.dart';
 import '../network.dart';
 import '../providers.dart';
-import '../public_servers.dart';
-import '../relay_directory.dart';
 import '../wallet_service.dart';
 import 'common.dart';
 import 'launch_screen.dart';
-import 'theme/tokens.dart';
+import 'server_picker.dart';
 
 /// Network, node and relay settings. Saving restarts the app flow on the chosen network.
 class SetupScreen extends ConsumerStatefulWidget {
@@ -27,6 +25,9 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
 
   /// The relay saved when the screen opened, so a change can be flagged.
   EpicboxRelay? _savedRelay;
+
+  /// The node saved when the screen opened (the list marks it Current).
+  String? _savedNodeUrl;
   final _nodeUrl = TextEditingController();
   final _customRelay = TextEditingController();
   String? _urlError;
@@ -52,6 +53,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
         _preset = choice.preset;
         _relay = choice.relay;
         _savedRelay = choice.relay;
+        _savedNodeUrl = choice.nodeUrl;
         _nodeUrl.text = choice.nodeUrl;
       });
     } catch (error) {
@@ -81,6 +83,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
     if (mounted && _preset == preset) {
       setState(() {
         _nodeUrl.text = url;
+        _savedNodeUrl = url;
         _test = null;
         _relay = relay;
         _savedRelay = relay;
@@ -215,7 +218,19 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
                 ),
                 const SizedBox(height: 8),
                 Text(chainDescription(l, preset.chain)),
-                const SizedBox(height: 24),
+                const SizedBox(height: 16),
+                ServerList(
+                  kind: ServerKind.node,
+                  preset: preset,
+                  current: _savedNodeUrl,
+                  selected: _nodeUrl.text.trim(),
+                  onSelected: (url) => setState(() {
+                    _nodeUrl.text = url;
+                    _urlError = null;
+                    _test = null;
+                  }),
+                ),
+                const SizedBox(height: 16),
                 TextField(
                   controller: _nodeUrl,
                   keyboardType: TextInputType.url,
@@ -226,9 +241,8 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
                     errorText: _urlError,
                     border: const OutlineInputBorder(),
                   ),
-                  onChanged: (_) {
-                    if (_test != null) setState(() => _test = null);
-                  },
+                  // The list above follows the field's address.
+                  onChanged: (_) => setState(() => _test = null),
                 ),
                 const SizedBox(height: 8),
                 Align(
@@ -271,10 +285,14 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
                 const SizedBox(height: 4),
                 Text(l.setupRelayHint),
                 const SizedBox(height: 8),
-                _RelayPicker(
+                ServerList(
+                  kind: ServerKind.relay,
                   preset: preset,
-                  selected: _relay ?? preset.defaultRelay,
-                  onSelected: (relay) => setState(() => _relay = relay),
+                  current: _savedRelay?.label,
+                  selected: (_relay ?? preset.defaultRelay).label,
+                  onSelected: (label) => setState(
+                    () => _relay = EpicboxRelay.parse(label) ?? _relay,
+                  ),
                 ),
                 const SizedBox(height: 8),
                 TextField(
@@ -309,103 +327,5 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
               ],
       ),
     );
-  }
-}
-
-/// The relays `status.btlabs.uk` knows for this network, with their health, then the built-in
-/// mainnet relays it does not list (all of them when it is down), plus the selected relay.
-class _RelayPicker extends ConsumerWidget {
-  const _RelayPicker({
-    required this.preset,
-    required this.selected,
-    required this.onSelected,
-  });
-
-  final NetworkPreset preset;
-  final EpicboxRelay selected;
-  final ValueChanged<EpicboxRelay> onSelected;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final l = context.l10n;
-    final status = ref.watch(relayStatusProvider(preset));
-    final listed = status.value ?? const <RelayStatus>[];
-    final builtIn = [
-      if (preset.statusChain == 'mainnet')
-        for (final r in builtInRelays)
-          if (!listed.any((s) => s.relay == r.relay))
-            RelayStatus(
-              relay: r.relay,
-              healthy: false,
-              verified: false,
-              operator: r.operator,
-            ),
-    ];
-    final entries = [
-      ...listed,
-      ...builtIn,
-      if (![...listed, ...builtIn].any((s) => s.relay == selected))
-        RelayStatus(relay: selected, healthy: false, verified: false),
-    ];
-    final small = Theme.of(context).textTheme.bodySmall;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        RadioGroup<EpicboxRelay>(
-          groupValue: selected,
-          onChanged: (relay) {
-            if (relay != null) onSelected(relay);
-          },
-          child: Column(
-            children: [
-              for (final s in entries)
-                RadioListTile<EpicboxRelay>(
-                  contentPadding: EdgeInsets.zero,
-                  value: s.relay,
-                  title: Text(s.relay.label),
-                  subtitle: Text(_describe(l, s, listed.contains(s))),
-                  secondary: listed.contains(s)
-                      ? Icon(
-                          s.healthy ? Icons.check_circle : Icons.error_outline,
-                          color: s.healthy
-                              ? context.tokens.ok
-                              : context.tokens.risk,
-                          semanticLabel: s.healthy
-                              ? l.setupRelayHealthyIconLabel
-                              : l.setupRelayDownIconLabel,
-                        )
-                      : null,
-                ),
-            ],
-          ),
-        ),
-        switch (status) {
-          AsyncLoading() => const LinearProgressIndicator(),
-          // Turned off in Settings › Privacy: nothing to explain.
-          AsyncError() when ref.watch(useStatusSiteProvider) => Text(l.setupRelayHealthUnavailable, style: small),
-          // Only under servers the monitor actually measured.
-          _ when preset.statusChain != null && listed.isNotEmpty => Text(
-            l.setupRelayHealthSource,
-            style: small,
-          ),
-          _ => const SizedBox.shrink(),
-        },
-      ],
-    );
-  }
-
-  /// A list of separate facts, so each is its own message and the separator joins them.
-  static String _describe(AppLocalizations l, RelayStatus s, bool listed) {
-    if (!listed) return s.operator ?? l.setupRelayNotMonitored;
-    final parts = [
-      s.healthy ? l.setupRelayUp : l.setupRelayDown,
-      if (s.operator != null) s.operator!,
-      if (s.verified) l.setupRelayOfficial,
-      if (s.uptime24h != null)
-        l.setupRelayUptime(
-          localDigits(l, (s.uptime24h! * 100).toStringAsFixed(1)),
-        ),
-    ];
-    return parts.join(' · ');
   }
 }

@@ -4337,4 +4337,247 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get invoicesRequestHowTitle => 'Before you request';
+
+  @override
+  String get netStatusNode => 'Node';
+
+  @override
+  String get netStatusEpicbox => 'Epicbox';
+
+  @override
+  String get netStatusTor => 'Tor';
+
+  @override
+  String get netStatusSynced => 'Synced';
+
+  @override
+  String get netStatusSyncing => 'Syncing';
+
+  @override
+  String netStatusSyncingPercent(int percent) {
+    return 'Syncing $percent %';
+  }
+
+  @override
+  String get netStatusConnecting => 'Connecting';
+
+  @override
+  String netStatusBehind(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Behind $count',
+      one: 'Behind $count',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get netStatusOffline => 'Offline';
+
+  @override
+  String get netStatusOnline => 'Online';
+
+  @override
+  String get netStatusOff => 'Off';
+
+  @override
+  String get netStatusOn => 'On';
+
+  @override
+  String get netStatusFailed => 'Failed';
+
+  @override
+  String netStatusStarting(int percent) {
+    return 'Starting $percent %';
+  }
+
+  @override
+  String netStatusTestHost(String network, String host) {
+    return '$network · $host';
+  }
+
+  @override
+  String get netStatusTitle => 'Network status';
+
+  @override
+  String get netStatusOpenHint => 'Shows the servers';
+
+  @override
+  String get serverNodeTitle => 'Node';
+
+  @override
+  String get serverEpicboxTitle => 'Epicbox';
+
+  @override
+  String get serverSearchHint => 'Find or type a node address';
+
+  @override
+  String serverUseAddress(String address) {
+    return 'Use $address';
+  }
+
+  @override
+  String get serverTesting => 'Testing…';
+
+  @override
+  String serverTestAnswer(String height, String version) {
+    return 'Block $height · v$version';
+  }
+
+  @override
+  String serverTestFailed(String error) {
+    return 'No answer. $error';
+  }
+
+  @override
+  String get serverMyNodes => 'My nodes';
+
+  @override
+  String get serverPublicNodes => 'Public nodes';
+
+  @override
+  String get serverPublicRelays => 'Public servers';
+
+  @override
+  String get serverHealthUnknown =>
+      'status.btlabs.uk not reachable; health unknown';
+
+  @override
+  String get serverAtTip => 'at tip';
+
+  @override
+  String serverBehindShort(String count) {
+    return '−$count';
+  }
+
+  @override
+  String serverBehindLabel(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count blocks behind',
+      one: '$count block behind',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get serverAddMine => 'Add to my nodes';
+
+  @override
+  String get serverRemoveMine => 'Remove from my nodes';
+
+  @override
+  String get serverNotResponding => 'Not responding';
+
+  @override
+  String get serverHealthy => 'Healthy';
+
+  @override
+  String get serverDegraded => 'Degraded';
+
+  @override
+  String get serverHealthNone => 'Health unknown';
+
+  @override
+  String get serverCurrent => 'Current';
+
+  @override
+  String get serverDefault => 'Default';
+
+  @override
+  String serverLatency(String ms) {
+    return '$ms ms';
+  }
+
+  @override
+  String serverUptime(String percent) {
+    return '$percent % up';
+  }
+
+  @override
+  String serverSwitchTo(String host) {
+    return 'Switch to $host';
+  }
+
+  @override
+  String get serverNodeSwitchNote =>
+      'The wallet reconnects. Balances are checked again against the new node.';
+
+  @override
+  String get serverRelayWarning =>
+      'Your address includes this server. Switching changes your address; senders need the new one.';
+
+  @override
+  String get serverRelaySwitchNote =>
+      'Your address changes; senders need the new one.';
+
+  @override
+  String get serverOtherRelay => 'Other server, host or host:port';
+
+  @override
+  String get serverFactHeight => 'Height';
+
+  @override
+  String get serverFactVersion => 'Version';
+
+  @override
+  String get serverFactPeers => 'Peers';
+
+  @override
+  String get serverFactUptime => 'Uptime 24 h';
+
+  @override
+  String serverHeightAtTip(String height) {
+    return '$height · at tip';
+  }
+
+  @override
+  String serverNodesAgree(String height) {
+    return 'Nodes agree on $height';
+  }
+
+  @override
+  String serverNodesUp(int up, int total) {
+    String _temp0 = intl.Intl.pluralLogic(
+      total,
+      locale: localeName,
+      other: '$up of $total nodes up',
+      one: '$up of $total node up',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String serverLastBlockSeconds(int seconds) {
+    String _temp0 = intl.Intl.pluralLogic(
+      seconds,
+      locale: localeName,
+      other: 'last block $seconds s ago',
+      one: 'last block $seconds s ago',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String serverLastBlockMinutes(int minutes) {
+    String _temp0 = intl.Intl.pluralLogic(
+      minutes,
+      locale: localeName,
+      other: 'last block $minutes min ago',
+      one: 'last block $minutes min ago',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String serverCheckedAt(String time) {
+    return 'status.btlabs.uk, checked $time';
+  }
+
+  @override
+  String serverRowLabel(String host, String facts) {
+    return '$host, $facts';
+  }
 }
