@@ -3637,4 +3637,238 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get settingsSectionReceiving => '接收';
+
+  @override
+  String get netStatusNode => '节点';
+
+  @override
+  String get netStatusEpicbox => 'Epicbox';
+
+  @override
+  String get netStatusTor => 'Tor';
+
+  @override
+  String get netStatusSynced => '已同步';
+
+  @override
+  String get netStatusSyncing => '同步中';
+
+  @override
+  String netStatusSyncingPercent(int percent) {
+    return '同步中 $percent %';
+  }
+
+  @override
+  String get netStatusConnecting => '连接中';
+
+  @override
+  String netStatusBehind(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '落后 $count',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get netStatusOffline => '离线';
+
+  @override
+  String get netStatusOnline => '在线';
+
+  @override
+  String get netStatusOff => '关闭';
+
+  @override
+  String get netStatusOn => '开启';
+
+  @override
+  String get netStatusFailed => '失败';
+
+  @override
+  String netStatusStarting(int percent) {
+    return '启动中 $percent %';
+  }
+
+  @override
+  String netStatusTestHost(String network, String host) {
+    return '$network · $host';
+  }
+
+  @override
+  String get netStatusTitle => '网络状态';
+
+  @override
+  String get netStatusOpenHint => '显示服务器';
+
+  @override
+  String get serverNodeTitle => '节点';
+
+  @override
+  String get serverEpicboxTitle => 'Epicbox';
+
+  @override
+  String get serverSearchHint => '查找或输入节点地址';
+
+  @override
+  String serverUseAddress(String address) {
+    return '使用 $address';
+  }
+
+  @override
+  String get serverTesting => '正在测试…';
+
+  @override
+  String serverTestAnswer(String height, String version) {
+    return '区块 $height · v$version';
+  }
+
+  @override
+  String serverTestFailed(String error) {
+    return '无应答。$error';
+  }
+
+  @override
+  String get serverMyNodes => '我的节点';
+
+  @override
+  String get serverPublicNodes => '公共节点';
+
+  @override
+  String get serverPublicRelays => '公共服务器';
+
+  @override
+  String get serverHealthUnknown => '无法访问 status.btlabs.uk；状态未知';
+
+  @override
+  String get serverAtTip => '已最新';
+
+  @override
+  String serverBehindShort(String count) {
+    return '−$count';
+  }
+
+  @override
+  String serverBehindLabel(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '落后 $count 个区块',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get serverAddMine => '添加到我的节点';
+
+  @override
+  String get serverRemoveMine => '从我的节点移除';
+
+  @override
+  String get serverNotResponding => '无响应';
+
+  @override
+  String get serverHealthy => '正常';
+
+  @override
+  String get serverDegraded => '性能下降';
+
+  @override
+  String get serverHealthNone => '状态未知';
+
+  @override
+  String get serverCurrent => '当前';
+
+  @override
+  String get serverDefault => '默认';
+
+  @override
+  String serverLatency(String ms) {
+    return '$ms 毫秒';
+  }
+
+  @override
+  String serverUptime(String percent) {
+    return '$percent % 在线';
+  }
+
+  @override
+  String serverSwitchTo(String host) {
+    return '切换到 $host';
+  }
+
+  @override
+  String get serverNodeSwitchNote => '钱包将重新连接，并根据新节点重新核对余额。';
+
+  @override
+  String get serverRelayWarning => '你的地址包含此服务器。切换会更改你的地址；付款方需要新地址。';
+
+  @override
+  String get serverRelaySwitchNote => '你的地址将改变；付款方需要新地址。';
+
+  @override
+  String get serverOtherRelay => '其他服务器，host 或 host:port';
+
+  @override
+  String get serverFactHeight => '高度';
+
+  @override
+  String get serverFactVersion => '版本';
+
+  @override
+  String get serverFactPeers => '对等节点';
+
+  @override
+  String get serverFactUptime => '24 小时在线率';
+
+  @override
+  String serverHeightAtTip(String height) {
+    return '$height · 已最新';
+  }
+
+  @override
+  String serverNodesAgree(String height) {
+    return '节点一致于 $height';
+  }
+
+  @override
+  String serverNodesUp(int up, int total) {
+    String _temp0 = intl.Intl.pluralLogic(
+      total,
+      locale: localeName,
+      other: '$total 个节点中 $up 个在线',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String serverLastBlockSeconds(int seconds) {
+    String _temp0 = intl.Intl.pluralLogic(
+      seconds,
+      locale: localeName,
+      other: '最新区块 $seconds 秒前',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String serverLastBlockMinutes(int minutes) {
+    String _temp0 = intl.Intl.pluralLogic(
+      minutes,
+      locale: localeName,
+      other: '最新区块 $minutes 分钟前',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String serverCheckedAt(String time) {
+    return 'status.btlabs.uk，检查于 $time';
+  }
+
+  @override
+  String serverRowLabel(String host, String facts) {
+    return '$host，$facts';
+  }
 }

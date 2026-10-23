@@ -4015,4 +4015,257 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get settingsSectionReceiving => 'Приём';
+
+  @override
+  String get netStatusNode => 'Узел';
+
+  @override
+  String get netStatusEpicbox => 'Epicbox';
+
+  @override
+  String get netStatusTor => 'Tor';
+
+  @override
+  String get netStatusSynced => 'Синхронизирован';
+
+  @override
+  String get netStatusSyncing => 'Синхронизация';
+
+  @override
+  String netStatusSyncingPercent(int percent) {
+    return 'Синхронизация $percent %';
+  }
+
+  @override
+  String get netStatusConnecting => 'Подключение';
+
+  @override
+  String netStatusBehind(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Отстаёт на $count',
+      many: 'Отстаёт на $count',
+      few: 'Отстаёт на $count',
+      one: 'Отстаёт на $count',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get netStatusOffline => 'Не в сети';
+
+  @override
+  String get netStatusOnline => 'В сети';
+
+  @override
+  String get netStatusOff => 'Выключен';
+
+  @override
+  String get netStatusOn => 'Включён';
+
+  @override
+  String get netStatusFailed => 'Ошибка';
+
+  @override
+  String netStatusStarting(int percent) {
+    return 'Запуск $percent %';
+  }
+
+  @override
+  String netStatusTestHost(String network, String host) {
+    return '$network · $host';
+  }
+
+  @override
+  String get netStatusTitle => 'Состояние сети';
+
+  @override
+  String get netStatusOpenHint => 'Показывает серверы';
+
+  @override
+  String get serverNodeTitle => 'Узел';
+
+  @override
+  String get serverEpicboxTitle => 'Epicbox';
+
+  @override
+  String get serverSearchHint => 'Найдите или введите адрес узла';
+
+  @override
+  String serverUseAddress(String address) {
+    return 'Использовать $address';
+  }
+
+  @override
+  String get serverTesting => 'Проверка…';
+
+  @override
+  String serverTestAnswer(String height, String version) {
+    return 'Блок $height · v$version';
+  }
+
+  @override
+  String serverTestFailed(String error) {
+    return 'Нет ответа. $error';
+  }
+
+  @override
+  String get serverMyNodes => 'Мои узлы';
+
+  @override
+  String get serverPublicNodes => 'Публичные узлы';
+
+  @override
+  String get serverPublicRelays => 'Публичные серверы';
+
+  @override
+  String get serverHealthUnknown =>
+      'status.btlabs.uk недоступен; состояние неизвестно';
+
+  @override
+  String get serverAtTip => 'актуален';
+
+  @override
+  String serverBehindShort(String count) {
+    return '−$count';
+  }
+
+  @override
+  String serverBehindLabel(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'отстаёт на $count блока',
+      many: 'отстаёт на $count блоков',
+      few: 'отстаёт на $count блока',
+      one: 'отстаёт на $count блок',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get serverAddMine => 'Добавить в мои узлы';
+
+  @override
+  String get serverRemoveMine => 'Удалить из моих узлов';
+
+  @override
+  String get serverNotResponding => 'Не отвечает';
+
+  @override
+  String get serverHealthy => 'Исправен';
+
+  @override
+  String get serverDegraded => 'Работает с перебоями';
+
+  @override
+  String get serverHealthNone => 'Состояние неизвестно';
+
+  @override
+  String get serverCurrent => 'Текущий';
+
+  @override
+  String get serverDefault => 'По умолчанию';
+
+  @override
+  String serverLatency(String ms) {
+    return '$ms мс';
+  }
+
+  @override
+  String serverUptime(String percent) {
+    return '$percent % в сети';
+  }
+
+  @override
+  String serverSwitchTo(String host) {
+    return 'Переключиться на $host';
+  }
+
+  @override
+  String get serverNodeSwitchNote =>
+      'Кошелёк переподключится. Балансы будут заново проверены по новому узлу.';
+
+  @override
+  String get serverRelayWarning =>
+      'Ваш адрес содержит этот сервер. Смена меняет адрес; отправителям нужен новый.';
+
+  @override
+  String get serverRelaySwitchNote =>
+      'Ваш адрес изменится; отправителям нужен новый.';
+
+  @override
+  String get serverOtherRelay => 'Другой сервер, host или host:port';
+
+  @override
+  String get serverFactHeight => 'Высота';
+
+  @override
+  String get serverFactVersion => 'Версия';
+
+  @override
+  String get serverFactPeers => 'Пиры';
+
+  @override
+  String get serverFactUptime => 'Доступность 24 ч';
+
+  @override
+  String serverHeightAtTip(String height) {
+    return '$height · актуален';
+  }
+
+  @override
+  String serverNodesAgree(String height) {
+    return 'Узлы согласны на $height';
+  }
+
+  @override
+  String serverNodesUp(int up, int total) {
+    String _temp0 = intl.Intl.pluralLogic(
+      total,
+      locale: localeName,
+      other: '$up из $total узла в сети',
+      many: '$up из $total узлов в сети',
+      few: '$up из $total узлов в сети',
+      one: '$up из $total узла в сети',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String serverLastBlockSeconds(int seconds) {
+    String _temp0 = intl.Intl.pluralLogic(
+      seconds,
+      locale: localeName,
+      other: 'последний блок $seconds с назад',
+      many: 'последний блок $seconds с назад',
+      few: 'последний блок $seconds с назад',
+      one: 'последний блок $seconds с назад',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String serverLastBlockMinutes(int minutes) {
+    String _temp0 = intl.Intl.pluralLogic(
+      minutes,
+      locale: localeName,
+      other: 'последний блок $minutes мин назад',
+      many: 'последний блок $minutes мин назад',
+      few: 'последний блок $minutes мин назад',
+      one: 'последний блок $minutes мин назад',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String serverCheckedAt(String time) {
+    return 'status.btlabs.uk, проверено $time';
+  }
+
+  @override
+  String serverRowLabel(String host, String facts) {
+    return '$host, $facts';
+  }
 }

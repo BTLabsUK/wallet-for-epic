@@ -4034,4 +4034,257 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get settingsSectionReceiving => 'Odbieranie';
+
+  @override
+  String get netStatusNode => 'Węzeł';
+
+  @override
+  String get netStatusEpicbox => 'Epicbox';
+
+  @override
+  String get netStatusTor => 'Tor';
+
+  @override
+  String get netStatusSynced => 'Zsynchronizowany';
+
+  @override
+  String get netStatusSyncing => 'Synchronizacja';
+
+  @override
+  String netStatusSyncingPercent(int percent) {
+    return 'Synchronizacja $percent %';
+  }
+
+  @override
+  String get netStatusConnecting => 'Łączenie';
+
+  @override
+  String netStatusBehind(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Opóźniony o $count',
+      many: 'Opóźniony o $count',
+      few: 'Opóźniony o $count',
+      one: 'Opóźniony o $count',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get netStatusOffline => 'Offline';
+
+  @override
+  String get netStatusOnline => 'Online';
+
+  @override
+  String get netStatusOff => 'Wyłączony';
+
+  @override
+  String get netStatusOn => 'Włączony';
+
+  @override
+  String get netStatusFailed => 'Błąd';
+
+  @override
+  String netStatusStarting(int percent) {
+    return 'Uruchamianie $percent %';
+  }
+
+  @override
+  String netStatusTestHost(String network, String host) {
+    return '$network · $host';
+  }
+
+  @override
+  String get netStatusTitle => 'Stan sieci';
+
+  @override
+  String get netStatusOpenHint => 'Pokazuje serwery';
+
+  @override
+  String get serverNodeTitle => 'Węzeł';
+
+  @override
+  String get serverEpicboxTitle => 'Epicbox';
+
+  @override
+  String get serverSearchHint => 'Znajdź lub wpisz adres węzła';
+
+  @override
+  String serverUseAddress(String address) {
+    return 'Użyj $address';
+  }
+
+  @override
+  String get serverTesting => 'Sprawdzanie…';
+
+  @override
+  String serverTestAnswer(String height, String version) {
+    return 'Blok $height · v$version';
+  }
+
+  @override
+  String serverTestFailed(String error) {
+    return 'Brak odpowiedzi. $error';
+  }
+
+  @override
+  String get serverMyNodes => 'Moje węzły';
+
+  @override
+  String get serverPublicNodes => 'Węzły publiczne';
+
+  @override
+  String get serverPublicRelays => 'Serwery publiczne';
+
+  @override
+  String get serverHealthUnknown =>
+      'status.btlabs.uk nieosiągalny; stan nieznany';
+
+  @override
+  String get serverAtTip => 'na bieżąco';
+
+  @override
+  String serverBehindShort(String count) {
+    return '−$count';
+  }
+
+  @override
+  String serverBehindLabel(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count bloku w tyle',
+      many: '$count bloków w tyle',
+      few: '$count bloki w tyle',
+      one: '$count blok w tyle',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get serverAddMine => 'Dodaj do moich węzłów';
+
+  @override
+  String get serverRemoveMine => 'Usuń z moich węzłów';
+
+  @override
+  String get serverNotResponding => 'Nie odpowiada';
+
+  @override
+  String get serverHealthy => 'Sprawny';
+
+  @override
+  String get serverDegraded => 'Ograniczony';
+
+  @override
+  String get serverHealthNone => 'Stan nieznany';
+
+  @override
+  String get serverCurrent => 'Bieżący';
+
+  @override
+  String get serverDefault => 'Domyślny';
+
+  @override
+  String serverLatency(String ms) {
+    return '$ms ms';
+  }
+
+  @override
+  String serverUptime(String percent) {
+    return '$percent % dostępności';
+  }
+
+  @override
+  String serverSwitchTo(String host) {
+    return 'Przełącz na $host';
+  }
+
+  @override
+  String get serverNodeSwitchNote =>
+      'Portfel połączy się ponownie. Salda zostaną ponownie sprawdzone z nowym węzłem.';
+
+  @override
+  String get serverRelayWarning =>
+      'Twój adres zawiera ten serwer. Zmiana zmienia adres; nadawcy potrzebują nowego.';
+
+  @override
+  String get serverRelaySwitchNote =>
+      'Twój adres się zmieni; nadawcy potrzebują nowego.';
+
+  @override
+  String get serverOtherRelay => 'Inny serwer, host lub host:port';
+
+  @override
+  String get serverFactHeight => 'Wysokość';
+
+  @override
+  String get serverFactVersion => 'Wersja';
+
+  @override
+  String get serverFactPeers => 'Peery';
+
+  @override
+  String get serverFactUptime => 'Dostępność 24 h';
+
+  @override
+  String serverHeightAtTip(String height) {
+    return '$height · na bieżąco';
+  }
+
+  @override
+  String serverNodesAgree(String height) {
+    return 'Węzły zgodne co do $height';
+  }
+
+  @override
+  String serverNodesUp(int up, int total) {
+    String _temp0 = intl.Intl.pluralLogic(
+      total,
+      locale: localeName,
+      other: '$up z $total węzła działa',
+      many: '$up z $total węzłów działa',
+      few: '$up z $total węzłów działa',
+      one: '$up z $total węzła działa',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String serverLastBlockSeconds(int seconds) {
+    String _temp0 = intl.Intl.pluralLogic(
+      seconds,
+      locale: localeName,
+      other: 'ostatni blok $seconds s temu',
+      many: 'ostatni blok $seconds s temu',
+      few: 'ostatni blok $seconds s temu',
+      one: 'ostatni blok $seconds s temu',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String serverLastBlockMinutes(int minutes) {
+    String _temp0 = intl.Intl.pluralLogic(
+      minutes,
+      locale: localeName,
+      other: 'ostatni blok $minutes min temu',
+      many: 'ostatni blok $minutes min temu',
+      few: 'ostatni blok $minutes min temu',
+      one: 'ostatni blok $minutes min temu',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String serverCheckedAt(String time) {
+    return 'status.btlabs.uk, sprawdzono $time';
+  }
+
+  @override
+  String serverRowLabel(String host, String facts) {
+    return '$host, $facts';
+  }
 }
