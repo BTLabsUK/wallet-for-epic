@@ -74,7 +74,7 @@ class NodeCard extends StatelessWidget {
     // Only the wallet reaching the node counts here; a down of its own shows in the head and the rail.
     final v = remoteNodeView(url, i, health: health == ServiceHealth.ok ? health : null, downSince: downSince, torOn: torOn);
     final latency = i == null ? null : shownLatency(i, torOn: torOn);
-    final String? where = i == null ? null : latencyWhere(i);
+    final where = i == null ? null : latencyWhere(i, torOn: torOn);
     final host = nodeHost(url);
     final down = v.state == EState.risk;
     final limited = i != null && i.source == NodeInfoSource.limited;
@@ -255,10 +255,10 @@ class _Fact extends StatelessWidget {
   }
 }
 
-/// Where [i]'s latency was measured: over Tor while the Tor switch is on, never shown as this
-/// computer's own then.
-String latencyWhere(NodeInfo i) => i.latencyFromMonitor
-    ? 'from status.btlabs.uk'
-    : i.latencyOverTor
-    ? 'over Tor'
-    : 'from this computer';
+/// Where [i]'s latency was measured, or null with no figure shown ([shownLatency]). While the
+/// Tor switch is on ([torOn]) it is never "from this computer" for a remote node.
+String? latencyWhere(NodeInfo i, {bool torOn = false}) {
+  if (shownLatency(i, torOn: torOn) == null) return null;
+  if (i.latencyFromMonitor) return 'from status.btlabs.uk';
+  return i.latencyOverTor || (torOn && !isLocalNodeUrl(i.url)) ? 'over Tor' : 'from this computer';
+}
