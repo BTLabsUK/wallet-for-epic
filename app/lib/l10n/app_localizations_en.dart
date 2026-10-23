@@ -4658,7 +4658,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get methodReceiveEpicboxLine =>
-      'Works while the app is closed: the Epicbox server holds payments until the wallet is back.';
+      'Works while the wallet is closed: the Epicbox server holds payments until it is back.';
 
   @override
   String get methodReceiveTorTitle => 'Slower and more private.';

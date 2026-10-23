@@ -1164,7 +1164,7 @@
   "methodSendFileTitle": "Keine Verbindung nötig.",
   "methodSendFileLine": "Datei übergeben, Antwortdatei zurückbekommen, dann hier abschließen.",
   "methodReceiveEpicboxTitle": "Teilen, um bezahlt zu werden.",
-  "methodReceiveEpicboxLine": "Funktioniert auch bei geschlossener App: Der Epicbox-Server hält Zahlungen, bis die Wallet wieder da ist.",
+  "methodReceiveEpicboxLine": "Funktioniert auch bei geschlossener Wallet: der Epicbox-Server hält Zahlungen, bis sie wieder da ist.",
   "methodReceiveTorTitle": "Langsamer und privater.",
   "methodReceiveTorLine": "Funktioniert nur, solange die App geöffnet oder kurz im Hintergrund ist.",
   "methodReceiveFileTitle": "Eine Datei hin und her geben.",

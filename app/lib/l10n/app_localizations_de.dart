@@ -4717,7 +4717,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get methodReceiveEpicboxLine =>
-      'Funktioniert auch bei geschlossener App: Der Epicbox-Server hält Zahlungen, bis die Wallet wieder da ist.';
+      'Funktioniert auch bei geschlossener Wallet: der Epicbox-Server hält Zahlungen, bis sie wieder da ist.';
 
   @override
   String get methodReceiveTorTitle => 'Langsamer und privater.';

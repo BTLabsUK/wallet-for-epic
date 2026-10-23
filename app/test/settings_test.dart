@@ -1412,16 +1412,14 @@ void main() {
       await h.openSettings(tester);
 
       final off = await settingsTexts(tester);
-      for (final hidden in [
-        'Network and node',
-        'Rescan the chain',
-        'Network',
-        'Epicbox server',
-      ]) {
+      for (final hidden in ['Rescan the chain', 'Epicbox server']) {
         expect(off, isNot(contains(hidden)), reason: hidden);
       }
-      // Kept: the Home backup reminder points at these, and help is for everyone.
+      // Kept: the connection is for everyone (the status card on Home opens the same
+      // pickers), the Home backup reminder points at the exports, and help is for everyone.
       for (final kept in [
+        'Network and node',
+        'Network',
         'Export history backup',
         'Export CSV',
         'Import history backup',

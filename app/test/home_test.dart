@@ -3210,7 +3210,11 @@ void main() {
       expect(_inTile(BalanceKind.locked, '2'), findsOneWidget);
       expect(
         tester.getSemantics(tile),
-        matchesSemantics(label: 'Locked in sends: 2', isButton: true),
+        matchesSemantics(
+          label: 'Locked in sends: 2',
+          isButton: true,
+          hasTapAction: true,
+        ),
       );
       expect(find.bySemanticsLabel('Spendable: 12.5 EPIC'), findsOneWidget);
       handle.dispose();

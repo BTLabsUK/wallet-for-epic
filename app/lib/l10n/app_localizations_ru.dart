@@ -4827,7 +4827,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get methodReceiveEpicboxLine =>
-      'Работает и при закрытом приложении: сервер Epicbox хранит платежи, пока кошелёк не вернётся.';
+      'Работает, пока кошелёк закрыт: сервер Epicbox хранит платежи, пока он не вернётся.';
 
   @override
   String get methodReceiveTorTitle => 'Медленнее и приватнее.';

@@ -108,6 +108,9 @@ void main() {
       expect(find.textContaining(word), findsNothing);
     }
 
+    // The Network section now sits above Display, so the switch may start off screen.
+    await tester.ensureVisible(find.byKey(torReceivingSwitchKey));
+    await tester.pumpAndSettle();
     await tester.tap(find.byKey(torReceivingSwitchKey));
     await tester.pumpAndSettle();
     expect(h.session.torStarts, hasLength(1));

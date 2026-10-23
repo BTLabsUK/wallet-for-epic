@@ -1164,7 +1164,7 @@
   "methodSendFileTitle": "无需连接。",
   "methodSendFileLine": "交出文件，收回对方的回复文件，然后在这里完成。",
   "methodReceiveEpicboxTitle": "分享它即可收款。",
-  "methodReceiveEpicboxLine": "应用关闭时也可用：Epicbox 服务器会暂存付款，直到钱包重新上线。",
+  "methodReceiveEpicboxLine": "钱包关闭时也有效：Epicbox 服务器会保存付款，直到钱包重新上线。",
   "methodReceiveTorTitle": "更慢，也更私密。",
   "methodReceiveTorLine": "仅在应用打开或短暂处于后台时可用。",
   "methodReceiveFileTitle": "来回传递一个文件。",

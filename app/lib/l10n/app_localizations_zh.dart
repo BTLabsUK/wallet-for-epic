@@ -4398,7 +4398,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get methodReceiveEpicboxTitle => '分享它即可收款。';
 
   @override
-  String get methodReceiveEpicboxLine => '应用关闭时也可用：Epicbox 服务器会暂存付款，直到钱包重新上线。';
+  String get methodReceiveEpicboxLine => '钱包关闭时也有效：Epicbox 服务器会保存付款，直到钱包重新上线。';
 
   @override
   String get methodReceiveTorTitle => '更慢，也更私密。';

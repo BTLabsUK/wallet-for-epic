@@ -1164,7 +1164,7 @@
   "methodSendFileTitle": "Bez połączenia.",
   "methodSendFileLine": "Przekaż plik, odbierz plik odpowiedzi, potem sfinalizuj go tutaj.",
   "methodReceiveEpicboxTitle": "Udostępnij go, aby dostać płatność.",
-  "methodReceiveEpicboxLine": "Działa przy zamkniętej aplikacji: serwer Epicbox trzyma płatności, aż portfel wróci.",
+  "methodReceiveEpicboxLine": "Działa, gdy portfel jest zamknięty: serwer Epicbox przechowuje płatności, aż wróci.",
   "methodReceiveTorTitle": "Wolniej i bardziej prywatnie.",
   "methodReceiveTorLine": "Działa tylko, gdy aplikacja jest otwarta lub krótko w tle.",
   "methodReceiveFileTitle": "Przekazujcie plik tam i z powrotem.",

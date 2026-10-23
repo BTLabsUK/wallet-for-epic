@@ -695,8 +695,8 @@ void main() {
       expect(find.text('Share it to get paid.'), findsOneWidget);
       expect(
         find.text(
-          'Works while the app is closed: the Epicbox server holds payments '
-          'until the wallet is back.',
+          'Works while the wallet is closed: the Epicbox server holds payments '
+          'until it is back.',
         ),
         findsOneWidget,
       );

@@ -7132,7 +7132,7 @@ abstract class AppLocalizations {
   /// Receive strip line for Epicbox.
   ///
   /// In en, this message translates to:
-  /// **'Works while the app is closed: the Epicbox server holds payments until the wallet is back.'**
+  /// **'Works while the wallet is closed: the Epicbox server holds payments until it is back.'**
   String get methodReceiveEpicboxLine;
 
   /// Receive strip title for Tor.

@@ -1164,7 +1164,7 @@
   "methodSendFileTitle": "Соединение не нужно.",
   "methodSendFileLine": "Передайте файл, получите файл ответа и завершите платёж здесь.",
   "methodReceiveEpicboxTitle": "Поделитесь им, чтобы получить оплату.",
-  "methodReceiveEpicboxLine": "Работает и при закрытом приложении: сервер Epicbox хранит платежи, пока кошелёк не вернётся.",
+  "methodReceiveEpicboxLine": "Работает, пока кошелёк закрыт: сервер Epicbox хранит платежи, пока он не вернётся.",
   "methodReceiveTorTitle": "Медленнее и приватнее.",
   "methodReceiveTorLine": "Работает, только пока приложение открыто или ненадолго в фоне.",
   "methodReceiveFileTitle": "Передавайте файл туда и обратно.",

@@ -5809,7 +5809,7 @@
   "@methodReceiveEpicboxTitle": {
     "description": "Receive strip title for Epicbox."
   },
-  "methodReceiveEpicboxLine": "Works while the app is closed: the Epicbox server holds payments until the wallet is back.",
+  "methodReceiveEpicboxLine": "Works while the wallet is closed: the Epicbox server holds payments until it is back.",
   "@methodReceiveEpicboxLine": {
     "description": "Receive strip line for Epicbox."
   },

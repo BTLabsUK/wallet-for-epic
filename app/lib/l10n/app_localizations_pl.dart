@@ -4845,7 +4845,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get methodReceiveEpicboxLine =>
-      'Działa przy zamkniętej aplikacji: serwer Epicbox trzyma płatności, aż portfel wróci.';
+      'Działa, gdy portfel jest zamknięty: serwer Epicbox przechowuje płatności, aż wróci.';
 
   @override
   String get methodReceiveTorTitle => 'Wolniej i bardziej prywatnie.';
