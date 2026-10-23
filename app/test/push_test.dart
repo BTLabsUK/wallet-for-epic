@@ -218,9 +218,15 @@ class _Harness {
     await settle(tester);
   }
 
+  /// Tor turned off, with the stop and the hook after it driven by pumps: under fake async a
+  /// bare await would never see a timer on the way fire.
   Future<void> torOff(WidgetTester tester) async {
-    await tor.setReceiving(false);
-    await settle(tester);
+    var done = false;
+    unawaited(tor.setReceiving(false).then((_) => done = true));
+    for (var i = 0; i < 20 && !done; i++) {
+      await settle(tester);
+    }
+    expect(done, isTrue, reason: 'setReceiving(false) returns');
   }
 
   Future<void> emit(WidgetTester tester, TorEventKind kind) async {
