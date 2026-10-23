@@ -3125,110 +3125,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get helpTitle => 'Help';
 
   @override
-  String get helpWaitingQuestion =>
-      'Why does my payment say \"Waiting for recipient\"?';
-
-  @override
-  String helpWaitingAnswer(int days) {
-    String _temp0 = intl.Intl.pluralLogic(
-      days,
-      locale: localeName,
-      other: '$days days',
-      one: '1 day',
-    );
-    return 'An Epic Cash payment is built by both wallets together: yours starts it, the recipient\'s wallet accepts it, then yours finishes it. Epic\'s epicbox service holds your payment for about a week, until the recipient\'s wallet comes online and answers. Until then the amount stays locked in your wallet, so you cannot spend it twice. If the payment is not completed, your wallet cancels it by itself after $_temp0 and unlocks the amount.';
-  }
-
-  @override
-  String get helpCancellingQuestion => 'Should I cancel a payment?';
-
-  @override
-  String helpCancellingAnswer(int days) {
-    String _temp0 = intl.Intl.pluralLogic(
-      days,
-      locale: localeName,
-      other: '$days days',
-      one: '1 day',
-    );
-    return 'Usually you do not need to: a payment that is not completed cancels itself after $_temp0 and unlocks the amount. To stop one sooner, for example when the recipient says they will never answer, open it while it still says \"Waiting for recipient\" and tap Cancel payment; you would then have to send it again. A payment that is already confirming cannot be cancelled. Payments made with older versions of this app do not cancel themselves: if one has waited more than two weeks, cancel it and send again.';
-  }
-
-  @override
-  String get helpReceivingQuestion =>
-      'Why must I keep the app open to receive?';
-
-  @override
-  String helpReceivingAnswer(int days) {
-    String _temp0 = intl.Intl.pluralLogic(
-      days,
-      locale: localeName,
-      other: '$days days',
-      one: '1 day',
-    );
-    return 'Your wallet has to accept every incoming payment, and it can only do that while the app is open and connected to epicbox. A payment sent while the app is closed waits in epicbox for about a week and arrives the next time you unlock. After that epicbox deletes it; if the sender uses this app, their wallet cancels it by itself after $_temp0, and they can send it again. Once your wallet accepts a payment, the sender\'s wallet must finish it; until then it shows as Waiting for sender.';
-  }
-
-  @override
-  String helpConfirmationsQuestion(int count) {
-    return 'What are confirmations and why $count?';
-  }
-
-  @override
-  String helpConfirmationsAnswer(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count confirmations, about $count minutes',
-      one: '1 confirmation, about 1 minute',
-    );
-    return 'A confirmation is a new block added to the Epic Cash blockchain after the one that holds your payment; a block arrives about once a minute. Each block makes it harder to undo the payment. After $_temp0, a payment shows as Completed and received coins can be spent; that is the Epic wallet\'s standard.';
-  }
-
-  @override
-  String get helpHistoryQuestion =>
-      'Why is my history missing after a restore?';
-
-  @override
-  String get helpHistoryAnswer =>
-      'The recovery phrase brings back your balance: the wallet scans the blockchain for coins that belong to it. Who you paid, your notes and most dates are never stored on the blockchain, so a restore cannot find them. If you saved a history backup, import it in Settings, under Payment history, Import history backup, to get them back. The backup must be a copy you kept outside the lost phone, for example in email or cloud storage.';
-
-  @override
-  String get helpAddressQuestion => 'Does my address ever change?';
-
-  @override
-  String get helpAddressAnswer =>
-      'Your address is made from your recovery phrase and the epicbox server you use, and it ends in @ and that server\'s name. It stays the same as long as you keep the same epicbox server. If you pick another one in network settings, your address changes, so give the new one to people who pay you.';
-
-  @override
-  String get helpPhraseQuestion =>
-      'What is the recovery phrase and who can see it?';
-
-  @override
-  String get helpPhraseAnswer =>
-      'The recovery phrase is a list of words that is the key to your money: anyone who has it can take your coins, and with it you can restore your wallet on a new phone. The app shows it only after you enter your PIN, and it never sends it anywhere. Write it on paper, keep it somewhere safe, and never share it or type it into a website.';
-
-  @override
-  String get helpFeesQuestion => 'What does the fee pay for?';
-
-  @override
-  String get helpFeesAnswer =>
-      'The fee goes to the miners who add your payment to the blockchain. It is usually a small fraction of an EPIC and depends on how many coins your wallet combines to make the payment. You see the exact fee before you send.';
-
-  @override
-  String get helpNodeQuestion => 'What is a node?';
-
-  @override
-  String get helpNodeAnswer =>
-      'A node is a computer that keeps a copy of the Epic Cash blockchain. The wallet asks a node for your balance and sends your payments to the network through it. The node sees your IP address and which coins the wallet asks about, so pick one you trust in network settings. Network settings are in Settings once Advanced options is on, and on the unlock screen.';
-
-  @override
-  String get helpOtherWaysQuestion => 'Are there other ways to send?';
-
-  @override
-  String get helpOtherWaysAnswer =>
-      'Send has four ways, chosen at the top of Send: Epicbox (the server holds the payment until the recipient opens their wallet), HTTP (straight to a wallet that is open and reachable at its web address), Tor (straight, over the Tor network) and a payment file (you share a file, the recipient returns a .response file, and you open that file to finish). A pasted address picks the way for you.';
-
-  @override
   String get helpStillStuck => 'Still stuck?';
 
   @override
@@ -4739,17 +4635,6 @@ class AppLocalizationsEn extends AppLocalizations {
       'Possible while the payment waits for the recipient.';
 
   @override
-  String get sendHelpAddressKindsQuestion => 'What does an address look like?';
-
-  @override
-  String get sendHelpAddressKindsAnswer =>
-      'An Epicbox address starts with es and ends in @ and the server. An HTTP address is a web address. A Tor address ends in .onion.';
-
-  @override
-  String get receiveHelpNoHttp =>
-      'Receiving over HTTP is not on the phone. Senders use the Epicbox or Tor address.';
-
-  @override
   String get receiveEpicboxCaption =>
       'When reading it out, check the first six and last six characters.';
 
@@ -5825,4 +5710,35 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get deskInvSetRestoredHint =>
       'Restored this wallet from its recovery phrase? Give services this invoice address again.';
+
+  @override
+  String get helpButton => 'Help';
+
+  @override
+  String get helpSearchHint => 'Search help';
+
+  @override
+  String get helpEnglishOnly => 'Help is in English for now.';
+
+  @override
+  String helpNoMatch(String query) {
+    return 'No help matches \"$query\"';
+  }
+
+  @override
+  String helpMatchCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count topics',
+      one: '1 topic',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get helpShowHandshake => 'Show how it works';
+
+  @override
+  String get helpMoreInSection => 'More in this section';
 }

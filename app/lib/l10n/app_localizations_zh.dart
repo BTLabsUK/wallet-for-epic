@@ -2941,102 +2941,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get helpTitle => '帮助';
 
   @override
-  String get helpWaitingQuestion => '为什么我的付款显示“等待接收方”？';
-
-  @override
-  String helpWaitingAnswer(int days) {
-    String _temp0 = intl.Intl.pluralLogic(
-      days,
-      locale: localeName,
-      other: '$days 天',
-    );
-    return 'Epic Cash 付款由双方的钱包共同完成：你的钱包发起付款，接收方的钱包接受付款，最后由你的钱包完成付款。Epic 的 epicbox 服务会将你的付款保存约一周，直到接收方的钱包上线并回复。在此之前，这笔金额会在你的钱包中保持锁定，因此不会被重复花费。如果付款未完成，你的钱包会在 $_temp0后自动取消付款并解锁金额。';
-  }
-
-  @override
-  String get helpCancellingQuestion => '我应该取消付款吗？';
-
-  @override
-  String helpCancellingAnswer(int days) {
-    String _temp0 = intl.Intl.pluralLogic(
-      days,
-      locale: localeName,
-      other: '$days 天',
-    );
-    return '通常不需要：未完成的付款会在 $_temp0后自动取消并解锁金额。如需提前终止，例如接收方表示永远不会回复，请在付款仍显示“等待接收方”时打开它，然后点击“取消付款”；之后你需要重新发送。已在确认中的付款无法取消。使用本应用旧版本发起的付款不会自动取消：如果某笔付款已等待超过两周，请将其取消并重新发送。';
-  }
-
-  @override
-  String get helpReceivingQuestion => '为什么接收付款时必须保持应用打开？';
-
-  @override
-  String helpReceivingAnswer(int days) {
-    String _temp0 = intl.Intl.pluralLogic(
-      days,
-      locale: localeName,
-      other: '$days 天',
-    );
-    return '你的钱包必须接受每一笔转入的付款，而只有在应用打开并连接到 epicbox 时才能做到。应用关闭时发来的付款会在 epicbox 中等待约一周，并在你下次解锁时到达。超过这个时间，epicbox 会将其删除；如果发送方使用的是本应用，其钱包会在 $_temp0后自动取消该付款，对方可以重新发送。你的钱包接受付款后，还需要发送方的钱包完成付款；在此之前，它会显示为“等待发送方”。';
-  }
-
-  @override
-  String helpConfirmationsQuestion(int count) {
-    return '什么是确认？为什么需要 $count 个？';
-  }
-
-  @override
-  String helpConfirmationsAnswer(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count 个确认（约 $count 分钟）',
-    );
-    return '确认是指在包含你这笔付款的区块之后，Epic Cash 区块链上新增的区块；大约每分钟产生一个区块。每增加一个区块，付款就更难被撤销。经过 $_temp0后，付款会显示为“已完成”，收到的币即可使用；这是 Epic 钱包的标准。';
-  }
-
-  @override
-  String get helpHistoryQuestion => '为什么恢复钱包后交易记录不见了？';
-
-  @override
-  String get helpHistoryAnswer =>
-      '助记词能找回你的余额：钱包会扫描区块链，找出属于它的币。付款对象、你的备注和大多数日期从不保存在区块链上，因此恢复时无法找回。如果你保存过历史备份，请在“设置”的“交易记录”下点击“导入历史备份”，即可找回这些信息。该备份必须是你保存在丢失的手机以外的副本，例如在电子邮件或云存储中。';
-
-  @override
-  String get helpAddressQuestion => '我的地址会改变吗？';
-
-  @override
-  String get helpAddressAnswer =>
-      '你的地址由助记词和你使用的 epicbox 服务器生成，以 @ 加该服务器的名称结尾。只要你继续使用同一个 epicbox 服务器，地址就保持不变。如果你在网络设置中选择了其他服务器，地址就会改变，请把新地址告诉向你付款的人。';
-
-  @override
-  String get helpPhraseQuestion => '什么是助记词？谁能看到它？';
-
-  @override
-  String get helpPhraseAnswer =>
-      '助记词是一组单词，是你资金的钥匙：任何拥有它的人都能拿走你的币，而你也可以用它在新手机上恢复钱包。本应用只在你输入 PIN 码后才会显示它，并且从不将它发送到任何地方。请把它抄写在纸上，存放在安全的地方，切勿分享给他人或输入到任何网站。';
-
-  @override
-  String get helpFeesQuestion => '手续费用来支付什么？';
-
-  @override
-  String get helpFeesAnswer =>
-      '手续费归将你的付款打包进区块链的矿工所有。它通常只是 1 EPIC 的很小一部分，具体取决于你的钱包为完成这笔付款合并了多少个币。发送前你会看到确切的手续费。';
-
-  @override
-  String get helpNodeQuestion => '什么是节点？';
-
-  @override
-  String get helpNodeAnswer =>
-      '节点是保存一份 Epic Cash 区块链副本的计算机。钱包向节点查询你的余额，并通过它将你的付款发送到网络。节点能看到你的 IP 地址以及钱包查询了哪些币，因此请在网络设置中选择你信任的节点。打开“高级选项”后，可在设置中找到网络设置；解锁界面上也有。';
-
-  @override
-  String get helpOtherWaysQuestion => '还有其他发送方式吗？';
-
-  @override
-  String get helpOtherWaysAnswer =>
-      '发送有四种方式，在发送页顶部选择：Epicbox（服务器保存付款，直到收款方打开钱包）、HTTP（直接发送到已打开并可通过网址访问的钱包）、Tor（通过 Tor 网络直接发送）和付款文件（你分享一个文件，收款方返回 .response 文件，你打开该文件完成付款）。粘贴的地址会自动选择方式。';
-
-  @override
   String get helpStillStuck => '仍未解决？';
 
   @override
@@ -4471,16 +4375,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get sendCancelPossibleWhileWaiting => '在付款等待对方期间可以操作。';
 
   @override
-  String get sendHelpAddressKindsQuestion => '地址是什么样的？';
-
-  @override
-  String get sendHelpAddressKindsAnswer =>
-      'Epicbox 地址以 es 开头，以 @ 和服务器结尾。HTTP 地址是网址。Tor 地址以 .onion 结尾。';
-
-  @override
-  String get receiveHelpNoHttp => '手机上不能通过 HTTP 收款。发送方请使用 Epicbox 或 Tor 地址。';
-
-  @override
   String get receiveEpicboxCaption => '念出地址时，核对前六位和后六位字符。';
 
   @override
@@ -5479,4 +5373,35 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskInvSetRestoredHint => '此钱包是用助记词恢复的？请重新把这个发票地址提供给服务方。';
+
+  @override
+  String get helpButton => '帮助';
+
+  @override
+  String get helpSearchHint => '搜索帮助';
+
+  @override
+  String get helpEnglishOnly => '帮助目前仅提供英文。';
+
+  @override
+  String helpNoMatch(String query) {
+    return '没有与“$query”匹配的帮助';
+  }
+
+  @override
+  String helpMatchCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count 个主题',
+      one: '1 个主题',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get helpShowHandshake => '查看运作方式';
+
+  @override
+  String get helpMoreInSection => '本节更多内容';
 }

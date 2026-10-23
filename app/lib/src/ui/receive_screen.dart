@@ -80,7 +80,7 @@ class ReceiveView extends ConsumerWidget {
       child: TextButton.icon(
         icon: const Icon(Icons.help_outline),
         label: Text(l.receiveHelpButton),
-        onPressed: () => openHelp(context, HelpTopic.receiving),
+        onPressed: () => openHelp(context, HelpId.receive),
       ),
     );
     final tabs = SegmentedButton<ReceiveTab>(

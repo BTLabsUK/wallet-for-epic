@@ -988,7 +988,7 @@ class _PendingSendsCard extends ConsumerWidget {
                   TextButton(
                     style: _compact,
                     onPressed: () =>
-                        openHelp(context, HelpTopic.waitingForRecipient),
+                        openHelp(context, HelpId.send),
                     child: Text(l.homePendingWhy),
                   ),
                   TextButton(

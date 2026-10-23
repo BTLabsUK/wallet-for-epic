@@ -4700,126 +4700,6 @@ abstract class AppLocalizations {
   /// **'Help'**
   String get helpTitle;
 
-  /// A question on the help page. Quote the status chip's text exactly as txStatusWaitingRecipient translates it.
-  ///
-  /// In en, this message translates to:
-  /// **'Why does my payment say \"Waiting for recipient\"?'**
-  String get helpWaitingQuestion;
-
-  /// Answer on the help page. epicbox is the relay service that carries payments (a proper name).
-  ///
-  /// In en, this message translates to:
-  /// **'An Epic Cash payment is built by both wallets together: yours starts it, the recipient\'s wallet accepts it, then yours finishes it. Epic\'s epicbox service holds your payment for about a week, until the recipient\'s wallet comes online and answers. Until then the amount stays locked in your wallet, so you cannot spend it twice. If the payment is not completed, your wallet cancels it by itself after {days, plural, =1{1 day} other{{days} days}} and unlocks the amount.'**
-  String helpWaitingAnswer(int days);
-
-  /// A question on the help page.
-  ///
-  /// In en, this message translates to:
-  /// **'Should I cancel a payment?'**
-  String get helpCancellingQuestion;
-
-  /// Answer on the help page. "Waiting for recipient" is the status chip (txStatusWaitingRecipient) and Cancel payment the button on the payment's details screen: use the same words as those.
-  ///
-  /// In en, this message translates to:
-  /// **'Usually you do not need to: a payment that is not completed cancels itself after {days, plural, =1{1 day} other{{days} days}} and unlocks the amount. To stop one sooner, for example when the recipient says they will never answer, open it while it still says \"Waiting for recipient\" and tap Cancel payment; you would then have to send it again. A payment that is already confirming cannot be cancelled. Payments made with older versions of this app do not cancel themselves: if one has waited more than two weeks, cancel it and send again.'**
-  String helpCancellingAnswer(int days);
-
-  /// A question on the help page.
-  ///
-  /// In en, this message translates to:
-  /// **'Why must I keep the app open to receive?'**
-  String get helpReceivingQuestion;
-
-  /// Answer on the help page. epicbox is the relay service that carries payments (a proper name). Waiting for sender is the status chip (txStatusWaitingSender): use the same words.
-  ///
-  /// In en, this message translates to:
-  /// **'Your wallet has to accept every incoming payment, and it can only do that while the app is open and connected to epicbox. A payment sent while the app is closed waits in epicbox for about a week and arrives the next time you unlock. After that epicbox deletes it; if the sender uses this app, their wallet cancels it by itself after {days, plural, =1{1 day} other{{days} days}}, and they can send it again. Once your wallet accepts a payment, the sender\'s wallet must finish it; until then it shows as Waiting for sender.'**
-  String helpReceivingAnswer(int days);
-
-  /// A question on the help page: why the wallet waits for this many blocks.
-  ///
-  /// In en, this message translates to:
-  /// **'What are confirmations and why {count}?'**
-  String helpConfirmationsQuestion(int count);
-
-  /// Answer on the help page. Completed is the status chip (txStatusCompleted): use the same word.
-  ///
-  /// In en, this message translates to:
-  /// **'A confirmation is a new block added to the Epic Cash blockchain after the one that holds your payment; a block arrives about once a minute. Each block makes it harder to undo the payment. After {count, plural, =1{1 confirmation, about 1 minute} other{{count} confirmations, about {count} minutes}}, a payment shows as Completed and received coins can be spent; that is the Epic wallet\'s standard.'**
-  String helpConfirmationsAnswer(int count);
-
-  /// A question on the help page.
-  ///
-  /// In en, this message translates to:
-  /// **'Why is my history missing after a restore?'**
-  String get helpHistoryQuestion;
-
-  /// Answer on the help page. Settings, Payment history and Import history backup are the names on the settings screen (settingsTitle, settingsSectionHistory, settingsImportHistory): use the same words.
-  ///
-  /// In en, this message translates to:
-  /// **'The recovery phrase brings back your balance: the wallet scans the blockchain for coins that belong to it. Who you paid, your notes and most dates are never stored on the blockchain, so a restore cannot find them. If you saved a history backup, import it in Settings, under Payment history, Import history backup, to get them back. The backup must be a copy you kept outside the lost phone, for example in email or cloud storage.'**
-  String get helpHistoryAnswer;
-
-  /// A question on the help page.
-  ///
-  /// In en, this message translates to:
-  /// **'Does my address ever change?'**
-  String get helpAddressQuestion;
-
-  /// Answer on the help page. epicbox is the relay service that carries payments (a proper name).
-  ///
-  /// In en, this message translates to:
-  /// **'Your address is made from your recovery phrase and the epicbox server you use, and it ends in @ and that server\'s name. It stays the same as long as you keep the same epicbox server. If you pick another one in network settings, your address changes, so give the new one to people who pay you.'**
-  String get helpAddressAnswer;
-
-  /// A question on the help page.
-  ///
-  /// In en, this message translates to:
-  /// **'What is the recovery phrase and who can see it?'**
-  String get helpPhraseQuestion;
-
-  /// Answer on the help page.
-  ///
-  /// In en, this message translates to:
-  /// **'The recovery phrase is a list of words that is the key to your money: anyone who has it can take your coins, and with it you can restore your wallet on a new phone. The app shows it only after you enter your PIN, and it never sends it anywhere. Write it on paper, keep it somewhere safe, and never share it or type it into a website.'**
-  String get helpPhraseAnswer;
-
-  /// A question on the help page.
-  ///
-  /// In en, this message translates to:
-  /// **'What does the fee pay for?'**
-  String get helpFeesQuestion;
-
-  /// Answer on the help page. EPIC is the coin's ticker: keep it.
-  ///
-  /// In en, this message translates to:
-  /// **'The fee goes to the miners who add your payment to the blockchain. It is usually a small fraction of an EPIC and depends on how many coins your wallet combines to make the payment. You see the exact fee before you send.'**
-  String get helpFeesAnswer;
-
-  /// A question on the help page.
-  ///
-  /// In en, this message translates to:
-  /// **'What is a node?'**
-  String get helpNodeQuestion;
-
-  /// Answer on the help page.
-  ///
-  /// In en, this message translates to:
-  /// **'A node is a computer that keeps a copy of the Epic Cash blockchain. The wallet asks a node for your balance and sends your payments to the network through it. The node sees your IP address and which coins the wallet asks about, so pick one you trust in network settings. Network settings are in Settings once Advanced options is on, and on the unlock screen.'**
-  String get helpNodeAnswer;
-
-  /// A question on the help page.
-  ///
-  /// In en, this message translates to:
-  /// **'Are there other ways to send?'**
-  String get helpOtherWaysQuestion;
-
-  /// Answer on the help page. "Send by transaction file" and "Other ways to send" are names on the send screen: use the same words. Keep .response as it is.
-  ///
-  /// In en, this message translates to:
-  /// **'Send has four ways, chosen at the top of Send: Epicbox (the server holds the payment until the recipient opens their wallet), HTTP (straight to a wallet that is open and reachable at its web address), Tor (straight, over the Tor network) and a payment file (you share a file, the recipient returns a .response file, and you open that file to finish). A pasted address picks the way for you.'**
-  String get helpOtherWaysAnswer;
-
   /// Heading at the end of the help page.
   ///
   /// In en, this message translates to:
@@ -7273,24 +7153,6 @@ abstract class AppLocalizations {
   /// **'Possible while the payment waits for the recipient.'**
   String get sendCancelPossibleWhileWaiting;
 
-  /// Help question about the kinds of address Send takes.
-  ///
-  /// In en, this message translates to:
-  /// **'What does an address look like?'**
-  String get sendHelpAddressKindsQuestion;
-
-  /// Help answer: one line per address kind.
-  ///
-  /// In en, this message translates to:
-  /// **'An Epicbox address starts with es and ends in @ and the server. An HTTP address is a web address. A Tor address ends in .onion.'**
-  String get sendHelpAddressKindsAnswer;
-
-  /// Receiving help, last line: the phone has no HTTP receiving.
-  ///
-  /// In en, this message translates to:
-  /// **'Receiving over HTTP is not on the phone. Senders use the Epicbox or Tor address.'**
-  String get receiveHelpNoHttp;
-
   /// Receive, Epicbox tab: caption under the address.
   ///
   /// In en, this message translates to:
@@ -9018,6 +8880,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Restored this wallet from its recovery phrase? Give services this invoice address again.'**
   String get deskInvSetRestoredHint;
+
+  /// Tooltip of the small ? button that opens one help topic.
+  ///
+  /// In en, this message translates to:
+  /// **'Help'**
+  String get helpButton;
+
+  /// Hint of the search field at the top of Help.
+  ///
+  /// In en, this message translates to:
+  /// **'Search help'**
+  String get helpSearchHint;
+
+  /// Caption at the top of Help in every language but English: the topics are not translated yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Help is in English for now.'**
+  String get helpEnglishOnly;
+
+  /// Help search with no result. {query} is what was typed.
+  ///
+  /// In en, this message translates to:
+  /// **'No help matches \"{query}\"'**
+  String helpNoMatch(String query);
+
+  /// Help search result count.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 topic} other{{count} topics}}'**
+  String helpMatchCount(int count);
+
+  /// Button under the handshake help topic: opens the animated handshake sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Show how it works'**
+  String get helpShowHandshake;
+
+  /// Heading over the other topics of the same section at the end of a help topic.
+  ///
+  /// In en, this message translates to:
+  /// **'More in this section'**
+  String get helpMoreInSection;
 }
 
 class _AppLocalizationsDelegate

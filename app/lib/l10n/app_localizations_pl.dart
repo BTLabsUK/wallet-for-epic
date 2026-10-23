@@ -3279,118 +3279,6 @@ class AppLocalizationsPl extends AppLocalizations {
   String get helpTitle => 'Pomoc';
 
   @override
-  String get helpWaitingQuestion =>
-      'Dlaczego moja płatność ma status „Czeka na odbiorcę”?';
-
-  @override
-  String helpWaitingAnswer(int days) {
-    String _temp0 = intl.Intl.pluralLogic(
-      days,
-      locale: localeName,
-      other: '$days dnia',
-      many: '$days dniach',
-      few: '$days dniach',
-      one: '$days dniu',
-    );
-    return 'Płatność Epic Cash tworzą oba portfele razem: Twój ją rozpoczyna, portfel odbiorcy ją przyjmuje, a potem Twój ją finalizuje. Usługa epicbox przechowuje płatność przez około tydzień, aż portfel odbiorcy połączy się z siecią i odpowie. Do tego czasu kwota pozostaje zablokowana w Twoim portfelu, więc nie da się jej wydać dwa razy. Jeśli płatność nie zostanie zakończona, portfel sam ją anuluje po $_temp0 i odblokuje kwotę.';
-  }
-
-  @override
-  String get helpCancellingQuestion => 'Czy mam anulować płatność?';
-
-  @override
-  String helpCancellingAnswer(int days) {
-    String _temp0 = intl.Intl.pluralLogic(
-      days,
-      locale: localeName,
-      other: '$days dnia',
-      many: '$days dniach',
-      few: '$days dniach',
-      one: '$days dniu',
-    );
-    return 'Zwykle nie trzeba: płatność, która nie zostanie zakończona, anuluje się sama po $_temp0 i odblokuje kwotę. Aby zatrzymać ją wcześniej, np. gdy odbiorca mówi, że nigdy nie odpowie, otwórz ją, dopóki ma status „Czeka na odbiorcę”, i dotknij „Anuluj płatność”; potem trzeba będzie wysłać ją ponownie. Płatności, która jest już potwierdzana, nie można anulować. Płatności utworzone w starszych wersjach tej aplikacji nie anulują się same: jeśli któraś czeka dłużej niż dwa tygodnie, anuluj ją i wyślij ponownie.';
-  }
-
-  @override
-  String get helpReceivingQuestion =>
-      'Dlaczego do odbierania aplikacja musi być otwarta?';
-
-  @override
-  String helpReceivingAnswer(int days) {
-    String _temp0 = intl.Intl.pluralLogic(
-      days,
-      locale: localeName,
-      other: '$days dnia',
-      many: '$days dniach',
-      few: '$days dniach',
-      one: '$days dniu',
-    );
-    return 'Portfel musi przyjąć każdą przychodzącą płatność, a może to zrobić tylko wtedy, gdy aplikacja jest otwarta i połączona z epicbox. Płatność wysłana, gdy aplikacja jest zamknięta, czeka w epicbox około tygodnia i dotrze przy następnym odblokowaniu. Potem epicbox ją usuwa; jeśli nadawca korzysta z tej aplikacji, jego portfel sam ją anuluje po $_temp0, a nadawca może wysłać ją ponownie. Gdy portfel przyjmie płatność, portfel nadawcy musi ją sfinalizować; do tego czasu ma ona status „Czeka na nadawcę”.';
-  }
-
-  @override
-  String helpConfirmationsQuestion(int count) {
-    return 'Czym są potwierdzenia i dlaczego $count?';
-  }
-
-  @override
-  String helpConfirmationsAnswer(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count potwierdzenia, czyli po około $count minuty',
-      many: '$count potwierdzeniach, czyli po około $count minutach',
-      few: '$count potwierdzeniach, czyli po około $count minutach',
-      one: '$count potwierdzeniu, czyli po około $count minucie',
-    );
-    return 'Potwierdzenie to nowy blok dodany do łańcucha bloków Epic Cash po bloku, który zawiera płatność; blok pojawia się mniej więcej raz na minutę. Każdy kolejny blok utrudnia cofnięcie płatności. Po $_temp0 płatność otrzymuje status „Zakończona”, a odebrane monety można wydać; taki jest standard portfela Epic.';
-  }
-
-  @override
-  String get helpHistoryQuestion =>
-      'Dlaczego po przywróceniu brakuje historii?';
-
-  @override
-  String get helpHistoryAnswer =>
-      'Fraza odzyskiwania przywraca saldo: portfel skanuje łańcuch bloków w poszukiwaniu należących do niego monet. Informacje o tym, komu płacono, notatki i większość dat nigdy nie trafiają do łańcucha bloków, więc przywracanie ich nie znajdzie. Jeśli zapisano kopię historii, zaimportuj ją w Ustawieniach, w sekcji „Historia płatności”, opcją „Importuj kopię historii”, aby je odzyskać. Musi to być kopia przechowywana poza utraconym telefonem, np. w e-mailu lub w chmurze.';
-
-  @override
-  String get helpAddressQuestion => 'Czy mój adres może się zmienić?';
-
-  @override
-  String get helpAddressAnswer =>
-      'Adres powstaje z frazy odzyskiwania i używanego serwera epicbox, a kończy się znakiem @ i nazwą tego serwera. Pozostaje taki sam, dopóki korzystasz z tego samego serwera epicbox. Jeśli wybierzesz inny w ustawieniach sieci, adres się zmieni, więc przekaż nowy osobom, które Ci płacą.';
-
-  @override
-  String get helpPhraseQuestion =>
-      'Czym jest fraza odzyskiwania i kto może ją zobaczyć?';
-
-  @override
-  String get helpPhraseAnswer =>
-      'Fraza odzyskiwania to lista słów, która jest kluczem do Twoich pieniędzy: każdy, kto ją zna, może zabrać Twoje monety, a dzięki niej możesz przywrócić portfel na nowym telefonie. Aplikacja pokazuje ją dopiero po wpisaniu kodu PIN i nigdzie jej nie wysyła. Zapisz ją na papierze, przechowuj w bezpiecznym miejscu i nigdy nikomu jej nie udostępniaj ani nie wpisuj na żadnej stronie internetowej.';
-
-  @override
-  String get helpFeesQuestion => 'Za co pobierana jest opłata?';
-
-  @override
-  String get helpFeesAnswer =>
-      'Opłata trafia do górników, którzy dodają płatność do łańcucha bloków. Zwykle jest to niewielki ułamek EPIC i zależy od tego, ile monet portfel łączy, aby utworzyć płatność. Dokładną opłatę widzisz przed wysłaniem.';
-
-  @override
-  String get helpNodeQuestion => 'Czym jest węzeł?';
-
-  @override
-  String get helpNodeAnswer =>
-      'Węzeł to komputer przechowujący kopię łańcucha bloków Epic Cash. Portfel pyta węzeł o saldo i przez niego wysyła płatności do sieci. Węzeł widzi Twój adres IP i to, o które monety pyta portfel, więc w ustawieniach sieci wybierz taki, któremu ufasz. Ustawienia sieci znajdziesz w ustawieniach po włączeniu „Opcji zaawansowanych”, a także na ekranie odblokowania.';
-
-  @override
-  String get helpOtherWaysQuestion => 'Czy są inne sposoby wysyłki?';
-
-  @override
-  String get helpOtherWaysAnswer =>
-      'Wysyłanie ma cztery sposoby, wybierane u góry ekranu Wyślij: Epicbox (serwer przechowuje płatność, aż odbiorca otworzy portfel), HTTP (bezpośrednio do otwartego portfela dostępnego pod adresem WWW), Tor (bezpośrednio, przez sieć Tor) i plik płatności (udostępniasz plik, odbiorca zwraca plik .response, a ty otwierasz go, by zakończyć). Wklejony adres sam wybiera sposób.';
-
-  @override
   String get helpStillStuck => 'Nadal masz problem?';
 
   @override
@@ -4927,17 +4815,6 @@ class AppLocalizationsPl extends AppLocalizations {
       'Możliwe, dopóki płatność czeka na odbiorcę.';
 
   @override
-  String get sendHelpAddressKindsQuestion => 'Jak wygląda adres?';
-
-  @override
-  String get sendHelpAddressKindsAnswer =>
-      'Adres Epicbox zaczyna się od es i kończy na @ i serwerze. Adres HTTP to adres internetowy. Adres Tor kończy się na .onion.';
-
-  @override
-  String get receiveHelpNoHttp =>
-      'Odbiór przez HTTP nie jest dostępny na telefonie. Nadawcy używają adresu Epicbox lub Tor.';
-
-  @override
   String get receiveEpicboxCaption =>
       'Czytając go na głos, sprawdź pierwsze sześć i ostatnie sześć znaków.';
 
@@ -6031,4 +5908,37 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get deskInvSetRestoredHint =>
       'Portfel odtworzony z frazy odzyskiwania? Przekaż usługom ten adres do faktur ponownie.';
+
+  @override
+  String get helpButton => 'Pomoc';
+
+  @override
+  String get helpSearchHint => 'Szukaj w pomocy';
+
+  @override
+  String get helpEnglishOnly => 'Pomoc jest na razie po angielsku.';
+
+  @override
+  String helpNoMatch(String query) {
+    return 'Brak pomocy dla „$query”';
+  }
+
+  @override
+  String helpMatchCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count tematu',
+      many: '$count tematów',
+      few: '$count tematy',
+      one: '1 temat',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get helpShowHandshake => 'Pokaż, jak to działa';
+
+  @override
+  String get helpMoreInSection => 'Więcej w tej sekcji';
 }

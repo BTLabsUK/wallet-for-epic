@@ -3166,110 +3166,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get helpTitle => 'Hilfe';
 
   @override
-  String get helpWaitingQuestion =>
-      'Warum steht bei meiner Zahlung „Wartet auf Empfänger“?';
-
-  @override
-  String helpWaitingAnswer(int days) {
-    String _temp0 = intl.Intl.pluralLogic(
-      days,
-      locale: localeName,
-      other: '$days Tagen',
-      one: '1 Tag',
-    );
-    return 'Eine Zahlung mit Epic Cash erstellen beide Wallets gemeinsam: Ihre Wallet beginnt sie, die Wallet des Empfängers nimmt sie an, dann schließt Ihre Wallet sie ab. Der epicbox-Dienst von Epic bewahrt Ihre Zahlung etwa eine Woche lang auf, bis die Wallet des Empfängers online ist und antwortet. Bis dahin bleibt der Betrag in Ihrer Wallet gesperrt, damit Sie ihn nicht doppelt ausgeben können. Wird die Zahlung nicht abgeschlossen, bricht Ihre Wallet sie nach $_temp0 automatisch ab und gibt den Betrag frei.';
-  }
-
-  @override
-  String get helpCancellingQuestion => 'Sollte ich eine Zahlung abbrechen?';
-
-  @override
-  String helpCancellingAnswer(int days) {
-    String _temp0 = intl.Intl.pluralLogic(
-      days,
-      locale: localeName,
-      other: '$days Tagen',
-      one: '1 Tag',
-    );
-    return 'Normalerweise müssen Sie das nicht: Eine nicht abgeschlossene Zahlung bricht sich nach $_temp0 selbst ab und gibt den Betrag frei. Um sie früher zu stoppen, etwa wenn der Empfänger sagt, dass er nie antworten wird, öffnen Sie sie, solange dort noch „Wartet auf Empfänger“ steht, und tippen Sie auf „Zahlung abbrechen“; danach müssten Sie sie erneut senden. Eine Zahlung, die bereits bestätigt wird, kann nicht abgebrochen werden. Zahlungen aus älteren Versionen dieser App brechen sich nicht selbst ab: Wartet eine davon schon länger als zwei Wochen, brechen Sie sie ab und senden Sie erneut.';
-  }
-
-  @override
-  String get helpReceivingQuestion =>
-      'Warum muss die App zum Empfangen geöffnet bleiben?';
-
-  @override
-  String helpReceivingAnswer(int days) {
-    String _temp0 = intl.Intl.pluralLogic(
-      days,
-      locale: localeName,
-      other: '$days Tagen',
-      one: '1 Tag',
-    );
-    return 'Ihre Wallet muss jede eingehende Zahlung annehmen, und das kann sie nur, solange die App geöffnet und mit epicbox verbunden ist. Eine Zahlung, die gesendet wird, während die App geschlossen ist, wartet etwa eine Woche in der epicbox und trifft ein, wenn Sie das nächste Mal entsperren. Danach löscht die epicbox sie; nutzt der Absender diese App, bricht seine Wallet sie nach $_temp0 automatisch ab, und er kann sie erneut senden. Sobald Ihre Wallet eine Zahlung annimmt, muss die Wallet des Absenders sie abschließen; bis dahin wird sie als „Wartet auf Absender“ angezeigt.';
-  }
-
-  @override
-  String helpConfirmationsQuestion(int count) {
-    return 'Was sind Bestätigungen und warum $count?';
-  }
-
-  @override
-  String helpConfirmationsAnswer(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count Bestätigungen, etwa $count Minuten',
-      one: '1 Bestätigung, etwa 1 Minute',
-    );
-    return 'Eine Bestätigung ist ein neuer Block, der nach dem Block mit Ihrer Zahlung zur Blockchain von Epic Cash hinzukommt; etwa einmal pro Minute entsteht ein Block. Jeder Block macht es schwerer, die Zahlung rückgängig zu machen. Nach $_temp0 wird eine Zahlung als „Abgeschlossen“ angezeigt und empfangene Coins können ausgegeben werden; das ist der Standard der Epic-Wallet.';
-  }
-
-  @override
-  String get helpHistoryQuestion =>
-      'Warum fehlt mein Verlauf nach einer Wiederherstellung?';
-
-  @override
-  String get helpHistoryAnswer =>
-      'Die Wiederherstellungsphrase bringt Ihr Guthaben zurück: Die Wallet durchsucht die Blockchain nach Coins, die ihr gehören. Wen Sie bezahlt haben, Ihre Notizen und die meisten Datumsangaben werden nie auf der Blockchain gespeichert, daher kann eine Wiederherstellung sie nicht finden. Wenn Sie eine Verlaufssicherung gespeichert haben, importieren Sie sie in den „Einstellungen“ unter „Zahlungsverlauf“ mit „Verlaufssicherung importieren“, um diese Angaben zurückzuholen. Die Sicherung muss eine Kopie sein, die Sie außerhalb des verlorenen Smartphones aufbewahrt haben, zum Beispiel per E-Mail oder in einem Cloud-Speicher.';
-
-  @override
-  String get helpAddressQuestion => 'Ändert sich meine Adresse jemals?';
-
-  @override
-  String get helpAddressAnswer =>
-      'Ihre Adresse entsteht aus Ihrer Wiederherstellungsphrase und dem epicbox-Server, den Sie nutzen, und endet auf @ und dem Namen dieses Servers. Sie bleibt gleich, solange Sie denselben epicbox-Server behalten. Wählen Sie in den Netzwerkeinstellungen einen anderen, ändert sich Ihre Adresse; geben Sie die neue dann an alle weiter, die Sie bezahlen.';
-
-  @override
-  String get helpPhraseQuestion =>
-      'Was ist die Wiederherstellungsphrase und wer kann sie sehen?';
-
-  @override
-  String get helpPhraseAnswer =>
-      'Die Wiederherstellungsphrase ist eine Liste von Wörtern, die den Schlüssel zu Ihrem Geld bildet: Wer sie hat, kann Ihre Coins an sich nehmen, und mit ihr können Sie Ihre Wallet auf einem neuen Smartphone wiederherstellen. Die App zeigt sie nur nach Eingabe Ihrer PIN an und sendet sie nirgendwohin. Schreiben Sie sie auf Papier, bewahren Sie sie an einem sicheren Ort auf und geben Sie sie niemals weiter oder auf einer Website ein.';
-
-  @override
-  String get helpFeesQuestion => 'Wofür ist die Gebühr?';
-
-  @override
-  String get helpFeesAnswer =>
-      'Die Gebühr geht an die Miner, die Ihre Zahlung zur Blockchain hinzufügen. Sie beträgt meist nur einen kleinen Bruchteil eines EPIC und hängt davon ab, wie viele Coins Ihre Wallet für die Zahlung zusammenführt. Die genaue Gebühr sehen Sie vor dem Senden.';
-
-  @override
-  String get helpNodeQuestion => 'Was ist ein Node?';
-
-  @override
-  String get helpNodeAnswer =>
-      'Ein Node ist ein Computer, der eine Kopie der Blockchain von Epic Cash vorhält. Die Wallet fragt einen Node nach Ihrem Guthaben und sendet Ihre Zahlungen über ihn ins Netzwerk. Der Node sieht Ihre IP-Adresse und nach welchen Coins die Wallet fragt; wählen Sie daher in den Netzwerkeinstellungen einen, dem Sie vertrauen. Die Netzwerkeinstellungen finden Sie in den Einstellungen, sobald „Erweiterte Optionen“ eingeschaltet ist, und auf dem Entsperrbildschirm.';
-
-  @override
-  String get helpOtherWaysQuestion => 'Gibt es andere Möglichkeiten zu senden?';
-
-  @override
-  String get helpOtherWaysAnswer =>
-      'Senden kennt vier Wege, oben auf der Senden-Seite wählbar: Epicbox (der Server hält die Zahlung, bis der Empfänger seine Wallet öffnet), HTTP (direkt an eine geöffnete Wallet, die unter ihrer Webadresse erreichbar ist), Tor (direkt, über das Tor-Netz) und eine Zahlungsdatei (du teilst eine Datei, der Empfänger gibt eine .response-Datei zurück, und du öffnest sie zum Abschluss). Eine eingefügte Adresse wählt den Weg für dich.';
-
-  @override
   String get helpStillStuck => 'Kommen Sie nicht weiter?';
 
   @override
@@ -4801,17 +4697,6 @@ class AppLocalizationsDe extends AppLocalizations {
       'Möglich, solange die Zahlung auf die Gegenseite wartet.';
 
   @override
-  String get sendHelpAddressKindsQuestion => 'Wie sieht eine Adresse aus?';
-
-  @override
-  String get sendHelpAddressKindsAnswer =>
-      'Eine Epicbox-Adresse beginnt mit es und endet mit @ und dem Server. Eine HTTP-Adresse ist eine Webadresse. Eine Tor-Adresse endet auf .onion.';
-
-  @override
-  String get receiveHelpNoHttp =>
-      'Empfang über HTTP gibt es auf dem Telefon nicht. Absender nutzen die Epicbox- oder Tor-Adresse.';
-
-  @override
   String get receiveEpicboxCaption =>
       'Beim Vorlesen die ersten sechs und letzten sechs Zeichen prüfen.';
 
@@ -5897,4 +5782,35 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get deskInvSetRestoredHint =>
       'Diese Wallet aus der Wiederherstellungsphrase wiederhergestellt? Geben Sie Diensten diese Rechnungsadresse erneut.';
+
+  @override
+  String get helpButton => 'Hilfe';
+
+  @override
+  String get helpSearchHint => 'Hilfe durchsuchen';
+
+  @override
+  String get helpEnglishOnly => 'Die Hilfe ist vorerst auf Englisch.';
+
+  @override
+  String helpNoMatch(String query) {
+    return 'Keine Hilfe zu „$query“';
+  }
+
+  @override
+  String helpMatchCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Themen',
+      one: '1 Thema',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get helpShowHandshake => 'So funktioniert es';
+
+  @override
+  String get helpMoreInSection => 'Mehr in diesem Abschnitt';
 }

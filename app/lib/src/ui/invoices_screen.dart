@@ -16,6 +16,7 @@ import '../l10n.dart';
 import '../providers.dart';
 import '../wallet_service.dart';
 import 'common.dart';
+import 'help_screen.dart' show HelpButton, HelpId;
 import 'invoice_request_screen.dart';
 import 'invoice_rows.dart';
 import 'settings_invoices.dart';
@@ -527,6 +528,7 @@ class _InvoicesScreenState extends ConsumerState<InvoicesScreen> {
               icon: const Icon(Icons.add),
               onPressed: _newRequest,
             ),
+          const HelpButton(HelpId.invoices),
           const SizedBox(width: 8),
         ],
       ),

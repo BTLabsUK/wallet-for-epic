@@ -1692,7 +1692,7 @@ class _SendViewState extends ConsumerState<SendView> {
             IconButton(
               tooltip: l.methodAddressKindsTooltip,
               icon: Icon(Icons.help_outline, size: 20, color: t.dim),
-              onPressed: () => openHelp(context, HelpTopic.addressKinds),
+              onPressed: () => openHelp(context, HelpId.addresses),
             ),
           ],
         ),
@@ -2295,7 +2295,7 @@ class _SendViewState extends ConsumerState<SendView> {
             TextButton.icon(
               icon: const Icon(Icons.help_outline),
               label: Text(l.sendHelp),
-              onPressed: () => openHelp(context, HelpTopic.waitingForRecipient),
+              onPressed: () => openHelp(context, HelpId.send),
             ),
           ],
         ),

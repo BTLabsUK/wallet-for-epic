@@ -20,6 +20,7 @@ import '../providers.dart';
 import '../public_servers.dart';
 import '../relay_directory.dart';
 import 'common.dart' show groupDigits;
+import 'help_screen.dart' show HelpButton, HelpId;
 import 'launch_screen.dart';
 import 'status.dart' hide NodeStatus;
 import 'theme/protocol.dart';
@@ -926,6 +927,7 @@ class _ServerPickerSheetState extends ConsumerState<ServerPickerSheet> {
                   child: Text(title, style: theme.textTheme.titleLarge),
                 ),
               ),
+              HelpButton(_node ? HelpId.node : HelpId.epicbox),
               IconButton(
                 tooltip: l.commonClose,
                 icon: const Icon(Icons.close),

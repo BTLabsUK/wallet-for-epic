@@ -396,14 +396,8 @@ void main() {
       final h = _Harness();
       await h.pump(tester);
       await _tap(tester, find.byTooltip('Address kinds'));
-      expect(find.byType(HelpScreen), findsOneWidget);
-      expect(
-        find.text(
-          'An Epicbox address starts with es and ends in @ and the server. An '
-          'HTTP address is a web address. A Tor address ends in .onion.',
-        ),
-        findsOneWidget,
-      );
+      expect(find.byType(HelpTopicScreen), findsOneWidget);
+      expect(find.text('What an address looks like'), findsOneWidget);
     });
 
     testWidgets('a pasted name finds the contact', (tester) async {
@@ -739,16 +733,13 @@ void main() {
       );
     });
 
-    testWidgets('receiving help says there is no HTTP on the phone', (
+    testWidgets('receiving help opens the Receive topic', (
       tester,
     ) async {
       final h = _Harness();
-      await h.pump(tester, body: const HelpScreen(topic: HelpTopic.receiving));
+      await h.pump(tester, body: const HelpScreen(topic: HelpId.receive));
       expect(
-        find.textContaining(
-          'Receiving over HTTP is not on the phone. Senders use the Epicbox or '
-          'Tor address.',
-        ),
+        find.text('Receive your first EPIC'),
         findsOneWidget,
       );
     });

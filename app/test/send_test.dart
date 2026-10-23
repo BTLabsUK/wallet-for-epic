@@ -2006,7 +2006,7 @@ void main() {
       ('receive', _receiveTab()),
       ('contacts', const ContactsScreen()),
       ('contact edit', const ContactEditScreen()),
-      ('help', const HelpScreen(topic: HelpTopic.fees)),
+      ('help', const HelpScreen(topic: HelpId.fees)),
     ]) {
       testWidgets('$name: labelled tap targets of at least 48 dp', (
         tester,
@@ -2037,132 +2037,23 @@ void main() {
   });
 
   group('help', () {
-    testWidgets('every question expands to its answer', (tester) async {
-      final h = _Harness();
-      await h.pump(tester, const HelpScreen());
-      // Tall enough that every closed question is built at once.
-      tester.view.physicalSize = const Size(1080, 4800);
-      await tester.pumpAndSettle();
-      expect(
-        find.byType(ExpansionTile),
-        findsNWidgets(HelpTopic.values.length),
-      );
-      // All titles fit on screen while every answer is closed.
-      final questions = tester
-          .widgetList<ExpansionTile>(find.byType(ExpansionTile))
-          .map((t) => (t.title as Text).data!)
-          .toList();
-      expect(questions, hasLength(HelpTopic.values.length));
-      const answer = 'epicbox service holds';
-      expect(find.textContaining(answer), findsNothing);
-      await _tap(
-        tester,
-        find.text('Why does my payment say "Waiting for recipient"?'),
-      );
-      expect(find.textContaining(answer), findsOneWidget);
-
-      // Each question opens to an answer, then closes again.
-      for (final q in questions.skip(1)) {
-        final title = find.text(q);
-        await tester.scrollUntilVisible(
-          title,
-          200,
-          scrollable: find.byType(Scrollable).first,
-        );
-        final tile = find.ancestor(
-          of: title,
-          matching: find.byType(ExpansionTile),
-        );
-        await _tap(tester, title);
-        expect(
-          find.descendant(of: tile, matching: find.byType(Text)),
-          findsNWidgets(2),
-          reason: q,
-        );
-        await _tap(tester, title);
-      }
-      final confirmations = find.text('What are confirmations and why 3?');
-      await tester.scrollUntilVisible(
-        confirmations,
-        -200,
-        scrollable: find.byType(Scrollable).first,
-      );
-      await _tap(tester, confirmations);
-      expect(
-        find.textContaining('After 3 confirmations, about 3 minutes'),
-        findsOneWidget,
-      );
-    });
-
-    for (final (topic, texts) in [
-      (
-        HelpTopic.waitingForRecipient,
-        [
-          'holds your payment for about a week',
-          'cancels it by itself after 14 days',
-        ],
-      ),
-      (
-        HelpTopic.cancelling,
-        [
-          'cancels itself after 14 days',
-          'older versions of this app do not cancel',
-        ],
-      ),
-      (
-        HelpTopic.receiving,
-        [
-          'waits in epicbox for about a week',
-          // Other wallets set no time limit, so it is not promised for them.
-          'if the sender uses this app, their wallet cancels it by itself',
-        ],
-      ),
-    ]) {
-      testWidgets('${topic.name} explains the time limits', (tester) async {
-        final h = _Harness();
-        await h.pump(tester, HelpScreen(topic: topic));
-        for (final text in texts) {
-          expect(find.textContaining(text), findsOneWidget, reason: text);
-        }
-      });
-    }
-
-    testWidgets('a topic opens expanded', (tester) async {
-      final h = _Harness();
-      await h.pump(
-        tester,
-        const HelpScreen(topic: HelpTopic.historyAfterRestore),
-      );
-      expect(
-        find.textContaining('Payment history, Import history backup'),
-        findsOneWidget,
-      );
-      expect(
-        find.textContaining('a copy you kept outside the lost phone'),
-        findsOneWidget,
-      );
-      expect(find.textContaining('epicbox service holds'), findsNothing);
-    });
-
     testWidgets('receive links to help about receiving', (tester) async {
       final h = _Harness();
       await h.pump(tester, _receiveTab());
       await _tap(tester, find.text('How receiving works'));
-      expect(find.byType(HelpScreen), findsOneWidget);
-      expect(
-        find.textContaining('it can only do that while the app is open'),
-        findsOneWidget,
-      );
+      expect(find.byType(HelpTopicScreen), findsOneWidget);
+      expect(find.text('Receive your first EPIC'), findsOneWidget);
     });
 
-    testWidgets('the tracker links to "Waiting for recipient"', (tester) async {
+    testWidgets('the tracker links to "Send to someone"', (tester) async {
       final h = _Harness();
       await h.pump(tester, _sendTab());
       await _toReview(tester);
       await _tap(tester, find.text('Send 1 EPIC'));
       await _tap(tester, find.text('What if it never finishes?'));
       await _tap(tester, find.widgetWithText(TextButton, 'Help'));
-      expect(find.textContaining('epicbox service holds'), findsOneWidget);
+      expect(find.byType(HelpTopicScreen), findsOneWidget);
+      expect(find.text('Send to someone'), findsOneWidget);
     });
   });
 
