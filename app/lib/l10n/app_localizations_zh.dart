@@ -3034,7 +3034,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get helpOtherWaysAnswer =>
-      '供高级用户使用。如果不使用 epicbox，请在“其他发送方式”中选择“通过交易文件发送”：你分享一个文件，接收方接受后返回一个 .response 文件，你再打开该文件完成付款。在设置中打开“高级选项”后，才会显示“其他发送方式”。';
+      '发送有四种方式，在发送页顶部选择：Epicbox（服务器保存付款，直到收款方打开钱包）、HTTP（直接发送到已打开并可通过网址访问的钱包）、Tor（通过 Tor 网络直接发送）和付款文件（你分享一个文件，收款方返回 .response 文件，你打开该文件完成付款）。粘贴的地址会自动选择方式。';
 
   @override
   String get helpStillStuck => '仍未解决？';

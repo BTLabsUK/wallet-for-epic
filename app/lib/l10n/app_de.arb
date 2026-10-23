@@ -779,7 +779,7 @@
   "helpNodeQuestion": "Was ist ein Node?",
   "helpNodeAnswer": "Ein Node ist ein Computer, der eine Kopie der Blockchain von Epic Cash vorhält. Die Wallet fragt einen Node nach Ihrem Guthaben und sendet Ihre Zahlungen über ihn ins Netzwerk. Der Node sieht Ihre IP-Adresse und nach welchen Coins die Wallet fragt; wählen Sie daher in den Netzwerkeinstellungen einen, dem Sie vertrauen. Die Netzwerkeinstellungen finden Sie in den Einstellungen, sobald „Erweiterte Optionen“ eingeschaltet ist, und auf dem Entsperrbildschirm.",
   "helpOtherWaysQuestion": "Gibt es andere Möglichkeiten zu senden?",
-  "helpOtherWaysAnswer": "Für fortgeschrittene Nutzer. Ohne epicbox nutzen Sie „Per Transaktionsdatei senden“ unter „Weitere Sendeoptionen“: Sie teilen eine Datei, der Empfänger nimmt sie an und schickt eine .response-Datei zurück, und Sie öffnen diese Datei, um die Zahlung abzuschließen. „Weitere Sendeoptionen“ erscheint, sobald Sie in den Einstellungen „Erweiterte Optionen“ einschalten.",
+  "helpOtherWaysAnswer": "Senden kennt vier Wege, oben auf der Senden-Seite wählbar: Epicbox (der Server hält die Zahlung, bis der Empfänger seine Wallet öffnet), HTTP (direkt an eine geöffnete Wallet, die unter ihrer Webadresse erreichbar ist), Tor (direkt, über das Tor-Netz) und eine Zahlungsdatei (du teilst eine Datei, der Empfänger gibt eine .response-Datei zurück, und du öffnest sie zum Abschluss). Eine eingefügte Adresse wählt den Weg für dich.",
   "helpStillStuck": "Kommen Sie nicht weiter?",
   "helpTellUs": "Beschreiben Sie, was passiert ist oder was unklar ist.",
   "helpSendFeedback": "Feedback senden",

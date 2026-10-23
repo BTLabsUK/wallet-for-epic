@@ -3388,7 +3388,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get helpOtherWaysAnswer =>
-      'Dla zaawansowanych. Bez epicbox użyj opcji „Wyślij plikiem transakcji” w sekcji „Inne sposoby wysyłki”: przekazujesz plik, odbiorca go przyjmuje i odsyła plik .response, a Ty otwierasz ten plik, aby dokończyć płatność. Sekcja „Inne sposoby wysyłki” pojawi się, gdy włączysz „Opcje zaawansowane” w ustawieniach.';
+      'Wysyłanie ma cztery sposoby, wybierane u góry ekranu Wyślij: Epicbox (serwer przechowuje płatność, aż odbiorca otworzy portfel), HTTP (bezpośrednio do otwartego portfela dostępnego pod adresem WWW), Tor (bezpośrednio, przez sieć Tor) i plik płatności (udostępniasz plik, odbiorca zwraca plik .response, a ty otwierasz go, by zakończyć). Wklejony adres sam wybiera sposób.';
 
   @override
   String get helpStillStuck => 'Nadal masz problem?';

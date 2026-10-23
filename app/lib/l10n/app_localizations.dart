@@ -4817,7 +4817,7 @@ abstract class AppLocalizations {
   /// Answer on the help page. "Send by transaction file" and "Other ways to send" are names on the send screen: use the same words. Keep .response as it is.
   ///
   /// In en, this message translates to:
-  /// **'For advanced users. Without epicbox, use \"Send by transaction file\" under \"Other ways to send\": you share a file, the recipient accepts it and returns a .response file, and you open that file to finish. \"Other ways to send\" appears once Advanced options is on in Settings.'**
+  /// **'Send has four ways, chosen at the top of Send: Epicbox (the server holds the payment until the recipient opens their wallet), HTTP (straight to a wallet that is open and reachable at its web address), Tor (straight, over the Tor network) and a payment file (you share a file, the recipient returns a .response file, and you open that file to finish). A pasted address picks the way for you.'**
   String get helpOtherWaysAnswer;
 
   /// Heading at the end of the help page.

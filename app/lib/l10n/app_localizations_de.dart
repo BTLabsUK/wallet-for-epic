@@ -3267,7 +3267,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get helpOtherWaysAnswer =>
-      'Für fortgeschrittene Nutzer. Ohne epicbox nutzen Sie „Per Transaktionsdatei senden“ unter „Weitere Sendeoptionen“: Sie teilen eine Datei, der Empfänger nimmt sie an und schickt eine .response-Datei zurück, und Sie öffnen diese Datei, um die Zahlung abzuschließen. „Weitere Sendeoptionen“ erscheint, sobald Sie in den Einstellungen „Erweiterte Optionen“ einschalten.';
+      'Senden kennt vier Wege, oben auf der Senden-Seite wählbar: Epicbox (der Server hält die Zahlung, bis der Empfänger seine Wallet öffnet), HTTP (direkt an eine geöffnete Wallet, die unter ihrer Webadresse erreichbar ist), Tor (direkt, über das Tor-Netz) und eine Zahlungsdatei (du teilst eine Datei, der Empfänger gibt eine .response-Datei zurück, und du öffnest sie zum Abschluss). Eine eingefügte Adresse wählt den Weg für dich.';
 
   @override
   String get helpStillStuck => 'Kommen Sie nicht weiter?';
