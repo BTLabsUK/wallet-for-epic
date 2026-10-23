@@ -44,6 +44,7 @@ import '../../secret_store_api.dart';
 import '../../seed_contacts.dart';
 import '../../slate_files.dart' show decodeSlateFile, responseFileName, sendFileName;
 import '../../tor_location.dart';
+import '../../updater.dart' show updateStateKey;
 import '../../wallet_registry.dart' as reg;
 import '../../history/export.dart' show historyCsv, historyDamaged, historyNewer, historyOtherWallet;
 import '../../settings.dart' show HistoryExportSnapshot;
@@ -2347,6 +2348,16 @@ class LepicDeskWallet implements DeskWalletApi {
 
   static const _btlabsCacheKey = 'desk.btlabsPublic';
 
+  /// The keys the last accepted update.json revoked (its stored state, [updateStateKey]): they
+  /// sign no btlabs.json either.
+  Future<Set<String>> _updateRevoked() async {
+    try {
+      return ManifestState.fromJson(await _store.readJson(updateStateKey))?.revoked ?? const {};
+    } on Object {
+      return const {};
+    }
+  }
+
   /// The last accepted file's seed contacts, re-checked (signer still trusted, signature and
   /// digest as stored); null when there is none or it no longer checks out.
   Future<List<SeedContact>?> _cachedWebSeeds() async {
@@ -2355,7 +2366,7 @@ class LepicDeskWallet implements DeskWalletApi {
     if (j is! Map || j['envelope'] is! String) return null;
     final state = ManifestState.fromJson(j['state']);
     if (state == null) return null;
-    final file = await loadCachedBtlabsPublic(j['envelope'] as String, keyring: _keyring, state: state);
+    final file = await loadCachedBtlabsPublic(j['envelope'] as String, keyring: _keyring, state: state, alsoRevoked: await _updateRevoked());
     if (file != null) {
       onions.adopt(file);
       await _applyOnions(_session);
@@ -2382,7 +2393,7 @@ class LepicDeskWallet implements DeskWalletApi {
       final body = await _seedFetch!(Uri.parse(btlabsPublicUrl));
       if (body == null) return;
       final stored = ManifestState.fromJson(j['state']);
-      final r = await verifyBtlabsPublic(body, keyring: _keyring, state: stored, now: DateTime.now().toUtc());
+      final r = await verifyBtlabsPublic(body, keyring: _keyring, state: stored, now: DateTime.now().toUtc(), alsoRevoked: await _updateRevoked());
       switch (r) {
         case Rejected(:final reason):
           logInfo('desk', 'btlabs.json not used: ${reason.code}');

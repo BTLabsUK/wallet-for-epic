@@ -4,7 +4,10 @@ import 'package:epic_wallet/src/desktop/screens/settings/settings_about.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/settings_frame.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
-import 'package:epic_wallet/src/updater.dart' show updateKeyringProvider;
+import 'package:epic_wallet/src/btlabs_public.dart' show ManifestState;
+import 'package:epic_wallet/src/desktop/data/desk_store.dart';
+import 'package:epic_wallet/src/secret_store_api.dart';
+import 'package:epic_wallet/src/updater.dart' show updateKeyringProvider, updateStateKey;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -198,5 +201,37 @@ void main() {
     expect(copied, ['https://t.me/EpicCash']);
     refusals = 2;
     expect(await tester.runAsync(() => copyLink('https://epiccash.com')), isFalse);
+  });
+
+  test('the desktop keeps the last manifest across restarts: an older one is refused', () async {
+    final secrets = MemorySecretStore();
+    // One app run: a fresh controller on the same desk store.
+    Future<DeskUpdateState> run(String body) async {
+      final c = ProviderContainer(overrides: [
+        deskStoreProvider.overrideWithValue(DeskStore(secrets)),
+        deskManifestFetchProvider.overrideWithValue((_) async => (200, body)),
+        deskUpdateClockProvider.overrideWithValue(() => now),
+        updateKeyringProvider.overrideWithValue(testUpdateKeyring),
+      ]);
+      await c.read(deskUpdateProvider.notifier).check();
+      final s = c.read(deskUpdateProvider);
+      c.dispose();
+      return s;
+    }
+
+    final latest = await signedUpdate(testUpdatePayload(desktop: {'version': deskAppVersion}, serial: 1790000100));
+    final newer2 = await signedUpdate(testUpdatePayload(desktop: {'version': '26.10.1', 'page': page}, serial: 1790000200));
+    expect((await run(latest)).phase, DeskUpdatePhase.latest);
+    final stored = ManifestState.fromJson(await DeskStore(secrets).readJson(updateStateKey));
+    expect(stored?.serial, 1790000100);
+    // A replayed older manifest that offers an update: not used after the restart.
+    expect((await run(newer)).phase, DeskUpdatePhase.latest);
+    expect(ManifestState.fromJson(await DeskStore(secrets).readJson(updateStateKey))?.serial, 1790000100);
+    expect((await run(newer2)).version, '26.10.1');
+    expect(ManifestState.fromJson(await DeskStore(secrets).readJson(updateStateKey))?.serial, 1790000200);
+    // What is stored does not read: ignored, and replaced by the next good one.
+    await secrets.write(updateStateKey, '{broken');
+    expect((await run(newer)).version, '26.10.1');
+    expect(ManifestState.fromJson(await DeskStore(secrets).readJson(updateStateKey))?.serial, 1790000000);
   });
 }

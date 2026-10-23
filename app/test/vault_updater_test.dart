@@ -3,9 +3,11 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:crypto/crypto.dart';
+import 'package:cryptography/cryptography.dart' show SimpleKeyPair;
 import 'package:epic_wallet/src/btlabs_public.dart';
 import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:epic_wallet/src/network.dart';
+import 'package:epic_wallet/src/providers.dart' show secretStoreProvider;
 import 'package:epic_wallet/src/relay_directory.dart';
 import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/updater.dart';
@@ -14,6 +16,8 @@ import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'support/btlabs_public_file.dart' show donation, signedPublicFile, testKeyring;
+import 'support/btlabs_sign.dart' show testKeyFromPem;
 import 'support/signed_update.dart';
 
 void main() {
@@ -839,6 +843,128 @@ void main() {
     });
   });
 
+
+  group('update.json state across restarts', () {
+    late HttpServer server;
+    late String body;
+    late MemorySecretStore store;
+    final now = DateTime.utc(2026, 11, 1);
+
+    setUp(() async {
+      store = MemorySecretStore();
+      server = await HttpServer.bind(InternetAddress.loopbackIPv4, 0);
+      server.listen((request) {
+        request.response
+          ..write(body)
+          ..close();
+      });
+    });
+
+    tearDown(() => server.close(force: true));
+
+    // One app run: a fresh notifier on the same store, which checks once.
+    Future<UpdateState> run() async {
+      final platform = _FakeUpdatePlatform();
+      final container = ProviderContainer(
+        overrides: [
+          updatePlatformProvider.overrideWithValue(platform),
+          secretStoreProvider.overrideWithValue(store),
+          updateManifestUrlProvider.overrideWithValue(Uri.parse('http://127.0.0.1:${server.port}/update.json')),
+          updateKeyringProvider.overrideWithValue(testUpdateKeyring),
+          updateClockProvider.overrideWithValue(() => now),
+        ],
+      );
+      await container.read(updateProvider.notifier).check();
+      final state = container.read(updateProvider);
+      container.dispose();
+      await platform.events.close();
+      return state;
+    }
+
+    Future<String> serial(int serial, {String versionName = '1.0.1', List<String>? revoked, SimpleKeyPair? key}) async {
+      final payload = testUpdatePayload(serial: serial, versionName: versionName);
+      if (revoked != null) payload['revoked_keys'] = revoked;
+      return signedUpdate(payload, keys: key == null ? null : [key]);
+    }
+
+    test('an older manifest is refused after a restart, a newer one taken', () async {
+      body = await serial(1790000100);
+      expect((await run()).update?.versionName, '1.0.1');
+      final stored = ManifestState.fromJson(jsonDecode(store.values[updateStateKey]!));
+      expect(stored?.serial, 1790000100);
+
+      body = await serial(1790000000, versionName: '1.0.2');
+      expect((await run()).update, isNull, reason: 'a replayed older manifest offers nothing');
+      expect(ManifestState.fromJson(jsonDecode(store.values[updateStateKey]!))?.serial, 1790000100);
+
+      body = await serial(1790000200, versionName: '1.0.3');
+      expect((await run()).update?.versionName, '1.0.3');
+      expect(ManifestState.fromJson(jsonDecode(store.values[updateStateKey]!))?.serial, 1790000200);
+    });
+
+    test('the same serial with other bytes is refused after a restart', () async {
+      body = await serial(1790000100);
+      await run();
+      body = await serial(1790000100, versionName: '1.0.9');
+      expect((await run()).update, isNull);
+    });
+
+    test('a key revoked by a manifest stays revoked after a restart', () async {
+      final keyA = testUpdateKeyring.keys.firstWhere((k) => k.rank == 1).keyid;
+      final keyB = await testKeyFromPem(File('test/fixtures/btlabs/test-b.key').readAsStringSync());
+      body = await serial(1790000100, revoked: [keyA], key: keyB);
+      expect((await run()).update?.versionName, '1.0.1');
+      expect(ManifestState.fromJson(jsonDecode(store.values[updateStateKey]!))?.revoked, {keyA});
+      // Signed by the revoked key A, newer: still refused in a new run.
+      body = await serial(1790000300, versionName: '1.0.4');
+      expect((await run()).update, isNull);
+    });
+
+    test("a key update.json revoked signs no btlabs.json either", () async {
+      final keyA = testUpdateKeyring.keys.firstWhere((k) => k.rank == 1).keyid;
+      final d = [donation('btlabs', 'esWxboBPMgL4RqufRYcGUJ7t6YVWGvyuid6xRM62UkRzSb3jUcNK@epicbox.stackwallet.com')];
+      final file = await signedPublicFile(d, serial: 3);
+      final at = DateTime.utc(2026, 11);
+      expect(await verifyBtlabsPublic(file, keyring: testKeyring(), now: at), isA<Accepted<BtlabsPublic>>());
+      final r = await verifyBtlabsPublic(file, keyring: testKeyring(), now: at, alsoRevoked: {keyA});
+      expect(r, isA<Rejected<BtlabsPublic>>());
+      final ok = await verifyBtlabsPublic(file, keyring: testKeyring(), now: at) as Accepted<BtlabsPublic>;
+      expect(await loadCachedBtlabsPublic(file, keyring: testKeyring(), state: ok.state), isNotNull);
+      expect(await loadCachedBtlabsPublic(file, keyring: testKeyring(), state: ok.state, alsoRevoked: {keyA}), isNull);
+    });
+
+    test('a stored state that does not read is ignored, then replaced', () async {
+      for (final bad in ['{not json', '{"serial": "x"}', '[]']) {
+        store.values[updateStateKey] = bad;
+        body = await serial(1790000100);
+        expect((await run()).update?.versionName, '1.0.1', reason: bad);
+        expect(ManifestState.fromJson(jsonDecode(store.values[updateStateKey]!))?.serial, 1790000100, reason: bad);
+      }
+    });
+
+    test('a store that cannot be read is not written over', () async {
+      store.values[updateStateKey] = jsonEncode(
+        ManifestState(serial: 1790000500, keyid: testUpdateKeyring.keys.first.keyid, digest: 'a' * 64).toJson(),
+      );
+      final broken = _ThrowingStore(store);
+      body = await serial(1790000100);
+      final platform = _FakeUpdatePlatform();
+      final container = ProviderContainer(
+        overrides: [
+          updatePlatformProvider.overrideWithValue(platform),
+          secretStoreProvider.overrideWithValue(broken),
+          updateManifestUrlProvider.overrideWithValue(Uri.parse('http://127.0.0.1:${server.port}/update.json')),
+          updateKeyringProvider.overrideWithValue(testUpdateKeyring),
+          updateClockProvider.overrideWithValue(() => now),
+        ],
+      );
+      addTearDown(container.dispose);
+      await container.read(updateProvider.notifier).check();
+      expect(ManifestState.fromJson(jsonDecode(store.values[updateStateKey]!))?.serial, 1790000500);
+      expect(broken.writes, 0);
+    });
+  });
+
   group('relays', () {
     test('parses host and port, and refuses junk', () {
       final a = EpicboxRelay.parse(' Epicbox.EpicNet.us ')!;
@@ -892,6 +1018,25 @@ void main() {
 
 /// An installed 1.0.0 (2001) on arm64 that never installs anything: [install] answers
 /// [installStatus], and [events] stands for the installer's later results.
+/// A secret store whose reads fail, as a locked or broken keystore's would.
+class _ThrowingStore implements SecretStore {
+  _ThrowingStore(this.inner);
+  final MemorySecretStore inner;
+  int writes = 0;
+
+  @override
+  Future<String?> read(String key) async => throw StateError('locked');
+
+  @override
+  Future<void> write(String key, String value) async {
+    writes++;
+    await inner.write(key, value);
+  }
+
+  @override
+  Future<void> delete(String key) => inner.delete(key);
+}
+
 class _FakeUpdatePlatform implements UpdatePlatform {
   String installStatus = 'started';
   int installs = 0;

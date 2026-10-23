@@ -11,6 +11,7 @@
 library;
 
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:crypto/crypto.dart';
@@ -26,6 +27,7 @@ import 'btlabs_public.dart';
 import 'net/tor_net.dart';
 import 'l10n.dart';
 import 'net/http.dart';
+import 'providers.dart' show secretStoreProvider;
 
 /// Where releases publish the signed `update.json`. Override with
 /// `--dart-define=WFE_UPDATE_URL=...`; an override must still be signed with the bundled keys.
@@ -352,6 +354,34 @@ final updateApkUrlProvider = Provider<Uri Function(Uri url)>(
       (url) => url,
 );
 
+/// Where update.json's verification state (FORMAT.md §5: serial, digest, revoked keys) is kept
+/// between runs, so a restart does not take an older signed manifest again, nor trust a key a
+/// manifest revoked. The phone keeps it in the secret store, the desktop in its desk store.
+const String updateStateKey = 'app.update_state';
+
+/// The stored state from its decoded JSON; null when nothing is stored. A stored value that
+/// does not read as a state is logged and counts as none: the next manifest that verifies
+/// writes a good one.
+ManifestState? storedUpdateState(Object? json) {
+  if (json == null) return null;
+  final state = ManifestState.fromJson(json);
+  if (state == null) logWarn('update', 'stored update.json state is not valid; ignored');
+  return state;
+}
+
+/// Of the stored state and one accepted before it could be read, the one with the higher
+/// serial, keeping every key either revoked.
+ManifestState? laterUpdateState(ManifestState? stored, ManifestState? seen) {
+  if (stored == null || seen == null) return stored ?? seen;
+  final later = seen.serial > stored.serial ? seen : stored;
+  return ManifestState(
+    serial: later.serial,
+    keyid: later.keyid,
+    digest: later.digest,
+    revoked: Set.unmodifiable({...stored.revoked, ...seen.revoked}),
+  );
+}
+
 final updateProvider = NotifierProvider<UpdateNotifier, UpdateState>(
   UpdateNotifier.new,
 );
@@ -359,8 +389,44 @@ final updateProvider = NotifierProvider<UpdateNotifier, UpdateState>(
 class UpdateNotifier extends Notifier<UpdateState> {
   StreamSubscription<({String status, String? message})>? _events;
 
-  /// The last manifest accepted in this run; a later, older one is refused (FORMAT.md §6).
+  /// The last manifest accepted, also in an earlier run ([updateStateKey]); an older one is
+  /// refused (FORMAT.md §6).
   ManifestState? _manifestState;
+
+  /// Whether the stored state was read. Until it is, nothing is stored over it: a store that
+  /// could not be read is asked again at the next check.
+  bool _stateRead = false;
+
+  Future<void> _readState() async {
+    if (_stateRead) return;
+    try {
+      final text = await ref.read(secretStoreProvider).read(updateStateKey);
+      Object? json;
+      if (text != null) {
+        try {
+          json = jsonDecode(text);
+        } on FormatException {
+          json = const <String, Object?>{};
+        }
+      }
+      _manifestState = laterUpdateState(storedUpdateState(json), _manifestState);
+      _stateRead = true;
+    } on Object catch (e) {
+      logWarn('update', 'stored update.json state not read: ${e.runtimeType}');
+    }
+  }
+
+  /// Remembers [next], the state of a manifest that just verified, and stores it.
+  Future<void> _keepState(ManifestState? next) async {
+    if (next == null || next == _manifestState) return;
+    _manifestState = next;
+    if (!_stateRead) return;
+    try {
+      await ref.read(secretStoreProvider).write(updateStateKey, jsonEncode(next.toJson()));
+    } on Object catch (e) {
+      logWarn('update', 'update.json state not stored: ${e.runtimeType}');
+    }
+  }
 
   @override
   UpdateState build() {
@@ -416,6 +482,7 @@ class UpdateNotifier extends Notifier<UpdateState> {
     state = UpdateState(UpdatePhase.checking, update: known);
     final url = ref.read(updateManifestUrlProvider);
     try {
+      await _readState();
       final app = await platform.installedApp();
       // No manifest published at the feed, or one that does not verify: nothing is known
       // about a newer version, which is no error. A known update stays offered.
@@ -468,7 +535,8 @@ class UpdateNotifier extends Notifier<UpdateState> {
         noInformation();
         return;
       }
-      _manifestState = read.state;
+      await _keepState(read.state);
+      if (!ref.mounted) return;
       final apkUrl = ref.read(updateApkUrlProvider);
       final picked = read.update;
       final update = picked == null
