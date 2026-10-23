@@ -416,12 +416,21 @@ class ListenerEvent {
   /// or what we sent), in the smallest unit. `None` for every other kind.
   final BigInt? amount;
 
+  /// For `Disconnected`: why the connection ended, as LEPIC reports it (close frame, I/O error,
+  /// timeout). No secrets.
+  final String? reason;
+
+  /// For `Disconnected`: milliseconds LEPIC waits before the next attempt.
+  final int? retryInMs;
+
   const ListenerEvent({
     required this.kind,
     this.slateId,
     this.txId,
     required this.message,
     this.amount,
+    this.reason,
+    this.retryInMs,
   });
 
   @override
@@ -430,7 +439,9 @@ class ListenerEvent {
       slateId.hashCode ^
       txId.hashCode ^
       message.hashCode ^
-      amount.hashCode;
+      amount.hashCode ^
+      reason.hashCode ^
+      retryInMs.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -441,7 +452,9 @@ class ListenerEvent {
           slateId == other.slateId &&
           txId == other.txId &&
           message == other.message &&
-          amount == other.amount;
+          amount == other.amount &&
+          reason == other.reason &&
+          retryInMs == other.retryInMs;
 }
 
 /// What the epicbox listener did.
