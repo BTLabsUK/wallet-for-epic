@@ -38,16 +38,25 @@ class Contact {
   final String address;
   final String? note;
 
+  /// Their invoice address, where requests to them go; null when not known. Optional in the
+  /// record, so a file written before it still reads.
+  final String? invoiceAddress;
+
   const Contact({
     required this.id,
     required this.name,
     required this.address,
     this.note,
+    this.invoiceAddress,
   });
 
   @override
   int get hashCode =>
-      id.hashCode ^ name.hashCode ^ address.hashCode ^ note.hashCode;
+      id.hashCode ^
+      name.hashCode ^
+      address.hashCode ^
+      note.hashCode ^
+      invoiceAddress.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -57,7 +66,8 @@ class Contact {
           id == other.id &&
           name == other.name &&
           address == other.address &&
-          note == other.note;
+          note == other.note &&
+          invoiceAddress == other.invoiceAddress;
 }
 
 /// `amount` is the amount to send, as requested; `fee` comes on top of it.
@@ -179,6 +189,10 @@ enum OutputCategory {
   awaitingFinalization,
   immature,
   locked,
+
+  /// This wallet's output of an invoice it issued that is not paid yet: no balance figure
+  /// counts it.
+  unpaidInvoice,
 }
 
 /// One output (coin) of the wallet, from [WalletSession.outputs].
@@ -1352,6 +1366,23 @@ enum WalletErrorKind {
   /// The epicbox relay or the recipient's HTTP listener could not be reached, or refused.
   transportFailed,
 
+  /// No pending invoice has the id given to pay or decline: it was paid, declined, withdrawn
+  /// or has expired. Nothing was changed.
+  invoiceNotFound,
+
+  /// The amount given to pay an invoice is not the invoiced amount. Nothing was paid.
+  amountMismatch,
+
+  /// The invoice was paid already (here, or its answer was stored). Nothing more was paid.
+  invoiceAlreadyPaid,
+
+  /// The invoice's kernel is locked until a block above the chain's tip; it cannot be paid.
+  /// Nothing was stored.
+  invoiceLockedAboveTip,
+
+  /// The invoice or its answer differs from what was stored for it. Nothing was paid.
+  invoiceChanged,
+
   /// A wallet is still open on another network, or a call on this wallet is still running
   /// (network switch, delete). Waiting a moment and trying again usually works.
   chainBusy,
@@ -1401,17 +1432,21 @@ class TrustedService {
   final String address;
   final String? label;
 
-  const TrustedService({required this.address, this.label});
+  /// When the service was allowed, from the wallet's list; null where the list has no date.
+  final DateTime? since;
+
+  const TrustedService({required this.address, this.label, this.since});
 
   @override
-  int get hashCode => address.hashCode ^ label.hashCode;
+  int get hashCode => address.hashCode ^ label.hashCode ^ since.hashCode;
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is TrustedService &&
           address == other.address &&
-          label == other.label;
+          label == other.label &&
+          since == other.since;
 }
 
 /// The label the user gave the service at [address], matched on the key. Never anything the
@@ -1575,6 +1610,15 @@ enum InvoiceEventKind {
 
   /// The invoice's time ran out before the user answered it.
   expired,
+
+  /// The payment of an invoice this wallet does not know arrived and was refused: another
+  /// install on the same recovery phrase may have issued it. Its id and sender are not
+  /// verified: inform the user only, never act on it.
+  unknownInvoicePayment,
+
+  /// The answer to a send this wallet does not know arrived and was refused: another install
+  /// on the same recovery phrase may have made it. Inform only, as [unknownInvoicePayment].
+  unknownSendAnswer,
 }
 
 class InvoiceEvent {

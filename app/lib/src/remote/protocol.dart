@@ -51,6 +51,7 @@ enum SessionMember {
   estimateMax,
   invoiceAddress,
   rotateInvoiceAddress,
+  invoiceAddressIndex,
   trustedServices,
   addTrustedService,
   removeTrustedService,
@@ -73,6 +74,7 @@ enum SessionMember {
   splitOutputs,
   estimateConsolidate,
   consolidateOutputs,
+  spendOutputsToSelf,
 }
 
 /// Interface members the client answers without the server.

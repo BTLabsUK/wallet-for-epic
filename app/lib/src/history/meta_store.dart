@@ -126,6 +126,7 @@ class ContactRec {
     required this.name,
     required this.address,
     this.note,
+    this.invoiceAddress,
   });
 
   factory ContactRec.fromJson(Object? json) {
@@ -135,6 +136,7 @@ class ContactRec {
       name: _str(m['name'], 'contact name'),
       address: _str(m['address'], 'contact address'),
       note: _optStr(m['note'], 'contact note'),
+      invoiceAddress: _optStr(m['invoice_address'], 'contact invoice address'),
     );
   }
 
@@ -143,9 +145,13 @@ class ContactRec {
   String address;
   String? note;
 
+  /// Written only when set, so a file without it stays as the old core wrote it.
+  String? invoiceAddress;
+
   Map<String, Object?> toJson() {
     final out = <String, Object?>{'id': id, 'name': name, 'address': address};
     _put(out, 'note', note);
+    _put(out, 'invoice_address', invoiceAddress);
     return out;
   }
 }

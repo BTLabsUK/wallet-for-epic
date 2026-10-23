@@ -4705,5 +4705,1393 @@
   "settingsSectionReceiving": "Receiving",
   "@settingsSectionReceiving": {
     "description": "Settings section header: how payments reach this wallet (Tor receiving)."
+  },
+  "deskInvActFrom": "Invoice from {label}",
+  "@deskInvActFrom": {
+    "description": "Activity row title of an invoice you paid; label is your name for the service.",
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "deskInvActFilter": "Invoices",
+  "@deskInvActFilter": {
+    "description": "Activity filter: requests you sent and invoices you paid."
+  },
+  "deskInvActBlock": "Invoice",
+  "@deskInvActBlock": {
+    "description": "Section title in a transaction's details: the request or invoice behind it."
+  },
+  "deskInvActOpen": "Open in Invoices",
+  "@deskInvActOpen": {
+    "description": "Link from a transaction to its invoice on the Invoices page."
+  },
+  "deskInvActBilledBy": "Billed by",
+  "@deskInvActBilledBy": {
+    "description": "Detail label: the service that sent the invoice."
+  },
+  "deskInvActOverviewTitle": "Invoices",
+  "@deskInvActOverviewTitle": {
+    "description": "Overview card title: invoices to pay and requests waiting."
+  },
+  "deskInvActOverviewToPay": "{count, plural, =0{Nothing to pay} =1{1 invoice to pay} other{{count} invoices to pay}}",
+  "@deskInvActOverviewToPay": {
+    "description": "Overview card line: invoices waiting for your answer.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deskInvActOverviewWaiting": "{count, plural, =0{No issued invoices waiting} =1{1 issued invoice waiting for its payer} other{{count} issued invoices waiting for their payers}}",
+  "@deskInvActOverviewWaiting": {
+    "description": "Overview card line: requests you sent, not answered yet.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deskInvActOverviewAttention": "{count, plural, =1{1 payment needs you: retry or cancel it} other{{count} payments need you: retry or cancel them}}",
+  "@deskInvActOverviewAttention": {
+    "description": "Overview card warning: paid invoices whose payment needs Retry or Cancel.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deskInvActReview": "Review",
+  "@deskInvActReview": {
+    "description": "Overview card button: open the invoices to pay."
+  },
+  "deskInvActOpenInvoices": "Open Invoices",
+  "@deskInvActOpenInvoices": {
+    "description": "Overview card button: open the Invoices page."
+  },
+  "deskInvNav": "Invoices",
+  "@deskInvNav": {
+    "description": "Sidebar entry for invoices: to pay and issued. One word."
+  },
+  "deskInvTitle": "Invoices",
+  "@deskInvTitle": {
+    "description": "Title of the Invoices page: invoices to pay (tab Pay) and invoices this wallet issued (tab Issue)."
+  },
+  "deskInvTabPay": "Pay",
+  "@deskInvTabPay": {
+    "description": "Tab on the Invoices page: invoices sent to this wallet, waiting for an answer. A short verb."
+  },
+  "deskInvTabIssue": "Issue",
+  "@deskInvTabIssue": {
+    "description": "Tab on the Invoices page: invoices this wallet issued to others. A short verb."
+  },
+  "deskInvTabCount": "{label} ({count})",
+  "@deskInvTabCount": {
+    "description": "A tab label with how many items in it need you, e.g. 'To pay (2)'.",
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deskInvIssueAction": "Issue an invoice",
+  "@deskInvIssueAction": {
+    "description": "Button: start a new invoice to someone who should pay this wallet."
+  },
+  "deskInvChecking": "Checking",
+  "@deskInvChecking": {
+    "description": "Status while the wallet asks the relay for invoices and payments."
+  },
+  "deskInvCheckedAt": "Checked at {time}",
+  "@deskInvCheckedAt": {
+    "description": "When the wallet last asked the relay for invoices, e.g. 'Checked at 14:32'.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "deskInvCheckFailedTitle": "The Epicbox server is not answering",
+  "@deskInvCheckFailedTitle": {
+    "description": "Notice title when checking for invoices failed."
+  },
+  "deskInvCheckFailedBody": "The lists show what arrived before. Nothing was lost; the wallet tries again every 2 minutes.",
+  "@deskInvCheckFailedBody": {
+    "description": "Notice text when checking for invoices failed."
+  },
+  "deskInvReqWaiting": "Waiting for payer",
+  "@deskInvReqWaiting": {
+    "description": "State of a request you sent: delivered, no answer yet."
+  },
+  "deskInvReqPaid": "Paid, finalizing",
+  "@deskInvReqPaid": {
+    "description": "State of a request you sent: the payer paid, your wallet finishes and posts the payment."
+  },
+  "deskInvReqPosted": "Posted",
+  "@deskInvReqPosted": {
+    "description": "State of a request you sent: the payment is posted to the network, not yet in a block."
+  },
+  "deskInvConfirming": "Confirming {count} of {total}",
+  "@deskInvConfirming": {
+    "description": "State: the payment is in blocks, e.g. 'Confirming 2 of 3'.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "deskInvCompleted": "Completed",
+  "@deskInvCompleted": {
+    "description": "State: the payment has enough confirmations."
+  },
+  "deskInvReqNotPosted": "Not posted",
+  "@deskInvReqNotPosted": {
+    "description": "State of a request you sent: paid and finished, but the node refused it or could not be reached."
+  },
+  "deskInvDeclined": "Declined",
+  "@deskInvDeclined": {
+    "description": "State: the invoice or request was declined."
+  },
+  "deskInvExpired": "Expired",
+  "@deskInvExpired": {
+    "description": "State: time ran out before an answer."
+  },
+  "deskInvWithdrawn": "Withdrawn",
+  "@deskInvWithdrawn": {
+    "description": "State: the request was withdrawn by the one who sent it."
+  },
+  "deskInvReqBounced": "Sent back",
+  "@deskInvReqBounced": {
+    "description": "State of a request you sent: the payer's wallet cannot pay requests and returned it."
+  },
+  "deskInvPayWaiting": "To pay",
+  "@deskInvPayWaiting": {
+    "description": "State of an invoice you received: waiting for your answer."
+  },
+  "deskInvPayPaying": "Paying",
+  "@deskInvPayPaying": {
+    "description": "State of an invoice you approved: signing and sending the payment."
+  },
+  "deskInvPayNotDelivered": "Not delivered",
+  "@deskInvPayNotDelivered": {
+    "description": "State of an invoice you paid: the signed payment did not reach the relay; funds stay locked until Retry or Cancel."
+  },
+  "deskInvPayDelivered": "Waiting to post",
+  "@deskInvPayDelivered": {
+    "description": "State of an invoice you paid: the service has your payment and must post it."
+  },
+  "deskInvPayPosted": "Posted by service",
+  "@deskInvPayPosted": {
+    "description": "State of an invoice you paid: the service reports it posted the payment."
+  },
+  "deskInvPayWithdrawnAfterPay": "Withdrawn after paying",
+  "@deskInvPayWithdrawnAfterPay": {
+    "description": "State of an invoice you paid: the service withdrew it afterwards; you may cancel the payment."
+  },
+  "deskInvPayPastTtl": "Not on chain",
+  "@deskInvPayPastTtl": {
+    "description": "State of an invoice you paid: its time passed and the payment is not in the pool or on the chain; you may cancel it."
+  },
+  "deskInvPayCancelled": "Cancelled",
+  "@deskInvPayCancelled": {
+    "description": "State of an invoice you paid: you cancelled the payment; the funds are back."
+  },
+  "deskInvUnpaid": "Unpaid",
+  "@deskInvUnpaid": {
+    "description": "Word beside the amount of an invoice this wallet issued that is not paid: it is not money received."
+  },
+  "deskInvYouPay": "You pay",
+  "@deskInvYouPay": {
+    "description": "Word beside the amount of an invoice you received: money that would leave your wallet."
+  },
+  "deskInvExpiresAt": "Expires {time}",
+  "@deskInvExpiresAt": {
+    "description": "Absolute expiry time, e.g. 'Expires 22 Oct, 14:30'. Shown on hover of a countdown.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "deskInvSlateId": "Slate ID",
+  "@deskInvSlateId": {
+    "description": "Label: the transaction's technical identifier (Advanced)."
+  },
+  "deskInvAdvanced": "Advanced",
+  "@deskInvAdvanced": {
+    "description": "Title of a fold that holds technical controls (slate ID, rotation, expiry). Desktop has no Advanced switch."
+  },
+  "deskInvOneDevice": "Use invoices on one device only. Another device with this wallet can take a payment meant for this one.",
+  "@deskInvOneDevice": {
+    "description": "Standing warning on the request form, Review and Settings › Invoices: the same wallet on two devices can intercept invoice payments."
+  },
+  "deskInvFailed": "That did not work. Nothing changed; try again.",
+  "@deskInvFailed": {
+    "description": "Error notice when an invoice action failed for a reason without its own words."
+  },
+  "deskInvHowItWorks": "How invoices work",
+  "@deskInvHowItWorks": {
+    "description": "Link on the Invoices page to Help › Invoices."
+  },
+  "deskInvAddressHint": "es…@epicbox.epiccash.com",
+  "@deskInvAddressHint": {
+    "description": "Hint in an Epicbox address field: the shape of an address. Keep as is."
+  },
+  "deskInvEpicboxAddress": "Epicbox address",
+  "@deskInvEpicboxAddress": {
+    "description": "Title of the QR of this wallet's Epicbox address (its payments address)."
+  },
+  "deskInvHelpTitle": "Invoices",
+  "@deskInvHelpTitle": {
+    "description": "Help section title: invoices."
+  },
+  "deskInvHelpLede": "Bills from trusted senders, paid only after approval.",
+  "@deskInvHelpLede": {
+    "description": "Help section lede under 'Invoices'."
+  },
+  "deskInvHelpFlowTitle": "How an invoice works",
+  "@deskInvHelpFlowTitle": {
+    "description": "Help topic title."
+  },
+  "deskInvHelpFlowShort": "The issuer sends an invoice to the payer's invoice address. Nothing is paid until the payer approves it.",
+  "@deskInvHelpFlowShort": {
+    "description": "One-line answer of the topic."
+  },
+  "deskInvHelpFlowIntro": "An invoice asks for a payment. The **issuer** is paid; the **payer** decides.",
+  "@deskInvHelpFlowIntro": {
+    "description": "Paragraph. **x** marks a term."
+  },
+  "deskInvHelpFlowStep1": "The issuer's wallet sends the invoice to the payer's **invoice address** over the Epicbox server.",
+  "@deskInvHelpFlowStep1": {
+    "description": "Step 1 of the invoice flow."
+  },
+  "deskInvHelpFlowStep2": "The payer opens it under [[Invoices › Pay]], checks the sender, the amount and the message, and chooses **Approve and pay** with the wallet password.",
+  "@deskInvHelpFlowStep2": {
+    "description": "Step 2. [[x]] marks a place in the app; keep the place name as the UI shows it."
+  },
+  "deskInvHelpFlowStep3": "The payer's wallet sends the payment to the issuer's **payments address**.",
+  "@deskInvHelpFlowStep3": {
+    "description": "Step 3."
+  },
+  "deskInvHelpFlowStep4": "The issuer's wallet finalizes the payment and posts it to the network. After {confirmations} confirmations it is final.",
+  "@deskInvHelpFlowStep4": {
+    "description": "Step 4.",
+    "placeholders": {
+      "confirmations": {
+        "type": "int"
+      }
+    }
+  },
+  "deskInvHelpFlowNever": "Nothing is paid without approval, and an invoice never adds money to the payer's wallet. Each invoice has a time to pay, at most 48 hours; after it, the invoice can no longer be paid.",
+  "@deskInvHelpFlowNever": {
+    "description": "Paragraph."
+  },
+  "deskInvHelpFlowIssued": "Invoices this wallet issued are under [[Invoices › Issue]].",
+  "@deskInvHelpFlowIssued": {
+    "description": "Paragraph."
+  },
+  "deskInvHelpTrustTitle": "Why only trusted senders",
+  "@deskInvHelpTrustTitle": {
+    "description": "Help topic title."
+  },
+  "deskInvHelpTrustShort": "Only senders on the trusted list can put an invoice in the inbox. That keeps out spam and fake bills.",
+  "@deskInvHelpTrustShort": {
+    "description": "One-line answer."
+  },
+  "deskInvHelpTrustP1": "The wallet accepts an invoice only at its invoice address and only from a sender on the trusted list, matched on the sender's address. Anything else is dropped unread, before it is opened, and never shows under [[Invoices › Pay]].",
+  "@deskInvHelpTrustP1": {
+    "description": "Paragraph."
+  },
+  "deskInvHelpTrustP2": "Without the list, anyone who learned the invoice address could fill the inbox with spam or with bills that look real.",
+  "@deskInvHelpTrustP2": {
+    "description": "Paragraph."
+  },
+  "deskInvHelpTrustP3": "Trust only lets a sender ask. A trusted sender cannot take anything: each invoice still waits for **Approve and pay**.",
+  "@deskInvHelpTrustP3": {
+    "description": "Paragraph."
+  },
+  "deskInvHelpTrustWhere1": "Trust a sender under [[Settings › Invoices]].",
+  "@deskInvHelpTrustWhere1": {
+    "description": "List item."
+  },
+  "deskInvHelpTrustWhere2": "Or switch on **Trusted for invoices** on a contact under [[Contacts]].",
+  "@deskInvHelpTrustWhere2": {
+    "description": "List item."
+  },
+  "deskInvHelpTrustWhere3": "A sender can be removed from the list at any time. Its new invoices are then dropped.",
+  "@deskInvHelpTrustWhere3": {
+    "description": "List item."
+  },
+  "deskInvHelpAddrTitle": "Why a separate invoice address",
+  "@deskInvHelpAddrTitle": {
+    "description": "Help topic title."
+  },
+  "deskInvHelpAddrShort": "Invoices arrive at their own address, apart from the payments address that people pay to.",
+  "@deskInvHelpAddrShort": {
+    "description": "One-line answer."
+  },
+  "deskInvHelpAddrP1": "The wallet has two Epicbox addresses. The **payments address**, under [[Receive]], receives payments. The **invoice address** receives only invoices.",
+  "@deskInvHelpAddrP1": {
+    "description": "Paragraph."
+  },
+  "deskInvHelpAddrP2": "Keeping them apart means the invoice address can be given to services, or replaced, without exposing or changing the address people pay to.",
+  "@deskInvHelpAddrP2": {
+    "description": "Paragraph."
+  },
+  "deskInvHelpAddrP3": "The invoice address does not receive payments: a payment sent to it is dropped. To be paid, give the payments address.",
+  "@deskInvHelpAddrP3": {
+    "description": "Paragraph."
+  },
+  "deskInvHelpAddrWhere1": "Find, copy or show the invoice address as a QR code under [[Settings › Invoices]].",
+  "@deskInvHelpAddrWhere1": {
+    "description": "List item."
+  },
+  "deskInvHelpAddrWhere2": "**New invoice address** replaces it. Services with the old one can no longer send invoices until they get the new one.",
+  "@deskInvHelpAddrWhere2": {
+    "description": "List item; 'New address' is the button's label."
+  },
+  "deskInvHelpDiagramTitle": "How an invoice travels",
+  "@deskInvHelpDiagramTitle": {
+    "description": "Caption over the invoice flow diagram."
+  },
+  "deskInvHelpDiagramIssuer": "Issuer",
+  "@deskInvHelpDiagramIssuer": {
+    "description": "Diagram lane: the side that issues the invoice and is paid."
+  },
+  "deskInvHelpDiagramPayer": "Payer",
+  "@deskInvHelpDiagramPayer": {
+    "description": "Diagram lane: the side that pays."
+  },
+  "deskInvHelpDiagramIssues": "Issues the invoice",
+  "@deskInvHelpDiagramIssues": {
+    "description": "Diagram box, issuer side. Short."
+  },
+  "deskInvHelpDiagramInvoice": "Invoice",
+  "@deskInvHelpDiagramInvoice": {
+    "description": "Diagram arrow label. Short."
+  },
+  "deskInvHelpDiagramGate": "Invoice address",
+  "@deskInvHelpDiagramGate": {
+    "description": "Diagram box: the payer's invoice address, a gate."
+  },
+  "deskInvHelpDiagramGateSub": "Trusted senders only",
+  "@deskInvHelpDiagramGateSub": {
+    "description": "Under the gate. Short."
+  },
+  "deskInvHelpDiagramDropped": "Other senders",
+  "@deskInvHelpDiagramDropped": {
+    "description": "Diagram: a sender not on the trusted list."
+  },
+  "deskInvHelpDiagramDroppedSub": "Dropped unread",
+  "@deskInvHelpDiagramDroppedSub": {
+    "description": "Under 'Other senders'. Short."
+  },
+  "deskInvHelpDiagramReview": "Reviews and approves",
+  "@deskInvHelpDiagramReview": {
+    "description": "Diagram box, payer side. Short."
+  },
+  "deskInvHelpDiagramReviewSub": "Approve and pay",
+  "@deskInvHelpDiagramReviewSub": {
+    "description": "Under it: the button's label."
+  },
+  "deskInvHelpDiagramPayment": "Payment",
+  "@deskInvHelpDiagramPayment": {
+    "description": "Diagram arrow label. Short."
+  },
+  "deskInvHelpDiagramPayAddr": "Payments address",
+  "@deskInvHelpDiagramPayAddr": {
+    "description": "Diagram box, issuer side: the normal receive address."
+  },
+  "deskInvHelpDiagramPayAddrSub": "Not the invoice address",
+  "@deskInvHelpDiagramPayAddrSub": {
+    "description": "Under 'Payments address'. Short."
+  },
+  "deskInvHelpDiagramFinal": "Finalizes and posts",
+  "@deskInvHelpDiagramFinal": {
+    "description": "Diagram box, issuer side: finalizes the payment and posts it to the network."
+  },
+  "deskInvHelpDiagramFinalSub": "Final after {confirmations} confirmations",
+  "@deskInvHelpDiagramFinalSub": {
+    "description": "Under it. Short.",
+    "placeholders": {
+      "confirmations": {
+        "type": "int"
+      }
+    }
+  },
+  "deskInvHelpDiagramSemantics": "The issuer sends an invoice to the payer's invoice address, which accepts trusted senders only and drops the rest; the payer reviews and approves it; the payment goes to the issuer's payments address; the issuer's wallet finalizes it and posts it to the network.",
+  "@deskInvHelpDiagramSemantics": {
+    "description": "Screen reader text for the whole diagram."
+  },
+  "deskInvIssuerFormTitle": "Issue an invoice",
+  "@deskInvIssuerFormTitle": {
+    "description": "Title of the form that asks someone to pay you."
+  },
+  "deskInvIssuerFirstTitle": "Before the first invoice",
+  "@deskInvIssuerFirstTitle": {
+    "description": "Panel title: the one-off steps the payer takes before they can be billed."
+  },
+  "deskInvIssuerYourAddress": "Your payments address",
+  "@deskInvIssuerYourAddress": {
+    "description": "Label: this wallet's normal Epicbox address, which the payer must trust."
+  },
+  "deskInvIssuerMethod": "Method",
+  "@deskInvIssuerMethod": {
+    "description": "Label of the choice how the request travels: Epicbox, File, Direct."
+  },
+  "deskInvIssuerEpicbox": "Epicbox",
+  "@deskInvIssuerEpicbox": {
+    "description": "Method: the request goes over the Epicbox relay. Product name, usually not translated."
+  },
+  "deskInvIssuerFile": "File",
+  "@deskInvIssuerFile": {
+    "description": "Method: the request is saved as a file to hand over."
+  },
+  "deskInvIssuerDirect": "Direct",
+  "@deskInvIssuerDirect": {
+    "description": "Method: the payment comes straight to this wallet over HTTP or Tor."
+  },
+  "deskInvIssuerSoon": "Coming soon",
+  "@deskInvIssuerSoon": {
+    "description": "Why a method or button is disabled: not built yet."
+  },
+  "deskInvIssuerPayer": "Their invoice address",
+  "@deskInvIssuerPayer": {
+    "description": "Field label: the payer's invoice address, where the request goes."
+  },
+  "deskInvIssuerPayerHelp": "Their wallet shows it under Settings › Invoices.",
+  "@deskInvIssuerPayerHelp": {
+    "description": "Help under the payer field: where the payer finds their invoice address."
+  },
+  "deskInvIssuerPayerMissing": "Paste their invoice address.",
+  "@deskInvIssuerPayerMissing": {
+    "description": "Error: the payer field is empty."
+  },
+  "deskInvIssuerPayerInvalid": "This is not a valid Epicbox address.",
+  "@deskInvIssuerPayerInvalid": {
+    "description": "Error: the payer field holds something that is not an Epicbox address."
+  },
+  "deskInvIssuerPayerOwn": "This is one of your own addresses. Use the invoice address the payer gives you.",
+  "@deskInvIssuerPayerOwn": {
+    "description": "Error: the payer field holds this wallet's payments or invoice address."
+  },
+  "deskInvIssuerPayerHttp": "Invoices over Epicbox need an Epicbox address, not an HTTP or Tor one.",
+  "@deskInvIssuerPayerHttp": {
+    "description": "Error: an http(s) or onion address was given while the method is Epicbox."
+  },
+  "deskInvIssuerContacts": "Contacts",
+  "@deskInvIssuerContacts": {
+    "description": "Button: pick the payer from contacts that have an invoice address."
+  },
+  "deskInvIssuerNoContacts": "No contact has an invoice address yet. Add it under Contacts.",
+  "@deskInvIssuerNoContacts": {
+    "description": "Shown in the contact picker when no contact has an invoice address."
+  },
+  "deskInvIssuerNoInvoices": "This wallet sent an invoice back before: it cannot pay invoices over Epicbox. Send them an invoice file instead, or ask them to send you the payment.",
+  "@deskInvIssuerNoInvoices": {
+    "description": "Warning on the request form: the payer's wallet is known not to pay requests."
+  },
+  "deskInvIssuerUseFile": "Use a file",
+  "@deskInvIssuerUseFile": {
+    "description": "Button: switch the request to the File method."
+  },
+  "deskInvIssuerUnknown": "Only wallet-for-epic and other LEPIC wallets can pay an invoice over Epicbox. The Epic GUI wallet and Stack Wallet cannot pay invoices at all; the epic-wallet command line can pay an invoice file.",
+  "@deskInvIssuerUnknown": {
+    "description": "Quiet line on the request form when nothing is known about the payer's wallet. Product names stay as they are."
+  },
+  "deskInvIssuerAmount": "Amount",
+  "@deskInvIssuerAmount": {
+    "description": "Field label: how much the payer is asked to pay, in EPIC."
+  },
+  "deskInvIssuerAmountMissing": "Enter an amount.",
+  "@deskInvIssuerAmountMissing": {
+    "description": "Error: the amount field is empty or not a number."
+  },
+  "deskInvIssuerAmountZero": "The amount must be more than 0.",
+  "@deskInvIssuerAmountZero": {
+    "description": "Error: the amount is zero or negative."
+  },
+  "deskInvIssuerAmountDecimals": "EPIC has at most 8 decimals.",
+  "@deskInvIssuerAmountDecimals": {
+    "description": "Error: the amount has more than 8 decimal places."
+  },
+  "deskInvIssuerAmountCap": "More than all the EPIC there will ever be.",
+  "@deskInvIssuerAmountCap": {
+    "description": "Error: the amount is above the coin's supply cap."
+  },
+  "deskInvIssuerAmountHelp": "Nothing leaves your wallet: the payer pays this amount plus their own fee.",
+  "@deskInvIssuerAmountHelp": {
+    "description": "Help under the amount: a request spends nothing from this wallet."
+  },
+  "deskInvIssuerMessage": "Message to the payer",
+  "@deskInvIssuerMessage": {
+    "description": "Field label: optional text the payer sees with the request."
+  },
+  "deskInvIssuerMessageCount": "{used} of {max} bytes",
+  "@deskInvIssuerMessageCount": {
+    "description": "Counter under the message field.",
+    "placeholders": {
+      "used": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "deskInvIssuerMessageLong": "The message is too long.",
+  "@deskInvIssuerMessageLong": {
+    "description": "Error: the message is over 256 bytes."
+  },
+  "deskInvIssuerExpiry": "The payer has {hours} hours to pay.",
+  "@deskInvIssuerExpiry": {
+    "description": "Line on the request form: how long the request stays payable (from Settings).",
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "deskInvIssuerIssue": "Issue",
+  "@deskInvIssuerIssue": {
+    "description": "Main button: send the payment request. No password is needed."
+  },
+  "deskInvIssuerRelayDown": "The Epicbox server is not answering, so an invoice cannot go out now.",
+  "@deskInvIssuerRelayDown": {
+    "description": "Why Request is disabled: the relay is down."
+  },
+  "deskInvIssuerFixFields": "Fix the fields marked in red.",
+  "@deskInvIssuerFixFields": {
+    "description": "Why Request did nothing: some fields have errors."
+  },
+  "deskInvIssuerNotDelivered": "The invoice did not reach the Epicbox server. Nothing was sent. Try again.",
+  "@deskInvIssuerNotDelivered": {
+    "description": "Error after Request: the relay did not take it; it was cancelled at once."
+  },
+  "deskInvIssuerSent": "Invoice sent to {payer}.",
+  "@deskInvIssuerSent": {
+    "description": "Notice after Request: delivered to the payer's invoice address.",
+    "placeholders": {
+      "payer": {
+        "type": "String"
+      }
+    }
+  },
+  "deskInvIssuerEmpty": "No invoices issued yet. An invoice asks a contact or a service to pay you; it spends nothing.",
+  "@deskInvIssuerEmpty": {
+    "description": "Empty Sent tab."
+  },
+  "deskInvIssuerTo": "Invoice to {payer}",
+  "@deskInvIssuerTo": {
+    "description": "Row title of a request you sent.",
+    "placeholders": {
+      "payer": {
+        "type": "String"
+      }
+    }
+  },
+  "deskInvIssuerIssued": "Issued {time}",
+  "@deskInvIssuerIssued": {
+    "description": "When the request was sent, e.g. 'Sent 21 Oct, 12:40'.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "deskInvIssuerPayerFact": "Payer",
+  "@deskInvIssuerPayerFact": {
+    "description": "Detail label: who was asked to pay."
+  },
+  "deskInvIssuerAmountFact": "Amount",
+  "@deskInvIssuerAmountFact": {
+    "description": "Detail label: the amount asked for."
+  },
+  "deskInvIssuerMessageFact": "Message",
+  "@deskInvIssuerMessageFact": {
+    "description": "Detail label: the message sent with the request."
+  },
+  "deskInvIssuerSentFact": "Issued",
+  "@deskInvIssuerSentFact": {
+    "description": "Detail label: when the request was sent."
+  },
+  "deskInvIssuerExpiresFact": "Expires",
+  "@deskInvIssuerExpiresFact": {
+    "description": "Detail label: when the request stops being payable."
+  },
+  "deskInvIssuerAnsweredFact": "Ended",
+  "@deskInvIssuerAnsweredFact": {
+    "description": "Detail label: when the request left waiting (paid, declined, expired, withdrawn)."
+  },
+  "deskInvIssuerStepPaid": "Paid",
+  "@deskInvIssuerStepPaid": {
+    "description": "Progress step: the payer paid."
+  },
+  "deskInvIssuerStepConfirming": "Confirming",
+  "@deskInvIssuerStepConfirming": {
+    "description": "Progress step: the payment is in blocks."
+  },
+  "deskInvIssuerEnded": "This invoice ended unpaid. Nothing arrived.",
+  "@deskInvIssuerEnded": {
+    "description": "Detail text of a request that was declined, expired, withdrawn or sent back."
+  },
+  "deskInvIssuerWithdraw": "Withdraw",
+  "@deskInvIssuerWithdraw": {
+    "description": "Button: take back a waiting request."
+  },
+  "deskInvIssuerWithdrawTitle": "Withdraw this invoice?",
+  "@deskInvIssuerWithdrawTitle": {
+    "description": "Confirm dialog title."
+  },
+  "deskInvIssuerWithdrawBody": "{payer} can no longer pay it.",
+  "@deskInvIssuerWithdrawBody": {
+    "description": "Confirm dialog text.",
+    "placeholders": {
+      "payer": {
+        "type": "String"
+      }
+    }
+  },
+  "deskInvIssuerKeep": "Keep it",
+  "@deskInvIssuerKeep": {
+    "description": "Dialog button: do not withdraw or cancel."
+  },
+  "deskInvIssuerWithdrawn": "Invoice withdrawn.",
+  "@deskInvIssuerWithdrawn": {
+    "description": "Notice after Withdraw."
+  },
+  "deskInvIssuerRepost": "Repost",
+  "@deskInvIssuerRepost": {
+    "description": "Button: send the finished payment to the node again."
+  },
+  "deskInvIssuerReposted": "Payment posted again.",
+  "@deskInvIssuerReposted": {
+    "description": "Notice after Repost worked."
+  },
+  "deskInvIssuerNodeDown": "The node is not answering. Try again when it is reachable.",
+  "@deskInvIssuerNodeDown": {
+    "description": "Error: Repost or Cancel needs the node."
+  },
+  "deskInvIssuerNotPostedText": "The payment is finished but not on the network: the node refused it or could not be reached.",
+  "@deskInvIssuerNotPostedText": {
+    "description": "Detail text of a request in Not posted."
+  },
+  "deskInvIssuerCancel": "Cancel payment",
+  "@deskInvIssuerCancel": {
+    "description": "Button (Advanced): cancel a paid request that was never posted."
+  },
+  "deskInvIssuerCancelTitle": "Cancel this payment?",
+  "@deskInvIssuerCancelTitle": {
+    "description": "Confirm dialog title."
+  },
+  "deskInvIssuerCancelBody": "It will not arrive. {payer}'s funds stay locked in their wallet until they cancel on their side.",
+  "@deskInvIssuerCancelBody": {
+    "description": "Confirm dialog text for cancelling a paid request on the receiving side.",
+    "placeholders": {
+      "payer": {
+        "type": "String"
+      }
+    }
+  },
+  "deskInvIssuerBounced": "{payer}'s wallet sent the invoice back: it cannot pay invoices. Ask them to send you a payment instead.",
+  "@deskInvIssuerBounced": {
+    "description": "Detail text and warning notice of a request the payer's wallet returned.",
+    "placeholders": {
+      "payer": {
+        "type": "String"
+      }
+    }
+  },
+  "deskInvIssuerSendFile": "Use a file",
+  "@deskInvIssuerSendFile": {
+    "description": "Button: make a request file for a payer whose wallet cannot pay over Epicbox."
+  },
+  "deskInvIssuerLate": "A payment arrived after this invoice ended. It was refused; nothing changed.",
+  "@deskInvIssuerLate": {
+    "description": "Quiet note on an ended request that got a late payment."
+  },
+  "deskInvIssuerPaidText": "{payer} paid. Your wallet finished the payment and posted it.",
+  "@deskInvIssuerPaidText": {
+    "description": "Detail text of a paid request.",
+    "placeholders": {
+      "payer": {
+        "type": "String"
+      }
+    }
+  },
+  "deskInvIssuerWaitingText": "Delivered to {payer}'s invoice address. Nothing is paid until they approve it.",
+  "@deskInvIssuerWaitingText": {
+    "description": "Detail text of a waiting request.",
+    "placeholders": {
+      "payer": {
+        "type": "String"
+      }
+    }
+  },
+  "deskInvIssuerCopySlate": "Copy slate ID",
+  "@deskInvIssuerCopySlate": {
+    "description": "Button tooltip: copy the request's technical identifier."
+  },
+  "deskInvIssuerStepsIntro": "Their wallet must take invoices. Before the first invoice:",
+  "@deskInvIssuerStepsIntro": {
+    "description": "Before the steps on the issue form: the payer must have done these once."
+  },
+  "deskInvIssuerStepTrust": "1. They add your payments address below to their trusted senders.",
+  "@deskInvIssuerStepTrust": {
+    "description": "Step 1 on the issue form."
+  },
+  "deskInvIssuerStepAddress": "2. They give you their invoice address.",
+  "@deskInvIssuerStepAddress": {
+    "description": "Step 2 on the issue form."
+  },
+  "deskInvIssuerStepIssued": "Issued",
+  "@deskInvIssuerStepIssued": {
+    "description": "Progress step: the invoice was issued and delivered."
+  },
+  "deskInvNoticePaid": "{payer} paid {amount} EPIC.",
+  "@deskInvNoticePaid": {
+    "description": "Notice: a payer paid an invoice this wallet issued; the wallet finalized it. payer is the contact name or a short address; amount is the number only; EPIC follows it.",
+    "placeholders": {
+      "payer": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "deskInvNoticeDeclined": "{payer} declined your invoice.",
+  "@deskInvNoticeDeclined": {
+    "description": "Warning notice: the payer declined an invoice this wallet issued; the wallet withdrew it.",
+    "placeholders": {
+      "payer": {
+        "type": "String"
+      }
+    }
+  },
+  "deskInvNoticeIssuedExpired": "An invoice you issued expired unpaid.",
+  "@deskInvNoticeIssuedExpired": {
+    "description": "Notice: an invoice this wallet issued ran out of time unpaid."
+  },
+  "deskInvNoticeWithdrawn": "{service} withdrew an invoice before you answered it.",
+  "@deskInvNoticeWithdrawn": {
+    "description": "Notice: a service withdrew an invoice that was waiting for the user. service is the user's label for it.",
+    "placeholders": {
+      "service": {
+        "type": "String"
+      }
+    }
+  },
+  "deskInvNoticeExpired": "An invoice expired before you answered it.",
+  "@deskInvNoticeExpired": {
+    "description": "Notice: an invoice waiting for the user ran out of time."
+  },
+  "deskInvNoticeUnknownPayment": "A payment for an invoice this device did not issue arrived and was refused. If another device with this wallet issued it, ask the payer to cancel and pay again.",
+  "@deskInvNoticeUnknownPayment": {
+    "description": "Warning notice (desktop and phone): LEPIC refused the payment of an invoice it does not know; another install on the same recovery phrase may have issued it. Unverified: names no sender."
+  },
+  "deskInvNoticeUnknownAnswer": "An answer to a payment this device did not send arrived and was refused. If another device with this wallet sent it, cancel it there and send again.",
+  "@deskInvNoticeUnknownAnswer": {
+    "description": "Warning notice (desktop and phone): LEPIC refused the answer to a send it does not know; another install on the same recovery phrase may have made it. Unverified: names no sender."
+  },
+  "deskInvPayerWaitingHead": "Waiting for you",
+  "@deskInvPayerWaitingHead": {
+    "description": "Section heading on the Invoices page › To pay: invoices from trusted services that wait for the user's answer."
+  },
+  "deskInvPayerNeedsHead": "Payments to settle",
+  "@deskInvPayerNeedsHead": {
+    "description": "Section heading on the Invoices page › To pay: invoice payments that need the user (Retry or Cancel payment)."
+  },
+  "deskInvPayerReview": "Review",
+  "@deskInvPayerReview": {
+    "description": "Button on an invoice row: open the invoice to pay or decline it."
+  },
+  "deskInvPayerView": "View",
+  "@deskInvPayerView": {
+    "description": "Link on an answered invoice: open its payment in Activity."
+  },
+  "deskInvPayerNoMessage": "No message",
+  "@deskInvPayerNoMessage": {
+    "description": "Shown in place of the service's message when the invoice has none."
+  },
+  "deskInvPayerDropped": "{count, plural, =1{1 message from a sender you do not trust was ignored.} other{{count} messages from senders you do not trust were ignored.}}",
+  "@deskInvPayerDropped": {
+    "description": "Quiet line on the Invoices page › To pay: invoices from senders not on the trusted list were dropped unread. Never more detail.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deskInvPayerTrustService": "Trust a service…",
+  "@deskInvPayerTrustService": {
+    "description": "Link: open Settings › Receiving to add a service allowed to send invoices."
+  },
+  "deskInvPayerYourInvoiceAddress": "Your invoice address",
+  "@deskInvPayerYourInvoiceAddress": {
+    "description": "Link: open Settings › Receiving where the invoice address is shown."
+  },
+  "deskInvPayerEmptyTitle": "No invoices are waiting",
+  "@deskInvPayerEmptyTitle": {
+    "description": "Empty state title of Requests › To pay."
+  },
+  "deskInvPayerEmptyText": "When a service you trust bills you, the invoice appears here. Nothing is paid until you approve it.",
+  "@deskInvPayerEmptyText": {
+    "description": "Empty state text of Requests › To pay."
+  },
+  "deskInvPayerNotDeliveredTitle": "Your payment to {service} was not delivered",
+  "@deskInvPayerNotDeliveredTitle": {
+    "description": "Notice on To pay: an approved invoice payment did not reach the relay. service is the user's label for the service.",
+    "placeholders": {
+      "service": {
+        "type": "String"
+      }
+    }
+  },
+  "deskInvPayerNotDeliveredText": "It is signed and kept on this device; the funds stay locked. Retry sends it again without a second approval.",
+  "@deskInvPayerNotDeliveredText": {
+    "description": "Notice text for a payment that was not delivered."
+  },
+  "deskInvPayerWithdrawnTitle": "{service} withdrew an invoice you paid",
+  "@deskInvPayerWithdrawnTitle": {
+    "description": "Notice on To pay: the service withdrew the invoice after the user paid. service is the user's label.",
+    "placeholders": {
+      "service": {
+        "type": "String"
+      }
+    }
+  },
+  "deskInvPayerWithdrawnText": "The payment may never reach the chain. Cancel it to unlock your funds.",
+  "@deskInvPayerWithdrawnText": {
+    "description": "Notice text: a paid invoice was withdrawn; the user may cancel the payment."
+  },
+  "deskInvPayerPastTtlTitle": "Your payment to {service} is not on chain",
+  "@deskInvPayerPastTtlTitle": {
+    "description": "Notice on To pay: the invoice's time passed and the payment is neither in the pool nor on the chain. service is the user's label.",
+    "placeholders": {
+      "service": {
+        "type": "String"
+      }
+    }
+  },
+  "deskInvPayerPastTtlText": "Its time passed and the network has not seen it. Cancel it to unlock your funds.",
+  "@deskInvPayerPastTtlText": {
+    "description": "Notice text for a paid invoice past its time and not on chain."
+  },
+  "deskInvPayerCancelPayment": "Cancel payment",
+  "@deskInvPayerCancelPayment": {
+    "description": "Button: cancel an invoice payment that did not complete, unlocking the funds."
+  },
+  "deskInvPayerSafetyTitle": "Pay only bills you expect",
+  "@deskInvPayerSafetyTitle": {
+    "description": "Warning panel title on Review invoice: a fake invoice must not be paid."
+  },
+  "deskInvPayerSafetyText": "An invoice never adds money to your wallet. Approving it sends money out.",
+  "@deskInvPayerSafetyText": {
+    "description": "Warning panel text on Review invoice."
+  },
+  "deskInvPayerSameBillTitle": "You paid {service} the same amount {ago} ago",
+  "@deskInvPayerSameBillTitle": {
+    "description": "Warning on Review invoice: a paid invoice from the same service for the same amount is recent. ago is a duration like '3 h 10 min' or '25 min'.",
+    "placeholders": {
+      "service": {
+        "type": "String"
+      },
+      "ago": {
+        "type": "String"
+      }
+    }
+  },
+  "deskInvPayerSameBillText": "Check that this is a new bill before you pay it.",
+  "@deskInvPayerSameBillText": {
+    "description": "Text under the same-bill warning."
+  },
+  "deskInvPayerAgoHours": "{hours} h {minutes} min",
+  "@deskInvPayerAgoHours": {
+    "description": "A past duration in hours and minutes, used inside another sentence, e.g. '3 h 10 min'.",
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "deskInvPayerAgoMinutes": "{minutes} min",
+  "@deskInvPayerAgoMinutes": {
+    "description": "A past duration in minutes, used inside another sentence, e.g. '25 min'.",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "deskInvPayerFee": "Fee",
+  "@deskInvPayerFee": {
+    "description": "Label: the network fee the user pays on top of the invoice."
+  },
+  "deskInvPayerTotal": "Total",
+  "@deskInvPayerTotal": {
+    "description": "Label: invoice amount plus fee."
+  },
+  "deskInvPayerBalanceAfter": "Balance after",
+  "@deskInvPayerBalanceAfter": {
+    "description": "Label: spendable balance left after paying."
+  },
+  "deskInvPayerMessageCaption": "Written by the service. Your wallet does not check it.",
+  "@deskInvPayerMessageCaption": {
+    "description": "Caption under the service's message on Review invoice: the text is untrusted."
+  },
+  "deskInvPayerPaysTo": "Pays to",
+  "@deskInvPayerPaysTo": {
+    "description": "Label: the address the payment goes to (stored in the trusted list)."
+  },
+  "deskInvPayerTrustedSince": "{service}, trusted since {date}",
+  "@deskInvPayerTrustedSince": {
+    "description": "The service's label and when the user added it to trusted services, e.g. 'Coffee Roasters, trusted since 2 Sep 2026'.",
+    "placeholders": {
+      "service": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "deskInvPayerExpires": "Expires",
+  "@deskInvPayerExpires": {
+    "description": "Label: time left before the invoice expires."
+  },
+  "deskInvPayerLockHeight": "Lock height",
+  "@deskInvPayerLockHeight": {
+    "description": "Label: the block before which the payment cannot be included. Always None for a valid invoice."
+  },
+  "deskInvPayerLockNone": "None",
+  "@deskInvPayerLockNone": {
+    "description": "Value of Lock height: the payment is not locked to a later block."
+  },
+  "deskInvPayerReceived": "Received",
+  "@deskInvPayerReceived": {
+    "description": "Label (Advanced): when the invoice arrived."
+  },
+  "deskInvPayerShort": "Not enough spendable funds",
+  "@deskInvPayerShort": {
+    "description": "Reason Approve is disabled: the spendable balance is below amount plus fee."
+  },
+  "deskInvPayerShortText": "You need {total} EPIC spendable; you have {spendable} EPIC. Funds still confirming count once they have 3 confirmations.",
+  "@deskInvPayerShortText": {
+    "description": "Text under the not-enough-funds reason. total and spendable are formatted amounts.",
+    "placeholders": {
+      "total": {
+        "type": "String"
+      },
+      "spendable": {
+        "type": "String"
+      }
+    }
+  },
+  "deskInvPayerNodeDownTitle": "The node is not answering",
+  "@deskInvPayerNodeDownTitle": {
+    "description": "Reason Approve is disabled: the wallet's node cannot be reached."
+  },
+  "deskInvPayerNodeDownText": "The wallet cannot check your funds, so it cannot pay. Approve works again once the node answers; you can pick another node in Settings › Node.",
+  "@deskInvPayerNodeDownText": {
+    "description": "Text under the node-down reason. The wallet never switches node by itself."
+  },
+  "deskInvPayerPaid": "This invoice is paid. Nothing more can be paid on it.",
+  "@deskInvPayerPaid": {
+    "description": "Read-only Review invoice: the invoice was already approved and paid."
+  },
+  "deskInvPayerDeclinedText": "You declined this invoice. Nothing was paid.",
+  "@deskInvPayerDeclinedText": {
+    "description": "Read-only Review invoice: the user declined it."
+  },
+  "deskInvPayerBack": "Back to Invoices",
+  "@deskInvPayerBack": {
+    "description": "Button on a read-only Review invoice page: go back to Requests › To pay."
+  },
+  "deskInvPayerApproveTitle": "Pay {amount} EPIC + {fee} fee to {service}?",
+  "@deskInvPayerApproveTitle": {
+    "description": "Title of the approve dialog. amount and fee are formatted numbers; service is the user's label.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "fee": {
+        "type": "String"
+      },
+      "service": {
+        "type": "String"
+      }
+    }
+  },
+  "deskInvPayerApproveText": "{total} EPIC leaves your wallet. Enter the wallet password to approve.",
+  "@deskInvPayerApproveText": {
+    "description": "Text of the approve dialog. total is the formatted amount plus fee.",
+    "placeholders": {
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "deskInvPayerPassword": "Wallet password",
+  "@deskInvPayerPassword": {
+    "description": "Label of the password field in the approve dialog."
+  },
+  "deskInvPayerWrongPassword": "Wrong password. Nothing was paid.",
+  "@deskInvPayerWrongPassword": {
+    "description": "Field error in the approve dialog."
+  },
+  "deskInvPayerEnterPassword": "Enter the wallet password.",
+  "@deskInvPayerEnterPassword": {
+    "description": "Field error in the approve dialog when the password is empty."
+  },
+  "deskInvPayerPay": "Pay",
+  "@deskInvPayerPay": {
+    "description": "Main button of the approve dialog."
+  },
+  "deskInvPayerCancel": "Cancel",
+  "@deskInvPayerCancel": {
+    "description": "Button: close a dialog without doing anything."
+  },
+  "deskInvPayerClose": "Close",
+  "@deskInvPayerClose": {
+    "description": "Button: close a dialog."
+  },
+  "deskInvPayerNodeDownPay": "The node is not answering. Nothing was paid.",
+  "@deskInvPayerNodeDownPay": {
+    "description": "Error in the approve dialog: the pay call failed because the node is down."
+  },
+  "deskInvPayerAlreadyAnswered": "This invoice was already answered. Nothing more was paid.",
+  "@deskInvPayerAlreadyAnswered": {
+    "description": "Error in the approve dialog: the invoice was paid or declined elsewhere (double pay prevented)."
+  },
+  "deskInvPayerCannotPay": "This invoice cannot be paid. Nothing was paid.",
+  "@deskInvPayerCannotPay": {
+    "description": "Error in the approve dialog for any other refusal (amount mismatch, invalid)."
+  },
+  "deskInvPayerNotDeliveredToast": "Signed, not delivered",
+  "@deskInvPayerNotDeliveredToast": {
+    "description": "Toast after Approve when the relay did not take the payment."
+  },
+  "deskInvPayerNotDeliveredToastText": "The Epicbox server is not answering. Retry it under Invoices › Pay; no second approval.",
+  "@deskInvPayerNotDeliveredToastText": {
+    "description": "Toast text after Approve when the relay did not take the payment."
+  },
+  "deskInvPayerRetryFailed": "Still not delivered",
+  "@deskInvPayerRetryFailed": {
+    "description": "Toast when Retry failed."
+  },
+  "deskInvPayerRetryFailedText": "The Epicbox server is not answering. The payment stays signed on this device.",
+  "@deskInvPayerRetryFailedText": {
+    "description": "Toast text when Retry failed."
+  },
+  "deskInvPayerCancelTitle": "Cancel this payment?",
+  "@deskInvPayerCancelTitle": {
+    "description": "Title of the cancel payment dialog."
+  },
+  "deskInvPayerCancelText": "Cancelling unlocks your funds here. The service still holds your signed payment, so it could still complete until these funds are spent again.",
+  "@deskInvPayerCancelText": {
+    "description": "Cancel payment dialog text (decision D-2): cancelling is local; the signed payment can still complete."
+  },
+  "deskInvPayerCancelWho": "{amount} EPIC to {service}",
+  "@deskInvPayerCancelWho": {
+    "description": "Which payment the cancel dialog is about. amount is formatted.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "service": {
+        "type": "String"
+      }
+    }
+  },
+  "deskInvPayerKeepPayment": "Keep it",
+  "@deskInvPayerKeepPayment": {
+    "description": "Button: close the cancel dialog and keep the payment."
+  },
+  "deskInvPayerOnItsWay": "Already on its way: it cannot be cancelled.",
+  "@deskInvPayerOnItsWay": {
+    "description": "Error: the payment is in the pool or on chain."
+  },
+  "deskInvPayerCannotCheck": "Cannot check the network now; try again when the node is reachable.",
+  "@deskInvPayerCannotCheck": {
+    "description": "Error: cancelling needs the node, which is not answering."
+  },
+  "deskInvPayerCancelled": "Payment cancelled",
+  "@deskInvPayerCancelled": {
+    "description": "Toast after a payment was cancelled."
+  },
+  "deskInvPayerCancelledText": "Your funds are unlocked.",
+  "@deskInvPayerCancelledText": {
+    "description": "Toast text after a payment was cancelled."
+  },
+  "deskInvPayerDeclined": "Invoice declined. Nothing was paid.",
+  "@deskInvPayerDeclined": {
+    "description": "Toast after the user declined an invoice; it leaves To pay at once."
+  },
+  "deskInvPayerSpendToSelf": "Spend them to myself now",
+  "@deskInvPayerSpendToSelf": {
+    "description": "Checkbox on the Cancel payment confirm (decision D-2): after the cancel, move the unlocked coins to this wallet itself."
+  },
+  "deskInvPayerSpendToSelfHelp": "Makes the cancel final: the service's signed copy can no longer complete. Costs a network fee.",
+  "@deskInvPayerSpendToSelfHelp": {
+    "description": "Help under the Spend them to myself now checkbox."
+  },
+  "deskInvPayerSpentText": "Your funds are unlocked and moved within this wallet. The cancel is final.",
+  "@deskInvPayerSpentText": {
+    "description": "Toast text after a cancel whose coins were spent to the wallet itself."
+  },
+  "deskInvPayerSpendFailedText": "Your funds are unlocked, but moving them did not work. The cancel is not final yet.",
+  "@deskInvPayerSpendFailedText": {
+    "description": "Toast text after a cancel whose spend to the wallet itself failed."
+  },
+  "deskInvPayerLocked": "This invoice cannot be paid: it is locked until a later block. Nothing was paid.",
+  "@deskInvPayerLocked": {
+    "description": "Review: the invoice's kernel is locked above the chain's tip (LEPIC refuses it and stores nothing)."
+  },
+  "deskInvPayerRelayDownPay": "The Epicbox server is not answering. Nothing was paid.",
+  "@deskInvPayerRelayDownPay": {
+    "description": "Approve dialog: the Epicbox server could not be reached before anything was signed or stored."
+  },
+  "deskInvSetTitle": "Invoices",
+  "@deskInvSetTitle": {
+    "description": "Settings › Receiving section title: the invoice address and who may bill you."
+  },
+  "deskInvSetIntro": "Services you trust bill this wallet at its invoice address. Nothing is paid until you approve each invoice.",
+  "@deskInvSetIntro": {
+    "description": "Intro of the Invoices settings section."
+  },
+  "deskInvSetAddressLabel": "Invoice address",
+  "@deskInvSetAddressLabel": {
+    "description": "Label of this wallet's separate address for receiving invoices."
+  },
+  "deskInvSetAddressWarning": "Give it only to services you trust. It does not receive payments.",
+  "@deskInvSetAddressWarning": {
+    "description": "Warning beside the invoice address and its QR code: never use it to receive money."
+  },
+  "deskInvSetCopy": "Copy",
+  "@deskInvSetCopy": {
+    "description": "Button: copy the invoice address."
+  },
+  "deskInvSetCopied": "Invoice address copied. Give it only to services you trust; it does not receive payments.",
+  "@deskInvSetCopied": {
+    "description": "Notice after copying the invoice address, repeating the warning."
+  },
+  "deskInvSetQrShow": "Show QR",
+  "@deskInvSetQrShow": {
+    "description": "Button: show the invoice address as a QR code."
+  },
+  "deskInvSetQrHide": "Hide QR",
+  "@deskInvSetQrHide": {
+    "description": "Button: hide the QR code."
+  },
+  "deskInvSetQrLabel": "QR code of your invoice address",
+  "@deskInvSetQrLabel": {
+    "description": "Screen-reader label of the invoice address QR code."
+  },
+  "deskInvSetIndex": "Invoice address {index}",
+  "@deskInvSetIndex": {
+    "description": "Which invoice address this is (it changes when rotated), e.g. 'Invoice address 2'.",
+    "placeholders": {
+      "index": {
+        "type": "int"
+      }
+    }
+  },
+  "deskInvSetTrusted": "Trusted senders",
+  "@deskInvSetTrusted": {
+    "description": "List title: services and contacts allowed to send you invoices."
+  },
+  "deskInvSetTrustedNone": "No trusted senders. Invoices from anyone else are ignored unread.",
+  "@deskInvSetTrustedNone": {
+    "description": "Empty trusted list."
+  },
+  "deskInvSetSince": "Trusted since {date}",
+  "@deskInvSetSince": {
+    "description": "When a sender was trusted.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "deskInvSetContactTag": "Contact",
+  "@deskInvSetContactTag": {
+    "description": "Tag on a trusted sender that is one of your contacts."
+  },
+  "deskInvSetRemove": "Remove",
+  "@deskInvSetRemove": {
+    "description": "Button: stop trusting a sender."
+  },
+  "deskInvSetRemoveTitle": "Stop trusting {name}?",
+  "@deskInvSetRemoveTitle": {
+    "description": "Confirm dialog title.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "deskInvSetRemoveBody": "{name} can no longer send you invoices. Invoices already waiting stay until you answer them or they expire.",
+  "@deskInvSetRemoveBody": {
+    "description": "Confirm dialog text.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "deskInvSetRemoved": "{name} can no longer send you invoices.",
+  "@deskInvSetRemoved": {
+    "description": "Notice after removing a trusted sender.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "deskInvSetKeep": "Keep",
+  "@deskInvSetKeep": {
+    "description": "Dialog button: keep as it is."
+  },
+  "deskInvSetAdd": "Trust a sender",
+  "@deskInvSetAdd": {
+    "description": "Button: add a service allowed to send you invoices."
+  },
+  "deskInvSetAddBody": "A trusted sender can bill this wallet at its invoice address. Nothing is paid until you approve each invoice with your wallet password.",
+  "@deskInvSetAddBody": {
+    "description": "Text of the Trust a sender dialog."
+  },
+  "deskInvSetName": "Name",
+  "@deskInvSetName": {
+    "description": "Field label: your name for the sender, shown on its invoices."
+  },
+  "deskInvSetNameMissing": "Give the sender a name.",
+  "@deskInvSetNameMissing": {
+    "description": "Error: name is empty."
+  },
+  "deskInvSetSenderAddress": "Their payments address",
+  "@deskInvSetSenderAddress": {
+    "description": "Field label: the Epicbox address the service shows on its site."
+  },
+  "deskInvSetSenderMissing": "Paste the address the service shows.",
+  "@deskInvSetSenderMissing": {
+    "description": "Error: address is empty."
+  },
+  "deskInvSetSenderInvalid": "This is not a valid Epicbox address.",
+  "@deskInvSetSenderInvalid": {
+    "description": "Error: not an Epicbox address."
+  },
+  "deskInvSetTrust": "Trust",
+  "@deskInvSetTrust": {
+    "description": "Dialog button: add the sender to the trusted list."
+  },
+  "deskInvSetAdded": "{name} can now send you invoices.",
+  "@deskInvSetAdded": {
+    "description": "Notice after trusting a sender.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "deskInvSetDropped": "{count, plural, =1{1 message from a sender you do not trust was ignored unread.} other{{count} messages from senders you do not trust were ignored unread.}}",
+  "@deskInvSetDropped": {
+    "description": "Quiet line: messages to the invoice address from untrusted senders, dropped without opening.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deskInvSetRotate": "New invoice address",
+  "@deskInvSetRotate": {
+    "description": "Button (Advanced): move to a fresh invoice address."
+  },
+  "deskInvSetRotateHint": "Services that have the old one can no longer send you invoices.",
+  "@deskInvSetRotateHint": {
+    "description": "Text beside the rotate button."
+  },
+  "deskInvSetRotateTitle": "Make a new invoice address?",
+  "@deskInvSetRotateTitle": {
+    "description": "Confirm dialog title."
+  },
+  "deskInvSetRotateBody": "Services that have the old one can no longer send you invoices. Give the new one to every service that bills you.",
+  "@deskInvSetRotateBody": {
+    "description": "Confirm dialog text."
+  },
+  "deskInvSetRotateConfirm": "Make new address",
+  "@deskInvSetRotateConfirm": {
+    "description": "Dialog button: rotate the invoice address."
+  },
+  "deskInvSetRotated": "New invoice address ready. Give it to your services.",
+  "@deskInvSetRotated": {
+    "description": "Notice after rotating."
+  },
+  "deskInvSetExpiry": "Time to pay",
+  "@deskInvSetExpiry": {
+    "description": "Setting (Advanced): how long requests and invoices stay payable."
+  },
+  "deskInvSetExpiryHint": "How long an invoice you issue stays payable, and how long one you receive waits for you. At most 48 hours.",
+  "@deskInvSetExpiryHint": {
+    "description": "Text of the Time to pay setting."
+  },
+  "deskInvSetHours": "{hours} hours",
+  "@deskInvSetHours": {
+    "description": "A duration in hours, e.g. '24 hours'.",
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "deskInvSetCancel": "Cancel",
+  "@deskInvSetCancel": {
+    "description": "Dialog button: close without changes."
+  },
+  "deskInvSetContactSection": "Invoices",
+  "@deskInvSetContactSection": {
+    "description": "Section title in a contact's detail: their invoice address and trust."
+  },
+  "deskInvSetTheirInvoice": "Their invoice address",
+  "@deskInvSetTheirInvoice": {
+    "description": "Contact field: where requests to this contact go."
+  },
+  "deskInvSetTheirInvoiceNone": "No invoice address saved. Ask them for it to issue invoices to them.",
+  "@deskInvSetTheirInvoiceNone": {
+    "description": "Contact detail when no invoice address is saved."
+  },
+  "deskInvSetTrustedSwitch": "Trusted for invoices",
+  "@deskInvSetTrustedSwitch": {
+    "description": "Contact switch: this contact may send you invoices."
+  },
+  "deskInvSetTrustedSwitchHelp": "Lets this contact bill you. Nothing is paid until you approve an invoice.",
+  "@deskInvSetTrustedSwitchHelp": {
+    "description": "Text of the trusted switch."
+  },
+  "deskInvSetIssueNeeds": "Needs their invoice address.",
+  "@deskInvSetIssueNeeds": {
+    "description": "Why Request payment is disabled for a contact."
+  },
+  "deskInvSetShare": "Share invoice address",
+  "@deskInvSetShare": {
+    "description": "Contact action: copy your invoice address to give to this contact."
+  },
+  "deskInvSetReceiveHint": "Ask a contact or a service to pay you. Their wallet must take invoices.",
+  "@deskInvSetReceiveHint": {
+    "description": "Text beside Request a payment on Receive."
+  },
+  "deskInvSetRestoredHint": "Restored this wallet from its recovery phrase? Give services this invoice address again.",
+  "@deskInvSetRestoredHint": {
+    "description": "Line under the invoice address while its index is 1: a wallet restored without its history file starts again at the first invoice address, so services hold an old one (flow.md §2, P-16)."
   }
 }

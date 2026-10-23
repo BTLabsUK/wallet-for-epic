@@ -3917,4 +3917,1071 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get settingsSectionReceiving => 'Empfangen';
+
+  @override
+  String deskInvActFrom(String label) {
+    return 'Rechnung von $label';
+  }
+
+  @override
+  String get deskInvActFilter => 'Rechnungen';
+
+  @override
+  String get deskInvActBlock => 'Rechnung';
+
+  @override
+  String get deskInvActOpen => 'In Rechnungen öffnen';
+
+  @override
+  String get deskInvActBilledBy => 'Gestellt von';
+
+  @override
+  String get deskInvActOverviewTitle => 'Rechnungen';
+
+  @override
+  String deskInvActOverviewToPay(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Rechnungen zu zahlen',
+      one: '1 Rechnung zu zahlen',
+      zero: 'Nichts zu zahlen',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskInvActOverviewWaiting(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ausgestellte Rechnungen warten auf die Zahler',
+      one: '1 ausgestellte Rechnung wartet auf den Zahler',
+      zero: 'Keine ausgestellte Rechnung wartet',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskInvActOverviewAttention(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Zahlungen brauchen Sie: erneut senden oder stornieren',
+      one: '1 Zahlung braucht Sie: erneut senden oder stornieren',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskInvActReview => 'Prüfen';
+
+  @override
+  String get deskInvActOpenInvoices => 'Rechnungen öffnen';
+
+  @override
+  String get deskInvNav => 'Rechnungen';
+
+  @override
+  String get deskInvTitle => 'Rechnungen';
+
+  @override
+  String get deskInvTabPay => 'Bezahlen';
+
+  @override
+  String get deskInvTabIssue => 'Ausstellen';
+
+  @override
+  String deskInvTabCount(String label, int count) {
+    return '$label ($count)';
+  }
+
+  @override
+  String get deskInvIssueAction => 'Rechnung ausstellen';
+
+  @override
+  String get deskInvChecking => 'Wird geprüft';
+
+  @override
+  String deskInvCheckedAt(String time) {
+    return 'Geprüft um $time';
+  }
+
+  @override
+  String get deskInvCheckFailedTitle => 'Der Epicbox-Server antwortet nicht';
+
+  @override
+  String get deskInvCheckFailedBody =>
+      'Die Listen zeigen, was zuvor ankam. Nichts ging verloren; die Wallet versucht es alle 2 Minuten erneut.';
+
+  @override
+  String get deskInvReqWaiting => 'Wartet auf Zahler';
+
+  @override
+  String get deskInvReqPaid => 'Bezahlt, wird abgeschlossen';
+
+  @override
+  String get deskInvReqPosted => 'Gesendet ans Netzwerk';
+
+  @override
+  String deskInvConfirming(int count, int total) {
+    return 'Bestätigung $count von $total';
+  }
+
+  @override
+  String get deskInvCompleted => 'Abgeschlossen';
+
+  @override
+  String get deskInvReqNotPosted => 'Nicht gesendet';
+
+  @override
+  String get deskInvDeclined => 'Abgelehnt';
+
+  @override
+  String get deskInvExpired => 'Abgelaufen';
+
+  @override
+  String get deskInvWithdrawn => 'Zurückgezogen';
+
+  @override
+  String get deskInvReqBounced => 'Zurückgeschickt';
+
+  @override
+  String get deskInvPayWaiting => 'Zu zahlen';
+
+  @override
+  String get deskInvPayPaying => 'Wird bezahlt';
+
+  @override
+  String get deskInvPayNotDelivered => 'Nicht zugestellt';
+
+  @override
+  String get deskInvPayDelivered => 'Wartet auf Senden';
+
+  @override
+  String get deskInvPayPosted => 'Vom Dienst gesendet';
+
+  @override
+  String get deskInvPayWithdrawnAfterPay => 'Nach Zahlung zurückgezogen';
+
+  @override
+  String get deskInvPayPastTtl => 'Nicht in der Blockchain';
+
+  @override
+  String get deskInvPayCancelled => 'Storniert';
+
+  @override
+  String get deskInvUnpaid => 'Unbezahlt';
+
+  @override
+  String get deskInvYouPay => 'Sie zahlen';
+
+  @override
+  String deskInvExpiresAt(String time) {
+    return 'Läuft ab $time';
+  }
+
+  @override
+  String get deskInvSlateId => 'Slate-ID';
+
+  @override
+  String get deskInvAdvanced => 'Erweitert';
+
+  @override
+  String get deskInvOneDevice =>
+      'Nutzen Sie Rechnungen nur auf einem Gerät. Ein anderes Gerät mit dieser Wallet kann eine Zahlung annehmen, die für dieses bestimmt ist.';
+
+  @override
+  String get deskInvFailed =>
+      'Das hat nicht geklappt. Nichts wurde geändert; versuchen Sie es erneut.';
+
+  @override
+  String get deskInvHowItWorks => 'So funktionieren Rechnungen';
+
+  @override
+  String get deskInvAddressHint => 'es…@epicbox.epiccash.com';
+
+  @override
+  String get deskInvEpicboxAddress => 'Epicbox-Adresse';
+
+  @override
+  String get deskInvHelpTitle => 'Rechnungen';
+
+  @override
+  String get deskInvHelpLede =>
+      'Rechnungen von vertrauenswürdigen Absendern, bezahlt erst nach Zustimmung.';
+
+  @override
+  String get deskInvHelpFlowTitle => 'So funktioniert eine Rechnung';
+
+  @override
+  String get deskInvHelpFlowShort =>
+      'Der Aussteller schickt eine Rechnung an die Rechnungsadresse des Zahlers. Bezahlt wird erst, wenn der Zahler zustimmt.';
+
+  @override
+  String get deskInvHelpFlowIntro =>
+      'Eine Rechnung bittet um eine Zahlung. Der **Aussteller** wird bezahlt; der **Zahler** entscheidet.';
+
+  @override
+  String get deskInvHelpFlowStep1 =>
+      'Die Wallet des Ausstellers schickt die Rechnung über den Epicbox-Server an die **Rechnungsadresse** des Zahlers.';
+
+  @override
+  String get deskInvHelpFlowStep2 =>
+      'Der Zahler öffnet sie unter [[Rechnungen › Bezahlen]], prüft Absender, Betrag und Nachricht und wählt **Zustimmen und zahlen** mit dem Wallet-Passwort.';
+
+  @override
+  String get deskInvHelpFlowStep3 =>
+      'Die Wallet des Zahlers schickt die Zahlung an die **Zahlungsadresse** des Ausstellers.';
+
+  @override
+  String deskInvHelpFlowStep4(int confirmations) {
+    return 'Die Wallet des Ausstellers schließt die Zahlung ab und sendet sie ans Netzwerk. Nach $confirmations Bestätigungen ist sie endgültig.';
+  }
+
+  @override
+  String get deskInvHelpFlowNever =>
+      'Ohne Zustimmung wird nichts bezahlt, und eine Rechnung bringt dem Zahler nie Geld in die Wallet. Jede Rechnung hat eine Zahlungsfrist von höchstens 48 Stunden; danach kann sie nicht mehr bezahlt werden.';
+
+  @override
+  String get deskInvHelpFlowIssued =>
+      'Rechnungen, die diese Wallet ausgestellt hat, stehen unter [[Rechnungen › Ausstellen]].';
+
+  @override
+  String get deskInvHelpTrustTitle => 'Warum nur vertrauenswürdige Absender';
+
+  @override
+  String get deskInvHelpTrustShort =>
+      'Nur Absender auf der Vertrauensliste können eine Rechnung in den Posteingang legen. Das hält Spam und gefälschte Rechnungen fern.';
+
+  @override
+  String get deskInvHelpTrustP1 =>
+      'Die Wallet nimmt eine Rechnung nur an ihrer Rechnungsadresse an und nur von einem Absender auf der Vertrauensliste, erkannt an seiner Adresse. Alles andere wird ungelesen verworfen, bevor es geöffnet wird, und erscheint nie unter [[Rechnungen › Bezahlen]].';
+
+  @override
+  String get deskInvHelpTrustP2 =>
+      'Ohne die Liste könnte jeder, der die Rechnungsadresse kennt, den Posteingang mit Spam oder mit echt wirkenden Rechnungen füllen.';
+
+  @override
+  String get deskInvHelpTrustP3 =>
+      'Vertrauen erlaubt einem Absender nur zu fragen. Ein vertrauenswürdiger Absender kann nichts nehmen: Jede Rechnung wartet weiter auf **Zustimmen und zahlen**.';
+
+  @override
+  String get deskInvHelpTrustWhere1 =>
+      'Einem Absender vertrauen unter [[Einstellungen › Rechnungen]].';
+
+  @override
+  String get deskInvHelpTrustWhere2 =>
+      'Oder bei einem Kontakt unter [[Kontakte]] **Vertraut für Rechnungen** einschalten.';
+
+  @override
+  String get deskInvHelpTrustWhere3 =>
+      'Ein Absender kann jederzeit von der Liste entfernt werden. Seine neuen Rechnungen werden dann verworfen.';
+
+  @override
+  String get deskInvHelpAddrTitle => 'Warum eine eigene Rechnungsadresse';
+
+  @override
+  String get deskInvHelpAddrShort =>
+      'Rechnungen kommen an einer eigenen Adresse an, getrennt von der Zahlungsadresse, an die gezahlt wird.';
+
+  @override
+  String get deskInvHelpAddrP1 =>
+      'Die Wallet hat zwei Epicbox-Adressen. Die **Zahlungsadresse** unter [[Empfangen]] empfängt Zahlungen. Die **Rechnungsadresse** empfängt nur Rechnungen.';
+
+  @override
+  String get deskInvHelpAddrP2 =>
+      'So kann die Rechnungsadresse an Dienste gegeben oder ersetzt werden, ohne die Adresse preiszugeben oder zu ändern, an die gezahlt wird.';
+
+  @override
+  String get deskInvHelpAddrP3 =>
+      'Die Rechnungsadresse empfängt keine Zahlungen: Eine Zahlung an sie wird verworfen. Für Zahlungen die Zahlungsadresse weitergeben.';
+
+  @override
+  String get deskInvHelpAddrWhere1 =>
+      'Die Rechnungsadresse finden, kopieren oder als QR-Code zeigen unter [[Einstellungen › Rechnungen]].';
+
+  @override
+  String get deskInvHelpAddrWhere2 =>
+      '**Neue Rechnungsadresse** ersetzt sie. Dienste mit der alten können dann keine Rechnungen mehr schicken, bis sie die neue haben.';
+
+  @override
+  String get deskInvHelpDiagramTitle => 'Wie eine Rechnung reist';
+
+  @override
+  String get deskInvHelpDiagramIssuer => 'Aussteller';
+
+  @override
+  String get deskInvHelpDiagramPayer => 'Zahler';
+
+  @override
+  String get deskInvHelpDiagramIssues => 'Stellt die Rechnung aus';
+
+  @override
+  String get deskInvHelpDiagramInvoice => 'Rechnung';
+
+  @override
+  String get deskInvHelpDiagramGate => 'Rechnungsadresse';
+
+  @override
+  String get deskInvHelpDiagramGateSub => 'Nur vertraute Absender';
+
+  @override
+  String get deskInvHelpDiagramDropped => 'Andere Absender';
+
+  @override
+  String get deskInvHelpDiagramDroppedSub => 'Ungelesen verworfen';
+
+  @override
+  String get deskInvHelpDiagramReview => 'Prüft und stimmt zu';
+
+  @override
+  String get deskInvHelpDiagramReviewSub => 'Zustimmen und zahlen';
+
+  @override
+  String get deskInvHelpDiagramPayment => 'Zahlung';
+
+  @override
+  String get deskInvHelpDiagramPayAddr => 'Zahlungsadresse';
+
+  @override
+  String get deskInvHelpDiagramPayAddrSub => 'Nicht die Rechnungsadresse';
+
+  @override
+  String get deskInvHelpDiagramFinal => 'Schließt ab und sendet';
+
+  @override
+  String deskInvHelpDiagramFinalSub(int confirmations) {
+    return 'Endgültig nach Bestätigungen: $confirmations';
+  }
+
+  @override
+  String get deskInvHelpDiagramSemantics =>
+      'Der Aussteller schickt eine Rechnung an die Rechnungsadresse des Zahlers, die nur vertraute Absender annimmt und den Rest verwirft; der Zahler prüft sie und stimmt zu; die Zahlung geht an die Zahlungsadresse des Ausstellers; dessen Wallet schließt sie ab und sendet sie ans Netzwerk.';
+
+  @override
+  String get deskInvIssuerFormTitle => 'Rechnung ausstellen';
+
+  @override
+  String get deskInvIssuerFirstTitle => 'Vor der ersten Rechnung';
+
+  @override
+  String get deskInvIssuerYourAddress => 'Ihre Zahlungsadresse';
+
+  @override
+  String get deskInvIssuerMethod => 'Methode';
+
+  @override
+  String get deskInvIssuerEpicbox => 'Epicbox';
+
+  @override
+  String get deskInvIssuerFile => 'Datei';
+
+  @override
+  String get deskInvIssuerDirect => 'Direkt';
+
+  @override
+  String get deskInvIssuerSoon => 'Demnächst';
+
+  @override
+  String get deskInvIssuerPayer => 'Rechnungsadresse der anderen Seite';
+
+  @override
+  String get deskInvIssuerPayerHelp =>
+      'Die Wallet der anderen Seite zeigt sie unter Einstellungen › Rechnungen.';
+
+  @override
+  String get deskInvIssuerPayerMissing =>
+      'Fügen Sie die Rechnungsadresse der anderen Seite ein.';
+
+  @override
+  String get deskInvIssuerPayerInvalid =>
+      'Das ist keine gültige Epicbox-Adresse.';
+
+  @override
+  String get deskInvIssuerPayerOwn =>
+      'Das ist eine Ihrer eigenen Adressen. Verwenden Sie die Rechnungsadresse, die Ihnen der Zahler gibt.';
+
+  @override
+  String get deskInvIssuerPayerHttp =>
+      'Rechnungen über Epicbox brauchen eine Epicbox-Adresse, keine HTTP- oder Tor-Adresse.';
+
+  @override
+  String get deskInvIssuerContacts => 'Kontakte';
+
+  @override
+  String get deskInvIssuerNoContacts =>
+      'Noch kein Kontakt hat eine Rechnungsadresse. Fügen Sie sie unter Kontakte hinzu.';
+
+  @override
+  String get deskInvIssuerNoInvoices =>
+      'Diese Wallet hat schon einmal eine Rechnung zurückgeschickt: Sie kann Rechnungen über Epicbox nicht bezahlen. Senden Sie stattdessen eine Rechnungsdatei oder bitten Sie um die Zahlung.';
+
+  @override
+  String get deskInvIssuerUseFile => 'Datei verwenden';
+
+  @override
+  String get deskInvIssuerUnknown =>
+      'Nur wallet-for-epic und andere LEPIC-Wallets können eine Rechnung über Epicbox bezahlen. Die Epic GUI wallet und Stack Wallet können gar keine Rechnungen bezahlen; die Befehlszeile epic-wallet kann eine Rechnungsdatei bezahlen.';
+
+  @override
+  String get deskInvIssuerAmount => 'Betrag';
+
+  @override
+  String get deskInvIssuerAmountMissing => 'Geben Sie einen Betrag ein.';
+
+  @override
+  String get deskInvIssuerAmountZero => 'Der Betrag muss größer als 0 sein.';
+
+  @override
+  String get deskInvIssuerAmountDecimals =>
+      'EPIC hat höchstens 8 Nachkommastellen.';
+
+  @override
+  String get deskInvIssuerAmountCap =>
+      'Mehr als alle EPIC, die es je geben wird.';
+
+  @override
+  String get deskInvIssuerAmountHelp =>
+      'Nichts verlässt Ihre Wallet: Der Zahler zahlt diesen Betrag plus seine eigene Gebühr.';
+
+  @override
+  String get deskInvIssuerMessage => 'Nachricht an den Zahler';
+
+  @override
+  String deskInvIssuerMessageCount(int used, int max) {
+    return '$used von $max Byte';
+  }
+
+  @override
+  String get deskInvIssuerMessageLong => 'Die Nachricht ist zu lang.';
+
+  @override
+  String deskInvIssuerExpiry(int hours) {
+    return 'Der Zahler hat $hours Stunden Zeit zum Zahlen.';
+  }
+
+  @override
+  String get deskInvIssuerIssue => 'Ausstellen';
+
+  @override
+  String get deskInvIssuerRelayDown =>
+      'Der Epicbox-Server antwortet nicht, daher kann jetzt keine Rechnung gesendet werden.';
+
+  @override
+  String get deskInvIssuerFixFields =>
+      'Korrigieren Sie die rot markierten Felder.';
+
+  @override
+  String get deskInvIssuerNotDelivered =>
+      'Die Rechnung hat den Epicbox-Server nicht erreicht. Es wurde nichts gesendet. Versuchen Sie es erneut.';
+
+  @override
+  String deskInvIssuerSent(String payer) {
+    return 'Rechnung an $payer gesendet.';
+  }
+
+  @override
+  String get deskInvIssuerEmpty =>
+      'Noch keine Rechnungen ausgestellt. Eine Rechnung bittet einen Kontakt oder Dienst, Sie zu bezahlen; sie kostet nichts.';
+
+  @override
+  String deskInvIssuerTo(String payer) {
+    return 'Rechnung an $payer';
+  }
+
+  @override
+  String deskInvIssuerIssued(String time) {
+    return 'Ausgestellt $time';
+  }
+
+  @override
+  String get deskInvIssuerPayerFact => 'Zahler';
+
+  @override
+  String get deskInvIssuerAmountFact => 'Betrag';
+
+  @override
+  String get deskInvIssuerMessageFact => 'Nachricht';
+
+  @override
+  String get deskInvIssuerSentFact => 'Ausgestellt';
+
+  @override
+  String get deskInvIssuerExpiresFact => 'Läuft ab';
+
+  @override
+  String get deskInvIssuerAnsweredFact => 'Beendet';
+
+  @override
+  String get deskInvIssuerStepPaid => 'Bezahlt';
+
+  @override
+  String get deskInvIssuerStepConfirming => 'Bestätigung';
+
+  @override
+  String get deskInvIssuerEnded =>
+      'Diese Rechnung endete unbezahlt. Nichts ist angekommen.';
+
+  @override
+  String get deskInvIssuerWithdraw => 'Zurückziehen';
+
+  @override
+  String get deskInvIssuerWithdrawTitle => 'Diese Rechnung zurückziehen?';
+
+  @override
+  String deskInvIssuerWithdrawBody(String payer) {
+    return '$payer kann sie dann nicht mehr bezahlen.';
+  }
+
+  @override
+  String get deskInvIssuerKeep => 'Behalten';
+
+  @override
+  String get deskInvIssuerWithdrawn => 'Rechnung zurückgezogen.';
+
+  @override
+  String get deskInvIssuerRepost => 'Erneut senden';
+
+  @override
+  String get deskInvIssuerReposted => 'Zahlung erneut gesendet.';
+
+  @override
+  String get deskInvIssuerNodeDown =>
+      'Der Knoten antwortet nicht. Versuchen Sie es erneut, wenn er erreichbar ist.';
+
+  @override
+  String get deskInvIssuerNotPostedText =>
+      'Die Zahlung ist fertig, aber nicht im Netzwerk: Der Knoten hat sie abgelehnt oder war nicht erreichbar.';
+
+  @override
+  String get deskInvIssuerCancel => 'Zahlung stornieren';
+
+  @override
+  String get deskInvIssuerCancelTitle => 'Diese Zahlung stornieren?';
+
+  @override
+  String deskInvIssuerCancelBody(String payer) {
+    return 'Sie kommt dann nicht an. Das Guthaben von $payer bleibt in dessen Wallet gesperrt, bis dort storniert wird.';
+  }
+
+  @override
+  String deskInvIssuerBounced(String payer) {
+    return 'Die Wallet von $payer hat die Rechnung zurückgeschickt: Sie kann keine Rechnungen bezahlen. Bitten Sie stattdessen um eine Zahlung.';
+  }
+
+  @override
+  String get deskInvIssuerSendFile => 'Datei verwenden';
+
+  @override
+  String get deskInvIssuerLate =>
+      'Nach dem Ende dieser Rechnung kam eine Zahlung an. Sie wurde abgelehnt; nichts hat sich geändert.';
+
+  @override
+  String deskInvIssuerPaidText(String payer) {
+    return '$payer hat bezahlt. Ihre Wallet hat die Zahlung abgeschlossen und gesendet.';
+  }
+
+  @override
+  String deskInvIssuerWaitingText(String payer) {
+    return 'An die Rechnungsadresse von $payer zugestellt. Nichts ist bezahlt, bis dort zugestimmt wird.';
+  }
+
+  @override
+  String get deskInvIssuerCopySlate => 'Slate-ID kopieren';
+
+  @override
+  String get deskInvIssuerStepsIntro =>
+      'Die Wallet der anderen Seite muss Rechnungen annehmen. Vor der ersten Rechnung:';
+
+  @override
+  String get deskInvIssuerStepTrust =>
+      '1. Die andere Seite fügt Ihre Zahlungsadresse unten zu ihren vertrauenswürdigen Absendern hinzu.';
+
+  @override
+  String get deskInvIssuerStepAddress =>
+      '2. Die andere Seite gibt Ihnen ihre Rechnungsadresse.';
+
+  @override
+  String get deskInvIssuerStepIssued => 'Ausgestellt';
+
+  @override
+  String deskInvNoticePaid(String payer, String amount) {
+    return '$payer hat $amount EPIC bezahlt.';
+  }
+
+  @override
+  String deskInvNoticeDeclined(String payer) {
+    return '$payer hat Ihre Rechnung abgelehnt.';
+  }
+
+  @override
+  String get deskInvNoticeIssuedExpired =>
+      'Eine von Ihnen ausgestellte Rechnung ist unbezahlt abgelaufen.';
+
+  @override
+  String deskInvNoticeWithdrawn(String service) {
+    return '$service hat eine Rechnung zurückgezogen, bevor Sie sie beantwortet haben.';
+  }
+
+  @override
+  String get deskInvNoticeExpired =>
+      'Eine Rechnung ist abgelaufen, bevor Sie sie beantwortet haben.';
+
+  @override
+  String get deskInvNoticeUnknownPayment =>
+      'Eine Zahlung für eine Rechnung, die dieses Gerät nicht ausgestellt hat, ist eingetroffen und wurde abgelehnt. Hat ein anderes Gerät mit dieser Wallet sie ausgestellt, bitten Sie den Zahler, zu stornieren und erneut zu zahlen.';
+
+  @override
+  String get deskInvNoticeUnknownAnswer =>
+      'Eine Antwort auf eine Zahlung, die dieses Gerät nicht gesendet hat, ist eingetroffen und wurde abgelehnt. Hat ein anderes Gerät mit dieser Wallet sie gesendet, stornieren Sie sie dort und senden Sie erneut.';
+
+  @override
+  String get deskInvPayerWaitingHead => 'Wartet auf Sie';
+
+  @override
+  String get deskInvPayerNeedsHead => 'Offene Zahlungen';
+
+  @override
+  String get deskInvPayerReview => 'Prüfen';
+
+  @override
+  String get deskInvPayerView => 'Ansehen';
+
+  @override
+  String get deskInvPayerNoMessage => 'Keine Nachricht';
+
+  @override
+  String deskInvPayerDropped(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          '$count Nachrichten nicht vertrauenswürdiger Absender wurden ignoriert.',
+      one: '1 Nachricht eines nicht vertrauenswürdigen Absenders wurde ignoriert.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskInvPayerTrustService => 'Dienst vertrauen…';
+
+  @override
+  String get deskInvPayerYourInvoiceAddress => 'Ihre Rechnungsadresse';
+
+  @override
+  String get deskInvPayerEmptyTitle => 'Keine Rechnungen warten';
+
+  @override
+  String get deskInvPayerEmptyText =>
+      'Wenn Ihnen ein vertrauenswürdiger Dienst eine Rechnung stellt, erscheint sie hier. Bezahlt wird erst, wenn Sie zustimmen.';
+
+  @override
+  String deskInvPayerNotDeliveredTitle(String service) {
+    return 'Ihre Zahlung an $service wurde nicht zugestellt';
+  }
+
+  @override
+  String get deskInvPayerNotDeliveredText =>
+      'Sie ist signiert und auf diesem Gerät gespeichert; das Guthaben bleibt gesperrt. „Erneut senden“ schickt sie ohne zweite Zustimmung noch einmal.';
+
+  @override
+  String deskInvPayerWithdrawnTitle(String service) {
+    return '$service hat eine bezahlte Rechnung zurückgezogen';
+  }
+
+  @override
+  String get deskInvPayerWithdrawnText =>
+      'Die Zahlung erreicht die Blockchain vielleicht nie. Stornieren Sie sie, um Ihr Guthaben freizugeben.';
+
+  @override
+  String deskInvPayerPastTtlTitle(String service) {
+    return 'Ihre Zahlung an $service ist nicht in der Blockchain';
+  }
+
+  @override
+  String get deskInvPayerPastTtlText =>
+      'Ihre Frist ist abgelaufen und das Netzwerk hat sie nicht gesehen. Stornieren Sie sie, um Ihr Guthaben freizugeben.';
+
+  @override
+  String get deskInvPayerCancelPayment => 'Zahlung stornieren';
+
+  @override
+  String get deskInvPayerSafetyTitle => 'Bezahlen Sie nur erwartete Rechnungen';
+
+  @override
+  String get deskInvPayerSafetyText =>
+      'Eine Rechnung bringt nie Geld in Ihre Wallet. Wer zustimmt, sendet Geld.';
+
+  @override
+  String deskInvPayerSameBillTitle(String service, String ago) {
+    return 'Sie haben $service vor $ago denselben Betrag gezahlt';
+  }
+
+  @override
+  String get deskInvPayerSameBillText =>
+      'Prüfen Sie, ob das eine neue Rechnung ist, bevor Sie zahlen.';
+
+  @override
+  String deskInvPayerAgoHours(int hours, int minutes) {
+    return '$hours Std. $minutes Min.';
+  }
+
+  @override
+  String deskInvPayerAgoMinutes(int minutes) {
+    return '$minutes Min.';
+  }
+
+  @override
+  String get deskInvPayerFee => 'Gebühr';
+
+  @override
+  String get deskInvPayerTotal => 'Gesamt';
+
+  @override
+  String get deskInvPayerBalanceAfter => 'Guthaben danach';
+
+  @override
+  String get deskInvPayerMessageCaption =>
+      'Vom Dienst geschrieben. Ihre Wallet prüft sie nicht.';
+
+  @override
+  String get deskInvPayerPaysTo => 'Zahlt an';
+
+  @override
+  String deskInvPayerTrustedSince(String service, String date) {
+    return '$service, vertraut seit $date';
+  }
+
+  @override
+  String get deskInvPayerExpires => 'Läuft ab';
+
+  @override
+  String get deskInvPayerLockHeight => 'Sperrhöhe';
+
+  @override
+  String get deskInvPayerLockNone => 'Keine';
+
+  @override
+  String get deskInvPayerReceived => 'Empfangen';
+
+  @override
+  String get deskInvPayerShort => 'Nicht genug verfügbares Guthaben';
+
+  @override
+  String deskInvPayerShortText(String total, String spendable) {
+    return 'Sie brauchen $total EPIC verfügbar; Sie haben $spendable EPIC. Noch bestätigendes Guthaben zählt ab 3 Bestätigungen.';
+  }
+
+  @override
+  String get deskInvPayerNodeDownTitle => 'Der Knoten antwortet nicht';
+
+  @override
+  String get deskInvPayerNodeDownText =>
+      'Die Wallet kann Ihr Guthaben nicht prüfen und daher nicht zahlen. Zustimmen geht wieder, sobald der Knoten antwortet; unter Einstellungen › Knoten können Sie einen anderen wählen.';
+
+  @override
+  String get deskInvPayerPaid =>
+      'Diese Rechnung ist bezahlt. Darauf kann nichts mehr gezahlt werden.';
+
+  @override
+  String get deskInvPayerDeclinedText =>
+      'Sie haben diese Rechnung abgelehnt. Es wurde nichts bezahlt.';
+
+  @override
+  String get deskInvPayerBack => 'Zurück zu Rechnungen';
+
+  @override
+  String deskInvPayerApproveTitle(String amount, String fee, String service) {
+    return '$amount EPIC + $fee Gebühr an $service zahlen?';
+  }
+
+  @override
+  String deskInvPayerApproveText(String total) {
+    return '$total EPIC verlassen Ihre Wallet. Geben Sie zum Zustimmen das Wallet-Passwort ein.';
+  }
+
+  @override
+  String get deskInvPayerPassword => 'Wallet-Passwort';
+
+  @override
+  String get deskInvPayerWrongPassword =>
+      'Falsches Passwort. Es wurde nichts bezahlt.';
+
+  @override
+  String get deskInvPayerEnterPassword => 'Geben Sie das Wallet-Passwort ein.';
+
+  @override
+  String get deskInvPayerPay => 'Zahlen';
+
+  @override
+  String get deskInvPayerCancel => 'Abbrechen';
+
+  @override
+  String get deskInvPayerClose => 'Schließen';
+
+  @override
+  String get deskInvPayerNodeDownPay =>
+      'Der Knoten antwortet nicht. Es wurde nichts bezahlt.';
+
+  @override
+  String get deskInvPayerAlreadyAnswered =>
+      'Diese Rechnung wurde bereits beantwortet. Es wurde nichts weiter bezahlt.';
+
+  @override
+  String get deskInvPayerCannotPay =>
+      'Diese Rechnung kann nicht bezahlt werden. Es wurde nichts bezahlt.';
+
+  @override
+  String get deskInvPayerNotDeliveredToast => 'Signiert, nicht zugestellt';
+
+  @override
+  String get deskInvPayerNotDeliveredToastText =>
+      'Der Epicbox-Server antwortet nicht. Senden Sie sie unter Rechnungen › Bezahlen erneut; ohne zweite Zustimmung.';
+
+  @override
+  String get deskInvPayerRetryFailed => 'Immer noch nicht zugestellt';
+
+  @override
+  String get deskInvPayerRetryFailedText =>
+      'Der Epicbox-Server antwortet nicht. Die Zahlung bleibt signiert auf diesem Gerät.';
+
+  @override
+  String get deskInvPayerCancelTitle => 'Diese Zahlung stornieren?';
+
+  @override
+  String get deskInvPayerCancelText =>
+      'Das Stornieren gibt Ihr Guthaben hier frei. Der Dienst hat Ihre signierte Zahlung noch und könnte sie abschließen, bis dieses Guthaben erneut ausgegeben ist.';
+
+  @override
+  String deskInvPayerCancelWho(String amount, String service) {
+    return '$amount EPIC an $service';
+  }
+
+  @override
+  String get deskInvPayerKeepPayment => 'Behalten';
+
+  @override
+  String get deskInvPayerOnItsWay =>
+      'Bereits unterwegs: kann nicht storniert werden.';
+
+  @override
+  String get deskInvPayerCannotCheck =>
+      'Das Netzwerk kann gerade nicht geprüft werden; versuchen Sie es erneut, wenn der Knoten erreichbar ist.';
+
+  @override
+  String get deskInvPayerCancelled => 'Zahlung storniert';
+
+  @override
+  String get deskInvPayerCancelledText => 'Ihr Guthaben ist freigegeben.';
+
+  @override
+  String get deskInvPayerDeclined =>
+      'Rechnung abgelehnt. Es wurde nichts bezahlt.';
+
+  @override
+  String get deskInvPayerSpendToSelf => 'Jetzt an mich selbst senden';
+
+  @override
+  String get deskInvPayerSpendToSelfHelp =>
+      'Macht die Stornierung endgültig: Die signierte Kopie des Dienstes kann nicht mehr abgeschlossen werden. Kostet eine Netzwerkgebühr.';
+
+  @override
+  String get deskInvPayerSpentText =>
+      'Ihr Guthaben ist freigegeben und innerhalb dieser Wallet verschoben. Die Stornierung ist endgültig.';
+
+  @override
+  String get deskInvPayerSpendFailedText =>
+      'Ihr Guthaben ist freigegeben, aber das Verschieben hat nicht geklappt. Die Stornierung ist noch nicht endgültig.';
+
+  @override
+  String get deskInvPayerLocked =>
+      'Diese Rechnung kann nicht bezahlt werden: Sie ist bis zu einem späteren Block gesperrt. Nichts wurde bezahlt.';
+
+  @override
+  String get deskInvPayerRelayDownPay =>
+      'Der Epicbox-Server antwortet nicht. Es wurde nichts bezahlt.';
+
+  @override
+  String get deskInvSetTitle => 'Rechnungen';
+
+  @override
+  String get deskInvSetIntro =>
+      'Dienste, denen Sie vertrauen, stellen dieser Wallet Rechnungen an ihre Rechnungsadresse. Bezahlt wird erst, wenn Sie jeder Rechnung zustimmen.';
+
+  @override
+  String get deskInvSetAddressLabel => 'Rechnungsadresse';
+
+  @override
+  String get deskInvSetAddressWarning =>
+      'Geben Sie sie nur Diensten, denen Sie vertrauen. Sie empfängt keine Zahlungen.';
+
+  @override
+  String get deskInvSetCopy => 'Kopieren';
+
+  @override
+  String get deskInvSetCopied =>
+      'Rechnungsadresse kopiert. Geben Sie sie nur Diensten, denen Sie vertrauen; sie empfängt keine Zahlungen.';
+
+  @override
+  String get deskInvSetQrShow => 'QR zeigen';
+
+  @override
+  String get deskInvSetQrHide => 'QR ausblenden';
+
+  @override
+  String get deskInvSetQrLabel => 'QR-Code Ihrer Rechnungsadresse';
+
+  @override
+  String deskInvSetIndex(int index) {
+    return 'Rechnungsadresse $index';
+  }
+
+  @override
+  String get deskInvSetTrusted => 'Vertrauenswürdige Absender';
+
+  @override
+  String get deskInvSetTrustedNone =>
+      'Keine vertrauenswürdigen Absender. Rechnungen von allen anderen werden ungelesen ignoriert.';
+
+  @override
+  String deskInvSetSince(String date) {
+    return 'Vertraut seit $date';
+  }
+
+  @override
+  String get deskInvSetContactTag => 'Kontakt';
+
+  @override
+  String get deskInvSetRemove => 'Entfernen';
+
+  @override
+  String deskInvSetRemoveTitle(String name) {
+    return '$name nicht mehr vertrauen?';
+  }
+
+  @override
+  String deskInvSetRemoveBody(String name) {
+    return '$name kann Ihnen dann keine Rechnungen mehr senden. Bereits wartende Rechnungen bleiben, bis Sie sie beantworten oder sie ablaufen.';
+  }
+
+  @override
+  String deskInvSetRemoved(String name) {
+    return '$name kann Ihnen keine Rechnungen mehr senden.';
+  }
+
+  @override
+  String get deskInvSetKeep => 'Behalten';
+
+  @override
+  String get deskInvSetAdd => 'Absender vertrauen';
+
+  @override
+  String get deskInvSetAddBody =>
+      'Ein vertrauenswürdiger Absender kann dieser Wallet Rechnungen an ihre Rechnungsadresse stellen. Bezahlt wird erst, wenn Sie jeder Rechnung mit Ihrem Wallet-Passwort zustimmen.';
+
+  @override
+  String get deskInvSetName => 'Name';
+
+  @override
+  String get deskInvSetNameMissing => 'Geben Sie dem Absender einen Namen.';
+
+  @override
+  String get deskInvSetSenderAddress => 'Seine Zahlungsadresse';
+
+  @override
+  String get deskInvSetSenderMissing =>
+      'Fügen Sie die Adresse ein, die der Dienst anzeigt.';
+
+  @override
+  String get deskInvSetSenderInvalid =>
+      'Das ist keine gültige Epicbox-Adresse.';
+
+  @override
+  String get deskInvSetTrust => 'Vertrauen';
+
+  @override
+  String deskInvSetAdded(String name) {
+    return '$name kann Ihnen jetzt Rechnungen senden.';
+  }
+
+  @override
+  String deskInvSetDropped(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          '$count Nachrichten nicht vertrauenswürdiger Absender wurden ungelesen ignoriert.',
+      one: '1 Nachricht eines nicht vertrauenswürdigen Absenders wurde ungelesen ignoriert.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskInvSetRotate => 'Neue Rechnungsadresse';
+
+  @override
+  String get deskInvSetRotateHint =>
+      'Dienste mit der alten Adresse können Ihnen dann keine Rechnungen mehr senden.';
+
+  @override
+  String get deskInvSetRotateTitle => 'Neue Rechnungsadresse erzeugen?';
+
+  @override
+  String get deskInvSetRotateBody =>
+      'Dienste mit der alten Adresse können Ihnen dann keine Rechnungen mehr senden. Geben Sie die neue jedem Dienst, der Ihnen Rechnungen stellt.';
+
+  @override
+  String get deskInvSetRotateConfirm => 'Neue Adresse erzeugen';
+
+  @override
+  String get deskInvSetRotated =>
+      'Neue Rechnungsadresse bereit. Geben Sie sie Ihren Diensten.';
+
+  @override
+  String get deskInvSetExpiry => 'Zahlungsfrist';
+
+  @override
+  String get deskInvSetExpiryHint =>
+      'Wie lange eine ausgestellte Rechnung bezahlbar bleibt und wie lange eine empfangene auf Sie wartet. Höchstens 48 Stunden.';
+
+  @override
+  String deskInvSetHours(int hours) {
+    return '$hours Stunden';
+  }
+
+  @override
+  String get deskInvSetCancel => 'Abbrechen';
+
+  @override
+  String get deskInvSetContactSection => 'Rechnungen';
+
+  @override
+  String get deskInvSetTheirInvoice => 'Rechnungsadresse der anderen Seite';
+
+  @override
+  String get deskInvSetTheirInvoiceNone =>
+      'Keine Rechnungsadresse gespeichert. Fragen Sie danach, um Rechnungen auszustellen.';
+
+  @override
+  String get deskInvSetTrustedSwitch => 'Vertrauenswürdig für Rechnungen';
+
+  @override
+  String get deskInvSetTrustedSwitchHelp =>
+      'Erlaubt diesem Kontakt, Ihnen Rechnungen zu stellen. Bezahlt wird erst, wenn Sie einer Rechnung zustimmen.';
+
+  @override
+  String get deskInvSetIssueNeeds =>
+      'Braucht die Rechnungsadresse der anderen Seite.';
+
+  @override
+  String get deskInvSetShare => 'Rechnungsadresse teilen';
+
+  @override
+  String get deskInvSetReceiveHint =>
+      'Bitten Sie einen Kontakt oder Dienst, Sie zu bezahlen. Dessen Wallet muss Rechnungen annehmen.';
+
+  @override
+  String get deskInvSetRestoredHint =>
+      'Diese Wallet aus der Wiederherstellungsphrase wiederhergestellt? Geben Sie Diensten diese Rechnungsadresse erneut.';
 }

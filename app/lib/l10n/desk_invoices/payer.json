@@ -1,0 +1,363 @@
+{
+  "deskInvPayerWaitingHead": "Waiting for you",
+  "@deskInvPayerWaitingHead": {
+    "description": "Section heading on the Invoices page › To pay: invoices from trusted services that wait for the user's answer."
+  },
+  "deskInvPayerNeedsHead": "Payments to settle",
+  "@deskInvPayerNeedsHead": {
+    "description": "Section heading on the Invoices page › To pay: invoice payments that need the user (Retry or Cancel payment)."
+  },
+  "deskInvPayerReview": "Review",
+  "@deskInvPayerReview": {
+    "description": "Button on an invoice row: open the invoice to pay or decline it."
+  },
+  "deskInvPayerView": "View",
+  "@deskInvPayerView": {
+    "description": "Link on an answered invoice: open its payment in Activity."
+  },
+  "deskInvPayerNoMessage": "No message",
+  "@deskInvPayerNoMessage": {
+    "description": "Shown in place of the service's message when the invoice has none."
+  },
+  "deskInvPayerDropped": "{count, plural, =1{1 message from a sender you do not trust was ignored.} other{{count} messages from senders you do not trust were ignored.}}",
+  "@deskInvPayerDropped": {
+    "description": "Quiet line on the Invoices page › To pay: invoices from senders not on the trusted list were dropped unread. Never more detail.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deskInvPayerTrustService": "Trust a service…",
+  "@deskInvPayerTrustService": {
+    "description": "Link: open Settings › Receiving to add a service allowed to send invoices."
+  },
+  "deskInvPayerYourInvoiceAddress": "Your invoice address",
+  "@deskInvPayerYourInvoiceAddress": {
+    "description": "Link: open Settings › Receiving where the invoice address is shown."
+  },
+  "deskInvPayerEmptyTitle": "No invoices are waiting",
+  "@deskInvPayerEmptyTitle": {
+    "description": "Empty state title of Requests › To pay."
+  },
+  "deskInvPayerEmptyText": "When a service you trust bills you, the invoice appears here. Nothing is paid until you approve it.",
+  "@deskInvPayerEmptyText": {
+    "description": "Empty state text of Requests › To pay."
+  },
+  "deskInvPayerNotDeliveredTitle": "Your payment to {service} was not delivered",
+  "@deskInvPayerNotDeliveredTitle": {
+    "description": "Notice on To pay: an approved invoice payment did not reach the relay. service is the user's label for the service.",
+    "placeholders": {
+      "service": {
+        "type": "String"
+      }
+    }
+  },
+  "deskInvPayerNotDeliveredText": "It is signed and kept on this device; the funds stay locked. Retry sends it again without a second approval.",
+  "@deskInvPayerNotDeliveredText": {
+    "description": "Notice text for a payment that was not delivered."
+  },
+  "deskInvPayerWithdrawnTitle": "{service} withdrew an invoice you paid",
+  "@deskInvPayerWithdrawnTitle": {
+    "description": "Notice on To pay: the service withdrew the invoice after the user paid. service is the user's label.",
+    "placeholders": {
+      "service": {
+        "type": "String"
+      }
+    }
+  },
+  "deskInvPayerWithdrawnText": "The payment may never reach the chain. Cancel it to unlock your funds.",
+  "@deskInvPayerWithdrawnText": {
+    "description": "Notice text: a paid invoice was withdrawn; the user may cancel the payment."
+  },
+  "deskInvPayerPastTtlTitle": "Your payment to {service} is not on chain",
+  "@deskInvPayerPastTtlTitle": {
+    "description": "Notice on To pay: the invoice's time passed and the payment is neither in the pool nor on the chain. service is the user's label.",
+    "placeholders": {
+      "service": {
+        "type": "String"
+      }
+    }
+  },
+  "deskInvPayerPastTtlText": "Its time passed and the network has not seen it. Cancel it to unlock your funds.",
+  "@deskInvPayerPastTtlText": {
+    "description": "Notice text for a paid invoice past its time and not on chain."
+  },
+  "deskInvPayerCancelPayment": "Cancel payment",
+  "@deskInvPayerCancelPayment": {
+    "description": "Button: cancel an invoice payment that did not complete, unlocking the funds."
+  },
+  "deskInvPayerSafetyTitle": "Pay only bills you expect",
+  "@deskInvPayerSafetyTitle": {
+    "description": "Warning panel title on Review invoice: a fake invoice must not be paid."
+  },
+  "deskInvPayerSafetyText": "An invoice never adds money to your wallet. Approving it sends money out.",
+  "@deskInvPayerSafetyText": {
+    "description": "Warning panel text on Review invoice."
+  },
+  "deskInvPayerSameBillTitle": "You paid {service} the same amount {ago} ago",
+  "@deskInvPayerSameBillTitle": {
+    "description": "Warning on Review invoice: a paid invoice from the same service for the same amount is recent. ago is a duration like '3 h 10 min' or '25 min'.",
+    "placeholders": {
+      "service": {
+        "type": "String"
+      },
+      "ago": {
+        "type": "String"
+      }
+    }
+  },
+  "deskInvPayerSameBillText": "Check that this is a new bill before you pay it.",
+  "@deskInvPayerSameBillText": {
+    "description": "Text under the same-bill warning."
+  },
+  "deskInvPayerAgoHours": "{hours} h {minutes} min",
+  "@deskInvPayerAgoHours": {
+    "description": "A past duration in hours and minutes, used inside another sentence, e.g. '3 h 10 min'.",
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "deskInvPayerAgoMinutes": "{minutes} min",
+  "@deskInvPayerAgoMinutes": {
+    "description": "A past duration in minutes, used inside another sentence, e.g. '25 min'.",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "deskInvPayerFee": "Fee",
+  "@deskInvPayerFee": {
+    "description": "Label: the network fee the user pays on top of the invoice."
+  },
+  "deskInvPayerTotal": "Total",
+  "@deskInvPayerTotal": {
+    "description": "Label: invoice amount plus fee."
+  },
+  "deskInvPayerBalanceAfter": "Balance after",
+  "@deskInvPayerBalanceAfter": {
+    "description": "Label: spendable balance left after paying."
+  },
+  "deskInvPayerMessageCaption": "Written by the service. Your wallet does not check it.",
+  "@deskInvPayerMessageCaption": {
+    "description": "Caption under the service's message on Review invoice: the text is untrusted."
+  },
+  "deskInvPayerPaysTo": "Pays to",
+  "@deskInvPayerPaysTo": {
+    "description": "Label: the address the payment goes to (stored in the trusted list)."
+  },
+  "deskInvPayerTrustedSince": "{service}, trusted since {date}",
+  "@deskInvPayerTrustedSince": {
+    "description": "The service's label and when the user added it to trusted services, e.g. 'Coffee Roasters, trusted since 2 Sep 2026'.",
+    "placeholders": {
+      "service": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "deskInvPayerExpires": "Expires",
+  "@deskInvPayerExpires": {
+    "description": "Label: time left before the invoice expires."
+  },
+  "deskInvPayerLockHeight": "Lock height",
+  "@deskInvPayerLockHeight": {
+    "description": "Label: the block before which the payment cannot be included. Always None for a valid invoice."
+  },
+  "deskInvPayerLockNone": "None",
+  "@deskInvPayerLockNone": {
+    "description": "Value of Lock height: the payment is not locked to a later block."
+  },
+  "deskInvPayerReceived": "Received",
+  "@deskInvPayerReceived": {
+    "description": "Label (Advanced): when the invoice arrived."
+  },
+  "deskInvPayerShort": "Not enough spendable funds",
+  "@deskInvPayerShort": {
+    "description": "Reason Approve is disabled: the spendable balance is below amount plus fee."
+  },
+  "deskInvPayerShortText": "You need {total} EPIC spendable; you have {spendable} EPIC. Funds still confirming count once they have 3 confirmations.",
+  "@deskInvPayerShortText": {
+    "description": "Text under the not-enough-funds reason. total and spendable are formatted amounts.",
+    "placeholders": {
+      "total": {
+        "type": "String"
+      },
+      "spendable": {
+        "type": "String"
+      }
+    }
+  },
+  "deskInvPayerNodeDownTitle": "The node is not answering",
+  "@deskInvPayerNodeDownTitle": {
+    "description": "Reason Approve is disabled: the wallet's node cannot be reached."
+  },
+  "deskInvPayerNodeDownText": "The wallet cannot check your funds, so it cannot pay. Approve works again once the node answers; you can pick another node in Settings › Node.",
+  "@deskInvPayerNodeDownText": {
+    "description": "Text under the node-down reason. The wallet never switches node by itself."
+  },
+  "deskInvPayerPaid": "This invoice is paid. Nothing more can be paid on it.",
+  "@deskInvPayerPaid": {
+    "description": "Read-only Review invoice: the invoice was already approved and paid."
+  },
+  "deskInvPayerDeclinedText": "You declined this invoice. Nothing was paid.",
+  "@deskInvPayerDeclinedText": {
+    "description": "Read-only Review invoice: the user declined it."
+  },
+  "deskInvPayerBack": "Back to Invoices",
+  "@deskInvPayerBack": {
+    "description": "Button on a read-only Review invoice page: go back to Requests › To pay."
+  },
+  "deskInvPayerApproveTitle": "Pay {amount} EPIC + {fee} fee to {service}?",
+  "@deskInvPayerApproveTitle": {
+    "description": "Title of the approve dialog. amount and fee are formatted numbers; service is the user's label.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "fee": {
+        "type": "String"
+      },
+      "service": {
+        "type": "String"
+      }
+    }
+  },
+  "deskInvPayerApproveText": "{total} EPIC leaves your wallet. Enter the wallet password to approve.",
+  "@deskInvPayerApproveText": {
+    "description": "Text of the approve dialog. total is the formatted amount plus fee.",
+    "placeholders": {
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "deskInvPayerPassword": "Wallet password",
+  "@deskInvPayerPassword": {
+    "description": "Label of the password field in the approve dialog."
+  },
+  "deskInvPayerWrongPassword": "Wrong password. Nothing was paid.",
+  "@deskInvPayerWrongPassword": {
+    "description": "Field error in the approve dialog."
+  },
+  "deskInvPayerEnterPassword": "Enter the wallet password.",
+  "@deskInvPayerEnterPassword": {
+    "description": "Field error in the approve dialog when the password is empty."
+  },
+  "deskInvPayerPay": "Pay",
+  "@deskInvPayerPay": {
+    "description": "Main button of the approve dialog."
+  },
+  "deskInvPayerCancel": "Cancel",
+  "@deskInvPayerCancel": {
+    "description": "Button: close a dialog without doing anything."
+  },
+  "deskInvPayerClose": "Close",
+  "@deskInvPayerClose": {
+    "description": "Button: close a dialog."
+  },
+  "deskInvPayerNodeDownPay": "The node is not answering. Nothing was paid.",
+  "@deskInvPayerNodeDownPay": {
+    "description": "Error in the approve dialog: the pay call failed because the node is down."
+  },
+  "deskInvPayerAlreadyAnswered": "This invoice was already answered. Nothing more was paid.",
+  "@deskInvPayerAlreadyAnswered": {
+    "description": "Error in the approve dialog: the invoice was paid or declined elsewhere (double pay prevented)."
+  },
+  "deskInvPayerCannotPay": "This invoice cannot be paid. Nothing was paid.",
+  "@deskInvPayerCannotPay": {
+    "description": "Error in the approve dialog for any other refusal (amount mismatch, invalid)."
+  },
+  "deskInvPayerNotDeliveredToast": "Signed, not delivered",
+  "@deskInvPayerNotDeliveredToast": {
+    "description": "Toast after Approve when the relay did not take the payment."
+  },
+  "deskInvPayerNotDeliveredToastText": "The Epicbox server is not answering. Retry it under Invoices › Pay; no second approval.",
+  "@deskInvPayerNotDeliveredToastText": {
+    "description": "Toast text after Approve when the relay did not take the payment."
+  },
+  "deskInvPayerRetryFailed": "Still not delivered",
+  "@deskInvPayerRetryFailed": {
+    "description": "Toast when Retry failed."
+  },
+  "deskInvPayerRetryFailedText": "The Epicbox server is not answering. The payment stays signed on this device.",
+  "@deskInvPayerRetryFailedText": {
+    "description": "Toast text when Retry failed."
+  },
+  "deskInvPayerCancelTitle": "Cancel this payment?",
+  "@deskInvPayerCancelTitle": {
+    "description": "Title of the cancel payment dialog."
+  },
+  "deskInvPayerCancelText": "Cancelling unlocks your funds here. The service still holds your signed payment, so it could still complete until these funds are spent again.",
+  "@deskInvPayerCancelText": {
+    "description": "Cancel payment dialog text (decision D-2): cancelling is local; the signed payment can still complete."
+  },
+  "deskInvPayerCancelWho": "{amount} EPIC to {service}",
+  "@deskInvPayerCancelWho": {
+    "description": "Which payment the cancel dialog is about. amount is formatted.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "service": {
+        "type": "String"
+      }
+    }
+  },
+  "deskInvPayerKeepPayment": "Keep it",
+  "@deskInvPayerKeepPayment": {
+    "description": "Button: close the cancel dialog and keep the payment."
+  },
+  "deskInvPayerOnItsWay": "Already on its way: it cannot be cancelled.",
+  "@deskInvPayerOnItsWay": {
+    "description": "Error: the payment is in the pool or on chain."
+  },
+  "deskInvPayerCannotCheck": "Cannot check the network now; try again when the node is reachable.",
+  "@deskInvPayerCannotCheck": {
+    "description": "Error: cancelling needs the node, which is not answering."
+  },
+  "deskInvPayerCancelled": "Payment cancelled",
+  "@deskInvPayerCancelled": {
+    "description": "Toast after a payment was cancelled."
+  },
+  "deskInvPayerCancelledText": "Your funds are unlocked.",
+  "@deskInvPayerCancelledText": {
+    "description": "Toast text after a payment was cancelled."
+  },
+  "deskInvPayerDeclined": "Invoice declined. Nothing was paid.",
+  "@deskInvPayerDeclined": {
+    "description": "Toast after the user declined an invoice; it leaves To pay at once."
+  },
+  "deskInvPayerSpendToSelf": "Spend them to myself now",
+  "@deskInvPayerSpendToSelf": {
+    "description": "Checkbox on the Cancel payment confirm (decision D-2): after the cancel, move the unlocked coins to this wallet itself."
+  },
+  "deskInvPayerSpendToSelfHelp": "Makes the cancel final: the service's signed copy can no longer complete. Costs a network fee.",
+  "@deskInvPayerSpendToSelfHelp": {
+    "description": "Help under the Spend them to myself now checkbox."
+  },
+  "deskInvPayerSpentText": "Your funds are unlocked and moved within this wallet. The cancel is final.",
+  "@deskInvPayerSpentText": {
+    "description": "Toast text after a cancel whose coins were spent to the wallet itself."
+  },
+  "deskInvPayerSpendFailedText": "Your funds are unlocked, but moving them did not work. The cancel is not final yet.",
+  "@deskInvPayerSpendFailedText": {
+    "description": "Toast text after a cancel whose spend to the wallet itself failed."
+  },
+  "deskInvPayerLocked": "This invoice cannot be paid: it is locked until a later block. Nothing was paid.",
+  "@deskInvPayerLocked": {
+    "description": "Review: the invoice's kernel is locked above the chain's tip (LEPIC refuses it and stores nothing)."
+  },
+  "deskInvPayerRelayDownPay": "The Epicbox server is not answering. Nothing was paid.",
+  "@deskInvPayerRelayDownPay": {
+    "description": "Approve dialog: the Epicbox server could not be reached before anything was signed or stored."
+  }
+}

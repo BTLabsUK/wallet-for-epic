@@ -1,0 +1,13 @@
+{
+  "deskInvActFrom": "来自 {label} 的账单",
+  "deskInvActFilter": "账单",
+  "deskInvActBlock": "账单",
+  "deskInvActOpen": "在账单中打开",
+  "deskInvActBilledBy": "开单方",
+  "deskInvActOverviewTitle": "账单",
+  "deskInvActOverviewToPay": "{count, plural, =0{没有待支付的账单} other{{count} 张账单待支付}}",
+  "deskInvActOverviewWaiting": "{count, plural, =0{没有等待中的已开具账单} other{{count} 张已开具账单等待付款方}}",
+  "deskInvActOverviewAttention": "{count, plural, other{{count} 笔付款需要处理：重试或取消}}",
+  "deskInvActReview": "查看",
+  "deskInvActOpenInvoices": "打开账单"
+}

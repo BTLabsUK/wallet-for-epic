@@ -57,6 +57,7 @@ class MemoryContactBook implements ContactBook {
       name: contact.name,
       address: contact.address,
       note: contact.note,
+      invoiceAddress: contact.invoiceAddress,
     );
     _byId[id] = saved;
     return saved;

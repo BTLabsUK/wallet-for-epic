@@ -15,3 +15,15 @@ const int webLogLines = 2000;
 Future<void> startLogging() async {
   AppLog.use(MemoryLogSink(capacity: webLogLines));
 }
+
+/// The size at which the desktop log file rolls over; a page has no file, so only the
+/// desktop Logs screen reads it.
+const int maxLogFileBytes = 1024 * 1024;
+
+/// Placeholder for `app_log_io.dart`'s file sink, so the desktop code compiles for the web.
+/// Never constructed here.
+class FileLogSink extends MemoryLogSink {
+  ({String path}) get dir => (path: '');
+
+  void clear() => entries.clear();
+}

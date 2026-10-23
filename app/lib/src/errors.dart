@@ -19,8 +19,14 @@ String describeError(AppLocalizations l, Object error) {
       WalletErrorKind.walletNotFound => l.errorWalletNotFound,
       WalletErrorKind.nodeUnreachable => l.errorNodeUnreachable,
       WalletErrorKind.notEnoughFunds => l.errorNotEnoughFunds,
-      WalletErrorKind.invalidSlate => l.errorInvalidSlate,
-      WalletErrorKind.invalidArgument =>
+      // An invoice that cannot be paid: before LEPIC named these, they came as invalidSlate.
+      WalletErrorKind.invalidSlate ||
+      WalletErrorKind.invoiceAlreadyPaid ||
+      WalletErrorKind.invoiceLockedAboveTip ||
+      WalletErrorKind.invoiceChanged => l.errorInvalidSlate,
+      WalletErrorKind.invalidArgument ||
+      WalletErrorKind.invoiceNotFound ||
+      WalletErrorKind.amountMismatch =>
         _coreSentence(l, error.message) ??
             _withDetail(l.errorInvalidInput, error.message),
       WalletErrorKind.transportFailed => _withDetail(

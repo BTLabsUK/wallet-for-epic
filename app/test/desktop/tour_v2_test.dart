@@ -5,6 +5,7 @@
 // exactly when the Invoices page is.
 import 'package:epic_wallet/src/desktop/app/desk_app.dart';
 import 'package:epic_wallet/src/desktop/app/tour.dart';
+import 'package:epic_wallet/src/desktop/data/api.dart';
 import 'package:epic_wallet/src/desktop/data/desk_store.dart';
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
@@ -14,13 +15,27 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-Future<ProviderContainer> _open(WidgetTester tester, DeskRoute route, {Size size = const Size(1280, 800), DeskStore? store}) async {
+/// A wallet that does not take invoices (the LEPIC adapter before it is wired).
+class _NoInvoices extends MockDeskWallet {
+  _NoInvoices() : super(delay: Duration.zero);
+
+  @override
+  bool get supportsInvoices => false;
+}
+
+Future<ProviderContainer> _open(
+  WidgetTester tester,
+  DeskRoute route, {
+  Size size = const Size(1280, 800),
+  DeskStore? store,
+  DeskWalletApi? api,
+}) async {
   tester.view.physicalSize = size;
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
   final container = ProviderContainer(
     overrides: [
-      deskApiProvider.overrideWithValue(MockDeskWallet(delay: Duration.zero)),
+      deskApiProvider.overrideWithValue(api ?? MockDeskWallet(delay: Duration.zero)),
       if (store != null) deskStoreProvider.overrideWithValue(store),
       if (store != null) deskBootProvider.overrideWithValue(await DeskBoot.load(store)),
     ],
@@ -125,6 +140,23 @@ void main() {
     expect(find.byType(DeskTourOverlay), findsNothing);
     expect(container.read(deskNavProvider).route, DeskRoute.settingsHelp, reason: 'Done leaves the person on Help');
     expect(find.text('Show the tour again'), findsOneWidget);
+  });
+
+  testWidgets('a wallet without invoices: no Invoices step even when the page is in the app', (tester) async {
+    expect(deskTourStepsFor(supportsInvoices: false).any((s) => s.title == 'Invoices'), isFalse);
+    expect(deskTourStepsFor(supportsInvoices: true), same(deskTourSteps));
+    final container = await _open(tester, DeskRoute.overview, api: _NoInvoices());
+    container.read(deskTourProvider.notifier).open();
+    await _settle(tester);
+    final steps = tourStepsFor(invoices: false);
+    expect(_inCard('1 of ${steps.length}'), findsOneWidget);
+    for (final (i, step) in steps.indexed) {
+      expect(container.read(deskNavProvider).route, step.route, reason: 'step ${i + 1}');
+      expect(_inCard(step.title), findsOneWidget);
+      await tester.tap(_inCard(i == steps.length - 1 ? 'Done' : 'Next'));
+      await _settle(tester);
+    }
+    expect(container.read(deskTourProvider).open, isFalse);
   });
 
   testWidgets('Back returns to the previous page; the arrow keys and Enter move too', (tester) async {

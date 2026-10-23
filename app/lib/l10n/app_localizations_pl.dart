@@ -4034,4 +4034,1074 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get settingsSectionReceiving => 'Odbieranie';
+
+  @override
+  String deskInvActFrom(String label) {
+    return 'Faktura od: $label';
+  }
+
+  @override
+  String get deskInvActFilter => 'Faktury';
+
+  @override
+  String get deskInvActBlock => 'Faktura';
+
+  @override
+  String get deskInvActOpen => 'Otwórz w Fakturach';
+
+  @override
+  String get deskInvActBilledBy => 'Wystawił';
+
+  @override
+  String get deskInvActOverviewTitle => 'Faktury';
+
+  @override
+  String deskInvActOverviewToPay(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count faktury do zapłaty',
+      many: '$count faktur do zapłaty',
+      few: '$count faktury do zapłaty',
+      one: '$count faktura do zapłaty',
+      zero: 'Nic do zapłaty',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskInvActOverviewWaiting(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count wystawione faktury czekają na płacących',
+      many: '$count wystawionych faktur czeka na płacących',
+      few: '$count wystawione faktury czekają na płacących',
+      one: '$count wystawiona faktura czeka na płacącego',
+      zero: 'Żadna wystawiona faktura nie czeka',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskInvActOverviewAttention(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count płatności wymaga działania: ponów lub anuluj',
+      many: '$count płatności wymaga działania: ponów lub anuluj',
+      few: '$count płatności wymagają działania: ponów lub anuluj',
+      one: '$count płatność wymaga działania: ponów lub anuluj',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskInvActReview => 'Sprawdź';
+
+  @override
+  String get deskInvActOpenInvoices => 'Otwórz Faktury';
+
+  @override
+  String get deskInvNav => 'Faktury';
+
+  @override
+  String get deskInvTitle => 'Faktury';
+
+  @override
+  String get deskInvTabPay => 'Zapłać';
+
+  @override
+  String get deskInvTabIssue => 'Wystaw';
+
+  @override
+  String deskInvTabCount(String label, int count) {
+    return '$label ($count)';
+  }
+
+  @override
+  String get deskInvIssueAction => 'Wystaw fakturę';
+
+  @override
+  String get deskInvChecking => 'Sprawdzanie';
+
+  @override
+  String deskInvCheckedAt(String time) {
+    return 'Sprawdzono o $time';
+  }
+
+  @override
+  String get deskInvCheckFailedTitle => 'Serwer Epicbox nie odpowiada';
+
+  @override
+  String get deskInvCheckFailedBody =>
+      'Listy pokazują to, co dotarło wcześniej. Nic nie zginęło; portfel ponawia próbę co 2 minuty.';
+
+  @override
+  String get deskInvReqWaiting => 'Czeka na płacącego';
+
+  @override
+  String get deskInvReqPaid => 'Zapłacono, finalizowanie';
+
+  @override
+  String get deskInvReqPosted => 'Wysłano do sieci';
+
+  @override
+  String deskInvConfirming(int count, int total) {
+    return 'Potwierdzanie $count z $total';
+  }
+
+  @override
+  String get deskInvCompleted => 'Zakończono';
+
+  @override
+  String get deskInvReqNotPosted => 'Nie wysłano';
+
+  @override
+  String get deskInvDeclined => 'Odrzucono';
+
+  @override
+  String get deskInvExpired => 'Wygasło';
+
+  @override
+  String get deskInvWithdrawn => 'Wycofano';
+
+  @override
+  String get deskInvReqBounced => 'Odesłano';
+
+  @override
+  String get deskInvPayWaiting => 'Do zapłaty';
+
+  @override
+  String get deskInvPayPaying => 'Płacenie';
+
+  @override
+  String get deskInvPayNotDelivered => 'Nie dostarczono';
+
+  @override
+  String get deskInvPayDelivered => 'Czeka na wysłanie';
+
+  @override
+  String get deskInvPayPosted => 'Wysłane przez serwis';
+
+  @override
+  String get deskInvPayWithdrawnAfterPay => 'Wycofano po zapłacie';
+
+  @override
+  String get deskInvPayPastTtl => 'Brak w łańcuchu';
+
+  @override
+  String get deskInvPayCancelled => 'Anulowano';
+
+  @override
+  String get deskInvUnpaid => 'Nieopłacona';
+
+  @override
+  String get deskInvYouPay => 'Płacisz';
+
+  @override
+  String deskInvExpiresAt(String time) {
+    return 'Wygasa $time';
+  }
+
+  @override
+  String get deskInvSlateId => 'ID slate';
+
+  @override
+  String get deskInvAdvanced => 'Zaawansowane';
+
+  @override
+  String get deskInvOneDevice =>
+      'Korzystaj z faktur tylko na jednym urządzeniu. Inne urządzenie z tym portfelem może przejąć płatność przeznaczoną dla tego.';
+
+  @override
+  String get deskInvFailed =>
+      'To się nie udało. Nic się nie zmieniło; spróbuj ponownie.';
+
+  @override
+  String get deskInvHowItWorks => 'Jak działają faktury';
+
+  @override
+  String get deskInvAddressHint => 'es…@epicbox.epiccash.com';
+
+  @override
+  String get deskInvEpicboxAddress => 'Adres Epicbox';
+
+  @override
+  String get deskInvHelpTitle => 'Faktury';
+
+  @override
+  String get deskInvHelpLede =>
+      'Rachunki od zaufanych nadawców, płacone dopiero po zatwierdzeniu.';
+
+  @override
+  String get deskInvHelpFlowTitle => 'Jak działa faktura';
+
+  @override
+  String get deskInvHelpFlowShort =>
+      'Wystawca wysyła fakturę na adres do faktur płatnika. Nic nie zostaje zapłacone, dopóki płatnik jej nie zatwierdzi.';
+
+  @override
+  String get deskInvHelpFlowIntro =>
+      'Faktura to prośba o płatność. **Wystawca** otrzymuje pieniądze; **płatnik** decyduje.';
+
+  @override
+  String get deskInvHelpFlowStep1 =>
+      'Portfel wystawcy wysyła fakturę przez serwer Epicbox na **adres do faktur** płatnika.';
+
+  @override
+  String get deskInvHelpFlowStep2 =>
+      'Płatnik otwiera ją w [[Faktury › Zapłać]], sprawdza nadawcę, kwotę i wiadomość, i wybiera **Zatwierdź i zapłać**, podając hasło portfela.';
+
+  @override
+  String get deskInvHelpFlowStep3 =>
+      'Portfel płatnika wysyła płatność na **adres płatności** wystawcy.';
+
+  @override
+  String deskInvHelpFlowStep4(int confirmations) {
+    return 'Portfel wystawcy finalizuje płatność i publikuje ją w sieci. Liczba potwierdzeń, po której jest ostateczna: $confirmations.';
+  }
+
+  @override
+  String get deskInvHelpFlowNever =>
+      'Bez zatwierdzenia nic nie zostaje zapłacone, a faktura nigdy nie dodaje pieniędzy do portfela płatnika. Każda faktura ma termin płatności, najwyżej 48 godzin; po nim nie da się jej już zapłacić.';
+
+  @override
+  String get deskInvHelpFlowIssued =>
+      'Faktury wystawione przez ten portfel są w [[Faktury › Wystaw]].';
+
+  @override
+  String get deskInvHelpTrustTitle => 'Dlaczego tylko zaufani nadawcy';
+
+  @override
+  String get deskInvHelpTrustShort =>
+      'Tylko nadawcy z listy zaufanych mogą umieścić fakturę w skrzynce. To chroni przed spamem i fałszywymi rachunkami.';
+
+  @override
+  String get deskInvHelpTrustP1 =>
+      'Portfel przyjmuje fakturę tylko na swój adres do faktur i tylko od nadawcy z listy zaufanych, rozpoznanego po adresie. Wszystko inne jest odrzucane bez czytania, zanim zostanie otwarte, i nigdy nie pojawia się w [[Faktury › Zapłać]].';
+
+  @override
+  String get deskInvHelpTrustP2 =>
+      'Bez tej listy każdy, kto poznał adres do faktur, mógłby zapełnić skrzynkę spamem albo rachunkami, które wyglądają na prawdziwe.';
+
+  @override
+  String get deskInvHelpTrustP3 =>
+      'Zaufanie pozwala nadawcy tylko prosić. Zaufany nadawca nie może niczego zabrać: każda faktura nadal czeka na **Zatwierdź i zapłać**.';
+
+  @override
+  String get deskInvHelpTrustWhere1 =>
+      'Zaufaj nadawcy w [[Ustawienia › Faktury]].';
+
+  @override
+  String get deskInvHelpTrustWhere2 =>
+      'Albo włącz **Zaufany dla faktur** przy kontakcie w [[Kontakty]].';
+
+  @override
+  String get deskInvHelpTrustWhere3 =>
+      'Nadawcę można w każdej chwili usunąć z listy. Jego nowe faktury są wtedy odrzucane.';
+
+  @override
+  String get deskInvHelpAddrTitle => 'Dlaczego osobny adres do faktur';
+
+  @override
+  String get deskInvHelpAddrShort =>
+      'Faktury przychodzą na własny adres, oddzielny od adresu płatności, na który się płaci.';
+
+  @override
+  String get deskInvHelpAddrP1 =>
+      'Portfel ma dwa adresy Epicbox. **Adres płatności**, w [[Odbierz]], przyjmuje płatności. **Adres do faktur** przyjmuje tylko faktury.';
+
+  @override
+  String get deskInvHelpAddrP2 =>
+      'Dzięki rozdzieleniu adres do faktur można dać serwisom albo wymienić, nie ujawniając ani nie zmieniając adresu, na który się płaci.';
+
+  @override
+  String get deskInvHelpAddrP3 =>
+      'Adres do faktur nie przyjmuje płatności: płatność wysłana na niego jest odrzucana. Aby otrzymać płatność, podaj adres płatności.';
+
+  @override
+  String get deskInvHelpAddrWhere1 =>
+      'Adres do faktur można znaleźć, skopiować lub pokazać jako kod QR w [[Ustawienia › Faktury]].';
+
+  @override
+  String get deskInvHelpAddrWhere2 =>
+      '**Nowy adres do faktur** go zastępuje. Serwisy ze starym adresem nie mogą wysyłać faktur, dopóki nie dostaną nowego.';
+
+  @override
+  String get deskInvHelpDiagramTitle => 'Jak podróżuje faktura';
+
+  @override
+  String get deskInvHelpDiagramIssuer => 'Wystawca';
+
+  @override
+  String get deskInvHelpDiagramPayer => 'Płatnik';
+
+  @override
+  String get deskInvHelpDiagramIssues => 'Wystawia fakturę';
+
+  @override
+  String get deskInvHelpDiagramInvoice => 'Faktura';
+
+  @override
+  String get deskInvHelpDiagramGate => 'Adres do faktur';
+
+  @override
+  String get deskInvHelpDiagramGateSub => 'Tylko zaufani nadawcy';
+
+  @override
+  String get deskInvHelpDiagramDropped => 'Inni nadawcy';
+
+  @override
+  String get deskInvHelpDiagramDroppedSub => 'Odrzucone bez czytania';
+
+  @override
+  String get deskInvHelpDiagramReview => 'Sprawdza i zatwierdza';
+
+  @override
+  String get deskInvHelpDiagramReviewSub => 'Zatwierdź i zapłać';
+
+  @override
+  String get deskInvHelpDiagramPayment => 'Płatność';
+
+  @override
+  String get deskInvHelpDiagramPayAddr => 'Adres płatności';
+
+  @override
+  String get deskInvHelpDiagramPayAddrSub => 'Nie adres do faktur';
+
+  @override
+  String get deskInvHelpDiagramFinal => 'Finalizuje i publikuje';
+
+  @override
+  String deskInvHelpDiagramFinalSub(int confirmations) {
+    return 'Ostateczna po potwierdzeniach: $confirmations';
+  }
+
+  @override
+  String get deskInvHelpDiagramSemantics =>
+      'Wystawca wysyła fakturę na adres do faktur płatnika, który przyjmuje tylko zaufanych nadawców i odrzuca resztę; płatnik ją sprawdza i zatwierdza; płatność trafia na adres płatności wystawcy; portfel wystawcy ją finalizuje i publikuje w sieci.';
+
+  @override
+  String get deskInvIssuerFormTitle => 'Wystaw fakturę';
+
+  @override
+  String get deskInvIssuerFirstTitle => 'Przed pierwszą fakturą';
+
+  @override
+  String get deskInvIssuerYourAddress => 'Twój adres do płatności';
+
+  @override
+  String get deskInvIssuerMethod => 'Metoda';
+
+  @override
+  String get deskInvIssuerEpicbox => 'Epicbox';
+
+  @override
+  String get deskInvIssuerFile => 'Plik';
+
+  @override
+  String get deskInvIssuerDirect => 'Bezpośrednio';
+
+  @override
+  String get deskInvIssuerSoon => 'Wkrótce';
+
+  @override
+  String get deskInvIssuerPayer => 'Adres do faktur płacącego';
+
+  @override
+  String get deskInvIssuerPayerHelp =>
+      'Jego portfel pokazuje go w Ustawienia › Faktury.';
+
+  @override
+  String get deskInvIssuerPayerMissing => 'Wklej adres do faktur płacącego.';
+
+  @override
+  String get deskInvIssuerPayerInvalid =>
+      'To nie jest prawidłowy adres Epicbox.';
+
+  @override
+  String get deskInvIssuerPayerOwn =>
+      'To jeden z Twoich własnych adresów. Użyj adresu do faktur, który poda płacący.';
+
+  @override
+  String get deskInvIssuerPayerHttp =>
+      'Faktury przez Epicbox wymagają adresu Epicbox, a nie HTTP ani Tor.';
+
+  @override
+  String get deskInvIssuerContacts => 'Kontakty';
+
+  @override
+  String get deskInvIssuerNoContacts =>
+      'Żaden kontakt nie ma jeszcze adresu do faktur. Dodaj go w Kontaktach.';
+
+  @override
+  String get deskInvIssuerNoInvoices =>
+      'Ten portfel odesłał już kiedyś fakturę: nie może płacić faktur przez Epicbox. Wyślij zamiast tego plik z fakturą albo poproś o przesłanie płatności.';
+
+  @override
+  String get deskInvIssuerUseFile => 'Użyj pliku';
+
+  @override
+  String get deskInvIssuerUnknown =>
+      'Tylko wallet-for-epic i inne portfele LEPIC mogą zapłacić fakturę przez Epicbox. Epic GUI wallet i Stack Wallet w ogóle nie płacą faktur; wiersz poleceń epic-wallet może zapłacić plik z fakturą.';
+
+  @override
+  String get deskInvIssuerAmount => 'Kwota';
+
+  @override
+  String get deskInvIssuerAmountMissing => 'Wpisz kwotę.';
+
+  @override
+  String get deskInvIssuerAmountZero => 'Kwota musi być większa niż 0.';
+
+  @override
+  String get deskInvIssuerAmountDecimals =>
+      'EPIC ma najwyżej 8 miejsc po przecinku.';
+
+  @override
+  String get deskInvIssuerAmountCap =>
+      'Więcej niż wszystkie EPIC, jakie kiedykolwiek powstaną.';
+
+  @override
+  String get deskInvIssuerAmountHelp =>
+      'Nic nie opuszcza Twojego portfela: płacący płaci tę kwotę plus własną opłatę.';
+
+  @override
+  String get deskInvIssuerMessage => 'Wiadomość dla płacącego';
+
+  @override
+  String deskInvIssuerMessageCount(int used, int max) {
+    return '$used z $max bajtów';
+  }
+
+  @override
+  String get deskInvIssuerMessageLong => 'Wiadomość jest za długa.';
+
+  @override
+  String deskInvIssuerExpiry(int hours) {
+    return 'Płacący ma $hours godz. na zapłatę.';
+  }
+
+  @override
+  String get deskInvIssuerIssue => 'Wystaw';
+
+  @override
+  String get deskInvIssuerRelayDown =>
+      'Serwer Epicbox nie odpowiada, więc teraz nie można wysłać faktury.';
+
+  @override
+  String get deskInvIssuerFixFields => 'Popraw pola zaznaczone na czerwono.';
+
+  @override
+  String get deskInvIssuerNotDelivered =>
+      'Faktura nie dotarła do serwera Epicbox. Nic nie wysłano. Spróbuj ponownie.';
+
+  @override
+  String deskInvIssuerSent(String payer) {
+    return 'Wysłano fakturę do: $payer.';
+  }
+
+  @override
+  String get deskInvIssuerEmpty =>
+      'Nie wystawiono jeszcze faktur. Faktura prosi kontakt lub serwis o zapłatę; nic nie kosztuje.';
+
+  @override
+  String deskInvIssuerTo(String payer) {
+    return 'Faktura dla: $payer';
+  }
+
+  @override
+  String deskInvIssuerIssued(String time) {
+    return 'Wystawiono $time';
+  }
+
+  @override
+  String get deskInvIssuerPayerFact => 'Płacący';
+
+  @override
+  String get deskInvIssuerAmountFact => 'Kwota';
+
+  @override
+  String get deskInvIssuerMessageFact => 'Wiadomość';
+
+  @override
+  String get deskInvIssuerSentFact => 'Wystawiono';
+
+  @override
+  String get deskInvIssuerExpiresFact => 'Wygasa';
+
+  @override
+  String get deskInvIssuerAnsweredFact => 'Zakończono';
+
+  @override
+  String get deskInvIssuerStepPaid => 'Zapłacono';
+
+  @override
+  String get deskInvIssuerStepConfirming => 'Potwierdzanie';
+
+  @override
+  String get deskInvIssuerEnded =>
+      'Ta faktura zakończyła się bez zapłaty. Nic nie dotarło.';
+
+  @override
+  String get deskInvIssuerWithdraw => 'Wycofaj';
+
+  @override
+  String get deskInvIssuerWithdrawTitle => 'Wycofać tę fakturę?';
+
+  @override
+  String deskInvIssuerWithdrawBody(String payer) {
+    return '$payer nie będzie już mógł jej zapłacić.';
+  }
+
+  @override
+  String get deskInvIssuerKeep => 'Zostaw';
+
+  @override
+  String get deskInvIssuerWithdrawn => 'Fakturę wycofano.';
+
+  @override
+  String get deskInvIssuerRepost => 'Wyślij ponownie';
+
+  @override
+  String get deskInvIssuerReposted => 'Płatność wysłano ponownie.';
+
+  @override
+  String get deskInvIssuerNodeDown =>
+      'Węzeł nie odpowiada. Spróbuj ponownie, gdy będzie dostępny.';
+
+  @override
+  String get deskInvIssuerNotPostedText =>
+      'Płatność jest gotowa, ale nie ma jej w sieci: węzeł ją odrzucił albo był nieosiągalny.';
+
+  @override
+  String get deskInvIssuerCancel => 'Anuluj płatność';
+
+  @override
+  String get deskInvIssuerCancelTitle => 'Anulować tę płatność?';
+
+  @override
+  String deskInvIssuerCancelBody(String payer) {
+    return 'Nie dotrze. Środki płacącego ($payer) pozostaną zablokowane w jego portfelu, dopóki tam jej nie anuluje.';
+  }
+
+  @override
+  String deskInvIssuerBounced(String payer) {
+    return 'Portfel płacącego ($payer) odesłał fakturę: nie może płacić faktur. Poproś zamiast tego o przesłanie płatności.';
+  }
+
+  @override
+  String get deskInvIssuerSendFile => 'Użyj pliku';
+
+  @override
+  String get deskInvIssuerLate =>
+      'Po zakończeniu tej faktury dotarła płatność. Została odrzucona; nic się nie zmieniło.';
+
+  @override
+  String deskInvIssuerPaidText(String payer) {
+    return '$payer zapłacił. Twój portfel sfinalizował płatność i wysłał ją do sieci.';
+  }
+
+  @override
+  String deskInvIssuerWaitingText(String payer) {
+    return 'Dostarczono na adres do faktur płacącego ($payer). Nic nie jest zapłacone, dopóki tego nie zatwierdzi.';
+  }
+
+  @override
+  String get deskInvIssuerCopySlate => 'Kopiuj ID slate';
+
+  @override
+  String get deskInvIssuerStepsIntro =>
+      'Portfel płacącego musi obsługiwać faktury. Przed pierwszą fakturą:';
+
+  @override
+  String get deskInvIssuerStepTrust =>
+      '1. Płacący dodaje Twój adres do płatności poniżej do zaufanych nadawców.';
+
+  @override
+  String get deskInvIssuerStepAddress =>
+      '2. Płacący podaje Ci swój adres do faktur.';
+
+  @override
+  String get deskInvIssuerStepIssued => 'Wystawiono';
+
+  @override
+  String deskInvNoticePaid(String payer, String amount) {
+    return '$payer zapłacił(a) $amount EPIC.';
+  }
+
+  @override
+  String deskInvNoticeDeclined(String payer) {
+    return '$payer odrzucił(a) Twoją fakturę.';
+  }
+
+  @override
+  String get deskInvNoticeIssuedExpired =>
+      'Wystawiona przez Ciebie faktura wygasła bez zapłaty.';
+
+  @override
+  String deskInvNoticeWithdrawn(String service) {
+    return '$service wycofał(a) fakturę, zanim na nią odpowiedziałeś(-aś).';
+  }
+
+  @override
+  String get deskInvNoticeExpired =>
+      'Faktura wygasła, zanim na nią odpowiedziałeś(-aś).';
+
+  @override
+  String get deskInvNoticeUnknownPayment =>
+      'Nadeszła płatność za fakturę, której to urządzenie nie wystawiło, i została odrzucona. Jeśli wystawiło ją inne urządzenie z tym portfelem, poproś płacącego o anulowanie i ponowną płatność.';
+
+  @override
+  String get deskInvNoticeUnknownAnswer =>
+      'Nadeszła odpowiedź na płatność, której to urządzenie nie wysłało, i została odrzucona. Jeśli wysłało ją inne urządzenie z tym portfelem, anuluj ją tam i wyślij ponownie.';
+
+  @override
+  String get deskInvPayerWaitingHead => 'Czeka na Ciebie';
+
+  @override
+  String get deskInvPayerNeedsHead => 'Płatności do rozliczenia';
+
+  @override
+  String get deskInvPayerReview => 'Sprawdź';
+
+  @override
+  String get deskInvPayerView => 'Pokaż';
+
+  @override
+  String get deskInvPayerNoMessage => 'Brak wiadomości';
+
+  @override
+  String deskInvPayerDropped(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count wiadomości od niezaufanych nadawców zignorowano.',
+      many: '$count wiadomości od niezaufanych nadawców zignorowano.',
+      few: '$count wiadomości od niezaufanych nadawców zignorowano.',
+      one: '$count wiadomość od niezaufanego nadawcy zignorowano.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskInvPayerTrustService => 'Zaufaj serwisowi…';
+
+  @override
+  String get deskInvPayerYourInvoiceAddress => 'Twój adres do faktur';
+
+  @override
+  String get deskInvPayerEmptyTitle => 'Żadne faktury nie czekają';
+
+  @override
+  String get deskInvPayerEmptyText =>
+      'Gdy zaufany serwis wystawi Ci fakturę, pojawi się tutaj. Nic nie jest płacone, dopóki jej nie zatwierdzisz.';
+
+  @override
+  String deskInvPayerNotDeliveredTitle(String service) {
+    return 'Twoja płatność dla: $service nie została dostarczona';
+  }
+
+  @override
+  String get deskInvPayerNotDeliveredText =>
+      'Jest podpisana i zapisana na tym urządzeniu; środki pozostają zablokowane. Ponów wysyła ją jeszcze raz bez ponownego zatwierdzania.';
+
+  @override
+  String deskInvPayerWithdrawnTitle(String service) {
+    return '$service wycofał opłaconą fakturę';
+  }
+
+  @override
+  String get deskInvPayerWithdrawnText =>
+      'Płatność może nigdy nie trafić do łańcucha. Anuluj ją, aby odblokować środki.';
+
+  @override
+  String deskInvPayerPastTtlTitle(String service) {
+    return 'Twojej płatności dla: $service nie ma w łańcuchu';
+  }
+
+  @override
+  String get deskInvPayerPastTtlText =>
+      'Jej czas minął, a sieć jej nie widziała. Anuluj ją, aby odblokować środki.';
+
+  @override
+  String get deskInvPayerCancelPayment => 'Anuluj płatność';
+
+  @override
+  String get deskInvPayerSafetyTitle => 'Płać tylko oczekiwane rachunki';
+
+  @override
+  String get deskInvPayerSafetyText =>
+      'Faktura nigdy nie dodaje pieniędzy do portfela. Zatwierdzenie jej wysyła pieniądze.';
+
+  @override
+  String deskInvPayerSameBillTitle(String service, String ago) {
+    return 'Zapłaciłeś: $service tę samą kwotę $ago temu';
+  }
+
+  @override
+  String get deskInvPayerSameBillText =>
+      'Sprawdź, czy to nowy rachunek, zanim zapłacisz.';
+
+  @override
+  String deskInvPayerAgoHours(int hours, int minutes) {
+    return '$hours godz. $minutes min';
+  }
+
+  @override
+  String deskInvPayerAgoMinutes(int minutes) {
+    return '$minutes min';
+  }
+
+  @override
+  String get deskInvPayerFee => 'Opłata';
+
+  @override
+  String get deskInvPayerTotal => 'Razem';
+
+  @override
+  String get deskInvPayerBalanceAfter => 'Saldo po';
+
+  @override
+  String get deskInvPayerMessageCaption =>
+      'Napisane przez serwis. Twój portfel tego nie sprawdza.';
+
+  @override
+  String get deskInvPayerPaysTo => 'Płatność dla';
+
+  @override
+  String deskInvPayerTrustedSince(String service, String date) {
+    return '$service, zaufany od $date';
+  }
+
+  @override
+  String get deskInvPayerExpires => 'Wygasa';
+
+  @override
+  String get deskInvPayerLockHeight => 'Wysokość blokady';
+
+  @override
+  String get deskInvPayerLockNone => 'Brak';
+
+  @override
+  String get deskInvPayerReceived => 'Otrzymano';
+
+  @override
+  String get deskInvPayerShort => 'Za mało dostępnych środków';
+
+  @override
+  String deskInvPayerShortText(String total, String spendable) {
+    return 'Potrzebujesz $total EPIC dostępnych; masz $spendable EPIC. Środki w trakcie potwierdzania liczą się po 3 potwierdzeniach.';
+  }
+
+  @override
+  String get deskInvPayerNodeDownTitle => 'Węzeł nie odpowiada';
+
+  @override
+  String get deskInvPayerNodeDownText =>
+      'Portfel nie może sprawdzić środków, więc nie może zapłacić. Zatwierdzanie zadziała, gdy węzeł odpowie; inny węzeł wybierzesz w Ustawienia › Węzeł.';
+
+  @override
+  String get deskInvPayerPaid =>
+      'Ta faktura jest opłacona. Nie można już na nią nic zapłacić.';
+
+  @override
+  String get deskInvPayerDeclinedText =>
+      'Odrzuciłeś tę fakturę. Nic nie zapłacono.';
+
+  @override
+  String get deskInvPayerBack => 'Wróć do Faktur';
+
+  @override
+  String deskInvPayerApproveTitle(String amount, String fee, String service) {
+    return 'Zapłacić $amount EPIC + $fee opłaty dla: $service?';
+  }
+
+  @override
+  String deskInvPayerApproveText(String total) {
+    return '$total EPIC opuści Twój portfel. Wpisz hasło portfela, aby zatwierdzić.';
+  }
+
+  @override
+  String get deskInvPayerPassword => 'Hasło portfela';
+
+  @override
+  String get deskInvPayerWrongPassword => 'Błędne hasło. Nic nie zapłacono.';
+
+  @override
+  String get deskInvPayerEnterPassword => 'Wpisz hasło portfela.';
+
+  @override
+  String get deskInvPayerPay => 'Zapłać';
+
+  @override
+  String get deskInvPayerCancel => 'Anuluj';
+
+  @override
+  String get deskInvPayerClose => 'Zamknij';
+
+  @override
+  String get deskInvPayerNodeDownPay =>
+      'Węzeł nie odpowiada. Nic nie zapłacono.';
+
+  @override
+  String get deskInvPayerAlreadyAnswered =>
+      'Na tę fakturę już odpowiedziano. Nic więcej nie zapłacono.';
+
+  @override
+  String get deskInvPayerCannotPay =>
+      'Tej faktury nie można zapłacić. Nic nie zapłacono.';
+
+  @override
+  String get deskInvPayerNotDeliveredToast => 'Podpisano, nie dostarczono';
+
+  @override
+  String get deskInvPayerNotDeliveredToastText =>
+      'Serwer Epicbox nie odpowiada. Ponów w Faktury › Zapłać; bez ponownego zatwierdzania.';
+
+  @override
+  String get deskInvPayerRetryFailed => 'Nadal nie dostarczono';
+
+  @override
+  String get deskInvPayerRetryFailedText =>
+      'Serwer Epicbox nie odpowiada. Płatność pozostaje podpisana na tym urządzeniu.';
+
+  @override
+  String get deskInvPayerCancelTitle => 'Anulować tę płatność?';
+
+  @override
+  String get deskInvPayerCancelText =>
+      'Anulowanie odblokowuje tutaj Twoje środki. Serwis nadal ma Twoją podpisaną płatność, więc może ją jeszcze sfinalizować, dopóki te środki nie zostaną ponownie wydane.';
+
+  @override
+  String deskInvPayerCancelWho(String amount, String service) {
+    return '$amount EPIC dla: $service';
+  }
+
+  @override
+  String get deskInvPayerKeepPayment => 'Zostaw';
+
+  @override
+  String get deskInvPayerOnItsWay => 'Już w drodze: nie można anulować.';
+
+  @override
+  String get deskInvPayerCannotCheck =>
+      'Nie można teraz sprawdzić sieci; spróbuj ponownie, gdy węzeł będzie dostępny.';
+
+  @override
+  String get deskInvPayerCancelled => 'Płatność anulowana';
+
+  @override
+  String get deskInvPayerCancelledText => 'Twoje środki są odblokowane.';
+
+  @override
+  String get deskInvPayerDeclined => 'Faktura odrzucona. Nic nie zapłacono.';
+
+  @override
+  String get deskInvPayerSpendToSelf => 'Wyślij je teraz do siebie';
+
+  @override
+  String get deskInvPayerSpendToSelfHelp =>
+      'Czyni anulowanie ostatecznym: podpisana kopia usługi nie może już zostać zrealizowana. Kosztuje opłatę sieciową.';
+
+  @override
+  String get deskInvPayerSpentText =>
+      'Twoje środki są odblokowane i przeniesione w obrębie tego portfela. Anulowanie jest ostateczne.';
+
+  @override
+  String get deskInvPayerSpendFailedText =>
+      'Twoje środki są odblokowane, ale przeniesienie się nie udało. Anulowanie nie jest jeszcze ostateczne.';
+
+  @override
+  String get deskInvPayerLocked =>
+      'Tej faktury nie można zapłacić: jest zablokowana do późniejszego bloku. Nic nie zostało zapłacone.';
+
+  @override
+  String get deskInvPayerRelayDownPay =>
+      'Serwer Epicbox nie odpowiada. Nic nie zostało zapłacone.';
+
+  @override
+  String get deskInvSetTitle => 'Faktury';
+
+  @override
+  String get deskInvSetIntro =>
+      'Zaufane serwisy wystawiają faktury na adres do faktur tego portfela. Nic nie jest płacone, dopóki nie zatwierdzisz każdej faktury.';
+
+  @override
+  String get deskInvSetAddressLabel => 'Adres do faktur';
+
+  @override
+  String get deskInvSetAddressWarning =>
+      'Podawaj go tylko zaufanym serwisom. Nie służy do odbierania płatności.';
+
+  @override
+  String get deskInvSetCopy => 'Kopiuj';
+
+  @override
+  String get deskInvSetCopied =>
+      'Skopiowano adres do faktur. Podawaj go tylko zaufanym serwisom; nie służy do odbierania płatności.';
+
+  @override
+  String get deskInvSetQrShow => 'Pokaż QR';
+
+  @override
+  String get deskInvSetQrHide => 'Ukryj QR';
+
+  @override
+  String get deskInvSetQrLabel => 'Kod QR Twojego adresu do faktur';
+
+  @override
+  String deskInvSetIndex(int index) {
+    return 'Adres do faktur $index';
+  }
+
+  @override
+  String get deskInvSetTrusted => 'Zaufani nadawcy';
+
+  @override
+  String get deskInvSetTrustedNone =>
+      'Brak zaufanych nadawców. Faktury od innych są ignorowane bez czytania.';
+
+  @override
+  String deskInvSetSince(String date) {
+    return 'Zaufany od $date';
+  }
+
+  @override
+  String get deskInvSetContactTag => 'Kontakt';
+
+  @override
+  String get deskInvSetRemove => 'Usuń';
+
+  @override
+  String deskInvSetRemoveTitle(String name) {
+    return 'Przestać ufać: $name?';
+  }
+
+  @override
+  String deskInvSetRemoveBody(String name) {
+    return '$name nie będzie mógł wysyłać Ci faktur. Faktury, które już czekają, zostaną, dopóki na nie nie odpowiesz albo nie wygasną.';
+  }
+
+  @override
+  String deskInvSetRemoved(String name) {
+    return '$name nie może już wysyłać Ci faktur.';
+  }
+
+  @override
+  String get deskInvSetKeep => 'Zostaw';
+
+  @override
+  String get deskInvSetAdd => 'Zaufaj nadawcy';
+
+  @override
+  String get deskInvSetAddBody =>
+      'Zaufany nadawca może wystawiać faktury na adres do faktur tego portfela. Nic nie jest płacone, dopóki nie zatwierdzisz każdej faktury hasłem portfela.';
+
+  @override
+  String get deskInvSetName => 'Nazwa';
+
+  @override
+  String get deskInvSetNameMissing => 'Nadaj nadawcy nazwę.';
+
+  @override
+  String get deskInvSetSenderAddress => 'Jego adres do płatności';
+
+  @override
+  String get deskInvSetSenderMissing => 'Wklej adres, który pokazuje serwis.';
+
+  @override
+  String get deskInvSetSenderInvalid => 'To nie jest prawidłowy adres Epicbox.';
+
+  @override
+  String get deskInvSetTrust => 'Zaufaj';
+
+  @override
+  String deskInvSetAdded(String name) {
+    return '$name może teraz wysyłać Ci faktury.';
+  }
+
+  @override
+  String deskInvSetDropped(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          '$count wiadomości od niezaufanych nadawców zignorowano bez czytania.',
+      many:
+          '$count wiadomości od niezaufanych nadawców zignorowano bez czytania.',
+      few:
+          '$count wiadomości od niezaufanych nadawców zignorowano bez czytania.',
+      one: '$count wiadomość od niezaufanego nadawcy zignorowano bez czytania.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskInvSetRotate => 'Nowy adres do faktur';
+
+  @override
+  String get deskInvSetRotateHint =>
+      'Serwisy ze starym adresem nie będą mogły wysyłać Ci faktur.';
+
+  @override
+  String get deskInvSetRotateTitle => 'Utworzyć nowy adres do faktur?';
+
+  @override
+  String get deskInvSetRotateBody =>
+      'Serwisy ze starym adresem nie będą mogły wysyłać Ci faktur. Przekaż nowy każdemu serwisowi, który wystawia Ci faktury.';
+
+  @override
+  String get deskInvSetRotateConfirm => 'Utwórz nowy adres';
+
+  @override
+  String get deskInvSetRotated =>
+      'Nowy adres do faktur gotowy. Przekaż go swoim serwisom.';
+
+  @override
+  String get deskInvSetExpiry => 'Czas na zapłatę';
+
+  @override
+  String get deskInvSetExpiryHint =>
+      'Jak długo wystawiona faktura pozostaje do zapłaty i jak długo otrzymana na Ciebie czeka. Najwyżej 48 godzin.';
+
+  @override
+  String deskInvSetHours(int hours) {
+    return '$hours godz.';
+  }
+
+  @override
+  String get deskInvSetCancel => 'Anuluj';
+
+  @override
+  String get deskInvSetContactSection => 'Faktury';
+
+  @override
+  String get deskInvSetTheirInvoice => 'Adres do faktur kontaktu';
+
+  @override
+  String get deskInvSetTheirInvoiceNone =>
+      'Nie zapisano adresu do faktur. Poproś o niego, aby wystawiać faktury.';
+
+  @override
+  String get deskInvSetTrustedSwitch => 'Zaufany dla faktur';
+
+  @override
+  String get deskInvSetTrustedSwitchHelp =>
+      'Pozwala temu kontaktowi wystawiać Ci faktury. Nic nie jest płacone, dopóki nie zatwierdzisz faktury.';
+
+  @override
+  String get deskInvSetIssueNeeds => 'Wymaga adresu do faktur kontaktu.';
+
+  @override
+  String get deskInvSetShare => 'Udostępnij adres faktur';
+
+  @override
+  String get deskInvSetReceiveHint =>
+      'Poproś kontakt lub serwis o zapłatę. Jego portfel musi obsługiwać faktury.';
+
+  @override
+  String get deskInvSetRestoredHint =>
+      'Portfel odtworzony z frazy odzyskiwania? Przekaż usługom ten adres do faktur ponownie.';
 }

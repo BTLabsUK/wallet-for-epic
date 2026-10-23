@@ -2,9 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../desk_l10n.dart';
+import '../../data/invoice_state.dart';
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../app/tour.dart';
 import '../../widgets/kit.dart';
+import '../invoices/invoice_address.dart' show copyInvoiceAddress;
+import '../invoices/invoice_parts.dart';
 import 'tx_display.dart';
 
 /// Starts Contacts with one selected, editing, adding, or empty.
@@ -462,7 +466,7 @@ class _ContactDetail extends ConsumerWidget {
               onPressed: () => ref
                   .read(deskProvider.notifier)
                   .saveContact(
-                    Contact(id: x.id, name: x.name, address: x.address, note: x.note, favourite: !x.favourite, lastUsed: x.lastUsed, hasPicture: x.hasPicture),
+                    Contact(id: x.id, name: x.name, address: x.address, note: x.note, favourite: !x.favourite, lastUsed: x.lastUsed, hasPicture: x.hasPicture, invoiceAddress: x.invoiceAddress),
                   )
                   .then<void>((_) {}, onError: (Object e) {
                     if (context.mounted) showEToast(context, deskErrorText(e));
@@ -475,9 +479,11 @@ class _ContactDetail extends ConsumerWidget {
               size: EBtnSize.sm,
               onPressed: () async {
                 final ok = await showDeleteContactDialog(context, x);
-                if (ok != true) return;
+                if (ok != true || !context.mounted) return;
+                final stopTrust = await _askStopTrusting(context, ref, x);
                 try {
                   await ref.read(deskProvider.notifier).deleteContact(x.id);
+                  if (stopTrust != null) await ref.read(deskInvoicesProvider.notifier).untrust(stopTrust.address);
                 } on Object catch (e) {
                   if (context.mounted) showEToast(context, 'Not deleted', text: deskErrorText(e), tone: ETone.risk);
                   return;
@@ -493,6 +499,8 @@ class _ContactDetail extends ConsumerWidget {
         SizedBox(height: 6.u),
         EAddress(x.address),
         if (x.note != null) ...[SizedBox(height: Sp.x5), Text('Note', style: ts.label), SizedBox(height: Sp.x1), Text(x.note!, style: ts.body)],
+        // Invoices (docs/invoices/flow.md §7): their invoice address, trust, request, share.
+        if (ref.watch(deskApiProvider).supportsInvoices) ...[SizedBox(height: Sp.x6), _ContactInvoices(contact: x)],
         SizedBox(height: Sp.x6),
         Row(
           children: [
@@ -545,6 +553,7 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
   late final _name = TextEditingController(text: widget.contact?.name);
   late final _address = TextEditingController(text: widget.contact?.address);
   late final _note = TextEditingController(text: widget.contact?.note);
+  late final _invoice = TextEditingController(text: widget.contact?.invoiceAddress);
   late bool _picture = widget.contact?.hasPicture ?? false;
   final _nameFocus = FocusNode();
   final _addressFocus = FocusNode();
@@ -587,15 +596,25 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
     _name.dispose();
     _address.dispose();
     _note.dispose();
+    _invoice.dispose();
     _nameFocus.dispose();
     _addressFocus.dispose();
     super.dispose();
+  }
+
+  /// Their invoice address, when given: an Epicbox address, not this contact's payments one.
+  String? get _invoiceError {
+    final t = _invoice.text.trim();
+    if (t.isEmpty) return null;
+    final p = parseAddress(t, ref.read(deskApiProvider));
+    return p.kind == AddressKind.epicbox && p.complete ? null : context.l10n.deskInvIssuerPayerInvalid;
   }
 
   Future<void> _save() async {
     setState(() => _tried = true);
     if (_nameError != null) return _nameFocus.requestFocus();
     if (_addressError != null) return _addressFocus.requestFocus();
+    if (_invoiceError != null) return;
     // The address was checked as text above; saving only stores it and never reaches out.
     setState(() {
       _saving = true;
@@ -614,6 +633,7 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
               favourite: widget.contact?.favourite ?? false,
               lastUsed: widget.contact?.lastUsed,
               hasPicture: _picture,
+              invoiceAddress: _invoice.text.trim().isEmpty ? null : _invoice.text.trim(),
             ),
           );
     } on Object catch (e) {
@@ -624,6 +644,13 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
         });
       }
       return;
+    }
+    // A trusted contact renamed: its invoices carry the new name (flow.md §7).
+    final address = parseAddress(_address.text, ref.read(deskApiProvider)).canonical;
+    final invoice = _invoice.text.trim().isEmpty ? null : _invoice.text.trim();
+    final trusted = trustedOf(ref.read(deskInvoicesProvider), address, invoice);
+    if (trusted != null && trusted.label != _name.text.trim()) {
+      await ref.read(deskInvoicesProvider.notifier).trust(trusted.address, _name.text.trim(), contactId: id);
     }
     if (mounted) widget.onDone(id);
   }
@@ -690,6 +717,16 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
           error: addressError,
           child: EInput(controller: _address, focusNode: _addressFocus, mono: true, invalid: addressError != null, onChanged: (_) => setState(() {})),
         ),
+        if (ref.watch(deskApiProvider).supportsInvoices) ...[
+          SizedBox(height: Sp.x5),
+          EField(
+            // No Optional tag: at 560 px and 150 % the label row has no room for it.
+            label: context.l10n.deskInvSetAddressLabel,
+            help: context.l10n.deskInvIssuerPayerHelp,
+            error: _tried ? _invoiceError : null,
+            child: EInput(controller: _invoice, mono: true, invalid: _tried && _invoiceError != null, onChanged: (_) => setState(() {})),
+          ),
+        ],
         SizedBox(height: Sp.x5),
         EField(
           label: 'Note',
@@ -717,6 +754,34 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
   }
 }
 
+/// The trusted entry of a contact, by key: their invoice address when given, else the
+/// payments address. LEPIC's list is the only copy.
+TrustedSender? trustedOf(InvoiceBook? book, String address, String? invoiceAddress) {
+  if (book == null) return null;
+  return (invoiceAddress == null ? null : book.trustedFor(invoiceAddress)) ?? book.trustedFor(address);
+}
+
+/// For a trusted contact about to be deleted: asks whether to stop trusting it. Returns the
+/// entry to remove, or null when the contact is not trusted or the user keeps it trusted.
+Future<TrustedSender?> _askStopTrusting(BuildContext context, WidgetRef ref, Contact x) async {
+  final t = trustedOf(ref.read(deskInvoicesProvider), x.address, x.invoiceAddress);
+  if (t == null) return null;
+  final l = context.l10n;
+  final stop = await showEDialog<bool>(
+    context,
+    builder: (ctx) => EDialog(
+      title: l.deskInvSetRemoveTitle(t.label),
+      description: l.deskInvSetRemoveBody(t.label),
+      icon: EIcons.trusted,
+      actions: [
+        InvButton(label: l.deskInvSetKeep, width: InvW.md, onPressed: () => Navigator.of(ctx).pop(false)),
+        InvButton(label: l.deskInvSetRemove, kind: EBtnKind.danger, width: InvW.md, onPressed: () => Navigator.of(ctx).pop(true)),
+      ],
+    ),
+  );
+  return stop == true ? t : null;
+}
+
 /// Asks before deleting a contact.
 Future<bool?> showDeleteContactDialog(BuildContext context, Contact x) => showEDialog<bool>(
   context,
@@ -731,3 +796,67 @@ Future<bool?> showDeleteContactDialog(BuildContext context, Contact x) => showED
     ],
   ),
 );
+
+/// A contact's invoices: their invoice address, whether they may bill this wallet, and the two
+/// actions (docs/invoices/flow.md §7).
+class _ContactInvoices extends ConsumerWidget {
+  const _ContactInvoices({required this.contact});
+
+  final Contact contact;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = context.l10n;
+    final ts = context.ts;
+    final x = contact;
+    final book = ref.watch(deskInvoicesProvider);
+    if (book == null) return const SizedBox.shrink();
+    final entry = trustedOf(book, x.address, x.invoiceAddress);
+    final trusted = entry != null;
+    final epicbox = addressKindOf(x.address) == AddressKind.epicbox;
+    final n = ref.read(deskInvoicesProvider.notifier);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(l.deskInvSetContactSection, style: ts.label),
+        SizedBox(height: Sp.x2),
+        ESetGroup(
+          rows: [
+            ESetRow(
+              title: l.deskInvSetTheirInvoice,
+              text: x.invoiceAddress == null ? l.deskInvSetTheirInvoiceNone : null,
+              below: x.invoiceAddress == null ? null : EAddress(x.invoiceAddress!),
+            ),
+            if (epicbox)
+              ESetRow(
+                title: l.deskInvSetTrustedSwitch,
+                text: l.deskInvSetTrustedSwitchHelp,
+                control: ESwitch(
+                  value: trusted,
+                  semanticLabel: l.deskInvSetTrustedSwitch,
+                  onChanged: (v) => v ? n.trust(x.invoiceAddress ?? x.address, x.name, contactId: x.id) : n.untrust(entry?.address ?? x.address),
+                ),
+              ),
+          ],
+        ),
+        SizedBox(height: Sp.x3),
+        Wrap(
+          spacing: Sp.x2,
+          runSpacing: Sp.x2,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          children: [
+            InvButton(
+              label: l.deskInvIssueAction,
+              icon: EIcons.request,
+              width: InvW.lg,
+              tooltip: x.invoiceAddress == null ? l.deskInvSetIssueNeeds : null,
+              onPressed: x.invoiceAddress == null ? null : () => ref.read(deskNavProvider.notifier).go(DeskRoute.invoiceIssue, x),
+            ),
+            InvButton(label: l.deskInvSetShare, icon: EIcons.invoiceAddress, width: InvW.lg, onPressed: () => copyInvoiceAddress(context, book.invoiceAddress)),
+            if (x.invoiceAddress == null) Text(l.deskInvSetIssueNeeds, style: ts.small),
+          ],
+        ),
+      ],
+    );
+  }
+}

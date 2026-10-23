@@ -1,0 +1,9 @@
+{
+  "deskInvNoticePaid": "{payer} zapłacił(a) {amount} EPIC.",
+  "deskInvNoticeDeclined": "{payer} odrzucił(a) Twoją fakturę.",
+  "deskInvNoticeIssuedExpired": "Wystawiona przez Ciebie faktura wygasła bez zapłaty.",
+  "deskInvNoticeWithdrawn": "{service} wycofał(a) fakturę, zanim na nią odpowiedziałeś(-aś).",
+  "deskInvNoticeExpired": "Faktura wygasła, zanim na nią odpowiedziałeś(-aś).",
+  "deskInvNoticeUnknownPayment": "Nadeszła płatność za fakturę, której to urządzenie nie wystawiło, i została odrzucona. Jeśli wystawiło ją inne urządzenie z tym portfelem, poproś płacącego o anulowanie i ponowną płatność.",
+  "deskInvNoticeUnknownAnswer": "Nadeszła odpowiedź na płatność, której to urządzenie nie wysłało, i została odrzucona. Jeśli wysłało ją inne urządzenie z tym portfelem, anuluj ją tam i wyślij ponownie."
+}

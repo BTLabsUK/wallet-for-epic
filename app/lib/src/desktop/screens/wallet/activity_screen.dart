@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../desk_l10n.dart';
+
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../app/tour.dart';
 import '../../widgets/kit.dart';
 import 'tx_detail.dart';
 import 'tx_display.dart';
 
-enum _Filter { all, received, sent }
+enum _Filter { all, received, sent, requests }
 
 /// Starts Activity on a selected transaction, a search, or the empty state.
 class ActivityArgs {
@@ -71,7 +73,7 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
     final q = _query.text.trim().toLowerCase();
     return [
       for (final t in all)
-        if ((_filter == _Filter.all || (_filter == _Filter.received) == t.incoming) &&
+        if ((_filter == _Filter.all || (_filter == _Filter.requests ? t.isInvoice : !t.isInvoice && (_filter == _Filter.received) == t.incoming)) &&
             (q.isEmpty ||
                 whoOf(t).toLowerCase().contains(q) ||
                 (t.counterparty ?? '').toLowerCase().contains(q) ||
@@ -128,7 +130,7 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
     // Narrow: the detail replaces the list.
     if (!split && selectedTx != null) {
       return EPage(
-        title: selectedTx.incoming ? 'Received transaction' : 'Sent transaction',
+        title: selectedTx.isInvoice ? context.l10n.deskInvActBlock : (selectedTx.incoming ? 'Received transaction' : 'Sent transaction'),
         width: EPageWidth.narrow,
         onBack: () => setState(() => _selected = null),
         child: TxDetail(tx: selectedTx),
@@ -194,7 +196,7 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
     final pages = (shown.length / _pageSize).ceil();
     final page = _page.clamp(0, (pages - 1).clamp(0, 999));
     final slice = shown.skip(page * _pageSize).take(_pageSize).toList();
-    final counts = (all.length, all.where((t) => t.incoming).length, all.where((t) => !t.incoming).length);
+    final counts = (all.length, all.where((t) => t.incoming && !t.isInvoice).length, all.where((t) => !t.incoming && !t.isInvoice).length);
     final rows = <Widget>[];
     String? day;
     for (final t in slice) {
@@ -234,6 +236,8 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
           ESegment(_Filter.all, 'All', count: counts.$1),
           ESegment(_Filter.received, 'Received', count: counts.$2),
           ESegment(_Filter.sent, 'Sent', count: counts.$3),
+          if (ref.watch(deskApiProvider).supportsInvoices)
+            ESegment(_Filter.requests, context.l10n.deskInvActFilter, icon: EIcons.request, count: all.where((t) => t.isInvoice).length),
         ],
         value: _filter,
         onChanged: (v) => setState(() {
@@ -448,7 +452,7 @@ class _DetailPane extends StatelessWidget {
       head: Row(
         children: [
           Expanded(
-            child: Semantics(header: true, child: Text(tx.incoming ? 'Received transaction' : 'Sent transaction', style: context.ts.h3)),
+            child: Semantics(header: true, child: Text(tx.isInvoice ? context.l10n.deskInvActBlock : (tx.incoming ? 'Received transaction' : 'Sent transaction'), style: context.ts.h3)),
           ),
           EIconButton(icon: EIcons.close, label: 'Close', onPressed: onClose),
         ],

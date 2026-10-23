@@ -3864,4 +3864,1061 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsSectionReceiving => 'Receiving';
+
+  @override
+  String deskInvActFrom(String label) {
+    return 'Invoice from $label';
+  }
+
+  @override
+  String get deskInvActFilter => 'Invoices';
+
+  @override
+  String get deskInvActBlock => 'Invoice';
+
+  @override
+  String get deskInvActOpen => 'Open in Invoices';
+
+  @override
+  String get deskInvActBilledBy => 'Billed by';
+
+  @override
+  String get deskInvActOverviewTitle => 'Invoices';
+
+  @override
+  String deskInvActOverviewToPay(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count invoices to pay',
+      one: '1 invoice to pay',
+      zero: 'Nothing to pay',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskInvActOverviewWaiting(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count issued invoices waiting for their payers',
+      one: '1 issued invoice waiting for its payer',
+      zero: 'No issued invoices waiting',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskInvActOverviewAttention(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count payments need you: retry or cancel them',
+      one: '1 payment needs you: retry or cancel it',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskInvActReview => 'Review';
+
+  @override
+  String get deskInvActOpenInvoices => 'Open Invoices';
+
+  @override
+  String get deskInvNav => 'Invoices';
+
+  @override
+  String get deskInvTitle => 'Invoices';
+
+  @override
+  String get deskInvTabPay => 'Pay';
+
+  @override
+  String get deskInvTabIssue => 'Issue';
+
+  @override
+  String deskInvTabCount(String label, int count) {
+    return '$label ($count)';
+  }
+
+  @override
+  String get deskInvIssueAction => 'Issue an invoice';
+
+  @override
+  String get deskInvChecking => 'Checking';
+
+  @override
+  String deskInvCheckedAt(String time) {
+    return 'Checked at $time';
+  }
+
+  @override
+  String get deskInvCheckFailedTitle => 'The Epicbox server is not answering';
+
+  @override
+  String get deskInvCheckFailedBody =>
+      'The lists show what arrived before. Nothing was lost; the wallet tries again every 2 minutes.';
+
+  @override
+  String get deskInvReqWaiting => 'Waiting for payer';
+
+  @override
+  String get deskInvReqPaid => 'Paid, finalizing';
+
+  @override
+  String get deskInvReqPosted => 'Posted';
+
+  @override
+  String deskInvConfirming(int count, int total) {
+    return 'Confirming $count of $total';
+  }
+
+  @override
+  String get deskInvCompleted => 'Completed';
+
+  @override
+  String get deskInvReqNotPosted => 'Not posted';
+
+  @override
+  String get deskInvDeclined => 'Declined';
+
+  @override
+  String get deskInvExpired => 'Expired';
+
+  @override
+  String get deskInvWithdrawn => 'Withdrawn';
+
+  @override
+  String get deskInvReqBounced => 'Sent back';
+
+  @override
+  String get deskInvPayWaiting => 'To pay';
+
+  @override
+  String get deskInvPayPaying => 'Paying';
+
+  @override
+  String get deskInvPayNotDelivered => 'Not delivered';
+
+  @override
+  String get deskInvPayDelivered => 'Waiting to post';
+
+  @override
+  String get deskInvPayPosted => 'Posted by service';
+
+  @override
+  String get deskInvPayWithdrawnAfterPay => 'Withdrawn after paying';
+
+  @override
+  String get deskInvPayPastTtl => 'Not on chain';
+
+  @override
+  String get deskInvPayCancelled => 'Cancelled';
+
+  @override
+  String get deskInvUnpaid => 'Unpaid';
+
+  @override
+  String get deskInvYouPay => 'You pay';
+
+  @override
+  String deskInvExpiresAt(String time) {
+    return 'Expires $time';
+  }
+
+  @override
+  String get deskInvSlateId => 'Slate ID';
+
+  @override
+  String get deskInvAdvanced => 'Advanced';
+
+  @override
+  String get deskInvOneDevice =>
+      'Use invoices on one device only. Another device with this wallet can take a payment meant for this one.';
+
+  @override
+  String get deskInvFailed => 'That did not work. Nothing changed; try again.';
+
+  @override
+  String get deskInvHowItWorks => 'How invoices work';
+
+  @override
+  String get deskInvAddressHint => 'es…@epicbox.epiccash.com';
+
+  @override
+  String get deskInvEpicboxAddress => 'Epicbox address';
+
+  @override
+  String get deskInvHelpTitle => 'Invoices';
+
+  @override
+  String get deskInvHelpLede =>
+      'Bills from trusted senders, paid only after approval.';
+
+  @override
+  String get deskInvHelpFlowTitle => 'How an invoice works';
+
+  @override
+  String get deskInvHelpFlowShort =>
+      'The issuer sends an invoice to the payer\'s invoice address. Nothing is paid until the payer approves it.';
+
+  @override
+  String get deskInvHelpFlowIntro =>
+      'An invoice asks for a payment. The **issuer** is paid; the **payer** decides.';
+
+  @override
+  String get deskInvHelpFlowStep1 =>
+      'The issuer\'s wallet sends the invoice to the payer\'s **invoice address** over the Epicbox server.';
+
+  @override
+  String get deskInvHelpFlowStep2 =>
+      'The payer opens it under [[Invoices › Pay]], checks the sender, the amount and the message, and chooses **Approve and pay** with the wallet password.';
+
+  @override
+  String get deskInvHelpFlowStep3 =>
+      'The payer\'s wallet sends the payment to the issuer\'s **payments address**.';
+
+  @override
+  String deskInvHelpFlowStep4(int confirmations) {
+    return 'The issuer\'s wallet finalizes the payment and posts it to the network. After $confirmations confirmations it is final.';
+  }
+
+  @override
+  String get deskInvHelpFlowNever =>
+      'Nothing is paid without approval, and an invoice never adds money to the payer\'s wallet. Each invoice has a time to pay, at most 48 hours; after it, the invoice can no longer be paid.';
+
+  @override
+  String get deskInvHelpFlowIssued =>
+      'Invoices this wallet issued are under [[Invoices › Issue]].';
+
+  @override
+  String get deskInvHelpTrustTitle => 'Why only trusted senders';
+
+  @override
+  String get deskInvHelpTrustShort =>
+      'Only senders on the trusted list can put an invoice in the inbox. That keeps out spam and fake bills.';
+
+  @override
+  String get deskInvHelpTrustP1 =>
+      'The wallet accepts an invoice only at its invoice address and only from a sender on the trusted list, matched on the sender\'s address. Anything else is dropped unread, before it is opened, and never shows under [[Invoices › Pay]].';
+
+  @override
+  String get deskInvHelpTrustP2 =>
+      'Without the list, anyone who learned the invoice address could fill the inbox with spam or with bills that look real.';
+
+  @override
+  String get deskInvHelpTrustP3 =>
+      'Trust only lets a sender ask. A trusted sender cannot take anything: each invoice still waits for **Approve and pay**.';
+
+  @override
+  String get deskInvHelpTrustWhere1 =>
+      'Trust a sender under [[Settings › Invoices]].';
+
+  @override
+  String get deskInvHelpTrustWhere2 =>
+      'Or switch on **Trusted for invoices** on a contact under [[Contacts]].';
+
+  @override
+  String get deskInvHelpTrustWhere3 =>
+      'A sender can be removed from the list at any time. Its new invoices are then dropped.';
+
+  @override
+  String get deskInvHelpAddrTitle => 'Why a separate invoice address';
+
+  @override
+  String get deskInvHelpAddrShort =>
+      'Invoices arrive at their own address, apart from the payments address that people pay to.';
+
+  @override
+  String get deskInvHelpAddrP1 =>
+      'The wallet has two Epicbox addresses. The **payments address**, under [[Receive]], receives payments. The **invoice address** receives only invoices.';
+
+  @override
+  String get deskInvHelpAddrP2 =>
+      'Keeping them apart means the invoice address can be given to services, or replaced, without exposing or changing the address people pay to.';
+
+  @override
+  String get deskInvHelpAddrP3 =>
+      'The invoice address does not receive payments: a payment sent to it is dropped. To be paid, give the payments address.';
+
+  @override
+  String get deskInvHelpAddrWhere1 =>
+      'Find, copy or show the invoice address as a QR code under [[Settings › Invoices]].';
+
+  @override
+  String get deskInvHelpAddrWhere2 =>
+      '**New invoice address** replaces it. Services with the old one can no longer send invoices until they get the new one.';
+
+  @override
+  String get deskInvHelpDiagramTitle => 'How an invoice travels';
+
+  @override
+  String get deskInvHelpDiagramIssuer => 'Issuer';
+
+  @override
+  String get deskInvHelpDiagramPayer => 'Payer';
+
+  @override
+  String get deskInvHelpDiagramIssues => 'Issues the invoice';
+
+  @override
+  String get deskInvHelpDiagramInvoice => 'Invoice';
+
+  @override
+  String get deskInvHelpDiagramGate => 'Invoice address';
+
+  @override
+  String get deskInvHelpDiagramGateSub => 'Trusted senders only';
+
+  @override
+  String get deskInvHelpDiagramDropped => 'Other senders';
+
+  @override
+  String get deskInvHelpDiagramDroppedSub => 'Dropped unread';
+
+  @override
+  String get deskInvHelpDiagramReview => 'Reviews and approves';
+
+  @override
+  String get deskInvHelpDiagramReviewSub => 'Approve and pay';
+
+  @override
+  String get deskInvHelpDiagramPayment => 'Payment';
+
+  @override
+  String get deskInvHelpDiagramPayAddr => 'Payments address';
+
+  @override
+  String get deskInvHelpDiagramPayAddrSub => 'Not the invoice address';
+
+  @override
+  String get deskInvHelpDiagramFinal => 'Finalizes and posts';
+
+  @override
+  String deskInvHelpDiagramFinalSub(int confirmations) {
+    return 'Final after $confirmations confirmations';
+  }
+
+  @override
+  String get deskInvHelpDiagramSemantics =>
+      'The issuer sends an invoice to the payer\'s invoice address, which accepts trusted senders only and drops the rest; the payer reviews and approves it; the payment goes to the issuer\'s payments address; the issuer\'s wallet finalizes it and posts it to the network.';
+
+  @override
+  String get deskInvIssuerFormTitle => 'Issue an invoice';
+
+  @override
+  String get deskInvIssuerFirstTitle => 'Before the first invoice';
+
+  @override
+  String get deskInvIssuerYourAddress => 'Your payments address';
+
+  @override
+  String get deskInvIssuerMethod => 'Method';
+
+  @override
+  String get deskInvIssuerEpicbox => 'Epicbox';
+
+  @override
+  String get deskInvIssuerFile => 'File';
+
+  @override
+  String get deskInvIssuerDirect => 'Direct';
+
+  @override
+  String get deskInvIssuerSoon => 'Coming soon';
+
+  @override
+  String get deskInvIssuerPayer => 'Their invoice address';
+
+  @override
+  String get deskInvIssuerPayerHelp =>
+      'Their wallet shows it under Settings › Invoices.';
+
+  @override
+  String get deskInvIssuerPayerMissing => 'Paste their invoice address.';
+
+  @override
+  String get deskInvIssuerPayerInvalid =>
+      'This is not a valid Epicbox address.';
+
+  @override
+  String get deskInvIssuerPayerOwn =>
+      'This is one of your own addresses. Use the invoice address the payer gives you.';
+
+  @override
+  String get deskInvIssuerPayerHttp =>
+      'Invoices over Epicbox need an Epicbox address, not an HTTP or Tor one.';
+
+  @override
+  String get deskInvIssuerContacts => 'Contacts';
+
+  @override
+  String get deskInvIssuerNoContacts =>
+      'No contact has an invoice address yet. Add it under Contacts.';
+
+  @override
+  String get deskInvIssuerNoInvoices =>
+      'This wallet sent an invoice back before: it cannot pay invoices over Epicbox. Send them an invoice file instead, or ask them to send you the payment.';
+
+  @override
+  String get deskInvIssuerUseFile => 'Use a file';
+
+  @override
+  String get deskInvIssuerUnknown =>
+      'Only wallet-for-epic and other LEPIC wallets can pay an invoice over Epicbox. The Epic GUI wallet and Stack Wallet cannot pay invoices at all; the epic-wallet command line can pay an invoice file.';
+
+  @override
+  String get deskInvIssuerAmount => 'Amount';
+
+  @override
+  String get deskInvIssuerAmountMissing => 'Enter an amount.';
+
+  @override
+  String get deskInvIssuerAmountZero => 'The amount must be more than 0.';
+
+  @override
+  String get deskInvIssuerAmountDecimals => 'EPIC has at most 8 decimals.';
+
+  @override
+  String get deskInvIssuerAmountCap =>
+      'More than all the EPIC there will ever be.';
+
+  @override
+  String get deskInvIssuerAmountHelp =>
+      'Nothing leaves your wallet: the payer pays this amount plus their own fee.';
+
+  @override
+  String get deskInvIssuerMessage => 'Message to the payer';
+
+  @override
+  String deskInvIssuerMessageCount(int used, int max) {
+    return '$used of $max bytes';
+  }
+
+  @override
+  String get deskInvIssuerMessageLong => 'The message is too long.';
+
+  @override
+  String deskInvIssuerExpiry(int hours) {
+    return 'The payer has $hours hours to pay.';
+  }
+
+  @override
+  String get deskInvIssuerIssue => 'Issue';
+
+  @override
+  String get deskInvIssuerRelayDown =>
+      'The Epicbox server is not answering, so an invoice cannot go out now.';
+
+  @override
+  String get deskInvIssuerFixFields => 'Fix the fields marked in red.';
+
+  @override
+  String get deskInvIssuerNotDelivered =>
+      'The invoice did not reach the Epicbox server. Nothing was sent. Try again.';
+
+  @override
+  String deskInvIssuerSent(String payer) {
+    return 'Invoice sent to $payer.';
+  }
+
+  @override
+  String get deskInvIssuerEmpty =>
+      'No invoices issued yet. An invoice asks a contact or a service to pay you; it spends nothing.';
+
+  @override
+  String deskInvIssuerTo(String payer) {
+    return 'Invoice to $payer';
+  }
+
+  @override
+  String deskInvIssuerIssued(String time) {
+    return 'Issued $time';
+  }
+
+  @override
+  String get deskInvIssuerPayerFact => 'Payer';
+
+  @override
+  String get deskInvIssuerAmountFact => 'Amount';
+
+  @override
+  String get deskInvIssuerMessageFact => 'Message';
+
+  @override
+  String get deskInvIssuerSentFact => 'Issued';
+
+  @override
+  String get deskInvIssuerExpiresFact => 'Expires';
+
+  @override
+  String get deskInvIssuerAnsweredFact => 'Ended';
+
+  @override
+  String get deskInvIssuerStepPaid => 'Paid';
+
+  @override
+  String get deskInvIssuerStepConfirming => 'Confirming';
+
+  @override
+  String get deskInvIssuerEnded =>
+      'This invoice ended unpaid. Nothing arrived.';
+
+  @override
+  String get deskInvIssuerWithdraw => 'Withdraw';
+
+  @override
+  String get deskInvIssuerWithdrawTitle => 'Withdraw this invoice?';
+
+  @override
+  String deskInvIssuerWithdrawBody(String payer) {
+    return '$payer can no longer pay it.';
+  }
+
+  @override
+  String get deskInvIssuerKeep => 'Keep it';
+
+  @override
+  String get deskInvIssuerWithdrawn => 'Invoice withdrawn.';
+
+  @override
+  String get deskInvIssuerRepost => 'Repost';
+
+  @override
+  String get deskInvIssuerReposted => 'Payment posted again.';
+
+  @override
+  String get deskInvIssuerNodeDown =>
+      'The node is not answering. Try again when it is reachable.';
+
+  @override
+  String get deskInvIssuerNotPostedText =>
+      'The payment is finished but not on the network: the node refused it or could not be reached.';
+
+  @override
+  String get deskInvIssuerCancel => 'Cancel payment';
+
+  @override
+  String get deskInvIssuerCancelTitle => 'Cancel this payment?';
+
+  @override
+  String deskInvIssuerCancelBody(String payer) {
+    return 'It will not arrive. $payer\'s funds stay locked in their wallet until they cancel on their side.';
+  }
+
+  @override
+  String deskInvIssuerBounced(String payer) {
+    return '$payer\'s wallet sent the invoice back: it cannot pay invoices. Ask them to send you a payment instead.';
+  }
+
+  @override
+  String get deskInvIssuerSendFile => 'Use a file';
+
+  @override
+  String get deskInvIssuerLate =>
+      'A payment arrived after this invoice ended. It was refused; nothing changed.';
+
+  @override
+  String deskInvIssuerPaidText(String payer) {
+    return '$payer paid. Your wallet finished the payment and posted it.';
+  }
+
+  @override
+  String deskInvIssuerWaitingText(String payer) {
+    return 'Delivered to $payer\'s invoice address. Nothing is paid until they approve it.';
+  }
+
+  @override
+  String get deskInvIssuerCopySlate => 'Copy slate ID';
+
+  @override
+  String get deskInvIssuerStepsIntro =>
+      'Their wallet must take invoices. Before the first invoice:';
+
+  @override
+  String get deskInvIssuerStepTrust =>
+      '1. They add your payments address below to their trusted senders.';
+
+  @override
+  String get deskInvIssuerStepAddress =>
+      '2. They give you their invoice address.';
+
+  @override
+  String get deskInvIssuerStepIssued => 'Issued';
+
+  @override
+  String deskInvNoticePaid(String payer, String amount) {
+    return '$payer paid $amount EPIC.';
+  }
+
+  @override
+  String deskInvNoticeDeclined(String payer) {
+    return '$payer declined your invoice.';
+  }
+
+  @override
+  String get deskInvNoticeIssuedExpired =>
+      'An invoice you issued expired unpaid.';
+
+  @override
+  String deskInvNoticeWithdrawn(String service) {
+    return '$service withdrew an invoice before you answered it.';
+  }
+
+  @override
+  String get deskInvNoticeExpired =>
+      'An invoice expired before you answered it.';
+
+  @override
+  String get deskInvNoticeUnknownPayment =>
+      'A payment for an invoice this device did not issue arrived and was refused. If another device with this wallet issued it, ask the payer to cancel and pay again.';
+
+  @override
+  String get deskInvNoticeUnknownAnswer =>
+      'An answer to a payment this device did not send arrived and was refused. If another device with this wallet sent it, cancel it there and send again.';
+
+  @override
+  String get deskInvPayerWaitingHead => 'Waiting for you';
+
+  @override
+  String get deskInvPayerNeedsHead => 'Payments to settle';
+
+  @override
+  String get deskInvPayerReview => 'Review';
+
+  @override
+  String get deskInvPayerView => 'View';
+
+  @override
+  String get deskInvPayerNoMessage => 'No message';
+
+  @override
+  String deskInvPayerDropped(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count messages from senders you do not trust were ignored.',
+      one: '1 message from a sender you do not trust was ignored.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskInvPayerTrustService => 'Trust a service…';
+
+  @override
+  String get deskInvPayerYourInvoiceAddress => 'Your invoice address';
+
+  @override
+  String get deskInvPayerEmptyTitle => 'No invoices are waiting';
+
+  @override
+  String get deskInvPayerEmptyText =>
+      'When a service you trust bills you, the invoice appears here. Nothing is paid until you approve it.';
+
+  @override
+  String deskInvPayerNotDeliveredTitle(String service) {
+    return 'Your payment to $service was not delivered';
+  }
+
+  @override
+  String get deskInvPayerNotDeliveredText =>
+      'It is signed and kept on this device; the funds stay locked. Retry sends it again without a second approval.';
+
+  @override
+  String deskInvPayerWithdrawnTitle(String service) {
+    return '$service withdrew an invoice you paid';
+  }
+
+  @override
+  String get deskInvPayerWithdrawnText =>
+      'The payment may never reach the chain. Cancel it to unlock your funds.';
+
+  @override
+  String deskInvPayerPastTtlTitle(String service) {
+    return 'Your payment to $service is not on chain';
+  }
+
+  @override
+  String get deskInvPayerPastTtlText =>
+      'Its time passed and the network has not seen it. Cancel it to unlock your funds.';
+
+  @override
+  String get deskInvPayerCancelPayment => 'Cancel payment';
+
+  @override
+  String get deskInvPayerSafetyTitle => 'Pay only bills you expect';
+
+  @override
+  String get deskInvPayerSafetyText =>
+      'An invoice never adds money to your wallet. Approving it sends money out.';
+
+  @override
+  String deskInvPayerSameBillTitle(String service, String ago) {
+    return 'You paid $service the same amount $ago ago';
+  }
+
+  @override
+  String get deskInvPayerSameBillText =>
+      'Check that this is a new bill before you pay it.';
+
+  @override
+  String deskInvPayerAgoHours(int hours, int minutes) {
+    return '$hours h $minutes min';
+  }
+
+  @override
+  String deskInvPayerAgoMinutes(int minutes) {
+    return '$minutes min';
+  }
+
+  @override
+  String get deskInvPayerFee => 'Fee';
+
+  @override
+  String get deskInvPayerTotal => 'Total';
+
+  @override
+  String get deskInvPayerBalanceAfter => 'Balance after';
+
+  @override
+  String get deskInvPayerMessageCaption =>
+      'Written by the service. Your wallet does not check it.';
+
+  @override
+  String get deskInvPayerPaysTo => 'Pays to';
+
+  @override
+  String deskInvPayerTrustedSince(String service, String date) {
+    return '$service, trusted since $date';
+  }
+
+  @override
+  String get deskInvPayerExpires => 'Expires';
+
+  @override
+  String get deskInvPayerLockHeight => 'Lock height';
+
+  @override
+  String get deskInvPayerLockNone => 'None';
+
+  @override
+  String get deskInvPayerReceived => 'Received';
+
+  @override
+  String get deskInvPayerShort => 'Not enough spendable funds';
+
+  @override
+  String deskInvPayerShortText(String total, String spendable) {
+    return 'You need $total EPIC spendable; you have $spendable EPIC. Funds still confirming count once they have 3 confirmations.';
+  }
+
+  @override
+  String get deskInvPayerNodeDownTitle => 'The node is not answering';
+
+  @override
+  String get deskInvPayerNodeDownText =>
+      'The wallet cannot check your funds, so it cannot pay. Approve works again once the node answers; you can pick another node in Settings › Node.';
+
+  @override
+  String get deskInvPayerPaid =>
+      'This invoice is paid. Nothing more can be paid on it.';
+
+  @override
+  String get deskInvPayerDeclinedText =>
+      'You declined this invoice. Nothing was paid.';
+
+  @override
+  String get deskInvPayerBack => 'Back to Invoices';
+
+  @override
+  String deskInvPayerApproveTitle(String amount, String fee, String service) {
+    return 'Pay $amount EPIC + $fee fee to $service?';
+  }
+
+  @override
+  String deskInvPayerApproveText(String total) {
+    return '$total EPIC leaves your wallet. Enter the wallet password to approve.';
+  }
+
+  @override
+  String get deskInvPayerPassword => 'Wallet password';
+
+  @override
+  String get deskInvPayerWrongPassword => 'Wrong password. Nothing was paid.';
+
+  @override
+  String get deskInvPayerEnterPassword => 'Enter the wallet password.';
+
+  @override
+  String get deskInvPayerPay => 'Pay';
+
+  @override
+  String get deskInvPayerCancel => 'Cancel';
+
+  @override
+  String get deskInvPayerClose => 'Close';
+
+  @override
+  String get deskInvPayerNodeDownPay =>
+      'The node is not answering. Nothing was paid.';
+
+  @override
+  String get deskInvPayerAlreadyAnswered =>
+      'This invoice was already answered. Nothing more was paid.';
+
+  @override
+  String get deskInvPayerCannotPay =>
+      'This invoice cannot be paid. Nothing was paid.';
+
+  @override
+  String get deskInvPayerNotDeliveredToast => 'Signed, not delivered';
+
+  @override
+  String get deskInvPayerNotDeliveredToastText =>
+      'The Epicbox server is not answering. Retry it under Invoices › Pay; no second approval.';
+
+  @override
+  String get deskInvPayerRetryFailed => 'Still not delivered';
+
+  @override
+  String get deskInvPayerRetryFailedText =>
+      'The Epicbox server is not answering. The payment stays signed on this device.';
+
+  @override
+  String get deskInvPayerCancelTitle => 'Cancel this payment?';
+
+  @override
+  String get deskInvPayerCancelText =>
+      'Cancelling unlocks your funds here. The service still holds your signed payment, so it could still complete until these funds are spent again.';
+
+  @override
+  String deskInvPayerCancelWho(String amount, String service) {
+    return '$amount EPIC to $service';
+  }
+
+  @override
+  String get deskInvPayerKeepPayment => 'Keep it';
+
+  @override
+  String get deskInvPayerOnItsWay =>
+      'Already on its way: it cannot be cancelled.';
+
+  @override
+  String get deskInvPayerCannotCheck =>
+      'Cannot check the network now; try again when the node is reachable.';
+
+  @override
+  String get deskInvPayerCancelled => 'Payment cancelled';
+
+  @override
+  String get deskInvPayerCancelledText => 'Your funds are unlocked.';
+
+  @override
+  String get deskInvPayerDeclined => 'Invoice declined. Nothing was paid.';
+
+  @override
+  String get deskInvPayerSpendToSelf => 'Spend them to myself now';
+
+  @override
+  String get deskInvPayerSpendToSelfHelp =>
+      'Makes the cancel final: the service\'s signed copy can no longer complete. Costs a network fee.';
+
+  @override
+  String get deskInvPayerSpentText =>
+      'Your funds are unlocked and moved within this wallet. The cancel is final.';
+
+  @override
+  String get deskInvPayerSpendFailedText =>
+      'Your funds are unlocked, but moving them did not work. The cancel is not final yet.';
+
+  @override
+  String get deskInvPayerLocked =>
+      'This invoice cannot be paid: it is locked until a later block. Nothing was paid.';
+
+  @override
+  String get deskInvPayerRelayDownPay =>
+      'The Epicbox server is not answering. Nothing was paid.';
+
+  @override
+  String get deskInvSetTitle => 'Invoices';
+
+  @override
+  String get deskInvSetIntro =>
+      'Services you trust bill this wallet at its invoice address. Nothing is paid until you approve each invoice.';
+
+  @override
+  String get deskInvSetAddressLabel => 'Invoice address';
+
+  @override
+  String get deskInvSetAddressWarning =>
+      'Give it only to services you trust. It does not receive payments.';
+
+  @override
+  String get deskInvSetCopy => 'Copy';
+
+  @override
+  String get deskInvSetCopied =>
+      'Invoice address copied. Give it only to services you trust; it does not receive payments.';
+
+  @override
+  String get deskInvSetQrShow => 'Show QR';
+
+  @override
+  String get deskInvSetQrHide => 'Hide QR';
+
+  @override
+  String get deskInvSetQrLabel => 'QR code of your invoice address';
+
+  @override
+  String deskInvSetIndex(int index) {
+    return 'Invoice address $index';
+  }
+
+  @override
+  String get deskInvSetTrusted => 'Trusted senders';
+
+  @override
+  String get deskInvSetTrustedNone =>
+      'No trusted senders. Invoices from anyone else are ignored unread.';
+
+  @override
+  String deskInvSetSince(String date) {
+    return 'Trusted since $date';
+  }
+
+  @override
+  String get deskInvSetContactTag => 'Contact';
+
+  @override
+  String get deskInvSetRemove => 'Remove';
+
+  @override
+  String deskInvSetRemoveTitle(String name) {
+    return 'Stop trusting $name?';
+  }
+
+  @override
+  String deskInvSetRemoveBody(String name) {
+    return '$name can no longer send you invoices. Invoices already waiting stay until you answer them or they expire.';
+  }
+
+  @override
+  String deskInvSetRemoved(String name) {
+    return '$name can no longer send you invoices.';
+  }
+
+  @override
+  String get deskInvSetKeep => 'Keep';
+
+  @override
+  String get deskInvSetAdd => 'Trust a sender';
+
+  @override
+  String get deskInvSetAddBody =>
+      'A trusted sender can bill this wallet at its invoice address. Nothing is paid until you approve each invoice with your wallet password.';
+
+  @override
+  String get deskInvSetName => 'Name';
+
+  @override
+  String get deskInvSetNameMissing => 'Give the sender a name.';
+
+  @override
+  String get deskInvSetSenderAddress => 'Their payments address';
+
+  @override
+  String get deskInvSetSenderMissing => 'Paste the address the service shows.';
+
+  @override
+  String get deskInvSetSenderInvalid => 'This is not a valid Epicbox address.';
+
+  @override
+  String get deskInvSetTrust => 'Trust';
+
+  @override
+  String deskInvSetAdded(String name) {
+    return '$name can now send you invoices.';
+  }
+
+  @override
+  String deskInvSetDropped(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          '$count messages from senders you do not trust were ignored unread.',
+      one: '1 message from a sender you do not trust was ignored unread.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskInvSetRotate => 'New invoice address';
+
+  @override
+  String get deskInvSetRotateHint =>
+      'Services that have the old one can no longer send you invoices.';
+
+  @override
+  String get deskInvSetRotateTitle => 'Make a new invoice address?';
+
+  @override
+  String get deskInvSetRotateBody =>
+      'Services that have the old one can no longer send you invoices. Give the new one to every service that bills you.';
+
+  @override
+  String get deskInvSetRotateConfirm => 'Make new address';
+
+  @override
+  String get deskInvSetRotated =>
+      'New invoice address ready. Give it to your services.';
+
+  @override
+  String get deskInvSetExpiry => 'Time to pay';
+
+  @override
+  String get deskInvSetExpiryHint =>
+      'How long an invoice you issue stays payable, and how long one you receive waits for you. At most 48 hours.';
+
+  @override
+  String deskInvSetHours(int hours) {
+    return '$hours hours';
+  }
+
+  @override
+  String get deskInvSetCancel => 'Cancel';
+
+  @override
+  String get deskInvSetContactSection => 'Invoices';
+
+  @override
+  String get deskInvSetTheirInvoice => 'Their invoice address';
+
+  @override
+  String get deskInvSetTheirInvoiceNone =>
+      'No invoice address saved. Ask them for it to issue invoices to them.';
+
+  @override
+  String get deskInvSetTrustedSwitch => 'Trusted for invoices';
+
+  @override
+  String get deskInvSetTrustedSwitchHelp =>
+      'Lets this contact bill you. Nothing is paid until you approve an invoice.';
+
+  @override
+  String get deskInvSetIssueNeeds => 'Needs their invoice address.';
+
+  @override
+  String get deskInvSetShare => 'Share invoice address';
+
+  @override
+  String get deskInvSetReceiveHint =>
+      'Ask a contact or a service to pay you. Their wallet must take invoices.';
+
+  @override
+  String get deskInvSetRestoredHint =>
+      'Restored this wallet from its recovery phrase? Give services this invoice address again.';
 }

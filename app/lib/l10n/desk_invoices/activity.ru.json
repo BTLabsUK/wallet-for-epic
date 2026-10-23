@@ -1,0 +1,13 @@
+{
+  "deskInvActFrom": "Счёт от {label}",
+  "deskInvActFilter": "Счета",
+  "deskInvActBlock": "Счёт",
+  "deskInvActOpen": "Открыть в счетах",
+  "deskInvActBilledBy": "Выставил",
+  "deskInvActOverviewTitle": "Счета",
+  "deskInvActOverviewToPay": "{count, plural, =0{Нечего оплачивать} one{{count} счёт к оплате} few{{count} счёта к оплате} many{{count} счетов к оплате} other{{count} счёта к оплате}}",
+  "deskInvActOverviewWaiting": "{count, plural, =0{Нет ожидающих выставленных счетов} one{{count} выставленный счёт ждёт плательщика} few{{count} выставленных счёта ждут плательщиков} many{{count} выставленных счетов ждут плательщиков} other{{count} выставленных счёта ждут плательщиков}}",
+  "deskInvActOverviewAttention": "{count, plural, one{{count} платёж требует действия: повторите или отмените} few{{count} платежа требуют действия: повторите или отмените} many{{count} платежей требуют действия: повторите или отмените} other{{count} платежа требуют действия: повторите или отмените}}",
+  "deskInvActReview": "Проверить",
+  "deskInvActOpenInvoices": "Открыть счета"
+}

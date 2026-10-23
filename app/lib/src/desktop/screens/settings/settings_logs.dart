@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../app_log_io.dart' show LogFileInfo, maxLogFileBytes;
+import '../../../app_log.dart' show LogFileInfo, maxLogFileBytes;
 import '../../data/files.dart' show deskOpenFolderProvider;
 import '../../data/logs.dart';
 import '../../widgets/kit.dart';

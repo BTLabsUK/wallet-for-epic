@@ -8,6 +8,7 @@
 /// The page opens only on [deskUpdatePageHosts]; any other falls back to [deskReleasesUrl].
 library;
 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'dart:async';
 import 'dart:io' show Platform;
 
@@ -162,7 +163,7 @@ class DeskUpdateController extends Notifier<DeskUpdateState> {
     return _known ?? const DeskUpdateState(DeskUpdatePhase.latest);
   }
 
-  static String get _system => Platform.isWindows ? 'windows' : Platform.isMacOS ? 'macos' : 'linux';
+  static String get _system => kIsWeb ? 'linux' : Platform.isWindows ? 'windows' : Platform.isMacOS ? 'macos' : 'linux';
 }
 
 final deskUpdateProvider = NotifierProvider<DeskUpdateController, DeskUpdateState>(DeskUpdateController.new);

@@ -34,7 +34,7 @@ List<({String text, bool term, bool place})> helpInline(String text) {
 
 /// Help topics (English): the GUI 6.1.6 topic set, as the settings design words them.
 class HelpTopic {
-  const HelpTopic(this.section, this.title, this.short, this.body, {this.handshake = false});
+  const HelpTopic(this.section, this.title, this.short, this.body, {this.handshake = false, this.invoiceFlow = false});
 
   final String section;
   final String title;
@@ -43,6 +43,9 @@ class HelpTopic {
 
   /// The handshake stepper goes under the body.
   final bool handshake;
+
+  /// The invoice flow diagram goes under the body.
+  final bool invoiceFlow;
 
   /// The body as plain text, for search and its marks.
   String get bodyText => [for (final b in body) for (final p in helpInline(b.text)) p.text].join(' ');

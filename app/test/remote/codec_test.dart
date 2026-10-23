@@ -267,6 +267,14 @@ void main() {
         trustedServiceWire,
         const TrustedService(address: 'a@b', label: 'Shop'),
       );
+      roundTrip(
+        trustedServiceWire,
+        TrustedService(
+          address: 'a@b',
+          label: 'Shop',
+          since: DateTime.fromMillisecondsSinceEpoch(1790000000000),
+        ),
+      );
       roundTrip(trustedServiceWire, const TrustedService(address: 'a@b'));
       roundTrip(
         pendingInvoiceWire,

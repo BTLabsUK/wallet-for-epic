@@ -1,0 +1,327 @@
+{
+  "deskInvIssuerFormTitle": "Issue an invoice",
+  "@deskInvIssuerFormTitle": {
+    "description": "Title of the form that asks someone to pay you."
+  },
+  "deskInvIssuerFirstTitle": "Before the first invoice",
+  "@deskInvIssuerFirstTitle": {
+    "description": "Panel title: the one-off steps the payer takes before they can be billed."
+  },
+  "deskInvIssuerYourAddress": "Your payments address",
+  "@deskInvIssuerYourAddress": {
+    "description": "Label: this wallet's normal Epicbox address, which the payer must trust."
+  },
+  "deskInvIssuerMethod": "Method",
+  "@deskInvIssuerMethod": {
+    "description": "Label of the choice how the request travels: Epicbox, File, Direct."
+  },
+  "deskInvIssuerEpicbox": "Epicbox",
+  "@deskInvIssuerEpicbox": {
+    "description": "Method: the request goes over the Epicbox relay. Product name, usually not translated."
+  },
+  "deskInvIssuerFile": "File",
+  "@deskInvIssuerFile": {
+    "description": "Method: the request is saved as a file to hand over."
+  },
+  "deskInvIssuerDirect": "Direct",
+  "@deskInvIssuerDirect": {
+    "description": "Method: the payment comes straight to this wallet over HTTP or Tor."
+  },
+  "deskInvIssuerSoon": "Coming soon",
+  "@deskInvIssuerSoon": {
+    "description": "Why a method or button is disabled: not built yet."
+  },
+  "deskInvIssuerPayer": "Their invoice address",
+  "@deskInvIssuerPayer": {
+    "description": "Field label: the payer's invoice address, where the request goes."
+  },
+  "deskInvIssuerPayerHelp": "Their wallet shows it under Settings › Invoices.",
+  "@deskInvIssuerPayerHelp": {
+    "description": "Help under the payer field: where the payer finds their invoice address."
+  },
+  "deskInvIssuerPayerMissing": "Paste their invoice address.",
+  "@deskInvIssuerPayerMissing": {
+    "description": "Error: the payer field is empty."
+  },
+  "deskInvIssuerPayerInvalid": "This is not a valid Epicbox address.",
+  "@deskInvIssuerPayerInvalid": {
+    "description": "Error: the payer field holds something that is not an Epicbox address."
+  },
+  "deskInvIssuerPayerOwn": "This is one of your own addresses. Use the invoice address the payer gives you.",
+  "@deskInvIssuerPayerOwn": {
+    "description": "Error: the payer field holds this wallet's payments or invoice address."
+  },
+  "deskInvIssuerPayerHttp": "Invoices over Epicbox need an Epicbox address, not an HTTP or Tor one.",
+  "@deskInvIssuerPayerHttp": {
+    "description": "Error: an http(s) or onion address was given while the method is Epicbox."
+  },
+  "deskInvIssuerContacts": "Contacts",
+  "@deskInvIssuerContacts": {
+    "description": "Button: pick the payer from contacts that have an invoice address."
+  },
+  "deskInvIssuerNoContacts": "No contact has an invoice address yet. Add it under Contacts.",
+  "@deskInvIssuerNoContacts": {
+    "description": "Shown in the contact picker when no contact has an invoice address."
+  },
+  "deskInvIssuerNoInvoices": "This wallet sent an invoice back before: it cannot pay invoices over Epicbox. Send them an invoice file instead, or ask them to send you the payment.",
+  "@deskInvIssuerNoInvoices": {
+    "description": "Warning on the request form: the payer's wallet is known not to pay requests."
+  },
+  "deskInvIssuerUseFile": "Use a file",
+  "@deskInvIssuerUseFile": {
+    "description": "Button: switch the request to the File method."
+  },
+  "deskInvIssuerUnknown": "Only wallet-for-epic and other LEPIC wallets can pay an invoice over Epicbox. The Epic GUI wallet and Stack Wallet cannot pay invoices at all; the epic-wallet command line can pay an invoice file.",
+  "@deskInvIssuerUnknown": {
+    "description": "Quiet line on the request form when nothing is known about the payer's wallet. Product names stay as they are."
+  },
+  "deskInvIssuerAmount": "Amount",
+  "@deskInvIssuerAmount": {
+    "description": "Field label: how much the payer is asked to pay, in EPIC."
+  },
+  "deskInvIssuerAmountMissing": "Enter an amount.",
+  "@deskInvIssuerAmountMissing": {
+    "description": "Error: the amount field is empty or not a number."
+  },
+  "deskInvIssuerAmountZero": "The amount must be more than 0.",
+  "@deskInvIssuerAmountZero": {
+    "description": "Error: the amount is zero or negative."
+  },
+  "deskInvIssuerAmountDecimals": "EPIC has at most 8 decimals.",
+  "@deskInvIssuerAmountDecimals": {
+    "description": "Error: the amount has more than 8 decimal places."
+  },
+  "deskInvIssuerAmountCap": "More than all the EPIC there will ever be.",
+  "@deskInvIssuerAmountCap": {
+    "description": "Error: the amount is above the coin's supply cap."
+  },
+  "deskInvIssuerAmountHelp": "Nothing leaves your wallet: the payer pays this amount plus their own fee.",
+  "@deskInvIssuerAmountHelp": {
+    "description": "Help under the amount: a request spends nothing from this wallet."
+  },
+  "deskInvIssuerMessage": "Message to the payer",
+  "@deskInvIssuerMessage": {
+    "description": "Field label: optional text the payer sees with the request."
+  },
+  "deskInvIssuerMessageCount": "{used} of {max} bytes",
+  "@deskInvIssuerMessageCount": {
+    "description": "Counter under the message field.",
+    "placeholders": {
+      "used": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "deskInvIssuerMessageLong": "The message is too long.",
+  "@deskInvIssuerMessageLong": {
+    "description": "Error: the message is over 256 bytes."
+  },
+  "deskInvIssuerExpiry": "The payer has {hours} hours to pay.",
+  "@deskInvIssuerExpiry": {
+    "description": "Line on the request form: how long the request stays payable (from Settings).",
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "deskInvIssuerIssue": "Issue",
+  "@deskInvIssuerIssue": {
+    "description": "Main button: send the payment request. No password is needed."
+  },
+  "deskInvIssuerRelayDown": "The Epicbox server is not answering, so an invoice cannot go out now.",
+  "@deskInvIssuerRelayDown": {
+    "description": "Why Request is disabled: the relay is down."
+  },
+  "deskInvIssuerFixFields": "Fix the fields marked in red.",
+  "@deskInvIssuerFixFields": {
+    "description": "Why Request did nothing: some fields have errors."
+  },
+  "deskInvIssuerNotDelivered": "The invoice did not reach the Epicbox server. Nothing was sent. Try again.",
+  "@deskInvIssuerNotDelivered": {
+    "description": "Error after Request: the relay did not take it; it was cancelled at once."
+  },
+  "deskInvIssuerSent": "Invoice sent to {payer}.",
+  "@deskInvIssuerSent": {
+    "description": "Notice after Request: delivered to the payer's invoice address.",
+    "placeholders": {
+      "payer": {
+        "type": "String"
+      }
+    }
+  },
+  "deskInvIssuerEmpty": "No invoices issued yet. An invoice asks a contact or a service to pay you; it spends nothing.",
+  "@deskInvIssuerEmpty": {
+    "description": "Empty Sent tab."
+  },
+  "deskInvIssuerTo": "Invoice to {payer}",
+  "@deskInvIssuerTo": {
+    "description": "Row title of a request you sent.",
+    "placeholders": {
+      "payer": {
+        "type": "String"
+      }
+    }
+  },
+  "deskInvIssuerIssued": "Issued {time}",
+  "@deskInvIssuerIssued": {
+    "description": "When the request was sent, e.g. 'Sent 21 Oct, 12:40'.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "deskInvIssuerPayerFact": "Payer",
+  "@deskInvIssuerPayerFact": {
+    "description": "Detail label: who was asked to pay."
+  },
+  "deskInvIssuerAmountFact": "Amount",
+  "@deskInvIssuerAmountFact": {
+    "description": "Detail label: the amount asked for."
+  },
+  "deskInvIssuerMessageFact": "Message",
+  "@deskInvIssuerMessageFact": {
+    "description": "Detail label: the message sent with the request."
+  },
+  "deskInvIssuerSentFact": "Issued",
+  "@deskInvIssuerSentFact": {
+    "description": "Detail label: when the request was sent."
+  },
+  "deskInvIssuerExpiresFact": "Expires",
+  "@deskInvIssuerExpiresFact": {
+    "description": "Detail label: when the request stops being payable."
+  },
+  "deskInvIssuerAnsweredFact": "Ended",
+  "@deskInvIssuerAnsweredFact": {
+    "description": "Detail label: when the request left waiting (paid, declined, expired, withdrawn)."
+  },
+  "deskInvIssuerStepPaid": "Paid",
+  "@deskInvIssuerStepPaid": {
+    "description": "Progress step: the payer paid."
+  },
+  "deskInvIssuerStepConfirming": "Confirming",
+  "@deskInvIssuerStepConfirming": {
+    "description": "Progress step: the payment is in blocks."
+  },
+  "deskInvIssuerEnded": "This invoice ended unpaid. Nothing arrived.",
+  "@deskInvIssuerEnded": {
+    "description": "Detail text of a request that was declined, expired, withdrawn or sent back."
+  },
+  "deskInvIssuerWithdraw": "Withdraw",
+  "@deskInvIssuerWithdraw": {
+    "description": "Button: take back a waiting request."
+  },
+  "deskInvIssuerWithdrawTitle": "Withdraw this invoice?",
+  "@deskInvIssuerWithdrawTitle": {
+    "description": "Confirm dialog title."
+  },
+  "deskInvIssuerWithdrawBody": "{payer} can no longer pay it.",
+  "@deskInvIssuerWithdrawBody": {
+    "description": "Confirm dialog text.",
+    "placeholders": {
+      "payer": {
+        "type": "String"
+      }
+    }
+  },
+  "deskInvIssuerKeep": "Keep it",
+  "@deskInvIssuerKeep": {
+    "description": "Dialog button: do not withdraw or cancel."
+  },
+  "deskInvIssuerWithdrawn": "Invoice withdrawn.",
+  "@deskInvIssuerWithdrawn": {
+    "description": "Notice after Withdraw."
+  },
+  "deskInvIssuerRepost": "Repost",
+  "@deskInvIssuerRepost": {
+    "description": "Button: send the finished payment to the node again."
+  },
+  "deskInvIssuerReposted": "Payment posted again.",
+  "@deskInvIssuerReposted": {
+    "description": "Notice after Repost worked."
+  },
+  "deskInvIssuerNodeDown": "The node is not answering. Try again when it is reachable.",
+  "@deskInvIssuerNodeDown": {
+    "description": "Error: Repost or Cancel needs the node."
+  },
+  "deskInvIssuerNotPostedText": "The payment is finished but not on the network: the node refused it or could not be reached.",
+  "@deskInvIssuerNotPostedText": {
+    "description": "Detail text of a request in Not posted."
+  },
+  "deskInvIssuerCancel": "Cancel payment",
+  "@deskInvIssuerCancel": {
+    "description": "Button (Advanced): cancel a paid request that was never posted."
+  },
+  "deskInvIssuerCancelTitle": "Cancel this payment?",
+  "@deskInvIssuerCancelTitle": {
+    "description": "Confirm dialog title."
+  },
+  "deskInvIssuerCancelBody": "It will not arrive. {payer}'s funds stay locked in their wallet until they cancel on their side.",
+  "@deskInvIssuerCancelBody": {
+    "description": "Confirm dialog text for cancelling a paid request on the receiving side.",
+    "placeholders": {
+      "payer": {
+        "type": "String"
+      }
+    }
+  },
+  "deskInvIssuerBounced": "{payer}'s wallet sent the invoice back: it cannot pay invoices. Ask them to send you a payment instead.",
+  "@deskInvIssuerBounced": {
+    "description": "Detail text and warning notice of a request the payer's wallet returned.",
+    "placeholders": {
+      "payer": {
+        "type": "String"
+      }
+    }
+  },
+  "deskInvIssuerSendFile": "Use a file",
+  "@deskInvIssuerSendFile": {
+    "description": "Button: make a request file for a payer whose wallet cannot pay over Epicbox."
+  },
+  "deskInvIssuerLate": "A payment arrived after this invoice ended. It was refused; nothing changed.",
+  "@deskInvIssuerLate": {
+    "description": "Quiet note on an ended request that got a late payment."
+  },
+  "deskInvIssuerPaidText": "{payer} paid. Your wallet finished the payment and posted it.",
+  "@deskInvIssuerPaidText": {
+    "description": "Detail text of a paid request.",
+    "placeholders": {
+      "payer": {
+        "type": "String"
+      }
+    }
+  },
+  "deskInvIssuerWaitingText": "Delivered to {payer}'s invoice address. Nothing is paid until they approve it.",
+  "@deskInvIssuerWaitingText": {
+    "description": "Detail text of a waiting request.",
+    "placeholders": {
+      "payer": {
+        "type": "String"
+      }
+    }
+  },
+  "deskInvIssuerCopySlate": "Copy slate ID",
+  "@deskInvIssuerCopySlate": {
+    "description": "Button tooltip: copy the request's technical identifier."
+  },
+  "deskInvIssuerStepsIntro": "Their wallet must take invoices. Before the first invoice:",
+  "@deskInvIssuerStepsIntro": {
+    "description": "Before the steps on the issue form: the payer must have done these once."
+  },
+  "deskInvIssuerStepTrust": "1. They add your payments address below to their trusted senders.",
+  "@deskInvIssuerStepTrust": {
+    "description": "Step 1 on the issue form."
+  },
+  "deskInvIssuerStepAddress": "2. They give you their invoice address.",
+  "@deskInvIssuerStepAddress": {
+    "description": "Step 2 on the issue form."
+  },
+  "deskInvIssuerStepIssued": "Issued",
+  "@deskInvIssuerStepIssued": {
+    "description": "Progress step: the invoice was issued and delivered."
+  }
+}

@@ -5,11 +5,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../log.dart';
 import '../../widgets/kit.dart';
 import '../../app/tour.dart';
+import '../../desk_l10n.dart';
 import 'prefs.dart';
 
-const List<(DeskRoute, String, IconData)?> _items = [
+/// The sections; [invoices] adds Invoices below Receiving (wallets that take invoices), its label
+/// in the app's language.
+List<(DeskRoute, String, IconData)?> _itemsFor({required bool invoices, required String invoicesLabel}) => [
   (DeskRoute.settingsNode, 'Node', EIcons.node),
   (DeskRoute.settingsReceiving, 'Receiving', EIcons.antenna),
+  if (invoices) (DeskRoute.settingsInvoices, invoicesLabel, EIcons.invoice),
   (DeskRoute.settingsAppearance, 'Appearance', EIcons.palette),
   null,
   (DeskRoute.settingsAccount, 'This wallet', EIcons.wallet),
@@ -33,6 +37,7 @@ class SettingsFrame extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final nav = ref.read(deskNavProvider.notifier);
     final wide = MediaQuery.sizeOf(context).width >= Bp.desktop;
+    final items = _itemsFor(invoices: ref.watch(deskApiProvider).supportsInvoices, invoicesLabel: context.l10n.deskInvSetTitle);
     final content = ConstrainedBox(constraints: BoxConstraints(maxWidth: Ctl.narrow), child: child);
     return EPage(
       title: 'Settings',
@@ -46,7 +51,7 @@ class SettingsFrame extends ConsumerWidget {
                   child: Semantics(
                     label: 'Settings sections',
                     child: ESubnav(
-                      items: _items,
+                      items: items,
                       current: route,
                       onTap: (r) => nav.go(r as DeskRoute),
                       wrap: (r, w) => TourTarget(id: 'subnav-${(r as DeskRoute).name}', child: w),
@@ -64,7 +69,7 @@ class SettingsFrame extends ConsumerWidget {
                   scrollDirection: Axis.horizontal,
                   child: Row(
                     children: [
-                      for (final i in _items.whereType<(DeskRoute, String, IconData)>())
+                      for (final i in items.whereType<(DeskRoute, String, IconData)>())
                         Padding(
                           padding: EdgeInsets.only(right: Sp.x2),
                           child: _Chip(icon: i.$3, label: i.$2, selected: i.$1 == route, onTap: () => nav.go(i.$1)),

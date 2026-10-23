@@ -248,6 +248,7 @@ class _ContactEditScreenState extends ConsumerState<ContactEditScreen> {
               name: name,
               address: recipient.address,
               note: note.isEmpty ? null : note,
+              invoiceAddress: widget.contact?.invoiceAddress,
             ),
           );
       if (mounted) Navigator.pop(context, saved);

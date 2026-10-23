@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
+import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
+import '../invoices/tx_invoice_block.dart';
 import 'tx_display.dart';
 
 /// One transaction: amount and counterparty, where it stands, its progress, details, proof,
@@ -62,11 +64,13 @@ class _TxDetailState extends ConsumerState<TxDetail> {
     // A send can be cancelled while it waits for the recipient, or when the node refused its
     // post (its outputs stay locked otherwise). Once posted (a Direct HTTP or Tor send is
     // finalized and posted in one step) it has gone out and shows as sent, never cancellable.
+    // Invoice-flow transactions take their actions from the Invoice block (flow.md §4.4).
     final cancelable = !t.fromBackup &&
+        !t.isInvoice &&
         (t.incoming
             ? t.cancellable && t.state != TxState.cancelled && t.state != TxState.confirmed
             : (t.cancellable && t.state == TxState.waitingRecipient) || t.notPosted);
-    final finalizable = !t.fromBackup && !t.incoming && t.method == TxMethod.file && t.state == TxState.waitingRecipient;
+    final finalizable = !t.fromBackup && !t.incoming && !t.isInvoice && t.method == TxMethod.file && t.state == TxState.waitingRecipient;
     final steps = _steps(t);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -82,11 +86,13 @@ class _TxDetailState extends ConsumerState<TxDetail> {
                 children: [
                   FitMoney(
                     t.incoming ? t.amount : -t.amount,
-                    sign: true,
+                    sign: !txAsked(t),
                     sizes: const [Fs.h2, Fs.h3, Fs.lg, Fs.md],
                     weight: FontWeight.w500,
-                    color: t.incoming && t.state != TxState.cancelled ? c.ok : c.text,
+                    color: t.incoming && t.state != TxState.cancelled && !txAsked(t) ? c.ok : c.text,
                   ),
+                  // Not money yet: the row's caption, by the big amount too (P-1).
+                  if (txAsked(t) && t.state == TxState.waitingRecipient) Text(context.l10n.deskInvUnpaid, style: ts.caption),
                   const SizedBox(height: 2),
                   if (t.foundByScan && t.contactName == null)
                     Text(t.foundDuring == FoundDuring.restore ? 'restored' : 'found on the chain', style: ts.small)
@@ -112,6 +118,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
           ],
         ),
         SizedBox(height: Sp.x4),
+        if (!t.isInvoice)
         Container(
           padding: EdgeInsets.symmetric(horizontal: Sp.x3, vertical: 10.u),
           decoration: BoxDecoration(
@@ -127,7 +134,9 @@ class _TxDetailState extends ConsumerState<TxDetail> {
             ],
           ),
         ),
-        if (t.state != TxState.cancelled && !t.fromBackup) ...[_Sub('Progress'), for (final (i, st) in steps.indexed) _TimelineStep(step: st, last: i == steps.length - 1)],
+        // An invoice-flow transaction: the invoice behind it, in the Invoices page's words.
+        if (t.isInvoice) TxInvoiceBlock(tx: t),
+        if (t.state != TxState.cancelled && !t.fromBackup && !t.isInvoice) ...[_Sub('Progress'), for (final (i, st) in steps.indexed) _TimelineStep(step: st, last: i == steps.length - 1)],
         _Sub('Details'),
         EFacts(labelWidth: 96.u, [
           ('Date', Text(dateTimeOf(t))),

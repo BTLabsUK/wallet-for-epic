@@ -3637,4 +3637,988 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get settingsSectionReceiving => '接收';
+
+  @override
+  String deskInvActFrom(String label) {
+    return '来自 $label 的账单';
+  }
+
+  @override
+  String get deskInvActFilter => '账单';
+
+  @override
+  String get deskInvActBlock => '账单';
+
+  @override
+  String get deskInvActOpen => '在账单中打开';
+
+  @override
+  String get deskInvActBilledBy => '开单方';
+
+  @override
+  String get deskInvActOverviewTitle => '账单';
+
+  @override
+  String deskInvActOverviewToPay(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count 张账单待支付',
+      zero: '没有待支付的账单',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskInvActOverviewWaiting(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count 张已开具账单等待付款方',
+      zero: '没有等待中的已开具账单',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskInvActOverviewAttention(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count 笔付款需要处理：重试或取消',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskInvActReview => '查看';
+
+  @override
+  String get deskInvActOpenInvoices => '打开账单';
+
+  @override
+  String get deskInvNav => '账单';
+
+  @override
+  String get deskInvTitle => '账单';
+
+  @override
+  String get deskInvTabPay => '支付';
+
+  @override
+  String get deskInvTabIssue => '开具';
+
+  @override
+  String deskInvTabCount(String label, int count) {
+    return '$label（$count）';
+  }
+
+  @override
+  String get deskInvIssueAction => '开具账单';
+
+  @override
+  String get deskInvChecking => '正在检查';
+
+  @override
+  String deskInvCheckedAt(String time) {
+    return '$time 已检查';
+  }
+
+  @override
+  String get deskInvCheckFailedTitle => 'Epicbox 服务器无响应';
+
+  @override
+  String get deskInvCheckFailedBody => '列表显示之前收到的内容。没有丢失任何内容；钱包每 2 分钟重试一次。';
+
+  @override
+  String get deskInvReqWaiting => '等待付款方';
+
+  @override
+  String get deskInvReqPaid => '已付款，正在完成';
+
+  @override
+  String get deskInvReqPosted => '已发布';
+
+  @override
+  String deskInvConfirming(int count, int total) {
+    return '确认中 $count/$total';
+  }
+
+  @override
+  String get deskInvCompleted => '已完成';
+
+  @override
+  String get deskInvReqNotPosted => '未发布';
+
+  @override
+  String get deskInvDeclined => '已拒绝';
+
+  @override
+  String get deskInvExpired => '已过期';
+
+  @override
+  String get deskInvWithdrawn => '已撤回';
+
+  @override
+  String get deskInvReqBounced => '已退回';
+
+  @override
+  String get deskInvPayWaiting => '待支付';
+
+  @override
+  String get deskInvPayPaying => '正在付款';
+
+  @override
+  String get deskInvPayNotDelivered => '未送达';
+
+  @override
+  String get deskInvPayDelivered => '等待发布';
+
+  @override
+  String get deskInvPayPosted => '服务已发布';
+
+  @override
+  String get deskInvPayWithdrawnAfterPay => '付款后已撤回';
+
+  @override
+  String get deskInvPayPastTtl => '不在链上';
+
+  @override
+  String get deskInvPayCancelled => '已取消';
+
+  @override
+  String get deskInvUnpaid => '未支付';
+
+  @override
+  String get deskInvYouPay => '您支付';
+
+  @override
+  String deskInvExpiresAt(String time) {
+    return '$time 过期';
+  }
+
+  @override
+  String get deskInvSlateId => 'Slate ID';
+
+  @override
+  String get deskInvAdvanced => '高级';
+
+  @override
+  String get deskInvOneDevice => '请只在一台设备上使用账单。装有此钱包的另一台设备可能会收走本应给这台设备的付款。';
+
+  @override
+  String get deskInvFailed => '操作未成功。没有任何更改；请重试。';
+
+  @override
+  String get deskInvHowItWorks => '账单如何运作';
+
+  @override
+  String get deskInvAddressHint => 'es…@epicbox.epiccash.com';
+
+  @override
+  String get deskInvEpicboxAddress => 'Epicbox 地址';
+
+  @override
+  String get deskInvHelpTitle => '账单';
+
+  @override
+  String get deskInvHelpLede => '来自受信任发送方的账单，批准后才付款。';
+
+  @override
+  String get deskInvHelpFlowTitle => '账单如何运作';
+
+  @override
+  String get deskInvHelpFlowShort => '开单方把账单发到付款方的账单地址。付款方批准之前不会付款。';
+
+  @override
+  String get deskInvHelpFlowIntro => '账单是一项付款请求。**开单方**收款；**付款方**做决定。';
+
+  @override
+  String get deskInvHelpFlowStep1 => '开单方的钱包通过 Epicbox 服务器把账单发到付款方的**账单地址**。';
+
+  @override
+  String get deskInvHelpFlowStep2 =>
+      '付款方在 [[账单 › 支付]] 中打开它，核对发送方、金额和留言，然后输入钱包密码，选择**批准并付款**。';
+
+  @override
+  String get deskInvHelpFlowStep3 => '付款方的钱包把付款发到开单方的**收款地址**。';
+
+  @override
+  String deskInvHelpFlowStep4(int confirmations) {
+    return '开单方的钱包完成这笔付款并发布到网络。经过 $confirmations 个确认后即为最终。';
+  }
+
+  @override
+  String get deskInvHelpFlowNever =>
+      '未经批准不会付款，账单也绝不会给付款方的钱包增加资金。每张账单都有付款期限，最长 48 小时；过期后无法再付款。';
+
+  @override
+  String get deskInvHelpFlowIssued => '本钱包开具的账单在 [[账单 › 开具]] 中。';
+
+  @override
+  String get deskInvHelpTrustTitle => '为什么只接受受信任的发送方';
+
+  @override
+  String get deskInvHelpTrustShort => '只有受信任列表中的发送方才能把账单放进收件箱。这可以挡住垃圾信息和假账单。';
+
+  @override
+  String get deskInvHelpTrustP1 =>
+      '钱包只在自己的账单地址接收账单，并且只接收受信任列表中的发送方（按发送方地址匹配）。其他一切在打开之前就被直接丢弃，不会出现在 [[账单 › 支付]] 中。';
+
+  @override
+  String get deskInvHelpTrustP2 => '没有这个列表，任何知道账单地址的人都可以用垃圾信息或看似真实的账单塞满收件箱。';
+
+  @override
+  String get deskInvHelpTrustP3 =>
+      '信任只是允许发送方提出请求。受信任的发送方无法拿走任何东西：每张账单仍需**批准并付款**。';
+
+  @override
+  String get deskInvHelpTrustWhere1 => '在 [[设置 › 账单]] 中信任发送方。';
+
+  @override
+  String get deskInvHelpTrustWhere2 => '或在 [[联系人]] 中为联系人打开**信任其账单**。';
+
+  @override
+  String get deskInvHelpTrustWhere3 => '发送方可随时从列表中移除。之后它的新账单会被丢弃。';
+
+  @override
+  String get deskInvHelpAddrTitle => '为什么要单独的账单地址';
+
+  @override
+  String get deskInvHelpAddrShort => '账单到达自己的地址，与别人付款用的收款地址分开。';
+
+  @override
+  String get deskInvHelpAddrP1 =>
+      '钱包有两个 Epicbox 地址。[[接收]] 中的**收款地址**接收付款。**账单地址**只接收账单。';
+
+  @override
+  String get deskInvHelpAddrP2 => '分开之后，账单地址可以提供给服务或更换，而不会暴露或改变别人付款用的地址。';
+
+  @override
+  String get deskInvHelpAddrP3 => '账单地址不接收付款：发到它的付款会被丢弃。收款应使用收款地址。';
+
+  @override
+  String get deskInvHelpAddrWhere1 => '在 [[设置 › 账单]] 中查找、复制账单地址或显示其二维码。';
+
+  @override
+  String get deskInvHelpAddrWhere2 => '**新的账单地址**会替换它。持有旧地址的服务在拿到新地址之前无法再发送账单。';
+
+  @override
+  String get deskInvHelpDiagramTitle => '账单的流转';
+
+  @override
+  String get deskInvHelpDiagramIssuer => '开单方';
+
+  @override
+  String get deskInvHelpDiagramPayer => '付款方';
+
+  @override
+  String get deskInvHelpDiagramIssues => '开具账单';
+
+  @override
+  String get deskInvHelpDiagramInvoice => '账单';
+
+  @override
+  String get deskInvHelpDiagramGate => '账单地址';
+
+  @override
+  String get deskInvHelpDiagramGateSub => '仅限受信任的发送方';
+
+  @override
+  String get deskInvHelpDiagramDropped => '其他发送方';
+
+  @override
+  String get deskInvHelpDiagramDroppedSub => '直接丢弃';
+
+  @override
+  String get deskInvHelpDiagramReview => '核对并批准';
+
+  @override
+  String get deskInvHelpDiagramReviewSub => '批准并付款';
+
+  @override
+  String get deskInvHelpDiagramPayment => '付款';
+
+  @override
+  String get deskInvHelpDiagramPayAddr => '收款地址';
+
+  @override
+  String get deskInvHelpDiagramPayAddrSub => '不是账单地址';
+
+  @override
+  String get deskInvHelpDiagramFinal => '完成并发布';
+
+  @override
+  String deskInvHelpDiagramFinalSub(int confirmations) {
+    return '确认数达到 $confirmations 后为最终';
+  }
+
+  @override
+  String get deskInvHelpDiagramSemantics =>
+      '开单方把账单发到付款方的账单地址，该地址只接受受信任的发送方并丢弃其他；付款方核对并批准；付款发到开单方的收款地址；开单方的钱包完成付款并发布到网络。';
+
+  @override
+  String get deskInvIssuerFormTitle => '开具账单';
+
+  @override
+  String get deskInvIssuerFirstTitle => '首次开具账单之前';
+
+  @override
+  String get deskInvIssuerYourAddress => '您的收款地址';
+
+  @override
+  String get deskInvIssuerMethod => '方式';
+
+  @override
+  String get deskInvIssuerEpicbox => 'Epicbox';
+
+  @override
+  String get deskInvIssuerFile => '文件';
+
+  @override
+  String get deskInvIssuerDirect => '直连';
+
+  @override
+  String get deskInvIssuerSoon => '即将推出';
+
+  @override
+  String get deskInvIssuerPayer => '对方的账单地址';
+
+  @override
+  String get deskInvIssuerPayerHelp => '对方钱包在 设置 › 账单 中显示。';
+
+  @override
+  String get deskInvIssuerPayerMissing => '粘贴对方的账单地址。';
+
+  @override
+  String get deskInvIssuerPayerInvalid => '这不是有效的 Epicbox 地址。';
+
+  @override
+  String get deskInvIssuerPayerOwn => '这是您自己的地址之一。请使用付款方提供的账单地址。';
+
+  @override
+  String get deskInvIssuerPayerHttp =>
+      '通过 Epicbox 的账单需要 Epicbox 地址，而不是 HTTP 或 Tor 地址。';
+
+  @override
+  String get deskInvIssuerContacts => '联系人';
+
+  @override
+  String get deskInvIssuerNoContacts => '还没有联系人有账单地址。请在联系人中添加。';
+
+  @override
+  String get deskInvIssuerNoInvoices =>
+      '该钱包曾退回过账单：它无法通过 Epicbox 支付账单。请改为发送账单文件，或请对方直接付款给您。';
+
+  @override
+  String get deskInvIssuerUseFile => '使用文件';
+
+  @override
+  String get deskInvIssuerUnknown =>
+      '只有 wallet-for-epic 和其他 LEPIC 钱包可以通过 Epicbox 支付账单。Epic GUI wallet 和 Stack Wallet 完全无法支付账单；epic-wallet 命令行可以支付账单文件。';
+
+  @override
+  String get deskInvIssuerAmount => '金额';
+
+  @override
+  String get deskInvIssuerAmountMissing => '请输入金额。';
+
+  @override
+  String get deskInvIssuerAmountZero => '金额必须大于 0。';
+
+  @override
+  String get deskInvIssuerAmountDecimals => 'EPIC 最多 8 位小数。';
+
+  @override
+  String get deskInvIssuerAmountCap => '超过 EPIC 的总供应量。';
+
+  @override
+  String get deskInvIssuerAmountHelp => '您的钱包不会支出任何资金：付款方支付此金额外加其自己的手续费。';
+
+  @override
+  String get deskInvIssuerMessage => '给付款方的留言';
+
+  @override
+  String deskInvIssuerMessageCount(int used, int max) {
+    return '$used/$max 字节';
+  }
+
+  @override
+  String get deskInvIssuerMessageLong => '留言过长。';
+
+  @override
+  String deskInvIssuerExpiry(int hours) {
+    return '付款方有 $hours 小时付款。';
+  }
+
+  @override
+  String get deskInvIssuerIssue => '开具';
+
+  @override
+  String get deskInvIssuerRelayDown => 'Epicbox 服务器无响应，暂时无法发出账单。';
+
+  @override
+  String get deskInvIssuerFixFields => '请修正标红的字段。';
+
+  @override
+  String get deskInvIssuerNotDelivered => '账单未到达 Epicbox 服务器。未发送任何内容。请重试。';
+
+  @override
+  String deskInvIssuerSent(String payer) {
+    return '已向 $payer 发送账单。';
+  }
+
+  @override
+  String get deskInvIssuerEmpty => '还没有开具账单。账单会让联系人或服务向您付款；它不花费任何资金。';
+
+  @override
+  String deskInvIssuerTo(String payer) {
+    return '开给 $payer 的账单';
+  }
+
+  @override
+  String deskInvIssuerIssued(String time) {
+    return '$time 开具';
+  }
+
+  @override
+  String get deskInvIssuerPayerFact => '付款方';
+
+  @override
+  String get deskInvIssuerAmountFact => '金额';
+
+  @override
+  String get deskInvIssuerMessageFact => '留言';
+
+  @override
+  String get deskInvIssuerSentFact => '开具时间';
+
+  @override
+  String get deskInvIssuerExpiresFact => '过期时间';
+
+  @override
+  String get deskInvIssuerAnsweredFact => '结束时间';
+
+  @override
+  String get deskInvIssuerStepPaid => '已付款';
+
+  @override
+  String get deskInvIssuerStepConfirming => '确认中';
+
+  @override
+  String get deskInvIssuerEnded => '此账单未付款即结束。未收到任何款项。';
+
+  @override
+  String get deskInvIssuerWithdraw => '撤回';
+
+  @override
+  String get deskInvIssuerWithdrawTitle => '撤回此账单？';
+
+  @override
+  String deskInvIssuerWithdrawBody(String payer) {
+    return '$payer 将无法再支付它。';
+  }
+
+  @override
+  String get deskInvIssuerKeep => '保留';
+
+  @override
+  String get deskInvIssuerWithdrawn => '账单已撤回。';
+
+  @override
+  String get deskInvIssuerRepost => '重新发布';
+
+  @override
+  String get deskInvIssuerReposted => '付款已重新发布。';
+
+  @override
+  String get deskInvIssuerNodeDown => '节点无响应。请在节点可用时重试。';
+
+  @override
+  String get deskInvIssuerNotPostedText => '付款已完成但未进入网络：节点拒绝了它或无法连接。';
+
+  @override
+  String get deskInvIssuerCancel => '取消付款';
+
+  @override
+  String get deskInvIssuerCancelTitle => '取消此付款？';
+
+  @override
+  String deskInvIssuerCancelBody(String payer) {
+    return '这笔款项将不会到账。$payer 的资金会在其钱包中保持锁定，直到对方在自己那边取消。';
+  }
+
+  @override
+  String deskInvIssuerBounced(String payer) {
+    return '$payer 的钱包退回了账单：它无法支付账单。请改为让对方直接付款给您。';
+  }
+
+  @override
+  String get deskInvIssuerSendFile => '改用文件';
+
+  @override
+  String get deskInvIssuerLate => '此账单结束后收到一笔付款。已被拒绝；没有任何变化。';
+
+  @override
+  String deskInvIssuerPaidText(String payer) {
+    return '$payer 已付款。您的钱包已完成并发布该付款。';
+  }
+
+  @override
+  String deskInvIssuerWaitingText(String payer) {
+    return '已送达 $payer 的账单地址。在对方批准之前不会付款。';
+  }
+
+  @override
+  String get deskInvIssuerCopySlate => '复制 Slate ID';
+
+  @override
+  String get deskInvIssuerStepsIntro => '对方的钱包必须支持账单。首次开具账单之前：';
+
+  @override
+  String get deskInvIssuerStepTrust => '1. 对方把您下面的收款地址加入受信任的发送方。';
+
+  @override
+  String get deskInvIssuerStepAddress => '2. 对方把其账单地址提供给您。';
+
+  @override
+  String get deskInvIssuerStepIssued => '已开具';
+
+  @override
+  String deskInvNoticePaid(String payer, String amount) {
+    return '$payer 已支付 $amount EPIC。';
+  }
+
+  @override
+  String deskInvNoticeDeclined(String payer) {
+    return '$payer 拒绝了你的发票。';
+  }
+
+  @override
+  String get deskInvNoticeIssuedExpired => '你开具的一张发票已过期未付。';
+
+  @override
+  String deskInvNoticeWithdrawn(String service) {
+    return '$service 在你回复前撤回了一张发票。';
+  }
+
+  @override
+  String get deskInvNoticeExpired => '一张发票在你回复前已过期。';
+
+  @override
+  String get deskInvNoticeUnknownPayment =>
+      '收到一笔针对本设备未开具发票的付款，已被拒绝。如果是使用此钱包的另一台设备开具的，请让付款方取消后重新付款。';
+
+  @override
+  String get deskInvNoticeUnknownAnswer =>
+      '收到一条针对本设备未发送付款的回复，已被拒绝。如果是使用此钱包的另一台设备发送的，请在那里取消后重新发送。';
+
+  @override
+  String get deskInvPayerWaitingHead => '等待您处理';
+
+  @override
+  String get deskInvPayerNeedsHead => '待处理的付款';
+
+  @override
+  String get deskInvPayerReview => '查看';
+
+  @override
+  String get deskInvPayerView => '查看';
+
+  @override
+  String get deskInvPayerNoMessage => '无留言';
+
+  @override
+  String deskInvPayerDropped(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '已忽略 $count 条来自不受信任发送方的消息。',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskInvPayerTrustService => '信任服务…';
+
+  @override
+  String get deskInvPayerYourInvoiceAddress => '您的账单地址';
+
+  @override
+  String get deskInvPayerEmptyTitle => '没有等待中的账单';
+
+  @override
+  String get deskInvPayerEmptyText => '当您信任的服务向您开账单时，账单会显示在这里。在您批准之前不会付款。';
+
+  @override
+  String deskInvPayerNotDeliveredTitle(String service) {
+    return '您给 $service 的付款未送达';
+  }
+
+  @override
+  String get deskInvPayerNotDeliveredText =>
+      '付款已签名并保存在此设备上；资金保持锁定。重试会再次发送，无需再次批准。';
+
+  @override
+  String deskInvPayerWithdrawnTitle(String service) {
+    return '$service 撤回了一张您已支付的账单';
+  }
+
+  @override
+  String get deskInvPayerWithdrawnText => '这笔付款可能永远不会上链。取消它以解锁您的资金。';
+
+  @override
+  String deskInvPayerPastTtlTitle(String service) {
+    return '您给 $service 的付款不在链上';
+  }
+
+  @override
+  String get deskInvPayerPastTtlText => '其期限已过，网络未见到它。取消它以解锁您的资金。';
+
+  @override
+  String get deskInvPayerCancelPayment => '取消付款';
+
+  @override
+  String get deskInvPayerSafetyTitle => '只支付您预期的账单';
+
+  @override
+  String get deskInvPayerSafetyText => '账单永远不会给您的钱包增加资金。批准它就是向外付款。';
+
+  @override
+  String deskInvPayerSameBillTitle(String service, String ago) {
+    return '您在 $ago 前已向 $service 支付过相同金额';
+  }
+
+  @override
+  String get deskInvPayerSameBillText => '付款前请确认这是一张新账单。';
+
+  @override
+  String deskInvPayerAgoHours(int hours, int minutes) {
+    return '$hours 小时 $minutes 分钟';
+  }
+
+  @override
+  String deskInvPayerAgoMinutes(int minutes) {
+    return '$minutes 分钟';
+  }
+
+  @override
+  String get deskInvPayerFee => '手续费';
+
+  @override
+  String get deskInvPayerTotal => '合计';
+
+  @override
+  String get deskInvPayerBalanceAfter => '付款后余额';
+
+  @override
+  String get deskInvPayerMessageCaption => '由服务填写。您的钱包不会核实。';
+
+  @override
+  String get deskInvPayerPaysTo => '付款给';
+
+  @override
+  String deskInvPayerTrustedSince(String service, String date) {
+    return '$service，自 $date 起受信任';
+  }
+
+  @override
+  String get deskInvPayerExpires => '过期时间';
+
+  @override
+  String get deskInvPayerLockHeight => '锁定高度';
+
+  @override
+  String get deskInvPayerLockNone => '无';
+
+  @override
+  String get deskInvPayerReceived => '收到时间';
+
+  @override
+  String get deskInvPayerShort => '可用资金不足';
+
+  @override
+  String deskInvPayerShortText(String total, String spendable) {
+    return '您需要 $total EPIC 可用资金；您有 $spendable EPIC。确认中的资金在 3 次确认后计入。';
+  }
+
+  @override
+  String get deskInvPayerNodeDownTitle => '节点无响应';
+
+  @override
+  String get deskInvPayerNodeDownText =>
+      '钱包无法检查您的资金，因此无法付款。节点恢复响应后即可再次批准；您可以在 设置 › 节点 中选择其他节点。';
+
+  @override
+  String get deskInvPayerPaid => '此账单已支付。不能再为其付款。';
+
+  @override
+  String get deskInvPayerDeclinedText => '您已拒绝此账单。未支付任何款项。';
+
+  @override
+  String get deskInvPayerBack => '返回账单';
+
+  @override
+  String deskInvPayerApproveTitle(String amount, String fee, String service) {
+    return '向 $service 支付 $amount EPIC + $fee 手续费？';
+  }
+
+  @override
+  String deskInvPayerApproveText(String total) {
+    return '$total EPIC 将离开您的钱包。输入钱包密码以批准。';
+  }
+
+  @override
+  String get deskInvPayerPassword => '钱包密码';
+
+  @override
+  String get deskInvPayerWrongPassword => '密码错误。未支付任何款项。';
+
+  @override
+  String get deskInvPayerEnterPassword => '请输入钱包密码。';
+
+  @override
+  String get deskInvPayerPay => '付款';
+
+  @override
+  String get deskInvPayerCancel => '取消';
+
+  @override
+  String get deskInvPayerClose => '关闭';
+
+  @override
+  String get deskInvPayerNodeDownPay => '节点无响应。未支付任何款项。';
+
+  @override
+  String get deskInvPayerAlreadyAnswered => '此账单已处理。未额外支付任何款项。';
+
+  @override
+  String get deskInvPayerCannotPay => '此账单无法支付。未支付任何款项。';
+
+  @override
+  String get deskInvPayerNotDeliveredToast => '已签名，未送达';
+
+  @override
+  String get deskInvPayerNotDeliveredToastText =>
+      'Epicbox 服务器无响应。请在 账单 › 支付 中重试；无需再次批准。';
+
+  @override
+  String get deskInvPayerRetryFailed => '仍未送达';
+
+  @override
+  String get deskInvPayerRetryFailedText => 'Epicbox 服务器无响应。付款仍以签名状态保存在此设备上。';
+
+  @override
+  String get deskInvPayerCancelTitle => '取消此付款？';
+
+  @override
+  String get deskInvPayerCancelText =>
+      '取消会在此处解锁您的资金。服务仍持有您签名的付款，因此在这些资金再次花出之前，它仍可能完成。';
+
+  @override
+  String deskInvPayerCancelWho(String amount, String service) {
+    return '$amount EPIC 给 $service';
+  }
+
+  @override
+  String get deskInvPayerKeepPayment => '保留';
+
+  @override
+  String get deskInvPayerOnItsWay => '已在途中：无法取消。';
+
+  @override
+  String get deskInvPayerCannotCheck => '暂时无法检查网络；请在节点可用时重试。';
+
+  @override
+  String get deskInvPayerCancelled => '付款已取消';
+
+  @override
+  String get deskInvPayerCancelledText => '您的资金已解锁。';
+
+  @override
+  String get deskInvPayerDeclined => '账单已拒绝。未支付任何款项。';
+
+  @override
+  String get deskInvPayerSpendToSelf => '立即转给自己';
+
+  @override
+  String get deskInvPayerSpendToSelfHelp =>
+      '使取消成为最终结果：服务方持有的已签名副本将无法完成。需支付网络手续费。';
+
+  @override
+  String get deskInvPayerSpentText => '你的资金已解锁并在此钱包内转移。取消已为最终结果。';
+
+  @override
+  String get deskInvPayerSpendFailedText => '你的资金已解锁，但转移未成功。取消尚未成为最终结果。';
+
+  @override
+  String get deskInvPayerLocked => '此发票无法支付：它被锁定到较晚的区块。未支付任何款项。';
+
+  @override
+  String get deskInvPayerRelayDownPay => 'Epicbox 服务器没有响应。未支付任何款项。';
+
+  @override
+  String get deskInvSetTitle => '账单';
+
+  @override
+  String get deskInvSetIntro => '您信任的服务会向此钱包的账单地址发送账单。在您批准每张账单之前不会付款。';
+
+  @override
+  String get deskInvSetAddressLabel => '账单地址';
+
+  @override
+  String get deskInvSetAddressWarning => '只提供给您信任的服务。此地址不接收付款。';
+
+  @override
+  String get deskInvSetCopy => '复制';
+
+  @override
+  String get deskInvSetCopied => '已复制账单地址。只提供给您信任的服务；此地址不接收付款。';
+
+  @override
+  String get deskInvSetQrShow => '显示二维码';
+
+  @override
+  String get deskInvSetQrHide => '隐藏二维码';
+
+  @override
+  String get deskInvSetQrLabel => '您的账单地址二维码';
+
+  @override
+  String deskInvSetIndex(int index) {
+    return '账单地址 $index';
+  }
+
+  @override
+  String get deskInvSetTrusted => '受信任的发送方';
+
+  @override
+  String get deskInvSetTrustedNone => '没有受信任的发送方。其他人的账单会被直接忽略，不会打开。';
+
+  @override
+  String deskInvSetSince(String date) {
+    return '自 $date 起受信任';
+  }
+
+  @override
+  String get deskInvSetContactTag => '联系人';
+
+  @override
+  String get deskInvSetRemove => '移除';
+
+  @override
+  String deskInvSetRemoveTitle(String name) {
+    return '不再信任 $name？';
+  }
+
+  @override
+  String deskInvSetRemoveBody(String name) {
+    return '$name 将无法再向您发送账单。已在等待的账单会保留，直到您处理或它们过期。';
+  }
+
+  @override
+  String deskInvSetRemoved(String name) {
+    return '$name 已无法再向您发送账单。';
+  }
+
+  @override
+  String get deskInvSetKeep => '保留';
+
+  @override
+  String get deskInvSetAdd => '信任发送方';
+
+  @override
+  String get deskInvSetAddBody => '受信任的发送方可以向此钱包的账单地址发送账单。在您用钱包密码批准每张账单之前不会付款。';
+
+  @override
+  String get deskInvSetName => '名称';
+
+  @override
+  String get deskInvSetNameMissing => '请为发送方命名。';
+
+  @override
+  String get deskInvSetSenderAddress => '对方的收款地址';
+
+  @override
+  String get deskInvSetSenderMissing => '粘贴服务显示的地址。';
+
+  @override
+  String get deskInvSetSenderInvalid => '这不是有效的 Epicbox 地址。';
+
+  @override
+  String get deskInvSetTrust => '信任';
+
+  @override
+  String deskInvSetAdded(String name) {
+    return '$name 现在可以向您发送账单。';
+  }
+
+  @override
+  String deskInvSetDropped(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '已忽略 $count 条来自不受信任发送方的消息，未打开。',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskInvSetRotate => '新的账单地址';
+
+  @override
+  String get deskInvSetRotateHint => '持有旧地址的服务将无法再向您发送账单。';
+
+  @override
+  String get deskInvSetRotateTitle => '生成新的账单地址？';
+
+  @override
+  String get deskInvSetRotateBody => '持有旧地址的服务将无法再向您发送账单。请把新地址提供给每个向您开账单的服务。';
+
+  @override
+  String get deskInvSetRotateConfirm => '生成新地址';
+
+  @override
+  String get deskInvSetRotated => '新的账单地址已就绪。请提供给您的服务。';
+
+  @override
+  String get deskInvSetExpiry => '付款期限';
+
+  @override
+  String get deskInvSetExpiryHint => '您开具的账单可支付多久，以及收到的账单等待您多久。最长 48 小时。';
+
+  @override
+  String deskInvSetHours(int hours) {
+    return '$hours 小时';
+  }
+
+  @override
+  String get deskInvSetCancel => '取消';
+
+  @override
+  String get deskInvSetContactSection => '账单';
+
+  @override
+  String get deskInvSetTheirInvoice => '对方的账单地址';
+
+  @override
+  String get deskInvSetTheirInvoiceNone => '未保存账单地址。请向对方索取，以便开具账单。';
+
+  @override
+  String get deskInvSetTrustedSwitch => '信任其账单';
+
+  @override
+  String get deskInvSetTrustedSwitchHelp => '允许此联系人向您开账单。在您批准账单之前不会付款。';
+
+  @override
+  String get deskInvSetIssueNeeds => '需要对方的账单地址。';
+
+  @override
+  String get deskInvSetShare => '分享账单地址';
+
+  @override
+  String get deskInvSetReceiveHint => '请联系人或服务向您付款。对方的钱包必须支持账单。';
+
+  @override
+  String get deskInvSetRestoredHint => '此钱包是用助记词恢复的？请重新把这个发票地址提供给服务方。';
 }

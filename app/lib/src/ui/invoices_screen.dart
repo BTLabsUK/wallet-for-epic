@@ -175,6 +175,11 @@ class _InvoicesEntryState extends ConsumerState<InvoicesEntry> {
       case InvoiceEventKind.declined:
         // The review screen says so itself.
         break;
+      // Unverified (anyone can raise it): a notice only, naming no one.
+      case InvoiceEventKind.unknownInvoicePayment:
+        view(l.deskInvNoticeUnknownPayment, NoticeLevel.warning, null);
+      case InvoiceEventKind.unknownSendAnswer:
+        view(l.deskInvNoticeUnknownAnswer, NoticeLevel.warning, null);
     }
   }
 

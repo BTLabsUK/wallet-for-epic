@@ -100,10 +100,14 @@ WalletError mapLepicError(lepic.WalletError error) {
     lepic.WalletErrorKind.notReleasable ||
     lepic.WalletErrorKind.foreignAppData ||
     lepic.WalletErrorKind.damagedAppData => WalletErrorKind.invalidArgument,
-    // The app's invoice calls name a missing invoice and a wrong amount invalidArgument, and
-    // an undelivered reply a transport failure (`wallet_service.dart`).
-    lepic.WalletErrorKind.invoiceNotFound ||
-    lepic.WalletErrorKind.amountMismatch => WalletErrorKind.invalidArgument,
+    lepic.WalletErrorKind.invoiceNotFound => WalletErrorKind.invoiceNotFound,
+    lepic.WalletErrorKind.amountMismatch => WalletErrorKind.amountMismatch,
+    lepic.WalletErrorKind.invoiceAlreadyPaid => WalletErrorKind.invoiceAlreadyPaid,
+    lepic.WalletErrorKind.invoiceLockedAboveTip =>
+      WalletErrorKind.invoiceLockedAboveTip,
+    lepic.WalletErrorKind.invoiceChanged => WalletErrorKind.invoiceChanged,
+    // An undelivered issue or resend is a transport failure; `payInvoice` catches the kind
+    // before it gets here and answers `InvoiceStatus.replyFailed`.
     lepic.WalletErrorKind.notDelivered => WalletErrorKind.transportFailed,
     lepic.WalletErrorKind.restoreScanRequired ||
     lepic.WalletErrorKind.changedDuringCancel ||
@@ -299,6 +303,7 @@ WalletOutput lepicWalletOutput(lepic.WalletOutput o) => WalletOutput(
       OutputCategory.awaitingFinalization,
     lepic.OutputCategory.immature => OutputCategory.immature,
     lepic.OutputCategory.locked => OutputCategory.locked,
+    lepic.OutputCategory.unpaidInvoice => OutputCategory.unpaidInvoice,
   },
   isCoinbase: o.isCoinbase,
   height: o.height,
@@ -394,6 +399,10 @@ InvoiceEvent? lepicInvoiceEvent(lepic.WalletEvent e) {
     lepic.WalletEventKind.invoiceWithdrawn => InvoiceEventKind.withdrawn,
     lepic.WalletEventKind.invoiceExpired when e.txId == null =>
       InvoiceEventKind.expired,
+    // Unverified: only ever a notice (another install on this phrase may own the slate).
+    lepic.WalletEventKind.unknownSlate when e.slateStage == 'I2' =>
+      InvoiceEventKind.unknownInvoicePayment,
+    lepic.WalletEventKind.unknownSlate => InvoiceEventKind.unknownSendAnswer,
     _ => null,
   };
   if (kind == null) return null;
@@ -1140,6 +1149,19 @@ class LepicWalletSession implements WalletSession {
   );
 
   @override
+  Future<SelfSentTx> spendOutputsToSelf({
+    required List<String> commitments,
+    required BigInt minimumConfirmations,
+  }) => _guard(
+    () async => lepicSelfSentTx(
+      await _wallet.spendOutputsToSelf(
+        commitments: commitments,
+        minimumConfirmations: minimumConfirmations,
+      ),
+    ),
+  );
+
+  @override
   Future<TxEntry> finalizeAndPost({required String slateJson}) =>
       _guard(() async {
         final tx = await _wallet.finalizeAndPost(slateJson: slateJson);
@@ -1517,6 +1539,9 @@ class LepicWalletSession implements WalletSession {
   final StreamController<IssuerEvent> _issuerEvents =
       StreamController<IssuerEvent>.broadcast();
 
+  /// Slates LEPIC reported as unknown in this session, so a redelivered one is told once.
+  final Set<String> _unknownSlates = {};
+
   /// Events are handled one at a time, so the archive changes in the order LEPIC reported.
   /// A withdrawal and a reconcile of issued invoices take their turn here too.
   Future<void> _eventTail = Future.value();
@@ -1569,6 +1594,10 @@ class LepicWalletSession implements WalletSession {
             InvoiceEventKind.declined ||
             InvoiceEventKind.expired:
           break;
+        case InvoiceEventKind.unknownInvoicePayment ||
+            InvoiceEventKind.unknownSendAnswer:
+          // A relay that did not settle the message delivers it again: one notice per slate.
+          if (!_unknownSlates.add(event.slateId)) return;
       }
     } on WalletError catch (error) {
       logWarn(
@@ -1606,6 +1635,9 @@ class LepicWalletSession implements WalletSession {
   Future<String> invoiceAddress() => _guard(_wallet.invoiceAddress);
 
   @override
+  Future<int> invoiceAddressIndex() => _guard(_wallet.invoiceAddressIndex);
+
+  @override
   Future<String> rotateInvoiceAddress() => _guard(() async {
     final address = await _wallet.rotateInvoiceAddress();
     final index = await _wallet.invoiceAddressIndex();
@@ -1621,12 +1653,15 @@ class LepicWalletSession implements WalletSession {
     ]);
     return [
       for (var i = 0; i < senders.length; i++)
-        labelled[i].label != null || senders[i].label.isEmpty
-            ? labelled[i]
-            : TrustedService(
-                address: senders[i].address,
-                label: senders[i].label,
-              ),
+        TrustedService(
+          address: senders[i].address,
+          label: labelled[i].label != null || senders[i].label.isEmpty
+              ? labelled[i].label
+              : senders[i].label,
+          since: DateTime.fromMillisecondsSinceEpoch(
+            senders[i].addedAtMs.toInt(),
+          ),
+        ),
     ];
   });
 
@@ -1666,7 +1701,11 @@ class LepicWalletSession implements WalletSession {
       await _history.removeServiceLabel(p);
     }
     await _history.setServiceLabel(sender.address, name);
-    return TrustedService(address: sender.address, label: name);
+    return TrustedService(
+      address: sender.address,
+      label: name,
+      since: DateTime.fromMillisecondsSinceEpoch(sender.addedAtMs.toInt()),
+    );
   });
 
   @override
@@ -1734,7 +1773,7 @@ class LepicWalletSession implements WalletSession {
         .firstOrNull;
     if (pending == null) {
       throw const WalletError(
-        kind: WalletErrorKind.invalidArgument,
+        kind: WalletErrorKind.invoiceNotFound,
         message: 'no pending invoice with that id',
       );
     }

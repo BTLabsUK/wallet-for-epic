@@ -1,0 +1,48 @@
+{
+  "deskInvNoticePaid": "{payer} paid {amount} EPIC.",
+  "@deskInvNoticePaid": {
+    "description": "Notice: a payer paid an invoice this wallet issued; the wallet finalized it. payer is the contact name or a short address; amount is the number only; EPIC follows it.",
+    "placeholders": {
+      "payer": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "deskInvNoticeDeclined": "{payer} declined your invoice.",
+  "@deskInvNoticeDeclined": {
+    "description": "Warning notice: the payer declined an invoice this wallet issued; the wallet withdrew it.",
+    "placeholders": {
+      "payer": {
+        "type": "String"
+      }
+    }
+  },
+  "deskInvNoticeIssuedExpired": "An invoice you issued expired unpaid.",
+  "@deskInvNoticeIssuedExpired": {
+    "description": "Notice: an invoice this wallet issued ran out of time unpaid."
+  },
+  "deskInvNoticeWithdrawn": "{service} withdrew an invoice before you answered it.",
+  "@deskInvNoticeWithdrawn": {
+    "description": "Notice: a service withdrew an invoice that was waiting for the user. service is the user's label for it.",
+    "placeholders": {
+      "service": {
+        "type": "String"
+      }
+    }
+  },
+  "deskInvNoticeExpired": "An invoice expired before you answered it.",
+  "@deskInvNoticeExpired": {
+    "description": "Notice: an invoice waiting for the user ran out of time."
+  },
+  "deskInvNoticeUnknownPayment": "A payment for an invoice this device did not issue arrived and was refused. If another device with this wallet issued it, ask the payer to cancel and pay again.",
+  "@deskInvNoticeUnknownPayment": {
+    "description": "Warning notice (desktop and phone): LEPIC refused the payment of an invoice it does not know; another install on the same recovery phrase may have issued it. Unverified: names no sender."
+  },
+  "deskInvNoticeUnknownAnswer": "An answer to a payment this device did not send arrived and was refused. If another device with this wallet sent it, cancel it there and send again.",
+  "@deskInvNoticeUnknownAnswer": {
+    "description": "Warning notice (desktop and phone): LEPIC refused the answer to a send it does not know; another install on the same recovery phrase may have made it. Unverified: names no sender."
+  }
+}

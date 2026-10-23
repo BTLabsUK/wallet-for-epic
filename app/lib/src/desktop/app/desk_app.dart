@@ -1,4 +1,5 @@
 import '../../app_info.dart';
+import '../../l10n.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -20,6 +21,7 @@ class DeskApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = ref.watch(deskProvider.select((s) => s.settings.theme));
     final scale = ref.watch(deskProvider.select((s) => s.settings.scale));
+    final language = ref.watch(deskProvider.select((s) => s.settings.language));
     // Before anything reads a token: the theme below and every screen size from it. The BT Labs
     // Theme's 100 % is a 17 px root (6.1.6's MODERN_BASE), the tokens are written for 16.
     deskScale = (deskScales.contains(scale) ? scale : 100) / 100 * deskBase;
@@ -27,6 +29,11 @@ class DeskApp extends ConsumerWidget {
       navigatorKey: deskNavigatorKey,
       title: appName,
       debugShowCheckedModeBanner: false,
+      // The app's own translations (lib/l10n). Screens moved to l10n read context.l10n; the
+      // rest still speak English whatever the setting says.
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      locale: deskLocaleOf(language),
       themeMode: switch (theme) {
         ThemeChoice.system => ThemeMode.system,
         ThemeChoice.dark => ThemeMode.dark,
@@ -115,3 +122,13 @@ class DeskTextScaler extends TextScaler {
   @override
   int get hashCode => Object.hash(base, factor);
 }
+
+/// The locale of Settings › Appearance › Language (its names: English, Deutsch, Polski,
+/// Русский, 中文); English for anything else.
+Locale deskLocaleOf(String language) => switch (language) {
+  'Deutsch' => const Locale('de'),
+  'Polski' => const Locale('pl'),
+  'Русский' => const Locale('ru'),
+  '中文' || '简体中文' => const Locale('zh'),
+  _ => const Locale('en'),
+};

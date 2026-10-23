@@ -5,7 +5,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../app/tour.dart';
+import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
+import '../invoices/invoice_parts.dart' show InvButton, InvW;
 import 'epicbox_notice.dart';
 
 enum RxEpicbox { on, off, down }
@@ -302,6 +304,24 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
         SizedBox(height: Sp.x4),
         if (line == null) const Align(alignment: Alignment.centerLeft, child: ESpinner()) else EStateLine(line, key: const ValueKey('rx-state-epicbox')),
         if (health == ServiceHealth.down) ...[SizedBox(height: Sp.x3), const EpicboxDownNotice()],
+        // Invoices (docs/invoices/flow.md §1): ask someone to pay; the invoice address never shows here.
+        if (ref.watch(deskApiProvider).supportsInvoices) ...[
+          SizedBox(height: Sp.x5),
+          Wrap(
+            spacing: Sp.x3,
+            runSpacing: Sp.x2,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              InvButton(
+                label: context.l10n.deskInvIssueAction,
+                icon: EIcons.request,
+                width: InvW.lg,
+                onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.invoiceIssue),
+              ),
+              Text(context.l10n.deskInvSetReceiveHint, style: ts.small),
+            ],
+          ),
+        ],
       ],
     );
     final qr = addr == null || addr.isEmpty

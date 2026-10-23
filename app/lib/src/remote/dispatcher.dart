@@ -503,7 +503,18 @@ class WalletDispatcher {
       ),
       selfSentTxWire,
     ),
+    SessionMember.spendOutputsToSelf => _once(
+      s.spendOutputsToSelf(
+        commitments: p.of('commitments', listOf(stringWire)),
+        minimumConfirmations: p.of('minimumConfirmations', bigIntWire),
+      ),
+      selfSentTxWire,
+    ),
     SessionMember.invoiceAddress => _once(s.invoiceAddress(), stringWire),
+    SessionMember.invoiceAddressIndex => _once(
+      s.invoiceAddressIndex(),
+      intWire,
+    ),
     SessionMember.rotateInvoiceAddress => _once(
       s.rotateInvoiceAddress(),
       stringWire,

@@ -1,0 +1,13 @@
+{
+  "deskInvActFrom": "Rechnung von {label}",
+  "deskInvActFilter": "Rechnungen",
+  "deskInvActBlock": "Rechnung",
+  "deskInvActOpen": "In Rechnungen öffnen",
+  "deskInvActBilledBy": "Gestellt von",
+  "deskInvActOverviewTitle": "Rechnungen",
+  "deskInvActOverviewToPay": "{count, plural, =0{Nichts zu zahlen} =1{1 Rechnung zu zahlen} other{{count} Rechnungen zu zahlen}}",
+  "deskInvActOverviewWaiting": "{count, plural, =0{Keine ausgestellte Rechnung wartet} =1{1 ausgestellte Rechnung wartet auf den Zahler} other{{count} ausgestellte Rechnungen warten auf die Zahler}}",
+  "deskInvActOverviewAttention": "{count, plural, =1{1 Zahlung braucht Sie: erneut senden oder stornieren} other{{count} Zahlungen brauchen Sie: erneut senden oder stornieren}}",
+  "deskInvActReview": "Prüfen",
+  "deskInvActOpenInvoices": "Rechnungen öffnen"
+}

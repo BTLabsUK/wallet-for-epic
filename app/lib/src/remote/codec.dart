@@ -211,12 +211,19 @@ final WireCodec<WalletConfig> walletConfigWire = _object<WalletConfig>(
 
 final WireCodec<Contact> contactWire = _object<Contact>(
   'Contact',
-  (v) => {'id': v.id, 'name': v.name, 'address': v.address, 'note': v.note},
+  (v) => {
+    'id': v.id,
+    'name': v.name,
+    'address': v.address,
+    'note': v.note,
+    'invoiceAddress': v.invoiceAddress,
+  },
   (r) => Contact(
     id: r.of('id', stringWire),
     name: r.of('name', stringWire),
     address: r.of('address', stringWire),
     note: r.of('note', optString),
+    invoiceAddress: r.of('invoiceAddress', optString),
   ),
 );
 
@@ -530,10 +537,17 @@ final WireCodec<TxEntry> txEntryWire = _object<TxEntry>(
 
 final WireCodec<TrustedService> trustedServiceWire = _object<TrustedService>(
   'TrustedService',
-  (v) => {'address': v.address, 'label': v.label},
+  (v) => {
+    'address': v.address,
+    'label': v.label,
+    'since': v.since?.millisecondsSinceEpoch,
+  },
   (r) => TrustedService(
     address: r.of('address', stringWire),
     label: r.of('label', optString),
+    since: r.of('since', optInt) == null
+        ? null
+        : DateTime.fromMillisecondsSinceEpoch(r.of('since', optInt)!),
   ),
 );
 

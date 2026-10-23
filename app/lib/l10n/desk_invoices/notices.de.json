@@ -1,0 +1,9 @@
+{
+  "deskInvNoticePaid": "{payer} hat {amount} EPIC bezahlt.",
+  "deskInvNoticeDeclined": "{payer} hat Ihre Rechnung abgelehnt.",
+  "deskInvNoticeIssuedExpired": "Eine von Ihnen ausgestellte Rechnung ist unbezahlt abgelaufen.",
+  "deskInvNoticeWithdrawn": "{service} hat eine Rechnung zurückgezogen, bevor Sie sie beantwortet haben.",
+  "deskInvNoticeExpired": "Eine Rechnung ist abgelaufen, bevor Sie sie beantwortet haben.",
+  "deskInvNoticeUnknownPayment": "Eine Zahlung für eine Rechnung, die dieses Gerät nicht ausgestellt hat, ist eingetroffen und wurde abgelehnt. Hat ein anderes Gerät mit dieser Wallet sie ausgestellt, bitten Sie den Zahler, zu stornieren und erneut zu zahlen.",
+  "deskInvNoticeUnknownAnswer": "Eine Antwort auf eine Zahlung, die dieses Gerät nicht gesendet hat, ist eingetroffen und wurde abgelehnt. Hat ein anderes Gerät mit dieser Wallet sie gesendet, stornieren Sie sie dort und senden Sie erneut."
+}

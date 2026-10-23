@@ -361,6 +361,16 @@ abstract interface class WalletSession {
   /// Merges every output with [minimumConfirmations] (up to 500) into one.
   Future<SelfSentTx> consolidateOutputs({required BigInt minimumConfirmations});
 
+  /// Spends exactly the outputs [commitments] names (`WalletOutput.commitment`) into one output
+  /// of this wallet, as a consolidate does, locking nothing else. It makes a cancelled payment
+  /// final: the other wallet may hold a signed copy that spends them until they are spent here.
+  /// [WalletErrorKind.invalidArgument] for an empty list or an output that is unknown, not
+  /// spendable or named twice; [WalletErrorKind.notEnoughFunds] when the fee takes it all.
+  Future<SelfSentTx> spendOutputsToSelf({
+    required List<String> commitments,
+    required BigInt minimumConfirmations,
+  });
+
   // Invoices over epicbox (I-01). Trusted services bill the user at a separate invoice
   // address; each invoice waits for the user. Capabilities, not LEPIC's names: I-04 adapts
   // them to the binding. Every call below throws [invoicesUnsupported] when this is false.
@@ -375,6 +385,10 @@ abstract interface class WalletSession {
   /// Moves to a new invoice address and abandons the old one for good. Services must be given
   /// the new one. Returns it.
   Future<String> rotateInvoiceAddress();
+
+  /// The derivation index of [invoiceAddress], 1 or higher. A wallet restored from its phrase
+  /// without its history file starts again at 1.
+  Future<int> invoiceAddressIndex();
 
   /// Services allowed to send invoices, with the user's labels.
   Future<List<TrustedService>> trustedServices();
@@ -398,7 +412,7 @@ abstract interface class WalletSession {
   Future<List<PendingInvoice>> pendingInvoices();
 
   /// Pays a pending invoice and sends the reply to the service's address on the list.
-  /// [amount] must equal the invoiced amount ([WalletErrorKind.invalidArgument] otherwise).
+  /// [amount] must equal the invoiced amount ([WalletErrorKind.amountMismatch] otherwise).
   /// Call it only after the user approved behind the PIN or biometric gate.
   ///
   /// A reply that cannot be delivered does not undo the payment: the result has status
@@ -1453,6 +1467,7 @@ class FakeWalletSession implements WalletSession {
       note: (contact.note?.trim().isEmpty ?? true)
           ? null
           : contact.note!.trim(),
+      invoiceAddress: contact.invoiceAddress,
     );
     final index = contactsValue.indexWhere((c) => c.id == stored.id);
     if (index >= 0) {
@@ -1788,6 +1803,24 @@ class FakeWalletSession implements WalletSession {
     return tx;
   }
 
+  /// The commitments of every [spendOutputsToSelf] call.
+  final List<List<String>> spentToSelf = [];
+
+  @override
+  Future<SelfSentTx> spendOutputsToSelf({
+    required List<String> commitments,
+    required BigInt minimumConfirmations,
+  }) async {
+    if (commitments.isEmpty || commitments.toSet().length != commitments.length) {
+      throw const WalletError(
+        kind: WalletErrorKind.invalidArgument,
+        message: 'name each output once',
+      );
+    }
+    spentToSelf.add([...commitments]);
+    return _postSelf(_selfSend(1), 1);
+  }
+
   // Invoices. The fake plays the wallet's half as UP-14 describes it: the allowlist and the
   // parked invoices are the wallet's, labels and the invoice index live in [invoiceHistory],
   // as the LEPIC session will keep them. Tests and the tour drive it with [relayInvoice],
@@ -1804,6 +1837,9 @@ class FakeWalletSession implements WalletSession {
 
   /// The wallet's allowlist: full epicbox addresses.
   final List<String> allowlist = [];
+
+  /// When each allowlisted service was first allowed, by epicbox key.
+  final Map<String, DateTime> allowedSince = {};
 
   /// Waiting at the relay until the next [drainInvoices].
   final List<_Relayed> _relay = [];
@@ -1904,6 +1940,12 @@ class FakeWalletSession implements WalletSession {
   }
 
   @override
+  Future<int> invoiceAddressIndex() async {
+    _requireInvoices('invoiceAddressIndex');
+    return invoiceHistory.invoiceIndex;
+  }
+
+  @override
   Future<String> rotateInvoiceAddress() async {
     _requireInvoices('rotateInvoiceAddress');
     final next = invoiceHistory.invoiceIndex + 1;
@@ -1914,7 +1956,14 @@ class FakeWalletSession implements WalletSession {
   @override
   Future<List<TrustedService>> trustedServices() async {
     _requireInvoices('trustedServices');
-    return invoiceHistory.trustedServices(allowlist);
+    return [
+      for (final t in invoiceHistory.trustedServices(allowlist))
+        TrustedService(
+          address: t.address,
+          label: t.label,
+          since: allowedSince[epicboxKey(t.address)],
+        ),
+    ];
   }
 
   @override
@@ -1947,13 +1996,15 @@ class FakeWalletSession implements WalletSession {
     } else {
       allowlist.add(a);
     }
-    return TrustedService(address: a, label: label.trim());
+    final since = allowedSince.putIfAbsent(epicboxKey(a), DateTime.now);
+    return TrustedService(address: a, label: label.trim(), since: since);
   }
 
   @override
   Future<void> removeTrustedService({required String address}) async {
     _requireInvoices('removeTrustedService');
     final key = epicboxKey(address);
+    allowedSince.remove(key);
     for (final a in allowlist.where((e) => epicboxKey(e) == key).toList()) {
       allowlist.remove(a);
       await invoiceHistory.removeServiceLabel(a);
@@ -2049,13 +2100,13 @@ class FakeWalletSession implements WalletSession {
     final invoice = pendingInvoicesValue[slateId];
     if (invoice == null) {
       throw const WalletError(
-        kind: WalletErrorKind.invalidArgument,
+        kind: WalletErrorKind.invoiceNotFound,
         message: 'no pending invoice with that id',
       );
     }
     if (amount != invoice.amount) {
       throw const WalletError(
-        kind: WalletErrorKind.invalidArgument,
+        kind: WalletErrorKind.amountMismatch,
         message: 'the amount does not match the invoice',
       );
     }
@@ -2117,7 +2168,7 @@ class FakeWalletSession implements WalletSession {
     _requireInvoices('declineInvoice');
     if (pendingInvoicesValue.remove(slateId) == null) {
       throw const WalletError(
-        kind: WalletErrorKind.invalidArgument,
+        kind: WalletErrorKind.invoiceNotFound,
         message: 'no pending invoice with that id',
       );
     }

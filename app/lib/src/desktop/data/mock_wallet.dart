@@ -9,12 +9,18 @@ import 'dart:math';
 import 'dart:typed_data';
 
 
+import '../../providers.dart' show defaultMinimumConfirmations;
 import '../../seed_contacts.dart';
 import '../../wallet_service.dart' show onionAddressFormat;
 import 'api.dart';
 import 'http_address.dart';
+import 'invoices.dart';
 import 'phrase_check.dart';
 import 'models.dart';
+
+export 'invoices.dart' show InvoiceError, InvoiceProblem;
+
+part 'mock_invoices.dart';
 
 const _epicboxAddr = 'esWnT8kBf3yXqPZ2r9cLhVd7JmK4uA6gYsN1pQeRtC5vD8xHwF2b@epicbox.epiccash.com';
 
@@ -39,11 +45,13 @@ class MockDeskWallet implements DeskWalletApi {
   int _nextId = 40;
 
   final List<Contact> _contacts = [
-    Contact(id: 'c1', name: 'Anna Kowalska', address: 'esYb3kq9TzWmR8uPfVc2LdN6hJx4gA7sKeQ1oBnC5vD9rHtF3w@epicbox.epiccash.com', favourite: true, lastUsed: _ago(days: 1), hasPicture: true),
+    Contact(id: 'c1', name: 'Anna Kowalska', address: 'esYb3kq9TzWmR8uPfVc2LdN6hJx4gA7sKeQ1oBnC5vD9rHtF3w@epicbox.epiccash.com', favourite: true, lastUsed: _ago(days: 1), hasPicture: true, invoiceAddress: _annaInvoice),
     Contact(id: 'c2', name: 'Mining pool payouts', address: 'esZr8mQ2pVtW5kNcY7uLfB3hJd9gA4sXeR6oTnC1vK8xHwP2b@epicbox.epicnet.us', note: 'Weekly payouts', lastUsed: _ago(days: 3)),
     Contact(id: 'c3', name: 'Exchange deposit', address: 'esQa1nB7cVxZ3mL9kJ5hG2fD8sA6pP4iU1yT7rE3wQ9eR5tY@epicbox.epiccash.com', lastUsed: _ago(days: 12)),
     Contact(id: 'c4', name: 'Tom', address: 'http://10.0.1.24:3415', note: 'Home server'),
     Contact(id: 'c5', name: 'Merchant: Coffee', address: 'esP9o78uY7tR6eW5qA4sD3fG2hJ1kL9zX9cV8bN7mQ6wE5rT@epicbox.stackwallet.com'),
+    Contact(id: 'c6', name: 'Piotr Nowak', address: 'esPn4Wq8TzWmR8uPfVc2LdN6hJx4gA7sKeQ1oBnC5vD9rHtK2s@epicbox.epicnet.us', note: 'Design work', invoiceAddress: _piotrInvoice),
+    Contact(id: 'c7', name: 'Ola Wiśniewska', note: 'Stock wallet', address: 'esQka2kq9TzWmR8uPfVc2LdN6hJx4gA7sKeQ1oBnC5vD9rHtF3x@epicbox.epiccash.com', invoiceAddress: _olaInvoice),
     // Seeded into every new wallet (spec 9).
     Contact(id: 'btlabs', name: btLabsContact.name, address: btLabsContact.address, note: btLabsContact.note),
   ];
@@ -354,12 +362,20 @@ class MockDeskWallet implements DeskWalletApi {
   @override
   Future<Balance> balance() async {
     await _wait(0.3);
-    return Balance(spendable: _epic(1284.73215), awaitingConfirmation: _epic(25), locked: _epic(15.713), awaitingFinalization: _epic(12.5), immature: _epic(2));
+    final p = proto;
+    return Balance(
+      spendable: _epic(1284.73215) + p.spendDelta,
+      awaitingConfirmation: _epic(25) + p.confirmingDelta,
+      locked: _epic(15.713) + p.lockDelta,
+      awaitingFinalization: _epic(12.5),
+      immature: _epic(2),
+    );
   }
 
   @override
   Future<List<Tx>> transactions() async {
     await _wait(0.5);
+    proto;
     return List.unmodifiable(_txs);
   }
 
@@ -618,7 +634,7 @@ class MockDeskWallet implements DeskWalletApi {
     final id = contact.id.isEmpty ? 'c${DateTime.now().microsecondsSinceEpoch}' : contact.id;
     _contacts.removeWhere((c) => c.id == id);
     _contacts.add(
-      Contact(id: id, name: contact.name, address: contact.address, note: contact.note, favourite: contact.favourite, lastUsed: contact.lastUsed, hasPicture: contact.hasPicture),
+      Contact(id: id, name: contact.name, address: contact.address, note: contact.note, favourite: contact.favourite, lastUsed: contact.lastUsed, hasPicture: contact.hasPicture, invoiceAddress: contact.invoiceAddress),
     );
     return id;
   }
@@ -727,7 +743,138 @@ class MockDeskWallet implements DeskWalletApi {
   Future<void> syncNow() => _wait(3);
 
   @override
-  Stream<void> changes() => const Stream.empty();
+  Stream<void> changes() => _changes.stream;
+
+  /// Background events: the prototype's other side (invoices) pings it.
+  final StreamController<void> _changes = StreamController<void>.broadcast();
+
+  // ---- Invoices (mock_invoices.dart): both sides, a movable clock and the other party.
+
+  /// The invoices prototype. The Prototype panel drives its other side.
+  late final InvoiceProto proto = InvoiceProto._(this);
+
+  @override
+  bool get supportsInvoices => true;
+
+  /// The prototype shows its other side's moves on the page itself.
+  @override
+  Stream<InvoiceNotice> invoiceNotices() => const Stream.empty();
+
+  @override
+  Future<InvoiceBook> invoices() async {
+    await _wait(0.2);
+    return proto.book();
+  }
+
+  @override
+  Future<InvoiceBook> checkInvoices() async {
+    await _wait(1.2);
+    final book = proto.drain();
+    proto._changed();
+    return book;
+  }
+
+  @override
+  Future<IssuedRequest> requestPayment(PaymentRequestDraft draft) async {
+    await _wait(1.6);
+    final r = proto.request(draft);
+    proto._changed();
+    return r;
+  }
+
+  @override
+  Future<void> withdrawRequest(String slateId) async {
+    await _wait(0.8);
+    proto.withdraw(slateId);
+    proto._changed();
+  }
+
+  @override
+  Future<void> cancelRequestPayment(String slateId) async {
+    await _wait(1.2);
+    proto.cancelRequestPayment(slateId);
+    proto._changed();
+  }
+
+  @override
+  Future<void> repostRequest(String slateId) async {
+    await _wait(1.2);
+    proto.repost(slateId);
+    proto._changed();
+  }
+
+  @override
+  Future<IncomingInvoice> payInvoice(String slateId, {required int amount, required String password}) async {
+    await _wait(2);
+    final paid = proto.pay(slateId, amount, password);
+    proto._changed();
+    return paid;
+  }
+
+  @override
+  Future<IncomingInvoice> retryInvoiceReply(String slateId) async {
+    await _wait(1.2);
+    final i = proto.retry(slateId);
+    proto._changed();
+    return i;
+  }
+
+  @override
+  Future<void> declineInvoice(String slateId) async {
+    await _wait(0.8);
+    proto.decline(slateId);
+    proto._changed();
+  }
+
+  @override
+  Future<void> cancelInvoicePayment(String slateId) async {
+    await _wait(1.5);
+    proto.cancelPayment(slateId);
+    proto._changed();
+  }
+
+  @override
+  Future<SelfSend> spendCancelledToSelf(String slateId) async {
+    await _wait(2);
+    final i = proto.spendToSelf(slateId);
+    proto._changed();
+    return SelfSend(txId: _nextId++, receivedTxId: _nextId++, amount: i.total - 700000, fee: 700000, inputCount: 1, outputCount: 1);
+  }
+
+  @override
+  Future<String> rotateInvoiceAddress() async {
+    await _wait(0.8);
+    final a = proto.rotate();
+    proto._changed();
+    return a;
+  }
+
+  @override
+  Future<void> trustSender(String address, String label, {String? contactId}) async {
+    await _wait(0.3);
+    proto.trust(address, label, contactId);
+    proto._changed();
+  }
+
+  @override
+  Future<void> untrustSender(String address) async {
+    await _wait(0.3);
+    proto.untrust(address);
+    proto._changed();
+  }
+
+  @override
+  Future<void> setInvoiceExpiry(Duration expiry) async {
+    await _wait(0.2);
+    proto.expiry = expiry > maxInvoiceExpiry ? maxInvoiceExpiry : expiry;
+    proto._changed();
+  }
+
+  @override
+  Future<PeerCapability> peerCapability(String address) async {
+    await _wait(0.2);
+    return proto.capability(address);
+  }
 
   @override
   Future<List<String>> revealPhrase(String password) async {

@@ -1,5 +1,8 @@
 import 'package:flutter/widgets.dart';
 
+import '../screens/invoices/issue_invoice_screen.dart';
+import '../screens/invoices/invoices_screen.dart';
+import '../screens/invoices/review_screen.dart';
 import '../screens/onboarding/create_screen.dart';
 import '../screens/onboarding/import_wallets_screen.dart';
 import '../screens/onboarding/restore_screen.dart';
@@ -10,6 +13,7 @@ import '../screens/settings/settings_about.dart';
 import '../screens/settings/settings_account.dart';
 import '../screens/settings/settings_appearance.dart';
 import '../screens/settings/settings_help.dart';
+import '../screens/settings/settings_invoices.dart';
 import '../screens/settings/settings_node.dart';
 import '../screens/settings/settings_phrase.dart';
 import '../screens/settings/settings_receiving.dart';
@@ -41,10 +45,14 @@ Widget deskScreen(DeskLocation at) {
     DeskRoute.receive => ReceiveScreen(arg: a),
     DeskRoute.importTx => ImportTxScreen(arg: a),
     DeskRoute.finalize => FinalizeScreen(arg: a),
+    DeskRoute.invoices => InvoicesScreen(arg: a),
+    DeskRoute.invoiceIssue => IssueInvoiceScreen(arg: a),
+    DeskRoute.invoiceReview => InvoiceReviewScreen(arg: a),
     DeskRoute.outputs => OutputsScreen(arg: a),
     DeskRoute.contacts => ContactsScreen(arg: a),
     DeskRoute.settingsNode => SettingsNodeScreen(arg: a),
     DeskRoute.settingsReceiving => SettingsReceivingScreen(arg: a),
+    DeskRoute.settingsInvoices => SettingsInvoicesScreen(arg: a),
     DeskRoute.settingsAppearance => SettingsAppearanceScreen(arg: a),
     DeskRoute.settingsAccount => SettingsAccountScreen(arg: a),
     DeskRoute.settingsWallets => SettingsWalletsScreen(arg: a),

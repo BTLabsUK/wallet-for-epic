@@ -12,6 +12,7 @@ import 'dart:async';
 import 'dart:io' show Platform;
 import 'dart:math' as math;
 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -102,6 +103,11 @@ List<TourStep> tourStepsFor({required bool invoices}) => [
 
 /// The steps of this build: with Invoices when its page is in the app.
 final List<TourStep> deskTourSteps = tourStepsFor(invoices: deskInvoicesRoute != null);
+
+/// The steps for the open wallet: with Invoices only when the page is in the app and the
+/// wallet takes invoices (the sidebar hides the page otherwise).
+List<TourStep> deskTourStepsFor({required bool supportsInvoices}) =>
+    supportsInvoices ? deskTourSteps : tourStepsFor(invoices: false);
 
 /// Tests: the steps the shell's overlay shows instead of [deskTourSteps].
 @visibleForTesting
@@ -222,7 +228,7 @@ void startDeskTour(WidgetRef ref) {
 }
 
 /// Not by itself under `flutter test` (the smoke tests and the screenshot tour pump Overview).
-final bool deskTourAuto = !Platform.environment.containsKey('FLUTTER_TEST');
+final bool deskTourAuto = kIsWeb || !Platform.environment.containsKey('FLUTTER_TEST');
 
 // ---- overlay -------------------------------------------------------------------------------
 
@@ -232,8 +238,6 @@ class DeskTourOverlay extends ConsumerStatefulWidget {
   const DeskTourOverlay({super.key, this.stepList, this.startAt = 0});
 
   final List<TourStep>? stepList;
-
-  List<TourStep> get steps => stepList ?? debugTourSteps ?? deskTourSteps;
   final int startAt;
 
   @override
@@ -241,7 +245,10 @@ class DeskTourOverlay extends ConsumerStatefulWidget {
 }
 
 class _DeskTourOverlayState extends ConsumerState<DeskTourOverlay> with SingleTickerProviderStateMixin, WidgetsBindingObserver {
-  late int _i = widget.startAt.clamp(0, widget.steps.length - 1);
+  /// Fixed for this run of the tour: the wallet does not change while it is open.
+  late final List<TourStep> _steps =
+      widget.stepList ?? debugTourSteps ?? deskTourStepsFor(supportsInvoices: ref.read(deskApiProvider).supportsInvoices);
+  late int _i = widget.startAt.clamp(0, _steps.length - 1);
   final _next = FocusNode(debugLabel: 'tour next');
   final _self = GlobalKey();
   final _card = GlobalKey();
@@ -287,7 +294,7 @@ class _DeskTourOverlayState extends ConsumerState<DeskTourOverlay> with SingleTi
     _in.value = 0;
     void go() {
       if (!mounted) return;
-      final step = widget.steps[i];
+      final step = _steps[i];
       if (ref.read(deskNavProvider).route != step.route) ref.read(deskNavProvider.notifier).go(step.route);
       WidgetsBinding.instance.addPostFrameCallback((_) => _place());
     }
@@ -312,7 +319,7 @@ class _DeskTourOverlayState extends ConsumerState<DeskTourOverlay> with SingleTi
   void _place({bool resized = false}) {
     if (!mounted) return;
     final me = _self.currentContext?.findRenderObject() as RenderBox?;
-    final step = widget.steps[_i];
+    final step = _steps[_i];
     Rect? r, nav, sub;
     if (me != null) {
       for (final id in step.targets) {
@@ -356,7 +363,7 @@ class _DeskTourOverlayState extends ConsumerState<DeskTourOverlay> with SingleTi
   Widget build(BuildContext context) {
     final c = context.dc;
     final ts = context.ts;
-    final steps = widget.steps;
+    final steps = _steps;
     final step = steps[_i];
     final last = _i == steps.length - 1;
     final reduce = MediaQuery.disableAnimationsOf(context);

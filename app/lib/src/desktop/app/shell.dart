@@ -8,7 +8,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../ui/theme/brand.dart' show EpicMark;
+import '../desk_l10n.dart';
 import '../data/desk_update.dart' show deskAppVersion;
+import '../data/invoice_state.dart' show InvoiceNotice, InvoiceNoticeKind, deskInvoiceBadgeProvider, deskInvoiceNoticesProvider;
+import '../screens/invoices/proto_panel.dart' show ProtoButton;
 import '../screens/settings/prefs.dart';
 import '../widgets/kit.dart';
 import 'desk_app.dart' show deskNavigatorKey;
@@ -36,6 +39,7 @@ String deskPageTitle(DeskRoute r) {
       DeskRoute.finalize => 'Finalize transaction',
       _ => 'Receive',
     },
+    DeskSection.invoices => 'Invoices',
     DeskSection.outputs => 'Outputs',
     DeskSection.contacts => 'Contacts',
     DeskSection.settings => 'Settings',
@@ -113,6 +117,11 @@ class _DeskShellState extends ConsumerState<DeskShell> {
     final c = context.dc;
     final at = widget.at;
     final width = MediaQuery.sizeOf(context).width;
+    // What the wallet learned of invoices by itself (flow.md §3.3, §4.5), as a toast.
+    ref.listen(deskInvoiceNoticesProvider, (_, next) {
+      final n = next.value;
+      if (n != null && mounted) _invoiceToast(context, n);
+    });
     final page = KeyedSubtree(key: ValueKey(at.route), child: deskScreen(at));
     final main = Material(color: c.bg, child: page);
     final tour = ref.watch(deskTourProvider.select((t) => t.open));
@@ -145,10 +154,29 @@ class _DeskShellState extends ConsumerState<DeskShell> {
         children: [
           Positioned.fill(child: ExcludeFocus(excluding: tour, child: frame)),
           if (tour) Positioned.fill(child: DeskTourOverlay(key: ValueKey(tourStart), startAt: tourStart)),
+          // The clickable prototype (web build on the mock): plays the other side of invoices.
+          if (kIsWeb && !tour) const ProtoButton(),
         ],
       ),
     );
   }
+}
+
+/// A notice about an invoice, in the app's language. A paid one is the only good news; none
+/// says money came in for an invoice this wallet pays (P-1).
+void _invoiceToast(BuildContext context, InvoiceNotice n) {
+  final l = context.l10n;
+  final (text, tone) = switch (n.kind) {
+    InvoiceNoticeKind.paid => (l.deskInvNoticePaid(n.who, formatEpic(n.amount)), ETone.ok),
+    InvoiceNoticeKind.declined => (l.deskInvNoticeDeclined(n.who), ETone.warn),
+    InvoiceNoticeKind.issuedExpired => (l.deskInvNoticeIssuedExpired, ETone.neutral),
+    InvoiceNoticeKind.bounced => (l.deskInvIssuerBounced(n.who), ETone.warn),
+    InvoiceNoticeKind.withdrawn => (l.deskInvNoticeWithdrawn(n.who), ETone.neutral),
+    InvoiceNoticeKind.expired => (l.deskInvNoticeExpired, ETone.neutral),
+    InvoiceNoticeKind.unknownPayment => (l.deskInvNoticeUnknownPayment, ETone.warn),
+    InvoiceNoticeKind.unknownAnswer => (l.deskInvNoticeUnknownAnswer, ETone.warn),
+  };
+  showEToast(context, text, tone: tone);
 }
 
 /// Back: an open dialog or the tour holds it (Esc closes those); then the screen's inner step
@@ -287,6 +315,8 @@ class _Sidebar extends ConsumerWidget {
     final ts = context.ts;
     final nav = ref.read(deskNavProvider.notifier);
     final pending = ref.watch(deskProvider.select((s) => s.pendingFiles));
+    final invoices = ref.watch(deskApiProvider).supportsInvoices;
+    final toPay = ref.watch(deskInvoiceBadgeProvider);
     final account = ref.watch(deskProvider.select((s) => s.account));
     final label = ref.watch(settingsPrefsProvider.select((p) => p.walletLabel));
     final wallets = ref.watch(deskProvider.select((s) => s.wallets));
@@ -338,14 +368,19 @@ class _Sidebar extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     for (final (s, route, label, icon) in deskNav)
+                      if (s != DeskSection.invoices || invoices)
                       TourTarget(
                         id: 'nav-${s.name}',
                         child: ENavItem(
                           icon: icon,
-                          label: label,
+                          label: s == DeskSection.invoices ? context.l10n.deskInvNav : label,
                           selected: section == s,
                           compact: compact,
-                          count: s == DeskSection.activity ? pending : null,
+                          count: switch (s) {
+                            DeskSection.activity => pending,
+                            DeskSection.invoices => toPay,
+                            _ => null,
+                          },
                           onTap: () => nav.go(route),
                         ),
                       ),
@@ -499,7 +534,9 @@ class _PhoneNav extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final c = context.dc;
-    final index = deskNav.indexWhere((n) => n.$1 == section);
+    final invoices = ref.watch(deskApiProvider).supportsInvoices;
+    final items = [for (final n in deskNav) if (n.$1 != DeskSection.invoices || invoices) n];
+    final index = items.indexWhere((n) => n.$1 == section);
     return NavigationBarTheme(
       data: NavigationBarThemeData(
         backgroundColor: c.s1,
@@ -512,8 +549,11 @@ class _PhoneNav extends ConsumerWidget {
       ),
       child: NavigationBar(
         selectedIndex: index < 0 ? 0 : index,
-        onDestinationSelected: (i) => ref.read(deskNavProvider.notifier).go(deskNav[i].$2),
-        destinations: [for (final (_, _, label, icon) in deskNav) NavigationDestination(icon: Icon(icon), label: label)],
+        onDestinationSelected: (i) => ref.read(deskNavProvider.notifier).go(items[i].$2),
+        destinations: [
+          for (final (s, _, label, icon) in items)
+            NavigationDestination(icon: Icon(icon), label: s == DeskSection.invoices ? context.l10n.deskInvNav : label),
+        ],
       ),
     );
   }
