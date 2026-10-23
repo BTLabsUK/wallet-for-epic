@@ -5526,18 +5526,17 @@ class AppLocalizationsZh extends AppLocalizations {
   String get settingsNotifications => '通知';
 
   @override
-  String get settingsNotificationsHint => '有付款等待时提醒。使用 BT Labs 服务器，Tor 开启时关闭。';
+  String get settingsNotificationsHint => '使用 Google 的通知服务。不会共享任何敏感数据。';
 
   @override
   String get settingsPushPaused => 'Tor 开启时已暂停';
 
   @override
   String get pushConfirmRelayBody =>
-      '通知仅通过 BT Labs 的 Epicbox 服务器工作，并经由 Google 的服务发送。通知从不包含金额、地址或名称。';
+      '通知使用 BT Labs 的 Epicbox 和 Google 的通知服务。不会共享任何敏感数据。';
 
   @override
-  String get pushConfirmRelayAddress =>
-      'Epicbox 地址将变为 …@flooepicbox.btlabs.uk，联系人需要新地址。';
+  String get pushConfirmRelayAddress => '你的 Epicbox 地址将会更改。请分享新地址。';
 
   @override
   String get pushRelaySwitchFailed => '无法切换服务器。通知保持关闭。';
@@ -5546,7 +5545,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get pushConfirmTitle => '开启通知？';
 
   @override
-  String get pushConfirmBody => '通知经由 Google 的服务发送，从不包含金额、地址或名称。';
+  String get pushConfirmBody => '通知使用 Google 的通知服务。不会共享任何敏感数据。';
 
   @override
   String get pushConfirmAction => '开启';

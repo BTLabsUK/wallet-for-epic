@@ -7395,7 +7395,7 @@
   "@settingsNotifications": {
     "description": "The Notifications switch in Settings: the label only, its explanation is the info tooltip."
   },
-  "settingsNotificationsHint": "A notice when a payment is waiting. Uses the BT Labs relay, off while Tor is on.",
+  "settingsNotificationsHint": "Uses Google’s notification service. No sensitive data is shared.",
   "@settingsNotificationsHint": {
     "description": "Tooltip (info icon) of the Notifications switch."
   },
@@ -7403,11 +7403,11 @@
   "@settingsPushPaused": {
     "description": "State line under the Notifications switch while it is on and Tor is on."
   },
-  "pushConfirmRelayBody": "Notifications work only through the BT Labs Epicbox relay, and go through Google’s service. They never include amounts, addresses or names.",
+  "pushConfirmRelayBody": "Notifications use the BT Labs Epicbox and Google’s notification service. No sensitive data is shared.",
   "@pushConfirmRelayBody": {
     "description": "Confirm when notifications are turned on while the wallet is on another Epicbox relay: only the BT Labs relay can push, and Google carries the notification."
   },
-  "pushConfirmRelayAddress": "The Epicbox address changes to …@flooepicbox.btlabs.uk, so contacts need the new one.",
+  "pushConfirmRelayAddress": "Your Epicbox address will change. Share the new one.",
   "@pushConfirmRelayAddress": {
     "description": "Second line of that confirm: the wallet is moved to the BT Labs relay, so its Epicbox address ends in @flooepicbox.btlabs.uk from now on."
   },
@@ -7419,7 +7419,7 @@
   "@pushConfirmTitle": {
     "description": "Title of the confirmation before notifications are turned on."
   },
-  "pushConfirmBody": "Notifications go through Google’s service. They never include amounts, addresses or names.",
+  "pushConfirmBody": "Notifications use Google’s notification service. No sensitive data is shared.",
   "@pushConfirmBody": {
     "description": "Body of the confirmation before notifications are turned on."
   },

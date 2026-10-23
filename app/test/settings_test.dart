@@ -959,7 +959,7 @@ void main() {
         find.descendant(
           of: row(),
           matching: find.byTooltip(
-            'A notice when a payment is waiting. Uses the BT Labs relay, off while Tor is on.',
+            'Uses Google’s notification service. No sensitive data is shared.',
           ),
         ),
         findsOneWidget,
@@ -970,7 +970,7 @@ void main() {
       expect(find.text('Turn on notifications?'), findsOneWidget);
       expect(
         find.text(
-          'Notifications go through Google’s service. They never include amounts, addresses or names.',
+          'Notifications use Google’s notification service. No sensitive data is shared.',
         ),
         findsOneWidget,
       );
@@ -1099,14 +1099,14 @@ void main() {
       expect(find.text('Turn on notifications?'), findsOneWidget);
       expect(
         find.text(
-          'Notifications work only through the BT Labs Epicbox relay, and go through '
-          'Google’s service. They never include amounts, addresses or names.',
+          'Notifications use the BT Labs Epicbox and Google’s notification service. '
+          'No sensitive data is shared.',
         ),
         findsOneWidget,
       );
       expect(
         find.text(
-          'The Epicbox address changes to …@flooepicbox.btlabs.uk, so contacts need the new one.',
+          'Your Epicbox address will change. Share the new one.',
         ),
         findsOneWidget,
       );

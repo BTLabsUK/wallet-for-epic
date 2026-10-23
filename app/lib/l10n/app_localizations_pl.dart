@@ -6069,18 +6069,18 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get settingsNotificationsHint =>
-      'Powiadomienie, gdy czeka płatność. Używa serwera BT Labs, wyłączone, gdy Tor jest włączony.';
+      'Korzysta z usługi powiadomień Google. Żadne wrażliwe dane nie są udostępniane.';
 
   @override
   String get settingsPushPaused => 'Wstrzymane, gdy Tor jest włączony';
 
   @override
   String get pushConfirmRelayBody =>
-      'Powiadomienia działają tylko przez serwer Epicbox BT Labs i przechodzą przez usługę Google. Nigdy nie zawierają kwot, adresów ani nazw.';
+      'Powiadomienia korzystają z Epicbox BT Labs i usługi powiadomień Google. Żadne wrażliwe dane nie są udostępniane.';
 
   @override
   String get pushConfirmRelayAddress =>
-      'Adres Epicbox zmienia się na …@flooepicbox.btlabs.uk, więc kontakty potrzebują nowego.';
+      'Twój adres Epicbox się zmieni. Udostępnij nowy.';
 
   @override
   String get pushRelaySwitchFailed =>
@@ -6091,7 +6091,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get pushConfirmBody =>
-      'Powiadomienia przechodzą przez usługę Google. Nigdy nie zawierają kwot, adresów ani nazw.';
+      'Powiadomienia korzystają z usługi powiadomień Google. Żadne wrażliwe dane nie są udostępniane.';
 
   @override
   String get pushConfirmAction => 'Włącz';
