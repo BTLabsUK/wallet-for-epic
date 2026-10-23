@@ -54,7 +54,8 @@ void main() {
     expect(find.text('v4.1.0'), findsNothing);
     expect(tester.getSize(find.byType(EIconButton)).width, starAt419);
     expect(tester.getSize(find.text('12 behind')).width, tipAt419);
-    expect(tester.getSize(find.text('18 ms')).width, 52.u);
+    // The latency column keeps its width (the text scales down inside it when it is longer).
+    expect(tester.getSize(find.ancestor(of: find.text('18 ms'), matching: find.byType(SizedBox)).first).width, 68.u);
     expect(tester.takeException(), isNull);
   });
 
