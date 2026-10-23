@@ -451,7 +451,7 @@
   "updateInstallButton": "Aktualisieren",
   "updateTryAgain": "Wiederholen",
   "updateDownloadProgressLabel": "Download-Fortschritt",
-  "updateNeedsPermission": "Erlauben Sie dieser App im geöffneten Bildschirm, Updates zu installieren, und tippen Sie dann erneut auf „Aktualisieren“.",
+  "updateAllowInstalls": "Erlauben Sie Installationen von Epic Cash Mobile und kehren Sie dann zurück.",
   "updateNotInstalled": "Das Update wurde nicht installiert: {detail}",
   "updateCannotInstall": "Das Update kann nicht installiert werden: {detail}.",
   "updateCannotInstallUnknown": "Das Update kann nicht installiert werden: unbekannter Fehler.",

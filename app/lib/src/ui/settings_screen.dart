@@ -420,6 +420,7 @@ class _UpdateRow extends ConsumerWidget {
           l.updateDownloading(version, ((state.progress ?? 0) * 100).floor()),
         ),
         UpdatePhase.installing => Text(l.updateInstalling(version)),
+        UpdatePhase.needsPermission => Text(l.updateAllowInstalls),
         _ => null,
       },
       trailing: FilledButton(

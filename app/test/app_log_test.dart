@@ -142,6 +142,16 @@ void main() {
         fields: [],
       ),
     );
+    // Every minute: kept only with Detailed logging.
+    logLepicEntry(
+      const lepic.LogEntry(
+        level: lepic.LogLevel.info,
+        target: 'lepic_wallet::refresh',
+        message: 'refresh completed',
+        spans: ['refresh'],
+        fields: [lepic.LogField(name: 'height', value: '3766845')],
+      ),
+    );
 
     final written = sink.file.readAsStringSync();
     expect(
@@ -168,6 +178,7 @@ void main() {
       ),
     );
     expect(written, isNot(contains('debug detail')));
+    expect(written, isNot(contains('refresh completed')));
     for (final text in [written, await sink.tail(1 << 20), ...mirrored]) {
       for (final secret in [
         'participant_data',

@@ -165,15 +165,35 @@ final networkChangesProvider = Provider<Stream<bool>>(
   (ref) => const Stream<bool>.empty(),
 );
 
-/// The Android app's network events (`NetworkWatch.kt`); nothing elsewhere.
+/// The Android app's network events (`NetworkWatch.kt`); nothing elsewhere. Each is logged
+/// once, however many listen.
 Stream<bool> androidNetworkChanges() {
   if (kIsWeb || defaultTargetPlatform != TargetPlatform.android) {
     return const Stream<bool>.empty();
   }
-  return const EventChannel('epic_wallet/network')
-      .receiveBroadcastStream()
-      .map((e) => e == 'available')
-      .handleError((Object _) {});
+  StreamSubscription<dynamic>? events;
+  late final StreamController<bool> out;
+  out = StreamController<bool>.broadcast(
+    onListen: () => events = const EventChannel('epic_wallet/network')
+        .receiveBroadcastStream()
+        .listen((e) => out.add(networkEvent(e)), onError: (Object _) {}),
+    onCancel: () => events?.cancel(),
+  );
+  return out.stream;
+}
+
+/// One event of `NetworkWatch.kt` (`available:wifi`, `lost`): logged, and true when a
+/// network is there.
+bool networkEvent(Object? event) {
+  final text = '$event';
+  final available = text.startsWith('available');
+  logInfo(
+    'network',
+    available
+        ? 'connection up (${text.contains(':') ? text.split(':').last : 'unknown'})'
+        : 'connection lost',
+  );
+  return available;
 }
 
 /// How long [PhoneTor] waits. Tests shorten them.

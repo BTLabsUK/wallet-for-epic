@@ -808,6 +808,14 @@ void showUpdateNotice(
         persistent: true,
         action: NoticeAction(l.updateInstallButton, updater.install),
       );
+    case UpdatePhase.needsPermission:
+      // Allow, then return: the update carries on by itself; Update asks again.
+      show(
+        state.text?.call(l) ?? l.updateAllowInstalls,
+        NoticeLevel.info,
+        persistent: true,
+        action: NoticeAction(l.updateInstallButton, updater.install),
+      );
     case UpdatePhase.downloading:
       final progress = state.progress ?? 0;
       show(

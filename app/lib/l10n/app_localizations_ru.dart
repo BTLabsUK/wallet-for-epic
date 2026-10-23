@@ -2086,8 +2086,8 @@ class AppLocalizationsRu extends AppLocalizations {
   String get updateDownloadProgressLabel => 'Ход загрузки';
 
   @override
-  String get updateNeedsPermission =>
-      'Разрешите этому приложению устанавливать обновления на открывшемся экране, затем снова нажмите «Обновить».';
+  String get updateAllowInstalls =>
+      'Разрешите установку из Epic Cash Mobile, затем вернитесь.';
 
   @override
   String updateNotInstalled(String detail) {

@@ -20,6 +20,13 @@ String ageText(Duration d) {
   return '${d.inDays} d ago';
 }
 
+/// Why readiness is unknown: only a node that says it is older than 4.1.0 lacks `ready_for_txs`;
+/// a 4.1.x node (or one whose version is unknown) simply did not answer that call in time.
+String _unknownReadiness(String? version) {
+  final c = version == null ? null : compareVersions(version, '4.1.0');
+  return c != null && c < 0 ? 'node before 4.1.0' : 'no answer';
+}
+
 /// The network line of a directory answer: the tip, nodes and relays up, the last block.
 /// With `forked` the first part becomes "Nodes disagree on the tip" (warn).
 (String, bool) networkLine(NetworkStatus n) {
@@ -94,7 +101,7 @@ class NodeCard extends StatelessWidget {
             false => 'Not yet',
             null => 'Unknown',
           },
-          i.readyForTxs == null ? 'node before 4.1.0' : null,
+          i.readyForTxs == null ? _unknownReadiness(i.version) : null,
           tone: i.readyForTxs == false ? EState.warn : null,
         ),
         _Fact('Latency', latency == null ? '–' : '${digitsText(latency)} ms', where),

@@ -8,6 +8,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../app_log.dart';
+import '../connection_state.dart';
 import '../demo.dart';
 import '../errors.dart';
 import '../l10n.dart';
@@ -25,6 +26,7 @@ import 'help_screen.dart';
 import 'invoice_request_screen.dart' show InvoiceRequestScreen;
 import 'method_strip.dart';
 import 'settings_screen.dart';
+import 'status.dart' show EpicboxState;
 import 'slate_file_screen.dart';
 import 'theme/advanced.dart';
 import 'theme/brand.dart';
@@ -591,9 +593,11 @@ class _EpicboxLine extends ConsumerWidget {
     final l = context.l10n;
     final t = context.tokens;
     final theme = Theme.of(context);
-    final listener = ref.watch(listenerProvider);
-    final offline = !listener.connected && (listener.lost || listener.stopped);
-    final (IconData icon, String word, Color color) = listener.connected
+    // As the header shows it: offline only once it lasts; a stopped listener (null) at once.
+    final epicbox = ref.watch(walletStatusProvider.select((s) => s.epicbox));
+    final offline = epicbox == null || epicbox == EpicboxState.offline;
+    final (IconData icon, String word, Color color) =
+        epicbox == EpicboxState.online
         ? (Icons.mark_email_read_outlined, l.statusEpicboxOnline, t.ok)
         : offline
         ? (Icons.unsubscribe_outlined, l.statusEpicboxOffline, t.risk)

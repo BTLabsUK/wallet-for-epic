@@ -1058,5 +1058,8 @@ class _FakeUpdatePlatform implements UpdatePlatform {
   }
 
   @override
+  Future<void> requestInstallPermission() async {}
+
+  @override
   Stream<({String status, String? message})> get installEvents => events.stream;
 }
