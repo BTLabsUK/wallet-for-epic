@@ -3830,10 +3830,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get outputsExplainer =>
-      'Outputs are the pieces the balance is made of. A send spends whole outputs and returns the rest as a new one.';
-
-  @override
   String get outputsSplitButton => 'Split…';
 
   @override
@@ -3964,11 +3960,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get outputsNoteSendPlain => 'Send in progress';
 
   @override
-  String outputsRow(String note, String word) {
-    return '$word · $note';
-  }
-
-  @override
   String get outputsFactHeight => 'Height';
 
   @override
@@ -4088,6 +4079,18 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get outputsConsolidateStarted =>
       'Consolidate started: one output, confirming in about 3 blocks';
+
+  @override
+  String get outputsAdvanced => 'Advanced';
+
+  @override
+  String get outputsColState => 'State';
+
+  @override
+  String get outputsColValue => 'Value';
+
+  @override
+  String get outputsColConfirmations => 'Confirmations';
 
   @override
   String homePendingShort(String amount) {

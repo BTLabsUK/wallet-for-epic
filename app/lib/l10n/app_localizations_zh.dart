@@ -3610,9 +3610,6 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get outputsExplainer => '输出是余额的组成部分。一次发送会花掉整个输出，其余部分作为新的输出返回。';
-
-  @override
   String get outputsSplitButton => '拆分…';
 
   @override
@@ -3737,11 +3734,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get outputsNoteSendPlain => '发送进行中';
 
   @override
-  String outputsRow(String note, String word) {
-    return '$word · $note';
-  }
-
-  @override
   String get outputsFactHeight => '高度';
 
   @override
@@ -3857,6 +3849,18 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get outputsConsolidateStarted => '合并已开始：一个输出，约 3 个区块后确认';
+
+  @override
+  String get outputsAdvanced => '高级';
+
+  @override
+  String get outputsColState => '状态';
+
+  @override
+  String get outputsColValue => '数值';
+
+  @override
+  String get outputsColConfirmations => '确认数';
 
   @override
   String homePendingShort(String amount) {

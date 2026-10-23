@@ -3975,10 +3975,6 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get outputsExplainer =>
-      'Выходы — части, из которых состоит баланс. Отправка тратит выходы целиком, а остаток возвращает новым выходом.';
-
-  @override
   String get outputsSplitButton => 'Разделить…';
 
   @override
@@ -4109,11 +4105,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get outputsNoteSendPlain => 'Отправка в процессе';
 
   @override
-  String outputsRow(String note, String word) {
-    return '$word · $note';
-  }
-
-  @override
   String get outputsFactHeight => 'Высота';
 
   @override
@@ -4236,6 +4227,18 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get outputsConsolidateStarted =>
       'Объединение начато: один выход, подтверждение примерно через 3 блока';
+
+  @override
+  String get outputsAdvanced => 'Дополнительно';
+
+  @override
+  String get outputsColState => 'Статус';
+
+  @override
+  String get outputsColValue => 'Сумма';
+
+  @override
+  String get outputsColConfirmations => 'Подтверждения';
 
   @override
   String homePendingShort(String amount) {

@@ -4696,10 +4696,6 @@
       }
     }
   },
-  "outputsExplainer": "Outputs are the pieces the balance is made of. A send spends whole outputs and returns the rest as a new one.",
-  "@outputsExplainer": {
-    "description": "Outputs screen: what outputs are."
-  },
   "outputsSplitButton": "Split…",
   "@outputsSplitButton": {
     "description": "Button: open the Split sheet."
@@ -4887,18 +4883,6 @@
   "@outputsNoteSendPlain": {
     "description": "Row note on a locked output when the send is not known."
   },
-  "outputsRow": "{word} · {note}",
-  "@outputsRow": {
-    "description": "Row subtitle: a status word and a note.",
-    "placeholders": {
-      "note": {
-        "type": "String"
-      },
-      "word": {
-        "type": "String"
-      }
-    }
-  },
   "outputsFactHeight": "Height",
   "@outputsFactHeight": {
     "description": "Output sheet fact."
@@ -5075,6 +5059,22 @@
   "outputsConsolidateStarted": "Consolidate started: one output, confirming in about 3 blocks",
   "@outputsConsolidateStarted": {
     "description": "Notice after a consolidation was posted."
+  },
+  "outputsAdvanced": "Advanced",
+  "@outputsAdvanced": {
+    "description": "Outputs screen: head of the section under the table that holds Split, Consolidate, the strategy and Split change."
+  },
+  "outputsColState": "State",
+  "@outputsColState": {
+    "description": "Output table header: the column with each output's state mark, word and note. One word."
+  },
+  "outputsColValue": "Value",
+  "@outputsColValue": {
+    "description": "Output table header: the column with each output's amount."
+  },
+  "outputsColConfirmations": "Confirmations",
+  "@outputsColConfirmations": {
+    "description": "Output table header: the column with an output's confirmations out of the needed, e.g. 1 / 3. The column is narrow: keep it to one short word."
   },
   "homePendingShort": "{amount} stays locked until the recipient's wallet answers.",
   "@homePendingShort": {

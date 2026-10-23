@@ -5888,12 +5888,6 @@ abstract class AppLocalizations {
   /// **'{count, plural, =1{1 output} other{{count} outputs}}'**
   String outputsCount(int count);
 
-  /// Outputs screen: what outputs are.
-  ///
-  /// In en, this message translates to:
-  /// **'Outputs are the pieces the balance is made of. A send spends whole outputs and returns the rest as a new one.'**
-  String get outputsExplainer;
-
   /// Button: open the Split sheet.
   ///
   /// In en, this message translates to:
@@ -6110,12 +6104,6 @@ abstract class AppLocalizations {
   /// **'Send in progress'**
   String get outputsNoteSendPlain;
 
-  /// Row subtitle: a status word and a note.
-  ///
-  /// In en, this message translates to:
-  /// **'{word} · {note}'**
-  String outputsRow(String note, String word);
-
   /// Output sheet fact.
   ///
   /// In en, this message translates to:
@@ -6306,6 +6294,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Consolidate started: one output, confirming in about 3 blocks'**
   String get outputsConsolidateStarted;
+
+  /// Outputs screen: head of the section under the table that holds Split, Consolidate, the strategy and Split change.
+  ///
+  /// In en, this message translates to:
+  /// **'Advanced'**
+  String get outputsAdvanced;
+
+  /// Output table header: the column with each output's state mark, word and note. One word.
+  ///
+  /// In en, this message translates to:
+  /// **'State'**
+  String get outputsColState;
+
+  /// Output table header: the column with each output's amount.
+  ///
+  /// In en, this message translates to:
+  /// **'Value'**
+  String get outputsColValue;
+
+  /// Output table header: the column with an output's confirmations out of the needed, e.g. 1 / 3. The column is narrow: keep it to one short word.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirmations'**
+  String get outputsColConfirmations;
 
   /// One line under the pending-sends card's title: the locked amount and what it waits for. {amount} is the total of the waiting sends.
   ///

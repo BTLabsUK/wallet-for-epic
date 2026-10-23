@@ -3994,10 +3994,6 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String get outputsExplainer =>
-      'Wyjścia to części, z których składa się saldo. Wysyłka wydaje całe wyjścia, a resztę zwraca jako nowe wyjście.';
-
-  @override
   String get outputsSplitButton => 'Podziel…';
 
   @override
@@ -4129,11 +4125,6 @@ class AppLocalizationsPl extends AppLocalizations {
   String get outputsNoteSendPlain => 'Wysyłka w toku';
 
   @override
-  String outputsRow(String note, String word) {
-    return '$word · $note';
-  }
-
-  @override
   String get outputsFactHeight => 'Wysokość';
 
   @override
@@ -4255,6 +4246,18 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get outputsConsolidateStarted =>
       'Scalanie rozpoczęte: jedno wyjście, potwierdzenie za około 3 bloki';
+
+  @override
+  String get outputsAdvanced => 'Zaawansowane';
+
+  @override
+  String get outputsColState => 'Stan';
+
+  @override
+  String get outputsColValue => 'Wartość';
+
+  @override
+  String get outputsColConfirmations => 'Potwierdzenia';
 
   @override
   String homePendingShort(String amount) {
