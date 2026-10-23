@@ -8,7 +8,7 @@ import 'demo.dart';
 import 'demo_web_connection.dart';
 import 'l10n.dart';
 import 'providers.dart';
-import 'push.dart';
+import 'push_controller.dart';
 import 'secret_store.dart' show PlatformBiometricStore;
 import 'settings.dart';
 import 'ui/common.dart';
@@ -46,22 +46,24 @@ class _WalletAppState extends ConsumerState<WalletApp> {
     _lifecycle;
     // Alive for the app's life: it drains the payments address whenever a wallet opens.
     ref.listenManual(paymentsDrainProvider, (_, _) {});
-    // Payment notifications start only once the user turned them on. Firebase cannot be shut
-    // down in-process, so turning them off takes effect at the next start.
-    ref.listenManual(
-      appSettingsProvider.select((s) => s.value?.pushNotifications ?? false),
-      (_, on) async {
-        if (!on) return;
-        final permitted = await ref.read(pushProvider.notifier).start();
-        // Denied in system settings: the switch goes back off and settings says why.
-        if (!permitted && mounted) {
-          await ref
-              .read(appSettingsProvider.notifier)
-              .setPushNotifications(false);
-        }
-      },
-      fireImmediately: true,
-    );
+    // Push notifications follow every unlock and the Tor switch (push_controller.dart); what
+    // they tell the user is said here, where the language is known.
+    ref.listenManual(pushControllerProvider, (_, _) {});
+    ref.listenManual(pushNoteProvider, (_, event) {
+      final context = _navigator.currentContext;
+      if (event == null || context == null) return;
+      final l = context.l10n;
+      ref
+          .read(noticeProvider.notifier)
+          .show(
+            switch (event.note) {
+              PushNote.on => l.pushNoticeOn,
+              PushNote.off => l.pushNoticeOff,
+              PushNote.available => l.pushNoticeAvailable,
+            },
+            level: NoticeLevel.info,
+          );
+    });
   }
 
   @override

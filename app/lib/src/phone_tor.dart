@@ -198,6 +198,24 @@ final phoneTorTimingProvider = Provider<PhoneTorTiming>(
   (ref) => const PhoneTorTiming(),
 );
 
+/// What other parts of the app do around the Tor switch, which this file must not know about
+/// (push notifications unregister over the clearnet, and register again once it is back).
+class TorSwitchHooks {
+  const TorSwitchHooks({this.beforeOn, this.afterOff});
+
+  /// Awaited when the switch is turned on, before the state changes and before tor starts, so
+  /// nothing has been routed over tor yet. It limits its own time.
+  final Future<void> Function()? beforeOn;
+
+  /// Awaited once tor has stopped after the switch was turned off, with the clearnet back.
+  final Future<void> Function()? afterOff;
+}
+
+/// `main.dart` overrides it with the push notifications' hooks, as with [networkChangesProvider].
+final torSwitchHooksProvider = Provider<TorSwitchHooks>(
+  (ref) => const TorSwitchHooks(),
+);
+
 /// Tor for the open wallet. Something always on screen while a wallet is open must watch it,
 /// so it starts on unlock.
 final phoneTorProvider = NotifierProvider<PhoneTor, PhoneTorState>(
@@ -328,6 +346,12 @@ class PhoneTor extends Notifier<PhoneTorState> {
   /// Turns the user's "Tor receiving" switch for this wallet on or off, and starts or stops
   /// tor. Off waits for a Tor send that is running, then stops.
   Future<void> setReceiving(bool on) async {
+    final was = state.receiving;
+    final hooks = ref.read(torSwitchHooksProvider);
+    if (on && !was && _session != null && state.phase != PhoneTorPhase.unavailable) {
+      await _hook(hooks.beforeOn);
+      if (!ref.mounted) return;
+    }
     final config = _config;
     if (config != null) {
       await ref.read(secretStoreProvider).write(receivingKey(config), '$on');
@@ -347,6 +371,16 @@ class PhoneTor extends Notifier<PhoneTorState> {
       _stopAfterSends = true;
     } else {
       await _stop();
+      if (was) await _hook(hooks.afterOff);
+    }
+  }
+
+  /// Runs a hook of [torSwitchHooksProvider]; whatever it does, the switch goes on.
+  Future<void> _hook(Future<void> Function()? hook) async {
+    try {
+      await hook?.call();
+    } catch (e) {
+      logWarn('tor', 'switch hook: ${e.runtimeType}');
     }
   }
 
@@ -396,7 +430,12 @@ class PhoneTor extends Notifier<PhoneTorState> {
           _stopAfterSends &&
           ref.mounted) {
         _stopAfterSends = false;
-        if (!_wanted) await _stop();
+        if (!_wanted) {
+          await _stop();
+          if (ref.mounted && !state.receiving) {
+            await _hook(ref.read(torSwitchHooksProvider).afterOff);
+          }
+        }
       }
     }
   }

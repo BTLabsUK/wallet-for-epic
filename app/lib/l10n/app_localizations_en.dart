@@ -2784,20 +2784,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsSectionNotifications => 'Notifications';
 
   @override
-  String get settingsPaymentNotifications => 'Payment notifications';
-
-  @override
-  String get settingsPushHint => 'Delivered by Google Firebase.';
-
-  @override
-  String get settingsPushOnNotice =>
-      'No epicbox server sends them yet. Open the app to receive a payment.';
-
-  @override
-  String get settingsPushOffNotice =>
-      'Notifications stop the next time the app starts.';
-
-  @override
   String get settingsPushBlocked =>
       'Notifications are blocked in system settings';
 
@@ -5866,7 +5852,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get torNetworkHint =>
-      'Network activity goes through the Tor network. Tor hides the wallet’s internet address: each connection passes through several volunteer-run relays, so no server learns where the wallet is.';
+      'Network activity goes through the Tor network. Tor hides the wallet’s internet address: each connection passes through several volunteer-run relays, so no server learns where the wallet is. Notifications are off while Tor is on.';
 
   @override
   String get receiveTabDirect => 'Direct';
@@ -5879,8 +5865,34 @@ class AppLocalizationsEn extends AppLocalizations {
       'Senders use the Epicbox address meanwhile.';
 
   @override
-  String get settingsPushOffWhileTor => 'Off while Tor is on';
+  String get netStatusOverTor => 'over Tor';
 
   @override
-  String get netStatusOverTor => 'over Tor';
+  String get settingsNotifications => 'Notifications';
+
+  @override
+  String get settingsNotificationsHint =>
+      'A notice when a payment is waiting. Off while Tor is on.';
+
+  @override
+  String get settingsPushPaused => 'Paused while Tor is on';
+
+  @override
+  String get pushConfirmTitle => 'Turn on notifications?';
+
+  @override
+  String get pushConfirmBody =>
+      'Notifications go through Google’s service. They never include amounts, addresses or names.';
+
+  @override
+  String get pushConfirmAction => 'Turn on';
+
+  @override
+  String get pushNoticeOn => 'Notifications on';
+
+  @override
+  String get pushNoticeOff => 'Notifications off';
+
+  @override
+  String get pushNoticeAvailable => 'Notifications are available in Settings.';
 }

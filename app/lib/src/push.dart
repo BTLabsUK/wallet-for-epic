@@ -2,7 +2,7 @@
 ///
 /// A push only says "a transaction is waiting on the relay". It carries no amount or sender and
 /// nothing is signed from it: opening the app and unlocking lets the epicbox listener collect the
-/// slate as usual. Registering the token with a relay webhook comes with the relay change.
+/// slate as usual. `push_controller.dart` registers the token with the relay.
 library;
 
 import 'dart:async';
@@ -50,6 +50,9 @@ abstract interface class PushPlatform {
 
   Future<String?> token();
 
+  /// Forgets the device token: pushes to it stop, and [token] makes a new one.
+  Future<void> deleteToken();
+
   Stream<String> get tokenRefresh;
 
   /// Pushes that arrive while the app is in the foreground.
@@ -81,6 +84,9 @@ class FirebasePushPlatform implements PushPlatform {
 
   @override
   Future<String?> token() => FirebaseMessaging.instance.getToken();
+
+  @override
+  Future<void> deleteToken() => FirebaseMessaging.instance.deleteToken();
 
   @override
   Stream<String> get tokenRefresh => FirebaseMessaging.instance.onTokenRefresh;
@@ -168,5 +174,32 @@ class PushNotifier extends Notifier<PushState> {
       return false;
     }
     return true;
+  }
+
+  /// A new token, after [deleteToken]; null when Firebase has not started or has none.
+  Future<String?> freshToken() async {
+    final platform = ref.read(pushPlatformProvider);
+    if (platform == null || !_started) return null;
+    try {
+      final token = await platform.token();
+      state = PushState(token: token, permitted: state.permitted, last: state.last);
+      return token;
+    } catch (error) {
+      logWarn('push', 'token failed: ${error.runtimeType}');
+      return null;
+    }
+  }
+
+  /// Deletes the device token (Tor on, or notifications off). Does nothing before Firebase
+  /// has started in this process: there is no token of ours to delete then.
+  Future<void> deleteToken() async {
+    final platform = ref.read(pushPlatformProvider);
+    if (platform == null || !_started) return;
+    try {
+      await platform.deleteToken();
+    } catch (error) {
+      logWarn('push', 'token not deleted: ${error.runtimeType}');
+    }
+    state = PushState(permitted: state.permitted, last: state.last);
   }
 }

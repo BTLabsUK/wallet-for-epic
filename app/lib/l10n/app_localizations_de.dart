@@ -2820,20 +2820,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get settingsSectionNotifications => 'Benachrichtigungen';
 
   @override
-  String get settingsPaymentNotifications => 'Zahlungsbenachrichtigungen';
-
-  @override
-  String get settingsPushHint => 'Zugestellt über Google Firebase.';
-
-  @override
-  String get settingsPushOnNotice =>
-      'Noch sendet kein epicbox-Server solche Benachrichtigungen. Öffnen Sie die App, um eine Zahlung zu empfangen.';
-
-  @override
-  String get settingsPushOffNotice =>
-      'Die Benachrichtigungen enden beim nächsten Start der App.';
-
-  @override
   String get settingsPushBlocked =>
       'Benachrichtigungen sind in den Systemeinstellungen blockiert';
 
@@ -5941,7 +5927,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get torNetworkHint =>
-      'Die Netzwerkaktivität läuft über das Tor-Netzwerk. Tor verbirgt die Internetadresse der Wallet: Jede Verbindung geht über mehrere ehrenamtlich betriebene Relays, sodass kein Server erfährt, wo die Wallet ist.';
+      'Die Netzwerkaktivität läuft über das Tor-Netzwerk. Tor verbirgt die Internetadresse der Wallet: Jede Verbindung geht über mehrere ehrenamtlich betriebene Relays, sodass kein Server erfährt, wo die Wallet ist. Benachrichtigungen sind aus, solange Tor an ist.';
 
   @override
   String get receiveTabDirect => 'Direkt';
@@ -5954,8 +5940,35 @@ class AppLocalizationsDe extends AppLocalizations {
       'Absender nutzen bis dahin die Epicbox-Adresse.';
 
   @override
-  String get settingsPushOffWhileTor => 'Aus, solange Tor an ist';
+  String get netStatusOverTor => 'über Tor';
 
   @override
-  String get netStatusOverTor => 'über Tor';
+  String get settingsNotifications => 'Benachrichtigungen';
+
+  @override
+  String get settingsNotificationsHint =>
+      'Ein Hinweis, wenn eine Zahlung wartet. Aus, solange Tor an ist.';
+
+  @override
+  String get settingsPushPaused => 'Pausiert, solange Tor an ist';
+
+  @override
+  String get pushConfirmTitle => 'Benachrichtigungen einschalten?';
+
+  @override
+  String get pushConfirmBody =>
+      'Benachrichtigungen laufen über den Dienst von Google. Sie enthalten nie Beträge, Adressen oder Namen.';
+
+  @override
+  String get pushConfirmAction => 'Einschalten';
+
+  @override
+  String get pushNoticeOn => 'Benachrichtigungen an';
+
+  @override
+  String get pushNoticeOff => 'Benachrichtigungen aus';
+
+  @override
+  String get pushNoticeAvailable =>
+      'Benachrichtigungen sind in den Einstellungen verfügbar.';
 }

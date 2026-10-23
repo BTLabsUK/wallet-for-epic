@@ -2936,20 +2936,6 @@ class AppLocalizationsPl extends AppLocalizations {
   String get settingsSectionNotifications => 'Powiadomienia';
 
   @override
-  String get settingsPaymentNotifications => 'Powiadomienia o płatnościach';
-
-  @override
-  String get settingsPushHint => 'Dostarczane przez Google Firebase.';
-
-  @override
-  String get settingsPushOnNotice =>
-      'Żaden serwer epicbox jeszcze ich nie wysyła. Aby odebrać płatność, otwórz aplikację.';
-
-  @override
-  String get settingsPushOffNotice =>
-      'Powiadomienia przestaną przychodzić po następnym uruchomieniu aplikacji.';
-
-  @override
   String get settingsPushBlocked =>
       'Powiadomienia są zablokowane w ustawieniach systemu';
 
@@ -6065,7 +6051,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get torNetworkHint =>
-      'Ruch sieciowy przechodzi przez sieć Tor. Tor ukrywa adres internetowy portfela: każde połączenie przechodzi przez kilka przekaźników prowadzonych przez wolontariuszy, więc żaden serwer nie dowiaduje się, gdzie jest portfel.';
+      'Ruch sieciowy przechodzi przez sieć Tor. Tor ukrywa adres internetowy portfela: każde połączenie przechodzi przez kilka przekaźników prowadzonych przez wolontariuszy, więc żaden serwer nie dowiaduje się, gdzie jest portfel. Powiadomienia są wyłączone, gdy Tor jest włączony.';
 
   @override
   String get receiveTabDirect => 'Bezpośrednio';
@@ -6078,8 +6064,34 @@ class AppLocalizationsPl extends AppLocalizations {
       'Do tego czasu nadawcy używają adresu Epicbox.';
 
   @override
-  String get settingsPushOffWhileTor => 'Wyłączone, gdy Tor jest włączony';
+  String get netStatusOverTor => 'przez Tor';
 
   @override
-  String get netStatusOverTor => 'przez Tor';
+  String get settingsNotifications => 'Powiadomienia';
+
+  @override
+  String get settingsNotificationsHint =>
+      'Powiadomienie, gdy czeka płatność. Wyłączone, gdy Tor jest włączony.';
+
+  @override
+  String get settingsPushPaused => 'Wstrzymane, gdy Tor jest włączony';
+
+  @override
+  String get pushConfirmTitle => 'Włączyć powiadomienia?';
+
+  @override
+  String get pushConfirmBody =>
+      'Powiadomienia przechodzą przez usługę Google. Nigdy nie zawierają kwot, adresów ani nazw.';
+
+  @override
+  String get pushConfirmAction => 'Włącz';
+
+  @override
+  String get pushNoticeOn => 'Powiadomienia włączone';
+
+  @override
+  String get pushNoticeOff => 'Powiadomienia wyłączone';
+
+  @override
+  String get pushNoticeAvailable => 'Powiadomienia są dostępne w Ustawieniach.';
 }
