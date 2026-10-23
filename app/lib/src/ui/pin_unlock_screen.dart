@@ -142,7 +142,7 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
         if (mounted) setState(() => _biometrics = still);
         return;
       }
-      ref.read(sessionProvider.notifier).unlocked(session);
+      await ref.read(sessionProvider.notifier).open(session);
       if (mounted) goHome(context);
     } on PinRejected catch (rejection) {
       _pin.clear();

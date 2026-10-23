@@ -148,7 +148,7 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
             .read(noticeProvider.notifier)
             .show(l.firstRunBiometricsNotSetUp, level: NoticeLevel.warning);
       }
-      ref.read(sessionProvider.notifier).unlocked(session);
+      await ref.read(sessionProvider.notifier).open(session);
       if (!mounted) return;
       setState(() => _step = _RestoreStep.scan);
       unawaited(setSecureScreen(false));

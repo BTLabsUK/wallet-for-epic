@@ -613,6 +613,10 @@ class HttpSent {
 }
 
 /// What the wallet's tor did. Never names a sender, the slate or a key.
+/// A TLS host that is also an onion service with the host's certificate: connections to
+/// [host]:[port] through tor dial [onion]:[onionPort] instead (LEPIC's onion routes).
+typedef TorOnionRoute = ({String host, int port, String onion, int onionPort});
+
 enum TorEventKind {
   /// Starting and connecting to the Tor network, [TorEvent.progress] percent done.
   starting,

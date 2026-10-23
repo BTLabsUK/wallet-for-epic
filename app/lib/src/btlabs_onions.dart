@@ -4,6 +4,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'btlabs_public.dart';
+import 'models.dart' show TorOnionRoute;
 
 /// The list that shipped with the app (serial 3 of btlabs.json).
 const List<BtlOnion> builtInOnions = [
@@ -72,6 +73,13 @@ class OnionDirectory {
     if (onions != null) _list = onions;
   }
 }
+
+/// The TLS entries of [directory] as LEPIC's onion routes: through tor these hosts are reached
+/// at their onion, still checking the host's certificate. Plain-HTTP onions stay out.
+List<TorOnionRoute> onionRoutesOf(OnionDirectory directory) => [
+  for (final e in directory.entries)
+    if (e.tls) (host: e.host, port: e.port, onion: e.onion, onionPort: e.onionPort),
+];
 
 /// The app's one directory.
 final onionDirectoryProvider = Provider<OnionDirectory>((ref) => OnionDirectory());

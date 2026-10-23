@@ -344,6 +344,18 @@ class GatedWalletSession implements WalletSession {
   Future<void> stopTor() async {}
 
   @override
+  Future<void> setEpicboxOverTor(bool on) async {}
+
+  @override
+  Future<void> expectTor() async {}
+
+  @override
+  Future<bool> epicboxOverTor() async => false;
+
+  @override
+  Future<void> setOnionRoutes(List<TorOnionRoute> routes) async {}
+
+  @override
   Future<TorStatus> torStatus() async => TorStatus.off;
 
   @override
