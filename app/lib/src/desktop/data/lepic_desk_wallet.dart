@@ -3396,7 +3396,7 @@ class LepicDeskWallet implements DeskWalletApi {
           message: _line(record.message),
           receivedAt: tx.created,
           expiresAt: tx.created.add(_invoiceExpiry),
-          state: payState(e, record.status, tip: _tip, minConf: minConf),
+          state: payState(e, record.status, tip: _tip, minConf: minConf, overdueAt: tx.created.add(_invoiceExpiry), now: now),
           confirmations: tx.confirmations,
           txId: e.id,
           answeredAt: tx.created,
@@ -3823,8 +3823,10 @@ Tx deskTx(core.TxEntry e, {required int tip, required int minConf, required int 
 }
 
 /// Where a paid invoice stands (flow.md §4.4), from its payment and what the session recorded
-/// of the reply and the service's notices.
-PayState payState(core.TxEntry e, core.InvoiceStatus status, {required int tip, required int minConf}) {
+/// of the reply and the service's notices. A payment still waiting at [overdueAt] is past its
+/// time: LEPIC never marks an invoice payment releasable, and by then the service's invoice has
+/// expired, so the user may cancel it (LEPIC still asks the node first).
+PayState payState(core.TxEntry e, core.InvoiceStatus status, {required int tip, required int minConf, DateTime? overdueAt, DateTime? now}) {
   if (e.status == core.TxStatus.cancelled) return PayState.cancelled;
   if (status == core.InvoiceStatus.replyFailed) return PayState.notDelivered;
   final height = e.blockHeight?.toInt();
@@ -3835,6 +3837,7 @@ PayState payState(core.TxEntry e, core.InvoiceStatus status, {required int tip, 
   final ttl = e.ttlCutoffHeight?.toInt();
   if (e.releasable || (ttl != null && tip > ttl)) return PayState.pastTtl;
   if (status == core.InvoiceStatus.posted) return PayState.posted;
+  if (overdueAt != null && !(now ?? DateTime.now()).isBefore(overdueAt)) return PayState.pastTtl;
   return PayState.delivered;
 }
 
