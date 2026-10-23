@@ -45,12 +45,15 @@ class SwitchTarget {
 }
 
 class NodeCard extends StatelessWidget {
-  const NodeCard({super.key, required this.url, this.info, this.health, this.downSince, this.switchTo, this.onSwitch, this.now});
+  const NodeCard({super.key, required this.url, this.info, this.health, this.torOn = false, this.downSince, this.switchTo, this.onSwitch, this.now});
 
   final String url;
 
   /// The wallet's own view of the node: ok keeps a failed info probe from saying it is down.
   final ServiceHealth? health;
+
+  /// Whether the Tor switch is on: a latency measured directly is not shown then.
+  final bool torOn;
 
   /// Null while nothing has come in yet: every value prints "–".
   final NodeInfo? info;
@@ -69,7 +72,9 @@ class NodeCard extends StatelessWidget {
     final ts = context.ts;
     final i = info;
     // Only the wallet reaching the node counts here; a down of its own shows in the head and the rail.
-    final v = remoteNodeView(url, i, health: health == ServiceHealth.ok ? health : null, downSince: downSince);
+    final v = remoteNodeView(url, i, health: health == ServiceHealth.ok ? health : null, downSince: downSince, torOn: torOn);
+    final latency = i == null ? null : shownLatency(i, torOn: torOn);
+    final String? where = i == null ? null : latencyWhere(i);
     final host = nodeHost(url);
     final down = v.state == EState.risk;
     final limited = i != null && i.source == NodeInfoSource.limited;
@@ -92,7 +97,7 @@ class NodeCard extends StatelessWidget {
           i.readyForTxs == null ? 'node before 4.1.0' : null,
           tone: i.readyForTxs == false ? EState.warn : null,
         ),
-        _Fact('Latency', i.latencyMs == null ? '–' : '${digitsText(i.latencyMs!)} ms', latencyWhere(i)),
+        _Fact('Latency', latency == null ? '–' : '${digitsText(latency)} ms', where),
       ]);
     } else {
       final behind = i?.blocksBehind;
@@ -110,7 +115,7 @@ class NodeCard extends StatelessWidget {
           i?.version == null ? null : (old ? '${i!.releasedVersion} is out' : (i!.releasedVersion == null ? null : 'latest')),
           tone: old ? EState.warn : null,
         ),
-        _Fact('Latency', i?.latencyMs == null ? '–' : '${digitsText(i!.latencyMs!)} ms', i == null ? null : latencyWhere(i)),
+        _Fact('Latency', latency == null ? '–' : '${digitsText(latency)} ms', where),
         _Fact('Uptime', i?.uptime24h == null ? '–' : '${(i!.uptime24h! * 100).toStringAsFixed(1)} %', 'last 24 h'),
         _Fact('Peers', i?.peers == null ? '–' : '${i!.peers}', down && i?.at != null ? 'at ${hhmm(i!.at)}' : null),
         _Fact('Operator', i?.operator == null ? '–' : i!.operator!, i?.listing == 'official' ? 'listed as official' : null),
@@ -120,10 +125,9 @@ class NodeCard extends StatelessWidget {
     final (netLine, forked) = directory && i.network != null ? networkLine(i.network!) : (limited ? limitedNetworkLine : '–', false);
     final String? sourceLine;
     if (directory) {
-      final where = latencyWhere(i);
       sourceLine = [
         'status.btlabs.uk, checked ${hhmm(i.at)}',
-        if (!i.latencyFromMonitor) 'latency measured $where',
+        if (where != null && !i.latencyFromMonitor) 'latency measured $where',
       ].join(' · ');
     } else if (limited) {
       sourceLine = i.directoryReachedAt == null ? null : 'Status site last reached ${hhmm(i.directoryReachedAt!)}';
