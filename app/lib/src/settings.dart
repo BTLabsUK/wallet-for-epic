@@ -12,6 +12,7 @@ import 'app_log.dart';
 import 'l10n.dart' show appLanguages;
 import 'providers.dart';
 import 'relay_directory.dart' show statusSite;
+import 'models.dart' show SelectionStrategy;
 import 'secret_store.dart';
 import 'wallet_service.dart' show Chain, TxEntry, TxSource, TxStatus;
 
@@ -114,6 +115,8 @@ class AppSettings {
     this.language,
     this.advancedOptions = false,
     this.useStatusSite = true,
+    this.sendStrategy = SelectionStrategy.smallest,
+    this.splitChange = true,
   });
 
   final ThemeMode themeMode;
@@ -125,6 +128,12 @@ class AppSettings {
   /// Show the technical controls: node, relay, block heights, transport, files and logs.
   /// Off by default, so the simple path never mentions them.
   final bool advancedOptions;
+
+  /// Which outputs a send spends unless Send overrides it (Outputs).
+  final SelectionStrategy sendStrategy;
+
+  /// Split the change of a send into several outputs when few would be left (Outputs).
+  final bool splitChange;
 
   /// The app's language as a code from `appLanguages` (`de`), or null to follow the system.
   final String? language;
@@ -177,6 +186,8 @@ class AppSettings {
     String? Function()? language,
     bool? advancedOptions,
     bool? useStatusSite,
+    SelectionStrategy? sendStrategy,
+    bool? splitChange,
   }) => AppSettings(
     themeMode: themeMode ?? this.themeMode,
     fiatCurrency: fiatCurrency ?? this.fiatCurrency,
@@ -196,6 +207,8 @@ class AppSettings {
     language: language != null ? language() : this.language,
     advancedOptions: advancedOptions ?? this.advancedOptions,
     useStatusSite: useStatusSite ?? this.useStatusSite,
+    sendStrategy: sendStrategy ?? this.sendStrategy,
+    splitChange: splitChange ?? this.splitChange,
   );
 }
 
@@ -218,6 +231,8 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
   static const String _pushKey = 'app.push';
   static const String _languageKey = 'app.language';
   static const String _advancedKey = 'app.advanced';
+  static const String _strategyKey = 'app.send_strategy';
+  static const String _splitChangeKey = 'app.split_change';
   static const String statusSiteKey = 'app.status_site';
   static String _exportedKey(Chain chain) =>
       'app.history_exported.${chain.name}';
@@ -241,6 +256,8 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
     final push = await store.read(_pushKey);
     final language = await store.read(_languageKey);
     final advanced = await store.read(_advancedKey);
+    final strategy = await store.read(_strategyKey);
+    final splitChange = await store.read(_splitChangeKey);
     final site = await store.read(statusSiteKey) != 'false';
     statusSite.on = site;
     Future<Map<String, int>> perChain(String Function(Chain) key) async => {
@@ -294,6 +311,13 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
           ? defaults.advancedOptions
           : advanced == 'true',
       useStatusSite: site,
+      sendStrategy: SelectionStrategy.values.firstWhere(
+        (v) => v.name == strategy,
+        orElse: () => defaults.sendStrategy,
+      ),
+      splitChange: splitChange == null
+          ? defaults.splitChange
+          : splitChange == 'true',
     );
   }
 
@@ -322,6 +346,18 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
   Future<void> setHideBalances(bool hide) async =>
       _put(_hideKey, '$hide', (await _current()).copyWith(hideBalances: hide));
 
+  Future<void> setSendStrategy(SelectionStrategy strategy) async => _put(
+    _strategyKey,
+    strategy.name,
+    (await _current()).copyWith(sendStrategy: strategy),
+  );
+
+  Future<void> setSplitChange(bool on) async => _put(
+    _splitChangeKey,
+    '$on',
+    (await _current()).copyWith(splitChange: on),
+  );
+
   Future<void> setAdvancedOptions(bool on) async => _put(
     _advancedKey,
     '$on',
@@ -331,7 +367,11 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
   /// Settings › Privacy › Use status.btlabs.uk; applies at once ([statusSite]).
   Future<void> setUseStatusSite(bool on) async {
     statusSite.on = on;
-    await _put(statusSiteKey, '$on', (await _current()).copyWith(useStatusSite: on));
+    await _put(
+      statusSiteKey,
+      '$on',
+      (await _current()).copyWith(useStatusSite: on),
+    );
   }
 
   Future<void> setAutoLockMinutes(int? minutes) async => _put(

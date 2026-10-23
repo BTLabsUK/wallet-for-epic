@@ -15,11 +15,13 @@ import '../providers.dart';
 import '../push.dart';
 import '../settings.dart';
 import '../slate_files.dart';
+import '../smart_outputs.dart' show OutputLabel, outputWord;
 import '../updater.dart';
 import '../wallet_service.dart';
 import 'backup_screen.dart';
 import 'common.dart';
 import 'contacts_screen.dart';
+import 'outputs_screen.dart';
 import 'demo_screens.dart' show endDemo;
 import 'feedback_screen.dart';
 import 'help_screen.dart';
@@ -346,6 +348,17 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final torAvailable = ref.watch(phoneTorProvider.select(torShown));
     // Invoices only on a core that has them (UP-14); until then no entry at all.
     final invoices = ref.watch(sessionProvider)?.supportsInvoices ?? false;
+    final outputs = walletOpen ? ref.watch(walletOutputsProvider).value : null;
+    final outputsSubtitle = outputs == null
+        ? null
+        : Text(
+            l.outputsSettingsSubtitle(
+              outputs.where((o) => outputWord(o) != OutputLabel.spent).length,
+              s.sendStrategy == SelectionStrategy.smallest
+                  ? l.outputsSmallest
+                  : l.outputsAll,
+            ),
+          );
     // The web demo hides what makes no sense in a browser or on a temporary wallet: network
     // settings, rescan, biometrics, push, updates, the phrase, history files and feedback.
     final demo = ref.watch(demoModeProvider);
@@ -520,6 +533,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     ),
                   ],
                   _Header(l.settingsSectionWallet),
+                  ListTile(
+                    leading: const Icon(Icons.grain),
+                    title: Text(l.outputsTitle),
+                    subtitle: outputsSubtitle,
+                    onTap: () => _push(const OutputsScreen()),
+                  ),
                   ListTile(
                     leading: const Icon(Icons.contacts_outlined),
                     title: Text(l.settingsContacts),

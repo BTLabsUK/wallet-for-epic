@@ -4771,5 +4771,414 @@
         "example": "12.5"
       }
     }
+  },
+  "outputsTitle": "Outputs",
+  "@outputsTitle": {
+      "description": "Outputs screen title and Settings row title."
+  },
+  "outputsSpendable": "Spendable",
+  "@outputsSpendable": {
+      "description": "Outputs tile and filter: outputs that can be spent now."
+  },
+  "outputsConfirming": "Confirming",
+  "@outputsConfirming": {
+      "description": "Outputs tile and filter: outputs waiting for confirmations."
+  },
+  "outputsLockedTile": "Locked in sends",
+  "@outputsLockedTile": {
+      "description": "Outputs tile: outputs a send in progress spends."
+  },
+  "outputsImmature": "Immature",
+  "@outputsImmature": {
+      "description": "Outputs tile: mining rewards not yet spendable."
+  },
+  "outputsCount": "{count, plural, =1{1 output} other{{count} outputs}}",
+  "@outputsCount": {
+      "description": "Under a tile value: how many outputs.",
+      "placeholders": {
+          "count": {
+              "type": "int"
+          }
+      }
+  },
+  "outputsExplainer": "Outputs are the pieces the balance is made of. A send spends whole outputs and returns the rest as a new one.",
+  "@outputsExplainer": {
+      "description": "Outputs screen: what outputs are."
+  },
+  "outputsSplitButton": "Split…",
+  "@outputsSplitButton": {
+      "description": "Button: open the Split sheet."
+  },
+  "outputsConsolidateButton": "Consolidate…",
+  "@outputsConsolidateButton": {
+      "description": "Button: open the Consolidate sheet."
+  },
+  "outputsSplitNeeds": "Split needs at least 1 EPIC spendable.",
+  "@outputsSplitNeeds": {
+      "description": "Caption under the buttons: why Split is disabled."
+  },
+  "outputsConsolidateNeeds": "Consolidate needs at least 2 spendable outputs.",
+  "@outputsConsolidateNeeds": {
+      "description": "Caption under the buttons: why Consolidate is disabled."
+  },
+  "outputsWaitLocked": "Wait until the send in progress confirms (about 3 blocks).",
+  "@outputsWaitLocked": {
+      "description": "Caption under the buttons: a send is in progress."
+  },
+  "outputsStrategy": "Strategy for sends",
+  "@outputsStrategy": {
+      "description": "Row: which outputs a send spends."
+  },
+  "outputsSmallest": "Smallest",
+  "@outputsSmallest": {
+      "description": "Strategy name."
+  },
+  "outputsAll": "All",
+  "@outputsAll": {
+      "description": "Strategy name and filter."
+  },
+  "outputsSmallestText": "Spends the fewest small outputs; the rest of the balance stays spendable while the change confirms.",
+  "@outputsSmallestText": {
+      "description": "Strategy explanation, one line."
+  },
+  "outputsAllText": "Spends every spendable output and returns one change output. Everything is locked until it confirms; fewer, larger outputs afterwards.",
+  "@outputsAllText": {
+      "description": "Strategy explanation, one line."
+  },
+  "outputsSplitChange": "Split change",
+  "@outputsSplitChange": {
+      "description": "Row with a switch: split the change of a send."
+  },
+  "outputsSplitChangeText": "When few outputs would be left",
+  "@outputsSplitChangeText": {
+      "description": "Caption under the Split change switch."
+  },
+  "outputsFilterAll": "All {count}",
+  "@outputsFilterAll": {
+      "description": "Filter segment with a count.",
+      "placeholders": {
+          "count": {
+              "type": "int"
+          }
+      }
+  },
+  "outputsFilterSpendable": "Spendable {count}",
+  "@outputsFilterSpendable": {
+      "description": "Filter segment with a count.",
+      "placeholders": {
+          "count": {
+              "type": "int"
+          }
+      }
+  },
+  "outputsFilterConfirming": "Confirming {count}",
+  "@outputsFilterConfirming": {
+      "description": "Filter segment with a count.",
+      "placeholders": {
+          "count": {
+              "type": "int"
+          }
+      }
+  },
+  "outputsFilterLocked": "Locked {count}",
+  "@outputsFilterLocked": {
+      "description": "Filter segment with a count, shown only when any output is locked.",
+      "placeholders": {
+          "count": {
+              "type": "int"
+          }
+      }
+  },
+  "outputsShowSpent": "Show spent",
+  "@outputsShowSpent": {
+      "description": "Toggle: list outputs already spent."
+  },
+  "outputsHideSpent": "Hide spent",
+  "@outputsHideSpent": {
+      "description": "Toggle: hide outputs already spent."
+  },
+  "outputsWordSpendable": "Spendable",
+  "@outputsWordSpendable": {
+      "description": "Status word of an output."
+  },
+  "outputsWordConfirming": "Confirming",
+  "@outputsWordConfirming": {
+      "description": "Status word of an output."
+  },
+  "outputsWordFinalizing": "Awaiting finalization",
+  "@outputsWordFinalizing": {
+      "description": "Status word of an output."
+  },
+  "outputsWordImmature": "Immature",
+  "@outputsWordImmature": {
+      "description": "Status word of an output."
+  },
+  "outputsWordMining": "Mining",
+  "@outputsWordMining": {
+      "description": "Status word of an output."
+  },
+  "outputsWordLocked": "Locked",
+  "@outputsWordLocked": {
+      "description": "Status word of an output."
+  },
+  "outputsWordSpent": "Spent",
+  "@outputsWordSpent": {
+      "description": "Status word of an output."
+  },
+  "outputsMeanSpendable": "Can be spent now.",
+  "@outputsMeanSpendable": {
+      "description": "One line in the output sheet."
+  },
+  "outputsMeanConfirming": "Needs {need} confirmations before it can be spent.",
+  "@outputsMeanConfirming": {
+      "description": "One line in the output sheet.",
+      "placeholders": {
+          "need": {
+              "type": "int"
+          }
+      }
+  },
+  "outputsMeanFinalizing": "Waiting for the sender to finish the payment.",
+  "@outputsMeanFinalizing": {
+      "description": "One line in the output sheet."
+  },
+  "outputsMeanImmature": "A mining reward. It can be spent after a delay.",
+  "@outputsMeanImmature": {
+      "description": "One line in the output sheet."
+  },
+  "outputsMeanMining": "A mining reward not confirmed yet.",
+  "@outputsMeanMining": {
+      "description": "One line in the output sheet."
+  },
+  "outputsMeanLocked": "Being spent by a send in progress.",
+  "@outputsMeanLocked": {
+      "description": "One line in the output sheet."
+  },
+  "outputsMeanSpent": "Already spent.",
+  "@outputsMeanSpent": {
+      "description": "One line in the output sheet."
+  },
+  "outputsNoteConfirmations": "{conf} / {need}",
+  "@outputsNoteConfirmations": {
+      "description": "Row note: confirmations so far of the needed.",
+      "placeholders": {
+          "conf": {
+              "type": "int"
+          },
+          "need": {
+              "type": "int"
+          }
+      }
+  },
+  "outputsNoteReceived": "Received {date}",
+  "@outputsNoteReceived": {
+      "description": "Row note: when the output was received.",
+      "placeholders": {
+          "date": {
+              "type": "String"
+          }
+      }
+  },
+  "outputsNoteSend": "Send to {who}",
+  "@outputsNoteSend": {
+      "description": "Row note on a locked output: the send that holds it.",
+      "placeholders": {
+          "who": {
+              "type": "String"
+          }
+      }
+  },
+  "outputsNoteSendPlain": "Send in progress",
+  "@outputsNoteSendPlain": {
+      "description": "Row note on a locked output when the send is not known."
+  },
+  "outputsRow": "{word} · {note}",
+  "@outputsRow": {
+      "description": "Row subtitle: a status word and a note.",
+      "placeholders": {
+          "note": {
+              "type": "String"
+          },
+          "word": {
+              "type": "String"
+          }
+      }
+  },
+  "outputsFactHeight": "Height",
+  "@outputsFactHeight": {
+      "description": "Output sheet fact."
+  },
+  "outputsFactConfirmations": "Confirmations",
+  "@outputsFactConfirmations": {
+      "description": "Output sheet fact."
+  },
+  "outputsFactTransaction": "Transaction",
+  "@outputsFactTransaction": {
+      "description": "Output sheet fact."
+  },
+  "outputsFactCommitment": "Commitment",
+  "@outputsFactCommitment": {
+      "description": "Output sheet label above the full commitment."
+  },
+  "outputsCopy": "Copy",
+  "@outputsCopy": {
+      "description": "Button: copy the commitment."
+  },
+  "outputsCopied": "Commitment copied",
+  "@outputsCopied": {
+      "description": "Notice: the commitment was copied."
+  },
+  "outputsEmpty": "No outputs yet",
+  "@outputsEmpty": {
+      "description": "Empty state title."
+  },
+  "outputsEmptyHint": "The first payment received makes one. Receive shows the address.",
+  "@outputsEmptyHint": {
+      "description": "Empty state hint."
+  },
+  "outputsNoMatch": "No outputs in this view",
+  "@outputsNoMatch": {
+      "description": "Empty list under a filter."
+  },
+  "outputsRetry": "Retry",
+  "@outputsRetry": {
+      "description": "Button: load the outputs again."
+  },
+  "outputsSettingsSubtitle": "{count, plural, =1{1 output · {strategy}} other{{count} outputs · {strategy}}}",
+  "@outputsSettingsSubtitle": {
+      "description": "Settings row subtitle: output count and strategy name.",
+      "placeholders": {
+          "count": {
+              "type": "int"
+          },
+          "strategy": {
+              "type": "String"
+          }
+      }
+  },
+  "outputsCancel": "Cancel",
+  "@outputsCancel": {
+      "description": "Button: close a sheet."
+  },
+  "outputsSplitTitle": "Split outputs",
+  "@outputsSplitTitle": {
+      "description": "Sheet title."
+  },
+  "outputsSplitText": "Spends {spent} ({amount}) and makes {made} of about {each} each. A normal network transaction to this wallet, confirmed after 3 blocks like any send; everything spendable is locked until then.",
+  "@outputsSplitText": {
+      "description": "Split sheet paragraph. {spent} and {made} are counts such as \"3 outputs\".",
+      "placeholders": {
+          "amount": {
+              "type": "String"
+          },
+          "each": {
+              "type": "String"
+          },
+          "made": {
+              "type": "String"
+          },
+          "spent": {
+              "type": "String"
+          }
+      }
+  },
+  "outputsToMake": "Outputs to make",
+  "@outputsToMake": {
+      "description": "Stepper label in the Split sheet."
+  },
+  "outputsStepperHint": "2 to 10",
+  "@outputsStepperHint": {
+      "description": "Stepper range hint."
+  },
+  "outputsFactFee": "Network fee",
+  "@outputsFactFee": {
+      "description": "Sheet fact."
+  },
+  "outputsFactEach": "Each output",
+  "@outputsFactEach": {
+      "description": "Sheet fact: value of each new output."
+  },
+  "outputsFactAbout": "about {amount}",
+  "@outputsFactAbout": {
+      "description": "A value with \"about\" in front.",
+      "placeholders": {
+          "amount": {
+              "type": "String"
+          }
+      }
+  },
+  "outputsFactLocked": "Locked",
+  "@outputsFactLocked": {
+      "description": "Sheet fact: what gets locked and for how long."
+  },
+  "outputsFactLockedValue": "{amount}, about 3 blocks",
+  "@outputsFactLockedValue": {
+      "description": "Sheet fact value.",
+      "placeholders": {
+          "amount": {
+              "type": "String"
+          }
+      }
+  },
+  "outputsNothingSpendable": "Nothing stays spendable meanwhile.",
+  "@outputsNothingSpendable": {
+      "description": "Warning line in the sheets."
+  },
+  "outputsMinEach": "Each output must be at least 0.5 EPIC.",
+  "@outputsMinEach": {
+      "description": "Warning line: Split needs bigger outputs."
+  },
+  "outputsSplitInto": "Split into {count}",
+  "@outputsSplitInto": {
+      "description": "Button in the Split sheet.",
+      "placeholders": {
+          "count": {
+              "type": "int"
+          }
+      }
+  },
+  "outputsConsolidateTitle": "Consolidate outputs",
+  "@outputsConsolidateTitle": {
+      "description": "Sheet title."
+  },
+  "outputsConsolidateText": "Spends {spent} ({amount}) and makes one output of {result}. A normal network transaction to this wallet, confirmed after 3 blocks like any send; everything spendable is locked until then. The next send spends one output, so its fee is the smallest.",
+  "@outputsConsolidateText": {
+      "description": "Consolidate sheet paragraph. {spent} is a count such as \"3 outputs\".",
+      "placeholders": {
+          "amount": {
+              "type": "String"
+          },
+          "result": {
+              "type": "String"
+          },
+          "spent": {
+              "type": "String"
+          }
+      }
+  },
+  "outputsConsolidateAction": "Consolidate",
+  "@outputsConsolidateAction": {
+      "description": "Button in the Consolidate sheet."
+  },
+  "outputsSplitPin": "Confirm with your PIN to split outputs",
+  "@outputsSplitPin": {
+      "description": "Reason shown in the PIN prompt."
+  },
+  "outputsConsolidatePin": "Confirm with your PIN to consolidate outputs",
+  "@outputsConsolidatePin": {
+      "description": "Reason shown in the PIN prompt."
+  },
+  "outputsSplitStarted": "Split started: {count} outputs, confirming in about 3 blocks",
+  "@outputsSplitStarted": {
+      "description": "Notice after a split was posted.",
+      "placeholders": {
+          "count": {
+              "type": "int"
+          }
+      }
+  },
+  "outputsConsolidateStarted": "Consolidate started: one output, confirming in about 3 blocks",
+  "@outputsConsolidateStarted": {
+      "description": "Notice after a consolidation was posted."
   }
 }

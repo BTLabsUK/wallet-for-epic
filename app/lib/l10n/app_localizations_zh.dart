@@ -3679,4 +3679,278 @@ class AppLocalizationsZh extends AppLocalizations {
   String sendFilePinReason(String amount) {
     return '输入 PIN 以生成 $amount EPIC 的付款文件。';
   }
+
+  @override
+  String get outputsTitle => '输出';
+
+  @override
+  String get outputsSpendable => '可用';
+
+  @override
+  String get outputsConfirming => '确认中';
+
+  @override
+  String get outputsLockedTile => '发送中锁定';
+
+  @override
+  String get outputsImmature => '未成熟';
+
+  @override
+  String outputsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count 个输出',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get outputsExplainer => '输出是余额的组成部分。一次发送会花掉整个输出，其余部分作为新的输出返回。';
+
+  @override
+  String get outputsSplitButton => '拆分…';
+
+  @override
+  String get outputsConsolidateButton => '合并…';
+
+  @override
+  String get outputsSplitNeeds => '拆分需要至少 1 EPIC 可用。';
+
+  @override
+  String get outputsConsolidateNeeds => '合并需要至少 2 个可用输出。';
+
+  @override
+  String get outputsWaitLocked => '请等待进行中的发送确认（约 3 个区块）。';
+
+  @override
+  String get outputsStrategy => '发送策略';
+
+  @override
+  String get outputsSmallest => '最小';
+
+  @override
+  String get outputsAll => '全部';
+
+  @override
+  String get outputsSmallestText => '只花最少的小额输出；找零确认期间，其余余额仍可使用。';
+
+  @override
+  String get outputsAllText => '花掉所有可用输出并返回一个找零输出。确认前全部锁定；之后输出更少、更大。';
+
+  @override
+  String get outputsSplitChange => '拆分找零';
+
+  @override
+  String get outputsSplitChangeText => '当剩余输出很少时';
+
+  @override
+  String outputsFilterAll(int count) {
+    return '全部 $count';
+  }
+
+  @override
+  String outputsFilterSpendable(int count) {
+    return '可用 $count';
+  }
+
+  @override
+  String outputsFilterConfirming(int count) {
+    return '确认中 $count';
+  }
+
+  @override
+  String outputsFilterLocked(int count) {
+    return '锁定 $count';
+  }
+
+  @override
+  String get outputsShowSpent => '显示已花费';
+
+  @override
+  String get outputsHideSpent => '隐藏已花费';
+
+  @override
+  String get outputsWordSpendable => '可用';
+
+  @override
+  String get outputsWordConfirming => '确认中';
+
+  @override
+  String get outputsWordFinalizing => '等待完成';
+
+  @override
+  String get outputsWordImmature => '未成熟';
+
+  @override
+  String get outputsWordMining => '挖矿中';
+
+  @override
+  String get outputsWordLocked => '已锁定';
+
+  @override
+  String get outputsWordSpent => '已花费';
+
+  @override
+  String get outputsMeanSpendable => '现在可以花费。';
+
+  @override
+  String outputsMeanConfirming(int need) {
+    return '需要 $need 次确认后才能花费。';
+  }
+
+  @override
+  String get outputsMeanFinalizing => '等待发送方完成付款。';
+
+  @override
+  String get outputsMeanImmature => '挖矿奖励，延迟一段时间后才能花费。';
+
+  @override
+  String get outputsMeanMining => '尚未确认的挖矿奖励。';
+
+  @override
+  String get outputsMeanLocked => '正被进行中的发送花费。';
+
+  @override
+  String get outputsMeanSpent => '已花费。';
+
+  @override
+  String outputsNoteConfirmations(int conf, int need) {
+    return '$conf / $need';
+  }
+
+  @override
+  String outputsNoteReceived(String date) {
+    return '收到于 $date';
+  }
+
+  @override
+  String outputsNoteSend(String who) {
+    return '发送至 $who';
+  }
+
+  @override
+  String get outputsNoteSendPlain => '发送进行中';
+
+  @override
+  String outputsRow(String note, String word) {
+    return '$word · $note';
+  }
+
+  @override
+  String get outputsFactHeight => '高度';
+
+  @override
+  String get outputsFactConfirmations => '确认数';
+
+  @override
+  String get outputsFactTransaction => '交易';
+
+  @override
+  String get outputsFactCommitment => '承诺值';
+
+  @override
+  String get outputsCopy => '复制';
+
+  @override
+  String get outputsCopied => '已复制承诺值';
+
+  @override
+  String get outputsEmpty => '暂无输出';
+
+  @override
+  String get outputsEmptyHint => '收到第一笔付款后会产生一个。地址在“接收”中。';
+
+  @override
+  String get outputsNoMatch => '此视图没有输出';
+
+  @override
+  String get outputsRetry => '重试';
+
+  @override
+  String outputsSettingsSubtitle(int count, String strategy) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count 个输出 · $strategy',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get outputsCancel => '取消';
+
+  @override
+  String get outputsSplitTitle => '拆分输出';
+
+  @override
+  String outputsSplitText(
+    String amount,
+    String each,
+    String made,
+    String spent,
+  ) {
+    return '花掉 $spent（$amount），生成 $made，每个约 $each。这是发往本钱包的普通网络交易，与任何发送一样在 3 个区块后确认；在此之前所有可用余额都被锁定。';
+  }
+
+  @override
+  String get outputsToMake => '生成数量';
+
+  @override
+  String get outputsStepperHint => '2 到 10';
+
+  @override
+  String get outputsFactFee => '网络费用';
+
+  @override
+  String get outputsFactEach => '每个输出';
+
+  @override
+  String outputsFactAbout(String amount) {
+    return '约 $amount';
+  }
+
+  @override
+  String get outputsFactLocked => '锁定';
+
+  @override
+  String outputsFactLockedValue(String amount) {
+    return '$amount，约 3 个区块';
+  }
+
+  @override
+  String get outputsNothingSpendable => '期间没有可用余额。';
+
+  @override
+  String get outputsMinEach => '每个输出至少需要 0.5 EPIC。';
+
+  @override
+  String outputsSplitInto(int count) {
+    return '拆分为 $count 个';
+  }
+
+  @override
+  String get outputsConsolidateTitle => '合并输出';
+
+  @override
+  String outputsConsolidateText(String amount, String result, String spent) {
+    return '花掉 $spent（$amount），生成一个 $result 的输出。这是发往本钱包的普通网络交易，与任何发送一样在 3 个区块后确认；在此之前所有可用余额都被锁定。下一次发送只花一个输出，因此费用最低。';
+  }
+
+  @override
+  String get outputsConsolidateAction => '合并';
+
+  @override
+  String get outputsSplitPin => '输入 PIN 以确认拆分输出';
+
+  @override
+  String get outputsConsolidatePin => '输入 PIN 以确认合并输出';
+
+  @override
+  String outputsSplitStarted(int count) {
+    return '拆分已开始：$count 个输出，约 3 个区块后确认';
+  }
+
+  @override
+  String get outputsConsolidateStarted => '合并已开始：一个输出，约 3 个区块后确认';
 }

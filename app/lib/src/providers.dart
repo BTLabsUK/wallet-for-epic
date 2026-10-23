@@ -364,6 +364,15 @@ final addressProvider = FutureProvider.autoDispose<String>(
   (ref) => _requireSession(ref).epicboxAddress(),
 );
 
+/// Every output of the open wallet, from its database; reads again when home does.
+final walletOutputsProvider = FutureProvider.autoDispose<List<WalletOutput>>((
+  ref,
+) {
+  final session = _requireSession(ref);
+  ref.watch(homeProvider.select((h) => h.value?.summary));
+  return session.outputs();
+});
+
 final nodeTipProvider = FutureProvider.autoDispose<NodeTip>((ref) {
   final config = ref.watch(walletConfigProvider);
   if (config == null) throw StateError('No network selected');

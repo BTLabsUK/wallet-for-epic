@@ -200,3 +200,37 @@ Future<SmartSendPlan> planSend({
   }
   return unsplit();
 }
+
+/// The word an output shows under (Outputs page, design spec §2.2): one place for the desktop's
+/// and the phone's rows.
+enum OutputLabel {
+  spendable,
+  confirming,
+  finalizing,
+  immature,
+  mining,
+  locked,
+  spent,
+}
+
+/// [output]'s word: spent and locked by status; an unconfirmed output awaiting finalization is
+/// finalizing, an unconfirmed reward without a category is mining; an immature one by its
+/// category; any other unconfirmed or under-confirmed output is confirming.
+OutputLabel outputWord(WalletOutput output) {
+  switch (output.status) {
+    case WalletOutputStatus.spent:
+      return OutputLabel.spent;
+    case WalletOutputStatus.locked:
+      return OutputLabel.locked;
+    case WalletOutputStatus.unspent:
+    case WalletOutputStatus.unconfirmed:
+      return switch (output.category) {
+        OutputCategory.spendable => OutputLabel.spendable,
+        OutputCategory.awaitingFinalization => OutputLabel.finalizing,
+        OutputCategory.immature => OutputLabel.immature,
+        OutputCategory.locked => OutputLabel.locked,
+        OutputCategory.awaitingConfirmation => OutputLabel.confirming,
+        null => output.isCoinbase ? OutputLabel.mining : OutputLabel.confirming,
+      };
+  }
+}

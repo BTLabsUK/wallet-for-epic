@@ -5971,6 +5971,461 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Enter the PIN to make a payment file for {amount} EPIC.'**
   String sendFilePinReason(String amount);
+
+  /// Outputs screen title and Settings row title.
+  ///
+  /// In en, this message translates to:
+  /// **'Outputs'**
+  String get outputsTitle;
+
+  /// Outputs tile and filter: outputs that can be spent now.
+  ///
+  /// In en, this message translates to:
+  /// **'Spendable'**
+  String get outputsSpendable;
+
+  /// Outputs tile and filter: outputs waiting for confirmations.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirming'**
+  String get outputsConfirming;
+
+  /// Outputs tile: outputs a send in progress spends.
+  ///
+  /// In en, this message translates to:
+  /// **'Locked in sends'**
+  String get outputsLockedTile;
+
+  /// Outputs tile: mining rewards not yet spendable.
+  ///
+  /// In en, this message translates to:
+  /// **'Immature'**
+  String get outputsImmature;
+
+  /// Under a tile value: how many outputs.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 output} other{{count} outputs}}'**
+  String outputsCount(int count);
+
+  /// Outputs screen: what outputs are.
+  ///
+  /// In en, this message translates to:
+  /// **'Outputs are the pieces the balance is made of. A send spends whole outputs and returns the rest as a new one.'**
+  String get outputsExplainer;
+
+  /// Button: open the Split sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Split…'**
+  String get outputsSplitButton;
+
+  /// Button: open the Consolidate sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Consolidate…'**
+  String get outputsConsolidateButton;
+
+  /// Caption under the buttons: why Split is disabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Split needs at least 1 EPIC spendable.'**
+  String get outputsSplitNeeds;
+
+  /// Caption under the buttons: why Consolidate is disabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Consolidate needs at least 2 spendable outputs.'**
+  String get outputsConsolidateNeeds;
+
+  /// Caption under the buttons: a send is in progress.
+  ///
+  /// In en, this message translates to:
+  /// **'Wait until the send in progress confirms (about 3 blocks).'**
+  String get outputsWaitLocked;
+
+  /// Row: which outputs a send spends.
+  ///
+  /// In en, this message translates to:
+  /// **'Strategy for sends'**
+  String get outputsStrategy;
+
+  /// Strategy name.
+  ///
+  /// In en, this message translates to:
+  /// **'Smallest'**
+  String get outputsSmallest;
+
+  /// Strategy name and filter.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get outputsAll;
+
+  /// Strategy explanation, one line.
+  ///
+  /// In en, this message translates to:
+  /// **'Spends the fewest small outputs; the rest of the balance stays spendable while the change confirms.'**
+  String get outputsSmallestText;
+
+  /// Strategy explanation, one line.
+  ///
+  /// In en, this message translates to:
+  /// **'Spends every spendable output and returns one change output. Everything is locked until it confirms; fewer, larger outputs afterwards.'**
+  String get outputsAllText;
+
+  /// Row with a switch: split the change of a send.
+  ///
+  /// In en, this message translates to:
+  /// **'Split change'**
+  String get outputsSplitChange;
+
+  /// Caption under the Split change switch.
+  ///
+  /// In en, this message translates to:
+  /// **'When few outputs would be left'**
+  String get outputsSplitChangeText;
+
+  /// Filter segment with a count.
+  ///
+  /// In en, this message translates to:
+  /// **'All {count}'**
+  String outputsFilterAll(int count);
+
+  /// Filter segment with a count.
+  ///
+  /// In en, this message translates to:
+  /// **'Spendable {count}'**
+  String outputsFilterSpendable(int count);
+
+  /// Filter segment with a count.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirming {count}'**
+  String outputsFilterConfirming(int count);
+
+  /// Filter segment with a count, shown only when any output is locked.
+  ///
+  /// In en, this message translates to:
+  /// **'Locked {count}'**
+  String outputsFilterLocked(int count);
+
+  /// Toggle: list outputs already spent.
+  ///
+  /// In en, this message translates to:
+  /// **'Show spent'**
+  String get outputsShowSpent;
+
+  /// Toggle: hide outputs already spent.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide spent'**
+  String get outputsHideSpent;
+
+  /// Status word of an output.
+  ///
+  /// In en, this message translates to:
+  /// **'Spendable'**
+  String get outputsWordSpendable;
+
+  /// Status word of an output.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirming'**
+  String get outputsWordConfirming;
+
+  /// Status word of an output.
+  ///
+  /// In en, this message translates to:
+  /// **'Awaiting finalization'**
+  String get outputsWordFinalizing;
+
+  /// Status word of an output.
+  ///
+  /// In en, this message translates to:
+  /// **'Immature'**
+  String get outputsWordImmature;
+
+  /// Status word of an output.
+  ///
+  /// In en, this message translates to:
+  /// **'Mining'**
+  String get outputsWordMining;
+
+  /// Status word of an output.
+  ///
+  /// In en, this message translates to:
+  /// **'Locked'**
+  String get outputsWordLocked;
+
+  /// Status word of an output.
+  ///
+  /// In en, this message translates to:
+  /// **'Spent'**
+  String get outputsWordSpent;
+
+  /// One line in the output sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Can be spent now.'**
+  String get outputsMeanSpendable;
+
+  /// One line in the output sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs {need} confirmations before it can be spent.'**
+  String outputsMeanConfirming(int need);
+
+  /// One line in the output sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for the sender to finish the payment.'**
+  String get outputsMeanFinalizing;
+
+  /// One line in the output sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'A mining reward. It can be spent after a delay.'**
+  String get outputsMeanImmature;
+
+  /// One line in the output sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'A mining reward not confirmed yet.'**
+  String get outputsMeanMining;
+
+  /// One line in the output sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Being spent by a send in progress.'**
+  String get outputsMeanLocked;
+
+  /// One line in the output sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Already spent.'**
+  String get outputsMeanSpent;
+
+  /// Row note: confirmations so far of the needed.
+  ///
+  /// In en, this message translates to:
+  /// **'{conf} / {need}'**
+  String outputsNoteConfirmations(int conf, int need);
+
+  /// Row note: when the output was received.
+  ///
+  /// In en, this message translates to:
+  /// **'Received {date}'**
+  String outputsNoteReceived(String date);
+
+  /// Row note on a locked output: the send that holds it.
+  ///
+  /// In en, this message translates to:
+  /// **'Send to {who}'**
+  String outputsNoteSend(String who);
+
+  /// Row note on a locked output when the send is not known.
+  ///
+  /// In en, this message translates to:
+  /// **'Send in progress'**
+  String get outputsNoteSendPlain;
+
+  /// Row subtitle: a status word and a note.
+  ///
+  /// In en, this message translates to:
+  /// **'{word} · {note}'**
+  String outputsRow(String note, String word);
+
+  /// Output sheet fact.
+  ///
+  /// In en, this message translates to:
+  /// **'Height'**
+  String get outputsFactHeight;
+
+  /// Output sheet fact.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirmations'**
+  String get outputsFactConfirmations;
+
+  /// Output sheet fact.
+  ///
+  /// In en, this message translates to:
+  /// **'Transaction'**
+  String get outputsFactTransaction;
+
+  /// Output sheet label above the full commitment.
+  ///
+  /// In en, this message translates to:
+  /// **'Commitment'**
+  String get outputsFactCommitment;
+
+  /// Button: copy the commitment.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy'**
+  String get outputsCopy;
+
+  /// Notice: the commitment was copied.
+  ///
+  /// In en, this message translates to:
+  /// **'Commitment copied'**
+  String get outputsCopied;
+
+  /// Empty state title.
+  ///
+  /// In en, this message translates to:
+  /// **'No outputs yet'**
+  String get outputsEmpty;
+
+  /// Empty state hint.
+  ///
+  /// In en, this message translates to:
+  /// **'The first payment received makes one. Receive shows the address.'**
+  String get outputsEmptyHint;
+
+  /// Empty list under a filter.
+  ///
+  /// In en, this message translates to:
+  /// **'No outputs in this view'**
+  String get outputsNoMatch;
+
+  /// Button: load the outputs again.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get outputsRetry;
+
+  /// Settings row subtitle: output count and strategy name.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 output · {strategy}} other{{count} outputs · {strategy}}}'**
+  String outputsSettingsSubtitle(int count, String strategy);
+
+  /// Button: close a sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get outputsCancel;
+
+  /// Sheet title.
+  ///
+  /// In en, this message translates to:
+  /// **'Split outputs'**
+  String get outputsSplitTitle;
+
+  /// Split sheet paragraph. {spent} and {made} are counts such as "3 outputs".
+  ///
+  /// In en, this message translates to:
+  /// **'Spends {spent} ({amount}) and makes {made} of about {each} each. A normal network transaction to this wallet, confirmed after 3 blocks like any send; everything spendable is locked until then.'**
+  String outputsSplitText(
+    String amount,
+    String each,
+    String made,
+    String spent,
+  );
+
+  /// Stepper label in the Split sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Outputs to make'**
+  String get outputsToMake;
+
+  /// Stepper range hint.
+  ///
+  /// In en, this message translates to:
+  /// **'2 to 10'**
+  String get outputsStepperHint;
+
+  /// Sheet fact.
+  ///
+  /// In en, this message translates to:
+  /// **'Network fee'**
+  String get outputsFactFee;
+
+  /// Sheet fact: value of each new output.
+  ///
+  /// In en, this message translates to:
+  /// **'Each output'**
+  String get outputsFactEach;
+
+  /// A value with "about" in front.
+  ///
+  /// In en, this message translates to:
+  /// **'about {amount}'**
+  String outputsFactAbout(String amount);
+
+  /// Sheet fact: what gets locked and for how long.
+  ///
+  /// In en, this message translates to:
+  /// **'Locked'**
+  String get outputsFactLocked;
+
+  /// Sheet fact value.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount}, about 3 blocks'**
+  String outputsFactLockedValue(String amount);
+
+  /// Warning line in the sheets.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing stays spendable meanwhile.'**
+  String get outputsNothingSpendable;
+
+  /// Warning line: Split needs bigger outputs.
+  ///
+  /// In en, this message translates to:
+  /// **'Each output must be at least 0.5 EPIC.'**
+  String get outputsMinEach;
+
+  /// Button in the Split sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Split into {count}'**
+  String outputsSplitInto(int count);
+
+  /// Sheet title.
+  ///
+  /// In en, this message translates to:
+  /// **'Consolidate outputs'**
+  String get outputsConsolidateTitle;
+
+  /// Consolidate sheet paragraph. {spent} is a count such as "3 outputs".
+  ///
+  /// In en, this message translates to:
+  /// **'Spends {spent} ({amount}) and makes one output of {result}. A normal network transaction to this wallet, confirmed after 3 blocks like any send; everything spendable is locked until then. The next send spends one output, so its fee is the smallest.'**
+  String outputsConsolidateText(String amount, String result, String spent);
+
+  /// Button in the Consolidate sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Consolidate'**
+  String get outputsConsolidateAction;
+
+  /// Reason shown in the PIN prompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm with your PIN to split outputs'**
+  String get outputsSplitPin;
+
+  /// Reason shown in the PIN prompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm with your PIN to consolidate outputs'**
+  String get outputsConsolidatePin;
+
+  /// Notice after a split was posted.
+  ///
+  /// In en, this message translates to:
+  /// **'Split started: {count} outputs, confirming in about 3 blocks'**
+  String outputsSplitStarted(int count);
+
+  /// Notice after a consolidation was posted.
+  ///
+  /// In en, this message translates to:
+  /// **'Consolidate started: one output, confirming in about 3 blocks'**
+  String get outputsConsolidateStarted;
 }
 
 class _AppLocalizationsDelegate
