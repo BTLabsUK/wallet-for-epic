@@ -71,8 +71,11 @@ void main() {
       expect(nodes.first.url, 'https://node.btlabs.uk');
       expect(nodes.every((n) => n.status == null), isTrue);
       final relays = mergePublicRelays(null);
-      expect(relays, hasLength(4));
+      expect(relays, hasLength(5));
       expect(relays.first.relay.host, 'epicbox.epiccash.com');
+      // Added last: the default stays first.
+      expect(relays.last.relay.host, 'flooepicbox.btlabs.uk');
+      expect(relays.last.operator, 'BT Labs');
     });
 
     test('the sample matches every built-in server, one row each', () {
@@ -84,7 +87,10 @@ void main() {
       expect(nodes.last.operator, 'Iniaku pool');
       final relays = mergePublicRelays(parseRelayStatus(_sample));
       expect(relays.map((r) => r.relay), builtInRelays.map((r) => r.relay));
-      expect(relays.every((r) => r.status != null), isTrue);
+      // The sample predates the BT Labs relay, which is listed without a status.
+      final bt = relays.where((r) => r.relay.host == 'flooepicbox.btlabs.uk');
+      expect(bt.single.status, isNull);
+      expect(relays.where((r) => !bt.contains(r)).every((r) => r.status != null), isTrue);
     });
 
     test('a node only the monitor lists comes after, with its operator', () {
@@ -105,7 +111,7 @@ void main() {
         const RelayStatus(relay: EpicboxRelay(host: 'box.example', port: 8443), healthy: true, verified: false, operator: 'Box op'),
         const RelayStatus(relay: EpicboxRelay(host: 'epicbox.epiccash.com'), healthy: false, verified: true),
       ]);
-      expect(relays, hasLength(5));
+      expect(relays, hasLength(6));
       expect(relays.last.relay, const EpicboxRelay(host: 'box.example', port: 8443));
       expect(relays.last.operator, 'Box op');
       expect(relays.first.status?.healthy, isFalse);
