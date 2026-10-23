@@ -463,7 +463,7 @@ packages:
   lepic:
     dependency: "direct main"
     description:
-      path: "third_party/lepic/bindings/flutter"
+      path: "third_party/lepic-flutter"
       relative: true
     source: path
     version: "0.1.0"

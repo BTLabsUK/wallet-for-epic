@@ -7,7 +7,8 @@ version="$(sed -n 's/^version: *\([0-9.]*\(-rc[0-9]*\)\{0,1\}\).*/\1/p' /work/ap
 
 if [[ "${WFE_BUILD_LEPIC:-1}" = 1 ]]; then
   echo "== LEPIC release (rust $RUSTUP_TOOLCHAIN)"
-  (cd /work/app/third_party/lepic && cargo xtask mobile --package --target x86_64-unknown-linux-gnu)
+  (cd /work/app/third_party/lepic && cargo xtask mobile --package --target x86_64-unknown-linux-gnu \
+    --out /work/app/third_party/lepic-flutter/native)
 fi
 
 echo "== flutter build linux --release -t $target"

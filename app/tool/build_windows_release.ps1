@@ -4,15 +4,19 @@
 # Needs what build_windows.ps1 needs (Flutter, rustup, VS 2022 Build Tools, CMake, Git) plus
 # Inno Setup 6 (ISCC.exe; installed per user by `innosetup-6.x.exe /VERYSILENT /CURRENTUSER`).
 # -Source is the repository checkout (default: this script's repository). -Lepic is a LEPIC
-# repository holding the commit in tools\lepic.rev. -LepicCache optionally names an earlier
-# <checkout>\app\third_party\lepic to copy first, so unchanged Rust crates are not rebuilt.
+# repository holding the commit in tools\lepic.rev, -LepicFlutter the lepic-flutter repository
+# (package:lepic) holding the commit in tools\lepic-flutter.rev, whose own lepic.rev must equal
+# tools\lepic.rev. -LepicCache optionally names an earlier <checkout>\app\third_party\lepic to
+# copy first, so unchanged Rust crates are not rebuilt.
 #
-# Steps: LEPIC at the pin -> lepic_ffi.dll with a static CRT (RUSTFLAGS crt-static) ->
+# Steps: LEPIC and lepic-flutter at the pins -> lepic_ffi.dll with a static CRT (RUSTFLAGS
+# crt-static), built from LEPIC into lepic-flutter\native ->
 # flutter build windows --release (version from pubspec.yaml) -> checks (VersionInfo, storage
 # prefix) -> VC runtime DLLs next to epic_wallet.exe -> Inno Setup -> .exe and .exe.sha256 in -OutDir.
 param(
     [string]$Source = (Join-Path $PSScriptRoot '..\..'),
     [Parameter(Mandatory)][string]$Lepic,
+    [Parameter(Mandatory)][string]$LepicFlutter,
     [string]$LepicCache,
     [string]$OutDir,
     [string]$Flutter = "$env:USERPROFILE\flutter\bin",
@@ -39,7 +43,7 @@ if (-not (Test-Path $Iscc)) { throw "ISCC.exe not found at $Iscc (install Inno S
 
 function Step($m) { Write-Output "`n== $m" }
 
-# --- LEPIC at the pin
+# --- LEPIC and lepic-flutter at the pins
 Step 'LEPIC'
 $rev = (Get-Content (Join-Path $Source 'tools\lepic.rev') -Raw).Trim()
 $clone = Join-Path $app 'third_party\lepic'
@@ -59,16 +63,34 @@ if ($LASTEXITCODE) { throw "LEPIC $rev is not in $Lepic" }
 if (git -C $clone status --porcelain --untracked-files=no) { throw "$clone has local changes" }
 Write-Output "LEPIC at $(git -C $clone log --oneline -1)"
 
+$bindingRev = (Get-Content (Join-Path $Source 'tools\lepic-flutter.rev') -Raw).Trim()
+$binding = Join-Path $app 'third_party\lepic-flutter'
+if (-not (Test-Path "$binding\.git")) {
+    New-Item -ItemType Directory -Force (Split-Path $binding) | Out-Null
+    git clone --quiet --no-checkout $LepicFlutter $binding
+    if ($LASTEXITCODE) { throw "could not clone lepic-flutter from $LepicFlutter" }
+}
+git -C $binding fetch --quiet $LepicFlutter '+refs/heads/*:refs/remotes/source/*'
+if ($LASTEXITCODE) { throw "could not fetch lepic-flutter from $LepicFlutter" }
+git -C $binding checkout --quiet --detach $bindingRev
+if ($LASTEXITCODE) { throw "lepic-flutter $bindingRev is not in $LepicFlutter" }
+if (git -C $binding status --porcelain --untracked-files=no) { throw "$binding has local changes" }
+$bindingPin = (Get-Content (Join-Path $binding 'lepic.rev') -Raw).Trim()
+if ($bindingPin -ne $rev) {
+    throw "tools\lepic.rev ($rev) differs from the LEPIC pin of lepic-flutter $bindingRev ($bindingPin)"
+}
+Write-Output "lepic-flutter at $(git -C $binding log --oneline -1)"
+
 # --- lepic_ffi.dll, static CRT: the target needs no VC runtime or UCRT DLLs of its own
 Step 'lepic_ffi.dll (static CRT)'
 Remove-Item Env:CARGO_TARGET_DIR -ErrorAction SilentlyContinue
 $env:RUSTFLAGS = '-C target-feature=+crt-static'
 Push-Location $clone
 try {
-    cargo xtask mobile --package --target x86_64-pc-windows-msvc
+    cargo xtask mobile --package --target x86_64-pc-windows-msvc --out (Join-Path $binding 'native')
     if ($LASTEXITCODE) { throw 'LEPIC build failed' }
 } finally { Pop-Location; Remove-Item Env:RUSTFLAGS }
-$ffi = Get-ChildItem $clone -Recurse -Filter lepic_ffi.dll | Sort-Object LastWriteTime -Descending | Select-Object -First 1
+$ffi = Get-ChildItem (Join-Path $binding 'native') -Recurse -Filter lepic_ffi.dll | Sort-Object LastWriteTime -Descending | Select-Object -First 1
 $dumpbin = Get-ChildItem "${env:ProgramFiles(x86)}\Microsoft Visual Studio" -Recurse -Filter dumpbin.exe -ErrorAction SilentlyContinue |
     Where-Object FullName -like '*Hostx64\x64*' | Select-Object -First 1
 if ($dumpbin -and $ffi) {
