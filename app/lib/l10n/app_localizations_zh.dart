@@ -4288,6 +4288,15 @@ class AppLocalizationsZh extends AppLocalizations {
   String get methodSendEpicboxTitle => '对方可以不在线。';
 
   @override
+  String get settingsShowTipsAgain => '再次显示提示';
+
+  @override
+  String get settingsShowTipsAgainDone => '提示将再次显示';
+
+  @override
+  String get tipHide => '隐藏提示';
+
+  @override
   String get methodSendEpicboxLine => 'Epicbox 服务器会暂存付款，直到对方打开钱包。';
 
   @override

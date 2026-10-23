@@ -5672,6 +5672,18 @@
   "@methodSendEpicboxTitle": {
     "description": "Send strip title for Epicbox."
   },
+  "settingsShowTipsAgain": "Show tips again",
+  "@settingsShowTipsAgain": {
+    "description": "Settings row that brings back every guide box the user closed with its X (the method explanations on Send and Receive)."
+  },
+  "settingsShowTipsAgainDone": "Tips will show again",
+  "@settingsShowTipsAgainDone": {
+    "description": "Notice after Show tips again: the closed guide boxes are back."
+  },
+  "tipHide": "Hide tip",
+  "@tipHide": {
+    "description": "Screen reader label of the small X that closes a guide box (for example the method explanation on Send) for good."
+  },
   "methodSendEpicboxLine": "The Epicbox server holds the payment until they open their wallet.",
   "@methodSendEpicboxLine": {
     "description": "Send strip line for Epicbox."

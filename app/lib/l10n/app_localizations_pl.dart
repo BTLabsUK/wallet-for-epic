@@ -4714,6 +4714,15 @@ class AppLocalizationsPl extends AppLocalizations {
   String get methodSendEpicboxTitle => 'Odbiorca może być offline.';
 
   @override
+  String get settingsShowTipsAgain => 'Pokaż wskazówki ponownie';
+
+  @override
+  String get settingsShowTipsAgainDone => 'Wskazówki znów będą widoczne';
+
+  @override
+  String get tipHide => 'Ukryj wskazówkę';
+
+  @override
   String get methodSendEpicboxLine =>
       'Serwer Epicbox trzyma płatność, aż odbiorca otworzy portfel.';
 

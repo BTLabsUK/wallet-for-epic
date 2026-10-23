@@ -4536,6 +4536,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get methodSendEpicboxTitle => 'The recipient can be offline.';
 
   @override
+  String get settingsShowTipsAgain => 'Show tips again';
+
+  @override
+  String get settingsShowTipsAgainDone => 'Tips will show again';
+
+  @override
+  String get tipHide => 'Hide tip';
+
+  @override
   String get methodSendEpicboxLine =>
       'The Epicbox server holds the payment until they open their wallet.';
 

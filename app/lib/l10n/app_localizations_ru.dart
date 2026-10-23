@@ -4696,6 +4696,15 @@ class AppLocalizationsRu extends AppLocalizations {
   String get methodSendEpicboxTitle => 'Получатель может быть офлайн.';
 
   @override
+  String get settingsShowTipsAgain => 'Снова показывать подсказки';
+
+  @override
+  String get settingsShowTipsAgainDone => 'Подсказки снова будут видны';
+
+  @override
+  String get tipHide => 'Скрыть подсказку';
+
+  @override
   String get methodSendEpicboxLine =>
       'Сервер Epicbox хранит платёж, пока получатель не откроет кошелёк.';
 
