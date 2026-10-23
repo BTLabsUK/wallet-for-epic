@@ -102,6 +102,19 @@ printf '%s\n' "${entries[@]}" | jq -s --arg package "$package" --arg name "$vers
 echo "Wrote $payload for $package $version_name (serial $issued_epoch, expires $expires_at):"
 jq -r '.apks[] | "  \(.abi) versionCode \(.versionCode) \(.size) bytes"' "$payload"
 
+# 0.1.0 (com.blacktyger.epicwallet, debug-signed) reads an unsigned update.json from
+# https://github.com/blacktyger/wallet-for-epic/releases/latest/download/update.json, takes it
+# only when packageName is its own, and shows nothing of it but "Update to <versionName>"; its
+# installer then refuses an APK of another package ("the APK is for <package>, not this app").
+# So the legacy file names the old package and says in versionName that the release is a new
+# app, and its APK entries are the new APK: tapping Install fetches it and ends with that
+# message naming the new app. WFE_LEGACY_NAME replaces the versionName text.
+legacy="$out/update-legacy.json"
+legacy_name="${WFE_LEGACY_NAME:-Epic Cash Mobile $version_name, a new app: install it beside this one}"
+jq --arg name "$legacy_name" \
+  '{packageName: "com.blacktyger.epicwallet", versionName: $name, apks: .apks}' "$payload" >"$legacy"
+echo "Wrote $legacy for 0.1.0 (\"Update to $legacy_name\")."
+
 tool="$btlabs_public/tool/btlabs_sign.py"
 keyring="$btlabs_public/keys/btlabs-keyring.json"
 sign=(python3 "$tool" sign --type update --key "$signing_key" --keyring "$keyring" --payload "$payload" --out "$manifest")
@@ -135,3 +148,5 @@ python3 "$tool" verify --type update --keyring "$keyring" --envelope "$manifest"
 echo "1. Publish app-arm64-v8a-release.apk at $base_url (the GitHub release)."
 echo "2. Then publish $manifest as update.json in BTLabs-EPIC/btlabs-epic.github.io"
 echo "   (btlabs-public docs/hosting.md, \"Publishing a release manifest\")."
+echo "3. For 0.1.0 phones, publish $legacy as update.json on the latest GitHub release of"
+echo "   blacktyger/wallet-for-epic (https://github.com/blacktyger/wallet-for-epic/releases/latest/download/update.json)."
