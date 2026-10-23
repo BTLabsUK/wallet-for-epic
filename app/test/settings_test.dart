@@ -1107,9 +1107,11 @@ void main() {
       await _tapText(tester, 'Add service');
       expect(find.byType(TrustedServiceAddScreen), findsNothing);
       expect(h.session.allowlist, [shop]);
-      expect(await h.session.trustedServices(), [
-        TrustedService(address: shop, label: 'Shop'),
-      ]);
+      // The fake dates the entry when it is added (TrustedService.since).
+      expect(
+        [for (final t in await h.session.trustedServices()) (t.address, t.label)],
+        [(shop, 'Shop')],
+      );
       expect(find.text('Shop'), findsOneWidget);
       expect(notice('Shop can now send you invoices.'), findsOneWidget);
       // Adding never paid anything.
