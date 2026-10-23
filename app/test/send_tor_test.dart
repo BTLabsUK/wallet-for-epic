@@ -14,7 +14,6 @@ import 'package:epic_wallet/src/phone_tor.dart';
 import 'package:epic_wallet/src/price.dart';
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/relay_directory.dart';
-import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/send_preflight.dart';
 import 'package:epic_wallet/src/slate_files.dart';
 import 'package:epic_wallet/src/tor_location.dart';
@@ -28,6 +27,8 @@ import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+import 'support/send_pin.dart';
 
 BigInt _epic(num value) => BigInt.from((value * 100000000).round());
 
@@ -88,6 +89,7 @@ class _Harness {
   PhoneTorState get tor => container.read(phoneTorProvider);
 
   Future<void> pump(WidgetTester tester) async {
+    allowPinCheck(session);
     tester.view.physicalSize = const Size(1080, 2340);
     tester.view.devicePixelRatio = 3;
     addTearDown(tester.view.reset);
@@ -97,7 +99,7 @@ class _Harness {
         overrides: [
           relayProbeProvider.overrideWithValue(FakeRelayProbe()),
           walletServiceProvider.overrideWithValue(FakeWalletService()),
-          secretStoreProvider.overrideWithValue(MemorySecretStore()),
+          secretStoreProvider.overrideWithValue(sendPinStore()),
           slateFilesProvider.overrideWithValue(FakeSlateFiles()),
           qrScannerProvider.overrideWithValue(FakeQrScanner(supported: true)),
           priceSourceProvider.overrideWithValue(_NoPrice()),
@@ -191,7 +193,7 @@ class _Harness {
 
   /// Through recipient and amount to the review.
   Future<void> toReview(WidgetTester tester, {String address = _onion}) async {
-    await _enter(tester, 'Epic address', address);
+    await _enter(tester, 'To', address);
     await _tap(tester, _continue);
     await _enter(tester, 'Amount (EPIC)', '1');
     await _tap(tester, _continue);
@@ -240,6 +242,10 @@ Future<void> _tap(WidgetTester tester, Finder finder) async {
   await tester.pump();
   await tester.tap(finder);
   await _settle(tester);
+  if (find.widgetWithText(TextField, 'PIN').evaluate().isNotEmpty) {
+    await answerPin(tester, settle: false);
+    await _settle(tester);
+  }
 }
 
 Future<void> _enter(WidgetTester tester, String label, String text) async {
@@ -269,8 +275,15 @@ void main() {
         _onion.toUpperCase(),
         '$_onion:3415',
       ]) {
-        await _enter(tester, 'Epic address', form);
-        expect(find.text('Over Tor'), findsOneWidget, reason: form);
+        await _enter(tester, 'To', form);
+        expect(
+          find.descendant(
+            of: find.byType(RecipientCard),
+            matching: find.text('Over Tor'),
+          ),
+          findsOneWidget,
+          reason: form,
+        );
         expect(find.text('New recipient'), findsOneWidget, reason: form);
         expect(
           find.textContaining('.onion', findRichText: true),
@@ -287,7 +300,7 @@ void main() {
     testWidgets('a cut onion is refused with its own sentence', (tester) async {
       final h = _Harness();
       await h.pump(tester);
-      await _enter(tester, 'Epic address', _name.substring(2));
+      await _enter(tester, 'To', _name.substring(2));
       await _tap(tester, _continue);
       expect(find.text('1 of 3'), findsOneWidget);
       expect(find.text('Over Tor'), findsNothing);
@@ -298,7 +311,7 @@ void main() {
     ) async {
       final h = _Harness(bundle: null);
       await h.pump(tester);
-      await _enter(tester, 'Epic address', _onion);
+      await _enter(tester, 'To', _onion);
       await _tap(tester, _continue);
       expect(find.text('1 of 3'), findsOneWidget);
       expect(

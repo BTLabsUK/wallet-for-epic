@@ -27,6 +27,7 @@ import 'demo_screens.dart' show TestCoinsButton;
 import 'file_exchange_help.dart';
 import 'handshake.dart';
 import 'help_screen.dart';
+import 'method_strip.dart';
 import 'pin.dart' show askPin;
 import 'scan_screen.dart';
 import 'shell_header.dart' show comingIn;
@@ -38,8 +39,9 @@ import 'theme/tokens.dart';
 import 'tor_ui.dart';
 
 // Sending, in three steps: the recipient, the amount, a review with quiet checks; then a
-// tracker that follows the payment as both wallets finish it. A payment file is the
-// fallback: from a row on the first step, or when their relay does not answer.
+// tracker that follows the payment as both wallets finish it. A method selector on top picks
+// Epicbox, HTTP, Tor or File, and follows the kind of address given. A payment file is also
+// the fallback when their relay does not answer.
 
 /// The most EPIC that will ever exist, 21 million. Anything above is a typo.
 final BigInt maxSendAtomic = BigInt.from(21000000) * atomicPerEpic;
@@ -136,6 +138,25 @@ const Key sendReplyFieldKey = ValueKey('send-reply-field');
 /// Try again and Cancel payment on the review after a failed Tor send, for tests.
 const Key sendTryAgainKey = ValueKey('send-try-again');
 const Key sendCancelPaymentKey = ValueKey('send-cancel-payment');
+
+/// Send's method selector, and the tag beside the To label after the method followed the
+/// address, for tests.
+const Key sendMethodsKey = ValueKey('send-methods');
+const Key sendSwitchedTagKey = ValueKey('send-switched-tag');
+
+/// The shape of an address of each kind, under the To field while it is empty.
+const Map<TransferMethod, String> sendAddressShapes = {
+  TransferMethod.epicbox: 'esXXXX…XXXX@epicbox.epiccash.com',
+  TransferMethod.http: 'http://host:3415',
+  TransferMethod.tor: 'xxxxxxxx…xxxx.onion',
+};
+
+/// The method a recipient of [kind] is paid by.
+TransferMethod methodForRecipient(RecipientKind kind) => switch (kind) {
+  RecipientKind.epicbox => TransferMethod.epicbox,
+  RecipientKind.http => TransferMethod.http,
+  RecipientKind.tor => TransferMethod.tor,
+};
 
 /// The payment Send's tracker is showing, while it shows one, so home does not repeat the
 /// tracker's news in a notice.
@@ -264,6 +285,28 @@ class _SendViewState extends ConsumerState<SendView> {
   bool get _overTor =>
       parseRecipient(_recipient.text).kind == RecipientKind.tor;
 
+  /// The recipient is a wallet URL: the payment goes straight to it over HTTP.
+  bool get _overHttp =>
+      parseRecipient(_recipient.text).kind == RecipientKind.http;
+
+  /// The method the selector shows for the address way. File is its own route
+  /// ([SendStage.fileAmount] and after), so this is never [TransferMethod.file].
+  TransferMethod _method = TransferMethod.epicbox;
+
+  /// The To text at the last change, to tell a paste (8 or more characters at once).
+  String _lastTo = '';
+
+  /// The method the address moved the selector to, and whether its tag still shows.
+  TransferMethod? _switchedTo;
+  bool _tagOn = false;
+  Timer? _tagTimer;
+
+  /// The user agreed to send over plain HTTP to another device, for this recipient.
+  bool _plainHttpOk = false;
+
+  /// Send's consent or PIN dialog is open.
+  bool _asking = false;
+
   /// A recipient handed over while the tracker or a file screen shows, for the next form.
   String? _laterRecipient;
 
@@ -285,13 +328,17 @@ class _SendViewState extends ConsumerState<SendView> {
     final handoff = ref.read(sendRecipientProvider);
     if (handoff != null) {
       _handoff = handoff.id;
-      _recipient.text = parseRecipient(handoff.text).address;
+      final to = parseRecipient(handoff.text);
+      _recipient.text = to.address;
+      _lastTo = to.address;
+      if (recipientShaped(to)) _method = methodForRecipient(to.kind);
     }
   }
 
   @override
   void dispose() {
     _debounce?.cancel();
+    _tagTimer?.cancel();
     _checks?.close();
     _recipient.dispose();
     _amount.dispose();
@@ -318,8 +365,19 @@ class _SendViewState extends ConsumerState<SendView> {
     final l = context.l10n;
     if (text.trim().isEmpty) return required ? l.sendAddressMissing : null;
     final to = parseRecipient(text);
-    // The wallet pays over epicbox, over Tor and by file (OD-2: no HTTP).
-    if (to.kind == RecipientKind.http) return l.sendAddressWebLink;
+    // A whole address of another kind has moved the method already; text that does not fit
+    // the method chosen by hand gets that method's own sentence.
+    if (_method == TransferMethod.http && to.kind != RecipientKind.http) {
+      return l.sendHttpAddressShape;
+    }
+    if (_method == TransferMethod.tor && to.kind != RecipientKind.tor) {
+      return l.sendOnionIncomplete;
+    }
+    if (to.kind == RecipientKind.http) {
+      return httpAddressComplete(to.address)
+          ? null
+          : l.contactsUrlIncomplete(sendAddressShapes[TransferMethod.http]!);
+    }
     if (to.kind == RecipientKind.tor &&
         ref.read(phoneTorProvider).phase == PhoneTorPhase.unavailable) {
       return l.sendTorUnavailable;
@@ -348,6 +406,63 @@ class _SendViewState extends ConsumerState<SendView> {
     _setRecipient(text);
   }
 
+  /// Whether the wallet can pay [to] as it is: the checksum, chain and host hold.
+  bool _complete(Recipient to) {
+    final service = ref.read(walletServiceProvider);
+    return switch (to.kind) {
+      RecipientKind.epicbox => service.validateEpicboxAddress(
+        address: to.address,
+      ),
+      RecipientKind.tor => service.validateOnionAddress(address: to.address),
+      RecipientKind.http => httpAddressComplete(to.address),
+    };
+  }
+
+  bool get _torOffered =>
+      ref.read(phoneTorProvider).phase != PhoneTorPhase.unavailable;
+
+  /// The method follows the address (desktop spec 8.4): a whole address of another kind, or
+  /// any address that was pasted, scanned or picked ([forced], or one change adding 8 or more
+  /// characters), moves it to that kind, with a tag for 3 s. Text still being typed never
+  /// does, nothing switches back when the text becomes incomplete, and the field keeps its
+  /// text. Call inside setState.
+  void _followAddress(String text, {bool forced = false}) {
+    final added = text.length - _lastTo.length;
+    _lastTo = text;
+    final to = parseRecipient(text);
+    if (!recipientShaped(to)) return;
+    final method = methodForRecipient(to.kind);
+    if (method == _method) return;
+    if (method == TransferMethod.tor && !_torOffered) return;
+    if (!(forced || added >= 8 || _complete(to))) return;
+    _method = method;
+    _switchedTo = method;
+    _tagOn = true;
+    _tagTimer?.cancel();
+    _tagTimer = Timer(const Duration(seconds: 3), () {
+      if (mounted) setState(() => _tagOn = false);
+    });
+  }
+
+  /// The selector: an address method keeps the To text; File opens the file route.
+  void _chooseMethod(TransferMethod method) {
+    if (_busy || _estimating) return;
+    if (method == TransferMethod.file) {
+      _toFileRoute();
+      return;
+    }
+    _tagTimer?.cancel();
+    setState(() {
+      _method = method;
+      _tagOn = false;
+      _stage = SendStage.recipient;
+      _error = null;
+      _recipientError = _recipient.text.trim().isEmpty
+          ? null
+          : _recipientProblem(_recipient.text);
+    });
+  }
+
   Future<void> _scan() async {
     final text = await ref.read(qrScannerProvider).scan(context);
     if (text != null && mounted) _setRecipient(text);
@@ -374,11 +489,13 @@ class _SendViewState extends ConsumerState<SendView> {
       return;
     }
     _recipient.text = parseRecipient(text).address;
+    _plainHttpOk = false;
     if (_stage == SendStage.amount || _stage == SendStage.review) {
       _closeChecks();
       _stage = SendStage.recipient;
     }
     setState(() {
+      _followAddress(_recipient.text, forced: true);
       _recipientError = _recipientProblem(_recipient.text);
       _error = null;
     });
@@ -687,11 +804,29 @@ class _SendViewState extends ConsumerState<SendView> {
     final reviewed = _estimate;
     // A second tap can land on the old button after the first send already finished.
     if (reviewed == null || _stage != SendStage.review) return;
+    // A second tap while the first one's dialogs show opens no second set.
+    if (_asking) return;
     final l = context.l10n;
-    if (!await _pinGate(l.sendPinReason(epicExact(l, reviewed.amount)))) return;
-    if (!mounted) return;
     final to = parseRecipient(_recipient.text);
+    _asking = true;
+    try {
+      // Plain HTTP to another device travels unencrypted: asked once per recipient, before
+      // the PIN.
+      if (to.kind == RecipientKind.http &&
+          plainHttpToOtherDevice(to.address) &&
+          !_plainHttpOk) {
+        if (!await _askPlainHttp() || !mounted) return;
+        _plainHttpOk = true;
+      }
+      if (!await _pinGate(l.sendPinReason(epicExact(l, reviewed.amount)))) {
+        return;
+      }
+    } finally {
+      _asking = false;
+    }
+    if (!mounted || _stage != SendStage.review || _busy) return;
     if (to.kind == RecipientKind.tor) return _sendTor(reviewed, to);
+    if (to.kind == RecipientKind.http) return _sendHttp(reviewed, to);
     // Captured now: after the await the screen may be gone, and home must still refresh.
     final container = ProviderScope.containerOf(context, listen: false);
     // A slow send must not lock the wallet under the user and lose the tracker.
@@ -788,6 +923,100 @@ class _SendViewState extends ConsumerState<SendView> {
     });
   }
 
+  /// "Not encrypted. Send anyway?" before plain HTTP to another device. True to send.
+  Future<bool> _askPlainHttp() async {
+    final l = context.l10n;
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        icon: const Icon(Icons.warning_amber),
+        title: Text(l.sendPlainHttpTitle),
+        content: Text(l.sendPlainHttpBody),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text(l.commonCancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text(l.sendAnyway),
+          ),
+        ],
+      ),
+    );
+    return ok == true;
+  }
+
+  /// A payment straight to a wallet URL over HTTP. Reaching it is the whole exchange, as over
+  /// Tor, so a success lands on the tracker past "signed". When LEPIC stored the payment
+  /// before the failure (their wallet did not answer or refused), it waits with its coins on
+  /// hold: the review offers Try again ([_resendDirect]) and Cancel payment. A failure that
+  /// stored nothing (a bad address) shows in words.
+  Future<void> _sendHttp(FeeEstimate reviewed, Recipient to) {
+    final container = ProviderScope.containerOf(context, listen: false);
+    final hold = ref.read(autoLockHoldProvider.notifier);
+    final amount = reviewed.amount;
+    final note = _noteText;
+    return _run((session) async {
+      final minimum = ref.read(countedConfirmationsProvider);
+      final before = {
+        for (final t in await session.transactions(refresh: false)) t.key,
+      };
+      final HttpSent sent;
+      try {
+        sent = await hold.during(
+          () => session.sendHttp(
+            amount: amount,
+            minimumConfirmations: minimum,
+            url: to.address,
+            allowPlainHttp: plainHttpToOtherDevice(to.address),
+            message: note.isEmpty ? null : note,
+          ),
+        );
+      } on WalletError catch (error) {
+        container.invalidate(homeProvider);
+        final stuck = (await _waitingSendsLeft(
+          session,
+          before,
+          to,
+          amount,
+        )).firstOrNull;
+        if (stuck == null) rethrow;
+        logWarn(
+          'send',
+          'not delivered over HTTP: ${describeError(englishStrings, error)}',
+        );
+        if (note.isNotEmpty) {
+          try {
+            await session.setTxNote(key: stuck.key, note: note);
+          } catch (error) {
+            logWarn(
+              'send',
+              'saving the note failed: ${describeError(englishStrings, error)}',
+            );
+          }
+        }
+        if (mounted) {
+          setState(() {
+            _sendFailed = true;
+            _undelivered = stuck;
+            _nothingStored = false;
+          });
+        }
+        return;
+      }
+      await _directSent(
+        session,
+        container,
+        slateId: sent.slateId,
+        amount: amount,
+        to: to,
+        reviewedFee: reviewed.fee,
+        note: note,
+      );
+    });
+  }
+
   /// Failures that leave a Tor send stored and waiting (LEPIC): the review offers Try again
   /// and Cancel payment. Before anything was sent, `torNotRunning` stores nothing.
   static bool _torStores(WalletErrorKind kind) => const {
@@ -824,7 +1053,7 @@ class _SendViewState extends ConsumerState<SendView> {
   /// A payment over Tor: tor starts if it is off (the review shows it connecting), then the
   /// other wallet is reached, which can take a while. Reaching it is the whole exchange, so
   /// a success lands on the tracker past "signed". A failure to reach it leaves the payment
-  /// stored and waiting: the review offers Try again ([_resendTor]) and Cancel payment.
+  /// stored and waiting: the review offers Try again ([_resendDirect]) and Cancel payment.
   Future<void> _sendTor(FeeEstimate reviewed, Recipient to) {
     final container = ProviderScope.containerOf(context, listen: false);
     final hold = ref.read(autoLockHoldProvider.notifier);
@@ -877,7 +1106,7 @@ class _SendViewState extends ConsumerState<SendView> {
         }
         return;
       }
-      await _torSent(
+      await _directSent(
         session,
         container,
         slateId: sent.slateId,
@@ -889,11 +1118,12 @@ class _SendViewState extends ConsumerState<SendView> {
     });
   }
 
-  /// Delivers the waiting Tor payment [_undelivered] again.
-  Future<void> _resendTor() {
+  /// Delivers the waiting Tor or HTTP payment [_undelivered] again.
+  Future<void> _resendDirect() {
     final stuck = _undelivered;
     if (stuck == null) return Future.value();
     final to = parseRecipient(_recipient.text);
+    final http = to.kind == RecipientKind.http;
     final container = ProviderScope.containerOf(context, listen: false);
     final hold = ref.read(autoLockHoldProvider.notifier);
     final tor = ref.read(phoneTorProvider.notifier);
@@ -901,22 +1131,31 @@ class _SendViewState extends ConsumerState<SendView> {
       final HttpSent sent;
       try {
         sent = await hold.during(
-          () => tor.whileSending(
-            () => session.resendTor(txId: stuck.id!, onion: to.address),
-          ),
+          () => http
+              ? session.resendHttp(
+                  txId: stuck.id!,
+                  url: to.address,
+                  allowPlainHttp: plainHttpToOtherDevice(to.address),
+                )
+              : tor.whileSending(
+                  () => session.resendTor(txId: stuck.id!, onion: to.address),
+                ),
         );
       } on WalletError catch (error) {
-        if (!_torStores(error.kind)) rethrow;
+        final stillWaiting = http
+            ? error.kind == WalletErrorKind.transportFailed
+            : _torStores(error.kind);
+        if (!stillWaiting) rethrow;
         logWarn(
           'send',
-          'not delivered over Tor again: '
+          'not delivered ${http ? 'over HTTP' : 'over Tor'} again: '
               '${describeError(englishStrings, error)}',
         );
         // Still stored and waiting: the review keeps its offer.
         container.invalidate(homeProvider);
         return;
       }
-      await _torSent(
+      await _directSent(
         session,
         container,
         slateId: sent.slateId,
@@ -928,9 +1167,9 @@ class _SendViewState extends ConsumerState<SendView> {
     });
   }
 
-  /// The other wallet answered over Tor and the payment is finalized: the tracker follows it
-  /// from the wallet's own record of [slateId].
-  Future<void> _torSent(
+  /// The other wallet answered over Tor or HTTP and the payment is finalized: the tracker
+  /// follows it from the wallet's own record of [slateId].
+  Future<void> _directSent(
     WalletSession session,
     ProviderContainer container, {
     required String slateId,
@@ -945,7 +1184,7 @@ class _SendViewState extends ConsumerState<SendView> {
     container.invalidate(homeProvider);
     if (tx == null) {
       // Sent, but not found by its id: Wallet shows it. Nothing to track from here.
-      logWarn('send', 'tor send $slateId not in the wallet\'s payments');
+      logWarn('send', 'direct send $slateId not in the wallet\'s payments');
       if (mounted) _done();
       return;
     }
@@ -984,8 +1223,9 @@ class _SendViewState extends ConsumerState<SendView> {
   Future<void> _cancelAndFile() =>
       _cancelUndelivered(then: SendStage.fileAmount);
 
-  /// Cancels the waiting Tor payment, back to the amount with the recipient kept.
-  Future<void> _cancelTorSend() => _cancelUndelivered(then: SendStage.amount);
+  /// Cancels the waiting Tor or HTTP payment, back to the amount with the recipient kept.
+  Future<void> _cancelDirectSend() =>
+      _cancelUndelivered(then: SendStage.amount);
 
   /// Cancels [_undelivered], then shows [then] with the amount and the note. After Max the
   /// maximum is asked again, now that the coins are free.
@@ -1234,8 +1474,9 @@ class _SendViewState extends ConsumerState<SendView> {
             action: demo
                 ? const TestCoinsButton()
                 : TextButton(
-                    onPressed: () =>
-                        ref.read(shellTabProvider.notifier).go(ShellTab.receive),
+                    onPressed: () => ref
+                        .read(shellTabProvider.notifier)
+                        .go(ShellTab.receive),
                     child: Text(context.l10n.homeReceiveButton),
                   ),
           ),
@@ -1296,6 +1537,88 @@ class _SendViewState extends ConsumerState<SendView> {
     return contactNameFor(contacts, address);
   }
 
+  /// Epicbox, HTTP, Tor and File, one segment each, icon over label so four fit a 320 dp
+  /// phone. Tor drops out where the app has no Tor.
+  Widget _methodSelector(BuildContext context, TransferMethod selected) {
+    final l = context.l10n;
+    final torOffered = ref.watch(
+      phoneTorProvider.select((s) => s.phase != PhoneTorPhase.unavailable),
+    );
+    final labelStyle = Theme.of(context).textTheme.labelMedium;
+    ButtonSegment<TransferMethod> segment(
+      TransferMethod value,
+      IconData icon,
+      String label,
+    ) => ButtonSegment(
+      value: value,
+      tooltip: label,
+      label: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 18),
+          const SizedBox(height: 2),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(label, maxLines: 1, style: labelStyle),
+          ),
+        ],
+      ),
+    );
+    return Semantics(
+      label: l.sendMethodLabel,
+      container: true,
+      child: SegmentedButton<TransferMethod>(
+        key: sendMethodsKey,
+        segments: [
+          segment(
+            TransferMethod.epicbox,
+            Icons.alternate_email,
+            l.methodEpicbox,
+          ),
+          segment(TransferMethod.http, Icons.link, l.methodHttp),
+          if (torOffered) segment(TransferMethod.tor, torIcon, l.methodTor),
+          segment(
+            TransferMethod.file,
+            Icons.description_outlined,
+            l.methodFile,
+          ),
+        ],
+        selected: {selected},
+        showSelectedIcon: false,
+        expandedInsets: EdgeInsets.zero,
+        style: const ButtonStyle(
+          minimumSize: WidgetStatePropertyAll(Size(0, 44)),
+          padding: WidgetStatePropertyAll(
+            EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+          ),
+          visualDensity: VisualDensity.standard,
+        ),
+        onSelectionChanged: (chosen) => _chooseMethod(chosen.first),
+      ),
+    );
+  }
+
+  /// The selector and, 12 dp under it, the strip that says what [method] means.
+  List<Widget> _methodHead(BuildContext context, TransferMethod method) => [
+    _methodSelector(context, method),
+    const SizedBox(height: 12),
+    MethodStrip(method: method),
+    const SizedBox(height: 16),
+  ];
+
+  /// Saved contacts whose name holds [text], for "Address or contact": at most three.
+  List<Contact> _nameMatches(String text) {
+    final query = text.trim().toLowerCase();
+    if (query.length < 2 || recipientShaped(parseRecipient(query))) {
+      return const [];
+    }
+    final contacts = ref.watch(contactsProvider).value ?? const <Contact>[];
+    return contacts
+        .where((c) => c.name.toLowerCase().contains(query))
+        .take(3)
+        .toList();
+  }
+
   List<Widget> _recipientStep(BuildContext context) {
     final l = context.l10n;
     final theme = Theme.of(context);
@@ -1307,8 +1630,11 @@ class _SendViewState extends ConsumerState<SendView> {
     final recent = recentRecipients(
       ref.watch(homeProvider).value?.transactions ?? const <TxEntry>[],
     );
+    final matches = _nameMatches(text);
+    final shape = sendAddressShapes[_method];
     return [
       _header(context, l.sendStepRecipient, step: 1),
+      ..._methodHead(context, _method),
       TextField(
         key: sendRecipientFieldKey,
         controller: _recipient,
@@ -1322,18 +1648,52 @@ class _SendViewState extends ConsumerState<SendView> {
         textInputAction: TextInputAction.next,
         onEditingComplete: _toAmount,
         style: theme.textTheme.bodyMedium?.copyWith(fontFamily: t.monoFamily),
-        onChanged: (_) => setState(() {
+        onChanged: (text) => setState(() {
+          _followAddress(text);
           _recipientError = null;
           _error = null;
+          _plainHttpOk = false;
         }),
         decoration: InputDecoration(
-          labelText: l.sendAddressLabel,
+          label: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(l.sendToLabel),
+              const SizedBox(width: 8),
+              _SwitchTag(method: _switchedTo, shown: _tagOn),
+            ],
+          ),
+          hintText: l.sendToHint,
+          floatingLabelBehavior: FloatingLabelBehavior.always,
           error: _recipientError == null
               ? null
               : LiveFieldError(_recipientError!),
           border: const OutlineInputBorder(),
         ),
       ),
+      if (text.isEmpty && shape != null)
+        Row(
+          children: [
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                shape,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  fontFamily: t.monoFamily,
+                  fontSize: 12,
+                  color: t.dim,
+                ),
+              ),
+            ),
+            IconButton(
+              tooltip: l.methodAddressKindsTooltip,
+              icon: Icon(Icons.help_outline, size: 20, color: t.dim),
+              onPressed: () => openHelp(context, HelpTopic.addressKinds),
+            ),
+          ],
+        ),
       Wrap(
         spacing: 8,
         children: [
@@ -1374,6 +1734,20 @@ class _SendViewState extends ConsumerState<SendView> {
               : null,
         ),
       ],
+      if (matches.isNotEmpty) ...[
+        const SizedBox(height: 8),
+        Text(
+          l.sendContactsButton,
+          style: theme.textTheme.labelLarge?.copyWith(color: t.dim),
+        ),
+        const SizedBox(height: 4),
+        for (final contact in matches)
+          _RecentRow(
+            address: contact.address,
+            name: contact.name,
+            onTap: () => _setRecipient(contact.address),
+          ),
+      ],
       if (text.isEmpty && recent.isNotEmpty) ...[
         const SizedBox(height: 16),
         Text(
@@ -1391,16 +1765,6 @@ class _SendViewState extends ConsumerState<SendView> {
             },
           ),
       ],
-      const SizedBox(height: 16),
-      Divider(color: t.line, height: 1),
-      ListTile(
-        contentPadding: EdgeInsets.zero,
-        minTileHeight: 56,
-        leading: Icon(Icons.description_outlined, color: t.dim),
-        title: Text(l.sendUseFile, style: theme.textTheme.bodyMedium),
-        trailing: Icon(Icons.chevron_right, color: t.dim),
-        onTap: _toFileRoute,
-      ),
     ];
   }
 
@@ -1602,10 +1966,13 @@ class _SendViewState extends ConsumerState<SendView> {
     final to = parseRecipient(_recipient.text);
     final checks = ref.watch(sendPreflightProvider(_relay));
     final overTor = to.kind == RecipientKind.tor;
+    final overHttp = to.kind == RecipientKind.http;
     final tor = overTor ? ref.watch(phoneTorProvider) : null;
     final String? failed;
     if (!_sendFailed) {
       failed = null;
+    } else if (overHttp) {
+      failed = l.sendHttpNotReached(sendTtlDays);
     } else if (overTor) {
       // Nothing stored: tor itself did not connect, for the reason it shows.
       failed = _nothingStored
@@ -1640,6 +2007,15 @@ class _SendViewState extends ConsumerState<SendView> {
         ),
       ),
       const SizedBox(height: 12),
+      _Row(
+        label: l.sendMethodLabel,
+        value: switch (to.kind) {
+          RecipientKind.epicbox => l.methodEpicbox,
+          RecipientKind.http => l.sendReviewMethodHttp,
+          RecipientKind.tor => l.methodTor,
+        },
+        mono: false,
+      ),
       _Row(label: l.sendNetworkFee, value: epicExact(l, estimate.fee)),
       _Row(
         label: l.sendReviewTotal,
@@ -1654,7 +2030,20 @@ class _SendViewState extends ConsumerState<SendView> {
       const SizedBox(height: 8),
       Divider(color: t.line, height: 1),
       const SizedBox(height: 8),
-      _ReadyLine(checks: checks, sending: _busy, failed: failed, tor: tor),
+      _ReadyLine(
+        checks: checks,
+        sending: _busy,
+        failed: failed,
+        tor: tor,
+        http: overHttp,
+      ),
+      const SizedBox(height: 4),
+      Text(
+        to.kind == RecipientKind.epicbox
+            ? l.sendCancelRuleEpicbox
+            : l.sendCancelRuleDirect,
+        style: theme.textTheme.bodySmall?.copyWith(color: t.dim),
+      ),
     ];
   }
 
@@ -1673,19 +2062,21 @@ class _SendViewState extends ConsumerState<SendView> {
         // The send failed and LEPIC holds the payment: never a second send from here.
         if (_sendFailed && _cancelFailed)
           BusyButton(label: l.commonDone, onPressed: _done)
-        // Over Tor the waiting payment is delivered again, or cancelled.
-        else if (_sendFailed && _overTor && _undelivered != null) ...[
+        // Over Tor or HTTP the waiting payment is delivered again, or cancelled.
+        else if (_sendFailed &&
+            (_overTor || _overHttp) &&
+            _undelivered != null) ...[
           BusyButton(
             key: sendTryAgainKey,
             label: l.sendTryAgain,
             busy: _busy,
-            onPressed: _resendTor,
+            onPressed: _resendDirect,
           ),
           const SizedBox(height: 4),
           TextButton(
             key: sendCancelPaymentKey,
             style: quiet,
-            onPressed: _busy ? null : _cancelTorSend,
+            onPressed: _busy ? null : _cancelDirectSend,
             child: Text(l.sendCancelPayment),
           ),
         ] else if (_sendFailed && _overTor) ...[
@@ -1814,6 +2205,12 @@ class _SendViewState extends ConsumerState<SendView> {
     ];
     final waiting = track == SendTrack.waitingRecipient;
     final unknown = name == null;
+    // Over HTTP or Tor their wallet took it in the exchange itself: past cancelling, and
+    // waiting only for a block.
+    final delivered =
+        sent.to.kind != RecipientKind.epicbox &&
+        track == SendTrack.confirming &&
+        confirmations == 0;
     return [
       Align(
         alignment: AlignmentDirectional.centerEnd,
@@ -1839,6 +2236,19 @@ class _SendViewState extends ConsumerState<SendView> {
         ),
       ),
       const SizedBox(height: 24),
+      if (delivered) ...[
+        Semantics(
+          liveRegion: true,
+          child: Text(
+            l.sendDeliveredWaitingBlock,
+            style: theme.textTheme.bodyLarge?.copyWith(
+              color: t.text,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+        const SizedBox(height: 12),
+      ],
       if (track == SendTrack.cancelled)
         Semantics(
           liveRegion: true,
@@ -1904,6 +2314,7 @@ class _SendViewState extends ConsumerState<SendView> {
 
   List<Widget> _fileAmountStep(BuildContext context) {
     final l = context.l10n;
+    final t = context.tokens;
     return [
       _header(
         context,
@@ -1916,7 +2327,13 @@ class _SendViewState extends ConsumerState<SendView> {
               showFileExchangeHelp(context, role: FileExchangeRole.sender),
         ),
       ),
+      ..._methodHead(context, TransferMethod.file),
       ..._amountFields(context, file: true),
+      const SizedBox(height: 12),
+      Text(
+        l.sendCancelRuleFile,
+        style: Theme.of(context).textTheme.bodySmall?.copyWith(color: t.dim),
+      ),
     ];
   }
 
@@ -2149,6 +2566,69 @@ class AddressEnds extends StatelessWidget {
   }
 }
 
+/// "Over Tor" / "Over HTTP" / "Via Epicbox" beside the To label for 3 s after the address
+/// moved the method: fades in over 120 ms and out over 200 ms (at once with reduced motion),
+/// and is read out once as "Tor address. Method set to Tor."
+class _SwitchTag extends StatelessWidget {
+  const _SwitchTag({required this.method, required this.shown});
+
+  final TransferMethod? method;
+  final bool shown;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    final t = context.tokens;
+    final method = this.method;
+    final still = MediaQuery.disableAnimationsOf(context);
+    if (method == null) return const SizedBox.shrink();
+    final (icon, text, announce) = switch (method) {
+      TransferMethod.tor => (torIcon, l.sendOverTor, l.sendSwitchedTorAnnounce),
+      TransferMethod.http => (
+        Icons.link,
+        l.sendSwitchedHttp,
+        l.sendSwitchedHttpAnnounce,
+      ),
+      _ => (
+        Icons.alternate_email,
+        l.sendSwitchedEpicbox,
+        l.sendSwitchedEpicboxAnnounce,
+      ),
+    };
+    return Semantics(
+      liveRegion: shown,
+      label: shown ? announce : null,
+      excludeSemantics: true,
+      child: AnimatedOpacity(
+        key: sendSwitchedTagKey,
+        opacity: shown ? 1 : 0,
+        duration: still
+            ? Duration.zero
+            : Duration(milliseconds: shown ? 120 : 200),
+        child: Container(
+          padding: const EdgeInsetsDirectional.fromSTEB(6, 2, 8, 2),
+          decoration: BoxDecoration(
+            color: t.accentSoft,
+            borderRadius: BorderRadius.circular(999),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icon, size: 14, color: t.accentText),
+              const SizedBox(width: 4),
+              Text(
+                text,
+                style: Theme.of(context).textTheme.labelSmall
+                    ?.copyWith(color: t.accentText),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 /// "Over Tor" beside a recipient whose address is an onion: the method the payment takes,
 /// since there is no method to pick.
 class _TorPill extends StatelessWidget {
@@ -2295,7 +2775,12 @@ class _ReadyLine extends ConsumerWidget {
     required this.sending,
     required this.failed,
     this.tor,
+    this.http = false,
   });
+
+  /// The payment goes straight to a wallet URL: no epicbox checks, and its own words while
+  /// it is under way.
+  final bool http;
 
   final SendPreflight checks;
 
@@ -2339,6 +2824,7 @@ class _ReadyLine extends ConsumerWidget {
         t.dim,
         null,
       ),
+      _ when sending && http => (spinner, l.sendHttpReaching, t.dim, null),
       _ when sending => (spinner, l.sendSending, t.dim, null),
       _ when failed != null => (
         Icon(Icons.warning_amber, size: 18, color: t.warn),
@@ -2392,6 +2878,12 @@ class _ReadyLine extends ConsumerWidget {
           null,
         ),
       },
+      _ when http => (
+        Icon(Icons.check, size: 18, color: t.ok),
+        l.sendReady,
+        t.dim,
+        null,
+      ),
       _ when checks.listener == CheckOutcome.failed => (
         Icon(Icons.sync, size: 18, color: t.dim),
         l.sendListenerDown,
@@ -2426,11 +2918,19 @@ class _ReadyLine extends ConsumerWidget {
 }
 
 class _Row extends StatelessWidget {
-  const _Row({required this.label, required this.value, this.strong = false});
+  const _Row({
+    required this.label,
+    required this.value,
+    this.strong = false,
+    this.mono = true,
+  });
 
   final String label;
   final String value;
   final bool strong;
+
+  /// The value is a figure, in the mono face; false for words.
+  final bool mono;
 
   @override
   Widget build(BuildContext context) {
@@ -2452,7 +2952,7 @@ class _Row extends StatelessWidget {
             child: Text(
               value,
               textAlign: TextAlign.end,
-              style: style?.copyWith(fontFamily: t.monoFamily),
+              style: mono ? style?.copyWith(fontFamily: t.monoFamily) : style,
             ),
           ),
         ],

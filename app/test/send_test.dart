@@ -32,6 +32,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:share_plus/share_plus.dart';
 
+import 'support/send_pin.dart';
+
 BigInt _epic(num value) => BigInt.from((value * 100000000).round());
 
 /// A valid address for [FakeWalletService.validateEpicboxAddress].
@@ -233,13 +235,14 @@ class _Harness {
     tester.view.physicalSize = const Size(1080, 2340);
     tester.view.devicePixelRatio = 3;
     addTearDown(tester.view.reset);
+    allowPinCheck(session, service);
     // A controlled scope, so the price refresh timer ends with the widget tree.
     await tester.pumpWidget(
       ProviderScope(
         retry: (_, _) => null,
         overrides: [
           walletServiceProvider.overrideWithValue(service),
-          secretStoreProvider.overrideWithValue(MemorySecretStore()),
+          secretStoreProvider.overrideWithValue(sendPinStore()),
           slateFilesProvider.overrideWithValue(files),
           qrScannerProvider.overrideWithValue(scanner),
           priceSourceProvider.overrideWithValue(_FixedPrice(price)),
@@ -287,10 +290,24 @@ Future<void> _tap(WidgetTester tester, Finder finder) async {
   await tester.pumpAndSettle();
   await tester.tap(finder);
   await tester.pumpAndSettle();
+  await answerPin(tester);
 }
 
 Future<void> _enter(WidgetTester tester, String label, String text) async {
   final field = find.widgetWithText(TextField, label);
+  // Screens are lazy lists: scroll until the field is built.
+  if (field.evaluate().isEmpty) {
+    await tester.scrollUntilVisible(
+      field,
+      200,
+      scrollable: find
+          .descendant(
+            of: find.byType(ListView).last,
+            matching: find.byType(Scrollable),
+          )
+          .first,
+    );
+  }
   await tester.ensureVisible(field);
   await tester.enterText(field, text);
   // Past the fee estimate's debounce.
@@ -299,7 +316,7 @@ Future<void> _enter(WidgetTester tester, String label, String text) async {
 }
 
 /// The address field on the first step.
-const String _address = 'Epic address';
+const String _address = 'To';
 
 Finder get _continue => find.widgetWithText(FilledButton, 'Continue');
 
@@ -331,8 +348,7 @@ Future<void> _toReview(
 }
 
 /// The payment file route, from the first step.
-Future<void> _toFile(WidgetTester tester) =>
-    _tap(tester, find.text('No address? Use a payment file'));
+Future<void> _toFile(WidgetTester tester) => _tap(tester, find.text('File'));
 
 String _fieldText(WidgetTester tester, String label) => tester
     .widget<TextField>(find.widgetWithText(TextField, label))
@@ -609,6 +625,9 @@ void main() {
           contact: Contact(id: '', name: 'Bob', address: _bob, note: null),
         );
         await h.pump(tester, _sendTab());
+        // A tall phone: the rows sit under the method strip, past a test font's fold.
+        tester.view.physicalSize = const Size(1080, 3600);
+        await tester.pumpAndSettle();
         expect(find.text('Recent'), findsOneWidget);
         expect(find.text('Bob'), findsOneWidget);
         // A name keeps its address beside it.
@@ -759,30 +778,22 @@ void main() {
       },
     );
 
-    testWidgets('a wallet URL is refused in plain words, before the amount', (
+    testWidgets('an incomplete wallet URL is refused in plain words', (
       tester,
     ) async {
       final h = _Harness();
       await h.pump(tester, _sendTab());
-      await _enter(tester, _address, 'http://203.0.113.5:3415');
+      await _enter(tester, _address, 'https://');
       await _tap(tester, _continue);
       expect(
-        find.text('This is a web link, not an Epic address.'),
+        find.text('Enter the full wallet URL, such as http://host:3415'),
         findsOneWidget,
       );
       expect(find.text('2 of 3'), findsNothing);
 
-      // An incomplete URL too.
-      await _enter(tester, _address, 'https://');
-      await _tap(tester, _continue);
-      expect(
-        find.text('This is a web link, not an Epic address.'),
-        findsOneWidget,
-      );
-
-      // Typing clears it, and an Epic address goes on.
-      await _enter(tester, _address, _bob);
-      expect(find.textContaining('web link'), findsNothing);
+      // A whole one goes on, over HTTP.
+      await _enter(tester, _address, 'http://203.0.113.5:3415');
+      expect(find.byType(LiveFieldError), findsNothing);
       await _tap(tester, _continue);
       expect(find.text('2 of 3'), findsOneWidget);
       expect(h.session.epicboxSends, isEmpty);
@@ -807,10 +818,10 @@ void main() {
       final h = _Harness();
       await h.pump(tester, _sendTab());
 
-      clipboard = 'https://example.com/wallet';
+      clipboard = 'https://';
       await _tap(tester, find.text('Paste'));
       expect(
-        find.text('This is a web link, not an Epic address.'),
+        find.text('Enter the full wallet URL, such as http://host:3415'),
         findsOneWidget,
       );
       clipboard = 'b' * 30;
@@ -1007,6 +1018,9 @@ void main() {
       await tester.tap(send);
       await tester.tap(send, warnIfMissed: false);
       await tester.pumpAndSettle();
+      // One PIN dialog for the two taps.
+      expect(find.widgetWithText(TextField, 'PIN'), findsOneWidget);
+      await answerPin(tester);
       expect(h.session.epicboxSends, hasLength(1));
       // The Send tab is still there, on its tracker.
       expect(find.text('Waiting for their wallet'), findsOneWidget);
@@ -1139,6 +1153,8 @@ void main() {
       await _toReview(tester);
       h.session.sendGate = Completer<void>();
       await tester.tap(find.text('Send 1 EPIC'));
+      await tester.pumpAndSettle();
+      await answerPin(tester, settle: false);
       // The send is running, so a spinner turns: pump frames instead of settling.
       for (var i = 0; i < 5; i++) {
         await tester.pump(const Duration(milliseconds: 100));
@@ -1580,7 +1596,8 @@ void main() {
       await _toReview(tester);
       h.session.sendGate = Completer<void>();
       await tester.tap(find.text('Send 1 EPIC'));
-      await tester.pump();
+      await tester.pumpAndSettle();
+      await answerPin(tester, settle: false);
       expect(h.container.read(autoLockHoldProvider), 1);
       await h.awayAndBack(tester, const Duration(minutes: 10));
       expect(h.locked, isFalse);
@@ -2300,24 +2317,22 @@ void main() {
   });
 
   group('advanced options', () {
-    testWidgets(
-      'send offers the file either way; a URL is refused either way',
-      (tester) async {
-        final off = _Harness();
-        await off.pump(tester, _sendTab());
-        expect(find.text('No address? Use a payment file'), findsOneWidget);
-        expect(find.text('Other ways to send'), findsNothing);
+    testWidgets('send offers the file and HTTP either way', (tester) async {
+      final off = _Harness();
+      await off.pump(tester, _sendTab());
+      expect(find.text('File'), findsOneWidget);
+      expect(find.text('HTTP'), findsOneWidget);
+      expect(find.text('Other ways to send'), findsNothing);
 
-        // A fresh tree, so the screen's state starts over.
-        await tester.pumpWidget(const SizedBox());
-        final on = _Harness(advanced: true);
-        await on.pump(tester, _sendTab());
-        await _enter(tester, _address, 'http://203.0.113.5:3415');
-        await _tap(tester, _continue);
-        expect(find.textContaining('web link'), findsOneWidget);
-        expect(on.session.epicboxSends, isEmpty);
-        expect(find.text('No address? Use a payment file'), findsOneWidget);
-      },
-    );
+      // A fresh tree, so the screen's state starts over.
+      await tester.pumpWidget(const SizedBox());
+      final on = _Harness(advanced: true);
+      await on.pump(tester, _sendTab());
+      expect(find.text('File'), findsOneWidget);
+      await _enter(tester, _address, 'http://203.0.113.5:3415');
+      await _tap(tester, _continue);
+      expect(find.text('2 of 3'), findsOneWidget);
+      expect(on.session.epicboxSends, isEmpty);
+    });
   });
 }

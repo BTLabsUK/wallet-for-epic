@@ -5,7 +5,6 @@ import 'package:epic_wallet/src/network.dart';
 import 'package:epic_wallet/src/price.dart';
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/relay_directory.dart';
-import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/send_preflight.dart';
 import 'package:epic_wallet/src/slate_files.dart';
 import 'package:epic_wallet/src/ui/common.dart';
@@ -17,6 +16,8 @@ import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+import 'support/send_pin.dart';
 
 BigInt _epic(num value) => BigInt.from((value * 100000000).round());
 
@@ -183,6 +184,7 @@ class _SlowSession extends FakeWalletSession {
 class _Harness {
   _Harness({FakeWalletSession? session})
     : session = session ?? FakeWalletSession(summary: _forty) {
+    allowPinCheck(this.session);
     service = _NodeService(session: this.session)
       ..slateInfos[this.session.responseSlate.json] = SlateInfo(
         slateId: this.session.sendSlate.slateId,
@@ -213,7 +215,7 @@ class _Harness {
         retry: (_, _) => null,
         overrides: [
           walletServiceProvider.overrideWithValue(service),
-          secretStoreProvider.overrideWithValue(MemorySecretStore()),
+          secretStoreProvider.overrideWithValue(sendPinStore()),
           slateFilesProvider.overrideWithValue(files),
           qrScannerProvider.overrideWithValue(FakeQrScanner(supported: true)),
           priceSourceProvider.overrideWithValue(_Price()),
@@ -272,6 +274,7 @@ Future<void> _tap(WidgetTester tester, Finder finder) async {
   await tester.pumpAndSettle();
   await tester.tap(finder);
   await tester.pumpAndSettle();
+  await answerPin(tester);
 }
 
 Future<void> _enter(WidgetTester tester, String label, String text) async {
@@ -284,7 +287,7 @@ Future<void> _enter(WidgetTester tester, String label, String text) async {
 
 /// The recipient step: [to] in the address field, then Continue to the amount.
 Future<void> _recipient(WidgetTester tester, String to) async {
-  await _enter(tester, 'Epic address', to);
+  await _enter(tester, 'To', to);
   await _tap(tester, find.widgetWithText(FilledButton, 'Continue'));
 }
 
@@ -496,19 +499,17 @@ void main() {
   });
 
   group('file route', () {
-    testWidgets('a quiet row on the first step, with the file help', (
-      tester,
-    ) async {
+    testWidgets('File in the selector, with the file help', (tester) async {
       final h = _Harness();
       await h.pump(tester);
-      // No choice of method up front: one address field.
-      expect(find.byWidgetPredicate((w) => w is SegmentedButton), findsNothing);
-      expect(find.widgetWithText(TextField, 'Epic address'), findsOneWidget);
-      expect(find.textContaining('epicbox', findRichText: true), findsNothing);
+      // The method selector up front, Epicbox chosen, and one address field.
+      expect(find.byKey(sendMethodsKey), findsOneWidget);
+      expect(find.widgetWithText(TextField, 'To'), findsOneWidget);
+      expect(find.text('esXXXX…XXXX@epicbox.epiccash.com'), findsOneWidget);
 
-      await _tap(tester, find.text('No address? Use a payment file'));
+      await _tap(tester, find.text('File'));
       expect(find.text('Pay with a file'), findsOneWidget);
-      expect(find.widgetWithText(TextField, 'Epic address'), findsNothing);
+      expect(find.widgetWithText(TextField, 'To'), findsNothing);
       expect(find.text('Make payment file'), findsOneWidget);
       // A file carries the note as an address payment does.
       await _tap(tester, find.text('Add a note'));
@@ -526,7 +527,7 @@ void main() {
       await tester.pumpAndSettle();
 
       await _tap(tester, find.byTooltip('Back'));
-      expect(find.widgetWithText(TextField, 'Epic address'), findsOneWidget);
+      expect(find.widgetWithText(TextField, 'To'), findsOneWidget);
     });
 
     testWidgets('round trip: make the file, finish with the reply', (
@@ -534,7 +535,7 @@ void main() {
     ) async {
       final h = _Harness();
       await h.pump(tester);
-      await _tap(tester, find.text('No address? Use a payment file'));
+      await _tap(tester, find.text('File'));
       await _enter(tester, 'Amount (EPIC)', '1.5');
       await _tap(tester, find.text('Make payment file'));
       expect(h.session.sentAmounts, [_epic(1.5)]);
@@ -568,7 +569,7 @@ void main() {
     testWidgets('a file send signs the note in and keeps it', (tester) async {
       final h = _Harness();
       await h.pump(tester);
-      await _tap(tester, find.text('No address? Use a payment file'));
+      await _tap(tester, find.text('File'));
       await _enter(tester, 'Amount (EPIC)', '1.5');
       await _tap(tester, find.text('Add a note'));
       await _enter(tester, 'Note', ' For rent ');
@@ -580,7 +581,7 @@ void main() {
     testWidgets('a file send without a note signs none in', (tester) async {
       final h = _Harness();
       await h.pump(tester);
-      await _tap(tester, find.text('No address? Use a payment file'));
+      await _tap(tester, find.text('File'));
       await _enter(tester, 'Amount (EPIC)', '1.5');
       await _tap(tester, find.text('Make payment file'));
       expect(h.session.sentMessages, [null]);
@@ -597,7 +598,7 @@ void main() {
           case 'amount':
             await _recipient(tester, _bob);
           case 'file':
-            await _tap(tester, find.text('No address? Use a payment file'));
+            await _tap(tester, find.text('File'));
           case 'review':
             await _review(tester, _bob);
         }
@@ -1017,7 +1018,8 @@ void main() {
       await h.connect(tester);
       await _review(tester, _bob);
       await tester.tap(_sendButton);
-      await tester.pump();
+      await tester.pumpAndSettle();
+      await answerPin(tester, settle: false);
       await tester.pump(const Duration(milliseconds: 300));
       expect(find.text('Sending…'), findsOneWidget);
       expect(
