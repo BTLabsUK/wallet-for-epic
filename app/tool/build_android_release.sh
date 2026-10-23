@@ -25,7 +25,7 @@ app_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 "$app_dir/../tools/version.sh" check >/dev/null || { "$app_dir/../tools/version.sh" check; exit 1; }
 version="$("$app_dir/../tools/version.sh" name)"
 want_code="$("$app_dir/../tools/version.sh" code)"
-want_package=com.blacktyger.epicwallet
+want_package=com.blacktyger.epiccashmobile
 want_label="Epic Cash Mobile"
 # The release certificate. 0.1.0 (build 1) was signed with this host's debug key
 # (5fdcc602...259d0e); later builds never are.
