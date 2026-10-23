@@ -368,7 +368,14 @@ class LepicDeskWallet implements DeskWalletApi {
             ServiceHealth.checking when !_torCanSend => TorState.starting,
             _ => TorState.on,
           };
+    TorNet.onions = _onionOf;
     TorNet.follow(state, proxy: _torSocks);
+  }
+
+  /// BT Labs' onion for [host]:[port] from the signed list in use, else the built-in table.
+  OnionTarget? _onionOf(String host, int port) {
+    final e = onions.onionFor(host, port);
+    return e == null ? torBuiltInOnion(host, port) : (onion: e.onion, port: e.onionPort, tls: e.tls);
   }
 
   /// Settings › Privacy › Use status.btlabs.uk changed: what the site gave is dropped (off) or

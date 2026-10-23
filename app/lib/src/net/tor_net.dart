@@ -32,7 +32,7 @@ abstract final class TorNet {
 
   static TorNetMode get mode => _mode;
 
-  /// The onion of a BT Labs server, from the signed list; null goes back to [builtInOnions].
+  /// The onion of a BT Labs server, from the signed list; null goes back to [torBuiltInOnion].
   static set onions(OnionLookup? lookup) => _onions = lookup;
 
   static void useDirect() {
@@ -78,7 +78,7 @@ abstract final class TorNet {
         // No environment proxy either: the factory is the only way out.
         client
           ..findProxy = ((_) => 'DIRECT')
-          ..connectionFactory = socksConnectionFactory(_proxy!, onions: _onions ?? builtInOnions);
+          ..connectionFactory = socksConnectionFactory(_proxy!, onions: _onions ?? torBuiltInOnion);
     }
   }
 }
@@ -86,7 +86,7 @@ abstract final class TorNet {
 /// BT Labs' onions as built in (the signed btlabs.json list replaces them, `TorNet.onions`).
 /// Tor exits cannot reach btlabs.uk's own address, so over Tor these hosts are reached only
 /// at their onions ([socksConnectionFactory] refuses a btlabs.uk host without one).
-OnionTarget? builtInOnions(String host, int port) => switch ((host.toLowerCase(), port)) {
+OnionTarget? torBuiltInOnion(String host, int port) => switch ((host.toLowerCase(), port)) {
   ('node.btlabs.uk', 443) => (onion: '5drwoknehnzducfsxsl45dazaw3cwcmpx3ycamynagmcpv6aalrbrtqd.onion', port: 443, tls: true),
   ('support.btlabs.uk', 443) => (onion: 'lowiz5jnnu5vyyqc5guig3zag3k7azorbjfkcszfqwdxh3yarfei66yd.onion', port: 443, tls: true),
   ('flooepicbox.btlabs.uk', 443) => (onion: 'j2xf5rizkow5jtrdf6edotk5qam4kohavip23dqeuih5bq4yqisbz5ad.onion', port: 443, tls: true),

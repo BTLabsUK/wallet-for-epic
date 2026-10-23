@@ -233,10 +233,10 @@ void main() {
   });
 
   test('BT Labs servers only at their onions: the built-in list, never an exit', () async {
-    expect(builtInOnions('status.btlabs.uk', 443)?.port, 80);
-    expect(builtInOnions('status.btlabs.uk', 443)?.tls, isFalse);
-    expect(builtInOnions('node.btlabs.uk', 443)?.tls, isTrue);
-    expect(builtInOnions('epicbox.epiccash.com', 443), isNull);
+    expect(torBuiltInOnion('status.btlabs.uk', 443)?.port, 80);
+    expect(torBuiltInOnion('status.btlabs.uk', 443)?.tls, isFalse);
+    expect(torBuiltInOnion('node.btlabs.uk', 443)?.tls, isTrue);
+    expect(torBuiltInOnion('epicbox.epiccash.com', 443), isNull);
     final socks = await _FakeSocks.start({});
     addTearDown(socks.close);
     TorNet.useTor(socks.proxy);
