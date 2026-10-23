@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-# Builds the 0.1.0 Android release from the checkout: LEPIC at the pin (tools/lepic.rev), the
+# Builds the Android release from the checkout: LEPIC at the pin (tools/lepic.rev), the
 # arm64-v8a APK (the one phone download; no universal APK), copies it to an output dir with its
 # release name, writes SHA256SUMS and verifies it (signing cert, package, version, label,
 # LEPIC library, Tor's libtor.so and licence, 16 KB-aligned ELF segments, no Firebase config). The signing key is the release key named by
 # WFE_ANDROID_KEY_PROPERTIES (default ~/.config/btlabs/android/key.properties, never in a
 # repository); without it the build stops (android/app/build.gradle.kts, README "Release signing").
 #
-# Usage: tool/build_android_release.sh [output-dir]      default: app/build/release-0.1.0/
+# Usage: tool/build_android_release.sh [output-dir]      default: app/build/release-<version>/
 #
 # WFE_EMULATOR_X86_64=1 also builds an x86_64 APK for our own emulator tests, into
 # <output-dir>/emulator/: never published, not in SHA256SUMS.
@@ -20,7 +20,7 @@ app_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 # shellcheck source=../../tools/env.sh
 . "$app_dir/../tools/env.sh"
 
-version=0.1.0
+version=0.1.1
 want_package=com.blacktyger.epicwallet
 want_label="Epic Wallet"
 # The release certificate. 0.1.0 (build 1) was signed with this host's debug key
@@ -39,7 +39,7 @@ readelf="$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-readel
 [[ -x "$readelf" ]] || { echo "llvm-readelf not found in $ANDROID_NDK_HOME" >&2; exit 1; }
 
 [[ ! -e "$app_dir/android/app/google-services.json" ]] \
-  || { echo "android/app/google-services.json exists: 0.1.0 ships without Firebase" >&2; exit 1; }
+  || { echo "android/app/google-services.json exists: releases ship without Firebase" >&2; exit 1; }
 
 cd "$app_dir"
 flutter pub get

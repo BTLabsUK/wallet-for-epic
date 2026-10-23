@@ -21,7 +21,7 @@ import '../../updater.dart' show updateKeyringProvider, updateManifestUrl;
 
 /// This build's version, without the build id (pubspec's version); the sidebar, About and
 /// the support report show it with the build id (`shell.dart`).
-const String deskAppVersion = '0.1.0';
+const String deskAppVersion = '0.1.1';
 
 /// Where a download page may be: the project's own GitHub accounts.
 const List<String> deskUpdatePageHosts = ['https://github.com/BTLabs-EPIC/', 'https://github.com/blacktyger/'];
