@@ -2,7 +2,6 @@
 // onion; Send routes an onion to Tor and offers Turn on Tor while it is off. Every screen spot
 // is behind DeskFeatures.tor, so these run once the flag is on.
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
-import 'package:epic_wallet/src/desktop/screens/settings/settings_receiving.dart';
 import 'package:epic_wallet/src/desktop/screens/transfer/send_screen.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
@@ -72,28 +71,8 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  Finder torSwitch() => find.byKey(const ValueKey('st-switch-tor'));
-  String torState(WidgetTester tester) => tester.widget<EStateLine>(find.byKey(const ValueKey('st-state-tor'))).line.text;
 
-  group('Settings › Receiving › Tor', () {
-    testWidgets('off by default; the switch turns it on and shows the state', (tester) async {
-      await show(tester, const SettingsReceivingScreen());
-      expect(tester.widget<ESwitch>(torSwitch()).value, isFalse);
-      await tester.ensureVisible(torSwitch());
-      await tester.tap(torSwitch());
-      await tester.pumpAndSettle();
-      expect(container.read(deskProvider).settings.tor, isTrue);
-      expect(torState(tester), 'On · reachable at the Tor address');
-      expect(find.byType(EAddress), findsNothing, reason: 'the address lives on Receive');
-    }, skip: _skip);
-
-    testWidgets('without the bundle the switch is disabled and says so', (tester) async {
-      wallet.included = false;
-      await show(tester, const SettingsReceivingScreen());
-      expect(tester.widget<ESwitch>(torSwitch()).onChanged, isNull);
-      expect(torState(tester), 'Not in this build');
-    }, skip: _skip);
-  });
+  // The switch itself (Settings › Privacy) is tested in tor_switch_desk_test.dart.
 
   group('Send to an onion', () {
     testWidgets('Tor off: Turn on Tor, then the send goes over Tor', (tester) async {

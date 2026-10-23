@@ -37,6 +37,9 @@ enum DeskRoute {
   settingsNode(section: DeskSection.settings),
   settingsReceiving(section: DeskSection.settings),
 
+  /// The one Tor switch and the status site (`settings_privacy.dart`).
+  settingsPrivacy(section: DeskSection.settings),
+
   /// Invoices (docs/invoices/flow.md §1, §2): the invoice address, trusted senders, a new address, time to pay.
   settingsInvoices(section: DeskSection.settings),
   settingsAppearance(section: DeskSection.settings),

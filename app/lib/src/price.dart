@@ -1,4 +1,5 @@
-/// The EPIC price in the user's display currency, from CoinGecko.
+/// The EPIC price in the user's display currency: from CoinGecko, or with the Tor switch on
+/// from BT Labs' copy of it on the status site ([BtlabsPriceSource]), never CoinGecko directly.
 ///
 /// Prices are decoration: a missing price never blocks anything, it only hides the fiat line.
 library;
@@ -73,6 +74,57 @@ class CoinGeckoPriceSource implements PriceSource {
       return null;
     }
   }
+}
+
+/// BT Labs' copy of CoinGecko's price, refreshed by the status site every few minutes:
+/// `status.btlabs.uk/api/v1/price.json`, which the app's HTTP reaches over the status onion
+/// while Tor is on. A file older than [maxAge], another schema or a missing currency is no
+/// price.
+class BtlabsPriceSource implements PriceSource {
+  BtlabsPriceSource({
+    this.timeout = const Duration(seconds: 30),
+    this.maxAge = const Duration(minutes: 30),
+    DateTime Function()? now,
+  }) : _now = now ?? DateTime.now;
+
+  static final Uri url = Uri.https('status.btlabs.uk', '/api/v1/price.json');
+
+  final Duration timeout;
+  final Duration maxAge;
+  final DateTime Function() _now;
+
+  @override
+  Future<double?> price(String currency) async {
+    try {
+      final reply = await httpGet(
+        url,
+        headers: const {'accept': 'application/json'},
+        timeout: timeout,
+        maxBytes: 16 * 1024,
+      );
+      if (reply.status != 200) return null;
+      return priceFromBtlabs(reply.body, currency, now: _now(), maxAge: maxAge);
+    } catch (error) {
+      logInfo('price', 'no price: ${error.runtimeType}');
+      return null;
+    }
+  }
+}
+
+/// The price of [currency] in a `price.json` body, or null (see [BtlabsPriceSource]).
+double? priceFromBtlabs(
+  String body,
+  String currency, {
+  required DateTime now,
+  Duration maxAge = const Duration(minutes: 30),
+}) {
+  final decoded = jsonDecode(body);
+  if (decoded is! Map || decoded['schema'] != 1) return null;
+  final at = DateTime.tryParse('${decoded['updated_at']}');
+  if (at == null || now.difference(at) > maxAge) return null;
+  final prices = decoded['prices'];
+  final value = prices is Map ? prices[currency] : null;
+  return value is num && value > 0 ? value.toDouble() : null;
 }
 
 final priceSourceProvider = Provider<PriceSource>(

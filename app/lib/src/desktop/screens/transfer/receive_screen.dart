@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
+import '../../data/tor_view.dart';
 import '../../app/tour.dart';
 import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
@@ -139,7 +140,12 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
     TxMethod.file => 'File',
   };
 
-  List<TxMethod> get _methods => [TxMethod.epicbox, if (DeskFeatures.httpDirect) TxMethod.http, if (DeskFeatures.tor) TxMethod.tor];
+  /// Direct receiving is the clearnet HTTP listener with Tor off and the Tor address with Tor
+  /// on (tor_routes.dart: the listener stops while Tor is on).
+  List<TxMethod> _methodsFor(DeskSettings s) => [
+    TxMethod.epicbox,
+    if (DeskFeatures.tor && s.tor) TxMethod.tor else if (DeskFeatures.httpDirect) TxMethod.http,
+  ];
 
   bool _switchOn(TxMethod m, ServiceStatus? s, DeskSettings settings) => switch (m) {
     TxMethod.epicbox => s != null && s.epicboxHealth != ServiceHealth.off,
@@ -161,9 +167,9 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
     final nav = ref.read(deskNavProvider.notifier);
     final epicbox = TourTarget(id: 'receive-epicbox', child: _epicboxPanel(st, status));
     final others = [
-      if (DeskFeatures.httpDirect) _httpPanel(st, status),
-      if (DeskFeatures.tor) _torPanel(st, status),
+      if (DeskFeatures.tor && st.settings.tor) _torPanel(st, status) else if (DeskFeatures.httpDirect) _httpPanel(st, status),
     ];
+    final tor = torStateOf(st.settings, status);
     final files = _filesPanel(nav);
     final head = ESectionHead(
       'Other ways to receive',
@@ -179,7 +185,11 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
       actions: [_indicator(st, status)],
       child: ConstrainedBox(
         constraints: BoxConstraints(maxWidth: 1180.u),
-        child: LayoutBuilder(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            if (tor == TorState.starting || tor == TorState.failed) ...[_torNotice(tor), SizedBox(height: Sp.x4)],
+            LayoutBuilder(
           builder: (context, box) {
             if (box.maxWidth >= 1040.u) {
               return Row(
@@ -219,7 +229,29 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
             );
           },
         ),
+          ],
+        ),
       ),
+    );
+  }
+
+  /// Tor starting or not connected: what it holds up, and Retry or Turn Tor off when it failed.
+  Widget _torNotice(TorState tor) {
+    final failed = tor == TorState.failed;
+    final busy = _busy.contains(TxMethod.tor);
+    return ENotice(
+      key: const ValueKey('rx-tor-notice'),
+      tone: failed ? ETone.risk : ETone.warn,
+      title: failed ? 'Tor is not connected.' : 'Tor is starting.',
+      text: failed
+          ? 'Nothing arrives over ${torWaitingText()} until it is, or until Tor is turned off.'
+          : 'Addresses become reachable once it is connected. Nothing goes over the clearnet meanwhile.',
+      actions: [
+        if (failed) ...[
+          EButton(label: 'Retry', icon: EIcons.refresh, size: EBtnSize.inline, busy: busy, onPressed: busy ? null : () => _toggle(TxMethod.tor, true)),
+          EButton.ghost(label: 'Turn Tor off', size: EBtnSize.inline, onPressed: busy ? null : () => _toggle(TxMethod.tor, false)),
+        ],
+      ],
     );
   }
 
@@ -227,16 +259,17 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
   Widget _indicator(DeskState st, ServiceStatus? status) {
     final ts = context.ts;
     final c = context.dc;
-    final lines = {for (final m in _methods) m: status == null ? null : methodStateLine(m, status, st.settings)};
+    final methods = _methodsFor(st.settings);
+    final lines = {for (final m in methods) m: status == null ? null : methodStateLine(m, status, st.settings)};
     String word(TxMethod m) => lines[m] == null ? 'checking' : (lines[m]!.state == EState.off ? 'off' : (lines[m]!.word == 'On' ? 'on' : lines[m]!.word.toLowerCase()));
     return Semantics(
       liveRegion: true,
-      label: [for (final m in _methods) '${_name(m)} ${word(m)}'].join(', '),
+      label: [for (final m in methods) '${_name(m)} ${word(m)}'].join(', '),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           ExcludeSemantics(child: Text('Receiving', style: ts.small.copyWith(color: c.dim))),
-          for (final m in _methods) ...[
+          for (final m in methods) ...[
             SizedBox(width: Sp.x2),
             Tooltip(
               message: lines[m] == null ? '${_name(m)} · Checking' : '${_name(m)} · ${lines[m]!.word}${lines[m]!.detail == null ? '' : '\n${lines[m]!.detail}'}',
@@ -396,6 +429,10 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
             SizedBox(height: Sp.x4),
           ],
           if (line != null) EStateLine(line, key: const ValueKey('rx-state-http'), trailing: _retry(m, line)),
+          if (DeskFeatures.tor) ...[
+            SizedBox(height: Sp.x3),
+            Text('Turn on Tor in Settings › Privacy for a Tor address instead.', style: ts.caption),
+          ],
         ],
       ),
     );
@@ -413,17 +450,18 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
     return _MethodPanel(
       key: _panels[m],
       method: m,
-      title: 'Tor address',
+      title: 'Direct, Tor address',
       state: line?.state ?? EState.off,
       switchOn: on && included,
       busy: _busy.contains(m) || status == null,
-      onSwitch: status == null || !included ? null : (v) => _toggle(m, v),
+      onSwitch: null,
+      showSwitch: false,
       grown: on && included,
       small: line == null ? const SizedBox.shrink() : EStateLine(line, key: const ValueKey('rx-state-tor')),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text('Slower and more private. Blocked or not allowed in some countries.', style: ts.bodyDim),
+          Text('Straight from another wallet over Tor while this one is open. Tor is set in Settings › Privacy.', style: ts.bodyDim),
           SizedBox(height: Sp.x4),
           if (addr == null)
             Align(alignment: Alignment.centerLeft, child: ESpinner(size: 20.u))
@@ -496,7 +534,11 @@ class _MethodPanel extends StatelessWidget {
     required this.grown,
     required this.small,
     required this.body,
+    this.showSwitch = true,
   });
+
+  /// False for Direct over Tor: the one Tor switch is in Settings › Privacy.
+  final bool showSwitch;
 
   final TxMethod method;
   final String title;
@@ -526,6 +568,7 @@ class _MethodPanel extends StatelessWidget {
                 Expanded(
                   child: Semantics(header: true, child: Text(title, style: ts.h3, maxLines: 1, overflow: TextOverflow.ellipsis)),
                 ),
+                if (showSwitch) ...[
                 ExcludeSemantics(child: Text('Receiving', style: ts.body)),
                 SizedBox(width: Sp.x3),
                 SizedBox(
@@ -540,6 +583,7 @@ class _MethodPanel extends StatelessWidget {
                           semanticLabel: '$title, receiving',
                         ),
                 ),
+                ],
               ],
             ),
           ),

@@ -16,6 +16,7 @@ import '../screens/settings/settings_help.dart';
 import '../screens/settings/settings_invoices.dart';
 import '../screens/settings/settings_node.dart';
 import '../screens/settings/settings_phrase.dart';
+import '../screens/settings/settings_privacy.dart';
 import '../screens/settings/settings_receiving.dart';
 import '../screens/settings/settings_rescan.dart';
 import '../screens/settings/settings_wallets.dart';
@@ -52,6 +53,7 @@ Widget deskScreen(DeskLocation at) {
     DeskRoute.contacts => ContactsScreen(arg: a),
     DeskRoute.settingsNode => SettingsNodeScreen(arg: a),
     DeskRoute.settingsReceiving => SettingsReceivingScreen(arg: a),
+    DeskRoute.settingsPrivacy => SettingsPrivacyScreen(arg: a),
     DeskRoute.settingsInvoices => SettingsInvoicesScreen(arg: a),
     DeskRoute.settingsAppearance => SettingsAppearanceScreen(arg: a),
     DeskRoute.settingsAccount => SettingsAccountScreen(arg: a),
