@@ -1332,6 +1332,7 @@ void main() {
       await h.unlock(tester);
       await h.openSettings(tester);
       await _tapText(tester, 'Network and node');
+      await _reveal(tester, find.text('Epicbox server'));
       expect(find.text('Epicbox server'), findsOneWidget);
       // An empty field offers no use button, so it does not look confirmed.
       expect(find.byTooltip('Use this server'), findsNothing);

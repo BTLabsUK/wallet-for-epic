@@ -15,9 +15,10 @@ import 'settings_screen.dart';
 import 'status.dart';
 import 'theme/tokens.dart';
 
-/// The keys of the card's rows, for tests.
-const Key netStatusNodeKey = ValueKey('net-status-node');
-const Key netStatusEpicboxKey = ValueKey('net-status-epicbox');
+/// The keys of the card's rows, for tests: the node and epicbox rows take the keys the
+/// header's status icons had.
+const Key netStatusNodeKey = nodeStatusKey;
+const Key netStatusEpicboxKey = epicboxStatusKey;
 const Key netStatusTorKey = ValueKey('net-status-tor');
 
 /// Whether the card shows a Tor row: while phone Tor starts, runs or retries after a failure.
@@ -99,6 +100,8 @@ class NetworkStatusCard extends ConsumerWidget {
       behind: online ? _behind(ref, status.node, preset) : null,
     );
     final epicbox = epicboxNetFace(context, status.epicbox);
+    final nodeWords = nodeStatusWords(context, status.node, config);
+    final epicboxWords = epicboxStatusWords(context, status.epicbox, config);
     final rows = <Widget>[
       _StatusRow(
         key: netStatusNodeKey,
@@ -107,6 +110,8 @@ class NetworkStatusCard extends ConsumerWidget {
             ? l.netStatusTestHost(chainName(l, chain), nodeHost)
             : nodeHost,
         face: node,
+        spoken: nodeWords.label,
+        detail: nodeWords.detail,
         pulse: status.node.state == NodeState.syncing,
         onTap: () => showNodePicker(context),
       ),
@@ -115,6 +120,8 @@ class NetworkStatusCard extends ConsumerWidget {
         title: l.netStatusEpicbox,
         host: relay,
         face: epicbox,
+        spoken: epicboxWords?.label,
+        detail: epicboxWords?.detail,
         onTap: () => showEpicboxPicker(context),
       ),
       if (torRowShown(tor))
@@ -153,7 +160,8 @@ class NetworkStatusCard extends ConsumerWidget {
 }
 
 /// One row: bars, the service, its host in mono, the state word and a chevron; one 56 dp
-/// target, read as "Node, node.btlabs.uk, Synced".
+/// target, read as "Node online, node.btlabs.uk, Synced" ([spoken] first, as the header's
+/// icons said it, else the title) with the icon's tooltip [detail] as the hint.
 class _StatusRow extends StatelessWidget {
   const _StatusRow({
     super.key,
@@ -161,8 +169,13 @@ class _StatusRow extends StatelessWidget {
     required this.host,
     required this.face,
     required this.onTap,
+    this.spoken,
+    this.detail,
     this.pulse = false,
   });
+
+  final String? spoken;
+  final String? detail;
 
   final String title;
   final String host;
@@ -177,8 +190,8 @@ class _StatusRow extends StatelessWidget {
     return Semantics(
       button: true,
       liveRegion: true,
-      label: [title, if (host.isNotEmpty) host, face.word].join(', '),
-      hint: context.l10n.netStatusOpenHint,
+      label: [spoken ?? title, if (host.isNotEmpty) host, face.word].join(', '),
+      hint: detail ?? context.l10n.netStatusOpenHint,
       excludeSemantics: true,
       child: Material(
         type: MaterialType.transparency,

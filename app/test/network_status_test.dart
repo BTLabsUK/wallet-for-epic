@@ -168,7 +168,11 @@ void main() {
       expect(_in(netStatusNodeKey, 'Synced'), findsOneWidget);
       expect(
         tester.getSemantics(find.byKey(netStatusNodeKey)).label,
-        'Node, node.example.org, Synced',
+        'Node online, node.example.org, Synced',
+      );
+      expect(
+        tester.getSemantics(find.byKey(netStatusNodeKey)).hint,
+        contains('Node: node.example.org'),
       );
       expect(tester.getSize(find.byKey(netStatusNodeKey)).height, 56);
     });

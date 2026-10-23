@@ -487,3 +487,25 @@ String serverHost(String url) {
   final port = u.hasPort && u.port != (u.scheme == 'http' ? 80 : 443);
   return port ? '${u.host}:${u.port}' : u.host;
 }
+
+/// What the node's status icon says to a screen reader ("Node online") and its tooltip
+/// detail, for the status card's row.
+({String label, String detail}) nodeStatusWords(
+  BuildContext context,
+  NodeStatus node,
+  WalletConfig? config,
+) {
+  final f = _nodeFace(context, node, config);
+  return (label: f.label, detail: f.detail);
+}
+
+/// The same for the epicbox listener; null while it does not run.
+({String label, String detail})? epicboxStatusWords(
+  BuildContext context,
+  EpicboxState? state,
+  WalletConfig? config,
+) {
+  if (state == null) return null;
+  final f = _epicboxFace(context, state, config);
+  return (label: f.label, detail: f.detail);
+}

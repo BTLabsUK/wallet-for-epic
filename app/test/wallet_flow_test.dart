@@ -9,6 +9,7 @@ import 'package:epic_wallet/src/relay_directory.dart';
 import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/slate_files.dart';
 import 'package:epic_wallet/src/ui/common.dart';
+import 'package:epic_wallet/src/ui/server_picker.dart' show serverRowKey;
 import 'package:epic_wallet/src/ui/shell_header.dart';
 import 'package:epic_wallet/src/ui/status.dart';
 import 'package:epic_wallet/src/updater.dart';
@@ -420,8 +421,12 @@ void main() {
     await _pumpApp(tester, service, device);
     await _tap(tester, find.bySemanticsLabel('Network settings'));
 
+    await _reveal(tester, find.text('epicbox.epicnet.us'));
     expect(find.text('epicbox.epicnet.us'), findsOneWidget);
-    expect(find.textContaining('Up · epicnet.us · official'), findsOneWidget);
+    expect(
+      find.textContaining('EpicNet · 100.0 % up', findRichText: true),
+      findsOneWidget,
+    );
     expect(find.textContaining('server changes your address'), findsNothing);
     await _tapText(tester, 'epicbox.epicnet.us');
     expect(find.textContaining('server changes your address'), findsOneWidget);
@@ -440,7 +445,7 @@ void main() {
     );
     await _tap(tester, find.byTooltip('Use this server'));
     expect(find.text('relay.example.org:8443'), findsOneWidget);
-    expect(find.text('Not monitored'), findsOneWidget);
+    expect(find.byKey(serverRowKey('relay.example.org:8443')), findsOneWidget);
 
     await _tapText(tester, 'epicbox.epicnet.us');
     await _tapText(tester, 'Save');
