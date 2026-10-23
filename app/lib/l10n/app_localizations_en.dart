@@ -5825,4 +5825,97 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get deskInvSetRestoredHint =>
       'Restored this wallet from its recovery phrase? Give services this invoice address again.';
+
+  @override
+  String get methodDirect => 'Direct';
+
+  @override
+  String get methodDirectShape => 'http://host:3415 or xxxx….onion';
+
+  @override
+  String get methodSendDirectLine =>
+      'Their wallet must be open. An onion address goes over Tor.';
+
+  @override
+  String get methodArtLabelDirect =>
+      'Direct: the payment goes straight to the recipient\'s wallet, which must be open';
+
+  @override
+  String get methodReceiveEpicboxShort => 'Works with the app closed.';
+
+  @override
+  String get methodReceiveDirectTitle => 'Straight to this wallet.';
+
+  @override
+  String get methodReceiveDirectLine => 'Works while the app is open.';
+
+  @override
+  String methodLineOverTor(String line) {
+    return '$line Over Tor.';
+  }
+
+  @override
+  String get sendSwitchedDirect => 'Direct address';
+
+  @override
+  String get sendSwitchedDirectAnnounce =>
+      'Direct address. Method set to Direct.';
+
+  @override
+  String get sendDirectAddressShape =>
+      'A Direct address starts with http:// or https://, or ends in .onion.';
+
+  @override
+  String get torNotOverTor => 'Not over Tor';
+
+  @override
+  String get torNeeds => 'Needs Tor.';
+
+  @override
+  String get torTurnOn => 'Turn on Tor';
+
+  @override
+  String get torTurnOff => 'Turn Tor off';
+
+  @override
+  String get torNotConnectedNotice => 'Tor is not connected.';
+
+  @override
+  String get torWaiting => 'Waiting for Tor';
+
+  @override
+  String get torWordStarting => 'Starting…';
+
+  @override
+  String get torWordNotConnected => 'Not connected';
+
+  @override
+  String get torCoversEpicbox => 'Epicbox and onion sends go through Tor.';
+
+  @override
+  String get torCoversEpicboxNode =>
+      'Epicbox, the node and onion sends go through Tor.';
+
+  @override
+  String get torCoversAll =>
+      'All connections except a local node go through Tor.';
+
+  @override
+  String get torSettingsLink => 'Tor settings';
+
+  @override
+  String get receiveTabDirect => 'Direct';
+
+  @override
+  String get receiveDirectNeedsTor => 'Direct receiving needs Tor.';
+
+  @override
+  String get receiveDirectMeanwhile =>
+      'Senders use the Epicbox address meanwhile.';
+
+  @override
+  String get settingsPushOffWhileTor => 'Off while Tor is on';
+
+  @override
+  String get netStatusOverTor => 'over Tor';
 }

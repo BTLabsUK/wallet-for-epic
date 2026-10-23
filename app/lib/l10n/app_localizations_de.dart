@@ -5897,4 +5897,99 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get deskInvSetRestoredHint =>
       'Diese Wallet aus der Wiederherstellungsphrase wiederhergestellt? Geben Sie Diensten diese Rechnungsadresse erneut.';
+
+  @override
+  String get methodDirect => 'Direkt';
+
+  @override
+  String get methodDirectShape => 'http://host:3415 oder xxxx….onion';
+
+  @override
+  String get methodSendDirectLine =>
+      'Ihre Wallet muss geöffnet sein. Eine Onion-Adresse läuft über Tor.';
+
+  @override
+  String get methodArtLabelDirect =>
+      'Direkt: Die Zahlung geht direkt an die Wallet des Empfängers, die geöffnet sein muss';
+
+  @override
+  String get methodReceiveEpicboxShort => 'Funktioniert bei geschlossener App.';
+
+  @override
+  String get methodReceiveDirectTitle => 'Direkt an diese Wallet.';
+
+  @override
+  String get methodReceiveDirectLine =>
+      'Funktioniert, solange die App geöffnet ist.';
+
+  @override
+  String methodLineOverTor(String line) {
+    return '$line Über Tor.';
+  }
+
+  @override
+  String get sendSwitchedDirect => 'Direkte Adresse';
+
+  @override
+  String get sendSwitchedDirectAnnounce =>
+      'Direkte Adresse. Methode auf Direkt gesetzt.';
+
+  @override
+  String get sendDirectAddressShape =>
+      'Eine direkte Adresse beginnt mit http:// oder https:// oder endet auf .onion.';
+
+  @override
+  String get torNotOverTor => 'Nicht über Tor';
+
+  @override
+  String get torNeeds => 'Benötigt Tor.';
+
+  @override
+  String get torTurnOn => 'Tor einschalten';
+
+  @override
+  String get torTurnOff => 'Tor ausschalten';
+
+  @override
+  String get torNotConnectedNotice => 'Tor ist nicht verbunden.';
+
+  @override
+  String get torWaiting => 'Warten auf Tor';
+
+  @override
+  String get torWordStarting => 'Startet…';
+
+  @override
+  String get torWordNotConnected => 'Nicht verbunden';
+
+  @override
+  String get torCoversEpicbox =>
+      'Epicbox und Sendungen an Onion-Adressen laufen über Tor.';
+
+  @override
+  String get torCoversEpicboxNode =>
+      'Epicbox, der Node und Sendungen an Onion-Adressen laufen über Tor.';
+
+  @override
+  String get torCoversAll =>
+      'Alle Verbindungen außer einem lokalen Node laufen über Tor.';
+
+  @override
+  String get torSettingsLink => 'Tor-Einstellungen';
+
+  @override
+  String get receiveTabDirect => 'Direkt';
+
+  @override
+  String get receiveDirectNeedsTor => 'Direkter Empfang benötigt Tor.';
+
+  @override
+  String get receiveDirectMeanwhile =>
+      'Absender nutzen bis dahin die Epicbox-Adresse.';
+
+  @override
+  String get settingsPushOffWhileTor => 'Aus, solange Tor an ist';
+
+  @override
+  String get netStatusOverTor => 'über Tor';
 }

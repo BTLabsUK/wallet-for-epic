@@ -7321,5 +7321,122 @@
   "deskInvSetRestoredHint": "Restored this wallet from its recovery phrase? Give services this invoice address again.",
   "@deskInvSetRestoredHint": {
     "description": "Line under the invoice address while its index is 1: a wallet restored without its history file starts again at the first invoice address, so services hold an old one (flow.md §2, P-16)."
+  },
+  "methodDirect": "Direct",
+  "@methodDirect": {
+    "description": "Send and Receive method: straight to the other wallet, at an http(s) or onion address."
+  },
+  "methodDirectShape": "http://host:3415 or xxxx….onion",
+  "@methodDirectShape": {
+    "description": "Under Send's empty To field on Direct: the two shapes a Direct address takes. Keep the addresses as they are."
+  },
+  "methodSendDirectLine": "Their wallet must be open. An onion address goes over Tor.",
+  "@methodSendDirectLine": {
+    "description": "Send's strip line for Direct."
+  },
+  "methodArtLabelDirect": "Direct: the payment goes straight to the recipient's wallet, which must be open",
+  "@methodArtLabelDirect": {
+    "description": "Screen reader label of the Direct picture."
+  },
+  "methodReceiveEpicboxShort": "Works with the app closed.",
+  "@methodReceiveEpicboxShort": {
+    "description": "Receive's Epicbox strip line: payments arrive even while the app is closed (the Epicbox server holds them)."
+  },
+  "methodReceiveDirectTitle": "Straight to this wallet.",
+  "@methodReceiveDirectTitle": {
+    "description": "Receive's Direct strip title."
+  },
+  "methodReceiveDirectLine": "Works while the app is open.",
+  "@methodReceiveDirectLine": {
+    "description": "Receive's Direct strip line: the onion address answers only while the app runs."
+  },
+  "methodLineOverTor": "{line} Over Tor.",
+  "@methodLineOverTor": {
+    "description": "A strip line followed by 'Over Tor.' when its connection goes through Tor.",
+    "placeholders": {
+      "line": {
+        "type": "String"
+      }
+    }
+  },
+  "sendSwitchedDirect": "Direct address",
+  "@sendSwitchedDirect": {
+    "description": "Tag beside Send's To label for 3 s after the address moved the method to Direct."
+  },
+  "sendSwitchedDirectAnnounce": "Direct address. Method set to Direct.",
+  "@sendSwitchedDirectAnnounce": {
+    "description": "Read out once when the address moved Send's method to Direct."
+  },
+  "sendDirectAddressShape": "A Direct address starts with http:// or https://, or ends in .onion.",
+  "@sendDirectAddressShape": {
+    "description": "Error under To when Direct is chosen and the text is not an http(s) or onion address."
+  },
+  "torNotOverTor": "Not over Tor",
+  "@torNotOverTor": {
+    "description": "Tag on Send and Review: this connection stays on the clearnet although Tor is on."
+  },
+  "torNeeds": "Needs Tor.",
+  "@torNeeds": {
+    "description": "Notice under Send's To: an onion address needs Tor, which is off."
+  },
+  "torTurnOn": "Turn on Tor",
+  "@torTurnOn": {
+    "description": "Button that turns the Tor switch on."
+  },
+  "torTurnOff": "Turn Tor off",
+  "@torTurnOff": {
+    "description": "Button that turns the Tor switch off."
+  },
+  "torNotConnectedNotice": "Tor is not connected.",
+  "@torNotConnectedNotice": {
+    "description": "Notice on Send while Tor is on but not connected: nothing that needs it goes."
+  },
+  "torWaiting": "Waiting for Tor",
+  "@torWaiting": {
+    "description": "Send's Review button while Tor starts."
+  },
+  "torWordStarting": "Starting…",
+  "@torWordStarting": {
+    "description": "Tor state word: the switch is on and Tor is connecting."
+  },
+  "torWordNotConnected": "Not connected",
+  "@torWordNotConnected": {
+    "description": "Tor state word: Tor is on but could not connect."
+  },
+  "torCoversEpicbox": "Epicbox and onion sends go through Tor.",
+  "@torCoversEpicbox": {
+    "description": "Settings › Privacy › Tor subtitle: what the switch routes through Tor in this build."
+  },
+  "torCoversEpicboxNode": "Epicbox, the node and onion sends go through Tor.",
+  "@torCoversEpicboxNode": {
+    "description": "Settings › Privacy › Tor subtitle once the node is covered too."
+  },
+  "torCoversAll": "All connections except a local node go through Tor.",
+  "@torCoversAll": {
+    "description": "Settings › Privacy › Tor subtitle once the node and the app's own requests are covered."
+  },
+  "torSettingsLink": "Tor settings",
+  "@torSettingsLink": {
+    "description": "Text link on Receive's Direct tab to Settings › Privacy."
+  },
+  "receiveTabDirect": "Direct",
+  "@receiveTabDirect": {
+    "description": "Receive tab: receiving straight to this wallet at its onion address."
+  },
+  "receiveDirectNeedsTor": "Direct receiving needs Tor.",
+  "@receiveDirectNeedsTor": {
+    "description": "Receive's Direct tab while Tor is off."
+  },
+  "receiveDirectMeanwhile": "Senders use the Epicbox address meanwhile.",
+  "@receiveDirectMeanwhile": {
+    "description": "Caption under 'Direct receiving needs Tor.'"
+  },
+  "settingsPushOffWhileTor": "Off while Tor is on",
+  "@settingsPushOffWhileTor": {
+    "description": "Caption under the disabled notifications switch while Tor is on."
+  },
+  "netStatusOverTor": "over Tor",
+  "@netStatusOverTor": {
+    "description": "Status card: read out after a service whose connection goes through Tor."
   }
 }
