@@ -3128,7 +3128,31 @@ class AppLocalizationsDe extends AppLocalizations {
   String get settingsLicences => 'Lizenzen';
 
   @override
-  String get settingsLicencesHint => 'Open-Source-Software in dieser Wallet';
+  String get licencesLead =>
+      'Open-Source-Software in dieser Wallet. Jede Komponente behält ihre eigene Lizenz; die vollständigen Texte sind einen Tipp entfernt.';
+
+  @override
+  String get licencesApp =>
+      'Epic Wallet von BT Labs, Open Source. Der Code ist auf GitHub.';
+
+  @override
+  String get licencesFlutter =>
+      'Flutter und seine Dart-Pakete: BSD 3-Clause und ähnliche freizügige Lizenzen.';
+
+  @override
+  String get licencesLepic =>
+      'LEPIC, die Epic-Cash-Wallet-Bibliothek: Apache 2.0, mit dem secp256k1-zkp-Fork von Epic Cash (CC0) und Rust-Crates unter MIT oder Apache 2.0, darunter tokio, rustls, rusqlite und blake2.';
+
+  @override
+  String get licencesTor =>
+      'Tor: GNU General Public License, Version 3. Die Quelle steht unten.';
+
+  @override
+  String get licencesFonts =>
+      'Schriften Montserrat und JetBrains Mono: SIL Open Font License 1.1.';
+
+  @override
+  String get licencesFull => 'Alle Lizenztexte';
 
   @override
   String get settingsCopyLink => 'Link kopieren';
@@ -3270,7 +3294,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get settingsUseStatusSiteSubtitle =>
-      'Serverstatus und Node-Listen. Aus: nur die Server selbst werden gefragt.';
+      'Netzwerkstatus und Informationen von status.btlabs.uk';
 
   @override
   String get txStepStarted => 'Zahlung gestartet';
@@ -5907,19 +5931,14 @@ class AppLocalizationsDe extends AppLocalizations {
   String get torWordNotConnected => 'Nicht verbunden';
 
   @override
-  String get torCoversEpicbox =>
-      'Epicbox und Sendungen an Onion-Adressen laufen über Tor.';
-
-  @override
-  String get torCoversEpicboxNode =>
-      'Epicbox, der Node und Sendungen an Onion-Adressen laufen über Tor.';
-
-  @override
-  String get torCoversAll =>
-      'Epicbox, der Node, Onion-Zahlungen und die eigenen Anfragen der App laufen über Tor.';
-
-  @override
   String get torSettingsLink => 'Tor-Einstellungen';
+
+  @override
+  String get torNetworkLabel => 'Tor-Netzwerk';
+
+  @override
+  String get torNetworkHint =>
+      'Die Netzwerkaktivität läuft über das Tor-Netzwerk. Tor verbirgt die Internetadresse der Wallet: Jede Verbindung geht über mehrere ehrenamtlich betriebene Relays, sodass kein Server erfährt, wo die Wallet ist.';
 
   @override
   String get receiveTabDirect => 'Direkt';

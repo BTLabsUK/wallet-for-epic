@@ -3238,8 +3238,31 @@ class AppLocalizationsPl extends AppLocalizations {
   String get settingsLicences => 'Licencje';
 
   @override
-  String get settingsLicencesHint =>
-      'Oprogramowanie open source w tym portfelu';
+  String get licencesLead =>
+      'Oprogramowanie open source w tym portfelu. Każdy składnik zachowuje własną licencję; pełne teksty są o jedno dotknięcie dalej.';
+
+  @override
+  String get licencesApp =>
+      'Epic Wallet od BT Labs, open source. Kod jest na GitHubie.';
+
+  @override
+  String get licencesFlutter =>
+      'Flutter i jego pakiety Dart: BSD 3-Clause i podobne liberalne licencje.';
+
+  @override
+  String get licencesLepic =>
+      'LEPIC, biblioteka portfela Epic Cash: Apache 2.0, z forkiem secp256k1-zkp Epic Cash (CC0) i skrzynkami Rust na licencjach MIT lub Apache 2.0, m.in. tokio, rustls, rusqlite i blake2.';
+
+  @override
+  String get licencesTor =>
+      'Tor: GNU General Public License, wersja 3. Źródło podano poniżej.';
+
+  @override
+  String get licencesFonts =>
+      'Czcionki Montserrat i JetBrains Mono: SIL Open Font License 1.1.';
+
+  @override
+  String get licencesFull => 'Wszystkie teksty licencji';
 
   @override
   String get settingsCopyLink => 'Kopiuj link';
@@ -3378,7 +3401,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get settingsUseStatusSiteSubtitle =>
-      'Stan serwerów i listy węzłów. Wyłączone: pytane są tylko same serwery.';
+      'Stan sieci i informacje dostarczane przez status.btlabs.uk';
 
   @override
   String get txStepStarted => 'Rozpoczęto płatność';
@@ -6032,19 +6055,14 @@ class AppLocalizationsPl extends AppLocalizations {
   String get torWordNotConnected => 'Brak połączenia';
 
   @override
-  String get torCoversEpicbox =>
-      'Epicbox i wysyłki na adresy onion idą przez Tor.';
-
-  @override
-  String get torCoversEpicboxNode =>
-      'Epicbox, węzeł i wysyłki na adresy onion idą przez Tor.';
-
-  @override
-  String get torCoversAll =>
-      'Epicbox, węzeł, wysyłki onion i własne zapytania aplikacji idą przez Tor.';
-
-  @override
   String get torSettingsLink => 'Ustawienia Tor';
+
+  @override
+  String get torNetworkLabel => 'Sieć Tor';
+
+  @override
+  String get torNetworkHint =>
+      'Ruch sieciowy przechodzi przez sieć Tor. Tor ukrywa adres internetowy portfela: każde połączenie przechodzi przez kilka przekaźników prowadzonych przez wolontariuszy, więc żaden serwer nie dowiaduje się, gdzie jest portfel.';
 
   @override
   String get receiveTabDirect => 'Bezpośrednio';

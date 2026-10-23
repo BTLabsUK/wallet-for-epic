@@ -15,6 +15,7 @@ import '../tor_phone.dart';
 import '../net/tor_net.dart' show isLoopbackUrl;
 import '../tor_routes.dart';
 import 'server_picker.dart';
+import 'info_hint.dart';
 import 'settings_screen.dart';
 import 'status.dart';
 import 'theme/tokens.dart';
@@ -122,7 +123,9 @@ class NetworkStatusCard extends ConsumerWidget {
       if (torRowShown(tor))
         _StatusRow(
           key: netStatusTorKey,
-          title: l.netStatusTor,
+          title: l.torNetworkLabel,
+          hint: l.torNetworkHint,
+          detail: l.torNetworkHint,
           host: '',
           face: torNetFace(context, tor),
           onTap: () => openPrivacySettings(context),
@@ -166,10 +169,14 @@ class _StatusRow extends StatelessWidget {
     this.detail,
     this.pulse = false,
     this.overTor = false,
+    this.hint,
   });
 
   final String? spoken;
   final String? detail;
+
+  /// The explanation behind an info icon after the title (the Tor row).
+  final String? hint;
 
   final String title;
   final String host;
@@ -218,7 +225,13 @@ class _StatusRow extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text(title, style: theme.textTheme.bodyMedium),
+                        if (hint == null)
+                          Text(title, style: theme.textTheme.bodyMedium)
+                        else
+                          DefaultTextStyle.merge(
+                            style: theme.textTheme.bodyMedium,
+                            child: TitleWithHint(title, hint: hint!),
+                          ),
                         if (host.isNotEmpty)
                           Text(
                             host,

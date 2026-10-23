@@ -99,8 +99,8 @@ class _TorGroupState extends ConsumerState<TorGroup> {
         title: 'Tor',
         rows: [
           ESetRow(
-            title: 'Tor',
-            text: torCoverageText(),
+            title: torNetworkLabel,
+            hint: torNetworkHint,
             control: SizedBox(
               width: 40.u,
               height: 24.u,
@@ -109,7 +109,7 @@ class _TorGroupState extends ConsumerState<TorGroup> {
                   : ESwitch(
                       key: const ValueKey('privacy-tor-switch'),
                       value: st.settings.tor && included,
-                      semanticLabel: 'Tor',
+                      semanticLabel: torNetworkLabel,
                       onChanged: included ? _set : null,
                     ),
             ),
@@ -142,7 +142,7 @@ MethodLine torStateLine(TorState tor, ServiceStatus? status, {bool included = tr
   if (!included) return const MethodLine('Not in this build', EState.off);
   final waiting = torWaitingText();
   return switch (tor) {
-    TorState.off => const MethodLine('Off', EState.off, detail: 'Connections use this computer’s own address.'),
+    TorState.off => const MethodLine('Off', EState.off),
     TorState.starting => MethodLine('Starting…', EState.warn, detail: '${status?.torProgress ?? 0} %. $waiting wait until Tor is up.'),
     TorState.on when status?.tor == ServiceHealth.slow =>
       MethodLine('On', EState.ok, detail: '${status?.torProblem ?? 'Tor address not published yet'}. Sends work.'),
@@ -164,8 +164,9 @@ class PrivacyGroup extends ConsumerWidget {
       rows: [
         ESetRow(
           title: 'Use status.btlabs.uk',
-          text: 'Server health and node lists. Off: only the servers themselves are asked.',
+          hint: 'Network status and information provided by status.btlabs.uk',
           control: ESwitch(
+
             value: s.useStatusSite,
             semanticLabel: 'Use status.btlabs.uk',
             onChanged: (v) => ref.read(deskProvider.notifier).saveSettings(s.copyWith(useStatusSite: v)),

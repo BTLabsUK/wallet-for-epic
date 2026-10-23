@@ -140,17 +140,28 @@ void main() {
     );
     await tester.ensureVisible(find.byKey(torReceivingSwitchKey));
     await tester.pumpAndSettle();
+    // The label only; the explanation is the info icon's tooltip, and no line in the row
+    // says what goes over Tor or what does not.
     expect(
       find.descendant(
         of: find.byKey(torReceivingSwitchKey),
-        matching: find.text('Tor'),
+        matching: find.text('Tor Network'),
       ),
       findsOneWidget,
     );
     expect(
-      find.text('Epicbox, the node, onion sends and the app’s own requests go through Tor.'),
+      find.descendant(
+        of: find.byKey(torReceivingSwitchKey),
+        matching: find.byTooltip(
+          'Network activity goes through the Tor network. Tor hides the wallet’s internet address: each connection passes through several volunteer-run relays, so no server learns where the wallet is.',
+        ),
+      ),
       findsOneWidget,
     );
+    expect(find.textContaining('go through Tor'), findsNothing);
+    expect(find.textContaining('Not over Tor'), findsNothing);
+    expect(find.byKey(torStatusKey), findsNothing, reason: 'off: no state line');
+
 
     for (final word in ['Listener', 'listener', 'Advanced Tor']) {
       expect(find.textContaining(word), findsNothing);
@@ -162,10 +173,15 @@ void main() {
     expect(find.byType(AlertDialog), findsNothing);
     expect(h.session.torStarts, hasLength(1));
     expect(h.container.read(phoneTorProvider).receiving, isTrue);
+    // Starting: the state word alone, under the label.
     expect(
-      find.text('Starting… Epicbox, the node, onion sends and the app’s own requests go through Tor.'),
+      find.descendant(
+        of: find.byKey(torStatusKey),
+        matching: find.text('Starting…'),
+      ),
       findsOneWidget,
     );
+    expect(find.textContaining('go through Tor'), findsNothing);
     expect(
       tester.widget<SwitchListTile>(find.byKey(torReceivingSwitchKey)).value,
       isTrue,

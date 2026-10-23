@@ -22,7 +22,19 @@ TorState torStateOf(DeskSettings settings, ServiceStatus? status) {
   };
 }
 
+/// The one Tor switch's label (Settings › Privacy) and the status rail's Tor row: the label
+/// alone, with [torNetworkHint] behind its info icon or hover card.
+const String torNetworkLabel = 'Tor Network';
+
+/// What the switch does and what Tor is, in plain words. It never lists what does not go
+/// over Tor (the owner's rule); a send that skips Tor says so on that send.
+const String torNetworkHint =
+    'Network activity goes through the Tor network. Tor hides the wallet’s internet address: '
+    'each connection passes through several volunteer-run relays, so no server learns where '
+    'the wallet is.';
+
 /// The state word: Off, Starting…, On, Not connected.
+
 String torWord(TorState s) => switch (s) {
   TorState.off => 'Off',
   TorState.starting => 'Starting…',

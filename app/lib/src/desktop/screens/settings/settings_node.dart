@@ -426,7 +426,7 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
               rows: [
                 ESetRow(
                   title: 'Node server',
-                  text: 'The node the wallet reads the chain through and sends with.',
+                  hint: 'The node the wallet reads the chain through and sends with.',
                   stacked: true,
                   control: ServiceCombo(
                     key: _combo,
@@ -474,7 +474,7 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
                 if (prefs.builtin && DeskFeatures.nodeBackground)
                   ESetRow(
                     title: 'Sync in background',
-                    text: 'Keeps syncing while the app is closed.',
+                    hint: 'Keeps syncing while the app is closed.',
                     control: ESwitch(
                       value: prefs.nodeBackground,
                       semanticLabel: 'Sync in background',

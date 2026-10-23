@@ -324,7 +324,7 @@ class _AutostartRow extends ConsumerWidget {
     final on = ref.watch(localAutostartProvider).value ?? false;
     return ESetRow(
       title: 'Start with the app',
-      text: 'Starts the node at launch and keeps it syncing while the app is open.',
+      hint: 'Starts the node at launch and keeps it syncing while the app is open.',
       control: ESwitch(
         value: on,
         semanticLabel: 'Start with the app',

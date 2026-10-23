@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -17,17 +18,25 @@ import 'contacts_screen.dart' show LiveFieldError;
 import 'settings_screen.dart' show appVersionProvider;
 
 /// `android 14 (…)`: the OS and its version, as Dart reports them. Tests pin it.
+// A browser has no dart:io Platform: every member throws there, and the preview build runs
+// this screen in a browser, so both providers ask kIsWeb first.
 final feedbackPlatformProvider = Provider<String>(
-  (ref) => '${Platform.operatingSystem} ${Platform.operatingSystemVersion}',
+  (ref) => kIsWeb
+      ? 'web'
+      : '${Platform.operatingSystem} ${Platform.operatingSystemVersion}',
 );
 
 /// The user's home folder and names, which a report leaves out. Tests pin it.
 final feedbackCleanContextProvider = Provider<CleanContext>(
-  (ref) => CleanContext(
-    home: Platform.environment['HOME'] ?? Platform.environment['USERPROFILE'],
-    username: Platform.environment['USER'] ?? Platform.environment['USERNAME'],
-    hostname: Platform.localHostname,
-  ),
+  (ref) => kIsWeb
+      ? const CleanContext()
+      : CleanContext(
+          home:
+              Platform.environment['HOME'] ?? Platform.environment['USERPROFILE'],
+          username:
+              Platform.environment['USER'] ?? Platform.environment['USERNAME'],
+          hostname: Platform.localHostname,
+        ),
 );
 
 /// Plain words for what the wallet is doing, for a feedback report. English, like the rest of
@@ -166,9 +175,30 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
     return _messageError == null && _emailError == null;
   }
 
+  /// Opens the preview with the report as it would leave now. Building it reads and cleans
+  /// the log tail, so the button shows busy meanwhile, and a failure shows under it instead of
+  /// nothing happening.
   Future<void> _preview() async {
-    final report = await _report();
+    if (_busy) return;
+    setState(() {
+      _busy = true;
+      _error = null;
+    });
+    final SupportReport report;
+    try {
+      report = await _report();
+    } catch (error) {
+      logWarn('feedback', 'preview failed: $error');
+      if (mounted) {
+        setState(() {
+          _busy = false;
+          _error = describeError(context.l10n, error);
+        });
+      }
+      return;
+    }
     if (!mounted) return;
+    setState(() => _busy = false);
     await Navigator.of(context).push(
       MaterialPageRoute<void>(
         builder: (_) => FeedbackPreviewScreen(report: report.text),
@@ -362,26 +392,43 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
   }
 }
 
-/// The exact text a report would carry, which stays English. One line per row, so a 256 KB log
-/// scrolls smoothly; the selection area still lets the user copy across rows.
-class FeedbackPreviewScreen extends StatelessWidget {
+/// The exact text a report would carry, which stays English. One line per row, built as it
+/// scrolls into view, so a 256 KB log opens at once; the selection area still lets the user
+/// copy across rows. The lines are split once, not on every build.
+class FeedbackPreviewScreen extends StatefulWidget {
   const FeedbackPreviewScreen({super.key, required this.report});
 
   final String report;
 
   @override
+  State<FeedbackPreviewScreen> createState() => _FeedbackPreviewScreenState();
+}
+
+class _FeedbackPreviewScreenState extends State<FeedbackPreviewScreen> {
+  late final List<String> _lines = widget.report.split('\n');
+  final _scroll = ScrollController();
+
+  @override
+  void dispose() {
+    _scroll.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).textTheme.bodySmall;
-    final lines = report.split('\n');
     return SlotScaffold(
       appBar: AppBar(title: Text(context.l10n.feedbackPreviewTitle)),
       body: SafeArea(
         child: SelectionArea(
           child: Scrollbar(
+            controller: _scroll,
             child: ListView.builder(
+              key: feedbackPreviewListKey,
+              controller: _scroll,
               padding: const EdgeInsets.all(16),
-              itemCount: lines.length,
-              itemBuilder: (context, i) => Text(lines[i], style: style),
+              itemCount: _lines.length,
+              itemBuilder: (context, i) => Text(_lines[i], style: style),
             ),
           ),
         ),
@@ -389,6 +436,10 @@ class FeedbackPreviewScreen extends StatelessWidget {
     );
   }
 }
+
+/// The key of the preview's list, for tests.
+const Key feedbackPreviewListKey = ValueKey('feedback-preview-list');
+
 
 /// Opens [FeedbackScreen].
 Future<void> openFeedback(BuildContext context) =>

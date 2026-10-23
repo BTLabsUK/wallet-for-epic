@@ -3264,26 +3264,24 @@ void main() {
         (BalanceKind.immature, 'Rewards maturing', '16'),
         (BalanceKind.total, 'Total', '26.75'),
       ];
-      // The row scrolls: a tile's place is its left edge plus how far the row has moved.
-      final scrollable = tester.state<ScrollableState>(
+      // A grid, nothing scrolls sideways: every tile is on screen, in reading order (top
+      // to bottom, then left to right), inside the row's bounds.
+      expect(
         find.descendant(
           of: find.byKey(balanceTilesKey),
           matching: find.byType(Scrollable),
         ),
+        findsNothing,
       );
-      final lefts = <double>[];
+      final grid = tester.getRect(find.byKey(balanceTilesKey));
+      final places = <(double, double)>[];
       for (final (kind, label, value) in order) {
-        await tester.dragUntilVisible(
-          find.byKey(balanceTileKey(kind)),
-          find.byKey(balanceTilesKey),
-          const Offset(-100, 0),
-        );
         expect(_inTile(kind, label), findsOneWidget, reason: label);
         expect(_inTile(kind, value), findsOneWidget, reason: label);
-        lefts.add(
-          tester.getRect(find.byKey(balanceTileKey(kind))).left +
-              scrollable.position.pixels,
-        );
+        final tile = tester.getRect(find.byKey(balanceTileKey(kind)));
+        expect(tile.left, greaterThanOrEqualTo(grid.left), reason: label);
+        expect(tile.right, lessThanOrEqualTo(grid.right + 0.5), reason: label);
+        places.add((tile.top, tile.left));
         // One label per tile, read once.
         expect(
           find.bySemanticsLabel('$label: $value'),
@@ -3291,7 +3289,17 @@ void main() {
           reason: label,
         );
       }
-      expect(lefts, orderedEquals([...lefts]..sort()));
+      for (var i = 1; i < places.length; i++) {
+        final (t0, l0) = places[i - 1];
+        final (t1, l1) = places[i];
+        expect(t1 > t0 || (t1 == t0 && l1 > l0), isTrue, reason: 'tile $i');
+      }
+      // Two columns at phone width; the fifth tile alone on its row takes the whole row.
+      expect(places.where((p) => p.$1 == places.first.$1).length, 2);
+      expect(
+        tester.getRect(find.byKey(balanceTileKey(BalanceKind.total))).width,
+        closeTo(grid.width, 0.5),
+      );
       // Only what is pending.
       h.session.summaryValue = _balances(spendable: 1, confirming: 2);
       await _reload(tester);

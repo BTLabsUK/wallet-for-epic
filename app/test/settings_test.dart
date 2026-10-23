@@ -18,6 +18,7 @@ import 'package:epic_wallet/src/ui/scan_screen.dart';
 import 'package:epic_wallet/src/ui/settings_invoices.dart';
 import 'package:epic_wallet/src/ui/settings_history.dart';
 import 'package:epic_wallet/src/ui/settings_pin.dart';
+import 'package:epic_wallet/src/ui/licences_screen.dart';
 import 'package:epic_wallet/src/ui/settings_screen.dart';
 import 'package:epic_wallet/src/updater.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
@@ -1265,7 +1266,19 @@ void main() {
       await h.openSettings(tester);
       await _reveal(tester, find.byKey(settingsLicencesKey));
       expect(find.text('Licences'), findsOneWidget);
+      final row = tester.widget<ListTile>(find.byKey(settingsLicencesKey));
+      expect(row.subtitle, isNull, reason: 'label only');
       await tester.tap(find.byKey(settingsLicencesKey));
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 1));
+      // The short screen: one line per component, the tor source note, the full texts behind
+      // one button.
+      expect(find.byType(LicencesScreen), findsOneWidget);
+      expect(find.textContaining('Tor: GNU General Public License, version 3.'), findsOneWidget);
+      expect(find.textContaining('LEPIC, the Epic Cash wallet library: Apache 2.0'), findsOneWidget);
+      expect(find.textContaining('tor 0.4.9.14, unmodified'), findsOneWidget);
+      await _reveal(tester, find.byKey(licencesFullKey));
+      await tester.tap(find.byKey(licencesFullKey));
       await tester.pump();
       await tester.pump(const Duration(seconds: 1));
       expect(find.byType(LicensePage), findsOneWidget);

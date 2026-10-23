@@ -59,7 +59,7 @@ class _Harness {
     session: session,
   );
   final outlet = FakeFeedbackOutlet();
-  final log = MemoryLogSink();
+  MemoryLogSink log = MemoryLogSink();
   Uri? url;
   late ProviderContainer container;
 
@@ -155,6 +155,7 @@ String previewText(WidgetTester tester) => tester
     .join('\n');
 
 void main() {
+  previewLargeLog();
   group('report', () {
     test('states the facts, redacts the message and attaches the log', () {
       final report = buildFeedbackReport(
@@ -434,4 +435,68 @@ Future<void> _postsToLoopback() async {
       ),
     ),
   );
+}
+
+// The preview must open with the whole 256 KB log, at once, and show its first and last
+// lines; it never silently fails (the web had no dart:io Platform, and a throw inside the
+// report build left nothing on screen).
+void previewLargeLog() {
+  group('feedback preview, large log', () {
+    testWidgets('opens with a 256 KB log and shows its last line', (tester) async {
+      final h = _Harness();
+      h.log = MemoryLogSink(capacity: 100000);
+      var bytes = 0;
+      var i = 0;
+      while (bytes < 300 * 1024) {
+        final body = 'line $i tip height ${2500000 + i} from node.btlabs.uk, '
+            'send to $_address, slate ${'ab' * 32} posted, balance spendable=${i * 7}';
+        h.log.write(LogLevel.values[i % 3], 'dart.t${i % 5}', body);
+        bytes += body.length + 40;
+        i++;
+      }
+      await h.pump(tester);
+      await h.openFeedback(tester);
+      await enter(tester, 'Your message', 'The preview with a big log');
+      final sw = Stopwatch()..start();
+      await tap(tester, find.text('Preview what is sent'));
+      expect(find.byKey(feedbackPreviewListKey), findsOneWidget, reason: 'the preview opened');
+      expect(sw.elapsedMilliseconds, lessThan(5000));
+      expect(find.textContaining('The preview with a big log'), findsOneWidget);
+      expect(find.textContaining('== app/wfe.log =='), findsOneWidget);
+      final list = tester.widget<ListView>(find.byKey(feedbackPreviewListKey));
+      final count = list.childrenDelegate.estimatedChildCount!;
+      expect(count, greaterThan(500), reason: 'one row per line of the 256 KB tail');
+      // The end of the log is reachable and is the newest line.
+      final scroll = tester.state<ScrollableState>(
+        find.descendant(of: find.byKey(feedbackPreviewListKey), matching: find.byType(Scrollable)),
+      );
+      // The extent is an estimate until the rows are built, so the jump repeats until it
+      // lands on the end (as a reader's scrolling does).
+      for (var j = 0; j < 100; j++) {
+        scroll.position.jumpTo(scroll.position.maxScrollExtent);
+        await tester.pumpAndSettle();
+        if (scroll.position.pixels >= scroll.position.maxScrollExtent - 0.5) break;
+      }
+      expect(find.textContaining('line ${i - 1} tip height'), findsOneWidget);
+      expect(find.textContaining('<address-1>@epicbox.epiccash.com'), findsWidgets);
+      expect(find.textContaining('esWn9r'), findsNothing);
+    });
+
+    testWidgets('a report that cannot be built shows the error under the button', (tester) async {
+      final h = _Harness();
+      h.log = _ThrowingLog();
+      await h.pump(tester);
+      await h.openFeedback(tester);
+      await enter(tester, 'Your message', 'hello');
+      await tap(tester, find.text('Preview what is sent'));
+      // The log tail failure is caught and written into the report, so the preview opens.
+      expect(find.byKey(feedbackPreviewListKey), findsOneWidget);
+      expect(find.textContaining('The log could not be read'), findsOneWidget);
+    });
+  });
+}
+
+class _ThrowingLog extends MemoryLogSink {
+  @override
+  Future<String> tail(int maxBytes) async => throw StateError('no log here');
 }

@@ -163,7 +163,7 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
 
   Widget _autostart(TxMethod m, bool value, ValueChanged<bool>? onChanged) => ESetRow(
     title: 'Start with the wallet',
-    text: 'Turns on at unlock.',
+    hint: 'Turns on at unlock.',
     control: ESwitch(key: ValueKey('st-autostart-${m.name}'), value: value, semanticLabel: '${_name(m)}: start with the wallet', onChanged: onChanged),
   );
 
@@ -209,7 +209,7 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
             _autostart(TxMethod.epicbox, s.epicboxAutostart, (v) => _saveAutostart(s.copyWith(epicboxAutostart: v))),
             ESetRow(
               title: 'Epicbox server',
-              text: 'Which server holds payments for this address. Both wallets can use different servers.',
+              hint: 'Which server holds payments for this address. Both wallets can use different servers.',
               stacked: true,
               // TODO(§18): the shared server picker (fb-w6) replaces this combo.
               control: ServiceCombo(

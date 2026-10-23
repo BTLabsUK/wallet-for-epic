@@ -27,7 +27,10 @@ import 'outputs_screen.dart';
 import 'demo_screens.dart' show endDemo;
 import 'feedback_screen.dart';
 import 'help_screen.dart';
+import 'info_hint.dart';
 import 'launch_screen.dart';
+import 'licences_screen.dart';
+
 import 'pin.dart';
 import 'restore_screen.dart'
     show ScanSlotLine, mainnetFirstDay, mainnetHeightForDate;
@@ -495,8 +498,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 ),
                 SwitchListTile(
                   secondary: const Icon(Icons.terminal),
-                  title: Text(l.settingsAdvancedOptions),
-                  subtitle: Text(l.settingsAdvancedOptionsSubtitle),
+                  title: TitleWithHint(
+                    l.settingsAdvancedOptions,
+                    hint: l.settingsAdvancedOptionsSubtitle,
+                  ),
                   value: s.advancedOptions,
                   onChanged: _settings.setAdvancedOptions,
                 ),
@@ -512,8 +517,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 if (walletOpen && torAvailable) const TorSwitchTile(),
                 SwitchListTile(
                   secondary: const Icon(Icons.travel_explore),
-                  title: Text(l.settingsUseStatusSite),
-                  subtitle: Text(l.settingsUseStatusSiteSubtitle),
+                  title: TitleWithHint(
+                    l.settingsUseStatusSite,
+                    hint: l.settingsUseStatusSiteSubtitle,
+                  ),
                   value: s.useStatusSite,
                   onChanged: _settings.setUseStatusSite,
                 ),
@@ -602,8 +609,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     _Header(l.settingsSectionInvoices),
                     ListTile(
                       leading: const Icon(Icons.request_quote_outlined),
-                      title: Text(l.settingsInvoices),
-                      subtitle: Text(l.settingsInvoicesSubtitle),
+                      title: TitleWithHint(
+                        l.settingsInvoices,
+                        hint: l.settingsInvoicesSubtitle,
+                      ),
                       onTap: () => _push(const InvoiceSettingsScreen()),
                     ),
                   ],
@@ -690,18 +699,19 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 if (!demo)
                   ListTile(
                     leading: const Icon(Icons.feedback_outlined),
-                    title: Text(l.settingsSendFeedback),
-                    subtitle: Text(l.settingsSendFeedbackHint),
+                    title: TitleWithHint(
+                      l.settingsSendFeedback,
+                      hint: l.settingsSendFeedbackHint,
+                    ),
                     onTap: () => openFeedback(context),
                   ),
-                // Flutter's licence page: the packages', the fonts', the word lists' and the
-                // bundled tor's (GPL asks that it be shown), under the app's name and version.
+                // The short Licences screen; the full texts (the packages', the fonts', the
+                // word lists' and the bundled tor's) are one tap further.
                 ListTile(
                   key: settingsLicencesKey,
                   leading: const Icon(Icons.article_outlined),
                   title: Text(l.settingsLicences),
-                  subtitle: Text(l.settingsLicencesHint),
-                  onTap: () => _openLicences(context, version.value),
+                  onTap: () => _push(LicencesScreen(version: version.value)),
                 ),
                 // A proper name, the same in every language.
                 const _LinkTile(title: 'Epic Cash', url: epicCashUrl),
@@ -804,7 +814,7 @@ const Key settingsLicencesKey = ValueKey('settings-licences');
 /// Flutter's licence page under the app's name and [version]. The app writes British English
 /// ("Licences", "Cancelled"), and Flutter's own strings for `en` are American ("Licenses"):
 /// in English the page takes the `en_GB` Material strings so its title matches the row.
-void _openLicences(BuildContext context, String? version) {
+void openFlutterLicences(BuildContext context, String? version) {
   final locale = Localizations.localeOf(context);
   final page = LicensePage(
     applicationName: appName,

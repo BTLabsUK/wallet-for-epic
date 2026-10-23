@@ -7,6 +7,7 @@ import 'package:epic_wallet/src/phone_tor.dart';
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/relay_directory.dart' as dir;
 import 'package:epic_wallet/src/secret_store.dart';
+import 'package:epic_wallet/src/ui/info_hint.dart';
 import 'package:epic_wallet/src/ui/network_status.dart';
 import 'package:epic_wallet/src/ui/theme/tokens.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
@@ -250,7 +251,10 @@ void main() {
     testWidgets('shown while Tor is off: Off, faint', (tester) async {
       await _pump(tester);
       expect(find.byKey(netStatusTorKey), findsOneWidget);
-      expect(_in(netStatusTorKey, 'Tor'), findsOneWidget);
+      expect(_in(netStatusTorKey, 'Tor Network'), findsOneWidget);
+      // The explanation is the info icon's tooltip, not a line of the row.
+      expect(find.descendant(of: find.byKey(netStatusTorKey), matching: find.byType(InfoHint)), findsOneWidget);
+      expect(find.textContaining('go through Tor'), findsNothing);
       final word = tester.widget<Text>(_in(netStatusTorKey, 'Off'));
       final t = tester.element(find.byKey(netStatusTorKey)).tokens;
       expect(word.style?.color, t.faint);

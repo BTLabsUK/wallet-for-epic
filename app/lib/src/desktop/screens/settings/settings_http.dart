@@ -110,7 +110,7 @@ class _HttpOptionsState extends ConsumerState<HttpOptions> {
           builder: (context, box) => ESetRow(
           title: 'Reachable',
           stacked: box.maxWidth < 640.u,
-          text: 'Who can pay the HTTP address.',
+          hint: 'Who can pay the HTTP address.',
           control: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -140,7 +140,7 @@ class _HttpOptionsState extends ConsumerState<HttpOptions> {
         Divider(height: 1, thickness: 1, color: c.line),
         ESetRow(
           title: 'Port',
-          text: '1 to 65535. Used by the HTTP address.',
+          hint: '1 to 65535. Used by the HTTP address.',
           control: ERowControl(
             child: Focus(
               onFocusChange: (f) => f ? null : unawaited(_applyPort()),

@@ -110,7 +110,7 @@ class _SettingsAccountScreenState extends ConsumerState<SettingsAccountScreen> {
             rows: [
               ESetRow(
                 title: 'Label',
-                text: 'Only shown in this app.',
+                hint: 'Only shown in this app.',
                 control: ERowControl(
                   child: EInput(
                     size: EBtnSize.sm,
@@ -125,12 +125,12 @@ class _SettingsAccountScreenState extends ConsumerState<SettingsAccountScreen> {
               ),
               ESetRow(
                 title: 'Recovery phrase',
-                text: 'The words that restore this wallet. Keep them private.',
+                hint: 'The words that restore this wallet. Keep them private.',
                 control: ERowControl(child: EButton(label: 'Show phrase…', icon: EIcons.key, size: EBtnSize.sm, onPressed: () => nav.go(DeskRoute.settingsPhrase))),
               ),
               ESetRow(
                 title: 'Recheck balance',
-                text: 'Reads the chain again when the balance looks wrong.',
+                hint: 'Reads the chain again when the balance looks wrong.',
                 control: ERowControl(child: EButton(label: 'Recheck…', icon: EIcons.scan, size: EBtnSize.sm, onPressed: () => nav.go(DeskRoute.settingsRescan))),
               ),
             ],
@@ -140,12 +140,12 @@ class _SettingsAccountScreenState extends ConsumerState<SettingsAccountScreen> {
             title: 'Files',
             rows: [
               _FolderRow(title: 'Wallet folder', path: a.folder),
-              _FolderRow(title: 'App files', text: 'Settings and the log.', path: a.appFolder ?? appFilesDir),
+              _FolderRow(title: 'App files', hint: 'Settings and the log.', path: a.appFolder ?? appFilesDir),
               if (a.network != 'mainnet')
-                ESetRow(title: 'Network', text: 'Set when the wallet was created.', control: ETag(a.network, tone: ETone.warn)),
+                ESetRow(title: 'Network', hint: 'Set when the wallet was created.', control: ETag(a.network, tone: ETone.warn)),
               ESetRow(
                 title: 'Setup assistant',
-                text: 'Walk through node and receiving again. Nothing is lost.',
+                hint: 'Walk through node and receiving again. Nothing is lost.',
                 control: ERowControl(child: EButton(label: 'Run setup…', size: EBtnSize.sm, onPressed: () => nav.go(DeskRoute.setup))),
               ),
             ],
@@ -156,18 +156,18 @@ class _SettingsAccountScreenState extends ConsumerState<SettingsAccountScreen> {
               if (_remembered)
                 ESetRow(
                   title: 'Remembered on this computer',
-                  text: 'Opens at start without the password, for 30 days from when it was set. Sends still ask the password. $rememberWho',
+                  hint: 'Opens at start without the password, for 30 days from when it was set. Sends still ask the password. $rememberWho',
                   control: ERowControl(child: EButton(label: 'Forget this computer', icon: EIcons.lock, size: EBtnSize.sm, onPressed: _forget)),
                 ),
               if (DeskFeatures.changePassword)
                 ESetRow(
                   title: 'Password',
-                  text: 'Unlocks this wallet.',
+                  hint: 'Unlocks this wallet.',
                   control: ERowControl(child: EButton(label: 'Change password…', size: EBtnSize.sm, icon: EIcons.lock, onPressed: () => showChangePasswordDialog(context))),
                 ),
               ESetRow(
                   title: 'Delete wallet',
-                  text: 'Deletes its keys and database.',
+                  hint: 'Deletes its keys and database.',
                   control: ERowControl(child: EButton(label: 'Delete…', size: EBtnSize.sm, icon: EIcons.trash, kind: EBtnKind.danger, onPressed: () => showDeleteWalletDialog(context))),
                 ),
             ],
@@ -180,10 +180,10 @@ class _SettingsAccountScreenState extends ConsumerState<SettingsAccountScreen> {
 
 /// A folder: its path in mono with a copy button, and Open folder.
 class _FolderRow extends ConsumerWidget {
-  const _FolderRow({required this.title, required this.path, this.text});
+  const _FolderRow({required this.title, required this.path, this.hint});
 
   final String title;
-  final String? text;
+  final String? hint;
   final String path;
 
   /// Opens [path] in the system's file manager; a path that is not on disk (the mock) toasts.
@@ -201,7 +201,7 @@ class _FolderRow extends ConsumerWidget {
     final ts = context.ts;
     return ESetRow(
       title: title,
-      text: text,
+      hint: hint,
       control: ERowControl(child: EButton(label: 'Open folder', icon: EIcons.folderOpen, size: EBtnSize.sm, onPressed: () => _open(context, ref))),
       below: Row(
         children: [

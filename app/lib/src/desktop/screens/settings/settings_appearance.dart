@@ -20,7 +20,7 @@ class SettingsAppearanceScreen extends ConsumerWidget {
         rows: [
           ESetRow(
             title: 'Theme',
-            text: 'System follows the computer’s setting.',
+            hint: 'System follows the computer’s setting.',
             control: ERowControl(
               wide: true,
               child: ESegmented<ThemeChoice>(
@@ -37,7 +37,7 @@ class SettingsAppearanceScreen extends ConsumerWidget {
           ),
           ESetRow(
             title: 'Interface scale',
-            text: 'Text and controls, larger or smaller. Applies at once.',
+            hint: 'Text and controls, larger or smaller. Applies at once.',
             control: ERowControl(
               child: ESelect<int>(
                 size: EBtnSize.sm,
@@ -51,7 +51,7 @@ class SettingsAppearanceScreen extends ConsumerWidget {
           if (DeskFeatures.languages)
           ESetRow(
             title: 'Language',
-            text: 'Applies at once.',
+            hint: 'Applies at once.',
             control: ERowControl(
               child: ESelect<String>(
                 size: EBtnSize.sm,
@@ -71,7 +71,7 @@ class SettingsAppearanceScreen extends ConsumerWidget {
           ),
           ESetRow(
             title: 'Hide amounts',
-            text: 'Shows dots in place of balances and amounts.',
+            hint: 'Shows dots in place of balances and amounts.',
             control: ESwitch(value: s.hideAmounts, semanticLabel: 'Hide amounts', onChanged: (v) => n.saveSettings(s.copyWith(hideAmounts: v))),
           ),
         ],
