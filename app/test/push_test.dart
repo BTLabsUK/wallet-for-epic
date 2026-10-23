@@ -664,6 +664,20 @@ void main() {
       expect(h.notes, [PushNote.off]);
     });
 
+    testWidgets('off, then on again: a new token is registered', (tester) async {
+      final h = _Harness(wanted: true);
+      await h.pump(tester);
+      await h.controller.turnOff();
+      await h.settle(tester);
+      h.posts.clear();
+      final on = h.controller.turnOn();
+      await h.settle(tester);
+      expect(await on, isTrue);
+      expect(h.postActions, ['register']);
+      expect(h.posts.single.body['token'], 'tok-2', reason: 'the old one was deleted');
+      expect(h.wantedNow, isTrue);
+    });
+
     testWidgets('on: saved, started, registered', (tester) async {
       final h = _Harness();
       await h.pump(tester);

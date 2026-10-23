@@ -214,7 +214,8 @@ class PushController extends Notifier<bool> {
       await _setWanted(false);
       return false;
     }
-    final token = ref.read(pushProvider).token;
+    // Turned off before in this run: that deleted the token, so ask for a new one.
+    final token = ref.read(pushProvider).token ?? await push.freshToken();
     if (token != null) await _serial(() => _registerToken(token, session: session));
     return true;
   }
