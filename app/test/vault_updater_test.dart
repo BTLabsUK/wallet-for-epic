@@ -348,6 +348,44 @@ void main() {
       expect(other.update, isNull);
     });
 
+    test('a 0.1.x install gets 26.10.0; a test build is never offered', () async {
+      final calver = await read(
+        await signedUpdate(
+          testUpdatePayload(versionName: '26.10.0', apks: [testApk(versionCode: 26100000)]),
+        ),
+      );
+      expect(calver.update?.versionName, '26.10.0');
+      expect(calver.update?.apk.versionCode, 26100000);
+      final rc = await read(
+        await signedUpdate(
+          testUpdatePayload(versionName: '26.10.1-rc1', apks: [testApk(versionCode: 26100101)]),
+        ),
+      );
+      // FORMAT.md's schema already refuses it (versions are X.Y.Z); pickUpdate refuses it too.
+      expect(rc.update, isNull);
+      final manifest = WalletUpdate(
+        schema: 1,
+        serial: 1,
+        issuedAt: now,
+        expiresAt: now,
+        packageName: app.packageName,
+        versionName: '26.10.1-rc1',
+        notes: '',
+        apks: [
+          WalletApk(
+            abi: 'arm64-v8a',
+            versionCode: 26100101,
+            url: Uri.parse('https://example.org/app.apk'),
+            sha256: 'a' * 64,
+            size: 1,
+          ),
+        ],
+        desktop: null,
+        revokedKeys: const [],
+      );
+      expect(pickUpdate(manifest, app), isNull);
+    });
+
     test('refuses a signed manifest for another app', () async {
       final env = await signedUpdate(
         testUpdatePayload(packageName: 'evil.app'),

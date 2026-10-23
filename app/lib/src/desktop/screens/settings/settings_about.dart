@@ -1,11 +1,11 @@
 import '../../../app_info.dart';
+import '../../../app_version.dart';
 import '../../../tor_licence.dart' show torSourceNote;
 import '../../../ui/settings_screen.dart' show projectRepoUrl;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../app/shell.dart' show deskVersion;
 import '../../data/desk_update.dart';
 import '../../data/files.dart' show deskOpenUrlProvider;
 import '../../widgets/kit.dart';
@@ -83,7 +83,7 @@ class _SettingsAboutScreenState extends ConsumerState<SettingsAboutScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('$appName $deskVersion', style: ts.h3),
+                          Text('$appName ${withBuildId(withCoreVersion(deskAppVersion))}', style: ts.h3),
                           SizedBox(height: Sp.x1),
                           Wrap(
                             spacing: Sp.x4,
@@ -145,7 +145,7 @@ class _SettingsAboutScreenState extends ConsumerState<SettingsAboutScreen> {
   }
 }
 
-/// "0.1.0 is the latest · checked 5 min ago", "Update available: 0.1.1", or "Could not check"
+/// "0.1.0 is the latest · checked 5 min ago", "Update available: 26.10.1", or "Could not check"
 /// with the reason; Check now.
 class _Updates extends ConsumerWidget {
   const _Updates();

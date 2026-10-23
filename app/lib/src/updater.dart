@@ -20,6 +20,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
 
 import 'app_log.dart';
+import 'app_version.dart';
 import 'btlabs_keys.dart';
 import 'btlabs_public.dart';
 import 'net/tor_net.dart';
@@ -137,11 +138,13 @@ Future<UpdateManifestRead> readUpdateManifest(
 }
 
 /// Picks the update for [app] from a verified [manifest], or null when it is up to date or
-/// no APK fits this device's ABIs. A manifest for another app is an [UpdateError].
+/// no APK fits this device's ABIs. A manifest for another app is an [UpdateError]. A test
+/// build (`26.10.0-rc1`) is never offered, whatever its version code.
 AvailableUpdate? pickUpdate(WalletUpdate manifest, InstalledApp app) {
   if (manifest.packageName != app.packageName) {
     throw UpdateError((l) => l.updateManifestOtherApp);
   }
+  if (isTestVersion(manifest.versionName)) return null;
   // The signed manifest's URLs are https and its hashes 64 lowercase hex (the verifier's
   // schema); unique ABIs.
   final byAbi = {for (final a in manifest.apks) a.abi: a};

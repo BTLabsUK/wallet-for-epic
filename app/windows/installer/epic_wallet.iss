@@ -1,6 +1,7 @@
 ﻿; Inno Setup 6.7 script for the Windows installer. Built by tool\build_windows_release.ps1, which
 ; passes /DSourceDir (the Flutter Release folder, with the VC runtime DLLs added), /DOutputDir and
-; optionally /DAppVersion. Per-user (PrivilegesRequired=lowest): everything goes in the user's profile.
+; /DAppVersion (pubspec.yaml's YY.MM.patch, https://docs.btlabs.uk/developers/releases/). Per-user
+; (PrivilegesRequired=lowest): everything goes in the user's profile.
 ;
 ; The wallet's data (%APPDATA%\com.blacktyger\EpicWallet) is never touched: there is no
 ; [UninstallDelete], [InstallDelete] names only old shortcut files, and Inno removes only the
@@ -20,7 +21,13 @@
   #define OutputDir "."
 #endif
 #ifndef AppVersion
-  #define AppVersion "0.1.0"
+  #error Pass /DAppVersion=<pubspec.yaml's version, without +build>
+#endif
+; The file version is YY.MM.patch.0; a test build's -rcN is left out (numbers only).
+#if Pos("-", AppVersion) > 0
+  #define FileVersion Copy(AppVersion, 1, Pos("-", AppVersion) - 1) + ".0"
+#else
+  #define FileVersion AppVersion + ".0"
 #endif
 
 [Setup]
@@ -28,6 +35,7 @@
 AppId={{8810835E-6EE5-4989-AE20-C0D60E23800E}
 AppName=Epic Wallet
 AppVersion={#AppVersion}
+VersionInfoVersion={#FileVersion}
 AppPublisher=BT Labs
 ; The app's single-instance mutex (windows\runner\main.cpp): Setup and the uninstaller wait for
 ; the app to close instead of replacing files under it.

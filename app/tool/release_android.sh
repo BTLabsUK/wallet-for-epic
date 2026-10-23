@@ -19,8 +19,9 @@
 # builds, else the desktop would offer a release that has none. Its page is the release's tag
 # page, derived from download-base-url.
 #
-# Bump `version:` in pubspec.yaml first: Android installs an update only when its version code
-# is higher, and only when it is signed with the same key as the installed app.
+# Set the release's version first (`tools/version.sh set`, https://docs.btlabs.uk/developers/releases/): Android installs
+# an update only when its version code is higher, and only when it is signed with the same key as
+# the installed app. A test build (YY.MM.patch-rcN) never goes to the update channel: refused.
 set -euo pipefail
 
 app_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -39,6 +40,11 @@ if [[ "$notes" == *$'\r'* || "$notes" == *$'\t'* ]]; then
 fi
 btlabs_public="${BTLABS_PUBLIC:-$HOME/code/btlabs-public}"
 signing_key="${BTLABS_SIGNING_KEY:-$HOME/.config/btlabs/signing/btlabs-2026-a.key}"
+
+"$app_dir/../tools/version.sh" check
+version="$("$app_dir/../tools/version.sh" name)"
+want_code="$("$app_dir/../tools/version.sh" code)"
+[[ "$version" != *-* ]] || { echo "$version is a test build: never published to update.json" >&2; exit 1; }
 
 aapt2="$(find "$ANDROID_HOME/build-tools" -maxdepth 2 -name aapt2 -type f | sort -V | tail -1)"
 [[ -x "$aapt2" ]] || { echo "aapt2 not found under $ANDROID_HOME/build-tools" >&2; exit 1; }
@@ -66,6 +72,8 @@ for abi in arm64-v8a; do
   package="$(sed -n "s/.*package: name='\([^']*\)'.*/\1/p" <<<"$badging")"
   code="$(sed -n "s/.*versionCode='\([0-9]*\)'.*/\1/p" <<<"$badging")"
   version_name="$(sed -n "s/.*versionName='\([^']*\)'.*/\1/p" <<<"$badging")"
+  [[ "$version_name" == "$version" && "$code" == "$want_code" ]] \
+    || { echo "$apk is $version_name ($code), not $version ($want_code)" >&2; exit 1; }
   sha="$(sha256sum "$apk" | cut -d' ' -f1)"
   size="$(stat -c %s "$apk")"
   entries+=("$(jq -n --arg abi "$abi" --argjson code "$code" --arg url "$base_url/app-$abi-release.apk" \
