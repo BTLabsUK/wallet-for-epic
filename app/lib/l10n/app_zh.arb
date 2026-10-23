@@ -1349,6 +1349,7 @@
   "deskInvPayerWaitingHead": "等待您处理",
   "deskInvPayerNeedsHead": "待处理的付款",
   "deskInvPayerReview": "查看",
+  "deskInvPayerPaidHead": "已支付",
   "deskInvPayerView": "查看",
   "deskInvPayerNoMessage": "无留言",
   "deskInvPayerDropped": "{count, plural, other{已忽略 {count} 条来自不受信任发送方的消息。}}",

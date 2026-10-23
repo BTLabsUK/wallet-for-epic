@@ -1349,6 +1349,7 @@
   "deskInvPayerWaitingHead": "Wartet auf Sie",
   "deskInvPayerNeedsHead": "Offene Zahlungen",
   "deskInvPayerReview": "Prüfen",
+  "deskInvPayerPaidHead": "Bezahlt",
   "deskInvPayerView": "Ansehen",
   "deskInvPayerNoMessage": "Keine Nachricht",
   "deskInvPayerDropped": "{count, plural, =1{1 Nachricht eines nicht vertrauenswürdigen Absenders wurde ignoriert.} other{{count} Nachrichten nicht vertrauenswürdiger Absender wurden ignoriert.}}",

@@ -75,16 +75,23 @@ class _IssueTabState extends ConsumerState<IssueTab> {
     }
     final selected = sent.where((r) => r.slateId == _sel).firstOrNull ?? sent.first;
     final list = _Frame(
-      child: ListView.separated(
+      // Every row built, so the one opened from Activity can be scrolled to.
+      child: ListView(
         padding: EdgeInsets.zero,
-        itemCount: sent.length,
-        separatorBuilder: (_, _) => Divider(height: 1, color: c.line),
-        itemBuilder: (_, i) => _Row(
-          request: sent[i],
-          now: widget.book.now,
-          selected: sent[i].slateId == selected.slateId,
-          onTap: () => setState(() => _sel = sent[i].slateId),
-        ),
+        children: [
+          for (final (i, r) in sent.indexed) ...[
+            if (i > 0) Divider(height: 1, color: c.line),
+            InvReveal(
+              selected: r.slateId == widget.selected,
+              child: _Row(
+                request: r,
+                now: widget.book.now,
+                selected: r.slateId == selected.slateId,
+                onTap: () => setState(() => _sel = r.slateId),
+              ),
+            ),
+          ],
+        ],
       ),
     );
     final detail = _Frame(

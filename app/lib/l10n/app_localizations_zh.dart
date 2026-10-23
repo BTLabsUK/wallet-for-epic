@@ -4997,6 +4997,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskInvPayerReview => '查看';
 
   @override
+  String get deskInvPayerPaidHead => '已支付';
+
+  @override
   String get deskInvPayerView => '查看';
 
   @override

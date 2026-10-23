@@ -150,3 +150,37 @@ class InvCountdown extends StatelessWidget {
     );
   }
 }
+
+/// The invoice or request opened from Activity: scrolled into view once, marked selected.
+class InvReveal extends StatefulWidget {
+  const InvReveal({super.key, required this.selected, required this.child});
+
+  final bool selected;
+  final Widget child;
+
+  @override
+  State<InvReveal> createState() => _InvRevealState();
+}
+
+class _InvRevealState extends State<InvReveal> {
+  @override
+  void initState() {
+    super.initState();
+    if (widget.selected) _reveal();
+  }
+
+  @override
+  void didUpdateWidget(InvReveal old) {
+    super.didUpdateWidget(old);
+    if (widget.selected && !old.selected) _reveal();
+  }
+
+  void _reveal() => WidgetsBinding.instance.addPostFrameCallback((_) {
+    if (!mounted) return;
+    final reduce = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
+    Scrollable.ensureVisible(context, alignment: 0.1, duration: reduce ? Duration.zero : const Duration(milliseconds: 220), curve: Curves.easeOut);
+  });
+
+  @override
+  Widget build(BuildContext context) => Semantics(selected: widget.selected, child: widget.child);
+}

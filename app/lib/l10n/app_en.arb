@@ -6640,6 +6640,10 @@
   "@deskInvPayerReview": {
     "description": "Button on an invoice row: open the invoice to pay or decline it."
   },
+  "deskInvPayerPaidHead": "Paid",
+  "@deskInvPayerPaidHead": {
+    "description": "Section head on Invoices › To pay: a paid invoice opened from Activity, which To pay no longer lists."
+  },
   "deskInvPayerView": "View",
   "@deskInvPayerView": {
     "description": "Link on an answered invoice: open its payment in Activity."

@@ -5495,6 +5495,9 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskInvPayerReview => 'Sprawdź';
 
   @override
+  String get deskInvPayerPaidHead => 'Zapłacone';
+
+  @override
   String get deskInvPayerView => 'Pokaż';
 
   @override
