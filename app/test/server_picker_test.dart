@@ -8,6 +8,7 @@ import 'package:epic_wallet/src/relay_directory.dart';
 import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/server_switch.dart';
 import 'package:epic_wallet/src/ui/server_picker.dart';
+import 'package:epic_wallet/src/ui/theme/tokens.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -453,6 +454,44 @@ void main() {
       expect(find.text('Default'), findsOneWidget);
       expect(_inRow('epicbox.stackwallet.com', 'Current'), findsOneWidget);
       expect(find.byType(TextField), findsOneWidget);
+    });
+
+    testWidgets('the current row is neutral, never the accent; its check green while up', (
+      tester,
+    ) async {
+      await _pump(tester, ServerKind.relay, store: _store());
+      final row = find.byKey(serverRowKey('epicbox.stackwallet.com'));
+      final t = tester.element(row).tokens;
+      final ink = tester.widget<Ink>(
+        find.descendant(of: row, matching: find.byType(Ink)),
+      );
+      final box = ink.decoration! as BoxDecoration;
+      expect(box.color, t.selected);
+      expect(box.border!.top.color, t.selectedLine);
+      expect(box.color, isNot(t.accentSoft));
+      // No health answer: the check is dim, not green and not gold; Current in the text colour.
+      final check = tester.widget<Icon>(
+        find.descendant(of: row, matching: find.byIcon(Icons.check)),
+      );
+      expect(check.color, t.dim);
+      final rich = tester.widget<Text>(_inRow('epicbox.stackwallet.com', 'Current'));
+      TextStyle? currentStyle;
+      rich.textSpan!.visitChildren((span) {
+        if (span is TextSpan && span.text == 'Current') {
+          currentStyle = span.style;
+          return false;
+        }
+        return true;
+      });
+      expect(currentStyle?.color, t.text);
+      expect(currentStyle?.fontWeight, FontWeight.w600);
+      // Another row has no fill and no check.
+      final other = find.byKey(serverRowKey(defaultEpicboxHost));
+      final otherBox =
+          tester.widget<Ink>(find.descendant(of: other, matching: find.byType(Ink))).decoration!
+              as BoxDecoration;
+      expect(otherBox.color, isNull);
+      expect(find.descendant(of: other, matching: find.byIcon(Icons.check)), findsNothing);
     });
 
     testWidgets('switching keeps the node and says the address changes', (
