@@ -657,11 +657,14 @@ class ListenerNotifier extends Notifier<ListenerState> {
         _down = false;
         state = ListenerState(connected: true, last: state.last);
       case ListenerEventKind.disconnected:
-        // LEPIC sends one per failed attempt, between its backoff waits, and no reason yet.
+        // LEPIC sends one per failed attempt, between its backoff waits.
+        final reason = event.reason ?? event.message;
+        final wait = event.retryInMs;
         logInfo(
           'listener',
-          'epicbox disconnected, LEPIC retries'
-              '${event.message.isEmpty ? '' : ': ${event.message}'}',
+          'epicbox disconnected'
+              '${reason.isEmpty ? '' : ': $reason'}'
+              '${wait == null ? '' : ', LEPIC retries in $wait ms'}',
         );
         // Raw: the status shows it only once it lasts (walletStatusProvider).
         _down = true;
