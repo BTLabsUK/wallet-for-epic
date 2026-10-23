@@ -10,6 +10,7 @@ import 'src/data_folder.dart';
 import 'src/demo_web_platform.dart';
 import 'src/password_lists.dart';
 import 'src/phone_tor.dart';
+import 'src/push_controller.dart';
 import 'src/relay_directory.dart' show statusSite;
 import 'src/settings.dart' show readUseStatusSite;
 import 'src/net/tor_net.dart';
@@ -69,6 +70,8 @@ Future<void> main() async {
           ...webDemoOverrides(),
           // The phone's Tor controller restarts tor when the network returns.
           networkChangesProvider.overrideWithValue(androidNetworkChanges()),
+          // Push notifications unregister before tor starts and register once it has stopped.
+          torSwitchHooksProvider.overrideWith((ref) => ref.watch(pushTorHooksProvider)),
         ],
         child: const WalletApp(),
       ),

@@ -258,6 +258,9 @@ class _FakePush implements PushPlatform {
   Future<String?> token() async => 'token';
 
   @override
+  Future<void> deleteToken() async {}
+
+  @override
   Stream<String> get tokenRefresh => const Stream.empty();
 
   @override

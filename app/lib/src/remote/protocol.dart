@@ -112,6 +112,8 @@ const Set<String> localSessionMembers = {
   'importLegacyHistory',
   // Answered by the client: it cancels the scan stream, and the server stops the scan.
   'cancelScan',
+  // Push notifications are the phone's own; refused by the client.
+  'pushSignature',
 };
 
 /// The largest frame the dispatcher reads, in UTF-8 bytes.

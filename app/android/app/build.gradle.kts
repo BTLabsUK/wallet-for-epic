@@ -125,3 +125,14 @@ flutter {
 if (file("google-services.json").exists()) {
     apply(plugin = "com.google.gms.google-services")
 }
+
+dependencies {
+    // PaymentPushService extends the firebase_messaging plugin's service, whose parent class is
+    // in the Firebase SDK; plugins keep their dependencies to themselves, so the app names it
+    // too, at the version the plugins use (firebase_core's FirebaseSDKVersion).
+    val firebaseSdk = rootProject.findProject(":firebase_core")?.properties?.get("FirebaseSDKVersion")
+    if (firebaseSdk != null) {
+        implementation(platform("com.google.firebase:firebase-bom:$firebaseSdk"))
+        implementation("com.google.firebase:firebase-messaging")
+    }
+}

@@ -2917,20 +2917,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get settingsSectionNotifications => 'Уведомления';
 
   @override
-  String get settingsPaymentNotifications => 'Уведомления о платежах';
-
-  @override
-  String get settingsPushHint => 'Доставляются через Google Firebase.';
-
-  @override
-  String get settingsPushOnNotice =>
-      'Пока ни один сервер epicbox их не отправляет. Чтобы получить платёж, откройте приложение.';
-
-  @override
-  String get settingsPushOffNotice =>
-      'Уведомления прекратятся при следующем запуске приложения.';
-
-  @override
   String get settingsPushBlocked =>
       'Уведомления заблокированы в настройках системы';
 
@@ -6047,7 +6033,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get torNetworkHint =>
-      'Сетевая активность идёт через сеть Tor. Tor скрывает интернет-адрес кошелька: каждое соединение проходит через несколько добровольческих узлов, и ни один сервер не узнаёт, где находится кошелёк.';
+      'Сетевая активность идёт через сеть Tor. Tor скрывает интернет-адрес кошелька: каждое соединение проходит через несколько добровольческих узлов, и ни один сервер не узнаёт, где находится кошелёк. Уведомления выключены, пока включён Tor.';
 
   @override
   String get receiveTabDirect => 'Напрямую';
@@ -6060,8 +6046,46 @@ class AppLocalizationsRu extends AppLocalizations {
       'Пока отправители используют адрес Epicbox.';
 
   @override
-  String get settingsPushOffWhileTor => 'Выключено, пока включён Tor';
+  String get netStatusOverTor => 'через Tor';
 
   @override
-  String get netStatusOverTor => 'через Tor';
+  String get settingsNotifications => 'Уведомления';
+
+  @override
+  String get settingsNotificationsHint =>
+      'Использует сервис уведомлений Google. Конфиденциальные данные не передаются.';
+
+  @override
+  String get settingsPushPaused => 'Приостановлено, пока включён Tor';
+
+  @override
+  String get pushConfirmRelayBody =>
+      'Уведомления используют Epicbox BT Labs и сервис уведомлений Google. Конфиденциальные данные не передаются.';
+
+  @override
+  String get pushConfirmRelayAddress =>
+      'Ваш адрес Epicbox изменится. Поделитесь новым.';
+
+  @override
+  String get pushRelaySwitchFailed =>
+      'Не удалось сменить сервер. Уведомления остаются выключенными.';
+
+  @override
+  String get pushConfirmTitle => 'Включить уведомления?';
+
+  @override
+  String get pushConfirmBody =>
+      'Уведомления используют сервис уведомлений Google. Конфиденциальные данные не передаются.';
+
+  @override
+  String get pushConfirmAction => 'Включить';
+
+  @override
+  String get pushNoticeOn => 'Уведомления включены';
+
+  @override
+  String get pushNoticeOff => 'Уведомления выключены';
+
+  @override
+  String get pushNoticeAvailable => 'Уведомления доступны в настройках.';
 }

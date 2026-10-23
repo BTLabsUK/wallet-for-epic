@@ -2823,20 +2823,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get settingsSectionNotifications => 'Benachrichtigungen';
 
   @override
-  String get settingsPaymentNotifications => 'Zahlungsbenachrichtigungen';
-
-  @override
-  String get settingsPushHint => 'Zugestellt über Google Firebase.';
-
-  @override
-  String get settingsPushOnNotice =>
-      'Noch sendet kein epicbox-Server solche Benachrichtigungen. Öffnen Sie die App, um eine Zahlung zu empfangen.';
-
-  @override
-  String get settingsPushOffNotice =>
-      'Die Benachrichtigungen enden beim nächsten Start der App.';
-
-  @override
   String get settingsPushBlocked =>
       'Benachrichtigungen sind in den Systemeinstellungen blockiert';
 
@@ -5939,7 +5925,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get torNetworkHint =>
-      'Die Netzwerkaktivität läuft über das Tor-Netzwerk. Tor verbirgt die Internetadresse der Wallet: Jede Verbindung geht über mehrere ehrenamtlich betriebene Relays, sodass kein Server erfährt, wo die Wallet ist.';
+      'Die Netzwerkaktivität läuft über das Tor-Netzwerk. Tor verbirgt die Internetadresse der Wallet: Jede Verbindung geht über mehrere ehrenamtlich betriebene Relays, sodass kein Server erfährt, wo die Wallet ist. Benachrichtigungen sind aus, solange Tor an ist.';
 
   @override
   String get receiveTabDirect => 'Direkt';
@@ -5952,8 +5938,47 @@ class AppLocalizationsDe extends AppLocalizations {
       'Absender nutzen bis dahin die Epicbox-Adresse.';
 
   @override
-  String get settingsPushOffWhileTor => 'Aus, solange Tor an ist';
+  String get netStatusOverTor => 'über Tor';
 
   @override
-  String get netStatusOverTor => 'über Tor';
+  String get settingsNotifications => 'Benachrichtigungen';
+
+  @override
+  String get settingsNotificationsHint =>
+      'Nutzt den Benachrichtigungsdienst von Google. Es werden keine sensiblen Daten geteilt.';
+
+  @override
+  String get settingsPushPaused => 'Pausiert, solange Tor an ist';
+
+  @override
+  String get pushConfirmRelayBody =>
+      'Benachrichtigungen nutzen die Epicbox von BT Labs und den Benachrichtigungsdienst von Google. Es werden keine sensiblen Daten geteilt.';
+
+  @override
+  String get pushConfirmRelayAddress =>
+      'Deine Epicbox-Adresse ändert sich. Teile die neue.';
+
+  @override
+  String get pushRelaySwitchFailed =>
+      'Der Server konnte nicht gewechselt werden. Benachrichtigungen bleiben aus.';
+
+  @override
+  String get pushConfirmTitle => 'Benachrichtigungen einschalten?';
+
+  @override
+  String get pushConfirmBody =>
+      'Benachrichtigungen nutzen den Benachrichtigungsdienst von Google. Es werden keine sensiblen Daten geteilt.';
+
+  @override
+  String get pushConfirmAction => 'Einschalten';
+
+  @override
+  String get pushNoticeOn => 'Benachrichtigungen an';
+
+  @override
+  String get pushNoticeOff => 'Benachrichtigungen aus';
+
+  @override
+  String get pushNoticeAvailable =>
+      'Benachrichtigungen sind in den Einstellungen verfügbar.';
 }

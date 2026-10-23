@@ -2619,18 +2619,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get settingsSectionNotifications => '通知';
 
   @override
-  String get settingsPaymentNotifications => '付款通知';
-
-  @override
-  String get settingsPushHint => '由 Google Firebase 推送。';
-
-  @override
-  String get settingsPushOnNotice => '目前还没有 epicbox 服务器发送这类通知。请打开应用以接收付款。';
-
-  @override
-  String get settingsPushOffNotice => '通知将在应用下次启动时停止。';
-
-  @override
   String get settingsPushBlocked => '通知已在系统设置中被屏蔽';
 
   @override
@@ -5520,7 +5508,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get torNetworkHint =>
-      '网络活动经由 Tor 网络。Tor 隐藏钱包的互联网地址：每个连接都经过多个志愿者运营的中继，因此没有服务器能得知钱包所在。';
+      '网络活动经由 Tor 网络。Tor 隐藏钱包的互联网地址：每个连接都经过多个志愿者运营的中继，因此没有服务器能得知钱包所在。通知在 Tor 开启时关闭。';
 
   @override
   String get receiveTabDirect => '直连';
@@ -5532,8 +5520,42 @@ class AppLocalizationsZh extends AppLocalizations {
   String get receiveDirectMeanwhile => '在此期间，付款方使用 Epicbox 地址。';
 
   @override
-  String get settingsPushOffWhileTor => 'Tor 开启时关闭';
+  String get netStatusOverTor => '经由 Tor';
 
   @override
-  String get netStatusOverTor => '经由 Tor';
+  String get settingsNotifications => '通知';
+
+  @override
+  String get settingsNotificationsHint => '使用 Google 的通知服务。不会共享任何敏感数据。';
+
+  @override
+  String get settingsPushPaused => 'Tor 开启时已暂停';
+
+  @override
+  String get pushConfirmRelayBody =>
+      '通知使用 BT Labs 的 Epicbox 和 Google 的通知服务。不会共享任何敏感数据。';
+
+  @override
+  String get pushConfirmRelayAddress => '你的 Epicbox 地址将会更改。请分享新地址。';
+
+  @override
+  String get pushRelaySwitchFailed => '无法切换服务器。通知保持关闭。';
+
+  @override
+  String get pushConfirmTitle => '开启通知？';
+
+  @override
+  String get pushConfirmBody => '通知使用 Google 的通知服务。不会共享任何敏感数据。';
+
+  @override
+  String get pushConfirmAction => '开启';
+
+  @override
+  String get pushNoticeOn => '通知已开启';
+
+  @override
+  String get pushNoticeOff => '通知已关闭';
+
+  @override
+  String get pushNoticeAvailable => '通知可在设置中开启。';
 }

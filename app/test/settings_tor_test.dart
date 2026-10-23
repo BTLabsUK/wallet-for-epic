@@ -1,6 +1,6 @@
 // Settings › Privacy: the one Tor switch, bound to the phone's Tor controller, with one line
 // saying what it covers ("Not connected" and Retry when Tor failed); not under Advanced (F28),
-// and absent where the app has no Tor. Push is off while Tor is on.
+// and absent where the app has no Tor. Notifications are not offered while Tor is on.
 
 import 'dart:async';
 
@@ -170,11 +170,14 @@ void main() {
       find.textContaining('Network activity goes through the Tor network.'),
       findsOneWidget,
     );
+    expect(
+      find.textContaining('Notifications are off while Tor is on.'),
+      findsOneWidget,
+    );
     expect(find.textContaining('Not over Tor'), findsNothing);
     await tester.tap(find.text('Close'));
     await tester.pumpAndSettle();
     expect(find.byType(InfoSheet), findsNothing);
-
 
     for (final word in ['Listener', 'listener', 'Advanced Tor']) {
       expect(find.textContaining(word), findsNothing);
@@ -237,12 +240,25 @@ void main() {
     expect(h.session.torStarts, hasLength(2));
   });
 
-  testWidgets('push is off while Tor is on', (tester) async {
+  testWidgets('notifications are not offered while Tor is on', (tester) async {
     final h = _Harness();
     await h.pump(tester);
+    // On the BT Labs relay, the only one that can push.
+    h.container
+        .read(walletConfigProvider.notifier)
+        .select(
+          const WalletConfig(
+            dataDir: '/fake/wallets/mainnet',
+            chain: Chain.mainnet,
+            nodeUrl: 'https://node.btlabs.uk',
+            epicboxDomain: 'flooepicbox.btlabs.uk',
+            epicboxPort: 443,
+          ),
+        );
+    await tester.pumpAndSettle();
     await _reach(tester, find.byKey(settingsPushKey));
     expect(_push(tester).onChanged, isNotNull);
-    expect(find.text('Off while Tor is on'), findsNothing);
+    expect(_push(tester).subtitle, isNull);
 
     await h.container.read(phoneTorProvider.notifier).setReceiving(true);
     await tester.pumpAndSettle();
@@ -250,7 +266,7 @@ void main() {
     await _reach(tester, find.byKey(settingsPushKey));
     expect(_push(tester).onChanged, isNull);
     expect(_push(tester).value, isFalse);
-    expect(find.text('Off while Tor is on'), findsOneWidget);
+    expect(find.text('Paused while Tor is on'), findsNothing);
   });
 
   testWidgets('opened for privacy, the Tor switch is in view', (tester) async {

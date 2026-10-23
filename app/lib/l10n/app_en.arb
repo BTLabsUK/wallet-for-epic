@@ -3304,22 +3304,6 @@
   "@settingsSectionNotifications": {
     "description": "Section heading in settings."
   },
-  "settingsPaymentNotifications": "Payment notifications",
-  "@settingsPaymentNotifications": {
-    "description": "Settings switch for push notifications about incoming payments."
-  },
-  "settingsPushHint": "Delivered by Google Firebase.",
-  "@settingsPushHint": {
-    "description": "Under the payment notifications switch. Google Firebase is a proper name."
-  },
-  "settingsPushOnNotice": "No epicbox server sends them yet. Open the app to receive a payment.",
-  "@settingsPushOnNotice": {
-    "description": "Notice after payment notifications are turned on. epicbox is the relay service that carries payments (a proper name)."
-  },
-  "settingsPushOffNotice": "Notifications stop the next time the app starts.",
-  "@settingsPushOffNotice": {
-    "description": "Notice after payment notifications are turned off."
-  },
   "settingsPushBlocked": "Notifications are blocked in system settings",
   "@settingsPushBlocked": {
     "description": "Under the payment notifications switch, in red, after the phone denied notification permission. No full stop, like the original."
@@ -7387,7 +7371,7 @@
   "@torNetworkLabel": {
     "description": "The one Tor switch (Settings › Privacy) and the status card’s Tor row: the label, with no description in the row."
   },
-  "torNetworkHint": "Network activity goes through the Tor network. Tor hides the wallet’s internet address: each connection passes through several volunteer-run relays, so no server learns where the wallet is.",
+  "torNetworkHint": "Network activity goes through the Tor network. Tor hides the wallet’s internet address: each connection passes through several volunteer-run relays, so no server learns where the wallet is. Notifications are off while Tor is on.",
   "@torNetworkHint": {
     "description": "Tooltip of the Tor Network switch and status row (its info icon): what the switch does and what Tor is, in plain words. Never list what does not go over Tor."
   },
@@ -7403,12 +7387,56 @@
   "@receiveDirectMeanwhile": {
     "description": "Caption under 'Direct receiving needs Tor.'"
   },
-  "settingsPushOffWhileTor": "Off while Tor is on",
-  "@settingsPushOffWhileTor": {
-    "description": "Caption under the disabled notifications switch while Tor is on."
-  },
   "netStatusOverTor": "over Tor",
   "@netStatusOverTor": {
     "description": "Status card: read out after a service whose connection goes through Tor."
+  },
+  "settingsNotifications": "Notifications",
+  "@settingsNotifications": {
+    "description": "The Notifications switch in Settings: the label only, its explanation is the info tooltip."
+  },
+  "settingsNotificationsHint": "Uses Google’s notification service. No sensitive data is shared.",
+  "@settingsNotificationsHint": {
+    "description": "Tooltip (info icon) of the Notifications switch."
+  },
+  "settingsPushPaused": "Paused while Tor is on",
+  "@settingsPushPaused": {
+    "description": "State line under the Notifications switch while it is on and Tor is on."
+  },
+  "pushConfirmRelayBody": "Notifications use the BT Labs Epicbox and Google’s notification service. No sensitive data is shared.",
+  "@pushConfirmRelayBody": {
+    "description": "Confirm when notifications are turned on while the wallet is on another Epicbox relay: only the BT Labs relay can push, and Google carries the notification."
+  },
+  "pushConfirmRelayAddress": "Your Epicbox address will change. Share the new one.",
+  "@pushConfirmRelayAddress": {
+    "description": "Second line of that confirm: the wallet is moved to the BT Labs relay, so its Epicbox address ends in @flooepicbox.btlabs.uk from now on."
+  },
+  "pushRelaySwitchFailed": "The relay could not be switched. Notifications stay off.",
+  "@pushRelaySwitchFailed": {
+    "description": "Notice when moving to the BT Labs relay for notifications was refused."
+  },
+  "pushConfirmTitle": "Turn on notifications?",
+  "@pushConfirmTitle": {
+    "description": "Title of the confirmation before notifications are turned on."
+  },
+  "pushConfirmBody": "Notifications use Google’s notification service. No sensitive data is shared.",
+  "@pushConfirmBody": {
+    "description": "Body of the confirmation before notifications are turned on."
+  },
+  "pushConfirmAction": "Turn on",
+  "@pushConfirmAction": {
+    "description": "The confirm button of the notifications dialog."
+  },
+  "pushNoticeOn": "Notifications on",
+  "@pushNoticeOn": {
+    "description": "Quiet notice once notifications work again after Tor was turned off."
+  },
+  "pushNoticeOff": "Notifications off",
+  "@pushNoticeOff": {
+    "description": "Notice after the user turned notifications off."
+  },
+  "pushNoticeAvailable": "Notifications are available in Settings.",
+  "@pushNoticeAvailable": {
+    "description": "One-time reminder, about a minute after the first unlock, that notifications exist."
   }
 }

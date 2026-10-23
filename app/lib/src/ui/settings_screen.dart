@@ -14,6 +14,9 @@ import '../price.dart';
 import '../phone_tor.dart';
 import '../providers.dart';
 import '../push.dart';
+import '../push_controller.dart';
+import '../push_registration.dart';
+import '../server_switch.dart';
 import '../settings.dart';
 import '../slate_files.dart';
 import '../smart_outputs.dart' show OutputLabel, outputWord;
@@ -269,14 +272,60 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     }
   }
 
+  /// On: one confirm, then the registration. Only the BT Labs relay can push, so a wallet on
+  /// another relay is told so, and that its Epicbox address changes, and is moved there live
+  /// first. Off never moves the relay back.
   Future<void> _setPushNotifications(bool on) async {
-    await _settings.setPushNotifications(on);
-    if (!mounted) return;
+    final push = ref.read(pushControllerProvider.notifier);
+    if (!on) return push.turnOff();
     final l = context.l10n;
-    _say(
-      on ? l.settingsPushOnNotice : l.settingsPushOffNotice,
-      level: NoticeLevel.info,
+    final config = ref.read(walletConfigProvider);
+    final moveRelay =
+        config != null && config.epicboxDomain != PushRegistration.relayHost;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l.pushConfirmTitle),
+        content: moveRelay
+            ? Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(l.pushConfirmRelayBody),
+                  const SizedBox(height: 12),
+                  Text(l.pushConfirmRelayAddress),
+                ],
+              )
+            : Text(l.pushConfirmBody),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text(l.commonCancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text(l.pushConfirmAction),
+          ),
+        ],
+      ),
     );
+    if (confirmed != true || !mounted) return;
+    if (moveRelay) {
+      try {
+        await switchServersLive(
+          ref,
+          nodeUrl: config.nodeUrl,
+          nodeApiSecret: config.nodeApiSecret,
+          relay: const EpicboxRelay(host: PushRegistration.relayHost),
+        );
+      } on WalletError catch (e) {
+        logWarn('push', 'relay switch refused: ${e.kind.name}');
+        if (mounted) _say(l.pushRelaySwitchFailed, level: NoticeLevel.error);
+        return;
+      }
+      if (!mounted) return;
+    }
+    await push.turnOn();
   }
 
   Future<void> _setBiometrics(bool on) async {
@@ -504,25 +553,23 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 if (!demo &&
                     (ref.watch(pushConfiguredProvider).value ?? false)) ...[
                   _Header(l.settingsSectionNotifications),
-                  // Off while Tor is on: a push registration would show this phone's address.
-                  if (torWay(TorRoute.push, torState) == TorWay.off)
-                    SwitchListTile(
-                      key: settingsPushKey,
-                      secondary: const Icon(Icons.notifications_outlined),
-                      title: Text(l.settingsPaymentNotifications),
-                      subtitle: Text(l.settingsPushOffWhileTor),
-                      value: false,
-                      onChanged: null,
-                    )
-                  else
-                    SwitchListTile(
-                      key: settingsPushKey,
-                      secondary: const Icon(Icons.notifications_outlined),
-                      title: Text(l.settingsPaymentNotifications),
-                      subtitle: _PushSubtitle(ref.watch(pushProvider)),
-                      value: s.pushNotifications,
-                      onChanged: _setPushNotifications,
+                  // Tor on pauses them (a registration would show this phone's address): turning
+                  // them off still works, turning them on is not offered.
+                  SwitchListTile(
+                    key: settingsPushKey,
+                    secondary: const Icon(Icons.notifications_outlined),
+                    title: TitleWithHint(
+                      l.settingsNotifications,
+                      hint: l.settingsNotificationsHint,
                     ),
+                    subtitle: _pushStateLine(l, ref.watch(pushProvider), s, torState),
+                    value: s.pushNotifications,
+                    onChanged:
+                        torWay(TorRoute.push, torState) == TorWay.off &&
+                            !s.pushNotifications
+                        ? null
+                        : _setPushNotifications,
+                  ),
                 ],
                 if (walletOpen) ...[
                   _Header(l.settingsSectionSecurity),
@@ -1069,31 +1116,21 @@ class _DeleteWalletDialogState extends State<DeleteWalletDialog> {
   }
 }
 
-/// The payment notifications hint, plus why the switch went back off when it did.
-class _PushSubtitle extends StatelessWidget {
-  const _PushSubtitle(this.push);
-
-  final PushState push;
-
-  @override
-  Widget build(BuildContext context) {
-    final l = context.l10n;
-    final problem = push.blocked
-        ? l.settingsPushBlocked
-        : push.unavailable
-        ? l.settingsPushUnavailable
-        : null;
-    if (problem == null) return Text(l.settingsPushHint);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(l.settingsPushHint),
-        const SizedBox(height: 4),
-        Text(
-          problem,
-          style: TextStyle(color: Theme.of(context).colorScheme.error),
-        ),
-      ],
-    );
+/// The Notifications row's state line, only when there is a state to say: paused by Tor, or
+/// why the switch went back off.
+Widget? _pushStateLine(
+  AppLocalizations l,
+  PushState push,
+  AppSettings settings,
+  TorState tor,
+) {
+  if (torWay(TorRoute.push, tor) == TorWay.off) {
+    return settings.pushNotifications ? Text(l.settingsPushPaused) : null;
   }
+  final problem = push.blocked
+      ? l.settingsPushBlocked
+      : push.unavailable
+      ? l.settingsPushUnavailable
+      : null;
+  return problem == null ? null : Text(problem);
 }

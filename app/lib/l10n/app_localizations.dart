@@ -4106,30 +4106,6 @@ abstract class AppLocalizations {
   /// **'Notifications'**
   String get settingsSectionNotifications;
 
-  /// Settings switch for push notifications about incoming payments.
-  ///
-  /// In en, this message translates to:
-  /// **'Payment notifications'**
-  String get settingsPaymentNotifications;
-
-  /// Under the payment notifications switch. Google Firebase is a proper name.
-  ///
-  /// In en, this message translates to:
-  /// **'Delivered by Google Firebase.'**
-  String get settingsPushHint;
-
-  /// Notice after payment notifications are turned on. epicbox is the relay service that carries payments (a proper name).
-  ///
-  /// In en, this message translates to:
-  /// **'No epicbox server sends them yet. Open the app to receive a payment.'**
-  String get settingsPushOnNotice;
-
-  /// Notice after payment notifications are turned off.
-  ///
-  /// In en, this message translates to:
-  /// **'Notifications stop the next time the app starts.'**
-  String get settingsPushOffNotice;
-
   /// Under the payment notifications switch, in red, after the phone denied notification permission. No full stop, like the original.
   ///
   /// In en, this message translates to:
@@ -9142,7 +9118,7 @@ abstract class AppLocalizations {
   /// Tooltip of the Tor Network switch and status row (its info icon): what the switch does and what Tor is, in plain words. Never list what does not go over Tor.
   ///
   /// In en, this message translates to:
-  /// **'Network activity goes through the Tor network. Tor hides the wallet’s internet address: each connection passes through several volunteer-run relays, so no server learns where the wallet is.'**
+  /// **'Network activity goes through the Tor network. Tor hides the wallet’s internet address: each connection passes through several volunteer-run relays, so no server learns where the wallet is. Notifications are off while Tor is on.'**
   String get torNetworkHint;
 
   /// Receive tab: receiving straight to this wallet at its onion address.
@@ -9163,17 +9139,83 @@ abstract class AppLocalizations {
   /// **'Senders use the Epicbox address meanwhile.'**
   String get receiveDirectMeanwhile;
 
-  /// Caption under the disabled notifications switch while Tor is on.
-  ///
-  /// In en, this message translates to:
-  /// **'Off while Tor is on'**
-  String get settingsPushOffWhileTor;
-
   /// Status card: read out after a service whose connection goes through Tor.
   ///
   /// In en, this message translates to:
   /// **'over Tor'**
   String get netStatusOverTor;
+
+  /// The Notifications switch in Settings: the label only, its explanation is the info tooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications'**
+  String get settingsNotifications;
+
+  /// Tooltip (info icon) of the Notifications switch.
+  ///
+  /// In en, this message translates to:
+  /// **'Uses Google’s notification service. No sensitive data is shared.'**
+  String get settingsNotificationsHint;
+
+  /// State line under the Notifications switch while it is on and Tor is on.
+  ///
+  /// In en, this message translates to:
+  /// **'Paused while Tor is on'**
+  String get settingsPushPaused;
+
+  /// Confirm when notifications are turned on while the wallet is on another Epicbox relay: only the BT Labs relay can push, and Google carries the notification.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications use the BT Labs Epicbox and Google’s notification service. No sensitive data is shared.'**
+  String get pushConfirmRelayBody;
+
+  /// Second line of that confirm: the wallet is moved to the BT Labs relay, so its Epicbox address ends in @flooepicbox.btlabs.uk from now on.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Epicbox address will change. Share the new one.'**
+  String get pushConfirmRelayAddress;
+
+  /// Notice when moving to the BT Labs relay for notifications was refused.
+  ///
+  /// In en, this message translates to:
+  /// **'The relay could not be switched. Notifications stay off.'**
+  String get pushRelaySwitchFailed;
+
+  /// Title of the confirmation before notifications are turned on.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on notifications?'**
+  String get pushConfirmTitle;
+
+  /// Body of the confirmation before notifications are turned on.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications use Google’s notification service. No sensitive data is shared.'**
+  String get pushConfirmBody;
+
+  /// The confirm button of the notifications dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on'**
+  String get pushConfirmAction;
+
+  /// Quiet notice once notifications work again after Tor was turned off.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications on'**
+  String get pushNoticeOn;
+
+  /// Notice after the user turned notifications off.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications off'**
+  String get pushNoticeOff;
+
+  /// One-time reminder, about a minute after the first unlock, that notifications exist.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications are available in Settings.'**
+  String get pushNoticeAvailable;
 }
 
 class _AppLocalizationsDelegate

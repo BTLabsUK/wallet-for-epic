@@ -50,6 +50,9 @@ class _Push implements PushPlatform {
   Future<String?> token() async => 'token';
 
   @override
+  Future<void> deleteToken() async {}
+
+  @override
   Stream<String> get tokenRefresh => const Stream.empty();
 
   @override
@@ -789,7 +792,6 @@ void main() {
           l.settingsNetworkAndNode,
           l.settingsRescan,
           l.settingsBiometrics,
-          l.settingsPaymentNotifications,
           l.settingsCheckUpdates,
           l.settingsBackupPhrase,
           l.settingsExportHistory,
@@ -802,6 +804,8 @@ void main() {
         ]) {
           expect(find.text(text), present, reason: text);
         }
+        // The row and its section header share the word.
+        expect(find.byKey(settingsPushKey), present);
         // What stays: display, contacts, help, and the other way out.
         for (final text in [
           l.settingsTheme,

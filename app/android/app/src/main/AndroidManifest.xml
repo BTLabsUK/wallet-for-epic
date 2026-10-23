@@ -1,4 +1,5 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
     <uses-permission android:name="android.permission.INTERNET"/>
     <!-- Network lost and regained (NetworkWatch.kt), so tor is refreshed or restarted. -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
@@ -64,6 +65,18 @@
                 <data android:mimeType="application/json"/>
             </intent-filter>
         </activity>
+        <!-- The firebase_messaging plugin's service, replaced by PaymentPushService, which extends
+             it and also shows the push service's "payment waiting" message. -->
+        <service
+            android:name="io.flutter.plugins.firebase.messaging.FlutterFirebaseMessagingService"
+            tools:node="remove"/>
+        <service
+            android:name=".PaymentPushService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+            </intent-filter>
+        </service>
         <receiver
             android:name=".InstallResultReceiver"
             android:exported="false"/>
