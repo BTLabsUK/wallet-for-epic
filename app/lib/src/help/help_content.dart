@@ -8,7 +8,8 @@ library;
 import '../../l10n/app_localizations.dart';
 
 /// One block of a topic's body. Inline, `**bold**` marks a term and `[[Settings › Node]]` a
-/// place in the app.
+/// place in the app. A translation writes a place as `[[translated label|Settings › Node]]`: what
+/// the reader sees, then the English place the link goes to.
 class HelpBlock {
   const HelpBlock.p(String text) : kind = HelpBlockKind.p, items = const [], _text = text;
   const HelpBlock.ol(this.items) : kind = HelpBlockKind.ol, _text = null;
@@ -26,16 +27,29 @@ class HelpBlock {
 
 enum HelpBlockKind { p, ol, ul }
 
-/// [text] in pieces: plain, a term (`**…**`) or a place (`[[…]]`), markers removed.
-List<({String text, bool term, bool place})> helpInline(String text) {
-  final out = <({String text, bool term, bool place})>[];
+/// One piece of [helpInline]: the [text] to show, and for a place the [target], the English place
+/// the link goes to (the text itself when the place has no `|`; empty for anything else).
+typedef HelpPiece = ({String text, bool term, bool place, String target});
+
+/// [text] in pieces: plain, a term (`**…**`) or a place (`[[…]]`, or `[[label|place]]`), markers
+/// removed.
+List<HelpPiece> helpInline(String text) {
+  final out = <HelpPiece>[];
   var pos = 0;
   for (final m in RegExp(r'\*\*(.+?)\*\*|\[\[(.+?)\]\]').allMatches(text)) {
-    if (m.start > pos) out.add((text: text.substring(pos, m.start), term: false, place: false));
-    out.add((text: m.group(1) ?? m.group(2)!, term: m.group(1) != null, place: m.group(2) != null));
+    if (m.start > pos) out.add((text: text.substring(pos, m.start), term: false, place: false, target: ''));
+    final place = m.group(2);
+    if (place != null) {
+      final bar = place.indexOf('|');
+      final label = bar < 0 ? place : place.substring(0, bar).trim();
+      final target = bar < 0 ? place : place.substring(bar + 1).trim();
+      out.add((text: label, term: false, place: true, target: target));
+    } else {
+      out.add((text: m.group(1)!, term: true, place: false, target: ''));
+    }
     pos = m.end;
   }
-  if (pos < text.length) out.add((text: text.substring(pos), term: false, place: false));
+  if (pos < text.length) out.add((text: text.substring(pos), term: false, place: false, target: ''));
   return out;
 }
 

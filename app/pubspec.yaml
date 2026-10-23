@@ -97,17 +97,21 @@ flutter:
   # Runs gen-l10n on pub get, run, build and test.
   generate: true
 
-  # The Protocol look (lib/src/ui/theme/). Both OFL 1.1; the licence texts are registered with
-  # LicenseRegistry in main.dart, so they show on the licences page.
+  # The Protocol look (lib/src/ui/theme/) and the Thai fallback. All OFL 1.1; the licence texts
+  # are registered with LicenseRegistry in main.dart, so they show on the licences page.
   assets:
     - assets/fonts/OFL-Montserrat.txt
     - assets/fonts/OFL-JetBrainsMono.txt
+    - assets/fonts/OFL-NotoSansThai.txt
     # Word lists for the password estimate, from zxcvbn-ts (MIT; NOTICE.txt has the notices).
     - assets/passwords/
     # Tor's licence; the tor binary itself ships beside the app (tools/fetch-tor.sh).
     - assets/licenses/tor.txt
     # Help illustrations (settings design, F20); drawn in the theme colours by HelpArt.
     - assets/help/
+    # Language flags (lipis/flag-icons, MIT; the licence is registered with the fonts', see
+    # lib/src/ui/theme/fonts.dart).
+    - assets/flags/
   fonts:
     # Display only: the balance, screen titles and section heads. Body text is the platform font.
     - family: Montserrat
@@ -119,6 +123,18 @@ flutter:
     - family: JetBrainsMonoNL
       fonts:
         - asset: assets/fonts/JetBrainsMonoNL-Regular.ttf
+    # Thai, as the fallback of every text style (thaiFallback in lib/src/ui/theme/fonts.dart):
+    # Montserrat, JetBrains Mono and the platform fonts on some systems have no Thai, and a
+    # system fallback may clip the marks above and below. Noto Sans Thai 2.002, hinted, OFL.
+    - family: NotoSansThai
+      fonts:
+        - asset: assets/fonts/NotoSansThai-Regular.ttf
+        - asset: assets/fonts/NotoSansThai-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/NotoSansThai-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/NotoSansThai-Bold.ttf
+          weight: 700
 
   # To add assets to your application, add an assets section, like this:
   # assets:

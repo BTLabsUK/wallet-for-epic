@@ -2,6 +2,7 @@ import '../../../app_info.dart';
 import '../../../app_version.dart';
 import '../../../tor_licence.dart' show torSourceNote;
 import '../../../ui/settings_screen.dart' show projectRepoUrl;
+import '../../../ui/theme/fonts.dart' show flagsLicenceNote;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -23,7 +24,8 @@ const licenceLines = [
   'Flutter and its Dart packages: BSD 3-Clause and similar permissive licences.',
   'LEPIC, the Epic Cash wallet library: Apache 2.0, with the Epic Cash secp256k1-zkp fork (CC0) and Rust crates under MIT or Apache 2.0, among them tokio, rustls, rusqlite and blake2.',
   'Tor: GNU General Public License, version 3. Its source is named below.',
-  'Fonts Montserrat and JetBrains Mono: SIL Open Font License 1.1.',
+  'Fonts Montserrat, JetBrains Mono and Noto Sans Thai: SIL Open Font License 1.1.',
+  flagsLicenceNote,
 ];
 
 class SettingsAboutScreen extends ConsumerStatefulWidget {

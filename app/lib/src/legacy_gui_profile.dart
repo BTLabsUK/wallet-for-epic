@@ -35,7 +35,7 @@ const List<(String app, String folder)> guiProfiles = [('6.0+', 'epic-desktop-wa
 
 /// The app's languages (`appLanguages` in l10n.dart). Kept here so this file needs no Flutter;
 /// a test checks they match.
-const List<String> appLanguageCodes = ['en', 'de', 'pl', 'ru', 'zh'];
+const List<String> appLanguageCodes = ['en', 'de', 'pl', 'ru', 'zh', 'th'];
 
 /// The app's language code for a GUI locale code, or null when the app has no such translation
 /// (bg, cz, fa, hi): the app then follows the system language.

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../ui/theme/fonts.dart' show thaiFallback;
 import 'tokens.dart';
 
 /// Material mapped onto the desktop tokens, so stock widgets (scrollbars, tooltips, text
@@ -34,6 +35,7 @@ ThemeData buildDeskTheme(Brightness brightness) {
     visualDensity: VisualDensity.standard,
     iconTheme: IconThemeData(size: Ctl.iconLg),
     materialTapTargetSize: MaterialTapTargetSize.padded,
+    fontFamilyFallback: thaiFallback,
     extensions: [c],
   );
   return base.copyWith(

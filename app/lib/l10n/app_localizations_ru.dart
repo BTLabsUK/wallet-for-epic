@@ -3226,7 +3226,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get licencesFonts =>
-      'Шрифты Montserrat и JetBrains Mono: SIL Open Font License 1.1.';
+      'Шрифты Montserrat, JetBrains Mono и Noto Sans Thai: SIL Open Font License 1.1.';
 
   @override
   String get licencesFull => 'Все тексты лицензий';
@@ -6000,6 +6000,9 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get helpEnglishOnly => 'Справка пока на английском.';
+
+  @override
+  String get helpLanguageLabel => 'Язык справки';
 
   @override
   String helpNoMatch(String query) {

@@ -3,6 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/tour.dart';
+import '../../../l10n.dart' show appLanguages;
+import '../../../ui/language_flag.dart';
 import '../../desk_l10n.dart';
 import '../../widgets/help_art.dart';
 import '../../widgets/kit.dart';
@@ -132,7 +134,7 @@ class _SettingsHelpScreenState extends ConsumerState<SettingsHelpScreen> {
   /// The topic open at the start for the screenshots.
   bool _openAtStart(HelpTopic t, int index) => switch (widget.arg) {
     HelpDemo.open => t.handshake,
-    HelpDemo.bottom => t.title == 'Tor',
+    HelpDemo.bottom => t.id == HelpId.tor,
     HelpAt(:final section, :final topic) => t.section == section && index == topic,
     _ => false,
   };
@@ -144,13 +146,14 @@ class _SettingsHelpScreenState extends ConsumerState<SettingsHelpScreen> {
     final searching = words.isNotEmpty;
     final confirmations = deskMinConfirmations(ref);
     final invoices = ref.watch(deskApiProvider).supportsInvoices;
-    final l = context.l10n;
-    final helpTopics = [...helpTopicsFor(confirmations), if (invoices) ...invoiceHelpTopics(l, confirmations)];
+    final lang = deskHelpLanguage(ref);
+    final lh = helpStrings(lang);
+    final helpTopics = [...helpTopicsFor(confirmations, lang: lang), if (invoices) ...invoiceHelpTopics(lh, confirmations)];
     // The invoices section goes before "When something goes wrong".
     final sections = <(HelpSection, Widget)>[
-      for (final s in helpSections) ...[
+      for (final s in localizedHelpSections(lang)) ...[
         if (s.id == 'trouble' && invoices)
-          ((id: invoiceHelpSection, title: invoiceHelpTitle(l), lede: invoiceHelpLede(l), art: ''), InvoiceHelpMark(width: 120.u)),
+          ((id: invoiceHelpSection, title: invoiceHelpTitle(lh), lede: invoiceHelpLede(lh), art: ''), InvoiceHelpMark(width: 120.u)),
         (s, HelpArt(s.art, width: 120.u)),
       ],
     ];
@@ -168,21 +171,31 @@ class _SettingsHelpScreenState extends ConsumerState<SettingsHelpScreen> {
               children: [
                 const _SupportBar(),
                 SizedBox(height: Sp.x5),
-                EField(
-                  label: 'Search help',
-                  help: 'Press / to search. Esc clears the search.',
-                  child: CallbackShortcuts(
-                    bindings: {const SingleActivator(LogicalKeyboardKey.escape): _clear},
-                    child: EInput(
-                      controller: _query,
-                      focusNode: _focus,
-                      hint: 'For example: file, confirmations, phrase',
-                      leading: EIcons.search,
-                      semanticLabel: 'Search help',
-                      onChanged: (_) => setState(() {}),
-                      trailing: _query.text.isEmpty ? null : EIconButton(icon: EIcons.close, label: 'Clear search', onPressed: _clear),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Expanded(
+                      child: EField(
+                        label: 'Search help',
+                        help: 'Press / to search. Esc clears the search.',
+                        child: CallbackShortcuts(
+                          bindings: {const SingleActivator(LogicalKeyboardKey.escape): _clear},
+                          child: EInput(
+                            controller: _query,
+                            focusNode: _focus,
+                            hint: 'For example: file, confirmations, phrase',
+                            leading: EIcons.search,
+                            semanticLabel: 'Search help',
+                            onChanged: (_) => setState(() {}),
+                            trailing: _query.text.isEmpty ? null : EIconButton(icon: EIcons.close, label: 'Clear search', onPressed: _clear),
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
+                    SizedBox(width: Sp.x3),
+                    // Level with the field, above its one-line hint.
+                    Padding(padding: EdgeInsets.only(bottom: 24.u), child: _HelpLanguageSwitch(current: lang)),
+                  ],
                 ),
                 if (!searching) ...[
                   SizedBox(height: Sp.x3),
@@ -237,6 +250,29 @@ class _SettingsHelpScreenState extends ConsumerState<SettingsHelpScreen> {
       ),
     );
   }
+}
+
+/// The help language: its flag and own name, and a menu of the app's languages. It changes only
+/// the language of the topics, and is remembered.
+class _HelpLanguageSwitch extends ConsumerWidget {
+  const _HelpLanguageSwitch({required this.current});
+
+  final String current;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) => SizedBox(
+    width: 168.u,
+    child: ESelect<String>(
+      size: EBtnSize.sm,
+      semanticLabel: context.l10n.helpLanguageLabel,
+      value: current,
+      items: [for (final a in appLanguages) ESelectItem(a.code, a.name, leading: LanguageFlag(a.code, height: 14))],
+      onChanged: (code) {
+        final n = ref.read(deskProvider.notifier);
+        n.saveSettings(ref.read(deskProvider).settings.copyWith(helpLanguage: () => code));
+      },
+    ),
+  );
 }
 
 /// Report a problem, first on the page.

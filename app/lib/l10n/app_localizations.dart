@@ -9,6 +9,7 @@ import 'app_localizations_de.dart';
 import 'app_localizations_en.dart';
 import 'app_localizations_pl.dart';
 import 'app_localizations_ru.dart';
+import 'app_localizations_th.dart';
 import 'app_localizations_zh.dart';
 
 // ignore_for_file: type=lint
@@ -101,6 +102,7 @@ abstract class AppLocalizations {
     Locale('de'),
     Locale('pl'),
     Locale('ru'),
+    Locale('th'),
     Locale('zh'),
   ];
 
@@ -4655,7 +4657,7 @@ abstract class AppLocalizations {
   /// Licences screen: one line for the bundled fonts. Keep the font names as they are.
   ///
   /// In en, this message translates to:
-  /// **'Fonts Montserrat and JetBrains Mono: SIL Open Font License 1.1.'**
+  /// **'Fonts Montserrat, JetBrains Mono and Noto Sans Thai: SIL Open Font License 1.1.'**
   String get licencesFonts;
 
   /// Licences screen button that opens the full texts of every licence (Flutter’s licence page).
@@ -9085,6 +9087,12 @@ abstract class AppLocalizations {
   /// **'Help is in English for now.'**
   String get helpEnglishOnly;
 
+  /// Label and tooltip of the switch at the top of Help that picks the language of the help topics only, not the app's (e.g. 'Help language: Deutsch'). Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Help language'**
+  String get helpLanguageLabel;
+
   /// Help search with no result. {query} is what was typed.
   ///
   /// In en, this message translates to:
@@ -9396,8 +9404,14 @@ class _AppLocalizationsDelegate
   }
 
   @override
-  bool isSupported(Locale locale) =>
-      <String>['de', 'en', 'pl', 'ru', 'zh'].contains(locale.languageCode);
+  bool isSupported(Locale locale) => <String>[
+    'de',
+    'en',
+    'pl',
+    'ru',
+    'th',
+    'zh',
+  ].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
@@ -9414,6 +9428,8 @@ AppLocalizations lookupAppLocalizations(Locale locale) {
       return AppLocalizationsPl();
     case 'ru':
       return AppLocalizationsRu();
+    case 'th':
+      return AppLocalizationsTh();
     case 'zh':
       return AppLocalizationsZh();
   }
