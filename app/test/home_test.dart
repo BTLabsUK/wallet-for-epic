@@ -3235,7 +3235,7 @@ void main() {
         );
         handle.dispose();
       },
-      skip: true,
+      
     );
 
     testWidgets('the balance tiles: each pending balance, then Total', (

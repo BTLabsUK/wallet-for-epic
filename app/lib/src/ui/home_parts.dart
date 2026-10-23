@@ -214,6 +214,8 @@ class _BalanceTile extends StatelessWidget {
       container: true,
       button: onTap != null,
       label: semanticsLabel,
+      // The action for screen readers too, since the tree below is excluded.
+      onTap: onTap,
       excludeSemantics: true,
       child: Material(
         color: t.surface,
@@ -362,6 +364,7 @@ class _DestinationTile extends StatelessWidget {
       container: true,
       button: true,
       label: badge > 0 ? '$label, $badge' : label,
+      onTap: onTap,
       excludeSemantics: true,
       child: Material(
         color: t.surface,
