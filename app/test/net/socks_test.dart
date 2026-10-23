@@ -82,52 +82,52 @@ class _FakeSocks {
 }
 
 const _cert = """-----BEGIN CERTIFICATE-----
-MIIDNDCCAhygAwIBAgIUCmbARxfqOWb/0eiVT5JCgcjM9f4wDQYJKoZIhvcNAQEL
-BQAwGzEZMBcGA1UEAwwQc3RhdHVzLmJ0bGFicy51azAeFw0yNjEwMjMxNDI5Mzla
-Fw0zNjEwMjAxNDI5MzlaMBsxGTAXBgNVBAMMEHN0YXR1cy5idGxhYnMudWswggEi
-MA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQC1cip4Tgx/7oe6GNysDUwrg+nF
-6var156ypcFRAiUY+B8+GHpihH2vUOS7YqnGLTP1dIDAiYpHN270fTFPHlx559lA
-1IMmCGc+vwle20zO2eOUieFl4Oh+EGWBdJthBub8wSbCJjhgUKVogOjkPGnd5MFn
-JiXYyQ0NsncDrTR7eutpe0nxhLNK8yX9SRuMwTBrgQCkmGT4B8LBmlByiT+oiZJD
-KoCchd7iMMI0ouj7/tp2V1NZ18dNo5f63E3ZkZ1VETTK/cxf2UO4ltpDenYemJij
-kX1BocuJQMPGcKXl776P7ACz/k5tb7mkKPnIJ9WyXCha5iDXVAgD2FkBJiHxAgMB
-AAGjcDBuMB0GA1UdDgQWBBTICcsrQK7w1ccRJNzTGtff5OacOTAfBgNVHSMEGDAW
-gBTICcsrQK7w1ccRJNzTGtff5OacOTAPBgNVHRMBAf8EBTADAQH/MBsGA1UdEQQU
-MBKCEHN0YXR1cy5idGxhYnMudWswDQYJKoZIhvcNAQELBQADggEBAHQFYU5gf/WQ
-5AK3W2ExlFwl0vXtfGLWUp7fGI2waHbhR0yakpvGzuxWYrIFHglEwr4diZ8wynRf
-Vtd4YrGGl4Kx5ipkKVBl4ehOPoi4mFpzKcx88gYQ06UByBWFhdMYqSzIcv6U5uek
-wxILooZY+5AjSfF/wEsFe2EdwrMfvyfbEamQ9ZyEd5xghiRu80SvQ3NmP/cI/UeB
-rqJAQEvOFzkik/PwCwQp6cP9wtT1B8XPq1useAEWSASM2+LrFUpVXOJKRsUnhQ1q
-CMKGtfuuFgT7DfqbByqvYEQxi2eDJy2/LjudhTyU9bGm05LzrKaWvM7q29VKKmKK
-1Aonc9naYSY=
+MIIDNDCCAhygAwIBAgIUaTlGlT0RcbXbyztMRD4kGyFb0GUwDQYJKoZIhvcNAQEL
+BQAwGzEZMBcGA1UEAwwQbm9kZS5leGFtcGxlLm9yZzAeFw0yNjEwMjMxNDQ1MDBa
+Fw0zNjEwMjAxNDQ1MDBaMBsxGTAXBgNVBAMMEG5vZGUuZXhhbXBsZS5vcmcwggEi
+MA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDlKYKr/z8fJGtI+TheqmQuDoEp
+RCiLqn5xNlSK5qoF49Y3JyLs4IM8zJrqnZKRl0JuVvjcoqLc75xokzicfSFAC0r7
+fr98aXubZes9/+7aeUzRJrdsEPnsacecBMiewkiKDvjDthbWUhhC9LUIN5a+RPdL
+HnLJ0j+Uxl9+Z2lr6e1iuZe6r0M7JRwGx3bRbQlbYgwwaD4DV7bJmEe0ymCBg8rs
+lpeePS/xAHXvZ5QtVW1xy0f5EMNqeh2NYG0gNui+MWHhtGjsyGXgFtEmcwq9Cewb
+YZ6gNn98DXPEee/5ymFpNDIK872EUfdPWIT6HYhV5Mo589X2Os0XhisVD8l5AgMB
+AAGjcDBuMB0GA1UdDgQWBBTbf3eMfh32C/7eV0dY3toP2/zFATAfBgNVHSMEGDAW
+gBTbf3eMfh32C/7eV0dY3toP2/zFATAPBgNVHRMBAf8EBTADAQH/MBsGA1UdEQQU
+MBKCEG5vZGUuZXhhbXBsZS5vcmcwDQYJKoZIhvcNAQELBQADggEBAOPo7POn0AsH
++qBm7B8VzLUvUBl5aaWVPX63laEEccWN9WTrLmpyMjV4/A4cXF1He6VQoYt+MBMz
+sp77+aOLAefZScFCB1Z1LEXsJl71C04f0RYB5F8rHp6wAH2K8V3O/Dp0RC8Qs9wv
+w8wPUZ1BFdF18AEIVfLJ7MQ0LKM19xx8dSkL2yjFtpHhhIoG0wQSYj6JyMJ6t83s
+gsEqEPoY5Odk2/mUVm9l5bU2UxIasvJhwxRjtZUtXW8F+BEYYCNKdEXP9XJCSF06
+T3wNK75vfSRTe/GKW0kvOIjSxfEag8u0gb/GoRkxrbsaCihs7hFha7LqnZ/6Dbij
+qn27Lt4VUC0=
 -----END CERTIFICATE-----""";
 const _key = """-----BEGIN PRIVATE KEY-----
-MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC1cip4Tgx/7oe6
-GNysDUwrg+nF6var156ypcFRAiUY+B8+GHpihH2vUOS7YqnGLTP1dIDAiYpHN270
-fTFPHlx559lA1IMmCGc+vwle20zO2eOUieFl4Oh+EGWBdJthBub8wSbCJjhgUKVo
-gOjkPGnd5MFnJiXYyQ0NsncDrTR7eutpe0nxhLNK8yX9SRuMwTBrgQCkmGT4B8LB
-mlByiT+oiZJDKoCchd7iMMI0ouj7/tp2V1NZ18dNo5f63E3ZkZ1VETTK/cxf2UO4
-ltpDenYemJijkX1BocuJQMPGcKXl776P7ACz/k5tb7mkKPnIJ9WyXCha5iDXVAgD
-2FkBJiHxAgMBAAECggEADWGvbX1JbAtKH0NuIueS0ogWru4L5dMvymUcbhOxFg0B
-NjHVSia9+OFdEnoi+JFPillelX859NP1xDo8xLpXKkvFuK5I7dPOKXvVU8BAreYL
-5AyMfwL999jQY6JsmH9LJyDnnDH4E8Je2zzb8C6JxZT1XodwYHM+GeCA6S3WTQo9
-P4xei8EShF1e71rUDzOPgM33tFSL8VHnWgNcO4uK1/7ALu4XPZZAVSXaeqgZkWWa
-n1Ws3U+7dG8k4y9Ru8UfRt1SVUwE+4jP+neV9izxtXZKPhYki6vLqCjEobtTh1Tn
-wtgkpZIGQRhmSVpMvorhz0x8XhsI+t1uDrb16UPJQQKBgQDaKTfU25upTx5Yh1aj
-SvO7AMVXUnObms4I1FYHQuz4BLTGHpIfLE8LaJjpcqr7Rb/QXwCY/qKUJXeu8rVD
-qauRovqyAGVdop6UOif44ERORGVOMHsIY68+4CFnWQBh8z01Pgdr6rGS893oaSWC
-IHAJ4nqv9HtW/aeZWzpgdDXbdQKBgQDU6roPUIuzC02Z3oN8LMcZzXQYf1PgSaLq
-YIRuiBwwSfzmiWRJ8E/LdL7rcfW6OIPAmI8SnX0xPcj4qCsEO4qASoa7/ydjrOQz
-c5SjyJw1bOEsssRlqHgzC52o2RESlaq+3RdiaeQU7WNhssFTc+bzvQtvyc/lJoXA
-/qZXc+tpDQKBgBqHAov2fDIVNcpsAoPunD5z9IsOspIMO9tk/mT5pVjvMZAZrYju
-2Vm4yUcxs0rEi3Np6eewptI+0BPM3W+x1PPrjnJQjALbwE6j17Jyiru9o1fjm0JE
-5M1PcaBgeSRv8FRmC3761cbZsnUNPAtbqGP7TxHQN6M3SsbiCfIqj1X1AoGBAKfb
-9pwkUD7z5lYsy1SWqNF63NCDcckdxMcrGL1bqX2Ylz3Zi6uPPhmVDP/qdGRAMf8h
-R4rRhuXPZCZFzsQjfOnv15FXc+JtZ+v4b3NAsYadNFldBuFulHUJ714y4/bW8CpR
-fCImgZ7OGM/pcektMyNuIxoa7UAnwsOI//NqfGnxAoGALtDUG5h35v2ch34XBLiy
-3g4/XyhTTiuJuW6xafKtgNO7C/HLut4fEhXSBfyYomqJKbNFYu3EkPaWE830wXU2
-qp3CeaZVxctr7Xy26nG8DlduwYmFdUAoU6qaZiRgNYU8w5Au0g2aNjXfW91eQ9lO
-8ZfB6DolWUnykCpKVHya0W8=
+MIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQDlKYKr/z8fJGtI
++TheqmQuDoEpRCiLqn5xNlSK5qoF49Y3JyLs4IM8zJrqnZKRl0JuVvjcoqLc75xo
+kzicfSFAC0r7fr98aXubZes9/+7aeUzRJrdsEPnsacecBMiewkiKDvjDthbWUhhC
+9LUIN5a+RPdLHnLJ0j+Uxl9+Z2lr6e1iuZe6r0M7JRwGx3bRbQlbYgwwaD4DV7bJ
+mEe0ymCBg8rslpeePS/xAHXvZ5QtVW1xy0f5EMNqeh2NYG0gNui+MWHhtGjsyGXg
+FtEmcwq9CewbYZ6gNn98DXPEee/5ymFpNDIK872EUfdPWIT6HYhV5Mo589X2Os0X
+hisVD8l5AgMBAAECggEABpIKlvtpIn6+8Pg4FvN3+Bg1MX3wcVC3TI5Gd69t4I1b
+FKX7FiNfcr5aIc4Uq9yuoQtFzuvJ5jnnmENJw006sLY4xGPQTXjkEt1EDTGejMI9
+l7guWETAkuGKQX2FYwuuETv/e5lJp8AuIATdj7AqOGtP6fUcmERRUxQbHJcOOZHQ
+4H3u8Y+aoBiTjm+QobwsMGTZvBnqUEqnnjCtuxrftD8RBhFQDf7d+UoOr+Rki3ro
+/8yyzv7k8YRtCuGfzMWCHeREqfGc4PP7og6vmc+pUjmOI7CrB3F8V2OXYFjRpKT+
+NVslymNqDKQMGFkZT9B9ur9N2pLCmLlux/jdpN7UIQKBgQD2FMXcX/9qlSuQHbaM
+eRHvZiCGVCJD/NpHoCM/VHj3b6ol6t71nl0f8ffa7b88yrveBv2+cs6zuglb9kU9
+fnLMCUNOshWsi68mJcfjRQGdo9XB6aL/YDzIkZAjFB/ichAGZbCA9EgExWz8luer
+QsJ7bu46XkqrryvHeU+eBxZyWwKBgQDuZif+/1UiWqfRm1JPBDoskc31it3RZerS
+a7VxtcLkF7lBUWk5E/YGbBWPM1+svF33fJ6CGNfNuc59+25b5UIdp24UU8H3NI0u
+G4HM/MqQbHpyPz4PLLQmaofenBDScZpLoJjOBK72vBONg/6iAawql/8SMuXhWydj
+SXDVTACTuwKBgQCizHld4xCaFZfdXxru8gXgiIMJ+000B2rtKc9HzX29zN0W+ryI
+aD2Zrb3Y06LJ+CGzsJJcVZ3UH0aj1VhXZ3lQ7Ovfe0eFgF/eb+4+t99qyAHZqNTR
++HweANcHrf+uEuHxKYNMvM+MgIQq0zbvAVqiyG/Io6rozBm9fM8kb/H0swKBgQCV
+n3ACzuXzxcoF9+HUzeZlCq2lKh7FyZ1zqz4Zu+YxmeIfaKUNucVzimqNkcS+eQrQ
+xVoGdOkcqT08PI2rB1xTmD2ybE8Ug9sH0SPKL+5CbpL7GU4t3/TBF6Nmx7SXH82j
+IYxF4RKesLPk4a7ypvITWYoxNdipc7hozDMQ676A+QKBgQDFmUFr76K9VBWGtX8P
+NJFV4Rb3yc2q1VasRCEmJXklVFN6LwWitLeM4z056N6bkmfxQeMz+tKX7tkHh4wq
+f7+caxWWqfUGQ5KP5n2evI6yVlsAFhzblEgubHsBmfSWMlz6XTQ/07BGXnur2GTs
+0RyeFM7vZev7nq1Rhz3uWlcMyw==
 -----END PRIVATE KEY-----""";
 
 void main() {
@@ -211,7 +211,7 @@ void main() {
       r.response.write('secret');
       r.response.close();
     });
-    final socks = await _FakeSocks.start({'status.btlabs.uk': tls.port});
+    final socks = await _FakeSocks.start({'node.example.org': tls.port});
     addTearDown(socks.close);
     final trust = SecurityContext(withTrustedRoots: false)..setTrustedCertificatesBytes(utf8.encode(_cert));
     final client = HttpClient()
@@ -219,10 +219,10 @@ void main() {
       ..findProxy = ((_) => 'DIRECT')
       ..connectionFactory = socksConnectionFactory(socks.proxy, context: trust);
     addTearDown(() => client.close(force: true));
-    final req = await client.getUrl(Uri.https('status.btlabs.uk', '/'));
+    final req = await client.getUrl(Uri.https('node.example.org', '/'));
     final res = await req.close();
     expect(await utf8.decodeStream(res), 'secret');
-    expect(socks.connects.single, (atyp: 3, host: 'status.btlabs.uk', port: 443, user: socks.connects.single.user));
+    expect(socks.connects.single, (atyp: 3, host: 'node.example.org', port: 443, user: socks.connects.single.user));
   });
 
   test('a refused CONNECT is a NetError', () async {
