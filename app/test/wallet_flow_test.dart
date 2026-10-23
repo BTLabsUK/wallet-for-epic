@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:epic_wallet/src/demo.dart';
 import 'package:epic_wallet/src/app.dart';
 import 'package:epic_wallet/src/network.dart';
 import 'package:epic_wallet/src/price.dart';
@@ -93,6 +94,8 @@ Future<void> _pumpApp(
     ProviderScope(
       retry: (_, _) => null,
       overrides: [
+        // The network picker is for development builds; this flow picks Usernet.
+        devNetworksProvider.overrideWithValue(true),
         walletServiceProvider.overrideWithValue(service),
         walletDirProvider.overrideWithValue(
           (chain) async => '/fake/wallets/${chain.name}',
@@ -402,7 +405,7 @@ void main() {
     ) async {
       final service = FakeWalletService();
       await _pumpApp(tester, service, _Device());
-      await _tap(tester, find.bySemanticsLabel('Network settings'));
+      await _tap(tester, find.bySemanticsLabel('Node and Epicbox'));
       await _tapText(tester, 'Usernet');
       final urlField = tester.widget<TextField>(
         find.widgetWithText(TextField, 'Node URL'),
@@ -425,7 +428,7 @@ void main() {
     final service = FakeWalletService();
     final device = _Device();
     await _pumpApp(tester, service, device);
-    await _tap(tester, find.bySemanticsLabel('Network settings'));
+    await _tap(tester, find.bySemanticsLabel('Node and Epicbox'));
 
     await _reveal(tester, find.text('epicbox.epicnet.us'));
     expect(find.text('epicbox.epicnet.us'), findsOneWidget);
@@ -602,7 +605,6 @@ void main() {
       for (final (kind, label, value) in [
         (BalanceKind.confirming, 'Confirming', '1'),
         (BalanceKind.locked, 'Locked in sends', '2'),
-        (BalanceKind.immature, 'Rewards maturing', '0.5'),
         (BalanceKind.total, 'Total', '16'),
       ]) {
         // The row builds the tiles near the edge only: drag until this one is there.

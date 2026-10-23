@@ -2,7 +2,7 @@
 # Builds the Android release from the checkout: LEPIC at the pin (tools/lepic.rev), the
 # arm64-v8a APK (the one phone download; no universal APK), copies it to an output dir with its
 # release name, writes SHA256SUMS and verifies it (signing cert, package, version, label,
-# LEPIC library, Tor's libtor.so and licence, 16 KB-aligned ELF segments, no Firebase config). The signing key is the release key named by
+# LEPIC library, Tor's libtor.so and licence, 16 KB-aligned ELF segments, the Firebase config of the package). The signing key is the release key named by
 # WFE_ANDROID_KEY_PROPERTIES (default ~/.config/btlabs/android/key.properties, never in a
 # repository); without it the build stops (android/app/build.gradle.kts, README "Release signing").
 #
@@ -20,9 +20,13 @@ app_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 # shellcheck source=../../tools/env.sh
 . "$app_dir/../tools/env.sh"
 
-version=0.1.1
-want_package=com.blacktyger.epicwallet
-want_label="Epic Wallet"
+# pubspec.yaml's version and build number (https://docs.btlabs.uk/developers/releases/); every APK carries that build
+# number as its versionCode, with no ABI offset (android/gradle.properties).
+"$app_dir/../tools/version.sh" check >/dev/null || { "$app_dir/../tools/version.sh" check; exit 1; }
+version="$("$app_dir/../tools/version.sh" name)"
+want_code="$("$app_dir/../tools/version.sh" code)"
+want_package=com.blacktyger.epiccashmobile
+want_label="Epic Cash Mobile"
 # The release certificate. 0.1.0 (build 1) was signed with this host's debug key
 # (5fdcc602...259d0e); later builds never are.
 want_cert=59e4c290f3922d8e7d3b189eb98e7002dc50754c52d612ea91e82386390ec0aa
@@ -38,8 +42,13 @@ aapt2="$bt/aapt2" apksigner="$bt/apksigner" zipalign="$bt/zipalign"
 readelf="$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-readelf"
 [[ -x "$readelf" ]] || { echo "llvm-readelf not found in $ANDROID_NDK_HOME" >&2; exit 1; }
 
-[[ ! -e "$app_dir/android/app/google-services.json" ]] \
-  || { echo "android/app/google-services.json exists: releases ship without Firebase" >&2; exit 1; }
+# Releases include Firebase (push notifications, off by default and while Tor is on). The config
+# is git-ignored; BT Labs keeps it in ~/.config/btlabs/fcm/google-services.json.
+services="$app_dir/android/app/google-services.json"
+[[ -f "$services" ]] \
+  || { echo "android/app/google-services.json is missing: copy ~/.config/btlabs/fcm/google-services.json" >&2; exit 1; }
+grep -q "\"package_name\": *\"$want_package\"" "$services" \
+  || { echo "android/app/google-services.json has no client for $want_package" >&2; exit 1; }
 
 cd "$app_dir"
 flutter pub get
@@ -49,7 +58,7 @@ flutter pub get
 
 apks="$app_dir/build/app/outputs/flutter-apk"
 mkdir -p "$out_dir"
-rm -f "$out_dir"/epic-wallet-$version-*.apk "$out_dir/SHA256SUMS" "$out_dir"/emulator/epic-wallet-$version-*.apk
+rm -f "$out_dir"/epic-cash-mobile-$version-*.apk "$out_dir/SHA256SUMS" "$out_dir"/emulator/epic-cash-mobile-$version-*.apk
 
 emulator=()
 [[ "${WFE_EMULATOR_X86_64:-}" == 1 ]] && emulator=(x86_64)
@@ -57,11 +66,11 @@ platforms=android-arm64
 [[ ${#emulator[@]} -gt 0 ]] && platforms=android-arm64,android-x64
 flutter build apk --release --target-platform "$platforms" --split-per-abi \
   --dart-define=WFE_BUILD_ID="$build_id"
-cp "$apks/app-arm64-v8a-release.apk" "$out_dir/epic-wallet-$version-arm64-v8a.apk"
-(cd "$out_dir" && sha256sum epic-wallet-$version-*.apk >SHA256SUMS)
+cp "$apks/app-arm64-v8a-release.apk" "$out_dir/epic-cash-mobile-$version-arm64-v8a.apk"
+(cd "$out_dir" && sha256sum epic-cash-mobile-$version-*.apk >SHA256SUMS)
 if [[ ${#emulator[@]} -gt 0 ]]; then
   mkdir -p "$out_dir/emulator"
-  cp "$apks/app-x86_64-release.apk" "$out_dir/emulator/epic-wallet-$version-x86_64.apk"
+  cp "$apks/app-x86_64-release.apk" "$out_dir/emulator/epic-cash-mobile-$version-x86_64.apk"
 fi
 
 fail=0
@@ -69,9 +78,9 @@ check() { # description, condition result (0 = ok)
   if [[ "$2" == 0 ]]; then echo "  ok   $1"; else echo "  FAIL $1"; fail=1; fi
 }
 shopt -s nullglob
-for apk in "$out_dir"/epic-wallet-$version-*.apk "$out_dir"/emulator/epic-wallet-$version-*.apk; do
+for apk in "$out_dir"/epic-cash-mobile-$version-*.apk "$out_dir"/emulator/epic-cash-mobile-$version-*.apk; do
   name="$(basename "$apk")"
-  abi="${name#epic-wallet-$version-}"; abi="${abi%.apk}"
+  abi="${name#epic-cash-mobile-$version-}"; abi="${abi%.apk}"
   echo "$name"
   certs="$("$apksigner" verify --print-certs "$apk")"
   grep -q "certificate SHA-256 digest: $want_cert" <<<"$certs" && r=0 || r=1
@@ -82,6 +91,13 @@ for apk in "$out_dir"/epic-wallet-$version-*.apk "$out_dir"/emulator/epic-wallet
   head1="${badging%%$'\n'*}"
   grep -q "name='$want_package'" <<<"$head1" && r=0 || r=1; check "package $want_package" $r
   grep -q "versionName='$version'" <<<"$head1" && r=0 || r=1; check "versionName $version" $r
+  # The published arm64-v8a APK carries exactly the derived code; the emulator's never more.
+  code="$(sed -n "s/.*versionCode='\([0-9]*\)'.*/\1/p" <<<"$head1")"
+  if [[ "$abi" == arm64-v8a ]]; then
+    [[ "$code" == "$want_code" ]] && r=0 || r=1; check "versionCode $code = $want_code" $r
+  else
+    [[ -n "$code" ]] && (( code <= want_code )) && r=0 || r=1; check "versionCode $code <= $want_code" $r
+  fi
   echo "       $head1"
   grep -q "^application-label:'$want_label'" <<<"$badging" && r=0 || r=1; check "label $want_label" $r
   libs="$(unzip -Z1 "$apk")"
@@ -113,12 +129,12 @@ for apk in "$out_dir"/epic-wallet-$version-*.apk "$out_dir"/emulator/epic-wallet
   grep -q 'extractNativeLibs.*=true' <<<"$manifest" && r=0 || r=1
   check "manifest extractNativeLibs=true" $r
   grep -qiE 'google-services|firebase|google_app_id' <<<"$("$aapt2" dump resources "$apk" 2>/dev/null | grep -iE 'google_app_id|firebase_database_url|gcm_defaultSenderId' || true)" \
-    && r=1 || r=0
-  check "no Firebase config" $r
+    && r=0 || r=1
+  check "Firebase config" $r
 done
 # The phone download is arm64-v8a only.
-published="$(cd "$out_dir" && ls epic-wallet-$version-*.apk)"
-[[ "$published" == "epic-wallet-$version-arm64-v8a.apk" ]] && r=0 || r=1
+published="$(cd "$out_dir" && ls epic-cash-mobile-$version-*.apk)"
+[[ "$published" == "epic-cash-mobile-$version-arm64-v8a.apk" ]] && r=0 || r=1
 check "only the arm64-v8a APK is published ($published)" $r
 echo "SHA256SUMS:"; cat "$out_dir/SHA256SUMS"
 [[ $fail == 0 ]] || { echo "verification FAILED" >&2; exit 1; }

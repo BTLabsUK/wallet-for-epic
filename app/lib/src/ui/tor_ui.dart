@@ -144,10 +144,13 @@ class TorSwitchTile extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        SwitchListTile(
+        HintSwitchTile(
           key: torReceivingSwitchKey,
-          secondary: const Icon(torIcon),
-          title: TitleWithHint(l.torNetworkLabel, hint: l.torNetworkHint),
+          icon: torIcon,
+          title: l.torNetworkLabel,
+          hint: l.torNetworkHint,
+          sheetTitle: l.torNetworkLabel,
+          sheetIcon: torIcon,
           subtitle: switch (state) {
             TorState.failed || TorState.starting => Semantics(
               key: torStatusKey,

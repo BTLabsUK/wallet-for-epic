@@ -131,7 +131,7 @@ void main() {
         final start = make();
         expect(start.store.values['app.advanced'], isNull);
         await _pump(tester, start);
-        final button = find.widgetWithText(TextButton, 'Network settings');
+        final button = find.widgetWithText(TextButton, 'Node and Epicbox');
         expect(button, findsOneWidget);
         expect(
           find.descendant(
@@ -154,18 +154,18 @@ void main() {
 
       // The label stays while the measured button fits the width less 72 dp, for a back
       // arrow and the inset. German keeps it on 320 dp up to 1.3 and gives way at 2.0;
-      // English keeps it on 360 dp even at 2.0.
+      // on 360 dp both languages keep it even at 2.0.
       const narrow = Size(960, 2080);
       const usual = Size(1080, 2340);
       for (final (language, label, physicalSize, scale, labelled) in [
-        ('de', 'Netzwerkeinstellungen', usual, 1.0, true),
-        ('de', 'Netzwerkeinstellungen', usual, 1.3, true),
-        ('de', 'Netzwerkeinstellungen', narrow, 1.0, true),
-        ('de', 'Netzwerkeinstellungen', narrow, 1.3, true),
-        ('en', 'Network settings', usual, 1.3, true),
-        ('en', 'Network settings', usual, 2.0, true),
-        ('de', 'Netzwerkeinstellungen', narrow, 2.0, false),
-        ('de', 'Netzwerkeinstellungen', usual, 2.0, false),
+        ('de', 'Node und Epicbox', usual, 1.0, true),
+        ('de', 'Node und Epicbox', usual, 1.3, true),
+        ('de', 'Node und Epicbox', narrow, 1.0, true),
+        ('de', 'Node und Epicbox', narrow, 1.3, true),
+        ('en', 'Node and Epicbox', usual, 1.3, true),
+        ('en', 'Node and Epicbox', usual, 2.0, true),
+        ('de', 'Node und Epicbox', narrow, 2.0, false),
+        ('de', 'Node und Epicbox', usual, 2.0, true),
       ]) {
         final dp = physicalSize.width ~/ 3;
         final form = labelled ? 'the label' : 'the icon';

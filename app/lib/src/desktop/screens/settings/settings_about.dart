@@ -1,13 +1,14 @@
 import '../../../app_info.dart';
+import '../../../app_version.dart';
 import '../../../tor_licence.dart' show torSourceNote;
 import '../../../ui/settings_screen.dart' show projectRepoUrl;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../app/shell.dart' show deskVersion;
 import '../../data/desk_update.dart';
 import '../../data/files.dart' show deskOpenUrlProvider;
+import '../../../ui/theme/brand.dart' show BrandVariant, BrandWordmark;
 import '../../widgets/kit.dart';
 import 'settings_frame.dart';
 
@@ -18,7 +19,7 @@ const websiteUrl = 'https://epiccash.com';
 /// The Licences group, the same words as the phone's Licences screen (lib/l10n, `licences*`).
 const licencesLead = 'Open-source software in this wallet. Each component keeps its own licence; the full texts are one click away.';
 const licenceLines = [
-  'Epic Wallet by BT Labs, open source. The code is on GitHub.',
+  'Epic Cash Desktop by BT Labs: Apache-2.0. The code is on GitHub.',
   'Flutter and its Dart packages: BSD 3-Clause and similar permissive licences.',
   'LEPIC, the Epic Cash wallet library: Apache 2.0, with the Epic Cash secp256k1-zkp fork (CC0) and Rust crates under MIT or Apache 2.0, among them tokio, rustls, rusqlite and blake2.',
   'Tor: GNU General Public License, version 3. Its source is named below.',
@@ -51,7 +52,6 @@ class _SettingsAboutScreenState extends ConsumerState<SettingsAboutScreen> {
   Widget build(BuildContext context) {
     final c = context.dc;
     final ts = context.ts;
-    final network = ref.watch(deskProvider.select((s) => s.account?.network));
     final node = ref.watch(deskProvider.select((s) => s.status?.node.version));
     Widget linkRow(String title, String shown, String url) => ESetRow(
       title: title,
@@ -83,12 +83,13 @@ class _SettingsAboutScreenState extends ConsumerState<SettingsAboutScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('$appName $deskVersion', style: ts.h3),
-                          SizedBox(height: Sp.x1),
+                          BrandWordmark(variant: BrandVariant.desktop, size: Fs.h2.u),
+                          SizedBox(height: Sp.x2),
+                          // The version and the node; no network line (a release runs on one).
                           Wrap(
                             spacing: Sp.x4,
                             children: [
-                              Text('Network  ${network ?? '-'}', style: ts.small),
+                              Text('Version  ${withBuildId(withCoreVersion(deskAppVersion))}', style: ts.small),
                               Text('Node  ${node ?? '-'}', style: ts.small),
                             ],
                           ),
@@ -145,7 +146,7 @@ class _SettingsAboutScreenState extends ConsumerState<SettingsAboutScreen> {
   }
 }
 
-/// "0.1.0 is the latest · checked 5 min ago", "Update available: 0.1.1", or "Could not check"
+/// "0.1.0 is the latest · checked 5 min ago", "Update available: 26.10.1", or "Could not check"
 /// with the reason; Check now.
 class _Updates extends ConsumerWidget {
   const _Updates();

@@ -1,4 +1,5 @@
 import '../app_info.dart';
+import '../app_version.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -39,6 +40,7 @@ import 'settings_history.dart';
 import 'settings_invoices.dart';
 import 'settings_pin.dart';
 import 'theme/advanced.dart';
+import 'theme/brand.dart' show BrandLockup, BrandVariant;
 import 'theme/tokens.dart';
 import 'setup_screen.dart';
 import 'tor_ui.dart';
@@ -63,30 +65,27 @@ final _biometricsProvider =
       return (available: available, enabled: enabled);
     });
 
-/// The app version: the installed package's on Android, else the one this build was made
-/// from (`pubspec.yaml`, passed in by `flutter build`), with the build's commit when the
-/// release script passed one: `0.1.0 (1, ba10dec)`. Null when neither is known.
+/// The app version and the core's: the installed package's on Android, else the one this
+/// build was made from (`pubspec.yaml`, passed in by `flutter build`), with the build's commit
+/// when the release script passed one: `26.10.0 · core 0.1.0 (ba10dec)`. Null when neither is
+/// known.
 final appVersionProvider = FutureProvider<String?>((ref) async {
   final platform = ref.watch(updatePlatformProvider);
   if (platform != null) {
     try {
       final app = await platform.installedApp();
-      return _withBuild(app.versionName, '${app.versionCode}');
+      return _withCore(app.versionName);
     } catch (error) {
       // Fall back to the build's own version.
       logInfo('app', 'installed version unknown: $error');
     }
   }
   const name = String.fromEnvironment('FLUTTER_BUILD_NAME');
-  const number = String.fromEnvironment('FLUTTER_BUILD_NUMBER');
   if (name.isEmpty) return null;
-  return _withBuild(name, number);
+  return _withCore(name);
 });
 
-String _withBuild(String name, String number) {
-  final extra = [number, appBuildId].where((s) => s.isNotEmpty).join(', ');
-  return extra.isEmpty ? name : '$name ($extra)';
-}
+String _withCore(String name) => withBuildId(withCoreVersion(name));
 
 /// App settings: network, display, security, history backup, wallet and about.
 /// Opens Settings at its Privacy section, where the Tor switch is.
@@ -440,6 +439,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final demo = ref.watch(demoModeProvider);
     final updates = !demo && ref.read(updateProvider.notifier).supported;
     final chain = config == null ? l.commonUnknown : chainName(l, config.chain);
+    final devNetworks = ref.watch(devNetworksProvider);
     // Network, node, relay and rescan are technical; the Display switch shows them.
     final advanced = AdvancedOptions.of(context);
 
@@ -461,25 +461,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     padding: const EdgeInsets.all(16),
                     child: ErrorText(describeError(l, scan.error!)),
                   ),
-                // The connection is not a technical detail: the node and the Epicbox server
-                // are visible to everyone (the status card on Home opens the same pickers).
-                if (!demo) ...[
-                  _Header(l.settingsSectionNetwork),
-                  ListTile(
-                    leading: const Icon(Icons.settings_ethernet),
-                    title: Text(l.settingsNetworkAndNode),
-                    subtitle: Text(
-                      network == null
-                          ? chain
-                          : l.settingsNetworkSubtitle(
-                              chain,
-                              Uri.tryParse(network.nodeUrl)?.host ??
-                                  network.nodeUrl,
-                            ),
-                    ),
-                    onTap: () => _push(const SetupScreen()),
-                  ),
-                ],
                 _Header(l.settingsSectionDisplay),
                 ListTile(
                   leading: const Icon(Icons.attach_money),
@@ -512,12 +493,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   subtitle: Text(_languageLabel(l, s.language)),
                   onTap: () => _pickLanguage(s),
                 ),
-                SwitchListTile(
-                  secondary: const Icon(Icons.terminal),
-                  title: TitleWithHint(
-                    l.settingsAdvancedOptions,
-                    hint: l.settingsAdvancedOptionsSubtitle,
-                  ),
+                HintSwitchTile(
+                  icon: Icons.terminal,
+                  title: l.settingsAdvancedOptions,
+                  hint: l.settingsAdvancedOptionsSubtitle,
                   value: s.advancedOptions,
                   onChanged: _settings.setAdvancedOptions,
                 ),
@@ -531,12 +510,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   ),
                 ),
                 if (walletOpen && torAvailable) const TorSwitchTile(),
-                SwitchListTile(
-                  secondary: const Icon(Icons.travel_explore),
-                  title: TitleWithHint(
-                    l.settingsUseStatusSite,
-                    hint: l.settingsUseStatusSiteSubtitle,
-                  ),
+                HintSwitchTile(
+                  icon: Icons.travel_explore,
+                  title: l.settingsUseStatusSite,
+                  hint: l.settingsUseStatusSiteSubtitle,
                   value: s.useStatusSite,
                   onChanged: _settings.setUseStatusSite,
                 ),
@@ -632,15 +609,15 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   ],
                   _Header(l.settingsSectionWallet),
                   ListTile(
+                    leading: const Icon(Icons.contacts_outlined),
+                    title: Text(l.settingsContacts),
+                    onTap: () => _push(const ContactsScreen()),
+                  ),
+                  ListTile(
                     leading: const Icon(Icons.grain),
                     title: Text(l.outputsTitle),
                     subtitle: outputsSubtitle,
                     onTap: () => _push(const OutputsScreen()),
-                  ),
-                  ListTile(
-                    leading: const Icon(Icons.contacts_outlined),
-                    title: Text(l.settingsContacts),
-                    onTap: () => _push(const ContactsScreen()),
                   ),
                   if (advanced && !demo)
                     ListTile(
@@ -666,7 +643,34 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         : _deleteWallet,
                   ),
                 ],
+                // Everyday items first: the node and the Epicbox server come after them, before
+                // About (the status card on Home opens the same pickers).
+                if (!demo) ...[
+                  _Header(l.settingsSectionNetwork),
+                  ListTile(
+                    leading: const Icon(Icons.settings_ethernet),
+                    title: Text(l.settingsNetworkAndNode),
+                    // The node's host; the network's name only where networks are offered.
+                    subtitle: network == null
+                        ? (devNetworks ? Text(chain) : null)
+                        : Text(
+                            devNetworks
+                                ? l.settingsNetworkSubtitle(
+                                    chain,
+                                    Uri.tryParse(network.nodeUrl)?.host ??
+                                        network.nodeUrl,
+                                  )
+                                : Uri.tryParse(network.nodeUrl)?.host ??
+                                      network.nodeUrl,
+                          ),
+                    onTap: () => _push(const SetupScreen()),
+                  ),
+                ],
                 _Header(l.settingsSectionAbout),
+                const Padding(
+                  padding: EdgeInsets.fromLTRB(16, 4, 16, 12),
+                  child: BrandLockup(variant: BrandVariant.mobile, size: 40),
+                ),
                 ListTile(
                   leading: const Icon(Icons.info_outline),
                   title: Text(l.settingsVersion),
@@ -675,11 +679,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   ),
                 ),
                 if (advanced) ...[
-                  ListTile(
-                    leading: const Icon(Icons.hub),
-                    title: Text(l.settingsAboutNetwork),
-                    subtitle: Text(chain),
-                  ),
+                  if (devNetworks)
+                    ListTile(
+                      leading: const Icon(Icons.hub),
+                      title: Text(l.settingsAboutNetwork),
+                      subtitle: Text(chain),
+                    ),
                   ListTile(
                     leading: const Icon(Icons.dns_outlined),
                     title: Text(l.settingsEpicboxServer),
@@ -831,7 +836,7 @@ const Key settingsLicencesKey = ValueKey('settings-licences');
 void openFlutterLicences(BuildContext context, String? version) {
   final locale = Localizations.localeOf(context);
   final page = LicensePage(
-    applicationName: appName,
+    applicationName: context.l10n.appTitle,
     applicationVersion: version,
   );
   Navigator.of(context).push(

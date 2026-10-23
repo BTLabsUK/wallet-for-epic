@@ -1,4 +1,4 @@
-# Builds the Windows installer, epic-wallet-<version>-windows-x64-setup.exe, in one go. Run in
+# Builds the Windows installer, epic-cash-desktop-<version>-windows-x64-setup.exe, in one go. Run in
 # PowerShell 7 (pwsh -NoProfile -File) on Windows, in a session without a window: nothing is started.
 #
 # Needs what build_windows.ps1 needs (Flutter, rustup, VS 2022 Build Tools, CMake, Git) plus
@@ -80,8 +80,12 @@ if ($dumpbin -and $ffi) {
 
 # --- Flutter
 Step 'flutter build windows'
-$ver = (Select-String -Path (Join-Path $app 'pubspec.yaml') -Pattern '^version:\s*(\d+\.\d+\.\d+)\+(\d+)').Matches[0].Groups
-$name = $ver[1].Value; $number = $ver[2].Value
+# pubspec.yaml's YY.MM.patch (a test build adds -rcN) and its build number (https://docs.btlabs.uk/developers/releases/).
+# The exe and the installer carry YY.MM.patch.0: the build number is Android's versionCode and
+# does not fit a VERSIONINFO field (windows\runner\CMakeLists.txt leaves it out).
+$ver = (Select-String -Path (Join-Path $app 'pubspec.yaml') -Pattern '^version:\s*((\d+)\.(\d+)\.(\d+)(?:-rc\d+)?)\+(\d+)').Matches[0].Groups
+$name = $ver[1].Value; $number = $ver[5].Value
+$fileVersion = "$($ver[2].Value).$($ver[3].Value).$($ver[4].Value).0"
 Set-Location $app
 flutter pub get
 if ($LASTEXITCODE) { throw 'pub get failed' }
@@ -98,9 +102,11 @@ foreach ($f in 'epic_wallet.exe', 'flutter_windows.dll', 'lepic_ffi.dll', 'data\
 Step 'checks'
 $info = (Get-Item "$rel\epic_wallet.exe").VersionInfo
 Write-Output "ProductName=$($info.ProductName) CompanyName=$($info.CompanyName) ProductVersion=$($info.ProductVersion) FileVersion=$($info.FileVersion)"
-if ($info.ProductName -ne 'EpicWallet' -or $info.CompanyName -ne 'com.blacktyger' -or $info.ProductVersion -notlike "$name*") {
+if ($info.ProductName -ne 'EpicWallet' -or $info.CompanyName -ne 'com.blacktyger' -or $info.ProductVersion -ne $name) {
     throw 'epic_wallet.exe VersionInfo is not EpicWallet / com.blacktyger / version'
 }
+$numbers = "$($info.FileMajorPart).$($info.FileMinorPart).$($info.FileBuildPart).$($info.FilePrivatePart)"
+if ($numbers -ne $fileVersion) { throw "epic_wallet.exe file version is $numbers, not $fileVersion" }
 $text = [Text.Encoding]::ASCII.GetString([IO.File]::ReadAllBytes("$rel\flutter_secure_storage_windows_plugin.dll"))
 if (-not $text.Contains('EpicWallet_VGhp')) { throw 'secure-storage prefix EpicWallet_ missing' }
 if ($text.Contains('epic_wallet_VGhp') -or $text.Contains('epic_wallet_lepic_VGhp') -or $text.Contains('epic_wallet_desktop_ui_VGhp')) {
@@ -136,7 +142,9 @@ Step 'Inno Setup'
 $iss = Join-Path $app 'windows\installer\epic_wallet.iss'
 & $Iscc /Qp "/DSourceDir=$rel" "/DOutputDir=$OutDir" "/DAppVersion=$name" $iss
 if ($LASTEXITCODE) { throw 'ISCC failed' }
-$setup = Join-Path $OutDir "epic-wallet-$name-windows-x64-setup.exe"
+$setup = Join-Path $OutDir "epic-cash-desktop-$name-windows-x64-setup.exe"
+$setupVersion = (Get-Item $setup).VersionInfo.FileVersion
+if ($setupVersion -ne $fileVersion) { throw "the installer's file version is $setupVersion, not $fileVersion" }
 $hash = (Get-FileHash $setup -Algorithm SHA256).Hash.ToLower()
 "$hash  $(Split-Path $setup -Leaf)" | Set-Content -Encoding ascii "$setup.sha256"
 Write-Output "Wrote $setup ($((Get-Item $setup).Length) bytes) sha256 $hash"

@@ -15,6 +15,16 @@ const bool demoBuild = bool.fromEnvironment('WFE_DEMO');
 /// Whether the app runs as the web demo. Tests override it.
 final demoModeProvider = Provider<bool>((ref) => demoBuild);
 
+/// `--dart-define=WFE_DEV_NETWORKS=true`: the test networks (floonet, usernet) are offered
+/// in the UI. Off in every release build: the wallet runs on one network and never names it.
+const bool devNetworksBuild = bool.fromEnvironment('WFE_DEV_NETWORKS');
+
+/// Whether the UI offers and names networks: a dev build, or the web demo, which runs on
+/// floonet for good. Tests override it to reach the picker.
+final devNetworksProvider = Provider<bool>(
+  (ref) => devNetworksBuild || ref.watch(demoModeProvider),
+);
+
 /// The PIN every demo wallet is created with, filled in for the visitor (`ui/demo_pin.dart`).
 /// It is no secret: a demo is guarded by the server's HttpOnly cookie, and its wallet is a
 /// throwaway one on floonet. Still never shown or logged. Used only while [demoModeProvider]

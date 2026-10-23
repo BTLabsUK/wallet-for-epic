@@ -205,6 +205,13 @@ abstract interface class WalletSession {
   /// one throws [WalletErrorKind.invalidArgument] and keeps the servers in use.
   Future<void> setServers({required WalletConfig config});
 
+  /// The tip of the node [config] names (only its node URL and secret count), asked as the
+  /// open wallet asks its own node: over Tor while the wallet's Tor routes node requests, else
+  /// directly, and a node on this computer always directly. Use it instead of
+  /// [WalletService.nodeTip], which never goes over Tor, while a wallet is open. Throws
+  /// [WalletErrorKind.nodeUnreachable] when the node does not answer.
+  Future<NodeTip> nodeTipFor({required WalletConfig config});
+
   Future<void> stopListener();
 
   /// Sends to the wallet listening at [url], `http(s)://host[:port][/path]`, then finalizes
@@ -546,7 +553,9 @@ class FakeWalletService implements WalletService {
     this.password = 'correct horse',
     FakeWalletSession? session,
   }) : existingWallets = existingWallets ?? <String>{},
-       session = session ?? FakeWalletSession();
+       session = session ?? FakeWalletSession() {
+    this.session.node ??= this;
+  }
 
   static const String _defaultPhrase =
       'alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima '
@@ -609,7 +618,22 @@ class FakeWalletService implements WalletService {
       existingWallets.contains(config.dataDir);
 
   @override
-  Future<NodeTip> nodeTip({required WalletConfig config}) async => nodeTipValue;
+  Future<NodeTip> nodeTip({required WalletConfig config}) async {
+    nodeTipCalls++;
+    final fail = nodeTipFails;
+    if (fail != null) throw fail;
+    return nodeAnswer(config);
+  }
+
+  /// What the fake node answers, asked directly ([nodeTip]) or through an open wallet
+  /// ([WalletSession.nodeTipFor]). Tests override it to delay or fail the node.
+  Future<NodeTip> nodeAnswer(WalletConfig config) async => nodeTipValue;
+
+  /// How often [nodeTip] was asked: the direct call, outside any wallet's Tor.
+  int nodeTipCalls = 0;
+
+  /// When set, [nodeTip] throws it: for tests where a direct node request is a leak.
+  Object? nodeTipFails;
 
   /// What [nodeTip] answers. Tests and the web preview set it.
   NodeTip nodeTipValue = NodeTip(height: BigInt.from(2500000), nodeVersion: '3.6.0');
@@ -1115,6 +1139,25 @@ class FakeWalletSession implements WalletSession {
 
   @override
   Future<void> stopListener() async => listenerStops++;
+
+  /// Every [nodeTipFor] call, in order.
+  final List<WalletConfig> nodeTipsFor = [];
+
+  /// The fake node [nodeTipFor] asks ([FakeWalletService.nodeAnswer]): the first service made
+  /// with this session.
+  FakeWalletService? node;
+
+  /// Called at each [nodeTipFor], before it answers.
+  void Function()? onNodeTipFor;
+
+  @override
+  Future<NodeTip> nodeTipFor({required WalletConfig config}) async {
+    nodeTipsFor.add(config);
+    onNodeTipFor?.call();
+    final o = node;
+    if (o != null) return o.nodeAnswer(config);
+    return NodeTip(height: BigInt.from(2500000), nodeVersion: '3.6.0');
+  }
 
   /// Every [setServers] call, in order.
   final List<WalletConfig> serverSwitches = [];

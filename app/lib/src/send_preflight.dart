@@ -103,12 +103,12 @@ SendPreflight sendPreflight({
 /// A fresh tip from the open wallet's node, at most [nodeCheckTimeout] late. Not the header's
 /// `nodeTipProvider`, which may hold an answer from minutes ago.
 final sendNodeCheckProvider = FutureProvider.autoDispose<NodeTip>((ref) {
+  final session = ref.watch(sessionProvider);
+  if (session == null) throw StateError('Wallet is locked');
   final config = ref.watch(walletConfigProvider);
   if (config == null) throw StateError('No network selected');
-  return ref
-      .watch(walletServiceProvider)
-      .nodeTip(config: config)
-      .timeout(nodeCheckTimeout);
+  // Through the wallet, so it follows the wallet's Tor.
+  return session.nodeTipFor(config: config).timeout(nodeCheckTimeout);
 });
 
 /// Says whether a relay answers a WebSocket handshake. Tests replace it.

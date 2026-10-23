@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../ui/theme/brand.dart' show EpicMark;
+import '../../ui/theme/brand.dart' show BrandLockup, BrandVariant, EpicMark;
 import '../desk_l10n.dart';
 import '../data/desk_update.dart' show deskAppVersion;
 import '../data/invoice_state.dart' show InvoiceNotice, InvoiceNoticeKind, deskInvoiceBadgeProvider, deskInvoiceNoticesProvider;
@@ -28,7 +28,7 @@ final String deskVersion = withBuildId(deskAppVersion);
 /// "Ctrl+L", or "⌘L" on macOS.
 String deskKeys(String key) => defaultTargetPlatform == TargetPlatform.macOS ? '⌘$key' : 'Ctrl+$key';
 
-/// The window title of each in-app place: `<page> · Epic Wallet`.
+/// The window title of each in-app place: `<page> · Epic Cash Desktop`.
 String deskPageTitle(DeskRoute r) {
   final page = switch (r.section) {
     DeskSection.overview => 'Overview',
@@ -343,20 +343,20 @@ class _Sidebar extends ConsumerWidget {
                 child: Row(
                   mainAxisAlignment: compact ? MainAxisAlignment.center : MainAxisAlignment.start,
                   children: [
-                    EpicMark(size: 24.u, color: c.accent),
-                    if (!compact) ...[
-                      SizedBox(width: 10.u),
+                    // The version is in About and the support report; here a tooltip.
+                    if (compact)
+                      Tooltip(message: '$appName $deskVersion', child: EpicMark(size: 24.u, color: c.accent))
+                    else
                       Flexible(
-                        child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(appName, maxLines: 1, overflow: TextOverflow.ellipsis, style: ts.h3.copyWith(fontSize: 15, letterSpacing: -0.15)),
-                          Text('Version $deskVersion', style: ts.caption),
-                        ],
+                        child: Tooltip(
+                          message: 'Version $deskVersion',
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            alignment: AlignmentDirectional.centerStart,
+                            child: BrandLockup(variant: BrandVariant.desktop, size: 28.u, textRatio: 0.56),
+                          ),
+                        ),
                       ),
-                      ),
-                    ],
                   ],
                 ),
               ),
@@ -503,9 +503,13 @@ class _PhoneTopBar extends ConsumerWidget {
       decoration: BoxDecoration(border: Border(bottom: BorderSide(color: c.line))),
       child: Row(
         children: [
-          EpicMark(size: 20.u, color: c.accent),
-          SizedBox(width: Sp.x2),
-          Flexible(child: Text(appName, maxLines: 1, overflow: TextOverflow.ellipsis, style: context.ts.h3.copyWith(fontSize: 15))),
+          Flexible(
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: AlignmentDirectional.centerStart,
+              child: BrandLockup(variant: BrandVariant.desktop, size: 24.u, textRatio: 0.58),
+            ),
+          ),
           const Spacer(),
           const ServiceRows(compact: true, horizontal: true),
           TourTarget(

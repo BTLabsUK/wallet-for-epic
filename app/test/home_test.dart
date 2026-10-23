@@ -3052,7 +3052,7 @@ void main() {
         await h.pump(tester);
         // On Wallet the title is the name; the figure title waits out of sight.
         expect(_titleOpacity(tester), (wallet: 1.0, tab: 0.0));
-        expect(find.text('Epic Wallet'), findsOneWidget);
+        expect(find.text('Epic Cash'), findsOneWidget);
         for (final tab in ['Send', 'Receive']) {
           await _tab(tester, tab, settle: false);
           expect(_titleOpacity(tester), (wallet: 0.0, tab: 1.0), reason: tab);
@@ -3264,7 +3264,6 @@ void main() {
         (BalanceKind.confirming, 'Confirming', '2'),
         (BalanceKind.waitingSender, 'Waiting for sender', '0.5'),
         (BalanceKind.locked, 'Locked in sends', '5'),
-        (BalanceKind.immature, 'Rewards maturing', '16'),
         (BalanceKind.total, 'Total', '26.75'),
       ];
       // A grid, nothing scrolls sideways: every tile is on screen, in reading order (top
@@ -3297,18 +3296,17 @@ void main() {
         final (t1, l1) = places[i];
         expect(t1 > t0 || (t1 == t0 && l1 > l0), isTrue, reason: 'tile $i');
       }
-      // Two columns at phone width; the fifth tile alone on its row takes the whole row.
+      // Two columns at phone width: four tiles make a 2 × 2 grid, Total last.
       expect(places.where((p) => p.$1 == places.first.$1).length, 2);
       expect(
         tester.getRect(find.byKey(balanceTileKey(BalanceKind.total))).width,
-        closeTo(grid.width, 0.5),
+        closeTo((grid.width - BalanceTiles.gap) / 2, 0.5),
       );
       // Only what is pending.
       h.session.summaryValue = _balances(spendable: 1, confirming: 2);
       await _reload(tester);
       expect(_inTile(BalanceKind.confirming, '2'), findsOneWidget);
       expect(find.byKey(balanceTileKey(BalanceKind.locked)), findsNothing);
-      expect(find.byKey(balanceTileKey(BalanceKind.immature)), findsNothing);
       // Everything confirmed, then a wallet without payments.
       final tokens = protocolLight;
       h.session.summaryValue = _balances(spendable: 12.5);
@@ -3823,7 +3821,7 @@ void main() {
           );
         }
         await _tab(tester, 'Wallet', settle: false);
-        expect(find.text('Epic Wallet'), findsOneWidget);
+        expect(find.text('Epic Cash'), findsOneWidget);
         expect(_statusTip(tester, nodeStatusKey), isNot(contains('Mainnet')));
         expect(
           _statusTip(tester, nodeStatusKey).split('\n').first,
@@ -3853,13 +3851,13 @@ void main() {
           );
         }
         await _tab(tester, 'Wallet', settle: false);
-        expect(find.text('Epic Wallet'), findsOneWidget);
+        expect(find.text('Epic Cash'), findsOneWidget);
         // The title is not cut.
         expect(
           tester
               .renderObject<RenderParagraph>(
                 find.descendant(
-                  of: find.text('Epic Wallet'),
+                  of: find.text('Epic Cash'),
                   matching: find.byType(RichText),
                 ),
               )

@@ -514,6 +514,10 @@ class WalletDispatcher {
       s.setServers(config: _config(p)),
       voidWire,
     ),
+    SessionMember.nodeTipFor => _once(
+      s.nodeTipFor(config: _config(p)),
+      nodeTipWire,
+    ),
     SessionMember.invoiceAddress => _once(s.invoiceAddress(), stringWire),
     SessionMember.invoiceAddressIndex => _once(
       s.invoiceAddressIndex(),

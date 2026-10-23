@@ -245,7 +245,6 @@ void main() {
           (BalanceKind.confirming, l.homeBalanceConfirming, _epic(2)),
           (BalanceKind.waitingSender, l.homeTileWaitingSender, _epic(0.5)),
           (BalanceKind.locked, l.homeTileLocked, _epic(5)),
-          (BalanceKind.immature, l.homeTileMaturing, _epic(16)),
           (BalanceKind.total, l.homeTileTotal, _epic(26.25)),
         ]);
         expect(_inTile(BalanceKind.confirming, '2'), findsOneWidget);

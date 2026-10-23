@@ -2,7 +2,8 @@
 # Runs inside the build container (see scripts/build-linux.sh). /work is the repo.
 set -euo pipefail
 target="${WFE_TARGET:-lib/main_desktop.dart}"
-version="$(sed -n 's/^version: *\([0-9.]*\).*/\1/p' /work/app/pubspec.yaml)"
+# pubspec.yaml's YY.MM.patch, with a test build's -rcN; never the +build (https://docs.btlabs.uk/developers/releases/).
+version="$(sed -n 's/^version: *\([0-9.]*\(-rc[0-9]*\)\{0,1\}\).*/\1/p' /work/app/pubspec.yaml)"
 
 if [[ "${WFE_BUILD_LEPIC:-1}" = 1 ]]; then
   echo "== LEPIC release (rust $RUSTUP_TOOLCHAIN)"
@@ -39,20 +40,27 @@ chmod +x "$appdir/AppRun"
 cat > "$appdir/epic-wallet.desktop" <<'DESK'
 [Desktop Entry]
 Type=Application
-Name=Epic Wallet
+Name=Epic Cash Desktop
 Exec=epic_wallet
-Icon=epic-wallet
+Icon=epic-cash-desktop
 Categories=Finance;Utility;
 Terminal=false
 DESK
-icon=/work/app/web/icons/Icon-512.png
-if [[ -f "$icon" ]]; then cp "$icon" "$appdir/epic-wallet.png"; else
+# The launcher icon (app/linux/icons, from the brand master): the hicolor set for desktops that
+# integrate the AppImage, and the 512 px one at the root, where appimagetool looks for it.
+hicolor=/work/app/linux/icons/hicolor
+if [[ -d "$hicolor" ]]; then
+  mkdir -p "$appdir/usr/share/icons"
+  cp -a "$hicolor" "$appdir/usr/share/icons/"
+  cp "$hicolor/512x512/apps/epic-cash-desktop.png" "$appdir/epic-cash-desktop.png"
+  cp "$hicolor/512x512/apps/epic-cash-desktop.png" "$appdir/.DirIcon"
+else
   # 1x1 placeholder so appimagetool is satisfied when the repo has no icon
-  base64 -d > "$appdir/epic-wallet.png" <<'PNG'
+  base64 -d > "$appdir/epic-cash-desktop.png" <<'PNG'
 iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==
 PNG
 fi
 out=/work/build-linux
 mkdir -p "$out"
-ARCH=x86_64 /opt/appimagetool/AppRun --runtime-file /opt/runtime-x86_64 "$appdir" "$out/EpicWallet-$version-x86_64.AppImage"
+ARCH=x86_64 /opt/appimagetool/AppRun --runtime-file /opt/runtime-x86_64 "$appdir" "$out/EpicCashDesktop-$version-x86_64.AppImage"
 ls -l "$out"

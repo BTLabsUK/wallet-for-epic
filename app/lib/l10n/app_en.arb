@@ -1,8 +1,12 @@
 {
   "@@locale": "en",
-  "appTitle": "Epic Wallet",
+  "appTitle": "Epic Cash Mobile",
   "@appTitle": {
-    "description": "The app's name in the task switcher and window title. A product name; do not translate."
+    "description": "The phone app's product name, in the task switcher and window title. A brand name; do not translate."
+  },
+  "appTitleDesktop": "Epic Cash Desktop",
+  "@appTitleDesktop": {
+    "description": "The desktop app's product name (Windows, Linux). A brand name; do not translate."
   },
   "commonCancel": "Cancel",
   "commonClose": "Close",
@@ -1253,7 +1257,7 @@
   "@homeLockTooltip": {
     "description": "Tooltip of the app-bar button that closes the wallet and returns to the PIN screen."
   },
-  "shellTitle": "Epic Wallet",
+  "shellTitle": "Epic Cash Mobile",
   "@shellTitle": {
     "description": "App-bar title of the wallet's main page: the app's name. A product name; do not translate."
   },
@@ -2365,13 +2369,13 @@
   "@updateCheckFailed": {
     "description": "An update check or install failed for a reason the app does not know."
   },
-  "setupTitle": "Network settings",
+  "setupTitle": "Node and Epicbox",
   "@setupTitle": {
-    "description": "Title of the screen that picks the network, the node and the epicbox server."
+    "description": "Title of the node and Epicbox server screen. Never names a network: a release runs on one."
   },
-  "setupNetworkSettingsTooltip": "Network settings",
+  "setupNetworkSettingsTooltip": "Node and Epicbox",
   "@setupNetworkSettingsTooltip": {
-    "description": "Tooltip of the icon button on the welcome and unlock screens that opens the network settings."
+    "description": "Tooltip of the app bar button on first run and unlock that opens the node and Epicbox screen."
   },
   "setupNetworkHeading": "Network",
   "@setupNetworkHeading": {
@@ -3224,13 +3228,13 @@
   "@settingsTitle": {
     "description": "Title of the settings screen."
   },
-  "settingsSectionNetwork": "Network",
+  "settingsSectionNetwork": "Servers",
   "@settingsSectionNetwork": {
-    "description": "Section heading in settings."
+    "description": "Settings section header above the Node and Epicbox row."
   },
-  "settingsNetworkAndNode": "Network and node",
+  "settingsNetworkAndNode": "Node and Epicbox",
   "@settingsNetworkAndNode": {
-    "description": "Settings row that opens the network setup. The node is the Epic Cash server the wallet reads the chain from."
+    "description": "Settings row that opens the node and Epicbox screen; its subtitle is the node host."
   },
   "settingsNetworkSubtitle": "{network} · {node}",
   "@settingsNetworkSubtitle": {
@@ -3683,7 +3687,7 @@
   "@licencesLead": {
     "description": "Licences screen: the first paragraph."
   },
-  "licencesApp": "Epic Wallet by BT Labs, open source. The code is on GitHub.",
+  "licencesApp": "Epic Cash Mobile by BT Labs: Apache-2.0. The code is on GitHub.",
   "@licencesApp": {
     "description": "Licences screen: the wallet itself. Not \"app\" on its own: the web demo shows this screen too."
   },

@@ -21,12 +21,15 @@ add_executable(${BINARY_NAME} WIN32
 # that need different build settings.
 apply_standard_settings(${BINARY_NAME})
 
-# Add preprocessor definitions for the build version.
-target_compile_definitions(${BINARY_NAME} PRIVATE "FLUTTER_VERSION=\"${FLUTTER_VERSION}\"")
+# Add preprocessor definitions for the build version. Windows gets YY.MM.patch.0
+# (https://docs.btlabs.uk/developers/releases/): the build number (26100000 for 26.10.0) is Android's versionCode and
+# does not fit a VERSIONINFO field (16 bits), so neither the numbers nor the strings carry it.
+string(REGEX REPLACE "\\+.*$" "" WFE_VERSION "${FLUTTER_VERSION}")
+target_compile_definitions(${BINARY_NAME} PRIVATE "FLUTTER_VERSION=\"${WFE_VERSION}\"")
 target_compile_definitions(${BINARY_NAME} PRIVATE "FLUTTER_VERSION_MAJOR=${FLUTTER_VERSION_MAJOR}")
 target_compile_definitions(${BINARY_NAME} PRIVATE "FLUTTER_VERSION_MINOR=${FLUTTER_VERSION_MINOR}")
 target_compile_definitions(${BINARY_NAME} PRIVATE "FLUTTER_VERSION_PATCH=${FLUTTER_VERSION_PATCH}")
-target_compile_definitions(${BINARY_NAME} PRIVATE "FLUTTER_VERSION_BUILD=${FLUTTER_VERSION_BUILD}")
+target_compile_definitions(${BINARY_NAME} PRIVATE "FLUTTER_VERSION_BUILD=0")
 
 # Disable Windows macros that collide with C++ standard library functions.
 target_compile_definitions(${BINARY_NAME} PRIVATE "NOMINMAX")

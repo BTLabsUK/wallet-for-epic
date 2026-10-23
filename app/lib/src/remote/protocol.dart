@@ -76,6 +76,7 @@ enum SessionMember {
   consolidateOutputs,
   spendOutputsToSelf,
   setServers,
+  nodeTipFor,
 }
 
 /// Interface members the client answers without the server.

@@ -49,9 +49,12 @@ android {
     }
 
     defaultConfig {
-        // 0.1.0 is its own app beside the 1.x test builds (com.blacktyger.epic_wallet, version
-        // codes 2027+): installing it never replaces or downgrades them, and its data starts empty.
-        applicationId = "com.blacktyger.epicwallet"
+        // Epic Cash Mobile, registered in Firebase under this id. From 26.10.0 it is its own app
+        // beside 0.1.0 (com.blacktyger.epicwallet, debug-signed) and the 1.x test builds
+        // (com.blacktyger.epic_wallet): installing it never replaces them, and its data starts
+        // empty. 0.1.0 learns of it from the legacy feed (tool/release_android.sh).
+        // The namespace and the Kotlin package stay com.blacktyger.epic_wallet.
+        applicationId = "com.blacktyger.epiccashmobile"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion

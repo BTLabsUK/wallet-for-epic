@@ -10,7 +10,10 @@ class AppLocalizationsPl extends AppLocalizations {
   AppLocalizationsPl([String locale = 'pl']) : super(locale);
 
   @override
-  String get appTitle => 'Epic Wallet';
+  String get appTitle => 'Epic Cash Mobile';
+
+  @override
+  String get appTitleDesktop => 'Epic Cash Desktop';
 
   @override
   String get commonCancel => 'Anuluj';
@@ -1302,7 +1305,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get homeLockTooltip => 'Zablokuj portfel';
 
   @override
-  String get shellTitle => 'Epic Wallet';
+  String get shellTitle => 'Epic Cash Mobile';
 
   @override
   String get demoWelcomeTitle => 'Wypróbuj Epic Cash';
@@ -2169,10 +2172,10 @@ class AppLocalizationsPl extends AppLocalizations {
   String get updateCheckFailed => 'Sprawdzanie aktualizacji nie powiodło się.';
 
   @override
-  String get setupTitle => 'Ustawienia sieci';
+  String get setupTitle => 'Węzeł i Epicbox';
 
   @override
-  String get setupNetworkSettingsTooltip => 'Ustawienia sieci';
+  String get setupNetworkSettingsTooltip => 'Węzeł i Epicbox';
 
   @override
   String get setupNetworkHeading => 'Sieć';
@@ -2889,10 +2892,10 @@ class AppLocalizationsPl extends AppLocalizations {
   String get settingsTitle => 'Ustawienia';
 
   @override
-  String get settingsSectionNetwork => 'Sieć';
+  String get settingsSectionNetwork => 'Serwery';
 
   @override
-  String get settingsNetworkAndNode => 'Sieć i węzeł';
+  String get settingsNetworkAndNode => 'Węzeł i Epicbox';
 
   @override
   String settingsNetworkSubtitle(String network, String node) {
@@ -3229,7 +3232,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get licencesApp =>
-      'Epic Wallet od BT Labs, open source. Kod jest na GitHubie.';
+      'Epic Cash Mobile od BT Labs: Apache-2.0. Kod jest na GitHubie.';
 
   @override
   String get licencesFlutter =>

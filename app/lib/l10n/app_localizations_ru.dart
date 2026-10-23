@@ -10,7 +10,10 @@ class AppLocalizationsRu extends AppLocalizations {
   AppLocalizationsRu([String locale = 'ru']) : super(locale);
 
   @override
-  String get appTitle => 'Epic Wallet';
+  String get appTitle => 'Epic Cash Mobile';
+
+  @override
+  String get appTitleDesktop => 'Epic Cash Desktop';
 
   @override
   String get commonCancel => 'Отмена';
@@ -1301,7 +1304,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get homeLockTooltip => 'Заблокировать кошелёк';
 
   @override
-  String get shellTitle => 'Epic Wallet';
+  String get shellTitle => 'Epic Cash Mobile';
 
   @override
   String get demoWelcomeTitle => 'Попробуйте Epic Cash';
@@ -2159,10 +2162,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get updateCheckFailed => 'Не удалось проверить обновления.';
 
   @override
-  String get setupTitle => 'Настройки сети';
+  String get setupTitle => 'Узел и Epicbox';
 
   @override
-  String get setupNetworkSettingsTooltip => 'Настройки сети';
+  String get setupNetworkSettingsTooltip => 'Узел и Epicbox';
 
   @override
   String get setupNetworkHeading => 'Сеть';
@@ -2867,10 +2870,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get settingsTitle => 'Настройки';
 
   @override
-  String get settingsSectionNetwork => 'Сеть';
+  String get settingsSectionNetwork => 'Серверы';
 
   @override
-  String get settingsNetworkAndNode => 'Сеть и узел';
+  String get settingsNetworkAndNode => 'Узел и Epicbox';
 
   @override
   String settingsNetworkSubtitle(String network, String node) {
@@ -3207,7 +3210,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get licencesApp =>
-      'Epic Wallet от BT Labs, открытый код. Код на GitHub.';
+      'Epic Cash Mobile от BT Labs: Apache-2.0. Код на GitHub.';
 
   @override
   String get licencesFlutter =>

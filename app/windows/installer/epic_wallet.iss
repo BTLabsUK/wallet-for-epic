@@ -1,6 +1,7 @@
 ﻿; Inno Setup 6.7 script for the Windows installer. Built by tool\build_windows_release.ps1, which
 ; passes /DSourceDir (the Flutter Release folder, with the VC runtime DLLs added), /DOutputDir and
-; optionally /DAppVersion. Per-user (PrivilegesRequired=lowest): everything goes in the user's profile.
+; /DAppVersion (pubspec.yaml's YY.MM.patch, https://docs.btlabs.uk/developers/releases/). Per-user
+; (PrivilegesRequired=lowest): everything goes in the user's profile.
 ;
 ; The wallet's data (%APPDATA%\com.blacktyger\EpicWallet) is never touched: there is no
 ; [UninstallDelete], [InstallDelete] names only old shortcut files, and Inno removes only the
@@ -8,7 +9,7 @@
 ;
 ; Look (docs/feedback/designs/installer, the owner's OK of 2026-10-22): one dark wizard page with
 ; the landing-page hero behind it, one Install button, folder and shortcuts behind an "Options"
-; link, a gold progress bar, "Open Epic Wallet" at the end. Everything is stock Inno 6.7: the
+; link, a gold progress bar, "Open Epic Cash Desktop" at the end. Everything is stock Inno 6.7: the
 ; built-in dark style, WizardSetBackImage for the hero (dimmed while files copy), TNewStaticText
 ; and TBitmapImage controls on the stock pages, Montserrat loaded privately for the headings
 ; (OFL; the licence text is installed next to the app). Images come from make_images.sh.
@@ -20,14 +21,21 @@
   #define OutputDir "."
 #endif
 #ifndef AppVersion
-  #define AppVersion "0.1.0"
+  #error Pass /DAppVersion=<pubspec.yaml's version, without +build>
+#endif
+; The file version is YY.MM.patch.0; a test build's -rcN is left out (numbers only).
+#if Pos("-", AppVersion) > 0
+  #define FileVersion Copy(AppVersion, 1, Pos("-", AppVersion) - 1) + ".0"
+#else
+  #define FileVersion AppVersion + ".0"
 #endif
 
 [Setup]
 ; Fixed for good: a new GUID would make an upgrade install beside the old version.
 AppId={{8810835E-6EE5-4989-AE20-C0D60E23800E}
-AppName=Epic Wallet
+AppName=Epic Cash Desktop
 AppVersion={#AppVersion}
+VersionInfoVersion={#FileVersion}
 AppPublisher=BT Labs
 ; The app's single-instance mutex (windows\runner\main.cpp): Setup and the uninstaller wait for
 ; the app to close instead of replacing files under it.
@@ -41,9 +49,9 @@ PrivilegesRequired=lowest
 ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
 UninstallDisplayIcon={app}\epic_wallet.exe
-UninstallDisplayName=Epic Wallet
+UninstallDisplayName=Epic Cash Desktop
 OutputDir={#OutputDir}
-OutputBaseFilename=epic-wallet-{#AppVersion}-windows-x64-setup
+OutputBaseFilename=epic-cash-desktop-{#AppVersion}-windows-x64-setup
 Compression=lzma2
 SolidCompression=yes
 CloseApplications=no
@@ -86,8 +94,8 @@ Source: "{#SourceDir}\*"; DestDir: "{app}"; Excludes: "*.lib,*.exp,*.pdb,*.ilk";
 ; One shortcut per place; the runner's --impeller and --skia flags stay for a hand-made one.
 ; Both on by default, each behind a box on the welcome page's Options sheet (no [Tasks]: Inno fills
 ; its tasks list only when the Tasks page shows, and that page is not part of this wizard).
-Name: "{userprograms}\Epic Wallet"; Filename: "{app}\epic_wallet.exe"; IconFilename: "{app}\epic_wallet.exe"; WorkingDir: "{app}"; Check: WantStartMenu
-Name: "{userdesktop}\Epic Wallet"; Filename: "{app}\epic_wallet.exe"; IconFilename: "{app}\epic_wallet.exe"; WorkingDir: "{app}"; Check: WantDesktop
+Name: "{userprograms}\Epic Cash Desktop"; Filename: "{app}\epic_wallet.exe"; IconFilename: "{app}\epic_wallet.exe"; WorkingDir: "{app}"; Check: WantStartMenu
+Name: "{userdesktop}\Epic Cash Desktop"; Filename: "{app}\epic_wallet.exe"; IconFilename: "{app}\epic_wallet.exe"; WorkingDir: "{app}"; Check: WantDesktop
 
 [InstallDelete]
 ; The 0.1.0 shortcuts, named by version and renderer. Only these exact files.
@@ -95,11 +103,14 @@ Type: files; Name: "{userprograms}\Epic Wallet 0.1.lnk"
 Type: files; Name: "{userprograms}\Epic Wallet 0.1 (Skia).lnk"
 Type: files; Name: "{userprograms}\Epic Wallet 0.1 (Impeller).lnk"
 Type: files; Name: "{userdesktop}\Epic Wallet 0.1.lnk"
+; An upgrade from 0.1.0 drops the old-named shortcuts; the new ones are "Epic Cash Desktop".
+Type: files; Name: "{userprograms}\Epic Wallet.lnk"
+Type: files; Name: "{userdesktop}\Epic Wallet.lnk"
 
 [Run]
-; "Open Epic Wallet" on the finish page (the stock Finish button, renamed). The "Close" link
+; "Open Epic Cash Desktop" on the finish page (the stock Finish button, renamed). The "Close" link
 ; unchecks this entry first. Never in a silent install.
-Filename: "{app}\epic_wallet.exe"; WorkingDir: "{app}"; Description: "Open Epic Wallet"; Flags: nowait postinstall skipifsilent
+Filename: "{app}\epic_wallet.exe"; WorkingDir: "{app}"; Description: "Open Epic Cash Desktop"; Flags: nowait postinstall skipifsilent
 
 [Code]
 const
@@ -305,7 +316,7 @@ var
   D: String;
 begin
   D := FolderEdit.Text;
-  if BrowseForFolder('Folder for Epic Wallet', D, True) then
+  if BrowseForFolder('Folder for Epic Cash Desktop', D, True) then
     FolderEdit.Text := D;
 end;
 
@@ -376,7 +387,7 @@ begin
   Dir := WizardForm.DirEdit.Text;
 
   WelIcon := Png(P, 'icon.png', 40, 44, 56, 56);
-  WelHead := Lbl(P, 40, 110, 'Epic Wallet', HeadFont, 21, ColText);
+  WelHead := Lbl(P, 40, 110, 'Epic Cash Desktop', HeadFont, 21, ColText);
   if IsUpdate then begin
     WelSubGold := Lbl(P, 40, 152, 'Update to {#AppVersion}', '', 10, ColGold);
     WelSubGold.Font.Style := [fsBold];
@@ -488,7 +499,7 @@ begin
     FinHead := Lbl(P, 40, 110, 'Updated', HeadFont, 21, ColText)
   else
     FinHead := Lbl(P, 40, 110, 'Installed', HeadFont, 21, ColText);
-  FinSub := Lbl(P, 40, 152, 'Epic Wallet {#AppVersion} is ready.', '', 10, ColDim);
+  FinSub := Lbl(P, 40, 152, 'Epic Cash Desktop {#AppVersion} is ready.', '', 10, ColDim);
   FinBody := Lbl(P, 40, 186, '', '', 10, ColDim);
 end;
 
@@ -599,8 +610,8 @@ begin
         FinBody.Caption := 'Shortcuts: ' + S + '.';
       WizardForm.RunList.Visible := False;
       WizardForm.CancelButton.Visible := False;
-      WizardForm.NextButton.Caption := 'Open Epic Wallet';
-      W := WizardForm.CalculateButtonWidth(['Open Epic Wallet']) + ScaleX(24);
+      WizardForm.NextButton.Caption := 'Open Epic Cash Desktop';
+      W := WizardForm.CalculateButtonWidth(['Open Epic Cash Desktop']) + ScaleX(24);
       WizardForm.NextButton.Left := WizardForm.NextButton.Left + WizardForm.NextButton.Width - W;
       WizardForm.NextButton.Width := W;
     end;

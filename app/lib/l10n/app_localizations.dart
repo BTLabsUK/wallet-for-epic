@@ -104,11 +104,17 @@ abstract class AppLocalizations {
     Locale('zh'),
   ];
 
-  /// The app's name in the task switcher and window title. A product name; do not translate.
+  /// The phone app's product name, in the task switcher and window title. A brand name; do not translate.
   ///
   /// In en, this message translates to:
-  /// **'Epic Wallet'**
+  /// **'Epic Cash Mobile'**
   String get appTitle;
+
+  /// The desktop app's product name (Windows, Linux). A brand name; do not translate.
+  ///
+  /// In en, this message translates to:
+  /// **'Epic Cash Desktop'**
+  String get appTitleDesktop;
 
   /// No description provided for @commonCancel.
   ///
@@ -1643,7 +1649,7 @@ abstract class AppLocalizations {
   /// App-bar title of the wallet's main page: the app's name. A product name; do not translate.
   ///
   /// In en, this message translates to:
-  /// **'Epic Wallet'**
+  /// **'Epic Cash Mobile'**
   String get shellTitle;
 
   /// Heading of the web demo's welcome screen, under the mark.
@@ -2954,16 +2960,16 @@ abstract class AppLocalizations {
   /// **'Checking for updates failed.'**
   String get updateCheckFailed;
 
-  /// Title of the screen that picks the network, the node and the epicbox server.
+  /// Title of the node and Epicbox server screen. Never names a network: a release runs on one.
   ///
   /// In en, this message translates to:
-  /// **'Network settings'**
+  /// **'Node and Epicbox'**
   String get setupTitle;
 
-  /// Tooltip of the icon button on the welcome and unlock screens that opens the network settings.
+  /// Tooltip of the app bar button on first run and unlock that opens the node and Epicbox screen.
   ///
   /// In en, this message translates to:
-  /// **'Network settings'**
+  /// **'Node and Epicbox'**
   String get setupNetworkSettingsTooltip;
 
   /// Heading above the choice of Mainnet, Floonet or Usernet.
@@ -4016,16 +4022,16 @@ abstract class AppLocalizations {
   /// **'Settings'**
   String get settingsTitle;
 
-  /// Section heading in settings.
+  /// Settings section header above the Node and Epicbox row.
   ///
   /// In en, this message translates to:
-  /// **'Network'**
+  /// **'Servers'**
   String get settingsSectionNetwork;
 
-  /// Settings row that opens the network setup. The node is the Epic Cash server the wallet reads the chain from.
+  /// Settings row that opens the node and Epicbox screen; its subtitle is the node host.
   ///
   /// In en, this message translates to:
-  /// **'Network and node'**
+  /// **'Node and Epicbox'**
   String get settingsNetworkAndNode;
 
   /// Under the Network and node row: the network's name and the node's host name.
@@ -4625,7 +4631,7 @@ abstract class AppLocalizations {
   /// Licences screen: the wallet itself. Not "app" on its own: the web demo shows this screen too.
   ///
   /// In en, this message translates to:
-  /// **'Epic Wallet by BT Labs, open source. The code is on GitHub.'**
+  /// **'Epic Cash Mobile by BT Labs: Apache-2.0. The code is on GitHub.'**
   String get licencesApp;
 
   /// Licences screen: one line for Flutter and the Dart packages.

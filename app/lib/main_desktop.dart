@@ -97,6 +97,14 @@ Future<List<Override>> deskOverrides() async {
   // Before anything asks status.btlabs.uk: off, nothing is asked.
   statusSite.on = boot.settings.useStatusSite;
   final directory = container.read(relayDirectoryProvider);
+  // Saved on: the app's own requests wait for tor from the first one, also before unlock.
+  bool torSwitch;
+  try {
+    torSwitch = DeskFeatures.tor && (await store.torSwitch() ?? false);
+  } on Object catch (e) {
+    logWarn('desk', 'tor switch not read: ${e.runtimeType}');
+    torSwitch = false;
+  }
   final wallet = LepicDeskWallet(
     service: container.read(walletServiceProvider),
     walletDir: container.read(walletDirProvider),
@@ -115,6 +123,7 @@ Future<List<Override>> deskOverrides() async {
     pickDirectory: () => FilePicker.getDirectoryPath(dialogTitle: 'Choose the wallet folder'),
     // bin/tor-bundle beside the app (tools/fetch-tor.sh); without it Tor cannot be turned on.
     torBundle: findTorBundle,
+    torSwitch: torSwitch,
     // The BT Labs contact's website copy (F31); the bundled one is used until it answers.
     seedFetch: LepicDeskWallet.fetchSeeds,
     onions: container.read(onionDirectoryProvider),

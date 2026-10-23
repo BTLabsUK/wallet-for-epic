@@ -386,11 +386,25 @@ final walletOutputsProvider = FutureProvider.autoDispose<List<WalletOutput>>((
   return session.outputs();
 });
 
+/// The open wallet's node tip, asked through the wallet so it follows the wallet's Tor
+/// ([WalletSession.nodeTipFor]); never asked while locked.
 final nodeTipProvider = FutureProvider.autoDispose<NodeTip>((ref) {
+  final session = _requireSession(ref);
   final config = ref.watch(walletConfigProvider);
   if (config == null) throw StateError('No network selected');
-  return ref.watch(walletServiceProvider).nodeTip(config: config);
+  return session.nodeTipFor(config: config);
 });
+
+/// The tip of the node [config] names, for a test of a node typed in: through the open
+/// [session] when there is one, so it follows the wallet's Tor; with none open (first run,
+/// where there is no Tor switch yet) directly.
+Future<NodeTip> askNodeTip(
+  WalletService service,
+  WalletSession? session,
+  WalletConfig config,
+) => session != null
+    ? session.nodeTipFor(config: config)
+    : service.nodeTip(config: config);
 
 /// Prefix of the core's final scan event when the scan failed.
 const String scanFailedPrefix = 'Scan failed:';

@@ -1,9 +1,9 @@
-/// Settings › About › Updates: whether a newer Epic Wallet is out. Check only: the desktop
+/// Settings › About › Updates: whether a newer Epic Cash Desktop is out. Check only: the desktop
 /// never downloads or installs. Reads the signed manifest the phone's updater reads
 /// ([updateManifestUrl], one constant for both), verified with the same bundled keys
 /// ([updateKeyringProvider]) before anything is read from it, and only its `desktop` entry:
 /// the phone's `versionName` is the Android build's. The entry is
-/// `{"version": "0.1.1", "page": "…"}`, or per system `{"windows": {…}, "linux": {…}}`; a
+/// `{"version": "26.10.0", "page": "…"}`, or per system `{"windows": {…}, "linux": {…}}`; a
 /// manifest without it offers nothing, and one that does not verify means no information.
 /// The page opens only on [deskUpdatePageHosts]; any other falls back to [deskReleasesUrl].
 library;
@@ -15,13 +15,14 @@ import 'dart:io' show Platform;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app_log.dart';
+import '../../app_version.dart';
 import '../../btlabs_public.dart';
 import '../../net/http.dart';
 import '../../updater.dart' show updateKeyringProvider, updateManifestUrl;
 
-/// This build's version, without the build id (pubspec's version); the sidebar, About and
-/// the support report show it with the build id (`shell.dart`).
-const String deskAppVersion = '0.1.1';
+/// This build's version, without the build id ([appVersion], pubspec's version); the sidebar,
+/// About and the support report show it with the build id (`shell.dart`).
+const String deskAppVersion = appVersion;
 
 /// Where a download page may be: the project's own GitHub accounts.
 const List<String> deskUpdatePageHosts = ['https://github.com/BTLabs-EPIC/', 'https://github.com/blacktyger/'];
@@ -70,18 +71,21 @@ const int deskManifestTooLarge = -1;
 final deskManifestFetchProvider = Provider<ManifestFetch>((ref) => _fetch);
 final deskUpdateClockProvider = Provider<DateTime Function()>((ref) => DateTime.now);
 
-/// Whether dotted version [a] is newer than [b] (`0.1.10` > `0.1.9`); a build suffix
-/// (`+3`, ` (abc)`) is ignored.
+/// Whether version [a] is newer than [b], by number (`0.1.10` > `0.1.9`, `26.10.0` > `0.1.1`,
+/// `26.10.1` > `26.10.0`); a build suffix (`+3`, ` (abc)`) is ignored. A test build
+/// (`26.10.0-rc1`) is never newer: it is never offered, and it sorts below its release.
 bool isNewerVersion(String a, String b) {
-  List<int> parts(String v) => [
-    for (final p in v.split(RegExp(r'[+ ]')).first.split('.')) int.tryParse(p.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0,
-  ];
-  final x = parts(a), y = parts(b);
-  for (var i = 0; i < x.length || i < y.length; i++) {
-    final d = (i < x.length ? x[i] : 0) - (i < y.length ? y[i] : 0);
+  String core(String v) => v.trim().split(RegExp(r'[+ ]')).first;
+  final x = core(a), y = core(b);
+  if (isTestVersion(x)) return false;
+  List<int> parts(String v) => [for (final p in v.split('-').first.split('.')) int.tryParse(p) ?? 0];
+  final px = parts(x), py = parts(y);
+  for (var i = 0; i < px.length || i < py.length; i++) {
+    final d = (i < px.length ? px[i] : 0) - (i < py.length ? py[i] : 0);
     if (d != 0) return d > 0;
   }
-  return false;
+  // Same numbers: the release is newer than its test build.
+  return isTestVersion(y);
 }
 
 /// Whether [url] is an https page on one of [deskUpdatePageHosts].
