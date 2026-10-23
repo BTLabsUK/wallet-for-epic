@@ -349,3 +349,141 @@ class StatusIcons extends ConsumerWidget {
     );
   }
 }
+
+/// How many of [SignalBars]' three bars are lit: none for a service that is off.
+enum SignalLevel { none, one, two, three }
+
+/// The desktop's three-bar signal glyph, drawn: three bars of rising height in an
+/// [statusGlyph] box with 2 dp gaps, the lit ones in [color], the others in the hairline
+/// colour. [pulse] fades it while a node syncs (still with reduced motion).
+class SignalBars extends StatelessWidget {
+  const SignalBars({
+    super.key,
+    required this.level,
+    required this.color,
+    this.pulse = false,
+  });
+
+  final SignalLevel level;
+  final Color color;
+  final bool pulse;
+
+  @override
+  Widget build(BuildContext context) {
+    return ExcludeSemantics(
+      child: Pulse(
+        active: pulse,
+        child: CustomPaint(
+          size: const Size.square(statusGlyph),
+          painter: _BarsPainter(level.index, color, context.tokens.line),
+        ),
+      ),
+    );
+  }
+}
+
+class _BarsPainter extends CustomPainter {
+  const _BarsPainter(this.lit, this.color, this.unlit);
+
+  final int lit;
+  final Color color;
+  final Color unlit;
+
+  static const double _gap = 2;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final w = (size.width - 2 * _gap) / 3;
+    for (var i = 0; i < 3; i++) {
+      final h = size.height * (i + 1) / 3;
+      final left = i * (w + _gap);
+      canvas.drawRRect(
+        RRect.fromRectAndRadius(
+          Rect.fromLTWH(left, size.height - h, w, h),
+          const Radius.circular(1),
+        ),
+        Paint()..color = i < lit ? color : unlit,
+      );
+    }
+  }
+
+  @override
+  bool shouldRepaint(_BarsPainter old) =>
+      old.lit != lit || old.color != color || old.unlit != unlit;
+}
+
+/// A service's state on the status card and in the pickers: its bars, their colour and the
+/// word that always goes with them.
+typedef NetFace = ({SignalLevel level, Color color, String word});
+
+/// From this many blocks behind the network's tip a node that answers reads "Behind N".
+const int behindAfter = 3;
+
+/// The node's face on the status card. [behind] is the node's lag behind the network tip
+/// when the monitor told it, for a node that answers.
+NetFace nodeNetFace(BuildContext context, NodeStatus node, {int? behind}) {
+  final l = context.l10n;
+  final t = context.tokens;
+  return switch (node.state) {
+    NodeState.online when behind != null && behind >= behindAfter => (
+      level: SignalLevel.two,
+      color: t.risk,
+      word: l.netStatusBehind(behind),
+    ),
+    NodeState.online => (
+      level: SignalLevel.three,
+      color: t.ok,
+      word: l.netStatusSynced,
+    ),
+    NodeState.syncing => (
+      level: SignalLevel.two,
+      color: t.dim,
+      word: node.percent == null
+          ? l.netStatusSyncing
+          : l.netStatusSyncingPercent(node.percent!),
+    ),
+    NodeState.connecting => (
+      level: SignalLevel.one,
+      color: t.dim,
+      word: l.netStatusConnecting,
+    ),
+    NodeState.offline => (
+      level: SignalLevel.one,
+      color: t.risk,
+      word: l.netStatusOffline,
+    ),
+  };
+}
+
+/// The epicbox listener's face; null [state] is a stopped listener ("Off").
+NetFace epicboxNetFace(BuildContext context, EpicboxState? state) {
+  final l = context.l10n;
+  final t = context.tokens;
+  return switch (state) {
+    EpicboxState.online => (
+      level: SignalLevel.three,
+      color: t.ok,
+      word: l.netStatusOnline,
+    ),
+    EpicboxState.connecting => (
+      level: SignalLevel.one,
+      color: t.dim,
+      word: l.netStatusConnecting,
+    ),
+    EpicboxState.offline => (
+      level: SignalLevel.one,
+      color: t.risk,
+      word: l.netStatusOffline,
+    ),
+    null => (level: SignalLevel.none, color: t.dim, word: l.netStatusOff),
+  };
+}
+
+/// A server address as the screen shows it: the host only, with the port only when it is not
+/// the scheme's default. Text that is no address comes back as it is.
+String serverHost(String url) {
+  final u = Uri.tryParse(url.trim());
+  if (u == null || u.host.isEmpty) return url.trim();
+  final port = u.hasPort && u.port != (u.scheme == 'http' ? 80 : 443);
+  return port ? '${u.host}:${u.port}' : u.host;
+}
