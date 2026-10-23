@@ -587,16 +587,18 @@ class WalletUpdate {
 
 /// Verifies [envelope] by FORMAT.md section 5, steps 1 to 9. Never throws.
 ///
-/// [state] is the stored state (null on first run). [now] is the clock.
+/// [state] is the stored state (null on first run). [now] is the clock. [alsoRevoked] are keys
+/// another signed file (update.json) revoked: they count as revoked here too.
 Future<VerifyResult<BtlabsPublic>> verifyBtlabsPublic(
   String envelope, {
   required Keyring keyring,
   ManifestState? state,
   required DateTime now,
   String payloadType = btlabsPublicType,
+  Set<String> alsoRevoked = const {},
 }) async {
   try {
-    return await _verify<BtlabsPublic>(envelope, keyring, state, now, payloadType, _parsePayload);
+    return await _verify<BtlabsPublic>(envelope, keyring, state, now, payloadType, _parsePayload, alsoRevoked);
   } catch (_) {
     return const Rejected<BtlabsPublic>(RejectReason.malformed);
   }
@@ -620,19 +622,21 @@ Future<VerifyResult<WalletUpdate>> verifyWalletUpdate(
 /// Re-checks a stored envelope on load (FORMAT.md section 5, last paragraph).
 ///
 /// The signer must be trusted and not revoked, the signature valid and the
-/// payload digest equal to [state].digest. Expiry and serial are not checked.
+/// payload digest equal to [state].digest. Expiry and serial are not checked. [alsoRevoked]
+/// are keys another signed file revoked, as for [verifyBtlabsPublic].
 /// Returns null on any failure.
 Future<BtlabsPublic?> loadCachedBtlabsPublic(
   String envelope, {
   required Keyring keyring,
   required ManifestState state,
   String payloadType = btlabsPublicType,
+  Set<String> alsoRevoked = const {},
 }) async {
   try {
     if (utf8.encode(envelope).length > btlabsMaxEnvelopeBytes) return null;
     final env = _parseEnvelope(envelope);
     if (env == null || env.type != payloadType) return null;
-    final signer = await _findSigner(env, keyring, state.revoked);
+    final signer = await _findSigner(env, keyring, {...state.revoked, ...alsoRevoked});
     if (signer is! BtlabsKey) return null;
     if (_hex((await const DartSha256().hash(env.payload)).bytes) != state.digest) return null;
     return _parsePayload(env.payload).manifest;
@@ -647,14 +651,15 @@ Future<VerifyResult<T>> _verify<T>(
   ManifestState? state,
   DateTime now,
   String payloadType,
-  _Parsed<T> Function(List<int>) parse,
-) async {
+  _Parsed<T> Function(List<int>) parse, [
+  Set<String> alsoRevoked = const {},
+]) async {
   if (utf8.encode(envelope).length > btlabsMaxEnvelopeBytes) return Rejected<T>(RejectReason.tooLarge);
   final env = _parseEnvelope(envelope);
   if (env == null) return Rejected<T>(RejectReason.malformed);
   if (env.type != payloadType) return Rejected<T>(RejectReason.wrongType);
 
-  final stored = state?.revoked ?? const <String>{};
+  final stored = {...?state?.revoked, ...alsoRevoked};
   final signer = await _findSigner(env, keyring, stored);
   if (signer is RejectReason) return Rejected<T>(signer);
   signer as BtlabsKey;
@@ -1016,7 +1021,8 @@ _Parsed<BtlabsPublic> _parsePayload(List<int> bytes) {
 }
 
 /// The optional onion list. Version 1 clients ignore the field, so a bad entry is skipped (never
-/// a reason to reject the file) and a repeated `host:port` keeps the first.
+/// a reason to reject the file) and a repeated `host:port` keeps the first. Only BT Labs' own
+/// hosts ([isBtlabsHost]) may be mapped to an onion; an entry for any other host is skipped.
 List<BtlOnion>? _onions(Object? v) {
   if (v is! List) return null;
   final seen = <String>{};
@@ -1037,6 +1043,7 @@ List<BtlOnion>? _onions(Object? v) {
         onionPort: _int(o['onion_port'], 1, 65535),
         tls: tls,
       );
+      if (!isBtlabsHost(entry.host)) continue;
       if (seen.add('${entry.host}:${entry.port}')) out.add(entry);
     } on _Bad {
       continue;
@@ -1046,6 +1053,13 @@ List<BtlOnion>? _onions(Object? v) {
 }
 
 final _onionRe = RegExp(r'^[a-z2-7]{56}\.onion$');
+
+/// Whether [host] is `btlabs.uk` or a name under it (whole labels: `xbtlabs.uk` and
+/// `btlabs.uk.example.com` are not).
+bool isBtlabsHost(String host) {
+  final h = host.toLowerCase();
+  return h == 'btlabs.uk' || h.endsWith('.btlabs.uk');
+}
 
 Map<String, dynamic> _obj(Object? v) => v is Map<String, dynamic> ? v : throw const _Bad();
 

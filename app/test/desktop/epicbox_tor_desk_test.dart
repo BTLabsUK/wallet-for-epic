@@ -36,6 +36,8 @@ void main() {
     nodePoll: const Duration(hours: 1),
     torBundle: () async => _bundle,
     torFeature: true,
+    // Tor that ended stays ended here: no restarts by itself.
+    torStartBackoff: const [],
   );
 
   setUp(() async {

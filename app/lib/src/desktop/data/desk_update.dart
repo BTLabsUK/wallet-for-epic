@@ -18,7 +18,8 @@ import '../../app_log.dart';
 import '../../app_version.dart';
 import '../../btlabs_public.dart';
 import '../../net/http.dart';
-import '../../updater.dart' show updateKeyringProvider, updateManifestUrl;
+import '../../updater.dart' show laterUpdateState, storedUpdateState, updateKeyringProvider, updateManifestUrl, updateStateKey;
+import 'desk_store.dart';
 
 /// This build's version, without the build id ([appVersion], pubspec's version); the sidebar,
 /// About and the support report show it with the build id (`shell.dart`).
@@ -125,8 +126,37 @@ class DeskUpdateController extends Notifier<DeskUpdateState> {
     state = DeskUpdateState(next.phase, version: next.version, page: next.page, reason: next.reason, checkedAt: now);
   }
 
-  /// The last manifest accepted in this run; a later, older one is refused (FORMAT.md §6).
+  /// The last manifest accepted, also in an earlier run ([updateStateKey] in the desk store);
+  /// an older one is refused (FORMAT.md §6).
   ManifestState? _manifestState;
+
+  /// Whether the stored state was read. Until it is, nothing is stored over it: a store that
+  /// could not be read is asked again at the next check.
+  bool _stateRead = false;
+
+  Future<void> _readState() async {
+    if (_stateRead) return;
+    final store = ref.read(deskStoreProvider);
+    try {
+      if (store != null) _manifestState = laterUpdateState(storedUpdateState(await store.readJson(updateStateKey)), _manifestState);
+      _stateRead = true;
+    } on Object catch (e) {
+      logWarn('update', 'desktop: stored update.json state not read: ${e.runtimeType}');
+    }
+  }
+
+  /// Remembers [next], the state of a manifest that just verified, and stores it.
+  Future<void> _keepState(ManifestState next) async {
+    if (next == _manifestState) return;
+    _manifestState = next;
+    final store = ref.read(deskStoreProvider);
+    if (!_stateRead || store == null) return;
+    try {
+      await store.writeJson(updateStateKey, next.toJson());
+    } on Object catch (e) {
+      logWarn('update', 'desktop: update.json state not stored: ${e.runtimeType}');
+    }
+  }
 
   /// The update the last accepted manifest offered, if any: it stays offered when a later
   /// manifest does not verify or none is published (FORMAT.md §5: keep what you have).
@@ -137,6 +167,7 @@ class DeskUpdateController extends Notifier<DeskUpdateState> {
     if (status == 404) return _known ?? const DeskUpdateState(DeskUpdatePhase.latest);
     if (status == deskManifestTooLarge) return _notVerified(RejectReason.tooLarge);
     if (status != 200) return DeskUpdateState(DeskUpdatePhase.failed, reason: 'The update server answered $status.');
+    await _readState();
     final result = await verifyWalletUpdate(
       body,
       keyring: ref.read(updateKeyringProvider),
@@ -144,7 +175,7 @@ class DeskUpdateController extends Notifier<DeskUpdateState> {
       now: ref.read(deskUpdateClockProvider)().toUtc(),
     );
     if (result is! Accepted<WalletUpdate>) return _notVerified((result as Rejected<WalletUpdate>).reason);
-    _manifestState = result.state;
+    await _keepState(result.state);
     _known = null;
     final mine = result.manifest.desktop?.forSystem(_system);
     if (mine == null) {

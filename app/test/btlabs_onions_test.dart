@@ -72,4 +72,24 @@ void main() {
     final raw = String.fromCharCodes(publicPayload(d, serial: 3, onions: [onionEntry('node.btlabs.uk')]));
     expect(await verify(raw), isA<Rejected<BtlabsPublic>>());
   });
+
+  test("only BT Labs' own hosts may be mapped to an onion", () async {
+    final f = await file(
+      onions: [
+        onionEntry('btlabs.uk', id: 'apex'),
+        onionEntry('node.btlabs.uk', id: 'node'),
+        onionEntry('evil.btlabs.uk.attacker.com', id: 'e1'),
+        onionEntry('xbtlabs.uk', id: 'e2'),
+        onionEntry('example.com', id: 'e3'),
+        onionEntry('btlabs.uk.example', id: 'e4'),
+        onionEntry('status.btlabs.uk', id: 'status', onionPort: 80, tls: false),
+      ],
+    );
+    final o = OnionDirectory()..adopt(f);
+    expect(o.entries.map((e) => e.host), ['btlabs.uk', 'node.btlabs.uk', 'status.btlabs.uk']);
+    expect(o.onionFor('status.btlabs.uk')!.tls, isFalse, reason: 'the plain status onion is still listed');
+    expect(isBtlabsHost('a.b.btlabs.uk'), isTrue);
+    expect(isBtlabsHost('btlabs.uk.'), isFalse);
+    expect(isBtlabsHost('notbtlabs.uk'), isFalse);
+  });
 }

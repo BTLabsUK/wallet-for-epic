@@ -13,6 +13,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'app_log.dart';
 import 'btlabs_onions.dart';
 import 'providers.dart';
+import 'secret_store_api.dart';
 import 'tor_location.dart';
 import 'wallet_service.dart';
 
@@ -45,7 +46,11 @@ class PhoneTorState {
     this.failure,
     this.receiving = false,
     this.socksPort,
+    this.settled = true,
   });
+
+  /// Locked, or the wallet opening: its switch is not read yet.
+  static const unread = PhoneTorState(phase: PhoneTorPhase.off, settled: false);
 
   final PhoneTorPhase phase;
 
@@ -65,6 +70,10 @@ class PhoneTorState {
   /// again by every start, so it is only used while [canSend].
   final int? socksPort;
 
+  /// The wallet's saved switch has been read, so [receiving] is the user's choice. Until then
+  /// the state says nothing about the switch, and the app's requests keep the way launch set.
+  final bool settled;
+
   /// Sends to onions work now.
   bool get canSend =>
       phase == PhoneTorPhase.connected || phase == PhoneTorPhase.ready;
@@ -83,6 +92,7 @@ class PhoneTorState {
     failure: failure == null ? this.failure : failure(),
     receiving: receiving ?? this.receiving,
     socksPort: socksPort ?? this.socksPort,
+    settled: settled,
   );
 
   @override
@@ -92,7 +102,8 @@ class PhoneTorState {
       onion.hashCode ^
       failure.hashCode ^
       receiving.hashCode ^
-      socksPort.hashCode;
+      socksPort.hashCode ^
+      settled.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -103,7 +114,8 @@ class PhoneTorState {
           onion == other.onion &&
           failure == other.failure &&
           receiving == other.receiving &&
-          socksPort == other.socksPort;
+          socksPort == other.socksPort &&
+          settled == other.settled;
 
   @override
   String toString() =>
@@ -248,8 +260,19 @@ class PhoneTor extends Notifier<PhoneTorState> {
   Future<void>? _stopping;
   final List<Completer<void>> _sendWaiters = [];
 
-  static String receivingKey(WalletConfig config) =>
-      'phone.tor_receiving.${config.chain.name}.${config.walletId ?? 'legacy'}';
+  static String receivingKey(WalletConfig config) => _receivingKey(config.chain, config.walletId);
+
+  static String _receivingKey(Chain chain, String? walletId) =>
+      'phone.tor_receiving.${chain.name}.${walletId ?? 'legacy'}';
+
+  /// Whether the phone's wallet has its Tor switch saved on, on any network: read at launch,
+  /// before the first request, so the app's own requests wait for tor from launch (`main.dart`).
+  static Future<bool> savedOn(SecretStore store) async {
+    for (final chain in Chain.values) {
+      if (await store.read(_receivingKey(chain, null)) == 'true') return true;
+    }
+    return false;
+  }
 
   /// Before [session] opens: hands it Epicbox over Tor ([epicboxOverTorProvider]) and the onion
   /// routes ([onionDirectoryProvider]) and, when tor will start for receiving, has its Epicbox
@@ -306,9 +329,9 @@ class PhoneTor extends Notifier<PhoneTorState> {
       WidgetsBinding.instance.removeObserver(lifecycle);
       unawaited(network.cancel());
     });
-    if (session == null) return const PhoneTorState(phase: PhoneTorPhase.off);
+    if (session == null) return PhoneTorState.unread;
     unawaited(_open(session, generation));
-    return const PhoneTorState(phase: PhoneTorPhase.off);
+    return PhoneTorState.unread;
   }
 
   bool _current(int generation) => generation == _generation && ref.mounted;
