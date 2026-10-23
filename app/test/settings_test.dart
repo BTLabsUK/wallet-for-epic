@@ -1744,8 +1744,8 @@ void main() {
         'Rescan the chain',
         'Delete this wallet',
       ]);
-      // Node and Epicbox shows its server as a state line, as the hub rows do.
-      await noSubtitles(SettingsSection.privacyNetwork, ['Epicbox server']);
+      // Node and Epicbox and Epicbox server show their server as a state line, so only
+      // the plain words are checked on the Privacy & network page.
       await h.openSettings(tester, SettingsSection.privacyNetwork);
       await _reveal(tester, find.text('Epicbox server'));
       expect(find.textContaining('relay'), findsNothing);
@@ -1821,23 +1821,11 @@ void main() {
   });
 
   group('advanced options', () {
-    /// Every text on a Settings page, built by scrolling it from top to bottom.
-    Future<Set<String>> pageTexts(WidgetTester tester) async {
-      final seen = <String>{};
-      final list = find.byType(Scrollable).last;
-      await tester.drag(list, const Offset(0, 20000));
-      await tester.pumpAndSettle();
-      for (var i = 0; i < 20; i++) {
-        seen.addAll(
-          tester.widgetList<Text>(find.byType(Text)).map((t) => t.data ?? ''),
-        );
-        await tester.drag(list, const Offset(0, -400));
-        await tester.pumpAndSettle();
-      }
-      await tester.drag(list, const Offset(0, 20000));
-      await tester.pumpAndSettle();
-      return seen;
-    }
+    /// Every text built on the page in front: the pages are short enough to build whole.
+    Set<String> pageTexts(WidgetTester tester) => tester
+        .widgetList<Text>(find.byType(Text))
+        .map((t) => t.data ?? '')
+        .toSet();
 
     testWidgets('the switch shows network, node, relay and rescan, and is '
         'saved', (tester) async {
@@ -1861,7 +1849,7 @@ void main() {
             section,
           );
           await tester.pumpAndSettle();
-          if (section != SettingsSection.about) seen.addAll(await pageTexts(tester));
+          if (section != SettingsSection.about) seen.addAll(pageTexts(tester));
         }
         return seen;
       }

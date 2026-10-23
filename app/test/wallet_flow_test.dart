@@ -10,6 +10,7 @@ import 'package:epic_wallet/src/push.dart';
 import 'package:epic_wallet/src/relay_directory.dart';
 import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/slate_files.dart';
+import 'package:epic_wallet/src/ui/settings_screen.dart';
 import 'package:epic_wallet/src/ui/common.dart';
 import 'package:epic_wallet/src/ui/home_parts.dart';
 import 'package:epic_wallet/src/ui/server_picker.dart' show serverRowKey;
@@ -729,6 +730,7 @@ void main() {
       await _unlockToHome(tester);
 
       await _tap(tester, find.byTooltip('Settings'));
+      await _tap(tester, find.byKey(settingsGroupKey(SettingsSection.security)));
       await _tapText(tester, 'Unlock with biometrics');
       await tester.enterText(
         find.descendant(
@@ -753,11 +755,14 @@ void main() {
       await _unlockToHome(tester);
 
       await _tap(tester, find.byTooltip('Settings'));
+      await _tap(tester, find.byKey(settingsGroupKey(SettingsSection.wallet)));
       await _tapText(tester, 'Rescan the chain');
       await _tapText(tester, 'The whole chain');
       await _tapText(tester, 'Rescan');
       expect(service.session.scanCalls, 1);
       await _clearNotices(tester);
+      await tester.pageBack();
+      await tester.pumpAndSettle();
       await tester.pageBack();
       await tester.pumpAndSettle();
       expect(find.byKey(balanceFigureKey), findsOneWidget);
@@ -779,9 +784,12 @@ void main() {
       await _unlockToHome(tester);
 
       await _tap(tester, find.byTooltip('Settings'));
+      await _tap(tester, find.byKey(settingsGroupKey(SettingsSection.wallet)));
       await _tapText(tester, 'Rescan the chain');
       await _tapText(tester, 'The whole chain');
       await _tapText(tester, 'Rescan');
+      await tester.pageBack();
+      await tester.pumpAndSettle();
       await tester.pageBack();
       await tester.pumpAndSettle();
       expect(find.text('The scan failed. node unreachable'), findsOneWidget);
