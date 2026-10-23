@@ -16,8 +16,9 @@
 #
 # WFE_DESKTOP_RELEASE=1 adds the `desktop` entry the desktop update check reads
 # (lib/src/desktop/data/desk_update.dart): set it only when this release also ships desktop
-# builds, else the desktop would offer a release that has none. Its page is the release's tag
-# page, derived from download-base-url.
+# builds, else the desktop would offer a release that has none. Its page is WFE_DESKTOP_PAGE
+# (e.g. https://examples.btlabs.uk/epic-cash-wallets/), else the release's tag page derived from
+# download-base-url; the desktop opens only pages on deskUpdatePageHosts (desk_update.dart).
 #
 # Set the release's version first (`tools/version.sh set`, https://docs.btlabs.uk/developers/releases/): Android installs
 # an update only when its version code is higher, and only when it is signed with the same key as
@@ -83,7 +84,7 @@ done
 
 desktop_page=""
 if [[ "${WFE_DESKTOP_RELEASE:-}" == 1 ]]; then
-  desktop_page="${base_url/\/releases\/download\//\/releases\/tag\/}"
+  desktop_page="${WFE_DESKTOP_PAGE:-${base_url/\/releases\/download\//\/releases\/tag\/}}"
 fi
 issued_epoch="$(date -u +%s)"
 issued_at="$(date -u -d "@$issued_epoch" +%Y-%m-%dT%H:%M:%SZ)"
