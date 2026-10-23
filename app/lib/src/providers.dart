@@ -386,17 +386,13 @@ final walletOutputsProvider = FutureProvider.autoDispose<List<WalletOutput>>((
   return session.outputs();
 });
 
-/// The node's tip, asked through the open wallet so it follows the wallet's Tor
-/// ([WalletSession.nodeTipFor]); with no wallet open there is no Tor switch yet (it is the
-/// wallet's), so it is asked directly ([askNodeTip]).
+/// The open wallet's node tip, asked through the wallet so it follows the wallet's Tor
+/// ([WalletSession.nodeTipFor]); never asked while locked.
 final nodeTipProvider = FutureProvider.autoDispose<NodeTip>((ref) {
+  final session = _requireSession(ref);
   final config = ref.watch(walletConfigProvider);
   if (config == null) throw StateError('No network selected');
-  return askNodeTip(
-    ref.read(walletServiceProvider),
-    ref.watch(sessionProvider),
-    config,
-  );
+  return session.nodeTipFor(config: config);
 });
 
 /// The tip of the node [config] names, for a test of a node typed in: through the open
