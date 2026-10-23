@@ -295,7 +295,7 @@ class _TimelineStep extends StatelessWidget {
         border: Border.all(
           color: switch (step.state) {
             _S.done => c.ok.withValues(alpha: 0.5),
-            _S.now => c.accent,
+            _S.now => c.info,
             _S.todo => c.lineStrong,
           },
         ),
@@ -304,7 +304,7 @@ class _TimelineStep extends StatelessWidget {
         _S.done => Icon(EIcons.check, size: 13.u, color: c.ok),
         _S.now => Padding(
           padding: EdgeInsets.all(4.u),
-          child: CircularProgressIndicator(strokeWidth: 1.5, color: c.accent),
+          child: CircularProgressIndicator(strokeWidth: 1.5, color: c.info),
         ),
         _S.todo => null,
       },

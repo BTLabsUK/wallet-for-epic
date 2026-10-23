@@ -20,6 +20,7 @@ class ResultGlyph extends StatelessWidget {
       ETone.risk => (c.risk, c.riskSoft),
       ETone.warn => (c.warn, c.warnSoft),
       ETone.ok => (c.ok, c.okSoft),
+      ETone.info => (c.info, c.infoSoft),
       _ => (c.accentText, c.accentSoft),
     };
     return ExcludeSemantics(

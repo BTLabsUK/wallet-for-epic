@@ -1,6 +1,7 @@
-// Settings › Privacy: the one Tor switch, bound to the phone's Tor controller, with one line
+// Settings › Privacy & network: the one Tor switch, bound to the phone's Tor controller, with one line
 // saying what it covers ("Not connected" and Retry when Tor failed); not under Advanced (F28),
-// and absent where the app has no Tor. Notifications are not offered while Tor is on.
+// and absent where the app has no Tor. Notifications (on the hub) are not offered while Tor
+// is on.
 
 import 'dart:async';
 
@@ -119,15 +120,27 @@ Future<void> _reach(WidgetTester tester, Finder finder) async {
   await tester.pumpAndSettle();
 }
 
-SwitchListTile _push(WidgetTester tester) =>
-    tester.widget<SwitchListTile>(find.byKey(settingsPushKey));
+ListTile _push(WidgetTester tester) =>
+    tester.widget<ListTile>(
+  find.descendant(
+    of: find.byKey(settingsPushKey),
+    matching: find.byType(ListTile),
+  ),
+);
+
+Switch _pushSwitch(WidgetTester tester) => tester.widget<Switch>(
+  find.descendant(
+    of: find.byKey(settingsPushKey),
+    matching: find.byType(Switch),
+  ),
+);
 
 void main() {
   testWidgets('Privacy: one Tor switch, what it covers, no Advanced needed', (
     tester,
   ) async {
     final h = _Harness();
-    await h.pump(tester);
+    await h.pump(tester, privacy: true);
     final privacy = find.byKey(settingsPrivacyKey);
     expect(privacy, findsOneWidget);
     expect(find.text('Privacy'), findsOneWidget);
@@ -220,7 +233,7 @@ void main() {
     tester,
   ) async {
     final h = _Harness();
-    await h.pump(tester);
+    await h.pump(tester, privacy: true);
     await h.container.read(phoneTorProvider.notifier).setReceiving(true);
     await tester.pumpAndSettle();
     await h.emit(tester, TorEventKind.failed, failure: TorFailure.network);
@@ -257,15 +270,15 @@ void main() {
         );
     await tester.pumpAndSettle();
     await _reach(tester, find.byKey(settingsPushKey));
-    expect(_push(tester).onChanged, isNotNull);
+    expect(_pushSwitch(tester).onChanged, isNotNull);
     expect(_push(tester).subtitle, isNull);
 
     await h.container.read(phoneTorProvider.notifier).setReceiving(true);
     await tester.pumpAndSettle();
     await h.emit(tester, TorEventKind.ready);
     await _reach(tester, find.byKey(settingsPushKey));
-    expect(_push(tester).onChanged, isNull);
-    expect(_push(tester).value, isFalse);
+    expect(_pushSwitch(tester).onChanged, isNull);
+    expect(_pushSwitch(tester).value, isFalse);
     expect(find.text('Paused while Tor is on'), findsNothing);
   });
 
@@ -281,7 +294,7 @@ void main() {
 
   testWidgets('no Tor switch where the app has no Tor', (tester) async {
     final h = _Harness(bundle: null);
-    await h.pump(tester);
+    await h.pump(tester, privacy: true);
     expect(find.byKey(torReceivingSwitchKey), findsNothing);
   });
 }

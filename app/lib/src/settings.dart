@@ -117,6 +117,7 @@ class AppSettings {
     this.useStatusSite = true,
     this.sendStrategy = SelectionStrategy.smallest,
     this.splitChange = true,
+    this.hiddenTips = const {},
   });
 
   final ThemeMode themeMode;
@@ -172,6 +173,13 @@ class AppSettings {
   /// snapshots were kept.
   final Map<String, HistoryExportSnapshot> historyExportSnapshots;
 
+  /// The ids of the inline guides the user closed with their X (`DismissibleTip`), for good
+  /// until Show tips again clears them.
+  final Set<String> hiddenTips;
+
+  /// Whether any guide is hidden, so Show tips again can be off when there is nothing to show.
+  bool get tipsHidden => hiddenTips.isNotEmpty;
+
   AppSettings copyWith({
     ThemeMode? themeMode,
     String? fiatCurrency,
@@ -188,6 +196,7 @@ class AppSettings {
     bool? useStatusSite,
     SelectionStrategy? sendStrategy,
     bool? splitChange,
+    Set<String>? hiddenTips,
   }) => AppSettings(
     themeMode: themeMode ?? this.themeMode,
     fiatCurrency: fiatCurrency ?? this.fiatCurrency,
@@ -209,6 +218,7 @@ class AppSettings {
     useStatusSite: useStatusSite ?? this.useStatusSite,
     sendStrategy: sendStrategy ?? this.sendStrategy,
     splitChange: splitChange ?? this.splitChange,
+    hiddenTips: hiddenTips ?? this.hiddenTips,
   );
 }
 
@@ -222,6 +232,11 @@ final appSettingsProvider =
       AppSettingsNotifier.new,
     );
 
+/// Whether any inline guide is hidden; Show tips again is off while this is false.
+final tipsHiddenProvider = Provider<bool>(
+  (ref) => ref.watch(appSettingsProvider).value?.tipsHidden ?? false,
+);
+
 class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
   static const String _themeKey = 'app.theme';
   static const String _currencyKey = 'app.fiat';
@@ -234,6 +249,7 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
   static const String _strategyKey = 'app.send_strategy';
   static const String _splitChangeKey = 'app.split_change';
   static const String statusSiteKey = 'app.status_site';
+  static const String tipsHiddenKey = 'app.tips_hidden';
   static String _exportedKey(Chain chain) =>
       'app.history_exported.${chain.name}';
   static String _dismissedKey(Chain chain) =>
@@ -258,6 +274,7 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
     final advanced = await store.read(_advancedKey);
     final strategy = await store.read(_strategyKey);
     final splitChange = await store.read(_splitChangeKey);
+    final tips = await store.read(tipsHiddenKey);
     final site = await store.read(statusSiteKey) != 'false';
     statusSite.on = site;
     Future<Map<String, int>> perChain(String Function(Chain) key) async => {
@@ -318,7 +335,18 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
       splitChange: splitChange == null
           ? defaults.splitChange
           : splitChange == 'true',
+      hiddenTips: _tipIds(tips),
     );
+  }
+
+  /// The ids saved under [tipsHiddenKey], a JSON list; anything else counts as none hidden.
+  static Set<String> _tipIds(String? raw) {
+    if (raw == null) return const {};
+    try {
+      return {...(jsonDecode(raw) as List).whereType<String>()};
+    } catch (_) {
+      return const {};
+    }
   }
 
   Future<AppSettings> _current() async => state.value ?? await future;
@@ -474,5 +502,24 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
         },
       ),
     );
+  }
+
+  /// Hides the inline guide [id] for good (its X).
+  Future<void> hideTip(String id) async {
+    final current = await _current();
+    if (current.hiddenTips.contains(id)) return;
+    final next = {...current.hiddenTips, id};
+    await _put(
+      tipsHiddenKey,
+      jsonEncode(next.toList()..sort()),
+      current.copyWith(hiddenTips: next),
+    );
+  }
+
+  /// Shows every hidden guide again (Settings, Show tips again).
+  Future<void> showTipsAgain() async {
+    final current = await _current();
+    await ref.read(secretStoreProvider).delete(tipsHiddenKey);
+    state = AsyncData(current.copyWith(hiddenTips: const {}));
   }
 }

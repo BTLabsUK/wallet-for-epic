@@ -15,6 +15,7 @@ import 'package:epic_wallet/src/settings.dart';
 import 'package:epic_wallet/src/ui/common.dart';
 import 'package:epic_wallet/src/ui/history_screen.dart';
 import 'package:epic_wallet/src/ui/home_parts.dart';
+import 'package:epic_wallet/src/ui/network_status.dart' show NetworkStatusCard;
 import 'package:epic_wallet/src/ui/receive_screen.dart';
 import 'package:epic_wallet/src/ui/home_screen.dart';
 import 'package:epic_wallet/src/ui/scan_screen.dart';
@@ -541,10 +542,11 @@ String _titleText(WidgetTester tester) {
 
 /// The status words of the card row with [key], as its label opens: "Node online" of
 /// "Node online, node.btlabs.uk, Synced".
+/// What a screen reader says for the status icon with [key]: the service and its word.
 String _statusWord(WidgetTester tester, Key key) =>
-    _statusSemantics(tester, key).label.split(', ').first;
+    _statusSemantics(tester, key).label;
 
-/// The hint of the card row with [key]: the old icon's tooltip detail.
+/// The hint of the status icon with [key]: its tooltip detail, then what a tap does.
 String _statusTip(WidgetTester tester, Key key) =>
     _statusSemantics(tester, key).hint;
 
@@ -863,8 +865,8 @@ void main() {
 
       expect(_figure(tester), '12.5');
       expect(find.text('≈ 6.25 USD'), findsOneWidget);
-      expect(_statusWord(tester, nodeStatusKey), 'Node online');
-      expect(_statusWord(tester, epicboxStatusKey), 'Epicbox connecting');
+      expect(_statusWord(tester, nodeStatusKey), 'Node, Synced');
+      expect(_statusWord(tester, epicboxStatusKey), 'Epicbox, Connecting');
       // 2 EPIC are locked, so the Locked in sends tile says so.
       expect(_inTile(BalanceKind.locked, '2'), findsOneWidget);
       // The height is only in the tooltip.
@@ -1426,7 +1428,7 @@ void main() {
         );
       await tester.pumpAndSettle();
       await tester.pump(statusSettle);
-      expect(_statusWord(tester, epicboxStatusKey), 'Epicbox offline');
+      expect(_statusWord(tester, epicboxStatusKey), 'Epicbox, Offline');
       expect(
         _statusTip(tester, epicboxStatusKey),
         contains('Epicbox offline, reconnecting.'),
@@ -1619,7 +1621,7 @@ void main() {
       await tester.pump(statusSettle);
       // Local figures while the refresh against the node runs, with its progress.
       expect(_figure(tester), '12.5');
-      expect(_statusWord(tester, nodeStatusKey), 'Node syncing 40%');
+      expect(_statusWord(tester, nodeStatusKey), 'Node, Syncing 40 %');
       // The line along the app bar's foot is drawn as far as the sync has come, and no
       // other progress shows.
       expect(_syncLine(tester), 0.4);
@@ -1661,8 +1663,8 @@ void main() {
         const ListenerEvent(kind: ListenerEventKind.connected, message: 'a'),
       );
       await tester.pumpAndSettle();
-      expect(_statusWord(tester, nodeStatusKey), 'Node online');
-      expect(_statusWord(tester, epicboxStatusKey), 'Epicbox online');
+      expect(_statusWord(tester, nodeStatusKey), 'Node, Synced');
+      expect(_statusWord(tester, epicboxStatusKey), 'Epicbox, Online');
       expect(find.textContaining('Up to date'), findsNothing);
       expect(find.textContaining('receive payments'), findsNothing);
     });
@@ -3196,7 +3198,7 @@ void main() {
       );
       expect(find.text('Spendable'), findsNothing);
       expect(find.textContaining('not spendable yet'), findsNothing);
-      expect(find.byKey(walletStatusesKey), findsNothing);
+      expect(find.byKey(walletStatusesKey), findsOneWidget);
       expect(find.byType(BalanceHelp), findsNothing);
       // The fiat value in mono under the figure, then the eye.
       expect(find.text('≈ 6.25 USD'), findsOneWidget);
@@ -3438,7 +3440,7 @@ void main() {
     ]) {
       for (final width in [320.0, 412.0]) {
         testWidgets(
-          'statuses in the card on Wallet only, with $what at $width dp',
+          'status icons in the balance row on Wallet only, with $what at $width dp',
           (tester) async {
             final h = _Harness(
               still: true,
@@ -3451,21 +3453,24 @@ void main() {
             );
             await h.pump(tester);
             final appBar = find.byType(AppBar);
-            // Wallet: the card's rows, under the tiles; the figure's row has the fiat value and
-            // the eye to itself.
-            expect(find.byKey(walletStatusesKey), findsNothing);
+            // Wallet: the icons at the start of the figure's row, the fiat value and the
+            // eye at its end, all on one line, and no status card in the list.
+            expect(find.byKey(walletStatusesKey), findsOneWidget);
+            expect(find.byType(NetworkStatusCard), findsNothing);
             final node = tester.getRect(find.byKey(nodeStatusKey));
             final epicbox = tester.getRect(find.byKey(epicboxStatusKey));
             final fiat = tester.getRect(find.byKey(fiatValueKey));
             final eye = tester.getRect(find.byTooltip('Hide balances'));
+            expect(node.size, const Size(48, 48));
+            expect(epicbox.left, node.right);
+            expect(fiat.left, greaterThanOrEqualTo(epicbox.right));
             expect(eye.left, greaterThanOrEqualTo(fiat.right - 0.5));
             expect(fiat.center.dy, closeTo(eye.center.dy, 1));
-            expect(node.height, greaterThanOrEqualTo(48));
-            expect(epicbox.top, greaterThanOrEqualTo(node.bottom - 0.5));
+            expect(node.center.dy, closeTo(eye.center.dy, 1));
             expect(
-              node.top,
-              greaterThanOrEqualTo(
-                tester.getRect(find.byKey(balanceTilesKey)).bottom,
+              node.bottom,
+              lessThanOrEqualTo(
+                tester.getRect(find.byKey(balanceTilesKey)).top,
               ),
             );
             expect(find.text('Node online'), findsNothing);
@@ -3535,18 +3540,24 @@ void main() {
               .getRect(find.byKey(balanceFigureKey))
               .expandToInclude(tester.getRect(find.byKey(balanceUnitKey)));
           expect(figure.center.dx, closeTo(centre, 1), reason: name);
-          // The row: the fiat value and the eye, with the button's 48 dp target.
-          final row = tester
-              .getRect(find.byKey(fiatValueKey))
-              .expandToInclude(
-                tester.getRect(
-                  find.descendant(
-                    of: find.byKey(walletBalanceKey),
-                    matching: find.byType(IconButton),
-                  ),
-                ),
-              );
-          expect(row.center.dx, closeTo(centre, 1), reason: name);
+          // The row: the status icons at the start, the fiat value and the eye at the end,
+          // the eye's glyph on the 18 dp gutter (its 48 dp target reaches 15 dp past it).
+          final fiat = tester.getRect(find.byKey(fiatValueKey));
+          final eye = tester.getRect(
+            find.descendant(
+              of: find.byKey(walletBalanceKey),
+              matching: find.byType(IconButton),
+            ),
+          );
+          expect(eye.right, closeTo(width - 3, 1), reason: name);
+          expect(fiat.right, lessThanOrEqualTo(eye.left + 0.5), reason: name);
+          expect(
+            fiat.left,
+            greaterThanOrEqualTo(
+              tester.getRect(find.byKey(epicboxStatusKey)).right,
+            ),
+            reason: name,
+          );
           expect(tester.takeException(), isNull, reason: name);
         }
       });
@@ -3787,7 +3798,7 @@ void main() {
       h.session.listenerEvents.addError(StateError('relay closed'));
       await tester.pumpAndSettle();
       await tester.pump(statusSettle);
-      expect(_statusWord(tester, epicboxStatusKey), 'Epicbox offline');
+      expect(_statusWord(tester, epicboxStatusKey), 'Epicbox, Offline');
     });
 
     testWidgets('with reduced motion a tap cuts to the tab', (tester) async {

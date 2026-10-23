@@ -3279,6 +3279,29 @@ class AppLocalizationsDe extends AppLocalizations {
   String get settingsSectionPrivacy => 'Datenschutz';
 
   @override
+  String get settingsSectionPrivacyNetwork => 'Datenschutz & Netzwerk';
+
+  @override
+  String get settingsSectionHelpFeedback => 'Hilfe & Feedback';
+
+  @override
+  String get settingsStateBackUp => 'Wiederherstellungsphrase sichern';
+
+  @override
+  String get settingsStateNotBackedUp => 'Noch nicht gesichert';
+
+  @override
+  String get settingsStatePin => 'PIN';
+
+  @override
+  String get settingsStatePinBiometrics => 'PIN und Biometrie';
+
+  @override
+  String settingsStateJoin(String a, String b) {
+    return '$a · $b';
+  }
+
+  @override
   String get settingsUseStatusSite => 'status.btlabs.uk nutzen';
 
   @override
@@ -4370,6 +4393,49 @@ class AppLocalizationsDe extends AppLocalizations {
   String get netStatusTitle => 'Netzwerkstatus';
 
   @override
+  String get serverMyRelays => 'Meine Server';
+
+  @override
+  String get serverRemoveRelay => 'Aus meinen Servern entfernen';
+
+  @override
+  String get serverRemoveInUse =>
+      'In Verwendung. Wechsle zuerst zu einem anderen Server.';
+
+  @override
+  String get serverRemoveRelayTitle => 'Diesen Server entfernen?';
+
+  @override
+  String get serverRemoveNodeTitle => 'Diese Node entfernen?';
+
+  @override
+  String serverRemoveBody(String host) {
+    return '$host verschwindet aus dieser Liste. Gib ihn erneut ein, um ihn später zu nutzen.';
+  }
+
+  @override
+  String get serverRemoveConfirm => 'Entfernen';
+
+  @override
+  String get serverSupportsNotifications => 'Unterstützt Benachrichtigungen';
+
+  @override
+  String get netStatusReachable => 'Erreichbar';
+
+  @override
+  String get netStatusPublishing => 'Wird veröffentlicht…';
+
+  @override
+  String get netStatusNotReachable => 'Nicht erreichbar';
+
+  @override
+  String get netStatusTorOpenHint => 'Öffnet die Privatsphäre-Einstellungen';
+
+  @override
+  String get netStatusDirectOpenHint =>
+      'Öffnet die Adresse für den Direkt-Empfang';
+
+  @override
   String get netStatusOpenHint => 'Zeigt die Server';
 
   @override
@@ -4592,6 +4658,15 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get methodSendEpicboxTitle => 'Die Gegenseite kann offline sein.';
+
+  @override
+  String get settingsShowTipsAgain => 'Tipps wieder zeigen';
+
+  @override
+  String get settingsShowTipsAgainDone => 'Tipps werden wieder gezeigt';
+
+  @override
+  String get tipHide => 'Tipp ausblenden';
 
   @override
   String get methodSendEpicboxLine =>

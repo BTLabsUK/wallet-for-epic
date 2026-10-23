@@ -351,7 +351,7 @@ class _NoticeDockState extends ConsumerState<NoticeDock>
 /// The icon and token colour of [level].
 (IconData, Color) noticeLook(WalletTokens t, NoticeLevel level) =>
     switch (level) {
-      NoticeLevel.info => (Icons.info_outline, t.accent),
+      NoticeLevel.info => (Icons.info_outline, t.info),
       NoticeLevel.success => (Icons.check_circle_outline, t.ok),
       NoticeLevel.warning => (Icons.warning_amber_rounded, t.warn),
       NoticeLevel.error => (Icons.error_outline, t.risk),

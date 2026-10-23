@@ -279,8 +279,21 @@ class _Harness {
   }
 }
 
-SwitchListTile _row(WidgetTester tester) =>
-    tester.widget<SwitchListTile>(find.byKey(settingsPushKey));
+/// The Notifications row on the hub: the tile (its state line) and its switch.
+({Switch toggle, ListTile tile}) _row(WidgetTester tester) => (
+  toggle: tester.widget<Switch>(
+    find.descendant(
+      of: find.byKey(settingsPushKey),
+      matching: find.byType(Switch),
+    ),
+  ),
+  tile: tester.widget<ListTile>(
+  find.descendant(
+    of: find.byKey(settingsPushKey),
+    matching: find.byType(ListTile),
+  ),
+),
+);
 
 Future<void> _reach(WidgetTester tester) async {
   await tester.scrollUntilVisible(
@@ -447,9 +460,9 @@ void main() {
       final h = _Harness();
       await h.pump(tester);
       await _reach(tester);
-      expect(_row(tester).value, isFalse);
-      expect(_row(tester).onChanged, isNotNull);
-      expect(_row(tester).subtitle, isNull);
+      expect(_row(tester).toggle.value, isFalse);
+      expect(_row(tester).toggle.onChanged, isNotNull);
+      expect(_row(tester).tile.subtitle, isNull);
     });
 
     testWidgets('paused: on, with the one state line, while Tor is on', (
@@ -459,9 +472,9 @@ void main() {
       await h.pump(tester);
       await h.torOn(tester);
       await _reach(tester);
-      expect(_row(tester).value, isTrue);
+      expect(_row(tester).toggle.value, isTrue);
       expect(
-        _row(tester).onChanged,
+        _row(tester).toggle.onChanged,
         isNotNull,
         reason: 'it can still be turned off',
       );
@@ -474,9 +487,9 @@ void main() {
       final h = _Harness(relay: 'epicbox.epiccash.com');
       await h.pump(tester);
       await _reach(tester);
-      expect(_row(tester).value, isFalse);
-      expect(_row(tester).onChanged, isNotNull);
-      expect(_row(tester).subtitle, isNull);
+      expect(_row(tester).toggle.value, isFalse);
+      expect(_row(tester).toggle.onChanged, isNotNull);
+      expect(_row(tester).tile.subtitle, isNull);
       expect(h.posts, isEmpty);
     });
 
@@ -487,8 +500,8 @@ void main() {
       await h.pump(tester);
       await h.torOn(tester);
       await _reach(tester);
-      expect(_row(tester).value, isFalse);
-      expect(_row(tester).onChanged, isNull);
+      expect(_row(tester).toggle.value, isFalse);
+      expect(_row(tester).toggle.onChanged, isNull);
       expect(find.text('Paused while Tor is on'), findsNothing);
     });
   });

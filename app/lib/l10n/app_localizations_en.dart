@@ -3235,6 +3235,29 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsSectionPrivacy => 'Privacy';
 
   @override
+  String get settingsSectionPrivacyNetwork => 'Privacy & network';
+
+  @override
+  String get settingsSectionHelpFeedback => 'Help & feedback';
+
+  @override
+  String get settingsStateBackUp => 'Back up your recovery phrase';
+
+  @override
+  String get settingsStateNotBackedUp => 'Not backed up yet';
+
+  @override
+  String get settingsStatePin => 'PIN';
+
+  @override
+  String get settingsStatePinBiometrics => 'PIN and biometrics';
+
+  @override
+  String settingsStateJoin(String a, String b) {
+    return '$a · $b';
+  }
+
+  @override
   String get settingsUseStatusSite => 'Use status.btlabs.uk';
 
   @override
@@ -4312,6 +4335,47 @@ class AppLocalizationsEn extends AppLocalizations {
   String get netStatusTitle => 'Network status';
 
   @override
+  String get serverMyRelays => 'My servers';
+
+  @override
+  String get serverRemoveRelay => 'Remove from my servers';
+
+  @override
+  String get serverRemoveInUse => 'In use. Switch to another server first.';
+
+  @override
+  String get serverRemoveRelayTitle => 'Remove this server?';
+
+  @override
+  String get serverRemoveNodeTitle => 'Remove this node?';
+
+  @override
+  String serverRemoveBody(String host) {
+    return '$host leaves this list. Type it in again to use it later.';
+  }
+
+  @override
+  String get serverRemoveConfirm => 'Remove';
+
+  @override
+  String get serverSupportsNotifications => 'Supports notifications';
+
+  @override
+  String get netStatusReachable => 'Reachable';
+
+  @override
+  String get netStatusPublishing => 'Publishing…';
+
+  @override
+  String get netStatusNotReachable => 'Not reachable';
+
+  @override
+  String get netStatusTorOpenHint => 'Opens the privacy settings';
+
+  @override
+  String get netStatusDirectOpenHint => 'Opens the Direct receive address';
+
+  @override
   String get netStatusOpenHint => 'Shows the servers';
 
   @override
@@ -4534,6 +4598,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get methodSendEpicboxTitle => 'The recipient can be offline.';
+
+  @override
+  String get settingsShowTipsAgain => 'Show tips again';
+
+  @override
+  String get settingsShowTipsAgainDone => 'Tips will show again';
+
+  @override
+  String get tipHide => 'Hide tip';
 
   @override
   String get methodSendEpicboxLine =>

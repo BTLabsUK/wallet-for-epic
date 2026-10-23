@@ -405,11 +405,12 @@ class _Steps extends StatelessWidget {
     return Row(
       children: [
         for (var i = 0; i < names.length; i++) ...[
-          if (i > 0) Expanded(child: Container(height: 2.u, color: i <= step ? c.accent : c.line)),
+          if (i > 0) Expanded(child: Container(height: 2.u, color: i <= step ? c.ok : c.line)),
           Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(i <= step ? EIcons.okCircle : EIcons.minusCircle, size: Ctl.iconSm, color: i <= step ? c.accentText : c.faint),
+              // Reached steps are green; the one in progress (not the last) is the blue.
+              Icon(i <= step ? EIcons.okCircle : EIcons.minusCircle, size: Ctl.iconSm, color: i < step || (i == step && step == names.length - 1) ? c.ok : (i == step ? c.info : c.faint)),
               SizedBox(height: Sp.x1),
               Text(names[i], style: ts.caption.copyWith(color: i <= step ? c.text : c.faint)),
             ],

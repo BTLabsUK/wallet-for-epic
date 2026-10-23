@@ -57,9 +57,9 @@ class InvButton extends StatelessWidget {
   final l = context.l10n;
   return switch (r.state) {
     RequestState.waiting => (l.deskInvReqWaiting, ETone.neutral),
-    RequestState.paid => (l.deskInvReqPaid, ETone.gold),
+    RequestState.paid => (l.deskInvReqPaid, ETone.info),
     RequestState.confirming =>
-      r.confirmations == 0 ? (l.deskInvReqPosted, ETone.gold) : (l.deskInvConfirming(r.confirmations, defaultMinimumConfirmations), ETone.gold),
+      r.confirmations == 0 ? (l.deskInvReqPosted, ETone.info) : (l.deskInvConfirming(r.confirmations, defaultMinimumConfirmations), ETone.info),
     RequestState.completed => (l.deskInvCompleted, ETone.ok),
     RequestState.notPosted => (l.deskInvReqNotPosted, ETone.risk),
     RequestState.declined => (l.deskInvDeclined, ETone.warn),
@@ -74,7 +74,7 @@ class InvButton extends StatelessWidget {
 (String, ETone) payStateWord(BuildContext context, IncomingInvoice i) {
   final l = context.l10n;
   return switch (i.state) {
-    PayState.waiting => (l.deskInvPayWaiting, ETone.gold),
+    PayState.waiting => (l.deskInvPayWaiting, ETone.info),
     PayState.notDelivered => (l.deskInvPayNotDelivered, ETone.risk),
     PayState.delivered => (l.deskInvPayDelivered, ETone.neutral),
     PayState.posted => (l.deskInvPayPosted, ETone.neutral),

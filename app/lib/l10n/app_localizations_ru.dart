@@ -3367,6 +3367,29 @@ class AppLocalizationsRu extends AppLocalizations {
   String get settingsSectionPrivacy => 'Конфиденциальность';
 
   @override
+  String get settingsSectionPrivacyNetwork => 'Приватность и сеть';
+
+  @override
+  String get settingsSectionHelpFeedback => 'Помощь и отзыв';
+
+  @override
+  String get settingsStateBackUp => 'Сохраните фразу восстановления';
+
+  @override
+  String get settingsStateNotBackedUp => 'Ещё не сохранена';
+
+  @override
+  String get settingsStatePin => 'PIN-код';
+
+  @override
+  String get settingsStatePinBiometrics => 'PIN-код и биометрия';
+
+  @override
+  String settingsStateJoin(String a, String b) {
+    return '$a · $b';
+  }
+
+  @override
   String get settingsUseStatusSite => 'Использовать status.btlabs.uk';
 
   @override
@@ -4464,6 +4487,48 @@ class AppLocalizationsRu extends AppLocalizations {
   String get netStatusTitle => 'Состояние сети';
 
   @override
+  String get serverMyRelays => 'Мои серверы';
+
+  @override
+  String get serverRemoveRelay => 'Удалить из моих серверов';
+
+  @override
+  String get serverRemoveInUse =>
+      'Используется. Сначала переключитесь на другой сервер.';
+
+  @override
+  String get serverRemoveRelayTitle => 'Удалить этот сервер?';
+
+  @override
+  String get serverRemoveNodeTitle => 'Удалить этот узел?';
+
+  @override
+  String serverRemoveBody(String host) {
+    return '$host исчезнет из этого списка. Введите его снова, чтобы использовать позже.';
+  }
+
+  @override
+  String get serverRemoveConfirm => 'Удалить';
+
+  @override
+  String get serverSupportsNotifications => 'Поддерживает уведомления';
+
+  @override
+  String get netStatusReachable => 'Доступен';
+
+  @override
+  String get netStatusPublishing => 'Публикация…';
+
+  @override
+  String get netStatusNotReachable => 'Недоступен';
+
+  @override
+  String get netStatusTorOpenHint => 'Открывает настройки приватности';
+
+  @override
+  String get netStatusDirectOpenHint => 'Открывает адрес прямого получения';
+
+  @override
   String get netStatusOpenHint => 'Показывает серверы';
 
   @override
@@ -4694,6 +4759,15 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get methodSendEpicboxTitle => 'Получатель может быть офлайн.';
+
+  @override
+  String get settingsShowTipsAgain => 'Снова показывать подсказки';
+
+  @override
+  String get settingsShowTipsAgainDone => 'Подсказки снова будут видны';
+
+  @override
+  String get tipHide => 'Скрыть подсказку';
 
   @override
   String get methodSendEpicboxLine =>

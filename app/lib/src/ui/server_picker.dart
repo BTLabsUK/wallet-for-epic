@@ -20,6 +20,7 @@ import '../network.dart';
 import '../server_switch.dart';
 import '../providers.dart';
 import '../public_servers.dart';
+import '../push_registration.dart' show PushRegistration;
 import '../relay_directory.dart';
 import '../net/tor_net.dart' show isLoopbackUrl;
 import '../tor_routes.dart' show TorRoute, torSkipsLocalNode;
@@ -62,21 +63,37 @@ final networkStatusProvider = FutureProvider.autoDispose
 /// The secret-store key of a chain's "my nodes": a JSON list of node addresses.
 String myNodesKey(Chain chain) => 'app.myNodes.${chain.name}';
 
-/// The user's nodes of a chain: starred public nodes and addresses they typed, in the order
-/// they were added.
+/// The secret-store key of a chain's "my relays": a JSON list of relay labels.
+String myRelaysKey(Chain chain) => 'app.myRelays.${chain.name}';
+
+/// The user's nodes of a chain: starred public nodes, addresses they typed and nodes the
+/// wallet connected to that no list has, in the order they were added.
 final myNodesProvider =
     AsyncNotifierProvider.family<MyNodesNotifier, List<String>, Chain>(
       MyNodesNotifier.new,
     );
 
-class MyNodesNotifier extends AsyncNotifier<List<String>> {
-  MyNodesNotifier(this.chain);
+/// The user's Epicbox relays of a chain (labels, `host` or `host:port`): every relay the wallet
+/// connected to, oldest first, at most [MyRelaysNotifier.cap] of them.
+final myRelaysProvider =
+    AsyncNotifierProvider.family<MyRelaysNotifier, List<String>, Chain>(
+      MyRelaysNotifier.new,
+    );
+
+/// A list of server values kept in the secret store under [storeKey], one per [sameKey].
+abstract class MyServersNotifier extends AsyncNotifier<List<String>> {
+  MyServersNotifier(this.chain);
 
   final Chain chain;
 
+  String get storeKey;
+
+  /// What makes two values the same server.
+  String sameKey(String value);
+
   @override
   Future<List<String>> build() async {
-    final raw = await ref.watch(secretStoreProvider).read(myNodesKey(chain));
+    final raw = await ref.watch(secretStoreProvider).read(storeKey);
     if (raw == null) return const [];
     try {
       final list = jsonDecode(raw);
@@ -90,34 +107,90 @@ class MyNodesNotifier extends AsyncNotifier<List<String>> {
     }
   }
 
-  /// Whether [url] is in the list, by host and port.
-  bool has(String url) => _index(state.value ?? const [], url) >= 0;
+  /// Whether [value] is in the list.
+  bool has(String value) => _index(state.value ?? const [], value) >= 0;
 
-  Future<void> add(String url) async {
+  Future<void> add(String value, {String? inUse}) async {
     final now = await future;
-    if (_index(now, url) >= 0) return;
-    await _write([...now, url]);
+    if (_index(now, value) >= 0) return;
+    await _write([...now, value]);
   }
 
-  Future<void> remove(String url) async {
+  Future<void> remove(String value) async {
     final now = await future;
-    final i = _index(now, url);
+    final i = _index(now, value);
     if (i < 0) return;
     await _write([...now]..removeAt(i));
   }
 
-  Future<void> toggle(String url) async => has(url) ? remove(url) : add(url);
+  Future<void> toggle(String value) async =>
+      has(value) ? remove(value) : add(value);
 
   Future<void> _write(List<String> list) async {
     state = AsyncData(List.unmodifiable(list));
-    await ref
-        .read(secretStoreProvider)
-        .write(myNodesKey(chain), jsonEncode(list));
+    await ref.read(secretStoreProvider).write(storeKey, jsonEncode(list));
   }
 
-  static int _index(List<String> list, String url) {
-    final key = nodeKey(url) ?? url;
-    return list.indexWhere((e) => (nodeKey(e) ?? e) == key);
+  int _index(List<String> list, String value) {
+    final key = sameKey(value);
+    return list.indexWhere((e) => sameKey(e) == key);
+  }
+}
+
+class MyNodesNotifier extends MyServersNotifier {
+  MyNodesNotifier(super.chain);
+
+  @override
+  String get storeKey => myNodesKey(chain);
+
+  @override
+  String sameKey(String value) => nodeKey(value) ?? value;
+}
+
+class MyRelaysNotifier extends MyServersNotifier {
+  MyRelaysNotifier(super.chain);
+
+  /// The most relays kept: past it the oldest go, never the one just added or [inUse].
+  static const int cap = 6;
+
+  /// Adds [value] (a relay label) last; over [cap] the oldest others are dropped, except
+  /// [inUse] (the relay the wallet is on, when it is not [value]).
+  @override
+  Future<void> add(String value, {String? inUse}) async {
+    final now = await future;
+    if (_index(now, value) >= 0) return;
+    final list = [...now, value];
+    final keep = {sameKey(value), if (inUse != null) sameKey(inUse)};
+    for (var i = 0; list.length > cap && i < list.length;) {
+      if (keep.contains(sameKey(list[i]))) {
+        i++;
+      } else {
+        list.removeAt(i);
+      }
+    }
+    await _write(list);
+  }
+
+  @override
+  String get storeKey => myRelaysKey(chain);
+
+  @override
+  String sameKey(String value) => EpicboxRelay.parse(value)?.label ?? value;
+}
+
+/// Keeps the servers the wallet just moved onto: [nodeUrl] joins My nodes and [relay] My
+/// relays, listed or not, so every server the wallet connected to can be found again.
+Future<void> rememberServers(
+  WidgetRef ref,
+  Chain chain, {
+  String? nodeUrl,
+  EpicboxRelay? relay,
+}) async {
+  if (nodeUrl != null) {
+    await ref.read(myNodesProvider(chain).notifier).add(nodeUrl);
+  }
+  if (relay != null) {
+    await ref.read(myRelaysProvider(chain).notifier).add(relay.label);
   }
 }
 
@@ -132,10 +205,17 @@ List<PublicNode> builtInNodesFor(NetworkPreset preset) =>
         ),
       ];
 
-/// The built-in relays of a network: the public mainnet list, else the network's own relay.
+/// The built-in relays of a network: the public mainnet list and the push relay, else the
+/// network's own relay (on floonet that is the push relay).
 List<PublicRelay> builtInRelaysFor(NetworkPreset preset) =>
     preset.chain == Chain.mainnet
-    ? builtInRelays
+    ? [
+        ...builtInRelays,
+        const PublicRelay(
+          relay: EpicboxRelay(host: PushRegistration.relayHost),
+          operator: 'BT Labs',
+        ),
+      ]
     : [
         PublicRelay(
           relay: preset.defaultRelay,
@@ -176,6 +256,38 @@ Key serverRowKey(String value) => ValueKey('server-row-$value');
 /// The key of a node row's star, for tests.
 Key serverStarKey(String value) => ValueKey('server-star-$value');
 
+/// The key of a My relays row's remove button, for tests.
+Key serverRemoveKey(String value) => ValueKey('server-remove-$value');
+
+/// Asks before [host] leaves My nodes ([node]) or My relays. True to remove.
+Future<bool> _confirmRemove(
+  BuildContext context, {
+  required bool node,
+  required String host,
+}) async {
+  final confirmed = await showDialog<bool>(
+    context: context,
+    builder: (context) {
+      final l = context.l10n;
+      return AlertDialog(
+        title: Text(node ? l.serverRemoveNodeTitle : l.serverRemoveRelayTitle),
+        content: Text(l.serverRemoveBody(host)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(l.commonCancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: Text(l.serverRemoveConfirm),
+          ),
+        ],
+      );
+    },
+  );
+  return confirmed == true;
+}
+
 /// The health of a listed server: its bars, their colour, and the words for a screen reader.
 ({SignalLevel level, Color color, String word}) _health(
   BuildContext context,
@@ -203,9 +315,10 @@ Key serverStarKey(String value) => ValueKey('server-star-$value');
   };
 }
 
-/// The node or Epicbox rows of [preset]'s network: for nodes a "My nodes" section (starred
-/// and typed addresses, and the [current] node when no list has it) and the public nodes; for
-/// relays the public relays. Each row is one 56 dp target; [selected] has the check, [current]
+/// The node or Epicbox rows of [preset]'s network: a "My nodes" or "My servers" section (the
+/// user's list, and the [current] server when no list has it) and the public servers. A
+/// server in the user's list shows once, there, where it can be removed (never the [current]
+/// one). The push relay is a public relay with a bell. Each row is one 56 dp target; [selected] has the check, [current]
 /// says so. Not scrollable itself: the sheet and Settings › Network put it in their scroll.
 ///
 /// [value]s are node URLs or relay labels (`host` or `host:port`). [query] filters the rows
@@ -277,8 +390,22 @@ class ServerList extends ConsumerWidget {
         selected: selected != null && _sameNode(selected!, r.url),
         current: cur != null && _sameNode(cur, r.url),
         onTap: () => onSelected(r.url),
-        onStar: () =>
-            ref.read(myNodesProvider(preset.chain).notifier).toggle(r.url),
+        // Leaving My nodes asks first; the node in use stays.
+        onStar: r.starred && cur != null && _sameNode(cur, r.url)
+            ? null
+            : () async {
+                if (r.starred &&
+                    !await _confirmRemove(
+                      context,
+                      node: true,
+                      host: serverHost(r.url),
+                    )) {
+                  return;
+                }
+                await ref
+                    .read(myNodesProvider(preset.chain).notifier)
+                    .toggle(r.url);
+              },
       );
     }
 
@@ -310,37 +437,79 @@ class ServerList extends ConsumerWidget {
   Widget _relays(BuildContext context, WidgetRef ref) {
     final l = context.l10n;
     final status = ref.watch(relayStatusProvider(preset));
-    final relays = mergePublicRelays(
+    final mine = ref.watch(myRelaysProvider(preset.chain)).value ?? const [];
+    final public = mergePublicRelays(
       status.value,
       builtIn: builtInRelaysFor(preset),
     );
-    final known = {for (final r in relays) r.relay.label};
-    final extra = {
-      for (final v in [current, selected])
-        if (v != null && !known.contains(v) && EpicboxRelay.parse(v) != null) v,
+    PublicRelay? publicOf(EpicboxRelay relay) {
+      for (final r in public) {
+        if (r.relay == relay) return r;
+      }
+      return null;
+    }
+
+    final kept = <EpicboxRelay>{
+      for (final m in mine) ?EpicboxRelay.parse(m),
     };
-    final rows = [
-      for (final r in relays)
-        (relay: r.relay, operator: r.operator, status: r.status),
-      for (final v in extra)
-        (relay: EpicboxRelay.parse(v)!, operator: '', status: null),
+    final extra = <EpicboxRelay>{
+      for (final v in [current, selected])
+        if (v != null) ?EpicboxRelay.parse(v),
+    }.where((r) => !kept.contains(r) && publicOf(r) == null);
+    final mineRows = [
+      for (final r in kept) (relay: r, listed: publicOf(r), removable: true),
+      for (final r in extra) (relay: r, listed: null, removable: false),
     ];
+    final publicRows = [
+      for (final p in public)
+        if (!kept.contains(p.relay))
+          (relay: p.relay, listed: p, removable: false),
+    ];
+    Widget row(
+      ({EpicboxRelay relay, PublicRelay? listed, bool removable}) r,
+    ) {
+      final label = r.relay.label;
+      final isCurrent = current == label;
+      final operator = r.listed?.operator ?? '';
+      return _RelayRow(
+        key: serverRowKey(label),
+        relay: r.relay,
+        operator: operator.isEmpty ? r.listed?.status?.operator : operator,
+        status: r.listed?.status,
+        isDefault: r.relay == preset.defaultRelay,
+        selected: selected == label,
+        current: isCurrent,
+        removable: r.removable,
+        onTap: () => onSelected(label),
+        onRemove: isCurrent
+            ? null
+            : () async {
+                if (!await _confirmRemove(context, node: false, host: label)) {
+                  return;
+                }
+                await ref
+                    .read(myRelaysProvider(preset.chain).notifier)
+                    .remove(label);
+              },
+      );
+    }
+
+    bool shown(({EpicboxRelay relay, PublicRelay? listed, bool removable}) r) =>
+        _matches(r.relay.label, r.listed?.operator);
+    final shownMine = mineRows.where(shown).toList();
+    final shownPublic = publicRows.where(shown).toList();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _SectionHead(l.serverPublicRelays),
-        for (final r in rows)
-          if (_matches(r.relay.label, r.operator))
-            _RelayRow(
-              key: serverRowKey(r.relay.label),
-              relay: r.relay,
-              operator: r.operator.isEmpty ? r.status?.operator : r.operator,
-              status: r.status,
-              isDefault: r.relay == preset.defaultRelay,
-              selected: selected == r.relay.label,
-              current: current == r.relay.label,
-              onTap: () => onSelected(r.relay.label),
-            ),
+        if (shownMine.isNotEmpty) ...[
+          _SectionHead(l.serverMyRelays),
+          for (final r in shownMine) row(r),
+          const SizedBox(height: 8),
+        ],
+        if (shownPublic.isNotEmpty) ...[
+          _SectionHead(l.serverPublicRelays),
+          for (final r in shownPublic) row(r),
+        ],
         _HealthCaption(status: status, preset: preset),
       ],
     );
@@ -403,7 +572,9 @@ class _HealthCaption extends ConsumerWidget {
   }
 }
 
-/// The frame of every row: one 56 dp target with the bars, two lines and a trailing part.
+/// The frame of every row: one 56 dp target with the bars, two lines and a trailing part. A
+/// [selected] row is filled and outlined in the neutral selection tokens, never the accent or
+/// a health colour: beside the health bars a gold row read as a warning.
 class _RowFrame extends StatelessWidget {
   const _RowFrame({
     super.key,
@@ -438,7 +609,10 @@ class _RowFrame extends StatelessWidget {
           borderRadius: BorderRadius.circular(t.radiusSmall),
           child: Ink(
             decoration: BoxDecoration(
-              color: selected ? t.accentSoft : null,
+              color: selected ? t.selected : null,
+              border: Border.all(
+                color: selected ? t.selectedLine : Colors.transparent,
+              ),
               borderRadius: BorderRadius.circular(t.radiusSmall),
             ),
             child: ConstrainedBox(
@@ -499,7 +673,9 @@ class _NodeRow extends StatelessWidget {
   final bool selected;
   final bool current;
   final VoidCallback onTap;
-  final VoidCallback onStar;
+
+  /// Adds to or removes from My nodes; null on the node in use, which stays.
+  final VoidCallback? onStar;
 
   @override
   Widget build(BuildContext context) {
@@ -584,10 +760,7 @@ class _NodeRow extends StatelessWidget {
                 style: facts[i] == l.serverNotResponding
                     ? TextStyle(color: t.risk)
                     : facts[i] == l.serverCurrent
-                    ? TextStyle(
-                        color: t.accentText,
-                        fontWeight: FontWeight.w600,
-                      )
+                    ? TextStyle(color: t.text, fontWeight: FontWeight.w600)
                     : null,
               ),
             ],
@@ -600,11 +773,22 @@ class _NodeRow extends StatelessWidget {
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
+          // The check is green only while the chosen server is up (the bars' word); on a
+          // server that is down or unknown it is dim. Never the accent, which reads as a
+          // warning beside the health colours; the favourite star keeps the brand gold.
           if (selected || current)
-            Icon(Icons.check, size: 20, color: t.accentText),
+            Icon(
+              Icons.check,
+              size: 20,
+              color: s?.state == NodeHealthState.healthy ? t.ok : t.dim,
+            ),
           IconButton(
             key: serverStarKey(url),
-            tooltip: starred ? l.serverRemoveMine : l.serverAddMine,
+            tooltip: onStar == null
+                ? l.serverRemoveInUse
+                : starred
+                ? l.serverRemoveMine
+                : l.serverAddMine,
             isSelected: starred,
             onPressed: onStar,
             icon: Icon(Icons.star_border, color: t.dim),
@@ -616,8 +800,9 @@ class _NodeRow extends StatelessWidget {
   }
 }
 
-/// One Epicbox relay: bars, host in mono with the `Default` tag, under it operator · uptime ·
-/// latency.
+/// One Epicbox relay: bars, host in mono with the `Default` tag and, on the push relay, a bell;
+/// under it operator · uptime · latency. A [removable] row (My relays) has a remove button,
+/// disabled with the reason as its tooltip when [onRemove] is null (the relay in use).
 class _RelayRow extends StatelessWidget {
   const _RelayRow({
     super.key,
@@ -628,6 +813,8 @@ class _RelayRow extends StatelessWidget {
     required this.selected,
     required this.current,
     required this.onTap,
+    this.removable = false,
+    this.onRemove,
   });
 
   final EpicboxRelay relay;
@@ -637,6 +824,8 @@ class _RelayRow extends StatelessWidget {
   final bool selected;
   final bool current;
   final VoidCallback onTap;
+  final bool removable;
+  final VoidCallback? onRemove;
 
   @override
   Widget build(BuildContext context) {
@@ -644,6 +833,7 @@ class _RelayRow extends StatelessWidget {
     final t = context.tokens;
     final theme = Theme.of(context);
     final s = status;
+    final push = relay.host == PushRegistration.relayHost;
     final health = _health(
       context,
       s == null
@@ -672,6 +862,7 @@ class _RelayRow extends StatelessWidget {
         relay.label,
         [
           if (isDefault) l.serverDefault,
+          if (push) l.serverSupportsNotifications,
           if (!down) health.word,
           ...facts,
         ].join(', '),
@@ -706,6 +897,15 @@ class _RelayRow extends StatelessWidget {
               ),
             ),
           ],
+          if (push) ...[
+            const SizedBox(width: 8),
+            Icon(
+              Icons.notifications_outlined,
+              size: 16,
+              color: down ? t.faint : t.dim,
+              semanticLabel: l.serverSupportsNotifications,
+            ),
+          ],
         ],
       ),
       second: Text.rich(
@@ -718,10 +918,7 @@ class _RelayRow extends StatelessWidget {
                 style: facts[i] == l.serverNotResponding
                     ? TextStyle(color: t.risk)
                     : facts[i] == l.serverCurrent
-                    ? TextStyle(
-                        color: t.accentText,
-                        fontWeight: FontWeight.w600,
-                      )
+                    ? TextStyle(color: t.text, fontWeight: FontWeight.w600)
                     : null,
               ),
             ],
@@ -731,11 +928,29 @@ class _RelayRow extends StatelessWidget {
         overflow: TextOverflow.ellipsis,
         style: small,
       ),
-      trailing: SizedBox(
-        width: 44,
-        child: selected || current
-            ? Icon(Icons.check, size: 20, color: t.accentText)
-            : null,
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SizedBox(
+            width: removable ? 20 : 44,
+            child: selected || current
+                ? Icon(
+                    Icons.check,
+                    size: 20,
+                    color: s != null && s.healthy ? t.ok : t.dim,
+                  )
+                : null,
+          ),
+          if (removable)
+            IconButton(
+              key: serverRemoveKey(relay.label),
+              tooltip: onRemove == null
+                  ? l.serverRemoveInUse
+                  : l.serverRemoveRelay,
+              onPressed: onRemove,
+              icon: Icon(Icons.delete_outline, color: t.dim),
+            ),
+        ],
       ),
     );
   }
@@ -889,12 +1104,6 @@ class _ServerPickerSheetState extends ConsumerState<ServerPickerSheet> {
       _error = null;
     });
     try {
-      // A typed address joins My nodes, so it can be found again.
-      if (_node && _typed?.url == value) {
-        await ref
-            .read(myNodesProvider(choice.preset.chain).notifier)
-            .add(value);
-      }
       final nodeUrl = _node ? value : choice.nodeUrl;
       final relay = _node ? choice.relay : EpicboxRelay.parse(value);
       if (relay == null) return;
@@ -902,6 +1111,15 @@ class _ServerPickerSheetState extends ConsumerState<ServerPickerSheet> {
       // choice once it worked); with no wallet open the choice is saved and the app starts
       // again on it. The strip's Switch, with its caption, is the confirmation.
       final live = await widget.liveSwitch(ref, nodeUrl: nodeUrl, relay: relay);
+      if (!mounted) return;
+      // The picked or typed server joins My nodes or My relays, so it can be found again
+      // (a live switch already did; with no wallet open it is the server the app starts on).
+      await rememberServers(
+        ref,
+        choice.preset.chain,
+        nodeUrl: _node ? nodeUrl : null,
+        relay: _node ? null : relay,
+      );
       if (!mounted) return;
       if (live) {
         final host = _node ? (Uri.tryParse(nodeUrl)?.host ?? nodeUrl) : relay.label;
