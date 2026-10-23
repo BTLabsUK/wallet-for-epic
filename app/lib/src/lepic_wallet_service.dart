@@ -284,14 +284,18 @@ String? lepicListenerBounce(lepic.ListenerEvent e) =>
     e.kind == lepic.ListenerEventKind.invoiceBounced ? e.slateId : null;
 
 /// LEPIC's view of a peer as the app's.
-/// The app's send options as LEPIC's.
-lepic.SendOptions lepicSendOptions(SendOptions o) => lepic.SendOptions(
-  strategy: switch (o.strategy) {
-    SelectionStrategy.smallest => lepic.SelectionStrategy.smallest,
-    SelectionStrategy.all => lepic.SelectionStrategy.all,
-  },
-  changeOutputs: o.changeOutputs,
-);
+/// The app's send options as LEPIC's. Strategy All spends every output, a consolidating
+/// send, so its change is always one output, whatever count it was given.
+lepic.SendOptions lepicSendOptions(SendOptions o) => switch (o.strategy) {
+  SelectionStrategy.smallest => lepic.SendOptions(
+    strategy: lepic.SelectionStrategy.smallest,
+    changeOutputs: o.changeOutputs,
+  ),
+  SelectionStrategy.all => const lepic.SendOptions(
+    strategy: lepic.SelectionStrategy.all,
+    changeOutputs: 1,
+  ),
+};
 
 FeeEstimate lepicFeeEstimate(lepic.FeeEstimate e) => FeeEstimate(
   amount: e.amount,

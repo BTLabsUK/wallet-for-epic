@@ -3,8 +3,8 @@
 /// confirm. Pure: the rule, and the plan that asks for the estimate with the split.
 library;
 
-import 'models.dart';
 import 'send_summary.dart';
+import 'wallet_service.dart';
 
 /// SmartOutputs is on unless the user turned it off (the Outputs page).
 const bool smartOutputsDefault = true;
@@ -61,6 +61,9 @@ enum SmartOutputsReason {
 
   /// The change is split.
   split,
+
+  /// Strategy All spends every output, a consolidating send: its change is always one output.
+  allStrategy,
 }
 
 class SmartOutputsDecision {
@@ -156,7 +159,8 @@ class SmartSendPlan {
 bool coreRefusedSplit(Object error) => error is WalletError && error.kind == WalletErrorKind.invalidArgument;
 
 /// Estimates a send with [strategy] and one change output, applies [smartOutputs], and when
-/// it splits estimates again with the split. A split error that [splitRefused] accepts falls
+/// it splits estimates again with the split. Strategy All never splits: it is a consolidating
+/// send, so its change is one output whatever [smartOutputsOn] says. A split error that [splitRefused] accepts falls
 /// back to one change output (the core's refusal is [coreRefusedSplit], the desktop's
 /// `deskSplitRefused`; no default, so a caller cannot take the wrong one); any other error, and every error of the first estimate, is
 /// the caller's.
@@ -170,7 +174,9 @@ Future<SmartSendPlan> planSend({
 }) async {
   final plain = SendOptions(strategy: strategy);
   final base = await estimate(plain);
-  final decision = smartOutputs(enabled: smartOutputsOn, spendableOutputs: spendableOutputs, base: base, rule: rule);
+  final decision = strategy == SelectionStrategy.all
+      ? SmartOutputsDecision(1, SmartOutputsReason.allStrategy, outputsLeft: 0)
+      : smartOutputs(enabled: smartOutputsOn, spendableOutputs: spendableOutputs, base: base, rule: rule);
   if (!decision.splits) {
     return SmartSendPlan(base: base, decision: decision, estimate: base, options: plain);
   }
@@ -234,4 +240,32 @@ OutputLabel outputWord(WalletOutput output) {
         null => output.isCoinbase ? OutputLabel.mining : OutputLabel.confirming,
       };
   }
+}
+
+/// The phone's send of [amount] as Outputs set it: [strategy], and with [splitChange]
+/// SmartOutputs over the wallet's spendable outputs ([planSend], never for All). The estimate
+/// the send goes out with and the options it must be sent with.
+Future<({FeeEstimate estimate, SendOptions options})> planSessionSend(
+  WalletSession session, {
+  required BigInt amount,
+  required BigInt minimumConfirmations,
+  required SelectionStrategy strategy,
+  required bool splitChange,
+}) async {
+  final estimates = <SendOptions, FeeEstimate>{};
+  final smart = splitChange && strategy != SelectionStrategy.all;
+  final plan = await planSend(
+    estimate: (o) async => SendEstimate.fromFee(
+      estimates[o] = await session.estimateFee(
+        amount: amount,
+        minimumConfirmations: minimumConfirmations,
+        options: o,
+      ),
+    ),
+    strategy: strategy,
+    smartOutputsOn: smart,
+    spendableOutputs: smart ? spendableCount(await session.outputs()) : 0,
+    splitRefused: coreRefusedSplit,
+  );
+  return (estimate: estimates[plan.options]!, options: plan.options);
 }

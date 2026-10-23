@@ -1515,5 +1515,6 @@
   "pushNoticeAvailable": "Benachrichtigungen sind in den Einstellungen verfügbar.",
   "torWayOver": "Über Tor",
   "torWayWaiting": "Warten auf Tor",
-  "torWayNotConnected": "Tor ist nicht verbunden."
+  "torWayNotConnected": "Tor ist nicht verbunden.",
+  "sendUsesAllOutputs": "{count, plural, =1{Nutzt den 1 Output · Wechselgeld 1 Output} other{Nutzt alle {count} Outputs · Wechselgeld 1 Output}}"
 }

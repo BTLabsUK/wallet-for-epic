@@ -6100,4 +6100,17 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get torWayNotConnected => 'Tor не подключён.';
+
+  @override
+  String sendUsesAllOutputs(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Использует все $count выхода · сдача 1 выход',
+      many: 'Использует все $count выходов · сдача 1 выход',
+      few: 'Использует все $count выхода · сдача 1 выход',
+      one: 'Использует все выходы ($count) · сдача 1 выход',
+    );
+    return '$_temp0';
+  }
 }

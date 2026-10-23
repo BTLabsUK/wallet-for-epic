@@ -201,6 +201,9 @@ class _Harness {
   RelayProbe probe = FakeRelayProbe();
   final files = FakeSlateFiles();
 
+  /// The app's settings and the PIN; Outputs' strategy and Split change live here.
+  final store = sendPinStore();
+
   Future<void> pump(
     WidgetTester tester, {
     double textScale = 1,
@@ -215,7 +218,7 @@ class _Harness {
         retry: (_, _) => null,
         overrides: [
           walletServiceProvider.overrideWithValue(service),
-          secretStoreProvider.overrideWithValue(sendPinStore()),
+          secretStoreProvider.overrideWithValue(store),
           slateFilesProvider.overrideWithValue(files),
           qrScannerProvider.overrideWithValue(FakeQrScanner(supported: true)),
           priceSourceProvider.overrideWithValue(_Price()),
@@ -1142,6 +1145,82 @@ void main() {
       await _review(tester, _bob);
       expect(probe.probed, [_bobRelay]);
       expect(find.text("Their relay isn't answering."), findsOneWidget);
+    });
+  });
+
+  // The Outputs settings reach the phone's send; strategy All always has one change output.
+  group('Outputs settings', () {
+    WalletOutput out(String c, num value) => WalletOutput(
+      commitment: c * 66,
+      value: _epic(value),
+      status: WalletOutputStatus.unspent,
+      category: OutputCategory.spendable,
+      isCoinbase: false,
+      height: BigInt.from(2499000),
+      lockHeight: BigInt.zero,
+      confirmations: BigInt.from(10),
+    );
+
+    /// Sends 1.5 EPIC to Bob from a wallet of two outputs (30 and 10 EPIC) with the strategy
+    /// and Split change set on Outputs; returns the harness after the send.
+    Future<_Harness> send(
+      WidgetTester tester, {
+      required String strategy,
+      required bool splitChange,
+      void Function(_Harness h)? atReview,
+    }) async {
+      final h = _Harness();
+      h.session.outputsValue = [out('a', 30), out('b', 10)];
+      h.store.values['app.send_strategy'] = strategy;
+      h.store.values['app.split_change'] = '$splitChange';
+      h.relays.list = [_status(_bobRelay, healthy: true)];
+      await h.pump(tester);
+      await h.connect(tester);
+      await _review(tester, _bob);
+      atReview?.call(h);
+      await _tap(tester, _sendButton);
+      expect(h.session.epicboxSends.single.to, _bob);
+      return h;
+    }
+
+    testWidgets('All with Split change on: one change output, and the review says so', (
+      tester,
+    ) async {
+      final l = lookupAppLocalizations(const Locale('en'));
+      final h = await send(
+        tester,
+        strategy: 'all',
+        splitChange: true,
+        atReview: (_) {
+          expect(find.byKey(sendUsesAllOutputsKey), findsOneWidget);
+          expect(find.text(l.sendUsesAllOutputs(2)), findsOneWidget);
+          expect(find.text('Uses all 2 outputs · change 1 output'), findsOneWidget);
+        },
+      );
+      const one = SendOptions(strategy: SelectionStrategy.all);
+      expect(h.session.estimateOptions.toSet(), {one});
+      expect(h.session.sentOptions.single, one);
+    });
+
+    testWidgets('Smallest with Split change on splits the change when few outputs stay', (
+      tester,
+    ) async {
+      final h = await send(
+        tester,
+        strategy: 'smallest',
+        splitChange: true,
+        atReview: (_) => expect(find.byKey(sendUsesAllOutputsKey), findsNothing),
+      );
+      // The 10 EPIC output pays; one output stays, so 8.49 EPIC of change comes back in 3.
+      expect(
+        h.session.sentOptions.single,
+        const SendOptions(strategy: SelectionStrategy.smallest, changeOutputs: 3),
+      );
+    });
+
+    testWidgets('Split change off keeps one change output', (tester) async {
+      final h = await send(tester, strategy: 'smallest', splitChange: false);
+      expect(h.session.sentOptions.single, const SendOptions());
     });
   });
 }
