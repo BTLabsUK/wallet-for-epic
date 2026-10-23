@@ -23,6 +23,7 @@ import 'help_screen.dart';
 import 'history_screen.dart';
 import 'home_parts.dart';
 import 'invoices_screen.dart' show InvoicesEntry, InvoicesScreen;
+import 'network_status.dart';
 import 'outputs_screen.dart';
 import 'receive_screen.dart' show ReceiveView;
 import 'restore_screen.dart' show ScanProgressView;
@@ -592,6 +593,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     // The desktop Overview's tiles, status rows and sidebar, in that order.
                     // The tiles row runs edge to edge; the list's gutter is taken back.
                     BalanceTiles(onTap: _openOutputs),
+                    const SizedBox(height: 12),
+                    const NetworkStatusCard(),
                     const SizedBox(height: 12),
                     HomeDestinations(onOpen: _openDestination),
                     if (scan.running || scan.error != null)
