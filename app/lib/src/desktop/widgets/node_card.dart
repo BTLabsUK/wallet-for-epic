@@ -88,7 +88,7 @@ class NodeCard extends StatelessWidget {
           i.readyForTxs == null ? 'node before 4.1.0' : null,
           tone: i.readyForTxs == false ? EState.warn : null,
         ),
-        _Fact('Latency', i.latencyMs == null ? '–' : '${digitsText(i.latencyMs!)} ms', 'from this computer'),
+        _Fact('Latency', i.latencyMs == null ? '–' : '${digitsText(i.latencyMs!)} ms', latencyWhere(i)),
       ]);
     } else {
       final behind = i?.blocksBehind;
@@ -106,7 +106,7 @@ class NodeCard extends StatelessWidget {
           i?.version == null ? null : (old ? '${i!.releasedVersion} is out' : (i!.releasedVersion == null ? null : 'latest')),
           tone: old ? EState.warn : null,
         ),
-        _Fact('Latency', i?.latencyMs == null ? '–' : '${digitsText(i!.latencyMs!)} ms', 'from this computer'),
+        _Fact('Latency', i?.latencyMs == null ? '–' : '${digitsText(i!.latencyMs!)} ms', i == null ? null : latencyWhere(i)),
         _Fact('Uptime', i?.uptime24h == null ? '–' : '${(i!.uptime24h! * 100).toStringAsFixed(1)} %', 'last 24 h'),
         _Fact('Peers', i?.peers == null ? '–' : '${i!.peers}', down && i?.at != null ? 'at ${hhmm(i!.at)}' : null),
         _Fact('Operator', i?.operator == null ? '–' : i!.operator!, i?.listing == 'official' ? 'listed as official' : null),
@@ -116,7 +116,11 @@ class NodeCard extends StatelessWidget {
     final (netLine, forked) = directory && i.network != null ? networkLine(i.network!) : (limited ? limitedNetworkLine : '–', false);
     final String? sourceLine;
     if (directory) {
-      sourceLine = 'status.btlabs.uk, checked ${hhmm(i.at)} · latency measured from this computer';
+      final where = latencyWhere(i);
+      sourceLine = [
+        'status.btlabs.uk, checked ${hhmm(i.at)}',
+        if (!i.latencyFromMonitor) 'latency measured $where',
+      ].join(' · ');
     } else if (limited) {
       sourceLine = i.directoryReachedAt == null ? null : 'Status site last reached ${hhmm(i.directoryReachedAt!)}';
     } else {
@@ -242,3 +246,11 @@ class _Fact extends StatelessWidget {
     );
   }
 }
+
+/// Where [i]'s latency was measured: over Tor while the Tor switch is on, never shown as this
+/// computer's own then.
+String latencyWhere(NodeInfo i) => i.latencyFromMonitor
+    ? 'from status.btlabs.uk'
+    : i.latencyOverTor
+    ? 'over Tor'
+    : 'from this computer';

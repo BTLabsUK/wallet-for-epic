@@ -62,7 +62,7 @@ NodeView remoteNodeView(String url, NodeInfo? info, {ServiceHealth? health, Date
   final h = info.height;
   final old = info.updateAvailable == true;
   final second = [
-    if (info.latencyMs != null) '${digits(info.latencyMs!)} ms',
+    if (info.latencyMs != null) '${digits(info.latencyMs!)} ms${info.latencyOverTor ? ' over Tor' : ''}',
     if (info.version != null) 'v${info.version}',
     if (old && info.releasedVersion != null) '${info.releasedVersion} is out',
   ].join(' · ');
