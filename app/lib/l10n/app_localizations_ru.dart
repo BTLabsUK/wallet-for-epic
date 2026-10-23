@@ -4487,6 +4487,21 @@ class AppLocalizationsRu extends AppLocalizations {
   String get netStatusTitle => 'Состояние сети';
 
   @override
+  String get netStatusReachable => 'Доступен';
+
+  @override
+  String get netStatusPublishing => 'Публикация…';
+
+  @override
+  String get netStatusNotReachable => 'Недоступен';
+
+  @override
+  String get netStatusTorOpenHint => 'Открывает настройки приватности';
+
+  @override
+  String get netStatusDirectOpenHint => 'Открывает адрес прямого получения';
+
+  @override
   String get netStatusOpenHint => 'Показывает серверы';
 
   @override

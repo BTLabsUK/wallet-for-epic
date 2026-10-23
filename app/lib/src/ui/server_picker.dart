@@ -403,7 +403,9 @@ class _HealthCaption extends ConsumerWidget {
   }
 }
 
-/// The frame of every row: one 56 dp target with the bars, two lines and a trailing part.
+/// The frame of every row: one 56 dp target with the bars, two lines and a trailing part. A
+/// [selected] row is filled and outlined in the neutral selection tokens, never the accent or
+/// a health colour: beside the health bars a gold row read as a warning.
 class _RowFrame extends StatelessWidget {
   const _RowFrame({
     super.key,
@@ -438,7 +440,10 @@ class _RowFrame extends StatelessWidget {
           borderRadius: BorderRadius.circular(t.radiusSmall),
           child: Ink(
             decoration: BoxDecoration(
-              color: selected ? t.accentSoft : null,
+              color: selected ? t.selected : null,
+              border: Border.all(
+                color: selected ? t.selectedLine : Colors.transparent,
+              ),
               borderRadius: BorderRadius.circular(t.radiusSmall),
             ),
             child: ConstrainedBox(
@@ -584,10 +589,7 @@ class _NodeRow extends StatelessWidget {
                 style: facts[i] == l.serverNotResponding
                     ? TextStyle(color: t.risk)
                     : facts[i] == l.serverCurrent
-                    ? TextStyle(
-                        color: t.accentText,
-                        fontWeight: FontWeight.w600,
-                      )
+                    ? TextStyle(color: t.text, fontWeight: FontWeight.w600)
                     : null,
               ),
             ],
@@ -600,8 +602,15 @@ class _NodeRow extends StatelessWidget {
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
+          // The check is green only while the chosen server is up (the bars' word); on a
+          // server that is down or unknown it is dim. Never the accent, which reads as a
+          // warning beside the health colours; the favourite star keeps the brand gold.
           if (selected || current)
-            Icon(Icons.check, size: 20, color: t.accentText),
+            Icon(
+              Icons.check,
+              size: 20,
+              color: s?.state == NodeHealthState.healthy ? t.ok : t.dim,
+            ),
           IconButton(
             key: serverStarKey(url),
             tooltip: starred ? l.serverRemoveMine : l.serverAddMine,
@@ -718,10 +727,7 @@ class _RelayRow extends StatelessWidget {
                 style: facts[i] == l.serverNotResponding
                     ? TextStyle(color: t.risk)
                     : facts[i] == l.serverCurrent
-                    ? TextStyle(
-                        color: t.accentText,
-                        fontWeight: FontWeight.w600,
-                      )
+                    ? TextStyle(color: t.text, fontWeight: FontWeight.w600)
                     : null,
               ),
             ],
@@ -734,7 +740,11 @@ class _RelayRow extends StatelessWidget {
       trailing: SizedBox(
         width: 44,
         child: selected || current
-            ? Icon(Icons.check, size: 20, color: t.accentText)
+            ? Icon(
+                Icons.check,
+                size: 20,
+                color: s != null && s.healthy ? t.ok : t.dim,
+              )
             : null,
       ),
     );
