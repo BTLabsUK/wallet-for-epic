@@ -5,6 +5,8 @@ import 'package:epic_wallet/src/phone_tor.dart';
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/secret_store_api.dart';
 import 'package:epic_wallet/src/tor_location.dart';
+import 'package:epic_wallet/src/tor_phone.dart';
+import 'package:epic_wallet/src/tor_routes.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -534,5 +536,22 @@ void main() {
     await h.unlock();
     expect(h.state.receiving, isTrue);
     expect(h.session.torStarts, hasLength(2));
+  });
+
+  test('the phone Tor in the one switch\'s words', () {
+    expect(
+      {
+        for (final phase in PhoneTorPhase.values)
+          phase: phoneTorState(PhoneTorState(phase: phase)),
+      },
+      {
+        PhoneTorPhase.unavailable: TorState.off,
+        PhoneTorPhase.off: TorState.off,
+        PhoneTorPhase.starting: TorState.starting,
+        PhoneTorPhase.connected: TorState.on,
+        PhoneTorPhase.ready: TorState.on,
+        PhoneTorPhase.failed: TorState.failed,
+      },
+    );
   });
 }

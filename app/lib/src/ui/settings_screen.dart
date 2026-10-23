@@ -16,6 +16,8 @@ import '../push.dart';
 import '../settings.dart';
 import '../slate_files.dart';
 import '../smart_outputs.dart' show OutputLabel, outputWord;
+import '../tor_phone.dart';
+import '../tor_routes.dart';
 import '../updater.dart';
 import '../wallet_service.dart';
 import 'backup_screen.dart';
@@ -83,8 +85,25 @@ String _withBuild(String name, String number) {
 }
 
 /// App settings: network, display, security, history backup, wallet and about.
+/// Opens Settings at its Privacy section, where the Tor switch is.
+Future<void> openPrivacySettings(BuildContext context) => Navigator.of(context)
+    .push(
+      MaterialPageRoute<void>(
+        builder: (_) => const SettingsScreen(privacy: true),
+      ),
+    );
+
+/// The key of Settings' Privacy header, for tests.
+const Key settingsPrivacyKey = ValueKey('settings-privacy');
+
+/// The key of the push notifications switch, for tests.
+const Key settingsPushKey = ValueKey('settings-push');
+
 class SettingsScreen extends ConsumerStatefulWidget {
-  const SettingsScreen({super.key});
+  const SettingsScreen({super.key, this.privacy = false});
+
+  /// Opens scrolled to the Privacy section.
+  final bool privacy;
 
   @override
   ConsumerState<SettingsScreen> createState() => _SettingsScreenState();
@@ -92,6 +111,43 @@ class SettingsScreen extends ConsumerStatefulWidget {
 
 class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   bool _busy = false;
+
+  final GlobalKey _privacy = GlobalKey();
+  final ScrollController _scroll = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.privacy) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _showPrivacy());
+    }
+  }
+
+  @override
+  void dispose() {
+    _scroll.dispose();
+    super.dispose();
+  }
+
+  /// Brings the Privacy section to the top. The list builds rows as they come near, so it
+  /// steps down a screen at a time until the section exists.
+  Future<void> _showPrivacy() async {
+    for (var i = 0; i < 20; i++) {
+      if (!mounted) return;
+      final target = _privacy.currentContext;
+      if (target != null && target.mounted) {
+        await Scrollable.ensureVisible(target);
+        return;
+      }
+      if (!_scroll.hasClients) return;
+      final p = _scroll.position;
+      if (p.pixels >= p.maxScrollExtent) return;
+      _scroll.jumpTo(
+        (p.pixels + p.viewportDimension).clamp(0, p.maxScrollExtent),
+      );
+      await WidgetsBinding.instance.endOfFrame;
+    }
+  }
 
   void _say(String message, {required NoticeLevel level}) {
     ref.read(noticeProvider.notifier).show(message, level: level);
@@ -346,6 +402,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final version = ref.watch(appVersionProvider);
     final walletOpen = ref.watch(sessionProvider) != null;
     final torAvailable = ref.watch(phoneTorProvider.select(torShown));
+    final torState = phoneTorState(ref.watch(phoneTorProvider));
     // Invoices only on a core that has them (UP-14); until then no entry at all.
     final invoices = ref.watch(sessionProvider)?.supportsInvoices ?? false;
     final outputs = walletOpen ? ref.watch(walletOutputsProvider).value : null;
@@ -377,6 +434,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 600),
             child: ListView(
+              controller: _scroll,
               children: [
                 if (updates) const _UpdateRow(),
                 if (!scan.running && scan.error != null)
@@ -442,13 +500,16 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   value: s.advancedOptions,
                   onChanged: _settings.setAdvancedOptions,
                 ),
-                // Tor receiving: the same switch as on Receive, one source of truth
-                // (phoneTorProvider). An equal receive method, so no Advanced placement.
-                if (walletOpen && torAvailable) ...[
-                  _Header(l.settingsSectionReceiving),
-                  const TorReceivingBlock(leading: true),
-                ],
-                _Header(l.settingsSectionPrivacy),
+                // The one Tor switch (phoneTorProvider): Send, Receive and the status card
+                // read its state; it moves nothing the user chose.
+                KeyedSubtree(
+                  key: _privacy,
+                  child: _Header(
+                    l.settingsSectionPrivacy,
+                    key: settingsPrivacyKey,
+                  ),
+                ),
+                if (walletOpen && torAvailable) const TorSwitchTile(),
                 SwitchListTile(
                   secondary: const Icon(Icons.travel_explore),
                   title: Text(l.settingsUseStatusSite),
@@ -459,13 +520,25 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 if (!demo &&
                     (ref.watch(pushConfiguredProvider).value ?? false)) ...[
                   _Header(l.settingsSectionNotifications),
-                  SwitchListTile(
-                    secondary: const Icon(Icons.notifications_outlined),
-                    title: Text(l.settingsPaymentNotifications),
-                    subtitle: _PushSubtitle(ref.watch(pushProvider)),
-                    value: s.pushNotifications,
-                    onChanged: _setPushNotifications,
-                  ),
+                  // Off while Tor is on: a push registration would show this phone's address.
+                  if (torWay(TorRoute.push, torState) == TorWay.off)
+                    SwitchListTile(
+                      key: settingsPushKey,
+                      secondary: const Icon(Icons.notifications_outlined),
+                      title: Text(l.settingsPaymentNotifications),
+                      subtitle: Text(l.settingsPushOffWhileTor),
+                      value: false,
+                      onChanged: null,
+                    )
+                  else
+                    SwitchListTile(
+                      key: settingsPushKey,
+                      secondary: const Icon(Icons.notifications_outlined),
+                      title: Text(l.settingsPaymentNotifications),
+                      subtitle: _PushSubtitle(ref.watch(pushProvider)),
+                      value: s.pushNotifications,
+                      onChanged: _setPushNotifications,
+                    ),
                 ],
                 if (walletOpen) ...[
                   _Header(l.settingsSectionSecurity),
@@ -703,7 +776,7 @@ String _languageLabel(AppLocalizations l, String? code) {
 }
 
 class _Header extends StatelessWidget {
-  const _Header(this.title);
+  const _Header(this.title, {super.key});
 
   final String title;
 

@@ -2317,11 +2317,11 @@ void main() {
   });
 
   group('advanced options', () {
-    testWidgets('send offers the file and HTTP either way', (tester) async {
+    testWidgets('send offers the file and Direct either way', (tester) async {
       final off = _Harness();
       await off.pump(tester, _sendTab());
       expect(find.text('File'), findsOneWidget);
-      expect(find.text('HTTP'), findsOneWidget);
+      expect(find.text('Direct'), findsOneWidget);
       expect(find.text('Other ways to send'), findsNothing);
 
       // A fresh tree, so the screen's state starts over.
