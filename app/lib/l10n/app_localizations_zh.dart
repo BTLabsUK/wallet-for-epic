@@ -4098,6 +4098,21 @@ class AppLocalizationsZh extends AppLocalizations {
   String get netStatusTitle => '网络状态';
 
   @override
+  String get netStatusReachable => '可访问';
+
+  @override
+  String get netStatusPublishing => '正在发布…';
+
+  @override
+  String get netStatusNotReachable => '不可访问';
+
+  @override
+  String get netStatusTorOpenHint => '打开隐私设置';
+
+  @override
+  String get netStatusDirectOpenHint => '打开直接接收地址';
+
+  @override
   String get netStatusOpenHint => '显示服务器';
 
   @override

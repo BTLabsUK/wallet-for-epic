@@ -602,7 +602,7 @@ void main() {
       await tester.pump();
       // Offline shows once it lasts (walletStatusProvider).
       await tester.pump(statusSettle);
-      expect(find.bySemanticsLabel(RegExp('^Node offline,')), findsOneWidget);
+      expect(find.bySemanticsLabel(RegExp('^Node, Offline')), findsOneWidget);
       handle.dispose();
       // Total 16, spendable 12.5: the rest is in the tiles under the figure; the row scrolls.
       for (final (kind, label, value) in [
@@ -809,7 +809,7 @@ void main() {
       await _pumpApp(tester, service, _Device(sealedMainnet: true));
       await _unlockToHome(tester);
       expect(
-        find.bySemanticsLabel(RegExp('^Epicbox connecting,')),
+        find.bySemanticsLabel(RegExp('^Epicbox, Connecting')),
         findsOneWidget,
       );
 
@@ -817,10 +817,10 @@ void main() {
         const ListenerEvent(kind: ListenerEventKind.connected, message: 'a'),
       );
       await tester.pumpAndSettle();
-      expect(find.bySemanticsLabel(RegExp('^Epicbox online,')), findsOneWidget);
       await tester.pump(statusSettle);
+      expect(find.bySemanticsLabel(RegExp('^Epicbox, Online')), findsOneWidget);
       // Balances the node did not check count as the node being offline, and say why.
-      expect(find.bySemanticsLabel(RegExp('^Node offline,')), findsOneWidget);
+      expect(find.bySemanticsLabel(RegExp('^Node, Offline')), findsOneWidget);
       expect(
         tester.getSemantics(find.byKey(nodeStatusKey).first).hint,
         startsWith('Not validated with node. Balances may be out of date.'),

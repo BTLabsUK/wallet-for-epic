@@ -1,4 +1,5 @@
-/// The network status card on Home: one row each for the node, Epicbox and Tor. A row's tap
+/// The network status card (Settings › Privacy & network; Home shows the compact status icons
+/// of `home_status.dart` instead): one row each for the node, Epicbox and Tor. A row's tap
 /// opens the server picker for it, or Settings › Privacy for Tor. A row whose connection goes
 /// through Tor, or waits for it, says so on a line of its own under the state word.
 library;
@@ -49,10 +50,14 @@ NetFace torNetFace(BuildContext context, PhoneTorState s) {
 }
 
 /// The node's lag behind the network's tip as status.btlabs.uk sees it, for a node that
-/// answers; null when either height is unknown.
-int? _behind(WidgetRef ref, NodeStatus node, NetworkPreset? preset) {
+/// answers and is [NodeState.online]; null when either height is unknown. The status card and
+/// Home's status icons both read "Behind N" from it.
+int? nodeBehind(WidgetRef ref, NodeStatus node, NetworkPreset? preset) {
   final height = node.tip?.height;
-  if (height == null || preset == null || preset.statusChain == null) {
+  if (node.state != NodeState.online ||
+      height == null ||
+      preset == null ||
+      preset.statusChain == null) {
     return null;
   }
   final tip = ref.watch(networkStatusProvider(preset)).value?.tipHeight;
@@ -61,9 +66,19 @@ int? _behind(WidgetRef ref, NodeStatus node, NetworkPreset? preset) {
   return lag < 0 ? 0 : lag;
 }
 
-/// The node, Epicbox and Tor rows in a hairline card.
+/// How the node's connection goes under the Tor switch: a node on this computer stays direct
+/// ([torSkipsLocalNode]); any other follows [torWay].
+TorWay nodeTorWay(String? nodeUrl, TorState state) =>
+    torSkipsLocalNode && nodeUrl != null && isLoopbackUrl(Uri.parse(nodeUrl))
+    ? TorWay.clearnet
+    : torWay(TorRoute.node, state);
+
+/// The node, Epicbox and Tor rows in a hairline card. With [showTor] false the Tor row is
+/// left out: right above the Tor switch (Settings › Privacy & network) it would repeat it.
 class NetworkStatusCard extends ConsumerWidget {
-  const NetworkStatusCard({super.key});
+  const NetworkStatusCard({super.key, this.showTor = true});
+
+  final bool showTor;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -85,11 +100,10 @@ class NetworkStatusCard extends ConsumerWidget {
             port: config.epicboxPort,
           ).label
         : choice?.relay.label ?? '';
-    final online = status.node.state == NodeState.online;
     final node = nodeNetFace(
       context,
       status.node,
-      behind: online ? _behind(ref, status.node, preset) : null,
+      behind: nodeBehind(ref, status.node, preset),
     );
     final epicbox = epicboxNetFace(context, status.epicbox);
     final nodeWords = nodeStatusWords(context, status.node, config);
@@ -105,13 +119,7 @@ class NetworkStatusCard extends ConsumerWidget {
         spoken: nodeWords.label,
         detail: nodeWords.detail,
         pulse: status.node.state == NodeState.syncing,
-        // A node on this computer stays direct (torSkipsLocalNode).
-        torWay:
-            torSkipsLocalNode &&
-                nodeUrl != null &&
-                isLoopbackUrl(Uri.parse(nodeUrl))
-            ? TorWay.clearnet
-            : way(TorRoute.node),
+        torWay: nodeTorWay(nodeUrl, torState),
         onTap: () => showNodePicker(context),
       ),
       _StatusRow(
@@ -124,7 +132,7 @@ class NetworkStatusCard extends ConsumerWidget {
         torWay: way(TorRoute.epicbox),
         onTap: () => showEpicboxPicker(context),
       ),
-      if (torRowShown(tor))
+      if (showTor && torRowShown(tor))
         _StatusRow(
           key: netStatusTorKey,
           title: l.torNetworkLabel,

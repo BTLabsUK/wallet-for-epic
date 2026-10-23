@@ -525,6 +525,25 @@ void main() {
     );
   });
 
+  test('a disconnect carries its reason and retry wait', () {
+    expect(
+      lepicListenerEvent(
+        lepic.ListenerEvent(
+          kind: lepic.ListenerEventKind.disconnected,
+          message: '',
+          reason: 'relay closed the connection',
+          retryInMs: BigInt.from(1500),
+        ),
+      ),
+      const ListenerEvent(
+        kind: ListenerEventKind.disconnected,
+        message: '',
+        reason: 'relay closed the connection',
+        retryInMs: 1500,
+      ),
+    );
+  });
+
   test('a listener bounce is an issuer event, not a listener one', () {
     const bounce = lepic.ListenerEvent(
       kind: lepic.ListenerEventKind.invoiceBounced,

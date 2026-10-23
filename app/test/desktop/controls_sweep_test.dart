@@ -10,6 +10,7 @@ import 'package:epic_wallet/src/desktop/app/shell.dart';
 import 'package:epic_wallet/src/desktop/app/tour.dart';
 import 'package:epic_wallet/src/desktop/data/api.dart';
 import 'package:epic_wallet/src/desktop/data/files.dart';
+import 'package:epic_wallet/src/desktop/data/http_address.dart' show HttpReach;
 import 'package:epic_wallet/src/desktop/data/invoices.dart';
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/data/desk_node.dart';
@@ -164,6 +165,8 @@ class _Recorder implements DeskWalletApi {
   Future<String> epicboxAddress() => _r('epicboxAddress', _m.epicboxAddress);
   @override
   Future<String> httpAddress() => _r('httpAddress', _m.httpAddress);
+  @override
+  Future<HttpReach?> httpReach({bool recheck = false}) => _r('httpReach', () => _m.httpReach(recheck: recheck));
   @override
   Future<String> torAddress() => _r('torAddress', _m.torAddress);
   @override

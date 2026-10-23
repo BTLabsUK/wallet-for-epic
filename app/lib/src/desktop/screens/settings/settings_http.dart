@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../widgets/http_reach.dart';
 import '../../widgets/kit.dart';
 import 'prefs.dart';
 
@@ -101,6 +102,7 @@ class _HttpOptionsState extends ConsumerState<HttpOptions> {
   @override
   Widget build(BuildContext context) {
     final s = ref.watch(deskProvider.select((st) => st.settings));
+    final listening = ref.watch(deskProvider.select((st) => st.status?.httpListener == ServiceHealth.ok));
     final c = context.dc;
     final ts = context.ts;
     return Column(
@@ -130,9 +132,15 @@ class _HttpOptionsState extends ConsumerState<HttpOptions> {
             ],
           ),
           below: s.publicMode
-              ? Text(
-                  'Answers on all interfaces. The router must forward TCP ${s.httpPort} to this computer. Senders on the internet use http://<public IP>:${s.httpPort}.',
-                  style: ts.caption,
+              ? Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(
+                      'Answers on all interfaces. The router must forward TCP ${s.httpPort} to this computer. Senders on the internet use http://<public IP>:${s.httpPort}.',
+                      style: ts.caption,
+                    ),
+                    if (listening) ...[SizedBox(height: Sp.x3), const HttpReachNotice()],
+                  ],
                 )
               : null,
         ),

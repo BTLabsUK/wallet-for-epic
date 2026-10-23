@@ -5410,6 +5410,26 @@
   "@netStatusTitle": {
     "description": "Screen reader name of the status card."
   },
+  "netStatusReachable": "Reachable",
+  "@netStatusReachable": {
+    "description": "Direct receive status icon state word: the wallet's Tor address is published and reachable."
+  },
+  "netStatusPublishing": "Publishing…",
+  "@netStatusPublishing": {
+    "description": "Direct receive status icon state word: Tor is connected and the address is being published."
+  },
+  "netStatusNotReachable": "Not reachable",
+  "@netStatusNotReachable": {
+    "description": "Direct receive status icon state word: the Tor address could not be published."
+  },
+  "netStatusTorOpenHint": "Opens the privacy settings",
+  "@netStatusTorOpenHint": {
+    "description": "Screen reader hint on the Tor status icon: a tap opens Settings \u203a Privacy."
+  },
+  "netStatusDirectOpenHint": "Opens the Direct receive address",
+  "@netStatusDirectOpenHint": {
+    "description": "Screen reader hint on the Direct receive status icon: a tap opens the Receive tab's Direct address."
+  },
   "netStatusOpenHint": "Shows the servers",
   "@netStatusOpenHint": {
     "description": "Screen reader hint on a status card row."
