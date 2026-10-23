@@ -1,4 +1,4 @@
-# Builds the Windows installer, epic-wallet-<version>-windows-x64-setup.exe, in one go. Run in
+# Builds the Windows installer, epic-cash-desktop-<version>-windows-x64-setup.exe, in one go. Run in
 # PowerShell 7 (pwsh -NoProfile -File) on Windows, in a session without a window: nothing is started.
 #
 # Needs what build_windows.ps1 needs (Flutter, rustup, VS 2022 Build Tools, CMake, Git) plus
@@ -142,7 +142,7 @@ Step 'Inno Setup'
 $iss = Join-Path $app 'windows\installer\epic_wallet.iss'
 & $Iscc /Qp "/DSourceDir=$rel" "/DOutputDir=$OutDir" "/DAppVersion=$name" $iss
 if ($LASTEXITCODE) { throw 'ISCC failed' }
-$setup = Join-Path $OutDir "epic-wallet-$name-windows-x64-setup.exe"
+$setup = Join-Path $OutDir "epic-cash-desktop-$name-windows-x64-setup.exe"
 $setupVersion = (Get-Item $setup).VersionInfo.FileVersion
 if ($setupVersion -ne $fileVersion) { throw "the installer's file version is $setupVersion, not $fileVersion" }
 $hash = (Get-FileHash $setup -Algorithm SHA256).Hash.ToLower()

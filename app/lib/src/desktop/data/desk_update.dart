@@ -1,4 +1,4 @@
-/// Settings › About › Updates: whether a newer Epic Wallet is out. Check only: the desktop
+/// Settings › About › Updates: whether a newer Epic Cash Desktop is out. Check only: the desktop
 /// never downloads or installs. Reads the signed manifest the phone's updater reads
 /// ([updateManifestUrl], one constant for both), verified with the same bundled keys
 /// ([updateKeyringProvider]) before anything is read from it, and only its `desktop` entry:

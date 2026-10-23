@@ -10,7 +10,10 @@ class AppLocalizationsDe extends AppLocalizations {
   AppLocalizationsDe([String locale = 'de']) : super(locale);
 
   @override
-  String get appTitle => 'Epic Wallet';
+  String get appTitle => 'Epic Cash Mobile';
+
+  @override
+  String get appTitleDesktop => 'Epic Cash Desktop';
 
   @override
   String get commonCancel => 'Abbrechen';
@@ -1215,7 +1218,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get homeLockTooltip => 'Wallet sperren';
 
   @override
-  String get shellTitle => 'Epic Wallet';
+  String get shellTitle => 'Epic Cash Mobile';
 
   @override
   String get demoWelcomeTitle => 'Epic Cash ausprobieren';
@@ -3133,7 +3136,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get licencesApp =>
-      'Epic Wallet von BT Labs: Apache-2.0. Der Code ist auf GitHub.';
+      'Epic Cash Mobile von BT Labs: Apache-2.0. Der Code ist auf GitHub.';
 
   @override
   String get licencesFlutter =>

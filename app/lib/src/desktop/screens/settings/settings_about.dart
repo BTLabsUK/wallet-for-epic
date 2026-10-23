@@ -8,6 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/desk_update.dart';
 import '../../data/files.dart' show deskOpenUrlProvider;
+import '../../../ui/theme/brand.dart' show BrandVariant, BrandWordmark;
 import '../../widgets/kit.dart';
 import 'settings_frame.dart';
 
@@ -18,7 +19,7 @@ const websiteUrl = 'https://epiccash.com';
 /// The Licences group, the same words as the phone's Licences screen (lib/l10n, `licences*`).
 const licencesLead = 'Open-source software in this wallet. Each component keeps its own licence; the full texts are one click away.';
 const licenceLines = [
-  'Epic Wallet by BT Labs: Apache-2.0. The code is on GitHub.',
+  'Epic Cash Desktop by BT Labs: Apache-2.0. The code is on GitHub.',
   'Flutter and its Dart packages: BSD 3-Clause and similar permissive licences.',
   'LEPIC, the Epic Cash wallet library: Apache 2.0, with the Epic Cash secp256k1-zkp fork (CC0) and Rust crates under MIT or Apache 2.0, among them tokio, rustls, rusqlite and blake2.',
   'Tor: GNU General Public License, version 3. Its source is named below.',
@@ -83,11 +84,12 @@ class _SettingsAboutScreenState extends ConsumerState<SettingsAboutScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('$appName ${withBuildId(withCoreVersion(deskAppVersion))}', style: ts.h3),
-                          SizedBox(height: Sp.x1),
+                          BrandWordmark(variant: BrandVariant.desktop, size: Fs.h2.u),
+                          SizedBox(height: Sp.x2),
                           Wrap(
                             spacing: Sp.x4,
                             children: [
+                              Text('Version  ${withBuildId(withCoreVersion(deskAppVersion))}', style: ts.small),
                               Text('Network  ${network ?? '-'}', style: ts.small),
                               Text('Node  ${node ?? '-'}', style: ts.small),
                             ],

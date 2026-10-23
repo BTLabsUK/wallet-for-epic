@@ -1282,7 +1282,7 @@ void main() {
       await tester.pump();
       await tester.pump(const Duration(seconds: 1));
       expect(find.byType(LicensePage), findsOneWidget);
-      expect(find.text('Epic Wallet'), findsWidgets);
+      expect(find.text('Epic Cash Mobile'), findsWidgets);
       // British, like the row and the rest of the app.
       expect(find.text('Licences'), findsOneWidget);
       expect(find.text('Licenses'), findsNothing);
