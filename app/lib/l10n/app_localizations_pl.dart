@@ -4502,6 +4502,21 @@ class AppLocalizationsPl extends AppLocalizations {
   String get netStatusTitle => 'Stan sieci';
 
   @override
+  String get netStatusReachable => 'Osiągalny';
+
+  @override
+  String get netStatusPublishing => 'Publikowanie…';
+
+  @override
+  String get netStatusNotReachable => 'Nieosiągalny';
+
+  @override
+  String get netStatusTorOpenHint => 'Otwiera ustawienia prywatności';
+
+  @override
+  String get netStatusDirectOpenHint => 'Otwiera adres odbioru bezpośredniego';
+
+  @override
   String get netStatusOpenHint => 'Pokazuje serwery';
 
   @override

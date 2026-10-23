@@ -6697,6 +6697,36 @@ abstract class AppLocalizations {
   /// **'Network status'**
   String get netStatusTitle;
 
+  /// Direct receive status icon state word: the wallet's Tor address is published and reachable.
+  ///
+  /// In en, this message translates to:
+  /// **'Reachable'**
+  String get netStatusReachable;
+
+  /// Direct receive status icon state word: Tor is connected and the address is being published.
+  ///
+  /// In en, this message translates to:
+  /// **'Publishing…'**
+  String get netStatusPublishing;
+
+  /// Direct receive status icon state word: the Tor address could not be published.
+  ///
+  /// In en, this message translates to:
+  /// **'Not reachable'**
+  String get netStatusNotReachable;
+
+  /// Screen reader hint on the Tor status icon: a tap opens Settings › Privacy.
+  ///
+  /// In en, this message translates to:
+  /// **'Opens the privacy settings'**
+  String get netStatusTorOpenHint;
+
+  /// Screen reader hint on the Direct receive status icon: a tap opens the Receive tab's Direct address.
+  ///
+  /// In en, this message translates to:
+  /// **'Opens the Direct receive address'**
+  String get netStatusDirectOpenHint;
+
   /// Screen reader hint on a status card row.
   ///
   /// In en, this message translates to:

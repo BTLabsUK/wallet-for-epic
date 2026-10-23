@@ -138,7 +138,7 @@ _Face _nodeFace(BuildContext context, NodeStatus node, WalletConfig? config) {
       node.percent == null
           ? l.statusNodeSyncing
           : l.statusNodeSyncingPercent(node.percent!),
-      t.dim,
+      t.info,
       node.percent == null
           ? l.homeSyncSyncing
           : l.homeSyncSyncingPercent(node.percent!),
@@ -146,7 +146,7 @@ _Face _nodeFace(BuildContext context, NodeStatus node, WalletConfig? config) {
     NodeState.connecting => (
       Icons.cloud_queue,
       l.statusNodeConnecting,
-      t.dim,
+      t.info,
       l.homeSyncContactingNode,
     ),
     NodeState.offline => (
@@ -197,7 +197,7 @@ _Face _epicboxFace(
     EpicboxState.connecting => (
       Icons.mail_outline,
       l.statusEpicboxConnecting,
-      t.dim,
+      t.info,
       l.homeEpicboxConnecting,
     ),
     EpicboxState.offline => (
@@ -286,33 +286,99 @@ class _PulseState extends State<Pulse> with SingleTickerProviderStateMixin {
       FadeTransition(opacity: _opacity, child: widget.child);
 }
 
-/// One status as its icon on a [statusTarget] square, in the state's colour. A tap, a long
-/// press or hover shows the tooltip with the detail; a screen reader says the word and the
-/// detail. The syncing node pulses.
-class _StatusIcon extends StatelessWidget {
-  const _StatusIcon({super.key, required this.face, required this.pulse});
+/// The colour of a status's state dot: the service works (green), is busy connecting, syncing
+/// or waiting (blue, in progress), does not work (red), or is off (faint). Never the accent.
+enum StatusDot {
+  ok,
+  busy,
+  bad,
+  off;
 
-  final _Face face;
+  Color color(WalletTokens t) => switch (this) {
+    StatusDot.ok => t.ok,
+    StatusDot.busy => t.info,
+    StatusDot.bad => t.risk,
+    StatusDot.off => t.faint,
+  };
+}
+
+/// The diameter of the state dot at a status glyph's bottom right, ring included.
+const double statusDotSize = 10;
+
+/// One status as its glyph on a [statusTarget] square, in the dim colour, with the state's
+/// [dot] at its bottom right (ringed in the page colour so it stands off the glyph). A tap
+/// runs [onTap] (the service's screen); a long press or hover shows the tooltip with
+/// [detail]; a screen reader hears [label] (the service and its state word), then [detail]
+/// and [actionHint]. A [StatusDot.busy] status pulses.
+class StatusIcon extends StatelessWidget {
+  const StatusIcon({
+    super.key,
+    required this.icon,
+    required this.dot,
+    required this.label,
+    required this.detail,
+    required this.onTap,
+    this.actionHint,
+    this.pulse = false,
+  });
+
+  final IconData icon;
+  final StatusDot dot;
+  final String label;
+  final String detail;
+  final String? actionHint;
+  final VoidCallback onTap;
   final bool pulse;
 
   @override
   Widget build(BuildContext context) {
-    return Tooltip(
-      message: face.detail,
-      triggerMode: TooltipTriggerMode.tap,
-      showDuration: const Duration(seconds: 6),
-      child: Semantics(
-        container: true,
-        label: face.label,
-        hint: face.detail,
-        liveRegion: true,
-        excludeSemantics: true,
+    final t = context.tokens;
+    final ring = Theme.of(context).scaffoldBackgroundColor;
+    // The semantics node is the widget's root, so tests and screen readers find it by key;
+    // the tooltip inside it is excluded (its text is the hint).
+    return Semantics(
+      container: true,
+      button: true,
+      label: label,
+      hint: [detail, ?actionHint].join('\n'),
+      liveRegion: true,
+      excludeSemantics: true,
+      onTap: onTap,
+      child: Tooltip(
+        message: detail,
+        triggerMode: TooltipTriggerMode.longPress,
+        showDuration: const Duration(seconds: 6),
         child: SizedBox.square(
           dimension: statusTarget,
-          child: Center(
-            child: Pulse(
-              active: pulse,
-              child: Icon(face.icon, size: statusGlyph, color: face.color),
+          child: InkResponse(
+            onTap: onTap,
+            radius: statusTarget / 2,
+            child: Center(
+              child: Pulse(
+                active: pulse,
+                child: SizedBox.square(
+                  dimension: statusGlyph,
+                  child: Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      Icon(icon, size: statusGlyph, color: t.dim),
+                      Positioned(
+                        right: -3,
+                        bottom: -3,
+                        child: Container(
+                          width: statusDotSize,
+                          height: statusDotSize,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: dot.color(t),
+                            border: Border.all(color: ring, width: 1.5),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             ),
           ),
         ),
@@ -321,33 +387,56 @@ class _StatusIcon extends StatelessWidget {
   }
 }
 
-/// The node and epicbox statuses as icons side by side, epicbox only while the listener
-/// runs. They show on Wallet only, at the start of the row under the figure.
-class StatusIcons extends ConsumerWidget {
-  const StatusIcons({super.key});
+/// The node's glyph, label word and tooltip for the status icons ([StatusIcon]): the state's
+/// cloud glyph as the header's icons had it (a shape cue beside the dot's colour), the word
+/// the status card uses ("Synced", "Behind 12"), and the dot: green synced, blue syncing or
+/// connecting, red offline or far behind.
+({IconData icon, StatusDot dot, String word, String detail}) nodeIconFace(
+  BuildContext context,
+  NodeStatus node,
+  WalletConfig? config, {
+  int? behind,
+}) {
+  final f = _nodeFace(context, node, config);
+  final net = nodeNetFace(context, node, behind: behind);
+  final dot = switch (node.state) {
+    NodeState.online when behind != null && behind >= behindAfter =>
+      StatusDot.bad,
+    NodeState.online => StatusDot.ok,
+    NodeState.syncing || NodeState.connecting => StatusDot.busy,
+    NodeState.offline => StatusDot.bad,
+  };
+  return (icon: f.icon, dot: dot, word: net.word, detail: f.detail);
+}
 
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final status = watchWalletStatus(ref);
-    final config = ref.watch(walletConfigProvider);
-    final epicbox = status.epicbox;
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        _StatusIcon(
-          key: nodeStatusKey,
-          face: _nodeFace(context, status.node, config),
-          pulse: status.node.state == NodeState.syncing,
-        ),
-        if (epicbox != null)
-          _StatusIcon(
-            key: epicboxStatusKey,
-            face: _epicboxFace(context, epicbox, config),
-            pulse: false,
-          ),
-      ],
+/// The same for the epicbox listener; a stopped listener is "Off" with a faint dot.
+({IconData icon, StatusDot dot, String word, String detail}) epicboxIconFace(
+  BuildContext context,
+  EpicboxState? state,
+  WalletConfig? config,
+) {
+  final l = context.l10n;
+  final net = epicboxNetFace(context, state);
+  if (state == null) {
+    final detail = [
+      l.netStatusOff,
+      if (config != null)
+        l.statusRelay('${config.epicboxDomain}:${config.epicboxPort}'),
+    ].join('\n');
+    return (
+      icon: Icons.mail_outline,
+      dot: StatusDot.off,
+      word: net.word,
+      detail: detail,
     );
   }
+  final f = _epicboxFace(context, state, config);
+  final dot = switch (state) {
+    EpicboxState.online => StatusDot.ok,
+    EpicboxState.connecting => StatusDot.busy,
+    EpicboxState.offline => StatusDot.bad,
+  };
+  return (icon: f.icon, dot: dot, word: net.word, detail: f.detail);
 }
 
 /// How many of [SignalBars]' three bars are lit: none for a service that is off.
@@ -437,14 +526,14 @@ NetFace nodeNetFace(BuildContext context, NodeStatus node, {int? behind}) {
     ),
     NodeState.syncing => (
       level: SignalLevel.two,
-      color: t.dim,
+      color: t.info,
       word: node.percent == null
           ? l.netStatusSyncing
           : l.netStatusSyncingPercent(node.percent!),
     ),
     NodeState.connecting => (
       level: SignalLevel.one,
-      color: t.dim,
+      color: t.info,
       word: l.netStatusConnecting,
     ),
     NodeState.offline => (
@@ -467,7 +556,7 @@ NetFace epicboxNetFace(BuildContext context, EpicboxState? state) {
     ),
     EpicboxState.connecting => (
       level: SignalLevel.one,
-      color: t.dim,
+      color: t.info,
       word: l.netStatusConnecting,
     ),
     EpicboxState.offline => (

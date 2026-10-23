@@ -9,6 +9,7 @@ import '../providers.dart';
 import '../settings.dart';
 import '../wallet_service.dart';
 import 'common.dart';
+import 'home_status.dart' show StatusIcons;
 import 'status.dart';
 import 'theme/protocol.dart';
 import 'theme/brand.dart' show BrandVariant, BrandWordmark;
@@ -137,9 +138,9 @@ String _spendableLabel(AppLocalizations l, BigInt spendable, bool hidden) =>
 
 /// Wallet's balance area, with no panel around it, centred as one column: the caption
 /// "Available to spend", the spendable figure in Montserrat 60 with the gold EPIC at its top
-/// right, the two centred as a unit; under it one centred row with the fiat value and the
-/// eye. The statuses live in the status card and the pending balances in the tiles under it
-/// (`home_parts.dart`), both in the list below.
+/// right, the two centred as a unit; under it one row, [statusTarget] high: the status icons
+/// ([StatusIcons]) at its start, the fiat value and the eye at its end. The pending balances
+/// are in the tiles under it (`home_parts.dart`), in the list below.
 ///
 /// Every part has a fixed height for the text scale, so nothing here moves when amounts
 /// change, a payment lands, amounts are hidden or nothing is pending. A figure too wide shrinks
@@ -187,53 +188,82 @@ class WalletBalance extends ConsumerWidget {
             ref.read(appSettingsProvider.notifier).setHideBalances(!hidden),
       ),
     );
+    // The icons' and the eye's 48 dp targets reach [statusInset] past their glyphs, so the
+    // row's gutter is that much narrower: the first glyph and the eye line up with the text.
+    const gutter = 18.0;
     return Semantics(
       container: true,
       child: Padding(
         key: walletBalanceKey,
-        padding: const EdgeInsets.fromLTRB(18, 20, 18, 4),
+        padding: const EdgeInsets.fromLTRB(
+          gutter - statusInset,
+          20,
+          gutter - statusInset,
+          4,
+        ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             // The caption says what the figure is, as the desktop's Overview does.
-            SizedBox(
-              height: _lineHeight(captionStyle, scaler, context),
-              child: Text(
-                l.homeAvailableToSpend,
-                key: balanceCaptionKey,
-                maxLines: 1,
-                textAlign: TextAlign.center,
-                style: captionStyle,
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: statusInset),
+              child: SizedBox(
+                height: _lineHeight(captionStyle, scaler, context),
+                child: Text(
+                  l.homeAvailableToSpend,
+                  key: balanceCaptionKey,
+                  maxLines: 1,
+                  textAlign: TextAlign.center,
+                  style: captionStyle,
+                ),
               ),
             ),
             const SizedBox(height: 4),
-            SizedBox(
-              height: figureSize,
-              child: summary == null
-                  ? const Center(
-                      child: SizedBox.square(
-                        dimension: 24,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      ),
-                    )
-                  : _Figure(spendable: summary.spendable, hidden: hidden),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: statusInset),
+              child: SizedBox(
+                height: figureSize,
+                child: summary == null
+                    ? const Center(
+                        child: SizedBox.square(
+                          dimension: 24,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        ),
+                      )
+                    : _Figure(spendable: summary.spendable, hidden: hidden),
+              ),
             ),
             const SizedBox(height: 2),
             // The statuses show before the first balance too: they say why it is not here.
+            // The fiat value takes what the icons leave and shrinks rather than wraps, so an
+            // icon coming or going (Tor on, the onion published) moves nothing else.
             SizedBox(
               height: rowHeight,
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  if (fiat != null)
-                    Flexible(
-                      child: FittedBox(
-                        key: fiatValueKey,
-                        fit: BoxFit.scaleDown,
-                        child: Text(fiat, maxLines: 1, style: fiatStyle),
-                      ),
-                    ),
+                  const StatusIcons(key: walletStatusesKey),
+                  Expanded(
+                    child: fiat == null
+                        ? const SizedBox.shrink()
+                        : Align(
+                            alignment: AlignmentDirectional.centerEnd,
+                            child: Padding(
+                              padding: const EdgeInsetsDirectional.only(
+                                start: 8,
+                              ),
+                              child: FittedBox(
+                                key: fiatValueKey,
+                                fit: BoxFit.scaleDown,
+                                child: Text(
+                                  fiat,
+                                  maxLines: 1,
+                                  style: fiatStyle,
+                                ),
+                              ),
+                            ),
+                          ),
+                  ),
                   if (summary != null) eye,
                 ],
               ),
@@ -554,8 +584,9 @@ class _FigureTitle extends ConsumerWidget {
 }
 
 /// The app bar's foot on every tab, in the shell's progress slot: while the node syncs, its
-/// progress as a determinate accent line; and when a payment lands ([paymentLanded]) a 1 dp
-/// accent line that sweeps out from the centre once, in [landingSweepDuration]. The sweep runs
+/// progress as a determinate line in the in-progress blue; and when a payment lands
+/// ([paymentLanded]) a 1 dp line in the same blue that sweeps out from the centre once, in
+/// [landingSweepDuration]. Neither takes the gold: it is no state. The sweep runs
 /// with reduced motion too, by the operator's choice; the sync line never moves by itself.
 class ShellEdge extends ConsumerStatefulWidget {
   const ShellEdge({super.key});
@@ -594,7 +625,7 @@ class _ShellEdgeState extends ConsumerState<ShellEdge>
               key: headerSyncLineKey,
               value: (node.percent ?? 0) / 100,
               minHeight: progressSlotHeight,
-              color: t.accent,
+              color: t.info,
               backgroundColor: Colors.transparent,
             ),
           Align(
@@ -606,7 +637,7 @@ class _ShellEdgeState extends ConsumerState<ShellEdge>
                 size: const Size(double.infinity, SweepLinePainter.thickness),
                 painter: SweepLinePainter(
                   progress: _sweep.value,
-                  color: t.accent,
+                  color: t.info,
                 ),
               ),
             ),

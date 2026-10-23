@@ -4332,6 +4332,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get netStatusTitle => 'Network status';
 
   @override
+  String get netStatusReachable => 'Reachable';
+
+  @override
+  String get netStatusPublishing => 'Publishing…';
+
+  @override
+  String get netStatusNotReachable => 'Not reachable';
+
+  @override
+  String get netStatusTorOpenHint => 'Opens the privacy settings';
+
+  @override
+  String get netStatusDirectOpenHint => 'Opens the Direct receive address';
+
+  @override
   String get netStatusOpenHint => 'Shows the servers';
 
   @override

@@ -26,7 +26,6 @@ import 'help_screen.dart';
 import 'history_screen.dart';
 import 'home_parts.dart';
 import 'invoices_screen.dart' show InvoicesEntry, InvoicesScreen;
-import 'network_status.dart';
 import 'outputs_screen.dart';
 import 'receive_screen.dart' show ReceiveView;
 import 'restore_screen.dart' show ScanProgressView;
@@ -554,7 +553,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     HomeDestination.invoices => const InvoicesScreen(),
   });
 
-  /// The middle tab: the balance tiles, the status card, the destinations, reminders,
+  /// The middle tab: the balance tiles, the destinations, reminders,
   /// pending sends and recent activity, with pull to refresh.
   Widget _walletTab(BuildContext context) {
     final config = ref.watch(walletConfigProvider);
@@ -602,15 +601,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   physics: const AlwaysScrollableScrollPhysics(),
                   padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
                   children: [
-                    // The desktop Overview's tiles, then its sidebar's destinations, then the status rows.
-                    // The tiles row runs edge to edge; the list's gutter is taken back.
-                    // One gap between every card on the tab, the tiles' own.
-                    // Everyday destinations before the node and Epicbox status.
+                    // The desktop Overview's tiles, then its sidebar's destinations. The
+                    // statuses are the icons in the balance area above; the full card is in
+                    // Settings. One gap between every card on the tab, the tiles' own.
                     BalanceTiles(onTap: _openOutputs),
                     const SizedBox(height: homeCardGap),
                     HomeDestinations(onOpen: _openDestination),
-                    const SizedBox(height: homeCardGap),
-                    const NetworkStatusCard(),
                     if (scan.running || scan.error != null)
                       Padding(
                         padding: const EdgeInsets.only(top: homeCardGap),
@@ -990,7 +986,7 @@ class _PendingSendsCard extends ConsumerWidget {
     return Padding(
       padding: const EdgeInsets.only(top: homeCardGap),
       child: EdgeCard(
-        edge: context.tokens.accent,
+        edge: context.tokens.warn,
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
