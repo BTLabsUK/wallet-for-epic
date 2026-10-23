@@ -17,9 +17,9 @@ import '../providers.dart';
 import '../wallet_service.dart';
 import 'common.dart';
 import 'invoice_request_screen.dart';
-import 'invoice_review_screen.dart';
+import 'invoice_rows.dart';
+import 'settings_invoices.dart';
 import 'theme/brand.dart';
-import 'theme/protocol.dart';
 import 'theme/tokens.dart';
 import 'tx_details_screen.dart';
 
@@ -74,9 +74,12 @@ const Key invoicesEntryKey = ValueKey('invoices-entry');
 /// Home's app bar button to the invoices, with a badge of the pending ones, when the wallet
 /// handles invoices. Being on home drains the invoice address once at start
 /// ([pendingInvoicesProvider]) and again when the app comes back to the front. It also turns
-/// invoice events into notices; none of them pays or cancels anything.
+/// invoice events into notices; none of them pays or cancels anything. With [visible] false
+/// it draws nothing and keeps all of that, so home can show the way to the invoices elsewhere.
 class InvoicesEntry extends ConsumerStatefulWidget {
-  const InvoicesEntry({super.key});
+  const InvoicesEntry({super.key, this.visible = true});
+
+  final bool visible;
 
   @override
   ConsumerState<InvoicesEntry> createState() => _InvoicesEntryState();
@@ -306,7 +309,9 @@ class _InvoicesEntryState extends ConsumerState<InvoicesEntry> {
     if (session == null || !session.supportsInvoices) {
       return const SizedBox.shrink();
     }
+    // Watched even when hidden: it is what drains the invoice address at start.
     final count = ref.watch(pendingInvoiceCountProvider);
+    if (!widget.visible) return const SizedBox.shrink();
     final scheme = Theme.of(context).colorScheme;
     return IconButton(
       key: invoicesEntryKey,
@@ -323,10 +328,21 @@ class _InvoicesEntryState extends ConsumerState<InvoicesEntry> {
   }
 }
 
-/// Pending invoices, oldest first, each with its service, amount and time left. Opening it
-/// and pulling down drain the invoice address.
+/// The two halves of the Invoices screen.
+enum InvoicesSegment { toPay, sent }
+
+/// Keys of the Invoices screen, for tests.
+const Key invoicesSegmentsKey = ValueKey('invoices-segments');
+const Key invoicesNewRequestKey = ValueKey('invoices-new-request');
+
+/// Invoices to pay, oldest first, and the requests this wallet sent, under two segments with
+/// live counts. Opening it and pulling down drain the invoice and payments addresses; the
+/// progress line shows for the first load only. With [segment], it opens on that half;
+/// otherwise on To pay, or on Sent while there is nothing to pay and something sent.
 class InvoicesScreen extends ConsumerStatefulWidget {
-  const InvoicesScreen({super.key});
+  const InvoicesScreen({super.key, this.segment});
+
+  final InvoicesSegment? segment;
 
   @override
   ConsumerState<InvoicesScreen> createState() => _InvoicesScreenState();
@@ -338,6 +354,9 @@ class _InvoicesScreenState extends ConsumerState<InvoicesScreen> {
     const Duration(seconds: 30),
     (_) => setState(() {}),
   );
+
+  /// The user's choice, once they made one.
+  late InvoicesSegment? _segment = widget.segment;
 
   @override
   void initState() {
@@ -363,185 +382,216 @@ class _InvoicesScreenState extends ConsumerState<InvoicesScreen> {
     }
   }
 
+  void _newRequest() => Navigator.of(
+    context,
+  ).push(MaterialPageRoute<void>(builder: (_) => const InvoiceRequestScreen()));
+
+  void _trustedServices() => Navigator.of(context).push(
+    MaterialPageRoute<void>(builder: (_) => const InvoiceSettingsScreen()),
+  );
+
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
+    final t = context.tokens;
     final invoices = ref.watch(pendingInvoicesProvider);
     final services =
         ref.watch(trustedServicesProvider).value ?? const <TrustedService>[];
     final now = ref.watch(invoiceClockProvider)();
     final hidden = amountDisplay(ref).hidden;
-    final list = invoices.value;
-    final sent = ref.watch(issuedInvoicesProvider);
-    final requests = sent.value ?? const <IssuedInvoice>[];
+    final toPay = [
+      for (final i in invoices.value ?? const <PendingInvoice>[])
+        if (!i.isExpiredAt(now)) i,
+    ];
+    final requests =
+        ref.watch(issuedInvoicesProvider).value ?? const <IssuedInvoice>[];
     final contacts = ref.watch(contactsProvider).value ?? const <Contact>[];
-    // One empty state for both sections; with requests sent, the invoices part says so in a line.
-    final nothing = list != null && list.isEmpty && requests.isEmpty;
-    return SlotScaffold(
-      appBar: AppBar(title: Text(l.invoicesTitle)),
-      idle: invoices.isLoading ? SlotProgress(label: l.invoicesChecking) : null,
-      body: RefreshIndicator(
-        onRefresh: _refresh,
-        child: SafeArea(
-          top: false,
-          child: Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 600),
-              child: ListView(
-                // Pull to refresh works on an empty list too.
-                physics: const AlwaysScrollableScrollPhysics(),
-                padding: const EdgeInsets.all(16),
-                children: [
-                  if (invoices.hasError && !invoices.isLoading)
-                    ErrorText(describeError(l, invoices.error!)),
-                  if (nothing)
-                    EmptyState(
-                      icon: const Icon(Icons.receipt_long_outlined),
-                      message: l.invoicesEmpty,
-                    ),
-                  if (requests.isNotEmpty)
-                    ProtocolSectionHead(l.invoicesToPaySection),
-                  if (requests.isNotEmpty && list != null && list.isEmpty)
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8),
-                      child: Text(
-                        l.invoicesNoneToPay,
-                        style: TextStyle(color: context.tokens.dim),
-                      ),
-                    ),
-                  for (final invoice in list ?? const <PendingInvoice>[])
-                    _InvoiceTile(
-                      invoice: invoice,
-                      service: invoiceServiceName(
-                        l,
-                        services,
-                        invoice.senderAddress,
-                      ),
-                      timeLeft: invoiceTimeLeft(l, invoice.timeLeftAt(now)),
-                      amount: shownEpic(l, invoice.amount, hidden: hidden),
-                    ),
-                  if (requests.isNotEmpty) ...[
-                    const SizedBox(height: 16),
-                    ProtocolSectionHead(l.invoicesSentSection),
-                    for (final request in requests)
-                      _RequestTile(
-                        request: request,
-                        payer: payerName(contacts, request.payerAddress),
-                        state:
-                            issuedStateWord(l, request.state) ??
-                            invoiceTimeLeft(l, request.timeLeftAt(now)),
-                        amount: shownEpic(l, request.amount, hidden: hidden),
-                      ),
-                  ],
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
+    final segment =
+        _segment ??
+        (toPay.isEmpty && requests.isNotEmpty
+            ? InvoicesSegment.sent
+            : InvoicesSegment.toPay);
+    // The label beside the icon where it fits at this text size, else the icon alone.
+    final roomy = MediaQuery.textScalerOf(context).scale(14) <= 18;
 
-class _InvoiceTile extends StatelessWidget {
-  const _InvoiceTile({
-    required this.invoice,
-    required this.service,
-    required this.timeLeft,
-    required this.amount,
-  });
-
-  final PendingInvoice invoice;
-  final String service;
-  final String timeLeft;
-  final String amount;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Card(
-      child: ListTile(
-        leading: const Icon(Icons.receipt_long_outlined),
-        title: Text(service, maxLines: 1, overflow: TextOverflow.ellipsis),
-        subtitle: Text(timeLeft),
-        trailing: Text(amount, style: theme.textTheme.titleMedium),
-        onTap: () => Navigator.of(context).push(
-          MaterialPageRoute<void>(
-            builder: (_) => InvoiceReviewScreen(invoice: invoice),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// A request this wallet sent: the payer, the amount, the time left or its final state, and
-/// Withdraw while it waits. A tap opens its transaction's details.
-class _RequestTile extends ConsumerStatefulWidget {
-  const _RequestTile({
-    required this.request,
-    required this.payer,
-    required this.state,
-    required this.amount,
-  });
-
-  final IssuedInvoice request;
-  final String payer;
-  final String state;
-  final String amount;
-
-  @override
-  ConsumerState<_RequestTile> createState() => _RequestTileState();
-}
-
-class _RequestTileState extends ConsumerState<_RequestTile> {
-  bool _busy = false;
-
-  Future<void> _withdraw() async {
-    setState(() => _busy = true);
-    try {
-      await confirmWithdraw(context, ref, widget.request);
-    } finally {
-      if (mounted) setState(() => _busy = false);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final request = widget.request;
-    return Card(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+    Widget emptyState({
+      required IconData icon,
+      required String title,
+      required String caption,
+      required String action,
+      required VoidCallback onAction,
+    }) => EmptyState(
+      icon: Icon(icon),
+      message: title,
+      action: Column(
         children: [
-          ListTile(
-            leading: const Icon(Icons.call_received),
-            title: Text(
-              widget.payer,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
+          Text(
+            caption,
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.bodySmall
+                ?.copyWith(color: t.dim),
+          ),
+          const SizedBox(height: 16),
+          OutlinedButton(
+            style: OutlinedButton.styleFrom(minimumSize: const Size(0, 44)),
+            onPressed: onAction,
+            child: Text(action),
+          ),
+        ],
+      ),
+    );
+
+    final List<Widget> rows = switch (segment) {
+      InvoicesSegment.toPay when invoices.hasValue && toPay.isEmpty => [
+        emptyState(
+          icon: Icons.receipt_long_outlined,
+          title: l.invoicesToPayEmpty,
+          caption: l.invoicesToPayEmptyCaption,
+          action: l.invoiceSettingsServicesTitle,
+          onAction: _trustedServices,
+        ),
+      ],
+      InvoicesSegment.toPay => [
+        for (final invoice in toPay)
+          InvoiceRow(
+            invoice: invoice,
+            service: invoiceServiceName(l, services, invoice.senderAddress),
+            left: invoice.timeLeftAt(now),
+            amount: shownEpic(l, invoice.amount, hidden: hidden),
+          ),
+      ],
+      InvoicesSegment.sent when requests.isEmpty => [
+        emptyState(
+          icon: Icons.call_received,
+          title: l.invoicesSentEmpty,
+          caption: l.invoicesSentEmptyCaption,
+          action: l.invoicesNewRequest,
+          onAction: _newRequest,
+        ),
+      ],
+      InvoicesSegment.sent => [
+        for (final request in requests)
+          RequestRow(
+            request: request,
+            payer: payerName(contacts, request.payerAddress),
+            left: request.timeLeftAt(now),
+            amount: shownEpic(l, request.amount, hidden: hidden),
+          ),
+      ],
+    };
+
+    ButtonSegment<InvoicesSegment> segmentOf(
+      InvoicesSegment value,
+      String label,
+      int count,
+    ) => ButtonSegment(
+      value: value,
+      label: Semantics(
+        label: l.invoicesSegmentCount(label, count),
+        excludeSemantics: true,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Flexible(child: Text(label, overflow: TextOverflow.ellipsis)),
+            const SizedBox(width: 6),
+            Text(
+              localInt(l, count),
+              style: TextStyle(fontFamily: t.monoFamily, fontSize: 13),
             ),
-            subtitle: Text(widget.state),
-            trailing: Text(widget.amount, style: theme.textTheme.titleMedium),
-            onTap: () => Navigator.of(context).push(
-              MaterialPageRoute<void>(
-                builder: (_) => TxDetailsScreen(txKey: 's:${request.slateId}'),
-              ),
+          ],
+        ),
+      ),
+    );
+
+    return SlotScaffold(
+      appBar: AppBar(
+        title: Text(l.invoicesTitle),
+        actions: [
+          if (roomy)
+            TextButton.icon(
+              key: invoicesNewRequestKey,
+              style: TextButton.styleFrom(minimumSize: const Size(0, 44)),
+              icon: const Icon(Icons.add),
+              label: Text(l.invoicesNewRequest),
+              onPressed: _newRequest,
+            )
+          else
+            IconButton(
+              key: invoicesNewRequestKey,
+              tooltip: l.invoicesNewRequest,
+              icon: const Icon(Icons.add),
+              onPressed: _newRequest,
+            ),
+          const SizedBox(width: 8),
+        ],
+      ),
+      // The first load only; a refresh after it keeps the list as it is.
+      idle: invoices.isLoading && !invoices.hasValue
+          ? SlotProgress(label: l.invoicesChecking)
+          : null,
+      body: SafeArea(
+        top: false,
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 600),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+                  child: SegmentedButton<InvoicesSegment>(
+                    key: invoicesSegmentsKey,
+                    showSelectedIcon: false,
+                    style: SegmentedButton.styleFrom(
+                      minimumSize: const Size(0, 44),
+                    ),
+                    segments: [
+                      segmentOf(
+                        InvoicesSegment.toPay,
+                        l.invoicesToPaySection,
+                        toPay.length,
+                      ),
+                      segmentOf(
+                        InvoicesSegment.sent,
+                        l.invoicesSegmentSent,
+                        requests.length,
+                      ),
+                    ],
+                    selected: {segment},
+                    onSelectionChanged: (s) =>
+                        setState(() => _segment = s.first),
+                  ),
+                ),
+                if (invoices.hasError && !invoices.isLoading)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: ErrorText(describeError(l, invoices.error!)),
+                        ),
+                        TextButton(
+                          onPressed: _refresh,
+                          child: Text(l.commonRetry),
+                        ),
+                      ],
+                    ),
+                  ),
+                Expanded(
+                  child: RefreshIndicator(
+                    onRefresh: _refresh,
+                    child: ListView(
+                      // Pull to refresh works on an empty list too.
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      padding: const EdgeInsets.only(bottom: 16),
+                      children: rows,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
-          if (request.withdrawable)
-            Padding(
-              padding: const EdgeInsetsDirectional.only(end: 8, bottom: 4),
-              child: Align(
-                alignment: AlignmentDirectional.centerEnd,
-                child: TextButton.icon(
-                  icon: const Icon(Icons.undo),
-                  label: Text(context.l10n.issuedWithdraw),
-                  onPressed: _busy ? null : _withdraw,
-                ),
-              ),
-            ),
-        ],
+        ),
       ),
     );
   }
