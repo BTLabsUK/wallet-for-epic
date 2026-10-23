@@ -96,7 +96,10 @@ class TxInvoiceBlock extends ConsumerWidget {
             crossAxisAlignment: WrapCrossAlignment.center,
             children: [
               ...actions,
-              ELink(label: l.deskInvActOpen, onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.invoices, slate)),
+              // To pay lists a paid invoice only while the user must settle it; the others live
+              // here in Activity.
+              if (r != null || i!.state.needsAction)
+                ELink(label: l.deskInvActOpen, onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.invoices, slate)),
             ],
           ),
         ],

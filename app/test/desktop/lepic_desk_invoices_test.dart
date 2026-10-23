@@ -33,6 +33,7 @@ lepic.TransactionDetails _tx({
   BigInt? debited,
   BigInt? confirmedHeight,
   bool releasable = false,
+  int createdAtMs = 1790000000000,
 }) => lepic.TransactionDetails(
   txId: txId,
   direction: direction,
@@ -42,7 +43,7 @@ lepic.TransactionDetails _tx({
   amountCredited: credited ?? BigInt.zero,
   amountDebited: debited ?? BigInt.zero,
   fee: direction == lepic.TxDirection.outgoing ? BigInt.from(100) : null,
-  createdAtMs: 1790000000000,
+  createdAtMs: createdAtMs,
   confirmedHeight: confirmedHeight,
   releasable: releasable,
   messages: const [],
@@ -59,6 +60,9 @@ class _Wallet implements lepic.EpicWallet {
   final StreamController<lepic.WalletEvent> events$ = StreamController<lepic.WalletEvent>.broadcast();
   final List<String> paid = [];
   final List<int> cancelled = [];
+
+  /// When the next payment is made.
+  DateTime paidAt = DateTime.now();
   int invoiceDrains = 0;
   int paymentDrains = 0;
   BigInt awaitingFinalization = BigInt.zero;
@@ -185,7 +189,15 @@ class _Wallet implements lepic.EpicWallet {
     final invoice = waiting.firstWhere((i) => i.slateId == slateId, orElse: () => throw _lepicError(lepic.WalletErrorKind.invoiceNotFound));
     waiting.remove(invoice);
     stored.add(
-      _tx(txId: 9, slateId: slateId, direction: lepic.TxDirection.outgoing, status: lepic.TxStatus.received, counterparty: invoice.senderAddress, debited: amount + BigInt.from(100)),
+      _tx(
+        txId: 9,
+        slateId: slateId,
+        direction: lepic.TxDirection.outgoing,
+        status: lepic.TxStatus.received,
+        counterparty: invoice.senderAddress,
+        debited: amount + BigInt.from(100),
+        createdAtMs: paidAt.millisecondsSinceEpoch,
+      ),
     );
     return lepic.PaidInvoice(txId: 9, slateId: slateId, amount: amount, fee: BigInt.from(100));
   }
@@ -265,6 +277,11 @@ void main() {
       expect(of(entry(lepic.TxStatus.confirmed, height: 90), core.InvoiceStatus.posted), PayState.completed);
       expect(of(entry(lepic.TxStatus.received), core.InvoiceStatus.withdrawn), PayState.withdrawnAfterPay);
       expect(of(entry(lepic.TxStatus.received, releasable: true), core.InvoiceStatus.replied), PayState.pastTtl);
+      final day = DateTime(2026, 10, 23);
+      PayState at(DateTime now, core.InvoiceStatus s) => payState(entry(lepic.TxStatus.received), s, tip: 100, minConf: 3, overdueAt: day, now: now);
+      expect(at(day.subtract(const Duration(seconds: 1)), core.InvoiceStatus.replied), PayState.delivered);
+      expect(at(day, core.InvoiceStatus.replied), PayState.pastTtl);
+      expect(at(day, core.InvoiceStatus.posted), PayState.posted, reason: 'the service posted it: no cancel offer');
       expect(of(entry(lepic.TxStatus.cancelled), core.InvoiceStatus.withdrawn), PayState.cancelled);
     });
 
@@ -508,6 +525,40 @@ void main() {
       expect(notices.every((n) => n.who.isEmpty), isTrue, reason: 'the sender is not verified');
       expect(lepicWallet.paid, isEmpty);
       expect(lepicWallet.cancelled, isEmpty);
+    });
+
+    test('paid, then the service withdrew it while offline: its later notice offers Cancel payment', () async {
+      // The payer's side of the sequence: pay, the service goes offline and withdraws, comes
+      // back and refuses the payment, answering it with `withdrawn` (LEPIC W-28).
+      lepicWallet.park('inv-1', 12000);
+      await wallet.invoices();
+      final paid = await wallet.payInvoice('inv-1', amount: 12000, password: _password);
+      var book = await wallet.invoices();
+      expect(book.invoice('inv-1')!.state, PayState.delivered);
+      expect(book.needsAction, isEmpty);
+      lepicWallet.events$.add(lepic.WalletEvent(kind: lepic.WalletEventKind.invoiceWithdrawn, slateId: 'inv-1', txId: paid.txId));
+      await _settle();
+      book = await wallet.invoices();
+      final withdrawn = book.invoice('inv-1')!;
+      expect(withdrawn.state, PayState.withdrawnAfterPay);
+      expect(withdrawn.state.cancellable, isTrue);
+      expect(book.needsAction.single.slateId, 'inv-1');
+      await wallet.cancelInvoicePayment('inv-1');
+      expect(lepicWallet.cancelled, [paid.txId]);
+      expect((await wallet.invoices()).invoice('inv-1')!.state, PayState.cancelled);
+    });
+
+    test('a payment no notice settles: Cancel payment once the invoice\'s time has passed', () async {
+      lepicWallet
+        ..park('inv-1', 12000)
+        ..paidAt = DateTime.now().subtract(defaultInvoiceExpiry + const Duration(minutes: 1));
+      await wallet.invoices();
+      await wallet.payInvoice('inv-1', amount: 12000, password: _password);
+      final book = await wallet.invoices();
+      expect(book.invoice('inv-1')!.state, PayState.pastTtl);
+      expect(book.needsAction.single.slateId, 'inv-1');
+      lepicWallet.cancelError = lepic.WalletErrorKind.inPool;
+      await expectLater(wallet.cancelInvoicePayment('inv-1'), throwsA(isA<InvoiceError>()), reason: 'LEPIC asks the node first');
     });
 
     test('Cancel payment, then Spend them to myself now: exactly the coins the payment locked (D-2)', () async {
