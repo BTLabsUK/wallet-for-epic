@@ -1,6 +1,6 @@
 // The copy sweep (W4 spec 11, P2): no user-facing string in the desktop UI says "listener",
-// "the relay", "Epic address" (it is the Epicbox address), "Direct" as a method name, or
-// "Advanced" next to Tor. Reads every .dart file under lib/src/desktop; comments and log
+// "the relay", "Epic address" (it is the Epicbox address), or "Advanced" next to Tor. "Direct"
+// is a method name again since the one Tor switch (Epicbox / Direct / File). Reads every .dart file under lib/src/desktop; comments and log
 // lines (internal tags) do not count. No allow-list.
 import 'dart:io';
 
@@ -29,8 +29,6 @@ void main() {
             why = 'the relay';
           } else if (s.contains('Epic address')) {
             why = 'Epic address';
-          } else if (s == 'Direct' || s.startsWith('Direct ')) {
-            why = 'Direct as a method';
           } else if (s.contains('Advanced')) {
             final at = line.indexOf('Advanced');
             final around = [for (var j = i - 1; j <= i + 1; j++) if (j >= 0 && j < lines.length) lines[j]].join(' ');

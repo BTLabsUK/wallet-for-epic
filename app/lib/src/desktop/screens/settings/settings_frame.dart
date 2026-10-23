@@ -13,6 +13,7 @@ import 'prefs.dart';
 List<(DeskRoute, String, IconData)?> _itemsFor({required bool invoices, required String invoicesLabel}) => [
   (DeskRoute.settingsNode, 'Node', EIcons.node),
   (DeskRoute.settingsReceiving, 'Receiving', EIcons.antenna),
+  (DeskRoute.settingsPrivacy, 'Privacy', EIcons.shield),
   if (invoices) (DeskRoute.settingsInvoices, invoicesLabel, EIcons.invoice),
   (DeskRoute.settingsAppearance, 'Appearance', EIcons.palette),
   null,

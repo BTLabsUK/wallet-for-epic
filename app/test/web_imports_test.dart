@@ -67,6 +67,10 @@ void main() {
       'lib/src/support_report.dart',
       // The bundled tor's path; the phone's Tor controller asks for it off the web only.
       'lib/src/tor_location.dart',
+      // How the dart:io clients go with the Tor switch; on the web only the updater above
+      // reaches them, and it never runs there (http.dart takes http_web.dart).
+      'lib/src/net/tor_net.dart',
+      'lib/src/net/socks.dart',
     };
     final withIo = {
       for (final MapEntry(key: file, value: uris) in _webGraph().entries)

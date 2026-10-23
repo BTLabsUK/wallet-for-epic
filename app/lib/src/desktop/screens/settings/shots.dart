@@ -14,6 +14,7 @@ import 'prefs.dart';
 import 'report_problem.dart';
 import 'settings_node.dart';
 import 'settings_phrase.dart';
+import 'settings_privacy.dart' show PrivacyDemo;
 import 'settings_http.dart' show InternetGuide, InternetGuideChoice;
 import 'settings_receiving.dart';
 import 'settings_help.dart' show HelpDemo;
@@ -145,6 +146,10 @@ final List<DeskShot> settingsShots = [
     height: 1200,
   ),
   const DeskShot(id: '23i-receiving-http-public', title: 'Receiving, HTTP from the internet', route: DeskRoute.settingsReceiving, arg: ReceivingDemo.httpPublic, height: 1000),
+  const DeskShot(id: '23j-privacy', title: 'Privacy, Tor off', route: DeskRoute.settingsPrivacy),
+  const DeskShot(id: '23k-privacy-tor-starting', title: 'Privacy, Tor starting', route: DeskRoute.settingsPrivacy, arg: PrivacyDemo.torStarting),
+  const DeskShot(id: '23l-privacy-tor-on', title: 'Privacy, Tor on', route: DeskRoute.settingsPrivacy, arg: PrivacyDemo.torOn),
+  const DeskShot(id: '23m-privacy-tor-failed', title: 'Privacy, Tor not connected', route: DeskRoute.settingsPrivacy, arg: PrivacyDemo.torFailed),
   DeskShot(
     id: '24-settings-appearance',
     title: 'Settings, appearance',

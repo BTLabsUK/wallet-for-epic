@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../data/models.dart';
+import '../data/tor_view.dart';
 import '../theme/icons.dart';
 import '../theme/tokens.dart';
 
@@ -174,6 +175,13 @@ MethodLine methodStateLine(TxMethod m, ServiceStatus s, DeskSettings settings) {
   switch (m) {
     case TxMethod.epicbox:
       final host = s.epicbox.domain;
+      // With the Tor switch on, Epicbox goes through Tor or waits for it (tor_routes.dart).
+      final way = torWay(TorRoute.epicbox, torStateOf(settings, s));
+      if (s.epicboxHealth != ServiceHealth.off) {
+        if (way == TorWay.wait) return MethodLine('Waiting for Tor', EState.warn, detail: host);
+        if (way == TorWay.blocked) return MethodLine('Waiting for Tor', EState.risk, detail: '$host. Tor is not connected.');
+        if (way == TorWay.overTor && s.epicboxHealth == ServiceHealth.ok) return MethodLine('On', EState.ok, detail: '$host, over Tor');
+      }
       return switch (s.epicboxHealth) {
         ServiceHealth.off => const MethodLine('Off', EState.off, detail: 'Payments to this address wait on the Epicbox server.'),
         ServiceHealth.checking => MethodLine('Connecting', EState.warn, detail: host),

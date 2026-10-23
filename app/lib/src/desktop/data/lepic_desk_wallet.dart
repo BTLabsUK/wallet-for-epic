@@ -37,6 +37,8 @@ import '../../network.dart';
 import '../../providers.dart' show WalletDirResolver, defaultMinimumConfirmations;
 import '../../public_servers.dart';
 import '../../net/http.dart' show NetError, httpGet;
+import '../../net/tor_net.dart';
+import '../../tor_routes.dart';
 import '../../relay_directory.dart';
 import '../../secret_store_api.dart';
 import '../../seed_contacts.dart';
@@ -349,7 +351,31 @@ class LepicDeskWallet implements DeskWalletApi {
   core.WalletSession get _open => _session ?? (throw const DeskError('The wallet is locked'));
 
   void _changed() {
+    _followTor();
     if (!_changes.isClosed) _changes.add(null);
+  }
+
+  /// tor's SOCKS port, once LEPIC tells it (E-12); null until then.
+  SocksProxy? _torSocks;
+
+  /// The app's own requests follow the Tor switch (tor_routes.dart, `TorNet.follow`).
+  void _followTor() {
+    final state = !_settings.tor
+        ? TorState.off
+        : switch (_torHealth) {
+            ServiceHealth.down => TorState.failed,
+            ServiceHealth.off => TorState.starting,
+            ServiceHealth.checking when !_torCanSend => TorState.starting,
+            _ => TorState.on,
+          };
+    TorNet.onions = _onionOf;
+    TorNet.follow(state, proxy: _torSocks);
+  }
+
+  /// BT Labs' onion for [host]:[port] from the signed list in use, else the built-in table.
+  OnionTarget? _onionOf(String host, int port) {
+    final e = onions.onionFor(host, port);
+    return e == null ? torBuiltInOnion(host, port) : (onion: e.onion, port: e.onionPort, tls: e.tls);
   }
 
   /// Settings › Privacy › Use status.btlabs.uk changed: what the site gave is dropped (off) or
@@ -785,13 +811,15 @@ class LepicDeskWallet implements DeskWalletApi {
     // Start with the wallet for Epicbox and Tor are the wallet's own as well. Tor itself is
     // off until startAutostart or the switch turns it on (DeskSettings.tor is the now-state).
     final autostart = await _store.autostart(entry.walletId);
+    // The Tor switch is app-wide once set: a wallet never opens without Tor that was on.
+    final torSwitch = await _store.torSwitch() ?? autostart.tor;
     _settings = _settings.copyWith(
       publicMode: http.publicMode,
       httpPort: http.port,
       httpAutostart: http.autostart,
       tor: false,
       epicboxAutostart: autostart.epicbox,
-      torAutostart: _torFeature && autostart.tor,
+      torAutostart: _torFeature && torSwitch,
     );
     await _setMeta({'opened': DateTime.now().millisecondsSinceEpoch ~/ 1000});
     await _seedContacts();
@@ -825,7 +853,8 @@ class LepicDeskWallet implements DeskWalletApi {
         logWarn('desk', 'epicbox autostart: ${e is core.WalletError ? e.kind.name : e.runtimeType}');
       }
     }
-    if (DeskFeatures.httpDirect && _settings.httpAutostart) {
+    // The clearnet HTTP listener stays off while Tor is on (tor_routes.dart, torStops).
+    if (DeskFeatures.httpDirect && _settings.httpAutostart && !(_torFeature && _settings.torAutostart)) {
       try {
         await setHttpListening(true);
       } on Object catch (e) {
@@ -2370,6 +2399,7 @@ class LepicDeskWallet implements DeskWalletApi {
     if (_session != null && (settings.epicboxAutostart != old.epicboxAutostart || settings.torAutostart != old.torAutostart)) {
       await _store.saveAutostart(_openEntry?.walletId, AutostartPrefs(epicbox: settings.epicboxAutostart, tor: settings.torAutostart));
     }
+    if (settings.torAutostart != old.torAutostart) await _store.saveTorSwitch(settings.torAutostart);
     if (moved && _session != null && (_http != null || _httpHealth == ServiceHealth.down)) {
       await _stopHttp();
       if (settings.directHttp) await setHttpListening(true);
@@ -2600,6 +2630,9 @@ class LepicDeskWallet implements DeskWalletApi {
   Future<void> setHttpListening(bool on) async {
     if (!on) return _stopHttp();
     if (_http != null) return;
+    // Off while Tor is on: it would answer on this computer's own address. Tor off starts it
+    // again when its switch ([DeskSettings.directHttp]) is on.
+    if (_settings.tor) return;
     final session = _open;
     final port = _settings.httpPort;
     // From the internet only after the user chose it in the guide (DeskSettings.publicMode).
@@ -2705,7 +2738,14 @@ class LepicDeskWallet implements DeskWalletApi {
     _settings = _settings.copyWith(tor: on);
     await _store.saveTorOn(_openEntry?.walletId, on);
     logInfo('desk', 'tor ${on ? 'on' : 'off'}');
-    if (!on) return _stopTor();
+    if (!on) {
+      // A stop the user asked for: Epicbox may go direct again.
+      await _stopTor();
+      if (DeskFeatures.httpDirect && _settings.directHttp && _session != null) await setHttpListening(true);
+      return;
+    }
+    // The clearnet HTTP listener stays off while Tor is on (tor_routes.dart, torStops).
+    await _stopHttp();
     // On again after a failure, or while a start hangs, is Retry; the Epicbox connection keeps
     // waiting for the new tor.
     if (_torHealth == ServiceHealth.down || (_torHealth == ServiceHealth.checking && !_torCanSend)) {

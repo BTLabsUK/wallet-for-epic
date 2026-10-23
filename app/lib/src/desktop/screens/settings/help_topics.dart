@@ -214,10 +214,16 @@ List<HelpTopic> helpTopicsFor(int confirmations) => <HelpTopic>[
   HelpTopic(
     'network',
     'Tor',
-    'Tor lets two wallets pay each other privately at a .onion address. Slower, more private, no ports to open. Off by default.',
+    'Slower and more private: one switch routes the wallet\'s connections through Tor, with no ports to open. Off by default.',
     [
-      HelpBlock.p('With Tor receiving on, the wallet has a Tor address (it ends in .onion) that other wallets can pay straight to, from anywhere, with nothing to forward on the router. Sends to a Tor address go over Tor too.'),
-      HelpBlock.ul(['Turn it on under [[Settings › Receiving › Tor receiving]], per wallet.', 'Slower than Epicbox and HTTP; more private: the other wallet does not see this computer\'s IP address.', 'Tor is blocked or not allowed in some countries; there it does not connect.', 'The wallet must be open to receive over Tor; Epicbox keeps working beside it.']),
+      HelpBlock.p('With Tor on, the connection to the Epicbox server goes through Tor, and the wallet has a Tor address (it ends in .onion) that other wallets can pay straight to, from anywhere, with nothing to forward on the router. The addresses you share stay the same.'),
+      HelpBlock.ul([
+        'Turn it on under [[Settings › Privacy]]. The Tor row in the sidebar shows its state.',
+        'While Tor starts or is not connected, what goes over Tor waits; nothing goes around it. Retry, or turn Tor off.',
+        'Direct sends to an http(s) address do not go over Tor; Send says so.',
+        'HTTP receiving is off while Tor is on: payments straight from another wallet arrive at the Tor address.',
+        'Tor is blocked or not allowed in some countries; there it does not connect.',
+      ]),
       HelpBlock.p('Some wallets show the address without .onion; both are the same address.'),
     ],
   ),

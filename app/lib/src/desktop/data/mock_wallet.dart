@@ -691,20 +691,22 @@ class MockDeskWallet implements DeskWalletApi {
   @override
   Future<void> startAutostart() async {
     if (_settings.epicboxAutostart) await setEpicboxListening(true);
-    if (_settings.httpAutostart) await setHttpListening(true);
+    if (_settings.httpAutostart && !_settings.torAutostart) await setHttpListening(true);
     if (_settings.torAutostart) await setTor(true);
   }
 
   @override
   Future<void> setHttpListening(bool on) async {
     await _wait();
-    _http = on;
+    // As the adapter: the clearnet listener stays off while Tor is on.
+    _http = on && !_settings.tor;
   }
 
   @override
   Future<void> setTor(bool on) async {
     await _wait();
     _settings = _settings.copyWith(tor: on);
+    _http = !on && _settings.directHttp;
   }
 
   @override

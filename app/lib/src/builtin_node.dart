@@ -1592,7 +1592,9 @@ Future<Map<String, dynamic>?> _realApi(
   required bool owner,
   String? secret,
 }) async {
-  final client = HttpClient()..connectionTimeout = const Duration(seconds: 3);
+  final client = HttpClient()
+    ..connectionTimeout = const Duration(seconds: 3)
+    ..userAgent = null;
   try {
     final request = await client
         .postUrl(

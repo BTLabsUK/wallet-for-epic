@@ -11,6 +11,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../data/desk_node.dart';
 import '../data/node_view.dart';
+import '../data/tor_view.dart';
 import '../screens/settings/prefs.dart';
 import '../screens/settings/settings_http.dart' show httpRun;
 import '../widgets/kit.dart';
@@ -50,7 +51,11 @@ class RailItem {
 List<RailItem> receivingRailItems(ServiceStatus? st, DeskSettings settings) {
   final eb = st?.epicboxHealth ?? ServiceHealth.checking;
   final ebHost = st?.epicbox.domain;
+  final tor = torStateOf(settings, st);
+  final ebWay = torWay(TorRoute.epicbox, tor);
+  final ebWaits = eb != ServiceHealth.off && (ebWay == TorWay.wait || ebWay == TorWay.blocked);
   final ebWord = switch (eb) {
+    _ when ebWaits => 'Waiting for Tor',
     ServiceHealth.ok => 'On',
     ServiceHealth.checking => 'Connecting',
     ServiceHealth.slow => 'Slow',
@@ -62,11 +67,17 @@ List<RailItem> receivingRailItems(ServiceStatus? st, DeskSettings settings) {
       icon: EIcons.epicbox,
       name: 'Epicbox',
       word: st == null ? 'Checking' : ebWord,
-      state: st == null ? EState.off : stateOf(eb),
+      state: st == null
+          ? EState.off
+          : ebWaits
+          ? (ebWay == TorWay.blocked ? EState.risk : EState.warn)
+          : stateOf(eb),
       second: eb == ServiceHealth.off || ebHost == null ? '–' : railHost('Epicbox', ebHost),
       lines: [
         if (eb != ServiceHealth.off && ebHost != null) ebHost,
-        if (eb == ServiceHealth.down) 'Payments wait on the Epicbox server.',
+        if (eb != ServiceHealth.off && ebWay == TorWay.overTor) 'Over Tor',
+        if (ebWaits) 'Waits until Tor is connected.',
+        if (eb == ServiceHealth.down && !ebWaits) 'Payments wait on the Epicbox server.',
       ],
       open: 'Open Epicbox receiving',
       jump: SettingsJump.epicbox,
@@ -107,32 +118,31 @@ List<RailItem> receivingRailItems(ServiceStatus? st, DeskSettings settings) {
     );
   }
   if (DeskFeatures.tor) {
-    final t = st?.tor ?? ServiceHealth.off;
+    // The one Tor switch, always shown: Off, Starting…, On, Not connected. A click opens
+    // Settings › Privacy, where the switch is.
     final included = st?.torIncluded ?? true;
-    final publishing = t == ServiceHealth.checking && (st?.torCanSend ?? false);
-    final (word, second, state) = !included
-        ? ('Not in this build', '–', EState.off)
-        : switch (t) {
-            ServiceHealth.ok => ('On', 'On', EState.ok),
-            ServiceHealth.checking when publishing => ('Publishing', 'Publishing', EState.warn),
-            ServiceHealth.checking => ('Connecting', 'Connecting ${st?.torProgress ?? 0} %', EState.warn),
-            ServiceHealth.slow => ('Sends only', 'Sends only', EState.warn),
-            ServiceHealth.down => ('Stopped', 'Stopped', EState.risk),
-            ServiceHealth.off => ('Off', '–', EState.off),
-          };
+    final word = included ? torWord(tor) : 'Not in this build';
     items.add(
       RailItem(
         icon: EIcons.tor,
         name: 'Tor',
         word: word,
-        state: state,
-        second: second,
+        state: !included
+            ? EState.off
+            : switch (tor) {
+                TorState.off => EState.off,
+                TorState.starting => EState.warn,
+                TorState.on => EState.ok,
+                TorState.failed => EState.risk,
+              },
+        second: tor == TorState.starting ? 'Starting…' : word,
+        marker: tor == TorState.starting ? '${st?.torProgress ?? 0} %' : null,
         lines: [
-          if (t == ServiceHealth.checking && !publishing) '${st?.torProgress ?? 0} %',
-          if ((t == ServiceHealth.slow || t == ServiceHealth.down) && st?.torProblem != null) st!.torProblem!,
-          if (t == ServiceHealth.off) 'Slower and more private.',
+          if (included) torCoverageText(),
+          if (tor == TorState.failed && st?.torProblem != null) st!.torProblem!,
+          if (tor == TorState.on && st?.tor == ServiceHealth.slow) '${st?.torProblem ?? 'Tor address not published'}. Sends work.',
         ],
-        open: 'Open Tor receiving',
+        open: 'Open Privacy settings',
         jump: SettingsJump.tor,
       ),
     );
@@ -239,7 +249,9 @@ class _ServiceRowsState extends ConsumerState<ServiceRows> {
       final url = (prefs.typedNode ?? status.node).url;
       _url = url;
       final health = _settledHealth(status.nodeHealth);
-      node = remoteNodeView(url, ref.watch(deskNodeInfoProvider(url)).value, health: health, downSince: health == ServiceHealth.down ? _downSince : null);
+      final v = remoteNodeView(url, ref.watch(deskNodeInfoProvider(url)).value, health: health, downSince: health == ServiceHealth.down ? _downSince : null);
+      final tor = torNodeLines(url, torStateOf(settings, status));
+      node = tor.isEmpty ? v : NodeView(word: v.word, state: v.state, host: v.host, marker: v.marker, lines: [...v.lines, ...tor]);
     }
     final items = [nodeRailItem(node), ...receivingRailItems(status, settings)];
     Widget row(RailItem i) => RailRow(item: i, compact: widget.compact, onTap: () => p.jumpTo(i.jump));

@@ -6,7 +6,6 @@ import 'dart:io';
 
 import 'package:epic_wallet/src/desktop/data/desk_store.dart';
 import 'package:epic_wallet/src/desktop/data/lepic_desk_wallet.dart';
-import 'package:epic_wallet/src/desktop/screens/settings/settings_node.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/settings_privacy.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
@@ -107,7 +106,7 @@ void main() {
     expect(hosts, hasLength(2));
   });
 
-  testWidgets('Settings › Node shows the Privacy switch; turning it off applies at once', (tester) async {
+  testWidgets('Settings › Privacy shows the status site switch; turning it off applies at once', (tester) async {
     tester.view.physicalSize = const Size(1280, 1400);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
@@ -121,10 +120,10 @@ void main() {
     });
     await tester.pumpWidget(UncontrolledProviderScope(
       container: container,
-      child: MaterialApp(theme: buildDeskTheme(Brightness.dark), home: const Scaffold(body: SettingsNodeScreen())),
+      child: MaterialApp(theme: buildDeskTheme(Brightness.dark), home: const Scaffold(body: SettingsPrivacyScreen())),
     ));
     await tester.pump(const Duration(seconds: 1));
-    expect(find.text('Privacy'), findsOneWidget);
+    expect(find.text('Status site'), findsOneWidget);
     expect(find.text('Use status.btlabs.uk'), findsOneWidget);
     expect(find.text('Server health and node lists. Off: only the servers themselves are asked.'), findsOneWidget);
 

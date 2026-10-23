@@ -321,10 +321,14 @@ class DeskController extends Notifier<DeskState> {
     state = state.copyWith(status: status);
   }
 
-  /// The Tor switch (Settings › Receiving, Send's Turn on Tor) and Retry: saved for the open
-  /// wallet as [DeskSettings.tor], tor started or stopped with it.
+  /// The one Tor switch (Settings › Privacy, Send's Turn on Tor, Retry, Turn Tor off): saved
+  /// for the open wallet as on now ([DeskSettings.tor]) and at every unlock
+  /// ([DeskSettings.torAutostart]), tor started or stopped with it. What it covers is
+  /// `tor_routes.dart`'s.
   Future<void> setTor(bool on) async {
-    state = state.copyWith(settings: state.settings.copyWith(tor: on));
+    final s = state.settings.copyWith(tor: on, torAutostart: on);
+    state = state.copyWith(settings: s);
+    if (s.torAutostart != (await api.settings()).torAutostart) await api.saveSettings(s);
     await api.setTor(on);
     final status = await api.status();
     state = state.copyWith(status: status);

@@ -216,7 +216,7 @@ class InternetGuide extends StatelessWidget {
               text: 'Tor works from anywhere with nothing to forward.',
               actionsBelow: true,
               actions: [
-                EButton(label: 'Turn on Tor receiving', size: EBtnSize.inline, onPressed: () => Navigator.of(context).pop(InternetGuideChoice.tor)),
+                EButton(label: 'Turn on Tor', size: EBtnSize.inline, onPressed: () => Navigator.of(context).pop(InternetGuideChoice.tor)),
               ],
             ),
             SizedBox(height: Sp.x3),
