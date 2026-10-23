@@ -20,7 +20,11 @@ app_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 # shellcheck source=../../tools/env.sh
 . "$app_dir/../tools/env.sh"
 
-version=0.1.1
+# pubspec.yaml's version and build number (https://docs.btlabs.uk/developers/releases/); every APK carries that build
+# number as its versionCode, with no ABI offset (android/gradle.properties).
+"$app_dir/../tools/version.sh" check >/dev/null || { "$app_dir/../tools/version.sh" check; exit 1; }
+version="$("$app_dir/../tools/version.sh" name)"
+want_code="$("$app_dir/../tools/version.sh" code)"
 want_package=com.blacktyger.epicwallet
 want_label="Epic Wallet"
 # The release certificate. 0.1.0 (build 1) was signed with this host's debug key
@@ -82,6 +86,13 @@ for apk in "$out_dir"/epic-wallet-$version-*.apk "$out_dir"/emulator/epic-wallet
   head1="${badging%%$'\n'*}"
   grep -q "name='$want_package'" <<<"$head1" && r=0 || r=1; check "package $want_package" $r
   grep -q "versionName='$version'" <<<"$head1" && r=0 || r=1; check "versionName $version" $r
+  # The published arm64-v8a APK carries exactly the derived code; the emulator's never more.
+  code="$(sed -n "s/.*versionCode='\([0-9]*\)'.*/\1/p" <<<"$head1")"
+  if [[ "$abi" == arm64-v8a ]]; then
+    [[ "$code" == "$want_code" ]] && r=0 || r=1; check "versionCode $code = $want_code" $r
+  else
+    [[ -n "$code" ]] && (( code <= want_code )) && r=0 || r=1; check "versionCode $code <= $want_code" $r
+  fi
   echo "       $head1"
   grep -q "^application-label:'$want_label'" <<<"$badging" && r=0 || r=1; check "label $want_label" $r
   libs="$(unzip -Z1 "$apk")"

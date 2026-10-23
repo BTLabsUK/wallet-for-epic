@@ -2,7 +2,8 @@
 # Runs inside the build container (see scripts/build-linux.sh). /work is the repo.
 set -euo pipefail
 target="${WFE_TARGET:-lib/main_desktop.dart}"
-version="$(sed -n 's/^version: *\([0-9.]*\).*/\1/p' /work/app/pubspec.yaml)"
+# pubspec.yaml's YY.MM.patch, with a test build's -rcN; never the +build (https://docs.btlabs.uk/developers/releases/).
+version="$(sed -n 's/^version: *\([0-9.]*\(-rc[0-9]*\)\{0,1\}\).*/\1/p' /work/app/pubspec.yaml)"
 
 if [[ "${WFE_BUILD_LEPIC:-1}" = 1 ]]; then
   echo "== LEPIC release (rust $RUSTUP_TOOLCHAIN)"
