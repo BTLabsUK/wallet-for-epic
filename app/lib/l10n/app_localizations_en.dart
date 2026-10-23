@@ -3864,4 +3864,144 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsSectionReceiving => 'Receiving';
+
+  @override
+  String get contactsSearchHint => 'Name or address';
+
+  @override
+  String get contactsEmptyTitle => 'No contacts yet';
+
+  @override
+  String get contactsEmptyCaption => 'A contact is a name for an address.';
+
+  @override
+  String contactsNoMatchQuery(String query) {
+    return 'No contact matches \"$query\"';
+  }
+
+  @override
+  String get contactsSendAction => 'Send';
+
+  @override
+  String get contactsEditAction => 'Edit';
+
+  @override
+  String get contactsAddressHeading => 'Address';
+
+  @override
+  String get contactsNoteHeading => 'Note';
+
+  @override
+  String get contactsShowCode => 'Show code';
+
+  @override
+  String get contactsHideCode => 'Hide code';
+
+  @override
+  String contactsQrLabel(String name) {
+    return 'QR code of $name\'s address';
+  }
+
+  @override
+  String get contactsDeleteConfirmBody =>
+      'Payments to this address show the address instead of the name after this.';
+
+  @override
+  String contactsDeleted(String name) {
+    return '$name deleted.';
+  }
+
+  @override
+  String get contactsCopied => 'Address copied.';
+
+  @override
+  String get invoicesNewRequest => 'New request';
+
+  @override
+  String get invoicesSegmentSent => 'Sent';
+
+  @override
+  String invoicesSegmentCount(String label, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count items',
+      one: '1 item',
+      zero: 'none',
+    );
+    return '$label, $_temp0';
+  }
+
+  @override
+  String get invoicesToPayEmpty => 'No invoices to pay';
+
+  @override
+  String get invoicesToPayEmptyCaption =>
+      'Services on your trusted list can bill this wallet. Each invoice waits here for your approval.';
+
+  @override
+  String get invoicesSentEmpty => 'No requests sent';
+
+  @override
+  String get invoicesSentEmptyCaption =>
+      'A request asks someone to pay you an amount.';
+
+  @override
+  String get invoicesWaitingPayment => 'Waiting for payment';
+
+  @override
+  String get invoicesExpires => 'Expires';
+
+  @override
+  String invoicesUntil(String time) {
+    return 'until $time';
+  }
+
+  @override
+  String get invoicesMessage => 'Message';
+
+  @override
+  String get invoicesFrom => 'From';
+
+  @override
+  String get invoicesPaysFrom => 'Pays from';
+
+  @override
+  String invoicesAvailable(String amount) {
+    return 'Available to spend $amount';
+  }
+
+  @override
+  String invoicesShort(String amount) {
+    return 'Not enough to pay. $amount short.';
+  }
+
+  @override
+  String get invoicesCheckNode => 'Node';
+
+  @override
+  String get invoicesCheckEpicbox => 'Epicbox';
+
+  @override
+  String get invoicesNodeOk => 'Responding';
+
+  @override
+  String get invoicesNodeDown => 'Not responding';
+
+  @override
+  String get invoicesEpicboxOk => 'Connected';
+
+  @override
+  String get invoicesEpicboxDown => 'Not connected';
+
+  @override
+  String get invoicesSendRequest => 'Send request';
+
+  @override
+  String invoicesRequestSummary(String payer, String amount) {
+    return '$payer is asked to pay $amount. The request expires in 24 h.';
+  }
+
+  @override
+  String get invoicesRequestHowTitle => 'Before you request';
 }
