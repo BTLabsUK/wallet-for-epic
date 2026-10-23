@@ -23,6 +23,7 @@ import 'help_screen.dart';
 import 'history_screen.dart';
 import 'home_parts.dart';
 import 'invoices_screen.dart' show InvoicesEntry, InvoicesScreen;
+import 'outputs_screen.dart';
 import 'receive_screen.dart' show ReceiveView;
 import 'restore_screen.dart' show ScanProgressView;
 import 'scan_screen.dart' show offersQrScan, qrScannerProvider;
@@ -519,12 +520,22 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   /// A balance tile opens Outputs, filtered to that balance (Total: every output).
-  void _openOutputs(BalanceKind kind) => _open(const HistoryScreen());
+  void _openOutputs(BalanceKind kind) => _open(
+    OutputsScreen(
+      filter: switch (kind) {
+        BalanceKind.confirming => OutputsFilter.confirming,
+        BalanceKind.waitingSender => OutputsFilter.confirming,
+        BalanceKind.locked => OutputsFilter.locked,
+        BalanceKind.immature => OutputsFilter.immature,
+        BalanceKind.total || BalanceKind.calm => null,
+      },
+    ),
+  );
 
   /// A destination tile opens its screen.
   void _openDestination(HomeDestination destination) => _open(switch (destination) {
     HomeDestination.activity => const HistoryScreen(),
-    HomeDestination.outputs => const HistoryScreen(),
+    HomeDestination.outputs => const OutputsScreen(),
     HomeDestination.contacts => const ContactsScreen(),
     HomeDestination.invoices => const InvoicesScreen(),
   });
