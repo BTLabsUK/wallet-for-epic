@@ -179,6 +179,7 @@ void main() {
       expect(find.text('Direct, Tor address'), findsOneWidget);
       expect(find.text('HTTP address'), findsNothing);
       expect(find.byKey(const ValueKey('rx-switch-tor')), findsNothing);
+      expect(find.text('Over Tor'), findsOneWidget, reason: 'the chip beside the title');
     }, skip: _skip);
 
     testWidgets('Receive: Tor not connected shows Retry and Turn Tor off', (tester) async {

@@ -8,6 +8,7 @@ import '../../data/tor_view.dart';
 import '../../app/tour.dart';
 import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
+import '../../widgets/tor_chip.dart';
 import '../invoices/invoice_parts.dart' show InvButton, InvW;
 import 'epicbox_notice.dart';
 
@@ -181,6 +182,8 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
     ];
     return EPage(
       title: 'Receive',
+      // How receiving connects: Epicbox's way with the Tor switch as it is (tor_routes.dart).
+      titleTrailing: DeskFeatures.tor ? TorChip(torWay(TorRoute.epicbox, tor)) : null,
       width: EPageWidth.full,
       actions: [_indicator(st, status)],
       child: ConstrainedBox(

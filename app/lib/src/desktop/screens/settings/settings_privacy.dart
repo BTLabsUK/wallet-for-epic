@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -45,24 +43,14 @@ class TorGroup extends ConsumerStatefulWidget {
 class _TorGroupState extends ConsumerState<TorGroup> {
   bool _busy = false;
 
-  DeskController? _demoNotifier;
-
   @override
   void initState() {
     super.initState();
-    // The tour turns Tor on for the shot and off again after, for the shots that follow.
+    // The tour turns Tor on for the shot; the next shot's prepare turns it off (resetSettingsDemo).
     if (widget.demo != null) {
       final n = ref.read(deskProvider.notifier);
-      _demoNotifier = n;
       Future.microtask(() => n.setTor(true));
     }
-  }
-
-  @override
-  void dispose() {
-    final n = _demoNotifier;
-    if (n != null) unawaited(n.setTor(false));
-    super.dispose();
   }
 
   /// The real status with the tour's starting and failed states laid over it.
