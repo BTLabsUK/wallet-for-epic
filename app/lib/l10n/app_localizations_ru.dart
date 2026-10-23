@@ -4015,4 +4015,295 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get settingsSectionReceiving => 'Приём';
+
+  @override
+  String get outputsTitle => 'Выходы';
+
+  @override
+  String get outputsSpendable => 'Доступно';
+
+  @override
+  String get outputsConfirming => 'Подтверждается';
+
+  @override
+  String get outputsLockedTile => 'Заблокировано отправками';
+
+  @override
+  String get outputsImmature => 'Не созрели';
+
+  @override
+  String outputsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count выхода',
+      many: '$count выходов',
+      few: '$count выхода',
+      one: '$count выход',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get outputsExplainer =>
+      'Выходы — части, из которых состоит баланс. Отправка тратит выходы целиком, а остаток возвращает новым выходом.';
+
+  @override
+  String get outputsSplitButton => 'Разделить…';
+
+  @override
+  String get outputsConsolidateButton => 'Объединить…';
+
+  @override
+  String get outputsSplitNeeds =>
+      'Для разделения нужен минимум 1 EPIC доступных.';
+
+  @override
+  String get outputsConsolidateNeeds =>
+      'Для объединения нужно минимум 2 доступных выхода.';
+
+  @override
+  String get outputsWaitLocked =>
+      'Дождитесь подтверждения текущей отправки (около 3 блоков).';
+
+  @override
+  String get outputsStrategy => 'Стратегия отправок';
+
+  @override
+  String get outputsSmallest => 'Наименьшие';
+
+  @override
+  String get outputsAll => 'Все';
+
+  @override
+  String get outputsSmallestText =>
+      'Тратит как можно меньше мелких выходов; остальное остаётся доступным, пока сдача подтверждается.';
+
+  @override
+  String get outputsAllText =>
+      'Тратит все доступные выходы и возвращает один выход сдачи. Всё заблокировано до подтверждения; потом выходов меньше и они крупнее.';
+
+  @override
+  String get outputsSplitChange => 'Делить сдачу';
+
+  @override
+  String get outputsSplitChangeText => 'Когда осталось бы мало выходов';
+
+  @override
+  String outputsFilterAll(int count) {
+    return 'Все $count';
+  }
+
+  @override
+  String outputsFilterSpendable(int count) {
+    return 'Доступно $count';
+  }
+
+  @override
+  String outputsFilterConfirming(int count) {
+    return 'Подтв. $count';
+  }
+
+  @override
+  String outputsFilterLocked(int count) {
+    return 'Заблок. $count';
+  }
+
+  @override
+  String get outputsShowSpent => 'Показать потраченные';
+
+  @override
+  String get outputsHideSpent => 'Скрыть потраченные';
+
+  @override
+  String get outputsWordSpendable => 'Доступно';
+
+  @override
+  String get outputsWordConfirming => 'Подтверждается';
+
+  @override
+  String get outputsWordFinalizing => 'Ждёт завершения';
+
+  @override
+  String get outputsWordImmature => 'Не созрел';
+
+  @override
+  String get outputsWordMining => 'Майнинг';
+
+  @override
+  String get outputsWordLocked => 'Заблокирован';
+
+  @override
+  String get outputsWordSpent => 'Потрачен';
+
+  @override
+  String get outputsMeanSpendable => 'Можно потратить сейчас.';
+
+  @override
+  String outputsMeanConfirming(int need) {
+    return 'Нужно $need подтверждений, прежде чем его можно потратить.';
+  }
+
+  @override
+  String get outputsMeanFinalizing => 'Ждёт, пока отправитель завершит платёж.';
+
+  @override
+  String get outputsMeanImmature =>
+      'Награда за майнинг. Её можно потратить после задержки.';
+
+  @override
+  String get outputsMeanMining => 'Награда за майнинг, ещё не подтверждена.';
+
+  @override
+  String get outputsMeanLocked => 'Тратится отправкой в процессе.';
+
+  @override
+  String get outputsMeanSpent => 'Уже потрачен.';
+
+  @override
+  String outputsNoteConfirmations(int conf, int need) {
+    return '$conf / $need';
+  }
+
+  @override
+  String outputsNoteReceived(String date) {
+    return 'Получено $date';
+  }
+
+  @override
+  String outputsNoteSend(String who) {
+    return 'Отправка: $who';
+  }
+
+  @override
+  String get outputsNoteSendPlain => 'Отправка в процессе';
+
+  @override
+  String outputsRow(String note, String word) {
+    return '$word · $note';
+  }
+
+  @override
+  String get outputsFactHeight => 'Высота';
+
+  @override
+  String get outputsFactConfirmations => 'Подтверждения';
+
+  @override
+  String get outputsFactTransaction => 'Транзакция';
+
+  @override
+  String get outputsFactCommitment => 'Обязательство';
+
+  @override
+  String get outputsCopy => 'Копировать';
+
+  @override
+  String get outputsCopied => 'Обязательство скопировано';
+
+  @override
+  String get outputsEmpty => 'Выходов пока нет';
+
+  @override
+  String get outputsEmptyHint =>
+      'Первый полученный платёж создаст его. Адрес — на вкладке «Получить».';
+
+  @override
+  String get outputsNoMatch => 'В этом виде выходов нет';
+
+  @override
+  String get outputsRetry => 'Повторить';
+
+  @override
+  String outputsSettingsSubtitle(int count, String strategy) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count выхода · $strategy',
+      many: '$count выходов · $strategy',
+      few: '$count выхода · $strategy',
+      one: '$count выход · $strategy',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get outputsCancel => 'Отмена';
+
+  @override
+  String get outputsSplitTitle => 'Разделение выходов';
+
+  @override
+  String outputsSplitText(
+    String amount,
+    String each,
+    String made,
+    String spent,
+  ) {
+    return 'Тратит $spent ($amount) и создаёт $made по $each. Обычная сетевая транзакция на этот кошелёк, подтверждается через 3 блока, как любая отправка; всё доступное блокируется до этого момента.';
+  }
+
+  @override
+  String get outputsToMake => 'Сколько выходов';
+
+  @override
+  String get outputsStepperHint => 'от 2 до 10';
+
+  @override
+  String get outputsFactFee => 'Комиссия сети';
+
+  @override
+  String get outputsFactEach => 'Каждый выход';
+
+  @override
+  String outputsFactAbout(String amount) {
+    return 'около $amount';
+  }
+
+  @override
+  String get outputsFactLocked => 'Заблокировано';
+
+  @override
+  String outputsFactLockedValue(String amount) {
+    return '$amount, около 3 блоков';
+  }
+
+  @override
+  String get outputsNothingSpendable =>
+      'Тем временем ничего не останется доступным.';
+
+  @override
+  String get outputsMinEach => 'Каждый выход должен быть не меньше 0,5 EPIC.';
+
+  @override
+  String outputsSplitInto(int count) {
+    return 'Разделить на $count';
+  }
+
+  @override
+  String get outputsConsolidateTitle => 'Объединение выходов';
+
+  @override
+  String outputsConsolidateText(String amount, String result, String spent) {
+    return 'Тратит $spent ($amount) и создаёт один выход на $result. Обычная сетевая транзакция на этот кошелёк, подтверждается через 3 блока, как любая отправка; всё доступное блокируется до этого момента. Следующая отправка потратит один выход, поэтому её комиссия будет наименьшей.';
+  }
+
+  @override
+  String get outputsConsolidateAction => 'Объединить';
+
+  @override
+  String get outputsSplitPin => 'Подтвердите PIN-кодом, чтобы разделить выходы';
+
+  @override
+  String get outputsConsolidatePin =>
+      'Подтвердите PIN-кодом, чтобы объединить выходы';
+
+  @override
+  String outputsSplitStarted(int count) {
+    return 'Разделение начато: $count выходов, подтверждение примерно через 3 блока';
+  }
+
+  @override
+  String get outputsConsolidateStarted =>
+      'Объединение начато: один выход, подтверждение примерно через 3 блока';
 }

@@ -3917,4 +3917,294 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get settingsSectionReceiving => 'Empfangen';
+
+  @override
+  String get outputsTitle => 'Outputs';
+
+  @override
+  String get outputsSpendable => 'Verfügbar';
+
+  @override
+  String get outputsConfirming => 'Wird bestätigt';
+
+  @override
+  String get outputsLockedTile => 'In Sendungen gesperrt';
+
+  @override
+  String get outputsImmature => 'Noch nicht reif';
+
+  @override
+  String outputsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Outputs',
+      one: '1 Output',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get outputsExplainer =>
+      'Outputs sind die Teile, aus denen sich das Guthaben zusammensetzt. Eine Zahlung verbraucht ganze Outputs und gibt den Rest als neuen Output zurück.';
+
+  @override
+  String get outputsSplitButton => 'Teilen…';
+
+  @override
+  String get outputsConsolidateButton => 'Zusammenführen…';
+
+  @override
+  String get outputsSplitNeeds => 'Teilen braucht mindestens 1 EPIC verfügbar.';
+
+  @override
+  String get outputsConsolidateNeeds =>
+      'Zusammenführen braucht mindestens 2 verfügbare Outputs.';
+
+  @override
+  String get outputsWaitLocked =>
+      'Warten, bis die laufende Zahlung bestätigt ist (etwa 3 Blöcke).';
+
+  @override
+  String get outputsStrategy => 'Strategie für Zahlungen';
+
+  @override
+  String get outputsSmallest => 'Kleinste';
+
+  @override
+  String get outputsAll => 'Alle';
+
+  @override
+  String get outputsSmallestText =>
+      'Verbraucht möglichst wenige kleine Outputs; der Rest bleibt verfügbar, bis das Wechselgeld bestätigt ist.';
+
+  @override
+  String get outputsAllText =>
+      'Verbraucht jeden verfügbaren Output und gibt einen Wechselgeld-Output zurück. Alles ist gesperrt, bis er bestätigt ist; danach weniger, größere Outputs.';
+
+  @override
+  String get outputsSplitChange => 'Wechselgeld teilen';
+
+  @override
+  String get outputsSplitChangeText => 'Wenn nur wenige Outputs übrig blieben';
+
+  @override
+  String outputsFilterAll(int count) {
+    return 'Alle $count';
+  }
+
+  @override
+  String outputsFilterSpendable(int count) {
+    return 'Verfügbar $count';
+  }
+
+  @override
+  String outputsFilterConfirming(int count) {
+    return 'Bestätigung $count';
+  }
+
+  @override
+  String outputsFilterLocked(int count) {
+    return 'Gesperrt $count';
+  }
+
+  @override
+  String get outputsShowSpent => 'Ausgegebene zeigen';
+
+  @override
+  String get outputsHideSpent => 'Ausgegebene ausblenden';
+
+  @override
+  String get outputsWordSpendable => 'Verfügbar';
+
+  @override
+  String get outputsWordConfirming => 'Wird bestätigt';
+
+  @override
+  String get outputsWordFinalizing => 'Wartet auf Abschluss';
+
+  @override
+  String get outputsWordImmature => 'Noch nicht reif';
+
+  @override
+  String get outputsWordMining => 'Mining';
+
+  @override
+  String get outputsWordLocked => 'Gesperrt';
+
+  @override
+  String get outputsWordSpent => 'Ausgegeben';
+
+  @override
+  String get outputsMeanSpendable => 'Kann jetzt ausgegeben werden.';
+
+  @override
+  String outputsMeanConfirming(int need) {
+    return 'Braucht $need Bestätigungen, bevor er ausgegeben werden kann.';
+  }
+
+  @override
+  String get outputsMeanFinalizing =>
+      'Wartet darauf, dass der Absender die Zahlung abschließt.';
+
+  @override
+  String get outputsMeanImmature =>
+      'Eine Mining-Belohnung. Sie kann nach einer Wartezeit ausgegeben werden.';
+
+  @override
+  String get outputsMeanMining =>
+      'Eine Mining-Belohnung, noch nicht bestätigt.';
+
+  @override
+  String get outputsMeanLocked =>
+      'Wird von einer laufenden Zahlung ausgegeben.';
+
+  @override
+  String get outputsMeanSpent => 'Bereits ausgegeben.';
+
+  @override
+  String outputsNoteConfirmations(int conf, int need) {
+    return '$conf / $need';
+  }
+
+  @override
+  String outputsNoteReceived(String date) {
+    return 'Empfangen $date';
+  }
+
+  @override
+  String outputsNoteSend(String who) {
+    return 'Zahlung an $who';
+  }
+
+  @override
+  String get outputsNoteSendPlain => 'Zahlung läuft';
+
+  @override
+  String outputsRow(String note, String word) {
+    return '$word · $note';
+  }
+
+  @override
+  String get outputsFactHeight => 'Höhe';
+
+  @override
+  String get outputsFactConfirmations => 'Bestätigungen';
+
+  @override
+  String get outputsFactTransaction => 'Transaktion';
+
+  @override
+  String get outputsFactCommitment => 'Commitment';
+
+  @override
+  String get outputsCopy => 'Kopieren';
+
+  @override
+  String get outputsCopied => 'Commitment kopiert';
+
+  @override
+  String get outputsEmpty => 'Noch keine Outputs';
+
+  @override
+  String get outputsEmptyHint =>
+      'Die erste empfangene Zahlung erzeugt einen. Unter Empfangen steht die Adresse.';
+
+  @override
+  String get outputsNoMatch => 'Keine Outputs in dieser Ansicht';
+
+  @override
+  String get outputsRetry => 'Erneut versuchen';
+
+  @override
+  String outputsSettingsSubtitle(int count, String strategy) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Outputs · $strategy',
+      one: '1 Output · $strategy',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get outputsCancel => 'Abbrechen';
+
+  @override
+  String get outputsSplitTitle => 'Outputs teilen';
+
+  @override
+  String outputsSplitText(
+    String amount,
+    String each,
+    String made,
+    String spent,
+  ) {
+    return 'Verbraucht $spent ($amount) und erzeugt $made zu je etwa $each. Eine normale Netzwerktransaktion an dieses Wallet, nach 3 Blöcken bestätigt wie jede Zahlung; alles Verfügbare ist bis dahin gesperrt.';
+  }
+
+  @override
+  String get outputsToMake => 'Zu erzeugende Outputs';
+
+  @override
+  String get outputsStepperHint => '2 bis 10';
+
+  @override
+  String get outputsFactFee => 'Netzwerkgebühr';
+
+  @override
+  String get outputsFactEach => 'Jeder Output';
+
+  @override
+  String outputsFactAbout(String amount) {
+    return 'etwa $amount';
+  }
+
+  @override
+  String get outputsFactLocked => 'Gesperrt';
+
+  @override
+  String outputsFactLockedValue(String amount) {
+    return '$amount, etwa 3 Blöcke';
+  }
+
+  @override
+  String get outputsNothingSpendable =>
+      'Währenddessen bleibt nichts verfügbar.';
+
+  @override
+  String get outputsMinEach =>
+      'Jeder Output muss mindestens 0,5 EPIC betragen.';
+
+  @override
+  String outputsSplitInto(int count) {
+    return 'In $count teilen';
+  }
+
+  @override
+  String get outputsConsolidateTitle => 'Outputs zusammenführen';
+
+  @override
+  String outputsConsolidateText(String amount, String result, String spent) {
+    return 'Verbraucht $spent ($amount) und erzeugt einen Output über $result. Eine normale Netzwerktransaktion an dieses Wallet, nach 3 Blöcken bestätigt wie jede Zahlung; alles Verfügbare ist bis dahin gesperrt. Die nächste Zahlung verbraucht einen Output, daher ist ihre Gebühr am kleinsten.';
+  }
+
+  @override
+  String get outputsConsolidateAction => 'Zusammenführen';
+
+  @override
+  String get outputsSplitPin => 'Mit der PIN bestätigen, um Outputs zu teilen';
+
+  @override
+  String get outputsConsolidatePin =>
+      'Mit der PIN bestätigen, um Outputs zusammenzuführen';
+
+  @override
+  String outputsSplitStarted(int count) {
+    return 'Teilen gestartet: $count Outputs, Bestätigung in etwa 3 Blöcken';
+  }
+
+  @override
+  String get outputsConsolidateStarted =>
+      'Zusammenführen gestartet: ein Output, Bestätigung in etwa 3 Blöcken';
 }

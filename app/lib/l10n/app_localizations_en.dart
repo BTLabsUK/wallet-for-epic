@@ -3864,4 +3864,290 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsSectionReceiving => 'Receiving';
+
+  @override
+  String get outputsTitle => 'Outputs';
+
+  @override
+  String get outputsSpendable => 'Spendable';
+
+  @override
+  String get outputsConfirming => 'Confirming';
+
+  @override
+  String get outputsLockedTile => 'Locked in sends';
+
+  @override
+  String get outputsImmature => 'Immature';
+
+  @override
+  String outputsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count outputs',
+      one: '1 output',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get outputsExplainer =>
+      'Outputs are the pieces the balance is made of. A send spends whole outputs and returns the rest as a new one.';
+
+  @override
+  String get outputsSplitButton => 'Split…';
+
+  @override
+  String get outputsConsolidateButton => 'Consolidate…';
+
+  @override
+  String get outputsSplitNeeds => 'Split needs at least 1 EPIC spendable.';
+
+  @override
+  String get outputsConsolidateNeeds =>
+      'Consolidate needs at least 2 spendable outputs.';
+
+  @override
+  String get outputsWaitLocked =>
+      'Wait until the send in progress confirms (about 3 blocks).';
+
+  @override
+  String get outputsStrategy => 'Strategy for sends';
+
+  @override
+  String get outputsSmallest => 'Smallest';
+
+  @override
+  String get outputsAll => 'All';
+
+  @override
+  String get outputsSmallestText =>
+      'Spends the fewest small outputs; the rest of the balance stays spendable while the change confirms.';
+
+  @override
+  String get outputsAllText =>
+      'Spends every spendable output and returns one change output. Everything is locked until it confirms; fewer, larger outputs afterwards.';
+
+  @override
+  String get outputsSplitChange => 'Split change';
+
+  @override
+  String get outputsSplitChangeText => 'When few outputs would be left';
+
+  @override
+  String outputsFilterAll(int count) {
+    return 'All $count';
+  }
+
+  @override
+  String outputsFilterSpendable(int count) {
+    return 'Spendable $count';
+  }
+
+  @override
+  String outputsFilterConfirming(int count) {
+    return 'Confirming $count';
+  }
+
+  @override
+  String outputsFilterLocked(int count) {
+    return 'Locked $count';
+  }
+
+  @override
+  String get outputsShowSpent => 'Show spent';
+
+  @override
+  String get outputsHideSpent => 'Hide spent';
+
+  @override
+  String get outputsWordSpendable => 'Spendable';
+
+  @override
+  String get outputsWordConfirming => 'Confirming';
+
+  @override
+  String get outputsWordFinalizing => 'Awaiting finalization';
+
+  @override
+  String get outputsWordImmature => 'Immature';
+
+  @override
+  String get outputsWordMining => 'Mining';
+
+  @override
+  String get outputsWordLocked => 'Locked';
+
+  @override
+  String get outputsWordSpent => 'Spent';
+
+  @override
+  String get outputsMeanSpendable => 'Can be spent now.';
+
+  @override
+  String outputsMeanConfirming(int need) {
+    return 'Needs $need confirmations before it can be spent.';
+  }
+
+  @override
+  String get outputsMeanFinalizing =>
+      'Waiting for the sender to finish the payment.';
+
+  @override
+  String get outputsMeanImmature =>
+      'A mining reward. It can be spent after a delay.';
+
+  @override
+  String get outputsMeanMining => 'A mining reward not confirmed yet.';
+
+  @override
+  String get outputsMeanLocked => 'Being spent by a send in progress.';
+
+  @override
+  String get outputsMeanSpent => 'Already spent.';
+
+  @override
+  String outputsNoteConfirmations(int conf, int need) {
+    return '$conf / $need';
+  }
+
+  @override
+  String outputsNoteReceived(String date) {
+    return 'Received $date';
+  }
+
+  @override
+  String outputsNoteSend(String who) {
+    return 'Send to $who';
+  }
+
+  @override
+  String get outputsNoteSendPlain => 'Send in progress';
+
+  @override
+  String outputsRow(String note, String word) {
+    return '$word · $note';
+  }
+
+  @override
+  String get outputsFactHeight => 'Height';
+
+  @override
+  String get outputsFactConfirmations => 'Confirmations';
+
+  @override
+  String get outputsFactTransaction => 'Transaction';
+
+  @override
+  String get outputsFactCommitment => 'Commitment';
+
+  @override
+  String get outputsCopy => 'Copy';
+
+  @override
+  String get outputsCopied => 'Commitment copied';
+
+  @override
+  String get outputsEmpty => 'No outputs yet';
+
+  @override
+  String get outputsEmptyHint =>
+      'The first payment received makes one. Receive shows the address.';
+
+  @override
+  String get outputsNoMatch => 'No outputs in this view';
+
+  @override
+  String get outputsRetry => 'Retry';
+
+  @override
+  String outputsSettingsSubtitle(int count, String strategy) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count outputs · $strategy',
+      one: '1 output · $strategy',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get outputsCancel => 'Cancel';
+
+  @override
+  String get outputsSplitTitle => 'Split outputs';
+
+  @override
+  String outputsSplitText(
+    String amount,
+    String each,
+    String made,
+    String spent,
+  ) {
+    return 'Spends $spent ($amount) and makes $made of about $each each. A normal network transaction to this wallet, confirmed after 3 blocks like any send; everything spendable is locked until then.';
+  }
+
+  @override
+  String get outputsToMake => 'Outputs to make';
+
+  @override
+  String get outputsStepperHint => '2 to 10';
+
+  @override
+  String get outputsFactFee => 'Network fee';
+
+  @override
+  String get outputsFactEach => 'Each output';
+
+  @override
+  String outputsFactAbout(String amount) {
+    return 'about $amount';
+  }
+
+  @override
+  String get outputsFactLocked => 'Locked';
+
+  @override
+  String outputsFactLockedValue(String amount) {
+    return '$amount, about 3 blocks';
+  }
+
+  @override
+  String get outputsNothingSpendable => 'Nothing stays spendable meanwhile.';
+
+  @override
+  String get outputsMinEach => 'Each output must be at least 0.5 EPIC.';
+
+  @override
+  String outputsSplitInto(int count) {
+    return 'Split into $count';
+  }
+
+  @override
+  String get outputsConsolidateTitle => 'Consolidate outputs';
+
+  @override
+  String outputsConsolidateText(String amount, String result, String spent) {
+    return 'Spends $spent ($amount) and makes one output of $result. A normal network transaction to this wallet, confirmed after 3 blocks like any send; everything spendable is locked until then. The next send spends one output, so its fee is the smallest.';
+  }
+
+  @override
+  String get outputsConsolidateAction => 'Consolidate';
+
+  @override
+  String get outputsSplitPin => 'Confirm with your PIN to split outputs';
+
+  @override
+  String get outputsConsolidatePin =>
+      'Confirm with your PIN to consolidate outputs';
+
+  @override
+  String outputsSplitStarted(int count) {
+    return 'Split started: $count outputs, confirming in about 3 blocks';
+  }
+
+  @override
+  String get outputsConsolidateStarted =>
+      'Consolidate started: one output, confirming in about 3 blocks';
 }
