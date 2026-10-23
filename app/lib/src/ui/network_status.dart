@@ -233,7 +233,10 @@ class _StatusRow extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 8),
-                  Flexible(
+                  // No flex here: the state word keeps its size and the service column takes
+                  // the rest, so the word sits at the trailing edge.
+                  ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 150),
                     child: Text(
                       face.word,
                       maxLines: 1,
