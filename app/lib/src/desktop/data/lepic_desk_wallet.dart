@@ -26,6 +26,7 @@ import 'package:path_provider/path_provider.dart';
 
 import '../../address_format.dart' show shortAddress;
 import '../../btlabs_keys.dart' show btlabsKeyring;
+import '../../btlabs_onions.dart';
 import '../../btlabs_public.dart';
 import '../../builtin_node.dart';
 import '../../legacy_gui_profile.dart' as gui;
@@ -156,10 +157,12 @@ class LepicDeskWallet implements DeskWalletApi {
     DateTime Function()? now,
     this._seedFetch,
     Keyring? keyring,
+    OnionDirectory? onions,
     this.invoicesEvery = const Duration(minutes: 2),
     this.paymentsEvery = const Duration(seconds: 60),
     this.invoiceFocus = true,
   }) : _keyring = keyring ?? btlabsKeyring,
+        onions = onions ?? OnionDirectory(),
         _torFeature = torFeature ?? DeskFeatures.tor,
        _legacyRoots = legacyRoots ?? legacy.LegacyRoots.current,
        _minConfFallback = minimumConfirmations ?? BigInt.from(defaultMinimumConfirmations),
@@ -2162,6 +2165,9 @@ class LepicDeskWallet implements DeskWalletApi {
   /// The keys that may sign btlabs.json (the test keyring in tests).
   final Keyring _keyring;
 
+  /// BT Labs' onion mapping: built in, replaced by a verified btlabs.json that lists onions.
+  final OnionDirectory onions;
+
   /// The website's list, read once per app start (or from the 7-day cache); null until then.
   List<SeedContact>? _webSeeds;
   bool _seedFetchStarted = false;
@@ -2296,6 +2302,7 @@ class LepicDeskWallet implements DeskWalletApi {
     final state = ManifestState.fromJson(j['state']);
     if (state == null) return null;
     final file = await loadCachedBtlabsPublic(j['envelope'] as String, keyring: _keyring, state: state);
+    if (file != null) onions.adopt(file);
     return file == null ? null : seedContactsFrom(file, validAddress: isEpicboxAddress);
   }
 
@@ -2328,6 +2335,7 @@ class LepicDeskWallet implements DeskWalletApi {
           // this body repairs a cached envelope that no longer checks out.
           final now = DateTime.now().millisecondsSinceEpoch;
           await _store.writeJson(_btlabsCacheKey, {'at': now, 'tried': now, 'envelope': body, 'state': state.toJson()});
+          onions.adopt(manifest);
           final list = seedContactsFrom(manifest, validAddress: isEpicboxAddress);
           _webSeeds = list;
           await _applySeeds([...bundledSeedContacts, ..._knownSeeds(list)]);
