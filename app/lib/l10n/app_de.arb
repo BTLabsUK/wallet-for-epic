@@ -845,7 +845,7 @@
   "sendAddressMissing": "Geben Sie die Adresse der Gegenseite ein.",
   "sendAddressWebLink": "Das ist ein Weblink, keine Epic-Adresse.",
   "sendAddressIncomplete": "Diese Adresse scheint unvollständig.",
-  "sendAddressNotEpic": "Das ist keine Epic-Adresse.",
+  "sendAddressNotEpic": "Das ist keine Epicbox-Adresse.",
   "sendNewRecipient": "Neuer Empfänger",
   "sendSaveContact": "Als Kontakt speichern",
   "sendRecent": "Zuletzt",

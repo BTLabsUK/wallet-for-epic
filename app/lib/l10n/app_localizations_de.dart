@@ -3490,7 +3490,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get sendAddressIncomplete => 'Diese Adresse scheint unvollständig.';
 
   @override
-  String get sendAddressNotEpic => 'Das ist keine Epic-Adresse.';
+  String get sendAddressNotEpic => 'Das ist keine Epicbox-Adresse.';
 
   @override
   String get sendNewRecipient => 'Neuer Empfänger';

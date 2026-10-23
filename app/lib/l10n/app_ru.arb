@@ -845,7 +845,7 @@
   "sendAddressMissing": "Введите адрес получателя.",
   "sendAddressWebLink": "Это веб-ссылка, а не адрес Epic.",
   "sendAddressIncomplete": "Адрес выглядит неполным.",
-  "sendAddressNotEpic": "Это не адрес Epic.",
+  "sendAddressNotEpic": "Это не адрес Epicbox.",
   "sendNewRecipient": "Новый получатель",
   "sendSaveContact": "Сохранить в контакты",
   "sendRecent": "Недавние",

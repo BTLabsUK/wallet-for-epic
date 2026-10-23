@@ -3606,7 +3606,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get sendAddressIncomplete => 'Ten adres wygląda na niepełny.';
 
   @override
-  String get sendAddressNotEpic => 'To nie jest adres Epic.';
+  String get sendAddressNotEpic => 'To nie jest adres Epicbox.';
 
   @override
   String get sendNewRecipient => 'Nowy odbiorca';

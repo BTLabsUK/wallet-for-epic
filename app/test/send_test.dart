@@ -829,7 +829,7 @@ void main() {
       expect(find.text('This address looks incomplete.'), findsOneWidget);
       clipboard = 'not an address!';
       await _tap(tester, find.text('Paste'));
-      expect(find.text('This is not an Epic address.'), findsOneWidget);
+      expect(find.text('This is not an Epicbox address.'), findsOneWidget);
       clipboard = ' $_bob ';
       await _tap(tester, find.text('Paste'));
       expect(find.byType(LiveFieldError), findsNothing);
@@ -1993,7 +1993,7 @@ void main() {
           .isNotEmpty;
       await _enter(tester, _address, 'not an address!');
       await _tap(tester, _continue);
-      expect(live('This is not an Epic address.'), isTrue);
+      expect(live('This is not an Epicbox address.'), isTrue);
       await _enter(tester, _address, _bob);
       await _tap(tester, _continue);
       await _enter(tester, 'Amount (EPIC)', '-1');

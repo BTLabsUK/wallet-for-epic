@@ -5213,7 +5213,7 @@ abstract class AppLocalizations {
   /// Send, step 1: the text is not a valid Epic address for this network.
   ///
   /// In en, this message translates to:
-  /// **'This is not an Epic address.'**
+  /// **'This is not an Epicbox address.'**
   String get sendAddressNotEpic;
 
   /// Send: shown on the recipient card instead of a name when the address is not in the user's contacts.

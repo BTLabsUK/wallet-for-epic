@@ -845,7 +845,7 @@
   "sendAddressMissing": "请输入对方的地址。",
   "sendAddressWebLink": "这是网页链接，不是 Epic 地址。",
   "sendAddressIncomplete": "这个地址似乎不完整。",
-  "sendAddressNotEpic": "这不是 Epic 地址。",
+  "sendAddressNotEpic": "这不是 Epicbox 地址。",
   "sendNewRecipient": "新收款人",
   "sendSaveContact": "保存为联系人",
   "sendRecent": "最近",

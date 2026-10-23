@@ -3240,7 +3240,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get sendAddressIncomplete => '这个地址似乎不完整。';
 
   @override
-  String get sendAddressNotEpic => '这不是 Epic 地址。';
+  String get sendAddressNotEpic => '这不是 Epicbox 地址。';
 
   @override
   String get sendNewRecipient => '新收款人';

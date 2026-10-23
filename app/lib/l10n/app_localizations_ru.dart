@@ -3584,7 +3584,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get sendAddressIncomplete => 'Адрес выглядит неполным.';
 
   @override
-  String get sendAddressNotEpic => 'Это не адрес Epic.';
+  String get sendAddressNotEpic => 'Это не адрес Epicbox.';
 
   @override
   String get sendNewRecipient => 'Новый получатель';

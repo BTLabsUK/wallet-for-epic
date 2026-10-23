@@ -1671,6 +1671,8 @@ class _SendViewState extends ConsumerState<SendView> {
           border: const OutlineInputBorder(),
         ),
       ),
+      if (_tagOn && _switchedTo != null)
+        _SwitchAnnouncement(method: _switchedTo!),
       if (text.isEmpty && shape != null)
         Row(
           children: [
@@ -2582,23 +2584,13 @@ class _SwitchTag extends StatelessWidget {
     final method = this.method;
     final still = MediaQuery.disableAnimationsOf(context);
     if (method == null) return const SizedBox.shrink();
-    final (icon, text, announce) = switch (method) {
-      TransferMethod.tor => (torIcon, l.sendOverTor, l.sendSwitchedTorAnnounce),
-      TransferMethod.http => (
-        Icons.link,
-        l.sendSwitchedHttp,
-        l.sendSwitchedHttpAnnounce,
-      ),
-      _ => (
-        Icons.alternate_email,
-        l.sendSwitchedEpicbox,
-        l.sendSwitchedEpicboxAnnounce,
-      ),
+    final (icon, text) = switch (method) {
+      TransferMethod.tor => (torIcon, l.sendOverTor),
+      TransferMethod.http => (Icons.link, l.sendSwitchedHttp),
+      _ => (Icons.alternate_email, l.sendSwitchedEpicbox),
     };
-    return Semantics(
-      liveRegion: shown,
-      label: shown ? announce : null,
-      excludeSemantics: true,
+    // The text field merges its label: [_SwitchAnnouncement] says it out loud.
+    return ExcludeSemantics(
       child: AnimatedOpacity(
         key: sendSwitchedTagKey,
         opacity: shown ? 1 : 0,
@@ -2625,6 +2617,29 @@ class _SwitchTag extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// "Tor address. Method set to Tor." read out once when the address moved the method: its own
+/// live region under the To field, outside the field's merged label.
+class _SwitchAnnouncement extends StatelessWidget {
+  const _SwitchAnnouncement({required this.method});
+
+  final TransferMethod method;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    return Semantics(
+      container: true,
+      liveRegion: true,
+      label: switch (method) {
+        TransferMethod.tor => l.sendSwitchedTorAnnounce,
+        TransferMethod.http => l.sendSwitchedHttpAnnounce,
+        _ => l.sendSwitchedEpicboxAnnounce,
+      },
+      child: const SizedBox(width: double.infinity, height: 1),
     );
   }
 }

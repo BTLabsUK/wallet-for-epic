@@ -4132,7 +4132,7 @@
   "@sendAddressIncomplete": {
     "description": "Send, step 1: the text looks like the start of an Epic address but is too short or lacks its server part."
   },
-  "sendAddressNotEpic": "This is not an Epic address.",
+  "sendAddressNotEpic": "This is not an Epicbox address.",
   "@sendAddressNotEpic": {
     "description": "Send, step 1: the text is not a valid Epic address for this network."
   },
