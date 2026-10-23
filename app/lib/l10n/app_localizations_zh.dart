@@ -5497,7 +5497,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get torCoversEpicboxNode => 'Epicbox、节点和发往 onion 地址的付款经由 Tor。';
 
   @override
-  String get torCoversAll => '除本地节点外，所有连接都经由 Tor。';
+  String get torCoversAll => 'Epicbox、节点、onion 发送和应用自身的请求都通过 Tor。';
 
   @override
   String get torSettingsLink => 'Tor 设置';

@@ -7371,7 +7371,7 @@
   "@torCoversEpicboxNode": {
     "description": "Settings › Privacy › Tor subtitle once the node is covered too."
   },
-  "torCoversAll": "All connections except a local node go through Tor.",
+  "torCoversAll": "Epicbox, the node, onion sends and the app’s own requests go through Tor.",
   "@torCoversAll": {
     "description": "Settings › Privacy › Tor subtitle once the node and the app's own requests are covered."
   },

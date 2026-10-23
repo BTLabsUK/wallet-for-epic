@@ -5916,7 +5916,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get torCoversAll =>
-      'Alle Verbindungen außer einem lokalen Node laufen über Tor.';
+      'Epicbox, der Node, Onion-Zahlungen und die eigenen Anfragen der App laufen über Tor.';
 
   @override
   String get torSettingsLink => 'Tor-Einstellungen';

@@ -1491,7 +1491,7 @@
   "torWordNotConnected": "Brak połączenia",
   "torCoversEpicbox": "Epicbox i wysyłki na adresy onion idą przez Tor.",
   "torCoversEpicboxNode": "Epicbox, węzeł i wysyłki na adresy onion idą przez Tor.",
-  "torCoversAll": "Wszystkie połączenia poza lokalnym węzłem idą przez Tor.",
+  "torCoversAll": "Epicbox, węzeł, wysyłki onion i własne zapytania aplikacji idą przez Tor.",
   "torSettingsLink": "Ustawienia Tor",
   "receiveTabDirect": "Bezpośrednio",
   "receiveDirectNeedsTor": "Odbiór bezpośredni wymaga Tor.",

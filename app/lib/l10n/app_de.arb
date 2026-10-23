@@ -1491,7 +1491,7 @@
   "torWordNotConnected": "Nicht verbunden",
   "torCoversEpicbox": "Epicbox und Sendungen an Onion-Adressen laufen über Tor.",
   "torCoversEpicboxNode": "Epicbox, der Node und Sendungen an Onion-Adressen laufen über Tor.",
-  "torCoversAll": "Alle Verbindungen außer einem lokalen Node laufen über Tor.",
+  "torCoversAll": "Epicbox, der Node, Onion-Zahlungen und die eigenen Anfragen der App laufen über Tor.",
   "torSettingsLink": "Tor-Einstellungen",
   "receiveTabDirect": "Direkt",
   "receiveDirectNeedsTor": "Direkter Empfang benötigt Tor.",

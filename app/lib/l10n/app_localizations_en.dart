@@ -5840,7 +5840,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get torCoversAll =>
-      'All connections except a local node go through Tor.';
+      'Epicbox, the node, onion sends and the app’s own requests go through Tor.';
 
   @override
   String get torSettingsLink => 'Tor settings';

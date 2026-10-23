@@ -9094,7 +9094,7 @@ abstract class AppLocalizations {
   /// Settings › Privacy › Tor subtitle once the node and the app's own requests are covered.
   ///
   /// In en, this message translates to:
-  /// **'All connections except a local node go through Tor.'**
+  /// **'Epicbox, the node, onion sends and the app’s own requests go through Tor.'**
   String get torCoversAll;
 
   /// Text link on Receive's Direct tab to Settings › Privacy.

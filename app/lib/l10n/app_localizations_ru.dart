@@ -6024,7 +6024,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get torCoversAll =>
-      'Все соединения, кроме локального узла, идут через Tor.';
+      'Epicbox, узел, отправки onion и собственные запросы приложения идут через Tor.';
 
   @override
   String get torSettingsLink => 'Настройки Tor';

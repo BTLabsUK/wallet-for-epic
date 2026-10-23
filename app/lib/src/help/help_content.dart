@@ -338,7 +338,7 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
           HelpBlock.p('Tor hides the wallet\'s IP address from the servers it talks to. With the switch on, under $torPlace, the Epicbox connection goes through Tor, a send to a .onion address goes through Tor, and the wallet has a Tor address of its own (it ends in .onion) that other wallets can pay straight to.'),
           const HelpBlock.ul([
             'Nothing the wallet uses changes: the same node, the same Epicbox server, the same address.',
-            'A Direct send to an http address stays outside Tor, marked **Not over Tor**.',
+            'A Direct send to an onion address goes through Tor. Send marks each send with how it goes.',
             'Push notifications are off while Tor is on.',
             'Slower than Epicbox without Tor. Tor is blocked in some countries; there it does not connect.',
             'Receiving at the .onion address works while the app is open; Epicbox keeps working beside it.',

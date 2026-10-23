@@ -6041,7 +6041,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get torCoversAll =>
-      'Wszystkie połączenia poza lokalnym węzłem idą przez Tor.';
+      'Epicbox, węzeł, wysyłki onion i własne zapytania aplikacji idą przez Tor.';
 
   @override
   String get torSettingsLink => 'Ustawienia Tor';

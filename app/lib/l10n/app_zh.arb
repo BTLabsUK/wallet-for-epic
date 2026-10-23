@@ -1491,7 +1491,7 @@
   "torWordNotConnected": "未连接",
   "torCoversEpicbox": "Epicbox 和发往 onion 地址的付款经由 Tor。",
   "torCoversEpicboxNode": "Epicbox、节点和发往 onion 地址的付款经由 Tor。",
-  "torCoversAll": "除本地节点外，所有连接都经由 Tor。",
+  "torCoversAll": "Epicbox、节点、onion 发送和应用自身的请求都通过 Tor。",
   "torSettingsLink": "Tor 设置",
   "receiveTabDirect": "直连",
   "receiveDirectNeedsTor": "直连收款需要 Tor。",
