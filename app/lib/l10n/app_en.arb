@@ -5410,6 +5410,44 @@
   "@netStatusTitle": {
     "description": "Screen reader name of the status card."
   },
+  "serverMyRelays": "My servers",
+  "@serverMyRelays": {
+    "description": "Epicbox picker section head: relays the wallet has connected to that the public list does not have, each with a remove button. Beside the 'Public servers' head."
+  },
+  "serverRemoveRelay": "Remove from my servers",
+  "@serverRemoveRelay": {
+    "description": "Tooltip and screen reader name of the remove button on a My servers row of the Epicbox picker."
+  },
+  "serverRemoveInUse": "In use. Switch to another server first.",
+  "@serverRemoveInUse": {
+    "description": "Tooltip of the disabled remove button (Epicbox) or star (node) on the server the wallet uses now: why it cannot be removed."
+  },
+  "serverRemoveRelayTitle": "Remove this server?",
+  "@serverRemoveRelayTitle": {
+    "description": "Title of the dialog that confirms removing an Epicbox relay from My servers."
+  },
+  "serverRemoveNodeTitle": "Remove this node?",
+  "@serverRemoveNodeTitle": {
+    "description": "Title of the dialog that confirms removing a node from My nodes (the star of a My nodes row)."
+  },
+  "serverRemoveBody": "{host} leaves this list. Type it in again to use it later.",
+  "@serverRemoveBody": {
+    "description": "Body of the dialogs that confirm removing a node or an Epicbox relay from the user's own list.",
+    "placeholders": {
+      "host": {
+        "type": "String",
+        "example": "relay.example.org"
+      }
+    }
+  },
+  "serverRemoveConfirm": "Remove",
+  "@serverRemoveConfirm": {
+    "description": "Confirm button of the remove dialogs."
+  },
+  "serverSupportsNotifications": "Supports notifications",
+  "@serverSupportsNotifications": {
+    "description": "Screen reader words for the bell icon on the Epicbox relay that can send push notifications."
+  },
   "netStatusReachable": "Reachable",
   "@netStatusReachable": {
     "description": "Direct receive status icon state word: the wallet's Tor address is published and reachable."
@@ -7524,5 +7562,14 @@
   "torWayNotConnected": "Tor is not connected.",
   "@torWayNotConnected": {
     "description": "Detail after 'Waiting for Tor' when Tor failed: read out and shown as the row's hint."
+  },
+  "sendUsesAllOutputs": "{count, plural, =1{Uses its 1 output · change 1 output} other{Uses all {count} outputs · change 1 output}}",
+  "@sendUsesAllOutputs": {
+    "description": "Line in the payment review when the send spends every spendable output (strategy All) and change comes back: it is always one change output, whatever Split change says.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   }
 }

@@ -1093,6 +1093,14 @@
   "netStatusStarting": "Запуск {percent} %",
   "netStatusTestHost": "{network} · {host}",
   "netStatusTitle": "Состояние сети",
+  "serverMyRelays": "Мои серверы",
+  "serverRemoveRelay": "Удалить из моих серверов",
+  "serverRemoveInUse": "Используется. Сначала переключитесь на другой сервер.",
+  "serverRemoveRelayTitle": "Удалить этот сервер?",
+  "serverRemoveNodeTitle": "Удалить этот узел?",
+  "serverRemoveBody": "{host} исчезнет из этого списка. Введите его снова, чтобы использовать позже.",
+  "serverRemoveConfirm": "Удалить",
+  "serverSupportsNotifications": "Поддерживает уведомления",
   "netStatusReachable": "Доступен",
   "netStatusPublishing": "Публикация…",
   "netStatusNotReachable": "Недоступен",
@@ -1530,5 +1538,6 @@
   "pushNoticeAvailable": "Уведомления доступны в настройках.",
   "torWayOver": "Через Tor",
   "torWayWaiting": "Ожидание Tor",
-  "torWayNotConnected": "Tor не подключён."
+  "torWayNotConnected": "Tor не подключён.",
+  "sendUsesAllOutputs": "{count, plural, one{Использует все выходы ({count}) · сдача 1 выход} few{Использует все {count} выхода · сдача 1 выход} many{Использует все {count} выходов · сдача 1 выход} other{Использует все {count} выхода · сдача 1 выход}}"
 }

@@ -1093,6 +1093,14 @@
   "netStatusStarting": "Startet {percent} %",
   "netStatusTestHost": "{network} · {host}",
   "netStatusTitle": "Netzwerkstatus",
+  "serverMyRelays": "Meine Server",
+  "serverRemoveRelay": "Aus meinen Servern entfernen",
+  "serverRemoveInUse": "In Verwendung. Wechsle zuerst zu einem anderen Server.",
+  "serverRemoveRelayTitle": "Diesen Server entfernen?",
+  "serverRemoveNodeTitle": "Diese Node entfernen?",
+  "serverRemoveBody": "{host} verschwindet aus dieser Liste. Gib ihn erneut ein, um ihn später zu nutzen.",
+  "serverRemoveConfirm": "Entfernen",
+  "serverSupportsNotifications": "Unterstützt Benachrichtigungen",
   "netStatusReachable": "Erreichbar",
   "netStatusPublishing": "Wird veröffentlicht…",
   "netStatusNotReachable": "Nicht erreichbar",
@@ -1530,5 +1538,6 @@
   "pushNoticeAvailable": "Benachrichtigungen sind in den Einstellungen verfügbar.",
   "torWayOver": "Über Tor",
   "torWayWaiting": "Warten auf Tor",
-  "torWayNotConnected": "Tor ist nicht verbunden."
+  "torWayNotConnected": "Tor ist nicht verbunden.",
+  "sendUsesAllOutputs": "{count, plural, =1{Nutzt den 1 Output · Wechselgeld 1 Output} other{Nutzt alle {count} Outputs · Wechselgeld 1 Output}}"
 }

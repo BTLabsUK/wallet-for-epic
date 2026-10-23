@@ -2,6 +2,7 @@
 // its caption, the split line, the strategy line, Advanced, and the review dialog's facts.
 import 'package:epic_wallet/src/desktop/screens/transfer/send_advanced.dart';
 import 'package:epic_wallet/src/desktop/screens/transfer/send_summary_rows.dart';
+import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:flutter/material.dart';
@@ -132,5 +133,10 @@ void main() {
     final split = reviewOutputLines(_summary(changeOutputs: 4), strategy: SelectionStrategy.all, defaultStrategy: SelectionStrategy.smallest, extraFee: _nano(0.012));
     expect(split.feeSecondLine, 'Change split into 4 outputs (+0.012 EPIC).');
     expect(split.facts.map((f) => f.$1), ['Locks', 'Strategy']);
+
+    // Strategy All consolidates: with the line given it says one change output, never a split.
+    final l = lookupAppLocalizations(const Locale('en'));
+    final allLine = reviewOutputLines(all, strategy: SelectionStrategy.all, defaultStrategy: SelectionStrategy.smallest, usesAll: l.sendUsesAllOutputs);
+    expect(allLine.feeSecondLine, 'Uses all 5 outputs · change 1 output');
   });
 }

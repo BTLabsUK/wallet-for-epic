@@ -4393,6 +4393,33 @@ class AppLocalizationsDe extends AppLocalizations {
   String get netStatusTitle => 'Netzwerkstatus';
 
   @override
+  String get serverMyRelays => 'Meine Server';
+
+  @override
+  String get serverRemoveRelay => 'Aus meinen Servern entfernen';
+
+  @override
+  String get serverRemoveInUse =>
+      'In Verwendung. Wechsle zuerst zu einem anderen Server.';
+
+  @override
+  String get serverRemoveRelayTitle => 'Diesen Server entfernen?';
+
+  @override
+  String get serverRemoveNodeTitle => 'Diese Node entfernen?';
+
+  @override
+  String serverRemoveBody(String host) {
+    return '$host verschwindet aus dieser Liste. Gib ihn erneut ein, um ihn später zu nutzen.';
+  }
+
+  @override
+  String get serverRemoveConfirm => 'Entfernen';
+
+  @override
+  String get serverSupportsNotifications => 'Unterstützt Benachrichtigungen';
+
+  @override
   String get netStatusReachable => 'Erreichbar';
 
   @override
@@ -6041,4 +6068,15 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get torWayNotConnected => 'Tor ist nicht verbunden.';
+
+  @override
+  String sendUsesAllOutputs(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Nutzt alle $count Outputs · Wechselgeld 1 Output',
+      one: 'Nutzt den 1 Output · Wechselgeld 1 Output',
+    );
+    return '$_temp0';
+  }
 }

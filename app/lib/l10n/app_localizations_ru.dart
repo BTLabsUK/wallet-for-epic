@@ -4487,6 +4487,33 @@ class AppLocalizationsRu extends AppLocalizations {
   String get netStatusTitle => 'Состояние сети';
 
   @override
+  String get serverMyRelays => 'Мои серверы';
+
+  @override
+  String get serverRemoveRelay => 'Удалить из моих серверов';
+
+  @override
+  String get serverRemoveInUse =>
+      'Используется. Сначала переключитесь на другой сервер.';
+
+  @override
+  String get serverRemoveRelayTitle => 'Удалить этот сервер?';
+
+  @override
+  String get serverRemoveNodeTitle => 'Удалить этот узел?';
+
+  @override
+  String serverRemoveBody(String host) {
+    return '$host исчезнет из этого списка. Введите его снова, чтобы использовать позже.';
+  }
+
+  @override
+  String get serverRemoveConfirm => 'Удалить';
+
+  @override
+  String get serverSupportsNotifications => 'Поддерживает уведомления';
+
+  @override
   String get netStatusReachable => 'Доступен';
 
   @override
@@ -6147,4 +6174,17 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get torWayNotConnected => 'Tor не подключён.';
+
+  @override
+  String sendUsesAllOutputs(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Использует все $count выхода · сдача 1 выход',
+      many: 'Использует все $count выходов · сдача 1 выход',
+      few: 'Использует все $count выхода · сдача 1 выход',
+      one: 'Использует все выходы ($count) · сдача 1 выход',
+    );
+    return '$_temp0';
+  }
 }

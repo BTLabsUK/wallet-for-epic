@@ -530,6 +530,164 @@ void main() {
     });
   });
 
+  group('my servers', () {
+    testWidgets('a picked relay is remembered after the switch, once', (
+      tester,
+    ) async {
+      final store = _store();
+      await _pump(tester, ServerKind.relay, store: store);
+      expect(find.text('MY SERVERS'), findsNothing);
+      await tester.tap(_row('epicbox.epicnet.us'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(serverSwitchKey));
+      await tester.pumpAndSettle();
+      expect(jsonDecode(store.values['app.myRelays.mainnet']!), [
+        'epicbox.epicnet.us',
+      ]);
+      // A new app: in My servers, not again under Public servers.
+      await tester.pumpWidget(const SizedBox());
+      await _pump(tester, ServerKind.relay, store: store);
+      expect(find.text('MY SERVERS'), findsOneWidget);
+      expect(_row('epicbox.epicnet.us'), findsOneWidget);
+      expect(
+        tester.getTopLeft(_row('epicbox.epicnet.us')).dy,
+        lessThan(tester.getTopLeft(find.text('PUBLIC SERVERS')).dy),
+      );
+    });
+
+    testWidgets('a typed relay is remembered after the switch', (
+      tester,
+    ) async {
+      final store = _store();
+      await _pump(tester, ServerKind.relay, store: store);
+      await tester.enterText(find.byType(TextField), 'relay.example.org:4443');
+      await tester.testTextInput.receiveAction(TextInputAction.done);
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(serverSwitchKey));
+      await tester.pumpAndSettle();
+      expect(store.values['app.relay.mainnet'], 'relay.example.org:4443');
+      expect(jsonDecode(store.values['app.myRelays.mainnet']!), [
+        'relay.example.org:4443',
+      ]);
+    });
+
+    testWidgets('removing asks first; the relay in use cannot be removed', (
+      tester,
+    ) async {
+      final store = _store()
+        ..values['app.myRelays.mainnet'] = jsonEncode([
+          'relay.example.org',
+          'epicbox.stackwallet.com',
+        ]);
+      await _pump(tester, ServerKind.relay, store: store);
+      final inUse = tester.widget<IconButton>(
+        find.byKey(serverRemoveKey('epicbox.stackwallet.com')),
+      );
+      expect(inUse.onPressed, isNull);
+      expect(inUse.tooltip, 'In use. Switch to another server first.');
+      final remove = find.byKey(serverRemoveKey('relay.example.org'));
+      expect(tester.getSize(remove).height, greaterThanOrEqualTo(48));
+      expect(find.byTooltip('Remove from my servers'), findsOneWidget);
+      await tester.tap(remove);
+      await tester.pumpAndSettle();
+      expect(find.text('Remove this server?'), findsOneWidget);
+      await tester.tap(find.text('Cancel'));
+      await tester.pumpAndSettle();
+      expect(jsonDecode(store.values['app.myRelays.mainnet']!), hasLength(2));
+      await tester.tap(remove);
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(FilledButton, 'Remove'));
+      await tester.pumpAndSettle();
+      expect(jsonDecode(store.values['app.myRelays.mainnet']!), [
+        'epicbox.stackwallet.com',
+      ]);
+      expect(_row('relay.example.org'), findsNothing);
+      // No relay switch was asked for.
+      expect(find.byKey(serverSwitchKey), findsNothing);
+    });
+
+    testWidgets('the push relay is listed with its bell and can be picked', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      await _pump(tester, ServerKind.relay, store: _store());
+      const push = 'flooepicbox.btlabs.uk';
+      await tester.scrollUntilVisible(_row(push), 200, scrollable: _list);
+      expect(
+        find.descendant(
+          of: _row(push),
+          matching: find.byIcon(Icons.notifications_outlined),
+        ),
+        findsOneWidget,
+      );
+      expect(find.byIcon(Icons.notifications_outlined), findsOneWidget);
+      expect(
+        tester.getSemantics(_row(push)).label,
+        contains('Supports notifications'),
+      );
+      await tester.tap(_row(push));
+      await tester.pumpAndSettle();
+      expect(find.text('Switch to $push'), findsOneWidget);
+      handle.dispose();
+    });
+
+    testWidgets('nodes: a picked node is remembered; the one in use stays; unstar asks', (
+      tester,
+    ) async {
+      final store = _store();
+      const url = 'https://node.epicnet.us:3413';
+      await _pump(tester, ServerKind.node, store: store);
+      await tester.scrollUntilVisible(_row(url), 200, scrollable: _list);
+      await tester.tap(_row(url));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(serverSwitchKey));
+      await tester.pumpAndSettle();
+      expect(jsonDecode(store.values['app.myNodes.mainnet']!), [url]);
+      // Now on that node, with node.btlabs.uk starred as well.
+      store.values['app.myNodes.mainnet'] = jsonEncode([
+        url,
+        'https://node.btlabs.uk',
+      ]);
+      await tester.pumpWidget(const SizedBox());
+      await _pump(tester, ServerKind.node, store: store);
+      final current = tester.widget<IconButton>(
+        find.byKey(serverStarKey(url)),
+      );
+      expect(current.onPressed, isNull);
+      expect(current.tooltip, 'In use. Switch to another server first.');
+      await tester.tap(find.byKey(serverStarKey('https://node.btlabs.uk')));
+      await tester.pumpAndSettle();
+      expect(find.text('Remove this node?'), findsOneWidget);
+      await tester.tap(find.widgetWithText(FilledButton, 'Remove'));
+      await tester.pumpAndSettle();
+      expect(jsonDecode(store.values['app.myNodes.mainnet']!), [url]);
+    });
+
+    test('My relays keeps six, dropping the oldest but never the one in use', () async {
+      final store = MemorySecretStore({});
+      final container = ProviderContainer(
+        overrides: [secretStoreProvider.overrideWithValue(store)],
+      );
+      addTearDown(container.dispose);
+      final mine = container.read(myRelaysProvider(Chain.mainnet).notifier);
+      for (var i = 0; i < 6; i++) {
+        await mine.add('r$i.example.org');
+      }
+      await mine.add('r6.example.org', inUse: 'r0.example.org');
+      expect(container.read(myRelaysProvider(Chain.mainnet)).value, [
+        'r0.example.org',
+        'r2.example.org',
+        'r3.example.org',
+        'r4.example.org',
+        'r5.example.org',
+        'r6.example.org',
+      ]);
+      // Already there: nothing moves.
+      await mine.add('r3.example.org:443');
+      expect(container.read(myRelaysProvider(Chain.mainnet)).value, hasLength(6));
+    });
+  });
+
   test('typedNodeUrl', () {
     expect(typedNodeUrl('node.example.org'), 'https://node.example.org');
     expect(

@@ -25,11 +25,17 @@ import 'desk_store.dart';
 /// About and the support report show it with the build id (`shell.dart`).
 const String deskAppVersion = appVersion;
 
-/// Where a download page may be: the project's own GitHub accounts.
-const List<String> deskUpdatePageHosts = ['https://github.com/BTLabs-EPIC/', 'https://github.com/blacktyger/'];
+/// Where a download page may be: BT Labs' public download page and the project's own GitHub
+/// accounts.
+const List<String> deskUpdatePageHosts = [
+  'https://examples.btlabs.uk/epic-cash-wallets/',
+  'https://github.com/BTLabs-EPIC/',
+  'https://github.com/blacktyger/',
+];
 
-/// Where an update is downloaded, when the manifest names no page of its own.
-const String deskReleasesUrl = 'https://github.com/BTLabs-EPIC/wallet-for-epic/releases/latest';
+/// Where an update is downloaded, when the manifest names no page of its own: the public
+/// download page (the GitHub repository is private and has no releases).
+const String deskReleasesUrl = 'https://examples.btlabs.uk/epic-cash-wallets/';
 
 enum DeskUpdatePhase { idle, checking, latest, available, failed }
 

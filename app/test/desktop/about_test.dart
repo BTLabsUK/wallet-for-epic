@@ -21,18 +21,20 @@ void main() {
   // Signed manifests (test key A; the test keyring stands in for the bundled one).
   const page = 'https://github.com/BTLabs-EPIC/epic-wallet/releases/tag/v26.10.1';
   late String newer, same, phoneOnly, offAccounts, unsignedNewer, forgedNewer, olderLatest, testBuild;
+  // A version newer than any this app will carry, so the tests hold whatever the app's version is.
+  const next = '99.1.0';
   setUpAll(() async {
-    newer = await signedUpdate(testUpdatePayload(versionName: '9.0.0', desktop: {'version': '26.10.1', 'page': page}));
+    newer = await signedUpdate(testUpdatePayload(versionName: '9.0.0', desktop: {'version': next, 'page': page}));
     same = await signedUpdate(testUpdatePayload(versionName: '9.0.0', desktop: {'version': deskAppVersion}, serial: 1790000100));
     phoneOnly = await signedUpdate(testUpdatePayload(versionName: '0.2.0'));
     // The verifier's schema only takes pages on the project's GitHub accounts, so a page
     // elsewhere is a manifest that does not verify, not one that opens a fallback.
-    offAccounts = await signedUpdate(testUpdatePayload(desktop: {'version': '26.10.1', 'page': 'https://github.com.evil.example/BTLabs-EPIC/'}));
-    unsignedNewer = '{"versionName": "9.0.0", "desktop": {"version": "26.10.1", "page": "$page"}}';
-    forgedNewer = await signedUpdate(testUpdatePayload(desktop: {'version': '26.10.1', 'page': page}), keys: [await testUpdateStrangerKey()]);
+    offAccounts = await signedUpdate(testUpdatePayload(desktop: {'version': next, 'page': 'https://github.com.evil.example/BTLabs-EPIC/'}));
+    unsignedNewer = '{"versionName": "9.0.0", "desktop": {"version": "$next", "page": "$page"}}';
+    forgedNewer = await signedUpdate(testUpdatePayload(desktop: {'version': next, 'page': page}), keys: [await testUpdateStrangerKey()]);
     // Older than [newer] (a replay): it says this version is the latest, which must not win.
     olderLatest = await signedUpdate(testUpdatePayload(desktop: {'version': deskAppVersion}, serial: 1789999000));
-    testBuild = await signedUpdate(testUpdatePayload(desktop: {'version': '26.10.1-rc1', 'page': page}));
+    testBuild = await signedUpdate(testUpdatePayload(desktop: {'version': '$next-rc1', 'page': page}));
   });
 
   Future<(ProviderContainer, List<String>)> pump(WidgetTester tester, ManifestFetch fetch) async {
@@ -121,8 +123,8 @@ void main() {
 
   testWidgets('a newer version offers its page; the same version is the latest', (tester) async {
     final (container, opened) = await pump(tester, (_) async => (200, newer));
-    expect(find.text('Update available: 26.10.1'), findsOneWidget);
-    await tester.tap(find.widgetWithText(EButton, 'Get 26.10.1'));
+    expect(find.text('Update available: $next'), findsOneWidget);
+    await tester.tap(find.widgetWithText(EButton, 'Get $next'));
     await tester.pumpAndSettle();
     expect(opened, [page]);
 
@@ -162,17 +164,20 @@ void main() {
   testWidgets('a known update stays offered when a later manifest is replayed, forged or too large', (tester) async {
     var body = (200, newer);
     await pump(tester, (_) async => body);
-    expect(find.text('Update available: 26.10.1'), findsOneWidget);
-    for (final next in [(200, olderLatest), (200, forgedNewer), (deskManifestTooLarge, ''), (404, '')]) {
-      body = next;
+    expect(find.text('Update available: $next'), findsOneWidget);
+    for (final reply in [(200, olderLatest), (200, forgedNewer), (deskManifestTooLarge, ''), (404, '')]) {
+      body = reply;
       await tester.tap(find.widgetWithText(EButton, 'Check now'));
       await tester.pumpAndSettle();
-      expect(find.text('Update available: 26.10.1'), findsOneWidget, reason: 'after ${next.$1}');
+      expect(find.text('Update available: $next'), findsOneWidget, reason: 'after ${reply.$1}');
     }
   });
 
-  test('the releases fallback is the project repo', () {
-    expect(deskReleasesUrl, 'https://github.com/BTLabs-EPIC/wallet-for-epic/releases/latest');
+  test('the fallback download page is the public BT Labs page', () {
+    expect(deskReleasesUrl, 'https://examples.btlabs.uk/epic-cash-wallets/');
+    expect(isDeskUpdatePage('https://examples.btlabs.uk/epic-cash-wallets/#download'), isTrue);
+    expect(isDeskUpdatePage('https://examples.btlabs.uk/other/'), isFalse);
+    expect(isDeskUpdatePage('https://examples.btlabs.uk.evil.example/epic-cash-wallets/'), isFalse);
     expect(isDeskUpdatePage(deskReleasesUrl), isTrue);
   });
 
@@ -220,18 +225,18 @@ void main() {
     }
 
     final latest = await signedUpdate(testUpdatePayload(desktop: {'version': deskAppVersion}, serial: 1790000100));
-    final newer2 = await signedUpdate(testUpdatePayload(desktop: {'version': '26.10.1', 'page': page}, serial: 1790000200));
+    final newer2 = await signedUpdate(testUpdatePayload(desktop: {'version': next, 'page': page}, serial: 1790000200));
     expect((await run(latest)).phase, DeskUpdatePhase.latest);
     final stored = ManifestState.fromJson(await DeskStore(secrets).readJson(updateStateKey));
     expect(stored?.serial, 1790000100);
     // A replayed older manifest that offers an update: not used after the restart.
     expect((await run(newer)).phase, DeskUpdatePhase.latest);
     expect(ManifestState.fromJson(await DeskStore(secrets).readJson(updateStateKey))?.serial, 1790000100);
-    expect((await run(newer2)).version, '26.10.1');
+    expect((await run(newer2)).version, next);
     expect(ManifestState.fromJson(await DeskStore(secrets).readJson(updateStateKey))?.serial, 1790000200);
     // What is stored does not read: ignored, and replaced by the next good one.
     await secrets.write(updateStateKey, '{broken');
-    expect((await run(newer)).version, '26.10.1');
+    expect((await run(newer)).version, next);
     expect(ManifestState.fromJson(await DeskStore(secrets).readJson(updateStateKey))?.serial, 1790000000);
   });
 }
