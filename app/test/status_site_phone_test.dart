@@ -71,7 +71,7 @@ void main() {
         await tester.scrollUntilVisible(relay, 300, scrollable: find.byType(Scrollable).first);
       }
       expect(relay, findsWidgets);
-      expect(find.textContaining('unavailable from status.btlabs.uk'), on ? findsOneWidget : findsNothing);
+      expect(find.textContaining('status.btlabs.uk not reachable', skipOffstage: false), on ? findsWidgets : findsNothing);
       expect(hosts, on ? hasLength(1) : isEmpty);
       expect(tester.takeException(), isNull);
     });
