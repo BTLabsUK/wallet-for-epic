@@ -167,4 +167,19 @@ void main() {
     await tester.pumpWidget(const SizedBox());
     await tester.pump(const Duration(seconds: 10));
   });
+
+  testWidgets('Tor on: latency reads over Tor, never from this computer', (tester) async {
+    final i = NodeInfo(
+      url: _url,
+      source: NodeInfoSource.directory,
+      at: DateTime(2026, 10, 22, 14, 2),
+      state: NodeHealthState.healthy,
+      latencyMs: 2400,
+      latencyOverTor: true,
+    );
+    await _pump(tester, _card(i));
+    expect(find.text('over Tor'), findsOneWidget);
+    expect(find.textContaining('from this computer'), findsNothing);
+    expect(find.textContaining('latency measured over Tor'), findsOneWidget);
+  });
 }

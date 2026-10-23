@@ -5464,6 +5464,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskInvPayerReview => 'Проверить';
 
   @override
+  String get deskInvPayerPaidHead => 'Оплаченные';
+
+  @override
   String get deskInvPayerView => 'Открыть';
 
   @override

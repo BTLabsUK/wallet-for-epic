@@ -5355,6 +5355,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskInvPayerReview => 'Prüfen';
 
   @override
+  String get deskInvPayerPaidHead => 'Bezahlt';
+
+  @override
   String get deskInvPayerView => 'Ansehen';
 
   @override

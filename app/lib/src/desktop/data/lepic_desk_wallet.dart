@@ -38,6 +38,7 @@ import '../../providers.dart' show WalletDirResolver, defaultMinimumConfirmation
 import '../../public_servers.dart';
 import '../../net/http.dart' show NetError, httpGet;
 import '../../net/tor_net.dart';
+import '../../net/tor_switch.dart';
 import '../../tor_routes.dart';
 import '../../relay_directory.dart';
 import '../../secret_store_api.dart';
@@ -321,6 +322,14 @@ class LepicDeskWallet implements DeskWalletApi {
   DateTime? _lastUpdate;
   String? _notice;
   final Map<String, NodeServer> _checked = {};
+
+  /// Whether each [_checked] node was asked through tor. A latency is shown only while the way
+  /// is still the same: a direct figure never stands in for one over Tor.
+  final Map<String, bool> _checkedOverTor = {};
+
+  bool _overTorNow(String url) => TorSwitch.on && !isLoopbackUrl(Uri.tryParse(url) ?? Uri());
+
+  bool _checkedSameWay(String url) => (_checkedOverTor[url] ?? false) == _overTorNow(url);
 
   StreamSubscription<core.ListenerEvent>? _listener;
 
@@ -1736,7 +1745,7 @@ class LepicDeskWallet implements DeskWalletApi {
     final all = await _listed(readDirectory: true);
     // Each node is checked once in the background; the lists show it when the check is in.
     for (final n in all) {
-      if (_checked.containsKey(n.url) || !_checking.add(n.url)) continue;
+      if ((_checked.containsKey(n.url) && _checkedSameWay(n.url)) || !_checking.add(n.url)) continue;
       unawaited(checkNode(n.url).whenComplete(() {
         _checking.remove(n.url);
         _changed();
@@ -1751,7 +1760,9 @@ class LepicDeskWallet implements DeskWalletApi {
     final own = await _store.readJson(DeskStore.nodesKey);
     NodeServer withCheck(NodeServer n) {
       final c = _checked[n.url];
-      return c == null ? n : NodeServer(url: n.url, label: n.label, operator: n.operator, health: c.health, latencyMs: c.latencyMs, height: c.height, version: c.version, own: n.own);
+      if (c == null) return n;
+      final latency = _checkedSameWay(n.url) ? c.latencyMs : null;
+      return NodeServer(url: n.url, label: n.label, operator: n.operator, health: c.health, latencyMs: latency, height: c.height, version: c.version, own: n.own);
     }
 
     return [
@@ -2599,6 +2610,7 @@ class LepicDeskWallet implements DeskWalletApi {
   Future<NodeServer> checkNode(String url) async {
     final known = (await _listed()).where((n) => n.url == url).firstOrNull;
     final base = known ?? NodeServer(url: url, label: Uri.tryParse(url)?.host ?? url, own: true);
+    final overTor = _overTorNow(url);
     final watch = Stopwatch()..start();
     NodeServer r;
     try {
@@ -2609,6 +2621,7 @@ class LepicDeskWallet implements DeskWalletApi {
       r = NodeServer(url: url, label: base.label, operator: base.operator, health: ServiceHealth.down, own: base.own);
     }
     _checked[url] = r;
+    _checkedOverTor[url] = overTor;
     return r;
   }
 
@@ -2623,6 +2636,7 @@ class LepicDeskWallet implements DeskWalletApi {
     ];
     await _store.writeJson(DeskStore.nodesKey, list);
     _checked[node.url] = node;
+    _checkedOverTor[node.url] = _overTorNow(node.url);
   }
 
   @override

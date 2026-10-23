@@ -1345,6 +1345,7 @@
   "deskInvPayerWaitingHead": "Czeka na Ciebie",
   "deskInvPayerNeedsHead": "Płatności do rozliczenia",
   "deskInvPayerReview": "Sprawdź",
+  "deskInvPayerPaidHead": "Zapłacone",
   "deskInvPayerView": "Pokaż",
   "deskInvPayerNoMessage": "Brak wiadomości",
   "deskInvPayerDropped": "{count, plural, one{{count} wiadomość od niezaufanego nadawcy zignorowano.} few{{count} wiadomości od niezaufanych nadawców zignorowano.} many{{count} wiadomości od niezaufanych nadawców zignorowano.} other{{count} wiadomości od niezaufanych nadawców zignorowano.}}",

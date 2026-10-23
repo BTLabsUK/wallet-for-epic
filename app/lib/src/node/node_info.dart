@@ -5,6 +5,8 @@ library;
 
 import 'dart:async';
 
+import '../net/tor_net.dart' show isLoopbackUrl;
+import '../net/tor_switch.dart';
 import '../relay_directory.dart';
 import 'node_api.dart';
 import 'node_api_types.dart';
@@ -35,6 +37,7 @@ class NodeInfo {
     this.releasedVersion,
     this.latencyMs,
     this.latencyFromMonitor = false,
+    this.latencyOverTor = false,
     this.monitorLatencyMs,
     this.directoryReachedAt,
     this.uptime24h,
@@ -77,6 +80,9 @@ class NodeInfo {
 
   /// [latencyMs] was measured by the monitor, not by this device.
   final bool latencyFromMonitor;
+
+  /// [latencyMs] was measured through tor (the Tor switch is on): never a direct figure then.
+  final bool latencyOverTor;
 
   /// The monitor's own measurement (from its location), for picker rows of nodes this computer
   /// has not checked yet.
@@ -134,6 +140,9 @@ int? compareVersions(String a, String b) {
   return 0;
 }
 
+/// How long a node may take over Tor.
+const Duration torNodeTimeout = Duration(seconds: 30);
+
 /// Reads [NodeInfo] for a node URL. The monitor answer is cached by the directory (a minute);
 /// the limited-info probe is three foreign calls plus one header.
 class NodeInfoService {
@@ -142,8 +151,10 @@ class NodeInfoService {
     this.network,
     NodeApiClient Function(String url)? clientFor,
     DateTime Function()? clock,
+    bool Function()? overTor,
     this.timeout = const Duration(seconds: 6),
   }) : _clientFor = clientFor ?? NodeApiClient.new,
+       _overTor = overTor ?? (() => TorSwitch.on),
        _clock = clock ?? DateTime.now;
 
   final NodeDirectory nodes;
@@ -154,7 +165,16 @@ class NodeInfoService {
   final DateTime Function() _clock;
   final Duration timeout;
 
-  final Map<String, List<int>> _latencies = {};
+  /// Whether a request to a node goes through tor now; a node on this computer never does.
+  final bool Function() _overTor;
+
+  /// Kept apart by route: a direct figure from before Tor came on is never shown as Tor's.
+  final Map<(String, bool), List<int>> _latencies = {};
+
+  bool _torFor(String url) => _overTor() && !isLoopbackUrl(Uri.tryParse(url) ?? Uri());
+
+  /// Over Tor a circuit takes seconds to build: a slow answer is not a node that is down.
+  Duration get _wait => _overTor() && timeout < torNodeTimeout ? torNodeTimeout : timeout;
   DateTime? _reachedAt;
 
   /// When the monitor last answered.
@@ -162,14 +182,14 @@ class NodeInfoService {
 
   /// The median of the last three latencies this computer measured for [url], or null.
   int? measuredLatency(String url) {
-    final l = _latencies[url];
+    final l = _latencies[(url, _torFor(url))];
     if (l == null || l.isEmpty) return null;
     final sorted = [...l]..sort();
     return sorted[sorted.length ~/ 2];
   }
 
   void _noteLatency(String url, int ms) {
-    final l = _latencies.putIfAbsent(url, () => []);
+    final l = _latencies.putIfAbsent((url, _torFor(url)), () => []);
     l.add(ms);
     if (l.length > 3) l.removeAt(0);
   }
@@ -181,13 +201,13 @@ class NodeInfoService {
     NetworkStatus? net;
     if (chain != null) {
       try {
-        listed = nodeStatusFor(await nodes.nodes(chain).timeout(timeout), url);
+        listed = nodeStatusFor(await nodes.nodes(chain).timeout(_wait), url);
         _reachedAt = _clock();
       } on Object {
         // the monitor is down: limited info
       }
       try {
-        net = await network?.network(chain).timeout(timeout);
+        net = await network?.network(chain).timeout(_wait);
       } on Object {
         // no network context
       }
@@ -201,7 +221,7 @@ class NodeInfoService {
     try {
       final api = _clientFor(url);
       final watch = Stopwatch()..start();
-      await api.tip().timeout(timeout);
+      await api.tip().timeout(_wait);
       _noteLatency(url, watch.elapsedMilliseconds);
     } on Object {
       // the monitor's number stands in
@@ -224,6 +244,7 @@ class NodeInfoService {
       releasedVersion: net?.releasedNodeVersion,
       latencyMs: measured ?? s.latencyMs,
       latencyFromMonitor: measured == null && s.latencyMs != null,
+      latencyOverTor: measured != null && _torFor(url),
       monitorLatencyMs: s.latencyMs,
       directoryReachedAt: _reachedAt,
       uptime24h: s.uptime24h,
@@ -252,7 +273,7 @@ class NodeInfoService {
     final watch = Stopwatch()..start();
     final NodeTipInfo tip;
     try {
-      tip = await api.tip().timeout(timeout);
+      tip = await api.tip().timeout(_wait);
     } on Object catch (e) {
       return NodeInfo(
         url: url,
@@ -267,7 +288,7 @@ class NodeInfoService {
     _noteLatency(url, watch.elapsedMilliseconds);
     Future<T?> quiet<T>(Future<T?> Function() call) async {
       try {
-        return await call().timeout(timeout);
+        return await call().timeout(_wait);
       } on Object {
         return null;
       }
@@ -297,6 +318,7 @@ class NodeInfoService {
       version: version,
       releasedVersion: net?.releasedNodeVersion,
       latencyMs: measuredLatency(url),
+      latencyOverTor: _torFor(url),
       directoryReachedAt: _reachedAt,
       readyForTxs: ready,
       tipTime: time,

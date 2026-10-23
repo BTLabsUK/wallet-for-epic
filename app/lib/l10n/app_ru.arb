@@ -1345,6 +1345,7 @@
   "deskInvPayerWaitingHead": "Ждёт вас",
   "deskInvPayerNeedsHead": "Платежи, требующие действия",
   "deskInvPayerReview": "Проверить",
+  "deskInvPayerPaidHead": "Оплаченные",
   "deskInvPayerView": "Открыть",
   "deskInvPayerNoMessage": "Нет сообщения",
   "deskInvPayerDropped": "{count, plural, one{{count} сообщение от недоверенного отправителя проигнорировано.} few{{count} сообщения от недоверенных отправителей проигнорированы.} many{{count} сообщений от недоверенных отправителей проигнорированы.} other{{count} сообщения от недоверенных отправителей проигнорированы.}}",

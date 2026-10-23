@@ -8215,6 +8215,12 @@ abstract class AppLocalizations {
   /// **'Review'**
   String get deskInvPayerReview;
 
+  /// Section head on Invoices › To pay: a paid invoice opened from Activity, which To pay no longer lists.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid'**
+  String get deskInvPayerPaidHead;
+
   /// Link on an answered invoice: open its payment in Activity.
   ///
   /// In en, this message translates to:

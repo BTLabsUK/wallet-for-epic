@@ -96,10 +96,9 @@ class TxInvoiceBlock extends ConsumerWidget {
             crossAxisAlignment: WrapCrossAlignment.center,
             children: [
               ...actions,
-              // To pay lists a paid invoice only while the user must settle it; the others live
-              // here in Activity.
-              if (r != null || i!.state.needsAction)
-                ELink(label: l.deskInvActOpen, onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.invoices, slate)),
+              // Opens the right tab with it selected: Issue for a request, Pay for an invoice
+              // (under Paid when To pay no longer lists it).
+              ELink(label: l.deskInvActOpen, onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.invoices, slate)),
             ],
           ),
         ],

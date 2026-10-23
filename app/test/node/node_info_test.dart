@@ -2,6 +2,8 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:epic_wallet/src/net/tor_net.dart';
+import 'package:epic_wallet/src/net/tor_switch.dart';
 import 'package:epic_wallet/src/node/node_api.dart';
 import 'package:epic_wallet/src/node/node_api_types.dart';
 import 'package:epic_wallet/src/node/node_info.dart';
@@ -158,5 +160,59 @@ void main() {
     expect(compareVersions('x', '4.1.0'), isNull);
     final i = NodeInfo(url: 'u', source: NodeInfoSource.directory, at: at, version: '4.1.0', releasedVersion: '4.1.1');
     expect(i.updateAvailable, isTrue);
+  });
+
+  test('Tor on: a direct latency from before is never shown; the next one is over Tor', () async {
+    var tor = false;
+    var answers = true;
+    final s = NodeInfoService(
+      nodes: _Monitor(),
+      network: _Monitor(),
+      clientFor: (url) => _node(down: !answers)(url),
+      overTor: () => tor,
+      clock: () => at,
+    );
+    const url = 'https://node.btlabs.uk';
+    final direct = await s.info(url, chain: 'mainnet');
+    expect(direct.latencyOverTor, isFalse);
+    expect(direct.latencyFromMonitor, isFalse);
+
+    tor = true;
+    answers = false;
+    final waiting = await s.info(url, chain: 'mainnet');
+    expect(s.measuredLatency(url), isNull, reason: 'the direct figure stays with the direct route');
+    expect(waiting.latencyFromMonitor, isTrue);
+    expect(waiting.latencyOverTor, isFalse);
+
+    answers = true;
+    final overTor = await s.info(url, chain: 'mainnet');
+    expect(overTor.latencyOverTor, isTrue);
+    expect(overTor.latencyFromMonitor, isFalse);
+    expect(overTor.latencyMs, s.measuredLatency(url));
+
+    tor = false;
+    expect(s.measuredLatency(url), direct.latencyMs, reason: 'Tor off again: the direct figures');
+  });
+
+  test('Tor on but not connected: no direct latency probe reaches the node', () async {
+    // 127.0.0.2 is not this computer's loopback name, so it counts as a remote node.
+    final server = await HttpServer.bind(InternetAddress('127.0.0.2'), 0);
+    addTearDown(() => server.close(force: true));
+    var requests = 0;
+    server.listen((r) {
+      requests++;
+      r.response.close();
+    });
+    TorNet.waitForTor();
+    TorSwitch.on = true;
+    addTearDown(() {
+      TorNet.useDirect();
+      TorSwitch.on = false;
+    });
+    final url = 'http://127.0.0.2:${server.port}';
+    final i = await NodeInfoService(nodes: _Monitor()).info(url, chain: 'mainnet');
+    expect(requests, 0);
+    expect(i.latencyMs, isNull);
+    expect(i.latencyOverTor, isFalse);
   });
 }

@@ -5289,6 +5289,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskInvPayerReview => 'Review';
 
   @override
+  String get deskInvPayerPaidHead => 'Paid';
+
+  @override
   String get deskInvPayerView => 'View';
 
   @override

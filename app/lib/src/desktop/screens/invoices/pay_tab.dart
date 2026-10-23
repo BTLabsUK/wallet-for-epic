@@ -1,5 +1,6 @@
 /// Requests › To pay: the inbox of invoices from trusted senders and the payments to settle
-/// (docs/invoices/flow.md §4.2, §4.4, §4.5). Answered invoices leave it; paid ones live in Activity. Owned by the payer part.
+/// (docs/invoices/flow.md §4.2, §4.4, §4.5). Answered invoices leave it; paid ones live in Activity,
+/// and one opened from there shows under Paid, selected. Owned by the payer part.
 library;
 
 import 'package:flutter/material.dart';
@@ -26,15 +27,31 @@ class PayTab extends ConsumerWidget {
     final needs = book.needsAction;
     final waiting = book.waiting;
     void trust() => nav.go(DeskRoute.settingsInvoices);
+    // Opened from Activity: a paid invoice To pay no longer lists (one waiting to post, say).
+    final opened = selected == null ? null : book.invoice(selected!);
+    final paid = opened != null && !needs.any((i) => i.slateId == opened.slateId) && !waiting.any((i) => i.slateId == opened.slateId)
+        ? opened
+        : null;
     return ListView(
       padding: EdgeInsets.only(bottom: Sp.x6),
       children: [
         if (needs.isNotEmpty) ...[
           ESectionHead(l.deskInvPayerNeedsHead, top: 0),
-          for (final i in needs) ...[_NeedsNotice(invoice: i, book: book), SizedBox(height: Sp.x2)],
+          for (final i in needs) ...[
+            InvReveal(selected: i.slateId == selected, child: _NeedsNotice(invoice: i, book: book, selected: i.slateId == selected)),
+            SizedBox(height: Sp.x2),
+          ],
           SizedBox(height: Sp.x4),
         ],
-        if (waiting.isEmpty && needs.isEmpty)
+        if (paid != null) ...[
+          ESectionHead(l.deskInvPayerPaidHead, top: 0),
+          EPanel(
+            padding: EdgeInsets.symmetric(vertical: Sp.x1),
+            child: InvReveal(selected: true, child: _PaidRow(invoice: paid)),
+          ),
+          SizedBox(height: Sp.x4),
+        ],
+        if (waiting.isEmpty && needs.isEmpty && paid == null)
           EPanel(
             child: EEmpty(
               icon: EIcons.invoice,
@@ -54,7 +71,7 @@ class PayTab extends ConsumerWidget {
               children: [
                 for (final (n, i) in waiting.indexed) ...[
                   if (n > 0) const EDivider(space: 0),
-                  _WaitingRow(invoice: i, now: book.now, selected: i.slateId == selected),
+                  InvReveal(selected: i.slateId == selected, child: _WaitingRow(invoice: i, now: book.now, selected: i.slateId == selected)),
                 ],
               ],
             ),
@@ -156,10 +173,13 @@ class _WaitingRow extends ConsumerWidget {
 /// A payment the user must settle: Retry for one not delivered, Cancel payment for one the
 /// service withdrew or that never reached the chain.
 class _NeedsNotice extends ConsumerWidget {
-  const _NeedsNotice({required this.invoice, required this.book});
+  const _NeedsNotice({required this.invoice, required this.book, this.selected = false});
 
   final IncomingInvoice invoice;
   final InvoiceBook book;
+
+  /// Opened from Activity: outlined.
+  final bool selected;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -170,7 +190,7 @@ class _NeedsNotice extends ConsumerWidget {
       PayState.withdrawnAfterPay => (l.deskInvPayerWithdrawnTitle(i.label), l.deskInvPayerWithdrawnText, ETone.warn),
       _ => (l.deskInvPayerPastTtlTitle(i.label), l.deskInvPayerPastTtlText, ETone.warn),
     };
-    return ENotice(
+    final notice = ENotice(
       tone: tone,
       title: title,
       text: text,
@@ -182,6 +202,63 @@ class _NeedsNotice extends ConsumerWidget {
         if (i.txId != null)
           InvButton(label: l.deskInvPayerView, kind: EBtnKind.ghost, onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.activity, i.txId)),
       ],
+    );
+    if (!selected) return notice;
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(Rad.sm),
+        border: Border.all(color: context.dc.dim, width: 2),
+      ),
+      child: notice,
+    );
+  }
+}
+
+/// A paid invoice opened from Activity: who billed, where the payment stands, and View back to
+/// its transaction.
+class _PaidRow extends ConsumerWidget {
+  const _PaidRow({required this.invoice});
+
+  final IncomingInvoice invoice;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = context.l10n;
+    final c = context.dc;
+    final ts = context.ts;
+    final i = invoice;
+    final line = cleanInvoiceText(i.message, max: invoiceLineMaxChars);
+    return Container(
+      color: c.s3,
+      padding: EdgeInsets.symmetric(horizontal: Sp.x5, vertical: Sp.x3),
+      child: Row(
+        children: [
+          EAvatar(i.label),
+          SizedBox(width: Sp.x3),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(i.label, style: ts.strong, maxLines: 1, overflow: TextOverflow.ellipsis),
+                Text(
+                  line.isEmpty ? l.deskInvPayerNoMessage : line,
+                  style: ts.small.copyWith(color: line.isEmpty ? c.faint : c.dim),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+          ),
+          SizedBox(width: Sp.x4),
+          PayStateTag(i),
+          SizedBox(width: Sp.x4),
+          PayAmount(i.amount),
+          if (i.txId != null) ...[
+            SizedBox(width: Sp.x4),
+            InvButton(label: l.deskInvPayerView, kind: EBtnKind.ghost, onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.activity, i.txId)),
+          ],
+        ],
+      ),
     );
   }
 }
