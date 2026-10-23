@@ -249,8 +249,8 @@ void main() {
     expect(head, lessThan(row));
     expect(find.text(_l.outputsColValue), findsOneWidget);
     expect(find.text(_l.outputsColConfirmations), findsOneWidget);
-    expect(find.text('10 / 3'), findsNWidgets(4));
-    expect(find.text('1 / 3'), findsOneWidget);
+    expect(find.text('10'), findsNWidgets(4));
+    expect(find.text('1'), findsOneWidget);
     // The advanced section follows the last row and holds the actions.
     final advanced = find.text(_l.outputsAdvanced);
     expect(advanced, findsOneWidget);
@@ -336,7 +336,7 @@ void main() {
     await tester.tap(find.text(_l.outputsFilterConfirming(1)));
     await tester.pumpAndSettle();
     expect(find.text('10 EPIC'), findsNothing);
-    expect(find.textContaining('1 / 3'), findsOneWidget);
+    expect(find.text('1'), findsOneWidget);
     await tester.tap(find.text(_l.outputsFilterAll(5)));
     await tester.tap(find.text(_l.outputsShowSpent));
     await tester.pumpAndSettle();

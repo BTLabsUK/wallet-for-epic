@@ -172,8 +172,12 @@ class ServerRow extends StatelessWidget {
             ],
             SizedBox(width: 10.u),
             SizedBox(
-              width: 52.u,
-              child: Text(latency.$1, maxLines: 1, softWrap: false, textAlign: TextAlign.right, style: ts.mono(size: Fs.xs, color: latency.$2)),
+              width: 68.u,
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.centerRight,
+                child: Text(latency.$1, maxLines: 1, softWrap: false, textAlign: TextAlign.right, style: ts.mono(size: Fs.xs, color: latency.$2)),
+              ),
             ),
             if (showVersion) ...[
               SizedBox(width: 10.u),

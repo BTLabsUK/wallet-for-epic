@@ -1613,6 +1613,10 @@ class LepicWalletSession implements WalletSession {
   /// Slates LEPIC reported as unknown in this session, so a redelivered one is told once.
   final Set<String> _unknownSlates = {};
 
+  /// Invoices this wallet was asked to pay and has not answered: LEPIC deletes a waiting one
+  /// it withdraws, so only this tells a real withdraw from an event about something else.
+  final Set<String> _waitingSlates = {};
+
   /// Events are handled one at a time, so the archive changes in the order LEPIC reported.
   /// A withdrawal and a reconcile of issued invoices take their turn here too.
   Future<void> _eventTail = Future.value();
@@ -1656,15 +1660,21 @@ class LepicWalletSession implements WalletSession {
             kernelExcess: event.kernelExcess,
           );
         case InvoiceEventKind.withdrawn:
-          // Only a paid one has a record; a waiting one LEPIC deleted itself.
-          await _history.setPaidInvoiceStatus(
-            event.slateId,
-            InvoiceStatus.withdrawn,
-          );
-        case InvoiceEventKind.received ||
-            InvoiceEventKind.declined ||
-            InvoiceEventKind.expired:
-          break;
+          // Only an invoice this wallet was asked to pay counts: a waiting one, or one it paid.
+          final waiting = _waitingSlates.remove(event.slateId);
+          if (await _paidInvoice(event.slateId) == null) {
+            if (!waiting) return;
+          } else {
+            // Only a paid one has a record; a waiting one LEPIC deleted itself.
+            await _history.setPaidInvoiceStatus(
+              event.slateId,
+              InvoiceStatus.withdrawn,
+            );
+          }
+        case InvoiceEventKind.received:
+          _waitingSlates.add(event.slateId);
+        case InvoiceEventKind.declined || InvoiceEventKind.expired:
+          _waitingSlates.remove(event.slateId);
         case InvoiceEventKind.unknownInvoicePayment ||
             InvoiceEventKind.unknownSendAnswer:
           // A relay that did not settle the message delivers it again: one notice per slate.
@@ -1816,10 +1826,12 @@ class LepicWalletSession implements WalletSession {
   @override
   Future<List<PendingInvoice>> pendingInvoices() => _guard(() async {
     _watchEvents();
-    return [
+    final pending = [
       for (final i in await _wallet.pendingInvoices(expirySecs: _expirySecs))
         lepicPendingInvoice(i),
     ];
+    _waitingSlates.addAll(pending.map((i) => i.slateId));
+    return pending;
   });
 
   /// The local id of the payment of the invoice [slateId], from LEPIC's store.
@@ -1911,6 +1923,7 @@ class LepicWalletSession implements WalletSession {
   Future<void> declineInvoice({required String slateId}) => _guard(() async {
     _watchEvents();
     await _wallet.declineInvoice(slateId: slateId);
+    _waitingSlates.remove(slateId);
     if (!_invoiceEvents.isClosed) {
       _invoiceEvents.add(
         InvoiceEvent(kind: InvoiceEventKind.declined, slateId: slateId),

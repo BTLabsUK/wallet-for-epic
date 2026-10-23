@@ -99,11 +99,9 @@ String? _rowNote(
   };
 }
 
-/// The confirmations cell: confirmations of the needed, a dash for an output not on chain yet.
-String _confirmations(AppLocalizations l, WalletOutput o, int need) =>
-    o.height == BigInt.zero
-    ? '–'
-    : l.outputsNoteConfirmations(o.confirmations.toInt(), need);
+/// The confirmations cell: the count, a dash for an output not on chain yet.
+String _confirmations(AppLocalizations l, WalletOutput o) =>
+    o.height == BigInt.zero ? '–' : localDigits(l, '${o.confirmations}');
 
 class OutputsScreen extends ConsumerStatefulWidget {
   const OutputsScreen({super.key, this.filter});
@@ -198,7 +196,6 @@ class _OutputsScreenState extends ConsumerState<OutputsScreen> {
     final summary = home?.summary;
     final outputs = ref.watch(walletOutputsProvider);
     final list = outputs.value;
-    final need = ref.watch(countedConfirmationsProvider).toInt();
     final txs = {
       for (final x in home?.transactions ?? const <TxEntry>[])
         if (x.id != null) x.id!: x,
@@ -385,7 +382,7 @@ class _OutputsScreenState extends ConsumerState<OutputsScreen> {
               _OutputRow(
                 output: o,
                 value: money(o.value),
-                confirmations: _confirmations(l, o, need),
+                confirmations: _confirmations(l, o),
                 word: _wordText(l, outputWord(o)),
                 note: _rowNote(
                   l,
