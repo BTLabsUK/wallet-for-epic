@@ -752,7 +752,7 @@
   "settingsSourceCode": "Kod źródłowy",
   "settingsLicences": "Licencje",
   "licencesLead": "Oprogramowanie open source w tym portfelu. Każdy składnik zachowuje własną licencję; pełne teksty są o jedno dotknięcie dalej.",
-  "licencesApp": "Epic Cash Mobile od BT Labs, open source. Kod jest na GitHubie.",
+  "licencesApp": "Epic Cash Mobile od BT Labs: Apache-2.0. Kod jest na GitHubie.",
   "licencesFlutter": "Flutter i jego pakiety Dart: BSD 3-Clause i podobne liberalne licencje.",
   "licencesLepic": "LEPIC, biblioteka portfela Epic Cash: Apache 2.0, z forkiem secp256k1-zkp Epic Cash (CC0) i skrzynkami Rust na licencjach MIT lub Apache 2.0, m.in. tokio, rustls, rusqlite i blake2.",
   "licencesTor": "Tor: GNU General Public License, wersja 3. Źródło podano poniżej.",

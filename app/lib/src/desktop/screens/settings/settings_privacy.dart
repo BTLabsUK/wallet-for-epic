@@ -101,6 +101,8 @@ class _TorGroupState extends ConsumerState<TorGroup> {
           ESetRow(
             title: torNetworkLabel,
             hint: torNetworkHint,
+            hintTitle: torNetworkLabel,
+            hintIcon: EIcons.tor,
             control: SizedBox(
               width: 40.u,
               height: 24.u,

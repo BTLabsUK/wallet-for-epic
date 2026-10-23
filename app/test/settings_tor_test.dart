@@ -12,6 +12,7 @@ import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/tor_location.dart';
 import 'package:epic_wallet/src/ui/settings_screen.dart';
 import 'package:epic_wallet/src/ui/theme/advanced.dart';
+import 'package:epic_wallet/src/ui/info_hint.dart';
 import 'package:epic_wallet/src/ui/tor_ui.dart';
 import 'package:epic_wallet/src/updater.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
@@ -149,18 +150,30 @@ void main() {
       ),
       findsOneWidget,
     );
-    expect(
-      find.descendant(
-        of: find.byKey(torReceivingSwitchKey),
-        matching: find.byTooltip(
-          'Network activity goes through the Tor network. Tor hides the wallet’s internet address: each connection passes through several volunteer-run relays, so no server learns where the wallet is.',
-        ),
-      ),
-      findsOneWidget,
+    // The info icon opens the Tor Network sheet: the icon, the title, the explanation.
+    final hint = find.descendant(
+      of: find.byKey(torReceivingSwitchKey),
+      matching: find.byType(InfoHint),
     );
+    expect(hint, findsOneWidget);
     expect(find.textContaining('go through Tor'), findsNothing);
     expect(find.textContaining('Not over Tor'), findsNothing);
     expect(find.byKey(torStatusKey), findsNothing, reason: 'off: no state line');
+    await tester.tap(hint);
+    await tester.pumpAndSettle();
+    expect(find.byType(InfoSheet), findsOneWidget);
+    expect(
+      find.descendant(of: find.byType(InfoSheet), matching: find.text('Tor Network')),
+      findsOneWidget,
+    );
+    expect(
+      find.textContaining('Network activity goes through the Tor network.'),
+      findsOneWidget,
+    );
+    expect(find.textContaining('Not over Tor'), findsNothing);
+    await tester.tap(find.text('Close'));
+    await tester.pumpAndSettle();
+    expect(find.byType(InfoSheet), findsNothing);
 
 
     for (final word in ['Listener', 'listener', 'Advanced Tor']) {
@@ -183,7 +196,14 @@ void main() {
     );
     expect(find.textContaining('go through Tor'), findsNothing);
     expect(
-      tester.widget<SwitchListTile>(find.byKey(torReceivingSwitchKey)).value,
+      tester
+          .widget<Switch>(
+            find.descendant(
+              of: find.byKey(torReceivingSwitchKey),
+              matching: find.byType(Switch),
+            ),
+          )
+          .value,
       isTrue,
     );
     // The choice is saved for this wallet.

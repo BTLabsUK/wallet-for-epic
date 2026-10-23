@@ -210,9 +210,6 @@ class _OutputsScreenState extends ConsumerState<OutputsScreen> {
       (w) => w == OutputLabel.confirming || w == OutputLabel.finalizing,
     );
     final nLocked = count((w) => w == OutputLabel.locked);
-    final nImmature = count(
-      (w) => w == OutputLabel.immature || w == OutputLabel.mining,
-    );
     final nSpent = count((w) => w == OutputLabel.spent);
     final nAll = list == null ? 0 : list.length - nSpent;
     final locked = summary?.locked ?? BigInt.zero;
@@ -290,11 +287,13 @@ class _OutputsScreenState extends ConsumerState<OutputsScreen> {
                 ),
               ),
               const SizedBox(width: 12),
+              // Total instead of Immature on a phone: nobody mines to one. Immature
+              // outputs stay in the list and in Total.
               Expanded(
                 child: tile(
-                  l.outputsImmature,
-                  summary?.immature,
-                  list == null ? null : nImmature,
+                  l.homeTileTotal,
+                  summary?.total,
+                  list == null ? null : nAll,
                 ),
               ),
             ],

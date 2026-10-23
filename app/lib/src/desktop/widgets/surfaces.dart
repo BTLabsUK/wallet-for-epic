@@ -572,7 +572,7 @@ class ESetGroup extends StatelessWidget {
 /// A settings row: title and one line on the left, the control on the right; [stacked] puts
 /// the control under the text (wide controls such as a combobox).
 class ESetRow extends StatelessWidget {
-  const ESetRow({super.key, this.title, this.text, this.hint, this.control, this.stacked = false, this.below});
+  const ESetRow({super.key, this.title, this.text, this.hint, this.hintTitle, this.hintIcon, this.control, this.stacked = false, this.below});
 
   /// Null when the group's title already names the row: the text is then the row's head.
   final String? title;
@@ -584,6 +584,10 @@ class ESetRow extends StatelessWidget {
   /// The row's explanation, behind an info icon after the title (hover or focus shows it; a
   /// screen reader reads it with the title).
   final String? hint;
+
+  /// With [hintTitle], the hint is a hover card with that title (and [hintIcon]).
+  final String? hintTitle;
+  final IconData? hintIcon;
   final Widget? control;
   final bool stacked;
 
@@ -604,7 +608,7 @@ class ESetRow extends StatelessWidget {
             children: [
               Flexible(child: Text(title!, style: ts.strong)),
               SizedBox(width: Sp.x1),
-              EInfoHint(hint!),
+              EInfoHint(hint!, title: hintTitle, icon: hintIcon),
             ],
           ),
         if (text != null) ...[
@@ -642,9 +646,14 @@ class ESetRow extends StatelessWidget {
 /// The info icon that carries an explanation: a tooltip on hover and on keyboard focus, and
 /// the text itself for a screen reader. Settings rows use it so the main view shows labels only.
 class EInfoHint extends StatefulWidget {
-  const EInfoHint(this.text, {super.key});
+  const EInfoHint(this.text, {super.key, this.title, this.icon});
 
   final String text;
+
+  /// With a title the tooltip is a hover card: [icon] and the title on one line, the text at
+  /// a reading width under it (the Tor Network row). The phone's info sheet has the same shape.
+  final String? title;
+  final IconData? icon;
 
   @override
   State<EInfoHint> createState() => _EInfoHintState();
@@ -656,9 +665,11 @@ class _EInfoHintState extends State<EInfoHint> {
   @override
   Widget build(BuildContext context) {
     final c = context.dc;
+    final title = widget.title;
     return Tooltip(
       key: _tip,
-      message: widget.text,
+      message: title == null ? widget.text : null,
+      richMessage: title == null ? null : WidgetSpan(child: EInfoCard(title: title, text: widget.text, icon: widget.icon)),
       child: Focus(
         onFocusChange: (f) {
           if (f) _tip.currentState?.ensureTooltipVisible();
@@ -675,6 +686,44 @@ class _EInfoHintState extends State<EInfoHint> {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// The hover card of an [EInfoHint] with a title, and of the rail's Tor row: the icon and the
+/// title on one line, the explanation under it at a reading width.
+class EInfoCard extends StatelessWidget {
+  const EInfoCard({super.key, required this.title, required this.text, this.icon, this.footer});
+
+  final String title;
+  final String text;
+  final IconData? icon;
+
+  /// A last line in the accent (the rail's "Open Privacy settings").
+  final Widget? footer;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.dc;
+    final ts = context.ts;
+    return ConstrainedBox(
+      constraints: BoxConstraints(maxWidth: 360.u),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (icon != null) ...[Icon(icon, size: Ctl.iconSm, color: c.accentText), SizedBox(width: Sp.x2)],
+              Flexible(child: Text(title, style: ts.small.copyWith(color: c.text, fontWeight: FontWeight.w600))),
+            ],
+          ),
+          SizedBox(height: Sp.x2),
+          Text(text, style: ts.small.copyWith(color: c.dim, height: 1.45)),
+          if (footer != null) ...[SizedBox(height: Sp.x2), footer!],
+        ],
       ),
     );
   }

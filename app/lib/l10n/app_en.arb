@@ -3703,7 +3703,7 @@
   "@licencesLead": {
     "description": "Licences screen: the first paragraph."
   },
-  "licencesApp": "Epic Cash Mobile by BT Labs, open source. The code is on GitHub.",
+  "licencesApp": "Epic Cash Mobile by BT Labs: Apache-2.0. The code is on GitHub.",
   "@licencesApp": {
     "description": "Licences screen: the wallet itself. Not \"app\" on its own: the web demo shows this screen too."
   },

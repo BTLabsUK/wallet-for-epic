@@ -19,7 +19,7 @@ const websiteUrl = 'https://epiccash.com';
 /// The Licences group, the same words as the phone's Licences screen (lib/l10n, `licences*`).
 const licencesLead = 'Open-source software in this wallet. Each component keeps its own licence; the full texts are one click away.';
 const licenceLines = [
-  'Epic Cash Desktop by BT Labs, open source. The code is on GitHub.',
+  'Epic Cash Desktop by BT Labs: Apache-2.0. The code is on GitHub.',
   'Flutter and its Dart packages: BSD 3-Clause and similar permissive licences.',
   'LEPIC, the Epic Cash wallet library: Apache 2.0, with the Epic Cash secp256k1-zkp fork (CC0) and Rust crates under MIT or Apache 2.0, among them tokio, rustls, rusqlite and blake2.',
   'Tor: GNU General Public License, version 3. Its source is named below.',

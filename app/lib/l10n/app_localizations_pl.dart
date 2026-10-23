@@ -3246,7 +3246,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get licencesApp =>
-      'Epic Cash Mobile od BT Labs, open source. Kod jest na GitHubie.';
+      'Epic Cash Mobile od BT Labs: Apache-2.0. Kod jest na GitHubie.';
 
   @override
   String get licencesFlutter =>

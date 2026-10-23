@@ -3224,7 +3224,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get licencesApp =>
-      'Epic Cash Mobile от BT Labs, открытый код. Код на GitHub.';
+      'Epic Cash Mobile от BT Labs: Apache-2.0. Код на GitHub.';
 
   @override
   String get licencesFlutter =>
