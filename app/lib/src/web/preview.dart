@@ -4,6 +4,11 @@
 /// to the network. No release script sets the define.
 library;
 
+import 'dart:async';
+
+import 'package:flutter_riverpod/misc.dart' show Override;
+
+import '../phone_tor.dart';
 import '../wallet_service.dart';
 
 /// `--dart-define=WFE_WEB_FAKE=true`: the web app runs on [previewWalletService].
@@ -281,4 +286,82 @@ FakeWalletSession _previewSession() {
       )
       .then((request) => session.payIssued(request.slateId));
   return session;
+}
+
+/// The overrides of a `WFE_WEB_FAKE=true` build: Tor as a played-back controller, so the Tor
+/// row of the status card and Receive's Tor tab can be seen without a tor binary.
+List<Override> previewOverrides() => [
+  phoneTorProvider.overrideWith(PreviewPhoneTor.new),
+];
+
+/// Tor for the preview: off until "Tor receiving" is turned on or a send to an onion asks for
+/// it, then "connecting" in steps of 20 % every 400 ms, then ready at a fixed onion. Nothing
+/// runs.
+class PreviewPhoneTor extends PhoneTor {
+  static const String onion =
+      'wfepreviewk3nq7vmh2xq4cbe6ta5s3l7xw2z5pyp6uh2l3xfi3yk4qd.onion';
+
+  Timer? _timer;
+  Completer<void>? _up;
+
+  @override
+  PhoneTorState build() {
+    ref.onDispose(() => _timer?.cancel());
+    return const PhoneTorState(phase: PhoneTorPhase.off, onion: onion);
+  }
+
+  void _start() {
+    if (state.phase == PhoneTorPhase.ready ||
+        state.phase == PhoneTorPhase.starting) {
+      return;
+    }
+    _up ??= Completer<void>();
+    var progress = 0;
+    state = state.copyWith(phase: PhoneTorPhase.starting, progress: () => 0);
+    _timer?.cancel();
+    _timer = Timer.periodic(const Duration(milliseconds: 400), (timer) {
+      progress += 20;
+      if (progress < 100) {
+        state = state.copyWith(
+          phase: PhoneTorPhase.starting,
+          progress: () => progress,
+        );
+        return;
+      }
+      timer.cancel();
+      state = state.copyWith(phase: PhoneTorPhase.ready, progress: () => null);
+      _up?.complete();
+      _up = null;
+    });
+  }
+
+  @override
+  Future<void> setReceiving(bool on) async {
+    state = state.copyWith(receiving: on);
+    if (on) {
+      _start();
+    } else {
+      _timer?.cancel();
+      state = state.copyWith(phase: PhoneTorPhase.off, progress: () => null);
+    }
+  }
+
+  @override
+  Future<void> ensureForSend() async {
+    if (state.phase == PhoneTorPhase.ready) return;
+    _start();
+    await _up?.future;
+  }
+
+  @override
+  Future<T> whileSending<T>(Future<T> Function() send) async {
+    await ensureForSend();
+    return send();
+  }
+
+  @override
+  Future<void> retry() async {
+    state = state.copyWith(phase: PhoneTorPhase.off, progress: () => null);
+    _start();
+  }
 }
