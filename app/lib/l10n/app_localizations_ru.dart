@@ -4353,4 +4353,146 @@ class AppLocalizationsRu extends AppLocalizations {
   String homePendingShort(String amount) {
     return '$amount EPIC остаются заблокированными, пока кошелёк получателя не ответит.';
   }
+
+  @override
+  String get contactsSearchHint => 'Имя или адрес';
+
+  @override
+  String get contactsEmptyTitle => 'Контактов пока нет';
+
+  @override
+  String get contactsEmptyCaption => 'Контакт — это имя для адреса.';
+
+  @override
+  String contactsNoMatchQuery(String query) {
+    return 'Нет контактов по запросу «$query»';
+  }
+
+  @override
+  String get contactsSendAction => 'Отправить';
+
+  @override
+  String get contactsEditAction => 'Изменить';
+
+  @override
+  String get contactsAddressHeading => 'Адрес';
+
+  @override
+  String get contactsNoteHeading => 'Заметка';
+
+  @override
+  String get contactsShowCode => 'Показать код';
+
+  @override
+  String get contactsHideCode => 'Скрыть код';
+
+  @override
+  String contactsQrLabel(String name) {
+    return 'QR-код адреса: $name';
+  }
+
+  @override
+  String get contactsDeleteConfirmBody =>
+      'После этого платежи на этот адрес показывают адрес вместо имени.';
+
+  @override
+  String contactsDeleted(String name) {
+    return '$name: удалено.';
+  }
+
+  @override
+  String get contactsCopied => 'Адрес скопирован.';
+
+  @override
+  String get invoicesNewRequest => 'Новый запрос';
+
+  @override
+  String get invoicesSegmentSent => 'Отправленные';
+
+  @override
+  String invoicesSegmentCount(String label, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count записи',
+      many: '$count записей',
+      few: '$count записи',
+      one: '$count запись',
+      zero: 'нет',
+    );
+    return '$label, $_temp0';
+  }
+
+  @override
+  String get invoicesToPayEmpty => 'Нет счетов к оплате';
+
+  @override
+  String get invoicesToPayEmptyCaption =>
+      'Сервисы из вашего доверенного списка могут выставлять счета этому кошельку. Каждый счёт ждёт здесь вашего одобрения.';
+
+  @override
+  String get invoicesSentEmpty => 'Запросов не отправлено';
+
+  @override
+  String get invoicesSentEmptyCaption =>
+      'Запрос просит кого-то заплатить вам сумму.';
+
+  @override
+  String get invoicesWaitingPayment => 'Ожидает оплаты';
+
+  @override
+  String get invoicesExpires => 'Истекает';
+
+  @override
+  String invoicesUntil(String time) {
+    return 'до $time';
+  }
+
+  @override
+  String get invoicesMessage => 'Сообщение';
+
+  @override
+  String get invoicesFrom => 'От';
+
+  @override
+  String get invoicesPaysFrom => 'Оплата из';
+
+  @override
+  String invoicesAvailable(String amount) {
+    return 'Доступно $amount';
+  }
+
+  @override
+  String invoicesShort(String amount) {
+    return 'Недостаточно для оплаты. Не хватает $amount.';
+  }
+
+  @override
+  String get invoicesCheckNode => 'Узел';
+
+  @override
+  String get invoicesCheckEpicbox => 'Epicbox';
+
+  @override
+  String get invoicesNodeOk => 'Отвечает';
+
+  @override
+  String get invoicesNodeDown => 'Не отвечает';
+
+  @override
+  String get invoicesEpicboxOk => 'Подключено';
+
+  @override
+  String get invoicesEpicboxDown => 'Не подключено';
+
+  @override
+  String get invoicesSendRequest => 'Отправить запрос';
+
+  @override
+  String invoicesRequestSummary(String payer, String amount) {
+    return '$payer получит запрос на оплату $amount. Запрос истекает через 24 ч.';
+  }
+
+  @override
+  String get invoicesRequestHowTitle => 'Перед запросом';
 }

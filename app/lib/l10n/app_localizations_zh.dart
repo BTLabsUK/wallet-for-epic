@@ -3958,4 +3958,140 @@ class AppLocalizationsZh extends AppLocalizations {
   String homePendingShort(String amount) {
     return '$amount EPIC 将保持锁定，直到收款方钱包响应。';
   }
+
+  @override
+  String get contactsSearchHint => '名称或地址';
+
+  @override
+  String get contactsEmptyTitle => '还没有联系人';
+
+  @override
+  String get contactsEmptyCaption => '联系人就是一个地址的名称。';
+
+  @override
+  String contactsNoMatchQuery(String query) {
+    return '没有与“$query”匹配的联系人';
+  }
+
+  @override
+  String get contactsSendAction => '发送';
+
+  @override
+  String get contactsEditAction => '编辑';
+
+  @override
+  String get contactsAddressHeading => '地址';
+
+  @override
+  String get contactsNoteHeading => '备注';
+
+  @override
+  String get contactsShowCode => '显示二维码';
+
+  @override
+  String get contactsHideCode => '隐藏二维码';
+
+  @override
+  String contactsQrLabel(String name) {
+    return '$name 的地址二维码';
+  }
+
+  @override
+  String get contactsDeleteConfirmBody => '此后，发往该地址的付款将显示地址而不是名称。';
+
+  @override
+  String contactsDeleted(String name) {
+    return '已删除 $name。';
+  }
+
+  @override
+  String get contactsCopied => '地址已复制。';
+
+  @override
+  String get invoicesNewRequest => '新建请求';
+
+  @override
+  String get invoicesSegmentSent => '已发送';
+
+  @override
+  String invoicesSegmentCount(String label, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count 项',
+      zero: '无',
+    );
+    return '$label，$_temp0';
+  }
+
+  @override
+  String get invoicesToPayEmpty => '没有待付发票';
+
+  @override
+  String get invoicesToPayEmptyCaption => '你信任列表中的服务可以向此钱包开具发票。每张发票都在这里等待你批准。';
+
+  @override
+  String get invoicesSentEmpty => '没有已发送的请求';
+
+  @override
+  String get invoicesSentEmptyCaption => '请求是请某人向你支付一笔金额。';
+
+  @override
+  String get invoicesWaitingPayment => '等待付款';
+
+  @override
+  String get invoicesExpires => '到期';
+
+  @override
+  String invoicesUntil(String time) {
+    return '截至 $time';
+  }
+
+  @override
+  String get invoicesMessage => '消息';
+
+  @override
+  String get invoicesFrom => '来自';
+
+  @override
+  String get invoicesPaysFrom => '付款来源';
+
+  @override
+  String invoicesAvailable(String amount) {
+    return '可用 $amount';
+  }
+
+  @override
+  String invoicesShort(String amount) {
+    return '余额不足，差 $amount。';
+  }
+
+  @override
+  String get invoicesCheckNode => '节点';
+
+  @override
+  String get invoicesCheckEpicbox => 'Epicbox';
+
+  @override
+  String get invoicesNodeOk => '正常响应';
+
+  @override
+  String get invoicesNodeDown => '无响应';
+
+  @override
+  String get invoicesEpicboxOk => '已连接';
+
+  @override
+  String get invoicesEpicboxDown => '未连接';
+
+  @override
+  String get invoicesSendRequest => '发送请求';
+
+  @override
+  String invoicesRequestSummary(String payer, String amount) {
+    return '将请求 $payer 支付 $amount。请求在 24 小时后到期。';
+  }
+
+  @override
+  String get invoicesRequestHowTitle => '请求之前';
 }

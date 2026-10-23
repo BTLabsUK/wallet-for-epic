@@ -6432,6 +6432,234 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{amount} EPIC stays locked until the recipient\'s wallet answers.'**
   String homePendingShort(String amount);
+
+  /// Contacts: the search field's hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Name or address'**
+  String get contactsSearchHint;
+
+  /// Contacts: the empty list's heading.
+  ///
+  /// In en, this message translates to:
+  /// **'No contacts yet'**
+  String get contactsEmptyTitle;
+
+  /// Contacts: one line under the empty list's heading.
+  ///
+  /// In en, this message translates to:
+  /// **'A contact is a name for an address.'**
+  String get contactsEmptyCaption;
+
+  /// Contacts: no contact matches the search text.
+  ///
+  /// In en, this message translates to:
+  /// **'No contact matches \"{query}\"'**
+  String contactsNoMatchQuery(String query);
+
+  /// Contact sheet: opens Send with this contact as the recipient.
+  ///
+  /// In en, this message translates to:
+  /// **'Send'**
+  String get contactsSendAction;
+
+  /// Contact sheet: opens the contact's edit screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get contactsEditAction;
+
+  /// Contact sheet: label over the full address.
+  ///
+  /// In en, this message translates to:
+  /// **'Address'**
+  String get contactsAddressHeading;
+
+  /// Contact sheet: label over the contact's note.
+  ///
+  /// In en, this message translates to:
+  /// **'Note'**
+  String get contactsNoteHeading;
+
+  /// Contact sheet: shows the address as a QR code.
+  ///
+  /// In en, this message translates to:
+  /// **'Show code'**
+  String get contactsShowCode;
+
+  /// Contact sheet: hides the QR code again.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide code'**
+  String get contactsHideCode;
+
+  /// Contact sheet: screen reader label of the QR code.
+  ///
+  /// In en, this message translates to:
+  /// **'QR code of {name}\'s address'**
+  String contactsQrLabel(String name);
+
+  /// Contact delete confirm: what changes after deleting.
+  ///
+  /// In en, this message translates to:
+  /// **'Payments to this address show the address instead of the name after this.'**
+  String get contactsDeleteConfirmBody;
+
+  /// Notice after a contact was deleted.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} deleted.'**
+  String contactsDeleted(String name);
+
+  /// Notice after the contact's address was copied.
+  ///
+  /// In en, this message translates to:
+  /// **'Address copied.'**
+  String get contactsCopied;
+
+  /// Invoices: app bar action that opens the request form.
+  ///
+  /// In en, this message translates to:
+  /// **'New request'**
+  String get invoicesNewRequest;
+
+  /// Invoices: segment with the requests this wallet sent.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent'**
+  String get invoicesSegmentSent;
+
+  /// Invoices: screen reader text of a segment with its count.
+  ///
+  /// In en, this message translates to:
+  /// **'{label}, {count, plural, =0{none} =1{1 item} other{{count} items}}'**
+  String invoicesSegmentCount(String label, int count);
+
+  /// Invoices: empty To pay segment, heading.
+  ///
+  /// In en, this message translates to:
+  /// **'No invoices to pay'**
+  String get invoicesToPayEmpty;
+
+  /// Invoices: empty To pay segment, caption.
+  ///
+  /// In en, this message translates to:
+  /// **'Services on your trusted list can bill this wallet. Each invoice waits here for your approval.'**
+  String get invoicesToPayEmptyCaption;
+
+  /// Invoices: empty Sent segment, heading.
+  ///
+  /// In en, this message translates to:
+  /// **'No requests sent'**
+  String get invoicesSentEmpty;
+
+  /// Invoices: empty Sent segment, caption.
+  ///
+  /// In en, this message translates to:
+  /// **'A request asks someone to pay you an amount.'**
+  String get invoicesSentEmptyCaption;
+
+  /// Invoices, Sent row: a request still waiting, before its time left.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for payment'**
+  String get invoicesWaitingPayment;
+
+  /// Invoice review: label of the expiry row.
+  ///
+  /// In en, this message translates to:
+  /// **'Expires'**
+  String get invoicesExpires;
+
+  /// Invoice review: the clock time an invoice expires.
+  ///
+  /// In en, this message translates to:
+  /// **'until {time}'**
+  String invoicesUntil(String time);
+
+  /// Invoice review: label of the service's message.
+  ///
+  /// In en, this message translates to:
+  /// **'Message'**
+  String get invoicesMessage;
+
+  /// Invoice review: label of the service's full address.
+  ///
+  /// In en, this message translates to:
+  /// **'From'**
+  String get invoicesFrom;
+
+  /// Invoice review: label of the balance the payment comes from.
+  ///
+  /// In en, this message translates to:
+  /// **'Pays from'**
+  String get invoicesPaysFrom;
+
+  /// Invoice review: the spendable balance.
+  ///
+  /// In en, this message translates to:
+  /// **'Available to spend {amount}'**
+  String invoicesAvailable(String amount);
+
+  /// Invoice review: the invoice is more than the spendable balance.
+  ///
+  /// In en, this message translates to:
+  /// **'Not enough to pay. {amount} short.'**
+  String invoicesShort(String amount);
+
+  /// Invoice review: the node check's label.
+  ///
+  /// In en, this message translates to:
+  /// **'Node'**
+  String get invoicesCheckNode;
+
+  /// Invoice review: the epicbox check's label.
+  ///
+  /// In en, this message translates to:
+  /// **'Epicbox'**
+  String get invoicesCheckEpicbox;
+
+  /// Invoice review: the node answered.
+  ///
+  /// In en, this message translates to:
+  /// **'Responding'**
+  String get invoicesNodeOk;
+
+  /// Invoice review: the node did not answer.
+  ///
+  /// In en, this message translates to:
+  /// **'Not responding'**
+  String get invoicesNodeDown;
+
+  /// Invoice review: the epicbox listener is connected.
+  ///
+  /// In en, this message translates to:
+  /// **'Connected'**
+  String get invoicesEpicboxOk;
+
+  /// Invoice review: the epicbox listener is not connected.
+  ///
+  /// In en, this message translates to:
+  /// **'Not connected'**
+  String get invoicesEpicboxDown;
+
+  /// Request form: the button that sends the request.
+  ///
+  /// In en, this message translates to:
+  /// **'Send request'**
+  String get invoicesSendRequest;
+
+  /// Request form: summary above Send request.
+  ///
+  /// In en, this message translates to:
+  /// **'{payer} is asked to pay {amount}. The request expires in 24 h.'**
+  String invoicesRequestSummary(String payer, String amount);
+
+  /// Request form: heading of what the payer must do first.
+  ///
+  /// In en, this message translates to:
+  /// **'Before you request'**
+  String get invoicesRequestHowTitle;
 }
 
 class _AppLocalizationsDelegate

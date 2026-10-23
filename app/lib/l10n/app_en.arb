@@ -5190,5 +5190,203 @@
         "example": "12.5"
       }
     }
+  },
+  "contactsSearchHint": "Name or address",
+  "@contactsSearchHint": {
+    "description": "Contacts: the search field's hint."
+  },
+  "contactsEmptyTitle": "No contacts yet",
+  "@contactsEmptyTitle": {
+    "description": "Contacts: the empty list's heading."
+  },
+  "contactsEmptyCaption": "A contact is a name for an address.",
+  "@contactsEmptyCaption": {
+    "description": "Contacts: one line under the empty list's heading."
+  },
+  "contactsNoMatchQuery": "No contact matches \"{query}\"",
+  "@contactsNoMatchQuery": {
+    "description": "Contacts: no contact matches the search text.",
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "contactsSendAction": "Send",
+  "@contactsSendAction": {
+    "description": "Contact sheet: opens Send with this contact as the recipient."
+  },
+  "contactsEditAction": "Edit",
+  "@contactsEditAction": {
+    "description": "Contact sheet: opens the contact's edit screen."
+  },
+  "contactsAddressHeading": "Address",
+  "@contactsAddressHeading": {
+    "description": "Contact sheet: label over the full address."
+  },
+  "contactsNoteHeading": "Note",
+  "@contactsNoteHeading": {
+    "description": "Contact sheet: label over the contact's note."
+  },
+  "contactsShowCode": "Show code",
+  "@contactsShowCode": {
+    "description": "Contact sheet: shows the address as a QR code."
+  },
+  "contactsHideCode": "Hide code",
+  "@contactsHideCode": {
+    "description": "Contact sheet: hides the QR code again."
+  },
+  "contactsQrLabel": "QR code of {name}'s address",
+  "@contactsQrLabel": {
+    "description": "Contact sheet: screen reader label of the QR code.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "contactsDeleteConfirmBody": "Payments to this address show the address instead of the name after this.",
+  "@contactsDeleteConfirmBody": {
+    "description": "Contact delete confirm: what changes after deleting."
+  },
+  "contactsDeleted": "{name} deleted.",
+  "@contactsDeleted": {
+    "description": "Notice after a contact was deleted.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "contactsCopied": "Address copied.",
+  "@contactsCopied": {
+    "description": "Notice after the contact's address was copied."
+  },
+  "invoicesNewRequest": "New request",
+  "@invoicesNewRequest": {
+    "description": "Invoices: app bar action that opens the request form."
+  },
+  "invoicesSegmentSent": "Sent",
+  "@invoicesSegmentSent": {
+    "description": "Invoices: segment with the requests this wallet sent."
+  },
+  "invoicesSegmentCount": "{label}, {count, plural, =0{none} =1{1 item} other{{count} items}}",
+  "@invoicesSegmentCount": {
+    "description": "Invoices: screen reader text of a segment with its count.",
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "invoicesToPayEmpty": "No invoices to pay",
+  "@invoicesToPayEmpty": {
+    "description": "Invoices: empty To pay segment, heading."
+  },
+  "invoicesToPayEmptyCaption": "Services on your trusted list can bill this wallet. Each invoice waits here for your approval.",
+  "@invoicesToPayEmptyCaption": {
+    "description": "Invoices: empty To pay segment, caption."
+  },
+  "invoicesSentEmpty": "No requests sent",
+  "@invoicesSentEmpty": {
+    "description": "Invoices: empty Sent segment, heading."
+  },
+  "invoicesSentEmptyCaption": "A request asks someone to pay you an amount.",
+  "@invoicesSentEmptyCaption": {
+    "description": "Invoices: empty Sent segment, caption."
+  },
+  "invoicesWaitingPayment": "Waiting for payment",
+  "@invoicesWaitingPayment": {
+    "description": "Invoices, Sent row: a request still waiting, before its time left."
+  },
+  "invoicesExpires": "Expires",
+  "@invoicesExpires": {
+    "description": "Invoice review: label of the expiry row."
+  },
+  "invoicesUntil": "until {time}",
+  "@invoicesUntil": {
+    "description": "Invoice review: the clock time an invoice expires.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "invoicesMessage": "Message",
+  "@invoicesMessage": {
+    "description": "Invoice review: label of the service's message."
+  },
+  "invoicesFrom": "From",
+  "@invoicesFrom": {
+    "description": "Invoice review: label of the service's full address."
+  },
+  "invoicesPaysFrom": "Pays from",
+  "@invoicesPaysFrom": {
+    "description": "Invoice review: label of the balance the payment comes from."
+  },
+  "invoicesAvailable": "Available to spend {amount}",
+  "@invoicesAvailable": {
+    "description": "Invoice review: the spendable balance.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "invoicesShort": "Not enough to pay. {amount} short.",
+  "@invoicesShort": {
+    "description": "Invoice review: the invoice is more than the spendable balance.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "invoicesCheckNode": "Node",
+  "@invoicesCheckNode": {
+    "description": "Invoice review: the node check's label."
+  },
+  "invoicesCheckEpicbox": "Epicbox",
+  "@invoicesCheckEpicbox": {
+    "description": "Invoice review: the epicbox check's label."
+  },
+  "invoicesNodeOk": "Responding",
+  "@invoicesNodeOk": {
+    "description": "Invoice review: the node answered."
+  },
+  "invoicesNodeDown": "Not responding",
+  "@invoicesNodeDown": {
+    "description": "Invoice review: the node did not answer."
+  },
+  "invoicesEpicboxOk": "Connected",
+  "@invoicesEpicboxOk": {
+    "description": "Invoice review: the epicbox listener is connected."
+  },
+  "invoicesEpicboxDown": "Not connected",
+  "@invoicesEpicboxDown": {
+    "description": "Invoice review: the epicbox listener is not connected."
+  },
+  "invoicesSendRequest": "Send request",
+  "@invoicesSendRequest": {
+    "description": "Request form: the button that sends the request."
+  },
+  "invoicesRequestSummary": "{payer} is asked to pay {amount}. The request expires in 24 h.",
+  "@invoicesRequestSummary": {
+    "description": "Request form: summary above Send request.",
+    "placeholders": {
+      "payer": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "invoicesRequestHowTitle": "Before you request",
+  "@invoicesRequestHowTitle": {
+    "description": "Request form: heading of what the payer must do first."
   }
 }

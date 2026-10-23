@@ -16,6 +16,7 @@ import 'package:epic_wallet/src/settings.dart';
 import 'package:epic_wallet/src/slate_files.dart';
 import 'package:epic_wallet/src/ui/centered_body.dart';
 import 'package:epic_wallet/src/ui/common.dart';
+import 'package:epic_wallet/src/ui/contact_sheet.dart';
 import 'package:epic_wallet/src/ui/contacts_screen.dart';
 import 'package:epic_wallet/src/ui/help_screen.dart';
 import 'package:epic_wallet/src/ui/receive_screen.dart';
@@ -1488,7 +1489,7 @@ void main() {
       await h.pump(tester, const ContactsScreen());
       expect(find.textContaining('No contacts yet'), findsOneWidget);
       // Nothing to search yet: the empty state sits in the middle, without a search field.
-      expect(find.widgetWithText(TextField, 'Search contacts'), findsNothing);
+      expect(find.widgetWithText(TextField, 'Name or address'), findsNothing);
       expect(find.byType(CenteredBody), findsOneWidget);
 
       await _tap(tester, find.text('Add contact'));
@@ -1505,7 +1506,8 @@ void main() {
       await _tap(tester, find.text('Save contact'));
       expect(find.text('Bob'), findsOneWidget);
 
-      await _tap(tester, find.text('Add contact'));
+      // With contacts, Add is the app bar's icon.
+      await _tap(tester, find.byTooltip('Add contact'));
       await _enter(tester, 'Name', 'Carol');
       await _enter(tester, 'Epicbox address', _bob);
       expect(
@@ -1517,12 +1519,14 @@ void main() {
       await _tap(tester, find.text('Save contact'));
       expect(find.text('Carol'), findsOneWidget);
 
-      await _enter(tester, 'Search contacts', 'car');
+      await _enter(tester, 'Name or address', 'car');
       expect(find.text('Carol'), findsOneWidget);
       expect(find.text('Bob'), findsNothing);
-      await _enter(tester, 'Search contacts', '');
+      await _enter(tester, 'Name or address', '');
 
+      // A tap opens the contact's sheet; Edit opens the form.
       await _tap(tester, find.text('Bob'));
+      await _tap(tester, find.byKey(contactSheetEditKey));
       expect(find.text('Edit contact'), findsOneWidget);
       await _enter(tester, 'Name', 'Robert');
       await _tap(tester, find.text('Save contact'));
@@ -1530,9 +1534,15 @@ void main() {
       expect(find.text('Bob'), findsNothing);
 
       await _tap(tester, find.text('Robert'));
-      await _tap(tester, find.byTooltip('Delete contact'));
+      await _tap(tester, find.byKey(contactSheetDeleteKey));
       expect(find.text('Delete Robert?'), findsOneWidget);
-      await _tap(tester, find.text('Delete'));
+      await _tap(
+        tester,
+        find.descendant(
+          of: find.byType(AlertDialog),
+          matching: find.text('Delete'),
+        ),
+      );
       expect(find.text('Robert'), findsNothing);
       expect(h.session.contactsValue.single.name, 'Carol');
     });

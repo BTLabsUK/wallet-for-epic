@@ -189,7 +189,7 @@ class _Harness {
       await tester.enterText(find.byKey(requestMessageKey), message);
     }
     await tester.pump();
-    await tester.tap(find.text(_l.requestButton));
+    await tester.tap(find.text(_l.invoicesSendRequest));
     await tester.pumpAndSettle();
   }
 }
@@ -203,6 +203,9 @@ NoticeLevel? _noticeLevel(WidgetTester tester) =>
     ProviderScope.containerOf(tester.element(find.byType(Navigator).first))
         .read(noticeProvider)
         ?.level;
+
+/// Text inside a row's rich line.
+Finder _rich(String text) => find.textContaining(text, findRichText: true);
 
 void main() {
   group('Receive card', () {
@@ -253,7 +256,7 @@ void main() {
     ) async {
       final h = _Harness();
       await h.pump(tester, const InvoiceRequestScreen());
-      await tester.tap(find.text(_l.requestButton));
+      await tester.tap(find.text(_l.invoicesSendRequest));
       await tester.pumpAndSettle();
       expect(find.text(_l.requestPayerMissing), findsOneWidget);
       expect(find.text(_l.sendAmountZero), findsOneWidget);
@@ -338,12 +341,39 @@ void main() {
       expect(_notice(tester), _l.requestSentNotice(shortAddress(_payer)));
       expect(_noticeLevel(tester), NoticeLevel.success);
       expect(find.text(_l.invoicesTitle), findsOneWidget);
-      expect(find.text(_l.invoicesSentSection), findsOneWidget);
+      // Opened on Sent, where the new request is.
+      final segments = tester.widget<SegmentedButton<InvoicesSegment>>(
+        find.byKey(invoicesSegmentsKey),
+      );
+      expect(segments.selected, {InvoicesSegment.sent});
       expect(find.text(epicText(_l, _epic(2.5))), findsOneWidget);
-      expect(find.text(_l.invoiceTimeLeftHours(24, 0)), findsOneWidget);
+      expect(_rich(_l.invoiceTimeLeftHours(24, 0)), findsOneWidget);
       // Nothing leaves the wallet, so no PIN.
       expect(find.text(_l.invoicePinReason), findsNothing);
       expect(h.session.invoicePayments, 0);
+    });
+
+    testWidgets('sums up the request above Send request once it is complete', (
+      tester,
+    ) async {
+      final h = _Harness();
+      await h.pump(tester, const InvoiceRequestScreen());
+      expect(find.byKey(requestSummaryKey), findsNothing);
+      await tester.enterText(find.byKey(requestPayerKey), _payer);
+      await tester.enterText(find.byKey(requestAmountKey), '2.5');
+      await tester.pump();
+      expect(
+        find.text(
+          _l.invoicesRequestSummary(
+            shortAddress(_payer),
+            epicExact(_l, _epic(2.5)),
+          ),
+        ),
+        findsOneWidget,
+      );
+      await tester.enterText(find.byKey(requestPayerKey), 'nonsense');
+      await tester.pump();
+      expect(find.byKey(requestSummaryKey), findsNothing);
     });
 
     testWidgets('names a contact as the payer', (tester) async {
@@ -387,13 +417,23 @@ void main() {
       await h.session.withdrawInvoice(slateId: withdrawn.slateId);
       await h.session.expireIssued(expired.slateId);
       await h.pump(tester, const InvoicesScreen(), tall: true);
-      expect(find.text(_l.invoicesToPaySection), findsOneWidget);
-      expect(find.text(_l.invoicesNoneToPay), findsOneWidget);
-      expect(find.text(_l.invoicesEmpty), findsNothing);
-      expect(find.text(_l.invoicesSentSection), findsOneWidget);
+      // Nothing to pay, so it opens on Sent, with the counts on the segments.
+      expect(
+        find.bySemanticsLabel(
+          _l.invoicesSegmentCount(_l.invoicesToPaySection, 0),
+        ),
+        findsOneWidget,
+      );
+      expect(
+        find.bySemanticsLabel(
+          _l.invoicesSegmentCount(_l.invoicesSegmentSent, 5),
+        ),
+        findsOneWidget,
+      );
+      expect(find.text(_l.invoicesSentEmpty), findsNothing);
       expect(find.text(shortAddress(_payer)), findsNWidgets(5));
       for (final (amount, state) in [
-        (1, _l.invoiceTimeLeftHours(24, 0)),
+        (1, '${_l.invoicesWaitingPayment} · ${_l.invoiceTimeLeftHours(24, 0)}'),
         (2, _l.issuedPaid),
         (3, _l.issuedDeclined),
         (4, _l.issuedWithdrawn),
@@ -401,10 +441,10 @@ void main() {
       ]) {
         final tile = find.ancestor(
           of: find.text(epicText(_l, _epic(amount))),
-          matching: find.byType(Card),
+          matching: find.byType(InkWell),
         );
         expect(
-          find.descendant(of: tile, matching: find.text(state)),
+          find.descendant(of: tile, matching: _rich(state)),
           findsOneWidget,
           reason: '$amount EPIC',
         );
@@ -418,10 +458,10 @@ void main() {
       final h = _Harness();
       await h.issue();
       await h.pump(tester, const InvoicesScreen());
-      expect(find.text(_l.invoiceTimeLeftHours(24, 0)), findsOneWidget);
+      expect(_rich(_l.invoiceTimeLeftHours(24, 0)), findsOneWidget);
       h.now = h.now.add(const Duration(hours: 23, minutes: 30));
       await tester.pump(const Duration(seconds: 30));
-      expect(find.text(_l.invoiceTimeLeftMinutes(30)), findsOneWidget);
+      expect(_rich(_l.invoiceTimeLeftMinutes(30)), findsOneWidget);
     });
 
     testWidgets('withdraw asks first, then withdraws', (tester) async {
@@ -445,7 +485,7 @@ void main() {
       await tester.tap(find.widgetWithText(FilledButton, _l.issuedWithdraw));
       await tester.pumpAndSettle();
       expect(h.session.cancelledTxIds, [request.txId]);
-      expect(find.text(_l.issuedWithdrawn), findsOneWidget);
+      expect(_rich(_l.issuedWithdrawn), findsOneWidget);
       expect(find.text(_l.issuedWithdraw), findsNothing);
       expect(_notice(tester), _l.issuerNoticeWithdrawn);
       expect(_noticeLevel(tester), NoticeLevel.warning);
