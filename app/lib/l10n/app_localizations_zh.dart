@@ -3122,7 +3122,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get settingsAdvancedOptions => '高级选项';
 
   @override
-  String get settingsAdvancedOptionsSubtitle => '网络、节点、epicbox 服务器、文件和日志';
+  String get settingsAdvancedOptionsSubtitle => '技术细节、文件和日志';
 
   @override
   String get settingsSectionPrivacy => '隐私';

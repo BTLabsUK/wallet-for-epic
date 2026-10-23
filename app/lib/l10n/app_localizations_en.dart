@@ -3320,7 +3320,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsAdvancedOptionsSubtitle =>
-      'Network, node, epicbox server, files and logs';
+      'Technical details, files and logs';
 
   @override
   String get settingsSectionPrivacy => 'Privacy';

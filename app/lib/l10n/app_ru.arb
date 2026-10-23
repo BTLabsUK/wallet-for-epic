@@ -807,7 +807,7 @@
   "feedbackServerUnreachable": "Не удалось связаться с сервером отзывов.",
   "feedbackPreviewTitle": "Что будет отправлено",
   "settingsAdvancedOptions": "Расширенные настройки",
-  "settingsAdvancedOptionsSubtitle": "Сеть, узел, сервер epicbox, файлы и журналы",
+  "settingsAdvancedOptionsSubtitle": "Технические детали, файлы и журналы",
   "settingsSectionPrivacy": "Конфиденциальность",
   "settingsUseStatusSite": "Использовать status.btlabs.uk",
   "settingsUseStatusSiteSubtitle": "Состояние серверов и списки узлов. Выкл.: запросы только к самим серверам.",

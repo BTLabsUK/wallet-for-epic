@@ -3460,7 +3460,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get settingsAdvancedOptionsSubtitle =>
-      'Сеть, узел, сервер epicbox, файлы и журналы';
+      'Технические детали, файлы и журналы';
 
   @override
   String get settingsSectionPrivacy => 'Конфиденциальность';

@@ -807,7 +807,7 @@
   "feedbackServerUnreachable": "Nie można połączyć się z serwerem opinii.",
   "feedbackPreviewTitle": "Co zostanie wysłane",
   "settingsAdvancedOptions": "Opcje zaawansowane",
-  "settingsAdvancedOptionsSubtitle": "Sieć, węzeł, serwer epicbox, pliki i dzienniki",
+  "settingsAdvancedOptionsSubtitle": "Szczegóły techniczne, pliki i dzienniki",
   "settingsSectionPrivacy": "Prywatność",
   "settingsUseStatusSite": "Używaj status.btlabs.uk",
   "settingsUseStatusSiteSubtitle": "Stan serwerów i listy węzłów. Wyłączone: pytane są tylko same serwery.",

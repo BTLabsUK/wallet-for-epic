@@ -3964,7 +3964,7 @@
   "@settingsAdvancedOptions": {
     "description": "Settings switch that shows the technical controls (network, node, epicbox server, transaction files, logs) across the app. Off by default."
   },
-  "settingsAdvancedOptionsSubtitle": "Network, node, epicbox server, files and logs",
+  "settingsAdvancedOptionsSubtitle": "Technical details, files and logs",
   "@settingsAdvancedOptionsSubtitle": {
     "description": "Under the Advanced options switch: what it shows. epicbox is a proper name."
   },

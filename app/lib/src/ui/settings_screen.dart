@@ -384,7 +384,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     padding: const EdgeInsets.all(16),
                     child: ErrorText(describeError(l, scan.error!)),
                   ),
-                if (advanced && !demo) ...[
+                // The connection is not a technical detail: the node and the Epicbox server
+                // are visible to everyone (the status card on Home opens the same pickers).
+                if (!demo) ...[
                   _Header(l.settingsSectionNetwork),
                   ListTile(
                     leading: const Icon(Icons.settings_ethernet),

@@ -3480,7 +3480,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get settingsAdvancedOptionsSubtitle =>
-      'Sieć, węzeł, serwer epicbox, pliki i dzienniki';
+      'Szczegóły techniczne, pliki i dzienniki';
 
   @override
   String get settingsSectionPrivacy => 'Prywatność';

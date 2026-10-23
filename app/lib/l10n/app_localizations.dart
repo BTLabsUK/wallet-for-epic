@@ -4985,7 +4985,7 @@ abstract class AppLocalizations {
   /// Under the Advanced options switch: what it shows. epicbox is a proper name.
   ///
   /// In en, this message translates to:
-  /// **'Network, node, epicbox server, files and logs'**
+  /// **'Technical details, files and logs'**
   String get settingsAdvancedOptionsSubtitle;
 
   /// Settings section header above the status.btlabs.uk switch.
