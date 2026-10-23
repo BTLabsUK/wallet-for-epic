@@ -517,22 +517,12 @@ final listenerProvider = NotifierProvider<ListenerNotifier, ListenerState>(
 /// it starts a new one anyway.
 const Duration listenerStopWait = Duration(seconds: 5);
 
-/// How long the listener may be down before the status says Offline; until then it says
-/// Connecting. LEPIC reports every dropped or failed connection at once and retries after
-/// 0.5–1 s, 1–2 s, then 2–4 s (its `Backoff`): the first three retries are over within 7 s,
-/// and 12 s leaves a mobile network or a tor circuit time for the handshake on top. A relay
-/// that is really gone still reads Offline after 12 s.
-const Duration listenerOfflineGrace = Duration(seconds: 12);
-
 class ListenerNotifier extends Notifier<ListenerState> {
   StreamSubscription<ListenerEvent>? _events;
 
   /// Completes when the current listener's stream reports `stopped` or ends.
   Completer<void>? _ended;
   bool _restarting = false;
-
-  /// Runs while the listener is down within [listenerOfflineGrace]; when it fires, Offline.
-  Timer? _grace;
 
   /// The connection dropped, or the network went, since the listener was last connected:
   /// LEPIC may be sleeping out its backoff, so a resume or a returning network restarts it.
@@ -545,7 +535,6 @@ class ListenerNotifier extends Notifier<ListenerState> {
     final session = ref.watch(sessionProvider);
     ref.onDispose(() {
       _events?.cancel();
-      _settled();
       _down = false;
     });
     if (session == null) return const ListenerState();
@@ -575,23 +564,6 @@ class ListenerNotifier extends Notifier<ListenerState> {
     await restart();
   }
 
-  /// The listener lost its connection: Connecting for [listenerOfflineGrace], then Offline
-  /// unless it reconnected meanwhile. Further failed attempts do not extend the grace.
-  void _dropped(String status) {
-    _down = true;
-    state = ListenerState(status: status, last: state.last);
-    _grace ??= Timer(listenerOfflineGrace, () {
-      _grace = null;
-      if (!ref.mounted) return;
-      state = ListenerState(lost: true, status: state.status, last: state.last);
-    });
-  }
-
-  /// The listener connected, stopped or failed for good: no grace runs.
-  void _settled() {
-    _grace?.cancel();
-    _grace = null;
-  }
 
   void _listen(WalletSession session) {
     final ended = _ended = Completer<void>();
@@ -602,6 +574,7 @@ class ListenerNotifier extends Notifier<ListenerState> {
     // An error already said Offline; the stream's end after it changes nothing.
     var failed = false;
     late final StreamSubscription<ListenerEvent> events;
+    logInfo('listener', 'epicbox connecting');
     events = session.startListener().listen(
       (event) {
         if (event.kind == ListenerEventKind.stopped) end();
@@ -611,7 +584,6 @@ class ListenerNotifier extends Notifier<ListenerState> {
       onError: (Object error) {
         if (!identical(_events, events)) return;
         failed = true;
-        _settled();
         logWarn(
           'listener',
           'stream failed: ${describeError(englishStrings, error)}',
@@ -628,7 +600,6 @@ class ListenerNotifier extends Notifier<ListenerState> {
         // Ended without a word, as LEPIC's stream does when a listener runs already: nothing
         // listens, so it counts as stopped and Receive offers Retry.
         if (identical(_events, events) && !failed && !state.stopped) {
-          _settled();
           state = ListenerState(
             stopped: true,
             status: 'Listener stopped',
@@ -650,7 +621,6 @@ class ListenerNotifier extends Notifier<ListenerState> {
     final old = _events;
     final ended = _ended;
     _events = null;
-    _settled();
     state = ListenerState(status: _connecting, last: state.last);
     logInfo('listener', 'restart');
     try {
@@ -683,14 +653,25 @@ class ListenerNotifier extends Notifier<ListenerState> {
   void _onEvent(ListenerEvent event) {
     switch (event.kind) {
       case ListenerEventKind.connected:
-        _settled();
+        if (!state.connected) logInfo('listener', 'epicbox subscribed');
         _down = false;
         state = ListenerState(connected: true, last: state.last);
       case ListenerEventKind.disconnected:
-        // Not Offline yet: LEPIC retries at once, and most drops mend within the grace.
-        _dropped('Reconnecting to the relay: ${event.message}');
+        // LEPIC sends one per failed attempt, between its backoff waits, and no reason yet.
+        logInfo(
+          'listener',
+          'epicbox disconnected, LEPIC retries'
+              '${event.message.isEmpty ? '' : ': ${event.message}'}',
+        );
+        // Raw: the status shows it only once it lasts (walletStatusProvider).
+        _down = true;
+        state = ListenerState(
+          lost: true,
+          status: 'Reconnecting to the relay: ${event.message}',
+          last: state.last,
+        );
       case ListenerEventKind.stopped:
-        _settled();
+        logInfo('listener', 'epicbox listener stopped');
         state = ListenerState(
           stopped: true,
           status: 'Listener stopped',

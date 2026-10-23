@@ -3,14 +3,16 @@ package com.blacktyger.epic_wallet
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.Network
+import android.net.NetworkCapabilities
 import android.os.Handler
 import android.os.Looper
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.EventChannel
 
 /**
- * Tells Dart when the default network comes back ("available") or goes ("lost"), so a tor
- * that died with the network is started again (phone_tor.dart). Registered only while Dart
+ * Tells Dart when the default network comes back ("available:wifi", "available:cellular", …)
+ * or goes ("lost"), so a tor that died with the network is started again and the Epicbox
+ * listener reconnects (phone_tor.dart, providers.dart). Registered only while Dart
  * listens, which is while the activity's engine lives; nothing runs in the background.
  * [dispose] when the engine goes away, in case Dart never cancelled.
  */
@@ -22,7 +24,8 @@ class NetworkWatch(private val context: Context) : EventChannel.StreamHandler {
     override fun onListen(arguments: Any?, events: EventChannel.EventSink) {
         val manager = context.getSystemService(ConnectivityManager::class.java) ?: return
         val cb = object : ConnectivityManager.NetworkCallback() {
-            override fun onAvailable(network: Network) = post("available")
+            override fun onAvailable(network: Network) =
+                post("available:" + kind(manager.getNetworkCapabilities(network)))
 
             override fun onLost(network: Network) = post("lost")
 
@@ -37,6 +40,16 @@ class NetworkWatch(private val context: Context) : EventChannel.StreamHandler {
         } catch (e: RuntimeException) {
             // Too many callbacks, or no permission: Dart still restarts on resume.
         }
+    }
+
+    /** The network's transport, for the log. */
+    private fun kind(caps: NetworkCapabilities?): String = when {
+        caps == null -> "unknown"
+        caps.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> "wifi"
+        caps.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> "cellular"
+        caps.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) -> "ethernet"
+        caps.hasTransport(NetworkCapabilities.TRANSPORT_VPN) -> "vpn"
+        else -> "other"
     }
 
     override fun onCancel(arguments: Any?) {
