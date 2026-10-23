@@ -101,6 +101,11 @@ const Set<String> localSessionMembers = {
   'refreshTor',
   'sendTor',
   'resendTor',
+  // Route the server's own Epicbox connection through its tor; answered by the client.
+  'setEpicboxOverTor',
+  'epicboxOverTor',
+  'expectTor',
+  'setOnionRoutes',
   // Reads an old wallet's folder on the server's disk; refused by the client.
   'importLegacyHistory',
   // Answered by the client: it cancels the scan stream, and the server stops the scan.
