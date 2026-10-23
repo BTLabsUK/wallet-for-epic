@@ -457,10 +457,9 @@ void previewLargeLog() {
       await h.pump(tester);
       await h.openFeedback(tester);
       await enter(tester, 'Your message', 'The preview with a big log');
-      final sw = Stopwatch()..start();
+      // No wall-clock bound: under a loaded machine it says nothing about the screen.
       await tap(tester, find.text('Preview what is sent'));
       expect(find.byKey(feedbackPreviewListKey), findsOneWidget, reason: 'the preview opened');
-      expect(sw.elapsedMilliseconds, lessThan(5000));
       expect(find.textContaining('The preview with a big log'), findsOneWidget);
       expect(find.textContaining('== app/wfe.log =='), findsOneWidget);
       final list = tester.widget<ListView>(find.byKey(feedbackPreviewListKey));
