@@ -11,6 +11,7 @@ import 'package:epic_wallet/src/push.dart';
 import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/settings.dart';
 import 'package:epic_wallet/src/ui/common.dart';
+import 'package:epic_wallet/src/ui/home_parts.dart';
 import 'package:epic_wallet/src/ui/home_screen.dart';
 import 'package:epic_wallet/src/ui/invoice_review_screen.dart';
 import 'package:epic_wallet/src/ui/invoices_screen.dart';
@@ -218,6 +219,11 @@ Color? _spanColor(WidgetTester tester, String text) {
 Color _warn(WidgetTester tester) =>
     tester.element(find.byType(Scaffold).first).tokens.warn;
 
+/// Home's Invoices destination tile: the way in now that the app bar has no icon for it.
+final Finder _invoicesTile = find.byKey(
+  homeDestinationKey(HomeDestination.invoices),
+);
+
 void main() {
   group('home entry', () {
     testWidgets('is hidden when the wallet has no invoices', (tester) async {
@@ -225,6 +231,7 @@ void main() {
       h.session.invoicesSupported = false;
       await h.pump(tester, const HomeScreen());
       expect(find.byKey(invoicesEntryKey), findsNothing);
+      expect(_invoicesTile, findsNothing);
     });
 
     testWidgets('drains at start and badges the pending invoices', (
@@ -235,15 +242,13 @@ void main() {
       await h.invoice(slateId: 'b');
       await h.pump(tester, const HomeScreen());
       expect(h.session.pendingInvoicesValue.keys, ['a', 'b']);
-      expect(find.byKey(invoicesEntryKey), findsOneWidget);
+      // The app bar has no icon any more; the destination tile on Home carries the badge.
+      expect(find.byKey(invoicesEntryKey), findsNothing);
+      expect(_invoicesTile, findsOneWidget);
       expect(
-        find.descendant(
-          of: find.byKey(invoicesEntryKey),
-          matching: find.text('2'),
-        ),
+        find.descendant(of: _invoicesTile, matching: find.text('2')),
         findsOneWidget,
       );
-      expect(find.byTooltip(_l.invoicesEntryTooltip(2)), findsOneWidget);
       // The arrival is announced, with no way to pay from the notice.
       expect(_notice(tester), _l.invoiceNoticeReceived);
       expect(h.session.invoicePayments, 0);
@@ -252,14 +257,19 @@ void main() {
     testWidgets('shows no badge with nothing pending', (tester) async {
       final h = _Harness();
       await h.pump(tester, const HomeScreen());
-      expect(find.byTooltip(_l.invoicesEntryTooltip(0)), findsOneWidget);
-      final badge = tester.widget<Badge>(
+      expect(_invoicesTile, findsOneWidget);
+      expect(
         find.descendant(
-          of: find.byKey(invoicesEntryKey),
-          matching: find.byType(Badge),
+          of: _invoicesTile,
+          matching: find.text(_l.invoicesTitle),
         ),
+        findsOneWidget,
       );
-      expect(badge.isLabelVisible, isFalse);
+      // No badge: the tile holds its label and nothing else in words.
+      expect(
+        find.descendant(of: _invoicesTile, matching: find.byType(Text)),
+        findsOneWidget,
+      );
     });
 
     testWidgets('drains again when the app comes back to the front', (
@@ -281,7 +291,10 @@ void main() {
       }
       await tester.pumpAndSettle();
       expect(h.session.pendingInvoicesValue.keys, ['later']);
-      expect(find.byTooltip(_l.invoicesEntryTooltip(1)), findsOneWidget);
+      expect(
+        find.descendant(of: _invoicesTile, matching: find.text('1')),
+        findsOneWidget,
+      );
     });
 
     testWidgets(
@@ -303,7 +316,7 @@ void main() {
       final h = _Harness();
       await h.invoice();
       await h.pump(tester, const HomeScreen());
-      await tester.tap(find.byKey(invoicesEntryKey));
+      await tester.tap(_invoicesTile);
       await tester.pumpAndSettle();
       expect(find.text(_l.invoicesTitle), findsOneWidget);
       expect(find.text('My Exchange'), findsOneWidget);
