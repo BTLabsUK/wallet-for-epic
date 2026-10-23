@@ -52,7 +52,7 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
         useBiometrics: useBiometrics,
       );
       if (ref.read(demoModeProvider)) await _markDemoPin(config.chain);
-      ref.read(sessionProvider.notifier).unlocked(result.session);
+      await ref.read(sessionProvider.notifier).open(result.session);
       _answer = null;
       if (!mounted) return;
       if (useBiometrics && !result.biometrics) {

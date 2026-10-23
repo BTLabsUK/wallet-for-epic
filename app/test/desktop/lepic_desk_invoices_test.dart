@@ -91,6 +91,15 @@ class _Wallet implements lepic.EpicWallet {
   Stream<lepic.WalletEvent> events() => events$.stream;
 
   @override
+  void setEpicboxOverTor({required bool enabled}) {}
+
+  @override
+  void setOnionRoutes({required List<lepic.OnionRoute> routes}) {}
+
+  @override
+  void expectTor() {}
+
+  @override
   Future<lepic.WalletSummary> summary({required bool refresh}) async => lepic.WalletSummary(
     lastConfirmedHeight: BigInt.from(100),
     minimumConfirmations: BigInt.from(3),
