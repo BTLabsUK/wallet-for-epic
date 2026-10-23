@@ -182,8 +182,11 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
     ];
     return EPage(
       title: 'Receive',
-      // How receiving connects: Epicbox's way with the Tor switch as it is (tor_routes.dart).
-      titleTrailing: DeskFeatures.tor ? TorChip(torWay(TorRoute.epicbox, tor)) : null,
+      // How receiving connects while the Tor switch is on (tor_routes.dart). Nothing with it
+      // off: the switch names only what goes over Tor.
+      titleTrailing: DeskFeatures.tor && torWay(TorRoute.epicbox, tor) != TorWay.clearnet
+          ? TorChip(torWay(TorRoute.epicbox, tor))
+          : null,
       width: EPageWidth.full,
       actions: [_indicator(st, status)],
       child: ConstrainedBox(

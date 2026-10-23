@@ -44,6 +44,7 @@ class PhoneTorState {
     this.onion,
     this.failure,
     this.receiving = false,
+    this.socksPort,
   });
 
   final PhoneTorPhase phase;
@@ -60,6 +61,10 @@ class PhoneTorState {
   /// The user's per-wallet "Tor receiving" switch.
   final bool receiving;
 
+  /// tor's SOCKS port on 127.0.0.1 once it has connected, for the app's own requests; set
+  /// again by every start, so it is only used while [canSend].
+  final int? socksPort;
+
   /// Sends to onions work now.
   bool get canSend =>
       phase == PhoneTorPhase.connected || phase == PhoneTorPhase.ready;
@@ -70,12 +75,14 @@ class PhoneTorState {
     String? onion,
     TorFailure? Function()? failure,
     bool? receiving,
+    int? socksPort,
   }) => PhoneTorState(
     phase: phase ?? this.phase,
     progress: progress == null ? this.progress : progress(),
     onion: onion ?? this.onion,
     failure: failure == null ? this.failure : failure(),
     receiving: receiving ?? this.receiving,
+    socksPort: socksPort ?? this.socksPort,
   );
 
   @override
@@ -84,7 +91,8 @@ class PhoneTorState {
       progress.hashCode ^
       onion.hashCode ^
       failure.hashCode ^
-      receiving.hashCode;
+      receiving.hashCode ^
+      socksPort.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -94,7 +102,8 @@ class PhoneTorState {
           progress == other.progress &&
           onion == other.onion &&
           failure == other.failure &&
-          receiving == other.receiving;
+          receiving == other.receiving &&
+          socksPort == other.socksPort;
 
   @override
   String toString() =>
@@ -460,6 +469,7 @@ class PhoneTor extends Notifier<PhoneTorState> {
         state = state.copyWith(
           phase: PhoneTorPhase.connected,
           progress: () => null,
+          socksPort: e.socksPort,
         );
         _completeWaiters();
       case TorEventKind.ready:
@@ -469,6 +479,7 @@ class PhoneTor extends Notifier<PhoneTorState> {
           progress: () => null,
           failure: () => null,
           onion: e.onion == null ? null : onionHost(e.onion!),
+          socksPort: e.socksPort,
         );
         _completeWaiters();
       case TorEventKind.failed:

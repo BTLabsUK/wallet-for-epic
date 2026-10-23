@@ -36,7 +36,7 @@ String _routeName(TorRoute r) => switch (r) {
   TorRoute.onionDirect => 'Tor addresses',
   TorRoute.httpDirect => 'Direct to http(s)',
   TorRoute.node => 'the node',
-  TorRoute.appHttp => 'status checks, updates',
+  TorRoute.appHttp => 'status, price, updates, support',
   TorRoute.httpListener => 'HTTP receiving',
   TorRoute.push => 'push',
 };
@@ -49,12 +49,12 @@ String _list(List<String> names) => switch (names.length) {
 
 String _cap(String s) => s.isEmpty ? s : '${s[0].toUpperCase()}${s.substring(1)}';
 
-/// What goes over Tor and what does not, from [torCovered]: one or two short sentences.
+/// What goes over Tor, from [torCovered]: one short sentence. The switch never lists what
+/// does not (the owner's rule); a send that skips Tor says so on that send.
 String torCoverageText() {
   const shown = [TorRoute.epicbox, TorRoute.node, TorRoute.appHttp];
   final over = [for (final r in shown) if (torCovered.contains(r)) _routeName(r), _routeName(TorRoute.onionDirect)];
-  final not = [for (final r in shown) if (!torCovered.contains(r)) _routeName(r), _routeName(TorRoute.httpDirect)];
-  return 'Over Tor: ${_list(over)}. Not over Tor: ${_list(not)}.';
+  return 'Over Tor: ${_list(over)}.';
 }
 
 /// What waits while Tor starts or is not connected, e.g. "Epicbox and Tor addresses".

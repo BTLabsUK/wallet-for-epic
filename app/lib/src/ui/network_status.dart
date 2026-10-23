@@ -12,6 +12,7 @@ import '../network.dart';
 import '../phone_tor.dart';
 import '../providers.dart';
 import '../tor_phone.dart';
+import '../net/tor_net.dart' show isLoopbackUrl;
 import '../tor_routes.dart';
 import 'server_picker.dart';
 import 'settings_screen.dart';
@@ -103,7 +104,9 @@ class NetworkStatusCard extends ConsumerWidget {
         spoken: nodeWords.label,
         detail: nodeWords.detail,
         pulse: status.node.state == NodeState.syncing,
-        overTor: overTor(TorRoute.node),
+        // A node on this computer stays direct (torSkipsLocalNode).
+        overTor: overTor(TorRoute.node) &&
+            !(torSkipsLocalNode && nodeUrl != null && isLoopbackUrl(Uri.parse(nodeUrl))),
         onTap: () => showNodePicker(context),
       ),
       _StatusRow(

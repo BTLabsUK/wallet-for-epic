@@ -355,8 +355,13 @@ class LepicDeskWallet implements DeskWalletApi {
     if (!_changes.isClosed) _changes.add(null);
   }
 
-  /// tor's SOCKS port, once LEPIC tells it (E-12); null until then.
+  /// tor's SOCKS proxy for the app's own requests, from LEPIC's tor events (E-12); null while
+  /// tor is not running.
   SocksProxy? _torSocks;
+
+  void _takeSocks(int? port) {
+    if (port != null) _torSocks = SocksProxy('127.0.0.1', port);
+  }
 
   /// The app's own requests follow the Tor switch (tor_routes.dart, `TorNet.follow`).
   void _followTor() {
@@ -2793,6 +2798,7 @@ class LepicDeskWallet implements DeskWalletApi {
       _torCanSend = false;
       _torProgress = null;
       _torStartedAt = null;
+      _torSocks = null;
     }
 
     sub = session.startTor(torBinary: bundle.binary, libDir: bundle.libDir).listen(
@@ -2803,10 +2809,12 @@ class LepicDeskWallet implements DeskWalletApi {
             _torHealth = ServiceHealth.checking;
             _torProgress = e.progress ?? _torProgress;
           case core.TorEventKind.bootstrapped || core.TorEventKind.publishing:
+            _takeSocks(e.socksPort);
             _torCanSend = true;
             _torStartedAt = null;
             if (_torHealth != ServiceHealth.slow) _torHealth = ServiceHealth.checking;
           case core.TorEventKind.ready:
+            _takeSocks(e.socksPort);
             _torHealth = ServiceHealth.ok;
             _torCanSend = true;
             _torProblem = null;

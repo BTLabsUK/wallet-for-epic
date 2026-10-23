@@ -148,7 +148,7 @@ void main() {
       findsOneWidget,
     );
     expect(
-      find.text('Epicbox and onion sends go through Tor.'),
+      find.text('Epicbox, the node, onion sends and the app’s own requests go through Tor.'),
       findsOneWidget,
     );
 
@@ -163,7 +163,7 @@ void main() {
     expect(h.session.torStarts, hasLength(1));
     expect(h.container.read(phoneTorProvider).receiving, isTrue);
     expect(
-      find.text('Starting… Epicbox and onion sends go through Tor.'),
+      find.text('Starting… Epicbox, the node, onion sends and the app’s own requests go through Tor.'),
       findsOneWidget,
     );
     expect(

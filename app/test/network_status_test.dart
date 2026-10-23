@@ -302,7 +302,7 @@ void main() {
       });
     }
 
-    testWidgets('Tor on: the Epicbox row is marked over Tor; the node is not', (
+    testWidgets('Tor on: the Epicbox and node rows are marked over Tor', (
       tester,
     ) async {
       final handle = tester.ensureSemantics();
@@ -312,9 +312,9 @@ void main() {
         find.bySemanticsLabel(RegExp(r'^Epicbox.*, Online, over Tor$')),
         findsOneWidget,
       );
-      // The node is not covered in this build: no mark, its host as it is.
-      expect(_in(netStatusNodeKey, 'Synced'), findsOneWidget);
-      expect(find.bySemanticsLabel(RegExp(r'^Node.*over Tor$')), findsNothing);
+      // The node goes over Tor too (LEPIC E-12).
+      expect(_in(netStatusNodeKey, 'Synced · Tor'), findsOneWidget);
+      expect(find.bySemanticsLabel(RegExp(r'^Node.*over Tor$')), findsOneWidget);
       handle.dispose();
     });
 

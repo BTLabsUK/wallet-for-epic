@@ -65,10 +65,10 @@ enum TorWay {
   off,
 }
 
-/// The routes the switch carries through Tor in this build. The node and the app's own
-/// requests join once LEPIC's node client and the app's HTTP can use tor's SOCKS port with
-/// remote DNS (LEPIC E-12); until then they stay on the clearnet and the switch's text says so.
-const Set<TorRoute> torCovered = {TorRoute.epicbox};
+/// The routes the switch carries through Tor: Epicbox and the node in LEPIC (E-10, E-12), the
+/// app's own requests through tor's SOCKS port with names resolved by tor ([TorNet]). A node
+/// on this computer stays direct ([torSkipsLocalNode]).
+const Set<TorRoute> torCovered = {TorRoute.epicbox, TorRoute.node, TorRoute.appHttp};
 
 /// Off while Tor is on: they would show this computer's address.
 const Set<TorRoute> torStops = {TorRoute.httpListener, TorRoute.push};
