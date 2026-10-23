@@ -9,6 +9,11 @@ import 'dart:typed_data';
 import 'package:epic_wallet/src/net/http.dart';
 import 'package:epic_wallet/src/net/socks.dart';
 import 'package:epic_wallet/src/net/tor_net.dart';
+import 'package:epic_wallet/src/net/tor_switch.dart';
+import 'package:epic_wallet/src/net/ws_probe.dart';
+import 'package:epic_wallet/src/network.dart';
+import 'package:epic_wallet/src/send_preflight.dart';
+import 'package:epic_wallet/src/tor_routes.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 /// A SOCKS5 proxy on this computer that records each CONNECT and forwards it to [targets]
@@ -267,5 +272,34 @@ void main() {
     TorNet.onions = null;
     expect((await httpGet(Uri.https('status.btlabs.uk', '/b'))).status, 200);
     expect(socks.connects.last.host, status.onion);
+  });
+
+  test("Send review's relay probe goes through tor while Tor is on, and a slow answer is not a failure", () async {
+    // A relay that answers only after the direct probe's timeout, as one far down a circuit.
+    final relay = await HttpServer.bind(InternetAddress.loopbackIPv4, 0);
+    addTearDown(() => relay.close(force: true));
+    relay.listen((request) async {
+      await Future<void>.delayed(probeTimeout + const Duration(seconds: 1));
+      final socket = await WebSocketTransformer.upgrade(request);
+      await socket.close();
+    });
+    const onion = 'relayrelayrelayrelayrelayrelayrelayrelayrelayrelayrelayr.onion';
+    final socks = await _FakeSocks.start({onion: relay.port});
+    addTearDown(socks.close);
+    TorNet.follow(TorState.on, proxy: socks.proxy);
+    addTearDown(() => TorSwitch.on = false);
+    TorNet.onions = (host, port) =>
+        host == 'epicbox.example.org' ? (onion: onion, port: 80, tls: false) : null;
+    expect(relayProbeTimeout(), torProbeTimeout);
+    // Plain ws, so the local relay needs no certificate; the route is the one wss takes.
+    final probe = WebSocketRelayProbe(uriFor: (r) => Uri(scheme: 'ws', host: r.host, port: r.port));
+    expect(await probe.reachable(EpicboxRelay(host: 'epicbox.example.org', port: 443)), isTrue);
+    expect(socks.connects.single.host, onion);
+    expect(socks.connects.single.atyp, 3);
+  }, timeout: const Timeout(Duration(seconds: 30)));
+
+  test('with Tor off the relay probe keeps the short direct timeout', () {
+    TorNet.follow(TorState.off);
+    expect(relayProbeTimeout(), probeTimeout);
   });
 }

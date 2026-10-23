@@ -9,6 +9,7 @@ library;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'net/tor_switch.dart';
 import 'net/ws_probe.dart';
 import 'network.dart';
 import 'providers.dart';
@@ -116,14 +117,23 @@ abstract interface class RelayProbe {
   Future<bool> reachable(EpicboxRelay relay);
 }
 
-/// `wss://<host>:<port>`, within [probeTimeout].
+/// `wss://<host>:<port>`, within [probeTimeout], or [torProbeTimeout] while the Tor switch is
+/// on: then the handshake goes through tor as the wallet's Epicbox connection does (BT Labs'
+/// relays at their onions, others through an exit, names resolved by tor), and a slow circuit
+/// is not a relay that does not answer.
 class WebSocketRelayProbe implements RelayProbe {
-  const WebSocketRelayProbe();
+  const WebSocketRelayProbe({this.uriFor = relayProbeUri});
+
+  /// The URL opened for a relay; tests point it elsewhere.
+  final Uri Function(EpicboxRelay relay) uriFor;
 
   @override
   Future<bool> reachable(EpicboxRelay relay) =>
-      probeWebSocket(relayProbeUri(relay), timeout: probeTimeout);
+      probeWebSocket(uriFor(relay), timeout: relayProbeTimeout());
 }
+
+/// How long the relay probe waits now.
+Duration relayProbeTimeout() => TorSwitch.on ? torProbeTimeout : probeTimeout;
 
 /// The URL the probe opens for [relay]: plain `ws` on a loopback host, where LEPIC talks to
 /// the relay without TLS too (a local test relay), `wss` everywhere else.
