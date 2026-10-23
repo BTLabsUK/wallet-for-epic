@@ -22,7 +22,9 @@ src="${XDG_CACHE_HOME:-$HOME/.cache}/wfe-linux-build/lepic-$rev"
 # (possibly stale) app/third_party/lepic clone is neither used nor touched.
 if [[ ! -f "$src/.exported" ]]; then
   mkdir -p "$src"
-  git -C "$lepic_repo" archive "$rev" | tar -x -C "$src"
+  # -m: files get the extraction time, not the commit time. The target volume is shared by
+  # every pin, so a commit-time mtime older than the last build would leave a crate stale.
+  git -C "$lepic_repo" archive "$rev" | tar -x -m -C "$src"
   mkdir -p "$src/target"
   touch "$src/.exported"
 fi
@@ -46,7 +48,7 @@ if [[ "${WFE_WORKTREE:-0}" = 1 ]]; then
   rsync -a --exclude=/.git --exclude=/app/build --exclude=/app/.dart_tool --exclude=/app/third_party \
     --exclude=/build-linux --exclude=/app/linux/flutter/ephemeral "$root/" "$stage/"
 else
-  git -C "$root" archive HEAD | tar -x -C "$stage"
+  git -C "$root" archive HEAD | tar -x -m -C "$stage"
 fi
 mkdir -p "$stage/app/third_party/lepic" "$stage/app/build"
 rsync -a --delete --exclude=/app/build --exclude=/app/.dart_tool --exclude=/app/third_party \
