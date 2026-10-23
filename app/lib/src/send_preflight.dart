@@ -19,6 +19,15 @@ import 'wallet_service.dart';
 /// How long the node may take to give its tip before the check fails.
 const Duration nodeCheckTimeout = Duration(seconds: 8);
 
+/// The same while the Tor switch is on: the tip comes through a circuit, which can take far
+/// longer than a direct answer (LEPIC gives its node 90 s over Tor), and a slow circuit is not
+/// a node that does not answer.
+const Duration nodeTorCheckTimeout = Duration(seconds: 90);
+
+/// How long the node check waits now.
+Duration nodeCheckTimeoutNow() =>
+    TorSwitch.on ? nodeTorCheckTimeout : nodeCheckTimeout;
+
 enum SendCheck { node, listener, relay }
 
 enum CheckOutcome { running, passed, failed }
@@ -101,15 +110,16 @@ SendPreflight sendPreflight({
   );
 }
 
-/// A fresh tip from the open wallet's node, at most [nodeCheckTimeout] late. Not the header's
-/// `nodeTipProvider`, which may hold an answer from minutes ago.
+/// A fresh tip from the open wallet's node, at most [nodeCheckTimeout] late, or
+/// [nodeTorCheckTimeout] while the Tor switch is on. Not the header's `nodeTipProvider`, which
+/// may hold an answer from minutes ago.
 final sendNodeCheckProvider = FutureProvider.autoDispose<NodeTip>((ref) {
   final session = ref.watch(sessionProvider);
   if (session == null) throw StateError('Wallet is locked');
   final config = ref.watch(walletConfigProvider);
   if (config == null) throw StateError('No network selected');
   // Through the wallet, so it follows the wallet's Tor.
-  return session.nodeTipFor(config: config).timeout(nodeCheckTimeout);
+  return session.nodeTipFor(config: config).timeout(nodeCheckTimeoutNow());
 });
 
 /// Says whether a relay answers a WebSocket handshake. Tests replace it.
