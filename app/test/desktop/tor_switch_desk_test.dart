@@ -90,11 +90,11 @@ void main() {
       expect(line.word, 'Waiting for Tor');
     }, skip: _skip);
 
-    test('the coverage text names what goes over Tor and what does not', () {
+    test('the coverage text names only what goes over Tor', () {
       final text = torCoverageText();
-      expect(text, startsWith('Over Tor: Epicbox'));
-      expect(text, contains('Not over Tor:'));
-      expect(text, contains('Direct to http(s)'));
+      expect(text, 'Over Tor: Epicbox, the node, status, price, updates, support and Tor addresses.');
+      expect(text, isNot(contains('Not over Tor')));
+      expect(text, isNot(contains('Direct to http(s)')));
     });
   });
 

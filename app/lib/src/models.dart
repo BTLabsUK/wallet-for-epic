@@ -698,6 +698,10 @@ class TorEvent {
   /// For `refused`.
   final HttpRefusal? refusal;
 
+  /// For `bootstrapped`, `publishing` and `ready`: the port of tor's SOCKS proxy on
+  /// 127.0.0.1, for the app's own requests. It changes when tor restarts.
+  final int? socksPort;
+
   const TorEvent({
     required this.kind,
     this.progress,
@@ -707,6 +711,7 @@ class TorEvent {
     this.amount,
     this.repeated = false,
     this.refusal,
+    this.socksPort,
   });
 
   @override
@@ -718,7 +723,8 @@ class TorEvent {
       txId.hashCode ^
       amount.hashCode ^
       repeated.hashCode ^
-      refusal.hashCode;
+      refusal.hashCode ^
+      socksPort.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -731,7 +737,8 @@ class TorEvent {
           txId == other.txId &&
           amount == other.amount &&
           repeated == other.repeated &&
-          refusal == other.refusal;
+          refusal == other.refusal &&
+          socksPort == other.socksPort;
 }
 
 enum TorStatusKind {

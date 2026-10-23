@@ -239,6 +239,7 @@ TorEvent lepicTorEvent(lepic.TorEvent e) => TorEvent(
   amount: e.amount,
   repeated: e.repeated,
   refusal: _refusal(e.refusal),
+  socksPort: e.socksPort,
 );
 
 /// LEPIC's listener event as the app's, or null for `invoiceBounced`, which is an issuer
