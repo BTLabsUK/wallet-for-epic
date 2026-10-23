@@ -756,7 +756,7 @@ class _PendingFiles extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) => Padding(
     padding: EdgeInsets.only(top: Sp.x3),
     child: ENotice(
-      tone: ETone.gold,
+      tone: ETone.info,
       icon: EIcons.file,
       title: count == 1 ? '1 file send open' : '$count file sends open',
       text: 'Finalize with the response file from the recipient.',

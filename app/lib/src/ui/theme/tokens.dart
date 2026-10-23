@@ -28,8 +28,15 @@ class WalletTokens extends ThemeExtension<WalletTokens> {
     required this.accentSoft,
     required this.tick,
     required this.ok,
+    required this.okSoft,
     required this.warn,
+    required this.warnSoft,
     required this.risk,
+    required this.riskSoft,
+    required this.info,
+    required this.infoSoft,
+    required this.selected,
+    required this.selectedLine,
     required this.radius,
     required this.radiusSmall,
     required this.controlHeight,
@@ -56,8 +63,9 @@ class WalletTokens extends ThemeExtension<WalletTokens> {
   final Color dim;
   final Color faint;
 
-  /// [accent] is a fill and the signal colour. [accentInk] is text on that fill. [accentText]
-  /// is the accent used as text.
+  /// The brand gold: primary buttons, the FAB, focused borders, links as [accentText], the
+  /// mark and section rules. Never a state: a connected, synced, selected or confirmed thing is
+  /// [ok], [selected] or [info], not gold. [accentInk] is text on an [accent] fill.
   final Color accent;
   final Color accentInk;
   final Color accentText;
@@ -66,9 +74,26 @@ class WalletTokens extends ThemeExtension<WalletTokens> {
   /// Corner ticks on the balance panel: gold-deep in dark mode, charcoal in light.
   final Color tick;
 
+  /// Status colours, each AA as text on [bg], [surface], [surfaceHi], [field] and [selected].
+  /// [ok] (green): connected, synced, confirmed, sent, received, success notices, and the
+  /// check on a current item that is working. [warn] (amber): something needs attention or is
+  /// not ready. [risk] (red): an error or a failure. [info] (blue): an in-progress or
+  /// informational state (confirming, the current timeline step, an info notice). The `Soft`
+  /// twins are translucent fills behind that colour's icon or text.
   final Color ok;
+  final Color okSoft;
   final Color warn;
+  final Color warnSoft;
   final Color risk;
+  final Color riskSoft;
+  final Color info;
+  final Color infoSoft;
+
+  /// The current or selected item in a list or picker: a neutral fill and outline, never the
+  /// accent, so being chosen does not read as a warning. Add an [ok] check only when the item
+  /// is also working.
+  final Color selected;
+  final Color selectedLine;
 
   final double radius;
   final double radiusSmall;
@@ -98,8 +123,15 @@ class WalletTokens extends ThemeExtension<WalletTokens> {
     Color? accentSoft,
     Color? tick,
     Color? ok,
+    Color? okSoft,
     Color? warn,
+    Color? warnSoft,
     Color? risk,
+    Color? riskSoft,
+    Color? info,
+    Color? infoSoft,
+    Color? selected,
+    Color? selectedLine,
     double? radius,
     double? radiusSmall,
     double? controlHeight,
@@ -121,8 +153,15 @@ class WalletTokens extends ThemeExtension<WalletTokens> {
     accentSoft: accentSoft ?? this.accentSoft,
     tick: tick ?? this.tick,
     ok: ok ?? this.ok,
+    okSoft: okSoft ?? this.okSoft,
     warn: warn ?? this.warn,
+    warnSoft: warnSoft ?? this.warnSoft,
     risk: risk ?? this.risk,
+    riskSoft: riskSoft ?? this.riskSoft,
+    info: info ?? this.info,
+    infoSoft: infoSoft ?? this.infoSoft,
+    selected: selected ?? this.selected,
+    selectedLine: selectedLine ?? this.selectedLine,
     radius: radius ?? this.radius,
     radiusSmall: radiusSmall ?? this.radiusSmall,
     controlHeight: controlHeight ?? this.controlHeight,
@@ -151,8 +190,15 @@ class WalletTokens extends ThemeExtension<WalletTokens> {
       accentSoft: c(accentSoft, other.accentSoft),
       tick: c(tick, other.tick),
       ok: c(ok, other.ok),
+      okSoft: c(okSoft, other.okSoft),
       warn: c(warn, other.warn),
+      warnSoft: c(warnSoft, other.warnSoft),
       risk: c(risk, other.risk),
+      riskSoft: c(riskSoft, other.riskSoft),
+      info: c(info, other.info),
+      infoSoft: c(infoSoft, other.infoSoft),
+      selected: c(selected, other.selected),
+      selectedLine: c(selectedLine, other.selectedLine),
       radius: d(radius, other.radius),
       radiusSmall: d(radiusSmall, other.radiusSmall),
       controlHeight: d(controlHeight, other.controlHeight),
@@ -176,7 +222,8 @@ extension WalletTokensOf on BuildContext {
 const String montserrat = 'Montserrat';
 const String jetBrainsMono = 'JetBrainsMonoNL';
 
-/// Protocol, dark. From `epic-devdocs/mockups/shared.css`.
+/// Protocol, dark. From `epic-devdocs/mockups/shared.css`; the status set (amber apart from the
+/// gold, a blue for in-progress states, a neutral selection) is the wallet's own.
 const WalletTokens protocolDark = WalletTokens(
   bg: Color(0xFF08080A),
   surface: Color(0xFF0D0D10),
@@ -193,8 +240,15 @@ const WalletTokens protocolDark = WalletTokens(
   accentSoft: Color(0x24F6D471),
   tick: Color(0xFFC98A3E),
   ok: Color(0xFF8AD98A),
-  warn: Color(0xFFF0C274),
+  okSoft: Color(0x1F8AD98A),
+  warn: Color(0xFFF5A54A),
+  warnSoft: Color(0x1FF5A54A),
   risk: Color(0xFFF08A8A),
+  riskSoft: Color(0x1FF08A8A),
+  info: Color(0xFF8FB8E8),
+  infoSoft: Color(0x1F8FB8E8),
+  selected: Color(0xFF22222B),
+  selectedLine: Color(0xFF4A4A56),
   radius: 14,
   radiusSmall: 8,
   controlHeight: 48,
@@ -202,7 +256,8 @@ const WalletTokens protocolDark = WalletTokens(
   monoFamily: jetBrainsMono,
 );
 
-/// Protocol, light. Gold becomes the devhub's AA brown, and the ticks turn charcoal.
+/// Protocol, light. Gold becomes the devhub's AA brown, amber a burnt orange, and the ticks
+/// turn charcoal.
 const WalletTokens protocolLight = WalletTokens(
   bg: Color(0xFFF7F7F8),
   surface: Color(0xFFFFFFFF),
@@ -219,8 +274,15 @@ const WalletTokens protocolLight = WalletTokens(
   accentSoft: Color(0x1F8F5E1F),
   tick: Color(0xFF1C1E21),
   ok: Color(0xFF1F7A3A),
-  warn: Color(0xFF8F5E1F),
+  okSoft: Color(0x1A1F7A3A),
+  warn: Color(0xFF9C4A00),
+  warnSoft: Color(0x1A9C4A00),
   risk: Color(0xFFB3261E),
+  riskSoft: Color(0x1AB3261E),
+  info: Color(0xFF2F5F9E),
+  infoSoft: Color(0x1A2F5F9E),
+  selected: Color(0xFFECECEF),
+  selectedLine: Color(0xFFB4B4BD),
   radius: 14,
   radiusSmall: 8,
   controlHeight: 48,

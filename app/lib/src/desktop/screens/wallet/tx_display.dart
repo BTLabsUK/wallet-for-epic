@@ -80,7 +80,7 @@ IconData iconOf(Tx t) => switch (t.method) {
           ETone.warn,
         ),
         TxState.posted => ('Waiting for a block', ETone.neutral),
-        TxState.confirming => ('Confirming ${t.confirmations}/${t.confirmationsNeeded}', ETone.gold),
+        TxState.confirming => ('Confirming ${t.confirmations}/${t.confirmationsNeeded}', ETone.info),
         TxState.confirmed => (t.incoming ? 'Received' : 'Sent', ETone.ok),
         TxState.cancelled => ('Cancelled', ETone.neutral),
       };
@@ -196,7 +196,8 @@ class TxIcon extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.dc;
     final off = tx.state == TxState.cancelled;
-    final color = off ? c.faint : (txAsked(tx) ? c.dim : (tx.incoming ? c.ok : c.accentText));
+    // Direction, as the phone draws it: green in, plain out; never gold for a state.
+    final color = off ? c.faint : (txAsked(tx) ? c.dim : (tx.incoming ? c.ok : c.text));
     return Container(
       width: size,
       height: size,
@@ -307,6 +308,7 @@ class _TxRowState extends ConsumerState<TxRow> {
     final toneColor = switch (tone) {
       ETone.ok => c.dim,
       ETone.warn => c.warn,
+      ETone.info => c.info,
       ETone.gold => c.accentText,
       _ => c.faint,
     };

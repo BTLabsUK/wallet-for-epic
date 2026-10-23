@@ -1214,7 +1214,7 @@ class _SwitchTag extends StatelessWidget {
           opacity: shown ? 1 : 0,
           duration: reduce ? Duration.zero : Motion.cross,
           curve: shown ? Motion.easeOut : Motion.easeIn,
-          child: SizedBox(height: 22.u, child: ETag(word, tone: ETone.gold, icon: methodIcon(_segmentOf(m)))),
+          child: SizedBox(height: 22.u, child: ETag(word, icon: methodIcon(_segmentOf(m)))),
         ),
       ),
     );

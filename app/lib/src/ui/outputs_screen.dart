@@ -59,7 +59,7 @@ String _meaning(AppLocalizations l, OutputLabel w, int need) => switch (w) {
 ({IconData icon, Color color}) _mark(WalletTokens t, OutputLabel w) =>
     switch (w) {
       OutputLabel.spendable => (icon: Icons.check, color: t.ok),
-      OutputLabel.confirming => (icon: Icons.timelapse, color: t.accent),
+      OutputLabel.confirming => (icon: Icons.timelapse, color: t.info),
       OutputLabel.locked => (icon: Icons.hourglass_top, color: t.warn),
       OutputLabel.finalizing => (icon: Icons.hourglass_empty, color: t.dim),
       OutputLabel.immature ||

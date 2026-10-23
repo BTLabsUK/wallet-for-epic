@@ -204,7 +204,7 @@ class _Step extends StatelessWidget {
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: Border.all(
-                color: current ? t.accent : t.lineStrong,
+                color: current ? t.info : t.lineStrong,
                 width: 1.5,
               ),
             ),
@@ -215,7 +215,7 @@ class _Step extends StatelessWidget {
                   localDigits(l, '$number'),
                   textScaler: TextScaler.noScaling,
                   style: theme.textTheme.labelMedium?.copyWith(
-                    color: current ? t.accentText : t.dim,
+                    color: current ? t.info : t.dim,
                   ),
                 ),
               ),

@@ -467,13 +467,13 @@ class ERail extends StatelessWidget {
                         ? null
                         : BoxDecoration(
                             borderRadius: BorderRadius.circular(6.u),
-                            border: Border.all(color: steps[i].current ? c.accent : c.lineStrong),
+                            border: Border.all(color: steps[i].current ? c.lineField : c.lineStrong),
                           ),
                     child: steps[i].done
                         ? Icon(EIcons.check, size: 18.u, color: c.ok)
                         : Text(
                             '${i + 1}',
-                            style: context.ts.mono(size: Fs.xs, color: steps[i].current ? c.accentText : c.faint),
+                            style: context.ts.mono(size: Fs.xs, color: steps[i].current ? c.text : c.faint),
                           ),
                   ),
                   SizedBox(width: Sp.x3),

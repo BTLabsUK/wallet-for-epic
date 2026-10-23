@@ -30,9 +30,29 @@ void main() {
           'accentText on bg': (t.accentText, t.bg),
           'accentText on surface': (t.accentText, t.surface),
           'accentInk on accent': (t.accentInk, t.accent),
-          'risk on surface': (t.risk, t.surface),
-          'ok on surface': (t.ok, t.surface),
-          'warn on surface': (t.warn, t.surface),
+          // Status colours as text on every surface they appear on.
+          for (final (sname, surface) in [
+            ('bg', t.bg),
+            ('surface', t.surface),
+            ('surfaceHi', t.surfaceHi),
+            ('field', t.field),
+            ('selected', t.selected),
+          ]) ...{
+            'ok on $sname': (t.ok, surface),
+            'warn on $sname': (t.warn, surface),
+            'risk on $sname': (t.risk, surface),
+            'info on $sname': (t.info, surface),
+            'accentText on $sname': (t.accentText, surface),
+            'dim on $sname': (t.dim, surface),
+            'text on $sname': (t.text, surface),
+          },
+          // Status text on its own soft fill over a panel (notices, result glyphs).
+          'ok on okSoft': (t.ok, Color.alphaBlend(t.okSoft, t.surface)),
+          'warn on warnSoft': (t.warn, Color.alphaBlend(t.warnSoft, t.surface)),
+          'risk on riskSoft': (t.risk, Color.alphaBlend(t.riskSoft, t.surface)),
+          'info on infoSoft': (t.info, Color.alphaBlend(t.infoSoft, t.surface)),
+          'text on infoSoft': (t.text, Color.alphaBlend(t.infoSoft, t.surface)),
+          'bg on warn (onTertiary)': (t.bg, t.warn),
           'onTertiaryContainer': (
             scheme.onTertiaryContainer,
             scheme.tertiaryContainer,
@@ -49,6 +69,25 @@ void main() {
             greaterThanOrEqualTo(4.5),
             reason: '$mode $name',
           );
+        }
+      });
+
+      test('the status colours are not the brand gold', () {
+        // Amber is apart from the gold: a clearly lower green channel, so a warning never
+        // looks like the accent (which is what made a gold "current" row read as a warning).
+        expect(t.warn, isNot(t.accent));
+        expect(t.warn, isNot(t.accentText));
+        // Orange has more red over green than yellow or brown: at least a tenth more.
+        expect(
+          (t.warn.r - t.warn.g) - (t.accent.r - t.accent.g),
+          greaterThanOrEqualTo(0.1),
+          reason: '$mode warn ${t.warn} must be orange next to accent ${t.accent}',
+        );
+        expect(t.ok, isNot(t.accent));
+        expect(t.info, isNot(t.accent));
+        // The selected treatment is neutral: a grey, not a tint of the accent.
+        for (final c in [t.selected, t.selectedLine]) {
+          expect((c.r - c.b).abs() * 255, lessThan(16), reason: '$mode $c');
         }
       });
 
