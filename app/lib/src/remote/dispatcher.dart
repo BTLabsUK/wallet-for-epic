@@ -510,6 +510,10 @@ class WalletDispatcher {
       ),
       selfSentTxWire,
     ),
+    SessionMember.setServers => _once(
+      s.setServers(config: _config(p)),
+      voidWire,
+    ),
     SessionMember.invoiceAddress => _once(s.invoiceAddress(), stringWire),
     SessionMember.invoiceAddressIndex => _once(
       s.invoiceAddressIndex(),

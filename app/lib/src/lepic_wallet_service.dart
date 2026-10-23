@@ -1149,6 +1149,16 @@ class LepicWalletSession implements WalletSession {
   );
 
   @override
+  Future<void> setServers({required WalletConfig config}) => _guard(
+    () => _wallet.setServers(
+      config: LepicWalletService._lepicConfig(
+        config,
+        '${config.dataDir}${Platform.pathSeparator}lepic',
+      ),
+    ),
+  );
+
+  @override
   Future<SelfSentTx> spendOutputsToSelf({
     required List<String> commitments,
     required BigInt minimumConfirmations,
