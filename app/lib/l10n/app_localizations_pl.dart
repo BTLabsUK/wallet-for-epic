@@ -4034,4 +4034,46 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get settingsSectionReceiving => 'Odbieranie';
+
+  @override
+  String get homeAvailableToSpend => 'Do wydania';
+
+  @override
+  String get homeTileWaitingSender => 'Czeka na nadawcę';
+
+  @override
+  String get homeTileLocked => 'Zablokowane w wysyłkach';
+
+  @override
+  String get homeTileMaturing => 'Nagrody dojrzewają';
+
+  @override
+  String get homeTileTotal => 'Razem';
+
+  @override
+  String homeViewAll(int count) {
+    return 'Zobacz wszystkie: $count';
+  }
+
+  @override
+  String get homeDestActivity => 'Aktywność';
+
+  @override
+  String get homeDestOutputs => 'Wyjścia';
+
+  @override
+  String get txStatusReceived => 'Otrzymano';
+
+  @override
+  String get txStatusSent => 'Wysłano';
+
+  @override
+  String sendPinReason(String amount) {
+    return 'Wpisz PIN, aby wysłać $amount EPIC.';
+  }
+
+  @override
+  String sendFilePinReason(String amount) {
+    return 'Wpisz PIN, aby utworzyć plik płatności na $amount EPIC.';
+  }
 }

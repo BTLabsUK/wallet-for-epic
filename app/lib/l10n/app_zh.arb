@@ -959,5 +959,17 @@
   "sendTorNothingSent": "{reason}未发送任何内容。",
   "sendTryAgain": "重试",
   "sendCancelPayment": "取消付款",
-  "settingsSectionReceiving": "接收"
+  "settingsSectionReceiving": "接收",
+  "homeAvailableToSpend": "可用余额",
+  "homeTileWaitingSender": "等待付款方",
+  "homeTileLocked": "发送中锁定",
+  "homeTileMaturing": "奖励成熟中",
+  "homeTileTotal": "总计",
+  "homeViewAll": "查看全部 {count}",
+  "homeDestActivity": "活动",
+  "homeDestOutputs": "输出",
+  "txStatusReceived": "已收到",
+  "txStatusSent": "已发送",
+  "sendPinReason": "输入 PIN 以发送 {amount} EPIC。",
+  "sendFilePinReason": "输入 PIN 以生成 {amount} EPIC 的付款文件。"
 }

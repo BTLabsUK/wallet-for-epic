@@ -959,5 +959,17 @@
   "sendTorNothingSent": "{reason} Ничего не отправлено.",
   "sendTryAgain": "Повторить",
   "sendCancelPayment": "Отменить платёж",
-  "settingsSectionReceiving": "Приём"
+  "settingsSectionReceiving": "Приём",
+  "homeAvailableToSpend": "Доступно",
+  "homeTileWaitingSender": "Ожидает отправителя",
+  "homeTileLocked": "Заблокировано в отправках",
+  "homeTileMaturing": "Награды созревают",
+  "homeTileTotal": "Всего",
+  "homeViewAll": "Все {count}",
+  "homeDestActivity": "Активность",
+  "homeDestOutputs": "Выходы",
+  "txStatusReceived": "Получено",
+  "txStatusSent": "Отправлено",
+  "sendPinReason": "Введите PIN, чтобы отправить {amount} EPIC.",
+  "sendFilePinReason": "Введите PIN, чтобы создать файл платежа на {amount} EPIC."
 }

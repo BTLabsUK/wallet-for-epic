@@ -4015,4 +4015,46 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get settingsSectionReceiving => 'Приём';
+
+  @override
+  String get homeAvailableToSpend => 'Доступно';
+
+  @override
+  String get homeTileWaitingSender => 'Ожидает отправителя';
+
+  @override
+  String get homeTileLocked => 'Заблокировано в отправках';
+
+  @override
+  String get homeTileMaturing => 'Награды созревают';
+
+  @override
+  String get homeTileTotal => 'Всего';
+
+  @override
+  String homeViewAll(int count) {
+    return 'Все $count';
+  }
+
+  @override
+  String get homeDestActivity => 'Активность';
+
+  @override
+  String get homeDestOutputs => 'Выходы';
+
+  @override
+  String get txStatusReceived => 'Получено';
+
+  @override
+  String get txStatusSent => 'Отправлено';
+
+  @override
+  String sendPinReason(String amount) {
+    return 'Введите PIN, чтобы отправить $amount EPIC.';
+  }
+
+  @override
+  String sendFilePinReason(String amount) {
+    return 'Введите PIN, чтобы создать файл платежа на $amount EPIC.';
+  }
 }

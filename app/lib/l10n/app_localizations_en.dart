@@ -3864,4 +3864,46 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsSectionReceiving => 'Receiving';
+
+  @override
+  String get homeAvailableToSpend => 'Available to spend';
+
+  @override
+  String get homeTileWaitingSender => 'Waiting for sender';
+
+  @override
+  String get homeTileLocked => 'Locked in sends';
+
+  @override
+  String get homeTileMaturing => 'Rewards maturing';
+
+  @override
+  String get homeTileTotal => 'Total';
+
+  @override
+  String homeViewAll(int count) {
+    return 'View all $count';
+  }
+
+  @override
+  String get homeDestActivity => 'Activity';
+
+  @override
+  String get homeDestOutputs => 'Outputs';
+
+  @override
+  String get txStatusReceived => 'Received';
+
+  @override
+  String get txStatusSent => 'Sent';
+
+  @override
+  String sendPinReason(String amount) {
+    return 'Enter the PIN to send $amount EPIC.';
+  }
+
+  @override
+  String sendFilePinReason(String amount) {
+    return 'Enter the PIN to make a payment file for $amount EPIC.';
+  }
 }

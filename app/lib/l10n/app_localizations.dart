@@ -5899,6 +5899,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Receiving'**
   String get settingsSectionReceiving;
+
+  /// Caption above Wallet's big figure: the spendable balance.
+  ///
+  /// In en, this message translates to:
+  /// **'Available to spend'**
+  String get homeAvailableToSpend;
+
+  /// Balance tile label: payments offered to this wallet that are not in a block yet (awaiting finalization). 1 to 3 words.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for sender'**
+  String get homeTileWaitingSender;
+
+  /// Balance tile label: coins a send in progress holds until it confirms. 1 to 3 words.
+  ///
+  /// In en, this message translates to:
+  /// **'Locked in sends'**
+  String get homeTileLocked;
+
+  /// Balance tile label: mining rewards not spendable yet. 1 to 3 words.
+  ///
+  /// In en, this message translates to:
+  /// **'Rewards maturing'**
+  String get homeTileMaturing;
+
+  /// Balance tile label: the whole balance, spendable and pending together.
+  ///
+  /// In en, this message translates to:
+  /// **'Total'**
+  String get homeTileTotal;
+
+  /// Button beside Recent activity: opens History. {count} is the number of payments.
+  ///
+  /// In en, this message translates to:
+  /// **'View all {count}'**
+  String homeViewAll(int count);
+
+  /// Home destination tile: the payment history.
+  ///
+  /// In en, this message translates to:
+  /// **'Activity'**
+  String get homeDestActivity;
+
+  /// Home destination tile: the Outputs screen (the pieces the balance is made of).
+  ///
+  /// In en, this message translates to:
+  /// **'Outputs'**
+  String get homeDestOutputs;
+
+  /// Status word of a completed incoming payment or mining reward in lists.
+  ///
+  /// In en, this message translates to:
+  /// **'Received'**
+  String get txStatusReceived;
+
+  /// Status word of a completed outgoing payment in lists.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent'**
+  String get txStatusSent;
+
+  /// The PIN prompt's reason right before a send is posted. {amount} is the exact amount.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the PIN to send {amount} EPIC.'**
+  String sendPinReason(String amount);
+
+  /// The PIN prompt's reason right before a payment file is made, which locks the coins. {amount} is the exact amount.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the PIN to make a payment file for {amount} EPIC.'**
+  String sendFilePinReason(String amount);
 }
 
 class _AppLocalizationsDelegate

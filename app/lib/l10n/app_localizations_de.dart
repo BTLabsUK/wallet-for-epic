@@ -3917,4 +3917,46 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get settingsSectionReceiving => 'Empfangen';
+
+  @override
+  String get homeAvailableToSpend => 'Verfügbar';
+
+  @override
+  String get homeTileWaitingSender => 'Wartet auf Absender';
+
+  @override
+  String get homeTileLocked => 'In Sendungen gesperrt';
+
+  @override
+  String get homeTileMaturing => 'Belohnungen reifen';
+
+  @override
+  String get homeTileTotal => 'Gesamt';
+
+  @override
+  String homeViewAll(int count) {
+    return 'Alle $count anzeigen';
+  }
+
+  @override
+  String get homeDestActivity => 'Aktivität';
+
+  @override
+  String get homeDestOutputs => 'Outputs';
+
+  @override
+  String get txStatusReceived => 'Empfangen';
+
+  @override
+  String get txStatusSent => 'Gesendet';
+
+  @override
+  String sendPinReason(String amount) {
+    return 'PIN eingeben, um $amount EPIC zu senden.';
+  }
+
+  @override
+  String sendFilePinReason(String amount) {
+    return 'PIN eingeben, um eine Zahlungsdatei über $amount EPIC zu erstellen.';
+  }
 }

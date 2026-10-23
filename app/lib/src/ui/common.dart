@@ -457,10 +457,79 @@ String txStatusLabel(
     txConfirmations(tx, tip) ?? 0,
     target ?? confirmationsTarget,
   ),
-  TxPhase.completed => l.txStatusCompleted,
+  // A completed row says which way the money went, as the desktop does.
+  TxPhase.completed => _outgoingKind(tx) ? l.txStatusSent : l.txStatusReceived,
   TxPhase.cancelled => l.txStatusCancelled,
   TxPhase.fromBackup => l.txStatusFromBackup,
 };
+
+/// The mark before a status word: a check for a completed payment, the timelapse glyph while
+/// confirming, an hourglass while waiting for the other side, an empty ring otherwise.
+(IconData, Color) txStatusMark(BuildContext context, TxPhase phase) {
+  final t = context.tokens;
+  return switch (phase) {
+    TxPhase.completed => (Icons.check_circle_outline, t.ok),
+    TxPhase.confirming => (Icons.timelapse, t.accentText),
+    TxPhase.waitingRecipient ||
+    TxPhase.waitingSender ||
+    TxPhase.waitingPayer => (Icons.hourglass_empty, t.dim),
+    TxPhase.cancelled ||
+    TxPhase.fromBackup => (Icons.radio_button_unchecked, t.dim),
+  };
+}
+
+/// The second line of a payment row: the status word with its mark (the word in accent while
+/// confirming, dim otherwise), then the time, dim. Replaces the chip in lists.
+class TxStatusLine extends ConsumerWidget {
+  const TxStatusLine({
+    super.key,
+    required this.tx,
+    required this.tip,
+    required this.date,
+  });
+
+  final TxEntry tx;
+  final BigInt? tip;
+  final String date;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final t = context.tokens;
+    final theme = Theme.of(context);
+    final target = confirmationsTargetOf(ref);
+    final phase = txPhase(tx, tip, target: target);
+    final (icon, color) = txStatusMark(context, phase);
+    final base = theme.textTheme.bodySmall?.copyWith(
+      color: t.dim,
+      fontFeatures: const [FontFeature.tabularFigures()],
+    );
+    return Row(
+      children: [
+        Icon(icon, size: 14, color: color),
+        const SizedBox(width: 5),
+        // One text, so the status and the time share the line and shorten as one.
+        Expanded(
+          child: Text.rich(
+            TextSpan(
+              children: [
+                TextSpan(
+                  text: txStatusLabel(context.l10n, tx, tip, target: target),
+                  style: phase == TxPhase.confirming
+                      ? base?.copyWith(color: t.accentText)
+                      : base,
+                ),
+                TextSpan(text: ' \u00B7 $date', style: base),
+              ],
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: base,
+          ),
+        ),
+      ],
+    );
+  }
+}
 
 /// A payment's progress for [StatusTimeline], or null where a timeline would add nothing to
 /// the status text: cancelled payments, backup records, mining rewards, restored or imported
@@ -1119,7 +1188,7 @@ class TxTile extends ConsumerWidget {
     final display = amountDisplay(ref);
     final tip = tipHeight(ref);
     final now = ref.watch(clockProvider)();
-    final (:amount, outgoing: _) = txAmount(tx);
+    final (:amount, :outgoing) = txAmount(tx);
     // A cancelled payment moved nothing, so it has no value to show.
     final fiat = tx.status == TxStatus.cancelled
         ? null
@@ -1134,9 +1203,6 @@ class TxTile extends ConsumerWidget {
     );
     final date = shortDate(l, localTime(tx.timeUnix), now);
     final signed = signedEpic(l, tx, hidden: display.hidden);
-    final muted = theme.textTheme.bodyMedium?.copyWith(
-      color: theme.colorScheme.onSurfaceVariant,
-    );
     void open() => Navigator.of(context).push(
       MaterialPageRoute<void>(builder: (_) => TxDetailsScreen(txKey: tx.key)),
     );
@@ -1181,15 +1247,7 @@ class TxTile extends ConsumerWidget {
                       style: theme.textTheme.bodyLarge,
                     ),
                     const SizedBox(height: 2),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 4,
-                      crossAxisAlignment: WrapCrossAlignment.center,
-                      children: [
-                        Text(date, style: muted),
-                        TxStatusChip(tx: tx, tip: tip),
-                      ],
-                    ),
+                    TxStatusLine(tx: tx, tip: tip, date: date),
                   ],
                 ),
               ),
@@ -1209,6 +1267,10 @@ class TxTile extends ConsumerWidget {
                       style: theme.textTheme.bodyLarge?.copyWith(
                         fontFamily: context.tokens.monoFamily,
                         fontSize: 14.5,
+                        // Money in reads green, as on the desktop; money out stays plain.
+                        color: !outgoing && tx.status != TxStatus.cancelled
+                            ? context.tokens.ok
+                            : null,
                         decoration: tx.status == TxStatus.cancelled
                             ? TextDecoration.lineThrough
                             : null,

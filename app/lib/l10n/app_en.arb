@@ -4705,5 +4705,71 @@
   "settingsSectionReceiving": "Receiving",
   "@settingsSectionReceiving": {
     "description": "Settings section header: how payments reach this wallet (Tor receiving)."
+  },
+  "homeAvailableToSpend": "Available to spend",
+  "@homeAvailableToSpend": {
+    "description": "Caption above Wallet's big figure: the spendable balance."
+  },
+  "homeTileWaitingSender": "Waiting for sender",
+  "@homeTileWaitingSender": {
+    "description": "Balance tile label: payments offered to this wallet that are not in a block yet (awaiting finalization). 1 to 3 words."
+  },
+  "homeTileLocked": "Locked in sends",
+  "@homeTileLocked": {
+    "description": "Balance tile label: coins a send in progress holds until it confirms. 1 to 3 words."
+  },
+  "homeTileMaturing": "Rewards maturing",
+  "@homeTileMaturing": {
+    "description": "Balance tile label: mining rewards not spendable yet. 1 to 3 words."
+  },
+  "homeTileTotal": "Total",
+  "@homeTileTotal": {
+    "description": "Balance tile label: the whole balance, spendable and pending together."
+  },
+  "homeViewAll": "View all {count}",
+  "@homeViewAll": {
+    "description": "Button beside Recent activity: opens History. {count} is the number of payments.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "34"
+      }
+    }
+  },
+  "homeDestActivity": "Activity",
+  "@homeDestActivity": {
+    "description": "Home destination tile: the payment history."
+  },
+  "homeDestOutputs": "Outputs",
+  "@homeDestOutputs": {
+    "description": "Home destination tile: the Outputs screen (the pieces the balance is made of)."
+  },
+  "txStatusReceived": "Received",
+  "@txStatusReceived": {
+    "description": "Status word of a completed incoming payment or mining reward in lists."
+  },
+  "txStatusSent": "Sent",
+  "@txStatusSent": {
+    "description": "Status word of a completed outgoing payment in lists."
+  },
+  "sendPinReason": "Enter the PIN to send {amount} EPIC.",
+  "@sendPinReason": {
+    "description": "The PIN prompt's reason right before a send is posted. {amount} is the exact amount.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "12.5"
+      }
+    }
+  },
+  "sendFilePinReason": "Enter the PIN to make a payment file for {amount} EPIC.",
+  "@sendFilePinReason": {
+    "description": "The PIN prompt's reason right before a payment file is made, which locks the coins. {amount} is the exact amount.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "12.5"
+      }
+    }
   }
 }

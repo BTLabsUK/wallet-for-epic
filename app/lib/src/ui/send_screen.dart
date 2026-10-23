@@ -27,6 +27,7 @@ import 'demo_screens.dart' show TestCoinsButton;
 import 'file_exchange_help.dart';
 import 'handshake.dart';
 import 'help_screen.dart';
+import 'pin.dart' show askPin;
 import 'scan_screen.dart';
 import 'shell_header.dart' show comingIn;
 import 'send_tracker.dart';
@@ -664,10 +665,31 @@ class _SendViewState extends ConsumerState<SendView> {
     }
   }
 
-  Future<void> _send() {
+  /// Every send asks the PIN right before money moves (the desktop asks the password). True
+  /// once it checked out; false when the user cancelled or the wallet is gone.
+  Future<bool> _pinGate(String reason) async {
+    final session = ref.read(sessionProvider);
+    final config = ref.read(walletConfigProvider);
+    if (session == null || config == null) return false;
+    final vault = ref.read(vaultProvider);
+    final ok = await askPin<bool>(
+      context,
+      reason: reason,
+      action: (pin) async {
+        await vault.checkPin(session, config, pin);
+        return true;
+      },
+    );
+    return ok == true && mounted;
+  }
+
+  Future<void> _send() async {
     final reviewed = _estimate;
     // A second tap can land on the old button after the first send already finished.
-    if (reviewed == null || _stage != SendStage.review) return Future.value();
+    if (reviewed == null || _stage != SendStage.review) return;
+    final l = context.l10n;
+    if (!await _pinGate(l.sendPinReason(epicExact(l, reviewed.amount)))) return;
+    if (!mounted) return;
     final to = parseRecipient(_recipient.text);
     if (to.kind == RecipientKind.tor) return _sendTor(reviewed, to);
     // Captured now: after the await the screen may be gone, and home must still refresh.
@@ -1043,6 +1065,9 @@ class _SendViewState extends ConsumerState<SendView> {
   Future<void> _createFile() async {
     final amount = _parsedAmount;
     if (amount == null) return;
+    final l = context.l10n;
+    if (!await _pinGate(l.sendFilePinReason(epicExact(l, amount)))) return;
+    if (!mounted) return;
     final container = ProviderScope.containerOf(context, listen: false);
     await _run((session) async {
       final message = _noteText;

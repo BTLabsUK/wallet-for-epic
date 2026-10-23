@@ -959,5 +959,17 @@
   "sendTorNothingSent": "{reason} Nic nie zostało wysłane.",
   "sendTryAgain": "Spróbuj ponownie",
   "sendCancelPayment": "Anuluj płatność",
-  "settingsSectionReceiving": "Odbieranie"
+  "settingsSectionReceiving": "Odbieranie",
+  "homeAvailableToSpend": "Do wydania",
+  "homeTileWaitingSender": "Czeka na nadawcę",
+  "homeTileLocked": "Zablokowane w wysyłkach",
+  "homeTileMaturing": "Nagrody dojrzewają",
+  "homeTileTotal": "Razem",
+  "homeViewAll": "Zobacz wszystkie: {count}",
+  "homeDestActivity": "Aktywność",
+  "homeDestOutputs": "Wyjścia",
+  "txStatusReceived": "Otrzymano",
+  "txStatusSent": "Wysłano",
+  "sendPinReason": "Wpisz PIN, aby wysłać {amount} EPIC.",
+  "sendFilePinReason": "Wpisz PIN, aby utworzyć plik płatności na {amount} EPIC."
 }

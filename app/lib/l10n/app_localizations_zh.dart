@@ -3637,4 +3637,46 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get settingsSectionReceiving => '接收';
+
+  @override
+  String get homeAvailableToSpend => '可用余额';
+
+  @override
+  String get homeTileWaitingSender => '等待付款方';
+
+  @override
+  String get homeTileLocked => '发送中锁定';
+
+  @override
+  String get homeTileMaturing => '奖励成熟中';
+
+  @override
+  String get homeTileTotal => '总计';
+
+  @override
+  String homeViewAll(int count) {
+    return '查看全部 $count';
+  }
+
+  @override
+  String get homeDestActivity => '活动';
+
+  @override
+  String get homeDestOutputs => '输出';
+
+  @override
+  String get txStatusReceived => '已收到';
+
+  @override
+  String get txStatusSent => '已发送';
+
+  @override
+  String sendPinReason(String amount) {
+    return '输入 PIN 以发送 $amount EPIC。';
+  }
+
+  @override
+  String sendFilePinReason(String amount) {
+    return '输入 PIN 以生成 $amount EPIC 的付款文件。';
+  }
 }
