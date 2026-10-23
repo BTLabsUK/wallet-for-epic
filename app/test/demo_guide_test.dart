@@ -126,8 +126,14 @@ class _Harness {
   );
   late ProviderContainer container;
 
-  Future<void> pump(WidgetTester tester, {double textScale = 1}) async {
-    tester.view.physicalSize = const Size(360 * 3, 780 * 3);
+  /// [height] is tall enough for the guide to be built under Home's tiles, status card and
+  /// destinations; the text scale 2 test scrolls a phone-height view instead.
+  Future<void> pump(
+    WidgetTester tester, {
+    double textScale = 1,
+    double height = 2200,
+  }) async {
+    tester.view.physicalSize = Size(360 * 3, height * 3);
     tester.view.devicePixelRatio = 3;
     addTearDown(tester.view.reset);
     final chain = demo ? Chain.floonet : Chain.mainnet;
@@ -373,7 +379,7 @@ void main() {
       transactions: [_faucet()],
       summary: _summary(waiting: 10),
     );
-    await h.pump(tester, textScale: 2);
+    await h.pump(tester, textScale: 2, height: 780);
     expect(tester.takeException(), isNull);
     await tester.drag(find.byType(Scrollable).at(1), const Offset(0, -400));
     await tester.pumpAndSettle();
