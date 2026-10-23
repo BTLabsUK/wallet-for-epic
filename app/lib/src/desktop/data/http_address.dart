@@ -2,6 +2,8 @@
 /// address for Receive.
 library;
 
+import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
 /// The port `epic-wallet` and the GUI listen on.
@@ -94,3 +96,140 @@ _systemInterfaces() async => [
   for (final i in await NetworkInterface.list(type: InternetAddressType.IPv4))
     (name: i.name, addresses: i.addresses),
 ];
+
+/// Asks the internet about this computer for From the internet: the router's public IP and
+/// whether a port on it answers from outside. Both go over HTTPS; null when it cannot tell.
+abstract interface class PublicReachProbe {
+  /// The public IPv4 address the internet sees this computer as.
+  Future<String?> publicIp();
+
+  /// Whether `ip:port` accepts a TCP connection from the internet.
+  Future<bool?> reachable(String ip, int port);
+}
+
+/// [PublicReachProbe] on api.ipify.org (the IP, as the GUI 6.1.6 asks it) and portchecker.io
+/// (a connection from its server, so it tells what a sender sees, unlike a connection from this
+/// computer through the router). No user agent, no cookies, no redirects.
+class WebReachProbe implements PublicReachProbe {
+  const WebReachProbe();
+
+  static final Uri _ip = Uri.parse('https://api.ipify.org?format=json');
+  static final Uri _check = Uri.parse('https://portchecker.io/api/v1/query');
+  static const Duration _timeout = Duration(seconds: 10);
+
+  @override
+  Future<String?> publicIp() async {
+    final json = await _json(_ip);
+    final ip = json is Map ? json['ip'] : null;
+    final a = ip is String ? InternetAddress.tryParse(ip) : null;
+    return a != null && a.type == InternetAddressType.IPv4 ? a.address : null;
+  }
+
+  @override
+  Future<bool?> reachable(String ip, int port) async {
+    final json = await _json(_check, body: {'host': ip, 'ports': [port]});
+    if (json is! Map || json['error'] == true) return null;
+    final check = json['check'];
+    if (check is! List) return null;
+    for (final c in check) {
+      if (c is Map && c['port'] == port && c['status'] is bool) return c['status'] as bool;
+    }
+    return null;
+  }
+
+  Future<Object?> _json(Uri url, {Object? body}) async {
+    final client = HttpClient()
+      ..connectionTimeout = _timeout
+      ..userAgent = null;
+    try {
+      final request = await (body == null ? client.getUrl(url) : client.postUrl(url)).timeout(_timeout);
+      request.followRedirects = false;
+      request.headers.set(HttpHeaders.acceptHeader, 'application/json');
+      if (body != null) {
+        request.headers.contentType = ContentType.json;
+        request.write(jsonEncode(body));
+      }
+      final response = await request.close().timeout(_timeout);
+      final text = await response.transform(utf8.decoder).join().timeout(_timeout);
+      return response.statusCode == 200 ? jsonDecode(text) : null;
+    } on Object {
+      return null;
+    } finally {
+      client.close(force: true);
+    }
+  }
+}
+
+/// What the internet sees of the HTTP listener From the internet.
+class HttpReach {
+  const HttpReach({required this.port, this.publicIp, this.lan, this.reachable, required this.checkedAt});
+
+  final int port;
+
+  /// The router's public IP; null when it could not be found.
+  final String? publicIp;
+
+  /// This computer on the local network, for devices at home.
+  final String? lan;
+
+  /// Whether the internet reaches `publicIp:port`; null when it could not be checked.
+  final bool? reachable;
+
+  final DateTime checkedAt;
+
+  /// `http://<public IP>:<port>`, the address senders on the internet use; null without the IP.
+  String? get publicAddress => publicIp == null ? null : 'http://$publicIp:$port';
+
+  /// `http://<LAN address>:<port>`, for devices on the same network.
+  String? get lanAddress => lan == null ? null : 'http://$lan:$port';
+}
+
+/// [HttpReach], asked again after [ttl], when the port or the local network changes, or on
+/// [read]'s `recheck`. Calls at the same time share one check.
+class HttpReachCache {
+  HttpReachCache({
+    this._probe = const WebReachProbe(),
+    Future<String?> Function()? lan,
+    DateTime Function()? now,
+    this.ttl = const Duration(minutes: 2),
+  }) : _lan = lan ?? lanAddress,
+       _now = now ?? DateTime.now;
+
+  final PublicReachProbe _probe;
+  final Future<String?> Function() _lan;
+  final DateTime Function() _now;
+  final Duration ttl;
+
+  HttpReach? _last;
+  Future<HttpReach>? _running;
+  int? _runningPort;
+
+  /// The last check, without asking anything.
+  HttpReach? get last => _last;
+
+  Future<HttpReach> read(int port, {bool recheck = false}) async {
+    final lan = await _lan();
+    final last = _last;
+    final fresh = last != null && last.port == port && last.lan == lan && _now().difference(last.checkedAt) < ttl;
+    if (fresh && !recheck) return last;
+    final running = _running;
+    if (running != null && _runningPort == port) return running;
+    final check = _check(port, lan);
+    _running = check;
+    _runningPort = port;
+    try {
+      return _last = await check;
+    } finally {
+      if (identical(_running, check)) _running = null;
+    }
+  }
+
+  /// Forgets the last check (the listener stopped, Tor came on).
+  void clear() => _last = null;
+
+  Future<HttpReach> _check(int port, String? lan) async {
+    final ip = await _probe.publicIp();
+    final reachable = ip == null ? null : await _probe.reachable(ip, port);
+    return HttpReach(port: port, publicIp: ip, lan: lan, reachable: reachable, checkedAt: _now());
+  }
+}

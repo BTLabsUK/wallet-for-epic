@@ -169,7 +169,9 @@ class LepicDeskWallet implements DeskWalletApi {
     this.invoicesEvery = const Duration(minutes: 2),
     this.paymentsEvery = const Duration(seconds: 60),
     this.invoiceFocus = true,
-  }) : _keyring = keyring ?? btlabsKeyring,
+    HttpReachCache? httpReach,
+  }) : _reach = httpReach ?? HttpReachCache(),
+       _keyring = keyring ?? btlabsKeyring,
         onions = onions ?? OnionDirectory(),
         _torFeature = torFeature ?? DeskFeatures.tor,
         _torSaved = torSwitch,
@@ -187,6 +189,9 @@ class LepicDeskWallet implements DeskWalletApi {
 
   /// Passwords remembered on this computer, per wallet (F6).
   final RememberedPasswords _remember;
+
+  /// The public IP and port check for HTTP From the internet.
+  final HttpReachCache _reach;
 
   /// Whether this build offers Tor ([DeskFeatures.tor]); tests turn it on.
   final bool _torFeature;
@@ -1899,8 +1904,17 @@ class LepicDeskWallet implements DeskWalletApi {
     final port = _httpPort;
     if (_httpHealth != ServiceHealth.ok || port == null) return '';
     if (_httpExposure != core.HttpExposure.internet) return 'http://127.0.0.1:$port';
-    final lan = await lanAddress();
-    return lan == null ? '' : 'http://$lan:$port';
+    final reach = await httpReach();
+    return reach?.publicAddress ?? reach?.lanAddress ?? '';
+  }
+
+  @override
+  Future<HttpReach?> httpReach({bool recheck = false}) async {
+    final port = _httpPort;
+    // Never over the clearnet while Tor is on; HTTP receiving is off then anyway.
+    if (_settings.tor || _httpExposure != core.HttpExposure.internet || port == null) return null;
+    if (_httpHealth != ServiceHealth.ok) return null;
+    return _reach.read(port, recheck: recheck);
   }
 
   @override

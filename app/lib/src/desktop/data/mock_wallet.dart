@@ -543,7 +543,13 @@ class MockDeskWallet implements DeskWalletApi {
   Future<String> epicboxAddress() async => _epicboxAddr;
 
   @override
-  Future<String> httpAddress() async => !_http ? '' : 'http://${_settings.publicMode ? '10.0.1.24' : '127.0.0.1'}:${_settings.httpPort}';
+  Future<String> httpAddress() async => !_http ? '' : 'http://${_settings.publicMode ? '203.0.113.24' : '127.0.0.1'}:${_settings.httpPort}';
+
+  /// A router that does not forward the port yet: the warning shows.
+  @override
+  Future<HttpReach?> httpReach({bool recheck = false}) async => !_http || !_settings.publicMode || _settings.tor
+      ? null
+      : HttpReach(port: _settings.httpPort, publicIp: '203.0.113.24', lan: '10.0.1.24', reachable: false, checkedAt: DateTime.now());
 
   @override
   Future<String> torAddress() async => 'http://wfe7q3k2mz5xr4tbv6ld5yhnpjc7sgo2a3ue6iwq4fk7tr3mxzabcdid.onion';

@@ -12,16 +12,33 @@ import 'package:flutter_test/flutter_test.dart';
 
 const _password = 'test-pass-1234';
 
+/// A router with public IP 203.0.113.24 whose port is not forwarded; counts what it was asked.
+class _Probe implements PublicReachProbe {
+  int asked = 0;
+
+  @override
+  Future<String?> publicIp() async {
+    asked++;
+    return '203.0.113.24';
+  }
+
+  @override
+  Future<bool?> reachable(String ip, int port) async => false;
+}
+
 void main() {
   late Directory support;
   late core.FakeWalletService service;
   late LepicDeskWallet wallet;
+  late _Probe probe;
   core.FakeWalletSession session() => service.session;
 
   setUp(() async {
     support = await Directory.systemTemp.createTemp('desk-http-test-');
     service = core.FakeWalletService(password: _password);
+    probe = _Probe();
     wallet = LepicDeskWallet(
+      httpReach: HttpReachCache(probe: probe, lan: () async => '10.0.1.24'),
       service: service,
       walletDir: (chain) async {
         final dir = Directory('${support.path}/wallets/${chain.name}');
@@ -147,9 +164,9 @@ void main() {
       expect(session().httpListenerStarts.last, (exposure: core.HttpExposure.internet, port: 3420));
       session().httpListenerEvents.add(const core.HttpListenerEvent(kind: core.HttpListenerEventKind.started, port: 3420));
       await pumpEventQueue();
-      final lan = await lanAddress();
-      expect(await wallet.httpAddress(), lan == null ? '' : 'http://$lan:3420');
-      expect(await wallet.httpAddress(), isNot(contains('127.0.0.1')));
+      expect(await wallet.httpAddress(), 'http://203.0.113.24:3420', reason: 'the router’s public IP, never the LAN address');
+      final reach = await wallet.httpReach();
+      expect((reach!.publicAddress, reach.lanAddress, reach.reachable), ('http://203.0.113.24:3420', 'http://10.0.1.24:3420', false));
 
       // Stop receiving stops HTTP too; Start listener brings it back while the switch is on.
       await wallet.setListening(false);
@@ -317,6 +334,29 @@ void main() {
       await wallet.useNode('https://node.example.org');
       expect(session().httpListenerStarts, hasLength(2));
       expect(session().httpListenerStarts.last, (exposure: core.HttpExposure.internet, port: 3420));
+    });
+  });
+
+  group('public address', () {
+    test('asked only From the internet with the listener on (Tor: tor_direct_test)', () async {
+      await wallet.saveSettings(const DeskSettings(directHttp: true));
+      await wallet.setHttpListening(true);
+      session().httpListenerEvents.add(const core.HttpListenerEvent(kind: core.HttpListenerEventKind.started, port: 3415));
+      await pumpEventQueue();
+      expect(await wallet.httpReach(), isNull);
+      expect(await wallet.httpAddress(), 'http://127.0.0.1:3415');
+      expect(probe.asked, 0, reason: 'Local only asks nothing of the internet');
+
+      await wallet.saveSettings(const DeskSettings(directHttp: true, publicMode: true));
+      session().httpListenerEvents.add(const core.HttpListenerEvent(kind: core.HttpListenerEventKind.started, port: 3415));
+      await pumpEventQueue();
+      expect((await wallet.httpReach())?.reachable, isFalse);
+      expect(probe.asked, 1);
+      await wallet.httpAddress();
+      expect(probe.asked, 1, reason: 'kept, not asked again');
+      await wallet.httpReach(recheck: true);
+      expect(probe.asked, 2);
+
     });
   });
 

@@ -3,6 +3,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:epic_wallet/src/desktop/data/http_address.dart';
 import 'package:epic_wallet/src/desktop/data/lepic_desk_wallet.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:epic_wallet/src/net/tor_net.dart';
@@ -16,8 +17,23 @@ const _password = 'test-pass-1234';
 const _bundle = TorBundle(binary: '/app/bin/tor-bundle/tor', libDir: '/app/bin/tor-bundle');
 const _onion = 'http://pg6mmjiyjmcrsslvykfwnntlaru7p5svn6y2ymmju6nubxndf4pscryd.onion';
 
+/// Counts what the internet was asked for HTTP From the internet.
+class _Probe implements PublicReachProbe {
+  int asked = 0;
+
+  @override
+  Future<String?> publicIp() async {
+    asked++;
+    return '203.0.113.24';
+  }
+
+  @override
+  Future<bool?> reachable(String ip, int port) async => false;
+}
+
 void main() {
   late Directory support;
+  final probe = _Probe();
   late core.FakeWalletService service;
   late LepicDeskWallet wallet;
   TorBundle? bundle;
@@ -36,6 +52,7 @@ void main() {
     torBundle: () async => bundle,
     torFeature: true,
     torStartBackoff: const [Duration.zero, Duration.zero, Duration.zero],
+    httpReach: HttpReachCache(probe: probe, lan: () async => '10.0.1.24'),
   );
 
   Future<void> tor(core.TorEvent e) async {
@@ -521,4 +538,19 @@ void main() {
     final h = core.fakeTx(id: 4, slateId: 't', counterparty: _onion, amountCredited: BigInt.from(5));
     expect(deskTx(h, tip: 0, minConf: 10, fallbackId: -1).method, TxMethod.tor);
   });
+
+  test('HTTP From the internet asks nothing over the clearnet once Tor is on', () async {
+    await wallet.saveSettings(const DeskSettings(directHttp: true, publicMode: true));
+    await wallet.setHttpListening(true);
+    session().httpListenerEvents.add(const core.HttpListenerEvent(kind: core.HttpListenerEventKind.started, port: 3415));
+    await pumpEventQueue();
+    probe.asked = 0;
+    expect(await wallet.httpReach(recheck: true), isNotNull);
+    expect(probe.asked, 1);
+    await wallet.setTor(true);
+    expect(await wallet.httpReach(recheck: true), isNull);
+    expect(await wallet.httpAddress(), '');
+    expect(probe.asked, 1);
+  });
+
 }
