@@ -1,7 +1,12 @@
 import 'dart:async';
+import 'dart:io';
 
+import 'package:epic_wallet/src/net/http.dart';
+import 'package:epic_wallet/src/net/tor_net.dart';
+import 'package:epic_wallet/src/net/tor_switch.dart';
 import 'package:epic_wallet/src/network.dart';
 import 'package:epic_wallet/src/phone_tor.dart';
+import 'package:epic_wallet/src/price.dart';
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/secret_store_api.dart';
 import 'package:epic_wallet/src/tor_location.dart';
@@ -121,7 +126,7 @@ void main() {
   tearDown(() => h.dispose());
 
   test('locked: off, no onion', () {
-    expect(h.state, const PhoneTorState(phase: PhoneTorPhase.off));
+    expect(h.state, PhoneTorState.unread);
   });
 
   test('unlock with receiving on starts tor; events move the phase', () async {
@@ -526,7 +531,7 @@ void main() {
       onError: (Object e) => e,
     );
     h.container.read(sessionProvider.notifier).lock();
-    expect(h.state, const PhoneTorState(phase: PhoneTorPhase.off));
+    expect(h.state, PhoneTorState.unread);
     expect(await send, isA<WalletError>());
     // Events of the old tor change nothing.
     h.emit(TorEventKind.ready);
@@ -558,4 +563,99 @@ void main() {
       },
     );
   });
+
+  // RC3: with Tor on, the phone asked GitHub Pages and CoinGecko directly in its first seconds.
+  group('Tor saved on at launch', () {
+    late HttpOverrides? before;
+    late _Recorder recorder;
+
+    setUp(() {
+      before = HttpOverrides.current;
+      recorder = _Recorder();
+      HttpOverrides.global = recorder;
+    });
+    tearDown(() {
+      HttpOverrides.global = before;
+      TorNet.useDirect();
+      TorSwitch.on = false;
+    });
+
+    // The app's own requests as the phone makes them: the update manifest and the price.
+    Future<void> ask() async {
+      try {
+        await httpGet(Uri.parse('https://btlabs-epic.github.io/update.json'));
+      } on NetError {
+        // Waiting for tor: refused before anything is opened.
+      }
+      await const TorAwarePriceSource().price('usd');
+    }
+
+    test('no request leaves before tor has connected, then they go through it', () async {
+      h.store.values[h.key] = 'true';
+      phoneTorAtLaunch(savedOn: await PhoneTor.savedOn(h.store));
+      await ask();
+      // As the home screen does from unlock on.
+      h.container.listen(phoneTorProvider, (_, s) => phoneTorFollow(s), fireImmediately: true);
+      await ask();
+      // The opening wallet, its switch not read yet: still nothing direct.
+      h.container.read(sessionProvider.notifier).unlocked(h.session);
+      expect(h.state.settled, isFalse);
+      await ask();
+      await h.until((s) => s.phase == PhoneTorPhase.starting);
+      await ask();
+      expect(recorder.opened, isEmpty);
+      expect(TorNet.mode, TorNetMode.waiting);
+
+      h.session.torEvents.add(const TorEvent(kind: TorEventKind.bootstrapped, socksPort: 9150));
+      await h.until((s) => s.canSend);
+      expect(TorNet.mode, TorNetMode.tor);
+      await ask();
+      // Through tor's SOCKS port, and the price from BT Labs' copy, never CoinGecko.
+      expect(recorder.opened.map((u) => u.host), isNot(contains('api.coingecko.com')));
+      expect(recorder.opened, isNotEmpty);
+    });
+
+    test('saved off: direct from launch and after unlock', () async {
+      phoneTorAtLaunch(savedOn: await PhoneTor.savedOn(h.store));
+      expect(TorNet.mode, TorNetMode.direct);
+      h.container.listen(phoneTorProvider, (_, s) => phoneTorFollow(s), fireImmediately: true);
+      await h.unlock();
+      expect(TorNet.mode, TorNetMode.direct);
+      await ask();
+      expect(recorder.opened.map((u) => u.host), contains('api.coingecko.com'));
+    });
+
+    test('on for any network counts', () async {
+      final store = MemorySecretStore({'phone.tor_receiving.floonet.legacy': 'true'});
+      expect(await PhoneTor.savedOn(store), isTrue);
+      expect(await PhoneTor.savedOn(MemorySecretStore()), isFalse);
+    });
+  });
+}
+
+/// Records every request opened; none is answered.
+class _Recorder extends HttpOverrides {
+  final opened = <Uri>[];
+
+  @override
+  HttpClient createHttpClient(SecurityContext? context) => _RecordingClient(opened);
+}
+
+class _RecordingClient implements HttpClient {
+  _RecordingClient(this.opened);
+
+  final List<Uri> opened;
+
+  @override
+  Future<HttpClientRequest> openUrl(String method, Uri url) async {
+    opened.add(url);
+    throw const SocketException('recorded');
+  }
+
+  @override
+  void close({bool force = false}) {}
+
+  // The settings a client gets (timeouts, proxy, connection factory) change nothing here.
+  @override
+  dynamic noSuchMethod(Invocation invocation) => null;
 }
