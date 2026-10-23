@@ -116,6 +116,28 @@ void _stillOpen(_World w) {
 }
 
 void main() {
+  testWidgets('a live relay switch leaves Epicbox over Tor as it was: the same session keeps '
+      'the choice, the onion routes and tor', (tester) async {
+    final w = await _open(tester);
+    await w.session.setEpicboxOverTor(true);
+    await w.session.setOnionRoutes(const [
+      (host: 'flooepicbox.btlabs.uk', port: 443, onion: 'x.onion', onionPort: 443),
+    ]);
+    w.session.routeLog.clear();
+
+    await _useRelay(tester, 'relay.example.org');
+    await _save(tester);
+    await tester.tap(find.text(_l.serverSwitchRelayConfirm));
+    await tester.pumpAndSettle();
+
+    _stillOpen(w);
+    expect(w.session.serverSwitches.single.epicboxDomain, 'relay.example.org');
+    // LEPIC's switch keeps the session's tor routing; the app must not undo or redo it.
+    expect(w.session.routeLog, isEmpty, reason: 'no setting change, tor stop or listener restart');
+    expect(w.session.epicboxOverTorValue, isTrue);
+    expect(w.session.onionRoutes, hasLength(1));
+  });
+
   testWidgets('a new relay is confirmed with the new address, switched live, and the listener '
       'receives on it', (tester) async {
     final w = await _open(tester);
