@@ -1835,6 +1835,7 @@ void main() {
       await h.openSettings(tester, SettingsSection.about);
 
       // The switch is on About; the pages it changes are Privacy & network and Wallet.
+      // Each visit opens the page over the last one, and About is the one left in front.
       Future<Set<String>> texts() async {
         final seen = <String>{};
         for (final section in [
@@ -1842,13 +1843,7 @@ void main() {
           SettingsSection.wallet,
           SettingsSection.about,
         ]) {
-          await tester.pageBack();
-          await tester.pumpAndSettle();
-          await openSettingsSection(
-            tester.element(find.byType(SettingsScreen)),
-            section,
-          );
-          await tester.pumpAndSettle();
+          await h.openSettings(tester, section);
           if (section != SettingsSection.about) seen.addAll(pageTexts(tester));
         }
         return seen;
