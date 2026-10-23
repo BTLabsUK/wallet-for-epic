@@ -7,7 +7,8 @@ import 'package:flutter/material.dart';
 import '../l10n.dart';
 import '../wallet_service.dart';
 import 'common.dart';
-import 'theme/protocol.dart' show TimelineState, TimelineStep;
+import 'theme/protocol.dart'
+    show TimelineState, TimelineStep, currentMarkEdge, currentMarkHalo;
 import 'theme/tokens.dart';
 
 /// Where an epicbox send stands on the tracker's four steps: sent to them, their wallet
@@ -225,10 +226,10 @@ class _RoundMarkState extends State<_RoundMark>
               decoration: BoxDecoration(
                 color: t.bg,
                 shape: BoxShape.circle,
-                border: Border.all(color: t.accent, width: 2.5),
+                border: Border.all(color: currentMarkEdge(t), width: 2.5),
                 boxShadow: [
                   BoxShadow(
-                    color: t.accentSoft,
+                    color: currentMarkHalo(t),
                     spreadRadius:
                         2 + 3 * Curves.easeInOut.transform(_pulse.value),
                   ),

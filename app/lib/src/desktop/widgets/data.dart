@@ -73,7 +73,7 @@ class ERing extends StatelessWidget {
           painter: _RingPainter(
             value: off ? 1 : math.min(1, confirmations / needed),
             track: c.lineStrong,
-            arc: off ? c.faint : (done ? c.ok : c.accent),
+            arc: off ? c.faint : (done ? c.ok : c.info),
           ),
           child: Center(
             child: done && !off
@@ -372,7 +372,7 @@ class ESelect<T> extends StatelessWidget {
                 ),
               ),
               leadingIcon: item.value == value
-                  ? Icon(EIcons.check, size: Ctl.iconSm, color: c.accentText)
+                  ? Icon(EIcons.check, size: Ctl.iconSm, color: c.text)
                   : (item.leading ?? SizedBox(width: Ctl.iconSm)),
               trailingIcon: item.trailing,
               child: SizedBox(
@@ -599,5 +599,5 @@ ETone healthTone(ServiceHealth h) => switch (h) {
   ServiceHealth.slow => ETone.warn,
   ServiceHealth.down => ETone.risk,
   ServiceHealth.off => ETone.neutral,
-  ServiceHealth.checking => ETone.gold,
+  ServiceHealth.checking => ETone.info,
 };

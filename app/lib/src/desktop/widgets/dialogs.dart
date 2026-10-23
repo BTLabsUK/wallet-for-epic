@@ -70,6 +70,7 @@ class EDialog extends StatelessWidget {
       ETone.ok => c.ok,
       ETone.warn => c.warn,
       ETone.risk => c.risk,
+      ETone.info => c.info,
       ETone.gold => c.accentText,
       ETone.neutral => c.dim,
     };
@@ -263,6 +264,7 @@ void showEToast(BuildContext context, String title, {String? text, ETone tone = 
     ETone.ok => c.ok,
     ETone.risk => c.risk,
     ETone.warn => c.warn,
+    ETone.info => c.info,
     _ => c.accentText,
   };
   final shown = messenger.showSnackBar(

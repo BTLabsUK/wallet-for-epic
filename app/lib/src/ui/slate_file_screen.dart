@@ -9,6 +9,7 @@ import '../settings.dart';
 import '../slate_files.dart';
 import '../wallet_service.dart';
 import 'common.dart';
+import 'theme/tokens.dart';
 import 'tx_details_screen.dart';
 
 /// The [SlateFile.name] of payment text pasted on Receive.
@@ -399,7 +400,8 @@ class _Headline extends StatelessWidget {
       liveRegion: true,
       child: Row(
         children: [
-          Icon(icon, color: Theme.of(context).colorScheme.primary),
+          // A done headline: the success green, not the brand gold.
+          Icon(icon, color: context.tokens.ok),
           const SizedBox(width: 12),
           Expanded(
             child: Text(text, style: Theme.of(context).textTheme.titleMedium),
