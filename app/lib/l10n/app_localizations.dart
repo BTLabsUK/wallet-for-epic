@@ -4910,6 +4910,12 @@ abstract class AppLocalizations {
   /// **'Back up your recovery phrase'**
   String get settingsStateBackUp;
 
+  /// State line under the Back up recovery phrase row on the Security page while the phrase has not been backed up.
+  ///
+  /// In en, this message translates to:
+  /// **'Not backed up yet'**
+  String get settingsStateNotBackedUp;
+
   /// State line under the Security group: the wallet unlocks with the PIN only.
   ///
   /// In en, this message translates to:

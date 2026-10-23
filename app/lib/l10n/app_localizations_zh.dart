@@ -3052,6 +3052,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get settingsStateBackUp => '备份恢复短语';
 
   @override
+  String get settingsStateNotBackedUp => '尚未备份';
+
+  @override
   String get settingsStatePin => 'PIN 码';
 
   @override

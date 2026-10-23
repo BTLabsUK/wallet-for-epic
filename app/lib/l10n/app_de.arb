@@ -795,6 +795,7 @@
   "settingsSectionPrivacyNetwork": "Datenschutz & Netzwerk",
   "settingsSectionHelpFeedback": "Hilfe & Feedback",
   "settingsStateBackUp": "Wiederherstellungsphrase sichern",
+  "settingsStateNotBackedUp": "Noch nicht gesichert",
   "settingsStatePin": "PIN",
   "settingsStatePinBiometrics": "PIN und Biometrie",
   "settingsStateJoin": "{a} · {b}",

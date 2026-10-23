@@ -3288,6 +3288,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get settingsStateBackUp => 'Wiederherstellungsphrase sichern';
 
   @override
+  String get settingsStateNotBackedUp => 'Noch nicht gesichert';
+
+  @override
   String get settingsStatePin => 'PIN';
 
   @override

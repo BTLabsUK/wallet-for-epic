@@ -795,6 +795,7 @@
   "settingsSectionPrivacyNetwork": "Приватность и сеть",
   "settingsSectionHelpFeedback": "Помощь и отзыв",
   "settingsStateBackUp": "Сохраните фразу восстановления",
+  "settingsStateNotBackedUp": "Ещё не сохранена",
   "settingsStatePin": "PIN-код",
   "settingsStatePinBiometrics": "PIN-код и биометрия",
   "settingsStateJoin": "{a} · {b}",

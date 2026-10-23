@@ -3244,6 +3244,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsStateBackUp => 'Back up your recovery phrase';
 
   @override
+  String get settingsStateNotBackedUp => 'Not backed up yet';
+
+  @override
   String get settingsStatePin => 'PIN';
 
   @override

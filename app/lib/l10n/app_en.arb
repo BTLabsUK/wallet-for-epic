@@ -3891,6 +3891,10 @@
   "@settingsStateBackUp": {
     "description": "State line under the Security group while the recovery phrase has not been backed up."
   },
+  "settingsStateNotBackedUp": "Not backed up yet",
+  "@settingsStateNotBackedUp": {
+    "description": "State line under the Back up recovery phrase row on the Security page while the phrase has not been backed up."
+  },
   "settingsStatePin": "PIN",
   "@settingsStatePin": {
     "description": "State line under the Security group: the wallet unlocks with the PIN only."

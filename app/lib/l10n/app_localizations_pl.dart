@@ -3395,6 +3395,9 @@ class AppLocalizationsPl extends AppLocalizations {
   String get settingsStateBackUp => 'Zapisz frazę odzyskiwania';
 
   @override
+  String get settingsStateNotBackedUp => 'Jeszcze nie zapisano';
+
+  @override
   String get settingsStatePin => 'PIN';
 
   @override

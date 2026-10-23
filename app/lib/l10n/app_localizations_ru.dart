@@ -3376,6 +3376,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get settingsStateBackUp => 'Сохраните фразу восстановления';
 
   @override
+  String get settingsStateNotBackedUp => 'Ещё не сохранена';
+
+  @override
   String get settingsStatePin => 'PIN-код';
 
   @override

@@ -795,6 +795,7 @@
   "settingsSectionPrivacyNetwork": "隐私与网络",
   "settingsSectionHelpFeedback": "帮助与反馈",
   "settingsStateBackUp": "备份恢复短语",
+  "settingsStateNotBackedUp": "尚未备份",
   "settingsStatePin": "PIN 码",
   "settingsStatePinBiometrics": "PIN 码和生物识别",
   "settingsStateJoin": "{a} · {b}",
