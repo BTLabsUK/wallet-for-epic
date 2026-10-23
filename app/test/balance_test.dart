@@ -1,5 +1,5 @@
 // The balance and the rows under it tell one story: coins on hold are said plainly beside a
-// spendable 0 (design review F-05), and a payment's row never says Completed while the balance
+// spendable 0 (design review F-05), and a payment's row never says Received while the balance
 // still counts it as confirming (one of the F-06 disagreements; Send's re-estimate is another,
 // in send_test.dart).
 
@@ -12,6 +12,7 @@ import 'package:epic_wallet/src/push.dart';
 import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/settings.dart';
 import 'package:epic_wallet/src/ui/common.dart';
+import 'package:epic_wallet/src/ui/home_parts.dart';
 import 'package:epic_wallet/src/ui/home_screen.dart';
 import 'package:epic_wallet/src/ui/scan_screen.dart';
 import 'package:epic_wallet/src/ui/settings_history.dart';
@@ -103,7 +104,8 @@ Future<ProviderContainer> _pump(
   double width = 412,
   double textScale = 1,
 }) async {
-  tester.view.physicalSize = Size(width * 3, 915 * 3);
+  // Demo adds its guide above Recent activity; a taller view builds every row.
+  tester.view.physicalSize = Size(width * 3, (demo ? 1800 : 915) * 3);
   tester.view.devicePixelRatio = 3;
   addTearDown(tester.view.reset);
   final chain = demo ? Chain.floonet : Chain.mainnet;
@@ -163,9 +165,11 @@ Future<void> _tab(WidgetTester tester, String label) async {
 String _titleText(WidgetTester tester) =>
     tester.widget<Text>(find.byKey(titleFigureKey)).textSpan!.toPlainText();
 
-/// [text] in Wallet's pending line.
-Finder _inLine(String text) =>
-    find.descendant(of: find.byKey(pendingLineKey), matching: find.text(text));
+/// [text] in the balance tile of [kind] on Wallet.
+Finder _inTile(BalanceKind kind, String text) => find.descendant(
+  of: find.byKey(balanceTileKey(kind)),
+  matching: find.text(text),
+);
 
 /// What the only payment row says to a screen reader, which includes its status.
 String _rowLabel(WidgetTester tester) => tester
@@ -188,18 +192,17 @@ void main() {
       );
       await _pump(tester, session, width: 360);
       expect(tester.widget<Text>(find.byKey(balanceFigureKey)).data, '0');
-      final line = find.byKey(pendingLineKey);
-      for (final text in ['10 on hold', '+7.492 coming in']) {
-        expect(
-          find.descendant(of: line, matching: find.text(text)).hitTestable(),
-          findsOneWidget,
-          reason: text,
-        );
+      // Wallet says it in tiles: the 10 locked in sends and the 7.492 confirming.
+      for (final (kind, text) in [
+        (BalanceKind.locked, '10'),
+        (BalanceKind.confirming, '7.492'),
+      ]) {
+        expect(_inTile(kind, text).hitTestable(), findsOneWidget, reason: text);
       }
-      // It stands still, and nothing runs to move it.
-      final at = tester.getRect(find.text('10 on hold'));
+      // They stand still, and nothing runs to move them.
+      final at = tester.getRect(_inTile(BalanceKind.locked, '10'));
       await tester.pump(const Duration(seconds: 3));
-      expect(tester.getRect(find.text('10 on hold')), at);
+      expect(tester.getRect(_inTile(BalanceKind.locked, '10')), at);
       expect(tester.binding.hasScheduledFrame, isFalse);
 
       // The title on Send and Receive agrees: the same 0, and the same words.
@@ -220,7 +223,8 @@ void main() {
     });
 
     testWidgets(
-      'at most two items: on hold, and everything on chain coming in',
+      'a tile per pending balance; the title keeps two items: on hold, and '
+      'everything on chain coming in',
       (tester) async {
         final session = FakeWalletSession(
           summary: _summary(
@@ -232,14 +236,29 @@ void main() {
           ),
         );
         await _pump(tester, session, width: 360);
-        final line = find.byKey(pendingLineKey);
-        expect(find.text('5 on hold'), findsOneWidget);
-        // 2 confirming and 16 maturing; the 0.5 not on chain yet is not counted.
-        expect(find.text('+18 coming in'), findsOneWidget);
-        expect(
-          find.descendant(of: line, matching: find.byType(Text)),
-          findsNWidgets(2),
-        );
+        // Wallet: every balance that is not zero, then Total.
+        final tiles = balanceTiles(l, session.summaryValue, empty: false);
+        expect(tiles.map((t) => (t.kind, t.label, t.value)), [
+          (BalanceKind.confirming, l.homeBalanceConfirming, _epic(2)),
+          (BalanceKind.waitingSender, l.homeTileWaitingSender, _epic(0.5)),
+          (BalanceKind.locked, l.homeTileLocked, _epic(5)),
+          (BalanceKind.immature, l.homeTileMaturing, _epic(16)),
+          (BalanceKind.total, l.homeTileTotal, _epic(26.25)),
+        ]);
+        expect(_inTile(BalanceKind.confirming, '2'), findsOneWidget);
+        // Send and Receive keep the two items: 2 confirming and 16 maturing are coming in;
+        // the 0.5 not on chain yet is not counted.
+        await _tab(tester, l.homeSendButton);
+        for (final text in ['5 on hold', '+18 coming in']) {
+          expect(
+            find.descendant(
+              of: find.byType(ShellBarTitle),
+              matching: find.textContaining(text),
+            ),
+            findsOneWidget,
+            reason: text,
+          );
+        }
         // The ? still lists each balance with its own words.
         final rows = BalanceHelp.rows(l, session.summaryValue);
         expect(rows.map((r) => r.$1), [
@@ -262,6 +281,11 @@ void main() {
       );
       await _pump(tester, session, width: 360);
       expect(find.textContaining('coming in'), findsNothing);
+      // Not a Confirming tile either: it waits for the sender, and says so.
+      expect(find.byKey(balanceTileKey(BalanceKind.confirming)), findsNothing);
+      expect(_inTile(BalanceKind.waitingSender, '1,000,000'), findsOneWidget);
+      await _tab(tester, l.homeSendButton);
+      expect(find.textContaining('coming in'), findsNothing);
       expect(find.textContaining('1,000,000'), findsNothing);
       final rows = BalanceHelp.rows(l, session.summaryValue);
       expect(rows.map((r) => r.$1), [
@@ -279,9 +303,12 @@ void main() {
       );
       await _pump(tester, session, width: 360, textScale: 2);
       expect(tester.takeException(), isNull);
-      for (final text in ['7.49283746 on hold', '+6.48473625 coming in']) {
-        expect(find.text(text).hitTestable(), findsOneWidget, reason: text);
-      }
+      // The tiles grow with the text; the first is whole, the others scroll in.
+      expect(
+        _inTile(BalanceKind.confirming, '6.48473625').hitTestable(),
+        findsOneWidget,
+      );
+      expect(find.byKey(balanceTileKey(BalanceKind.locked)), findsOneWidget);
       await _tab(tester, l.homeSendButton);
       expect(tester.takeException(), isNull);
     });
@@ -302,7 +329,7 @@ void main() {
     );
 
     for (final demo in [true, false]) {
-      testWidgets('a confirming balance never sits under a Completed row '
+      testWidgets('a confirming balance never sits under a Received row '
           '(demo ${demo ? 'on' : 'off'})', (tester) async {
         final session = FakeWalletSession(
           summary: _summary(
@@ -313,10 +340,10 @@ void main() {
           transactions: [received(height: _tip)],
         );
         await _pump(tester, session, demo: demo);
-        expect(_rowLabel(tester), isNot(contains('completed')));
-        expect(find.text(l.txStatusCompleted), findsNothing);
-        expect(find.text(l.txStatusConfirming(0, 3)), findsOneWidget);
-        expect(_inLine('+2.5 coming in'), findsOneWidget);
+        expect(_rowLabel(tester), isNot(contains('received,')));
+        expect(find.textContaining(l.txStatusReceived), findsNothing);
+        expect(find.textContaining(l.txStatusConfirming(0, 3)), findsOneWidget);
+        expect(_inTile(BalanceKind.confirming, '2.5'), findsOneWidget);
 
         // The next refresh reaches block 228: three confirmations, both say so.
         session.summaryValue = _summary(
@@ -325,8 +352,11 @@ void main() {
         );
         await tester.pump(autoRefreshInterval);
         await tester.pumpAndSettle();
-        expect(_inLine('+2.5 coming in'), findsNothing);
-        expect(find.text(l.txStatusCompleted), findsOneWidget);
+        expect(
+          find.byKey(balanceTileKey(BalanceKind.confirming)),
+          findsNothing,
+        );
+        expect(find.textContaining(l.txStatusReceived), findsOneWidget);
       });
     }
 
@@ -344,8 +374,8 @@ void main() {
         transactions: [received(height: _tip - BigInt.from(3))],
       );
       await _pump(tester, session);
-      expect(find.text(l.txStatusConfirming(1, 3)), findsOneWidget);
-      expect(find.text(l.txStatusCompleted), findsNothing);
+      expect(find.textContaining(l.txStatusConfirming(1, 3)), findsOneWidget);
+      expect(find.textContaining(l.txStatusReceived), findsNothing);
     });
   });
 }
