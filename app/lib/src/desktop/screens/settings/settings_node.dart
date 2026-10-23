@@ -389,10 +389,12 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
       );
     }
 
-    // The word and state of the head: the same the rail shows.
+    // The word and state of the head: the same the rail shows. The down demo's mock wallet
+    // still reaches its node, which would keep it Synced.
+    final nodeHealth = widget.arg == NodeDemo.down ? ServiceHealth.down : status.nodeHealth;
     final NodeView view = prefs.builtin
         ? localNodeView(local, fallbackUrl: status.node.url)
-        : remoteNodeView(current.url, info, health: status.nodeHealth, torOn: torOn);
+        : remoteNodeView(current.url, info, health: nodeHealth, torOn: torOn);
     final down = view.state == EState.risk && !prefs.builtin;
     // The Switch action's target: the healthy node with the lowest latency, My nodes first.
     SwitchTarget? best;
@@ -473,7 +475,7 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
                     child: NodeCard(
                       url: current.url,
                       info: info,
-                      health: status.nodeHealth,
+                      health: nodeHealth,
                       torOn: torOn,
                       switchTo: best,
                       onSwitch: (t) => _useRemote(t.url),

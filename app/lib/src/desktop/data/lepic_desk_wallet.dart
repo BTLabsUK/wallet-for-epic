@@ -1618,9 +1618,8 @@ class LepicDeskWallet implements DeskWalletApi {
   Future<void> _checkTip() async {
     final config = _config;
     if (config == null || _tipBusy) return;
+    // Over Tor, LEPIC holds the check until tor is connected; a failure meanwhile is not counted.
     final overTor = _nodeOverTor(config.nodeUrl);
-    // Tor is (re)starting: the check would only wait for it; the next one counts.
-    if (overTor && !_torCanSend) return;
     _tipBusy = true;
     try {
       final tip = await _nodeTip(config);
