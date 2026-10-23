@@ -132,11 +132,11 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
     ({String text, bool ok}) result;
     try {
       // The node call needs no wallet, so no data directory.
-      final tip = await ref
-          .read(walletServiceProvider)
-          .nodeTip(
-            config: preset.config(dataDir: '', nodeUrl: url),
-          );
+      final tip = await askNodeTip(
+        ref.read(walletServiceProvider),
+        ref.read(sessionProvider),
+        preset.config(dataDir: '', nodeUrl: url),
+      );
       result = (
         text: l.setupTestConnected(groupDigits(l, tip.height), tip.nodeVersion),
         ok: true,

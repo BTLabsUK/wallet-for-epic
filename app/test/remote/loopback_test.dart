@@ -456,6 +456,20 @@ void main() {
       expect(await s.epicboxAddress(), endsWith('@relay.example.org'));
     });
 
+    test('a node tip asked through the open wallet', () async {
+      final s = await openSession();
+      const other = WalletConfig(
+        dataDir: '/wallets/a',
+        chain: Chain.floonet,
+        nodeUrl: 'https://node.example.org',
+        epicboxDomain: 'relay.example.org',
+        epicboxPort: 443,
+      );
+      final tip = await s.nodeTipFor(config: other);
+      expect(tip.height, BigInt.from(2500000));
+      expect(session.nodeTipsFor.map((c) => c.nodeUrl), ['https://node.example.org']);
+    });
+
     test('slates, fees and sends', () async {
       final s = await openSession();
       final amount = BigInt.from(1000000000);

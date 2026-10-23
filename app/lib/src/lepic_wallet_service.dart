@@ -1160,6 +1160,18 @@ class LepicWalletSession implements WalletSession {
   );
 
   @override
+  Future<NodeTip> nodeTipFor({required WalletConfig config}) => _guard(() async {
+    final tip = await _wallet.nodeTipFor(
+      config: LepicWalletService._lepicConfig(config, config.dataDir),
+    );
+    return NodeTip(
+      height: tip.height,
+      nodeVersion: tip.nodeVersion,
+      readyForTxs: tip.readyForTxs,
+    );
+  });
+
+  @override
   Future<SelfSentTx> spendOutputsToSelf({
     required List<String> commitments,
     required BigInt minimumConfirmations,

@@ -58,7 +58,7 @@ class _Opens extends core.FakeWalletService {
   final Map<String, Completer<void>> gates = {};
 
   @override
-  Future<core.NodeTip> nodeTip({required core.WalletConfig config}) async => core.NodeTip(height: BigInt.from(2500000), nodeVersion: '3.6.0');
+  Future<core.NodeTip> nodeAnswer(core.WalletConfig config) async => core.NodeTip(height: BigInt.from(2500000), nodeVersion: '3.6.0');
 
   @override
   Future<core.WalletSession> open({required core.WalletConfig config, required String password}) async {

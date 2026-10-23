@@ -41,7 +41,7 @@ class _NodeService extends FakeWalletService {
   int tipCalls = 0;
 
   @override
-  Future<NodeTip> nodeTip({required WalletConfig config}) async {
+  Future<NodeTip> nodeAnswer(WalletConfig config) async {
     tipCalls++;
     final p = pending;
     if (p != null) return p.future;
