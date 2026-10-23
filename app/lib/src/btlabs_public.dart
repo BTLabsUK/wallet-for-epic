@@ -335,10 +335,54 @@ class BtlService {
   final String url;
 }
 
+/// One Tor onion service for a public host (`infrastructure.onions`).
+class BtlOnion {
+  /// Creates the entry.
+  const BtlOnion({
+    required this.id,
+    required this.service,
+    required this.host,
+    required this.port,
+    required this.onion,
+    required this.onionPort,
+    required this.tls,
+  });
+
+  /// Short id.
+  final String id;
+
+  /// `epicbox`, `node`, `support`, `status` or `other`.
+  final String service;
+
+  /// The clearnet host the onion stands for.
+  final String host;
+
+  /// The clearnet port.
+  final int port;
+
+  /// The 56-character v3 address with `.onion`.
+  final String onion;
+
+  /// The port on the onion.
+  final int onionPort;
+
+  /// True: the onion serves TLS for [host] and the client verifies that host's certificate.
+  /// False: plain HTTP, only for public read-only data.
+  final bool tls;
+}
+
 /// Public infrastructure lists.
 class BtlInfrastructure {
   /// Creates the lists.
-  const BtlInfrastructure({required this.nodes, required this.epicboxRelays, required this.services});
+  const BtlInfrastructure({
+    required this.nodes,
+    required this.epicboxRelays,
+    required this.services,
+    this.onions,
+  });
+
+  /// The onion list; null when the file has no such field (a built-in copy then stays in use).
+  final List<BtlOnion>? onions;
 
   /// Nodes.
   final List<BtlNode> nodes;
@@ -925,6 +969,7 @@ _Parsed<BtlabsPublic> _parsePayload(List<int> bytes) {
     );
   });
   _unique(services.map((e) => e.id));
+  final onions = _onions(infra['onions']);
 
   final notices = root.containsKey('notices')
       ? _list(root['notices'], 16, (e) {
@@ -958,6 +1003,7 @@ _Parsed<BtlabsPublic> _parsePayload(List<int> bytes) {
         nodes: List.unmodifiable(nodes),
         epicboxRelays: List.unmodifiable(relays),
         services: List.unmodifiable(services),
+        onions: onions,
       ),
       notices: List.unmodifiable(notices),
       revokedKeys: List.unmodifiable(revoked),
@@ -968,6 +1014,38 @@ _Parsed<BtlabsPublic> _parsePayload(List<int> bytes) {
     revokedKeys: revoked,
   );
 }
+
+/// The optional onion list. Version 1 clients ignore the field, so a bad entry is skipped (never
+/// a reason to reject the file) and a repeated `host:port` keeps the first.
+List<BtlOnion>? _onions(Object? v) {
+  if (v is! List) return null;
+  final seen = <String>{};
+  final out = <BtlOnion>[];
+  for (final e in v.take(64)) {
+    try {
+      final o = _obj(e);
+      final tls = o['tls'];
+      if (tls is! bool) continue;
+      final onion = o['onion'];
+      if (onion is! String || !_onionRe.hasMatch(onion)) continue;
+      final entry = BtlOnion(
+        id: _id(o['id']),
+        service: _enum(o['service'], const ['epicbox', 'node', 'support', 'status', 'other']),
+        host: _host(o['host']),
+        port: _int(o['port'], 1, 65535),
+        onion: onion,
+        onionPort: _int(o['onion_port'], 1, 65535),
+        tls: tls,
+      );
+      if (seen.add('${entry.host}:${entry.port}')) out.add(entry);
+    } on _Bad {
+      continue;
+    }
+  }
+  return List.unmodifiable(out);
+}
+
+final _onionRe = RegExp(r'^[a-z2-7]{56}\.onion$');
 
 Map<String, dynamic> _obj(Object? v) => v is Map<String, dynamic> ? v : throw const _Bad();
 

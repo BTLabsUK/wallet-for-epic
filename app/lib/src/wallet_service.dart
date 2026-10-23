@@ -249,6 +249,24 @@ abstract interface class WalletSession {
   /// Stops tor, then its listener; [startTor]'s stream ends with `stopped`.
   Future<void> stopTor();
 
+  /// Epicbox over Tor: while on and the wallet's tor runs or starts, the relay connection goes
+  /// through tor and never directly; a listener connection that would now go another way is
+  /// replaced once what is in flight on it is acknowledged. On when the wallet opens.
+  Future<void> setEpicboxOverTor(bool on);
+
+  /// [startTor] follows: until it does, relay connections wait for tor instead of going
+  /// directly. Call it before [startListener] when tor is about to start with the wallet, and
+  /// before [stopTor] when restarting tor, so that stop keeps the connection waiting. A
+  /// [stopTor] without it, or lock, lets the connection go direct again.
+  Future<void> expectTor();
+
+  /// Whether Epicbox over Tor is on ([setEpicboxOverTor]).
+  Future<bool> epicboxOverTor();
+
+  /// The TLS hosts reached at an onion through tor, replacing LEPIC's built-in list from the
+  /// next connection. Throws `invalidArgument`, changing nothing, for an invalid entry.
+  Future<void> setOnionRoutes(List<TorOnionRoute> routes);
+
   Future<TorStatus> torStatus();
 
   /// Wakes a running tor after the app was paused, and after a network change
@@ -1063,8 +1081,13 @@ class FakeWalletSession implements WalletSession {
   @override
   Stream<ListenerEvent> startListener() {
     listenerStarts++;
+    routeLog.add('listener');
     return listenerEvents.stream;
   }
+
+  /// The calls that decide how the Epicbox connection goes, in order: `listener`,
+  /// `expectTor`, `startTor`, `stopTor`, `epicboxOverTor:<on>`.
+  final List<String> routeLog = [];
 
   @override
   Future<void> stopListener() async => listenerStops++;
@@ -1229,6 +1252,7 @@ class FakeWalletSession implements WalletSession {
   @override
   Stream<TorEvent> startTor({required String torBinary, String? libDir}) {
     torStarts.add((torBinary: torBinary, libDir: libDir));
+    routeLog.add('startTor');
     return torEvents.stream;
   }
 
@@ -1237,6 +1261,7 @@ class FakeWalletSession implements WalletSession {
 
   @override
   Future<void> stopTor() async {
+    routeLog.add('stopTor');
     await torStopGate?.future;
     torStops++;
     torStatusValue = TorStatus.off;
@@ -1245,6 +1270,30 @@ class FakeWalletSession implements WalletSession {
 
   @override
   Future<TorStatus> torStatus() async => torStatusValue;
+
+  /// The last [setEpicboxOverTor], or null before any.
+  bool? epicboxOverTorValue;
+
+  @override
+  Future<void> setEpicboxOverTor(bool on) async {
+    epicboxOverTorValue = on;
+    routeLog.add('epicboxOverTor:$on');
+  }
+
+  @override
+  Future<void> expectTor() async => routeLog.add('expectTor');
+
+  @override
+  Future<bool> epicboxOverTor() async => epicboxOverTorValue ?? true;
+
+  /// The last [setOnionRoutes], or null before any.
+  List<TorOnionRoute>? onionRoutes;
+
+  @override
+  Future<void> setOnionRoutes(List<TorOnionRoute> routes) async {
+    onionRoutes = routes;
+    routeLog.add('onionRoutes:${routes.length}');
+  }
 
   /// Every [refreshTor] call, by `networkChanged`.
   final List<bool> torRefreshes = [];

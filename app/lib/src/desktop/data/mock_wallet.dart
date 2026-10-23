@@ -709,6 +709,9 @@ class MockDeskWallet implements DeskWalletApi {
     _http = !on && _settings.directHttp;
   }
 
+  @override
+  Future<void> setEpicboxOverTor(bool on) async {}
+
   static const _scanLog = [
     'Starting UTXO scan',
     'Checking 1000 outputs, up to index 1000 (highest index: 2914414)',
