@@ -75,8 +75,9 @@ String _rowText(
   WalletOutput o,
   TxEntry? tx,
   DateTime now,
-  int need,
-) {
+  int need, {
+  String? who,
+}) {
   final word = _wordText(l, outputWord(o));
   final when = tx == null
       ? null
@@ -96,7 +97,7 @@ String _rowText(
     OutputLabel.locked =>
       tx?.counterparty == null
           ? l.outputsNoteSendPlain
-          : l.outputsNoteSend(shortAddress(tx!.counterparty!)),
+          : l.outputsNoteSend(who ?? shortAddress(tx!.counterparty!)),
     OutputLabel.spendable => received,
     _ => null,
   };
@@ -434,7 +435,21 @@ class _OutputsScreenState extends ConsumerState<OutputsScreen> {
               _OutputRow(
                 output: o,
                 value: money(o.value),
-                text: _rowText(l, o, txs[o.txId], now, need),
+                text: _rowText(
+                  l,
+                  o,
+                  txs[o.txId],
+                  now,
+                  need,
+                  // The contact's name, else the short address without the own server.
+                  who: contactName(ref, txs[o.txId]?.counterparty) ??
+                      (txs[o.txId]?.counterparty == null
+                          ? null
+                          : shortAddress(
+                              txs[o.txId]!.counterparty!,
+                              ownServer: ownEpicboxServer(ref),
+                            )),
+                ),
                 onTap: () => _openSheet(o, txs[o.txId]),
               ),
         ],
