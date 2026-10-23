@@ -8,9 +8,11 @@ import '../../../log.dart';
 import '../../data/api.dart' show DeskWalletApi;
 import '../../data/http_address.dart';
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
+import '../../data/tor_view.dart';
 import '../../../smart_outputs.dart';
 import '../../app/tour.dart';
 import '../../widgets/kit.dart';
+import '../../widgets/tor_chip.dart';
 import 'contact_picker.dart';
 import 'epicbox_notice.dart';
 import 'file_panels.dart';
@@ -32,6 +34,7 @@ class SendArgs {
     this.contact,
     this.nodeSync,
     this.epicboxHealth,
+    this.tor,
     this.privacyOpen = false,
     this.suggest = false,
     this.switched = false,
@@ -48,6 +51,9 @@ class SendArgs {
   final Contact? contact;
   final double? nodeSync;
   final ServiceHealth? epicboxHealth;
+
+  /// Stands in for the Tor switch's state in the tour.
+  final TorState? tor;
   final bool privacyOpen;
 
   /// Show the contacts matching [recipient] as if it was typed.
@@ -118,14 +124,17 @@ String? _recipientError(TxMethod m, String v, DeskWalletApi api) {
       return null;
     case TxMethod.epicbox:
       return p.kind == AddressKind.epicbox && p.complete ? null : 'This is not a valid Epicbox address.';
-    case TxMethod.http:
-      if (p.kind == AddressKind.epicbox || p.kind == AddressKind.tor) return 'This is not an HTTP address.';
+    // Direct: an http(s) address or an onion; the address decides the route.
+    case TxMethod.http || TxMethod.tor:
+      if (p.kind == AddressKind.epicbox) return 'This is not a Direct address.';
+      if (p.kind == AddressKind.tor) return p.complete ? null : 'This is not a valid onion address.';
       final problem = httpAddressProblem(p.kind == AddressKind.http ? p.canonical : t);
       return problem == null ? null : '$problem.';
-    case TxMethod.tor:
-      return p.kind == AddressKind.tor && p.complete ? null : 'This is not a valid Tor address.';
   }
 }
+
+/// The segment a method shows under: a send to an onion is a Direct send ([TxMethod.http]).
+TxMethod _segmentOf(TxMethod m) => m == TxMethod.tor ? TxMethod.http : m;
 
 
 class SendScreen extends ConsumerStatefulWidget {
@@ -253,10 +262,26 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     return h == ServiceHealth.off || h == ServiceHealth.checking;
   }
 
-  /// Tor is off or not connected yet: a send to an onion waits.
-  bool _torBlocked(DeskState st) => _method == TxMethod.tor && !(st.settings.tor && (st.status?.torCanSend ?? false));
+  TorState _torState(DeskState st) => _args.tor ?? deskTorState(st);
 
-  bool _canSend(DeskState st) => _nodeBlock(st) == null && !_epicboxBlocked(st) && !_torBlocked(st) && _result is! SendDone;
+  /// How this send's connection goes with the Tor switch as it is now; null for File.
+  TorWay? _torWay(DeskState st) {
+    final route = switch (_method) {
+      TxMethod.epicbox => TorRoute.epicbox,
+      TxMethod.tor => TorRoute.onionDirect,
+      TxMethod.http => TorRoute.httpDirect,
+      TxMethod.file => null,
+    };
+    return route == null ? null : torWay(route, _torState(st));
+  }
+
+  /// Tor holds this send: starting, not connected, or off for an onion. Nothing falls back.
+  bool _torHeld(DeskState st) {
+    final way = _torWay(st);
+    return way != null && !torGoes(way);
+  }
+
+  bool _canSend(DeskState st) => _nodeBlock(st) == null && !_epicboxBlocked(st) && !_torHeld(st) && _result is! SendDone;
 
   OutputPrefs get _prefs => ref.read(deskOutputPrefsProvider).value ?? const OutputPrefs();
 
@@ -334,12 +359,16 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     _lastTo = text;
     if (_method == TxMethod.file) return;
     final p = parseAddress(text, ref.read(deskApiProvider));
+    // Under Direct the address decides the route: an onion over Tor, anything else http(s).
+    if (_segmentOf(_method) == TxMethod.http) _method = _directRoute(p.kind);
     final m = methodForKind(p.kind);
-    if (m == null || m == _method || !_offered(m)) return;
+    if (m == null || _segmentOf(m) == _segmentOf(_method) || !_offered(m)) return;
     if (!(forced || added >= 8 || p.complete)) return;
     _method = m;
     if (tag) _showSwitched(m);
   }
+
+  TxMethod _directRoute(AddressKind k) => k == AddressKind.tor && DeskFeatures.tor ? TxMethod.tor : TxMethod.http;
 
   static bool _offered(TxMethod m) => switch (m) {
     TxMethod.http => DeskFeatures.httpDirect,
@@ -347,7 +376,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     _ => true,
   };
 
-  /// "Over Tor" next to To for 3 s, read out once.
+  /// "Direct" (or the other method) next to To for 3 s, read out once.
   void _showSwitched(TxMethod m) {
     _switchedTo = m;
     _tagOn = true;
@@ -359,12 +388,13 @@ class _SendScreenState extends ConsumerState<SendScreen> {
 
   bool _torBusy = false;
 
-  Future<void> _turnOnTor() async {
+  /// Turns the Tor switch on (Turn on Tor, Retry) or off (Turn Tor off).
+  Future<void> _setTor(bool on) async {
     setState(() => _torBusy = true);
     try {
-      await ref.read(deskProvider.notifier).setTor(true);
+      await ref.read(deskProvider.notifier).setTor(on);
     } on Object catch (e) {
-      if (mounted) showEToast(context, 'Tor not turned on', text: deskErrorText(e), tone: ETone.risk);
+      if (mounted) showEToast(context, on ? 'Tor not turned on' : 'Tor not turned off', text: deskErrorText(e), tone: ETone.risk);
     } finally {
       if (mounted) setState(() => _torBusy = false);
     }
@@ -444,10 +474,8 @@ class _SendScreenState extends ConsumerState<SendScreen> {
   void _use(Contact c) {
     setState(() {
       final m = contactMethod(c);
-      if (m != _method) {
-        _method = m;
-        _showSwitched(m);
-      }
+      if (_segmentOf(m) != _segmentOf(_method)) _showSwitched(m);
+      _method = m;
       _to.text = c.address;
       _lastTo = c.address;
     });
@@ -648,6 +676,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       onBack: res is! SendFileReady && (_to.text.isNotEmpty || _amount.text.isNotEmpty || _message.text.isNotEmpty) ? () {} : null,
       child: EPage(
       title: 'Send',
+      titleTrailing: res is SendFileReady ? null : TorChip(_torWay(st)),
       width: EPageWidth.mid,
       child: res is SendFileReady
           ? _fileReady(res, nav)
@@ -711,6 +740,28 @@ class _SendScreenState extends ConsumerState<SendScreen> {
             : 'Sending is possible once the node has synced.',
         tone: ETone.warn,
         icon: EIcons.server,
+      );
+    }
+    final way = _torWay(st);
+    if (way == TorWay.blocked) {
+      return ENotice(
+        key: const ValueKey('send-tor-blocked'),
+        title: 'Tor is not connected',
+        text: 'Nothing is sent until it is, or until Tor is turned off.',
+        tone: ETone.risk,
+        icon: EIcons.tor,
+        actions: [
+          EButton(label: 'Retry', size: EBtnSize.inline, busy: _torBusy, onPressed: _torBusy ? null : () => _setTor(true)),
+          EButton.ghost(label: 'Turn Tor off', size: EBtnSize.inline, onPressed: _torBusy ? null : () => _setTor(false)),
+        ],
+      );
+    }
+    if (way == TorWay.wait) {
+      return ENotice(
+        key: const ValueKey('send-tor-wait'),
+        title: 'Tor is starting',
+        text: 'Sending waits until it is connected. Nothing goes over the clearnet meanwhile.',
+        icon: EIcons.tor,
       );
     }
     final eb = _epicboxHealth(st);
@@ -791,13 +842,13 @@ class _SendScreenState extends ConsumerState<SendScreen> {
           stretch: true,
           segments: const [
             ESegment(TxMethod.epicbox, 'Epicbox', icon: EIcons.epicbox),
-            if (DeskFeatures.httpDirect) ESegment(TxMethod.http, 'HTTP', icon: EIcons.http),
-            if (DeskFeatures.tor) ESegment(TxMethod.tor, 'Tor', icon: EIcons.tor),
+            // Direct: http(s) or an onion, the address decides ([TxMethod.tor] is its route).
+            if (DeskFeatures.httpDirect || DeskFeatures.tor) ESegment(TxMethod.http, 'Direct', icon: EIcons.http),
             ESegment(TxMethod.file, 'File', icon: EIcons.file),
           ],
-          value: _method,
+          value: _segmentOf(_method),
           onChanged: (m) => setState(() {
-            _method = m;
+            _method = m == TxMethod.http ? _directRoute(parseAddress(_to.text, ref.read(deskApiProvider)).kind) : m;
             _failure = null;
           }),
           ),
@@ -806,7 +857,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       child: Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Padding(padding: EdgeInsets.all(Sp.panel), child: _MethodStrip(_method)),
+        Padding(padding: EdgeInsets.all(Sp.panel), child: _MethodStrip(_segmentOf(_method))),
         Divider(height: 1, thickness: 1, color: c.line),
         Padding(
           padding: EdgeInsets.all(Sp.panel),
@@ -850,35 +901,22 @@ class _SendScreenState extends ConsumerState<SendScreen> {
             SizedBox(height: Sp.x2),
             _Suggestions(contacts: matches, onPick: _use),
           ],
-          if (_method == TxMethod.tor && (!st.settings.tor || !(st.status?.torIncluded ?? true))) ...[
+          if (_torWay(st) == TorWay.needsTor) ...[
             SizedBox(height: Sp.x3),
             ENotice(
-              title: 'Tor is off',
-              text: st.status?.torIncluded ?? true ? 'Turn it on to send to a Tor address.' : 'Tor is not in this build.',
+              key: const ValueKey('send-needs-tor'),
+              title: 'Needs Tor',
+              text: st.status?.torIncluded ?? true ? 'An onion address can only be reached over Tor.' : 'Tor is not in this build.',
               tone: ETone.warn,
               icon: EIcons.tor,
               actions: [
                 if (st.status?.torIncluded ?? true)
-                  EButton(label: 'Turn on Tor receiving', size: EBtnSize.inline, busy: _torBusy, onPressed: _torBusy ? null : _turnOnTor),
+                  EButton(label: 'Turn on Tor', size: EBtnSize.inline, busy: _torBusy, onPressed: _torBusy ? null : () => _setTor(true)),
               ],
             ),
-          ] else if (_method == TxMethod.tor && st.status != null && !st.status!.torCanSend) ...[
-            SizedBox(height: Sp.x3),
-            Semantics(
-              liveRegion: true,
-              child: ENotice(
-                title: st.status!.tor == ServiceHealth.down ? 'Tor is not connected' : 'Tor is connecting',
-                text: st.status!.tor == ServiceHealth.down
-                    ? '${methodStateLine(TxMethod.tor, st.status!, st.settings).text}. Sending over Tor needs it.'
-                    : '${methodStateLine(TxMethod.tor, st.status!, st.settings).text}. Sending over Tor starts once it is connected.',
-                tone: st.status!.tor == ServiceHealth.down ? ETone.risk : ETone.neutral,
-                icon: EIcons.tor,
-                actions: [
-                  if (st.status!.tor == ServiceHealth.down)
-                    EButton(label: 'Retry', size: EBtnSize.inline, busy: _torBusy, onPressed: _torBusy ? null : _turnOnTor),
-                ],
-              ),
-            ),
+          ] else if (_method == TxMethod.http && _torState(st) != TorState.off) ...[
+            SizedBox(height: Sp.x2),
+            Text('Direct to http(s) addresses goes over the clearnet, not Tor.', key: const ValueKey('send-http-clearnet'), style: ts.small),
           ],
           if (contact != null) ...[
             SizedBox(height: Sp.x2),
@@ -983,7 +1021,9 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       _ when res is SendDone => 'Sent. Enter a new amount and recipient to send again.',
       _ when nodeBlocked => 'Waiting for the node to sync.',
       _ when _epicboxBlocked(st) => 'Waiting for Epicbox to connect.',
-      _ when _torBlocked(st) => st.settings.tor ? 'Waiting for Tor to connect.' : 'Turn on Tor to send to a Tor address.',
+      _ when _torWay(st) == TorWay.wait => 'Waiting for Tor to connect.',
+      _ when _torWay(st) == TorWay.blocked => 'Retry Tor, or turn it off.',
+      _ when _torWay(st) == TorWay.needsTor => 'Turn on Tor to send to an onion address.',
       _ when _submitted && !_toEdited && _toError(st) != null => 'Fix the fields marked in red.',
       _ when _submitted && !_amountEdited && _amountError(spendable) != null => 'Fix the fields marked in red.',
       _ when _reviewing => 'Checking the fee for this amount.',
@@ -1001,6 +1041,11 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       defaultStrategy: _prefs.strategy,
       updating: st.status?.syncProgress != null,
       hint: hint,
+      reviewLabel: switch (_torWay(st)) {
+        TorWay.wait => 'Waiting for Tor',
+        TorWay.blocked => 'Tor not connected',
+        _ => 'Review send',
+      },
       reviewing: _reviewing,
       onReview: _canSend(st) && !_reviewing ? _review : null,
     );
@@ -1018,6 +1063,7 @@ class _SendSummary extends StatelessWidget {
     required this.hint,
     required this.reviewing,
     required this.onReview,
+    this.reviewLabel = 'Review send',
     this.summary,
     this.extraFee = 0,
     this.strategy = SelectionStrategy.smallest,
@@ -1042,6 +1088,9 @@ class _SendSummary extends StatelessWidget {
   final String hint;
   final bool reviewing;
   final VoidCallback? onReview;
+
+  /// "Review send", or what holds it ("Waiting for Tor").
+  final String reviewLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -1081,7 +1130,7 @@ class _SendSummary extends StatelessWidget {
           SendLockRows(summary: ready ? summary : null, strategy: strategy, defaultStrategy: defaultStrategy),
           if (updating) Text('Balance updating while the wallet scans.', style: ts.caption),
           SizedBox(height: Sp.x4),
-          EButton.primary(label: 'Review send', icon: EIcons.send, expand: true, busy: reviewing, onPressed: onReview),
+          EButton.primary(label: reviewLabel, icon: EIcons.send, expand: true, busy: reviewing, onPressed: onReview),
           SizedBox(height: Sp.x3),
           Semantics(liveRegion: true, child: Text(hint, style: ts.small, textAlign: TextAlign.center)),
         ],
@@ -1099,8 +1148,7 @@ class _MethodStrip extends StatelessWidget {
 
   static (String, String) words(TxMethod m) => switch (m) {
     TxMethod.epicbox => ('The recipient can be offline.', 'The Epicbox server holds the payment until they open their wallet.'),
-    TxMethod.http => ('Straight to their wallet.', 'It must be open and reachable at its HTTP address.'),
-    TxMethod.tor => ('Straight to their wallet, over Tor.', 'Slower and more private. Their wallet must be open.'),
+    TxMethod.http || TxMethod.tor => ('Straight to their wallet.', 'An http(s) or .onion address; an onion goes over Tor. Their wallet must be open.'),
     TxMethod.file => ('No connection needed.', 'Hand the file over, get their response file back, then finalize it here.'),
   };
 
@@ -1137,7 +1185,7 @@ class _MethodStrip extends StatelessWidget {
   }
 }
 
-/// "Over Tor" next to To after the method followed the address: fades in, and out after 3 s,
+/// "Direct" next to To after the method followed the address: fades in, and out after 3 s,
 /// over the same [Motion.cross] both ways; read out once.
 class _SwitchTag extends StatelessWidget {
   const _SwitchTag({required this.method, required this.shown});
@@ -1150,8 +1198,7 @@ class _SwitchTag extends StatelessWidget {
     final m = method;
     if (m == null) return const SizedBox.shrink();
     final (word, kind) = switch (m) {
-      TxMethod.tor => ('Over Tor', 'Tor'),
-      TxMethod.http => ('Over HTTP', 'HTTP'),
+      TxMethod.tor || TxMethod.http => ('Direct', 'Direct'),
       TxMethod.file => ('File', 'File'),
       TxMethod.epicbox => ('Via Epicbox', 'Epicbox'),
     };
@@ -1167,7 +1214,7 @@ class _SwitchTag extends StatelessWidget {
           opacity: shown ? 1 : 0,
           duration: reduce ? Duration.zero : Motion.cross,
           curve: shown ? Motion.easeOut : Motion.easeIn,
-          child: SizedBox(height: 22.u, child: ETag(word, tone: ETone.gold, icon: methodIcon(m))),
+          child: SizedBox(height: 22.u, child: ETag(word, tone: ETone.gold, icon: methodIcon(_segmentOf(m)))),
         ),
       ),
     );
@@ -1361,8 +1408,8 @@ class _ReviewDialogState extends State<_ReviewDialog> {
     final c = context.dc;
     final via = switch (d.method) {
       TxMethod.epicbox => 'Epicbox (the recipient can be offline)',
-      TxMethod.http => 'HTTP (their wallet must be open)',
-      TxMethod.tor => 'Tor (their wallet must be open)',
+      TxMethod.http => 'Direct (their wallet must be open)',
+      TxMethod.tor => 'Direct, over Tor (their wallet must be open)',
       TxMethod.file => 'Transaction file',
     };
     final sum = d.summary;

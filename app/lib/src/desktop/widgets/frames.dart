@@ -23,9 +23,13 @@ class EPage extends StatelessWidget {
     this.onBack,
     this.width = EPageWidth.mid,
     this.scroll = true,
+    this.titleTrailing,
   });
 
   final String title;
+
+  /// Right after the title, e.g. a state chip.
+  final Widget? titleTrailing;
   final Widget child;
   final List<Widget> actions;
   final VoidCallback? onBack;
@@ -58,9 +62,16 @@ class EPage extends StatelessWidget {
                 SizedBox(width: Sp.x2),
               ],
               Expanded(
-                child: Semantics(
-                  header: true,
-                  child: Text(title, style: context.ts.h2, maxLines: 1, overflow: TextOverflow.ellipsis),
+                child: Row(
+                  children: [
+                    Flexible(
+                      child: Semantics(
+                        header: true,
+                        child: Text(title, style: context.ts.h2, maxLines: 1, overflow: TextOverflow.ellipsis),
+                      ),
+                    ),
+                    if (titleTrailing != null) ...[SizedBox(width: Sp.x3), titleTrailing!],
+                  ],
                 ),
               ),
               for (final a in actions) ...[SizedBox(width: Sp.x2), a],
