@@ -524,16 +524,46 @@ class ListenerNotifier extends Notifier<ListenerState> {
   Completer<void>? _ended;
   bool _restarting = false;
 
+  /// The connection dropped, or the network went, since the listener was last connected:
+  /// LEPIC may be sleeping out its backoff, so a resume or a returning network restarts it.
+  bool _down = false;
+
   static const String _connecting = 'Connecting to the epicbox relay…';
 
   @override
   ListenerState build() {
     final session = ref.watch(sessionProvider);
-    ref.onDispose(() => _events?.cancel());
+    ref.onDispose(() {
+      _events?.cancel();
+      _down = false;
+    });
     if (session == null) return const ListenerState();
+    // Android reports the network that is up as soon as this listens; only with a drop seen
+    // before is a returning network a reason to reconnect.
+    final network = ref.watch(networkChangesProvider).listen((available) {
+      if (available) {
+        unawaited(wake('network'));
+      } else {
+        _down = true;
+      }
+    });
+    ref.onDispose(network.cancel);
     _listen(session);
     return const ListenerState(status: _connecting);
   }
+
+  /// Restarts a listener that is down, so it reconnects now rather than after LEPIC's backoff,
+  /// which grows to 60 s and does not count the time the phone slept. Called when the app
+  /// comes back to the foreground and when the network returns. A listener still making its
+  /// first connection and a stopped one are left alone; a connected one only when the network
+  /// changed under it (its socket went with the old network, though LEPIC has not noticed).
+  Future<void> wake(String why) async {
+    if (!_down || state.stopped) return;
+    if (state.connected && why != 'network') return;
+    logInfo('listener', 'reconnect on $why');
+    await restart();
+  }
+
 
   void _listen(WalletSession session) {
     final ended = _ended = Completer<void>();
@@ -544,6 +574,7 @@ class ListenerNotifier extends Notifier<ListenerState> {
     // An error already said Offline; the stream's end after it changes nothing.
     var failed = false;
     late final StreamSubscription<ListenerEvent> events;
+    logInfo('listener', 'epicbox connecting');
     events = session.startListener().listen(
       (event) {
         if (event.kind == ListenerEventKind.stopped) end();
@@ -622,14 +653,25 @@ class ListenerNotifier extends Notifier<ListenerState> {
   void _onEvent(ListenerEvent event) {
     switch (event.kind) {
       case ListenerEventKind.connected:
+        if (!state.connected) logInfo('listener', 'epicbox subscribed');
+        _down = false;
         state = ListenerState(connected: true, last: state.last);
       case ListenerEventKind.disconnected:
+        // LEPIC sends one per failed attempt, between its backoff waits, and no reason yet.
+        logInfo(
+          'listener',
+          'epicbox disconnected, LEPIC retries'
+              '${event.message.isEmpty ? '' : ': ${event.message}'}',
+        );
+        // Raw: the status shows it only once it lasts (walletStatusProvider).
+        _down = true;
         state = ListenerState(
           lost: true,
           status: 'Reconnecting to the relay: ${event.message}',
           last: state.last,
         );
       case ListenerEventKind.stopped:
+        logInfo('listener', 'epicbox listener stopped');
         state = ListenerState(
           stopped: true,
           status: 'Listener stopped',

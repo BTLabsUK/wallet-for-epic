@@ -1,3 +1,4 @@
+import 'package:epic_wallet/src/connection_state.dart';
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/secret_store.dart';
@@ -131,6 +132,9 @@ class _Harness {
 
   Future<void> listener(WidgetTester tester, ListenerEventKind kind) async {
     session.listenerEvents.add(ListenerEvent(kind: kind, message: 'x'));
+    await tester.pumpAndSettle();
+    // A drop shows once it lasts (walletStatusProvider).
+    await tester.pump(statusSettle);
     await tester.pumpAndSettle();
   }
 }
@@ -531,6 +535,8 @@ void main() {
 
       await tester.tap(find.text('Retry'));
       await tester.pump();
+      // The shown status follows a turn later.
+      await tester.pump();
       expect(h.session.listenerStops, 1);
       expect(find.text('Epicbox connecting'), findsOneWidget);
       expect(find.text('Retry'), findsNothing);
@@ -582,6 +588,7 @@ void main() {
       h.session.listenerEvents.addError(StateError('relay gone'));
       await h.session.listenerEvents.close();
       await tester.pumpAndSettle();
+      await tester.pump(statusSettle);
       final state = h.container.read(listenerProvider);
       expect(state.lost, isTrue);
       expect(state.stopped, isFalse);
