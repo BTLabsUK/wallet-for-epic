@@ -4367,4 +4367,9 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get outputsConsolidateStarted =>
       'Scalanie rozpoczęte: jedno wyjście, potwierdzenie za około 3 bloki';
+
+  @override
+  String homePendingShort(String amount) {
+    return '$amount EPIC pozostaje zablokowane, dopóki portfel odbiorcy nie odpowie.';
+  }
 }

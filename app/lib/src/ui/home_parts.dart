@@ -114,8 +114,8 @@ class BalanceTiles extends ConsumerWidget {
 
   final void Function(BalanceKind kind) onTap;
 
-  /// Tile width, tile height and the gap between tiles.
-  static const double width = 132, height = 68, gap = 10;
+  /// A tile's least width, the row's least height and the gap between tiles.
+  static const double width = 120, height = 68, gap = 10;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -224,15 +224,22 @@ class _BalanceTile extends StatelessWidget {
         clipBehavior: Clip.antiAlias,
         child: InkWell(
           onTap: onTap,
-          child: SizedBox(
-            width: BalanceTiles.width,
+          // As wide as its label, never narrower than [BalanceTiles.width]: a label is
+          // never cut.
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(
+              minWidth: BalanceTiles.width,
+              maxWidth: 220,
+            ),
             child: Padding(
               padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   Row(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(
                         icon,
@@ -244,7 +251,7 @@ class _BalanceTile extends StatelessWidget {
                             : t.dim,
                       ),
                       const SizedBox(width: 6),
-                      Expanded(
+                      Flexible(
                         child: Text(
                           label,
                           maxLines: 1,

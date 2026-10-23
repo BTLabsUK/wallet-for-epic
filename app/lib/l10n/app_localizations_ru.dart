@@ -4348,4 +4348,9 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get outputsConsolidateStarted =>
       'Объединение начато: один выход, подтверждение примерно через 3 блока';
+
+  @override
+  String homePendingShort(String amount) {
+    return '$amount EPIC остаются заблокированными, пока кошелёк получателя не ответит.';
+  }
 }

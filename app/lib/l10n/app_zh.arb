@@ -1046,5 +1046,6 @@
   "outputsSplitPin": "输入 PIN 以确认拆分输出",
   "outputsConsolidatePin": "输入 PIN 以确认合并输出",
   "outputsSplitStarted": "拆分已开始：{count} 个输出，约 3 个区块后确认",
-  "outputsConsolidateStarted": "合并已开始：一个输出，约 3 个区块后确认"
+  "outputsConsolidateStarted": "合并已开始：一个输出，约 3 个区块后确认",
+  "homePendingShort": "{amount} EPIC 将保持锁定，直到收款方钱包响应。"
 }

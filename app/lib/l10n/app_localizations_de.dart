@@ -4249,4 +4249,9 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get outputsConsolidateStarted =>
       'Zusammenführen gestartet: ein Output, Bestätigung in etwa 3 Blöcken';
+
+  @override
+  String homePendingShort(String amount) {
+    return '$amount EPIC bleiben gesperrt, bis die Wallet des Empfängers antwortet.';
+  }
 }

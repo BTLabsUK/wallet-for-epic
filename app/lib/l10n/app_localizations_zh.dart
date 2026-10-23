@@ -3953,4 +3953,9 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get outputsConsolidateStarted => '合并已开始：一个输出，约 3 个区块后确认';
+
+  @override
+  String homePendingShort(String amount) {
+    return '$amount EPIC 将保持锁定，直到收款方钱包响应。';
+  }
 }

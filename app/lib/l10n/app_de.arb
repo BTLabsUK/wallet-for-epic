@@ -1046,5 +1046,6 @@
   "outputsSplitPin": "Mit der PIN bestätigen, um Outputs zu teilen",
   "outputsConsolidatePin": "Mit der PIN bestätigen, um Outputs zusammenzuführen",
   "outputsSplitStarted": "Teilen gestartet: {count} Outputs, Bestätigung in etwa 3 Blöcken",
-  "outputsConsolidateStarted": "Zusammenführen gestartet: ein Output, Bestätigung in etwa 3 Blöcken"
+  "outputsConsolidateStarted": "Zusammenführen gestartet: ein Output, Bestätigung in etwa 3 Blöcken",
+  "homePendingShort": "{amount} EPIC bleiben gesperrt, bis die Wallet des Empfängers antwortet."
 }

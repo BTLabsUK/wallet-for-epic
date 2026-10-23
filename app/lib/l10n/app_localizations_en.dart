@@ -4192,4 +4192,9 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get outputsConsolidateStarted =>
       'Consolidate started: one output, confirming in about 3 blocks';
+
+  @override
+  String homePendingShort(String amount) {
+    return '$amount EPIC stays locked until the recipient\'s wallet answers.';
+  }
 }

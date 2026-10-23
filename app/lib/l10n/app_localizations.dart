@@ -6426,6 +6426,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Consolidate started: one output, confirming in about 3 blocks'**
   String get outputsConsolidateStarted;
+
+  /// One line under the pending-sends card's title: the locked amount and what it waits for. {amount} is the total of the waiting sends.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} EPIC stays locked until the recipient\'s wallet answers.'**
+  String homePendingShort(String amount);
 }
 
 class _AppLocalizationsDelegate

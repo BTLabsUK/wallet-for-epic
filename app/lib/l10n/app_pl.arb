@@ -1046,5 +1046,6 @@
   "outputsSplitPin": "Potwierdź PIN-em, aby podzielić wyjścia",
   "outputsConsolidatePin": "Potwierdź PIN-em, aby scalić wyjścia",
   "outputsSplitStarted": "Podział rozpoczęty: {count} wyjść, potwierdzenie za około 3 bloki",
-  "outputsConsolidateStarted": "Scalanie rozpoczęte: jedno wyjście, potwierdzenie za około 3 bloki"
+  "outputsConsolidateStarted": "Scalanie rozpoczęte: jedno wyjście, potwierdzenie za około 3 bloki",
+  "homePendingShort": "{amount} EPIC pozostaje zablokowane, dopóki portfel odbiorcy nie odpowie."
 }

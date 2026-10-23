@@ -5180,5 +5180,15 @@
   "outputsConsolidateStarted": "Consolidate started: one output, confirming in about 3 blocks",
   "@outputsConsolidateStarted": {
       "description": "Notice after a consolidation was posted."
+  },
+  "homePendingShort": "{amount} EPIC stays locked until the recipient's wallet answers.",
+  "@homePendingShort": {
+    "description": "One line under the pending-sends card's title: the locked amount and what it waits for. {amount} is the total of the waiting sends.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "12.5"
+      }
+    }
   }
 }

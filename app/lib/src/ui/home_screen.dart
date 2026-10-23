@@ -975,9 +975,8 @@ class _PendingSendsCard extends ConsumerWidget {
                 style: Theme.of(context).textTheme.titleSmall,
               ),
               const SizedBox(height: 4),
-              Text(
-                l.homePendingBody(count, shownEpic(l, total, hidden: hidden)),
-              ),
+              // One line; "Why is it waiting?" has the rest.
+              Text(l.homePendingShort(shownEpic(l, total, hidden: hidden))),
               // One row on a phone; wraps only at large text.
               Wrap(
                 alignment: WrapAlignment.end,
