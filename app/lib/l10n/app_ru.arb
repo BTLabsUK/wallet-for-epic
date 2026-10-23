@@ -1538,5 +1538,6 @@
   "pushNoticeAvailable": "Уведомления доступны в настройках.",
   "torWayOver": "Через Tor",
   "torWayWaiting": "Ожидание Tor",
-  "torWayNotConnected": "Tor не подключён."
+  "torWayNotConnected": "Tor не подключён.",
+  "sendUsesAllOutputs": "{count, plural, one{Использует все выходы ({count}) · сдача 1 выход} few{Использует все {count} выхода · сдача 1 выход} many{Использует все {count} выходов · сдача 1 выход} other{Использует все {count} выхода · сдача 1 выход}}"
 }

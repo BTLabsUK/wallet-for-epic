@@ -18,6 +18,7 @@ import '../price.dart';
 import '../providers.dart';
 import '../send_preflight.dart';
 import '../settings.dart';
+import '../smart_outputs.dart' show planSessionSend;
 import '../slate_files.dart';
 import '../tor_phone.dart';
 import '../tor_routes.dart';
@@ -134,6 +135,9 @@ const Key sendRecipientFieldKey = ValueKey('send-recipient-field');
 const Key sendAmountFieldKey = ValueKey('send-amount-field');
 const Key sendFileAmountFieldKey = ValueKey('send-file-amount-field');
 const Key sendNoteFieldKey = ValueKey('send-note-field');
+
+/// The review's "Uses all N outputs · change 1 output" line (strategy All).
+const Key sendUsesAllOutputsKey = ValueKey('send-uses-all-outputs');
 const Key sendFileNoteFieldKey = ValueKey('send-file-note-field');
 const Key sendReplyFieldKey = ValueKey('send-reply-field');
 
@@ -276,8 +280,30 @@ class _SendViewState extends ConsumerState<SendView> {
   FeeEstimate? _estimate;
   String? _estimateError;
 
+  /// What [_estimate] was made with: the Outputs strategy and change outputs.
+  SendOptions? _options;
+
   /// The amount came from Max, so Continue asks for the maximum again rather than a fee.
   bool _maxUsed = false;
+
+  /// The options a send goes out with: those reviewed, or LEPIC's send-all after Max.
+  SendOptions? get _sendOptions => _maxUsed ? null : _options;
+
+  /// [planSessionSend] with the Outputs settings.
+  Future<({FeeEstimate estimate, SendOptions options})> _plan(
+    WalletSession session,
+    BigInt amount,
+    BigInt minimumConfirmations,
+  ) {
+    final settings = ref.read(appSettingsProvider).value;
+    return planSessionSend(
+      session,
+      amount: amount,
+      minimumConfirmations: minimumConfirmations,
+      strategy: settings?.sendStrategy ?? SelectionStrategy.smallest,
+      splitChange: settings?.splitChange ?? true,
+    );
+  }
 
   /// The note field is unfolded.
   bool _noteOpen = false;
@@ -637,14 +663,18 @@ class _SendViewState extends ConsumerState<SendView> {
     final session = ref.read(sessionProvider);
     if (session == null) return null;
     try {
-      final estimate = await session.estimateFee(
-        amount: amount,
-        minimumConfirmations: ref.read(countedConfirmationsProvider),
+      final plan = await _plan(
+        session,
+        amount,
+        ref.read(countedConfirmationsProvider),
       );
       if (mounted && _parsedAmount == amount) {
-        setState(() => _estimate = estimate);
+        setState(() {
+          _estimate = plan.estimate;
+          _options = plan.options;
+        });
       }
-      return estimate;
+      return plan.estimate;
     } catch (error) {
       if (mounted && _parsedAmount == amount) {
         setState(() => _estimateError = describeError(context.l10n, error));
@@ -751,15 +781,17 @@ class _SendViewState extends ConsumerState<SendView> {
     });
     try {
       final minimum = ref.read(countedConfirmationsProvider);
-      final estimate = _maxUsed
-          ? await session.estimateMax(minimumConfirmations: minimum)
-          : await session.estimateFee(
-              amount: amount,
-              minimumConfirmations: minimum,
-            );
+      final plan = _maxUsed
+          ? (
+              estimate: await session.estimateMax(minimumConfirmations: minimum),
+              options: null,
+            )
+          : await _plan(session, amount, minimum);
+      final estimate = plan.estimate;
       if (!mounted) return;
       setState(() {
         _estimate = estimate;
+        _options = plan.options;
         _estimateError = null;
         if (_maxUsed && estimate.amount != amount) {
           _parsedAmount = estimate.amount;
@@ -862,6 +894,7 @@ class _SendViewState extends ConsumerState<SendView> {
     // A slow send must not lock the wallet under the user and lose the tracker.
     final hold = ref.read(autoLockHoldProvider.notifier);
     final amount = reviewed.amount;
+    final options = _sendOptions;
     final note = _noteText;
     return _run((session) async {
       // What the wallet held before, to tell the payment a failed send leaves behind.
@@ -881,6 +914,7 @@ class _SendViewState extends ConsumerState<SendView> {
             minimumConfirmations: ref.read(countedConfirmationsProvider),
             address: to.address,
             message: note.isEmpty ? null : note,
+            options: options,
           ),
         );
       } on WalletError catch (error) {
@@ -986,6 +1020,7 @@ class _SendViewState extends ConsumerState<SendView> {
     final container = ProviderScope.containerOf(context, listen: false);
     final hold = ref.read(autoLockHoldProvider.notifier);
     final amount = reviewed.amount;
+    final options = _sendOptions;
     final note = _noteText;
     return _run((session) async {
       final minimum = ref.read(countedConfirmationsProvider);
@@ -1001,6 +1036,7 @@ class _SendViewState extends ConsumerState<SendView> {
             url: to.address,
             allowPlainHttp: plainHttpToOtherDevice(to.address),
             message: note.isEmpty ? null : note,
+            options: options,
           ),
         );
       } on WalletError catch (error) {
@@ -1089,6 +1125,7 @@ class _SendViewState extends ConsumerState<SendView> {
     final hold = ref.read(autoLockHoldProvider.notifier);
     final tor = ref.read(phoneTorProvider.notifier);
     final amount = reviewed.amount;
+    final options = _sendOptions;
     final note = _noteText;
     return _run((session) async {
       final minimum = ref.read(countedConfirmationsProvider);
@@ -1104,6 +1141,7 @@ class _SendViewState extends ConsumerState<SendView> {
               minimumConfirmations: minimum,
               onion: to.address,
               message: note.isEmpty ? null : note,
+              options: options,
             ),
           ),
         );
@@ -1339,12 +1377,14 @@ class _SendViewState extends ConsumerState<SendView> {
     if (!await _pinGate(l.sendFilePinReason(epicExact(l, amount)))) return;
     if (!mounted) return;
     final container = ProviderScope.containerOf(context, listen: false);
+    final options = _sendOptions;
     await _run((session) async {
       final message = _noteText;
       final slate = await session.createSendSlate(
         amount: amount,
         minimumConfirmations: ref.read(countedConfirmationsProvider),
         message: message.isEmpty ? null : message,
+        options: options,
       );
       // The sender keeps the message as the private note too. The file is made, so a note
       // that fails to save only goes to the log.
@@ -2083,6 +2123,14 @@ class _SendViewState extends ConsumerState<SendView> {
         mono: false,
       ),
       _Row(label: l.sendNetworkFee, value: epicExact(l, estimate.fee)),
+      // Strategy All is a consolidating send: its change is one output, never split.
+      if (_sendOptions?.strategy == SelectionStrategy.all &&
+          estimate.change > BigInt.zero)
+        Text(
+          l.sendUsesAllOutputs(estimate.inputCount),
+          key: sendUsesAllOutputsKey,
+          style: theme.textTheme.bodySmall?.copyWith(color: t.dim),
+        ),
       _Row(
         label: l.sendReviewTotal,
         value: price == null

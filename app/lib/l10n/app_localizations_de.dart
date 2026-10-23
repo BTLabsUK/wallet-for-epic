@@ -6068,4 +6068,15 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get torWayNotConnected => 'Tor ist nicht verbunden.';
+
+  @override
+  String sendUsesAllOutputs(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Nutzt alle $count Outputs · Wechselgeld 1 Output',
+      one: 'Nutzt den 1 Output · Wechselgeld 1 Output',
+    );
+    return '$_temp0';
+  }
 }

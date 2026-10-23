@@ -5643,4 +5643,14 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get torWayNotConnected => 'Tor 未连接。';
+
+  @override
+  String sendUsesAllOutputs(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '使用全部 $count 个输出 · 找零 1 个输出',
+    );
+    return '$_temp0';
+  }
 }

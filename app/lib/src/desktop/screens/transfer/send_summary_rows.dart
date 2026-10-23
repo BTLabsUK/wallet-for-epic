@@ -202,15 +202,22 @@ String reviewLocks(SendSummary s, SelectionStrategy strategy) {
 }
 
 /// The review dialog's lines for the outputs: the second line of Network fee when the change
-/// is split, then Locks after Total and Strategy when not the default. The dialog puts
-/// [feeSecondLine] under its fee and adds [facts] after Total.
+/// is split, or with strategy All and change [usesAll] ("Uses all 5 outputs · change 1
+/// output": All consolidates, so its change is never split), then Locks after Total and
+/// Strategy when not the default. The dialog puts [feeSecondLine] under its fee and adds
+/// [facts] after Total.
 ({String? feeSecondLine, List<(String, Widget)> facts}) reviewOutputLines(
   SendSummary s, {
   required SelectionStrategy strategy,
   required SelectionStrategy defaultStrategy,
   int extraFee = 0,
+  String Function(int outputs)? usesAll,
 }) => (
-  feeSecondLine: s.changeOutputs > 1 ? 'Change split into ${s.changeOutputs} outputs (+${formatEpic(extraFee, minDecimals: 3)} EPIC).' : null,
+  feeSecondLine: strategy == SelectionStrategy.all && s.change > 0 && usesAll != null
+      ? usesAll(s.lockedOutputs)
+      : s.changeOutputs > 1
+      ? 'Change split into ${s.changeOutputs} outputs (+${formatEpic(extraFee, minDecimals: 3)} EPIC).'
+      : null,
   facts: [
     ('Locks', Text(reviewLocks(s, strategy))),
     if (strategy != defaultStrategy) ('Strategy', Text('${_strategyWord(strategy)} outputs, for this send')),

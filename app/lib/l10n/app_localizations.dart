@@ -9378,6 +9378,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Tor is not connected.'**
   String get torWayNotConnected;
+
+  /// Line in the payment review when the send spends every spendable output (strategy All) and change comes back: it is always one change output, whatever Split change says.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Uses its 1 output · change 1 output} other{Uses all {count} outputs · change 1 output}}'**
+  String sendUsesAllOutputs(int count);
 }
 
 class _AppLocalizationsDelegate
