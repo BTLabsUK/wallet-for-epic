@@ -243,6 +243,19 @@ void main() {
   testWidgets('notifications are not offered while Tor is on', (tester) async {
     final h = _Harness();
     await h.pump(tester);
+    // On the BT Labs relay, the only one that can push.
+    h.container
+        .read(walletConfigProvider.notifier)
+        .select(
+          const WalletConfig(
+            dataDir: '/fake/wallets/mainnet',
+            chain: Chain.mainnet,
+            nodeUrl: 'https://node.btlabs.uk',
+            epicboxDomain: 'flooepicbox.btlabs.uk',
+            epicboxPort: 443,
+          ),
+        );
+    await tester.pumpAndSettle();
     await _reach(tester, find.byKey(settingsPushKey));
     expect(_push(tester).onChanged, isNotNull);
     expect(_push(tester).subtitle, isNull);

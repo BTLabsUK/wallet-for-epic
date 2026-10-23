@@ -5875,10 +5875,22 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsNotificationsHint =>
-      'A notice when a payment is waiting. Off while Tor is on.';
+      'A notice when a payment is waiting. Uses the BT Labs relay, off while Tor is on.';
 
   @override
   String get settingsPushPaused => 'Paused while Tor is on';
+
+  @override
+  String get pushConfirmRelayBody =>
+      'Notifications work only through the BT Labs Epicbox relay, and go through Google’s service. They never include amounts, addresses or names.';
+
+  @override
+  String get pushConfirmRelayAddress =>
+      'The Epicbox address changes to …@flooepicbox.btlabs.uk, so contacts need the new one.';
+
+  @override
+  String get pushRelaySwitchFailed =>
+      'The relay could not be switched. Notifications stay off.';
 
   @override
   String get pushConfirmTitle => 'Turn on notifications?';

@@ -5531,10 +5531,21 @@ class AppLocalizationsZh extends AppLocalizations {
   String get settingsNotifications => '通知';
 
   @override
-  String get settingsNotificationsHint => '有付款等待时提醒。Tor 开启时关闭。';
+  String get settingsNotificationsHint => '有付款等待时提醒。使用 BT Labs 服务器，Tor 开启时关闭。';
 
   @override
   String get settingsPushPaused => 'Tor 开启时已暂停';
+
+  @override
+  String get pushConfirmRelayBody =>
+      '通知仅通过 BT Labs 的 Epicbox 服务器工作，并经由 Google 的服务发送。通知从不包含金额、地址或名称。';
+
+  @override
+  String get pushConfirmRelayAddress =>
+      'Epicbox 地址将变为 …@flooepicbox.btlabs.uk，联系人需要新地址。';
+
+  @override
+  String get pushRelaySwitchFailed => '无法切换服务器。通知保持关闭。';
 
   @override
   String get pushConfirmTitle => '开启通知？';

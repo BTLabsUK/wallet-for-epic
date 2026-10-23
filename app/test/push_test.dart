@@ -85,9 +85,12 @@ class _Session extends FakeWalletSession {
   }
 }
 
+/// The config the next harness opens with ([_Harness.relay]).
+WalletConfig _opening = _Harness._config;
+
 class _Config extends WalletConfigNotifier {
   @override
-  WalletConfig? build() => _Harness._config;
+  WalletConfig? build() => _opening;
 }
 
 class _OpenSession extends SessionNotifier {
@@ -102,8 +105,10 @@ class _OpenSession extends SessionNotifier {
 typedef _Post = ({Uri url, Map<String, dynamic> body, Duration timeout});
 
 class _Harness {
-  _Harness({this.wanted = false, this.torSaved = false}) {
+  _Harness({this.wanted = false, this.torSaved = false, String? relay}) {
+    _opening = relay == null ? _config : relayConfig(relay);
     session = _Session(order);
+    if (relay != null) session.address = 'esPushKey@$relay';
     push = _Push(order);
     if (wanted) store.values['app.push'] = 'true';
     if (torSaved) store.values[PhoneTor.receivingKey(_config)] = 'true';
@@ -114,6 +119,15 @@ class _Harness {
     chain: Chain.mainnet,
     nodeUrl: 'https://node.btlabs.uk',
     epicboxDomain: 'flooepicbox.btlabs.uk',
+    epicboxPort: 443,
+  );
+
+  /// [_config] on another Epicbox relay.
+  static WalletConfig relayConfig(String relay) => WalletConfig(
+    dataDir: _config.dataDir,
+    chain: _config.chain,
+    nodeUrl: _config.nodeUrl,
+    epicboxDomain: relay,
     epicboxPort: 443,
   );
 
@@ -131,7 +145,9 @@ class _Harness {
 
   late ProviderContainer container;
 
-  List<String> get postActions => [for (final p in posts) p.url.pathSegments.last];
+  List<String> get postActions => [
+    for (final p in posts) p.url.pathSegments.last,
+  ];
 
   Future<void> pump(WidgetTester tester) async {
     tester.view.physicalSize = const Size(1080, 2340);
@@ -207,7 +223,8 @@ class _Harness {
   }
 
   PhoneTor get tor => container.read(phoneTorProvider.notifier);
-  PushController get controller => container.read(pushControllerProvider.notifier);
+  PushController get controller =>
+      container.read(pushControllerProvider.notifier);
   bool get wantedNow => store.values['app.push'] == 'true';
 
   /// Tor turned on and connected.
@@ -291,24 +308,30 @@ void main() {
       session = FakeWalletSession()..address = _relayAddress;
     });
 
-    test('register: the body PROTOCOL.md fixes, signed by the session', () async {
-      final outcome = await make().register(session, 'tok-1');
-      expect(outcome, PushOutcome.sent);
-      final post = posts.single;
-      expect(post.url.toString(), 'https://flooepicbox.btlabs.uk/push/v1/register');
-      expect(post.body, {
-        'address': _relayAddress,
-        'token': 'tok-1',
-        'timestamp': _stamp,
-        'signature': 'sig:register:tok-1:$_stamp',
-      });
-      expect(post.timeout, const Duration(seconds: 10));
-      expect(session.pushSignatures.single, (
-        action: 'register',
-        token: 'tok-1',
-        timestamp: _stamp,
-      ));
-    });
+    test(
+      'register: the body PROTOCOL.md fixes, signed by the session',
+      () async {
+        final outcome = await make().register(session, 'tok-1');
+        expect(outcome, PushOutcome.sent);
+        final post = posts.single;
+        expect(
+          post.url.toString(),
+          'https://flooepicbox.btlabs.uk/push/v1/register',
+        );
+        expect(post.body, {
+          'address': _relayAddress,
+          'token': 'tok-1',
+          'timestamp': _stamp,
+          'signature': 'sig:register:tok-1:$_stamp',
+        });
+        expect(post.timeout, const Duration(seconds: 10));
+        expect(session.pushSignatures.single, (
+          action: 'register',
+          token: 'tok-1',
+          timestamp: _stamp,
+        ));
+      },
+    );
 
     test('unregister goes to its own path, with the caller’s cap', () async {
       final outcome = await make().unregister(
@@ -337,7 +360,10 @@ void main() {
 
     test('the relay’s own address forms are accepted', () {
       expect(PushRegistration.onRelay('esKey@flooepicbox.btlabs.uk'), isTrue);
-      expect(PushRegistration.onRelay('esKey@flooepicbox.btlabs.uk:443'), isTrue);
+      expect(
+        PushRegistration.onRelay('esKey@flooepicbox.btlabs.uk:443'),
+        isTrue,
+      );
       expect(PushRegistration.onRelay('esKey@epicbox.epiccash.com'), isFalse);
     });
 
@@ -348,27 +374,36 @@ void main() {
       expect(session.pushSignatures, isEmpty);
     });
 
-    test('Tor switched on while the signature was made: nothing is sent', () async {
-      final registration = PushRegistration(
-        post: (url, body, timeout) async {
-          posts.add((url: url, body: const {}, timeout: timeout));
-          return 204;
-        },
-        now: () => _now,
-        clearnet: () => session.pushSignatures.isEmpty,
-      );
-      expect(await registration.register(session, 'tok-1'), PushOutcome.skipped);
-      expect(posts, isEmpty);
-    });
+    test(
+      'Tor switched on while the signature was made: nothing is sent',
+      () async {
+        final registration = PushRegistration(
+          post: (url, body, timeout) async {
+            posts.add((url: url, body: const {}, timeout: timeout));
+            return 204;
+          },
+          now: () => _now,
+          clearnet: () => session.pushSignatures.isEmpty,
+        );
+        expect(
+          await registration.register(session, 'tok-1'),
+          PushOutcome.skipped,
+        );
+        expect(posts, isEmpty);
+      },
+    );
 
-    test('a refusal, a dead network and a timeout are failures, not throws', () async {
-      answer = (_) async => 401;
-      expect(await make().register(session, 'tok-1'), PushOutcome.failed);
-      answer = (_) => Future.error(const NetErrorForTest());
-      expect(await make().register(session, 'tok-1'), PushOutcome.failed);
-      answer = (_) => Future.error(TimeoutException('slow'));
-      expect(await make().register(session, 'tok-1'), PushOutcome.failed);
-    });
+    test(
+      'a refusal, a dead network and a timeout are failures, not throws',
+      () async {
+        answer = (_) async => 401;
+        expect(await make().register(session, 'tok-1'), PushOutcome.failed);
+        answer = (_) => Future.error(const NetErrorForTest());
+        expect(await make().register(session, 'tok-1'), PushOutcome.failed);
+        answer = (_) => Future.error(TimeoutException('slow'));
+        expect(await make().register(session, 'tok-1'), PushOutcome.failed);
+      },
+    );
   });
 
   group('Settings › Notifications', () {
@@ -381,17 +416,37 @@ void main() {
       expect(_row(tester).subtitle, isNull);
     });
 
-    testWidgets('paused: on, with the one state line, while Tor is on', (tester) async {
+    testWidgets('paused: on, with the one state line, while Tor is on', (
+      tester,
+    ) async {
       final h = _Harness(wanted: true);
       await h.pump(tester);
       await h.torOn(tester);
       await _reach(tester);
       expect(_row(tester).value, isTrue);
-      expect(_row(tester).onChanged, isNotNull, reason: 'it can still be turned off');
+      expect(
+        _row(tester).onChanged,
+        isNotNull,
+        reason: 'it can still be turned off',
+      );
       expect(find.text('Paused while Tor is on'), findsOneWidget);
     });
 
-    testWidgets('disabled: off and not offered while Tor is on', (tester) async {
+    testWidgets('another relay: offered as usual, nothing sent before it is turned on', (
+      tester,
+    ) async {
+      final h = _Harness(relay: 'epicbox.epiccash.com');
+      await h.pump(tester);
+      await _reach(tester);
+      expect(_row(tester).value, isFalse);
+      expect(_row(tester).onChanged, isNotNull);
+      expect(_row(tester).subtitle, isNull);
+      expect(h.posts, isEmpty);
+    });
+
+    testWidgets('disabled: off and not offered while Tor is on', (
+      tester,
+    ) async {
       final h = _Harness();
       await h.pump(tester);
       await h.torOn(tester);
@@ -403,18 +458,21 @@ void main() {
   });
 
   group('after each unlock', () {
-    testWidgets('wanted, Tor off: Firebase starts and the token is registered', (
+    testWidgets(
+      'wanted, Tor off: Firebase starts and the token is registered',
+      (tester) async {
+        final h = _Harness(wanted: true);
+        await h.pump(tester);
+        expect(h.push.starts, 1);
+        expect(h.postActions, ['register']);
+        expect(h.posts.single.body['token'], 'tok-1');
+        expect(h.container.read(pushControllerProvider), isTrue);
+      },
+    );
+
+    testWidgets('not wanted: nothing starts and nothing is sent', (
       tester,
     ) async {
-      final h = _Harness(wanted: true);
-      await h.pump(tester);
-      expect(h.push.starts, 1);
-      expect(h.postActions, ['register']);
-      expect(h.posts.single.body['token'], 'tok-1');
-      expect(h.container.read(pushControllerProvider), isTrue);
-    });
-
-    testWidgets('not wanted: nothing starts and nothing is sent', (tester) async {
       final h = _Harness();
       await h.pump(tester);
       expect(h.push.starts, 0);
@@ -430,7 +488,25 @@ void main() {
       expect(h.posts.last.body['token'], 'tok-new');
     });
 
-    testWidgets('Tor already on at the unlock: no start, no request', (tester) async {
+    testWidgets(
+      'the relay switched live to the BT Labs one: registered there',
+      (tester) async {
+        final h = _Harness(wanted: true, relay: 'epicbox.epiccash.com');
+        await h.pump(tester);
+        expect(h.posts, isEmpty, reason: 'another relay cannot push');
+        h.session.address = _relayAddress;
+        h.container
+            .read(walletConfigProvider.notifier)
+            .select(_Harness._config);
+        await h.settle(tester);
+        expect(h.postActions, ['register']);
+        expect(h.posts.single.body['address'], _relayAddress);
+      },
+    );
+
+    testWidgets('Tor already on at the unlock: no start, no request', (
+      tester,
+    ) async {
       final h = _Harness(wanted: true, torSaved: true);
       await h.pump(tester);
       expect(h.push.starts, 0);
@@ -448,7 +524,10 @@ void main() {
       h.order.clear();
       await h.tor.setReceiving(true);
       await tester.pumpAndSettle();
-      expect(h.order, containsAll(['post:unregister', 'deleteToken', 'startTor']));
+      expect(
+        h.order,
+        containsAll(['post:unregister', 'deleteToken', 'startTor']),
+      );
       final start = h.order.indexOf('startTor');
       expect(h.order.indexOf('post:unregister'), lessThan(start));
       expect(h.order.indexOf('deleteToken'), lessThan(start));
@@ -472,7 +551,10 @@ void main() {
       await tester.pumpAndSettle();
       expect(h.order, contains('deleteToken'));
       expect(h.session.torStarts, hasLength(1));
-      expect(h.order.indexOf('deleteToken'), lessThan(h.order.indexOf('startTor')));
+      expect(
+        h.order.indexOf('deleteToken'),
+        lessThan(h.order.indexOf('startTor')),
+      );
     });
 
     testWidgets('a slow unregister is given up after the cap', (tester) async {
@@ -482,12 +564,19 @@ void main() {
       h.order.clear();
       unawaited(h.tor.setReceiving(true));
       await tester.pump(const Duration(seconds: 1));
-      expect(h.session.torStarts, isEmpty, reason: 'still waiting for the relay');
+      expect(
+        h.session.torStarts,
+        isEmpty,
+        reason: 'still waiting for the relay',
+      );
       await tester.pump(const Duration(seconds: 5));
       await tester.pumpAndSettle();
       expect(h.order, contains('deleteToken'));
       expect(h.session.torStarts, hasLength(1));
-      expect(h.order.indexOf('deleteToken'), lessThan(h.order.indexOf('startTor')));
+      expect(
+        h.order.indexOf('deleteToken'),
+        lessThan(h.order.indexOf('startTor')),
+      );
     });
 
     testWidgets('not wanted: tor starts with nothing sent', (tester) async {
@@ -501,21 +590,30 @@ void main() {
   });
 
   group('Tor off', () {
-    testWidgets('was on: after tor stopped, a fresh token, registered, and said', (
-      tester,
-    ) async {
-      final h = _Harness(wanted: true);
-      await h.pump(tester);
-      h.listenForNotes();
-      await h.torOn(tester);
-      h.order.clear();
-      await h.torOff(tester);
-      expect(h.order.first, 'stopTor', reason: 'nothing before the clearnet is back');
-      expect(h.order, ['stopTor', 'post:register']);
-      expect(h.posts.last.body['token'], 'tok-2', reason: 'a new token, not the old one');
-      expect(h.notes, [PushNote.on]);
-      expect(h.wantedNow, isTrue);
-    });
+    testWidgets(
+      'was on: after tor stopped, a fresh token, registered, and said',
+      (tester) async {
+        final h = _Harness(wanted: true);
+        await h.pump(tester);
+        h.listenForNotes();
+        await h.torOn(tester);
+        h.order.clear();
+        await h.torOff(tester);
+        expect(
+          h.order.first,
+          'stopTor',
+          reason: 'nothing before the clearnet is back',
+        );
+        expect(h.order, ['stopTor', 'post:register']);
+        expect(
+          h.posts.last.body['token'],
+          'tok-2',
+          reason: 'a new token, not the old one',
+        );
+        expect(h.notes, [PushNote.on]);
+        expect(h.wantedNow, isTrue);
+      },
+    );
 
     testWidgets('was off: nothing', (tester) async {
       final h = _Harness();
@@ -528,29 +626,32 @@ void main() {
       expect(h.notes, isEmpty);
     });
 
-    testWidgets('switched off during Tor: no request, and Tor off keeps it off', (
-      tester,
-    ) async {
-      final h = _Harness(wanted: true);
-      await h.pump(tester);
-      h.listenForNotes();
-      await h.torOn(tester);
-      h.posts.clear();
-      h.order.clear();
-      await h.controller.turnOff();
-      await h.settle(tester);
-      expect(h.wantedNow, isFalse);
-      expect(h.posts, isEmpty, reason: 'nothing is sent while Tor is on');
-      expect(h.order, isEmpty);
-      await h.torOff(tester);
-      expect(h.posts, isEmpty);
-      expect(h.notes, [PushNote.off]);
-      expect(h.wantedNow, isFalse);
-    });
+    testWidgets(
+      'switched off during Tor: no request, and Tor off keeps it off',
+      (tester) async {
+        final h = _Harness(wanted: true);
+        await h.pump(tester);
+        h.listenForNotes();
+        await h.torOn(tester);
+        h.posts.clear();
+        h.order.clear();
+        await h.controller.turnOff();
+        await h.settle(tester);
+        expect(h.wantedNow, isFalse);
+        expect(h.posts, isEmpty, reason: 'nothing is sent while Tor is on');
+        expect(h.order, isEmpty);
+        await h.torOff(tester);
+        expect(h.posts, isEmpty);
+        expect(h.notes, [PushNote.off]);
+        expect(h.wantedNow, isFalse);
+      },
+    );
   });
 
   group('the switch', () {
-    testWidgets('off, Tor off: unregister, drop the token, say so', (tester) async {
+    testWidgets('off, Tor off: unregister, drop the token, say so', (
+      tester,
+    ) async {
       final h = _Harness(wanted: true);
       await h.pump(tester);
       h.listenForNotes();
@@ -572,7 +673,9 @@ void main() {
       expect(h.postActions, ['register']);
     });
 
-    testWidgets('on with permission denied: back off, nothing sent', (tester) async {
+    testWidgets('on with permission denied: back off, nothing sent', (
+      tester,
+    ) async {
       final h = _Harness();
       h.push.permitted = false;
       await h.pump(tester);

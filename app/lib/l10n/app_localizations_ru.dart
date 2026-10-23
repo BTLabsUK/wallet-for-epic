@@ -6058,10 +6058,22 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get settingsNotificationsHint =>
-      'Уведомление, когда ждёт платёж. Выключено, пока включён Tor.';
+      'Уведомление, когда ждёт платёж. Использует сервер BT Labs, выключено, пока включён Tor.';
 
   @override
   String get settingsPushPaused => 'Приостановлено, пока включён Tor';
+
+  @override
+  String get pushConfirmRelayBody =>
+      'Уведомления работают только через сервер Epicbox BT Labs и проходят через сервис Google. Они никогда не содержат сумм, адресов или имён.';
+
+  @override
+  String get pushConfirmRelayAddress =>
+      'Адрес Epicbox меняется на …@flooepicbox.btlabs.uk, поэтому контактам нужен новый.';
+
+  @override
+  String get pushRelaySwitchFailed =>
+      'Не удалось сменить сервер. Уведомления остаются выключенными.';
 
   @override
   String get pushConfirmTitle => 'Включить уведомления?';

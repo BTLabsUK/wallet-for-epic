@@ -908,6 +908,26 @@ void main() {
 
     Finder row() => find.byKey(settingsPushKey);
 
+    /// Unlocks, then moves the wallet to the BT Labs relay, the only one that can push.
+    Future<void> unlockOnRelay(_Harness h, WidgetTester tester) async {
+      await h.unlock(tester);
+      final config = h.container.read(walletConfigProvider)!;
+      h.container
+          .read(walletConfigProvider.notifier)
+          .select(
+            WalletConfig(
+              dataDir: config.dataDir,
+              chain: config.chain,
+              nodeUrl: config.nodeUrl,
+              nodeApiSecret: config.nodeApiSecret,
+              epicboxDomain: 'flooepicbox.btlabs.uk',
+              epicboxPort: 443,
+              walletId: config.walletId,
+            ),
+          );
+      await tester.pumpAndSettle();
+    }
+
     Future<void> tapRow(WidgetTester tester) async {
       await _reveal(tester, row());
       await tester.tap(row());
@@ -926,7 +946,7 @@ void main() {
       final h = _Harness();
       h.session.address = relay;
       await h.pump(tester);
-      await h.unlock(tester);
+      await unlockOnRelay(h, tester);
       expect(h.push.starts, 0);
       await h.openSettings(tester);
       // The label alone, with its explanation behind the info icon, and no state line.
@@ -939,7 +959,7 @@ void main() {
         find.descendant(
           of: row(),
           matching: find.byTooltip(
-            'A notice when a payment is waiting. Off while Tor is on.',
+            'A notice when a payment is waiting. Uses the BT Labs relay, off while Tor is on.',
           ),
         ),
         findsOneWidget,
@@ -968,7 +988,7 @@ void main() {
       final h = _Harness();
       h.session.address = relay;
       await h.pump(tester);
-      await h.unlock(tester);
+      await unlockOnRelay(h, tester);
       await h.openSettings(tester);
       await turnOn(tester);
       expect(h.push.starts, 1);
@@ -1006,7 +1026,7 @@ void main() {
       final h = _Harness();
       h.push.permitted = false;
       await h.pump(tester);
-      await h.unlock(tester);
+      await unlockOnRelay(h, tester);
       await h.openSettings(tester);
       expect(find.text(englishStrings.settingsPushBlocked), findsNothing);
       await turnOn(tester);
@@ -1030,7 +1050,7 @@ void main() {
       final h = _Harness();
       h.push.failure = Exception('no Firebase options');
       await h.pump(tester);
-      await h.unlock(tester);
+      await unlockOnRelay(h, tester);
       await h.openSettings(tester);
       await turnOn(tester);
       expect(h.push.starts, 1);
@@ -1047,7 +1067,7 @@ void main() {
       h.store.values['app.push'] = 'true';
       await h.pump(tester);
       expect(h.push.starts, 0, reason: 'nothing before the wallet opens');
-      await h.unlock(tester);
+      await unlockOnRelay(h, tester);
       expect(h.push.starts, 1);
       expect(h.store.values['app.push'], 'false');
     });
@@ -1058,10 +1078,75 @@ void main() {
       final h = _Harness();
       h.push.configuredBuild = false;
       await h.pump(tester);
-      await h.unlock(tester);
+      await unlockOnRelay(h, tester);
       await h.openSettings(tester);
       expect(row(), findsNothing);
       expect(find.text('Notifications'), findsNothing);
+      expect(h.push.starts, 0);
+    });
+
+    testWidgets('on another relay: one confirm says so, then the relay moves live and it registers', (
+      tester,
+    ) async {
+      final h = _Harness();
+      await h.pump(tester);
+      await h.unlock(tester);
+      final before = h.container.read(walletConfigProvider)!;
+      expect(before.epicboxDomain, isNot('flooepicbox.btlabs.uk'));
+      final session = h.container.read(sessionProvider);
+      await h.openSettings(tester);
+      await tapRow(tester);
+      expect(find.text('Turn on notifications?'), findsOneWidget);
+      expect(
+        find.text(
+          'Notifications work only through the BT Labs Epicbox relay, and go through '
+          'Google’s service. They never include amounts, addresses or names.',
+        ),
+        findsOneWidget,
+      );
+      expect(
+        find.text(
+          'The Epicbox address changes to …@flooepicbox.btlabs.uk, so contacts need the new one.',
+        ),
+        findsOneWidget,
+      );
+      expect(h.posts, isEmpty, reason: 'nothing before the confirm');
+      await tester.tap(find.text(englishStrings.pushConfirmAction));
+      await tester.pumpAndSettle();
+      final after = h.container.read(walletConfigProvider)!;
+      expect(after.epicboxDomain, 'flooepicbox.btlabs.uk');
+      expect(after.nodeUrl, before.nodeUrl, reason: 'only the relay moves');
+      expect(
+        h.container.read(sessionProvider),
+        same(session),
+        reason: 'live: no lock, no reopen',
+      );
+      expect(h.posts.map((p) => p.url.path), ['/push/v1/register']);
+      expect(
+        (jsonDecode(h.posts.single.body) as Map)['address'],
+        endsWith('@flooepicbox.btlabs.uk'),
+      );
+      expect(h.store.values['app.push'], 'true');
+      // Off again: the relay stays.
+      await tapRow(tester);
+      expect(
+        h.container.read(walletConfigProvider)!.epicboxDomain,
+        'flooepicbox.btlabs.uk',
+      );
+      expect(h.store.values['app.push'], 'false');
+    });
+
+    testWidgets('on another relay, Cancel moves nothing', (tester) async {
+      final h = _Harness();
+      await h.pump(tester);
+      await h.unlock(tester);
+      final before = h.container.read(walletConfigProvider)!.epicboxDomain;
+      await h.openSettings(tester);
+      await tapRow(tester);
+      await tester.tap(find.text('Cancel'));
+      await tester.pumpAndSettle();
+      expect(h.container.read(walletConfigProvider)!.epicboxDomain, before);
+      expect(h.posts, isEmpty);
       expect(h.push.starts, 0);
     });
 
@@ -1073,7 +1158,7 @@ void main() {
       h.store.values['app.push'] = 'true';
       await h.pump(tester);
       expect(h.push.starts, 0);
-      await h.unlock(tester);
+      await unlockOnRelay(h, tester);
       expect(h.push.starts, 1);
       expect(h.posts.map((p) => p.url.path), ['/push/v1/register']);
     });
@@ -1083,7 +1168,7 @@ void main() {
     ) async {
       final h = _Harness();
       await h.pump(tester);
-      await h.unlock(tester);
+      await unlockOnRelay(h, tester);
       await tester.pump(const Duration(seconds: 59));
       expect(find.byKey(noticeKey), findsNothing);
       await tester.pump(const Duration(seconds: 2));
@@ -1102,7 +1187,7 @@ void main() {
       final h = _Harness();
       h.store.values['app.push_hint_shown'] = 'true';
       await h.pump(tester);
-      await h.unlock(tester);
+      await unlockOnRelay(h, tester);
       await tester.pump(const Duration(seconds: 90));
       await tester.pumpAndSettle();
       expect(find.byKey(noticeKey), findsNothing);
@@ -1112,7 +1197,7 @@ void main() {
       final h = _Harness();
       h.store.values['app.push'] = 'true';
       await h.pump(tester);
-      await h.unlock(tester);
+      await unlockOnRelay(h, tester);
       await tester.pump(const Duration(seconds: 90));
       await tester.pumpAndSettle();
       expect(find.byKey(noticeKey), findsNothing);

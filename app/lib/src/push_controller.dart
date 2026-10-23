@@ -96,6 +96,15 @@ class PushController extends Notifier<bool> {
     // Built after the wallet opened (by a hook, or a Settings tap): treat it as the unlock.
     final open = ref.read(sessionProvider);
     if (open != null) scheduleMicrotask(() => unawaited(_unlocked(open)));
+    // The relay switched live (Settings › Node and Epicbox): register on the new one, which
+    // sends nothing unless it is the BT Labs relay.
+    ref.listen(walletConfigProvider.select((c) => c?.epicboxDomain), (before, after) {
+      final session = ref.read(sessionProvider);
+      if (before == after || session == null) return;
+      // A token already registered stays registered: the service keys it by the address key,
+      // which the relay does not change.
+      unawaited(_sync(session));
+    });
     // A new token from Firebase: register it.
     ref.listen(pushProvider.select((s) => s.token), (_, token) {
       if (token != null) unawaited(_serial(() => _registerToken(token)));

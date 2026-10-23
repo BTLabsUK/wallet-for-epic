@@ -9160,7 +9160,7 @@ abstract class AppLocalizations {
   /// Tooltip (info icon) of the Notifications switch.
   ///
   /// In en, this message translates to:
-  /// **'A notice when a payment is waiting. Off while Tor is on.'**
+  /// **'A notice when a payment is waiting. Uses the BT Labs relay, off while Tor is on.'**
   String get settingsNotificationsHint;
 
   /// State line under the Notifications switch while it is on and Tor is on.
@@ -9168,6 +9168,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Paused while Tor is on'**
   String get settingsPushPaused;
+
+  /// Confirm when notifications are turned on while the wallet is on another Epicbox relay: only the BT Labs relay can push, and Google carries the notification.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications work only through the BT Labs Epicbox relay, and go through Google’s service. They never include amounts, addresses or names.'**
+  String get pushConfirmRelayBody;
+
+  /// Second line of that confirm: the wallet is moved to the BT Labs relay, so its Epicbox address ends in @flooepicbox.btlabs.uk from now on.
+  ///
+  /// In en, this message translates to:
+  /// **'The Epicbox address changes to …@flooepicbox.btlabs.uk, so contacts need the new one.'**
+  String get pushConfirmRelayAddress;
+
+  /// Notice when moving to the BT Labs relay for notifications was refused.
+  ///
+  /// In en, this message translates to:
+  /// **'The relay could not be switched. Notifications stay off.'**
+  String get pushRelaySwitchFailed;
 
   /// Title of the confirmation before notifications are turned on.
   ///

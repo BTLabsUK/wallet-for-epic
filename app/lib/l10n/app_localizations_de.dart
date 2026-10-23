@@ -5950,10 +5950,22 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get settingsNotificationsHint =>
-      'Ein Hinweis, wenn eine Zahlung wartet. Aus, solange Tor an ist.';
+      'Ein Hinweis, wenn eine Zahlung wartet. Nutzt den BT-Labs-Server, aus, solange Tor an ist.';
 
   @override
   String get settingsPushPaused => 'Pausiert, solange Tor an ist';
+
+  @override
+  String get pushConfirmRelayBody =>
+      'Benachrichtigungen funktionieren nur über den Epicbox-Server von BT Labs und laufen über den Dienst von Google. Sie enthalten nie Beträge, Adressen oder Namen.';
+
+  @override
+  String get pushConfirmRelayAddress =>
+      'Die Epicbox-Adresse ändert sich zu …@flooepicbox.btlabs.uk, Kontakte brauchen also die neue.';
+
+  @override
+  String get pushRelaySwitchFailed =>
+      'Der Server konnte nicht gewechselt werden. Benachrichtigungen bleiben aus.';
 
   @override
   String get pushConfirmTitle => 'Benachrichtigungen einschalten?';

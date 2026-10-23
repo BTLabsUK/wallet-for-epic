@@ -15,6 +15,8 @@ import '../phone_tor.dart';
 import '../providers.dart';
 import '../push.dart';
 import '../push_controller.dart';
+import '../push_registration.dart';
+import '../server_switch.dart';
 import '../settings.dart';
 import '../slate_files.dart';
 import '../smart_outputs.dart' show OutputLabel, outputWord;
@@ -270,15 +272,31 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     }
   }
 
+  /// On: one confirm, then the registration. Only the BT Labs relay can push, so a wallet on
+  /// another relay is told so, and that its Epicbox address changes, and is moved there live
+  /// first. Off never moves the relay back.
   Future<void> _setPushNotifications(bool on) async {
     final push = ref.read(pushControllerProvider.notifier);
     if (!on) return push.turnOff();
     final l = context.l10n;
+    final config = ref.read(walletConfigProvider);
+    final moveRelay =
+        config != null && config.epicboxDomain != PushRegistration.relayHost;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         title: Text(l.pushConfirmTitle),
-        content: Text(l.pushConfirmBody),
+        content: moveRelay
+            ? Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(l.pushConfirmRelayBody),
+                  const SizedBox(height: 12),
+                  Text(l.pushConfirmRelayAddress),
+                ],
+              )
+            : Text(l.pushConfirmBody),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
@@ -292,6 +310,21 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       ),
     );
     if (confirmed != true || !mounted) return;
+    if (moveRelay) {
+      try {
+        await switchServersLive(
+          ref,
+          nodeUrl: config.nodeUrl,
+          nodeApiSecret: config.nodeApiSecret,
+          relay: const EpicboxRelay(host: PushRegistration.relayHost),
+        );
+      } on WalletError catch (e) {
+        logWarn('push', 'relay switch refused: ${e.kind.name}');
+        if (mounted) _say(l.pushRelaySwitchFailed, level: NoticeLevel.error);
+        return;
+      }
+      if (!mounted) return;
+    }
     await push.turnOn();
   }
 

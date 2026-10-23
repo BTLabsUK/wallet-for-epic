@@ -7407,13 +7407,25 @@
   "@settingsNotifications": {
     "description": "The Notifications switch in Settings: the label only, its explanation is the info tooltip."
   },
-  "settingsNotificationsHint": "A notice when a payment is waiting. Off while Tor is on.",
+  "settingsNotificationsHint": "A notice when a payment is waiting. Uses the BT Labs relay, off while Tor is on.",
   "@settingsNotificationsHint": {
     "description": "Tooltip (info icon) of the Notifications switch."
   },
   "settingsPushPaused": "Paused while Tor is on",
   "@settingsPushPaused": {
     "description": "State line under the Notifications switch while it is on and Tor is on."
+  },
+  "pushConfirmRelayBody": "Notifications work only through the BT Labs Epicbox relay, and go through Google’s service. They never include amounts, addresses or names.",
+  "@pushConfirmRelayBody": {
+    "description": "Confirm when notifications are turned on while the wallet is on another Epicbox relay: only the BT Labs relay can push, and Google carries the notification."
+  },
+  "pushConfirmRelayAddress": "The Epicbox address changes to …@flooepicbox.btlabs.uk, so contacts need the new one.",
+  "@pushConfirmRelayAddress": {
+    "description": "Second line of that confirm: the wallet is moved to the BT Labs relay, so its Epicbox address ends in @flooepicbox.btlabs.uk from now on."
+  },
+  "pushRelaySwitchFailed": "The relay could not be switched. Notifications stay off.",
+  "@pushRelaySwitchFailed": {
+    "description": "Notice when moving to the BT Labs relay for notifications was refused."
   },
   "pushConfirmTitle": "Turn on notifications?",
   "@pushConfirmTitle": {
