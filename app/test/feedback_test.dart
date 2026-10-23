@@ -105,7 +105,7 @@ class _Harness {
     expect(container.read(sessionProvider), isNotNull);
   }
 
-  /// Settings, then Send feedback.
+  /// Settings, then Help & feedback, then Send feedback.
   Future<void> openFeedback(WidgetTester tester) async {
     final navigator = tester.state<NavigatorState>(
       find.byType(Navigator).first,
@@ -116,7 +116,8 @@ class _Harness {
       ),
     );
     await tester.pumpAndSettle();
-    await tap(tester, find.text('Send feedback'));
+    await tap(tester, find.byKey(settingsHelpKey));
+    await tap(tester, find.byKey(helpFeedbackKey));
     expect(find.text('Attach diagnostic logs'), findsOneWidget);
   }
 }

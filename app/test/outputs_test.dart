@@ -450,12 +450,15 @@ void main() {
     expect(container.read(appSettingsProvider).value?.splitChange, isFalse);
   });
 
-  testWidgets('Settings lists Outputs with its count and strategy', (
+  testWidgets('Settings › Wallet lists Outputs with its count and strategy', (
     tester,
   ) async {
     final h = _Harness();
     h.store.values['app.send_strategy'] = 'all';
-    await h.pump(tester, const SettingsScreen());
+    await h.pump(
+      tester,
+      const SettingsSectionScreen(section: SettingsSection.wallet),
+    );
     await tester.scrollUntilVisible(
       find.text(_l.outputsTitle),
       200,

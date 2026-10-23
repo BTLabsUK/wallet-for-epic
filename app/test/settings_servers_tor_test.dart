@@ -105,9 +105,9 @@ Color _colour(WalletTokens t, String name) => switch (name) {
 void main() {
   for (final (tor, word, colour) in _states) {
     testWidgets(
-      'Settings › Servers, Tor ${tor.phase.name}: ${word ?? 'no Tor line'}',
+      'Privacy & network › Servers, Tor ${tor.phase.name}: ${word ?? 'no Tor line'}',
       (tester) async {
-        await _pump(tester, const SettingsScreen(), tor);
+        await _pump(tester, const SettingsScreen(section: SettingsSection.privacyNetwork), tor);
         await tester.scrollUntilVisible(
           find.text('Node and Epicbox'),
           200,
