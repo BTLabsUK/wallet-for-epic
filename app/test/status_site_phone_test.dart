@@ -61,8 +61,8 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      final button = find.widgetWithText(TextButton, 'Network settings');
-      await tester.tap(button.evaluate().isNotEmpty ? button : find.byTooltip('Network settings'));
+      final button = find.widgetWithText(TextButton, 'Node and Epicbox');
+      await tester.tap(button.evaluate().isNotEmpty ? button : find.byTooltip('Node and Epicbox'));
       await tester.pumpAndSettle();
       expect(find.byType(SetupScreen), findsOneWidget);
       final host = builtInRelays.first.relay.host;

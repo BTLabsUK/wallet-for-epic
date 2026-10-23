@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../errors.dart';
 import '../l10n.dart';
 import '../network.dart';
+import '../demo.dart';
 import '../providers.dart';
 import '../server_switch.dart';
 import '../wallet_service.dart';
@@ -205,6 +206,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
     final theme = Theme.of(context);
     final l = context.l10n;
     final preset = _preset;
+    final devNetworks = ref.watch(devNetworksProvider);
     return SlotScaffold(
       appBar: AppBar(title: Text(l.setupTitle)),
       body: ScreenBody(
@@ -219,27 +221,31 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
                   const LinearProgressIndicator(),
               ]
             : [
-                Text(l.setupNetworkHeading, style: theme.textTheme.titleMedium),
-                const SizedBox(height: 8),
-                SegmentedButton<NetworkPreset>(
-                  segments: [
-                    for (final p in networkPresets)
-                      // Usernet is a local test network for developers.
-                      if (p.chain != Chain.usernet ||
-                          !kReleaseMode ||
-                          p == preset)
-                        ButtonSegment(
-                          value: p,
-                          label: Text(chainName(l, p.chain)),
-                        ),
-                  ],
-                  selected: {preset},
-                  onSelectionChanged: (selection) =>
-                      _selectPreset(selection.first),
-                ),
-                const SizedBox(height: 8),
-                Text(chainDescription(l, preset.chain)),
-                const SizedBox(height: 16),
+                // The network picker is for development builds and the web demo only
+                // (devNetworksProvider): a release runs on one network and never names it.
+                if (devNetworks) ...[
+                  Text(l.setupNetworkHeading, style: theme.textTheme.titleMedium),
+                  const SizedBox(height: 8),
+                  SegmentedButton<NetworkPreset>(
+                    segments: [
+                      for (final p in networkPresets)
+                        // Usernet is a local test network for developers.
+                        if (p.chain != Chain.usernet ||
+                            !kReleaseMode ||
+                            p == preset)
+                          ButtonSegment(
+                            value: p,
+                            label: Text(chainName(l, p.chain)),
+                          ),
+                    ],
+                    selected: {preset},
+                    onSelectionChanged: (selection) =>
+                        _selectPreset(selection.first),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(chainDescription(l, preset.chain)),
+                  const SizedBox(height: 16),
+                ],
                 ServerList(
                   kind: ServerKind.node,
                   preset: preset,
@@ -341,8 +347,10 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
                   const SizedBox(height: 8),
                   ErrorText(l.setupRelayChangeWarning),
                 ],
-                const SizedBox(height: 8),
-                Text(l.setupWalletPerNetwork),
+                if (devNetworks) ...[
+                  const SizedBox(height: 8),
+                  Text(l.setupWalletPerNetwork),
+                ],
                 const SizedBox(height: 24),
                 if (_error != null) ErrorText(_error!),
               ],

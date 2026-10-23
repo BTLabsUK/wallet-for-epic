@@ -4,6 +4,7 @@
 import 'dart:io';
 
 import 'package:epic_wallet/l10n/app_localizations.dart';
+import 'package:epic_wallet/src/demo.dart';
 import 'package:epic_wallet/src/lepic_wallet_service.dart';
 import 'package:epic_wallet/src/network.dart';
 import 'package:epic_wallet/src/providers.dart';
@@ -45,6 +46,8 @@ Future<_World> _open(WidgetTester tester) async {
       walletServiceProvider.overrideWithValue(service),
       secretStoreProvider.overrideWithValue(MemorySecretStore()),
       relayDirectoryProvider.overrideWithValue(_NoRelays()),
+      // The network picker is for development builds; this test switches networks.
+      devNetworksProvider.overrideWithValue(true),
     ],
   );
   addTearDown(container.dispose);

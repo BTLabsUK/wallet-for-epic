@@ -2172,10 +2172,10 @@ class AppLocalizationsPl extends AppLocalizations {
   String get updateCheckFailed => 'Sprawdzanie aktualizacji nie powiodło się.';
 
   @override
-  String get setupTitle => 'Ustawienia sieci';
+  String get setupTitle => 'Węzeł i Epicbox';
 
   @override
-  String get setupNetworkSettingsTooltip => 'Ustawienia sieci';
+  String get setupNetworkSettingsTooltip => 'Węzeł i Epicbox';
 
   @override
   String get setupNetworkHeading => 'Sieć';
@@ -2892,10 +2892,10 @@ class AppLocalizationsPl extends AppLocalizations {
   String get settingsTitle => 'Ustawienia';
 
   @override
-  String get settingsSectionNetwork => 'Sieć';
+  String get settingsSectionNetwork => 'Serwery';
 
   @override
-  String get settingsNetworkAndNode => 'Sieć i węzeł';
+  String get settingsNetworkAndNode => 'Węzeł i Epicbox';
 
   @override
   String settingsNetworkSubtitle(String network, String node) {
