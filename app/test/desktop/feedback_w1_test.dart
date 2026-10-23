@@ -115,7 +115,7 @@ void main() {
     expect(report.dy, lessThan(search.dy));
   });
 
-  testWidgets('the Internet guide says "the wallet answers" and offers Tor receiving (F30)', (tester) async {
+  testWidgets('the Internet guide says "the wallet answers" and offers Tor (F30)', (tester) async {
     InternetGuideChoice? choice;
     await _pump(
       tester,
@@ -132,7 +132,7 @@ void main() {
     expect(find.textContaining('The wallet answers on 0.0.0.0, port 3415'), findsOneWidget);
     expect(find.textContaining('Advanced'), findsNothing);
     expect(find.text('Tor works from anywhere with nothing to forward.'), findsOneWidget);
-    await tester.tap(find.text('Turn on Tor receiving'));
+    await tester.tap(find.text('Turn on Tor'));
     await tester.pump(const Duration(milliseconds: 400));
     expect(choice, InternetGuideChoice.tor);
     expect(find.byType(InternetGuide), findsNothing);
@@ -146,12 +146,12 @@ void main() {
     await tester.tap(find.text('From the internet'));
     await tester.pump(const Duration(milliseconds: 400));
     expect(find.byType(InternetGuide), findsOneWidget);
-    await tester.tap(find.text('Turn on Tor receiving'));
+    await tester.tap(find.text('Turn on Tor'));
     await tester.pump(const Duration(milliseconds: 600));
     expect(api.torOn, 1);
     expect(container.read(deskProvider).settings.tor, isTrue);
     expect(container.read(deskProvider).settings.publicMode, isFalse, reason: 'the HTTP mode is unchanged');
-    expect(container.read(settingsPrefsProvider).jump?.section, SettingsJump.tor, reason: 'lands on the Tor group');
+    expect(container.read(settingsPrefsProvider).jump?.section, SettingsJump.tor, reason: 'lands on the Tor switch (Privacy)');
     await tester.pump(const Duration(seconds: 2));
   });
 

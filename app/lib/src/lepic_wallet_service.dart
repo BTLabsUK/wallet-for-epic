@@ -1277,6 +1277,40 @@ class LepicWalletSession implements WalletSession {
   }
 
   @override
+  Future<void> setEpicboxOverTor(bool on) async {
+    if (!_wallet.isDisposed) {
+      _guardSync(() => _wallet.setEpicboxOverTor(enabled: on));
+    }
+  }
+
+  @override
+  Future<void> expectTor() async {
+    if (!_wallet.isDisposed) _guardSync(_wallet.expectTor);
+  }
+
+  @override
+  Future<bool> epicboxOverTor() async =>
+      !_wallet.isDisposed && _guardSync(_wallet.epicboxOverTor);
+
+  @override
+  Future<void> setOnionRoutes(List<TorOnionRoute> routes) async {
+    if (_wallet.isDisposed) return;
+    _guardSync(
+      () => _wallet.setOnionRoutes(
+        routes: [
+          for (final r in routes)
+            lepic.OnionRoute(
+              host: r.host,
+              port: r.port,
+              onion: r.onion,
+              onionPort: r.onionPort,
+            ),
+        ],
+      ),
+    );
+  }
+
+  @override
   Future<void> refreshTor({required bool networkChanged}) => _guard(
     () => _wallet.refreshTor(networkChanged: networkChanged),
   );

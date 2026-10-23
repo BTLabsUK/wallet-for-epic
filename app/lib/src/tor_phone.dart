@@ -1,7 +1,8 @@
-/// The phone's Tor in the words of the one Tor switch ([TorState]); main's copy replaces this
-/// file at merge (the mapping is the Tor lead's, so the swap changes nothing).
+/// The one Tor switch on the phone: its [TorState] from [PhoneTorState] (the switch is the
+/// per-wallet `receiving`), and the app's own requests following it.
 library;
 
+import 'net/tor_net.dart';
 import 'phone_tor.dart';
 import 'tor_routes.dart';
 
@@ -15,3 +16,8 @@ TorState phoneTorState(PhoneTorState s) {
     PhoneTorPhase.off || PhoneTorPhase.starting || PhoneTorPhase.unavailable => TorState.starting,
   };
 }
+
+/// For a `ref.listen(phoneTorProvider, …)` on a screen that is always up while a wallet is
+/// open: the app's requests and the price follow the switch. tor's SOCKS port joins once LEPIC
+/// reports it (E-12).
+void phoneTorFollow(PhoneTorState s) => TorNet.follow(phoneTorState(s));

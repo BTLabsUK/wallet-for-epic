@@ -1180,25 +1180,28 @@ void main() {
       await done(tester);
     });
 
-    testWidgets('receiving has HTTP receiving, Tor as DeskFeatures.tor says', (tester) async {
+    testWidgets('receiving has HTTP receiving; the Tor switch is in Privacy as DeskFeatures.tor says', (tester) async {
       await pump(tester, DeskRoute.settingsReceiving);
       expect(find.text('HTTP receiving'), findsOneWidget);
-      expect(find.text('Tor receiving'), DeskFeatures.tor ? findsOneWidget : findsNothing);
+      expect(find.text('Tor receiving'), findsNothing);
+      await done(tester);
+      await pump(tester, DeskRoute.settingsPrivacy);
+      expect(find.byKey(const ValueKey('privacy-tor-switch')), DeskFeatures.tor ? findsOneWidget : findsNothing);
       await done(tester);
     });
 
-    testWidgets('send has HTTP, Tor as DeskFeatures.tor says, no Dandelion++', (tester) async {
+    testWidgets('send has Epicbox, Direct and File (an onion is a Direct send), no Dandelion++', (tester) async {
       await pump(tester, DeskRoute.send);
-      expect(find.text('HTTP'), findsOneWidget);
-      expect(find.text('Tor'), DeskFeatures.tor ? findsOneWidget : findsNothing);
+      expect(find.text('Direct'), findsOneWidget);
+      expect(find.text('Tor'), findsNothing, reason: 'no Tor method of its own');
       expect(find.textContaining('Dandelion'), findsNothing);
       await done(tester);
     });
 
-    testWidgets('receive has the HTTP address, the Tor address as DeskFeatures.tor says', (tester) async {
+    testWidgets('receive has the HTTP address with Tor off (Direct over Tor shows only with it on)', (tester) async {
       await pump(tester, DeskRoute.receive);
       expect(find.text('HTTP address'), findsOneWidget);
-      expect(find.text('Tor address'), DeskFeatures.tor ? findsOneWidget : findsNothing);
+      expect(find.text('Direct, Tor address'), findsNothing);
       await done(tester);
     });
 

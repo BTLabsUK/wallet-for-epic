@@ -1,3 +1,4 @@
+import '../../../tor_routes.dart';
 import '../../app/shots.dart';
 import '../../widgets/kit.dart';
 import 'contact_picker.dart';
@@ -6,6 +7,7 @@ import 'import_tx_screen.dart';
 import 'receive_screen.dart';
 import 'send_screen.dart';
 
+const _onion = 'http://wfe7q3k2mz5xr4tbv6ld5yhnpjc7sgo2a3ue6iwq4fk7tr3mxzabcdid.onion';
 const _anna = 'esYb3kq9TzWmR8uPfVc2LdN6hJx4gA7sKeQ1oBnC5vD9rHtF3w@epicbox.epiccash.com';
 
 /// Screenshot tour entries of this group (see app/shots.dart). Ids match the Electron
@@ -29,10 +31,14 @@ final List<DeskShot> transferShots = [
     height: 1000,
   ),
   const DeskShot(id: '13n-review-lock', title: 'Send, review with the lock', route: DeskRoute.send, arg: SendArgs(recipient: _anna, amount: '25', step: SendStep.review)),
-  const DeskShot(id: '13h-send-tor-off', title: 'Send, Tor off', route: DeskRoute.send, arg: SendArgs(method: TxMethod.tor)),
+  const DeskShot(id: '13h-send-tor-off', title: 'Send, onion with Tor off', route: DeskRoute.send, arg: SendArgs(method: TxMethod.http, recipient: _onion, amount: '5')),
+  const DeskShot(id: '13o-send-tor-starting', title: 'Send, Tor starting', route: DeskRoute.send, arg: SendArgs(recipient: _anna, amount: '12.5', tor: TorState.starting)),
+  const DeskShot(id: '13p-send-tor-failed', title: 'Send, Tor not connected', route: DeskRoute.send, arg: SendArgs(method: TxMethod.http, recipient: _onion, amount: '5', tor: TorState.failed)),
+  const DeskShot(id: '13q-send-http-tor-on', title: 'Send, Direct http with Tor on', route: DeskRoute.send, arg: SendArgs(method: TxMethod.http, recipient: 'https://pay.example.org:3415', amount: '5', tor: TorState.on)),
+  const DeskShot(id: '13r-send-onion-tor-on', title: 'Send, Direct onion over Tor', route: DeskRoute.send, arg: SendArgs(method: TxMethod.http, recipient: _onion, amount: '5', tor: TorState.on)),
   const DeskShot(
     id: '13i-send-switched',
-    title: 'Send, method set by a pasted Tor address',
+    title: 'Send, Direct set by a pasted onion',
     route: DeskRoute.send,
     arg: SendArgs(recipient: 'http://WFE7Q3K2MZ5XR4TBV6LD5YHNPJC7SGO2A3UE6IWQ4FK7TR3MXZABCDID.ONION/', switched: true),
   ),

@@ -11,6 +11,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'app_log.dart';
+import 'btlabs_onions.dart';
 import 'providers.dart';
 import 'tor_location.dart';
 import 'wallet_service.dart';
@@ -99,6 +100,35 @@ class PhoneTorState {
   String toString() =>
       'PhoneTorState(${phase.name}, $progress%, ${failure?.name}, receiving: $receiving)';
 }
+
+/// Epicbox over Tor for the open wallet and the ones opened later: while on and the wallet's
+/// tor runs, starts, or ended by itself, the Epicbox connection goes through tor and never
+/// directly. On until [EpicboxOverTor.set]; not saved here, the app's Tor setting drives it.
+final epicboxOverTorProvider = NotifierProvider<EpicboxOverTor, bool>(
+  EpicboxOverTor.new,
+);
+
+class EpicboxOverTor extends Notifier<bool> {
+  @override
+  bool build() => true;
+
+  /// Applies [on] to the open wallet at once, and to every wallet opened later.
+  Future<void> set(bool on) async {
+    state = on;
+    await ref.read(sessionProvider)?.setEpicboxOverTor(on);
+  }
+}
+
+/// The Epicbox connection is waiting for tor: Epicbox over Tor is on, tor is not off, and the
+/// listener runs but is not connected. Show it as "Connecting via Tor", not offline: it never
+/// falls back to a direct connection.
+final epicboxWaitingForTorProvider = Provider<bool>((ref) {
+  if (!ref.watch(epicboxOverTorProvider)) return false;
+  final tor = ref.watch(phoneTorProvider).phase;
+  if (tor == PhoneTorPhase.off || tor == PhoneTorPhase.unavailable) return false;
+  final listener = ref.watch(listenerProvider);
+  return !listener.connected && !listener.stopped;
+});
 
 /// Finds the tor binary: `findTorBundle()` (on Android the app's `libtor.so`), null on the
 /// web. Tests override it.
@@ -193,6 +223,26 @@ class PhoneTor extends Notifier<PhoneTorState> {
 
   static String receivingKey(WalletConfig config) =>
       'phone.tor_receiving.${config.chain.name}.${config.walletId ?? 'legacy'}';
+
+  /// Before [session] opens: hands it Epicbox over Tor ([epicboxOverTorProvider]) and the onion
+  /// routes ([onionDirectoryProvider]) and, when tor will start for receiving, has its Epicbox
+  /// connection wait for that tor (`expectTor`) instead of going directly until tor is up.
+  static Future<void> prepare(Ref ref, WalletSession session) async {
+    final over = ref.read(epicboxOverTorProvider);
+    await session.setEpicboxOverTor(over);
+    try {
+      await session.setOnionRoutes(onionRoutesOf(ref.read(onionDirectoryProvider)));
+    } on WalletError catch (e) {
+      logWarn('tor', 'onion routes not set: ${e.kind.name}');
+    }
+    if (!over) return;
+    final config = ref.read(walletConfigProvider);
+    if (config == null) return;
+    final receiving = await ref.read(secretStoreProvider).read(receivingKey(config));
+    if (receiving != 'true') return;
+    if (await ref.read(torBundleFinderProvider)() == null) return;
+    await session.expectTor();
+  }
 
   @override
   PhoneTorState build() {
@@ -344,10 +394,13 @@ class PhoneTor extends Notifier<PhoneTorState> {
 
   /// Stops tor if it runs and starts it again now.
   Future<void> retry() async {
-    if (_session == null || state.phase == PhoneTorPhase.unavailable) return;
+    final session = _session;
+    if (session == null || state.phase == PhoneTorPhase.unavailable) return;
     _restartTimer?.cancel();
     _restarts = 0;
-    await _stop(keepFailure: false);
+    // A restart: the Epicbox connection keeps waiting for the new tor.
+    if (_running) await session.expectTor();
+    await _stop(keepFailure: false, restarting: true);
     if (ref.mounted && _session != null) _start();
   }
 
@@ -472,19 +525,30 @@ class PhoneTor extends Notifier<PhoneTorState> {
     });
   }
 
-  /// Stops tor (and its listener) and shows off.
-  Future<void> _stop({bool keepFailure = false}) async {
+  /// Stops tor (and its listener) and shows off. Unless [restarting], also tells LEPIC after tor
+  /// ended by itself, as LEPIC keeps the Epicbox connection waiting for it until then.
+  Future<void> _stop({bool keepFailure = false, bool restarting = false}) async {
     final sub = _tor;
     _tor = null;
     _restartTimer?.cancel();
     final session = _session;
+    final ended = state.phase == PhoneTorPhase.failed;
     state = state.copyWith(
       phase: PhoneTorPhase.off,
       progress: () => null,
       failure: keepFailure ? null : () => null,
     );
     _failWaiters('stopped');
-    if (sub == null) return;
+    if (sub == null) {
+      if (ended && !restarting) {
+        try {
+          await session?.stopTor();
+        } on WalletError catch (e) {
+          logWarn('tor', 'stop: ${e.kind.name}');
+        }
+      }
+      return;
+    }
     logInfo('tor', 'stop');
     final stopping = _stopTor(session, sub);
     _stopping = stopping;

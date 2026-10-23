@@ -192,7 +192,6 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
     String? tip(EpicboxServer b) => b.latencyMs == null ? null : 'Response time ${b.latencyMs} ms. Measured from the status site.';
     final ebLine = methodStateLine(TxMethod.epicbox, status, s);
     final httpLine = methodStateLine(TxMethod.http, status, s);
-    final torLine = methodStateLine(TxMethod.tor, status, s);
 
     return SettingsFrame(
       route: DeskRoute.settingsReceiving,
@@ -248,20 +247,29 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
           ]),
           if (DeskFeatures.httpDirect)
             _group(TxMethod.http, SettingsJump.http, 'HTTP receiving', httpLine, [
-              _receivingRow(TxMethod.http, 'Straight from another wallet while this one is open.', status.httpListener != ServiceHealth.off, httpLine),
+              _receivingRow(
+                TxMethod.http,
+                'Straight from another wallet while this one is open.',
+                status.httpListener != ServiceHealth.off,
+                httpLine,
+                // Off while Tor is on (tor_routes.dart): Direct payments arrive at the Tor address.
+                enabled: !s.tor,
+                notice: s.tor
+                    ? ENotice(
+                        title: 'Off while Tor is on',
+                        text: 'Direct payments arrive at this wallet’s Tor address instead.',
+                        actions: [
+                          EButton(
+                            label: 'Privacy settings',
+                            size: EBtnSize.inline,
+                            onPressed: () => ref.read(settingsPrefsProvider.notifier).jumpTo(SettingsJump.tor),
+                          ),
+                        ],
+                      )
+                    : null,
+              ),
               _autostart(TxMethod.http, s.httpAutostart, (v) => _saveAutostart(s.copyWith(httpAutostart: v))),
               const HttpOptions(),
-            ]),
-          if (DeskFeatures.tor)
-            _group(TxMethod.tor, SettingsJump.tor, 'Tor receiving', torLine, [
-              _receivingRow(
-                TxMethod.tor,
-                'Slower and more private. Blocked or not allowed in some countries.',
-                s.tor && status.torIncluded,
-                torLine,
-                enabled: status.torIncluded,
-              ),
-              _autostart(TxMethod.tor, s.torAutostart && status.torIncluded, status.torIncluded ? (v) => _saveAutostart(s.copyWith(torAutostart: v)) : null),
             ]),
         ],
       ),

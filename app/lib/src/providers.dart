@@ -7,6 +7,7 @@ import 'demo.dart';
 import 'errors.dart';
 import 'l10n.dart' show englishStrings;
 import 'network.dart';
+import 'phone_tor.dart';
 import 'secret_store.dart';
 import 'vault.dart';
 import 'wallet_backend.dart' as backend;
@@ -175,6 +176,18 @@ final sessionProvider = NotifierProvider<SessionNotifier, WalletSession?>(
 class SessionNotifier extends Notifier<WalletSession?> {
   @override
   WalletSession? build() => null;
+
+  /// Makes [session] the open wallet once it has the app's Epicbox via Tor setting and, when
+  /// tor starts with the wallet, knows to wait for it: its first Epicbox connection then goes
+  /// through Tor, never directly first.
+  Future<void> open(WalletSession session) async {
+    try {
+      await PhoneTor.prepare(ref, session).timeout(const Duration(seconds: 10));
+    } catch (error) {
+      logWarn('session', 'epicbox via tor not prepared: ${error.runtimeType}');
+    }
+    unlocked(session);
+  }
 
   /// Makes [session] the open wallet, disposing any other one first.
   void unlocked(WalletSession session) {

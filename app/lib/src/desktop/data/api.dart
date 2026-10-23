@@ -215,6 +215,11 @@ abstract interface class DeskWalletApi {
   /// it starts at unlock is [DeskSettings.torAutostart]. On again after a failure is Retry.
   /// Progress and failures show in [ServiceStatus.tor]. Only when [DeskFeatures.tor].
   Future<void> setTor(bool on);
+
+  /// Epicbox over Tor for the open wallet and the ones opened later, not saved here: while on
+  /// and Tor is on, the Epicbox connection goes through Tor and never directly, waiting while
+  /// tor starts ([ServiceStatus.epicboxViaTor]). On until set. Applies at once.
+  Future<void> setEpicboxOverTor(bool on);
   /// Refresh (Overview, Activity): brings the balance and history up to date with the node
   /// now and returns when that is done. Throws a [DeskError] when the node did not answer.
   Future<void> syncNow();

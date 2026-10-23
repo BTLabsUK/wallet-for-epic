@@ -17,8 +17,8 @@ const _args = [
   ReceiveArgs(epicbox: RxEpicbox.down, http: RxHttp.failed, tor: RxTor.failed),
 ];
 
-Future<ProviderContainer> _pump(WidgetTester tester, ReceiveArgs args, {double width = 1440, bool reduce = false}) async {
-  tester.view.physicalSize = Size(width - 224, 900);
+Future<ProviderContainer> _pump(WidgetTester tester, ReceiveArgs args, {double width = 1440, double height = 900, bool reduce = false}) async {
+  tester.view.physicalSize = Size(width - 224, height);
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
   final container = ProviderContainer(overrides: [deskApiProvider.overrideWithValue(MockDeskWallet(delay: Duration.zero))]);
@@ -137,7 +137,8 @@ void main() {
   });
 
   testWidgets("a header icon scrolls to its method's panel", (tester) async {
-    await _pump(tester, const ReceiveArgs(http: RxHttp.on, tor: RxTor.on), width: 1200);
+    // With Tor on, Direct is the one panel beside Epicbox: a short window puts it below the fold.
+    await _pump(tester, const ReceiveArgs(http: RxHttp.on, tor: RxTor.on), width: 1200, height: 600);
     final panel = find.byKey(const ValueKey('rx-panel-tor'));
     final view = tester.getRect(find.byType(Scrollable).first);
     final before = tester.getRect(panel).top;

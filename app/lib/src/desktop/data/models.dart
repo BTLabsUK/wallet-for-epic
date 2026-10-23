@@ -391,6 +391,7 @@ class ServiceStatus {
     this.torCanSend = false,
     this.torIncluded = true,
     this.torSlowStart = false,
+    this.epicboxViaTor = false,
     this.syncProgress,
     this.lastUpdate,
     this.notice,
@@ -430,6 +431,11 @@ class ServiceStatus {
   /// Tor has been connecting for a minute without progress to show: Retry is offered while
   /// it still tries.
   final bool torSlowStart;
+
+  /// The Epicbox connection goes through Tor ([DeskWalletApi.setEpicboxOverTor] on and Tor on):
+  /// it waits for tor and never goes directly, so an [epicboxHealth] of checking or down then
+  /// means "Connecting via Tor".
+  final bool epicboxViaTor;
 
   /// 0..1 while the wallet scans; null when idle.
   final double? syncProgress;

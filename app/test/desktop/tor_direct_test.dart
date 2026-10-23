@@ -135,7 +135,7 @@ void main() {
       expect(session().torStarts.length, before);
     });
 
-    test('per wallet: a second wallet does not inherit it, the first keeps it', () async {
+    test('one switch for the app: a second wallet opens with Tor on too, and off stays off', () async {
       await wallet.setTor(true);
       await wallet.saveSettings((await wallet.settings()).copyWith(torAutostart: true));
       await wallet.createWallet(name: 'Savings', password: _password);
@@ -145,16 +145,18 @@ void main() {
       expect(await wallet.unlock(_password), isTrue);
       await wallet.startAutostart();
       await pumpEventQueue();
-      expect((await wallet.settings()).tor, isFalse);
-      expect(session().torStarts, hasLength(1), reason: 'Savings has Tor off');
+      expect((await wallet.settings()).tor, isTrue, reason: 'never a wallet without Tor that was on');
+      expect(session().torStarts, hasLength(2), reason: 'Main, then Savings');
 
+      await wallet.saveSettings((await wallet.settings()).copyWith(torAutostart: false));
+      await wallet.setTor(false);
       await wallet.lock();
       await wallet.selectWallet(all.firstWhere((w) => w.name == 'Main').id);
       expect(await wallet.unlock(_password), isTrue);
       await wallet.startAutostart();
       await pumpEventQueue();
-      expect((await wallet.settings()).tor, isTrue);
-      expect(session().torStarts, hasLength(2));
+      expect((await wallet.settings()).tor, isFalse);
+      expect(session().torStarts, hasLength(2), reason: 'none at this unlock');
     });
 
     test('switching wallets stops the first one’s tor', () async {
@@ -167,25 +169,25 @@ void main() {
       expect(first.torStops, 1);
     });
 
-    test('the controller and startLive carry the wallet’s own setting', () async {
+    test('the switch is remembered: on again at the next unlock, off stays off', () async {
       final container = ProviderContainer(overrides: [deskApiProvider.overrideWithValue(wallet)]);
       addTearDown(container.dispose);
       final desk = container.read(deskProvider.notifier);
       await desk.setTor(true);
       expect(container.read(deskProvider).settings.tor, isTrue);
-      await desk.lock();
-      expect(await wallet.unlock(_password), isTrue);
-      await desk.startLive();
-      expect(container.read(deskProvider).settings.tor, isFalse, reason: 'now-only: off again at unlock');
-      await desk.saveSettings(container.read(deskProvider).settings.copyWith(torAutostart: true));
-      await desk.lock();
-      expect(await wallet.unlock(_password), isTrue);
-      await desk.startLive();
-      expect(container.read(deskProvider).settings.tor, isTrue, reason: 'Start with the wallet');
       expect(container.read(deskProvider).settings.torAutostart, isTrue);
+      await desk.lock();
+      expect(await wallet.unlock(_password), isTrue);
+      await desk.startLive();
+      expect(container.read(deskProvider).settings.tor, isTrue, reason: 'one switch: remembered');
       // Saving another setting leaves Tor alone.
       await desk.saveSettings(container.read(deskProvider).settings.copyWith(tor: false, hideAmounts: true));
       expect((await wallet.settings()).tor, isTrue);
+      await desk.setTor(false);
+      await desk.lock();
+      expect(await wallet.unlock(_password), isTrue);
+      await desk.startLive();
+      expect(container.read(deskProvider).settings.tor, isFalse);
       await desk.lock();
     });
 

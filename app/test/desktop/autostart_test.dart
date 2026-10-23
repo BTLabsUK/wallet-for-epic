@@ -98,16 +98,18 @@ void main() {
       expect(session().httpListenerStarts, hasLength(1));
     });
 
-    test('Tor off leaves both running', () async {
+    test('Tor on stops the clearnet HTTP listener, leaves Epicbox; off starts HTTP again', () async {
+      await wallet.saveSettings((await wallet.settings()).copyWith(directHttp: true));
       await wallet.setEpicboxListening(true);
       await wallet.setHttpListening(true);
       await httpStarted();
       await wallet.setTor(true);
       expect(session().torStarts, hasLength(1));
+      expect(session().httpListenerStops, 1, reason: 'it would answer on this computer\'s address');
       await wallet.setTor(false);
       expect(session().torStops, 1);
       expect(session().listenerStops, 0);
-      expect(session().httpListenerStops, 0);
+      expect(session().httpListenerStarts, hasLength(2), reason: 'its switch is still on');
     });
   });
 
@@ -130,9 +132,13 @@ void main() {
       await wallet.saveSettings((await wallet.settings()).copyWith(epicboxAutostart: false, httpAutostart: true, torAutostart: true));
       await relock();
       expect(session().listenerStarts, 0, reason: 'Epicbox autostart off');
-      expect(session().httpListenerStarts, hasLength(1));
+      expect(session().httpListenerStarts, isEmpty, reason: 'the clearnet listener stays off with Tor on');
       expect(session().torStarts, hasLength(1));
       expect((await wallet.settings()).tor, isTrue, reason: 'Tor is on now');
+
+      await wallet.saveSettings((await wallet.settings()).copyWith(httpAutostart: true, torAutostart: false));
+      await relock();
+      expect(session().httpListenerStarts, hasLength(1), reason: 'Tor off: HTTP starts with the wallet');
 
       await wallet.saveSettings((await wallet.settings()).copyWith(epicboxAutostart: true, httpAutostart: false, torAutostart: false));
       await relock();
@@ -142,7 +148,7 @@ void main() {
       expect((await wallet.settings()).tor, isFalse, reason: 'Tor on earlier does not start it at unlock');
     });
 
-    test('the choice is the wallet\'s own and survives a relock', () async {
+    test('the Epicbox choice is the wallet\'s own, the Tor switch the app\'s, and both survive a relock', () async {
       await wallet.saveSettings((await wallet.settings()).copyWith(epicboxAutostart: false, torAutostart: true));
       await wallet.createWallet(name: 'Savings', password: _password);
       await wallet.lock();
@@ -150,7 +156,7 @@ void main() {
       await wallet.selectWallet(all.firstWhere((w) => w.name == 'Savings').id);
       expect(await wallet.unlock(_password), isTrue);
       var s = await wallet.settings();
-      expect((s.epicboxAutostart, s.torAutostart), (true, false), reason: 'Savings has the defaults');
+      expect((s.epicboxAutostart, s.torAutostart), (true, true), reason: 'Savings: the Epicbox default, the app\'s Tor switch');
 
       await wallet.lock();
       await wallet.selectWallet(all.firstWhere((w) => w.name == 'Main').id);

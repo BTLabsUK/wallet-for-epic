@@ -51,6 +51,17 @@ class DeskStore {
 
   Future<void> saveTorOn(String? walletId, bool on) => writeJson(torKeyOf(walletId), {'on': on});
 
+  /// The one Tor switch (Settings › Privacy), app-wide: every wallet opens with it. Null until
+  /// first set; a wallet then keeps its own older choice ([autostart]'s `tor`).
+  static const torSwitchKey = 'desk.tor_switch';
+
+  Future<bool?> torSwitch() async {
+    final j = await readJson(torSwitchKey);
+    return j is Map<String, dynamic> && j['on'] is bool ? j['on'] as bool : null;
+  }
+
+  Future<void> saveTorSwitch(bool on) => writeJson(torSwitchKey, {'on': on});
+
   /// The Outputs choices of the wallet with registry [walletId] (strategy, SmartOutputs);
   /// [OutputPrefs]' defaults unless set. The first wallet (null) has [outputsKey].
   static const outputsKey = 'desk.outputs';

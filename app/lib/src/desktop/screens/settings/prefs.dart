@@ -21,7 +21,7 @@ enum HttpRun { off, busy, on, failed }
 /// The built-in node's address in the node field.
 const String builtinNode = 'internal';
 
-/// Where a jump into Settings lands: the node or a receiving group.
+/// Where a jump into Settings lands: the node, a receiving group, or the Tor switch (Privacy).
 enum SettingsJump { node, epicbox, http, tor }
 
 /// A jump request: [n] changes on every request so the same section flashes again.
@@ -144,7 +144,11 @@ class SettingsPrefsController extends Notifier<SettingsPrefs> {
   /// Opens a settings section, scrolled to and flashed, also when it is open already.
   void jumpTo(SettingsJump section) {
     state = state.copyWith(jump: JumpTo(section, (state.jump?.n ?? 0) + 1));
-    ref.read(deskNavProvider.notifier).go(section == SettingsJump.node ? DeskRoute.settingsNode : DeskRoute.settingsReceiving);
+    ref.read(deskNavProvider.notifier).go(switch (section) {
+      SettingsJump.node => DeskRoute.settingsNode,
+      SettingsJump.tor => DeskRoute.settingsPrivacy,
+      _ => DeskRoute.settingsReceiving,
+    });
   }
 }
 

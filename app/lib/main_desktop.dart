@@ -17,6 +17,7 @@ import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:path_provider/path_provider.dart';
 
 import 'src/app_log.dart';
+import 'src/btlabs_onions.dart';
 import 'src/builtin_node.dart';
 import 'src/builtin_node_provider.dart';
 import 'src/data_folder.dart';
@@ -116,6 +117,7 @@ Future<List<Override>> deskOverrides() async {
     torBundle: findTorBundle,
     // The BT Labs contact's website copy (F31); the bundled one is used until it answers.
     seedFetch: LepicDeskWallet.fetchSeeds,
+    onions: container.read(onionDirectoryProvider),
   );
   // Off by default (D10): this starts a node only when the user turned it on before.
   unawaited(wallet.resumeBuiltInNode());

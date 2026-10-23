@@ -58,7 +58,7 @@ List<TourStep> tourStepsFor({required bool invoices}) => [
     route: DeskRoute.send,
     targets: ['send-methods'],
     title: 'Send',
-    text: 'Four ways to pay: an Epicbox address, an HTTP or Tor address, or a transaction file. A review comes before anything leaves.',
+    text: 'Three ways to pay: an Epicbox address, a Direct address (http(s) or Tor), or a transaction file. A review comes before anything leaves.',
   ),
   const TourStep(
     route: DeskRoute.receive,

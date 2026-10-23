@@ -1,4 +1,5 @@
-/// The EPIC price in the user's display currency, from CoinGecko.
+/// The EPIC price in the user's display currency: from CoinGecko, or with the Tor switch on
+/// from BT Labs' copy of it on the status site ([BtlabsPriceSource]), never CoinGecko directly.
 ///
 /// Prices are decoration: a missing price never blocks anything, it only hides the fiat line.
 library;
@@ -11,6 +12,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'app_log.dart';
 import 'amount.dart';
 import 'net/http.dart';
+import 'net/tor_switch.dart';
 import 'providers.dart';
 import 'settings.dart';
 import 'wallet_service.dart' show Chain;
@@ -75,9 +77,69 @@ class CoinGeckoPriceSource implements PriceSource {
   }
 }
 
+/// BT Labs' copy of CoinGecko's price, refreshed by the status site every few minutes:
+/// `status.btlabs.uk/api/v1/price.json`, which the app's HTTP reaches over the status onion
+/// while Tor is on. A file older than [maxAge], another schema or a missing currency is no
+/// price.
+class BtlabsPriceSource implements PriceSource {
+  BtlabsPriceSource({
+    this.timeout = const Duration(seconds: 30),
+    this.maxAge = const Duration(minutes: 30),
+    DateTime Function()? now,
+  }) : _now = now ?? DateTime.now;
+
+  static final Uri url = Uri.https('status.btlabs.uk', '/api/v1/price.json');
+
+  final Duration timeout;
+  final Duration maxAge;
+  final DateTime Function() _now;
+
+  @override
+  Future<double?> price(String currency) async {
+    try {
+      final reply = await httpGet(
+        url,
+        headers: const {'accept': 'application/json'},
+        timeout: timeout,
+        maxBytes: 16 * 1024,
+      );
+      if (reply.status != 200) return null;
+      return priceFromBtlabs(reply.body, currency, now: _now(), maxAge: maxAge);
+    } catch (error) {
+      logInfo('price', 'no price: ${error.runtimeType}');
+      return null;
+    }
+  }
+}
+
+/// The price of [currency] in a `price.json` body, or null (see [BtlabsPriceSource]).
+double? priceFromBtlabs(
+  String body,
+  String currency, {
+  required DateTime now,
+  Duration maxAge = const Duration(minutes: 30),
+}) {
+  final decoded = jsonDecode(body);
+  if (decoded is! Map || decoded['schema'] != 1) return null;
+  final at = DateTime.tryParse('${decoded['updated_at']}');
+  if (at == null || now.difference(at) > maxAge) return null;
+  final prices = decoded['prices'];
+  final value = prices is Map ? prices[currency] : null;
+  return value is num && value > 0 ? value.toDouble() : null;
+}
+
 final priceSourceProvider = Provider<PriceSource>(
-  (ref) => const CoinGeckoPriceSource(),
+  (ref) => const TorAwarePriceSource(),
 );
+
+/// CoinGecko with the Tor switch off; BT Labs' copy with it on ([TorSwitch.on]), asked at
+/// each fetch so a switch takes effect at the next refresh.
+class TorAwarePriceSource implements PriceSource {
+  const TorAwarePriceSource();
+
+  @override
+  Future<double?> price(String currency) => (TorSwitch.on ? BtlabsPriceSource() : const CoinGeckoPriceSource()).price(currency);
+}
 
 /// The price of one EPIC in the chosen currency, or null when prices are off or none has been
 /// fetched. Refreshes every [priceRefreshInterval] while the app runs. A failed refresh keeps the

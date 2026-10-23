@@ -46,6 +46,7 @@ const List<PublicRelay> builtInRelays = [
   PublicRelay(relay: EpicboxRelay(host: 'epicbox.stackwallet.com'), operator: 'Cypher Stack'),
   PublicRelay(relay: EpicboxRelay(host: 'epicbox.epicnet.us'), operator: 'EpicNet'),
   PublicRelay(relay: EpicboxRelay(host: 'epicbox.iniaku.my.id'), operator: 'Iniaku pool'),
+  PublicRelay(relay: EpicboxRelay(host: 'flooepicbox.btlabs.uk'), operator: 'BT Labs'),
 ];
 
 /// `host:port` of a node address, the port filled in from the scheme; null for junk.
