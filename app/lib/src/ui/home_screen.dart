@@ -462,7 +462,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             ),
           ),
           actions: [
-            const InvoicesEntry(),
+            // Invoices moved to the destinations row; the entry keeps its event wiring.
+            const InvoicesEntry(visible: false),
             if (scan)
               IconButton(
                 tooltip: l.homeScanTooltip,
