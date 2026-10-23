@@ -7,6 +7,9 @@ root="$(git rev-parse --show-toplevel)"
 
 step() { printf '\n== %s\n' "$1"; }
 
+step "version (https://docs.btlabs.uk/developers/releases/)"
+"$root/tools/version.sh" check
+
 step "LEPIC at the pin (tools/lepic.rev)"
 "$root/tools/lepic.sh" build linux
 
