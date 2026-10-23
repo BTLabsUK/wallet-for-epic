@@ -4487,6 +4487,33 @@ class AppLocalizationsRu extends AppLocalizations {
   String get netStatusTitle => 'Состояние сети';
 
   @override
+  String get serverMyRelays => 'Мои серверы';
+
+  @override
+  String get serverRemoveRelay => 'Удалить из моих серверов';
+
+  @override
+  String get serverRemoveInUse =>
+      'Используется. Сначала переключитесь на другой сервер.';
+
+  @override
+  String get serverRemoveRelayTitle => 'Удалить этот сервер?';
+
+  @override
+  String get serverRemoveNodeTitle => 'Удалить этот узел?';
+
+  @override
+  String serverRemoveBody(String host) {
+    return '$host исчезнет из этого списка. Введите его снова, чтобы использовать позже.';
+  }
+
+  @override
+  String get serverRemoveConfirm => 'Удалить';
+
+  @override
+  String get serverSupportsNotifications => 'Поддерживает уведомления';
+
+  @override
   String get netStatusReachable => 'Доступен';
 
   @override

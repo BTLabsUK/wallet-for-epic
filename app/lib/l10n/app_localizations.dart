@@ -6703,6 +6703,54 @@ abstract class AppLocalizations {
   /// **'Network status'**
   String get netStatusTitle;
 
+  /// Epicbox picker section head: relays the wallet has connected to that the public list does not have, each with a remove button. Beside the 'Public servers' head.
+  ///
+  /// In en, this message translates to:
+  /// **'My servers'**
+  String get serverMyRelays;
+
+  /// Tooltip and screen reader name of the remove button on a My servers row of the Epicbox picker.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove from my servers'**
+  String get serverRemoveRelay;
+
+  /// Tooltip of the disabled remove button (Epicbox) or star (node) on the server the wallet uses now: why it cannot be removed.
+  ///
+  /// In en, this message translates to:
+  /// **'In use. Switch to another server first.'**
+  String get serverRemoveInUse;
+
+  /// Title of the dialog that confirms removing an Epicbox relay from My servers.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove this server?'**
+  String get serverRemoveRelayTitle;
+
+  /// Title of the dialog that confirms removing a node from My nodes (the star of a My nodes row).
+  ///
+  /// In en, this message translates to:
+  /// **'Remove this node?'**
+  String get serverRemoveNodeTitle;
+
+  /// Body of the dialogs that confirm removing a node or an Epicbox relay from the user's own list.
+  ///
+  /// In en, this message translates to:
+  /// **'{host} leaves this list. Type it in again to use it later.'**
+  String serverRemoveBody(String host);
+
+  /// Confirm button of the remove dialogs.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get serverRemoveConfirm;
+
+  /// Screen reader words for the bell icon on the Epicbox relay that can send push notifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Supports notifications'**
+  String get serverSupportsNotifications;
+
   /// Direct receive status icon state word: the wallet's Tor address is published and reachable.
   ///
   /// In en, this message translates to:

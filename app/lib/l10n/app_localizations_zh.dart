@@ -4098,6 +4098,32 @@ class AppLocalizationsZh extends AppLocalizations {
   String get netStatusTitle => '网络状态';
 
   @override
+  String get serverMyRelays => '我的服务器';
+
+  @override
+  String get serverRemoveRelay => '从我的服务器移除';
+
+  @override
+  String get serverRemoveInUse => '正在使用。请先切换到其他服务器。';
+
+  @override
+  String get serverRemoveRelayTitle => '移除此服务器？';
+
+  @override
+  String get serverRemoveNodeTitle => '移除此节点？';
+
+  @override
+  String serverRemoveBody(String host) {
+    return '$host 将从此列表中移除。以后要使用，请重新输入。';
+  }
+
+  @override
+  String get serverRemoveConfirm => '移除';
+
+  @override
+  String get serverSupportsNotifications => '支持通知';
+
+  @override
   String get netStatusReachable => '可访问';
 
   @override

@@ -4505,6 +4505,32 @@ class AppLocalizationsPl extends AppLocalizations {
   String get netStatusTitle => 'Stan sieci';
 
   @override
+  String get serverMyRelays => 'Moje serwery';
+
+  @override
+  String get serverRemoveRelay => 'Usuń z moich serwerów';
+
+  @override
+  String get serverRemoveInUse => 'W użyciu. Najpierw przełącz na inny serwer.';
+
+  @override
+  String get serverRemoveRelayTitle => 'Usunąć ten serwer?';
+
+  @override
+  String get serverRemoveNodeTitle => 'Usunąć ten węzeł?';
+
+  @override
+  String serverRemoveBody(String host) {
+    return '$host zniknie z tej listy. Wpisz go ponownie, aby użyć go później.';
+  }
+
+  @override
+  String get serverRemoveConfirm => 'Usuń';
+
+  @override
+  String get serverSupportsNotifications => 'Obsługuje powiadomienia';
+
+  @override
   String get netStatusReachable => 'Osiągalny';
 
   @override

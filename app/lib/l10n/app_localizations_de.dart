@@ -4393,6 +4393,33 @@ class AppLocalizationsDe extends AppLocalizations {
   String get netStatusTitle => 'Netzwerkstatus';
 
   @override
+  String get serverMyRelays => 'Meine Server';
+
+  @override
+  String get serverRemoveRelay => 'Aus meinen Servern entfernen';
+
+  @override
+  String get serverRemoveInUse =>
+      'In Verwendung. Wechsle zuerst zu einem anderen Server.';
+
+  @override
+  String get serverRemoveRelayTitle => 'Diesen Server entfernen?';
+
+  @override
+  String get serverRemoveNodeTitle => 'Diese Node entfernen?';
+
+  @override
+  String serverRemoveBody(String host) {
+    return '$host verschwindet aus dieser Liste. Gib ihn erneut ein, um ihn später zu nutzen.';
+  }
+
+  @override
+  String get serverRemoveConfirm => 'Entfernen';
+
+  @override
+  String get serverSupportsNotifications => 'Unterstützt Benachrichtigungen';
+
+  @override
   String get netStatusReachable => 'Erreichbar';
 
   @override

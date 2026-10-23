@@ -8,6 +8,7 @@ import 'l10n.dart';
 import 'log.dart';
 import 'network.dart';
 import 'providers.dart';
+import 'ui/server_picker.dart' show rememberServers;
 import 'wallet_service.dart';
 
 /// Saves [nodeUrl] and [relay] as the servers of the current network and moves the open wallet
@@ -45,6 +46,10 @@ Future<bool> switchServersLive(
       next.epicboxPort != opened.epicboxPort;
   await session.setServers(config: next);
   await notifier.save(choice.preset, nodeUrl, relay: relay);
+  // Connected: both servers join the user's lists (My nodes, My relays) in the pickers.
+  if (ref.context.mounted) {
+    await rememberServers(ref, choice.preset.chain, nodeUrl: nodeUrl, relay: relay);
+  }
   logInfo(
     'network',
     'switched live: node ${Uri.tryParse(nodeUrl)?.host ?? '?'}, relay ${relay.label}',
