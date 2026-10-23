@@ -27,11 +27,12 @@ const int invoiceLineMaxChars = 120;
 /// checks the signature with the key, never the domain.
 String addressKey(String address) => address.trim().split('@').first;
 
-/// Untrusted text from another wallet as one plain line: control and bidi characters removed,
-/// whitespace runs folded, cut to [max] characters. Never rendered as a link.
+/// Untrusted text from another wallet as one plain line: control, zero-width, line-separator
+/// and bidi characters removed, whitespace runs folded, cut to [max] characters. Never
+/// rendered as a link.
 String cleanInvoiceText(String? text, {int? max}) {
   final s = (text ?? '')
-      .replaceAll(RegExp('[\u0000-\u001f\u007f-\u009f\u200e\u200f\u202a-\u202e\u2066-\u2069]'), ' ')
+      .replaceAll(RegExp('[\u0000-\u001f\u007f-\u009f\u200b-\u200f\u2028\u2029\u202a-\u202e\u2060\u2066-\u2069\ufeff]'), ' ')
       .replaceAll(RegExp(r'\s+'), ' ')
       .trim();
   if (max == null || s.characters.length <= max) return s;
