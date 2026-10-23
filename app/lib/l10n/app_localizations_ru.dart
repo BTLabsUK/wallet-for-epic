@@ -6031,7 +6031,7 @@ class AppLocalizationsRu extends AppLocalizations {
       'Напрямую: платёж идёт прямо в кошелёк получателя, который должен быть открыт';
 
   @override
-  String get methodReceiveEpicboxShort => 'Работает при закрытом приложении.';
+  String get methodReceiveEpicboxShort => 'Работает при закрытом кошельке.';
 
   @override
   String get methodReceiveDirectTitle => 'Прямо в этот кошелёк.';

@@ -5493,7 +5493,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get methodArtLabelDirect => '直连：付款直接发送到收款人的钱包，该钱包必须处于打开状态';
 
   @override
-  String get methodReceiveEpicboxShort => '应用关闭时也可收款。';
+  String get methodReceiveEpicboxShort => '钱包关闭时也可收款。';
 
   @override
   String get methodReceiveDirectTitle => '直接发送到此钱包。';

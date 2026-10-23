@@ -1483,7 +1483,7 @@
   "methodDirectShape": "http://host:3415 или xxxx….onion",
   "methodSendDirectLine": "Их кошелёк должен быть открыт. Адрес onion идёт через Tor.",
   "methodArtLabelDirect": "Напрямую: платёж идёт прямо в кошелёк получателя, который должен быть открыт",
-  "methodReceiveEpicboxShort": "Работает при закрытом приложении.",
+  "methodReceiveEpicboxShort": "Работает при закрытом кошельке.",
   "methodReceiveDirectTitle": "Прямо в этот кошелёк.",
   "methodReceiveDirectLine": "Работает, пока приложение открыто.",
   "methodLineOverTor": "{line} Через Tor.",

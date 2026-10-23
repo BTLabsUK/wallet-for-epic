@@ -5841,7 +5841,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Direct: the payment goes straight to the recipient\'s wallet, which must be open';
 
   @override
-  String get methodReceiveEpicboxShort => 'Works with the app closed.';
+  String get methodReceiveEpicboxShort => 'Works with the wallet closed.';
 
   @override
   String get methodReceiveDirectTitle => 'Straight to this wallet.';

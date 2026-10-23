@@ -7338,9 +7338,9 @@
   "@methodArtLabelDirect": {
     "description": "Screen reader label of the Direct picture."
   },
-  "methodReceiveEpicboxShort": "Works with the app closed.",
+  "methodReceiveEpicboxShort": "Works with the wallet closed.",
   "@methodReceiveEpicboxShort": {
-    "description": "Receive's Epicbox strip line: payments arrive even while the app is closed (the Epicbox server holds them)."
+    "description": "Receive's Epicbox strip line: payments arrive even while the wallet is closed (the Epicbox server holds them). No \"app\": the web demo shows it too."
   },
   "methodReceiveDirectTitle": "Straight to this wallet.",
   "@methodReceiveDirectTitle": {

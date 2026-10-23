@@ -844,7 +844,7 @@ void main() {
       final h = _Harness();
       await h.pump(tester, body: const ReceiveView(), height: 3600);
       expect(find.text('Share it to get paid.'), findsOneWidget);
-      expect(find.text('Works with the app closed.'), findsOneWidget);
+      expect(find.text('Works with the wallet closed.'), findsOneWidget);
       // The caption under the address went for room.
       expect(
         find.text(
@@ -901,7 +901,7 @@ void main() {
       final h = _Harness();
       await h.pump(tester, body: const ReceiveView(), height: 3600);
       await h.torOn(tester);
-      expect(find.text('Works with the app closed. Over Tor.'), findsOneWidget);
+      expect(find.text('Works with the wallet closed. Over Tor.'), findsOneWidget);
     });
 
     testWidgets('receiving help says there is no HTTP on the phone', (

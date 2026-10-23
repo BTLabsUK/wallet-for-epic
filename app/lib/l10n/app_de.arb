@@ -1483,7 +1483,7 @@
   "methodDirectShape": "http://host:3415 oder xxxx….onion",
   "methodSendDirectLine": "Ihre Wallet muss geöffnet sein. Eine Onion-Adresse läuft über Tor.",
   "methodArtLabelDirect": "Direkt: Die Zahlung geht direkt an die Wallet des Empfängers, die geöffnet sein muss",
-  "methodReceiveEpicboxShort": "Funktioniert bei geschlossener App.",
+  "methodReceiveEpicboxShort": "Funktioniert bei geschlossener Wallet.",
   "methodReceiveDirectTitle": "Direkt an diese Wallet.",
   "methodReceiveDirectLine": "Funktioniert, solange die App geöffnet ist.",
   "methodLineOverTor": "{line} Über Tor.",

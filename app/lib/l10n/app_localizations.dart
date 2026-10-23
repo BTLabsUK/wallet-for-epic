@@ -9043,10 +9043,10 @@ abstract class AppLocalizations {
   /// **'Direct: the payment goes straight to the recipient\'s wallet, which must be open'**
   String get methodArtLabelDirect;
 
-  /// Receive's Epicbox strip line: payments arrive even while the app is closed (the Epicbox server holds them).
+  /// Receive's Epicbox strip line: payments arrive even while the wallet is closed (the Epicbox server holds them). No "app": the web demo shows it too.
   ///
   /// In en, this message translates to:
-  /// **'Works with the app closed.'**
+  /// **'Works with the wallet closed.'**
   String get methodReceiveEpicboxShort;
 
   /// Receive's Direct strip title.

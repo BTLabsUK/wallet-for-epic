@@ -6047,7 +6047,7 @@ class AppLocalizationsPl extends AppLocalizations {
       'Bezpośrednio: płatność trafia prosto do portfela odbiorcy, który musi być otwarty';
 
   @override
-  String get methodReceiveEpicboxShort => 'Działa przy zamkniętej aplikacji.';
+  String get methodReceiveEpicboxShort => 'Działa przy zamkniętym portfelu.';
 
   @override
   String get methodReceiveDirectTitle => 'Prosto do tego portfela.';
