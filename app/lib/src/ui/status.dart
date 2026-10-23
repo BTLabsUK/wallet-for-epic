@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../connection_state.dart';
 import '../l10n.dart';
 import '../providers.dart';
 import '../wallet_service.dart';
@@ -92,19 +93,9 @@ WalletStatus walletStatus({
   return (node: node, epicbox: epicbox);
 }
 
-/// The [WalletStatus] of the open wallet, rebuilt when any input changes.
-WalletStatus watchWalletStatus(WidgetRef ref) {
-  final home = ref.watch(homeProvider);
-  final data = home.value;
-  final syncing = data != null && (home.isLoading || data.syncing);
-  return walletStatus(
-    tip: ref.watch(nodeTipProvider),
-    syncing: syncing,
-    percent: syncing ? ref.watch(syncProgressProvider) : null,
-    summary: data?.summary,
-    listener: ref.watch(listenerProvider),
-  );
-}
+/// The [WalletStatus] of the open wallet as shown: offline and syncing only once they last
+/// ([walletStatusProvider]).
+WalletStatus watchWalletStatus(WidgetRef ref) => ref.watch(walletStatusProvider);
 
 /// Icon, words (the service and its state, also what a screen reader says), colour, spoken
 /// label and tooltip of one status.

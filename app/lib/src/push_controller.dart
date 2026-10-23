@@ -74,6 +74,10 @@ class PushController extends Notifier<bool> {
   /// Registrations one after the other, so a token change and an unlock never overlap.
   Future<void> _work = Future.value();
 
+  /// The switch's on and off, one after the other: an on tapped while the
+  /// off still unregisters and deletes the token waits for it, and never registers that token.
+  Future<void> _switching = Future.value();
+
   late final PushRegistration _registration = PushRegistration(
     post: (url, body, timeout) => ref.read(pushPostProvider)(url, body, timeout),
     now: () => ref.read(clockProvider)(),
@@ -96,14 +100,13 @@ class PushController extends Notifier<bool> {
     // Built after the wallet opened (by a hook, or a Settings tap): treat it as the unlock.
     final open = ref.read(sessionProvider);
     if (open != null) scheduleMicrotask(() => unawaited(_unlocked(open)));
-    // The relay switched live (Settings › Node and Epicbox): register on the new one, which
-    // sends nothing unless it is the BT Labs relay.
+    // The relay switched live (Settings › Node and Epicbox): registered on the BT Labs relay,
+    // unregistered when the wallet leaves it (pushes from there would announce slates this
+    // listener no longer collects). The device token stays: only Tor and the switch delete it.
     ref.listen(walletConfigProvider.select((c) => c?.epicboxDomain), (before, after) {
       final session = ref.read(sessionProvider);
       if (before == after || session == null) return;
-      // A token already registered stays registered: the service keys it by the address key,
-      // which the relay does not change.
-      unawaited(_sync(session));
+      unawaited(_relayMoved(session, after));
     });
     // A new token from Firebase: register it.
     ref.listen(pushProvider.select((s) => s.token), (_, token) {
@@ -149,22 +152,56 @@ class PushController extends Notifier<bool> {
     return run;
   }
 
+  Future<T> _exclusive<T>(Future<T> Function() task) {
+    final run = _switching.then((_) => task());
+    _switching = run.then<void>((_) {}, onError: (_) {});
+    return run;
+  }
+
+  // The relay.
+
+  Future<void> _relayMoved(WalletSession session, String? relay) async {
+    if (relay == PushRegistration.relayHost) {
+      return _sync(session, why: 'relay switched');
+    }
+    await _serial(() async {
+      final token = _registered;
+      if (token == null) {
+        logInfo('push', 'relay switched: nothing registered, nothing to take back');
+        return;
+      }
+      _registered = null;
+      state = false;
+      if (!identical(ref.read(sessionProvider), session)) return;
+      logInfo('push', 'relay switched off the push relay: unregistering');
+      await _registration.unregister(session, token);
+    });
+  }
+
   // Unlock.
 
   Future<void> _unlocked(WalletSession session) async {
-    await _sync(session);
+    await _sync(session, why: 'unlocked');
     if (!identical(ref.read(sessionProvider), session)) return;
     await _scheduleHint();
   }
 
   /// Starts Firebase and registers, when notifications are wanted and Tor is off. [fresh] asks
   /// for a new token (after Tor), [announce] says "Notifications on" once it is registered.
+  /// [why], when given, is logged with the reason nothing was sent.
   Future<void> _sync(
     WalletSession session, {
     bool fresh = false,
     bool announce = false,
+    String? why,
   }) async {
-    if (!await _available() || !await _wanted() || !await _clearnet()) return;
+    void skipped(String reason) {
+      if (why != null) logInfo('push', '$why: register skipped, $reason');
+    }
+
+    if (!await _available()) return skipped('not available in this build');
+    if (!await _wanted()) return skipped('notifications are off');
+    if (!await _clearnet()) return skipped('Tor is on');
     if (!identical(ref.read(sessionProvider), session)) return;
     final push = ref.read(pushProvider.notifier);
     if (!await push.start()) {
@@ -174,8 +211,8 @@ class PushController extends Notifier<bool> {
     }
     final token = fresh
         ? await push.freshToken()
-        : ref.read(pushProvider).token;
-    if (token == null) return;
+        : ref.read(pushProvider).token ?? await push.freshToken();
+    if (token == null) return skipped('no device token');
     final outcome = await _serial(() => _registerToken(token, session: session));
     if (announce && outcome == PushOutcome.sent) {
       ref.read(pushNoteProvider.notifier).say(PushNote.on);
@@ -205,7 +242,9 @@ class PushController extends Notifier<bool> {
 
   /// Turns notifications on: saved first, then permission and the registration. False when
   /// the system denied permission or Firebase failed (the switch goes back off), or Tor is on.
-  Future<bool> turnOn() async {
+  Future<bool> turnOn() => _exclusive(_turnOn);
+
+  Future<bool> _turnOn() async {
     final session = ref.read(sessionProvider);
     if (session == null || !await _available() || !await _clearnet()) return false;
     await _setWanted(true);
@@ -222,7 +261,9 @@ class PushController extends Notifier<bool> {
 
   /// Turns notifications off for good: unregisters and drops the device token when Tor is
   /// off (with Tor on there is nothing registered and nothing is sent).
-  Future<void> turnOff() async {
+  Future<void> turnOff() => _exclusive(_turnOff);
+
+  Future<void> _turnOff() async {
     final session = ref.read(sessionProvider);
     final token = ref.read(pushProvider).token;
     final torOff = await _clearnet();

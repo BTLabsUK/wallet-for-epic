@@ -118,6 +118,18 @@ void main() {
     expect(find.textContaining('Status site last reached'), findsNothing, reason: 'never reached this session');
   });
 
+  // The owner's 26.10.x desktop: a 4.1.1 node whose ready_for_txs call failed read "node before 4.1.0".
+  testWidgets('limited info, readiness unknown: "node before 4.1.0" only for a node that says so', (tester) async {
+    NodeInfo info(String? version) =>
+        NodeInfo(url: _url, source: NodeInfoSource.limited, at: _now, height: 3766864, version: version);
+    for (final (version, label) in [('4.1.1', 'no answer'), ('4.1.0-1', 'no answer'), (null, 'no answer'), ('3.6.0', 'node before 4.1.0')]) {
+      await _pump(tester, _card(info(version)));
+      expect(find.text('Unknown'), findsOneWidget, reason: '$version');
+      expect(find.textContaining(label), findsOneWidget, reason: '$version');
+      if (label == 'no answer') expect(find.textContaining('before 4.1.0'), findsNothing, reason: '$version');
+    }
+  });
+
   testWidgets('nothing known yet: every value prints – and nothing spins', (tester) async {
     await _pump(tester, _card(null));
     expect(find.textContaining('Checking', findRichText: true), findsOneWidget);

@@ -245,9 +245,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 _GroupRow(
                   key: settingsGroupKey(SettingsSection.display),
                   section: SettingsSection.display,
+                  // The language only once one is chosen: "System default" says nothing
+                  // and crowds the line at 360 dp.
                   state: [
                     themeLabel(l, s.themeMode),
-                    languageLabel(l, s.language),
+                    if (s.language != null) languageLabel(l, s.language),
                     if (s.showFiat) s.fiatCurrency.toUpperCase(),
                   ].reduce(l.settingsStateJoin),
                 ),
@@ -418,6 +420,7 @@ class _UpdateRow extends ConsumerWidget {
           l.updateDownloading(version, ((state.progress ?? 0) * 100).floor()),
         ),
         UpdatePhase.installing => Text(l.updateInstalling(version)),
+        UpdatePhase.needsPermission => Text(l.updateAllowInstalls),
         _ => null,
       },
       trailing: FilledButton(

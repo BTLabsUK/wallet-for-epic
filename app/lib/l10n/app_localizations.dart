@@ -2846,11 +2846,11 @@ abstract class AppLocalizations {
   /// **'Download progress'**
   String get updateDownloadProgressLabel;
 
-  /// Android opened its settings screen for installing apps from this source. 'Update' is the updateInstallButton label: use the same word.
+  /// Settings' update row while Android's screen for allowing installs from this app is open or was just opened; the update carries on by itself once the user allows and comes back. 'Epic Cash Mobile' is the app's name, never translated.
   ///
   /// In en, this message translates to:
-  /// **'Allow this app to install updates in the screen that opened, then tap Update again.'**
-  String get updateNeedsPermission;
+  /// **'Allow installs from Epic Cash Mobile, then return.'**
+  String get updateAllowInstalls;
 
   /// Android's installer refused the update. detail is the installer's own message, in English.
   ///
@@ -4909,6 +4909,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Back up your recovery phrase'**
   String get settingsStateBackUp;
+
+  /// State line under the Back up recovery phrase row on the Security page while the phrase has not been backed up.
+  ///
+  /// In en, this message translates to:
+  /// **'Not backed up yet'**
+  String get settingsStateNotBackedUp;
 
   /// State line under the Security group: the wallet unlocks with the PIN only.
   ///

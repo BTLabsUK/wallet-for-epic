@@ -79,15 +79,22 @@ class PushRegistration {
     String token,
     Duration timeout,
   ) async {
+    var where = 'on $relayHost';
     try {
       // A wallet moved off the BT Labs relay may still be registered there: an unregister
       // goes anyway, naming the bare key (the service accepts it), a register does not.
-      final onPushRelay = onRelay(await session.epicboxAddress());
+      final address = await session.epicboxAddress();
+      final onPushRelay = onRelay(address);
+      // The first 8 characters of the key, as the push service logs them, and the relay.
+      where = '${address.length > 8 ? address.substring(0, 8) : address} on $relayHost';
       if (!onPushRelay && action == 'register') {
         logInfo('push', '$action skipped, the wallet is not on the push relay');
         return PushOutcome.skipped;
       }
-      if (!clearnet()) return PushOutcome.skipped;
+      if (!clearnet()) {
+        logInfo('push', '$action skipped, Tor is on');
+        return PushOutcome.skipped;
+      }
       final stamp = now().millisecondsSinceEpoch ~/ 1000;
       final signed = await session.pushSignature(
         action: action,
@@ -95,24 +102,27 @@ class PushRegistration {
         timestamp: stamp,
       );
       // Signing takes a moment on the wallet's thread: Tor may have been switched on meanwhile.
-      if (!clearnet()) return PushOutcome.skipped;
+      if (!clearnet()) {
+        logInfo('push', '$action skipped, Tor came on');
+        return PushOutcome.skipped;
+      }
       final status = await post(
         base.replace(path: '${base.path}/$action'),
         _json(signed, token, stamp, bareKey: !onPushRelay),
         timeout,
       );
       if (status == 204) {
-        logInfo('push', '$action done');
+        logInfo('push', '$action done, HTTP 204, $where');
         return PushOutcome.sent;
       }
-      logWarn('push', '$action refused, status $status');
+      logWarn('push', '$action refused, HTTP $status, $where');
     } on TimeoutException {
-      logWarn('push', '$action timed out');
+      logWarn('push', '$action timed out, $where');
     } catch (e) {
       // The type only: a message could carry the address.
       logWarn(
         'push',
-        '$action failed, ${e is WalletError ? e.kind.name : e.runtimeType}',
+        '$action failed, ${e is WalletError ? e.kind.name : e.runtimeType}, $where',
       );
     }
     return PushOutcome.failed;

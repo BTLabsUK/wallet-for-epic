@@ -474,9 +474,11 @@ void main() {
         find.descendant(of: row, matching: find.byIcon(Icons.check)),
       );
       expect(check.color, t.dim);
-      final rich = tester.widget<Text>(_inRow('epicbox.stackwallet.com', 'Current'));
+      final rich = tester.widget<RichText>(
+        _inRow('epicbox.stackwallet.com', 'Current'),
+      );
       TextStyle? currentStyle;
-      rich.textSpan!.visitChildren((span) {
+      rich.text.visitChildren((span) {
         if (span is TextSpan && span.text == 'Current') {
           currentStyle = span.style;
           return false;

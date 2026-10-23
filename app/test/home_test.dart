@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:math' as math;
 
+import 'package:epic_wallet/src/connection_state.dart';
 import 'package:epic_wallet/src/network.dart';
 import 'package:epic_wallet/src/amount.dart';
 import 'package:epic_wallet/src/l10n.dart';
@@ -1426,6 +1427,7 @@ void main() {
           ),
         );
       await tester.pumpAndSettle();
+      await tester.pump(statusSettle);
       expect(_statusWord(tester, epicboxStatusKey), 'Epicbox, Offline');
       expect(
         _statusTip(tester, epicboxStatusKey),
@@ -1615,6 +1617,8 @@ void main() {
       );
       final h = _Harness(session: session, still: true);
       await h.pump(tester);
+      // Syncing shows once it lasts (walletStatusProvider).
+      await tester.pump(statusSettle);
       // Local figures while the refresh against the node runs, with its progress.
       expect(_figure(tester), '12.5');
       expect(_statusWord(tester, nodeStatusKey), 'Node, Syncing 40 %');
@@ -3692,6 +3696,8 @@ void main() {
         final session = _SlowRefreshSession(refreshed: _summary());
         final h = _Harness(session: session, settle: false);
         await h.pump(tester);
+        // Syncing shows once it lasts (walletStatusProvider).
+        await tester.pump(statusSettle);
         for (final tab in ['Wallet', 'Send', 'Receive']) {
           await _tab(tester, tab, settle: false);
           expect(_syncLine(tester), 0.4, reason: tab);
@@ -3730,6 +3736,8 @@ void main() {
       final session = _SlowRefreshSession(refreshed: _summary());
       final h = _Harness(session: session, still: true);
       await h.pump(tester);
+      // Syncing shows once it lasts (walletStatusProvider).
+      await tester.pump(statusSettle);
       expect(_syncLine(tester), 0.4);
       final glow = _glow(tester);
       for (var i = 0; i < 5; i++) {
@@ -3789,6 +3797,7 @@ void main() {
       await h.pump(tester);
       h.session.listenerEvents.addError(StateError('relay closed'));
       await tester.pumpAndSettle();
+      await tester.pump(statusSettle);
       expect(_statusWord(tester, epicboxStatusKey), 'Epicbox, Offline');
     });
 

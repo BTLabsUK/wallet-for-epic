@@ -43,6 +43,7 @@ class InstalledApp {
     required this.versionCode,
     required this.versionName,
     required this.abis,
+    this.canInstall = true,
   });
 
   final String packageName;
@@ -51,6 +52,10 @@ class InstalledApp {
 
   /// Supported ABIs, most preferred first.
   final List<String> abis;
+
+  /// Whether Android lets this app install packages (Android 8+: "allow from this source"),
+  /// asked before any download, so the permission trip never costs the download.
+  final bool canInstall;
 }
 
 /// One APK of a release, for one ABI (or `universal`).
@@ -177,6 +182,10 @@ abstract interface class UpdatePlatform {
   /// key than this app, so Android never installs it over it), or throws [UpdateError].
   Future<String> install(File apk);
 
+  /// Opens the system screen where the user allows installs from this app. The app goes to the
+  /// background; [UpdateNotifier.resumed] carries on when it is back.
+  Future<void> requestInstallPermission();
+
   /// Results the installer reports later: `pendingUserAction`, `success`, `cancelled` or
   /// `failed`, with a message.
   Stream<({String status, String? message})> get installEvents;
@@ -213,8 +222,13 @@ class AndroidUpdatePlatform implements UpdatePlatform {
       versionCode: (info['versionCode'] as num).toInt(),
       versionName: info['versionName'] as String? ?? '',
       abis: List<String>.from(info['abis'] as List),
+      canInstall: info['canInstall'] as bool? ?? true,
     );
   }
+
+  @override
+  Future<void> requestInstallPermission() =>
+      _channel.invokeMethod<void>('requestInstallPermission');
 
   @override
   Future<String> install(File apk) async {
@@ -293,6 +307,19 @@ Future<void> downloadApk(
   }
 }
 
+/// Whether [file] is [apk]: present, the announced size, the announced SHA-256. A download
+/// kept from before the permission trip is installed without downloading it again.
+Future<bool> apkMatches(File file, ReleaseApk apk) async {
+  if (!await file.exists() || await file.length() != apk.size) return false;
+  final digestSink = _DigestSink();
+  final hasher = sha256.startChunkedConversion(digestSink);
+  await for (final chunk in file.openRead()) {
+    hasher.add(chunk);
+  }
+  hasher.close();
+  return digestSink.value.toString() == apk.sha256;
+}
+
 class _DigestSink implements Sink<Digest> {
   late Digest value;
 
@@ -308,6 +335,10 @@ enum UpdatePhase {
   checking,
   upToDate,
   available,
+
+  /// Android's "allow installs from this source" screen is open, or was: the update waits for
+  /// the user to allow and come back ([UpdateNotifier.resumed]).
+  needsPermission,
   downloading,
   installing,
   failed,
@@ -571,11 +602,58 @@ class UpdateNotifier extends Notifier<UpdateState> {
     }
   }
 
-  /// Downloads and installs the available update.
+  /// Installs the available update: first the permission to install, asked before any
+  /// download (Android 8+), then the download, unless the file from a previous try is still
+  /// there and matches the manifest, then Android's installer.
   Future<void> install() async {
     final platform = ref.read(updatePlatformProvider);
     final update = state.update;
     if (platform == null || update == null) return;
+    if (state.phase == UpdatePhase.downloading ||
+        state.phase == UpdatePhase.installing) {
+      return;
+    }
+    try {
+      if (!(await platform.installedApp()).canInstall) {
+        await platform.requestInstallPermission();
+        if (ref.mounted) _waitForPermission(update);
+        return;
+      }
+    } catch (error) {
+      logWarn('update', 'install permission unknown: $error');
+      // Asked again by the installer itself, which opens the screen.
+    }
+    await _downloadAndInstall(platform, update);
+  }
+
+  /// The app is back in front. Once the install permission was given, the update that waited
+  /// for it carries on: from the kept download, or a new one if that file is gone.
+  Future<void> resumed() async {
+    if (state.phase != UpdatePhase.needsPermission) return;
+    final platform = ref.read(updatePlatformProvider);
+    final update = state.update;
+    if (platform == null || update == null) return;
+    try {
+      if (!(await platform.installedApp()).canInstall) return;
+    } catch (error) {
+      logWarn('update', 'install permission unknown: $error');
+      return;
+    }
+    if (ref.mounted) await _downloadAndInstall(platform, update);
+  }
+
+  void _waitForPermission(AvailableUpdate update) {
+    state = UpdateState(
+      UpdatePhase.needsPermission,
+      update: update,
+      text: (l) => l.updateAllowInstalls,
+    );
+  }
+
+  Future<void> _downloadAndInstall(
+    UpdatePlatform platform,
+    AvailableUpdate update,
+  ) async {
     state = UpdateState(UpdatePhase.downloading, update: update, progress: 0);
     // No User-Agent: the download says nothing about this app either.
     final client = HttpClient()
@@ -587,25 +665,31 @@ class UpdateNotifier extends Notifier<UpdateState> {
       final dir = Directory(
         '${(await ref.read(updateTempDirProvider)()).path}${Platform.pathSeparator}updates',
       );
-      if (await dir.exists()) await dir.delete(recursive: true);
-      await dir.create(recursive: true);
       final apk = File(
         '${dir.path}${Platform.pathSeparator}epic_wallet-${update.apk.versionCode}.apk',
       );
-      await downloadApk(
-        client,
-        update.apk,
-        apk,
-        onProgress: (p) {
-          if (ref.mounted) {
-            state = UpdateState(
-              UpdatePhase.downloading,
-              update: update,
-              progress: p,
-            );
-          }
-        },
-      );
+      // The file from before the permission trip, checked against the signed manifest again,
+      // is installed as it is; anything else there goes.
+      if (await apkMatches(apk, update.apk)) {
+        logInfo('update', 'installing the download kept from before');
+      } else {
+        if (await dir.exists()) await dir.delete(recursive: true);
+        await dir.create(recursive: true);
+        await downloadApk(
+          client,
+          update.apk,
+          apk,
+          onProgress: (p) {
+            if (ref.mounted) {
+              state = UpdateState(
+                UpdatePhase.downloading,
+                update: update,
+                progress: p,
+              );
+            }
+          },
+        );
+      }
       if (!ref.mounted) return;
       state = UpdateState(UpdatePhase.installing, update: update);
       final status = await platform.install(apk);
@@ -613,11 +697,8 @@ class UpdateNotifier extends Notifier<UpdateState> {
       if (status == 'keyMismatch') {
         _needsReinstall(update);
       } else if (status == 'needsPermission') {
-        state = UpdateState(
-          UpdatePhase.available,
-          update: update,
-          text: (l) => l.updateNeedsPermission,
-        );
+        // The installer opened the screen; the file stays for the return.
+        _waitForPermission(update);
       }
     } catch (error) {
       logWarn('update', 'install failed: $error');

@@ -64,6 +64,8 @@ class FirebasePushPlatform implements PushPlatform {
 
   static const MethodChannel _channel = MethodChannel('epic_wallet/push');
 
+  static bool _watching = false;
+
   @override
   Future<bool> configured() async {
     try {
@@ -77,6 +79,18 @@ class FirebasePushPlatform implements PushPlatform {
   @override
   Future<bool> start() async {
     await Firebase.initializeApp();
+    if (!_watching) {
+      _watching = true;
+      // A push that arrived in the background shows in the shade; the log sees it when tapped.
+      unawaited(
+        FirebaseMessaging.instance.getInitialMessage().then((m) {
+          if (m != null) logInfo('push', 'app opened from a push');
+        }),
+      );
+      FirebaseMessaging.onMessageOpenedApp.listen(
+        (_) => logInfo('push', 'push opened from the notification'),
+      );
+    }
     final settings = await FirebaseMessaging.instance.requestPermission();
     return settings.authorizationStatus == AuthorizationStatus.authorized ||
         settings.authorizationStatus == AuthorizationStatus.provisional;
@@ -116,6 +130,10 @@ class PushNotifier extends Notifier<PushState> {
   final List<StreamSubscription<Object>> _subscriptions = [];
   bool _started = false;
 
+  /// A deletion under way: no token is handed out until it is done, or Firebase may give back
+  /// the one being deleted, which FCM then calls dead.
+  Future<void> _deleting = Future.value();
+
   @override
   PushState build() {
     ref.onDispose(() {
@@ -151,6 +169,7 @@ class PushNotifier extends Notifier<PushState> {
       _subscriptions
         ..add(
           platform.tokenRefresh.listen((t) {
+            logInfo('push', 'token refreshed');
             state = PushState(
               token: t,
               permitted: state.permitted,
@@ -160,6 +179,7 @@ class PushNotifier extends Notifier<PushState> {
         )
         ..add(
           platform.foreground.listen((m) {
+            logInfo('push', 'push received in the foreground');
             state = PushState(
               token: state.token,
               permitted: state.permitted,
@@ -181,7 +201,9 @@ class PushNotifier extends Notifier<PushState> {
     final platform = ref.read(pushPlatformProvider);
     if (platform == null || !_started) return null;
     try {
+      await _deleting;
       final token = await platform.token();
+      logInfo('push', token == null ? 'no new token' : 'new token received');
       state = PushState(token: token, permitted: state.permitted, last: state.last);
       return token;
     } catch (error) {
@@ -195,11 +217,19 @@ class PushNotifier extends Notifier<PushState> {
   Future<void> deleteToken() async {
     final platform = ref.read(pushPlatformProvider);
     if (platform == null || !_started) return;
+    // Gone from the state first: nothing may register a token that is being deleted.
+    state = PushState(permitted: state.permitted, last: state.last);
+    final done = Completer<void>();
+    final before = _deleting;
+    _deleting = done.future;
     try {
+      await before;
       await platform.deleteToken();
+      logInfo('push', 'token deleted');
     } catch (error) {
       logWarn('push', 'token not deleted: ${error.runtimeType}');
+    } finally {
+      done.complete();
     }
-    state = PushState(permitted: state.permitted, last: state.last);
   }
 }
