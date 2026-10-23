@@ -10,6 +10,7 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'app_log.dart';
+import 'phone_tor.dart';
 import 'providers.dart';
 import 'ui/status.dart';
 
@@ -151,5 +152,69 @@ class WalletStatusNotifier extends Notifier<WalletStatus> {
         'epicbox ${epicbox?.name ?? 'stopped'} (source: listener socket)',
       );
     }
+  }
+}
+
+/// When the node is asked again after the network returns or the app resumes while it reads
+/// offline: at once, then twice more while a new network settles (DNS, a first route).
+const List<Duration> nodeRecheckDelays = [
+  Duration.zero,
+  Duration(seconds: 3),
+  Duration(seconds: 10),
+];
+
+/// Clears a stale node offline after a network change or a resume without waiting for the
+/// next minute's refresh: asks the node's tip ([nodeRecheckDelays]) and, once it answers,
+/// refreshes the balances so the ones the node could not check are checked again. Alive for
+/// the app's life (`WalletApp`); does nothing while the node reads anything but offline.
+final nodeRecheckProvider = NotifierProvider<NodeRecheckNotifier, void>(
+  NodeRecheckNotifier.new,
+);
+
+class NodeRecheckNotifier extends Notifier<void> {
+  /// Bumped by each recheck and by a new wallet: an older run stops.
+  int _run = 0;
+
+  @override
+  void build() {
+    final session = ref.watch(sessionProvider);
+    ref.onDispose(() => _run++);
+    if (session == null) return;
+    final network = ref.watch(networkChangesProvider).listen((available) {
+      if (available) unawaited(recheck('network'));
+    });
+    ref.onDispose(network.cancel);
+  }
+
+  bool get _offline =>
+      ref.read(rawWalletStatusProvider).node.state == NodeState.offline;
+
+  Future<void> recheck(String why) async {
+    if (ref.read(sessionProvider) == null || !_offline) return;
+    final run = ++_run;
+    logInfo('status', 'node recheck on $why');
+    for (final delay in nodeRecheckDelays) {
+      if (delay > Duration.zero) await Future<void>.delayed(delay);
+      if (!ref.mounted || run != _run) return;
+      ref.invalidate(nodeTipProvider);
+      // Held while asked: nothing else may watch the tip at this moment.
+      final tip = ref.listen(nodeTipProvider.future, (_, _) {});
+      try {
+        await tip.read();
+      } catch (_) {
+        continue;
+      } finally {
+        tip.close();
+      }
+      if (!ref.mounted || run != _run) return;
+      logInfo('status', 'node answers again');
+      if (ref.exists(homeProvider) && _offline) {
+        unawaited(
+          ref.read(homeProvider.notifier).reload().catchError((Object _) {}),
+        );
+      }
+      return;
+    }
+    logInfo('status', 'node still unreachable; the minute refresh tries again');
   }
 }

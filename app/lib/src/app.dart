@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'app_log.dart';
+import 'connection_state.dart';
 import 'demo.dart';
 import 'demo_web_connection.dart';
 import 'l10n.dart';
@@ -46,6 +47,9 @@ class _WalletAppState extends ConsumerState<WalletApp> {
     _lifecycle;
     // Alive for the app's life: it drains the payments address whenever a wallet opens.
     ref.listenManual(paymentsDrainProvider, (_, _) {});
+    // Alive for the app's life: a node that read offline is asked again when the network
+    // returns and on resume.
+    ref.listenManual(nodeRecheckProvider, (_, _) {});
     // Push notifications follow every unlock and the Tor switch (push_controller.dart); what
     // they tell the user is said here, where the language is known.
     ref.listenManual(pushControllerProvider, (_, _) {});
@@ -118,8 +122,10 @@ class _WalletAppState extends ConsumerState<WalletApp> {
   }
 
   /// An Epicbox listener that dropped while the app was away reconnects now, not after
-  /// LEPIC's backoff (`ListenerNotifier.wake`).
+  /// LEPIC's backoff (`ListenerNotifier.wake`), and a node that read offline is asked again
+  /// now, not at the next minute's refresh.
   void _wakeListener() {
+    unawaited(ref.read(nodeRecheckProvider.notifier).recheck('resume'));
     if (!ref.exists(listenerProvider)) return;
     unawaited(ref.read(listenerProvider.notifier).wake('resume'));
   }

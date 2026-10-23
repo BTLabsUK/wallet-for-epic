@@ -3,9 +3,12 @@
 // and a way back shows at once. Driven by a fake raw status on a fake clock.
 
 import 'package:epic_wallet/src/app_log.dart';
+import 'dart:async';
+
 import 'package:epic_wallet/src/connection_state.dart';
+import 'package:epic_wallet/src/network.dart';
 import 'package:epic_wallet/src/log.dart';
-import 'package:epic_wallet/src/phone_tor.dart' show networkEvent;
+import 'package:epic_wallet/src/phone_tor.dart' show networkChangesProvider, networkEvent;
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/ui/status.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
@@ -57,6 +60,8 @@ class _Harness {
 const _s = Duration(seconds: 1);
 
 void main() {
+  group('node recheck', nodeRecheckTests);
+
   test('the settle time is 5 s', () {
     expect(statusSettle, const Duration(seconds: 5));
   });
@@ -236,5 +241,114 @@ void main() {
       listener: const ListenerState(lost: true),
     );
     expect(s.epicbox, EpicboxState.offline);
+  });
+}
+
+class _Config extends WalletConfigNotifier {
+  @override
+  WalletConfig? build() =>
+      mainnetPreset.config(dataDir: '/fake/wallets/mainnet', nodeUrl: 'https://node');
+}
+
+/// An open wallet whose node can be cut off, with the network events in the test's hands.
+class _Node {
+  _Node(this.async) {
+    container = ProviderContainer(
+      retry: (_, _) => null,
+      overrides: [
+        walletConfigProvider.overrideWith(_Config.new),
+        networkChangesProvider.overrideWithValue(network.stream),
+      ],
+    );
+    session.onNodeTipFor = () {
+      if (down) throw const WalletError(kind: WalletErrorKind.nodeUnreachable, message: 'no route');
+    };
+    unawaited(container.read(sessionProvider.notifier).open(session));
+    async.flushMicrotasks();
+    container
+      ..listen(walletStatusProvider, (_, _) {})
+      ..listen(nodeRecheckProvider, (_, _) {})
+      ..listen(homeProvider, (_, _) {})
+      ..listen(nodeTipProvider, (_, _) {});
+    async.elapse(statusSettle);
+  }
+
+  final FakeAsync async;
+  final session = FakeWalletSession();
+  final network = StreamController<bool>.broadcast();
+  late final ProviderContainer container;
+  bool down = false;
+
+  NodeState get shown => container.read(walletStatusProvider).node.state;
+
+  void dispose() {
+    container.dispose();
+    unawaited(network.close());
+  }
+}
+
+void nodeRecheckTests() {
+  test('network back: one check and the node is online at once, not after the minute poll', () {
+    fakeAsync((async) {
+      final h = _Node(async);
+      expect(h.shown, NodeState.online);
+
+      // Airplane mode: the next poll fails, and after 5 s the node reads offline.
+      h.down = true;
+      h.network.add(false);
+      h.container.invalidate(nodeTipProvider);
+      async.elapse(statusSettle + const Duration(seconds: 1));
+      expect(h.shown, NodeState.offline);
+
+      h.down = false;
+      final asked = h.session.nodeTipsFor.length;
+      h.network.add(true);
+      async.elapse(const Duration(milliseconds: 100));
+      expect(h.session.nodeTipsFor.length, asked + 1, reason: 'one check');
+      expect(h.shown, NodeState.online);
+      h.dispose();
+    });
+  });
+
+  test('a network still settling: asked again after 3 s, then online', () {
+    fakeAsync((async) {
+      final h = _Node(async);
+      h.down = true;
+      h.container.invalidate(nodeTipProvider);
+      async.elapse(statusSettle + const Duration(seconds: 1));
+      expect(h.shown, NodeState.offline);
+
+      final asked = h.session.nodeTipsFor.length;
+      h.network.add(true);
+      async.elapse(const Duration(seconds: 1));
+      expect(h.session.nodeTipsFor.length, asked + 1);
+      expect(h.shown, NodeState.offline);
+      h.down = false;
+      async.elapse(const Duration(seconds: 2));
+      expect(h.session.nodeTipsFor.length, asked + 2);
+      expect(h.shown, NodeState.online);
+      h.dispose();
+    });
+  });
+
+  test('resume asks a node that reads offline; one that is online is left alone', () {
+    fakeAsync((async) {
+      final h = _Node(async);
+      var asked = h.session.nodeTipsFor.length;
+      unawaited(h.container.read(nodeRecheckProvider.notifier).recheck('resume'));
+      async.elapse(const Duration(seconds: 1));
+      expect(h.session.nodeTipsFor.length, asked, reason: 'online: nothing to clear');
+
+      h.down = true;
+      h.container.invalidate(nodeTipProvider);
+      async.elapse(statusSettle + const Duration(seconds: 1));
+      h.down = false;
+      asked = h.session.nodeTipsFor.length;
+      unawaited(h.container.read(nodeRecheckProvider.notifier).recheck('resume'));
+      async.elapse(const Duration(milliseconds: 100));
+      expect(h.session.nodeTipsFor.length, asked + 1);
+      expect(h.shown, NodeState.online);
+      h.dispose();
+    });
   });
 }
