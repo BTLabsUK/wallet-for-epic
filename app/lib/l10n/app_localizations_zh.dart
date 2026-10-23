@@ -5561,4 +5561,13 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get pushNoticeAvailable => '通知可在设置中开启。';
+
+  @override
+  String get torWayOver => '经由 Tor';
+
+  @override
+  String get torWayWaiting => '正在等待 Tor';
+
+  @override
+  String get torWayNotConnected => 'Tor 未连接。';
 }

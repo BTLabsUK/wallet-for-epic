@@ -7442,5 +7442,17 @@
   "pushNoticeAvailable": "Notifications are available in Settings.",
   "@pushNoticeAvailable": {
     "description": "One-time reminder, about a minute after the first unlock, that notifications exist."
+  },
+  "torWayOver": "Over Tor",
+  "@torWayOver": {
+    "description": "Status card, Settings › Servers and the server lists: this connection (node or Epicbox) goes through Tor now. Same words as desktop's 'Over Tor'."
+  },
+  "torWayWaiting": "Waiting for Tor",
+  "@torWayWaiting": {
+    "description": "Status card, Settings › Servers and the server lists: Tor is on but not connected yet (or not connected at all), so this connection waits for it and never goes on the clearnet meanwhile."
+  },
+  "torWayNotConnected": "Tor is not connected.",
+  "@torWayNotConnected": {
+    "description": "Detail after 'Waiting for Tor' when Tor failed: read out and shown as the row's hint."
   }
 }

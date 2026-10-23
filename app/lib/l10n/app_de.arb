@@ -1512,5 +1512,8 @@
   "pushConfirmAction": "Einschalten",
   "pushNoticeOn": "Benachrichtigungen an",
   "pushNoticeOff": "Benachrichtigungen aus",
-  "pushNoticeAvailable": "Benachrichtigungen sind in den Einstellungen verfügbar."
+  "pushNoticeAvailable": "Benachrichtigungen sind in den Einstellungen verfügbar.",
+  "torWayOver": "Über Tor",
+  "torWayWaiting": "Warten auf Tor",
+  "torWayNotConnected": "Tor ist nicht verbunden."
 }

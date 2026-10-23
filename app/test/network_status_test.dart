@@ -10,8 +10,10 @@ import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/ui/info_hint.dart';
 import 'package:epic_wallet/src/ui/network_status.dart';
 import 'package:epic_wallet/src/ui/theme/tokens.dart';
+import 'package:epic_wallet/src/ui/tor_ui.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -109,6 +111,8 @@ Future<void> _pump(
   NetworkPreset preset = mainnetPreset,
   String nodeUrl = 'https://node.example.org',
   int? networkTip,
+  Locale? locale,
+  double scale = 1,
 }) async {
   final t = tip ?? AsyncData(_tip);
   await tester.pumpWidget(
@@ -142,10 +146,17 @@ Future<void> _pump(
           _Directory(tip: networkTip),
         ),
       ],
-      child: const MaterialApp(
+      child: MaterialApp(
+        locale: locale,
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
-        home: Scaffold(
+        builder: (context, child) => MediaQuery(
+          data: MediaQuery.of(context).copyWith(
+            textScaler: TextScaler.linear(scale),
+          ),
+          child: child!,
+        ),
+        home: const Scaffold(
           body: Padding(
             padding: EdgeInsets.all(16),
             child: NetworkStatusCard(),
@@ -311,25 +322,138 @@ void main() {
     ) async {
       final handle = tester.ensureSemantics();
       await _pump(tester, tor: const PhoneTorState(receiving: true, phase: PhoneTorPhase.ready));
-      expect(_in(netStatusEpicboxKey, 'Online · Tor'), findsOneWidget);
+      final t = tester.element(find.byKey(netStatusTorKey)).tokens;
+      for (final row in [netStatusEpicboxKey, netStatusNodeKey]) {
+        expect(tester.widget<Text>(_in(row, 'Over Tor')).style?.color, t.ok);
+        expect(
+          find.descendant(of: find.byKey(row), matching: find.byIcon(torIcon)),
+          findsOneWidget,
+        );
+      }
+      expect(_in(netStatusEpicboxKey, 'Online'), findsOneWidget);
       expect(
         find.bySemanticsLabel(RegExp(r'^Epicbox.*, Online, over Tor$')),
         findsOneWidget,
       );
       // The node goes over Tor too (LEPIC E-12).
-      expect(_in(netStatusNodeKey, 'Synced · Tor'), findsOneWidget);
+      expect(_in(netStatusNodeKey, 'Synced'), findsOneWidget);
       expect(find.bySemanticsLabel(RegExp(r'^Node.*over Tor$')), findsOneWidget);
       handle.dispose();
     });
 
-    testWidgets('Tor starting: no mark yet', (tester) async {
+    testWidgets('Tor on while it connects (sends only): still over Tor', (tester) async {
+      await _pump(
+        tester,
+        tor: const PhoneTorState(receiving: true, phase: PhoneTorPhase.connected),
+      );
+      expect(_in(netStatusEpicboxKey, 'Over Tor'), findsOneWidget);
+      expect(_in(netStatusNodeKey, 'Over Tor'), findsOneWidget);
+    });
+
+    testWidgets('Tor off: no Tor line on the Epicbox and node rows', (tester) async {
+      await _pump(tester);
+      expect(find.text('Over Tor'), findsNothing);
+      expect(find.text('Waiting for Tor'), findsNothing);
+      expect(
+        find.descendant(of: find.byKey(netStatusEpicboxKey), matching: find.byIcon(torIcon)),
+        findsNothing,
+      );
+    });
+
+    testWidgets('Tor starting: waiting for Tor, warn', (tester) async {
+      final handle = tester.ensureSemantics();
       await _pump(
         tester,
         tor: const PhoneTorState(receiving: true, phase: PhoneTorPhase.starting),
       );
+      final t = tester.element(find.byKey(netStatusTorKey)).tokens;
+      for (final row in [netStatusEpicboxKey, netStatusNodeKey]) {
+        expect(
+          tester.widget<Text>(_in(row, 'Waiting for Tor')).style?.color,
+          t.warn,
+        );
+      }
       expect(_in(netStatusEpicboxKey, 'Online'), findsOneWidget);
-      expect(find.textContaining('· Tor'), findsNothing);
+      expect(
+        find.bySemanticsLabel(RegExp(r'^Epicbox.*, Online, Waiting for Tor$')),
+        findsOneWidget,
+      );
+      expect(
+        tester.getSemantics(find.byKey(netStatusEpicboxKey)).hint,
+        isNot(contains('Tor is not connected')),
+      );
+      handle.dispose();
     });
+
+    testWidgets('Tor failed: waiting for Tor, risk, Tor is not connected', (tester) async {
+      final handle = tester.ensureSemantics();
+      await _pump(
+        tester,
+        tor: const PhoneTorState(
+          receiving: true,
+          phase: PhoneTorPhase.failed,
+          failure: TorFailure.network,
+        ),
+      );
+      final t = tester.element(find.byKey(netStatusTorKey)).tokens;
+      for (final row in [netStatusEpicboxKey, netStatusNodeKey]) {
+        expect(
+          tester.widget<Text>(_in(row, 'Waiting for Tor')).style?.color,
+          t.risk,
+        );
+        expect(
+          tester.getSemantics(find.byKey(row)).hint,
+          startsWith('Tor is not connected.'),
+        );
+      }
+      expect(
+        find.bySemanticsLabel(RegExp(r'^Node.*, Waiting for Tor$')),
+        findsOneWidget,
+      );
+      handle.dispose();
+    });
+
+    testWidgets('a node on this computer stays direct: no Tor line', (tester) async {
+      await _pump(
+        tester,
+        nodeUrl: 'http://127.0.0.1:3413',
+        tor: const PhoneTorState(receiving: true, phase: PhoneTorPhase.ready),
+      );
+      expect(_in(netStatusNodeKey, 'Over Tor'), findsNothing);
+      expect(_in(netStatusEpicboxKey, 'Over Tor'), findsOneWidget);
+    });
+
+    // The owner saw no mark: a long state word in a large font cut " · Tor" off its end. The
+    // icon now leads a line of its own.
+    for (final (locale, word) in [
+      (const Locale('pl'), 'Przez Tor'),
+      (const Locale('de'), 'Über Tor'),
+      (const Locale('ru'), 'Через Tor'),
+    ]) {
+      testWidgets('the mark stays at 130 % in ${locale.languageCode}', (tester) async {
+        tester.view.physicalSize = const Size(360, 800);
+        tester.view.devicePixelRatio = 1;
+        addTearDown(tester.view.reset);
+        await _pump(
+          tester,
+          locale: locale,
+          scale: 1.3,
+          networkTip: 2500012,
+          tor: const PhoneTorState(receiving: true, phase: PhoneTorPhase.ready),
+        );
+        expect(tester.takeException(), isNull);
+        for (final row in [netStatusEpicboxKey, netStatusNodeKey]) {
+          expect(
+            find.descendant(of: find.byKey(row), matching: find.byIcon(torIcon)),
+            findsOneWidget,
+          );
+          final text = _in(row, word);
+          expect(text, findsOneWidget);
+          final para = tester.renderObject<RenderParagraph>(text);
+          expect(para.didExceedMaxLines, isFalse, reason: '$word cut off');
+        }
+      });
+    }
   });
 
   testWidgets('every row meets the tap target guideline', (tester) async {

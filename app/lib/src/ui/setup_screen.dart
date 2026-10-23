@@ -6,12 +6,18 @@ import '../errors.dart';
 import '../l10n.dart';
 import '../network.dart';
 import '../demo.dart';
+import '../net/tor_net.dart' show isLoopbackUrl;
+import '../phone_tor.dart';
 import '../providers.dart';
 import '../server_switch.dart';
+import '../tor_phone.dart';
+import '../tor_routes.dart';
 import '../wallet_service.dart';
 import 'common.dart';
 import 'launch_screen.dart';
 import 'server_picker.dart';
+import 'theme/tokens.dart';
+import 'tor_ui.dart';
 
 /// Network, node and relay settings. Saving another node or relay of the open wallet's network
 /// switches it live, keeping it unlocked; saving another network restarts the app flow on it.
@@ -207,6 +213,13 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
     final l = context.l10n;
     final preset = _preset;
     final devNetworks = ref.watch(devNetworksProvider);
+    final torState = phoneTorState(ref.watch(phoneTorProvider));
+    // A node on this computer stays direct (torSkipsLocalNode).
+    final nodeUri = Uri.tryParse(_nodeUrl.text.trim());
+    final nodeLocal =
+        torSkipsLocalNode && nodeUri != null && isLoopbackUrl(nodeUri);
+    bool torShows(TorRoute route) =>
+        torWayWords(l, context.tokens, torWay(route, torState)) != null;
     return SlotScaffold(
       appBar: AppBar(title: Text(l.setupTitle)),
       body: ScreenBody(
@@ -224,7 +237,10 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
                 // The network picker is for development builds and the web demo only
                 // (devNetworksProvider): a release runs on one network and never names it.
                 if (devNetworks) ...[
-                  Text(l.setupNetworkHeading, style: theme.textTheme.titleMedium),
+                  Text(
+                    l.setupNetworkHeading,
+                    style: theme.textTheme.titleMedium,
+                  ),
                   const SizedBox(height: 8),
                   SegmentedButton<NetworkPreset>(
                     segments: [
@@ -245,6 +261,11 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
                   const SizedBox(height: 8),
                   Text(chainDescription(l, preset.chain)),
                   const SizedBox(height: 16),
+                ],
+                // The node and the relay over Tor, or waiting for it, above their lists.
+                if (!nodeLocal && torShows(TorRoute.node)) ...[
+                  const TorWayLine(route: TorRoute.node),
+                  const SizedBox(height: 8),
                 ],
                 ServerList(
                   kind: ServerKind.node,
@@ -312,6 +333,10 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
                 const SizedBox(height: 4),
                 Text(l.setupRelayHint),
                 const SizedBox(height: 8),
+                if (torShows(TorRoute.epicbox)) ...[
+                  const TorWayLine(route: TorRoute.epicbox),
+                  const SizedBox(height: 8),
+                ],
                 ServerList(
                   kind: ServerKind.relay,
                   preset: preset,

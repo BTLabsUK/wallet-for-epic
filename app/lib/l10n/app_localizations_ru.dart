@@ -6091,4 +6091,13 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get pushNoticeAvailable => 'Уведомления доступны в настройках.';
+
+  @override
+  String get torWayOver => 'Через Tor';
+
+  @override
+  String get torWayWaiting => 'Ожидание Tor';
+
+  @override
+  String get torWayNotConnected => 'Tor не подключён.';
 }

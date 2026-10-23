@@ -1512,5 +1512,8 @@
   "pushConfirmAction": "Включить",
   "pushNoticeOn": "Уведомления включены",
   "pushNoticeOff": "Уведомления выключены",
-  "pushNoticeAvailable": "Уведомления доступны в настройках."
+  "pushNoticeAvailable": "Уведомления доступны в настройках.",
+  "torWayOver": "Через Tor",
+  "torWayWaiting": "Ожидание Tor",
+  "torWayNotConnected": "Tor не подключён."
 }

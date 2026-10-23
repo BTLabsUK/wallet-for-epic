@@ -14,7 +14,6 @@ import '../wallet_service.dart';
 import 'info_hint.dart';
 import 'theme/tokens.dart';
 
-
 /// Tor's icon wherever a method or a status needs one: a private connection.
 const IconData torIcon = Icons.private_connectivity;
 
@@ -265,6 +264,66 @@ class TorStateLine extends ConsumerWidget {
           ],
         ),
       ],
+    );
+  }
+}
+
+/// What a connection that goes [way] says about Tor, as desktop's status rows: "Over Tor" (ok),
+/// "Waiting for Tor" (warn) while Tor starts, "Waiting for Tor" in the risk colour with
+/// [detail] "Tor is not connected." when it failed. null on the clearnet or with Tor off.
+({String word, Color color, String? detail})? torWayWords(
+  AppLocalizations l,
+  WalletTokens t,
+  TorWay way,
+) => switch (way) {
+  TorWay.overTor => (word: l.torWayOver, color: t.ok, detail: null),
+  TorWay.wait => (word: l.torWayWaiting, color: t.warn, detail: null),
+  TorWay.blocked => (
+    word: l.torWayWaiting,
+    color: t.risk,
+    detail: l.torWayNotConnected,
+  ),
+  TorWay.clearnet || TorWay.needsTor || TorWay.off => null,
+};
+
+/// What [route] does under the Tor switch right now: "Over Tor", "Waiting for Tor" (warn) or
+/// "Waiting for Tor" in the risk colour when Tor is not connected; nothing (SizedBox.shrink) on
+/// the clearnet or with Tor off. Reads phoneTorProvider.
+class TorWayLine extends ConsumerWidget {
+  const TorWayLine({super.key, required this.route});
+
+  final TorRoute route;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final state = phoneTorState(ref.watch(phoneTorProvider));
+    final words = torWayWords(
+      context.l10n,
+      context.tokens,
+      torWay(route, state),
+    );
+    if (words == null) return const SizedBox.shrink();
+    return Semantics(
+      container: true,
+      liveRegion: true,
+      label: [words.word, ?words.detail].join(', '),
+      excludeSemantics: true,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(torIcon, size: 16, color: words.color),
+          const SizedBox(width: 6),
+          Flexible(
+            child: Text(
+              words.word,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: Theme.of(context).textTheme.bodySmall
+                  ?.copyWith(color: words.color),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

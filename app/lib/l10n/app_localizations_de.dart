@@ -5984,4 +5984,13 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get pushNoticeAvailable =>
       'Benachrichtigungen sind in den Einstellungen verfügbar.';
+
+  @override
+  String get torWayOver => 'Über Tor';
+
+  @override
+  String get torWayWaiting => 'Warten auf Tor';
+
+  @override
+  String get torWayNotConnected => 'Tor ist nicht verbunden.';
 }

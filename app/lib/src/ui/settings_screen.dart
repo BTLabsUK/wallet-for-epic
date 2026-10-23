@@ -684,18 +684,22 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     leading: const Icon(Icons.settings_ethernet),
                     title: Text(l.settingsNetworkAndNode),
                     // The node's host; the network's name only where networks are offered.
-                    subtitle: network == null
-                        ? (devNetworks ? Text(chain) : null)
-                        : Text(
-                            devNetworks
-                                ? l.settingsNetworkSubtitle(
-                                    chain,
-                                    Uri.tryParse(network.nodeUrl)?.host ??
+                    // Under it, the Epicbox connection over Tor or waiting for it.
+                    subtitle: _withTorWay(
+                      network == null
+                          ? (devNetworks ? Text(chain) : null)
+                          : Text(
+                              devNetworks
+                                  ? l.settingsNetworkSubtitle(
+                                      chain,
+                                      Uri.tryParse(network.nodeUrl)?.host ??
+                                          network.nodeUrl,
+                                    )
+                                  : Uri.tryParse(network.nodeUrl)?.host ??
                                         network.nodeUrl,
-                                  )
-                                : Uri.tryParse(network.nodeUrl)?.host ??
-                                      network.nodeUrl,
-                          ),
+                            ),
+                      torWay(TorRoute.epicbox, torState),
+                    ),
                     onTap: () => _push(const SetupScreen()),
                   ),
                 ],
@@ -835,6 +839,19 @@ String _languageLabel(AppLocalizations l, String? code) {
     if (a.code == code) return a.name;
   }
   return l.languageSystem;
+}
+
+/// [subtitle] with the [TorWayLine] under it while the Epicbox connection goes over Tor or
+/// waits for it ([way]); [subtitle] alone otherwise.
+Widget? _withTorWay(Widget? subtitle, TorWay way) {
+  if (way != TorWay.overTor && way != TorWay.wait && way != TorWay.blocked) {
+    return subtitle;
+  }
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    mainAxisSize: MainAxisSize.min,
+    children: [?subtitle, const TorWayLine(route: TorRoute.epicbox)],
+  );
 }
 
 class _Header extends StatelessWidget {

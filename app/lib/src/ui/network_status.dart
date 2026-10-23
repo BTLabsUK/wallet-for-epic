@@ -1,6 +1,6 @@
 /// The network status card on Home: one row each for the node, Epicbox and Tor. A row's tap
 /// opens the server picker for it, or Settings › Privacy for Tor. A row whose connection goes
-/// through Tor says so after its state word.
+/// through Tor, or waits for it, says so on a line of its own under the state word.
 library;
 
 import 'package:flutter/material.dart';
@@ -74,7 +74,7 @@ class NetworkStatusCard extends ConsumerWidget {
     final choice = ref.watch(networkChoiceProvider).value;
     final tor = ref.watch(phoneTorProvider);
     final torState = phoneTorState(tor);
-    bool overTor(TorRoute route) => torWay(route, torState) == TorWay.overTor;
+    TorWay way(TorRoute route) => torWay(route, torState);
     final preset = choice?.preset;
     final nodeUrl = config?.nodeUrl ?? choice?.nodeUrl;
     final chain = config?.chain ?? preset?.chain;
@@ -106,8 +106,12 @@ class NetworkStatusCard extends ConsumerWidget {
         detail: nodeWords.detail,
         pulse: status.node.state == NodeState.syncing,
         // A node on this computer stays direct (torSkipsLocalNode).
-        overTor: overTor(TorRoute.node) &&
-            !(torSkipsLocalNode && nodeUrl != null && isLoopbackUrl(Uri.parse(nodeUrl))),
+        torWay:
+            torSkipsLocalNode &&
+                nodeUrl != null &&
+                isLoopbackUrl(Uri.parse(nodeUrl))
+            ? TorWay.clearnet
+            : way(TorRoute.node),
         onTap: () => showNodePicker(context),
       ),
       _StatusRow(
@@ -117,7 +121,7 @@ class NetworkStatusCard extends ConsumerWidget {
         face: epicbox,
         spoken: epicboxWords?.label,
         detail: epicboxWords?.detail,
-        overTor: overTor(TorRoute.epicbox),
+        torWay: way(TorRoute.epicbox),
         onTap: () => showEpicboxPicker(context),
       ),
       if (torRowShown(tor))
@@ -168,7 +172,7 @@ class _StatusRow extends StatelessWidget {
     this.spoken,
     this.detail,
     this.pulse = false,
-    this.overTor = false,
+    this.torWay = TorWay.clearnet,
     this.hint,
   });
 
@@ -183,14 +187,17 @@ class _StatusRow extends StatelessWidget {
   final NetFace face;
   final bool pulse;
 
-  /// The connection goes through Tor: " · Tor" after the word, "over Tor" read out.
-  final bool overTor;
+  /// How the connection goes under the Tor switch: over Tor, or waiting for it, is a line of
+  /// its own under the state word ([torWayWords]) and read out after it; nothing otherwise.
+  final TorWay torWay;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = context.l10n;
     final theme = Theme.of(context);
+    final tor = torWayWords(l, t, torWay);
     return Semantics(
       button: true,
       liveRegion: true,
@@ -198,9 +205,9 @@ class _StatusRow extends StatelessWidget {
         spoken ?? title,
         if (host.isNotEmpty) host,
         face.word,
-        if (overTor) context.l10n.netStatusOverTor,
+        if (torWay == TorWay.overTor) l.netStatusOverTor else ?tor?.word,
       ].join(', '),
-      hint: detail ?? context.l10n.netStatusOpenHint,
+      hint: [?tor?.detail, detail ?? l.netStatusOpenHint].join('\n'),
       // With an info icon the row's own words are excluded one by one and the icon is an
       // explicit child node, so it stays a button of its own (a screen reader reaches it; a
       // browser's semantics tap opens it).
@@ -240,10 +247,17 @@ class _StatusRow extends StatelessWidget {
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Flexible(child: ExcludeSemantics(child: Text(title))),
+                                Flexible(
+                                  child: ExcludeSemantics(child: Text(title)),
+                                ),
                                 const SizedBox(width: 4),
                                 // 48 dp: the icon is a target of its own on this row.
-                                InfoHint(hint!, size: 48, title: title, icon: torIcon),
+                                InfoHint(
+                                  hint!,
+                                  size: 48,
+                                  title: title,
+                                  icon: torIcon,
+                                ),
                               ],
                             ),
                           ),
@@ -266,21 +280,42 @@ class _StatusRow extends StatelessWidget {
                   ),
                   const SizedBox(width: 8),
                   // No flex here: the state word keeps its size and the service column takes
-                  // the rest, so the word sits at the trailing edge.
+                  // the rest, so the word sits at the trailing edge. The Tor line sits under it
+                  // with its icon first, so a long word in a large font never cuts the mark off.
                   ExcludeSemantics(
-                    child: ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 150),
-                      child: Text(
-                        overTor
-                            ? '${face.word} · ${context.l10n.netStatusTor}'
-                            : face.word,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        textAlign: TextAlign.end,
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: face.color,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        ConstrainedBox(
+                          constraints: const BoxConstraints(maxWidth: 150),
+                          child: Text(
+                            face.word,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            textAlign: TextAlign.end,
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: face.color,
+                            ),
+                          ),
                         ),
-                      ),
+                        // Short in every language: it keeps its width.
+                        if (tor != null)
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(torIcon, size: 14, color: tor.color),
+                              const SizedBox(width: 4),
+                              Text(
+                                tor.word,
+                                maxLines: 1,
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  color: tor.color,
+                                ),
+                              ),
+                            ],
+                          ),
+                      ],
                     ),
                   ),
                   ExcludeSemantics(

@@ -1512,5 +1512,8 @@
   "pushConfirmAction": "开启",
   "pushNoticeOn": "通知已开启",
   "pushNoticeOff": "通知已关闭",
-  "pushNoticeAvailable": "通知可在设置中开启。"
+  "pushNoticeAvailable": "通知可在设置中开启。",
+  "torWayOver": "经由 Tor",
+  "torWayWaiting": "正在等待 Tor",
+  "torWayNotConnected": "Tor 未连接。"
 }

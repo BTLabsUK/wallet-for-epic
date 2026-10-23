@@ -9222,6 +9222,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Notifications are available in Settings.'**
   String get pushNoticeAvailable;
+
+  /// Status card, Settings › Servers and the server lists: this connection (node or Epicbox) goes through Tor now. Same words as desktop's 'Over Tor'.
+  ///
+  /// In en, this message translates to:
+  /// **'Over Tor'**
+  String get torWayOver;
+
+  /// Status card, Settings › Servers and the server lists: Tor is on but not connected yet (or not connected at all), so this connection waits for it and never goes on the clearnet meanwhile.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for Tor'**
+  String get torWayWaiting;
+
+  /// Detail after 'Waiting for Tor' when Tor failed: read out and shown as the row's hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tor is not connected.'**
+  String get torWayNotConnected;
 }
 
 class _AppLocalizationsDelegate
