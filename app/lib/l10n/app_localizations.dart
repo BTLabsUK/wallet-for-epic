@@ -5885,13 +5885,13 @@ abstract class AppLocalizations {
   /// The PIN prompt's reason right before a send is posted. {amount} is the exact amount.
   ///
   /// In en, this message translates to:
-  /// **'Enter the PIN to send {amount} EPIC.'**
+  /// **'Enter the PIN to send {amount}.'**
   String sendPinReason(String amount);
 
   /// The PIN prompt's reason right before a payment file is made, which locks the coins. {amount} is the exact amount.
   ///
   /// In en, this message translates to:
-  /// **'Enter the PIN to make a payment file for {amount} EPIC.'**
+  /// **'Enter the PIN to make a payment file for {amount}.'**
   String sendFilePinReason(String amount);
 
   /// Outputs screen title and Settings row title.
@@ -6121,12 +6121,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Already spent.'**
   String get outputsMeanSpent;
-
-  /// Row note: confirmations so far of the needed.
-  ///
-  /// In en, this message translates to:
-  /// **'{conf} / {need}'**
-  String outputsNoteConfirmations(int conf, int need);
 
   /// Row note: when the output was received.
   ///

@@ -3599,12 +3599,12 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String sendPinReason(String amount) {
-    return '输入 PIN 以发送 $amount EPIC。';
+    return '输入 PIN 以发送 $amount。';
   }
 
   @override
   String sendFilePinReason(String amount) {
-    return '输入 PIN 以生成 $amount EPIC 的付款文件。';
+    return '输入 PIN 以生成 $amount 的付款文件。';
   }
 
   @override
@@ -3737,11 +3737,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get outputsMeanSpent => '已花费。';
-
-  @override
-  String outputsNoteConfirmations(int conf, int need) {
-    return '$conf / $need';
-  }
 
   @override
   String outputsNoteReceived(String date) {

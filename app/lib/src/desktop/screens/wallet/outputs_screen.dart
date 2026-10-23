@@ -630,7 +630,7 @@ class _OutputRow extends StatelessWidget {
     final o = output;
     return switch (o.word) {
       OutputWord.spendable => ('Spendable', null, c.ok),
-      OutputWord.confirming => ('Confirming', '${o.confirmations} / ${o.confirmationsNeeded}', c.warn),
+      OutputWord.confirming => ('Confirming', '${_group(o.confirmations)} ${o.confirmations == 1 ? 'confirmation' : 'confirmations'}', c.warn),
       OutputWord.finalizing => ('Awaiting finalization', 'waiting for the sender', c.dim),
       OutputWord.unpaidInvoice => ('Unpaid invoice', 'not in the balance', c.dim),
       OutputWord.immature => ('Immature', o.lockHeight != null && o.lockHeight! > tip ? '${_group(o.lockHeight! - tip)} blocks to go' : null, c.warn),

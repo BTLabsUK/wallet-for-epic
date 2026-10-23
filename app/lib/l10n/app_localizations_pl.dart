@@ -3983,12 +3983,12 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String sendPinReason(String amount) {
-    return 'Wpisz PIN, aby wysłać $amount EPIC.';
+    return 'Wpisz PIN, aby wysłać $amount.';
   }
 
   @override
   String sendFilePinReason(String amount) {
-    return 'Wpisz PIN, aby utworzyć plik płatności na $amount EPIC.';
+    return 'Wpisz PIN, aby utworzyć plik płatności na $amount.';
   }
 
   @override
@@ -4131,11 +4131,6 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get outputsMeanSpent => 'Już wydane.';
-
-  @override
-  String outputsNoteConfirmations(int conf, int need) {
-    return '$conf / $need';
-  }
 
   @override
   String outputsNoteReceived(String date) {

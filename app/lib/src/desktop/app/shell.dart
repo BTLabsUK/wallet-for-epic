@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../demo.dart' show devNetworksProvider;
 import '../../ui/theme/brand.dart' show BrandLockup, BrandVariant, EpicMark;
 import '../desk_l10n.dart';
 import '../data/desk_update.dart' show deskAppVersion;
@@ -441,7 +442,7 @@ class _Sidebar extends ConsumerWidget {
                                           crossAxisAlignment: CrossAxisAlignment.start,
                                           children: [
                                             Text(name, style: ts.body.copyWith(fontWeight: FontWeight.w500), overflow: TextOverflow.ellipsis),
-                                            Text(account?.network ?? '', style: ts.caption),
+                                            if (ref.watch(devNetworksProvider)) Text(account?.network ?? '', style: ts.caption),
                                           ],
                                         ),
                                       ),
