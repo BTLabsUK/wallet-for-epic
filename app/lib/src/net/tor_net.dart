@@ -5,6 +5,7 @@
 /// [TorRoute.appHttp]; the adapters set the mode from that.
 library;
 
+import 'dart:async';
 import 'dart:io';
 
 import '../tor_routes.dart';
@@ -32,17 +33,44 @@ abstract final class TorNet {
 
   static TorNetMode get mode => _mode;
 
+  /// How long a request held by [untilConnected] waits for tor before it fails. Zero refuses
+  /// at once (tests); the phone sets its hold at launch (`main.dart`).
+  static Duration hold = Duration.zero;
+
+  /// Completed when the mode leaves [TorNetMode.waiting].
+  static Completer<void>? _connected;
+
   /// The onion of a BT Labs server, from the signed list; null goes back to [torBuiltInOnion].
   static set onions(OnionLookup? lookup) => _onions = lookup;
 
   static void useDirect() {
     _mode = TorNetMode.direct;
     _proxy = null;
+    _release();
   }
 
   static void useTor(SocksProxy proxy) {
     _mode = TorNetMode.tor;
     _proxy = proxy;
+    _release();
+  }
+
+  static void _release() {
+    _connected?.complete();
+    _connected = null;
+  }
+
+  /// While Tor is on but not connected, holds a request until tor connects (or the switch is
+  /// turned off), for at most [hold]; [configure] then refuses one still waiting. Nothing is
+  /// opened meanwhile.
+  static Future<void> untilConnected() async {
+    if (_mode != TorNetMode.waiting || hold <= Duration.zero) return;
+    final connected = _connected ??= Completer<void>();
+    try {
+      await connected.future.timeout(hold);
+    } on TimeoutException {
+      // Still waiting: configure refuses it.
+    }
   }
 
   static void waitForTor() {

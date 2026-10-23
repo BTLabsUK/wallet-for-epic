@@ -263,7 +263,7 @@ void main() {
     ]) {
       test('${failure.name} stops tor with “$text”; on again is Retry', () async {
         // A start that did not connect is tried three more times by itself first.
-        final tries = failure == core.TorFailure.network || failure == core.TorFailure.start ? 4 : 1;
+        final tries = {core.TorFailure.network, core.TorFailure.start, core.TorFailure.stopped}.contains(failure) ? 4 : 1;
         for (var i = 0; i < tries; i++) {
           await tor(core.TorEvent(kind: core.TorEventKind.failed, failure: failure));
         }
@@ -361,9 +361,18 @@ void main() {
       expect(st.tor, ServiceHealth.ok);
     });
 
-    test('a network failure after connecting is not retried', () async {
+    test('tor that loses the network after connecting is restarted by itself, with fresh tries', () async {
       await connected();
       await tor(const core.TorEvent(kind: core.TorEventKind.failed, failure: core.TorFailure.network));
+      expect(session().torStarts, hasLength(2));
+      final st = await wallet.status();
+      expect((st.tor, st.torCanSend), (ServiceHealth.checking, false));
+      expect(TorNet.mode, TorNetMode.waiting);
+    });
+
+    test('a clock failure is not restarted: it would fail again', () async {
+      await tor(const core.TorEvent(kind: core.TorEventKind.failed, failure: core.TorFailure.clock));
+      await tor(const core.TorEvent(kind: core.TorEventKind.stopped));
       expect(session().torStarts, hasLength(1));
       expect((await wallet.status()).tor, ServiceHealth.down);
     });
@@ -376,9 +385,15 @@ void main() {
       expect(torStatusLine(st), 'Onion address not published. Sends work.');
     });
 
-    test('a stop nobody asked for reads “Tor stopped”', () async {
+    test('a stop nobody asked for restarts tor; after the tries it reads “Tor stopped”', () async {
       await connected();
       await tor(const core.TorEvent(kind: core.TorEventKind.stopped));
+      expect(session().torStarts, hasLength(2));
+      expect((await wallet.status()).tor, ServiceHealth.checking);
+      for (var i = 0; i < 3; i++) {
+        await tor(const core.TorEvent(kind: core.TorEventKind.stopped));
+      }
+      expect(session().torStarts, hasLength(4));
       expect(torStatusLine(await wallet.status()), 'Tor stopped');
     });
 

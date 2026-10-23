@@ -43,6 +43,8 @@ Future<HttpReply> _send(
   Duration timeout,
   int? maxBytes,
 ) async {
+  // With Tor on and not connected yet, held until it is: never direct meanwhile.
+  if (!isLoopbackUrl(url)) await TorNet.untilConnected();
   // No User-Agent (Dart's default names Dart and its version) and no cookie jar: a request
   // looks like any other client's.
   final client = HttpClient()

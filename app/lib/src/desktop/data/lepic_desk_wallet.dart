@@ -344,9 +344,9 @@ class LepicDeskWallet implements DeskWalletApi {
   DateTime? _torStartedAt;
   Timer? _torSlowTimer;
 
-  /// Tries of this start run by itself after a failure before connecting ([torStartBackoff]):
-  /// tor that did not start (its control connection failed) or stalled on its first bootstrap
-  /// (a cold Tor cache can sit at one percent past LEPIC's stall limit).
+  /// Restarts run by itself since tor last connected ([torStartBackoff]): tor that did not
+  /// start (its control connection failed), stalled on its first bootstrap (a cold Tor cache
+  /// can sit at one percent past LEPIC's stall limit), or stopped or lost the network later.
   int _torStartRetries = 0;
 
   /// The open wallet's onion, `<56 characters>.onion`.
@@ -2827,6 +2827,8 @@ class LepicDeskWallet implements DeskWalletApi {
     late final StreamSubscription<core.TorEvent> sub;
     void ended(String? problem) {
       if (_tor != sub) return;
+      // Ended by itself, not after a failure that shows: started again after a pause.
+      if (_torHealth != ServiceHealth.down && _torRestartLater(session, sub, 'tor ended')) return;
       _tor = null;
       _torHealth = ServiceHealth.down;
       _torProblem = problem ?? 'Tor stopped';
@@ -2845,6 +2847,7 @@ class LepicDeskWallet implements DeskWalletApi {
             _torProgress = e.progress ?? _torProgress;
           case core.TorEventKind.bootstrapped || core.TorEventKind.publishing:
             _takeSocks(e.socksPort);
+            _torStartRetries = 0;
             _torCanSend = true;
             _torStartedAt = null;
             if (_torHealth != ServiceHealth.slow) _torHealth = ServiceHealth.checking;
@@ -2857,15 +2860,13 @@ class LepicDeskWallet implements DeskWalletApi {
             if (onion != null) _onion = core.onionHost(onion);
           case core.TorEventKind.failed:
             logWarn('desk', 'tor failed: ${e.failure?.name ?? '?'}');
-            final startFailed = e.failure == core.TorFailure.start || e.failure == core.TorFailure.network;
-            if (startFailed && !_torCanSend && _torStartRetries < torStartBackoff.length) {
-              // Not connected yet: tried again by itself, showing Connecting (nothing goes
-              // direct meanwhile), before "failed" and Retry.
-              final wait = torStartBackoff[_torStartRetries++];
-              logInfo('desk', 'tor did not connect; starting it again in ${wait.inSeconds} s ($_torStartRetries/${torStartBackoff.length})');
-              unawaited(_restartTor(session, sub, after: wait));
-              return;
-            }
+            // Tor did not start, lost the network or stopped: started again by itself,
+            // showing Connecting (nothing goes direct meanwhile), before "failed" and Retry.
+            final restartable = switch (e.failure) {
+              core.TorFailure.start || core.TorFailure.network || core.TorFailure.stopped || null => true,
+              _ => false,
+            };
+            if (restartable && _torRestartLater(session, sub, 'tor failed')) return;
             _torStartedAt = null;
             // Listener and keys leave tor running for sends; any other failure stops it.
             final forSends = e.failure == core.TorFailure.listener || e.failure == core.TorFailure.keys;
@@ -2896,6 +2897,22 @@ class LepicDeskWallet implements DeskWalletApi {
       },
     );
     _tor = sub;
+  }
+
+  /// Restarts the tor that [sub] watches after the next pause of [torStartBackoff], showing
+  /// Connecting meanwhile; false once the pauses since it last connected are used up.
+  bool _torRestartLater(core.WalletSession session, StreamSubscription<core.TorEvent> sub, String why) {
+    if (_torStartRetries >= torStartBackoff.length || !_settings.tor) return false;
+    final wait = torStartBackoff[_torStartRetries++];
+    logInfo('desk', '$why; starting it again in ${wait.inSeconds} s ($_torStartRetries/${torStartBackoff.length})');
+    _torHealth = ServiceHealth.checking;
+    _torProblem = null;
+    _torCanSend = false;
+    _torProgress = 0;
+    _torSocks = null;
+    _torStartedAt = null;
+    unawaited(_restartTor(session, sub, after: wait));
+    return true;
   }
 
   /// Stops the tor that [sub] watches and starts it again [after] a pause, showing
