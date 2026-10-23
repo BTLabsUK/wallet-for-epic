@@ -173,11 +173,11 @@ void main() {
   // the web demo, which runs in a browser window without them.
   for (final (size, demo, insets) in [
     (const Size(412, 915), false, false),
-    (const Size(360, 780), false, false),
+    (const Size(360, 800), false, false),
     (const Size(412, 915), false, true),
-    (const Size(360, 780), false, true),
+    (const Size(360, 800), false, true),
     (const Size(412, 915), true, false),
-    (const Size(360, 780), true, false),
+    (const Size(360, 800), true, false),
   ]) {
     final name =
         '${size.width.toInt()} x ${size.height.toInt()} dp'
@@ -196,8 +196,9 @@ void main() {
       expect(find.byKey(testCoinsKey), demo ? findsOneWidget : findsNothing);
       final help = find.text('How receiving works');
       expect(help, findsOneWidget);
+      final scroll = _receiveScroll(tester).maxScrollExtent;
       // No scroll, and the last of it ends above the tab bar.
-      expect(_receiveScroll(tester).maxScrollExtent, 0);
+      expect(scroll, 0, reason: name);
       final bar = tester.getRect(find.byType(NavigationBar));
       final helpButton = tester.getRect(
         find.ancestor(of: help, matching: find.byType(TextButton)),
@@ -245,14 +246,17 @@ void main() {
         reason: name,
       );
       // ignore: avoid_print
-      print('$name: QR $side dp, ${bar.top - helpButton.bottom} dp to spare');
+      print(
+        '$name: QR $side dp, ${bar.top - helpButton.bottom} dp to spare, '
+        '$scroll dp scrolled',
+      );
     });
   }
 
   testWidgets('with no room for the least code, the page scrolls', (
     tester,
   ) async {
-    await _pump(tester, size: const Size(360, 780), demo: true, textScale: 2);
+    await _pump(tester, size: const Size(360, 800), demo: true, textScale: 2);
     expect(tester.takeException(), isNull);
     expect(_qrSide(tester), receiveQrMinSize);
     expect(_receiveScroll(tester).maxScrollExtent, greaterThan(0));

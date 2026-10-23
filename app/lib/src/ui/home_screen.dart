@@ -19,11 +19,15 @@ import '../updater.dart';
 import '../wallet_service.dart';
 import 'backup_screen.dart';
 import 'common.dart';
+import 'contacts_screen.dart';
 import 'demo_guide.dart';
 import 'demo_screens.dart' show DemoCountdown, TestCoinsButton;
 import 'help_screen.dart';
 import 'history_screen.dart';
-import 'invoices_screen.dart' show InvoicesEntry;
+import 'home_parts.dart';
+import 'invoices_screen.dart' show InvoicesEntry, InvoicesScreen;
+import 'network_status.dart';
+import 'outputs_screen.dart';
 import 'receive_screen.dart' show ReceiveView;
 import 'restore_screen.dart' show ScanProgressView;
 import 'scan_screen.dart' show offersQrScan, qrScannerProvider;
@@ -421,11 +425,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     });
     // The phone's Tor controller lives as long as the shell: it starts tor on unlock when Tor
     // receiving is on, and keeps it for a send. A listen, not a watch: progress ticks must
-    // not rebuild the shell. The app's own requests follow the switch (tor_phone.dart).
-    ref.listen(phoneTorProvider, (_, s) {
+    // not rebuild the shell. The app's own requests (status, price, updates, support) follow
+    // the switch's state through phoneTorFollow, with BT Labs' onions from the signed list.
+    void follow(PhoneTorState s) {
       TorNet.onions = onionLookupOf(ref.read(onionDirectoryProvider));
       phoneTorFollow(s);
-    });
+    }
+
+    ref.listen(phoneTorProvider, (_, s) => follow(s));
+    follow(ref.read(phoneTorProvider));
     ref.listen(shellTabProvider, (_, tab) => _showTab(tab));
     // Once per phase, and per whole percent while downloading.
     ref.listen(
@@ -465,7 +473,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             ),
           ),
           actions: [
-            const InvoicesEntry(),
+            // Invoices moved to the destinations row; the entry keeps its event wiring.
+            const InvoicesEntry(visible: false),
             if (scan)
               IconButton(
                 tooltip: l.homeScanTooltip,
@@ -522,7 +531,29 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
-  /// The middle tab: reminders, pending sends and recent activity, with pull to refresh.
+  /// A balance tile opens Outputs, filtered to that balance (Total: every output).
+  void _openOutputs(BalanceKind kind) => _open(
+    OutputsScreen(
+      filter: switch (kind) {
+        BalanceKind.confirming => OutputsFilter.confirming,
+        BalanceKind.waitingSender => OutputsFilter.confirming,
+        BalanceKind.locked => OutputsFilter.locked,
+        BalanceKind.immature => OutputsFilter.immature,
+        BalanceKind.total || BalanceKind.calm => null,
+      },
+    ),
+  );
+
+  /// A destination tile opens its screen.
+  void _openDestination(HomeDestination destination) => _open(switch (destination) {
+    HomeDestination.activity => const HistoryScreen(),
+    HomeDestination.outputs => const OutputsScreen(),
+    HomeDestination.contacts => const ContactsScreen(),
+    HomeDestination.invoices => const InvoicesScreen(),
+  });
+
+  /// The middle tab: the balance tiles, the status card, the destinations, reminders,
+  /// pending sends and recent activity, with pull to refresh.
   Widget _walletTab(BuildContext context) {
     final config = ref.watch(walletConfigProvider);
     final home = ref.watch(homeProvider);
@@ -567,8 +598,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 ListView(
                   // Pull to refresh works on a short list too.
                   physics: const AlwaysScrollableScrollPhysics(),
-                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                  padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
                   children: [
+                    // The desktop Overview's tiles, status rows and sidebar, in that order.
+                    // The tiles row runs edge to edge; the list's gutter is taken back.
+                    BalanceTiles(onTap: _openOutputs),
+                    const SizedBox(height: 12),
+                    const NetworkStatusCard(),
+                    const SizedBox(height: 12),
+                    HomeDestinations(onOpen: _openDestination),
                     if (scan.running || scan.error != null)
                       Card(
                         child: Padding(
@@ -608,15 +646,23 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           ? null
                           : TextButton(
                               onPressed: () => _open(const HistoryScreen()),
-                              child: Text(l.homeSeeAll),
+                              child: Text(l.homeViewAll(transactions.length)),
                             ),
                     ),
                     if (data != null && transactions.isEmpty)
                       EmptyState(
                         icon: const Icon(Icons.south_west),
                         message: l.homeNoPayments,
-                        // The checklist carries Get test coins while it shows.
-                        action: demo && !guide ? const TestCoinsButton() : null,
+                        // The checklist carries Get test coins while it shows; otherwise
+                        // the next step is the Receive tab.
+                        action: demo && !guide
+                            ? const TestCoinsButton()
+                            : demo
+                            ? null
+                            : TextButton(
+                                onPressed: () => _goTab(ShellTab.receive),
+                                child: Text(l.homeReceiveButton),
+                              ),
                       ),
                     for (final tx in pendingFirst(
                       transactions,
@@ -943,9 +989,8 @@ class _PendingSendsCard extends ConsumerWidget {
                 style: Theme.of(context).textTheme.titleSmall,
               ),
               const SizedBox(height: 4),
-              Text(
-                l.homePendingBody(count, shownEpic(l, total, hidden: hidden)),
-              ),
+              // One line; "Why is it waiting?" has the rest.
+              Text(l.homePendingShort(shownEpic(l, total, hidden: hidden))),
               // One row on a phone; wraps only at large text.
               Wrap(
                 alignment: WrapAlignment.end,
@@ -953,7 +998,7 @@ class _PendingSendsCard extends ConsumerWidget {
                   TextButton(
                     style: _compact,
                     onPressed: () =>
-                        openHelp(context, HelpTopic.waitingForRecipient),
+                        openHelp(context, HelpId.send),
                     child: Text(l.homePendingWhy),
                   ),
                   TextButton(

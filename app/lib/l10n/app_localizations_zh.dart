@@ -1967,17 +1967,6 @@ class AppLocalizationsZh extends AppLocalizations {
       '更换 epicbox 服务器会改变你的地址。请把新地址告诉发送方。发送到旧地址的付款会留在旧服务器上，直到你切换回去。';
 
   @override
-  String get serverSwitchRelayTitle => '更换 epicbox 服务器？';
-
-  @override
-  String serverSwitchRelayBody(String relay) {
-    return 'epicbox 地址将变为 …@$relay。发送方需要新地址。发送到旧地址的付款会留在旧服务器上。';
-  }
-
-  @override
-  String get serverSwitchRelayConfirm => '更换';
-
-  @override
   String get setupWalletPerNetwork => '每个网络都有各自的钱包。尚无钱包的网络会创建一个新钱包。';
 
   @override
@@ -2551,7 +2540,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get contactsNameLabel => '名称';
 
   @override
-  String get contactsAddressLabel => 'epicbox 地址';
+  String get contactsAddressLabel => '地址';
 
   @override
   String contactsDuplicate(String name) {
@@ -2565,7 +2554,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get contactsSave => '保存联系人';
 
   @override
-  String get contactsAddressMissing => '请输入对方的 epicbox 地址。';
+  String get contactsAddressMissing => '请输入地址。';
 
   @override
   String contactsUrlIncomplete(String example) {
@@ -2952,102 +2941,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get helpTitle => '帮助';
 
   @override
-  String get helpWaitingQuestion => '为什么我的付款显示“等待接收方”？';
-
-  @override
-  String helpWaitingAnswer(int days) {
-    String _temp0 = intl.Intl.pluralLogic(
-      days,
-      locale: localeName,
-      other: '$days 天',
-    );
-    return 'Epic Cash 付款由双方的钱包共同完成：你的钱包发起付款，接收方的钱包接受付款，最后由你的钱包完成付款。Epic 的 epicbox 服务会将你的付款保存约一周，直到接收方的钱包上线并回复。在此之前，这笔金额会在你的钱包中保持锁定，因此不会被重复花费。如果付款未完成，你的钱包会在 $_temp0后自动取消付款并解锁金额。';
-  }
-
-  @override
-  String get helpCancellingQuestion => '我应该取消付款吗？';
-
-  @override
-  String helpCancellingAnswer(int days) {
-    String _temp0 = intl.Intl.pluralLogic(
-      days,
-      locale: localeName,
-      other: '$days 天',
-    );
-    return '通常不需要：未完成的付款会在 $_temp0后自动取消并解锁金额。如需提前终止，例如接收方表示永远不会回复，请在付款仍显示“等待接收方”时打开它，然后点击“取消付款”；之后你需要重新发送。已在确认中的付款无法取消。使用本应用旧版本发起的付款不会自动取消：如果某笔付款已等待超过两周，请将其取消并重新发送。';
-  }
-
-  @override
-  String get helpReceivingQuestion => '为什么接收付款时必须保持应用打开？';
-
-  @override
-  String helpReceivingAnswer(int days) {
-    String _temp0 = intl.Intl.pluralLogic(
-      days,
-      locale: localeName,
-      other: '$days 天',
-    );
-    return '你的钱包必须接受每一笔转入的付款，而只有在应用打开并连接到 epicbox 时才能做到。应用关闭时发来的付款会在 epicbox 中等待约一周，并在你下次解锁时到达。超过这个时间，epicbox 会将其删除；如果发送方使用的是本应用，其钱包会在 $_temp0后自动取消该付款，对方可以重新发送。你的钱包接受付款后，还需要发送方的钱包完成付款；在此之前，它会显示为“等待发送方”。';
-  }
-
-  @override
-  String helpConfirmationsQuestion(int count) {
-    return '什么是确认？为什么需要 $count 个？';
-  }
-
-  @override
-  String helpConfirmationsAnswer(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count 个确认（约 $count 分钟）',
-    );
-    return '确认是指在包含你这笔付款的区块之后，Epic Cash 区块链上新增的区块；大约每分钟产生一个区块。每增加一个区块，付款就更难被撤销。经过 $_temp0后，付款会显示为“已完成”，收到的币即可使用；这是 Epic 钱包的标准。';
-  }
-
-  @override
-  String get helpHistoryQuestion => '为什么恢复钱包后交易记录不见了？';
-
-  @override
-  String get helpHistoryAnswer =>
-      '助记词能找回你的余额：钱包会扫描区块链，找出属于它的币。付款对象、你的备注和大多数日期从不保存在区块链上，因此恢复时无法找回。如果你保存过历史备份，请在“设置”的“交易记录”下点击“导入历史备份”，即可找回这些信息。该备份必须是你保存在丢失的手机以外的副本，例如在电子邮件或云存储中。';
-
-  @override
-  String get helpAddressQuestion => '我的地址会改变吗？';
-
-  @override
-  String get helpAddressAnswer =>
-      '你的地址由助记词和你使用的 epicbox 服务器生成，以 @ 加该服务器的名称结尾。只要你继续使用同一个 epicbox 服务器，地址就保持不变。如果你在网络设置中选择了其他服务器，地址就会改变，请把新地址告诉向你付款的人。';
-
-  @override
-  String get helpPhraseQuestion => '什么是助记词？谁能看到它？';
-
-  @override
-  String get helpPhraseAnswer =>
-      '助记词是一组单词，是你资金的钥匙：任何拥有它的人都能拿走你的币，而你也可以用它在新手机上恢复钱包。本应用只在你输入 PIN 码后才会显示它，并且从不将它发送到任何地方。请把它抄写在纸上，存放在安全的地方，切勿分享给他人或输入到任何网站。';
-
-  @override
-  String get helpFeesQuestion => '手续费用来支付什么？';
-
-  @override
-  String get helpFeesAnswer =>
-      '手续费归将你的付款打包进区块链的矿工所有。它通常只是 1 EPIC 的很小一部分，具体取决于你的钱包为完成这笔付款合并了多少个币。发送前你会看到确切的手续费。';
-
-  @override
-  String get helpNodeQuestion => '什么是节点？';
-
-  @override
-  String get helpNodeAnswer =>
-      '节点是保存一份 Epic Cash 区块链副本的计算机。钱包向节点查询你的余额，并通过它将你的付款发送到网络。节点能看到你的 IP 地址以及钱包查询了哪些币，因此请在网络设置中选择你信任的节点。打开“高级选项”后，可在设置中找到网络设置；解锁界面上也有。';
-
-  @override
-  String get helpOtherWaysQuestion => '还有其他发送方式吗？';
-
-  @override
-  String get helpOtherWaysAnswer =>
-      '供高级用户使用。如果不使用 epicbox，请在“其他发送方式”中选择“通过交易文件发送”：你分享一个文件，接收方接受后返回一个 .response 文件，你再打开该文件完成付款。在设置中打开“高级选项”后，才会显示“其他发送方式”。';
-
-  @override
   String get helpStillStuck => '仍未解决？';
 
   @override
@@ -3133,7 +3026,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get settingsAdvancedOptions => '高级选项';
 
   @override
-  String get settingsAdvancedOptionsSubtitle => '网络、节点、epicbox 服务器、文件和日志';
+  String get settingsAdvancedOptionsSubtitle => '技术细节、文件和日志';
 
   @override
   String get settingsSectionPrivacy => '隐私';
@@ -3251,7 +3144,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get sendAddressIncomplete => '这个地址似乎不完整。';
 
   @override
-  String get sendAddressNotEpic => '这不是 Epic 地址。';
+  String get sendAddressNotEpic => '这不是 Epicbox 地址。';
 
   @override
   String get sendNewRecipient => '新收款人';
@@ -3562,7 +3455,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get torReceivingTitle => 'Tor 接收';
 
   @override
-  String get torHonestLine => '更慢、更私密。在部分国家或地区被屏蔽或不被允许。仅在应用打开时接收。';
+  String get torHonestLine => 'Tor 收款仅在应用打开或短暂处于后台时有效。';
 
   @override
   String get torStateOff => 'Tor 接收已关闭';
@@ -3648,6 +3541,854 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get settingsSectionReceiving => '接收';
+
+  @override
+  String get homeAvailableToSpend => '可用余额';
+
+  @override
+  String get homeTileWaitingSender => '等待付款方';
+
+  @override
+  String get homeTileLocked => '发送中锁定';
+
+  @override
+  String get homeTileMaturing => '奖励成熟中';
+
+  @override
+  String get homeTileTotal => '总计';
+
+  @override
+  String homeViewAll(int count) {
+    return '查看全部 $count';
+  }
+
+  @override
+  String get homeDestActivity => '活动';
+
+  @override
+  String get homeDestOutputs => '输出';
+
+  @override
+  String get txStatusReceived => '已收到';
+
+  @override
+  String get txStatusSent => '已发送';
+
+  @override
+  String sendPinReason(String amount) {
+    return '输入 PIN 以发送 $amount EPIC。';
+  }
+
+  @override
+  String sendFilePinReason(String amount) {
+    return '输入 PIN 以生成 $amount EPIC 的付款文件。';
+  }
+
+  @override
+  String get outputsTitle => '输出';
+
+  @override
+  String get outputsSpendable => '可用';
+
+  @override
+  String get outputsConfirming => '确认中';
+
+  @override
+  String get outputsLockedTile => '发送中锁定';
+
+  @override
+  String get outputsImmature => '未成熟';
+
+  @override
+  String outputsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count 个输出',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get outputsExplainer => '输出是余额的组成部分。一次发送会花掉整个输出，其余部分作为新的输出返回。';
+
+  @override
+  String get outputsSplitButton => '拆分…';
+
+  @override
+  String get outputsConsolidateButton => '合并…';
+
+  @override
+  String get outputsSplitNeeds => '拆分需要至少 1 EPIC 可用。';
+
+  @override
+  String get outputsConsolidateNeeds => '合并需要至少 2 个可用输出。';
+
+  @override
+  String get outputsWaitLocked => '请等待进行中的发送确认（约 3 个区块）。';
+
+  @override
+  String get outputsStrategy => '发送策略';
+
+  @override
+  String get outputsSmallest => '最小';
+
+  @override
+  String get outputsAll => '全部';
+
+  @override
+  String get outputsSmallestText => '只花最少的小额输出；找零确认期间，其余余额仍可使用。';
+
+  @override
+  String get outputsAllText => '花掉所有可用输出并返回一个找零输出。确认前全部锁定；之后输出更少、更大。';
+
+  @override
+  String get outputsSplitChange => '拆分找零';
+
+  @override
+  String get outputsSplitChangeText => '当剩余输出很少时';
+
+  @override
+  String outputsFilterAll(int count) {
+    return '全部 $count';
+  }
+
+  @override
+  String outputsFilterSpendable(int count) {
+    return '可用 $count';
+  }
+
+  @override
+  String outputsFilterConfirming(int count) {
+    return '确认中 $count';
+  }
+
+  @override
+  String outputsFilterLocked(int count) {
+    return '锁定 $count';
+  }
+
+  @override
+  String get outputsShowSpent => '显示已花费';
+
+  @override
+  String get outputsHideSpent => '隐藏已花费';
+
+  @override
+  String get outputsWordSpendable => '可用';
+
+  @override
+  String get outputsWordConfirming => '确认中';
+
+  @override
+  String get outputsWordFinalizing => '等待完成';
+
+  @override
+  String get outputsWordImmature => '未成熟';
+
+  @override
+  String get outputsWordMining => '挖矿中';
+
+  @override
+  String get outputsWordLocked => '已锁定';
+
+  @override
+  String get outputsWordSpent => '已花费';
+
+  @override
+  String get outputsMeanSpendable => '现在可以花费。';
+
+  @override
+  String outputsMeanConfirming(int need) {
+    return '需要 $need 次确认后才能花费。';
+  }
+
+  @override
+  String get outputsMeanFinalizing => '等待发送方完成付款。';
+
+  @override
+  String get outputsMeanImmature => '挖矿奖励，延迟一段时间后才能花费。';
+
+  @override
+  String get outputsMeanMining => '尚未确认的挖矿奖励。';
+
+  @override
+  String get outputsMeanLocked => '正被进行中的发送花费。';
+
+  @override
+  String get outputsMeanSpent => '已花费。';
+
+  @override
+  String outputsNoteConfirmations(int conf, int need) {
+    return '$conf / $need';
+  }
+
+  @override
+  String outputsNoteReceived(String date) {
+    return '收到于 $date';
+  }
+
+  @override
+  String outputsNoteSend(String who) {
+    return '发送至 $who';
+  }
+
+  @override
+  String get outputsNoteSendPlain => '发送进行中';
+
+  @override
+  String outputsRow(String note, String word) {
+    return '$word · $note';
+  }
+
+  @override
+  String get outputsFactHeight => '高度';
+
+  @override
+  String get outputsFactConfirmations => '确认数';
+
+  @override
+  String get outputsFactTransaction => '交易';
+
+  @override
+  String get outputsFactCommitment => '承诺值';
+
+  @override
+  String get outputsCopy => '复制';
+
+  @override
+  String get outputsCopied => '已复制承诺值';
+
+  @override
+  String get outputsEmpty => '暂无输出';
+
+  @override
+  String get outputsEmptyHint => '收到第一笔付款后会产生一个。地址在“接收”中。';
+
+  @override
+  String get outputsNoMatch => '此视图没有输出';
+
+  @override
+  String get outputsRetry => '重试';
+
+  @override
+  String outputsSettingsSubtitle(int count, String strategy) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count 个输出 · $strategy',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get outputsCancel => '取消';
+
+  @override
+  String get outputsSplitTitle => '拆分输出';
+
+  @override
+  String outputsSplitText(
+    String amount,
+    String each,
+    String made,
+    String spent,
+  ) {
+    return '花掉 $spent（$amount），生成 $made，每个约 $each。这是发往本钱包的普通网络交易，与任何发送一样在 3 个区块后确认；在此之前所有可用余额都被锁定。';
+  }
+
+  @override
+  String get outputsToMake => '生成数量';
+
+  @override
+  String get outputsStepperHint => '2 到 10';
+
+  @override
+  String get outputsFactFee => '网络费用';
+
+  @override
+  String get outputsFactEach => '每个输出';
+
+  @override
+  String outputsFactAbout(String amount) {
+    return '约 $amount';
+  }
+
+  @override
+  String get outputsFactLocked => '锁定';
+
+  @override
+  String outputsFactLockedValue(String amount) {
+    return '$amount，约 3 个区块';
+  }
+
+  @override
+  String get outputsNothingSpendable => '期间没有可用余额。';
+
+  @override
+  String get outputsMinEach => '每个输出至少需要 0.5 EPIC。';
+
+  @override
+  String outputsSplitInto(int count) {
+    return '拆分为 $count 个';
+  }
+
+  @override
+  String get outputsConsolidateTitle => '合并输出';
+
+  @override
+  String outputsConsolidateText(String amount, String result, String spent) {
+    return '花掉 $spent（$amount），生成一个 $result 的输出。这是发往本钱包的普通网络交易，与任何发送一样在 3 个区块后确认；在此之前所有可用余额都被锁定。下一次发送只花一个输出，因此费用最低。';
+  }
+
+  @override
+  String get outputsConsolidateAction => '合并';
+
+  @override
+  String get outputsSplitPin => '输入 PIN 以确认拆分输出';
+
+  @override
+  String get outputsConsolidatePin => '输入 PIN 以确认合并输出';
+
+  @override
+  String outputsSplitStarted(int count) {
+    return '拆分已开始：$count 个输出，约 3 个区块后确认';
+  }
+
+  @override
+  String get outputsConsolidateStarted => '合并已开始：一个输出，约 3 个区块后确认';
+
+  @override
+  String homePendingShort(String amount) {
+    return '$amount 将保持锁定，直到收款方钱包响应。';
+  }
+
+  @override
+  String get contactsSearchHint => '名称或地址';
+
+  @override
+  String get contactsEmptyTitle => '还没有联系人';
+
+  @override
+  String get contactsEmptyCaption => '联系人就是一个地址的名称。';
+
+  @override
+  String contactsNoMatchQuery(String query) {
+    return '没有与“$query”匹配的联系人';
+  }
+
+  @override
+  String get contactsSendAction => '发送';
+
+  @override
+  String get contactsEditAction => '编辑';
+
+  @override
+  String get contactsAddressHeading => '地址';
+
+  @override
+  String get contactsNoteHeading => '备注';
+
+  @override
+  String get contactsShowCode => '显示二维码';
+
+  @override
+  String get contactsHideCode => '隐藏二维码';
+
+  @override
+  String contactsQrLabel(String name) {
+    return '$name 的地址二维码';
+  }
+
+  @override
+  String get contactsDeleteConfirmBody => '此后，发往该地址的付款将显示地址而不是名称。';
+
+  @override
+  String contactsDeleted(String name) {
+    return '已删除 $name。';
+  }
+
+  @override
+  String get contactsCopied => '地址已复制。';
+
+  @override
+  String get invoicesNewRequest => '新建请求';
+
+  @override
+  String get invoicesSegmentSent => '已发送';
+
+  @override
+  String invoicesSegmentCount(String label, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count 项',
+      zero: '无',
+    );
+    return '$label，$_temp0';
+  }
+
+  @override
+  String get invoicesToPayEmpty => '没有待付发票';
+
+  @override
+  String get invoicesToPayEmptyCaption => '你信任列表中的服务可以向此钱包开具发票。每张发票都在这里等待你批准。';
+
+  @override
+  String get invoicesSentEmpty => '没有已发送的请求';
+
+  @override
+  String get invoicesSentEmptyCaption => '请求是请某人向你支付一笔金额。';
+
+  @override
+  String get invoicesWaitingPayment => '等待付款';
+
+  @override
+  String get invoicesExpires => '到期';
+
+  @override
+  String invoicesUntil(String time) {
+    return '截至 $time';
+  }
+
+  @override
+  String get invoicesMessage => '消息';
+
+  @override
+  String get invoicesFrom => '来自';
+
+  @override
+  String get invoicesPaysFrom => '付款来源';
+
+  @override
+  String invoicesAvailable(String amount) {
+    return '可用 $amount';
+  }
+
+  @override
+  String invoicesShort(String amount) {
+    return '余额不足，差 $amount。';
+  }
+
+  @override
+  String get invoicesCheckNode => '节点';
+
+  @override
+  String get invoicesCheckEpicbox => 'Epicbox';
+
+  @override
+  String get invoicesNodeOk => '正常响应';
+
+  @override
+  String get invoicesNodeDown => '无响应';
+
+  @override
+  String get invoicesEpicboxOk => '已连接';
+
+  @override
+  String get invoicesEpicboxDown => '未连接';
+
+  @override
+  String get invoicesSendRequest => '发送请求';
+
+  @override
+  String invoicesRequestSummary(String payer, String amount) {
+    return '将请求 $payer 支付 $amount。请求在 24 小时后到期。';
+  }
+
+  @override
+  String get invoicesRequestHowTitle => '请求之前';
+
+  @override
+  String get netStatusNode => '节点';
+
+  @override
+  String get netStatusEpicbox => 'Epicbox';
+
+  @override
+  String get netStatusTor => 'Tor';
+
+  @override
+  String get netStatusSynced => '已同步';
+
+  @override
+  String get netStatusSyncing => '同步中';
+
+  @override
+  String netStatusSyncingPercent(int percent) {
+    return '同步中 $percent %';
+  }
+
+  @override
+  String get netStatusConnecting => '连接中';
+
+  @override
+  String netStatusBehind(int count) {
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '落后 $countString',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get netStatusOffline => '离线';
+
+  @override
+  String get netStatusOnline => '在线';
+
+  @override
+  String get netStatusOff => '关闭';
+
+  @override
+  String get netStatusOn => '开启';
+
+  @override
+  String get netStatusFailed => '失败';
+
+  @override
+  String netStatusStarting(int percent) {
+    return '启动中 $percent %';
+  }
+
+  @override
+  String netStatusTestHost(String network, String host) {
+    return '$network · $host';
+  }
+
+  @override
+  String get netStatusTitle => '网络状态';
+
+  @override
+  String get netStatusOpenHint => '显示服务器';
+
+  @override
+  String get serverNodeTitle => '节点';
+
+  @override
+  String get serverEpicboxTitle => 'Epicbox';
+
+  @override
+  String get serverSearchHint => '查找或输入节点地址';
+
+  @override
+  String serverUseAddress(String address) {
+    return '使用 $address';
+  }
+
+  @override
+  String get serverTesting => '正在测试…';
+
+  @override
+  String serverTestAnswer(String height, String version) {
+    return '区块 $height · v$version';
+  }
+
+  @override
+  String serverTestFailed(String error) {
+    return '无应答。$error';
+  }
+
+  @override
+  String get serverMyNodes => '我的节点';
+
+  @override
+  String get serverPublicNodes => '公共节点';
+
+  @override
+  String get serverPublicRelays => '公共服务器';
+
+  @override
+  String get serverHealthUnknown => '无法访问 status.btlabs.uk；状态未知';
+
+  @override
+  String get serverAtTip => '已最新';
+
+  @override
+  String serverBehindShort(String count) {
+    return '−$count';
+  }
+
+  @override
+  String serverBehindLabel(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '落后 $count 个区块',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get serverAddMine => '添加到我的节点';
+
+  @override
+  String get serverRemoveMine => '从我的节点移除';
+
+  @override
+  String get serverNotResponding => '无响应';
+
+  @override
+  String get serverHealthy => '正常';
+
+  @override
+  String get serverDegraded => '性能下降';
+
+  @override
+  String get serverHealthNone => '状态未知';
+
+  @override
+  String get serverCurrent => '当前';
+
+  @override
+  String get serverDefault => '默认';
+
+  @override
+  String serverLatency(String ms) {
+    return '$ms 毫秒';
+  }
+
+  @override
+  String serverUptime(String percent) {
+    return '$percent % 在线';
+  }
+
+  @override
+  String serverSwitchTo(String host) {
+    return '切换到 $host';
+  }
+
+  @override
+  String get serverNodeSwitchNote => '钱包将重新连接，并根据新节点重新核对余额。';
+
+  @override
+  String get serverRelayWarning => '你的地址包含此服务器。切换会更改你的地址；付款方需要新地址。';
+
+  @override
+  String get serverRelaySwitchNote => '你的地址将改变；付款方需要新地址。';
+
+  @override
+  String get serverOtherRelay => '其他服务器，host 或 host:port';
+
+  @override
+  String get serverFactHeight => '高度';
+
+  @override
+  String get serverFactVersion => '版本';
+
+  @override
+  String get serverFactPeers => '对等节点';
+
+  @override
+  String get serverFactUptime => '24 小时在线率';
+
+  @override
+  String serverHeightAtTip(String height) {
+    return '$height · 已最新';
+  }
+
+  @override
+  String serverNodesAgree(String height) {
+    return '节点一致于 $height';
+  }
+
+  @override
+  String serverNodesUp(int up, int total) {
+    String _temp0 = intl.Intl.pluralLogic(
+      total,
+      locale: localeName,
+      other: '$total 个节点中 $up 个在线',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String serverLastBlockSeconds(int seconds) {
+    String _temp0 = intl.Intl.pluralLogic(
+      seconds,
+      locale: localeName,
+      other: '最新区块 $seconds 秒前',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String serverLastBlockMinutes(int minutes) {
+    String _temp0 = intl.Intl.pluralLogic(
+      minutes,
+      locale: localeName,
+      other: '最新区块 $minutes 分钟前',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String serverCheckedAt(String time) {
+    return 'status.btlabs.uk，检查于 $time';
+  }
+
+  @override
+  String serverRowLabel(String host, String facts) {
+    return '$host，$facts';
+  }
+
+  @override
+  String get methodEpicbox => 'Epicbox';
+
+  @override
+  String get methodHttp => 'HTTP';
+
+  @override
+  String get methodTor => 'Tor';
+
+  @override
+  String get methodFile => '文件';
+
+  @override
+  String get methodArtCaptionEpicbox => 'Epicbox 服务器暂存';
+
+  @override
+  String get methodArtCaptionHttp => '直达对方钱包';
+
+  @override
+  String get methodArtCaptionTor => '直达，经由 Tor';
+
+  @override
+  String get methodArtCaptionFile => '发出文件，收回回复';
+
+  @override
+  String get methodArtLabelEpicbox =>
+      'Epicbox：付款发送到 Epicbox 服务器，服务器暂存它，直到对方钱包上线';
+
+  @override
+  String get methodArtLabelHttp => 'HTTP：付款直接发送到对方钱包，对方钱包必须处于打开状态';
+
+  @override
+  String get methodArtLabelTor => 'Tor：付款经由 Tor 网络直接发送到对方钱包';
+
+  @override
+  String get methodArtLabelFile => '文件：交出交易文件，收回回复文件，然后由发送方完成';
+
+  @override
+  String get methodSendEpicboxTitle => '对方可以不在线。';
+
+  @override
+  String get methodSendEpicboxLine => 'Epicbox 服务器会暂存付款，直到对方打开钱包。';
+
+  @override
+  String get methodSendHttpTitle => '直达对方钱包。';
+
+  @override
+  String get methodSendHttpLine => '对方钱包必须处于打开状态，并且可以通过其 HTTP 地址访问。';
+
+  @override
+  String get methodSendTorTitle => '经由 Tor 直达对方钱包。';
+
+  @override
+  String get methodSendTorLine => '更慢，也更私密。对方钱包必须处于打开状态。';
+
+  @override
+  String get methodSendFileTitle => '无需连接。';
+
+  @override
+  String get methodSendFileLine => '交出文件，收回对方的回复文件，然后在这里完成。';
+
+  @override
+  String get methodReceiveEpicboxTitle => '分享它即可收款。';
+
+  @override
+  String get methodReceiveEpicboxLine => '钱包关闭时也有效：Epicbox 服务器会保存付款，直到钱包重新上线。';
+
+  @override
+  String get methodReceiveTorTitle => '更慢，也更私密。';
+
+  @override
+  String get methodReceiveTorLine => '仅在应用打开或短暂处于后台时可用。';
+
+  @override
+  String get methodReceiveFileTitle => '来回传递一个文件。';
+
+  @override
+  String get methodReceiveFileLine => '两个钱包之间无需连接。';
+
+  @override
+  String get methodAddressKindsTooltip => '地址类型';
+
+  @override
+  String get sendMethodLabel => '方式';
+
+  @override
+  String get sendToLabel => '收款方';
+
+  @override
+  String get sendToHint => '地址或联系人';
+
+  @override
+  String get sendSwitchedHttp => '经由 HTTP';
+
+  @override
+  String get sendSwitchedEpicbox => '经由 Epicbox';
+
+  @override
+  String get sendSwitchedTorAnnounce => 'Tor 地址。方式已设为 Tor。';
+
+  @override
+  String get sendSwitchedHttpAnnounce => 'HTTP 地址。方式已设为 HTTP。';
+
+  @override
+  String get sendSwitchedEpicboxAnnounce => 'Epicbox 地址。方式已设为 Epicbox。';
+
+  @override
+  String get sendReviewMethodHttp => 'HTTP，直达对方钱包';
+
+  @override
+  String get sendCancelRuleEpicbox => '在等待对方期间可以取消。';
+
+  @override
+  String get sendCancelRuleDirect => '对方钱包接受后无法取消。';
+
+  @override
+  String get sendCancelRuleFile => '在回复文件完成之前可以取消。';
+
+  @override
+  String get sendHttpReaching => '正在联系对方钱包… 请保持应用打开。';
+
+  @override
+  String get sendDeliveredWaitingBlock => '已送达 · 等待区块';
+
+  @override
+  String get sendHttpAddressShape => 'HTTP 地址以 http:// 或 https:// 开头。';
+
+  @override
+  String get sendPlainHttpTitle => '未加密。仍要发送吗？';
+
+  @override
+  String get sendPlainHttpBody =>
+      '以明文 HTTP 发送到另一台设备。途中任何人都能读取这笔交易。https:// 地址是加密的。';
+
+  @override
+  String get sendCancelPossibleWhileWaiting => '在付款等待对方期间可以操作。';
+
+  @override
+  String get receiveEpicboxCaption => '念出地址时，核对前六位和后六位字符。';
+
+  @override
+  String get receiveTorCaption => '有些钱包显示的地址不带 .onion；两者是同一个地址。';
+
+  @override
+  String sendHttpNotReached(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: '未能联系到对方钱包。在你取消之前，这笔金额处于冻结状态，最长 $days 天。',
+    );
+    return '$_temp0';
+  }
 
   @override
   String deskInvActFrom(String label) {
@@ -4632,4 +5373,147 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskInvSetRestoredHint => '此钱包是用助记词恢复的？请重新把这个发票地址提供给服务方。';
+
+  @override
+  String get serverSwitchRelayTitle => '更换 epicbox 服务器？';
+
+  @override
+  String serverSwitchRelayBody(String relay) {
+    return 'epicbox 地址将变为 …@$relay。发送方需要新地址。发送到旧地址的付款会留在旧服务器上。';
+  }
+
+  @override
+  String get serverSwitchRelayConfirm => '更换';
+
+  @override
+  String get helpButton => '帮助';
+
+  @override
+  String get helpSearchHint => '搜索帮助';
+
+  @override
+  String get helpEnglishOnly => '帮助目前仅提供英文。';
+
+  @override
+  String helpNoMatch(String query) {
+    return '没有与“$query”匹配的帮助';
+  }
+
+  @override
+  String helpMatchCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count 个主题',
+      one: '1 个主题',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get helpShowHandshake => '查看运作方式';
+
+  @override
+  String get helpMoreInSection => '本节更多内容';
+
+  @override
+  String get sendBalanceAfter => '发送后余额';
+
+  @override
+  String get sendSpendableUntilChange => '找零确认前可用';
+
+  @override
+  String get sendSpendableUntilChangeHint => '找零在发送确认后返回。';
+
+  @override
+  String serverSwitched(String host) {
+    return '已切换到 $host';
+  }
+
+  @override
+  String get methodDirect => '直连';
+
+  @override
+  String get methodDirectShape => 'http://host:3415 或 xxxx….onion';
+
+  @override
+  String get methodSendDirectLine => '对方钱包必须处于打开状态。onion 地址经由 Tor。';
+
+  @override
+  String get methodArtLabelDirect => '直连：付款直接发送到收款人的钱包，该钱包必须处于打开状态';
+
+  @override
+  String get methodReceiveEpicboxShort => '钱包关闭时也可收款。';
+
+  @override
+  String get methodReceiveDirectTitle => '直接发送到此钱包。';
+
+  @override
+  String get methodReceiveDirectLine => '仅在应用打开时可用。';
+
+  @override
+  String methodLineOverTor(String line) {
+    return '$line 经由 Tor。';
+  }
+
+  @override
+  String get sendSwitchedDirect => '直连地址';
+
+  @override
+  String get sendSwitchedDirectAnnounce => '直连地址。方式已设为直连。';
+
+  @override
+  String get sendDirectAddressShape =>
+      '直连地址以 http:// 或 https:// 开头，或以 .onion 结尾。';
+
+  @override
+  String get torNotOverTor => '不经由 Tor';
+
+  @override
+  String get torNeeds => '需要 Tor。';
+
+  @override
+  String get torTurnOn => '开启 Tor';
+
+  @override
+  String get torTurnOff => '关闭 Tor';
+
+  @override
+  String get torNotConnectedNotice => 'Tor 未连接。';
+
+  @override
+  String get torWaiting => '正在等待 Tor';
+
+  @override
+  String get torWordStarting => '正在启动…';
+
+  @override
+  String get torWordNotConnected => '未连接';
+
+  @override
+  String get torCoversEpicbox => 'Epicbox 和发往 onion 地址的付款经由 Tor。';
+
+  @override
+  String get torCoversEpicboxNode => 'Epicbox、节点和发往 onion 地址的付款经由 Tor。';
+
+  @override
+  String get torCoversAll => 'Epicbox、节点、onion 发送和应用自身的请求都通过 Tor。';
+
+  @override
+  String get torSettingsLink => 'Tor 设置';
+
+  @override
+  String get receiveTabDirect => '直连';
+
+  @override
+  String get receiveDirectNeedsTor => '直连收款需要 Tor。';
+
+  @override
+  String get receiveDirectMeanwhile => '在此期间，付款方使用 Epicbox 地址。';
+
+  @override
+  String get settingsPushOffWhileTor => 'Tor 开启时关闭';
+
+  @override
+  String get netStatusOverTor => '经由 Tor';
 }

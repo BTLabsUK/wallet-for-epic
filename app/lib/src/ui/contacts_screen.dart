@@ -8,6 +8,7 @@ import '../l10n.dart';
 import '../providers.dart';
 import 'centered_body.dart';
 import 'common.dart';
+import 'contact_sheet.dart';
 import 'scan_screen.dart';
 import 'theme/brand.dart';
 import 'theme/tokens.dart';
@@ -34,7 +35,7 @@ class LiveFieldError extends StatelessWidget {
   }
 }
 
-/// The address book. With [pick], tapping a contact returns it instead of opening it.
+/// The address book. With [pick], tapping a contact returns it instead of opening its sheet.
 class ContactsScreen extends ConsumerStatefulWidget {
   const ContactsScreen({super.key, this.pick = false});
 
@@ -43,6 +44,9 @@ class ContactsScreen extends ConsumerStatefulWidget {
   @override
   ConsumerState<ContactsScreen> createState() => _ContactsScreenState();
 }
+
+/// More contacts than this get letter headers.
+const int _groupAbove = 8;
 
 class _ContactsScreenState extends ConsumerState<ContactsScreen> {
   final _search = TextEditingController();
@@ -55,9 +59,11 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
 
   List<Contact> _filter(List<Contact> contacts) {
     final query = _search.text.trim().toLowerCase();
-    if (query.isEmpty) return contacts;
+    final sorted = [...contacts]
+      ..sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+    if (query.isEmpty) return sorted;
     return [
-      for (final c in contacts)
+      for (final c in sorted)
         if (c.name.toLowerCase().contains(query) ||
             c.address.toLowerCase().contains(query) ||
             (c.note?.toLowerCase().contains(query) ?? false))
@@ -70,11 +76,7 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
       Navigator.pop(context, contact);
       return;
     }
-    await Navigator.of(context).push<Contact>(
-      MaterialPageRoute<Contact>(
-        builder: (_) => ContactEditScreen(contact: contact),
-      ),
-    );
+    await showContactSheet(context, contact);
   }
 
   Future<void> _add() async {
@@ -87,7 +89,6 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
   @override
   Widget build(BuildContext context) {
     final contacts = ref.watch(contactsProvider);
-    final theme = Theme.of(context);
     final l = context.l10n;
     // With no contacts at all, a search field has nothing to search: the empty state sits in
     // the middle instead.
@@ -97,74 +98,231 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
     };
     return SlotScaffold(
       centered: none,
+      idle: contacts.isLoading ? SlotProgress(label: l.contactsTitle) : null,
       appBar: AppBar(
         title: Text(widget.pick ? l.contactsPickTitle : l.contactsTitle),
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: _add,
-        icon: const Icon(Icons.person_add),
-        label: Text(l.contactsAdd),
+        actions: [
+          IconButton(
+            tooltip: l.contactsAdd,
+            icon: const Icon(Icons.person_add_alt),
+            onPressed: _add,
+          ),
+          const SizedBox(width: 4),
+        ],
       ),
       body: none
           ? CenteredBody(
               children: [
                 EmptyState(
                   icon: const Icon(Icons.people_outline),
-                  message: l.contactsEmpty,
+                  message: l.contactsEmptyTitle,
+                  action: Column(
+                    children: [
+                      Text(
+                        l.contactsEmptyCaption,
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.bodySmall
+                            ?.copyWith(color: context.tokens.dim),
+                      ),
+                      const SizedBox(height: 16),
+                      FilledButton.icon(
+                        style: FilledButton.styleFrom(
+                          minimumSize: const Size(0, 44),
+                        ),
+                        icon: const Icon(Icons.person_add_alt),
+                        label: Text(l.contactsAdd),
+                        onPressed: _add,
+                      ),
+                    ],
+                  ),
                 ),
-                // Room for the floating button.
-                const SizedBox(height: 72),
               ],
             )
-          : ScreenBody(
-              children: [
-                TextField(
-                  controller: _search,
-                  onChanged: (_) => setState(() {}),
-                  decoration: InputDecoration(
-                    labelText: l.contactsSearchLabel,
-                    prefixIcon: const Icon(Icons.search),
-                    border: const OutlineInputBorder(),
+          : SafeArea(
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 600),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      // Sticky: the list scrolls under it.
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+                        child: TextField(
+                          controller: _search,
+                          onChanged: (_) => setState(() {}),
+                          textInputAction: TextInputAction.search,
+                          decoration: InputDecoration(
+                            hintText: l.contactsSearchHint,
+                            isDense: true,
+                            constraints: const BoxConstraints(minHeight: 44),
+                            prefixIcon: const Icon(Icons.search),
+                            suffixIcon: _search.text.isEmpty
+                                ? null
+                                : IconButton(
+                                    tooltip: l.commonClose,
+                                    icon: const Icon(Icons.close),
+                                    onPressed: () => setState(_search.clear),
+                                  ),
+                            border: const OutlineInputBorder(),
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        child: switch (contacts) {
+                          AsyncData(:final value) => _list(value),
+                          AsyncError(:final error) => ListView(
+                            padding: const EdgeInsets.all(16),
+                            children: [ErrorText(describeError(l, error))],
+                          ),
+                          _ => const SizedBox.shrink(),
+                        },
+                      ),
+                    ],
                   ),
                 ),
-                const SizedBox(height: 8),
-                switch (contacts) {
-                  AsyncData(:final value) => _list(_filter(value), theme),
-                  AsyncError(:final error) => ErrorText(
-                    describeError(l, error),
-                  ),
-                  _ => const LinearProgressIndicator(),
-                },
-                // Room for the floating button.
-                const SizedBox(height: 72),
-              ],
+              ),
             ),
     );
   }
 
-  Widget _list(List<Contact> contacts, ThemeData theme) {
+  Widget _list(List<Contact> all) {
+    final contacts = _filter(all);
+    final t = context.tokens;
     if (contacts.isEmpty) {
-      return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 32),
-        child: Text(context.l10n.contactsNoMatch, textAlign: TextAlign.center),
+      return ListView(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 32),
+        children: [
+          Text(
+            context.l10n.contactsNoMatchQuery(_search.text.trim()),
+            textAlign: TextAlign.center,
+            style: TextStyle(color: t.dim),
+          ),
+        ],
       );
     }
-    return Column(
-      children: [
-        for (final c in contacts)
-          ListTile(
-            contentPadding: EdgeInsets.zero,
-            leading: _Initial(c.name),
-            title: Text(c.name),
-            // Start and end of the key, so contacts on the same server stay apart.
-            subtitle: Text(
-              shortAddress(c.address),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-            onTap: () => _open(c),
+    final grouped = contacts.length > _groupAbove;
+    final rows = <Widget>[];
+    String? letter;
+    for (final c in contacts) {
+      if (grouped) {
+        final first = c.name.trim().characters.firstOrNull?.toUpperCase();
+        final head =
+            first != null && RegExp(r'\p{L}', unicode: true).hasMatch(first)
+            ? first
+            : '#';
+        if (head != letter) {
+          letter = head;
+          rows.add(_LetterHead(head));
+        }
+      }
+      rows.add(_ContactRow(contact: c, onTap: () => _open(c)));
+    }
+    return ListView(padding: const EdgeInsets.only(bottom: 16), children: rows);
+  }
+}
+
+/// A letter over the contacts whose names start with it.
+class _LetterHead extends StatelessWidget {
+  const _LetterHead(this.letter);
+
+  final String letter;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+      child: Semantics(
+        header: true,
+        child: Text(
+          letter,
+          style: Theme.of(context).textTheme.labelSmall
+              ?.copyWith(color: context.tokens.dim),
+        ),
+      ),
+    );
+  }
+}
+
+/// One contact: the initials tile, the name with its tag, the short address, the note.
+class _ContactRow extends StatelessWidget {
+  const _ContactRow({required this.contact, required this.onTap});
+
+  final Contact contact;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    final theme = Theme.of(context);
+    final note = contact.note?.trim();
+    final address = shortAddress(contact.address);
+    final at = address.indexOf('@');
+    final mono = TextStyle(
+      fontFamily: t.monoFamily,
+      fontSize: 13,
+      color: t.dim,
+    );
+    return InkWell(
+      onTap: onTap,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: 64),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Row(
+            children: [
+              ContactTile(name: contact.name),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Row(
+                      children: [
+                        Flexible(
+                          child: Text(
+                            contact.name,
+                            style: theme.textTheme.bodyLarge,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        ContactTag(contact.address),
+                      ],
+                    ),
+                    const SizedBox(height: 2),
+                    Text.rich(
+                      TextSpan(
+                        style: mono,
+                        children: [
+                          TextSpan(
+                            text: at < 0 ? address : address.substring(0, at),
+                            style: TextStyle(color: t.text),
+                          ),
+                          if (at >= 0) TextSpan(text: address.substring(at)),
+                        ],
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    if (note != null && note.isNotEmpty)
+                      Text(
+                        note,
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: t.dim,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                  ],
+                ),
+              ),
+            ],
           ),
-      ],
+        ),
+      ),
     );
   }
 }
@@ -383,33 +541,6 @@ class _ContactEditScreenState extends ConsumerState<ContactEditScreen> {
           const SizedBox(height: 16),
           if (_error != null) ErrorText(_error!),
         ],
-      ),
-    );
-  }
-}
-
-/// A contact's first letter in a hairline square, the same frame as a payment's direction.
-class _Initial extends StatelessWidget {
-  const _Initial(this.name);
-
-  final String name;
-
-  @override
-  Widget build(BuildContext context) {
-    final t = context.tokens;
-    return Container(
-      width: 40,
-      height: 40,
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        color: t.surface,
-        borderRadius: BorderRadius.circular(t.radiusSmall),
-        border: Border.all(color: t.lineStrong),
-      ),
-      child: Text(
-        name.characters.first.toUpperCase(),
-        style: Theme.of(context).textTheme.titleMedium
-            ?.copyWith(color: t.accentText),
       ),
     );
   }

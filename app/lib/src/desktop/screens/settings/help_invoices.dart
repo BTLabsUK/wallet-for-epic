@@ -2,10 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
-import 'help_topics.dart';
-
-/// Help › Invoices: shown when the wallet supports invoices, before "When something goes wrong".
-const invoiceHelpSection = 'invoices';
+export 'help_topics.dart' show invoiceHelpSection, invoiceHelpTopics;
 
 /// Opens Help at a section: scrolls to it and opens its first topic.
 class HelpAt {
@@ -25,34 +22,6 @@ class HelpAt {
 
 String invoiceHelpTitle(AppLocalizations l) => l.deskInvHelpTitle;
 String invoiceHelpLede(AppLocalizations l) => l.deskInvHelpLede;
-
-/// The three invoice topics, with [confirmations] as the open wallet counts them.
-List<HelpTopic> invoiceHelpTopics(AppLocalizations l, int confirmations) => [
-  HelpTopic(
-    invoiceHelpSection,
-    l.deskInvHelpFlowTitle,
-    l.deskInvHelpFlowShort,
-    [
-      HelpBlock.p(l.deskInvHelpFlowIntro),
-      HelpBlock.ol([l.deskInvHelpFlowStep1, l.deskInvHelpFlowStep2, l.deskInvHelpFlowStep3, l.deskInvHelpFlowStep4(confirmations)]),
-      HelpBlock.p(l.deskInvHelpFlowNever),
-      HelpBlock.p(l.deskInvHelpFlowIssued),
-    ],
-    invoiceFlow: true,
-  ),
-  HelpTopic(invoiceHelpSection, l.deskInvHelpTrustTitle, l.deskInvHelpTrustShort, [
-    HelpBlock.p(l.deskInvHelpTrustP1),
-    HelpBlock.p(l.deskInvHelpTrustP2),
-    HelpBlock.p(l.deskInvHelpTrustP3),
-    HelpBlock.ul([l.deskInvHelpTrustWhere1, l.deskInvHelpTrustWhere2, l.deskInvHelpTrustWhere3]),
-  ]),
-  HelpTopic(invoiceHelpSection, l.deskInvHelpAddrTitle, l.deskInvHelpAddrShort, [
-    HelpBlock.p(l.deskInvHelpAddrP1),
-    HelpBlock.p(l.deskInvHelpAddrP2),
-    HelpBlock.p(l.deskInvHelpAddrP3),
-    HelpBlock.ul([l.deskInvHelpAddrWhere1, l.deskInvHelpAddrWhere2]),
-  ]),
-];
 
 /// The invoice flow: issuer and payer, the invoice through the trusted-only invoice address, the
 /// payment back to the payments address, the issuer finalizing. Side by side when there is room,

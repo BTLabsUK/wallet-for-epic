@@ -2212,17 +2212,6 @@ class AppLocalizationsRu extends AppLocalizations {
       'При смене сервера epicbox меняется ваш адрес. Сообщите отправителям новый адрес. Платежи, отправленные на старый, будут ждать на старом сервере, пока вы не переключитесь обратно.';
 
   @override
-  String get serverSwitchRelayTitle => 'Сменить сервер epicbox?';
-
-  @override
-  String serverSwitchRelayBody(String relay) {
-    return 'Адрес epicbox изменится на …@$relay. Отправителям нужен новый адрес. Платежи, отправленные на старый адрес, остаются на старом сервере.';
-  }
-
-  @override
-  String get serverSwitchRelayConfirm => 'Сменить';
-
-  @override
   String get setupWalletPerNetwork =>
       'У каждой сети свой кошелёк. Для сети без кошелька будет создан новый.';
 
@@ -2848,7 +2837,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get contactsNameLabel => 'Имя';
 
   @override
-  String get contactsAddressLabel => 'Адрес epicbox';
+  String get contactsAddressLabel => 'Адрес';
 
   @override
   String contactsDuplicate(String name) {
@@ -2862,7 +2851,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get contactsSave => 'Сохранить контакт';
 
   @override
-  String get contactsAddressMissing => 'Введите адрес epicbox.';
+  String get contactsAddressMissing => 'Введите адрес.';
 
   @override
   String contactsUrlIncomplete(String example) {
@@ -3267,118 +3256,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get helpTitle => 'Справка';
 
   @override
-  String get helpWaitingQuestion =>
-      'Почему у платежа статус «Ждёт получателя»?';
-
-  @override
-  String helpWaitingAnswer(int days) {
-    String _temp0 = intl.Intl.pluralLogic(
-      days,
-      locale: localeName,
-      other: '$days дня',
-      many: '$days дней',
-      few: '$days дня',
-      one: '$days день',
-    );
-    return 'Платёж Epic Cash создают оба кошелька вместе: ваш начинает его, кошелёк получателя принимает, затем ваш завершает. Сервис epicbox хранит ваш платёж около недели, пока кошелёк получателя не появится в сети и не ответит. До тех пор сумма заблокирована в вашем кошельке, чтобы её нельзя было потратить дважды. Если платёж не будет завершён, кошелёк сам отменит его через $_temp0 и разблокирует сумму.';
-  }
-
-  @override
-  String get helpCancellingQuestion => 'Нужно ли отменять платёж?';
-
-  @override
-  String helpCancellingAnswer(int days) {
-    String _temp0 = intl.Intl.pluralLogic(
-      days,
-      locale: localeName,
-      other: '$days дня',
-      many: '$days дней',
-      few: '$days дня',
-      one: '$days день',
-    );
-    return 'Обычно не нужно: незавершённый платёж сам отменяется через $_temp0, и сумма разблокируется. Чтобы остановить его раньше, например если получатель говорит, что никогда не ответит, откройте платёж, пока у него статус «Ждёт получателя», и нажмите «Отменить платёж»; тогда его придётся отправить заново. Платёж, который уже подтверждается, отменить нельзя. Платежи, созданные в старых версиях этого приложения, сами не отменяются: если такой платёж ждёт больше двух недель, отмените его и отправьте снова.';
-  }
-
-  @override
-  String get helpReceivingQuestion =>
-      'Почему для получения приложение должно быть открыто?';
-
-  @override
-  String helpReceivingAnswer(int days) {
-    String _temp0 = intl.Intl.pluralLogic(
-      days,
-      locale: localeName,
-      other: '$days дня',
-      many: '$days дней',
-      few: '$days дня',
-      one: '$days день',
-    );
-    return 'Ваш кошелёк должен принять каждый входящий платёж, а сделать это он может, только пока приложение открыто и подключено к epicbox. Платёж, отправленный, когда приложение закрыто, ждёт в epicbox около недели и поступит при следующей разблокировке. После этого epicbox удаляет его; если отправитель пользуется этим приложением, его кошелёк сам отменит платёж через $_temp0, и отправитель сможет отправить его снова. Когда ваш кошелёк примет платёж, его должен завершить кошелёк отправителя; до тех пор у платежа статус «Ждёт отправителя».';
-  }
-
-  @override
-  String helpConfirmationsQuestion(int count) {
-    return 'Что такое подтверждения и почему их $count?';
-  }
-
-  @override
-  String helpConfirmationsAnswer(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count подтверждения (примерно $count минуты)',
-      many: '$count подтверждений (примерно $count минут)',
-      few: '$count подтверждений (примерно $count минуты)',
-      one: '$count подтверждения (примерно $count минута)',
-    );
-    return 'Подтверждением называется новый блок, добавленный в блокчейн Epic Cash после блока с вашим платежом; блоки появляются примерно раз в минуту. С каждым блоком отменить платёж всё труднее. После $_temp0 платёж получает статус «Завершён», а полученные монеты можно тратить; таков стандарт кошелька Epic.';
-  }
-
-  @override
-  String get helpHistoryQuestion =>
-      'Почему после восстановления пропала история?';
-
-  @override
-  String get helpHistoryAnswer =>
-      'Фраза восстановления возвращает баланс: кошелёк ищет в блокчейне принадлежащие ему монеты. Сведения о том, кому вы платили, ваши заметки и большинство дат в блокчейне не хранятся, поэтому при восстановлении их не найти. Если вы сохранили резервную копию истории, импортируйте её, чтобы вернуть их: «Настройки», раздел «История платежей», пункт «Импорт резервной копии истории». Резервная копия должна храниться вне потерянного телефона, например в почте или облаке.';
-
-  @override
-  String get helpAddressQuestion => 'Меняется ли мой адрес?';
-
-  @override
-  String get helpAddressAnswer =>
-      'Ваш адрес создаётся из фразы восстановления и используемого сервера epicbox и заканчивается символом @ и именем этого сервера. Он не меняется, пока вы пользуетесь тем же сервером epicbox. Если выбрать другой сервер в настройках сети, адрес изменится, поэтому сообщите новый адрес тем, кто вам платит.';
-
-  @override
-  String get helpPhraseQuestion =>
-      'Что такое фраза восстановления и кто её видит?';
-
-  @override
-  String get helpPhraseAnswer =>
-      'Фраза восстановления представляет собой список слов, который служит ключом к вашим деньгам: любой, у кого она есть, может забрать ваши монеты, а с её помощью вы можете восстановить кошелёк на новом телефоне. Приложение показывает её только после ввода PIN-кода и никуда её не отправляет. Запишите её на бумаге, храните в надёжном месте, никому не сообщайте и не вводите на сайтах.';
-
-  @override
-  String get helpFeesQuestion => 'За что взимается комиссия?';
-
-  @override
-  String get helpFeesAnswer =>
-      'Комиссия достаётся майнерам, которые добавляют ваш платёж в блокчейн. Обычно это малая доля EPIC; она зависит от того, сколько монет кошелёк объединяет для платежа. Точную комиссию вы увидите перед отправкой.';
-
-  @override
-  String get helpNodeQuestion => 'Что такое узел?';
-
-  @override
-  String get helpNodeAnswer =>
-      'Узлом называется компьютер, который хранит копию блокчейна Epic Cash. Кошелёк запрашивает у узла ваш баланс и через него отправляет платежи в сеть. Узел видит ваш IP-адрес и то, о каких монетах спрашивает кошелёк, поэтому выберите в настройках сети узел, которому доверяете. Настройки сети доступны после включения «Расширенных настроек», а также на экране разблокировки.';
-
-  @override
-  String get helpOtherWaysQuestion => 'Есть ли другие способы отправки?';
-
-  @override
-  String get helpOtherWaysAnswer =>
-      'Для опытных пользователей. Без epicbox используйте «Отправить файлом транзакции» в разделе «Другие способы отправки»: вы передаёте файл, получатель принимает его и возвращает файл .response, а вы открываете этот файл, чтобы завершить платёж. Раздел «Другие способы отправки» появляется после включения «Расширенных настроек».';
-
-  @override
   String get helpStillStuck => 'Остались вопросы?';
 
   @override
@@ -3471,7 +3348,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get settingsAdvancedOptionsSubtitle =>
-      'Сеть, узел, сервер epicbox, файлы и журналы';
+      'Технические детали, файлы и журналы';
 
   @override
   String get settingsSectionPrivacy => 'Конфиденциальность';
@@ -3595,7 +3472,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get sendAddressIncomplete => 'Адрес выглядит неполным.';
 
   @override
-  String get sendAddressNotEpic => 'Это не адрес Epic.';
+  String get sendAddressNotEpic => 'Это не адрес Epicbox.';
 
   @override
   String get sendNewRecipient => 'Новый получатель';
@@ -3928,7 +3805,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get torHonestLine =>
-      'Медленнее и приватнее. В некоторых странах заблокирован или не разрешён. Принимает только пока приложение открыто.';
+      'Приём через Tor работает, пока приложение открыто или ненадолго в фоне.';
 
   @override
   String get torStateOff => 'Приём через Tor выключен';
@@ -4026,6 +3903,923 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get settingsSectionReceiving => 'Приём';
+
+  @override
+  String get homeAvailableToSpend => 'Доступно';
+
+  @override
+  String get homeTileWaitingSender => 'Ожидает отправителя';
+
+  @override
+  String get homeTileLocked => 'Заблокировано в отправках';
+
+  @override
+  String get homeTileMaturing => 'Награды созревают';
+
+  @override
+  String get homeTileTotal => 'Всего';
+
+  @override
+  String homeViewAll(int count) {
+    return 'Все $count';
+  }
+
+  @override
+  String get homeDestActivity => 'Активность';
+
+  @override
+  String get homeDestOutputs => 'Выходы';
+
+  @override
+  String get txStatusReceived => 'Получено';
+
+  @override
+  String get txStatusSent => 'Отправлено';
+
+  @override
+  String sendPinReason(String amount) {
+    return 'Введите PIN, чтобы отправить $amount EPIC.';
+  }
+
+  @override
+  String sendFilePinReason(String amount) {
+    return 'Введите PIN, чтобы создать файл платежа на $amount EPIC.';
+  }
+
+  @override
+  String get outputsTitle => 'Выходы';
+
+  @override
+  String get outputsSpendable => 'Доступно';
+
+  @override
+  String get outputsConfirming => 'Подтверждается';
+
+  @override
+  String get outputsLockedTile => 'Заблокировано отправками';
+
+  @override
+  String get outputsImmature => 'Не созрели';
+
+  @override
+  String outputsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count выхода',
+      many: '$count выходов',
+      few: '$count выхода',
+      one: '$count выход',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get outputsExplainer =>
+      'Выходы — части, из которых состоит баланс. Отправка тратит выходы целиком, а остаток возвращает новым выходом.';
+
+  @override
+  String get outputsSplitButton => 'Разделить…';
+
+  @override
+  String get outputsConsolidateButton => 'Объединить…';
+
+  @override
+  String get outputsSplitNeeds =>
+      'Для разделения нужен минимум 1 EPIC доступных.';
+
+  @override
+  String get outputsConsolidateNeeds =>
+      'Для объединения нужно минимум 2 доступных выхода.';
+
+  @override
+  String get outputsWaitLocked =>
+      'Дождитесь подтверждения текущей отправки (около 3 блоков).';
+
+  @override
+  String get outputsStrategy => 'Стратегия отправок';
+
+  @override
+  String get outputsSmallest => 'Наименьшие';
+
+  @override
+  String get outputsAll => 'Все';
+
+  @override
+  String get outputsSmallestText =>
+      'Тратит как можно меньше мелких выходов; остальное остаётся доступным, пока сдача подтверждается.';
+
+  @override
+  String get outputsAllText =>
+      'Тратит все доступные выходы и возвращает один выход сдачи. Всё заблокировано до подтверждения; потом выходов меньше и они крупнее.';
+
+  @override
+  String get outputsSplitChange => 'Делить сдачу';
+
+  @override
+  String get outputsSplitChangeText => 'Когда осталось бы мало выходов';
+
+  @override
+  String outputsFilterAll(int count) {
+    return 'Все $count';
+  }
+
+  @override
+  String outputsFilterSpendable(int count) {
+    return 'Доступно $count';
+  }
+
+  @override
+  String outputsFilterConfirming(int count) {
+    return 'Подтв. $count';
+  }
+
+  @override
+  String outputsFilterLocked(int count) {
+    return 'Заблок. $count';
+  }
+
+  @override
+  String get outputsShowSpent => 'Показать потраченные';
+
+  @override
+  String get outputsHideSpent => 'Скрыть потраченные';
+
+  @override
+  String get outputsWordSpendable => 'Доступно';
+
+  @override
+  String get outputsWordConfirming => 'Подтверждается';
+
+  @override
+  String get outputsWordFinalizing => 'Ждёт завершения';
+
+  @override
+  String get outputsWordImmature => 'Не созрел';
+
+  @override
+  String get outputsWordMining => 'Майнинг';
+
+  @override
+  String get outputsWordLocked => 'Заблокирован';
+
+  @override
+  String get outputsWordSpent => 'Потрачен';
+
+  @override
+  String get outputsMeanSpendable => 'Можно потратить сейчас.';
+
+  @override
+  String outputsMeanConfirming(int need) {
+    return 'Нужно $need подтверждений, прежде чем его можно потратить.';
+  }
+
+  @override
+  String get outputsMeanFinalizing => 'Ждёт, пока отправитель завершит платёж.';
+
+  @override
+  String get outputsMeanImmature =>
+      'Награда за майнинг. Её можно потратить после задержки.';
+
+  @override
+  String get outputsMeanMining => 'Награда за майнинг, ещё не подтверждена.';
+
+  @override
+  String get outputsMeanLocked => 'Тратится отправкой в процессе.';
+
+  @override
+  String get outputsMeanSpent => 'Уже потрачен.';
+
+  @override
+  String outputsNoteConfirmations(int conf, int need) {
+    return '$conf / $need';
+  }
+
+  @override
+  String outputsNoteReceived(String date) {
+    return 'Получено $date';
+  }
+
+  @override
+  String outputsNoteSend(String who) {
+    return 'Отправка: $who';
+  }
+
+  @override
+  String get outputsNoteSendPlain => 'Отправка в процессе';
+
+  @override
+  String outputsRow(String note, String word) {
+    return '$word · $note';
+  }
+
+  @override
+  String get outputsFactHeight => 'Высота';
+
+  @override
+  String get outputsFactConfirmations => 'Подтверждения';
+
+  @override
+  String get outputsFactTransaction => 'Транзакция';
+
+  @override
+  String get outputsFactCommitment => 'Обязательство';
+
+  @override
+  String get outputsCopy => 'Копировать';
+
+  @override
+  String get outputsCopied => 'Обязательство скопировано';
+
+  @override
+  String get outputsEmpty => 'Выходов пока нет';
+
+  @override
+  String get outputsEmptyHint =>
+      'Первый полученный платёж создаст его. Адрес — на вкладке «Получить».';
+
+  @override
+  String get outputsNoMatch => 'В этом виде выходов нет';
+
+  @override
+  String get outputsRetry => 'Повторить';
+
+  @override
+  String outputsSettingsSubtitle(int count, String strategy) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count выхода · $strategy',
+      many: '$count выходов · $strategy',
+      few: '$count выхода · $strategy',
+      one: '$count выход · $strategy',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get outputsCancel => 'Отмена';
+
+  @override
+  String get outputsSplitTitle => 'Разделение выходов';
+
+  @override
+  String outputsSplitText(
+    String amount,
+    String each,
+    String made,
+    String spent,
+  ) {
+    return 'Тратит $spent ($amount) и создаёт $made по $each. Обычная сетевая транзакция на этот кошелёк, подтверждается через 3 блока, как любая отправка; всё доступное блокируется до этого момента.';
+  }
+
+  @override
+  String get outputsToMake => 'Сколько выходов';
+
+  @override
+  String get outputsStepperHint => 'от 2 до 10';
+
+  @override
+  String get outputsFactFee => 'Комиссия сети';
+
+  @override
+  String get outputsFactEach => 'Каждый выход';
+
+  @override
+  String outputsFactAbout(String amount) {
+    return 'около $amount';
+  }
+
+  @override
+  String get outputsFactLocked => 'Заблокировано';
+
+  @override
+  String outputsFactLockedValue(String amount) {
+    return '$amount, около 3 блоков';
+  }
+
+  @override
+  String get outputsNothingSpendable =>
+      'Тем временем ничего не останется доступным.';
+
+  @override
+  String get outputsMinEach => 'Каждый выход должен быть не меньше 0,5 EPIC.';
+
+  @override
+  String outputsSplitInto(int count) {
+    return 'Разделить на $count';
+  }
+
+  @override
+  String get outputsConsolidateTitle => 'Объединение выходов';
+
+  @override
+  String outputsConsolidateText(String amount, String result, String spent) {
+    return 'Тратит $spent ($amount) и создаёт один выход на $result. Обычная сетевая транзакция на этот кошелёк, подтверждается через 3 блока, как любая отправка; всё доступное блокируется до этого момента. Следующая отправка потратит один выход, поэтому её комиссия будет наименьшей.';
+  }
+
+  @override
+  String get outputsConsolidateAction => 'Объединить';
+
+  @override
+  String get outputsSplitPin => 'Подтвердите PIN-кодом, чтобы разделить выходы';
+
+  @override
+  String get outputsConsolidatePin =>
+      'Подтвердите PIN-кодом, чтобы объединить выходы';
+
+  @override
+  String outputsSplitStarted(int count) {
+    return 'Разделение начато: $count выходов, подтверждение примерно через 3 блока';
+  }
+
+  @override
+  String get outputsConsolidateStarted =>
+      'Объединение начато: один выход, подтверждение примерно через 3 блока';
+
+  @override
+  String homePendingShort(String amount) {
+    return '$amount остаются заблокированными, пока кошелёк получателя не ответит.';
+  }
+
+  @override
+  String get contactsSearchHint => 'Имя или адрес';
+
+  @override
+  String get contactsEmptyTitle => 'Контактов пока нет';
+
+  @override
+  String get contactsEmptyCaption => 'Контакт — это имя для адреса.';
+
+  @override
+  String contactsNoMatchQuery(String query) {
+    return 'Нет контактов по запросу «$query»';
+  }
+
+  @override
+  String get contactsSendAction => 'Отправить';
+
+  @override
+  String get contactsEditAction => 'Изменить';
+
+  @override
+  String get contactsAddressHeading => 'Адрес';
+
+  @override
+  String get contactsNoteHeading => 'Заметка';
+
+  @override
+  String get contactsShowCode => 'Показать код';
+
+  @override
+  String get contactsHideCode => 'Скрыть код';
+
+  @override
+  String contactsQrLabel(String name) {
+    return 'QR-код адреса: $name';
+  }
+
+  @override
+  String get contactsDeleteConfirmBody =>
+      'После этого платежи на этот адрес показывают адрес вместо имени.';
+
+  @override
+  String contactsDeleted(String name) {
+    return '$name: удалено.';
+  }
+
+  @override
+  String get contactsCopied => 'Адрес скопирован.';
+
+  @override
+  String get invoicesNewRequest => 'Новый запрос';
+
+  @override
+  String get invoicesSegmentSent => 'Отправленные';
+
+  @override
+  String invoicesSegmentCount(String label, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count записи',
+      many: '$count записей',
+      few: '$count записи',
+      one: '$count запись',
+      zero: 'нет',
+    );
+    return '$label, $_temp0';
+  }
+
+  @override
+  String get invoicesToPayEmpty => 'Нет счетов к оплате';
+
+  @override
+  String get invoicesToPayEmptyCaption =>
+      'Сервисы из вашего доверенного списка могут выставлять счета этому кошельку. Каждый счёт ждёт здесь вашего одобрения.';
+
+  @override
+  String get invoicesSentEmpty => 'Запросов не отправлено';
+
+  @override
+  String get invoicesSentEmptyCaption =>
+      'Запрос просит кого-то заплатить вам сумму.';
+
+  @override
+  String get invoicesWaitingPayment => 'Ожидает оплаты';
+
+  @override
+  String get invoicesExpires => 'Истекает';
+
+  @override
+  String invoicesUntil(String time) {
+    return 'до $time';
+  }
+
+  @override
+  String get invoicesMessage => 'Сообщение';
+
+  @override
+  String get invoicesFrom => 'От';
+
+  @override
+  String get invoicesPaysFrom => 'Оплата из';
+
+  @override
+  String invoicesAvailable(String amount) {
+    return 'Доступно $amount';
+  }
+
+  @override
+  String invoicesShort(String amount) {
+    return 'Недостаточно для оплаты. Не хватает $amount.';
+  }
+
+  @override
+  String get invoicesCheckNode => 'Узел';
+
+  @override
+  String get invoicesCheckEpicbox => 'Epicbox';
+
+  @override
+  String get invoicesNodeOk => 'Отвечает';
+
+  @override
+  String get invoicesNodeDown => 'Не отвечает';
+
+  @override
+  String get invoicesEpicboxOk => 'Подключено';
+
+  @override
+  String get invoicesEpicboxDown => 'Не подключено';
+
+  @override
+  String get invoicesSendRequest => 'Отправить запрос';
+
+  @override
+  String invoicesRequestSummary(String payer, String amount) {
+    return '$payer получит запрос на оплату $amount. Запрос истекает через 24 ч.';
+  }
+
+  @override
+  String get invoicesRequestHowTitle => 'Перед запросом';
+
+  @override
+  String get netStatusNode => 'Узел';
+
+  @override
+  String get netStatusEpicbox => 'Epicbox';
+
+  @override
+  String get netStatusTor => 'Tor';
+
+  @override
+  String get netStatusSynced => 'Синхронизирован';
+
+  @override
+  String get netStatusSyncing => 'Синхронизация';
+
+  @override
+  String netStatusSyncingPercent(int percent) {
+    return 'Синхронизация $percent %';
+  }
+
+  @override
+  String get netStatusConnecting => 'Подключение';
+
+  @override
+  String netStatusBehind(int count) {
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Отстаёт на $countString',
+      many: 'Отстаёт на $countString',
+      few: 'Отстаёт на $countString',
+      one: 'Отстаёт на $countString',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get netStatusOffline => 'Не в сети';
+
+  @override
+  String get netStatusOnline => 'В сети';
+
+  @override
+  String get netStatusOff => 'Выключен';
+
+  @override
+  String get netStatusOn => 'Включён';
+
+  @override
+  String get netStatusFailed => 'Ошибка';
+
+  @override
+  String netStatusStarting(int percent) {
+    return 'Запуск $percent %';
+  }
+
+  @override
+  String netStatusTestHost(String network, String host) {
+    return '$network · $host';
+  }
+
+  @override
+  String get netStatusTitle => 'Состояние сети';
+
+  @override
+  String get netStatusOpenHint => 'Показывает серверы';
+
+  @override
+  String get serverNodeTitle => 'Узел';
+
+  @override
+  String get serverEpicboxTitle => 'Epicbox';
+
+  @override
+  String get serverSearchHint => 'Найдите или введите адрес узла';
+
+  @override
+  String serverUseAddress(String address) {
+    return 'Использовать $address';
+  }
+
+  @override
+  String get serverTesting => 'Проверка…';
+
+  @override
+  String serverTestAnswer(String height, String version) {
+    return 'Блок $height · v$version';
+  }
+
+  @override
+  String serverTestFailed(String error) {
+    return 'Нет ответа. $error';
+  }
+
+  @override
+  String get serverMyNodes => 'Мои узлы';
+
+  @override
+  String get serverPublicNodes => 'Публичные узлы';
+
+  @override
+  String get serverPublicRelays => 'Публичные серверы';
+
+  @override
+  String get serverHealthUnknown =>
+      'status.btlabs.uk недоступен; состояние неизвестно';
+
+  @override
+  String get serverAtTip => 'актуален';
+
+  @override
+  String serverBehindShort(String count) {
+    return '−$count';
+  }
+
+  @override
+  String serverBehindLabel(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'отстаёт на $count блока',
+      many: 'отстаёт на $count блоков',
+      few: 'отстаёт на $count блока',
+      one: 'отстаёт на $count блок',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get serverAddMine => 'Добавить в мои узлы';
+
+  @override
+  String get serverRemoveMine => 'Удалить из моих узлов';
+
+  @override
+  String get serverNotResponding => 'Не отвечает';
+
+  @override
+  String get serverHealthy => 'Исправен';
+
+  @override
+  String get serverDegraded => 'Работает с перебоями';
+
+  @override
+  String get serverHealthNone => 'Состояние неизвестно';
+
+  @override
+  String get serverCurrent => 'Текущий';
+
+  @override
+  String get serverDefault => 'По умолчанию';
+
+  @override
+  String serverLatency(String ms) {
+    return '$ms мс';
+  }
+
+  @override
+  String serverUptime(String percent) {
+    return '$percent % в сети';
+  }
+
+  @override
+  String serverSwitchTo(String host) {
+    return 'Переключиться на $host';
+  }
+
+  @override
+  String get serverNodeSwitchNote =>
+      'Кошелёк переподключится. Балансы будут заново проверены по новому узлу.';
+
+  @override
+  String get serverRelayWarning =>
+      'Ваш адрес содержит этот сервер. Смена меняет адрес; отправителям нужен новый.';
+
+  @override
+  String get serverRelaySwitchNote =>
+      'Ваш адрес изменится; отправителям нужен новый.';
+
+  @override
+  String get serverOtherRelay => 'Другой сервер, host или host:port';
+
+  @override
+  String get serverFactHeight => 'Высота';
+
+  @override
+  String get serverFactVersion => 'Версия';
+
+  @override
+  String get serverFactPeers => 'Пиры';
+
+  @override
+  String get serverFactUptime => 'Доступность 24 ч';
+
+  @override
+  String serverHeightAtTip(String height) {
+    return '$height · актуален';
+  }
+
+  @override
+  String serverNodesAgree(String height) {
+    return 'Узлы согласны на $height';
+  }
+
+  @override
+  String serverNodesUp(int up, int total) {
+    String _temp0 = intl.Intl.pluralLogic(
+      total,
+      locale: localeName,
+      other: '$up из $total узла в сети',
+      many: '$up из $total узлов в сети',
+      few: '$up из $total узлов в сети',
+      one: '$up из $total узла в сети',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String serverLastBlockSeconds(int seconds) {
+    String _temp0 = intl.Intl.pluralLogic(
+      seconds,
+      locale: localeName,
+      other: 'последний блок $seconds с назад',
+      many: 'последний блок $seconds с назад',
+      few: 'последний блок $seconds с назад',
+      one: 'последний блок $seconds с назад',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String serverLastBlockMinutes(int minutes) {
+    String _temp0 = intl.Intl.pluralLogic(
+      minutes,
+      locale: localeName,
+      other: 'последний блок $minutes мин назад',
+      many: 'последний блок $minutes мин назад',
+      few: 'последний блок $minutes мин назад',
+      one: 'последний блок $minutes мин назад',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String serverCheckedAt(String time) {
+    return 'status.btlabs.uk, проверено $time';
+  }
+
+  @override
+  String serverRowLabel(String host, String facts) {
+    return '$host, $facts';
+  }
+
+  @override
+  String get methodEpicbox => 'Epicbox';
+
+  @override
+  String get methodHttp => 'HTTP';
+
+  @override
+  String get methodTor => 'Tor';
+
+  @override
+  String get methodFile => 'Файл';
+
+  @override
+  String get methodArtCaptionEpicbox => 'Её хранит сервер Epicbox';
+
+  @override
+  String get methodArtCaptionHttp => 'Прямо в кошелёк';
+
+  @override
+  String get methodArtCaptionTor => 'Напрямую, через Tor';
+
+  @override
+  String get methodArtCaptionFile => 'Файл туда, ответ обратно';
+
+  @override
+  String get methodArtLabelEpicbox =>
+      'Epicbox: платёж уходит на сервер Epicbox, который хранит его, пока кошелёк получателя не вернётся';
+
+  @override
+  String get methodArtLabelHttp =>
+      'HTTP: платёж идёт прямо в кошелёк получателя, который должен быть открыт';
+
+  @override
+  String get methodArtLabelTor =>
+      'Tor: платёж идёт прямо в кошелёк получателя через сеть Tor';
+
+  @override
+  String get methodArtLabelFile =>
+      'Файл: файл транзакции передаётся, возвращается файл ответа, затем отправитель завершает платёж';
+
+  @override
+  String get methodSendEpicboxTitle => 'Получатель может быть офлайн.';
+
+  @override
+  String get methodSendEpicboxLine =>
+      'Сервер Epicbox хранит платёж, пока получатель не откроет кошелёк.';
+
+  @override
+  String get methodSendHttpTitle => 'Прямо в кошелёк получателя.';
+
+  @override
+  String get methodSendHttpLine =>
+      'Он должен быть открыт и доступен по своему HTTP-адресу.';
+
+  @override
+  String get methodSendTorTitle => 'Прямо в кошелёк получателя, через Tor.';
+
+  @override
+  String get methodSendTorLine =>
+      'Медленнее и приватнее. Кошелёк получателя должен быть открыт.';
+
+  @override
+  String get methodSendFileTitle => 'Соединение не нужно.';
+
+  @override
+  String get methodSendFileLine =>
+      'Передайте файл, получите файл ответа и завершите платёж здесь.';
+
+  @override
+  String get methodReceiveEpicboxTitle =>
+      'Поделитесь им, чтобы получить оплату.';
+
+  @override
+  String get methodReceiveEpicboxLine =>
+      'Работает, пока кошелёк закрыт: сервер Epicbox хранит платежи, пока он не вернётся.';
+
+  @override
+  String get methodReceiveTorTitle => 'Медленнее и приватнее.';
+
+  @override
+  String get methodReceiveTorLine =>
+      'Работает, только пока приложение открыто или ненадолго в фоне.';
+
+  @override
+  String get methodReceiveFileTitle => 'Передавайте файл туда и обратно.';
+
+  @override
+  String get methodReceiveFileLine =>
+      'Работает без соединения между кошельками.';
+
+  @override
+  String get methodAddressKindsTooltip => 'Виды адресов';
+
+  @override
+  String get sendMethodLabel => 'Способ';
+
+  @override
+  String get sendToLabel => 'Кому';
+
+  @override
+  String get sendToHint => 'Адрес или контакт';
+
+  @override
+  String get sendSwitchedHttp => 'Через HTTP';
+
+  @override
+  String get sendSwitchedEpicbox => 'Через Epicbox';
+
+  @override
+  String get sendSwitchedTorAnnounce => 'Адрес Tor. Выбран способ Tor.';
+
+  @override
+  String get sendSwitchedHttpAnnounce => 'Адрес HTTP. Выбран способ HTTP.';
+
+  @override
+  String get sendSwitchedEpicboxAnnounce =>
+      'Адрес Epicbox. Выбран способ Epicbox.';
+
+  @override
+  String get sendReviewMethodHttp => 'HTTP, прямо в кошелёк';
+
+  @override
+  String get sendCancelRuleEpicbox =>
+      'Можно отменить, пока платёж ждёт получателя.';
+
+  @override
+  String get sendCancelRuleDirect =>
+      'Нельзя отменить после того, как кошелёк получателя его примет.';
+
+  @override
+  String get sendCancelRuleFile =>
+      'Можно отменить, пока файл ответа не завершён.';
+
+  @override
+  String get sendHttpReaching =>
+      'Связь с кошельком получателя… Не закрывайте приложение.';
+
+  @override
+  String get sendDeliveredWaitingBlock => 'Доставлено · Ждёт блок';
+
+  @override
+  String get sendHttpAddressShape =>
+      'HTTP-адрес начинается с http:// или https://.';
+
+  @override
+  String get sendPlainHttpTitle => 'Без шифрования. Всё равно отправить?';
+
+  @override
+  String get sendPlainHttpBody =>
+      'Обычный HTTP к другому устройству. Любой на пути может прочитать транзакцию. Адрес https:// зашифрован.';
+
+  @override
+  String get sendCancelPossibleWhileWaiting =>
+      'Возможно, пока платёж ждёт получателя.';
+
+  @override
+  String get receiveEpicboxCaption =>
+      'Читая его вслух, сверьте первые шесть и последние шесть символов.';
+
+  @override
+  String get receiveTorCaption =>
+      'Некоторые кошельки показывают адрес без .onion; это один и тот же адрес.';
+
+  @override
+  String sendHttpNotReached(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other:
+          'Не удалось связаться с кошельком получателя. Сумма заблокирована, пока вы её не отмените, но не дольше $days дня.',
+      many:
+          'Не удалось связаться с кошельком получателя. Сумма заблокирована, пока вы её не отмените, но не дольше $days дней.',
+      few:
+          'Не удалось связаться с кошельком получателя. Сумма заблокирована, пока вы её не отмените, но не дольше $days дней.',
+      one:
+          'Не удалось связаться с кошельком получателя. Сумма заблокирована, пока вы её не отмените, но не дольше $days дня.',
+    );
+    return '$_temp0';
+  }
 
   @override
   String deskInvActFrom(String label) {
@@ -5098,4 +5892,156 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get deskInvSetRestoredHint =>
       'Восстановили кошелёк из фразы восстановления? Передайте сервисам этот адрес для счетов заново.';
+
+  @override
+  String get serverSwitchRelayTitle => 'Сменить сервер epicbox?';
+
+  @override
+  String serverSwitchRelayBody(String relay) {
+    return 'Адрес epicbox изменится на …@$relay. Отправителям нужен новый адрес. Платежи, отправленные на старый адрес, остаются на старом сервере.';
+  }
+
+  @override
+  String get serverSwitchRelayConfirm => 'Сменить';
+
+  @override
+  String get helpButton => 'Справка';
+
+  @override
+  String get helpSearchHint => 'Поиск по справке';
+
+  @override
+  String get helpEnglishOnly => 'Справка пока на английском.';
+
+  @override
+  String helpNoMatch(String query) {
+    return 'Ничего не найдено по запросу «$query»';
+  }
+
+  @override
+  String helpMatchCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count темы',
+      many: '$count тем',
+      few: '$count темы',
+      one: '$count тема',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get helpShowHandshake => 'Показать, как это работает';
+
+  @override
+  String get helpMoreInSection => 'Ещё в этом разделе';
+
+  @override
+  String get sendBalanceAfter => 'Баланс после';
+
+  @override
+  String get sendSpendableUntilChange => 'Доступно до подтверждения сдачи';
+
+  @override
+  String get sendSpendableUntilChangeHint =>
+      'Сдача вернётся, когда отправка подтвердится.';
+
+  @override
+  String serverSwitched(String host) {
+    return 'Переключено на $host';
+  }
+
+  @override
+  String get methodDirect => 'Напрямую';
+
+  @override
+  String get methodDirectShape => 'http://host:3415 или xxxx….onion';
+
+  @override
+  String get methodSendDirectLine =>
+      'Их кошелёк должен быть открыт. Адрес onion идёт через Tor.';
+
+  @override
+  String get methodArtLabelDirect =>
+      'Напрямую: платёж идёт прямо в кошелёк получателя, который должен быть открыт';
+
+  @override
+  String get methodReceiveEpicboxShort => 'Работает при закрытом кошельке.';
+
+  @override
+  String get methodReceiveDirectTitle => 'Прямо в этот кошелёк.';
+
+  @override
+  String get methodReceiveDirectLine => 'Работает, пока приложение открыто.';
+
+  @override
+  String methodLineOverTor(String line) {
+    return '$line Через Tor.';
+  }
+
+  @override
+  String get sendSwitchedDirect => 'Прямой адрес';
+
+  @override
+  String get sendSwitchedDirectAnnounce => 'Прямой адрес. Способ: Напрямую.';
+
+  @override
+  String get sendDirectAddressShape =>
+      'Прямой адрес начинается с http:// или https:// либо заканчивается на .onion.';
+
+  @override
+  String get torNotOverTor => 'Не через Tor';
+
+  @override
+  String get torNeeds => 'Нужен Tor.';
+
+  @override
+  String get torTurnOn => 'Включить Tor';
+
+  @override
+  String get torTurnOff => 'Выключить Tor';
+
+  @override
+  String get torNotConnectedNotice => 'Tor не подключён.';
+
+  @override
+  String get torWaiting => 'Ожидание Tor';
+
+  @override
+  String get torWordStarting => 'Запуск…';
+
+  @override
+  String get torWordNotConnected => 'Нет подключения';
+
+  @override
+  String get torCoversEpicbox =>
+      'Epicbox и отправки на адреса onion идут через Tor.';
+
+  @override
+  String get torCoversEpicboxNode =>
+      'Epicbox, узел и отправки на адреса onion идут через Tor.';
+
+  @override
+  String get torCoversAll =>
+      'Epicbox, узел, отправки onion и собственные запросы приложения идут через Tor.';
+
+  @override
+  String get torSettingsLink => 'Настройки Tor';
+
+  @override
+  String get receiveTabDirect => 'Напрямую';
+
+  @override
+  String get receiveDirectNeedsTor => 'Прямое получение требует Tor.';
+
+  @override
+  String get receiveDirectMeanwhile =>
+      'Пока отправители используют адрес Epicbox.';
+
+  @override
+  String get settingsPushOffWhileTor => 'Выключено, пока включён Tor';
+
+  @override
+  String get netStatusOverTor => 'через Tor';
 }

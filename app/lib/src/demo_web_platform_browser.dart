@@ -18,7 +18,8 @@ import 'web/preview.dart';
 /// and the server's [DemoApi]. Nothing for a `WFE_WEB_FAKE` build, which keeps the preview
 /// wallet and [FakeDemoApi], or outside demo mode.
 List<Override> webDemoOverrides() {
-  if (webFakeBackend || !demoBuild) return const [];
+  if (webFakeBackend) return previewOverrides();
+  if (!demoBuild) return const [];
   final page = Uri.base;
   var first = true;
   final wallet = RemoteWalletService.reconnecting(() {

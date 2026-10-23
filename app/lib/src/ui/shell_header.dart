@@ -25,6 +25,9 @@ const Key balanceUnitKey = ValueKey('balance-unit');
 /// The key of the fiat value under the figure, for tests.
 const Key fiatValueKey = ValueKey('balance-fiat');
 
+/// The key of the "Available to spend" caption above the figure, for tests.
+const Key balanceCaptionKey = ValueKey('balance-caption');
+
 /// The key of the pending line under the fiat row, for tests.
 const Key pendingLineKey = ValueKey('pending-line');
 
@@ -131,10 +134,11 @@ String _spendableLabel(AppLocalizations l, BigInt spendable, bool hidden) =>
       hidden ? l.homeBalanceHiddenLabel : epicText(l, spendable),
     );
 
-/// Wallet's balance area, with no panel around it, centred as one column: the spendable
-/// figure in Montserrat 60 with the gold EPIC at its top right, the two centred as a unit;
-/// under it one centred row with the node and epicbox statuses, the fiat value, the eye and
-/// the ?; under that the pending line, centred while it fits.
+/// Wallet's balance area, with no panel around it, centred as one column: the caption
+/// "Available to spend", the spendable figure in Montserrat 60 with the gold EPIC at its top
+/// right, the two centred as a unit; under it one centred row with the fiat value and the
+/// eye. The statuses live in the status card and the pending balances in the tiles under it
+/// (`home_parts.dart`), both in the list below.
 ///
 /// Every part has a fixed height for the text scale, so nothing here moves when amounts
 /// change, a payment lands, amounts are hidden or nothing is pending. A figure too wide shrinks
@@ -160,6 +164,9 @@ class WalletBalance extends ConsumerWidget {
       color: t.dim,
       fontFeatures: const [FontFeature.tabularFigures()],
     );
+    final captionStyle = (Theme.of(context).textTheme.bodySmall ??
+            const TextStyle(fontSize: 12))
+        .copyWith(color: t.dim);
     final rowHeight = math.max(
       statusTarget,
       _lineHeight(fiatStyle, scaler, context),
@@ -183,6 +190,18 @@ class WalletBalance extends ConsumerWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            // The caption says what the figure is, as the desktop's Overview does.
+            SizedBox(
+              height: _lineHeight(captionStyle, scaler, context),
+              child: Text(
+                l.homeAvailableToSpend,
+                key: balanceCaptionKey,
+                maxLines: 1,
+                textAlign: TextAlign.center,
+                style: captionStyle,
+              ),
+            ),
+            const SizedBox(height: 4),
             SizedBox(
               height: figureSize,
               child: summary == null
@@ -201,7 +220,6 @@ class WalletBalance extends ConsumerWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const StatusIcons(key: walletStatusesKey),
                   if (fiat != null)
                     Flexible(
                       child: FittedBox(
@@ -210,23 +228,9 @@ class WalletBalance extends ConsumerWidget {
                         child: Text(fiat, maxLines: 1, style: fiatStyle),
                       ),
                     ),
-                  if (summary != null) ...[
-                    eye,
-                    BalanceHelp(summary: summary, hidden: hidden),
-                  ],
+                  if (summary != null) eye,
                 ],
               ),
-            ),
-            const SizedBox(height: 2),
-            PendingLine(
-              items: summary == null
-                  ? const []
-                  : pendingItems(
-                      l,
-                      summary,
-                      hidden: hidden,
-                      empty: data?.transactions.isEmpty ?? false,
-                    ),
             ),
           ],
         ),

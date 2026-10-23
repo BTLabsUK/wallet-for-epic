@@ -2,6 +2,7 @@
 // rule under test throughout: nothing pays an invoice but Approve, and Approve pays only after
 // the PIN or biometric gate.
 
+import 'package:epic_wallet/src/amount.dart';
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/network.dart';
 import 'package:epic_wallet/src/price.dart';
@@ -10,11 +11,14 @@ import 'package:epic_wallet/src/push.dart';
 import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/settings.dart';
 import 'package:epic_wallet/src/ui/common.dart';
+import 'package:epic_wallet/src/ui/home_parts.dart';
 import 'package:epic_wallet/src/ui/home_screen.dart';
 import 'package:epic_wallet/src/ui/invoice_review_screen.dart';
 import 'package:epic_wallet/src/ui/invoices_screen.dart';
 import 'package:epic_wallet/src/ui/scan_screen.dart';
 import 'package:epic_wallet/src/ui/settings_history.dart';
+import 'package:epic_wallet/src/ui/settings_invoices.dart';
+import 'package:epic_wallet/src/ui/theme/tokens.dart';
 import 'package:epic_wallet/src/ui/tx_details_screen.dart';
 import 'package:epic_wallet/src/updater.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
@@ -196,6 +200,30 @@ String? _notice(WidgetTester tester) =>
         .read(noticeProvider)
         ?.text;
 
+/// Text inside a row's rich line.
+Finder _rich(String text) => find.textContaining(text, findRichText: true);
+
+/// The colour of the span that says [text] exactly.
+Color? _spanColor(WidgetTester tester, String text) {
+  for (final r in tester.widgetList<RichText>(_rich(text))) {
+    Color? found;
+    r.text.visitChildren((span) {
+      if (span is TextSpan && span.text == text) found = span.style?.color;
+      return found == null;
+    });
+    if (found != null) return found;
+  }
+  return null;
+}
+
+Color _warn(WidgetTester tester) =>
+    tester.element(find.byType(Scaffold).first).tokens.warn;
+
+/// Home's Invoices destination tile: the way in now that the app bar has no icon for it.
+final Finder _invoicesTile = find.byKey(
+  homeDestinationKey(HomeDestination.invoices),
+);
+
 void main() {
   group('home entry', () {
     testWidgets('is hidden when the wallet has no invoices', (tester) async {
@@ -203,6 +231,7 @@ void main() {
       h.session.invoicesSupported = false;
       await h.pump(tester, const HomeScreen());
       expect(find.byKey(invoicesEntryKey), findsNothing);
+      expect(_invoicesTile, findsNothing);
     });
 
     testWidgets('drains at start and badges the pending invoices', (
@@ -213,15 +242,13 @@ void main() {
       await h.invoice(slateId: 'b');
       await h.pump(tester, const HomeScreen());
       expect(h.session.pendingInvoicesValue.keys, ['a', 'b']);
-      expect(find.byKey(invoicesEntryKey), findsOneWidget);
+      // The app bar has no icon any more; the destination tile on Home carries the badge.
+      expect(find.byKey(invoicesEntryKey), findsNothing);
+      expect(_invoicesTile, findsOneWidget);
       expect(
-        find.descendant(
-          of: find.byKey(invoicesEntryKey),
-          matching: find.text('2'),
-        ),
+        find.descendant(of: _invoicesTile, matching: find.text('2')),
         findsOneWidget,
       );
-      expect(find.byTooltip(_l.invoicesEntryTooltip(2)), findsOneWidget);
       // The arrival is announced, with no way to pay from the notice.
       expect(_notice(tester), _l.invoiceNoticeReceived);
       expect(h.session.invoicePayments, 0);
@@ -230,14 +257,19 @@ void main() {
     testWidgets('shows no badge with nothing pending', (tester) async {
       final h = _Harness();
       await h.pump(tester, const HomeScreen());
-      expect(find.byTooltip(_l.invoicesEntryTooltip(0)), findsOneWidget);
-      final badge = tester.widget<Badge>(
+      expect(_invoicesTile, findsOneWidget);
+      expect(
         find.descendant(
-          of: find.byKey(invoicesEntryKey),
-          matching: find.byType(Badge),
+          of: _invoicesTile,
+          matching: find.text(_l.invoicesTitle),
         ),
+        findsOneWidget,
       );
-      expect(badge.isLabelVisible, isFalse);
+      // No badge: the tile holds its label and nothing else in words.
+      expect(
+        find.descendant(of: _invoicesTile, matching: find.byType(Text)),
+        findsOneWidget,
+      );
     });
 
     testWidgets('drains again when the app comes back to the front', (
@@ -259,14 +291,32 @@ void main() {
       }
       await tester.pumpAndSettle();
       expect(h.session.pendingInvoicesValue.keys, ['later']);
-      expect(find.byTooltip(_l.invoicesEntryTooltip(1)), findsOneWidget);
+      expect(
+        find.descendant(of: _invoicesTile, matching: find.text('1')),
+        findsOneWidget,
+      );
     });
+
+    testWidgets(
+      'hidden, it still drains and raises notices, and draws nothing',
+      (tester) async {
+        final h = _Harness();
+        await h.invoice(slateId: 'a');
+        await h.pump(
+          tester,
+          const Scaffold(body: InvoicesEntry(visible: false)),
+        );
+        expect(h.session.pendingInvoicesValue.keys, ['a']);
+        expect(find.byKey(invoicesEntryKey), findsNothing);
+        expect(_notice(tester), _l.invoiceNoticeReceived);
+      },
+    );
 
     testWidgets('opens the list', (tester) async {
       final h = _Harness();
       await h.invoice();
       await h.pump(tester, const HomeScreen());
-      await tester.tap(find.byKey(invoicesEntryKey));
+      await tester.tap(_invoicesTile);
       await tester.pumpAndSettle();
       expect(find.text(_l.invoicesTitle), findsOneWidget);
       expect(find.text('My Exchange'), findsOneWidget);
@@ -274,10 +324,47 @@ void main() {
   });
 
   group('list', () {
-    testWidgets('shows the empty state', (tester) async {
+    testWidgets('shows an empty state per segment, each with its next step', (
+      tester,
+    ) async {
       final h = _Harness();
       await h.pump(tester, const InvoicesScreen());
-      expect(find.text(_l.invoicesEmpty), findsOneWidget);
+      expect(find.text(_l.invoicesToPayEmpty), findsOneWidget);
+      expect(find.text(_l.invoicesToPayEmptyCaption), findsOneWidget);
+      await tester.tap(find.text(_l.invoiceSettingsServicesTitle));
+      await tester.pumpAndSettle();
+      expect(find.byType(InvoiceSettingsScreen), findsOneWidget);
+      await tester.pageBack();
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text(_l.invoicesSegmentSent));
+      await tester.pumpAndSettle();
+      expect(find.text(_l.invoicesSentEmpty), findsOneWidget);
+      expect(find.text(_l.invoicesSentEmptyCaption), findsOneWidget);
+      // The empty state's action and the app bar's both open the form.
+      expect(find.text(_l.invoicesNewRequest), findsNWidgets(2));
+      await tester.tap(find.byKey(invoicesNewRequestKey));
+      await tester.pumpAndSettle();
+      expect(find.text(_l.requestTitle), findsOneWidget);
+    });
+
+    testWidgets('counts each segment', (tester) async {
+      final h = _Harness();
+      await h.invoice(slateId: 'a');
+      await h.invoice(slateId: 'b');
+      await h.pump(tester, const InvoicesScreen());
+      expect(
+        find.bySemanticsLabel(
+          _l.invoicesSegmentCount(_l.invoicesToPaySection, 2),
+        ),
+        findsOneWidget,
+      );
+      expect(
+        find.bySemanticsLabel(
+          _l.invoicesSegmentCount(_l.invoicesSegmentSent, 0),
+        ),
+        findsOneWidget,
+      );
     });
 
     testWidgets('shows each invoice by label, amount and time left', (
@@ -294,10 +381,18 @@ void main() {
       expect(find.text('My Exchange'), findsNWidgets(2));
       expect(find.text(epicText(_l, _epic(8))), findsOneWidget);
       expect(find.text(epicText(_l, _epic(2.5))), findsOneWidget);
-      expect(find.text(_l.invoiceTimeLeftHours(24, 0)), findsOneWidget);
-      expect(find.text(_l.invoiceTimeLeftMinutes(30)), findsOneWidget);
+      expect(_rich(_l.invoiceTimeLeftHours(24, 0)), findsOneWidget);
+      expect(_rich(_l.invoiceTimeLeftMinutes(30)), findsOneWidget);
+      // Under an hour, the time left is in the warning colour.
+      expect(_spanColor(tester, _l.invoiceTimeLeftMinutes(30)), _warn(tester));
+      expect(
+        _spanColor(tester, _l.invoiceTimeLeftHours(24, 0)),
+        isNot(_warn(tester)),
+      );
+      // The message's first line follows the time left.
+      expect(_rich('Order 1042'), findsNWidgets(2));
       expect(find.textContaining('binance'), findsNothing);
-      expect(find.text(_l.invoicesEmpty), findsNothing);
+      expect(find.text(_l.invoicesToPayEmpty), findsNothing);
     });
 
     testWidgets('drains when opened and on pull to refresh', (tester) async {
@@ -324,7 +419,7 @@ void main() {
       await tester.pump(const Duration(minutes: 1));
       await tester.pumpAndSettle();
       expect(find.text('My Exchange'), findsNothing);
-      expect(find.text(_l.invoicesEmpty), findsOneWidget);
+      expect(find.text(_l.invoicesToPayEmpty), findsOneWidget);
     });
 
     testWidgets('names a service with a lost label without the invoice', (
@@ -354,16 +449,25 @@ void main() {
           'and on and on and on and on and on and on and on and on';
       await h.invoice(message: hostile);
       await h.review(tester);
-      expect(find.text(_l.invoiceReviewAsks('My Exchange')), findsOneWidget);
-      final amount = tester.widget<Text>(find.text(epicText(_l, _epic(8))));
-      expect(amount.style?.fontSize, greaterThanOrEqualTo(36));
-      expect(find.textContaining('binance.example'), findsNothing);
+      expect(find.text('My Exchange'), findsOneWidget);
+      final amount = tester.widget<Text>(find.byKey(invoiceReviewAmountKey));
+      expect(amount.data, formatEpic(_epic(8), grouped: true));
+      expect(amount.style?.fontSize, 34);
+      // The relay's name only inside the full address under From, never as a name.
+      expect(
+        find.byWidgetPredicate(
+          (w) => w is Text && (w.data ?? '').contains('binance.example'),
+        ),
+        findsNothing,
+      );
+      expect(find.text(_l.invoicesFrom), findsOneWidget);
       final line = invoiceMessageLine(hostile)!;
       expect(line, isNot(contains('\n')));
       expect(line, isNot(contains('\u202E')));
       expect(line.runes.length, invoiceMessageMaxLength);
       final shown = tester.widget<Text>(find.text(line));
-      expect((shown.maxLines, shown.softWrap), (1, false));
+      expect(shown.data, isNot(contains('\n')));
+      expect(shown.maxLines, 3);
       // Plain text: no link, no gesture on it.
       expect(shown.textSpan, isNull);
       expect(
@@ -378,6 +482,40 @@ void main() {
         ),
         findsNothing,
       );
+    });
+
+    testWidgets('cannot approve more than is spendable, and says how much', (
+      tester,
+    ) async {
+      final h = _Harness();
+      await h.invoice(amount: 125);
+      await h.review(tester);
+      expect(
+        find.text(_l.invoicesShort(epicExact(_l, _epic(25)))),
+        findsOneWidget,
+      );
+      expect(
+        find.text(_l.invoicesAvailable(epicText(_l, _epic(100)))),
+        findsOneWidget,
+      );
+      final approve = tester.widget<FilledButton>(
+        find.widgetWithText(FilledButton, _l.invoiceApprove),
+      );
+      expect(approve.onPressed, isNull);
+      // Declining stays open.
+      final decline = tester.widget<TextButton>(
+        find.widgetWithText(TextButton, _l.invoiceDecline),
+      );
+      expect(decline.onPressed, isNotNull);
+    });
+
+    testWidgets('an amount within reach shows no short card', (tester) async {
+      final h = _Harness();
+      await h.invoice(amount: 100);
+      await h.review(tester);
+      expect(find.textContaining('short'), findsNothing);
+      expect(find.text(_l.invoicesCheckNode), findsOneWidget);
+      expect(find.text(_l.invoicesCheckEpicbox), findsOneWidget);
     });
 
     testWidgets('counts the time left down, then expires', (tester) async {
@@ -441,7 +579,7 @@ void main() {
         );
         expect(_notice(tester), _l.invoicePaidNotice('My Exchange'));
         expect(find.text(_l.invoiceReviewTitle), findsNothing);
-        expect(find.text(_l.invoicesEmpty), findsOneWidget);
+        expect(find.text(_l.invoicesToPayEmpty), findsOneWidget);
       },
     );
 
@@ -524,7 +662,7 @@ void main() {
       expect(h.session.declinedInvoices, ['inv-1']);
       expect(h.session.invoicePayments, 0);
       expect(_notice(tester), _l.invoiceDeclinedNotice);
-      expect(find.text(_l.invoicesEmpty), findsOneWidget);
+      expect(find.text(_l.invoicesToPayEmpty), findsOneWidget);
     });
 
     testWidgets('an invoice withdrawn while open can no longer be answered', (

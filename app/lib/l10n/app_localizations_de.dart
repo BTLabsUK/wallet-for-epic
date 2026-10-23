@@ -2125,17 +2125,6 @@ class AppLocalizationsDe extends AppLocalizations {
       'Wenn Sie den epicbox-Server wechseln, ändert sich Ihre Adresse. Geben Sie Absendern die neue Adresse. An die alte Adresse gesendete Zahlungen warten auf dem alten Server, bis Sie zurückwechseln.';
 
   @override
-  String get serverSwitchRelayTitle => 'epicbox-Server wechseln?';
-
-  @override
-  String serverSwitchRelayBody(String relay) {
-    return 'Die epicbox-Adresse ändert sich zu …@$relay. Absender brauchen die neue Adresse. An die alte Adresse gesendete Zahlungen bleiben auf dem alten Server.';
-  }
-
-  @override
-  String get serverSwitchRelayConfirm => 'Wechseln';
-
-  @override
   String get setupWalletPerNetwork =>
       'Jedes Netzwerk hat eine eigene Wallet. Für ein Netzwerk ohne Wallet wird eine neue erstellt.';
 
@@ -2754,7 +2743,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get contactsNameLabel => 'Name';
 
   @override
-  String get contactsAddressLabel => 'epicbox-Adresse';
+  String get contactsAddressLabel => 'Adresse';
 
   @override
   String contactsDuplicate(String name) {
@@ -2768,7 +2757,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get contactsSave => 'Kontakt speichern';
 
   @override
-  String get contactsAddressMissing => 'Geben Sie die epicbox-Adresse ein.';
+  String get contactsAddressMissing => 'Geben Sie die Adresse ein.';
 
   @override
   String contactsUrlIncomplete(String example) {
@@ -3177,110 +3166,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get helpTitle => 'Hilfe';
 
   @override
-  String get helpWaitingQuestion =>
-      'Warum steht bei meiner Zahlung „Wartet auf Empfänger“?';
-
-  @override
-  String helpWaitingAnswer(int days) {
-    String _temp0 = intl.Intl.pluralLogic(
-      days,
-      locale: localeName,
-      other: '$days Tagen',
-      one: '1 Tag',
-    );
-    return 'Eine Zahlung mit Epic Cash erstellen beide Wallets gemeinsam: Ihre Wallet beginnt sie, die Wallet des Empfängers nimmt sie an, dann schließt Ihre Wallet sie ab. Der epicbox-Dienst von Epic bewahrt Ihre Zahlung etwa eine Woche lang auf, bis die Wallet des Empfängers online ist und antwortet. Bis dahin bleibt der Betrag in Ihrer Wallet gesperrt, damit Sie ihn nicht doppelt ausgeben können. Wird die Zahlung nicht abgeschlossen, bricht Ihre Wallet sie nach $_temp0 automatisch ab und gibt den Betrag frei.';
-  }
-
-  @override
-  String get helpCancellingQuestion => 'Sollte ich eine Zahlung abbrechen?';
-
-  @override
-  String helpCancellingAnswer(int days) {
-    String _temp0 = intl.Intl.pluralLogic(
-      days,
-      locale: localeName,
-      other: '$days Tagen',
-      one: '1 Tag',
-    );
-    return 'Normalerweise müssen Sie das nicht: Eine nicht abgeschlossene Zahlung bricht sich nach $_temp0 selbst ab und gibt den Betrag frei. Um sie früher zu stoppen, etwa wenn der Empfänger sagt, dass er nie antworten wird, öffnen Sie sie, solange dort noch „Wartet auf Empfänger“ steht, und tippen Sie auf „Zahlung abbrechen“; danach müssten Sie sie erneut senden. Eine Zahlung, die bereits bestätigt wird, kann nicht abgebrochen werden. Zahlungen aus älteren Versionen dieser App brechen sich nicht selbst ab: Wartet eine davon schon länger als zwei Wochen, brechen Sie sie ab und senden Sie erneut.';
-  }
-
-  @override
-  String get helpReceivingQuestion =>
-      'Warum muss die App zum Empfangen geöffnet bleiben?';
-
-  @override
-  String helpReceivingAnswer(int days) {
-    String _temp0 = intl.Intl.pluralLogic(
-      days,
-      locale: localeName,
-      other: '$days Tagen',
-      one: '1 Tag',
-    );
-    return 'Ihre Wallet muss jede eingehende Zahlung annehmen, und das kann sie nur, solange die App geöffnet und mit epicbox verbunden ist. Eine Zahlung, die gesendet wird, während die App geschlossen ist, wartet etwa eine Woche in der epicbox und trifft ein, wenn Sie das nächste Mal entsperren. Danach löscht die epicbox sie; nutzt der Absender diese App, bricht seine Wallet sie nach $_temp0 automatisch ab, und er kann sie erneut senden. Sobald Ihre Wallet eine Zahlung annimmt, muss die Wallet des Absenders sie abschließen; bis dahin wird sie als „Wartet auf Absender“ angezeigt.';
-  }
-
-  @override
-  String helpConfirmationsQuestion(int count) {
-    return 'Was sind Bestätigungen und warum $count?';
-  }
-
-  @override
-  String helpConfirmationsAnswer(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count Bestätigungen, etwa $count Minuten',
-      one: '1 Bestätigung, etwa 1 Minute',
-    );
-    return 'Eine Bestätigung ist ein neuer Block, der nach dem Block mit Ihrer Zahlung zur Blockchain von Epic Cash hinzukommt; etwa einmal pro Minute entsteht ein Block. Jeder Block macht es schwerer, die Zahlung rückgängig zu machen. Nach $_temp0 wird eine Zahlung als „Abgeschlossen“ angezeigt und empfangene Coins können ausgegeben werden; das ist der Standard der Epic-Wallet.';
-  }
-
-  @override
-  String get helpHistoryQuestion =>
-      'Warum fehlt mein Verlauf nach einer Wiederherstellung?';
-
-  @override
-  String get helpHistoryAnswer =>
-      'Die Wiederherstellungsphrase bringt Ihr Guthaben zurück: Die Wallet durchsucht die Blockchain nach Coins, die ihr gehören. Wen Sie bezahlt haben, Ihre Notizen und die meisten Datumsangaben werden nie auf der Blockchain gespeichert, daher kann eine Wiederherstellung sie nicht finden. Wenn Sie eine Verlaufssicherung gespeichert haben, importieren Sie sie in den „Einstellungen“ unter „Zahlungsverlauf“ mit „Verlaufssicherung importieren“, um diese Angaben zurückzuholen. Die Sicherung muss eine Kopie sein, die Sie außerhalb des verlorenen Smartphones aufbewahrt haben, zum Beispiel per E-Mail oder in einem Cloud-Speicher.';
-
-  @override
-  String get helpAddressQuestion => 'Ändert sich meine Adresse jemals?';
-
-  @override
-  String get helpAddressAnswer =>
-      'Ihre Adresse entsteht aus Ihrer Wiederherstellungsphrase und dem epicbox-Server, den Sie nutzen, und endet auf @ und dem Namen dieses Servers. Sie bleibt gleich, solange Sie denselben epicbox-Server behalten. Wählen Sie in den Netzwerkeinstellungen einen anderen, ändert sich Ihre Adresse; geben Sie die neue dann an alle weiter, die Sie bezahlen.';
-
-  @override
-  String get helpPhraseQuestion =>
-      'Was ist die Wiederherstellungsphrase und wer kann sie sehen?';
-
-  @override
-  String get helpPhraseAnswer =>
-      'Die Wiederherstellungsphrase ist eine Liste von Wörtern, die den Schlüssel zu Ihrem Geld bildet: Wer sie hat, kann Ihre Coins an sich nehmen, und mit ihr können Sie Ihre Wallet auf einem neuen Smartphone wiederherstellen. Die App zeigt sie nur nach Eingabe Ihrer PIN an und sendet sie nirgendwohin. Schreiben Sie sie auf Papier, bewahren Sie sie an einem sicheren Ort auf und geben Sie sie niemals weiter oder auf einer Website ein.';
-
-  @override
-  String get helpFeesQuestion => 'Wofür ist die Gebühr?';
-
-  @override
-  String get helpFeesAnswer =>
-      'Die Gebühr geht an die Miner, die Ihre Zahlung zur Blockchain hinzufügen. Sie beträgt meist nur einen kleinen Bruchteil eines EPIC und hängt davon ab, wie viele Coins Ihre Wallet für die Zahlung zusammenführt. Die genaue Gebühr sehen Sie vor dem Senden.';
-
-  @override
-  String get helpNodeQuestion => 'Was ist ein Node?';
-
-  @override
-  String get helpNodeAnswer =>
-      'Ein Node ist ein Computer, der eine Kopie der Blockchain von Epic Cash vorhält. Die Wallet fragt einen Node nach Ihrem Guthaben und sendet Ihre Zahlungen über ihn ins Netzwerk. Der Node sieht Ihre IP-Adresse und nach welchen Coins die Wallet fragt; wählen Sie daher in den Netzwerkeinstellungen einen, dem Sie vertrauen. Die Netzwerkeinstellungen finden Sie in den Einstellungen, sobald „Erweiterte Optionen“ eingeschaltet ist, und auf dem Entsperrbildschirm.';
-
-  @override
-  String get helpOtherWaysQuestion => 'Gibt es andere Möglichkeiten zu senden?';
-
-  @override
-  String get helpOtherWaysAnswer =>
-      'Für fortgeschrittene Nutzer. Ohne epicbox nutzen Sie „Per Transaktionsdatei senden“ unter „Weitere Sendeoptionen“: Sie teilen eine Datei, der Empfänger nimmt sie an und schickt eine .response-Datei zurück, und Sie öffnen diese Datei, um die Zahlung abzuschließen. „Weitere Sendeoptionen“ erscheint, sobald Sie in den Einstellungen „Erweiterte Optionen“ einschalten.';
-
-  @override
   String get helpStillStuck => 'Kommen Sie nicht weiter?';
 
   @override
@@ -3375,7 +3260,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get settingsAdvancedOptionsSubtitle =>
-      'Netzwerk, Node, epicbox-Server, Dateien und Protokolle';
+      'Technische Details, Dateien und Protokolle';
 
   @override
   String get settingsSectionPrivacy => 'Datenschutz';
@@ -3501,7 +3386,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get sendAddressIncomplete => 'Diese Adresse scheint unvollständig.';
 
   @override
-  String get sendAddressNotEpic => 'Das ist keine Epic-Adresse.';
+  String get sendAddressNotEpic => 'Das ist keine Epicbox-Adresse.';
 
   @override
   String get sendNewRecipient => 'Neuer Empfänger';
@@ -3832,7 +3717,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get torHonestLine =>
-      'Langsamer und privater. In manchen Ländern blockiert oder nicht erlaubt. Empfängt nur, solange die App geöffnet ist.';
+      'Tor-Empfang funktioniert, solange die App geöffnet oder kurz im Hintergrund ist.';
 
   @override
   String get torStateOff => 'Empfang über Tor ist aus';
@@ -3928,6 +3813,908 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get settingsSectionReceiving => 'Empfangen';
+
+  @override
+  String get homeAvailableToSpend => 'Verfügbar';
+
+  @override
+  String get homeTileWaitingSender => 'Wartet auf Absender';
+
+  @override
+  String get homeTileLocked => 'In Sendungen gesperrt';
+
+  @override
+  String get homeTileMaturing => 'Belohnungen reifen';
+
+  @override
+  String get homeTileTotal => 'Gesamt';
+
+  @override
+  String homeViewAll(int count) {
+    return 'Alle $count anzeigen';
+  }
+
+  @override
+  String get homeDestActivity => 'Aktivität';
+
+  @override
+  String get homeDestOutputs => 'Outputs';
+
+  @override
+  String get txStatusReceived => 'Empfangen';
+
+  @override
+  String get txStatusSent => 'Gesendet';
+
+  @override
+  String sendPinReason(String amount) {
+    return 'PIN eingeben, um $amount EPIC zu senden.';
+  }
+
+  @override
+  String sendFilePinReason(String amount) {
+    return 'PIN eingeben, um eine Zahlungsdatei über $amount EPIC zu erstellen.';
+  }
+
+  @override
+  String get outputsTitle => 'Outputs';
+
+  @override
+  String get outputsSpendable => 'Verfügbar';
+
+  @override
+  String get outputsConfirming => 'Wird bestätigt';
+
+  @override
+  String get outputsLockedTile => 'In Sendungen gesperrt';
+
+  @override
+  String get outputsImmature => 'Noch nicht reif';
+
+  @override
+  String outputsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Outputs',
+      one: '1 Output',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get outputsExplainer =>
+      'Outputs sind die Teile, aus denen sich das Guthaben zusammensetzt. Eine Zahlung verbraucht ganze Outputs und gibt den Rest als neuen Output zurück.';
+
+  @override
+  String get outputsSplitButton => 'Teilen…';
+
+  @override
+  String get outputsConsolidateButton => 'Zusammenführen…';
+
+  @override
+  String get outputsSplitNeeds => 'Teilen braucht mindestens 1 EPIC verfügbar.';
+
+  @override
+  String get outputsConsolidateNeeds =>
+      'Zusammenführen braucht mindestens 2 verfügbare Outputs.';
+
+  @override
+  String get outputsWaitLocked =>
+      'Warten, bis die laufende Zahlung bestätigt ist (etwa 3 Blöcke).';
+
+  @override
+  String get outputsStrategy => 'Strategie für Zahlungen';
+
+  @override
+  String get outputsSmallest => 'Kleinste';
+
+  @override
+  String get outputsAll => 'Alle';
+
+  @override
+  String get outputsSmallestText =>
+      'Verbraucht möglichst wenige kleine Outputs; der Rest bleibt verfügbar, bis das Wechselgeld bestätigt ist.';
+
+  @override
+  String get outputsAllText =>
+      'Verbraucht jeden verfügbaren Output und gibt einen Wechselgeld-Output zurück. Alles ist gesperrt, bis er bestätigt ist; danach weniger, größere Outputs.';
+
+  @override
+  String get outputsSplitChange => 'Wechselgeld teilen';
+
+  @override
+  String get outputsSplitChangeText => 'Wenn nur wenige Outputs übrig blieben';
+
+  @override
+  String outputsFilterAll(int count) {
+    return 'Alle $count';
+  }
+
+  @override
+  String outputsFilterSpendable(int count) {
+    return 'Verfügbar $count';
+  }
+
+  @override
+  String outputsFilterConfirming(int count) {
+    return 'Bestätigung $count';
+  }
+
+  @override
+  String outputsFilterLocked(int count) {
+    return 'Gesperrt $count';
+  }
+
+  @override
+  String get outputsShowSpent => 'Ausgegebene zeigen';
+
+  @override
+  String get outputsHideSpent => 'Ausgegebene ausblenden';
+
+  @override
+  String get outputsWordSpendable => 'Verfügbar';
+
+  @override
+  String get outputsWordConfirming => 'Wird bestätigt';
+
+  @override
+  String get outputsWordFinalizing => 'Wartet auf Abschluss';
+
+  @override
+  String get outputsWordImmature => 'Noch nicht reif';
+
+  @override
+  String get outputsWordMining => 'Mining';
+
+  @override
+  String get outputsWordLocked => 'Gesperrt';
+
+  @override
+  String get outputsWordSpent => 'Ausgegeben';
+
+  @override
+  String get outputsMeanSpendable => 'Kann jetzt ausgegeben werden.';
+
+  @override
+  String outputsMeanConfirming(int need) {
+    return 'Braucht $need Bestätigungen, bevor er ausgegeben werden kann.';
+  }
+
+  @override
+  String get outputsMeanFinalizing =>
+      'Wartet darauf, dass der Absender die Zahlung abschließt.';
+
+  @override
+  String get outputsMeanImmature =>
+      'Eine Mining-Belohnung. Sie kann nach einer Wartezeit ausgegeben werden.';
+
+  @override
+  String get outputsMeanMining =>
+      'Eine Mining-Belohnung, noch nicht bestätigt.';
+
+  @override
+  String get outputsMeanLocked =>
+      'Wird von einer laufenden Zahlung ausgegeben.';
+
+  @override
+  String get outputsMeanSpent => 'Bereits ausgegeben.';
+
+  @override
+  String outputsNoteConfirmations(int conf, int need) {
+    return '$conf / $need';
+  }
+
+  @override
+  String outputsNoteReceived(String date) {
+    return 'Empfangen $date';
+  }
+
+  @override
+  String outputsNoteSend(String who) {
+    return 'Zahlung an $who';
+  }
+
+  @override
+  String get outputsNoteSendPlain => 'Zahlung läuft';
+
+  @override
+  String outputsRow(String note, String word) {
+    return '$word · $note';
+  }
+
+  @override
+  String get outputsFactHeight => 'Höhe';
+
+  @override
+  String get outputsFactConfirmations => 'Bestätigungen';
+
+  @override
+  String get outputsFactTransaction => 'Transaktion';
+
+  @override
+  String get outputsFactCommitment => 'Commitment';
+
+  @override
+  String get outputsCopy => 'Kopieren';
+
+  @override
+  String get outputsCopied => 'Commitment kopiert';
+
+  @override
+  String get outputsEmpty => 'Noch keine Outputs';
+
+  @override
+  String get outputsEmptyHint =>
+      'Die erste empfangene Zahlung erzeugt einen. Unter Empfangen steht die Adresse.';
+
+  @override
+  String get outputsNoMatch => 'Keine Outputs in dieser Ansicht';
+
+  @override
+  String get outputsRetry => 'Erneut versuchen';
+
+  @override
+  String outputsSettingsSubtitle(int count, String strategy) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Outputs · $strategy',
+      one: '1 Output · $strategy',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get outputsCancel => 'Abbrechen';
+
+  @override
+  String get outputsSplitTitle => 'Outputs teilen';
+
+  @override
+  String outputsSplitText(
+    String amount,
+    String each,
+    String made,
+    String spent,
+  ) {
+    return 'Verbraucht $spent ($amount) und erzeugt $made zu je etwa $each. Eine normale Netzwerktransaktion an dieses Wallet, nach 3 Blöcken bestätigt wie jede Zahlung; alles Verfügbare ist bis dahin gesperrt.';
+  }
+
+  @override
+  String get outputsToMake => 'Zu erzeugende Outputs';
+
+  @override
+  String get outputsStepperHint => '2 bis 10';
+
+  @override
+  String get outputsFactFee => 'Netzwerkgebühr';
+
+  @override
+  String get outputsFactEach => 'Jeder Output';
+
+  @override
+  String outputsFactAbout(String amount) {
+    return 'etwa $amount';
+  }
+
+  @override
+  String get outputsFactLocked => 'Gesperrt';
+
+  @override
+  String outputsFactLockedValue(String amount) {
+    return '$amount, etwa 3 Blöcke';
+  }
+
+  @override
+  String get outputsNothingSpendable =>
+      'Währenddessen bleibt nichts verfügbar.';
+
+  @override
+  String get outputsMinEach =>
+      'Jeder Output muss mindestens 0,5 EPIC betragen.';
+
+  @override
+  String outputsSplitInto(int count) {
+    return 'In $count teilen';
+  }
+
+  @override
+  String get outputsConsolidateTitle => 'Outputs zusammenführen';
+
+  @override
+  String outputsConsolidateText(String amount, String result, String spent) {
+    return 'Verbraucht $spent ($amount) und erzeugt einen Output über $result. Eine normale Netzwerktransaktion an dieses Wallet, nach 3 Blöcken bestätigt wie jede Zahlung; alles Verfügbare ist bis dahin gesperrt. Die nächste Zahlung verbraucht einen Output, daher ist ihre Gebühr am kleinsten.';
+  }
+
+  @override
+  String get outputsConsolidateAction => 'Zusammenführen';
+
+  @override
+  String get outputsSplitPin => 'Mit der PIN bestätigen, um Outputs zu teilen';
+
+  @override
+  String get outputsConsolidatePin =>
+      'Mit der PIN bestätigen, um Outputs zusammenzuführen';
+
+  @override
+  String outputsSplitStarted(int count) {
+    return 'Teilen gestartet: $count Outputs, Bestätigung in etwa 3 Blöcken';
+  }
+
+  @override
+  String get outputsConsolidateStarted =>
+      'Zusammenführen gestartet: ein Output, Bestätigung in etwa 3 Blöcken';
+
+  @override
+  String homePendingShort(String amount) {
+    return '$amount bleiben gesperrt, bis die Wallet des Empfängers antwortet.';
+  }
+
+  @override
+  String get contactsSearchHint => 'Name oder Adresse';
+
+  @override
+  String get contactsEmptyTitle => 'Noch keine Kontakte';
+
+  @override
+  String get contactsEmptyCaption =>
+      'Ein Kontakt ist ein Name für eine Adresse.';
+
+  @override
+  String contactsNoMatchQuery(String query) {
+    return 'Kein Kontakt passt zu „$query“';
+  }
+
+  @override
+  String get contactsSendAction => 'Senden';
+
+  @override
+  String get contactsEditAction => 'Bearbeiten';
+
+  @override
+  String get contactsAddressHeading => 'Adresse';
+
+  @override
+  String get contactsNoteHeading => 'Notiz';
+
+  @override
+  String get contactsShowCode => 'Code zeigen';
+
+  @override
+  String get contactsHideCode => 'Code ausblenden';
+
+  @override
+  String contactsQrLabel(String name) {
+    return 'QR-Code der Adresse von $name';
+  }
+
+  @override
+  String get contactsDeleteConfirmBody =>
+      'Zahlungen an diese Adresse zeigen danach die Adresse statt des Namens.';
+
+  @override
+  String contactsDeleted(String name) {
+    return '$name gelöscht.';
+  }
+
+  @override
+  String get contactsCopied => 'Adresse kopiert.';
+
+  @override
+  String get invoicesNewRequest => 'Neue Anforderung';
+
+  @override
+  String get invoicesSegmentSent => 'Gesendet';
+
+  @override
+  String invoicesSegmentCount(String label, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Einträge',
+      one: '1 Eintrag',
+      zero: 'keine',
+    );
+    return '$label, $_temp0';
+  }
+
+  @override
+  String get invoicesToPayEmpty => 'Keine Rechnungen zu zahlen';
+
+  @override
+  String get invoicesToPayEmptyCaption =>
+      'Dienste auf Ihrer Vertrauensliste können dieser Wallet Rechnungen stellen. Jede Rechnung wartet hier auf Ihre Freigabe.';
+
+  @override
+  String get invoicesSentEmpty => 'Keine Anforderungen gesendet';
+
+  @override
+  String get invoicesSentEmptyCaption =>
+      'Eine Anforderung bittet jemanden, Ihnen einen Betrag zu zahlen.';
+
+  @override
+  String get invoicesWaitingPayment => 'Wartet auf Zahlung';
+
+  @override
+  String get invoicesExpires => 'Läuft ab';
+
+  @override
+  String invoicesUntil(String time) {
+    return 'bis $time';
+  }
+
+  @override
+  String get invoicesMessage => 'Nachricht';
+
+  @override
+  String get invoicesFrom => 'Von';
+
+  @override
+  String get invoicesPaysFrom => 'Zahlt aus';
+
+  @override
+  String invoicesAvailable(String amount) {
+    return 'Verfügbar $amount';
+  }
+
+  @override
+  String invoicesShort(String amount) {
+    return 'Nicht genug zum Bezahlen. Es fehlen $amount.';
+  }
+
+  @override
+  String get invoicesCheckNode => 'Node';
+
+  @override
+  String get invoicesCheckEpicbox => 'Epicbox';
+
+  @override
+  String get invoicesNodeOk => 'Antwortet';
+
+  @override
+  String get invoicesNodeDown => 'Antwortet nicht';
+
+  @override
+  String get invoicesEpicboxOk => 'Verbunden';
+
+  @override
+  String get invoicesEpicboxDown => 'Nicht verbunden';
+
+  @override
+  String get invoicesSendRequest => 'Anforderung senden';
+
+  @override
+  String invoicesRequestSummary(String payer, String amount) {
+    return '$payer wird gebeten, $amount zu zahlen. Die Anforderung läuft in 24 h ab.';
+  }
+
+  @override
+  String get invoicesRequestHowTitle => 'Bevor Sie anfordern';
+
+  @override
+  String get netStatusNode => 'Node';
+
+  @override
+  String get netStatusEpicbox => 'Epicbox';
+
+  @override
+  String get netStatusTor => 'Tor';
+
+  @override
+  String get netStatusSynced => 'Synchron';
+
+  @override
+  String get netStatusSyncing => 'Synchronisiert';
+
+  @override
+  String netStatusSyncingPercent(int percent) {
+    return 'Synchronisiert $percent %';
+  }
+
+  @override
+  String get netStatusConnecting => 'Verbindet';
+
+  @override
+  String netStatusBehind(int count) {
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countString zurück',
+      one: '$countString zurück',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get netStatusOffline => 'Offline';
+
+  @override
+  String get netStatusOnline => 'Online';
+
+  @override
+  String get netStatusOff => 'Aus';
+
+  @override
+  String get netStatusOn => 'An';
+
+  @override
+  String get netStatusFailed => 'Fehlgeschlagen';
+
+  @override
+  String netStatusStarting(int percent) {
+    return 'Startet $percent %';
+  }
+
+  @override
+  String netStatusTestHost(String network, String host) {
+    return '$network · $host';
+  }
+
+  @override
+  String get netStatusTitle => 'Netzwerkstatus';
+
+  @override
+  String get netStatusOpenHint => 'Zeigt die Server';
+
+  @override
+  String get serverNodeTitle => 'Node';
+
+  @override
+  String get serverEpicboxTitle => 'Epicbox';
+
+  @override
+  String get serverSearchHint => 'Node suchen oder Adresse eingeben';
+
+  @override
+  String serverUseAddress(String address) {
+    return '$address verwenden';
+  }
+
+  @override
+  String get serverTesting => 'Wird geprüft…';
+
+  @override
+  String serverTestAnswer(String height, String version) {
+    return 'Block $height · v$version';
+  }
+
+  @override
+  String serverTestFailed(String error) {
+    return 'Keine Antwort. $error';
+  }
+
+  @override
+  String get serverMyNodes => 'Meine Nodes';
+
+  @override
+  String get serverPublicNodes => 'Öffentliche Nodes';
+
+  @override
+  String get serverPublicRelays => 'Öffentliche Server';
+
+  @override
+  String get serverHealthUnknown =>
+      'status.btlabs.uk nicht erreichbar; Zustand unbekannt';
+
+  @override
+  String get serverAtTip => 'aktuell';
+
+  @override
+  String serverBehindShort(String count) {
+    return '−$count';
+  }
+
+  @override
+  String serverBehindLabel(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Blöcke zurück',
+      one: '$count Block zurück',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get serverAddMine => 'Zu meinen Nodes hinzufügen';
+
+  @override
+  String get serverRemoveMine => 'Aus meinen Nodes entfernen';
+
+  @override
+  String get serverNotResponding => 'Antwortet nicht';
+
+  @override
+  String get serverHealthy => 'Gesund';
+
+  @override
+  String get serverDegraded => 'Eingeschränkt';
+
+  @override
+  String get serverHealthNone => 'Zustand unbekannt';
+
+  @override
+  String get serverCurrent => 'Aktuell';
+
+  @override
+  String get serverDefault => 'Standard';
+
+  @override
+  String serverLatency(String ms) {
+    return '$ms ms';
+  }
+
+  @override
+  String serverUptime(String percent) {
+    return '$percent % erreichbar';
+  }
+
+  @override
+  String serverSwitchTo(String host) {
+    return 'Zu $host wechseln';
+  }
+
+  @override
+  String get serverNodeSwitchNote =>
+      'Die Wallet verbindet sich neu. Die Guthaben werden mit der neuen Node erneut geprüft.';
+
+  @override
+  String get serverRelayWarning =>
+      'Deine Adresse enthält diesen Server. Ein Wechsel ändert deine Adresse; Absender brauchen die neue.';
+
+  @override
+  String get serverRelaySwitchNote =>
+      'Deine Adresse ändert sich; Absender brauchen die neue.';
+
+  @override
+  String get serverOtherRelay => 'Anderer Server, host oder host:port';
+
+  @override
+  String get serverFactHeight => 'Höhe';
+
+  @override
+  String get serverFactVersion => 'Version';
+
+  @override
+  String get serverFactPeers => 'Peers';
+
+  @override
+  String get serverFactUptime => 'Verfügbarkeit 24 h';
+
+  @override
+  String serverHeightAtTip(String height) {
+    return '$height · aktuell';
+  }
+
+  @override
+  String serverNodesAgree(String height) {
+    return 'Nodes einig bei $height';
+  }
+
+  @override
+  String serverNodesUp(int up, int total) {
+    String _temp0 = intl.Intl.pluralLogic(
+      total,
+      locale: localeName,
+      other: '$up von $total Nodes erreichbar',
+      one: '$up von $total Node erreichbar',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String serverLastBlockSeconds(int seconds) {
+    String _temp0 = intl.Intl.pluralLogic(
+      seconds,
+      locale: localeName,
+      other: 'letzter Block vor $seconds s',
+      one: 'letzter Block vor $seconds s',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String serverLastBlockMinutes(int minutes) {
+    String _temp0 = intl.Intl.pluralLogic(
+      minutes,
+      locale: localeName,
+      other: 'letzter Block vor $minutes min',
+      one: 'letzter Block vor $minutes min',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String serverCheckedAt(String time) {
+    return 'status.btlabs.uk, geprüft $time';
+  }
+
+  @override
+  String serverRowLabel(String host, String facts) {
+    return '$host, $facts';
+  }
+
+  @override
+  String get methodEpicbox => 'Epicbox';
+
+  @override
+  String get methodHttp => 'HTTP';
+
+  @override
+  String get methodTor => 'Tor';
+
+  @override
+  String get methodFile => 'Datei';
+
+  @override
+  String get methodArtCaptionEpicbox => 'Epicbox-Server hält sie';
+
+  @override
+  String get methodArtCaptionHttp => 'Direkt zur Wallet';
+
+  @override
+  String get methodArtCaptionTor => 'Direkt, über Tor';
+
+  @override
+  String get methodArtCaptionFile => 'Datei hin, Antwort zurück';
+
+  @override
+  String get methodArtLabelEpicbox =>
+      'Epicbox: Die Zahlung geht an den Epicbox-Server, der sie hält, bis die Wallet der Gegenseite wieder da ist';
+
+  @override
+  String get methodArtLabelHttp =>
+      'HTTP: Die Zahlung geht direkt an die Wallet der Gegenseite, die geöffnet sein muss';
+
+  @override
+  String get methodArtLabelTor =>
+      'Tor: Die Zahlung geht direkt an die Wallet der Gegenseite, über das Tor-Netzwerk';
+
+  @override
+  String get methodArtLabelFile =>
+      'Datei: Eine Transaktionsdatei wird übergeben, eine Antwortdatei kommt zurück, dann schließt der Absender ab';
+
+  @override
+  String get methodSendEpicboxTitle => 'Die Gegenseite kann offline sein.';
+
+  @override
+  String get methodSendEpicboxLine =>
+      'Der Epicbox-Server hält die Zahlung, bis die Gegenseite ihre Wallet öffnet.';
+
+  @override
+  String get methodSendHttpTitle => 'Direkt zur Wallet der Gegenseite.';
+
+  @override
+  String get methodSendHttpLine =>
+      'Sie muss geöffnet und unter ihrer HTTP-Adresse erreichbar sein.';
+
+  @override
+  String get methodSendTorTitle =>
+      'Direkt zur Wallet der Gegenseite, über Tor.';
+
+  @override
+  String get methodSendTorLine =>
+      'Langsamer und privater. Ihre Wallet muss geöffnet sein.';
+
+  @override
+  String get methodSendFileTitle => 'Keine Verbindung nötig.';
+
+  @override
+  String get methodSendFileLine =>
+      'Datei übergeben, Antwortdatei zurückbekommen, dann hier abschließen.';
+
+  @override
+  String get methodReceiveEpicboxTitle => 'Teilen, um bezahlt zu werden.';
+
+  @override
+  String get methodReceiveEpicboxLine =>
+      'Funktioniert auch bei geschlossener Wallet: der Epicbox-Server hält Zahlungen, bis sie wieder da ist.';
+
+  @override
+  String get methodReceiveTorTitle => 'Langsamer und privater.';
+
+  @override
+  String get methodReceiveTorLine =>
+      'Funktioniert nur, solange die App geöffnet oder kurz im Hintergrund ist.';
+
+  @override
+  String get methodReceiveFileTitle => 'Eine Datei hin und her geben.';
+
+  @override
+  String get methodReceiveFileLine =>
+      'Funktioniert ohne Verbindung zwischen den Wallets.';
+
+  @override
+  String get methodAddressKindsTooltip => 'Adressarten';
+
+  @override
+  String get sendMethodLabel => 'Methode';
+
+  @override
+  String get sendToLabel => 'An';
+
+  @override
+  String get sendToHint => 'Adresse oder Kontakt';
+
+  @override
+  String get sendSwitchedHttp => 'Über HTTP';
+
+  @override
+  String get sendSwitchedEpicbox => 'Über Epicbox';
+
+  @override
+  String get sendSwitchedTorAnnounce =>
+      'Tor-Adresse. Methode auf Tor gestellt.';
+
+  @override
+  String get sendSwitchedHttpAnnounce =>
+      'HTTP-Adresse. Methode auf HTTP gestellt.';
+
+  @override
+  String get sendSwitchedEpicboxAnnounce =>
+      'Epicbox-Adresse. Methode auf Epicbox gestellt.';
+
+  @override
+  String get sendReviewMethodHttp => 'HTTP, direkt zur Wallet';
+
+  @override
+  String get sendCancelRuleEpicbox =>
+      'Kann storniert werden, solange sie auf die Gegenseite wartet.';
+
+  @override
+  String get sendCancelRuleDirect =>
+      'Kann nicht storniert werden, sobald die Wallet der Gegenseite sie annimmt.';
+
+  @override
+  String get sendCancelRuleFile =>
+      'Kann storniert werden, bis die Antwortdatei abgeschlossen ist.';
+
+  @override
+  String get sendHttpReaching =>
+      'Wallet der Gegenseite wird erreicht… App geöffnet lassen.';
+
+  @override
+  String get sendDeliveredWaitingBlock => 'Zugestellt · Wartet auf einen Block';
+
+  @override
+  String get sendHttpAddressShape =>
+      'Eine HTTP-Adresse beginnt mit http:// oder https://.';
+
+  @override
+  String get sendPlainHttpTitle => 'Nicht verschlüsselt. Trotzdem senden?';
+
+  @override
+  String get sendPlainHttpBody =>
+      'Unverschlüsseltes HTTP zu einem anderen Gerät. Jeder auf dem Weg kann die Transaktion lesen. Eine https://-Adresse ist verschlüsselt.';
+
+  @override
+  String get sendCancelPossibleWhileWaiting =>
+      'Möglich, solange die Zahlung auf die Gegenseite wartet.';
+
+  @override
+  String get receiveEpicboxCaption =>
+      'Beim Vorlesen die ersten sechs und letzten sechs Zeichen prüfen.';
+
+  @override
+  String get receiveTorCaption =>
+      'Manche Wallets zeigen die Adresse ohne .onion; beides ist dieselbe Adresse.';
+
+  @override
+  String sendHttpNotReached(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other:
+          'Die Wallet der Gegenseite war nicht erreichbar. Der Betrag bleibt zurückgehalten, bis Sie stornieren, höchstens $days Tage.',
+      one: 'Die Wallet der Gegenseite war nicht erreichbar. Der Betrag bleibt zurückgehalten, bis Sie stornieren, höchstens 1 Tag.',
+    );
+    return '$_temp0';
+  }
 
   @override
   String deskInvActFrom(String label) {
@@ -4995,4 +5782,158 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get deskInvSetRestoredHint =>
       'Diese Wallet aus der Wiederherstellungsphrase wiederhergestellt? Geben Sie Diensten diese Rechnungsadresse erneut.';
+
+  @override
+  String get serverSwitchRelayTitle => 'epicbox-Server wechseln?';
+
+  @override
+  String serverSwitchRelayBody(String relay) {
+    return 'Die epicbox-Adresse ändert sich zu …@$relay. Absender brauchen die neue Adresse. An die alte Adresse gesendete Zahlungen bleiben auf dem alten Server.';
+  }
+
+  @override
+  String get serverSwitchRelayConfirm => 'Wechseln';
+
+  @override
+  String get helpButton => 'Hilfe';
+
+  @override
+  String get helpSearchHint => 'Hilfe durchsuchen';
+
+  @override
+  String get helpEnglishOnly => 'Die Hilfe ist vorerst auf Englisch.';
+
+  @override
+  String helpNoMatch(String query) {
+    return 'Keine Hilfe zu „$query“';
+  }
+
+  @override
+  String helpMatchCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Themen',
+      one: '1 Thema',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get helpShowHandshake => 'So funktioniert es';
+
+  @override
+  String get helpMoreInSection => 'Mehr in diesem Abschnitt';
+
+  @override
+  String get sendBalanceAfter => 'Saldo danach';
+
+  @override
+  String get sendSpendableUntilChange =>
+      'Verfügbar, bis das Wechselgeld bestätigt ist';
+
+  @override
+  String get sendSpendableUntilChangeHint =>
+      'Das Wechselgeld kommt zurück, sobald die Zahlung bestätigt ist.';
+
+  @override
+  String serverSwitched(String host) {
+    return 'Gewechselt zu $host';
+  }
+
+  @override
+  String get methodDirect => 'Direkt';
+
+  @override
+  String get methodDirectShape => 'http://host:3415 oder xxxx….onion';
+
+  @override
+  String get methodSendDirectLine =>
+      'Ihre Wallet muss geöffnet sein. Eine Onion-Adresse läuft über Tor.';
+
+  @override
+  String get methodArtLabelDirect =>
+      'Direkt: Die Zahlung geht direkt an die Wallet des Empfängers, die geöffnet sein muss';
+
+  @override
+  String get methodReceiveEpicboxShort =>
+      'Funktioniert bei geschlossener Wallet.';
+
+  @override
+  String get methodReceiveDirectTitle => 'Direkt an diese Wallet.';
+
+  @override
+  String get methodReceiveDirectLine =>
+      'Funktioniert, solange die App geöffnet ist.';
+
+  @override
+  String methodLineOverTor(String line) {
+    return '$line Über Tor.';
+  }
+
+  @override
+  String get sendSwitchedDirect => 'Direkte Adresse';
+
+  @override
+  String get sendSwitchedDirectAnnounce =>
+      'Direkte Adresse. Methode auf Direkt gesetzt.';
+
+  @override
+  String get sendDirectAddressShape =>
+      'Eine direkte Adresse beginnt mit http:// oder https:// oder endet auf .onion.';
+
+  @override
+  String get torNotOverTor => 'Nicht über Tor';
+
+  @override
+  String get torNeeds => 'Benötigt Tor.';
+
+  @override
+  String get torTurnOn => 'Tor einschalten';
+
+  @override
+  String get torTurnOff => 'Tor ausschalten';
+
+  @override
+  String get torNotConnectedNotice => 'Tor ist nicht verbunden.';
+
+  @override
+  String get torWaiting => 'Warten auf Tor';
+
+  @override
+  String get torWordStarting => 'Startet…';
+
+  @override
+  String get torWordNotConnected => 'Nicht verbunden';
+
+  @override
+  String get torCoversEpicbox =>
+      'Epicbox und Sendungen an Onion-Adressen laufen über Tor.';
+
+  @override
+  String get torCoversEpicboxNode =>
+      'Epicbox, der Node und Sendungen an Onion-Adressen laufen über Tor.';
+
+  @override
+  String get torCoversAll =>
+      'Epicbox, der Node, Onion-Zahlungen und die eigenen Anfragen der App laufen über Tor.';
+
+  @override
+  String get torSettingsLink => 'Tor-Einstellungen';
+
+  @override
+  String get receiveTabDirect => 'Direkt';
+
+  @override
+  String get receiveDirectNeedsTor => 'Direkter Empfang benötigt Tor.';
+
+  @override
+  String get receiveDirectMeanwhile =>
+      'Absender nutzen bis dahin die Epicbox-Adresse.';
+
+  @override
+  String get settingsPushOffWhileTor => 'Aus, solange Tor an ist';
+
+  @override
+  String get netStatusOverTor => 'über Tor';
 }

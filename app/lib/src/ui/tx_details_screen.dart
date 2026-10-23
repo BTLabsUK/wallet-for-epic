@@ -70,6 +70,13 @@ bool _isEpicboxAddress(String? address) =>
     address.contains('@') &&
     !address.toLowerCase().startsWith('http');
 
+/// Whether [tx] went straight to the other wallet over HTTP or Tor, whose counterparty is
+/// its URL (`http://<onion>` over Tor).
+bool _isDirect(TxEntry tx) {
+  final to = tx.counterparty?.trim().toLowerCase() ?? '';
+  return to.startsWith('http://') || to.startsWith('https://');
+}
+
 /// `In block 2,500,120. 1 of 3 confirmations; final in about 2 minutes.`
 String _confirmingLine(AppLocalizations l, BigInt height, int n, int target) {
   final block = groupDigits(l, height);
@@ -108,6 +115,9 @@ String txExplanation(
     TxPhase.waitingRecipient => l.txDetailsWaitingRecipient,
     TxPhase.waitingSender => l.txDetailsWaitingSender,
     TxPhase.waitingPayer => l.txDetailsWaitingPayer,
+    // Over HTTP or Tor their wallet took it in the exchange itself: only a block is left.
+    TxPhase.confirming when outgoing && height == null && _isDirect(tx) =>
+      l.sendDeliveredWaitingBlock,
     TxPhase.confirming when height == null || n == null =>
       outgoing ? l.txDetailsPublished : l.txDetailsWaitingConfirmation,
     TxPhase.confirming => _confirmingLine(
@@ -513,6 +523,17 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
                         icon: const Icon(Icons.cancel_outlined),
                         label: Text(l.txDetailsCancelPayment),
                         onPressed: _busy ? null : () => _cancel(tx),
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: Text(
+                        l.sendCancelPossibleWhileWaiting,
+                        textAlign: TextAlign.end,
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
                       ),
                     ),
                   ],
