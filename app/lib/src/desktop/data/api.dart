@@ -5,6 +5,7 @@ library;
 
 import 'dart:typed_data';
 
+import 'http_address.dart';
 import 'invoices.dart';
 import 'models.dart';
 
@@ -125,9 +126,15 @@ abstract interface class DeskWalletApi {
   Future<DeskSettings> settings();
   Future<String> epicboxAddress();
   /// The address senders use for the running HTTP listener: `http://127.0.0.1:<port>` when
-  /// Local only, `http://<this computer's LAN address>:<port>` when From the internet (the
-  /// router forwards the port to it); empty while it is off. Only when [DeskFeatures.httpDirect].
+  /// Local only, `http://<the router's public IP>:<port>` when From the internet ([httpReach];
+  /// the LAN address when the public IP cannot be found); empty while it is off. Only when
+  /// [DeskFeatures.httpDirect].
   Future<String> httpAddress();
+  /// From the internet with the listener on: the public IP, the LAN address and whether the
+  /// internet reaches the port, asked over HTTPS and kept 2 minutes, or asked again on
+  /// [recheck] or a network change. Null when Local only, off, or Tor is on (nothing is asked
+  /// over the clearnet then).
+  Future<HttpReach?> httpReach({bool recheck = false});
   /// This wallet's onion, `http://<56 characters>.onion`, the address senders use over Tor.
   /// Known before tor runs; screens show it only while [DeskSettings.tor] is on. Only when
   /// [DeskFeatures.tor].
