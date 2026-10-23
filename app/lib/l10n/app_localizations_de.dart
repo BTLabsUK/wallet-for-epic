@@ -3875,12 +3875,12 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String sendPinReason(String amount) {
-    return 'PIN eingeben, um $amount EPIC zu senden.';
+    return 'PIN eingeben, um $amount zu senden.';
   }
 
   @override
   String sendFilePinReason(String amount) {
-    return 'PIN eingeben, um eine Zahlungsdatei über $amount EPIC zu erstellen.';
+    return 'PIN eingeben, um eine Zahlungsdatei über $amount zu erstellen.';
   }
 
   @override

@@ -4675,7 +4675,7 @@
   "@txStatusSent": {
     "description": "Status word of a completed outgoing payment in lists."
   },
-  "sendPinReason": "Enter the PIN to send {amount} EPIC.",
+  "sendPinReason": "Enter the PIN to send {amount}.",
   "@sendPinReason": {
     "description": "The PIN prompt's reason right before a send is posted. {amount} is the exact amount.",
     "placeholders": {
@@ -4685,7 +4685,7 @@
       }
     }
   },
-  "sendFilePinReason": "Enter the PIN to make a payment file for {amount} EPIC.",
+  "sendFilePinReason": "Enter the PIN to make a payment file for {amount}.",
   "@sendFilePinReason": {
     "description": "The PIN prompt's reason right before a payment file is made, which locks the coins. {amount} is the exact amount.",
     "placeholders": {
