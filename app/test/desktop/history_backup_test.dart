@@ -98,7 +98,7 @@ void main() {
       final file = File('$folder/WALLET.txt');
       expect(file.existsSync(), isTrue);
       var text = file.readAsStringSync();
-      expect(text, startsWith('Epic Wallet (BT Labs) wallet folder\nLabel:     Savings\nNetwork:   mainnet\n'));
+      expect(text, startsWith('Epic Cash Desktop (BT Labs) wallet folder\nLabel:     Savings\nNetwork:   mainnet\n'));
       expect(text, contains('This folder is not a backup. Restore with the recovery phrase.'));
       expect(text, isNot(contains(_password)));
       for (final w in phrase) {

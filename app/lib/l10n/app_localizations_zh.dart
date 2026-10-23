@@ -10,7 +10,10 @@ class AppLocalizationsZh extends AppLocalizations {
   AppLocalizationsZh([String locale = 'zh']) : super(locale);
 
   @override
-  String get appTitle => 'Epic Wallet';
+  String get appTitle => 'Epic Cash Mobile';
+
+  @override
+  String get appTitleDesktop => 'Epic Cash Desktop';
 
   @override
   String get commonCancel => '取消';
@@ -1135,7 +1138,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get homeLockTooltip => '锁定钱包';
 
   @override
-  String get shellTitle => 'Epic Wallet';
+  String get shellTitle => 'Epic Cash Mobile';
 
   @override
   String get demoWelcomeTitle => '试用 Epic Cash';
@@ -2907,7 +2910,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get licencesLead => '本钱包包含的开源软件。每个组件保留各自的许可证；完整文本一键可达。';
 
   @override
-  String get licencesApp => 'Epic Wallet，由 BT Labs 开发，开源。代码在 GitHub 上。';
+  String get licencesApp => 'Epic Cash Mobile，由 BT Labs 开发，开源。代码在 GitHub 上。';
 
   @override
   String get licencesFlutter => 'Flutter 及其 Dart 软件包：BSD 3-Clause 及类似的宽松许可证。';

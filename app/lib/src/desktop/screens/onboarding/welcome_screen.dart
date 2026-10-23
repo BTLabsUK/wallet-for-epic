@@ -2,10 +2,11 @@ import '../../../app_info.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../ui/theme/brand.dart' show BrandVariant, BrandWordmark;
 import '../../widgets/kit.dart';
 import 'onboarding_parts.dart';
 
-const _defaultFolder = '~/.config/Epic Wallet';
+const _defaultFolder = '~/.config/Epic Cash Desktop';
 
 /// The mock folder picker's choices and what each answers: null when the folder can be used.
 const _folders = {
@@ -53,10 +54,16 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
           children: [
             const Center(child: EGlyphTile()),
             SizedBox(height: Sp.x5),
-            Semantics(
-              header: true,
-              child: Text(hasWallets ? 'Add a wallet' : appName, style: ts.h1, textAlign: TextAlign.center),
-            ),
+            if (hasWallets)
+              Semantics(
+                header: true,
+                child: Text('Add a wallet', style: ts.h1, textAlign: TextAlign.center),
+              )
+            else
+              Semantics(
+                header: true,
+                child: Center(child: BrandWordmark(variant: BrandVariant.desktop, size: Fs.h1.u, label: appName)),
+              ),
             if (!hasWallets) ...[
               SizedBox(height: Sp.x2),
               Text('Keys and coins stay on this computer, locked with a password.', style: ts.bodyDim, textAlign: TextAlign.center),

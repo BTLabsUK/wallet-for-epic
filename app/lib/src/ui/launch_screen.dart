@@ -65,7 +65,7 @@ class _LaunchScreenState extends ConsumerState<LaunchScreen> {
       glow: heroGlow,
       body: CenteredBody(
         children: [
-          BrandHero(title: context.l10n.appTitle),
+          const BrandHero(),
           const SizedBox(height: 32),
           if (_error == null)
             const Center(child: CircularProgressIndicator())

@@ -69,7 +69,7 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
       case RestoreStep.wordsFilled:
         _entry.paste(_sample);
       case RestoreStep.failed:
-        _failure = 'The wallet files could not be written: permission denied in ~/.config/Epic Wallet.';
+        _failure = 'The wallet files could not be written: permission denied in ~/.config/Epic Cash Desktop.';
       case RestoreStep.words || RestoreStep.account || RestoreStep.restoring:
         break;
     }

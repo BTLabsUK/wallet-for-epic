@@ -9,7 +9,7 @@
         <aapt:attr name="android:fillColor">
             <gradient android:type="radial" android:centerX="54" android:centerY="54"
                 android:gradientRadius="64"
-                android:startColor="#FF29251A" android:endColor="#FF08080A" />
+                android:startColor="#FF2A2416" android:endColor="#FF08080A" />
         </aapt:attr>
     </path>
 </vector>

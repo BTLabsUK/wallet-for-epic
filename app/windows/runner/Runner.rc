@@ -90,7 +90,7 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
             VALUE "CompanyName", "com.blacktyger" "\0"
-            VALUE "FileDescription", "Epic Wallet" "\0"
+            VALUE "FileDescription", "Epic Cash Desktop" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
             VALUE "InternalName", "epic_wallet" "\0"
             VALUE "LegalCopyright", "Copyright (C) 2026 BT Labs. All rights reserved." "\0"

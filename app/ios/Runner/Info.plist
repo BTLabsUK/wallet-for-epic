@@ -16,7 +16,7 @@
 		<string>zh-Hans</string>
 	</array>
 	<key>CFBundleDisplayName</key>
-	<string>Epic Wallet</string>
+	<string>Epic Cash Mobile</string>
 	<key>NSCameraUsageDescription</key>
 	<string>The camera scans the QR code of an address you send Epic Cash to.</string>
 	<key>CFBundleExecutable</key>

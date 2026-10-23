@@ -39,6 +39,7 @@ import 'settings_history.dart';
 import 'settings_invoices.dart';
 import 'settings_pin.dart';
 import 'theme/advanced.dart';
+import 'theme/brand.dart' show BrandLockup, BrandVariant;
 import 'theme/tokens.dart';
 import 'setup_screen.dart';
 import 'tor_ui.dart';
@@ -651,6 +652,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   ),
                 ],
                 _Header(l.settingsSectionAbout),
+                const Padding(
+                  padding: EdgeInsets.fromLTRB(16, 4, 16, 12),
+                  child: BrandLockup(variant: BrandVariant.mobile, size: 40),
+                ),
                 ListTile(
                   leading: const Icon(Icons.info_outline),
                   title: Text(l.settingsVersion),
@@ -815,7 +820,7 @@ const Key settingsLicencesKey = ValueKey('settings-licences');
 void openFlutterLicences(BuildContext context, String? version) {
   final locale = Localizations.localeOf(context);
   final page = LicensePage(
-    applicationName: appName,
+    applicationName: context.l10n.appTitle,
     applicationVersion: version,
   );
   Navigator.of(context).push(
