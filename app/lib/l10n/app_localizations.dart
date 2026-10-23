@@ -6430,7 +6430,7 @@ abstract class AppLocalizations {
   /// One line under the pending-sends card's title: the locked amount and what it waits for. {amount} is the total of the waiting sends.
   ///
   /// In en, this message translates to:
-  /// **'{amount} EPIC stays locked until the recipient\'s wallet answers.'**
+  /// **'{amount} stays locked until the recipient\'s wallet answers.'**
   String homePendingShort(String amount);
 
   /// Contacts: the search field's hint.

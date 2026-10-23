@@ -1047,7 +1047,7 @@
   "outputsConsolidatePin": "Mit der PIN bestätigen, um Outputs zusammenzuführen",
   "outputsSplitStarted": "Teilen gestartet: {count} Outputs, Bestätigung in etwa 3 Blöcken",
   "outputsConsolidateStarted": "Zusammenführen gestartet: ein Output, Bestätigung in etwa 3 Blöcken",
-  "homePendingShort": "{amount} EPIC bleiben gesperrt, bis die Wallet des Empfängers antwortet.",
+  "homePendingShort": "{amount} bleiben gesperrt, bis die Wallet des Empfängers antwortet.",
   "contactsSearchHint": "Name oder Adresse",
   "contactsEmptyTitle": "Noch keine Kontakte",
   "contactsEmptyCaption": "Ein Kontakt ist ein Name für eine Adresse.",

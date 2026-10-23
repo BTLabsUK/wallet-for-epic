@@ -3956,7 +3956,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String homePendingShort(String amount) {
-    return '$amount EPIC 将保持锁定，直到收款方钱包响应。';
+    return '$amount 将保持锁定，直到收款方钱包响应。';
   }
 
   @override
@@ -4120,10 +4120,14 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String netStatusBehind(int count) {
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '落后 $count',
+      other: '落后 $countString',
     );
     return '$_temp0';
   }

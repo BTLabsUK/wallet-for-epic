@@ -4351,7 +4351,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String homePendingShort(String amount) {
-    return '$amount EPIC остаются заблокированными, пока кошелёк получателя не ответит.';
+    return '$amount остаются заблокированными, пока кошелёк получателя не ответит.';
   }
 
   @override
@@ -4521,13 +4521,17 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String netStatusBehind(int count) {
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'Отстаёт на $count',
-      many: 'Отстаёт на $count',
-      few: 'Отстаёт на $count',
-      one: 'Отстаёт на $count',
+      other: 'Отстаёт на $countString',
+      many: 'Отстаёт на $countString',
+      few: 'Отстаёт на $countString',
+      one: 'Отстаёт на $countString',
     );
     return '$_temp0';
   }

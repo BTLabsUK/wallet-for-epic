@@ -209,25 +209,39 @@ class _StatusRow extends StatelessWidget {
                     pulse: pulse,
                   ),
                   const SizedBox(width: 12),
-                  Text(title, style: theme.textTheme.bodyMedium),
-                  const SizedBox(width: 12),
+                  // The service over its host, as the desktop's sidebar rows: a long host
+                  // never pushes the state word off the row.
                   Expanded(
-                    child: Text(
-                      host,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontFamily: t.monoFamily,
-                        fontSize: 12,
-                        color: t.dim,
-                      ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(title, style: theme.textTheme.bodyMedium),
+                        if (host.isNotEmpty)
+                          Text(
+                            host,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontFamily: t.monoFamily,
+                              fontSize: 12,
+                              height: 1.3,
+                              color: t.dim,
+                            ),
+                          ),
+                      ],
                     ),
                   ),
                   const SizedBox(width: 8),
-                  Text(
-                    face.word,
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: face.color,
+                  Flexible(
+                    child: Text(
+                      face.word,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.end,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: face.color,
+                      ),
                     ),
                   ),
                   Icon(Icons.chevron_right, size: 20, color: t.dim),

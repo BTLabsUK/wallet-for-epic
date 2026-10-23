@@ -4195,7 +4195,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String homePendingShort(String amount) {
-    return '$amount EPIC stays locked until the recipient\'s wallet answers.';
+    return '$amount stays locked until the recipient\'s wallet answers.';
   }
 
   @override
@@ -4363,11 +4363,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String netStatusBehind(int count) {
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'Behind $count',
-      one: 'Behind $count',
+      other: 'Behind $countString',
+      one: 'Behind $countString',
     );
     return '$_temp0';
   }

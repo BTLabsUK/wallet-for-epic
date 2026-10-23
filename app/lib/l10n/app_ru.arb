@@ -1047,7 +1047,7 @@
   "outputsConsolidatePin": "Подтвердите PIN-кодом, чтобы объединить выходы",
   "outputsSplitStarted": "Разделение начато: {count} выходов, подтверждение примерно через 3 блока",
   "outputsConsolidateStarted": "Объединение начато: один выход, подтверждение примерно через 3 блока",
-  "homePendingShort": "{amount} EPIC остаются заблокированными, пока кошелёк получателя не ответит.",
+  "homePendingShort": "{amount} остаются заблокированными, пока кошелёк получателя не ответит.",
   "contactsSearchHint": "Имя или адрес",
   "contactsEmptyTitle": "Контактов пока нет",
   "contactsEmptyCaption": "Контакт — это имя для адреса.",

@@ -5181,7 +5181,7 @@
   "@outputsConsolidateStarted": {
       "description": "Notice after a consolidation was posted."
   },
-  "homePendingShort": "{amount} EPIC stays locked until the recipient's wallet answers.",
+  "homePendingShort": "{amount} stays locked until the recipient's wallet answers.",
   "@homePendingShort": {
     "description": "One line under the pending-sends card's title: the locked amount and what it waits for. {amount} is the total of the waiting sends.",
     "placeholders": {
@@ -5427,7 +5427,8 @@
     "description": "Status card: the node is {count} blocks behind the network.",
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },

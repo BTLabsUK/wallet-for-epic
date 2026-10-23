@@ -560,8 +560,10 @@ class FakeWalletService implements WalletService {
       existingWallets.contains(config.dataDir);
 
   @override
-  Future<NodeTip> nodeTip({required WalletConfig config}) async =>
-      NodeTip(height: BigInt.from(2500000), nodeVersion: '3.6.0');
+  Future<NodeTip> nodeTip({required WalletConfig config}) async => nodeTipValue;
+
+  /// What [nodeTip] answers. Tests and the web preview set it.
+  NodeTip nodeTipValue = NodeTip(height: BigInt.from(2500000), nodeVersion: '3.6.0');
 
   @override
   Future<WalletSession> create({

@@ -12,7 +12,12 @@ const bool webFakeBackend = bool.fromEnvironment('WFE_WEB_FAKE');
 /// A fresh fake wallet service. The visitor starts at first run; the PIN they choose opens the
 /// preview wallet.
 FakeWalletService previewWalletService() =>
-    FakeWalletService(session: _previewSession());
+    FakeWalletService(session: _previewSession())
+      // Ahead of the live directory's height for a long while, so the status card reads
+      // Synced rather than Behind.
+      ..nodeTipValue = NodeTip(height: _tip, nodeVersion: '4.1.1');
+
+final BigInt _tip = BigInt.from(3900000);
 
 BigInt _epic(num value) => BigInt.from((value * 100000000).round());
 
@@ -41,7 +46,7 @@ String _commit(String seed) {
 }
 
 FakeWalletSession _previewSession() {
-  final tip = BigInt.from(3764975);
+  final tip = _tip;
   final anna = _address('anna');
   final btlabs = _address('btlabs');
   final exchange = _address('exchange');

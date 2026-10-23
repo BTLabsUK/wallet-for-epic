@@ -4370,7 +4370,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String homePendingShort(String amount) {
-    return '$amount EPIC pozostaje zablokowane, dopóki portfel odbiorcy nie odpowie.';
+    return '$amount pozostaje zablokowane, dopóki portfel odbiorcy nie odpowie.';
   }
 
   @override
@@ -4540,13 +4540,17 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String netStatusBehind(int count) {
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'Opóźniony o $count',
-      many: 'Opóźniony o $count',
-      few: 'Opóźniony o $count',
-      one: 'Opóźniony o $count',
+      other: 'Opóźniony o $countString',
+      many: 'Opóźniony o $countString',
+      few: 'Opóźniony o $countString',
+      one: 'Opóźniony o $countString',
     );
     return '$_temp0';
   }

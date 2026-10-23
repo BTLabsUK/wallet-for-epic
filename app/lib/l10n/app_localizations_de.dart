@@ -4252,7 +4252,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String homePendingShort(String amount) {
-    return '$amount EPIC bleiben gesperrt, bis die Wallet des Empfängers antwortet.';
+    return '$amount bleiben gesperrt, bis die Wallet des Empfängers antwortet.';
   }
 
   @override
@@ -4421,11 +4421,15 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String netStatusBehind(int count) {
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count zurück',
-      one: '$count zurück',
+      other: '$countString zurück',
+      one: '$countString zurück',
     );
     return '$_temp0';
   }
