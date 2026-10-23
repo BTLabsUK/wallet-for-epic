@@ -602,7 +602,6 @@ void main() {
       for (final (kind, label, value) in [
         (BalanceKind.confirming, 'Confirming', '1'),
         (BalanceKind.locked, 'Locked in sends', '2'),
-        (BalanceKind.immature, 'Rewards maturing', '0.5'),
         (BalanceKind.total, 'Total', '16'),
       ]) {
         // The row builds the tiles near the edge only: drag until this one is there.

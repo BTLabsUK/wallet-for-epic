@@ -26,6 +26,7 @@ class RailItem {
     required this.second,
     this.marker,
     this.lines = const [],
+    this.note,
     required this.open,
     required this.jump,
   });
@@ -41,6 +42,9 @@ class RailItem {
   /// After [second], never cut ("12 %", "no answer").
   final String? marker;
   final List<String> lines;
+
+  /// Prose under the lines, wrapped at a reading width (the Tor row's explanation).
+  final String? note;
 
   /// The hover card's last line: where a click goes.
   final String open;
@@ -137,9 +141,8 @@ List<RailItem> receivingRailItems(ServiceStatus? st, DeskSettings settings) {
               },
         second: tor == TorState.starting ? 'Starting…' : word,
         marker: tor == TorState.starting ? '${st?.torProgress ?? 0} %' : null,
+        note: included ? torNetworkHint : null,
         lines: [
-          if (included) torNetworkHint,
-
           if (tor == TorState.failed && st?.torProblem != null) st!.torProblem!,
           if (tor == TorState.on && st?.tor == ServiceHealth.slow) '${st?.torProblem ?? 'Tor address not published'}. Sends work.',
         ],
@@ -320,6 +323,14 @@ class _RailRowState extends State<RailRow> {
             padding: const EdgeInsets.symmetric(vertical: 1),
             child: Text(l, style: ts.mono(size: Fs.xs, color: c.dim)),
           ),
+        if (i.note != null)
+          ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: 360.u),
+            child: Padding(
+              padding: EdgeInsets.only(top: Sp.x1),
+              child: Text(i.note!, style: ts.small.copyWith(color: c.dim, height: 1.45)),
+            ),
+          ),
         SizedBox(height: Sp.x2),
         Text(i.open, style: ts.caption.copyWith(color: c.accentText)),
       ],
@@ -364,7 +375,7 @@ class _RailRowState extends State<RailRow> {
       child: Semantics(
         button: true,
         label: '${i.open}: ${i.word}',
-        hint: i.lines.join('. '),
+        hint: [...i.lines, ?i.note].join('. '),
         excludeSemantics: true,
         child: InkWell(
           onTap: widget.onTap,

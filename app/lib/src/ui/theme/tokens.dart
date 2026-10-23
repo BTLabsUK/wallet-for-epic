@@ -360,6 +360,19 @@ ThemeData buildWalletTheme(WalletTokens t, Brightness brightness) {
       disabledBorder: border(t.line),
       hintStyle: TextStyle(color: t.faint),
     ),
+    // Every tooltip (the eye, the status icons, the info hints): a dark card from the palette,
+    // never Material's light default.
+    tooltipTheme: TooltipThemeData(
+      decoration: BoxDecoration(
+        color: t.surfaceHi,
+        border: Border.all(color: t.lineStrong),
+        borderRadius: BorderRadius.circular(t.radiusSmall),
+      ),
+      textStyle: TextStyle(color: t.text, fontSize: 13, height: 1.4),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      waitDuration: const Duration(milliseconds: 400),
+    ),
     cardTheme: CardThemeData(
       color: t.surface,
       elevation: 0,
@@ -422,13 +435,6 @@ ThemeData buildWalletTheme(WalletTokens t, Brightness brightness) {
       color: t.accent,
       linearTrackColor: t.line,
       circularTrackColor: t.line,
-    ),
-    tooltipTheme: TooltipThemeData(
-      decoration: BoxDecoration(
-        color: t.text,
-        borderRadius: BorderRadius.circular(t.radiusSmall),
-      ),
-      textStyle: TextStyle(color: t.bg),
     ),
   );
 }

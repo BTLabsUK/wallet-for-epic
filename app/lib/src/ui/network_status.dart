@@ -201,11 +201,18 @@ class _StatusRow extends StatelessWidget {
         if (overTor) context.l10n.netStatusOverTor,
       ].join(', '),
       hint: detail ?? context.l10n.netStatusOpenHint,
-      excludeSemantics: true,
+      // With an info icon the row's own words are excluded one by one and the icon is an
+      // explicit child node, so it stays a button of its own (a screen reader reaches it; a
+      // browser's semantics tap opens it).
+      excludeSemantics: hint == null,
+      explicitChildNodes: hint != null,
+      // The row's action lives on this node; the InkWell adds none of its own.
+      onTap: onTap,
       child: Material(
         type: MaterialType.transparency,
         child: InkWell(
           onTap: onTap,
+          excludeFromSemantics: true,
           child: ConstrainedBox(
             constraints: const BoxConstraints(minHeight: 56),
             child: Padding(
@@ -230,18 +237,28 @@ class _StatusRow extends StatelessWidget {
                         else
                           DefaultTextStyle.merge(
                             style: theme.textTheme.bodyMedium,
-                            child: TitleWithHint(title, hint: hint!),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Flexible(child: ExcludeSemantics(child: Text(title))),
+                                const SizedBox(width: 4),
+                                // 48 dp: the icon is a target of its own on this row.
+                                InfoHint(hint!, size: 48, title: title, icon: torIcon),
+                              ],
+                            ),
                           ),
                         if (host.isNotEmpty)
-                          Text(
-                            host,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              fontFamily: t.monoFamily,
-                              fontSize: 12,
-                              height: 1.3,
-                              color: t.dim,
+                          ExcludeSemantics(
+                            child: Text(
+                              host,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontFamily: t.monoFamily,
+                                fontSize: 12,
+                                height: 1.3,
+                                color: t.dim,
+                              ),
                             ),
                           ),
                       ],
@@ -250,21 +267,25 @@ class _StatusRow extends StatelessWidget {
                   const SizedBox(width: 8),
                   // No flex here: the state word keeps its size and the service column takes
                   // the rest, so the word sits at the trailing edge.
-                  ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 150),
-                    child: Text(
-                      overTor
-                          ? '${face.word} · ${context.l10n.netStatusTor}'
-                          : face.word,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      textAlign: TextAlign.end,
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: face.color,
+                  ExcludeSemantics(
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 150),
+                      child: Text(
+                        overTor
+                            ? '${face.word} · ${context.l10n.netStatusTor}'
+                            : face.word,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.end,
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: face.color,
+                        ),
                       ),
                     ),
                   ),
-                  Icon(Icons.chevron_right, size: 20, color: t.dim),
+                  ExcludeSemantics(
+                    child: Icon(Icons.chevron_right, size: 20, color: t.dim),
+                  ),
                 ],
               ),
             ),

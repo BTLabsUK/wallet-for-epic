@@ -1,7 +1,6 @@
-import '../../app_info.dart';
 import 'package:flutter/material.dart';
 
-import '../../ui/theme/brand.dart' show EpicMark;
+import '../../ui/theme/brand.dart' show BrandLockup, BrandVariant, EpicMark;
 import '../../ui/theme/protocol.dart' show CornerTicksPainter, GridFieldPainter;
 import '../theme/icons.dart';
 import '../theme/tokens.dart';
@@ -407,17 +406,15 @@ class EOnbFrame extends StatelessWidget {
                   padding: EdgeInsets.symmetric(horizontal: Sp.x2),
                   child: Row(
                     children: [
-                      EpicMark(size: 24.u, color: c.accent),
-                      SizedBox(width: 10.u),
                       Flexible(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(appName, maxLines: 1, overflow: TextOverflow.ellipsis, style: ts.h3.copyWith(fontSize: 15)),
-                            Text(sideTitle, style: ts.caption),
-                          ],
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          alignment: AlignmentDirectional.centerStart,
+                          child: BrandLockup(variant: BrandVariant.desktop, size: 28.u, textRatio: 0.56),
                         ),
                       ),
+                      SizedBox(width: Sp.x3),
+                      Text(sideTitle, maxLines: 1, overflow: TextOverflow.ellipsis, style: ts.caption, textAlign: TextAlign.end),
                     ],
                   ),
                 ),

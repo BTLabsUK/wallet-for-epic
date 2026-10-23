@@ -104,11 +104,17 @@ abstract class AppLocalizations {
     Locale('zh'),
   ];
 
-  /// The app's name in the task switcher and window title. A product name; do not translate.
+  /// The phone app's product name, in the task switcher and window title. A brand name; do not translate.
   ///
   /// In en, this message translates to:
-  /// **'Epic Wallet'**
+  /// **'Epic Cash Mobile'**
   String get appTitle;
+
+  /// The desktop app's product name (Windows, Linux). A brand name; do not translate.
+  ///
+  /// In en, this message translates to:
+  /// **'Epic Cash Desktop'**
+  String get appTitleDesktop;
 
   /// No description provided for @commonCancel.
   ///
@@ -1643,7 +1649,7 @@ abstract class AppLocalizations {
   /// App-bar title of the wallet's main page: the app's name. A product name; do not translate.
   ///
   /// In en, this message translates to:
-  /// **'Epic Wallet'**
+  /// **'Epic Cash Mobile'**
   String get shellTitle;
 
   /// Heading of the web demo's welcome screen, under the mark.
@@ -4649,7 +4655,7 @@ abstract class AppLocalizations {
   /// Licences screen: the wallet itself. Not "app" on its own: the web demo shows this screen too.
   ///
   /// In en, this message translates to:
-  /// **'Epic Wallet by BT Labs, open source. The code is on GitHub.'**
+  /// **'Epic Cash Mobile by BT Labs: Apache-2.0. The code is on GitHub.'**
   String get licencesApp;
 
   /// Licences screen: one line for Flutter and the Dart packages.

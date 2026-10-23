@@ -122,6 +122,156 @@ class _EpicMarkPainter extends CustomPainter {
       old.top != top || old.bottom != bottom;
 }
 
+/// Which app a [BrandWordmark] names.
+enum BrandVariant {
+  desktop('Desktop'),
+  mobile('Mobile');
+
+  const BrandVariant(this.word);
+
+  /// The platform word under "Epic Cash". A brand name: never translated.
+  final String word;
+}
+
+/// The product wordmark: "Epic Cash" in the mark's gold, and under it the platform word in
+/// grey, smaller, uppercase and tracked, aligned to the right edge of "Epic Cash" (at half
+/// the size it would need a letter-spacing of a third of an em to match the width, which
+/// falls apart below 24 px; the right edge keeps one relation at every size). [size] is the
+/// font size of "Epic Cash"; the platform word is [secondRatio] of it, never under 9 px.
+/// One semantics node with the full product name, so a reader hears "Epic Cash Desktop",
+/// not two lines. Colours: the gold gradient of [EpicMark] in dark mode, the AA brown in
+/// light mode, or [color] for both; the second line takes [secondColor] or the dim text.
+class BrandWordmark extends StatelessWidget {
+  const BrandWordmark({
+    super.key,
+    required this.variant,
+    this.size = 24,
+    this.color,
+    this.secondColor,
+    this.label,
+  });
+
+  final BrandVariant variant;
+
+  /// The font size of "Epic Cash", in logical pixels.
+  final double size;
+
+  /// A flat colour for "Epic Cash" instead of the gold gradient.
+  final Color? color;
+
+  /// The platform word's colour; dim text by default.
+  final Color? secondColor;
+
+  /// What screen readers get; the full product name by default.
+  final String? label;
+
+  /// The first line, the brand. Never translated.
+  static const String brand = 'Epic Cash';
+
+  /// The platform word's size as a share of [size].
+  static const double secondRatio = 0.5;
+
+  /// Space between the lines, as a share of [size].
+  static const double gapRatio = 0.12;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    final dark = Theme.of(context).brightness == Brightness.dark;
+    final top = color ?? t.accent;
+    final bottom = color ?? (dark ? t.tick : t.accent);
+    final second = (size * secondRatio).clamp(9.0, double.infinity);
+    final first = Text(
+      brand,
+      maxLines: 1,
+      softWrap: false,
+      style: TextStyle(
+        fontFamily: t.headFamily,
+        fontWeight: FontWeight.w600,
+        fontSize: size,
+        height: 1.1,
+        letterSpacing: size * -0.02,
+        color: top,
+      ),
+    );
+    return Semantics(
+      label: label ?? '$brand ${variant.word}',
+      excludeSemantics: true,
+      child: IntrinsicWidth(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            if (color != null)
+              first
+            else
+              ShaderMask(
+                blendMode: BlendMode.srcIn,
+                shaderCallback: (bounds) => ui.Gradient.linear(
+                  bounds.topLeft,
+                  bounds.bottomLeft,
+                  [top, bottom],
+                ),
+                child: first,
+              ),
+            SizedBox(height: size * gapRatio),
+            Text(
+              variant.word.toUpperCase(),
+              maxLines: 1,
+              softWrap: false,
+              style: TextStyle(
+                fontFamily: t.headFamily,
+                fontWeight: FontWeight.w600,
+                fontSize: second,
+                height: 1.1,
+                letterSpacing: second * 0.14,
+                color: secondColor ?? t.dim,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// The mark beside the wordmark, as the sidebar and the phone's app bar show them. [size]
+/// is the mark's height; the wordmark's "Epic Cash" takes [textRatio] of it.
+class BrandLockup extends StatelessWidget {
+  const BrandLockup({
+    super.key,
+    required this.variant,
+    this.size = 32,
+    this.textRatio = 0.6,
+    this.color,
+    this.label,
+  });
+
+  final BrandVariant variant;
+  final double size;
+  final double textRatio;
+
+  /// A flat colour for the mark and "Epic Cash" instead of the gradient.
+  final Color? color;
+  final String? label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      label: label ?? '${BrandWordmark.brand} ${variant.word}',
+      excludeSemantics: true,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          EpicMark(size: size, color: color),
+          SizedBox(width: size * 0.34),
+          BrandWordmark(variant: variant, size: size * textRatio, color: color),
+        ],
+      ),
+    );
+  }
+}
+
 /// A QR code of [data] at error correction level H, with the [EpicMark] on a small white tile
 /// in its centre. The tile is [markFraction] of the code's width, so it hides about 4 % of the
 /// modules, well inside the 30 % level H restores. Dark modules for white paper: the caller
@@ -245,29 +395,45 @@ class GlyphTile extends StatelessWidget {
   }
 }
 
-/// The mark in its tile, then [title] as the screen's heading. Tops the screens that open
-/// the app: launch, first run and unlock.
+/// The mark in its tile, the [wordmark] under it, then [title] as the screen's heading. Tops
+/// the screens that open the app: launch (the wordmark alone), first run and unlock.
 class BrandHero extends StatelessWidget {
-  const BrandHero({super.key, required this.title});
+  const BrandHero({super.key, this.title, this.wordmark = BrandVariant.mobile})
+    : assert(title != null || wordmark != null);
 
-  final String title;
+  /// The screen's heading; none on launch, where the wordmark is the heading.
+  final String? title;
+
+  /// The product's wordmark under the tile; null leaves the tile and the title alone.
+  final BrandVariant? wordmark;
 
   @override
   Widget build(BuildContext context) {
+    final title = this.title;
+    final wordmark = this.wordmark;
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         const GlyphTile(size: 96, child: EpicMark(size: 50)),
-        const SizedBox(height: 20),
-        Semantics(
-          header: true,
-          child: Text(
-            title,
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.headlineSmall,
+        if (wordmark != null) ...[
+          const SizedBox(height: 18),
+          Semantics(
+            header: title == null,
+            child: BrandWordmark(variant: wordmark, size: 26),
           ),
-        ),
+        ],
+        if (title != null) ...[
+          SizedBox(height: wordmark == null ? 20 : 22),
+          Semantics(
+            header: true,
+            child: Text(
+              title,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.headlineSmall,
+            ),
+          ),
+        ],
       ],
     );
   }

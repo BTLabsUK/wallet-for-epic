@@ -25,9 +25,6 @@ enum BalanceKind {
   /// Held by a send in progress.
   locked,
 
-  /// Mining rewards not spendable yet.
-  immature,
-
   /// Every balance together.
   total,
 
@@ -44,9 +41,10 @@ typedef BalanceTileData = ({
 });
 
 /// The tiles for [summary], in a fixed order: every pending balance that is not zero
-/// (confirming, waiting for sender, locked in sends, rewards maturing), then Total. With
-/// nothing pending, Total and a calm tile ("All confirmed", or "Nothing here yet" while the
-/// wallet has had no payments, [empty]).
+/// (confirming, waiting for sender, locked in sends), then Total. Maturing mining rewards get
+/// no tile on a phone (nobody mines to one); they are in Total and in Outputs. With nothing
+/// pending, Total and a calm tile ("All confirmed", or "Nothing here yet" while the wallet
+/// has had no payments, [empty]).
 List<BalanceTileData> balanceTiles(
   AppLocalizations l,
   WalletSummary summary, {
@@ -73,13 +71,6 @@ List<BalanceTileData> balanceTiles(
         icon: Icons.lock_outline,
         label: l.homeTileLocked,
         value: summary.locked,
-      ),
-    if (summary.immature > BigInt.zero)
-      (
-        kind: BalanceKind.immature,
-        icon: Icons.bolt,
-        label: l.homeTileMaturing,
-        value: summary.immature,
       ),
   ];
   final total = (

@@ -37,7 +37,7 @@ class DemoGate extends ConsumerWidget {
         glow: heroGlow,
         body: CenteredBody(
           children: [
-            BrandHero(title: l.appTitle),
+            const BrandHero(),
             const SizedBox(height: 32),
             ErrorText(describeError(l, error)),
             BusyButton(
@@ -52,7 +52,7 @@ class DemoGate extends ConsumerWidget {
         glow: heroGlow,
         body: CenteredBody(
           children: [
-            BrandHero(title: l.appTitle),
+            const BrandHero(),
             const SizedBox(height: 32),
             const Center(child: CircularProgressIndicator()),
           ],
@@ -86,7 +86,7 @@ class DemoWelcomeScreen extends ConsumerWidget {
     return _DemoStartScaffold(
       startLabel: l.demoStart,
       children: [
-        BrandHero(title: l.demoWelcomeTitle),
+        BrandHero(title: l.demoWelcomeTitle, wordmark: null),
         const SizedBox(height: 12),
         Text(
           l.demoWelcomeLine,
@@ -108,7 +108,7 @@ class DemoEndedScreen extends ConsumerWidget {
     return _DemoStartScaffold(
       startLabel: l.demoStartAgain,
       children: [
-        BrandHero(title: l.demoEndedTitle),
+        BrandHero(title: l.demoEndedTitle, wordmark: null),
         const SizedBox(height: 12),
         Text(
           l.demoEndedBody,
