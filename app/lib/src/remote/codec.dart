@@ -349,6 +349,8 @@ final WireCodec<ListenerEvent> listenerEventWire = _object<ListenerEvent>(
     'txId': v.txId,
     'message': v.message,
     'amount': optBigInt.encode(v.amount),
+    'reason': v.reason,
+    'retryInMs': v.retryInMs,
   },
   (r) => ListenerEvent(
     kind: r.of('kind', listenerEventKindWire),
@@ -356,6 +358,8 @@ final WireCodec<ListenerEvent> listenerEventWire = _object<ListenerEvent>(
     txId: r.of('txId', optInt),
     message: r.of('message', stringWire),
     amount: r.of('amount', optBigInt),
+    reason: r.of('reason', optString),
+    retryInMs: r.of('retryInMs', optInt),
   ),
 );
 

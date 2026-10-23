@@ -7,6 +7,7 @@ import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../data/tor_view.dart';
 import '../../app/tour.dart';
 import '../../desk_l10n.dart';
+import '../../widgets/http_reach.dart';
 import '../../widgets/kit.dart';
 import '../../widgets/tor_chip.dart';
 import '../invoices/invoice_parts.dart' show InvButton, InvW;
@@ -401,7 +402,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
     final addr = _http != null && _http!.isNotEmpty ? _http : null;
     final caption = Text(
       st.settings.publicMode
-          ? 'Senders on the internet use this address once the router forwards port ${st.settings.httpPort}.'
+          ? 'Your router’s public address. Senders on the internet use it once the router forwards port ${st.settings.httpPort}.'
           : 'Programs on this computer can pay this address. For other devices, see Settings › Receiving.',
       style: ts.caption,
     );
@@ -432,6 +433,10 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
               method: 'http',
               initiallyShown: _args?.qr == RxQr.http,
             ),
+            SizedBox(height: Sp.x4),
+          ],
+          if (ok && st.settings.publicMode) ...[
+            HttpReachNotice(onChanged: (_) => unawaited(_readHttp())),
             SizedBox(height: Sp.x4),
           ],
           if (line != null) EStateLine(line, key: const ValueKey('rx-state-http'), trailing: _retry(m, line)),

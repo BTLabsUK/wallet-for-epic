@@ -269,7 +269,13 @@ ListenerEvent? lepicListenerEvent(lepic.ListenerEvent e) {
   };
   return kind == null
       ? null
-      : ListenerEvent(kind: kind, txId: e.txId, message: e.message);
+      : ListenerEvent(
+          kind: kind,
+          txId: e.txId,
+          message: e.message,
+          reason: e.reason,
+          retryInMs: e.retryInMs?.toInt(),
+        );
 }
 
 /// The slate id of the issued invoice a listener event says came back unpaid, or null for
