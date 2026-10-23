@@ -43,6 +43,10 @@ class AppUpdater(
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
         when (call.method) {
             "appInfo" -> result.success(appInfo())
+            "requestInstallPermission" -> {
+                openInstallSettings()
+                result.success(null)
+            }
             "install" -> {
                 val path = call.argument<String>("path")
                 if (path == null) {
@@ -110,11 +114,7 @@ class AppUpdater(
             return mapOf("status" to "keyMismatch", "message" to null)
         }
         if (Build.VERSION.SDK_INT >= 26 && !pm.canRequestPackageInstalls()) {
-            val settings = Intent(
-                Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES,
-                Uri.parse("package:${activity.packageName}"),
-            )
-            activity.runOnUiThread { activity.startActivity(settings) }
+            openInstallSettings()
             return mapOf("status" to "needsPermission", "message" to null)
         }
 
@@ -148,6 +148,19 @@ class AppUpdater(
     }
 
     private fun failed(message: String) = mapOf("status" to "failed", "message" to message)
+
+    /**
+     * Opens Android's "allow from this source" screen for this app (Android 8+; nothing to ask
+     * before). Dart asks before it downloads, so the download is never lost to the trip there.
+     */
+    private fun openInstallSettings() {
+        if (Build.VERSION.SDK_INT < 26) return
+        val settings = Intent(
+            Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES,
+            Uri.parse("package:${activity.packageName}"),
+        )
+        activity.runOnUiThread { activity.startActivity(settings) }
+    }
 
     companion object {
         /** Forwards install results to Dart while the activity lives. */

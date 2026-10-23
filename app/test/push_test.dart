@@ -5,6 +5,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:epic_wallet/src/l10n.dart';
+import 'package:epic_wallet/src/log.dart';
 import 'package:epic_wallet/src/phone_tor.dart';
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/push.dart';
@@ -40,6 +41,12 @@ class _Push implements PushPlatform {
   String? _current;
   final refresh = StreamController<String>.broadcast();
 
+  /// Tokens deleted on this device: FCM answers a push to one with UNREGISTERED.
+  final dead = <String>{};
+
+  /// When set, a deletion waits for it, as Firebase's own round trip does.
+  Completer<void>? slowDelete;
+
   @override
   Future<bool> configured() async => true;
 
@@ -55,7 +62,10 @@ class _Push implements PushPlatform {
   @override
   Future<void> deleteToken() async {
     order.add('deleteToken');
-    _current = null;
+    final gone = _current;
+    await slowDelete?.future;
+    if (gone != null) dead.add(gone);
+    if (identical(_current, gone)) _current = null;
   }
 
   @override
@@ -322,6 +332,25 @@ void main() {
     });
 
     test(
+      'the log names the outcome, the HTTP status and the key prefix the service logs, '
+      'never the token or the whole address',
+      () async {
+        final sink = MemoryLogSink();
+        AppLog.use(sink);
+        addTearDown(() => AppLog.use(MemoryLogSink()));
+        session.address = 'esZJmzr2Wq7kLongAddressKey@flooepicbox.btlabs.uk';
+        await make().register(session, 'tok-secret');
+        answer = (_) async => 429;
+        await make().unregister(session, 'tok-secret');
+        final text = sink.lines.join('\n');
+        expect(text, contains('register done, HTTP 204, esZJmzr2 on flooepicbox.btlabs.uk'));
+        expect(text, contains('unregister refused, HTTP 429, esZJmzr2'));
+        expect(text, isNot(contains('tok-secret')));
+        expect(text, isNot(contains('esZJmzr2Wq7k')));
+      },
+    );
+
+    test(
       'register: the body PROTOCOL.md fixes, signed by the session',
       () async {
         final outcome = await make().register(session, 'tok-1');
@@ -524,6 +553,31 @@ void main() {
       },
     );
 
+    testWidgets(
+      'the relay switched away and back: unregistered there, then registered again, '
+      'with the same token',
+      (tester) async {
+        final h = _Harness(wanted: true);
+        await h.pump(tester);
+        h.posts.clear();
+        h.session.address = 'esPushKey@epicbox.iniaku.my.id';
+        h.container
+            .read(walletConfigProvider.notifier)
+            .select(_Harness.relayConfig('epicbox.iniaku.my.id'));
+        await h.settle(tester);
+        expect(h.postActions, ['unregister']);
+        expect(h.posts.single.body['address'], 'esPushKey', reason: 'the bare key');
+        expect(h.container.read(pushControllerProvider), isFalse);
+        h.session.address = _relayAddress;
+        h.container.read(walletConfigProvider.notifier).select(_Harness._config);
+        await h.settle(tester);
+        expect(h.postActions, ['unregister', 'register']);
+        expect(h.posts.last.body['token'], 'tok-1');
+        expect(h.order, isNot(contains('deleteToken')));
+        expect(h.container.read(pushControllerProvider), isTrue);
+      },
+    );
+
     testWidgets('Tor already on at the unlock: no start, no request', (
       tester,
     ) async {
@@ -696,6 +750,37 @@ void main() {
       expect(h.postActions, ['register']);
       expect(h.posts.single.body['token'], 'tok-2', reason: 'the old one was deleted');
       expect(h.wantedNow, isTrue);
+    });
+
+    // The owner's 26.10.0 phone: off and straight on again while the off was still unregistering
+    // and deleting the token. The on registered that token, which FCM then called dead.
+    testWidgets('on while the off is still running: the token registered last is alive', (
+      tester,
+    ) async {
+      final h = _Harness(wanted: true);
+      await h.pump(tester);
+      h.posts.clear();
+      final relay = Completer<int>();
+      h.answer = (_) => relay.future;
+      h.push.slowDelete = Completer<void>();
+      final off = h.controller.turnOff();
+      await h.settle(tester);
+      expect(h.wantedNow, isFalse, reason: 'the switch shows off at once');
+      final on = h.controller.turnOn();
+      await h.settle(tester);
+      h.answer = null;
+      relay.complete(204);
+      await h.settle(tester);
+      h.push.slowDelete!.complete();
+      await h.settle(tester);
+      await off;
+      expect(await on, isTrue);
+      await h.settle(tester);
+      expect(h.postActions, ['unregister', 'register']);
+      expect(h.push.dead, contains('tok-1'));
+      expect(h.posts.last.body['token'], isNot(isIn(h.push.dead)));
+      expect(h.wantedNow, isTrue);
+      expect(h.container.read(pushControllerProvider), isTrue);
     });
 
     testWidgets('on: saved, started, registered', (tester) async {

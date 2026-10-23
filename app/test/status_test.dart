@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math' as math;
 
+import 'package:epic_wallet/src/connection_state.dart';
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/network.dart';
 import 'package:epic_wallet/src/providers.dart';
@@ -170,6 +171,8 @@ void main() {
       );
       await tester.pump();
       await tester.pump();
+      // Offline and syncing show once they last (walletStatusProvider).
+      await tester.pump(statusSettle);
     }
 
     /// What a screen reader says for the status: the icon shows no words.

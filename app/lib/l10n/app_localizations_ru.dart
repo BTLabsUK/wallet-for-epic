@@ -2086,8 +2086,8 @@ class AppLocalizationsRu extends AppLocalizations {
   String get updateDownloadProgressLabel => 'Ход загрузки';
 
   @override
-  String get updateNeedsPermission =>
-      'Разрешите этому приложению устанавливать обновления на открывшемся экране, затем снова нажмите «Обновить».';
+  String get updateAllowInstalls =>
+      'Разрешите установку из Epic Cash Mobile, затем вернитесь.';
 
   @override
   String updateNotInstalled(String detail) {
@@ -3374,6 +3374,9 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get settingsStateBackUp => 'Сохраните фразу восстановления';
+
+  @override
+  String get settingsStateNotBackedUp => 'Ещё не сохранена';
 
   @override
   String get settingsStatePin => 'PIN-код';

@@ -430,7 +430,7 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
           subtitle: backedUp
               ? null
               : Text(
-                  l.settingsStateBackUp,
+                  l.settingsStateNotBackedUp,
                   style: TextStyle(color: t.warn),
                 ),
           onTap: _showPhrase,

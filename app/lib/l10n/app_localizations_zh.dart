@@ -1854,7 +1854,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get updateDownloadProgressLabel => '下载进度';
 
   @override
-  String get updateNeedsPermission => '请在打开的页面中允许此应用安装更新，然后再次点击“更新”。';
+  String get updateAllowInstalls => '允许来自 Epic Cash Mobile 的安装，然后返回。';
 
   @override
   String updateNotInstalled(String detail) {
@@ -3050,6 +3050,9 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get settingsStateBackUp => '备份恢复短语';
+
+  @override
+  String get settingsStateNotBackedUp => '尚未备份';
 
   @override
   String get settingsStatePin => 'PIN 码';

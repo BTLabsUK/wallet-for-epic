@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:epic_wallet/src/connection_state.dart';
 import 'package:epic_wallet/src/demo.dart';
 import 'package:epic_wallet/src/app.dart';
 import 'package:epic_wallet/src/network.dart';
@@ -599,6 +600,8 @@ void main() {
       expect(tester.widget<Text>(find.byKey(balanceFigureKey)).data, '12.5');
       final handle = tester.ensureSemantics();
       await tester.pump();
+      // Offline shows once it lasts (walletStatusProvider).
+      await tester.pump(statusSettle);
       expect(find.bySemanticsLabel(RegExp('^Node offline,')), findsOneWidget);
       handle.dispose();
       // Total 16, spendable 12.5: the rest is in the tiles under the figure; the row scrolls.
@@ -815,6 +818,7 @@ void main() {
       );
       await tester.pumpAndSettle();
       expect(find.bySemanticsLabel(RegExp('^Epicbox online,')), findsOneWidget);
+      await tester.pump(statusSettle);
       // Balances the node did not check count as the node being offline, and say why.
       expect(find.bySemanticsLabel(RegExp('^Node offline,')), findsOneWidget);
       expect(

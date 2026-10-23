@@ -1978,8 +1978,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get updateDownloadProgressLabel => 'Download progress';
 
   @override
-  String get updateNeedsPermission =>
-      'Allow this app to install updates in the screen that opened, then tap Update again.';
+  String get updateAllowInstalls =>
+      'Allow installs from Epic Cash Mobile, then return.';
 
   @override
   String updateNotInstalled(String detail) {
@@ -3242,6 +3242,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsStateBackUp => 'Back up your recovery phrase';
+
+  @override
+  String get settingsStateNotBackedUp => 'Not backed up yet';
 
   @override
   String get settingsStatePin => 'PIN';
