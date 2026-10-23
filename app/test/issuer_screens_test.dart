@@ -13,6 +13,7 @@ import 'package:epic_wallet/src/settings.dart';
 import 'package:epic_wallet/src/slate_files.dart';
 import 'package:epic_wallet/src/ui/common.dart';
 import 'package:epic_wallet/src/ui/file_exchange_help.dart';
+import 'package:epic_wallet/src/ui/home_parts.dart';
 import 'package:epic_wallet/src/ui/home_screen.dart';
 import 'package:epic_wallet/src/ui/invoice_request_screen.dart';
 import 'package:epic_wallet/src/ui/invoices_screen.dart';
@@ -468,7 +469,9 @@ void main() {
       final h = _Harness();
       final request = await h.issue();
       await h.pump(tester, const HomeScreen());
-      await tester.tap(find.byKey(invoicesEntryKey));
+      await tester.tap(
+        find.byKey(homeDestinationKey(HomeDestination.invoices)),
+      );
       await tester.pumpAndSettle();
       await tester.tap(find.text(_l.issuedWithdraw));
       await tester.pumpAndSettle();
@@ -621,8 +624,8 @@ void main() {
       final request = await h.issue();
       final tx = h.session.transactionsValue.single;
       await h.pump(tester, Scaffold(body: TxTile(tx: tx)));
-      expect(find.text(_l.txStatusWaitingPayer), findsOneWidget);
-      expect(find.text(_l.txStatusWaitingSender), findsNothing);
+      expect(find.textContaining(_l.txStatusWaitingPayer), findsOneWidget);
+      expect(find.textContaining(_l.txStatusWaitingSender), findsNothing);
       expect(
         tester.getSemantics(find.byKey(ValueKey('tx-${tx.key}'))).label,
         startsWith(
