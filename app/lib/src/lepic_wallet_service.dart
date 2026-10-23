@@ -36,13 +36,23 @@ Future<void> initLepic({String? libraryPath}) => lepic.RustLib.init(
       : ExternalLibrary.open(libraryPath),
 );
 
+/// LEPIC info lines that come on a timer and say nothing new (the refresh every minute was
+/// a third of a support log): logged as debug, so only Detailed logging keeps them.
+const Set<(String, String)> lepicRoutineLines = {
+  ('lepic_wallet::refresh', 'refresh completed'),
+};
+
 /// Logs one entry of `LepicRuntime.logs()` under its own target:
 /// `lepic_wallet::send: slate received in send slate_id=… height=…`. Trace entries are
-/// dropped; debug ones reach the log only while [AppLog.detailed] is on.
+/// dropped; debug ones, and [lepicRoutineLines], reach the log only while [AppLog.detailed]
+/// is on.
 void logLepicEntry(lepic.LogEntry entry) {
   final level = switch (entry.level) {
     lepic.LogLevel.error => LogLevel.error,
     lepic.LogLevel.warn => LogLevel.warn,
+    lepic.LogLevel.info
+        when lepicRoutineLines.contains((entry.target, entry.message)) =>
+      LogLevel.debug,
     lepic.LogLevel.info => LogLevel.info,
     lepic.LogLevel.debug => LogLevel.debug,
     lepic.LogLevel.trace => null,
