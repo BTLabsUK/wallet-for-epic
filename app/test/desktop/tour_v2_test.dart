@@ -259,4 +259,39 @@ void main() {
     expect(find.byType(DeskTourOverlay), findsOneWidget);
     expect(second.read(deskNavProvider).route, DeskRoute.overview);
   });
+
+  testWidgets('the rings follow a window resize', (tester) async {
+    final container = await _open(tester, DeskRoute.overview);
+    container.read(deskTourProvider.notifier).open();
+    await _settle(tester);
+    Rect first() {
+      final paint = tester.widget<CustomPaint>(find.descendant(of: find.byType(DeskTourOverlay), matching: find.byType(CustomPaint)).first);
+      return ((paint.painter as dynamic).holes as List).first.$1 as Rect;
+    }
+
+    final before = first();
+    tester.view.physicalSize = const Size(1100, 700);
+    await _settle(tester);
+    final after = first();
+    expect(after, isNot(before));
+    expect(after.right, lessThanOrEqualTo(1100));
+    expect(after.bottom, lessThanOrEqualTo(700));
+  });
+
+  testWidgets('the card buttons and the restart link have a 44 px hit target', (tester) async {
+    final container = await _open(tester, DeskRoute.overview);
+    container.read(deskTourProvider.notifier).open();
+    await _settle(tester);
+    // 20 px under the centre of the 36 px Skip button: outside the drawn button, inside 44.
+    await tester.tapAt(tester.getCenter(_inCard('Skip tour')) + const Offset(0, 20));
+    await _settle(tester);
+    expect(container.read(deskTourProvider).open, isFalse);
+
+    container.read(deskNavProvider.notifier).go(DeskRoute.settingsHelp);
+    await _settle(tester);
+    // 28 px drawn: 19 px under the centre is outside it, inside 44.
+    await tester.tapAt(tester.getCenter(find.text('Show the tour again')) + const Offset(0, 19));
+    await _settle(tester);
+    expect(container.read(deskTourProvider).open, isTrue);
+  });
 }

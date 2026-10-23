@@ -176,7 +176,7 @@ class _SettingsHelpScreenState extends ConsumerState<SettingsHelpScreen> {
                     crossAxisAlignment: WrapCrossAlignment.center,
                     children: [
                       for (final s in helpSections) _Chip(s.title, onTap: () => _show(_sectionKeys[s.id]!)),
-                      EButton.ghost(label: 'Show the tour again', icon: EIcons.restart, size: EBtnSize.inline, onPressed: () => startDeskTour(ref)),
+                      EButton.ghost(label: 'Show the tour again', icon: EIcons.restart, size: EBtnSize.inline, hit44: true, onPressed: () => startDeskTour(ref)),
                     ],
                   ),
                 ],

@@ -240,7 +240,7 @@ class DeskTourOverlay extends ConsumerStatefulWidget {
   ConsumerState<DeskTourOverlay> createState() => _DeskTourOverlayState();
 }
 
-class _DeskTourOverlayState extends ConsumerState<DeskTourOverlay> with SingleTickerProviderStateMixin {
+class _DeskTourOverlayState extends ConsumerState<DeskTourOverlay> with SingleTickerProviderStateMixin, WidgetsBindingObserver {
   late int _i = widget.startAt.clamp(0, widget.steps.length - 1);
   final _next = FocusNode(debugLabel: 'tour next');
   final _self = GlobalKey();
@@ -259,11 +259,20 @@ class _DeskTourOverlayState extends ConsumerState<DeskTourOverlay> with SingleTi
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _open(_i, first: true);
+  }
+
+  /// A window resize moves the targets: the rings are placed again once the page has laid out.
+  @override
+  void didChangeMetrics() {
+    if (!mounted) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) => _place(resized: true));
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _in.dispose();
     _next.dispose();
     super.dispose();
@@ -300,7 +309,7 @@ class _DeskTourOverlayState extends ConsumerState<DeskTourOverlay> with SingleTi
     return MatrixUtils.transformRect(box.getTransformTo(me), Offset.zero & box.size);
   }
 
-  void _place() {
+  void _place({bool resized = false}) {
     if (!mounted) return;
     final me = _self.currentContext?.findRenderObject() as RenderBox?;
     final step = widget.steps[_i];
@@ -322,7 +331,7 @@ class _DeskTourOverlayState extends ConsumerState<DeskTourOverlay> with SingleTi
       }
     }
     final ready = r != null || _tries <= 0;
-    if (!ready) {
+    if (!ready && !resized) {
       _tries--;
       WidgetsBinding.instance.addPostFrameCallback((_) => _place());
       return;
@@ -332,6 +341,7 @@ class _DeskTourOverlayState extends ConsumerState<DeskTourOverlay> with SingleTi
       _nav = nav;
       _sub = sub;
     });
+    if (resized) return;
     if (MediaQuery.disableAnimationsOf(context)) {
       _in.value = 1;
     } else {
@@ -453,18 +463,18 @@ class _DeskTourOverlayState extends ConsumerState<DeskTourOverlay> with SingleTi
                             SizedBox(height: Sp.x4),
                             Row(
                               children: [
-                                EButton(label: 'Skip tour', size: EBtnSize.sm, kind: EBtnKind.ghost, onPressed: _end),
+                                EButton(label: 'Skip tour', size: EBtnSize.sm, kind: EBtnKind.ghost, hit44: true, onPressed: _end),
                                 SizedBox(width: Sp.x2),
                                 Text(
                                   'Esc',
                                   style: ts.mono(size: Fs.xs, color: c.faint),
                                 ),
                                 const Spacer(),
-                                if (back != null) ...[EButton(label: 'Back', size: EBtnSize.sm, onPressed: back), SizedBox(width: Sp.x2)],
+                                if (back != null) ...[EButton(label: 'Back', size: EBtnSize.sm, hit44: true, onPressed: back), SizedBox(width: Sp.x2)],
                                 Focus(
                                   focusNode: _next,
                                   skipTraversal: true,
-                                  child: EButton.primary(label: last ? 'Done' : 'Next', size: EBtnSize.sm, onPressed: forward),
+                                  child: EButton.primary(label: last ? 'Done' : 'Next', size: EBtnSize.sm, hit44: true, onPressed: forward),
                                 ),
                               ],
                             ),
