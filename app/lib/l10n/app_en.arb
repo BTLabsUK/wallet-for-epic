@@ -4586,7 +4586,7 @@
   "@torReceivingTitle": {
     "description": "Title of the on/off switch for receiving payments over Tor, on the Receive tab and in Settings. Same words in both places."
   },
-  "torHonestLine": "Slower and more private. Blocked or not allowed in some countries. Receives only while the app is open.",
+  "torHonestLine": "Tor receiving works while the app is open or briefly in the background.",
   "@torHonestLine": {
     "description": "The lines that describe Tor receiving, under the switch: only what is true. No time promises. The last sentence: the phone cuts the app's network when it leaves the screen, so a payment over Tor reaches the wallet only while the app is open; nothing waits for it elsewhere."
   },
@@ -5388,5 +5388,214 @@
   "invoicesRequestHowTitle": "Before you request",
   "@invoicesRequestHowTitle": {
     "description": "Request form: heading of what the payer must do first."
+  },
+  "methodEpicbox": "Epicbox",
+  "@methodEpicbox": {
+    "description": "Method name on Send and Receive segments."
+  },
+  "methodHttp": "HTTP",
+  "@methodHttp": {
+    "description": "Method name: straight to the other wallet over HTTP."
+  },
+  "methodTor": "Tor",
+  "@methodTor": {
+    "description": "Method name: straight to the other wallet over Tor."
+  },
+  "methodFile": "File",
+  "@methodFile": {
+    "description": "Method name: a transaction file handed over by hand."
+  },
+  "methodArtCaptionEpicbox": "Epicbox server holds it",
+  "@methodArtCaptionEpicbox": {
+    "description": "Caption under the Epicbox picture, a few words, shown in capitals."
+  },
+  "methodArtCaptionHttp": "Straight to their wallet",
+  "@methodArtCaptionHttp": {
+    "description": "Caption under the HTTP picture, a few words, shown in capitals."
+  },
+  "methodArtCaptionTor": "Straight, through Tor",
+  "@methodArtCaptionTor": {
+    "description": "Caption under the Tor picture, a few words, shown in capitals."
+  },
+  "methodArtCaptionFile": "File out, response back",
+  "@methodArtCaptionFile": {
+    "description": "Caption under the File picture, a few words, shown in capitals."
+  },
+  "methodArtLabelEpicbox": "Epicbox: the payment goes to the Epicbox server, which holds it until the recipient's wallet is back",
+  "@methodArtLabelEpicbox": {
+    "description": "Screen reader label of the Epicbox picture."
+  },
+  "methodArtLabelHttp": "HTTP: the payment goes straight to the recipient's wallet, which must be open",
+  "@methodArtLabelHttp": {
+    "description": "Screen reader label of the HTTP picture."
+  },
+  "methodArtLabelTor": "Tor: the payment goes straight to the recipient's wallet, routed through the Tor network",
+  "@methodArtLabelTor": {
+    "description": "Screen reader label of the Tor picture."
+  },
+  "methodArtLabelFile": "File: a transaction file is handed over, a response file comes back, then the sender finalizes",
+  "@methodArtLabelFile": {
+    "description": "Screen reader label of the File picture."
+  },
+  "methodSendEpicboxTitle": "The recipient can be offline.",
+  "@methodSendEpicboxTitle": {
+    "description": "Send strip title for Epicbox."
+  },
+  "methodSendEpicboxLine": "The Epicbox server holds the payment until they open their wallet.",
+  "@methodSendEpicboxLine": {
+    "description": "Send strip line for Epicbox."
+  },
+  "methodSendHttpTitle": "Straight to their wallet.",
+  "@methodSendHttpTitle": {
+    "description": "Send strip title for HTTP."
+  },
+  "methodSendHttpLine": "It must be open and reachable at its HTTP address.",
+  "@methodSendHttpLine": {
+    "description": "Send strip line for HTTP."
+  },
+  "methodSendTorTitle": "Straight to their wallet, over Tor.",
+  "@methodSendTorTitle": {
+    "description": "Send strip title for Tor."
+  },
+  "methodSendTorLine": "Slower and more private. Their wallet must be open.",
+  "@methodSendTorLine": {
+    "description": "Send strip line for Tor."
+  },
+  "methodSendFileTitle": "No connection needed.",
+  "@methodSendFileTitle": {
+    "description": "Send strip title for File."
+  },
+  "methodSendFileLine": "Hand the file over, get their response file back, then finalize it here.",
+  "@methodSendFileLine": {
+    "description": "Send strip line for File."
+  },
+  "methodReceiveEpicboxTitle": "Share it to get paid.",
+  "@methodReceiveEpicboxTitle": {
+    "description": "Receive strip title for Epicbox."
+  },
+  "methodReceiveEpicboxLine": "Works while the app is closed: the Epicbox server holds payments until the wallet is back.",
+  "@methodReceiveEpicboxLine": {
+    "description": "Receive strip line for Epicbox."
+  },
+  "methodReceiveTorTitle": "Slower and more private.",
+  "@methodReceiveTorTitle": {
+    "description": "Receive strip title for Tor."
+  },
+  "methodReceiveTorLine": "Works only while the app is open or briefly in the background.",
+  "@methodReceiveTorLine": {
+    "description": "Receive strip line for Tor."
+  },
+  "methodReceiveFileTitle": "Hand a file back and forth.",
+  "@methodReceiveFileTitle": {
+    "description": "Receive strip title for File."
+  },
+  "methodReceiveFileLine": "Works with no connection between the wallets.",
+  "@methodReceiveFileLine": {
+    "description": "Receive strip line for File."
+  },
+  "methodAddressKindsTooltip": "Address kinds",
+  "@methodAddressKindsTooltip": {
+    "description": "Tooltip of the ? beside the address shape under Send's To field; opens help on address kinds."
+  },
+  "sendMethodLabel": "Method",
+  "@sendMethodLabel": {
+    "description": "Screen reader name of Send's method selector, and the review row naming the method."
+  },
+  "sendToLabel": "To",
+  "@sendToLabel": {
+    "description": "Label of Send's recipient field."
+  },
+  "sendToHint": "Address or contact",
+  "@sendToHint": {
+    "description": "Placeholder of Send's recipient field."
+  },
+  "sendSwitchedHttp": "Over HTTP",
+  "@sendSwitchedHttp": {
+    "description": "Tag beside the To label for 3 s after the method moved to HTTP because of the address."
+  },
+  "sendSwitchedEpicbox": "Via Epicbox",
+  "@sendSwitchedEpicbox": {
+    "description": "Tag beside the To label for 3 s after the method moved to Epicbox because of the address."
+  },
+  "sendSwitchedTorAnnounce": "Tor address. Method set to Tor.",
+  "@sendSwitchedTorAnnounce": {
+    "description": "Read out when a Tor address moved the method to Tor."
+  },
+  "sendSwitchedHttpAnnounce": "HTTP address. Method set to HTTP.",
+  "@sendSwitchedHttpAnnounce": {
+    "description": "Read out when an HTTP address moved the method to HTTP."
+  },
+  "sendSwitchedEpicboxAnnounce": "Epicbox address. Method set to Epicbox.",
+  "@sendSwitchedEpicboxAnnounce": {
+    "description": "Read out when an Epicbox address moved the method to Epicbox."
+  },
+  "sendReviewMethodHttp": "HTTP, straight to their wallet",
+  "@sendReviewMethodHttp": {
+    "description": "Review, Method row for an HTTP send."
+  },
+  "sendCancelRuleEpicbox": "Can be cancelled while it waits for the recipient.",
+  "@sendCancelRuleEpicbox": {
+    "description": "Review caption: when an Epicbox send can be cancelled."
+  },
+  "sendCancelRuleDirect": "Cannot be cancelled once their wallet accepts it.",
+  "@sendCancelRuleDirect": {
+    "description": "Review caption: an HTTP or Tor send cannot be cancelled once the other wallet accepted it."
+  },
+  "sendCancelRuleFile": "Can be cancelled until the response file is finalized.",
+  "@sendCancelRuleFile": {
+    "description": "Caption on the payment file step: when a file payment can be cancelled."
+  },
+  "sendHttpReaching": "Reaching their wallet… Keep the app open.",
+  "@sendHttpReaching": {
+    "description": "Send, review: an HTTP send is under way."
+  },
+  "sendDeliveredWaitingBlock": "Delivered · Waiting for a block",
+  "@sendDeliveredWaitingBlock": {
+    "description": "Send tracker and payment details: an HTTP or Tor send the other wallet accepted, not in a block yet."
+  },
+  "sendHttpAddressShape": "An HTTP address starts with http:// or https://.",
+  "@sendHttpAddressShape": {
+    "description": "Send: the text under the HTTP method is not a web address."
+  },
+  "sendPlainHttpTitle": "Not encrypted. Send anyway?",
+  "@sendPlainHttpTitle": {
+    "description": "Dialog title before a send over plain http to another device."
+  },
+  "sendPlainHttpBody": "Plain HTTP to another device. Anyone on the way can read the transaction. An https:// address is encrypted.",
+  "@sendPlainHttpBody": {
+    "description": "Dialog text before a send over plain http to another device."
+  },
+  "sendCancelPossibleWhileWaiting": "Possible while the payment waits for the recipient.",
+  "@sendCancelPossibleWhileWaiting": {
+    "description": "Payment details: caption under Cancel payment."
+  },
+  "sendHelpAddressKindsQuestion": "What does an address look like?",
+  "@sendHelpAddressKindsQuestion": {
+    "description": "Help question about the kinds of address Send takes."
+  },
+  "sendHelpAddressKindsAnswer": "An Epicbox address starts with es and ends in @ and the server. An HTTP address is a web address. A Tor address ends in .onion.",
+  "@sendHelpAddressKindsAnswer": {
+    "description": "Help answer: one line per address kind."
+  },
+  "receiveHelpNoHttp": "Receiving over HTTP is not on the phone. Senders use the Epicbox or Tor address.",
+  "@receiveHelpNoHttp": {
+    "description": "Receiving help, last line: the phone has no HTTP receiving."
+  },
+  "receiveEpicboxCaption": "When reading it out, check the first six and last six characters.",
+  "@receiveEpicboxCaption": {
+    "description": "Receive, Epicbox tab: caption under the address."
+  },
+  "receiveTorCaption": "Some wallets show the address without .onion; both are the same address.",
+  "@receiveTorCaption": {
+    "description": "Receive, Tor tab: caption under the address."
+  },
+  "sendHttpNotReached": "{days, plural, =1{Their wallet was not reached. The amount is on hold until you cancel it, or for at most 1 day.} other{Their wallet was not reached. The amount is on hold until you cancel it, or for at most {days} days.}}",
+  "@sendHttpNotReached": {
+    "description": "Send, review: the recipient's wallet was not reached over HTTP; the payment is kept with its coins on hold until it is cancelled, and cancels itself after {days} days. Try again and Cancel payment follow.",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
   }
 }

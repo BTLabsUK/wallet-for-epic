@@ -3821,7 +3821,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get torHonestLine =>
-      'Langsamer und privater. In manchen Ländern blockiert oder nicht erlaubt. Empfängt nur, solange die App geöffnet ist.';
+      'Tor-Empfang funktioniert, solange die App geöffnet oder kurz im Hintergrund ist.';
 
   @override
   String get torStateOff => 'Empfang über Tor ist aus';
@@ -4395,4 +4395,192 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get invoicesRequestHowTitle => 'Bevor Sie anfordern';
+
+  @override
+  String get methodEpicbox => 'Epicbox';
+
+  @override
+  String get methodHttp => 'HTTP';
+
+  @override
+  String get methodTor => 'Tor';
+
+  @override
+  String get methodFile => 'Datei';
+
+  @override
+  String get methodArtCaptionEpicbox => 'Epicbox-Server hält sie';
+
+  @override
+  String get methodArtCaptionHttp => 'Direkt zur Wallet';
+
+  @override
+  String get methodArtCaptionTor => 'Direkt, über Tor';
+
+  @override
+  String get methodArtCaptionFile => 'Datei hin, Antwort zurück';
+
+  @override
+  String get methodArtLabelEpicbox =>
+      'Epicbox: Die Zahlung geht an den Epicbox-Server, der sie hält, bis die Wallet der Gegenseite wieder da ist';
+
+  @override
+  String get methodArtLabelHttp =>
+      'HTTP: Die Zahlung geht direkt an die Wallet der Gegenseite, die geöffnet sein muss';
+
+  @override
+  String get methodArtLabelTor =>
+      'Tor: Die Zahlung geht direkt an die Wallet der Gegenseite, über das Tor-Netzwerk';
+
+  @override
+  String get methodArtLabelFile =>
+      'Datei: Eine Transaktionsdatei wird übergeben, eine Antwortdatei kommt zurück, dann schließt der Absender ab';
+
+  @override
+  String get methodSendEpicboxTitle => 'Die Gegenseite kann offline sein.';
+
+  @override
+  String get methodSendEpicboxLine =>
+      'Der Epicbox-Server hält die Zahlung, bis die Gegenseite ihre Wallet öffnet.';
+
+  @override
+  String get methodSendHttpTitle => 'Direkt zur Wallet der Gegenseite.';
+
+  @override
+  String get methodSendHttpLine =>
+      'Sie muss geöffnet und unter ihrer HTTP-Adresse erreichbar sein.';
+
+  @override
+  String get methodSendTorTitle =>
+      'Direkt zur Wallet der Gegenseite, über Tor.';
+
+  @override
+  String get methodSendTorLine =>
+      'Langsamer und privater. Ihre Wallet muss geöffnet sein.';
+
+  @override
+  String get methodSendFileTitle => 'Keine Verbindung nötig.';
+
+  @override
+  String get methodSendFileLine =>
+      'Datei übergeben, Antwortdatei zurückbekommen, dann hier abschließen.';
+
+  @override
+  String get methodReceiveEpicboxTitle => 'Teilen, um bezahlt zu werden.';
+
+  @override
+  String get methodReceiveEpicboxLine =>
+      'Funktioniert auch bei geschlossener App: Der Epicbox-Server hält Zahlungen, bis die Wallet wieder da ist.';
+
+  @override
+  String get methodReceiveTorTitle => 'Langsamer und privater.';
+
+  @override
+  String get methodReceiveTorLine =>
+      'Funktioniert nur, solange die App geöffnet oder kurz im Hintergrund ist.';
+
+  @override
+  String get methodReceiveFileTitle => 'Eine Datei hin und her geben.';
+
+  @override
+  String get methodReceiveFileLine =>
+      'Funktioniert ohne Verbindung zwischen den Wallets.';
+
+  @override
+  String get methodAddressKindsTooltip => 'Adressarten';
+
+  @override
+  String get sendMethodLabel => 'Methode';
+
+  @override
+  String get sendToLabel => 'An';
+
+  @override
+  String get sendToHint => 'Adresse oder Kontakt';
+
+  @override
+  String get sendSwitchedHttp => 'Über HTTP';
+
+  @override
+  String get sendSwitchedEpicbox => 'Über Epicbox';
+
+  @override
+  String get sendSwitchedTorAnnounce =>
+      'Tor-Adresse. Methode auf Tor gestellt.';
+
+  @override
+  String get sendSwitchedHttpAnnounce =>
+      'HTTP-Adresse. Methode auf HTTP gestellt.';
+
+  @override
+  String get sendSwitchedEpicboxAnnounce =>
+      'Epicbox-Adresse. Methode auf Epicbox gestellt.';
+
+  @override
+  String get sendReviewMethodHttp => 'HTTP, direkt zur Wallet';
+
+  @override
+  String get sendCancelRuleEpicbox =>
+      'Kann storniert werden, solange sie auf die Gegenseite wartet.';
+
+  @override
+  String get sendCancelRuleDirect =>
+      'Kann nicht storniert werden, sobald die Wallet der Gegenseite sie annimmt.';
+
+  @override
+  String get sendCancelRuleFile =>
+      'Kann storniert werden, bis die Antwortdatei abgeschlossen ist.';
+
+  @override
+  String get sendHttpReaching =>
+      'Wallet der Gegenseite wird erreicht… App geöffnet lassen.';
+
+  @override
+  String get sendDeliveredWaitingBlock => 'Zugestellt · Wartet auf einen Block';
+
+  @override
+  String get sendHttpAddressShape =>
+      'Eine HTTP-Adresse beginnt mit http:// oder https://.';
+
+  @override
+  String get sendPlainHttpTitle => 'Nicht verschlüsselt. Trotzdem senden?';
+
+  @override
+  String get sendPlainHttpBody =>
+      'Unverschlüsseltes HTTP zu einem anderen Gerät. Jeder auf dem Weg kann die Transaktion lesen. Eine https://-Adresse ist verschlüsselt.';
+
+  @override
+  String get sendCancelPossibleWhileWaiting =>
+      'Möglich, solange die Zahlung auf die Gegenseite wartet.';
+
+  @override
+  String get sendHelpAddressKindsQuestion => 'Wie sieht eine Adresse aus?';
+
+  @override
+  String get sendHelpAddressKindsAnswer =>
+      'Eine Epicbox-Adresse beginnt mit es und endet mit @ und dem Server. Eine HTTP-Adresse ist eine Webadresse. Eine Tor-Adresse endet auf .onion.';
+
+  @override
+  String get receiveHelpNoHttp =>
+      'Empfang über HTTP gibt es auf dem Telefon nicht. Absender nutzen die Epicbox- oder Tor-Adresse.';
+
+  @override
+  String get receiveEpicboxCaption =>
+      'Beim Vorlesen die ersten sechs und letzten sechs Zeichen prüfen.';
+
+  @override
+  String get receiveTorCaption =>
+      'Manche Wallets zeigen die Adresse ohne .onion; beides ist dieselbe Adresse.';
+
+  @override
+  String sendHttpNotReached(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other:
+          'Die Wallet der Gegenseite war nicht erreichbar. Der Betrag bleibt zurückgehalten, bis Sie stornieren, höchstens $days Tage.',
+      one: 'Die Wallet der Gegenseite war nicht erreichbar. Der Betrag bleibt zurückgehalten, bis Sie stornieren, höchstens 1 Tag.',
+    );
+    return '$_temp0';
+  }
 }

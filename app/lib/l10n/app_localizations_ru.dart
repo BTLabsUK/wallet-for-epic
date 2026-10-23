@@ -3917,7 +3917,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get torHonestLine =>
-      'Медленнее и приватнее. В некоторых странах заблокирован или не разрешён. Принимает только пока приложение открыто.';
+      'Приём через Tor работает, пока приложение открыто или ненадолго в фоне.';
 
   @override
   String get torStateOff => 'Приём через Tor выключен';
@@ -4495,4 +4495,195 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get invoicesRequestHowTitle => 'Перед запросом';
+
+  @override
+  String get methodEpicbox => 'Epicbox';
+
+  @override
+  String get methodHttp => 'HTTP';
+
+  @override
+  String get methodTor => 'Tor';
+
+  @override
+  String get methodFile => 'Файл';
+
+  @override
+  String get methodArtCaptionEpicbox => 'Её хранит сервер Epicbox';
+
+  @override
+  String get methodArtCaptionHttp => 'Прямо в кошелёк';
+
+  @override
+  String get methodArtCaptionTor => 'Напрямую, через Tor';
+
+  @override
+  String get methodArtCaptionFile => 'Файл туда, ответ обратно';
+
+  @override
+  String get methodArtLabelEpicbox =>
+      'Epicbox: платёж уходит на сервер Epicbox, который хранит его, пока кошелёк получателя не вернётся';
+
+  @override
+  String get methodArtLabelHttp =>
+      'HTTP: платёж идёт прямо в кошелёк получателя, который должен быть открыт';
+
+  @override
+  String get methodArtLabelTor =>
+      'Tor: платёж идёт прямо в кошелёк получателя через сеть Tor';
+
+  @override
+  String get methodArtLabelFile =>
+      'Файл: файл транзакции передаётся, возвращается файл ответа, затем отправитель завершает платёж';
+
+  @override
+  String get methodSendEpicboxTitle => 'Получатель может быть офлайн.';
+
+  @override
+  String get methodSendEpicboxLine =>
+      'Сервер Epicbox хранит платёж, пока получатель не откроет кошелёк.';
+
+  @override
+  String get methodSendHttpTitle => 'Прямо в кошелёк получателя.';
+
+  @override
+  String get methodSendHttpLine =>
+      'Он должен быть открыт и доступен по своему HTTP-адресу.';
+
+  @override
+  String get methodSendTorTitle => 'Прямо в кошелёк получателя, через Tor.';
+
+  @override
+  String get methodSendTorLine =>
+      'Медленнее и приватнее. Кошелёк получателя должен быть открыт.';
+
+  @override
+  String get methodSendFileTitle => 'Соединение не нужно.';
+
+  @override
+  String get methodSendFileLine =>
+      'Передайте файл, получите файл ответа и завершите платёж здесь.';
+
+  @override
+  String get methodReceiveEpicboxTitle =>
+      'Поделитесь им, чтобы получить оплату.';
+
+  @override
+  String get methodReceiveEpicboxLine =>
+      'Работает и при закрытом приложении: сервер Epicbox хранит платежи, пока кошелёк не вернётся.';
+
+  @override
+  String get methodReceiveTorTitle => 'Медленнее и приватнее.';
+
+  @override
+  String get methodReceiveTorLine =>
+      'Работает, только пока приложение открыто или ненадолго в фоне.';
+
+  @override
+  String get methodReceiveFileTitle => 'Передавайте файл туда и обратно.';
+
+  @override
+  String get methodReceiveFileLine =>
+      'Работает без соединения между кошельками.';
+
+  @override
+  String get methodAddressKindsTooltip => 'Виды адресов';
+
+  @override
+  String get sendMethodLabel => 'Способ';
+
+  @override
+  String get sendToLabel => 'Кому';
+
+  @override
+  String get sendToHint => 'Адрес или контакт';
+
+  @override
+  String get sendSwitchedHttp => 'Через HTTP';
+
+  @override
+  String get sendSwitchedEpicbox => 'Через Epicbox';
+
+  @override
+  String get sendSwitchedTorAnnounce => 'Адрес Tor. Выбран способ Tor.';
+
+  @override
+  String get sendSwitchedHttpAnnounce => 'Адрес HTTP. Выбран способ HTTP.';
+
+  @override
+  String get sendSwitchedEpicboxAnnounce =>
+      'Адрес Epicbox. Выбран способ Epicbox.';
+
+  @override
+  String get sendReviewMethodHttp => 'HTTP, прямо в кошелёк';
+
+  @override
+  String get sendCancelRuleEpicbox =>
+      'Можно отменить, пока платёж ждёт получателя.';
+
+  @override
+  String get sendCancelRuleDirect =>
+      'Нельзя отменить после того, как кошелёк получателя его примет.';
+
+  @override
+  String get sendCancelRuleFile =>
+      'Можно отменить, пока файл ответа не завершён.';
+
+  @override
+  String get sendHttpReaching =>
+      'Связь с кошельком получателя… Не закрывайте приложение.';
+
+  @override
+  String get sendDeliveredWaitingBlock => 'Доставлено · Ждёт блок';
+
+  @override
+  String get sendHttpAddressShape =>
+      'HTTP-адрес начинается с http:// или https://.';
+
+  @override
+  String get sendPlainHttpTitle => 'Без шифрования. Всё равно отправить?';
+
+  @override
+  String get sendPlainHttpBody =>
+      'Обычный HTTP к другому устройству. Любой на пути может прочитать транзакцию. Адрес https:// зашифрован.';
+
+  @override
+  String get sendCancelPossibleWhileWaiting =>
+      'Возможно, пока платёж ждёт получателя.';
+
+  @override
+  String get sendHelpAddressKindsQuestion => 'Как выглядит адрес?';
+
+  @override
+  String get sendHelpAddressKindsAnswer =>
+      'Адрес Epicbox начинается с es и заканчивается на @ и сервер. HTTP-адрес — это веб-адрес. Адрес Tor заканчивается на .onion.';
+
+  @override
+  String get receiveHelpNoHttp =>
+      'Приём через HTTP на телефоне недоступен. Отправители используют адрес Epicbox или Tor.';
+
+  @override
+  String get receiveEpicboxCaption =>
+      'Читая его вслух, сверьте первые шесть и последние шесть символов.';
+
+  @override
+  String get receiveTorCaption =>
+      'Некоторые кошельки показывают адрес без .onion; это один и тот же адрес.';
+
+  @override
+  String sendHttpNotReached(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other:
+          'Не удалось связаться с кошельком получателя. Сумма заблокирована, пока вы её не отмените, но не дольше $days дня.',
+      many:
+          'Не удалось связаться с кошельком получателя. Сумма заблокирована, пока вы её не отмените, но не дольше $days дней.',
+      few:
+          'Не удалось связаться с кошельком получателя. Сумма заблокирована, пока вы её не отмените, но не дольше $days дней.',
+      one:
+          'Не удалось связаться с кошельком получателя. Сумма заблокирована, пока вы её не отмените, но не дольше $days дня.',
+    );
+    return '$_temp0';
+  }
 }
