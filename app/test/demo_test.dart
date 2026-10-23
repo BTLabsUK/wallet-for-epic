@@ -768,7 +768,7 @@ void main() {
         await h.tab(tester, l.homeSendButton);
         expect(find.text(l.sendScanButton), present);
         await h.open(tester, const ContactsScreen());
-        await _tap(tester, find.byType(FloatingActionButton));
+        await _tap(tester, find.byTooltip(l.contactsAdd));
         expect(find.byTooltip(l.scanQrTooltip), present);
       });
 
