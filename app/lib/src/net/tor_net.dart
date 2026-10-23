@@ -78,7 +78,7 @@ abstract final class TorNet {
         // No environment proxy either: the factory is the only way out.
         client
           ..findProxy = ((_) => 'DIRECT')
-          ..connectionFactory = socksConnectionFactory(_proxy!, onions: _onions ?? torBuiltInOnion);
+          ..connectionFactory = socksConnectionFactory(_proxy!, onions: _onions ?? torBuiltInOnion, pinnedPlain: torBuiltInOnion);
     }
   }
 }

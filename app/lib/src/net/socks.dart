@@ -298,9 +298,15 @@ typedef OnionLookup = OnionTarget? Function(String host, int port);
 /// host's onion when [onions] knows one, otherwise to the host through an exit. https gets
 /// TLS checked for the URL's own host. Plain http through an exit is refused: nothing leaves
 /// Tor unencrypted except to an onion.
+///
+/// An https or wss URL never loses its certificate check to a list: a plain onion
+/// ([OnionTarget.tls] false) carries it only when [pinnedPlain], the app's own built-in table,
+/// names that same onion for the host. Any other plain onion for such a URL fails the request;
+/// it does not fall back to an exit, which BT Labs' hosts are never reached through.
 Future<ConnectionTask<Socket>> Function(Uri, String?, int?) socksConnectionFactory(
   SocksProxy proxy, {
   OnionLookup? onions,
+  OnionLookup? pinnedPlain,
   Duration timeout = const Duration(seconds: 60),
   bool allowPlainExit = false,
   SecurityContext? context,
@@ -311,6 +317,9 @@ Future<ConnectionTask<Socket>> Function(Uri, String?, int?) socksConnectionFacto
     final target = onions?.call(url.host, port);
     Future<Socket> open() async {
       if (target != null) {
+        if (secure && !target.tls && pinnedPlain?.call(url.host, port) != target) {
+          throw const SocksError('no TLS onion for an https request');
+        }
         return target.tls
             ? socksConnectTls(proxy, target.onion, target.port, tlsHost: url.host, timeout: timeout, context: context)
             : socksConnect(proxy, target.onion, target.port, timeout: timeout);
