@@ -595,9 +595,9 @@ class _TableHead extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Expanded(flex: 11, child: cell(state, TextAlign.start)),
+          Expanded(flex: 13, child: cell(state, TextAlign.start)),
           const SizedBox(width: _cellGap),
-          Expanded(flex: 10, child: cell(value, TextAlign.end)),
+          Expanded(flex: 8, child: cell(value, TextAlign.end)),
           const SizedBox(width: _cellGap),
           SizedBox(
             width: _confWidth,
@@ -649,7 +649,7 @@ class _OutputRow extends StatelessWidget {
         child: Row(
           children: [
             Expanded(
-              flex: 11,
+              flex: 13,
               child: Row(
                 children: [
                   Container(
@@ -669,16 +669,17 @@ class _OutputRow extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisSize: MainAxisSize.min,
                       children: [
+                        // The word wraps ("Awaiting finalization") rather than being cut;
+                        // the note is one line.
                         Text(
                           word,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+                          maxLines: 2,
                           style: theme.textTheme.bodyMedium,
                         ),
                         if (note != null)
                           Text(
                             note!,
-                            maxLines: 2,
+                            maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: theme.textTheme.bodySmall?.copyWith(
                               color: t.dim,
@@ -692,7 +693,7 @@ class _OutputRow extends StatelessWidget {
             ),
             const SizedBox(width: _cellGap),
             Expanded(
-              flex: 10,
+              flex: 8,
               child: FittedBox(
                 fit: BoxFit.scaleDown,
                 alignment: AlignmentDirectional.centerEnd,
