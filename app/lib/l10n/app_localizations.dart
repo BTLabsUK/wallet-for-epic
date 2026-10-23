@@ -2954,16 +2954,16 @@ abstract class AppLocalizations {
   /// **'Checking for updates failed.'**
   String get updateCheckFailed;
 
-  /// Title of the screen that picks the network, the node and the epicbox server.
+  /// Title of the node and Epicbox server screen. Never names a network: a release runs on one.
   ///
   /// In en, this message translates to:
-  /// **'Network settings'**
+  /// **'Node and Epicbox'**
   String get setupTitle;
 
-  /// Tooltip of the icon button on the welcome and unlock screens that opens the network settings.
+  /// Tooltip of the app bar button on first run and unlock that opens the node and Epicbox screen.
   ///
   /// In en, this message translates to:
-  /// **'Network settings'**
+  /// **'Node and Epicbox'**
   String get setupNetworkSettingsTooltip;
 
   /// Heading above the choice of Mainnet, Floonet or Usernet.
@@ -4016,16 +4016,16 @@ abstract class AppLocalizations {
   /// **'Settings'**
   String get settingsTitle;
 
-  /// Section heading in settings.
+  /// Settings section header above the Node and Epicbox row.
   ///
   /// In en, this message translates to:
-  /// **'Network'**
+  /// **'Servers'**
   String get settingsSectionNetwork;
 
-  /// Settings row that opens the network setup. The node is the Epic Cash server the wallet reads the chain from.
+  /// Settings row that opens the node and Epicbox screen; its subtitle is the node host.
   ///
   /// In en, this message translates to:
-  /// **'Network and node'**
+  /// **'Node and Epicbox'**
   String get settingsNetworkAndNode;
 
   /// Under the Network and node row: the network's name and the node's host name.

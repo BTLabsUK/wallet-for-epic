@@ -1346,7 +1346,7 @@ void main() {
       await h.pump(tester);
       await h.unlock(tester);
       await h.openSettings(tester);
-      await _tapText(tester, 'Network and node');
+      await _tapText(tester, 'Node and Epicbox');
       await _reveal(tester, find.text('Epicbox server'));
       expect(find.text('Epicbox server'), findsOneWidget);
       // An empty field offers no use button, so it does not look confirmed.
@@ -1363,6 +1363,10 @@ void main() {
       );
       await tester.tap(find.byTooltip('Use this server'));
       await tester.pumpAndSettle();
+      await _reveal(
+        tester,
+        find.textContaining('Changing the epicbox server changes your address'),
+      );
       expect(
         find.textContaining('Changing the epicbox server changes your address'),
         findsOneWidget,
@@ -1380,8 +1384,10 @@ void main() {
       await h.pump(tester);
       await h.unlock(tester);
       await h.openSettings(tester);
-      await _tapText(tester, 'Network and node');
-      expect(find.text('The real Epic Cash network.'), findsOneWidget);
+      await _tapText(tester, 'Node and Epicbox');
+      // A release names no network: no picker, no description of the chain.
+      expect(find.text('The real Epic Cash network.'), findsNothing);
+      expect(find.text('Mainnet'), findsNothing);
       await _tapText(tester, 'Test connection');
       expect(
         find.text(
@@ -1433,8 +1439,8 @@ void main() {
       // Kept: the connection is for everyone (the status card on Home opens the same
       // pickers), the Home backup reminder points at the exports, and help is for everyone.
       for (final kept in [
-        'Network and node',
-        'Network',
+        'Node and Epicbox',
+        'Servers',
         'Export history backup',
         'Export CSV',
         'Import history backup',
@@ -1449,9 +1455,9 @@ void main() {
       expect(h.store.values['app.advanced'], 'true');
       final on = await settingsTexts(tester);
       for (final shown in [
-        'Network and node',
+        'Node and Epicbox',
         'Rescan the chain',
-        'Network',
+        'Servers',
         'Epicbox server',
       ]) {
         expect(on, contains(shown), reason: shown);
@@ -1470,7 +1476,7 @@ void main() {
         // The network choice shows without Advanced too, so a new install can reach floonet.
         // By its semantics label, as label or icon: network_settings_button_test.dart checks
         // which form shows, with the real faces.
-        expect(find.bySemanticsLabel('Network settings'), findsOneWidget);
+        expect(find.bySemanticsLabel('Node and Epicbox'), findsOneWidget);
         await _tapText(tester, 'I already have a wallet: restore it');
         expect(find.text('Where to start scanning'), findsNothing);
         expect(find.text('Pick the date you created the wallet'), findsNothing);
@@ -1490,7 +1496,7 @@ void main() {
     ) async {
       final h = _Harness(sealed: false, walletExists: false, advanced: true);
       await h.pump(tester);
-      expect(find.bySemanticsLabel('Network settings'), findsOneWidget);
+      expect(find.bySemanticsLabel('Node and Epicbox'), findsOneWidget);
       await _tapText(tester, 'I already have a wallet: restore it');
       expect(find.text('Where to start scanning'), findsOneWidget);
       expect(find.text('Pick the date you created the wallet'), findsOneWidget);

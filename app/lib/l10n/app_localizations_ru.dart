@@ -2159,10 +2159,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get updateCheckFailed => 'Не удалось проверить обновления.';
 
   @override
-  String get setupTitle => 'Настройки сети';
+  String get setupTitle => 'Узел и Epicbox';
 
   @override
-  String get setupNetworkSettingsTooltip => 'Настройки сети';
+  String get setupNetworkSettingsTooltip => 'Узел и Epicbox';
 
   @override
   String get setupNetworkHeading => 'Сеть';
@@ -2867,10 +2867,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get settingsTitle => 'Настройки';
 
   @override
-  String get settingsSectionNetwork => 'Сеть';
+  String get settingsSectionNetwork => 'Серверы';
 
   @override
-  String get settingsNetworkAndNode => 'Сеть и узел';
+  String get settingsNetworkAndNode => 'Узел и Epicbox';
 
   @override
   String settingsNetworkSubtitle(String network, String node) {

@@ -1917,10 +1917,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get updateCheckFailed => '检查更新失败。';
 
   @override
-  String get setupTitle => '网络设置';
+  String get setupTitle => '节点与 Epicbox';
 
   @override
-  String get setupNetworkSettingsTooltip => '网络设置';
+  String get setupNetworkSettingsTooltip => '节点与 Epicbox';
 
   @override
   String get setupNetworkHeading => '网络';
@@ -2570,10 +2570,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get settingsTitle => '设置';
 
   @override
-  String get settingsSectionNetwork => '网络';
+  String get settingsSectionNetwork => '服务器';
 
   @override
-  String get settingsNetworkAndNode => '网络和节点';
+  String get settingsNetworkAndNode => '节点与 Epicbox';
 
   @override
   String settingsNetworkSubtitle(String network, String node) {

@@ -2072,10 +2072,10 @@ class AppLocalizationsDe extends AppLocalizations {
   String get updateCheckFailed => 'Die Suche nach Updates ist fehlgeschlagen.';
 
   @override
-  String get setupTitle => 'Netzwerkeinstellungen';
+  String get setupTitle => 'Node und Epicbox';
 
   @override
-  String get setupNetworkSettingsTooltip => 'Netzwerkeinstellungen';
+  String get setupNetworkSettingsTooltip => 'Node und Epicbox';
 
   @override
   String get setupNetworkHeading => 'Netzwerk';
@@ -2773,10 +2773,10 @@ class AppLocalizationsDe extends AppLocalizations {
   String get settingsTitle => 'Einstellungen';
 
   @override
-  String get settingsSectionNetwork => 'Netzwerk';
+  String get settingsSectionNetwork => 'Server';
 
   @override
-  String get settingsNetworkAndNode => 'Netzwerk und Node';
+  String get settingsNetworkAndNode => 'Node und Epicbox';
 
   @override
   String settingsNetworkSubtitle(String network, String node) {

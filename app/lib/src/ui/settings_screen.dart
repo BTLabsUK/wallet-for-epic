@@ -422,6 +422,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final demo = ref.watch(demoModeProvider);
     final updates = !demo && ref.read(updateProvider.notifier).supported;
     final chain = config == null ? l.commonUnknown : chainName(l, config.chain);
+    final devNetworks = ref.watch(devNetworksProvider);
     // Network, node, relay and rescan are technical; the Display switch shows them.
     final advanced = AdvancedOptions.of(context);
 
@@ -634,15 +635,19 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   ListTile(
                     leading: const Icon(Icons.settings_ethernet),
                     title: Text(l.settingsNetworkAndNode),
-                    subtitle: Text(
-                      network == null
-                          ? chain
-                          : l.settingsNetworkSubtitle(
-                              chain,
-                              Uri.tryParse(network.nodeUrl)?.host ??
-                                  network.nodeUrl,
-                            ),
-                    ),
+                    // The node's host; the network's name only where networks are offered.
+                    subtitle: network == null
+                        ? (devNetworks ? Text(chain) : null)
+                        : Text(
+                            devNetworks
+                                ? l.settingsNetworkSubtitle(
+                                    chain,
+                                    Uri.tryParse(network.nodeUrl)?.host ??
+                                        network.nodeUrl,
+                                  )
+                                : Uri.tryParse(network.nodeUrl)?.host ??
+                                      network.nodeUrl,
+                          ),
                     onTap: () => _push(const SetupScreen()),
                   ),
                 ],
@@ -655,11 +660,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   ),
                 ),
                 if (advanced) ...[
-                  ListTile(
-                    leading: const Icon(Icons.hub),
-                    title: Text(l.settingsAboutNetwork),
-                    subtitle: Text(chain),
-                  ),
+                  if (devNetworks)
+                    ListTile(
+                      leading: const Icon(Icons.hub),
+                      title: Text(l.settingsAboutNetwork),
+                      subtitle: Text(chain),
+                    ),
                   ListTile(
                     leading: const Icon(Icons.dns_outlined),
                     title: Text(l.settingsEpicboxServer),

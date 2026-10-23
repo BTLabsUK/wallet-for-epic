@@ -51,7 +51,6 @@ class _SettingsAboutScreenState extends ConsumerState<SettingsAboutScreen> {
   Widget build(BuildContext context) {
     final c = context.dc;
     final ts = context.ts;
-    final network = ref.watch(deskProvider.select((s) => s.account?.network));
     final node = ref.watch(deskProvider.select((s) => s.status?.node.version));
     Widget linkRow(String title, String shown, String url) => ESetRow(
       title: title,
@@ -85,13 +84,7 @@ class _SettingsAboutScreenState extends ConsumerState<SettingsAboutScreen> {
                         children: [
                           Text('$appName ${withBuildId(withCoreVersion(deskAppVersion))}', style: ts.h3),
                           SizedBox(height: Sp.x1),
-                          Wrap(
-                            spacing: Sp.x4,
-                            children: [
-                              Text('Network  ${network ?? '-'}', style: ts.small),
-                              Text('Node  ${node ?? '-'}', style: ts.small),
-                            ],
-                          ),
+                          Text('Node  ${node ?? '-'}', style: ts.small),
                         ],
                       ),
                     ),
