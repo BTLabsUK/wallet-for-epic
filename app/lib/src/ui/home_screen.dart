@@ -7,7 +7,10 @@ import '../contacts.dart' show contactNameFor, contactsProvider;
 import '../demo.dart';
 import '../errors.dart';
 import '../l10n.dart';
+import '../btlabs_onions.dart';
+import '../net/tor_net.dart';
 import '../phone_tor.dart';
+import '../tor_phone.dart';
 import '../providers.dart';
 import '../push.dart';
 import '../settings.dart';
@@ -418,8 +421,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     });
     // The phone's Tor controller lives as long as the shell: it starts tor on unlock when Tor
     // receiving is on, and keeps it for a send. A listen, not a watch: progress ticks must
-    // not rebuild the shell.
-    ref.listen(phoneTorProvider, (_, _) {});
+    // not rebuild the shell. The app's own requests follow the switch (tor_phone.dart).
+    ref.listen(phoneTorProvider, (_, s) {
+      TorNet.onions = onionLookupOf(ref.read(onionDirectoryProvider));
+      phoneTorFollow(s);
+    });
     ref.listen(shellTabProvider, (_, tab) => _showTab(tab));
     // Once per phase, and per whole percent while downloading.
     ref.listen(

@@ -16,6 +16,11 @@ void main() {
       expect(torCovered, contains(TorRoute.epicbox));
     });
 
+    test('the node and the app\'s own requests go over Tor (E-12)', () {
+      expect(torCovered, containsAll([TorRoute.epicbox, TorRoute.node, TorRoute.appHttp]));
+      expect(torSkipsLocalNode, isTrue);
+    });
+
     test('an onion needs Tor, waits for it and never goes direct', () {
       expect(torWay(TorRoute.onionDirect, TorState.off), TorWay.needsTor);
       expect(torWay(TorRoute.onionDirect, TorState.starting), TorWay.wait);
